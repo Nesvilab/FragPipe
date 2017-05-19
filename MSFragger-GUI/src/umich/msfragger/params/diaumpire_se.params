@@ -1,0 +1,58 @@
+#DIA-Umpire (version 2.0)
+#Data Independent Acquisition data processing and analysis package (Signal extraction module)
+
+#No of threads
+Thread = 6
+
+#Fragment grouping parameter
+RPmax = 25
+RFmax = 300
+CorrThreshold = 0.2
+DeltaApex = 0.6
+RTOverlap = 0.3
+AdjustFragIntensity = true
+BoostComplementaryIon = false
+
+#Report peak
+ExportPrecursorPeak = false
+ExportFragmentPeak = false
+
+#Signal extraction parameters
+SE.MS1PPM = 30
+SE.MS2PPM = 40
+SE.SN = 2
+SE.MS2SN = 2
+SE.MinMSIntensity = 10
+SE.MinMSMSIntensity = 10
+SE.MaxCurveRTRange = 1
+SE.Resolution = 17000
+SE.StartCharge = 2
+SE.EndCharge = 4
+SE.MS2StartCharge = 2
+SE.MS2EndCharge = 4
+SE.NoMissedScan = 1
+SE.MinFrag=10
+SE.EstimateBG = true
+SE.MinNoPeakCluster = 2
+SE.MaxNoPeakCluster = 4
+SE.StartRT = 0
+SE.EndRT = 9999
+SE.MinMZ = 200
+SE.MinPrecursorMass = 700
+SE.MaxPrecursorMass = 5000
+SE.IsoPattern = 0.3
+SE.MassDefectFilter = true
+SE.MassDefectOffset = 0.1
+
+#Isolation window setting
+#The current version supports the following window type: SWATH (fixed window size), V_SWATH (variable SWATH window), MSX, MSE, pSMART
+WindowType=SWATH
+
+#Fix window size (Only for Absciex SWATH data, for Thermo data, you don't need to change anything here.)
+WindowSize=25
+
+#Variable SWATH window setting (start m/z, end m/z, separated by Tab)
+#The setting in this section will be used only if you specified WindowType=V_SWATH.
+==window setting begin
+
+==window setting end
