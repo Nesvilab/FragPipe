@@ -69,6 +69,8 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.java.balloontip.BalloonTip;
+import org.apache.commons.lang3.JavaVersion;
+import org.apache.commons.lang3.SystemUtils;
 import umich.msfragger.Version;
 import umich.msfragger.gui.api.DataConverter;
 import umich.msfragger.gui.api.SimpleETable;
@@ -101,6 +103,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private BalloonTip balloonPhilosopher;
     
     private HashMap<String, BalloonTip> tipMap = new HashMap<>();
+    private static final String TIP_NAME_FRAGGER_JAVA_VER = "msfragger.java.min.ver";
     
     SimpleETable tableRawFiles;
     SimpleUniqueTableModel<Path> tableModelRawFiles;
@@ -136,6 +139,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (!validateMsfraggerPath(textBinMsfragger.getText())) {
             enableMsfraggerPanels(false);
         }
+        
+        validateMsfraggerJavaVersion();
         
         if (validatePhilosopherPath(textBinPhilosopher.getText()) == null) {
             enablePhilosopherPanels(false);
@@ -247,6 +252,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         lblMsfraggerCitation = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         editorMsfraggerCitation = new javax.swing.JEditorPane();
+        lblFraggerJavaVer = new javax.swing.JLabel();
         panelPhilosopherConfig = new javax.swing.JPanel();
         btnPhilosopherBinDownload = new javax.swing.JButton();
         btnPhilosopherBinBrowse = new javax.swing.JButton();
@@ -260,6 +266,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         btnClearCache = new javax.swing.JButton();
         btnLoadDefaultsOpen = new javax.swing.JButton();
         btnLoadDefaultsClosed = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
         panelSelectFiles = new javax.swing.JPanel();
         panelSelectedFiles = new javax.swing.JPanel();
         btnRawAddFiles = new javax.swing.JButton();
@@ -369,6 +376,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(editorMsfraggerCitation);
 
+        lblFraggerJavaVer.setText(getFraggerLableJavaVer());
+
         javax.swing.GroupLayout panelMsfraggerConfigLayout = new javax.swing.GroupLayout(panelMsfraggerConfig);
         panelMsfraggerConfig.setLayout(panelMsfraggerConfigLayout);
         panelMsfraggerConfigLayout.setHorizontalGroup(
@@ -376,6 +385,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelMsfraggerConfigLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelMsfraggerConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lblFraggerJavaVer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane1)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelMsfraggerConfigLayout.createSequentialGroup()
                         .addComponent(textBinMsfragger)
@@ -396,10 +406,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addComponent(textBinMsfragger, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnMsfraggerBinDownload)
                     .addComponent(btnMsfraggerBinBrowse))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblFraggerJavaVer)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblMsfraggerCitation)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 53, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -434,7 +446,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         jLabel3.setText("If provided, philosopher binary will be used for Peptide and Protein Prophets and Report");
 
-        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         jLabel5.setText(createSysInfoPhilosopherText());
 
         jScrollPane3.setBorder(null);
@@ -483,7 +494,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 57, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -500,6 +511,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         lblFindAutomatically.setToolTipText("<html>If you have the tools downloaded somewhere already, you can<br/>\nuse this button to automatically look for them.");
 
         btnClearCache.setText("Clear Cache");
+        btnClearCache.setToolTipText("<html>Forget all the stored text-field information.<br/>\nAfter you relaunch the application everything will reset<br/>\nto default values."); // NOI18N
         btnClearCache.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnClearCacheActionPerformed(evt);
@@ -522,6 +534,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
+        jButton1.setText("About");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelConfigLayout = new javax.swing.GroupLayout(panelConfig);
         panelConfig.setLayout(panelConfigLayout);
         panelConfigLayout.setHorizontalGroup(
@@ -538,7 +557,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 .addComponent(btnLoadDefaultsOpen)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(btnLoadDefaultsClosed)
-                                .addGap(0, 0, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton1))
                             .addGroup(panelConfigLayout.createSequentialGroup()
                                 .addComponent(btnFindTools)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -562,14 +582,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnLoadDefaultsOpen)
-                    .addComponent(btnLoadDefaultsClosed))
+                    .addComponent(btnLoadDefaultsClosed)
+                    .addComponent(jButton1))
                 .addGap(18, 18, 18)
                 .addComponent(panelMsfraggerConfig, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelPhilosopherConfig, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(panelPhilosopherConfig, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(17, 17, 17)
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(111, Short.MAX_VALUE))
+                .addContainerGap(91, Short.MAX_VALUE))
         );
 
         tabPane.addTab("Config", null, panelConfig, "Set up paths to tools");
@@ -1135,14 +1156,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">"
             + "MSFragger - Ultrafast Proteomics Search Engine<br/>"
             + "GUI Wrapper (" + Version.getVersion() + ")<br/>"
+            + "Dmitry Avtonomov<br/>"
             + "University of Michigan, 2017<br/>"
             + "<a href=\"http://nesvilab.org/\">Alexey Nesvizhskii lab</a><br/>&nbsp;<br/>&nbsp;"
-            //                + "MSFragger authors and contributors:<br/>"
-            //                + "<ul>"
-            //                + "<li>Andy Kong</li>"
-            //                + "<li>Dmitry Avtonomov</li>"
-            //                + "<li>Alexey Nesvizhskii</li>"
-            //                + "</ul>"
+                            + "MSFragger authors and contributors:<br/>"
+                            + "<ul>"
+                            + "<li>Andy Kong</li>"
+                            + "<li>Dmitry Avtonomov</li>"
+                            + "<li>Alexey Nesvizhskii</li>"
+                            + "</ul>"
             + "<a href=\"http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html\">Original MSFragger paper link</a><br/>"
             + "Reference: <b>doi:10.1038/nmeth.4256</b>"
             + "</body></html>");
@@ -1446,12 +1468,31 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             balloonMsfragger = null;
         }
         if (!isValid) {
-            balloonMsfragger = new BalloonTip(textBinMsfragger, "Could not find MSFragger jar file at this location\n."
+            balloonMsfragger = new BalloonTip(textBinMsfragger, "<html>Could not find MSFragger jar file at this location\n<br/>."
                     + "Corresponding panel won't be active");
             balloonMsfragger.setVisible(true);
         }
         enableMsfraggerPanels(isValid);
         
+        return isValid;
+    }
+    
+    private boolean validateMsfraggerJavaVersion() {
+        final boolean isValid = SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (!isValid) {
+                    BalloonTip tip = tipMap.get(TIP_NAME_FRAGGER_JAVA_VER);
+                    if (tip != null) {
+                        tip.closeBalloon();
+                        tipMap.remove(TIP_NAME_FRAGGER_JAVA_VER);
+                    }
+                    tip = new BalloonTip(lblFraggerJavaVer, "Msfragger requires at least Java 1.8.\n");
+                    tip.setVisible(true);
+                }
+            }
+        });
         return isValid;
     }
     
@@ -1955,6 +1996,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         validateAndSaveReportFilter();
     }//GEN-LAST:event_textReportFilterFocusLost
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        btnAboutActionPerformed(null);
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     public void loadLastPeptideProphet() {
         String val = ThisAppProps.load(ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET);
         if (val != null) {
@@ -1997,6 +2042,27 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             val = "";
         }
         return val;
+    }
+
+    private String getFraggerLableJavaVer() {
+        List<String> propNames = Arrays.asList(
+                "java.version",
+                "java.vm.name",
+                "java.vm.vendor"
+        );
+        StringBuilder sb = new StringBuilder("Java Info: ");
+        for (int i = 0; i < propNames.size(); i++) {
+            String p = propNames.get(i);
+            String val = System.getProperty(p);
+            if (!StringUtils.isNullOrWhitespace(val)) {
+                sb.append(val);
+            }
+            if (i < propNames.size() - 1) {
+                sb.append(", ");
+            }
+        }
+        
+        return sb.toString();
     }
     
     public enum SearchTypeProp {open, closed}
@@ -3343,6 +3409,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane consoleScrollPane;
     private javax.swing.JEditorPane editorMsfraggerCitation;
     private javax.swing.JEditorPane editorPhilosopherLink;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -3358,6 +3425,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JLabel lblFindAutomatically;
+    private javax.swing.JLabel lblFraggerJavaVer;
     private javax.swing.JLabel lblMsfraggerCitation;
     private javax.swing.JLabel lblOutputDir;
     private javax.swing.JPanel panelConfig;
