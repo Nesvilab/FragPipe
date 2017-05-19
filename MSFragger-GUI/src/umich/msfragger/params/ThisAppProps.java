@@ -25,11 +25,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JTextField;
-import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PathUtils;
 
 public class ThisAppProps extends Properties {
@@ -46,6 +43,10 @@ public class ThisAppProps extends Properties {
     public static final String PROP_BIN_PATH_MSFRAGGER = "path.textfield.msfragger";
     public static final String PROP_BIN_PATH_PHILOSOPHER = "path.textfield.peptide-prophet";
     public static final String PROP_TEXTFIELD_PATH_PROTEIN_PROPHET = "path.textfield.protein-prophet";
+    public static final String PROP_TEXTFIELD_REPORT_FILTER = "textfield.report.filter";
+    
+    public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
+    public static final String PROP_TEXT_CMD_PROTEIN_PROPHET = "proteinprophet.cmd.line.opts";
 
     public static void clearCache() {
         ThisAppProps thisAppProps = new ThisAppProps();

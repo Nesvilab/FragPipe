@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -69,16 +70,24 @@ public class FraggerPanel extends javax.swing.JPanel {
     
     public static FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf)", "mzml", "mzxml", "mgf");
     
+    private BalloonTip dbPathTip = null;
+    WeakReference<MsfraggerGuiFrame> frame = null;
     
     /**
      * Creates new form FraggerPanel
+     * @param frame The frame this panel is added to. This is just a kludge as
+     * the whole application is just one large mess of a java swing form.
      */
-    public FraggerPanel() {
+    public FraggerPanel(MsfraggerGuiFrame frame) {
         initComponents();
+        this.frame = new WeakReference<>(frame);
         initMore();
     }
 
     private void initMore() {
+        
+        
+        
         updateRowHeights(tableVarMods);
         tableVarMods.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
         tableVarMods.setFillsViewportHeight(true);
@@ -1349,20 +1358,35 @@ public class FraggerPanel extends javax.swing.JPanel {
 
     private void btnMsfraggerDefaultsOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMsfraggerDefaultsOpenActionPerformed
         int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
-            "Are you sure you want to load defaults\f"
-                    + "for open search?\n"
+            "Are you sure you want to load defaults for open search?\n"
                     + "It's a search with large precursor mass tolerance\n"
                     + "usually used to identify PTMs.", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
         if (JOptionPane.OK_OPTION == confirmation) {
-            try {
-                params.loadDefaults();
-                fillFormFromParams(params);
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, "Could not load defaults", "Error", JOptionPane.ERROR_MESSAGE);
+            loadDefaultsOpen();
+            
+            MsfraggerGuiFrame f = frame.get();
+            if (f != null) {
+                int confirmProphets = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
+                "Loaded MSFragger defaults for 'Open' search.\n"
+                        + "Would you like to update Prophets' options as well?\n"
+                        + "(Highly recommended, unless you're sure what you're doing)", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
+                if (JOptionPane.OK_OPTION == confirmProphets) {
+                    f.loadDefaultsPeptideProphet(MsfraggerGuiFrame.SearchTypeProp.open);
+                    f.loadDefaultsProteinProphet(MsfraggerGuiFrame.SearchTypeProp.open);
+                }
             }
         }
     }//GEN-LAST:event_btnMsfraggerDefaultsOpenActionPerformed
 
+    public void loadDefaultsOpen() {
+        try {
+            params.loadDefaults();
+            fillFormFromParams(params);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "Could not load MSFragger Open Search defaults", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
     private void textEnzymeNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textEnzymeNameActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_textEnzymeNameActionPerformed
@@ -1408,24 +1432,42 @@ public class FraggerPanel extends javax.swing.JPanel {
                 ThisAppProps.save(ThisAppProps.PROP_DB_FILE_IN, f.getAbsolutePath());
             break;
         }
+        validateFraggerDbPath();
     }//GEN-LAST:event_btnSelectMsfraggerDbActionPerformed
 
-    private void textFraggerDbFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textFraggerDbFocusLost
-        String text = textMsfraggerDb.getText().trim();
-        if (StringUtils.isNullOrWhitespace(text)) {
-            BalloonTip myBalloonTip = new BalloonTip(textMsfraggerDb, "Can't be left empty!");
-            return;
-        }
+    private void validateFraggerDbPath() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (dbPathTip != null) {
+                    dbPathTip.closeBalloon();
+                    dbPathTip = null;
+                }
+                
+                String text = textMsfraggerDb.getText().trim();
+                if (StringUtils.isNullOrWhitespace(text)) {
+                    dbPathTip = new BalloonTip(textMsfraggerDb, "Can't be left empty!");
+                    dbPathTip.setVisible(true);
+                    return;
+                }
 
-        Path path = Paths.get(text);
-        if (!Files.exists(path)) {
-            BalloonTip myBalloonTip = new BalloonTip(textMsfraggerDb, "File does not exist!");
-            return;
-        }
-        if (Files.isDirectory(path)) {
-            BalloonTip myBalloonTip = new BalloonTip(textMsfraggerDb, "Should not be a directory!");
-            return;
-        }
+                Path path = Paths.get(text);
+                if (!Files.exists(path)) {
+                    dbPathTip = new BalloonTip(textMsfraggerDb, "File does not exist!");
+                    dbPathTip.setVisible(true);
+                    return;
+                }
+                if (Files.isDirectory(path)) {
+                    dbPathTip = new BalloonTip(textMsfraggerDb, "Should not be a directory!");
+                    dbPathTip.setVisible(true);
+                    return;
+                }
+            }
+        });
+    }
+    
+    private void textFraggerDbFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textFraggerDbFocusLost
+        validateFraggerDbPath();
     }//GEN-LAST:event_textFraggerDbFocusLost
 
     private void comboFragMassTolActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboFragMassTolActionPerformed
@@ -1434,19 +1476,33 @@ public class FraggerPanel extends javax.swing.JPanel {
 
     private void btnMsfraggerDefaultsClosedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMsfraggerDefaultsClosedActionPerformed
         int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
-            "Are you sure you want to load defaults\n"
-                    + "for 'closed' search?\n"
+            "Are you sure you want to load defaults for 'closed' search?\n"
                     + "It's a standard search with tight mass tolerances.", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
         if (JOptionPane.OK_OPTION == confirmation) {
-            try {
-                params.loadDefaultsClosedSearch();
-                fillFormFromParams(params);
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, "Could not load defaults", "Error", JOptionPane.ERROR_MESSAGE);
+            loadDefaultsClosed();
+            
+            MsfraggerGuiFrame f = frame.get();
+            if (f != null) {
+                int confirmProphets = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
+                "Loaded MSFragger defaults for 'Closed' search.\n"
+                        + "Would you like to update Prophets' options as well?\n"
+                        + "(Highly recommended, unless you're sure what you're doing)", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
+                if (JOptionPane.OK_OPTION == confirmProphets) {
+                    f.loadDefaultsPeptideProphet(MsfraggerGuiFrame.SearchTypeProp.closed);
+                    f.loadDefaultsProteinProphet(MsfraggerGuiFrame.SearchTypeProp.closed);
+                }
             }
         }
     }//GEN-LAST:event_btnMsfraggerDefaultsClosedActionPerformed
 
+    public void loadDefaultsClosed() {
+        try {
+            params.loadDefaultsClosedSearch();
+            fillFormFromParams(params);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "Could not load MSFragger Closed Search defaults", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     
     public static PlainDocument getFilterIsotopeCorrection() {
         final String filteredCharsRegex = "[^\\-\\d/]";
