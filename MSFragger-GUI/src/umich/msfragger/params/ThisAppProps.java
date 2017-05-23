@@ -43,7 +43,7 @@ public class ThisAppProps extends Properties {
     public static final String PROP_BIN_PATH_MSFRAGGER = "path.textfield.msfragger";
     public static final String PROP_BIN_PATH_PHILOSOPHER = "path.textfield.peptide-prophet";
     public static final String PROP_TEXTFIELD_PATH_PROTEIN_PROPHET = "path.textfield.protein-prophet";
-    public static final String PROP_TEXTFIELD_REPORT_FILTER = "textfield.report.filter";
+    public static final String PROP_TEXTFIELD_REPORT_FILTER = "report.filter";
     
     public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
     public static final String PROP_TEXT_CMD_PROTEIN_PROPHET = "proteinprophet.cmd.line.opts";

@@ -20,7 +20,7 @@ package umich.msfragger;
  * @author Dmitry Avtonomov
  */
 public class Version {
-    public static final String version = "v2.1";
+    public static final String version = "v2.2";
 
     public static String getVersion() {
         return version;

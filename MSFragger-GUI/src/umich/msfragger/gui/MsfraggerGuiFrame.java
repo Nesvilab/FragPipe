@@ -108,6 +108,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     SimpleETable tableRawFiles;
     SimpleUniqueTableModel<Path> tableModelRawFiles;
     FileDrop tableRawFilesFileDrop;
+    
+    public static final SearchTypeProp DEFAULT_TYPE = SearchTypeProp.open;
 
     /**
      * Creates new form UmpireUnargetedDbSearchPanel
@@ -311,6 +313,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         checkReportFilter = new javax.swing.JCheckBox();
         textReportFilter = new javax.swing.JTextField();
         checkCreateReport = new javax.swing.JCheckBox();
+        btnReportDefaultsClosed = new javax.swing.JButton();
+        btnReportDefaultsOpen = new javax.swing.JButton();
         panelRun = new javax.swing.JPanel();
         btnStop = new javax.swing.JButton();
         btnClearConsole = new javax.swing.JButton();
@@ -955,7 +959,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         checkReportFilter.setSelected(true);
         checkReportFilter.setText("Filter");
 
-        textReportFilter.setText(getDefaultTextReportFilter());
         textReportFilter.setToolTipText("<html>Additional flags for Philosopher<br/>\n--pepxml path-to-pepxml --protxml path-to-combined-protxml<br/>\nwill be added automatically based on previous tabs.");
         textReportFilter.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
@@ -974,7 +977,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addComponent(checkReportDbAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(textReportDbAnnotate)
+                    .addComponent(textReportDbAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE, 461, Short.MAX_VALUE)
                     .addComponent(textReportFilter))
                 .addContainerGap())
         );
@@ -992,9 +995,25 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        loadLastReportFilter();
+
         checkCreateReport.setSelected(true);
         checkCreateReport.setText("Create report");
         checkCreateReport.setToolTipText("<html>Create tab separated report files with \nsome statistics about search results.");
+
+        btnReportDefaultsClosed.setText("Defaults Closed Search");
+        btnReportDefaultsClosed.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReportDefaultsClosedActionPerformed(evt);
+            }
+        });
+
+        btnReportDefaultsOpen.setText("Defaults Open Search");
+        btnReportDefaultsOpen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReportDefaultsOpenActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelReportLayout = new javax.swing.GroupLayout(panelReport);
         panelReport.setLayout(panelReportLayout);
@@ -1005,7 +1024,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addGroup(panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelReportLayout.createSequentialGroup()
                         .addComponent(checkCreateReport)
-                        .addGap(0, 531, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnReportDefaultsOpen)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnReportDefaultsClosed))
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -1013,10 +1035,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelReportLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(checkCreateReport)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(checkCreateReport)
+                    .addGroup(panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnReportDefaultsClosed)
+                        .addComponent(btnReportDefaultsOpen)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(439, Short.MAX_VALUE))
+                .addContainerGap(436, Short.MAX_VALUE))
         );
 
         tabPane.addTab("Report", null, panelReport, "");
@@ -1945,11 +1971,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             "Are you sure you want to load defaults for open search?\n"
                     + "It's a search with large precursor mass tolerance\n"
                     + "usually used to identify PTMs.\n"
-                    + "Will update parameters for MSFragger and both Prophets.", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
+                    + "Will update parameters for MSFragger, both Prophets\n"
+                    + "and Report Filter.", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
         if (JOptionPane.OK_OPTION == confirmation) {
             fraggerPanel.loadDefaultsOpen();
-            loadDefaultsPeptideProphet(MsfraggerGuiFrame.SearchTypeProp.open);
-            loadDefaultsProteinProphet(MsfraggerGuiFrame.SearchTypeProp.open);
+            MsfraggerGuiFrame.SearchTypeProp type = MsfraggerGuiFrame.SearchTypeProp.open;
+            loadDefaultsPeptideProphet(type);
+            loadDefaultsProteinProphet(type);
+            loadDefaultsReportFilter(type);
         }
     }//GEN-LAST:event_btnLoadDefaultsOpenActionPerformed
 
@@ -1958,11 +1987,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             "Are you sure you want to load defaults for open search?\n"
                     + "It's a search with large precursor mass tolerance\n"
                     + "usually used to identify PTMs.\n"
-                    + "Will update parameters for MSFragger and both Prophets.", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
+                    + "Will update parameters for MSFragger, both Prophets\n"
+                    + "and Report Filter.", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
         if (JOptionPane.OK_OPTION == confirmation) {
             fraggerPanel.loadDefaultsClosed();
-            loadDefaultsPeptideProphet(MsfraggerGuiFrame.SearchTypeProp.closed);
-            loadDefaultsProteinProphet(MsfraggerGuiFrame.SearchTypeProp.closed);
+            MsfraggerGuiFrame.SearchTypeProp type = MsfraggerGuiFrame.SearchTypeProp.closed;
+            loadDefaultsPeptideProphet(type);
+            loadDefaultsProteinProphet(type);
+            loadDefaultsReportFilter(type);
         }
     }//GEN-LAST:event_btnLoadDefaultsClosedActionPerformed
 
@@ -2000,6 +2032,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         btnAboutActionPerformed(null);
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void btnReportDefaultsClosedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportDefaultsClosedActionPerformed
+        loadDefaultsReportFilter(SearchTypeProp.closed);
+    }//GEN-LAST:event_btnReportDefaultsClosedActionPerformed
+
+    private void btnReportDefaultsOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportDefaultsOpenActionPerformed
+        loadDefaultsReportFilter(SearchTypeProp.open);
+    }//GEN-LAST:event_btnReportDefaultsOpenActionPerformed
+
     public void loadLastPeptideProphet() {
         String val = ThisAppProps.load(ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET);
         if (val != null) {
@@ -2035,13 +2075,23 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         txtProteinProphetCmdLineOpts.setText(val);
         ThisAppProps.save(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, val);
     }
-
-    private String getDefaultTextReportFilter() {
+    
+    private void loadLastReportFilter() {
         String val = ThisAppProps.load(ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER);
-        if (StringUtils.isNullOrWhitespace(val)) {
-            val = "";
+        if (val != null) {
+            textReportFilter.setText(val);
+        } else {
+            loadDefaultsReportFilter(SearchTypeProp.open);
         }
-        return val;
+    }
+    
+    private void loadDefaultsReportFilter(SearchTypeProp type) {
+        final String prop = ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER + "." + type.name();
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("umich/msfragger/gui/Bundle"); // NOI18N        
+        String val = bundle.getString(prop);
+        
+        textReportFilter.setText(val);
+        ThisAppProps.save(ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER, val);
     }
 
     private String getFraggerLableJavaVer() {
@@ -2064,7 +2114,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         
         return sb.toString();
     }
-    
+
     public enum SearchTypeProp {open, closed}
     
     private boolean validateAndSavePhilosopherPath(String path) {
@@ -3395,6 +3445,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnRawAddFolder;
     private javax.swing.JButton btnRawClear;
     private javax.swing.JButton btnRawRemove;
+    private javax.swing.JButton btnReportDefaultsClosed;
+    private javax.swing.JButton btnReportDefaultsOpen;
     private javax.swing.JButton btnRun;
     private javax.swing.JButton btnSelectPeptideProphetSeqDbPath;
     private javax.swing.JButton btnSelectWrkingDir;

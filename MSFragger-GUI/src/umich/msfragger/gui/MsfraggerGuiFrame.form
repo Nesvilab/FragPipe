@@ -1019,7 +1019,10 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
                               <Component id="checkCreateReport" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="531" max="32767" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
+                              <Component id="btnReportDefaultsOpen" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="btnReportDefaultsClosed" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Component id="jPanel1" max="32767" attributes="0"/>
                       </Group>
@@ -1031,10 +1034,16 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="checkCreateReport" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="checkCreateReport" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                              <Component id="btnReportDefaultsClosed" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnReportDefaultsOpen" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="439" max="32767" attributes="0"/>
+                      <EmptySpace pref="436" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1060,7 +1069,7 @@
                           </Group>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="textReportDbAnnotate" max="32767" attributes="0"/>
+                              <Component id="textReportDbAnnotate" pref="461" max="32767" attributes="0"/>
                               <Component id="textReportFilter" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -1108,14 +1117,14 @@
                 </Component>
                 <Component class="javax.swing.JTextField" name="textReportFilter">
                   <Properties>
-                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="getDefaultTextReportFilter()" type="code"/>
-                    </Property>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Additional flags for Philosopher&lt;br/&gt;&#xa;--pepxml path-to-pepxml --protxml path-to-combined-protxml&lt;br/&gt;&#xa;will be added automatically based on previous tabs."/>
                   </Properties>
                   <Events>
                     <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportFilterFocusLost"/>
                   </Events>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastReportFilter();"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>
@@ -1125,6 +1134,22 @@
                 <Property name="text" type="java.lang.String" value="Create report"/>
                 <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Create tab separated report files with &#xa;some statistics about search results."/>
               </Properties>
+            </Component>
+            <Component class="javax.swing.JButton" name="btnReportDefaultsClosed">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Defaults Closed Search"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReportDefaultsClosedActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="btnReportDefaultsOpen">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Defaults Open Search"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReportDefaultsOpenActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
