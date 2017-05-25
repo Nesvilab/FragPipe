@@ -121,7 +121,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     private void initMore() {
         
-        setTitle("MSFragger GUI (" + Version.getVersion() + ")");
+        setTitle("MSFragger GUI (v" + Version.getVersion() + ")");
     
         console = new TextConsole();
         consoleScrollPane.setViewportView(console);
@@ -1181,7 +1181,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">"
             + "MSFragger - Ultrafast Proteomics Search Engine<br/>"
-            + "GUI Wrapper (" + Version.getVersion() + ")<br/>"
+            + "GUI Wrapper (v" + Version.getVersion() + ")<br/>"
             + "Dmitry Avtonomov<br/>"
             + "University of Michigan, 2017<br/>"
             + "<a href=\"http://nesvilab.org/\">Alexey Nesvizhskii lab</a><br/>&nbsp;<br/>&nbsp;"

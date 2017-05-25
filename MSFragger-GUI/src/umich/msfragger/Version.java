@@ -15,15 +15,26 @@
  */
 package umich.msfragger;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Dmitry Avtonomov
  */
 public class Version {
-    public static final String version = "v2.2";
-
+    public static final String PROP_VER = "msfragger.gui.version";
+    public static final String VERSION = "2.3";
+    
     public static String getVersion() {
-        return version;
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("umich/msfragger/gui/Bundle"); // NOI18N
+        String val = bundle.getString(PROP_VER);
+        if (!VERSION.equals(val)) {
+            JOptionPane.showMessageDialog(null, String.format(
+                    "Version in the bundle (%s) doesn't match hardcoded value (%s).\n"
+                            + "Have you modified MSFragger-GUI.jar/umich/msfragger/gui/Bundle.properties?", val, VERSION), 
+                    "Version mismatch", JOptionPane.WARNING_MESSAGE);
+        }
+        return VERSION;
     }
     
     

@@ -80,6 +80,8 @@
         <property name="store.dir" value="dist"/>
         <property name="temp.dir" value="temp"/>
         <property name="store.jar" value="${store.dir}/${store.jar.name}.jar"/>
+        <property file="src/umich/msfragger/gui/Bundle.properties"/>
+        <property name="store.zip" value="${store.dir}/${store.jar.name}_v${msfragger.gui.version}.zip"/>
 
         <echo message="Packaging ${application.title} into a single JAR at ${store.jar}"/>
 
@@ -104,6 +106,11 @@
 
         <delete dir="${temp.dir}"/>
 
+        <zip destfile="${store.zip}">
+            <fileset dir="${store.dir}" includes="*.jar"/>
+            <fileset dir="start-scripts"/>
+        </zip>
+        
     </target>
     
 </project>
