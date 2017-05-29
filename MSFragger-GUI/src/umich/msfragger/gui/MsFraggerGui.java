@@ -15,16 +15,6 @@ public class MsFraggerGui {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-//        UmpireUnargetedDbSearchFrame frame = new UmpireUnargetedDbSearchFrame();
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        frame.pack();
-//        EventQueue.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                frame.setVisible(true);
-//            }
-//        });
-
         MsfraggerGuiFrame.main(args);
     }
     

@@ -22,10 +22,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 /**
- * This exists for a single purpose: when we create ProcessBuilders for running
- * Umpire from GUI, UmpireSE generated stuff must be moved to the working
- * directory. To not be dependent on system's copy/move commands, we have this
- * convenience class.
+ * Usage: <code>java -cp path-to-jar umich.msfragger.util.FileMove path-from path-to</code>.<br/>
+ * To independent from system's copy/move commands, we have this convenience class.
  *
  * @author Dmitry Avtonomov
  */

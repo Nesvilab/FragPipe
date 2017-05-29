@@ -111,9 +111,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     
     public static final SearchTypeProp DEFAULT_TYPE = SearchTypeProp.open;
 
-    /**
-     * Creates new form UmpireUnargetedDbSearchPanel
-     */
     public MsfraggerGuiFrame() {
         initComponents();
         initMore();
@@ -1063,7 +1060,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         });
 
         lblOutputDir.setText("Output dir");
-        lblOutputDir.setToolTipText("<html>All the output will be placed into this directory.<br/>\nUmpire-SE always generates output near mzXML files, <br/>\nif you stop processing early, then these files might not have been<br/>\nmoved to the Output Dir yet. For this case there is a button<br/>\non \"DIA-Umpire SE\" tab to Clean Up the generated files."); // NOI18N
+        lblOutputDir.setToolTipText("<html>All the output will be placed into this directory.<br/>\nSome of the tools might produce output side by side with<br/>\noriginal input files, and if you Stop processing prematurely,<br/>\nthose intermediate files might have not been moved/deleted yet.<br/>"); // NOI18N
 
         btnSelectWrkingDir.setText("Browse");
         btnSelectWrkingDir.addActionListener(new java.awt.event.ActionListener() {
@@ -2230,27 +2227,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         return indexOf >= 0 ? name.substring(0, indexOf) : name;
     }
     
-    /**
-     * @param path Path to lcms file
-     * @return file paths resolved using lcmsFilePath's parent
-     */
-    private UmpireGarbageFiles getUmpireSeGarbageFiles(Path lcmsFilePath) {
-        UmpireGarbageFiles umpireGarbageFiles = new UmpireGarbageFiles();
-        String fileNameLessSuffix = getFileNameLessSuffix(lcmsFilePath, ".mzxml");
-        Path fileOriginDir = lcmsFilePath.getParent();
-        
-        for (String fileToMove : UmpireGarbageFiles.filesToMove) {
-            umpireGarbageFiles.toMove.add(fileOriginDir.resolve(fileToMove).toString());
-        }
-        
-        for (String suffix : UmpireGarbageFiles.fileNameSuffixesToMove) {
-            String filenameToMove = fileNameLessSuffix + suffix;
-            String file = fileOriginDir.resolve(filenameToMove).toString();
-            umpireGarbageFiles.toMove.add(file);
-        }
-        return umpireGarbageFiles;
-    }
-
     private String getPhilosopherCitationHtml() {
         // for copying style
         Font font = lblMsfraggerCitation.getFont();

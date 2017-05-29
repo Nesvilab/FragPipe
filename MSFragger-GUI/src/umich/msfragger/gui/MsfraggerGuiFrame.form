@@ -1244,7 +1244,7 @@
             <Component class="javax.swing.JLabel" name="lblOutputDir">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Output dir"/>
-                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;All the output will be placed into this directory.&lt;br/&gt;&#xa;Umpire-SE always generates output near mzXML files, &lt;br/&gt;&#xa;if you stop processing early, then these files might not have been&lt;br/&gt;&#xa;moved to the Output Dir yet. For this case there is a button&lt;br/&gt;&#xa;on &quot;DIA-Umpire SE&quot; tab to Clean Up the generated files." noResource="true"/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;All the output will be placed into this directory.&lt;br/&gt;&#xa;Some of the tools might produce output side by side with&lt;br/&gt;&#xa;original input files, and if you Stop processing prematurely,&lt;br/&gt;&#xa;those intermediate files might have not been moved/deleted yet.&lt;br/&gt;" noResource="true"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JButton" name="btnSelectWrkingDir">
