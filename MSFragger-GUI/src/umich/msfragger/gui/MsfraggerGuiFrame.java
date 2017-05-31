@@ -2772,7 +2772,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             if (isPhilosopher) {
                 List<String> cmd = new ArrayList<>();
                 cmd.add(bin);
-                cmd.add("init");
+                cmd.add("workspace");
+                cmd.add("--init");
                 ProcessBuilder pb = new ProcessBuilder(cmd);
                 builders.add(pb);
             }
@@ -2824,7 +2825,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             if (isPhilosopher) {
                 List<String> cmd = new ArrayList<>();
                 cmd.add(bin);
-                cmd.add("clean");
+                cmd.add("workspace");
+                cmd.add("--clean");
                 ProcessBuilder pb = new ProcessBuilder(cmd);
                 builders.add(pb);
             }
@@ -2884,7 +2886,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             if (isPhilosopher) {
                 List<String> cmd = new ArrayList<>();
                 cmd.add(bin);
-                cmd.add("init");
+                cmd.add("workspace");
+                cmd.add("--init");
                 builders.add(new ProcessBuilder(cmd));
             }
             
@@ -3057,7 +3060,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             if (isPhilosopher) {
                 List<String> cmd = new ArrayList<>();
                 cmd.add(bin);
-                cmd.add("clean");
+                cmd.add("workspace");
+                cmd.add("--clean");
                 ProcessBuilder pb = new ProcessBuilder(cmd);
                 builders.add(pb);
             }
@@ -3112,7 +3116,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             if (isPhilosopher) {
                 List<String> cmd = new ArrayList<>();
                 cmd.add(bin);
-                cmd.add("init");
+                cmd.add("workspace");
+                cmd.add("--init");
                 builders.add(new ProcessBuilder(cmd));
             }
             
@@ -3168,7 +3173,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             if (isPhilosopher) {
                 List<String> cmd = new ArrayList<>();
                 cmd.add(bin);
-                cmd.add("clean");
+                cmd.add("workspace");
+                cmd.add("--clean");
                 ProcessBuilder pb = new ProcessBuilder(cmd);
                 builders.add(pb);
             }
