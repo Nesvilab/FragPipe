@@ -1043,7 +1043,7 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="436" max="32767" attributes="0"/>
+                      <EmptySpace pref="415" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1061,16 +1061,24 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
+                      <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                              <Component id="checkReportFilter" max="32767" attributes="0"/>
-                              <Component id="checkReportDbAnnotate" max="32767" attributes="0"/>
-                          </Group>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="textReportDbAnnotate" pref="461" max="32767" attributes="0"/>
-                              <Component id="textReportFilter" max="32767" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                      <Component id="checkReportFilter" max="32767" attributes="0"/>
+                                      <Component id="checkReportDbAnnotate" max="32767" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="textReportDbAnnotate" pref="461" max="32767" attributes="0"/>
+                                      <Component id="textReportFilter" max="32767" attributes="0"/>
+                                  </Group>
+                              </Group>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Component id="checkReportProteinLevelFdr" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                              </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -1089,6 +1097,8 @@
                               <Component id="checkReportFilter" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="textReportFilter" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="checkReportProteinLevelFdr" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
@@ -1124,6 +1134,19 @@
                   </Events>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastReportFilter();"/>
+                  </AuxValues>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="checkReportProteinLevelFdr">
+                  <Properties>
+                    <Property name="selected" type="boolean" value="true"/>
+                    <Property name="text" type="java.lang.String" value="Report Protein level FDR"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Which FDR (False Discovery Rate) level to use:&#xa;&lt;ul&gt;&#xa;  &lt;li&gt;Checked - Protein level FDR&lt;/li&gt;&#xa;  &lt;li&gt;Unchecked - Peptide level FDR&lt;/li&gt;&#xa;&lt;/ul&gt;"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="checkReportProteinLevelFdrStateChanged"/>
+                  </Events>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastReportProteinLevelFdr();"/>
                   </AuxValues>
                 </Component>
               </SubComponents>

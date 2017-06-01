@@ -309,6 +309,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         ghostTextPepProph = new GhostText(textReportDbAnnotate, TEXT_SAME_SEQ_DB, defTextColor);
         checkReportFilter = new javax.swing.JCheckBox();
         textReportFilter = new javax.swing.JTextField();
+        checkReportProteinLevelFdr = new javax.swing.JCheckBox();
         checkCreateReport = new javax.swing.JCheckBox();
         btnReportDefaultsClosed = new javax.swing.JButton();
         btnReportDefaultsOpen = new javax.swing.JButton();
@@ -963,19 +964,33 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
+        checkReportProteinLevelFdr.setSelected(true);
+        checkReportProteinLevelFdr.setText("Report Protein level FDR");
+        checkReportProteinLevelFdr.setToolTipText("<html>Which FDR (False Discovery Rate) level to use:\n<ul>\n  <li>Checked - Protein level FDR</li>\n  <li>Unchecked - Peptide level FDR</li>\n</ul>");
+        checkReportProteinLevelFdr.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                checkReportProteinLevelFdrStateChanged(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(checkReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(checkReportDbAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(textReportDbAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE, 461, Short.MAX_VALUE)
-                    .addComponent(textReportFilter))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(checkReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(checkReportDbAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(textReportDbAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE, 461, Short.MAX_VALUE)
+                            .addComponent(textReportFilter)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(checkReportProteinLevelFdr)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -989,10 +1004,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(checkReportFilter)
                     .addComponent(textReportFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(checkReportProteinLevelFdr)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         loadLastReportFilter();
+        loadLastReportProteinLevelFdr();
 
         checkCreateReport.setSelected(true);
         checkCreateReport.setText("Create report");
@@ -1039,7 +1057,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         .addComponent(btnReportDefaultsOpen)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(436, Short.MAX_VALUE))
+                .addContainerGap(415, Short.MAX_VALUE))
         );
 
         tabPane.addTab("Report", null, panelReport, "");
@@ -2037,6 +2055,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         loadDefaultsReportFilter(SearchTypeProp.open);
     }//GEN-LAST:event_btnReportDefaultsOpenActionPerformed
 
+    private void checkReportProteinLevelFdrStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_checkReportProteinLevelFdrStateChanged
+        boolean selected = checkReportProteinLevelFdr.isSelected();
+        ThisAppProps.save(ThisAppProps.PROP_CHECKBOX_REPORT_PROTEIN_LEVEL_FDR, Boolean.toString(selected));
+    }//GEN-LAST:event_checkReportProteinLevelFdrStateChanged
+
     public void loadLastPeptideProphet() {
         String val = ThisAppProps.load(ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET);
         if (val != null) {
@@ -2110,6 +2133,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
         
         return sb.toString();
+    }
+
+    private void loadLastReportProteinLevelFdr() {
+        String v = ThisAppProps.load(ThisAppProps.PROP_CHECKBOX_REPORT_PROTEIN_LEVEL_FDR);
+        if (v == null) {
+            checkReportProteinLevelFdr.setSelected(true);
+        } else {
+            Boolean wasSelected = Boolean.valueOf(v);
+            checkReportProteinLevelFdr.setSelected(wasSelected);
+        }
     }
 
     public enum SearchTypeProp {open, closed}
@@ -3155,8 +3188,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 }
                 cmd.add("--pepxml");
                 cmd.add(workingDir);
-                cmd.add("--protxml");
-                cmd.add(combinedProtFilePath.toString());
+                if (checkReportProteinLevelFdr.isSelected()) {
+                    cmd.add("--protxml");
+                    cmd.add(combinedProtFilePath.toString());
+                }
                 builders.add(new ProcessBuilder(cmd));
             }
             
@@ -3437,6 +3472,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JCheckBox checkDryRun;
     private javax.swing.JCheckBox checkReportDbAnnotate;
     private javax.swing.JCheckBox checkReportFilter;
+    private javax.swing.JCheckBox checkReportProteinLevelFdr;
     private javax.swing.JCheckBox chkProteinProphetInteractStar;
     private javax.swing.JCheckBox chkRunPeptideProphet;
     private javax.swing.JCheckBox chkRunProteinProphet;
