@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import umich.msfragger.params.Props;
 import umich.msfragger.params.enums.CleavageType;
+import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.enums.MassTolUnits;
 import umich.msfragger.params.enums.MsLevel;
 import umich.msfragger.util.PathUtils;
@@ -66,6 +67,7 @@ public class MsfraggerParams {
     public static final String PROP_max_variable_mods_combinations = "max_variable_mods_combinations";
     
     public static final String PROP_output_file_extension = "output_file_extension";
+    public static final String PROP_output_format = "output_format";
     public static final String PROP_output_report_topN = "output_report_topN";
     public static final String PROP_output_max_expect = "output_max_expect";
     public static final String PROP_precursor_charge = "precursor_charge";
@@ -378,6 +380,19 @@ public class MsfraggerParams {
     
     public void setOutputFileExtension(String v) {
         props.setProp(PROP_output_file_extension, v);
+    }
+    
+    public FraggerOutputType getOutputFormat() {
+        String val = props.getProp(PROP_output_format, "pepXML").value;
+        for (FraggerOutputType t : FraggerOutputType.values()) {
+            if (t.valueInParamsFile().equalsIgnoreCase(val))
+                return t;
+        }
+        throw new IllegalStateException("Unknown output format stored in properties");
+    }
+    
+    public void setOutputFormat(FraggerOutputType type) {
+        props.setProp(PROP_output_format, type.valueInParamsFile());
     }
     
     public int getOutputReportTopN() {

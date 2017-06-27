@@ -1203,10 +1203,10 @@
                                   <Component id="jLabel28" alignment="1" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="spinnerReportTopN" min="-2" pref="80" max="-2" attributes="0"/>
-                                  <Component id="spinnerOutputMaxExpect" min="-2" pref="80" max="-2" attributes="0"/>
-                                  <Component id="textOutputFileExt" min="-2" pref="80" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                  <Component id="spinnerReportTopN" pref="80" max="32767" attributes="0"/>
+                                  <Component id="spinnerOutputMaxExpect" pref="80" max="32767" attributes="0"/>
+                                  <Component id="comboFraggerOutputType" alignment="0" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace max="32767" attributes="0"/>
                           </Group>
@@ -1218,7 +1218,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="jLabel25" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="textOutputFileExt" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="comboFraggerOutputType" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
@@ -1239,12 +1239,7 @@
                     <Component class="javax.swing.JLabel" name="jLabel25">
                       <Properties>
                         <Property name="horizontalAlignment" type="int" value="11"/>
-                        <Property name="text" type="java.lang.String" value="Output File Ext"/>
-                      </Properties>
-                    </Component>
-                    <Component class="javax.swing.JTextField" name="textOutputFileExt">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="pepXML"/>
+                        <Property name="text" type="java.lang.String" value="Output Type"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JSpinner" name="spinnerReportTopN">
@@ -1271,6 +1266,16 @@
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Output Max Expect"/>
                       </Properties>
+                    </Component>
+                    <Component class="javax.swing.JComboBox" name="comboFraggerOutputType">
+                      <Properties>
+                        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                          <Connection code="createOutputFormatComboModel()" type="code"/>
+                        </Property>
+                      </Properties>
+                      <AuxValues>
+                        <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+                      </AuxValues>
                     </Component>
                   </SubComponents>
                 </Container>

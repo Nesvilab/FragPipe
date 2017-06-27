@@ -46,6 +46,7 @@ import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.enums.CleavageType;
+import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.enums.MassTolUnits;
 import umich.msfragger.params.enums.MsLevel;
 import umich.msfragger.params.fragger.Mod;
@@ -132,7 +133,12 @@ public class FraggerPanel extends javax.swing.JPanel {
     }
     
     public String getOutputFileExt() {
-        return textOutputFileExt.getText().trim();
+        return getOutputType().getExtension();
+    }
+    
+    public FraggerOutputType getOutputType() {
+        String val = comboFraggerOutputType.getItemAt(comboFraggerOutputType.getSelectedIndex());
+        return FraggerOutputType.valueOf(val);
     }
     
     private void fillFormFromParams(MsfraggerParams params) {
@@ -149,7 +155,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         comboFragMassTol.setSelectedItem(params.getFragmentMassUnits().toString());
         spinnerFragMassTol.setValue(params.getFragmentMassTolerance());
         
-        textOutputFileExt.setText(params.getOutputFileExtension());
+        comboFraggerOutputType.setSelectedItem(params.getOutputFormat().toString());
         spinnerReportTopN.setValue(params.getOutputReportTopN());
         spinnerOutputMaxExpect.setValue(params.getOutputMaxExpect());
         
@@ -246,7 +252,10 @@ public class FraggerPanel extends javax.swing.JPanel {
         params.setFragmentMassUnits(MassTolUnits.valueOf(comboFragMassTol.getItemAt(comboFragMassTol.getSelectedIndex())));
         params.setFragmentMassTolerance((Double)spinnerFragMassTol.getValue());
         
-        params.setOutputFileExtension(textOutputFileExt.getText());
+        //params.setOutputFileExtension(textOutputFileExt.getText());
+        FraggerOutputType outputType = getOutputType();
+        params.setOutputFileExtension(outputType.getExtension());
+        params.setOutputFormat(outputType);
         params.setOutputReportTopN((Integer)spinnerReportTopN.getValue());
         params.setOutputMaxExpect((Double)spinnerOutputMaxExpect.getValue());
         
@@ -306,10 +315,6 @@ public class FraggerPanel extends javax.swing.JPanel {
     
     private<T> T utilSpinnerValue(JSpinner spinner, Class<T> clazz) {
         return (T)spinner.getValue();
-    }
-    
-    public String getPepxmlExtension() {
-        return textOutputFileExt.getText().trim();
     }
     
     public MsfraggerParams getParamsFromForm() {
@@ -470,11 +475,11 @@ public class FraggerPanel extends javax.swing.JPanel {
         checkOverrideCharge = new javax.swing.JCheckBox();
         jPanel8 = new javax.swing.JPanel();
         jLabel25 = new javax.swing.JLabel();
-        textOutputFileExt = new javax.swing.JTextField();
         spinnerReportTopN = new javax.swing.JSpinner();
         spinnerOutputMaxExpect = new javax.swing.JSpinner();
         jLabel27 = new javax.swing.JLabel();
         jLabel28 = new javax.swing.JLabel();
+        comboFraggerOutputType = new javax.swing.JComboBox<>();
         btnSave = new javax.swing.JButton();
         btnLoad = new javax.swing.JButton();
         chkRunMsfragger = new javax.swing.JCheckBox();
@@ -1040,9 +1045,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         );
 
         jLabel25.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        jLabel25.setText("Output File Ext");
-
-        textOutputFileExt.setText("pepXML");
+        jLabel25.setText("Output Type");
 
         spinnerReportTopN.setModel(new javax.swing.SpinnerNumberModel(3, 1, null, 1));
 
@@ -1052,6 +1055,8 @@ public class FraggerPanel extends javax.swing.JPanel {
         jLabel27.setText("Report Top N");
 
         jLabel28.setText("Output Max Expect");
+
+        comboFraggerOutputType.setModel(createOutputFormatComboModel());
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
@@ -1064,10 +1069,10 @@ public class FraggerPanel extends javax.swing.JPanel {
                     .addComponent(jLabel27, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel28, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(spinnerReportTopN, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(spinnerOutputMaxExpect, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(textOutputFileExt, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(spinnerReportTopN, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+                    .addComponent(spinnerOutputMaxExpect, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+                    .addComponent(comboFraggerOutputType, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel8Layout.setVerticalGroup(
@@ -1076,7 +1081,7 @@ public class FraggerPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel25)
-                    .addComponent(textOutputFileExt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(comboFraggerOutputType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(spinnerReportTopN, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1548,6 +1553,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     private javax.swing.JCheckBox chkRunMsfragger;
     private javax.swing.JComboBox<String> comboCleavage;
     private javax.swing.JComboBox<String> comboFragMassTol;
+    private javax.swing.JComboBox<String> comboFraggerOutputType;
     private javax.swing.JComboBox<String> comboPrecursorMassTol;
     private javax.swing.JComboBox<String> comboPrecursorTrueTol;
     private javax.swing.JLabel jLabel1;
@@ -1635,9 +1641,16 @@ public class FraggerPanel extends javax.swing.JPanel {
     private javax.swing.JTextField textEnzymeName;
     private javax.swing.JTextField textIsotopeError;
     private javax.swing.JTextField textMsfraggerDb;
-    private javax.swing.JTextField textOutputFileExt;
     // End of variables declaration//GEN-END:variables
 
+    private ComboBoxModel<String> createOutputFormatComboModel() {
+        String[] items = new String[FraggerOutputType.values().length];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = FraggerOutputType.values()[i].toString();
+        }
+        return new DefaultComboBoxModel<>(items);
+    }
+    
     private ComboBoxModel<String> createMassToleranceUnitsComboModel() {
         String[] items = new String[MassTolUnits.values().length];
         for (int i = 0; i < items.length; i++) {
