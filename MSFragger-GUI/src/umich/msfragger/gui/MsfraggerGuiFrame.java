@@ -1564,7 +1564,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     
     private void btnMsfraggerBinDownloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMsfraggerBinDownloadActionPerformed
         try {
-            Desktop.getDesktop().browse(URI.create("https://secure.nouvant.com/umich/technology/7143/license/633"));
+            Desktop.getDesktop().browse(URI.create("http://inventions.umich.edu/technologies/7143_msfrager-ultrafast-and-comprehensive-identification-of-peptides-from-tandem-mass-spectra"));
         } catch (IOException ex) {
             Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
