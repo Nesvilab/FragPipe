@@ -1830,7 +1830,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         JCheckBox checkbox = new JCheckBox("Do not show this message again.");
                         String msg = String.format("The list of input files contains MGF entries.\n"
                                 + "MSFragger has limited MGF support (ProteoWizard output is OK).\n"
-                                + "The search might fail unexpectedly with errors.");
+                                + "The search might fail unexpectedly with errors.\n"
+                                + "Please consider converting files to mzML/mzXML with ProteoWizard.");
                         Object[] params = {msg, checkbox};
                         JOptionPane.showMessageDialog(this, params, "Warning", JOptionPane.WARNING_MESSAGE);
                         if (checkbox.isSelected()) {
