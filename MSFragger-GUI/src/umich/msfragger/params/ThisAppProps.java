@@ -49,6 +49,8 @@ public class ThisAppProps extends Properties {
     public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
     public static final String PROP_TEXT_CMD_PROTEIN_PROPHET = "proteinprophet.cmd.line.opts";
 
+    public static final String PROP_MGF_WARNING = "warn.mgf";
+    
     public static void clearCache() {
         ThisAppProps thisAppProps = new ThisAppProps();
         thisAppProps.save();
@@ -164,5 +166,14 @@ public class ThisAppProps extends Properties {
         if (thisAppProps == null)
             return null;
         return thisAppProps.getProperty(propName);
+    }
+    
+    public static String load(String propName, String defaultVal) {
+        if (propName == null)
+            throw new IllegalArgumentException("Property name must be non-null");
+        ThisAppProps thisAppProps = ThisAppProps.loadFromTemp();
+        if (thisAppProps == null)
+            return defaultVal;
+        return thisAppProps.getProperty(propName, defaultVal);
     }
 }

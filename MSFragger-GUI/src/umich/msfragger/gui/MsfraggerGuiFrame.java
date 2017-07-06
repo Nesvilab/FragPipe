@@ -58,6 +58,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -1819,6 +1820,27 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             return;
         }
         processBuilders.addAll(processBuildersFragger);
+        // if we have at least one MSFragger task, check for MGF file presence
+        if (!processBuildersFragger.isEmpty()) {
+            // check for MGF files and warn
+            String warn = ThisAppProps.load(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
+            if (warn != null && Boolean.valueOf(warn)) {
+                for (String f : lcmsFilePaths) {
+                    if (f.toLowerCase().endsWith(".mgf")) {
+                        JCheckBox checkbox = new JCheckBox("Do not show this message again.");
+                        String msg = String.format("The list of input files contains MGF entries.\n"
+                                + "MSFragger has limited MGF support (ProteoWizard output is OK).\n"
+                                + "The search might fail unexpectedly with errors.");
+                        Object[] params = {msg, checkbox};
+                        JOptionPane.showMessageDialog(this, params, "Warning", JOptionPane.WARNING_MESSAGE);
+                        if (checkbox.isSelected()) {
+                            ThisAppProps.save(ThisAppProps.PROP_MGF_WARNING, Boolean.FALSE.toString());
+                        }
+                        break;
+                    }
+                }
+            }
+        }
 
         List<ProcessBuilder> processBuildersPeptideProphet = processBuildersPeptideProphet("", workingDir, lcmsFilePaths);
         if (processBuildersPeptideProphet == null) {

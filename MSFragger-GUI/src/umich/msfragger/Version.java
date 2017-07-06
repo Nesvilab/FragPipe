@@ -23,7 +23,7 @@ import javax.swing.JOptionPane;
  */
 public class Version {
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "2.8.1";
+    public static final String VERSION = "2.8.2";
     
     public static String getVersion() {
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("umich/msfragger/gui/Bundle"); // NOI18N
