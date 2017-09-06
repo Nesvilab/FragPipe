@@ -9,8 +9,12 @@ Download precompiled binaries from the [Releases](https://github.com/chhh/MSFrag
 
 ## Running
 `java -jar MSfragger-GUI.jar`  
-an alternative on Windows 
+an alternative on Windows
 `start javaw -jar MSfragger-GUI.jar`  
+
+## Referencing the work
+Please cite the following paper:  
+[Andy Kong, Felipe Leprevost, Dmitry Avtonomov, Dattatreya Mellacheruvu, Alexey Nesvizhskii. "MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry-based proteomics". Nat Meth, May 2017. DOI: 10.1038/nmeth.4256](http://dx.doi.org/10.1038/nmeth.4256)
 
 ## To build
 Open the source project in NetBeans and do "Clean Build". You will get the jar in ./dist directory and a zip file with the current version in the file name and start scripts bundled.
