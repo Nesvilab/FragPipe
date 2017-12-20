@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystems;
@@ -51,6 +52,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -82,12 +84,14 @@ import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.SimpleUniqueTableModel;
 import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.params.fragger.MsfraggerParams;
+import umich.msfragger.params.fragger.MsfraggerProperties;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.GhostText;
 import umich.msfragger.util.HSLColor;
 import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.SwingUtils;
+import umich.msfragger.util.VersionComparator;
 import umich.swing.console.TextConsole;
 
 /**
@@ -1523,7 +1527,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     "<html>Could not find MSFragger jar file at this location\n<br/>."
                     + "Corresponding panel won't be active");
             balloonMsfragger.setVisible(true);
+            
         }
+        
+        if (isValid) {
+            boolean valVer = validateMsfraggerVersion(path);
+            isValid = isValid && valVer;
+        }
+        
         enableMsfraggerPanels(isValid);
         
         return isValid;
@@ -1555,8 +1566,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         Pattern regex = Pattern.compile("MSFragger version (MSFragger-([\\d\\.]{4,}))", Pattern.CASE_INSENSITIVE);
         
         boolean isVersionPrintedAtAll = false;
-        boolean isTheMostRecentVersion = false;
-        String version = null;
+        
+        // get the vesrion reported by the current executable
+        String matchedVersion = null;
         try {
             Process pr = pb.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
@@ -1565,10 +1577,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 Matcher m = regex.matcher(line);
                 if (m.matches()) {
                     isVersionPrintedAtAll = true;
-                    
-                    
-                    
-                    return true;
+                    matchedVersion = m.group(2);
                 }
             }
             pr.waitFor();
@@ -1576,12 +1585,55 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             
         }
         
-        if (balloonMsfragger != null) {
-            balloonMsfragger.closeBalloon();
-        }
-        balloonMsfragger = new BalloonTip(textBinMsfragger, "");
         
-        return false;
+        // get the latest known version stored in the text file
+        String latestVersion = null;
+        try {
+            InputStream is = MsfraggerParams.class.getResourceAsStream("msfragger.properties");
+            if (is == null) {
+                throw new IllegalStateException("Could not read msfragger.properties from the classpath");
+            }
+            Properties prop = new Properties();
+            prop.load(is);
+            latestVersion = prop.getProperty(MsfraggerProperties.PROP_LATEST_VERSION);
+            if (latestVersion == null) {
+                throw new IllegalStateException("Property "
+                        + MsfraggerProperties.PROP_LATEST_VERSION 
+                        + " was not found in msfragger.properties");
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Error reading msfragger.properties from the classpath");
+        }
+        
+        if (!isVersionPrintedAtAll) {
+            // a very old fragger version, need to download a new one
+            if (balloonMsfragger != null) {
+                balloonMsfragger.closeBalloon();
+            }
+            balloonMsfragger = new BalloonTip(textBinMsfragger, String.format(
+                "<html>Your version of MSFragger is no longer supported.<br/>\n"
+                    + "<a href=\"%s\">Click here</a> to download a newer one.", 
+                    matchedVersion, MsfraggerProperties.DOWNLOAD_URL));
+            balloonMsfragger.setVisible(true);
+            return false;
+        }
+        
+        // compare the vesrions
+        VersionComparator vc = new VersionComparator();
+        if (vc.compare(matchedVersion, latestVersion) < 0) {
+            if (balloonMsfragger != null) {
+                balloonMsfragger.closeBalloon();
+            }
+            balloonMsfragger = new BalloonTip(textBinMsfragger, String.format(
+                "<html>There is a newer version of MSFragger available.<br/>\n"
+                    + "Your version is (%s)<br/>\n"
+                    + "<a href=\"%s\">Click here</a> to download a newer one.", 
+                    matchedVersion, MsfraggerProperties.DOWNLOAD_URL));
+            balloonMsfragger.setVisible(true);
+            return true;
+        }
+        
+        return true;
     }
     
     private boolean validateMsfraggerPath(String path) {
