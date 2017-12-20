@@ -8,9 +8,14 @@ It will help you launch MSFragger for Open and Closed searches and can also run 
 Download precompiled binaries from the [Releases](https://github.com/chhh/MSFragger-GUI/releases/latest) section of this repository
 
 ## Running
-`java -jar MSfragger-GUI.jar`  
-an alternative on Windows
-`start javaw -jar MSfragger-GUI.jar`  
+- on **Windows** use one of the following:
+  - Use the Windows executable (.exe)
+  - `start javaw -jar MSfragger-GUI.jar`
+  - `java -jar MSfragger-GUI.jar`
+- **Linux/MacOS**
+  - Run the shell script included in the release zip file
+  - `java -jar MSfragger-GUI.jar`
+
 
 ## Referencing the work
 Please cite the following paper:  

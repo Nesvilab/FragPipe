@@ -20,10 +20,12 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.DirectoryStream;
@@ -32,9 +34,11 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -91,7 +95,7 @@ import umich.swing.console.TextConsole;
  * @author dattam
  */
 public class MsfraggerGuiFrame extends javax.swing.JFrame {
-
+    
     protected FraggerPanel fraggerPanel;
     protected TextConsole console;
     protected ExecutorService exec;
@@ -111,6 +115,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     FileDrop tableRawFilesFileDrop;
     
     public static final SearchTypeProp DEFAULT_TYPE = SearchTypeProp.open;
+    
+    private String textPepProphetFocusGained = "";
 
     public MsfraggerGuiFrame() {
         initComponents();
@@ -723,6 +729,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         txtPeptideProphetCmdLineOptions.setRows(5);
         txtPeptideProphetCmdLineOptions.setWrapStyleWord(true);
         txtPeptideProphetCmdLineOptions.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                txtPeptideProphetCmdLineOptionsFocusGained(evt);
+            }
             public void focusLost(java.awt.event.FocusEvent evt) {
                 txtPeptideProphetCmdLineOptionsFocusLost(evt);
             }
@@ -1510,7 +1519,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             balloonMsfragger = null;
         }
         if (!isValid) {
-            balloonMsfragger = new BalloonTip(textBinMsfragger, "<html>Could not find MSFragger jar file at this location\n<br/>."
+            balloonMsfragger = new BalloonTip(textBinMsfragger, 
+                    "<html>Could not find MSFragger jar file at this location\n<br/>."
                     + "Corresponding panel won't be active");
             balloonMsfragger.setVisible(true);
         }
@@ -1531,11 +1541,47 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         tipMap.remove(TIP_NAME_FRAGGER_JAVA_VER);
                     }
                     tip = new BalloonTip(lblFraggerJavaVer, "Msfragger requires at least Java 1.8.\n");
+                    tipMap.put(TIP_NAME_FRAGGER_JAVA_VER, tip);
                     tip.setVisible(true);
                 }
             }
         });
         return isValid;
+    }
+    
+    private boolean validateMsfraggerVersion(String jarPath) {
+        ProcessBuilder pb = new ProcessBuilder("java", "-jar", jarPath);
+        pb.redirectErrorStream(true);
+        Pattern regex = Pattern.compile("MSFragger version (MSFragger-([\\d\\.]{4,}))", Pattern.CASE_INSENSITIVE);
+        
+        boolean isVersionPrintedAtAll = false;
+        boolean isTheMostRecentVersion = false;
+        String version = null;
+        try {
+            Process pr = pb.start();
+            BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+            String line;
+            while ((line = in.readLine()) != null) {
+                Matcher m = regex.matcher(line);
+                if (m.matches()) {
+                    isVersionPrintedAtAll = true;
+                    
+                    
+                    
+                    return true;
+                }
+            }
+            pr.waitFor();
+        } catch (IOException | InterruptedException e) {
+            
+        }
+        
+        if (balloonMsfragger != null) {
+            balloonMsfragger.closeBalloon();
+        }
+        balloonMsfragger = new BalloonTip(textBinMsfragger, "");
+        
+        return false;
     }
     
     private boolean validateMsfraggerPath(String path) {
@@ -2037,8 +2083,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLoadDefaultsClosedActionPerformed
 
     private void txtPeptideProphetCmdLineOptionsFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtPeptideProphetCmdLineOptionsFocusLost
-        String val = txtPeptideProphetCmdLineOptions.getText();
-        ThisAppProps.save(ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET, val);
+        validateAndSavePeptideProphetCmdLineOptions();
     }//GEN-LAST:event_txtPeptideProphetCmdLineOptionsFocusLost
 
     private void txtProteinProphetCmdLineOptsFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtProteinProphetCmdLineOptsFocusLost
@@ -2082,6 +2127,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         boolean selected = checkReportProteinLevelFdr.isSelected();
         ThisAppProps.save(ThisAppProps.PROP_CHECKBOX_REPORT_PROTEIN_LEVEL_FDR, Boolean.toString(selected));
     }//GEN-LAST:event_checkReportProteinLevelFdrStateChanged
+
+    private void txtPeptideProphetCmdLineOptionsFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtPeptideProphetCmdLineOptionsFocusGained
+        String t = txtPeptideProphetCmdLineOptions.getText();
+        if (!t.equals(textPepProphetFocusGained)) {
+            textPepProphetFocusGained = t;
+        }
+    }//GEN-LAST:event_txtPeptideProphetCmdLineOptionsFocusGained
 
     public void loadLastPeptideProphet() {
         String val = ThisAppProps.load(ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET);
@@ -2168,27 +2220,113 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
     }
 
+    private void validateAndSavePeptideProphetCmdLineOptions() {
+        String val = txtPeptideProphetCmdLineOptions.getText();
+        ThisAppProps.save(ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET, val);
+        if (!textPepProphetFocusGained.equals(val)) {
+            // text in the field has changed
+            Pattern regex = Pattern.compile("--decoy\\s+([^\\s]+?)\\s");
+            Matcher m = regex.matcher(val);
+            if (m.matches()) {
+                m.group(1);
+                
+            }
+        }
+    }
+
     public enum SearchTypeProp {open, closed}
     
-    private boolean validateAndSavePhilosopherPath(String path) {
-        String validated = validatePhilosopherPath(path);
-        boolean isValid = validated != null;
-        if (isValid) {
-            textBinPhilosopher.setText(validated);
-            ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PHILOSOPHER, validated);
-        }
-        if (balloonPhilosopher != null) {
-            balloonPhilosopher.closeBalloon();
-            balloonPhilosopher = null;
-        }
-        if (!isValid) {
-            balloonPhilosopher = new BalloonTip(textBinPhilosopher, "Philosoper executable not found.\n"
-                    + "Corresponding panels won't be activate.");
-            balloonPhilosopher.setVisible(true);
-        }
-        enablePhilosopherPanels(isValid);
+    private boolean validateAndSavePhilosopherPath(final String path) {
         
-        return isValid;
+        Path p = null;
+        try {
+            p = Paths.get(path);
+            int  a = 1;
+        } catch (Exception e) {
+            // invalid input
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    if (balloonPhilosopher != null) {
+                        balloonPhilosopher.closeBalloon();
+                        balloonPhilosopher = null;
+                    }
+                    balloonPhilosopher = new BalloonTip(textBinPhilosopher, 
+                                "Invalid input for Philosopher path.");
+                    balloonPhilosopher.setVisible(true);
+                    enablePhilosopherPanels(false);
+                }
+            });
+            return false;
+        }
+        
+        final boolean isPathAbsolute = p.isAbsolute();
+        if (p.isAbsolute()) {
+            p = p.normalize().toAbsolutePath();
+        }
+        final boolean isPathExists = Files.exists(p);
+        final boolean isPathRunnable = Files.isExecutable(p);
+        
+        
+        String validatedPath = validatePhilosopherPath(path);
+        final boolean isPathValid = validatedPath != null;
+        
+        if (isPathValid) {
+            textBinPhilosopher.setText(validatedPath);
+            ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PHILOSOPHER, validatedPath);
+        }
+        
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (balloonPhilosopher != null) {
+                    balloonPhilosopher.closeBalloon();
+                    balloonPhilosopher = null;
+                }
+                
+                StringBuilder sb = new StringBuilder();
+                boolean needsDisplay = false;
+                if (isPathAbsolute) {
+                    sb.append("<html>Absolute path for Philosopher binary provided: <br/>\n")
+                      .append(path).append("<br/>\n");
+                    if (!isPathExists) {
+                        sb.append("\nBut the file does not exist.");
+                        needsDisplay = true;
+                    } else if (!isPathRunnable) {
+                        sb.append("\nBut the file is not runnable.");
+                        needsDisplay = true;
+                        if (OsUtils.isWindows()) {
+                            sb.append("Right click the file, Properties -> Security -> Advanced<br/>\n")
+                              .append("And change the executable permissions for the file.<br/>\n")
+                              .append("All the security implications are your responsibility.");
+                        } else {
+                            sb.append("Check that the file has execute permission for the JVM.<br/>\n")
+                              .append("Or you can just try `chmod a+x <philosopher-binary-file>`.<br/>\n")
+                              .append("All the security implications are your responsibility.");
+                        }
+                    } else if (!isPathValid) {
+                        sb.append("\nBut the file is invalid. It can't be run by the JVM.");
+                        needsDisplay = true;
+                    }
+                } else {
+                    // relative path given, i.e. philosopher must be on PATH
+                    sb.append("Relative path for Philosopher binary provided: <br/>\n")
+                      .append(path).append("<br/>\n");
+                    if (!isPathValid) {
+                        sb.append("But it couldn't be launched properly for some reason.");
+                        needsDisplay = true;
+                    }
+                }
+                
+                if (needsDisplay) {
+                    balloonPhilosopher = new BalloonTip(textBinPhilosopher, sb.toString());
+                    balloonPhilosopher.setVisible(true);
+                }
+                enablePhilosopherPanels(isPathValid);
+            }
+        });
+        
+        return isPathValid;
     }
     
     private String validatePhilosopherPath(String path) {
