@@ -76,6 +76,8 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.java.balloontip.BalloonTip;
+import net.java.balloontip.styles.BalloonTipStyle;
+import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
 import umich.msfragger.Version;
@@ -1610,25 +1612,34 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             if (balloonMsfragger != null) {
                 balloonMsfragger.closeBalloon();
             }
-            balloonMsfragger = new BalloonTip(textBinMsfragger, String.format(
-                "<html>Your version of MSFragger is no longer supported.<br/>\n"
-                    + "<a href=\"%s\">Click here</a> to download a newer one.", 
-                    matchedVersion, MsfraggerProperties.DOWNLOAD_URL));
+            
+            
+            JEditorPane ep = SwingUtils.createClickableHtml(String.format("Your version of MSFragger "
+                    + "is not supported anumore.<br>\n"
+                    + "Please <a href=\"%s\">click here</a> to download a newer one.", 
+                    MsfraggerProperties.DOWNLOAD_URL));
+            balloonMsfragger = new BalloonTip(textBinMsfragger, ep, 
+                    new RoundedBalloonStyle(5,5,Color.WHITE, Color.BLACK), true);
+            
             balloonMsfragger.setVisible(true);
             return false;
         }
         
-        // compare the vesrions
+        // compare the versions
         VersionComparator vc = new VersionComparator();
         if (vc.compare(matchedVersion, latestVersion) < 0) {
             if (balloonMsfragger != null) {
                 balloonMsfragger.closeBalloon();
             }
-            balloonMsfragger = new BalloonTip(textBinMsfragger, String.format(
-                "<html>There is a newer version of MSFragger available.<br/>\n"
-                    + "Your version is (%s)<br/>\n"
-                    + "<a href=\"%s\">Click here</a> to download a newer one.", 
+            
+            JEditorPane ep = SwingUtils.createClickableHtml(String.format(
+                    "There is a newer version of MSFragger available.<br>\n"
+                    + "Your version is [%s]<br>\n"
+                    + "Please <a href=\"%s\">click here</a> to download a newer one.", 
                     matchedVersion, MsfraggerProperties.DOWNLOAD_URL));
+            
+            balloonMsfragger = new BalloonTip(textBinMsfragger, ep, 
+                    new RoundedBalloonStyle(5,5,Color.WHITE, Color.BLACK), true);
             balloonMsfragger.setVisible(true);
             return true;
         }

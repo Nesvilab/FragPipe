@@ -17,13 +17,21 @@ package umich.msfragger.util;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Desktop;
+import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -31,8 +39,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import umich.msfragger.gui.MsfraggerGuiFrame;
 
 /**
  *
@@ -155,5 +166,46 @@ public class SwingUtils {
         if (d != null) {
             d.addDocumentListener(dl);
         }
+    }
+    
+    /**
+     * Creates a non-editable JEditorPane that has the same styling as default
+     * JLabels and with hyperlinks clickable. They will be opened in the system
+     * default browser.
+     * @param text Your text to be displayed in HTML context. Don't add the 
+     * opening and closing HTML tags. To include links use the regular A tags.
+     * @return 
+     */
+    public static JEditorPane createClickableHtml(String text)  {
+        // for copying style
+        JLabel label = new JLabel();
+        Font font = label.getFont();
+
+        // create some css from the label's font
+        StringBuilder style = new StringBuilder("font-family:" + font.getFamily() + ";");
+        style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
+        style.append("font-size:").append(font.getSize()).append("pt;");
+
+        JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">"
+            + text
+            + "</body></html>");
+
+        // handle link events
+        ep.addHyperlinkListener(new HyperlinkListener()
+        {
+            @Override
+            public void hyperlinkUpdate(HyperlinkEvent e) {
+                if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
+                    try {
+                        Desktop.getDesktop().browse(e.getURL().toURI());
+                    } catch (URISyntaxException | IOException ex) {
+                        Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        });
+        ep.setEditable(false);
+        
+        return ep;
     }
 }
