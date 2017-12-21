@@ -45,6 +45,8 @@ public class MsfraggerParams {
     
     public static final String PROP_database_name = "database_name";
     public static final String PROP_num_threads = "num_threads";
+    public static final String PROP_precursor_mass_lower = "precursor_mass_lower";
+    public static final String PROP_precursor_mass_upper = "precursor_mass_upper";
     public static final String PROP_precursor_mass_tolerance = "precursor_mass_tolerance";
     public static final String PROP_precursor_mass_units = "precursor_mass_units";
     public static final String PROP_precursor_true_tolerance = "precursor_true_tolerance";
@@ -136,6 +138,8 @@ public class MsfraggerParams {
     public MsfraggerParams() {
         comments = new HashMap<>();
         comments.put(PROP_num_threads, "0=poll CPU to set num threads; else specify num threads directly (max 64)");
+        comments.put(PROP_precursor_mass_lower, "Overrides the lower bound of the window set by precursor_mass_tolerance");
+        comments.put(PROP_precursor_mass_upper, "Overrides the upper bound of the window set by precursor_mass_tolerance");
         comments.put(PROP_precursor_mass_units, "0=Daltons, 1=ppm");
         comments.put(PROP_precursor_true_units, "0=Daltons, 1=ppm");
         comments.put(PROP_fragment_mass_units, "0=Daltons, 1=ppm");
@@ -253,13 +257,28 @@ public class MsfraggerParams {
     }
     
     public double getPrecursorMassTolerance() {
-        return Double.parseDouble(props.getProp(PROP_precursor_mass_tolerance, "50.0").value);
+        return Double.parseDouble(props.getProp(PROP_precursor_mass_tolerance, "20.0").value);
     }
     
     public void setPrecursorMassTolerance(double v) {
         props.setProp(PROP_precursor_mass_tolerance, DF.format(v));
     }
     
+    public double getPrecursorMassUpper() {
+        return Double.parseDouble(props.getProp(PROP_precursor_mass_upper).value);
+    }
+    
+    public void setPrecursorMassUpper(double v) {
+        props.setProp(PROP_precursor_mass_upper, DF.format(v));
+    }
+    
+    public double getPrecursorMassLower() {
+        return Double.parseDouble(props.getProp(PROP_precursor_mass_lower).value);
+    }
+    
+    public void setPrecursorMassLower(double v) {
+        props.setProp(PROP_precursor_mass_lower, DF.format(v));
+    }
     
     // =======================================================================
     public MassTolUnits getPrecursorTrueUnits() {

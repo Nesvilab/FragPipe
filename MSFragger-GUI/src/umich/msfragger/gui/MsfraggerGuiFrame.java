@@ -1808,7 +1808,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 for(Path foundFile : foundFiles) {
                     if (validateAndSavePhilosopherPath(foundFile.toString())) {
                         philosopherFoundPath = foundFile.toString();
-                        ThisAppProps.save(ThisAppProps.PROP_BINARIES_IN, fraggerFoundPath);
+                        ThisAppProps.save(ThisAppProps.PROP_BINARIES_IN, philosopherFoundPath);
                         JOptionPane.showMessageDialog(this, "Found Philosopher.\n"
                                 + philosopherFoundPath, "Info", JOptionPane.INFORMATION_MESSAGE);
                         break;
@@ -2422,7 +2422,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     }
                 } else {
                     // relative path given, i.e. philosopher must be on PATH
-                    sb.append("Relative path for Philosopher binary provided: <br/>\n")
+                    sb.append("<html>Relative path for Philosopher binary provided: <br/>\n")
                       .append(path).append("<br/>\n");
                     if (!isPathValid) {
                         sb.append("But it couldn't be launched properly for some reason.");
