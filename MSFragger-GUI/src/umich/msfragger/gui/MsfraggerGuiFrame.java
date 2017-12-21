@@ -1656,7 +1656,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         String githubProps = IOUtils.toString(MsfraggerProperties.PROPERTIES_URI.toURL(), Charset.forName("UTF-8"));
                         Properties props = new Properties();
                         props.load(new StringReader(githubProps));
-                        String githubVersion = props.getProperty(MsfraggerProperties.PROP_LATEST_VERSION);
+                        final String githubVersion = props.getProperty(MsfraggerProperties.PROP_LATEST_VERSION);
                         if (githubVersion == null) {
                             throw new IllegalStateException("Property "
                                     + MsfraggerProperties.PROP_LATEST_VERSION 
@@ -1673,10 +1673,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                     }
 
                                     JEditorPane ep = SwingUtils.createClickableHtml(String.format(
-                                            "There is a newer version of MSFragger available (gh).<br>\n"
-                                            + "Your version is [%s]<br>\n"
+                                            "Your version is [%s]<br>\n"
+                                            + "There is a newer version of MSFragger available [%s]).<br>\n"
                                             + "Please <a href=\"%s\">click here</a> to download a newer one.", 
-                                            matchedVersion, downloadUrl));
+                                            matchedVersion, githubVersion, downloadUrl));
 
                                     balloonMsfragger = new BalloonTip(textBinMsfragger, ep, 
                                             new RoundedBalloonStyle(5,5,Color.WHITE, Color.BLACK), true);
