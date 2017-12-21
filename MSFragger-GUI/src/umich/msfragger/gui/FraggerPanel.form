@@ -1258,12 +1258,16 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="comboPrecursorMassTol" min="-2" pref="65" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="spinnerPrecursorMassTolLo" min="-2" pref="55" max="-2" attributes="0"/>
+                              <Component id="spinnerPrecursorMassTol" min="-2" pref="70" max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
+                              <Component id="chkAsymmetric" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="spinnerPrecursorMassTolLo" min="-2" pref="70" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="spinnerPrecursorMassTolHi" min="-2" pref="55" max="-2" attributes="0"/>
-                              <EmptySpace max="32767" attributes="0"/>
+                              <Component id="spinnerPrecursorMassTolHi" min="-2" pref="70" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -1277,6 +1281,8 @@
                                   <Component id="spinnerPrecursorMassTolLo" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="spinnerPrecursorMassTolHi" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="spinnerPrecursorMassTol" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="chkAsymmetric" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="32767" attributes="0"/>
                           </Group>
@@ -1317,9 +1323,25 @@
                     <Component class="javax.swing.JSpinner" name="spinnerPrecursorMassTolHi">
                       <Properties>
                         <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                          <SpinnerModel initial="20" numberType="java.lang.Integer" stepSize="10" type="number"/>
+                          <SpinnerModel initial="20.0" numberType="java.lang.Double" stepSize="10.0" type="number"/>
                         </Property>
                       </Properties>
+                    </Component>
+                    <Component class="javax.swing.JSpinner" name="spinnerPrecursorMassTol">
+                      <Properties>
+                        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                          <SpinnerModel initial="20.0" numberType="java.lang.Double" stepSize="10.0" type="number"/>
+                        </Property>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JCheckBox" name="chkAsymmetric">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Asymmetric"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Asymmetric precursor isolation window"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="chkAsymmetricStateChanged"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>

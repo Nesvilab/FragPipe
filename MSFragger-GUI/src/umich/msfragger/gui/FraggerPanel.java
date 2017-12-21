@@ -87,7 +87,7 @@ public class FraggerPanel extends javax.swing.JPanel {
 
     private void initMore() {
         
-        
+        chkAsymmetricStateChanged(null);
         
         updateRowHeights(tableVarMods);
         tableVarMods.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
@@ -147,7 +147,21 @@ public class FraggerPanel extends javax.swing.JPanel {
         spinnerFraggerThreads.setValue(params.getNumThreads());
         
         comboPrecursorMassTol.setSelectedItem(params.getPrecursorMassUnits().toString());
-        spinnerPrecursorMassTolLo.setValue(params.getPrecursorMassTolerance());
+        Double precursorMassTolerance = params.getPrecursorMassTolerance();
+        if (precursorMassTolerance != null)
+            spinnerPrecursorMassTol.setValue(precursorMassTolerance);
+        
+        Double precursorMassLower = params.getPrecursorMassLower();
+        Double precursorMassUpper = params.getPrecursorMassUpper();
+        boolean isAsymmetric = precursorMassLower != null && precursorMassUpper != null;
+        chkAsymmetric.setSelected(isAsymmetric);
+        if (isAsymmetric) {
+            spinnerPrecursorMassTolLo.setValue(precursorMassLower);
+            spinnerPrecursorMassTolHi.setValue(precursorMassUpper);
+        } else if (precursorMassTolerance != null) {
+            spinnerPrecursorMassTolLo.setValue(Math.abs(precursorMassTolerance) * -1);
+            spinnerPrecursorMassTolHi.setValue(Math.abs(precursorMassTolerance));
+        }
         
         comboPrecursorTrueTol.setSelectedItem(params.getPrecursorTrueUnits().toString());
         spinnerPrecursorTrueTol.setValue(params.getPrecursorTrueTolerance());
@@ -244,7 +258,13 @@ public class FraggerPanel extends javax.swing.JPanel {
         params.setNumThreads(utilSpinnerValue(spinnerFraggerThreads, Integer.class));
         
         params.setPrecursorMassUnits(MassTolUnits.valueOf(comboPrecursorMassTol.getItemAt(comboPrecursorMassTol.getSelectedIndex())));
-        params.setPrecursorMassTolerance((Double)spinnerPrecursorMassTolLo.getValue());
+        Double precursorMassTol = (Double)spinnerPrecursorMassTol.getValue();
+        params.setPrecursorMassTolerance(precursorMassTol);
+        
+        if (chkAsymmetric.isSelected()) {
+            params.setPrecursorMassLower((Double)spinnerPrecursorMassTolLo.getValue());
+            params.setPrecursorMassUpper((Double)spinnerPrecursorMassTolHi.getValue());
+        }
         
         params.setPrecursorTrueUnits(MassTolUnits.valueOf(comboPrecursorTrueTol.getItemAt(comboPrecursorTrueTol.getSelectedIndex())));
         params.setPrecursorTrueTolerance((Double)spinnerPrecursorTrueTol.getValue());
@@ -483,6 +503,8 @@ public class FraggerPanel extends javax.swing.JPanel {
         spinnerPrecursorMassTolLo = new javax.swing.JSpinner();
         jLabel2 = new javax.swing.JLabel();
         spinnerPrecursorMassTolHi = new javax.swing.JSpinner();
+        spinnerPrecursorMassTol = new javax.swing.JSpinner();
+        chkAsymmetric = new javax.swing.JCheckBox();
         btnSave = new javax.swing.JButton();
         btnLoad = new javax.swing.JButton();
         chkRunMsfragger = new javax.swing.JCheckBox();
@@ -1091,7 +1113,17 @@ public class FraggerPanel extends javax.swing.JPanel {
 
         jLabel2.setText("-");
 
-        spinnerPrecursorMassTolHi.setModel(new javax.swing.SpinnerNumberModel(20, null, null, 10));
+        spinnerPrecursorMassTolHi.setModel(new javax.swing.SpinnerNumberModel(20.0d, null, null, 10.0d));
+
+        spinnerPrecursorMassTol.setModel(new javax.swing.SpinnerNumberModel(20.0d, null, null, 10.0d));
+
+        chkAsymmetric.setText("Asymmetric");
+        chkAsymmetric.setToolTipText("Asymmetric precursor isolation window");
+        chkAsymmetric.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                chkAsymmetricStateChanged(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
@@ -1103,12 +1135,16 @@ public class FraggerPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(comboPrecursorMassTol, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(spinnerPrecursorMassTolLo, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(spinnerPrecursorMassTol, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(chkAsymmetric)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(spinnerPrecursorMassTolLo, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(spinnerPrecursorMassTolHi, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(spinnerPrecursorMassTolHi, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1119,7 +1155,9 @@ public class FraggerPanel extends javax.swing.JPanel {
                     .addComponent(comboPrecursorMassTol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(spinnerPrecursorMassTolLo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
-                    .addComponent(spinnerPrecursorMassTolHi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(spinnerPrecursorMassTolHi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(spinnerPrecursorMassTol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(chkAsymmetric))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1533,6 +1571,13 @@ public class FraggerPanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btnMsfraggerDefaultsClosedActionPerformed
 
+    private void chkAsymmetricStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_chkAsymmetricStateChanged
+        final boolean selected = chkAsymmetric.isSelected();
+        spinnerPrecursorMassTol.setEnabled(!selected);
+        spinnerPrecursorMassTolLo.setEnabled(selected);
+        spinnerPrecursorMassTolHi.setEnabled(selected);
+    }//GEN-LAST:event_chkAsymmetricStateChanged
+
     public void loadDefaultsClosed() {
         try {
             params.loadDefaultsClosedSearch();
@@ -1583,6 +1628,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     private javax.swing.JCheckBox checkClipNTerm;
     private javax.swing.JCheckBox checkMultipleVarMods;
     private javax.swing.JCheckBox checkOverrideCharge;
+    private javax.swing.JCheckBox chkAsymmetric;
     private javax.swing.JCheckBox chkRunMsfragger;
     private javax.swing.JComboBox<String> comboCleavage;
     private javax.swing.JComboBox<String> comboFragMassTol;
@@ -1662,6 +1708,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     private javax.swing.JSpinner spinnerOutputMaxExpect;
     private javax.swing.JSpinner spinnerPrecursorChargeHi;
     private javax.swing.JSpinner spinnerPrecursorChargeLo;
+    private javax.swing.JSpinner spinnerPrecursorMassTol;
     private javax.swing.JSpinner spinnerPrecursorMassTolHi;
     private javax.swing.JSpinner spinnerPrecursorMassTolLo;
     private javax.swing.JSpinner spinnerPrecursorTrueTol;

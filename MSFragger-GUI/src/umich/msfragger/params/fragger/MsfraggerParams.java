@@ -256,27 +256,29 @@ public class MsfraggerParams {
         props.setProp(PROP_precursor_mass_units, Integer.toString(u.valueInParamsFile()));
     }
     
-    public double getPrecursorMassTolerance() {
+    public Double getPrecursorMassTolerance() {
         return Double.parseDouble(props.getProp(PROP_precursor_mass_tolerance, "20.0").value);
     }
     
-    public void setPrecursorMassTolerance(double v) {
+    public void setPrecursorMassTolerance(Double v) {
         props.setProp(PROP_precursor_mass_tolerance, DF.format(v));
     }
     
-    public double getPrecursorMassUpper() {
-        return Double.parseDouble(props.getProp(PROP_precursor_mass_upper).value);
+    public Double getPrecursorMassUpper() {
+        Props.Prop prop = props.getProp(PROP_precursor_mass_upper);
+        return prop != null ? Double.parseDouble(prop.value) : null;
     }
     
-    public void setPrecursorMassUpper(double v) {
+    public void setPrecursorMassUpper(Double v) {
         props.setProp(PROP_precursor_mass_upper, DF.format(v));
     }
     
-    public double getPrecursorMassLower() {
-        return Double.parseDouble(props.getProp(PROP_precursor_mass_lower).value);
+    public Double getPrecursorMassLower() {
+        Props.Prop prop = props.getProp(PROP_precursor_mass_lower);
+        return prop != null ? Double.parseDouble(prop.value) : null;
     }
     
-    public void setPrecursorMassLower(double v) {
+    public void setPrecursorMassLower(Double v) {
         props.setProp(PROP_precursor_mass_lower, DF.format(v));
     }
     
