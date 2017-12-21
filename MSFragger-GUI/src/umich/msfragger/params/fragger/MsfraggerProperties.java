@@ -25,5 +25,12 @@ public class MsfraggerProperties {
     public static final String DOWNLOAD_URL = "http://inventions.umich.edu/technologies/7143_msfrager-ultrafast-and-comprehensive-identification-of-peptides-from-tandem-mass-spectra";
     public static final URI DOWNLOAD_URI = URI.create(DOWNLOAD_URL);
     
+    // This URL wil be checked to compare versions of MSFragger.
+    // This way the user will get notifications about new versions of
+    // MSFragger when we only update the online repository.
+    public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/chhh/MSFragger-GUI/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties";
+    public static final URI PROPERTIES_URI = URI.create(PROPERTIES_URL);
+    
     public static final String PROP_LATEST_VERSION = "msfragger.version.latest-known";
+    public static final String PROP_DOWNLOAD_URL = "msfragger.download.url";
 }

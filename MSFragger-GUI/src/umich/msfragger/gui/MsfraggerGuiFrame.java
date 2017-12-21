@@ -26,9 +26,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystems;
@@ -78,6 +81,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.BalloonTipStyle;
 import net.java.balloontip.styles.RoundedBalloonStyle;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
 import umich.msfragger.Version;
@@ -1570,7 +1574,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         boolean isVersionPrintedAtAll = false;
         
         // get the vesrion reported by the current executable
-        String matchedVersion = null;
+        String verStr = null;
         try {
             Process pr = pb.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
@@ -1579,14 +1583,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 Matcher m = regex.matcher(line);
                 if (m.matches()) {
                     isVersionPrintedAtAll = true;
-                    matchedVersion = m.group(2);
+                    verStr = m.group(2);
                 }
             }
             pr.waitFor();
         } catch (IOException | InterruptedException e) {
             
         }
-        
+        final String matchedVersion = verStr;
         
         // get the latest known version stored in the text file
         String latestVersion = null;
@@ -1626,7 +1630,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
         
         // compare the versions
-        VersionComparator vc = new VersionComparator();
+        final VersionComparator vc = new VersionComparator();
         if (vc.compare(matchedVersion, latestVersion) < 0) {
             if (balloonMsfragger != null) {
                 balloonMsfragger.closeBalloon();
@@ -1642,6 +1646,51 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     new RoundedBalloonStyle(5,5,Color.WHITE, Color.BLACK), true);
             balloonMsfragger.setVisible(true);
             return true;
+        } else {
+            // The version from cmd line ouput is new enough to pass the local
+            // test. Now check the file on github.
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        String githubProps = IOUtils.toString(MsfraggerProperties.PROPERTIES_URI.toURL(), Charset.forName("UTF-8"));
+                        Properties props = new Properties();
+                        props.load(new StringReader(githubProps));
+                        String githubVersion = props.getProperty(MsfraggerProperties.PROP_LATEST_VERSION);
+                        if (githubVersion == null) {
+                            throw new IllegalStateException("Property "
+                                    + MsfraggerProperties.PROP_LATEST_VERSION 
+                                    + " was not found in msfragger.properties from github");
+                        }
+                        final String downloadUrl = props.getProperty(MsfraggerProperties.PROP_DOWNLOAD_URL, MsfraggerProperties.DOWNLOAD_URL);
+                        if (vc.compare(matchedVersion, githubVersion) < 0) {
+                            // show balloon popup, must be done on EDT
+                            SwingUtilities.invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (balloonMsfragger != null) {
+                                        balloonMsfragger.closeBalloon();
+                                    }
+
+                                    JEditorPane ep = SwingUtils.createClickableHtml(String.format(
+                                            "There is a newer version of MSFragger available (gh).<br>\n"
+                                            + "Your version is [%s]<br>\n"
+                                            + "Please <a href=\"%s\">click here</a> to download a newer one.", 
+                                            matchedVersion, downloadUrl));
+
+                                    balloonMsfragger = new BalloonTip(textBinMsfragger, ep, 
+                                            new RoundedBalloonStyle(5,5,Color.WHITE, Color.BLACK), true);
+                                    balloonMsfragger.setVisible(true);
+                                }
+                            });
+                        }
+                    } catch (IOException ex) {
+                        // it doesn't matter, it's fine if we can't fetch the file from github
+                        System.err.println("Could not download msfragger.properties file from github");
+                    }
+                }
+            });
+            t.start();
         }
         
         return true;
