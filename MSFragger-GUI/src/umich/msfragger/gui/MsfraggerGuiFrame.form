@@ -1131,6 +1131,7 @@
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Additional flags for Philosopher&lt;br/&gt;&#xa;--pepxml path-to-pepxml --protxml path-to-combined-protxml&lt;br/&gt;&#xa;will be added automatically based on previous tabs."/>
                   </Properties>
                   <Events>
+                    <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportFilterFocusGained"/>
                     <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportFilterFocusLost"/>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textReportFilterActionPerformed"/>
                   </Events>
