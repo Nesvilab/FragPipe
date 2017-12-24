@@ -452,14 +452,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         });
 
         textBinPhilosopher.setText(getDefaultBinPhilosopher());
-        textBinPhilosopher.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                textBinPhilosopherActionPerformed(evt);
-            }
-        });
         textBinPhilosopher.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 textBinPhilosopherFocusLost(evt);
+            }
+        });
+        textBinPhilosopher.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textBinPhilosopherActionPerformed(evt);
             }
         });
 
@@ -981,6 +981,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         textReportFilter.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 textReportFilterFocusLost(evt);
+            }
+        });
+        textReportFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textReportFilterActionPerformed(evt);
             }
         });
 
@@ -2247,6 +2252,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_txtPeptideProphetCmdLineOptionsFocusGained
 
+    private void textReportFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textReportFilterActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textReportFilterActionPerformed
+
     public void loadLastPeptideProphet() {
         String val = ThisAppProps.load(ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET);
         if (val != null) {
@@ -2337,11 +2346,39 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         ThisAppProps.save(ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET, val);
         if (!textPepProphetFocusGained.equals(val)) {
             // text in the field has changed
-            Pattern regex = Pattern.compile("--decoy\\s+([^\\s]+?)\\s");
+            Pattern regex = Pattern.compile("--decoy\\s+([^\\s]+?)[\\s$]", Pattern.CASE_INSENSITIVE);
+            String newDecoyPrefix = "", oldDecoyPrefix = "";
             Matcher m = regex.matcher(val);
-            if (m.matches()) {
-                m.group(1);
+            if (m.find()) {
+                newDecoyPrefix = m.group(1);
+            }
+            m = regex.matcher(textPepProphetFocusGained);
+            if (m.find()) {
+                oldDecoyPrefix = m.group(1);
+            }
+            
+            // if the new prefix differs from the old one
+            if (!oldDecoyPrefix.equals(newDecoyPrefix)) {
+                final String message = String.format(
+                        "Decoy prefix in PepetideProphet options has changed from '%s' to '%s'.\n"
+                        + "Do you want to also change it in Philosopher Report "
+                        + "command?", oldDecoyPrefix, newDecoyPrefix);
                 
+                // does the user want to chnage the Report tag automatically?
+                int ans = JOptionPane.showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
+                if (ans == JOptionPane.YES_OPTION) {
+                    // check if Report tab had a decoy prefix at all (--tag XXX_)
+                    Pattern p = Pattern.compile("--tag\\s+([^\\s]+?)\\s*");
+                    String report = textReportFilter.getText();
+                    m = p.matcher(report);
+                    if (m.find()) {
+                        String newReportText = m.replaceAll(String.format("--tag %s_", newDecoyPrefix));
+                    } else {
+                        // if Reprot didn't have prefix, add it at the end
+                        String newReportText = String.format("%s --tag %s_", report, newDecoyPrefix);
+                        textReportFilter.setText(newReportText);
+                    }
+                }
             }
         }
     }
@@ -2350,10 +2387,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     
     private boolean validateAndSavePhilosopherPath(final String path) {
         
-        Path p = null;
+        Path p;
         try {
             p = Paths.get(path);
-            int  a = 1;
         } catch (Exception e) {
             // invalid input
             SwingUtilities.invokeLater(new Runnable() {
