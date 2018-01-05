@@ -1905,36 +1905,44 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         String oldText = textReportFilterFocusGained;
         if (!oldText.equals(newText)) {
             // check if the reverse tag has changed
-            Pattern p = Pattern.compile("--tag\\s+([^\\s]+?)\\s*");
-            String newVal ="", oldVal = "";
-            Matcher m = p.matcher(newText);
+            Pattern p1 = Pattern.compile("--tag\\s+([^\\s]+)");
+            String newVal = "", oldVal = "";
+            Matcher m = p1.matcher(newText);
             if (m.find()) {
                 newVal = m.group(1);
             }
-            m = p.matcher(oldText);
+            m = p1.matcher(oldText);
             if (m.find()) {
                 oldVal = m.group(1);
             }
             if (!oldVal.equals(newVal)) {
                 final String message = String.format(
                         "Decoy prefix in Philosopher Report options has changed "
-                        + "from '%s' to '%s'.\n Do you want to also change it in "
-                        + "PeptideProphet command?", oldVal, newVal);
+                        + "from '%s' to '%s'.\n"
+                        + "Do you want to also change it in PeptideProphet command?", oldVal, newVal);
                 
                 // does the user want to chnage the Report tag automatically?
                 int ans = JOptionPane.showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
                 if (ans == JOptionPane.YES_OPTION) {
-                    Pattern regex = Pattern.compile("--decoy\\s+([^\\s]+?)[\\s$]");
+                    Pattern p2 = Pattern.compile("--decoy\\s+([^\\s]+?)\\b");
                     String pepProphCmd = txtPeptideProphetCmdLineOptions.getText();
-                    m = p.matcher(pepProphCmd);
+                    m = p2.matcher(pepProphCmd);
                     String newPepProphText;
-                    if (m.find()) {
-                        newPepProphText = m.replaceAll(String.format("--tag %s_", newVal));
-                    } else {
-                        // if Reprot didn't have prefix, add it at the end
-                        newPepProphText = String.format("%s --tag %s_", pepProphCmd, newVal);
+                    if (newVal.endsWith("_")) {
+                        newVal = newVal.substring(0, newVal.length() - 1);
                     }
-                    textReportFilter.setText(newPepProphText);
+                    if (newVal.isEmpty()) {
+                        // the new value is a zero length string, i.e. it was deleted
+                        newPepProphText = m.replaceAll("");
+                    } else {
+                        if (m.find()) {
+                            newPepProphText = m.replaceAll(String.format("--decoy %s", newVal));
+                        } else {
+                            // if Reprot didn't have prefix, add it at the end
+                            newPepProphText = String.format("%s --decoy %s", pepProphCmd, newVal);
+                        }
+                    }
+                    txtPeptideProphetCmdLineOptions.setText(newPepProphText);
                 }
             }
         }
@@ -2389,17 +2397,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     private void validateAndSavePeptideProphetCmdLineOptions() {
-        String val = txtPeptideProphetCmdLineOptions.getText();
-        ThisAppProps.save(ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET, val);
-        if (!textPepProphetFocusGained.equals(val)) {
+        String curText = txtPeptideProphetCmdLineOptions.getText();
+        String oldText = textPepProphetFocusGained;
+        ThisAppProps.save(ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET, curText);
+        if (!oldText.equals(curText)) {
             // text in the field has changed
-            Pattern regex = Pattern.compile("--decoy\\s+([^\\s]+?)[\\s$]");
+            Pattern p1 = Pattern.compile("--decoy\\s+([^\\s]+?)\\b");
             String newDecoyPrefix = "", oldDecoyPrefix = "";
-            Matcher m = regex.matcher(val);
+            Matcher m = p1.matcher(curText);
             if (m.find()) {
                 newDecoyPrefix = m.group(1);
             }
-            m = regex.matcher(textPepProphetFocusGained);
+            m = p1.matcher(oldText);
             if (m.find()) {
                 oldDecoyPrefix = m.group(1);
             }
@@ -2415,15 +2424,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 int ans = JOptionPane.showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
                 if (ans == JOptionPane.YES_OPTION) {
                     // check if Report tab had a decoy prefix at all (--tag XXX_)
-                    Pattern p = Pattern.compile("--tag\\s+([^\\s]+?)\\s*");
+                    Pattern p2 = Pattern.compile("--tag\\s+([^\\s]+?)\\b");
                     String report = textReportFilter.getText();
-                    m = p.matcher(report);
+                    m = p2.matcher(report);
                     String newReportText;
-                    if (m.find()) {
-                        newReportText = m.replaceAll(String.format("--tag %s_", newDecoyPrefix));
+                    if (newDecoyPrefix.isEmpty()) {
+                        newReportText = m.replaceAll("");
                     } else {
-                        // if Reprot didn't have prefix, add it at the end
-                        newReportText = String.format("%s --tag %s_", report, newDecoyPrefix);
+                        if (m.find()) {
+                            newReportText = m.replaceAll(String.format("--tag %s_", newDecoyPrefix));
+                        } else {
+                            // if Reprot didn't have prefix, add it at the end
+                            newReportText = String.format("%s --tag %s_", report, newDecoyPrefix);
+                        }
                     }
                     textReportFilter.setText(newReportText);
                 }
