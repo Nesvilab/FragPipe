@@ -283,7 +283,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         btnClearCache = new javax.swing.JButton();
         btnLoadDefaultsOpen = new javax.swing.JButton();
         btnLoadDefaultsClosed = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
+        btnAboutInConfig = new javax.swing.JButton();
         panelSelectFiles = new javax.swing.JPanel();
         panelSelectedFiles = new javax.swing.JPanel();
         btnRawAddFiles = new javax.swing.JButton();
@@ -554,10 +554,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
-        jButton1.setText("About");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnAboutInConfig.setText("About");
+        btnAboutInConfig.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btnAboutInConfigActionPerformed(evt);
             }
         });
 
@@ -578,7 +578,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(btnLoadDefaultsClosed)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jButton1))
+                                .addComponent(btnAboutInConfig))
                             .addGroup(panelConfigLayout.createSequentialGroup()
                                 .addComponent(btnFindTools)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -603,7 +603,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addGroup(panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnLoadDefaultsOpen)
                     .addComponent(btnLoadDefaultsClosed)
-                    .addComponent(jButton1))
+                    .addComponent(btnAboutInConfig))
                 .addGap(18, 18, 18)
                 .addComponent(panelMsfraggerConfig, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -612,6 +612,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(91, Short.MAX_VALUE))
         );
+
+        validateGuiVersion();
 
         tabPane.addTab("Config", null, panelConfig, "Set up paths to tools");
 
@@ -1227,7 +1229,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             + "MSFragger - Ultrafast Proteomics Search Engine<br/>"
             + "GUI Wrapper (v" + Version.getVersion() + ")<br/>"
             + "Dmitry Avtonomov<br/>"
-            + "University of Michigan, 2017<br/>"
+            + "University of Michigan, 2017<br/><br/>"
+            + "<a href=\"" + getGuiDownloadLink() + "\">Click here to download</a> the latest version<br/><br/>"
             + "<a href=\"http://nesvilab.org/\">Alexey Nesvizhskii lab</a><br/>&nbsp;<br/>&nbsp;"
                             + "MSFragger authors and contributors:<br/>"
                             + "<ul>"
@@ -1573,6 +1576,101 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
         return isValid;
+    }
+
+    private String getGuiDownloadLink() {
+        String locallyKnownDownloadUrl = null;
+        try {
+            InputStream is = MsfraggerGuiFrame.class.getResourceAsStream("Bundle.properties");
+            if (is == null) {
+                throw new IllegalStateException("Could not read Bundle.properties from the classpath");
+            }
+            Properties prop = new Properties();
+            prop.load(is);
+            locallyKnownDownloadUrl = prop.getProperty(Version.PROP_DOWNLOAD_URL);
+            if (locallyKnownDownloadUrl == null) {
+                throw new IllegalStateException("Property "
+                        + Version.PROP_DOWNLOAD_URL 
+                        + " was not found in Bundle.properties");
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Error reading Bundle.properties from the classpath");
+        }
+        
+        return locallyKnownDownloadUrl;
+        //final String downloadUrl = props.getProperty(Version.PROP_DOWNLOAD_URL, locallyKnownDownloadUrl);
+    }
+    
+    private void validateGuiVersion() {
+        // The version from cmd line ouput is new enough to pass the local
+            // test. Now check the file on github.
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        String githubProps = IOUtils.toString(Version.PROPERTIES_URI.toURL(), Charset.forName("UTF-8"));
+                        Properties props = new Properties();
+                        props.load(new StringReader(githubProps));
+                        final String githubVersion = props.getProperty(Version.PROP_VER);
+                        if (githubVersion == null) {
+                            throw new IllegalStateException("Property "
+                                    + Version.PROP_VER 
+                                    + " was not found in Bundle.properties from github");
+                        }
+                        
+                        
+                        String locallyKnownDownloadUrl = null;
+                        try {
+                            InputStream is = MsfraggerGuiFrame.class.getResourceAsStream("Bundle.properties");
+                            if (is == null) {
+                                throw new IllegalStateException("Could not read Bundle.properties from the classpath");
+                            }
+                            Properties prop = new Properties();
+                            prop.load(is);
+                            locallyKnownDownloadUrl = prop.getProperty(Version.PROP_DOWNLOAD_URL);
+                            if (locallyKnownDownloadUrl == null) {
+                                throw new IllegalStateException("Property "
+                                        + Version.PROP_DOWNLOAD_URL 
+                                        + " was not found in Bundle.properties");
+                            }
+                        } catch (IOException e) {
+                            throw new IllegalStateException("Error reading Bundle.properties from the classpath");
+                        }
+                        
+                        final String downloadUrl = props.getProperty(Version.PROP_DOWNLOAD_URL, locallyKnownDownloadUrl);
+                        VersionComparator vc = new VersionComparator();
+                        if (vc.compare(Version.VERSION, githubVersion) < 0) {
+                            // show balloon popup, must be done on EDT
+                            SwingUtilities.invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    BalloonTip tip = tipMap.get(Version.PROP_VER);
+                                    if (tip != null) {
+                                        tip.closeBalloon();
+                                        tipMap.remove(Version.PROP_VER);
+                                    }
+
+                                    JEditorPane ep = SwingUtils.createClickableHtml(String.format(
+                                            "Your MSFragger-GUI version is [%s]<br>\n"
+                                            + "There is a newer version of MSFragger-GUI available [%s]).<br>\n"
+                                            + "Please <a href=\"%s\">click here</a> to download a newer one.", 
+                                            Version.VERSION, githubVersion, downloadUrl));
+
+                                    BalloonTip t = new BalloonTip(btnAboutInConfig, ep, 
+                                            new RoundedBalloonStyle(5,5,Color.WHITE, Color.BLACK), true);
+                                    t.setVisible(true);
+                                    tipMap.put(Version.PROP_VER, t);
+                                }
+                            });
+                        }
+                    } catch (IOException ex) {
+                        // it doesn't matter, it's fine if we can't fetch the file from github
+                        System.err.println("Could not download Bundle.properties file from github");
+                    }
+                }
+            });
+            t.start();
+        
     }
     
     private boolean validateMsfraggerVersion(String jarPath) {
@@ -2279,9 +2377,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         validateAndSaveReportFilter();
     }//GEN-LAST:event_textReportFilterFocusLost
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btnAboutInConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAboutInConfigActionPerformed
         btnAboutActionPerformed(null);
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_btnAboutInConfigActionPerformed
 
     private void btnReportDefaultsClosedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportDefaultsClosedActionPerformed
         loadDefaultsReportFilter(SearchTypeProp.closed);
@@ -3813,6 +3911,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAbout;
+    private javax.swing.JButton btnAboutInConfig;
     private javax.swing.JButton btnCheckJavaVersion;
     private javax.swing.JButton btnClearCache;
     private javax.swing.JButton btnClearConsole;
@@ -3849,7 +3948,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane consoleScrollPane;
     private javax.swing.JEditorPane editorMsfraggerCitation;
     private javax.swing.JEditorPane editorPhilosopherLink;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
