@@ -1795,7 +1795,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 File f = fileChooser.getSelectedFile();
                 
                 // Fragger first
-                Pattern regexFragger = Pattern.compile(".*?MSFragger[^\\/]?\\.jar", Pattern.CASE_INSENSITIVE);
+                Pattern regexFragger = Pattern.compile(".*?MSFragger[^\\/]+?\\.jar", Pattern.CASE_INSENSITIVE);
                 FileListing listing = new FileListing(Paths.get(f.getAbsolutePath()), regexFragger);
                 List<Path> foundFiles = listing.findFiles();
                 for(Path foundFile : foundFiles) {
