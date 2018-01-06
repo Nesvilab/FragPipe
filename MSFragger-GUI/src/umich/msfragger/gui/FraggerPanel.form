@@ -27,6 +27,9 @@
   </Layout>
   <SubComponents>
     <Container class="javax.swing.JPanel" name="panelMsFragger">
+      <Events>
+        <EventHandler event="componentShown" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="panelMsFraggerComponentShown"/>
+      </Events>
 
       <Layout>
         <DimensionLayout dim="0">
@@ -1313,6 +1316,7 @@
                         <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                           <SpinnerModel initial="-20.0" numberType="java.lang.Double" stepSize="10.0" type="number"/>
                         </Property>
+                        <Property name="enabled" type="boolean" value="false"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel2">
@@ -1325,6 +1329,7 @@
                         <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                           <SpinnerModel initial="20.0" numberType="java.lang.Double" stepSize="10.0" type="number"/>
                         </Property>
+                        <Property name="enabled" type="boolean" value="false"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JSpinner" name="spinnerPrecursorMassTol">
@@ -1341,7 +1346,11 @@
                       </Properties>
                       <Events>
                         <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="chkAsymmetricStateChanged"/>
+                        <EventHandler event="componentShown" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="chkAsymmetricComponentShown"/>
                       </Events>
+                      <AuxValues>
+                        <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="chkAsymmetricStateChanged(null);"/>
+                      </AuxValues>
                     </Component>
                   </SubComponents>
                 </Container>

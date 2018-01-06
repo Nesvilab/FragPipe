@@ -6,14 +6,6 @@
 package umich.msfragger.gui;
 
 import java.awt.Color;
-import umich.msfragger.params.PeptideProphetParams;
-import umich.msfragger.params.Philosopher;
-import umich.msfragger.params.ProteinProphetParams;
-import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.util.LogUtils;
-import umich.msfragger.util.OsUtils;
-import umich.msfragger.util.StringUtils;
-
 import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -27,10 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
@@ -38,11 +28,9 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.PosixFilePermission;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -79,7 +67,6 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.java.balloontip.BalloonTip;
-import net.java.balloontip.styles.BalloonTipStyle;
 import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
@@ -89,13 +76,20 @@ import umich.msfragger.gui.api.DataConverter;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.SimpleUniqueTableModel;
 import umich.msfragger.gui.api.TableModelColumn;
+import umich.msfragger.params.PeptideProphetParams;
+import umich.msfragger.params.Philosopher;
+import umich.msfragger.params.ProteinProphetParams;
+import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.fragger.MsfraggerProperties;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.GhostText;
 import umich.msfragger.util.HSLColor;
+import umich.msfragger.util.LogUtils;
+import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PathUtils;
+import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.VersionComparator;
 import umich.swing.console.TextConsole;
@@ -2022,7 +2016,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 // does the user want to chnage the Report tag automatically?
                 int ans = JOptionPane.showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
                 if (ans == JOptionPane.YES_OPTION) {
-                    Pattern p2 = Pattern.compile("--decoy\\s+([^\\s]+?)\\b");
+                    Pattern p2 = Pattern.compile("--decoy\\s+([^\\s]+)");
                     String pepProphCmd = txtPeptideProphetCmdLineOptions.getText();
                     m = p2.matcher(pepProphCmd);
                     String newPepProphText;
@@ -2276,8 +2270,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         public void run() {
                             List<String> lcmsFiles = getLcmsFilePaths();
                             List<Path> copiedFiles = getLcmsFilePathsInWorkdir(Paths.get(workingDir));
-                            if (lcmsFiles.size() != copiedFiles.size())
-                            throw new IllegalStateException("LCMS file list sizes should be equal.");
+                            if (lcmsFiles.size() != copiedFiles.size()) {
+                                throw new IllegalStateException("LCMS file list sizes should be equal.");
+                            }
                             for (int i = 0; i < lcmsFiles.size(); i++) {
                                 Path origPath = Paths.get(lcmsFiles.get(i));
                                 Path linkPath = copiedFiles.get(i);
@@ -2500,7 +2495,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         ThisAppProps.save(ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET, curText);
         if (!oldText.equals(curText)) {
             // text in the field has changed
-            Pattern p1 = Pattern.compile("--decoy\\s+([^\\s]+?)\\b");
+            Pattern p1 = Pattern.compile("--decoy\\s+([^\\s]+)");
             String newDecoyPrefix = "", oldDecoyPrefix = "";
             Matcher m = p1.matcher(curText);
             if (m.find()) {
@@ -2522,7 +2517,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 int ans = JOptionPane.showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
                 if (ans == JOptionPane.YES_OPTION) {
                     // check if Report tab had a decoy prefix at all (--tag XXX_)
-                    Pattern p2 = Pattern.compile("--tag\\s+([^\\s]+?)\\b");
+                    Pattern p2 = Pattern.compile("--tag\\s+([^\\s]+)");
                     String report = textReportFilter.getText();
                     m = p2.matcher(report);
                     String newReportText;

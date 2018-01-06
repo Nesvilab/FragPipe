@@ -148,12 +148,14 @@ public class FraggerPanel extends javax.swing.JPanel {
         
         comboPrecursorMassTol.setSelectedItem(params.getPrecursorMassUnits().toString());
         Double precursorMassTolerance = params.getPrecursorMassTolerance();
-        if (precursorMassTolerance != null)
+        if (precursorMassTolerance != null) {
             spinnerPrecursorMassTol.setValue(precursorMassTolerance);
+        }
         
         Double precursorMassLower = params.getPrecursorMassLower();
         Double precursorMassUpper = params.getPrecursorMassUpper();
-        boolean isAsymmetric = precursorMassLower != null && precursorMassUpper != null;
+        boolean isAsymmetric = precursorMassLower != null && precursorMassUpper != null && 
+                Math.abs(precursorMassLower) != Math.abs(precursorMassUpper);
         chkAsymmetric.setSelected(isAsymmetric);
         if (isAsymmetric) {
             spinnerPrecursorMassTolLo.setValue(precursorMassLower);
@@ -162,6 +164,9 @@ public class FraggerPanel extends javax.swing.JPanel {
             spinnerPrecursorMassTolLo.setValue(Math.abs(precursorMassTolerance) * -1);
             spinnerPrecursorMassTolHi.setValue(Math.abs(precursorMassTolerance));
         }
+        spinnerPrecursorMassTolLo.setEnabled(isAsymmetric);
+        spinnerPrecursorMassTolHi.setEnabled(isAsymmetric);
+        spinnerPrecursorMassTol.setEnabled(!isAsymmetric);
         
         comboPrecursorTrueTol.setSelectedItem(params.getPrecursorTrueUnits().toString());
         spinnerPrecursorTrueTol.setValue(params.getPrecursorTrueTolerance());
@@ -510,6 +515,12 @@ public class FraggerPanel extends javax.swing.JPanel {
         chkRunMsfragger = new javax.swing.JCheckBox();
         btnMsfraggerDefaultsClosed = new javax.swing.JButton();
         btnMsfraggerDefaultsOpen = new javax.swing.JButton();
+
+        panelMsFragger.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                panelMsFraggerComponentShown(evt);
+            }
+        });
 
         panelMsfraggerParams.setBorder(javax.swing.BorderFactory.createTitledBorder("Options"));
 
@@ -1110,10 +1121,12 @@ public class FraggerPanel extends javax.swing.JPanel {
         });
 
         spinnerPrecursorMassTolLo.setModel(new javax.swing.SpinnerNumberModel(-20.0d, null, null, 10.0d));
+        spinnerPrecursorMassTolLo.setEnabled(false);
 
         jLabel2.setText("-");
 
         spinnerPrecursorMassTolHi.setModel(new javax.swing.SpinnerNumberModel(20.0d, null, null, 10.0d));
+        spinnerPrecursorMassTolHi.setEnabled(false);
 
         spinnerPrecursorMassTol.setModel(new javax.swing.SpinnerNumberModel(20.0d, null, null, 10.0d));
 
@@ -1122,6 +1135,11 @@ public class FraggerPanel extends javax.swing.JPanel {
         chkAsymmetric.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 chkAsymmetricStateChanged(evt);
+            }
+        });
+        chkAsymmetric.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                chkAsymmetricComponentShown(evt);
             }
         });
 
@@ -1160,6 +1178,8 @@ public class FraggerPanel extends javax.swing.JPanel {
                     .addComponent(chkAsymmetric))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        chkAsymmetricStateChanged(null);
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -1572,11 +1592,24 @@ public class FraggerPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnMsfraggerDefaultsClosedActionPerformed
 
     private void chkAsymmetricStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_chkAsymmetricStateChanged
-        final boolean selected = chkAsymmetric.isSelected();
-        spinnerPrecursorMassTol.setEnabled(!selected);
-        spinnerPrecursorMassTolLo.setEnabled(selected);
-        spinnerPrecursorMassTolHi.setEnabled(selected);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                final boolean selected = chkAsymmetric.isSelected();
+                spinnerPrecursorMassTol.setEnabled(!selected);                
+                spinnerPrecursorMassTolLo.setEnabled(selected);
+                spinnerPrecursorMassTolHi.setEnabled(selected);
+            }
+        });
     }//GEN-LAST:event_chkAsymmetricStateChanged
+
+    private void panelMsFraggerComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_panelMsFraggerComponentShown
+        chkAsymmetricStateChanged(null);
+    }//GEN-LAST:event_panelMsFraggerComponentShown
+
+    private void chkAsymmetricComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_chkAsymmetricComponentShown
+        chkAsymmetricStateChanged(null);
+    }//GEN-LAST:event_chkAsymmetricComponentShown
 
     public void loadDefaultsClosed() {
         try {
