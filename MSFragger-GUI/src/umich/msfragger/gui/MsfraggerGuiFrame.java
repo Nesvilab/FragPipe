@@ -2965,6 +2965,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             Path savedParamsPath = Paths.get(workingDir, MsfraggerParams.DEFAULT_FILE);
             try {
                 params.save(new FileOutputStream(savedParamsPath.toFile()));
+                // cache the params
+                params.save();
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, "Could not save fragger.params file to working dir.\n",
                         "Error", JOptionPane.ERROR_MESSAGE);
