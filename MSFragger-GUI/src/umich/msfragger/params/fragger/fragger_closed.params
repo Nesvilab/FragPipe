@@ -2,6 +2,8 @@
 num_threads = 0                        # 0=poll CPU to set num threads; else specify num threads directly (max 64)
 
 precursor_mass_tolerance = 100.00
+precursor_mass_lower = -100.00
+precursor_mass_upper = 100.00
 precursor_mass_units = 1               # 0=Daltons, 1=ppm
 precursor_true_tolerance = 20.00
 precursor_true_units = 1               # 0=Daltons, 1=ppm

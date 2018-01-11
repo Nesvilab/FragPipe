@@ -552,7 +552,7 @@
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                           <Connection code="getDefaultVarModTableModel()" type="code"/>
                         </Property>
-                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Variable Modifications.&lt;br/&gt;&#xa;Values:&lt;br/&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;A-Z amino acid codes&lt;/li&gt;&#xa;&lt;li&gt;&quot;*&quot; for any amino acid&lt;/li&gt;&#xa;&lt;li&gt;&quot;[&quot; and &quot;]&quot; specifies protein termini&lt;/li&gt;&#xa;&lt;li&gt;&quot;n&quot; and &quot;c&quot; specifies peptide termini&lt;/li&gt;&#xa;&lt;/ul&gt;"/>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Variable Modifications.&lt;br/&gt;&#xa;Values:&lt;br/&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;A-Z amino acid codes&lt;/li&gt;&#xa;&lt;li&gt;*&#x200b; &#x200b;is&#x200b; &#x200b;used&#x200b; &#x200b;to&#x200b; &#x200b;represent&#x200b; &#x200b;any&#x200b; &#x200b;amino&#x200b; &#x200b;acid&lt;/li&gt;&#xa;&lt;li&gt;^&#x200b; &#x200b;is&#x200b; &#x200b;used&#x200b; &#x200b;to&#x200b; &#x200b;represent&#x200b; &#x200b;a&#x200b; &#x200b;terminus&lt;/li&gt;&#xa;&lt;li&gt;[&#x200b; &#x200b;is&#x200b; &#x200b;a&#x200b; &#x200b;modifier&#x200b; &#x200b;for&#x200b; &#x200b;protein&#x200b; &#x200b;N-terminal&lt;/li&gt;&#xa;&lt;li&gt;]&#x200b; &#x200b;is&#x200b; &#x200b;a&#x200b; &#x200b;modifier&#x200b; &#x200b;for&#x200b; &#x200b;protein&#x200b; &#x200b;C-terminal&lt;/li&gt;&#xa;&lt;li&gt;n&#x200b; &#x200b;is&#x200b; &#x200b;a&#x200b; &#x200b;modifier&#x200b; &#x200b;for&#x200b; &#x200b;peptide&#x200b; &#x200b;N-terminal&lt;/li&gt;&#xa;&lt;li&gt;c&#x200b; &#x200b;is&#x200b; &#x200b;a&#x200b; &#x200b;modifier&#x200b; &#x200b;for&#x200b; &#x200b;peptide&#x200b; &#x200b;C-terminal&lt;/li&gt;&#xa;&lt;/ul&gt;&#xa;Syntax&#x200b; &#x200b;Examples:&#xa;&lt;ul&gt;&#xa;&lt;li&gt;15.9949&#x200b; &#x200b;M&#x200b; &#x200b;(for&#x200b; &#x200b;oxidation&#x200b; &#x200b;on&#x200b; &#x200b;methionine)&lt;/li&gt;&#xa;&lt;li&gt;79.66331&#x200b; &#x200b;STY&#x200b; &#x200b;(for&#x200b; &#x200b;phosphorylation)&lt;/li&gt;&#xa;&lt;li&gt;-17.0265&#x200b; &#x200b;nQnC&#x200b; &#x200b;(for&#x200b; &#x200b;pyro-Glu&#x200b; &#x200b;or&#x200b; &#x200b;loss&#x200b; &#x200b;of&#x200b; &#x200b;ammonia&#x200b; &#x200b;at peptide&#x200b; &#x200b;N-terminal)&lt;/li&gt;&#xa;&lt;/ul&gt;&#xa;Example&#x200b; &#x200b;(M&#x200b; &#x200b;oxidation&#x200b; &#x200b;and&#x200b; &#x200b;N-terminal&#x200b; &#x200b;acetylation):&#xa;&lt;ul&gt;&#xa;&lt;li&gt;variable_mod_01&#x200b; &#x200b;=&#x200b; &#x200b;15.9949&#x200b; &#x200b;M&lt;/li&gt;&#xa;&lt;li&gt;variable_mod_02&#x200b; &#x200b;=&#x200b; &#x200b;42.0106&#x200b; &#x200b;[^&lt;/li&gt;&#xa;&lt;/ul&gt;"/>
                       </Properties>
                     </Component>
                   </SubComponents>
@@ -1261,16 +1261,12 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="comboPrecursorMassTol" min="-2" pref="65" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="spinnerPrecursorMassTol" min="-2" pref="70" max="-2" attributes="0"/>
-                              <EmptySpace max="32767" attributes="0"/>
-                              <Component id="chkAsymmetric" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
                               <Component id="spinnerPrecursorMassTolLo" min="-2" pref="70" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="spinnerPrecursorMassTolHi" min="-2" pref="70" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -1284,8 +1280,6 @@
                                   <Component id="spinnerPrecursorMassTolLo" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="spinnerPrecursorMassTolHi" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="spinnerPrecursorMassTol" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="chkAsymmetric" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="32767" attributes="0"/>
                           </Group>
@@ -1316,7 +1310,6 @@
                         <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                           <SpinnerModel initial="-20.0" numberType="java.lang.Double" stepSize="10.0" type="number"/>
                         </Property>
-                        <Property name="enabled" type="boolean" value="false"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel2">
@@ -1329,28 +1322,7 @@
                         <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                           <SpinnerModel initial="20.0" numberType="java.lang.Double" stepSize="10.0" type="number"/>
                         </Property>
-                        <Property name="enabled" type="boolean" value="false"/>
                       </Properties>
-                    </Component>
-                    <Component class="javax.swing.JSpinner" name="spinnerPrecursorMassTol">
-                      <Properties>
-                        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                          <SpinnerModel initial="20.0" numberType="java.lang.Double" stepSize="10.0" type="number"/>
-                        </Property>
-                      </Properties>
-                    </Component>
-                    <Component class="javax.swing.JCheckBox" name="chkAsymmetric">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Asymmetric"/>
-                        <Property name="toolTipText" type="java.lang.String" value="Asymmetric precursor isolation window"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="chkAsymmetricStateChanged"/>
-                        <EventHandler event="componentShown" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="chkAsymmetricComponentShown"/>
-                      </Events>
-                      <AuxValues>
-                        <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="chkAsymmetricStateChanged(null);"/>
-                      </AuxValues>
                     </Component>
                   </SubComponents>
                 </Container>

@@ -200,8 +200,41 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             public void run() {
                 validateAndSaveMsfraggerPath(textBinMsfragger.getText());
                 validateAndSavePhilosopherPath(textBinPhilosopher.getText());
+                checkPreviouslySavedParams();
             }
         });
+    }
+    
+    private void checkPreviouslySavedParams() {
+        ThisAppProps cached = ThisAppProps.loadFromTemp();
+        if (cached != null) {
+            // if there was a cached version of properties
+            VersionComparator vc = new VersionComparator();
+            String storedVer = cached.getProperty(Version.PROP_VER, "0.0");
+            final String minVer = "4.0";
+            if (vc.compare(storedVer, minVer) < 0) {
+                // and the version was less than 4.0
+                String msg = String.format("Looks like you've upgraded from an "
+                        + "older version to 4.0+,\n"
+                        + "it is recommended to reset the default parameters.\n\n"
+                        + "Reset the parameters now? \n\n"
+                        + "This message won't be displayed again.");
+                String[] options = {"Cancel", "Load defaults for Closed", "Load defaults of Open"};
+                int result = JOptionPane.showOptionDialog(this, msg, "Reset to defautls", 
+                        JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+                switch (result) {
+                    case 1:
+                        btnLoadDefaultsClosedActionPerformed(null);
+                        break;
+                    case 2:
+                        btnLoadDefaultsOpenActionPerformed(null);
+                        break;
+                }
+                
+                // rewrite the cached params file with a versioned one
+                ThisAppProps.save(Version.PROP_VER, Version.VERSION);
+            }
+        }
     }
     
     private void enablePhilosopherPanels(boolean enabled) {

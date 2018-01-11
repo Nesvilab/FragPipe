@@ -32,7 +32,6 @@ import umich.msfragger.params.Props;
 import umich.msfragger.params.enums.CleavageType;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.enums.MassTolUnits;
-import umich.msfragger.params.enums.MsLevel;
 import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.StringUtils;
 
