@@ -116,6 +116,8 @@ public class FraggerPanel extends javax.swing.JPanel {
             params.load();
             fillFormFromParams(params);
             
+            
+            
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, 
                     "Could not load default fragger params neither from temp file "

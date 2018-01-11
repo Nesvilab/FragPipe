@@ -1553,23 +1553,23 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
     
     private boolean validateMsfraggerJavaVersion() {
-        final boolean isValid = SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8);
+        final boolean javaAtLeast18 = SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8);
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                if (!isValid) {
-                    BalloonTip tip = tipMap.get(TIP_NAME_FRAGGER_JAVA_VER);
-                    if (tip != null) {
-                        tip.closeBalloon();
-                        tipMap.remove(TIP_NAME_FRAGGER_JAVA_VER);
-                    }
-                    tip = new BalloonTip(lblFraggerJavaVer, "Msfragger requires at least Java 1.8.\n");
+                BalloonTip tip = tipMap.get(TIP_NAME_FRAGGER_JAVA_VER);
+                if (tip != null) {
+                    tip.closeBalloon();
+                    tipMap.remove(TIP_NAME_FRAGGER_JAVA_VER);
+                }
+                if (!javaAtLeast18) {
+                    tip = new BalloonTip(lblFraggerJavaVer, "Msfragger requires Java 1.8.\n");
                     tipMap.put(TIP_NAME_FRAGGER_JAVA_VER, tip);
                     tip.setVisible(true);
                 }
             }
         });
-        return isValid;
+        return javaAtLeast18;
     }
 
     private String getGuiDownloadLink() {

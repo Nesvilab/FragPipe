@@ -56,6 +56,11 @@ public class ThisAppProps extends Properties {
         thisAppProps.save();
     }
     
+    
+    /**
+     * Tries to load previously saved properties.
+     * @return null if the file didn't exist or could not be loaded.
+     */
     public static ThisAppProps loadFromTemp()  {
         Path path = Paths.get(TEMP_DIR, TEMP_FILE_NAME);
         if (!Files.exists(path)) {
