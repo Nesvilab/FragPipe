@@ -252,9 +252,11 @@ public class FraggerPanel extends javax.swing.JPanel {
         
         if (hasIllegalSeq) {
             String msg = "When populating the form we've noticed that variable modifications\n"
-                    + "table contains illegal site specification \"[*\".\n\n"
-                    + "This is likely a carryover from older versions of Fragger parameters.\n"
-                    + "We suggest reloading default values.\n"
+                    + "table contains the site specification '[*'. This is likely a carryover\n"
+                    + "from older versions of Fragger parameters. Newer versions of MSFragger\n"
+                    + "use '[^' to mark N-terminal modifications for improved compatibility\n"
+                    + "with downstream tools.\n\n"
+                    + "We suggest reloading default values.\n\n"
                     + "You can fix it yourself in the variable modifications table "
                     + "later if you'd like.";
             String[] options = {"Cancel", "Load defaults for Closed", "Load defaults of Open"};
