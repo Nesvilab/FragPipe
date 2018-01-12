@@ -1604,7 +1604,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     // check for Java 9
                     final String jver = SystemUtils.JAVA_SPECIFICATION_VERSION;
                     if (jver != null) {
-                        if (vc.compare(jver, "1.8") > 0) {
+                        if (vc.compare(jver, "1.9") >= 0) {
                             tip = new BalloonTip(lblFraggerJavaVer, "<html>Looks like you're running Java 9 or higher.<br/>MSFragger only supports Java 8.\n");
                         }
                     }
@@ -1714,6 +1714,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
     
     private boolean validateMsfraggerVersion(String jarPath) {
+        // only validate Fragger version if the current Java version is 1.8 or higher
+        if (!SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8)) {
+            // we can't test fragger binary verison when java version is less than 1.8
+            return true;
+        }
+        
         ProcessBuilder pb = new ProcessBuilder("java", "-jar", jarPath);
         pb.redirectErrorStream(true);
         Pattern regex = Pattern.compile("MSFragger version (MSFragger-([\\d\\.]{4,}))", Pattern.CASE_INSENSITIVE);
@@ -1735,7 +1741,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
             pr.waitFor();
         } catch (IOException | InterruptedException e) {
-            
+            throw new IllegalStateException("Error while creating a java process for MSFragger test.");
         }
         final String matchedVersion = verStr;
         
