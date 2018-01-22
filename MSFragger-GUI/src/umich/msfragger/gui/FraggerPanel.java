@@ -43,13 +43,13 @@ import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 import net.java.balloontip.BalloonTip;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
-import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.enums.CleavageType;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.enums.MassTolUnits;
 import umich.msfragger.params.enums.MsLevel;
 import umich.msfragger.params.fragger.Mod;
+import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.util.DocumentFilters;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
@@ -114,13 +114,29 @@ public class FraggerPanel extends javax.swing.JPanel {
             params.load();
             fillFormFromParams(params);
             
-            
-            
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, 
-                    "Could not load default fragger params neither from temp file "
-                            + "nor from the included one in the jar: " + ex.getMessage(), 
-                    "Error", JOptionPane.WARNING_MESSAGE);
+        } catch (Exception e) {
+            // something went wrong when loading defaults from the temp storage
+            String message = String.format("Could not load previously stored "
+                    + "parameters while creating MSFragger panel.\n\n"
+                    + "Load defaults instead?\n\n"
+                    + "If you choose to load defaults you might also want to click\n"
+                    + "the 'Load defaults..' button on the Config panel to make sure\n"
+                    + "that other panels are in synch with all the correct options.\n\n"
+                    + "If you choose cancel, some parts of the MSFragger panel might not\n"
+                    + "be pre-populated with data.");
+            String[] options = {"Cancel", "Load defaults for Closed", "Load defaults of Open"};
+            int result = JOptionPane.showOptionDialog(this, message, "Reset to defautls", 
+                        JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+            switch (result) {
+                case 1:
+                    params.loadDefaultsClosedSearch();
+                    fillFormFromParams(params);
+                    break;
+                case 2:
+                    params.loadDefaults();
+                    fillFormFromParams(params);
+                    break;
+            }
         }
     }
     
@@ -1465,12 +1481,8 @@ public class FraggerPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnMsfraggerDefaultsOpenActionPerformed
 
     public void loadDefaultsOpen() {
-        try {
-            params.loadDefaults();
-            fillFormFromParams(params);
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "Could not load MSFragger Open Search defaults", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        params.loadDefaults();
+        fillFormFromParams(params);
     }
     
     private void textEnzymeNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textEnzymeNameActionPerformed
@@ -1586,12 +1598,8 @@ public class FraggerPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_panelMsFraggerComponentShown
 
     public void loadDefaultsClosed() {
-        try {
-            params.loadDefaultsClosedSearch();
-            fillFormFromParams(params);
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "Could not load MSFragger Closed Search defaults", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        params.loadDefaultsClosedSearch();
+        fillFormFromParams(params);
     }
     
     public static PlainDocument getFilterIsotopeCorrection() {

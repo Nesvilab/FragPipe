@@ -175,8 +175,9 @@ public class MsfraggerParams {
      */
     public void load() throws IOException {
         // first check if there is a temp file saved
-        if (Files.exists(tempFilePath())) {
-            try (FileInputStream fis = new FileInputStream(tempFilePath().toFile())) {
+        Path tempFilePath = tempFilePath();
+        if (Files.exists(tempFilePath)) {
+            try (FileInputStream fis = new FileInputStream(tempFilePath.toFile())) {
                 load(fis);
             }
         } else {
@@ -184,12 +185,22 @@ public class MsfraggerParams {
         }
     }
     
-    public void loadDefaults() throws IOException {
-        load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_OPENSEARCH));
+    public void loadDefaults() {
+        try {
+            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_OPENSEARCH));
+        } catch (IOException e) {
+            // this is strange, we're loading stuff from our own jar, should not happen
+            throw new IllegalStateException("Could not load MSFragger defaults for Open Search from the jar itself.", e);
+        }
     }
     
-    public void loadDefaultsClosedSearch() throws IOException {
-        load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_CLOSEDSEARCH));
+    public void loadDefaultsClosedSearch() {
+        try {
+            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_CLOSEDSEARCH));
+        } catch (IOException e) {
+            // this is strange, we're loading stuff from our own jar, should not happen
+            throw new IllegalStateException("Could not load MSFragger defaults for Closed Search from the jar itself.", e);
+        }
     }
     
     public void load(InputStream is) throws IOException {
@@ -650,7 +661,10 @@ public class MsfraggerParams {
                 continue;
             String[] split = p.value.split("\\s+");
             if (split.length != 2)
-                throw new IllegalStateException("Can't interpret variable mod from properties as delta mass and sites");
+                throw new IllegalStateException(String.format(
+                        "Can't interpret variable mod from properties as delta mass and sites.\n"
+                        + "Splitting by '\\s+' regex resulted not in 2 columns, as expected.\n"
+                        + "Variable mod string was: \"%s\"", p.value));
             for (int j = 0; j < split.length; j++)
                 split[j] = split[j].trim();
             
@@ -658,10 +672,16 @@ public class MsfraggerParams {
             try {
                 dm = Double.parseDouble(split[0]);
             } catch (NumberFormatException nfe) {
-                throw new IllegalStateException("Can't interpret variable mod from properties as delta mass and sites");
+                throw new IllegalStateException(String.format(
+                        "Can't interpret variable mod from properties as delta mass and sites.\n"
+                        + "Could not parse the first column as a Double.\n"
+                        + "Variable mod string was: \"%s\"", p.value));
             }
             if (StringUtils.isNullOrWhitespace(split[1]))
-                throw new IllegalStateException("Can't interpret variable mod from properties as delta mass and sites");
+                throw new IllegalStateException(String.format(
+                        "Can't interpret variable mod from properties as delta mass and sites.\n"
+                        + "The second column was null or whitespace.\n"
+                        + "Variable mod string was: \"%s\"", p.value));
             
             mods.add(new Mod(dm, split[1], p.isEnabled));
         }
