@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
@@ -80,8 +81,10 @@ public class FraggerPanel extends javax.swing.JPanel {
      * the whole application is just one large mess of a java swing form.
      */
     public FraggerPanel(MsfraggerGuiFrame frame) {
-        initComponents();
         this.frame = new WeakReference<>(frame);
+        this.setLocale(frame.getLocale());
+        
+        initComponents();
         initMore();
     }
 
@@ -116,7 +119,7 @@ public class FraggerPanel extends javax.swing.JPanel {
             
         } catch (Exception e) {
             // something went wrong when loading defaults from the temp storage
-            String message = String.format("Could not load previously stored "
+            String message = String.format(Locale.ROOT, "Could not load previously stored "
                     + "parameters while creating MSFragger panel.\n\n"
                     + "Load defaults instead?\n\n"
                     + "If you choose to load defaults you might also want to click\n"

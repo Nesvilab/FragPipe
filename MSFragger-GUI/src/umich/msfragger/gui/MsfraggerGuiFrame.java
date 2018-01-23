@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -132,7 +133,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private void initMore() {
         
         setTitle("MSFragger GUI (v" + Version.getVersion() + ")");
-    
+        setLocale(Locale.ROOT);
+        
         console = new TextConsole();
         consoleScrollPane.setViewportView(console);
         
@@ -215,7 +217,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             final String minVer = "4.0";
             if (vc.compare(storedVer, minVer) < 0) {
                 // and the version was less than 4.0
-                String msg = String.format("Looks like you've upgraded from an "
+                String msg = String.format(Locale.ROOT, "Looks like you've upgraded from an "
                         + "older version to 4.0+,\n"
                         + "it is recommended to reset the default parameters.\n\n"
                         + "Reset the parameters now? \n\n"
@@ -1691,7 +1693,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                         tipMap.remove(Version.PROP_VER);
                                     }
 
-                                    JEditorPane ep = SwingUtils.createClickableHtml(String.format(
+                                    JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT, 
                                             "Your MSFragger-GUI version is [%s]<br>\n"
                                             + "There is a newer version of MSFragger-GUI available [%s]).<br>\n"
                                             + "Please <a href=\"%s\">click here</a> to download a newer one.", 
@@ -1749,13 +1751,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                  
                     JEditorPane ep = null;
                     if (isNewVersionStringFound) {
-                        ep = SwingUtils.createClickableHtml(String.format(
+                        ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT, 
                                 "Newer version of Philosopher available.<br>\n"
                                 + "Please <a href=\"%s\">click here</a> to download a newer one.", 
                                 downloadLink));
                         
                     } else if (returnCode != 0) {
-                        ep = SwingUtils.createClickableHtml(String.format(
+                        ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT, 
                                 "Philosopher version too old and is no longer supported.<br>\n"
                                 + "Please <a href=\"%s\">click here</a> to download a newer one.", 
                                 Philosopher.DOWNLOAD_LINK));
@@ -1835,7 +1837,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
             
             
-            JEditorPane ep = SwingUtils.createClickableHtml(String.format("Your version of MSFragger "
+            JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT, 
+                    "Your version of MSFragger "
                     + "is not supported anumore.<br>\n"
                     + "Please <a href=\"%s\">click here</a> to download a newer one.", 
                     MsfraggerProperties.DOWNLOAD_URL));
@@ -1853,7 +1856,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 balloonMsfragger.closeBalloon();
             }
             
-            JEditorPane ep = SwingUtils.createClickableHtml(String.format(
+            JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT, 
                     "There is a newer version of MSFragger available.<br>\n"
                     + "Your version is [%s]<br>\n"
                     + "Please <a href=\"%s\">click here</a> to download a newer one.", 
@@ -1889,7 +1892,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                         balloonMsfragger.closeBalloon();
                                     }
 
-                                    JEditorPane ep = SwingUtils.createClickableHtml(String.format(
+                                    JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT, 
                                             "Your version is [%s]<br>\n"
                                             + "There is a newer version of MSFragger available [%s]).<br>\n"
                                             + "Please <a href=\"%s\">click here</a> to download a newer one.", 
@@ -2124,7 +2127,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 oldVal = m.group(1);
             }
             if (!oldVal.equals(newVal)) {
-                final String message = String.format(
+                final String message = String.format(Locale.ROOT, 
                         "Decoy prefix in Philosopher Report options has changed "
                         + "from '%s' to '%s'.\n"
                         + "Do you want to also change it in PeptideProphet command?", oldVal, newVal);
@@ -2144,10 +2147,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         newPepProphText = m.replaceAll("");
                     } else {
                         if (m.find()) {
-                            newPepProphText = m.replaceAll(String.format("--decoy %s", newVal));
+                            newPepProphText = m.replaceAll(String.format(Locale.ROOT, "--decoy %s", newVal));
                         } else {
                             // if Reprot didn't have prefix, add it at the end
-                            newPepProphText = String.format("%s --decoy %s", pepProphCmd, newVal);
+                            newPepProphText = String.format(Locale.ROOT, "%s --decoy %s", pepProphCmd, newVal);
                         }
                     }
                     txtPeptideProphetCmdLineOptions.setText(newPepProphText);
@@ -2219,7 +2222,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             try {
                 createLcmsFileSymlinks(Paths.get(workingDir));
             } catch (IOException ex) {
-                String msg = String.format("Something went wronng when creating symlinks to LCMS files.\n%s", ex.getMessage());
+                String msg = String.format(Locale.ROOT, "Something went wronng when creating symlinks to LCMS files.\n%s", ex.getMessage());
                 JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
 
                 resetRunButtons(true);
@@ -2250,7 +2253,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 for (String f : lcmsFilePaths) {
                     if (f.toLowerCase().endsWith(".mgf")) {
                         JCheckBox checkbox = new JCheckBox("Do not show this message again.");
-                        String msg = String.format("The list of input files contains MGF entries.\n"
+                        String msg = String.format(Locale.ROOT, "The list of input files contains MGF entries.\n"
                                 + "MSFragger has limited MGF support (ProteoWizard output is OK).\n"
                                 + "The search might fail unexpectedly with errors.\n"
                                 + "Please consider converting files to mzML/mzXML with ProteoWizard.");
@@ -2295,7 +2298,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //            processBuilders.addAll(processBuildersDeleteFiles);
         }
 
-        LogUtils.println(console, String.format("Will execute %d commands:", processBuilders.size()));
+        LogUtils.println(console, String.format(Locale.ROOT, "Will execute %d commands:", processBuilders.size()));
         for (final ProcessBuilder pb : processBuilders) {
             StringBuilder sb = new StringBuilder();
             List<String> command = pb.command();
@@ -2357,7 +2360,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 }
                                 try {
                                     int exitValue = process.exitValue();
-                                    toAppend = String.format("Process finished, exit value: %d\n", exitValue);
+                                    toAppend = String.format(Locale.ROOT, "Process finished, exit value: %d\n", exitValue);
                                     LogUtils.println(console, toAppend);
                                     break;
                                 } catch (IllegalThreadStateException ignore) {
@@ -2366,13 +2369,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                             }
 
                         } catch (IOException ex) {
-                            String toAppend = String.format("IOException: Error in process,\n%s", ex.getMessage());
+                            String toAppend = String.format(Locale.ROOT, "IOException: Error in process,\n%s", ex.getMessage());
                             LogUtils.println(console, toAppend);
                         } catch (InterruptedException ex) {
                             if (process != null) {
                                 process.destroy();
                             }
-                            String toAppend = String.format("InterruptedException: Error in process,\n%s", ex.getMessage());
+                            String toAppend = String.format(Locale.ROOT, "InterruptedException: Error in process,\n%s", ex.getMessage());
                             LogUtils.println(console, toAppend);
                         }
                     }
@@ -2641,10 +2644,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         newReportText = m.replaceAll("");
                     } else {
                         if (m.find()) {
-                            newReportText = m.replaceAll(String.format("--tag %s_", newDecoyPrefix));
+                            newReportText = m.replaceAll(String.format(Locale.ROOT, "--tag %s_", newDecoyPrefix));
                         } else {
                             // if Reprot didn't have prefix, add it at the end
-                            newReportText = String.format("%s --tag %s_", report, newDecoyPrefix);
+                            newReportText = String.format(Locale.ROOT, "%s --tag %s_", report, newDecoyPrefix);
                         }
                     }
                     textReportFilter.setText(newReportText);
@@ -2917,7 +2920,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         os = os != null ? os : "?";
         OsUtils.ARCH arch = OsUtils.getSystemArch();
         String archStr = arch != null ? arch.toString().toLowerCase() : "?";
-        String sysInfo = String.format("System OS: %s, Architecture: %s", os, archStr);
+        String sysInfo = String.format(Locale.ROOT, "System OS: %s, Architecture: %s", os, archStr);
         return sysInfo;
     }
     

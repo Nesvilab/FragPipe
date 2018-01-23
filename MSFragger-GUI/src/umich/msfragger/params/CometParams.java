@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -171,9 +172,9 @@ public class CometParams implements PropertyFileContent {
             String propName = matcher.group(1);
             String propVal =  matcher.group(2);
             if (propName.isEmpty())
-                throw new ParsingException(String.format("Property on line number %d had empty name", lineNum));
+                throw new ParsingException(String.format(Locale.ROOT, "Property on line number %d had empty name", lineNum));
             if (propVal.isEmpty())
-                throw new ParsingException(String.format("Property on line number %d had empty value", lineNum));
+                throw new ParsingException(String.format(Locale.ROOT, "Property on line number %d had empty value", lineNum));
             cometParams.mapLines.put(lineNum, new PropLine(null, propName, propVal, comment));
             cometParams.mapProps.put(propName, lineNum);
             cometParams.props.put(propName, propVal);

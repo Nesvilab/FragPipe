@@ -7,6 +7,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Locale;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -156,7 +157,7 @@ public class SwingLink extends JLabel {
 
         public String format(String text) {
             String underlinedText = underline ? "<u>" + text + "</u>" : text;
-            return String.format(
+            return String.format(Locale.ROOT, 
                     FORMAT_STRING, color.getRed(), color.getGreen(), color.getBlue(), underlinedText);
         }
     }

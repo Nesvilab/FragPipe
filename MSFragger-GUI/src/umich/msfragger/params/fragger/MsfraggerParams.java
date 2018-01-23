@@ -27,6 +27,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import umich.msfragger.params.Props;
 import umich.msfragger.params.enums.CleavageType;
@@ -655,7 +656,7 @@ public class MsfraggerParams {
     public List<Mod> getVariableMods() {
         ArrayList<Mod> mods = new ArrayList<>(VAR_MOD_COUNT_MAX);
         for (int i = 0; i < VAR_MOD_COUNT_MAX; i++) {
-            String name = String.format("%s_%02d", PROP_variable_mod, i+1);
+            String name = String.format(Locale.ROOT, "%s_%02d", PROP_variable_mod, i+1);
             Props.Prop p = props.getProp(name);
             if (p == null)
                 continue;
@@ -692,8 +693,8 @@ public class MsfraggerParams {
     public void setVariableMods(List<Mod> mods) {
         for (int i = 0; i < mods.size(); i++) {
             Mod vm = mods.get(i);
-            String name = String.format("%s_%02d", PROP_variable_mod, i+1);
-            String value = String.format("%.5f %s", vm.massDelta, vm.sites);
+            String name = String.format(Locale.ROOT, "%s_%02d", PROP_variable_mod, i+1);
+            String value = String.format(Locale.ROOT, "%.5f %s", vm.massDelta, vm.sites);
             props.setProp(name, value, vm.isEnabled);
         }
     }
@@ -702,7 +703,7 @@ public class MsfraggerParams {
         ArrayList<Mod> mods = new ArrayList<>(ADDON_NAMES.length);
         for (int i = 0; i < ADDON_NAMES.length; i++) {
             String siteName = ADDON_NAMES[i];
-            String name = String.format("%s_%s", PROP_add, siteName);
+            String name = String.format(Locale.ROOT, "%s_%s", PROP_add, siteName);
             Props.Prop p = props.getProp(name);
             if (p == null)
                 continue;
@@ -722,8 +723,8 @@ public class MsfraggerParams {
             String siteName = ADDON_MAP_HUMAN2NAME.get(vm.sites);
             if (siteName == null)
                 throw new IllegalStateException("Could not map human readable addon modification name to name in properties.");
-            String name = String.format("%s_%s", PROP_add, siteName);
-            String value = String.format("%.6f", vm.massDelta);
+            String name = String.format(Locale.ROOT, "%s_%s", PROP_add, siteName);
+            String value = String.format(Locale.ROOT, "%.6f", vm.massDelta);
             props.setProp(name, value, vm.isEnabled);
         }
     }
