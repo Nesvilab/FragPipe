@@ -20,6 +20,8 @@ package umich.msfragger.params;
  * @author Dmitry Avtonomov
  */
 public class Philosopher {
+    public static final String DOWNLOAD_LINK = "https://github.com/prvst/philosopher/releases/latest";
+    
     public static final String CMD_COMET = "comet";
     public static final String CMD_PEPTIDE_PROPHET = "peptideprophet";
     public static final String CMD_PROTEIN_PROPHET = "proteinprophet";

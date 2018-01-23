@@ -56,6 +56,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -1713,6 +1714,69 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         
     }
     
+    private void validatePhilosopherVersion(final String binPath) {
+        if (balloonPhilosopher != null) {
+            balloonPhilosopher.closeBalloon();
+        }
+        
+        final Pattern regex = Pattern.compile("new version.*available.*?\\:\\s*(\\S+)", Pattern.CASE_INSENSITIVE);
+        
+        // Check releases on github by running `philosopher version`.
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ProcessBuilder pb = new ProcessBuilder(binPath, "version");
+                pb.redirectErrorStream(true);
+
+
+
+                boolean isNewVersionStringFound = false;
+
+                // get the vesrion reported by the current executable
+                String downloadLink = null;
+                try {
+                    Process pr = pb.start();
+                    BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+                    String line;
+                    while ((line = in.readLine()) != null) {
+                        Matcher m = regex.matcher(line);
+                        if (m.find()) {
+                            isNewVersionStringFound = true;
+                            downloadLink = m.group(1);
+                        }
+                    }
+                    int returnCode = pr.waitFor();
+                 
+                    JEditorPane ep = null;
+                    if (isNewVersionStringFound) {
+                        ep = SwingUtils.createClickableHtml(String.format(
+                                "Newer version of Philosopher available.<br>\n"
+                                + "Please <a href=\"%s\">click here</a> to download a newer one.", 
+                                downloadLink));
+                        
+                    } else if (returnCode != 0) {
+                        ep = SwingUtils.createClickableHtml(String.format(
+                                "Philosopher version too old and is no longer supported.<br>\n"
+                                + "Please <a href=\"%s\">click here</a> to download a newer one.", 
+                                Philosopher.DOWNLOAD_LINK));
+                    }
+                    if (ep != null) {
+                        if (balloonPhilosopher != null) {
+                            balloonPhilosopher.closeBalloon();
+                        }
+                        balloonPhilosopher = new BalloonTip(textBinPhilosopher, ep, 
+                                new RoundedBalloonStyle(5,5,Color.WHITE, Color.BLACK), true);
+                        balloonPhilosopher.setVisible(true);
+                    }
+                    
+                } catch (IOException | InterruptedException e) {
+                    throw new IllegalStateException("Error while creating a java process for Philosopher test.");
+                }
+            }
+        });
+        t.start();
+    }
+    
     private boolean validateMsfraggerVersion(String jarPath) {
         // only validate Fragger version if the current Java version is 1.8 or higher
         if (!SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8)) {
@@ -2622,7 +2686,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         final boolean isPathRunnable = Files.isExecutable(p);
         
         
-        String validatedPath = validatePhilosopherPath(path);
+        final String validatedPath = validatePhilosopherPath(path);
         final boolean isPathValid = validatedPath != null;
         
         if (isPathValid) {
@@ -2630,7 +2694,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PHILOSOPHER, validatedPath);
         }
         
-        SwingUtilities.invokeLater(new Runnable() {
+        Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 if (balloonPhilosopher != null) {
@@ -2638,7 +2702,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     balloonPhilosopher = null;
                 }
                 
-                StringBuilder sb = new StringBuilder();
+                final StringBuilder sb = new StringBuilder();
                 boolean needsDisplay = false;
                 if (isPathAbsolute) {
                     sb.append("<html>Absolute path for Philosopher binary provided: <br/>\n")
@@ -2673,12 +2737,23 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 }
                 
                 if (needsDisplay) {
-                    balloonPhilosopher = new BalloonTip(textBinPhilosopher, sb.toString());
-                    balloonPhilosopher.setVisible(true);
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (balloonPhilosopher != null) {
+                                balloonPhilosopher.closeBalloon();
+                            }
+                            balloonPhilosopher = new BalloonTip(textBinPhilosopher, sb.toString());
+                            balloonPhilosopher.setVisible(true);
+                        }
+                    });
+                } else {
+                    validatePhilosopherVersion(validatedPath);
                 }
                 enablePhilosopherPanels(isPathValid);
             }
         });
+        t.start();
         
         return isPathValid;
     }
