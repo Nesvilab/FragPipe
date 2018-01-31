@@ -321,6 +321,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         scrollPaneRawFiles = new javax.swing.JScrollPane();
         btnRawAddFolder = new javax.swing.JButton();
         btnRawRemove = new javax.swing.JButton();
+        chkProcessEachFiileSeparately = new javax.swing.JCheckBox();
         panelMsFragger = new javax.swing.JPanel();
         scrollPaneMsFragger = new javax.swing.JScrollPane();
         panelPeptideProphet = new javax.swing.JPanel();
@@ -678,6 +679,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
+        chkProcessEachFiileSeparately.setText("Process each file separately");
+        chkProcessEachFiileSeparately.setToolTipText("Process each file separately isntead of combining the results");
+
         javax.swing.GroupLayout panelSelectedFilesLayout = new javax.swing.GroupLayout(panelSelectedFiles);
         panelSelectedFiles.setLayout(panelSelectedFilesLayout);
         panelSelectedFilesLayout.setHorizontalGroup(
@@ -694,7 +698,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         .addComponent(btnRawAddFiles)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnRawAddFolder)
-                        .addGap(0, 286, Short.MAX_VALUE)))
+                        .addGap(18, 18, 18)
+                        .addComponent(chkProcessEachFiileSeparately)
+                        .addGap(0, 109, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelSelectedFilesLayout.setVerticalGroup(
@@ -705,7 +711,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addComponent(btnRawClear)
                     .addComponent(btnRawRemove)
                     .addComponent(btnRawAddFiles)
-                    .addComponent(btnRawAddFolder))
+                    .addComponent(btnRawAddFolder)
+                    .addComponent(chkProcessEachFiileSeparately))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(scrollPaneRawFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 476, Short.MAX_VALUE)
                 .addContainerGap())
@@ -4069,6 +4076,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JCheckBox checkReportDbAnnotate;
     private javax.swing.JCheckBox checkReportFilter;
     private javax.swing.JCheckBox checkReportProteinLevelFdr;
+    private javax.swing.JCheckBox chkProcessEachFiileSeparately;
     private javax.swing.JCheckBox chkProteinProphetInteractStar;
     private javax.swing.JCheckBox chkRunPeptideProphet;
     private javax.swing.JCheckBox chkRunProteinProphet;

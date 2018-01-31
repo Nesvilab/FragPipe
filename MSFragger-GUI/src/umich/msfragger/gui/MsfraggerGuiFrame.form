@@ -516,7 +516,9 @@
                                   <Component id="btnRawAddFiles" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="btnRawAddFolder" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="0" pref="286" max="32767" attributes="0"/>
+                                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                                  <Component id="chkProcessEachFiileSeparately" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="0" pref="109" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -532,6 +534,7 @@
                               <Component id="btnRawRemove" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnRawAddFiles" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnRawAddFolder" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="chkProcessEachFiileSeparately" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="scrollPaneRawFiles" pref="476" max="32767" attributes="0"/>
@@ -577,6 +580,12 @@
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRawRemoveActionPerformed"/>
                   </Events>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="chkProcessEachFiileSeparately">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Process each file separately"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Process each file separately isntead of combining the results"/>
+                  </Properties>
                 </Component>
               </SubComponents>
             </Container>
