@@ -680,7 +680,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         });
 
         chkProcessEachFiileSeparately.setText("Process each file separately");
-        chkProcessEachFiileSeparately.setToolTipText("Process each file separately isntead of combining the results");
+        chkProcessEachFiileSeparately.setToolTipText("<html><b>Not yet implemented</b><br/>\n\nProcess each file separately isntead of combining the results.");
+        chkProcessEachFiileSeparately.setEnabled(false);
 
         javax.swing.GroupLayout panelSelectedFilesLayout = new javax.swing.GroupLayout(panelSelectedFiles);
         panelSelectedFiles.setLayout(panelSelectedFilesLayout);
@@ -2241,6 +2242,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //            processBuilders.addAll(processBuildersCopyFiles);
         }
 
+        
         // we will now compose parameter objects for running processes.
         // at first we will try to load the base parameter files, if the file paths
         // in the GUI are not empty. If empty, we will load the defaults and
@@ -2280,21 +2282,52 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             resetRunButtons(true);
             return;
         }
-        processBuilders.addAll(processBuildersPeptideProphet);
 
         List<ProcessBuilder> processBuildersProteinProphet = processBuildersProteinProphet("", workingDir, lcmsFilePaths);
         if (processBuildersProteinProphet == null) {
             resetRunButtons(true);
             return;
         }
-        processBuilders.addAll(processBuildersProteinProphet);
         
         List<ProcessBuilder> processBuildersReport = processBuildersReport("", workingDir, lcmsFilePaths);
         if (processBuildersReport == null) {
             resetRunButtons(true);
             return;
         }
+        
+        // if any of Philosopher stuff needs to be run, then clean/init the "workspace"
+        if (!processBuildersPeptideProphet.isEmpty()
+                || !processBuildersProteinProphet.isEmpty()
+                || !processBuildersReport.isEmpty())
+        {
+            String bin = textBinPhilosopher.getText().trim();
+            bin = PathUtils.testBinaryPath(bin, "");
+            boolean isPhilosopher = isPhilosopherBin(bin);
+            
+            if (isPhilosopher) {
+                List<String> cmd = new ArrayList<>();
+                cmd.add(bin);
+                cmd.add("workspace");
+                cmd.add("--clean");
+                ProcessBuilder pb = new ProcessBuilder(cmd);
+                processBuilders.add(pb);
+            }
+
+            if (isPhilosopher) {
+                List<String> cmd = new ArrayList<>();
+                cmd.add(bin);
+                cmd.add("workspace");
+                cmd.add("--init");
+                ProcessBuilder pb = new ProcessBuilder(cmd);
+                processBuilders.add(pb);
+            }
+        }
+        
         processBuilders.addAll(processBuildersReport);
+        processBuilders.addAll(processBuildersProteinProphet);
+        processBuilders.addAll(processBuildersPeptideProphet);
+        
+        
         
         if (!OsUtils.isWindows()) {
             // On Linux we created symlinks to mzXML files, leave them there
@@ -3403,16 +3436,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             String philosopherPeptideprophetCmd = "peptideprophet";
             boolean isPhilosopher = isPhilosopherBin(bin);
             
-            // for new philoshopher we need to run 'init' command first
-            if (isPhilosopher) {
-                List<String> cmd = new ArrayList<>();
-                cmd.add(bin);
-                cmd.add("workspace");
-                cmd.add("--init");
-                ProcessBuilder pb = new ProcessBuilder(cmd);
-                builders.add(pb);
-            }
-            
             Map<String, String> pepxmlDirty = createPepxmlFilePathsDirty(lcmsFilePaths, fraggerPanel.getOutputFileExt());
             Map<String, String> pepxmlClean = createPepxmlFilePathsAfterMove(pepxmlDirty, workingDir);
             for (String rawFilePath : lcmsFilePaths) {
@@ -3456,15 +3479,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 builders.add(pb);
             }
             
-            // for new philoshopher 'clean' after ourselves
-            if (isPhilosopher) {
-                List<String> cmd = new ArrayList<>();
-                cmd.add(bin);
-                cmd.add("workspace");
-                cmd.add("--clean");
-                ProcessBuilder pb = new ProcessBuilder(cmd);
-                builders.add(pb);
-            }
         }
         return builders;
     }
@@ -3516,15 +3530,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             List<String> commands = new ArrayList<>();
             commands.add(bin);
             boolean isPhilosopher = isPhilosopherBin(bin);
-            
-            // for new philoshopher we need to run 'init' command first
-            if (isPhilosopher) {
-                List<String> cmd = new ArrayList<>();
-                cmd.add(bin);
-                cmd.add("workspace");
-                cmd.add("--init");
-                builders.add(new ProcessBuilder(cmd));
-            }
             
             Map<String, String> pepxmlDirty = createPepxmlFilePathsDirty(lcmsFilePaths, fraggerPanel.getOutputFileExt());
             Map<String, String> pepxmlClean = createPepxmlFilePathsAfterMove(pepxmlDirty, workingDir);
@@ -3691,15 +3696,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //                }
 //            }
             
-            // for new philoshopher 'clean' after ourselves
-            if (isPhilosopher) {
-                List<String> cmd = new ArrayList<>();
-                cmd.add(bin);
-                cmd.add("workspace");
-                cmd.add("--clean");
-                ProcessBuilder pb = new ProcessBuilder(cmd);
-                builders.add(pb);
-            }
 
             return builders;
         }
@@ -3746,15 +3742,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
             List<ProcessBuilder> builders = new ArrayList<>();
             boolean isPhilosopher = isPhilosopherBin(bin);
-            
-            // for new philoshopher we need to run 'init' command first
-            if (isPhilosopher) {
-                List<String> cmd = new ArrayList<>();
-                cmd.add(bin);
-                cmd.add("workspace");
-                cmd.add("--init");
-                builders.add(new ProcessBuilder(cmd));
-            }
             
             Map<String, String> pepxmlDirty = createPepxmlFilePathsDirty(lcmsFilePaths, fraggerPanel.getOutputFileExt());
             Map<String, String> pepxmlClean = createPepxmlFilePathsAfterMove(pepxmlDirty, workingDir);
@@ -3804,17 +3791,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 cmd.add(Philosopher.CMD_REPORT);
                 builders.add(new ProcessBuilder(cmd));
             }
-                    
-            
-            // for new philoshopher 'clean' after ourselves
-            if (isPhilosopher) {
-                List<String> cmd = new ArrayList<>();
-                cmd.add(bin);
-                cmd.add("workspace");
-                cmd.add("--clean");
-                ProcessBuilder pb = new ProcessBuilder(cmd);
-                builders.add(pb);
-            }
+
 
             // set working dir for all processes
             final File wd = new File(workingDir);

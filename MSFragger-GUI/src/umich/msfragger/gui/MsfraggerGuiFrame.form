@@ -584,7 +584,8 @@
                 <Component class="javax.swing.JCheckBox" name="chkProcessEachFiileSeparately">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Process each file separately"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Process each file separately isntead of combining the results"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;Not yet implemented&lt;/b&gt;&lt;br/&gt;&#xa;&#xa;Process each file separately isntead of combining the results."/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                 </Component>
               </SubComponents>
