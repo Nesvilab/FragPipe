@@ -100,29 +100,68 @@ public class Version {
     }
     
     /**
+     * To print changelog using just the jar file use:<br/>
+     * <code>`java -cp ".\dist\MSFragger-GUI.jar" umich.msfragger.Version true 2`</code>
      * 
-     * @param args the first parameter is how many versions back worth of
-     *             changelog to print.
+     * @param args The 1st param is a boolean whether to print GitHub release
+     * info preamble or not. Use true, to indicate "yes", any other string for 
+     * "no".
+     * The 2nd parameter is an integer how many versions back worth of 
+     * changelog to print.
      */
     public static void main(String[] args) {
         int maxVersionsToPrint = 0;
+        boolean printGihubPreamble = true;
         if (args != null && args.length > 0) {
-            try {
-                maxVersionsToPrint = Integer.parseInt(args[0]);
-            } catch (Exception e) {
-                System.err.println("Unrecognized first parameter. "
-                        + "Should be no params or an integer for how many versions"
-                        + " back to print changelog for.");
+            printGihubPreamble = Boolean.parseBoolean(args[0]);
+            
+            if (args.length > 1) {
+                try {
+                    long num = Long.parseLong(args[1]);
+                    maxVersionsToPrint = num > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)num; 
+                } catch (Exception e) {
+                    System.err.println("Unrecognized 2nd parameter. "
+                            + "Should be no params or an integer for how many versions"
+                            + " back to print changelog for.");
+                }
             }
         }
+        
+        if (printGihubPreamble) {
+            String githubReleaseMessage = String.format(
+                    "### Windows users\n" +
+                            "- You may download the [*.zip* file]"
+                            + "(https://github.com/chhh/MSFragger-GUI/releases/download/v%s/MSFragger-GUI_v%s.zip).\n" +
+                            "  - You can start the `jar` file with `start javaw -jar MSFragger-GUI.jar` or "
+                            + "`java -jar MSFragger-GUI.jar` or using the provided `.bat` script in the zip archive. If Java is configured to auto-run `.jar` files, double clicking might also work.\n" +
+                            "- You may download the [*.exe* file]"
+                            + "(https://github.com/chhh/MSFragger-GUI/releases/download/v%s/MSFragger-GUI.exe) and "
+                            + "just run that. Windows 10 might show a UAC prompt, saying that this is not a trusted "
+                            + "program, it's up to you whether to run it or not.\n" +
+                            "  - If you don't have a compatible Java version, you will be redirected to a website where you "
+                            + "can download one.\n" +
+                            "\n" +
+                            "\n" +
+                            "### Linux/MacOS users\n" +
+                            "Download the [*.zip* file]"
+                            + "(https://github.com/chhh/MSFragger-GUI/releases/download/v%s/MSFragger-GUI_v%s.zip) "
+                            + "and either run the included launcher shell script or just with "
+                            + "`java -jar MSFragger-GUI.jar`.", VERSION, VERSION, VERSION, VERSION, VERSION);
+            System.out.println(githubReleaseMessage);
+            System.out.println("");
+            System.out.println("");
+            
+        }
+        
+        
         StringBuilder sb = new StringBuilder();
-        sb.append(PROGRAM_TITLE).append(" v").append(VERSION).append(" changelog:\n");
+        sb.append("## ").append(PROGRAM_TITLE).append(" v").append(VERSION).append(" changelog:\n");
         int cnt = 0;
         for (Map.Entry<String, List<String>> e : CHANGELOG.descendingMap().entrySet()) {
             if (maxVersionsToPrint > 0 && ++cnt > maxVersionsToPrint)
                 break;
             String ver = e.getKey();
-            sb.append("v").append(ver).append(":\n");
+            sb.append("\nv").append(ver).append(":\n");
             for (String change : e.getValue()) {
                 sb.append(" - ").append(change).append("\n");
             }
