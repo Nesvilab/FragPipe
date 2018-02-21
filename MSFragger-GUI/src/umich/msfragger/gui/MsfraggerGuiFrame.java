@@ -125,6 +125,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private String textPepProphetFocusGained = "";
     private String textReportFilterFocusGained= "";
 
+    private String fraggerVer = "Unknown";
+    private String philosopherVer = "Unknown";
+    
     public MsfraggerGuiFrame() {
         initComponents();
         initMore();
@@ -305,7 +308,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         btnPhilosopherBinBrowse = new javax.swing.JButton();
         textBinPhilosopher = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
+        lblPhilosopherInfo = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         editorPhilosopherLink = new javax.swing.JEditorPane();
         btnFindTools = new javax.swing.JButton();
@@ -497,7 +500,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         jLabel3.setText("If provided, philosopher binary will be used for Peptide and Protein Prophets and Report");
 
-        jLabel5.setText(createSysInfoPhilosopherText());
+        lblPhilosopherInfo.setText(createSysInfoPhilosopherText());
 
         jScrollPane3.setBorder(null);
 
@@ -521,7 +524,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addGroup(panelPhilosopherConfigLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelPhilosopherConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblPhilosopherInfo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPhilosopherConfigLayout.createSequentialGroup()
                         .addComponent(textBinPhilosopher)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -541,7 +544,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addComponent(btnPhilosopherBinDownload)
                     .addComponent(btnPhilosopherBinBrowse))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel5)
+                .addComponent(lblPhilosopherInfo)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1729,7 +1732,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             balloonPhilosopher.closeBalloon();
         }
         
-        final Pattern regex = Pattern.compile("new version.*available.*?\\:\\s*(\\S+)", Pattern.CASE_INSENSITIVE);
+        final Pattern regexNewerVerFound = Pattern.compile("new version.*available.*?\\:\\s*(\\S+)", Pattern.CASE_INSENSITIVE);
+        final Pattern regexVersion = Pattern.compile("build\\s+and\\s+version.*?build.*?=(?<build>\\S+).*version.*?=(?<version>\\S+)", Pattern.CASE_INSENSITIVE);
         
         // Check releases on github by running `philosopher version`.
         Thread t = new Thread(new Runnable() {
@@ -1741,6 +1745,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
                 boolean isNewVersionStringFound = false;
+                String currentVersion = null;
 
                 // get the vesrion reported by the current executable
                 String downloadLink = null;
@@ -1749,12 +1754,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
                     String line;
                     while ((line = in.readLine()) != null) {
-                        Matcher m = regex.matcher(line);
+                        Matcher m = regexNewerVerFound.matcher(line);
                         if (m.find()) {
                             isNewVersionStringFound = true;
                             downloadLink = m.group(1);
                         }
+                        Matcher mVer = regexVersion.matcher(line);
+                        if (mVer.find()) {
+                            currentVersion = mVer.group("version") + " (build " + mVer.group("build") + ")";
+                        }
                     }
+                    
+                    philosopherVer = StringUtils.isNullOrWhitespace(currentVersion) ? "Unknown" : currentVersion;
+                    lblPhilosopherInfo.setText(String.format(
+                                "Philosopher version: %s. %s", philosopherVer, createSysInfoPhilosopherText()));
+                    
                     int returnCode = pr.waitFor();
                  
                     JEditorPane ep = null;
@@ -1798,10 +1812,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         pb.redirectErrorStream(true);
         Pattern regex = Pattern.compile("MSFragger version (MSFragger-([\\d\\.]{4,}))", Pattern.CASE_INSENSITIVE);
         
-        boolean isVersionPrintedAtAll = false;
-        
         // get the vesrion reported by the current executable
         String verStr = null;
+        boolean isVersionPrintedAtAll = false;
         try {
             Process pr = pb.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
@@ -1818,6 +1831,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             throw new IllegalStateException("Error while creating a java process for MSFragger test.");
         }
         final String matchedVersion = verStr;
+        fraggerVer = matchedVersion;
         
         // get the latest known version stored in the text file
         String latestVersion = null;
@@ -1838,6 +1852,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             throw new IllegalStateException("Error reading msfragger.properties from the classpath");
         }
         
+        // update the version label
+        fraggerVer = StringUtils.isNullOrWhitespace(matchedVersion) ? "Unknown" : matchedVersion;
+        lblFraggerJavaVer.setText(String.format(
+                    "MSFragger version: %s. %s", fraggerVer, getFraggerLableJavaVer()));
+        
         if (!isVersionPrintedAtAll) {
             // a very old fragger version, need to download a new one
             if (balloonMsfragger != null) {
@@ -1847,7 +1866,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             
             JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT, 
                     "Your version of MSFragger "
-                    + "is not supported anumore.<br>\n"
+                    + "is not supported anymore.<br>\n"
                     + "Please <a href=\"%s\">click here</a> to download a newer one.", 
                     MsfraggerProperties.DOWNLOAD_URL));
             balloonMsfragger = new BalloonTip(textBinMsfragger, ep, 
@@ -2338,12 +2357,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //            processBuilders.addAll(processBuildersDeleteFiles);
         }
 
+        StringBuilder sbVer = new StringBuilder();
+        sbVer.append("MSFragger-GUI version ").append(Version.VERSION).append("\n");
+        sbVer.append("MSFragger version ").append(fraggerVer).append("\n");
+        sbVer.append("Philosopher version ").append(philosopherVer).append("\n");
+        
+        LogUtils.println(console, String.format(Locale.ROOT, "Version info:\n%s", sbVer.toString()));
+        
         LogUtils.println(console, String.format(Locale.ROOT, "Will execute %d commands:", processBuilders.size()));
         for (final ProcessBuilder pb : processBuilders) {
             StringBuilder sb = new StringBuilder();
             List<String> command = pb.command();
-            for (String commandPart : command)
-            sb.append(commandPart).append(" ");
+            for (String commandPart : command) {
+                sb.append(commandPart).append(" ");
+            }
             LogUtils.println(console, sb.toString());
             LogUtils.println(console, "");
         }
@@ -4068,7 +4095,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel40;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -4078,6 +4104,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JLabel lblFraggerJavaVer;
     private javax.swing.JLabel lblMsfraggerCitation;
     private javax.swing.JLabel lblOutputDir;
+    private javax.swing.JLabel lblPhilosopherInfo;
     private javax.swing.JPanel panelConfig;
     private javax.swing.JPanel panelMsFragger;
     private javax.swing.JPanel panelMsfraggerConfig;

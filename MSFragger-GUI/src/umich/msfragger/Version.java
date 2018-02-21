@@ -30,7 +30,7 @@ import javax.swing.JOptionPane;
 public class Version {
     public static final String PROGRAM_TITLE = "MSFragger-GUI";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "4.4";
+    public static final String VERSION = "4.5";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
     
     public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/chhh/MSFragger-GUI/master/MSFragger-GUI/src/umich/msfragger/gui/Bundle.properties";
@@ -39,6 +39,14 @@ public class Version {
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>();
     
     static {
+        {
+            String ver = "4.5";
+            List<String> changes = new ArrayList();
+            changes.add(String.format(Locale.ROOT, "Show parsed versions of tools in the UI."));
+            changes.add(String.format(Locale.ROOT, "Print detected versions of tools to console before each run."));
+            CHANGELOG.put(ver, changes);
+        }
+        
         {
             String ver = "4.4";
             List<String> changes = new ArrayList();

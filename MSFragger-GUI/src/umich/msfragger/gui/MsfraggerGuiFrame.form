@@ -287,7 +287,7 @@
                       <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jLabel5" alignment="1" max="32767" attributes="0"/>
+                              <Component id="lblPhilosopherInfo" alignment="1" max="32767" attributes="0"/>
                               <Group type="102" alignment="1" attributes="0">
                                   <Component id="textBinPhilosopher" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
@@ -312,7 +312,7 @@
                               <Component id="btnPhilosopherBinBrowse" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
+                          <Component id="lblPhilosopherInfo" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -356,7 +356,7 @@
                     <Property name="text" type="java.lang.String" value="If provided, philosopher binary will be used for Peptide and Protein Prophets and Report"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="jLabel5">
+                <Component class="javax.swing.JLabel" name="lblPhilosopherInfo">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="createSysInfoPhilosopherText()" type="code"/>
