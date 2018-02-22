@@ -2342,9 +2342,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         }
         
-        processBuilders.addAll(processBuildersReport);
-        processBuilders.addAll(processBuildersProteinProphet);
         processBuilders.addAll(processBuildersPeptideProphet);
+        processBuilders.addAll(processBuildersProteinProphet);
+        processBuilders.addAll(processBuildersReport);
+        
+        
         
         
         
