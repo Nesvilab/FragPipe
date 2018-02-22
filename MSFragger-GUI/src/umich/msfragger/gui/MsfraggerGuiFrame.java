@@ -1692,6 +1692,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         }
                         
                         final String downloadUrl = props.getProperty(Version.PROP_DOWNLOAD_URL, locallyKnownDownloadUrl);
+                        final String downloadMessage = props.getProperty(Version.PROP_DOWNLOAD_MESSAGE, "");
                         VersionComparator vc = new VersionComparator();
                         if (vc.compare(Version.VERSION, githubVersion) < 0) {
                             // show balloon popup, must be done on EDT
@@ -1704,11 +1705,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                         tipMap.remove(Version.PROP_VER);
                                     }
 
-                                    JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT, 
+                                    
+                                    String message = String.format(Locale.ROOT, 
                                             "Your MSFragger-GUI version is [%s]<br>\n"
-                                            + "There is a newer version of MSFragger-GUI available [%s]).<br>\n"
-                                            + "Please <a href=\"%s\">click here</a> to download a newer one.", 
-                                            Version.VERSION, githubVersion, downloadUrl));
+                                                    + "There is a newer version of MSFragger-GUI available [%s]).<br>\n"
+                                                    + "Please <a href=\"%s\">click here</a> to download a newer one.", 
+                                            Version.VERSION, githubVersion, downloadUrl);
+                                    if (!StringUtils.isNullOrWhitespace(downloadMessage)) {
+                                        message += "<br><br><b>" + downloadMessage + "</b>";
+                                    }
+                                    JEditorPane ep = SwingUtils.createClickableHtml(message);
 
                                     BalloonTip t = new BalloonTip(btnAboutInConfig, ep, 
                                             new RoundedBalloonStyle(5,5,Color.WHITE, Color.BLACK), true);
