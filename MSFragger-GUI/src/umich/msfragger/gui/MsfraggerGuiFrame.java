@@ -84,6 +84,7 @@ import umich.msfragger.params.PeptideProphetParams;
 import umich.msfragger.params.Philosopher;
 import umich.msfragger.params.ProteinProphetParams;
 import umich.msfragger.params.ThisAppProps;
+import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.fragger.MsfraggerProperties;
 import umich.msfragger.util.FileDrop;
@@ -2211,6 +2212,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                                
         resetRunButtons(false);
 
+        boolean doRunFragger = fraggerPanel.isRunMsfragger();
+        boolean doRunAnyOtherTools = chkRunPeptideProphet.isSelected() ||
+            chkRunProteinProphet.isSelected() || checkCreateReport.isSelected();
+        
         if (
             !fraggerPanel.isRunMsfragger() &&
             !chkRunPeptideProphet.isSelected() &&
@@ -2222,6 +2227,25 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             return;
         }
         
+        // check for TSV output when any other downstream tools are requested
+        if (doRunFragger && doRunAnyOtherTools) {
+            if (fraggerPanel.getOutputType().equals(FraggerOutputType.TSV)) {
+                int confirmCreation = JOptionPane.showConfirmDialog(this, 
+                        "You've chosen TSV output for MSFragger while\n"
+                        + "also requesting to run other downstream processing\n"
+                        + "tools. Those tools only support PepXML input.\n"
+                        + "Do you want to switch before running (manually)?", 
+                        "Switch to pep.xml?", JOptionPane.YES_NO_OPTION);
+                    switch (confirmCreation) {
+                        case JOptionPane.NO_OPTION:
+                            // don't want to switch
+                            break;
+                        default:
+                            resetRunButtons(true);
+                            return;
+                    }
+            }
+        }
         
         final TextConsole textConsole = console;
         final String workingDir = txtWorkingDir.getText();
