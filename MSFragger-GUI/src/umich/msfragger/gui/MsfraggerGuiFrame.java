@@ -24,12 +24,14 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -430,7 +432,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(editorMsfraggerCitation);
 
-        lblFraggerJavaVer.setText(getFraggerLableJavaVer());
+        lblFraggerJavaVer.setText(OsUtils.JavaInfo());
 
         javax.swing.GroupLayout panelMsfraggerConfigLayout = new javax.swing.GroupLayout(panelMsfraggerConfig);
         panelMsfraggerConfig.setLayout(panelMsfraggerConfigLayout);
@@ -500,7 +502,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         jLabel3.setText("If provided, philosopher binary will be used for Peptide and Protein Prophets and Report");
 
-        lblPhilosopherInfo.setText(createSysInfoPhilosopherText());
+        lblPhilosopherInfo.setText(OsUtils.OsInfo());
 
         jScrollPane3.setBorder(null);
 
@@ -1773,7 +1775,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     
                     philosopherVer = StringUtils.isNullOrWhitespace(currentVersion) ? "Unknown" : currentVersion;
                     lblPhilosopherInfo.setText(String.format(
-                                "Philosopher version: %s. %s", philosopherVer, createSysInfoPhilosopherText()));
+                                "Philosopher version: %s. %s", philosopherVer, OsUtils.OsInfo()));
                     
                     int returnCode = pr.waitFor();
                  
@@ -1861,7 +1863,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         // update the version label
         fraggerVer = StringUtils.isNullOrWhitespace(matchedVersion) ? "Unknown" : matchedVersion;
         lblFraggerJavaVer.setText(String.format(
-                    "MSFragger version: %s. %s", fraggerVer, getFraggerLableJavaVer()));
+                    "MSFragger version: %s. %s", fraggerVer, OsUtils.JavaInfo()));
         
         if (!isVersionPrintedAtAll) {
             // a very old fragger version, need to download a new one
@@ -1953,25 +1955,38 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         File f = new File(path);
         if (!f.getName().toLowerCase().endsWith(".jar"))
             return false;
-        if (!Files.exists(Paths.get(f.getAbsolutePath()))) {
+        Path p = Paths.get(path).toAbsolutePath();
+        if (!Files.exists(p)) {
             return false;
         }
         
-        try {
-            ZipFile zf = new ZipFile(f);
-            Enumeration<? extends ZipEntry> entries = zf.entries();
-            while(entries.hasMoreElements()) {
-                ZipEntry ze = entries.nextElement();
-                if ("MSFragger.class".equals(ze.getName())) {
-                    return true;
-                }
+        final boolean[] found = {false};
+        try (FileSystem fs = FileSystems.newFileSystem(p, null)) {
+            for(Path root : fs.getRootDirectories()) {
+                Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
+                    Pattern regex = Pattern.compile("msfragger.*\\.jar", Pattern.CASE_INSENSITIVE);
+                    
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                            throws IOException {
+                        String fileName = file.getFileName().toString();
+                        if ("MSFragger.class".equalsIgnoreCase(fileName)) {
+                            found[0] = true;
+                            return FileVisitResult.TERMINATE;
+                        } else if (regex.matcher(fileName).find()) {
+                            found[0] = true;
+                            return FileVisitResult.TERMINATE;
+                        }
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
             }
         } catch (IOException ex) {
             // doesn't matter
             Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        return false;
+        return found[0];
     }
     
     private void btnMsfraggerBinDownloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMsfraggerBinDownloadActionPerformed
@@ -2365,11 +2380,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //            processBuilders.addAll(processBuildersDeleteFiles);
         }
 
+        StringBuilder sbSysinfo = new StringBuilder();
+        sbSysinfo.append(OsUtils.OsInfo()).append("\n");
+        sbSysinfo.append(OsUtils.JavaInfo()).append("\n");
+        LogUtils.println(console, String.format(Locale.ROOT, "System info:\n%s", sbSysinfo.toString()));
+        
         StringBuilder sbVer = new StringBuilder();
         sbVer.append("MSFragger-GUI version ").append(Version.VERSION).append("\n");
         sbVer.append("MSFragger version ").append(fraggerVer).append("\n");
         sbVer.append("Philosopher version ").append(philosopherVer).append("\n");
-        
         LogUtils.println(console, String.format(Locale.ROOT, "Version info:\n%s", sbVer.toString()));
         
         LogUtils.println(console, String.format(Locale.ROOT, "Will execute %d commands:", processBuilders.size()));
@@ -2650,27 +2669,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         
         textReportFilter.setText(val);
         ThisAppProps.save(ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER, val);
-    }
-
-    private String getFraggerLableJavaVer() {
-        List<String> propNames = Arrays.asList(
-                "java.version",
-                "java.vm.name",
-                "java.vm.vendor"
-        );
-        StringBuilder sb = new StringBuilder("Java Info: ");
-        for (int i = 0; i < propNames.size(); i++) {
-            String p = propNames.get(i);
-            String val = System.getProperty(p);
-            if (!StringUtils.isNullOrWhitespace(val)) {
-                sb.append(val);
-            }
-            if (i < propNames.size() - 1) {
-                sb.append(", ");
-            }
-        }
-        
-        return sb.toString();
     }
 
     private void loadLastReportProteinLevelFdr() {
@@ -2990,15 +2988,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         return sb.toString();
     }
 
-    private String createSysInfoPhilosopherText() {
-        String os = OsUtils.getOsName();
-        os = os != null ? os : "?";
-        OsUtils.ARCH arch = OsUtils.getSystemArch();
-        String archStr = arch != null ? arch.toString().toLowerCase() : "?";
-        String sysInfo = String.format(Locale.ROOT, "System OS: %s, Architecture: %s", os, archStr);
-        return sysInfo;
-    }
-    
     private static class UmpireGarbageFiles {
         static List<String> filesToMove = Arrays.asList("diaumpire_se.log");
         static List<String> fileNameSuffixesToMove = Arrays.asList(

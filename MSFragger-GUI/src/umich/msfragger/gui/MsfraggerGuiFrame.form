@@ -266,7 +266,7 @@
                 <Component class="javax.swing.JLabel" name="lblFraggerJavaVer">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="getFraggerLableJavaVer()" type="code"/>
+                      <Connection code="OsUtils.JavaInfo()" type="code"/>
                     </Property>
                   </Properties>
                 </Component>
@@ -359,7 +359,7 @@
                 <Component class="javax.swing.JLabel" name="lblPhilosopherInfo">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="createSysInfoPhilosopherText()" type="code"/>
+                      <Connection code="OsUtils.OsInfo()" type="code"/>
                     </Property>
                   </Properties>
                 </Component>

@@ -17,6 +17,7 @@ package umich.msfragger;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -30,7 +31,7 @@ import javax.swing.JOptionPane;
 public class Version {
     public static final String PROGRAM_TITLE = "MSFragger-GUI";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "4.6";
+    public static final String VERSION = "4.7";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
     public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
     
@@ -40,6 +41,9 @@ public class Version {
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>();
     
     static {
+        CHANGELOG.put("4.7", Arrays.asList(
+                "Support new packaging of MSFragger jar with onejar."));
+        
         {
             String ver = "4.6";
             List<String> changes = new ArrayList();
