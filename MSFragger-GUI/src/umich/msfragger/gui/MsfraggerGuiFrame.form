@@ -1214,7 +1214,9 @@
                               <Component id="btnStop" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
                               <Component id="checkDryRun" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="142" max="32767" attributes="0"/>
+                              <EmptySpace pref="51" max="32767" attributes="0"/>
+                              <Component id="btnExportLog" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
                               <Component id="btnCheckJavaVersion" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="btnAbout" min="-2" max="-2" attributes="0"/>
@@ -1250,6 +1252,7 @@
                           <Component id="checkDryRun" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnCheckJavaVersion" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnRun" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnExportLog" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="consoleScrollPane" pref="458" max="32767" attributes="0"/>
@@ -1329,6 +1332,15 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRunActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="btnExportLog">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Export Log"/>
+                <Property name="toolTipText" type="java.lang.String" value=""/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnExportLogActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>

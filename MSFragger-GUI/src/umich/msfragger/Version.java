@@ -24,6 +24,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.swing.JOptionPane;
+import umich.msfragger.util.StringUtils;
+import umich.msfragger.util.VersionComparator;
 
 /**
  * @author Dmitry Avtonomov
@@ -31,9 +33,11 @@ import javax.swing.JOptionPane;
 public class Version {
     public static final String PROGRAM_TITLE = "MSFragger-GUI";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "4.7";
+    public static final String VERSION = "4.8";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
     public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
+    public static final String PROP_IMPORTANT_UPDATES = "msfragger.gui.important-updates";
+    public static final String PROP_CRITICAL_UPDATES = "msfragger.gui.critical-updates";
     
     public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/chhh/MSFragger-GUI/master/MSFragger-GUI/src/umich/msfragger/gui/Bundle.properties";
     public static final URI PROPERTIES_URI = URI.create(PROPERTIES_URL);
@@ -41,6 +45,11 @@ public class Version {
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>();
     
     static {
+        CHANGELOG.put("4.8", Arrays.asList(
+                "Introduce notifications about update contents",
+                "User-message can now be shown without a newer version available",
+                "Added export button and context menu item to the console to simplify bug reporting by users."));
+        
         CHANGELOG.put("4.7", Arrays.asList(
                 "Support new packaging of MSFragger jar with onejar."));
         
@@ -117,6 +126,25 @@ public class Version {
     
     public static Map<String, List<String>> getChangelog() {
         return Collections.unmodifiableMap(CHANGELOG);
+    }
+    
+    /**
+     * 
+     * @param versionList
+     * @return 
+     */
+    public static List<String> updatesSinceCurrentVersion(String versionList) {
+        if (StringUtils.isNullOrWhitespace(versionList)) return Collections.EMPTY_LIST;
+        
+        VersionComparator vc = new VersionComparator();
+        String[] split = versionList.trim().split("\\s*,\\s*");
+        List<String> res = new ArrayList<>();
+        for (String updateVersion : split) {
+            if (vc.compare(Version.VERSION, updateVersion) < 0) {
+                res.add(updateVersion);
+            }
+        }
+        return res;
     }
     
     /**

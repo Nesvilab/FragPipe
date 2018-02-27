@@ -6,12 +6,16 @@
 package umich.msfragger.gui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,6 +26,7 @@ import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystem;
@@ -32,14 +37,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -49,21 +55,23 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -76,6 +84,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
 import umich.msfragger.Version;
+import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
 import umich.msfragger.gui.api.DataConverter;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.SimpleUniqueTableModel;
@@ -131,9 +140,66 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private String fraggerVer = "Unknown";
     private String philosopherVer = "Unknown";
     
+    private final String ACTION_EXPORT_LOG = "Export-Log";
+    
     public MsfraggerGuiFrame() {
         initComponents();
         initMore();
+    }
+    
+    private void initActions() {
+        AbstractAction exportToTextFile = new AbstractAction(ACTION_EXPORT_LOG) {
+            
+            {
+                putValue(NAME, ACTION_EXPORT_LOG);
+                putValue(ACTION_COMMAND_KEY, ACTION_EXPORT_LOG);
+            }
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (console == null) return;
+                String text = console.getText();
+                
+                JFileChooser fc = new JFileChooser();
+                fc.setApproveButtonText("Save");
+                fc.setDialogTitle("Export to");
+                fc.setMultiSelectionEnabled(false);
+                SwingUtils.setFileChooserPath(fc, ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH));
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+                fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(Date.from(Instant.now())))));
+                Component parent = SwingUtils.findParentComponentForDialog(MsfraggerGuiFrame.this);
+                int saveResult = fc.showSaveDialog(parent);
+                if (JFileChooser.APPROVE_OPTION == saveResult) {
+                    File selectedFile = fc.getSelectedFile();
+                    Path path = Paths.get(selectedFile.getAbsolutePath());
+                    // if exists, overwrite
+                    if (Files.exists(path)) {
+                        int overwrite = JOptionPane.showConfirmDialog(parent, "<html>File exists,<br/> overwrtie?", "Overwrite", JOptionPane.OK_CANCEL_OPTION);
+                        if (JOptionPane.OK_OPTION == overwrite) {
+                            try {
+                                Files.delete(path);
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+                        }
+                    }
+                    try {
+                        // save the file
+                        byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+                        Files.write(path, bytes, StandardOpenOption.CREATE_NEW);
+                        
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(parent, "<html>Could not save file: <br/>" + path.toString() +
+                            "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+            }
+        };
+        
+        panelRun.getActionMap().put(exportToTextFile.getValue(Action.NAME), exportToTextFile);
     }
 
     private void initMore() {
@@ -142,6 +208,22 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         setLocale(Locale.ROOT);
         
         console = new TextConsole();
+        console.addMouseListener(new MouseAdapter() {
+            
+            @Override
+            public void mouseReleased(MouseEvent e){
+                if (e.isPopupTrigger())
+                    doPop(e);
+            }
+            private void doPop(MouseEvent e){
+                JPopupMenu menu = new JPopupMenu();
+                JMenuItem ctxItemExport = new JMenuItem(panelRun.getActionMap().get(ACTION_EXPORT_LOG));
+                ctxItemExport.setText("Export to text file");
+                menu.add(ctxItemExport);
+                menu.show(e.getComponent(), e.getX(), e.getY());
+                
+            }
+        });
         consoleScrollPane.setViewportView(console);
         
         
@@ -212,6 +294,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 checkPreviouslySavedParams();
             }
         });
+        
+        initActions();
     }
     
     private void checkPreviouslySavedParams() {
@@ -379,6 +463,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         checkDryRun = new javax.swing.JCheckBox();
         btnCheckJavaVersion = new javax.swing.JButton();
         btnRun = new javax.swing.JButton();
+        btnExportLog = new javax.swing.JButton();
 
         jLabel2.setText("jLabel2");
 
@@ -1188,6 +1273,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
+        btnExportLog.setText("Export Log");
+        btnExportLog.setToolTipText("");
+        btnExportLog.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExportLogActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelRunLayout = new javax.swing.GroupLayout(panelRun);
         panelRun.setLayout(panelRunLayout);
         panelRunLayout.setHorizontalGroup(
@@ -1202,7 +1295,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         .addComponent(btnStop)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(checkDryRun)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 142, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 51, Short.MAX_VALUE)
+                        .addComponent(btnExportLog)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnCheckJavaVersion)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnAbout)
@@ -1231,7 +1326,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addComponent(btnAbout)
                     .addComponent(checkDryRun)
                     .addComponent(btnCheckJavaVersion)
-                    .addComponent(btnRun))
+                    .addComponent(btnRun)
+                    .addComponent(btnExportLog))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(consoleScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
                 .addContainerGap())
@@ -1658,6 +1754,25 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         //final String downloadUrl = props.getProperty(Version.PROP_DOWNLOAD_URL, locallyKnownDownloadUrl);
     }
     
+    public static String loadPropFromBundle(String propName) {
+        String value = null;
+        try (InputStream is = MsfraggerGuiFrame.class.getResourceAsStream("Bundle.properties")) {
+            if (is == null) {
+                throw new IllegalStateException("Could not read Bundle.properties from the classpath");
+            }
+            Properties props = new Properties();
+            props.load(is);
+            value = props.getProperty(propName);
+            if (value == null) {
+                throw new IllegalStateException("Property " + propName 
+                        + " was not found in Bundle.properties");
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Error reading Bundle.properties from the classpath");
+        }
+        return value;
+    }
+    
     private void validateGuiVersion() {
         // The version from cmd line ouput is new enough to pass the local
             // test. Now check the file on github.
@@ -1666,38 +1781,79 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 public void run() {
                     try {
                         String githubProps = IOUtils.toString(Version.PROPERTIES_URI.toURL(), Charset.forName("UTF-8"));
-                        Properties props = new Properties();
-                        props.load(new StringReader(githubProps));
-                        final String githubVersion = props.getProperty(Version.PROP_VER);
-                        if (githubVersion == null) {
-                            throw new IllegalStateException("Property "
-                                    + Version.PROP_VER 
-                                    + " was not found in Bundle.properties from github");
+                        final Properties propsGh = new Properties();
+                        propsGh.load(new StringReader(githubProps));
+                        
+                        // this is used to test functionality without pushing changes to github
+//                        propsGh.put("msfragger.gui.version", "5.7");
+//                        propsGh.put("msfragger.gui.important-updates", "3.1,3.5,4.9,5.2");
+//                        propsGh.put("msfragger.gui.critical-updates", "2.0,3.0,4.6,5.0, 4.7");
+//                        propsGh.put("msfragger.gui.download-message", "Happy new year!");
+//                        propsGh.put("msfragger.gui.download-message.4.7", "Crit 4.7");
+//                        propsGh.put("msfragger.gui.download-message.2.0", "Crit 2.0");
+//                        propsGh.put("msfragger.gui.download-message.5.0", "Crit 4.7");
+//                        propsGh.put("msfragger.gui.download-message.5.0", "Crit 5.0");
+//                        propsGh.put("msfragger.gui.download-message.3.1", "Important 3.1");
+//                        propsGh.put("msfragger.gui.download-message.4.9", "Important 4.9");
+                        
+                        
+                        
+                        final StringBuilder sb = new StringBuilder();
+                        final VersionComparator vc = new VersionComparator();
+                        
+                        // add new versions notification
+                        final String githubVersion = propsGh.getProperty(Version.PROP_VER);
+                        if (githubVersion != null && vc.compare(Version.VERSION, githubVersion) < 0) {
+                            if (sb.length() > 0)
+                                sb.append("<br><br>");
+                            String locallyKnownDownloadUrl = loadPropFromBundle(Version.PROP_DOWNLOAD_URL);
+                            final String downloadUrl = propsGh.getProperty(Version.PROP_DOWNLOAD_URL, locallyKnownDownloadUrl);
+                            sb.append(String.format(Locale.ROOT, 
+                                    "Your MSFragger-GUI version is [%s]<br>\n"
+                                            + "There is a newer version of MSFragger-GUI available [%s]).<br>\n"
+                                            + "Please <a href=\"%s\">click here</a> to download a newer one.", 
+                                    Version.VERSION, githubVersion, downloadUrl));
+
+                            // check for critical or important updates since the current version
+                            List<String> updatesImportant = Version.updatesSinceCurrentVersion(
+                                            propsGh.getProperty(Version.PROP_IMPORTANT_UPDATES, ""));
+                            List<String> updatesCritical = Version.updatesSinceCurrentVersion(
+                                            propsGh.getProperty(Version.PROP_CRITICAL_UPDATES, ""));
+                            if (!updatesCritical.isEmpty()) {
+                                sb.append("<br><br><b>" + "There have been critical updates since." + "</b>");
+                            } else if (!updatesImportant.isEmpty()) {
+                                sb.append("<br><br><b>" + "There have been important updates since." + "</b>");
+                            }
+                            if (!updatesCritical.isEmpty() || !updatesImportant.isEmpty()) {
+                                TreeSet<String> newerVersions = new TreeSet<>();
+                                newerVersions.addAll(updatesCritical);
+                                newerVersions.addAll(updatesImportant);
+
+                                List<String> messages = new ArrayList<>();
+                                for (String newerVersion : newerVersions) {
+                                    String verMsg = propsGh.getProperty(Version.PROP_DOWNLOAD_MESSAGE + "." + newerVersion, "");
+                                    if (StringUtils.isNullOrWhitespace(verMsg)) 
+                                        continue;
+                                    messages.add(verMsg);
+                                }
+                                if (!messages.isEmpty()) {
+                                    sb.append("<br><br><ul>");
+                                    for (String message : messages)
+                                        sb.append("<li>").append(message).append("</li>");
+                                    sb.append("</ul>");
+                                }
+                            }
+                        }
+
+
+                        final String downloadMessage = propsGh.getProperty(Version.PROP_DOWNLOAD_MESSAGE, "");
+                        if (!StringUtils.isNullOrWhitespace(downloadMessage)) {
+                            if (sb.length() > 0)
+                                sb.append("<br><br><b>");
+                            sb.append(downloadMessage).append("</b>");
                         }
                         
-                        
-                        String locallyKnownDownloadUrl = null;
-                        try {
-                            InputStream is = MsfraggerGuiFrame.class.getResourceAsStream("Bundle.properties");
-                            if (is == null) {
-                                throw new IllegalStateException("Could not read Bundle.properties from the classpath");
-                            }
-                            Properties prop = new Properties();
-                            prop.load(is);
-                            locallyKnownDownloadUrl = prop.getProperty(Version.PROP_DOWNLOAD_URL);
-                            if (locallyKnownDownloadUrl == null) {
-                                throw new IllegalStateException("Property "
-                                        + Version.PROP_DOWNLOAD_URL 
-                                        + " was not found in Bundle.properties");
-                            }
-                        } catch (IOException e) {
-                            throw new IllegalStateException("Error reading Bundle.properties from the classpath");
-                        }
-                        
-                        final String downloadUrl = props.getProperty(Version.PROP_DOWNLOAD_URL, locallyKnownDownloadUrl);
-                        final String downloadMessage = props.getProperty(Version.PROP_DOWNLOAD_MESSAGE, "");
-                        VersionComparator vc = new VersionComparator();
-                        if (vc.compare(Version.VERSION, githubVersion) < 0) {
+                        if (sb.length() > 0) {
                             // show balloon popup, must be done on EDT
                             SwingUtilities.invokeLater(new Runnable() {
                                 @Override
@@ -1709,15 +1865,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                     }
 
                                     
-                                    String message = String.format(Locale.ROOT, 
-                                            "Your MSFragger-GUI version is [%s]<br>\n"
-                                                    + "There is a newer version of MSFragger-GUI available [%s]).<br>\n"
-                                                    + "Please <a href=\"%s\">click here</a> to download a newer one.", 
-                                            Version.VERSION, githubVersion, downloadUrl);
-                                    if (!StringUtils.isNullOrWhitespace(downloadMessage)) {
-                                        message += "<br><br><b>" + downloadMessage + "</b>";
-                                    }
-                                    JEditorPane ep = SwingUtils.createClickableHtml(message);
+                                    JEditorPane ep = SwingUtils.createClickableHtml(sb.toString());
 
                                     BalloonTip t = new BalloonTip(btnAboutInConfig, ep, 
                                             new RoundedBalloonStyle(5,5,Color.WHITE, Color.BLACK), true);
@@ -2640,6 +2788,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private void textReportFilterFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textReportFilterFocusGained
         textReportFilterFocusGained = textReportFilter.getText();
     }//GEN-LAST:event_textReportFilterFocusGained
+
+    private void btnExportLogActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportLogActionPerformed
+        Action action = panelRun.getActionMap().get(ACTION_EXPORT_LOG);
+        if (action != null) {
+            action.actionPerformed(null);
+        }
+    }//GEN-LAST:event_btnExportLogActionPerformed
 
     public void loadLastPeptideProphet() {
         String val = ThisAppProps.load(ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET);
@@ -4074,6 +4229,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnCheckJavaVersion;
     private javax.swing.JButton btnClearCache;
     private javax.swing.JButton btnClearConsole;
+    private javax.swing.JButton btnExportLog;
     private javax.swing.JButton btnFindTools;
     private javax.swing.JButton btnLoadDefaultsClosed;
     private javax.swing.JButton btnLoadDefaultsOpen;
