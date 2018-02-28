@@ -33,7 +33,7 @@ import umich.msfragger.util.VersionComparator;
 public class Version {
     public static final String PROGRAM_TITLE = "MSFragger-GUI";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "4.8";
+    public static final String VERSION = "4.9";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
     public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
     public static final String PROP_IMPORTANT_UPDATES = "msfragger.gui.important-updates";
@@ -45,6 +45,11 @@ public class Version {
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>();
     
     static {
+        CHANGELOG.put("4.9", Arrays.asList(
+                "Stop execution of the pipeline if one of the processes returns non-zero exit code.",
+                "Colorize console output a bit, red color for errors.",
+                "Button that redirects to the issue tracker online for bug reporting."));
+        
         CHANGELOG.put("4.8", Arrays.asList(
                 "Introduce notifications about update contents",
                 "User-message can now be shown without a newer version available",

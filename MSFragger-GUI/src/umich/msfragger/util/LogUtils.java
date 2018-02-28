@@ -1,10 +1,12 @@
 package umich.msfragger.util;
 
+import java.awt.Color;
 import javax.swing.*;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.LogManager;
+import umich.swing.console.TextConsole;
 
 /**
  * Created by Dmitry Avtonomov on 2016-04-28.
@@ -61,13 +63,35 @@ public class LogUtils {
     public static final void println(Appendable out, String toPrint) {
         println(out, toPrint, true);
     }
-
+    
     public static final void println(final Appendable out, final String toPrint, boolean doOnEDT) {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 try {
                     out.append(toPrint);
+                    out.append("\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+
+        if (doOnEDT) {
+            SwingUtilities.invokeLater(runnable);
+        } else {
+            runnable.run();
+        }
+    }
+    
+    public static final void print(final Color c, final TextConsole out, boolean doOnEDT,
+            final String toPrint, final boolean appendNewLine) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    out.append(c, toPrint);
                     out.append("\n");
                 } catch (IOException e) {
                     e.printStackTrace();

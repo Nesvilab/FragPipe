@@ -1214,10 +1214,10 @@
                               <Component id="btnStop" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
                               <Component id="checkDryRun" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="51" max="32767" attributes="0"/>
+                              <EmptySpace pref="79" max="32767" attributes="0"/>
                               <Component id="btnExportLog" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="btnCheckJavaVersion" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnReportErrors" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="btnAbout" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -1250,7 +1250,7 @@
                           <Component id="btnClearConsole" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnAbout" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="checkDryRun" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="btnCheckJavaVersion" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnReportErrors" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnRun" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnExportLog" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
@@ -1318,12 +1318,13 @@
                 <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Only print the commands to execute, &lt;br/&gt;&#xa;but don&apos;t actually execute them."/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JButton" name="btnCheckJavaVersion">
+            <Component class="javax.swing.JButton" name="btnReportErrors">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Check Java Version"/>
+                <Property name="text" type="java.lang.String" value="Report Erorrs"/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Submit an issue ticket to the bug tracker.&lt;br/&gt;&#xa;Please attach the following:&#xa;&lt;ol&gt;&#xa;&lt;li&gt;Run log. Use the button &quot;Export Log&quot;, or copy paste the contents of the log &lt;br/&gt;&#xa;to the ticket text using &lt;b&gt;inside triple tilde block, like this: ```{your-log-text-here}```&lt;/b&gt;&lt;/li&gt;&#xa;&lt;li&gt;fragger.params file. You can find it in the output directory you specified.&lt;/li&gt;&#xa;&lt;li&gt;Any other relevant details, like what you were trying to do, which database you used, etc&lt;/li&gt;&#xa;&lt;/ol&gt;"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCheckJavaVersionActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReportErrorsActionPerformed"/>
               </Events>
             </Component>
             <Component class="javax.swing.JButton" name="btnRun">
@@ -1337,7 +1338,7 @@
             <Component class="javax.swing.JButton" name="btnExportLog">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Export Log"/>
-                <Property name="toolTipText" type="java.lang.String" value=""/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Save the content of the text console to a file.&lt;br/&gt;&#xa;You can also just copy-paste text from it."/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnExportLogActionPerformed"/>
