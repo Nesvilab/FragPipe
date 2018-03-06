@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Reader;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,7 +32,7 @@ import umich.msfragger.util.PathUtils;
 
 public class ThisAppProps extends Properties {
     //private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
-    public static final String PROP_DB_FILE_IN = "path.params.file.in";
+    public static final String PROP_DB_FILE_IN = "path.db.file.in";
     public static final String PROP_BINARIES_IN = "path.params.bins.in";
     public static final String PROP_LCMS_FILES_IN = "path.lcms.files.in";
     public static final String PROP_FILE_OUT = "path.file.out";
@@ -43,7 +44,10 @@ public class ThisAppProps extends Properties {
     public static final String PROP_BIN_PATH_MSFRAGGER = "path.textfield.msfragger";
     public static final String PROP_BIN_PATH_PHILOSOPHER = "path.textfield.peptide-prophet";
     public static final String PROP_TEXTFIELD_PATH_PROTEIN_PROPHET = "path.textfield.protein-prophet";
+    public static final String PROP_TEXTFIELD_REPORT_ANNOTATE = "report.annotate";
     public static final String PROP_TEXTFIELD_REPORT_FILTER = "report.filter";
+    public static final String PROP_TEXTFIELD_SEQUENCE_DB = "sequence.db";
+    public static final String PROP_TEXTFIELD_DECOY_TAG = "decoy.tag";
     public static final String PROP_CHECKBOX_REPORT_PROTEIN_LEVEL_FDR = "report.proteinlevelfdr";
     
     public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
