@@ -21,7 +21,7 @@ import java.net.URI;
  *
  * @author Dmitry Avtonomov
  */
-public class MsfraggerProperties {
+public class MsfraggerProps {
     public static final String DOWNLOAD_URL = "http://inventions.umich.edu/technologies/7143_msfrager-ultrafast-and-comprehensive-identification-of-peptides-from-tandem-mass-spectra";
     public static final URI DOWNLOAD_URI = URI.create(DOWNLOAD_URL);
     

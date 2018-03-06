@@ -10,11 +10,17 @@ import umich.msfragger.params.PropLine;
 import umich.msfragger.params.PropertyFileContent;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import umich.msfragger.Version;
 
 /**
  *
@@ -23,6 +29,45 @@ import java.util.Set;
 public class PropertiesUtils {
 
     private PropertiesUtils() {
+    }
+    
+    /**
+     * Loads properties from a properties file that sits next to a given class on the classpath.
+     * @param clazz Class relative to which to look for.
+     * @param propertiesFile Properties file name.
+     * @return Properties loaded from the file.
+     * @throws IllegalStateException in case of any errors. The only errors that can be
+     *  are path mismatches, which should be caught at testing.
+     */
+    public static Properties loadPropertiesLocal(Class<?> clazz, String propertiesFile) {
+        try (InputStream is = clazz.getResourceAsStream(propertiesFile)) {
+            if (is == null) {
+                throw new IllegalStateException(String.format(
+                        "Could not read '%s' from the classpath of '%s'", propertiesFile, clazz.getName()));
+            }
+            Properties p = new Properties();
+            p.load(is);
+            return p;
+        } catch (IOException e) {
+            throw new IllegalStateException("Error reading msfragger.properties from the classpath");
+        }
+    }
+    
+    /**
+     * Downloads a properties file from a remote URL.
+     * @param uri To download .properties file from.
+     * @return null in case of any errors during downloading or parsing.
+     */
+    public static Properties loadPropertiesRemote(URI uri) {
+        try {
+            String remoteText = org.apache.commons.io.IOUtils.toString(uri.toURL(), Charset.forName("UTF-8"));
+            final Properties p = new Properties();
+            p.load(new StringReader(remoteText));
+            return p;
+        } catch (Exception ex) {
+            
+        }
+        return null;
     }
 
     /**

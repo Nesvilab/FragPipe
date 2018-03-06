@@ -96,12 +96,12 @@ import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.SimpleUniqueTableModel;
 import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.params.PeptideProphetParams;
-import umich.msfragger.params.Philosopher;
+import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.ProteinProphetParams;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.fragger.MsfraggerParams;
-import umich.msfragger.params.fragger.MsfraggerProperties;
+import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.GhostText;
@@ -109,6 +109,7 @@ import umich.msfragger.util.HSLColor;
 import umich.msfragger.util.LogUtils;
 import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PathUtils;
+import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.VersionComparator;
@@ -124,7 +125,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     protected TextConsole console;
     protected ExecutorService exec;
     private final List<Process> submittedProcesses = new ArrayList<>(100);
-    private static final String TEXT_SAME_SEQ_DB = "<Same as in MSFragger>";
+    //private static final String TEXT_SAME_SEQ_DB = "<Same as in MSFragger>";
     private Color defTextColor;
     private GhostText ghostTextPepProph;
     private GhostText ghostTextProtProp;
@@ -145,13 +146,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private String textReportFilterFocusGained = "";
     private String textDecoyTagFocusGained = "";
     
-    private Pattern reDecoyTagReportAnnotate = Pattern.compile("--tag\\s+([^\\s]+)");
+    private Pattern reDecoyTagReportAnnotate = Pattern.compile("--prefix\\s+([^\\s]+)");
     private Pattern reDecoyTagReportFilter = Pattern.compile("--tag\\s+([^\\s]+)");
     private Pattern reDecoyTagPeptideProphet = Pattern.compile("--decoy\\s+([^\\s]+)");
     private Pattern reDecoyTagSequenceDb = Pattern.compile("([^\\s]+)");
 
-    private String fraggerVer = "Unknown";
-    private String philosopherVer = "Unknown";
+    private static final String UNKNOWN_VERSION = "Unknown";
+    private String fraggerVer = UNKNOWN_VERSION;
+    private String philosopherVer = UNKNOWN_VERSION;
 
     private final String ACTION_EXPORT_LOG = "Export-Log";    
 
@@ -1866,6 +1868,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     }
 
+    
+    
     private void validatePhilosopherVersion(final String binPath) {
         if (balloonPhilosopher != null) {
             balloonPhilosopher.closeBalloon();
@@ -1873,16 +1877,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         final Pattern regexNewerVerFound = Pattern.compile("new version.*available.*?\\:\\s*(\\S+)", Pattern.CASE_INSENSITIVE);
         final Pattern regexVersion = Pattern.compile("build\\s+and\\s+version.*?build.*?=(?<build>\\S+).*version.*?=(?<version>\\S+)", Pattern.CASE_INSENSITIVE);
-
+        final VersionComparator vc = new VersionComparator();
+        
+        
         // Check releases on github by running `philosopher version`.
-        Thread t = new Thread(new Runnable() {
+        Thread t;
+        t = new Thread(new Runnable() {
             @Override
             public void run() {
                 ProcessBuilder pb = new ProcessBuilder(binPath, "version");
                 pb.redirectErrorStream(true);
 
                 boolean isNewVersionStringFound = false;
-                String currentVersion = null;
+                String curVersionAndBuild = null;
+                String curVersion = null;
 
                 // get the vesrion reported by the current executable
                 String downloadLink = null;
@@ -1898,11 +1906,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         }
                         Matcher mVer = regexVersion.matcher(line);
                         if (mVer.find()) {
-                            currentVersion = mVer.group("version") + " (build " + mVer.group("build") + ")";
+                            curVersionAndBuild = mVer.group("version") + " (build " + mVer.group("build") + ")";
+                            curVersion = mVer.group("version");
                         }
                     }
 
-                    philosopherVer = StringUtils.isNullOrWhitespace(currentVersion) ? "Unknown" : currentVersion;
+                    Properties props = PropertiesUtils.loadPropertiesRemote(PhilosopherProps.PROPERTIES_URI);
+                    if (props == null) // if we couldn't download remote properties, try using local ones
+                        props = PropertiesUtils.loadPropertiesLocal(PhilosopherProps.class, PhilosopherProps.PROPERTY_FILE_NAME);
+                    
+                    philosopherVer = StringUtils.isNullOrWhitespace(curVersionAndBuild) ? UNKNOWN_VERSION : curVersionAndBuild;
                     lblPhilosopherInfo.setText(String.format(
                             "Philosopher version: %s. %s", philosopherVer, OsUtils.OsInfo()));
 
@@ -1910,16 +1923,33 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
                     JEditorPane ep = null;
                     if (isNewVersionStringFound) {
-                        ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT,
-                                "Newer version of Philosopher available.<br>\n"
-                                + "Please <a href=\"%s\">click here</a> to download a newer one.",
-                                downloadLink));
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Newer version of Philosopher available.<br>\n");
+                        sb.append("<a href=\"").append(downloadLink).append("\">Click here</a> to download.<br>\n");
+                        if (props != null) {
+                            // if we have some philosopher properties (local or better remote)
+                            // then check if this version is known to be compatible
+                            String latestCompatible = props.getProperty(PhilosopherProps.PROP_LATEST_COMPATIBLE_VERSION + "." + Version.VERSION);
+                            if (latestCompatible == null) {
+                                sb.append("<br>\nCompatibility with your version of MSFragger-GUI is unknown.");
+                            } else if (curVersion != null) {
+                                int cmp = vc.compare(curVersion, latestCompatible);
+                                if (cmp == 0) {
+                                    sb.append("<br>\nHowever, <b>you currently have the latest known tested version</b>.");
+                                } else if (cmp < 0) {
+                                    sb.append("<br>\nThe latest known tested version is<br>\n"
+                                            + "<b>Philosopher ").append(latestCompatible).append("</b>.<br/>\n");
+                                    sb.append("It is not recommended to upgrade to newer versions unless they are tested.");
+                                }
+                            }
+                        }
+                        ep = SwingUtils.createClickableHtml(sb.toString());
 
                     } else if (returnCode != 0) {
                         ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT,
                                 "Philosopher version too old and is no longer supported.<br>\n"
-                                + "Please <a href=\"%s\">click here</a> to download a newer one.",
-                                Philosopher.DOWNLOAD_LINK));
+                                        + "Please <a href=\"%s\">click here</a> to download a newer one.",
+                                PhilosopherProps.DOWNLOAD_LINK));
                     }
                     if (ep != null) {
                         if (balloonPhilosopher != null) {
@@ -1972,17 +2002,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         // get the latest known version stored in the text file
         String latestVersion = null;
-        try {
-            InputStream is = MsfraggerParams.class.getResourceAsStream("msfragger.properties");
+        try (InputStream is = MsfraggerParams.class.getResourceAsStream("msfragger.properties")) {
             if (is == null) {
                 throw new IllegalStateException("Could not read msfragger.properties from the classpath");
             }
             Properties prop = new Properties();
             prop.load(is);
-            latestVersion = prop.getProperty(MsfraggerProperties.PROP_LATEST_VERSION);
+            latestVersion = prop.getProperty(MsfraggerProps.PROP_LATEST_VERSION);
             if (latestVersion == null) {
                 throw new IllegalStateException("Property "
-                        + MsfraggerProperties.PROP_LATEST_VERSION
+                        + MsfraggerProps.PROP_LATEST_VERSION
                         + " was not found in msfragger.properties");
             }
         } catch (IOException e) {
@@ -1990,7 +2019,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
 
         // update the version label
-        fraggerVer = StringUtils.isNullOrWhitespace(matchedVersion) ? "Unknown" : matchedVersion;
+        fraggerVer = StringUtils.isNullOrWhitespace(matchedVersion) ? UNKNOWN_VERSION : matchedVersion;
         lblFraggerJavaVer.setText(String.format(
                 "MSFragger version: %s. %s", fraggerVer, OsUtils.JavaInfo()));
 
@@ -2004,7 +2033,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     "Your version of MSFragger "
                     + "is not supported anymore.<br>\n"
                     + "Please <a href=\"%s\">click here</a> to download a newer one.",
-                    MsfraggerProperties.DOWNLOAD_URL));
+                    MsfraggerProps.DOWNLOAD_URL));
             balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
                     new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
 
@@ -2023,7 +2052,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     "There is a newer version of MSFragger available.<br>\n"
                     + "Your version is [%s]<br>\n"
                     + "Please <a href=\"%s\">click here</a> to download a newer one.",
-                    matchedVersion, MsfraggerProperties.DOWNLOAD_URL));
+                    matchedVersion, MsfraggerProps.DOWNLOAD_URL));
 
             balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
                     new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
@@ -2036,16 +2065,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 @Override
                 public void run() {
                     try {
-                        String githubProps = IOUtils.toString(MsfraggerProperties.PROPERTIES_URI.toURL(), Charset.forName("UTF-8"));
+                        String githubProps = IOUtils.toString(MsfraggerProps.PROPERTIES_URI.toURL(), Charset.forName("UTF-8"));
                         Properties props = new Properties();
                         props.load(new StringReader(githubProps));
-                        final String githubVersion = props.getProperty(MsfraggerProperties.PROP_LATEST_VERSION);
+                        final String githubVersion = props.getProperty(MsfraggerProps.PROP_LATEST_VERSION);
                         if (githubVersion == null) {
                             throw new IllegalStateException("Property "
-                                    + MsfraggerProperties.PROP_LATEST_VERSION
+                                    + MsfraggerProps.PROP_LATEST_VERSION
                                     + " was not found in msfragger.properties from github");
                         }
-                        final String downloadUrl = props.getProperty(MsfraggerProperties.PROP_DOWNLOAD_URL, MsfraggerProperties.DOWNLOAD_URL);
+                        final String downloadUrl = props.getProperty(MsfraggerProps.PROP_DOWNLOAD_URL, MsfraggerProps.DOWNLOAD_URL);
                         if (vc.compare(matchedVersion, githubVersion) < 0) {
                             // show balloon popup, must be done on EDT
                             SwingUtilities.invokeLater(new Runnable() {
@@ -3936,26 +3965,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     
     
     /**
-     * Compares the value of the textfield to the "ghost text" value and returns
-     * the one from MSFragger panel, if it matches or is empty.
-     *
-     * @return
-     */
-    private String getActualDbPath(String fastaPath) {
-        fastaPath = fastaPath.trim();
-        if (TEXT_SAME_SEQ_DB.equals(fastaPath)) {
-            fastaPath = "";
-        }
-        if (StringUtils.isNullOrWhitespace(fastaPath)) {
-            fastaPath = getFastaPath();
-            if (StringUtils.isNullOrWhitespace(fastaPath)) {
-                return null;
-            }
-        }
-        return fastaPath;
-    }
-
-    /**
      * Creates the ProcessBuilders for running PeptideProphet.
      *
      * @param workingDir
@@ -4008,7 +4017,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 commands.add(bin);
                 if (isPhilosopher) // for philosopher we always add the correct command
                 {
-                    commands.add(Philosopher.CMD_PEPTIDE_PROPHET);
+                    commands.add(PhilosopherProps.CMD_PEPTIDE_PROPHET);
                 }
 
                 if (!peptideProphetParams.getCmdLineParams().isEmpty()) {
@@ -4016,7 +4025,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     List<String> opts = StringUtils.splitCommandLine(cmdOpts);
                     for (String opt : opts) {
                         if (!opt.isEmpty()) {
-                            if (opt.equals(Philosopher.CMD_PEPTIDE_PROPHET)) {
+                            if (opt.equals(PhilosopherProps.CMD_PEPTIDE_PROPHET)) {
                                 continue;
                             }
                             commands.add(opt);
@@ -4104,7 +4113,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             Map<String, String> interacts = createInteractFilePaths(pepxmlClean, workingDir, fraggerPanel.getOutputFileExt());
 
             if (isPhilosopher) {
-                commands.add(Philosopher.CMD_PROTEIN_PROPHET);
+                commands.add(PhilosopherProps.CMD_PROTEIN_PROPHET);
 
                 // --output flag should be available in the latest philosopher
                 String combined = txtCombinedProtFile.getText().trim();
@@ -4317,15 +4326,22 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             if (checkReportDbAnnotate.isSelected()) {
                 List<String> cmd = new ArrayList<>();
                 cmd.add(bin);
-                cmd.add(Philosopher.CMD_DATABASE);
+                cmd.add(PhilosopherProps.CMD_DATABASE);
                 cmd.add("--annotate");
-                String fastaPath = getActualDbPath(textReportAnnotate.getText());
+                String fastaPath = getFastaPath();
                 if (fastaPath == null) {
                     JOptionPane.showMessageDialog(this, "Fasta file path can't be empty (Report)",
                             "Warning", JOptionPane.WARNING_MESSAGE);
                     return null;
                 }
                 cmd.add(fastaPath);
+                String annotateParams = textReportAnnotate.getText().trim();
+                if (!StringUtils.isNullOrWhitespace(annotateParams)) {
+                    String[] params = annotateParams.split("[\\s]+");
+                    for (String p : params) {
+                        cmd.add(p);
+                    }
+                }
                 builders.add(new ProcessBuilder(cmd));
             }
 
@@ -4333,7 +4349,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             if (checkReportFilter.isSelected()) {
                 List<String> cmd = new ArrayList<>();
                 cmd.add(bin);
-                cmd.add(Philosopher.CMD_FILTER);
+                cmd.add(PhilosopherProps.CMD_FILTER);
                 String filterParams = textReportFilter.getText().trim();
                 if (!StringUtils.isNullOrWhitespace(filterParams)) {
                     String[] params = filterParams.split("[\\s]+");
@@ -4354,7 +4370,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             if (true) {
                 List<String> cmd = new ArrayList<>();
                 cmd.add(bin);
-                cmd.add(Philosopher.CMD_REPORT);
+                cmd.add(PhilosopherProps.CMD_REPORT);
                 builders.add(new ProcessBuilder(cmd));
             }
 

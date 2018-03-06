@@ -45,6 +45,10 @@ public class Version {
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>();
     
     static {
+        CHANGELOG.put("5.0", Arrays.asList(
+                "Separate tab for sequence database.",
+                "Display info about known compatibility of newer versions of Philosopher."));
+        
         CHANGELOG.put("4.9", Arrays.asList(
                 "Stop execution of the pipeline if one of the processes returns non-zero exit code.",
                 "Colorize console output a bit, red color for errors.",
