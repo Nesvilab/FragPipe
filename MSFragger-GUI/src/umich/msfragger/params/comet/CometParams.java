@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright 2016 Dmitry Avtonomov.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package umich.msfragger.params;
+package umich.msfragger.params.comet;
 
 import umich.msfragger.exceptions.ParsingException;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,55 +28,43 @@ import java.util.Properties;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import umich.msfragger.params.PropLine;
+import umich.msfragger.params.PropertyFileContent;
 
 /**
- *
- * @author Dmitry Avtonomov
+ * Created by Dmitry Avtonomov on 2016-04-27.
  */
-public class UmpireQuantParams implements PropertyFileContent {
-    public static final String DEFAULT_FILE = "diaumpire_quant.params";
-    public static final String FILE_BASE_NAME = "diaumpire_quant";
-    public static final String FILE_BASE_EXT = "params";
-    
-    public static final String PROP_Thread = "Thread";
-    public static final String PROP_Path = "Path";
-    public static final String PROP_Fasta = "Fasta";
-    public static final String PROP_DecoyPrefix = "DecoyPrefix";
-    public static final String PROP_Combined_Prot = "Combined_Prot";
-    public static final String PROP_InternalLibSearch = "InternalLibSearch";
-//    public static final String PROP_ExternalLibSearch = "ExternalLibSearch";
-    public static final String PROP_PeptideFDR = "PeptideFDR";
-    public static final String PROP_ProteinFDR = "ProteinFDR";
-    public static final String PROP_DataSetLevelPepFDR = "DataSetLevelPepFDR";
-    public static final String PROP_FilterWeight = "FilterWeight";
-    public static final String PROP_MinWeight = "MinWeight";
-    public static final String PROP_TopNFrag = "TopNFrag";
-    public static final String PROP_TopNPep = "TopNPep";
-    public static final String PROP_Freq = "Freq";
-    public static final String PROP_ExternalLibPath = "ExternalLibPath";
-//    public static final String PROP_ = "";
-
-    Properties props = new Properties();
+public class CometParams implements PropertyFileContent {
+    public static final String COMET_ENZYME_INFO = "[COMET_ENZYME_INFO]";
+    protected Map<Integer, String> cometEnzymeInfos = new TreeMap<>();
+    protected String firstLine;
+    protected Properties props = new Properties();
     protected List<String> linesInOriginalFile = new ArrayList<>();
     protected Map<Integer, PropLine> mapLines= new TreeMap<>();
     protected Map<String, Integer> mapProps = new HashMap<>();
     
-    
-    public static UmpireQuantParams parseDefault() throws ParsingException {
-        InputStream is = UmpireQuantParams.class.getResourceAsStream(DEFAULT_FILE);
-        return UmpireQuantParams.parse(is);
-    }
-    
-    
-    
-    @Override
-    public Properties getProps() {
-        return props;
-    }
+    public static final String FILE_BASE_NAME = "comet";
+    public static final String FILE_BASE_EXT = "params";
+
+    protected String binPhilosopher;
+
+    /** This file is in the jar, use getResourceAsStream() to get it. */
+    public static final String DEFAULT_FILE = "comet.params";
+
+    public static final String PROP_database_name = "database_name";
+    public static final String PROP_peptide_mass_tolerance = "peptide_mass_tolerance";
+    public static final String PROP_fragment_bin_tol = "fragment_bin_tol";
+    public static final String PROP_fragment_bin_offset = "fragment_bin_offset";
+    public static final String PROP_theoretical_fragment_ions = "theoretical_fragment_ions";
+//    public static final String PROP_ = "";
 
     @Override
     public List<String> getLinesInOriginalFile() {
         return linesInOriginalFile;
+    }
+
+    public void setLinesInOriginalFile(List<String> linesInOriginalFile) {
+        this.linesInOriginalFile = linesInOriginalFile;
     }
 
     @Override
@@ -86,15 +72,48 @@ public class UmpireQuantParams implements PropertyFileContent {
         return mapLines;
     }
 
+    public void setMapLines(Map<Integer, PropLine> mapLines) {
+        this.mapLines = mapLines;
+    }
+
     @Override
     public Map<String, Integer> getMapProps() {
         return mapProps;
     }
+
+    public void setMapProps(Map<String, Integer> mapProps) {
+        this.mapProps = mapProps;
+    }
+
+    public String getBinPhilosopher() {
+        return binPhilosopher;
+    }
+
+    public void setBinPhilosopher(String binPhilosopher) {
+        this.binPhilosopher = binPhilosopher;
+    }
     
-    
-    
-    public static UmpireQuantParams parse(InputStream is) throws ParsingException {
-        UmpireQuantParams umpireParams = new UmpireQuantParams();
+    public Map<Integer, String> getCometEnzymeInfos() {
+        return cometEnzymeInfos;
+    }
+
+    public String getFirstLine() {
+        return firstLine;
+    }
+
+    @Override
+    public Properties getProps() {
+        return props;
+    }
+
+    public static CometParams parseDefault() throws ParsingException {
+        InputStream is = CometParams.class.getResourceAsStream(DEFAULT_FILE);
+        return CometParams.parse(is);
+    }
+
+    public static CometParams parse(InputStream is) throws ParsingException {
+
+        CometParams cometParams = new CometParams();
         Properties properties = new Properties();
 
         Pattern propRegex = Pattern.compile("^\\s*([^=]+?)\\s*=\\s*(.+?)\\s*", Pattern.CASE_INSENSITIVE);
@@ -105,7 +124,7 @@ public class UmpireQuantParams implements PropertyFileContent {
             String line;
             while ((line = br.readLine()) != null) {
                 lineNum++;
-                umpireParams.linesInOriginalFile.add(line);
+                cometParams.linesInOriginalFile.add(line);
                 Properties props = new Properties();
                 boolean hasComments = false;
                 boolean hasProperty = false;
@@ -120,21 +139,22 @@ public class UmpireQuantParams implements PropertyFileContent {
                         if (indexOfEquals > 2) {
                             // ok, this might be a property
                             String possiblePropString = line.substring(0, indexOfHash);
-                            addString(propRegex, possiblePropString, line, indexOfHash, umpireParams, lineNum);
+                            addString(propRegex, possiblePropString, line, indexOfHash, cometParams, lineNum);
                         }
                     } else {
                         // index of hash is small and does not allow for a property, must be a simple string
-                        umpireParams.mapLines.put(lineNum, new PropLine(line, null, null, null));
+                        cometParams.mapLines.put(lineNum, new PropLine(line, null, null, null));
                     }
                 } else {
                     // it must be a pure property string or just a meaningless string
                     int indexOfEquals = line.indexOf('=');
                     if (indexOfEquals > 0) {
                         String possiblePropString = line;
-                        addString(propRegex, possiblePropString, line, indexOfHash, umpireParams, lineNum);
+                        addString(propRegex, possiblePropString, line, indexOfHash, cometParams, lineNum);
                     } else {
-                        // it's a simple line, just add it
-                        umpireParams.mapLines.put(lineNum, new PropLine(line, null, null, null));
+                        // it's an ordinary line
+                        String simpleLine = line;
+                        cometParams.mapLines.put(lineNum, new PropLine(simpleLine, null, null, null));
                     }
                 }
             }
@@ -142,10 +162,10 @@ public class UmpireQuantParams implements PropertyFileContent {
         } catch (IOException e) {
             throw new ParsingException("Error reading comet params file", e);
         }
-        return umpireParams;
+        return cometParams;
     }
-    
-    private static void addString(Pattern propRegex, String possiblePropString, String line, int indexOfHash, UmpireQuantParams umpireParams, int lineNum) throws ParsingException {
+
+    private static void addString(Pattern propRegex, String possiblePropString, String line, int indexOfHash, CometParams cometParams, int lineNum) throws ParsingException {
         Matcher matcher = propRegex.matcher(possiblePropString);
         if (matcher.matches()) {
             String comment = null;
@@ -157,13 +177,12 @@ public class UmpireQuantParams implements PropertyFileContent {
                 throw new ParsingException(String.format(Locale.ROOT, "Property on line number %d had empty name", lineNum));
             if (propVal.isEmpty())
                 throw new ParsingException(String.format(Locale.ROOT, "Property on line number %d had empty value", lineNum));
-            umpireParams.mapLines.put(lineNum, new PropLine(null, propName, propVal, comment));
-            umpireParams.mapProps.put(propName, lineNum);
-            umpireParams.props.put(propName, propVal);
+            cometParams.mapLines.put(lineNum, new PropLine(null, propName, propVal, comment));
+            cometParams.mapProps.put(propName, lineNum);
+            cometParams.props.put(propName, propVal);
         } else {
             // we didn't find the property here, it's just a line
-            umpireParams.mapLines.put(lineNum, new PropLine(line, null, null, null));
+            cometParams.mapLines.put(lineNum, new PropLine(line, null, null, null));
         }
     }
-    
 }

@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package umich.msfragger.params;
+package umich.msfragger.params.pepproph;
 
 /**
  *
- * @author Dmitry Avtonomov
+ * @author dmitriya
  */
-public class ProteinProphetParams {
+public class PeptideProphetParams {
     private String cmdLineParams = "";
 
     public String getCmdLineParams() {
@@ -29,4 +29,6 @@ public class ProteinProphetParams {
     public void setCmdLineParams(String cmdLineParams) {
         this.cmdLineParams = cmdLineParams;
     }
+    
+    
 }

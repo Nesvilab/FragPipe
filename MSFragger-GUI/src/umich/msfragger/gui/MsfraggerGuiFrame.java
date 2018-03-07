@@ -95,9 +95,9 @@ import umich.msfragger.gui.api.DataConverter;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.SimpleUniqueTableModel;
 import umich.msfragger.gui.api.TableModelColumn;
-import umich.msfragger.params.PeptideProphetParams;
+import umich.msfragger.params.pepproph.PeptideProphetParams;
 import umich.msfragger.params.philosopher.PhilosopherProps;
-import umich.msfragger.params.ProteinProphetParams;
+import umich.msfragger.params.protproph.ProteinProphetParams;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.fragger.MsfraggerParams;
@@ -2065,7 +2065,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
                                 JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT,
                                         "Your version is [%s]<br>\n"
-                                        + "There is a newer version of MSFragger available [%s]).<br>\n"
+                                        + "There is a newer version of MSFragger available [%s].<br>\n"
                                         + "Please <a href=\"%s\">click here</a> to download a newer one.",
                                         matchedVersion, latestKnownVer, downloadUrl));
 
