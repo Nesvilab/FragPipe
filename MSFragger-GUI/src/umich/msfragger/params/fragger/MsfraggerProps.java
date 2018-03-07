@@ -30,7 +30,8 @@ public class MsfraggerProps {
     // MSFragger when we only update the online repository.
     public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/chhh/MSFragger-GUI/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties";
     public static final URI PROPERTIES_URI = URI.create(PROPERTIES_URL);
-    
+    public static final String PROPERTIES_FILE_NAME = "msfragger.properties";
+        
     public static final String PROP_LATEST_VERSION = "msfragger.version.latest-known";
     public static final String PROP_DOWNLOAD_URL = "msfragger.download.url";
 }

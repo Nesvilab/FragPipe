@@ -366,7 +366,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
         List<TableModelColumn<Path, ?>> cols = new ArrayList<>();
 
-        TableModelColumn<Path, String> colPath = new TableModelColumn<>("Path", String.class, false, new DataConverter<Path, String>() {
+        TableModelColumn<Path, String> colPath = new TableModelColumn<>(
+                "Path (supports Drag & Drop from Explorer)", 
+                String.class, false, new DataConverter<Path, String>() {
             @Override
             public String convert(Path data) {
                 return data.toString();
@@ -1984,40 +1986,32 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         boolean isVersionPrintedAtAll = false;
         try {
             Process pr = pb.start();
-            BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-            String line;
-            while ((line = in.readLine()) != null) {
-                Matcher m = regex.matcher(line);
-                if (m.matches()) {
-                    isVersionPrintedAtAll = true;
-                    verStr = m.group(2);
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
+                String line;
+                while ((line = in.readLine()) != null) {
+                    Matcher m = regex.matcher(line);
+                    if (m.matches()) {
+                        isVersionPrintedAtAll = true;
+                        verStr = m.group(2);
+                    }
                 }
+                pr.waitFor();
             }
-            pr.waitFor();
         } catch (IOException | InterruptedException e) {
             throw new IllegalStateException("Error while creating a java process for MSFragger test.");
         }
         final String matchedVersion = verStr;
         fraggerVer = matchedVersion;
 
-        // get the latest known version stored in the text file
-        String latestVersion = null;
-        try (InputStream is = MsfraggerParams.class.getResourceAsStream("msfragger.properties")) {
-            if (is == null) {
-                throw new IllegalStateException("Could not read msfragger.properties from the classpath");
-            }
-            Properties prop = new Properties();
-            prop.load(is);
-            latestVersion = prop.getProperty(MsfraggerProps.PROP_LATEST_VERSION);
-            if (latestVersion == null) {
-                throw new IllegalStateException("Property "
-                        + MsfraggerProps.PROP_LATEST_VERSION
-                        + " was not found in msfragger.properties");
-            }
-        } catch (IOException e) {
-            throw new IllegalStateException("Error reading msfragger.properties from the classpath");
+        // get the latest known version
+        Properties props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
+        
+        String latestVersion = props.getProperty(MsfraggerProps.PROP_LATEST_VERSION);
+        if (latestVersion == null) {
+            throw new IllegalStateException(String.format("Property '%s' was not found in '%s'", 
+                    MsfraggerProps.PROP_LATEST_VERSION, MsfraggerProps.PROPERTIES_FILE_NAME));
         }
-
+   
         // update the version label
         fraggerVer = StringUtils.isNullOrWhitespace(matchedVersion) ? UNKNOWN_VERSION : matchedVersion;
         lblFraggerJavaVer.setText(String.format(
@@ -2039,70 +2033,52 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
             balloonMsfragger.setVisible(true);
             return false;
-        }
-
-        // compare the versions
-        final VersionComparator vc = new VersionComparator();
-        if (vc.compare(matchedVersion, latestVersion) < 0) {
-            if (balloonMsfragger != null) {
-                balloonMsfragger.closeBalloon();
-            }
-
-            JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT,
-                    "There is a newer version of MSFragger available.<br>\n"
-                    + "Your version is [%s]<br>\n"
-                    + "Please <a href=\"%s\">click here</a> to download a newer one.",
-                    matchedVersion, MsfraggerProps.DOWNLOAD_URL));
-
-            balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
-                    new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
-            balloonMsfragger.setVisible(true);
-            return true;
         } else {
+            
+            
             // The version from cmd line ouput is new enough to pass the local
             // test. Now check the file on github.
+            final VersionComparator vc = new VersionComparator();
             Thread t = new Thread(new Runnable() {
                 @Override
-                public void run() {
-                    try {
-                        String githubProps = IOUtils.toString(MsfraggerProps.PROPERTIES_URI.toURL(), Charset.forName("UTF-8"));
-                        Properties props = new Properties();
-                        props.load(new StringReader(githubProps));
-                        final String githubVersion = props.getProperty(MsfraggerProps.PROP_LATEST_VERSION);
-                        if (githubVersion == null) {
-                            throw new IllegalStateException("Property "
-                                    + MsfraggerProps.PROP_LATEST_VERSION
-                                    + " was not found in msfragger.properties from github");
-                        }
-                        final String downloadUrl = props.getProperty(MsfraggerProps.PROP_DOWNLOAD_URL, MsfraggerProps.DOWNLOAD_URL);
-                        if (vc.compare(matchedVersion, githubVersion) < 0) {
-                            // show balloon popup, must be done on EDT
-                            SwingUtilities.invokeLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (balloonMsfragger != null) {
-                                        balloonMsfragger.closeBalloon();
-                                    }
+                public void run() {    
+                        
+                    Properties props = PropertiesUtils.loadPropertiesRemote(MsfraggerProps.PROPERTIES_URI);
+                    if (props == null)
+                        props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
+                    if (props == null)
+                        return;
 
-                                    JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT,
-                                            "Your version is [%s]<br>\n"
-                                            + "There is a newer version of MSFragger available [%s]).<br>\n"
-                                            + "Please <a href=\"%s\">click here</a> to download a newer one.",
-                                            matchedVersion, githubVersion, downloadUrl));
+                    final String latestKnownVer = props.getProperty(MsfraggerProps.PROP_LATEST_VERSION);
+                    if (latestKnownVer == null) {
+                        throw new IllegalStateException(String.format("Property '%s' was not found in '%s' from github", 
+                                MsfraggerProps.PROP_LATEST_VERSION, MsfraggerProps.PROPERTIES_FILE_NAME));
+                    }
+                    final String downloadUrl = props.getProperty(MsfraggerProps.PROP_DOWNLOAD_URL, MsfraggerProps.DOWNLOAD_URL);
+                    if (vc.compare(matchedVersion, latestKnownVer) < 0) {
+                        // show balloon popup, must be done on EDT
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (balloonMsfragger != null)
+                                    balloonMsfragger.closeBalloon();
 
-                                    balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
-                                            new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
-                                    balloonMsfragger.setVisible(true);
-                                }
-                            });
-                        }
-                    } catch (IOException ex) {
-                        // it doesn't matter, it's fine if we can't fetch the file from github
-                        System.err.println("Could not download msfragger.properties file from github");
+                                JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT,
+                                        "Your version is [%s]<br>\n"
+                                        + "There is a newer version of MSFragger available [%s]).<br>\n"
+                                        + "Please <a href=\"%s\">click here</a> to download a newer one.",
+                                        matchedVersion, latestKnownVer, downloadUrl));
+
+                                balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
+                                        new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
+                                balloonMsfragger.setVisible(true);
+                            }
+                        });
                     }
                 }
             });
             t.start();
+        
         }
 
         return true;
