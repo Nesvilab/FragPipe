@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Properties;
 import javax.swing.JFileChooser;
 import javax.swing.JTextField;
+import umich.msfragger.Version;
 import umich.msfragger.util.PathUtils;
 
 public class ThisAppProps extends Properties {
@@ -54,6 +55,10 @@ public class ThisAppProps extends Properties {
     public static final String PROP_TEXT_CMD_PROTEIN_PROPHET = "proteinprophet.cmd.line.opts";
 
     public static final String PROP_MGF_WARNING = "warn.mgf";
+    
+    public ThisAppProps() {
+        this.setProperty(Version.PROP_VER, Version.VERSION);
+    }
     
     public static void clearCache() {
         ThisAppProps thisAppProps = new ThisAppProps();
@@ -159,12 +164,15 @@ public class ThisAppProps extends Properties {
     }
     
     public static void save(String propName, String propVal) {
-        if (propName == null || propVal == null)
-            throw new IllegalArgumentException("Both property name and value must be non-null");
+        if (propName == null)
+            throw new IllegalArgumentException("Property name must be non-null");
         ThisAppProps thisAppProps = ThisAppProps.loadFromTemp();
         if (thisAppProps == null)
             thisAppProps = new ThisAppProps();
-        thisAppProps.setProperty(propName, propVal);
+        if (propVal == null)
+            thisAppProps.remove(propName);
+        else
+            thisAppProps.setProperty(propName, propVal);
         thisAppProps.save();
     }
     
