@@ -652,7 +652,7 @@
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="textDecoyTag" min="-2" pref="131" max="-2" attributes="0"/>
+                                  <Component id="textDecoyTagSeqDb" min="-2" pref="131" max="-2" attributes="0"/>
                                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                   <Component id="btnTryDetectDecoyTag" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="0" pref="325" max="32767" attributes="0"/>
@@ -673,7 +673,7 @@
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="textDecoyTag" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="textDecoyTagSeqDb" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnTryDetectDecoyTag" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace pref="50" max="32767" attributes="0"/>
@@ -707,10 +707,10 @@
                     <Property name="text" type="java.lang.String" value="Decoy tag"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JTextField" name="textDecoyTag">
+                <Component class="javax.swing.JTextField" name="textDecoyTagSeqDb">
                   <Events>
-                    <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textDecoyTagFocusGained"/>
-                    <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textDecoyTagFocusLost"/>
+                    <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textDecoyTagSeqDbFocusGained"/>
+                    <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textDecoyTagSeqDbFocusLost"/>
                   </Events>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastDecoyTag();"/>
@@ -843,7 +843,7 @@
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
                   <SubComponents>
-                    <Component class="javax.swing.JTextArea" name="txtPeptideProphetCmdLineOptions">
+                    <Component class="javax.swing.JTextArea" name="textPepProphCmd">
                       <Properties>
                         <Property name="columns" type="int" value="20"/>
                         <Property name="lineWrap" type="boolean" value="true"/>
@@ -851,8 +851,8 @@
                         <Property name="wrapStyleWord" type="boolean" value="true"/>
                       </Properties>
                       <Events>
-                        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="txtPeptideProphetCmdLineOptionsFocusGained"/>
-                        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="txtPeptideProphetCmdLineOptionsFocusLost"/>
+                        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textPepProphCmdFocusGained"/>
+                        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textPepProphCmdFocusLost"/>
                       </Events>
                       <AuxValues>
                         <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastPeptideProphet();"/>

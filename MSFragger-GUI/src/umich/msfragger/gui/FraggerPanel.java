@@ -972,7 +972,7 @@ public class FraggerPanel extends javax.swing.JPanel {
 
         jLabel35.setText("GB");
 
-        panelFraggerMatchingConfig.setBorder(javax.swing.BorderFactory.createTitledBorder("Matching Configuration"));
+        panelFraggerMatchingConfig.setBorder(javax.swing.BorderFactory.createTitledBorder("Peak Matching Configuration"));
 
         jLabel4.setText("Precursor True Tolerance");
 

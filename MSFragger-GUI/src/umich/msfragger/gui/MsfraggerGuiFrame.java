@@ -41,7 +41,6 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -89,6 +88,7 @@ import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import umich.msfragger.Version;
 import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
 import umich.msfragger.gui.api.DataConverter;
@@ -112,8 +112,10 @@ import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
+import umich.msfragger.util.ValidateTrue;
 import umich.msfragger.util.VersionComparator;
 import umich.swing.console.TextConsole;
+import umich.msfragger.util.IValidateString;
 
 /**
  *
@@ -141,14 +143,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     public static final SearchTypeProp DEFAULT_TYPE = SearchTypeProp.open;
 
-    private String textPepProphetFocusGained = "";
-    private String textReportAnnotateFocusGained = "";
-    private String textReportFilterFocusGained = "";
-    private String textDecoyTagFocusGained = "";
+    private String textPepProphetFocusGained = null;
+    private String textReportAnnotateFocusGained = null;
+    private String textReportFilterFocusGained = null;
+    private String textDecoyTagFocusGained = null;
     
     private Pattern reDecoyTagReportAnnotate = Pattern.compile("--prefix\\s+([^\\s]+)");
     private Pattern reDecoyTagReportFilter = Pattern.compile("--tag\\s+([^\\s]+)");
-    private Pattern reDecoyTagPeptideProphet = Pattern.compile("--decoy\\s+([^\\s]+)");
+    private Pattern reDecoyTagPepProphCmd = Pattern.compile("--decoy\\s+([^\\s]+)");
     private Pattern reDecoyTagSequenceDb = Pattern.compile("([^\\s]+)");
 
     private static final String UNKNOWN_VERSION = "Unknown";
@@ -184,7 +186,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 fc.setMultiSelectionEnabled(false);
                 SwingUtils.setFileChooserPath(fc, ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH));
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-                fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(Date.from(Instant.now())))));
+                Date now = new Date();
+                fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(now))));
                 Component parent = SwingUtils.findParentComponentForDialog(MsfraggerGuiFrame.this);
                 int saveResult = fc.showSaveDialog(parent);
                 if (JFileChooser.APPROVE_OPTION == saveResult) {
@@ -438,7 +441,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         textSequenceDbPath = new javax.swing.JTextField();
         btnBrowse = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
-        textDecoyTag = new javax.swing.JTextField();
+        textDecoyTagSeqDb = new javax.swing.JTextField();
         btnTryDetectDecoyTag = new javax.swing.JButton();
         scrollPaneMsFragger = new javax.swing.JScrollPane();
         panelPeptideProphet = new javax.swing.JPanel();
@@ -446,7 +449,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         panelPeptideProphetOptions = new javax.swing.JPanel();
         jLabel34 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        txtPeptideProphetCmdLineOptions = new javax.swing.JTextArea();
+        textPepProphCmd = new javax.swing.JTextArea();
         btnPepProphDefaultsClosed = new javax.swing.JButton();
         btnPepProphDefaultsOpen = new javax.swing.JButton();
         panelProteinProphet = new javax.swing.JPanel();
@@ -871,12 +874,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         jLabel5.setText("Decoy tag");
 
-        textDecoyTag.addFocusListener(new java.awt.event.FocusAdapter() {
+        textDecoyTagSeqDb.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
-                textDecoyTagFocusGained(evt);
+                textDecoyTagSeqDbFocusGained(evt);
             }
             public void focusLost(java.awt.event.FocusEvent evt) {
-                textDecoyTagFocusLost(evt);
+                textDecoyTagSeqDbFocusLost(evt);
             }
         });
 
@@ -901,7 +904,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addGroup(panelDbInfoLayout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(textDecoyTag, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(textDecoyTagSeqDb, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnTryDetectDecoyTag)
                         .addGap(0, 325, Short.MAX_VALUE)))
@@ -917,7 +920,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(textDecoyTag, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(textDecoyTagSeqDb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnTryDetectDecoyTag))
                 .addContainerGap(50, Short.MAX_VALUE))
         );
@@ -957,19 +960,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         jLabel34.setText("Cmd Line Options");
 
-        txtPeptideProphetCmdLineOptions.setColumns(20);
-        txtPeptideProphetCmdLineOptions.setLineWrap(true);
-        txtPeptideProphetCmdLineOptions.setRows(5);
-        txtPeptideProphetCmdLineOptions.setWrapStyleWord(true);
-        txtPeptideProphetCmdLineOptions.addFocusListener(new java.awt.event.FocusAdapter() {
+        textPepProphCmd.setColumns(20);
+        textPepProphCmd.setLineWrap(true);
+        textPepProphCmd.setRows(5);
+        textPepProphCmd.setWrapStyleWord(true);
+        textPepProphCmd.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
-                txtPeptideProphetCmdLineOptionsFocusGained(evt);
+                textPepProphCmdFocusGained(evt);
             }
             public void focusLost(java.awt.event.FocusEvent evt) {
-                txtPeptideProphetCmdLineOptionsFocusLost(evt);
+                textPepProphCmdFocusLost(evt);
             }
         });
-        jScrollPane2.setViewportView(txtPeptideProphetCmdLineOptions);
+        jScrollPane2.setViewportView(textPepProphCmd);
         loadLastPeptideProphet();
 
         javax.swing.GroupLayout panelPeptideProphetOptionsLayout = new javax.swing.GroupLayout(panelPeptideProphetOptions);
@@ -1657,7 +1660,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
      * @return True if it's a real JAR file with MSFragger.class at the top
      * level inside.
      */
-    private boolean validateAndSaveMsfraggerPath(String path) {
+    private boolean validateAndSaveMsfraggerPath(final String path) {
         boolean isValid = validateMsfraggerPath(path);
         if (isValid) {
             textBinMsfragger.setText(path);
@@ -1787,7 +1790,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
                     // add new versions notification
                     final String githubVersion = propsGh.getProperty(Version.PROP_VER);
-                    if (githubVersion != null && vc.compare(Version.VERSION, githubVersion) < 0) {
+                    final String localVersion = Version.VERSION;
+                    if (githubVersion != null && vc.compare(localVersion, githubVersion) < 0) {
                         if (sb.length() > 0) {
                             sb.append("<br><br>");
                         }
@@ -1797,7 +1801,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 "Your MSFragger-GUI version is [%s]<br>\n"
                                 + "There is a newer version of MSFragger-GUI available [%s]).<br>\n"
                                 + "Please <a href=\"%s\">click here</a> to download a newer one.",
-                                Version.VERSION, githubVersion, downloadUrl));
+                                localVersion, githubVersion, downloadUrl));
 
                         // check for critical or important updates since the current version
                         List<String> updatesImportant = Version.updatesSinceCurrentVersion(
@@ -2266,57 +2270,73 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         ThisAppProps.clearCache();
     }//GEN-LAST:event_btnClearCacheActionPerformed
 
-    private void validateAndSaveReportAnnotate(String oldText) {
-        String newText = textReportAnnotate.getText().trim();
-                
-        final boolean isValid = true;
+    private boolean validateAndSave(final JTextComponent comp, final String propName, 
+            final String newText, final IValidateString valid) {
+        
+        final String updText = newText != null ? newText : comp.getText().trim();        
+        final boolean isValid = valid.test(updText);
+        comp.setText(updText);
         if (isValid) {
-            textReportAnnotate.setText(newText);
-            ThisAppProps.save(ThisAppProps.PROP_TEXTFIELD_REPORT_ANNOTATE, newText);
+            ThisAppProps.save(propName, updText);
         }
-
+        
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                BalloonTip tip = tipMap.get(ThisAppProps.PROP_TEXTFIELD_REPORT_ANNOTATE);
-                if (tip != null) {
+                BalloonTip tip = tipMap.get(propName);
+                if (tip != null)
                     tip.closeBalloon();
-                }
 
                 if (!isValid) {
-                    tip = new BalloonTip(textReportFilter, "Invalid format.");
+                    tip = new BalloonTip(comp, "Invalid format.");
                     tip.setVisible(true);
-                    tipMap.put(ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER, tip);
+                    tipMap.put(propName, tip);
                 }
             }
         });
-
+        
+        return isValid;
+    }
+    
+    private void validateAndSaveReportAnnotate(final String newText, boolean updateOtherTags) {
+        final JTextComponent comp = textReportAnnotate;
+        final boolean isValid = validateAndSave(comp, ThisAppProps.PROP_TEXTFIELD_REPORT_ANNOTATE, 
+                newText, ValidateTrue.getInstance());    
+        
+        if (!isValid)
+            return;
+        
         // check if the filter line has changed since focus was gained
-        oldText = oldText == null ? textReportAnnotateFocusGained : oldText;
-        if (!oldText.equals(newText)) {
-            // check if the reverse tag has changed
-            String newVal = "", oldVal = "";
-            Matcher m = reDecoyTagReportAnnotate.matcher(newText);
-            if (m.find()) {
-                newVal = m.group(1);
-            }
-            m = reDecoyTagReportAnnotate.matcher(oldText);
-            if (m.find()) {
-                oldVal = m.group(1);
-            }
-            if (!oldVal.equals(newVal)) {
-                final String message = String.format(Locale.ROOT,
-                        "Decoy prefix in Philosopher DB Annotate options has changed "
-                        + "from '%s' to '%s'.\n"
-                        + "Do you want to also change it in other commands as well?", oldVal, newVal);
+        final String savedText = textReportAnnotateFocusGained;
+        final String oldText = savedText != null ? savedText : comp.getText().trim();
+        final String updText = newText != null ? newText : comp.getText().trim();
+        
+        if (!updateOtherTags || oldText.equals(updText)) // newText == null means it was a programmatic update
+            return;
+        
+        // check if the reverse tag has changed
+        Pattern re = reDecoyTagReportAnnotate; 
+        String oldVal = "", newVal = "";
+        Matcher m = re.matcher(updText);
+        if (m.find()) {
+            newVal = m.group(1);
+        }
+        m = re.matcher(oldText);
+        if (m.find()) {
+            oldVal = m.group(1);
+        }
+        if (!oldVal.equals(newVal)) {
+            final String message = String.format(Locale.ROOT,
+                    "Decoy prefix in Philosopher DB Annotate options has changed "
+                    + "from '%s' to '%s'.\n"
+                    + "Do you want to also change it in other commands as well?", oldVal, newVal);
 
-                // does the user want to chnage the Report tag automatically?
-                int ans = JOptionPane.showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
-                if (ans == JOptionPane.YES_OPTION) {
-                    updateDecoyTag(newVal);
-                    updatePeptideProphetDecoyTag(newVal);
-                    updateReportFilterDecoyTag(newVal);
-                }
+            // does the user want to chnage the Report tag automatically?
+            int ans = JOptionPane.showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
+            if (ans == JOptionPane.YES_OPTION) {
+                updateDecoyTagSeqDb(newVal, false);
+                updateDecoyTagPepProphCmd(newVal, false);
+                updateDecoyTagReportFilter(newVal, false);
             }
         }
     }
@@ -2324,60 +2344,46 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     /**
      * Called with null from FocusChange listener. Call it with a new value
      * if you want to update the field programmatically.
-     * @param oldVal If non null, then the current text field value will be
-     * compared to this one and if not mathcing, then a dialog will be shown.
      */
-    private void validateAndSaveReportFilter(String oldText) {
-        String newText = textReportFilter.getText().trim();
-                
-        final boolean isValid = true;
-        if (isValid) {
-            textReportFilter.setText(newText);
-            ThisAppProps.save(ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER, newText);
-        }
-
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                BalloonTip tip = tipMap.get(ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER);
-                if (tip != null) {
-                    tip.closeBalloon();
-                }
-
-                if (!isValid) {
-                    tip = new BalloonTip(textReportFilter, "Invalid format.");
-                    tip.setVisible(true);
-                    tipMap.put(ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER, tip);
-                }
-            }
-        });
+    private void validateAndSaveReportFilter(final String newText, boolean updateOtherTags) {
+        final JTextComponent comp = textReportFilter;
+        final boolean isValid = validateAndSave(comp, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER, 
+                newText, ValidateTrue.getInstance());        
+        
+        if (!isValid)
+            return;
 
         // check if the filter line has changed since focus was gained
-        oldText = oldText == null ? textReportFilterFocusGained : oldText;
-        if (!oldText.equals(newText)) {
-            // check if the reverse tag has changed
-            String newVal = "", oldVal = "";
-            Matcher m = reDecoyTagReportFilter.matcher(newText);
-            if (m.find()) {
-                newVal = m.group(1);
-            }
-            m = reDecoyTagReportFilter.matcher(oldText);
-            if (m.find()) {
-                oldVal = m.group(1);
-            }
-            if (!oldVal.equals(newVal)) {
-                final String message = String.format(Locale.ROOT,
-                        "Decoy prefix in Philosopher Report options has changed "
-                        + "from '%s' to '%s'.\n"
-                        + "Do you want to also change it in other commands as well?", oldVal, newVal);
+        final String savedText = textReportFilterFocusGained;
+        final String oldText = savedText != null ? savedText : comp.getText().trim();
+        final String updText = newText != null ? newText : comp.getText().trim();
+        
+        if (!updateOtherTags || oldText.equals(updText)) // newText == null means it was a programmatic update
+            return;
+        
+        // check if the reverse tag has changed
+        Pattern re = reDecoyTagReportFilter;
+        String oldVal = "", newVal = "";
+        Matcher m = re.matcher(updText);
+        if (m.find()) {
+            newVal = m.group(1);
+        }
+        m = re.matcher(oldText);
+        if (m.find()) {
+            oldVal = m.group(1);
+        }
+        if (!oldVal.equals(newVal)) {
+            final String message = String.format(Locale.ROOT,
+                    "Decoy prefix in Philosopher Report options has changed "
+                    + "from '%s' to '%s'.\n"
+                    + "Do you want to also change it in other commands as well?", oldVal, newVal);
 
-                // does the user want to chnage the Report tag automatically?
-                int ans = JOptionPane.showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
-                if (ans == JOptionPane.YES_OPTION) {
-                    updateDecoyTag(newVal);
-                    updatePeptideProphetDecoyTag(newVal);
-                    updateReportAnnotateDecoyTag(newVal);
-                }
+            // does the user want to chnage the Report tag automatically?
+            int ans = JOptionPane.showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
+            if (ans == JOptionPane.YES_OPTION) {
+                updateDecoyTagSeqDb(newVal, false);
+                updateDecoyTagPepProphCmd(newVal, false);
+                updateDecoyTagReportAnnotate(newVal, false);
             }
         }
     }
@@ -2583,7 +2589,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         
         // Check Decoy tags if any of the downstream tools are requested
         if (doRunAnyOtherTools) { // downstream tools
-            if (StringUtils.isNullOrWhitespace(textDecoyTag.getText())) {
+            if (StringUtils.isNullOrWhitespace(textDecoyTagSeqDb.getText())) {
                 int confirm = JOptionPane.showConfirmDialog(this,
                         "Downstream analysis tools require decoys in the database,\n"
                         + "but the decoy tag was left empty. It's recommended that\n"
@@ -2835,8 +2841,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
      */
     private boolean checkDecoyTagsEqual() {
         List<String> tags = Arrays.asList(
-                getRegexMatch(reDecoyTagSequenceDb, textDecoyTag.getText(), 1),
-                getRegexMatch(reDecoyTagPeptideProphet, txtPeptideProphetCmdLineOptions.getText(), 1),
+                getRegexMatch(reDecoyTagSequenceDb, textDecoyTagSeqDb.getText(), 1),
+                getRegexMatch(reDecoyTagPepProphCmd, textPepProphCmd.getText(), 1),
                 getRegexMatch(reDecoyTagReportAnnotate, textReportAnnotate.getText(), 1),
                 getRegexMatch(reDecoyTagReportFilter, textReportFilter.getText(), 1)
                 );
@@ -2885,9 +2891,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnLoadDefaultsClosedActionPerformed
 
-    private void txtPeptideProphetCmdLineOptionsFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtPeptideProphetCmdLineOptionsFocusLost
-        validateAndSavePeptideProphetCmdLineOptions(null);
-    }//GEN-LAST:event_txtPeptideProphetCmdLineOptionsFocusLost
+    private void textPepProphCmdFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textPepProphCmdFocusLost
+        validateAndSavePeptideProphetCmdLineOptions(null, true);
+    }//GEN-LAST:event_textPepProphCmdFocusLost
 
     private void txtProteinProphetCmdLineOptsFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtProteinProphetCmdLineOptsFocusLost
         String val = txtProteinProphetCmdLineOpts.getText();
@@ -2911,7 +2917,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnProtProphDefaultsClosedActionPerformed
 
     private void textReportFilterFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textReportFilterFocusLost
-        validateAndSaveReportFilter(null);
+        validateAndSaveReportFilter(null, true);
     }//GEN-LAST:event_textReportFilterFocusLost
 
     private void btnAboutInConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAboutInConfigActionPerformed
@@ -2935,9 +2941,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         ThisAppProps.save(ThisAppProps.PROP_CHECKBOX_REPORT_PROTEIN_LEVEL_FDR, Boolean.toString(selected));
     }//GEN-LAST:event_checkReportProteinLevelFdrStateChanged
 
-    private void txtPeptideProphetCmdLineOptionsFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtPeptideProphetCmdLineOptionsFocusGained
-        textPepProphetFocusGained = txtPeptideProphetCmdLineOptions.getText().trim();
-    }//GEN-LAST:event_txtPeptideProphetCmdLineOptionsFocusGained
+    private void textPepProphCmdFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textPepProphCmdFocusGained
+        textPepProphetFocusGained = textPepProphCmd.getText().trim();
+    }//GEN-LAST:event_textPepProphCmdFocusGained
 
     private void textReportFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textReportFilterActionPerformed
         
@@ -2984,16 +2990,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnBrowseActionPerformed
 
-    private void textDecoyTagFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textDecoyTagFocusLost
-        validateAndSaveDecoyTag(null);
-    }//GEN-LAST:event_textDecoyTagFocusLost
+    private void textDecoyTagSeqDbFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textDecoyTagSeqDbFocusLost
+        validateAndSaveDecoyTagSeqDb(null, true);
+    }//GEN-LAST:event_textDecoyTagSeqDbFocusLost
 
-    private void textDecoyTagFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textDecoyTagFocusGained
-        textDecoyTagFocusGained = textDecoyTag.getText().trim();
-    }//GEN-LAST:event_textDecoyTagFocusGained
+    private void textDecoyTagSeqDbFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textDecoyTagSeqDbFocusGained
+        textDecoyTagFocusGained = textDecoyTagSeqDb.getText().trim();
+    }//GEN-LAST:event_textDecoyTagSeqDbFocusGained
 
     private void textReportAnnotateFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textReportAnnotateFocusLost
-        validateAndSaveReportAnnotate(null);
+        validateAndSaveReportAnnotate(null, true);
     }//GEN-LAST:event_textReportAnnotateFocusLost
 
     private void textReportAnnotateFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textReportAnnotateFocusGained
@@ -3009,17 +3015,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowOpened
 
     public void loadLastPeptideProphet() {
-        if (!loadLast(txtPeptideProphetCmdLineOptions, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET)) {
+        if (!load(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET)) {
             loadDefaultsPeptideProphet(DEFAULT_TYPE);
         }
     }
 
     public void loadDefaultsPeptideProphet(SearchTypeProp type) {
-        loadDefaults(txtPeptideProphetCmdLineOptions, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET, type);
+        loadDefaults(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET, type);
     }
 
     public void loadLastProteinProphet() {
-        if (!loadLast(txtProteinProphetCmdLineOpts, ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET)) {
+        if (!load(txtProteinProphetCmdLineOpts, ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET)) {
             loadDefaultsProteinProphet(DEFAULT_TYPE);
         }
     }
@@ -3031,7 +3037,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private void loadLastDecoyTag() {
         String val = ThisAppProps.load(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
         if (val != null) {
-            textDecoyTag.setText(val);
+            textDecoyTagSeqDb.setText(val);
         } else {
             loadDefaultDecoyTag();
         }
@@ -3046,7 +3052,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     private void loadLastReportFilter() {
-        if (!loadLast(textReportFilter, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER)) {
+        if (!load(textReportFilter, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER)) {
             loadDefaultsReportFilter(DEFAULT_TYPE);
         }
     }
@@ -3072,38 +3078,46 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
     }
 
-    private void validateAndSavePeptideProphetCmdLineOptions(String oldText) {
-        String curText = txtPeptideProphetCmdLineOptions.getText();
+    private void validateAndSavePeptideProphetCmdLineOptions(final String newText, boolean updateOtherTags) {
+        final JTextComponent comp = textPepProphCmd;
+        final boolean isValid = validateAndSave(comp, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET, 
+                newText, ValidateTrue.getInstance());    
         
-        ThisAppProps.save(ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET, curText);
+        if (!isValid)
+            return;
         
-        oldText = oldText == null ? textPepProphetFocusGained : oldText;
-        if (!oldText.equals(curText)) {
-            // text in the field has changed
-            Pattern p1 = Pattern.compile("--decoy\\s+([^\\s]+)");
-            String newDecoyPrefix = "", oldDecoyPrefix = "";
-            Matcher m = p1.matcher(curText);
-            if (m.find()) {
-                newDecoyPrefix = m.group(1);
-            }
-            m = p1.matcher(oldText);
-            if (m.find()) {
-                oldDecoyPrefix = m.group(1);
-            }
+        // check if the filter line has changed since focus was gained
+        final String savedText = textPepProphetFocusGained;
+        final String oldText = savedText != null ? savedText : comp.getText().trim();
+        final String updText = newText != null ? newText : comp.getText().trim();
+        
+        if (!updateOtherTags || oldText.equals(updText)) // newText == null means it was a programmatic update
+            return;
+        
+        // text in the field has changed
+        Pattern re = reDecoyTagPepProphCmd;
+        String newDecoyPrefix = "", oldDecoyPrefix = "";
+        Matcher m = re.matcher(updText);
+        if (m.find()) {
+            newDecoyPrefix = m.group(1);
+        }
+        m = re.matcher(oldText);
+        if (m.find()) {
+            oldDecoyPrefix = m.group(1);
+        }
 
-            // if the new prefix differs from the old one
-            if (!oldDecoyPrefix.equals(newDecoyPrefix)) {
-                final String message = String.format(
-                        "Decoy prefix in PepetideProphet options has changed from '%s' to '%s'.\n"
-                        + "Do you want to also change it in other commands?", oldDecoyPrefix, newDecoyPrefix);
+        // if the new prefix differs from the old one
+        if (!oldDecoyPrefix.equals(newDecoyPrefix)) {
+            final String message = String.format(
+                    "Decoy prefix in PepetideProphet options has changed from '%s' to '%s'.\n"
+                    + "Do you want to also change it in other commands?", oldDecoyPrefix, newDecoyPrefix);
 
-                // does the user want to chnage the Report tag automatically?
-                int ans = JOptionPane.showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
-                if (ans == JOptionPane.YES_OPTION) {
-                    updateDecoyTag(newDecoyPrefix);
-                    updateReportAnnotateDecoyTag(newDecoyPrefix);
-                    updateReportFilterDecoyTag(newDecoyPrefix);
-                }
+            // does the user want to chnage the Report tag automatically?
+            int ans = JOptionPane.showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
+            if (ans == JOptionPane.YES_OPTION) {
+                updateDecoyTagSeqDb(newDecoyPrefix, false);
+                updateDecoyTagReportAnnotate(newDecoyPrefix, false);
+                updateDecoyTagReportFilter(newDecoyPrefix, false);
             }
         }
     }
@@ -3141,46 +3155,36 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
     }
 
-    private void validateAndSaveDecoyTag(String oldText) {
-        String newText = textDecoyTag.getText().trim();
-        final boolean isValid = true;
-        if (!isValid) {
-            SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                BalloonTip tip = tipMap.remove(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
-                if (tip != null) {
-                    tip.closeBalloon();
-                }
-
-                if (!isValid) {
-                    tip = new BalloonTip(textDecoyTag, "Invalid format.");
-                    tip.setVisible(true);
-                    tipMap.put(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG, tip);
-                }
-                }
-            });
-            return;
-        }
+    private void validateAndSaveDecoyTagSeqDb(final String newText, boolean updateOtherTags) {
         
-        textDecoyTag.setText(newText);
-        ThisAppProps.save(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG, newText);
-
-        oldText = oldText == null ? textDecoyTagFocusGained : oldText;
-        if (!oldText.equals(newText)) {
-            final String message = String.format(Locale.ROOT,
-                    "Decoy prefix has changed: from '%s', to '%s'.\n"
-                    + "Do you want to also change it in PeptideProphet, Report commands?", oldText, newText);
-            int ans = JOptionPane.showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
-            if (ans == JOptionPane.YES_OPTION) {
-                updatePeptideProphetDecoyTag(newText);
-                updateReportFilterDecoyTag(newText);
-                updateReportAnnotateDecoyTag(newText);
-            }
+        final JTextComponent comp = textDecoyTagSeqDb;
+        final boolean isValid = validateAndSave(comp, ThisAppProps.PROP_TEXTFIELD_DECOY_TAG, 
+                newText, ValidateTrue.getInstance());    
+        
+        if (!isValid)
+            return;
+        
+        // check if the filter line has changed since focus was gained
+        final String savedText = textDecoyTagFocusGained;
+        final String oldText = savedText != null ? savedText : comp.getText().trim();
+        final String updText = newText != null ? newText : comp.getText().trim();
+        
+        if (!updateOtherTags || oldText.equals(updText)) // newText == null means it was a programmatic update
+            return;
+        
+        final String message = String.format(Locale.ROOT,
+                "Decoy prefix has changed: from '%s', to '%s'.\n"
+                + "Do you want to also change it in PeptideProphet, Report commands?", oldText, updText);
+        int ans = JOptionPane.showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
+        if (ans == JOptionPane.YES_OPTION) {
+            updateDecoyTagPepProphCmd(updText, false);
+            updateDecoyTagReportAnnotate(updText, false);
+            updateDecoyTagReportFilter(updText, false);
+            
         }
     }
         
-    private void updateTextComponent(Pattern re, JTextComponent textComp, String newVal, String prefix) {
+    private void updateTextCmdLine(Pattern re, JTextComponent textComp, String newVal, String prefix) {
         String line = textComp.getText();
         Matcher m = re.matcher(line);
         String newText;
@@ -3198,30 +3202,27 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         textComp.setText(newText);
     }
     
-    private void updateDecoyTag(String newVal) {
-        textDecoyTag.setText(newVal);
-        validateAndSaveDecoyTag(textDecoyTag.getText().trim());
+    private void updateDecoyTagSeqDb(String newVal, boolean updateOtherTags) {
+        textDecoyTagSeqDb.setText(newVal);
+        validateAndSaveDecoyTagSeqDb(null, updateOtherTags);
     }
     
-    private void updatePeptideProphetDecoyTag(String newVal) {
-        JTextArea textArea = txtPeptideProphetCmdLineOptions;
-        updateTextComponent(reDecoyTagPeptideProphet, textArea, newVal, "--decoy");
-        validateAndSavePeptideProphetCmdLineOptions(txtPeptideProphetCmdLineOptions.getText().trim());
+    private void updateDecoyTagPepProphCmd(String newVal, boolean updateOtherTags) {
+        updateTextCmdLine(reDecoyTagPepProphCmd, textPepProphCmd, newVal, "--decoy");
+        validateAndSavePeptideProphetCmdLineOptions(null, updateOtherTags);
     }
     
-    private void updateReportFilterDecoyTag(String newVal) {
-        JTextField textField = textReportFilter;
-        updateTextComponent(reDecoyTagReportFilter, textField, newVal, "--tag");
-        validateAndSaveReportFilter(textReportFilter.getText().trim());
+    private void updateDecoyTagReportFilter(String newVal, boolean updateOtherTags) {
+        updateTextCmdLine(reDecoyTagReportFilter, textReportFilter, newVal, "--tag");
+        validateAndSaveReportFilter(null, updateOtherTags);
     }
     
-    private void updateReportAnnotateDecoyTag(String newVal) {
-        JTextField textField = textReportAnnotate;
-        updateTextComponent(reDecoyTagReportAnnotate, textField, newVal, "--tag");
-        validateAndSaveReportAnnotate(textReportAnnotate.getText().trim());
+    private void updateDecoyTagReportAnnotate(String newVal, boolean updateOtherTags) {;
+        updateTextCmdLine(reDecoyTagReportAnnotate, textReportAnnotate, newVal, "--prefix");
+        validateAndSaveReportAnnotate(null, updateOtherTags);
     }
 
-    private boolean loadLast(JTextComponent text, String propName) {
+    private boolean load(JTextComponent text, String propName) {
         String val = ThisAppProps.load(propName);
         if (val != null) {
             text.setText(val);
@@ -3230,12 +3231,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         return false;
     }
     
-    private void saveLast(JTextComponent text, String propName) {
+    private void save(JTextComponent text, String propName) {
         ThisAppProps.save(propName, text.getText().trim());
     }
     
     private void loadLastReportAnnotate() {
-        if (!loadLast(textReportAnnotate, ThisAppProps.PROP_TEXTFIELD_REPORT_ANNOTATE)) {
+        if (!load(textReportAnnotate, ThisAppProps.PROP_TEXTFIELD_REPORT_ANNOTATE)) {
             loadDefaultsReportAnnotate(DEFAULT_TYPE);
         }
     }
@@ -3257,7 +3258,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     private void loadDefaultsSequenceDb(SearchTypeProp type) {
-        loadDefaults(textDecoyTag, ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
+        loadDefaults(textDecoyTagSeqDb, ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
     }
 
     private void addChangeListenerTextSequenceDb() {
@@ -3980,7 +3981,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
 
             PeptideProphetParams peptideProphetParams = new PeptideProphetParams();
-            peptideProphetParams.setCmdLineParams(txtPeptideProphetCmdLineOptions.getText().trim());
+            peptideProphetParams.setCmdLineParams(textPepProphCmd.getText().trim());
 
             String philosopherPeptideprophetCmd = "peptideprophet";
             boolean isPhilosopher = isPhilosopherBin(bin);
@@ -4658,12 +4659,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JTabbedPane tabPane;
     private javax.swing.JTextField textBinMsfragger;
     private javax.swing.JTextField textBinPhilosopher;
-    private javax.swing.JTextField textDecoyTag;
+    private javax.swing.JTextField textDecoyTagSeqDb;
+    private javax.swing.JTextArea textPepProphCmd;
     private javax.swing.JTextField textReportAnnotate;
     private javax.swing.JTextField textReportFilter;
     private javax.swing.JTextField textSequenceDbPath;
     private javax.swing.JTextField txtCombinedProtFile;
-    private javax.swing.JTextArea txtPeptideProphetCmdLineOptions;
     private javax.swing.JTextArea txtProteinProphetCmdLineOpts;
     private javax.swing.JTextField txtWorkingDir;
     // End of variables declaration//GEN-END:variables
