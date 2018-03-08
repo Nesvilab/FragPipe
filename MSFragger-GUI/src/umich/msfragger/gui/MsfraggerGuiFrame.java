@@ -16,9 +16,13 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -884,6 +888,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         });
 
         btnTryDetectDecoyTag.setText("Try Detect");
+        btnTryDetectDecoyTag.setToolTipText("Try to auto-detect decoy tag used in the database");
         btnTryDetectDecoyTag.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnTryDetectDecoyTagActionPerformed(evt);
@@ -3007,7 +3012,47 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_textReportAnnotateFocusGained
 
     private void btnTryDetectDecoyTagActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTryDetectDecoyTagActionPerformed
+        Path p = null;
+        try {
+            p = Paths.get(textSequenceDbPath.getText());
+            if (!Files.exists(p))
+                throw new FileNotFoundException("File doesn't exist: " + p.toAbsolutePath().toString());
+            
+        } catch (Exception e)  {
+            JOptionPane.showConfirmDialog(btnTryDetectDecoyTag, 
+                    "<html>Could not open sequence database file", "File not found", 
+                    JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(p), "UTF-8"))) {
+            String line;
+            List<String> descriptors = new ArrayList<>();
+            long totalDescriptors = 0;
+            long totalLines = 0;
+            while ((line = br.readLine()) != null) {
+                if (!line.startsWith(">"))
+                    continue;
+                totalLines++;
+                int pos = 1, next;
+                while ((next = line.indexOf('|', pos)) >= 0 || pos < line.length() - 1 ) {
+                    if (next < 0) {
+                        next = line.length();
+                    }
+                    descriptors.add(line.substring(pos, next).trim());
+                    totalDescriptors++;
+                    pos = next + 1;
+                }
+            }
+            int a = 1;
+            
+            // TODO: a decoy prefix only counts if it's shorter than the whole descriptor length
+            
+        } catch (IOException ex) {
+            JOptionPane.showConfirmDialog(btnTryDetectDecoyTag, 
+                    "<html>Error reading sequence database file", "Error", 
+                    JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnTryDetectDecoyTagActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened

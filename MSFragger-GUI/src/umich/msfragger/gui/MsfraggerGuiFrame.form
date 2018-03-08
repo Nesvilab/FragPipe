@@ -719,6 +719,7 @@
                 <Component class="javax.swing.JButton" name="btnTryDetectDecoyTag">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Try Detect"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Try to auto-detect decoy tag used in the database"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnTryDetectDecoyTagActionPerformed"/>
