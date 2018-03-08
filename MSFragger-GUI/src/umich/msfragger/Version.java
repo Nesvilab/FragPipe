@@ -33,7 +33,7 @@ import umich.msfragger.util.VersionComparator;
 public class Version {
     public static final String PROGRAM_TITLE = "MSFragger-GUI";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "5.0";
+    public static final String VERSION = "5.1";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
     public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
     public static final String PROP_IMPORTANT_UPDATES = "msfragger.gui.important-updates";
@@ -45,6 +45,9 @@ public class Version {
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>();
     
     static {
+        CHANGELOG.put("5.0", Arrays.asList(
+                "Bug fixes for cross-tool decoy tag updates."));
+        
         CHANGELOG.put("5.0", Arrays.asList(
                 "Separate tab for sequence database.",
                 "Display info about known compatibility of newer versions of Philosopher."));
