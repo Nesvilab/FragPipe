@@ -93,6 +93,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import rx.functions.Action1;
 import umich.msfragger.Version;
 import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
 import umich.msfragger.gui.api.DataConverter;
@@ -120,6 +121,7 @@ import umich.msfragger.util.ValidateTrue;
 import umich.msfragger.util.VersionComparator;
 import umich.swing.console.TextConsole;
 import umich.msfragger.util.IValidateString;
+import umich.msfragger.util.PrefixCounter;
 
 /**
  *
@@ -3028,6 +3030,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(p), "UTF-8"))) {
             String line;
             List<String> descriptors = new ArrayList<>();
+            List<List<String>> ordered = new ArrayList<>();
             long totalDescriptors = 0;
             long totalLines = 0;
             while ((line = br.readLine()) != null) {
@@ -3035,18 +3038,49 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     continue;
                 totalLines++;
                 int pos = 1, next;
+                int depth = 1;
                 while ((next = line.indexOf('|', pos)) >= 0 || pos < line.length() - 1 ) {
                     if (next < 0) {
                         next = line.length();
                     }
-                    descriptors.add(line.substring(pos, next).trim());
+                    String desc = line.substring(pos, next).trim();
+                    descriptors.add(desc);
+                    if (ordered.size() < depth)
+                        ordered.add(new ArrayList<String>());
+                    ordered.get(depth-1).add(desc);
                     totalDescriptors++;
                     pos = next + 1;
+                    depth++;
                 }
             }
             int a = 1;
             
             // TODO: a decoy prefix only counts if it's shorter than the whole descriptor length
+            // it should also only come from the same position, I guess, but that might be irrelevant
+            
+            final int maxDepth = 8;
+            PrefixCounter cntFwd = new PrefixCounter(PrefixCounter.Mode.FWD, maxDepth);
+            PrefixCounter cntRev = new PrefixCounter(PrefixCounter.Mode.REV, maxDepth);
+            for (String descriptor : ordered.get(0)) {
+                cntFwd.add(descriptor);
+                cntRev.add(descriptor);
+            }
+            final long total = totalDescriptors;
+            System.out.println("Prefixes:");
+            cntFwd.iterPrefixCounts(maxDepth, new Action1<PrefixCounter.Node>() {
+                @Override
+                public void call(PrefixCounter.Node n) {
+                    System.out.printf("%s : %.1f\n", n, n.getHits() / (double)total);
+                }
+            });
+            System.out.println("Suffixes:");
+            cntRev.iterPrefixCounts(maxDepth, new Action1<PrefixCounter.Node>() {
+                @Override
+                public void call(PrefixCounter.Node n) {
+                    System.out.printf("%s : %.1f\n", n, n.getHits() / (double)total);
+                }
+            });
+            
             
         } catch (IOException ex) {
             JOptionPane.showConfirmDialog(btnTryDetectDecoyTag, 
