@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2016 Dmitry Avtonomov.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package umich.msfragger.params;
+package umich.msfragger.params.umpire;
 
 import umich.msfragger.exceptions.ParsingException;
 import java.io.BufferedReader;
@@ -30,109 +30,49 @@ import java.util.Properties;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import umich.msfragger.params.PropLine;
+import umich.msfragger.params.PropertyFileContent;
 
 /**
  *
- * @author dattam
+ * @author Dmitry Avtonomov
  */
-public class UmpireParams implements PropertyFileContent {
-    public static final String PROP_Threads = "Thread";
-    public static final String PROP_RPmax = "RPmax";
-    public static final String PROP_RFmax = "RFmax";
-    public static final String PROP_CorrThreshold = "CorrThreshold";
-    public static final String PROP_DeltaApex = "DeltaApex";
-    public static final String PROP_RTOverlap = "RTOverlap";
-    public static final String PROP_AdjustFragIntensity = "AdjustFragIntensity";
-    public static final String PROP_BoostComplementaryIon = "BoostComplementaryIon";
-    
-    public static final String PROP_MS1PPM = "SE.MS1PPM";
-    public static final String PROP_MS2PPM = "SE.MS2PPM";
-    public static final String PROP_SN = "SE.SN";
-    public static final String PROP_MS2SN = "SE.MS2SN";
-    public static final String PROP_MinMSIntensity = "SE.MinMSIntensity";
-    public static final String PROP_MinMSMSIntensity = "SE.MinMSMSIntensity";
-    public static final String PROP_MaxCurveRTRange = "SE.MaxCurveRTRange";
-    public static final String PROP_NoMissedScan = "SE.NoMissedScan";
-    public static final String PROP_MinFrag = "SE.MinFrag";
-    public static final String PROP_EstimateBG = "SE.EstimateBG";
-    public static final String PROP_MinNoPeakCluster = "SE.MinNoPeakCluster";
-    public static final String PROP_MaxNoPeakCluster = "SE.MaxNoPeakCluster";
-    
-    public static final String PROP_WindowType = "WindowType";
-    public static final String PROP_WindowSize = "WindowSize";
-    
-    public static final String FILE_BASE_NAME = "umpire-se";
+public class UmpireQuantParams implements PropertyFileContent {
+    public static final String DEFAULT_FILE = "diaumpire_quant.params";
+    public static final String FILE_BASE_NAME = "diaumpire_quant";
     public static final String FILE_BASE_EXT = "params";
-    /** This file is in the jar, use getResourceAsStream() to get it.  */
-    public static final String DEFAULT_FILE = "diaumpire_se.params";
     
+    public static final String PROP_Thread = "Thread";
+    public static final String PROP_Path = "Path";
+    public static final String PROP_Fasta = "Fasta";
+    public static final String PROP_DecoyPrefix = "DecoyPrefix";
+    public static final String PROP_Combined_Prot = "Combined_Prot";
+    public static final String PROP_InternalLibSearch = "InternalLibSearch";
+//    public static final String PROP_ExternalLibSearch = "ExternalLibSearch";
+    public static final String PROP_PeptideFDR = "PeptideFDR";
+    public static final String PROP_ProteinFDR = "ProteinFDR";
+    public static final String PROP_DataSetLevelPepFDR = "DataSetLevelPepFDR";
+    public static final String PROP_FilterWeight = "FilterWeight";
+    public static final String PROP_MinWeight = "MinWeight";
+    public static final String PROP_TopNFrag = "TopNFrag";
+    public static final String PROP_TopNPep = "TopNPep";
+    public static final String PROP_Freq = "Freq";
+    public static final String PROP_ExternalLibPath = "ExternalLibPath";
+//    public static final String PROP_ = "";
+
     Properties props = new Properties();
     protected List<String> linesInOriginalFile = new ArrayList<>();
     protected Map<Integer, PropLine> mapLines= new TreeMap<>();
     protected Map<String, Integer> mapProps = new HashMap<>();
     
-    protected String binUmpire;
-    protected String binMsconvert;
     
-    public static UmpireParams parseDefault() throws ParsingException {
-        InputStream is = UmpireParams.class.getResourceAsStream(DEFAULT_FILE);
-        return UmpireParams.parse(is);
-    }
-
-    public String getBinUmpire() {
-        return binUmpire;
-    }
-
-    public void setBinUmpire(String binUmpire) {
-        this.binUmpire = binUmpire;
-    }
-
-    public String getBinMsconvert() {
-        return binMsconvert;
-    }
-
-    public void setBinMsconvert(String binMsconvert) {
-        this.binMsconvert = binMsconvert;
+    public static UmpireQuantParams parseDefault() throws ParsingException {
+        InputStream is = UmpireQuantParams.class.getResourceAsStream(DEFAULT_FILE);
+        return UmpireQuantParams.parse(is);
     }
     
-    public UmpireParams() {
-    }
     
-    public Integer getRpMax() {
-        String property = props.getProperty(PROP_RPmax);
-        return Integer.parseInt(property);
-    }
     
-    public Integer getRfMax() {
-        String property = props.getProperty(PROP_RFmax);
-        return Integer.parseInt(property);
-    }
-    
-    public Double getCorrThreshold() {
-        String property = props.getProperty(PROP_CorrThreshold);
-        return Double.parseDouble(property);
-    }
-    
-    public Double getDeltaApex() {
-        String property = props.getProperty(PROP_DeltaApex);
-        return Double.parseDouble(property);
-    }
-    
-    public Double getRTOverlap() {
-        String property = props.getProperty(PROP_RTOverlap);
-        return Double.parseDouble(property);
-    }
-    
-    public Boolean getAdjustFragIntensity() {
-        String property = props.getProperty(PROP_AdjustFragIntensity);
-        return Boolean.valueOf(property);
-    }
-    
-    public Boolean getBoostComplementaryIon() {
-        String property = props.getProperty(PROP_BoostComplementaryIon);
-        return Boolean.valueOf(property);
-    }
-
     @Override
     public Properties getProps() {
         return props;
@@ -155,8 +95,8 @@ public class UmpireParams implements PropertyFileContent {
     
     
     
-    public static UmpireParams parse(InputStream is) throws ParsingException {
-        UmpireParams umpireParams = new UmpireParams();
+    public static UmpireQuantParams parse(InputStream is) throws ParsingException {
+        UmpireQuantParams umpireParams = new UmpireQuantParams();
         Properties properties = new Properties();
 
         Pattern propRegex = Pattern.compile("^\\s*([^=]+?)\\s*=\\s*(.+?)\\s*", Pattern.CASE_INSENSITIVE);
@@ -207,7 +147,7 @@ public class UmpireParams implements PropertyFileContent {
         return umpireParams;
     }
     
-    private static void addString(Pattern propRegex, String possiblePropString, String line, int indexOfHash, UmpireParams umpireParams, int lineNum) throws ParsingException {
+    private static void addString(Pattern propRegex, String possiblePropString, String line, int indexOfHash, UmpireQuantParams umpireParams, int lineNum) throws ParsingException {
         Matcher matcher = propRegex.matcher(possiblePropString);
         if (matcher.matches()) {
             String comment = null;
