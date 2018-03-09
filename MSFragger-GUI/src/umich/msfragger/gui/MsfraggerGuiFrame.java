@@ -18,6 +18,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,10 +41,13 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -72,8 +76,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -88,7 +90,6 @@ import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import umich.msfragger.Version;
 import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
 import umich.msfragger.gui.api.DataConverter;
@@ -116,6 +117,9 @@ import umich.msfragger.util.ValidateTrue;
 import umich.msfragger.util.VersionComparator;
 import umich.swing.console.TextConsole;
 import umich.msfragger.util.IValidateString;
+import umich.msfragger.util.PrefixCounter;
+import umich.msfragger.util.Proc2;
+import umich.msfragger.util.Tuple2;
 
 /**
  *
@@ -323,12 +327,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             // if there was a cached version of properties
             VersionComparator vc = new VersionComparator();
             String storedVer = cached.getProperty(Version.PROP_VER, "0.0");
-            final String minVer = "4.0";
-            if (vc.compare(storedVer, minVer) < 0) {
+            if (vc.compare(storedVer, "4.0") < 0) {
                 // and the version was less than 4.0
                 String msg = String.format(Locale.ROOT, "Looks like you've upgraded from an "
                         + "older version to 4.0+,\n"
-                        + "it is recommended to reset the default parameters.\n\n"
+                        + "it is HIGHLY recommended to reset the default parameters.\n\n"
                         + "Reset the parameters now? \n\n"
                         + "This message won't be displayed again.");
                 String[] options = {"Cancel", "Load defaults for Closed", "Load defaults of Open"};
@@ -341,6 +344,41 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     case 2:
                         btnLoadDefaultsOpenActionPerformed(null);
                         break;
+                }
+
+                // rewrite the cached params file with a versioned one
+                ThisAppProps.save(Version.PROP_VER, Version.VERSION);
+            } else if (vc.compare(storedVer, "4.0") >= 0 && vc.compare(storedVer, "5.1") <= 0) {
+                // and the version between 4.0 and 5.1
+                final String prop = ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET;
+                String oldPepProphStr = ThisAppProps.load(prop);
+                Pattern re = Pattern.compile("--clevel\\s+2");
+                Matcher m = re.matcher(oldPepProphStr);
+                if (m.find()) {
+                    String replaced = oldPepProphStr.replaceAll(re.pattern(), "--clevel -2");
+                    ThisAppProps.save(prop, replaced);
+                    ThisAppProps.load(prop, textPepProphCmd);
+                    
+                    String msg = String.format(Locale.ROOT, 
+                          "<html>We've noticed a cached leftover buggy option for PeptideProphet "
+                        + "'--clevel 2' and automatically replaced \n"
+                        + "it with '--clevel -2'.\n\n"
+                        + "If you know what you're doing and intended it to be '--clevel 2' "
+                        + "please change it back on PeptideProphet tab.\n\n"
+                        + "You also have the option to reload defaults. "
+                        + "This message won't be displayed again.");
+                    String[] options = {"Ok", "Load defaults for Closed Search", "Load defaults of Open Search"};
+                    int result = JOptionPane.showOptionDialog(this, msg, "Cached option automatically replaced",
+                            JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+                    switch (result) {
+                        case 1:
+                            btnLoadDefaultsClosedActionPerformed(null);
+                            break;
+                        case 2:
+                            btnLoadDefaultsOpenActionPerformed(null);
+                            break;
+                    }
+                
                 }
 
                 // rewrite the cached params file with a versioned one
@@ -443,6 +481,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         textDecoyTagSeqDb = new javax.swing.JTextField();
         btnTryDetectDecoyTag = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
+        lblFastaCount = new javax.swing.JLabel();
         scrollPaneMsFragger = new javax.swing.JScrollPane();
         panelPeptideProphet = new javax.swing.JPanel();
         chkRunPeptideProphet = new javax.swing.JCheckBox();
@@ -883,12 +923,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
-        btnTryDetectDecoyTag.setText("Try Detect");
+        btnTryDetectDecoyTag.setText("Try Auto-Detect");
+        btnTryDetectDecoyTag.setToolTipText("Try to auto-detect decoy tag used in the database");
         btnTryDetectDecoyTag.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnTryDetectDecoyTagActionPerformed(evt);
             }
         });
+
+        jLabel6.setText("<html>PeptideProphet and other downstream tools require the decoy tag to be a prefix to the whole protein string in FASTA file. E.g.:<br/><br/>\n>rev_tr|J3KNE0|J3KNE0_HUMAN RanBP2-like and GRIP domain-containing protein<br/><br/>\nExamples of <b>incompatible</b> formats:<br/><br/>\n>tr|fake_J3KNE0|J3KNE0_HUMAN RanBP2-like ...<br/>\n>tr_REVERSED|J3KNE0|J3KNE0_HUMAN ...<br/>\n>tr|J3KNE0_DECOY|J3KNE0_HUMAN ...<br/>");
+
+        lblFastaCount.setToolTipText("Number of proteins in fasta file");
 
         javax.swing.GroupLayout panelDbInfoLayout = new javax.swing.GroupLayout(panelDbInfo);
         panelDbInfo.setLayout(panelDbInfoLayout);
@@ -897,17 +942,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addGroup(panelDbInfoLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelDbInfoLayout.createSequentialGroup()
-                        .addComponent(textSequenceDbPath)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelDbInfoLayout.createSequentialGroup()
+                        .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(panelDbInfoLayout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(textDecoyTagSeqDb, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnTryDetectDecoyTag)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(lblFastaCount))
+                            .addComponent(textSequenceDbPath))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnBrowse))
-                    .addGroup(panelDbInfoLayout.createSequentialGroup()
-                        .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(textDecoyTagSeqDb, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnTryDetectDecoyTag)
-                        .addGap(0, 325, Short.MAX_VALUE)))
+                        .addComponent(btnBrowse)))
                 .addContainerGap())
         );
         panelDbInfoLayout.setVerticalGroup(
@@ -921,8 +969,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(textDecoyTagSeqDb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnTryDetectDecoyTag))
-                .addContainerGap(50, Short.MAX_VALUE))
+                    .addComponent(btnTryDetectDecoyTag)
+                    .addComponent(lblFastaCount))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         loadLastSequenceDb();
@@ -941,8 +992,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             panelSequenceDbLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelSequenceDbLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(panelDbInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(443, Short.MAX_VALUE))
+                .addComponent(panelDbInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(336, Short.MAX_VALUE))
         );
 
         tabPane.addTab("Sequence DB", panelSequenceDb);
@@ -1723,8 +1774,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     private String getGuiDownloadLink() {
         String locallyKnownDownloadUrl = null;
-        try {
-            InputStream is = MsfraggerGuiFrame.class.getResourceAsStream("Bundle.properties");
+        try (InputStream is = MsfraggerGuiFrame.class.getResourceAsStream("Bundle.properties")) {
+            
             if (is == null) {
                 throw new IllegalStateException("Could not read Bundle.properties from the classpath");
             }
@@ -1744,36 +1795,39 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         //final String downloadUrl = props.getProperty(Version.PROP_DOWNLOAD_URL, locallyKnownDownloadUrl);
     }
 
-    public static String loadPropFromBundle(String propName) {
-        String value = null;
+    public static Properties loadPropertiesFromBundle() {
         try (InputStream is = MsfraggerGuiFrame.class.getResourceAsStream("Bundle.properties")) {
             if (is == null) {
                 throw new IllegalStateException("Could not read Bundle.properties from the classpath");
             }
             Properties props = new Properties();
             props.load(is);
-            value = props.getProperty(propName);
-            if (value == null) {
-                throw new IllegalStateException("Property " + propName
-                        + " was not found in Bundle.properties");
-            }
+            return props;
         } catch (IOException e) {
             throw new IllegalStateException("Error reading Bundle.properties from the classpath");
+        }
+    }
+    
+    public static String loadPropFromBundle(String propName) {
+        Properties props = loadPropertiesFromBundle();
+        String value = props.getProperty(propName);
+        if (value == null) {
+            throw new IllegalStateException("Property " + propName
+                    + " was not found in Bundle.properties");
         }
         return value;
     }
 
     private void validateGuiVersion() {
-        // The version from cmd line ouput is new enough to pass the local
-        // test. Now check the file on github.
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     String githubProps = IOUtils.toString(Version.PROPERTIES_URI.toURL(), Charset.forName("UTF-8"));
-                    final Properties propsGh = new Properties();
+                    Properties propsGh = new Properties();
                     propsGh.load(new StringReader(githubProps));
-
+                    
+                    
                     // this is used to test functionality without pushing changes to github
 //                        propsGh.put("msfragger.gui.version", "5.7");
 //                        propsGh.put("msfragger.gui.important-updates", "3.1,3.5,4.9,5.2");
@@ -1799,8 +1853,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         final String downloadUrl = propsGh.getProperty(Version.PROP_DOWNLOAD_URL, locallyKnownDownloadUrl);
                         sb.append(String.format(Locale.ROOT,
                                 "Your MSFragger-GUI version is [%s]<br>\n"
-                                + "There is a newer version of MSFragger-GUI available [%s]).<br>\n"
-                                + "Please <a href=\"%s\">click here</a> to download a newer one.",
+                                + "There is a newer version of MSFragger-GUI available [%s]).<br/>\n"
+                                + "Please <a href=\"%s\">click here</a> to download a newer one.<br/>",
                                 localVersion, githubVersion, downloadUrl));
 
                         // check for critical or important updates since the current version
@@ -1808,30 +1862,32 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 propsGh.getProperty(Version.PROP_IMPORTANT_UPDATES, ""));
                         List<String> updatesCritical = Version.updatesSinceCurrentVersion(
                                 propsGh.getProperty(Version.PROP_CRITICAL_UPDATES, ""));
-                        if (!updatesCritical.isEmpty()) {
-                            sb.append("<br><br><b>" + "There have been critical updates since." + "</b>");
-                        } else if (!updatesImportant.isEmpty()) {
-                            sb.append("<br><br><b>" + "There have been important updates since." + "</b>");
-                        }
-                        if (!updatesCritical.isEmpty() || !updatesImportant.isEmpty()) {
-                            TreeSet<String> newerVersions = new TreeSet<>();
-                            newerVersions.addAll(updatesCritical);
-                            newerVersions.addAll(updatesImportant);
 
-                            List<String> messages = new ArrayList<>();
-                            for (String newerVersion : newerVersions) {
-                                String verMsg = propsGh.getProperty(Version.PROP_DOWNLOAD_MESSAGE + "." + newerVersion, "");
-                                if (StringUtils.isNullOrWhitespace(verMsg)) {
-                                    continue;
-                                }
-                                messages.add(verMsg);
-                            }
+                        if (!updatesCritical.isEmpty()) {
+                            TreeSet<String> newerVersions = new TreeSet<>(updatesCritical);
+                            List<String> messages = createGuiUpdateMessages(newerVersions, propsGh);
                             if (!messages.isEmpty()) {
-                                sb.append("<br><br><ul>");
+                                sb.append("<br/><br/><b>Critical updates:</b><br><ul>");
                                 for (String message : messages) {
                                     sb.append("<li>").append(message).append("</li>");
                                 }
                                 sb.append("</ul>");
+                            } else {
+                                sb.append("<br/><b>There have been critical updates.</b><br>");
+                            }
+                        }
+                        
+                        if (!updatesImportant.isEmpty()) {
+                            TreeSet<String> newerVersions = new TreeSet<>(updatesImportant);
+                            List<String> messages = createGuiUpdateMessages(newerVersions, propsGh);
+                            if (!messages.isEmpty()) {
+                                sb.append("<br/>Important updates:<br><ul>");
+                                for (String message : messages) {
+                                    sb.append("<li>").append(message).append("</li>");
+                                }
+                                sb.append("</ul>");
+                            } else {
+                                sb.append("<br/><br/>There have been important updates.<br>");
                             }
                         }
                     }
@@ -1874,6 +1930,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     }
 
+    private List<String> createGuiUpdateMessages(TreeSet<String> newerVersionStrings, Properties propsRemote) {
+        List<String> messages = new ArrayList<>();
+        for (String newerVersion : newerVersionStrings) {
+            String verMsg = propsRemote.getProperty(Version.PROP_DOWNLOAD_MESSAGE + "." + newerVersion, "");
+            if (StringUtils.isNullOrWhitespace(verMsg))
+                continue;
+            messages.add(verMsg);
+        }
+        return messages;
+    }
     
     
     private void validatePhilosopherVersion(final String binPath) {
@@ -2969,7 +3035,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         fileChooser.setApproveButtonText("Select");
         fileChooser.setDialogTitle("Select FASTA file");
         fileChooser.setMultiSelectionEnabled(false);
-        FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("FASTA DB", "fasta", "fa");
+        FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("FASTA DB", "fasta", "fa", "fas", "fast");
         fileChooser.setFileFilter(fileNameExtensionFilter);
 
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -3007,11 +3073,296 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_textReportAnnotateFocusGained
 
     private void btnTryDetectDecoyTagActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTryDetectDecoyTagActionPerformed
+        Path p = null;
+        try {
+            p = Paths.get(textSequenceDbPath.getText());
+            if (!Files.exists(p))
+                throw new FileNotFoundException("File doesn't exist: " + p.toAbsolutePath().toString());
+            
+        } catch (Exception e)  {
+            JOptionPane.showConfirmDialog(btnTryDetectDecoyTag, 
+                    "<html>Could not open sequence database file", "File not found", 
+                    JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(p), "UTF-8"))) {
+            String line;
+            List<String> descriptors = new ArrayList<>();
+            List<List<String>> ordered = new ArrayList<>();
+            long totalDescriptors = 0;
+            long totalLines = 0;
+            while ((line = br.readLine()) != null) {
+                if (!line.startsWith(">"))
+                    continue;
+                totalLines++;
+                int pos = 1, next;
+                int depth = 1;
+                while ((next = line.indexOf('|', pos)) >= 0 || pos < line.length() - 1 ) {
+                    if (next < 0) {
+                        next = line.length();
+                    }
+                    String desc = line.substring(pos, next).trim();
+                    descriptors.add(desc);
+                    if (ordered.size() < depth)
+                        ordered.add(new ArrayList<String>());
+                    ordered.get(depth-1).add(desc);
+                    totalDescriptors++;
+                    pos = next + 1;
+                    depth++;
+                }
+            }
+            
+            List<List<Tuple2<String, Double>>> prefixesByCol = new ArrayList<>();
+            List<List<Tuple2<String, Double>>> suffixesByCol = new ArrayList<>();
+            
+            for (int descCol = 0; descCol < ordered.size(); descCol++) {
+                
+                List<String> descriptorCol = ordered.get(descCol);
+                final int maxDepth = 16;
+                PrefixCounter cntFwd = new PrefixCounter(PrefixCounter.Mode.FWD, maxDepth);
+                PrefixCounter cntRev = new PrefixCounter(PrefixCounter.Mode.REV, maxDepth);
+
+                for (int i = 0; i < descriptorCol.size(); i++) {
+                    String descriptor = descriptorCol.get(i);
+                    cntFwd.add(descriptor);
+                    cntRev.add(descriptor);
+                }
+                final long total = descriptorCol.size();
+                final StringBuilder sb = new StringBuilder();
+                
+                final double pctMin = 0.3;
+                final double pctMax = 0.7;
+                
+                { // prefixes
+                    final List<Tuple2<String, Double>> result = new ArrayList<>();
+                    Proc2<PrefixCounter.Node, PrefixCounter.Mode> action = new Proc2<PrefixCounter.Node, PrefixCounter.Mode>() {
+                        @Override
+                        public void call(PrefixCounter.Node n, PrefixCounter.Mode mode) {
+
+                            PrefixCounter.Node cur = n;
+                            //if (cur.getTerminals() > 0)
+                            //    return; // a prefix or a suffix can never be the whole protein id
+                            double pct = cur.getHits() / (double) total;
+                            if (pct < pctMin || pct > pctMax)
+                                    return;
+                            sb.setLength(0);
+                            while (cur != null) {
+                                if (cur.parent != null)
+                                    sb.append(cur.ch);
+                                cur = cur.parent;
+                            }
+
+                            if (sb.length() < 2)
+                                return; // no prefixes smaller than 2 characters
+                            
+                            StringBuilder sbPrint = sb.reverse();// mode == PrefixCounter.Mode.REV ? sb.reverse() : sb;
+                            result.add(new Tuple2<>(sbPrint.toString(), pct));
+                            //System.out.printf("%s : (full string: %s) hits=%.1f%%\n", n, sbPrint.toString(), pct*100d);
+                        }
+                    };
+//                    System.out.println("Prefixes:");
+                    cntFwd.iterPrefixCounts(maxDepth, action);
+                    prefixesByCol.add(cleanUpDecoyTagCandidates(result));
+//                    for (Tuple2<String, Double> tuple2 : cleanedResult) {
+//                        System.out.printf("% 3.1f%% -> %s\n", tuple2.item2 * 100d, tuple2.item1);
+//                    }
+//                    System.out.println("Prefixes Done");
+                }
+                
+                { // suffixes
+                    final List<Tuple2<String, Double>> result = new ArrayList<>();
+                    Proc2<PrefixCounter.Node, PrefixCounter.Mode> action = new Proc2<PrefixCounter.Node, PrefixCounter.Mode>() {
+                        @Override
+                        public void call(PrefixCounter.Node n, PrefixCounter.Mode mode) {
+
+                            PrefixCounter.Node cur = n;
+                            //if (cur.getTerminals() > 0)
+                            //    return; // a prefix or a suffix can never be the whole protein id
+                            double pct = cur.getHits() / (double) total;
+                            if (pct < pctMin || pct > pctMax)
+                                    return;
+                            sb.setLength(0);
+                            while (cur != null) {
+                                if (cur.parent != null)
+                                    sb.append(cur.ch);
+                                cur = cur.parent;
+                            }
+
+                            if (sb.length() < 2)
+                                return; // no suffixes smaller than 2 chars
+                            
+                            StringBuilder sbPrint = sb;// mode == PrefixCounter.Mode.REV ? sb.reverse() : sb;
+                            result.add(new Tuple2<>(sbPrint.toString(), pct));
+                            //System.out.printf("%s : (full string: %s) hits=%.1f%%\n", n, sbPrint.toString(), pct*100d);
+                        }
+                    };
+//                    System.out.println("Suffixes:");
+                    cntRev.iterPrefixCounts(maxDepth, action);
+                    suffixesByCol.add(cleanUpDecoyTagCandidates(result));
+//                    for (Tuple2<String, Double> tuple2 : cleanedResult) {
+//                        System.out.printf("% 3.1f%% -> %s\n", tuple2.item2 * 100d, tuple2.item1);
+//                    }
+//                    System.out.println("Suffixes Done");
+                }
+            }
+            
+            int totalCandidates = 0;
+            int supportedPrefixes = 0;
+            int totalPrefixes = 0;
+            int totalSuffixes = 0;
+            for (int i = 0; i < prefixesByCol.size(); i++) {
+                List<Tuple2<String, Double>> list = prefixesByCol.get(i);
+                totalCandidates += list.size();
+                totalPrefixes += list.size();
+                if (i == 0)
+                    supportedPrefixes = list.size();
+            }
+            for (List<Tuple2<String, Double>> list : suffixesByCol) {
+                totalCandidates += list.size();
+                totalSuffixes += list.size();
+            }
+            
+            String selectedPrefix = null;
+            if (totalCandidates == 0) {
+                String msg = String.format(Locale.ROOT, "No candidates for decoy tags found");
+                String[] options = {"Ok"};
+                int result = JOptionPane.showOptionDialog(this, msg, "Nothing found",
+                        JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+            
+            } else if (supportedPrefixes == 1) {
+                // good, we've found the one good decoy prefix
+                Tuple2<String, Double> prefix = prefixesByCol.get(0).get(0);
+                StringBuilder sb = new StringBuilder();
+                sb.append(String.format(Locale.ROOT, 
+                        "Found candidate decoy tag: \n\"%s\" in % 3.1f%% entries", prefix.item1, prefix.item2*100d));
+                sb.append("\n\nAll found candidates:");
+                appendFoundPrefixes(sb, prefixesByCol, suffixesByCol);
+                String[] options = {"Set \"" + prefix.item1 + "\" as decoy tag", "Cancel"};
+                int result = JOptionPane.showOptionDialog(this, sb.toString(), "Found prefix",
+                        JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+                if (result == 0)
+                    selectedPrefix = prefix.item1;
+            
+            } else if (supportedPrefixes > 1) {
+                // several possible prefixes found
+                StringBuilder sb = new StringBuilder();
+                sb.append("Found several possible supported decoy tag prefixes.\n")
+                        .append("Note: only prefixes in the 1st column are supported by downstream tools.\n");
+                appendFoundPrefixes(sb, prefixesByCol, suffixesByCol);
+                sb.append("\nOnly supported variants are lsited on buttons below.\n");
+                
+                List<Tuple2<String, Double>> supported = prefixesByCol.get(0);
+                String[] options = new String[supported.size() + 1];
+                options[options.length-1] = "Cancel";
+                for (int i = 0; i < supported.size(); i++) {
+                    options[i] = String.format("Set \"%s\"", supported.get(i).item1);
+                }
+                int result = JOptionPane.showOptionDialog(this, sb.toString(), "Found several possible prefixes",
+                        JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+                if (result >=0 && result < options.length - 1)
+                    selectedPrefix = supported.get(result).item1;
+                
+            } else if (supportedPrefixes == 0) {
+                // no prefixes found - this is not supported by downstream tools
+                StringBuilder sb = new StringBuilder();
+                sb.append("No supported decoy tag prefixes found.\n")
+                        .append("However found other possible decoy markers, listed below.\n")
+                        .append("Note: only prefixes in the 1st column are supported by downstream tools.\n");
+                appendFoundPrefixes(sb, prefixesByCol, suffixesByCol);
+                String[] options = {"Ok"};
+                int result = JOptionPane.showOptionDialog(this, sb.toString(), 
+                        "Found incompatible decoy marker candidates",
+                        JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+            }    
+            if (selectedPrefix != null) {
+                updateDecoyTagSeqDb(selectedPrefix, false);
+                updateDecoyTagPepProphCmd(selectedPrefix, false);
+                updateDecoyTagReportAnnotate(selectedPrefix, false);
+                updateDecoyTagReportFilter(selectedPrefix, false);
+            }
+            
+        } catch (IOException ex) {
+            JOptionPane.showConfirmDialog(btnTryDetectDecoyTag, 
+                    "<html>Error reading sequence database file", "Error", 
+                    JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnTryDetectDecoyTagActionPerformed
 
+    private void appendFoundPrefixes(StringBuilder sb,
+            List<List<Tuple2<String, Double>>> prefixesByCol, List<List<Tuple2<String, Double>>> suffixesByCol) {
+        
+        int totalPrefixes = 0;
+        int totalSuffixes = 0;
+        for (int i = 0; i < prefixesByCol.size(); i++) {
+            List<Tuple2<String, Double>> list = prefixesByCol.get(i);
+            totalPrefixes += list.size();
+        }
+        for (List<Tuple2<String, Double>> list : suffixesByCol) {
+            totalSuffixes += list.size();
+        }
+        
+        final String tab1 = "  ";
+        final String tab2 = tab1 + tab1;
+        
+        if (totalPrefixes > 0) {
+            sb.append(tab1).append("\nPrefixes:\n");
+            for (int i = 0; i < prefixesByCol.size(); i++) {
+                for (Tuple2<String, Double> tuple2 : prefixesByCol.get(i)) {
+                    sb.append(tab2).append(String.format("\tColumn #%d: \"%s\" in % 3.1f%% entries\n", 
+                            i+1, tuple2.item1, tuple2.item2*100d));
+                }
+            }
+        }
+        
+        if (totalSuffixes > 0) {
+            sb.append(tab1).append("\nSuffixes:\n");
+            for (int i = 0; i < suffixesByCol.size(); i++) {
+                for (Tuple2<String, Double> tuple2 : suffixesByCol.get(i)) {
+                    sb.append(tab2).append(String.format("\tColumn #%d: \"%s\" in % 3.1f%% entries\n", 
+                            i+1, tuple2.item1, tuple2.item2*100d));
+                }
+            }
+        }
+        
+    }
+    
+    private List<Tuple2<String, Double>> cleanUpDecoyTagCandidates(List<Tuple2<String, Double>> candidates) {
+        List<Tuple2<String, Double>> result = new ArrayList<>();
+        
+        candidates.sort(new Comparator<Tuple2<String, Double>>() {
+            @Override
+            public int compare(Tuple2<String, Double> t1, Tuple2<String, Double> t2) {
+                int cmp0 = Double.compare(Math.abs(t1.item2 - 0.5), Math.abs(t2.item2 - 0.5));
+                if (cmp0 == 0) {
+                    cmp0 = t2.item1.compareTo(t1.item1);
+                }
+                return cmp0;
+            }
+        });
+        
+        for (Tuple2<String, Double> cur : candidates) {
+            boolean isBest = true;
+            for (Tuple2<String, Double> other : candidates) {
+                if (Double.compare(other.item2, cur.item2) == 0) {
+                    String curStr = cur.item1;
+                    String othStr = other.item1;
+                    if (othStr.length() > curStr.length()) {
+                        if (othStr.startsWith(curStr) || othStr.endsWith(curStr)) {
+                            isBest = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (isBest)
+                result.add(cur);
+        }
+        return result;
+    }
+    
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_formWindowOpened
 
     public void loadLastPeptideProphet() {
@@ -3127,6 +3478,38 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (isValid) {
             textSequenceDbPath.setText(path);
             ThisAppProps.save(ThisAppProps.PROP_DB_FILE_IN, path);
+            Thread thread;
+            thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Path p = Paths.get(textSequenceDbPath.getText());
+                    if (!Files.exists(p))
+                        return;
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(p), "UTF-8"))) {
+                        String line;
+                        final List<String> descriptors = new ArrayList<>();
+                        while ((line = br.readLine()) != null) {
+                            if (!line.startsWith(">"))
+                                continue;
+                            descriptors.add(line);
+                        }
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                String format = "###,###";
+                                DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.ROOT);
+                                otherSymbols.setDecimalSeparator(',');
+                                otherSymbols.setGroupingSeparator(' '); 
+                                DecimalFormat df = new DecimalFormat(format, otherSymbols);
+                                lblFastaCount.setText(String.format("%s entries", df.format(descriptors.size())));
+                            }
+                        });
+                    } catch (IOException ex) {
+                        return;
+                    }
+                }
+            });
+            thread.start();
         }
         
         final JComponent anchor = textSequenceDbPath;
@@ -4631,11 +5014,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel40;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JLabel lblFastaCount;
     private javax.swing.JLabel lblFindAutomatically;
     private javax.swing.JLabel lblFraggerJavaVer;
     private javax.swing.JLabel lblMsfraggerCitation;

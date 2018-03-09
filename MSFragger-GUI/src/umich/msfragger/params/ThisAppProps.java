@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Properties;
 import javax.swing.JFileChooser;
 import javax.swing.JTextField;
+import javax.swing.text.JTextComponent;
 import umich.msfragger.Version;
 import umich.msfragger.util.PathUtils;
 
@@ -105,7 +106,7 @@ public class ThisAppProps extends Properties {
         }
     }
 
-    public static void save(String propName, JTextField txt) {
+    public static void save(String propName, JTextComponent txt) {
         String text = txt.getText().trim();
         if (!text.isEmpty()) {
             ThisAppProps.save(propName, text);
@@ -121,7 +122,7 @@ public class ThisAppProps extends Properties {
         thisAppProps.save();
     }
 
-    public static boolean load(String propName, JTextField txt) {
+    public static boolean load(String propName, JTextComponent txt) {
         String cached = ThisAppProps.load(propName);
         if (cached == null) {
             return false;
