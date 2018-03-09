@@ -622,7 +622,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="panelDbInfo" min="-2" max="-2" attributes="0"/>
+                      <Component id="panelDbInfo" min="-2" pref="234" max="-2" attributes="0"/>
                       <EmptySpace pref="336" max="32767" attributes="0"/>
                   </Group>
               </Group>
@@ -645,18 +645,21 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="jLabel6" pref="602" max="32767" attributes="0"/>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="textSequenceDbPath" max="32767" attributes="0"/>
+                              <Group type="102" alignment="1" attributes="0">
+                                  <Group type="103" groupAlignment="1" attributes="0">
+                                      <Group type="102" attributes="0">
+                                          <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="textDecoyTagSeqDb" min="-2" pref="131" max="-2" attributes="0"/>
+                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          <Component id="btnTryDetectDecoyTag" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="32767" attributes="0"/>
+                                          <Component id="lblFastaCount" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Component id="textSequenceDbPath" max="32767" attributes="0"/>
+                                  </Group>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="btnBrowse" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <Group type="102" attributes="0">
-                                  <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="textDecoyTagSeqDb" min="-2" pref="131" max="-2" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Component id="btnTryDetectDecoyTag" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -676,6 +679,7 @@
                               <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="textDecoyTagSeqDb" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnTryDetectDecoyTag" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblFastaCount" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
@@ -731,6 +735,11 @@
                 <Component class="javax.swing.JLabel" name="jLabel6">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="&lt;html&gt;PeptideProphet and other downstream tools require the decoy tag to be a prefix to the whole protein string in FASTA file. E.g.:&lt;br/&gt;&lt;br/&gt;&#xa;&gt;rev_tr|J3KNE0|J3KNE0_HUMAN RanBP2-like and GRIP domain-containing protein&lt;br/&gt;&lt;br/&gt;&#xa;Examples of &lt;b&gt;incompatible&lt;/b&gt; formats:&lt;br/&gt;&lt;br/&gt;&#xa;&gt;tr|fake_J3KNE0|J3KNE0_HUMAN RanBP2-like ...&lt;br/&gt;&#xa;&gt;tr_REVERSED|J3KNE0|J3KNE0_HUMAN ...&lt;br/&gt;&#xa;&gt;tr|J3KNE0_DECOY|J3KNE0_HUMAN ...&lt;br/&gt;"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="lblFastaCount">
+                  <Properties>
+                    <Property name="toolTipText" type="java.lang.String" value="Number of proteins in fasta file"/>
                   </Properties>
                 </Component>
               </SubComponents>

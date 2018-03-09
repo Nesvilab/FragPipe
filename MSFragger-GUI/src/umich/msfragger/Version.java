@@ -33,7 +33,7 @@ import umich.msfragger.util.VersionComparator;
 public class Version {
     public static final String PROGRAM_TITLE = "MSFragger-GUI";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "4.8";
+    public static final String VERSION = "5.2";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
     public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
     public static final String PROP_IMPORTANT_UPDATES = "msfragger.gui.important-updates";
