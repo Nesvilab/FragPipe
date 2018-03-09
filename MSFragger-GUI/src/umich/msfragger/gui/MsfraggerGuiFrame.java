@@ -123,6 +123,9 @@ import umich.msfragger.util.VersionComparator;
 import umich.swing.console.TextConsole;
 import umich.msfragger.util.IValidateString;
 import umich.msfragger.util.PrefixCounter;
+import umich.msfragger.util.Proc1;
+import umich.msfragger.util.Proc2;
+import umich.msfragger.util.Tuple2;
 
 /**
  *
@@ -450,6 +453,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         textDecoyTagSeqDb = new javax.swing.JTextField();
         btnTryDetectDecoyTag = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
         scrollPaneMsFragger = new javax.swing.JScrollPane();
         panelPeptideProphet = new javax.swing.JPanel();
         chkRunPeptideProphet = new javax.swing.JCheckBox();
@@ -890,13 +894,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
-        btnTryDetectDecoyTag.setText("Try Detect");
+        btnTryDetectDecoyTag.setText("Try Auto-Detect");
         btnTryDetectDecoyTag.setToolTipText("Try to auto-detect decoy tag used in the database");
         btnTryDetectDecoyTag.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnTryDetectDecoyTagActionPerformed(evt);
             }
         });
+
+        jLabel6.setText("<html>PeptideProphet and other downstream tools require the decoy tag to be a prefix to the whole protein string in FASTA file. E.g.:<br/><br/>\n>rev_tr|J3KNE0|J3KNE0_HUMAN RanBP2-like and GRIP domain-containing protein<br/><br/>\nExamples of <b>incompatible</b> formats:<br/><br/>\n>tr|fake_J3KNE0|J3KNE0_HUMAN RanBP2-like ...<br/>\n>tr_REVERSED|J3KNE0|J3KNE0_HUMAN ...<br/>\n>tr|J3KNE0_DECOY|J3KNE0_HUMAN ...<br/>");
 
         javax.swing.GroupLayout panelDbInfoLayout = new javax.swing.GroupLayout(panelDbInfo);
         panelDbInfo.setLayout(panelDbInfoLayout);
@@ -905,6 +911,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addGroup(panelDbInfoLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE)
                     .addGroup(panelDbInfoLayout.createSequentialGroup()
                         .addComponent(textSequenceDbPath)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -915,7 +922,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         .addComponent(textDecoyTagSeqDb, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnTryDetectDecoyTag)
-                        .addGap(0, 325, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelDbInfoLayout.setVerticalGroup(
@@ -930,7 +937,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addComponent(jLabel5)
                     .addComponent(textDecoyTagSeqDb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnTryDetectDecoyTag))
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         loadLastSequenceDb();
@@ -949,8 +958,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             panelSequenceDbLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelSequenceDbLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(panelDbInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(443, Short.MAX_VALUE))
+                .addComponent(panelDbInfo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(336, Short.MAX_VALUE))
         );
 
         tabPane.addTab("Sequence DB", panelSequenceDb);
@@ -3055,9 +3064,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 }
             }
             
-            // TODO: a decoy prefix only counts if it's shorter than the whole descriptor length
-            // it should also only come from the same position, I guess, but that might be irrelevant
-            
+            List<List<Tuple2<String, Double>>> possiblePrefixes = new ArrayList<>();
+            List<List<Tuple2<String, Double>>> possibleSuffixes = new ArrayList<>();
             
             for (int descCol = 0; descCol < ordered.size(); descCol++) {
                 
@@ -3075,66 +3083,75 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 final StringBuilder sb = new StringBuilder();
                 System.out.printf("\n\nDescriptor column [#%d], total %d items\n", descCol, total);
                 
-                Action1 action = new Action1<PrefixCounter.Node>() {
-                    @Override
-                    public void call(PrefixCounter.Node n) {
+                final double pctMin = 0.4;
+                final double pctMax = 0.6;
+                
+                { // prefixes
+                    final List<Tuple2<String, Double>> result = new ArrayList<>();
+                    possiblePrefixes.add(result);
+                    Proc2<PrefixCounter.Node, PrefixCounter.Mode> action = new Proc2<PrefixCounter.Node, PrefixCounter.Mode>() {
+                        @Override
+                        public void call(PrefixCounter.Node n, PrefixCounter.Mode mode) {
 
-                        PrefixCounter.Node cur = n;
-                        sb.setLength(0);
-                        while (cur != null) {
-                            double pctThis = cur.getHits() / (double) total;
-                            if (pctThis < 0.1)
-                                return;
-                            if (cur.parent != null) {
-                                double pctParent = cur.parent.getHits() / (double) total;
-                                if (pctParent < pctThis)
+                            PrefixCounter.Node cur = n;
+                            if (cur.getTerminals() > 0)
+                                return; // a prefix or a suffix can never be the whole protein id
+                            double pct = cur.getHits() / (double) total;
+                            if (pct < pctMin || pct > pctMax)
                                     return;
-                                sb.append(cur.ch);
+                            sb.setLength(0);
+                            while (cur != null) {
+                                if (cur.parent != null)
+                                    sb.append(cur.ch);
+                                cur = cur.parent;
                             }
-                            
-                            cur = cur.parent;
+
+                            StringBuilder sbPrint = sb.reverse();// mode == PrefixCounter.Mode.REV ? sb.reverse() : sb;
+                            result.add(new Tuple2<>(sbPrint.toString(), pct));
+                            System.out.printf("%s : (full string: %s) hits=%.1f%%\n", n, sbPrint.toString(), pct*100d);
                         }
+                    };
+                    System.out.println("Prefixes:");
+                    cntFwd.iterPrefixCounts(maxDepth, action);
+                    System.out.println("Prefixes Done");
+                }
+                
+                { // suffixes
+                    final List<Tuple2<String, Double>> result = new ArrayList<>();
+                    possibleSuffixes.add(result);
+                    Proc2<PrefixCounter.Node, PrefixCounter.Mode> action = new Proc2<PrefixCounter.Node, PrefixCounter.Mode>() {
+                        @Override
+                        public void call(PrefixCounter.Node n, PrefixCounter.Mode mode) {
 
-                        double pct = n.getHits() / (double)total;
-                        System.out.printf("%s : (full string: %s) hits=%.1f%%\n", n, sb.reverse().toString(), pct*100d);
-                    }
-                };
-                
-                System.out.println("Prefixes:");
-                cntFwd.iterPrefixCounts(maxDepth, action);
-                System.out.println("Prefixes Done");
-                
-                
-                Action1 actionRev = new Action1<PrefixCounter.Node>() {
-                    @Override
-                    public void call(PrefixCounter.Node n) {
-
-                        PrefixCounter.Node cur = n;
-                        sb.setLength(0);
-                        while (cur != null) {
-                            double pctThis = cur.getHits() / (double) total;
-                            if (pctThis < 0.1)
-                                return;
-                            if (cur.parent != null) {
-                                double pctParent = cur.parent.getHits() / (double) total;
-                                if (pctParent < pctThis)
+                            PrefixCounter.Node cur = n;
+                            if (cur.getTerminals() > 0)
+                                return; // a prefix or a suffix can never be the whole protein id
+                            double pct = cur.getHits() / (double) total;
+                            if (pct < pctMin || pct > pctMax)
                                     return;
-                                sb.append(cur.ch);
+                            sb.setLength(0);
+                            while (cur != null) {
+                                if (cur.parent != null)
+                                    sb.append(cur.ch);
+                                cur = cur.parent;
                             }
-                            
-                            cur = cur.parent;
-                        }
 
-                        double pct = n.getHits() / (double)total;
-                        System.out.printf("%s : (full string: %s) hits=%.1f%%\n", n, sb.toString(), pct*100d);
-                    }
-                };
-                
-                
-                System.out.println("Suffixes:");
-                cntRev.iterPrefixCounts(maxDepth, action);
-                System.out.println("Suffixes Done");
+                            StringBuilder sbPrint = sb;// mode == PrefixCounter.Mode.REV ? sb.reverse() : sb;
+                            result.add(new Tuple2<>(sbPrint.toString(), pct));
+                            System.out.printf("%s : (full string: %s) hits=%.1f%%\n", n, sbPrint.toString(), pct*100d);
+                        }
+                    };
+                    System.out.println("Suffixes:");
+                    cntRev.iterPrefixCounts(maxDepth, action);
+                    System.out.println("Suffixes Done");
+                }
             }
+            // TODO: continue here
+            // for our purposes:
+            // prefixes over suffixes
+            // as close to 50% as possible
+            // longer over shorter
+            int a = 1;
             
         } catch (IOException ex) {
             JOptionPane.showConfirmDialog(btnTryDetectDecoyTag, 
@@ -4764,6 +4781,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel40;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;

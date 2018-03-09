@@ -27,6 +27,7 @@ import java.util.TreeMap;
 public class PrefixCounter {
     
     public enum Mode {FWD, REV};
+    public enum IterationOrder {BREADTH, DEPTH}
     
     protected Node root;
     public final Mode mode;
@@ -87,6 +88,14 @@ public class PrefixCounter {
             return terminals;
         }
     }
+
+    public Node getRoot() {
+        return root;
+    }
+
+    public Mode getMode() {
+        return mode;
+    }
     
     public void add(CharSequence csq) {
         switch (mode) {
@@ -107,8 +116,6 @@ public class PrefixCounter {
                     
                     n = nn;
                 }
-                
-                
                 break;
             }
             
@@ -130,29 +137,30 @@ public class PrefixCounter {
         }
     }
     
-    public void iterPrefixCounts(int maxDepth, rx.functions.Action1<Node> action) {
-        ArrayDeque<Node> fifo = new ArrayDeque<>();
-        fifo.add(root);
-        while (!fifo.isEmpty()) {
-            Node head = fifo.removeFirst();
+    public void iterPrefixCounts(int maxDepth, Proc2<Node, Mode> action) {
+        
+        final ArrayDeque<Node> deque = new ArrayDeque<>();
+        deque.add(root);
+        while (!deque.isEmpty()) {
+            Node head = deque.removeFirst();
             if (head.depth > maxDepth)
                 break;
             for (Map.Entry<Character, Node> e : head.map.entrySet()) {
-                fifo.addLast(e.getValue());
+                deque.addLast(e.getValue());
             }
-            action.call(head);
+            action.call(head, mode);
         }
     }
     
     public void printPrefixCounts(int maxDepth) {
-        ArrayDeque<Node> fifo = new ArrayDeque<>();
-        fifo.add(root);
-        while (!fifo.isEmpty()) {
-            Node head = fifo.removeFirst();
+        ArrayDeque<Node> deque = new ArrayDeque<>();
+        deque.add(root);
+        while (!deque.isEmpty()) {
+            Node head = deque.removeFirst();
             if (head.depth > maxDepth)
                 break;
             for (Map.Entry<Character, Node> e : head.map.entrySet()) {
-                fifo.addLast(e.getValue());
+                deque.addLast(e.getValue());
             }
             System.out.println(head);
         }
