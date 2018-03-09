@@ -16,13 +16,10 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -51,7 +48,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -77,8 +73,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -93,8 +87,6 @@ import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.commons.lang3.time.DateUtils;
-import rx.functions.Action1;
 import umich.msfragger.Version;
 import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
 import umich.msfragger.gui.api.DataConverter;
@@ -123,7 +115,6 @@ import umich.msfragger.util.VersionComparator;
 import umich.swing.console.TextConsole;
 import umich.msfragger.util.IValidateString;
 import umich.msfragger.util.PrefixCounter;
-import umich.msfragger.util.Proc1;
 import umich.msfragger.util.Proc2;
 import umich.msfragger.util.Tuple2;
 
@@ -333,12 +324,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             // if there was a cached version of properties
             VersionComparator vc = new VersionComparator();
             String storedVer = cached.getProperty(Version.PROP_VER, "0.0");
-            final String minVer = "4.0";
-            if (vc.compare(storedVer, minVer) < 0) {
+            if (vc.compare(storedVer, "4.0") < 0) {
                 // and the version was less than 4.0
                 String msg = String.format(Locale.ROOT, "Looks like you've upgraded from an "
                         + "older version to 4.0+,\n"
-                        + "it is recommended to reset the default parameters.\n\n"
+                        + "it is HIGHLY recommended to reset the default parameters.\n\n"
                         + "Reset the parameters now? \n\n"
                         + "This message won't be displayed again.");
                 String[] options = {"Cancel", "Load defaults for Closed", "Load defaults of Open"};
@@ -351,6 +341,41 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     case 2:
                         btnLoadDefaultsOpenActionPerformed(null);
                         break;
+                }
+
+                // rewrite the cached params file with a versioned one
+                ThisAppProps.save(Version.PROP_VER, Version.VERSION);
+            } else if (vc.compare(storedVer, "4.0") >= 0 && vc.compare(storedVer, "5.1") <= 0) {
+                // and the version between 4.0 and 5.1
+                final String prop = ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET;
+                String oldPepProphStr = ThisAppProps.load(prop);
+                Pattern re = Pattern.compile("--clevel\\s+2");
+                Matcher m = re.matcher(oldPepProphStr);
+                if (m.find()) {
+                    String replaced = oldPepProphStr.replaceAll(re.pattern(), "--clevel -2");
+                    ThisAppProps.save(prop, replaced);
+                    ThisAppProps.load(prop, textPepProphCmd);
+                    
+                    String msg = String.format(Locale.ROOT, 
+                          "<html>We've noticed a cached leftover buggy option for PeptideProphet "
+                        + "'--clevel 2' and automatically replaced \n"
+                        + "it with '--clevel -2'.\n\n"
+                        + "If you know what you're doing and intended it to be '--clevel 2' "
+                        + "please change it back on PeptideProphet tab.\n\n"
+                        + "You also have the option to reload defaults. "
+                        + "This message won't be displayed again.");
+                    String[] options = {"Ok", "Load defaults for Closed Search", "Load defaults of Open Search"};
+                    int result = JOptionPane.showOptionDialog(this, msg, "Cached option automatically replaced",
+                            JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+                    switch (result) {
+                        case 1:
+                            btnLoadDefaultsClosedActionPerformed(null);
+                            break;
+                        case 2:
+                            btnLoadDefaultsOpenActionPerformed(null);
+                            break;
+                    }
+                
                 }
 
                 // rewrite the cached params file with a versioned one
@@ -1740,8 +1765,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     private String getGuiDownloadLink() {
         String locallyKnownDownloadUrl = null;
-        try {
-            InputStream is = MsfraggerGuiFrame.class.getResourceAsStream("Bundle.properties");
+        try (InputStream is = MsfraggerGuiFrame.class.getResourceAsStream("Bundle.properties")) {
+            
             if (is == null) {
                 throw new IllegalStateException("Could not read Bundle.properties from the classpath");
             }
@@ -1761,38 +1786,44 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         //final String downloadUrl = props.getProperty(Version.PROP_DOWNLOAD_URL, locallyKnownDownloadUrl);
     }
 
-    public static String loadPropFromBundle(String propName) {
-        String value = null;
+    public static Properties loadPropertiesFromBundle() {
         try (InputStream is = MsfraggerGuiFrame.class.getResourceAsStream("Bundle.properties")) {
             if (is == null) {
                 throw new IllegalStateException("Could not read Bundle.properties from the classpath");
             }
             Properties props = new Properties();
             props.load(is);
-            value = props.getProperty(propName);
-            if (value == null) {
-                throw new IllegalStateException("Property " + propName
-                        + " was not found in Bundle.properties");
-            }
+            return props;
         } catch (IOException e) {
             throw new IllegalStateException("Error reading Bundle.properties from the classpath");
+        }
+    }
+    
+    public static String loadPropFromBundle(String propName) {
+        Properties props = loadPropertiesFromBundle();
+        String value = props.getProperty(propName);
+        if (value == null) {
+            throw new IllegalStateException("Property " + propName
+                    + " was not found in Bundle.properties");
         }
         return value;
     }
 
     private void validateGuiVersion() {
-        // The version from cmd line ouput is new enough to pass the local
-        // test. Now check the file on github.
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     String githubProps = IOUtils.toString(Version.PROPERTIES_URI.toURL(), Charset.forName("UTF-8"));
-                    final Properties propsGh = new Properties();
+                    Properties propsGh = new Properties();
                     propsGh.load(new StringReader(githubProps));
-
+                    
+                    // TODO: REMOVE THIS DEBUG!
+                    propsGh = loadPropertiesFromBundle();
+                    
+                    
                     // this is used to test functionality without pushing changes to github
-//                        propsGh.put("msfragger.gui.version", "5.7");
+                        propsGh.put("msfragger.gui.version", "5.7");
 //                        propsGh.put("msfragger.gui.important-updates", "3.1,3.5,4.9,5.2");
 //                        propsGh.put("msfragger.gui.critical-updates", "2.0,3.0,4.6,5.0, 4.7");
 //                        propsGh.put("msfragger.gui.download-message", "Happy new year!");
@@ -1816,8 +1847,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         final String downloadUrl = propsGh.getProperty(Version.PROP_DOWNLOAD_URL, locallyKnownDownloadUrl);
                         sb.append(String.format(Locale.ROOT,
                                 "Your MSFragger-GUI version is [%s]<br>\n"
-                                + "There is a newer version of MSFragger-GUI available [%s]).<br>\n"
-                                + "Please <a href=\"%s\">click here</a> to download a newer one.",
+                                + "There is a newer version of MSFragger-GUI available [%s]).<br/>\n"
+                                + "Please <a href=\"%s\">click here</a> to download a newer one.<br/>",
                                 localVersion, githubVersion, downloadUrl));
 
                         // check for critical or important updates since the current version
@@ -1825,30 +1856,32 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 propsGh.getProperty(Version.PROP_IMPORTANT_UPDATES, ""));
                         List<String> updatesCritical = Version.updatesSinceCurrentVersion(
                                 propsGh.getProperty(Version.PROP_CRITICAL_UPDATES, ""));
-                        if (!updatesCritical.isEmpty()) {
-                            sb.append("<br><br><b>" + "There have been critical updates since." + "</b>");
-                        } else if (!updatesImportant.isEmpty()) {
-                            sb.append("<br><br><b>" + "There have been important updates since." + "</b>");
-                        }
-                        if (!updatesCritical.isEmpty() || !updatesImportant.isEmpty()) {
-                            TreeSet<String> newerVersions = new TreeSet<>();
-                            newerVersions.addAll(updatesCritical);
-                            newerVersions.addAll(updatesImportant);
 
-                            List<String> messages = new ArrayList<>();
-                            for (String newerVersion : newerVersions) {
-                                String verMsg = propsGh.getProperty(Version.PROP_DOWNLOAD_MESSAGE + "." + newerVersion, "");
-                                if (StringUtils.isNullOrWhitespace(verMsg)) {
-                                    continue;
-                                }
-                                messages.add(verMsg);
-                            }
+                        if (!updatesCritical.isEmpty()) {
+                            TreeSet<String> newerVersions = new TreeSet<>(updatesCritical);
+                            List<String> messages = createGuiUpdateMessages(newerVersions, propsGh);
                             if (!messages.isEmpty()) {
-                                sb.append("<br><br><ul>");
+                                sb.append("<br/><br/><b>Critical updates:</b><br><ul>");
                                 for (String message : messages) {
                                     sb.append("<li>").append(message).append("</li>");
                                 }
                                 sb.append("</ul>");
+                            } else {
+                                sb.append("<br/><b>There have been critical updates.</b><br>");
+                            }
+                        }
+                        
+                        if (!updatesImportant.isEmpty()) {
+                            TreeSet<String> newerVersions = new TreeSet<>(updatesImportant);
+                            List<String> messages = createGuiUpdateMessages(newerVersions, propsGh);
+                            if (!messages.isEmpty()) {
+                                sb.append("<br/>Important updates:<br><ul>");
+                                for (String message : messages) {
+                                    sb.append("<li>").append(message).append("</li>");
+                                }
+                                sb.append("</ul>");
+                            } else {
+                                sb.append("<br/><br/>There have been important updates.<br>");
                             }
                         }
                     }
@@ -1891,6 +1924,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     }
 
+    private List<String> createGuiUpdateMessages(TreeSet<String> newerVersionStrings, Properties propsRemote) {
+        List<String> messages = new ArrayList<>();
+        for (String newerVersion : newerVersionStrings) {
+            String verMsg = propsRemote.getProperty(Version.PROP_DOWNLOAD_MESSAGE + "." + newerVersion, "");
+            if (StringUtils.isNullOrWhitespace(verMsg))
+                continue;
+            messages.add(verMsg);
+        }
+        return messages;
+    }
     
     
     private void validatePhilosopherVersion(final String binPath) {
