@@ -51,6 +51,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -3053,34 +3054,87 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     depth++;
                 }
             }
-            int a = 1;
             
             // TODO: a decoy prefix only counts if it's shorter than the whole descriptor length
             // it should also only come from the same position, I guess, but that might be irrelevant
             
-            final int maxDepth = 8;
-            PrefixCounter cntFwd = new PrefixCounter(PrefixCounter.Mode.FWD, maxDepth);
-            PrefixCounter cntRev = new PrefixCounter(PrefixCounter.Mode.REV, maxDepth);
-            for (String descriptor : ordered.get(0)) {
-                cntFwd.add(descriptor);
-                cntRev.add(descriptor);
-            }
-            final long total = totalDescriptors;
-            System.out.println("Prefixes:");
-            cntFwd.iterPrefixCounts(maxDepth, new Action1<PrefixCounter.Node>() {
-                @Override
-                public void call(PrefixCounter.Node n) {
-                    System.out.printf("%s : %.1f\n", n, n.getHits() / (double)total);
-                }
-            });
-            System.out.println("Suffixes:");
-            cntRev.iterPrefixCounts(maxDepth, new Action1<PrefixCounter.Node>() {
-                @Override
-                public void call(PrefixCounter.Node n) {
-                    System.out.printf("%s : %.1f\n", n, n.getHits() / (double)total);
-                }
-            });
             
+            for (int descCol = 0; descCol < ordered.size(); descCol++) {
+                
+                List<String> descriptorCol = ordered.get(descCol);
+                final int maxDepth = 16;
+                PrefixCounter cntFwd = new PrefixCounter(PrefixCounter.Mode.FWD, maxDepth);
+                PrefixCounter cntRev = new PrefixCounter(PrefixCounter.Mode.REV, maxDepth);
+
+                for (int i = 0; i < descriptorCol.size(); i++) {
+                    String descriptor = descriptorCol.get(i);
+                    cntFwd.add(descriptor);
+                    cntRev.add(descriptor);
+                }
+                final long total = descriptorCol.size();
+                final StringBuilder sb = new StringBuilder();
+                System.out.printf("\n\nDescriptor column [#%d], total %d items\n", descCol, total);
+                
+                Action1 action = new Action1<PrefixCounter.Node>() {
+                    @Override
+                    public void call(PrefixCounter.Node n) {
+
+                        PrefixCounter.Node cur = n;
+                        sb.setLength(0);
+                        while (cur != null) {
+                            double pctThis = cur.getHits() / (double) total;
+                            if (pctThis < 0.1)
+                                return;
+                            if (cur.parent != null) {
+                                double pctParent = cur.parent.getHits() / (double) total;
+                                if (pctParent < pctThis)
+                                    return;
+                                sb.append(cur.ch);
+                            }
+                            
+                            cur = cur.parent;
+                        }
+
+                        double pct = n.getHits() / (double)total;
+                        System.out.printf("%s : (full string: %s) hits=%.1f%%\n", n, sb.reverse().toString(), pct*100d);
+                    }
+                };
+                
+                System.out.println("Prefixes:");
+                cntFwd.iterPrefixCounts(maxDepth, action);
+                System.out.println("Prefixes Done");
+                
+                
+                Action1 actionRev = new Action1<PrefixCounter.Node>() {
+                    @Override
+                    public void call(PrefixCounter.Node n) {
+
+                        PrefixCounter.Node cur = n;
+                        sb.setLength(0);
+                        while (cur != null) {
+                            double pctThis = cur.getHits() / (double) total;
+                            if (pctThis < 0.1)
+                                return;
+                            if (cur.parent != null) {
+                                double pctParent = cur.parent.getHits() / (double) total;
+                                if (pctParent < pctThis)
+                                    return;
+                                sb.append(cur.ch);
+                            }
+                            
+                            cur = cur.parent;
+                        }
+
+                        double pct = n.getHits() / (double)total;
+                        System.out.printf("%s : (full string: %s) hits=%.1f%%\n", n, sb.toString(), pct*100d);
+                    }
+                };
+                
+                
+                System.out.println("Suffixes:");
+                cntRev.iterPrefixCounts(maxDepth, action);
+                System.out.println("Suffixes Done");
+            }
             
         } catch (IOException ex) {
             JOptionPane.showConfirmDialog(btnTryDetectDecoyTag, 

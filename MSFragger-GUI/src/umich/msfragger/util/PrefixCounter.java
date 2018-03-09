@@ -20,7 +20,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- *
+ * A trie like structure that counts the prefixes or suffixes in a corpus of words.
+ * Used to determine common 
  * @author Dmitry Avtonomov
  */
 public class PrefixCounter {
@@ -34,29 +35,56 @@ public class PrefixCounter {
     public PrefixCounter(Mode mode, int maxDepth) {
         this.mode = mode;
         this.maxDepth = maxDepth;
-        this.root = new Node('\uFFFF', 0); // \uFFFF is 'not a character'
+        this.root = new Node(null, '\uFFFF', 0); // \uFFFF is 'not a character'
     }
     
     public class Node {
-        TreeMap<Character, Node> map;
+        public final Node parent;
+        private final TreeMap<Character, Node> map;
         public final char ch;
         public final int depth;
         private long hits;
+        private long terminals;
 
-        public Node(char ch, int depth) {
+        protected Node(Node parent, char ch, int depth) {
+            this.parent = parent;
             this.ch = ch;
             this.depth = depth;
             map = new TreeMap<>();
             hits = 0;
+            terminals = 0;
         }
-
+        
+        protected Node getChild(char ch) {
+            Node child = map.get(ch);
+            if (child == null) {
+                child = new Node(this, ch, this.depth + 1);
+                map.put(child.ch, child);
+            }
+            return child;
+        }
+        
         @Override
         public String toString() {
-            return "Node{" + "ch=" + ch + ", depth=" + depth + ", size=" + map.size() + ", hits=" + hits + '}';
+            StringBuilder sb = new StringBuilder("Node{");
+            sb.append(" parent_char=");
+            if (parent != null)
+                sb.append(parent.ch);
+            else 
+                sb.append("None");
+            sb.append(", char=").append(ch).append(", depth=").append(depth)
+              .append(", size=").append(map.size()).append(", hits").append(hits)
+              .append(", terminals=").append(terminals);
+            sb.append('}');
+            return sb.toString();
         }
         
         public long getHits() {
             return hits;
+        }
+        
+        public long getTerminals() {
+            return terminals;
         }
     }
     
@@ -67,16 +95,17 @@ public class PrefixCounter {
                 int len = csq.length();
                 Node n = root;
                 n.hits++;
+                if (len == 0)
+                    n.terminals++;
                 while (++pos < len) {
-                    char c = csq.charAt(pos);
-                    Node nn = n.map.get(c);
-                    if (nn == null) {
-                        nn = new Node(c, n.depth + 1);
-                        n.map.put(c, nn);
-                    }
+                    Node nn = n.getChild(csq.charAt(pos));
                     if (nn.depth > maxDepth)
                         return;
                     nn.hits++;
+                    if (pos == len - 1)
+                        nn.terminals++;
+                    
+                    n = nn;
                 }
                 
                 
@@ -88,15 +117,13 @@ public class PrefixCounter {
                 Node n = root;
                 n.hits++;
                 while (--pos >= 0) {
-                    char c = csq.charAt(pos);
-                    Node nn = n.map.get(c);
-                    if (nn == null) {
-                        nn = new Node(c, n.depth + 1);
-                        n.map.put(c, nn);
-                    }
+                    Node nn = n.getChild(csq.charAt(pos));
                     if (nn.depth > maxDepth)
                         return;
                     nn.hits++;
+                    n = nn;
+                    if (pos == 0)
+                        nn.terminals++;
                 }
                 break;
             }
