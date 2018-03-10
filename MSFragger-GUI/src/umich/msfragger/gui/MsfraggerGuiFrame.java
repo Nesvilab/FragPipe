@@ -481,8 +481,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         textDecoyTagSeqDb = new javax.swing.JTextField();
         btnTryDetectDecoyTag = new javax.swing.JButton();
-        jLabel6 = new javax.swing.JLabel();
         lblFastaCount = new javax.swing.JLabel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        editorSequenceDb = new javax.swing.JEditorPane();
         scrollPaneMsFragger = new javax.swing.JScrollPane();
         panelPeptideProphet = new javax.swing.JPanel();
         chkRunPeptideProphet = new javax.swing.JCheckBox();
@@ -931,19 +932,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
-        jLabel6.setText("<html>PeptideProphet and other downstream tools require the decoy tag to be a prefix to the whole protein string in FASTA file. E.g.:<br/><br/>\n>rev_tr|J3KNE0|J3KNE0_HUMAN RanBP2-like and GRIP domain-containing protein<br/><br/>\nExamples of <b>incompatible</b> formats:<br/><br/>\n>tr|fake_J3KNE0|J3KNE0_HUMAN RanBP2-like ...<br/>\n>tr_REVERSED|J3KNE0|J3KNE0_HUMAN ...<br/>\n>tr|J3KNE0_DECOY|J3KNE0_HUMAN ...<br/>");
-
         lblFastaCount.setToolTipText("Number of proteins in fasta file");
+
+        jScrollPane5.setViewportView(editorSequenceDb);
+        initEditorPaneSeqDb();
 
         javax.swing.GroupLayout panelDbInfoLayout = new javax.swing.GroupLayout(panelDbInfo);
         panelDbInfo.setLayout(panelDbInfoLayout);
         panelDbInfoLayout.setHorizontalGroup(
             panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelDbInfoLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelDbInfoLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelDbInfoLayout.createSequentialGroup()
+                .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE)
+                    .addGroup(panelDbInfoLayout.createSequentialGroup()
                         .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(panelDbInfoLayout.createSequentialGroup()
                                 .addComponent(jLabel5)
@@ -972,8 +974,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addComponent(btnTryDetectDecoyTag)
                     .addComponent(lblFastaCount))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         loadLastSequenceDb();
@@ -992,8 +994,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             panelSequenceDbLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelSequenceDbLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(panelDbInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(336, Short.MAX_VALUE))
+                .addComponent(panelDbInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         tabPane.addTab("Sequence DB", panelSequenceDb);
@@ -3655,6 +3657,59 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     }
 
+    private void initEditorPaneSeqDb() {
+        // for copying style
+        JLabel label = new JLabel();
+        Font font = label.getFont();
+
+        // create some css from the label's font
+        StringBuilder style = new StringBuilder("font-family:" + font.getFamily() + ";");
+        style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
+        style.append("font-size:").append(font.getSize()).append("pt;");
+
+        JEditorPane ep = editorSequenceDb;
+        ep.setContentType("text/html");
+        ep.setText("<html><body style=\"" + style + "\">"
+                + "If you don't have a protein database, you can use Philosopher from the command line to download "
+                + "one from UniProt, e.g.:<br/><br/>"
+                + "&nbsp;&nbsp;&nbsp;&nbsp;philosopher.exe database --prefix rev_ --contam --id UP000005640<br/>"
+                + "<br/>"
+                + "To find the proteome ID for the above command or download other databases visit "
+                + "<a href=\"http://www.uniprot.org/proteomes/\">UniProt website</a><br/>"
+                + "<br/>"
+                + "PeptideProphet and other downstream tools require the decoy tag to be a prefix to the whole protein "
+                + "string in FASTA file.<br/>"
+                + "Examples of compatible formats:"
+                + "<ul>"
+                + "<li>&gt;<b>rev_</b>tr|J3KNE0|J3KNE0_HUMAN RanBP2-like and GRIP domain-containing protein</li>"
+                + "<li>&gt;<b>DECOY_</b>tr|J3KNE0|J3KNE0_HUMAN RanBP2-like and GRIP domain-containing protein</li>"
+                + "</ul>"
+                + "Examples of <b>incompatible</b> formats:"
+                + "<ul>"
+                + "<li>&gt;tr<b>_REVERSED</b>|J3KNE0|J3KNE0_HUMAN ...</li>"
+                + "<li>&gt;tr|<b>fake_</b>J3KNE0|J3KNE0_HUMAN RanBP2-like ...</li>"
+                + "<li>&gt;tr|J3KNE0<b>_DECOY</b>|J3KNE0_HUMAN ...</li>"
+                + "</ul>"
+                + ""
+                + "</body></html>");
+
+        // handle link events
+        ep.addHyperlinkListener(new HyperlinkListener() {
+            @Override
+            public void hyperlinkUpdate(HyperlinkEvent e) {
+                if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
+                    try {
+                        Desktop.getDesktop().browse(e.getURL().toURI());
+                    } catch (URISyntaxException | IOException ex) {
+                        Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        });
+        ep.setEditable(false);
+        ep.setBackground(label.getBackground());
+    }
+
     public enum SearchTypeProp {
         open, closed
     }
@@ -5007,6 +5062,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane consoleScrollPane;
     private javax.swing.JEditorPane editorMsfraggerCitation;
     private javax.swing.JEditorPane editorPhilosopherLink;
+    private javax.swing.JEditorPane editorSequenceDb;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -5014,12 +5070,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel40;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JLabel lblFastaCount;
     private javax.swing.JLabel lblFindAutomatically;
     private javax.swing.JLabel lblFraggerJavaVer;
