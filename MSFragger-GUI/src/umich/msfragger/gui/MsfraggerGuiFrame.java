@@ -1826,9 +1826,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             public void run() {
                 try {
                     String githubProps = IOUtils.toString(Version.PROPERTIES_URI.toURL(), Charset.forName("UTF-8"));
-                    Properties propsGh = new Properties();
-                    propsGh.load(new StringReader(githubProps));
                     
+//                    Properties propsGh = new Properties();
+//                    propsGh.load(new StringReader(githubProps));
+                    Properties propsGh = loadPropertiesFromBundle();
                     
                     // this is used to test functionality without pushing changes to github
 //                        propsGh.put("msfragger.gui.version", "5.7");
