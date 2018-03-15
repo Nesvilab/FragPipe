@@ -3332,7 +3332,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private List<Tuple2<String, Double>> cleanUpDecoyTagCandidates(List<Tuple2<String, Double>> candidates) {
         List<Tuple2<String, Double>> result = new ArrayList<>();
         
-        candidates.sort(new Comparator<Tuple2<String, Double>>() {
+        Collections.sort(candidates, new Comparator<Tuple2<String, Double>>() {
             @Override
             public int compare(Tuple2<String, Double> t1, Tuple2<String, Double> t2) {
                 int cmp0 = Double.compare(Math.abs(t1.item2 - 0.5), Math.abs(t2.item2 - 0.5));
