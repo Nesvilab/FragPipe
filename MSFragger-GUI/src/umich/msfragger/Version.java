@@ -33,7 +33,7 @@ import umich.msfragger.util.VersionComparator;
 public class Version {
     public static final String PROGRAM_TITLE = "MSFragger-GUI";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "5.3";
+    public static final String VERSION = "5.4";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
     public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
     public static final String PROP_IMPORTANT_UPDATES = "msfragger.gui.important-updates";
@@ -45,9 +45,9 @@ public class Version {
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>();
     
     static {
-//        CHANGELOG.put("5.4", Arrays.asList(
-//                "Restore last location of MSfragger params file save/load operation.",
-//                "Show errors from loading msfragger.params files"));
+        CHANGELOG.put("5.4", Arrays.asList(
+                "Restore last location of MSfragger params file save/load operation.",
+                "Show errors from loading msfragger.params files"));
         
         CHANGELOG.put("5.3", Arrays.asList(
                 "Button for auto-detection of decoy prefixes",
