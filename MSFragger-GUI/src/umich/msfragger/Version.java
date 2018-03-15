@@ -45,6 +45,10 @@ public class Version {
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>();
     
     static {
+//        CHANGELOG.put("5.4", Arrays.asList(
+//                "Restore last location of MSfragger params file save/load operation.",
+//                "Show errors from loading msfragger.params files"));
+        
         CHANGELOG.put("5.3", Arrays.asList(
                 "Button for auto-detection of decoy prefixes",
                 "When sequence DB changes, display the number of proteins.",

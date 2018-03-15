@@ -3043,8 +3043,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
         final String propName = ThisAppProps.PROP_DB_FILE_IN;
-        List<String> props = Arrays.asList(propName);
-        String fcPath = ThisAppProps.tryFindPath(props, true);
+        String fcPath = ThisAppProps.tryFindPath(Arrays.asList(propName), true);
         SwingUtils.setFileChooserPath(fileChooser, fcPath);
 
         int showOpenDialog = fileChooser.showOpenDialog(SwingUtils.findParentComponentForDialog(this));

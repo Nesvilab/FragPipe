@@ -25,6 +25,7 @@ import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import javax.swing.ComboBoxModel;
@@ -1361,28 +1362,28 @@ public class FraggerPanel extends javax.swing.JPanel {
         fc.setApproveButtonToolTipText("Load into the form");
         fc.setDialogTitle("Select saved file");
         fc.setMultiSelectionEnabled(false);
-        String cached = ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH);
-        SwingUtils.setFileChooserPath(fc, cached);
-        if (cached != null) {
-            Path p = Paths.get(cached);
-            if (Files.exists(p))
-            fc.setSelectedFile(p.toFile());
-        }
+        
         fc.setAcceptAllFileFilterUsed(true);
-        FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Properties/Params", "properties", "params", "para", "conf");
-        fc.setFileFilter(fileNameExtensionFilter);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Properties/Params", 
+                "properties", "params", "para", "conf", "txt");
+        fc.setFileFilter(filter);
 
+        final String propName = ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN;
+        ThisAppProps.load(propName, fc);
+        
         Component parent = SwingUtils.findParentComponentForDialog(this);
         int saveResult = fc.showOpenDialog(parent);
         if (JFileChooser.APPROVE_OPTION == saveResult) {
             File selectedFile = fc.getSelectedFile();
             Path path = Paths.get(selectedFile.getAbsolutePath());
+            ThisAppProps.save(propName, path.toString());
+            
             if (Files.exists(path)) {
                 try {
                     params.load(new FileInputStream(selectedFile));
                     fillFormFromParams(params);
                     params.save();
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     JOptionPane.showMessageDialog(parent, "<html>Could not load the saved file: <br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
@@ -1408,13 +1409,18 @@ public class FraggerPanel extends javax.swing.JPanel {
         fc.setApproveButtonToolTipText("Save to a file");
         fc.setDialogTitle("Choose where params file should be saved");
         fc.setMultiSelectionEnabled(false);
-        SwingUtils.setFileChooserPath(fc, ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH));
+        
+        final String propName = ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN;
+        ThisAppProps.load(propName, fc);
+        
         fc.setSelectedFile(new File(MsfraggerParams.DEFAULT_FILE));
         Component parent = SwingUtils.findParentComponentForDialog(this);
         int saveResult = fc.showSaveDialog(parent);
         if (JFileChooser.APPROVE_OPTION == saveResult) {
             File selectedFile = fc.getSelectedFile();
             Path path = Paths.get(selectedFile.getAbsolutePath());
+            ThisAppProps.save(propName, path.toString());
+            
             // if exists, overwrite
             if (Files.exists(path)) {
                 int overwrite = JOptionPane.showConfirmDialog(parent, "<html>File exists,<br/> overwrtie?", "Overwrite", JOptionPane.OK_CANCEL_OPTION);

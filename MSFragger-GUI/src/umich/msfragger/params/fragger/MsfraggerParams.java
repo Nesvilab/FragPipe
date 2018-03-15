@@ -420,7 +420,7 @@ public class MsfraggerParams {
             if (t.valueInParamsFile().equalsIgnoreCase(val))
                 return t;
         }
-        throw new IllegalStateException("Unknown output format stored in properties");
+        throw new IllegalStateException("Unknown output format stored in properties (property '" + PROP_output_format + "')");
     }
     
     public void setOutputFormat(FraggerOutputType type) {
@@ -447,7 +447,8 @@ public class MsfraggerParams {
         String str = props.getProp(PROP_precursor_charge, "0 0").value;
         String[] split = str.split("\\s+");
         if (split.length != 2)
-            throw new IllegalStateException("The string parsed from properties could not be interpreted as two integers");
+            throw new IllegalStateException(String.format(
+                    "The string parsed from properties could not be interpreted as two integers (property '%s')", PROP_precursor_charge));
         
         
         int z0 = Integer.parseInt(split[0]);
@@ -455,7 +456,8 @@ public class MsfraggerParams {
         try {
             return new int[] {z0, z1};
         } catch (NumberFormatException nfe) {
-            throw new IllegalStateException("The string parsed from properties could not be interpreted as two integers");
+            throw new IllegalStateException(String.format(
+                    "The string parsed from properties could not be interpreted as two integers (property '%s')", PROP_precursor_charge), nfe);
         }
     }
     
@@ -495,7 +497,8 @@ public class MsfraggerParams {
         String str = props.getProp(PROP_digest_mass_range, "500.0 7000.0").value;
         String[] split = str.split("\\s+");
         if (split.length != 2)
-            throw new IllegalStateException("The string parsed from properties could not be interpreted as two doubles");
+            throw new IllegalStateException(String.format(
+                    "The string parsed from properties could not be interpreted as two doubles (property '%s')", PROP_digest_mass_range));
         
         
         double m0 = Double.parseDouble(split[0]);
@@ -503,13 +506,14 @@ public class MsfraggerParams {
         try {
             return new double[] {m0, m1};
         } catch (NumberFormatException nfe) {
-            throw new IllegalStateException("The string parsed from properties could not be interpreted as two doubles");
+            throw new IllegalStateException(String.format(
+                    "The string parsed from properties could not be interpreted as two doubles (property '%s')", PROP_digest_mass_range), nfe);
         }
     }
     
     public void setDigestMassRange(double[] v) {
         if (v.length != 2)
-            throw new IllegalArgumentException("Array length must be 2");
+            throw new IllegalArgumentException("Array length must be 2 for property '" + PROP_digest_mass_range + "'");
         props.setProp(PROP_digest_mass_range, Double.toString(v[0]) + " " + Double.toString(v[1]));
     }
     
@@ -609,7 +613,8 @@ public class MsfraggerParams {
         String str = props.getProp(PROP_clear_mz_range, "0.0 0.0").value;
         String[] split = str.split("\\s+");
         if (split.length != 2)
-            throw new IllegalStateException("The string parsed from properties could not be interpreted as two doubles");
+            throw new IllegalStateException(String.format(
+                    "The string parsed from properties could not be interpreted as two doubles (property '%s')", PROP_clear_mz_range));
         
         
         double m0 = Double.parseDouble(split[0]);
@@ -617,7 +622,8 @@ public class MsfraggerParams {
         try {
             return new double[] {m0, m1};
         } catch (NumberFormatException nfe) {
-            throw new IllegalStateException("The string parsed from properties could not be interpreted as two doubles");
+            throw new IllegalStateException(String.format(
+                    "The string parsed from properties could not be interpreted as two doubles (property '%s')", PROP_clear_mz_range), nfe);
         }
     }
     
