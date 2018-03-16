@@ -119,9 +119,9 @@
                           <Component id="btnSave" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnLoad" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="panelFraggerMatchingConfig" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
                       <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
@@ -435,7 +435,7 @@
                                           </Group>
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Component id="spinnerMaxCombos" min="-2" pref="70" max="-2" attributes="0"/>
-                                          <EmptySpace min="0" pref="246" max="32767" attributes="0"/>
+                                          <EmptySpace min="0" pref="248" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                                   <EmptySpace max="-2" attributes="0"/>
@@ -1052,12 +1052,20 @@
                               </Group>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="checkOverrideCharge" max="32767" attributes="0"/>
-                                  <Component id="jLabel25" max="32767" attributes="0"/>
+                                  <Group type="102" attributes="0">
+                                      <Component id="checkOverrideCharge" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                                      <Component id="jLabel25" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" attributes="0">
+                                      <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="textMassOffsets" max="32767" attributes="0"/>
+                                  </Group>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="comboFraggerOutputType" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="comboFraggerOutputType" min="-2" pref="100" max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -1068,8 +1076,8 @@
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="textIsotopeError" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel25" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="comboFraggerOutputType" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="textMassOffsets" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
@@ -1078,6 +1086,8 @@
                                   <Component id="spinnerPrecursorChargeHi" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="checkOverrideCharge" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="jLabel29" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel25" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="comboFraggerOutputType" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="32767" attributes="0"/>
                           </Group>
@@ -1100,6 +1110,10 @@
                         <Property name="text" type="java.lang.String" value="-1/0/1/2"/>
                         <Property name="toolTipText" type="java.lang.String" value="0=off, -1/0/1/2/3 (standard C13 error)"/>
                       </Properties>
+                      <Events>
+                        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textIsotopeErrorFocusGained"/>
+                        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textIsotopeErrorFocusLost"/>
+                      </Events>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel29">
                       <Properties>
@@ -1135,6 +1149,18 @@
                       <AuxValues>
                         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
                       </AuxValues>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel1">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Mass Offsets"/>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Mass_offsets in MSFragger creates multiple precursor tolerance windows with&lt;br&gt;&#xa;specified mass offsets. These values are multiplexed with the isotope error option. &lt;br&gt;&lt;br&gt;&#xa;&#xa;For example, mass_offsets = 0/79.966 can be used as a restricted &quot;open&quot; search that &lt;br&gt;&#xa;looks for unmodified and phosphorylated peptides (on any residue).&lt;br&gt;&lt;br&gt;&#xa;&#xa;Setting isotope_error to 0/1/2 in combination with this example will create &lt;br&gt;&#xa;search windows around (0,1,2,79.966, 80.966, 81.966)."/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="textMassOffsets">
+                      <Events>
+                        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textMassOffsetsFocusGained"/>
+                        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textMassOffsetsFocusLost"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>

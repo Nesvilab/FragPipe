@@ -25,7 +25,6 @@ import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import javax.swing.ComboBoxModel;
@@ -36,7 +35,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableModel;
@@ -206,6 +204,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         spinnerOutputMaxExpect.setValue(params.getOutputMaxExpect());
         
         textIsotopeError.setText(params.getIsotopeError());
+        textMassOffsets.setText(params.getMassOffsets());
         spinnerPrecursorChargeLo.setValue(params.getPrecursorCharge()[0]);
         spinnerPrecursorChargeHi.setValue(params.getPrecursorCharge()[1]);
         checkOverrideCharge.setSelected(params.getOverrideCharge());
@@ -339,6 +338,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         params.setOutputMaxExpect((Double)spinnerOutputMaxExpect.getValue());
         
         params.setIsotopeError(textIsotopeError.getText());
+        params.setMassOffsets(textMassOffsets.getText());
         
         int zLo = (Integer)spinnerPrecursorChargeLo.getValue();
         int zHi = (Integer)spinnerPrecursorChargeHi.getValue();
@@ -548,6 +548,8 @@ public class FraggerPanel extends javax.swing.JPanel {
         checkOverrideCharge = new javax.swing.JCheckBox();
         jLabel25 = new javax.swing.JLabel();
         comboFraggerOutputType = new javax.swing.JComboBox<>();
+        jLabel1 = new javax.swing.JLabel();
+        textMassOffsets = new javax.swing.JTextField();
         jPanel8 = new javax.swing.JPanel();
         spinnerReportTopN = new javax.swing.JSpinner();
         spinnerOutputMaxExpect = new javax.swing.JSpinner();
@@ -771,7 +773,7 @@ public class FraggerPanel extends javax.swing.JPanel {
                                     .addComponent(checkMultipleVarMods))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(spinnerMaxCombos, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 246, Short.MAX_VALUE)))
+                                .addGap(0, 248, Short.MAX_VALUE)))
                         .addContainerGap())))
         );
         jPanel2Layout.setVerticalGroup(
@@ -1043,6 +1045,14 @@ public class FraggerPanel extends javax.swing.JPanel {
         textIsotopeError.setDocument(getFilterIsotopeCorrection());
         textIsotopeError.setText("-1/0/1/2");
         textIsotopeError.setToolTipText("0=off, -1/0/1/2/3 (standard C13 error)");
+        textIsotopeError.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                textIsotopeErrorFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                textIsotopeErrorFocusLost(evt);
+            }
+        });
 
         jLabel29.setText("Precursor Charge");
 
@@ -1054,6 +1064,18 @@ public class FraggerPanel extends javax.swing.JPanel {
         jLabel25.setText("Output Type");
 
         comboFraggerOutputType.setModel(createOutputFormatComboModel());
+
+        jLabel1.setText("Mass Offsets");
+        jLabel1.setToolTipText("<html>Mass_offsets in MSFragger creates multiple precursor tolerance windows with<br>\nspecified mass offsets. These values are multiplexed with the isotope error option. <br><br>\n\nFor example, mass_offsets = 0/79.966 can be used as a restricted \"open\" search that <br>\nlooks for unmodified and phosphorylated peptides (on any residue).<br><br>\n\nSetting isotope_error to 0/1/2 in combination with this example will create <br>\nsearch windows around (0,1,2,79.966, 80.966, 81.966).");
+
+        textMassOffsets.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                textMassOffsetsFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                textMassOffsetsFocusLost(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -1075,11 +1097,17 @@ public class FraggerPanel extends javax.swing.JPanel {
                         .addComponent(spinnerPrecursorChargeHi)))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(checkOverrideCharge, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel25, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(checkOverrideCharge)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel25))
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(textMassOffsets)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(comboFraggerOutputType, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(comboFraggerOutputType, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1088,15 +1116,17 @@ public class FraggerPanel extends javax.swing.JPanel {
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(textIsotopeError, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel25)
-                    .addComponent(comboFraggerOutputType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel1)
+                    .addComponent(textMassOffsets, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(spinnerPrecursorChargeLo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel36)
                     .addComponent(spinnerPrecursorChargeHi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(checkOverrideCharge)
-                    .addComponent(jLabel29))
+                    .addComponent(jLabel29)
+                    .addComponent(jLabel25)
+                    .addComponent(comboFraggerOutputType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1267,9 +1297,9 @@ public class FraggerPanel extends javax.swing.JPanel {
                     .addComponent(jLabel35)
                     .addComponent(btnSave)
                     .addComponent(btnLoad))
-                .addGap(45, 45, 45)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(panelFraggerMatchingConfig, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(40, 40, 40)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1561,6 +1591,22 @@ public class FraggerPanel extends javax.swing.JPanel {
         
     }//GEN-LAST:event_panelMsFraggerComponentShown
 
+    private void textIsotopeErrorFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textIsotopeErrorFocusLost
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textIsotopeErrorFocusLost
+
+    private void textIsotopeErrorFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textIsotopeErrorFocusGained
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textIsotopeErrorFocusGained
+
+    private void textMassOffsetsFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textMassOffsetsFocusLost
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textMassOffsetsFocusLost
+
+    private void textMassOffsetsFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textMassOffsetsFocusGained
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textMassOffsetsFocusGained
+
     public void loadDefaultsClosed() {
         params.loadDefaultsClosedSearch();
         fillFormFromParams(params);
@@ -1608,6 +1654,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> comboFraggerOutputType;
     private javax.swing.JComboBox<String> comboPrecursorMassTol;
     private javax.swing.JComboBox<String> comboPrecursorTrueTol;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -1694,6 +1741,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     private javax.swing.JTextField textCutAfter;
     private javax.swing.JTextField textEnzymeName;
     private javax.swing.JTextField textIsotopeError;
+    private javax.swing.JTextField textMassOffsets;
     // End of variables declaration//GEN-END:variables
 
     private ComboBoxModel<String> createOutputFormatComboModel() {

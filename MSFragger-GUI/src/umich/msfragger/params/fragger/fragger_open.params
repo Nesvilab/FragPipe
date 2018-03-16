@@ -11,6 +11,7 @@ fragment_mass_tolerance = 20.00
 fragment_mass_units = 1		           # 0=Daltons, 1=ppm
 
 isotope_error = 0                      # 0=off, 0/1/2 (standard C13 error)
+mass_offsets = 0
 
 search_enzyme_name = Trypsin
 search_enzyme_cutafter = KR

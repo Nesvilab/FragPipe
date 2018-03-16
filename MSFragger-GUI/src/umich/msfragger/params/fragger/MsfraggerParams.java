@@ -54,6 +54,7 @@ public class MsfraggerParams {
     public static final String PROP_fragment_mass_tolerance = "fragment_mass_tolerance";
     public static final String PROP_fragment_mass_units = "fragment_mass_units";
     public static final String PROP_isotope_error = "isotope_error";
+    public static final String PROP_mass_offsets = "mass_offsets";
     public static final String PROP_search_enzyme_name = "search_enzyme_name";
     public static final String PROP_search_enzyme_cutafter = "search_enzyme_cutafter";
     public static final String PROP_search_enzyme_butnotafter = "search_enzyme_butnotafter";
@@ -144,6 +145,7 @@ public class MsfraggerParams {
         comments.put(PROP_precursor_true_units, "0=Daltons, 1=ppm");
         comments.put(PROP_fragment_mass_units, "0=Daltons, 1=ppm");
         comments.put(PROP_isotope_error, "0=off, -1/0/1/2/3 (standard C13 error)");
+        comments.put(PROP_mass_offsets, "allow for additional precursor mass window shifts. Multiplexed with isotope_error. mass_offsets = 0/79.966 can be used as a restricted ‘open’ search that looks for unmodified and phosphorylated peptides (on any residue)");
         comments.put(PROP_num_enzyme_termini, "2 for enzymatic, 1 for semi-enzymatic, 0 for nonspecific digestion");
         comments.put(PROP_allowed_missed_cleavage, "maximum value is 5");
         comments.put(PROP_precursor_charge, "precursor charge range to analyze; does not override any existing charge; 0 as 1st entry ignores parameter");
@@ -354,6 +356,14 @@ public class MsfraggerParams {
     
     public void setIsotopeError(String v) {
         props.setProp(PROP_isotope_error, v);
+    }
+    
+    public String getMassOffsets() {
+        return props.getProp(PROP_mass_offsets, "0").value;
+    }
+    
+    public void setMassOffsets(String v) {
+        props.setProp(PROP_mass_offsets, v);
     }
     
     public String getSearchEnzymeName() {
