@@ -88,6 +88,16 @@ public class Props {
     public void removeProp(String name) {
         if (StringUtils.isNullOrWhitespace(name))
             throw new IllegalArgumentException("Name can't be null or whitespace");
+        map.remove(name);
+    }
+    
+    public void clearProps() {
+        this.map.clear();
+        this.comments.clear();
+    }
+    
+    public void clearComments() {
+        this.comments.clear();
     }
     
     public Prop getProp(String name) {

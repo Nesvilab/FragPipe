@@ -134,11 +134,13 @@ public class FraggerPanel extends javax.swing.JPanel {
                         JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
             switch (result) {
                 case 1:
+                    params.clear();
                     params.loadDefaultsClosedSearch();
                     fillFormFromParams(params);
                     break;
                 case 2:
-                    params.loadDefaults();
+                    params.clear();
+                    params.loadDefaultsOpenSearch();
                     fillFormFromParams(params);
                     break;
             }
@@ -306,7 +308,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     
     public MsfraggerParams collectParams() throws IOException {
         MsfraggerParams p = new MsfraggerParams();
-        p.loadDefaults();
+        p.loadDefaultsOpenSearch();
         fillParamsFromForm(p);
         return p;
     }
@@ -737,7 +739,7 @@ public class FraggerPanel extends javax.swing.JPanel {
 
         jLabel31.setText("Variable Modifications");
 
-        jLabel32.setText("Additional Modifications");
+        jLabel32.setText("Fixed Modifications");
 
         tableAdditionalMods.setModel(getDefaultAddonTableModel());
         jScrollPane2.setViewportView(tableAdditionalMods);
@@ -789,7 +791,7 @@ public class FraggerPanel extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addComponent(jLabel32)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -1089,13 +1091,12 @@ public class FraggerPanel extends javax.swing.JPanel {
                     .addComponent(jLabel25)
                     .addComponent(comboFraggerOutputType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel29)
-                    .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(spinnerPrecursorChargeLo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel36)
-                        .addComponent(spinnerPrecursorChargeHi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(checkOverrideCharge)))
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(spinnerPrecursorChargeLo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel36)
+                    .addComponent(spinnerPrecursorChargeHi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(checkOverrideCharge)
+                    .addComponent(jLabel29))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1380,6 +1381,7 @@ public class FraggerPanel extends javax.swing.JPanel {
             
             if (Files.exists(path)) {
                 try {
+                    params.clear();
                     params.load(new FileInputStream(selectedFile));
                     fillFormFromParams(params);
                     params.save();
@@ -1470,7 +1472,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnMsfraggerDefaultsOpenActionPerformed
 
     public void loadDefaultsOpen() {
-        params.loadDefaults();
+        params.loadDefaultsOpenSearch();
         fillFormFromParams(params);
     }
     

@@ -2006,7 +2006,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                             // then check if this version is known to be compatible
                             String latestCompatible = props.getProperty(PhilosopherProps.PROP_LATEST_COMPATIBLE_VERSION + "." + Version.VERSION);
                             if (latestCompatible == null) {
-                                sb.append("<br>\nCompatibility with your version of MSFragger-GUI is unknown.");
+                                sb.append("<br>\nHowever, we have not yet checked if it's fully compatible with this version of MSFragger-GUI.");
                             } else if (curVersion != null) {
                                 int cmp = vc.compare(curVersion, latestCompatible);
                                 if (cmp == 0) {

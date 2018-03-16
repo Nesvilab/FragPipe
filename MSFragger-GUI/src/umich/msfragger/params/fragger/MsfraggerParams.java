@@ -182,11 +182,11 @@ public class MsfraggerParams {
                 load(fis);
             }
         } else {
-            loadDefaults();
+            loadDefaultsOpenSearch();
         }
     }
     
-    public void loadDefaults() {
+    public void loadDefaultsOpenSearch() {
         try {
             load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_OPENSEARCH));
         } catch (IOException e) {
@@ -206,6 +206,10 @@ public class MsfraggerParams {
     
     public void load(InputStream is) throws IOException {
         props.load(is);
+    }
+    
+    public void clear() {
+        this.props.clearProps();
     }
     
     /**
