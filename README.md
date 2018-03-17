@@ -31,3 +31,6 @@ The version of the build is stored in 2 separate places:
  - MSFragger-GUI/src/umich/msfragger/gui/Bundle.properties
    - `msfragger.gui.version` property
  Both need to be modified to the same value, otherwise you'll get a popup warning at the start of the application.
+
+
+[![Analytics](https://ga-beacon.appspot.com/UA-5572974-15/github/chhh/msfragger-gui/landing-page?pixel&useReferer)](https://github.com/igrigorik/ga-beacon)
