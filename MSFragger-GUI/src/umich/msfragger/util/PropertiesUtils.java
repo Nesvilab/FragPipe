@@ -11,16 +11,13 @@ import umich.msfragger.params.PropertyFileContent;
 
 import java.io.*;
 import java.net.URI;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import umich.msfragger.Version;
 
 /**
  *
@@ -65,9 +62,22 @@ public class PropertiesUtils {
             p.load(new StringReader(remoteText));
             return p;
         } catch (Exception ex) {
-            
+            return null;
         }
-        return null;
+        
+    }
+    
+    public static Properties loadPropertiesRemoteOrLocal(List<URI> uris, Class<?> clazz, String propertiesFile) {
+        try {
+            for (URI uri : uris) {
+                Properties props = loadPropertiesRemote(uri);
+                if (props != null)
+                    return props;
+            }
+        } catch (Exception e) {
+            // doesn't matter
+        }
+        return loadPropertiesLocal(clazz, propertiesFile);
     }
 
     /**

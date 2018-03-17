@@ -95,6 +95,7 @@ import umich.msfragger.gui.api.DataConverter;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.SimpleUniqueTableModel;
 import umich.msfragger.gui.api.TableModelColumn;
+import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.params.pepproph.PeptideProphetParams;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.protproph.ProteinProphetParams;
@@ -102,6 +103,9 @@ import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.fragger.MsfraggerProps;
+import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
+import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
+import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.GhostText;
@@ -1725,7 +1729,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (!isValid) {
             balloonMsfragger = new BalloonTip(textBinMsfragger,
                     "<html>Could not find MSFragger jar file at this location\n<br/>."
-                    + "Corresponding panel won't be active");
+                    + "Corresponding panel won't be active.<br/><br/>"
+                    + "If that's the first time you're using MSFragger-GUI,<br/>"
+                    + "you will need to download MSFragger.jar first.<br/>"
+                    + "Use the button on the right to proceed to the download website.");
             balloonMsfragger.setVisible(true);
 
         }
@@ -2043,6 +2050,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     private boolean validateMsfraggerVersion(String jarPath) {
+        Path p = Paths.get(jarPath);
+        
         // only validate Fragger version if the current Java version is 1.8 or higher
         if (!SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8)) {
             // we can't test fragger binary verison when java version is less than 1.8
@@ -2072,23 +2081,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         } catch (IOException | InterruptedException e) {
             throw new IllegalStateException("Error while creating a java process for MSFragger test.");
         }
-        final String matchedVersion = verStr;
-        fraggerVer = matchedVersion;
-
-        // get the latest known version
-        Properties props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
-        
-        String latestVersion = props.getProperty(MsfraggerProps.PROP_LATEST_VERSION);
-        if (latestVersion == null) {
-            throw new IllegalStateException(String.format("Property '%s' was not found in '%s'", 
-                    MsfraggerProps.PROP_LATEST_VERSION, MsfraggerProps.PROPERTIES_FILE_NAME));
-        }
+        final String localVer = verStr;
+        fraggerVer = localVer;
    
         // update the version label
-        fraggerVer = StringUtils.isNullOrWhitespace(matchedVersion) ? UNKNOWN_VERSION : matchedVersion;
+        fraggerVer = StringUtils.isNullOrWhitespace(localVer) ? UNKNOWN_VERSION : localVer;
         lblFraggerJavaVer.setText(String.format(
                 "MSFragger version: %s. %s", fraggerVer, OsUtils.JavaInfo()));
 
+        
+        // TODO: if the binary doesn't exist, then direct user to the intial download page
+        asd
+        
+        
         if (!isVersionPrintedAtAll) {
             // a very old fragger version, need to download a new one
             if (balloonMsfragger != null) {
@@ -2105,48 +2110,91 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
             balloonMsfragger.setVisible(true);
             return false;
+            
         } else {
-            
-            
             // The version from cmd line ouput is new enough to pass the local
-            // test. Now check the file on github.
+            // test. Now check the versions on remotes.
             final VersionComparator vc = new VersionComparator();
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {    
-                        
-                    Properties props = PropertiesUtils.loadPropertiesRemote(MsfraggerProps.PROPERTIES_URI);
-                    if (props == null)
-                        props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
-                    if (props == null)
-                        return;
+                    
+                    MsfraggerVersionFetcherServer vf0 = new MsfraggerVersionFetcherServer();
+                    MsfraggerVersionFetcherGithub vf1 = new MsfraggerVersionFetcherGithub();
+                    MsfraggerVersionFetcherLocal vf2 = new MsfraggerVersionFetcherLocal();
+                    List<VersionFetcher> verFetchers = Arrays.asList(vf0, vf1, vf2);
+                    for (VersionFetcher vf : verFetchers) {
+                        if (vf == null)
+                            continue;
+                        try {
+                            final String updateVer = vf.fetchVersion();
+                            if (StringUtils.isNullOrWhitespace(updateVer))
+                                continue;
+                            // we got a non-empty version from some version fetcher
+                            if (vc.compare(localVer, updateVer) < 0) {
+                                // local versin is older, than the fetched version
+                                // show balloon popup, must be done on EDT
+                                String remoteDownloadUrl = vf.getDownloadUrl();
+                                final String downloadUrl = StringUtils.isNullOrWhitespace(remoteDownloadUrl) ?
+                                        vf2.getDownloadUrl() : remoteDownloadUrl;
+                                SwingUtilities.invokeLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (balloonMsfragger != null)
+                                            balloonMsfragger.closeBalloon();
 
-                    final String latestKnownVer = props.getProperty(MsfraggerProps.PROP_LATEST_VERSION);
-                    if (latestKnownVer == null) {
-                        throw new IllegalStateException(String.format("Property '%s' was not found in '%s' from github", 
-                                MsfraggerProps.PROP_LATEST_VERSION, MsfraggerProps.PROPERTIES_FILE_NAME));
-                    }
-                    final String downloadUrl = props.getProperty(MsfraggerProps.PROP_DOWNLOAD_URL, MsfraggerProps.DOWNLOAD_URL);
-                    if (vc.compare(matchedVersion, latestKnownVer) < 0) {
-                        // show balloon popup, must be done on EDT
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (balloonMsfragger != null)
-                                    balloonMsfragger.closeBalloon();
+                                        JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT,
+                                                "Your version is [%s]<br>\n"
+                                                + "There is a newer version of MSFragger available [%s].<br>\n"
+                                                + "Please <a href=\"%s\">click here</a> to download a newer one.",
+                                                localVer, updateVer, downloadUrl));
 
-                                JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT,
-                                        "Your version is [%s]<br>\n"
-                                        + "There is a newer version of MSFragger available [%s].<br>\n"
-                                        + "Please <a href=\"%s\">click here</a> to download a newer one.",
-                                        matchedVersion, latestKnownVer, downloadUrl));
-
-                                balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
-                                        new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
-                                balloonMsfragger.setVisible(true);
+                                        balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
+                                                new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
+                                        balloonMsfragger.setVisible(true);
+                                    }
+                                });
                             }
-                        });
+                            return; // stop iterations, we've found that there is no better version than the current
+                            
+                        } catch (Exception ex) {
+                            // no biggie
+                            continue;
+                        }
                     }
+                    
+//                    Properties props = PropertiesUtils.loadPropertiesRemote(MsfraggerProps.PROPERTIES_URI);
+//                    if (props == null)
+//                        props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
+//                    if (props == null)
+//                        return;
+//
+//                    final String latestKnownVer = props.getProperty(MsfraggerProps.PROP_LATEST_VERSION);
+//                    if (latestKnownVer == null) {
+//                        throw new IllegalStateException(String.format("Property '%s' was not found in '%s' from github", 
+//                                MsfraggerProps.PROP_LATEST_VERSION, MsfraggerProps.PROPERTIES_FILE_NAME));
+//                    }
+//                    final String downloadUrl = props.getProperty(MsfraggerProps.PROP_DOWNLOAD_URL, MsfraggerProps.DOWNLOAD_URL);
+//                    if (vc.compare(localVer, latestKnownVer) < 0) {
+//                        // show balloon popup, must be done on EDT
+//                        SwingUtilities.invokeLater(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                if (balloonMsfragger != null)
+//                                    balloonMsfragger.closeBalloon();
+//
+//                                JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT,
+//                                        "Your version is [%s]<br>\n"
+//                                        + "There is a newer version of MSFragger available [%s].<br>\n"
+//                                        + "Please <a href=\"%s\">click here</a> to download a newer one.",
+//                                        localVer, latestKnownVer, downloadUrl));
+//
+//                                balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
+//                                        new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
+//                                balloonMsfragger.setVisible(true);
+//                            }
+//                        });
+//                    }
                 }
             });
             t.start();
@@ -3728,7 +3776,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         balloonPhilosopher = null;
                     }
                     balloonPhilosopher = new BalloonTip(textBinPhilosopher,
-                            "Invalid input for Philosopher path.");
+                            "Philosopher binary not found.<br/>" 
+                            + "If that's the first time you're using MSFragger-GUI,<br/>"
+                            + "you will need to download Philosopher first.<br/>"
+                            + "Use the button on the right to proceed to the download website.");
+                    
                     balloonPhilosopher.setVisible(true);
                     enablePhilosopherPanels(false);
                 }
