@@ -59,7 +59,7 @@ public class MsfraggerVersionFetcherGithub implements VersionFetcher {
     }
 
     @Override
-    public void autoUpdate(Path p) {
+    public Path autoUpdate(Path p) {
         throw new UnsupportedOperationException("Not supported.");
     }
     

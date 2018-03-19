@@ -15,17 +15,33 @@
  */
 package umich.msfragger.params.fragger;
 
-import java.io.File;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.StatusLine;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.FormBodyPart;
+import org.apache.http.entity.mime.FormBodyPartBuilder;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
@@ -37,7 +53,8 @@ import umich.msfragger.util.StringUtils;
 public class MsfraggerVersionFetcherServer implements VersionFetcher {
     
     private final Pattern re = Pattern.compile("([\\d.]+)");
-    String latestVer = null;
+    String latestVerResponse = null;
+    String latestVerParsed = null;
     String downloadUrl = null;
     /** Properties are persisted here after fetchVersion() call, in case we need to auto-update. */
     Properties props = null;
@@ -48,21 +65,15 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
         
          props = loadProps();
         // TODO: this is here for testing only, while nothing has been pushed to github yet
-        //Properties props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
+        props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
         
-        String verSvcUrl = props.getProperty(MsfraggerProps.PROP_UPDATESERVER_VERSION_URL);
-        if (StringUtils.isNullOrWhitespace(verSvcUrl))
-            throw new IllegalStateException("Could not get versionServiceUrl");
-        
-        URL url = new URL(verSvcUrl);
-        String verSvcResponse = org.apache.commons.io.IOUtils.toString(url, Charset.forName("UTF-8"));
-        if (StringUtils.isNullOrWhitespace(verSvcResponse))
-            throw new IllegalStateException("Update server returned empty string for the latest available version.");
+        String verSvcResponse = fetchVersionResponse();
         
         Matcher m = re.matcher(verSvcResponse);
         if (m.find()) {
             downloadUrl = props.getProperty(MsfraggerProps.PROP_UPDATESERVER_WEBSITE_URL, MsfraggerProps.DOWNLOAD_URL);
-            latestVer = verSvcResponse;
+            latestVerResponse = verSvcResponse;
+            latestVerParsed = m.group(1);
             return m.group(1);
         }
         
@@ -93,33 +104,41 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
         return true;
     }
 
+    private String fetchVersionResponse() throws MalformedURLException, IOException {
+        String serviceUrl = props.getProperty(MsfraggerProps.PROP_UPDATESERVER_VERSION_URL);
+        if (StringUtils.isNullOrWhitespace(serviceUrl))
+            throw new IllegalStateException("Could not get versionServiceUrl");
+        String response = org.apache.commons.io.IOUtils.toString(new URL(serviceUrl), Charset.forName("UTF-8"));
+        if (StringUtils.isNullOrWhitespace(response))
+            throw new IllegalStateException("Update server returned empty string for the latest available version.");
+        return response.trim();
+    }
+    
     @Override
-    public void autoUpdate(Path p) throws MalformedURLException {
+    public Path autoUpdate(Path p) throws MalformedURLException, IOException {
         if (p == null || !Files.exists(p) || Files.isDirectory(p))
             throw new IllegalArgumentException("The path to file to be updated must be non-null, must exist and not point to a directory.");
-        if (props == null)
-            props = loadProps();
+        
+        String lastVersionStr = fetchVersion();
+        
         String updateSvcUrl = props.getProperty(MsfraggerProps.PROP_UPDATESERVER_UPDATE_URL);
         if (updateSvcUrl == null)
             throw new IllegalStateException("Obtained properties file didn't contain a URL for the updater service.");
         
-        URL url = new URL(updateSvcUrl);
+        if (StringUtils.isNullOrWhitespace(latestVerResponse))
+            latestVerResponse = fetchVersionResponse();
         
-        // This requires Apacge HttpClient, HC Fluent, HttpMime
+        
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost post = new HttpPost("http://msfragger.arsci.com/upgrader/upgrade_download.php");
-        //Path path = Paths.get("C:\\data\\andy\\fragger-programs\\MSFragger-20171106\\fragger.params");
-        Path path = Paths.get("C:\\data\\andy\\fragger-programs\\MSFragger-20171106\\MSFragger-20171106.jar");
-//        FileBody file = new FileBody(path.toFile());
-//        StringBody comment = new StringBody("Original MSFragger jar from user", ContentType.TEXT_PLAIN);
+        HttpPost post = new HttpPost(updateSvcUrl);
 
         final FormBodyPart formPartDownload = FormBodyPartBuilder.create()
                 .setName("download")
-                .setBody(new StringBody("Release 20180316$jar", ContentType.TEXT_PLAIN))
+                .setBody(new StringBody(latestVerResponse + "$jar", ContentType.TEXT_PLAIN))
                 .build();
         final FormBodyPart formPartTradeinFile = FormBodyPartBuilder.create()
                 .setName("jarkey")
-                .setBody(new FileBody(path.toFile()))
+                .setBody(new FileBody(p.toFile()))
                 .build();
 
         HttpEntity req = MultipartEntityBuilder.create()
@@ -133,21 +152,19 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
             final long contentLength = entity.getContentLength();
             final Header contentType = entity.getContentType();
             final Header contentEncoding = entity.getContentEncoding();
-
-            //final InputStream content = entity.getContent();
-
-            //final String s = EntityUtils.toString(entity, Charset.forName("UTF-8"));
-            final Path pathOut = path.resolveSibling("_FRAGGER_UPGRADE.jar");
+            final Header[] allHeaders = response.getAllHeaders();
+            final StatusLine statusLine = response.getStatusLine();
+            
+            final Path pathOut = p.resolveSibling("MSFragger-" + lastVersionStr + ".jar");
             final byte[] upgradedFragger = EntityUtils.toByteArray(entity);
-            try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pathOut.toFile()))) {
+            
+            try (BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(pathOut))) {
                 bos.write(upgradedFragger);
             }
-            EntityUtils.consume(entity);
+            EntityUtils.consumeQuietly(entity);
+            
+            return pathOut;
         }
-
-        int a = 1;
-        
-        
     }
     
 }

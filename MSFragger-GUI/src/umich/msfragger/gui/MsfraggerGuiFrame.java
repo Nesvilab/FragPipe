@@ -5,15 +5,18 @@
  */
 package umich.msfragger.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -74,6 +77,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -2081,18 +2085,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         } catch (IOException | InterruptedException e) {
             throw new IllegalStateException("Error while creating a java process for MSFragger test.");
         }
-        final String localVer = verStr;
+        final String localVer = isVersionPrintedAtAll ? verStr : "0.0";
         fraggerVer = localVer;
    
         // update the version label
         fraggerVer = StringUtils.isNullOrWhitespace(localVer) ? UNKNOWN_VERSION : localVer;
         lblFraggerJavaVer.setText(String.format(
                 "MSFragger version: %s. %s", fraggerVer, OsUtils.JavaInfo()));
-
-        
-        // TODO: if the binary doesn't exist, then direct user to the intial download page
-        asd
-        
         
         if (!isVersionPrintedAtAll) {
             // a very old fragger version, need to download a new one
@@ -2146,10 +2145,58 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                         JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT,
                                                 "Your version is [%s]<br>\n"
                                                 + "There is a newer version of MSFragger available [%s].<br>\n"
-                                                + "Please <a href=\"%s\">click here</a> to download a newer one.",
+                                                + "You can <a href=\"%s\">click here</a> to manually update to newer version<br>\n"
+                                                + "using our upgrader website.",
                                                 localVer, updateVer, downloadUrl));
-
-                                        balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
+                                        
+                                        JPanel panel = new JPanel();
+                                        panel.setBackground(ep.getBackground());
+                                        panel.setLayout(new BorderLayout());
+                                        
+                                        JPanel panelButtons = new JPanel();
+                                        panelButtons.setBackground(ep.getBackground());
+                                        panelButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+                                        
+                                        JButton btnAutoUpdate = new JButton("Auto-update");
+                                        btnAutoUpdate.addActionListener(new ActionListener() {
+                                            @Override
+                                            public void actionPerformed(ActionEvent e) {
+                                                System.out.println("auto update");
+                                                int a = 1;
+                                            }
+                                        });
+                                        
+                                        JButton btnManualUpdate = new JButton("Manual update");
+                                        btnManualUpdate.addActionListener(new ActionListener() {
+                                            @Override
+                                            public void actionPerformed(ActionEvent e) {
+                                                try {
+                                                    SwingUtils.openBrowserOrThrow(new URI(downloadUrl));
+                                                } catch (URISyntaxException ex) {
+                                                    throw new IllegalStateException("Incorrect url/uri", ex);
+                                                }
+                                            }
+                                        });
+                                        
+                                        JButton btnClose = new JButton("Close");
+                                        btnClose.addActionListener(new ActionListener() {
+                                            @Override
+                                            public void actionPerformed(ActionEvent e) {
+                                                if (balloonMsfragger == null)
+                                                    return;
+                                                balloonMsfragger.setVisible(false);
+                                                balloonMsfragger = null;
+                                            }
+                                        });
+                                        
+                                        panel.add(ep, BorderLayout.CENTER);
+                                        panelButtons.add(btnAutoUpdate);
+                                        panelButtons.add(btnManualUpdate);
+                                        panelButtons.add(btnClose);
+                                        panel.add(panelButtons, BorderLayout.SOUTH);
+                                        
+                                        
+                                        balloonMsfragger = new BalloonTip(textBinMsfragger, panel,
                                                 new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
                                         balloonMsfragger.setVisible(true);
                                     }

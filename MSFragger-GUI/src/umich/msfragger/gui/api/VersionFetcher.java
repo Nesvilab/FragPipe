@@ -43,7 +43,8 @@ public interface VersionFetcher {
     /**
      * Automatically update file, deleting the older version.
      * @param p the file to be updated and deleted in case of successful update.
+     * @return Path of the updated file or null in case update didn't happen.
      * @throws java.lang.Exception If can't download new version or whatever else.
      */
-    void autoUpdate(Path p) throws Exception;
+    Path autoUpdate(Path p) throws Exception;
 }
