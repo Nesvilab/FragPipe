@@ -1,0 +1,109 @@
+<html>
+
+<head>
+    <title>MSFragger Upgrader</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+</head>
+
+<body>
+
+    <div class="container">
+        <h3>MSFragger Upgrade Tool</h3>
+        <ul>
+            <li>Select your desired download and upload your current MSFragger.jar.</li>
+            <li>Original MSFragger.jar can be obtained from
+                <a href="http://inventions.umich.edu/technologies/7143_msfrager-ultrafast-and-comprehensive-identification-of-peptides-from-tandem-mass-spectra">here</a>.</li>
+            <li>Take care to upload the jar and not the zip file.</li>
+            <li>
+                <strong>zip</strong> download contains manual in addition to executable</li>
+        </ul>
+
+        <form action="upgrade_download.php" method="post" enctype="multipart/form-data">
+            <table class="table table-bordered table-hover table-sm">
+                <thead class="thead-light">
+                    <tr>
+                        <th width="400">
+                            <b>Available Releases</b>
+                        </th>
+                        <th width="50">
+                            <center>jar</center>
+                        </th>
+                        <th width="50">
+                            <center>zip</center>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Release 20170103 (Initial)</td>
+                        <td>
+                            <center>
+                                <input type="radio" name="download" value="Release 20170103 (Initial)$jar">
+                            </center>
+                        </td>
+                        <td>
+                            <center>
+                                <input type="radio" name="download" value="Release 20170103 (Initial)$zip">
+                            </center>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Release 20171106</td>
+                        <td>
+                            <center>
+                                <input type="radio" name="download" value="Release 20171106$jar">
+                            </center>
+                        </td>
+                        <td>
+                            <center>
+                                <input type="radio" name="download" value="Release 20171106$zip">
+                            </center>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Release 20180223</td>
+                        <td>
+                            <center>
+                                <input type="radio" name="download" value="Release 20180223$jar">
+                            </center>
+                        </td>
+                        <td>
+                            <center>
+                                <input type="radio" name="download" value="Release 20180223$zip">
+                            </center>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Release 20180316
+                            <span class="badge badge-success">Latest version</span>
+                        </td>
+                        <td>
+                            <center>
+                                <input type="radio" name="download" value="Release 20180316$jar">
+                            </center>
+                        </td>
+                        <td>
+                            <center>
+                                <input type="radio" name="download" value="Release 20180316$zip" checked="checked">
+                            </center>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="my-2">
+                <label for="jarkey" class="alert alert-info">Select your current MSFragger jar file</label>
+                <input type="file" class="form-control-file" name="jarkey" id="jarkey">
+            </div>
+            <div class="my-2 alert alert-warning">
+                By downloading another version of MSFragger, you agree to be bound by the license agreement in your original download of
+                MSFragger.
+                <br/>
+            </div>
+            <input type="submit" class="btn btn-primary" value="Download" name="submit">
+        </form>
+    </div>
+</body>
+
+</html>
