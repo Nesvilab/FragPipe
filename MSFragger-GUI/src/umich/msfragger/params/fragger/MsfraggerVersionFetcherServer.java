@@ -17,17 +17,13 @@
 package umich.msfragger.params.fragger;
 
 import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,7 +31,6 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -68,9 +63,7 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
     public String fetchVersion() throws MalformedURLException, IOException {
         
         
-         props = loadProps();
-        // TODO: this is here for testing only, while nothing has been pushed to github yet
-        props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
+        props = loadProps();
         
         String verSvcResponse = fetchVersionResponse();
         
