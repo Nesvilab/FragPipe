@@ -283,7 +283,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         scrollPaneMsFragger.getVerticalScrollBar().setUnitIncrement(16);
 
         // check if fragger jar points to a correct location
-        if (!validateMsfraggerPath(textBinMsfragger.getText())) {
+        if (!validateMsfraggerJarContents(textBinMsfragger.getText())) {
             enableMsfraggerPanels(false);
         }
 
@@ -1744,17 +1744,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
      * level inside.
      */
     private boolean validateAndSaveMsfraggerPath(final String path) {
-        boolean isPathValid = validateMsfraggerPath(path);
-        if (isPathValid) {
+        boolean isJarValid = validateMsfraggerJarContents(path);
+        if (isJarValid) {
             textBinMsfragger.setText(path);
             ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_MSFRAGGER, path);
         }
+        
         if (balloonMsfragger != null) {
             balloonMsfragger.closeBalloon();
             balloonMsfragger = null;
         }
 
-        boolean isVersionValid = isPathValid ? validateMsfraggerVersion(path) : false;
+        boolean isPathValid = validateMsfraggerPath(path);
+        boolean isVersionValid = isJarValid ? validateMsfraggerVersion(path) : false;
         boolean isJavaValid = isVersionValid ? validateMsfraggerJavaVersion() : false;
         
         if (!isPathValid) {
@@ -1769,12 +1771,23 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
                     new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
             balloonMsfragger.setVisible(true);
+        } else if (!isJarValid) {
+            JEditorPane ep = SwingUtils.createClickableHtml(String.format(
+                    "<html>Looks like you selected an existing jar file, but we.<br/>\n"
+                    + "don't recognize it as a valid MSFragger distribution.<br/><br/>"
+                    + "<b>If that's the first time you're using MSFragger-GUI</b>,<br/>"
+                    + "you will need to <a href=\"%s\">download MSFragger.jar (click here)</a> first.<br/>"
+                    + "Use the button on the right to proceed to the download website.", 
+                    MsfraggerProps.DOWNLOAD_URL));
 
+            balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
+                    new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
+            balloonMsfragger.setVisible(true);
         }
         
-        enableMsfraggerPanels(isPathValid && isVersionValid && isJavaValid);
+        enableMsfraggerPanels(isJarValid && isVersionValid && isJavaValid);
 
-        return isPathValid;
+        return isJarValid;
     }
 
     private boolean validateMsfraggerJavaVersion() {
@@ -2097,7 +2110,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         Pattern regex = Pattern.compile("MSFragger version (MSFragger-([\\d\\.]{4,}))", Pattern.CASE_INSENSITIVE);
 
         // get the vesrion reported by the current executable
-        MsfraggerProps.FraggerRunResult jarTest = MsfraggerProps.testJar(jarPath);
+        final MsfraggerProps.FraggerRunResult jarTest = MsfraggerProps.testJar(jarPath);
         final String localVer = jarTest.isVersionPrintedAtAll ? jarTest.version : "0.0";
         fraggerVer = localVer;
    
@@ -2106,201 +2119,159 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         lblFraggerJavaVer.setText(String.format(
                 "MSFragger version: %s. %s", fraggerVer, OsUtils.JavaInfo()));
         
-        if (!jarTest.isVersionPrintedAtAll) {
-            // a very old fragger version, need to download a new one
-            if (balloonMsfragger != null) {
-                balloonMsfragger.closeBalloon();
-            }
+        
+           // The version from cmd line ouput is new enough to pass the local
+        // test. Now check the versions on remotes.
+        final VersionComparator vc = new VersionComparator();
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-            JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT,
-                    "Your version of MSFragger "
-                    + "is not supported anymore.<br>\n"
-                    + "Please <a href=\"%s\">click here</a> to download a newer one.",
-                    MsfraggerProps.DOWNLOAD_URL));
-            balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
-                    new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
-
-            balloonMsfragger.setVisible(true);
-            return false;
-            
-        } else {
-            // The version from cmd line ouput is new enough to pass the local
-            // test. Now check the versions on remotes.
-            final VersionComparator vc = new VersionComparator();
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {    
-                    
-                    MsfraggerVersionFetcherServer vfServer = new MsfraggerVersionFetcherServer();
-                    MsfraggerVersionFetcherGithub vfGithub = new MsfraggerVersionFetcherGithub();
-                    MsfraggerVersionFetcherLocal vfLocal = new MsfraggerVersionFetcherLocal();
-                    List<VersionFetcher> verFetchers = Arrays.asList(vfServer, vfGithub, vfLocal);
-                    for (final VersionFetcher vf : verFetchers) {
-                        if (vf == null)
-                            continue;
-                        try {
-                            final String updateVer = vf.fetchVersion();
-                            if (StringUtils.isNullOrWhitespace(updateVer))
-                                continue;
-                            // we got a non-empty version from some version fetcher
-                            if (vc.compare(localVer, updateVer) < 0) {
-                                // local versin is older, than the fetched version
-                                // show balloon popup, must be done on EDT
-                                String url = vf.getDownloadUrl();
-                                final String manualDownloadUrl = StringUtils.isNullOrWhitespace(url) ?
-                                        vfLocal.getDownloadUrl() : url;
-                                SwingUtilities.invokeLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (balloonMsfragger != null)
-                                            balloonMsfragger.closeBalloon();
-
-                                        StringBuilder sb = new StringBuilder();
-                                        sb.append(String.format("Your version is [%s]<br>\n"
-                                                + "There is a newer version of MSFragger available [%s].<br>\n", 
-                                                localVer, updateVer));
-                                        if (vf.canAutoUpdate()) {
-                                            sb.append("<br>If you choose to auto-update a new version will be downloaded<br>\n"
-                                                    + "and placed in the same folder as the old one. The old one will be kept.");
-                                        }
-                                        JEditorPane ep = SwingUtils.createClickableHtml(sb.toString());
-                                        
-                                        JPanel panel = new JPanel();
-                                        panel.setBackground(ep.getBackground());
-                                        panel.setLayout(new BorderLayout());
-                                        
-                                        JPanel panelButtons = new JPanel();
-                                        panelButtons.setBackground(ep.getBackground());
-                                        panelButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
-                                        
-                                        if (vf.canAutoUpdate()) {
-                                            JButton btnAutoUpdate = new JButton("Auto-update");
-                                            btnAutoUpdate.addActionListener(new ActionListener() {
-                                                @Override
-                                                public void actionPerformed(ActionEvent e) {
-                                                    if (balloonMsfragger == null)
-                                                        return;
-                                                    balloonMsfragger.setVisible(false);
-                                                    balloonMsfragger = null;
-
-                                                    final JDialog dlg = new JDialog(MsfraggerGuiFrame.this, "Updating MSFragger", true);
-                                                    JProgressBar pb = new JProgressBar(0, 100);
-                                                    pb.setIndeterminate(true);
-                                                    Dimension d = new Dimension(300, 75);
-                                                    pb.setMinimumSize(d);
-                                                    pb.setSize(d);
-                                                    dlg.add(pb, BorderLayout.CENTER);
-                                                    dlg.setSize(d);
-                                                    dlg.setLocationRelativeTo(MsfraggerGuiFrame.this);
-                                                    
-                                                    Thread updateThread = new Thread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            try {
-                                                                
-                                                                Path updated = vf.autoUpdate(Paths.get(jarPath));
-                                                                validateAndSaveMsfraggerPath(updated.toAbsolutePath().toString());
-                                                                
-                                                            } catch (Exception ex) {
-                                                                throw new IllegalStateException("Something happened during MSFragger auto-update", ex);
-                                                            } finally {
-                                                                dlg.setVisible(false);
-                                                            }
-                                                        }
-                                                    });
-                                                    updateThread.start();
-                                                    
-                                                    // show the dialog, this blocks until dlg.setVisible(false) is called
-                                                    // so this call is made in the finally block
-                                                    dlg.setVisible(true);
-                                                }
-                                            });
-                                            panelButtons.add(btnAutoUpdate);
-                                        }
-                                        
-                                        if (!StringUtils.isNullOrWhitespace(manualDownloadUrl)) {
-                                            JButton btnManualUpdate = new JButton("Manual update");
-                                            btnManualUpdate.addActionListener(new ActionListener() {
-                                                @Override
-                                                public void actionPerformed(ActionEvent e) {
-                                                    try {
-                                                        SwingUtils.openBrowserOrThrow(new URI(manualDownloadUrl));
-                                                    } catch (URISyntaxException ex) {
-                                                        throw new IllegalStateException("Incorrect url/uri", ex);
-                                                    }
-                                                }
-                                            });
-                                            panelButtons.add(btnManualUpdate);
-                                        }
-                                        
-                                        
-                                        JButton btnClose = new JButton("Close");
-                                        btnClose.addActionListener(new ActionListener() {
-                                            @Override
-                                            public void actionPerformed(ActionEvent e) {
-                                                if (balloonMsfragger == null)
-                                                    return;
-                                                balloonMsfragger.setVisible(false);
-                                                balloonMsfragger = null;
-                                            }
-                                        });
-                                        
-                                        panel.add(ep, BorderLayout.CENTER);
-                                        panelButtons.add(btnClose);
-                                        panel.add(panelButtons, BorderLayout.SOUTH);
-                                        
-                                        
-                                        balloonMsfragger = new BalloonTip(textBinMsfragger, panel,
-                                                new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
-                                        balloonMsfragger.setVisible(true);
-                                    }
-                                });
-                            }
-                            return; // stop iterations, we've found that there is no better version than the current
-                            
-                        } catch (Exception ex) {
-                            // no biggie
+                MsfraggerVersionFetcherServer vfServer = new MsfraggerVersionFetcherServer();
+                MsfraggerVersionFetcherGithub vfGithub = new MsfraggerVersionFetcherGithub();
+                MsfraggerVersionFetcherLocal vfLocal = new MsfraggerVersionFetcherLocal();
+                List<VersionFetcher> verFetchers = Arrays.asList(vfServer, vfGithub, vfLocal);
+                for (final VersionFetcher vf : verFetchers) {
+                    if (vf == null) {
+                        continue;
+                    }
+                    try {
+                        final String updateVer = vf.fetchVersion();
+                        if (StringUtils.isNullOrWhitespace(updateVer)) {
                             continue;
                         }
+                        // we got a non-empty version from some version fetcher
+                        if (vc.compare(localVer, updateVer) < 0) {
+                            // local versin is older, than the fetched version
+                            // show balloon popup, must be done on EDT
+                            String url = vf.getDownloadUrl();
+                            final String manualDownloadUrl = StringUtils.isNullOrWhitespace(url)
+                                    ? vfLocal.getDownloadUrl() : url;
+                            SwingUtilities.invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (balloonMsfragger != null) {
+                                        balloonMsfragger.closeBalloon();
+                                    }
+
+                                    StringBuilder sb = new StringBuilder();
+                                    if (jarTest.isVersionPrintedAtAll) {
+                                        sb.append(String.format("Your version is [%s]<br>\n"
+                                                + "There is a newer version of MSFragger available [%s].<br>\n",
+                                                localVer, updateVer));
+                                    } else {
+                                        sb.append(String.format("Your version is <b>too old and not supported anymore</b><br>\n"
+                                                + "Get a new version of MSFragger [%s].<br>\n", updateVer));
+                                    }
+                                    if (vf.canAutoUpdate()) {
+                                        sb.append("<br>If you choose to auto-update a new version will be downloaded<br>\n"
+                                                + "and placed in the same folder as the old one. The old one will be kept.");
+                                    }
+                                    JEditorPane ep = SwingUtils.createClickableHtml(sb.toString());
+
+                                    JPanel panel = new JPanel();
+                                    panel.setBackground(ep.getBackground());
+                                    panel.setLayout(new BorderLayout());
+
+                                    JPanel panelButtons = new JPanel();
+                                    panelButtons.setBackground(ep.getBackground());
+                                    panelButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+
+                                    if (vf.canAutoUpdate()) {
+                                        JButton btnAutoUpdate = new JButton("Auto-update");
+                                        btnAutoUpdate.addActionListener(new ActionListener() {
+                                            @Override
+                                            public void actionPerformed(ActionEvent e) {
+                                                if (balloonMsfragger == null) {
+                                                    return;
+                                                }
+                                                balloonMsfragger.setVisible(false);
+                                                balloonMsfragger = null;
+
+                                                final JDialog dlg = new JDialog(MsfraggerGuiFrame.this, "Updating MSFragger", true);
+                                                JProgressBar pb = new JProgressBar(0, 100);
+                                                pb.setIndeterminate(true);
+                                                Dimension d = new Dimension(300, 75);
+                                                pb.setMinimumSize(d);
+                                                pb.setSize(d);
+                                                dlg.add(pb, BorderLayout.CENTER);
+                                                dlg.setSize(d);
+                                                dlg.setLocationRelativeTo(MsfraggerGuiFrame.this);
+
+                                                Thread updateThread = new Thread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        try {
+
+                                                            Path updated = vf.autoUpdate(Paths.get(jarPath));
+                                                            validateAndSaveMsfraggerPath(updated.toAbsolutePath().toString());
+
+                                                        } catch (Exception ex) {
+                                                            throw new IllegalStateException("Something happened during MSFragger auto-update", ex);
+                                                        } finally {
+                                                            dlg.setVisible(false);
+                                                        }
+                                                    }
+                                                });
+                                                updateThread.start();
+
+                                                // show the dialog, this blocks until dlg.setVisible(false) is called
+                                                // so this call is made in the finally block
+                                                dlg.setVisible(true);
+                                            }
+                                        });
+                                        panelButtons.add(btnAutoUpdate);
+                                    }
+
+                                    if (!StringUtils.isNullOrWhitespace(manualDownloadUrl)) {
+                                        JButton btnManualUpdate = new JButton("Manual update");
+                                        btnManualUpdate.addActionListener(new ActionListener() {
+                                            @Override
+                                            public void actionPerformed(ActionEvent e) {
+                                                try {
+                                                    SwingUtils.openBrowserOrThrow(new URI(manualDownloadUrl));
+                                                } catch (URISyntaxException ex) {
+                                                    throw new IllegalStateException("Incorrect url/uri", ex);
+                                                }
+                                            }
+                                        });
+                                        panelButtons.add(btnManualUpdate);
+                                    }
+
+                                    JButton btnClose = new JButton("Close");
+                                    btnClose.addActionListener(new ActionListener() {
+                                        @Override
+                                        public void actionPerformed(ActionEvent e) {
+                                            if (balloonMsfragger == null) {
+                                                return;
+                                            }
+                                            balloonMsfragger.setVisible(false);
+                                            balloonMsfragger = null;
+                                        }
+                                    });
+
+                                    panel.add(ep, BorderLayout.CENTER);
+                                    panelButtons.add(btnClose);
+                                    panel.add(panelButtons, BorderLayout.SOUTH);
+
+                                    balloonMsfragger = new BalloonTip(textBinMsfragger, panel,
+                                            new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
+                                    balloonMsfragger.setVisible(true);
+                                }
+                            });
+                        }
+                        return; // stop iterations, we've found that there is no better version than the current
+
+                    } catch (Exception ex) {
+                        // no biggie
+                        continue;
                     }
-                    
-//                    Properties props = PropertiesUtils.loadPropertiesRemote(MsfraggerProps.PROPERTIES_URI);
-//                    if (props == null)
-//                        props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
-//                    if (props == null)
-//                        return;
-//
-//                    final String latestKnownVer = props.getProperty(MsfraggerProps.PROP_LATEST_VERSION);
-//                    if (latestKnownVer == null) {
-//                        throw new IllegalStateException(String.format("Property '%s' was not found in '%s' from github", 
-//                                MsfraggerProps.PROP_LATEST_VERSION, MsfraggerProps.PROPERTIES_FILE_NAME));
-//                    }
-//                    final String downloadUrl = props.getProperty(MsfraggerProps.PROP_DOWNLOAD_URL, MsfraggerProps.DOWNLOAD_URL);
-//                    if (vc.compare(localVer, latestKnownVer) < 0) {
-//                        // show balloon popup, must be done on EDT
-//                        SwingUtilities.invokeLater(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                if (balloonMsfragger != null)
-//                                    balloonMsfragger.closeBalloon();
-//
-//                                JEditorPane ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT,
-//                                        "Your version is [%s]<br>\n"
-//                                        + "There is a newer version of MSFragger available [%s].<br>\n"
-//                                        + "Please <a href=\"%s\">click here</a> to download a newer one.",
-//                                        localVer, latestKnownVer, downloadUrl));
-//
-//                                balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
-//                                        new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
-//                                balloonMsfragger.setVisible(true);
-//                            }
-//                        });
-//                    }
                 }
-            });
-            t.start();
+            }
+        });
+        t.start();
+
         
-        }
 
         return true;
     }
@@ -2314,7 +2285,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (!Files.exists(p)) {
             return false;
         }
-
+        return true;
+        
+    }
+    
+    private boolean validateMsfraggerJarContents(String path) {
+        if (!validateMsfraggerPath(path))
+            return false;
+        Path p = Paths.get(path).toAbsolutePath();
         final boolean[] found = {false};
         try (FileSystem fs = FileSystems.newFileSystem(p, null)) {
             for (Path root : fs.getRootDirectories()) {
