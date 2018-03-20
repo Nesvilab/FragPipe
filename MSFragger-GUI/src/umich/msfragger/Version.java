@@ -1,17 +1,18 @@
-/*
- * Copyright 2017 Dmitry Avtonomov.
+/* 
+ * Copyright (C) 2018 Dmitry Avtonomov
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package umich.msfragger;
 
@@ -33,7 +34,7 @@ import umich.msfragger.util.VersionComparator;
 public class Version {
     public static final String PROGRAM_TITLE = "MSFragger-GUI";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "5.4";
+    public static final String VERSION = "6.0";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
     public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
     public static final String PROP_IMPORTANT_UPDATES = "msfragger.gui.important-updates";
@@ -45,6 +46,10 @@ public class Version {
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>();
     
     static {
+        CHANGELOG.put("6.0", Arrays.asList(
+                "Automatic updates for MSFragger",
+                "mass_offsets parameter for MSFragger"));
+        
         CHANGELOG.put("5.4", Arrays.asList(
                 "Restore last location of MSfragger params file save/load operation.",
                 "Show errors from loading msfragger.params files"));
