@@ -22,6 +22,8 @@ import java.net.URI;
  * @author Dmitry Avtonomov
  */
 public class PhilosopherProps {
+    public static final String PROGRAM_NAME = "Philosopher";
+    
     public static final String DOWNLOAD_LINK = "https://github.com/prvst/philosopher/releases/latest";
     
     public static final String CMD_COMET = "comet";
