@@ -24,12 +24,16 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.http.Header;
+import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -150,12 +154,31 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
         try (final CloseableHttpResponse response = client.execute(post)) {
             final HttpEntity entity = response.getEntity();
             final long contentLength = entity.getContentLength();
-            final Header contentType = entity.getContentType();
-            final Header contentEncoding = entity.getContentEncoding();
-            final Header[] allHeaders = response.getAllHeaders();
-            final StatusLine statusLine = response.getStatusLine();
+            final Header[] headers = response.getAllHeaders();
+            String file = null;
+            outerLoop:
+            for (Header h : headers) {
+                for (HeaderElement he : h.getElements()) {
+                    if ("attachment".equalsIgnoreCase(he.getName())) {
+                        NameValuePair nvp = he.getParameterByName("filename");
+                        if (nvp == null)
+                            continue;
+                        file = nvp.getValue();
+                        break outerLoop;
+                    }
+                }
+            }
             
-            final Path pathOut = p.resolveSibling("MSFragger-" + lastVersionStr + ".jar");
+            boolean gotName = !StringUtils.isNullOrWhitespace(file);
+            int dot = file != null ? file.lastIndexOf('.') : -1;
+                
+            final String nameBase = gotName && dot > 0 ? file.substring(0, dot) : "MSFragger-" + lastVersionStr;
+            final String nameExt = gotName && dot > 0 ? file.substring(dot) : ".jar";
+            Path pathOut = p.resolveSibling(nameBase + nameExt);
+            if (Files.exists(pathOut)) {
+                // find another suitable name
+                pathOut = Files.createTempFile(p.getParent(), nameBase + "_dup_", nameExt);
+            }
             final byte[] upgradedFragger = EntityUtils.toByteArray(entity);
             
             try (BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(pathOut))) {
