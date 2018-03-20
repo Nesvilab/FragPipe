@@ -607,7 +607,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         lblFraggerJavaVer.setText(OsUtils.JavaInfo());
 
         btnMsfraggerUpdate.setText("Update");
-        btnMsfraggerUpdate.setToolTipText("<html>Open MSFragger upgrader tool in browser.");
+        btnMsfraggerUpdate.setToolTipText("<html>Open MSFragger upgrader tool in browser.<br>\nIn order to update you <b>must</b> download an<br>\noriginal copy from the <b>download</b> website once.\n");
         btnMsfraggerUpdate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnMsfraggerUpdateActionPerformed(evt);

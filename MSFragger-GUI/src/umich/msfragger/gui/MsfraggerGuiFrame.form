@@ -282,7 +282,7 @@
                 <Component class="javax.swing.JButton" name="btnMsfraggerUpdate">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Update"/>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Open MSFragger upgrader tool in browser."/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Open MSFragger upgrader tool in browser.&lt;br&gt;&#xa;In order to update you &lt;b&gt;must&lt;/b&gt; download an&lt;br&gt;&#xa;original copy from the &lt;b&gt;download&lt;/b&gt; website once.&#xa;"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnMsfraggerUpdateActionPerformed"/>
