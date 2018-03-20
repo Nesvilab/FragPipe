@@ -1866,9 +1866,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     
                     //Properties propsGh = new Properties();
                     //propsGh.load(new StringReader(githubProps));
-                    //Properties propsGh = PropertiesUtils.loadPropertiesRemote();
-                    Properties propsGh = PropertiesUtils.loadPropertiesRemoteOrLocal(
-                            Arrays.asList(Version.PROPERTIES_REMOTE_URI), MsfraggerGuiFrame.class, "Bundle.properties");
+                    Properties propsGh = PropertiesUtils.loadPropertiesRemote(Version.PROPERTIES_REMOTE_URI);
+                    //Properties propsGh = PropertiesUtils.loadPropertiesRemoteOrLocal(
+                    //        Arrays.asList(Version.PROPERTIES_REMOTE_URI), MsfraggerGuiFrame.class, "Bundle.properties");
+                    
+                    if (propsGh == null)
+                        propsGh = new Properties();
                     
                     // this is used to test functionality without pushing changes to github
 //                        propsGh.put("msfragger.gui.version", "5.7");
