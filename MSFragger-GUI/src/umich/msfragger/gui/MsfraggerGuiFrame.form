@@ -164,15 +164,17 @@
                               <Component id="lblFraggerJavaVer" max="32767" attributes="0"/>
                               <Component id="jScrollPane1" alignment="1" max="32767" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
+                                  <Component id="lblMsfraggerCitation" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                              </Group>
+                              <Group type="102" alignment="0" attributes="0">
                                   <Component id="textBinMsfragger" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="btnMsfraggerBinBrowse" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="btnMsfraggerBinDownload" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="lblMsfraggerCitation" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="btnMsfraggerUpdate" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -187,6 +189,7 @@
                               <Component id="textBinMsfragger" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnMsfraggerBinDownload" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnMsfraggerBinBrowse" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnMsfraggerUpdate" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="lblFraggerJavaVer" min="-2" max="-2" attributes="0"/>
@@ -203,7 +206,7 @@
                 <Component class="javax.swing.JButton" name="btnMsfraggerBinDownload">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Download"/>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Open the download web-page for MSFragger&lt;br/&gt;&#xa;You need to agree to the license terms." noResource="true"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Open the download web-page for MSFragger in browser.&lt;br/&gt;&#xa;You need to agree to the license terms." noResource="true"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnMsfraggerBinDownloadActionPerformed"/>
@@ -275,6 +278,15 @@
                       <Connection code="OsUtils.JavaInfo()" type="code"/>
                     </Property>
                   </Properties>
+                </Component>
+                <Component class="javax.swing.JButton" name="btnMsfraggerUpdate">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Update"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Open MSFragger upgrader tool in browser.&lt;br&gt;&#xa;In order to update you &lt;b&gt;must&lt;/b&gt; download an&lt;br&gt;&#xa;original copy from the &lt;b&gt;download&lt;/b&gt; website once.&#xa;"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnMsfraggerUpdateActionPerformed"/>
+                  </Events>
                 </Component>
               </SubComponents>
             </Container>

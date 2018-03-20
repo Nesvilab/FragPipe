@@ -11,6 +11,7 @@ fragment_mass_tolerance = 20.00
 fragment_mass_units = 1		           # 0=Daltons, 1=ppm
 
 isotope_error = 0/1/2                  # 0=off, 0/1/2 (standard C13 error)
+mass_offsets = 0
 
 search_enzyme_name = Trypsin
 search_enzyme_cutafter = KR
@@ -56,7 +57,7 @@ add_topN_complementary = 0
 minimum_peaks = 15                   # required minimum number of peaks in spectrum to search (default 10)
 use_topN_peaks = 100
 min_fragments_modelling = 3
-min_matched_fragments = 6 
+min_matched_fragments = 4 
 minimum_ratio = 0.01		         # filter peaks below this fraction of strongest peak
 clear_mz_range = 0.0 0.0             # for iTRAQ/TMT type data; will clear out all peaks in the specified m/z range
 

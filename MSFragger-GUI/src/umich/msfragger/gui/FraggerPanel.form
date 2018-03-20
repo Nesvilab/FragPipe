@@ -119,9 +119,9 @@
                           <Component id="btnSave" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnLoad" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="panelFraggerMatchingConfig" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
                       <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
@@ -330,6 +330,7 @@
                   <Properties>
                     <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" value="Clip N-Term M"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Specifies the trimming of a protein N-terminal&lt;br&gt;&#xa;methionine as a variable modification"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel14">
@@ -435,7 +436,7 @@
                                           </Group>
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Component id="spinnerMaxCombos" min="-2" pref="70" max="-2" attributes="0"/>
-                                          <EmptySpace min="0" pref="246" max="32767" attributes="0"/>
+                                          <EmptySpace min="0" pref="248" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                                   <EmptySpace max="-2" attributes="0"/>
@@ -462,7 +463,7 @@
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="jLabel32" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane2" pref="250" max="32767" attributes="0"/>
+                          <Component id="jScrollPane2" pref="251" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -523,7 +524,7 @@
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel32">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Additional Modifications"/>
+                    <Property name="text" type="java.lang.String" value="Fixed Modifications"/>
                   </Properties>
                 </Component>
                 <Container class="javax.swing.JScrollPane" name="jScrollPane2">
@@ -647,9 +648,13 @@
                 <Component class="javax.swing.JLabel" name="jLabel21">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Min Frags Modelling"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Minimum number of matched peaks in PSM for&lt;br&gt;&#xa;inclusion in statistical modeling"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JSpinner" name="spinnerMinFragsModelling">
+                  <Properties>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Minimum number of matched peaks in PSM for&lt;br&gt;&#xa;inclusion in statistical modeling"/>
+                  </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel23">
                   <Properties>
@@ -979,6 +984,7 @@
                     <Component class="javax.swing.JLabel" name="jLabel4">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Precursor True Tolerance"/>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;True precursor mass tolerance &lt;br&gt;&#xa;should be set to your instrument&apos;s precursor mass accuracy &lt;br&gt;&#xa;(window is +/- this value).  This value is used for tie breaking &lt;br&gt;&#xa;of results and boosting of unmodified peptides in open search.&lt;br&gt;"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JComboBox" name="comboPrecursorTrueTol">
@@ -986,6 +992,7 @@
                         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                           <Connection code="createMassToleranceUnitsComboModel()" type="code"/>
                         </Property>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;True precursor mass tolerance &lt;br&gt;&#xa;should be set to your instrument&apos;s precursor mass accuracy &lt;br&gt;&#xa;(window is +/- this value).  This value is used for tie breaking &lt;br&gt;&#xa;of results and boosting of unmodified peptides in open search.&lt;br&gt;"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="comboPrecursorTrueTolActionPerformed"/>
@@ -1017,6 +1024,7 @@
                         <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                           <SpinnerModel initial="50.0" minimum="0.0" numberType="java.lang.Double" stepSize="5.0" type="number"/>
                         </Property>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;True precursor mass tolerance &lt;br&gt;&#xa;should be set to your instrument&apos;s precursor mass accuracy &lt;br&gt;&#xa;(window is +/- this value).  This value is used for tie breaking &lt;br&gt;&#xa;of results and boosting of unmodified peptides in open search.&lt;br&gt;"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JSpinner" name="spinnerFragMassTol">
@@ -1052,12 +1060,20 @@
                               </Group>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="checkOverrideCharge" max="32767" attributes="0"/>
-                                  <Component id="jLabel25" max="32767" attributes="0"/>
+                                  <Group type="102" attributes="0">
+                                      <Component id="checkOverrideCharge" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                                      <Component id="jLabel25" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" attributes="0">
+                                      <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="textMassOffsets" max="32767" attributes="0"/>
+                                  </Group>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="comboFraggerOutputType" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="comboFraggerOutputType" min="-2" pref="100" max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -1068,18 +1084,18 @@
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="textIsotopeError" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel25" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="comboFraggerOutputType" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="textMassOffsets" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="jLabel29" min="-2" max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="3" attributes="0">
-                                      <Component id="spinnerPrecursorChargeLo" alignment="3" min="-2" max="-2" attributes="0"/>
-                                      <Component id="jLabel36" alignment="3" min="-2" max="-2" attributes="0"/>
-                                      <Component id="spinnerPrecursorChargeHi" alignment="3" min="-2" max="-2" attributes="0"/>
-                                      <Component id="checkOverrideCharge" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  </Group>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="spinnerPrecursorChargeLo" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel36" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="spinnerPrecursorChargeHi" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="checkOverrideCharge" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel29" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel25" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="comboFraggerOutputType" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="32767" attributes="0"/>
                           </Group>
@@ -1091,7 +1107,7 @@
                       <Properties>
                         <Property name="horizontalAlignment" type="int" value="11"/>
                         <Property name="text" type="java.lang.String" value="Isotope Error"/>
-                        <Property name="toolTipText" type="java.lang.String" value="0=off, -1/0/1/2/3 (standard C13 error)"/>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;0=off, -1/0/1/2/3 (standard C13 error)&lt;br&gt;&lt;br&gt;&#xa;Isotope correction for MS/MS events triggered on&lt;br&gt;&#xa;isotopic peaks. Should be set to 0 (disabled) for open&lt;br&gt;&#xa;search or 0/1/2 for correction of narrow window&lt;br&gt;&#xa;searches. Shifts the precursor mass window to&lt;br&gt;&#xa;multiples of this value multiplied by the mass difference&lt;br&gt;&#xa;of C13-C12."/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JTextField" name="textIsotopeError">
@@ -1100,15 +1116,23 @@
                           <Connection code="getFilterIsotopeCorrection()" type="code"/>
                         </Property>
                         <Property name="text" type="java.lang.String" value="-1/0/1/2"/>
-                        <Property name="toolTipText" type="java.lang.String" value="0=off, -1/0/1/2/3 (standard C13 error)"/>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;0=off, -1/0/1/2/3 (standard C13 error)&lt;br&gt;&lt;br&gt;&#xa;Isotope correction for MS/MS events triggered on&lt;br&gt;&#xa;isotopic peaks. Should be set to 0 (disabled) for open&lt;br&gt;&#xa;search or 0/1/2 for correction of narrow window&lt;br&gt;&#xa;searches. Shifts the precursor mass window to&lt;br&gt;&#xa;multiples of this value multiplied by the mass difference&lt;br&gt;&#xa;of C13-C12."/>
                       </Properties>
+                      <Events>
+                        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textIsotopeErrorFocusGained"/>
+                        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textIsotopeErrorFocusLost"/>
+                      </Events>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel29">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Precursor Charge"/>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Assume range of potential precursor charge states.&lt;br&gt;&#xa;Only relevant when override_charge is set to 1.&lt;br&gt;&#xa;Specified as space separated range of integers.&lt;br&gt;"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JSpinner" name="spinnerPrecursorChargeLo">
+                      <Properties>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Assume range of potential precursor charge states.&lt;br&gt;&#xa;Only relevant when override_charge is set to 1.&lt;br&gt;&#xa;Specified as space separated range of integers.&lt;br&gt;"/>
+                      </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel36">
                       <Properties>
@@ -1116,16 +1140,21 @@
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JSpinner" name="spinnerPrecursorChargeHi">
+                      <Properties>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Assume range of potential precursor charge states.&lt;br&gt;&#xa;Only relevant when override_charge is set to 1.&lt;br&gt;&#xa;Specified as space separated range of integers.&lt;br&gt;"/>
+                      </Properties>
                     </Component>
                     <Component class="javax.swing.JCheckBox" name="checkOverrideCharge">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Override Charge"/>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Ignores precursor charge and uses charge state&lt;br&gt;&#xa;specified in precursor_charge range.&lt;br&gt;"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel25">
                       <Properties>
                         <Property name="horizontalAlignment" type="int" value="11"/>
                         <Property name="text" type="java.lang.String" value="Output Type"/>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;How the search results are to be reported.&lt;br&gt;&#xa;Downstream tools only support PepXML format.&lt;br&gt;&lt;br&gt;&#xa;Only use TSV (tab delimited file) if you want to process &lt;br&gt;&#xa;search resutls yourself for easier import into other software.&lt;br&gt;"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JComboBox" name="comboFraggerOutputType">
@@ -1133,10 +1162,26 @@
                         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                           <Connection code="createOutputFormatComboModel()" type="code"/>
                         </Property>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;How the search results are to be reported.&lt;br&gt;&#xa;Downstream tools only support PepXML format.&lt;br&gt;&lt;br&gt;&#xa;Only use TSV (tab delimited file) if you want to process &lt;br&gt;&#xa;search resutls yourself for easier import into other software.&lt;br&gt;"/>
                       </Properties>
                       <AuxValues>
                         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
                       </AuxValues>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel1">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Mass Offsets"/>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Mass_offsets in MSFragger creates multiple precursor tolerance windows with&lt;br&gt;&#xa;specified mass offsets. These values are multiplexed with the isotope error option. &lt;br&gt;&lt;br&gt;&#xa;&#xa;For example, mass_offsets = 0/79.966 can be used as a restricted &quot;open&quot; search that &lt;br&gt;&#xa;looks for unmodified and phosphorylated peptides (on any residue).&lt;br&gt;&lt;br&gt;&#xa;&#xa;Setting isotope_error to 0/1/2 in combination with this example will create &lt;br&gt;&#xa;search windows around (0,1,2,79.966, 80.966, 81.966)."/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="textMassOffsets">
+                      <Properties>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Mass_offsets in MSFragger creates multiple precursor tolerance windows with&lt;br&gt; specified mass offsets. These values are multiplexed with the isotope error option. &lt;br&gt;&lt;br&gt;  For example, mass_offsets = 0/79.966 can be used as a restricted &quot;open&quot; search that &lt;br&gt; looks for unmodified and phosphorylated peptides (on any residue).&lt;br&gt;&lt;br&gt;  Setting isotope_error to 0/1/2 in combination with this example will create &lt;br&gt; search windows around (0,1,2,79.966, 80.966, 81.966)."/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textMassOffsetsFocusGained"/>
+                        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textMassOffsetsFocusLost"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>
@@ -1187,6 +1232,7 @@
                         <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                           <SpinnerModel initial="3" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
                         </Property>
+                        <Property name="toolTipText" type="java.lang.String" value="Reports top N PSMs per input spectrum"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JSpinner" name="spinnerOutputMaxExpect">
@@ -1194,17 +1240,20 @@
                         <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                           <SpinnerModel initial="50.0" minimum="0.0" numberType="java.lang.Double" stepSize="1.0" type="number"/>
                         </Property>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Suppresses reporting of PSM if top hit has&lt;br&gt; expectation greater than this threshold"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel27">
                       <Properties>
                         <Property name="horizontalAlignment" type="int" value="11"/>
                         <Property name="text" type="java.lang.String" value="Report Top N"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Reports top N PSMs per input spectrum"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel28">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Output Max Expect"/>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Suppresses reporting of PSM if top hit has&lt;br&gt;&#xa;expectation greater than this threshold"/>
                       </Properties>
                     </Component>
                   </SubComponents>

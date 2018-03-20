@@ -1,17 +1,18 @@
-/*
- * Copyright 2017 Dmitry Avtonomov.
+/* 
+ * Copyright (C) 2018 Dmitry Avtonomov
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package umich.msfragger.util;
 
@@ -22,6 +23,7 @@ import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -174,9 +176,11 @@ public class SwingUtils {
      * default browser.
      * @param text Your text to be displayed in HTML context. Don't add the 
      * opening and closing HTML tags. To include links use the regular A tags.
+     * @param addDefaultHyperlinkHandler If true, will add a handler for all hyperlinks
+     * to be opened in the default system browser.
      * @return 
      */
-    public static JEditorPane createClickableHtml(String text)  {
+    public static JEditorPane createClickableHtml(String text, boolean addDefaultHyperlinkHandler)  {
         // for copying style
         JLabel label = new JLabel();
         Font font = label.getFont();
@@ -189,23 +193,45 @@ public class SwingUtils {
         JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">"
             + text
             + "</body></html>");
-
-        // handle link events
-        ep.addHyperlinkListener(new HyperlinkListener()
-        {
-            @Override
-            public void hyperlinkUpdate(HyperlinkEvent e) {
-                if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
-                    try {
-                        Desktop.getDesktop().browse(e.getURL().toURI());
-                    } catch (URISyntaxException | IOException ex) {
-                        Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-        });
         ep.setEditable(false);
         
+        // handle link events
+        if (addDefaultHyperlinkHandler) {
+            ep.addHyperlinkListener(new HyperlinkListener()
+            {
+                @Override
+                public void hyperlinkUpdate(HyperlinkEvent e) {
+                    if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
+                        try {
+                            openBrowserOrThrow(e.getURL().toURI());
+                        } catch (URISyntaxException ex) {
+                            throw new IllegalStateException("Incorrect url/uri", ex);
+                        }
+                        
+                    }
+                }
+            });
+        }
+        
         return ep;
+    }
+    
+    public static void openBrowserOrThrow(URI uri) {
+        try {
+            Desktop.getDesktop().browse(uri);
+        } catch (IOException ex) {
+            throw new IllegalStateException("Could not open link in default system browser", ex);
+        }
+    }
+    
+    /**
+     * Creates a non-editable JEditorPane that has the same styling as default
+     * JLabels. Hyperlink clicks are not handled, user {@link JEditorPane#addHyperlinkListener(javax.swing.event.HyperlinkListener) }
+     * @param text Your text to be displayed in HTML context. Don't add the 
+     * opening and closing HTML tags. To include links use the regular A tags.
+     * @return 
+     */
+    public static JEditorPane createClickableHtml(String text)  {
+        return createClickableHtml(text, true);
     }
 }

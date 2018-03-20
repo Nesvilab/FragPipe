@@ -1,7 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2018 Dmitry Avtonomov
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package umich.msfragger.util;
 
@@ -11,16 +22,13 @@ import umich.msfragger.params.PropertyFileContent;
 
 import java.io.*;
 import java.net.URI;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import umich.msfragger.Version;
 
 /**
  *
@@ -65,9 +73,22 @@ public class PropertiesUtils {
             p.load(new StringReader(remoteText));
             return p;
         } catch (Exception ex) {
-            
+            return null;
         }
-        return null;
+        
+    }
+    
+    public static Properties loadPropertiesRemoteOrLocal(List<URI> uris, Class<?> clazz, String propertiesFile) {
+        try {
+            for (URI uri : uris) {
+                Properties props = loadPropertiesRemote(uri);
+                if (props != null)
+                    return props;
+            }
+        } catch (Exception e) {
+            // doesn't matter
+        }
+        return loadPropertiesLocal(clazz, propertiesFile);
     }
 
     /**
