@@ -1,21 +1,29 @@
-/*
- * Copyright 2017 Dmitry Avtonomov.
+/* 
+ * Copyright (C) 2018 Dmitry Avtonomov
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package umich.msfragger.params.fragger;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import umich.msfragger.util.PropertiesUtils;
 
 /**
  *
@@ -45,4 +53,42 @@ public class MsfraggerProps {
     public static final String PROP_UPDATESERVER_VERSION_URL = "msfragger.update-server.version-service.url";
     public static final String PROP_UPDATESERVER_UPDATE_URL = "msfragger.update-server.update-service.url";
     
+    public static FraggerRunResult testJar(String jarPath) {
+        String verStr = null;
+        boolean isVersionPrintedAtAll = false;
+        try {
+            Pattern regex = Pattern.compile("MSFragger version (MSFragger-([\\d\\.]{4,}))", Pattern.CASE_INSENSITIVE);
+            ProcessBuilder pb = new ProcessBuilder("java", "-jar", jarPath);
+            pb.redirectErrorStream(true);
+            Process pr = pb.start();
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
+                String line;
+                while ((line = in.readLine()) != null) {
+                    Matcher m = regex.matcher(line);
+                    if (m.matches()) {
+                        isVersionPrintedAtAll = true;
+                        verStr = m.group(2);
+                    }
+                }
+                pr.waitFor();
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new IllegalStateException("Error while creating a java process for MSFragger test.");
+        }
+        return new FraggerRunResult(isVersionPrintedAtAll, verStr);
+    }
+
+    public static class FraggerRunResult {
+        final public boolean isVersionPrintedAtAll;
+        final public String version;
+
+        public FraggerRunResult(boolean isVersionPrintedAtAll, String version) {
+            this.isVersionPrintedAtAll = isVersionPrintedAtAll;
+            this.version = version;
+        }
+    }
+    
+    public static Properties loadProperties() {
+        return PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, PROPERTIES_FILE_NAME);
+    }
 }

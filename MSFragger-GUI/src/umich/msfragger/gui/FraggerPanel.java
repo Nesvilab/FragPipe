@@ -1,17 +1,18 @@
-/*
- * Copyright 2017 Dmitry Avtonomov.
+/* 
+ * Copyright (C) 2018 Dmitry Avtonomov
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package umich.msfragger.gui;
 
@@ -608,6 +609,7 @@ public class FraggerPanel extends javax.swing.JPanel {
 
         checkClipNTerm.setSelected(true);
         checkClipNTerm.setText("Clip N-Term M");
+        checkClipNTerm.setToolTipText("<html>Specifies the trimming of a protein N-terminal<br>\nmethionine as a variable modification");
 
         jLabel14.setText("Digest Length");
 
@@ -806,6 +808,9 @@ public class FraggerPanel extends javax.swing.JPanel {
         spinnerMinPeaks.setToolTipText("required minimum number of peaks in spectrum to search (default 10)");
 
         jLabel21.setText("Min Frags Modelling");
+        jLabel21.setToolTipText("<html>Minimum number of matched peaks in PSM for<br>\ninclusion in statistical modeling");
+
+        spinnerMinFragsModelling.setToolTipText("<html>Minimum number of matched peaks in PSM for<br>\ninclusion in statistical modeling");
 
         jLabel23.setText("Min Ratio");
         jLabel23.setToolTipText("filter peaks below this fraction of strongest peak");
@@ -980,8 +985,10 @@ public class FraggerPanel extends javax.swing.JPanel {
         panelFraggerMatchingConfig.setBorder(javax.swing.BorderFactory.createTitledBorder("Peak Matching Configuration"));
 
         jLabel4.setText("Precursor True Tolerance");
+        jLabel4.setToolTipText("<html>True precursor mass tolerance <br>\nshould be set to your instrument's precursor mass accuracy <br>\n(window is +/- this value).  This value is used for tie breaking <br>\nof results and boosting of unmodified peptides in open search.<br>");
 
         comboPrecursorTrueTol.setModel(createMassToleranceUnitsComboModel());
+        comboPrecursorTrueTol.setToolTipText("<html>True precursor mass tolerance <br>\nshould be set to your instrument's precursor mass accuracy <br>\n(window is +/- this value).  This value is used for tie breaking <br>\nof results and boosting of unmodified peptides in open search.<br>");
         comboPrecursorTrueTol.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboPrecursorTrueTolActionPerformed(evt);
@@ -998,6 +1005,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         });
 
         spinnerPrecursorTrueTol.setModel(new javax.swing.SpinnerNumberModel(50.0d, 0.0d, null, 5.0d));
+        spinnerPrecursorTrueTol.setToolTipText("<html>True precursor mass tolerance <br>\nshould be set to your instrument's precursor mass accuracy <br>\n(window is +/- this value).  This value is used for tie breaking <br>\nof results and boosting of unmodified peptides in open search.<br>");
 
         spinnerFragMassTol.setModel(new javax.swing.SpinnerNumberModel(50.0d, 0.0d, null, 5.0d));
 
@@ -1040,11 +1048,11 @@ public class FraggerPanel extends javax.swing.JPanel {
 
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         jLabel6.setText("Isotope Error");
-        jLabel6.setToolTipText("0=off, -1/0/1/2/3 (standard C13 error)");
+        jLabel6.setToolTipText("<html>0=off, -1/0/1/2/3 (standard C13 error)<br><br>\nIsotope correction for MS/MS events triggered on<br>\nisotopic peaks. Should be set to 0 (disabled) for open<br>\nsearch or 0/1/2 for correction of narrow window<br>\nsearches. Shifts the precursor mass window to<br>\nmultiples of this value multiplied by the mass difference<br>\nof C13-C12.");
 
         textIsotopeError.setDocument(getFilterIsotopeCorrection());
         textIsotopeError.setText("-1/0/1/2");
-        textIsotopeError.setToolTipText("0=off, -1/0/1/2/3 (standard C13 error)");
+        textIsotopeError.setToolTipText("<html>0=off, -1/0/1/2/3 (standard C13 error)<br><br>\nIsotope correction for MS/MS events triggered on<br>\nisotopic peaks. Should be set to 0 (disabled) for open<br>\nsearch or 0/1/2 for correction of narrow window<br>\nsearches. Shifts the precursor mass window to<br>\nmultiples of this value multiplied by the mass difference<br>\nof C13-C12.");
         textIsotopeError.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 textIsotopeErrorFocusGained(evt);
@@ -1055,19 +1063,28 @@ public class FraggerPanel extends javax.swing.JPanel {
         });
 
         jLabel29.setText("Precursor Charge");
+        jLabel29.setToolTipText("<html>Assume range of potential precursor charge states.<br>\nOnly relevant when override_charge is set to 1.<br>\nSpecified as space separated range of integers.<br>");
+
+        spinnerPrecursorChargeLo.setToolTipText("<html>Assume range of potential precursor charge states.<br>\nOnly relevant when override_charge is set to 1.<br>\nSpecified as space separated range of integers.<br>");
 
         jLabel36.setText("-");
 
+        spinnerPrecursorChargeHi.setToolTipText("<html>Assume range of potential precursor charge states.<br>\nOnly relevant when override_charge is set to 1.<br>\nSpecified as space separated range of integers.<br>");
+
         checkOverrideCharge.setText("Override Charge");
+        checkOverrideCharge.setToolTipText("<html>Ignores precursor charge and uses charge state<br>\nspecified in precursor_charge range.<br>");
 
         jLabel25.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         jLabel25.setText("Output Type");
+        jLabel25.setToolTipText("<html>How the search results are to be reported.<br>\nDownstream tools only support PepXML format.<br><br>\nOnly use TSV (tab delimited file) if you want to process <br>\nsearch resutls yourself for easier import into other software.<br>");
 
         comboFraggerOutputType.setModel(createOutputFormatComboModel());
+        comboFraggerOutputType.setToolTipText("<html>How the search results are to be reported.<br>\nDownstream tools only support PepXML format.<br><br>\nOnly use TSV (tab delimited file) if you want to process <br>\nsearch resutls yourself for easier import into other software.<br>");
 
         jLabel1.setText("Mass Offsets");
         jLabel1.setToolTipText("<html>Mass_offsets in MSFragger creates multiple precursor tolerance windows with<br>\nspecified mass offsets. These values are multiplexed with the isotope error option. <br><br>\n\nFor example, mass_offsets = 0/79.966 can be used as a restricted \"open\" search that <br>\nlooks for unmodified and phosphorylated peptides (on any residue).<br><br>\n\nSetting isotope_error to 0/1/2 in combination with this example will create <br>\nsearch windows around (0,1,2,79.966, 80.966, 81.966).");
 
+        textMassOffsets.setToolTipText("<html>Mass_offsets in MSFragger creates multiple precursor tolerance windows with<br> specified mass offsets. These values are multiplexed with the isotope error option. <br><br>  For example, mass_offsets = 0/79.966 can be used as a restricted \"open\" search that <br> looks for unmodified and phosphorylated peptides (on any residue).<br><br>  Setting isotope_error to 0/1/2 in combination with this example will create <br> search windows around (0,1,2,79.966, 80.966, 81.966).");
         textMassOffsets.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 textMassOffsetsFocusGained(evt);
@@ -1131,13 +1148,17 @@ public class FraggerPanel extends javax.swing.JPanel {
         );
 
         spinnerReportTopN.setModel(new javax.swing.SpinnerNumberModel(3, 1, null, 1));
+        spinnerReportTopN.setToolTipText("Reports top N PSMs per input spectrum");
 
         spinnerOutputMaxExpect.setModel(new javax.swing.SpinnerNumberModel(50.0d, 0.0d, null, 1.0d));
+        spinnerOutputMaxExpect.setToolTipText("<html>Suppresses reporting of PSM if top hit has<br> expectation greater than this threshold");
 
         jLabel27.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         jLabel27.setText("Report Top N");
+        jLabel27.setToolTipText("Reports top N PSMs per input spectrum");
 
         jLabel28.setText("Output Max Expect");
+        jLabel28.setToolTipText("<html>Suppresses reporting of PSM if top hit has<br>\nexpectation greater than this threshold");
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
