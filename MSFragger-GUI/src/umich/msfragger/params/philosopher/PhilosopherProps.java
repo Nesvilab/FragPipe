@@ -25,7 +25,7 @@ import java.net.URI;
 public class PhilosopherProps {
     public static final String PROGRAM_NAME = "Philosopher";
     
-    public static final String DOWNLOAD_LINK = "https://github.com/prvst/philosopher/releases/latest";
+    public static final String DOWNLOAD_URL = "https://github.com/prvst/philosopher/releases/latest";
     
     public static final String CMD_COMET = "comet";
     public static final String CMD_PEPTIDE_PROPHET = "peptideprophet";

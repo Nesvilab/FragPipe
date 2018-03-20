@@ -34,14 +34,14 @@ import umich.msfragger.util.VersionComparator;
 public class Version {
     public static final String PROGRAM_TITLE = "MSFragger-GUI";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "6.0";
+    public static final String VERSION = "6.0-RC2";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
     public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
     public static final String PROP_IMPORTANT_UPDATES = "msfragger.gui.important-updates";
     public static final String PROP_CRITICAL_UPDATES = "msfragger.gui.critical-updates";
     
-    public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/chhh/MSFragger-GUI/master/MSFragger-GUI/src/umich/msfragger/gui/Bundle.properties";
-    public static final URI PROPERTIES_URI = URI.create(PROPERTIES_URL);
+    public static final String PROPERTIES_REMOTE_URL = "https://raw.githubusercontent.com/chhh/MSFragger-GUI/master/MSFragger-GUI/src/umich/msfragger/gui/Bundle.properties";
+    public static final URI PROPERTIES_REMOTE_URI = URI.create(PROPERTIES_REMOTE_URL);
     
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>();
     

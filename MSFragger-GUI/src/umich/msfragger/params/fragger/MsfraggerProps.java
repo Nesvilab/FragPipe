@@ -20,9 +20,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.nio.file.Path;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import umich.msfragger.util.PropertiesUtils;
 
 /**
  *
@@ -85,5 +86,9 @@ public class MsfraggerProps {
             this.isVersionPrintedAtAll = isVersionPrintedAtAll;
             this.version = version;
         }
+    }
+    
+    public static Properties loadProperties() {
+        return PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, PROPERTIES_FILE_NAME);
     }
 }
