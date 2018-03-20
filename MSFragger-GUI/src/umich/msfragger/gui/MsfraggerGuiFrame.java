@@ -287,8 +287,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             enableMsfraggerPanels(false);
         }
 
-        validateMsfraggerJavaVersion();
-
         if (validatePhilosopherPath(textBinPhilosopher.getText()) == null) {
             enablePhilosopherPanels(false);
         }
@@ -1734,8 +1732,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
      * level inside.
      */
     private boolean validateAndSaveMsfraggerPath(final String path) {
-        boolean isValid = validateMsfraggerPath(path);
-        if (isValid) {
+        boolean isPathValid = validateMsfraggerPath(path);
+        if (isPathValid) {
             textBinMsfragger.setText(path);
             ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_MSFRAGGER, path);
         }
@@ -1743,7 +1741,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             balloonMsfragger.closeBalloon();
             balloonMsfragger = null;
         }
-        if (!isValid) {
+        if (!isPathValid) {
             balloonMsfragger = new BalloonTip(textBinMsfragger,
                     "<html>Could not find MSFragger jar file at this location\n<br/>."
                     + "Corresponding panel won't be active.<br/><br/>"
@@ -1754,14 +1752,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         }
 
-        if (isValid) {
-            boolean valVer = validateMsfraggerVersion(path);
-            isValid = isValid && valVer;
-        }
+        boolean isVersionValid = isPathValid ? validateMsfraggerVersion(path) : false;
+        boolean isJavaValid = isVersionValid ? validateMsfraggerJavaVersion() : false;
+        enableMsfraggerPanels(isPathValid && isVersionValid && isJavaValid);
 
-        enableMsfraggerPanels(isValid);
-
-        return isValid;
+        return isPathValid;
     }
 
     private boolean validateMsfraggerJavaVersion() {
@@ -1770,21 +1765,22 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                BalloonTip tip = tipMap.get(TIP_NAME_FRAGGER_JAVA_VER);
-                if (tip != null) {
+                BalloonTip tip = tipMap.remove(TIP_NAME_FRAGGER_JAVA_VER);
+                if (tip != null)
                     tip.closeBalloon();
-                    tipMap.remove(TIP_NAME_FRAGGER_JAVA_VER);
-                }
-
                 tip = null;
+                
                 if (!javaAtLeast18) {
                     tip = new BalloonTip(lblFraggerJavaVer, "Msfragger requires Java 1.8. Your version is lower.\n");
                 } else {
                     // check for Java 9
                     final String jver = SystemUtils.JAVA_SPECIFICATION_VERSION;
-                    if (jver != null) {
-                        if (vc.compare(jver, "1.9") >= 0) {
-                            tip = new BalloonTip(lblFraggerJavaVer, "<html>Looks like you're running Java 9 or higher.<br/>MSFragger only supports Java 8.\n");
+                    final String fver = fraggerVer != null ? fraggerVer : MsfraggerProps.testJar(textBinMsfragger.getText()).version;
+                    if (jver != null && fver != null) {
+                        if (vc.compare(fver, "20180316") < 0 && vc.compare(jver, "1.9") >= 0) {
+                            tip = new BalloonTip(lblFraggerJavaVer, "<html>Looks like you're "
+                                    + "running Java 9 or higher with MSFragger v20180316 or lower.<br/>"
+                                    + "That version of MSFragger only supports Java 8.\n");
                         }
                     }
                 }
@@ -2075,30 +2071,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             return true;
         }
 
-        ProcessBuilder pb = new ProcessBuilder("java", "-jar", jarPath);
-        pb.redirectErrorStream(true);
         Pattern regex = Pattern.compile("MSFragger version (MSFragger-([\\d\\.]{4,}))", Pattern.CASE_INSENSITIVE);
 
         // get the vesrion reported by the current executable
-        String verStr = null;
-        boolean isVersionPrintedAtAll = false;
-        try {
-            Process pr = pb.start();
-            try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
-                String line;
-                while ((line = in.readLine()) != null) {
-                    Matcher m = regex.matcher(line);
-                    if (m.matches()) {
-                        isVersionPrintedAtAll = true;
-                        verStr = m.group(2);
-                    }
-                }
-                pr.waitFor();
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new IllegalStateException("Error while creating a java process for MSFragger test.");
-        }
-        final String localVer = isVersionPrintedAtAll ? verStr : "0.0";
+        MsfraggerProps.FraggerRunResult jarTest = MsfraggerProps.testJar(jarPath);
+        final String localVer = jarTest.isVersionPrintedAtAll ? jarTest.version : "0.0";
         fraggerVer = localVer;
    
         // update the version label
@@ -2106,7 +2083,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         lblFraggerJavaVer.setText(String.format(
                 "MSFragger version: %s. %s", fraggerVer, OsUtils.JavaInfo()));
         
-        if (!isVersionPrintedAtAll) {
+        if (!jarTest.isVersionPrintedAtAll) {
             // a very old fragger version, need to download a new one
             if (balloonMsfragger != null) {
                 balloonMsfragger.closeBalloon();

@@ -16,7 +16,13 @@
  */
 package umich.msfragger.params.fragger;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.file.Path;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -46,4 +52,38 @@ public class MsfraggerProps {
     public static final String PROP_UPDATESERVER_VERSION_URL = "msfragger.update-server.version-service.url";
     public static final String PROP_UPDATESERVER_UPDATE_URL = "msfragger.update-server.update-service.url";
     
+    public static FraggerRunResult testJar(String jarPath) {
+        String verStr = null;
+        boolean isVersionPrintedAtAll = false;
+        try {
+            Pattern regex = Pattern.compile("MSFragger version (MSFragger-([\\d\\.]{4,}))", Pattern.CASE_INSENSITIVE);
+            ProcessBuilder pb = new ProcessBuilder("java", "-jar", jarPath);
+            pb.redirectErrorStream(true);
+            Process pr = pb.start();
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
+                String line;
+                while ((line = in.readLine()) != null) {
+                    Matcher m = regex.matcher(line);
+                    if (m.matches()) {
+                        isVersionPrintedAtAll = true;
+                        verStr = m.group(2);
+                    }
+                }
+                pr.waitFor();
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new IllegalStateException("Error while creating a java process for MSFragger test.");
+        }
+        return new FraggerRunResult(isVersionPrintedAtAll, verStr);
+    }
+
+    public static class FraggerRunResult {
+        final public boolean isVersionPrintedAtAll;
+        final public String version;
+
+        public FraggerRunResult(boolean isVersionPrintedAtAll, String version) {
+            this.isVersionPrintedAtAll = isVersionPrintedAtAll;
+            this.version = version;
+        }
+    }
 }
