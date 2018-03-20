@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import umich.msfragger.params.Props;
 import umich.msfragger.params.enums.CleavageType;
 import umich.msfragger.params.enums.FraggerOutputType;
@@ -185,7 +187,7 @@ public class MsfraggerParams {
                 load(fis);
             }
         } else {
-            loadDefaultsOpenSearch();
+            loadDefaultsClosedSearch();
         }
     }
     
@@ -213,6 +215,17 @@ public class MsfraggerParams {
     
     public void clear() {
         this.props.clearProps();
+    }
+    
+    public static void clearCache() {
+        Path tempFilePath = tempFilePath();
+        if (Files.exists(tempFilePath)) {
+            try {
+                Files.delete(tempFilePath);
+            } catch (IOException ex) {
+                // doesn't matter
+            }
+        }
     }
     
     /**

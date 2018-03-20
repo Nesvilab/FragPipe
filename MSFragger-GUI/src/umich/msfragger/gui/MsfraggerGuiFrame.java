@@ -165,7 +165,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     SimpleUniqueTableModel<Path> tableModelRawFiles;
     FileDrop tableRawFilesFileDrop;
 
-    public static final SearchTypeProp DEFAULT_TYPE = SearchTypeProp.open;
+    public static final SearchTypeProp DEFAULT_TYPE = SearchTypeProp.closed;
 
     private String textPepProphetFocusGained = null;
     private String textReportAnnotateFocusGained = null;
@@ -2485,6 +2485,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     private void btnClearCacheActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearCacheActionPerformed
         ThisAppProps.clearCache();
+        MsfraggerParams.clearCache();
     }//GEN-LAST:event_btnClearCacheActionPerformed
 
     private boolean validateAndSave(final JTextComponent comp, final String propName, 
