@@ -1,6 +1,6 @@
 ![MSFragger logo](logo/msfragger-logo.png)
 
-![Release](https://img.shields.io/github/release/qubyte/rubidium.svg) ![Downloads](https://img.shields.io/github/downloads/chhh/MSFragger-GUI/total.svg)
+![Release](https://img.shields.io/github/release/chhh/MSFragger-GUI.svg) ![Downloads](https://img.shields.io/github/downloads/chhh/MSFragger-GUI/total.svg)
 
 # MSfragger GUI
 This is a very basic Java GUI wrapper for [MSFragger](http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html) - ultrafast proteomic search engine.  
