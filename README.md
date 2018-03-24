@@ -1,5 +1,7 @@
 ![MSFragger logo](logo/msfragger-logo.png)
 
+![Release](https://img.shields.io/github/release/qubyte/rubidium.svg) ![Downloads](https://img.shields.io/github/downloads/chhh/MSFragger-GUI/total.svg)
+
 # MSfragger GUI
 This is a very basic Java GUI wrapper for [MSFragger](http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html) - ultrafast proteomic search engine.  
 It will help you launch MSFragger for Open and Closed searches and can also run post-processing of results with Peptide/Protein Prophets as well as generate tabular summary results using [Philosopher](https://github.com/prvst/philosopher).
