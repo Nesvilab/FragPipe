@@ -43,7 +43,7 @@ public class Version {
     public static final String PROPERTIES_REMOTE_URL = "https://raw.githubusercontent.com/chhh/MSFragger-GUI/master/MSFragger-GUI/src/umich/msfragger/gui/Bundle.properties";
     public static final URI PROPERTIES_REMOTE_URI = URI.create(PROPERTIES_REMOTE_URL);
     
-    private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>();
+    private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>(new VersionComparator());
     
     static {
         CHANGELOG.put("6.0", Arrays.asList(

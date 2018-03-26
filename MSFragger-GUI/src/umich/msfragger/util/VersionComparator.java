@@ -3,23 +3,21 @@ package umich.msfragger.util;
 import java.util.Comparator;
 
 /**
- *
- * Taken from
+ * Compares version number strings.
+ * Taken from:
  * https://stackoverflow.com/questions/198431/how-do-you-compare-two-version-strings-in-java
  */
-public class VersionComparator implements Comparator {
+public class VersionComparator implements Comparator<String> {
 
-    public boolean equals(Object o1, Object o2) {
+    public boolean equals(String o1, String o2) {
         return compare(o1, o2) == 0;
     }
 
     @Override
-    public int compare(Object o1, Object o2) {
-        String version1 = (String) o1;
-        String version2 = (String) o2;
+    public int compare(String o1, String o2) {
 
-        VersionTokenizer tokenizer1 = new VersionTokenizer(version1);
-        VersionTokenizer tokenizer2 = new VersionTokenizer(version2);
+        VersionTokenizer tokenizer1 = new VersionTokenizer(o1);
+        VersionTokenizer tokenizer2 = new VersionTokenizer(o2);
 
         int number1, number2;
         String suffix1, suffix2;
@@ -96,7 +94,6 @@ public class VersionComparator implements Comparator {
         private int _position;
         private int _number;
         private String _suffix;
-        private boolean _hasValue;
 
         public int getNumber() {
             return _number;
@@ -106,11 +103,7 @@ public class VersionComparator implements Comparator {
             return _suffix;
         }
 
-        public boolean hasValue() {
-            return _hasValue;
-        }
-
-        public VersionTokenizer(String versionString) {
+        VersionTokenizer(String versionString) {
             if (versionString == null) {
                 throw new IllegalArgumentException("versionString is null");
             }
@@ -119,17 +112,14 @@ public class VersionComparator implements Comparator {
             _length = versionString.length();
         }
 
-        public boolean MoveNext() {
+        boolean MoveNext() {
             _number = 0;
             _suffix = "";
-            _hasValue = false;
 
             // No more characters
             if (_position >= _length) {
                 return false;
             }
-
-            _hasValue = true;
 
             while (_position < _length) {
                 char c = _versionString.charAt(_position);
@@ -160,3 +150,4 @@ public class VersionComparator implements Comparator {
         }
     }
 }
+
