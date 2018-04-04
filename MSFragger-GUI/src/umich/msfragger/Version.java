@@ -34,7 +34,7 @@ import umich.msfragger.util.VersionComparator;
 public class Version {
     public static final String PROGRAM_TITLE = "MSFragger-GUI";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "6.0";
+    public static final String VERSION = "6.0.1";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
     public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
     public static final String PROP_IMPORTANT_UPDATES = "msfragger.gui.important-updates";
@@ -46,6 +46,10 @@ public class Version {
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>(new VersionComparator());
     
     static {
+        CHANGELOG.put("6.0.1", Arrays.asList(
+                "Allow loading of empty-valued parameters from fragger *.properties files.",
+                "Comments in fragger.properties won't overwrite non-commented properties anymore."));
+        
         CHANGELOG.put("6.0", Arrays.asList(
                 "Automatic updates for MSFragger",
                 "mass_offsets parameter for MSFragger",
