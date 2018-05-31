@@ -1,8 +1,13 @@
+# This repository has moved to [FragPipe](https://github.com/chhh/FragPipe)
+Please use the issue tracker in the new repository to ask questions/report 
+issues/request new features.
+This repository is in a frozen state and won't be updated.
+
 ![MSFragger logo](logo/msfragger-logo.png)
 
+## MSfragger GUI (now [FragPipe](https://github.com/chhh/FragPipe))
 ![Release](https://img.shields.io/github/release/chhh/FragPipe.svg) ![Downloads](https://img.shields.io/github/downloads/chhh/FragPipe/total.svg)
 
-# FragPipe (previously - MSfragger GUI)
 This is a very basic Java GUI wrapper for [MSFragger](http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html) - ultrafast proteomic search engine.  
 It will help you launch MSFragger for Open and Closed searches and can also run post-processing of results with Peptide/Protein Prophets as well as generate tabular summary results using [Philosopher](https://github.com/prvst/philosopher).
 
