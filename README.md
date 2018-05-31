@@ -1,5 +1,5 @@
 # This repository has moved to [FragPipe](https://github.com/chhh/FragPipe)
-Please use the issue tracker in the new repository to ask questions/report 
+Please use [the issue tracker](https://github.com/chhh/FragPipe/issues) in the new repository to ask questions/report 
 issues/request new features.
 This repository is in a frozen state and won't be updated.
 
