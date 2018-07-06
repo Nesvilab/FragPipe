@@ -8,7 +8,7 @@ This is a very basic Java GUI wrapper for [MSFragger](http://www.nature.com/nmet
 It will help you launch MSFragger for Open and Closed searches and can also run post-processing of results with Peptide/Protein Prophets as well as generate tabular summary results using [Philosopher](https://github.com/prvst/philosopher).
 
 ## Download
-Download precompiled binaries from the [Releases](https://github.com/chhh/MSFragger-GUI/releases/latest) section of this repository
+Download precompiled binaries from the [Releases](https://github.com/chhh/FragPipe/releases) section of this repository
 
 ## Running
 - on **Windows** use one of the following:
