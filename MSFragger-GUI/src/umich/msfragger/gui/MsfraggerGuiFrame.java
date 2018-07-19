@@ -440,7 +440,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     private String getDefaultPhilosopherBinName() {
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("umich/msfragger/gui/Bundle"); // NOI18N
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
         String winName = bundle.getString("default.philosopher.win"); // NOI18N
         String nixName = bundle.getString("default.philosopher.nix"); // NOI18N
         if (OsUtils.isWindows()) {
@@ -1702,7 +1702,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRawAddFolderActionPerformed
 
     private void btnReportErrorsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportErrorsActionPerformed
-        final String issueTrackerAddress = "https://github.com/chhh/msfragger-gui/issues";
+        final String issueTrackerAddress = Version.bundle().getString(Version.PROP_ISSUE_TRACKER_URL);
         try {
             Desktop.getDesktop().browse(URI.create(issueTrackerAddress));
         } catch (IOException ex) {
@@ -3533,7 +3533,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
     
     private void loadDefaultDecoyTag() {
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("umich/msfragger/gui/Bundle"); // NOI18N        
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
         String val = bundle.getString(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
         
         textReportFilter.setText(val);
@@ -3772,7 +3772,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
     
     private void loadDefaults(JTextComponent text, String propName) {
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("umich/msfragger/gui/Bundle"); // NOI18N
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
         String val = bundle.getString(propName);
         text.setText(val);
         ThisAppProps.save(propName, val);
@@ -4962,7 +4962,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (value != null) {
             return value;
         }
-        ResourceBundle bundle = ResourceBundle.getBundle("umich/msfragger/gui/Bundle"); // NOI18N
+        ResourceBundle bundle = ResourceBundle.getBundle(Version.PATH_BUNDLE);
         return bundle.getString("default.msfragger.jar");
     }
 
@@ -5164,7 +5164,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (path != null) {
             return path;
         }
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("umich/msfragger/gui/Bundle"); // NOI18N
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
         String winName = bundle.getString("default.philosopher.win"); // NOI18N
         String nixName = bundle.getString("default.philosopher.nix"); // NOI18N
         if (OsUtils.isWindows()) {
