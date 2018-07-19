@@ -158,7 +158,7 @@ public class ThisAppProps extends Properties {
     public void save() {
         Path path = Paths.get(TEMP_DIR, TEMP_FILE_NAME);
         try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
-            store(fos, "MSFragger GUI runtime properties");
+            store(fos, Version.PROGRAM_TITLE + " runtime properties");
         } catch (IOException ex) {
             //log.warn("Could not load properties from temporary directory: {}", ex.getMessage());
         }

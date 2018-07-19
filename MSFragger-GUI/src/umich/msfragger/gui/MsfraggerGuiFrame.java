@@ -248,7 +248,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     private void initMore() {
 
-        setTitle("MSFragger GUI (v" + Version.getVersion() + ")");
+        setTitle(Version.PROGRAM_TITLE + " (v" + Version.getVersion() + ")");
         setLocale(Locale.ROOT);
 
         console = new TextConsole();
@@ -1763,10 +1763,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             JEditorPane ep = SwingUtils.createClickableHtml(String.format(
                     "<html>Could not find MSFragger jar file at this location.<br/>\n"
                     + "Corresponding panel won't be active.<br/><br/>"
-                    + "<b>If that's the first time you're using MSFragger-GUI</b>,<br/>"
+                    + "<b>If that's the first time you're using %s</b>,<br/>"
                     + "you will need to <a href=\"%s\">download MSFragger.jar (click here)</a> first.<br/>"
                     + "Use the button on the right to proceed to the download website.", 
-                    MsfraggerProps.DOWNLOAD_URL));
+                    Version.PROGRAM_TITLE, MsfraggerProps.DOWNLOAD_URL));
 
             balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
                     new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
@@ -1775,10 +1775,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             JEditorPane ep = SwingUtils.createClickableHtml(String.format(
                     "<html>Looks like you selected an existing jar file, but we.<br/>\n"
                     + "don't recognize it as a valid MSFragger distribution.<br/><br/>"
-                    + "<b>If that's the first time you're using MSFragger-GUI</b>,<br/>"
+                    + "<b>If that's the first time you're using %s</b>,<br/>"
                     + "you will need to <a href=\"%s\">download MSFragger.jar (click here)</a> first.<br/>"
                     + "Use the button on the right to proceed to the download website.", 
-                    MsfraggerProps.DOWNLOAD_URL));
+                    Version.PROGRAM_TITLE, MsfraggerProps.DOWNLOAD_URL));
 
             balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
                     new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
@@ -1910,10 +1910,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         String locallyKnownDownloadUrl = loadPropFromBundle(Version.PROP_DOWNLOAD_URL);
                         final String downloadUrl = propsGh.getProperty(Version.PROP_DOWNLOAD_URL, locallyKnownDownloadUrl);
                         sb.append(String.format(Locale.ROOT,
-                                "Your MSFragger-GUI version is [%s]<br>\n"
-                                + "There is a newer version of MSFragger-GUI available [%s]).<br/>\n"
+                                "Your %s version is [%s]<br>\n"
+                                + "There is a newer version of %s available [%s]).<br/>\n"
                                 + "Please <a href=\"%s\">click here</a> to download a newer one.<br/>",
-                                localVersion, githubVersion, downloadUrl));
+                                Version.PROGRAM_TITLE, localVersion, Version.PROGRAM_TITLE, githubVersion, downloadUrl));
 
                         // check for critical or important updates since the current version
                         List<String> updatesImportant = Version.updatesSinceCurrentVersion(
@@ -2061,7 +2061,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                             // then check if this version is known to be compatible
                             String latestCompatible = props.getProperty(PhilosopherProps.PROP_LATEST_COMPATIBLE_VERSION + "." + Version.VERSION);
                             if (latestCompatible == null) {
-                                sb.append("<br>\nHowever, we have not yet checked if it's fully compatible with this version of MSFragger-GUI.");
+                                sb.append("<br>\nHowever, we have not yet checked if it's fully compatible with this version of ")
+                                        .append(Version.PROGRAM_TITLE).append(".");
                             } else if (curVersion != null) {
                                 int cmp = vc.compare(curVersion, latestCompatible);
                                 if (cmp == 0) {
@@ -2834,7 +2835,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         LogUtils.println(console, String.format(Locale.ROOT, "System info:\n%s", sbSysinfo.toString()));
 
         StringBuilder sbVer = new StringBuilder();
-        sbVer.append("MSFragger-GUI version ").append(Version.VERSION).append("\n");
+        sbVer.append(Version.PROGRAM_TITLE).append(" version ").append(Version.VERSION).append("\n");
         sbVer.append("MSFragger version ").append(fraggerVer).append("\n");
         sbVer.append("Philosopher version ").append(philosopherVer).append("\n");
         LogUtils.println(console, String.format(Locale.ROOT, "Version info:\n%s", sbVer.toString()));
@@ -3872,10 +3873,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     JEditorPane ep = SwingUtils.createClickableHtml(String.format(
                         "<html>Could not find Philosopher binary file at this location.<br/>\n"
                         + "Corresponding panel won't be active.<br/><br/>"
-                        + "<b>If that's the first time you're using MSFragger-GUI</b>,<br/>"
+                        + "<b>If that's the first time you're using %s</b>,<br/>"
                         + "you will need to <a href=\"%s\">download Philosopher (click here)</a> first.<br/>"
                         + "Use the button on the right to proceed to the download website.", 
-                        PhilosopherProps.DOWNLOAD_URL));
+                        Version.PROGRAM_TITLE, PhilosopherProps.DOWNLOAD_URL));
 
                     balloonPhilosopher = new BalloonTip(textBinPhilosopher, ep,
                             new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
