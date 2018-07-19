@@ -7,7 +7,7 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="MSFragger-GUI" default="default" basedir=".">
+<project name="FragPipe" default="default" basedir=".">
     <description>Builds, tests, and runs the project MSFragger-GUI.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
@@ -58,7 +58,7 @@
 
     An example of overriding the target for project execution could look like this:
 
-        <target name="run" depends="MSFragger-GUI-impl.jar">
+        <target name="run" depends="FragPipe-impl.jar">
             <exec dir="bin" executable="launcher.exe">
                 <arg file="${dist.jar}"/>
             </exec>
@@ -74,7 +74,7 @@
     <target name="-post-jar">
 
         <!-- Change the value to the name of the final jar without .jar -->
-        <property name="store.jar.name" value="MSFragger-GUI"/>
+        <property name="store.jar.name" value="FragPipe"/>
 
         <!-- don't edit below this line -->
         <property name="store.dir" value="dist"/>

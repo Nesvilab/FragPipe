@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.TreeMap;
 import javax.swing.JOptionPane;
 import umich.msfragger.util.StringUtils;
@@ -32,20 +33,29 @@ import umich.msfragger.util.VersionComparator;
  * @author Dmitry Avtonomov
  */
 public class Version {
-    public static final String PROGRAM_TITLE = "MSFragger-GUI";
+    public static final String PROGRAM_TITLE = "FragPipe";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "6.0.1";
+    public static final String VERSION = "7.0";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
+    public static final String PROP_ISSUE_TRACKER_URL = "msfragger.gui.issue-tracker";
     public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
     public static final String PROP_IMPORTANT_UPDATES = "msfragger.gui.important-updates";
     public static final String PROP_CRITICAL_UPDATES = "msfragger.gui.critical-updates";
     
-    public static final String PROPERTIES_REMOTE_URL = "https://raw.githubusercontent.com/chhh/MSFragger-GUI/master/MSFragger-GUI/src/umich/msfragger/gui/Bundle.properties";
+    public static final String PATH_BUNDLE = "umich/msfragger/gui/Bundle";
+    public static final String PROPERTIES_REMOTE_URL = 
+            "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/" 
+            + PATH_BUNDLE + ".properties";
     public static final URI PROPERTIES_REMOTE_URI = URI.create(PROPERTIES_REMOTE_URL);
     
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>(new VersionComparator());
     
     static {
+        CHANGELOG.put("7.0", Arrays.asList(
+                "MFFragger-GUI is now calledFragPipe.",
+                "Clear out Fragger modification tables when loading new parameter files to avoid ghost entries.",
+                "Update the github urls for checking new versions."));
+        
         CHANGELOG.put("6.0.1", Arrays.asList(
                 "Allow loading of empty-valued parameters from fragger *.properties files.",
                 "Comments in fragger.properties won't overwrite non-commented properties anymore."));
@@ -148,13 +158,17 @@ public class Version {
         }
     }
     
+    public static java.util.ResourceBundle bundle() {
+        return java.util.ResourceBundle.getBundle(PATH_BUNDLE);
+    }
+    
     public static String getVersion() {
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("umich/msfragger/gui/Bundle"); // NOI18N
+        java.util.ResourceBundle bundle = bundle();
         String val = bundle.getString(PROP_VER);
         if (!VERSION.equals(val)) {
             JOptionPane.showMessageDialog(null, String.format(Locale.ROOT, 
                     "Version in the bundle (%s) doesn't match hardcoded value (%s).\n"
-                            + "Have you modified MSFragger-GUI.jar/umich/msfragger/gui/Bundle.properties?", val, VERSION), 
+                            + "Have you modified %s.jar/%s.properties?", val, VERSION, PROGRAM_TITLE, PATH_BUNDLE), 
                     "Version mismatch", JOptionPane.WARNING_MESSAGE);
         }
         return VERSION;
@@ -183,9 +197,15 @@ public class Version {
         return res;
     }
     
+    private static String chop(String original, String toChop) {
+        return original.endsWith(toChop) ?
+                original.substring(0, original.length() - toChop.length()) :
+                original;
+    }
+    
     /**
      * To print changelog using just the jar file use:<br/>
-     * <code>`java -cp ".\dist\MSFragger-GUI.jar" umich.msfragger.Version true 2`</code>
+     * <code>`java -cp ".\dist\FragPipe.jar" umich.msfragger.Version true 2`</code>
      * 
      * @param args The 1st param is a boolean whether to print GitHub release
      * info preamble or not. Use true, to indicate "yes", any other string for 
@@ -211,15 +231,28 @@ public class Version {
             }
         }
         
+        ResourceBundle fragpipeBundle = Version.bundle();
+        if (!fragpipeBundle.containsKey(PROP_DOWNLOAD_URL)) 
+            throw new IllegalStateException(String.format("Didn't find '%s' in "
+                    + "FragPipe Bundle file", PROP_DOWNLOAD_URL));
+        String url = fragpipeBundle.getString(PROP_DOWNLOAD_URL);
+        String latest = "latest";
+        url = chop(url, "/");
+        url = chop(url, latest);
+        url = chop(url, "/");
+        
+        
+        
         if (printGihubPreamble) {
             String githubReleaseMessage = String.format(
                     "### Windows users\n" +
                             "- You may download the [*.zip* file]"
-                            + "(https://github.com/chhh/MSFragger-GUI/releases/download/v%s/MSFragger-GUI_v%s.zip).\n" +
-                            "  - You can start the `jar` file with `start javaw -jar MSFragger-GUI.jar` or "
-                            + "`java -jar MSFragger-GUI.jar` or using the provided `.bat` script in the zip archive. If Java is configured to auto-run `.jar` files, double clicking might also work.\n" +
+                            + "(%s/download/v%s/%s_v%s.zip).\n" +
+                            "  - You can start the `jar` file with `start javaw -jar %s.jar` or "
+                            + "`java -jar %s.jar` or using the provided `.bat` script in the zip archive. "
+                            + "If Java is configured to auto-run `.jar` files, double clicking might also work.\n" +
                             "- You may download the [*.exe* file]"
-                            + "(https://github.com/chhh/MSFragger-GUI/releases/download/v%s/MSFragger-GUI.exe) and "
+                            + "(%s/download/v%s/%s.exe) and "
                             + "just run that. Windows 10 might show a UAC prompt, saying that this is not a trusted "
                             + "program, it's up to you whether to run it or not.\n" +
                             "  - If you don't have a compatible Java version, you will be redirected to a website where you "
@@ -228,9 +261,15 @@ public class Version {
                             "\n" +
                             "### Linux/MacOS users\n" +
                             "Download the [*.zip* file]"
-                            + "(https://github.com/chhh/MSFragger-GUI/releases/download/v%s/MSFragger-GUI_v%s.zip) "
+                            + "(%s/download/v%s/%s_v%s.zip) "
                             + "and either run the included launcher shell script or just with "
-                            + "`java -jar MSFragger-GUI.jar`.", VERSION, VERSION, VERSION, VERSION, VERSION);
+                            + "`java -jar %s.jar`.", 
+                            url, VERSION, PROGRAM_TITLE, VERSION, 
+                            PROGRAM_TITLE,
+                            PROGRAM_TITLE,
+                            url, VERSION, PROGRAM_TITLE,
+                            url, VERSION, PROGRAM_TITLE, VERSION,
+                            PROGRAM_TITLE);
             System.out.println(githubReleaseMessage);
             System.out.println("");
             System.out.println("");
