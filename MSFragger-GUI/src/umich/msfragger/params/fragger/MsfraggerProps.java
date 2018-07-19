@@ -41,7 +41,7 @@ public class MsfraggerProps {
     // This way the user will get notifications about new versions of
     // MSFragger when we only update the online repository.
     /** Github master branch location of "umich/msfragger/params/fragger/msfragger.properties". */
-    public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/chhh/MSFragger-GUI/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties";
+    public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties";
     /** Github master branch location of "umich/msfragger/params/fragger/msfragger.properties". */
     public static final URI PROPERTIES_URI = URI.create(PROPERTIES_URL);
     public static final String PROPERTIES_FILE_NAME = "msfragger.properties";
