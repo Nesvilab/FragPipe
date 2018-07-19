@@ -174,7 +174,7 @@ public class FraggerPanel extends javax.swing.JPanel {
 //            throw new IllegalStateException("fillFormFromParams() called while not attached to an MsfraggerGuiFrame.");
 //        f.setFastaPath(params.getDatabaseName());
 //        validateFraggerDbPath();
-        
+        clearFormTables();
         
         spinnerFraggerThreads.setValue(params.getNumThreads());
         
@@ -1433,7 +1433,7 @@ public class FraggerPanel extends javax.swing.JPanel {
             if (Files.exists(path)) {
                 try {
                     params.clear();
-                    params.load(new FileInputStream(selectedFile));
+                    params.load(new FileInputStream(selectedFile), true);
                     fillFormFromParams(params);
                     params.save();
                 } catch (Exception ex) {
@@ -1631,6 +1631,30 @@ public class FraggerPanel extends javax.swing.JPanel {
     public void loadDefaultsClosed() {
         params.loadDefaultsClosedSearch();
         fillFormFromParams(params);
+    }
+    
+    /**
+     * Tables need to be cleared separately as they may contain more rows
+     * than would be filled by the new properties. So old 'ghost' entries
+     * might be left at the end of the table in such a case.
+     */
+    private void clearFormTables() {
+        Object[][] varModsData = new Object[MsfraggerParams.VAR_MOD_COUNT_MAX][3];
+        // set defaults for all fields
+        for (int i = 0; i < MsfraggerParams.VAR_MOD_COUNT_MAX; i++) {
+            varModsData[i][0] = false;
+            varModsData[i][1] = null;
+            varModsData[i][2] = null;
+        }
+        tableModelVarMods.setDataVector(varModsData, TABLE_VAR_MODS_COL_NAMES);
+        
+        Object[][] addModsData = new Object[MsfraggerParams.ADDON_NAMES.length][3];
+        for (int i = 0; i < MsfraggerParams.ADDON_NAMES.length; i++) {
+            addModsData[i][0] = false;
+            addModsData[i][1] = null;
+            addModsData[i][2] = null;
+        }
+        tableModelAddMods.setDataVector(addModsData, TABLE_ADD_MODS_COL_NAMES);
     }
     
     public static PlainDocument getFilterIsotopeCorrection() {
