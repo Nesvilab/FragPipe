@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +37,9 @@ import umich.msfragger.util.StringUtils;
  * @author Dmitry Avtonomov
  */
 public class Props {
-    public static final String COMMENT = "#";
-    private static final Pattern DISABLED_PROP = Pattern.compile("^#\\s*([^\\s]+)\\s*=\\s*([^#]+)(?:\\s*#\\s*(.+))?.*");
-    private static final Pattern ENABLED_PROP = Pattern.compile("^\\s*([^\\s]+)\\s*=\\s*([^#]+)(?:\\s*#\\s*(.+))?.*");
+    public static final String COMMENT_SYMBOL = "#";
+    private static final Pattern DISABLED_PROP = Pattern.compile("^#\\s*([^\\s]+)\\s*=([^#]+)(?:\\s*#\\s*(.+))?.*");
+    private static final Pattern ENABLED_PROP = Pattern.compile("^\\s*([^\\s]+)\\s*=([^#]*)(?:\\s*#\\s*(.+))?.*");
     private LinkedHashMap<String, Prop> map = new LinkedHashMap<>();
     private LinkedHashMap<String, String> comments = new LinkedHashMap<>();
 
@@ -161,14 +162,23 @@ public class Props {
             line = line.trim();
             if (StringUtils.isNullOrWhitespace(line))
                 continue;
-            if (line.startsWith(COMMENT)) {
-                
-                // can be a disabled option
+            
+            if (line.contains("mass_tol")) {
+                    int a = 1;
+                }
+            
+            // a comment line, but also can be a disabled option
+            if (line.startsWith(COMMENT_SYMBOL)) {
                 Matcher m = DISABLED_PROP.matcher(line);
                 if (m.matches()) {
                     String name = m.group(1).trim();
                     String value = m.group(2).trim();
-                    if (StringUtils.isNullOrWhitespace(name) || StringUtils.isNullOrWhitespace(value))
+                    if (StringUtils.isNullOrWhitespace(name))
+                        continue;
+                    if (StringUtils.isNullOrWhitespace(value))
+                        value = "";
+                    Prop existingProp = map.get(name);
+                    if (existingProp != null && existingProp.isEnabled)
                         continue;
                     Prop p = new Prop(name, value, false, m.group(3));
                     map.put(p.name, p);
@@ -180,8 +190,10 @@ public class Props {
             if (m.matches()) {
                 String name = m.group(1).trim();
                 String value = m.group(2).trim();
-                if (StringUtils.isNullOrWhitespace(name) || StringUtils.isNullOrWhitespace(value))
+                if (StringUtils.isNullOrWhitespace(name))
                     continue;
+                if (StringUtils.isNullOrWhitespace(value))
+                        value = "";
                 Prop p = new Prop(name, value, true, m.group(3));
                 map.put(p.name, p);
             }
@@ -201,7 +213,7 @@ public class Props {
         for (Map.Entry<String, Prop> e : entries) {
             Prop prop = e.getValue();
             if (!prop.isEnabled)
-                bw.write(COMMENT + " ");
+                bw.write(COMMENT_SYMBOL + " ");
             bw.write(e.getKey());
             bw.write(" = ");
             bw.write(prop.value);

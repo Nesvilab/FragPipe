@@ -30,8 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import umich.msfragger.params.Props;
 import umich.msfragger.params.enums.CleavageType;
 import umich.msfragger.params.enums.FraggerOutputType;
@@ -184,7 +182,7 @@ public class MsfraggerParams {
         Path tempFilePath = tempFilePath();
         if (Files.exists(tempFilePath)) {
             try (FileInputStream fis = new FileInputStream(tempFilePath.toFile())) {
-                load(fis);
+                load(fis, true);
             }
         } else {
             loadDefaultsClosedSearch();
@@ -193,7 +191,7 @@ public class MsfraggerParams {
     
     public void loadDefaultsOpenSearch() {
         try {
-            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_OPENSEARCH));
+            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_OPENSEARCH), true);
         } catch (IOException e) {
             // this is strange, we're loading stuff from our own jar, should not happen
             throw new IllegalStateException("Could not load MSFragger defaults for Open Search from the jar itself.", e);
@@ -202,14 +200,21 @@ public class MsfraggerParams {
     
     public void loadDefaultsClosedSearch() {
         try {
-            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_CLOSEDSEARCH));
+            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_CLOSEDSEARCH), true);
         } catch (IOException e) {
             // this is strange, we're loading stuff from our own jar, should not happen
             throw new IllegalStateException("Could not load MSFragger defaults for Closed Search from the jar itself.", e);
         }
     }
     
-    public void load(InputStream is) throws IOException {
+    /**
+     * Clear out the properties 
+     * @param is
+     * @param clearBeforeLoading clear up the internal properties before loading new ones.
+     * @throws IOException 
+     */
+    public void load(InputStream is, boolean clearBeforeLoading) throws IOException {
+        if (clearBeforeLoading) clear();
         props.load(is);
     }
     
