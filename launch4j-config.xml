@@ -2,8 +2,8 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>C:\projects\msfragger-gui\MSFragger-GUI\dist\MSFragger-GUI.jar</jar>
-  <outfile>C:\projects\msfragger-gui\MSFragger-GUI\dist\MSFragger-GUI.exe</outfile>
+  <jar>C:\projects\msfragger-gui\MSFragger-GUI\dist\FragPipe.jar</jar>
+  <outfile>C:\projects\msfragger-gui\MSFragger-GUI\dist\FragPipe.exe</outfile>
   <errTitle>Comptible Java (JRE) not found. Download an open-source version.</errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>

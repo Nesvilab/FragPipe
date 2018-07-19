@@ -205,7 +205,7 @@ public class Version {
     
     /**
      * To print changelog using just the jar file use:<br/>
-     * <code>`java -cp ".\dist\MSFragger-GUI.jar" umich.msfragger.Version true 2`</code>
+     * <code>`java -cp ".\dist\FragPipe.jar" umich.msfragger.Version true 2`</code>
      * 
      * @param args The 1st param is a boolean whether to print GitHub release
      * info preamble or not. Use true, to indicate "yes", any other string for 
@@ -247,11 +247,11 @@ public class Version {
             String githubReleaseMessage = String.format(
                     "### Windows users\n" +
                             "- You may download the [*.zip* file]"
-                            + "(%s/download/v%s/MSFragger-GUI_v%s.zip).\n" +
-                            "  - You can start the `jar` file with `start javaw -jar MSFragger-GUI.jar` or "
+                            + "(%s/download/v%s/%s_v%s.zip).\n" +
+                            "  - You can start the `jar` file with `start javaw -jar %s.jar` or "
                             + "`java -jar MSFragger-GUI.jar` or using the provided `.bat` script in the zip archive. If Java is configured to auto-run `.jar` files, double clicking might also work.\n" +
                             "- You may download the [*.exe* file]"
-                            + "(%s/download/v%s/MSFragger-GUI.exe) and "
+                            + "(%s/download/v%s/%s.exe) and "
                             + "just run that. Windows 10 might show a UAC prompt, saying that this is not a trusted "
                             + "program, it's up to you whether to run it or not.\n" +
                             "  - If you don't have a compatible Java version, you will be redirected to a website where you "
@@ -262,7 +262,11 @@ public class Version {
                             "Download the [*.zip* file]"
                             + "(%s/download/v%s/MSFragger-GUI_v%s.zip) "
                             + "and either run the included launcher shell script or just with "
-                            + "`java -jar MSFragger-GUI.jar`.", url, VERSION, VERSION, url, VERSION, url, VERSION, VERSION);
+                            + "`java -jar MSFragger-GUI.jar`.", 
+                            url, VERSION, PROGRAM_TITLE, VERSION, 
+                            PROGRAM_TITLE,
+                            url, VERSION, PROGRAM_TITLE,
+                            url, VERSION, VERSION);
             System.out.println(githubReleaseMessage);
             System.out.println("");
             System.out.println("");
