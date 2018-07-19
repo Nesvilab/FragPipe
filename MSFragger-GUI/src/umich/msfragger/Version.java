@@ -32,20 +32,25 @@ import umich.msfragger.util.VersionComparator;
  * @author Dmitry Avtonomov
  */
 public class Version {
-    public static final String PROGRAM_TITLE = "MSFragger-GUI";
+    public static final String PROGRAM_TITLE = "FragPipe";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "6.0.1";
+    public static final String VERSION = "7.0";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
     public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
     public static final String PROP_IMPORTANT_UPDATES = "msfragger.gui.important-updates";
     public static final String PROP_CRITICAL_UPDATES = "msfragger.gui.critical-updates";
     
-    public static final String PROPERTIES_REMOTE_URL = "https://raw.githubusercontent.com/chhh/MSFragger-GUI/master/MSFragger-GUI/src/umich/msfragger/gui/Bundle.properties";
+    public static final String PROPERTIES_REMOTE_URL = "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/umich/msfragger/gui/Bundle.properties";
     public static final URI PROPERTIES_REMOTE_URI = URI.create(PROPERTIES_REMOTE_URL);
     
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>(new VersionComparator());
     
     static {
+        CHANGELOG.put("7.0", Arrays.asList(
+                "MFFragger-GUI is now calledFragPipe.",
+                "Clear out Fragger modification tables when loading new parameter files to avoid ghost entries.",
+                "Update the github urls for checking new versions."));
+        
         CHANGELOG.put("6.0.1", Arrays.asList(
                 "Allow loading of empty-valued parameters from fragger *.properties files.",
                 "Comments in fragger.properties won't overwrite non-commented properties anymore."));
