@@ -5137,17 +5137,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-//        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-//            @Override
-//            public void uncaughtException(Thread t, Throwable e) {
-//                System.err.println("Uncaught error: " + e.getMessage());
-//            }
-//        });
-        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                MsfraggerGuiFrame frame = new MsfraggerGuiFrame();
+                final MsfraggerGuiFrame frame = new MsfraggerGuiFrame();
+                
+                Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                    @Override
+                    public void uncaughtException(Thread t, Throwable e) {
+                        StringWriter sw = new StringWriter();
+                        e.printStackTrace(new PrintWriter(sw, true));
+                        JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + sw.toString(),
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                
                 frame.setVisible(true);
                 Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
                 frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
