@@ -37,6 +37,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -171,6 +173,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private String textReportAnnotateFocusGained = null;
     private String textReportFilterFocusGained = null;
     private String textDecoyTagFocusGained = null;
+    private String textLabelfreeFocusGained = null;
     
     private Pattern reDecoyTagReportAnnotate = Pattern.compile("--prefix\\s+([^\\s]+)");
     private Pattern reDecoyTagReportFilter = Pattern.compile("--tag\\s+([^\\s]+)");
@@ -530,6 +533,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         checkReportFilter = new javax.swing.JCheckBox();
         textReportFilter = new javax.swing.JTextField();
         checkReportProteinLevelFdr = new javax.swing.JCheckBox();
+        textReportLabelfree = new javax.swing.JTextField();
+        checkLabelfree = new javax.swing.JCheckBox();
         checkCreateReport = new javax.swing.JCheckBox();
         btnReportDefaultsClosed = new javax.swing.JButton();
         btnReportDefaultsOpen = new javax.swing.JButton();
@@ -1244,7 +1249,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         checkReportDbAnnotate.setSelected(true);
         checkReportDbAnnotate.setText("Database Annotation");
 
-        textReportAnnotate.setToolTipText("Path to database fasta file. Preferrably leave it as is.");
+        textReportAnnotate.setToolTipText("<html>philosopher database --annotate<br/>\nFlags:<br/>\n<ul>\n<li>--prefix string     define a decoy prefix (default \"rev_\")</li>\n</ul>");
         textReportAnnotate.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 textReportAnnotateFocusGained(evt);
@@ -1257,7 +1262,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         checkReportFilter.setSelected(true);
         checkReportFilter.setText("Filter");
 
-        textReportFilter.setToolTipText("<html>Additional flags for Philosopher<br/>\n--pepxml path-to-pepxml --protxml path-to-combined-protxml<br/>\nwill be added automatically based on previous tabs.");
+        textReportFilter.setToolTipText("<html>--pepxml path-to-pepxml --protxml path-to-combined-protxml<br/>\nwill be added automatically based on previous tabs.<br/>\n\nStatistical filtering, validation and False Discovery Rates assessment<br/>\nphilosopher filter [flags]<br>\nFlags:<br/>\n<ul>\n<li>--ion float        peptide ion FDR level (default 0.01)</li>\n<li>--mapmods          map modifications aquired by an open search</li>\n<li>--models           print model distribution</li>\n<li>--pep float        peptide FDR level (default 0.01)</li>\n<li>--pepProb float    top peptide probability treshold for the FDR filtering (default 0.7)</li>\n<li>--pepxml string    pepXML file or directory containing a set of pepXML files</li>\n<li>--picked           apply the picked FDR algorithm before the protein scoring</li>\n<li>--prot float       protein FDR level (default 0.01)</li>\n<li>--protProb float   protein probability treshold for the FDR filtering (not used with the razor algorithm) (default 0.5)</li>\n<li>--protxml string   protXML file path</li>\n<li>--psm float        psm FDR level (default 0.01)</li>\n<li>--razor            use razor peptides for protein FDR scoring</li>\n<li>--sequential       alternative algorithm that estimates FDR using both filtered PSM and Protein lists</li>\n<li>--tag string       decoy tag (default \"rev_\")</li>\n<li>--weight float     threshold for defining peptide uniqueness (default 1)</li>\n</ul>");
         textReportFilter.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 textReportFilterFocusGained(evt);
@@ -1281,6 +1286,24 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
+        textReportLabelfree.setToolTipText("<html>Label free quantitation<br/>\nFlags:<br/>\n<ul>\n<li>--ptw float    specify the time windows for the peak (minute) (default 0.4)</li>\n<li>--tol float    m/z tolerance in ppm (default 10)</li>\n</ul>");
+        textReportLabelfree.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                textReportLabelfreeFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                textReportLabelfreeFocusLost(evt);
+            }
+        });
+        textReportLabelfree.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textReportLabelfreeActionPerformed(evt);
+            }
+        });
+
+        checkLabelfree.setText("Label-free Quant");
+        checkLabelfree.setToolTipText("<html>Label free quantitation");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -1289,13 +1312,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(checkReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(checkReportDbAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(checkReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(checkReportDbAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(checkLabelfree))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(textReportAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE)
-                            .addComponent(textReportFilter)))
+                            .addComponent(textReportFilter)
+                            .addComponent(textReportLabelfree)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(checkReportProteinLevelFdr)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -1314,6 +1340,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(textReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
                         .addGap(2, 2, 2)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(textReportLabelfree, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(checkLabelfree))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkReportProteinLevelFdr)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -1321,6 +1351,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         loadLastReportAnnotate();
         loadLastReportFilter();
         loadLastReportProteinLevelFdr();
+        loadLastLabelfree();
 
         checkCreateReport.setSelected(true);
         checkCreateReport.setText("Create report");
@@ -1367,7 +1398,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         .addComponent(btnReportDefaultsOpen)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(438, Short.MAX_VALUE))
+                .addContainerGap(408, Short.MAX_VALUE))
         );
 
         tabPane.addTab("Report", null, panelReport, "");
@@ -2705,6 +2736,29 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
         
         
+        // check that all input files are in the same folder for Labelfree quant
+        if (checkLabelfree.isSelected() && !lcmsFilePaths.isEmpty()) {
+            try {
+                String firstRaw = lcmsFilePaths.get(0);
+                Path firstDir = Paths.get(firstRaw).getParent();
+                for (String f : lcmsFilePaths) {
+                    if (!firstDir.equals(Paths.get(f).getParent())) {
+                        JOptionPane.showMessageDialog(this, "Not all input raw files are in the same folder.\n"
+                                + "Label free quant requires all files to be in the same directory :/",
+                                "Errors", JOptionPane.ERROR_MESSAGE);
+                        resetRunButtons(true);
+                        return;
+                    }
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, String.format("Error validating raw file paths for quant"),
+                    "Errors", JOptionPane.ERROR_MESSAGE);
+                resetRunButtons(true);
+                return;
+            }
+        }
+        
+        
         // we will now compose parameter objects for running processes.
         // at first we will try to load the base parameter files, if the file paths
         // in the GUI are not empty. If empty, we will load the defaults and
@@ -3504,6 +3558,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnMsfraggerUpdateActionPerformed
 
+    private void textReportLabelfreeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textReportLabelfreeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textReportLabelfreeActionPerformed
+
+    private void textReportLabelfreeFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textReportLabelfreeFocusGained
+        textLabelfreeFocusGained = textReportLabelfree.getText();
+    }//GEN-LAST:event_textReportLabelfreeFocusGained
+
+    private void textReportLabelfreeFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textReportLabelfreeFocusLost
+        validateAndSaveLabelfree(null);
+    }//GEN-LAST:event_textReportLabelfreeFocusLost
+
     public void loadLastPeptideProphet() {
         if (!load(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET)) {
             loadDefaultsPeptideProphet(DEFAULT_TYPE);
@@ -3845,6 +3911,52 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         });
         ep.setEditable(false);
         ep.setBackground(label.getBackground());
+    }
+
+    private void loadLastLabelfree() {
+        if (!load(textReportLabelfree, ThisAppProps.PROP_TEXTFIELD_LABELFREE)) {
+            loadDefaultsLabelfree(DEFAULT_TYPE);
+        }
+    }
+    
+    private void loadDefaultsLabelfree(SearchTypeProp type) {
+        loadDefaults(textReportLabelfree, ThisAppProps.PROP_TEXTFIELD_LABELFREE, type);
+    }
+
+    private void validateAndSaveLabelfree(final String newText) {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        final JTextComponent comp = textReportLabelfree;
+        final boolean isValid = validateAndSave(comp, ThisAppProps.PROP_TEXTFIELD_LABELFREE, 
+                newText, new IValidateString() {
+            @Override
+            public boolean test(String s) {
+                Pattern re = Pattern.compile("--([^\\s]+)");
+                Matcher m = re.matcher(s);
+                List<String> allowed = new ArrayList<>();
+                allowed.add("ptw");
+                allowed.add("tol");
+                while (m.find()) {
+                    if (!allowed.contains(m.group(1)))
+                        return false;
+                }
+                
+                for (String paramName : allowed) {
+                    Pattern reFullParam = Pattern.compile(String.format("--%s\\s+(\\d+(?:\\.\\d+)?)", paramName));
+                    if (!reFullParam.matcher(s).find())
+                        return false;
+                }
+                
+                return true;
+            }
+        });
+        
+        if (!isValid)
+            return;
+
+        // check if the filter line has changed since focus was gained
+        final String savedText = textReportFilterFocusGained;
+        final String oldText = savedText != null ? savedText : comp.getText().trim();
+        final String updText = newText != null ? newText : comp.getText().trim();
     }
 
     public enum SearchTypeProp {
@@ -4933,6 +5045,32 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 builders.add(new ProcessBuilder(cmd));
             }
 
+            // philosopher freequant (labelfree)
+            if (checkLabelfree.isSelected()) {
+                List<String> cmd = new ArrayList<>();
+                cmd.add(bin);
+                cmd.add(PhilosopherProps.CMD_LABELFREE);
+                
+                List<String> allowed = new ArrayList<>();
+                allowed.add("ptw");
+                allowed.add("tol");
+                String labelfreeParams = textReportLabelfree.getText().trim();
+                for (String paramName : allowed) {
+                    Pattern reFullParam = Pattern.compile(String.format("--%s\\s+(\\d+(?:\\.\\d+)?)", paramName));
+                    Matcher m = reFullParam.matcher(labelfreeParams);
+                    if (m.find()) {
+                        cmd.add("--" + paramName);
+                        cmd.add(m.group(1));
+                    }
+                }
+                // we have checked that all lcms files are in the same folder, so
+                Path lcmsDir = Paths.get(lcmsFilePaths.get(0)).getParent();
+                cmd.add("--dir");
+                cmd.add(lcmsDir.toAbsolutePath().toString());
+                
+                builders.add(new ProcessBuilder(cmd));
+            }
+            
             // philosopher report
             if (true) {
                 List<String> cmd = new ArrayList<>();
@@ -5210,6 +5348,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnTryDetectDecoyTag;
     private javax.swing.JCheckBox checkCreateReport;
     private javax.swing.JCheckBox checkDryRun;
+    private javax.swing.JCheckBox checkLabelfree;
     private javax.swing.JCheckBox checkReportDbAnnotate;
     private javax.swing.JCheckBox checkReportFilter;
     private javax.swing.JCheckBox checkReportProteinLevelFdr;
@@ -5262,6 +5401,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JTextArea textPepProphCmd;
     private javax.swing.JTextField textReportAnnotate;
     private javax.swing.JTextField textReportFilter;
+    private javax.swing.JTextField textReportLabelfree;
     private javax.swing.JTextField textSequenceDbPath;
     private javax.swing.JTextField txtCombinedProtFile;
     private javax.swing.JTextArea txtProteinProphetCmdLineOpts;

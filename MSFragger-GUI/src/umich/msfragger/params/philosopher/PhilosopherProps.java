@@ -33,6 +33,7 @@ public class PhilosopherProps {
     public static final String CMD_DATABASE = "database";
     public static final String CMD_FILTER = "filter";
     public static final String CMD_REPORT = "report";
+    public static final String CMD_LABELFREE = "freequant";
     
     public static final String PROTEIN_PROPHET_OUTPUT_FILE = "interact.prot.xml";
     
