@@ -106,10 +106,21 @@
 
         <delete dir="${temp.dir}"/>
 
-        <zip destfile="${store.zip}" level="0" fallbacktoutf8="true" createUnicodeExtraFields="always">
+        <!-- this zip action is now not working well, chaning it to 7z -->
+        <!-- <zip destfile="${store.zip}" level="0" fallbacktoutf8="true" createUnicodeExtraFields="always">
             <fileset dir="${store.dir}" includes="*.jar"/>
             <fileset dir="start-scripts"/>
-        </zip>
+        </zip> -->
+        
+        <!-- the actual name of the 7zip executable might be different on linux -->
+        <property name="7zip" value="7z" />
+        <exec executable="${7zip}">
+            <arg value="a"/>
+            <arg value="${store.zip}"/>
+            <arg value="./${store.dir}/*.jar"/>
+            <arg value="./start-scripts/*"/>
+        </exec>
+        
         
     </target>
     
