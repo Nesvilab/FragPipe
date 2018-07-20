@@ -106,7 +106,7 @@
 
         <delete dir="${temp.dir}"/>
 
-        <zip destfile="${store.zip}">
+        <zip destfile="${store.zip}" level="0" fallbacktoutf8="true" createUnicodeExtraFields="always">
             <fileset dir="${store.dir}" includes="*.jar"/>
             <fileset dir="start-scripts"/>
         </zip>

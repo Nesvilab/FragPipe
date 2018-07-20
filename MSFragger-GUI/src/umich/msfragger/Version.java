@@ -35,7 +35,7 @@ import umich.msfragger.util.VersionComparator;
 public class Version {
     public static final String PROGRAM_TITLE = "FragPipe";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "7.0";
+    public static final String VERSION = "7.1";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
     public static final String PROP_ISSUE_TRACKER_URL = "msfragger.gui.issue-tracker";
     public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
@@ -51,6 +51,9 @@ public class Version {
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>(new VersionComparator());
     
     static {
+        CHANGELOG.put("7.1", Arrays.asList(
+                "Added label free quantitation."));
+        
         CHANGELOG.put("7.0", Arrays.asList(
                 "MFFragger-GUI is now calledFragPipe.",
                 "Clear out Fragger modification tables when loading new parameter files to avoid ghost entries.",
