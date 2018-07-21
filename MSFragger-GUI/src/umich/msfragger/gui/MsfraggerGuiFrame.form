@@ -1137,7 +1137,7 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="438" max="32767" attributes="0"/>
+                      <EmptySpace pref="408" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1158,15 +1158,19 @@
                       <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                      <Component id="checkReportFilter" max="32767" attributes="0"/>
-                                      <Component id="checkReportDbAnnotate" max="32767" attributes="0"/>
+                              <Group type="102" attributes="0">
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                          <Component id="checkReportFilter" max="32767" attributes="0"/>
+                                          <Component id="checkReportDbAnnotate" max="32767" attributes="0"/>
+                                      </Group>
+                                      <Component id="checkLabelfree" alignment="0" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Component id="textReportAnnotate" pref="473" max="32767" attributes="0"/>
                                       <Component id="textReportFilter" max="32767" attributes="0"/>
+                                      <Component id="textReportLabelfree" alignment="0" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
@@ -1194,6 +1198,11 @@
                                   <EmptySpace min="2" pref="2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="textReportLabelfree" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="checkLabelfree" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="checkReportProteinLevelFdr" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
@@ -1209,7 +1218,7 @@
                 </Component>
                 <Component class="javax.swing.JTextField" name="textReportAnnotate">
                   <Properties>
-                    <Property name="toolTipText" type="java.lang.String" value="Path to database fasta file. Preferrably leave it as is."/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;philosopher database --annotate&lt;br/&gt;&#xa;Flags:&lt;br/&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;--prefix string     define a decoy prefix (default &quot;rev_&quot;)&lt;/li&gt;&#xa;&lt;/ul&gt;"/>
                   </Properties>
                   <Events>
                     <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportAnnotateFocusGained"/>
@@ -1227,7 +1236,7 @@
                 </Component>
                 <Component class="javax.swing.JTextField" name="textReportFilter">
                   <Properties>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Additional flags for Philosopher&lt;br/&gt;&#xa;--pepxml path-to-pepxml --protxml path-to-combined-protxml&lt;br/&gt;&#xa;will be added automatically based on previous tabs."/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;--pepxml path-to-pepxml --protxml path-to-combined-protxml&lt;br/&gt;&#xa;will be added automatically based on previous tabs.&lt;br/&gt;&#xa;&#xa;Statistical filtering, validation and False Discovery Rates assessment&lt;br/&gt;&#xa;philosopher filter [flags]&lt;br&gt;&#xa;Flags:&lt;br/&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;--ion float        peptide ion FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--mapmods          map modifications aquired by an open search&lt;/li&gt;&#xa;&lt;li&gt;--models           print model distribution&lt;/li&gt;&#xa;&lt;li&gt;--pep float        peptide FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--pepProb float    top peptide probability treshold for the FDR filtering (default 0.7)&lt;/li&gt;&#xa;&lt;li&gt;--pepxml string    pepXML file or directory containing a set of pepXML files&lt;/li&gt;&#xa;&lt;li&gt;--picked           apply the picked FDR algorithm before the protein scoring&lt;/li&gt;&#xa;&lt;li&gt;--prot float       protein FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--protProb float   protein probability treshold for the FDR filtering (not used with the razor algorithm) (default 0.5)&lt;/li&gt;&#xa;&lt;li&gt;--protxml string   protXML file path&lt;/li&gt;&#xa;&lt;li&gt;--psm float        psm FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--razor            use razor peptides for protein FDR scoring&lt;/li&gt;&#xa;&lt;li&gt;--sequential       alternative algorithm that estimates FDR using both filtered PSM and Protein lists&lt;/li&gt;&#xa;&lt;li&gt;--tag string       decoy tag (default &quot;rev_&quot;)&lt;/li&gt;&#xa;&lt;li&gt;--weight float     threshold for defining peptide uniqueness (default 1)&lt;/li&gt;&#xa;&lt;/ul&gt;"/>
                   </Properties>
                   <Events>
                     <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportFilterFocusGained"/>
@@ -1250,6 +1259,25 @@
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastReportProteinLevelFdr();"/>
                   </AuxValues>
+                </Component>
+                <Component class="javax.swing.JTextField" name="textReportLabelfree">
+                  <Properties>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Label free quantitation&lt;br/&gt;&#xa;Flags:&lt;br/&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;--ptw float    specify the time windows for the peak (minute) (default 0.4)&lt;/li&gt;&#xa;&lt;li&gt;--tol float    m/z tolerance in ppm (default 10)&lt;/li&gt;&#xa;&lt;/ul&gt;"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportLabelfreeFocusGained"/>
+                    <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportLabelfreeFocusLost"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textReportLabelfreeActionPerformed"/>
+                  </Events>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastLabelfree();"/>
+                  </AuxValues>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="checkLabelfree">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Label-free Quant"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Label free quantitation"/>
+                  </Properties>
                 </Component>
               </SubComponents>
             </Container>

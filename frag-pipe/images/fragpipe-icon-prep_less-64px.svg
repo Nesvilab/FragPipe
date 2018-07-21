@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="64"
+   height="64"
+   viewBox="0 0 16.933333 16.933334"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="fragpipe-icon-prep_less-64px.svg"
+   inkscape:export-filename="C:\projects\msfragger-gui\frag-pipe\images\icons\fragpipe-128.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="5.6568543"
+     inkscape:cx="63.222456"
+     inkscape:cy="72.796449"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1858"
+     inkscape:window-height="1057"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     fit-margin-left="5"
+     fit-margin-right="5"
+     fit-margin-bottom="5"
+     fit-margin-top="5"
+     units="px"
+     inkscape:pagecheckerboard="true" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-57.446862,-26.855335)">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.42340803px;line-height:1.25;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.29053971"
+       x="61.742779"
+       y="38.811535"
+       id="text1407"><tspan
+         sodipodi:role="line"
+         id="tspan1405"
+         x="61.742779"
+         y="38.811535"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Faster One';-inkscape-font-specification:'Faster One';stroke-width:0.29053971">FP</tspan></text>
+    <rect
+       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#7d7d7d;stroke-width:0.59566206;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       id="rect893-6-5"
+       width="9.5298929"
+       height="5.164309"
+       x="61.256763"
+       y="34.581856"
+       inkscape:export-filename="C:\Users\dmitr\Google Drive\base\umich\asms_2018\msfragger-based-framework\fragpipe-01.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300" />
+    <path
+       style="fill:#9b1313;fill-opacity:1;stroke-width:0.03923624"
+       d="m 64.897366,34.293973 -0.01311,-0.317725 -1.796321,-1.061265 -1.79632,-1.376467 -0.575743,-0.0018 -0.575749,-0.0018 c -1.020316,-0.02163 -0.913043,-0.98259 -0.01846,-0.987275 l 5.861022,-0.0341 h 5.974674 c 0.873388,0.01869 0.840773,1.009484 0.02007,1.005035 l -0.691273,0.0167 -0.691268,0.01671 -1.921516,1.384762 -1.921507,1.069564 -0.0011,0.304206 z m 3.049884,-1.792095 c 0.414064,-0.230481 0.812833,-0.759056 1.169915,-0.9665 h -1.183733 -1.18373 v 0.971061 0.655855 l 0.0576,-0.03239 0.0576,-0.03239 z m -3.039931,-0.03295 v -0.933541 h -1.068576 -1.068582 c 0.364516,0.23766 0.756074,0.773242 1.077791,0.963382 l 0.990282,0.586014 0.03455,0.0012 0.03456,0.0012 v -0.618318 z m 0.921191,-2.865201 c 0.379104,0 0.837781,0.276784 0.921192,0.667007 H 65.82851 64.907319 c 0.08183,-0.442429 0.542089,-0.667007 0.921191,-0.667007 z"
+       id="path826-4-2-3"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccccccccccccccccccccccccccccccaccca"
+       inkscape:export-filename="C:\Users\dmitr\Google Drive\base\umich\asms_2018\msfragger-based-framework\fragpipe-01.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300" />
+    <g
+       id="g1187-7"
+       style="fill:none;fill-opacity:1;stroke:#7d7d7d;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       transform="matrix(0.59566205,0,0,0.59566205,-10.870507,18.052252)"
+       inkscape:export-filename="C:\Users\dmitr\Google Drive\base\umich\asms_2018\msfragger-based-framework\fragpipe-01.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300">
+      <rect
+         y="25.843342"
+         x="117.37968"
+         height="12.385521"
+         width="2.9782262"
+         id="rect850-6-7-5"
+         style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#7d7d7d;stroke-width:1;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1081-52"
+         d="m 116.17308,28.05268 h 1.36496"
+         style="fill:none;fill-opacity:1;stroke:#7d7d7d;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1081-2-12"
+         d="m 116.17308,30.698515 h 1.36496"
+         style="fill:none;fill-opacity:1;stroke:#7d7d7d;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         inkscape:transform-center-y="-0.20221603"
+         inkscape:transform-center-x="0.10110802"
+         inkscape:connector-curvature="0"
+         id="path1081-2-0-92"
+         d="m 116.17308,33.34435 h 1.36496"
+         style="fill:none;fill-opacity:1;stroke:#7d7d7d;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         inkscape:transform-center-y="-0.20221603"
+         inkscape:transform-center-x="0.10110802"
+         inkscape:connector-curvature="0"
+         id="path1081-2-0-2-3"
+         d="m 116.17308,35.990185 h 1.36496"
+         style="fill:none;fill-opacity:1;stroke:#7d7d7d;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+    <g
+       id="g1403"
+       transform="matrix(0.87562513,0,0,0.87562513,-5.1387476,12.384427)">
+      <g
+         inkscape:export-ydpi="300"
+         inkscape:export-xdpi="300"
+         inkscape:export-filename="C:\Users\dmitr\Google Drive\base\umich\asms_2018\msfragger-based-framework\fragpipe-01.png"
+         transform="matrix(0.68027062,0,0,0.68027062,-20.354448,6.4728889)"
+         style="fill:none;fill-opacity:1;stroke:#7d7d7d;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="g1194-9">
+        <rect
+           style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#7d7d7d;stroke-width:1;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+           id="rect850-6-0-0-4"
+           width="2.9782279"
+           height="12.385521"
+           x="158.12105"
+           y="25.843342" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#7d7d7d;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="m 160.89817,28.013414 h 1.36496"
+           id="path1081-5-7"
+           inkscape:connector-curvature="0" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#7d7d7d;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="m 160.89817,30.659249 h 1.36496"
+           id="path1081-2-1-7"
+           inkscape:connector-curvature="0" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#7d7d7d;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="m 160.89817,33.305084 h 1.36496"
+           id="path1081-2-0-9-0"
+           inkscape:connector-curvature="0"
+           inkscape:transform-center-x="0.10110802"
+           inkscape:transform-center-y="-0.20221603" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#7d7d7d;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="m 160.89817,35.950919 h 1.36496"
+           id="path1081-2-0-2-4-0"
+           inkscape:connector-curvature="0"
+           inkscape:transform-center-x="0.10110802"
+           inkscape:transform-center-y="-0.20221603" />
+      </g>
+    </g>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot1266"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.66666603px;line-height:1.25;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       transform="scale(0.26458333)"><flowRegion
+         id="flowRegion1268"><rect
+           id="rect1270"
+           width="302.45883"
+           height="102.74365"
+           x="277.44635"
+           y="491.05026" /></flowRegion><flowPara
+         id="flowPara1272"></flowPara></flowRoot>  </g>
+</svg>

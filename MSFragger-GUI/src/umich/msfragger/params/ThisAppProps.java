@@ -48,6 +48,7 @@ public class ThisAppProps extends Properties {
     public static final String PROP_TEXTFIELD_PATH_PROTEIN_PROPHET = "path.textfield.protein-prophet";
     public static final String PROP_TEXTFIELD_REPORT_ANNOTATE = "report.annotate";
     public static final String PROP_TEXTFIELD_REPORT_FILTER = "report.filter";
+    public static final String PROP_TEXTFIELD_LABELFREE = "report.labelfree";
     public static final String PROP_TEXTFIELD_SEQUENCE_DB = "sequence.db";
     public static final String PROP_TEXTFIELD_DECOY_TAG = "decoy.tag";
     public static final String PROP_CHECKBOX_REPORT_PROTEIN_LEVEL_FDR = "report.proteinlevelfdr";
@@ -158,7 +159,7 @@ public class ThisAppProps extends Properties {
     public void save() {
         Path path = Paths.get(TEMP_DIR, TEMP_FILE_NAME);
         try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
-            store(fos, "MSFragger GUI runtime properties");
+            store(fos, Version.PROGRAM_TITLE + " runtime properties");
         } catch (IOException ex) {
             //log.warn("Could not load properties from temporary directory: {}", ex.getMessage());
         }

@@ -33,6 +33,7 @@ public class PhilosopherProps {
     public static final String CMD_DATABASE = "database";
     public static final String CMD_FILTER = "filter";
     public static final String CMD_REPORT = "report";
+    public static final String CMD_LABELFREE = "freequant";
     
     public static final String PROTEIN_PROPHET_OUTPUT_FILE = "interact.prot.xml";
     
@@ -41,6 +42,6 @@ public class PhilosopherProps {
     public static final String PROP_LATEST_COMPATIBLE_VERSION = "philosopher.version.latest-compatible";
     public static final String PROP_DOWNLOAD_URL = "philosopher.download.url";
     
-    public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/chhh/MSFragger-GUI/master/MSFragger-GUI/src/umich/msfragger/params/philosopher/philosopher.properties";
+    public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/philosopher/philosopher.properties";
     public static final URI PROPERTIES_URI = URI.create(PROPERTIES_URL);
 }
