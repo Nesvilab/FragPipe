@@ -1,5 +1,7 @@
-<img src="frag-pipe/images/fragpipe-01.png" width="350px">
-<img src="logo/msfragger-logo.png" width="350px">
+![Release](https://img.shields.io/github/release/chhh/FragPipe.svg) ![Downloads](https://img.shields.io/github/downloads/chhh/FragPipe/total.svg)
+
+<img src="frag-pipe/images/fragpipe-01.png" width="350px"/>
+<img src="logo/msfragger-logo.png" width="350px"/>
 
 # FragPipe (previously - MSfragger GUI)
 This is a very basic Java GUI wrapper for [MSFragger](http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html) - ultrafast proteomic search engine.  
