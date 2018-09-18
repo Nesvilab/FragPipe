@@ -76,6 +76,8 @@ public class FraggerPanel extends javax.swing.JPanel {
     private BalloonTip dbPathTip = null;
     WeakReference<MsfraggerGuiFrame> frame = null;
     
+    int stateDbSlicing = 1;
+    
     /**
      * Creates new form FraggerPanel
      * @param frame The frame this panel is added to. This is just a kludge as
@@ -562,6 +564,8 @@ public class FraggerPanel extends javax.swing.JPanel {
         spinnerPrecursorMassTolLo = new javax.swing.JSpinner();
         jLabel2 = new javax.swing.JLabel();
         spinnerPrecursorMassTolHi = new javax.swing.JSpinner();
+        spinnerSlices = new javax.swing.JSpinner();
+        lblSlices = new javax.swing.JLabel();
         btnSave = new javax.swing.JButton();
         btnLoad = new javax.swing.JButton();
         chkRunMsfragger = new javax.swing.JCheckBox();
@@ -1206,6 +1210,12 @@ public class FraggerPanel extends javax.swing.JPanel {
 
         spinnerPrecursorMassTolHi.setModel(new javax.swing.SpinnerNumberModel(20.0d, null, null, 10.0d));
 
+        spinnerSlices.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
+        spinnerSlices.setToolTipText("<html>Split database into smaller chunks.<br/>\nIf you're wondering what's that for, you likely don't need it.");
+
+        lblSlices.setText("Slice up database");
+        lblSlices.setToolTipText("<html>Split database into smaller chunks.<br/>\nIf you're wondering what's that for, you likely don't need it.");
+
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
         jPanel9Layout.setHorizontalGroup(
@@ -1221,7 +1231,10 @@ public class FraggerPanel extends javax.swing.JPanel {
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(spinnerPrecursorMassTolHi, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblSlices)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(spinnerSlices, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1232,7 +1245,9 @@ public class FraggerPanel extends javax.swing.JPanel {
                     .addComponent(comboPrecursorMassTol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(spinnerPrecursorMassTolLo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
-                    .addComponent(spinnerPrecursorMassTolHi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(spinnerPrecursorMassTolHi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(spinnerSlices, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblSlices))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1550,6 +1565,17 @@ public class FraggerPanel extends javax.swing.JPanel {
         return f;
     }
     
+    public void enableDbSlicing(boolean enabled) {
+        spinnerSlices.setEnabled(enabled);
+        lblSlices.setEnabled(enabled);
+        if (!enabled) {
+            stateDbSlicing = (Integer)spinnerSlices.getValue();
+            spinnerSlices.setValue(1);
+        } else {
+            spinnerSlices.setValue(stateDbSlicing);
+        }
+    }
+    
     private void validateFraggerDbPath() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -1744,6 +1770,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblAddTopNComplementary;
     private javax.swing.JLabel lblRam;
+    private javax.swing.JLabel lblSlices;
     private javax.swing.JLabel lblThreads;
     private javax.swing.JLabel lblTrackZeroTopN;
     private javax.swing.JLabel lblZeroBinAcceptExpect;
@@ -1776,6 +1803,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     private javax.swing.JSpinner spinnerPrecursorMassTolLo;
     private javax.swing.JSpinner spinnerPrecursorTrueTol;
     private javax.swing.JSpinner spinnerReportTopN;
+    private javax.swing.JSpinner spinnerSlices;
     private javax.swing.JSpinner spinnerTrackZeroTopN;
     private javax.swing.JSpinner spinnerUseTopNPeaks;
     private javax.swing.JSpinner spinnerZeroBinAcceptExpect;

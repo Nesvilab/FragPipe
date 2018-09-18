@@ -1275,6 +1275,9 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="spinnerPrecursorMassTolHi" min="-2" pref="70" max="-2" attributes="0"/>
                               <EmptySpace max="32767" attributes="0"/>
+                              <Component id="lblSlices" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="spinnerSlices" min="-2" pref="45" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -1288,6 +1291,8 @@
                                   <Component id="spinnerPrecursorMassTolLo" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="spinnerPrecursorMassTolHi" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="spinnerSlices" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="lblSlices" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="32767" attributes="0"/>
                           </Group>
@@ -1330,6 +1335,20 @@
                         <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                           <SpinnerModel initial="20.0" numberType="java.lang.Double" stepSize="10.0" type="number"/>
                         </Property>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JSpinner" name="spinnerSlices">
+                      <Properties>
+                        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                          <SpinnerModel initial="1" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                        </Property>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Split database into smaller chunks.&lt;br/&gt;&#xa;If you&apos;re wondering what&apos;s that for, you likely don&apos;t need it."/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="lblSlices">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Slice up database"/>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Split database into smaller chunks.&lt;br/&gt;&#xa;If you&apos;re wondering what&apos;s that for, you likely don&apos;t need it."/>
                       </Properties>
                     </Component>
                   </SubComponents>

@@ -47,6 +47,7 @@ public class MsfraggerProps {
     public static final String PROPERTIES_FILE_NAME = "msfragger.properties";
         
     public static final String PROP_LATEST_VERSION = "msfragger.version.latest-known";
+    public static final String PROP_MIN_VERSION_SLICING = "msfragger.version.min-for-slicing";
     public static final String PROP_DOWNLOAD_URL = "msfragger.download.url";
     
     public static final String PROP_UPDATESERVER_WEBSITE_URL = "msfragger.update-server.website.url";
