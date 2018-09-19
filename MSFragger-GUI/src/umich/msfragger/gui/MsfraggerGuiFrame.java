@@ -127,8 +127,10 @@ import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
+import umich.msfragger.util.FileDelete;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.FileListing;
+import umich.msfragger.util.FileMove;
 import umich.msfragger.util.GhostText;
 import umich.msfragger.util.HSLColor;
 import umich.msfragger.util.LogUtils;
@@ -560,6 +562,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         btnReportErrors = new javax.swing.JButton();
         btnRun = new javax.swing.JButton();
         btnExportLog = new javax.swing.JButton();
+        btnOpenInExplorer = new javax.swing.JButton();
 
         jLabel2.setText("jLabel2");
 
@@ -849,7 +852,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 .addComponent(btnFindTools)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(lblFindAutomatically)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 155, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 168, Short.MAX_VALUE)
                                 .addComponent(btnClearCache))))
                     .addGroup(panelConfigLayout.createSequentialGroup()
                         .addContainerGap()
@@ -941,7 +944,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         .addComponent(btnRawAddFolder)
                         .addGap(18, 18, 18)
                         .addComponent(chkProcessEachFiileSeparately)
-                        .addGap(0, 121, Short.MAX_VALUE)))
+                        .addGap(0, 134, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelSelectedFilesLayout.setVerticalGroup(
@@ -1026,7 +1029,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelDbInfoLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE)
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 615, Short.MAX_VALUE)
                     .addGroup(panelDbInfoLayout.createSequentialGroup()
                         .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(panelDbInfoLayout.createSequentialGroup()
@@ -1118,7 +1121,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addGap(29, 29, 29)
                 .addComponent(jLabel34)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE)
                 .addContainerGap())
         );
         panelPeptideProphetOptionsLayout.setVerticalGroup(
@@ -1221,7 +1224,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane4))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelProteinProphetOptionsLayout.createSequentialGroup()
-                        .addContainerGap(239, Short.MAX_VALUE)
+                        .addContainerGap(252, Short.MAX_VALUE)
                         .addComponent(chkProteinProphetInteractStar))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelProteinProphetOptionsLayout.createSequentialGroup()
                         .addGap(59, 59, 59)
@@ -1366,7 +1369,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                             .addComponent(checkLabelfree))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(textReportAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE)
+                            .addComponent(textReportAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE)
                             .addComponent(textReportFilter)
                             .addComponent(textReportLabelfree)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -1510,6 +1513,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
+        btnOpenInExplorer.setText("Open in Explorer");
+        btnOpenInExplorer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnOpenInExplorerActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelRunLayout = new javax.swing.GroupLayout(panelRun);
         panelRun.setLayout(panelRunLayout);
         panelRunLayout.setHorizontalGroup(
@@ -1518,26 +1528,30 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(consoleScrollPane)
-                    .addGroup(panelRunLayout.createSequentialGroup()
-                        .addComponent(btnRun)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnStop)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(checkDryRun)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 91, Short.MAX_VALUE)
-                        .addComponent(btnExportLog)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnReportErrors)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnAbout)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnClearConsole))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRunLayout.createSequentialGroup()
-                        .addComponent(lblOutputDir)
+                        .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(panelRunLayout.createSequentialGroup()
+                                .addComponent(lblOutputDir)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtWorkingDir))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelRunLayout.createSequentialGroup()
+                                .addComponent(btnRun)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnStop)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(checkDryRun)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 82, Short.MAX_VALUE)
+                                .addComponent(btnExportLog)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnReportErrors)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtWorkingDir)
+                        .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(btnAbout)
+                            .addComponent(btnSelectWrkingDir))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnSelectWrkingDir)))
+                        .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnClearConsole, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnOpenInExplorer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         panelRunLayout.setVerticalGroup(
@@ -1547,7 +1561,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblOutputDir)
                     .addComponent(btnSelectWrkingDir)
-                    .addComponent(txtWorkingDir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtWorkingDir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnOpenInExplorer))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnStop)
@@ -1570,7 +1585,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(tabPane))
+                .addComponent(tabPane, javax.swing.GroupLayout.DEFAULT_SIZE, 672, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -3865,6 +3880,33 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_textBinMsfraggerActionPerformed
 
+    private void btnOpenInExplorerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOpenInExplorerActionPerformed
+        String text = txtWorkingDir.getText().trim();
+        Path wd = null;
+        try {
+            wd = Paths.get(text);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, 
+                    "Path:\n'" + text + "'\nDoes not look to be valid", "Invalid path", 
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        if (!Files.exists(wd)) {
+            JOptionPane.showMessageDialog(this, 
+                    "Path:\n'" + text + "'\nDoes not exist", "Not exists", 
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        try {
+            Desktop.getDesktop().open(wd.toFile());
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, 
+                    "Could not open path in system file browser.", "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnOpenInExplorerActionPerformed
+
     public void loadLastPeptideProphet() {
         if (!load(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET)) {
             loadDefaultsPeptideProphet(DEFAULT_TYPE);
@@ -5652,6 +5694,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnMsfraggerBinBrowse;
     private javax.swing.JButton btnMsfraggerBinDownload;
     private javax.swing.JButton btnMsfraggerUpdate;
+    private javax.swing.JButton btnOpenInExplorer;
     private javax.swing.JButton btnPepProphDefaultsClosed;
     private javax.swing.JButton btnPepProphDefaultsOpen;
     private javax.swing.JButton btnPhilosopherBinBrowse;
