@@ -50,6 +50,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
@@ -3892,10 +3893,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     private void btnOpenInExplorerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOpenInExplorerActionPerformed
         String text = txtWorkingDir.getText().trim();
+        if (StringUtils.isNullOrWhitespace(text)) {
+            JOptionPane.showMessageDialog(this, 
+                    "Empty path", "Not exists", 
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
         Path wd = null;
         try {
             wd = Paths.get(text);
-        } catch (Exception e) {
+        } catch (InvalidPathException e) {
             JOptionPane.showMessageDialog(this, 
                     "Path:\n'" + text + "'\nDoes not look to be valid", "Invalid path", 
                     JOptionPane.WARNING_MESSAGE);
@@ -3914,6 +3921,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, 
                     "Could not open path in system file browser.", "Error", 
                     JOptionPane.ERROR_MESSAGE);
+            return;
         }
     }//GEN-LAST:event_btnOpenInExplorerActionPerformed
 
