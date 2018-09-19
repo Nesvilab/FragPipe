@@ -178,6 +178,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     
     private Path slicingScriptPath = null;
     private boolean slicingEnabled = false;
+    private String pythonCommand = null;
     
     private Pattern reDecoyTagReportAnnotate = Pattern.compile("--prefix\\s+([^\\s]+)");
     private Pattern reDecoyTagReportFilter = Pattern.compile("--tag\\s+([^\\s]+)");
@@ -2113,6 +2114,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 boolean isPandasInstalled = false;
                 boolean isNumpyInstalled = false;
                 boolean isFraggerVerCompatible = false;
+                boolean isSlicingScriptUnpacked = false;
                 slicingEnabled = false;
                 fraggerPanel.enableDbSlicing(false);
                 
@@ -2126,19 +2128,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //                            tempFile.toAbsolutePath().normalize().toString(),
 //                                "Unpacked", JOptionPane.INFORMATION_MESSAGE);
                     slicingScriptPath = tempFile;
-                } catch (IOException ex) {
+                    isSlicingScriptUnpacked = true;
+                } catch (IOException | NullPointerException ex) {
                     JOptionPane.showMessageDialog(MsfraggerGuiFrame.this, 
                             "Could not unpack assets to temporary directory.\n"
                                     + "DB slicing won't be enabled.",
                                 "Can't unpack", JOptionPane.WARNING_MESSAGE);
                 }
-                String ho = sb.toString();
                 
                 StringBuilder info = new StringBuilder("Python Info:");
                 try {
                     final String pythonCmd = tryPythonCommand();
                     if (pythonCmd.isEmpty())
                         return;
+                    pythonCommand = pythonCmd;
                     // checking python version
                     ProcessBuilder pb = new ProcessBuilder(pythonCmd, "--version");
                     pb.redirectErrorStream(true);
@@ -2163,8 +2166,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     }
                     int exitCode = pr.waitFor();
                     
+                    
                     String[] packages = {"numpy", "pandas"};
                     //python -c "import pkgutil; print(1 if pkgutil.find_loader(\"pandas\") else 0)"
+                    
+                    
                     ProcessBuilder pbNumpy = new ProcessBuilder(pythonCmd, 
                             "-c", "\"import pkgutil; print(1 if pkgutil.find_loader(\\\"numpy\\\") else 0)\"");
                     Process prNumpy = pbNumpy.start();
@@ -2176,7 +2182,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         }
                     }
                     exitCode = pr.waitFor();
-                    info.append(" NumPy - ").append(isNumpyInstalled ? "Yes." : "No.");
+                    if (isNumpyInstalled) {
+                        info.append(" NumPy - Yes.");
+                    } else {
+                        info.append(" NumPy - No.");
+                    }
                     
                     ProcessBuilder pbPandas = new ProcessBuilder(pythonCmd, 
                             "-c", "\"import pkgutil; print(1 if pkgutil.find_loader(\\\"pandas\\\") else 0)\"");
@@ -2189,21 +2199,26 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         }
                     }
                     exitCode = pr.waitFor();
-                    info.append(" Pandas - ").append(isPandasInstalled ? "Yes." : "No.");
+                    if (isNumpyInstalled) {
+                        info.append(" Pandas - Yes.");
+                    } else {
+                        info.append(" Pandas - No.");
+                    }
                     
                     
                     VersionComparator cmp = new VersionComparator();
+                    String minFraggerVer = "20180912";
                     Properties props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
-                    String minFraggerVer = props.getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING);
-                    if (minFraggerVer == null)
-                        minFraggerVer = "20180912";
+                    if (props != null)
+                        minFraggerVer = props.getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, "20180912");
                     int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
                     if (fraggerVersionCmp >= 0) {
                         isFraggerVerCompatible = true;
                     }
                     
                     lblPythonInfo.setText(info.toString());
-                    if (isPython3 && isNumpyInstalled && isPandasInstalled && isFraggerVerCompatible) {
+                    if (isPython3 && isNumpyInstalled && isPandasInstalled 
+                            && isFraggerVerCompatible && isSlicingScriptUnpacked) {
                         fraggerPanel.enableDbSlicing(true);
                         slicingEnabled = true;
                         lblPythonMore.setText("Slicing enabled");
@@ -2214,12 +2229,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         if (isPython3 && isNumpyInstalled && isPandasInstalled) {
                             err.append("OK.");
                         } else {
-                            err.append("Need Python 3 with NumPy, Pandas.");
+                            err.append("<b>Need Python 3 with NumPy, Pandas</b>.");
                         }
                         if (isFraggerVerCompatible) {
                             err.append(" MSFragger: OK.");
                         } else {
-                            err.append(" MSFragger: Update to version ").append(minFraggerVer).append("+.");
+                            err.append(" <b>MSFragger: Update to version</b>.").append(minFraggerVer).append("+.");
+                        }
+                        if (isSlicingScriptUnpacked) {
+                            err.append(" Scripts: Unpacked OK.");
+                        } else {
+                            err.append(" <b>Scripts: NOT Unpacked</b>.");
                         }
                         
                         lblPythonMore.setText(err.toString());
@@ -4582,6 +4602,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         List<ProcessBuilder> builders = new LinkedList<>();
         if (fraggerPanel.isRunMsfragger()) {
 
+            final int numSlices = fraggerPanel.getNumSlices();
+            final boolean isSlicing = numSlices > 1;
+            if (isSlicing) {
+                // slicing requested
+                if (!slicingEnabled || slicingScriptPath == null) {
+                    JOptionPane.showMessageDialog(this, 
+                            "MSFragger number of DB slices requested was more than 1.\n"
+                            + "However not all preconditions for enabling slicing were met.\n"
+                            + "Check the bottom of \"Config\" tab for details.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return null;
+                }
+            }
+            
             String bin = textBinMsfragger.getText().trim();
             if (StringUtils.isNullOrWhitespace(bin)) {
                 JOptionPane.showMessageDialog(this, "Binary for running Fragger can not be an empty string.\n",
@@ -4628,16 +4662,30 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             Map<String, String> mapRawToPep = createPepxmlFilePathsDirty(lcmsFilePaths, params.getOutputFileExtension());
 
             StringBuilder sb = new StringBuilder();
-            final int commandLenLimit = 8192;
+            // 32k symbols splitting for regular command. 
+            // But for slicing it's all up to the python script.
+            //final int commandLenLimit = isSlicing ? Integer.MAX_VALUE : 1 << 15;
+            final int commandLenLimit = 1 << 15;
 
+            
+            
             int fileIndex = 0;
             while (fileIndex < lcmsFilePaths.size()) {
                 int fileIndexLo = fileIndex;
                 ArrayList<String> cmd = new ArrayList<>();
+                if (isSlicing) {
+                    cmd.add(pythonCommand);
+                    cmd.add(slicingScriptPath.toAbsolutePath().normalize().toString());
+                    cmd.add(Integer.toString(numSlices));
+                    cmd.add("\"");
+                }
                 cmd.add("java");
                 cmd.add("-jar");
                 if (ramGb > 0) {
                     cmd.add(new StringBuilder().append("-Xmx").append(ramGb).append("G").toString());
+                }
+                if (isSlicing) {
+                    cmd.add("\"");
                 }
                 cmd.add(bin);
                 cmd.add(savedParamsPath.toString());

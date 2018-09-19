@@ -148,6 +148,10 @@ public class FraggerPanel extends javax.swing.JPanel {
         }
     }
     
+    public int getNumSlices() {
+        return (Integer)spinnerSlices.getValue();
+    }
+    
     public String getFastaPath() {
         MsfraggerGuiFrame f = frame.get();
         if (f == null)
