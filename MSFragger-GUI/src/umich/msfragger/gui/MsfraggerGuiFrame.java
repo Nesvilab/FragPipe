@@ -2172,7 +2172,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     
                     
                     ProcessBuilder pbNumpy = new ProcessBuilder(pythonCmd, 
-                            "-c", "\"import pkgutil; print(1 if pkgutil.find_loader(\\\"numpy\\\") else 0)\"");
+                            "-c", "import pkgutil; print(1 if pkgutil.find_loader('numpy') else 0)");
                     Process prNumpy = pbNumpy.start();
                     try (BufferedReader in = new BufferedReader(new InputStreamReader(prNumpy.getInputStream()))) {
                         String line;
@@ -2189,7 +2189,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     }
                     
                     ProcessBuilder pbPandas = new ProcessBuilder(pythonCmd, 
-                            "-c", "\"import pkgutil; print(1 if pkgutil.find_loader(\\\"pandas\\\") else 0)\"");
+                            "-c", "import pkgutil; print(1 if pkgutil.find_loader('pandas') else 0)");
                     Process prPandas = pbPandas.start();
                     try (BufferedReader in = new BufferedReader(new InputStreamReader(prPandas.getInputStream()))) {
                         String line;
