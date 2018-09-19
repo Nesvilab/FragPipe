@@ -31,6 +31,7 @@ import umich.msfragger.util.PropertiesUtils;
  */
 public class MsfraggerProps {
     public static final String PROGRAM_NAME = "MSFragger";
+    public static final String PYTHON_SPLITTER_NAME = "msfragger_pep_split.py";
     
     /** Umich Tech Ttransfer Office MSFragger download URL. */
     public static final String DOWNLOAD_URL = "http://inventions.umich.edu/technologies/7143_msfrager-ultrafast-and-comprehensive-identification-of-peptides-from-tandem-mass-spectra";
@@ -47,6 +48,7 @@ public class MsfraggerProps {
     public static final String PROPERTIES_FILE_NAME = "msfragger.properties";
         
     public static final String PROP_LATEST_VERSION = "msfragger.version.latest-known";
+    public static final String PROP_MIN_VERSION_SLICING = "msfragger.version.min-for-slicing";
     public static final String PROP_DOWNLOAD_URL = "msfragger.download.url";
     
     public static final String PROP_UPDATESERVER_WEBSITE_URL = "msfragger.update-server.website.url";
