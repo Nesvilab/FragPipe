@@ -2199,7 +2199,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         }
                     }
                     exitCode = pr.waitFor();
-                    if (isNumpyInstalled) {
+                    if (isPandasInstalled) {
                         info.append(" Pandas - Yes.");
                     } else {
                         info.append(" Pandas - No.");
