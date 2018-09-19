@@ -2112,7 +2112,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private Installed checkPythonPackageAvailability(String pythonCmd, String pkgName) {
         boolean isInstalled = false;
         ProcessBuilder pb = new ProcessBuilder(pythonCmd,
-                "-c", "\"import pkgutil; print(1 if pkgutil.find_loader(\\\"" + pkgName + "\\\") else 0)\"");
+                "-c", "import pkgutil; print(1 if pkgutil.find_loader('" + pkgName + "') else 0)");
         Process pr = null;
         boolean isError = false;
         try {
