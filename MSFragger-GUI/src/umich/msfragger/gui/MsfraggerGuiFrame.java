@@ -539,7 +539,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         btnProtProphDefaultsClosed = new javax.swing.JButton();
         btnProtProphDefaultsOpen = new javax.swing.JButton();
         panelReport = new javax.swing.JPanel();
-        jPanel1 = new javax.swing.JPanel();
+        panelReportOptions = new javax.swing.JPanel();
         checkReportDbAnnotate = new javax.swing.JCheckBox();
         textReportAnnotate = new javax.swing.JTextField();
         checkReportFilter = new javax.swing.JCheckBox();
@@ -1294,7 +1294,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         tabPane.addTab("ProteinProphet", panelProteinProphet);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Options"));
+        panelReportOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("Options"));
 
         checkReportDbAnnotate.setSelected(true);
         checkReportDbAnnotate.setText("Database Annotation");
@@ -1311,6 +1311,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         checkReportFilter.setSelected(true);
         checkReportFilter.setText("Filter");
+        checkReportFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkReportFilterActionPerformed(evt);
+            }
+        });
 
         textReportFilter.setToolTipText("<html>--pepxml path-to-pepxml --protxml path-to-combined-protxml<br/>\nwill be added automatically based on previous tabs.<br/>\n\nStatistical filtering, validation and False Discovery Rates assessment<br/>\nphilosopher filter [flags]<br>\nFlags:<br/>\n<ul>\n<li>--ion float        peptide ion FDR level (default 0.01)</li>\n<li>--mapmods          map modifications aquired by an open search</li>\n<li>--models           print model distribution</li>\n<li>--pep float        peptide FDR level (default 0.01)</li>\n<li>--pepProb float    top peptide probability treshold for the FDR filtering (default 0.7)</li>\n<li>--pepxml string    pepXML file or directory containing a set of pepXML files</li>\n<li>--picked           apply the picked FDR algorithm before the protein scoring</li>\n<li>--prot float       protein FDR level (default 0.01)</li>\n<li>--protProb float   protein probability treshold for the FDR filtering (not used with the razor algorithm) (default 0.5)</li>\n<li>--protxml string   protXML file path</li>\n<li>--psm float        psm FDR level (default 0.01)</li>\n<li>--razor            use razor peptides for protein FDR scoring</li>\n<li>--sequential       alternative algorithm that estimates FDR using both filtered PSM and Protein lists</li>\n<li>--tag string       decoy tag (default \"rev_\")</li>\n<li>--weight float     threshold for defining peptide uniqueness (default 1)</li>\n</ul>");
         textReportFilter.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -1354,43 +1359,43 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         checkLabelfree.setText("Label-free Quant");
         checkLabelfree.setToolTipText("<html>Label free quantitation");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout panelReportOptionsLayout = new javax.swing.GroupLayout(panelReportOptions);
+        panelReportOptions.setLayout(panelReportOptionsLayout);
+        panelReportOptionsLayout.setHorizontalGroup(
+            panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelReportOptionsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelReportOptionsLayout.createSequentialGroup()
+                        .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addComponent(checkReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(checkReportDbAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addComponent(checkLabelfree))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(textReportAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE)
                             .addComponent(textReportFilter)
                             .addComponent(textReportLabelfree)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(panelReportOptionsLayout.createSequentialGroup()
                         .addComponent(checkReportProteinLevelFdr)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        panelReportOptionsLayout.setVerticalGroup(
+            panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelReportOptionsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(checkReportDbAnnotate)
                     .addComponent(textReportAnnotate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(checkReportFilter)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(panelReportOptionsLayout.createSequentialGroup()
                         .addComponent(textReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
                         .addGap(2, 2, 2)))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textReportLabelfree, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(checkLabelfree))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -1406,6 +1411,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         checkCreateReport.setSelected(true);
         checkCreateReport.setText("Create report");
         checkCreateReport.setToolTipText("<html>Create tab separated report files with \nsome statistics about search results.");
+        checkCreateReport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkCreateReportActionPerformed(evt);
+            }
+        });
 
         btnReportDefaultsClosed.setText("Defaults Closed Search");
         btnReportDefaultsClosed.addActionListener(new java.awt.event.ActionListener() {
@@ -1434,7 +1444,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         .addComponent(btnReportDefaultsOpen)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnReportDefaultsClosed))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(panelReportOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelReportLayout.setVerticalGroup(
@@ -1447,7 +1457,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         .addComponent(btnReportDefaultsClosed)
                         .addComponent(btnReportDefaultsOpen)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panelReportOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(496, Short.MAX_VALUE))
         );
 
@@ -1585,7 +1595,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(tabPane, javax.swing.GroupLayout.DEFAULT_SIZE, 672, Short.MAX_VALUE))
+                .addComponent(tabPane))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -3907,6 +3917,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnOpenInExplorerActionPerformed
 
+    private void checkCreateReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkCreateReportActionPerformed
+        final boolean selected = checkCreateReport.isSelected();
+        Container[] comps = new Container[]{
+            panelReportOptions
+        };
+        for (Container c : comps) {
+            SwingUtils.enableComponents(c, selected);
+        }
+    }//GEN-LAST:event_checkCreateReportActionPerformed
+
+    private void checkReportFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkReportFilterActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_checkReportFilterActionPerformed
+
     public void loadLastPeptideProphet() {
         if (!load(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET)) {
             loadDefaultsPeptideProphet(DEFAULT_TYPE);
@@ -4774,11 +4798,26 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             final int commandLenLimit = 1 << 15;
 
             
-            
-            int fileIndex = 0;
             final URI currentJarUri = PathUtils.getCurrentJarPath();
             final String currentJarPath = Paths.get(currentJarUri).toAbsolutePath().toString();
             final Path wdPath = Paths.get(workingDir);
+            
+            
+            // delete temp slicing index dir before run
+            final String tempDirName = "split_peptide_index_tempdir";
+            if (isSlicing) {
+                // delete temp directory 'split_peptide_index_tempdir'
+                Path toDelete = wdPath.resolve(tempDirName).toAbsolutePath().normalize();
+                // schedule to always try to delete the temp dir when FragPipe finishes execution
+                toDelete.toFile().deleteOnExit();
+                if (Files.exists(toDelete)) {
+                    builders.add(new ProcessBuilder("echo", "Temporary peptide index folder exists, will delete before running."));
+                    builders.add(new ProcessBuilder("java", "-cp", currentJarPath, FileDelete.class.getCanonicalName(), toDelete.toString()));
+                }
+            }
+            
+            int fileIndex = 0;
+            
             while (fileIndex < lcmsFilePaths.size()) {
                 int fileIndexLo = fileIndex;
                 ArrayList<String> cmd = new ArrayList<>();
@@ -4848,19 +4887,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
             if (isSlicing) {
                 // delete temp directory 'split_peptide_index_tempdir'
-                final String tempDirName = "split_peptide_index_tempdir";
+                // schedule the system process command and also 
+                // ask the JVM to delete the file before stopping JVM
                 Path toDelete = wdPath.resolve(tempDirName).toAbsolutePath().normalize();
-                // schedule to always try to delete the temp dir when FragPipe finishes execution
+                builders.add(new ProcessBuilder("java", "-cp", currentJarPath, FileDelete.class.getCanonicalName(), toDelete.toString()));
                 toDelete.toFile().deleteOnExit();
-                ArrayList<String> cmdDel = new ArrayList<>();
-                cmdDel.add("java");
-                cmdDel.add("-cp");
-                cmdDel.add(currentJarPath);
-                //cmdDel.add("umich.msfragger.util.FileMove");
-                cmdDel.add(FileDelete.class.getCanonicalName());
-                cmdDel.add(toDelete.toString());
-                ProcessBuilder pbFileDel = new ProcessBuilder(cmdDel);
-                builders.add(pbFileDel);
             }
         }
         
@@ -5751,7 +5782,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel40;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -5775,6 +5805,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelProteinProphet;
     private javax.swing.JPanel panelProteinProphetOptions;
     private javax.swing.JPanel panelReport;
+    private javax.swing.JPanel panelReportOptions;
     private javax.swing.JPanel panelRun;
     private javax.swing.JPanel panelSelectFiles;
     private javax.swing.JPanel panelSelectedFiles;
