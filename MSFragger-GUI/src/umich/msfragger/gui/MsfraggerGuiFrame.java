@@ -53,6 +53,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DateFormat;
@@ -174,6 +175,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private String textReportFilterFocusGained = null;
     private String textDecoyTagFocusGained = null;
     private String textLabelfreeFocusGained = null;
+    
+    private Path slicingScriptPath = null;
+    private boolean slicingEnabled = false;
     
     private Pattern reDecoyTagReportAnnotate = Pattern.compile("--prefix\\s+([^\\s]+)");
     private Pattern reDecoyTagReportFilter = Pattern.compile("--tag\\s+([^\\s]+)");
@@ -2109,7 +2113,26 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 boolean isPandasInstalled = false;
                 boolean isNumpyInstalled = false;
                 boolean isFraggerVerCompatible = false;
+                slicingEnabled = false;
                 fraggerPanel.enableDbSlicing(false);
+                
+                StringBuilder sb = new StringBuilder();
+                try {
+                    InputStream in = getClass().getResourceAsStream("/" + MsfraggerProps.PYTHON_SPLITTER_NAME); 
+                    Path tempFile = Files.createTempFile("fragpipe-", "-" + MsfraggerProps.PYTHON_SPLITTER_NAME);
+                    tempFile.toFile().deleteOnExit();
+                    Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
+//                    JOptionPane.showMessageDialog(MsfraggerGuiFrame.this, 
+//                            tempFile.toAbsolutePath().normalize().toString(),
+//                                "Unpacked", JOptionPane.INFORMATION_MESSAGE);
+                    slicingScriptPath = tempFile;
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(MsfraggerGuiFrame.this, 
+                            "Could not unpack assets to temporary directory.\n"
+                                    + "DB slicing won't be enabled.",
+                                "Can't unpack", JOptionPane.WARNING_MESSAGE);
+                }
+                String ho = sb.toString();
                 
                 StringBuilder info = new StringBuilder("Python Info:");
                 try {
@@ -2182,19 +2205,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     lblPythonInfo.setText(info.toString());
                     if (isPython3 && isNumpyInstalled && isPandasInstalled && isFraggerVerCompatible) {
                         fraggerPanel.enableDbSlicing(true);
+                        slicingEnabled = true;
                         lblPythonMore.setText("Slicing enabled");
                     } else {
-                        StringBuilder err = new StringBuilder("Slicing disabled.");
+                        slicingEnabled = false;
+                        StringBuilder err = new StringBuilder("<html><b>Slicing disabled</b>.");
                         err.append(" Python install: ");
                         if (isPython3 && isNumpyInstalled && isPandasInstalled) {
-                            err.append("OK");
+                            err.append("OK.");
                         } else {
                             err.append("Need Python 3 with NumPy, Pandas.");
                         }
                         if (isFraggerVerCompatible) {
                             err.append(" MSFragger: OK.");
                         } else {
-                            err.append(" MSFragger: need ver ").append(minFraggerVer).append("+.");
+                            err.append(" MSFragger: Update to version ").append(minFraggerVer).append("+.");
                         }
                         
                         lblPythonMore.setText(err.toString());
