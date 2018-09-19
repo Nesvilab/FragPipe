@@ -4776,6 +4776,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             
             
             int fileIndex = 0;
+            final URI currentJarUri = PathUtils.getCurrentJarPath();
+            final String currentJarPath = Paths.get(currentJarUri).toAbsolutePath().toString();
+            final Path wdPath = Paths.get(workingDir);
             while (fileIndex < lcmsFilePaths.size()) {
                 int fileIndexLo = fileIndex;
                 ArrayList<String> cmd = new ArrayList<>();
@@ -4821,10 +4824,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
                 // move the files if the output directory is not the same as where
                 // the lcms files were
-                URI currentJarUri = PathUtils.getCurrentJarPath();
-                String currentJarPath = Paths.get(currentJarUri).toAbsolutePath().toString();
-                Path wdPath = Paths.get(workingDir);
-
+                
                 for (int i = fileIndexLo; i < fileIndex; i++) {
                     String pepFile = mapRawToPep.get(lcmsFilePaths.get(i));
                     Path pepPath = Paths.get(pepFile);
@@ -4834,7 +4834,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         cmdMove.add("java");
                         cmdMove.add("-cp");
                         cmdMove.add(currentJarPath);
-                        cmdMove.add("umich.msfragger.util.FileMove");
+                        //cmdMove.add("umich.msfragger.util.FileMove");
+                        cmdMove.add(FileMove.class.getCanonicalName());
                         String origin = pepPath.toAbsolutePath().toString();
                         String destination = Paths.get(wdPath.toString(), pepPath.getFileName().toString()).toString();
                         cmdMove.add(origin);
@@ -4845,7 +4846,24 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 }
             }
 
+            if (isSlicing) {
+                // delete temp directory 'split_peptide_index_tempdir'
+                final String tempDirName = "split_peptide_index_tempdir";
+                Path toDelete = wdPath.resolve(tempDirName).toAbsolutePath().normalize();
+                // schedule to always try to delete the temp dir when FragPipe finishes execution
+                toDelete.toFile().deleteOnExit();
+                ArrayList<String> cmdDel = new ArrayList<>();
+                cmdDel.add("java");
+                cmdDel.add("-cp");
+                cmdDel.add(currentJarPath);
+                //cmdDel.add("umich.msfragger.util.FileMove");
+                cmdDel.add(FileDelete.class.getCanonicalName());
+                cmdDel.add(toDelete.toString());
+                ProcessBuilder pbFileDel = new ProcessBuilder(cmdDel);
+                builders.add(pbFileDel);
+            }
         }
+        
 
         return builders;
     }
