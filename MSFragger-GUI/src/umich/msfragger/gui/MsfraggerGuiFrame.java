@@ -2139,33 +2139,34 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 StringBuilder info = new StringBuilder("Python Info:");
                 try {
                     final String pythonCmd = tryPythonCommand();
-                    if (pythonCmd.isEmpty())
-                        return;
-                    pythonCommand = pythonCmd;
-                    // checking python version
-                    ProcessBuilder pb = new ProcessBuilder(pythonCmd, "--version");
-                    pb.redirectErrorStream(true);
-                    Process pr = pb.start();
-                    try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
-                        Pattern pythonVersionRe = Pattern.compile("(python\\s+[0-9\\.]+)", Pattern.CASE_INSENSITIVE);
-                        String line;
-                        while ((line = in.readLine()) != null) {
-                            Matcher m = pythonVersionRe.matcher(line);
-                            if (m.find()) {
-                                version = m.group(1);
-                                info.append(" " + version + ".");
-                                Pattern verRe = Pattern.compile("python\\s+([0-9]+)", Pattern.CASE_INSENSITIVE);
-                                Matcher m1 = verRe.matcher(version);
-                                if (m1.find()) {
-                                    String pythonMajorVer = m1.group(1);
-                                    if ("3".equals(pythonMajorVer))
-                                        isPython3 = true;
+                    if (pythonCmd == null || pythonCmd.isEmpty()) {
+                        info.append("No python or python3 command found.");
+                    } else {
+                        pythonCommand = pythonCmd;
+                        // checking python version
+                        ProcessBuilder pb = new ProcessBuilder(pythonCmd, "--version");
+                        pb.redirectErrorStream(true);
+                        Process pr = pb.start();
+                        try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
+                            Pattern pythonVersionRe = Pattern.compile("(python\\s+[0-9\\.]+)", Pattern.CASE_INSENSITIVE);
+                            String line;
+                            while ((line = in.readLine()) != null) {
+                                Matcher m = pythonVersionRe.matcher(line);
+                                if (m.find()) {
+                                    version = m.group(1);
+                                    info.append(" " + version + ".");
+                                    Pattern verRe = Pattern.compile("python\\s+([0-9]+)", Pattern.CASE_INSENSITIVE);
+                                    Matcher m1 = verRe.matcher(version);
+                                    if (m1.find()) {
+                                        String pythonMajorVer = m1.group(1);
+                                        if ("3".equals(pythonMajorVer))
+                                            isPython3 = true;
+                                    }
                                 }
                             }
                         }
+                        int exitCode = pr.waitFor();
                     }
-                    int exitCode = pr.waitFor();
-                    
                     
                     String[] packages = {"numpy", "pandas"};
                     //python -c "import pkgutil; print(1 if pkgutil.find_loader(\"pandas\") else 0)"
@@ -2181,7 +2182,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 isNumpyInstalled = true;
                         }
                     }
-                    exitCode = pr.waitFor();
+                    int exitCode = prNumpy.waitFor();
                     if (isNumpyInstalled) {
                         info.append(" NumPy - Yes.");
                     } else {
@@ -2198,7 +2199,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 isPandasInstalled = true;
                         }
                     }
-                    exitCode = pr.waitFor();
+                    exitCode = prPandas.waitFor();
                     if (isNumpyInstalled) {
                         info.append(" Pandas - Yes.");
                     } else {
