@@ -67,6 +67,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -2079,29 +2080,75 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         return messages;
     }
     
-    private static String tryPythonCommand() throws IOException, InterruptedException {
+    private static String tryPythonCommand() throws Exception {
         String[] commands = {"python", "python3"};
         for(String cmd : commands) {
-            // checking python version
-//            String version = "";
             ProcessBuilder pb = new ProcessBuilder(cmd, "--version");
             pb.redirectErrorStream(true);
-            Process pr = pb.start();
-            BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-//            Pattern pythonVersionRe = Pattern.compile("(python\\s+[0-9\\.]+)", Pattern.CASE_INSENSITIVE);
-//            String line;
-//            while ((line = in.readLine()) != null) {
-//                Matcher m = pythonVersionRe.matcher(line);
-//                if (m.matches()) {
-//                    version = m.group(1);
-//                }
-//            }
-            int exitCode = pr.waitFor();
-            if (exitCode == 0) {
-                return cmd;
+
+            Process pr;
+            try {
+                pr = pb.start();
+            } catch (IOException ex) {
+                throw new Exception("Could not start the python/python3 process.");
+            }
+            try {
+                int exitCode = pr.waitFor();
+                if (exitCode == 0) {
+                    return cmd;
+                }
+            } catch (InterruptedException ex) {
+                throw new Exception("Error waiting for python/python3 process to finish.");
             }
         }
-        return "";
+        return null;
+    }
+    
+    
+    public enum Installed {
+        YES, NO, UNKNOWN
+    }
+    
+    private Installed checkPythonPackageAvailability(String pythonCmd, String pkgName) {
+        boolean isInstalled = false;
+        ProcessBuilder pb = new ProcessBuilder(pythonCmd,
+                "-c", "\"import pkgutil; print(1 if pkgutil.find_loader(\\\"" + pkgName + "\\\") else 0)\"");
+        Process pr = null;
+        boolean isError = false;
+        try {
+            pr = pb.start();
+        } catch (IOException ex) {
+            Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, 
+                    "Could not start python " + pkgName + " check process", ex);
+            isError = true;
+        }
+        if (pr != null) {
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
+                String line;
+                while ((line = in.readLine()) != null) {
+                    if ("1".equals(line))
+                        isInstalled = true;
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, 
+                        "Could not read python " + pkgName + " check output", ex);
+                isError = true;
+            }
+            try {
+                int exitCode = pr.waitFor();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, 
+                        "Error while waiting for python " + pkgName + " check process to finish", ex);
+            }
+        }
+
+        if (isInstalled) {
+            return Installed.YES;
+        } else if (!isError) {
+            return Installed.NO;
+        } else {
+            return Installed.UNKNOWN;
+        }
     }
     
     private void validatePythonAndSlicingVersion() {
@@ -2111,22 +2158,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             public void run() {
                 String version = "";
                 boolean isPython3 = false;
-                boolean isPandasInstalled = false;
-                boolean isNumpyInstalled = false;
+                final String[] packages = {"numpy", "pandas"};
+                Map<String, Boolean> isPkgInstalled = new LinkedHashMap<>();
+                for (String pkg : packages)
+                    isPkgInstalled.put(pkg, false);
                 boolean isFraggerVerCompatible = false;
                 boolean isSlicingScriptUnpacked = false;
                 slicingEnabled = false;
                 fraggerPanel.enableDbSlicing(false);
                 
-                StringBuilder sb = new StringBuilder();
                 try {
                     InputStream in = getClass().getResourceAsStream("/" + MsfraggerProps.PYTHON_SPLITTER_NAME); 
                     Path tempFile = Files.createTempFile("fragpipe-", "-" + MsfraggerProps.PYTHON_SPLITTER_NAME);
                     tempFile.toFile().deleteOnExit();
                     Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
-//                    JOptionPane.showMessageDialog(MsfraggerGuiFrame.this, 
-//                            tempFile.toAbsolutePath().normalize().toString(),
-//                                "Unpacked", JOptionPane.INFORMATION_MESSAGE);
                     slicingScriptPath = tempFile;
                     isSlicingScriptUnpacked = true;
                 } catch (IOException | NullPointerException ex) {
@@ -2136,25 +2181,41 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 "Can't unpack", JOptionPane.WARNING_MESSAGE);
                 }
                 
-                StringBuilder info = new StringBuilder("Python Info:");
+                StringBuilder sbPythonInfo = new StringBuilder("Python Info:");
+                String pythonCmd = null;
                 try {
-                    final String pythonCmd = tryPythonCommand();
-                    if (pythonCmd == null || pythonCmd.isEmpty()) {
-                        info.append("No python or python3 command found.");
-                    } else {
-                        pythonCommand = pythonCmd;
-                        // checking python version
-                        ProcessBuilder pb = new ProcessBuilder(pythonCmd, "--version");
-                        pb.redirectErrorStream(true);
-                        Process pr = pb.start();
-                        try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
+                    pythonCmd = tryPythonCommand();
+                } catch (Exception ex) {
+                    sbPythonInfo.append(" " + ex.getMessage());
+                }
+                
+                if (StringUtils.isNullOrWhitespace(pythonCmd)) {
+                    sbPythonInfo.append(" Python command not found on PATH.");
+                } else {
+                    pythonCommand = pythonCmd;
+                    // checking python version
+                    ProcessBuilder pb = new ProcessBuilder(pythonCmd, "--version");
+                    pb.redirectErrorStream(true);
+
+                    Process prPythonVer = null;
+                    try {
+                        prPythonVer = pb.start();
+                    } catch (IOException ex) {
+                        sbPythonInfo.append(" Could not start 'python --version' process.");
+                    }
+                    
+                    if (prPythonVer != null) {
+                        
+                        try (BufferedReader in = new BufferedReader(new InputStreamReader(prPythonVer.getInputStream()))) {
                             Pattern pythonVersionRe = Pattern.compile("(python\\s+[0-9\\.]+)", Pattern.CASE_INSENSITIVE);
+                            boolean isPythonVerFound = false;
                             String line;
                             while ((line = in.readLine()) != null) {
                                 Matcher m = pythonVersionRe.matcher(line);
                                 if (m.find()) {
+                                    isPythonVerFound = true;
                                     version = m.group(1);
-                                    info.append(" " + version + ".");
+                                    sbPythonInfo.append(" ").append(version).append(".");
                                     Pattern verRe = Pattern.compile("python\\s+([0-9]+)", Pattern.CASE_INSENSITIVE);
                                     Matcher m1 = verRe.matcher(version);
                                     if (m1.find()) {
@@ -2164,91 +2225,93 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                     }
                                 }
                             }
-                        }
-                        int exitCode = pr.waitFor();
-                    }
-                    
-                    String[] packages = {"numpy", "pandas"};
-                    //python -c "import pkgutil; print(1 if pkgutil.find_loader(\"pandas\") else 0)"
-                    
-                    
-                    ProcessBuilder pbNumpy = new ProcessBuilder(pythonCmd, 
-                            "-c", "\"import pkgutil; print(1 if pkgutil.find_loader(\\\"numpy\\\") else 0)\"");
-                    Process prNumpy = pbNumpy.start();
-                    try (BufferedReader in = new BufferedReader(new InputStreamReader(prNumpy.getInputStream()))) {
-                        String line;
-                        while ((line = in.readLine()) != null) {
-                            if ("1".equals(line))
-                                isNumpyInstalled = true;
-                        }
-                    }
-                    int exitCode = prNumpy.waitFor();
-                    if (isNumpyInstalled) {
-                        info.append(" NumPy - Yes.");
-                    } else {
-                        info.append(" NumPy - No.");
-                    }
-                    
-                    ProcessBuilder pbPandas = new ProcessBuilder(pythonCmd, 
-                            "-c", "\"import pkgutil; print(1 if pkgutil.find_loader(\\\"pandas\\\") else 0)\"");
-                    Process prPandas = pbPandas.start();
-                    try (BufferedReader in = new BufferedReader(new InputStreamReader(prPandas.getInputStream()))) {
-                        String line;
-                        while ((line = in.readLine()) != null) {
-                            if ("1".equals(line))
-                                isPandasInstalled = true;
-                        }
-                    }
-                    exitCode = prPandas.waitFor();
-                    if (isNumpyInstalled) {
-                        info.append(" Pandas - Yes.");
-                    } else {
-                        info.append(" Pandas - No.");
-                    }
-                    
-                    
-                    VersionComparator cmp = new VersionComparator();
-                    String minFraggerVer = "20180912";
-                    Properties props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
-                    if (props != null)
-                        minFraggerVer = props.getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, "20180912");
-                    int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
-                    if (fraggerVersionCmp >= 0) {
-                        isFraggerVerCompatible = true;
-                    }
-                    
-                    lblPythonInfo.setText(info.toString());
-                    if (isPython3 && isNumpyInstalled && isPandasInstalled 
-                            && isFraggerVerCompatible && isSlicingScriptUnpacked) {
-                        fraggerPanel.enableDbSlicing(true);
-                        slicingEnabled = true;
-                        lblPythonMore.setText("Slicing enabled");
-                    } else {
-                        slicingEnabled = false;
-                        StringBuilder err = new StringBuilder("<html><b>Slicing disabled</b>.");
-                        err.append(" Python install: ");
-                        if (isPython3 && isNumpyInstalled && isPandasInstalled) {
-                            err.append("OK.");
-                        } else {
-                            err.append("<b>Need Python 3 with NumPy, Pandas</b>.");
-                        }
-                        if (isFraggerVerCompatible) {
-                            err.append(" MSFragger: OK.");
-                        } else {
-                            err.append(" <b>MSFragger: Update to version</b>.").append(minFraggerVer).append("+.");
-                        }
-                        if (isSlicingScriptUnpacked) {
-                            err.append(" Scripts: Unpacked OK.");
-                        } else {
-                            err.append(" <b>Scripts: NOT Unpacked</b>.");
+                            
+                            if (!isPythonVerFound) {
+                                sbPythonInfo.append(" Python version was not found in 'python --vesrion' output.");
+                            }
+                            
+                        } catch (IOException ex) {
+                            sbPythonInfo.append(" Could not read python version from the python process.");
                         }
                         
-                        lblPythonMore.setText(err.toString());
+                        try {
+                            int exitCode = prPythonVer.waitFor();
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, 
+                                    "Error waiting for python --version process to finish", ex);
+                        }
                     }
+                }
+                
+                for (String pkg : packages) {
+                    if (pythonCmd == null) {
+                        sbPythonInfo.append(" ").append(pkg).append(" - N/A.");
+                    } else {
+                        Installed inst = checkPythonPackageAvailability(pythonCmd, pkg);
+                        switch (inst) {
+                            case YES:
+                                isPkgInstalled.put(pkg, true);
+                                sbPythonInfo.append(" ").append(pkg).append(" - Yes.");
+                                break;
+                            case NO:
+                                sbPythonInfo.append(" ").append(pkg).append(" - No.");
+                                break;
+                            case UNKNOWN:
+                                sbPythonInfo.append(" ").append(pkg).append(" - N/A.");
+                                break;
+                            default:
+                                throw new AssertionError(inst.name());
+                        }
+                    }
+                }
                     
-                } catch (IOException | InterruptedException ex) {
-                    lblPythonInfo.setText("Python info could not be gathered");
-                    throw new IllegalStateException("Could not run python check process");
+                VersionComparator cmp = new VersionComparator();
+                String minFraggerVer = "20180912";
+                Properties props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
+                if (props != null)
+                    minFraggerVer = props.getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, "20180912");
+                int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
+                if (fraggerVersionCmp >= 0) {
+                    isFraggerVerCompatible = true;
+                }
+
+                lblPythonInfo.setText(sbPythonInfo.toString());
+                boolean areAllPkgsInstalled = true;
+                for (String pkg : packages) {
+                    Boolean isInstalled = isPkgInstalled.get(pkg);
+                    if (isInstalled == null || !isInstalled) {
+                        areAllPkgsInstalled = false;
+                        break;
+                    }
+                }
+                if (isPython3 && areAllPkgsInstalled 
+                        && isFraggerVerCompatible && isSlicingScriptUnpacked) {
+                    fraggerPanel.enableDbSlicing(true);
+                    slicingEnabled = true;
+                    lblPythonMore.setText("Slicing enabled");
+                } else {
+                    slicingEnabled = false;
+                    StringBuilder err = new StringBuilder("<html><b>Slicing disabled</b>.");
+                    err.append(" Python install: ");
+                    if (isPython3 && areAllPkgsInstalled) {
+                        err.append("OK.");
+                    } else {
+                        err.append("<b>Need Python 3 with [")
+                                .append(StringUtils.join(packages, ", "))
+                                .append("]</b>.");
+                    }
+                    if (isFraggerVerCompatible) {
+                        err.append(" MSFragger: OK.");
+                    } else {
+                        err.append(" MSFragger: <b>Update to version: ").append(minFraggerVer).append("+</b>.");
+                    }
+                    if (isSlicingScriptUnpacked) {
+                        err.append(" Scripts: Unpacked OK.");
+                    } else {
+                        err.append(" Scripts: <b>NOT Unpacked</b>.");
+                    }
+
+                    lblPythonMore.setText(err.toString());
                 }
             }
         });
