@@ -645,6 +645,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         spinnerSlices.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
         spinnerSlices.setToolTipText("<html>Split database into smaller chunks.<br/>\nIf you're wondering what's that for, you likely don't need it.");
 
+        lblSlices.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
         lblSlices.setText("Slice up database");
         lblSlices.setToolTipText("<html>Split database into smaller chunks.<br/>\nIf you're wondering what's that for, you likely don't need it.");
 

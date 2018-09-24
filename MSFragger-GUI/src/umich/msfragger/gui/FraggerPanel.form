@@ -413,6 +413,9 @@
                 </Component>
                 <Component class="javax.swing.JLabel" name="lblSlices">
                   <Properties>
+                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                      <Font name="Tahoma" size="11" style="2"/>
+                    </Property>
                     <Property name="text" type="java.lang.String" value="Slice up database"/>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Split database into smaller chunks.&lt;br/&gt;&#xa;If you&apos;re wondering what&apos;s that for, you likely don&apos;t need it."/>
                   </Properties>
