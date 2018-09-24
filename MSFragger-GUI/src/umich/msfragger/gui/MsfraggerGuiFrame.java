@@ -128,7 +128,6 @@ import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
-import umich.msfragger.util.FileDelete;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.FileMove;
@@ -2292,10 +2291,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 }
                     
                 VersionComparator cmp = new VersionComparator();
+                // for the lack of a better default, we'll just hard code this here
                 String minFraggerVer = "20180924";
                 Properties props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
                 if (props != null)
-                    minFraggerVer = props.getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, "20180924");
+                    minFraggerVer = props.getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, minFraggerVer);
                 int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
                 if (fraggerVersionCmp >= 0) {
                     isFraggerVerCompatible = true;
@@ -4811,8 +4811,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             final Path wdPath = Paths.get(workingDir);
             
             
-            // delete temp slicing index dir before run
-            final String tempDirName = "split_peptide_index_tempdir";
+            if (isSlicing) {
+                // schedule to always try to delete the temp dir when FragPipe finishes execution
+                final String tempDirName = "split_peptide_index_tempdir";
+                Path toDelete = wdPath.resolve(tempDirName).toAbsolutePath().normalize();
+                toDelete.toFile().deleteOnExit();
+            }
             
             int fileIndex = 0;
             
