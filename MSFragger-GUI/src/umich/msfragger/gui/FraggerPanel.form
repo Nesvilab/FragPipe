@@ -198,7 +198,7 @@
                                               <Component id="spinnerDigestLenMax" pref="66" max="32767" attributes="0"/>
                                           </Group>
                                           <EmptySpace type="separate" max="-2" attributes="0"/>
-                                          <Group type="103" groupAlignment="0" attributes="0">
+                                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                               <Group type="102" attributes="0">
                                                   <Component id="jLabel16" min="-2" max="-2" attributes="0"/>
                                                   <EmptySpace max="-2" attributes="0"/>
@@ -208,7 +208,13 @@
                                                   <EmptySpace max="-2" attributes="0"/>
                                                   <Component id="spinnerDigestMassMax" min="-2" pref="70" max="-2" attributes="0"/>
                                               </Group>
-                                              <Component id="checkClipNTerm" min="-2" max="-2" attributes="0"/>
+                                              <Group type="102" attributes="0">
+                                                  <Component id="checkClipNTerm" min="-2" max="-2" attributes="0"/>
+                                                  <EmptySpace max="32767" attributes="0"/>
+                                                  <Component id="lblSlices" min="-2" max="-2" attributes="0"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Component id="spinnerSlices" min="-2" pref="45" max="-2" attributes="0"/>
+                                              </Group>
                                           </Group>
                                       </Group>
                                   </Group>
@@ -252,6 +258,8 @@
                               <Component id="jLabel18" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="spinnerMaxFragCharge" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="checkClipNTerm" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="spinnerSlices" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblSlices" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -393,6 +401,20 @@
                     <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                       <SpinnerModel initial="2" minimum="0" numberType="java.lang.Integer" stepSize="1" type="number"/>
                     </Property>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JSpinner" name="spinnerSlices">
+                  <Properties>
+                    <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                      <SpinnerModel initial="1" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                    </Property>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Split database into smaller chunks.&lt;br/&gt;&#xa;If you&apos;re wondering what&apos;s that for, you likely don&apos;t need it."/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="lblSlices">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Slice up database"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Split database into smaller chunks.&lt;br/&gt;&#xa;If you&apos;re wondering what&apos;s that for, you likely don&apos;t need it."/>
                   </Properties>
                 </Component>
               </SubComponents>
@@ -1274,10 +1296,9 @@
                               <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="spinnerPrecursorMassTolHi" min="-2" pref="70" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="chkAdjustMass" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="32767" attributes="0"/>
-                              <Component id="lblSlices" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="spinnerSlices" min="-2" pref="45" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -1291,8 +1312,7 @@
                                   <Component id="spinnerPrecursorMassTolLo" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="spinnerPrecursorMassTolHi" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="spinnerSlices" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="lblSlices" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="chkAdjustMass" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="32767" attributes="0"/>
                           </Group>
@@ -1337,18 +1357,10 @@
                         </Property>
                       </Properties>
                     </Component>
-                    <Component class="javax.swing.JSpinner" name="spinnerSlices">
+                    <Component class="javax.swing.JCheckBox" name="chkAdjustMass">
                       <Properties>
-                        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                          <SpinnerModel initial="1" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
-                        </Property>
-                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Split database into smaller chunks.&lt;br/&gt;&#xa;If you&apos;re wondering what&apos;s that for, you likely don&apos;t need it."/>
-                      </Properties>
-                    </Component>
-                    <Component class="javax.swing.JLabel" name="lblSlices">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Slice up database"/>
-                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Split database into smaller chunks.&lt;br/&gt;&#xa;If you&apos;re wondering what&apos;s that for, you likely don&apos;t need it."/>
+                        <Property name="text" type="java.lang.String" value="Adjust precursor mass"/>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Try to trace MS1 signals, adjusting MS2 precursor mass"/>
                       </Properties>
                     </Component>
                   </SubComponents>
