@@ -2292,10 +2292,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 }
                     
                 VersionComparator cmp = new VersionComparator();
-                String minFraggerVer = "20180912";
+                String minFraggerVer = "20180924";
                 Properties props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
                 if (props != null)
-                    minFraggerVer = props.getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, "20180912");
+                    minFraggerVer = props.getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, "20180924");
                 int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
                 if (fraggerVersionCmp >= 0) {
                     isFraggerVerCompatible = true;
@@ -4813,16 +4813,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             
             // delete temp slicing index dir before run
             final String tempDirName = "split_peptide_index_tempdir";
-            if (isSlicing) {
-                // delete temp directory 'split_peptide_index_tempdir'
-                Path toDelete = wdPath.resolve(tempDirName).toAbsolutePath().normalize();
-                // schedule to always try to delete the temp dir when FragPipe finishes execution
-                toDelete.toFile().deleteOnExit();
-                if (Files.exists(toDelete)) {
-                    builders.add(new ProcessBuilder("echo", "Temporary peptide index folder exists, will delete before running."));
-                    builders.add(new ProcessBuilder("java", "-cp", currentJarPath, FileDelete.class.getCanonicalName(), toDelete.toString()));
-                }
-            }
             
             int fileIndex = 0;
             
@@ -4891,15 +4881,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         builders.add(pbFileMove);
                     }
                 }
-            }
-
-            if (isSlicing) {
-                // delete temp directory 'split_peptide_index_tempdir'
-                // schedule the system process command and also 
-                // ask the JVM to delete the file before stopping JVM
-                Path toDelete = wdPath.resolve(tempDirName).toAbsolutePath().normalize();
-                builders.add(new ProcessBuilder("java", "-cp", currentJarPath, FileDelete.class.getCanonicalName(), toDelete.toString()));
-                toDelete.toFile().deleteOnExit();
             }
         }
         
