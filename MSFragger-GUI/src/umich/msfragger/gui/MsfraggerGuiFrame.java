@@ -345,6 +345,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 validateAndSaveMsfraggerPath(textBinMsfragger.getText());
                 validateAndSavePhilosopherPath(textBinPhilosopher.getText());
                 checkPreviouslySavedParams();
+                validateMsadjusterEligibility();
                 validatePythonAndSlicingVersion();
             }
         });
@@ -1839,6 +1840,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
         
         // rerun slicing checks
+        validateMsadjusterEligibility();
         validatePythonAndSlicingVersion();
     }//GEN-LAST:event_btnMsfraggerBinBrowseActionPerformed
 
@@ -2177,7 +2179,33 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
     }
     
-    private void validatePythonAndSlicingVersion() {
+    public void validateMsadjusterEligibility() {
+        Thread t;
+        t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean enableMsadjuster = false;
+                String minFraggerVer = null;
+                Properties props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
+                if (props != null)
+                    minFraggerVer = props.getProperty(MsfraggerProps.PROP_MIN_VERSION_MSADJUSTER, minFraggerVer);
+                if (minFraggerVer == null) {
+                    throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_MSADJUSTER + 
+                            " property needs to be in the local properties: " + MsfraggerProps.PROPERTIES_FILE_NAME);
+                }
+                
+                VersionComparator cmp = new VersionComparator();
+                int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
+                if (fraggerVersionCmp >= 0) {
+                    enableMsadjuster = true;
+                }
+                fraggerPanel.enableMsadjuster(enableMsadjuster);
+            }
+        });
+        t.start();
+    }
+    
+    public void validatePythonAndSlicingVersion() {
         Thread t;
         t = new Thread(new Runnable() {
             @Override
@@ -2293,10 +2321,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     
                 VersionComparator cmp = new VersionComparator();
                 // for the lack of a better default, we'll just hard code this here
-                String minFraggerVer = "20180924";
+                String minFraggerVer = null;
                 Properties props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
                 if (props != null)
                     minFraggerVer = props.getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, minFraggerVer);
+                if (minFraggerVer == null) {
+                    throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_SLICING + 
+                            " property needs to be in the local properties: " + MsfraggerProps.PROPERTIES_FILE_NAME);
+                }
                 int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
                 if (fraggerVersionCmp >= 0) {
                     isFraggerVerCompatible = true;
@@ -4650,14 +4682,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         List<String> toMove = new ArrayList<>();
     }
 
-    public static void unpackFromJar(String name, boolean scheduleForDeletion) {
+    public static Path unpackFromJar(String resourcePath, String resourceName, boolean scheduleForDeletion) throws IOException {
         
-        InputStream in = MsfraggerGuiFrame.class.getResourceAsStream("/" + name);
-        Path tempFile = Files.createTempFile("fragpipe-", "-" + name);
-        if (scheduleForDeletion)
-            tempFile.toFile().deleteOnExit();
-        Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
-        in.close();
+        try (InputStream in = MsfraggerGuiFrame.class.getResourceAsStream(resourcePath + "/" + resourceName)) {
+            Path tempFile = Files.createTempFile("fragpipe-", "-" + resourceName);
+            if (scheduleForDeletion)
+                tempFile.toFile().deleteOnExit();
+            Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
+            return tempFile;
+        }
     }
     
     private List<ProcessBuilder> processBuildersMsadjuster(String workingDir, List<String> lcmsFilePaths) {
@@ -4668,17 +4701,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             String currentJarPath = Paths.get(currentJarUri).toAbsolutePath().toString();
             Path wd = Paths.get(workingDir);
 
-            Path jarPath = null;
+            Path jarPath;
+            Path depsPath;
             try {
-                // msadjuster jar
-                
                 // common deps
-                in = getClass().getResourceAsStream("/" + CrystalcProps.JAR_COMMON_DEPS);
-                tempFile = Files.createTempFile("fragpipe-", "-" + CrystalcProps.JAR_COMMON_DEPS);
-                tempFile.toFile().deleteOnExit();
-                Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
-                in.close();
-                
+                depsPath = unpackFromJar("", CrystalcProps.JAR_COMMON_DEPS, true);
+                // msadjuster jar
+                jarPath = unpackFromJar("", CrystalcProps.JAR_MSADJUSTER_NAME, true);
                 
             } catch (IOException | NullPointerException ex) {
                 JOptionPane.showMessageDialog(MsfraggerGuiFrame.this, 
@@ -4694,11 +4723,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 ArrayList<String> cmd = new ArrayList<>();
                 Path fileIn = Paths.get(lcmsFilePath);
                 cmd.add("java");
-                cmd.add("-jar");
                 if (ramGb > 0) {
                     cmd.add(new StringBuilder().append("-Xmx").append(ramGb).append("G").toString());
                 }
-                cmd.add(jarPath.toAbsolutePath().normalize().toString());
+                if (depsPath != null) {
+                    cmd.add("-cp");
+                    List<String> toJoin = new ArrayList<>();
+                    toJoin.add(depsPath.toAbsolutePath().normalize().toString());
+                    toJoin.add(jarPath.toAbsolutePath().normalize().toString());
+                    final String sep = System.getProperties().getProperty("path.separator");
+                    cmd.add("\"" + org.apache.commons.lang3.StringUtils.join(toJoin, sep) + "\"");
+                    cmd.add(CrystalcProps.JAR_MSADJUSTER_MAIN_CLASS);
+                } else {
+                    cmd.add("-jar");
+                    cmd.add(jarPath.toAbsolutePath().normalize().toString());
+                }
                 cmd.add("20");
                 cmd.add(lcmsFilePath);
                 processBuilders.add(new ProcessBuilder(cmd));

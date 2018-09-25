@@ -1444,6 +1444,14 @@ public class FraggerPanel extends javax.swing.JPanel {
         for (Container c : comps) {
             SwingUtils.enableComponents(c, selected);
         }
+        
+        if (frame != null) {
+            MsfraggerGuiFrame f = frame.get();
+            if (f != null) {
+                f.validatePythonAndSlicingVersion();
+                f.validateMsadjusterEligibility();
+            }
+        }
     }//GEN-LAST:event_chkRunMsfraggerActionPerformed
 
     private void btnLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadActionPerformed
@@ -1598,6 +1606,10 @@ public class FraggerPanel extends javax.swing.JPanel {
         } else {
             spinnerSlices.setValue(stateDbSlicing);
         }
+    }
+    
+    public void enableMsadjuster(boolean enabled) {
+        chkMsadjuster.setEnabled(enabled);
     }
     
     private void validateFraggerDbPath() {
