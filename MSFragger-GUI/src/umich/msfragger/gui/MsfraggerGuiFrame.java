@@ -4671,21 +4671,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         return sb.toString();
     }
 
-    private static class UmpireGarbageFiles {
-
-        static List<String> filesToMove = Arrays.asList("diaumpire_se.log");
-        static List<String> fileNameSuffixesToMove = Arrays.asList(
-                "_Peak", ".DIAWindowsFS", ".RTidxFS",
-                ".ScanClusterMapping_Q1", ".ScanClusterMapping_Q2", ".ScanClusterMapping_Q3",
-                ".ScanidxFS", ".ScanPosFS", ".ScanRTFS", "_diasetting.ser", "_params.ser",
-                "_Q1.mgf", "_Q2.mgf", "_Q3.mgf");
-        List<String> toMove = new ArrayList<>();
-    }
-
-    public static Path unpackFromJar(String resourcePath, String resourceName, boolean scheduleForDeletion) throws IOException {
+    public static Path unpackFromJar(String resourcePath, String resourceName, 
+            boolean randomizeName, boolean scheduleForDeletion) throws IOException {
         
         try (InputStream in = MsfraggerGuiFrame.class.getResourceAsStream(resourcePath + "/" + resourceName)) {
-            Path tempFile = Files.createTempFile("fragpipe-", "-" + resourceName);
+            Path tempFile;
+            if (randomizeName) {
+                tempFile = Files.createTempFile("fragpipe-", "-" + resourceName);
+            } else {
+                
+            }
             if (scheduleForDeletion)
                 tempFile.toFile().deleteOnExit();
             Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
@@ -4705,9 +4700,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             Path depsPath;
             try {
                 // common deps
-                depsPath = unpackFromJar("", CrystalcProps.JAR_COMMON_DEPS, true);
+                depsPath = unpackFromJar("", CrystalcProps.JAR_COMMON_DEPS, false, true);
                 // msadjuster jar
-                jarPath = unpackFromJar("", CrystalcProps.JAR_MSADJUSTER_NAME, true);
+                jarPath = unpackFromJar("", CrystalcProps.JAR_MSADJUSTER_NAME, false, true);
                 
             } catch (IOException | NullPointerException ex) {
                 JOptionPane.showMessageDialog(MsfraggerGuiFrame.this, 
