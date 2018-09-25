@@ -122,6 +122,7 @@ import umich.msfragger.params.pepproph.PeptideProphetParams;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.protproph.ProteinProphetParams;
 import umich.msfragger.params.ThisAppProps;
+import umich.msfragger.params.crystalc.CrystalcProps;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.fragger.MsfraggerProps;
@@ -3052,7 +3053,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             return;
         }
         
-        
         // check that all input files are in the same folder for Labelfree quant
         if (checkLabelfree.isSelected() && !lcmsFilePaths.isEmpty()) {
             try {
@@ -3075,6 +3075,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         }
         
+        // run MSAdjuster
+        List<ProcessBuilder> processBuildersMsadjuster = processBuildersMsadjuster(workingDir, lcmsFilePaths);
+        if (processBuildersMsadjuster == null) {
+            resetRunButtons(true);
+            return;
+        }
+        processBuilders.addAll(processBuildersMsadjuster);
         
         // we will now compose parameter objects for running processes.
         // at first we will try to load the base parameter files, if the file paths
@@ -4643,7 +4650,64 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         List<String> toMove = new ArrayList<>();
     }
 
-    private List<ProcessBuilder> processBuildersCopyFiles(String programsDir, String workingDir, List<String> lcmsFilePaths) {
+    public static void unpackFromJar(String name, boolean scheduleForDeletion) {
+        
+        InputStream in = MsfraggerGuiFrame.class.getResourceAsStream("/" + name);
+        Path tempFile = Files.createTempFile("fragpipe-", "-" + name);
+        if (scheduleForDeletion)
+            tempFile.toFile().deleteOnExit();
+        Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
+        in.close();
+    }
+    
+    private List<ProcessBuilder> processBuildersMsadjuster(String workingDir, List<String> lcmsFilePaths) {
+        List<ProcessBuilder> processBuilders = new LinkedList<>();
+
+        if (fraggerPanel.isRunMsfragger() && fraggerPanel.isMsadjuster()) {
+            URI currentJarUri = PathUtils.getCurrentJarPath();
+            String currentJarPath = Paths.get(currentJarUri).toAbsolutePath().toString();
+            Path wd = Paths.get(workingDir);
+
+            Path jarPath = null;
+            try {
+                // msadjuster jar
+                
+                // common deps
+                in = getClass().getResourceAsStream("/" + CrystalcProps.JAR_COMMON_DEPS);
+                tempFile = Files.createTempFile("fragpipe-", "-" + CrystalcProps.JAR_COMMON_DEPS);
+                tempFile.toFile().deleteOnExit();
+                Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
+                in.close();
+                
+                
+            } catch (IOException | NullPointerException ex) {
+                JOptionPane.showMessageDialog(MsfraggerGuiFrame.this, 
+                        "Could not unpack tools to a temporary directory.\n"
+                                + "Disable precursor mass adjustment in MSFragger tab.",
+                            "Can't unpack", JOptionPane.ERROR_MESSAGE);
+                return null;
+            }
+            
+            int ramGb = fraggerPanel.getRamGb();
+            
+            for (String lcmsFilePath : lcmsFilePaths) {
+                ArrayList<String> cmd = new ArrayList<>();
+                Path fileIn = Paths.get(lcmsFilePath);
+                cmd.add("java");
+                cmd.add("-jar");
+                if (ramGb > 0) {
+                    cmd.add(new StringBuilder().append("-Xmx").append(ramGb).append("G").toString());
+                }
+                cmd.add(jarPath.toAbsolutePath().normalize().toString());
+                cmd.add("20");
+                cmd.add(lcmsFilePath);
+                processBuilders.add(new ProcessBuilder(cmd));
+            }
+        }
+        return processBuilders;
+    }
+    
+    private List<ProcessBuilder> processBuildersCopyFiles(String workingDir, List<String> lcmsFilePaths) {
         List<ProcessBuilder> processBuilders = new LinkedList<>();
 
         URI currentJarUri = PathUtils.getCurrentJarPath();
@@ -4778,7 +4842,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                             + "However not all preconditions for enabling slicing were met.\n"
                             + "Check the bottom of \"Config\" tab for details.",
                         "Error", JOptionPane.ERROR_MESSAGE);
-                return null;
+                    return null;
                 }
             }
             
