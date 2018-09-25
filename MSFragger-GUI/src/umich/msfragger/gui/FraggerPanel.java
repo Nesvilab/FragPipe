@@ -44,6 +44,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 import net.java.balloontip.BalloonTip;
+import static umich.msfragger.gui.MsfraggerGuiFrame.DEFAULT_TYPE;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.enums.CleavageType;
@@ -570,7 +571,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         spinnerPrecursorMassTolLo = new javax.swing.JSpinner();
         jLabel2 = new javax.swing.JLabel();
         spinnerPrecursorMassTolHi = new javax.swing.JSpinner();
-        chkAdjustMass = new javax.swing.JCheckBox();
+        chkMsadjuster = new javax.swing.JCheckBox();
         btnSave = new javax.swing.JButton();
         btnLoad = new javax.swing.JButton();
         chkRunMsfragger = new javax.swing.JCheckBox();
@@ -1229,8 +1230,14 @@ public class FraggerPanel extends javax.swing.JPanel {
 
         spinnerPrecursorMassTolHi.setModel(new javax.swing.SpinnerNumberModel(20.0d, null, null, 10.0d));
 
-        chkAdjustMass.setText("Adjust precursor mass");
-        chkAdjustMass.setToolTipText("<html>Try to trace MS1 signals, adjusting MS2 precursor mass");
+        chkMsadjuster.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
+        chkMsadjuster.setText("Adjust precursor mass");
+        chkMsadjuster.setToolTipText("<html>Try to trace MS1 signals, adjusting MS2 precursor mass");
+        chkMsadjuster.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chkMsadjusterActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
@@ -1248,7 +1255,7 @@ public class FraggerPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(spinnerPrecursorMassTolHi, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(chkAdjustMass)
+                .addComponent(chkMsadjuster)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel9Layout.setVerticalGroup(
@@ -1261,9 +1268,11 @@ public class FraggerPanel extends javax.swing.JPanel {
                     .addComponent(spinnerPrecursorMassTolLo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
                     .addComponent(spinnerPrecursorMassTolHi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(chkAdjustMass))
+                    .addComponent(chkMsadjuster))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        loadLastMsadjuster();
 
         javax.swing.GroupLayout panelFraggerMatchingConfigLayout = new javax.swing.GroupLayout(panelFraggerMatchingConfig);
         panelFraggerMatchingConfig.setLayout(panelFraggerMatchingConfigLayout);
@@ -1554,6 +1563,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     public void loadDefaultsOpen() {
         params.loadDefaultsOpenSearch();
         fillFormFromParams(params);
+        loadDefaultsMsadjuster(MsfraggerGuiFrame.SearchTypeProp.open);
     }
     
     private void textEnzymeNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textEnzymeNameActionPerformed
@@ -1668,9 +1678,41 @@ public class FraggerPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_textMassOffsetsFocusGained
 
+    private void chkMsadjusterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkMsadjusterActionPerformed
+        MsfraggerGuiFrame.save(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE);
+    }//GEN-LAST:event_chkMsadjusterActionPerformed
+
+    public boolean isMsadjuster() {
+        return chkMsadjuster.isSelected();
+    }
+    
+    public void loadLastMsadjuster() {
+        if (!MsfraggerGuiFrame.load(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE)) {
+            loadDefaultsMsadjuster(DEFAULT_TYPE);
+        }
+    }
+    
+    public void loadDefaultsMsadjuster(MsfraggerGuiFrame.SearchTypeProp type) {
+        MsfraggerGuiFrame.loadDefaults(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE, type);
+    }
+    
     public void loadDefaultsClosed() {
         params.loadDefaultsClosedSearch();
         fillFormFromParams(params);
+        loadDefaultsMsadjuster(MsfraggerGuiFrame.SearchTypeProp.closed);
+    }
+    
+    public void loadDefaults(MsfraggerGuiFrame.SearchTypeProp type) {
+        switch (type) {
+            case open:
+                loadDefaultsOpen();
+                break;
+            case closed:
+                loadDefaultsClosed();
+                break;
+            default:
+                throw new AssertionError(type.name());
+        }
     }
     
     /**
@@ -1733,7 +1775,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     private javax.swing.JCheckBox checkClipNTerm;
     private javax.swing.JCheckBox checkMultipleVarMods;
     private javax.swing.JCheckBox checkOverrideCharge;
-    private javax.swing.JCheckBox chkAdjustMass;
+    private javax.swing.JCheckBox chkMsadjuster;
     private javax.swing.JCheckBox chkRunMsfragger;
     private javax.swing.JComboBox<String> comboCleavage;
     private javax.swing.JComboBox<String> comboFragMassTol;

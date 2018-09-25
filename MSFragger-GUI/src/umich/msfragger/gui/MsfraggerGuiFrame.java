@@ -3431,13 +3431,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 + "Will update parameters for MSFragger, both Prophets\n"
                 + "and Report Filter.", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
         if (JOptionPane.OK_OPTION == confirmation) {
-            fraggerPanel.loadDefaultsOpen();
             MsfraggerGuiFrame.SearchTypeProp type = MsfraggerGuiFrame.SearchTypeProp.open;
+            fraggerPanel.loadDefaults(type);
             loadDefaultsSequenceDb(type);
             loadDefaultsPeptideProphet(type);
             loadDefaultsProteinProphet(type);
             loadDefaultsReportFilter(type);
             loadDefaultsReportAnnotate(type);
+            loadDefaultsLabelfree(type);
         }
     }//GEN-LAST:event_btnLoadDefaultsOpenActionPerformed
 
@@ -3449,13 +3450,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 + "Will update parameters for MSFragger, both Prophets\n"
                 + "and Report Filter.", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
         if (JOptionPane.OK_OPTION == confirmation) {
-            fraggerPanel.loadDefaultsClosed();
             MsfraggerGuiFrame.SearchTypeProp type = MsfraggerGuiFrame.SearchTypeProp.closed;
+            fraggerPanel.loadDefaults(type);
             loadDefaultsSequenceDb(type);
             loadDefaultsPeptideProphet(type);
             loadDefaultsProteinProphet(type);
             loadDefaultsReportFilter(type);
             loadDefaultsReportAnnotate(type);
+            loadDefaultsLabelfree(type);
         }
     }//GEN-LAST:event_btnLoadDefaultsClosedActionPerformed
 
@@ -4179,7 +4181,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         validateAndSaveReportAnnotate(null, updateOtherTags);
     }
 
-    private boolean load(JTextComponent text, String propName) {
+    public static boolean load(JTextComponent text, String propName) {
         String val = ThisAppProps.load(propName);
         if (val != null) {
             text.setText(val);
@@ -4188,7 +4190,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         return false;
     }
     
-    private void save(JTextComponent text, String propName) {
+    public static boolean load(JCheckBox box, String propName) {
+        String val = ThisAppProps.load(propName);
+        if (val != null) {
+            Boolean bool = Boolean.valueOf(val);
+            box.setSelected(bool);
+            return true;
+        }
+        return false;
+    }
+    
+    public static void save(JCheckBox box, String propName) {
+        ThisAppProps.save(propName, Boolean.toString(box.isSelected()));
+    }
+    
+    public static void save(JTextComponent text, String propName) {
         ThisAppProps.save(propName, text.getText().trim());
     }
     
@@ -4202,18 +4218,30 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         loadDefaults(textReportAnnotate, ThisAppProps.PROP_TEXTFIELD_REPORT_ANNOTATE, type);
     }
     
-    private void loadDefaults(JTextComponent text, String propName, SearchTypeProp type) {
+    public static void loadDefaults(JTextComponent text, String propName, SearchTypeProp type) {
         final String prop = propName + "." + type.name();
         loadDefaults(text, prop);
     }
     
-    private void loadDefaults(JTextComponent text, String propName) {
+    public static void loadDefaults(JTextComponent text, String propName) {
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
         String val = bundle.getString(propName);
         text.setText(val);
         ThisAppProps.save(propName, val);
     }
 
+    public static void loadDefaults(JCheckBox checkBox, String propName, SearchTypeProp type) {
+        final String prop = propName + "." + type.name();
+        loadDefaults(checkBox, prop);
+    }
+    
+    public static void loadDefaults(JCheckBox checkBox, String propName) {
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
+        String val = bundle.getString(propName);
+        checkBox.setSelected(Boolean.valueOf(val));
+        ThisAppProps.save(propName, val);
+    }
+    
     private void loadDefaultsSequenceDb(SearchTypeProp type) {
         loadDefaults(textDecoyTagSeqDb, ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
     }
@@ -4281,7 +4309,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         ep.setEditable(false);
         ep.setBackground(label.getBackground());
     }
-
+    
     private void loadLastLabelfree() {
         if (!load(textReportLabelfree, ThisAppProps.PROP_TEXTFIELD_LABELFREE)) {
             loadDefaultsLabelfree(DEFAULT_TYPE);
