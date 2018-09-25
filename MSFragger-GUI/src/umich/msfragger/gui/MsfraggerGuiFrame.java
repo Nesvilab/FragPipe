@@ -118,10 +118,9 @@ import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.SimpleUniqueTableModel;
 import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.gui.api.VersionFetcher;
-import umich.msfragger.params.pepproph.PeptideProphetParams;
 import umich.msfragger.params.philosopher.PhilosopherProps;
-import umich.msfragger.params.protproph.ProteinProphetParams;
 import umich.msfragger.params.ThisAppProps;
+import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.crystalc.CrystalcProps;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.fragger.MsfraggerParams;
@@ -129,6 +128,8 @@ import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
+import umich.msfragger.params.pepproph.PeptideProphetParams;
+import umich.msfragger.params.protproph.ProteinProphetParams;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.FileMove;
@@ -521,6 +522,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         jScrollPane5 = new javax.swing.JScrollPane();
         editorSequenceDb = new javax.swing.JEditorPane();
         scrollPaneMsFragger = new javax.swing.JScrollPane();
+        panelCrystalc = new javax.swing.JPanel();
+        btnCrystalcDefaults = new javax.swing.JButton();
+        chkRunCrystalc = new javax.swing.JCheckBox();
+        panelCrystalcOptions = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        spinnerCrystalcMaxCharge = new javax.swing.JSpinner();
+        jLabel7 = new javax.swing.JLabel();
+        spinnerCrystalcNumIsotopes = new javax.swing.JSpinner();
+        jLabel8 = new javax.swing.JLabel();
+        spinnerCrystalcMassTol = new javax.swing.JSpinner();
+        jLabel9 = new javax.swing.JLabel();
+        spinnerCrystalcPrecIsoWindow = new javax.swing.JSpinner();
         panelPeptideProphet = new javax.swing.JPanel();
         chkRunPeptideProphet = new javax.swing.JCheckBox();
         panelPeptideProphetOptions = new javax.swing.JPanel();
@@ -1087,6 +1100,103 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         tabPane.addTab("Sequence DB", panelSequenceDb);
         tabPane.addTab("MSFragger", null, scrollPaneMsFragger, "MSFragger search engine");
+
+        btnCrystalcDefaults.setText("Load Defaults");
+
+        chkRunCrystalc.setText("Run Crystal-C");
+        chkRunCrystalc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chkRunCrystalcActionPerformed(evt);
+            }
+        });
+
+        panelCrystalcOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("Options"));
+
+        jLabel6.setText("Max charge");
+
+        spinnerCrystalcMaxCharge.setModel(new javax.swing.SpinnerNumberModel(6, 1, 50, 1));
+
+        jLabel7.setText("Number of isotopes");
+
+        spinnerCrystalcNumIsotopes.setModel(new javax.swing.SpinnerNumberModel(3, 1, 50, 1));
+
+        jLabel8.setText("Mass tolerance (ppm)");
+
+        spinnerCrystalcMassTol.setModel(new javax.swing.SpinnerNumberModel(20.0d, 0.1d, 10000.0d, 0.5d));
+
+        jLabel9.setText("Precursor isolation window");
+
+        spinnerCrystalcPrecIsoWindow.setModel(new javax.swing.SpinnerNumberModel(0.7d, 0.1d, 10.0d, 0.1d));
+
+        javax.swing.GroupLayout panelCrystalcOptionsLayout = new javax.swing.GroupLayout(panelCrystalcOptions);
+        panelCrystalcOptions.setLayout(panelCrystalcOptionsLayout);
+        panelCrystalcOptionsLayout.setHorizontalGroup(
+            panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelCrystalcOptionsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel8)
+                    .addComponent(jLabel6))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(spinnerCrystalcMassTol, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(spinnerCrystalcMaxCharge))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel9)
+                    .addComponent(jLabel7))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(spinnerCrystalcPrecIsoWindow, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
+                    .addComponent(spinnerCrystalcNumIsotopes))
+                .addContainerGap(257, Short.MAX_VALUE))
+        );
+        panelCrystalcOptionsLayout.setVerticalGroup(
+            panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelCrystalcOptionsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(spinnerCrystalcMaxCharge, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7)
+                    .addComponent(spinnerCrystalcNumIsotopes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel8)
+                    .addComponent(spinnerCrystalcMassTol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9)
+                    .addComponent(spinnerCrystalcPrecIsoWindow, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(533, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout panelCrystalcLayout = new javax.swing.GroupLayout(panelCrystalc);
+        panelCrystalc.setLayout(panelCrystalcLayout);
+        panelCrystalcLayout.setHorizontalGroup(
+            panelCrystalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelCrystalcLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelCrystalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(panelCrystalcOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(panelCrystalcLayout.createSequentialGroup()
+                        .addComponent(chkRunCrystalc)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnCrystalcDefaults)))
+                .addContainerGap())
+        );
+        panelCrystalcLayout.setVerticalGroup(
+            panelCrystalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelCrystalcLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelCrystalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnCrystalcDefaults)
+                    .addComponent(chkRunCrystalc))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(panelCrystalcOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        tabPane.addTab("Crystal-C", panelCrystalc);
+        loadLastCrystalc();
 
         chkRunPeptideProphet.setSelected(true);
         chkRunPeptideProphet.setText("Run PeptideProphet");
@@ -2845,7 +2955,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     private void btnClearCacheActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearCacheActionPerformed
         ThisAppProps.clearCache();
-        MsfraggerParams.clearCache();
+        new MsfraggerParams().clearCache();
+        new CrystalcParams().clearCache();
     }//GEN-LAST:event_btnClearCacheActionPerformed
 
     private boolean validateAndSave(final JTextComponent comp, final String propName, 
@@ -3980,6 +4091,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_checkReportFilterActionPerformed
 
+    private void chkRunCrystalcActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkRunCrystalcActionPerformed
+        boolean selected = chkRunCrystalc.isSelected();
+        Container[] comps = new Container[]{
+            panelCrystalcOptions
+        };
+        for (Container c : comps) {
+            SwingUtils.enableComponents(c, selected);
+        }
+        
+        ThisAppProps.save(ThisAppProps.PROP_CRYSTALC_USE, Boolean.toString(selected));
+    }//GEN-LAST:event_chkRunCrystalcActionPerformed
+
     public void loadLastPeptideProphet() {
         if (!load(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET)) {
             loadDefaultsPeptideProphet(DEFAULT_TYPE);
@@ -4347,6 +4470,37 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         });
         ep.setEditable(false);
         ep.setBackground(label.getBackground());
+    }
+    
+    private void loadLastCrystalc() {
+        if (!load(chkRunCrystalc, ThisAppProps.PROP_CRYSTALC_USE)) {
+            chkRunCrystalc.setSelected(false);
+        }
+        chkRunCrystalcActionPerformed(null);
+    }
+    
+    private CrystalcParams crystalcFormToParams(CrystalcParams params) throws IOException {
+        CrystalcParams p = new CrystalcParams();
+        
+        p.setFasta(textSequenceDbPath.getText());
+        p.setIsoNum((Integer)spinnerCrystalcNumIsotopes.getValue());
+        p.setMassTol((Double)spinnerCrystalcMassTol.getValue());
+        p.setMaxZ((Integer)spinnerCrystalcMaxCharge.getValue());
+        p.setPrecursorIsolationWindow((Double)spinnerCrystalcPrecIsoWindow.getValue());
+        int threads = fraggerPanel.getThreads();
+        threads = threads > 0 ? threads : -1;
+        p.setThread(threads);
+        
+        p.save();
+        
+        return p;
+    }
+    
+    private void crystalcParamsToForm(CrystalcParams p) {
+        spinnerCrystalcMassTol.setValue(p.getMassTol());
+        spinnerCrystalcMaxCharge.setValue(p.getMaxZ());
+        spinnerCrystalcNumIsotopes.setValue(p.getIsoNum());
+        spinnerCrystalcPrecIsoWindow.setValue(p.getPrecursorIsolationWindow());
     }
     
     private void loadLastLabelfree() {
@@ -5856,6 +6010,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnBrowse;
     private javax.swing.JButton btnClearCache;
     private javax.swing.JButton btnClearConsole;
+    private javax.swing.JButton btnCrystalcDefaults;
     private javax.swing.JButton btnExportLog;
     private javax.swing.JButton btnFindTools;
     private javax.swing.JButton btnLoadDefaultsClosed;
@@ -5889,6 +6044,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JCheckBox checkReportProteinLevelFdr;
     private javax.swing.JCheckBox chkProcessEachFiileSeparately;
     private javax.swing.JCheckBox chkProteinProphetInteractStar;
+    private javax.swing.JCheckBox chkRunCrystalc;
     private javax.swing.JCheckBox chkRunPeptideProphet;
     private javax.swing.JCheckBox chkRunProteinProphet;
     private javax.swing.JScrollPane consoleScrollPane;
@@ -5902,6 +6058,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel40;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -5917,6 +6077,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JLabel lblPythonInfo;
     private javax.swing.JLabel lblPythonMore;
     private javax.swing.JPanel panelConfig;
+    private javax.swing.JPanel panelCrystalc;
+    private javax.swing.JPanel panelCrystalcOptions;
     private javax.swing.JPanel panelDbInfo;
     private javax.swing.JPanel panelMsfraggerConfig;
     private javax.swing.JPanel panelPeptideProphet;
@@ -5932,6 +6094,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelSequenceDb;
     private javax.swing.JScrollPane scrollPaneMsFragger;
     private javax.swing.JScrollPane scrollPaneRawFiles;
+    private javax.swing.JSpinner spinnerCrystalcMassTol;
+    private javax.swing.JSpinner spinnerCrystalcMaxCharge;
+    private javax.swing.JSpinner spinnerCrystalcNumIsotopes;
+    private javax.swing.JSpinner spinnerCrystalcPrecIsoWindow;
     private javax.swing.JTabbedPane tabPane;
     private javax.swing.JTextField textBinMsfragger;
     private javax.swing.JTextField textBinPhilosopher;

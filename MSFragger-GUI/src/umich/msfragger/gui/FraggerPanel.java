@@ -164,6 +164,10 @@ public class FraggerPanel extends javax.swing.JPanel {
         return (Integer)spinnerFraggerRam.getValue();
     }
     
+    public int getThreads() {
+        return (Integer)spinnerFraggerThreads.getValue();
+    }
+    
     public String getOutputFileExt() {
         return getOutputType().getExtension();
     }

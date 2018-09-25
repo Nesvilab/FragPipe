@@ -30,5 +30,4 @@ public class CrystalcProps {
     
     public static final String JAR_COMMON_DEPS = "common-deps.jar";
     
-    
 }
