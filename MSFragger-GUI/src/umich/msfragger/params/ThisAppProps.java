@@ -38,7 +38,7 @@ public class ThisAppProps extends Properties {
     public static final String PROP_BINARIES_IN = "path.params.bins.in";
     public static final String PROP_LCMS_FILES_IN = "path.lcms.files.in";
     public static final String PROP_FILE_OUT = "path.file.out";
-
+    
     public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
     public static final String TEMP_FILE_NAME = "msfragger.cache";
     
@@ -55,6 +55,9 @@ public class ThisAppProps extends Properties {
     
     public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
     public static final String PROP_TEXT_CMD_PROTEIN_PROPHET = "proteinprophet.cmd.line.opts";
+    
+    public static final String PROP_MSADJUSTER_USE = "msadjuster.use";
+    public static final String PROP_CRYSTALC_USE = "crystalc.use";
 
     public static final String PROP_MGF_WARNING = "warn.mgf";
     
