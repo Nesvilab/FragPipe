@@ -4679,7 +4679,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             if (randomizeName) {
                 tempFile = Files.createTempFile("fragpipe-", "-" + resourceName);
             } else {
-                
+                Path toCreate = Paths.get(ThisAppProps.TEMP_DIR, resourceName);
+                tempFile = Files.createFile(toCreate);
             }
             if (scheduleForDeletion)
                 tempFile.toFile().deleteOnExit();
