@@ -1102,6 +1102,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         tabPane.addTab("MSFragger", null, scrollPaneMsFragger, "MSFragger search engine");
 
         btnCrystalcDefaults.setText("Load Defaults");
+        btnCrystalcDefaults.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCrystalcDefaultsActionPerformed(evt);
+            }
+        });
 
         chkRunCrystalc.setText("Run Crystal-C");
         chkRunCrystalc.addActionListener(new java.awt.event.ActionListener() {
@@ -4102,6 +4107,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         
         ThisAppProps.save(ThisAppProps.PROP_CRYSTALC_USE, Boolean.toString(selected));
     }//GEN-LAST:event_chkRunCrystalcActionPerformed
+
+    private void btnCrystalcDefaultsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrystalcDefaultsActionPerformed
+        int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
+                "Are you sure you want to load defaults for Crystal-C?\n", 
+                "Confirmation", JOptionPane.OK_CANCEL_OPTION);
+        if (JOptionPane.OK_OPTION != confirmation) {
+            return;
+        }
+        
+        CrystalcParams p = new CrystalcParams();
+        p.loadDefault();
+        crystalcParamsToForm(p);
+    }//GEN-LAST:event_btnCrystalcDefaultsActionPerformed
 
     public void loadLastPeptideProphet() {
         if (!load(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET)) {
