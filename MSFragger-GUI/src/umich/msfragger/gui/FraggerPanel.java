@@ -187,7 +187,11 @@ public class FraggerPanel extends javax.swing.JPanel {
 //        validateFraggerDbPath();
         clearFormTables();
         
+        
+        int ram = params.getFragpipeRam();
+        spinnerFraggerRam.setValue(ram);
         spinnerFraggerThreads.setValue(params.getNumThreads());
+        
         
         comboPrecursorMassTol.setSelectedItem(params.getPrecursorMassUnits().toString());
         Double precursorMassTolerance = params.getPrecursorMassTolerance();
@@ -330,6 +334,8 @@ public class FraggerPanel extends javax.swing.JPanel {
             throw new IllegalStateException("fillFormFromParams() called while not attached to an MsfraggerGuiFrame.");
         
         params.setDatabaseName(f.getFastaPath());
+        Integer ram = (Integer)spinnerFraggerRam.getValue();
+        params.setFragpipeRam(ram);
         params.setNumThreads(utilSpinnerValue(spinnerFraggerThreads, Integer.class));
         
         params.setPrecursorMassUnits(MassTolUnits.valueOf(comboPrecursorMassTol.getItemAt(comboPrecursorMassTol.getSelectedIndex())));
@@ -648,11 +654,11 @@ public class FraggerPanel extends javax.swing.JPanel {
         spinnerMaxFragCharge.setModel(new javax.swing.SpinnerNumberModel(2, 0, null, 1));
 
         spinnerSlices.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
-        spinnerSlices.setToolTipText("<html>Split database into smaller chunks.<br/>\nIf you're wondering what's that for, you likely don't need it.");
+        spinnerSlices.setToolTipText("<html>Split database into smaller chunks.<br/>\nIf you're wondering what's that for, you likely don't need it.<br/>\nRequires MSFragger 20180924+.");
 
         lblSlices.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
         lblSlices.setText("Slice up database");
-        lblSlices.setToolTipText("<html>Split database into smaller chunks.<br/>\nIf you're wondering what's that for, you likely don't need it.");
+        lblSlices.setToolTipText("<html>Split database into smaller chunks.<br/>\nIf you're wondering what's that for, you likely don't need it.<br/>\nRequires MSFragger 20180924+.");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -1236,7 +1242,7 @@ public class FraggerPanel extends javax.swing.JPanel {
 
         chkMsadjuster.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
         chkMsadjuster.setText("Adjust precursor mass");
-        chkMsadjuster.setToolTipText("<html>Try to trace MS1 signals, adjusting MS2 precursor mass");
+        chkMsadjuster.setToolTipText("<html>Try to trace MS1 signals, adjusting MS2 precursor mass.<br/>\nRequires MSFragger 20180924+.");
         chkMsadjuster.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 chkMsadjusterActionPerformed(evt);

@@ -39,6 +39,7 @@ import umich.msfragger.util.StringUtils;
 public class MsfraggerParams extends AbstractParams {
     
     public static final String PROP_database_name = "database_name";
+    public static final String PROP_fragpipe_ram = "fragpipe_ram";
     public static final String PROP_num_threads = "num_threads";
     public static final String PROP_precursor_mass_lower = "precursor_mass_lower";
     public static final String PROP_precursor_mass_upper = "precursor_mass_upper";
@@ -130,6 +131,7 @@ public class MsfraggerParams extends AbstractParams {
 
     private static final DecimalFormat DF = new DecimalFormat("0.##########");
     private Map<String, String> comments;
+    
         
     public MsfraggerParams() {
         super();
@@ -196,6 +198,14 @@ public class MsfraggerParams extends AbstractParams {
     
     public void setDatabaseName(String databaseName) {
         props.setProp(PROP_database_name, databaseName);
+    }
+    
+    public int getFragpipeRam() {
+        return Integer.parseInt(props.getProp(PROP_fragpipe_ram, "0").value);
+    }
+    
+    public void setFragpipeRam(int ramGb) {
+        props.setProp(PROP_fragpipe_ram, Integer.toString(ramGb));
     }
     
     public int getNumThreads() {

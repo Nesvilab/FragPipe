@@ -83,6 +83,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -99,7 +100,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.HyperlinkEvent;
@@ -1507,17 +1507,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addComponent(checkReportDbAnnotate)
                     .addComponent(textReportAnnotate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(checkReportFilter)
-                    .addGroup(panelReportOptionsLayout.createSequentialGroup()
-                        .addComponent(textReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
-                        .addGap(2, 2, 2)))
+                    .addComponent(textReportFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(4, 4, 4)
                 .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textReportLabelfree, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(checkLabelfree))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkReportProteinLevelFdr)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(8, Short.MAX_VALUE))
         );
 
         loadLastReportAnnotate();
@@ -3090,6 +3089,68 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         textSequenceDbPath.setText(path);
     }
 
+    private List<ProcessBuilder> processBuildersCrystalc(String workingDir, List<String> lcmsFilePaths) {
+        List<ProcessBuilder> processBuilders = new LinkedList<>();
+        if (chkRunCrystalc.isSelected()) {
+            URI currentJarUri = PathUtils.getCurrentJarPath();
+            String currentJarPath = Paths.get(currentJarUri).toAbsolutePath().toString();
+            Path wd = Paths.get(workingDir);
+
+            Path jarPath;
+            Path depsPath;
+            try {
+                // common deps
+                depsPath = unpackFromJar("", CrystalcProps.JAR_COMMON_DEPS, false, true);
+                // msadjuster jar
+                jarPath = unpackFromJar("", CrystalcProps.JAR_CRYSTALC_NAME, false, true);
+                
+            } catch (IOException | NullPointerException ex) {
+                JOptionPane.showMessageDialog(MsfraggerGuiFrame.this, 
+                        "Could not unpack tools to a temporary directory.\n"
+                                + "Disable Crystal-C.",
+                            "Can't unpack", JOptionPane.ERROR_MESSAGE);
+                return null;
+            }
+            
+            // check if all input files are in the same folder
+            long countDirs = lcmsFilePaths.stream()
+                    .map(Paths::get).map(p -> p.getParent())
+                    .distinct().count();
+            Set<String> exts = lcmsFilePaths.stream()
+                    .map(Paths::get).map(p -> p.getFileName().toString())
+                    .map(s -> StringUtils.afterLastDot(s).toLowerCase())
+                    .distinct().collect(Collectors.toSet());
+            boolean anyMatch = exts.stream()
+                    .anyMatch(ext -> !("mzml".equals(ext) || "mzxml".equals(ext)));
+            if (exts.isEmpty() || anyMatch) {
+                JOptionPane.showMessageDialog(MsfraggerGuiFrame.this, 
+                        "Crystal-C only supports mzML and mzXML input files.\n"
+                                + "Disable Crystal-C.",
+                            "Unsupported by Crystal-C", JOptionPane.ERROR_MESSAGE);
+                return null;
+            }
+            
+            if (countDirs == 1 && exts.size() == 1) {
+                CrystalcParams p;
+                try {
+                    p = crystalcFormToParams();
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(MsfraggerGuiFrame.this, 
+                        "Could not create Crystal-C parameter file.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return null;
+                }
+                // TODO: continue here
+                throw new UnsupportedOperationException("Not implemented");
+                
+            } else {
+                // TODO: continue here
+                throw new UnsupportedOperationException("Not implemented");
+            }
+        }
+        return processBuilders;
+    }
+    
     private void btnRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRunActionPerformed
 
         resetRunButtons(false);
@@ -3264,6 +3325,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         }
 
+        // run Crystal-C
+        List<ProcessBuilder> processBuildersCrystalc = processBuildersCrystalc(workingDir, lcmsFilePaths);
+        if (processBuildersCrystalc == null) {
+            resetRunButtons(true);
+            return;
+        }
+        processBuilders.addAll(processBuildersCrystalc);
+        
         List<ProcessBuilder> processBuildersPeptideProphet = processBuildersPeptideProphet("", workingDir, lcmsFilePaths);
         if (processBuildersPeptideProphet == null) {
             resetRunButtons(true);
@@ -4118,7 +4187,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         
         CrystalcParams p = new CrystalcParams();
         p.loadDefault();
-        crystalcParamsToForm(p);
+        try {
+            crystalcParamsToForm(p);
+            p.save();
+        } catch (IOException e) { 
+            // don't care 
+        }
     }//GEN-LAST:event_btnCrystalcDefaultsActionPerformed
 
     public void loadLastPeptideProphet() {
@@ -4495,9 +4569,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             chkRunCrystalc.setSelected(false);
         }
         chkRunCrystalcActionPerformed(null);
+        
+        try {
+            CrystalcParams p = new CrystalcParams();
+            crystalcParamsToForm(p);
+        } catch (Exception e) {
+            // doesn't matter
+        }
     }
     
-    private CrystalcParams crystalcFormToParams(CrystalcParams params) throws IOException {
+    private CrystalcParams crystalcFormToParams() throws IOException {
         CrystalcParams p = new CrystalcParams();
         
         p.setFasta(textSequenceDbPath.getText());
@@ -4514,11 +4595,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         return p;
     }
     
-    private void crystalcParamsToForm(CrystalcParams p) {
-        spinnerCrystalcMassTol.setValue(p.getMassTol());
-        spinnerCrystalcMaxCharge.setValue(p.getMaxZ());
-        spinnerCrystalcNumIsotopes.setValue(p.getIsoNum());
-        spinnerCrystalcPrecIsoWindow.setValue(p.getPrecursorIsolationWindow());
+    private void crystalcParamsToForm(CrystalcParams p) throws IOException {
+        
+        double massTol = p.getMassTol();
+        spinnerCrystalcMassTol.setValue(massTol);
+        int maxZ = p.getMaxZ();
+        spinnerCrystalcMaxCharge.setValue(maxZ);
+        int isoNum = p.getIsoNum();
+        spinnerCrystalcNumIsotopes.setValue(isoNum);
+        double precursorIsolationWindow = p.getPrecursorIsolationWindow();
+        spinnerCrystalcPrecIsoWindow.setValue(precursorIsolationWindow);
+        
+        p.save();
     }
     
     private void loadLastLabelfree() {
@@ -4851,16 +4939,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             if (randomizeName) {
                 tempFile = Files.createTempFile("fragpipe-", "-" + resourceName);
             } else {
-                Path toCreate = Paths.get(ThisAppProps.TEMP_DIR, resourceName);
-                tempFile = Files.createFile(toCreate);
+                tempFile = Paths.get(ThisAppProps.TEMP_DIR, resourceName);
             }
+            Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
             if (scheduleForDeletion)
                 tempFile.toFile().deleteOnExit();
-            Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
             return tempFile;
         }
     }
-    
+        
     private List<ProcessBuilder> processBuildersMsadjuster(String workingDir, List<String> lcmsFilePaths) {
         List<ProcessBuilder> processBuilders = new LinkedList<>();
 
@@ -5966,7 +6053,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     }
                 }
             }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException e1) {
             java.util.logging.Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, e1);
             try {
                 for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

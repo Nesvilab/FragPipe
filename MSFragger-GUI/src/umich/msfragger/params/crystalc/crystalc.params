@@ -7,7 +7,7 @@ Thread = -1
 Fasta = 
 
 # This is actually the directory where the LCMS files are
-RawDataDictionary = D:\1_Research\2_CrystalC\Data\Gygi_blind
+RawDataDictionary = 
 
 # The file extension of raw data
 RawFileExtension = mzML
@@ -25,4 +25,4 @@ MassTol = 20
 PrecursorIsolationWindow = 0.7
 
 # Use Adjusted Precursors
-UseAdjustedPrecursors = true
+UseAdjustedPrecursors = false

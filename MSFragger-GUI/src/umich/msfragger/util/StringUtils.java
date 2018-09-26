@@ -30,6 +30,16 @@ import java.util.regex.Pattern;
 public class StringUtils {
     private static Pattern WHITESPACE_STRING = Pattern.compile("^\\s*$");
 
+    public static String upToLastDot(String s) {
+        int last = s.lastIndexOf('.');
+        return last < 0 ? s : s.substring(0, last);
+    }
+    
+    public static String afterLastDot(String s) {
+        int last = s.lastIndexOf('.');
+        return last < 0 ? "" : s.substring(last+1, s.length());
+    }
+    
     public static List<String> splitTrim(String input, String sep) {
         String[] split = input.split(sep);
         List<String> strings = new ArrayList<>(split.length);

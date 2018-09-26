@@ -37,8 +37,8 @@ public class CrystalcParams extends AbstractParams {
     public static final String PROP_RawFileExtension = "RawFileExtension";
     public static final String PROP_MaxZ = "MaxZ";
     public static final String PROP_IsoNum = "IsoNum";
-    public static final String PROP_MassTol = "IsoNum";
-    public static final String PROP_PrecursorIsolationWindow = "IsoNum";
+    public static final String PROP_MassTol = "MassTol";
+    public static final String PROP_PrecursorIsolationWindow = "PrecursorIsolationWindow";
     public static final String PROP_UseAdjustedPrecursors = "UseAdjustedPrecursors";
     
     public static final String DEFAULT_FILE = "crystalc.params";
