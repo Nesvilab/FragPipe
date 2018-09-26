@@ -31,8 +31,8 @@ tasks.withType(JavaCompile) {
 mainClassName = 'umich.msfragger.gui.MsFraggerGui'
 
 repositories {
-    // mavenLocal()
-    // mavenCentral()
+    mavenLocal()
+    mavenCentral()
     jcenter()
 }
 
