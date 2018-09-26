@@ -6,8 +6,10 @@ Thread = -1
 # Protein Fasta File
 Fasta = 
 
-# This is actually the directory where the LCMS files are
+# The directory where the LCMS files are
 RawDataDictionary = 
+
+OutputFolder = 
 
 # The file extension of raw data
 RawFileExtension = mzML

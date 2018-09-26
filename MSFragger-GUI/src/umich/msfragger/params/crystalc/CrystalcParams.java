@@ -34,6 +34,7 @@ public class CrystalcParams extends AbstractParams {
     public static final String PROP_Thread = "Thread";
     public static final String PROP_Fasta = "Fasta";
     public static final String PROP_RawDataDictionary = "RawDataDictionary";
+    public static final String PROP_OutputFolder = "OutputFolder";
     public static final String PROP_RawFileExtension = "RawFileExtension";
     public static final String PROP_MaxZ = "MaxZ";
     public static final String PROP_IsoNum = "IsoNum";
@@ -78,6 +79,10 @@ public class CrystalcParams extends AbstractParams {
         return getString(PROP_RawDataDictionary, "");
     }
     
+    public String getOutputFolder() {
+        return getString(PROP_OutputFolder, "");
+    }
+    
     public String getRawFileExt() {
         return getString(PROP_RawFileExtension, "mzML");
     }
@@ -108,6 +113,10 @@ public class CrystalcParams extends AbstractParams {
 
     public void setRawDirectory(String rawDir) {
         setString(PROP_RawDataDictionary, rawDir);
+    }
+    
+    public void setOutputFolder(String out) {
+        setString(PROP_OutputFolder, out);
     }
 
     public void setRawFileExt(String rawFileExt) {

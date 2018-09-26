@@ -84,8 +84,10 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -98,6 +100,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
@@ -130,6 +134,7 @@ import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
 import umich.msfragger.params.pepproph.PeptideProphetParams;
 import umich.msfragger.params.protproph.ProteinProphetParams;
+import umich.msfragger.util.FileDelete;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.FileMove;
@@ -3089,8 +3094,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         textSequenceDbPath.setText(path);
     }
 
-    private List<ProcessBuilder> processBuildersCrystalc(String workingDir, List<String> lcmsFilePaths) {
-        List<ProcessBuilder> processBuilders = new LinkedList<>();
+    private List<ProcessBuilder> pbsCrystalc(String workingDir, String fastaPath, List<String> lcmsFilePaths) {
+        List<ProcessBuilder> pbs = new LinkedList<>();
         if (chkRunCrystalc.isSelected()) {
             URI currentJarUri = PathUtils.getCurrentJarPath();
             String currentJarPath = Paths.get(currentJarUri).toAbsolutePath().toString();
@@ -3113,42 +3118,126 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
             
             // check if all input files are in the same folder
-            long countDirs = lcmsFilePaths.stream()
-                    .map(Paths::get).map(p -> p.getParent())
-                    .distinct().count();
+            Set<Path> dirs = lcmsFilePaths.stream()
+                    .map(Paths::get).map(p -> p.getParent().toAbsolutePath().normalize())
+                    .distinct().collect(Collectors.toSet());
             Set<String> exts = lcmsFilePaths.stream()
                     .map(Paths::get).map(p -> p.getFileName().toString())
-                    .map(s -> StringUtils.afterLastDot(s).toLowerCase())
+                    .map(s -> StringUtils.afterLastDot(s))
                     .distinct().collect(Collectors.toSet());
-            boolean anyMatch = exts.stream()
+            boolean anyMatch = exts.stream().map(String::toLowerCase)
                     .anyMatch(ext -> !("mzml".equals(ext) || "mzxml".equals(ext)));
             if (exts.isEmpty() || anyMatch) {
+                String foundExts = exts.stream().collect(Collectors.joining(", "));
                 JOptionPane.showMessageDialog(MsfraggerGuiFrame.this, 
-                        "Crystal-C only supports mzML and mzXML input files.\n"
+                        "Crystal-C only supports mzML and mzXML input files.\n" + 
+                                "The following LCMS file extensions found: " + foundExts + ".\n"
                                 + "Disable Crystal-C.",
                             "Unsupported by Crystal-C", JOptionPane.ERROR_MESSAGE);
                 return null;
             }
             
-            if (countDirs == 1 && exts.size() == 1) {
+            int ramGb = fraggerPanel.getRamGb();
+            final String pepxmlExtFragger = fraggerPanel.getOutputFileExt();
+            if (!"pepxml".equals(pepxmlExtFragger.toLowerCase())) {
+                JOptionPane.showMessageDialog(MsfraggerGuiFrame.this, 
+                        "Crystal-C only pepXML file extension.\n"
+                                + "Switch to pepXML in MSFragger options or Disable Crystal-C.",
+                            "Unsupported by Crystal-C", JOptionPane.ERROR_MESSAGE);
+                return null;
+            }
+            Map<String, String> pepxmlDirty = createPepxmlFilePathsDirty(lcmsFilePaths, pepxmlExtFragger);
+            Map<String, String> pepxmlClean = createPepxmlFilePathsAfterMove(pepxmlDirty, workingDir, false);
+            final String ccParamsFilePrefix = "crystalc";
+            final String ccParamsFileSuffix = ".params";
+            
+            if (dirs.size() == 1 && exts.size() == 1) {
+                // everythin with the same extension in the same folder
                 CrystalcParams p;
+                Path ccParamsPath = wd.resolve(ccParamsFilePrefix + ccParamsFileSuffix);
                 try {
                     p = crystalcFormToParams();
+                    String ext = exts.iterator().next();
+                    Path dir = dirs.iterator().next();
+                    p.setRawFileExt(ext);
+                    p.setRawDirectory(dir.toString());
+                    p.setOutputFolder(workingDir);
+                    p.setFasta(fastaPath);
+                    Files.deleteIfExists(ccParamsPath);
+                    p.save(Files.newOutputStream(ccParamsPath, StandardOpenOption.CREATE));
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(MsfraggerGuiFrame.this, 
                         "Could not create Crystal-C parameter file.",
                             "Error", JOptionPane.ERROR_MESSAGE);
                     return null;
                 }
-                // TODO: continue here
-                throw new UnsupportedOperationException("Not implemented");
+                
+                List<String> cmd = new ArrayList<>();
+                cmd.add("java");
+                if (ramGb > 0) {
+                    cmd.add(new StringBuilder().append("-Xmx").append(ramGb).append("G").toString());
+                }
+                cmd.add("-cp");
+                List<String> toJoin = new ArrayList<>();
+                toJoin.add(depsPath.toAbsolutePath().normalize().toString());
+                toJoin.add(jarPath.toAbsolutePath().normalize().toString());
+                final String sep = System.getProperties().getProperty("path.separator");
+                cmd.add("\"" + org.apache.commons.lang3.StringUtils.join(toJoin, sep) + "\"");
+                cmd.add(CrystalcProps.JAR_CRYSTALC_MAIN_CLASS);
+                cmd.add(ccParamsPath.toString());
+                cmd.addAll(pepxmlClean.values());
+                
+                pbs.add(new ProcessBuilder(cmd));
                 
             } else {
-                // TODO: continue here
-                throw new UnsupportedOperationException("Not implemented");
+                
+                // multiple raw file extensions or multiple lcms file locaitons
+                // issue a separate command for each pepxml file
+                for (Map.Entry<String, String> kv : pepxmlClean.entrySet()) {
+                    String lcms = kv.getKey();
+                    String pepxml = kv.getValue();
+                    
+                    CrystalcParams p;
+                    Path ccParamsPath = wd.resolve(ccParamsFilePrefix + "-" 
+                            + StringUtils.upToLastDot(pepxml) + ccParamsFileSuffix);
+                    try {
+                        p = crystalcFormToParams();
+                        String ext = StringUtils.afterLastDot(lcms);
+                        Path dir = Paths.get(lcms).getParent();
+                        p.setRawFileExt(ext);
+                        p.setRawDirectory(dir.toString());
+                        p.setOutputFolder(workingDir);
+                        p.setFasta(fastaPath);
+                        Files.deleteIfExists(ccParamsPath);
+                        p.save(Files.newOutputStream(ccParamsPath, StandardOpenOption.CREATE));
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(MsfraggerGuiFrame.this, 
+                            "Could not create Crystal-C parameter file.",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                        return null;
+                    }
+
+                    List<String> cmd = new ArrayList<>();
+                    cmd.add("java");
+                    if (ramGb > 0) {
+                        cmd.add(new StringBuilder().append("-Xmx").append(ramGb).append("G").toString());
+                    }
+                    cmd.add("-cp");
+                    List<String> toJoin = new ArrayList<>();
+                    toJoin.add(depsPath.toAbsolutePath().normalize().toString());
+                    toJoin.add(jarPath.toAbsolutePath().normalize().toString());
+                    final String sep = System.getProperties().getProperty("path.separator");
+                    cmd.add("\"" + org.apache.commons.lang3.StringUtils.join(toJoin, sep) + "\"");
+                    cmd.add(CrystalcProps.JAR_CRYSTALC_MAIN_CLASS);
+                    cmd.add(ccParamsPath.toString());
+                    cmd.add(pepxml);
+
+                    pbs.add(new ProcessBuilder(cmd));
+                }
             }
+            
         }
-        return processBuilders;
+        return pbs;
     }
     
     private void btnRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRunActionPerformed
@@ -3194,15 +3283,25 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             resetRunButtons(true);
             return;
         }
-        final Path workingDirPath = Paths.get(workingDir);
+        Path testWdPath;
+        try {
+            testWdPath = Paths.get(workingDir);
+        } catch (InvalidPathException e) {
+            JOptionPane.showMessageDialog(this, "Output directory path is not a valid path.\n"
+                    + "Please select a directory for the output.", "Error", JOptionPane.WARNING_MESSAGE);
+            resetRunButtons(true);
+            return;
+        }
+        final Path wdPath = testWdPath;
+        
 
-        if (!Files.exists(workingDirPath)) {
+        if (!Files.exists(wdPath)) {
             int confirmCreation = JOptionPane.showConfirmDialog(this, "Output directory doesn't exist. Create?",
                     "Create output directory?", JOptionPane.OK_CANCEL_OPTION);
             switch (confirmCreation) {
                 case JOptionPane.OK_OPTION:
                     try {
-                        Files.createDirectories(workingDirPath);
+                        Files.createDirectories(wdPath);
                     } catch (Exception e) {
                         // something went not right during creation of directory structure
                         JOptionPane.showMessageDialog(this, "Could not create directory structure", "Error", JOptionPane.ERROR_MESSAGE);
@@ -3214,6 +3313,26 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     resetRunButtons(true);
                     return;
             }
+        } else {
+            if (!checkDryRun.isSelected()) {
+                try (Stream<Path> inWd = Files.list(wdPath)) {
+                    if (inWd.findAny().isPresent()) {
+                        int confirm = JOptionPane.showConfirmDialog(this,
+                            "The output directory is not empty.\n\n"
+                            + "Some files might be overwritten in:\n"
+                            + " > " + wdPath.toString() + "\n\n"
+                            + "Do you want to proceed?", "Confirmation", JOptionPane.YES_NO_OPTION);
+                        if (JOptionPane.YES_OPTION != confirm) {
+                            resetRunButtons(true);
+                            return;
+                        }
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Could not create directory structure", "Error", JOptionPane.ERROR_MESSAGE);
+                    resetRunButtons(true);
+                    return;
+                }
+            }
         }
 
         List<String> lcmsFilePaths = getLcmsFilePaths();
@@ -3224,7 +3343,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             return;
         }
 
-        List<ProcessBuilder> processBuilders = new ArrayList();
+        List<ProcessBuilder> pbs = new ArrayList();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
         String dateString = df.format(new Date());
 
@@ -3241,8 +3360,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         } else {
             // On windows copy the files over to the working directory
-//            List<ProcessBuilder> processBuildersCopyFiles = processBuildersCopyFiles(programsDir, workingDir, lcmsFilePaths);
-//            processBuilders.addAll(processBuildersCopyFiles);
+//            List<ProcessBuilder> pbsCopyFiles = pbsCopyFiles(programsDir, workingDir, lcmsFilePaths);
+//            pbs.addAll(pbsCopyFiles);
         }
 
         // check fasta file path
@@ -3285,25 +3404,25 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
         
         // run MSAdjuster
-        List<ProcessBuilder> processBuildersMsadjuster = processBuildersMsadjuster(workingDir, lcmsFilePaths);
-        if (processBuildersMsadjuster == null) {
+        List<ProcessBuilder> pbsMsadjuster = pbsMsadjuster(workingDir, lcmsFilePaths, false);
+        if (pbsMsadjuster == null) {
             resetRunButtons(true);
             return;
         }
-        processBuilders.addAll(processBuildersMsadjuster);
+        pbs.addAll(pbsMsadjuster);
         
         // we will now compose parameter objects for running processes.
         // at first we will try to load the base parameter files, if the file paths
         // in the GUI are not empty. If empty, we will load the defaults and
         // add params from the GUI to it.
-        List<ProcessBuilder> processBuildersFragger = processBuildersFragger("", workingDir, lcmsFilePaths, dateString);
-        if (processBuildersFragger == null) {
+        List<ProcessBuilder> pbsFragger = pbsFragger("", workingDir, lcmsFilePaths, dateString);
+        if (pbsFragger == null) {
             resetRunButtons(true);
             return;
         }
-        processBuilders.addAll(processBuildersFragger);
+        pbs.addAll(pbsFragger);
         // if we have at least one MSFragger task, check for MGF file presence
-        if (!processBuildersFragger.isEmpty()) {
+        if (!pbsFragger.isEmpty()) {
             // check for MGF files and warn
             String warn = ThisAppProps.load(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
             if (warn != null && Boolean.valueOf(warn)) {
@@ -3324,37 +3443,45 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 }
             }
         }
+        
+        // run MSAdjuster cleanup
+        List<ProcessBuilder> pbsMsadjusterCleanup = pbsMsadjuster(workingDir, lcmsFilePaths, true);
+        if (pbsMsadjusterCleanup == null) {
+            resetRunButtons(true);
+            return;
+        }
+        pbs.addAll(pbsMsadjuster);
 
         // run Crystal-C
-        List<ProcessBuilder> processBuildersCrystalc = processBuildersCrystalc(workingDir, lcmsFilePaths);
-        if (processBuildersCrystalc == null) {
+        List<ProcessBuilder> pbsCrystalc = pbsCrystalc(workingDir, fastaPath, lcmsFilePaths);
+        if (pbsCrystalc == null) {
             resetRunButtons(true);
             return;
         }
-        processBuilders.addAll(processBuildersCrystalc);
+        pbs.addAll(pbsCrystalc);
         
-        List<ProcessBuilder> processBuildersPeptideProphet = processBuildersPeptideProphet("", workingDir, lcmsFilePaths);
-        if (processBuildersPeptideProphet == null) {
+        List<ProcessBuilder> pbsPeptideProphet = pbsPeptideProphet("", workingDir, lcmsFilePaths);
+        if (pbsPeptideProphet == null) {
             resetRunButtons(true);
             return;
         }
 
-        List<ProcessBuilder> processBuildersProteinProphet = processBuildersProteinProphet("", workingDir, lcmsFilePaths);
-        if (processBuildersProteinProphet == null) {
+        List<ProcessBuilder> pbsProteinProphet = pbsProteinProphet("", workingDir, lcmsFilePaths);
+        if (pbsProteinProphet == null) {
             resetRunButtons(true);
             return;
         }
 
-        List<ProcessBuilder> processBuildersReport = processBuildersReport("", workingDir, lcmsFilePaths);
-        if (processBuildersReport == null) {
+        List<ProcessBuilder> pbsReport = pbsReport("", workingDir, lcmsFilePaths);
+        if (pbsReport == null) {
             resetRunButtons(true);
             return;
         }
 
         // if any of Philosopher stuff needs to be run, then clean/init the "workspace"
-        if (!processBuildersPeptideProphet.isEmpty()
-                || !processBuildersProteinProphet.isEmpty()
-                || !processBuildersReport.isEmpty()) {
+        if (!pbsPeptideProphet.isEmpty()
+                || !pbsProteinProphet.isEmpty()
+                || !pbsReport.isEmpty()) {
             String bin = textBinPhilosopher.getText().trim();
             bin = PathUtils.testBinaryPath(bin, "");
             boolean isPhilosopher = isPhilosopherBin(bin);
@@ -3365,7 +3492,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 cmd.add("workspace");
                 cmd.add("--clean");
                 ProcessBuilder pb = new ProcessBuilder(cmd);
-                processBuilders.add(pb);
+                pbs.add(pb);
             }
 
             if (isPhilosopher) {
@@ -3374,7 +3501,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 cmd.add("workspace");
                 cmd.add("--init");
                 ProcessBuilder pb = new ProcessBuilder(cmd);
-                processBuilders.add(pb);
+                pbs.add(pb);
             }
         }
         
@@ -3411,17 +3538,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
         
 
-        processBuilders.addAll(processBuildersPeptideProphet);
-        processBuilders.addAll(processBuildersProteinProphet);
-        processBuilders.addAll(processBuildersReport);
+        pbs.addAll(pbsPeptideProphet);
+        pbs.addAll(pbsProteinProphet);
+        pbs.addAll(pbsReport);
 
         if (!OsUtils.isWindows()) {
             // On Linux we created symlinks to mzXML files, leave them there
         } else {
             // On windows we copied the files over to the working directory
             // so will delete them now
-//            List<ProcessBuilder> processBuildersDeleteFiles = processBuildersDeleteFiles(workingDir, lcmsFilePaths);
-//            processBuilders.addAll(processBuildersDeleteFiles);
+//            List<ProcessBuilder> pbsDeleteFiles = pbsDeleteFiles(workingDir, lcmsFilePaths);
+//            pbs.addAll(pbsDeleteFiles);
         }
 
         StringBuilder sbSysinfo = new StringBuilder();
@@ -3435,8 +3562,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         sbVer.append("Philosopher version ").append(philosopherVer).append("\n");
         LogUtils.println(console, String.format(Locale.ROOT, "Version info:\n%s", sbVer.toString()));
 
-        LogUtils.println(console, String.format(Locale.ROOT, "Will execute %d commands:", processBuilders.size()));
-        for (final ProcessBuilder pb : processBuilders) {
+        LogUtils.println(console, String.format(Locale.ROOT, "Will execute %d commands:", pbs.size()));
+        for (final ProcessBuilder pb : pbs) {
             StringBuilder sb = new StringBuilder();
             List<String> command = pb.command();
             for (String commandPart : command) {
@@ -3462,12 +3589,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         exec = Executors.newFixedThreadPool(1);
         try // run everything
         {
-            final ProcessResult[] processResults = new ProcessResult[processBuilders.size()];
+            final ProcessResult[] processResults = new ProcessResult[pbs.size()];
 
-            for (int i = 0; i < processBuilders.size(); i++) {
+            for (int i = 0; i < pbs.size(); i++) {
 
                 final int index = i;
-                final ProcessBuilder pb = processBuilders.get(index);
+                final ProcessBuilder pb = pbs.get(index);
                 final ProcessResult pr = new ProcessResult(pb);
                 processResults[index] = pr;
 
@@ -4948,8 +5075,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
     }
         
-    private List<ProcessBuilder> processBuildersMsadjuster(String workingDir, List<String> lcmsFilePaths) {
-        List<ProcessBuilder> processBuilders = new LinkedList<>();
+    private List<ProcessBuilder> pbsMsadjuster(String workingDir, List<String> lcmsFilePaths, boolean cleanUp) {
+        List<ProcessBuilder> pbs = new LinkedList<>();
 
         if (fraggerPanel.isRunMsfragger() && fraggerPanel.isMsadjuster()) {
             URI currentJarUri = PathUtils.getCurrentJarPath();
@@ -4975,34 +5102,49 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             int ramGb = fraggerPanel.getRamGb();
             
             for (String lcmsFilePath : lcmsFilePaths) {
-                ArrayList<String> cmd = new ArrayList<>();
-                Path fileIn = Paths.get(lcmsFilePath);
-                cmd.add("java");
-                if (ramGb > 0) {
-                    cmd.add(new StringBuilder().append("-Xmx").append(ramGb).append("G").toString());
-                }
-                if (depsPath != null) {
-                    cmd.add("-cp");
-                    List<String> toJoin = new ArrayList<>();
-                    toJoin.add(depsPath.toAbsolutePath().normalize().toString());
-                    toJoin.add(jarPath.toAbsolutePath().normalize().toString());
-                    final String sep = System.getProperties().getProperty("path.separator");
-                    cmd.add("\"" + org.apache.commons.lang3.StringUtils.join(toJoin, sep) + "\"");
-                    cmd.add(CrystalcProps.JAR_MSADJUSTER_MAIN_CLASS);
+                if (!cleanUp) {
+                    ArrayList<String> cmd = new ArrayList<>();
+                    Path fileIn = Paths.get(lcmsFilePath);
+                    cmd.add("java");
+                    if (ramGb > 0) {
+                        cmd.add(new StringBuilder().append("-Xmx").append(ramGb).append("G").toString());
+                    }
+                    if (depsPath != null) {
+                        cmd.add("-cp");
+                        List<String> toJoin = new ArrayList<>();
+                        toJoin.add(depsPath.toAbsolutePath().normalize().toString());
+                        toJoin.add(jarPath.toAbsolutePath().normalize().toString());
+                        final String sep = System.getProperties().getProperty("path.separator");
+                        cmd.add("\"" + org.apache.commons.lang3.StringUtils.join(toJoin, sep) + "\"");
+                        cmd.add(CrystalcProps.JAR_MSADJUSTER_MAIN_CLASS);
+                    } else {
+                        cmd.add("-jar");
+                        cmd.add(jarPath.toAbsolutePath().normalize().toString());
+                    }
+                    cmd.add("20");
+                    cmd.add(lcmsFilePath);
+                    pbs.add(new ProcessBuilder(cmd));
                 } else {
-                    cmd.add("-jar");
-                    cmd.add(jarPath.toAbsolutePath().normalize().toString());
+                    ArrayList<String> cmd = new ArrayList<>();
+                    Path fileIn = Paths.get(lcmsFilePath);
+                    
+                    cmd.add("java");
+                    cmd.add("-cp");
+                    cmd.add(currentJarPath);
+                    cmd.add(FileMove.class.getCanonicalName());
+                    String origin = lcmsFilePath + ".ma"; // MSAdjuster creates these files
+                    String destination = wd.resolve(Paths.get(origin).getFileName().toString()).toString();
+                    cmd.add(origin);
+                    cmd.add(destination);
+                    pbs.add(new ProcessBuilder(cmd));
                 }
-                cmd.add("20");
-                cmd.add(lcmsFilePath);
-                processBuilders.add(new ProcessBuilder(cmd));
             }
         }
-        return processBuilders;
+        return pbs;
     }
     
-    private List<ProcessBuilder> processBuildersCopyFiles(String workingDir, List<String> lcmsFilePaths) {
-        List<ProcessBuilder> processBuilders = new LinkedList<>();
+    private List<ProcessBuilder> pbsCopyFiles(String workingDir, List<String> lcmsFilePaths) {
+        List<ProcessBuilder> pbs = new LinkedList<>();
 
         URI currentJarUri = PathUtils.getCurrentJarPath();
         String currentJarPath = Paths.get(currentJarUri).toAbsolutePath().toString();
@@ -5024,9 +5166,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             Path copyTo = Paths.get(workingDir, Paths.get(lcmsFilePath).getFileName().toString());
             commands.add(copyTo.toString());
             ProcessBuilder pb = new ProcessBuilder(commands);
-            processBuilders.add(pb);
+            pbs.add(pb);
         }
-        return processBuilders;
+        return pbs;
     }
 
     private boolean checkLcmsFileForDeletion(String workingDir, String lcmsFilePath) {
@@ -5035,8 +5177,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         return !wd.equals(file.getParent());
     }
 
-    private List<ProcessBuilder> processBuildersDeleteFiles(String workingDir, List<String> lcmsFilePaths) {
-        List<ProcessBuilder> processBuilders = new LinkedList<>();
+    private List<ProcessBuilder> pbsDeleteFiles(String workingDir, List<String> lcmsFilePaths) {
+        List<ProcessBuilder> pbs = new LinkedList<>();
 
         URI currentJarUri = PathUtils.getCurrentJarPath();
         String currentJarPath = Paths.get(currentJarUri).toAbsolutePath().toString();
@@ -5053,13 +5195,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             commands.add("java");
             commands.add("-cp");
             commands.add(currentJarPath);
-            commands.add("dia.umpire.util.FileDelete");
+            commands.add(FileDelete.class.getCanonicalName());
             Path copyTo = Paths.get(workingDir, Paths.get(lcmsFilePath).getFileName().toString());
             commands.add(copyTo.toString());
             ProcessBuilder pb = new ProcessBuilder(commands);
-            processBuilders.add(pb);
+            pbs.add(pb);
         }
-        return processBuilders;
+        return pbs;
     }
 
     private String getBinJava(String programsDir) {
@@ -5122,7 +5264,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         return matcher.find();
     }
 
-    private List<ProcessBuilder> processBuildersFragger(String programsDir, String workingDir, List<String> lcmsFilePaths, String dateStr) {
+    private List<ProcessBuilder> pbsFragger(String programsDir, String workingDir, List<String> lcmsFilePaths, String dateStr) {
         List<ProcessBuilder> builders = new LinkedList<>();
         if (fraggerPanel.isRunMsfragger()) {
 
@@ -5261,7 +5403,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         cmdMove.add("java");
                         cmdMove.add("-cp");
                         cmdMove.add(currentJarPath);
-                        //cmdMove.add("umich.msfragger.util.FileMove");
                         cmdMove.add(FileMove.class.getCanonicalName());
                         String origin = pepPath.toAbsolutePath().toString();
                         String destination = Paths.get(wdPath.toString(), pepPath.getFileName().toString()).toString();
@@ -5287,39 +5428,48 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         return pepxmls;
     }
 
-    private Map<String, String> createPepxmlFilePathsAfterMove(Map<String, String> dirtyPepXmls, String workingDir) {
+    private Map<String, String> createPepxmlFilePathsAfterMove(Map<String, String> dirtyPepXmls, String workingDir, 
+            boolean crystalC) {
         HashMap<String, String> pepxmls = new HashMap<>();
         Path wd = Paths.get(workingDir);
         for (Map.Entry<String, String> entry : dirtyPepXmls.entrySet()) {
             String raw = entry.getKey();
-            String pepxmlDirty = entry.getValue();
-            Path pepxmlClean = wd.resolve(Paths.get(pepxmlDirty).getFileName()).toAbsolutePath();
+            String dirty = entry.getValue();
+            String fn = Paths.get(dirty).getFileName().toString();
+            String fnMod = !crystalC ? fn :
+                    StringUtils.upToLastDot(fn) + "_c." + StringUtils.afterLastDot(fn);
+            Path pepxmlClean = wd.resolve(fnMod).toAbsolutePath();
             pepxmls.put(raw, pepxmlClean.toString());
         }
         return pepxmls;
     }
+    
+    private Map<String, String> createPepxmlFilePathsAfterMove(Map<String, String> dirtyPepXmls, String workingDir) {
+        return createPepxmlFilePathsAfterMove(dirtyPepXmls, workingDir, chkRunCrystalc.isSelected());
+    }
+    
 
     private Map<String, String> createInteractFilePaths(Map<String, String> cleanPepXmls, String workingDir, String pepxmlExt) {
         HashMap<String, String> interacts = new HashMap<>();
         Path wd = Paths.get(workingDir);
         for (Map.Entry<String, String> entry : cleanPepXmls.entrySet()) {
             String raw = entry.getKey();
-            String pepxmlClean = entry.getValue();
-            String pepxmlCleanFilename = Paths.get(pepxmlClean).getFileName().toString();
+            String clean = entry.getValue();
+            String cleanFn = Paths.get(clean).getFileName().toString();
 
             // hardcode typical params
             String[] typicalExts = {pepxmlExt, "pep.xml", "pepxml"};
-            String lowerCase = pepxmlCleanFilename.toLowerCase();
+            String lowerCase = cleanFn.toLowerCase();
             String nameWithoutExt = null;
             for (String ext : typicalExts) {
-                if (pepxmlCleanFilename.toLowerCase().endsWith(ext)) {
+                if (cleanFn.toLowerCase().endsWith(ext)) {
                     int lastIndex = lowerCase.lastIndexOf(ext);
-                    nameWithoutExt = pepxmlCleanFilename.substring(0, lastIndex);
+                    nameWithoutExt = cleanFn.substring(0, lastIndex);
                     break;
                 }
             }
             if (nameWithoutExt == null) {
-                throw new IllegalStateException(String.format("Could not identify the extension for file: %s", pepxmlClean));
+                throw new IllegalStateException(String.format("Could not identify the extension for file: %s", clean));
             }
 
             Path interactXml = wd.resolve("interact-" + nameWithoutExt + "pep.xml").toAbsolutePath();
@@ -5328,8 +5478,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         return interacts;
     }
 
-//    private List<ProcessBuilder> processBuildersComet(String programsDir, String workingDir, List<String> lcmsFilePaths, String dateStr) {
-//        List<ProcessBuilder> processBuilders = new LinkedList<>();
+//    private List<ProcessBuilder> pbsComet(String programsDir, String workingDir, List<String> lcmsFilePaths, String dateStr) {
+//        List<ProcessBuilder> pbs = new LinkedList<>();
 //        if (chkRunCometSearch.isSelected()) {
 //            try {
 //                CometParams collectedCometParams = collectCometParams();
@@ -5417,7 +5567,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //                        if (webroot == null) {
 //                            env.put(ENV_WEBSERVER_ROOT, "fake-WEBSERVER_ROOT-value");
 //                        }
-//                        processBuilders.add(pb);
+//                        pbs.add(pb);
 //                        createdMzXmlFiles.add(createdMzXml.toString());
 //                    }
 //                }
@@ -5432,7 +5582,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //                return null;
 //            }
 //        }
-//        return processBuilders;
+//        return pbs;
 //    }
     
     
@@ -5443,7 +5593,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
      * @param lcmsFilePaths
      * @return null in case of errors, or a list of process builders.
      */
-    private List<ProcessBuilder> processBuildersPeptideProphet(String programsDir, String workingDir, List<String> lcmsFilePaths) {
+    private List<ProcessBuilder> pbsPeptideProphet(String programsDir, String workingDir, List<String> lcmsFilePaths) {
         List<ProcessBuilder> builders = new LinkedList<>();
         if (chkRunPeptideProphet.isSelected()) {
             String bin = textBinPhilosopher.getText().trim();
@@ -5532,11 +5682,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     /**
-     * Creates the processBuilders for running ProteinProphet.
+     * Creates the pbs for running ProteinProphet.
      *
      * @return null in case of error, empty list if nothing needs to be added.
      */
-    private List<ProcessBuilder> processBuildersProteinProphet(String programsDir, String workingDir, List<String> lcmsFilePaths) {
+    private List<ProcessBuilder> pbsProteinProphet(String programsDir, String workingDir, List<String> lcmsFilePaths) {
         if (chkRunProteinProphet.isSelected()) {
             String bin = textBinPhilosopher.getText().trim();
             if (StringUtils.isNullOrWhitespace(bin)) {
@@ -5749,11 +5899,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     /**
-     * Creates the processBuilders for running ProteinProphet.
+     * Creates the pbs for running ProteinProphet.
      *
      * @return null in case of error, empty list if nothing needs to be added.
      */
-    private List<ProcessBuilder> processBuildersReport(String programsDir, String workingDir, List<String> lcmsFilePaths) {
+    private List<ProcessBuilder> pbsReport(String programsDir, String workingDir, List<String> lcmsFilePaths) {
         if (checkCreateReport.isSelected()) {
             String bin = textBinPhilosopher.getText().trim();
             if (StringUtils.isNullOrWhitespace(bin)) {
@@ -6078,8 +6228,24 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     public void uncaughtException(Thread t, Throwable e) {
                         StringWriter sw = new StringWriter();
                         e.printStackTrace(new PrintWriter(sw, true));
-                        JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + sw.toString(),
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                        String notes = sw.toString();
+                        
+                        JPanel p = new JPanel();
+                        p.setLayout(new BorderLayout());
+                        p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+                        p.add(new JLabel("Something unexpected happened"), BorderLayout.PAGE_START);
+                        
+                        JTextArea notesArea = new JTextArea(50, 120);
+                        notesArea.setText(notes);
+                        JScrollPane notesScroller = new JScrollPane();
+                        notesScroller.setBorder(BorderFactory.createTitledBorder(
+                                "Details: "));
+                        notesScroller.setViewportView(notesArea);
+                        p.add(notesScroller, BorderLayout.CENTER);
+                        
+                        //JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + notes, "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(frame, p, "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 });
                 

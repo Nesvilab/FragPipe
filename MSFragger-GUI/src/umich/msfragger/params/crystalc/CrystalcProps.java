@@ -20,11 +20,11 @@ package umich.msfragger.params.crystalc;
  * @author Dmitry Avtonomov
  */
 public class CrystalcProps {
-    public static final String JAR_MSADJUSTER_NAME = "original-MsAdjuster.jar";
+    public static final String JAR_MSADJUSTER_NAME = "original-MsAdjuster-1.0.2.jar";
     /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
     public static final String JAR_MSADJUSTER_MAIN_CLASS = "Main";
     
-    public static final String JAR_CRYSTALC_NAME = "original-CrystalC.jar";
+    public static final String JAR_CRYSTALC_NAME = "original-CrystalC-1.0.3.jar";
     /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
     public static final String JAR_CRYSTALC_MAIN_CLASS = "Main";
     
