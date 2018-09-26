@@ -12,14 +12,28 @@ plugins {
 
     // Apply the application plugin to add support for building an application
     id 'application'
+
+    id "com.jonaslasauskas.capsule" version "0.3.0"
+}
+
+group = 'com.github.chhh'
+version = '7.3-RC4'
+
+description = """FragPipe - run complete proteomics analyses from the GUI"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
 }
 
 // Define the main class for the application
 mainClassName = 'umich.msfragger.gui.MsFraggerGui'
 
 repositories {
-    mavenLocal()
-    mavenCentral()
+    // mavenLocal()
+    // mavenCentral()
+    jcenter()
 }
 
 // This is really the important part
@@ -39,11 +53,11 @@ sourceSets {
 dependencies {
     // This dependency is found on compile classpath of this component and consumers.
     //compile 'com.google.guava:guava:23.0'
-    implementation 'org.apache.httpcomponents:httpcore:4.4.10'
-    implementation 'org.apache.httpcomponents:httpclient:4.5.6'
-    implementation 'org.apache.httpcomponents:httpmime:4.5.6'
-    implementation 'org.apache.commons:commons-lang3:3.8.1'
-    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+    compile 'org.apache.httpcomponents:httpcore:4.4.10'
+    compile 'org.apache.httpcomponents:httpclient:4.5.6'
+    compile 'org.apache.httpcomponents:httpmime:4.5.6'
+    compile 'org.apache.commons:commons-lang3:3.8.1'
+    //compile group: 'commons-io', name: 'commons-io', version: '2.6'
 
     // downloaded / precompiled jars
     compile fileTree(dir: 'libs', include: '*.jar')
@@ -55,3 +69,11 @@ dependencies {
 task listJars << {
     configurations.compile.each { File file -> println file.name }
 }
+
+capsule {
+  capsuleManifest {
+    applicationId = 'com.github.chhh.FragPipe'
+    applicationClass = 'umich.msfragger.gui.MsFraggerGui'
+  }
+}
+
