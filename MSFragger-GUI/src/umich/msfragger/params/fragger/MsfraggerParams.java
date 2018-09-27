@@ -16,12 +16,7 @@
  */
 package umich.msfragger.params.fragger;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
@@ -41,10 +36,10 @@ import umich.msfragger.util.StringUtils;
  *
  * @author dmitriya
  */
-public class MsfraggerParams {
-    private Props props;
+public class MsfraggerParams extends AbstractParams {
     
     public static final String PROP_database_name = "database_name";
+    public static final String PROP_fragpipe_ram = "fragpipe_ram";
     public static final String PROP_num_threads = "num_threads";
     public static final String PROP_precursor_mass_lower = "precursor_mass_lower";
     public static final String PROP_precursor_mass_upper = "precursor_mass_upper";
@@ -136,8 +131,10 @@ public class MsfraggerParams {
 
     private static final DecimalFormat DF = new DecimalFormat("0.##########");
     private Map<String, String> comments;
+    
         
     public MsfraggerParams() {
+        super();
         comments = new HashMap<>();
         comments.put(PROP_num_threads, "0=poll CPU to set num threads; else specify num threads directly (max 64)");
         comments.put(PROP_precursor_mass_lower, "Overrides the lower bound of the window set by precursor_mass_tolerance");
@@ -163,31 +160,19 @@ public class MsfraggerParams {
         comments.put(PROP_allow_multiple_variable_mods_on_residue, "static mods are not considered");
         comments.put(PROP_max_variable_mods_per_mod, "maximum of 5");
         comments.put(PROP_max_variable_mods_combinations, "maximum of 65534, limits number of modified peptides generated from sequence");
-        props = new Props(comments);        
+        props = new Props(comments);    
     }
     
+    @Override
+    public void loadDefault() {
+        loadDefaultsClosedSearch();
+    }
     
-    
-    public static Path tempFilePath() {
+    @Override
+    public Path tempFilePath() {
         return Paths.get(PathUtils.getTempDir().toString(), DEFAULT_FILE);
     }
     
-    /**
-     * Loads properties either from the default properties file stored in the jar
-     * or from the temp directory.
-     * @throws IOException 
-     */
-    public void load() throws IOException {
-        // first check if there is a temp file saved
-        Path tempFilePath = tempFilePath();
-        if (Files.exists(tempFilePath)) {
-            try (FileInputStream fis = new FileInputStream(tempFilePath.toFile())) {
-                load(fis, true);
-            }
-        } else {
-            loadDefaultsClosedSearch();
-        }
-    }
     
     public void loadDefaultsOpenSearch() {
         try {
@@ -207,64 +192,20 @@ public class MsfraggerParams {
         }
     }
     
-    /**
-     * Clear out the properties 
-     * @param is
-     * @param clearBeforeLoading clear up the internal properties before loading new ones.
-     * @throws IOException 
-     */
-    public void load(InputStream is, boolean clearBeforeLoading) throws IOException {
-        if (clearBeforeLoading) clear();
-        props.load(is);
-    }
-    
-    public void clear() {
-        this.props.clearProps();
-    }
-    
-    public static void clearCache() {
-        Path tempFilePath = tempFilePath();
-        if (Files.exists(tempFilePath)) {
-            try {
-                Files.delete(tempFilePath);
-            } catch (IOException ex) {
-                // doesn't matter
-            }
-        }
-    }
-    
-    /**
-     * Saves the current properties contents to a default temp file.
-     * @throws IOException 
-     */
-    public Path save() throws IOException {
-        Path temp = tempFilePath();
-        if (Files.exists(temp)) {
-            Files.delete(temp);
-        }
-        props.save(new FileOutputStream(temp.toFile()));
-        return temp;
-    }
-    
-    /**
-     * Saves the current properties contents to a stream. With comments.
-     * @param os
-     * @throws IOException 
-     */
-    public void save(OutputStream os) throws IOException {
-        props.save(os);
-    }
-
-    public Props getProps() {
-        return props;
-    }
-    
     public String getDatabaseName() {
         return props.getProp(PROP_database_name, "").value;
     }
     
     public void setDatabaseName(String databaseName) {
         props.setProp(PROP_database_name, databaseName);
+    }
+    
+    public int getFragpipeRam() {
+        return Integer.parseInt(props.getProp(PROP_fragpipe_ram, "0").value);
+    }
+    
+    public void setFragpipeRam(int ramGb) {
+        props.setProp(PROP_fragpipe_ram, Integer.toString(ramGb));
     }
     
     public int getNumThreads() {
@@ -767,6 +708,4 @@ public class MsfraggerParams {
             props.setProp(name, value, vm.isEnabled);
         }
     }
-    
-    
 }

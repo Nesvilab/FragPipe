@@ -4,7 +4,7 @@
   <headerType>gui</headerType>
   <jar>C:\code\msfragger\fragpipe\MSFragger-GUI\dist\FragPipe.jar</jar>
   <outfile>C:\code\msfragger\fragpipe\MSFragger-GUI\dist\FragPipe.exe</outfile>
-  <errTitle>Comptible Java (JRE) not found. Download an open-source version.</errTitle>
+  <errTitle>Compatible Java (JRE) not found. Download an open-source version.</errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
   <priority>normal</priority>

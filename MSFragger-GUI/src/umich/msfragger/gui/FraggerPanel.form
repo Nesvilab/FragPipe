@@ -408,7 +408,7 @@
                     <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                       <SpinnerModel initial="1" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
                     </Property>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Split database into smaller chunks.&lt;br/&gt;&#xa;If you&apos;re wondering what&apos;s that for, you likely don&apos;t need it."/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Split database into smaller chunks.&lt;br/&gt;&#xa;If you&apos;re wondering what&apos;s that for, you likely don&apos;t need it.&lt;br/&gt;&#xa;Requires MSFragger 20180924+."/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="lblSlices">
@@ -417,7 +417,7 @@
                       <Font name="Tahoma" size="11" style="2"/>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Slice up database"/>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Split database into smaller chunks.&lt;br/&gt;&#xa;If you&apos;re wondering what&apos;s that for, you likely don&apos;t need it."/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Split database into smaller chunks.&lt;br/&gt;&#xa;If you&apos;re wondering what&apos;s that for, you likely don&apos;t need it.&lt;br/&gt;&#xa;Requires MSFragger 20180924+."/>
                   </Properties>
                 </Component>
               </SubComponents>
@@ -1366,7 +1366,7 @@
                           <Font name="Tahoma" size="11" style="2"/>
                         </Property>
                         <Property name="text" type="java.lang.String" value="Adjust precursor mass"/>
-                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Try to trace MS1 signals, adjusting MS2 precursor mass"/>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Try to trace MS1 signals, adjusting MS2 precursor mass.&lt;br/&gt;&#xa;Requires MSFragger 20180924+."/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkMsadjusterActionPerformed"/>

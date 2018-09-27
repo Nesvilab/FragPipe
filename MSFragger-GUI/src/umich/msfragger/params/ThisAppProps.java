@@ -60,6 +60,8 @@ public class ThisAppProps extends Properties {
     public static final String PROP_CRYSTALC_USE = "crystalc.use";
 
     public static final String PROP_MGF_WARNING = "warn.mgf";
+
+    public static final String JAR_FILE_AS_RESOURCE_EXT = ".jazz";
     
     public ThisAppProps() {
         this.setProperty(Version.PROP_VER, Version.VERSION);

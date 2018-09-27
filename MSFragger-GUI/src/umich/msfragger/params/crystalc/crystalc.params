@@ -1,0 +1,30 @@
+# Crystal-C (Version: 2017.10)
+
+# No. of threads. "-1" means that Crystal-C automatically uses (thread number - 1) in your computer for processing.
+Thread = -1
+
+# Protein Fasta File
+Fasta = 
+
+# The directory where the LCMS files are
+RawDataDictionary = 
+
+OutputFolder = 
+
+# The file extension of raw data
+RawFileExtension = mzML
+
+# Maximum charge state for precursors
+MaxZ = 6
+
+# No. of theoretical isotope peaks
+IsoNum = 3
+
+# Precursor Mass tolerance
+MassTol = 20
+
+# Precursor Isolation Window
+PrecursorIsolationWindow = 0.7
+
+# Use Adjusted Precursors
+UseAdjustedPrecursors = false
