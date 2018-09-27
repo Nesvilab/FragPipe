@@ -14,11 +14,14 @@ plugins {
     id 'application'
 
     id 'idea'
+
     id "com.jonaslasauskas.capsule" version "0.3.0"
+    id "com.github.johnrengelman.shadow" version "4.0.0"
+    id 'edu.sc.seis.launch4j' version '2.4.4'
 }
 
 group = 'com.github.chhh'
-version = '7.3-RC4'
+version = '8.0-RC1'
 
 description = """FragPipe - run complete proteomics analyses from the GUI"""
 
@@ -46,9 +49,23 @@ sourceSets {
         resources {
             srcDirs = ['resources', 'tools', 'src']
             excludes = ['*.java']
+            //excludes = ['*.java', '*.jar']
         }
        // add tests sources here (this project didn't have them!)
     }
+}
+
+//shadowJar {
+//    from('/tools') {
+//        include('*')
+//    }
+//}
+
+launch4j {
+    mainClassName = 'umich.msfragger.gui.MsFraggerGui'
+    icon = "${projectDir}/../logo/msfragger-icon-set_win_16-512.ico"
+    //outputDir = 'lib'
+    dontWrapJar = false
 }
 
 dependencies {

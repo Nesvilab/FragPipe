@@ -105,6 +105,8 @@ import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
 import umich.msfragger.Version;
 import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
+import static umich.msfragger.params.ThisAppProps.JAR_FILE_AS_RESOURCE_EXT;
+
 import umich.msfragger.gui.api.DataConverter;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.SimpleUniqueTableModel;
@@ -5037,10 +5039,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         
         try (InputStream in = MsfraggerGuiFrame.class.getResourceAsStream(resourcePath + "/" + resourceName)) {
             Path tempFile;
+            String resourceNameMod = resourceName.toLowerCase().endsWith(JAR_FILE_AS_RESOURCE_EXT)
+                    ? StringUtils.upToLastDot(resourceName) + ".jar"
+                    : resourceName;
+
             if (randomizeName) {
-                tempFile = Files.createTempFile("fragpipe-", "-" + resourceName);
+                tempFile = Files.createTempFile("fragpipe-", "-" + resourceNameMod);
             } else {
-                tempFile = Paths.get(ThisAppProps.TEMP_DIR, resourceName);
+                tempFile = Paths.get(ThisAppProps.TEMP_DIR, resourceNameMod);
             }
             Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
             if (scheduleForDeletion)
