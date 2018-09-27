@@ -3165,17 +3165,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 
                 // multiple raw file extensions or multiple lcms file locaitons
                 // issue a separate command for each pepxml file
+                int index = -1;
                 for (Map.Entry<String, String> kv : pepxmlClean.entrySet()) {
-                    String lcms = kv.getKey();
-                    String pepxml = kv.getValue();
+                    Path lcms = Paths.get(kv.getKey()).toAbsolutePath().normalize();
+                    String lcmsFn = lcms.getFileName().toString();
+                    Path pepxml = Paths.get(kv.getValue()).toAbsolutePath().normalize();
+                    String pepxmlFn = pepxml.getFileName().toString();
                     
                     CrystalcParams p;
-                    Path ccParamsPath = wd.resolve(ccParamsFilePrefix + "-" 
-                            + StringUtils.upToLastDot(pepxml) + ccParamsFileSuffix);
+                    Path ccParamsPath = wd.resolve(ccParamsFilePrefix + "-" + (++index) + "-" + pepxmlFn + ccParamsFileSuffix);
                     try {
                         p = crystalcFormToParams();
-                        String ext = StringUtils.afterLastDot(lcms);
-                        Path dir = Paths.get(lcms).getParent();
+                        String ext = StringUtils.afterLastDot(lcmsFn);
+                        Path dir = lcms.getParent();
                         p.setRawFileExt(ext);
                         p.setRawDirectory(dir.toString());
                         p.setOutputFolder(workingDir);
@@ -3202,7 +3204,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     cmd.add("\"" + org.apache.commons.lang3.StringUtils.join(toJoin, sep) + "\"");
                     cmd.add(CrystalcProps.JAR_CRYSTALC_MAIN_CLASS);
                     cmd.add(ccParamsPath.toString());
-                    cmd.add(pepxml);
+                    cmd.add(pepxml.toString());
 
                     pbs.add(new ProcessBuilder(cmd));
                 }
