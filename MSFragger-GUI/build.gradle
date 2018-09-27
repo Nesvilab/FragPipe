@@ -55,17 +55,20 @@ sourceSets {
     }
 }
 
-//shadowJar {
-//    from('/tools') {
-//        include('*')
-//    }
-//}
+shadowJar {
+    classifier = null;
+}
 
 launch4j {
     mainClassName = 'umich.msfragger.gui.MsFraggerGui'
     icon = "${projectDir}/../logo/msfragger-icon-set_win_16-512.ico"
-    //outputDir = 'lib'
+    outputDir = 'libs'
     dontWrapJar = false
+    downloadUrl = 'https://www.azul.com/downloads/zulu/'
+//    messagesStartupError = "Startup error"
+//    messagesLauncherError = "Launcher error"
+//    messagesBundledJreError = "Error with bundled JRE"
+//    messagesJreVersionError = "Java Runtime version error"
 }
 
 dependencies {
