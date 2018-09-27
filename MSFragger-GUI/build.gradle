@@ -56,7 +56,8 @@ sourceSets {
 }
 
 shadowJar {
-    classifier = null;
+    classifier = null
+    minimize()
 }
 
 launch4j {
@@ -75,7 +76,11 @@ dependencies {
     // This dependency is found on compile classpath of this component and consumers.
     //compile 'com.google.guava:guava:23.0'
     compile 'org.apache.httpcomponents:httpcore:4.4.10'
-    compile 'org.apache.httpcomponents:httpclient:4.5.6'
+    compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6')
+    {
+        exclude(module: 'commons-logging')
+        exclude(module: 'commons-codec')
+    }
     compile 'org.apache.httpcomponents:httpmime:4.5.6'
     compile 'org.apache.commons:commons-lang3:3.8.1'
     //compile group: 'commons-io', name: 'commons-io', version: '2.6'
@@ -87,10 +92,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
-task listJars << {
-    configurations.compile.each { File file -> println file.name }
-}
-
 capsule {
   capsuleManifest {
     applicationId = 'com.github.chhh.FragPipe'
@@ -98,3 +99,6 @@ capsule {
   }
 }
 
+task listJars << {
+    configurations.compile.each { File file -> println file.name }
+}
