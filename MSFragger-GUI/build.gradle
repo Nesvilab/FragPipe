@@ -13,6 +13,7 @@ plugins {
     // Apply the application plugin to add support for building an application
     id 'application'
 
+    id 'idea'
     id "com.jonaslasauskas.capsule" version "0.3.0"
 }
 
