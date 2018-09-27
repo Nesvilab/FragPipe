@@ -51,6 +51,9 @@ public class Version {
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>(new VersionComparator());
     
     static {
+        CHANGELOG.put("8.0", Arrays.asList(
+                "Added MSAdjuster, Crystal-C. Both packaged with the release, no extra downloads."));
+        
         CHANGELOG.put("7.2", Arrays.asList(
                 "Added database slicing via a python script (Requires "
                         + "Python 3, NumPy, Pandas)."));
