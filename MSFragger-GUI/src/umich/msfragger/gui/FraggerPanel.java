@@ -45,6 +45,8 @@ import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 import net.java.balloontip.BalloonTip;
 import static umich.msfragger.gui.MsfraggerGuiFrame.DEFAULT_TYPE;
+
+import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.enums.CleavageType;
@@ -1571,8 +1573,8 @@ public class FraggerPanel extends javax.swing.JPanel {
                         + "Would you like to update Prophets' options as well?\n"
                         + "(Highly recommended, unless you're sure what you're doing)", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
                 if (JOptionPane.OK_OPTION == confirmProphets) {
-                    f.loadDefaultsPeptideProphet(MsfraggerGuiFrame.SearchTypeProp.open);
-                    f.loadDefaultsProteinProphet(MsfraggerGuiFrame.SearchTypeProp.open);
+                    f.loadDefaultsPeptideProphet(SearchTypeProp.open);
+                    f.loadDefaultsProteinProphet(SearchTypeProp.open);
                 }
             }
         }
@@ -1581,7 +1583,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     public void loadDefaultsOpen() {
         params.loadDefaultsOpenSearch();
         fillFormFromParams(params);
-        loadDefaultsMsadjuster(MsfraggerGuiFrame.SearchTypeProp.open);
+        loadDefaultsMsadjuster(SearchTypeProp.open);
     }
     
     private void textEnzymeNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textEnzymeNameActionPerformed
@@ -1673,8 +1675,8 @@ public class FraggerPanel extends javax.swing.JPanel {
                         + "Would you like to update Prophets' options as well?\n"
                         + "(Highly recommended, unless you're sure what you're doing)", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
                 if (JOptionPane.OK_OPTION == confirmProphets) {
-                    f.loadDefaultsPeptideProphet(MsfraggerGuiFrame.SearchTypeProp.closed);
-                    f.loadDefaultsProteinProphet(MsfraggerGuiFrame.SearchTypeProp.closed);
+                    f.loadDefaultsPeptideProphet(SearchTypeProp.closed);
+                    f.loadDefaultsProteinProphet(SearchTypeProp.closed);
                 }
             }
         }
@@ -1714,17 +1716,17 @@ public class FraggerPanel extends javax.swing.JPanel {
         }
     }
     
-    public void loadDefaultsMsadjuster(MsfraggerGuiFrame.SearchTypeProp type) {
+    public void loadDefaultsMsadjuster(SearchTypeProp type) {
         MsfraggerGuiFrame.loadDefaults(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE, type);
     }
     
     public void loadDefaultsClosed() {
         params.loadDefaultsClosedSearch();
         fillFormFromParams(params);
-        loadDefaultsMsadjuster(MsfraggerGuiFrame.SearchTypeProp.closed);
+        loadDefaultsMsadjuster(SearchTypeProp.closed);
     }
     
-    public void loadDefaults(MsfraggerGuiFrame.SearchTypeProp type) {
+    public void loadDefaults(SearchTypeProp type) {
         switch (type) {
             case open:
                 loadDefaultsOpen();

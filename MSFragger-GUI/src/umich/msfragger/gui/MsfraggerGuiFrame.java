@@ -52,7 +52,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -92,8 +91,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -108,6 +105,8 @@ import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
 import static umich.msfragger.params.ThisAppProps.JAR_FILE_AS_RESOURCE_EXT;
 
 import umich.msfragger.gui.api.DataConverter;
+import umich.msfragger.gui.api.Installed;
+import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.SimpleUniqueTableModel;
 import umich.msfragger.gui.api.TableModelColumn;
@@ -130,6 +129,7 @@ import umich.msfragger.util.FileListing;
 import umich.msfragger.util.FileMove;
 import umich.msfragger.util.GhostText;
 import umich.msfragger.util.HSLColor;
+import umich.msfragger.util.Holder;
 import umich.msfragger.util.LogUtils;
 import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PathUtils;
@@ -2234,12 +2234,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
         return null;
     }
-    
-    
-    public enum Installed {
-        YES, NO, UNKNOWN
-    }
-    
+
+
     private Installed checkPythonPackageAvailability(String pythonCmd, String pkgName) {
         boolean isInstalled = false;
         ProcessBuilder pb = new ProcessBuilder(pythonCmd,
@@ -3747,7 +3743,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 + "Will update parameters for MSFragger, both Prophets\n"
                 + "and Report Filter.", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
         if (JOptionPane.OK_OPTION == confirmation) {
-            MsfraggerGuiFrame.SearchTypeProp type = MsfraggerGuiFrame.SearchTypeProp.open;
+            SearchTypeProp type = SearchTypeProp.open;
             fraggerPanel.loadDefaults(type);
             loadDefaultsSequenceDb(type);
             loadDefaultsPeptideProphet(type);
@@ -3766,7 +3762,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 + "Will update parameters for MSFragger, both Prophets\n"
                 + "and Report Filter.", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
         if (JOptionPane.OK_OPTION == confirmation) {
-            MsfraggerGuiFrame.SearchTypeProp type = MsfraggerGuiFrame.SearchTypeProp.closed;
+            SearchTypeProp type = SearchTypeProp.closed;
             fraggerPanel.loadDefaults(type);
             loadDefaultsSequenceDb(type);
             loadDefaultsPeptideProphet(type);
@@ -4722,10 +4718,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         final String savedText = textReportFilterFocusGained;
         final String oldText = savedText != null ? savedText : comp.getText().trim();
         final String updText = newText != null ? newText : comp.getText().trim();
-    }
-
-    public enum SearchTypeProp {
-        open, closed
     }
 
     private boolean validateAndSavePhilosopherPath(final String path) {
@@ -6085,11 +6077,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         }
         return "";
-    }
-
-    private class Holder<T> {
-
-        T obj;
     }
 
     private static List<Image> loadIcon() {
