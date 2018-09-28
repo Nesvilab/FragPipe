@@ -3093,16 +3093,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             
             // check if all input files are in the same folder
             Set<Path> dirs = lcmsFilePaths.stream()
-                    .map(Paths::get).map(p -> p.getParent().toAbsolutePath().normalize())
-                    .distinct().collect(Collectors.toSet());
+                    .map(Paths::get).map(p -> p.getParent().toAbsolutePath().normalize()).collect(Collectors.toSet());
             Set<String> exts = lcmsFilePaths.stream()
                     .map(Paths::get).map(p -> p.getFileName().toString())
-                    .map(s -> StringUtils.afterLastDot(s))
-                    .distinct().collect(Collectors.toSet());
+                    .map(StringUtils::afterLastDot).collect(Collectors.toSet());
             boolean anyMatch = exts.stream().map(String::toLowerCase)
                     .anyMatch(ext -> !("mzml".equals(ext) || "mzxml".equals(ext)));
             if (exts.isEmpty() || anyMatch) {
-                String foundExts = exts.stream().collect(Collectors.joining(", "));
+                String foundExts = String.join(", ", exts);
                 JOptionPane.showMessageDialog(MsfraggerGuiFrame.this, 
                         "Crystal-C only supports mzML and mzXML input files.\n" + 
                                 "The following LCMS file extensions found: " + foundExts + ".\n"
@@ -3270,8 +3268,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
         final Path wdPath = testWdPath;
         
-
-        if (!Files.exists(wdPath)) {
+        final boolean isDryRun = checkDryRun.isSelected();
+        if (!isDryRun && !Files.exists(wdPath)) {
             int confirmCreation = JOptionPane.showConfirmDialog(this, "Output directory doesn't exist. Create?",
                     "Create output directory?", JOptionPane.OK_CANCEL_OPTION);
             switch (confirmCreation) {
@@ -3290,7 +3288,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     return;
             }
         } else {
-            if (!checkDryRun.isSelected()) {
+            if (!isDryRun) {
                 try (Stream<Path> inWd = Files.list(wdPath)) {
                     if (inWd.findAny().isPresent()) {
                         int confirm = JOptionPane.showConfirmDialog(this,
@@ -3319,7 +3317,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             return;
         }
 
-        List<ProcessBuilder> pbs = new ArrayList();
+        List<ProcessBuilder> pbs = new ArrayList<>();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
         String dateString = df.format(new Date());
 
@@ -3552,7 +3550,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         LogUtils.println(console, "");
         LogUtils.println(console, "");
 
-        if (checkDryRun.isSelected()) {
+        if (isDryRun) {
             LogUtils.println(console, "Dry Run selected, not running the commands.");
             resetRunButtons(true);
             return;
@@ -3578,122 +3576,116 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 pb.directory(wd.toFile());
                 pr.setWorkingDir(wd);
 
-                final Color green = new Color(122, 211, 38);
-                final Color greenDarker = new Color(122, 211, 38);
+                final Color green = new Color(105, 193, 38);
+                final Color greenDarker = new Color(104, 184, 55);
                 final Color greenDarkest = new Color(82, 140, 26);
-                final Color red = new Color(236, 52, 42);
-                final Color redDarker = new Color(198, 10, 0);
+                final Color red = new Color(236, 99, 80);
+                final Color redDarker = new Color(166, 56, 68);
                 final Color redDarkest = new Color(155, 35, 29);
                 final Color black = new Color(0, 0, 0);
                 REHandler reHandler;
-                reHandler = new REHandler(new Runnable() {
-                    @Override
-                    public void run() {
+                reHandler = new REHandler(() -> {
 
-                        StringBuilder command = new StringBuilder();
-                        for (String part : pb.command()) {
-                            command.append(part).append(" ");
+                    StringBuilder command = new StringBuilder();
+                    for (String part : pb.command()) {
+                        command.append(part).append(" ");
+                    }
+
+                    // if it's not the first process, check that the previous
+                    // one returned zero exit code
+                    if (index > 0) {
+                        Integer exitCode = processResults[index - 1].getExitCode();
+                        if (exitCode == null) {
+                            LogUtils.print(redDarker, console, true, "Cancelled execution of: ", false);
+                            LogUtils.print(black, console, true, command.toString(), true);
+                            return;
+                        } else if (exitCode != 0) {
+                            LogUtils.print(red, console, true,
+                                    String.format("Previous process returned exit code [%d], cancelling further processing..", exitCode), true);
+                            LogUtils.print(redDarker, console, true, "Cancelled execution of: ", false);
+                            LogUtils.print(black, console, true, command.toString(), true);
+                            return;
                         }
+                    }
 
-                        // if it's not the first process, check that the previous
-                        // one returned zero exit code
-                        if (index > 0) {
-                            Integer exitCode = processResults[index - 1].getExitCode();
-                            if (exitCode == null) {
-                                LogUtils.print(redDarker, console, true, "Cancelled execution of: ", false);
-                                LogUtils.print(black, console, true, command.toString(), true);
-                                return;
-                            } else if (exitCode != 0) {
-                                LogUtils.print(red, console, true, 
-                                        String.format("Previous process returned exit code [%d], cancelling further processing..", exitCode), true);
-                                LogUtils.print(redDarker, console, true, "Cancelled execution of: ", false);
-                                LogUtils.print(black, console, true, command.toString(), true);
-                                return;
+                    Process process = null;
+                    try {
+
+                        LogUtils.println(console, "Executing command:\n$> " + command.toString());
+                        process = pb.start();
+                        pr.setStarted(true);
+                        String toAppend = "Process started";
+                        LogUtils.println(console, toAppend);
+
+                        InputStream err = process.getErrorStream();
+                        InputStream out = process.getInputStream();
+                        while (true) {
+                            Thread.sleep(200L);
+                            int errAvailable = err.available();
+                            if (errAvailable > 0) {
+                                byte[] bytes = new byte[errAvailable];
+                                int read = err.read(bytes);
+                                toAppend = new String(bytes);
+                                LogUtils.println(console, toAppend);
+                                pr.getOutput().append(toAppend);
+                            }
+                            int outAvailable = out.available();
+                            if (outAvailable > 0) {
+                                byte[] bytes = new byte[outAvailable];
+                                int read = out.read(bytes);
+                                toAppend = new String(bytes);
+                                LogUtils.println(console, toAppend);
+                                pr.getOutput().append(toAppend);
+                            }
+                            try {
+                                final int exitValue = process.exitValue();
+                                pr.setExitCode(exitValue);
+                                //toAppend = String.format(Locale.ROOT, "Process finished, exit value: %d\n", exitValue);
+                                //LogUtils.println(console, toAppend); // changing this to manual call, because I want to print with color
+                                SwingUtilities.invokeLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Color c = exitValue == 0 ? greenDarker : red;
+                                        console.append(c, String.format(
+                                                Locale.ROOT, "Process finished, exit value: %d\n", exitValue));
+                                    }
+                                });
+
+                                break;
+                            } catch (IllegalThreadStateException ignore) {
+                                // this error is thrown by process.exitValue() if the underlying process has not yet finished
                             }
                         }
 
-                        Process process = null;
-                        try {
-
-                            LogUtils.println(console, "Executing command:\n$> " + command.toString());
-                            process = pb.start();
-                            pr.setStarted(true);
-                            String toAppend = "Process started";
-                            LogUtils.println(console, toAppend);
-
-                            InputStream err = process.getErrorStream();
-                            InputStream out = process.getInputStream();
-                            while (true) {
-                                Thread.sleep(200L);
-                                int errAvailable = err.available();
-                                if (errAvailable > 0) {
-                                    byte[] bytes = new byte[errAvailable];
-                                    int read = err.read(bytes);
-                                    toAppend = new String(bytes);
-                                    LogUtils.println(console, toAppend);
-                                    pr.getOutput().append(toAppend);
-                                }
-                                int outAvailable = out.available();
-                                if (outAvailable > 0) {
-                                    byte[] bytes = new byte[outAvailable];
-                                    int read = out.read(bytes);
-                                    toAppend = new String(bytes);
-                                    LogUtils.println(console, toAppend);
-                                    pr.getOutput().append(toAppend);
-                                }
-                                try {
-                                    final int exitValue = process.exitValue();
-                                    pr.setExitCode(exitValue);
-                                    //toAppend = String.format(Locale.ROOT, "Process finished, exit value: %d\n", exitValue);
-                                    //LogUtils.println(console, toAppend); // changing this to manual call, because I want to print with color
-                                    SwingUtilities.invokeLater(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Color c = exitValue == 0 ? greenDarker : red;
-                                            console.append(c, String.format(
-                                                    Locale.ROOT, "Process finished, exit value: %d\n", exitValue));
-                                        }
-                                    });
-
-                                    break;
-                                } catch (IllegalThreadStateException ignore) {
-                                    // this error is thrown by process.exitValue() if the underlying process has not yet finished
-                                }
-                            }
-
-                        } catch (IOException ex) {
-                            String toAppend = String.format(Locale.ROOT, "IOException: Error in process,\n%s", ex.getMessage());
-                            LogUtils.println(console, toAppend);
-                        } catch (InterruptedException ex) {
-                            if (process != null) {
-                                process.destroy();
-                            }
-                            String toAppend = String.format(Locale.ROOT, "InterruptedException: Error in process,\n%s", ex.getMessage());
-                            LogUtils.println(console, toAppend);
+                    } catch (IOException ex) {
+                        String toAppend = String.format(Locale.ROOT, "IOException: Error in process,\n%s", ex.getMessage());
+                        LogUtils.println(console, toAppend);
+                    } catch (InterruptedException ex) {
+                        if (process != null) {
+                            process.destroy();
                         }
+                        String toAppend = String.format(Locale.ROOT, "InterruptedException: Error in process,\n%s", ex.getMessage());
+                        LogUtils.println(console, toAppend);
                     }
                 }, console, System.err);
                 exec.submit(reHandler);
 
                 // On windows try to schedule copied mzXML file deletion
                 if (OsUtils.isWindows()) {
-                    REHandler deleteTask = new REHandler(new Runnable() {
-                        @Override
-                        public void run() {
-                            List<String> lcmsFiles = getLcmsFilePaths();
-                            List<Path> copiedFiles = getLcmsFilePathsInWorkdir(Paths.get(workingDir));
-                            if (lcmsFiles.size() != copiedFiles.size()) {
-                                throw new IllegalStateException("LCMS file list sizes should be equal.");
-                            }
-                            for (int i = 0; i < lcmsFiles.size(); i++) {
-                                Path origPath = Paths.get(lcmsFiles.get(i));
-                                Path linkPath = copiedFiles.get(i);
-                                if (!linkPath.getParent().equals(origPath.getParent())) {
-                                    linkPath.toFile().deleteOnExit();
-                                }
-                            }
-
+                    REHandler deleteTask = new REHandler(() -> {
+                        List<String> lcmsFiles = getLcmsFilePaths();
+                        List<Path> copiedFiles = getLcmsFilePathsInWorkdir(Paths.get(workingDir));
+                        if (lcmsFiles.size() != copiedFiles.size()) {
+                            throw new IllegalStateException("LCMS file list sizes should be equal.");
                         }
+                        for (int i1 = 0; i1 < lcmsFiles.size(); i1++) {
+                            Path origPath = Paths.get(lcmsFiles.get(i1));
+                            Path linkPath = copiedFiles.get(i1);
+                            if (!linkPath.getParent().equals(origPath.getParent())) {
+                                linkPath.toFile().deleteOnExit();
+                            }
+                        }
+
                     }, console, System.err);
                     exec.submit(deleteTask);
                 }
@@ -3704,18 +3696,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         final JButton btnStartPtr = btnRun;
         final JButton btnStopPtr = btnStop;
-        REHandler finalizerTask = new REHandler(new Runnable() {
-            @Override
-            public void run() {
-                submittedProcesses.clear();
-                btnStartPtr.setEnabled(true);
-                btnStopPtr.setEnabled(false);
-                LogUtils.println(console, String.format("========================="));
-                LogUtils.println(console, String.format("==="));
-                LogUtils.println(console, String.format("===        Done"));
-                LogUtils.println(console, String.format("==="));
-                LogUtils.println(console, String.format("========================="));
-            }
+        REHandler finalizerTask = new REHandler(() -> {
+            submittedProcesses.clear();
+            btnStartPtr.setEnabled(true);
+            btnStopPtr.setEnabled(false);
+            LogUtils.println(console, "=========================");
+            LogUtils.println(console, "===");
+            LogUtils.println(console, "===        Done");
+            LogUtils.println(console, "===");
+            LogUtils.println(console, "=========================");
         }, console, System.err);
 
         exec.submit(finalizerTask);
@@ -3910,13 +3899,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 throw new FileNotFoundException("File doesn't exist: " + p.toAbsolutePath().toString());
             
         } catch (Exception e)  {
-            JOptionPane.showConfirmDialog(btnTryDetectDecoyTag, 
+            JOptionPane.showMessageDialog(btnTryDetectDecoyTag,
                     "<html>Could not open sequence database file", "File not found", 
-                    JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(p), "UTF-8"))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(p),
+            StandardCharsets.UTF_8))) {
             String line;
             List<String> descriptors = new ArrayList<>();
             List<List<String>> ordered = new ArrayList<>();
@@ -3966,30 +3956,27 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 
                 { // prefixes
                     final List<Tuple2<String, Double>> result = new ArrayList<>();
-                    Proc2<PrefixCounter.Node, PrefixCounter.Mode> action = new Proc2<PrefixCounter.Node, PrefixCounter.Mode>() {
-                        @Override
-                        public void call(PrefixCounter.Node n, PrefixCounter.Mode mode) {
+                    Proc2<PrefixCounter.Node, PrefixCounter.Mode> action = (n, mode) -> {
 
-                            PrefixCounter.Node cur = n;
-                            //if (cur.getTerminals() > 0)
-                            //    return; // a prefix or a suffix can never be the whole protein id
-                            double pct = cur.getHits() / (double) total;
-                            if (pct < pctMin || pct > pctMax)
-                                    return;
-                            sb.setLength(0);
-                            while (cur != null) {
-                                if (cur.parent != null)
-                                    sb.append(cur.ch);
-                                cur = cur.parent;
-                            }
-
-                            if (sb.length() < 2)
-                                return; // no prefixes smaller than 2 characters
-                            
-                            StringBuilder sbPrint = sb.reverse();// mode == PrefixCounter.Mode.REV ? sb.reverse() : sb;
-                            result.add(new Tuple2<>(sbPrint.toString(), pct));
-                            //System.out.printf("%s : (full string: %s) hits=%.1f%%\n", n, sbPrint.toString(), pct*100d);
+                        PrefixCounter.Node cur = n;
+                        //if (cur.getTerminals() > 0)
+                        //    return; // a prefix or a suffix can never be the whole protein id
+                        double pct = cur.getHits() / (double) total;
+                        if (pct < pctMin || pct > pctMax)
+                                return;
+                        sb.setLength(0);
+                        while (cur != null) {
+                            if (cur.parent != null)
+                                sb.append(cur.ch);
+                            cur = cur.parent;
                         }
+
+                        if (sb.length() < 2)
+                            return; // no prefixes smaller than 2 characters
+
+                        StringBuilder sbPrint = sb.reverse();// mode == PrefixCounter.Mode.REV ? sb.reverse() : sb;
+                        result.add(new Tuple2<>(sbPrint.toString(), pct));
+                        //System.out.printf("%s : (full string: %s) hits=%.1f%%\n", n, sbPrint.toString(), pct*100d);
                     };
 //                    System.out.println("Prefixes:");
                     cntFwd.iterPrefixCounts(maxDepth, action);
@@ -4024,16 +4011,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                             
                             StringBuilder sbPrint = sb;// mode == PrefixCounter.Mode.REV ? sb.reverse() : sb;
                             result.add(new Tuple2<>(sbPrint.toString(), pct));
-                            //System.out.printf("%s : (full string: %s) hits=%.1f%%\n", n, sbPrint.toString(), pct*100d);
                         }
                     };
-//                    System.out.println("Suffixes:");
                     cntRev.iterPrefixCounts(maxDepth, action);
                     suffixesByCol.add(cleanUpDecoyTagCandidates(result));
-//                    for (Tuple2<String, Double> tuple2 : cleanedResult) {
-//                        System.out.printf("% 3.1f%% -> %s\n", tuple2.item2 * 100d, tuple2.item1);
-//                    }
-//                    System.out.println("Suffixes Done");
                 }
             }
             
@@ -4055,7 +4036,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             
             String selectedPrefix = null;
             if (totalCandidates == 0) {
-                String msg = String.format(Locale.ROOT, "No candidates for decoy tags found");
+                String msg = "No candidates for decoy tags found";
                 String[] options = {"Ok"};
                 int result = JOptionPane.showOptionDialog(this, msg, "Nothing found",
                         JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
@@ -4113,9 +4094,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
             
         } catch (IOException ex) {
-            JOptionPane.showConfirmDialog(btnTryDetectDecoyTag, 
+            JOptionPane.showMessageDialog(btnTryDetectDecoyTag,
                     "<html>Error reading sequence database file", "Error", 
-                    JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnTryDetectDecoyTagActionPerformed
 
@@ -4160,15 +4141,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private List<Tuple2<String, Double>> cleanUpDecoyTagCandidates(List<Tuple2<String, Double>> candidates) {
         List<Tuple2<String, Double>> result = new ArrayList<>();
         
-        Collections.sort(candidates, new Comparator<Tuple2<String, Double>>() {
-            @Override
-            public int compare(Tuple2<String, Double> t1, Tuple2<String, Double> t2) {
-                int cmp0 = Double.compare(Math.abs(t1.item2 - 0.5), Math.abs(t2.item2 - 0.5));
-                if (cmp0 == 0) {
-                    cmp0 = t2.item1.compareTo(t1.item1);
-                }
-                return cmp0;
+        Collections.sort(candidates, (t1, t2) -> {
+            int cmp0 = Double.compare(Math.abs(t1.item2 - 0.5), Math.abs(t2.item2 - 0.5));
+            if (cmp0 == 0) {
+                cmp0 = t2.item1.compareTo(t1.item1);
             }
+            return cmp0;
         });
         
         for (Tuple2<String, Double> cur : candidates) {
@@ -4412,34 +4390,31 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             textSequenceDbPath.setText(path);
             ThisAppProps.save(ThisAppProps.PROP_DB_FILE_IN, path);
             Thread thread;
-            thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Path p = Paths.get(textSequenceDbPath.getText());
-                    if (!Files.exists(p))
-                        return;
-                    try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(p), "UTF-8"))) {
-                        String line;
-                        final List<String> descriptors = new ArrayList<>();
-                        while ((line = br.readLine()) != null) {
-                            if (!line.startsWith(">"))
-                                continue;
-                            descriptors.add(line);
-                        }
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                String format = "###,###";
-                                DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.ROOT);
-                                otherSymbols.setDecimalSeparator(',');
-                                otherSymbols.setGroupingSeparator(' '); 
-                                DecimalFormat df = new DecimalFormat(format, otherSymbols);
-                                lblFastaCount.setText(String.format("%s entries", df.format(descriptors.size())));
-                            }
-                        });
-                    } catch (IOException ex) {
-                        return;
+            thread = new Thread(() -> {
+                Path p = Paths.get(textSequenceDbPath.getText());
+                if (!Files.exists(p))
+                    return;
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(p), "UTF-8"))) {
+                    String line;
+                    final List<String> descriptors = new ArrayList<>();
+                    while ((line = br.readLine()) != null) {
+                        if (!line.startsWith(">"))
+                            continue;
+                        descriptors.add(line);
                     }
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            String format = "###,###";
+                            DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.ROOT);
+                            otherSymbols.setDecimalSeparator(',');
+                            otherSymbols.setGroupingSeparator(' ');
+                            DecimalFormat df = new DecimalFormat(format, otherSymbols);
+                            lblFastaCount.setText(String.format("%s entries", df.format(descriptors.size())));
+                        }
+                    });
+                } catch (IOException ex) {
+                    return;
                 }
             });
             thread.start();
@@ -4604,12 +4579,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     private void addChangeListenerTextSequenceDb() {
-        SwingUtils.addChangeListener(textSequenceDbPath, new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                if (btnTryDetectDecoyTag != null)
-                    btnTryDetectDecoyTag.setEnabled(!StringUtils.isNullOrWhitespace(textSequenceDbPath.getText()));
-            }
+        SwingUtils.addChangeListener(textSequenceDbPath, e -> {
+            if (btnTryDetectDecoyTag != null)
+                btnTryDetectDecoyTag.setEnabled(!StringUtils.isNullOrWhitespace(textSequenceDbPath.getText()));
         });
 
     }
@@ -4651,15 +4623,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 + "</body></html>");
 
         // handle link events
-        ep.addHyperlinkListener(new HyperlinkListener() {
-            @Override
-            public void hyperlinkUpdate(HyperlinkEvent e) {
-                if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
-                    try {
-                        Desktop.getDesktop().browse(e.getURL().toURI());
-                    } catch (URISyntaxException | IOException ex) {
-                        Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+        ep.addHyperlinkListener(e -> {
+            if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
+                try {
+                    Desktop.getDesktop().browse(e.getURL().toURI());
+                } catch (URISyntaxException | IOException ex) {
+                    Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
@@ -4726,28 +4695,25 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         final JTextComponent comp = textReportLabelfree;
         final boolean isValid = validateAndSave(comp, ThisAppProps.PROP_TEXTFIELD_LABELFREE, 
-                newText, new IValidateString() {
-            @Override
-            public boolean test(String s) {
-                Pattern re = Pattern.compile("--([^\\s]+)");
-                Matcher m = re.matcher(s);
-                List<String> allowed = new ArrayList<>();
-                allowed.add("ptw");
-                allowed.add("tol");
-                while (m.find()) {
-                    if (!allowed.contains(m.group(1)))
-                        return false;
-                }
-                
-                for (String paramName : allowed) {
-                    Pattern reFullParam = Pattern.compile(String.format("--%s\\s+(\\d+(?:\\.\\d+)?)", paramName));
-                    if (!reFullParam.matcher(s).find())
-                        return false;
-                }
-                
-                return true;
-            }
-        });
+                newText, s -> {
+                    Pattern re = Pattern.compile("--([^\\s]+)");
+                    Matcher m = re.matcher(s);
+                    List<String> allowed = new ArrayList<>();
+                    allowed.add("ptw");
+                    allowed.add("tol");
+                    while (m.find()) {
+                        if (!allowed.contains(m.group(1)))
+                            return false;
+                    }
+
+                    for (String paramName : allowed) {
+                        Pattern reFullParam = Pattern.compile(String.format("--%s\\s+(\\d+(?:\\.\\d+)?)", paramName));
+                        if (!reFullParam.matcher(s).find())
+                            return false;
+                    }
+
+                    return true;
+                });
         
         if (!isValid)
             return;
@@ -4815,64 +4781,61 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PHILOSOPHER, validatedPath);
         }
 
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (balloonPhilosopher != null) {
-                    balloonPhilosopher.closeBalloon();
-                    balloonPhilosopher = null;
-                }
-
-                final StringBuilder sb = new StringBuilder();
-                boolean needsDisplay = false;
-                if (isPathAbsolute) {
-                    sb.append("<html>Absolute path for Philosopher binary provided: <br/>\n")
-                            .append(path).append("<br/>\n");
-                    if (!isPathExists) {
-                        sb.append("\nBut the file does not exist.");
-                        needsDisplay = true;
-                    } else if (!isPathRunnable) {
-                        sb.append("\nBut the file is not runnable.");
-                        needsDisplay = true;
-                        if (OsUtils.isWindows()) {
-                            sb.append("Right click the file, Properties -> Security -> Advanced<br/>\n")
-                                    .append("And change the executable permissions for the file.<br/>\n")
-                                    .append("All the security implications are your responsibility.");
-                        } else {
-                            sb.append("Check that the file has execute permission for the JVM.<br/>\n")
-                                    .append("Or you can just try `chmod a+x <philosopher-binary-file>`.<br/>\n")
-                                    .append("All the security implications are your responsibility.");
-                        }
-                    } else if (!isPathValid) {
-                        sb.append("\nBut the file is invalid. It can't be run by the JVM.");
-                        needsDisplay = true;
-                    }
-                } else {
-                    // relative path given, i.e. philosopher must be on PATH
-                    sb.append("<html>Relative path for Philosopher binary provided: <br/>\n")
-                            .append(path).append("<br/>\n");
-                    if (!isPathValid) {
-                        sb.append("But it couldn't be launched properly for some reason.");
-                        needsDisplay = true;
-                    }
-                }
-
-                if (needsDisplay) {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (balloonPhilosopher != null) {
-                                balloonPhilosopher.closeBalloon();
-                            }
-                            balloonPhilosopher = new BalloonTip(textBinPhilosopher, sb.toString());
-                            balloonPhilosopher.setVisible(true);
-                        }
-                    });
-                } else {
-                    validatePhilosopherVersion(validatedPath);
-                }
-                enablePhilosopherPanels(isPathValid);
+        Thread t = new Thread(() -> {
+            if (balloonPhilosopher != null) {
+                balloonPhilosopher.closeBalloon();
+                balloonPhilosopher = null;
             }
+
+            final StringBuilder sb = new StringBuilder();
+            boolean needsDisplay = false;
+            if (isPathAbsolute) {
+                sb.append("<html>Absolute path for Philosopher binary provided: <br/>\n")
+                        .append(path).append("<br/>\n");
+                if (!isPathExists) {
+                    sb.append("\nBut the file does not exist.");
+                    needsDisplay = true;
+                } else if (!isPathRunnable) {
+                    sb.append("\nBut the file is not runnable.");
+                    needsDisplay = true;
+                    if (OsUtils.isWindows()) {
+                        sb.append("Right click the file, Properties -> Security -> Advanced<br/>\n")
+                                .append("And change the executable permissions for the file.<br/>\n")
+                                .append("All the security implications are your responsibility.");
+                    } else {
+                        sb.append("Check that the file has execute permission for the JVM.<br/>\n")
+                                .append("Or you can just try `chmod a+x <philosopher-binary-file>`.<br/>\n")
+                                .append("All the security implications are your responsibility.");
+                    }
+                } else if (!isPathValid) {
+                    sb.append("\nBut the file is invalid. It can't be run by the JVM.");
+                    needsDisplay = true;
+                }
+            } else {
+                // relative path given, i.e. philosopher must be on PATH
+                sb.append("<html>Relative path for Philosopher binary provided: <br/>\n")
+                        .append(path).append("<br/>\n");
+                if (!isPathValid) {
+                    sb.append("But it couldn't be launched properly for some reason.");
+                    needsDisplay = true;
+                }
+            }
+
+            if (needsDisplay) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (balloonPhilosopher != null) {
+                            balloonPhilosopher.closeBalloon();
+                        }
+                        balloonPhilosopher = new BalloonTip(textBinPhilosopher, sb.toString());
+                        balloonPhilosopher.setVisible(true);
+                    }
+                });
+            } else {
+                validatePhilosopherVersion(validatedPath);
+            }
+            enablePhilosopherPanels(isPathValid);
         });
         t.start();
 
@@ -5233,8 +5196,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     "Errors", JOptionPane.ERROR_MESSAGE);
             return null;
         } else {
-            Path combinedProtFileFullPath = Paths.get(workingDir, combinedProtFile).toAbsolutePath().normalize();
-            return combinedProtFileFullPath;
+            return Paths.get(workingDir, combinedProtFile).toAbsolutePath().normalize();
         }
     }
 
@@ -5340,7 +5302,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 cmd.add("java");
                 cmd.add("-jar");
                 if (ramGb > 0) {
-                    cmd.add(new StringBuilder().append("-Xmx").append(ramGb).append("G").toString());
+                    cmd.add("-Xmx" + ramGb + "G");
                 }
                 if (isSlicing) {
                     cmd.add("\"");
@@ -5688,18 +5650,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         "Error", JOptionPane.ERROR_MESSAGE);
                 return null;
             }
-//            else if (!outputFileName.toLowerCase().endsWith(".prot.xml")) {
-//                JOptionPane.showMessageDialog(this, "ProteinProphet output file name must end with '.prot.xml'.\n",
-//                    "Error", JOptionPane.ERROR_MESSAGE);
-//                return null;
-//            } else {
-//                int index = outputFileName.trim().toLowerCase().indexOf(".prot.xml");
-//                if (index <= 0) {
-//                    JOptionPane.showMessageDialog(this, "ProteinProphet output file name must have content before '.prot.xml'.\n",
-//                        "Error", JOptionPane.ERROR_MESSAGE);
-//                    return null;
-//                }
-//            }
 
             ProteinProphetParams proteinProphetParams = new ProteinProphetParams();
             proteinProphetParams.setCmdLineParams(txtProteinProphetCmdLineOpts.getText());
@@ -5995,12 +5945,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
             
             // philosopher report
-            if (true) {
-                List<String> cmd = new ArrayList<>();
-                cmd.add(bin);
-                cmd.add(PhilosopherProps.CMD_REPORT);
-                builders.add(new ProcessBuilder(cmd));
-            }
+            List<String> cmd = new ArrayList<>();
+            cmd.add(bin);
+            cmd.add(PhilosopherProps.CMD_REPORT);
+            builders.add(new ProcessBuilder(cmd));
 
             // set working dir for all processes
             final File wd = new File(workingDir);
