@@ -35,7 +35,7 @@ import umich.msfragger.util.VersionComparator;
 public class Version {
     public static final String PROGRAM_TITLE = "FragPipe";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "8.0-RC1";
+    public static final String VERSION = "8.0-RC2";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
     public static final String PROP_ISSUE_TRACKER_URL = "msfragger.gui.issue-tracker";
     public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
@@ -53,7 +53,7 @@ public class Version {
     static {
         CHANGELOG.put("8.0", Arrays.asList(
                 "Added MSAdjuster, Crystal-C. Both packaged with the release, no extra downloads."));
-        
+
         CHANGELOG.put("7.2", Arrays.asList(
                 "Added database slicing via a python script (Requires "
                         + "Python 3, NumPy, Pandas)."));
