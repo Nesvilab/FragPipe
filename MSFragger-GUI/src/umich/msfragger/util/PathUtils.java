@@ -70,7 +70,7 @@ public class PathUtils {
      * 
      * @param searchSystemPath
      * @param recursive
-     * @see #getCurrentJarPath() 
+     * @see #getCurrentJarUri()
      * 
      * @param name  File name to search for.
      * @param paths
@@ -112,7 +112,7 @@ public class PathUtils {
      * 
      * @param searchSystemPath
      * @param recursive
-     * @see #getCurrentJarPath() 
+     * @see #getCurrentJarUri()
      * 
      * @param name  File name to search for.
      * @param paths
@@ -264,7 +264,7 @@ public class PathUtils {
         }
     }
 
-    public static URI getCurrentJarPath() {
+    public static URI getCurrentJarUri() {
         try {
             CodeSource codeSource = OsUtils.class.getProtectionDomain().getCodeSource();
             URL location = codeSource.getLocation();

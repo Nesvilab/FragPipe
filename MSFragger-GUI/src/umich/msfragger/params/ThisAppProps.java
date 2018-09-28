@@ -153,7 +153,7 @@ public class ThisAppProps extends Properties {
             }
         }
         if (path == null && locateJar) {
-            URI thisJarUri = PathUtils.getCurrentJarPath();
+            URI thisJarUri = PathUtils.getCurrentJarUri();
             if (thisJarUri != null) {
                 path = Paths.get(thisJarUri).toString();
             }
