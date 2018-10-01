@@ -53,9 +53,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
@@ -64,6 +66,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -3149,6 +3152,34 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     + "Check 'Select Raw Files' tab.", "Error", JOptionPane.WARNING_MESSAGE);
             resetRunButtons(true);
             return;
+        } else {
+            // check that all input LCMS files have unique filenames
+            Map<String, List<Path>> inputFnMap = new HashMap<>();
+            for (String lcmsFilePath : lcmsFilePaths) {
+                Path path = Paths.get(lcmsFilePath);
+                String fn = path.getFileName().toString();
+                inputFnMap.computeIfAbsent(fn, s -> new LinkedList<>()).add(path);
+            }
+            List<Entry<String, List<Path>>> collect = inputFnMap.entrySet().stream()
+                .filter(kv -> kv.getValue().size() > 1).collect(Collectors.toList());
+            if (!collect.isEmpty()) {
+                final StringBuilder sb = new StringBuilder();
+                sb.append("<html>Some input LCMS files have the same name, "
+                        + "even though located in different folders:\n");
+                collect.forEach(kv -> {
+                    sb.append("\n<html>File Name - <b>").append(kv.getKey()).append("</b>:");
+                    kv.getValue().forEach(path -> sb.append("\n    - ").append(path.toString()));
+                    sb.append("\n");
+                });
+                sb.append("\nAs all the output is directed to a single folder, files might get overwritten.\n"
+                    + "Consider renaming input files.");
+
+                JOptionPane.showMessageDialog(this,
+                    sb.toString(),
+                    "Input files with same names", JOptionPane.WARNING_MESSAGE);
+                resetRunButtons(true);
+                return;
+            }
         }
 
         List<ProcessBuilder> pbs = new ArrayList<>();
