@@ -3228,13 +3228,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
         // run MSAdjuster
-        List<ProcessBuilder> pbsMsadjuster = ToolingUtils
-            .pbsMsadjuster(jarUri, this, workingDir, lcmsFilePaths, fraggerPanel, false);
-        if (pbsMsadjuster == null) {
-            resetRunButtons(true);
-            return;
+        {
+            List<ProcessBuilder> builders = ToolingUtils
+                .pbsMsadjuster(jarUri, this, workingDir, lcmsFilePaths, fraggerPanel, false);
+            if (builders == null) {
+                resetRunButtons(true);
+                return;
+            }
+            pbs.addAll(builders);
         }
-        pbs.addAll(pbsMsadjuster);
 
 
 
@@ -3243,65 +3245,79 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         // in the GUI are not empty. If empty, we will load the defaults and
         // add params from the GUI to it.
         final String binMsfragger = textBinMsfragger.getText().trim();
-        List<ProcessBuilder> pbsFragger = ToolingUtils
-            .pbsFragger(this, "", workingDir, lcmsFilePaths,
-            isDryRun, fraggerPanel, pythonCommand, jarUri, binMsfragger, slicingEnabled, slicingScriptPath);
-        if (pbsFragger == null) {
-            resetRunButtons(true);
-            return;
-        }
-        pbs.addAll(pbsFragger);
-        // if we have at least one MSFragger task, check for MGF file presence
-        if (!pbsFragger.isEmpty()) {
-            // check for MGF files and warn
-            String warn = ThisAppProps.load(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
-            if (warn != null && Boolean.valueOf(warn)) {
-                for (String f : lcmsFilePaths) {
-                    if (f.toLowerCase().endsWith(".mgf")) {
-                        JCheckBox checkbox = new JCheckBox("Do not show this message again.");
-                        String msg = String.format(Locale.ROOT, "The list of input files contains MGF entries.\n"
-                                + "MSFragger has limited MGF support (ProteoWizard output is OK).\n"
-                                + "The search might fail unexpectedly with errors.\n"
-                                + "Please consider converting files to mzML/mzXML with ProteoWizard.");
-                        Object[] params = {msg, checkbox};
-                        JOptionPane.showMessageDialog(this, params, "Warning", JOptionPane.WARNING_MESSAGE);
-                        if (checkbox.isSelected()) {
-                            ThisAppProps.save(ThisAppProps.PROP_MGF_WARNING, Boolean.FALSE.toString());
+        {
+            List<ProcessBuilder> builders = ToolingUtils
+                .pbsFragger(this, "", workingDir, lcmsFilePaths,
+                    isDryRun, fraggerPanel, pythonCommand, jarUri, binMsfragger, slicingEnabled,
+                    slicingScriptPath);
+            if (builders == null) {
+                resetRunButtons(true);
+                return;
+            }
+            pbs.addAll(builders);
+
+            // if we have at least one MSFragger task, check for MGF file presence
+            if (!builders.isEmpty()) {
+                // check for MGF files and warn
+                String warn = ThisAppProps
+                    .load(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
+                if (warn != null && Boolean.valueOf(warn)) {
+                    for (String f : lcmsFilePaths) {
+                        if (f.toLowerCase().endsWith(".mgf")) {
+                            JCheckBox checkbox = new JCheckBox("Do not show this message again.");
+                            String msg = String.format(Locale.ROOT,
+                                "The list of input files contains MGF entries.\n"
+                                    + "MSFragger has limited MGF support (ProteoWizard output is OK).\n"
+                                    + "The search might fail unexpectedly with errors.\n"
+                                    + "Please consider converting files to mzML/mzXML with ProteoWizard.");
+                            Object[] params = {msg, checkbox};
+                            JOptionPane.showMessageDialog(this, params, "Warning",
+                                JOptionPane.WARNING_MESSAGE);
+                            if (checkbox.isSelected()) {
+                                ThisAppProps
+                                    .save(ThisAppProps.PROP_MGF_WARNING, Boolean.FALSE.toString());
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
             }
         }
         
         // run MSAdjuster cleanup
-        List<ProcessBuilder> pbsMsadjusterCleanup = ToolingUtils
-            .pbsMsadjuster(jarUri, this, workingDir, lcmsFilePaths, fraggerPanel, true);
-        if (pbsMsadjusterCleanup == null) {
-            resetRunButtons(true);
-            return;
+        {
+            List<ProcessBuilder> builders = ToolingUtils
+                .pbsMsadjuster(jarUri, this, workingDir, lcmsFilePaths, fraggerPanel, true);
+            if (builders == null) {
+                resetRunButtons(true);
+                return;
+            }
+            pbs.addAll(builders);
         }
-        pbs.addAll(pbsMsadjuster);
 
 
         // run Crystal-C
         final boolean isCrystalc = chkRunCrystalc.isSelected();
-        CrystalcParams ccParams;
-        try {
-            ccParams = crystalcFormToParams();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this,
-                "Could not construct Crystal-C parameters from the GUI form input.", "Error", JOptionPane.ERROR_MESSAGE);
-            resetRunButtons(true);
-            return;
+        {
+            CrystalcParams ccParams;
+            try {
+                ccParams = crystalcFormToParams();
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this,
+                    "Could not construct Crystal-C parameters from the GUI form input.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                resetRunButtons(true);
+                return;
+            }
+            List<ProcessBuilder> builders = ToolingUtils
+                .pbsCrystalc(this, fraggerPanel, ccParams, isDryRun, isCrystalc, workingDir,
+                    fastaPath, lcmsFilePaths);
+            if (builders == null) {
+                resetRunButtons(true);
+                return;
+            }
+            pbs.addAll(builders);
         }
-        List<ProcessBuilder> pbsCrystalc = ToolingUtils
-            .pbsCrystalc(this, fraggerPanel, ccParams, isDryRun, isCrystalc, workingDir, fastaPath, lcmsFilePaths);
-        if (pbsCrystalc == null) {
-            resetRunButtons(true);
-            return;
-        }
-        pbs.addAll(pbsCrystalc);
 
 
         // run Peptide Prophet
@@ -3309,8 +3325,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         final String binPhilosopher = textBinPhilosopher.getText().trim();
         final String dbPath = textSequenceDbPath.getText().trim();
         final String pepProphCmd = textPepProphCmd.getText().trim();
+
         List<ProcessBuilder> pbsPeptideProphet = ToolingUtils
-            .pbsPeptideProphet(isPeptideProphet, this, fraggerPanel, isCrystalc, binPhilosopher, dbPath,
+            .pbsPeptideProphet(isPeptideProphet, this, fraggerPanel, isCrystalc, binPhilosopher,
+                dbPath,
                 pepProphCmd, "", workingDir, lcmsFilePaths);
         if (pbsPeptideProphet == null) {
             resetRunButtons(true);
@@ -3318,11 +3336,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
 
 
+
         // run Protein Prophet
         final String combinedProtFile = txtCombinedProtFile.getText().trim();
         final boolean isProteinProphet = chkRunProteinProphet.isSelected();
         final String proteinProphetCmdLineOpts = txtProteinProphetCmdLineOpts.getText();
         final boolean isProtProphInteractStar = chkProteinProphetInteractStar.isSelected();
+
         List<ProcessBuilder> pbsProteinProphet = ToolingUtils
             .pbsProteinProphet(this, isProteinProphet, binPhilosopher, proteinProphetCmdLineOpts,
                 fraggerPanel, isProtProphInteractStar, isCrystalc, "", workingDir, combinedProtFile, lcmsFilePaths);
@@ -3340,6 +3360,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         final boolean isReportProteinLevelFdr = checkReportProteinLevelFdr.isSelected();
         final boolean isLabelFree = checkLabelfree.isSelected();
         final String reportLabelFreeCmd = textReportLabelfree.getText();
+
         List<ProcessBuilder> pbsReport = ToolingUtils
             .pbsReport(isReport, binPhilosopher, this, fraggerPanel,
             isCrystalc, isReportDbAnnotate, reportAnnotateCmd, dbPath, isReportFilter,reportFilterCmd,
@@ -3423,7 +3444,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //            pbs.addAll(pbsDeleteFiles);
         }
 
-        StringBuilder sbSysinfo = new StringBuilder();
+        final StringBuilder sbSysinfo = new StringBuilder();
         sbSysinfo.append(OsUtils.OsInfo()).append("\n");
         sbSysinfo.append(OsUtils.JavaInfo()).append("\n");
         LogUtils.println(console, String.format(Locale.ROOT, "System info:\n%s", sbSysinfo.toString()));
