@@ -512,7 +512,7 @@ public class ToolingUtils {
                     cmd.add("-cp");
                     cmd.add(currentJarPath);
                     cmd.add(FileMove.class.getCanonicalName());
-                    String origin = lcmsFilePath + ".ma"; // MSAdjuster creates these files
+                    String origin =  StringUtils.upToLastDot(lcmsFilePath) + ".ma"; // MSAdjuster creates these files
                     String destination = wd.resolve(Paths.get(origin).getFileName().toString()).toString();
                     cmd.add(origin);
                     cmd.add(destination);
