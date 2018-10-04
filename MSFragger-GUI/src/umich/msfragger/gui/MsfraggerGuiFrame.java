@@ -118,6 +118,7 @@ import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
+import umich.msfragger.params.umpire.UmpirePanel;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.GhostText;
@@ -180,6 +181,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private static final String UNKNOWN_VERSION = "Unknown";
     private String fraggerVer = UNKNOWN_VERSION;
     private String philosopherVer = UNKNOWN_VERSION;
+
+    private UmpirePanel umpirePanel = null;
 
     private final String ACTION_EXPORT_LOG = "Export-Log";    
 
@@ -490,7 +493,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         lblPythonInfo = new javax.swing.JLabel();
         lblPythonMore = new javax.swing.JLabel();
-        checkDiaUmpireEnabled = new javax.swing.JCheckBox();
+        checkEnableDiaumpire = new javax.swing.JCheckBox();
+        checkEnableCrystalc = new javax.swing.JCheckBox();
         panelSelectFiles = new javax.swing.JPanel();
         panelSelectedFiles = new javax.swing.JPanel();
         btnRawAddFiles = new javax.swing.JButton();
@@ -833,11 +837,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        checkDiaUmpireEnabled.setText("Enable DIA-Umpire");
-        checkDiaUmpireEnabled.setToolTipText("<html>\nOnly use this if you have DIA data and need to pre-process it to make compatible to MSFragger.");
-        checkDiaUmpireEnabled.addActionListener(new java.awt.event.ActionListener() {
+        checkEnableDiaumpire.setText("Enable DIA-Umpire");
+        checkEnableDiaumpire.setToolTipText("<html>\nOnly use this if you have DIA data and need to pre-process it to make compatible to MSFragger.");
+        checkEnableDiaumpire.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkDiaUmpireEnabledActionPerformed(evt);
+                checkEnableDiaumpireActionPerformed(evt);
+            }
+        });
+
+        checkEnableCrystalc.setText("Enable Crystal-C");
+        checkEnableCrystalc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkEnableCrystalcActionPerformed(evt);
             }
         });
 
@@ -873,7 +884,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         .addContainerGap()
                         .addGroup(panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(panelConfigLayout.createSequentialGroup()
-                                .addComponent(checkDiaUmpireEnabled)
+                                .addComponent(checkEnableDiaumpire)
+                                .addGap(18, 18, 18)
+                                .addComponent(checkEnableCrystalc)
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
@@ -898,7 +911,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(checkDiaUmpireEnabled)
+                .addGroup(panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(checkEnableDiaumpire)
+                    .addComponent(checkEnableCrystalc))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -4244,32 +4259,35 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnCrystalcDefaultsActionPerformed
 
-    private void checkDiaUmpireEnabledActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkDiaUmpireEnabledActionPerformed
+    private void checkEnableDiaumpireActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkEnableDiaumpireActionPerformed
         final String umpireTabName = "DIA-Umpire";
-        final boolean enabled = checkDiaUmpireEnabled.isSelected();
-        if (enabled) {
-            JPanel p = new JPanel();
-            //p.setLayout(new BorderLayout(20, 20));
 
+        synchronized (this) {
+            final boolean enabled = checkEnableDiaumpire.isSelected();
+            if (enabled) {
+                int configIndex = tabPane.indexOfTab("Config");
+                if (configIndex < 0)
+                    throw new IllegalStateException("Could not find tab named 'Config'");
+                ImageIcon icon = new ImageIcon(
+                    getClass().getResource("/umich/msfragger/gui/icons/dia-umpire-16x16.png"));
+                if (umpirePanel == null)
+                    umpirePanel = new UmpirePanel();
+                tabPane.insertTab(umpireTabName, icon, umpirePanel, "", configIndex + 1);
 
-            p.setLayout( new MigLayout( ) );
-            JLabel label = new JLabel("This is some test text");
-            p.add( label, "push, align center"); // give the label MigLayout constraints
-
-            int configIndex = tabPane.indexOfTab("Config");
-            if (configIndex < 0)
-                throw new IllegalStateException("Could not find tab named 'Config'");
-            ImageIcon icon = new ImageIcon(
-                getClass().getResource("/umich/msfragger/gui/icons/dia-umpire-16x16.png"));
-            tabPane.insertTab(umpireTabName, icon, p, "", configIndex  + 1);
-        } else {
-            int index = tabPane.indexOfTab(umpireTabName);
-            if (index < 0)
-                throw new IllegalStateException("Could not find tab named '" + umpireTabName + "'");
-            tabPane.removeTabAt(index);
+            } else {
+                int index = tabPane.indexOfTab(umpireTabName);
+                if (index < 0)
+                    throw new IllegalStateException(
+                        "Could not find tab named '" + umpireTabName + "'");
+                tabPane.removeTabAt(index);
+            }
         }
         
-    }//GEN-LAST:event_checkDiaUmpireEnabledActionPerformed
+    }//GEN-LAST:event_checkEnableDiaumpireActionPerformed
+
+    private void checkEnableCrystalcActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkEnableCrystalcActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_checkEnableCrystalcActionPerformed
 
     public void loadLastPeptideProphet() {
         if (!load(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET)) {
@@ -5240,8 +5258,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnStop;
     private javax.swing.JButton btnTryDetectDecoyTag;
     private javax.swing.JCheckBox checkCreateReport;
-    private javax.swing.JCheckBox checkDiaUmpireEnabled;
     private javax.swing.JCheckBox checkDryRun;
+    private javax.swing.JCheckBox checkEnableCrystalc;
+    private javax.swing.JCheckBox checkEnableDiaumpire;
     private javax.swing.JCheckBox checkLabelfree;
     private javax.swing.JCheckBox checkReportDbAnnotate;
     private javax.swing.JCheckBox checkReportFilter;

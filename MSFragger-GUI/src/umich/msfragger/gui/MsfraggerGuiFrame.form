@@ -112,7 +112,9 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" attributes="0">
-                                      <Component id="checkDiaUmpireEnabled" min="-2" max="-2" attributes="0"/>
+                                      <Component id="checkEnableDiaumpire" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                                      <Component id="checkEnableCrystalc" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                                   </Group>
                                   <Component id="jPanel2" max="32767" attributes="0"/>
@@ -145,7 +147,10 @@
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="checkDiaUmpireEnabled" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="checkEnableDiaumpire" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkEnableCrystalc" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <EmptySpace pref="84" max="32767" attributes="0"/>
                       <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -542,13 +547,21 @@
                 </Component>
               </SubComponents>
             </Container>
-            <Component class="javax.swing.JCheckBox" name="checkDiaUmpireEnabled">
+            <Component class="javax.swing.JCheckBox" name="checkEnableDiaumpire">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Enable DIA-Umpire"/>
                 <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Only use this if you have DIA data and need to pre-process it to make compatible to MSFragger."/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkDiaUmpireEnabledActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkEnableDiaumpireActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="checkEnableCrystalc">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Enable Crystal-C"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkEnableCrystalcActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>

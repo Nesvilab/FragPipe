@@ -1,16 +1,20 @@
 package umich.msfragger.gui;
 
 import static umich.msfragger.params.ThisAppProps.JAR_FILE_AS_RESOURCE_EXT;
+import static umich.msfragger.util.PathUtils.testBinaryPath;
+import static umich.msfragger.util.PathUtils.testFilePath;
 
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -20,9 +24,12 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -34,6 +41,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import umich.msfragger.exceptions.FileWritingException;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.crystalc.CrystalcProps;
@@ -41,14 +49,19 @@ import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.pepproph.PeptideProphetParams;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.protproph.ProteinProphetParams;
+import umich.msfragger.params.umpire.UmpirePanel;
+import umich.msfragger.params.umpire.UmpireSeGarbageFiles;
+import umich.msfragger.params.umpire.UmpireParams;
 import umich.msfragger.util.FileDelete;
 import umich.msfragger.util.FileMove;
 import umich.msfragger.util.Holder;
 import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PathUtils;
+import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
 
 public class ToolingUtils {
+  private String binJava = null;
   private ToolingUtils() {}
 
 
@@ -122,7 +135,7 @@ public class ToolingUtils {
       } else {
           binaryName = bundle.getString("default.msconvert.nix");
       }
-      String testedBinaryPath = PathUtils.testBinaryPath(binaryName);
+      String testedBinaryPath = testBinaryPath(binaryName);
       if (testedBinaryPath != null && !testedBinaryPath.isEmpty()) {
           return testedBinaryPath;
       }
@@ -202,30 +215,28 @@ public class ToolingUtils {
 
     /**
      *
-     * @param jar Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
+     * @param jarUri Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
      * @param destination
      * @param files
      * @return
      */
-    public static List<ProcessBuilder> pbsCopyFiles(URI jar, String destination, List<String> files) {
-        if (jar == null)
+    public static List<ProcessBuilder> pbsCopyFiles(URI jarUri, Path destination, List<Path> files) {
+        if (jarUri == null)
             throw new IllegalArgumentException("JAR URI must ne non null");
         List<ProcessBuilder> pbs = new LinkedList<>();
-        String currentJarPath = Paths.get(jar).toAbsolutePath().toString();
-        Path wd = Paths.get(destination);
+        String jarPath = Paths.get(jarUri).toAbsolutePath().toString();
 
-        for (String lcmsFilePath : files) {
-            if (wd.equals(Paths.get(lcmsFilePath).getParent()))
+        for (Path file : files) {
+            if (destination.equals(file.getParent()))
                 continue;
-            List<String> commands = new ArrayList<>();
-            commands.add("java");
-            commands.add("-cp");
-            commands.add(currentJarPath);
-            commands.add(FileDelete.class.getCanonicalName());
-            Path copyTo = Paths.get(destination, Paths.get(lcmsFilePath).getFileName().toString());
-            commands.add(copyTo.toString());
-            ProcessBuilder pb = new ProcessBuilder(commands);
-            pbs.add(pb);
+            List<String> cmd = new ArrayList<>();
+            cmd.add("java");
+            cmd.add("-cp");
+            cmd.add(jarPath);
+            cmd.add(FileDelete.class.getCanonicalName());
+            Path copyTo = destination.resolve(file.getFileName());
+            cmd.add(copyTo.toString());
+            pbs.add(new ProcessBuilder(cmd));
         }
         return pbs;
     }
@@ -311,7 +322,7 @@ public class ToolingUtils {
                       "Error", JOptionPane.ERROR_MESSAGE);
               return null;
           }
-          bin = PathUtils.testFilePath(bin, programsDir);
+          bin = testFilePath(bin, programsDir);
           if (bin == null) {
               JOptionPane.showMessageDialog(comp, "Binary for running Fragger not found or could not be run.\n"
                       + "Neither on PATH, nor in the working directory",
@@ -444,13 +455,15 @@ public class ToolingUtils {
       return builders;
   }
 
-  public static String getBinJava(String programsDir, Component comp) {
+  public static String getBinJava(Component errroDialogParent, String programsDir) {
       String binJava = "java";
-      binJava = PathUtils.testBinaryPath(binJava, programsDir);
-      if (binJava != null) {
-          return binJava;
+      synchronized (ToolingUtils.class) {
+          binJava = testBinaryPath(binJava, programsDir);
+          if (binJava != null) {
+              return binJava;
+          }
       }
-      JOptionPane.showMessageDialog(comp, "Java could not be found.\n"
+      JOptionPane.showMessageDialog(errroDialogParent, "Java could not be found.\n"
               + "please make sure you have it installed \n"
               + "and that java.exe can be found on PATH", "Error", JOptionPane.ERROR_MESSAGE);
       return null;
@@ -724,7 +737,7 @@ public class ToolingUtils {
                         "Error", JOptionPane.ERROR_MESSAGE);
                 return null;
             }
-            bin = PathUtils.testBinaryPath(bin, programsDir);
+            bin = testBinaryPath(bin, programsDir);
             if (bin == null) {
                 JOptionPane.showMessageDialog(comp, "Philosopher (PeptideProphet) binary not found.\n"
                         + "Neither on PATH, nor in the working directory",
@@ -740,7 +753,7 @@ public class ToolingUtils {
                     return null;
             }
             String fastaPathOrig = fastaPath;
-            fastaPath = PathUtils.testFilePath(fastaPath, workingDir);
+            fastaPath = testFilePath(fastaPath, workingDir);
             if (fastaPath == null) {
                 JOptionPane.showMessageDialog(comp, String.format("Could not find fasta file (PeptideProphet) at:\n%s", fastaPathOrig),
                         "Errors", JOptionPane.ERROR_MESSAGE);
@@ -817,7 +830,7 @@ public class ToolingUtils {
                         "Error", JOptionPane.ERROR_MESSAGE);
                 return null;
             }
-            bin = PathUtils.testBinaryPath(bin, programsDir);
+            bin = testBinaryPath(bin, programsDir);
             if (bin == null) {
                 JOptionPane.showMessageDialog(comp, "ProteinProphet binary not found or could not be launched.\n"
                         + "Neither on PATH, nor in the working directory",
@@ -1044,7 +1057,7 @@ public class ToolingUtils {
                       "Error", JOptionPane.ERROR_MESSAGE);
               return null;
           }
-          bin = PathUtils.testBinaryPath(bin, programsDir);
+          bin = testBinaryPath(bin, programsDir);
           if (bin == null) {
               JOptionPane.showMessageDialog(comp, "Philosopher binary not found or could not be launched.\n"
                       + "Neither on PATH, nor in the working directory",
@@ -1157,5 +1170,164 @@ public class ToolingUtils {
           return builders;
       }
       return Collections.emptyList();
-  }
+    }
+
+    public static List<ProcessBuilder> pbsUmpire(boolean isRunUmpire, boolean isDryRun,
+        Component errMsgParent, URI jarUri, UmpirePanel umpirePanel,
+        String programsDir, String binUmpire, String binMsconvert, int ramGb,
+        String workingDir, List<String> lcmsFilePaths) {
+
+        List<ProcessBuilder> pbs = new LinkedList<>();
+        if (isRunUmpire) {
+
+            // check if input files contain only mzxml files
+            boolean hasNonMzxml = lcmsFilePaths.stream().map(String::toLowerCase)
+                .anyMatch(p -> !p.endsWith("mzxml"));
+            if (hasNonMzxml) {
+                JOptionPane.showMessageDialog(errMsgParent,
+                    "[DIA Umpire SE]\nNot all input files are mzXML.\n"
+                        + "DIA-Umpire only supports mzXML.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                return null;
+            }
+
+            final DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+            final String dateStr = df.format(new Date());
+
+
+            final String binJava = getBinJava(errMsgParent, programsDir);
+            if (binJava == null) {
+                return null;
+            }
+
+            if (binUmpire == null || binUmpire.isEmpty()) {
+                JOptionPane.showMessageDialog(errMsgParent,
+                    "[DIA Umpire SE]\nDIA Umpire SE binary can't be an empty string",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                return null;
+            }
+
+            final Path wd = Paths.get(workingDir);
+            final List<Path> lcmsFiles = lcmsFilePaths.stream().map(s -> Paths.get(s)).collect(
+                Collectors.toList());
+
+            // write umpire params file
+            UmpireParams collectedUmpireParams = umpirePanel.collectUmpireParams();
+            String umpireParamsFileName =
+                UmpireParams.FILE_BASE_NAME + "_" + dateStr + "." + UmpireParams.FILE_BASE_EXT;
+            Path umpireParamsFilePath = Paths.get(workingDir, umpireParamsFileName);
+            if (!isDryRun) {
+                try {
+                    FileOutputStream fos = new FileOutputStream(umpireParamsFilePath.toFile());
+                    PropertiesUtils.writePropertiesContent(collectedUmpireParams, fos);
+                } catch (FileNotFoundException | FileWritingException e) {
+                    JOptionPane.showMessageDialog(errMsgParent,
+                        "[DIA Umpire SE]\nCould not write property file, thus can't run DIA-Umpire",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                    return null;
+
+                }
+            }
+
+
+            // copy/symlink input lcms files
+            if (OsUtils.isWindows()) {
+                // On windows copy the files over to the working directory
+                List<ProcessBuilder> processBuildersCopyFiles = pbsCopyFiles(jarUri, wd, lcmsFiles);
+                pbs.addAll(processBuildersCopyFiles);
+            } else {
+                // On Other systems try to create symlinks to mzXML files
+                try {
+                    UmpireParams.createFileSymlinks(wd, lcmsFiles);
+                } catch (IOException ex) {
+                    String msg = String.format("Something went wronng when creating symlinks to LCMS files.\n%s", ex.getMessage());
+                    JOptionPane.showMessageDialog(errMsgParent, msg, "Error", JOptionPane.ERROR_MESSAGE);
+                    return null;
+                }
+            }
+
+
+            // run umpire for each file
+            int ram = ramGb > 0 ? ramGb : 0;
+
+            List<String> createdMgfFiles = new ArrayList<>();
+            List<String> createdMzXmlFiles = new ArrayList<>();
+            Path wdPath = Paths.get(workingDir).toAbsolutePath();
+            List<Path> lcmsFileSymlinks = UmpireParams.getLcmsFilePathsInWorkdir(wdPath, lcmsFiles);
+            for (Path lcmsSymlink : lcmsFileSymlinks) {
+                Path mzxmlPath = lcmsSymlink;
+                Path mzxmlFn = mzxmlPath.getFileName();
+                Path mzxmlDir = mzxmlPath.getParent();
+
+                // umpire
+                //  java -jar -Xmx8G DIA_Umpire_SE.jar mzMXL_file diaumpire_se.params
+                List<String> cmd = new ArrayList<>();
+                cmd.add("java");
+                //commands.add("-d64");
+                cmd.add("-jar");
+                if (ram > 0)
+                    cmd.add("-Xmx" + ram + "G");
+                cmd.add(binUmpire);
+                cmd.add(mzxmlPath.toString());
+                cmd.add(umpireParamsFilePath.toString());
+
+                ProcessBuilder pb = new ProcessBuilder(cmd);
+                pbs.add(pb);
+
+                // check if the working dir is the dir where the mzXML file was
+                // if it is, then don't do anything, if it is not, then copy
+                // UmpireSE outputs to the working directory
+                // and also create symlinks to the original files
+
+                if (!wdPath.equals(mzxmlDir)) {
+                    // find the curernt gui JAR location
+                    String jarPath = Paths.get(jarUri).toAbsolutePath()
+                        .toString();
+
+                    // working dir is different from mzXML file location, need to move output
+                    UmpireSeGarbageFiles garbage = UmpireSeGarbageFiles.create(mzxmlPath);
+
+                    for (String path : garbage.toMove) {
+                        List<String> cmdMove = new ArrayList<>();
+                        cmdMove.add("java");
+                        cmdMove.add("-cp");
+                        cmdMove.add(jarPath);
+                        cmdMove.add("dia.umpire.util.FileMove");
+                        String origin = mzxmlDir.resolve(Paths.get(path).getFileName())
+                            .toString();
+                        String destination = wdPath.resolve(Paths.get(path).getFileName())
+                            .toString();
+                        cmdMove.add(origin);
+                        cmdMove.add(destination);
+                        pbs.add(new ProcessBuilder(cmdMove));
+                    }
+
+                }
+
+                // msconvert
+                for (int i = 1; i <= 3; i++) {
+                    List<String> cmdMsConvert = new ArrayList<>();
+                    cmdMsConvert.add(binMsconvert);
+                    cmdMsConvert.add("--verbose");
+                    cmdMsConvert.add("--32");
+                    cmdMsConvert.add("--zlib");
+                    cmdMsConvert.add("--mzXML");
+                    cmdMsConvert.add("--outdir");
+                    cmdMsConvert.add(workingDir);
+
+                    String s = mzxmlFn.toString();
+                    String baseName = StringUtils.upToLastDot(s);
+                    Path createdMgf = Paths.get(workingDir, baseName + "_Q" + i + ".mgf");
+                    Path createdMzXml = Paths.get(workingDir, baseName + "_Q" + i + ".mzxml");
+                    cmdMsConvert.add(createdMgf.toString());
+
+                    ProcessBuilder pbMsconv = new ProcessBuilder(cmdMsConvert);
+                    pbs.add(pbMsconv);
+                    createdMgfFiles.add(createdMgf.toString());
+                    createdMzXmlFiles.add(createdMzXml.toString());
+                }
+            }
+        }
+        return pbs;
+    }
 }

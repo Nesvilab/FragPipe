@@ -16,6 +16,10 @@
  */
 package umich.msfragger.params.umpire;
 
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import umich.msfragger.exceptions.ParsingException;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -215,7 +219,7 @@ public class UmpireParams implements PropertyFileContent {
         if (matcher.matches()) {
             String comment = null;
             if (indexOfHash >= 0)
-                comment = line.substring(indexOfHash, line.length());
+                comment = line.substring(indexOfHash);
             String propName = matcher.group(1);
             String propVal =  matcher.group(2);
             if (propName.isEmpty())
@@ -230,5 +234,57 @@ public class UmpireParams implements PropertyFileContent {
             umpireParams.mapLines.put(lineNum, new PropLine(line, null, null, null));
         }
     }
-    
+
+    /**
+     * This returns the paths to files to be created. Might be symlinks or actual file copies.
+     * It does not create the files!
+     */
+    public static List<Path> getUmpireSeCreatedLcmsFiles(Path workDir, List<String> lcmsFilePaths) {
+        ArrayList<Path> result = new ArrayList<>();
+        for (String lcmsFilePath : lcmsFilePaths) {
+            result.add(workDir.resolve(Paths.get(lcmsFilePath).getFileName()));
+        }
+        return result;
+    }
+
+    /**
+     * This returns the paths to files to be created. Might be symlinks or actual file copies.
+     * It does not create the files!
+     */
+    public static List<Path> getLcmsFilePathsInWorkdir(Path workDir, List<Path> lcmsFilePaths) {
+        ArrayList<Path> result = new ArrayList<>();
+        for (Path lcmsFilePath : lcmsFilePaths) {
+            result.add(workDir.resolve(lcmsFilePath.getFileName()));
+        }
+        return result;
+    }
+
+    public static void createFileSymlinks(Path dest, List<Path> paths) throws IOException {
+//        if (!Files.isDirectory(dest))
+//            throw new IllegalArgumentException("Destinatino must be a directory");
+
+        List<Path> links = UmpireParams.getLcmsFilePathsInWorkdir(dest, paths);
+        for (int i = 0; i < paths.size(); i++) {
+            Path lcmsPath = paths.get(i);
+            Path link = links.get(i);
+            if (link.equals(lcmsPath))
+                return;
+            if (Files.exists(link)) {
+                // if that link already exists we need to make sure it points to
+                // the same file
+                if (!Files.isSymbolicLink(link)) {
+                    throw new FileAlreadyExistsException(link.toString(), null,
+                        "A file already exists and is not a symbolic link");
+                }
+                Path linkTarget = Files.readSymbolicLink(link);
+                if(!linkTarget.equals(lcmsPath)) {
+                    String msg = String.format("A symblic link to mzXML file already exists, "
+                        + "but points to a different file: %s", link);
+                    throw new FileAlreadyExistsException(link.toString(), null, msg);
+                }
+                return;
+            }
+            Files.createSymbolicLink(link, lcmsPath);
+        }
+    }
 }
