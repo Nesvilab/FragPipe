@@ -2,14 +2,9 @@ package umich.msfragger.params.umpire;
 
 import java.awt.Dimension;
 import java.text.DecimalFormat;
-import java.text.ParseException;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
-import javax.swing.JFormattedTextField.AbstractFormatter;
-import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -39,20 +34,15 @@ public class UmpirePanel extends JPanel {
     //    new JLabel()
 
     //this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-    LC lc = new LC().flowY();
+    LC lc = new LC().flowY().fillX();
     this.setLayout(new MigLayout(lc));
 
     // top panel
     JPanel pTop = new JPanel(new MigLayout());
-    pTop.setBorder(new TitledBorder("General options"));
-//    pTop.setMinimumSize(new Dimension(100, 10));
-//    pTop.setPreferredSize(new Dimension(150, 50));
-//    pTop.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+    //pTop.setBorder(new TitledBorder("General options"));
 
     JCheckBox checkRunUmpireSe = new JCheckBox("Run DIA-Umpire SE (Signal Extraction)");
-
-//    pTop.add(checkRunUmpireSe, "span, left, gapbottom 15");
-    pTop.add(checkRunUmpireSe, new CC().gapBottom("30px"));
+    pTop.add(checkRunUmpireSe);
 
 
     // fragment grouping options
@@ -63,26 +53,39 @@ public class UmpirePanel extends JPanel {
         new NumberFormatter(new DecimalFormat("#0")));
     DefaultFormatterFactory fmtFactoryDecimal = new javax.swing.text.DefaultFormatterFactory(
         new javax.swing.text.NumberFormatter());
-    Dimension dimFmt = new Dimension(50, 24);
 
     JLabel lblRpMax = new JLabel("RPmax");
     JLabel lblRfMax = new JLabel("RFMax");
+    JLabel lblCorrThresh = new JLabel("Corr Threshold");
+    JLabel lblDeltaApex = new JLabel("Delta Apex");
+    JLabel lblRtOverlap = new JLabel("RT Overlap");
+
     JFormattedTextField fmtRpMax = new JFormattedTextField(fmtFactoryDecimalAsInt);
-    JFormattedTextField fmtRfMax = new JFormattedTextField(fmtFactoryDecimalAsInt);
+    JFormattedTextField fmtRfMax = new JFormattedTextField(fmtFactoryDecimal);
+    JFormattedTextField fmtCorrThresh = new JFormattedTextField(fmtFactoryDecimal);
+    JFormattedTextField fmtDeltaApex = new JFormattedTextField(fmtFactoryDecimal);
+    JFormattedTextField fmtRtOverlap = new JFormattedTextField(fmtFactoryDecimal);
     JCheckBox checkBoostComplimentaryIons = new JCheckBox("Boost complimentary ions");
+    JCheckBox checkAdjustFragIntensity = new JCheckBox("Adjust fragment intensity");
 
-//    pFrag.add(lblRpMax, "align label");
-    pFrag.add(lblRpMax, new CC().alignX("label"));
-    pFrag.add(fmtRpMax);
-    pFrag.add(lblRfMax);
-//    pFrag.add(fmtRfMax, "wrap");
-    pFrag.add(fmtRfMax, new CC().wrap());
-//    pFrag.add(checkBoostComplimentaryIons, "align label");
-    pFrag.add(checkBoostComplimentaryIons, new CC().alignX("label"));
+    CC ccFmt = new CC().width("30:50:70px");
+    CC ccFmtWrap = new CC().width("30:50:70px").wrap();
+    CC ccLbl = new CC().alignX("right").gapBefore("5px");
+    pFrag.add(lblRpMax, ccLbl);
+    pFrag.add(fmtRpMax, ccFmt);
+    pFrag.add(lblRfMax, ccLbl);
+    pFrag.add(fmtRfMax, ccFmt);
+    pFrag.add(lblCorrThresh, ccLbl);
+    pFrag.add(fmtCorrThresh, ccFmt);
+    pFrag.add(lblDeltaApex, ccLbl);
+    pFrag.add(fmtDeltaApex, ccFmt);
+    pFrag.add(lblRtOverlap, ccLbl);
+    pFrag.add(fmtRtOverlap, ccFmtWrap);
+    pFrag.add(checkBoostComplimentaryIons, "span, split 2");
+    pFrag.add(checkAdjustFragIntensity);
 
-    this.add(pTop);
-    this.add(pFrag);
-//    this.add(Box.createVerticalGlue());
+    this.add(pTop, new CC().growX());
+    this.add(pFrag, new CC().growX());
   }
 
   public UmpireParams collectUmpireParams() {
