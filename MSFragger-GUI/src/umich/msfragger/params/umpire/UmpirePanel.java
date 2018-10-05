@@ -7,6 +7,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
@@ -28,16 +29,11 @@ public class UmpirePanel extends JPanel {
     icon = new ImageIcon(
         getClass().getResource("/umich/msfragger/gui/icons/dia-umpire-16x16.png"));
 
-    //    this.setLayout( new MigLayout( ) );
-    //    JLabel label = new JLabel("This is some test text");
-    //    this.add( label, "push, align center"); // give the label MigLayout constraints
-    //    new JLabel()
 
-    //this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     LC lc = new LC().flowY().fillX();
     this.setLayout(new MigLayout(lc));
 
-    // top panel
+    // Panel - top
     JPanel pTop = new JPanel(new MigLayout());
     //pTop.setBorder(new TitledBorder("General options"));
 
@@ -45,7 +41,7 @@ public class UmpirePanel extends JPanel {
     pTop.add(checkRunUmpireSe);
 
 
-    // fragment grouping options
+    // Panel - fragment grouping options
     JPanel pFrag = new JPanel(new MigLayout());
     pFrag.setBorder(new TitledBorder("Fragment grouping options"));
 
@@ -83,6 +79,8 @@ public class UmpirePanel extends JPanel {
     pFrag.add(fmtRtOverlap, ccFmtWrap);
     pFrag.add(checkBoostComplimentaryIons, "span, split 2");
     pFrag.add(checkAdjustFragIntensity);
+
+
 
     this.add(pTop, new CC().growX());
     this.add(pFrag, new CC().growX());

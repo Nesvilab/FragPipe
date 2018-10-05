@@ -88,6 +88,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -183,6 +184,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private String philosopherVer = UNKNOWN_VERSION;
 
     private UmpirePanel umpirePanel = null;
+    private JScrollPane umpireScroll = null;
 
     private final String ACTION_EXPORT_LOG = "Export-Log";    
 
@@ -4270,9 +4272,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     throw new IllegalStateException("Could not find tab named 'Config'");
                 ImageIcon icon = new ImageIcon(
                     getClass().getResource("/umich/msfragger/gui/icons/dia-umpire-16x16.png"));
-                if (umpirePanel == null)
+                if (umpirePanel == null || umpireScroll == null) {
                     umpirePanel = new UmpirePanel();
-                tabPane.insertTab(umpireTabName, icon, umpirePanel, "", configIndex + 1);
+                    umpireScroll = new JScrollPane();
+                    umpireScroll.setViewportBorder(BorderFactory.createEmptyBorder());
+                    umpireScroll.setBorder(BorderFactory.createEmptyBorder());
+                    umpireScroll.setViewportView(umpirePanel);
+                }
+                tabPane.insertTab(umpireTabName, icon, umpireScroll, "", configIndex + 1);
 
             } else {
                 int index = tabPane.indexOfTab(umpireTabName);
