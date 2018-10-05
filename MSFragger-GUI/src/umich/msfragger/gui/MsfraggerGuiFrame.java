@@ -88,14 +88,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
-import net.miginfocom.swing.MigLayout;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
@@ -578,6 +576,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("MSFragger");
         setIconImages(loadIcon());
+        setMaximumSize(new java.awt.Dimension(1920, 1080));
+        setMinimumSize(new java.awt.Dimension(640, 480));
         setName("frameMain"); // NOI18N
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
@@ -585,6 +585,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
+        tabPane.setMaximumSize(new java.awt.Dimension(1920, 1080));
+        tabPane.setMinimumSize(new java.awt.Dimension(640, 480));
         tabPane.setName(""); // NOI18N
 
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -876,7 +878,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 .addComponent(btnFindTools)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(lblFindAutomatically)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 234, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 244, Short.MAX_VALUE)
                                 .addComponent(btnClearCache))))
                     .addGroup(panelConfigLayout.createSequentialGroup()
                         .addContainerGap()
@@ -891,7 +893,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 .addComponent(checkEnableCrystalc)
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap())
+                .addGap(0, 0, 0))
         );
         panelConfigLayout.setVerticalGroup(
             panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1729,12 +1731,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(tabPane))
+                .addGap(0, 0, 0)
+                .addComponent(tabPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabPane)
+            .addComponent(tabPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         tabPane.getAccessibleContext().setAccessibleName("FragPipe");

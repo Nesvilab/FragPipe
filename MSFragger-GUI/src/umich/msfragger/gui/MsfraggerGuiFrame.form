@@ -14,6 +14,12 @@
     <Property name="iconImages" type="java.util.List" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
       <Connection code="loadIcon()" type="code"/>
     </Property>
+    <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+      <Dimension value="[1920, 1080]"/>
+    </Property>
+    <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+      <Dimension value="[640, 480]"/>
+    </Property>
     <Property name="name" type="java.lang.String" value="frameMain" noResource="true"/>
   </Properties>
   <SyntheticProperties>
@@ -39,7 +45,7 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="1" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="0" max="-2" attributes="0"/>
               <Component id="tabPane" max="32767" attributes="0"/>
           </Group>
       </Group>
@@ -53,6 +59,12 @@
   <SubComponents>
     <Container class="javax.swing.JTabbedPane" name="tabPane">
       <Properties>
+        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[1920, 1080]"/>
+        </Property>
+        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[640, 480]"/>
+        </Property>
         <Property name="name" type="java.lang.String" value="" noResource="true"/>
       </Properties>
       <AccessibilityProperties>
@@ -98,7 +110,7 @@
                                       <Component id="btnFindTools" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="lblFindAutomatically" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace pref="234" max="32767" attributes="0"/>
+                                      <EmptySpace pref="244" max="32767" attributes="0"/>
                                       <Component id="btnClearCache" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
@@ -121,7 +133,7 @@
                               </Group>
                           </Group>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="0" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
