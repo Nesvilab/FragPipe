@@ -1,11 +1,12 @@
 package umich.msfragger.params.umpire;
 
 import java.text.DecimalFormat;
-import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -70,7 +71,7 @@ public class UmpirePanel extends JPanel {
     pFrag.add(feRpMax.label(), ccLbl);
     pFrag.add(feRpMax.comp, ccFmt);
     pFrag.add(feRfMax.label(), ccLbl);
-    pFrag.add(feRfMax.comp, ccFmt);
+    pFrag.add(feRfMax.comp, ccFmtWrap);
     pFrag.add(feCorrThresh.label(), ccLbl);
     pFrag.add(feCorrThresh.comp, ccFmt);
     pFrag.add(feDeltaApex.label(), ccLbl);
@@ -82,28 +83,59 @@ public class UmpirePanel extends JPanel {
 
 
     // Panel - fragment grouping options
-    List<FormEntry> entries = new ArrayList<>();
+    JPanel pSe = new JPanel(new MigLayout());
+    pSe.setBorder(new TitledBorder("Signal Extraction Parameters"));
+    List<FormEntry> feSe = new ArrayList<>();
     //entries.add(new FormEntry(UmpireParams.PROP_, "", new JFormattedTextField()));
-    entries.add(new FormEntry(UmpireParams.PROP_MS1PPM, "MS1 PPM", new JFormattedTextField(decimalAsInt)));
-    entries.add(new FormEntry(UmpireParams.PROP_MS2PPM, "MS2 PPM", new JFormattedTextField(decimalAsInt)));
-    entries.add(new FormEntry(UmpireParams.PROP_MaxCurveRTRange, "Max Curve RT Range", new JFormattedTextField(decimal)));
+    feSe.add(new FormEntry(UmpireParams.PROP_MS1PPM, "MS1 PPM", new JFormattedTextField(decimalAsInt)));
+    feSe.add(new FormEntry(UmpireParams.PROP_MS2PPM, "MS2 PPM", new JFormattedTextField(decimalAsInt)));
+    feSe.add(new FormEntry(UmpireParams.PROP_MaxCurveRTRange, "Max Curve RT Range", new JFormattedTextField(decimal)));
 
-    entries.add(new FormEntry(UmpireParams.PROP_MinMSIntensity, "Min MS1 Intensity", new JFormattedTextField(decimal)));
-    entries.add(new FormEntry(UmpireParams.PROP_MinMSMSIntensity, "Min MS2 Intensity", new JFormattedTextField(decimal)));
-    entries.add(new FormEntry(UmpireParams.PROP_MinFrag, "Min Fragments", new JFormattedTextField(decimalAsInt)));
+    feSe.add(new FormEntry(UmpireParams.PROP_MinMSIntensity, "Min MS1 Intensity", new JFormattedTextField(decimal)));
+    feSe.add(new FormEntry(UmpireParams.PROP_MinMSMSIntensity, "Min MS2 Intensity", new JFormattedTextField(decimal)));
+    feSe.add(new FormEntry(UmpireParams.PROP_MinFrag, "Min Fragments", new JFormattedTextField(decimalAsInt)));
 
-    entries.add(new FormEntry(UmpireParams.PROP_SN, "MS1 S/N", new JFormattedTextField(decimalAsInt)));
-    entries.add(new FormEntry(UmpireParams.PROP_MS2SN, "MS2 S/N", new JFormattedTextField(decimalAsInt)));
-    entries.add(new FormEntry(UmpireParams.PROP_EstimateBG, "Estimate Background", new JCheckBox()));
+    feSe.add(new FormEntry(UmpireParams.PROP_SN, "MS1 S/N", new JFormattedTextField(decimalAsInt)));
+    feSe.add(new FormEntry(UmpireParams.PROP_MS2SN, "MS2 S/N", new JFormattedTextField(decimalAsInt)));
+    feSe.add(new FormEntry(UmpireParams.PROP_EstimateBG, "Estimate Background", new JCheckBox()));
 
-    entries.add(new FormEntry(UmpireParams.PROP_, "", new JFormattedTextField()));
-    entries.add(new FormEntry(UmpireParams.PROP_, "", new JFormattedTextField()));
-    entries.add(new FormEntry(UmpireParams.PROP_, "", new JFormattedTextField()));
+    feSe.add(new FormEntry(UmpireParams.PROP_MinNoPeakCluster, "Min N Peaks/Cluster", new JFormattedTextField(decimalAsInt)));
+    feSe.add(new FormEntry(UmpireParams.PROP_MaxNoPeakCluster, "Max N Peaks/Cluster", new JFormattedTextField(decimalAsInt)));
+    feSe.add(new FormEntry(UmpireParams.PROP_NoMissedScan, "Max Missed Scans", new JFormattedTextField(decimalAsInt)));
     //entries.add(new FormEntry(UmpireParams.PROP_, "", new JFormattedTextField()));
 
+    for (int i = 0; i < feSe.size(); i++) {
+      CC ccComp = (i+1) % 3 != 0
+          ? new CC().width("30:50:70px")
+          : new CC().width("30:50:70px").wrap();
+      CC ccLabel = new CC().alignX("right").gapBefore("5px");
+      FormEntry fe = feSe.get(i);
+      pSe.add(fe.label(), ccLabel);
+      pSe.add(fe.comp, ccComp);
+    }
 
-    this.add(pTop, new CC().growX());
-    this.add(pFrag, new CC().growX());
+
+    // Panel - SWATH window parameters
+    JPanel pSwath = new JPanel(new MigLayout());
+    pSwath.setBorder(new TitledBorder("SWATH window parameters"));
+
+    List<FormEntry> feSwath = new ArrayList<>();
+    JComboBox<String> comboWindowType = new JComboBox<>();
+    comboWindowType.setModel(new DefaultComboBoxModel<>(new String[]{"SWATH"}));
+    FormEntry feWinType = new FormEntry(UmpireParams.PROP_WindowType, "Window type", comboWindowType);
+    FormEntry feWinSize = new FormEntry(UmpireParams.PROP_WindowSize, "Window size", new JFormattedTextField(decimal));
+
+    pSwath.add(feWinType.label(), ccLbl);
+    pSwath.add(feWinType.comp, new CC().width("70:80:120px"));
+    pSwath.add(feWinSize.label(), ccLbl);
+    pSwath.add(feWinSize.comp, ccFmt);
+
+
+    CC ccGrowX = new CC().growX();
+    this.add(pTop, ccGrowX);
+    this.add(pFrag, ccGrowX);
+    this.add(pSe, ccGrowX);
+    this.add(pSwath, ccGrowX);
   }
 
   private static class FormEntry {
