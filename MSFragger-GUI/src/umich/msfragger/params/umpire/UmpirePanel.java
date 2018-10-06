@@ -1,8 +1,10 @@
 package umich.msfragger.params.umpire;
 
+import java.awt.Component;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -11,6 +13,7 @@ import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
@@ -18,6 +21,7 @@ import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.NotImplementedException;
+import umich.msfragger.util.SwingUtils;
 
 public class UmpirePanel extends JPanel {
 
@@ -147,6 +151,7 @@ public class UmpirePanel extends JPanel {
       this.propName = propName;
       this.label = label;
       this.comp = comp;
+      comp.setName(propName);
     }
 
     JLabel label() {
@@ -154,15 +159,16 @@ public class UmpirePanel extends JPanel {
     }
   }
 
+  /** Use {@link SwingUtils#getStrVal} to get string values from most common Java Swing GUI elements. */
   public UmpireParams collectUmpireParams() {
+    Map<String, Component> map = SwingUtils.mapComponentsByName(this, true);
+    // The map contains all named params with their corresponding UI elements.
     throw new NotImplementedException("TODO: gather params object from the form"); // TODO: Not implemented
+
+    //SwingUtils.getStrVal(..) TODO: use this function
   }
 
   public ImageIcon getIcon() {
     return icon;
-  }
-
-  private void buildUmpireSeParamsForm(JPanel p) {
-
   }
 }

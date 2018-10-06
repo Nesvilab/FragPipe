@@ -95,7 +95,9 @@ public class SwingUtils {
           map.put(name, c);
         }
         if (c instanceof Container) {
-          fifo.addLast(c);
+          for (Component child: ((Container)c).getComponents()) {
+            fifo.addLast(child);
+          }
         }
       }
     }
