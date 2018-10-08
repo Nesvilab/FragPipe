@@ -1,19 +1,26 @@
 package umich.msfragger.params.umpire;
 
+import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
+
 import java.awt.Component;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
@@ -21,11 +28,15 @@ import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.NotImplementedException;
+import umich.msfragger.params.ThisAppProps;
+import umich.msfragger.util.GhostText;
+import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
 
 public class UmpirePanel extends JPanel {
 
   private ImageIcon icon;
+  private static final String ghostText = "Optional path to a config file with defaults";
 
   public UmpirePanel() {
     initMore();
@@ -69,17 +80,17 @@ public class UmpirePanel extends JPanel {
     JCheckBox checkBoostComplimentaryIons = new JCheckBox("Boost complimentary ions");
     JCheckBox checkAdjustFragIntensity = new JCheckBox("Adjust fragment intensity");
 
-    CC ccFmt = new CC().width("30:50:70px");
+    CC ccComp = new CC().width("30:50:70px");
     CC ccFmtWrap = new CC().width("30:50:70px").wrap();
     CC ccLbl = new CC().alignX("right").gapBefore("5px");
     pFrag.add(feRpMax.label(), ccLbl);
-    pFrag.add(feRpMax.comp, ccFmt);
+    pFrag.add(feRpMax.comp, ccComp);
     pFrag.add(feRfMax.label(), ccLbl);
     pFrag.add(feRfMax.comp, ccFmtWrap);
     pFrag.add(feCorrThresh.label(), ccLbl);
-    pFrag.add(feCorrThresh.comp, ccFmt);
+    pFrag.add(feCorrThresh.comp, ccComp);
     pFrag.add(feDeltaApex.label(), ccLbl);
-    pFrag.add(feDeltaApex.comp, ccFmt);
+    pFrag.add(feDeltaApex.comp, ccComp);
     pFrag.add(feRtOverlap.label(), ccLbl);
     pFrag.add(feRtOverlap.comp, ccFmtWrap);
     pFrag.add(checkBoostComplimentaryIons, "span, split 2");
@@ -109,13 +120,13 @@ public class UmpirePanel extends JPanel {
     //entries.add(new FormEntry(UmpireParams.PROP_, "", new JFormattedTextField()));
 
     for (int i = 0; i < feSe.size(); i++) {
-      CC ccComp = (i+1) % 3 != 0
+      CC ccLabel = new CC().alignX("right").gapBefore("5px");
+      CC cc = (i+1) % 3 != 0
           ? new CC().width("30:50:70px")
           : new CC().width("30:50:70px").wrap();
-      CC ccLabel = new CC().alignX("right").gapBefore("5px");
       FormEntry fe = feSe.get(i);
       pSe.add(fe.label(), ccLabel);
-      pSe.add(fe.comp, ccComp);
+      pSe.add(fe.comp, cc);
     }
 
 
@@ -132,7 +143,37 @@ public class UmpirePanel extends JPanel {
     pSwath.add(feWinType.label(), ccLbl);
     pSwath.add(feWinType.comp, new CC().width("70:80:120px"));
     pSwath.add(feWinSize.label(), ccLbl);
-    pSwath.add(feWinSize.comp, ccFmt);
+    pSwath.add(feWinSize.comp, ccComp);
+
+
+    // Panel - Other options
+    JPanel pOther = new JPanel(new MigLayout());
+    pOther.setBorder(new TitledBorder("Other options"));
+
+    final JTextField textfConfigFile = new JTextField();
+    JButton btnBrowse = new JButton("Browse");
+    btnBrowse.addActionListener(e -> {
+      JFileChooser fc = new JFileChooser();
+      fc.setApproveButtonText("Select");
+      fc.setDialogTitle("Config file");
+      fc.setMultiSelectionEnabled(false);
+      fc.setAcceptAllFileFilterUsed(true);
+      String s = textfConfigFile.getText().trim();
+      if (!StringUtils.isNullOrWhitespace(s) && !ghostText.equals(s)) {
+        try {
+          SwingUtils.setFileChooserPath(fc, Paths.get(s).toString());
+        } catch (Exception ignore) {}
+      }
+      if (JFileChooser.APPROVE_OPTION == fc.showOpenDialog(this)) {
+        File f = fc.getSelectedFile();
+        textfConfigFile.setText(f.getAbsolutePath());
+      }
+    });
+    GhostText.register(textfConfigFile, ghostText, GhostText.LIGHT_GREY);
+    FormEntry feConfigFile = new FormEntry(UmpireParams.DEFAULT_FILE, "Default config file", textfConfigFile);
+    pOther.add(feConfigFile.label(), ccLbl);
+    pOther.add(feConfigFile.comp, new CC().growX().pushX());
+    pOther.add(btnBrowse, new CC().minWidth("button"));
 
 
     CC ccGrowX = new CC().growX();
@@ -140,6 +181,7 @@ public class UmpirePanel extends JPanel {
     this.add(pFrag, ccGrowX);
     this.add(pSe, ccGrowX);
     this.add(pSwath, ccGrowX);
+    this.add(pOther, ccGrowX);
   }
 
   private static class FormEntry {

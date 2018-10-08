@@ -222,10 +222,10 @@ public class SwingUtils {
    *
    * @param text Your text to be displayed in HTML context. Don't add the opening and closing HTML
    * tags. To include links use the regular A tags.
-   * @param addDefaultHyperlinkHandler If true, will add a handler for all hyperlinks to be opened
-   * in the default system browser.
+   * @param handleHyperlinks Add a handler for hyperlinks to be opened in the 
+   * default system browser.
    */
-  public static JEditorPane createClickableHtml(String text, boolean addDefaultHyperlinkHandler) {
+  public static JEditorPane createClickableHtml(String text, boolean handleHyperlinks) {
     // for copying style
     JLabel label = new JLabel();
     Font font = label.getFont();
@@ -241,7 +241,7 @@ public class SwingUtils {
     ep.setEditable(false);
 
     // handle link events
-    if (addDefaultHyperlinkHandler) {
+    if (handleHyperlinks) {
       ep.addHyperlinkListener(new HyperlinkListener() {
         @Override
         public void hyperlinkUpdate(HyperlinkEvent e) {
@@ -270,8 +270,7 @@ public class SwingUtils {
 
   /**
    * Creates a non-editable JEditorPane that has the same styling as default JLabels. Hyperlink
-   * clicks are not handled, user {@link JEditorPane#addHyperlinkListener(javax.swing.event.HyperlinkListener)
-   * }
+   * clicks are opened using the default browser.
    *
    * @param text Your text to be displayed in HTML context. Don't add the opening and closing HTML
    * tags. To include links use the regular A tags.
