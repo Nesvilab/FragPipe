@@ -21,7 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import umich.msfragger.params.Props;
-import umich.msfragger.params.fragger.AbstractParams;
+import umich.msfragger.params.AbstractParams;
 import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.PropertiesUtils;
 

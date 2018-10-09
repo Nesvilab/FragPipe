@@ -99,6 +99,8 @@ import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
 import umich.msfragger.Version;
 import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
+import static umich.msfragger.gui.ToolingUtils.getDefaultBinMsfragger;
+import static umich.msfragger.gui.ToolingUtils.getDefaultBinPhilosopher;
 import static umich.msfragger.gui.ToolingUtils.loadIcon;
 
 import umich.msfragger.gui.api.DataConverter;
@@ -118,6 +120,7 @@ import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
 import umich.msfragger.params.umpire.UmpirePanel;
+import umich.msfragger.params.umpire.UmpireParams;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.GhostText;
@@ -184,7 +187,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private UmpirePanel umpirePanel = null;
     private JScrollPane umpireScroll = null;
 
-    private final String ACTION_EXPORT_LOG = "Export-Log";    
+    private static final String ACTION_EXPORT_LOG = "Export-Log";
 
     public MsfraggerGuiFrame() {
         initComponents();
@@ -494,7 +497,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         lblPythonInfo = new javax.swing.JLabel();
         lblPythonMore = new javax.swing.JLabel();
         checkEnableDiaumpire = new javax.swing.JCheckBox();
-        checkEnableCrystalc = new javax.swing.JCheckBox();
         panelSelectFiles = new javax.swing.JPanel();
         panelSelectedFiles = new javax.swing.JPanel();
         btnRawAddFiles = new javax.swing.JButton();
@@ -849,13 +851,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
-        checkEnableCrystalc.setText("Enable Crystal-C");
-        checkEnableCrystalc.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkEnableCrystalcActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout panelConfigLayout = new javax.swing.GroupLayout(panelConfig);
         panelConfig.setLayout(panelConfigLayout);
         panelConfigLayout.setHorizontalGroup(
@@ -889,8 +884,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         .addGroup(panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(panelConfigLayout.createSequentialGroup()
                                 .addComponent(checkEnableDiaumpire)
-                                .addGap(18, 18, 18)
-                                .addComponent(checkEnableCrystalc)
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addGap(0, 0, 0))
@@ -915,9 +908,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(checkEnableDiaumpire)
-                    .addComponent(checkEnableCrystalc))
+                .addComponent(checkEnableDiaumpire)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -3223,22 +3214,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
         String dateString = df.format(new Date());
 
-        if (!OsUtils.isWindows()) {
-            // On Linux create symlinks to mzXML files
-            try {
-                createLcmsFileSymlinks(Paths.get(workingDir));
-            } catch (IOException ex) {
-                String msg = String.format(Locale.ROOT, "Something went wronng when creating symlinks to LCMS files.\n%s", ex.getMessage());
-                JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
-
-                resetRunButtons(true);
-                return;
-            }
-        } else {
-            // On windows copy the files over to the working directory
-//            List<ProcessBuilder> pbsCopyFiles = pbsCopyFiles(programsDir, workingDir, lcmsFilePaths);
-//            pbs.addAll(pbsCopyFiles);
+        URI jarUri = null;
+        try {
+            jarUri = PathUtils.getCurrentJarUri();
+            Path jarPath = Paths.get(jarUri);
+        } catch (Exception ignore) {
+            // don't care
         }
+        if (jarUri == null) {
+            JOptionPane.showMessageDialog(this, "Could not get the URI of the currnetly running jar",
+                "Errors", JOptionPane.ERROR_MESSAGE);
+            resetRunButtons(true);
+            return;
+        }
+
+
 
         // check fasta file path
         String fastaPath = textSequenceDbPath.getText().trim();
@@ -3272,7 +3262,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     }
                 }
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, String.format("Error validating raw file paths for quant"),
+                JOptionPane.showMessageDialog(this, "Error validating raw file paths for quant",
                     "Errors", JOptionPane.ERROR_MESSAGE);
                 resetRunButtons(true);
                 return;
@@ -3280,18 +3270,31 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
 
 
-        URI jarUri = null;
-        try {
-            jarUri = PathUtils.getCurrentJarUri();
-            Path jarPath = Paths.get(jarUri);
-        } catch (Exception e) {
-            // don't care
-        }
-        if (jarUri == null) {
-            JOptionPane.showMessageDialog(this, "Could not get the URI of the currnetly running jar",
-                "Errors", JOptionPane.ERROR_MESSAGE);
-            resetRunButtons(true);
-            return;
+        // run DIA-Umpire SE
+        final String binPhilosopher = textBinPhilosopher.getText().trim();
+        final boolean isUmpireActive = checkEnableDiaumpire.isSelected() && umpirePanel != null;
+        if (isUmpireActive) {
+            final boolean isUmpire = umpirePanel.checkRunUmpireSe.isSelected();
+            final UmpireParams umpireParams = umpirePanel.collect();
+            try {
+                umpireParams.saveCache();
+            } catch (Exception ignore) {
+            }
+            {
+                List<ProcessBuilder> builders = ToolingUtils
+                    .pbsUmpire(isUmpire, isDryRun, this, jarUri, umpirePanel,
+                        binPhilosopher, wdPath, lcmsFilePaths);
+                if (builders == null) {
+                    resetRunButtons(true);
+                    return;
+                }
+                pbs.addAll(builders);
+            }
+            // update the input LCMS files as Umpire creates new ones
+            List<String> umpireCreatedMzxmlFiles = ToolingUtils
+                .getUmpireCreatedMzxmlFiles(lcmsFilePaths, wdPath);
+            lcmsFilePaths.clear();
+            lcmsFilePaths.addAll(umpireCreatedMzxmlFiles);
         }
 
 
@@ -3365,7 +3368,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
         // run Crystal-C
-        final boolean isCrystalc = chkRunCrystalc.isSelected();
+        //final boolean isCrystalcEnabled = checkEnableCrystalc.isSelected();
+        final boolean isCrystalc = chkRunCrystalc.isSelected(); // && isCrystalcEnabled
         {
             CrystalcParams ccParams;
             try {
@@ -3390,7 +3394,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         // run Peptide Prophet
         final boolean isPeptideProphet = chkRunPeptideProphet.isSelected();
-        final String binPhilosopher = textBinPhilosopher.getText().trim();
         final String dbPath = textSequenceDbPath.getText().trim();
         final String pepProphCmd = textPepProphCmd.getText().trim();
 
@@ -4269,8 +4272,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         synchronized (this) {
             final boolean enabled = checkEnableDiaumpire.isSelected();
             if (enabled) {
-                int configIndex = tabPane.indexOfTab("Config");
-                if (configIndex < 0)
+                //int prevTabIndex = tabPane.indexOfTab("Config");
+                int prevTabIndex = tabPane.indexOfTab("Select LC/MS Files");
+                if (prevTabIndex < 0)
                     throw new IllegalStateException("Could not find tab named 'Config'");
                 ImageIcon icon = new ImageIcon(
                     getClass().getResource("/umich/msfragger/gui/icons/dia-umpire-16x16.png"));
@@ -4281,7 +4285,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     umpireScroll.setBorder(BorderFactory.createEmptyBorder());
                     umpireScroll.setViewportView(umpirePanel);
                 }
-                tabPane.insertTab(umpireTabName, icon, umpireScroll, "", configIndex + 1);
+                tabPane.insertTab(umpireTabName, icon, umpireScroll, "", prevTabIndex + 1);
 
             } else {
                 int index = tabPane.indexOfTab(umpireTabName);
@@ -4293,10 +4297,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
         
     }//GEN-LAST:event_checkEnableDiaumpireActionPerformed
-
-    private void checkEnableCrystalcActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkEnableCrystalcActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_checkEnableCrystalcActionPerformed
 
     public void loadLastPeptideProphet() {
         if (!load(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET)) {
@@ -5215,25 +5215,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(frame, scrollPane);
     }
 
-    private String getDefaultBinMsfragger() {
-        String path = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_MSFRAGGER);
-        return path == null ? "MSFragger.jar" : path;
-    }
-
-    private String getDefaultBinPhilosopher() {
-        String path = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_PHILOSOPHER);
-        if (path != null) {
-            return path;
-        }
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
-        String winName = bundle.getString("default.philosopher.win"); // NOI18N
-        String nixName = bundle.getString("default.philosopher.nix"); // NOI18N
-        if (OsUtils.isWindows()) {
-            return winName;
-        }
-        return nixName;
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAbout;
     private javax.swing.JButton btnAboutInConfig;
@@ -5268,7 +5249,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnTryDetectDecoyTag;
     private javax.swing.JCheckBox checkCreateReport;
     private javax.swing.JCheckBox checkDryRun;
-    private javax.swing.JCheckBox checkEnableCrystalc;
     private javax.swing.JCheckBox checkEnableDiaumpire;
     private javax.swing.JCheckBox checkLabelfree;
     private javax.swing.JCheckBox checkReportDbAnnotate;

@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
@@ -59,7 +60,7 @@ public class SwingUtils {
 
   public static String getStrVal(Component c) {
 
-    String val = null;
+    String val;
     if (c instanceof JFormattedTextField) {
       val = ((JFormattedTextField) c).getText();
     } else if (c instanceof JTextField) {
@@ -68,9 +69,27 @@ public class SwingUtils {
       val = ((JSpinner) c).getValue().toString();
     } else if (c instanceof JCheckBox) {
       val = Boolean.valueOf(((JCheckBox) c).isSelected()).toString();
+    } else if (c instanceof JComboBox) {
+      val = ((JComboBox<?>) c).getModel().getSelectedItem().toString();
+    } else {
+      throw new UnsupportedOperationException("getStrVal() not implemented for type: " + c.getClass().getCanonicalName());
     }
 
     return val.trim();
+  }
+
+  public static void setStrVal(Component c, String val) {
+    if (c instanceof JFormattedTextField) {
+      ((JFormattedTextField) c).setText(val);
+    } else if (c instanceof JTextField) {
+      ((JTextField) c).setText(val);
+    } else if (c instanceof JCheckBox) {
+      ((JCheckBox) c).setSelected(Boolean.valueOf(val));
+    } else if (c instanceof JComboBox) {
+      ((JComboBox<?>) c).getModel().setSelectedItem(val);
+    } else {
+      throw new UnsupportedOperationException("setStrVal() not implemented for type: " + c.getClass().getCanonicalName());
+    }
   }
 
   public static Map<String, Component> mapComponentsByName(Container origin,
@@ -180,33 +199,25 @@ public class SwingUtils {
       public void changedUpdate(DocumentEvent e) {
         lastChange++;
 
-        Runnable runnable = new Runnable() {
-          @Override
-          public void run() {
-            if (lastNotifiedChange != lastChange) {
-              lastNotifiedChange = lastChange;
-              changeListener.stateChanged(new ChangeEvent(text));
-            }
+        SwingUtilities.invokeLater(() -> {
+          if (lastNotifiedChange != lastChange) {
+            lastNotifiedChange = lastChange;
+            changeListener.stateChanged(new ChangeEvent(text));
           }
-        };
-
-        SwingUtilities.invokeLater(runnable);
+        });
       }
     };
 
-    PropertyChangeListener pcl = new PropertyChangeListener() {
-      @Override
-      public void propertyChange(PropertyChangeEvent e) {
-        Document d1 = (Document) e.getOldValue();
-        Document d2 = (Document) e.getNewValue();
-        if (d1 != null) {
-          d1.removeDocumentListener(dl);
-        }
-        if (d2 != null) {
-          d2.addDocumentListener(dl);
-        }
-        dl.changedUpdate(null);
+    PropertyChangeListener pcl = e -> {
+      Document d1 = (Document) e.getOldValue();
+      Document d2 = (Document) e.getNewValue();
+      if (d1 != null) {
+        d1.removeDocumentListener(dl);
       }
+      if (d2 != null) {
+        d2.addDocumentListener(dl);
+      }
+      dl.changedUpdate(null);
     };
     text.addPropertyChangeListener("document", pcl);
 
@@ -242,17 +253,14 @@ public class SwingUtils {
 
     // handle link events
     if (handleHyperlinks) {
-      ep.addHyperlinkListener(new HyperlinkListener() {
-        @Override
-        public void hyperlinkUpdate(HyperlinkEvent e) {
-          if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
-            try {
-              openBrowserOrThrow(e.getURL().toURI());
-            } catch (URISyntaxException ex) {
-              throw new IllegalStateException("Incorrect url/uri", ex);
-            }
-
+      ep.addHyperlinkListener(e -> {
+        if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
+          try {
+            openBrowserOrThrow(e.getURL().toURI());
+          } catch (URISyntaxException ex) {
+            throw new IllegalStateException("Incorrect url/uri", ex);
           }
+
         }
       });
     }

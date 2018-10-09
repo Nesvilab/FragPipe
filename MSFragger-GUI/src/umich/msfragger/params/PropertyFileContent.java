@@ -16,9 +16,17 @@
  */
 package umich.msfragger.params;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import umich.msfragger.exceptions.FileWritingException;
 
 /**
  *
@@ -33,5 +41,46 @@ public interface PropertyFileContent {
     Map<String, Integer> getMapProps();
 
     Properties getProps();
-    
+
+
+    /**
+     * Write the content of the property file with possible modifications to a new
+     * file, keeping the formatting as close to original as possible.
+     * @param out The stream should be connected to a file. The stream will be closed after this call.
+     * @throws IOException
+     */
+    default void write(OutputStream out) throws IOException {
+        try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true)) {
+
+            Map<Integer, PropLine> mapLines = this.getMapLines();
+            Properties props = this.getProps();
+            HashSet<String> propNamesWritten = new HashSet<>();
+            for (Map.Entry<Integer, PropLine> entry : mapLines.entrySet()) {
+                PropLine propLine = entry.getValue();
+                if (propLine.isSimpleLine()) {
+                    pw.println(propLine.getJustALine());
+                } else {
+                    String propName = propLine.getName();
+                    String propValue = props.getProperty(propName);
+                    pw.print(propName + " = " + propValue);
+                    propNamesWritten.add(propName);
+                    if (propLine.getComment() != null) {
+                        pw.print("\t\t\t" + propLine.getComment());
+                    }
+                    pw.println();
+                }
+            }
+            Set<String> stringPropertyNames = props.stringPropertyNames();
+            // if there was something else added on top of what was in the file
+            // we will append to the end of the file
+            for (String propName : stringPropertyNames) {
+                if (propNamesWritten.contains(propName))
+                    continue;
+                pw.println(propName + " = " + props.getProperty(propName));
+            }
+        } finally {
+            out.close();
+        }
+
+    }
 }

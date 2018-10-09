@@ -31,7 +31,6 @@ import javax.swing.event.DocumentListener;
 public class GhostText implements FocusListener, DocumentListener, PropertyChangeListener {
 
   private final JTextField textfield;
-  private boolean isEmpty;
   private Color ghostTextColor;
   private Color normalTextColor;
   private final String ghostText;

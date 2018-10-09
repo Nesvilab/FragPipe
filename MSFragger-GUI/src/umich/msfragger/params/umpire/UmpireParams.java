@@ -16,16 +16,18 @@
  */
 package umich.msfragger.params.umpire;
 
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import umich.msfragger.exceptions.ParsingException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,8 +37,11 @@ import java.util.Properties;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.NotImplementedException;
 import umich.msfragger.params.PropLine;
 import umich.msfragger.params.PropertyFileContent;
+import umich.msfragger.params.ThisAppProps;
+import umich.msfragger.util.PathUtils;
 
 /**
  *
@@ -67,44 +72,55 @@ public class UmpireParams implements PropertyFileContent {
     
     public static final String PROP_WindowType = "WindowType";
     public static final String PROP_WindowSize = "WindowSize";
-    
+
+    public static final String ETC_PARAM_RAM = "umpire-se.jvm.ram";
+
     public static final String FILE_BASE_NAME = "umpire-se";
     public static final String FILE_BASE_EXT = "params";
     /** This file is in the jar, use getResourceAsStream() to get it.  */
     public static final String DEFAULT_FILE = "diaumpire_se.params";
+    public static final String JAR_UMPIRESE_NAME = "DIA_Umpire_SE-2.1.5.jazz";
     
     Properties props = new Properties();
     protected List<String> linesInOriginalFile = new ArrayList<>();
     protected Map<Integer, PropLine> mapLines= new TreeMap<>();
     protected Map<String, Integer> mapProps = new HashMap<>();
+
     
-    protected String binUmpire;
-    protected String binMsconvert;
-    
-    public static UmpireParams parseDefault() throws ParsingException {
+    public void loadDefault() throws IOException {
         InputStream is = UmpireParams.class.getResourceAsStream(DEFAULT_FILE);
-        return UmpireParams.parse(is);
+        this.load(is);
     }
 
-    public String getBinUmpire() {
-        return binUmpire;
+    public boolean loadCache() throws IOException {
+        Path cached = getCachePath();
+        if (!Files.exists(cached))
+            return false;
+        try (InputStream is = Files.newInputStream(cached, StandardOpenOption.READ)) {
+            load(is);
+        }
+        return true;
     }
 
-    public void setBinUmpire(String binUmpire) {
-        this.binUmpire = binUmpire;
+    public void saveCache() throws IOException {
+        Path cached = getCachePath();
+        try (OutputStream os = Files.newOutputStream(cached, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            write(os);
+        }
     }
 
-    public String getBinMsconvert() {
-        return binMsconvert;
+    public void deleteCache() throws IOException {
+        Path cached = getCachePath();
+        Files.deleteIfExists(cached);
     }
 
-    public void setBinMsconvert(String binMsconvert) {
-        this.binMsconvert = binMsconvert;
+    public Path getCachePath() {
+        return PathUtils.getTempDir().resolve(DEFAULT_FILE);
     }
-    
+
     public UmpireParams() {
     }
-    
+
     public Integer getRpMax() {
         String property = props.getProperty(PROP_RPmax);
         return Integer.parseInt(property);
@@ -162,25 +178,17 @@ public class UmpireParams implements PropertyFileContent {
     
     
     
-    public static UmpireParams parse(InputStream is) throws ParsingException {
-        UmpireParams umpireParams = new UmpireParams();
-        Properties properties = new Properties();
+    public void load(InputStream is) throws IOException {
 
         Pattern propRegex = Pattern.compile("^\\s*([^=]+?)\\s*=\\s*(.+?)\\s*", Pattern.CASE_INSENSITIVE);
-
-
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")))) {
             int lineNum = 0;
             String line;
             while ((line = br.readLine()) != null) {
                 lineNum++;
-                umpireParams.linesInOriginalFile.add(line);
-                Properties props = new Properties();
-                boolean hasComments = false;
-                boolean hasProperty = false;
+                this.linesInOriginalFile.add(line);
                 int indexOfHash = line.indexOf('#');
                 if (indexOfHash >= 0) {
-                    hasComments = true;
                     if (indexOfHash > 2) {
                         // if it's over 2, then there is a possibility for having a
                         // property before it. A property needs at least one char for
@@ -189,32 +197,28 @@ public class UmpireParams implements PropertyFileContent {
                         if (indexOfEquals > 2) {
                             // ok, this might be a property
                             String possiblePropString = line.substring(0, indexOfHash);
-                            addString(propRegex, possiblePropString, line, indexOfHash, umpireParams, lineNum);
+                            this.addString(propRegex, possiblePropString, line, indexOfHash, lineNum);
                         }
                     } else {
                         // index of hash is small and does not allow for a property, must be a simple string
-                        umpireParams.mapLines.put(lineNum, new PropLine(line, null, null, null));
+                        this.mapLines.put(lineNum, new PropLine(line, null, null, null));
                     }
                 } else {
                     // it must be a pure property string or just a meaningless string
                     int indexOfEquals = line.indexOf('=');
                     if (indexOfEquals > 0) {
-                        String possiblePropString = line;
-                        addString(propRegex, possiblePropString, line, indexOfHash, umpireParams, lineNum);
+                        addString(propRegex, line, line, indexOfHash, lineNum);
                     } else {
                         // it's a simple line, just add it
-                        umpireParams.mapLines.put(lineNum, new PropLine(line, null, null, null));
+                        this.mapLines.put(lineNum, new PropLine(line, null, null, null));
                     }
                 }
             }
 
-        } catch (IOException e) {
-            throw new ParsingException("Error reading comet params file", e);
         }
-        return umpireParams;
     }
     
-    private static void addString(Pattern propRegex, String possiblePropString, String line, int indexOfHash, UmpireParams umpireParams, int lineNum) throws ParsingException {
+    private void addString(Pattern propRegex, String possiblePropString, String line, int indexOfHash, int lineNum) throws IOException {
         Matcher matcher = propRegex.matcher(possiblePropString);
         if (matcher.matches()) {
             String comment = null;
@@ -223,28 +227,16 @@ public class UmpireParams implements PropertyFileContent {
             String propName = matcher.group(1);
             String propVal =  matcher.group(2);
             if (propName.isEmpty())
-                throw new ParsingException(String.format(Locale.ROOT, "Property on line number %d had empty name", lineNum));
+                throw new IOException(String.format(Locale.ROOT, "Property on line number %d had empty name", lineNum));
             if (propVal.isEmpty())
-                throw new ParsingException(String.format(Locale.ROOT, "Property on line number %d had empty value", lineNum));
-            umpireParams.mapLines.put(lineNum, new PropLine(null, propName, propVal, comment));
-            umpireParams.mapProps.put(propName, lineNum);
-            umpireParams.props.put(propName, propVal);
+                throw new IOException(String.format(Locale.ROOT, "Property on line number %d had empty value", lineNum));
+            this.mapLines.put(lineNum, new PropLine(null, propName, propVal, comment));
+            this.mapProps.put(propName, lineNum);
+            this.props.put(propName, propVal);
         } else {
             // we didn't find the property here, it's just a line
-            umpireParams.mapLines.put(lineNum, new PropLine(line, null, null, null));
+            this.mapLines.put(lineNum, new PropLine(line, null, null, null));
         }
-    }
-
-    /**
-     * This returns the paths to files to be created. Might be symlinks or actual file copies.
-     * It does not create the files!
-     */
-    public static List<Path> getUmpireSeCreatedLcmsFiles(Path workDir, List<String> lcmsFilePaths) {
-        ArrayList<Path> result = new ArrayList<>();
-        for (String lcmsFilePath : lcmsFilePaths) {
-            result.add(workDir.resolve(Paths.get(lcmsFilePath).getFileName()));
-        }
-        return result;
     }
 
     /**
