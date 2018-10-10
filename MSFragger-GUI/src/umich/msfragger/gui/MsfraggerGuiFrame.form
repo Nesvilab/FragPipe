@@ -1603,7 +1603,7 @@
                                       <Component id="btnStop" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                       <Component id="checkDryRun" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace pref="148" max="32767" attributes="0"/>
+                                      <EmptySpace pref="146" max="32767" attributes="0"/>
                                       <Component id="btnExportLog" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="btnReportErrors" min="-2" max="-2" attributes="0"/>
@@ -1720,7 +1720,10 @@
             </Component>
             <Component class="javax.swing.JButton" name="btnRun">
               <Properties>
-                <Property name="text" type="java.lang.String" value="RUN"/>
+                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="d2" green="ea" red="cb" type="rgb"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;RUN&lt;b&gt;"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRunActionPerformed"/>
