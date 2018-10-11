@@ -16,12 +16,13 @@ plugins {
     id 'idea'
 
     id "com.jonaslasauskas.capsule" version "0.3.0"
-    id "com.github.johnrengelman.shadow" version "4.0.0"
+    id "com.github.johnrengelman.shadow" version "4.0.1"
     id 'edu.sc.seis.launch4j' version '2.4.4'
+    id "com.github.ben-manes.versions" version "0.20.0"
 }
 
 group = 'com.github.chhh'
-version = '8.1-RC2'
+version = '8.1-RC3'
 
 description = """FragPipe - run complete proteomics analyses from the GUI"""
 
