@@ -1189,7 +1189,7 @@ public class ToolingUtils {
             cmdMove.add("java");
             cmdMove.add("-cp");
             cmdMove.add(currentJarPath); // FragPipe jar
-            cmdMove.add("dia.umpire.util.FileMove");
+            cmdMove.add(FileMove.class.getCanonicalName());
             String origin = inputDir.resolve(Paths.get(path).getFileName())
                 .toString();
             String destination = workingDir.resolve(Paths.get(path).getFileName())
