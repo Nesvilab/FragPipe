@@ -108,7 +108,7 @@ import static umich.msfragger.gui.ToolingUtils.loadIcon;
 
 import umich.msfragger.events.EventUmpireEnabled;
 import umich.msfragger.gui.api.DataConverter;
-import umich.msfragger.gui.api.Installed;
+import umich.msfragger.util.Installed;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.SimpleUniqueTableModel;
@@ -133,6 +133,7 @@ import umich.msfragger.util.LogUtils;
 import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.PropertiesUtils;
+import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.PythonModule;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
@@ -2270,52 +2271,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
 
-    /**
-     * Check if a specific package is installed in a python environment.
-     * @param pythonCmd The command to start python interpreter.
-     * @param pkgImportName The name of one of the packages specified in {@code setup.py}
-     *      {@code packages = [...]} array.
-     * @return UNKNOWN if some errors occur while trying to start the interpreter.
-     */
-    public static Installed checkPythonPackageAvailability(String pythonCmd, String pkgImportName) {
-        Installed installed = Installed.UNKNOWN;
-
-
-        ProcessBuilder pb = new ProcessBuilder(pythonCmd,
-                "-c", "import pkgutil; print(1 if pkgutil.find_loader('" + pkgImportName + "') else 0)");
-        Process pr = null;
-        boolean isError = false;
-        try {
-            pr = pb.start();
-        } catch (IOException ex) {
-            Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, 
-                    "Could not start python " + pkgImportName + " check process", ex);
-            isError = true;
-        }
-        if (pr != null) {
-            try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
-                String line;
-                while ((line = in.readLine()) != null) {
-                    if ("1".equals(line))
-                        installed = Installed.YES;
-                    else if ("0".equals(line))
-                        installed = Installed.NO;
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, 
-                        "Could not read python " + pkgImportName + " check output", ex);
-            }
-            try {
-                pr.waitFor();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, 
-                        "Error while waiting for python " + pkgImportName + " check process to finish", ex);
-            }
-        }
-
-        return installed;
-    }
-    
     public void validateMsadjusterEligibility() {
         Thread t;
         t = new Thread(() -> {
@@ -2443,7 +2398,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     if (pythonCmd == null) {
                         sbPythonInfo.append(" ").append(pkg).append(" - N/A.");
                     } else {
-                        Installed inst = checkPythonPackageAvailability(pythonCmd, pkg.someImportName);
+                        Installed inst = PythonInfo.checkPythonPackageAvailability(pythonCmd, pkg.someImportName);
                         switch (inst) {
                             case YES:
                                 isPkgInstalled.put(pkg, true);
@@ -3105,10 +3060,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     public String getFastaPath() {
         return textSequenceDbPath.getText().trim();
     }
-    
-    public void setFastaPath(String path) {
-        textSequenceDbPath.setText(path);
-    }
+
 
     private void btnRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRunActionPerformed
 
@@ -4337,23 +4289,23 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_checkEnableDiaumpireActionPerformed
 
     public void loadLastPeptideProphet() {
-        if (!load(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET)) {
+        if (!ThisAppProps.load(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET)) {
             loadDefaultsPeptideProphet(DEFAULT_TYPE);
         }
     }
 
     public void loadDefaultsPeptideProphet(SearchTypeProp type) {
-        loadDefaults(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET, type);
+        ThisAppProps.loadDefaults(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET, type);
     }
 
     public void loadLastProteinProphet() {
-        if (!load(txtProteinProphetCmdLineOpts, ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET)) {
+        if (!ThisAppProps.load(txtProteinProphetCmdLineOpts, ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET)) {
             loadDefaultsProteinProphet(DEFAULT_TYPE);
         }
     }
 
     public void loadDefaultsProteinProphet(SearchTypeProp type) {
-        loadDefaults(txtProteinProphetCmdLineOpts, ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, type);
+        ThisAppProps.loadDefaults(txtProteinProphetCmdLineOpts, ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, type);
     }
     
     private void loadLastDecoyTag() {
@@ -4374,13 +4326,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     private void loadLastReportFilter() {
-        if (!load(textReportFilter, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER)) {
+        if (!ThisAppProps.load(textReportFilter, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER)) {
             loadDefaultsReportFilter(DEFAULT_TYPE);
         }
     }
 
     private void loadDefaultsReportFilter(SearchTypeProp type) {
-        loadDefaults(textReportFilter, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER, type);
+        ThisAppProps.loadDefaults(textReportFilter, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER, type);
     }
 
     private void loadLastReportProteinLevelFdr() {
@@ -4574,69 +4526,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         validateAndSaveReportAnnotate(null, updateOtherTags);
     }
 
-    public static boolean load(JTextComponent text, String propName) {
-        String val = ThisAppProps.load(propName);
-        if (val != null) {
-            text.setText(val);
-            return true;
-        }
-        return false;
-    }
-    
-    public static boolean load(JCheckBox box, String propName) {
-        String val = ThisAppProps.load(propName);
-        if (val != null) {
-            Boolean bool = Boolean.valueOf(val);
-            box.setSelected(bool);
-            return true;
-        }
-        return false;
-    }
-    
-    public static void save(JCheckBox box, String propName) {
-        ThisAppProps.save(propName, Boolean.toString(box.isSelected()));
-    }
-    
-    public static void save(JTextComponent text, String propName) {
-        ThisAppProps.save(propName, text.getText().trim());
-    }
-    
     private void loadLastReportAnnotate() {
-        if (!load(textReportAnnotate, ThisAppProps.PROP_TEXTFIELD_REPORT_ANNOTATE)) {
+        if (!ThisAppProps.load(textReportAnnotate, ThisAppProps.PROP_TEXTFIELD_REPORT_ANNOTATE)) {
             loadDefaultsReportAnnotate(DEFAULT_TYPE);
         }
     }
     
     private void loadDefaultsReportAnnotate(SearchTypeProp type) {
-        loadDefaults(textReportAnnotate, ThisAppProps.PROP_TEXTFIELD_REPORT_ANNOTATE, type);
-    }
-    
-    public static void loadDefaults(JTextComponent text, String propName, SearchTypeProp type) {
-        final String prop = propName + "." + type.name();
-        loadDefaults(text, prop);
-    }
-    
-    public static void loadDefaults(JTextComponent text, String propName) {
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
-        String val = bundle.getString(propName);
-        text.setText(val);
-        ThisAppProps.save(propName, val);
+        ThisAppProps
+            .loadDefaults(textReportAnnotate, ThisAppProps.PROP_TEXTFIELD_REPORT_ANNOTATE, type);
     }
 
-    public static void loadDefaults(JCheckBox checkBox, String propName, SearchTypeProp type) {
-        final String prop = propName + "." + type.name();
-        loadDefaults(checkBox, prop);
-    }
-    
-    public static void loadDefaults(JCheckBox checkBox, String propName) {
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
-        String val = bundle.getString(propName);
-        checkBox.setSelected(Boolean.valueOf(val));
-        ThisAppProps.save(propName, val);
-    }
-    
     private void loadDefaultsSequenceDb(SearchTypeProp type) {
-        loadDefaults(textDecoyTagSeqDb, ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
+        ThisAppProps.loadDefaults(textDecoyTagSeqDb, ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
     }
 
     private void addChangeListenerTextSequenceDb() {
@@ -4698,7 +4600,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
     
     private void loadLastCrystalc() {
-        if (!load(chkRunCrystalc, ThisAppProps.PROP_CRYSTALC_USE)) {
+        if (!ThisAppProps.load(chkRunCrystalc, ThisAppProps.PROP_CRYSTALC_USE)) {
             chkRunCrystalc.setSelected(false);
         }
         chkRunCrystalcActionPerformed(null);
@@ -4743,13 +4645,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
     
     private void loadLastLabelfree() {
-        if (!load(textReportLabelfree, ThisAppProps.PROP_TEXTFIELD_LABELFREE)) {
+        if (!ThisAppProps.load(textReportLabelfree, ThisAppProps.PROP_TEXTFIELD_LABELFREE)) {
             loadDefaultsLabelfree(DEFAULT_TYPE);
         }
     }
     
     private void loadDefaultsLabelfree(SearchTypeProp type) {
-        loadDefaults(textReportLabelfree, ThisAppProps.PROP_TEXTFIELD_LABELFREE, type);
+        ThisAppProps.loadDefaults(textReportLabelfree, ThisAppProps.PROP_TEXTFIELD_LABELFREE, type);
     }
 
     private void validateAndSaveLabelfree(final String newText) {

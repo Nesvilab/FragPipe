@@ -26,9 +26,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.text.JTextComponent;
 import umich.msfragger.Version;
+import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.util.PathUtils;
 
 public class ThisAppProps extends Properties {
@@ -161,7 +163,58 @@ public class ThisAppProps extends Properties {
         return path;
     }
 
-    public void save() {
+  public static boolean load(JTextComponent text, String propName) {
+      String val = load(propName);
+      if (val != null) {
+          text.setText(val);
+          return true;
+      }
+      return false;
+  }
+
+  public static boolean load(JCheckBox box, String propName) {
+      String val = load(propName);
+      if (val != null) {
+          Boolean bool = Boolean.valueOf(val);
+          box.setSelected(bool);
+          return true;
+      }
+      return false;
+  }
+
+  public static void save(JCheckBox box, String propName) {
+      save(propName, Boolean.toString(box.isSelected()));
+  }
+
+  public static void save(JTextComponent text, String propName) {
+      save(propName, text.getText().trim());
+  }
+
+  public static void loadDefaults(JTextComponent text, String propName, SearchTypeProp type) {
+      final String prop = propName + "." + type.name();
+      loadDefaults(text, prop);
+  }
+
+  public static void loadDefaults(JTextComponent text, String propName) {
+      java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
+      String val = bundle.getString(propName);
+      text.setText(val);
+      save(propName, val);
+  }
+
+  public static void loadDefaults(JCheckBox checkBox, String propName, SearchTypeProp type) {
+      final String prop = propName + "." + type.name();
+      loadDefaults(checkBox, prop);
+  }
+
+  public static void loadDefaults(JCheckBox checkBox, String propName) {
+      java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
+      String val = bundle.getString(propName);
+      checkBox.setSelected(Boolean.valueOf(val));
+      save(propName, val);
+  }
+
+  public void save() {
         Path path = Paths.get(TEMP_DIR, TEMP_FILE_NAME);
         try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
             store(fos, Version.PROGRAM_TITLE + " runtime properties");

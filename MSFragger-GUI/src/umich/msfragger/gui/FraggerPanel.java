@@ -1703,7 +1703,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_textMassOffsetsFocusGained
 
     private void chkMsadjusterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkMsadjusterActionPerformed
-        MsfraggerGuiFrame.save(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE);
+        ThisAppProps.save(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE);
     }//GEN-LAST:event_chkMsadjusterActionPerformed
 
     public boolean isMsadjuster() {
@@ -1711,13 +1711,13 @@ public class FraggerPanel extends javax.swing.JPanel {
     }
     
     public void loadLastMsadjuster() {
-        if (!MsfraggerGuiFrame.load(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE)) {
+        if (!ThisAppProps.load(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE)) {
             loadDefaultsMsadjuster(DEFAULT_TYPE);
         }
     }
     
     public void loadDefaultsMsadjuster(SearchTypeProp type) {
-        MsfraggerGuiFrame.loadDefaults(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE, type);
+        ThisAppProps.loadDefaults(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE, type);
     }
     
     public void loadDefaultsClosed() {
