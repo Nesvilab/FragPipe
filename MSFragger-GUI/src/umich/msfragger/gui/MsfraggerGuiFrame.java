@@ -2341,7 +2341,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             public void run() {
                 String version;
                 boolean isPython3 = false;
-                final String[] packages = {"numpy", "pandas"};
+                final String[] packages = {"numpy", "pandas", "Cython", "msproteomicstools"};
                 Map<String, Boolean> isPkgInstalled = new LinkedHashMap<>();
                 for (String pkg : packages)
                     isPkgInstalled.put(pkg, false);
@@ -2364,7 +2364,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 "Can't unpack", JOptionPane.WARNING_MESSAGE);
                 }
                 
-                StringBuilder sbPythonInfo = new StringBuilder("Python Info:");
+                StringBuilder sbPythonInfo = new StringBuilder("<html>Python Info:");
                 String pythonCmd = null;
                 try {
                     pythonCmd = tryPythonCommand();
@@ -2398,13 +2398,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 if (m.find()) {
                                     isPythonVerFound = true;
                                     version = m.group(1);
-                                    sbPythonInfo.append(" ").append(version).append(".");
                                     Pattern verRe = Pattern.compile("python\\s+([0-9]+)", Pattern.CASE_INSENSITIVE);
                                     Matcher m1 = verRe.matcher(version);
                                     if (m1.find()) {
                                         String pythonMajorVer = m1.group(1);
                                         if ("3".equals(pythonMajorVer))
                                             isPython3 = true;
+                                    }
+                                    if (isPython3) {
+                                        sbPythonInfo.append(" ").append(version).append(".");
+                                    } else {
+                                        sbPythonInfo.append(" <b>").append(version).append("</b>.");
                                     }
                                 }
                             }
@@ -2437,7 +2441,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 sbPythonInfo.append(" ").append(pkg).append(" - Yes.");
                                 break;
                             case NO:
-                                sbPythonInfo.append(" ").append(pkg).append(" - No.");
+                                sbPythonInfo.append(" <b>").append(pkg).append(" - No.</b>");
                                 break;
                             case UNKNOWN:
                                 sbPythonInfo.append(" ").append(pkg).append(" - N/A.");
@@ -2450,7 +2454,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     
                 VersionComparator cmp = new VersionComparator();
                 // for the lack of a better default, we'll just hard code this here
-                String minFraggerVer = null;
+                String minFraggerVer = "20180924";
                 Properties props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
                 if (props != null)
                     minFraggerVer = props.getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, minFraggerVer);
