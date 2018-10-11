@@ -52,7 +52,9 @@ import javax.swing.text.NumberFormatter;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.greenrobot.eventbus.EventBus;
 import rx.swing.sources.DocumentEventSource;
+import umich.msfragger.events.EventUmpireEnabled;
 import umich.msfragger.gui.ToolingUtils;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.util.StringUtils;
@@ -97,6 +99,7 @@ public class UmpirePanel extends JPanel {
       PROP_WindowSize);
 
   public UmpirePanel() {
+    //EventBus.getDefault().register(this);
     initMore();
   }
 
@@ -288,7 +291,11 @@ public class UmpirePanel extends JPanel {
     this.add(pOther, ccGrowX);
 
     enablePanels(checkRunUmpireSe.isSelected());
-    checkRunUmpireSe.addChangeListener(e -> enablePanels(checkRunUmpireSe.isSelected()));
+    checkRunUmpireSe.addChangeListener(e -> {
+      final boolean enabled = checkRunUmpireSe.isSelected();
+      enablePanels(enabled);
+      EventBus.getDefault().post(new EventUmpireEnabled(enabled));
+    });
 
     reloadUmpireParams();
   }

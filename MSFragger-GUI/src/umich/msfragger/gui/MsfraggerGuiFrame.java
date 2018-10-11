@@ -97,12 +97,16 @@ import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import umich.msfragger.Version;
 import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
 import static umich.msfragger.gui.ToolingUtils.getDefaultBinMsfragger;
 import static umich.msfragger.gui.ToolingUtils.getDefaultBinPhilosopher;
 import static umich.msfragger.gui.ToolingUtils.loadIcon;
 
+import umich.msfragger.events.EventUmpireEnabled;
 import umich.msfragger.gui.api.DataConverter;
 import umich.msfragger.gui.api.Installed;
 import umich.msfragger.gui.api.SearchTypeProp;
@@ -190,6 +194,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private static final String ACTION_EXPORT_LOG = "Export-Log";
 
     public MsfraggerGuiFrame() {
+        EventBus.getDefault().register(this);
         initComponents();
         initMore();
     }
@@ -345,6 +350,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         });
 
         initActions();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventUmpireEnabled(EventUmpireEnabled e) {
+        if (e.isEnabled && checkLabelfree.isSelected())
+            checkLabelfree.setSelected(false);
     }
 
     private void checkPreviouslySavedParams() {
@@ -4295,6 +4306,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         "Could not find tab named '" + umpireTabName + "'");
                 tabPane.removeTabAt(index);
             }
+            EventBus.getDefault().post(new EventUmpireEnabled(umpirePanel.checkRunUmpireSe.isSelected()));
         }
         
     }//GEN-LAST:event_checkEnableDiaumpireActionPerformed
