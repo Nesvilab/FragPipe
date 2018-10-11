@@ -1,6 +1,27 @@
 package umich.msfragger.params.umpire;
 
-import static umich.msfragger.params.umpire.UmpireParams.*;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_AdjustFragIntensity;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_BoostComplementaryIon;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_CorrThreshold;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_DeltaApex;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_EstimateBG;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_MS1PPM;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_MS2PPM;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_MS2SN;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_MaxCurveRTRange;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_MaxNoPeakCluster;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_MinFrag;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_MinMSIntensity;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_MinMSMSIntensity;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_MinNoPeakCluster;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_NoMissedScan;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_RFmax;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_RPmax;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_RTOverlap;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_SN;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_Thread;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_WindowSize;
+import static umich.msfragger.params.umpire.UmpireParams.PROP_WindowType;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -52,6 +73,7 @@ public class UmpirePanel extends JPanel {
   private ImageIcon icon;
 
   private final List<String> paramNames = Arrays.asList(
+      PROP_Thread,
       PROP_RPmax,
       PROP_RFmax,
       PROP_CorrThreshold,
@@ -84,9 +106,10 @@ public class UmpirePanel extends JPanel {
 
     this.setLayout(new MigLayout(new LC().flowY().fillX()));
 
+    LC lc = new LC();//.debug();
 
     // Panel - top
-    JPanel pTop = new JPanel(new MigLayout());
+    JPanel pTop = new JPanel(new MigLayout(lc));
     //pTop.setBorder(new TitledBorder("General options"));
 
     checkRunUmpireSe = new JCheckBox("Run DIA-Umpire SE (Signal Extraction)");
@@ -94,7 +117,7 @@ public class UmpirePanel extends JPanel {
 
 
     // Panel - fragment grouping options
-    pFrag = new JPanel(new MigLayout());
+    pFrag = new JPanel(new MigLayout(lc));
     pFrag.setBorder(new TitledBorder("Fragment grouping options"));
 
     DefaultFormatterFactory decimalAsInt = new DefaultFormatterFactory(
@@ -129,7 +152,7 @@ public class UmpirePanel extends JPanel {
 
 
     // Panel - fragment grouping options
-    pSe = new JPanel(new MigLayout());
+    pSe = new JPanel(new MigLayout(lc));
     pSe.setBorder(new TitledBorder("Signal Extraction Parameters"));
     List<FormEntry> feSe = new ArrayList<>();
     //entries.add(new FormEntry(UmpireParams.PROP_, "", new JFormattedTextField()));
@@ -162,7 +185,7 @@ public class UmpirePanel extends JPanel {
 
 
     // Panel - SWATH window parameters
-    pSwath = new JPanel(new MigLayout());
+    pSwath = new JPanel(new MigLayout(lc));
     pSwath.setBorder(new TitledBorder("SWATH window parameters"));
 
     JComboBox<String> comboWindowType = new JComboBox<>();
@@ -177,9 +200,10 @@ public class UmpirePanel extends JPanel {
 
 
     // Panel - Other options
-    pOther = new JPanel(new MigLayout());
+    pOther = new JPanel(new MigLayout(lc));
     pOther.setBorder(new TitledBorder("Other options"));
 
+    JPanel panelSpinners = new JPanel(new MigLayout(lc));
 
     // RAM spinner
     spinnerRam = new JSpinner(new SpinnerNumberModel(0, 0, 64, 1));
@@ -188,9 +212,17 @@ public class UmpirePanel extends JPanel {
       spinnerRam.setValue(Integer.valueOf(ram));
     spinnerRam.addChangeListener(e -> ThisAppProps.save(UmpireParams.ETC_PARAM_RAM, ((Integer)spinnerRam.getValue()).toString()));
     FormEntry feRam = new FormEntry(UmpireParams.ETC_PARAM_RAM, "Max RAM (GB)", spinnerRam);
-    pOther.add(feRam.label(), ccLbl);
-    pOther.add(feRam.comp, new CC().width("30:50:70px").wrap());
+    panelSpinners.add(feRam.label(), new CC().alignX("right"));
+    panelSpinners.add(feRam.comp, new CC().width("30:50:70px"));
 
+    // Threads spinner
+    int availableThreads = Runtime.getRuntime().availableProcessors();
+    JSpinner spinnerThreads = new JSpinner(new SpinnerNumberModel(0, 0, availableThreads * 2, 1));
+    FormEntry feThreads = new FormEntry(PROP_Thread, "Threads", spinnerThreads);
+    panelSpinners.add(feThreads.label(),  new CC().alignX("right").gapBefore("5px"));
+    panelSpinners.add(feThreads.comp, new CC().width("30:50:70px").wrap());
+
+    pOther.add(panelSpinners, "span");
 
     // default config file
     String pathConfigFile = ThisAppProps.load(UmpireParams.DEFAULT_FILE);
@@ -256,9 +288,7 @@ public class UmpirePanel extends JPanel {
     this.add(pOther, ccGrowX);
 
     enablePanels(checkRunUmpireSe.isSelected());
-    checkRunUmpireSe.addChangeListener(e -> {
-      enablePanels(checkRunUmpireSe.isSelected());
-    });
+    checkRunUmpireSe.addChangeListener(e -> enablePanels(checkRunUmpireSe.isSelected()));
 
     reloadUmpireParams();
   }
@@ -266,7 +296,7 @@ public class UmpirePanel extends JPanel {
   private void enablePanels(boolean enabled) {
     List<Container> comps = Arrays.asList(pFrag, pSe, pSwath, pOther);
     for (Container c : comps) {
-      SwingUtils.enableComponents(c, checkRunUmpireSe.isSelected());
+      SwingUtils.enableComponents(c, enabled);
     }
   }
 
@@ -318,6 +348,8 @@ public class UmpirePanel extends JPanel {
       Component component = map.get(paramName);
       if (component != null) {
         String strVal = SwingUtils.getStrVal(component);
+        if (PROP_Thread.equals(paramName) && "0".equals(strVal))
+          continue;
         params.getProps().setProperty(paramName, strVal);
       }
     }

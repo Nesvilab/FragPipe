@@ -3279,8 +3279,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             final UmpireParams umpireParams = umpirePanel.collect();
             try {
                 umpireParams.saveCache();
-            } catch (Exception ignore) {
-            }
+            } catch (Exception ignored) {}
+
             {
                 List<ProcessBuilder> builders = ToolingUtils
                     .pbsUmpire(isUmpire, isDryRun, this, jarUri, umpirePanel,

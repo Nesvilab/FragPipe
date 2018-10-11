@@ -87,6 +87,8 @@ public class SwingUtils {
       ((JCheckBox) c).setSelected(Boolean.valueOf(val));
     } else if (c instanceof JComboBox) {
       ((JComboBox<?>) c).getModel().setSelectedItem(val);
+    } else if (c instanceof JSpinner) {
+      ((JSpinner) c).setValue(Double.parseDouble(val));
     } else {
       throw new UnsupportedOperationException("setStrVal() not implemented for type: " + c.getClass().getCanonicalName());
     }

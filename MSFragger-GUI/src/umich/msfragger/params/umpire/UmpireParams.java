@@ -48,7 +48,7 @@ import umich.msfragger.util.PathUtils;
  * @author dattam
  */
 public class UmpireParams implements PropertyFileContent {
-    public static final String PROP_Threads = "Thread";
+    public static final String PROP_Thread = "Thread";
     public static final String PROP_RPmax = "RPmax";
     public static final String PROP_RFmax = "RFmax";
     public static final String PROP_CorrThreshold = "CorrThreshold";

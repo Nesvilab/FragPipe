@@ -15,17 +15,17 @@ import umich.msfragger.util.SwingUtils;
 public class FormEntry {
   public final JComponent comp;
   public final String propName;
-  public final String label;
+  public final String labelText;
 
-  public FormEntry(String propName, String label, JComponent comp) {
+  public FormEntry(String propName, String labelText, JComponent comp) {
     this.propName = propName;
-    this.label = label;
+    this.labelText = labelText;
     this.comp = comp;
     comp.setName(propName);
   }
 
   public JLabel label() {
-    JLabel l = new JLabel(label);
+    JLabel l = new JLabel(labelText);
     l.setLabelFor(comp);
     return l;
   }
