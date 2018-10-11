@@ -133,6 +133,7 @@ import umich.msfragger.util.LogUtils;
 import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.PropertiesUtils;
+import umich.msfragger.util.PythonModule;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.ValidateTrue;
@@ -2269,17 +2270,26 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
 
-    private Installed checkPythonPackageAvailability(String pythonCmd, String pkgName) {
-        boolean isInstalled = false;
+    /**
+     * Check if a specific package is installed in a python environment.
+     * @param pythonCmd The command to start python interpreter.
+     * @param pkgImportName The name of one of the packages specified in {@code setup.py}
+     *      {@code packages = [...]} array.
+     * @return UNKNOWN if some errors occur while trying to start the interpreter.
+     */
+    public static Installed checkPythonPackageAvailability(String pythonCmd, String pkgImportName) {
+        Installed installed = Installed.UNKNOWN;
+
+
         ProcessBuilder pb = new ProcessBuilder(pythonCmd,
-                "-c", "import pkgutil; print(1 if pkgutil.find_loader('" + pkgName + "') else 0)");
+                "-c", "import pkgutil; print(1 if pkgutil.find_loader('" + pkgImportName + "') else 0)");
         Process pr = null;
         boolean isError = false;
         try {
             pr = pb.start();
         } catch (IOException ex) {
             Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, 
-                    "Could not start python " + pkgName + " check process", ex);
+                    "Could not start python " + pkgImportName + " check process", ex);
             isError = true;
         }
         if (pr != null) {
@@ -2287,28 +2297,23 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 String line;
                 while ((line = in.readLine()) != null) {
                     if ("1".equals(line))
-                        isInstalled = true;
+                        installed = Installed.YES;
+                    else if ("0".equals(line))
+                        installed = Installed.NO;
                 }
             } catch (IOException ex) {
                 Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, 
-                        "Could not read python " + pkgName + " check output", ex);
-                isError = true;
+                        "Could not read python " + pkgImportName + " check output", ex);
             }
             try {
-                int exitCode = pr.waitFor();
+                pr.waitFor();
             } catch (InterruptedException ex) {
                 Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, 
-                        "Error while waiting for python " + pkgName + " check process to finish", ex);
+                        "Error while waiting for python " + pkgImportName + " check process to finish", ex);
             }
         }
 
-        if (isInstalled) {
-            return Installed.YES;
-        } else if (!isError) {
-            return Installed.NO;
-        } else {
-            return Installed.UNKNOWN;
-        }
+        return installed;
     }
     
     public void validateMsadjusterEligibility() {
@@ -2333,7 +2338,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         });
         t.start();
     }
-    
+
     public void validatePythonAndSlicingVersion() {
         Thread t;
         t = new Thread(new Runnable() {
@@ -2341,9 +2346,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             public void run() {
                 String version;
                 boolean isPython3 = false;
-                final String[] packages = {"numpy", "pandas", "Cython", "msproteomicstools"};
-                Map<String, Boolean> isPkgInstalled = new LinkedHashMap<>();
-                for (String pkg : packages)
+                final PythonModule[] packages = {
+                    new PythonModule("numpy", "numpy"),
+                    new PythonModule("pandas", "pandas"),
+                    new PythonModule("Cython", "Cython"),
+                    new PythonModule("msproteomicstools", "msproteomicstoolslib")};
+                Map<PythonModule, Boolean> isPkgInstalled = new LinkedHashMap<>();
+                for (PythonModule pkg : packages)
                     isPkgInstalled.put(pkg, false);
                 boolean isFraggerVerCompatible = false;
                 boolean isSlicingScriptUnpacked = false;
@@ -2430,21 +2439,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     }
                 }
                 
-                for (String pkg : packages) {
+                for (PythonModule pkg : packages) {
                     if (pythonCmd == null) {
                         sbPythonInfo.append(" ").append(pkg).append(" - N/A.");
                     } else {
-                        Installed inst = checkPythonPackageAvailability(pythonCmd, pkg);
+                        Installed inst = checkPythonPackageAvailability(pythonCmd, pkg.someImportName);
                         switch (inst) {
                             case YES:
                                 isPkgInstalled.put(pkg, true);
-                                sbPythonInfo.append(" ").append(pkg).append(" - Yes.");
+                                sbPythonInfo.append(" ").append(pkg.installName).append(" - Yes.");
                                 break;
                             case NO:
-                                sbPythonInfo.append(" <b>").append(pkg).append(" - No.</b>");
+                                sbPythonInfo.append(" <b>").append(pkg.installName).append(" - No.</b>");
                                 break;
                             case UNKNOWN:
-                                sbPythonInfo.append(" ").append(pkg).append(" - N/A.");
+                                sbPythonInfo.append(" ").append(pkg.installName).append(" - N/A.");
                                 break;
                             default:
                                 throw new AssertionError(inst.name());
@@ -2469,7 +2478,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
                 lblPythonInfo.setText(sbPythonInfo.toString());
                 boolean areAllPkgsInstalled = true;
-                for (String pkg : packages) {
+                for (PythonModule pkg : packages) {
                     Boolean isInstalled = isPkgInstalled.get(pkg);
                     if (isInstalled == null || !isInstalled) {
                         areAllPkgsInstalled = false;
@@ -2488,8 +2497,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     if (isPython3 && areAllPkgsInstalled) {
                         err.append("OK.");
                     } else {
+                        ;
                         err.append("<b>Need Python 3 with [")
-                                .append(StringUtils.join(packages, ", "))
+                                .append(Arrays.stream(packages)
+                                    .map(pythonModule -> pythonModule.installName)
+                                    .collect(Collectors.joining(", ")))
                                 .append("]</b>.");
                     }
                     if (isFraggerVerCompatible) {
