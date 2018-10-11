@@ -358,6 +358,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             checkLabelfree.setSelected(false);
     }
 
+    public boolean isRunUmpireSe() {
+        return checkEnableDiaumpire.isSelected() && umpirePanel != null && umpirePanel.checkRunUmpireSe.isSelected();
+    }
+
     private void checkPreviouslySavedParams() {
         ThisAppProps cached = ThisAppProps.loadFromTemp();
         if (cached != null) {
@@ -3234,7 +3238,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             // don't care
         }
         if (jarUri == null) {
-            JOptionPane.showMessageDialog(this, "Could not get the URI of the currnetly running jar",
+            JOptionPane.showMessageDialog(this, "Could not get the URI of the currently running jar",
                 "Errors", JOptionPane.ERROR_MESSAGE);
             resetRunButtons(true);
             return;
@@ -3286,7 +3290,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         final String binPhilosopher = textBinPhilosopher.getText().trim();
         final boolean isUmpireActive = checkEnableDiaumpire.isSelected() && umpirePanel != null;
         if (isUmpireActive) {
-            final boolean isUmpire = umpirePanel.checkRunUmpireSe.isSelected();
+            final boolean isRunUmpire = isRunUmpireSe();
             final UmpireParams umpireParams = umpirePanel.collect();
             try {
                 umpireParams.saveCache();
@@ -3294,7 +3298,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
             {
                 List<ProcessBuilder> builders = ToolingUtils
-                    .pbsUmpire(isUmpire, isDryRun, this, jarUri, umpirePanel,
+                    .pbsUmpire(isRunUmpire, isDryRun, this, jarUri, umpirePanel,
                         binPhilosopher, wdPath, lcmsFilePaths);
                 if (builders == null) {
                     resetRunButtons(true);
@@ -3302,11 +3306,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 }
                 pbs.addAll(builders);
             }
-            // update the input LCMS files as Umpire creates new ones
-            List<String> umpireCreatedMzxmlFiles = ToolingUtils
-                .getUmpireCreatedMzxmlFiles(lcmsFilePaths, wdPath);
-            lcmsFilePaths.clear();
-            lcmsFilePaths.addAll(umpireCreatedMzxmlFiles);
+            if (isRunUmpire) {
+                // update the input LCMS files as Umpire creates new ones
+                List<String> umpireCreatedMzxmlFiles = ToolingUtils
+                    .getUmpireCreatedMzxmlFiles(lcmsFilePaths, wdPath);
+                lcmsFilePaths.clear();
+                lcmsFilePaths.addAll(umpireCreatedMzxmlFiles);
+            }
         }
 
 
