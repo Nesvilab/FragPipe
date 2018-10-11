@@ -3533,10 +3533,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //            pbs.addAll(pbsDeleteFiles);
         }
 
-        final StringBuilder sbSysinfo = new StringBuilder();
-        sbSysinfo.append(OsUtils.OsInfo()).append("\n");
-        sbSysinfo.append(OsUtils.JavaInfo()).append("\n");
-        LogUtils.println(console, String.format(Locale.ROOT, "System info:\n%s", sbSysinfo.toString()));
+        String sbSysinfo = OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo() + "\n";
+        LogUtils.println(console, String.format(Locale.ROOT, "System info:\n%s",
+            sbSysinfo));
 
         StringBuilder sbVer = new StringBuilder();
         sbVer.append(Version.PROGRAM_TITLE).append(" version ").append(Version.VERSION).append("\n");
@@ -3591,8 +3590,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 final Color redDarker = new Color(166, 56, 68);
                 final Color redDarkest = new Color(155, 35, 29);
                 final Color black = new Color(0, 0, 0);
-                REHandler reHandler;
-                reHandler = new REHandler(() -> {
+                REHandler reHandler = new REHandler(() -> {
 
                     StringBuilder command = new StringBuilder();
                     for (String part : pb.command()) {
@@ -3676,27 +3674,32 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         LogUtils.println(console, toAppend);
                     }
                 }, console, System.err);
+                // if it's not the first process, check that the previous
+                // one returned zero exit code
+                //toAppend = String.format(Locale.ROOT, "Process finished, exit value: %d\n", exitValue);
+                //LogUtils.println(console, toAppend); // changing this to manual call, because I want to print with color
+                // this error is thrown by process.exitValue() if the underlying process has not yet finished
                 exec.submit(reHandler);
 
                 // On windows try to schedule copied mzXML file deletion
-                if (OsUtils.isWindows()) {
-                    REHandler deleteTask = new REHandler(() -> {
-                        List<String> lcmsFiles = getLcmsFilePaths();
-                        List<Path> copiedFiles = getLcmsFilePathsInWorkdir(Paths.get(workingDir));
-                        if (lcmsFiles.size() != copiedFiles.size()) {
-                            throw new IllegalStateException("LCMS file list sizes should be equal.");
-                        }
-                        for (int i1 = 0; i1 < lcmsFiles.size(); i1++) {
-                            Path origPath = Paths.get(lcmsFiles.get(i1));
-                            Path linkPath = copiedFiles.get(i1);
-                            if (!linkPath.getParent().equals(origPath.getParent())) {
-                                linkPath.toFile().deleteOnExit();
-                            }
-                        }
-
-                    }, console, System.err);
-                    exec.submit(deleteTask);
-                }
+//                if (OsUtils.isWindows()) {
+//                    REHandler deleteTask = new REHandler(() -> {
+//                        List<String> lcmsFiles = getLcmsFilePaths();
+//                        List<Path> copiedFiles = getLcmsFilePathsInWorkdir(Paths.get(workingDir));
+//                        if (lcmsFiles.size() != copiedFiles.size()) {
+//                            throw new IllegalStateException("LCMS file list sizes should be equal.");
+//                        }
+//                        for (int i1 = 0; i1 < lcmsFiles.size(); i1++) {
+//                            Path origPath = Paths.get(lcmsFiles.get(i1));
+//                            Path linkPath = copiedFiles.get(i1);
+//                            if (!linkPath.getParent().equals(origPath.getParent())) {
+//                                linkPath.toFile().deleteOnExit();
+//                            }
+//                        }
+//
+//                    }, console, System.err);
+//                    exec.submit(deleteTask);
+//                }
             }
         } finally {
 
