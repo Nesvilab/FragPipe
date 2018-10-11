@@ -21,7 +21,7 @@ plugins {
 }
 
 group = 'com.github.chhh'
-version = '8.0-RC4'
+version = '8.1-RC2'
 
 description = """FragPipe - run complete proteomics analyses from the GUI"""
 
@@ -76,20 +76,28 @@ dependencies {
     // This dependency is found on compile classpath of this component and consumers.
     //compile 'com.google.guava:guava:23.0'
     compile 'org.apache.httpcomponents:httpcore:4.4.10'
-    compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6')
-    {
-        exclude(module: 'commons-logging')
-        exclude(module: 'commons-codec')
+    compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+        //exclude group: 'commons-codec', module: 'commons-codec'
     }
     compile 'org.apache.httpcomponents:httpmime:4.5.6'
     compile 'org.apache.commons:commons-lang3:3.8.1'
     //compile group: 'commons-io', name: 'commons-io', version: '2.6'
+    compile 'com.miglayout:miglayout-swing:5.2'
+    compile 'io.reactivex:rxswing:0.27.0'
+    compile 'org.greenrobot:eventbus:3.1.1'
+
 
     // downloaded / precompiled jars
     compile fileTree(dir: 'libs', include: '*.jar')
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
+}
+
+configurations {
+    all*.exclude group: 'commons-logging', module: 'commons-logging'
+    //all*.exclude group: 'commons-codec', module: 'commons-codec'
 }
 
 capsule {

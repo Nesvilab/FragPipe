@@ -42,7 +42,7 @@ public class ThisAppProps extends Properties {
     public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
     public static final String TEMP_FILE_NAME = "msfragger.cache";
     
-    public static final String PROP_TEXTFIELD_PATH_MSCONVERT = "path.textfield.msconvert";
+    public static final String PROP_BIN_PATH_MSCONVERT = "path.textfield.msconvert";
     public static final String PROP_BIN_PATH_MSFRAGGER = "path.textfield.msfragger";
     public static final String PROP_BIN_PATH_PHILOSOPHER = "path.textfield.peptide-prophet";
     public static final String PROP_TEXTFIELD_PATH_PROTEIN_PROPHET = "path.textfield.protein-prophet";
@@ -52,20 +52,20 @@ public class ThisAppProps extends Properties {
     public static final String PROP_TEXTFIELD_SEQUENCE_DB = "sequence.db";
     public static final String PROP_TEXTFIELD_DECOY_TAG = "decoy.tag";
     public static final String PROP_CHECKBOX_REPORT_PROTEIN_LEVEL_FDR = "report.proteinlevelfdr";
-    
+
     public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
     public static final String PROP_TEXT_CMD_PROTEIN_PROPHET = "proteinprophet.cmd.line.opts";
-    
+
     public static final String PROP_MSADJUSTER_USE = "msadjuster.use";
     public static final String PROP_CRYSTALC_USE = "crystalc.use";
 
     public static final String PROP_MGF_WARNING = "warn.mgf";
 
     public static final String JAR_FILE_AS_RESOURCE_EXT = ".jazz";
-    
+
     public ThisAppProps() {
-        this.setProperty(Version.PROP_VER, Version.VERSION);
-    }
+          this.setProperty(Version.PROP_VER, Version.VERSION);
+      }
     
     public static void clearCache() {
         ThisAppProps thisAppProps = new ThisAppProps();
@@ -176,7 +176,7 @@ public class ThisAppProps extends Properties {
         ThisAppProps thisAppProps = ThisAppProps.loadFromTemp();
         if (thisAppProps == null)
             thisAppProps = new ThisAppProps();
-        if (propVal == null)
+        if (propVal == null || "".equals(propVal))
             thisAppProps.remove(propName);
         else
             thisAppProps.setProperty(propName, propVal);

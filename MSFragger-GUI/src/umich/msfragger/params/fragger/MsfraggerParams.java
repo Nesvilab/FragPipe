@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import umich.msfragger.params.AbstractParams;
 import umich.msfragger.params.Props;
 import umich.msfragger.params.enums.CleavageType;
 import umich.msfragger.params.enums.FraggerOutputType;

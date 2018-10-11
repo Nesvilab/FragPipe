@@ -55,7 +55,7 @@ public class StringUtils {
     
     
     public static boolean isNullOrWhitespace(String s) {
-        return s == null || WHITESPACE_STRING.matcher(s).matches();
+        return s == null || s.length() == 0 || WHITESPACE_STRING.matcher(s).matches();
     }
     
     /**

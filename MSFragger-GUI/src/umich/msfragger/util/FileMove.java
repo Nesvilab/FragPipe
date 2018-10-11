@@ -30,6 +30,11 @@ import java.nio.file.StandardCopyOption;
  */
 public class FileMove {
 
+    /**
+     *
+     * @param args Two args: {@code from}, {@code to}
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
         if (args.length != 2) {
             throw new IllegalArgumentException("Input must be exactly 2 arguments: origin and destination");
