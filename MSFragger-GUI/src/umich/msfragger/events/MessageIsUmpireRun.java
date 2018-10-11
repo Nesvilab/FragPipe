@@ -1,9 +1,9 @@
 package umich.msfragger.events;
 
-public class EventUmpireEnabled {
+public class MessageIsUmpireRun {
   public final boolean isEnabled;
 
-  public EventUmpireEnabled(boolean isEnabled) {
+  public MessageIsUmpireRun(boolean isEnabled) {
     this.isEnabled = isEnabled;
   }
 }

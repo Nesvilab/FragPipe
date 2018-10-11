@@ -1460,7 +1460,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         if (frame != null) {
             MsfraggerGuiFrame f = frame.get();
             if (f != null) {
-                f.validatePythonAndSlicingVersion();
+                f.validateDbslicing();
                 f.validateMsadjusterEligibility();
             }
         }

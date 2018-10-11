@@ -45,7 +45,7 @@ public class PythonInfo {
   private PythonInfo() {
     command = null;
     version = null;
-    majorVersion = 0;
+    majorVersion = -1;
     modules = new HashMap<>();
   }
 
@@ -117,13 +117,13 @@ public class PythonInfo {
       }
       int exitCode = pr.waitFor();
       if (exitCode == 0) {
-        return cmd;
+        return version;
       }
     } catch (InterruptedException ex) {
       throw new Exception("Error waiting for python/python3 process to finish.");
     }
 
-    return version;
+    return "Not recognized";
   }
 
   public void findPythonCommand() throws Exception {

@@ -90,48 +90,43 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="panelMsfraggerConfig" max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="1" attributes="0">
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="panelMsfraggerConfig" max="32767" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="btnLoadDefaultsOpen" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="btnLoadDefaultsClosed" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
+                              <Component id="btnAboutInConfig" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" attributes="0">
-                                      <Component id="btnLoadDefaultsOpen" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                      <Component id="btnLoadDefaultsClosed" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="32767" attributes="0"/>
-                                      <Component id="btnAboutInConfig" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <Group type="102" attributes="0">
-                                      <Component id="btnFindTools" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="lblFindAutomatically" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace pref="244" max="32767" attributes="0"/>
-                                      <Component id="btnClearCache" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                              </Group>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Component id="btnFindTools" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="panelPhilosopherConfig" max="32767" attributes="0"/>
-                          </Group>
-                          <Component id="jLabel4" alignment="1" max="32767" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" attributes="0">
-                                      <Component id="checkEnableDiaumpire" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                                  </Group>
-                                  <Component id="jPanel2" max="32767" attributes="0"/>
-                              </Group>
+                              <Component id="lblFindAutomatically" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace pref="111" max="32767" attributes="0"/>
+                              <Component id="checkEnableDiaumpire" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="btnClearCache" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace min="-2" pref="0" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="panelPhilosopherConfig" max="32767" attributes="0"/>
+                  </Group>
+                  <Component id="jLabel4" alignment="1" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jPanel2" max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jPanel1" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -143,6 +138,7 @@
                           <Component id="btnFindTools" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="lblFindAutomatically" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnClearCache" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkEnableDiaumpire" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -156,9 +152,9 @@
                       <Component id="panelPhilosopherConfig" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="checkEnableDiaumpire" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="84" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="41" max="32767" attributes="0"/>
                       <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -509,7 +505,7 @@
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="DB Slicing &amp; Spectal Lib generation"/>
+                    <TitledBorder title="DB Slicing"/>
                   </Border>
                 </Property>
               </Properties>
@@ -520,8 +516,8 @@
                       <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="lblPythonInfo" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="lblPythonMore" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblPythonInfoDbslicing" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblPythonInfoDbslicingMore" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
@@ -531,25 +527,25 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="lblPythonInfo" min="-2" max="-2" attributes="0"/>
+                          <Component id="lblPythonInfoDbslicing" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="lblPythonMore" min="-2" max="-2" attributes="0"/>
+                          <Component id="lblPythonInfoDbslicingMore" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JLabel" name="lblPythonInfo">
+                <Component class="javax.swing.JLabel" name="lblPythonInfoDbslicing">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="OsUtils.PythonInfo()" type="code"/>
                     </Property>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="lblPythonMore">
+                <Component class="javax.swing.JLabel" name="lblPythonInfoDbslicingMore">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="   Python 3 with NumPy, Pandas and msproteomicstools is needed for DB slicing and Spectral library generation features"/>
+                    <Property name="text" type="java.lang.String" value="   Python 3 with NumPy, Pandas and msproteomicstools is needed for DB slicing functionality"/>
                   </Properties>
                 </Component>
               </SubComponents>
@@ -560,9 +556,58 @@
                 <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Only use this if you have DIA data and need to pre-process it to make compatible to MSFragger."/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkEnableDiaumpireActionPerformed"/>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="checkEnableDiaumpireStateChanged"/>
               </Events>
             </Component>
+            <Container class="javax.swing.JPanel" name="jPanel1">
+              <Properties>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                    <TitledBorder title="Spectral Lib generation"/>
+                  </Border>
+                </Property>
+              </Properties>
+
+              <Layout>
+                <DimensionLayout dim="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="lblPythonInfoSpeclib" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel10" alignment="0" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
+                </DimensionLayout>
+                <DimensionLayout dim="1">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="lblPythonInfoSpeclib" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace pref="15" max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
+                </DimensionLayout>
+              </Layout>
+              <SubComponents>
+                <Component class="javax.swing.JLabel" name="lblPythonInfoSpeclib">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="OsUtils.PythonInfo()" type="code"/>
+                    </Property>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabel10">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Python 3 with cython, msproteomicstools is needed for Spectral Library generation functionality"/>
+                  </Properties>
+                </Component>
+              </SubComponents>
+            </Container>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="panelSelectFiles">
@@ -641,7 +686,7 @@
                               <Component id="chkProcessEachFiileSeparately" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="scrollPaneRawFiles" pref="583" max="32767" attributes="0"/>
+                          <Component id="scrollPaneRawFiles" pref="604" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -779,7 +824,7 @@
                               <Component id="lblFastaCount" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane5" pref="549" max="32767" attributes="0"/>
+                          <Component id="jScrollPane5" pref="570" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -982,7 +1027,7 @@
                               <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="spinnerCrystalcPrecIsoWindow" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="531" max="32767" attributes="0"/>
+                          <EmptySpace pref="552" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -1079,7 +1124,7 @@
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="panelPeptideProphetOptions" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="454" max="32767" attributes="0"/>
+                      <EmptySpace pref="475" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1221,7 +1266,7 @@
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="panelProteinProphetOptions" min="-2" pref="206" max="-2" attributes="0"/>
-                      <EmptySpace pref="428" max="32767" attributes="0"/>
+                      <EmptySpace pref="449" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1398,7 +1443,7 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelReportOptions" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="494" max="32767" attributes="0"/>
+                      <EmptySpace pref="515" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1646,7 +1691,7 @@
                           <Component id="btnExportLog" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="consoleScrollPane" pref="565" max="32767" attributes="0"/>
+                      <Component id="consoleScrollPane" pref="586" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
