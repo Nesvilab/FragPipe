@@ -178,7 +178,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private String textLabelfreeFocusGained = null;
     
     private Path slicingScriptPath = null;
-    private boolean slicingEnabled = false;
+    private boolean pythonToolsEnabled = false;
     private String pythonCommand = null;
     
     private Pattern reDecoyTagReportAnnotate = Pattern.compile("--prefix\\s+([^\\s]+)");
@@ -833,11 +833,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("DB Slicing"));
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("DB Slicing & Spectal Lib generation"));
 
         lblPythonInfo.setText(OsUtils.PythonInfo());
 
-        lblPythonMore.setText("   Python 3 with NumPy and Pandas is only needed for DB slicing feature");
+        lblPythonMore.setText("   Python 3 with NumPy, Pandas and msproteomicstools is needed for DB slicing and Spectral library generation features");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -2299,8 +2299,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         t = new Thread(new Runnable() {
             @Override
             public void run() {
-                String version;
-                boolean isPython3 = false;
                 final PythonModule[] packages = {
                     new PythonModule("numpy", "numpy"),
                     new PythonModule("pandas", "pandas"),
@@ -2311,7 +2309,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     isPkgInstalled.put(pkg, false);
                 boolean isFraggerVerCompatible = false;
                 boolean isSlicingScriptUnpacked = false;
-                slicingEnabled = false;
+                pythonToolsEnabled = false;
                 fraggerPanel.enableDbSlicing(false);
                 
                 try {
@@ -2329,86 +2327,35 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 }
                 
                 StringBuilder sbPythonInfo = new StringBuilder("<html>Python Info:");
-                String pythonCmd = null;
-                try {
-                    pythonCmd = tryPythonCommand();
-                } catch (Exception ex) {
-                    sbPythonInfo.append(" " + ex.getMessage());
-                }
-                
-                if (StringUtils.isNullOrWhitespace(pythonCmd)) {
-                    sbPythonInfo.append(" Python command not found on PATH.");
-                } else {
-                    pythonCommand = pythonCmd;
-                    // checking python version
-                    ProcessBuilder pb = new ProcessBuilder(pythonCmd, "--version");
-                    pb.redirectErrorStream(true);
 
-                    Process prPythonVer = null;
-                    try {
-                        prPythonVer = pb.start();
-                    } catch (IOException ex) {
-                        sbPythonInfo.append(" Could not start 'python --version' process.");
-                    }
-                    
-                    if (prPythonVer != null) {
-                        
-                        try (BufferedReader in = new BufferedReader(new InputStreamReader(prPythonVer.getInputStream()))) {
-                            Pattern pythonVersionRe = Pattern.compile("(python\\s+[0-9\\.]+)", Pattern.CASE_INSENSITIVE);
-                            boolean isPythonVerFound = false;
-                            String line;
-                            while ((line = in.readLine()) != null) {
-                                Matcher m = pythonVersionRe.matcher(line);
-                                if (m.find()) {
-                                    isPythonVerFound = true;
-                                    version = m.group(1);
-                                    Pattern verRe = Pattern.compile("python\\s+([0-9]+)", Pattern.CASE_INSENSITIVE);
-                                    Matcher m1 = verRe.matcher(version);
-                                    if (m1.find()) {
-                                        String pythonMajorVer = m1.group(1);
-                                        if ("3".equals(pythonMajorVer))
-                                            isPython3 = true;
-                                    }
-                                    if (isPython3) {
-                                        sbPythonInfo.append(" ").append(version).append(".");
-                                    } else {
-                                        sbPythonInfo.append(" <b>").append(version).append("</b>.");
-                                    }
-                                }
-                            }
-                            
-                            if (!isPythonVerFound) {
-                                sbPythonInfo.append(" Python version was not found in 'python --vesrion' output.");
-                            }
-                            
-                        } catch (IOException ex) {
-                            sbPythonInfo.append(" Could not read python version from the python process.");
-                        }
-                        
-                        try {
-                            int exitCode = prPythonVer.waitFor();
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, 
-                                    "Error waiting for python --version process to finish", ex);
-                        }
-                    }
+                try {
+                    PythonInfo.get().findPythonCommand();
+                    if (!PythonInfo.get().isAvailable())
+                        sbPythonInfo.append(" Python command not found on PATH.");
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(MsfraggerGuiFrame.this,
+                        "Did not find available `python` command on the system.",
+                        "No Python?", JOptionPane.ERROR_MESSAGE);
+                    sbPythonInfo.append(" Error checking for available `python` binary.");
                 }
-                
-                for (PythonModule pkg : packages) {
-                    if (pythonCmd == null) {
-                        sbPythonInfo.append(" ").append(pkg).append(" - N/A.");
+                final boolean isPython3 = PythonInfo.get().getMajorVersion() == 3;
+
+
+                for (PythonModule module : packages) {
+                    if (!PythonInfo.get().isAvailable()) {
+                        sbPythonInfo.append(" ").append(module).append(" - N/A.");
                     } else {
-                        Installed inst = PythonInfo.checkPythonPackageAvailability(pythonCmd, pkg.someImportName);
+                        Installed inst = PythonInfo.get().checkModuleInstalled(module);
                         switch (inst) {
                             case YES:
-                                isPkgInstalled.put(pkg, true);
-                                sbPythonInfo.append(" ").append(pkg.installName).append(" - Yes.");
+                                isPkgInstalled.put(module, true);
+                                sbPythonInfo.append(" ").append(module.installName).append(" - Yes.");
                                 break;
                             case NO:
-                                sbPythonInfo.append(" <b>").append(pkg.installName).append(" - No.</b>");
+                                sbPythonInfo.append(" <b>").append(module.installName).append(" - No.</b>");
                                 break;
                             case UNKNOWN:
-                                sbPythonInfo.append(" ").append(pkg.installName).append(" - N/A.");
+                                sbPythonInfo.append(" ").append(module.installName).append(" - N/A.");
                                 break;
                             default:
                                 throw new AssertionError(inst.name());
@@ -2440,19 +2387,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         break;
                     }
                 }
-                if (isPython3 && areAllPkgsInstalled 
-                        && isFraggerVerCompatible && isSlicingScriptUnpacked) {
+                if (isPython3 && areAllPkgsInstalled && isFraggerVerCompatible && isSlicingScriptUnpacked) {
                     fraggerPanel.enableDbSlicing(true);
-                    slicingEnabled = true;
-                    lblPythonMore.setText("Slicing enabled");
+                    pythonToolsEnabled = true;
+                    lblPythonMore.setText("Slicing & Spectral Lib generation enabled");
                 } else {
-                    slicingEnabled = false;
-                    StringBuilder err = new StringBuilder("<html><b>Slicing disabled</b>.");
+                    pythonToolsEnabled = false;
+                    StringBuilder err = new StringBuilder("<html><b>Slicing & Spectral Lib generation disabled</b>.");
                     err.append(" Python install: ");
                     if (isPython3 && areAllPkgsInstalled) {
                         err.append("OK.");
                     } else {
-                        ;
                         err.append("<b>Need Python 3 with [")
                                 .append(Arrays.stream(packages)
                                     .map(pythonModule -> pythonModule.installName)
@@ -2574,8 +2519,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     private boolean validateMsfraggerVersion(final String jarPath) {
-        Path p = Paths.get(jarPath);
-        
         // only validate Fragger version if the current Java version is 1.8 or higher
         if (!SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8)) {
             // we can't test fragger binary verison when java version is less than 1.8
@@ -3305,7 +3248,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         {
             List<ProcessBuilder> builders = ToolingUtils
                 .pbsFragger(this, "", workingDir, lcmsFilePaths,
-                    isDryRun, fraggerPanel, pythonCommand, jarUri, binMsfragger, slicingEnabled,
+                    isDryRun, fraggerPanel, pythonCommand, jarUri, binMsfragger, pythonToolsEnabled,
                     slicingScriptPath);
             if (builders == null) {
                 resetRunButtons(true);

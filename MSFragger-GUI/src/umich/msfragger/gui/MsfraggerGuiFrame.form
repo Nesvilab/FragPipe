@@ -509,7 +509,7 @@
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="DB Slicing"/>
+                    <TitledBorder title="DB Slicing &amp; Spectal Lib generation"/>
                   </Border>
                 </Property>
               </Properties>
@@ -549,7 +549,7 @@
                 </Component>
                 <Component class="javax.swing.JLabel" name="lblPythonMore">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="   Python 3 with NumPy and Pandas is only needed for DB slicing feature"/>
+                    <Property name="text" type="java.lang.String" value="   Python 3 with NumPy, Pandas and msproteomicstools is needed for DB slicing and Spectral library generation features"/>
                   </Properties>
                 </Component>
               </SubComponents>
