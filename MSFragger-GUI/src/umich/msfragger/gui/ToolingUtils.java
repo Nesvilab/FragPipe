@@ -47,6 +47,7 @@ import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.pepproph.PeptideProphetParams;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.protproph.ProteinProphetParams;
+import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.umpire.UmpirePanel;
 import umich.msfragger.params.umpire.UmpireParams;
 import umich.msfragger.params.umpire.UmpireSeGarbageFiles;
@@ -207,7 +208,7 @@ public class ToolingUtils {
       final boolean isSlicing = numSlices > 1;
       if (isSlicing) {
         // slicing requested
-        if (!dbslice.isEnabled()) {
+        if (!dbslice.isInitialized()) {
           JOptionPane.showMessageDialog(comp,
               "MSFragger number of DB slices requested was more than 1.\n"
                   + "However not all preconditions for enabling slicing were met.\n"
@@ -1222,6 +1223,35 @@ public class ToolingUtils {
         }
       }
     }
+    return pbs;
+  }
+
+  public static List<ProcessBuilder> pbsSpecLibGen(Component errMsgParent, boolean isRunSpeclibgen,
+      Path workingDir, String combinedProteinFileName, String fastaPath) {
+    final List<ProcessBuilder> pbs = new ArrayList<>();
+
+    final SpecLibGen slg = SpecLibGen.get();
+    if (isRunSpeclibgen) {
+      if (!slg.isInitialized()) {
+        JOptionPane.showMessageDialog(errMsgParent,
+            "Spectral Library Generation scripts did not initialize correctly.",
+            "Error", JOptionPane.ERROR_MESSAGE);
+        return null;
+      }
+
+
+
+      List<String> cmd = new ArrayList<>();
+      cmd.add(slg.getPi().getCommand());
+      cmd.add(slg.getScriptSpecLibGenPath().toString());
+      cmd.add(fastaPath);
+      cmd.add(workingDir.toString()); // this is "Pep xml directory"
+      cmd.add(workingDir.resolve(combinedProteinFileName).toString());
+      cmd.add(workingDir.toString());
+
+      pbs.add(new ProcessBuilder(cmd));
+    }
+
     return pbs;
   }
 

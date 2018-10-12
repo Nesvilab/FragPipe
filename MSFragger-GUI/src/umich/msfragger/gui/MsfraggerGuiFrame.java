@@ -111,6 +111,7 @@ import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -3152,17 +3153,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
         // check fasta file path
-        String fastaPath = textSequenceDbPath.getText().trim();
-        if (StringUtils.isNullOrWhitespace(fastaPath)) {
+        String fastaPathText = textSequenceDbPath.getText().trim();
+        if (StringUtils.isNullOrWhitespace(fastaPathText)) {
             JOptionPane.showMessageDialog(this, "Fasta file path (Sequence DB tab) can't be empty",
                         "Warning", JOptionPane.WARNING_MESSAGE);
             resetRunButtons(true);
             return;
         }
-        String fastaPathOrig = fastaPath;
-        fastaPath = PathUtils.testFilePath(fastaPath, workingDir);
+
+        final String fastaPath = PathUtils.testFilePath(fastaPathText, workingDir);
         if (fastaPath == null) {
-            JOptionPane.showMessageDialog(this, String.format("Could not find fasta file (Sequence DB) at:\n%s", fastaPathOrig),
+            JOptionPane.showMessageDialog(this, String.format("Could not find fasta file (Sequence DB) at:\n%s", fastaPathText),
                     "Errors", JOptionPane.ERROR_MESSAGE);
             resetRunButtons(true);
             return;
@@ -3428,6 +3429,34 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         pbs.addAll(pbsProteinProphet);
         pbs.addAll(pbsReport);
 
+
+        // run Spectral library generation
+        final boolean isSpeclibgen = checkGenerateSpecLib.isEnabled() && checkGenerateSpecLib.isSelected();
+        final String combinedProteinFn = txtCombinedProtFile.getText();
+        if (!isProteinProphet) {
+            // Protein Prohpet not selected, check if the output folder already contains interact.prot.xml
+            if (!Files.exists(wdPath.resolve(combinedProteinFn))) {
+                JOptionPane.showMessageDialog(this,
+                    "Protein Prophet not selected and the output directory\n"
+                    + "does not contain a '" + combinedProteinFn + "' file.\n\n"
+                    + "Either uncheck Spectral Library Generation checkbox or enable Protein Prophet.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                resetRunButtons(true);
+                return;
+            }
+        }
+        {
+            List<ProcessBuilder> pbsSpeclibgen = ToolingUtils
+                .pbsSpecLibGen(this, isSpeclibgen, wdPath, combinedProteinFn, fastaPath);
+            if (pbsSpeclibgen == null) {
+                resetRunButtons(true);
+                return;
+            }
+            pbs.addAll(pbsSpeclibgen);
+        }
+
+
+        // cleanup
         if (!OsUtils.isWindows()) {
             // On Linux we created symlinks to mzXML files, leave them there
         } else {
@@ -3436,6 +3465,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //            List<ProcessBuilder> pbsDeleteFiles = pbsDeleteFiles(workingDir, lcmsFilePaths);
 //            pbs.addAll(pbsDeleteFiles);
         }
+
 
         String sbSysinfo = OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo() + "\n";
         LogUtils.println(console, String.format(Locale.ROOT, "System info:\n%s",

@@ -3,8 +3,6 @@ package umich.msfragger.params.speclib;
 import java.nio.file.Path;
 import org.greenrobot.eventbus.EventBus;
 import umich.msfragger.params.dbslice.DbSlice;
-import umich.msfragger.params.dbslice.DbSlice.Message1;
-import umich.msfragger.params.dbslice.DbSlice.Message2;
 import umich.msfragger.util.CheckResult;
 import umich.msfragger.util.Installed;
 import umich.msfragger.util.JarUtils;
@@ -23,7 +21,7 @@ public class SpecLibGen {
 
   private PythonInfo pi;
   private Path scriptSpecLibGenPath;
-  private boolean initOk;
+  private boolean isInitialized;
 
   private SpecLibGen() {
     pi = PythonInfo.get();
@@ -44,6 +42,10 @@ public class SpecLibGen {
       new PythonModule("Cython", "Cython"),
       new PythonModule("msproteomicstools", "msproteomicstoolslib")
   };
+
+  public PythonInfo getPi() {
+    return pi;
+  }
 
   public Path getScriptSpecLibGenPath() {
     return scriptSpecLibGenPath;
@@ -90,8 +92,8 @@ public class SpecLibGen {
     }
   }
 
-  public boolean isEnabled() {
-    return initOk;
+  public boolean isInitialized() {
+    return isInitialized;
   }
 
   public void init() {
@@ -134,7 +136,7 @@ public class SpecLibGen {
     }
 
     final boolean isInitSuccess = isVersionOk && isModulesInstalled && isUnpacked;
-    initOk = isInitSuccess;
+    isInitialized = isInitSuccess;
     EventBus.getDefault().postSticky(new InitDone(isInitSuccess));
   }
 

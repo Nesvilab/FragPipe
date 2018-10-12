@@ -33,7 +33,7 @@ public class DbSlice {
   private PythonInfo pi;
   private Path scriptDbslicingPath;
   private String msfraggerVer;
-  private boolean initOk;
+  private boolean isInitialized;
 
   private DbSlice() {
     pi = PythonInfo.get();
@@ -86,8 +86,12 @@ public class DbSlice {
     }
   }
 
-  public boolean isEnabled() {
-    return initOk;
+  public PythonInfo getPi() {
+    return pi;
+  }
+
+  public boolean isInitialized() {
+    return isInitialized;
   }
 
   public void init(String msfraggerVersion) {
@@ -138,7 +142,7 @@ public class DbSlice {
     }
 
     final boolean isInitSuccess = isPythonOk && isModulesInstalled && isUnpacked && isFraggerOk;
-    initOk = isInitSuccess;
+    isInitialized = isInitSuccess;
     EventBus.getDefault().postSticky(new InitDone(isInitSuccess));
   }
 
