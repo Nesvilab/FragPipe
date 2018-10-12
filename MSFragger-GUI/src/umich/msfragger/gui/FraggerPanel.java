@@ -657,10 +657,12 @@ public class FraggerPanel extends javax.swing.JPanel {
 
         spinnerSlices.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
         spinnerSlices.setToolTipText("<html>Split database into smaller chunks.<br/>\nIf you're wondering what's that for, you likely don't need it.<br/>\nRequires MSFragger 20180924+.");
+        spinnerSlices.setEnabled(false);
 
         lblSlices.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
         lblSlices.setText("Slice up database");
         lblSlices.setToolTipText("<html>Split database into smaller chunks.<br/>\nIf you're wondering what's that for, you likely don't need it.<br/>\nRequires MSFragger 20180924+.");
+        lblSlices.setEnabled(false);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -1610,14 +1612,14 @@ public class FraggerPanel extends javax.swing.JPanel {
     }
     
     public void enableDbSlicing(boolean enabled) {
-        spinnerSlices.setEnabled(enabled);
-        lblSlices.setEnabled(enabled);
         if (!enabled) {
             stateDbSlicing = (Integer)spinnerSlices.getValue();
             spinnerSlices.setValue(1);
         } else {
             spinnerSlices.setValue(stateDbSlicing);
         }
+        spinnerSlices.setEnabled(enabled);
+        lblSlices.setEnabled(enabled);
     }
     
     public void enableMsadjuster(boolean enabled) {

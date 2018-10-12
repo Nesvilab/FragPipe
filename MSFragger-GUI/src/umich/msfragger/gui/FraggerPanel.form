@@ -409,6 +409,7 @@
                       <SpinnerModel initial="1" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
                     </Property>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Split database into smaller chunks.&lt;br/&gt;&#xa;If you&apos;re wondering what&apos;s that for, you likely don&apos;t need it.&lt;br/&gt;&#xa;Requires MSFragger 20180924+."/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="lblSlices">
@@ -418,6 +419,7 @@
                     </Property>
                     <Property name="text" type="java.lang.String" value="Slice up database"/>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Split database into smaller chunks.&lt;br/&gt;&#xa;If you&apos;re wondering what&apos;s that for, you likely don&apos;t need it.&lt;br/&gt;&#xa;Requires MSFragger 20180924+."/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                 </Component>
               </SubComponents>

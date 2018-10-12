@@ -16,7 +16,7 @@ import umich.msfragger.util.VersionComparator;
 public class DbSlice {
   private static DbSlice instance = new DbSlice();
   public static DbSlice get() { return instance; }
-  private static final String DEFAULT_MESSAGE = "Python 3 with numpy, pandas is "
+  public static final String DEFAULT_MESSAGE = "Python 3 with numpy, pandas is "
       + "needed for DB Slicing functionality.";
 
   private static final String SCRIPT_SPEC_LIB_GEN = "/speclib/gen_con_spec_lib.py";
@@ -91,6 +91,7 @@ public class DbSlice {
   }
 
   public void init(String msfraggerVersion) {
+    // reset default label text
     EventBus.getDefault().post(new Message1(false, false, ""));
     EventBus.getDefault().post(new Message2(false, false, ""));
 
@@ -101,9 +102,7 @@ public class DbSlice {
       isPythonOk = res.isSuccess;
       EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
     } catch (Exception e) {
-      EventBus.getDefault().post(new Message1(true,
-          true, "Error checking python version."
-      ));
+      EventBus.getDefault().post(new Message1(true, true, "Error checking python version."));
     }
 
 
@@ -115,8 +114,7 @@ public class DbSlice {
         isModulesInstalled = res.isSuccess;
         EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
       } catch (Exception ex) {
-        EventBus.getDefault().post(new Message1(true,
-            true, "Error checking installed python modules."
+        EventBus.getDefault().post(new Message1(true, true, "Error checking installed python modules."
         ));
       }
     }
@@ -128,24 +126,20 @@ public class DbSlice {
         isUnpacked = res.isSuccess;
         EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
       } catch (Exception e) {
-        EventBus.getDefault().post(new Message1(true,
-            true, "Error unpacking necessary tools."
-        ));
+        EventBus.getDefault().post(new Message1(true, true, "Error unpacking necessary tools."));
       }
     }
 
     CheckResult res = checkFraggerVer(msfraggerVersion);
     boolean isFraggerOk = res.isSuccess;
     if (!res.isSuccess) {
-      EventBus.getDefault().post(new Message2(true, true,
-          "Update MSFragger to a newer version."));
-      EventBus.getDefault().post(new Message2(true, false,
-          "Use the Update button next to MSFragger field."));
+      EventBus.getDefault().post(new Message2(true, true, "Update MSFragger to a newer version."));
+      EventBus.getDefault().post(new Message2(true, false, "Use the Update button next to MSFragger field."));
     }
 
     final boolean isInitSuccess = isPythonOk && isModulesInstalled && isUnpacked && isFraggerOk;
     initOk = isInitSuccess;
-    EventBus.getDefault().post(new InitDone(isInitSuccess));
+    EventBus.getDefault().postSticky(new InitDone(isInitSuccess));
   }
 
   private CheckResult checkPythonVer() throws Exception {
@@ -161,19 +155,17 @@ public class DbSlice {
 
   private CheckResult checkPythonModules() {
     if (!pi.isAvailable())
-      throw new IllegalStateException("Checking for installed modules while python is not available");
+      throw new IllegalStateException("Checking for installed modules while python is not available.");
     boolean isAllModulesOk = true;
     for (PythonModule m : REQUIRED_MODULES) {
       if (pi.checkModuleInstalled(m) != Installed.YES)
         isAllModulesOk = false;
     }
-    StringBuilder sb = pythonModulesReport();
-    return isAllModulesOk
-        ? new CheckResult(true, sb.toString())
-        : new CheckResult(false, sb.toString());
+    StringBuilder sb = createPythonModulesReport();
+    return new CheckResult(isAllModulesOk, sb.toString());
   }
 
-  private StringBuilder pythonModulesReport() {
+  private StringBuilder createPythonModulesReport() {
     if (REQUIRED_MODULES.length == 0) {
       return new StringBuilder("Modules: none required.");
     }
@@ -224,8 +216,8 @@ public class DbSlice {
     int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
 
     if (fraggerVersionCmp >= 0)
-      return new CheckResult(true, "MSfragger: OK");
+      return new CheckResult(true, "MSfragger: OK.");
     else
-      return new CheckResult(false, "MSFragger: " + fraggerVer);
+      return new CheckResult(false, "MSFragger: " + fraggerVer + ".");
   }
 }

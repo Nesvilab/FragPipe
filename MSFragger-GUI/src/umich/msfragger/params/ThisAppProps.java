@@ -60,6 +60,8 @@ public class ThisAppProps extends Properties {
 
     public static final String PROP_MSADJUSTER_USE = "msadjuster.use";
     public static final String PROP_CRYSTALC_USE = "crystalc.use";
+    public static final String PROP_SPECLIBGEN_RUN = "speclibgen.run";
+
 
     public static final String PROP_MGF_WARNING = "warn.mgf";
 

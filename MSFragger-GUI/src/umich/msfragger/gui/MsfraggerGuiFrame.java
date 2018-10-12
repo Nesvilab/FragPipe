@@ -350,14 +350,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         SwingUtilities.invokeLater(this::checkPreviouslySavedParams);
         SwingUtilities.invokeLater(this::validateMsadjusterEligibility);
         SwingUtilities.invokeLater(this::validateDbslicing);
-        //SwingUtilities.invokeLater(this::validateSpeclibgen);
+        SwingUtilities.invokeLater(this::validateSpeclibgen);
 
         initActions();
     }
 
     //region EventBus listeners
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageIsUmpireRum(MessageIsUmpireRun m) {
+    public void onMessageIsUmpireRun(MessageIsUmpireRun m) {
         if (checkLabelfree.isSelected() && isRunUmpireSe()) {
             checkLabelfree.setSelected(false);
         }
@@ -381,19 +381,39 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageDbSliceMessagePythonInfo1(DbSlice.Message1 m) {
-        messageToLabel(lblPythonInfoDbslicing, m);
+    public void onDbsliceMessage1(DbSlice.Message1 m) {
+        messageToLabel(lblDbsliceInfo1, m);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageDbSliceMessagePythonInfo2(DbSlice.Message2 m) {
-        messageToLabel(lblPythonInfoDbslicingMore, m);
+    public void onDbsliceMessage2(DbSlice.Message2 m) {
+        messageToLabel(lblDbsliceInfo2, m);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageDbSliceMessagePythonInfo2(DbSlice.InitDone m) {
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onDbsliceInitDone(DbSlice.InitDone m) {
         final String text = m.isSuccess ? "Database Slicing enabled." : "Database Slicing disabled.";
-        messageToLabel(lblPythonInfoDbslicingMore, new DbSlice.Message2(true, !m.isSuccess, text));
+        messageToLabel(lblDbsliceInfo2, new DbSlice.Message2(true, !m.isSuccess, text));
+        if (fraggerPanel == null)
+            throw new IllegalStateException("Fragger panel must be created before running DB Slicing checks.");
+        fraggerPanel.enableDbSlicing(m.isSuccess);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onSpeclibgenMessage1(SpecLibGen.Message1 m) {
+        messageToLabel(lblSpeclibInfo1, m);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onSpeclibgenMessage2(SpecLibGen.Message2 m) {
+        messageToLabel(lblSpeclibInfo2, m);
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onSpeclibgenInitDone(SpecLibGen.InitDone m) {
+        final String text = m.isSuccess ? "Spectral Library Generation enabled. See Report tab." : "Spectral Library Generation disabled.";
+        messageToLabel(lblSpeclibInfo2, new SpecLibGen.Message2(true, !m.isSuccess, text));
+        enableSpecLibGenPanel(m.isSuccess);
     }
     //endregion
 
@@ -481,6 +501,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         fraggerPanel.getCheckboxIsRunFragger().setSelected(enabled);
     }
 
+    private void enableSpecLibGenPanel(boolean enabled) {
+        SwingUtils.enableComponents(panelSpecLibOpts, enabled, true);
+        if (!enabled) {
+            checkGenerateSpecLib.setSelected(false);
+        } else {
+            ThisAppProps.load(checkGenerateSpecLib, ThisAppProps.PROP_SPECLIBGEN_RUN);
+        }
+    }
+
     public SimpleUniqueTableModel<Path> createTableModelRawFiles() {
         if (tableModelRawFiles != null) {
             return tableModelRawFiles;
@@ -548,12 +577,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         btnLoadDefaultsClosed = new javax.swing.JButton();
         btnAboutInConfig = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
-        lblPythonInfoDbslicing = new javax.swing.JLabel();
-        lblPythonInfoDbslicingMore = new javax.swing.JLabel();
+        lblDbsliceInfo1 = new javax.swing.JLabel();
+        lblDbsliceInfo2 = new javax.swing.JLabel();
         checkEnableDiaumpire = new javax.swing.JCheckBox();
         jPanel1 = new javax.swing.JPanel();
-        lblPythonInfoSpeclib = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
+        lblSpeclibInfo1 = new javax.swing.JLabel();
+        lblSpeclibInfo2 = new javax.swing.JLabel();
         panelSelectFiles = new javax.swing.JPanel();
         panelSelectedFiles = new javax.swing.JPanel();
         btnRawAddFiles = new javax.swing.JButton();
@@ -616,6 +645,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         checkCreateReport = new javax.swing.JCheckBox();
         btnReportDefaultsClosed = new javax.swing.JButton();
         btnReportDefaultsOpen = new javax.swing.JButton();
+        panelSpecLibOpts = new javax.swing.JPanel();
+        checkGenerateSpecLib = new javax.swing.JCheckBox();
         panelRun = new javax.swing.JPanel();
         btnStop = new javax.swing.JButton();
         btnClearConsole = new javax.swing.JButton();
@@ -875,9 +906,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("DB Slicing"));
 
-        lblPythonInfoDbslicing.setText(OsUtils.PythonInfo());
+        lblDbsliceInfo1.setText(DbSlice.DEFAULT_MESSAGE);
 
-        lblPythonInfoDbslicingMore.setText("   Python 3 with NumPy, Pandas and msproteomicstools is needed for DB slicing functionality");
+        lblDbsliceInfo2.setText("");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -886,17 +917,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblPythonInfoDbslicing)
-                    .addComponent(lblPythonInfoDbslicingMore))
+                    .addComponent(lblDbsliceInfo1)
+                    .addComponent(lblDbsliceInfo2))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lblPythonInfoDbslicing)
+                .addComponent(lblDbsliceInfo1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblPythonInfoDbslicingMore)
+                .addComponent(lblDbsliceInfo2)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -910,9 +941,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Spectral Lib generation"));
 
-        lblPythonInfoSpeclib.setText(OsUtils.PythonInfo());
+        lblSpeclibInfo1.setText(SpecLibGen.DEFAULT_MESSAGE);
 
-        jLabel10.setText("Python 3 with cython, msproteomicstools is needed for Spectral Library generation functionality");
+        lblSpeclibInfo2.setText("");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -921,17 +952,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblPythonInfoSpeclib)
-                    .addComponent(jLabel10))
+                    .addComponent(lblSpeclibInfo1)
+                    .addComponent(lblSpeclibInfo2))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lblPythonInfoSpeclib)
+                .addComponent(lblSpeclibInfo1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel10)
+                .addComponent(lblSpeclibInfo2)
                 .addContainerGap(15, Short.MAX_VALUE))
         );
 
@@ -1642,6 +1673,34 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
+        panelSpecLibOpts.setBorder(javax.swing.BorderFactory.createTitledBorder("Spectral Library"));
+        panelSpecLibOpts.setEnabled(false);
+
+        checkGenerateSpecLib.setText("Generate Spectral Library from search results");
+        checkGenerateSpecLib.setEnabled(false);
+        checkGenerateSpecLib.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkGenerateSpecLibActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panelSpecLibOptsLayout = new javax.swing.GroupLayout(panelSpecLibOpts);
+        panelSpecLibOpts.setLayout(panelSpecLibOptsLayout);
+        panelSpecLibOptsLayout.setHorizontalGroup(
+            panelSpecLibOptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelSpecLibOptsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(checkGenerateSpecLib)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        panelSpecLibOptsLayout.setVerticalGroup(
+            panelSpecLibOptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelSpecLibOptsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(checkGenerateSpecLib)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout panelReportLayout = new javax.swing.GroupLayout(panelReport);
         panelReport.setLayout(panelReportLayout);
         panelReportLayout.setHorizontalGroup(
@@ -1655,7 +1714,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         .addComponent(btnReportDefaultsOpen)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnReportDefaultsClosed))
-                    .addComponent(panelReportOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(panelReportOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelReportLayout.setVerticalGroup(
@@ -1669,7 +1729,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         .addComponent(btnReportDefaultsOpen)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelReportOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(515, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(449, Short.MAX_VALUE))
         );
 
         tabPane.addTab("Report", null, panelReport, "");
@@ -4162,6 +4224,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_checkEnableDiaumpireStateChanged
 
+    private void checkGenerateSpecLibActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkGenerateSpecLibActionPerformed
+        ThisAppProps.save(checkGenerateSpecLib, ThisAppProps.PROP_SPECLIBGEN_RUN);
+    }//GEN-LAST:event_checkGenerateSpecLibActionPerformed
+
 
     //region Load-Last methods
     public void loadLastPeptideProphet() {
@@ -4962,6 +5028,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JCheckBox checkCreateReport;
     private javax.swing.JCheckBox checkDryRun;
     private javax.swing.JCheckBox checkEnableDiaumpire;
+    private javax.swing.JCheckBox checkGenerateSpecLib;
     private javax.swing.JCheckBox checkLabelfree;
     private javax.swing.JCheckBox checkReportDbAnnotate;
     private javax.swing.JCheckBox checkReportFilter;
@@ -4976,7 +5043,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JEditorPane editorPhilosopherLink;
     private javax.swing.JEditorPane editorSequenceDb;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel34;
@@ -4994,15 +5060,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JLabel lblDbsliceInfo1;
+    private javax.swing.JLabel lblDbsliceInfo2;
     private javax.swing.JLabel lblFastaCount;
     private javax.swing.JLabel lblFindAutomatically;
     private javax.swing.JLabel lblFraggerJavaVer;
     private javax.swing.JLabel lblMsfraggerCitation;
     private javax.swing.JLabel lblOutputDir;
     private javax.swing.JLabel lblPhilosopherInfo;
-    private javax.swing.JLabel lblPythonInfoDbslicing;
-    private javax.swing.JLabel lblPythonInfoDbslicingMore;
-    private javax.swing.JLabel lblPythonInfoSpeclib;
+    private javax.swing.JLabel lblSpeclibInfo1;
+    private javax.swing.JLabel lblSpeclibInfo2;
     private javax.swing.JPanel panelConfig;
     private javax.swing.JPanel panelCrystalc;
     private javax.swing.JPanel panelCrystalcOptions;
@@ -5019,6 +5086,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelSelectFiles;
     private javax.swing.JPanel panelSelectedFiles;
     private javax.swing.JPanel panelSequenceDb;
+    private javax.swing.JPanel panelSpecLibOpts;
     private javax.swing.JScrollPane scrollPaneMsFragger;
     private javax.swing.JScrollPane scrollPaneRawFiles;
     private javax.swing.JSpinner spinnerCrystalcMassTol;

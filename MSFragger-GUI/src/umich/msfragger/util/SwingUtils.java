@@ -149,16 +149,22 @@ public class SwingUtils {
     }
   }
 
-  public static void enableComponents(Container container, boolean enable) {
+  public static void enableComponents(Container container, boolean enabled) {
+    enableComponents(container, enabled, false);
+  }
+
+  public static void enableComponents(Container container, boolean enabled, boolean applyToContainer) {
+    if (applyToContainer)
+      container.setEnabled(enabled);
     Component[] components = container.getComponents();
     for (Component component : components) {
-      component.setEnabled(enable);
+      component.setEnabled(enabled);
 //            if (component instanceof JScrollPane) {
 //                JScrollPane jsp = (JScrollPane)component;
 //                enableComponents(jsp.getViewport(), enable);
 //            }
       if (component instanceof Container) {
-        enableComponents((Container) component, enable);
+        enableComponents((Container) component, enabled, applyToContainer);
       }
     }
   }

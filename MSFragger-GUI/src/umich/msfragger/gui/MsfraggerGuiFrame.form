@@ -516,8 +516,8 @@
                       <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="lblPythonInfoDbslicing" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="lblPythonInfoDbslicingMore" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblDbsliceInfo1" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblDbsliceInfo2" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
@@ -527,25 +527,27 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="lblPythonInfoDbslicing" min="-2" max="-2" attributes="0"/>
+                          <Component id="lblDbsliceInfo1" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="lblPythonInfoDbslicingMore" min="-2" max="-2" attributes="0"/>
+                          <Component id="lblDbsliceInfo2" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JLabel" name="lblPythonInfoDbslicing">
+                <Component class="javax.swing.JLabel" name="lblDbsliceInfo1">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="OsUtils.PythonInfo()" type="code"/>
+                      <Connection code="DbSlice.DEFAULT_MESSAGE" type="code"/>
                     </Property>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="lblPythonInfoDbslicingMore">
+                <Component class="javax.swing.JLabel" name="lblDbsliceInfo2">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="   Python 3 with NumPy, Pandas and msproteomicstools is needed for DB slicing functionality"/>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="&quot;&quot;" type="code"/>
+                    </Property>
                   </Properties>
                 </Component>
               </SubComponents>
@@ -574,8 +576,8 @@
                       <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="lblPythonInfoSpeclib" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel10" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblSpeclibInfo1" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblSpeclibInfo2" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
@@ -585,25 +587,27 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="lblPythonInfoSpeclib" min="-2" max="-2" attributes="0"/>
+                          <Component id="lblSpeclibInfo1" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
+                          <Component id="lblSpeclibInfo2" min="-2" max="-2" attributes="0"/>
                           <EmptySpace pref="15" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JLabel" name="lblPythonInfoSpeclib">
+                <Component class="javax.swing.JLabel" name="lblSpeclibInfo1">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="OsUtils.PythonInfo()" type="code"/>
+                      <Connection code="SpecLibGen.DEFAULT_MESSAGE" type="code"/>
                     </Property>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="jLabel10">
+                <Component class="javax.swing.JLabel" name="lblSpeclibInfo2">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Python 3 with cython, msproteomicstools is needed for Spectral Library generation functionality"/>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="&quot;&quot;" type="code"/>
+                    </Property>
                   </Properties>
                 </Component>
               </SubComponents>
@@ -1414,7 +1418,7 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
@@ -1425,6 +1429,7 @@
                               <Component id="btnReportDefaultsClosed" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Component id="panelReportOptions" max="32767" attributes="0"/>
+                          <Component id="panelSpecLibOpts" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -1443,7 +1448,9 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelReportOptions" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="515" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="panelSpecLibOpts" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="449" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1614,6 +1621,48 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReportDefaultsOpenActionPerformed"/>
               </Events>
             </Component>
+            <Container class="javax.swing.JPanel" name="panelSpecLibOpts">
+              <Properties>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                    <TitledBorder title="Spectral Library"/>
+                  </Border>
+                </Property>
+                <Property name="enabled" type="boolean" value="false"/>
+              </Properties>
+
+              <Layout>
+                <DimensionLayout dim="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="checkGenerateSpecLib" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
+                </DimensionLayout>
+                <DimensionLayout dim="1">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="checkGenerateSpecLib" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
+                </DimensionLayout>
+              </Layout>
+              <SubComponents>
+                <Component class="javax.swing.JCheckBox" name="checkGenerateSpecLib">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Generate Spectral Library from search results"/>
+                    <Property name="enabled" type="boolean" value="false"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkGenerateSpecLibActionPerformed"/>
+                  </Events>
+                </Component>
+              </SubComponents>
+            </Container>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="panelRun">
