@@ -3447,7 +3447,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
         {
             List<ProcessBuilder> pbsSpeclibgen = ToolingUtils
-                .pbsSpecLibGen(this, isSpeclibgen, wdPath, combinedProteinFn, fastaPath);
+                .pbsSpecLibGen(this, isSpeclibgen, wdPath, combinedProteinFn, fastaPath, binPhilosopher);
             if (pbsSpeclibgen == null) {
                 resetRunButtons(true);
                 return;

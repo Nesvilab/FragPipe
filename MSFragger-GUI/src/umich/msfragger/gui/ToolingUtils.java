@@ -382,12 +382,13 @@ public class ToolingUtils {
       Path jarDepsPath;
       try {
         // common deps
-        jarDepsPath = JarUtils.unpackFromJar("/" + CrystalcProps.JAR_COMMON_DEPS, false, true)
-            .toAbsolutePath().normalize();
+        jarDepsPath = JarUtils
+            .unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_COMMON_DEPS,
+            ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
         // msadjuster jar
         jarMsadjusterPath = JarUtils
-            .unpackFromJar("/" + CrystalcProps.JAR_MSADJUSTER_NAME, false, true)
-            .toAbsolutePath().normalize();
+            .unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_MSADJUSTER_NAME,
+            ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
 
       } catch (IOException | NullPointerException ex) {
         JOptionPane.showMessageDialog(comp,
@@ -464,9 +465,12 @@ public class ToolingUtils {
       Path depsPath;
       try {
         // common deps
-        depsPath = JarUtils.unpackFromJar("/" + CrystalcProps.JAR_COMMON_DEPS, false, true);
+        depsPath = JarUtils
+            .unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_COMMON_DEPS,
+                ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
         // msadjuster jar
-        jarPath = JarUtils.unpackFromJar("/" + CrystalcProps.JAR_CRYSTALC_NAME, false, true);
+        jarPath = JarUtils.unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_CRYSTALC_NAME,
+            ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
 
       } catch (IOException | NullPointerException ex) {
         JOptionPane.showMessageDialog(comp,
@@ -1081,7 +1085,8 @@ public class ToolingUtils {
       Path jarUmpireSe;
       try {
         // msadjuster jar
-        jarUmpireSe = JarUtils.unpackFromJar("/" + UmpireParams.JAR_UMPIRESE_NAME, false, true);
+        jarUmpireSe = JarUtils.unpackFromJar(ToolingUtils.class,"/" + UmpireParams.JAR_UMPIRESE_NAME,
+            ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
 
       } catch (IOException | NullPointerException ex) {
         JOptionPane.showMessageDialog(errMsgParent,
@@ -1227,7 +1232,7 @@ public class ToolingUtils {
   }
 
   public static List<ProcessBuilder> pbsSpecLibGen(Component errMsgParent, boolean isRunSpeclibgen,
-      Path workingDir, String combinedProteinFileName, String fastaPath) {
+      Path workingDir, String combinedProteinFileName, String fastaPath, String binPhilosopher) {
     final List<ProcessBuilder> pbs = new ArrayList<>();
 
     final SpecLibGen slg = SpecLibGen.get();
@@ -1248,6 +1253,8 @@ public class ToolingUtils {
       cmd.add(workingDir.toString()); // this is "Pep xml directory"
       cmd.add(workingDir.resolve(combinedProteinFileName).toString());
       cmd.add(workingDir.toString());
+      cmd.add("True");
+      cmd.add(binPhilosopher);
 
       pbs.add(new ProcessBuilder(cmd));
     }

@@ -1,6 +1,7 @@
 package umich.msfragger.params.dbslice;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 import org.greenrobot.eventbus.EventBus;
 import umich.msfragger.params.fragger.MsfraggerProps;
@@ -19,11 +20,10 @@ public class DbSlice {
   public static final String DEFAULT_MESSAGE = "Python 3 with numpy, pandas is "
       + "needed for DB Slicing functionality.";
 
+  private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
   private static final String SCRIPT_SPEC_LIB_GEN = "/speclib/gen_con_spec_lib.py";
   private static final String SCRIPT_SPLITTER = "/" + MsfraggerProps.PYTHON_SPLITTER_NAME;
-  public static final String[] RESOURCE_LOCATIONS = {
-      SCRIPT_SPLITTER
-  };
+  public static final String[] RESOURCE_LOCATIONS = {SCRIPT_SPLITTER};
   public static final PythonModule[] REQUIRED_MODULES = {
       new PythonModule("numpy", "numpy"),
       new PythonModule("pandas", "pandas"),
@@ -198,7 +198,8 @@ public class DbSlice {
 
   private CheckResult unpack() throws Exception {
     for (String rl : RESOURCE_LOCATIONS) {
-      Path path = JarUtils.unpackFromJar(SpecLibGen.class, rl, false, false);
+      Path subDir = Paths.get(UNPACK_SUBDIR_IN_TEMP);
+      Path path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, false);
       if (SCRIPT_SPEC_LIB_GEN.equals(rl))
         scriptDbslicingPath = path;
     }

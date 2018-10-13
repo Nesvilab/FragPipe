@@ -50,6 +50,7 @@ script_dir = pathlib.Path(__file__).resolve().parent
 if script_dir.suffix == '.pyz':
 	script_dir = script_dir.parent
 
+# philosopher_path = str_to_path(sys.argv[1]).resolve(strict=True)
 SPECTRAST_PATH = (script_dir / {'linux': 'linux/spectrast', 'win32': 'win/spectrast.exe'}[sys.platform]).resolve(strict=True)
 fasta = str_to_path(sys.argv[1]).resolve(strict=True)
 # msproteomicstools_bin_path = str_to_path(sys.argv[3]).resolve(strict=True)
@@ -57,23 +58,13 @@ fasta = str_to_path(sys.argv[1]).resolve(strict=True)
 iproph_RT_aligned = str_to_path(sys.argv[2]).resolve(strict=True)
 prot_xml_file = str_to_path(sys.argv[3]).resolve(strict=True)
 output_directory = str_to_path(sys.argv[4])
-overwrite = False
-if len(sys.argv) >= 6:
-	if sys.argv[5].lower() == 'true':
-		overwrite = True
+
 
 if 'PATHEXT' in os.environ:
 	os.environ['PATHEXT'] = '.py' + os.pathsep + os.environ['PATHEXT']
 os.environ['PATH'] = os.getcwd() + os.pathsep + os.environ['PATH']
-try:
-	philosopher = pathlib.Path(shutil.which('philosopher'))
-except:
-	try:
-		philosopher = str_to_path(sys.argv[6]).resolve(strict=True)
-	except:
-		print("Philosopher not found on path and not provided as 6th argument. Exiting.", file=sys.stderr)
-		quit(1)
-
+philosopher = pathlib.Path(shutil.which('philosopher'))
+# philosopher = philosopher_path
 # msproteomicstools_path = pathlib.Path('/storage/teog/anaconda3/bin')
 align_with_iRT: bool = True
 
@@ -378,8 +369,7 @@ def filter_proteins(fasta, decoy_prefix):
 
 
 def main0():
-
-	output_directory.mkdir(exist_ok=overwrite)
+	output_directory.mkdir(exist_ok=False)
 	print("running:\n" + allcmds)
 	(output_directory / "cmds.txt").write_text(allcmds)
 

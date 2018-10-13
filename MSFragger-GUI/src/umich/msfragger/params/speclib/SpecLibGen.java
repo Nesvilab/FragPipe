@@ -1,6 +1,7 @@
 package umich.msfragger.params.speclib;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.greenrobot.eventbus.EventBus;
 import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.util.CheckResult;
@@ -17,6 +18,7 @@ public class SpecLibGen {
   public static final String DEFAULT_MESSAGE = "Python 3 with cython, msproteomicstools is "
       + "needed for Spectral Library generation functionality.";
   private static final String SCRIPT_SPEC_LIB_GEN = "/speclib/gen_con_spec_lib.py";
+  private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
 
 
   private PythonInfo pi;
@@ -32,8 +34,8 @@ public class SpecLibGen {
       "/speclib/common_funcs.py",
       "/speclib/detect_decoy_prefix.py",
       SCRIPT_SPEC_LIB_GEN,
-      "/speclib/spectrast",
-      "/speclib/spectrast.exe",
+      "/speclib/linux/spectrast",
+      "/speclib/win/spectrast.exe",
       "/speclib/spectrast_gen_pepidx.py",
       "/speclib/unite_runs.py",
   };
@@ -192,7 +194,8 @@ public class SpecLibGen {
 
   private CheckResult unpack() throws Exception {
     for (String rl : RESOURCE_LOCATIONS) {
-      Path path = JarUtils.unpackFromJar(SpecLibGen.class, rl, false, false);
+      Path subDir = Paths.get(UNPACK_SUBDIR_IN_TEMP);
+      Path path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, false);
       if (SCRIPT_SPEC_LIB_GEN.equals(rl))
         scriptSpecLibGenPath = path;
     }

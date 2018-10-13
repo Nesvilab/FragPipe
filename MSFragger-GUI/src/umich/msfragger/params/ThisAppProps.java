@@ -66,11 +66,12 @@ public class ThisAppProps extends Properties {
     public static final String PROP_MGF_WARNING = "warn.mgf";
 
     public static final String JAR_FILE_AS_RESOURCE_EXT = ".jazz";
+    public static final Path UNPACK_TEMP_SUBDIR = Paths.get("fragpipe");
 
     public ThisAppProps() {
           this.setProperty(Version.PROP_VER, Version.VERSION);
       }
-    
+
     public static void clearCache() {
         ThisAppProps thisAppProps = new ThisAppProps();
         thisAppProps.save();

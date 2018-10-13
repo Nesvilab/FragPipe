@@ -56,18 +56,27 @@ public class JarUtils {
      * @param clazz The jar from which to unpack is determined by this class.
      * @param resourceLocation Location of the resource within the jar.
      * @param locationInTemp Additional nested directories inside the system temp dir.
+     * @param maintainRelLoc Recreate the original directory structure of the resource location
+     * in temp. That will be on top of {@code locationInTemp}.
      * @param scheduleForDeletion The file will be scheduled for deletion before JVM stops.
      * @return Path to unpacked file.
      * @throws IOException
      */
     public static Path unpackFromJar(Class<?> clazz, String resourceLocation, Path locationInTemp,
-        boolean scheduleForDeletion) throws IOException {
+        boolean maintainRelLoc, boolean scheduleForDeletion) throws IOException {
 
         try (InputStream in = clazz.getResourceAsStream(resourceLocation)) {
             final String resourceNameDest = computeFinalResourceName(resourceLocation);
 
             Path tempDir = Paths.get(ThisAppProps.TEMP_DIR);
-            Path destDir = tempDir.resolve(locationInTemp);
+            Path destDir = tempDir;
+            if (locationInTemp != null)
+                destDir = destDir.resolve(locationInTemp);
+            if (maintainRelLoc) {
+                String loc = computeResourceParent(resourceLocation);
+                if (!StringUtils.isNullOrWhitespace(loc))
+                    destDir = destDir.resolve(Paths.get(loc));
+            }
             Path tempFile = destDir.resolve(resourceNameDest);
 
             if (Files.notExists(destDir)) {
@@ -82,6 +91,11 @@ public class JarUtils {
                 tempFile.toFile().deleteOnExit();
             return tempFile;
         }
+    }
+
+    private static String computeResourceParent(String resourceLocation) {
+        String s = StringUtils.upToLastChar(resourceLocation, '/', true);
+        return s.startsWith("/") ? s.substring(1) : s;
     }
 
     private static String computeFinalResourceName(String resourceLocation) {
