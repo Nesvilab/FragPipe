@@ -111,7 +111,6 @@ import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -176,7 +175,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private static final String TIP_NAME_FRAGGER_JAVA_VER = "msfragger.java.min.ver";
 
     SimpleETable tableRawFiles;
-    SimpleUniqueTableModel<Path> tableModelRawFiles;
+    SimpleUniqueTableModel<InputLcmsFile> tableModelRawFiles;
     FileDrop tableRawFilesFileDrop;
 
     public static final SearchTypeProp DEFAULT_TYPE = SearchTypeProp.closed;
@@ -327,22 +326,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //        SimpleETableTransferHandler newHandler = new SimpleETableTransferHandler();
 //        tableRawFiles.setTransferHandler(newHandler);
         // dropping onto enclosing JPanel works.
-        tableRawFilesFileDrop = new FileDrop(panelSelectedFiles, true, new FileDrop.Listener() {
-            @Override
-            public void filesDropped(File[] files) {
-                ArrayList<Path> paths = new ArrayList<>(files.length);
-                for (File f : files) {
-                    boolean isDirectory = f.isDirectory();
-                    if (!isDirectory) {
-                        if (FraggerPanel.fileNameExtensionFilter.accept(f)) {
-                            paths.add(Paths.get(f.getAbsolutePath()));
-                        }
-                    } else {
-                        PathUtils.traverseDirectoriesAcceptingFiles(f, FraggerPanel.fileNameExtensionFilter, paths);
+        tableRawFilesFileDrop = new FileDrop(panelSelectedFiles, true, files -> {
+            ArrayList<Path> paths = new ArrayList<>(files.length);
+            for (File f : files) {
+                boolean isDirectory = f.isDirectory();
+                if (!isDirectory) {
+                    if (FraggerPanel.fileNameExtensionFilter.accept(f)) {
+                        paths.add(Paths.get(f.getAbsolutePath()));
                     }
+                } else {
+                    PathUtils.traverseDirectoriesAcceptingFiles(f, FraggerPanel.fileNameExtensionFilter, paths);
                 }
-                tableModelRawFiles.dataAddAll(paths);
             }
+            tableModelRawFiles.dataAddAll(paths);
         });
 
         // check binary paths (can only be done after manual MSFragger panel creation)
@@ -511,21 +507,29 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
     }
 
-    public SimpleUniqueTableModel<Path> createTableModelRawFiles() {
+    public static class InputLcmsFile {
+        public final Path path;
+        public final String experiment;
+
+        public InputLcmsFile(Path path, String experiment) {
+            this.path = path;
+            this.experiment = experiment;
+        }
+    }
+
+    public SimpleUniqueTableModel<InputLcmsFile> createTableModelRawFiles() {
         if (tableModelRawFiles != null) {
             return tableModelRawFiles;
         }
-        List<TableModelColumn<Path, ?>> cols = new ArrayList<>();
+        List<TableModelColumn<InputLcmsFile, ?>> cols = new ArrayList<>();
 
-        TableModelColumn<Path, String> colPath = new TableModelColumn<>(
+        TableModelColumn<InputLcmsFile, String> colPath = new TableModelColumn<>(
                 "Path (supports Drag & Drop from Explorer)", 
-                String.class, false, new DataConverter<Path, String>() {
-            @Override
-            public String convert(Path data) {
-                return data.toString();
-            }
-        });
+                String.class, false, data -> data.path.toString());
+        TableModelColumn<InputLcmsFile, String> colExp = new TableModelColumn<>(
+            "Experiment/Group/Set", String.class, true, data -> data.experiment);
         cols.add(colPath);
+        cols.add(colExp);
 
         tableModelRawFiles = new SimpleUniqueTableModel<>(cols, 0);
         return tableModelRawFiles;
@@ -591,7 +595,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         scrollPaneRawFiles = new javax.swing.JScrollPane();
         btnRawAddFolder = new javax.swing.JButton();
         btnRawRemove = new javax.swing.JButton();
-        chkProcessEachFiileSeparately = new javax.swing.JCheckBox();
+        jButton1 = new javax.swing.JButton();
         panelSequenceDb = new javax.swing.JPanel();
         panelDbInfo = new javax.swing.JPanel();
         textSequenceDbPath = new javax.swing.JTextField();
@@ -1064,9 +1068,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
-        chkProcessEachFiileSeparately.setText("Process each file separately");
-        chkProcessEachFiileSeparately.setToolTipText("<html><b>Not yet implemented</b><br/>\n\nProcess each file separately isntead of combining the results.");
-        chkProcessEachFiileSeparately.setEnabled(false);
+        jButton1.setText("Each run as a separate experiment");
 
         javax.swing.GroupLayout panelSelectedFilesLayout = new javax.swing.GroupLayout(panelSelectedFiles);
         panelSelectedFiles.setLayout(panelSelectedFilesLayout);
@@ -1085,8 +1087,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnRawAddFolder)
                         .addGap(18, 18, 18)
-                        .addComponent(chkProcessEachFiileSeparately)
-                        .addGap(0, 200, Short.MAX_VALUE)))
+                        .addComponent(jButton1)
+                        .addGap(0, 158, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelSelectedFilesLayout.setVerticalGroup(
@@ -1098,7 +1100,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addComponent(btnRawRemove)
                     .addComponent(btnRawAddFiles)
                     .addComponent(btnRawAddFolder)
-                    .addComponent(chkProcessEachFiileSeparately))
+                    .addComponent(jButton1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(scrollPaneRawFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 604, Short.MAX_VALUE)
                 .addContainerGap())
@@ -2020,9 +2022,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 File[] files = fc.getSelectedFiles();
                 if (files.length > 0) {
                     ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, files[0]);
-                    List<Path> paths = new ArrayList<>(files.length);
+                    List<InputLcmsFile> paths = new ArrayList<>(files.length);
+                    final String defaultExperimentName = "";
                     for (File f : files) {
-                        paths.add(Paths.get(f.getAbsolutePath()));
+                        paths.add(new InputLcmsFile(Paths.get(f.getAbsolutePath()), defaultExperimentName));
                     }
                     tableModelRawFiles.dataAddAll(paths);
                 }
@@ -2038,7 +2041,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (sel.length == 0) {
             return;
         }
-        List<Path> toRemove = new ArrayList<>();
+        List<InputLcmsFile> toRemove = new ArrayList<>();
         for (int i = 0; i < sel.length; i++) {
             toRemove.add(tableModelRawFiles.dataGet(sel[i]));
         }
@@ -2073,7 +2076,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         paths.add(Paths.get(f.getAbsolutePath()));
                     }
                 }
-                tableModelRawFiles.dataAddAll(paths);
+                final String defaultExperimentName = "";
+                tableModelRawFiles.dataAddAll(paths.stream()
+                    .map(path -> new InputLcmsFile(path, defaultExperimentName))
+                    .collect(Collectors.toList()));
 
                 break;
         }
@@ -5063,7 +5069,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JCheckBox checkReportDbAnnotate;
     private javax.swing.JCheckBox checkReportFilter;
     private javax.swing.JCheckBox checkReportProteinLevelFdr;
-    private javax.swing.JCheckBox chkProcessEachFiileSeparately;
     private javax.swing.JCheckBox chkProteinProphetInteractStar;
     private javax.swing.JCheckBox chkRunCrystalc;
     private javax.swing.JCheckBox chkRunPeptideProphet;
@@ -5072,6 +5077,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JEditorPane editorMsfraggerCitation;
     private javax.swing.JEditorPane editorPhilosopherLink;
     private javax.swing.JEditorPane editorSequenceDb;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
