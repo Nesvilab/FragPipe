@@ -56,10 +56,6 @@ public class OsUtils {
 
         return sb.toString();
     }
-    
-    public static String PythonInfo() {
-        return "Python 3 with NumPy and Pandas is required for MSfragger DB splitting";
-    }
 
     public static boolean isWindows() {
         String osName = System.getProperty("os.name");

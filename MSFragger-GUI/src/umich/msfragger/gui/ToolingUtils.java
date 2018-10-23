@@ -1,6 +1,5 @@
 package umich.msfragger.gui;
 
-import static umich.msfragger.params.ThisAppProps.JAR_FILE_AS_RESOURCE_EXT;
 import static umich.msfragger.util.PathUtils.testBinaryPath;
 import static umich.msfragger.util.PathUtils.testFilePath;
 
@@ -11,7 +10,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
@@ -20,7 +18,6 @@ import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DateFormat;
@@ -45,18 +42,22 @@ import umich.msfragger.exceptions.FileWritingException;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.crystalc.CrystalcProps;
+import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.pepproph.PeptideProphetParams;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.protproph.ProteinProphetParams;
+import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.umpire.UmpirePanel;
 import umich.msfragger.params.umpire.UmpireParams;
 import umich.msfragger.params.umpire.UmpireSeGarbageFiles;
 import umich.msfragger.util.FileMove;
 import umich.msfragger.util.Holder;
+import umich.msfragger.util.JarUtils;
 import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.PropertiesUtils;
+import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.StringUtils;
 
 public class ToolingUtils {
@@ -197,7 +198,7 @@ public class ToolingUtils {
   }
 
   public static List<ProcessBuilder> pbsFragger(Component comp, String programsDir, String workingDir, List<String> lcmsFilePaths,
-      boolean isDryRun, FraggerPanel fp, String pythonCommand, URI jar, String msfraggerPath, boolean isSlicingAvailable, Path slicingScriptPath) {
+      boolean isDryRun, FraggerPanel fp, URI jar, String msfraggerPath, DbSlice dbslice) {
     if (jar == null)
       throw new IllegalArgumentException("Argument JAR can't be null");
     List<ProcessBuilder> builders = new LinkedList<>();
@@ -207,7 +208,7 @@ public class ToolingUtils {
       final boolean isSlicing = numSlices > 1;
       if (isSlicing) {
         // slicing requested
-        if (!isSlicingAvailable || slicingScriptPath == null) {
+        if (!dbslice.isInitialized()) {
           JOptionPane.showMessageDialog(comp,
               "MSFragger number of DB slices requested was more than 1.\n"
                   + "However not all preconditions for enabling slicing were met.\n"
@@ -289,8 +290,8 @@ public class ToolingUtils {
         int fileIndexLo = fileIndex;
         ArrayList<String> cmd = new ArrayList<>();
         if (isSlicing) {
-          cmd.add(pythonCommand);
-          cmd.add(slicingScriptPath.toAbsolutePath().normalize().toString());
+          cmd.add(PythonInfo.get().getCommand());
+          cmd.add(dbslice.getScriptDbslicingPath().toAbsolutePath().normalize().toString());
           cmd.add(Integer.toString(numSlices));
           cmd.add("\"");
         }
@@ -381,11 +382,13 @@ public class ToolingUtils {
       Path jarDepsPath;
       try {
         // common deps
-        jarDepsPath = unpackFromJar("", CrystalcProps.JAR_COMMON_DEPS, false, true)
-            .toAbsolutePath().normalize();
+        jarDepsPath = JarUtils
+            .unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_COMMON_DEPS,
+            ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
         // msadjuster jar
-        jarMsadjusterPath = unpackFromJar("", CrystalcProps.JAR_MSADJUSTER_NAME, false, true)
-            .toAbsolutePath().normalize();
+        jarMsadjusterPath = JarUtils
+            .unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_MSADJUSTER_NAME,
+            ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
 
       } catch (IOException | NullPointerException ex) {
         JOptionPane.showMessageDialog(comp,
@@ -440,27 +443,6 @@ public class ToolingUtils {
     return pbs;
   }
 
-  public static Path unpackFromJar(String resourcePath, String resourceName,
-      boolean randomizeName, boolean scheduleForDeletion) throws IOException {
-
-    try (InputStream in = MsfraggerGuiFrame.class.getResourceAsStream(resourcePath + "/" + resourceName)) {
-      Path tempFile;
-      String resourceNameMod = resourceName.toLowerCase().endsWith(JAR_FILE_AS_RESOURCE_EXT)
-          ? StringUtils.upToLastDot(resourceName) + ".jar"
-          : resourceName;
-
-      if (randomizeName) {
-        tempFile = Files.createTempFile("fragpipe-", "-" + resourceNameMod);
-      } else {
-        tempFile = Paths.get(ThisAppProps.TEMP_DIR, resourceNameMod);
-      }
-      Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
-      if (scheduleForDeletion)
-        tempFile.toFile().deleteOnExit();
-      return tempFile;
-    }
-  }
-
   /**
    *
    * @param comp
@@ -483,9 +465,12 @@ public class ToolingUtils {
       Path depsPath;
       try {
         // common deps
-        depsPath = unpackFromJar("", CrystalcProps.JAR_COMMON_DEPS, false, true);
+        depsPath = JarUtils
+            .unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_COMMON_DEPS,
+                ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
         // msadjuster jar
-        jarPath = unpackFromJar("", CrystalcProps.JAR_CRYSTALC_NAME, false, true);
+        jarPath = JarUtils.unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_CRYSTALC_NAME,
+            ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
 
       } catch (IOException | NullPointerException ex) {
         JOptionPane.showMessageDialog(comp,
@@ -1100,7 +1085,8 @@ public class ToolingUtils {
       Path jarUmpireSe;
       try {
         // msadjuster jar
-        jarUmpireSe = unpackFromJar("", UmpireParams.JAR_UMPIRESE_NAME, false, true);
+        jarUmpireSe = JarUtils.unpackFromJar(ToolingUtils.class,"/" + UmpireParams.JAR_UMPIRESE_NAME,
+            ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
 
       } catch (IOException | NullPointerException ex) {
         JOptionPane.showMessageDialog(errMsgParent,
@@ -1181,15 +1167,18 @@ public class ToolingUtils {
         // UmpireSE outputs to the working directory
         // and also create symlinks to the original files
 
-        // working dir is different from mzXML file location, need to move output and cleanup
+
         if (!workingDir.equals(inputDir)) {
+          // working dir is different from mzXML file location
+          // //need to move output and cleanup
           UmpireSeGarbageFiles garbage = UmpireSeGarbageFiles.create(lcms);
           for (String path : garbage.toMove) {
             List<String> cmdMove = new ArrayList<>();
             cmdMove.add("java");
             cmdMove.add("-cp");
             cmdMove.add(currentJarPath); // FragPipe jar
-            cmdMove.add("dia.umpire.util.FileMove");
+            // TODO: verify this actually moves all the garbage files. Use files at: C:\data\dia\40-50-minutes
+            cmdMove.add(FileMove.class.getCanonicalName());
             String origin = inputDir.resolve(Paths.get(path).getFileName())
                 .toString();
             String destination = workingDir.resolve(Paths.get(path).getFileName())
@@ -1239,6 +1228,37 @@ public class ToolingUtils {
         }
       }
     }
+    return pbs;
+  }
+
+  public static List<ProcessBuilder> pbsSpecLibGen(Component errMsgParent, boolean isRunSpeclibgen,
+      Path workingDir, String combinedProteinFileName, String fastaPath, String binPhilosopher) {
+    final List<ProcessBuilder> pbs = new ArrayList<>();
+
+    final SpecLibGen slg = SpecLibGen.get();
+    if (isRunSpeclibgen) {
+      if (!slg.isInitialized()) {
+        JOptionPane.showMessageDialog(errMsgParent,
+            "Spectral Library Generation scripts did not initialize correctly.",
+            "Error", JOptionPane.ERROR_MESSAGE);
+        return null;
+      }
+
+
+
+      List<String> cmd = new ArrayList<>();
+      cmd.add(slg.getPi().getCommand());
+      cmd.add(slg.getScriptSpecLibGenPath().toString());
+      cmd.add(fastaPath);
+      cmd.add(workingDir.toString()); // this is "Pep xml directory"
+      cmd.add(workingDir.resolve(combinedProteinFileName).toString());
+      cmd.add(workingDir.toString());
+      cmd.add("True");
+      cmd.add(binPhilosopher);
+
+      pbs.add(new ProcessBuilder(cmd));
+    }
+
     return pbs;
   }
 

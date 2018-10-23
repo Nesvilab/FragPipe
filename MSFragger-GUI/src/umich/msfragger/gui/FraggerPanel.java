@@ -657,10 +657,12 @@ public class FraggerPanel extends javax.swing.JPanel {
 
         spinnerSlices.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
         spinnerSlices.setToolTipText("<html>Split database into smaller chunks.<br/>\nIf you're wondering what's that for, you likely don't need it.<br/>\nRequires MSFragger 20180924+.");
+        spinnerSlices.setEnabled(false);
 
         lblSlices.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
         lblSlices.setText("Slice up database");
         lblSlices.setToolTipText("<html>Split database into smaller chunks.<br/>\nIf you're wondering what's that for, you likely don't need it.<br/>\nRequires MSFragger 20180924+.");
+        lblSlices.setEnabled(false);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -1460,7 +1462,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         if (frame != null) {
             MsfraggerGuiFrame f = frame.get();
             if (f != null) {
-                f.validatePythonAndSlicingVersion();
+                f.validateDbslicing();
                 f.validateMsadjusterEligibility();
             }
         }
@@ -1610,14 +1612,14 @@ public class FraggerPanel extends javax.swing.JPanel {
     }
     
     public void enableDbSlicing(boolean enabled) {
-        spinnerSlices.setEnabled(enabled);
-        lblSlices.setEnabled(enabled);
         if (!enabled) {
             stateDbSlicing = (Integer)spinnerSlices.getValue();
             spinnerSlices.setValue(1);
         } else {
             spinnerSlices.setValue(stateDbSlicing);
         }
+        spinnerSlices.setEnabled(enabled);
+        lblSlices.setEnabled(enabled);
     }
     
     public void enableMsadjuster(boolean enabled) {
@@ -1703,7 +1705,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_textMassOffsetsFocusGained
 
     private void chkMsadjusterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkMsadjusterActionPerformed
-        MsfraggerGuiFrame.save(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE);
+        ThisAppProps.save(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE);
     }//GEN-LAST:event_chkMsadjusterActionPerformed
 
     public boolean isMsadjuster() {
@@ -1711,13 +1713,13 @@ public class FraggerPanel extends javax.swing.JPanel {
     }
     
     public void loadLastMsadjuster() {
-        if (!MsfraggerGuiFrame.load(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE)) {
+        if (!ThisAppProps.load(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE)) {
             loadDefaultsMsadjuster(DEFAULT_TYPE);
         }
     }
     
     public void loadDefaultsMsadjuster(SearchTypeProp type) {
-        MsfraggerGuiFrame.loadDefaults(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE, type);
+        ThisAppProps.loadDefaults(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE, type);
     }
     
     public void loadDefaultsClosed() {

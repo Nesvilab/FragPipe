@@ -37,7 +37,21 @@ public class StringUtils {
     
     public static String afterLastDot(String s) {
         int last = s.lastIndexOf('.');
-        return last < 0 ? "" : s.substring(last+1, s.length());
+        return last < 0 ? "" : s.substring(last+1);
+    }
+
+    public static String upToLastChar(String s, char ch, boolean emptyIfNoChar) {
+        int last = s.lastIndexOf(ch);
+        if (last < 0)
+            return emptyIfNoChar ? "" : s;
+        return s.substring(0, last);
+    }
+
+    public static String afterLastChar(String s, char ch, boolean emptyIfNoChar) {
+        int last = s.lastIndexOf(ch);
+        if (last < 0)
+            return emptyIfNoChar ? "" : s;
+        return s.substring(last+1);
     }
     
     public static List<String> splitTrim(String input, String sep) {

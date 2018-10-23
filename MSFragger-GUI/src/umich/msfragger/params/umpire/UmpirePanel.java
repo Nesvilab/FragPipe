@@ -54,7 +54,7 @@ import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.EventBus;
 import rx.swing.sources.DocumentEventSource;
-import umich.msfragger.events.EventUmpireEnabled;
+import umich.msfragger.events.MessageIsUmpireRun;
 import umich.msfragger.gui.ToolingUtils;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.util.StringUtils;
@@ -292,9 +292,9 @@ public class UmpirePanel extends JPanel {
 
     enablePanels(checkRunUmpireSe.isSelected());
     checkRunUmpireSe.addChangeListener(e -> {
-      final boolean enabled = checkRunUmpireSe.isSelected();
-      enablePanels(enabled);
-      EventBus.getDefault().post(new EventUmpireEnabled(enabled));
+      final boolean isRun = checkRunUmpireSe.isSelected();
+      enablePanels(isRun);
+      EventBus.getDefault().post(new MessageIsUmpireRun(isRun));
     });
 
     reloadUmpireParams();
