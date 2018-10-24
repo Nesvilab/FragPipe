@@ -121,6 +121,7 @@ import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.SimpleUniqueTableModel;
 import umich.msfragger.gui.api.TableModelColumn;
+import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
@@ -174,7 +175,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private static final String TIP_NAME_FRAGGER_JAVA_VER = "msfragger.java.min.ver";
 
     SimpleETable tableRawFiles;
-    SimpleUniqueTableModel<InputLcmsFile> tableModelRawFiles;
+    UniqueLcmsFilesTableModel tableModelRawFiles;
     FileDrop tableRawFilesFileDrop;
 
     public static final SearchTypeProp DEFAULT_TYPE = SearchTypeProp.closed;
@@ -508,7 +509,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
     }
 
-    public SimpleUniqueTableModel<InputLcmsFile> createTableModelRawFiles() {
+    public UniqueLcmsFilesTableModel createTableModelRawFiles() {
         if (tableModelRawFiles != null) {
             return tableModelRawFiles;
         }
@@ -522,7 +523,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         cols.add(colPath);
         cols.add(colExp);
 
-        tableModelRawFiles = new SimpleUniqueTableModel<>(cols, 0);
+        tableModelRawFiles = new UniqueLcmsFilesTableModel(cols, 0);
         return tableModelRawFiles;
     }
 
