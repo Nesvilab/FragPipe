@@ -17,9 +17,6 @@
 package umich.msfragger.gui;
 
 import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
-import static umich.msfragger.gui.ToolingUtils.getDefaultBinMsfragger;
-import static umich.msfragger.gui.ToolingUtils.getDefaultBinPhilosopher;
-import static umich.msfragger.gui.ToolingUtils.loadIcon;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -33,6 +30,8 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -77,6 +76,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -115,11 +115,11 @@ import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import rx.swing.sources.DocumentEventSource;
 import umich.msfragger.Version;
 import umich.msfragger.events.MessageIsUmpireRun;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
-import umich.msfragger.gui.api.SimpleUniqueTableModel;
 import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
@@ -147,6 +147,7 @@ import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.PrefixCounter;
 import umich.msfragger.util.Proc2;
 import umich.msfragger.util.PropertiesUtils;
+import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.Tuple2;
@@ -343,15 +344,61 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .collect(Collectors.toList()));
         });
 
+        textBinPython.addFocusListener(new FocusAdapter() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            final String text = textBinPython.getText();
+            validateAndSavePython(text, true);
+          }
+        });
+
         // check binary paths (can only be done after manual MSFragger panel creation)
         SwingUtilities.invokeLater(() -> validateAndSaveMsfraggerPath(textBinMsfragger.getText()));
         SwingUtilities.invokeLater(() -> validateAndSavePhilosopherPath(textBinPhilosopher.getText()));
         SwingUtilities.invokeLater(this::checkPreviouslySavedParams);
+        SwingUtilities.invokeLater(this::checkPython);
         SwingUtilities.invokeLater(this::validateMsadjusterEligibility);
         SwingUtilities.invokeLater(this::validateDbslicing);
         SwingUtilities.invokeLater(this::validateSpeclibgen);
 
         initActions();
+    }
+
+    private void checkPython() {
+      String path = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_PYTHON);
+      PythonInfo pi = PythonInfo.get();
+      if (path != null) {
+        try {
+          if (!pi.setPythonCommand(path))
+            throw new Exception("Could not set python command to the old value");
+        } catch (Exception e) {
+          ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, "");
+          int yesNo = JOptionPane.showConfirmDialog(this,
+              "Previously stored Python location is now invalid:\n"
+                  + "\t" + path + "\n\nDo you want to try automatically find the Python binary?",
+              "Previously used Python not available", JOptionPane.YES_NO_OPTION,
+              JOptionPane.WARNING_MESSAGE);
+          if (JOptionPane.YES_OPTION == yesNo) {
+            try {
+              pi.findPythonCommand();
+              if (!pi.isAvailable())
+                throw new Exception("Python command not found");
+            } catch (Exception e1) {
+              JOptionPane.showMessageDialog(this,
+                  "Python not found.\n\n"
+                      + "You can manually select Python binary\n"
+                      + "if you know where it is located.",
+                  "Error", JOptionPane.WARNING_MESSAGE);
+            }
+          }
+        }
+        return;
+      }
+      // No python location was stored. It's only stored when a user manually changes the location.
+      // try to auto-detect Python binary
+      try {
+        PythonInfo.get().findPythonCommand();
+      } catch (Exception ignored) {}
     }
 
     //region EventBus listeners
@@ -360,6 +407,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (checkLabelfree.isSelected() && isRunUmpireSe()) {
             checkLabelfree.setSelected(false);
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessagePythonInfoChanged(PythonInfo.MessageInfoChanged m) {
+      System.out.println(m);
+      PythonInfo pi = PythonInfo.get();
+      if (pi.isAvailable()) {
+        textBinPython.setText(pi.getCommand());
+        lblPythonInfo.setText("Version: " + pi.getVersion());
+      } else {
+        textBinPython.setText("");
+        lblPythonInfo.setText("N/A");
+      }
     }
 
     private void messageToLabel(JLabel comp, DbSlice.Message m) {
@@ -580,6 +640,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         lblSpeclibInfo1 = new javax.swing.JLabel();
         lblSpeclibInfo2 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        btnBrowseBinPython = new javax.swing.JButton();
+        textBinPython = new javax.swing.JTextField();
+        lblPythonInfo = new javax.swing.JLabel();
         panelSelectFiles = new javax.swing.JPanel();
         panelSelectedFiles = new javax.swing.JPanel();
         btnRawAddFiles = new javax.swing.JButton();
@@ -662,7 +726,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("MSFragger");
-        setIconImages(loadIcon());
+        setIconImages(ToolingUtils.loadIcon());
         setMaximumSize(new java.awt.Dimension(1920, 1080));
         setMinimumSize(new java.awt.Dimension(640, 480));
         setName("frameMain"); // NOI18N
@@ -696,7 +760,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
-        textBinMsfragger.setText(getDefaultBinMsfragger());
+        textBinMsfragger.setText(ToolingUtils.getDefaultBinMsfragger());
         textBinMsfragger.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 textBinMsfraggerFocusLost(evt);
@@ -718,6 +782,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         editorMsfraggerCitation.setContentType("text/html"); // NOI18N
         editorMsfraggerCitation.setFont(lblMsfraggerCitation.getFont());
         editorMsfraggerCitation.setText(getFraggerCitationHtml());
+        editorMsfraggerCitation.setAutoscrolls(false);
         editorMsfraggerCitation.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
             public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
                 urlHandlerViaSystemBrowser(evt);
@@ -760,7 +825,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         panelMsfraggerConfigLayout.setVerticalGroup(
             panelMsfraggerConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelMsfraggerConfigLayout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(panelMsfraggerConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textBinMsfragger, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnMsfraggerBinDownload)
@@ -771,8 +836,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblMsfraggerCitation)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         panelPhilosopherConfig.setBorder(javax.swing.BorderFactory.createTitledBorder("Philosopher"));
@@ -792,7 +856,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
-        textBinPhilosopher.setText(getDefaultBinPhilosopher());
+        textBinPhilosopher.setText(ToolingUtils.getDefaultBinPhilosopher());
         textBinPhilosopher.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 textBinPhilosopherFocusLost(evt);
@@ -854,8 +918,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 33, Short.MAX_VALUE))
         );
 
         btnFindTools.setText("Search tools");
@@ -963,6 +1026,44 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addContainerGap(15, Short.MAX_VALUE))
         );
 
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Python"));
+
+        btnBrowseBinPython.setText("Browse");
+        btnBrowseBinPython.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBrowseBinPythonActionPerformed(evt);
+            }
+        });
+
+        lblPythonInfo.setText("");
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(textBinPython)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnBrowseBinPython))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(lblPythonInfo)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnBrowseBinPython)
+                    .addComponent(textBinPython, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblPythonInfo)
+                .addGap(0, 12, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout panelConfigLayout = new javax.swing.GroupLayout(panelConfig);
         panelConfig.setLayout(panelConfigLayout);
         panelConfigLayout.setHorizontalGroup(
@@ -993,10 +1094,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
             .addGroup(panelConfigLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(panelConfigLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(panelConfigLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelConfigLayout.setVerticalGroup(
             panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1014,13 +1118,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addComponent(btnAboutInConfig))
                 .addGap(18, 18, 18)
                 .addComponent(panelMsfraggerConfig, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelPhilosopherConfig, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -2423,6 +2529,28 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     public void validateDbslicing() {
         new Thread(() -> DbSlice.get().init(fraggerVer)).start();
+    }
+
+    public void validateAndSavePython(final String binPath, boolean showPopupOnError) {
+      new Thread(() -> {
+        boolean ok;
+        PythonInfo pi = PythonInfo.get();
+        try {
+          ok = PythonInfo.get().setPythonCommand(binPath);
+        } catch (Exception e) {
+          ok = false;
+        }
+        if (ok) {
+          ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, pi.getCommand());
+        } else {
+          ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, "");
+        }
+        if (!ok && showPopupOnError) {
+            JOptionPane.showMessageDialog(MsfraggerGuiFrame.this,
+                "Not a valid Python binary path:\n\n" + binPath, "Not a Python binary", JOptionPane.WARNING_MESSAGE);
+        }
+      }).start();
+
     }
     
     private void validatePhilosopherVersion(final String binPath) {
@@ -4268,6 +4396,29 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         ThisAppProps.save(checkGenerateSpecLib, ThisAppProps.PROP_SPECLIBGEN_RUN);
     }//GEN-LAST:event_checkGenerateSpecLibActionPerformed
 
+    private void btnBrowseBinPythonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowseBinPythonActionPerformed
+        JFileChooser fc = new JFileChooser();
+        fc.setApproveButtonText("Select");
+        fc.setDialogTitle("Select Python binary");
+        fc.setMultiSelectionEnabled(false);
+        if (OsUtils.isWindows()) {
+            FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Executables", "exe");
+            fc.setFileFilter(fileNameExtensionFilter);
+        }
+
+        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+        List<String> props = Arrays.asList(ThisAppProps.PROP_BIN_PATH_PYTHON, ThisAppProps.PROP_BINARIES_IN);
+        String fcPath = ThisAppProps.tryFindPath(props, false);
+        SwingUtils.setFileChooserPath(fc, fcPath);
+
+        
+        if (JFileChooser.APPROVE_OPTION == fc.showOpenDialog(SwingUtils.findParentComponentForDialog(this))) {
+            String path = fc.getSelectedFile().getAbsolutePath();
+            validateAndSavePython(path, true);
+        }
+    }//GEN-LAST:event_btnBrowseBinPythonActionPerformed
+
 
     //region Load-Last methods
     public void loadLastPeptideProphet() {
@@ -5045,6 +5196,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnAbout;
     private javax.swing.JButton btnAboutInConfig;
     private javax.swing.JButton btnBrowse;
+    private javax.swing.JButton btnBrowseBinPython;
     private javax.swing.JButton btnClearCache;
     private javax.swing.JButton btnClearConsole;
     private javax.swing.JButton btnCrystalcDefaults;
@@ -5103,6 +5255,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -5116,6 +5269,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JLabel lblMsfraggerCitation;
     private javax.swing.JLabel lblOutputDir;
     private javax.swing.JLabel lblPhilosopherInfo;
+    private javax.swing.JLabel lblPythonInfo;
     private javax.swing.JLabel lblSpeclibInfo1;
     private javax.swing.JLabel lblSpeclibInfo2;
     private javax.swing.JPanel panelConfig;
@@ -5144,6 +5298,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JTabbedPane tabPane;
     private javax.swing.JTextField textBinMsfragger;
     private javax.swing.JTextField textBinPhilosopher;
+    private javax.swing.JTextField textBinPython;
     private javax.swing.JTextField textDecoyTagSeqDb;
     private javax.swing.JTextArea textPepProphCmd;
     private javax.swing.JTextField textReportAnnotate;
@@ -5154,5 +5309,4 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JTextArea txtProteinProphetCmdLineOpts;
     private javax.swing.JTextField txtWorkingDir;
     // End of variables declaration//GEN-END:variables
-
 }

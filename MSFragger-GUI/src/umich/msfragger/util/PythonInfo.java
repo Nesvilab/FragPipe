@@ -18,7 +18,6 @@ package umich.msfragger.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,8 +30,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.NotImplementedException;
-import umich.msfragger.gui.MsfraggerGuiFrame;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  *
@@ -50,10 +48,23 @@ public class PythonInfo {
   private Map<PythonModule, Installed> modules;
 
   private PythonInfo() {
+    reset(false);
+  }
+
+  private void reset(boolean notify) {
     command = null;
     version = null;
     majorVersion = -1;
     modules = new HashMap<>();
+    if (notify)
+      notifyInfoChanged();
+  }
+
+  private void notifyInfoChanged() {
+    EventBus.getDefault().postSticky(new MessageInfoChanged());
+  }
+
+  public static class MessageInfoChanged {
   }
 
   /**
@@ -61,9 +72,17 @@ public class PythonInfo {
    * @return If the provided command works.
    */
   private synchronized boolean trySetPythonCommand(String command) throws Exception {
-    String version = tryPythonCommandVersion(command);
-    if (version == null)
+    String version = null;
+    try {
+      version = tryPythonCommandVersion(command);
+    } catch (Exception e) {
+      reset(true);
+      throw e;
+    }
+    if (version == null) {
+      reset(true);
       return false;
+    }
     this.command = command;
     this.version = version;
     Pattern verRe = Pattern.compile("python\\s+([0-9]+)", Pattern.CASE_INSENSITIVE);
@@ -72,6 +91,7 @@ public class PythonInfo {
       final String pythonMajorVer = m1.group(1);
       this.majorVersion = Integer.valueOf(pythonMajorVer);
     }
+    notifyInfoChanged();
     return true;
   }
 
@@ -130,11 +150,11 @@ public class PythonInfo {
       throw new Exception("Error waiting for python/python3 process to finish.");
     }
 
-    return "Not recognized";
+    return null;
   }
 
-  public void setPythonCommand(String command) throws Exception {
-      trySetPythonCommand(command);
+  public boolean setPythonCommand(String command) throws Exception {
+      return trySetPythonCommand(command);
   }
   
   public void findPythonCommand() throws Exception {
@@ -204,7 +224,7 @@ public class PythonInfo {
     try {
       pr = pb.start();
     } catch (IOException ex) {
-      Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE,
+      Logger.getLogger(PythonInfo.class.getName()).log(Level.SEVERE,
           "Could not start python " + module.installName + " check process", ex);
     }
     if (pr != null) {
@@ -217,13 +237,13 @@ public class PythonInfo {
             installed = Installed.NO;
         }
       } catch (IOException ex) {
-        Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE,
+        Logger.getLogger(PythonInfo.class.getName()).log(Level.SEVERE,
             "Could not read python " + module.installName + " check output", ex);
       }
       try {
         pr.waitFor();
       } catch (InterruptedException ex) {
-        Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE,
+        Logger.getLogger(PythonInfo.class.getName()).log(Level.SEVERE,
             "Error while waiting for python " + module.installName + " check process to finish", ex);
       }
     }

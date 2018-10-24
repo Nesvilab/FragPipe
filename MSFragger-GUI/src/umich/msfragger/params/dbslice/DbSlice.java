@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.util.CheckResult;
@@ -39,6 +41,12 @@ public class DbSlice {
     pi = PythonInfo.get();
     scriptDbslicingPath = null;
     msfraggerVer = null;
+    EventBus.getDefault().register(this);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void onMessagePythonInfoChanged(PythonInfo.MessageInfoChanged m) {
+    init(msfraggerVer);
   }
 
   public Path getScriptDbslicingPath() {
@@ -134,11 +142,18 @@ public class DbSlice {
       }
     }
 
-    CheckResult res = checkFraggerVer(msfraggerVersion);
-    boolean isFraggerOk = res.isSuccess;
-    if (!res.isSuccess) {
-      EventBus.getDefault().post(new Message2(true, true, "Update MSFragger to a newer version."));
-      EventBus.getDefault().post(new Message2(true, false, "Use the Update button next to MSFragger field."));
+    boolean isFraggerOk = true;
+    if (msfraggerVersion != null) {
+      CheckResult res = checkFraggerVer(msfraggerVersion);
+      isFraggerOk = res.isSuccess;
+      if (!res.isSuccess) {
+        EventBus.getDefault()
+            .post(new Message2(true, true, "Update MSFragger to a newer version."));
+        EventBus.getDefault()
+            .post(new Message2(true, false, "Use the Update button next to MSFragger field."));
+      } else {
+        this.msfraggerVer = msfraggerVersion;
+      }
     }
 
     final boolean isInitSuccess = isPythonOk && isModulesInstalled && isUnpacked && isFraggerOk;
