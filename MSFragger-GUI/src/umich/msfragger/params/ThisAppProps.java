@@ -31,6 +31,7 @@ import javax.swing.JFileChooser;
 import javax.swing.text.JTextComponent;
 import umich.msfragger.Version;
 import umich.msfragger.gui.InputLcmsFile;
+import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.util.PathUtils;
 
@@ -219,10 +220,10 @@ public class ThisAppProps extends Properties {
       save(propName, val);
   }
 
-    public static Path getOutputDir(Path workDir, InputLcmsFile inputLcmsFile) {
-        return DEFAULT_LCMS_GROUP_NAME.equals(inputLcmsFile.experiment)
+    public static Path getOutputDir(Path workDir, LcmsFileGroup group) {
+        return DEFAULT_LCMS_GROUP_NAME.equals(group.groupName)
             ? workDir
-            : workDir.resolve(inputLcmsFile.experiment);
+            : workDir.resolve(group.groupName);
     }
 
     public void save() {

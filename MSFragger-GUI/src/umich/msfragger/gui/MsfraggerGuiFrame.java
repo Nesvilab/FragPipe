@@ -2997,8 +2997,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         final boolean isDryRun = checkDryRun.isSelected();
 
         boolean doRunFragger = fraggerPanel.isRunMsfragger();
-        boolean doRunAnyOtherTools = chkRunPeptideProphet.isSelected() 
-                                  || chkRunProteinProphet.isSelected() 
+        boolean doRunProphetsAndReport = chkRunPeptideProphet.isSelected()
+                                  || chkRunProteinProphet.isSelected()
                                   || checkCreateReport.isSelected();
 
         if (!fraggerPanel.isRunMsfragger()
@@ -3012,7 +3012,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
 
         // check for TSV output when any other downstream tools are requested
-        if (doRunFragger && doRunAnyOtherTools) {
+        if (doRunFragger && doRunProphetsAndReport) {
             if (fraggerPanel.getOutputType().equals(FraggerOutputType.TSV)) {
                 int confirm = JOptionPane.showConfirmDialog(this,
                         "You've chosen TSV output for MSFragger while\n"
@@ -3087,9 +3087,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         }
 
+
         final Map<String, LcmsFileGroup> lcmsFileGroups = getLcmsFileGroups();
-        final List<InputLcmsFile> lcmsFiles = new ArrayList<>(lcmsFileGroups.values().stream()
-            .flatMap(group -> group.inputLcmsFiles.stream()).collect(Collectors.toList()));
+        final List<InputLcmsFile> lcmsFiles = lcmsFileGroups.values().stream()
+            .flatMap(group -> group.inputLcmsFiles.stream()).collect(Collectors.toList());
+
         if (lcmsFiles.isEmpty()) {
             JOptionPane.showMessageDialog(this, "No LC/MS data files selected.\n"
                     + "Check 'Select Raw Files' tab.", "Error", JOptionPane.WARNING_MESSAGE);
@@ -3187,268 +3189,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
 
 
-        // run DIA-Umpire SE
-        final String binPhilosopher = textBinPhilosopher.getText().trim();
-        final boolean isUmpireActive = checkEnableDiaumpire.isSelected() && umpirePanel != null;
-        if (isUmpireActive) {
-            final boolean isRunUmpire = isRunUmpireSe();
-            final UmpireParams umpireParams = umpirePanel.collect();
-            try {
-                umpireParams.saveCache();
-            } catch (Exception ignored) {}
+        // Run all the tools for each experimental group
+        for (Entry<String, LcmsFileGroup> e : lcmsFileGroups.entrySet()) {
+          LcmsFileGroup group = e.getValue();
+          Path groupWd = ThisAppProps.getOutputDir(wdPath, group);
+          List<String> lcmsFilePaths = group.inputLcmsFiles.stream().map(f -> f.path.toString())
+              .collect(Collectors.toCollection(ArrayList::new));
 
-            {
-                List<ProcessBuilder> builders = ToolingUtils
-                    .pbsUmpire(isRunUmpire, isDryRun, this, jarUri, umpirePanel,
-                        binPhilosopher, wdPath, lcmsFiles);
-                if (builders == null) {
-                    resetRunButtons(true);
-                    return;
-                }
-                pbs.addAll(builders);
-            }
-            if (isRunUmpire) {
-                // update the input LCMS files as Umpire creates new ones
-                List<String> umpireCreatedMzxmlFiles = ToolingUtils
-                    .getUmpireCreatedMzxmlFiles(lcmsFilePaths, wdPath);
-                lcmsFilePaths.clear();
-                lcmsFilePaths.addAll(umpireCreatedMzxmlFiles);
-            }
-        }
-
-
-        // run MSAdjuster
-        {
-            List<ProcessBuilder> builders = ToolingUtils
-                .pbsMsadjuster(jarUri, this, workingDir, lcmsFilePaths, fraggerPanel, false);
-            if (builders == null) {
-                resetRunButtons(true);
-                return;
-            }
-            pbs.addAll(builders);
-        }
-
-
-
-        // we will now compose parameter objects for running processes.
-        // at first we will try to load the base parameter files, if the file paths
-        // in the GUI are not empty. If empty, we will load the defaults and
-        // add params from the GUI to it.
-        final String binMsfragger = textBinMsfragger.getText().trim();
-        {
-            List<ProcessBuilder> builders = ToolingUtils
-                .pbsFragger(this, "", workingDir, lcmsFilePaths,
-                    isDryRun, fraggerPanel, jarUri, binMsfragger, DbSlice.get());
-            if (builders == null) {
-                resetRunButtons(true);
-                return;
-            }
-            pbs.addAll(builders);
-
-            // if we have at least one MSFragger task, check for MGF file presence
-            if (!builders.isEmpty()) {
-                // check for MGF files and warn
-                String warn = ThisAppProps
-                    .load(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
-                if (warn != null && Boolean.valueOf(warn)) {
-                    for (String f : lcmsFilePaths) {
-                        if (f.toLowerCase().endsWith(".mgf")) {
-                            JCheckBox checkbox = new JCheckBox("Do not show this message again.");
-                            String msg = String.format(Locale.ROOT,
-                                "The list of input files contains MGF entries.\n"
-                                    + "MSFragger has limited MGF support (ProteoWizard output is OK).\n"
-                                    + "The search might fail unexpectedly with errors.\n"
-                                    + "Please consider converting files to mzML/mzXML with ProteoWizard.");
-                            Object[] params = {msg, checkbox};
-                            JOptionPane.showMessageDialog(this, params, "Warning",
-                                JOptionPane.WARNING_MESSAGE);
-                            if (checkbox.isSelected()) {
-                                ThisAppProps
-                                    .save(ThisAppProps.PROP_MGF_WARNING, Boolean.FALSE.toString());
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        // run MSAdjuster cleanup
-        {
-            List<ProcessBuilder> builders = ToolingUtils
-                .pbsMsadjuster(jarUri, this, workingDir, lcmsFilePaths, fraggerPanel, true);
-            if (builders == null) {
-                resetRunButtons(true);
-                return;
-            }
-            pbs.addAll(builders);
-        }
-
-
-        // run Crystal-C
-        //final boolean isCrystalcEnabled = checkEnableCrystalc.isSelected();
-        final boolean isCrystalc = chkRunCrystalc.isSelected(); // && isCrystalcEnabled
-        {
-            CrystalcParams ccParams;
-            try {
-                ccParams = crystalcFormToParams();
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(this,
-                    "Could not construct Crystal-C parameters from the GUI form input.", "Error",
-                    JOptionPane.ERROR_MESSAGE);
-                resetRunButtons(true);
-                return;
-            }
-            List<ProcessBuilder> builders = ToolingUtils
-                .pbsCrystalc(this, fraggerPanel, ccParams, isDryRun, isCrystalc, workingDir,
-                    fastaPath, lcmsFilePaths);
-            if (builders == null) {
-                resetRunButtons(true);
-                return;
-            }
-            pbs.addAll(builders);
-        }
-
-
-        // run Peptide Prophet
-        final boolean isPeptideProphet = chkRunPeptideProphet.isSelected();
-        final String dbPath = textSequenceDbPath.getText().trim();
-        final String pepProphCmd = textPepProphCmd.getText().trim();
-
-        List<ProcessBuilder> pbsPeptideProphet = ToolingUtils
-            .pbsPeptideProphet(isPeptideProphet, this, fraggerPanel, isCrystalc, binPhilosopher,
-                dbPath,
-                pepProphCmd, "", workingDir, lcmsFilePaths);
-        if (pbsPeptideProphet == null) {
+          if (!processBuildersForTools(pbs, groupWd, isDryRun, jarUri,
+              lcmsFilePaths, fastaPath, doRunProphetsAndReport)) {
             resetRunButtons(true);
             return;
+          }
         }
 
-
-
-        // run Protein Prophet
-        final String combinedProtFile = txtCombinedProtFile.getText().trim();
-        final boolean isProteinProphet = chkRunProteinProphet.isSelected();
-        final String proteinProphetCmdLineOpts = txtProteinProphetCmdLineOpts.getText();
-        final boolean isProtProphInteractStar = chkProteinProphetInteractStar.isSelected();
-
-        List<ProcessBuilder> pbsProteinProphet = ToolingUtils
-            .pbsProteinProphet(this, isProteinProphet, binPhilosopher, proteinProphetCmdLineOpts,
-                fraggerPanel, isProtProphInteractStar, isCrystalc, "", workingDir, combinedProtFile, lcmsFilePaths);
-        if (pbsProteinProphet == null) {
-            resetRunButtons(true);
-            return;
-        }
-
-        // run Reports
-        final boolean isReport = checkCreateReport.isSelected();
-        final boolean isReportDbAnnotate = checkReportDbAnnotate.isSelected();
-        final String reportAnnotateCmd = textReportAnnotate.getText();
-        final boolean isReportFilter = checkReportFilter.isSelected();
-        final String reportFilterCmd = textReportFilter.getText();
-        final boolean isReportProteinLevelFdr = checkReportProteinLevelFdr.isSelected();
-        final boolean isLabelFree = checkLabelfree.isSelected();
-        final String reportLabelFreeCmd = textReportLabelfree.getText();
-
-        List<ProcessBuilder> pbsReport = ToolingUtils
-            .pbsReport(isReport, binPhilosopher, this, fraggerPanel,
-            isCrystalc, isReportDbAnnotate, reportAnnotateCmd, dbPath, isReportFilter,reportFilterCmd,
-            isReportProteinLevelFdr,isLabelFree, reportLabelFreeCmd,
-            "", workingDir, combinedProtFile, lcmsFilePaths);
-        if (pbsReport == null) {
-            resetRunButtons(true);
-            return;
-        }
-
-        // if any of Philosopher stuff needs to be run, then clean/init the "workspace"
-        if (!pbsPeptideProphet.isEmpty()
-                || !pbsProteinProphet.isEmpty()
-                || !pbsReport.isEmpty()) {
-            String bin = textBinPhilosopher.getText().trim();
-            bin = PathUtils.testBinaryPath(bin, "");
-            boolean isPhilosopher = ToolingUtils.isPhilosopherBin(bin);
-
-            if (isPhilosopher) {
-                List<String> cmd = new ArrayList<>();
-                cmd.add(bin);
-                cmd.add("workspace");
-                cmd.add("--clean");
-                ProcessBuilder pb = new ProcessBuilder(cmd);
-                pbs.add(pb);
-            }
-
-            if (isPhilosopher) {
-                List<String> cmd = new ArrayList<>();
-                cmd.add(bin);
-                cmd.add("workspace");
-                cmd.add("--init");
-                ProcessBuilder pb = new ProcessBuilder(cmd);
-                pbs.add(pb);
-            }
-        }
-
-
-        // Check Decoy tags if any of the downstream tools are requested
-        if (doRunAnyOtherTools) { // downstream tools
-            if (StringUtils.isNullOrWhitespace(textDecoyTagSeqDb.getText())) {
-                int confirm = JOptionPane.showConfirmDialog(this,
-                        "Downstream analysis tools require decoys in the database,\n"
-                        + "but the decoy tag was left empty. It's recommended that\n"
-                        + "you set it.\n\n"
-                        + "Cancel operation and fix the problem (manually)?",
-                        "Cancel and fix parameters before run?\n", JOptionPane.YES_NO_OPTION);
-                if (JOptionPane.YES_OPTION == confirm) {
-                    resetRunButtons(true);
-                    return;
-                }
-            } else if (!checkDecoyTagsEqual()) {
-                int confirm = JOptionPane.showConfirmDialog(this,
-                        "Decoy sequence database tags differ between various tools\n"
-                        + "to be run.\n\n"
-                        + "This will most likely result in errors or incorrect results.\n\n"
-                        + "It's recommended that you change decoy tags to the same value.\n"
-                        + "You can switch to 'Sequence DB' tab and change it there,\n"
-                        + "you'll be offered to automatically change the values in other places.\n\n"
-                        + "Cancel operation and fix the problem (manually)?",
-                        "Cancel and fix parameters before run?\n", JOptionPane.YES_NO_OPTION);
-                if (JOptionPane.YES_OPTION == confirm) {
-                    resetRunButtons(true);
-                    return;
-                }
-            }
-
-        }
-
-
-        pbs.addAll(pbsPeptideProphet);
-        pbs.addAll(pbsProteinProphet);
-        pbs.addAll(pbsReport);
-
-
-        // run Spectral library generation
-        final boolean isSpeclibgen = checkGenerateSpecLib.isEnabled() && checkGenerateSpecLib.isSelected();
-        final String combinedProteinFn = txtCombinedProtFile.getText();
-        if (!isProteinProphet) {
-            // Protein Prohpet not selected, check if the output folder already contains interact.prot.xml
-            if (!Files.exists(wdPath.resolve(combinedProteinFn))) {
-                JOptionPane.showMessageDialog(this,
-                    "Protein Prophet not selected and the output directory\n"
-                    + "does not contain a '" + combinedProteinFn + "' file.\n\n"
-                    + "Either uncheck Spectral Library Generation checkbox or enable Protein Prophet.",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-                resetRunButtons(true);
-                return;
-            }
-        }
-        {
-            List<ProcessBuilder> pbsSpeclibgen = ToolingUtils
-                .pbsSpecLibGen(this, isSpeclibgen, wdPath, combinedProteinFn, fastaPath, binPhilosopher);
-            if (pbsSpeclibgen == null) {
-                resetRunButtons(true);
-                return;
-            }
-            pbs.addAll(pbsSpeclibgen);
-        }
 
 
         // cleanup
@@ -3653,6 +3407,265 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         exec.shutdown();
 
     }//GEN-LAST:event_btnRunActionPerformed
+
+
+    private boolean processBuildersForTools(List<ProcessBuilder> pbs, Path wdPath, boolean isDryRun,
+        URI jarUri, List<String> lcmsFilePaths, String fastaPath, boolean doRunProphetsAndReport) {
+
+      // run DIA-Umpire SE
+      final String binPhilosopher = textBinPhilosopher.getText().trim();
+      final boolean isUmpireActive = checkEnableDiaumpire.isSelected() && umpirePanel != null;
+      if (isUmpireActive) {
+        final boolean isRunUmpire = isRunUmpireSe();
+        final UmpireParams umpireParams = umpirePanel.collect();
+        try {
+          umpireParams.saveCache();
+        } catch (Exception ignored) {}
+
+        {
+          List<ProcessBuilder> builders = ToolingUtils
+              .pbsUmpire(isRunUmpire, isDryRun, this, jarUri, umpirePanel,
+                  binPhilosopher, wdPath, lcmsFilePaths);
+          if (builders == null) {
+            return false;
+          }
+          pbs.addAll(builders);
+        }
+        if (isRunUmpire) {
+          // update the input LCMS files as Umpire creates new ones
+          List<String> umpireCreatedMzxmlFiles = ToolingUtils
+              .getUmpireCreatedMzxmlFiles(lcmsFilePaths, wdPath);
+          lcmsFilePaths.clear();
+          lcmsFilePaths.addAll(umpireCreatedMzxmlFiles);
+        }
+      }
+
+      final String workingDir = wdPath.toString();
+
+      // run MSAdjuster
+      {
+        List<ProcessBuilder> builders = ToolingUtils
+            .pbsMsadjuster(jarUri, this, workingDir, lcmsFilePaths, fraggerPanel, false);
+        if (builders == null) {
+          resetRunButtons(true);
+          return false;
+        }
+        pbs.addAll(builders);
+      }
+
+
+
+      // we will now compose parameter objects for running processes.
+      // at first we will try to load the base parameter files, if the file paths
+      // in the GUI are not empty. If empty, we will load the defaults and
+      // add params from the GUI to it.
+      final String binMsfragger = textBinMsfragger.getText().trim();
+      {
+        List<ProcessBuilder> builders = ToolingUtils
+            .pbsFragger(this, "", workingDir, lcmsFilePaths,
+                isDryRun, fraggerPanel, jarUri, binMsfragger, DbSlice.get());
+        if (builders == null) {
+          return false;
+        }
+        pbs.addAll(builders);
+
+        // if we have at least one MSFragger task, check for MGF file presence
+        if (!builders.isEmpty()) {
+          // check for MGF files and warn
+          String warn = ThisAppProps
+              .load(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
+          if (warn != null && Boolean.valueOf(warn)) {
+            for (String f : lcmsFilePaths) {
+              if (f.toLowerCase().endsWith(".mgf")) {
+                JCheckBox checkbox = new JCheckBox("Do not show this message again.");
+                String msg = String.format(Locale.ROOT,
+                    "The list of input files contains MGF entries.\n"
+                        + "MSFragger has limited MGF support (ProteoWizard output is OK).\n"
+                        + "The search might fail unexpectedly with errors.\n"
+                        + "Please consider converting files to mzML/mzXML with ProteoWizard.");
+                Object[] params = {msg, checkbox};
+                JOptionPane.showMessageDialog(this, params, "Warning",
+                    JOptionPane.WARNING_MESSAGE);
+                if (checkbox.isSelected()) {
+                  ThisAppProps
+                      .save(ThisAppProps.PROP_MGF_WARNING, Boolean.FALSE.toString());
+                }
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      // run MSAdjuster cleanup
+      {
+        List<ProcessBuilder> builders = ToolingUtils
+            .pbsMsadjuster(jarUri, this, workingDir, lcmsFilePaths, fraggerPanel, true);
+        if (builders == null) {
+          return false;
+        }
+        pbs.addAll(builders);
+      }
+
+
+      // run Crystal-C
+      //final boolean isCrystalcEnabled = checkEnableCrystalc.isSelected();
+      final boolean isCrystalc = chkRunCrystalc.isSelected(); // && isCrystalcEnabled
+      {
+        CrystalcParams ccParams;
+        try {
+          ccParams = crystalcFormToParams();
+        } catch (IOException e) {
+          JOptionPane.showMessageDialog(this,
+              "Could not construct Crystal-C parameters from the GUI form input.", "Error",
+              JOptionPane.ERROR_MESSAGE);
+          return false;
+        }
+        List<ProcessBuilder> builders = ToolingUtils
+            .pbsCrystalc(this, fraggerPanel, ccParams, isDryRun, isCrystalc, workingDir,
+                fastaPath, lcmsFilePaths);
+        if (builders == null) {
+          return false;
+        }
+        pbs.addAll(builders);
+      }
+
+
+      // run Peptide Prophet
+      final boolean isPeptideProphet = chkRunPeptideProphet.isSelected();
+      final String dbPath = textSequenceDbPath.getText().trim();
+      final String pepProphCmd = textPepProphCmd.getText().trim();
+
+      List<ProcessBuilder> pbsPeptideProphet = ToolingUtils
+          .pbsPeptideProphet(isPeptideProphet, this, fraggerPanel, isCrystalc, binPhilosopher,
+              dbPath,
+              pepProphCmd, "", workingDir, lcmsFilePaths);
+      if (pbsPeptideProphet == null) {
+        return false;
+      }
+
+
+
+      // run Protein Prophet
+      final String combinedProtFile = txtCombinedProtFile.getText().trim();
+      final boolean isProteinProphet = chkRunProteinProphet.isSelected();
+      final String proteinProphetCmdLineOpts = txtProteinProphetCmdLineOpts.getText();
+      final boolean isProtProphInteractStar = chkProteinProphetInteractStar.isSelected();
+
+      List<ProcessBuilder> pbsProteinProphet = ToolingUtils
+          .pbsProteinProphet(this, isProteinProphet, binPhilosopher, proteinProphetCmdLineOpts,
+              fraggerPanel, isProtProphInteractStar, isCrystalc, "", workingDir, combinedProtFile, lcmsFilePaths);
+      if (pbsProteinProphet == null) {
+        return false;
+      }
+
+      // run Reports
+      final boolean isReport = checkCreateReport.isSelected();
+      final boolean isReportDbAnnotate = checkReportDbAnnotate.isSelected();
+      final String reportAnnotateCmd = textReportAnnotate.getText();
+      final boolean isReportFilter = checkReportFilter.isSelected();
+      final String reportFilterCmd = textReportFilter.getText();
+      final boolean isReportProteinLevelFdr = checkReportProteinLevelFdr.isSelected();
+      final boolean isLabelFree = checkLabelfree.isSelected();
+      final String reportLabelFreeCmd = textReportLabelfree.getText();
+
+      List<ProcessBuilder> pbsReport = ToolingUtils
+          .pbsReport(isReport, binPhilosopher, this, fraggerPanel,
+              isCrystalc, isReportDbAnnotate, reportAnnotateCmd, dbPath, isReportFilter,reportFilterCmd,
+              isReportProteinLevelFdr,isLabelFree, reportLabelFreeCmd,
+              "", workingDir, combinedProtFile, lcmsFilePaths);
+      if (pbsReport == null) {
+        return false;
+      }
+
+      // if any of Philosopher stuff needs to be run, then clean/init the "workspace"
+      if (!pbsPeptideProphet.isEmpty()
+          || !pbsProteinProphet.isEmpty()
+          || !pbsReport.isEmpty()) {
+        String bin = textBinPhilosopher.getText().trim();
+        bin = PathUtils.testBinaryPath(bin, "");
+        boolean isPhilosopher = ToolingUtils.isPhilosopherBin(bin);
+
+        if (isPhilosopher) {
+          List<String> cmd = new ArrayList<>();
+          cmd.add(bin);
+          cmd.add("workspace");
+          cmd.add("--clean");
+          ProcessBuilder pb = new ProcessBuilder(cmd);
+          pbs.add(pb);
+        }
+
+        if (isPhilosopher) {
+          List<String> cmd = new ArrayList<>();
+          cmd.add(bin);
+          cmd.add("workspace");
+          cmd.add("--init");
+          ProcessBuilder pb = new ProcessBuilder(cmd);
+          pbs.add(pb);
+        }
+      }
+
+
+      // Check Decoy tags if any of the downstream tools are requested
+      if (doRunProphetsAndReport) { // downstream tools
+        if (StringUtils.isNullOrWhitespace(textDecoyTagSeqDb.getText())) {
+          int confirm = JOptionPane.showConfirmDialog(this,
+              "Downstream analysis tools require decoys in the database,\n"
+                  + "but the decoy tag was left empty. It's recommended that\n"
+                  + "you set it.\n\n"
+                  + "Cancel operation and fix the problem (manually)?",
+              "Cancel and fix parameters before run?\n", JOptionPane.YES_NO_OPTION);
+          if (JOptionPane.YES_OPTION == confirm) {
+            return false;
+          }
+        } else if (!checkDecoyTagsEqual()) {
+          int confirm = JOptionPane.showConfirmDialog(this,
+              "Decoy sequence database tags differ between various tools\n"
+                  + "to be run.\n\n"
+                  + "This will most likely result in errors or incorrect results.\n\n"
+                  + "It's recommended that you change decoy tags to the same value.\n"
+                  + "You can switch to 'Sequence DB' tab and change it there,\n"
+                  + "you'll be offered to automatically change the values in other places.\n\n"
+                  + "Cancel operation and fix the problem (manually)?",
+              "Cancel and fix parameters before run?\n", JOptionPane.YES_NO_OPTION);
+          if (JOptionPane.YES_OPTION == confirm) {
+            return false;
+          }
+        }
+
+      }
+
+
+      pbs.addAll(pbsPeptideProphet);
+      pbs.addAll(pbsProteinProphet);
+      pbs.addAll(pbsReport);
+
+
+      // run Spectral library generation
+      final boolean isSpeclibgen = checkGenerateSpecLib.isEnabled() && checkGenerateSpecLib.isSelected();
+      final String combinedProteinFn = txtCombinedProtFile.getText();
+      if (!isProteinProphet) {
+        // Protein Prohpet not selected, check if the output folder already contains interact.prot.xml
+        if (!Files.exists(wdPath.resolve(combinedProteinFn))) {
+          JOptionPane.showMessageDialog(this,
+              "Protein Prophet not selected and the output directory\n"
+                  + "does not contain a '" + combinedProteinFn + "' file.\n\n"
+                  + "Either uncheck Spectral Library Generation checkbox or enable Protein Prophet.",
+              "Error", JOptionPane.ERROR_MESSAGE);
+          return false ;
+        }
+      }
+      {
+        List<ProcessBuilder> pbsSpeclibgen = ToolingUtils
+            .pbsSpecLibGen(this, isSpeclibgen, wdPath, combinedProteinFn, fastaPath, binPhilosopher);
+        if (pbsSpeclibgen == null) {
+          return false;
+        }
+        pbs.addAll(pbsSpeclibgen);
+      }
+
+      return true;
+    }
 
     /**
      * Check that decoy tags are the same in:<br/>
