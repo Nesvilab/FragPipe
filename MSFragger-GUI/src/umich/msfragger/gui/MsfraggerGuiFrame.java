@@ -76,7 +76,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -115,7 +114,6 @@ import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import rx.swing.sources.DocumentEventSource;
 import umich.msfragger.Version;
 import umich.msfragger.events.MessageIsUmpireRun;
 import umich.msfragger.gui.api.SearchTypeProp;
@@ -313,6 +311,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         tableModelRawFiles = createTableModelRawFiles();
         tableRawFiles = new SimpleETable(tableModelRawFiles);
         tableRawFiles.addComponentsEnabledOnNonEmptyData(btnRawClear);
+        tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsIntegers);
+        tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsFromPath);
+        tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsByFilename);
+        tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClear);
         tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnRawRemove);
         tableRawFiles.fireInitialization();
         tableRawFiles.setFillsViewportHeight(true);
@@ -651,7 +653,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         scrollPaneRawFiles = new javax.swing.JScrollPane();
         btnRawAddFolder = new javax.swing.JButton();
         btnRawRemove = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
+        btnGroupsIntegers = new javax.swing.JButton();
+        jLabel10 = new javax.swing.JLabel();
+        btnGroupsFromPath = new javax.swing.JButton();
+        jLabel11 = new javax.swing.JLabel();
+        btnGroupsByFilename = new javax.swing.JButton();
+        btnGroupsClear = new javax.swing.JButton();
         panelSequenceDb = new javax.swing.JPanel();
         panelDbInfo = new javax.swing.JPanel();
         textSequenceDbPath = new javax.swing.JTextField();
@@ -1166,7 +1173,37 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
-        jButton1.setText("Each run as a separate experiment");
+        btnGroupsIntegers.setText("Consecutive integers");
+        btnGroupsIntegers.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGroupsIntegersActionPerformed(evt);
+            }
+        });
+
+        jLabel10.setText("Assign files to Experiments/Groups:");
+
+        btnGroupsFromPath.setText("Guess from path");
+        btnGroupsFromPath.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGroupsFromPathActionPerformed(evt);
+            }
+        });
+
+        jLabel11.setText("You can change group names manually as well");
+
+        btnGroupsByFilename.setText("By file name");
+        btnGroupsByFilename.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGroupsByFilenameActionPerformed(evt);
+            }
+        });
+
+        btnGroupsClear.setText("Clear");
+        btnGroupsClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGroupsClearActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelSelectedFilesLayout = new javax.swing.GroupLayout(panelSelectedFiles);
         panelSelectedFiles.setLayout(panelSelectedFilesLayout);
@@ -1176,17 +1213,30 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(panelSelectedFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(scrollPaneRawFiles)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelSelectedFilesLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel11))
                     .addGroup(panelSelectedFilesLayout.createSequentialGroup()
-                        .addComponent(btnRawClear)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnRawRemove)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnRawAddFiles)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnRawAddFolder)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton1)
-                        .addGap(0, 158, Short.MAX_VALUE)))
+                        .addGroup(panelSelectedFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelSelectedFilesLayout.createSequentialGroup()
+                                .addComponent(btnRawClear)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnRawRemove)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnRawAddFiles)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnRawAddFolder))
+                            .addGroup(panelSelectedFilesLayout.createSequentialGroup()
+                                .addComponent(jLabel10)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnGroupsIntegers)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnGroupsFromPath)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnGroupsByFilename)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnGroupsClear)))
+                        .addGap(0, 81, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelSelectedFilesLayout.setVerticalGroup(
@@ -1197,10 +1247,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addComponent(btnRawClear)
                     .addComponent(btnRawRemove)
                     .addComponent(btnRawAddFiles)
-                    .addComponent(btnRawAddFolder)
-                    .addComponent(jButton1))
+                    .addComponent(btnRawAddFolder))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(panelSelectedFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10)
+                    .addComponent(btnGroupsIntegers)
+                    .addComponent(btnGroupsFromPath)
+                    .addComponent(btnGroupsByFilename)
+                    .addComponent(btnGroupsClear))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(scrollPaneRawFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 604, Short.MAX_VALUE)
+                .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(scrollPaneRawFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 550, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -3247,7 +3305,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     kv.getValue().forEach(path -> sb.append("\n    - ").append(path.toString()));
                     sb.append("\n");
                 });
-                sb.append("\nAs all the output is directed to a single folder, files might get overwritten.\n"
+                sb.append("\nFiles might get overwritten and results might be not what's expected.\n"
                     + "Consider renaming input files.");
 
                 JOptionPane.showMessageDialog(this,
@@ -3321,7 +3379,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         // Run all the tools for each experimental group
         for (Entry<String, LcmsFileGroup> e : lcmsFileGroups.entrySet()) {
           LcmsFileGroup group = e.getValue();
+
           Path groupWd = ThisAppProps.getOutputDir(wdPath, group);
+          if (!isDryRun) {
+              try {
+                  Files.createDirectories(groupWd);
+              } catch (IOException e1) {
+                  JOptionPane.showMessageDialog(this,
+                      "Could not create sub-directories for LCMS file groups/experiments.");
+                  resetRunButtons(true);
+                  return;
+              }
+          }
+
           List<String> lcmsFilePaths = group.inputLcmsFiles.stream().map(f -> f.path.toString())
               .collect(Collectors.toCollection(ArrayList::new));
 
@@ -3773,7 +3843,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       // run Spectral library generation
       final boolean isSpeclibgen = checkGenerateSpecLib.isEnabled() && checkGenerateSpecLib.isSelected();
       final String combinedProteinFn = txtCombinedProtFile.getText();
-      if (!isProteinProphet) {
+      if (isSpeclibgen && !isProteinProphet) {
         // Protein Prohpet not selected, check if the output folder already contains interact.prot.xml
         if (!Files.exists(wdPath.resolve(combinedProteinFn))) {
           JOptionPane.showMessageDialog(this,
@@ -4418,6 +4488,56 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             validateAndSavePython(path, true);
         }
     }//GEN-LAST:event_btnBrowseBinPythonActionPerformed
+
+    private void btnGroupsIntegersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGroupsIntegersActionPerformed
+      UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+      final int groupNumMaxLen = (int)Math.ceil(Math.log(m.dataSize()));
+      StringBuilder sb = new StringBuilder();
+      for (int i = 0; i < groupNumMaxLen; i++) {
+        sb.append("0");
+      }
+      final DecimalFormat fmt = new DecimalFormat(sb.toString());
+      for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+        InputLcmsFile f = m.dataGet(i);
+        final String group = "experiment-" + fmt.format(i+1);
+        m.dataSet(i, new InputLcmsFile(f.path, group));
+      }
+
+    }//GEN-LAST:event_btnGroupsIntegersActionPerformed
+
+    private void btnGroupsFromPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGroupsFromPathActionPerformed
+      UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+
+      for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+        InputLcmsFile f = m.dataGet(i);
+        int count = f.path.getNameCount();
+        String group = count - 2 >= 0
+            ? f.path.getName(count - 2).toString()
+            : f.path.getName(count - 1).toString();
+        m.dataSet(i, new InputLcmsFile(f.path, group));
+      }
+    }//GEN-LAST:event_btnGroupsFromPathActionPerformed
+
+    private void btnGroupsByFilenameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGroupsByFilenameActionPerformed
+      UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+
+      for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+        InputLcmsFile f = m.dataGet(i);
+        int count = f.path.getNameCount();
+        String group = f.path.getFileName().toString();
+        m.dataSet(i, new InputLcmsFile(f.path, group));
+      }
+    }//GEN-LAST:event_btnGroupsByFilenameActionPerformed
+
+    private void btnGroupsClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGroupsClearActionPerformed
+      UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+
+      for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+        InputLcmsFile f = m.dataGet(i);
+        int count = f.path.getNameCount();
+        m.dataSet(i, new InputLcmsFile(f.path, ThisAppProps.DEFAULT_LCMS_GROUP_NAME));
+      }
+    }//GEN-LAST:event_btnGroupsClearActionPerformed
 
 
     //region Load-Last methods
@@ -5202,6 +5322,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnCrystalcDefaults;
     private javax.swing.JButton btnExportLog;
     private javax.swing.JButton btnFindTools;
+    private javax.swing.JButton btnGroupsByFilename;
+    private javax.swing.JButton btnGroupsClear;
+    private javax.swing.JButton btnGroupsFromPath;
+    private javax.swing.JButton btnGroupsIntegers;
     private javax.swing.JButton btnLoadDefaultsClosed;
     private javax.swing.JButton btnLoadDefaultsOpen;
     private javax.swing.JButton btnMsfraggerBinBrowse;
@@ -5241,8 +5365,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JEditorPane editorMsfraggerCitation;
     private javax.swing.JEditorPane editorPhilosopherLink;
     private javax.swing.JEditorPane editorSequenceDb;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel34;
