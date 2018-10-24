@@ -30,6 +30,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.text.JTextComponent;
 import umich.msfragger.Version;
+import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.util.PathUtils;
 
@@ -67,6 +68,7 @@ public class ThisAppProps extends Properties {
 
     public static final String JAR_FILE_AS_RESOURCE_EXT = ".jazz";
     public static final Path UNPACK_TEMP_SUBDIR = Paths.get("fragpipe");
+    public static final String DEFAULT_LCMS_GROUP_NAME = "";
 
     public ThisAppProps() {
           this.setProperty(Version.PROP_VER, Version.VERSION);
@@ -217,7 +219,13 @@ public class ThisAppProps extends Properties {
       save(propName, val);
   }
 
-  public void save() {
+    public static Path getOutputDir(Path workDir, InputLcmsFile inputLcmsFile) {
+        return DEFAULT_LCMS_GROUP_NAME.equals(inputLcmsFile.experiment)
+            ? workDir
+            : workDir.resolve(inputLcmsFile.experiment);
+    }
+
+    public void save() {
         Path path = Paths.get(TEMP_DIR, TEMP_FILE_NAME);
         try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
             store(fos, Version.PROGRAM_TITLE + " runtime properties");

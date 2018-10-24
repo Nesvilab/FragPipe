@@ -47,7 +47,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -74,6 +73,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -117,7 +117,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import umich.msfragger.Version;
 import umich.msfragger.events.MessageIsUmpireRun;
-import umich.msfragger.gui.api.DataConverter;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.SimpleUniqueTableModel;
@@ -338,7 +337,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     PathUtils.traverseDirectoriesAcceptingFiles(f, FraggerPanel.fileNameExtensionFilter, paths);
                 }
             }
-            tableModelRawFiles.dataAddAll(paths);
+            tableModelRawFiles.dataAddAll(paths.stream()
+                .map(path -> new InputLcmsFile(path, ThisAppProps.DEFAULT_LCMS_GROUP_NAME))
+                .collect(Collectors.toList()));
         });
 
         // check binary paths (can only be done after manual MSFragger panel creation)
@@ -504,16 +505,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             checkGenerateSpecLib.setSelected(false);
         } else {
             ThisAppProps.load(checkGenerateSpecLib, ThisAppProps.PROP_SPECLIBGEN_RUN);
-        }
-    }
-
-    public static class InputLcmsFile {
-        public final Path path;
-        public final String experiment;
-
-        public InputLcmsFile(Path path, String experiment) {
-            this.path = path;
-            this.experiment = experiment;
         }
     }
 
@@ -2023,9 +2014,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 if (files.length > 0) {
                     ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, files[0]);
                     List<InputLcmsFile> paths = new ArrayList<>(files.length);
-                    final String defaultExperimentName = "";
                     for (File f : files) {
-                        paths.add(new InputLcmsFile(Paths.get(f.getAbsolutePath()), defaultExperimentName));
+                        paths.add(new InputLcmsFile(Paths.get(f.getAbsolutePath()), ThisAppProps.DEFAULT_LCMS_GROUP_NAME));
                     }
                     tableModelRawFiles.dataAddAll(paths);
                 }
@@ -2076,9 +2066,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         paths.add(Paths.get(f.getAbsolutePath()));
                     }
                 }
-                final String defaultExperimentName = "";
                 tableModelRawFiles.dataAddAll(paths.stream()
-                    .map(path -> new InputLcmsFile(path, defaultExperimentName))
+                    .map(path -> new InputLcmsFile(path, ThisAppProps.DEFAULT_LCMS_GROUP_NAME))
                     .collect(Collectors.toList()));
 
                 break;
@@ -2839,13 +2828,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         fc.setApproveButtonText("Select");
         fc.setDialogTitle("Select Philosopher binary");
         fc.setMultiSelectionEnabled(false);
-        
-        fc.setAcceptAllFileFilterUsed(true);
-        
-        
         if (OsUtils.isWindows()) {
-            FileNameExtensionFilter ff = new FileNameExtensionFilter("Executables", "exe");
-            fc.addChoosableFileFilter(ff);
+            FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Executables", "exe");
+            fc.setFileFilter(fileNameExtensionFilter);
         }
 
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -2854,15 +2839,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         String fcPath = ThisAppProps.tryFindPath(props, true);
         SwingUtils.setFileChooserPath(fc, fcPath);
 
-        int showOpenDialog = fc.showOpenDialog(SwingUtils.findParentComponentForDialog(this));
-        switch (showOpenDialog) {
-            case JFileChooser.APPROVE_OPTION:
-                File f = fc.getSelectedFile();
-                if (validateAndSavePhilosopherPath(f.getAbsolutePath())) {
-                    ThisAppProps.save(ThisAppProps.PROP_BINARIES_IN, f.getAbsolutePath());
-                }
-                break;
+        
+        if (JFileChooser.APPROVE_OPTION == fc.showOpenDialog(SwingUtils.findParentComponentForDialog(this))) {
+            String path = fc.getSelectedFile().getAbsolutePath();
+            if (validateAndSavePhilosopherPath(path)) {
+                // already saved to PROP_PHILOSOPHER, now save to general PROP_BINARIES
+                ThisAppProps.save(ThisAppProps.PROP_BINARIES_IN, path);
+            }
         }
+
     }//GEN-LAST:event_btnPhilosopherBinBrowseActionPerformed
 
     private void textBinMsfraggerFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textBinMsfraggerFocusLost
@@ -3102,8 +3087,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         }
 
-        List<String> lcmsFilePaths = getLcmsFilePaths();
-        if (lcmsFilePaths.isEmpty()) {
+        final Map<String, LcmsFileGroup> lcmsFileGroups = getLcmsFileGroups();
+        final List<InputLcmsFile> lcmsFiles = new ArrayList<>(lcmsFileGroups.values().stream()
+            .flatMap(group -> group.inputLcmsFiles.stream()).collect(Collectors.toList()));
+        if (lcmsFiles.isEmpty()) {
             JOptionPane.showMessageDialog(this, "No LC/MS data files selected.\n"
                     + "Check 'Select Raw Files' tab.", "Error", JOptionPane.WARNING_MESSAGE);
             resetRunButtons(true);
@@ -3111,10 +3098,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         } else {
             // check that all input LCMS files have unique filenames
             Map<String, List<Path>> inputFnMap = new HashMap<>();
-            for (String lcmsFilePath : lcmsFilePaths) {
-                Path path = Paths.get(lcmsFilePath);
-                String fn = path.getFileName().toString();
-                inputFnMap.computeIfAbsent(fn, s -> new LinkedList<>()).add(path);
+            for (LcmsFileGroup group : lcmsFileGroups.values()) {
+                for (InputLcmsFile inputLcmsFile : group.inputLcmsFiles) {
+                    Path path = inputLcmsFile.path;
+                    String fn = path.getFileName().toString();
+                    inputFnMap.computeIfAbsent(fn, s -> new LinkedList<>()).add(path);
+                }
             }
             List<Entry<String, List<Path>>> collect = inputFnMap.entrySet().stream()
                 .filter(kv -> kv.getValue().size() > 1).collect(Collectors.toList());
@@ -3176,18 +3165,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
         
         // check that all input files are in the same folder for Labelfree quant
-        if (checkLabelfree.isSelected() && !lcmsFilePaths.isEmpty()) {
+        if (checkLabelfree.isSelected() && lcmsFiles.size() > 1) {
             try {
-                String firstRaw = lcmsFilePaths.get(0);
-                Path firstDir = Paths.get(firstRaw).getParent();
-                for (String f : lcmsFilePaths) {
-                    if (!firstDir.equals(Paths.get(f).getParent())) {
-                        JOptionPane.showMessageDialog(this, "Not all input raw files are in the same folder.\n"
-                                + "Label free quant requires all files to be in the same directory :/",
-                                "Errors", JOptionPane.ERROR_MESSAGE);
-                        resetRunButtons(true);
-                        return;
-                    }
+                List<Path> inputLcmsLocations = lcmsFileGroups.values().stream()
+                    .flatMap(group -> group.inputLcmsFiles.stream())
+                    .map(lcms -> lcms.path.getParent()).distinct()
+                    .collect(Collectors.toList());
+                if (inputLcmsLocations.size() > 1) {
+                    JOptionPane.showMessageDialog(this, "Not all input raw files are in the same folder.\n"
+                            + "Label free quant requires all files to be in the same directory :/",
+                        "Errors", JOptionPane.ERROR_MESSAGE);
+                    resetRunButtons(true);
+                    return;
                 }
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Error validating raw file paths for quant",
@@ -3211,7 +3200,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             {
                 List<ProcessBuilder> builders = ToolingUtils
                     .pbsUmpire(isRunUmpire, isDryRun, this, jarUri, umpirePanel,
-                        binPhilosopher, wdPath, lcmsFilePaths);
+                        binPhilosopher, wdPath, lcmsFiles);
                 if (builders == null) {
                     resetRunButtons(true);
                     return;
@@ -3283,7 +3272,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 }
             }
         }
-        
+
         // run MSAdjuster cleanup
         {
             List<ProcessBuilder> builders = ToolingUtils
@@ -3397,8 +3386,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 pbs.add(pb);
             }
         }
-        
-        
+
+
         // Check Decoy tags if any of the downstream tools are requested
         if (doRunAnyOtherTools) { // downstream tools
             if (StringUtils.isNullOrWhitespace(textDecoyTagSeqDb.getText())) {
@@ -3427,9 +3416,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     return;
                 }
             }
-                
+
         }
-        
+
 
         pbs.addAll(pbsPeptideProphet);
         pbs.addAll(pbsProteinProphet);
@@ -3463,14 +3452,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
         // cleanup
-        if (!OsUtils.isWindows()) {
-            // On Linux we created symlinks to mzXML files, leave them there
-        } else {
-            // On windows we copied the files over to the working directory
-            // so will delete them now
-//            List<ProcessBuilder> pbsDeleteFiles = pbsDeleteFiles(workingDir, lcmsFilePaths);
-//            pbs.addAll(pbsDeleteFiles);
-        }
+        // We don't copy mzml files anymore, so this step is not needed.
+//        if (!OsUtils.isWindows()) {
+//            // On Linux we created symlinks to mzXML files, leave them there
+//        } else {
+//            // On windows we copied the files over to the working directory
+//            // so will delete them now
+////            List<ProcessBuilder> pbsDeleteFiles = pbsDeleteFiles(workingDir, lcmsFilePaths);
+////            pbs.addAll(pbsDeleteFiles);
+//        }
 
 
         String sbSysinfo = OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo() + "\n";
@@ -4811,61 +4801,69 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         btnStop.setEnabled(!runEnabled);
     }
 
-    private List<String> getLcmsFilePaths() {
-        ArrayList<Path> paths = tableModelRawFiles.dataCopy();
-        ArrayList<String> result = new ArrayList<>(paths.size());
-        for (Path p : paths) {
-            result.add(p.toString());
+    private Map<String, LcmsFileGroup> getLcmsFileGroups() {
+        List<InputLcmsFile> lcmsInputs = tableModelRawFiles.dataCopy();
+        Map<String, List<InputLcmsFile>> mapGroup2Files = lcmsInputs.stream()
+            .collect(Collectors.groupingBy(inputLcmsFile -> inputLcmsFile.experiment));
+
+        Map<String, LcmsFileGroup> result = new TreeMap<>();
+        for (Entry<String, List<InputLcmsFile>> e : mapGroup2Files.entrySet()) {
+            result.put(e.getKey(), new LcmsFileGroup(e.getKey(), e.getValue()));
         }
+
         return result;
     }
 
-    /**
-     * This returns the paths to files to be created. Might be symlinks or
-     * actual file copies. It does not create the files!
-     *
-     * @param workDir
-     * @return
-     */
-    private List<Path> getLcmsFilePathsInWorkdir(Path workDir) {
-        List<String> lcmsFilePaths = getLcmsFilePaths();
-        ArrayList<Path> result = new ArrayList<>();
-        for (String lcmsFilePath : lcmsFilePaths) {
-            result.add(workDir.resolve(Paths.get(lcmsFilePath).getFileName()));
-        }
-        return result;
-    }
+    // Not used anymore
+//    /**
+//     * This returns the paths to files to be created. Might be symlinks or
+//     * actual file copies. It does not create the files!
+//     *
+//     * @param workDir
+//     * @return
+//     */
+//    private List<Path> getLcmsFilePathsInWorkdir(Path workDir) {
+//        List<String> lcmsFilePaths = getLcmsFilePaths();
+//        Map<String, LcmsFileGroup> lcmsFileGroups = getLcmsFileGroups();
+//
+//        ArrayList<Path> result = new ArrayList<>();
+//        for (String lcmsFilePath : lcmsFilePaths) {
+//            result.add(workDir.resolve(Paths.get(lcmsFilePath).getFileName()));
+//        }
+//        return result;
+//    }
 
-    private void createLcmsFileSymlinks(Path workDir) throws IOException {
-        List<String> lcmsFilePaths = getLcmsFilePaths();
-        List<Path> paths = new ArrayList<>();
-        for (String s : lcmsFilePaths) {
-            paths.add(Paths.get(s));
-        }
-
-        List<Path> links = getLcmsFilePathsInWorkdir(workDir);
-        for (int i = 0; i < paths.size(); i++) {
-            Path lcmsPath = paths.get(i);
-            Path link = links.get(i);
-            if (link.equals(lcmsPath)) {
-                return;
-            }
-            if (Files.exists(link)) {
-                // if that link already exists we need to make sure it points to
-                // the same file
-                if (!Files.isSymbolicLink(link)) {
-                    throw new FileAlreadyExistsException(link.toString(), null, "A file already exists and is not a symbolic link");
-                }
-                Path linkTarget = Files.readSymbolicLink(link);
-                if (!linkTarget.equals(lcmsPath)) {
-                    String msg = String.format("A symblic link to mzXML file already exists, but points to a different file: %s", link);
-                    throw new FileAlreadyExistsException(link.toString(), null, msg);
-                }
-                return;
-            }
-            Files.createSymbolicLink(link, lcmsPath);
-        }
-    }
+    // Not used anymore
+//    private void createLcmsFileSymlinks(Path workDir) throws IOException {
+//        List<String> lcmsFilePaths = getLcmsFilePaths();
+//        List<Path> paths = new ArrayList<>();
+//        for (String s : lcmsFilePaths) {
+//            paths.add(Paths.get(s));
+//        }
+//
+//        List<Path> links = getLcmsFilePathsInWorkdir(workDir);
+//        for (int i = 0; i < paths.size(); i++) {
+//            Path lcmsPath = paths.get(i);
+//            Path link = links.get(i);
+//            if (link.equals(lcmsPath)) {
+//                return;
+//            }
+//            if (Files.exists(link)) {
+//                // if that link already exists we need to make sure it points to
+//                // the same file
+//                if (!Files.isSymbolicLink(link)) {
+//                    throw new FileAlreadyExistsException(link.toString(), null, "A file already exists and is not a symbolic link");
+//                }
+//                Path linkTarget = Files.readSymbolicLink(link);
+//                if (!linkTarget.equals(lcmsPath)) {
+//                    String msg = String.format("A symblic link to mzXML file already exists, but points to a different file: %s", link);
+//                    throw new FileAlreadyExistsException(link.toString(), null, msg);
+//                }
+//                return;
+//            }
+//            Files.createSymbolicLink(link, lcmsPath);
+//        }
+//    }
 
     /**
      * Get the name of the file less the provided suffix.

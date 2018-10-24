@@ -18,13 +18,20 @@ package umich.msfragger.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.NotImplementedException;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 
 /**
@@ -126,11 +133,52 @@ public class PythonInfo {
     return "Not recognized";
   }
 
+  public void setPythonCommand(String command) throws Exception {
+      trySetPythonCommand(command);
+  }
+  
   public void findPythonCommand() throws Exception {
     String[] commands = {"python", "python3"};
+
+    // try to query the registry on Windows
+    if (OsUtils.isWindows()) {
+      final String[] roots = {"HKCU", "HKU", "HKLM", "HKCR", "HKCC"};
+      final String[] locations = {
+          "\\Software\\Python\\PythonCore"
+      };
+      List<String> potentialLocs = new ArrayList<>();
+      for (String root : roots) {
+        for (String loc : locations) {
+          potentialLocs.addAll(RegQuery.query(root + loc));
+        }
+      }
+
+      List<String> possiblePython3InstallPaths = potentialLocs.stream()
+          .filter(loc -> Paths.get(loc).getFileName().toString().startsWith("3."))
+          .sorted(Comparator.reverseOrder())
+          .collect(Collectors.toList());
+      for (String possiblePython3InstallPath : possiblePython3InstallPaths) {
+        List<String> res = RegQuery.query(possiblePython3InstallPath + "\\InstallPath", "");
+        for (String r : res) {
+          for(String cmd : commands) {
+            try {
+              final String rVal = RegQuery.getTokenValue(RegQuery.TOKEN_REGSZ, r);
+              final String pythonBinPath = Paths.get(rVal, cmd).toString();
+              if (trySetPythonCommand(pythonBinPath))
+                return;
+            } catch (Exception ignored) {
+              // on Windows the registry might be dirty, those paths don't mean much
+            }
+          }
+        }
+      }
+    }
+
+
+    // try the Python commands searching PATH env-var
     for(String cmd : commands) {
       if (trySetPythonCommand(cmd))
-        break;
+        return;
     }
   }
 

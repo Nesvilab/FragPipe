@@ -160,8 +160,8 @@ public class ToolingUtils {
       String raw = entry.getKey();
       String dirty = entry.getValue();
       String fn = Paths.get(dirty).getFileName().toString();
-      String fnMod = !crystalC ? fn :
-          StringUtils.upToLastDot(fn) + "_c." + StringUtils.afterLastDot(fn);
+      String fnMod = !crystalC ? fn
+          : StringUtils.upToLastDot(fn) + "_c." + StringUtils.afterLastDot(fn);
       Path pepxmlClean = wd.resolve(fnMod).toAbsolutePath();
       pepxmls.put(raw, pepxmlClean.toString());
     }
@@ -1063,13 +1063,14 @@ public class ToolingUtils {
 
   public static List<ProcessBuilder> pbsUmpire(boolean isRunUmpire, boolean isDryRun,
       Component errMsgParent, URI jarUri, UmpirePanel umpirePanel, String binPhilosopher,
-      Path workingDir, List<String> lcmsFilePaths) {
+      Path workingDir, List<InputLcmsFile> lcmsFilePaths) {
+
 
     List<ProcessBuilder> pbs = new LinkedList<>();
     if (isRunUmpire) {
 
       // check if input files contain only mzxml files
-      boolean hasNonMzxml = lcmsFilePaths.stream().map(String::toLowerCase)
+      boolean hasNonMzxml = lcmsFilePaths.stream().map(f -> f.path.getFileName().toString().toLowerCase())
           .anyMatch(p -> !p.endsWith("mzxml"));
       if (hasNonMzxml) {
         JOptionPane.showMessageDialog(errMsgParent,
@@ -1099,8 +1100,8 @@ public class ToolingUtils {
       // write umpire params file
       final DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
       final String dateStr = df.format(new Date());
-      final List<Path> lcmsFiles = lcmsFilePaths.stream().map(s -> Paths.get(s)).collect(
-          Collectors.toList());
+      final List<Path> lcmsFiles = lcmsFilePaths.stream()
+          .map(p -> p.path).collect(Collectors.toList());
       final UmpireParams collectedUmpireParams = umpirePanel.collect();
       final String umpireParamsFileName =
           UmpireParams.FILE_BASE_NAME + "_" + dateStr + "." + UmpireParams.FILE_BASE_EXT;
