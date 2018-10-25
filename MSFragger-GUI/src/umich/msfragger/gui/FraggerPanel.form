@@ -1368,7 +1368,7 @@
                           <Font name="Tahoma" size="11" style="2"/>
                         </Property>
                         <Property name="text" type="java.lang.String" value="Adjust precursor mass"/>
-                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Try to trace MS1 signals, adjusting MS2 precursor mass.&lt;br/&gt;&#xa;Requires MSFragger 20180924+."/>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Correct monoisotopic mass determination errors.&lt;br/&gt;&#xa;Requires MSFragger 20180924+."/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkMsadjusterActionPerformed"/>

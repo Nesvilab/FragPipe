@@ -729,34 +729,31 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="scrollPaneRawFiles" max="32767" attributes="0"/>
-                              <Group type="102" alignment="1" attributes="0">
-                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                                  <Component id="jLabel11" min="-2" max="-2" attributes="0"/>
-                              </Group>
                               <Group type="102" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Group type="102" attributes="0">
-                                          <Component id="btnRawClear" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace max="-2" attributes="0"/>
-                                          <Component id="btnRawRemove" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="jLabel10" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Group type="102" alignment="0" attributes="0">
                                           <Component id="btnRawAddFiles" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Component id="btnRawAddFolder" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="btnRawRemove" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="btnRawClear" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                       <Group type="102" alignment="0" attributes="0">
-                                          <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
+                                          <Component id="btnGroupsConsecutive" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
-                                          <Component id="btnGroupsIntegers" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace max="-2" attributes="0"/>
-                                          <Component id="btnGroupsFromPath" min="-2" max="-2" attributes="0"/>
+                                          <Component id="btnGroupsByParentDir" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Component id="btnGroupsByFilename" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="btnGroupsAssignToSelected" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Component id="btnGroupsClear" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
-                                  <EmptySpace min="0" pref="81" max="32767" attributes="0"/>
+                                  <EmptySpace min="0" pref="174" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -768,21 +765,21 @@
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="btnRawClear" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnRawRemove" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnRawAddFiles" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnRawAddFolder" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnRawClear" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
+                          <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="btnGroupsIntegers" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="btnGroupsFromPath" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnGroupsConsecutive" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnGroupsByParentDir" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnGroupsByFilename" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnGroupsAssignToSelected" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnGroupsClear" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jLabel11" min="-2" pref="14" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="scrollPaneRawFiles" pref="550" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -822,18 +819,19 @@
                 </Component>
                 <Component class="javax.swing.JButton" name="btnRawRemove">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Remove"/>
+                    <Property name="text" type="java.lang.String" value="Remove Selected"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRawRemoveActionPerformed"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JButton" name="btnGroupsIntegers">
+                <Component class="javax.swing.JButton" name="btnGroupsConsecutive">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Consecutive integers"/>
+                    <Property name="text" type="java.lang.String" value="Consecutive"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Assign each run to its own experiment.&lt;br/&gt;&#xa;&lt;b&gt;Names like &quot;experiment-01&quot;&lt;/b&gt; will be assgined."/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsIntegersActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsConsecutiveActionPerformed"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel10">
@@ -841,22 +839,19 @@
                     <Property name="text" type="java.lang.String" value="Assign files to Experiments/Groups:"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JButton" name="btnGroupsFromPath">
+                <Component class="javax.swing.JButton" name="btnGroupsByParentDir">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Guess from path"/>
+                    <Property name="text" type="java.lang.String" value="By parent directory"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Assign each run to an experiment.&lt;br/&gt;&#xa;LCMS file&apos;s &lt;b&gt;parent directory name&lt;b&gt; will be used&lt;br/&gt;&#xa;as the experiment name."/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsFromPathActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsByParentDirActionPerformed"/>
                   </Events>
-                </Component>
-                <Component class="javax.swing.JLabel" name="jLabel11">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="You can change group names manually as well"/>
-                  </Properties>
                 </Component>
                 <Component class="javax.swing.JButton" name="btnGroupsByFilename">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="By file name"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Each file is assigned to an experiment with&lt;br/&gt;&#xa;the &lt;b&gt;same name as the file itself&lt;/b&gt;."/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsByFilenameActionPerformed"/>
@@ -865,9 +860,19 @@
                 <Component class="javax.swing.JButton" name="btnGroupsClear">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Clear"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Each file is assigned to the &lt;b&gt;default&lt;/b&gt; experiment."/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsClearActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JButton" name="btnGroupsAssignToSelected">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Assign to selected"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Brings up a dialog to assign selected runs to an&lt;br/&gt;&#xa;experiment name of your choice."/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsAssignToSelectedActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>
@@ -1066,6 +1071,8 @@
                           <Component id="panelCrystalcOptions" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="chkRunCrystalc" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="jLabel12" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="32767" attributes="0"/>
                               <Component id="btnCrystalcDefaults" min="-2" max="-2" attributes="0"/>
                           </Group>
@@ -1081,6 +1088,7 @@
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="btnCrystalcDefaults" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="chkRunCrystalc" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="panelCrystalcOptions" max="32767" attributes="0"/>
@@ -1160,7 +1168,7 @@
                               <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="spinnerCrystalcPrecIsoWindow" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="552" max="32767" attributes="0"/>
+                          <EmptySpace pref="543" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -1216,6 +1224,11 @@
                 </Component>
               </SubComponents>
             </Container>
+            <Component class="javax.swing.JLabel" name="jLabel12">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="&lt;html&gt;Crystal-C performs additional search results cleanup&lt;br/&gt;&#xa;&lt;b&gt;Recommended for Open Searches&lt;/b&gt;"/>
+              </Properties>
+            </Component>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="panelPeptideProphet">
@@ -1815,32 +1828,30 @@
                           <Component id="consoleScrollPane" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
                               <Group type="103" groupAlignment="1" attributes="0">
-                                  <Group type="102" alignment="1" attributes="0">
-                                      <Component id="lblOutputDir" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="txtWorkingDir" max="32767" attributes="0"/>
-                                  </Group>
-                                  <Group type="102" alignment="0" attributes="0">
+                                  <Group type="102" attributes="0">
                                       <Component id="btnRun" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="btnStop" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
                                       <Component id="checkDryRun" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace pref="146" max="32767" attributes="0"/>
+                                      <EmptySpace pref="223" max="32767" attributes="0"/>
                                       <Component id="btnExportLog" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="btnReportErrors" min="-2" max="-2" attributes="0"/>
                                   </Group>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="btnAbout" min="-2" max="-2" attributes="0"/>
-                                  <Component id="btnSelectWrkingDir" min="-2" max="-2" attributes="0"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="lblOutputDir" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="txtWorkingDir" max="32767" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="btnSelectWrkingDir" min="-2" max="-2" attributes="0"/>
+                                  </Group>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                   <Component id="btnClearConsole" max="32767" attributes="0"/>
                                   <Component id="btnOpenInExplorer" max="32767" attributes="0"/>
+                                  <Component id="btnAbout" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
@@ -1851,7 +1862,9 @@
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="btnAbout" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="lblOutputDir" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnSelectWrkingDir" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -1862,11 +1875,10 @@
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="btnStop" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnClearConsole" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="btnAbout" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="checkDryRun" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnReportErrors" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnRun" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnExportLog" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkDryRun" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="consoleScrollPane" pref="586" max="32767" attributes="0"/>

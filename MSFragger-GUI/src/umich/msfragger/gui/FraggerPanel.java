@@ -1246,7 +1246,7 @@ public class FraggerPanel extends javax.swing.JPanel {
 
         chkMsadjuster.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
         chkMsadjuster.setText("Adjust precursor mass");
-        chkMsadjuster.setToolTipText("<html>Try to trace MS1 signals, adjusting MS2 precursor mass.<br/>\nRequires MSFragger 20180924+.");
+        chkMsadjuster.setToolTipText("<html>Correct monoisotopic mass determination errors.<br/>\nRequires MSFragger 20180924+.");
         chkMsadjuster.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 chkMsadjusterActionPerformed(evt);
