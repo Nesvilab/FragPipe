@@ -68,7 +68,7 @@ public class JarUtils {
         try (InputStream in = clazz.getResourceAsStream(resourceLocation)) {
             final String resourceNameDest = computeFinalResourceName(resourceLocation);
 
-            Path tempDir = Paths.get(ThisAppProps.TEMP_DIR);
+            final Path tempDir = Paths.get(ThisAppProps.TEMP_DIR);
             Path destDir = tempDir;
             if (locationInTemp != null)
                 destDir = destDir.resolve(locationInTemp);
@@ -101,7 +101,7 @@ public class JarUtils {
     private static String computeFinalResourceName(String resourceLocation) {
         final String resourceNameOrig = StringUtils.afterLastChar(resourceLocation, '/', false);
         return resourceNameOrig.toLowerCase().endsWith(JAR_FILE_AS_RESOURCE_EXT)
-            ? StringUtils.upToLastDot(resourceLocation) + ".jar"
+            ? StringUtils.upToLastDot(resourceNameOrig) + ".jar"
             : resourceNameOrig;
     }
 }
