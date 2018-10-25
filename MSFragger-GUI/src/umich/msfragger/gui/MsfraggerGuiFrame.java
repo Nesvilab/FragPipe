@@ -17,9 +17,6 @@
 package umich.msfragger.gui;
 
 import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
-import static umich.msfragger.gui.ToolingUtils.getDefaultBinMsfragger;
-import static umich.msfragger.gui.ToolingUtils.getDefaultBinPhilosopher;
-import static umich.msfragger.gui.ToolingUtils.loadIcon;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -33,6 +30,8 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -47,7 +46,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -74,6 +72,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -111,18 +110,16 @@ import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import umich.msfragger.Version;
 import umich.msfragger.events.MessageIsUmpireRun;
-import umich.msfragger.gui.api.DataConverter;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
-import umich.msfragger.gui.api.SimpleUniqueTableModel;
 import umich.msfragger.gui.api.TableModelColumn;
+import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
@@ -148,6 +145,7 @@ import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.PrefixCounter;
 import umich.msfragger.util.Proc2;
 import umich.msfragger.util.PropertiesUtils;
+import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.Tuple2;
@@ -176,7 +174,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private static final String TIP_NAME_FRAGGER_JAVA_VER = "msfragger.java.min.ver";
 
     SimpleETable tableRawFiles;
-    SimpleUniqueTableModel<Path> tableModelRawFiles;
+    UniqueLcmsFilesTableModel tableModelRawFiles;
     FileDrop tableRawFilesFileDrop;
 
     public static final SearchTypeProp DEFAULT_TYPE = SearchTypeProp.closed;
@@ -313,6 +311,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         tableModelRawFiles = createTableModelRawFiles();
         tableRawFiles = new SimpleETable(tableModelRawFiles);
         tableRawFiles.addComponentsEnabledOnNonEmptyData(btnRawClear);
+        tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsIntegers);
+        tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsFromPath);
+        tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsByFilename);
+        tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClear);
         tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnRawRemove);
         tableRawFiles.fireInitialization();
         tableRawFiles.setFillsViewportHeight(true);
@@ -327,33 +329,78 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //        SimpleETableTransferHandler newHandler = new SimpleETableTransferHandler();
 //        tableRawFiles.setTransferHandler(newHandler);
         // dropping onto enclosing JPanel works.
-        tableRawFilesFileDrop = new FileDrop(panelSelectedFiles, true, new FileDrop.Listener() {
-            @Override
-            public void filesDropped(File[] files) {
-                ArrayList<Path> paths = new ArrayList<>(files.length);
-                for (File f : files) {
-                    boolean isDirectory = f.isDirectory();
-                    if (!isDirectory) {
-                        if (FraggerPanel.fileNameExtensionFilter.accept(f)) {
-                            paths.add(Paths.get(f.getAbsolutePath()));
-                        }
-                    } else {
-                        PathUtils.traverseDirectoriesAcceptingFiles(f, FraggerPanel.fileNameExtensionFilter, paths);
+        tableRawFilesFileDrop = new FileDrop(panelSelectedFiles, true, files -> {
+            ArrayList<Path> paths = new ArrayList<>(files.length);
+            for (File f : files) {
+                boolean isDirectory = f.isDirectory();
+                if (!isDirectory) {
+                    if (FraggerPanel.fileNameExtensionFilter.accept(f)) {
+                        paths.add(Paths.get(f.getAbsolutePath()));
                     }
+                } else {
+                    PathUtils.traverseDirectoriesAcceptingFiles(f, FraggerPanel.fileNameExtensionFilter, paths);
                 }
-                tableModelRawFiles.dataAddAll(paths);
             }
+            tableModelRawFiles.dataAddAll(paths.stream()
+                .map(path -> new InputLcmsFile(path, ThisAppProps.DEFAULT_LCMS_GROUP_NAME))
+                .collect(Collectors.toList()));
+        });
+
+        textBinPython.addFocusListener(new FocusAdapter() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            final String text = textBinPython.getText();
+            validateAndSavePython(text, true);
+          }
         });
 
         // check binary paths (can only be done after manual MSFragger panel creation)
         SwingUtilities.invokeLater(() -> validateAndSaveMsfraggerPath(textBinMsfragger.getText()));
         SwingUtilities.invokeLater(() -> validateAndSavePhilosopherPath(textBinPhilosopher.getText()));
         SwingUtilities.invokeLater(this::checkPreviouslySavedParams);
+        SwingUtilities.invokeLater(this::checkPython);
         SwingUtilities.invokeLater(this::validateMsadjusterEligibility);
         SwingUtilities.invokeLater(this::validateDbslicing);
         SwingUtilities.invokeLater(this::validateSpeclibgen);
 
         initActions();
+    }
+
+    private void checkPython() {
+      String path = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_PYTHON);
+      PythonInfo pi = PythonInfo.get();
+      if (path != null) {
+        try {
+          if (!pi.setPythonCommand(path))
+            throw new Exception("Could not set python command to the old value");
+        } catch (Exception e) {
+          ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, "");
+          int yesNo = JOptionPane.showConfirmDialog(this,
+              "Previously stored Python location is now invalid:\n"
+                  + "\t" + path + "\n\nDo you want to try automatically find the Python binary?",
+              "Previously used Python not available", JOptionPane.YES_NO_OPTION,
+              JOptionPane.WARNING_MESSAGE);
+          if (JOptionPane.YES_OPTION == yesNo) {
+            try {
+              pi.findPythonCommand();
+              if (!pi.isAvailable())
+                throw new Exception("Python command not found");
+            } catch (Exception e1) {
+              JOptionPane.showMessageDialog(this,
+                  "Python not found.\n\n"
+                      + "You can manually select Python binary\n"
+                      + "if you know where it is located.",
+                  "Error", JOptionPane.WARNING_MESSAGE);
+            }
+          }
+        }
+        return;
+      }
+      // No python location was stored. It's only stored when a user manually changes the location.
+      // try to auto-detect Python binary
+      try {
+        PythonInfo.get().findPythonCommand();
+      } catch (Exception ignored) {}
     }
 
     //region EventBus listeners
@@ -362,6 +409,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (checkLabelfree.isSelected() && isRunUmpireSe()) {
             checkLabelfree.setSelected(false);
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessagePythonInfoChanged(PythonInfo.MessageInfoChanged m) {
+      System.out.println(m);
+      PythonInfo pi = PythonInfo.get();
+      if (pi.isAvailable()) {
+        textBinPython.setText(pi.getCommand());
+        lblPythonInfo.setText("Version: " + pi.getVersion());
+      } else {
+        textBinPython.setText("");
+        lblPythonInfo.setText("N/A");
+      }
     }
 
     private void messageToLabel(JLabel comp, DbSlice.Message m) {
@@ -511,23 +571,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
     }
 
-    public SimpleUniqueTableModel<Path> createTableModelRawFiles() {
+    public UniqueLcmsFilesTableModel createTableModelRawFiles() {
         if (tableModelRawFiles != null) {
             return tableModelRawFiles;
         }
-        List<TableModelColumn<Path, ?>> cols = new ArrayList<>();
+        List<TableModelColumn<InputLcmsFile, ?>> cols = new ArrayList<>();
 
-        TableModelColumn<Path, String> colPath = new TableModelColumn<>(
+        TableModelColumn<InputLcmsFile, String> colPath = new TableModelColumn<>(
                 "Path (supports Drag & Drop from Explorer)", 
-                String.class, false, new DataConverter<Path, String>() {
-            @Override
-            public String convert(Path data) {
-                return data.toString();
-            }
-        });
+                String.class, false, data -> data.path.toString());
+        TableModelColumn<InputLcmsFile, String> colExp = new TableModelColumn<>(
+            "Experiment/Group/Set", String.class, true, data -> data.experiment);
         cols.add(colPath);
+        cols.add(colExp);
 
-        tableModelRawFiles = new SimpleUniqueTableModel<>(cols, 0);
+        tableModelRawFiles = new UniqueLcmsFilesTableModel(cols, 0);
         return tableModelRawFiles;
     }
 
@@ -584,6 +642,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         lblSpeclibInfo1 = new javax.swing.JLabel();
         lblSpeclibInfo2 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        btnBrowseBinPython = new javax.swing.JButton();
+        textBinPython = new javax.swing.JTextField();
+        lblPythonInfo = new javax.swing.JLabel();
         panelSelectFiles = new javax.swing.JPanel();
         panelSelectedFiles = new javax.swing.JPanel();
         btnRawAddFiles = new javax.swing.JButton();
@@ -591,7 +653,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         scrollPaneRawFiles = new javax.swing.JScrollPane();
         btnRawAddFolder = new javax.swing.JButton();
         btnRawRemove = new javax.swing.JButton();
-        chkProcessEachFiileSeparately = new javax.swing.JCheckBox();
+        btnGroupsIntegers = new javax.swing.JButton();
+        jLabel10 = new javax.swing.JLabel();
+        btnGroupsFromPath = new javax.swing.JButton();
+        jLabel11 = new javax.swing.JLabel();
+        btnGroupsByFilename = new javax.swing.JButton();
+        btnGroupsClear = new javax.swing.JButton();
         panelSequenceDb = new javax.swing.JPanel();
         panelDbInfo = new javax.swing.JPanel();
         textSequenceDbPath = new javax.swing.JTextField();
@@ -666,7 +733,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("MSFragger");
-        setIconImages(loadIcon());
+        setIconImages(ToolingUtils.loadIcon());
         setMaximumSize(new java.awt.Dimension(1920, 1080));
         setMinimumSize(new java.awt.Dimension(640, 480));
         setName("frameMain"); // NOI18N
@@ -700,7 +767,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
-        textBinMsfragger.setText(getDefaultBinMsfragger());
+        textBinMsfragger.setText(ToolingUtils.getDefaultBinMsfragger());
         textBinMsfragger.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 textBinMsfraggerFocusLost(evt);
@@ -722,6 +789,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         editorMsfraggerCitation.setContentType("text/html"); // NOI18N
         editorMsfraggerCitation.setFont(lblMsfraggerCitation.getFont());
         editorMsfraggerCitation.setText(getFraggerCitationHtml());
+        editorMsfraggerCitation.setAutoscrolls(false);
         editorMsfraggerCitation.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
             public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
                 urlHandlerViaSystemBrowser(evt);
@@ -764,7 +832,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         panelMsfraggerConfigLayout.setVerticalGroup(
             panelMsfraggerConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelMsfraggerConfigLayout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(panelMsfraggerConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textBinMsfragger, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnMsfraggerBinDownload)
@@ -775,8 +843,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblMsfraggerCitation)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         panelPhilosopherConfig.setBorder(javax.swing.BorderFactory.createTitledBorder("Philosopher"));
@@ -796,7 +863,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
-        textBinPhilosopher.setText(getDefaultBinPhilosopher());
+        textBinPhilosopher.setText(ToolingUtils.getDefaultBinPhilosopher());
         textBinPhilosopher.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 textBinPhilosopherFocusLost(evt);
@@ -858,8 +925,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 33, Short.MAX_VALUE))
         );
 
         btnFindTools.setText("Search tools");
@@ -967,6 +1033,44 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addContainerGap(15, Short.MAX_VALUE))
         );
 
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Python"));
+
+        btnBrowseBinPython.setText("Browse");
+        btnBrowseBinPython.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBrowseBinPythonActionPerformed(evt);
+            }
+        });
+
+        lblPythonInfo.setText("");
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(textBinPython)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnBrowseBinPython))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(lblPythonInfo)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnBrowseBinPython)
+                    .addComponent(textBinPython, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblPythonInfo)
+                .addGap(0, 12, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout panelConfigLayout = new javax.swing.GroupLayout(panelConfig);
         panelConfig.setLayout(panelConfigLayout);
         panelConfigLayout.setHorizontalGroup(
@@ -997,10 +1101,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
             .addGroup(panelConfigLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(panelConfigLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(panelConfigLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelConfigLayout.setVerticalGroup(
             panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1018,13 +1125,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addComponent(btnAboutInConfig))
                 .addGap(18, 18, 18)
                 .addComponent(panelMsfraggerConfig, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelPhilosopherConfig, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -1064,9 +1173,37 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         });
 
-        chkProcessEachFiileSeparately.setText("Process each file separately");
-        chkProcessEachFiileSeparately.setToolTipText("<html><b>Not yet implemented</b><br/>\n\nProcess each file separately isntead of combining the results.");
-        chkProcessEachFiileSeparately.setEnabled(false);
+        btnGroupsIntegers.setText("Consecutive integers");
+        btnGroupsIntegers.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGroupsIntegersActionPerformed(evt);
+            }
+        });
+
+        jLabel10.setText("Assign files to Experiments/Groups:");
+
+        btnGroupsFromPath.setText("Guess from path");
+        btnGroupsFromPath.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGroupsFromPathActionPerformed(evt);
+            }
+        });
+
+        jLabel11.setText("You can change group names manually as well");
+
+        btnGroupsByFilename.setText("By file name");
+        btnGroupsByFilename.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGroupsByFilenameActionPerformed(evt);
+            }
+        });
+
+        btnGroupsClear.setText("Clear");
+        btnGroupsClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGroupsClearActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelSelectedFilesLayout = new javax.swing.GroupLayout(panelSelectedFiles);
         panelSelectedFiles.setLayout(panelSelectedFilesLayout);
@@ -1076,17 +1213,30 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(panelSelectedFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(scrollPaneRawFiles)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelSelectedFilesLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel11))
                     .addGroup(panelSelectedFilesLayout.createSequentialGroup()
-                        .addComponent(btnRawClear)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnRawRemove)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnRawAddFiles)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnRawAddFolder)
-                        .addGap(18, 18, 18)
-                        .addComponent(chkProcessEachFiileSeparately)
-                        .addGap(0, 200, Short.MAX_VALUE)))
+                        .addGroup(panelSelectedFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelSelectedFilesLayout.createSequentialGroup()
+                                .addComponent(btnRawClear)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnRawRemove)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnRawAddFiles)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnRawAddFolder))
+                            .addGroup(panelSelectedFilesLayout.createSequentialGroup()
+                                .addComponent(jLabel10)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnGroupsIntegers)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnGroupsFromPath)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnGroupsByFilename)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnGroupsClear)))
+                        .addGap(0, 81, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelSelectedFilesLayout.setVerticalGroup(
@@ -1097,10 +1247,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addComponent(btnRawClear)
                     .addComponent(btnRawRemove)
                     .addComponent(btnRawAddFiles)
-                    .addComponent(btnRawAddFolder)
-                    .addComponent(chkProcessEachFiileSeparately))
+                    .addComponent(btnRawAddFolder))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(panelSelectedFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10)
+                    .addComponent(btnGroupsIntegers)
+                    .addComponent(btnGroupsFromPath)
+                    .addComponent(btnGroupsByFilename)
+                    .addComponent(btnGroupsClear))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(scrollPaneRawFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 604, Short.MAX_VALUE)
+                .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(scrollPaneRawFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 550, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -2020,9 +2178,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 File[] files = fc.getSelectedFiles();
                 if (files.length > 0) {
                     ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, files[0]);
-                    List<Path> paths = new ArrayList<>(files.length);
+                    List<InputLcmsFile> paths = new ArrayList<>(files.length);
                     for (File f : files) {
-                        paths.add(Paths.get(f.getAbsolutePath()));
+                        paths.add(new InputLcmsFile(Paths.get(f.getAbsolutePath()), ThisAppProps.DEFAULT_LCMS_GROUP_NAME));
                     }
                     tableModelRawFiles.dataAddAll(paths);
                 }
@@ -2038,7 +2196,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (sel.length == 0) {
             return;
         }
-        List<Path> toRemove = new ArrayList<>();
+        List<InputLcmsFile> toRemove = new ArrayList<>();
         for (int i = 0; i < sel.length; i++) {
             toRemove.add(tableModelRawFiles.dataGet(sel[i]));
         }
@@ -2073,7 +2231,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         paths.add(Paths.get(f.getAbsolutePath()));
                     }
                 }
-                tableModelRawFiles.dataAddAll(paths);
+                tableModelRawFiles.dataAddAll(paths.stream()
+                    .map(path -> new InputLcmsFile(path, ThisAppProps.DEFAULT_LCMS_GROUP_NAME))
+                    .collect(Collectors.toList()));
 
                 break;
         }
@@ -2427,6 +2587,28 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     public void validateDbslicing() {
         new Thread(() -> DbSlice.get().init(fraggerVer)).start();
+    }
+
+    public void validateAndSavePython(final String binPath, boolean showPopupOnError) {
+      new Thread(() -> {
+        boolean ok;
+        PythonInfo pi = PythonInfo.get();
+        try {
+          ok = PythonInfo.get().setPythonCommand(binPath);
+        } catch (Exception e) {
+          ok = false;
+        }
+        if (ok) {
+          ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, pi.getCommand());
+        } else {
+          ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, "");
+        }
+        if (!ok && showPopupOnError) {
+            JOptionPane.showMessageDialog(MsfraggerGuiFrame.this,
+                "Not a valid Python binary path:\n\n" + binPath, "Not a Python binary", JOptionPane.WARNING_MESSAGE);
+        }
+      }).start();
+
     }
     
     private void validatePhilosopherVersion(final String binPath) {
@@ -2833,13 +3015,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         fc.setApproveButtonText("Select");
         fc.setDialogTitle("Select Philosopher binary");
         fc.setMultiSelectionEnabled(false);
-        
-        fc.setAcceptAllFileFilterUsed(true);
-        
-        
         if (OsUtils.isWindows()) {
-            FileNameExtensionFilter ff = new FileNameExtensionFilter("Executables", "exe");
-            fc.addChoosableFileFilter(ff);
+            FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Executables", "exe");
+            fc.setFileFilter(fileNameExtensionFilter);
         }
 
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -2848,15 +3026,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         String fcPath = ThisAppProps.tryFindPath(props, true);
         SwingUtils.setFileChooserPath(fc, fcPath);
 
-        int showOpenDialog = fc.showOpenDialog(SwingUtils.findParentComponentForDialog(this));
-        switch (showOpenDialog) {
-            case JFileChooser.APPROVE_OPTION:
-                File f = fc.getSelectedFile();
-                if (validateAndSavePhilosopherPath(f.getAbsolutePath())) {
-                    ThisAppProps.save(ThisAppProps.PROP_BINARIES_IN, f.getAbsolutePath());
-                }
-                break;
+        
+        if (JFileChooser.APPROVE_OPTION == fc.showOpenDialog(SwingUtils.findParentComponentForDialog(this))) {
+            String path = fc.getSelectedFile().getAbsolutePath();
+            if (validateAndSavePhilosopherPath(path)) {
+                // already saved to PROP_PHILOSOPHER, now save to general PROP_BINARIES
+                ThisAppProps.save(ThisAppProps.PROP_BINARIES_IN, path);
+            }
         }
+
     }//GEN-LAST:event_btnPhilosopherBinBrowseActionPerformed
 
     private void textBinMsfraggerFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textBinMsfraggerFocusLost
@@ -3006,8 +3184,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         final boolean isDryRun = checkDryRun.isSelected();
 
         boolean doRunFragger = fraggerPanel.isRunMsfragger();
-        boolean doRunAnyOtherTools = chkRunPeptideProphet.isSelected() 
-                                  || chkRunProteinProphet.isSelected() 
+        boolean doRunProphetsAndReport = chkRunPeptideProphet.isSelected()
+                                  || chkRunProteinProphet.isSelected()
                                   || checkCreateReport.isSelected();
 
         if (!fraggerPanel.isRunMsfragger()
@@ -3021,7 +3199,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
 
         // check for TSV output when any other downstream tools are requested
-        if (doRunFragger && doRunAnyOtherTools) {
+        if (doRunFragger && doRunProphetsAndReport) {
             if (fraggerPanel.getOutputType().equals(FraggerOutputType.TSV)) {
                 int confirm = JOptionPane.showConfirmDialog(this,
                         "You've chosen TSV output for MSFragger while\n"
@@ -3096,8 +3274,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
         }
 
-        List<String> lcmsFilePaths = getLcmsFilePaths();
-        if (lcmsFilePaths.isEmpty()) {
+
+        final Map<String, LcmsFileGroup> lcmsFileGroups = getLcmsFileGroups();
+        final List<InputLcmsFile> lcmsFiles = lcmsFileGroups.values().stream()
+            .flatMap(group -> group.inputLcmsFiles.stream()).collect(Collectors.toList());
+
+        if (lcmsFiles.isEmpty()) {
             JOptionPane.showMessageDialog(this, "No LC/MS data files selected.\n"
                     + "Check 'Select Raw Files' tab.", "Error", JOptionPane.WARNING_MESSAGE);
             resetRunButtons(true);
@@ -3105,10 +3287,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         } else {
             // check that all input LCMS files have unique filenames
             Map<String, List<Path>> inputFnMap = new HashMap<>();
-            for (String lcmsFilePath : lcmsFilePaths) {
-                Path path = Paths.get(lcmsFilePath);
-                String fn = path.getFileName().toString();
-                inputFnMap.computeIfAbsent(fn, s -> new LinkedList<>()).add(path);
+            for (LcmsFileGroup group : lcmsFileGroups.values()) {
+                for (InputLcmsFile inputLcmsFile : group.inputLcmsFiles) {
+                    Path path = inputLcmsFile.path;
+                    String fn = path.getFileName().toString();
+                    inputFnMap.computeIfAbsent(fn, s -> new LinkedList<>()).add(path);
+                }
             }
             List<Entry<String, List<Path>>> collect = inputFnMap.entrySet().stream()
                 .filter(kv -> kv.getValue().size() > 1).collect(Collectors.toList());
@@ -3121,7 +3305,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     kv.getValue().forEach(path -> sb.append("\n    - ").append(path.toString()));
                     sb.append("\n");
                 });
-                sb.append("\nAs all the output is directed to a single folder, files might get overwritten.\n"
+                sb.append("\nFiles might get overwritten and results might be not what's expected.\n"
                     + "Consider renaming input files.");
 
                 JOptionPane.showMessageDialog(this,
@@ -3170,18 +3354,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
         
         // check that all input files are in the same folder for Labelfree quant
-        if (checkLabelfree.isSelected() && !lcmsFilePaths.isEmpty()) {
+        if (checkLabelfree.isSelected() && lcmsFiles.size() > 1) {
             try {
-                String firstRaw = lcmsFilePaths.get(0);
-                Path firstDir = Paths.get(firstRaw).getParent();
-                for (String f : lcmsFilePaths) {
-                    if (!firstDir.equals(Paths.get(f).getParent())) {
-                        JOptionPane.showMessageDialog(this, "Not all input raw files are in the same folder.\n"
-                                + "Label free quant requires all files to be in the same directory :/",
-                                "Errors", JOptionPane.ERROR_MESSAGE);
-                        resetRunButtons(true);
-                        return;
-                    }
+                List<Path> inputLcmsLocations = lcmsFileGroups.values().stream()
+                    .flatMap(group -> group.inputLcmsFiles.stream())
+                    .map(lcms -> lcms.path.getParent()).distinct()
+                    .collect(Collectors.toList());
+                if (inputLcmsLocations.size() > 1) {
+                    JOptionPane.showMessageDialog(this, "Not all input raw files are in the same folder.\n"
+                            + "Label free quant requires all files to be in the same directory :/",
+                        "Errors", JOptionPane.ERROR_MESSAGE);
+                    resetRunButtons(true);
+                    return;
                 }
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Error validating raw file paths for quant",
@@ -3192,279 +3376,44 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
 
 
-        // run DIA-Umpire SE
-        final String binPhilosopher = textBinPhilosopher.getText().trim();
-        final boolean isUmpireActive = checkEnableDiaumpire.isSelected() && umpirePanel != null;
-        if (isUmpireActive) {
-            final boolean isRunUmpire = isRunUmpireSe();
-            final UmpireParams umpireParams = umpirePanel.collect();
-            try {
-                umpireParams.saveCache();
-            } catch (Exception ignored) {}
+        // Run all the tools for each experimental group
+        for (Entry<String, LcmsFileGroup> e : lcmsFileGroups.entrySet()) {
+          LcmsFileGroup group = e.getValue();
 
-            {
-                List<ProcessBuilder> builders = ToolingUtils
-                    .pbsUmpire(isRunUmpire, isDryRun, this, jarUri, umpirePanel,
-                        binPhilosopher, wdPath, lcmsFilePaths);
-                if (builders == null) {
-                    resetRunButtons(true);
-                    return;
-                }
-                pbs.addAll(builders);
-            }
-            if (isRunUmpire) {
-                // update the input LCMS files as Umpire creates new ones
-                List<String> umpireCreatedMzxmlFiles = ToolingUtils
-                    .getUmpireCreatedMzxmlFiles(lcmsFilePaths, wdPath);
-                lcmsFilePaths.clear();
-                lcmsFilePaths.addAll(umpireCreatedMzxmlFiles);
-            }
-        }
+          Path groupWd = ThisAppProps.getOutputDir(wdPath, group);
+          if (!isDryRun) {
+              try {
+                  Files.createDirectories(groupWd);
+              } catch (IOException e1) {
+                  JOptionPane.showMessageDialog(this,
+                      "Could not create sub-directories for LCMS file groups/experiments.");
+                  resetRunButtons(true);
+                  return;
+              }
+          }
 
+          List<String> lcmsFilePaths = group.inputLcmsFiles.stream().map(f -> f.path.toString())
+              .collect(Collectors.toCollection(ArrayList::new));
 
-        // run MSAdjuster
-        {
-            List<ProcessBuilder> builders = ToolingUtils
-                .pbsMsadjuster(jarUri, this, workingDir, lcmsFilePaths, fraggerPanel, false);
-            if (builders == null) {
-                resetRunButtons(true);
-                return;
-            }
-            pbs.addAll(builders);
-        }
-
-
-
-        // we will now compose parameter objects for running processes.
-        // at first we will try to load the base parameter files, if the file paths
-        // in the GUI are not empty. If empty, we will load the defaults and
-        // add params from the GUI to it.
-        final String binMsfragger = textBinMsfragger.getText().trim();
-        {
-            List<ProcessBuilder> builders = ToolingUtils
-                .pbsFragger(this, "", workingDir, lcmsFilePaths,
-                    isDryRun, fraggerPanel, jarUri, binMsfragger, DbSlice.get());
-            if (builders == null) {
-                resetRunButtons(true);
-                return;
-            }
-            pbs.addAll(builders);
-
-            // if we have at least one MSFragger task, check for MGF file presence
-            if (!builders.isEmpty()) {
-                // check for MGF files and warn
-                String warn = ThisAppProps
-                    .load(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
-                if (warn != null && Boolean.valueOf(warn)) {
-                    for (String f : lcmsFilePaths) {
-                        if (f.toLowerCase().endsWith(".mgf")) {
-                            JCheckBox checkbox = new JCheckBox("Do not show this message again.");
-                            String msg = String.format(Locale.ROOT,
-                                "The list of input files contains MGF entries.\n"
-                                    + "MSFragger has limited MGF support (ProteoWizard output is OK).\n"
-                                    + "The search might fail unexpectedly with errors.\n"
-                                    + "Please consider converting files to mzML/mzXML with ProteoWizard.");
-                            Object[] params = {msg, checkbox};
-                            JOptionPane.showMessageDialog(this, params, "Warning",
-                                JOptionPane.WARNING_MESSAGE);
-                            if (checkbox.isSelected()) {
-                                ThisAppProps
-                                    .save(ThisAppProps.PROP_MGF_WARNING, Boolean.FALSE.toString());
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        
-        // run MSAdjuster cleanup
-        {
-            List<ProcessBuilder> builders = ToolingUtils
-                .pbsMsadjuster(jarUri, this, workingDir, lcmsFilePaths, fraggerPanel, true);
-            if (builders == null) {
-                resetRunButtons(true);
-                return;
-            }
-            pbs.addAll(builders);
-        }
-
-
-        // run Crystal-C
-        //final boolean isCrystalcEnabled = checkEnableCrystalc.isSelected();
-        final boolean isCrystalc = chkRunCrystalc.isSelected(); // && isCrystalcEnabled
-        {
-            CrystalcParams ccParams;
-            try {
-                ccParams = crystalcFormToParams();
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(this,
-                    "Could not construct Crystal-C parameters from the GUI form input.", "Error",
-                    JOptionPane.ERROR_MESSAGE);
-                resetRunButtons(true);
-                return;
-            }
-            List<ProcessBuilder> builders = ToolingUtils
-                .pbsCrystalc(this, fraggerPanel, ccParams, isDryRun, isCrystalc, workingDir,
-                    fastaPath, lcmsFilePaths);
-            if (builders == null) {
-                resetRunButtons(true);
-                return;
-            }
-            pbs.addAll(builders);
-        }
-
-
-        // run Peptide Prophet
-        final boolean isPeptideProphet = chkRunPeptideProphet.isSelected();
-        final String dbPath = textSequenceDbPath.getText().trim();
-        final String pepProphCmd = textPepProphCmd.getText().trim();
-
-        List<ProcessBuilder> pbsPeptideProphet = ToolingUtils
-            .pbsPeptideProphet(isPeptideProphet, this, fraggerPanel, isCrystalc, binPhilosopher,
-                dbPath,
-                pepProphCmd, "", workingDir, lcmsFilePaths);
-        if (pbsPeptideProphet == null) {
+          if (!processBuildersForTools(pbs, groupWd, isDryRun, jarUri,
+              lcmsFilePaths, fastaPath, doRunProphetsAndReport)) {
             resetRunButtons(true);
             return;
+          }
         }
 
-
-
-        // run Protein Prophet
-        final String combinedProtFile = txtCombinedProtFile.getText().trim();
-        final boolean isProteinProphet = chkRunProteinProphet.isSelected();
-        final String proteinProphetCmdLineOpts = txtProteinProphetCmdLineOpts.getText();
-        final boolean isProtProphInteractStar = chkProteinProphetInteractStar.isSelected();
-
-        List<ProcessBuilder> pbsProteinProphet = ToolingUtils
-            .pbsProteinProphet(this, isProteinProphet, binPhilosopher, proteinProphetCmdLineOpts,
-                fraggerPanel, isProtProphInteractStar, isCrystalc, "", workingDir, combinedProtFile, lcmsFilePaths);
-        if (pbsProteinProphet == null) {
-            resetRunButtons(true);
-            return;
-        }
-
-        // run Reports
-        final boolean isReport = checkCreateReport.isSelected();
-        final boolean isReportDbAnnotate = checkReportDbAnnotate.isSelected();
-        final String reportAnnotateCmd = textReportAnnotate.getText();
-        final boolean isReportFilter = checkReportFilter.isSelected();
-        final String reportFilterCmd = textReportFilter.getText();
-        final boolean isReportProteinLevelFdr = checkReportProteinLevelFdr.isSelected();
-        final boolean isLabelFree = checkLabelfree.isSelected();
-        final String reportLabelFreeCmd = textReportLabelfree.getText();
-
-        List<ProcessBuilder> pbsReport = ToolingUtils
-            .pbsReport(isReport, binPhilosopher, this, fraggerPanel,
-            isCrystalc, isReportDbAnnotate, reportAnnotateCmd, dbPath, isReportFilter,reportFilterCmd,
-            isReportProteinLevelFdr,isLabelFree, reportLabelFreeCmd,
-            "", workingDir, combinedProtFile, lcmsFilePaths);
-        if (pbsReport == null) {
-            resetRunButtons(true);
-            return;
-        }
-
-        // if any of Philosopher stuff needs to be run, then clean/init the "workspace"
-        if (!pbsPeptideProphet.isEmpty()
-                || !pbsProteinProphet.isEmpty()
-                || !pbsReport.isEmpty()) {
-            String bin = textBinPhilosopher.getText().trim();
-            bin = PathUtils.testBinaryPath(bin, "");
-            boolean isPhilosopher = ToolingUtils.isPhilosopherBin(bin);
-
-            if (isPhilosopher) {
-                List<String> cmd = new ArrayList<>();
-                cmd.add(bin);
-                cmd.add("workspace");
-                cmd.add("--clean");
-                ProcessBuilder pb = new ProcessBuilder(cmd);
-                pbs.add(pb);
-            }
-
-            if (isPhilosopher) {
-                List<String> cmd = new ArrayList<>();
-                cmd.add(bin);
-                cmd.add("workspace");
-                cmd.add("--init");
-                ProcessBuilder pb = new ProcessBuilder(cmd);
-                pbs.add(pb);
-            }
-        }
-        
-        
-        // Check Decoy tags if any of the downstream tools are requested
-        if (doRunAnyOtherTools) { // downstream tools
-            if (StringUtils.isNullOrWhitespace(textDecoyTagSeqDb.getText())) {
-                int confirm = JOptionPane.showConfirmDialog(this,
-                        "Downstream analysis tools require decoys in the database,\n"
-                        + "but the decoy tag was left empty. It's recommended that\n"
-                        + "you set it.\n\n"
-                        + "Cancel operation and fix the problem (manually)?",
-                        "Cancel and fix parameters before run?\n", JOptionPane.YES_NO_OPTION);
-                if (JOptionPane.YES_OPTION == confirm) {
-                    resetRunButtons(true);
-                    return;
-                }
-            } else if (!checkDecoyTagsEqual()) {
-                int confirm = JOptionPane.showConfirmDialog(this,
-                        "Decoy sequence database tags differ between various tools\n"
-                        + "to be run.\n\n"
-                        + "This will most likely result in errors or incorrect results.\n\n"
-                        + "It's recommended that you change decoy tags to the same value.\n"
-                        + "You can switch to 'Sequence DB' tab and change it there,\n"
-                        + "you'll be offered to automatically change the values in other places.\n\n"
-                        + "Cancel operation and fix the problem (manually)?",
-                        "Cancel and fix parameters before run?\n", JOptionPane.YES_NO_OPTION);
-                if (JOptionPane.YES_OPTION == confirm) {
-                    resetRunButtons(true);
-                    return;
-                }
-            }
-                
-        }
-        
-
-        pbs.addAll(pbsPeptideProphet);
-        pbs.addAll(pbsProteinProphet);
-        pbs.addAll(pbsReport);
-
-
-        // run Spectral library generation
-        final boolean isSpeclibgen = checkGenerateSpecLib.isEnabled() && checkGenerateSpecLib.isSelected();
-        final String combinedProteinFn = txtCombinedProtFile.getText();
-        if (!isProteinProphet) {
-            // Protein Prohpet not selected, check if the output folder already contains interact.prot.xml
-            if (!Files.exists(wdPath.resolve(combinedProteinFn))) {
-                JOptionPane.showMessageDialog(this,
-                    "Protein Prophet not selected and the output directory\n"
-                    + "does not contain a '" + combinedProteinFn + "' file.\n\n"
-                    + "Either uncheck Spectral Library Generation checkbox or enable Protein Prophet.",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-                resetRunButtons(true);
-                return;
-            }
-        }
-        {
-            List<ProcessBuilder> pbsSpeclibgen = ToolingUtils
-                .pbsSpecLibGen(this, isSpeclibgen, wdPath, combinedProteinFn, fastaPath, binPhilosopher);
-            if (pbsSpeclibgen == null) {
-                resetRunButtons(true);
-                return;
-            }
-            pbs.addAll(pbsSpeclibgen);
-        }
 
 
         // cleanup
-        if (!OsUtils.isWindows()) {
-            // On Linux we created symlinks to mzXML files, leave them there
-        } else {
-            // On windows we copied the files over to the working directory
-            // so will delete them now
-//            List<ProcessBuilder> pbsDeleteFiles = pbsDeleteFiles(workingDir, lcmsFilePaths);
-//            pbs.addAll(pbsDeleteFiles);
-        }
+        // We don't copy mzml files anymore, so this step is not needed.
+//        if (!OsUtils.isWindows()) {
+//            // On Linux we created symlinks to mzXML files, leave them there
+//        } else {
+//            // On windows we copied the files over to the working directory
+//            // so will delete them now
+////            List<ProcessBuilder> pbsDeleteFiles = pbsDeleteFiles(workingDir, lcmsFilePaths);
+////            pbs.addAll(pbsDeleteFiles);
+//        }
 
 
         String sbSysinfo = OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo() + "\n";
@@ -3657,6 +3606,265 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         exec.shutdown();
 
     }//GEN-LAST:event_btnRunActionPerformed
+
+
+    private boolean processBuildersForTools(List<ProcessBuilder> pbs, Path wdPath, boolean isDryRun,
+        URI jarUri, List<String> lcmsFilePaths, String fastaPath, boolean doRunProphetsAndReport) {
+
+      // run DIA-Umpire SE
+      final String binPhilosopher = textBinPhilosopher.getText().trim();
+      final boolean isUmpireActive = checkEnableDiaumpire.isSelected() && umpirePanel != null;
+      if (isUmpireActive) {
+        final boolean isRunUmpire = isRunUmpireSe();
+        final UmpireParams umpireParams = umpirePanel.collect();
+        try {
+          umpireParams.saveCache();
+        } catch (Exception ignored) {}
+
+        {
+          List<ProcessBuilder> builders = ToolingUtils
+              .pbsUmpire(isRunUmpire, isDryRun, this, jarUri, umpirePanel,
+                  binPhilosopher, wdPath, lcmsFilePaths);
+          if (builders == null) {
+            return false;
+          }
+          pbs.addAll(builders);
+        }
+        if (isRunUmpire) {
+          // update the input LCMS files as Umpire creates new ones
+          List<String> umpireCreatedMzxmlFiles = ToolingUtils
+              .getUmpireCreatedMzxmlFiles(lcmsFilePaths, wdPath);
+          lcmsFilePaths.clear();
+          lcmsFilePaths.addAll(umpireCreatedMzxmlFiles);
+        }
+      }
+
+      final String workingDir = wdPath.toString();
+
+      // run MSAdjuster
+      {
+        List<ProcessBuilder> builders = ToolingUtils
+            .pbsMsadjuster(jarUri, this, workingDir, lcmsFilePaths, fraggerPanel, false);
+        if (builders == null) {
+          resetRunButtons(true);
+          return false;
+        }
+        pbs.addAll(builders);
+      }
+
+
+
+      // we will now compose parameter objects for running processes.
+      // at first we will try to load the base parameter files, if the file paths
+      // in the GUI are not empty. If empty, we will load the defaults and
+      // add params from the GUI to it.
+      final String binMsfragger = textBinMsfragger.getText().trim();
+      {
+        List<ProcessBuilder> builders = ToolingUtils
+            .pbsFragger(this, "", workingDir, lcmsFilePaths,
+                isDryRun, fraggerPanel, jarUri, binMsfragger, DbSlice.get());
+        if (builders == null) {
+          return false;
+        }
+        pbs.addAll(builders);
+
+        // if we have at least one MSFragger task, check for MGF file presence
+        if (!builders.isEmpty()) {
+          // check for MGF files and warn
+          String warn = ThisAppProps
+              .load(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
+          if (warn != null && Boolean.valueOf(warn)) {
+            for (String f : lcmsFilePaths) {
+              if (f.toLowerCase().endsWith(".mgf")) {
+                JCheckBox checkbox = new JCheckBox("Do not show this message again.");
+                String msg = String.format(Locale.ROOT,
+                    "The list of input files contains MGF entries.\n"
+                        + "MSFragger has limited MGF support (ProteoWizard output is OK).\n"
+                        + "The search might fail unexpectedly with errors.\n"
+                        + "Please consider converting files to mzML/mzXML with ProteoWizard.");
+                Object[] params = {msg, checkbox};
+                JOptionPane.showMessageDialog(this, params, "Warning",
+                    JOptionPane.WARNING_MESSAGE);
+                if (checkbox.isSelected()) {
+                  ThisAppProps
+                      .save(ThisAppProps.PROP_MGF_WARNING, Boolean.FALSE.toString());
+                }
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      // run MSAdjuster cleanup
+      {
+        List<ProcessBuilder> builders = ToolingUtils
+            .pbsMsadjuster(jarUri, this, workingDir, lcmsFilePaths, fraggerPanel, true);
+        if (builders == null) {
+          return false;
+        }
+        pbs.addAll(builders);
+      }
+
+
+      // run Crystal-C
+      //final boolean isCrystalcEnabled = checkEnableCrystalc.isSelected();
+      final boolean isCrystalc = chkRunCrystalc.isSelected(); // && isCrystalcEnabled
+      {
+        CrystalcParams ccParams;
+        try {
+          ccParams = crystalcFormToParams();
+        } catch (IOException e) {
+          JOptionPane.showMessageDialog(this,
+              "Could not construct Crystal-C parameters from the GUI form input.", "Error",
+              JOptionPane.ERROR_MESSAGE);
+          return false;
+        }
+        List<ProcessBuilder> builders = ToolingUtils
+            .pbsCrystalc(this, fraggerPanel, ccParams, isDryRun, isCrystalc, workingDir,
+                fastaPath, lcmsFilePaths);
+        if (builders == null) {
+          return false;
+        }
+        pbs.addAll(builders);
+      }
+
+
+      // run Peptide Prophet
+      final boolean isPeptideProphet = chkRunPeptideProphet.isSelected();
+      final String dbPath = textSequenceDbPath.getText().trim();
+      final String pepProphCmd = textPepProphCmd.getText().trim();
+
+      List<ProcessBuilder> pbsPeptideProphet = ToolingUtils
+          .pbsPeptideProphet(isPeptideProphet, this, fraggerPanel, isCrystalc, binPhilosopher,
+              dbPath,
+              pepProphCmd, "", workingDir, lcmsFilePaths);
+      if (pbsPeptideProphet == null) {
+        return false;
+      }
+
+
+
+      // run Protein Prophet
+      final String combinedProtFile = txtCombinedProtFile.getText().trim();
+      final boolean isProteinProphet = chkRunProteinProphet.isSelected();
+      final String proteinProphetCmdLineOpts = txtProteinProphetCmdLineOpts.getText();
+      final boolean isProtProphInteractStar = chkProteinProphetInteractStar.isSelected();
+
+      List<ProcessBuilder> pbsProteinProphet = ToolingUtils
+          .pbsProteinProphet(this, isProteinProphet, binPhilosopher, proteinProphetCmdLineOpts,
+              fraggerPanel, isProtProphInteractStar, isCrystalc, "", workingDir, combinedProtFile, lcmsFilePaths);
+      if (pbsProteinProphet == null) {
+        return false;
+      }
+
+      // run Reports
+      final boolean isReport = checkCreateReport.isSelected();
+      final boolean isReportDbAnnotate = checkReportDbAnnotate.isSelected();
+      final String reportAnnotateCmd = textReportAnnotate.getText();
+      final boolean isReportFilter = checkReportFilter.isSelected();
+      final String reportFilterCmd = textReportFilter.getText();
+      final boolean isReportProteinLevelFdr = checkReportProteinLevelFdr.isSelected();
+      final boolean isLabelFree = checkLabelfree.isSelected();
+      final String reportLabelFreeCmd = textReportLabelfree.getText();
+
+      List<ProcessBuilder> pbsReport = ToolingUtils
+          .pbsReport(isReport, binPhilosopher, this, fraggerPanel,
+              isCrystalc, isReportDbAnnotate, reportAnnotateCmd, dbPath, isReportFilter,reportFilterCmd,
+              isReportProteinLevelFdr,isLabelFree, reportLabelFreeCmd,
+              "", workingDir, combinedProtFile, lcmsFilePaths);
+      if (pbsReport == null) {
+        return false;
+      }
+
+      // if any of Philosopher stuff needs to be run, then clean/init the "workspace"
+      if (!pbsPeptideProphet.isEmpty()
+          || !pbsProteinProphet.isEmpty()
+          || !pbsReport.isEmpty()) {
+        String bin = textBinPhilosopher.getText().trim();
+        bin = PathUtils.testBinaryPath(bin, "");
+        boolean isPhilosopher = ToolingUtils.isPhilosopherBin(bin);
+
+        if (isPhilosopher) {
+          List<String> cmd = new ArrayList<>();
+          cmd.add(bin);
+          cmd.add("workspace");
+          cmd.add("--clean");
+          ProcessBuilder pb = new ProcessBuilder(cmd);
+          pbs.add(pb);
+        }
+
+        if (isPhilosopher) {
+          List<String> cmd = new ArrayList<>();
+          cmd.add(bin);
+          cmd.add("workspace");
+          cmd.add("--init");
+          ProcessBuilder pb = new ProcessBuilder(cmd);
+          pbs.add(pb);
+        }
+      }
+
+
+      // Check Decoy tags if any of the downstream tools are requested
+      if (doRunProphetsAndReport) { // downstream tools
+        if (StringUtils.isNullOrWhitespace(textDecoyTagSeqDb.getText())) {
+          int confirm = JOptionPane.showConfirmDialog(this,
+              "Downstream analysis tools require decoys in the database,\n"
+                  + "but the decoy tag was left empty. It's recommended that\n"
+                  + "you set it.\n\n"
+                  + "Cancel operation and fix the problem (manually)?",
+              "Cancel and fix parameters before run?\n", JOptionPane.YES_NO_OPTION);
+          if (JOptionPane.YES_OPTION == confirm) {
+            return false;
+          }
+        } else if (!checkDecoyTagsEqual()) {
+          int confirm = JOptionPane.showConfirmDialog(this,
+              "Decoy sequence database tags differ between various tools\n"
+                  + "to be run.\n\n"
+                  + "This will most likely result in errors or incorrect results.\n\n"
+                  + "It's recommended that you change decoy tags to the same value.\n"
+                  + "You can switch to 'Sequence DB' tab and change it there,\n"
+                  + "you'll be offered to automatically change the values in other places.\n\n"
+                  + "Cancel operation and fix the problem (manually)?",
+              "Cancel and fix parameters before run?\n", JOptionPane.YES_NO_OPTION);
+          if (JOptionPane.YES_OPTION == confirm) {
+            return false;
+          }
+        }
+
+      }
+
+
+      pbs.addAll(pbsPeptideProphet);
+      pbs.addAll(pbsProteinProphet);
+      pbs.addAll(pbsReport);
+
+
+      // run Spectral library generation
+      final boolean isSpeclibgen = checkGenerateSpecLib.isEnabled() && checkGenerateSpecLib.isSelected();
+      final String combinedProteinFn = txtCombinedProtFile.getText();
+      if (isSpeclibgen && !isProteinProphet) {
+        // Protein Prohpet not selected, check if the output folder already contains interact.prot.xml
+        if (!Files.exists(wdPath.resolve(combinedProteinFn))) {
+          JOptionPane.showMessageDialog(this,
+              "Protein Prophet not selected and the output directory\n"
+                  + "does not contain a '" + combinedProteinFn + "' file.\n\n"
+                  + "Either uncheck Spectral Library Generation checkbox or enable Protein Prophet.",
+              "Error", JOptionPane.ERROR_MESSAGE);
+          return false ;
+        }
+      }
+      {
+        List<ProcessBuilder> pbsSpeclibgen = ToolingUtils
+            .pbsSpecLibGen(this, isSpeclibgen, wdPath, combinedProteinFn, fastaPath, binPhilosopher);
+        if (pbsSpeclibgen == null) {
+          return false;
+        }
+        pbs.addAll(pbsSpeclibgen);
+      }
+
+      return true;
+    }
 
     /**
      * Check that decoy tags are the same in:<br/>
@@ -4258,6 +4466,79 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         ThisAppProps.save(checkGenerateSpecLib, ThisAppProps.PROP_SPECLIBGEN_RUN);
     }//GEN-LAST:event_checkGenerateSpecLibActionPerformed
 
+    private void btnBrowseBinPythonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowseBinPythonActionPerformed
+        JFileChooser fc = new JFileChooser();
+        fc.setApproveButtonText("Select");
+        fc.setDialogTitle("Select Python binary");
+        fc.setMultiSelectionEnabled(false);
+        if (OsUtils.isWindows()) {
+            FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Executables", "exe");
+            fc.setFileFilter(fileNameExtensionFilter);
+        }
+
+        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+        List<String> props = Arrays.asList(ThisAppProps.PROP_BIN_PATH_PYTHON, ThisAppProps.PROP_BINARIES_IN);
+        String fcPath = ThisAppProps.tryFindPath(props, false);
+        SwingUtils.setFileChooserPath(fc, fcPath);
+
+        
+        if (JFileChooser.APPROVE_OPTION == fc.showOpenDialog(SwingUtils.findParentComponentForDialog(this))) {
+            String path = fc.getSelectedFile().getAbsolutePath();
+            validateAndSavePython(path, true);
+        }
+    }//GEN-LAST:event_btnBrowseBinPythonActionPerformed
+
+    private void btnGroupsIntegersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGroupsIntegersActionPerformed
+      UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+      final int groupNumMaxLen = (int)Math.ceil(Math.log(m.dataSize()));
+      StringBuilder sb = new StringBuilder();
+      for (int i = 0; i < groupNumMaxLen; i++) {
+        sb.append("0");
+      }
+      final DecimalFormat fmt = new DecimalFormat(sb.toString());
+      for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+        InputLcmsFile f = m.dataGet(i);
+        final String group = "experiment-" + fmt.format(i+1);
+        m.dataSet(i, new InputLcmsFile(f.path, group));
+      }
+
+    }//GEN-LAST:event_btnGroupsIntegersActionPerformed
+
+    private void btnGroupsFromPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGroupsFromPathActionPerformed
+      UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+
+      for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+        InputLcmsFile f = m.dataGet(i);
+        int count = f.path.getNameCount();
+        String group = count - 2 >= 0
+            ? f.path.getName(count - 2).toString()
+            : f.path.getName(count - 1).toString();
+        m.dataSet(i, new InputLcmsFile(f.path, group));
+      }
+    }//GEN-LAST:event_btnGroupsFromPathActionPerformed
+
+    private void btnGroupsByFilenameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGroupsByFilenameActionPerformed
+      UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+
+      for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+        InputLcmsFile f = m.dataGet(i);
+        int count = f.path.getNameCount();
+        String group = f.path.getFileName().toString();
+        m.dataSet(i, new InputLcmsFile(f.path, group));
+      }
+    }//GEN-LAST:event_btnGroupsByFilenameActionPerformed
+
+    private void btnGroupsClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGroupsClearActionPerformed
+      UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+
+      for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+        InputLcmsFile f = m.dataGet(i);
+        int count = f.path.getNameCount();
+        m.dataSet(i, new InputLcmsFile(f.path, ThisAppProps.DEFAULT_LCMS_GROUP_NAME));
+      }
+    }//GEN-LAST:event_btnGroupsClearActionPerformed
+
 
     //region Load-Last methods
     public void loadLastPeptideProphet() {
@@ -4805,61 +5086,69 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         btnStop.setEnabled(!runEnabled);
     }
 
-    private List<String> getLcmsFilePaths() {
-        ArrayList<Path> paths = tableModelRawFiles.dataCopy();
-        ArrayList<String> result = new ArrayList<>(paths.size());
-        for (Path p : paths) {
-            result.add(p.toString());
+    private Map<String, LcmsFileGroup> getLcmsFileGroups() {
+        List<InputLcmsFile> lcmsInputs = tableModelRawFiles.dataCopy();
+        Map<String, List<InputLcmsFile>> mapGroup2Files = lcmsInputs.stream()
+            .collect(Collectors.groupingBy(inputLcmsFile -> inputLcmsFile.experiment));
+
+        Map<String, LcmsFileGroup> result = new TreeMap<>();
+        for (Entry<String, List<InputLcmsFile>> e : mapGroup2Files.entrySet()) {
+            result.put(e.getKey(), new LcmsFileGroup(e.getKey(), e.getValue()));
         }
+
         return result;
     }
 
-    /**
-     * This returns the paths to files to be created. Might be symlinks or
-     * actual file copies. It does not create the files!
-     *
-     * @param workDir
-     * @return
-     */
-    private List<Path> getLcmsFilePathsInWorkdir(Path workDir) {
-        List<String> lcmsFilePaths = getLcmsFilePaths();
-        ArrayList<Path> result = new ArrayList<>();
-        for (String lcmsFilePath : lcmsFilePaths) {
-            result.add(workDir.resolve(Paths.get(lcmsFilePath).getFileName()));
-        }
-        return result;
-    }
+    // Not used anymore
+//    /**
+//     * This returns the paths to files to be created. Might be symlinks or
+//     * actual file copies. It does not create the files!
+//     *
+//     * @param workDir
+//     * @return
+//     */
+//    private List<Path> getLcmsFilePathsInWorkdir(Path workDir) {
+//        List<String> lcmsFilePaths = getLcmsFilePaths();
+//        Map<String, LcmsFileGroup> lcmsFileGroups = getLcmsFileGroups();
+//
+//        ArrayList<Path> result = new ArrayList<>();
+//        for (String lcmsFilePath : lcmsFilePaths) {
+//            result.add(workDir.resolve(Paths.get(lcmsFilePath).getFileName()));
+//        }
+//        return result;
+//    }
 
-    private void createLcmsFileSymlinks(Path workDir) throws IOException {
-        List<String> lcmsFilePaths = getLcmsFilePaths();
-        List<Path> paths = new ArrayList<>();
-        for (String s : lcmsFilePaths) {
-            paths.add(Paths.get(s));
-        }
-
-        List<Path> links = getLcmsFilePathsInWorkdir(workDir);
-        for (int i = 0; i < paths.size(); i++) {
-            Path lcmsPath = paths.get(i);
-            Path link = links.get(i);
-            if (link.equals(lcmsPath)) {
-                return;
-            }
-            if (Files.exists(link)) {
-                // if that link already exists we need to make sure it points to
-                // the same file
-                if (!Files.isSymbolicLink(link)) {
-                    throw new FileAlreadyExistsException(link.toString(), null, "A file already exists and is not a symbolic link");
-                }
-                Path linkTarget = Files.readSymbolicLink(link);
-                if (!linkTarget.equals(lcmsPath)) {
-                    String msg = String.format("A symblic link to mzXML file already exists, but points to a different file: %s", link);
-                    throw new FileAlreadyExistsException(link.toString(), null, msg);
-                }
-                return;
-            }
-            Files.createSymbolicLink(link, lcmsPath);
-        }
-    }
+    // Not used anymore
+//    private void createLcmsFileSymlinks(Path workDir) throws IOException {
+//        List<String> lcmsFilePaths = getLcmsFilePaths();
+//        List<Path> paths = new ArrayList<>();
+//        for (String s : lcmsFilePaths) {
+//            paths.add(Paths.get(s));
+//        }
+//
+//        List<Path> links = getLcmsFilePathsInWorkdir(workDir);
+//        for (int i = 0; i < paths.size(); i++) {
+//            Path lcmsPath = paths.get(i);
+//            Path link = links.get(i);
+//            if (link.equals(lcmsPath)) {
+//                return;
+//            }
+//            if (Files.exists(link)) {
+//                // if that link already exists we need to make sure it points to
+//                // the same file
+//                if (!Files.isSymbolicLink(link)) {
+//                    throw new FileAlreadyExistsException(link.toString(), null, "A file already exists and is not a symbolic link");
+//                }
+//                Path linkTarget = Files.readSymbolicLink(link);
+//                if (!linkTarget.equals(lcmsPath)) {
+//                    String msg = String.format("A symblic link to mzXML file already exists, but points to a different file: %s", link);
+//                    throw new FileAlreadyExistsException(link.toString(), null, msg);
+//                }
+//                return;
+//            }
+//            Files.createSymbolicLink(link, lcmsPath);
+//        }
+//    }
 
     /**
      * Get the name of the file less the provided suffix.
@@ -5027,11 +5316,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnAbout;
     private javax.swing.JButton btnAboutInConfig;
     private javax.swing.JButton btnBrowse;
+    private javax.swing.JButton btnBrowseBinPython;
     private javax.swing.JButton btnClearCache;
     private javax.swing.JButton btnClearConsole;
     private javax.swing.JButton btnCrystalcDefaults;
     private javax.swing.JButton btnExportLog;
     private javax.swing.JButton btnFindTools;
+    private javax.swing.JButton btnGroupsByFilename;
+    private javax.swing.JButton btnGroupsClear;
+    private javax.swing.JButton btnGroupsFromPath;
+    private javax.swing.JButton btnGroupsIntegers;
     private javax.swing.JButton btnLoadDefaultsClosed;
     private javax.swing.JButton btnLoadDefaultsOpen;
     private javax.swing.JButton btnMsfraggerBinBrowse;
@@ -5063,7 +5357,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JCheckBox checkReportDbAnnotate;
     private javax.swing.JCheckBox checkReportFilter;
     private javax.swing.JCheckBox checkReportProteinLevelFdr;
-    private javax.swing.JCheckBox chkProcessEachFiileSeparately;
     private javax.swing.JCheckBox chkProteinProphetInteractStar;
     private javax.swing.JCheckBox chkRunCrystalc;
     private javax.swing.JCheckBox chkRunPeptideProphet;
@@ -5073,6 +5366,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JEditorPane editorPhilosopherLink;
     private javax.swing.JEditorPane editorSequenceDb;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel34;
@@ -5085,6 +5380,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -5098,6 +5394,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JLabel lblMsfraggerCitation;
     private javax.swing.JLabel lblOutputDir;
     private javax.swing.JLabel lblPhilosopherInfo;
+    private javax.swing.JLabel lblPythonInfo;
     private javax.swing.JLabel lblSpeclibInfo1;
     private javax.swing.JLabel lblSpeclibInfo2;
     private javax.swing.JPanel panelConfig;
@@ -5126,6 +5423,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JTabbedPane tabPane;
     private javax.swing.JTextField textBinMsfragger;
     private javax.swing.JTextField textBinPhilosopher;
+    private javax.swing.JTextField textBinPython;
     private javax.swing.JTextField textDecoyTagSeqDb;
     private javax.swing.JTextArea textPepProphCmd;
     private javax.swing.JTextField textReportAnnotate;
@@ -5136,5 +5434,4 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JTextArea txtProteinProphetCmdLineOpts;
     private javax.swing.JTextField txtWorkingDir;
     // End of variables declaration//GEN-END:variables
-
 }

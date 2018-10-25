@@ -67,7 +67,6 @@ public class ToolingUtils {
 
   /**
    * @return Combined protein file name without extension.
-   * @param txtCombinedProtFile
    */
   static String getCombinedProtOpt(String txtCombinedProtFile) {
     String combined = txtCombinedProtFile.trim();
@@ -88,7 +87,6 @@ public class ToolingUtils {
 
   /**
    * @return Combined protein file name with extension.
-   * @param txtCombinedProtFile
    */
   static String getCombinedProtFileName(String txtCombinedProtFile) {
     return getCombinedProtOpt(txtCombinedProtFile) + ".prot.xml";
@@ -97,8 +95,6 @@ public class ToolingUtils {
   /**
    *
    * @param comp Component to display error messages relative to.
-   * @param txtCombinedProtFile
-   * @param workingDir
    * @return Full absolute normalized path to the output combined protein file.
    */
   public static Path getCombinedProtFilePath(Component comp, String txtCombinedProtFile, String workingDir) {
@@ -160,8 +156,8 @@ public class ToolingUtils {
       String raw = entry.getKey();
       String dirty = entry.getValue();
       String fn = Paths.get(dirty).getFileName().toString();
-      String fnMod = !crystalC ? fn :
-          StringUtils.upToLastDot(fn) + "_c." + StringUtils.afterLastDot(fn);
+      String fnMod = !crystalC ? fn
+          : StringUtils.upToLastDot(fn) + "_c." + StringUtils.afterLastDot(fn);
       Path pepxmlClean = wd.resolve(fnMod).toAbsolutePath();
       pepxmls.put(raw, pepxmlClean.toString());
     }
@@ -444,16 +440,7 @@ public class ToolingUtils {
   }
 
   /**
-   *
-   * @param comp
-   * @param fp
    * @param ccParams Get these by calling {@link MsfraggerGuiFrame#crystalcFormToParams()}.
-   * @param isDryRun
-   * @param isCrystalc
-   * @param workingDir
-   * @param fastaPath
-   * @param lcmsFilePaths
-   * @return
    */
   public static List<ProcessBuilder> pbsCrystalc(Component comp, FraggerPanel fp, CrystalcParams ccParams,
       boolean isDryRun, boolean isCrystalc, String workingDir, String fastaPath, List<String> lcmsFilePaths) {
@@ -611,8 +598,6 @@ public class ToolingUtils {
   /**
    * Creates the ProcessBuilders for running PeptideProphet.
    *
-   * @param workingDir
-   * @param lcmsFilePaths
    * @return null in case of errors, or a list of process builders.
    */
   public static List<ProcessBuilder> pbsPeptideProphet(boolean isRun, Component comp, FraggerPanel fp,
@@ -1065,11 +1050,12 @@ public class ToolingUtils {
       Component errMsgParent, URI jarUri, UmpirePanel umpirePanel, String binPhilosopher,
       Path workingDir, List<String> lcmsFilePaths) {
 
+
     List<ProcessBuilder> pbs = new LinkedList<>();
     if (isRunUmpire) {
 
       // check if input files contain only mzxml files
-      boolean hasNonMzxml = lcmsFilePaths.stream().map(String::toLowerCase)
+      boolean hasNonMzxml = lcmsFilePaths.stream().map(f -> Paths.get(f).getFileName().toString().toLowerCase())
           .anyMatch(p -> !p.endsWith("mzxml"));
       if (hasNonMzxml) {
         JOptionPane.showMessageDialog(errMsgParent,
@@ -1099,8 +1085,8 @@ public class ToolingUtils {
       // write umpire params file
       final DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
       final String dateStr = df.format(new Date());
-      final List<Path> lcmsFiles = lcmsFilePaths.stream().map(s -> Paths.get(s)).collect(
-          Collectors.toList());
+      final List<Path> lcmsFiles = lcmsFilePaths.stream()
+          .map(p -> Paths.get(p)).collect(Collectors.toList());
       final UmpireParams collectedUmpireParams = umpirePanel.collect();
       final String umpireParamsFileName =
           UmpireParams.FILE_BASE_NAME + "_" + dateStr + "." + UmpireParams.FILE_BASE_EXT;
@@ -1380,4 +1366,5 @@ public class ToolingUtils {
     }
     return "";
   }
+
 }

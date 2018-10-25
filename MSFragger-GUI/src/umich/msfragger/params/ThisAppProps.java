@@ -30,6 +30,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.text.JTextComponent;
 import umich.msfragger.Version;
+import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.util.PathUtils;
 
@@ -47,28 +48,30 @@ public class ThisAppProps extends Properties {
     public static final String PROP_BIN_PATH_MSCONVERT = "path.textfield.msconvert";
     public static final String PROP_BIN_PATH_MSFRAGGER = "path.textfield.msfragger";
     public static final String PROP_BIN_PATH_PHILOSOPHER = "path.textfield.peptide-prophet";
-    public static final String PROP_TEXTFIELD_PATH_PROTEIN_PROPHET = "path.textfield.protein-prophet";
-    public static final String PROP_TEXTFIELD_REPORT_ANNOTATE = "report.annotate";
-    public static final String PROP_TEXTFIELD_REPORT_FILTER = "report.filter";
-    public static final String PROP_TEXTFIELD_LABELFREE = "report.labelfree";
-    public static final String PROP_TEXTFIELD_SEQUENCE_DB = "sequence.db";
-    public static final String PROP_TEXTFIELD_DECOY_TAG = "decoy.tag";
-    public static final String PROP_CHECKBOX_REPORT_PROTEIN_LEVEL_FDR = "report.proteinlevelfdr";
+  public static final String PROP_BIN_PATH_PYTHON = "path.bin.python";
+  public static final String PROP_TEXTFIELD_PATH_PROTEIN_PROPHET = "path.textfield.protein-prophet";
+  public static final String PROP_TEXTFIELD_REPORT_ANNOTATE = "report.annotate";
+  public static final String PROP_TEXTFIELD_REPORT_FILTER = "report.filter";
+  public static final String PROP_TEXTFIELD_LABELFREE = "report.labelfree";
+  public static final String PROP_TEXTFIELD_SEQUENCE_DB = "sequence.db";
+  public static final String PROP_TEXTFIELD_DECOY_TAG = "decoy.tag";
+  public static final String PROP_CHECKBOX_REPORT_PROTEIN_LEVEL_FDR = "report.proteinlevelfdr";
 
-    public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
-    public static final String PROP_TEXT_CMD_PROTEIN_PROPHET = "proteinprophet.cmd.line.opts";
+  public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
+  public static final String PROP_TEXT_CMD_PROTEIN_PROPHET = "proteinprophet.cmd.line.opts";
 
-    public static final String PROP_MSADJUSTER_USE = "msadjuster.use";
-    public static final String PROP_CRYSTALC_USE = "crystalc.use";
-    public static final String PROP_SPECLIBGEN_RUN = "speclibgen.run";
+  public static final String PROP_MSADJUSTER_USE = "msadjuster.use";
+  public static final String PROP_CRYSTALC_USE = "crystalc.use";
+  public static final String PROP_SPECLIBGEN_RUN = "speclibgen.run";
 
 
-    public static final String PROP_MGF_WARNING = "warn.mgf";
+  public static final String PROP_MGF_WARNING = "warn.mgf";
 
-    public static final String JAR_FILE_AS_RESOURCE_EXT = ".jazz";
-    public static final Path UNPACK_TEMP_SUBDIR = Paths.get("fragpipe");
+  public static final String JAR_FILE_AS_RESOURCE_EXT = ".jazz";
+  public static final Path UNPACK_TEMP_SUBDIR = Paths.get("fragpipe");
+  public static final String DEFAULT_LCMS_GROUP_NAME = "";
 
-    public ThisAppProps() {
+  public ThisAppProps() {
           this.setProperty(Version.PROP_VER, Version.VERSION);
       }
 
@@ -147,23 +150,22 @@ public class ThisAppProps extends Properties {
      * @param props  List of properties to search for.
      * @param locateJar  If no property was found, will try to locate the current jar
      *                   and return its location.
-     * @return
+     * @return Null in case path could not be found.
      */
     public static String tryFindPath(List<String> props, boolean locateJar) {
-        String path = null;
         for (String prop : props) {
-            path = ThisAppProps.load(prop);
+            String path = ThisAppProps.load(prop);
             if (path != null) {
-                break;
+                return path;
             }
         }
-        if (path == null && locateJar) {
+        if (locateJar) {
             URI thisJarUri = PathUtils.getCurrentJarUri();
             if (thisJarUri != null) {
-                path = Paths.get(thisJarUri).toString();
+                return Paths.get(thisJarUri).toString();
             }
         }
-        return path;
+        return null;
     }
 
   public static boolean load(JTextComponent text, String propName) {
@@ -217,7 +219,13 @@ public class ThisAppProps extends Properties {
       save(propName, val);
   }
 
-  public void save() {
+    public static Path getOutputDir(Path workDir, LcmsFileGroup group) {
+        return DEFAULT_LCMS_GROUP_NAME.equals(group.groupName)
+            ? workDir
+            : workDir.resolve(group.groupName);
+    }
+
+    public void save() {
         Path path = Paths.get(TEMP_DIR, TEMP_FILE_NAME);
         try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
             store(fos, Version.PROGRAM_TITLE + " runtime properties");

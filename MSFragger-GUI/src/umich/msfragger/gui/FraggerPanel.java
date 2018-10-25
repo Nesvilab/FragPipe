@@ -1627,34 +1627,31 @@ public class FraggerPanel extends javax.swing.JPanel {
     }
     
     private void validateFraggerDbPath() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                if (dbPathTip != null) {
-                    dbPathTip.closeBalloon();
-                    dbPathTip = null;
-                }
-                
-                final JComponent anchor = panelFraggerMatchingConfig;
-                String text = getMsfraggerGuiFrame().getFastaPath();
-                
-                if (StringUtils.isNullOrWhitespace(text)) {
-                    dbPathTip = new BalloonTip(anchor, "Empty fasta path (see Sequence DB tab)!");
-                    dbPathTip.setVisible(true);
-                    return;
-                }
+        SwingUtilities.invokeLater(() -> {
+            if (dbPathTip != null) {
+                dbPathTip.closeBalloon();
+                dbPathTip = null;
+            }
 
-                Path path = Paths.get(text).toAbsolutePath();
-                if (!Files.exists(path)) {
-                    dbPathTip = new BalloonTip(anchor, "File does not exist (see Sequence DB tab)!");
-                    dbPathTip.setVisible(true);
-                    return;
-                }
-                if (Files.isDirectory(path)) {
-                    dbPathTip = new BalloonTip(anchor, "DB path should not be a directory (see Sequence DB tab)!");
-                    dbPathTip.setVisible(true);
-                    return;
-                }
+            final JComponent anchor = panelFraggerMatchingConfig;
+            String text = getMsfraggerGuiFrame().getFastaPath();
+
+            if (StringUtils.isNullOrWhitespace(text)) {
+                dbPathTip = new BalloonTip(anchor, "Empty fasta path (see Sequence DB tab)!");
+                dbPathTip.setVisible(true);
+                return;
+            }
+
+            Path path = Paths.get(text).toAbsolutePath();
+            if (!Files.exists(path)) {
+                dbPathTip = new BalloonTip(anchor, "File does not exist (see Sequence DB tab)!");
+                dbPathTip.setVisible(true);
+                return;
+            }
+            if (Files.isDirectory(path)) {
+                dbPathTip = new BalloonTip(anchor, "DB path should not be a directory (see Sequence DB tab)!");
+                dbPathTip.setVisible(true);
+                return;
             }
         });
     }

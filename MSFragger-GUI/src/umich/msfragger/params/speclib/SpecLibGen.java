@@ -3,6 +3,8 @@ package umich.msfragger.params.speclib;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.util.CheckResult;
 import umich.msfragger.util.Installed;
@@ -28,6 +30,12 @@ public class SpecLibGen {
   private SpecLibGen() {
     pi = PythonInfo.get();
     scriptSpecLibGenPath = null;
+    EventBus.getDefault().register(this);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void onMessagePythonInfoChanged(PythonInfo.MessageInfoChanged m) {
+    init();
   }
 
   public static final String[] RESOURCE_LOCATIONS = {

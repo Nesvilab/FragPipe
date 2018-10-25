@@ -45,13 +45,13 @@ public class SimpleETable extends ETable {
     public SimpleETable() {
         super();
         init();
-        setFullyNonEditable(true);
+        setFullyNonEditable(false);
     }
 
     public SimpleETable(TableModel dm) {
         super(dm);
         init();
-        setFullyNonEditable(true);
+        setFullyNonEditable(false);
     }
 
     
@@ -121,6 +121,7 @@ public class SimpleETable extends ETable {
     }
     
     private void init() {
+        putClientProperty("terminateEditOnFocusLost", true);
         initModelListeners();
         initSelectionListeners();
     }
