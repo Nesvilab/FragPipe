@@ -111,6 +111,9 @@ public class MsfraggerParams extends AbstractParams {
         "H (histidine)", "F (phenylalanine)", "R (arginine)", "Y (tyrosine)", "W (tryptophan)", 
         "B ", "J", "O", "U", "X", "Z", };
     
+    public static final String ENZYME_NONSPECIFIC_NAME = "nonspecific";
+    public static final String ENZYME_TRYPSIN_NAME = "Trypsin";
+
     public static final Map<String, String> ADDON_MAP_NAME2HUMAN = new HashMap<>(ADDON_NAMES.length);
     public static final Map<String, String> ADDON_MAP_HUMAN2NAME = new HashMap<>(ADDON_NAMES.length);
     static {

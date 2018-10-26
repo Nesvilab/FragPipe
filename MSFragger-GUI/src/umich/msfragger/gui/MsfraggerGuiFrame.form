@@ -1918,6 +1918,7 @@
             <Component class="javax.swing.JButton" name="btnClearConsole">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Clear console"/>
+                <Property name="toolTipText" type="java.lang.String" value="Clear text in the console below"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnClearConsoleActionPerformed"/>
@@ -1994,6 +1995,7 @@
             <Component class="javax.swing.JButton" name="btnOpenInExplorer">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Open in Explorer"/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Open the &lt;b&gt;output dir&lt;/b&gt; in system file explorer."/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnOpenInExplorerActionPerformed"/>

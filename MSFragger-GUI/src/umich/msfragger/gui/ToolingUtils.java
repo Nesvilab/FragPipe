@@ -595,6 +595,22 @@ public class ToolingUtils {
     return pbs;
   }
 
+  public static ProcessBuilder philosopherWorkspaceInit(String binPhilosopher) {
+    List<String> cmd = new ArrayList<>();
+    cmd.add(binPhilosopher);
+    cmd.add("workspace");
+    cmd.add("--clean");
+    return new ProcessBuilder(cmd);
+  }
+
+  public static ProcessBuilder philosopherWorkspaceClean(String binPhilosopher) {
+    List<String> cmd = new ArrayList<>();
+    cmd.add(binPhilosopher);
+    cmd.add("workspace");
+    cmd.add("--clean");
+    return new ProcessBuilder(cmd);
+  }
+
   /**
    * Creates the ProcessBuilders for running PeptideProphet.
    *
@@ -637,7 +653,7 @@ public class ToolingUtils {
       PeptideProphetParams peptideProphetParams = new PeptideProphetParams();
       peptideProphetParams.setCmdLineParams(textPepProphCmd);
 
-      boolean isPhilosopher = isPhilosopherBin(bin);
+      boolean isPhilosopherAndNotTpp = isPhilosopherAndNotTpp(bin);
 
       Map<String, String> pepxmlDirty = createPepxmlFilePathsDirty(lcmsFilePaths, fp.getOutputFileExt());
       Map<String, String> pepxmlClean = createPepxmlFilePathsAfterMove(pepxmlDirty, workingDir, isCrystalc);
@@ -645,7 +661,7 @@ public class ToolingUtils {
         // Comet
         List<String> commands = new ArrayList<>();
         commands.add(bin);
-        if (isPhilosopher) // for philosopher we always add the correct command
+        if (isPhilosopherAndNotTpp) // for philosopher we always add the correct command
         {
           commands.add(PhilosopherProps.CMD_PEPTIDE_PROPHET);
         }
@@ -726,13 +742,13 @@ public class ToolingUtils {
       List<String> createdInteractFiles = new ArrayList<>();
       List<String> commands = new ArrayList<>();
       commands.add(bin);
-      boolean isPhilosopher = isPhilosopherBin(bin);
+      boolean isPhilosopherAndNotTpp = isPhilosopherAndNotTpp(bin);
 
       Map<String, String> pepxmlDirty = createPepxmlFilePathsDirty(lcmsFilePaths, fraggerPanel.getOutputFileExt());
       Map<String, String> pepxmlClean = createPepxmlFilePathsAfterMove(pepxmlDirty, workingDir, isCrystalc);
       Map<String, String> interacts = createInteractFilePaths(pepxmlClean, workingDir, fraggerPanel.getOutputFileExt());
 
-      if (isPhilosopher) {
+      if (isPhilosopherAndNotTpp) {
         commands.add(PhilosopherProps.CMD_PROTEIN_PROPHET);
 
         // --output flag should be available in the latest philosopher
@@ -958,7 +974,7 @@ public class ToolingUtils {
       }
 
       List<ProcessBuilder> builders = new ArrayList<>();
-      boolean isPhilosopher = isPhilosopherBin(bin);
+      boolean isPhilosopherAndNotTpp = isPhilosopherAndNotTpp(bin);
 
       Map<String, String> pepxmlDirty = createPepxmlFilePathsDirty(lcmsFilePaths, fraggerPanel.getOutputFileExt());
       Map<String, String> pepxmlClean = createPepxmlFilePathsAfterMove(pepxmlDirty, workingDir, isCrystalc);
@@ -1280,7 +1296,7 @@ public class ToolingUtils {
     return OsUtils.isWindows() ? winName : nixName;
   }
 
-  static boolean isPhilosopherBin(String binPathToCheck) {
+  static boolean isPhilosopherAndNotTpp(String binPathToCheck) {
     Pattern isPhilosopherRegex = Pattern.compile("philosopher", Pattern.CASE_INSENSITIVE);
     Matcher matcher = isPhilosopherRegex.matcher(binPathToCheck);
     return matcher.find();

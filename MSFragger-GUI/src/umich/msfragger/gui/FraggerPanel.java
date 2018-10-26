@@ -44,7 +44,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 import net.java.balloontip.BalloonTip;
-import org.apache.commons.lang3.NotImplementedException;
 import static umich.msfragger.gui.MsfraggerGuiFrame.DEFAULT_TYPE;
 
 import umich.msfragger.gui.api.SearchTypeProp;
@@ -608,7 +607,7 @@ public class FraggerPanel extends javax.swing.JPanel {
 
     jLabel8.setText("Enzyme Name");
 
-    textEnzymeName.setText("Trypsin");
+    textEnzymeName.setText(MsfraggerParams.ENZYME_TRYPSIN_NAME);
     textEnzymeName.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         textEnzymeNameActionPerformed(evt);
@@ -1409,7 +1408,6 @@ public class FraggerPanel extends javax.swing.JPanel {
     });
 
     btnDefaultsNonSpecific.setText("Defaults Non-Specific");
-    btnDefaultsNonSpecific.setEnabled(false);
     btnDefaultsNonSpecific.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnDefaultsNonSpecificActionPerformed(evt);
@@ -1719,7 +1717,27 @@ public class FraggerPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_chkMsadjusterActionPerformed
 
   private void btnDefaultsNonSpecificActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDefaultsNonSpecificActionPerformed
-    throw new NotImplementedException("Non-specific defaults not implemented yet");
+
+      int result = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
+          "This action will update some parameters on this page\n"
+              + "and some parameters on PeptideProphet page.\n\n"
+              + "Dow you want to proceed?", "Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+      if (JOptionPane.YES_OPTION != result)
+        return;
+
+      MsfraggerGuiFrame f = this.frame.get();
+      if (f == null)
+        throw new RuntimeException("Error updating form with non-specific search defaults.");
+      try {
+        MsfraggerParams mp = collectParams();
+        mp.setSearchEnzymeName(MsfraggerParams.ENZYME_NONSPECIFIC_NAME);
+        mp.setSearchEnzymeCutAfter("KR");
+        mp.setSearchEnzymeButNotAfter("P");
+        fillFormFromParams(mp);
+      } catch (IOException ex) {
+        throw new RuntimeException("Error updating form with non-specific search defaults.", ex);
+      }
+
   }//GEN-LAST:event_btnDefaultsNonSpecificActionPerformed
 
     public boolean isMsadjuster() {
