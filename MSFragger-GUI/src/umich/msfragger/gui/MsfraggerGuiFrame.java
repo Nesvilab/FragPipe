@@ -110,7 +110,6 @@ import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -1220,6 +1219,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
+    checkProcessGroupsSeparately.setSelected(loadSavedProcessGroupsSeparately());
     checkProcessGroupsSeparately.setText("Process each Experiment/Group separately");
     checkProcessGroupsSeparately.setToolTipText("<html>If you want a report comparing protein abundances across<br/>\nexperiments or just want a single protein identification result from all<br/>\nthe runs, select this checkbox. For most usecases you want this checked.<br/>\n<b>Only check</b> if you simply want peptide/protein ID results<br/>\nfor each experiment separately. E.g. this might be useful if you have<br/>\n100 files on hand and use the \"assign to experiments\" feature to quickly<br/>\nrun MSFragger + downstream processing on each of those and get a pepxml<br/>\nand/or protxml files.");
     checkProcessGroupsSeparately.addActionListener(new java.awt.event.ActionListener() {
@@ -4585,7 +4585,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGroupsAssignToSelectedActionPerformed
 
   private void checkProcessGroupsSeparatelyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkProcessGroupsSeparatelyActionPerformed
-    throw new NotImplementedException("Action of this checkbox not yet implemented");
+    ThisAppProps.save(checkProcessGroupsSeparately, ThisAppProps.PROP_CHECKBOX_PROCESS_GROUPS_SEPARATELY);
   }//GEN-LAST:event_checkProcessGroupsSeparatelyActionPerformed
 
 
@@ -5485,4 +5485,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JTextArea txtProteinProphetCmdLineOpts;
   private javax.swing.JTextField txtWorkingDir;
   // End of variables declaration//GEN-END:variables
+
+  private boolean loadSavedProcessGroupsSeparately() {
+    final String checked = ThisAppProps.load(ThisAppProps.PROP_CHECKBOX_PROCESS_GROUPS_SEPARATELY);
+    try {
+      return Boolean.valueOf(checked);
+    } catch (Exception ignored) {}
+    return false;
+  }
 }
