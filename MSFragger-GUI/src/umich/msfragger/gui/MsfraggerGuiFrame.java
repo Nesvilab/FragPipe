@@ -1994,6 +1994,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     btnPrintCommands.setText("Print Commands");
+    btnPrintCommands.setToolTipText("<html>This button has exactly the same effect as<br/>\nchecking 'Dry Run' checkbox and clicking 'Run'");
     btnPrintCommands.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnPrintCommandsActionPerformed(evt);
@@ -3467,6 +3468,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         sbVer.append("MSFragger version ").append(fraggerVer).append("\n");
         sbVer.append("Philosopher version ").append(philosopherVer).append("\n");
         LogUtils.println(console, String.format(Locale.ROOT, "Version info:\n%s", sbVer.toString()));
+        LogUtils.println(console, "");
+
+        LogUtils.println(console, String.format(Locale.ROOT, "LCMS files:", sbVer.toString()));
+        for (Map.Entry<String, LcmsFileGroup> e: lcmsFileGroups.entrySet()) {
+            LogUtils.println(console, String.format(Locale.ROOT, "  Experiment/Group: %s", e.getValue().groupName));
+            for (InputLcmsFile f : e.getValue().inputLcmsFiles) {
+                LogUtils.println(console, String.format(Locale.ROOT, "  - %s", f.path.toString()));
+            }
+        }
+        LogUtils.println(console, "");
 
         LogUtils.println(console, String.format(Locale.ROOT, "Will execute %d commands:", pbs.size()));
         for (final ProcessBuilder pb : pbs) {
@@ -3483,7 +3494,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         LogUtils.println(console, "");
 
         if (isDryRun) {
-            LogUtils.println(console, "Dry Run selected, not running the commands.");
+            LogUtils.println(console, "It's a dry-run, not running the commands.");
             resetRunButtons(true);
             return;
         }

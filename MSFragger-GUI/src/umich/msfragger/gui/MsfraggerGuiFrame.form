@@ -2002,6 +2002,7 @@
             <Component class="javax.swing.JButton" name="btnPrintCommands">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Print Commands"/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;This button has exactly the same effect as&lt;br/&gt;&#xa;checking &apos;Dry Run&apos; checkbox and clicking &apos;Run&apos;"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPrintCommandsActionPerformed"/>
