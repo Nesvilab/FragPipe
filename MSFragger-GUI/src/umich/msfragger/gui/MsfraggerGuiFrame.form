@@ -740,6 +740,8 @@
                                           <Component id="btnRawRemove" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Component id="btnRawClear" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          <Component id="checkProcessGroupsSeparately" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                       <Group type="102" alignment="0" attributes="0">
                                           <Component id="btnGroupsConsecutive" min="-2" max="-2" attributes="0"/>
@@ -753,7 +755,7 @@
                                           <Component id="btnGroupsClear" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
-                                  <EmptySpace min="0" pref="174" max="32767" attributes="0"/>
+                                  <EmptySpace min="0" pref="94" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -769,6 +771,7 @@
                               <Component id="btnRawAddFiles" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnRawAddFolder" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnRawClear" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="checkProcessGroupsSeparately" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
                           <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
@@ -873,6 +876,15 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsAssignToSelectedActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="checkProcessGroupsSeparately">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Process each Experiment/Group separately"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If you want a report comparing protein abundances across&lt;br/&gt;&#xa;experiments or just want a single protein identification result from all&lt;br/&gt;&#xa;the runs, select this checkbox. For most usecases you want this checked.&lt;br/&gt;&#xa;&lt;b&gt;Only check&lt;/b&gt; if you simply want peptide/protein ID results&lt;br/&gt;&#xa;for each experiment separately. E.g. this might be useful if you have&lt;br/&gt;&#xa;100 files on hand and use the &quot;assign to experiments&quot; feature to quickly&lt;br/&gt;&#xa;run MSFragger + downstream processing on each of those and get a pepxml&lt;br/&gt;&#xa;and/or protxml files."/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkProcessGroupsSeparatelyActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>
