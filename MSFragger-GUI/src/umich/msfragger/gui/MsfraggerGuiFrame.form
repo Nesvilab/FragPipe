@@ -1849,7 +1849,9 @@
                                       <Component id="btnStop" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="checkDryRun" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace pref="223" max="32767" attributes="0"/>
+                                      <EmptySpace pref="108" max="32767" attributes="0"/>
+                                      <Component id="btnPrintCommands" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
                                       <Component id="btnExportLog" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="btnReportErrors" min="-2" max="-2" attributes="0"/>
@@ -1894,6 +1896,7 @@
                           <Component id="btnRun" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnExportLog" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="checkDryRun" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnPrintCommands" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="consoleScrollPane" pref="586" max="32767" attributes="0"/>
@@ -1994,6 +1997,14 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnOpenInExplorerActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="btnPrintCommands">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Print Commands"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPrintCommandsActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>

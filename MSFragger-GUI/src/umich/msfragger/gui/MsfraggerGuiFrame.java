@@ -732,6 +732,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     btnRun = new javax.swing.JButton();
     btnExportLog = new javax.swing.JButton();
     btnOpenInExplorer = new javax.swing.JButton();
+    btnPrintCommands = new javax.swing.JButton();
 
     jLabel2.setText("jLabel2");
 
@@ -1992,6 +1993,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
+    btnPrintCommands.setText("Print Commands");
+    btnPrintCommands.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btnPrintCommandsActionPerformed(evt);
+      }
+    });
+
     javax.swing.GroupLayout panelRunLayout = new javax.swing.GroupLayout(panelRun);
     panelRun.setLayout(panelRunLayout);
     panelRunLayout.setHorizontalGroup(
@@ -2008,7 +2016,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addComponent(btnStop)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(checkDryRun)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 223, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 108, Short.MAX_VALUE)
+                .addComponent(btnPrintCommands)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnExportLog)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnReportErrors))
@@ -2043,7 +2053,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(btnReportErrors)
           .addComponent(btnRun, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
           .addComponent(btnExportLog)
-          .addComponent(checkDryRun))
+          .addComponent(checkDryRun)
+          .addComponent(btnPrintCommands))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addComponent(consoleScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
         .addContainerGap())
@@ -3210,7 +3221,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private void btnRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRunActionPerformed
 
         resetRunButtons(false);
-        final boolean isDryRun = checkDryRun.isSelected();
+        final boolean isPrintButtonClicked = 
+                btnPrintCommands != null && btnPrintCommands.equals(evt.getSource());
+        final boolean isDryRun = checkDryRun.isSelected() || isPrintButtonClicked;
 
         boolean doRunFragger = fraggerPanel.isRunMsfragger();
         boolean doRunProphetsAndReport = chkRunPeptideProphet.isSelected()
@@ -4588,6 +4601,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.save(checkProcessGroupsSeparately, ThisAppProps.PROP_CHECKBOX_PROCESS_GROUPS_SEPARATELY);
   }//GEN-LAST:event_checkProcessGroupsSeparatelyActionPerformed
 
+  private void btnPrintCommandsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintCommandsActionPerformed
+    btnRunActionPerformed(evt);
+  }//GEN-LAST:event_btnPrintCommandsActionPerformed
+
 
     //region Load-Last methods
     public void loadLastPeptideProphet() {
@@ -5386,6 +5403,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JButton btnPepProphDefaultsOpen;
   private javax.swing.JButton btnPhilosopherBinBrowse;
   private javax.swing.JButton btnPhilosopherBinDownload;
+  private javax.swing.JButton btnPrintCommands;
   private javax.swing.JButton btnProtProphDefaultsClosed;
   private javax.swing.JButton btnProtProphDefaultsOpen;
   private javax.swing.JButton btnRawAddFiles;
