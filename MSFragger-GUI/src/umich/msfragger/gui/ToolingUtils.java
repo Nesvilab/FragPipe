@@ -6,7 +6,6 @@ import static umich.msfragger.util.PathUtils.testFilePath;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -58,6 +57,7 @@ import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.PythonInfo;
+import umich.msfragger.util.UsageTrigger;
 import umich.msfragger.util.StringUtils;
 
 public class ToolingUtils {
@@ -66,50 +66,15 @@ public class ToolingUtils {
 
 
   /**
-   * @return Combined protein file name without extension.
-   */
-  static String getCombinedProtOpt(String txtCombinedProtFile) {
-    String combined = txtCombinedProtFile.trim();
-    String combinedOpt;
-    if (StringUtils.isNullOrWhitespace(combined)) {
-      combinedOpt = "interact";
-    } else {
-      final String protExt = ".prot.xml";
-      if (combined.toLowerCase().endsWith(protExt)) {
-        combinedOpt = combined.substring(0, combined.toLowerCase().indexOf(protExt));
-      } else {
-        combinedOpt = combined;
-      }
-    }
-
-    return combinedOpt;
-  }
-
-  /**
-   * @return Combined protein file name with extension.
-   */
-  static String getCombinedProtFileName(String txtCombinedProtFile) {
-    return getCombinedProtOpt(txtCombinedProtFile) + ".prot.xml";
-  }
-
-  /**
-   *
-   * @param comp Component to display error messages relative to.
    * @return Full absolute normalized path to the output combined protein file.
    */
-  public static Path getCombinedProtFilePath(Component comp, String txtCombinedProtFile, String workingDir) {
-    String combinedProtFile = getCombinedProtFileName(txtCombinedProtFile);
-    if (StringUtils.isNullOrWhitespace(combinedProtFile)) {
-      JOptionPane.showMessageDialog(comp,
-          "Please specify ProteinProphet output path on ProteinProphet tab.\n"
-              + "This is needed even if you're not running ProteinProphet right now.\n"
-              + "In which case check the box to run it, add the filename and uncheck the filebox.\n"
-              + "Sorry for the inconvenience.",
-          "Errors", JOptionPane.ERROR_MESSAGE);
-      return null;
-    } else {
-      return Paths.get(workingDir, combinedProtFile).toAbsolutePath().normalize();
+  public static Path getCombinedProtFilePath(String combinedProtFn, Path workingDir) {
+    combinedProtFn = combinedProtFn.trim();
+    final String ext = ".prot.xml";
+    if (!combinedProtFn.toLowerCase().endsWith(ext)) {
+      combinedProtFn = combinedProtFn + ext;
     }
+    return workingDir.resolve(combinedProtFn).normalize().toAbsolutePath();
   }
 
   /**
@@ -139,38 +104,41 @@ public class ToolingUtils {
     return pbs;
   }
 
-  public static Map<String, String> createPepxmlFilePathsDirty(List<String> lcmsFilePaths, String ext) {
-    HashMap<String, String> pepxmls = new HashMap<>();
-    for (String s : lcmsFilePaths) {
-      String baseName = s.substring(0, s.lastIndexOf(".") + 1);
-      pepxmls.put(s, baseName + ext);
-    }
+  public static Map<InputLcmsFile, Path> getPepxmlFilePathsAfterSearch(List<InputLcmsFile> lcmsFiles, String ext) {
+    HashMap<InputLcmsFile, Path> pepxmls = new HashMap<>();
+    for (InputLcmsFile f : lcmsFiles)
+      pepxmls.put(f, Paths.get(StringUtils.upToLastDot(f.path.toString()) + "." + ext));
     return pepxmls;
   }
 
-  public static Map<String, String> createPepxmlFilePathsAfterMove(Map<String, String> dirtyPepXmls, String workingDir,
-      boolean crystalC) {
-    HashMap<String, String> pepxmls = new HashMap<>();
-    Path wd = Paths.get(workingDir);
-    for (Map.Entry<String, String> entry : dirtyPepXmls.entrySet()) {
-      String raw = entry.getKey();
-      String dirty = entry.getValue();
-      String fn = Paths.get(dirty).getFileName().toString();
-      String fnMod = !crystalC ? fn
+  public static Map<InputLcmsFile, Path> getPepxmlFilePathsAfterMove(
+      Map<InputLcmsFile, Path> pepxmlFilesAfterSearch, Path workingDir, boolean crystalC,
+      boolean isProcessGroupsSeparately) {
+    HashMap<InputLcmsFile, Path> pepxmls = new HashMap<>();
+    for (Map.Entry<InputLcmsFile, Path> entry : pepxmlFilesAfterSearch.entrySet()) {
+      InputLcmsFile f = entry.getKey();
+      Path dirty = entry.getValue();
+      String fn = dirty.getFileName().toString();
+      String fnMod = !crystalC
+          ? fn
           : StringUtils.upToLastDot(fn) + "_c." + StringUtils.afterLastDot(fn);
-      Path pepxmlClean = wd.resolve(fnMod).toAbsolutePath();
-      pepxmls.put(raw, pepxmlClean.toString());
+      Path pepxmlClean = isProcessGroupsSeparately
+          ? workingDir.resolve(f.experiment).resolve(fnMod).toAbsolutePath()
+          : workingDir.resolve(fnMod).toAbsolutePath();
+      pepxmls.put(f, pepxmlClean);
     }
     return pepxmls;
   }
 
-  public static Map<String, String> createInteractFilePaths(Map<String, String> cleanPepXmls, String workingDir, String pepxmlExt) {
-    HashMap<String, String> interacts = new HashMap<>();
-    Path wd = Paths.get(workingDir);
-    for (Map.Entry<String, String> entry : cleanPepXmls.entrySet()) {
-      String raw = entry.getKey();
-      String clean = entry.getValue();
-      String cleanFn = Paths.get(clean).getFileName().toString();
+  public static Map<InputLcmsFile, Path> getPepxmlInteractFilePaths(
+      Map<InputLcmsFile, Path> cleanPepXmls, Path workingDir, String pepxmlExt) {
+
+    HashMap<InputLcmsFile, Path> interacts = new HashMap<>();
+    for (Map.Entry<InputLcmsFile, Path> entry : cleanPepXmls.entrySet()) {
+      InputLcmsFile raw = entry.getKey();
+      final Path clean = entry.getValue();
+      final String cleanFn = clean.getFileName().toString();
+      final Path cleanDir = clean.getParent();
 
       // hardcode typical params
       String[] typicalExts = {pepxmlExt, "pep.xml", "pepxml"};
@@ -187,13 +155,13 @@ public class ToolingUtils {
         throw new IllegalStateException(String.format("Could not identify the extension for file: %s", clean));
       }
 
-      Path interactXml = wd.resolve("interact-" + nameWithoutExt + "pep.xml").toAbsolutePath();
-      interacts.put(raw, interactXml.toString());
+      Path interactXml = cleanDir.resolve("interact-" + nameWithoutExt + "pep.xml").toAbsolutePath();
+      interacts.put(raw, interactXml);
     }
     return interacts;
   }
 
-  public static List<ProcessBuilder> pbsFragger(Component comp, String programsDir, String workingDir, List<String> lcmsFilePaths,
+  public static List<ProcessBuilder> pbsFragger(Component comp, String programsDir, String workingDir, List<InputLcmsFile> lcmsFilePaths,
       boolean isDryRun, FraggerPanel fp, URI jar, String msfraggerPath, DbSlice dbslice) {
     if (jar == null)
       throw new IllegalArgumentException("Argument JAR can't be null");
@@ -260,8 +228,6 @@ public class ToolingUtils {
 
       int ramGb = fp.getRamGb();
 
-      Map<String, String> mapRawToPep = createPepxmlFilePathsDirty(lcmsFilePaths, params.getOutputFileExtension());
-
       StringBuilder sb = new StringBuilder();
       // 32k symbols splitting for regular command.
       // But for slicing it's all up to the python script.
@@ -312,25 +278,23 @@ public class ToolingUtils {
         }
 
         while (fileIndex < lcmsFilePaths.size()) {
-          String nextFilePath = lcmsFilePaths.get(fileIndex);
-          if (sb.length() + nextFilePath.length() + 1 > commandLenLimit) {
+          InputLcmsFile f = lcmsFilePaths.get(fileIndex);
+          if (sb.length() + f.path.toString().length() + 1 > commandLenLimit) {
             break;
           }
-          sb.append(nextFilePath).append(" ");
-          cmd.add(nextFilePath);
+          sb.append(f.path.toString()).append(" ");
+          cmd.add(f.path.toString());
           fileIndex++;
         }
 
-        ProcessBuilder pbFragger = new ProcessBuilder(cmd);
-        builders.add(pbFragger);
+        builders.add(new ProcessBuilder(cmd));
         sb.setLength(0);
 
         // move the files if the output directory is not the same as where
         // the lcms files were
-
+        Map<InputLcmsFile, Path> mapRawToPep = getPepxmlFilePathsAfterSearch(lcmsFilePaths, params.getOutputFileExtension());
         for (int i = fileIndexLo; i < fileIndex; i++) {
-          String pepFile = mapRawToPep.get(lcmsFilePaths.get(i));
-          Path pepPath = Paths.get(pepFile);
+          Path pepPath = mapRawToPep.get(lcmsFilePaths.get(i));
 
           if (!wdPath.equals(pepPath.getParent())) {
             ArrayList<String> cmdMove = new ArrayList<>();
@@ -367,7 +331,8 @@ public class ToolingUtils {
     return null;
   }
 
-  public static List<ProcessBuilder> pbsMsadjuster(URI jarUri, Component comp, String workingDir, List<String> lcmsFilePaths, FraggerPanel fp, boolean cleanUp) {
+  public static List<ProcessBuilder> pbsMsadjuster(URI jarUri, Component comp, String workingDir,
+      List<InputLcmsFile> lcmsFiles, FraggerPanel fp, boolean cleanUp) {
     List<ProcessBuilder> pbs = new LinkedList<>();
 
     if (fp.isRunMsfragger() && fp.isMsadjuster()) {
@@ -396,7 +361,7 @@ public class ToolingUtils {
 
       int ramGb = fp.getRamGb();
 
-      for (String lcmsFilePath : lcmsFilePaths) {
+      for (InputLcmsFile f : lcmsFiles) {
 
         if (!cleanUp) {
           ArrayList<String> cmd = new ArrayList<>();
@@ -417,7 +382,7 @@ public class ToolingUtils {
             cmd.add(jarMsadjusterPath.toAbsolutePath().normalize().toString());
           }
           cmd.add("20");
-          cmd.add(lcmsFilePath);
+          cmd.add(f.path.toString());
           pbs.add(new ProcessBuilder(cmd));
 
         } else {
@@ -428,7 +393,7 @@ public class ToolingUtils {
           cmd.add("-cp");
           cmd.add(currentJarPath);
           cmd.add(FileMove.class.getCanonicalName());
-          String origin =  StringUtils.upToLastDot(lcmsFilePath) + ".ma"; // MSAdjuster creates these files
+          String origin =  StringUtils.upToLastDot(f.path.toString()) + ".ma"; // MSAdjuster creates these files
           String destination = wd.resolve(Paths.get(origin).getFileName().toString()).toString();
           cmd.add(origin);
           cmd.add(destination);
@@ -442,8 +407,9 @@ public class ToolingUtils {
   /**
    * @param ccParams Get these by calling {@link MsfraggerGuiFrame#crystalcFormToParams()}.
    */
-  public static List<ProcessBuilder> pbsCrystalc(Component comp, FraggerPanel fp, CrystalcParams ccParams,
-      boolean isDryRun, boolean isCrystalc, String workingDir, String fastaPath, List<String> lcmsFilePaths) {
+  public static List<ProcessBuilder> pbsCrystalc(Component comp, FraggerPanel fp,
+      CrystalcParams ccParams, boolean isDryRun, boolean isCrystalc, String workingDir,
+      String fastaPath, List<InputLcmsFile> lcmsFiles, boolean isProcessGroupsSeparately) {
     List<ProcessBuilder> pbs = new LinkedList<>();
     if (isCrystalc) {
       Path wd = Paths.get(workingDir);
@@ -468,12 +434,12 @@ public class ToolingUtils {
       }
 
       // check if all input files are in the same folder
-      Set<Path> dirs = lcmsFilePaths.stream()
-          .map(Paths::get).map(p -> p.getParent().toAbsolutePath().normalize()).collect(
-              Collectors.toSet());
-      Set<String> exts = lcmsFilePaths.stream()
-          .map(Paths::get).map(p -> p.getFileName().toString())
-          .map(StringUtils::afterLastDot).collect(Collectors.toSet());
+      Set<Path> dirs = lcmsFiles.stream()
+          .map(f -> f.path.getParent().toAbsolutePath().normalize())
+          .collect(Collectors.toSet());
+      Set<String> exts = lcmsFiles.stream()
+          .map(f -> StringUtils.afterLastDot(f.path.getFileName().toString()))
+          .collect(Collectors.toSet());
       boolean anyMatch = exts.stream().map(String::toLowerCase)
           .anyMatch(ext -> !("mzml".equals(ext) || "mzxml".equals(ext)));
       if (exts.isEmpty() || anyMatch) {
@@ -495,8 +461,9 @@ public class ToolingUtils {
             "Unsupported by Crystal-C", JOptionPane.ERROR_MESSAGE);
         return null;
       }
-      Map<String, String> pepxmlDirty = createPepxmlFilePathsDirty(lcmsFilePaths, pepxmlExtFragger);
-      Map<String, String> pepxmlClean = createPepxmlFilePathsAfterMove(pepxmlDirty, workingDir, false);
+      Map<InputLcmsFile, Path> pepxmlDirty = getPepxmlFilePathsAfterSearch(lcmsFiles, pepxmlExtFragger);
+      Map<InputLcmsFile, Path> pepxmlClean = getPepxmlFilePathsAfterMove(pepxmlDirty, wd,
+          false, isProcessGroupsSeparately);
       final String ccParamsFilePrefix = "crystalc";
       final String ccParamsFileSuffix = ".params";
 
@@ -526,7 +493,7 @@ public class ToolingUtils {
         List<String> cmd = new ArrayList<>();
         cmd.add("java");
         if (ramGb > 0) {
-          cmd.add(new StringBuilder().append("-Xmx").append(ramGb).append("G").toString());
+          cmd.add("-Xmx" + ramGb + "G");
         }
         cmd.add("-cp");
         List<String> toJoin = new ArrayList<>();
@@ -536,7 +503,7 @@ public class ToolingUtils {
         cmd.add("\"" + org.apache.commons.lang3.StringUtils.join(toJoin, sep) + "\"");
         cmd.add(CrystalcProps.JAR_CRYSTALC_MAIN_CLASS);
         cmd.add(ccParamsPath.toString());
-        cmd.addAll(pepxmlClean.values());
+        cmd.addAll(pepxmlClean.values().stream().map(Path::toString).collect(Collectors.toList()));
 
         pbs.add(new ProcessBuilder(cmd));
 
@@ -545,10 +512,10 @@ public class ToolingUtils {
         // multiple raw file extensions or multiple lcms file locaitons
         // issue a separate command for each pepxml file
         int index = -1;
-        for (Map.Entry<String, String> kv : pepxmlClean.entrySet()) {
-          Path lcms = Paths.get(kv.getKey()).toAbsolutePath().normalize();
+        for (Map.Entry<InputLcmsFile, Path> kv : pepxmlClean.entrySet()) {
+          Path lcms = kv.getKey().path.toAbsolutePath().normalize();
           String lcmsFn = lcms.getFileName().toString();
-          Path pepxml = Paths.get(kv.getValue()).toAbsolutePath().normalize();
+          Path pepxml = kv.getValue().toAbsolutePath().normalize();
           String pepxmlFn = pepxml.getFileName().toString();
 
           CrystalcParams p;
@@ -595,20 +562,16 @@ public class ToolingUtils {
     return pbs;
   }
 
-  public static ProcessBuilder philosopherWorkspaceInit(String binPhilosopher) {
-    List<String> cmd = new ArrayList<>();
-    cmd.add(binPhilosopher);
-    cmd.add("workspace");
-    cmd.add("--clean");
-    return new ProcessBuilder(cmd);
+  public static ProcessBuilder pbsPhilosopherWorkspaceInit(String binPhilosopher, Path workDir) {
+    ProcessBuilder pb = new ProcessBuilder(Arrays.asList(binPhilosopher, "workspace", "--init"));
+    pb.directory(workDir.toFile());
+    return pb;
   }
 
-  public static ProcessBuilder philosopherWorkspaceClean(String binPhilosopher) {
-    List<String> cmd = new ArrayList<>();
-    cmd.add(binPhilosopher);
-    cmd.add("workspace");
-    cmd.add("--clean");
-    return new ProcessBuilder(cmd);
+  public static ProcessBuilder pbsPhilosopherWorkspaceClean(String binPhilosopher, Path workDir) {
+    ProcessBuilder pb = new ProcessBuilder(Arrays.asList(binPhilosopher, "workspace", "--clean"));
+    pb.directory(workDir.toFile());
+    return pb;
   }
 
   /**
@@ -617,23 +580,24 @@ public class ToolingUtils {
    * @return null in case of errors, or a list of process builders.
    */
   public static List<ProcessBuilder> pbsPeptideProphet(boolean isRun, Component comp, FraggerPanel fp,
-      boolean isCrystalc, String textBinPhilosopher, String seqDbPath, String textPepProphCmd,
-      String programsDir, String workingDir, List<String> lcmsFilePaths) {
+      boolean isCrystalc, String binPhilosopher, UsageTrigger isPhiloUsed,
+      String seqDbPath, String textPepProphCmd, String programsDir, Path workingDir,
+      List<InputLcmsFile> lcmsFiles, boolean isProcessGroupsSeparately) {
     List<ProcessBuilder> builders = new LinkedList<>();
     if (isRun) {
-      String bin = textBinPhilosopher;
-      if (StringUtils.isNullOrWhitespace(bin)) {
+      if (StringUtils.isNullOrWhitespace(binPhilosopher)) {
         JOptionPane.showMessageDialog(comp, "Philosopher (PeptideProphet) binary can not be an empty string.\n",
             "Error", JOptionPane.ERROR_MESSAGE);
         return null;
       }
-      bin = testBinaryPath(bin, programsDir);
-      if (bin == null) {
+      binPhilosopher = testBinaryPath(binPhilosopher, programsDir);
+      if (binPhilosopher == null) {
         JOptionPane.showMessageDialog(comp, "Philosopher (PeptideProphet) binary not found.\n"
                 + "Neither on PATH, nor in the working directory",
             "Error", JOptionPane.ERROR_MESSAGE);
         return null;
       }
+      isPhiloUsed.setUsed(true);
 
       String fastaPath = seqDbPath;
 
@@ -643,7 +607,7 @@ public class ToolingUtils {
         return null;
       }
       String fastaPathOrig = fastaPath;
-      fastaPath = testFilePath(fastaPath, workingDir);
+      fastaPath = testFilePath(fastaPath, workingDir.toString());
       if (fastaPath == null) {
         JOptionPane.showMessageDialog(comp, String.format("Could not find fasta file (PeptideProphet) at:\n%s", fastaPathOrig),
             "Errors", JOptionPane.ERROR_MESSAGE);
@@ -653,17 +617,16 @@ public class ToolingUtils {
       PeptideProphetParams peptideProphetParams = new PeptideProphetParams();
       peptideProphetParams.setCmdLineParams(textPepProphCmd);
 
-      boolean isPhilosopherAndNotTpp = isPhilosopherAndNotTpp(bin);
+      boolean isPhilosopherAndNotTpp = isPhilosopherAndNotTpp(binPhilosopher);
 
-      Map<String, String> pepxmlDirty = createPepxmlFilePathsDirty(lcmsFilePaths, fp.getOutputFileExt());
-      Map<String, String> pepxmlClean = createPepxmlFilePathsAfterMove(pepxmlDirty, workingDir, isCrystalc);
-      for (String rawFilePath : lcmsFilePaths) {
-        // Comet
-        List<String> commands = new ArrayList<>();
-        commands.add(bin);
+      Map<InputLcmsFile, Path> pepxmlDirty = getPepxmlFilePathsAfterSearch(lcmsFiles, fp.getOutputFileExt());
+      Map<InputLcmsFile, Path> pepxmlClean = getPepxmlFilePathsAfterMove(pepxmlDirty, workingDir, isCrystalc, isProcessGroupsSeparately);
+      for (InputLcmsFile f : lcmsFiles) {
+        List<String> cmd = new ArrayList<>();
+        cmd.add(binPhilosopher);
         if (isPhilosopherAndNotTpp) // for philosopher we always add the correct command
         {
-          commands.add(PhilosopherProps.CMD_PEPTIDE_PROPHET);
+          cmd.add(PhilosopherProps.CMD_PEPTIDE_PROPHET);
         }
 
         if (!peptideProphetParams.getCmdLineParams().isEmpty()) {
@@ -674,23 +637,24 @@ public class ToolingUtils {
               if (opt.equals(PhilosopherProps.CMD_PEPTIDE_PROPHET)) {
                 continue;
               }
-              commands.add(opt);
+              cmd.add(opt);
             }
           }
         }
-        commands.add("--database");
-        commands.add(fastaPath);
+        cmd.add("--database");
+        cmd.add(fastaPath);
 
-        String pepxmlInWd = pepxmlClean.get(rawFilePath);
+        Path pepxmlInWd = pepxmlClean.get(f);
         if (pepxmlInWd == null) {
           JOptionPane.showMessageDialog(comp, "PeptideProphet process could not figure where a pepxml was.\n"
-                  + "RAW: " + rawFilePath + "\n",
+                  + "RAW: " + f.path.toString() + "\n",
               "Error", JOptionPane.ERROR_MESSAGE);
           return null;
         }
 
-        commands.add(pepxmlInWd);
-        ProcessBuilder pb = new ProcessBuilder(commands);
+        cmd.add(pepxmlInWd.toString());
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        pb.directory(workingDir.toFile());
         Map<String, String> env = pb.environment();
         // set environment
         String ENV_WEBSERVER_ROOT = "WEBSERVER_ROOT";
@@ -710,9 +674,11 @@ public class ToolingUtils {
    *
    * @return null in case of error, empty list if nothing needs to be added.
    */
-  public static List<ProcessBuilder> pbsProteinProphet(Component comp, boolean isProteinProphet, String binPhilosopher, String txtProteinProphetCmdLineOpts,
-      FraggerPanel fraggerPanel, boolean isProteinProphetInteractStar, boolean isCrystalc,
-      String programsDir, String workingDir, String txtCombinedProtFile, List<String> lcmsFilePaths) {
+  public static List<ProcessBuilder> pbsProteinProphet(Component comp, boolean isProteinProphet,
+      String binPhilosopher, String txtProteinProphetCmdLineOpts, FraggerPanel fraggerPanel,
+      boolean isProteinProphetInteractStar, boolean isCrystalc, UsageTrigger isPhiloUsed,
+      String programsDir, List<InputLcmsFile> lcmsFiles, Path wdPath, boolean isProcessGroupsSeparately,
+      Path combinedProtFilePath) {
     if (isProteinProphet) {
       String bin = binPhilosopher;
       if (StringUtils.isNullOrWhitespace(bin)) {
@@ -727,8 +693,8 @@ public class ToolingUtils {
             "Error", JOptionPane.ERROR_MESSAGE);
         return null;
       }
+      isPhiloUsed.setUsed(true);
 
-      Path combinedProtFilePath = getCombinedProtFilePath(comp, txtCombinedProtFile, workingDir);
       if (combinedProtFilePath == null) {
         JOptionPane.showMessageDialog(comp, "ProteinProphet output file name can not be an empty string.\n",
             "Error", JOptionPane.ERROR_MESSAGE);
@@ -739,88 +705,73 @@ public class ToolingUtils {
       proteinProphetParams.setCmdLineParams(txtProteinProphetCmdLineOpts);
       List<ProcessBuilder> builders = new ArrayList<>();
 
-      List<String> createdInteractFiles = new ArrayList<>();
-      List<String> commands = new ArrayList<>();
-      commands.add(bin);
+      List<Path> createdInteractPepxmlFiles = new ArrayList<>();
+      List<String> cmd = new ArrayList<>();
+      cmd.add(bin);
       boolean isPhilosopherAndNotTpp = isPhilosopherAndNotTpp(bin);
 
-      Map<String, String> pepxmlDirty = createPepxmlFilePathsDirty(lcmsFilePaths, fraggerPanel.getOutputFileExt());
-      Map<String, String> pepxmlClean = createPepxmlFilePathsAfterMove(pepxmlDirty, workingDir, isCrystalc);
-      Map<String, String> interacts = createInteractFilePaths(pepxmlClean, workingDir, fraggerPanel.getOutputFileExt());
+
+      Map<InputLcmsFile, Path> pepxmlDirty = getPepxmlFilePathsAfterSearch(lcmsFiles, fraggerPanel.getOutputFileExt());
+      Map<InputLcmsFile, Path> pepxmlClean = getPepxmlFilePathsAfterMove(pepxmlDirty, wdPath, isCrystalc, isProcessGroupsSeparately);
+      Map<InputLcmsFile, Path> interacts = getPepxmlInteractFilePaths(pepxmlClean, wdPath, fraggerPanel.getOutputFileExt());
 
       if (isPhilosopherAndNotTpp) {
-        commands.add(PhilosopherProps.CMD_PROTEIN_PROPHET);
+        cmd.add(PhilosopherProps.CMD_PROTEIN_PROPHET);
 
         // --output flag should be available in the latest philosopher
-        String combined = txtCombinedProtFile.trim();
-        String combinedOpt = null;
-        if (StringUtils.isNullOrWhitespace(combined)) {
-          combinedOpt = "interact";
-        } else {
-          final String pepxmlExt = ".prot.xml";
-          if (combined.toLowerCase().endsWith(pepxmlExt)) {
-            combinedOpt = combined.substring(0, combined.toLowerCase().indexOf(pepxmlExt));
-          } else {
-            combinedOpt = combined;
-          }
-        }
-        if (combinedOpt != null) {
-          commands.add("--output");
-          commands.add(combinedOpt);
-        }
+        cmd.add("--output");
+//        cmd.add("combined");
+        cmd.add(combinedProtFilePath.toString());
 
         // for Philosopher command line flags go before files
         String cmdLineOpts = proteinProphetParams.getCmdLineParams().trim();
         if (!StringUtils.isNullOrWhitespace(cmdLineOpts)) {
           List<String> opts = StringUtils.splitCommandLine(cmdLineOpts);
-          commands.addAll(opts);
+          cmd.addAll(opts);
         }
 
         if (isProteinProphetInteractStar) {
-          String sep = FileSystems.getDefault().getSeparator();
-          String interactsGlob = workingDir + sep + "interact-*.pep.xml";
-          commands.add(interactsGlob);
+          final String sep = FileSystems.getDefault().getSeparator();
+          final String interactsGlob = wdPath.toString() + sep + "interact-*.pep.xml";
+          cmd.add(interactsGlob);
           //commands.add(getCombinedProtFilePath(workingDir).getFileName().toString());
-          ProcessBuilder pb = new ProcessBuilder(commands);
+          ProcessBuilder pb = new ProcessBuilder(cmd);
           builders.add(pb);
         } else {
-          for (String filePath : lcmsFilePaths) {
-            String interact = interacts.get(filePath);
-            if (!StringUtils.isNullOrWhitespace(interact)) {
-              createdInteractFiles.add(interact);
-            }
+          for (InputLcmsFile f : lcmsFiles) {
+            Path interact = interacts.get(f);
+            if (interact != null)
+              createdInteractPepxmlFiles.add(interact);
           }
-          for (String f : createdInteractFiles) {
-            Path interactFullPath = Paths.get(f);
-            String interactFileName = interactFullPath.getFileName().toString();
-            commands.add(interactFileName);
+          for (Path interactFullPath : createdInteractPepxmlFiles) {
+            cmd.add(interactFullPath.toString());
           }
-          ProcessBuilder pb = new ProcessBuilder(commands);
+          ProcessBuilder pb = new ProcessBuilder(cmd);
           builders.add(pb);
         }
       } else {
-        for (String filePath : lcmsFilePaths) {
-          String interact = interacts.get(filePath);
-          if (!StringUtils.isNullOrWhitespace(interact)) {
-            createdInteractFiles.add(interact);
-          }
-        }
-
-        // output file
-        commands.add(combinedProtFilePath.toString());
-
-        // for native ProteinProphet command line flags go in the end
-        String cmdLineOpts = proteinProphetParams.getCmdLineParams().trim();
-        if (!cmdLineOpts.isEmpty()) {
-          List<String> opts = StringUtils.splitCommandLine(cmdLineOpts);
-          commands.addAll(opts);
-        }
-        ProcessBuilder pb = new ProcessBuilder(commands);
-        builders.add(pb);
+        throw new UnsupportedOperationException("Native ProteinProphet is not supported anymore, use Philosopher instead.");
+//        for (InputLcmsFile f : lcmsFiles) {
+//          Path interact = interacts.get(f);
+//          if (interact != null)
+//            createdInteractPepxmlFiles.add(interact);
+//        }
+//
+//        // output file
+//        cmd.add(combinedProtFilePath.toString());
+//
+//        // for native ProteinProphet command line flags go in the end
+//        String cmdLineOpts = proteinProphetParams.getCmdLineParams().trim();
+//        if (!cmdLineOpts.isEmpty()) {
+//          List<String> opts = StringUtils.splitCommandLine(cmdLineOpts);
+//          cmd.addAll(opts);
+//        }
+//        ProcessBuilder pb = new ProcessBuilder(cmd);
+//        builders.add(pb);
       }
 
       for (ProcessBuilder pb : builders) {
-        pb.directory(Paths.get(workingDir).toFile());
+        pb.directory(wdPath.toFile());
         Map<String, String> env = pb.environment();
 
         // add this variable so that TPP didn't try to use webserver stuff
@@ -855,7 +806,7 @@ public class ToolingUtils {
         } else if (Files.exists(binPath)) {
           binFolder = binPath.toAbsolutePath().getParent().toString();
         } else {
-          binPath = Paths.get(workingDir, bin);
+          binPath = wdPath.resolve(bin);
           if (Files.exists(binPath)) {
             binFolder = binPath.toAbsolutePath().getParent().toString();
           }
@@ -867,45 +818,6 @@ public class ToolingUtils {
         env.put(ENV_PATH, pathEnvValue);
       }
 
-      // for native TPP we will add some magic variables
-//            if (!isPhilosopher) {
-//                String ENV_XML_ONLY = "XML_ONLY";
-//                env.put(ENV_XML_ONLY, "1");
-//
-//                String ENV_PATH = "PATH";
-//                String envPath = env.get(ENV_PATH);
-//                if (envPath == null) {
-//                    envPath = "";
-//                } else {
-//                    envPath = envPath.trim();
-//                }
-//                StringBuilder sbEnvPath = new StringBuilder(envPath);
-//                if (sbEnvPath.length() != 0)
-//                    sbEnvPath.append(";");
-//                // the ProteinProphet can be either in working directory, or in some directory
-//                // that we can get from the executable absolute path
-//                String binFolder = null;
-//                try {
-//                    Path binPath = Paths.get(bin);
-//                    if (binPath.isAbsolute()) {
-//                        // the path to the executable was specified as absolute, other needed files must be there as well
-//                        binFolder = binPath.toAbsolutePath().getParent().toString();
-//                    } else if (Files.exists(binPath)) {
-//                        binFolder = binPath.toAbsolutePath().getParent().toString();
-//                    } else {
-//                        binPath = Paths.get(workingDir, bin);
-//                        if (Files.exists(binPath)) {
-//                            binFolder = binPath.toAbsolutePath().getParent().toString();
-//                        }
-//                    }
-//                } catch (Exception ignore) {
-//                    // let's hope that everything ProteinProphet needs can be found on system PATH
-//                }
-//                if (binFolder != null) {
-//                    sbEnvPath.append(binFolder);
-//                    env.put(ENV_PATH, sbEnvPath.toString());
-//                }
-//            }
       return builders;
     }
     return Collections.emptyList();
@@ -934,28 +846,28 @@ public class ToolingUtils {
    */
   public static List<ProcessBuilder> pbsReport(boolean isReport, String binPhilosopher, Component comp,
       FraggerPanel fraggerPanel,
-      boolean isCrystalc,
+      boolean isCrystalc, UsageTrigger isPhiloUsed,
       boolean isReportDbAnnotate, String textReportAnnotate, String dbPath,
       boolean isReportFilter, String textReportFilter,
       boolean isReportProteinLevelFdr,
       boolean isLabelfree, String textReportLabelfree,
-      String programsDir, String workingDir, String txtCombinedProtFile, List<String> lcmsFilePaths) {
+      String programsDir, Path workingDir, Path combinedProtFilePath, List<InputLcmsFile> lcmsFiles) {
     if (isReport) {
-      String bin = binPhilosopher;
-      if (StringUtils.isNullOrWhitespace(bin)) {
+
+      if (StringUtils.isNullOrWhitespace(binPhilosopher)) {
         JOptionPane.showMessageDialog(comp, "Philosopher binary can not be an empty string.\n",
             "Error", JOptionPane.ERROR_MESSAGE);
         return null;
       }
-      bin = testBinaryPath(bin, programsDir);
-      if (bin == null) {
+      binPhilosopher = testBinaryPath(binPhilosopher, programsDir);
+      if (binPhilosopher == null) {
         JOptionPane.showMessageDialog(comp, "Philosopher binary not found or could not be launched.\n"
                 + "Neither on PATH, nor in the working directory",
             "Error", JOptionPane.ERROR_MESSAGE);
         return null;
       }
+      isPhiloUsed.setUsed(true);
 
-      Path combinedProtFilePath = getCombinedProtFilePath(comp, txtCombinedProtFile, workingDir);
       if (combinedProtFilePath == null) {
         JOptionPane.showMessageDialog(comp, "ProteinProphet output file name can not be an empty string.\n",
             "Error", JOptionPane.ERROR_MESSAGE);
@@ -974,27 +886,24 @@ public class ToolingUtils {
       }
 
       List<ProcessBuilder> builders = new ArrayList<>();
-      boolean isPhilosopherAndNotTpp = isPhilosopherAndNotTpp(bin);
-
-      Map<String, String> pepxmlDirty = createPepxmlFilePathsDirty(lcmsFilePaths, fraggerPanel.getOutputFileExt());
-      Map<String, String> pepxmlClean = createPepxmlFilePathsAfterMove(pepxmlDirty, workingDir, isCrystalc);
-      Map<String, String> interacts = createInteractFilePaths(pepxmlClean, workingDir, fraggerPanel.getOutputFileExt());
+      //Map<InputLcmsFile, Path> pepxmlDirty = getPepxmlFilePathsAfterSearch(lcmsFiles, fraggerPanel.getOutputFileExt());
+      //Map<InputLcmsFile, Path> pepxmlClean = getPepxmlFilePathsAfterMove(pepxmlDirty, workingDir, isCrystalc);
+      //Map<InputLcmsFile, Path> interacts = getPepxmlInteractFilePaths(pepxmlClean, workingDir, fraggerPanel.getOutputFileExt());
 
       if (isReportDbAnnotate) {
+        isPhiloUsed.setUsed(true);
         List<String> cmd = new ArrayList<>();
-        cmd.add(bin);
+        cmd.add(binPhilosopher);
         cmd.add(PhilosopherProps.CMD_DATABASE);
         cmd.add("--annotate");
-        String fastaPath = dbPath;
-        if (fastaPath == null) {
+        if (dbPath == null) {
           JOptionPane.showMessageDialog(comp, "Fasta file path can't be empty (Report)",
               "Warning", JOptionPane.WARNING_MESSAGE);
           return null;
         }
-        cmd.add(fastaPath);
-        String annotateParams = textReportAnnotate;
-        if (!StringUtils.isNullOrWhitespace(annotateParams)) {
-          String[] params = annotateParams.split("[\\s]+");
+        cmd.add(dbPath);
+        if (!StringUtils.isNullOrWhitespace(textReportAnnotate)) {
+          String[] params = textReportAnnotate.split("[\\s]+");
           cmd.addAll(Arrays.asList(params));
         }
         builders.add(new ProcessBuilder(cmd));
@@ -1002,16 +911,16 @@ public class ToolingUtils {
 
       // philosopher filter
       if (isReportFilter) {
+        isPhiloUsed.setUsed(true);
         List<String> cmd = new ArrayList<>();
-        cmd.add(bin);
+        cmd.add(binPhilosopher);
         cmd.add(PhilosopherProps.CMD_FILTER);
-        String filterParams = textReportFilter;
-        if (!StringUtils.isNullOrWhitespace(filterParams)) {
-          String[] params = filterParams.split("[\\s]+");
+        if (!StringUtils.isNullOrWhitespace(textReportFilter)) {
+          String[] params = textReportFilter.split("[\\s]+");
           cmd.addAll(Arrays.asList(params));
         }
         cmd.add("--pepxml");
-        cmd.add(workingDir);
+        cmd.add(workingDir.toString());
         if (isReportProteinLevelFdr) {
           cmd.add("--protxml");
           cmd.add(combinedProtFilePath.toString());
@@ -1021,24 +930,32 @@ public class ToolingUtils {
 
       // philosopher freequant (labelfree)
       if (isLabelfree) {
+        isPhiloUsed.setUsed(true);
+        // check again if all input files are in the same folder for free quant
+        if (lcmsFiles.stream().map(f -> f.path.getParent()).collect(Collectors.toSet()).size() > 1) {
+          JOptionPane.showMessageDialog(comp, "For free-quant all input files must be in the same folder.\n",
+              "Error", JOptionPane.ERROR_MESSAGE);
+          return null;
+        }
         List<String> cmd = new ArrayList<>();
-        cmd.add(bin);
+        cmd.add(binPhilosopher);
         cmd.add(PhilosopherProps.CMD_LABELFREE);
 
         List<String> allowed = new ArrayList<>();
         allowed.add("ptw");
         allowed.add("tol");
-        String labelfreeParams = textReportLabelfree;
         for (String paramName : allowed) {
           Pattern reFullParam = Pattern.compile(String.format("--%s\\s+(\\d+(?:\\.\\d+)?)", paramName));
-          Matcher m = reFullParam.matcher(labelfreeParams);
+          Matcher m = reFullParam.matcher(textReportLabelfree);
           if (m.find()) {
             cmd.add("--" + paramName);
             cmd.add(m.group(1));
           }
         }
+
+
         // we have checked that all lcms files are in the same folder, so
-        Path lcmsDir = Paths.get(lcmsFilePaths.get(0)).getParent();
+        Path lcmsDir = lcmsFiles.get(0).path.getParent();
         cmd.add("--dir");
         cmd.add(lcmsDir.toAbsolutePath().toString());
 
@@ -1047,14 +964,13 @@ public class ToolingUtils {
 
       // philosopher report
       List<String> cmd = new ArrayList<>();
-      cmd.add(bin);
+      cmd.add(binPhilosopher);
       cmd.add(PhilosopherProps.CMD_REPORT);
       builders.add(new ProcessBuilder(cmd));
 
       // set working dir for all processes
-      final File wd = new File(workingDir);
       for (ProcessBuilder pb : builders) {
-        pb.directory(wd);
+        pb.directory(workingDir.toFile());
       }
 
       return builders;
@@ -1064,14 +980,14 @@ public class ToolingUtils {
 
   public static List<ProcessBuilder> pbsUmpire(boolean isRunUmpire, boolean isDryRun,
       Component errMsgParent, URI jarUri, UmpirePanel umpirePanel, String binPhilosopher,
-      Path workingDir, List<String> lcmsFilePaths) {
+      Path workingDir, List<InputLcmsFile> lcmsFiles) {
 
 
     List<ProcessBuilder> pbs = new LinkedList<>();
     if (isRunUmpire) {
 
       // check if input files contain only mzxml files
-      boolean hasNonMzxml = lcmsFilePaths.stream().map(f -> Paths.get(f).getFileName().toString().toLowerCase())
+      boolean hasNonMzxml = lcmsFiles.stream().map(f -> f.path.getFileName().toString().toLowerCase())
           .anyMatch(p -> !p.endsWith("mzxml"));
       if (hasNonMzxml) {
         JOptionPane.showMessageDialog(errMsgParent,
@@ -1101,8 +1017,6 @@ public class ToolingUtils {
       // write umpire params file
       final DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
       final String dateStr = df.format(new Date());
-      final List<Path> lcmsFiles = lcmsFilePaths.stream()
-          .map(p -> Paths.get(p)).collect(Collectors.toList());
       final UmpireParams collectedUmpireParams = umpirePanel.collect();
       final String umpireParamsFileName =
           UmpireParams.FILE_BASE_NAME + "_" + dateStr + "." + UmpireParams.FILE_BASE_EXT;
@@ -1145,9 +1059,9 @@ public class ToolingUtils {
       List<String> createdMgfFiles = new ArrayList<>();
       List<String> createdMzXmlFiles = new ArrayList<>();
 //      List<Path> lcmsFileSymlinks = UmpireParams.getLcmsFilePathsInWorkdir(workingDir, lcmsFiles);
-      for (Path lcms : lcmsFiles) {
-        Path inputFn = lcms.getFileName();
-        Path inputDir = lcms.getParent();
+      for (InputLcmsFile f: lcmsFiles) {
+        Path inputFn = f.path.getFileName();
+        Path inputDir = f.path.getParent();
 
         // Umpire-SE
         // java -jar -Xmx8G DIA_Umpire_SE.jar mzMXL_file diaumpire_se.params
@@ -1158,7 +1072,7 @@ public class ToolingUtils {
         if (ram > 0 && ram < 256)
           cmd.add("-Xmx" + ram + "G");
         cmd.add(jarUmpireSe.toString()); // unpacked UmpireSE jar
-        cmd.add(lcms.toString());
+        cmd.add(f.path.toString());
         cmd.add(umpireParamsFilePath.toString());
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
@@ -1173,7 +1087,7 @@ public class ToolingUtils {
         if (!workingDir.equals(inputDir)) {
           // working dir is different from mzXML file location
           // //need to move output and cleanup
-          UmpireSeGarbageFiles garbage = UmpireSeGarbageFiles.create(lcms);
+          UmpireSeGarbageFiles garbage = UmpireSeGarbageFiles.create(f.path);
           for (String path : garbage.toMove) {
             List<String> cmdMove = new ArrayList<>();
             cmdMove.add("java");
@@ -1234,7 +1148,7 @@ public class ToolingUtils {
   }
 
   public static List<ProcessBuilder> pbsSpecLibGen(Component errMsgParent, boolean isRunSpeclibgen,
-      Path workingDir, String combinedProteinFileName, String fastaPath, String binPhilosopher) {
+      Path workingDir, Path combinedProteinFile, String fastaPath, String binPhilosopher) {
     final List<ProcessBuilder> pbs = new ArrayList<>();
 
     final SpecLibGen slg = SpecLibGen.get();
@@ -1253,7 +1167,7 @@ public class ToolingUtils {
       cmd.add(slg.getScriptSpecLibGenPath().toString());
       cmd.add(fastaPath);
       cmd.add(workingDir.toString()); // this is "Pep xml directory"
-      cmd.add(workingDir.resolve(combinedProteinFileName).toString());
+      cmd.add(combinedProteinFile.toString());
       cmd.add(workingDir.toString());
       cmd.add("True");
       cmd.add(binPhilosopher);
@@ -1274,9 +1188,9 @@ public class ToolingUtils {
     return mgfs;
   }
 
-  public static List<String> getUmpireCreatedMzxmlFiles(List<String> lcmsFilePaths, Path workingDir) {
-    return lcmsFilePaths.stream()
-        .map(lcms -> workingDir.resolve(Paths.get(lcms).getFileName()).toString())
+  public static List<Path> getUmpireCreatedMzxmlFiles(List<InputLcmsFile> lcmsFiles, Path workingDir) {
+    return lcmsFiles.stream()
+        .map(f -> workingDir.resolve(f.path.getFileName()))
         .collect(Collectors.toList());
   }
 
