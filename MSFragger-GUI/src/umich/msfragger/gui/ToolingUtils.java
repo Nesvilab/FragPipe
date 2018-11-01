@@ -123,40 +123,40 @@ public class ToolingUtils {
           ? fn
           : StringUtils.upToLastDot(fn) + "_c." + StringUtils.afterLastDot(fn);
       Path pepxmlClean = isProcessGroupsSeparately
-          ? workingDir.resolve(f.experiment).resolve(fnMod).toAbsolutePath()
-          : workingDir.resolve(fnMod).toAbsolutePath();
+        ? workingDir.resolve(fnMod).toAbsolutePath()
+        : workingDir.resolve(f.experiment).resolve(fnMod).toAbsolutePath();
       pepxmls.put(f, pepxmlClean);
     }
     return pepxmls;
   }
 
   public static Map<InputLcmsFile, Path> getPepxmlInteractFilePaths(
-      Map<InputLcmsFile, Path> cleanPepXmls, Path workingDir, String pepxmlExt) {
+      Map<InputLcmsFile, Path> cleanPepXmls, String pepxmlExt) {
 
     HashMap<InputLcmsFile, Path> interacts = new HashMap<>();
     for (Map.Entry<InputLcmsFile, Path> entry : cleanPepXmls.entrySet()) {
-      InputLcmsFile raw = entry.getKey();
-      final Path clean = entry.getValue();
-      final String cleanFn = clean.getFileName().toString();
-      final Path cleanDir = clean.getParent();
+      InputLcmsFile lcms = entry.getKey();
+      final Path pepxmlClean = entry.getValue();
+      final String cleanFn = pepxmlClean.getFileName().toString();
+      final Path cleanDir = pepxmlClean.getParent();
 
-      // hardcode typical params
+      // getting rid of extension (done like that because of file extensions with
+      // with multiple dots in them)
       String[] typicalExts = {pepxmlExt, "pep.xml", "pepxml"};
-      String lowerCase = cleanFn.toLowerCase();
       String nameWithoutExt = null;
       for (String ext : typicalExts) {
         if (cleanFn.toLowerCase().endsWith(ext)) {
-          int lastIndex = lowerCase.lastIndexOf(ext);
+          int lastIndex = cleanFn.toLowerCase().lastIndexOf(ext);
           nameWithoutExt = cleanFn.substring(0, lastIndex);
           break;
         }
       }
       if (nameWithoutExt == null) {
-        throw new IllegalStateException(String.format("Could not identify the extension for file: %s", clean));
+        throw new IllegalStateException(String.format("Could not identify the extension for file: %s", pepxmlClean));
       }
 
       Path interactXml = cleanDir.resolve("interact-" + nameWithoutExt + "pep.xml").toAbsolutePath();
-      interacts.put(raw, interactXml);
+      interacts.put(lcms, interactXml);
     }
     return interacts;
   }
@@ -462,8 +462,7 @@ public class ToolingUtils {
         return null;
       }
       Map<InputLcmsFile, Path> pepxmlDirty = getPepxmlFilePathsAfterSearch(lcmsFiles, pepxmlExtFragger);
-      Map<InputLcmsFile, Path> pepxmlClean = getPepxmlFilePathsAfterMove(pepxmlDirty, wd,
-          false, isProcessGroupsSeparately);
+      Map<InputLcmsFile, Path> pepxmlClean = getPepxmlFilePathsAfterMove(pepxmlDirty, wd, false, isProcessGroupsSeparately);
       final String ccParamsFilePrefix = "crystalc";
       final String ccParamsFileSuffix = ".params";
 
@@ -675,7 +674,7 @@ public class ToolingUtils {
    * @return null in case of error, empty list if nothing needs to be added.
    */
   public static List<ProcessBuilder> pbsProteinProphet(Component comp, boolean isProteinProphet,
-      String binPhilosopher, String txtProteinProphetCmdLineOpts, FraggerPanel fraggerPanel,
+      String binPhilosopher, String txtProteinProphetCmdLineOpts, FraggerPanel fp,
       boolean isProteinProphetInteractStar, boolean isCrystalc, UsageTrigger isPhiloUsed,
       String programsDir, List<InputLcmsFile> lcmsFiles, Path wdPath, boolean isProcessGroupsSeparately,
       Path combinedProtFilePath) {
@@ -711,17 +710,17 @@ public class ToolingUtils {
       boolean isPhilosopherAndNotTpp = isPhilosopherAndNotTpp(bin);
 
 
-      Map<InputLcmsFile, Path> pepxmlDirty = getPepxmlFilePathsAfterSearch(lcmsFiles, fraggerPanel.getOutputFileExt());
+      Map<InputLcmsFile, Path> pepxmlDirty = getPepxmlFilePathsAfterSearch(lcmsFiles, fp.getOutputFileExt());
       Map<InputLcmsFile, Path> pepxmlClean = getPepxmlFilePathsAfterMove(pepxmlDirty, wdPath, isCrystalc, isProcessGroupsSeparately);
-      Map<InputLcmsFile, Path> interacts = getPepxmlInteractFilePaths(pepxmlClean, wdPath, fraggerPanel.getOutputFileExt());
+      Map<InputLcmsFile, Path> interacts = getPepxmlInteractFilePaths(pepxmlClean, fp.getOutputFileExt());
 
       if (isPhilosopherAndNotTpp) {
         cmd.add(PhilosopherProps.CMD_PROTEIN_PROPHET);
 
         // --output flag should be available in the latest philosopher
-        cmd.add("--output");
+//        cmd.add("--output");
 //        cmd.add("combined");
-        cmd.add(combinedProtFilePath.toString());
+//        cmd.add(combinedProtFilePath.toString());
 
         // for Philosopher command line flags go before files
         String cmdLineOpts = proteinProphetParams.getCmdLineParams().trim();

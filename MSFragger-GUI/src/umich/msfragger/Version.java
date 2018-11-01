@@ -35,7 +35,7 @@ import umich.msfragger.util.VersionComparator;
 public class Version {
     public static final String PROGRAM_TITLE = "FragPipe";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "8.3-RC1";
+    public static final String VERSION = "8.4-RC1";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
     public static final String PROP_ISSUE_TRACKER_URL = "msfragger.gui.issue-tracker";
     public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
@@ -51,6 +51,8 @@ public class Version {
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>(new VersionComparator());
     
     static {
+        CHANGELOG.put("8.4", Arrays.asList("Combined protein report for multiple file groups."));
+
         CHANGELOG.put("8.3", Arrays.asList(
             "LCMS files can be processed in separate groups.",
             "Python detection on Windows via registry.",
