@@ -220,12 +220,6 @@ public class ThisAppProps extends Properties {
       save(propName, val);
   }
 
-    public static Path getOutputDir(Path workDir, LcmsFileGroup group) {
-        return DEFAULT_LCMS_GROUP_NAME.equals(group.groupName)
-            ? workDir
-            : workDir.resolve(group.groupName);
-    }
-
     public void save() {
         Path path = Paths.get(TEMP_DIR, TEMP_FILE_NAME);
         try (FileOutputStream fos = new FileOutputStream(path.toFile())) {

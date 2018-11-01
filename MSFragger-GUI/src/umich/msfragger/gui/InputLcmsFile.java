@@ -11,6 +11,10 @@ public class InputLcmsFile {
         this.experiment = experiment;
     }
 
+    public Path outputDir(Path workDir) {
+        return workDir.resolve(experiment);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

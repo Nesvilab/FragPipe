@@ -13,7 +13,7 @@ public class UmpireSeGarbageFiles {
       ".ScanClusterMapping_Q1", ".ScanClusterMapping_Q2", ".ScanClusterMapping_Q3",
       ".ScanidxFS", ".ScanPosFS", ".ScanRTFS", "_diasetting.ser", "_params.ser",
       "_Q1.mgf", "_Q2.mgf", "_Q3.mgf");
-  public List<String> toMove = new ArrayList<>();
+  public List<Path> toMove = new ArrayList<>();
 
   private UmpireSeGarbageFiles() {}
 
@@ -26,13 +26,12 @@ public class UmpireSeGarbageFiles {
     Path filePath = lcmsFilePath.getParent();
 
     for (String fileToMove : UmpireSeGarbageFiles.filesToMove) {
-      garbage.toMove.add(filePath.resolve(fileToMove).toString());
+      garbage.toMove.add(filePath.resolve(fileToMove));
     }
 
     for (String suffix : UmpireSeGarbageFiles.fileNameSuffixesToMove) {
       String filenameToMove = fnLessExt + suffix;
-      String file = filePath.resolve(filenameToMove).toString();
-      garbage.toMove.add(file);
+      garbage.toMove.add(filePath.resolve(filenameToMove));
     }
     return garbage;
   }

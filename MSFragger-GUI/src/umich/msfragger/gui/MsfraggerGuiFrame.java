@@ -78,6 +78,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -108,7 +109,6 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
-import javax.tools.Tool;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.io.IOUtils;
@@ -118,6 +118,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import umich.msfragger.Version;
+import umich.msfragger.cmd.CmdUmpireSe;
 import umich.msfragger.events.MessageIsUmpireRun;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
@@ -3759,7 +3760,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final Deque<ProcessBuilder> pbsBeforeProteinProphet = new ArrayDeque<>();
     final Deque<ProcessBuilder> pbsProteinProphet = new ArrayDeque<>();
     final Deque<ProcessBuilder> pbsAfterProteinProphet = new ArrayDeque<>();
-    final UsageTrigger isPhilosopherUsed = new UsageTrigger("Philosopher");
+    final UsageTrigger isPhilosopherUsed = new UsageTrigger(bin, "Philosopher");
 
     for (Entry<String, LcmsFileGroup> e : lcmsFileGroups.entrySet()) {
       LcmsFileGroup group = e.getValue();
@@ -4058,6 +4059,42 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   }//GEN-LAST:event_btnRunActionPerformed
 
+  /**
+   * @param wd Global working directory. LCMS file groups' output will be created inside this one.
+   */
+  private boolean processBuildersNew(Path wd, Path jarFragpipe, String binPhilosopher) {
+
+    final Deque<ProcessBuilder> pbs = new ArrayDeque<>();
+
+    // Collect input LCMS files
+    final Map<String, LcmsFileGroup> lcmsFileGroups = getLcmsFileGroups();
+    List<InputLcmsFile> lcmsFiles = lcmsFileGroups.values().stream()
+        .flatMap(g -> g.inputLcmsFiles.stream())
+        .collect(Collectors.toList());
+
+
+    final boolean isDryRun = checkDryRun.isSelected();
+    final UsageTrigger usePhilosopher = new UsageTrigger(binPhilosopher, "Philosopher");
+
+
+    // run DIA-Umpire SE
+    final CmdUmpireSe cmdUmpireSe = new CmdUmpireSe(isRunUmpireSe(), wd);
+    if (cmdUmpireSe.isRun()) {
+      if (!cmdUmpireSe.configure(
+          this, isDryRun, jarFragpipe,
+          usePhilosopher, umpirePanel, lcmsFiles)) {
+        return false;
+      }
+      pbs.addAll(cmdUmpireSe.processBuilders());
+      lcmsFiles = cmdUmpireSe.outputs(lcmsFiles);
+    }
+
+
+    // run MSAdjuster
+
+
+  }
+
   private boolean processBuilders(
       Deque<ProcessBuilder> pbsBeforeProteinProphet, Deque<ProcessBuilder> pbsProteinProphet,
       Deque<ProcessBuilder> pbsAfterProteinProphet,
@@ -4181,7 +4218,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     // run Peptide Prophet
-    final UsageTrigger isUsedPhilosopher = new UsageTrigger("Philosopher");
+    final UsageTrigger isUsedPhilosopher = new UsageTrigger(bin, "Philosopher");
     final boolean isPeptideProphet = chkRunPeptideProphet.isSelected();
     final String dbPath = textSequenceDbPath.getText().trim();
     final String pepProphCmd = textPepProphCmd.getText().trim();
