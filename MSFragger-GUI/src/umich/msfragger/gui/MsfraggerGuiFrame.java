@@ -122,6 +122,7 @@ import umich.msfragger.cmd.CmdCrystalc;
 import umich.msfragger.cmd.CmdMsAdjuster;
 import umich.msfragger.cmd.CmdMsfragger;
 import umich.msfragger.cmd.CmdPeptideProphet;
+import umich.msfragger.cmd.CmdProteinProphet;
 import umich.msfragger.cmd.CmdUmpireSe;
 import umich.msfragger.events.MessageIsUmpireRun;
 import umich.msfragger.gui.api.SearchTypeProp;
@@ -4104,6 +4105,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         return false;
       }
       pbs.addAll(cmdMsAdjuster.processBuilders());
+      // MsAdjuster only makes files that are discovered by MsFragger
+      // automatically, so no file-list changes are needed
     }
 
 
@@ -4112,8 +4115,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final UsageTrigger binMsfragger = new UsageTrigger(
         textBinMsfragger.getText().trim(), "MsFragger");
     final CmdMsfragger cmdMsfragger = new CmdMsfragger(fp.isRunMsfragger(), wd);
-    Map<InputLcmsFile, Path> pepxmlFiles = cmdMsfragger.outputs(
-        lcmsFiles, fp.getOutputFileExt(), wd);
     if (cmdMsfragger.isRun()) {
       if (!cmdMsfragger.configure(this,
           isDryRun, fp, jarFragpipe, binMsfragger, fastaFile, lcmsFiles)) {
@@ -4141,6 +4142,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
       }
     }
+    Map<InputLcmsFile, Path> pepxmlFiles = cmdMsfragger.outputs(
+        lcmsFiles, fp.getOutputFileExt(), wd);
 
 
     // run MsAdjuster Cleanup
@@ -4185,8 +4188,24 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         return false;
       }
       pbs.addAll(cmdPeptideProphet.processBuilders());
-      pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, fp.getOutputFileExt());
     }
+    pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, fp.getOutputFileExt());
+
+
+    // run Protein Prophet
+    final boolean isProcessGroupsSeparately = checkProcessGroupsSeparately.isSelected();
+    CmdProteinProphet cmdProteinProphet = new CmdProteinProphet(
+        chkRunProteinProphet.isEnabled() && chkRunProteinProphet.isSelected(), wd);
+    if (cmdProteinProphet.isRun()) {
+      final String protProphCmdStr = txtProteinProphetCmdLineOpts.getText().trim();
+      if (!cmdProteinProphet.configure(this,
+          fp, usePhilosopher, protProphCmdStr, chkProteinProphetInteractStar.isSelected(),
+          isProcessGroupsSeparately, pepxmlFiles)) {
+        return false;
+      }
+      pbs.addAll(cmdProteinProphet.processBuilders());
+    }
+    Map<String, Path> protxmlFilesByGroup = cmdProteinProphet.outputs(pepxmlFiles, isProcessGroupsSeparately);
 
     throw new NotImplementedException("TODO: continue here"); // TODO: Not implemented
   }
