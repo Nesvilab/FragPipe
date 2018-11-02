@@ -6,13 +6,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import umich.msfragger.gui.FraggerPanel;
 import umich.msfragger.gui.InputLcmsFile;
+import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.gui.ToolingUtils;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
@@ -26,13 +29,38 @@ public class CmdCrystalc extends CmdBase {
     super(isRun, workDir);
   }
 
+  /**
+   * @param pepxmlExtFragger Need to provide the extension, because there can be multiple dots
+   * in the extension, so can't guess what the extension is.
+   */
   private String getModifiedPepxmlFn(String pepxmlFn, String pepxmlExtFragger) {
-    return StringUtils.upToLastDot(pepxmlFn) + "_c." + StringUtils.afterLastDot(pepxmlFn);
+    int lastIndexOf = pepxmlFn.toLowerCase().lastIndexOf(pepxmlExtFragger.toLowerCase());
+    if (lastIndexOf < 0) {
+      throw new IllegalArgumentException("Pepxml file name must end with the give extension");
+    }
+
+    return pepxmlFn.substring(0, lastIndexOf + 1) + "_c." + StringUtils.afterLastDot(pepxmlFn);
   }
 
+  /**
+   * @param inputs Pepxml files after search engine, but before Peptide Prophet.
+   */
+  public Map<InputLcmsFile, Path> outputs(Map<InputLcmsFile, Path> inputs, String pepxmlExtFragger) {
+    Map<InputLcmsFile, Path> m = new HashMap<>();
+    for (Entry<InputLcmsFile, Path> e : inputs.entrySet()) {
+      Path dir = e.getValue().getParent();
+      String pepxmlFn = e.getValue().getFileName().toString();
+      m.put(e.getKey(), dir.resolve(getModifiedPepxmlFn(pepxmlFn, pepxmlExtFragger)));
+    }
+    return m;
+  }
+
+  /**
+   * @param ccParams Get these by calling {@link MsfraggerGuiFrame#crystalcFormToParams()}.
+   */
   public boolean configure(Component comp,
       FraggerPanel fp, boolean isDryRun,
-      CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, Path> pepxmlFiles) {
+      CrystalcParams ccParams, Path fastaPath, Map<InputLcmsFile, Path> pepxmlFiles) {
 
     Path jarCystalc;
     Path jarDeps;
@@ -98,7 +126,7 @@ public class CmdCrystalc extends CmdBase {
         p.setRawDirectory(lcms.path.getParent().toString());
         p.setRawFileExt(ext);
         p.setOutputFolder(lcms.outputDir(wd).toString());
-        p.setFasta(fastaPath);
+        p.setFasta(fastaPath.toString());
         if (!isDryRun) {
           Files.deleteIfExists(ccParamsPath);
           p.save(Files.newOutputStream(ccParamsPath, StandardOpenOption.CREATE));

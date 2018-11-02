@@ -41,7 +41,7 @@ public class CmdMsfragger extends CmdBase {
 
   public boolean configure(Component comp, boolean isDryRun,
       FraggerPanel fp, Path jarFragpipe, UsageTrigger binFragger, Path pathFasta,
-      List<InputLcmsFile> lcmsFiles, String ext) {
+      List<InputLcmsFile> lcmsFiles) {
 
     final int numSlices = fp.getNumSlices();
     final boolean isSlicing = numSlices > 1;
@@ -79,7 +79,7 @@ public class CmdMsfragger extends CmdBase {
     }
 
     // Search parameter file
-    MsfraggerParams params = null;
+    MsfraggerParams params;
     try {
       params = fp.collectParams();
     } catch (IOException ex) {
@@ -172,7 +172,7 @@ public class CmdMsfragger extends CmdBase {
         cmdMove.add("-cp");
         cmdMove.add(jarFragpipe.toString());
         cmdMove.add(FileMove.class.getCanonicalName());
-        String pepxmlFn = getPepxmlFn(f, ext);
+        String pepxmlFn = getPepxmlFn(f, fp.getOutputFileExt());
         String origin = f.path.getParent().resolve(pepxmlFn).toString();
         String destination = f.outputDir(wd).resolve(pepxmlFn).toString();
         if (origin.equals(destination)) {

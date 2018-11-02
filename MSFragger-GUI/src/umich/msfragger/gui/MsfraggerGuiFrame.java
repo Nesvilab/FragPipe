@@ -78,7 +78,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -118,7 +117,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import umich.msfragger.Version;
+import umich.msfragger.cmd.CmdCrystalc;
 import umich.msfragger.cmd.CmdMsAdjuster;
+import umich.msfragger.cmd.CmdMsfragger;
 import umich.msfragger.cmd.CmdUmpireSe;
 import umich.msfragger.events.MessageIsUmpireRun;
 import umich.msfragger.gui.api.SearchTypeProp;
@@ -152,10 +153,10 @@ import umich.msfragger.util.PrefixCounter;
 import umich.msfragger.util.Proc2;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.PythonInfo;
-import umich.msfragger.util.UsageTrigger;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.Tuple2;
+import umich.msfragger.util.UsageTrigger;
 import umich.msfragger.util.ValidateTrue;
 import umich.msfragger.util.VersionComparator;
 import umich.swing.console.TextConsole;
@@ -4092,20 +4093,32 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     final FraggerPanel fp = fraggerPanel;
 
-
     // run MSAdjuster
     final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(
         fp.isRunMsfragger() && fp.isMsadjuster(), wd);
     if (cmdMsAdjuster.isRun()) {
       if (!cmdMsAdjuster.configure(this,
-          jarFragpipe, fp, lcmsFiles, false))
+          jarFragpipe, fp, lcmsFiles, false)) {
         return false;
+      }
       pbs.addAll(cmdMsAdjuster.processBuilders());
     }
 
 
     // run MsFragger
-    // TODO
+    final UsageTrigger binMsfragger = new UsageTrigger(
+        textBinMsfragger.getText().trim(), "MsFragger");
+    final Path fastaFile = Paths.get(getFastaPath());
+    final CmdMsfragger cmdMsfragger = new CmdMsfragger(fp.isRunMsfragger(), wd);
+    Map<InputLcmsFile, Path> pepxmlSearchFiles = cmdMsfragger.outputs(
+        lcmsFiles, fp.getOutputFileExt(), wd);
+    if (cmdMsfragger.isRun()) {
+      if (!cmdMsfragger.configure(this,
+          isDryRun, fp, jarFragpipe, binMsfragger, fastaFile, lcmsFiles)) {
+        return false;
+      }
+      pbs.addAll(cmdMsfragger.processBuilders());
+    }
 
 
     // run MsAdjuster Cleanup
@@ -4117,7 +4130,27 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
 
+    // run Crystalc
+    final CmdCrystalc cmdCrystalc = new CmdCrystalc(
+        chkRunCrystalc.isEnabled() && chkRunCrystalc.isSelected(), wd);
+    if (cmdCrystalc.isRun())
+    {
+      CrystalcParams ccParams;
+      try {
+        ccParams = crystalcFormToParams();
+      } catch (IOException e) {
+        JOptionPane.showMessageDialog(this,
+            "Could not construct Crystal-C parameters from the GUI form input.", "Error",
+            JOptionPane.ERROR_MESSAGE);
+        return false;
+      }
+      cmdCrystalc.configure(this,
+          fp, isDryRun, ccParams, fastaFile, pepxmlSearchFiles);
+      pepxmlSearchFiles = cmdCrystalc.outputs(pepxmlSearchFiles, fp.getOutputFileExt());
+    }
 
+
+    
   }
 
   private boolean processBuilders(
