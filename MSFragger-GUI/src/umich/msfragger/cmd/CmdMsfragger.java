@@ -40,7 +40,7 @@ public class CmdMsfragger extends CmdBase {
   }
 
   public boolean configure(Component comp, boolean isDryRun,
-      FraggerPanel fp, Path jarFragpipe, UsageTrigger binFragger, Path pathFasta,
+      FraggerPanel fp, Path jarFragpipe, UsageTrigger binFragger, String pathFasta,
       List<InputLcmsFile> lcmsFiles) {
 
     final int numSlices = fp.getNumSlices();

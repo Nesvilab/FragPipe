@@ -120,6 +120,7 @@ import umich.msfragger.Version;
 import umich.msfragger.cmd.CmdCrystalc;
 import umich.msfragger.cmd.CmdMsAdjuster;
 import umich.msfragger.cmd.CmdMsfragger;
+import umich.msfragger.cmd.CmdPeptideProphet;
 import umich.msfragger.cmd.CmdUmpireSe;
 import umich.msfragger.events.MessageIsUmpireRun;
 import umich.msfragger.gui.api.SearchTypeProp;
@@ -4106,11 +4107,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
     // run MsFragger
+    final String fastaFile = getFastaPath();
     final UsageTrigger binMsfragger = new UsageTrigger(
         textBinMsfragger.getText().trim(), "MsFragger");
-    final Path fastaFile = Paths.get(getFastaPath());
     final CmdMsfragger cmdMsfragger = new CmdMsfragger(fp.isRunMsfragger(), wd);
-    Map<InputLcmsFile, Path> pepxmlSearchFiles = cmdMsfragger.outputs(
+    Map<InputLcmsFile, Path> pepxmlFiles = cmdMsfragger.outputs(
         lcmsFiles, fp.getOutputFileExt(), wd);
     if (cmdMsfragger.isRun()) {
       if (!cmdMsfragger.configure(this,
@@ -4118,14 +4119,35 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         return false;
       }
       pbs.addAll(cmdMsfragger.processBuilders());
+
+      String warn = ThisAppProps.load(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
+      if (warn != null && Boolean.valueOf(warn)) {
+        for (InputLcmsFile f : lcmsFiles) {
+          if (f.path.toString().toLowerCase().endsWith(".mgf")) {
+            JCheckBox checkbox = new JCheckBox("Do not show this message again.");
+            String msg = "The list of input files contains MGF entries.\n"
+                + "MSFragger has limited MGF support (ProteoWizard output is OK).\n"
+                + "The search might fail unexpectedly with errors.\n"
+                + "Please consider converting files to mzML/mzXML with ProteoWizard.";
+            Object[] params = {msg, checkbox};
+            JOptionPane.showMessageDialog(this, params, "Warning",
+                JOptionPane.WARNING_MESSAGE);
+            if (checkbox.isSelected()) {
+              ThisAppProps.save(ThisAppProps.PROP_MGF_WARNING, Boolean.FALSE.toString());
+            }
+            break;
+          }
+        }
+      }
     }
 
 
     // run MsAdjuster Cleanup
     if (cmdMsAdjuster.isRun()) {
       if (!cmdMsAdjuster.configure(this,
-          jarFragpipe, fp, lcmsFiles, true))
+          jarFragpipe, fp, lcmsFiles, true)) {
         return false;
+      }
       pbs.addAll(cmdMsAdjuster.processBuilders());
     }
 
@@ -4133,8 +4155,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     // run Crystalc
     final CmdCrystalc cmdCrystalc = new CmdCrystalc(
         chkRunCrystalc.isEnabled() && chkRunCrystalc.isSelected(), wd);
-    if (cmdCrystalc.isRun())
-    {
+    if (cmdCrystalc.isRun()) {
       CrystalcParams ccParams;
       try {
         ccParams = crystalcFormToParams();
@@ -4144,13 +4165,29 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             JOptionPane.ERROR_MESSAGE);
         return false;
       }
-      cmdCrystalc.configure(this,
-          fp, isDryRun, ccParams, fastaFile, pepxmlSearchFiles);
-      pepxmlSearchFiles = cmdCrystalc.outputs(pepxmlSearchFiles, fp.getOutputFileExt());
+      if (!cmdCrystalc.configure(this,
+          fp, isDryRun, ccParams, fastaFile, pepxmlFiles)) {
+        return false;
+      }
+      pbs.addAll(cmdCrystalc.processBuilders());
+      pepxmlFiles = cmdCrystalc.outputs(pepxmlFiles, fp.getOutputFileExt());
     }
 
 
-    
+    // run Peptide Prophet
+    CmdPeptideProphet cmdPeptideProphet = new CmdPeptideProphet(
+        chkRunPeptideProphet.isEnabled() && chkRunPeptideProphet.isSelected(), wd);
+    if (cmdPeptideProphet.isRun()) {
+      final String pepProphCmd = textPepProphCmd.getText().trim();
+      if (!cmdPeptideProphet.configure(this,
+          usePhilosopher, fastaFile, pepProphCmd, pepxmlFiles)) {
+        return false;
+      }
+      pbs.addAll(cmdPeptideProphet.processBuilders());
+      pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, fp.getOutputFileExt());
+    }
+
+
   }
 
   private boolean processBuilders(

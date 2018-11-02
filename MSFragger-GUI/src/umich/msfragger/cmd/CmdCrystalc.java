@@ -60,7 +60,13 @@ public class CmdCrystalc extends CmdBase {
    */
   public boolean configure(Component comp,
       FraggerPanel fp, boolean isDryRun,
-      CrystalcParams ccParams, Path fastaPath, Map<InputLcmsFile, Path> pepxmlFiles) {
+      CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, Path> pepxmlFiles) {
+
+    if (StringUtils.isNullOrWhitespace(fastaPath)) {
+      JOptionPane.showMessageDialog(comp, "Fasta file [Crystal-C] path can't be empty.",
+          "Warning", JOptionPane.WARNING_MESSAGE);
+      return false;
+    }
 
     Path jarCystalc;
     Path jarDeps;
@@ -126,7 +132,7 @@ public class CmdCrystalc extends CmdBase {
         p.setRawDirectory(lcms.path.getParent().toString());
         p.setRawFileExt(ext);
         p.setOutputFolder(lcms.outputDir(wd).toString());
-        p.setFasta(fastaPath.toString());
+        p.setFasta(fastaPath);
         if (!isDryRun) {
           Files.deleteIfExists(ccParamsPath);
           p.save(Files.newOutputStream(ccParamsPath, StandardOpenOption.CREATE));
