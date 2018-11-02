@@ -161,162 +161,6 @@ public class ToolingUtils {
     return interacts;
   }
 
-  public static List<ProcessBuilder> pbsFragger(Component comp, String programsDir, String workingDir, List<InputLcmsFile> lcmsFilePaths,
-      boolean isDryRun, FraggerPanel fp, URI jar, String msfraggerPath, DbSlice dbslice) {
-    if (jar == null)
-      throw new IllegalArgumentException("Argument JAR can't be null");
-    List<ProcessBuilder> builders = new LinkedList<>();
-    if (fp.isRunMsfragger()) {
-
-      final int numSlices = fp.getNumSlices();
-      final boolean isSlicing = numSlices > 1;
-      if (isSlicing) {
-        // slicing requested
-        if (!dbslice.isInitialized()) {
-          JOptionPane.showMessageDialog(comp,
-              "MSFragger number of DB slices requested was more than 1.\n"
-                  + "However not all preconditions for enabling slicing were met.\n"
-                  + "Check the bottom of \"Config\" tab for details.",
-              "Error", JOptionPane.ERROR_MESSAGE);
-          return null;
-        }
-      }
-
-      String bin = msfraggerPath;
-      if (StringUtils.isNullOrWhitespace(bin)) {
-        JOptionPane.showMessageDialog(comp, "Binary for running Fragger can not be an empty string.\n",
-            "Error", JOptionPane.ERROR_MESSAGE);
-        return null;
-      }
-      bin = testFilePath(bin, programsDir);
-      if (bin == null) {
-        JOptionPane.showMessageDialog(comp, "Binary for running Fragger not found or could not be run.\n"
-                + "Neither on PATH, nor in the working directory",
-            "Error", JOptionPane.ERROR_MESSAGE);
-        return null;
-      }
-
-      String fastaPath = fp.getFastaPath();
-      if (StringUtils.isNullOrWhitespace(fastaPath)) {
-        JOptionPane.showMessageDialog(comp, "Fasta file path (Fragger) can't be empty",
-            "Warning", JOptionPane.WARNING_MESSAGE);
-        return null;
-      }
-
-      // create a params file in the output directory
-      MsfraggerParams params = null;
-      try {
-        params = fp.collectParams();
-      } catch (IOException ex) {
-        JOptionPane.showMessageDialog(comp, "Could not collect MSFragger params from GUI.\n",
-            "Error", JOptionPane.ERROR_MESSAGE);
-        return null;
-      }
-      Path savedParamsPath = Paths.get(workingDir, MsfraggerParams.DEFAULT_FILE);
-      if (!isDryRun) {
-        try {
-          params.save(new FileOutputStream(savedParamsPath.toFile()));
-          // cache the params
-          params.save();
-        } catch (IOException ex) {
-          JOptionPane.showMessageDialog(comp,
-              "Could not save fragger.params file to working dir.\n",
-              "Error", JOptionPane.ERROR_MESSAGE);
-          return null;
-        }
-      }
-
-      int ramGb = fp.getRamGb();
-
-      StringBuilder sb = new StringBuilder();
-      // 32k symbols splitting for regular command.
-      // But for slicing it's all up to the python script.
-      //final int commandLenLimit = isSlicing ? Integer.MAX_VALUE : 1 << 15;
-      final int commandLenLimit = 1 << 15;
-
-
-      final String currentJarPath = Paths.get(jar).toAbsolutePath().toString();
-      final Path wdPath = Paths.get(workingDir);
-
-
-      if (isSlicing) {
-        // schedule to always try to delete the temp dir when FragPipe finishes execution
-        final String tempDirName = "split_peptide_index_tempdir";
-        Path toDelete = wdPath.resolve(tempDirName).toAbsolutePath().normalize();
-        toDelete.toFile().deleteOnExit();
-      }
-
-      int fileIndex = 0;
-
-      while (fileIndex < lcmsFilePaths.size()) {
-        int fileIndexLo = fileIndex;
-        ArrayList<String> cmd = new ArrayList<>();
-        if (isSlicing) {
-          cmd.add(PythonInfo.get().getCommand());
-          cmd.add(dbslice.getScriptDbslicingPath().toAbsolutePath().normalize().toString());
-          cmd.add(Integer.toString(numSlices));
-          cmd.add("\"");
-        }
-        cmd.add("java");
-        cmd.add("-jar");
-        if (ramGb > 0) {
-          cmd.add("-Xmx" + ramGb + "G");
-        }
-        if (isSlicing) {
-          cmd.add("\"");
-        }
-        cmd.add(bin);
-        cmd.add(savedParamsPath.toString());
-
-        for (String s : cmd) {
-          sb.append(s).append(" ");
-        }
-        if (sb.length() > commandLenLimit) {
-          JOptionPane.showMessageDialog(comp, "MSFragger command line length too large even for a single file.",
-              "Error", JOptionPane.ERROR_MESSAGE);
-          return null;
-        }
-
-        while (fileIndex < lcmsFilePaths.size()) {
-          InputLcmsFile f = lcmsFilePaths.get(fileIndex);
-          if (sb.length() + f.path.toString().length() + 1 > commandLenLimit) {
-            break;
-          }
-          sb.append(f.path.toString()).append(" ");
-          cmd.add(f.path.toString());
-          fileIndex++;
-        }
-
-        builders.add(new ProcessBuilder(cmd));
-        sb.setLength(0);
-
-        // move the files if the output directory is not the same as where
-        // the lcms files were
-        Map<InputLcmsFile, Path> mapRawToPep = getPepxmlFilePathsAfterSearch(lcmsFilePaths, params.getOutputFileExtension());
-        for (int i = fileIndexLo; i < fileIndex; i++) {
-          Path pepPath = mapRawToPep.get(lcmsFilePaths.get(i));
-
-          if (!wdPath.equals(pepPath.getParent())) {
-            ArrayList<String> cmdMove = new ArrayList<>();
-            cmdMove.add("java");
-            cmdMove.add("-cp");
-            cmdMove.add(currentJarPath);
-            cmdMove.add(FileMove.class.getCanonicalName());
-            String origin = pepPath.toAbsolutePath().toString();
-            String destination = Paths.get(wdPath.toString(), pepPath.getFileName().toString()).toString();
-            cmdMove.add(origin);
-            cmdMove.add(destination);
-            ProcessBuilder pbFileMove = new ProcessBuilder(cmdMove);
-            builders.add(pbFileMove);
-          }
-        }
-      }
-    }
-
-
-    return builders;
-  }
-
   public static String getBinJava(Component errroDialogParent, String programsDir) {
     String binJava = "java";
     synchronized (ToolingUtils.class) {
@@ -331,79 +175,6 @@ public class ToolingUtils {
     return null;
   }
 
-  public static List<ProcessBuilder> pbsMsadjuster(URI jarUri, Component comp, String workingDir,
-      List<InputLcmsFile> lcmsFiles, FraggerPanel fp, boolean cleanUp) {
-    List<ProcessBuilder> pbs = new LinkedList<>();
-
-    if (fp.isRunMsfragger() && fp.isMsadjuster()) {
-      String currentJarPath = Paths.get(jarUri).toAbsolutePath().toString();
-      Path wd = Paths.get(workingDir);
-
-      Path jarMsadjusterPath;
-      Path jarDepsPath;
-      try {
-        // common deps
-        jarDepsPath = JarUtils
-            .unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_COMMON_DEPS,
-            ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
-        // msadjuster jar
-        jarMsadjusterPath = JarUtils
-            .unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_MSADJUSTER_NAME,
-            ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
-
-      } catch (IOException | NullPointerException ex) {
-        JOptionPane.showMessageDialog(comp,
-            "Could not unpack tools to a temporary directory.\n"
-                + "Disable precursor mass adjustment in MSFragger tab.",
-            "Can't unpack", JOptionPane.ERROR_MESSAGE);
-        return null;
-      }
-
-      int ramGb = fp.getRamGb();
-
-      for (InputLcmsFile f : lcmsFiles) {
-
-        if (!cleanUp) {
-          ArrayList<String> cmd = new ArrayList<>();
-          cmd.add("java");
-          if (ramGb > 0) {
-            cmd.add("-Xmx" + ramGb + "G");
-          }
-          if (jarDepsPath != null) {
-            cmd.add("-cp");
-            List<String> toJoin = new ArrayList<>();
-            toJoin.add(jarDepsPath.toString());
-            toJoin.add(jarMsadjusterPath.toString());
-            final String sep = System.getProperties().getProperty("path.separator");
-            cmd.add("\"" + org.apache.commons.lang3.StringUtils.join(toJoin, sep) + "\"");
-            cmd.add(CrystalcProps.JAR_MSADJUSTER_MAIN_CLASS);
-          } else {
-            cmd.add("-jar");
-            cmd.add(jarMsadjusterPath.toAbsolutePath().normalize().toString());
-          }
-          cmd.add("20");
-          cmd.add(f.path.toString());
-          pbs.add(new ProcessBuilder(cmd));
-
-        } else {
-
-          // cleanup
-          ArrayList<String> cmd = new ArrayList<>();
-          cmd.add("java");
-          cmd.add("-cp");
-          cmd.add(currentJarPath);
-          cmd.add(FileMove.class.getCanonicalName());
-          String origin =  StringUtils.upToLastDot(f.path.toString()) + ".ma"; // MSAdjuster creates these files
-          String destination = wd.resolve(Paths.get(origin).getFileName().toString()).toString();
-          cmd.add(origin);
-          cmd.add(destination);
-          pbs.add(new ProcessBuilder(cmd));
-        }
-      }
-    }
-    return pbs;
-  }
-
   /**
    * @param ccParams Get these by calling {@link MsfraggerGuiFrame#crystalcFormToParams()}.
    */
@@ -414,15 +185,15 @@ public class ToolingUtils {
     if (isCrystalc) {
       Path wd = Paths.get(workingDir);
 
-      Path jarPath;
-      Path depsPath;
+      Path jarCystalc;
+      Path jarDeps;
       try {
         // common deps
-        depsPath = JarUtils
+        jarDeps = JarUtils
             .unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_COMMON_DEPS,
                 ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
         // msadjuster jar
-        jarPath = JarUtils.unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_CRYSTALC_NAME,
+        jarCystalc = JarUtils.unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_CRYSTALC_NAME,
             ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
 
       } catch (IOException | NullPointerException ex) {
@@ -467,7 +238,7 @@ public class ToolingUtils {
       final String ccParamsFileSuffix = ".params";
 
       if (dirs.size() == 1 && exts.size() == 1) {
-        // everythin with the same extension in the same folder
+        // everything with the same extension in the same folder
         CrystalcParams p;
         Path ccParamsPath = wd.resolve(ccParamsFilePrefix + ccParamsFileSuffix);
         try {
@@ -496,8 +267,8 @@ public class ToolingUtils {
         }
         cmd.add("-cp");
         List<String> toJoin = new ArrayList<>();
-        toJoin.add(depsPath.toAbsolutePath().normalize().toString());
-        toJoin.add(jarPath.toAbsolutePath().normalize().toString());
+        toJoin.add(jarDeps.toAbsolutePath().normalize().toString());
+        toJoin.add(jarCystalc.toAbsolutePath().normalize().toString());
         final String sep = System.getProperties().getProperty("path.separator");
         cmd.add("\"" + org.apache.commons.lang3.StringUtils.join(toJoin, sep) + "\"");
         cmd.add(CrystalcProps.JAR_CRYSTALC_MAIN_CLASS);
@@ -545,8 +316,8 @@ public class ToolingUtils {
           }
           cmd.add("-cp");
           List<String> toJoin = new ArrayList<>();
-          toJoin.add(depsPath.toAbsolutePath().normalize().toString());
-          toJoin.add(jarPath.toAbsolutePath().normalize().toString());
+          toJoin.add(jarDeps.toAbsolutePath().normalize().toString());
+          toJoin.add(jarCystalc.toAbsolutePath().normalize().toString());
           final String sep = System.getProperties().getProperty("path.separator");
           cmd.add("\"" + org.apache.commons.lang3.StringUtils.join(toJoin, sep) + "\"");
           cmd.add(CrystalcProps.JAR_CRYSTALC_MAIN_CLASS);

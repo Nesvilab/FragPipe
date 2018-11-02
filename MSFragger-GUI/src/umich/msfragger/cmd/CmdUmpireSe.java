@@ -7,10 +7,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Deque;
 import java.util.List;
 import javax.swing.JOptionPane;
 import org.apache.commons.lang3.NotImplementedException;
@@ -28,37 +26,17 @@ import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.UsageTrigger;
 
-public class CmdUmpireSe {
-  final boolean isRun;
-  final Path wd;
-  final Deque<ProcessBuilder> pbs;
-  boolean isConfigured;
+public class CmdUmpireSe extends CmdBase {
 
 
   public CmdUmpireSe(boolean isRun, Path workDir) {
-    this.isRun = isRun;
-    this.wd = workDir;
-    this.pbs = new ArrayDeque<>();
-  }
-
-  public boolean isRun() {
-    return isRun;
-  }
-
-  public Path getWd() {
-    return wd;
+    super(isRun, workDir);
   }
 
   public List<InputLcmsFile> outputs(List<InputLcmsFile> inputs) {
     if (!isRun)
       return new ArrayList<>(inputs);
     throw new NotImplementedException("TODO"); // TODO: Not implemented
-  }
-
-  public List<ProcessBuilder> processBuilders() {
-    if (!isConfigured)
-      throw new IllegalStateException("Call to #processBuilders() before calling #configure()");
-    return new ArrayList<>(pbs);
   }
 
   public boolean configure(Component errMsgParent, boolean isDryRun,
@@ -143,8 +121,8 @@ public class CmdUmpireSe {
       if (!inputDir.equals(dest)) {
         // destination dir is different from mzXML file location
         // need to move output and cleanup
-        UmpireSeGarbageFiles garbage = UmpireSeGarbageFiles.create(f.path);
-        for (Path pGarbage : garbage.toMove) {
+        List<Path> garbage = UmpireSeGarbageFiles.getGarbageFiles(f.path);
+        for (Path pGarbage : garbage) {
           List<String> cmdMove = new ArrayList<>();
           cmdMove.add("java");
           cmdMove.add("-cp");
@@ -184,7 +162,7 @@ public class CmdUmpireSe {
           cmdMsConvert.add(f.outputDir(wd).toString());
         } else {
           // on Linux philosopher includes msconvert
-          cmdMsConvert.add(philo.useBin());
+          cmdMsConvert.add(philo.useBin(f.outputDir(wd)));
           cmdMsConvert.add("--format");
           cmdMsConvert.add("mzXML");
           cmdMsConvert.add("--intencoding");

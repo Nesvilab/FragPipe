@@ -13,26 +13,24 @@ public class UmpireSeGarbageFiles {
       ".ScanClusterMapping_Q1", ".ScanClusterMapping_Q2", ".ScanClusterMapping_Q3",
       ".ScanidxFS", ".ScanPosFS", ".ScanRTFS", "_diasetting.ser", "_params.ser",
       "_Q1.mgf", "_Q2.mgf", "_Q3.mgf");
-  public List<Path> toMove = new ArrayList<>();
-
   private UmpireSeGarbageFiles() {}
 
-  public static UmpireSeGarbageFiles create(Path lcmsFilePath) {
+  public static List<Path> getGarbageFiles(Path lcmsFilePath) {
     if (!lcmsFilePath.getFileName().toString().toLowerCase().endsWith(".mzxml"))
       throw new IllegalArgumentException("Can only accept file paths ending with .mzxml");
 
-    UmpireSeGarbageFiles garbage = new UmpireSeGarbageFiles();
+    List<Path> toMove = new ArrayList<>();
     String fnLessExt = StringUtils.upToLastDot(lcmsFilePath.getFileName().toString());
     Path filePath = lcmsFilePath.getParent();
 
     for (String fileToMove : UmpireSeGarbageFiles.filesToMove) {
-      garbage.toMove.add(filePath.resolve(fileToMove));
+      toMove.add(filePath.resolve(fileToMove));
     }
 
     for (String suffix : UmpireSeGarbageFiles.fileNameSuffixesToMove) {
       String filenameToMove = fnLessExt + suffix;
-      garbage.toMove.add(filePath.resolve(filenameToMove));
+      toMove.add(filePath.resolve(filenameToMove));
     }
-    return garbage;
+    return toMove;
   }
 }

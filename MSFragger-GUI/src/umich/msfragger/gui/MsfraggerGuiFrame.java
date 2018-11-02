@@ -118,6 +118,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import umich.msfragger.Version;
+import umich.msfragger.cmd.CmdMsAdjuster;
 import umich.msfragger.cmd.CmdUmpireSe;
 import umich.msfragger.events.MessageIsUmpireRun;
 import umich.msfragger.gui.api.SearchTypeProp;
@@ -4082,15 +4083,39 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (cmdUmpireSe.isRun()) {
       if (!cmdUmpireSe.configure(
           this, isDryRun, jarFragpipe,
-          usePhilosopher, umpirePanel, lcmsFiles)) {
+          usePhilosopher, umpirePanel, lcmsFiles))
         return false;
-      }
       pbs.addAll(cmdUmpireSe.processBuilders());
       lcmsFiles = cmdUmpireSe.outputs(lcmsFiles);
     }
 
 
+    final FraggerPanel fp = fraggerPanel;
+
+
     // run MSAdjuster
+    final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(
+        fp.isRunMsfragger() && fp.isMsadjuster(), wd);
+    if (cmdMsAdjuster.isRun()) {
+      if (!cmdMsAdjuster.configure(this,
+          jarFragpipe, fp, lcmsFiles, false))
+        return false;
+      pbs.addAll(cmdMsAdjuster.processBuilders());
+    }
+
+
+    // run MsFragger
+    // TODO
+
+
+    // run MsAdjuster Cleanup
+    if (cmdMsAdjuster.isRun()) {
+      if (!cmdMsAdjuster.configure(this,
+          jarFragpipe, fp, lcmsFiles, true))
+        return false;
+      pbs.addAll(cmdMsAdjuster.processBuilders());
+    }
+
 
 
   }

@@ -46,10 +46,14 @@ public class UsageTrigger {
    * Get the bin path and set the "used" flag to true.
    * @return Path to binary.
    */
-  public String useBin(Path workDir) {
+  public final String useBin(Path workDir) {
     isUsed = true;
     if (workDir != null)
       workDirs.add(workDir);
     return bin;
+  }
+
+  public final String useBin() {
+    return useBin(null);
   }
 }
