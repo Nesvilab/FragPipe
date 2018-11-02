@@ -59,21 +59,23 @@ prot_xml_file = str_to_path(sys.argv[3]).resolve(strict=True)
 output_directory = str_to_path(sys.argv[4])
 overwrite = False
 if len(sys.argv) >= 6:
-	if sys.argv[5].lower() == 'true':
+	if sys.argv[5].casefold() == 'true':
 		overwrite = True
 
 if 'PATHEXT' in os.environ:
 	os.environ['PATHEXT'] = '.py' + os.pathsep + os.environ['PATHEXT']
 os.environ['PATH'] = os.getcwd() + os.pathsep + os.environ['PATH']
-try:
-	philosopher = pathlib.Path(shutil.which('philosopher'))
-except:
+
+which_philosopher = shutil.which('philosopher')
+if which_philosopher is None:
 	try:
 		philosopher = str_to_path(sys.argv[6]).resolve(strict=True)
-	except:
+	except (FileNotFoundError, IndexError):
 		print("Philosopher not found on path and not provided as 6th argument. Exiting.", file=sys.stderr)
-		quit(1)
-
+		sys.exit(1)
+else:
+	philosopher = pathlib.Path(which_philosopher)
+philosopher = philosopher.resolve(strict=True)
 # msproteomicstools_path = pathlib.Path('/storage/teog/anaconda3/bin')
 align_with_iRT: bool = True
 
@@ -193,7 +195,6 @@ rtkit_str = ",".join(a + ":" + str(b) for a, b in sorted({**biognosys_rtkit}.ite
 
 spectrast_cmds_part1= fr'''
 set -o xtrace -o errexit
-## Step 9. Convert raw retention time to normalized retention time
 {sys.executable} {script_dir / "spectrast_gen_pepidx.py"} -i input.splib -o input_irt.splib # generate .pepidx file
 #outfiles: input_irt.splib, input_irt.csv
 ## Step 10. Consolidate the library into a single consensus spectrum entry for each peptide sequence.
@@ -203,7 +204,7 @@ set -o xtrace -o errexit
 
 spectrast_cmds_part2= fr"""
 ### if self aligned, use iRT alignment here.
-{spectrast2spectrast_irt_py_path} --kit {rtkit_str} --rsq_threshold=0.25 -r -i output_file_irt_con001.splib -o output_file_irt_con.splib
+{sys.executable} {spectrast2spectrast_irt_py_path} --kit {rtkit_str} --rsq_threshold=0.25 -r -i output_file_irt_con001.splib -o output_file_irt_con.splib
 # ln -s output_file_irt_con001.splib output_file_irt_con.splib
 #outfile:output_file_irt_con.splib
 """
@@ -211,7 +212,7 @@ spectrast_cmds_part2= fr"""
 spectrast_cmds_part3=fr"""
 ## Step 11. Filter the consensus splib library into a transition list
 # generate swathwindowssetup.txt
-{spectrast2tsv_py_path} -l 300,2000 -s b,y -x 1,2 -o 3 -n 6 -p 0.05 -d -e -k openswath -a output_irt_con.tsv output_file_irt_con.splib
+{sys.executable} {spectrast2tsv_py_path} -l 300,2000 -s b,y -x 1,2 -o 3 -n 6 -p 0.05 -d -e -k openswath -a output_irt_con.tsv output_file_irt_con.splib
 #outfile:output_irt_con.tsv
 """
 

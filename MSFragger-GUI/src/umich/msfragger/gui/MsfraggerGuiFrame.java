@@ -112,6 +112,7 @@ import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -4187,7 +4188,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, fp.getOutputFileExt());
     }
 
-
+    throw new NotImplementedException("TODO: continue here"); // TODO: Not implemented
   }
 
   private boolean processBuilders(
