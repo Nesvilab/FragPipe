@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import umich.msfragger.gui.FraggerPanel;
 import umich.msfragger.gui.InputLcmsFile;
+import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.protproph.ProteinProphetParams;
 import umich.msfragger.util.StringUtils;
@@ -23,30 +24,52 @@ import umich.msfragger.util.UsageTrigger;
 
 public class CmdProteinProphet extends CmdBase {
 
+  public static final String NAME = "ProteinProphet";
+
   private static final String INTERACT_FN = "interact.prot.xml";
 
   public CmdProteinProphet(boolean isRun, Path workDir) {
     super(isRun, workDir);
   }
 
+  @Override
+  public String getCmdName() {
+    return NAME;
+  }
+
   /**
    * @return Mapping from Experiment/Group name to interact.prot.xml file location.
    */
-  public Map<String, Path> outputs(Map<InputLcmsFile, Path> pepxmlFiles,
+  public Map<LcmsFileGroup, Path> outputs(Map<InputLcmsFile, Path> pepxmlFiles,
       boolean isProcessGroupsSeparately) {
-    Map<String, Path> m = new HashMap<>();
-    for (Entry<InputLcmsFile, Path> e : pepxmlFiles.entrySet()) {
+
+    Map<String, List<InputLcmsFile>> lcmsByExp = pepxmlFiles.keySet().stream()
+        .collect(Collectors.groupingBy(f -> f.experiment));
+
+
+    Map<LcmsFileGroup, Path> m = new HashMap<>();
+
+    for (Entry<String, List<InputLcmsFile>> e : lcmsByExp.entrySet()) {
+      final String groupName = e.getKey();
+      final List<InputLcmsFile> lcmsFiles = e.getValue();
+      if (lcmsFiles.isEmpty()) {
+        throw new IllegalStateException("Empty LCMS file list. This is a bug. Report to "
+            + "developers.");
+      }
+      LcmsFileGroup group = new LcmsFileGroup(groupName, lcmsFiles);
       if (isProcessGroupsSeparately) {
-        m.put(e.getKey().experiment, e.getKey().outputDir(wd).resolve(INTERACT_FN));
+        m.put(group, lcmsFiles.get(0).outputDir(wd).resolve(INTERACT_FN));
       } else {
-        m.put(e.getKey().experiment, wd.resolve(INTERACT_FN));
+        m.put(group, wd.resolve(INTERACT_FN));
       }
     }
+
     if (!isProcessGroupsSeparately) {
       Set<Path> interactProtXmls = new HashSet<>(m.values());
       if (interactProtXmls.size() > 1) {
         throw new IllegalStateException("During combined processing of Experiments/Groups "
-            + "only one interact.prot.xml file should be produced.");
+            + "only one interact.prot.xml file should be produced. This is probably a bug, report "
+            + "to developers.");
       }
     }
 
@@ -88,14 +111,14 @@ public class CmdProteinProphet extends CmdBase {
 
       // END: isProteinProphetInteractStar
     } else {
-      Map<String, Path> groupToProtxml = outputs(pepxmlFiles, isProcessGroupsSeparately);
+      Map<LcmsFileGroup, Path> groupToProtxml = outputs(pepxmlFiles, isProcessGroupsSeparately);
 
       if (isProcessGroupsSeparately) {
-        for (Entry<String, Path> e : groupToProtxml.entrySet()) {
-          String group = e.getKey();
+        for (Entry<LcmsFileGroup, Path> e : groupToProtxml.entrySet()) {
+          LcmsFileGroup group = e.getKey();
           Path protxml = e.getValue();
           List<String> pepxmlsPaths = pepxmlFiles.entrySet().stream()
-              .filter(pepxml -> pepxml.getKey().experiment.equals(group))
+              .filter(pepxml -> pepxml.getKey().experiment.equals(group.name))
               .map(pepxml -> pepxml.getValue().getFileName().toString())
               .collect(Collectors.toList());
           List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
@@ -182,6 +205,7 @@ public class CmdProteinProphet extends CmdBase {
       env.put(ENV_PATH, pathEnvValue);
     }
 
+    isConfigured = true;
     return true;
   }
 

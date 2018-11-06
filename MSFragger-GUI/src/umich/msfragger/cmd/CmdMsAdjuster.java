@@ -9,7 +9,6 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import umich.msfragger.gui.FraggerPanel;
 import umich.msfragger.gui.InputLcmsFile;
-import umich.msfragger.gui.ToolingUtils;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcProps;
 import umich.msfragger.util.FileMove;
@@ -18,8 +17,15 @@ import umich.msfragger.util.StringUtils;
 
 public class CmdMsAdjuster extends CmdBase {
 
+  public static final String NAME = "MsAdjuster";
+
   public CmdMsAdjuster(boolean isRun, Path workDir) {
     super(isRun, workDir);
+  }
+
+  @Override
+  public String getCmdName() {
+    return NAME;
   }
 
   public boolean configure(Component comp, Path jarFragpipe, FraggerPanel fp,
@@ -90,6 +96,7 @@ public class CmdMsAdjuster extends CmdBase {
       }
     }
 
+    isConfigured = true;
     return true;
   }
 }

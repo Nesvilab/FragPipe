@@ -22,8 +22,15 @@ import umich.msfragger.util.UsageTrigger;
 
 public class CmdMsfragger extends CmdBase {
 
+  public static final String NAME = "Msfragger";
+
   public CmdMsfragger(boolean isRun, Path workDir) {
     super(isRun, workDir);
+  }
+
+  @Override
+  public String getCmdName() {
+    return NAME;
   }
 
   private String getPepxmlFn(InputLcmsFile f, String ext) {
@@ -184,6 +191,8 @@ public class CmdMsfragger extends CmdBase {
         pbs.add(pbFileMove);
       }
     }
+
+    isConfigured = true;
     return true;
   }
 }

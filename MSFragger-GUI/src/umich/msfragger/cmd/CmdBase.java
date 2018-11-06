@@ -1,23 +1,20 @@
 package umich.msfragger.cmd;
 
 import java.nio.file.Path;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.LinkedList;
 
-public class CmdBase {
+public abstract class CmdBase {
 
   final boolean isRun;
   final Path wd;
-  final Deque<ProcessBuilder> pbs;
+  final LinkedList<ProcessBuilder> pbs;
   boolean isConfigured;
 
   public CmdBase(
       boolean isRun, Path workDir) {
     this.isRun = isRun;
     this.wd = workDir;
-    this.pbs = new ArrayDeque<>();
+    this.pbs = new LinkedList<>();
   }
 
   public boolean isRun() {
@@ -28,9 +25,18 @@ public class CmdBase {
     return wd;
   }
 
-  public List<ProcessBuilder> processBuilders() {
+  /**
+   * Extending classes can override this to modify the priority level.
+   */
+  public int getPriority() {
+    return 100;
+  }
+
+  public abstract String getCmdName();
+
+  public ProcessBuilderDescriptor builders() {
     if (!isConfigured)
       throw new IllegalStateException("Call to #processBuilders() before calling #configure()");
-    return new ArrayList<>(pbs);
+    return new ProcessBuilderDescriptor(getCmdName(), getPriority()).addAll(pbs);
   }
 }

@@ -14,7 +14,6 @@ import javax.swing.JOptionPane;
 import org.apache.commons.lang3.NotImplementedException;
 import umich.msfragger.exceptions.FileWritingException;
 import umich.msfragger.gui.InputLcmsFile;
-import umich.msfragger.gui.ToolingUtils;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.umpire.UmpirePanel;
 import umich.msfragger.params.umpire.UmpireParams;
@@ -28,9 +27,15 @@ import umich.msfragger.util.UsageTrigger;
 
 public class CmdUmpireSe extends CmdBase {
 
+  public static final String NAME = "UmpireSe";
 
   public CmdUmpireSe(boolean isRun, Path workDir) {
     super(isRun, workDir);
+  }
+
+  @Override
+  public String getCmdName() {
+    return NAME;
   }
 
   public List<InputLcmsFile> outputs(List<InputLcmsFile> inputs) {

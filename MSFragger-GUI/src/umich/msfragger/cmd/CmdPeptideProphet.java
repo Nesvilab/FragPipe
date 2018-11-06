@@ -15,8 +15,15 @@ import umich.msfragger.util.UsageTrigger;
 
 public class CmdPeptideProphet extends CmdBase {
 
+  public static final String NAME = "PeptideProphet";
+
   public CmdPeptideProphet(boolean isRun, Path workDir) {
     super(isRun, workDir);
+  }
+
+  @Override
+  public String getCmdName() {
+    return NAME;
   }
 
   /**
@@ -87,6 +94,7 @@ public class CmdPeptideProphet extends CmdBase {
       pbs.add(pb);
     }
 
+    isConfigured = true;
     return true;
   }
 }
