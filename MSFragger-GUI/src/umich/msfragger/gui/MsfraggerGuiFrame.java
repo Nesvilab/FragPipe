@@ -3797,13 +3797,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
     LogUtils.println(console, "");
 
+    final List<ProcessBuilder> pbs = pbDescsToFill.stream().flatMap(d -> d.pbs.stream())
+        .collect(Collectors.toList());
 
-    List<ProcessBuilder> pbs = new ArrayList<>();
-    pbs.addAll(pbsBeforeProteinProphet);
-    pbs.addAll(pbsProteinProphet);
-    pbs.addAll(pbsAfterProteinProphet);
-
-    LogUtils.println(console, String.format(Locale.ROOT, "Will execute %d commands:", pbs.size()));
+    LogUtils.println(console, String.format(Locale.ROOT, "%d commands to execute:", pbs.size()));
     for (final ProcessBuilder pb : pbs) {
       StringBuilder sb = new StringBuilder();
       if (pb.directory() != null) {
