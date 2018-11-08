@@ -43,4 +43,9 @@ public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
     isConfigured = true;
     return true;
   }
+
+  @Override
+  public int getPriority() {
+    return 10;
+  }
 }

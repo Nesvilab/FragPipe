@@ -120,6 +120,7 @@ import umich.msfragger.cmd.CmdCrystalc;
 import umich.msfragger.cmd.CmdMsAdjuster;
 import umich.msfragger.cmd.CmdMsfragger;
 import umich.msfragger.cmd.CmdPeptideProphet;
+import umich.msfragger.cmd.CmdPhilosopherWorkspaceCleanInit;
 import umich.msfragger.cmd.CmdProteinProphet;
 import umich.msfragger.cmd.CmdReportDbAnnotate;
 import umich.msfragger.cmd.CmdSpecLibGen;
@@ -3773,7 +3774,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
     final boolean isDryRun = checkDryRun.isSelected();
-    final UsageTrigger usePhilosopher = new UsageTrigger(binPhilosopher, "Philosopher");
+    final UsageTrigger usePhi = new UsageTrigger(binPhilosopher, "Philosopher");
 
 
     // run DIA-Umpire SE
@@ -3781,7 +3782,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (cmdUmpireSe.isRun()) {
       if (!cmdUmpireSe.configure(
           this, isDryRun, jarFragpipe,
-          usePhilosopher, umpirePanel, lcmsFiles))
+          usePhi, umpirePanel, lcmsFiles))
         return false;
       pbDescs.add(cmdUmpireSe.builders());
       lcmsFiles = cmdUmpireSe.outputs(lcmsFiles);
@@ -3878,7 +3879,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       final boolean isDbAnnotate = isEnabledAndChecked(checkReportDbAnnotate);
       final CmdReportDbAnnotate cmdReportDbAnnotate = new CmdReportDbAnnotate(isDbAnnotate, wd);
       if (cmdReportDbAnnotate.isRun()) {
-        if (!cmdReportDbAnnotate.configure(this, usePhilosopher,
+        if (!cmdReportDbAnnotate.configure(this, usePhi,
             textReportAnnotate.getText().trim(), fastaFile, pepxmlFiles)) {
           return false;
         }
@@ -3893,7 +3894,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (cmdPeptideProphet.isRun()) {
       final String pepProphCmd = textPepProphCmd.getText().trim();
       if (!cmdPeptideProphet.configure(this,
-          usePhilosopher, fastaFile, pepProphCmd, pepxmlFiles)) {
+          usePhi, fastaFile, pepProphCmd, pepxmlFiles)) {
         return false;
       }
       pbDescs.add(cmdPeptideProphet.builders());
@@ -3908,7 +3909,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (cmdProteinProphet.isRun()) {
       final String protProphCmdStr = txtProteinProphetCmdLineOpts.getText().trim();
       if (!cmdProteinProphet.configure(this,
-          fp, usePhilosopher, protProphCmdStr, chkProteinProphetInteractStar.isSelected(),
+          fp, usePhi, protProphCmdStr, chkProteinProphetInteractStar.isSelected(),
           isProcessGroupsSeparately, pepxmlFiles)) {
         return false;
       }
@@ -3936,13 +3937,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(isEnabledAndChecked(checkGenerateSpecLib), wd);
     if (cmdSpecLibGen.isRun())
     {
-      if (!cmdSpecLibGen.configure(this, usePhilosopher,
+      if (!cmdSpecLibGen.configure(this, usePhi,
           mapGroupsToProtxml, fastaFile, isRunProteinProphet)) {
         return false;
       }
       pbDescs.add(cmdSpecLibGen.builders());
     }
 
+    for (Path pathPhiIsRunIn : usePhi.getWorkDirs()) {
+      CmdPhilosopherWorkspaceCleanInit cmdPhiCleanInit = new CmdPhilosopherWorkspaceCleanInit(
+          true, pathPhiIsRunIn);
+      cmdPhiCleanInit.configure(usePhi);
+      pbDescs.add(cmdPhiCleanInit.builders());
+    }
 
 
     pbDescs.sort(Comparator.comparing(pbDesc -> pbDesc.priority, Integer::compare));
