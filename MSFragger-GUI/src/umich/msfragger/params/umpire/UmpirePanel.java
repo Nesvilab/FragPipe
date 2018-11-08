@@ -54,7 +54,7 @@ import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.EventBus;
 import rx.swing.sources.DocumentEventSource;
-import umich.msfragger.events.MessageIsUmpireRun;
+import umich.msfragger.messages.MessageIsUmpireRun;
 import umich.msfragger.cmd.ToolingUtils;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.util.StringUtils;

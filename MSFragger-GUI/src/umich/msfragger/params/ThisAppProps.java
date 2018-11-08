@@ -30,7 +30,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.text.JTextComponent;
 import umich.msfragger.Version;
-import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.util.PathUtils;
 
@@ -52,6 +51,7 @@ public class ThisAppProps extends Properties {
   public static final String PROP_TEXTFIELD_PATH_PROTEIN_PROPHET = "path.textfield.protein-prophet";
   public static final String PROP_TEXTFIELD_REPORT_ANNOTATE = "report.annotate";
   public static final String PROP_TEXTFIELD_REPORT_FILTER = "report.filter";
+  public static final String PROP_TEXTFIELD_REPORT_ABACUS = "report.abacus";
   public static final String PROP_TEXTFIELD_LABELFREE = "report.labelfree";
   public static final String PROP_TEXTFIELD_SEQUENCE_DB = "sequence.db";
   public static final String PROP_TEXTFIELD_DECOY_TAG = "decoy.tag";
@@ -196,24 +196,24 @@ public class ThisAppProps extends Properties {
       save(propName, text.getText().trim());
   }
 
-  public static void loadDefaults(JTextComponent text, String propName, SearchTypeProp type) {
+  public static void loadFromBundle(JTextComponent text, String propName, SearchTypeProp type) {
       final String prop = propName + "." + type.name();
-      loadDefaults(text, prop);
+      loadFromBundle(text, prop);
   }
 
-  public static void loadDefaults(JTextComponent text, String propName) {
+  public static void loadFromBundle(JTextComponent text, String propName) {
       java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
       String val = bundle.getString(propName);
       text.setText(val);
       save(propName, val);
   }
 
-  public static void loadDefaults(JCheckBox checkBox, String propName, SearchTypeProp type) {
+  public static void loadFromBundle(JCheckBox checkBox, String propName, SearchTypeProp type) {
       final String prop = propName + "." + type.name();
-      loadDefaults(checkBox, prop);
+      loadFromBundle(checkBox, prop);
   }
 
-  public static void loadDefaults(JCheckBox checkBox, String propName) {
+  public static void loadFromBundle(JCheckBox checkBox, String propName) {
       java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
       String val = bundle.getString(propName);
       checkBox.setSelected(Boolean.valueOf(val));

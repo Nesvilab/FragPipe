@@ -1,4 +1,4 @@
-package umich.msfragger.events;
+package umich.msfragger.messages;
 
 public class MessageIsUmpireRun {
   public final boolean isEnabled;

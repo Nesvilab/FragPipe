@@ -41,7 +41,7 @@ public class CmdReportFilter extends CmdBase {
       cmd.add(usePhilosopher.useBin(wd));
       cmd.add(PhilosopherProps.CMD_FILTER);
       if (!StringUtils.isNullOrWhitespace(textReportFilter)) {
-        String[] params = textReportFilter.split("[\\s]+");
+        String[] params = textReportFilter.trim().split("[\\s]+");
         cmd.addAll(Arrays.asList(params));
       }
       cmd.add("--pepxml");

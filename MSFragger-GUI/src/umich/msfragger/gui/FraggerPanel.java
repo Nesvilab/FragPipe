@@ -1087,11 +1087,11 @@ public class FraggerPanel extends javax.swing.JPanel {
 
     jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
     jLabel6.setText("Isotope Error");
-    jLabel6.setToolTipText("<html>0=off, -1/0/1/2/3 (standard C13 error)<br><br>\nIsotope correction for MS/MS events triggered on<br>\nisotopic peaks. Should be set to 0 (disabled) for open<br>\nsearch or 0/1/2 for correction of narrow window<br>\nsearches. Shifts the precursor mass window to<br>\nmultiples of this value multiplied by the mass difference<br>\nof C13-C12.");
+    jLabel6.setToolTipText("<html>0=off, -1/0/1/2/3 (standard C13 error)<br><br>\nIsotope correction for MS/MS messages triggered on<br>\nisotopic peaks. Should be set to 0 (disabled) for open<br>\nsearch or 0/1/2 for correction of narrow window<br>\nsearches. Shifts the precursor mass window to<br>\nmultiples of this value multiplied by the mass difference<br>\nof C13-C12.");
 
     textIsotopeError.setDocument(getFilterIsotopeCorrection());
     textIsotopeError.setText("-1/0/1/2");
-    textIsotopeError.setToolTipText("<html>0=off, -1/0/1/2/3 (standard C13 error)<br><br>\nIsotope correction for MS/MS events triggered on<br>\nisotopic peaks. Should be set to 0 (disabled) for open<br>\nsearch or 0/1/2 for correction of narrow window<br>\nsearches. Shifts the precursor mass window to<br>\nmultiples of this value multiplied by the mass difference<br>\nof C13-C12.");
+    textIsotopeError.setToolTipText("<html>0=off, -1/0/1/2/3 (standard C13 error)<br><br>\nIsotope correction for MS/MS messages triggered on<br>\nisotopic peaks. Should be set to 0 (disabled) for open<br>\nsearch or 0/1/2 for correction of narrow window<br>\nsearches. Shifts the precursor mass window to<br>\nmultiples of this value multiplied by the mass difference<br>\nof C13-C12.");
     textIsotopeError.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusGained(java.awt.event.FocusEvent evt) {
         textIsotopeErrorFocusGained(evt);
@@ -1751,7 +1751,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     }
     
     public void loadDefaultsMsadjuster(SearchTypeProp type) {
-        ThisAppProps.loadDefaults(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE, type);
+        ThisAppProps.loadFromBundle(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE, type);
     }
     
     public void loadDefaultsClosed() {

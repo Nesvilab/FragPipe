@@ -51,7 +51,7 @@ public class CmdReportDbAnnotate extends CmdBase {
       cmd.add("--annotate");
       cmd.add(dbPath);
       if (!StringUtils.isNullOrWhitespace(textReportAnnotate)) {
-        String[] params = textReportAnnotate.split("[\\s]+");
+        String[] params = textReportAnnotate.trim().split("[\\s]+");
         cmd.addAll(Arrays.asList(params));
       }
       ProcessBuilder pb = new ProcessBuilder(cmd);
