@@ -60,13 +60,11 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -148,7 +146,6 @@ import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.umpire.UmpirePanel;
-import umich.msfragger.params.umpire.UmpireParams;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.GhostText;
@@ -706,6 +703,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     jScrollPane5 = new javax.swing.JScrollPane();
     editorSequenceDb = new javax.swing.JEditorPane();
     scrollPaneMsFragger = new javax.swing.JScrollPane();
+    scrollPaneDownstream = new javax.swing.JScrollPane();
     panelCrystalc = new javax.swing.JPanel();
     btnCrystalcDefaults = new javax.swing.JButton();
     chkRunCrystalc = new javax.swing.JCheckBox();
@@ -786,14 +784,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     tabPane.setName(""); // NOI18N
 
     jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-    jLabel4.setText(
-        "<html>Tabs on top represent processing steps and will be performed sequentially.<br/>\nTabs will become enabled once the tools on this panel are configured."); // NOI18N
+    jLabel4.setText("<html>Tabs on top represent processing steps and will be performed sequentially.<br/>\nTabs will become enabled once the tools on this panel are configured."); // NOI18N
 
     panelMsfraggerConfig.setBorder(javax.swing.BorderFactory.createTitledBorder("MSFragger"));
 
     btnMsfraggerBinDownload.setText("Download");
-    btnMsfraggerBinDownload.setToolTipText(
-        "<html>Open the download web-page for MSFragger in browser.<br/>\nYou need to agree to the license terms."); // NOI18N
+    btnMsfraggerBinDownload.setToolTipText("<html>Open the download web-page for MSFragger in browser.<br/>\nYou need to agree to the license terms."); // NOI18N
     btnMsfraggerBinDownload.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnMsfraggerBinDownloadActionPerformed(evt);
@@ -819,8 +815,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    lblMsfraggerCitation.setText(
-        "If you are using MSFragger search engine for publications, please cite the following paper:");
+    lblMsfraggerCitation.setText("If you are using MSFragger search engine for publications, please cite the following paper:");
 
     jScrollPane1.setBorder(null);
 
@@ -841,68 +836,56 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     lblFraggerJavaVer.setText(OsUtils.JavaInfo());
 
     btnMsfraggerUpdate.setText("Update");
-    btnMsfraggerUpdate.setToolTipText(
-        "<html>Open MSFragger upgrader tool in browser.<br>\nIn order to update you <b>must</b> download an<br>\noriginal copy from the <b>download</b> website once.\n");
+    btnMsfraggerUpdate.setToolTipText("<html>Open MSFragger upgrader tool in browser.<br>\nIn order to update you <b>must</b> download an<br>\noriginal copy from the <b>download</b> website once.\n");
     btnMsfraggerUpdate.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnMsfraggerUpdateActionPerformed(evt);
       }
     });
 
-    javax.swing.GroupLayout panelMsfraggerConfigLayout = new javax.swing.GroupLayout(
-        panelMsfraggerConfig);
+    javax.swing.GroupLayout panelMsfraggerConfigLayout = new javax.swing.GroupLayout(panelMsfraggerConfig);
     panelMsfraggerConfig.setLayout(panelMsfraggerConfigLayout);
     panelMsfraggerConfigLayout.setHorizontalGroup(
-        panelMsfraggerConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
-                panelMsfraggerConfigLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(panelMsfraggerConfigLayout
-                        .createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(lblFraggerJavaVer, javax.swing.GroupLayout.DEFAULT_SIZE,
-                            javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jScrollPane1)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING,
-                            panelMsfraggerConfigLayout.createSequentialGroup()
-                                .addComponent(lblMsfraggerCitation)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING,
-                            panelMsfraggerConfigLayout.createSequentialGroup()
-                                .addComponent(textBinMsfragger)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnMsfraggerBinBrowse)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnMsfraggerBinDownload)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnMsfraggerUpdate)))
-                    .addContainerGap())
+      panelMsfraggerConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelMsfraggerConfigLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelMsfraggerConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+          .addComponent(lblFraggerJavaVer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(jScrollPane1)
+          .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelMsfraggerConfigLayout.createSequentialGroup()
+            .addComponent(lblMsfraggerCitation)
+            .addGap(0, 0, Short.MAX_VALUE))
+          .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelMsfraggerConfigLayout.createSequentialGroup()
+            .addComponent(textBinMsfragger)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(btnMsfraggerBinBrowse)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(btnMsfraggerBinDownload)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(btnMsfraggerUpdate)))
+        .addContainerGap())
     );
     panelMsfraggerConfigLayout.setVerticalGroup(
-        panelMsfraggerConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelMsfraggerConfigLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(panelMsfraggerConfigLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textBinMsfragger, javax.swing.GroupLayout.PREFERRED_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnMsfraggerBinDownload)
-                    .addComponent(btnMsfraggerBinBrowse)
-                    .addComponent(btnMsfraggerUpdate))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblFraggerJavaVer)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblMsfraggerCitation)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 48,
-                    javax.swing.GroupLayout.PREFERRED_SIZE))
+      panelMsfraggerConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelMsfraggerConfigLayout.createSequentialGroup()
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addGroup(panelMsfraggerConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(textBinMsfragger, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(btnMsfraggerBinDownload)
+          .addComponent(btnMsfraggerBinBrowse)
+          .addComponent(btnMsfraggerUpdate))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(lblFraggerJavaVer)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(lblMsfraggerCitation)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
     );
 
     panelPhilosopherConfig.setBorder(javax.swing.BorderFactory.createTitledBorder("Philosopher"));
 
     btnPhilosopherBinDownload.setText("Download");
-    btnPhilosopherBinDownload.setToolTipText(
-        "<html>Opens the web-page for Philosopher download.<br/>\nChoose the right version for your platform.");
+    btnPhilosopherBinDownload.setToolTipText("<html>Opens the web-page for Philosopher download.<br/>\nChoose the right version for your platform.");
     btnPhilosopherBinDownload.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnPhilosopherBinDownloadActionPerformed(evt);
@@ -928,8 +911,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    jLabel3.setText(
-        "If provided, philosopher binary will be used for Peptide and Protein Prophets and Report");
+    jLabel3.setText("If provided, philosopher binary will be used for Peptide and Protein Prophets and Report");
 
     lblPhilosopherInfo.setText(OsUtils.OsInfo());
 
@@ -948,48 +930,38 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
     jScrollPane3.setViewportView(editorPhilosopherLink);
 
-    javax.swing.GroupLayout panelPhilosopherConfigLayout = new javax.swing.GroupLayout(
-        panelPhilosopherConfig);
+    javax.swing.GroupLayout panelPhilosopherConfigLayout = new javax.swing.GroupLayout(panelPhilosopherConfig);
     panelPhilosopherConfig.setLayout(panelPhilosopherConfigLayout);
     panelPhilosopherConfigLayout.setHorizontalGroup(
-        panelPhilosopherConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelPhilosopherConfigLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelPhilosopherConfigLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblPhilosopherInfo, javax.swing.GroupLayout.Alignment.TRAILING,
-                        javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
-                        panelPhilosopherConfigLayout.createSequentialGroup()
-                            .addComponent(textBinPhilosopher)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btnPhilosopherBinBrowse)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btnPhilosopherBinDownload))
-                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane3))
-                .addContainerGap())
+      panelPhilosopherConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelPhilosopherConfigLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelPhilosopherConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(lblPhilosopherInfo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPhilosopherConfigLayout.createSequentialGroup()
+            .addComponent(textBinPhilosopher)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(btnPhilosopherBinBrowse)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(btnPhilosopherBinDownload))
+          .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(jScrollPane3))
+        .addContainerGap())
     );
     panelPhilosopherConfigLayout.setVerticalGroup(
-        panelPhilosopherConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelPhilosopherConfigLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelPhilosopherConfigLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textBinPhilosopher, javax.swing.GroupLayout.PREFERRED_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnPhilosopherBinDownload)
-                    .addComponent(btnPhilosopherBinBrowse))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblPhilosopherInfo)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 33,
-                    Short.MAX_VALUE))
+      panelPhilosopherConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelPhilosopherConfigLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelPhilosopherConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(textBinPhilosopher, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(btnPhilosopherBinDownload)
+          .addComponent(btnPhilosopherBinBrowse))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(lblPhilosopherInfo)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(jLabel3)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 33, Short.MAX_VALUE))
     );
 
     btnFindTools.setText("Search tools");
@@ -1002,12 +974,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     lblFindAutomatically.setLabelFor(lblFindAutomatically);
     lblFindAutomatically.setText("Recursively search for tools in a directory (e.g. Downloads)");
-    lblFindAutomatically.setToolTipText(
-        "<html>If you have the tools downloaded somewhere already, you can<br/>\nuse this button to automatically look for them.");
+    lblFindAutomatically.setToolTipText("<html>If you have the tools downloaded somewhere already, you can<br/>\nuse this button to automatically look for them.");
 
     btnClearCache.setText("Clear Cache");
-    btnClearCache.setToolTipText(
-        "<html>Forget all the stored text-field information.<br/>\nAfter you relaunch the application everything will reset<br/>\nto default values."); // NOI18N
+    btnClearCache.setToolTipText("<html>Forget all the stored text-field information.<br/>\nAfter you relaunch the application everything will reset<br/>\nto default values."); // NOI18N
     btnClearCache.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnClearCacheActionPerformed(evt);
@@ -1015,8 +985,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     btnLoadDefaultsOpen.setText("Load Defaults for Open Search");
-    btnLoadDefaultsOpen.setToolTipText(
-        "<html>Load default parameters for MSFragger and Prophets<br/>\nfor \"Open\" search - large mass tolerances, good for unknown PTM identification");
+    btnLoadDefaultsOpen.setToolTipText("<html>Load default parameters for MSFragger and Prophets<br/>\nfor \"Open\" search - large mass tolerances, good for unknown PTM identification");
     btnLoadDefaultsOpen.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnLoadDefaultsOpenActionPerformed(evt);
@@ -1024,8 +993,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     btnLoadDefaultsClosed.setText("Load Defaults for Closed Search");
-    btnLoadDefaultsClosed.setToolTipText(
-        "<html>Load default parameters for MSFragger and Prophets<br/>\nfor \"Closed\" search - small mass tolerances, super-fast conventional search");
+    btnLoadDefaultsClosed.setToolTipText("<html>Load default parameters for MSFragger and Prophets<br/>\nfor \"Closed\" search - small mass tolerances, super-fast conventional search");
     btnLoadDefaultsClosed.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnLoadDefaultsClosedActionPerformed(evt);
@@ -1048,28 +1016,26 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
     jPanel2.setLayout(jPanel2Layout);
     jPanel2Layout.setHorizontalGroup(
-        jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(
-                    jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(lblDbsliceInfo1)
-                        .addComponent(lblDbsliceInfo2))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+      jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(jPanel2Layout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(lblDbsliceInfo1)
+          .addComponent(lblDbsliceInfo2))
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
     jPanel2Layout.setVerticalGroup(
-        jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblDbsliceInfo1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblDbsliceInfo2)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+      jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(jPanel2Layout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(lblDbsliceInfo1)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(lblDbsliceInfo2)
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
     checkEnableDiaumpire.setText("Enable DIA-Umpire");
-    checkEnableDiaumpire.setToolTipText(
-        "<html>\nOnly use this if you have DIA data and need to pre-process it to make compatible to MSFragger.");
+    checkEnableDiaumpire.setToolTipText("<html>\nOnly use this if you have DIA data and need to pre-process it to make compatible to MSFragger.");
     checkEnableDiaumpire.addChangeListener(new javax.swing.event.ChangeListener() {
       public void stateChanged(javax.swing.event.ChangeEvent evt) {
         checkEnableDiaumpireStateChanged(evt);
@@ -1085,23 +1051,22 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
     jPanel1.setLayout(jPanel1Layout);
     jPanel1Layout.setHorizontalGroup(
-        jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(
-                    jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(lblSpeclibInfo1)
-                        .addComponent(lblSpeclibInfo2))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+      jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(jPanel1Layout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(lblSpeclibInfo1)
+          .addComponent(lblSpeclibInfo2))
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
     jPanel1Layout.setVerticalGroup(
-        jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblSpeclibInfo1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblSpeclibInfo2)
-                .addContainerGap(15, Short.MAX_VALUE))
+      jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(jPanel1Layout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(lblSpeclibInfo1)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addComponent(lblSpeclibInfo2)
+        .addContainerGap(15, Short.MAX_VALUE))
     );
 
     jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Python"));
@@ -1118,126 +1083,102 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
     jPanel3.setLayout(jPanel3Layout);
     jPanel3Layout.setHorizontalGroup(
-        jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(
-                    jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
-                            jPanel3Layout.createSequentialGroup()
-                                .addComponent(textBinPython)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnBrowseBinPython))
-                        .addGroup(jPanel3Layout.createSequentialGroup()
-                            .addComponent(lblPythonInfo)
-                            .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+      jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(jPanel3Layout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+            .addComponent(textBinPython)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(btnBrowseBinPython))
+          .addGroup(jPanel3Layout.createSequentialGroup()
+            .addComponent(lblPythonInfo)
+            .addGap(0, 0, Short.MAX_VALUE)))
+        .addContainerGap())
     );
     jPanel3Layout.setVerticalGroup(
-        jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGroup(
-                    jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnBrowseBinPython)
-                        .addComponent(textBinPython, javax.swing.GroupLayout.PREFERRED_SIZE,
-                            javax.swing.GroupLayout.DEFAULT_SIZE,
-                            javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblPythonInfo)
-                .addGap(0, 12, Short.MAX_VALUE))
+      jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(jPanel3Layout.createSequentialGroup()
+        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(btnBrowseBinPython)
+          .addComponent(textBinPython, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(lblPythonInfo)
+        .addGap(0, 12, Short.MAX_VALUE))
     );
 
     javax.swing.GroupLayout panelConfigLayout = new javax.swing.GroupLayout(panelConfig);
     panelConfig.setLayout(panelConfigLayout);
     panelConfigLayout.setHorizontalGroup(
-        panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
-                panelConfigLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(panelMsfraggerConfig, javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(panelConfigLayout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addGroup(
-                    panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(panelConfigLayout.createSequentialGroup()
-                            .addComponent(btnLoadDefaultsOpen)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(btnLoadDefaultsClosed)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-                                javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnAboutInConfig))
-                        .addGroup(panelConfigLayout.createSequentialGroup()
-                            .addComponent(btnFindTools)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(lblFindAutomatically)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-                                111, Short.MAX_VALUE)
-                            .addComponent(checkEnableDiaumpire)
-                            .addGap(18, 18, 18)
-                            .addComponent(btnClearCache))))
-            .addGroup(panelConfigLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panelPhilosopherConfig, javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
-            .addGroup(panelConfigLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(panelConfigLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(panelConfigLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+      panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelConfigLayout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(panelMsfraggerConfig, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+      .addGroup(panelConfigLayout.createSequentialGroup()
+        .addGap(18, 18, 18)
+        .addGroup(panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addGroup(panelConfigLayout.createSequentialGroup()
+            .addComponent(btnLoadDefaultsOpen)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addComponent(btnLoadDefaultsClosed)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btnAboutInConfig))
+          .addGroup(panelConfigLayout.createSequentialGroup()
+            .addComponent(btnFindTools)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(lblFindAutomatically)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 111, Short.MAX_VALUE)
+            .addComponent(checkEnableDiaumpire)
+            .addGap(18, 18, 18)
+            .addComponent(btnClearCache))))
+      .addGroup(panelConfigLayout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(panelPhilosopherConfig, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+      .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
+      .addGroup(panelConfigLayout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+      .addGroup(panelConfigLayout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+      .addGroup(panelConfigLayout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
     panelConfigLayout.setVerticalGroup(
-        panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelConfigLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelConfigLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnFindTools)
-                    .addComponent(lblFindAutomatically)
-                    .addComponent(btnClearCache)
-                    .addComponent(checkEnableDiaumpire))
-                .addGap(18, 18, 18)
-                .addGroup(panelConfigLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnLoadDefaultsOpen)
-                    .addComponent(btnLoadDefaultsClosed)
-                    .addComponent(btnAboutInConfig))
-                .addGap(18, 18, 18)
-                .addComponent(panelMsfraggerConfig, javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelPhilosopherConfig, javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12,
-                    Short.MAX_VALUE)
-                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+      panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelConfigLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(btnFindTools)
+          .addComponent(lblFindAutomatically)
+          .addComponent(btnClearCache)
+          .addComponent(checkEnableDiaumpire))
+        .addGap(18, 18, 18)
+        .addGroup(panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(btnLoadDefaultsOpen)
+          .addComponent(btnLoadDefaultsClosed)
+          .addComponent(btnAboutInConfig))
+        .addGap(18, 18, 18)
+        .addComponent(panelMsfraggerConfig, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(panelPhilosopherConfig, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap())
     );
 
     validateGuiVersion();
 
     tabPane.addTab("Config", null, panelConfig, "Set up paths to tools");
 
-    panelSelectedFiles.setBorder(javax.swing.BorderFactory.createTitledBorder(
-        "Selected files (Drag & Drop files or folders here, it's OK if they contain non LC/MS files)"));
+    panelSelectedFiles.setBorder(javax.swing.BorderFactory.createTitledBorder("Selected files (Drag & Drop files or folders here, it's OK if they contain non LC/MS files)"));
 
     btnRawAddFiles.setText("Add files");
     btnRawAddFiles.addActionListener(new java.awt.event.ActionListener() {
@@ -1254,8 +1195,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     btnRawAddFolder.setText("Add Folder");
-    btnRawAddFolder.setToolTipText(
-        "<html>Recursively search a directory, importing<br/>\nall compatible LC/MS files.");
+    btnRawAddFolder.setToolTipText("<html>Recursively search a directory, importing<br/>\nall compatible LC/MS files.");
     btnRawAddFolder.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnRawAddFolderActionPerformed(evt);
@@ -1270,8 +1210,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     btnGroupsConsecutive.setText("Consecutive");
-    btnGroupsConsecutive.setToolTipText(
-        "<html>Assign each run to its own experiment.<br/>\n<b>Names like \"experiment-01\"</b> will be assgined.");
+    btnGroupsConsecutive.setToolTipText("<html>Assign each run to its own experiment.<br/>\n<b>Names like \"experiment-01\"</b> will be assgined.");
     btnGroupsConsecutive.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnGroupsConsecutiveActionPerformed(evt);
@@ -1281,8 +1220,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     jLabel10.setText("Assign files to Experiments/Groups:");
 
     btnGroupsByParentDir.setText("By parent directory");
-    btnGroupsByParentDir.setToolTipText(
-        "<html>Assign each run to an experiment.<br/>\nLCMS file's <b>parent directory name<b> will be used<br/>\nas the experiment name.");
+    btnGroupsByParentDir.setToolTipText("<html>Assign each run to an experiment.<br/>\nLCMS file's <b>parent directory name<b> will be used<br/>\nas the experiment name.");
     btnGroupsByParentDir.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnGroupsByParentDirActionPerformed(evt);
@@ -1290,8 +1228,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     btnGroupsByFilename.setText("By file name");
-    btnGroupsByFilename.setToolTipText(
-        "<html>Each file is assigned to an experiment with<br/>\nthe <b>same name as the file itself</b>.");
+    btnGroupsByFilename.setToolTipText("<html>Each file is assigned to an experiment with<br/>\nthe <b>same name as the file itself</b>.");
     btnGroupsByFilename.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnGroupsByFilenameActionPerformed(evt);
@@ -1307,8 +1244,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     btnGroupsAssignToSelected.setText("Assign to selected");
-    btnGroupsAssignToSelected.setToolTipText(
-        "<html>Brings up a dialog to assign selected runs to an<br/>\nexperiment name of your choice.");
+    btnGroupsAssignToSelected.setToolTipText("<html>Brings up a dialog to assign selected runs to an<br/>\nexperiment name of your choice.");
     btnGroupsAssignToSelected.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnGroupsAssignToSelectedActionPerformed(evt);
@@ -1317,96 +1253,86 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     checkProcessGroupsSeparately.setSelected(loadLastProcessGroupsSeparately());
     checkProcessGroupsSeparately.setText("Process each Experiment/Group separately");
-    checkProcessGroupsSeparately.setToolTipText(
-        "<html>If you want a report comparing protein abundances across<br/>\nexperiments or just want a single protein identification result from all<br/>\nthe runs, select this checkbox. For most usecases you want this checked.<br/>\n<b>Only check</b> if you simply want peptide/protein ID results<br/>\nfor each experiment separately. E.g. this might be useful if you have<br/>\n100 files on hand and use the \"assign to experiments\" feature to quickly<br/>\nrun MSFragger + downstream processing on each of those and get a pepxml<br/>\nand/or protxml files.");
+    checkProcessGroupsSeparately.setToolTipText("<html>If you want a report comparing protein abundances across<br/>\nexperiments or just want a single protein identification result from all<br/>\nthe runs, select this checkbox. For most usecases you want this checked.<br/>\n<b>Only check</b> if you simply want peptide/protein ID results<br/>\nfor each experiment separately. E.g. this might be useful if you have<br/>\n100 files on hand and use the \"assign to experiments\" feature to quickly<br/>\nrun MSFragger + downstream processing on each of those and get a pepxml<br/>\nand/or protxml files.");
     checkProcessGroupsSeparately.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         checkProcessGroupsSeparatelyActionPerformed(evt);
       }
     });
 
-    javax.swing.GroupLayout panelSelectedFilesLayout = new javax.swing.GroupLayout(
-        panelSelectedFiles);
+    javax.swing.GroupLayout panelSelectedFilesLayout = new javax.swing.GroupLayout(panelSelectedFiles);
     panelSelectedFiles.setLayout(panelSelectedFilesLayout);
     panelSelectedFilesLayout.setHorizontalGroup(
-        panelSelectedFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelSelectedFilesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelSelectedFilesLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(scrollPaneRawFiles)
-                    .addGroup(panelSelectedFilesLayout.createSequentialGroup()
-                        .addGroup(panelSelectedFilesLayout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel10)
-                            .addGroup(panelSelectedFilesLayout.createSequentialGroup()
-                                .addComponent(btnRawAddFiles)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnRawAddFolder)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnRawRemove)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnRawClear)
-                                .addPreferredGap(
-                                    javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(checkProcessGroupsSeparately))
-                            .addGroup(panelSelectedFilesLayout.createSequentialGroup()
-                                .addComponent(btnGroupsConsecutive)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnGroupsByParentDir)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnGroupsByFilename)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnGroupsAssignToSelected)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnGroupsClear)))
-                        .addGap(0, 94, Short.MAX_VALUE)))
-                .addContainerGap())
+      panelSelectedFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelSelectedFilesLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelSelectedFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(scrollPaneRawFiles)
+          .addGroup(panelSelectedFilesLayout.createSequentialGroup()
+            .addGroup(panelSelectedFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+              .addComponent(jLabel10)
+              .addGroup(panelSelectedFilesLayout.createSequentialGroup()
+                .addComponent(btnRawAddFiles)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnRawAddFolder)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnRawRemove)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnRawClear)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(checkProcessGroupsSeparately))
+              .addGroup(panelSelectedFilesLayout.createSequentialGroup()
+                .addComponent(btnGroupsConsecutive)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnGroupsByParentDir)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnGroupsByFilename)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnGroupsAssignToSelected)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnGroupsClear)))
+            .addGap(0, 94, Short.MAX_VALUE)))
+        .addContainerGap())
     );
     panelSelectedFilesLayout.setVerticalGroup(
-        panelSelectedFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelSelectedFilesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelSelectedFilesLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnRawRemove)
-                    .addComponent(btnRawAddFiles)
-                    .addComponent(btnRawAddFolder)
-                    .addComponent(btnRawClear)
-                    .addComponent(checkProcessGroupsSeparately))
-                .addGap(11, 11, 11)
-                .addComponent(jLabel10)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelSelectedFilesLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnGroupsConsecutive)
-                    .addComponent(btnGroupsByParentDir)
-                    .addComponent(btnGroupsByFilename)
-                    .addComponent(btnGroupsAssignToSelected)
-                    .addComponent(btnGroupsClear))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(scrollPaneRawFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 550,
-                    Short.MAX_VALUE)
-                .addContainerGap())
+      panelSelectedFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelSelectedFilesLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelSelectedFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(btnRawRemove)
+          .addComponent(btnRawAddFiles)
+          .addComponent(btnRawAddFolder)
+          .addComponent(btnRawClear)
+          .addComponent(checkProcessGroupsSeparately))
+        .addGap(11, 11, 11)
+        .addComponent(jLabel10)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(panelSelectedFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(btnGroupsConsecutive)
+          .addComponent(btnGroupsByParentDir)
+          .addComponent(btnGroupsByFilename)
+          .addComponent(btnGroupsAssignToSelected)
+          .addComponent(btnGroupsClear))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(scrollPaneRawFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 550, Short.MAX_VALUE)
+        .addContainerGap())
     );
 
     javax.swing.GroupLayout panelSelectFilesLayout = new javax.swing.GroupLayout(panelSelectFiles);
     panelSelectFiles.setLayout(panelSelectFilesLayout);
     panelSelectFilesLayout.setHorizontalGroup(
-        panelSelectFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelSelectFilesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panelSelectedFiles, javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+      panelSelectFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelSelectFilesLayout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(panelSelectedFiles, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addContainerGap())
     );
     panelSelectFilesLayout.setVerticalGroup(
-        panelSelectFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelSelectFilesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panelSelectedFiles, javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+      panelSelectFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelSelectFilesLayout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(panelSelectedFiles, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addContainerGap())
     );
 
     tabPane.addTab("Select LC/MS Files", null, panelSelectFiles, "Input mzML or mzXML files");
@@ -1434,7 +1360,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       public void focusGained(java.awt.event.FocusEvent evt) {
         textDecoyTagSeqDbFocusGained(evt);
       }
-
       public void focusLost(java.awt.event.FocusEvent evt) {
         textDecoyTagSeqDbFocusLost(evt);
       }
@@ -1456,59 +1381,42 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     javax.swing.GroupLayout panelDbInfoLayout = new javax.swing.GroupLayout(panelDbInfo);
     panelDbInfo.setLayout(panelDbInfoLayout);
     panelDbInfoLayout.setHorizontalGroup(
-        panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
-                panelDbInfoLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(panelDbInfoLayout
-                        .createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 681,
-                            Short.MAX_VALUE)
-                        .addGroup(panelDbInfoLayout.createSequentialGroup()
-                            .addGroup(panelDbInfoLayout
-                                .createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addGroup(panelDbInfoLayout.createSequentialGroup()
-                                    .addComponent(jLabel5)
-                                    .addPreferredGap(
-                                        javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(textDecoyTagSeqDb,
-                                        javax.swing.GroupLayout.PREFERRED_SIZE, 131,
-                                        javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(
-                                        javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(btnTryDetectDecoyTag)
-                                    .addPreferredGap(
-                                        javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(lblFastaCount))
-                                .addComponent(textSequenceDbPath))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btnBrowse)))
-                    .addContainerGap())
+      panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelDbInfoLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+          .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 681, Short.MAX_VALUE)
+          .addGroup(panelDbInfoLayout.createSequentialGroup()
+            .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+              .addGroup(panelDbInfoLayout.createSequentialGroup()
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(textDecoyTagSeqDb, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnTryDetectDecoyTag)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblFastaCount))
+              .addComponent(textSequenceDbPath))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(btnBrowse)))
+        .addContainerGap())
     );
     panelDbInfoLayout.setVerticalGroup(
-        panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelDbInfoLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelDbInfoLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textSequenceDbPath, javax.swing.GroupLayout.PREFERRED_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnBrowse))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(panelDbInfoLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(textDecoyTagSeqDb, javax.swing.GroupLayout.PREFERRED_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnTryDetectDecoyTag)
-                    .addComponent(lblFastaCount))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 570,
-                    Short.MAX_VALUE)
-                .addContainerGap())
+      panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelDbInfoLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(textSequenceDbPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(btnBrowse))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(jLabel5)
+          .addComponent(textDecoyTagSeqDb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(btnTryDetectDecoyTag)
+          .addComponent(lblFastaCount))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 570, Short.MAX_VALUE)
+        .addContainerGap())
     );
 
     loadLastSequenceDb();
@@ -1517,27 +1425,23 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     javax.swing.GroupLayout panelSequenceDbLayout = new javax.swing.GroupLayout(panelSequenceDb);
     panelSequenceDb.setLayout(panelSequenceDbLayout);
     panelSequenceDbLayout.setHorizontalGroup(
-        panelSequenceDbLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
-                panelSequenceDbLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(panelDbInfo, javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addContainerGap())
+      panelSequenceDbLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelSequenceDbLayout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(panelDbInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addContainerGap())
     );
     panelSequenceDbLayout.setVerticalGroup(
-        panelSequenceDbLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelSequenceDbLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panelDbInfo, javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+      panelSequenceDbLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelSequenceDbLayout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(panelDbInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addContainerGap())
     );
 
     tabPane.addTab("Sequence DB", panelSequenceDb);
-    tabPane.addTab("MSFragger",
-        new javax.swing.ImageIcon(getClass().getResource("/umich/msfragger/gui/icons/bolt-16.png")),
-        scrollPaneMsFragger, "MSFragger search engine"); // NOI18N
+    tabPane.addTab("MSFragger", new javax.swing.ImageIcon(getClass().getResource("/umich/msfragger/gui/icons/bolt-16.png")), scrollPaneMsFragger, "MSFragger search engine"); // NOI18N
+    tabPane.addTab("Downstream Analysis", scrollPaneDownstream);
 
     btnCrystalcDefaults.setText("Load Defaults");
     btnCrystalcDefaults.addActionListener(new java.awt.event.ActionListener() {
@@ -1565,113 +1469,82 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     jLabel8.setText("Mass tolerance (ppm)");
 
-    spinnerCrystalcMassTol
-        .setModel(new javax.swing.SpinnerNumberModel(20.0d, 0.1d, 10000.0d, 0.5d));
+    spinnerCrystalcMassTol.setModel(new javax.swing.SpinnerNumberModel(20.0d, 0.1d, 10000.0d, 0.5d));
 
     jLabel9.setText("Precursor isolation window");
 
-    spinnerCrystalcPrecIsoWindow
-        .setModel(new javax.swing.SpinnerNumberModel(0.7d, 0.1d, 10.0d, 0.1d));
+    spinnerCrystalcPrecIsoWindow.setModel(new javax.swing.SpinnerNumberModel(0.7d, 0.1d, 10.0d, 0.1d));
 
-    javax.swing.GroupLayout panelCrystalcOptionsLayout = new javax.swing.GroupLayout(
-        panelCrystalcOptions);
+    javax.swing.GroupLayout panelCrystalcOptionsLayout = new javax.swing.GroupLayout(panelCrystalcOptions);
     panelCrystalcOptions.setLayout(panelCrystalcOptionsLayout);
     panelCrystalcOptionsLayout.setHorizontalGroup(
-        panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelCrystalcOptionsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelCrystalcOptionsLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel8)
-                    .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelCrystalcOptionsLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(spinnerCrystalcMassTol, javax.swing.GroupLayout.PREFERRED_SIZE,
-                        60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(spinnerCrystalcMaxCharge))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(panelCrystalcOptionsLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel9)
-                    .addComponent(jLabel7))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelCrystalcOptionsLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(spinnerCrystalcPrecIsoWindow,
-                        javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
-                    .addComponent(spinnerCrystalcNumIsotopes))
-                .addContainerGap(323, Short.MAX_VALUE))
+      panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelCrystalcOptionsLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+          .addComponent(jLabel8)
+          .addComponent(jLabel6))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+          .addComponent(spinnerCrystalcMassTol, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(spinnerCrystalcMaxCharge))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+          .addComponent(jLabel9)
+          .addComponent(jLabel7))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+          .addComponent(spinnerCrystalcPrecIsoWindow, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
+          .addComponent(spinnerCrystalcNumIsotopes))
+        .addContainerGap(323, Short.MAX_VALUE))
     );
     panelCrystalcOptionsLayout.setVerticalGroup(
-        panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelCrystalcOptionsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelCrystalcOptionsLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(spinnerCrystalcMaxCharge, javax.swing.GroupLayout.PREFERRED_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel7)
-                    .addComponent(spinnerCrystalcNumIsotopes,
-                        javax.swing.GroupLayout.PREFERRED_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(panelCrystalcOptionsLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel8)
-                    .addComponent(spinnerCrystalcMassTol, javax.swing.GroupLayout.PREFERRED_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel9)
-                    .addComponent(spinnerCrystalcPrecIsoWindow,
-                        javax.swing.GroupLayout.PREFERRED_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(543, Short.MAX_VALUE))
+      panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelCrystalcOptionsLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(jLabel6)
+          .addComponent(spinnerCrystalcMaxCharge, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(jLabel7)
+          .addComponent(spinnerCrystalcNumIsotopes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addGap(18, 18, 18)
+        .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(jLabel8)
+          .addComponent(spinnerCrystalcMassTol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(jLabel9)
+          .addComponent(spinnerCrystalcPrecIsoWindow, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addContainerGap(543, Short.MAX_VALUE))
     );
 
-    jLabel12.setText(
-        "<html>Crystal-C performs additional search results cleanup<br/>\n<b>Recommended for Open Searches</b>");
+    jLabel12.setText("<html>Crystal-C performs additional search results cleanup<br/>\n<b>Recommended for Open Searches</b>");
 
     javax.swing.GroupLayout panelCrystalcLayout = new javax.swing.GroupLayout(panelCrystalc);
     panelCrystalc.setLayout(panelCrystalcLayout);
     panelCrystalcLayout.setHorizontalGroup(
-        panelCrystalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelCrystalcLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelCrystalcLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panelCrystalcOptions, javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(panelCrystalcLayout.createSequentialGroup()
-                        .addComponent(chkRunCrystalc)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE,
-                            javax.swing.GroupLayout.DEFAULT_SIZE,
-                            javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-                            javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnCrystalcDefaults)))
-                .addContainerGap())
+      panelCrystalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelCrystalcLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelCrystalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(panelCrystalcOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addGroup(panelCrystalcLayout.createSequentialGroup()
+            .addComponent(chkRunCrystalc)
+            .addGap(18, 18, 18)
+            .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btnCrystalcDefaults)))
+        .addContainerGap())
     );
     panelCrystalcLayout.setVerticalGroup(
-        panelCrystalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelCrystalcLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelCrystalcLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnCrystalcDefaults)
-                    .addComponent(chkRunCrystalc)
-                    .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(panelCrystalcOptions, javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+      panelCrystalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelCrystalcLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelCrystalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(btnCrystalcDefaults)
+          .addComponent(chkRunCrystalc)
+          .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addComponent(panelCrystalcOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addContainerGap())
     );
 
     tabPane.addTab("Crystal-C", panelCrystalc);
@@ -1697,7 +1570,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       public void focusGained(java.awt.event.FocusEvent evt) {
         textPepProphCmdFocusGained(evt);
       }
-
       public void focusLost(java.awt.event.FocusEvent evt) {
         textPepProphCmdFocusLost(evt);
       }
@@ -1705,32 +1577,26 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     jScrollPane2.setViewportView(textPepProphCmd);
     loadLastPeptideProphet();
 
-    javax.swing.GroupLayout panelPeptideProphetOptionsLayout = new javax.swing.GroupLayout(
-        panelPeptideProphetOptions);
+    javax.swing.GroupLayout panelPeptideProphetOptionsLayout = new javax.swing.GroupLayout(panelPeptideProphetOptions);
     panelPeptideProphetOptions.setLayout(panelPeptideProphetOptionsLayout);
     panelPeptideProphetOptionsLayout.setHorizontalGroup(
-        panelPeptideProphetOptionsLayout
-            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
-                .addGap(29, 29, 29)
-                .addComponent(jLabel34)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 575,
-                    Short.MAX_VALUE)
-                .addContainerGap())
+      panelPeptideProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
+        .addGap(29, 29, 29)
+        .addComponent(jLabel34)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 575, Short.MAX_VALUE)
+        .addContainerGap())
     );
     panelPeptideProphetOptionsLayout.setVerticalGroup(
-        panelPeptideProphetOptionsLayout
-            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelPeptideProphetOptionsLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
-                        .addComponent(jLabel34)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 146,
-                        Short.MAX_VALUE)))
+      panelPeptideProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelPeptideProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
+            .addComponent(jLabel34)
+            .addGap(0, 0, Short.MAX_VALUE))
+          .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)))
     );
 
     btnPepProphDefaultsClosed.setText("Defaults Closed Search");
@@ -1747,39 +1613,33 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    javax.swing.GroupLayout panelPeptideProphetLayout = new javax.swing.GroupLayout(
-        panelPeptideProphet);
+    javax.swing.GroupLayout panelPeptideProphetLayout = new javax.swing.GroupLayout(panelPeptideProphet);
     panelPeptideProphet.setLayout(panelPeptideProphetLayout);
     panelPeptideProphetLayout.setHorizontalGroup(
-        panelPeptideProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelPeptideProphetLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelPeptideProphetLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panelPeptideProphetOptions, javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(panelPeptideProphetLayout.createSequentialGroup()
-                        .addComponent(chkRunPeptideProphet)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-                            javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnPepProphDefaultsOpen)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnPepProphDefaultsClosed)))
-                .addContainerGap())
+      panelPeptideProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelPeptideProphetLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelPeptideProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(panelPeptideProphetOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addGroup(panelPeptideProphetLayout.createSequentialGroup()
+            .addComponent(chkRunPeptideProphet)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btnPepProphDefaultsOpen)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(btnPepProphDefaultsClosed)))
+        .addContainerGap())
     );
     panelPeptideProphetLayout.setVerticalGroup(
-        panelPeptideProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelPeptideProphetLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelPeptideProphetLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(chkRunPeptideProphet)
-                    .addComponent(btnPepProphDefaultsClosed)
-                    .addComponent(btnPepProphDefaultsOpen))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(panelPeptideProphetOptions, javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(475, Short.MAX_VALUE))
+      panelPeptideProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelPeptideProphetLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelPeptideProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(chkRunPeptideProphet)
+          .addComponent(btnPepProphDefaultsClosed)
+          .addComponent(btnPepProphDefaultsOpen))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addComponent(panelPeptideProphetOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap(475, Short.MAX_VALUE))
     );
 
     tabPane.addTab("PeptideProphet", panelPeptideProphet);
@@ -1808,63 +1668,48 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     jLabel40.setText("Cmd Line Options");
 
-    chkProteinProphetInteractStar
-        .setText("Use 'interact-*pep.xml' as file filter for ProteinProphet (Philosopher only)");
-    chkProteinProphetInteractStar.setToolTipText(
-        "<html>If checked will use 'interact-*pep.xml' to match pep.xml files to be passed to ProteinProphet.<br/> Otherwise will add files as separate entries, \nwhich might cause problems on Windows<br/> when there are many pepxml files, as the length of command line parameter string is limited to 8192 chars."); // NOI18N
+    chkProteinProphetInteractStar.setText("Use 'interact-*pep.xml' as file filter for ProteinProphet (Philosopher only)");
+    chkProteinProphetInteractStar.setToolTipText("<html>If checked will use 'interact-*pep.xml' to match pep.xml files to be passed to ProteinProphet.<br/> Otherwise will add files as separate entries, \nwhich might cause problems on Windows<br/> when there are many pepxml files, as the length of command line parameter string is limited to 8192 chars."); // NOI18N
 
     txtCombinedProtFile.setText("interact.prot.xml");
-    txtCombinedProtFile.setToolTipText(
-        "<html>The .pep.xml extension will be added to this name.<br/>\nIf left empty will default to \"interact.pep.xml\"");
+    txtCombinedProtFile.setToolTipText("<html>The .pep.xml extension will be added to this name.<br/>\nIf left empty will default to \"interact.pep.xml\"");
 
     jLabel1.setText("Output File");
 
-    javax.swing.GroupLayout panelProteinProphetOptionsLayout = new javax.swing.GroupLayout(
-        panelProteinProphetOptions);
+    javax.swing.GroupLayout panelProteinProphetOptionsLayout = new javax.swing.GroupLayout(panelProteinProphetOptions);
     panelProteinProphetOptions.setLayout(panelProteinProphetOptionsLayout);
     panelProteinProphetOptionsLayout.setHorizontalGroup(
-        panelProteinProphetOptionsLayout
-            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
-                panelProteinProphetOptionsLayout.createSequentialGroup()
-                    .addGroup(panelProteinProphetOptionsLayout
-                        .createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
-                            .addGap(29, 29, 29)
-                            .addComponent(jLabel40)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jScrollPane4))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING,
-                            panelProteinProphetOptionsLayout.createSequentialGroup()
-                                .addContainerGap(318, Short.MAX_VALUE)
-                                .addComponent(chkProteinProphetInteractStar))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING,
-                            panelProteinProphetOptionsLayout.createSequentialGroup()
-                                .addGap(59, 59, 59)
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txtCombinedProtFile)))
-                    .addContainerGap())
+      panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelProteinProphetOptionsLayout.createSequentialGroup()
+        .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+          .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
+            .addGap(29, 29, 29)
+            .addComponent(jLabel40)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(jScrollPane4))
+          .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelProteinProphetOptionsLayout.createSequentialGroup()
+            .addContainerGap(318, Short.MAX_VALUE)
+            .addComponent(chkProteinProphetInteractStar))
+          .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelProteinProphetOptionsLayout.createSequentialGroup()
+            .addGap(59, 59, 59)
+            .addComponent(jLabel1)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(txtCombinedProtFile)))
+        .addContainerGap())
     );
     panelProteinProphetOptionsLayout.setVerticalGroup(
-        panelProteinProphetOptionsLayout
-            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
-                .addGroup(panelProteinProphetOptionsLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(txtCombinedProtFile, javax.swing.GroupLayout.PREFERRED_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelProteinProphetOptionsLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel40)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 128,
-                        javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(chkProteinProphetInteractStar)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+      panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
+        .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(jLabel1)
+          .addComponent(txtCombinedProtFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(jLabel40)
+          .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addComponent(chkProteinProphetInteractStar)
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
     btnProtProphDefaultsClosed.setText("Defaults Closed Search");
@@ -1881,41 +1726,34 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    javax.swing.GroupLayout panelProteinProphetLayout = new javax.swing.GroupLayout(
-        panelProteinProphet);
+    javax.swing.GroupLayout panelProteinProphetLayout = new javax.swing.GroupLayout(panelProteinProphet);
     panelProteinProphet.setLayout(panelProteinProphetLayout);
     panelProteinProphetLayout.setHorizontalGroup(
-        panelProteinProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelProteinProphetLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelProteinProphetLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panelProteinProphetOptions, javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(panelProteinProphetLayout.createSequentialGroup()
-                        .addComponent(chkRunProteinProphet)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-                            javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnProtProphDefaultsOpen)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnProtProphDefaultsClosed)))
-                .addContainerGap())
+      panelProteinProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelProteinProphetLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelProteinProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(panelProteinProphetOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addGroup(panelProteinProphetLayout.createSequentialGroup()
+            .addComponent(chkRunProteinProphet)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btnProtProphDefaultsOpen)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(btnProtProphDefaultsClosed)))
+        .addContainerGap())
     );
     panelProteinProphetLayout.setVerticalGroup(
-        panelProteinProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelProteinProphetLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelProteinProphetLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(chkRunProteinProphet)
-                    .addGroup(panelProteinProphetLayout
-                        .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnProtProphDefaultsClosed)
-                        .addComponent(btnProtProphDefaultsOpen)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(panelProteinProphetOptions, javax.swing.GroupLayout.PREFERRED_SIZE,
-                    206, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(449, Short.MAX_VALUE))
+      panelProteinProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelProteinProphetLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelProteinProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(chkRunProteinProphet)
+          .addGroup(panelProteinProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+            .addComponent(btnProtProphDefaultsClosed)
+            .addComponent(btnProtProphDefaultsOpen)))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addComponent(panelProteinProphetOptions, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap(449, Short.MAX_VALUE))
     );
 
     tabPane.addTab("ProteinProphet", panelProteinProphet);
@@ -1925,13 +1763,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     checkReportDbAnnotate.setSelected(true);
     checkReportDbAnnotate.setText("Database Annotation");
 
-    textReportAnnotate.setToolTipText(
-        "<html>philosopher database --annotate<br/>\nFlags:<br/>\n<ul>\n<li>--prefix string     define a decoy prefix (default \"rev_\")</li>\n</ul>");
+    textReportAnnotate.setToolTipText("<html>philosopher database --annotate<br/>\nFlags:<br/>\n<ul>\n<li>--prefix string     define a decoy prefix (default \"rev_\")</li>\n</ul>");
     textReportAnnotate.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusGained(java.awt.event.FocusEvent evt) {
         textReportAnnotateFocusGained(evt);
       }
-
       public void focusLost(java.awt.event.FocusEvent evt) {
         textReportAnnotateFocusLost(evt);
       }
@@ -1945,13 +1781,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    textReportFilter.setToolTipText(
-        "<html>--pepxml path-to-pepxml --protxml path-to-combined-protxml<br/>\nwill be added automatically based on previous tabs.<br/>\n\nStatistical filtering, validation and False Discovery Rates assessment<br/>\nphilosopher filter [flags]<br>\nFlags:<br/>\n<ul>\n<li>--ion float        peptide ion FDR level (default 0.01)</li>\n<li>--mapmods          map modifications aquired by an open search</li>\n<li>--models           print model distribution</li>\n<li>--pep float        peptide FDR level (default 0.01)</li>\n<li>--pepProb float    top peptide probability treshold for the FDR filtering (default 0.7)</li>\n<li>--pepxml string    pepXML file or directory containing a set of pepXML files</li>\n<li>--picked           apply the picked FDR algorithm before the protein scoring</li>\n<li>--prot float       protein FDR level (default 0.01)</li>\n<li>--protProb float   protein probability treshold for the FDR filtering (not used with the razor algorithm) (default 0.5)</li>\n<li>--protxml string   protXML file path</li>\n<li>--psm float        psm FDR level (default 0.01)</li>\n<li>--razor            use razor peptides for protein FDR scoring</li>\n<li>--sequential       alternative algorithm that estimates FDR using both filtered PSM and Protein lists</li>\n<li>--tag string       decoy tag (default \"rev_\")</li>\n<li>--weight float     threshold for defining peptide uniqueness (default 1)</li>\n</ul>");
+    textReportFilter.setToolTipText("<html>--pepxml path-to-pepxml --protxml path-to-combined-protxml<br/>\nwill be added automatically based on previous tabs.<br/>\n\nStatistical filtering, validation and False Discovery Rates assessment<br/>\nphilosopher filter [flags]<br>\nFlags:<br/>\n<ul>\n<li>--ion float        peptide ion FDR level (default 0.01)</li>\n<li>--mapmods          map modifications aquired by an open search</li>\n<li>--models           print model distribution</li>\n<li>--pep float        peptide FDR level (default 0.01)</li>\n<li>--pepProb float    top peptide probability treshold for the FDR filtering (default 0.7)</li>\n<li>--pepxml string    pepXML file or directory containing a set of pepXML files</li>\n<li>--picked           apply the picked FDR algorithm before the protein scoring</li>\n<li>--prot float       protein FDR level (default 0.01)</li>\n<li>--protProb float   protein probability treshold for the FDR filtering (not used with the razor algorithm) (default 0.5)</li>\n<li>--protxml string   protXML file path</li>\n<li>--psm float        psm FDR level (default 0.01)</li>\n<li>--razor            use razor peptides for protein FDR scoring</li>\n<li>--sequential       alternative algorithm that estimates FDR using both filtered PSM and Protein lists</li>\n<li>--tag string       decoy tag (default \"rev_\")</li>\n<li>--weight float     threshold for defining peptide uniqueness (default 1)</li>\n</ul>");
     textReportFilter.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusGained(java.awt.event.FocusEvent evt) {
         textReportFilterFocusGained(evt);
       }
-
       public void focusLost(java.awt.event.FocusEvent evt) {
         textReportFilterFocusLost(evt);
       }
@@ -1964,21 +1798,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     checkReportProteinLevelFdr.setSelected(true);
     checkReportProteinLevelFdr.setText("Report Protein level FDR");
-    checkReportProteinLevelFdr.setToolTipText(
-        "<html>Which FDR (False Discovery Rate) level to use:\n<ul>\n  <li>Checked - Protein level FDR</li>\n  <li>Unchecked - Peptide level FDR</li>\n</ul>");
+    checkReportProteinLevelFdr.setToolTipText("<html>Which FDR (False Discovery Rate) level to use:\n<ul>\n  <li>Checked - Protein level FDR</li>\n  <li>Unchecked - Peptide level FDR</li>\n</ul>");
     checkReportProteinLevelFdr.addChangeListener(new javax.swing.event.ChangeListener() {
       public void stateChanged(javax.swing.event.ChangeEvent evt) {
         checkReportProteinLevelFdrStateChanged(evt);
       }
     });
 
-    textReportLabelfree.setToolTipText(
-        "<html>Label free quantitation<br/>\nFlags:<br/>\n<ul>\n<li>--ptw float    specify the time windows for the peak (minute) (default 0.4)</li>\n<li>--tol float    m/z tolerance in ppm (default 10)</li>\n</ul>");
+    textReportLabelfree.setToolTipText("<html>Label free quantitation<br/>\nFlags:<br/>\n<ul>\n<li>--ptw float    specify the time windows for the peak (minute) (default 0.4)</li>\n<li>--tol float    m/z tolerance in ppm (default 10)</li>\n</ul>");
     textReportLabelfree.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusGained(java.awt.event.FocusEvent evt) {
         textReportLabelfreeFocusGained(evt);
       }
-
       public void focusLost(java.awt.event.FocusEvent evt) {
         textReportLabelfreeFocusLost(evt);
       }
@@ -1992,67 +1823,47 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     checkLabelfree.setText("Label-free Quant");
     checkLabelfree.setToolTipText("<html>Label free quantitation");
 
-    javax.swing.GroupLayout panelReportOptionsLayout = new javax.swing.GroupLayout(
-        panelReportOptions);
+    javax.swing.GroupLayout panelReportOptionsLayout = new javax.swing.GroupLayout(panelReportOptions);
     panelReportOptions.setLayout(panelReportOptionsLayout);
     panelReportOptionsLayout.setHorizontalGroup(
-        panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelReportOptionsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelReportOptionsLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelReportOptionsLayout.createSequentialGroup()
-                        .addGroup(panelReportOptionsLayout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(panelReportOptionsLayout
-                                .createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING,
-                                    false)
-                                .addComponent(checkReportFilter,
-                                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                                    javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(checkReportDbAnnotate,
-                                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                                    javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(checkLabelfree))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(panelReportOptionsLayout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(textReportAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE,
-                                552, Short.MAX_VALUE)
-                            .addComponent(textReportFilter)
-                            .addComponent(textReportLabelfree)))
-                    .addGroup(panelReportOptionsLayout.createSequentialGroup()
-                        .addComponent(checkReportProteinLevelFdr)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+      panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelReportOptionsLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addGroup(panelReportOptionsLayout.createSequentialGroup()
+            .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+              .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                .addComponent(checkReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(checkReportDbAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+              .addComponent(checkLabelfree))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+              .addComponent(textReportAnnotate, javax.swing.GroupLayout.DEFAULT_SIZE, 552, Short.MAX_VALUE)
+              .addComponent(textReportFilter)
+              .addComponent(textReportLabelfree)))
+          .addGroup(panelReportOptionsLayout.createSequentialGroup()
+            .addComponent(checkReportProteinLevelFdr)
+            .addGap(0, 0, Short.MAX_VALUE)))
+        .addContainerGap())
     );
     panelReportOptionsLayout.setVerticalGroup(
-        panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelReportOptionsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelReportOptionsLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(checkReportDbAnnotate)
-                    .addComponent(textReportAnnotate, javax.swing.GroupLayout.PREFERRED_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelReportOptionsLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(checkReportFilter)
-                    .addComponent(textReportFilter, javax.swing.GroupLayout.PREFERRED_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(4, 4, 4)
-                .addGroup(panelReportOptionsLayout
-                    .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textReportLabelfree, javax.swing.GroupLayout.PREFERRED_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(checkLabelfree))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(checkReportProteinLevelFdr)
-                .addContainerGap(8, Short.MAX_VALUE))
+      panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelReportOptionsLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(checkReportDbAnnotate)
+          .addComponent(textReportAnnotate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(checkReportFilter)
+          .addComponent(textReportFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addGap(4, 4, 4)
+        .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(textReportLabelfree, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(checkLabelfree))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addComponent(checkReportProteinLevelFdr)
+        .addContainerGap(8, Short.MAX_VALUE))
     );
 
     loadLastReportAnnotate();
@@ -2062,8 +1873,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     checkCreateReport.setSelected(true);
     checkCreateReport.setText("Create report");
-    checkCreateReport.setToolTipText(
-        "<html>Create tab separated report files with \nsome statistics about search results.");
+    checkCreateReport.setToolTipText("<html>Create tab separated report files with \nsome statistics about search results.");
     checkCreateReport.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         checkCreateReportActionPerformed(evt);
@@ -2098,59 +1908,51 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     javax.swing.GroupLayout panelSpecLibOptsLayout = new javax.swing.GroupLayout(panelSpecLibOpts);
     panelSpecLibOpts.setLayout(panelSpecLibOptsLayout);
     panelSpecLibOptsLayout.setHorizontalGroup(
-        panelSpecLibOptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelSpecLibOptsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(checkGenerateSpecLib)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+      panelSpecLibOptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelSpecLibOptsLayout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(checkGenerateSpecLib)
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
     panelSpecLibOptsLayout.setVerticalGroup(
-        panelSpecLibOptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelSpecLibOptsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(checkGenerateSpecLib)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+      panelSpecLibOptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelSpecLibOptsLayout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(checkGenerateSpecLib)
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
     javax.swing.GroupLayout panelReportLayout = new javax.swing.GroupLayout(panelReport);
     panelReport.setLayout(panelReportLayout);
     panelReportLayout.setHorizontalGroup(
-        panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelReportLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(
-                    panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(panelReportLayout.createSequentialGroup()
-                            .addComponent(checkCreateReport)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-                                javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnReportDefaultsOpen)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btnReportDefaultsClosed))
-                        .addComponent(panelReportOptions, javax.swing.GroupLayout.DEFAULT_SIZE,
-                            javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.DEFAULT_SIZE,
-                            javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+      panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelReportLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addGroup(panelReportLayout.createSequentialGroup()
+            .addComponent(checkCreateReport)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btnReportDefaultsOpen)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(btnReportDefaultsClosed))
+          .addComponent(panelReportOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        .addContainerGap())
     );
     panelReportLayout.setVerticalGroup(
-        panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelReportLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(
-                    panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(checkCreateReport)
-                        .addGroup(panelReportLayout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnReportDefaultsClosed)
-                            .addComponent(btnReportDefaultsOpen)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelReportOptions, javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(449, Short.MAX_VALUE))
+      panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelReportLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(checkCreateReport)
+          .addGroup(panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+            .addComponent(btnReportDefaultsClosed)
+            .addComponent(btnReportDefaultsOpen)))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(panelReportOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap(449, Short.MAX_VALUE))
     );
 
     tabPane.addTab("Report", null, panelReport, "");
@@ -2172,8 +1974,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     lblOutputDir.setText("Output dir");
-    lblOutputDir.setToolTipText(
-        "<html>All the output will be placed into this directory.<br/>\nSome of the tools might produce output side by side with<br/>\noriginal input files, and if you Stop processing prematurely,<br/>\nthose intermediate files might have not been moved/deleted yet.<br/>"); // NOI18N
+    lblOutputDir.setToolTipText("<html>All the output will be placed into this directory.<br/>\nSome of the tools might produce output side by side with<br/>\noriginal input files, and if you Stop processing prematurely,<br/>\nthose intermediate files might have not been moved/deleted yet.<br/>"); // NOI18N
 
     btnSelectWrkingDir.setText("Browse");
     btnSelectWrkingDir.addActionListener(new java.awt.event.ActionListener() {
@@ -2192,12 +1993,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     checkDryRun.setText("Dry Run");
-    checkDryRun.setToolTipText(
-        "<html>Only print the commands to execute, <br/>\nbut don't actually execute them.");
+    checkDryRun.setToolTipText("<html>Only print the commands to execute, <br/>\nbut don't actually execute them.");
 
     btnReportErrors.setText("Report Erorrs");
-    btnReportErrors.setToolTipText(
-        "<html>Submit an issue ticket to the bug tracker.<br/>\nPlease attach the following:\n<ol>\n<li>Run log. Use the button \"Export Log\", or copy paste the contents of the log <br/>\nto the ticket text using <b>inside triple tilde block, like this: ```{your-log-text-here}```</b></li>\n<li>fragger.params file. You can find it in the output directory you specified.</li>\n<li>Any other relevant details, like what you were trying to do, which database you used, etc</li>\n</ol>");
+    btnReportErrors.setToolTipText("<html>Submit an issue ticket to the bug tracker.<br/>\nPlease attach the following:\n<ol>\n<li>Run log. Use the button \"Export Log\", or copy paste the contents of the log <br/>\nto the ticket text using <b>inside triple tilde block, like this: ```{your-log-text-here}```</b></li>\n<li>fragger.params file. You can find it in the output directory you specified.</li>\n<li>Any other relevant details, like what you were trying to do, which database you used, etc</li>\n</ol>");
     btnReportErrors.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnReportErrorsActionPerformed(evt);
@@ -2213,8 +2012,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     btnExportLog.setText("Export Log");
-    btnExportLog.setToolTipText(
-        "<html>Save the content of the text console to a file.<br/>\nYou can also just copy-paste text from it.");
+    btnExportLog.setToolTipText("<html>Save the content of the text console to a file.<br/>\nYou can also just copy-paste text from it.");
     btnExportLog.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnExportLogActionPerformed(evt);
@@ -2230,8 +2028,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     btnPrintCommands.setText("Print Commands");
-    btnPrintCommands.setToolTipText(
-        "<html>This button has exactly the same effect as<br/>\nchecking 'Dry Run' checkbox and clicking 'Run'");
+    btnPrintCommands.setToolTipText("<html>This button has exactly the same effect as<br/>\nchecking 'Dry Run' checkbox and clicking 'Run'");
     btnPrintCommands.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnPrintCommandsActionPerformed(evt);
@@ -2241,109 +2038,76 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     javax.swing.GroupLayout panelRunLayout = new javax.swing.GroupLayout(panelRun);
     panelRun.setLayout(panelRunLayout);
     panelRunLayout.setHorizontalGroup(
-        panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRunLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(
-                    panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(consoleScrollPane)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
-                            panelRunLayout.createSequentialGroup()
-                                .addGroup(panelRunLayout
-                                    .createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(panelRunLayout.createSequentialGroup()
-                                        .addComponent(btnRun,
-                                            javax.swing.GroupLayout.PREFERRED_SIZE,
-                                            javax.swing.GroupLayout.DEFAULT_SIZE,
-                                            javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(
-                                            javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(btnStop)
-                                        .addPreferredGap(
-                                            javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(checkDryRun)
-                                        .addPreferredGap(
-                                            javax.swing.LayoutStyle.ComponentPlacement.RELATED, 108,
-                                            Short.MAX_VALUE)
-                                        .addComponent(btnPrintCommands)
-                                        .addPreferredGap(
-                                            javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(btnExportLog)
-                                        .addPreferredGap(
-                                            javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(btnReportErrors))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING,
-                                        panelRunLayout.createSequentialGroup()
-                                            .addComponent(lblOutputDir)
-                                            .addPreferredGap(
-                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(txtWorkingDir)
-                                            .addPreferredGap(
-                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(btnSelectWrkingDir)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(panelRunLayout
-                                    .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING,
-                                        false)
-                                    .addComponent(btnClearConsole,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnOpenInExplorer,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnAbout, javax.swing.GroupLayout.DEFAULT_SIZE,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap())
+      panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelRunLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(consoleScrollPane)
+          .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRunLayout.createSequentialGroup()
+            .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+              .addGroup(panelRunLayout.createSequentialGroup()
+                .addComponent(btnRun, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnStop)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(checkDryRun)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 108, Short.MAX_VALUE)
+                .addComponent(btnPrintCommands)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnExportLog)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnReportErrors))
+              .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelRunLayout.createSequentialGroup()
+                .addComponent(lblOutputDir)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtWorkingDir)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnSelectWrkingDir)))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+              .addComponent(btnClearConsole, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addComponent(btnOpenInExplorer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addComponent(btnAbout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+        .addContainerGap())
     );
     panelRunLayout.setVerticalGroup(
-        panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRunLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(btnAbout)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(
-                    panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lblOutputDir)
-                        .addComponent(btnSelectWrkingDir)
-                        .addComponent(txtWorkingDir, javax.swing.GroupLayout.PREFERRED_SIZE,
-                            javax.swing.GroupLayout.DEFAULT_SIZE,
-                            javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnOpenInExplorer))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(
-                    panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnStop)
-                        .addComponent(btnClearConsole)
-                        .addComponent(btnReportErrors)
-                        .addComponent(btnRun, javax.swing.GroupLayout.PREFERRED_SIZE,
-                            javax.swing.GroupLayout.DEFAULT_SIZE,
-                            javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnExportLog)
-                        .addComponent(checkDryRun)
-                        .addComponent(btnPrintCommands))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(consoleScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 586,
-                    Short.MAX_VALUE)
-                .addContainerGap())
+      panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelRunLayout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(btnAbout)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(lblOutputDir)
+          .addComponent(btnSelectWrkingDir)
+          .addComponent(txtWorkingDir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(btnOpenInExplorer))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(btnStop)
+          .addComponent(btnClearConsole)
+          .addComponent(btnReportErrors)
+          .addComponent(btnRun, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(btnExportLog)
+          .addComponent(checkDryRun)
+          .addComponent(btnPrintCommands))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addComponent(consoleScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
+        .addContainerGap())
     );
 
-    tabPane.addTab("<html><b>Run</b>", new javax.swing.ImageIcon(
-            getClass().getResource("/umich/msfragger/gui/icons/video-play-16.png")),
-        panelRun); // NOI18N
+    tabPane.addTab("<html><b>Run</b>", new javax.swing.ImageIcon(getClass().getResource("/umich/msfragger/gui/icons/video-play-16.png")), panelRun); // NOI18N
 
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
-        layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addComponent(tabPane, javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+      layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+        .addGap(0, 0, 0)
+        .addComponent(tabPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
     layout.setVerticalGroup(
-        layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabPane, javax.swing.GroupLayout.DEFAULT_SIZE,
-                javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+      layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addComponent(tabPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
     );
 
     tabPane.getAccessibleContext().setAccessibleName("FragPipe");
@@ -4185,7 +3949,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
 
-    pbDescs.sort(Comparator.comparing(pbDesc -> pbDesc.priority, (o1, o2) -> Integer.compare(o1, o2)));
+    pbDescs.sort(Comparator.comparing(pbDesc -> pbDesc.priority, Integer::compare));
     pbDescsToFill.addAll(pbDescs);
     return true;
   }
@@ -5883,6 +5647,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JPanel panelSelectedFiles;
   private javax.swing.JPanel panelSequenceDb;
   private javax.swing.JPanel panelSpecLibOpts;
+  private javax.swing.JScrollPane scrollPaneDownstream;
   private javax.swing.JScrollPane scrollPaneMsFragger;
   private javax.swing.JScrollPane scrollPaneRawFiles;
   private javax.swing.JSpinner spinnerCrystalcMassTol;
