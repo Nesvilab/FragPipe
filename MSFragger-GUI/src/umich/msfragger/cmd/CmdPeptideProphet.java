@@ -58,9 +58,8 @@ public class CmdPeptideProphet extends CmdBase {
     return m;
   }
 
-  public boolean configure(Component comp,
-      UsageTrigger usePhilosopher, String fastaPath,
-      String textPepProphCmd, Map<InputLcmsFile, Path> pepxmlFiles) {
+  public boolean configure(Component comp, UsageTrigger usePhilosopher,
+      String fastaPath, String textPepProphCmd, Map<InputLcmsFile, Path> pepxmlFiles) {
 
     PeptideProphetParams peptideProphetParams = new PeptideProphetParams();
     peptideProphetParams.setCmdLineParams(textPepProphCmd);

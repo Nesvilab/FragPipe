@@ -1,6 +1,7 @@
 package umich.msfragger.gui;
 
 import javax.swing.JPanel;
+import org.apache.commons.lang3.NotImplementedException;
 
 public class DownstreamAnalysisPanel extends JPanel {
 
@@ -9,6 +10,6 @@ public class DownstreamAnalysisPanel extends JPanel {
   }
 
   private void initMore() {
-    new JPanel()
+    throw new NotImplementedException("TODO"); // TODO: Not implemented
   }
 }

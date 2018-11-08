@@ -5,7 +5,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.UsageTrigger;
@@ -24,7 +28,8 @@ public class CmdReportDbAnnotate extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger binPhilosopher,
-      String textReportAnnotate, String dbPath) {
+      String textReportAnnotate, String dbPath,
+      Map<InputLcmsFile, Path> pepxmlFiles) {
 
     if (dbPath == null) {
       JOptionPane.showMessageDialog(comp, "Fasta file path can't be empty (Report)",
@@ -32,19 +37,25 @@ public class CmdReportDbAnnotate extends CmdBase {
       return false;
     }
 
-    List<String> cmd = new ArrayList<>();
-    cmd.add(binPhilosopher.useBin(wd));
-    cmd.add(PhilosopherProps.CMD_DATABASE);
-    cmd.add("--annotate");
+    Set<Path> pepxmlDirs = pepxmlFiles.values().stream().map(p -> p.getParent())
+        .collect(Collectors.toSet());
 
-    cmd.add(dbPath);
-    if (!StringUtils.isNullOrWhitespace(textReportAnnotate)) {
-      String[] params = textReportAnnotate.split("[\\s]+");
-      cmd.addAll(Arrays.asList(params));
+    for (Path pepxmlDir : pepxmlDirs) {
+      List<String> cmd = new ArrayList<>();
+      cmd.add(binPhilosopher.useBin(pepxmlDir));
+      cmd.add(PhilosopherProps.CMD_DATABASE);
+      cmd.add("--annotate");
+      cmd.add(dbPath);
+      if (!StringUtils.isNullOrWhitespace(textReportAnnotate)) {
+        String[] params = textReportAnnotate.split("[\\s]+");
+        cmd.addAll(Arrays.asList(params));
+      }
+      ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.directory(pepxmlDir.toFile());
+      pbs.add(pb);
     }
-    ProcessBuilder pb = new ProcessBuilder(cmd);
-    pb.directory(wd.toFile());
-    pbs.add(pb);
+
+
 
     isConfigured = true;
     return true;

@@ -3527,7 +3527,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     final boolean isProcessGroupsSeparately = checkProcessGroupsSeparately.isSelected();
     final String binPhilosopher = textBinPhilosopher.getText().trim();
-    final UsageTrigger isPhilosopherUsed = new UsageTrigger(binPhilosopher, "Philosopher");
     final List<ProcessBuilderDescriptor> pbDescsToFill = new ArrayList<>();
 
     // main call to generate all the process builders
@@ -3880,7 +3879,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       final CmdReportDbAnnotate cmdReportDbAnnotate = new CmdReportDbAnnotate(isDbAnnotate, wd);
       if (cmdReportDbAnnotate.isRun()) {
         if (!cmdReportDbAnnotate.configure(this, usePhilosopher,
-            textReportAnnotate.getText().trim(), fastaFile)) {
+            textReportAnnotate.getText().trim(), fastaFile, pepxmlFiles)) {
           return false;
         }
         pbDescs.add(cmdReportDbAnnotate.builders());
