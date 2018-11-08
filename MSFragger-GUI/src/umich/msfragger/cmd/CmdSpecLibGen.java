@@ -36,6 +36,8 @@ public class CmdSpecLibGen extends CmdBase {
       return false;
     }
 
+    
+
     for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
       final LcmsFileGroup group = e.getKey();
       final Path protxml = e.getValue();
@@ -50,6 +52,10 @@ public class CmdSpecLibGen extends CmdBase {
             "Spec Lib Gen configuration Error", JOptionPane.ERROR_MESSAGE);
         return false;
       }
+
+      // for current implementation of speclibgen scripts mzml files need to be
+      // located next to pepxml files
+
 
       List<String> cmd = new ArrayList<>();
       cmd.add(slg.getPi().getCommand());

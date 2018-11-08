@@ -123,6 +123,9 @@ import umich.msfragger.cmd.CmdPeptideProphet;
 import umich.msfragger.cmd.CmdPhilosopherWorkspaceCleanInit;
 import umich.msfragger.cmd.CmdProteinProphet;
 import umich.msfragger.cmd.CmdReportDbAnnotate;
+import umich.msfragger.cmd.CmdReportFilter;
+import umich.msfragger.cmd.CmdReportFreequant;
+import umich.msfragger.cmd.CmdReportReport;
 import umich.msfragger.cmd.CmdSpecLibGen;
 import umich.msfragger.cmd.CmdUmpireSe;
 import umich.msfragger.cmd.ProcessBuilderDescriptor;
@@ -3917,9 +3920,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     }
 
-    // run Report - DbAnnotate
     final boolean isReport = isEnabledAndChecked(checkCreateReport);
     if (isReport) {
+      // run Report - DbAnnotate
       final boolean isDbAnnotate = isEnabledAndChecked(checkReportDbAnnotate);
       final CmdReportDbAnnotate cmdReportDbAnnotate = new CmdReportDbAnnotate(isDbAnnotate, wd);
       if (cmdReportDbAnnotate.isRun()) {
@@ -3929,13 +3932,43 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
         pbDescs.add(cmdReportDbAnnotate.builders());
       }
-    }
 
+      // run Report - Filter
+      final boolean isFilter = isEnabledAndChecked(checkReportFilter);
+      final CmdReportFilter cmdReportFilter = new CmdReportFilter(isFilter, wd);
+      if (cmdReportFilter.isRun()) {
+        final  boolean isReportProtLevelFdr = isEnabledAndChecked(checkReportProteinLevelFdr);
+        if (!cmdReportFilter.configure(this, usePhi,
+            isReportProtLevelFdr, textReportFilter.getText(), mapGroupsToProtxml)) {
+          return false;
+        }
+        pbDescs.add(cmdReportFilter.builders());
+      }
+
+      // run Report - Freequant (Labelfree)
+      final boolean isFreequant = isEnabledAndChecked(checkLabelfree);
+      final CmdReportFreequant cmdReportFreequant = new CmdReportFreequant(isFreequant, wd);
+      if (cmdReportFreequant.isRun()) {
+        if (!cmdReportFreequant.configure(this, usePhi,
+            textReportLabelfree.getText(), mapGroupsToProtxml)) {
+          return false;
+        }
+        pbDescs.add(cmdReportFreequant.builders());
+      }
+
+      // run Report - Report command itself
+      final CmdReportReport cmdReportReport = new CmdReportReport(isReport, wd);
+      if (cmdReportReport.isRun()) {
+        if (!cmdReportReport.configure(this, usePhi, mapGroupsToProtxml)) {
+          return false;
+        }
+        pbDescs.add(cmdReportReport.builders());
+      }
+    }
 
     // run Spectral library generation
     final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(isEnabledAndChecked(checkGenerateSpecLib), wd);
-    if (cmdSpecLibGen.isRun())
-    {
+    if (cmdSpecLibGen.isRun()) {
       if (!cmdSpecLibGen.configure(this, usePhi,
           mapGroupsToProtxml, fastaFile, isRunProteinProphet)) {
         return false;
@@ -3943,6 +3976,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       pbDescs.add(cmdSpecLibGen.builders());
     }
 
+
+    // run Philosopher clean/init in all directories where Philosopher will be invoked
     for (Path pathPhiIsRunIn : usePhi.getWorkDirs()) {
       CmdPhilosopherWorkspaceCleanInit cmdPhiCleanInit = new CmdPhilosopherWorkspaceCleanInit(
           true, pathPhiIsRunIn);

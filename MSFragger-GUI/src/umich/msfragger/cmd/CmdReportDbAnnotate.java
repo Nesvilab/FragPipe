@@ -59,8 +59,6 @@ public class CmdReportDbAnnotate extends CmdBase {
       pbs.add(pb);
     }
 
-
-
     isConfigured = true;
     return true;
   }
