@@ -154,7 +154,7 @@ public class UmpirePanel extends JPanel {
     pFrag.add(checkAdjustFragIntensity);
 
 
-    // Panel - fragment grouping options
+    // Panel - Signal Extraction Parameters
     pSe = new JPanel(new MigLayout(lc));
     pSe.setBorder(new TitledBorder("Signal Extraction Parameters"));
     List<FormEntry> feSe = new ArrayList<>();
@@ -347,10 +347,26 @@ public class UmpirePanel extends JPanel {
   /** Use {@link SwingUtils#getStrVal} to get string values from most common Java Swing GUI elements. */
   public UmpireParams collect() {
 
+    UmpireParams params = new UmpireParams();
+
+    // load defaults either from user specified config file
+    try {
+      final String confFile = getDefaultConfigFile();
+      if (!StringUtils.isNullOrWhitespace(confFile)) {
+        try (InputStream is = Files.newInputStream(Paths.get(confFile))) {
+          params.load(is);
+        }
+      } else {
+        // OR load defaults either from the defaults in the jar
+        params.loadDefault();
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+
     // The map contains all named params with their corresponding UI elements.
     Map<String, Component> map = SwingUtils.mapComponentsByName(this, true);
 
-    UmpireParams params = new UmpireParams();
     for (String paramName : paramNames) {
       Component component = map.get(paramName);
       if (component != null) {
@@ -360,6 +376,7 @@ public class UmpirePanel extends JPanel {
         params.getProps().setProperty(paramName, strVal);
       }
     }
+
     return params;
   }
 
