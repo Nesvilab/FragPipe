@@ -9,6 +9,6 @@ public class DownstreamAnalysisPanel extends JPanel {
   }
 
   private void initMore() {
-
+    new JPanel()
   }
 }

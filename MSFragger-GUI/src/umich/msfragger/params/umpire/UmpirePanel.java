@@ -371,8 +371,14 @@ public class UmpirePanel extends JPanel {
       Component component = map.get(paramName);
       if (component != null) {
         String strVal = SwingUtils.getStrVal(component);
-        if (PROP_Thread.equals(paramName) && "0".equals(strVal))
-          continue;
+
+        // special treatment for some params
+        if (PROP_Thread.equals(paramName)) {
+          if (Double.parseDouble(strVal) == 0) {
+            continue;
+          }
+          strVal = new DecimalFormat("0").format(strVal);
+        }
         params.getProps().setProperty(paramName, strVal);
       }
     }
