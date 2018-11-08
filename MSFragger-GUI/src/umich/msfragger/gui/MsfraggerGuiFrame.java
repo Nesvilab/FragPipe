@@ -3969,7 +3969,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     // run Spectral library generation
     final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(isEnabledAndChecked(checkGenerateSpecLib), wd);
     if (cmdSpecLibGen.isRun()) {
-      if (!cmdSpecLibGen.configure(this, usePhi,
+      if (!cmdSpecLibGen.configure(this, usePhi, jarFragpipe,
           mapGroupsToProtxml, fastaFile, isRunProteinProphet)) {
         return false;
       }

@@ -58,27 +58,25 @@ public class ToolingUtils {
   }
 
   /**
-   * @param jarUri Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
+   * @param jarFragpipe Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
    */
-  public static List<ProcessBuilder> pbsCopyFiles(URI jarUri, Path destination,
-      List<Path> files) {
-    if (jarUri == null) {
-      throw new IllegalArgumentException("JAR URI must ne non null");
+  public static List<ProcessBuilder> pbsCopyFiles(Path jarFragpipe, Path dest, List<Path> files) {
+    if (jarFragpipe == null) {
+      throw new IllegalArgumentException("jar can't be null");
     }
-    List<ProcessBuilder> pbs = new LinkedList<>();
-    String jarPath = Paths.get(jarUri).toAbsolutePath().toString();
 
+    List<ProcessBuilder> pbs = new LinkedList<>();
     for (Path file : files) {
-      if (destination.equals(file.getParent())) {
+      if (dest.equals(file.getParent())) {
         continue;
       }
       List<String> cmd = new ArrayList<>();
       cmd.add("java");
       cmd.add("-cp");
-      cmd.add(jarPath);
+      cmd.add(jarFragpipe.toAbsolutePath().toString());
       cmd.add(FileMove.class.getCanonicalName());
       cmd.add(file.toAbsolutePath().normalize().toString());
-      cmd.add(destination.resolve(file.getFileName()).toString());
+      cmd.add(dest.resolve(file.getFileName()).toString());
       pbs.add(new ProcessBuilder(cmd));
     }
     return pbs;
