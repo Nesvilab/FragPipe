@@ -3693,9 +3693,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         final ProcessResult pr = new ProcessResult(pb);
         processResults[index] = pr;
 
-        Path wd = Paths.get(workingDir);
-        pb.directory(wd.toFile());
-        pr.setWorkingDir(wd);
+        if (pb.directory() == null) {
+          pb.directory(wdPath.toFile());
+        }
+        pr.setWorkingDir(pb.directory().toPath());
 
         final Color green = new Color(105, 193, 38);
         final Color greenDarker = new Color(104, 184, 55);
@@ -3733,6 +3734,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           Process process = null;
           try {
 
+            final String workDirToPrint = pb.directory() == null ? "N/A" : pb.directory().toString();
+            LogUtils.println(console, "Working dir: " + pb.directory().toString());
             LogUtils.println(console, "Executing command:\n$> " + command.toString());
             process = pb.start();
             pr.setStarted(true);
@@ -4077,6 +4080,23 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       pbDescs.add(cmdPhiCleanInit.builders());
     }
 
+    // make sure that all subfolders are created for groups/experiments
+    if (!isDryRun) {
+      List<Path> paths = Stream
+          .concat(pepxmlFiles.values().stream(), mapGroupsToProtxml.values().stream())
+          .map(Path::getParent).collect(Collectors.toList());
+      try {
+        for (Path path : paths) {
+          if (!Files.exists(path)) {
+            Files.createDirectories(path);
+          }
+        }
+      } catch (IOException e) {
+        JOptionPane.showMessageDialog(this,
+            "Not all directories could be created:\n" + e.getMessage());
+        return false;
+      }
+    }
 
     pbDescs.sort(Comparator.comparing(pbDesc -> pbDesc.priority, Integer::compare));
     pbDescsToFill.addAll(pbDescs);
@@ -4510,6 +4530,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         updateDecoyTagPepProphCmd(selectedPrefix, false);
         updateDecoyTagReportAnnotate(selectedPrefix, false);
         updateDecoyTagReportFilter(selectedPrefix, false);
+        updateDecoyTagReportAbacus(selectedPrefix, false);
       }
 
     } catch (IOException ex) {
