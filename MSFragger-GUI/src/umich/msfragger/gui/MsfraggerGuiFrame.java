@@ -111,7 +111,6 @@ import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -703,7 +702,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     jScrollPane5 = new javax.swing.JScrollPane();
     editorSequenceDb = new javax.swing.JEditorPane();
     scrollPaneMsFragger = new javax.swing.JScrollPane();
-    scrollPaneDownstream = new javax.swing.JScrollPane();
     panelCrystalc = new javax.swing.JPanel();
     btnCrystalcDefaults = new javax.swing.JButton();
     chkRunCrystalc = new javax.swing.JCheckBox();
@@ -1441,7 +1439,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     tabPane.addTab("Sequence DB", panelSequenceDb);
     tabPane.addTab("MSFragger", new javax.swing.ImageIcon(getClass().getResource("/umich/msfragger/gui/icons/bolt-16.png")), scrollPaneMsFragger, "MSFragger search engine"); // NOI18N
-    tabPane.addTab("Downstream Analysis", scrollPaneDownstream);
 
     btnCrystalcDefaults.setText("Load Defaults");
     btnCrystalcDefaults.addActionListener(new java.awt.event.ActionListener() {
@@ -5647,7 +5644,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JPanel panelSelectedFiles;
   private javax.swing.JPanel panelSequenceDb;
   private javax.swing.JPanel panelSpecLibOpts;
-  private javax.swing.JScrollPane scrollPaneDownstream;
   private javax.swing.JScrollPane scrollPaneMsFragger;
   private javax.swing.JScrollPane scrollPaneRawFiles;
   private javax.swing.JSpinner spinnerCrystalcMassTol;
