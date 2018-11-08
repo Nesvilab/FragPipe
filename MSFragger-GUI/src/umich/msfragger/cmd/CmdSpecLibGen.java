@@ -13,6 +13,7 @@ import jdk.nashorn.internal.scripts.JO;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.speclib.SpecLibGen;
+import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.UsageTrigger;
 
 public class CmdSpecLibGen extends CmdBase {
@@ -41,14 +42,14 @@ public class CmdSpecLibGen extends CmdBase {
 
     if (mapGroupsToProtxml.size() > 1) {
       int res = JOptionPane.showConfirmDialog(comp,
-          "You have more than 1 experiment/group and spectral\n"
-              + "library generation is turned on. In that case a separate\n"
-              + "spectral library is created for each group.\n\n"
-              + "If that's really what you intend to do, select Yes.\n\n"
-              + "If you want a single spectral library generated from ALL\n"
-              + "input files, select No and change the configuration of input\n"
-              + "LCMS files to all be in one experiment (e.g. press the "
-              + "Clear Experiments button on the LCMS tab)",
+          "<html>You have more than 1 experiment/group and spectral<br/>"
+              + "library generation is turned on. In that case a separate<br/>"
+              + "spectral library is created for each group.<br/><br/>"
+              + "<b>Select Yes</b> to continue.<br/><br/>"
+              + "<b>Select No</b> if you want a single spectral library generated<br/>"
+              + "from ALL input files.<br/>"
+              + "Change Experiment/Group configuration on LCMS files tab.<br/>"
+              + "E.g. press the <i>Clear Experiments</i> button there.",
           "SpecLibGen config warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
       if (JOptionPane.YES_OPTION != res) {
         return false;
@@ -75,6 +76,7 @@ public class CmdSpecLibGen extends CmdBase {
       for (InputLcmsFile lcms : group.lcmsFiles) {
         if (!groupWd.equals(lcms.path.getParent())) {
           final Path copy = groupWd.resolve(lcms.path.getFileName());
+          final boolean isWindows = OsUtils.isWindows();
           if (!Files.exists(copy)) {
             // Directory of LCMS file is different from pepxml file
             // and the file does not yet exist.

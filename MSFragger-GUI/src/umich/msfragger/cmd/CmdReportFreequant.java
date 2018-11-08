@@ -10,7 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
-import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.util.UsageTrigger;

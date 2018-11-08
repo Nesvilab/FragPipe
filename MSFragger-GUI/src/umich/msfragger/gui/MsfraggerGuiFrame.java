@@ -3507,28 +3507,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
 
-    // check that all input files are in the same folder for Labelfree quant
-    if (checkLabelfree.isSelected() && lcmsFilesAll.size() > 1) {
-      try {
-        List<Path> inputLcmsLocations = lcmsFileGroups.values().stream()
-            .flatMap(group -> group.lcmsFiles.stream())
-            .map(lcms -> lcms.path.getParent()).distinct()
-            .collect(Collectors.toList());
-        if (inputLcmsLocations.size() > 1) {
-          JOptionPane.showMessageDialog(this, "Not all input raw files are in the same folder.\n"
-                  + "Label free quant requires all files to be in the same directory :/",
-              "Errors", JOptionPane.ERROR_MESSAGE);
-          resetRunButtons(true);
-          return;
-        }
-      } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error validating raw file paths for quant",
-            "Errors", JOptionPane.ERROR_MESSAGE);
-        resetRunButtons(true);
-        return;
-      }
-    }
-
     final boolean isProcessGroupsSeparately = checkProcessGroupsSeparately.isSelected();
     final String binPhilosopher = textBinPhilosopher.getText().trim();
     final List<ProcessBuilderDescriptor> pbDescsToFill = new ArrayList<>();
