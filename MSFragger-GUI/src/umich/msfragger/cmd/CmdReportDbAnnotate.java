@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.JOptionPane;
 import umich.msfragger.gui.InputLcmsFile;
+import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.UsageTrigger;
@@ -29,7 +31,7 @@ public class CmdReportDbAnnotate extends CmdBase {
 
   public boolean configure(Component comp, UsageTrigger binPhilosopher,
       String textReportAnnotate, String dbPath,
-      Map<InputLcmsFile, Path> pepxmlFiles) {
+      Map<InputLcmsFile, Path> pepxmlFiles, Map<LcmsFileGroup, Path> protxmlFiles) {
 
     if (dbPath == null) {
       JOptionPane.showMessageDialog(comp, "Fasta file path can't be empty (Report)",
@@ -37,10 +39,12 @@ public class CmdReportDbAnnotate extends CmdBase {
       return false;
     }
 
-    Set<Path> pepxmlDirs = pepxmlFiles.values().stream().map(p -> p.getParent())
+    Set<Path> pepProtDirs = Stream
+        .concat(pepxmlFiles.values().stream(), protxmlFiles.values().stream())
+        .map(Path::getParent)
         .collect(Collectors.toSet());
 
-    for (Path pepxmlDir : pepxmlDirs) {
+    for (Path pepxmlDir : pepProtDirs) {
       List<String> cmd = new ArrayList<>();
       cmd.add(binPhilosopher.useBin(pepxmlDir));
       cmd.add(PhilosopherProps.CMD_DATABASE);
@@ -59,5 +63,10 @@ public class CmdReportDbAnnotate extends CmdBase {
 
     isConfigured = true;
     return true;
+  }
+
+  @Override
+  public int getPriority() {
+    return 90;
   }
 }

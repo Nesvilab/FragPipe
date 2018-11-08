@@ -194,4 +194,9 @@ public class CmdUmpireSe extends CmdBase {
     }
     return mgfs;
   }
+
+  @Override
+  public int getPriority() {
+    return 30;
+  }
 }

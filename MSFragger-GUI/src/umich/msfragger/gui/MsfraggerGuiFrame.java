@@ -3872,22 +3872,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       pepxmlFiles = cmdCrystalc.outputs(pepxmlFiles, fp.getOutputFileExt());
     }
 
-
-    // run Report - DbAnnotate
-    final boolean isReport = isEnabledAndChecked(checkCreateReport);
-    if (isReport) {
-      final boolean isDbAnnotate = isEnabledAndChecked(checkReportDbAnnotate);
-      final CmdReportDbAnnotate cmdReportDbAnnotate = new CmdReportDbAnnotate(isDbAnnotate, wd);
-      if (cmdReportDbAnnotate.isRun()) {
-        if (!cmdReportDbAnnotate.configure(this, usePhi,
-            textReportAnnotate.getText().trim(), fastaFile, pepxmlFiles)) {
-          return false;
-        }
-        pbDescs.add(cmdReportDbAnnotate.builders());
-      }
-    }
-
-
     // run Peptide Prophet
     CmdPeptideProphet cmdPeptideProphet = new CmdPeptideProphet(
         chkRunPeptideProphet.isEnabled() && chkRunPeptideProphet.isSelected(), wd);
@@ -3932,6 +3916,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
       }
     }
+
+    // run Report - DbAnnotate
+    final boolean isReport = isEnabledAndChecked(checkCreateReport);
+    if (isReport) {
+      final boolean isDbAnnotate = isEnabledAndChecked(checkReportDbAnnotate);
+      final CmdReportDbAnnotate cmdReportDbAnnotate = new CmdReportDbAnnotate(isDbAnnotate, wd);
+      if (cmdReportDbAnnotate.isRun()) {
+        if (!cmdReportDbAnnotate.configure(this, usePhi,
+            textReportAnnotate.getText().trim(), fastaFile, pepxmlFiles, mapGroupsToProtxml)) {
+          return false;
+        }
+        pbDescs.add(cmdReportDbAnnotate.builders());
+      }
+    }
+
 
     // run Spectral library generation
     final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(isEnabledAndChecked(checkGenerateSpecLib), wd);
