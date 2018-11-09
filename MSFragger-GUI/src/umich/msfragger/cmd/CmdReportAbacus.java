@@ -70,7 +70,7 @@ public class CmdReportAbacus extends CmdBase {
 
       // list locations with pepxml files
       for (Path pepxmlDir : foldersWithPepxmls) {
-        cmd.add(pepxmlDir.toString());
+        cmd.add(pepxmlDir.getFileName().toString());
       }
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
