@@ -1754,6 +1754,9 @@
                       <Connection component="checkReportAbacus" name="toolTipText" type="property"/>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportAbacusFocusLost"/>
+                  </Events>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastAbacus();"/>
                   </AuxValues>

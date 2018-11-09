@@ -1833,6 +1833,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     textReportAbacus.setToolTipText(checkReportAbacus.getToolTipText());
+    textReportAbacus.addFocusListener(new java.awt.event.FocusAdapter() {
+      public void focusLost(java.awt.event.FocusEvent evt) {
+        textReportAbacusFocusLost(evt);
+      }
+    });
 
     javax.swing.GroupLayout panelReportOptionsLayout = new javax.swing.GroupLayout(panelReportOptions);
     panelReportOptions.setLayout(panelReportOptionsLayout);
@@ -4887,6 +4892,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void checkReportAbacusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkReportAbacusActionPerformed
     ThisAppProps.save(checkReportAbacus, ThisAppProps.PROP_CHECKBOX_REPORT_ABACUS);
   }//GEN-LAST:event_checkReportAbacusActionPerformed
+
+  private void textReportAbacusFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textReportAbacusFocusLost
+    ThisAppProps.save(textReportAbacus, ThisAppProps.PROP_TEXTFIELD_REPORT_ABACUS);
+  }//GEN-LAST:event_textReportAbacusFocusLost
 
 
   //region Load-Last methods
