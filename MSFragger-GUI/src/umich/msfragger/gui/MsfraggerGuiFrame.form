@@ -1738,10 +1738,15 @@
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="checkReportAbacus">
                   <Properties>
-                    <Property name="selected" type="boolean" value="true"/>
+                    <Property name="selected" type="boolean" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="loadLastCheckboxAbacus()" type="code"/>
+                    </Property>
                     <Property name="text" type="java.lang.String" value="Multi-Experiment Report "/>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Philosopher abacus command"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkReportAbacusActionPerformed"/>
+                  </Events>
                 </Component>
                 <Component class="javax.swing.JTextField" name="textReportAbacus">
                   <Properties>

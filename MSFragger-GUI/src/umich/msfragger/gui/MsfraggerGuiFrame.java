@@ -1823,9 +1823,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    checkReportAbacus.setSelected(true);
+    checkReportAbacus.setSelected(loadLastCheckboxAbacus());
     checkReportAbacus.setText("Multi-Experiment Report ");
     checkReportAbacus.setToolTipText("<html>Philosopher abacus command");
+    checkReportAbacus.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        checkReportAbacusActionPerformed(evt);
+      }
+    });
 
     textReportAbacus.setToolTipText(checkReportAbacus.getToolTipText());
 
@@ -4879,6 +4884,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     btnRunActionPerformed(evt);
   }//GEN-LAST:event_btnPrintCommandsActionPerformed
 
+  private void checkReportAbacusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkReportAbacusActionPerformed
+    ThisAppProps.save(checkReportAbacus, ThisAppProps.PROP_CHECKBOX_REPORT_ABACUS);
+  }//GEN-LAST:event_checkReportAbacusActionPerformed
+
 
   //region Load-Last methods
   public void loadLastPeptideProphet() {
@@ -4911,6 +4920,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     } else {
       loadDefaultDecoyTag();
     }
+  }
+
+  private boolean loadLastCheckboxAbacus() {
+    final String checked = ThisAppProps.load(ThisAppProps.PROP_CHECKBOX_REPORT_ABACUS);
+    try {
+      return Boolean.valueOf(checked);
+    } catch (Exception ignored) {
+    }
+    return false;
   }
 
   private boolean loadLastProcessGroupsSeparately() {
