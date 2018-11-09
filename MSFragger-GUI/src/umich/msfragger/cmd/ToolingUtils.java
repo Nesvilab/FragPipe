@@ -104,7 +104,9 @@ public class ToolingUtils {
       cmd.add(file.toAbsolutePath().normalize().toString());
       cmd.add(dest.resolve(file.getFileName()).toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);
-      pb.directory(Files.isDirectory(file) ? file.toFile() : file.getParent().toFile());
+      if (Files.exists(file)) {
+        pb.directory(Files.isDirectory(file) ? file.toFile() : file.getParent().toFile());
+      }
       pbs.add(pb);
     }
     return pbs;

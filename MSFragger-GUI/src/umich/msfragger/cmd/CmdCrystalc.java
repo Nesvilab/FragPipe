@@ -129,19 +129,20 @@ public class CmdCrystalc extends CmdBase {
       final String lcmsFn = lcms.path.getFileName().toString();
       final Path pepxml = kv.getValue();
       final String pepxmlFn = pepxml.getFileName().toString();
+      final Path outDir = lcms.outputDir(wd);
 
-      CrystalcParams p;
+      CrystalcParams ccp;
       Path ccParamsPath = lcms.outputDir(wd).resolve(ccParamsFilePrefix + "-" + (++index) + "-" + pepxmlFn + ccParamsFileSuffix);
       try {
-        p = ccParams;
+        ccp = ccParams;
         String ext = StringUtils.afterLastDot(lcmsFn);
-        p.setRawDirectory(lcms.path.getParent().toString());
-        p.setRawFileExt(ext);
-        p.setOutputFolder(lcms.outputDir(wd).toString());
-        p.setFasta(fastaPath);
+        ccp.setRawDirectory(lcms.path.getParent().toString());
+        ccp.setRawFileExt(ext);
+        ccp.setOutputFolder(outDir.toString());
+        ccp.setFasta(fastaPath);
         if (!isDryRun) {
           Files.deleteIfExists(ccParamsPath);
-          p.save(Files.newOutputStream(ccParamsPath, StandardOpenOption.CREATE));
+          ccp.save(Files.newOutputStream(ccParamsPath, StandardOpenOption.CREATE));
         }
       } catch (IOException e) {
         JOptionPane.showMessageDialog(comp,
@@ -164,8 +165,9 @@ public class CmdCrystalc extends CmdBase {
       cmd.add(CrystalcProps.JAR_CRYSTALC_MAIN_CLASS);
       cmd.add(ccParamsPath.toString());
       cmd.add(pepxml.toString());
-
-      pbs.add(new ProcessBuilder(cmd));
+      ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.directory(outDir.toFile());
+      pbs.add(pb);
     }
 
     isConfigured = true;

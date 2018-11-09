@@ -12,14 +12,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
-import org.apache.commons.lang3.NotImplementedException;
 import umich.msfragger.exceptions.FileWritingException;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.umpire.UmpirePanel;
 import umich.msfragger.params.umpire.UmpireParams;
 import umich.msfragger.params.umpire.UmpireSeGarbageFiles;
-import umich.msfragger.util.FileMove;
 import umich.msfragger.util.JarUtils;
 import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PropertiesUtils;
@@ -142,8 +140,7 @@ public class CmdUmpireSe extends CmdBase {
         // need to move output and cleanup
         List<Path> garbage = UmpireSeGarbageFiles.getGarbageFiles(f.path);
         // TODO: verify this actually moves all the garbage files. Use files at: C:\data\dia\40-50-minutes
-        List<ProcessBuilder> pbsMove = ToolingUtils
-            .pbsMoveFiles(jarFragpipe, destDir, garbage);
+        List<ProcessBuilder> pbsMove = ToolingUtils.pbsMoveFiles(jarFragpipe, destDir, garbage);
         pbs.addAll(pbsMove);
       }
 

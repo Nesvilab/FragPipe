@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -168,28 +169,17 @@ public class CmdMsfragger extends CmdBase {
         fileIndex++;
       }
 
-      pbs.add(new ProcessBuilder(cmd));
+      ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.directory(wd.toFile());
+      pbs.add(pb);
       sb.setLength(0);
 
       // move the files if the output directory is not the same as where
       // the lcms files were
+
       for (InputLcmsFile f : addedLcmsFiles) {
-        ArrayList<String> cmdMove = new ArrayList<>();
-        cmdMove.add("java");
-        cmdMove.add("-cp");
-        cmdMove.add(jarFragpipe.toString());
-        cmdMove.add(FileMove.class.getCanonicalName());
-        String pepxmlFn = getPepxmlFn(f, fp.getOutputFileExt());
-        Path origin = f.path.getParent().resolve(pepxmlFn);
-        Path destination = f.outputDir(wd).resolve(pepxmlFn);
-        if (origin.equals(destination)) {
-          continue;
-        }
-        cmdMove.add(origin.toString());
-        cmdMove.add(destination.toString());
-        ProcessBuilder pbFileMove = new ProcessBuilder(cmdMove);
-        pbFileMove.directory(destination.toFile());
-        pbs.add(pbFileMove);
+        pbs.addAll(ToolingUtils
+            .pbsMoveFiles(jarFragpipe, f.outputDir(wd), Collections.singletonList(f.path)));
       }
     }
 
