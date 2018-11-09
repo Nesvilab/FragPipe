@@ -34,6 +34,7 @@ import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.speclib.SpecLibGen;
+import umich.msfragger.util.FileCopy;
 import umich.msfragger.util.FileMove;
 import umich.msfragger.util.Holder;
 import umich.msfragger.util.OsUtils;
@@ -74,7 +75,7 @@ public class ToolingUtils {
       cmd.add("java");
       cmd.add("-cp");
       cmd.add(jarFragpipe.toAbsolutePath().toString());
-      cmd.add(FileMove.class.getCanonicalName());
+      cmd.add(FileCopy.class.getCanonicalName());
       cmd.add(file.toAbsolutePath().normalize().toString());
       cmd.add(dest.resolve(file.getFileName()).toString());
       pbs.add(new ProcessBuilder(cmd));
