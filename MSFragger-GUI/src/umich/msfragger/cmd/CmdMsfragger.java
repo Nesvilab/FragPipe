@@ -126,8 +126,8 @@ public class CmdMsfragger extends CmdBase {
     StringBuilder sb = new StringBuilder();
 
     while (fileIndex < lcmsFiles.size()) {
-      int fileIndexLo = fileIndex;
       ArrayList<String> cmd = new ArrayList<>();
+
       if (isSlicing) {
         cmd.add(PythonInfo.get().getCommand());
         cmd.add(DbSlice.get().getScriptDbslicingPath().toAbsolutePath().normalize().toString());
