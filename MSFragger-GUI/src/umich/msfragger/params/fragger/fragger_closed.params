@@ -13,6 +13,9 @@ fragment_mass_units = 1		           # 0=Daltons, 1=ppm
 isotope_error = 0/1/2                  # 0=off, 0/1/2 (standard C13 error)
 mass_offsets = 0
 
+shifted_ions = 0
+shifted_ions_exclude_ranges = (-1.5,3.5)
+
 search_enzyme_name = Trypsin
 search_enzyme_cutafter = KR
 search_enzyme_butnotafter = P
