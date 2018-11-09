@@ -16,7 +16,6 @@ import umich.msfragger.gui.FraggerPanel;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.fragger.MsfraggerParams;
-import umich.msfragger.util.FileMove;
 import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.UsageTrigger;
@@ -51,6 +50,7 @@ public class CmdMsfragger extends CmdBase {
       FraggerPanel fp, Path jarFragpipe, UsageTrigger binFragger, String pathFasta,
       List<InputLcmsFile> lcmsFiles) {
 
+    pbs.clear();
     final int numSlices = fp.getNumSlices();
     final boolean isSlicing = numSlices > 1;
     if (isSlicing) {
@@ -126,6 +126,9 @@ public class CmdMsfragger extends CmdBase {
     int fileIndex = 0;
     StringBuilder sb = new StringBuilder();
 
+    final String ext = fp.getOutputFileExt();
+    Map<InputLcmsFile, Path> mapLcmsToPepxml = outputs(lcmsFiles, ext, wd);
+
     while (fileIndex < lcmsFiles.size()) {
       ArrayList<String> cmd = new ArrayList<>();
 
@@ -174,12 +177,14 @@ public class CmdMsfragger extends CmdBase {
       pbs.add(pb);
       sb.setLength(0);
 
-      // move the files if the output directory is not the same as where
+      // move the pepxml files if the output directory is not the same as where
       // the lcms files were
-
       for (InputLcmsFile f : addedLcmsFiles) {
+        Path pepxml = mapLcmsToPepxml.get(f);
+        if (pepxml == null)
+          throw new IllegalStateException("LCMS file mapped to no pepxml file");
         pbs.addAll(ToolingUtils
-            .pbsMoveFiles(jarFragpipe, f.outputDir(wd), Collections.singletonList(f.path)));
+            .pbsMoveFiles(jarFragpipe, f.outputDir(wd), Collections.singletonList(pepxml)));
       }
     }
 

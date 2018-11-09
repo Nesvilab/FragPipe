@@ -40,6 +40,7 @@ public class CmdReportAbacus extends CmdBase {
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       String textAbacusCmdOpts, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
+    pbs.clear();
     Map<Path, List<Entry<LcmsFileGroup, Path>>> protxmlToGroups = mapGroupsToProtxml.entrySet().stream()
         .collect(Collectors.groupingBy(Entry::getValue));
 

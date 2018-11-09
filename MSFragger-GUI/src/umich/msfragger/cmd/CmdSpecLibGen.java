@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.JOptionPane;
-import jdk.nashorn.internal.scripts.JO;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.speclib.SpecLibGen;
@@ -32,6 +31,7 @@ public class CmdSpecLibGen extends CmdBase {
   public boolean configure(Component comp, UsageTrigger usePhilosopher, Path jarFragpipe,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet) {
 
+    pbs.clear();
     final SpecLibGen slg = SpecLibGen.get();
     if (!slg.isInitialized()) {
       JOptionPane.showMessageDialog(comp,

@@ -67,7 +67,7 @@ public class CmdCrystalc extends CmdBase {
   public boolean configure(Component comp,
       FraggerPanel fp, boolean isDryRun,
       CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, Path> pepxmlFiles) {
-
+    pbs.clear();
     if (StringUtils.isNullOrWhitespace(fastaPath)) {
       JOptionPane.showMessageDialog(comp, "Fasta file [Crystal-C] path can't be empty.",
           "Warning", JOptionPane.WARNING_MESSAGE);

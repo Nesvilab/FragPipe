@@ -80,10 +80,9 @@ public class CmdProteinProphet extends CmdBase {
       String txtProteinProphetCmdLineOpts, boolean isProteinProphetInteractStar,
       boolean isProcessGroupsSeparately, Map<InputLcmsFile, Path> pepxmlFiles) {
 
+    pbs.clear();
     ProteinProphetParams proteinProphetParams = new ProteinProphetParams();
     proteinProphetParams.setCmdLineParams(txtProteinProphetCmdLineOpts);
-
-
 
     if (isProteinProphetInteractStar) {
       // when that option is used all "interact-*.pep.xml" files must be in the same location

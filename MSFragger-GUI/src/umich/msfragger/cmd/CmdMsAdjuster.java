@@ -5,19 +5,20 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.swing.JOptionPane;
 import umich.msfragger.gui.FraggerPanel;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcProps;
-import umich.msfragger.util.FileMove;
 import umich.msfragger.util.JarUtils;
 import umich.msfragger.util.StringUtils;
 
 public class CmdMsAdjuster extends CmdBase {
 
   public static final String NAME = "MsAdjuster";
+  private int priority;
 
   public CmdMsAdjuster(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -29,8 +30,8 @@ public class CmdMsAdjuster extends CmdBase {
   }
 
   public boolean configure(Component comp, Path jarFragpipe, FraggerPanel fp,
-      List<InputLcmsFile> lcmsFiles, boolean doCleanup) {
-
+      List<InputLcmsFile> lcmsFiles, boolean doCleanup, int priority) {
+    pbs.clear();
     Path jarMsadjusterPath;
     Path jarDepsPath;
     try {
@@ -51,11 +52,13 @@ public class CmdMsAdjuster extends CmdBase {
       return false;
     }
 
+    this.priority = priority;
     int ramGb = fp.getRamGb();
 
     for (InputLcmsFile f : lcmsFiles) {
 
       if (!doCleanup) {
+        // run MsAdjuster
         ArrayList<String> cmd = new ArrayList<>();
         cmd.add("java");
         if (ramGb > 0) {
@@ -78,25 +81,21 @@ public class CmdMsAdjuster extends CmdBase {
         pbs.add(new ProcessBuilder(cmd));
 
       } else {
+        // run MsAdjuster cleanup
 
-        // cleanup
-        ArrayList<String> cmd = new ArrayList<>();
-        cmd.add("java");
-        cmd.add("-cp");
-        cmd.add(jarFragpipe.toString());
-        cmd.add(FileMove.class.getCanonicalName());
-        String origin =
-            StringUtils.upToLastDot(f.path.toString()) + ".ma"; // MSAdjuster creates these files
-        String destination = wd.resolve(Paths.get(origin).getFileName().toString()).toString();
-        cmd.add(origin);
-        cmd.add(destination);
-        if (!origin.equals(destination)) {
-          pbs.add(new ProcessBuilder(cmd));
-        }
+        // MsAdjuster creates these files
+        Path origin = Paths.get(StringUtils.upToLastDot(f.path.toString()) + ".ma");
+        Path destination = f.outputDir(wd);
+        pbs.addAll(ToolingUtils.pbsMoveFiles(jarFragpipe, destination, Collections.singletonList(origin)));
       }
     }
 
     isConfigured = true;
     return true;
+  }
+
+  @Override
+  public int getPriority() {
+    return priority;
   }
 }

@@ -19,7 +19,7 @@ public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
   }
 
   public boolean configure(UsageTrigger usePhilosopher) {
-
+    pbs.clear();
     {
       List<String> cmd = new ArrayList<>();
       cmd.add(usePhilosopher.useBin(wd));

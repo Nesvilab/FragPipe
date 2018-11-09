@@ -3907,11 +3907,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final FraggerPanel fp = fraggerPanel;
 
     // run MSAdjuster
-    final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(
-        fp.isRunMsfragger() && fp.isMsadjuster(), wd);
+    final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(fp.isRunMsfragger() && fp.isMsadjuster(), wd);
     if (cmdMsAdjuster.isRun()) {
       if (!cmdMsAdjuster.configure(this,
-          jarFragpipe, fp, lcmsFiles, false)) {
+          jarFragpipe, fp, lcmsFiles, false, 49)) {
         return false;
       }
       pbDescs.add(cmdMsAdjuster.builders());
@@ -3959,7 +3958,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     // run MsAdjuster Cleanup
     if (cmdMsAdjuster.isRun()) {
       if (!cmdMsAdjuster.configure(this,
-          jarFragpipe, fp, lcmsFiles, true)) {
+          jarFragpipe, fp, lcmsFiles, true, 51)) {
         return false;
       }
       pbDescs.add(cmdMsAdjuster.builders());

@@ -61,6 +61,7 @@ public class CmdPeptideProphet extends CmdBase {
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       String fastaPath, String textPepProphCmd, Map<InputLcmsFile, Path> pepxmlFiles) {
 
+    pbs.clear();
     PeptideProphetParams peptideProphetParams = new PeptideProphetParams();
     peptideProphetParams.setCmdLineParams(textPepProphCmd);
 

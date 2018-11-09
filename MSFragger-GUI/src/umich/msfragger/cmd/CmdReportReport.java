@@ -27,6 +27,7 @@ public class CmdReportReport extends CmdBase {
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
+    pbs.clear();
     Set<Path> groupWds = mapGroupsToProtxml.keySet().stream().map(g -> g.outputDir(wd))
         .collect(Collectors.toSet());
     for (Path groupWd : groupWds) {

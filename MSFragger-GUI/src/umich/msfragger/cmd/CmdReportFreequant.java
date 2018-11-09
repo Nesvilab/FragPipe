@@ -30,6 +30,7 @@ public class CmdReportFreequant extends CmdBase {
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       String textReportLabelfree, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
+    pbs.clear();
     for (Map.Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
       final LcmsFileGroup group = e.getKey();
       final Path protxml = e.getValue();

@@ -59,8 +59,8 @@ public class CmdUmpireSe extends CmdBase {
   public boolean configure(Component errMsgParent, boolean isDryRun,
       Path jarFragpipe, UsageTrigger philo, UmpirePanel umpirePanel,
       List<InputLcmsFile> lcmsFiles) {
-    if (!isRun)
-      return false;
+
+    pbs.clear();
 
     // check if there are only mzXML input files
     boolean hasNonMzxml = lcmsFiles.stream().map(f -> f.path.getFileName().toString().toLowerCase())

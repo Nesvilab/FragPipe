@@ -33,6 +33,7 @@ public class CmdReportDbAnnotate extends CmdBase {
       String textReportAnnotate, String dbPath,
       Map<InputLcmsFile, Path> pepxmlFiles, Map<LcmsFileGroup, Path> protxmlFiles) {
 
+    pbs.clear();
     if (dbPath == null) {
       JOptionPane.showMessageDialog(comp, "Fasta file path can't be empty (Report)",
           "Warning", JOptionPane.WARNING_MESSAGE);

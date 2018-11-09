@@ -29,6 +29,7 @@ public class CmdReportFilter extends CmdBase {
       boolean isReportProteinLevelFdr, String textReportFilter,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
+    pbs.clear();
     for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
       final LcmsFileGroup group = e.getKey();
       final Path protxml = e.getValue();
