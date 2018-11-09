@@ -3896,9 +3896,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     // run DIA-Umpire SE
     final CmdUmpireSe cmdUmpireSe = new CmdUmpireSe(isRunUmpireSe(), wd);
     if (cmdUmpireSe.isRun()) {
-      if (!cmdUmpireSe.configure(
-          this, isDryRun, jarFragpipe,
-          usePhi, umpirePanel, lcmsFiles))
+      if (!cmdUmpireSe.configure(this, isDryRun, jarFragpipe, usePhi,
+          umpirePanel, lcmsFiles))
         return false;
       pbDescs.add(cmdUmpireSe.builders());
       lcmsFiles = cmdUmpireSe.outputs(lcmsFiles);

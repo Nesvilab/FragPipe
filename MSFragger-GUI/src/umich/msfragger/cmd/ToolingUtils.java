@@ -58,27 +58,54 @@ public class ToolingUtils {
     return workingDir.resolve(combinedProtFn).normalize().toAbsolutePath();
   }
 
+  private enum Op {COPY, MOVE}
+
   /**
    * @param jarFragpipe Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
    */
   public static List<ProcessBuilder> pbsCopyFiles(Path jarFragpipe, Path dest, List<Path> files) {
+    return pbsCopyMoveFiles(jarFragpipe, Op.COPY, dest, files);
+  }
+
+  /**
+   * @param jarFragpipe Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
+   */
+  public static List<ProcessBuilder> pbsMoveFiles(Path jarFragpipe, Path dest, List<Path> files) {
+    return pbsCopyMoveFiles(jarFragpipe, Op.MOVE, dest, files);
+  }
+
+  /**
+   * @param jarFragpipe Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
+   */
+  private static List<ProcessBuilder> pbsCopyMoveFiles(Path jarFragpipe, Op operation, Path dest, List<Path> files) {
     if (jarFragpipe == null) {
       throw new IllegalArgumentException("jar can't be null");
     }
 
     List<ProcessBuilder> pbs = new LinkedList<>();
     for (Path file : files) {
-      if (dest.equals(file.getParent())) {
+      if (dest.equals(file.getParent()) || !Files.exists(file)) {
         continue;
       }
       List<String> cmd = new ArrayList<>();
       cmd.add("java");
       cmd.add("-cp");
       cmd.add(jarFragpipe.toAbsolutePath().toString());
-      cmd.add(FileCopy.class.getCanonicalName());
+      switch (operation) {
+        case COPY:
+          cmd.add(FileCopy.class.getCanonicalName());
+          break;
+        case MOVE:
+          cmd.add(FileMove.class.getCanonicalName());
+          break;
+        default:
+          throw new IllegalStateException("Unknown enum value: " + operation.toString());
+      }
       cmd.add(file.toAbsolutePath().normalize().toString());
       cmd.add(dest.resolve(file.getFileName()).toString());
-      pbs.add(new ProcessBuilder(cmd));
+      ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.directory(Files.isDirectory(file) ? file.toFile() : file.getParent().toFile());
+      pbs.add(pb);
     }
     return pbs;
   }

@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.apache.commons.lang3.NotImplementedException;
 import umich.msfragger.exceptions.FileWritingException;
@@ -28,6 +29,8 @@ import umich.msfragger.util.UsageTrigger;
 public class CmdUmpireSe extends CmdBase {
 
   public static final String NAME = "UmpireSe";
+  private static final EXTENSION OUTPUT_EXT = EXTENSION.mzXML;
+  public enum EXTENSION {mzXML, mzML}
 
   public CmdUmpireSe(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -41,7 +44,18 @@ public class CmdUmpireSe extends CmdBase {
   public List<InputLcmsFile> outputs(List<InputLcmsFile> inputs) {
     if (!isRun)
       return new ArrayList<>(inputs);
-    throw new NotImplementedException("TODO"); // TODO: Not implemented
+
+    List<InputLcmsFile> out = new ArrayList<>();
+    for (InputLcmsFile f: inputs) {
+      final String inputFn = f.path.getFileName().toString();
+      final Path outPath = f.outputDir(wd);
+      List<String> mgfs = getGeneratedMgfFnsForMzxml(inputFn);
+      List<String> lcmsFns = getGeneratedLcmsFns(mgfs);
+      for (String lcmsFn : lcmsFns) {
+        out.add(new InputLcmsFile(outPath.resolve(lcmsFn), f.experiment));
+      }
+    }
+    return out;
   }
 
   public boolean configure(Component errMsgParent, boolean isDryRun,
@@ -56,7 +70,7 @@ public class CmdUmpireSe extends CmdBase {
     if (hasNonMzxml) {
       JOptionPane.showMessageDialog(errMsgParent,
           "[DIA Umpire SE]\nNot all input files are mzXML.\n"
-              + "DIA-Umpire only supports mzXML.",
+              + "DIA-Umpire only supports mzXML inputs.",
           "Error", JOptionPane.ERROR_MESSAGE);
       return false;
     }
@@ -100,7 +114,7 @@ public class CmdUmpireSe extends CmdBase {
     for (InputLcmsFile f: lcmsFiles) {
       Path inputFn = f.path.getFileName();
       Path inputDir = f.path.getParent();
-      Path dest = wd.resolve(f.experiment);
+      Path destDir = f.outputDir(wd);
 
       // Umpire-SE
       // java -jar -Xmx8G DIA_Umpire_SE.jar mzMXL_file diaumpire_se.params
@@ -123,23 +137,14 @@ public class CmdUmpireSe extends CmdBase {
       // and also create symlinks to the original files
 
 
-      if (!inputDir.equals(dest)) {
+      if (!inputDir.equals(destDir)) {
         // destination dir is different from mzXML file location
         // need to move output and cleanup
         List<Path> garbage = UmpireSeGarbageFiles.getGarbageFiles(f.path);
-        for (Path pGarbage : garbage) {
-          List<String> cmdMove = new ArrayList<>();
-          cmdMove.add("java");
-          cmdMove.add("-cp");
-          cmdMove.add(jarFragpipe.toString());
-          // TODO: verify this actually moves all the garbage files. Use files at: C:\data\dia\40-50-minutes
-          cmdMove.add(FileMove.class.getCanonicalName());
-          String origin = pGarbage.toString();
-          String destination = f.outputDir(wd).resolve(pGarbage.getFileName()).toString();
-          cmdMove.add(origin);
-          cmdMove.add(destination);
-          pbs.add(new ProcessBuilder(cmdMove));
-        }
+        // TODO: verify this actually moves all the garbage files. Use files at: C:\data\dia\40-50-minutes
+        List<ProcessBuilder> pbsMove = ToolingUtils
+            .pbsMoveFiles(jarFragpipe, destDir, garbage);
+        pbs.addAll(pbsMove);
       }
 
       // msconvert
@@ -153,7 +158,7 @@ public class CmdUmpireSe extends CmdBase {
         return false;
       }
 
-      List<String> mgfs = getGeneratedMgfsForMzxml(inputFn.toString());
+      List<String> mgfs = getGeneratedMgfFnsForMzxml(inputFn.toString());
       for (String mgf : mgfs) {
         List<String> cmdMsConvert = new ArrayList<>();
 
@@ -162,22 +167,25 @@ public class CmdUmpireSe extends CmdBase {
           cmdMsConvert.add("--verbose");
           cmdMsConvert.add("--32");
           cmdMsConvert.add("--zlib");
-          cmdMsConvert.add("--mzXML");
+          cmdMsConvert.add("--" + OUTPUT_EXT.toString());
           cmdMsConvert.add("--outdir");
           cmdMsConvert.add(f.outputDir(wd).toString());
         } else {
           // on Linux philosopher includes msconvert
           cmdMsConvert.add(philo.useBin(f.outputDir(wd)));
           cmdMsConvert.add("--format");
-          cmdMsConvert.add("mzXML");
+          cmdMsConvert.add(OUTPUT_EXT.toString());
           cmdMsConvert.add("--intencoding");
           cmdMsConvert.add("32");
           cmdMsConvert.add("--mzencoding");
           cmdMsConvert.add("32");
           cmdMsConvert.add("--zlib");
         }
-        cmdMsConvert.add(f.outputDir(wd).resolve(mgf).toString());
-        pbs.add(new ProcessBuilder(cmdMsConvert));
+        Path mgfPath = f.outputDir(wd).resolve(mgf);
+        cmdMsConvert.add(mgfPath.toString());
+        ProcessBuilder pbMsConvert = new ProcessBuilder(cmdMsConvert);
+        pbMsConvert.directory(mgfPath.getParent().toFile());
+        pbs.add(pbMsConvert);
       }
     }
 
@@ -185,7 +193,7 @@ public class CmdUmpireSe extends CmdBase {
     return true;
   }
 
-  private List<String> getGeneratedMgfsForMzxml(String mzxmlFn) {
+  private List<String> getGeneratedMgfFnsForMzxml(String mzxmlFn) {
     String baseName = StringUtils.upToLastDot(mzxmlFn);
     final int n = 3;
     List<String> mgfs = new ArrayList<>(n);
@@ -193,6 +201,12 @@ public class CmdUmpireSe extends CmdBase {
       mgfs.add(baseName + "_Q" + i + ".mgf");
     }
     return mgfs;
+  }
+
+  private List<String> getGeneratedLcmsFns(List<String> generatedMgfFns) {
+    return generatedMgfFns.stream()
+        .map(mgf -> StringUtils.upToLastDot(mgf) + "." + OUTPUT_EXT.toString())
+        .collect(Collectors.toList());
   }
 
   @Override
