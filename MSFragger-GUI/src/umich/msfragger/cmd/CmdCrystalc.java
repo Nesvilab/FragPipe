@@ -143,9 +143,9 @@ public class CmdCrystalc extends CmdBase {
           Files.deleteIfExists(ccParamsPath);
           p.save(Files.newOutputStream(ccParamsPath, StandardOpenOption.CREATE));
         }
-      } catch (IOException ex) {
+      } catch (IOException e) {
         JOptionPane.showMessageDialog(comp,
-            "Could not create Crystal-C parameter file.",
+            "Could not create Crystal-C parameter file.\n" + e.getMessage(),
             "Error", JOptionPane.ERROR_MESSAGE);
         return false;
       }

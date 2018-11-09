@@ -73,6 +73,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
@@ -3500,28 +3501,27 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
     final Path wdPath = testWdPath;
 
-    if (!isDryRun && !Files.exists(wdPath)) {
-      int confirmCreation = JOptionPane
-          .showConfirmDialog(this, "Output directory doesn't exist. Create?",
-              "Create output directory?", JOptionPane.OK_CANCEL_OPTION);
-      switch (confirmCreation) {
-        case JOptionPane.OK_OPTION:
-          try {
-            Files.createDirectories(wdPath);
-          } catch (Exception e) {
-            // something went not right during creation of directory structure
-            JOptionPane.showMessageDialog(this, "Could not create directory structure", "Error",
-                JOptionPane.ERROR_MESSAGE);
-            resetRunButtons(true);
-            return;
-          }
-          break;
-        default:
+    if (!isDryRun) {
+      if (!Files.exists(wdPath)) {
+        int confirmCreation = JOptionPane.showConfirmDialog(this,
+            "Output directory doesn't exist. Create?",
+            "Create output directory?", JOptionPane.OK_CANCEL_OPTION);
+        if (JOptionPane.OK_OPTION != confirmCreation) {
           resetRunButtons(true);
           return;
-      }
-    } else {
-      if (!isDryRun) {
+        }
+        try {
+          Files.createDirectories(wdPath);
+        } catch (Exception e) {
+          // something went not right during creation of directory structure
+          JOptionPane.showMessageDialog(this,
+              "Could not create directory structure.\n" + e.getMessage(), "Error",
+              JOptionPane.ERROR_MESSAGE);
+          resetRunButtons(true);
+          return;
+        }
+
+      } else {
         try (Stream<Path> inWd = Files.list(wdPath)) {
           if (inWd.findAny().isPresent()) {
             int confirm = JOptionPane.showConfirmDialog(this,
@@ -3535,10 +3535,28 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
           }
         } catch (Exception e) {
-          JOptionPane.showMessageDialog(this, "Could not create directory structure", "Error",
+          JOptionPane.showMessageDialog(this,
+              "Could not create directory structure.\n" + e.getMessage(), "Error",
               JOptionPane.ERROR_MESSAGE);
           resetRunButtons(true);
           return;
+        }
+      }
+
+      // make sure subdirs for experiments are created
+      Set<Path> subdirs = getLcmsFileGroups().values().stream().map(g -> g.outputDir(wdPath))
+          .collect(Collectors.toSet());
+      for (Path subdir : subdirs) {
+        if (!Files.exists(subdir)) {
+          try {
+            Files.createDirectories(subdir);
+          } catch (IOException e) {
+            JOptionPane.showMessageDialog(this,
+                "Could not create directory structure.\n" + e.getMessage(), "Error",
+                JOptionPane.ERROR_MESSAGE);
+            resetRunButtons(true);
+            return;
+          }
         }
       }
     }

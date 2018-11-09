@@ -180,14 +180,15 @@ public class CmdMsfragger extends CmdBase {
         cmdMove.add(jarFragpipe.toString());
         cmdMove.add(FileMove.class.getCanonicalName());
         String pepxmlFn = getPepxmlFn(f, fp.getOutputFileExt());
-        String origin = f.path.getParent().resolve(pepxmlFn).toString();
-        String destination = f.outputDir(wd).resolve(pepxmlFn).toString();
+        Path origin = f.path.getParent().resolve(pepxmlFn);
+        Path destination = f.outputDir(wd).resolve(pepxmlFn);
         if (origin.equals(destination)) {
           continue;
         }
-        cmdMove.add(origin);
-        cmdMove.add(destination);
+        cmdMove.add(origin.toString());
+        cmdMove.add(destination.toString());
         ProcessBuilder pbFileMove = new ProcessBuilder(cmdMove);
+        pbFileMove.directory(destination.toFile());
         pbs.add(pbFileMove);
       }
     }
