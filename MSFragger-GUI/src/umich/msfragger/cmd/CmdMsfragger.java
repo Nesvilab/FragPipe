@@ -22,7 +22,7 @@ import umich.msfragger.util.UsageTrigger;
 
 public class CmdMsfragger extends CmdBase {
 
-  public static final String NAME = "Msfragger";
+  public static final String NAME = "MsFragger";
 
   public CmdMsfragger(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -180,11 +180,16 @@ public class CmdMsfragger extends CmdBase {
       // move the pepxml files if the output directory is not the same as where
       // the lcms files were
       for (InputLcmsFile f : addedLcmsFiles) {
-        Path pepxml = mapLcmsToPepxml.get(f);
-        if (pepxml == null)
+        Path pepxmlWhereItShouldBe = mapLcmsToPepxml.get(f);
+        if (pepxmlWhereItShouldBe == null)
           throw new IllegalStateException("LCMS file mapped to no pepxml file");
-        pbs.addAll(ToolingUtils
-            .pbsMoveFiles(jarFragpipe, f.outputDir(wd), Collections.singletonList(pepxml)));
+        String pepxmlFn = pepxmlWhereItShouldBe.getFileName().toString();
+        Path pepxmlAsCreatedByFragger = f.path.getParent().resolve(pepxmlFn);
+        if (!pepxmlAsCreatedByFragger.equals(pepxmlWhereItShouldBe)) {
+          pbs.addAll(ToolingUtils
+              .pbsMoveFiles(jarFragpipe, pepxmlWhereItShouldBe.getParent(),
+                  Collections.singletonList(pepxmlAsCreatedByFragger)));
+        }
       }
     }
 

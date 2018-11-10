@@ -19,6 +19,7 @@ public class CmdMsAdjuster extends CmdBase {
 
   public static final String NAME = "MsAdjuster";
   private int priority;
+  private boolean isCleanup;
 
   public CmdMsAdjuster(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -26,12 +27,13 @@ public class CmdMsAdjuster extends CmdBase {
 
   @Override
   public String getCmdName() {
-    return NAME;
+    return !isCleanup ? NAME : NAME + " (Cleanup)";
   }
 
   public boolean configure(Component comp, Path jarFragpipe, FraggerPanel fp,
       List<InputLcmsFile> lcmsFiles, boolean doCleanup, int priority) {
     pbs.clear();
+    isCleanup = doCleanup;
     Path jarMsadjusterPath;
     Path jarDepsPath;
     try {
@@ -78,7 +80,10 @@ public class CmdMsAdjuster extends CmdBase {
         }
         cmd.add("20");
         cmd.add(f.path.toString());
-        pbs.add(new ProcessBuilder(cmd));
+
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        pb.directory(f.outputDir(wd).toFile());
+        pbs.add(pb);
 
       } else {
         // run MsAdjuster cleanup
@@ -86,7 +91,10 @@ public class CmdMsAdjuster extends CmdBase {
         // MsAdjuster creates these files
         Path origin = Paths.get(StringUtils.upToLastDot(f.path.toString()) + ".ma");
         Path destination = f.outputDir(wd);
-        pbs.addAll(ToolingUtils.pbsMoveFiles(jarFragpipe, destination, Collections.singletonList(origin)));
+        if (!destination.equals(origin.getParent())) {
+          pbs.addAll(ToolingUtils
+              .pbsMoveFiles(jarFragpipe, destination, Collections.singletonList(origin)));
+        }
       }
     }
 

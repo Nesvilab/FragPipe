@@ -7,7 +7,7 @@ import umich.msfragger.util.UsageTrigger;
 
 public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
 
-  public static final String NAME = "PhilosopherWorkspaceCleanInit";
+  public static final String NAME = "Workspace";
 
   public CmdPhilosopherWorkspaceCleanInit(boolean isRun, Path workDir) {
     super(isRun, workDir);

@@ -6,7 +6,6 @@ import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -17,7 +16,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,18 +26,14 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import umich.msfragger.Version;
-import umich.msfragger.gui.FraggerPanel;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.params.philosopher.PhilosopherProps;
-import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.util.FileCopy;
 import umich.msfragger.util.FileMove;
 import umich.msfragger.util.Holder;
 import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PathUtils;
-import umich.msfragger.util.UsageTrigger;
 import umich.msfragger.util.StringUtils;
 
 public class ToolingUtils {
@@ -84,7 +78,7 @@ public class ToolingUtils {
 
     List<ProcessBuilder> pbs = new LinkedList<>();
     for (Path file : files) {
-      if (dest.equals(file.getParent()) || !Files.exists(file)) {
+      if (dest.equals(file.getParent())) {
         continue;
       }
       List<String> cmd = new ArrayList<>();
@@ -104,9 +98,6 @@ public class ToolingUtils {
       cmd.add(file.toAbsolutePath().normalize().toString());
       cmd.add(dest.resolve(file.getFileName()).toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);
-      if (Files.exists(file)) {
-        pb.directory(Files.isDirectory(file) ? file.toFile() : file.getParent().toFile());
-      }
       pbs.add(pb);
     }
     return pbs;

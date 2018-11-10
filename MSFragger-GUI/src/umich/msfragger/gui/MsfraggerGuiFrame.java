@@ -130,7 +130,8 @@ import umich.msfragger.cmd.CmdReportFreequant;
 import umich.msfragger.cmd.CmdReportReport;
 import umich.msfragger.cmd.CmdSpecLibGen;
 import umich.msfragger.cmd.CmdUmpireSe;
-import umich.msfragger.cmd.ProcessBuilderDescriptor;
+import umich.msfragger.cmd.ProcessBuilderInfo;
+import umich.msfragger.cmd.ProcessBuildersDescriptor;
 import umich.msfragger.cmd.ToolingUtils;
 import umich.msfragger.messages.MessageDecoyTag;
 import umich.msfragger.messages.MessageIsUmpireRun;
@@ -3641,7 +3642,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     final boolean isProcessGroupsSeparately = checkProcessGroupsSeparately.isSelected();
     final String binPhilosopher = textBinPhilosopher.getText().trim();
-    final List<ProcessBuilderDescriptor> pbDescsToFill = new ArrayList<>();
+    final List<ProcessBuildersDescriptor> pbDescsToFill = new ArrayList<>();
 
     // main call to generate all the process builders
     if (!processBuildersNew(wdPath, jarFragpipePath, binPhilosopher, pbDescsToFill)) {
@@ -3671,29 +3672,27 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
     LogUtils.println(console, "");
 
-    final List<ProcessBuilder> pbs = pbDescsToFill.stream().flatMap(d -> d.pbs.stream())
+    final List<ProcessBuilderInfo> pbis = pbDescsToFill.stream()
+        .flatMap(desc -> desc.pbs.stream().map(pb -> new ProcessBuilderInfo(pb, desc.name)))
         .collect(Collectors.toList());
 
-    LogUtils.println(console, String.format(Locale.ROOT, "%d commands to execute:", pbs.size()));
-    for (final ProcessBuilder pb : pbs) {
-      StringBuilder sb = new StringBuilder();
-      if (pb.directory() != null) {
-        sb.append("[Work dir: ").append(pb.directory().toString()).append("]\n");
+    LogUtils.println(console, String.format(Locale.ROOT, "%d commands to execute:", pbis.size()));
+    final Color colorTool = new Color(140, 3, 89);
+    final Color colorWd = new Color(6, 2, 140);
+    final Color colorCmdLine = new Color(0, 107, 109);
+
+    for (final ProcessBuilderInfo pbi : pbis) {
+      int printed = 0;
+      if (!StringUtils.isNullOrWhitespace(pbi.name)) {
+        LogUtils.print(colorTool, console, true, pbi.name, false);
       }
-      List<String> cmd = pb.command();
-      for (String cmdToken : cmd) {
-        if (isPrintButtonClicked) {
-          try {
-            sb.append(Paths.get(cmdToken).getFileName().toString()).append(" ");
-          } catch (Exception ignored) {
-            sb.append(cmdToken).append(" ");
-          }
-        } else {
-          sb.append(cmdToken).append(" ");
-        }
+      if (pbi.pb.directory() != null) {
+        LogUtils.print(colorWd, console, true, " [Work dir: " + pbi.pb.directory() + "]", false);
       }
-      LogUtils.println(console, sb.toString());
       LogUtils.println(console, "");
+      final String cmd = org.apache.commons.lang3.StringUtils.join(pbi.pb.command(), " ");
+      LogUtils.print(colorCmdLine, console, true, cmd, true);
+
     }
     LogUtils.println(console, "~~~~~~~~~~~~~~~~~~~~~~");
     LogUtils.println(console, "");
@@ -3709,15 +3708,23 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       exec.shutdownNow();
     }
 
+
+    final Color green = new Color(105, 193, 38);
+    final Color greenDarker = new Color(104, 184, 55);
+    final Color greenDarkest = new Color(82, 140, 26);
+    final Color red = new Color(236, 99, 80);
+    final Color redDarker = new Color(166, 56, 68);
+    final Color redDarkest = new Color(155, 35, 29);
+    final Color black = new Color(0, 0, 0);
     exec = Executors.newFixedThreadPool(1);
     try // run everything
     {
-      final ProcessResult[] processResults = new ProcessResult[pbs.size()];
+      final ProcessResult[] processResults = new ProcessResult[pbis.size()];
 
-      for (int i = 0; i < pbs.size(); i++) {
+      for (int i = 0; i < pbis.size(); i++) {
 
         final int index = i;
-        final ProcessBuilder pb = pbs.get(index);
+        final ProcessBuilder pb = pbis.get(index).pb;
         final ProcessResult pr = new ProcessResult(pb);
         processResults[index] = pr;
 
@@ -3725,14 +3732,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           pb.directory(wdPath.toFile());
         }
         pr.setWorkingDir(pb.directory().toPath());
-
-        final Color green = new Color(105, 193, 38);
-        final Color greenDarker = new Color(104, 184, 55);
-        final Color greenDarkest = new Color(82, 140, 26);
-        final Color red = new Color(236, 99, 80);
-        final Color redDarker = new Color(166, 56, 68);
-        final Color redDarkest = new Color(155, 35, 29);
-        final Color black = new Color(0, 0, 0);
         REHandler reHandler = new REHandler(() -> {
 
           StringBuilder command = new StringBuilder();
@@ -3878,9 +3877,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
    * @param wd Global working directory. LCMS file groups' output will be created inside this one.
    */
   private boolean processBuildersNew(Path wd, Path jarFragpipe, String binPhilosopher,
-      final List<ProcessBuilderDescriptor> pbDescsToFill) {
+      final List<ProcessBuildersDescriptor> pbDescsToFill) {
 
-    final List<ProcessBuilderDescriptor> pbDescs = new ArrayList<>();
+    final List<ProcessBuildersDescriptor> pbDescs = new ArrayList<>();
 
     // Collect input LCMS files
     final Map<String, LcmsFileGroup> lcmsFileGroups = getLcmsFileGroups();

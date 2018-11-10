@@ -34,9 +34,9 @@ public abstract class CmdBase {
 
   public abstract String getCmdName();
 
-  public ProcessBuilderDescriptor builders() {
+  public ProcessBuildersDescriptor builders() {
     if (!isConfigured)
       throw new IllegalStateException("Call to #processBuilders() before calling #configure()");
-    return new ProcessBuilderDescriptor(getCmdName(), getPriority()).addAll(pbs);
+    return new ProcessBuildersDescriptor(getCmdName(), getPriority()).addAll(pbs);
   }
 }

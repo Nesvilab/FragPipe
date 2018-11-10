@@ -24,7 +24,7 @@ import umich.msfragger.util.StringUtils;
 
 public class CmdCrystalc extends CmdBase {
 
-  public static final String NAME = "Crystalc";
+  public static final String NAME = "Crystal-C";
 
   public CmdCrystalc(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -172,5 +172,10 @@ public class CmdCrystalc extends CmdBase {
 
     isConfigured = true;
     return true;
+  }
+
+  @Override
+  public int getPriority() {
+    return 80;
   }
 }
