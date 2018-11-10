@@ -60,6 +60,8 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -381,6 +383,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
+
+    // set icons for tabs
+    Map<String, Integer> mapTabNameToIdx = new HashMap<>();
+    for (int i = 0, tabCount = tabPane.getTabCount(); i < tabCount; i++) {
+      mapTabNameToIdx.put(tabPane.getTitleAt(i), i);
+    }
+    setTabIcon(mapTabNameToIdx, "Config", "/umich/msfragger/gui/icons/146-wrench.png");
+    setTabIcon(mapTabNameToIdx, "Select LC/MS Files", "/umich/msfragger/gui/icons/198-download2.png");
+    setTabIcon(mapTabNameToIdx, "Sequence DB", "/umich/msfragger/gui/icons/093-drawer.png");
+    setTabIcon(mapTabNameToIdx, "Report", "/umich/msfragger/gui/icons/185-clipboard.png");
+    //setTabIcon(mapTabNameToIdx, "", "");
+
     // check binary paths (can only be done after manual MSFragger panel creation)
     SwingUtilities.invokeLater(() -> validateAndSaveMsfraggerPath(textBinMsfragger.getText()));
     SwingUtilities.invokeLater(() -> validateAndSavePhilosopherPath(textBinPhilosopher.getText()));
@@ -430,6 +444,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     try {
       PythonInfo.get().findPythonCommand();
     } catch (Exception ignored) {
+    }
+  }
+
+  private void setTabIcon(Map<String, Integer> mapTabNameToIndex, String name, String iconPathInJar) {
+    Integer index = mapTabNameToIndex.get(name);
+    if (name != null) {
+      ImageIcon icon = new ImageIcon(
+          getClass().getResource(iconPathInJar));
+      tabPane.setIconAt(index, icon);
+    } else {
+      throw new IllegalStateException("Tab with name '" + name + "' does not exist.");
     }
   }
 
@@ -3724,7 +3749,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       for (int i = 0; i < pbis.size(); i++) {
 
         final int index = i;
-        final ProcessBuilder pb = pbis.get(index).pb;
+        final ProcessBuilderInfo pbi = pbis.get(index);
+        final ProcessBuilder pb = pbi.pb;
         final ProcessResult pr = new ProcessResult(pb);
         processResults[index] = pr;
 
@@ -3761,13 +3787,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           Process process = null;
           try {
 
+            LogUtils.print(black, console, true, getTimestamp() + " Executing command [", false);
+            LogUtils.print(colorTool, console, true, pbi.name, false);
+            LogUtils.print(black, console, true, "] from working dir: ", false);
             final String workDirToPrint = pb.directory() == null ? "N/A" : pb.directory().toString();
-            LogUtils.println(console, "Working dir: " + pb.directory().toString());
-            LogUtils.println(console, "Executing command:\n$> " + command.toString());
+            LogUtils.print(colorWd, console, true, workDirToPrint, true);
+            LogUtils.print(black, console, true, "$> ", false);
+            LogUtils.print(colorCmdLine, console, true, command.toString(), true);
+
             process = pb.start();
             pr.setStarted(true);
-            String toAppend = "Process started";
-            LogUtils.println(console, toAppend);
+            LogUtils.println(console, getTimestamp() + " Process started");
 
             InputStream err = process.getErrorStream();
             InputStream out = process.getInputStream();
@@ -3777,7 +3807,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
               if (errAvailable > 0) {
                 byte[] bytes = new byte[errAvailable];
                 int read = err.read(bytes);
-                toAppend = new String(bytes);
+                String toAppend = new String(bytes);
                 LogUtils.println(console, toAppend);
                 pr.getOutput().append(toAppend);
               }
@@ -3785,23 +3815,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
               if (outAvailable > 0) {
                 byte[] bytes = new byte[outAvailable];
                 int read = out.read(bytes);
-                toAppend = new String(bytes);
+                String toAppend = new String(bytes);
                 LogUtils.println(console, toAppend);
                 pr.getOutput().append(toAppend);
               }
               try {
                 final int exitValue = process.exitValue();
                 pr.setExitCode(exitValue);
-                //toAppend = String.format(Locale.ROOT, "Process finished, exit value: %d\n", exitValue);
-                //LogUtils.println(console, toAppend); // changing this to manual call, because I want to print with color
-                SwingUtilities.invokeLater(new Runnable() {
-                  @Override
-                  public void run() {
+                SwingUtilities.invokeLater(() -> {
                     Color c = exitValue == 0 ? greenDarker : red;
                     console.append(c, String.format(
                         Locale.ROOT, "Process finished, exit value: %d\n", exitValue));
-                  }
-                });
+                  });
 
                 break;
               } catch (IllegalThreadStateException ignore) {
@@ -3823,32 +3848,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             LogUtils.println(console, toAppend);
           }
         }, console, System.err);
-        // if it's not the first process, check that the previous
-        // one returned zero exit code
-        //toAppend = String.format(Locale.ROOT, "Process finished, exit value: %d\n", exitValue);
-        //LogUtils.println(console, toAppend); // changing this to manual call, because I want to print with color
+
         // this error is thrown by process.exitValue() if the underlying process has not yet finished
         exec.submit(reHandler);
-
-        // On windows try to schedule copied mzXML file deletion
-//                if (OsUtils.isWindows()) {
-//                    REHandler deleteTask = new REHandler(() -> {
-//                        List<String> lcmsFiles = getLcmsFilePaths();
-//                        List<Path> copiedFiles = getLcmsFilePathsInWorkdir(Paths.get(workingDir));
-//                        if (lcmsFiles.size() != copiedFiles.size()) {
-//                            throw new IllegalStateException("LCMS file list sizes should be equal.");
-//                        }
-//                        for (int i1 = 0; i1 < lcmsFiles.size(); i1++) {
-//                            Path origPath = Paths.get(lcmsFiles.get(i1));
-//                            Path linkPath = copiedFiles.get(i1);
-//                            if (!linkPath.getParent().equals(origPath.getParent())) {
-//                                linkPath.toFile().deleteOnExit();
-//                            }
-//                        }
-//
-//                    }, console, System.err);
-//                    exec.submit(deleteTask);
-//                }
       }
     } finally {
 
@@ -3872,6 +3874,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     exec.shutdown();
 
   }//GEN-LAST:event_btnRunActionPerformed
+
+  private String getTimestamp() {
+    return "[" + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) + "]";
+  }
 
   /**
    * @param wd Global working directory. LCMS file groups' output will be created inside this one.
@@ -4763,9 +4769,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       final boolean enabled = checkEnableDiaumpire.isSelected();
       if (enabled) {
         //int prevTabIndex = tabPane.indexOfTab("Config");
-        int prevTabIndex = tabPane.indexOfTab("Select LC/MS Files");
+        final String prevTabName = "Select LC/MS Files";
+        int prevTabIndex = tabPane.indexOfTab(prevTabName);
         if (prevTabIndex < 0) {
-          throw new IllegalStateException("Could not find tab named 'Config'");
+          throw new IllegalStateException("Could not find tab named " + prevTabName);
         }
         ImageIcon icon = new ImageIcon(
             getClass().getResource("/umich/msfragger/gui/icons/dia-umpire-16x16.png"));
