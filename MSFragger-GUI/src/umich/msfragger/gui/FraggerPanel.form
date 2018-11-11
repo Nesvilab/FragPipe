@@ -390,7 +390,7 @@
                 <Component class="javax.swing.JSpinner" name="spinnerDigestMassMax">
                   <Properties>
                     <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                      <SpinnerModel initial="7000.0" maximum="7000.0" minimum="0.0" numberType="java.lang.Double" stepSize="500.0" type="number"/>
+                      <SpinnerModel initial="10000.0" maximum="20000.0" minimum="0.0" numberType="java.lang.Double" stepSize="1000.0" type="number"/>
                     </Property>
                   </Properties>
                 </Component>
