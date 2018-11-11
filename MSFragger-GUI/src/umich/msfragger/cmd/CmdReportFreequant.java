@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.philosopher.PhilosopherProps;
+import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.UsageTrigger;
 
 public class CmdReportFreequant extends CmdBase {
@@ -39,11 +40,25 @@ public class CmdReportFreequant extends CmdBase {
           .map(f -> f.path.getParent())
           .collect(Collectors.toSet());
       if (lcmsDirsForProtxml.size() > 1) {
-        String msg= "All LCMS input files for an experiment/group must be\n"
+        String msg = "All LCMS input files for an experiment/group must be\n"
             + "located in the same directory for Freequant to work.";
         JOptionPane.showMessageDialog(comp, msg, "Freequant Error", JOptionPane.WARNING_MESSAGE);
         return false;
       }
+
+      boolean mzxmlInInput = mapGroupsToProtxml.keySet().stream().flatMap(g -> g.lcmsFiles.stream())
+          .map(f -> StringUtils.afterLastDot(f.path.getFileName().toString()))
+          .anyMatch("mzxml"::equalsIgnoreCase);
+      if (mzxmlInInput) {
+        JOptionPane.showMessageDialog(comp,
+            "<html>Freequant doesn't work with mzXML files.<br/>"
+                + "Either remove mzXML files from input or disable<br/>"
+                + "Freequant on the Report tab. You can also convert<br/>"
+                + "mzXML files to mzML using <i>msconvert</i> from ProteoWizard.",
+            "Freequant error", JOptionPane.WARNING_MESSAGE);
+        return false;
+      }
+
       final Path lcmsDir = lcmsDirsForProtxml.iterator().next().toAbsolutePath();
       final Path groupWd = group.outputDir(wd);
 
