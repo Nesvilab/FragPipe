@@ -136,16 +136,21 @@ public class SwingUtils {
     return findParentComponentForDialog(parent);
   }
 
-  public static void setFileChooserPath(JFileChooser fileChooser, String path) {
-    if (path == null) {
-      fileChooser.setCurrentDirectory(null);
-      return;
+  public static void setFileChooserPath(JFileChooser fc, Path path) {
+    try {
+      if (Files.exists(path)) {
+        fc.setCurrentDirectory(path.toFile());
+      }
+    } catch (Exception e) {
+      fc.setCurrentDirectory(null);
     }
-    Path p = Paths.get(path);
-    if (Files.exists(p)) {
-      fileChooser.setCurrentDirectory(p.toFile());
-    } else {
-      fileChooser.setCurrentDirectory(null);
+  }
+
+  public static void setFileChooserPath(JFileChooser fc, String path) {
+    try {
+      setFileChooserPath(fc, Paths.get(path));
+    } catch (Exception e) {
+      fc.setCurrentDirectory(null);
     }
   }
 
