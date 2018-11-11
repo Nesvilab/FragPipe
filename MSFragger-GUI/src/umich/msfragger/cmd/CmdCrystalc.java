@@ -42,17 +42,17 @@ public class CmdCrystalc extends CmdBase {
    */
   private String getModifiedPepxmlFn(String pepxmlFn, String pepxmlExtFragger) {
 
-    throw new NotImplementedException("TODO: this calc of filename doesn't work right, there are extra letters."); // TODO: Not implemented
+    //throw new NotImplementedException("TODO: this calc of filename doesn't work right, there are extra letters."); // TODO: Not implemented
     // example
     //[23:20:59.444] Executing command [PeptideProphet] from working dir: D:\Gygi_data\Subset\Test11\B
     //$> C:\Users\nesvi\Desktop\MSFragger-20180316\philosopher_windows_amd64.exe peptideprophet --decoy rev_ --nonparam --expectscore --decoyprobs --masswidth 1000.0 --clevel -2 --database C:\Users\nesvi\Desktop\AATC\DIA-full\2017-12-09-td-up000005640.fasta b1931_293T_proteinID_11A_QE3_122212.p_c.pepXML
 
     int lastIndexOf = pepxmlFn.toLowerCase().lastIndexOf(pepxmlExtFragger.toLowerCase());
     if (lastIndexOf < 0) {
-      throw new IllegalArgumentException("Pepxml file name must end with the give extension");
+      throw new IllegalArgumentException("Pepxml file name must end with the extension from Fragger config");
     }
 
-    return pepxmlFn.substring(0, lastIndexOf + 1) + "_c." + StringUtils.afterLastDot(pepxmlFn);
+    return pepxmlFn.substring(0, lastIndexOf - 1) + "_c." + StringUtils.afterLastDot(pepxmlFn);
   }
 
   /**
