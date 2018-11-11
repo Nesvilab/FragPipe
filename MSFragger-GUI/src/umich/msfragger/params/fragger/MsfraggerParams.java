@@ -40,7 +40,9 @@ import umich.msfragger.util.StringUtils;
  * @author dmitriya
  */
 public class MsfraggerParams extends AbstractParams {
-    
+
+    public static final Pattern reShiftedIonsExclusionRange = Pattern.compile("\\(\\s*-?(?<v1>\\d+(?:\\.\\d+)?)\\s*,\\s*(?<v2>\\d+(?:\\.\\d+)?)\\s*\\)");
+
     public static final String PROP_database_name = "database_name";
     public static final String PROP_fragpipe_ram = "fragpipe_ram";
     public static final String PROP_num_threads = "num_threads";
@@ -618,11 +620,10 @@ public class MsfraggerParams extends AbstractParams {
     public double[] getShiftedIonsExcludeRanges() {
         final String name = PROP_shifted_ions_exclude_ranges;
         final String val = props.getProp(name, "(-1.5,3.5)").value;
-        final Pattern re = Pattern.compile("\\(\\s*-?(?<v1>\\d+(?:\\.\\d+)?)\\s*,\\s*(?<v2>\\d+(?:\\.\\d+)?)\\s*\\)");
-        Matcher m = re.matcher(val);
+        Matcher m = reShiftedIonsExclusionRange.matcher(val);
         if (!m.find()) {
             throw new IllegalStateException(String.format(
-                "Property named '%s' with value '%s' does not match its regex '%s'", name, val, re.pattern()));
+                "Property named '%s' with value '%s' does not match its regex '%s'", name, val, reShiftedIonsExclusionRange.pattern()));
         }
         final double[] out = new double[2];
         out[0] = Double.parseDouble(m.group("v1"));

@@ -299,4 +299,8 @@ public class SwingUtils {
   public static JEditorPane createClickableHtml(String text) {
     return createClickableHtml(text, true);
   }
+
+  public static boolean isEnabledAndChecked(JCheckBox checkbox) {
+    return checkbox.isEnabled() && checkbox.isSelected();
+  }
 }

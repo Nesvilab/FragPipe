@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
@@ -44,10 +45,12 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 import net.java.balloontip.BalloonTip;
+import org.greenrobot.eventbus.EventBus;
 import static umich.msfragger.gui.MsfraggerGuiFrame.DEFAULT_TYPE;
 
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
+import umich.msfragger.messages.MessageShiftedIonsEnablement;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.enums.CleavageType;
 import umich.msfragger.params.enums.FraggerOutputType;
@@ -149,6 +152,8 @@ public class FraggerPanel extends javax.swing.JPanel {
                     break;
             }
         }
+        
+        EventBus.getDefault().register(this);
     }
     
     public int getNumSlices() {
@@ -330,7 +335,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         return p;
     }
     
-    private void fillParamsFromForm(MsfraggerParams params) {
+    private void fillParamsFromForm(MsfraggerParams params) throws IOException {
         MsfraggerGuiFrame f = frame.get();
         if (f == null)
             throw new IllegalStateException("fillFormFromParams() called while not attached to an MsfraggerGuiFrame.");
@@ -380,7 +385,21 @@ public class FraggerPanel extends javax.swing.JPanel {
         double massHi = (Double)spinnerDigestMassMax.getValue();
         params.setDigestMassRange(new double[] {massLo, massHi});
         params.setMaxFragmentCharge((Integer)spinnerMaxFragCharge.getValue());
-        
+
+        final boolean isShiftedIons = SwingUtils.isEnabledAndChecked(checkShiftedIons);
+        params.setShiftedIons(isShiftedIons);
+        if (isShiftedIons) {
+          final Matcher m = MsfraggerParams.reShiftedIonsExclusionRange.matcher(textShiftedIons.getText().trim());
+          if (!m.find()) {
+            throw new IOException("Shifted ions exclude ranges string invalid format");
+          }
+          final double[] range = new double[2];
+          range[0] = Double.parseDouble(m.group("v1"));
+          range[1] = Double.parseDouble(m.group("v2"));
+          params.setShiftedIonsExcludeRanges(range);
+        }
+
+
         params.setMinimumPeaks(utilSpinnerValue(spinnerMinPeaks, Integer.class));
         params.setUseTopNPeaks((Integer)spinnerUseTopNPeaks.getValue());
         
@@ -572,6 +591,9 @@ public class FraggerPanel extends javax.swing.JPanel {
     comboFraggerOutputType = new javax.swing.JComboBox<>();
     jLabel1 = new javax.swing.JLabel();
     textMassOffsets = new javax.swing.JTextField();
+    checkShiftedIons = new javax.swing.JCheckBox();
+    jLabel30 = new javax.swing.JLabel();
+    textShiftedIons = new javax.swing.JTextField();
     jPanel8 = new javax.swing.JPanel();
     spinnerReportTopN = new javax.swing.JSpinner();
     spinnerOutputMaxExpect = new javax.swing.JSpinner();
@@ -834,7 +856,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         .addGap(18, 18, 18)
         .addComponent(jLabel32)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
+        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)
         .addContainerGap())
     );
 
@@ -1133,36 +1155,62 @@ public class FraggerPanel extends javax.swing.JPanel {
       }
     });
 
+    checkShiftedIons.setText("Shifted ion series");
+    checkShiftedIons.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+    checkShiftedIons.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        checkShiftedIonsActionPerformed(evt);
+      }
+    });
+
+    jLabel30.setText("Exclusion ranges");
+
+    textShiftedIons.setText("(-1.5,3.5)");
+    textShiftedIons.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        textShiftedIonsActionPerformed(evt);
+      }
+    });
+
     javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
     jPanel7.setLayout(jPanel7Layout);
     jPanel7Layout.setHorizontalGroup(
       jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(jPanel7Layout.createSequentialGroup()
         .addContainerGap()
-        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-          .addComponent(jLabel29, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
-          .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-          .addComponent(textIsotopeError, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-          .addGroup(jPanel7Layout.createSequentialGroup()
-            .addComponent(spinnerPrecursorChargeLo, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jLabel36, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(spinnerPrecursorChargeHi)))
-        .addGap(18, 18, 18)
         .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
           .addGroup(jPanel7Layout.createSequentialGroup()
-            .addComponent(checkOverrideCharge)
+            .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+              .addComponent(jLabel29, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+              .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+              .addComponent(textIsotopeError, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
+              .addGroup(jPanel7Layout.createSequentialGroup()
+                .addComponent(spinnerPrecursorChargeLo, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel36, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(spinnerPrecursorChargeHi)))
             .addGap(18, 18, 18)
-            .addComponent(jLabel25))
-          .addGroup(jPanel7Layout.createSequentialGroup()
-            .addComponent(jLabel1)
+            .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+              .addGroup(jPanel7Layout.createSequentialGroup()
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(textMassOffsets))
+              .addGroup(jPanel7Layout.createSequentialGroup()
+                .addComponent(checkOverrideCharge)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel25)))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(textMassOffsets)))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(comboFraggerOutputType, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(comboFraggerOutputType, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+          .addGroup(jPanel7Layout.createSequentialGroup()
+            .addGap(9, 9, 9)
+            .addComponent(checkShiftedIons)
+            .addGap(18, 18, 18)
+            .addComponent(jLabel30)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(textShiftedIons)))
         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
     jPanel7Layout.setVerticalGroup(
@@ -1183,6 +1231,11 @@ public class FraggerPanel extends javax.swing.JPanel {
           .addComponent(jLabel29)
           .addComponent(jLabel25)
           .addComponent(comboFraggerOutputType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(checkShiftedIons)
+          .addComponent(jLabel30)
+          .addComponent(textShiftedIons, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
@@ -1307,13 +1360,12 @@ public class FraggerPanel extends javax.swing.JPanel {
     panelFraggerMatchingConfigLayout.setVerticalGroup(
       panelFraggerMatchingConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(panelFraggerMatchingConfigLayout.createSequentialGroup()
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(panelFraggerMatchingConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
           .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
           .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addGap(8, 8, 8)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
     );
 
@@ -1373,7 +1425,7 @@ public class FraggerPanel extends javax.swing.JPanel {
           .addComponent(btnLoad))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addComponent(panelFraggerMatchingConfig, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addGap(40, 40, 40)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1740,6 +1792,24 @@ public class FraggerPanel extends javax.swing.JPanel {
 
   }//GEN-LAST:event_btnDefaultsNonSpecificActionPerformed
 
+  private void checkShiftedIonsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkShiftedIonsActionPerformed
+    final boolean isEnabled = SwingUtils.isEnabledAndChecked(checkShiftedIons);
+    MessageShiftedIonsEnablement prev = EventBus.getDefault().getStickyEvent(MessageShiftedIonsEnablement.class);
+    if (prev != null && prev.isEnabled == isEnabled) {
+      return;
+    }
+    EventBus.getDefault().postSticky(new MessageShiftedIonsEnablement(isEnabled));
+  }//GEN-LAST:event_checkShiftedIonsActionPerformed
+
+  public void onShiftedIonsEnablement(MessageShiftedIonsEnablement m) {
+    textShiftedIons.setEnabled(m.isEnabled);
+  }
+  
+  
+  private void textShiftedIonsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textShiftedIonsActionPerformed
+    // TODO add your handling code here:
+  }//GEN-LAST:event_textShiftedIonsActionPerformed
+
     public boolean isMsadjuster() {
         return chkMsadjuster.isSelected();
     }
@@ -1834,6 +1904,7 @@ public class FraggerPanel extends javax.swing.JPanel {
   private javax.swing.JCheckBox checkClipNTerm;
   private javax.swing.JCheckBox checkMultipleVarMods;
   private javax.swing.JCheckBox checkOverrideCharge;
+  private javax.swing.JCheckBox checkShiftedIons;
   private javax.swing.JCheckBox chkMsadjuster;
   private javax.swing.JCheckBox chkRunMsfragger;
   private javax.swing.JComboBox<String> comboCleavage;
@@ -1864,6 +1935,7 @@ public class FraggerPanel extends javax.swing.JPanel {
   private javax.swing.JLabel jLabel28;
   private javax.swing.JLabel jLabel29;
   private javax.swing.JLabel jLabel3;
+  private javax.swing.JLabel jLabel30;
   private javax.swing.JLabel jLabel31;
   private javax.swing.JLabel jLabel32;
   private javax.swing.JLabel jLabel35;
@@ -1931,6 +2003,7 @@ public class FraggerPanel extends javax.swing.JPanel {
   private javax.swing.JTextField textEnzymeName;
   private javax.swing.JTextField textIsotopeError;
   private javax.swing.JTextField textMassOffsets;
+  private javax.swing.JTextField textShiftedIons;
   // End of variables declaration//GEN-END:variables
 
     private ComboBoxModel<String> createOutputFormatComboModel() {

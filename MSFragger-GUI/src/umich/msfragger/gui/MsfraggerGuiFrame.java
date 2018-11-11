@@ -4007,7 +4007,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     // run Protein Prophet
     final boolean isProcessGroupsSeparately = checkProcessGroupsSeparately.isSelected();
-    final boolean isRunProteinProphet = isEnabledAndChecked(chkRunProteinProphet);
+    final boolean isRunProteinProphet = SwingUtils.isEnabledAndChecked(chkRunProteinProphet);
     final CmdProteinProphet cmdProteinProphet = new CmdProteinProphet(isRunProteinProphet, wd);
     if (cmdProteinProphet.isRun()) {
       final String protProphCmdStr = txtProteinProphetCmdLineOpts.getText().trim();
@@ -4036,10 +4036,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     }
 
-    final boolean isReport = isEnabledAndChecked(checkCreateReport);
+    final boolean isReport = SwingUtils.isEnabledAndChecked(checkCreateReport);
     if (isReport) {
       // run Report - DbAnnotate
-      final boolean isDbAnnotate = isEnabledAndChecked(checkReportDbAnnotate);
+      final boolean isDbAnnotate = SwingUtils.isEnabledAndChecked(checkReportDbAnnotate);
       final CmdReportDbAnnotate cmdReportDbAnnotate = new CmdReportDbAnnotate(isDbAnnotate, wd);
       if (cmdReportDbAnnotate.isRun()) {
         if (!cmdReportDbAnnotate.configure(this, usePhi,
@@ -4050,10 +4050,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
 
       // run Report - Filter
-      final boolean isFilter = isEnabledAndChecked(checkReportFilter);
+      final boolean isFilter = SwingUtils.isEnabledAndChecked(checkReportFilter);
       final CmdReportFilter cmdReportFilter = new CmdReportFilter(isFilter, wd);
       if (cmdReportFilter.isRun()) {
-        final  boolean isReportProtLevelFdr = isEnabledAndChecked(checkReportProteinLevelFdr);
+        final  boolean isReportProtLevelFdr = SwingUtils.isEnabledAndChecked(checkReportProteinLevelFdr);
         if (!cmdReportFilter.configure(this, usePhi,
             isReportProtLevelFdr, textReportFilter.getText(), mapGroupsToProtxml)) {
           return false;
@@ -4062,7 +4062,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
 
       // run Report - Freequant (Labelfree)
-      final boolean isFreequant = isEnabledAndChecked(checkLabelfree);
+      final boolean isFreequant = SwingUtils.isEnabledAndChecked(checkLabelfree);
       final CmdReportFreequant cmdReportFreequant = new CmdReportFreequant(isFreequant, wd);
       if (cmdReportFreequant.isRun()) {
         if (!cmdReportFreequant.configure(this, usePhi,
@@ -4082,7 +4082,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
 
       // run Report - Abacus
-      final CmdReportAbacus cmdReportAbacus = new CmdReportAbacus(isEnabledAndChecked(checkReportAbacus), wd);
+      final CmdReportAbacus cmdReportAbacus = new CmdReportAbacus(SwingUtils.isEnabledAndChecked(checkReportAbacus), wd);
       if (cmdReportAbacus.isRun()) {
         if (!cmdReportAbacus.configure(this, usePhi,
             textReportAbacus.getText(), mapGroupsToProtxml)) {
@@ -4093,7 +4093,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     // run Spectral library generation
-    final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(isEnabledAndChecked(checkGenerateSpecLib), wd);
+    final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(SwingUtils.isEnabledAndChecked(checkGenerateSpecLib), wd);
     if (cmdSpecLibGen.isRun()) {
       if (!cmdSpecLibGen.configure(this, usePhi, jarFragpipe,
           mapGroupsToProtxml, fastaFile, isRunProteinProphet)) {
@@ -4132,10 +4132,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     pbDescs.sort(Comparator.comparing(pbDesc -> pbDesc.priority, Integer::compare));
     pbDescsToFill.addAll(pbDescs);
     return true;
-  }
-
-  private static boolean isEnabledAndChecked(JCheckBox checkbox) {
-    return checkbox.isEnabled() && checkbox.isSelected();
   }
 
   private String getCombinedProtFn() {
