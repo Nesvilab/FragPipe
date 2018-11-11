@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import org.apache.commons.lang3.NotImplementedException;
 import umich.msfragger.gui.FraggerPanel;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.MsfraggerGuiFrame;
@@ -40,6 +41,12 @@ public class CmdCrystalc extends CmdBase {
    * in the extension, so can't guess what the extension is.
    */
   private String getModifiedPepxmlFn(String pepxmlFn, String pepxmlExtFragger) {
+
+    throw new NotImplementedException("TODO: this calc of filename doesn't work right, there are extra letters."); // TODO: Not implemented
+    // example
+    //[23:20:59.444] Executing command [PeptideProphet] from working dir: D:\Gygi_data\Subset\Test11\B
+    //$> C:\Users\nesvi\Desktop\MSFragger-20180316\philosopher_windows_amd64.exe peptideprophet --decoy rev_ --nonparam --expectscore --decoyprobs --masswidth 1000.0 --clevel -2 --database C:\Users\nesvi\Desktop\AATC\DIA-full\2017-12-09-td-up000005640.fasta b1931_293T_proteinID_11A_QE3_122212.p_c.pepXML
+
     int lastIndexOf = pepxmlFn.toLowerCase().lastIndexOf(pepxmlExtFragger.toLowerCase());
     if (lastIndexOf < 0) {
       throw new IllegalArgumentException("Pepxml file name must end with the give extension");
