@@ -74,7 +74,7 @@ public class ThisAppProps extends Properties {
   public static final String DEFAULT_LCMS_GROUP_NAME = "";
 
   public ThisAppProps() {
-          this.setProperty(Version.PROP_VER, Version.VERSION);
+          this.setProperty(Version.PROP_VER, Version.version());
       }
 
     public static void clearCache() {

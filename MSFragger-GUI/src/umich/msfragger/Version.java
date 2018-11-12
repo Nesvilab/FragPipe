@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 import javax.swing.JOptionPane;
+import umich.msfragger.util.BundleUtils;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.VersionComparator;
 
@@ -35,7 +36,6 @@ import umich.msfragger.util.VersionComparator;
 public class Version {
     public static final String PROGRAM_TITLE = "FragPipe";
     public static final String PROP_VER = "msfragger.gui.version";
-    public static final String VERSION = "8.5-RC6";
     public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
     public static final String PROP_ISSUE_TRACKER_URL = "msfragger.gui.issue-tracker";
     public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
@@ -187,18 +187,6 @@ public class Version {
         return java.util.ResourceBundle.getBundle(PATH_BUNDLE);
     }
     
-    public static String getVersion() {
-        java.util.ResourceBundle bundle = bundle();
-        String val = bundle.getString(PROP_VER);
-        if (!VERSION.equals(val)) {
-            JOptionPane.showMessageDialog(null, String.format(Locale.ROOT, 
-                    "Version in the bundle (%s) doesn't match hardcoded value (%s).\n"
-                            + "Have you modified %s.jar/%s.properties?", val, VERSION, PROGRAM_TITLE, PATH_BUNDLE), 
-                    "Version mismatch", JOptionPane.WARNING_MESSAGE);
-        }
-        return VERSION;
-    }
-    
     public static Map<String, List<String>> getChangelog() {
         return Collections.unmodifiableMap(CHANGELOG);
     }
@@ -215,11 +203,25 @@ public class Version {
         String[] split = versionList.trim().split("\\s*,\\s*");
         List<String> res = new ArrayList<>();
         for (String updateVersion : split) {
-            if (vc.compare(Version.VERSION, updateVersion) < 0) {
+            if (vc.compare(version(), updateVersion) < 0) {
                 res.add(updateVersion);
             }
         }
         return res;
+    }
+
+    public static String version() {
+      ResourceBundle bundle;
+      try {
+        bundle = ResourceBundle.getBundle(Version.PATH_BUNDLE);
+      } catch (Exception e) {
+        throw new IllegalStateException("Could not fetch the resource bundle at: " + Version.PATH_BUNDLE ,e);
+      }
+      if (!bundle.containsKey(Version.PROP_VER)) {
+        throw new IllegalStateException(String.format("Key '%s' not found in bundle '%s'",
+            Version.PROP_VER, Version.PATH_BUNDLE));
+      }
+      return bundle.getString(Version.PROP_VER);
     }
     
     private static String chop(String original, String toChop) {
@@ -265,10 +267,11 @@ public class Version {
         url = chop(url, "/");
         url = chop(url, latest);
         url = chop(url, "/");
-        
-        
-        
-        if (printGihubPreamble) {
+
+
+
+      final String version = version();
+      if (printGihubPreamble) {
             String githubReleaseMessage = String.format(
                     "### Windows users\n" +
                             "- You may download the [*.zip* file]"
@@ -289,11 +292,11 @@ public class Version {
                             + "(%s/download/v%s/%s_v%s.zip) "
                             + "and either run the included launcher shell script or just with "
                             + "`java -jar %s.jar`.", 
-                            url, VERSION, PROGRAM_TITLE, VERSION, 
+                            url, version, PROGRAM_TITLE, version,
                             PROGRAM_TITLE,
                             PROGRAM_TITLE,
-                            url, VERSION, PROGRAM_TITLE,
-                            url, VERSION, PROGRAM_TITLE, VERSION,
+                            url, version, PROGRAM_TITLE,
+                            url, version, PROGRAM_TITLE, version,
                             PROGRAM_TITLE);
             System.out.println(githubReleaseMessage);
             System.out.println("");
@@ -303,7 +306,7 @@ public class Version {
         
         
         StringBuilder sb = new StringBuilder();
-        sb.append("## ").append(PROGRAM_TITLE).append(" v").append(VERSION).append(" changelog:\n");
+        sb.append("## ").append(PROGRAM_TITLE).append(" v").append(version).append(" changelog:\n");
         int cnt = 0;
         for (Map.Entry<String, List<String>> e : CHANGELOG.descendingMap().entrySet()) {
             if (maxVersionsToPrint > 0 && ++cnt > maxVersionsToPrint)

@@ -292,7 +292,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void initMore() {
 
-    setTitle(Version.PROGRAM_TITLE + " (v" + Version.getVersion() + ")");
+    setTitle(Version.PROGRAM_TITLE + " (v" + Version.version() + ")");
     setLocale(Locale.ROOT);
 
     console = new TextConsole();
@@ -580,7 +580,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
 
         // rewrite the cached params file with a versioned one
-        ThisAppProps.save(Version.PROP_VER, Version.VERSION);
+        ThisAppProps.save(Version.PROP_VER, Version.version());
       } else if (vc.compare(storedVer, "4.0") >= 0 && vc.compare(storedVer, "5.1") <= 0) {
         // and the version between 4.0 and 5.1
         final String prop = ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET;
@@ -618,7 +618,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
 
         // rewrite the cached params file with a versioned one
-        ThisAppProps.save(Version.PROP_VER, Version.VERSION);
+        ThisAppProps.save(Version.PROP_VER, Version.version());
       }
     }
   }
@@ -2222,7 +2222,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">"
         + "MSFragger - Ultrafast Proteomics Search Engine<br/>"
-        + "GUI Wrapper (v" + Version.getVersion() + ")<br/>"
+        + "GUI Wrapper (v" + Version.version() + ")<br/>"
         + "Dmitry Avtonomov<br/>"
         + "University of Michigan, 2017<br/><br/>"
         + "<a href=\"" + getGuiDownloadLink()
@@ -2625,7 +2625,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         // add new versions notification
         final String githubVersion = propsGh.getProperty(Version.PROP_VER);
-        final String localVersion = Version.VERSION;
+        final String localVersion = Version.version();
         if (githubVersion != null && vc.compare(localVersion, githubVersion) < 0) {
           if (sb.length() > 0) {
             sb.append("<br><br>");
@@ -2876,7 +2876,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             // if we have some philosopher properties (local or better remote)
             // then check if this version is known to be compatible
             String latestCompatible = props.getProperty(
-                PhilosopherProps.PROP_LATEST_COMPATIBLE_VERSION + "." + Version.VERSION);
+                PhilosopherProps.PROP_LATEST_COMPATIBLE_VERSION + "." + Version.version());
             if (latestCompatible == null) {
               sb.append(
                   "<br>\nHowever, we have not yet checked if it's fully compatible with this version of ")
@@ -3681,7 +3681,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         sbSysinfo));
 
     StringBuilder sbVer = new StringBuilder();
-    sbVer.append(Version.PROGRAM_TITLE).append(" version ").append(Version.VERSION).append("\n");
+    sbVer.append(Version.PROGRAM_TITLE).append(" version ").append(Version.version()).append("\n");
     sbVer.append("MSFragger version ").append(fraggerVer).append("\n");
     sbVer.append("Philosopher version ").append(philosopherVer).append("\n");
     LogUtils.println(console, String.format(Locale.ROOT, "Version info:\n%s", sbVer.toString()));
