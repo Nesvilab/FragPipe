@@ -48,6 +48,7 @@ import net.java.balloontip.BalloonTip;
 import org.greenrobot.eventbus.EventBus;
 import static umich.msfragger.gui.MsfraggerGuiFrame.DEFAULT_TYPE;
 
+import org.greenrobot.eventbus.Subscribe;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
 import umich.msfragger.messages.MessageShiftedIonsEnablement;
@@ -231,6 +232,12 @@ public class FraggerPanel extends javax.swing.JPanel {
         spinnerPrecursorChargeLo.setValue(params.getPrecursorCharge()[0]);
         spinnerPrecursorChargeHi.setValue(params.getPrecursorCharge()[1]);
         checkOverrideCharge.setSelected(params.getOverrideCharge());
+
+        checkShiftedIons.setSelected(params.getShiftedIons());
+        double[] range = params.getShiftedIonsExcludeRanges();
+        if (range != null) {
+          textShiftedIons.setText(String.format("(%.1f,%.1f)", range[0], range[1]));
+        }
         
         textEnzymeName.setText(params.getSearchEnzymeName());
         textCutAfter.setText(params.getSearchEnzymeCutAfter());
@@ -1801,6 +1808,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     EventBus.getDefault().postSticky(new MessageShiftedIonsEnablement(isEnabled));
   }//GEN-LAST:event_checkShiftedIonsActionPerformed
 
+  @Subscribe
   public void onShiftedIonsEnablement(MessageShiftedIonsEnablement m) {
     textShiftedIons.setEnabled(m.isEnabled);
   }
