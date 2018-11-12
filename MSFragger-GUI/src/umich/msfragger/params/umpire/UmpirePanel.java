@@ -374,10 +374,11 @@ public class UmpirePanel extends JPanel {
 
         // special treatment for some params
         if (PROP_Thread.equals(paramName)) {
-          if (Double.parseDouble(strVal) == 0) {
+          try {
+            strVal = String.format("%.0f", Double.parseDouble(strVal));
+          } catch (Exception ignored) {
             continue;
           }
-          strVal = new DecimalFormat("0").format(strVal);
         }
         params.getProps().setProperty(paramName, strVal);
       }

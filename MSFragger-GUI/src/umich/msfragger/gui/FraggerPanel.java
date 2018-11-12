@@ -1170,7 +1170,7 @@ public class FraggerPanel extends javax.swing.JPanel {
       }
     });
 
-    jLabel30.setText("Exclusion ranges");
+    jLabel30.setText("Shifted ions exclusion ranges");
 
     textShiftedIons.setText("(-1.5,3.5)");
     textShiftedIons.addActionListener(new java.awt.event.ActionListener() {
@@ -1214,11 +1214,11 @@ public class FraggerPanel extends javax.swing.JPanel {
           .addGroup(jPanel7Layout.createSequentialGroup()
             .addGap(9, 9, 9)
             .addComponent(checkShiftedIons)
-            .addGap(18, 18, 18)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
             .addComponent(jLabel30)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(textShiftedIons)))
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        .addContainerGap(22, Short.MAX_VALUE))
     );
     jPanel7Layout.setVerticalGroup(
       jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
