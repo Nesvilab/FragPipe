@@ -41,7 +41,7 @@ import umich.msfragger.util.StringUtils;
  */
 public class MsfraggerParams extends AbstractParams {
 
-    public static final Pattern reShiftedIonsExclusionRange = Pattern.compile("\\(\\s*-?(?<v1>\\d+(?:\\.\\d+)?)\\s*,\\s*(?<v2>\\d+(?:\\.\\d+)?)\\s*\\)");
+    public static final Pattern reShiftedIonsExclusionRange = Pattern.compile("\\(\\s*(?<v1>-?\\d+(?:\\.\\d+)?)\\s*,\\s*(?<v2>-?\\d+(?:\\.\\d+)?)\\s*\\)");
 
     public static final String PROP_database_name = "database_name";
     public static final String PROP_fragpipe_ram = "fragpipe_ram";
