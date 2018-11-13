@@ -192,29 +192,36 @@ len(biognosys_rtkit), len(ciRT_rtkit)
 combined_rtkit_str = ",".join(a+":"+str(b) for a,b in sorted({**biognosys_rtkit,**ciRT_rtkit}.items(), key=operator.itemgetter(1)))
 rtkit_str = ",".join(a + ":" + str(b) for a, b in sorted({**biognosys_rtkit}.items(), key=operator.itemgetter(1)))
 
+TEMP_FILES = ['input000.splib', 'input000.spidx', 'input000.pepidx',
+			  'input.splib',
+			  'input_irt.pepidx', 'input_irt.splib', 'input_irt.csv',
+			  'output_file_irt_con000.splib', 'output_file_irt_con000.spidx', 'output_file_irt_con000.pepidx',
+			  'output_file_irt_con001.splib', 'output_file_irt_con.splib', 'output_irt_con.tsv',
+			  'con_lib_not_in_psm_tsv.tsv']
 
 spectrast_cmds_part1= fr'''
 set -o xtrace -o errexit
 {sys.executable} {script_dir / "spectrast_gen_pepidx.py"} -i input.splib -o input_irt.splib # generate .pepidx file
 #outfiles: input_irt.splib, input_irt.csv
-## Step 10. Consolidate the library into a single consensus spectrum entry for each peptide sequence.
+## Consolidate the library into a single consensus spectrum entry for each peptide sequence.
 {SPECTRAST_PATH} -cAC -c_BIN! -cIHCD -cNoutput_file_irt_con000 input_irt.splib
+#outfile:output_file_irt_con000.splib
 {sys.executable} {script_dir / "unite_runs.py"} output_file_irt_con000.splib output_file_irt_con001.splib
+#outfile:output_file_irt_con001.splib
 '''
 
 spectrast_cmds_part2= fr"""
 ### if self aligned, use iRT alignment here.
 {sys.executable} {spectrast2spectrast_irt_py_path} --kit {rtkit_str} --rsq_threshold=0.25 -r -i output_file_irt_con001.splib -o output_file_irt_con.splib
-# ln -s output_file_irt_con001.splib output_file_irt_con.splib
 #outfile:output_file_irt_con.splib
 """
 
 spectrast_cmds_part3=fr"""
-## Step 11. Filter the consensus splib library into a transition list
-# generate swathwindowssetup.txt
+## Filter the consensus splib library into a transition list
 {sys.executable} {spectrast2tsv_py_path} -l 300,2000 -s b,y -x 1,2 -o 3 -n 6 -p 0.05 -d -e -k openswath -a output_irt_con.tsv output_file_irt_con.splib
 #outfile:output_irt_con.tsv
 """
+
 
 spectrast_cmds = spectrast_cmds_part1 + spectrast_cmds_part2 + spectrast_cmds_part3
 
@@ -381,7 +388,7 @@ def filter_proteins(fasta, decoy_prefix):
 def main0():
 
 	output_directory.mkdir(exist_ok=overwrite)
-	print("running:\n" + allcmds)
+	print("running:\n" + allcmds, flush=True)
 	(output_directory / "cmds.txt").write_text(allcmds)
 
 	pep_ion_minprob=get_pep_ion_minprob(
@@ -404,9 +411,13 @@ def main0():
 	# subprocess.run(spectrast_cmds, shell=True, cwd=os_fspath(output_directory), check=True)
 	subprocess.run(adjust_command(spectrast_cmds_part1), shell=True, cwd=os_fspath(output_directory), check=True)
 	if align_with_iRT:
-		cp = subprocess.run(adjust_command(spectrast_cmds_part2), shell=True, cwd=os_fspath(output_directory), check=not True)
+		cp = subprocess.run(adjust_command(spectrast_cmds_part2), shell=True, cwd=os_fspath(output_directory), check=not True,
+							stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 		if cp.returncode != 0:
+			print('Skipping iRT alignment')
 			shutil.move(output_directory / 'output_file_irt_con001.splib', output_directory / 'output_file_irt_con.splib')
+		else:
+			print(cp.stdout)
 	else:
 		shutil.move(output_directory / 'output_file_irt_con001.splib', output_directory / 'output_file_irt_con.splib')
 	subprocess.run(adjust_command(spectrast_cmds_part3), shell=True, cwd=os_fspath(output_directory), check=True)
@@ -513,6 +524,11 @@ main0()
 
 os.chdir(os_fspath(output_directory))
 edit_raw_con_lib()
+for f in TEMP_FILES:
+	try:
+		pathlib.Path(f).unlink()
+	except FileNotFoundError as e:
+		pass
 os.chdir(CWD)
 
 # if __name__=='__main__':
