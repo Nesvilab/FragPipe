@@ -488,6 +488,22 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     updateDecoyTagSeqDb(m.tag, false);
   }
 
+  @Subscribe
+  public void loadDefaults(MessageSearchType m) {
+    final SearchTypeProp t = m.type;
+    loadDefaultsLabelfree(t);
+    loadDefaultsPeptideProphet(t);
+    loadDefaultsProteinProphet(t);
+    loadDefaultsReportAbacus(t);
+    loadDefaultsReportAnnotate(t);
+    loadDefaultsReportFilter(t);
+    loadDefaultsLabelfree(t);
+    if (fraggerPanel != null) {
+      fraggerPanel.loadDefaults(t);
+    }
+  }
+
+
   private void messageToLabel(JLabel comp, DbSlice.Message m) {
     final String old = comp.getText();
     StringBuilder sb;
@@ -4267,14 +4283,26 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnReportDefaultsClosedActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportDefaultsClosedActionPerformed
-    EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.closed));
+    loadDefaultsReport(SearchTypeProp.closed, true);
   }//GEN-LAST:event_btnReportDefaultsClosedActionPerformed
 
   private void btnReportDefaultsOpenActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportDefaultsOpenActionPerformed
-    EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.open));
+    loadDefaultsReport(SearchTypeProp.open, true);
   }//GEN-LAST:event_btnReportDefaultsOpenActionPerformed
 
+  private void loadDefaultsReport(SearchTypeProp type, boolean askConfirmation) {
+    if (askConfirmation) {
+      int confirmation = JOptionPane.showConfirmDialog(this,
+          "Load " + type + " defaults for Reports and\n"
+              + "all the other tools?");
+      if (JOptionPane.YES_OPTION != confirmation) {
+        return;
+      }
+    }
+    EventBus.getDefault().post(new MessageSearchType(type));
+  }
+  
   private void checkReportProteinLevelFdrStateChanged(
       javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_checkReportProteinLevelFdrStateChanged
     boolean selected = checkReportProteinLevelFdr.isSelected();
@@ -5268,18 +5296,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   public void loadDefaultsSequenceDb(SearchTypeProp type) {
     ThisAppProps.loadFromBundle(textDecoyTagSeqDb, ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
-  }
-  
-  @Subscribe
-  public void loadDefaults(MessageSearchType m) {
-    final SearchTypeProp t = m.type;
-    loadDefaultsLabelfree(t);
-    loadDefaultsPeptideProphet(t);
-    loadDefaultsProteinProphet(t);
-    loadDefaultsReportAbacus(t);
-    loadDefaultsReportAnnotate(t);
-    loadDefaultsReportFilter(t);
-    loadDefaultsLabelfree(t);
   }
   //endregion
 

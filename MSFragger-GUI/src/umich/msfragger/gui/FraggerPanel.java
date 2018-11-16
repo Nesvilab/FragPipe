@@ -327,10 +327,10 @@ public class FraggerPanel extends javax.swing.JPanel {
                         JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
             switch (result) {
                 case 1:
-                    loadDefaultsClosed();
+                    loadDefaults(SearchTypeProp.closed);
                     break;
                 case 2:
-                    loadDefaultsOpen();
+                    loadDefaults(SearchTypeProp.open);
                     break;
             }
         }
@@ -1632,30 +1632,54 @@ public class FraggerPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnMsfraggerDefaultsOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMsfraggerDefaultsOpenActionPerformed
-        int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
-            "Are you sure you want to load defaults for open search?\n"
-                    + "It's a search with large precursor mass tolerance\n"
-                    + "usually used to identify PTMs.", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
-        if (JOptionPane.OK_OPTION == confirmation) {
-            loadDefaultsOpen();
-            
-            MsfraggerGuiFrame f = frame.get();
-            if (f != null) {
-                int updateOther = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
-                "Loaded MSFragger defaults for 'Open' search.\n"
-                        + "Would you like to update options for other tools as well?\n"
-                        + "(Highly recommended, unless you're sure what you're doing)", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
-                if (JOptionPane.OK_OPTION == updateOther) {
-                  EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.open));
-                }
-            }
-        }
+        loadDefaultsForUi(SearchTypeProp.open, true);
     }//GEN-LAST:event_btnMsfraggerDefaultsOpenActionPerformed
 
-    public void loadDefaultsOpen() {
-        params.loadDefaultsOpenSearch();
-        fillFormFromParams(params);
+    public void loadDefaultsForUi(SearchTypeProp type, boolean askUser) {
+      if (askUser) {
+        int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this), 
+                "Load " + type + " search default configuration?");
+        if (JOptionPane.YES_OPTION != confirmation) {
+          return;
+        }
+      }
+      loadDefaults(type);
+      
+      MsfraggerGuiFrame f = frame.get();
+      if (f != null) {
+        if (askUser) {
+          int updateOther = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
+                  "<html>Would you like to update options for other tools as well?<br/>"
+                  + "<b>Highly recommended</b>, unless you're sure what you're doing)");
+          if (JOptionPane.OK_OPTION != updateOther) {
+            return;
+          }
+          EventBus.getDefault().post(new MessageSearchType(type));
+        }
+      }
+    }
+    
+    public void loadDefaults(SearchTypeProp type) {
+      switch (type) {
+        case open:
+          params.loadDefaultsOpenSearch();
+          break;
+        case closed:
+          params.loadDefaultsClosedSearch();
+          break;
+        case nonspecific:
+          params.loadDefaultsNonspecific();
+          break;
+        default:
+          throw new AssertionError(type.name());
+      }
+      fillFormFromParams(params);
+      
+      if (type == SearchTypeProp.open) {
         loadDefaultsMsadjuster(SearchTypeProp.open);
+      } else {
+        loadDefaultsMsadjuster(SearchTypeProp.closed);
+      }
     }
     
     private void textEnzymeNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textEnzymeNameActionPerformed
@@ -1731,27 +1755,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_comboFragMassTolActionPerformed
 
     private void btnMsfraggerDefaultsClosedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMsfraggerDefaultsClosedActionPerformed
-      int confirmation = JOptionPane
-          .showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
-              "Are you sure you want to load defaults for 'closed' search?\n"
-                  + "It's a standard search with tight mass tolerances.", "Confirmation",
-              JOptionPane.OK_CANCEL_OPTION);
-      if (JOptionPane.OK_OPTION == confirmation) {
-        loadDefaultsClosed();
-
-        MsfraggerGuiFrame f = frame.get();
-        if (f != null) {
-          int updateOther = JOptionPane
-              .showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
-                  "Loaded MSFragger defaults for 'Closed' search.\n"
-                      + "Would you like to update Prophets' options as well?\n"
-                      + "(Highly recommended, unless you're sure what you're doing)",
-                  "Confirmation", JOptionPane.OK_CANCEL_OPTION);
-          if (JOptionPane.OK_OPTION == updateOther) {
-            EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.open));
-          }
-        }
-      }
+      loadDefaultsForUi(SearchTypeProp.closed, true);
     }//GEN-LAST:event_btnMsfraggerDefaultsClosedActionPerformed
 
     private void panelMsFraggerComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_panelMsFraggerComponentShown
@@ -1780,40 +1784,16 @@ public class FraggerPanel extends javax.swing.JPanel {
 
   private void btnDefaultsNonSpecificActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDefaultsNonSpecificActionPerformed
 
-      int confirm = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
-          "This action will update some parameters on this page.\n\n"
-              + "Dow you want to proceed?", "Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-      if (JOptionPane.YES_OPTION != confirm)
-        return;
-
-      MsfraggerGuiFrame f = this.frame.get();
-      if (f == null)
-        throw new RuntimeException("Error updating form with non-specific search defaults.");
-      try {
-        MsfraggerParams mp = collectParams();
-        mp.setSearchEnzymeName(MsfraggerParams.ENZYME_NONSPECIFIC_NAME);
-        mp.setSearchEnzymeCutAfter("KR");
-        mp.setSearchEnzymeButNotAfter("P");
-        mp.setIsotopeError("0/1");
-        mp.setDigestMinLength(7);
-        mp.setDigestMaxLength(25);
-        mp.setPrecursorMassLower(-20.0);
-        mp.setPrecursorMassUpper(+20.0);
-        mp.setPrecursorMassUnits(MassTolUnits.PPM);
-        mp.setMinMatchedFragments(5);
-        fillFormFromParams(mp);
-      } catch (IOException ex) {
-        throw new RuntimeException("Error updating form with non-specific search defaults.", ex);
-      }
+    final SearchTypeProp type = SearchTypeProp.nonspecific;
+    loadDefaults(type);
 
     int updateOthers = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
         "<html>New parameters for MSFragger loaded.<br/>"
-            + "We highly recommend to auto-update parameters for other tools.<br/><br/>"
-            + "Dow you want to proceed?", "Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            + "<b>Highly recommended</b> to auto-update parameters for other tools.<br/><br/>"
+            + "Dow you want to proceed?");
     if (JOptionPane.YES_OPTION != updateOthers)
       return;
-    EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.closed));
-
+    EventBus.getDefault().post(new MessageSearchType(type));
   }//GEN-LAST:event_btnDefaultsNonSpecificActionPerformed
 
   private void checkShiftedIonsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkShiftedIonsActionPerformed
@@ -1847,25 +1827,6 @@ public class FraggerPanel extends javax.swing.JPanel {
     
     public void loadDefaultsMsadjuster(SearchTypeProp type) {
         ThisAppProps.loadFromBundle(chkMsadjuster, ThisAppProps.PROP_MSADJUSTER_USE, type);
-    }
-    
-    public void loadDefaultsClosed() {
-        params.loadDefaultsClosedSearch();
-        fillFormFromParams(params);
-        loadDefaultsMsadjuster(SearchTypeProp.closed);
-    }
-    
-    public void loadDefaults(SearchTypeProp type) {
-        switch (type) {
-            case open:
-                loadDefaultsOpen();
-                break;
-            case closed:
-                loadDefaultsClosed();
-                break;
-            default:
-                throw new AssertionError(type.name());
-        }
     }
     
     /**

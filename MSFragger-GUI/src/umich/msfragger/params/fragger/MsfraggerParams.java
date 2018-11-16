@@ -137,6 +137,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String DEFAULT_FILE = "fragger.params";
     public static final String DEFAULT_FILE_OPENSEARCH = "fragger_open.params";
     public static final String DEFAULT_FILE_CLOSEDSEARCH = "fragger_closed.params";
+    public static final String DEFAULT_FILE_NONSPECIFICSEARCH = "fragger_nonspecific.params";
     private static final long serialVersionUID = 1L;
 
     private static final DecimalFormat DF = new DecimalFormat("0.##########");
@@ -196,6 +197,15 @@ public class MsfraggerParams extends AbstractParams {
     public void loadDefaultsClosedSearch() {
         try {
             load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_CLOSEDSEARCH), true);
+        } catch (IOException e) {
+            // this is strange, we're loading stuff from our own jar, should not happen
+            throw new IllegalStateException("Could not load MSFragger defaults for Closed Search from the jar itself.", e);
+        }
+    }
+    
+    public void loadDefaultsNonspecific() {
+      try {
+            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_NONSPECIFICSEARCH), true);
         } catch (IOException e) {
             // this is strange, we're loading stuff from our own jar, should not happen
             throw new IllegalStateException("Could not load MSFragger defaults for Closed Search from the jar itself.", e);
