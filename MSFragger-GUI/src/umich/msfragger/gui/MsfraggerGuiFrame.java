@@ -803,6 +803,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     checkReportProteinLevelFdr = new javax.swing.JCheckBox();
     checkReportAbacus = new javax.swing.JCheckBox();
     textReportAbacus = new javax.swing.JTextField();
+    jCheckBox1 = new javax.swing.JCheckBox();
     checkCreateReport = new javax.swing.JCheckBox();
     btnReportDefaultsClosed = new javax.swing.JButton();
     btnReportDefaultsOpen = new javax.swing.JButton();
@@ -1068,7 +1069,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("DB Slicing"));
-    jPanel2.setToolTipText("<html>Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>\nWays to get everything set up:<br>\n<ul>\n<li>Install Python 3 if you don't yet have it.</li>\n<li>Install required python modules using <i>pip</i>, the python package manager, with commands:</li>\n<ul>\n<li>pip install numpy</li>\n<li>pip install pandas</li>\n<li>pip install cython</li>\n<li>pip install msproteomicstools</li>\n</ul>\n</ul>\n");
+    jPanel2.setToolTipText("<html>Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>\nWays to get everything set up:<br>\n<ul>\n<li>Install Python 3 if you don't yet have it.</li>\n<li>Install required python modules using <i>pip</i>, the python package manager, with command:</li>\n<ul>\n<li>pip install numpy pandas</li>\n</ul>\n</ul>\n");
 
     lblDbsliceInfo1.setText(DbSlice.DEFAULT_MESSAGE);
 
@@ -1104,7 +1105,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Spectral Lib generation"));
-    jPanel1.setToolTipText("<html>Requires <b>Python 3</b> with packages <b>Cython, Msproteomicstools</b>.<br/>\nWays to get everything set up:<br>\n<ul>\n<li>Install Python 3 if you don't yet have it.</li>\n<li>Install required python modules using <i>pip</i>, the python package manager, with commands:</li>\n<ul>\n<li>pip install numpy</li>\n<li>pip install pandas</li>\n<li>pip install cython</li>\n<li>pip install msproteomicstools</li>\n</ul>\n</ul>\n");
+    jPanel1.setToolTipText("<html>Requires <b>Python 3</b> with packages <b>Cython, Msproteomicstools</b>.<br/>\nWays to get everything set up:<br>\n<ul>\n<li>Install Python 3 if you don't yet have it.</li>\n<li>Install required python modules using <i>pip</i>, the python package manager, with commands:</li>\n<ul>\n<li>pip install numpy pandas cython</li>\n<li>pip install msproteomicstools</li>\n</ul>\n</ul>\n");
 
     lblSpeclibInfo1.setText(SpecLibGen.DEFAULT_MESSAGE);
 
@@ -1885,6 +1886,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
+    jCheckBox1.setText("Include combined peptide-level report");
+    jCheckBox1.setToolTipText("Combined peptide-level report feature will come in the next release.");
+    jCheckBox1.setEnabled(false);
+
     javax.swing.GroupLayout panelReportOptionsLayout = new javax.swing.GroupLayout(panelReportOptions);
     panelReportOptions.setLayout(panelReportOptionsLayout);
     panelReportOptionsLayout.setHorizontalGroup(
@@ -1900,6 +1905,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
               .addGroup(panelReportOptionsLayout.createSequentialGroup()
                 .addComponent(checkReportProteinLevelFdr)
+                .addGap(18, 18, 18)
+                .addComponent(jCheckBox1)
                 .addGap(0, 0, Short.MAX_VALUE))
               .addComponent(textReportFilter)
               .addComponent(textReportAnnotate)))
@@ -1922,7 +1929,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(checkReportFilter)
           .addComponent(textReportFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(checkReportProteinLevelFdr)
+        .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(checkReportProteinLevelFdr)
+          .addComponent(jCheckBox1))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
           .addComponent(checkReportAbacus)
@@ -5857,6 +5866,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JEditorPane editorMsfraggerCitation;
   private javax.swing.JEditorPane editorPhilosopherLink;
   private javax.swing.JEditorPane editorSequenceDb;
+  private javax.swing.JCheckBox jCheckBox1;
   private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel10;
   private javax.swing.JLabel jLabel12;

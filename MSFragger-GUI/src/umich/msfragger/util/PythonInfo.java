@@ -156,7 +156,20 @@ public class PythonInfo {
   public boolean setPythonCommand(String command) throws Exception {
       return trySetPythonCommand(command);
   }
-  
+
+  /**
+   * Checks that a registry location can be converted to {@link java.nio.file.Path}
+   * via {@link Paths#get(String, String...)} method.
+   */
+  private boolean vetRegistryLocation(String loc) {
+    try {
+      Paths.get(loc);
+    } catch (Exception ignored) {
+      return false;
+    }
+    return true;
+  }
+
   public void findPythonCommand() throws Exception {
     String[] commands = {"python", "python3"};
 
@@ -169,7 +182,10 @@ public class PythonInfo {
       List<String> potentialLocs = new ArrayList<>();
       for (String root : roots) {
         for (String loc : locations) {
-          potentialLocs.addAll(RegQuery.query(root + loc));
+          List<String> query = RegQuery.query(root + loc);
+          potentialLocs.addAll(query.stream()
+              .filter(this::vetRegistryLocation)
+              .collect(Collectors.toList()));
         }
       }
 
@@ -178,11 +194,16 @@ public class PythonInfo {
           .sorted(Comparator.reverseOrder())
           .collect(Collectors.toList());
       for (String possiblePython3InstallPath : possiblePython3InstallPaths) {
-        List<String> res = RegQuery.query(possiblePython3InstallPath + "\\InstallPath", "");
-        for (String r : res) {
-          for(String cmd : commands) {
+        final List<String> qureyInstallPath;
+        try {
+          qureyInstallPath = RegQuery.query(possiblePython3InstallPath + "\\InstallPath", "");
+        } catch (Exception ignored) {
+          continue;
+        }
+        for (String installPath : qureyInstallPath) {
+          for (String cmd : commands) {
             try {
-              final String rVal = RegQuery.getTokenValue(RegQuery.TOKEN_REGSZ, r);
+              final String rVal = RegQuery.getTokenValue(RegQuery.TOKEN_REGSZ, installPath);
               final String pythonBinPath = Paths.get(rVal, cmd).toString();
               if (trySetPythonCommand(pythonBinPath))
                 return;
