@@ -51,6 +51,11 @@ public class Version {
     private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>(new VersionComparator());
     
     static {
+        CHANGELOG.put("8.6", Arrays.asList(
+            "Updated nonspecific search default options.",
+            "Colorized console output.",
+            "Multiple UI fixes and updates."));
+
         CHANGELOG.put("8.5", Arrays.asList(
             "Updated spectral library generation. LCMS files are copied and deleted from the right locations.",
             "Multi-experiment protein level report.",
