@@ -30,6 +30,30 @@ import java.util.regex.Pattern;
 public class StringUtils {
     private static Pattern WHITESPACE_STRING = Pattern.compile("^\\s*$");
 
+    public static String upToLastDot(String s) {
+        int last = s.lastIndexOf('.');
+        return last < 0 ? s : s.substring(0, last);
+    }
+    
+    public static String afterLastDot(String s) {
+        int last = s.lastIndexOf('.');
+        return last < 0 ? "" : s.substring(last+1);
+    }
+
+    public static String upToLastChar(String s, char ch, boolean emptyIfNoChar) {
+        int last = s.lastIndexOf(ch);
+        if (last < 0)
+            return emptyIfNoChar ? "" : s;
+        return s.substring(0, last);
+    }
+
+    public static String afterLastChar(String s, char ch, boolean emptyIfNoChar) {
+        int last = s.lastIndexOf(ch);
+        if (last < 0)
+            return emptyIfNoChar ? "" : s;
+        return s.substring(last+1);
+    }
+    
     public static List<String> splitTrim(String input, String sep) {
         String[] split = input.split(sep);
         List<String> strings = new ArrayList<>(split.length);
@@ -45,7 +69,7 @@ public class StringUtils {
     
     
     public static boolean isNullOrWhitespace(String s) {
-        return s == null || WHITESPACE_STRING.matcher(s).matches();
+        return s == null || s.length() == 0 || WHITESPACE_STRING.matcher(s).matches();
     }
     
     /**

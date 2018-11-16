@@ -2,7 +2,7 @@
 #Data Independent Acquisition data processing and analysis package (Signal extraction module)
 
 #No of threads
-Thread = 6
+#Thread = 6
 
 #Fragment grouping parameter
 RPmax = 25

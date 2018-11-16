@@ -81,15 +81,12 @@ public class LogUtils {
     }
     
     public static final void println(final Appendable out, final String toPrint, boolean doOnEDT) {
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    out.append(toPrint);
-                    out.append("\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        Runnable runnable = () -> {
+            try {
+                out.append(toPrint);
+                out.append("\n");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         };
 
@@ -103,15 +100,14 @@ public class LogUtils {
     
     public static final void print(final Color c, final TextConsole out, boolean doOnEDT,
             final String toPrint, final boolean appendNewLine) {
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    out.append(c, toPrint);
+        Runnable runnable = () -> {
+            try {
+                out.append(c, toPrint);
+                if (appendNewLine) {
                     out.append("\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         };
 

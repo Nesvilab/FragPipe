@@ -26,9 +26,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.text.JTextComponent;
 import umich.msfragger.Version;
+import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.util.PathUtils;
 
 public class ThisAppProps extends Properties {
@@ -42,29 +44,39 @@ public class ThisAppProps extends Properties {
     public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
     public static final String TEMP_FILE_NAME = "msfragger.cache";
     
-    public static final String PROP_TEXTFIELD_PATH_MSCONVERT = "path.textfield.msconvert";
+    public static final String PROP_BIN_PATH_MSCONVERT = "path.textfield.msconvert";
     public static final String PROP_BIN_PATH_MSFRAGGER = "path.textfield.msfragger";
     public static final String PROP_BIN_PATH_PHILOSOPHER = "path.textfield.peptide-prophet";
-    public static final String PROP_TEXTFIELD_PATH_PROTEIN_PROPHET = "path.textfield.protein-prophet";
-    public static final String PROP_TEXTFIELD_REPORT_ANNOTATE = "report.annotate";
-    public static final String PROP_TEXTFIELD_REPORT_FILTER = "report.filter";
-    public static final String PROP_TEXTFIELD_LABELFREE = "report.labelfree";
-    public static final String PROP_TEXTFIELD_SEQUENCE_DB = "sequence.db";
-    public static final String PROP_TEXTFIELD_DECOY_TAG = "decoy.tag";
-    public static final String PROP_CHECKBOX_REPORT_PROTEIN_LEVEL_FDR = "report.proteinlevelfdr";
-    
-    public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
-    public static final String PROP_TEXT_CMD_PROTEIN_PROPHET = "proteinprophet.cmd.line.opts";
-    
-    public static final String PROP_MSADJUSTER_USE = "msadjuster.use";
-    public static final String PROP_CRYSTALC_USE = "crystalc.use";
+  public static final String PROP_BIN_PATH_PYTHON = "path.bin.python";
+  public static final String PROP_TEXTFIELD_PATH_PROTEIN_PROPHET = "path.textfield.protein-prophet";
+  public static final String PROP_TEXTFIELD_REPORT_ANNOTATE = "report.annotate";
+  public static final String PROP_TEXTFIELD_REPORT_FILTER = "report.filter";
+  public static final String PROP_TEXTFIELD_REPORT_ABACUS = "report.abacus";
+  public static final String PROP_TEXTFIELD_LABELFREE = "report.labelfree";
+  public static final String PROP_TEXTFIELD_SEQUENCE_DB = "sequence.db";
+  public static final String PROP_TEXTFIELD_DECOY_TAG = "decoy.tag";
+  public static final String PROP_CHECKBOX_REPORT_PROTEIN_LEVEL_FDR = "report.proteinlevelfdr";
+  public static final String PROP_CHECKBOX_PROCESS_GROUPS_SEPARATELY = "process.groups.separately";
+  public static final String PROP_CHECKBOX_REPORT_ABACUS = "report.run.abacus";
 
-    public static final String PROP_MGF_WARNING = "warn.mgf";
-    
-    public ThisAppProps() {
-        this.setProperty(Version.PROP_VER, Version.VERSION);
-    }
-    
+  public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
+  public static final String PROP_TEXT_CMD_PROTEIN_PROPHET = "proteinprophet.cmd.line.opts";
+
+  public static final String PROP_MSADJUSTER_USE = "msadjuster.use";
+  public static final String PROP_CRYSTALC_USE = "crystalc.use";
+  public static final String PROP_SPECLIBGEN_RUN = "speclibgen.run";
+
+
+  public static final String PROP_MGF_WARNING = "warn.mgf";
+
+  public static final String JAR_FILE_AS_RESOURCE_EXT = ".jazz";
+  public static final Path UNPACK_TEMP_SUBDIR = Paths.get("fragpipe");
+  public static final String DEFAULT_LCMS_GROUP_NAME = "";
+
+  public ThisAppProps() {
+          this.setProperty(Version.PROP_VER, Version.version());
+      }
+
     public static void clearCache() {
         ThisAppProps thisAppProps = new ThisAppProps();
         thisAppProps.save();
@@ -140,24 +152,74 @@ public class ThisAppProps extends Properties {
      * @param props  List of properties to search for.
      * @param locateJar  If no property was found, will try to locate the current jar
      *                   and return its location.
-     * @return
+     * @return Null in case path could not be found.
      */
     public static String tryFindPath(List<String> props, boolean locateJar) {
-        String path = null;
         for (String prop : props) {
-            path = ThisAppProps.load(prop);
+            String path = ThisAppProps.load(prop);
             if (path != null) {
-                break;
+                return path;
             }
         }
-        if (path == null && locateJar) {
-            URI thisJarUri = PathUtils.getCurrentJarPath();
+        if (locateJar) {
+            URI thisJarUri = PathUtils.getCurrentJarUri();
             if (thisJarUri != null) {
-                path = Paths.get(thisJarUri).toString();
+                return Paths.get(thisJarUri).toString();
             }
         }
-        return path;
+        return null;
     }
+
+  public static boolean load(JTextComponent text, String propName) {
+      String val = load(propName);
+      if (val != null) {
+          text.setText(val);
+          return true;
+      }
+      return false;
+  }
+
+  public static boolean load(JCheckBox box, String propName) {
+      String val = load(propName);
+      if (val != null) {
+          Boolean bool = Boolean.valueOf(val);
+          box.setSelected(bool);
+          return true;
+      }
+      return false;
+  }
+
+  public static void save(JCheckBox box, String propName) {
+      save(propName, Boolean.toString(box.isSelected()));
+  }
+
+  public static void save(JTextComponent text, String propName) {
+      save(propName, text.getText().trim());
+  }
+
+  public static void loadFromBundle(JTextComponent text, String propName, SearchTypeProp type) {
+      final String prop = propName + "." + type.name();
+      loadFromBundle(text, prop);
+  }
+
+  public static void loadFromBundle(JTextComponent text, String propName) {
+      java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
+      String val = bundle.getString(propName);
+      text.setText(val);
+      save(propName, val);
+  }
+
+  public static void loadFromBundle(JCheckBox checkBox, String propName, SearchTypeProp type) {
+      final String prop = propName + "." + type.name();
+      loadFromBundle(checkBox, prop);
+  }
+
+  public static void loadFromBundle(JCheckBox checkBox, String propName) {
+      java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
+      String val = bundle.getString(propName);
+      checkBox.setSelected(Boolean.valueOf(val));
+      save(propName, val);
+  }
 
     public void save() {
         Path path = Paths.get(TEMP_DIR, TEMP_FILE_NAME);
@@ -174,7 +236,7 @@ public class ThisAppProps extends Properties {
         ThisAppProps thisAppProps = ThisAppProps.loadFromTemp();
         if (thisAppProps == null)
             thisAppProps = new ThisAppProps();
-        if (propVal == null)
+        if (propVal == null || "".equals(propVal))
             thisAppProps.remove(propName);
         else
             thisAppProps.setProperty(propName, propVal);
