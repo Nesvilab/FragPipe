@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -212,6 +211,9 @@ public class Props {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
         for (Map.Entry<String, Prop> e : entries) {
             Prop prop = e.getValue();
+            if (StringUtils.isNullOrWhitespace(prop.value)) {
+              continue;
+            }
             if (!prop.isEnabled)
                 bw.write(COMMENT_SYMBOL + " ");
             bw.write(e.getKey());
