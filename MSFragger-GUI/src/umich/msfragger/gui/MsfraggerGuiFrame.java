@@ -803,6 +803,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     checkReportProteinLevelFdr = new javax.swing.JCheckBox();
     checkReportAbacus = new javax.swing.JCheckBox();
     textReportAbacus = new javax.swing.JTextField();
+    jCheckBox1 = new javax.swing.JCheckBox();
     checkCreateReport = new javax.swing.JCheckBox();
     btnReportDefaultsClosed = new javax.swing.JButton();
     btnReportDefaultsOpen = new javax.swing.JButton();
@@ -1885,6 +1886,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
+    jCheckBox1.setText("Include combined peptide-level report");
+    jCheckBox1.setToolTipText("Combined peptide-level report feature will come in the next release.");
+    jCheckBox1.setEnabled(false);
+
     javax.swing.GroupLayout panelReportOptionsLayout = new javax.swing.GroupLayout(panelReportOptions);
     panelReportOptions.setLayout(panelReportOptionsLayout);
     panelReportOptionsLayout.setHorizontalGroup(
@@ -1900,6 +1905,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
               .addGroup(panelReportOptionsLayout.createSequentialGroup()
                 .addComponent(checkReportProteinLevelFdr)
+                .addGap(18, 18, 18)
+                .addComponent(jCheckBox1)
                 .addGap(0, 0, Short.MAX_VALUE))
               .addComponent(textReportFilter)
               .addComponent(textReportAnnotate)))
@@ -1922,7 +1929,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(checkReportFilter)
           .addComponent(textReportFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(checkReportProteinLevelFdr)
+        .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(checkReportProteinLevelFdr)
+          .addComponent(jCheckBox1))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
           .addComponent(checkReportAbacus)
@@ -5857,6 +5866,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JEditorPane editorMsfraggerCitation;
   private javax.swing.JEditorPane editorPhilosopherLink;
   private javax.swing.JEditorPane editorSequenceDb;
+  private javax.swing.JCheckBox jCheckBox1;
   private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel10;
   private javax.swing.JLabel jLabel12;
