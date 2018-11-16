@@ -1674,12 +1674,7 @@ public class FraggerPanel extends javax.swing.JPanel {
           throw new AssertionError(type.name());
       }
       fillFormFromParams(params);
-      
-      if (type == SearchTypeProp.open) {
-        loadDefaultsMsadjuster(SearchTypeProp.open);
-      } else {
-        loadDefaultsMsadjuster(SearchTypeProp.closed);
-      }
+      loadDefaultsMsadjuster(type);
     }
     
     private void textEnzymeNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textEnzymeNameActionPerformed
