@@ -1642,11 +1642,12 @@ public class FraggerPanel extends javax.swing.JPanel {
             if (f != null) {
                 int confirmProphets = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
                 "Loaded MSFragger defaults for 'Open' search.\n"
-                        + "Would you like to update Prophets' options as well?\n"
+                        + "Would you like to update Prophets' and Report options as well?\n"
                         + "(Highly recommended, unless you're sure what you're doing)", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
                 if (JOptionPane.OK_OPTION == confirmProphets) {
                     f.loadDefaultsPeptideProphet(SearchTypeProp.open);
                     f.loadDefaultsProteinProphet(SearchTypeProp.open);
+                    asdsaasd
                 }
             }
         }
@@ -1792,6 +1793,13 @@ public class FraggerPanel extends javax.swing.JPanel {
         mp.setSearchEnzymeName(MsfraggerParams.ENZYME_NONSPECIFIC_NAME);
         mp.setSearchEnzymeCutAfter("KR");
         mp.setSearchEnzymeButNotAfter("P");
+        mp.setIsotopeError("0/1");
+        mp.setDigestMinLength(7);
+        mp.setDigestMaxLength(25);
+        mp.setPrecursorMassLower(-20.0);
+        mp.setPrecursorMassUpper(+20.0);
+        mp.setPrecursorMassUnits(MassTolUnits.PPM);
+        mp.setMinMatchedFragments(5);
         fillFormFromParams(mp);
       } catch (IOException ex) {
         throw new RuntimeException("Error updating form with non-specific search defaults.", ex);

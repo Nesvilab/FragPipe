@@ -4987,11 +4987,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }
 
-  private void loadDefaultsReportFilter(SearchTypeProp type) {
+  public void loadDefaultsReportFilter(SearchTypeProp type) {
     ThisAppProps.loadFromBundle(textReportFilter, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER, type);
   }
 
-  private void loadDefaultsReportAbacus(SearchTypeProp type) {
+  public void loadDefaultsReportAbacus(SearchTypeProp type) {
     ThisAppProps.loadFromBundle(textReportAbacus, ThisAppProps.PROP_TEXTFIELD_REPORT_ABACUS, type);
   }
 
@@ -5239,7 +5239,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
   //region Load-Defaults methods
-  private void loadDefaultsLabelfree(SearchTypeProp type) {
+  public void loadDefaultsLabelfree(SearchTypeProp type) {
     ThisAppProps.loadFromBundle(textReportLabelfree, ThisAppProps.PROP_TEXTFIELD_LABELFREE, type);
   }
 
