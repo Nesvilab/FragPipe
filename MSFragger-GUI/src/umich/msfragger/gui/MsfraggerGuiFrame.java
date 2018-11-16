@@ -143,6 +143,7 @@ import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
+import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.dbslice.DbSlice;
@@ -4216,23 +4217,43 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnPepProphDefaultsOpenActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPepProphDefaultsOpenActionPerformed
-    loadDefaultsPeptideProphet(SearchTypeProp.open);
+    btnPepProphDefaults(SearchTypeProp.open);
   }//GEN-LAST:event_btnPepProphDefaultsOpenActionPerformed
 
   private void btnPepProphDefaultsClosedActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPepProphDefaultsClosedActionPerformed
-    loadDefaultsPeptideProphet(SearchTypeProp.closed);
+    btnPepProphDefaults(SearchTypeProp.closed);
   }//GEN-LAST:event_btnPepProphDefaultsClosedActionPerformed
 
+  private void btnPepProphDefaults(SearchTypeProp t) {
+    loadDefaultsPeptideProphet(t);
+    int choice = JOptionPane.showConfirmDialog(this,
+        "Loading " + t + " search defaults.\n"
+            + "Do you want to load defaults for other tools as well?");
+    if (JOptionPane.YES_OPTION == choice) {
+      EventBus.getDefault().post(new MessageSearchType(t));
+    }
+  }
+  
   private void btnProtProphDefaultsOpenActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProtProphDefaultsOpenActionPerformed
-    loadDefaultsProteinProphet(SearchTypeProp.open);
+    btnProtProphDefaults(SearchTypeProp.open);
   }//GEN-LAST:event_btnProtProphDefaultsOpenActionPerformed
 
   private void btnProtProphDefaultsClosedActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProtProphDefaultsClosedActionPerformed
-    loadDefaultsProteinProphet(SearchTypeProp.closed);
+    btnProtProphDefaults(SearchTypeProp.closed);
   }//GEN-LAST:event_btnProtProphDefaultsClosedActionPerformed
+
+  private void btnProtProphDefaults(SearchTypeProp t) {
+    loadDefaultsProteinProphet(t);
+    int choice = JOptionPane.showConfirmDialog(this,
+        "Loading " + t + " search defaults.\n"
+            + "Do you want to load defaults for other tools as well?");
+    if (JOptionPane.YES_OPTION == choice) {
+      EventBus.getDefault().post(new MessageSearchType(t));
+    }
+  }
 
   private void textReportFilterFocusLost(
       java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textReportFilterFocusLost
@@ -4246,16 +4267,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnReportDefaultsClosedActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportDefaultsClosedActionPerformed
-    SearchTypeProp type = SearchTypeProp.closed;
-    loadDefaultsReportFilter(type);
-    loadDefaultsReportAnnotate(type);
+    EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.closed));
   }//GEN-LAST:event_btnReportDefaultsClosedActionPerformed
 
   private void btnReportDefaultsOpenActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportDefaultsOpenActionPerformed
-    SearchTypeProp type = SearchTypeProp.open;
-    loadDefaultsReportFilter(type);
-    loadDefaultsReportAnnotate(type);
+    EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.open));
   }//GEN-LAST:event_btnReportDefaultsOpenActionPerformed
 
   private void checkReportProteinLevelFdrStateChanged(
@@ -5244,13 +5261,25 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
 
-  private void loadDefaultsReportAnnotate(SearchTypeProp type) {
+  public void loadDefaultsReportAnnotate(SearchTypeProp type) {
     ThisAppProps
         .loadFromBundle(textReportAnnotate, ThisAppProps.PROP_TEXTFIELD_REPORT_ANNOTATE, type);
   }
 
-  private void loadDefaultsSequenceDb(SearchTypeProp type) {
+  public void loadDefaultsSequenceDb(SearchTypeProp type) {
     ThisAppProps.loadFromBundle(textDecoyTagSeqDb, ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
+  }
+  
+  @Subscribe
+  public void loadDefaults(MessageSearchType m) {
+    final SearchTypeProp t = m.type;
+    loadDefaultsLabelfree(t);
+    loadDefaultsPeptideProphet(t);
+    loadDefaultsProteinProphet(t);
+    loadDefaultsReportAbacus(t);
+    loadDefaultsReportAnnotate(t);
+    loadDefaultsReportFilter(t);
+    loadDefaultsLabelfree(t);
   }
   //endregion
 

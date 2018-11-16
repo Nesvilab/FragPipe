@@ -16,6 +16,8 @@
  */
 package umich.msfragger.gui;
 
+import static umich.msfragger.gui.MsfraggerGuiFrame.DEFAULT_TYPE;
+
 import java.awt.Component;
 import java.awt.Container;
 import java.io.File;
@@ -46,11 +48,10 @@ import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 import net.java.balloontip.BalloonTip;
 import org.greenrobot.eventbus.EventBus;
-import static umich.msfragger.gui.MsfraggerGuiFrame.DEFAULT_TYPE;
-
 import org.greenrobot.eventbus.Subscribe;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
+import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.messages.MessageShiftedIonsEnablement;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.enums.CleavageType;
@@ -1640,14 +1641,12 @@ public class FraggerPanel extends javax.swing.JPanel {
             
             MsfraggerGuiFrame f = frame.get();
             if (f != null) {
-                int confirmProphets = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
+                int updateOther = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
                 "Loaded MSFragger defaults for 'Open' search.\n"
-                        + "Would you like to update Prophets' and Report options as well?\n"
+                        + "Would you like to update options for other tools as well?\n"
                         + "(Highly recommended, unless you're sure what you're doing)", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
-                if (JOptionPane.OK_OPTION == confirmProphets) {
-                    f.loadDefaultsPeptideProphet(SearchTypeProp.open);
-                    f.loadDefaultsProteinProphet(SearchTypeProp.open);
-                    asdsaasd
+                if (JOptionPane.OK_OPTION == updateOther) {
+                  EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.open));
                 }
             }
         }
@@ -1732,24 +1731,27 @@ public class FraggerPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_comboFragMassTolActionPerformed
 
     private void btnMsfraggerDefaultsClosedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMsfraggerDefaultsClosedActionPerformed
-        int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
-            "Are you sure you want to load defaults for 'closed' search?\n"
-                    + "It's a standard search with tight mass tolerances.", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
-        if (JOptionPane.OK_OPTION == confirmation) {
-            loadDefaultsClosed();
-            
-            MsfraggerGuiFrame f = frame.get();
-            if (f != null) {
-                int confirmProphets = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
-                "Loaded MSFragger defaults for 'Closed' search.\n"
-                        + "Would you like to update Prophets' options as well?\n"
-                        + "(Highly recommended, unless you're sure what you're doing)", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
-                if (JOptionPane.OK_OPTION == confirmProphets) {
-                    f.loadDefaultsPeptideProphet(SearchTypeProp.closed);
-                    f.loadDefaultsProteinProphet(SearchTypeProp.closed);
-                }
-            }
+      int confirmation = JOptionPane
+          .showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
+              "Are you sure you want to load defaults for 'closed' search?\n"
+                  + "It's a standard search with tight mass tolerances.", "Confirmation",
+              JOptionPane.OK_CANCEL_OPTION);
+      if (JOptionPane.OK_OPTION == confirmation) {
+        loadDefaultsClosed();
+
+        MsfraggerGuiFrame f = frame.get();
+        if (f != null) {
+          int updateOther = JOptionPane
+              .showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
+                  "Loaded MSFragger defaults for 'Closed' search.\n"
+                      + "Would you like to update Prophets' options as well?\n"
+                      + "(Highly recommended, unless you're sure what you're doing)",
+                  "Confirmation", JOptionPane.OK_CANCEL_OPTION);
+          if (JOptionPane.OK_OPTION == updateOther) {
+            EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.open));
+          }
         }
+      }
     }//GEN-LAST:event_btnMsfraggerDefaultsClosedActionPerformed
 
     private void panelMsFraggerComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_panelMsFraggerComponentShown
@@ -1778,11 +1780,10 @@ public class FraggerPanel extends javax.swing.JPanel {
 
   private void btnDefaultsNonSpecificActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDefaultsNonSpecificActionPerformed
 
-      int result = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
-          "This action will update some parameters on this page\n"
-              + "and some parameters on PeptideProphet page.\n\n"
+      int confirm = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
+          "This action will update some parameters on this page.\n\n"
               + "Dow you want to proceed?", "Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-      if (JOptionPane.YES_OPTION != result)
+      if (JOptionPane.YES_OPTION != confirm)
         return;
 
       MsfraggerGuiFrame f = this.frame.get();
@@ -1804,6 +1805,14 @@ public class FraggerPanel extends javax.swing.JPanel {
       } catch (IOException ex) {
         throw new RuntimeException("Error updating form with non-specific search defaults.", ex);
       }
+
+    int updateOthers = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
+        "<html>New parameters for MSFragger loaded.<br/>"
+            + "We highly recommend to auto-update parameters for other tools.<br/><br/>"
+            + "Dow you want to proceed?", "Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+    if (JOptionPane.YES_OPTION != updateOthers)
+      return;
+    EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.closed));
 
   }//GEN-LAST:event_btnDefaultsNonSpecificActionPerformed
 
