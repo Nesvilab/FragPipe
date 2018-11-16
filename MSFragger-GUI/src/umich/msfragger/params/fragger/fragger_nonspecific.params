@@ -1,22 +1,22 @@
 
 num_threads = 0                        # 0=poll CPU to set num threads; else specify num threads directly (max 64)
 
-precursor_mass_tolerance = 100.00
-precursor_mass_lower = -100.00
-precursor_mass_upper = 100.00
+precursor_mass_tolerance = 20.00
+precursor_mass_lower = -20.00
+precursor_mass_upper = 20.00
 precursor_mass_units = 1               # 0=Daltons, 1=ppm
 precursor_true_tolerance = 20.00
 precursor_true_units = 1               # 0=Daltons, 1=ppm
 fragment_mass_tolerance = 20.00
 fragment_mass_units = 1		           # 0=Daltons, 1=ppm
 
-isotope_error = 0/1/2                  # 0=off, 0/1/2 (standard C13 error)
+isotope_error = 0/1                      # 0=off, 0/1/2 (standard C13 error)
 mass_offsets = 0
 
 shifted_ions = 0
 shifted_ions_exclude_ranges = (-1.5,3.5)
 
-search_enzyme_name = Trypsin
+search_enzyme_name = nonspecific
 search_enzyme_cutafter = KR
 search_enzyme_butnotafter = P
 
@@ -45,7 +45,7 @@ precursor_charge = 0 0                 # precursor charge range to analyze; does
 override_charge = 0                    # 0=no, 1=yes to override existing precursor charge states with precursor_charge parameter
 
 digest_min_length = 7
-digest_max_length = 50 
+digest_max_length = 25
 digest_mass_range = 500.0 5000.0       # MH+ peptide mass range to analyze
 max_fragment_charge = 2                # set maximum fragment charge state to analyze (allowed max 5)
 
@@ -60,7 +60,7 @@ add_topN_complementary = 0
 minimum_peaks = 15                   # required minimum number of peaks in spectrum to search (default 10)
 use_topN_peaks = 100
 min_fragments_modelling = 3
-min_matched_fragments = 4 
+min_matched_fragments = 5 
 minimum_ratio = 0.01		         # filter peaks below this fraction of strongest peak
 clear_mz_range = 0.0 0.0             # for iTRAQ/TMT type data; will clear out all peaks in the specified m/z range
 

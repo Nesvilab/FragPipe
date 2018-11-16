@@ -14,9 +14,6 @@
     <Property name="iconImages" type="java.util.List" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
       <Connection code="ToolingUtils.loadIcon()" type="code"/>
     </Property>
-    <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-      <Dimension value="[1920, 1080]"/>
-    </Property>
     <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
       <Dimension value="[640, 480]"/>
     </Property>
@@ -437,7 +434,7 @@
                           <Connection component="lblMsfraggerCitation" name="font" type="property"/>
                         </Property>
                         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                          <Connection code="getPhilosopherCitationHtml()" type="code"/>
+                          <Connection code="createPhilosopherCitationHtml()" type="code"/>
                         </Property>
                       </Properties>
                       <Events>
@@ -513,6 +510,7 @@
                     <TitledBorder title="DB Slicing"/>
                   </Border>
                 </Property>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Requires &lt;b&gt;Python 3&lt;/b&gt; with packages &lt;b&gt;Numpy, Pandas&lt;/b&gt;&#xa;Ways to get everything set up:&lt;br&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;Install Python 3 if you don&apos;t yet have it.&lt;/li&gt;&#xa;&lt;li&gt;Install required python modules using &lt;i&gt;pip&lt;/i&gt;, the python package manager, with commands:&lt;/li&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;pip install numpy&lt;/li&gt;&#xa;&lt;li&gt;pip install pandas&lt;/li&gt;&#xa;&lt;li&gt;pip install cython&lt;/li&gt;&#xa;&lt;li&gt;pip install msproteomicstools&lt;/li&gt;&#xa;&lt;/ul&gt;&#xa;&lt;/ul&gt;&#xa;"/>
               </Properties>
 
               <Layout>
@@ -573,6 +571,7 @@
                     <TitledBorder title="Spectral Lib generation"/>
                   </Border>
                 </Property>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Requires &lt;b&gt;Python 3&lt;/b&gt; with packages &lt;b&gt;Cython, Msproteomicstools&lt;/b&gt;.&lt;br/&gt;&#xa;Ways to get everything set up:&lt;br&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;Install Python 3 if you don&apos;t yet have it.&lt;/li&gt;&#xa;&lt;li&gt;Install required python modules using &lt;i&gt;pip&lt;/i&gt;, the python package manager, with commands:&lt;/li&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;pip install numpy&lt;/li&gt;&#xa;&lt;li&gt;pip install pandas&lt;/li&gt;&#xa;&lt;li&gt;pip install cython&lt;/li&gt;&#xa;&lt;li&gt;pip install msproteomicstools&lt;/li&gt;&#xa;&lt;/ul&gt;&#xa;&lt;/ul&gt;&#xa;"/>
               </Properties>
 
               <Layout>
@@ -729,34 +728,33 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="scrollPaneRawFiles" max="32767" attributes="0"/>
-                              <Group type="102" alignment="1" attributes="0">
-                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                                  <Component id="jLabel11" min="-2" max="-2" attributes="0"/>
-                              </Group>
                               <Group type="102" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Group type="102" attributes="0">
-                                          <Component id="btnRawClear" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace max="-2" attributes="0"/>
-                                          <Component id="btnRawRemove" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="jLabel10" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Group type="102" alignment="0" attributes="0">
                                           <Component id="btnRawAddFiles" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Component id="btnRawAddFolder" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="btnRawRemove" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="btnRawClear" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          <Component id="checkProcessGroupsSeparately" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                       <Group type="102" alignment="0" attributes="0">
-                                          <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
+                                          <Component id="btnGroupsConsecutive" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
-                                          <Component id="btnGroupsIntegers" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace max="-2" attributes="0"/>
-                                          <Component id="btnGroupsFromPath" min="-2" max="-2" attributes="0"/>
+                                          <Component id="btnGroupsByParentDir" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Component id="btnGroupsByFilename" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="btnGroupsAssignToSelected" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Component id="btnGroupsClear" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
-                                  <EmptySpace min="0" pref="81" max="32767" attributes="0"/>
+                                  <EmptySpace min="0" pref="94" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -768,21 +766,22 @@
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="btnRawClear" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnRawRemove" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnRawAddFiles" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnRawAddFolder" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnRawClear" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="checkProcessGroupsSeparately" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
+                          <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="btnGroupsIntegers" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="btnGroupsFromPath" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnGroupsConsecutive" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnGroupsByParentDir" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnGroupsByFilename" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnGroupsAssignToSelected" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnGroupsClear" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jLabel11" min="-2" pref="14" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="scrollPaneRawFiles" pref="550" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -822,18 +821,19 @@
                 </Component>
                 <Component class="javax.swing.JButton" name="btnRawRemove">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Remove"/>
+                    <Property name="text" type="java.lang.String" value="Remove Selected"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRawRemoveActionPerformed"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JButton" name="btnGroupsIntegers">
+                <Component class="javax.swing.JButton" name="btnGroupsConsecutive">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Consecutive integers"/>
+                    <Property name="text" type="java.lang.String" value="Consecutive"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Assign each run to its own experiment.&lt;br/&gt;&#xa;&lt;b&gt;Names like &quot;experiment-01&quot;&lt;/b&gt; will be assgined."/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsIntegersActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsConsecutiveActionPerformed"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel10">
@@ -841,22 +841,19 @@
                     <Property name="text" type="java.lang.String" value="Assign files to Experiments/Groups:"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JButton" name="btnGroupsFromPath">
+                <Component class="javax.swing.JButton" name="btnGroupsByParentDir">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Guess from path"/>
+                    <Property name="text" type="java.lang.String" value="By parent directory"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Assign each run to an experiment.&lt;br/&gt;&#xa;LCMS file&apos;s &lt;b&gt;parent directory name&lt;b&gt; will be used&lt;br/&gt;&#xa;as the experiment name."/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsFromPathActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsByParentDirActionPerformed"/>
                   </Events>
-                </Component>
-                <Component class="javax.swing.JLabel" name="jLabel11">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="You can change group names manually as well"/>
-                  </Properties>
                 </Component>
                 <Component class="javax.swing.JButton" name="btnGroupsByFilename">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="By file name"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Each file is assigned to an experiment with&lt;br/&gt;&#xa;the &lt;b&gt;same name as the file itself&lt;/b&gt;."/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsByFilenameActionPerformed"/>
@@ -865,9 +862,31 @@
                 <Component class="javax.swing.JButton" name="btnGroupsClear">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Clear"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Each file is assigned to the &lt;b&gt;default&lt;/b&gt; experiment."/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsClearActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JButton" name="btnGroupsAssignToSelected">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Assign to selected"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Brings up a dialog to assign selected runs to an&lt;br/&gt;&#xa;experiment name of your choice."/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsAssignToSelectedActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="checkProcessGroupsSeparately">
+                  <Properties>
+                    <Property name="selected" type="boolean" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="loadLastProcessGroupsSeparately()" type="code"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" value="Process each Experiment/Group separately"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If you want a report comparing protein abundances across&lt;br/&gt;&#xa;experiments or just want a single protein identification result from all&lt;br/&gt;&#xa;the runs, select this checkbox. For most usecases you want this checked.&lt;br/&gt;&#xa;&lt;b&gt;Only check&lt;/b&gt; if you simply want peptide/protein ID results&lt;br/&gt;&#xa;for each experiment separately. E.g. this might be useful if you have&lt;br/&gt;&#xa;100 files on hand and use the &quot;assign to experiments&quot; feature to quickly&lt;br/&gt;&#xa;run MSFragger + downstream processing on each of those and get a pepxml&lt;br/&gt;&#xa;and/or protxml files."/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkProcessGroupsSeparatelyActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>
@@ -1066,6 +1085,8 @@
                           <Component id="panelCrystalcOptions" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="chkRunCrystalc" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="jLabel12" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="32767" attributes="0"/>
                               <Component id="btnCrystalcDefaults" min="-2" max="-2" attributes="0"/>
                           </Group>
@@ -1081,6 +1102,7 @@
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="btnCrystalcDefaults" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="chkRunCrystalc" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="panelCrystalcOptions" max="32767" attributes="0"/>
@@ -1160,7 +1182,7 @@
                               <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="spinnerCrystalcPrecIsoWindow" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="552" max="32767" attributes="0"/>
+                          <EmptySpace pref="543" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -1216,6 +1238,11 @@
                 </Component>
               </SubComponents>
             </Container>
+            <Component class="javax.swing.JLabel" name="jLabel12">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="&lt;html&gt;Crystal-C performs additional search results cleanup&lt;br/&gt;&#xa;&lt;b&gt;Recommended for Open Searches&lt;/b&gt;"/>
+              </Properties>
+            </Component>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="panelPeptideProphet">
@@ -1559,6 +1586,7 @@
                           </Group>
                           <Component id="panelReportOptions" max="32767" attributes="0"/>
                           <Component id="panelSpecLibOpts" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jPanel4" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -1578,8 +1606,10 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelReportOptions" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelSpecLibOpts" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="449" max="32767" attributes="0"/>
+                      <EmptySpace pref="380" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1600,23 +1630,25 @@
                       <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" attributes="0">
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                          <Component id="checkReportFilter" max="32767" attributes="0"/>
-                                          <Component id="checkReportDbAnnotate" max="32767" attributes="0"/>
-                                      </Group>
-                                      <Component id="checkLabelfree" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                      <Component id="checkReportFilter" max="32767" attributes="0"/>
+                                      <Component id="checkReportDbAnnotate" max="32767" attributes="0"/>
                                   </Group>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="textReportAnnotate" pref="552" max="32767" attributes="0"/>
+                                      <Group type="102" attributes="0">
+                                          <Component id="checkReportProteinLevelFdr" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                      </Group>
                                       <Component id="textReportFilter" max="32767" attributes="0"/>
-                                      <Component id="textReportLabelfree" alignment="0" max="32767" attributes="0"/>
+                                      <Component id="textReportAnnotate" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
-                                  <Component id="checkReportProteinLevelFdr" min="-2" max="-2" attributes="0"/>
+                                  <Component id="checkReportAbacus" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                  <Component id="textReportAbacus" min="-2" pref="534" max="-2" attributes="0"/>
                                   <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
                           </Group>
@@ -1637,14 +1669,14 @@
                               <Component id="checkReportFilter" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="textReportFilter" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="textReportLabelfree" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="checkLabelfree" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="checkReportProteinLevelFdr" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="8" max="32767" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="1" attributes="0">
+                              <Component id="checkReportAbacus" min="-2" max="-2" attributes="0"/>
+                              <Component id="textReportAbacus" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -1654,11 +1686,13 @@
                   <Properties>
                     <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" value="Database Annotation"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JTextField" name="textReportAnnotate">
                   <Properties>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;philosopher database --annotate&lt;br/&gt;&#xa;Flags:&lt;br/&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;--prefix string     define a decoy prefix (default &quot;rev_&quot;)&lt;/li&gt;&#xa;&lt;/ul&gt;"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                   <Events>
                     <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportAnnotateFocusGained"/>
@@ -1672,6 +1706,7 @@
                   <Properties>
                     <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" value="Filter"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkReportFilterActionPerformed"/>
@@ -1693,7 +1728,7 @@
                 <Component class="javax.swing.JCheckBox" name="checkReportProteinLevelFdr">
                   <Properties>
                     <Property name="selected" type="boolean" value="true"/>
-                    <Property name="text" type="java.lang.String" value="Report Protein level FDR"/>
+                    <Property name="text" type="java.lang.String" value="Apply Protein level FDR"/>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Which FDR (False Discovery Rate) level to use:&#xa;&lt;ul&gt;&#xa;  &lt;li&gt;Checked - Protein level FDR&lt;/li&gt;&#xa;  &lt;li&gt;Unchecked - Peptide level FDR&lt;/li&gt;&#xa;&lt;/ul&gt;"/>
                   </Properties>
                   <Events>
@@ -1703,24 +1738,30 @@
                     <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastReportProteinLevelFdr();"/>
                   </AuxValues>
                 </Component>
-                <Component class="javax.swing.JTextField" name="textReportLabelfree">
+                <Component class="javax.swing.JCheckBox" name="checkReportAbacus">
                   <Properties>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Label free quantitation&lt;br/&gt;&#xa;Flags:&lt;br/&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;--ptw float    specify the time windows for the peak (minute) (default 0.4)&lt;/li&gt;&#xa;&lt;li&gt;--tol float    m/z tolerance in ppm (default 10)&lt;/li&gt;&#xa;&lt;/ul&gt;"/>
+                    <Property name="selected" type="boolean" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="loadLastCheckboxAbacus()" type="code"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" value="Multi-Experiment Report "/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Philosopher abacus command"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportLabelfreeFocusGained"/>
-                    <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportLabelfreeFocusLost"/>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textReportLabelfreeActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkReportAbacusActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JTextField" name="textReportAbacus">
+                  <Properties>
+                    <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection component="checkReportAbacus" name="toolTipText" type="property"/>
+                    </Property>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportAbacusFocusLost"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastLabelfree();"/>
+                    <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastAbacus();"/>
                   </AuxValues>
-                </Component>
-                <Component class="javax.swing.JCheckBox" name="checkLabelfree">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Label-free Quant"/>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Label free quantitation"/>
-                  </Properties>
                 </Component>
               </SubComponents>
             </Container>
@@ -1792,6 +1833,62 @@
                 </Component>
               </SubComponents>
             </Container>
+            <Container class="javax.swing.JPanel" name="jPanel4">
+              <Properties>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                    <TitledBorder title="Quantitation"/>
+                  </Border>
+                </Property>
+              </Properties>
+
+              <Layout>
+                <DimensionLayout dim="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="checkLabelfree" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="textReportLabelfree" max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+                </DimensionLayout>
+                <DimensionLayout dim="1">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="checkLabelfree" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="textReportLabelfree" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
+                </DimensionLayout>
+              </Layout>
+              <SubComponents>
+                <Component class="javax.swing.JCheckBox" name="checkLabelfree">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Label-free Quant"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Label free quantitation"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="textReportLabelfree">
+                  <Properties>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Label free quantitation&lt;br/&gt;&#xa;Flags:&lt;br/&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;--ptw float    specify the time windows for the peak (minute) (default 0.4)&lt;/li&gt;&#xa;&lt;li&gt;--tol float    m/z tolerance in ppm (default 10)&lt;/li&gt;&#xa;&lt;/ul&gt;"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportLabelfreeFocusGained"/>
+                    <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportLabelfreeFocusLost"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textReportLabelfreeActionPerformed"/>
+                  </Events>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastFreequant();"/>
+                  </AuxValues>
+                </Component>
+              </SubComponents>
+            </Container>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="panelRun">
@@ -1815,32 +1912,32 @@
                           <Component id="consoleScrollPane" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
                               <Group type="103" groupAlignment="1" attributes="0">
-                                  <Group type="102" alignment="1" attributes="0">
-                                      <Component id="lblOutputDir" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="txtWorkingDir" max="32767" attributes="0"/>
-                                  </Group>
-                                  <Group type="102" alignment="0" attributes="0">
+                                  <Group type="102" attributes="0">
                                       <Component id="btnRun" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="btnStop" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
                                       <Component id="checkDryRun" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace pref="146" max="32767" attributes="0"/>
+                                      <EmptySpace pref="108" max="32767" attributes="0"/>
+                                      <Component id="btnPrintCommands" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
                                       <Component id="btnExportLog" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="btnReportErrors" min="-2" max="-2" attributes="0"/>
                                   </Group>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="btnAbout" min="-2" max="-2" attributes="0"/>
-                                  <Component id="btnSelectWrkingDir" min="-2" max="-2" attributes="0"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="lblOutputDir" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="txtWorkingDir" max="32767" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="btnSelectWrkingDir" min="-2" max="-2" attributes="0"/>
+                                  </Group>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                   <Component id="btnClearConsole" max="32767" attributes="0"/>
                                   <Component id="btnOpenInExplorer" max="32767" attributes="0"/>
+                                  <Component id="btnAbout" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
@@ -1851,7 +1948,9 @@
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="btnAbout" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="lblOutputDir" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnSelectWrkingDir" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -1862,11 +1961,11 @@
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="btnStop" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnClearConsole" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="btnAbout" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="checkDryRun" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnReportErrors" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnRun" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnExportLog" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkDryRun" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnPrintCommands" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="consoleScrollPane" pref="586" max="32767" attributes="0"/>
@@ -1888,6 +1987,7 @@
             <Component class="javax.swing.JButton" name="btnClearConsole">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Clear console"/>
+                <Property name="toolTipText" type="java.lang.String" value="Clear text in the console below"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnClearConsoleActionPerformed"/>
@@ -1964,9 +2064,19 @@
             <Component class="javax.swing.JButton" name="btnOpenInExplorer">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Open in Explorer"/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Open the &lt;b&gt;output dir&lt;/b&gt; in system file explorer."/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnOpenInExplorerActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="btnPrintCommands">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Print Commands"/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;This button has exactly the same effect as&lt;br/&gt;&#xa;checking &apos;Dry Run&apos; checkbox and clicking &apos;Run&apos;"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPrintCommandsActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>

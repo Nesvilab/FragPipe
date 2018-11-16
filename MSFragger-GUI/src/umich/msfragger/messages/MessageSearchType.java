@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package umich.msfragger.gui.spi;
+package umich.msfragger.messages;
 
-import java.util.List;
-import javax.swing.JComponent;
+import umich.msfragger.gui.api.SearchTypeProp;
 
 /**
  *
  * @author Dmitry Avtonomov
  */
-public interface ITool {
-    String getName();
-    JComponent getConfigPanel();
-    void saveConfig();
-    void loadConfig();
-    List<ProcessBuilder> getProcessBuilders();
+public class MessageSearchType {
+  public final SearchTypeProp type;
+
+  public MessageSearchType(SearchTypeProp type) {
+    this.type = type;
+  }
 }

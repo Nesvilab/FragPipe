@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import umich.msfragger.params.AbstractParams;
 import umich.msfragger.params.Props;
 import umich.msfragger.params.enums.CleavageType;
@@ -38,7 +40,9 @@ import umich.msfragger.util.StringUtils;
  * @author dmitriya
  */
 public class MsfraggerParams extends AbstractParams {
-    
+
+    public static final Pattern reShiftedIonsExclusionRange = Pattern.compile("\\(\\s*(?<v1>-?\\d+(?:\\.\\d+)?)\\s*,\\s*(?<v2>-?\\d+(?:\\.\\d+)?)\\s*\\)");
+
     public static final String PROP_database_name = "database_name";
     public static final String PROP_fragpipe_ram = "fragpipe_ram";
     public static final String PROP_num_threads = "num_threads";
@@ -85,7 +89,9 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_zero_bin_accept_expect = "zero_bin_accept_expect";
     public static final String PROP_zero_bin_mult_expect = "zero_bin_mult_expect";
     public static final String PROP_add_topN_complementary = "add_topN_complementary";
-    
+    public static final String PROP_shifted_ions = "shifted_ions";
+    public static final String PROP_shifted_ions_exclude_ranges = "shifted_ions_exclude_ranges";
+
     // Spectral processing
     
     public static final String PROP_minimum_peaks = "minimum_peaks";
@@ -111,6 +117,9 @@ public class MsfraggerParams extends AbstractParams {
         "H (histidine)", "F (phenylalanine)", "R (arginine)", "Y (tyrosine)", "W (tryptophan)", 
         "B ", "J", "O", "U", "X", "Z", };
     
+    public static final String ENZYME_NONSPECIFIC_NAME = "nonspecific";
+    public static final String ENZYME_TRYPSIN_NAME = "Trypsin";
+
     public static final Map<String, String> ADDON_MAP_NAME2HUMAN = new HashMap<>(ADDON_NAMES.length);
     public static final Map<String, String> ADDON_MAP_HUMAN2NAME = new HashMap<>(ADDON_NAMES.length);
     static {
@@ -128,6 +137,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String DEFAULT_FILE = "fragger.params";
     public static final String DEFAULT_FILE_OPENSEARCH = "fragger_open.params";
     public static final String DEFAULT_FILE_CLOSEDSEARCH = "fragger_closed.params";
+    public static final String DEFAULT_FILE_NONSPECIFICSEARCH = "fragger_nonspecific.params";
     private static final long serialVersionUID = 1L;
 
     private static final DecimalFormat DF = new DecimalFormat("0.##########");
@@ -187,6 +197,15 @@ public class MsfraggerParams extends AbstractParams {
     public void loadDefaultsClosedSearch() {
         try {
             load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_CLOSEDSEARCH), true);
+        } catch (IOException e) {
+            // this is strange, we're loading stuff from our own jar, should not happen
+            throw new IllegalStateException("Could not load MSFragger defaults for Closed Search from the jar itself.", e);
+        }
+    }
+    
+    public void loadDefaultsNonspecific() {
+      try {
+            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_NONSPECIFICSEARCH), true);
         } catch (IOException e) {
             // this is strange, we're loading stuff from our own jar, should not happen
             throw new IllegalStateException("Could not load MSFragger defaults for Closed Search from the jar itself.", e);
@@ -603,9 +622,40 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     public void setClearMzRange(double[] v) {
-        if (v.length != 2)
+        if (v == null || v.length != 2)
             throw new IllegalArgumentException("Array length must be 2");
-        props.setProp(PROP_clear_mz_range, Double.toString(v[0]) + " " + Double.toString(v[1]));
+        props.setProp(PROP_clear_mz_range, v[0] + " " + v[1]);
+    }
+
+    public double[] getShiftedIonsExcludeRanges() {
+        final String name = PROP_shifted_ions_exclude_ranges;
+        final String val = props.getProp(name, "(-1.5,3.5)").value;
+        Matcher m = reShiftedIonsExclusionRange.matcher(val);
+        if (!m.find()) {
+            throw new IllegalStateException(String.format(
+                "Property named '%s' with value '%s' does not match its regex '%s'", name, val, reShiftedIonsExclusionRange.pattern()));
+        }
+        final double[] out = new double[2];
+        out[0] = Double.parseDouble(m.group("v1"));
+        out[1] = Double.parseDouble(m.group("v2"));
+        return out;
+    }
+
+    public void setShiftedIonsExcludeRanges(double[] v) {
+        if (v == null || v.length != 2) {
+            throw new IllegalArgumentException("Array length must be 2");
+        }
+        props.setProp(PROP_shifted_ions_exclude_ranges, "(" + v[0] + "," + v[1] + ")");
+    }
+
+    public boolean getShiftedIons() {
+        int v = Integer.parseInt(props.getProp(PROP_shifted_ions, "0").value);
+        return v == 1;
+    }
+
+    public void setShiftedIons(boolean v) {
+        int vInt = v ? 1 : 0;
+        props.setProp(PROP_shifted_ions, Integer.toString(vInt));
     }
     
     public boolean getAllowMultipleVariableModsOnResidue() {

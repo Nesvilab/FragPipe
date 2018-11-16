@@ -13,29 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package umich.msfragger.gui.api;
-
-import java.util.Map;
-import umich.msfragger.gui.spi.ITool;
+package umich.msfragger.messages;
 
 /**
  *
  * @author Dmitry Avtonomov
  */
-public class ToolRegistry {
-    private Map<String, ITool> tools;
-    
-    private ToolRegistry() {}
-    
-    public ITool getTool(String name) {
-        return tools.get(name);
-    }
-    
-    public void addTool(ITool tool) {
-        ITool old = tools.putIfAbsent(tool.getName(), tool);
-        if (old != null)
-            throw new IllegalStateException("Trying to add a tool with name '" 
-                    + tool.getName() + "'. Another tool with same name already "
-                            + "exists in the registry.");
-    }
+public class MessageShiftedIonsEnablement {
+  public final boolean isEnabled;
+
+  public MessageShiftedIonsEnablement(boolean isEnabled) {
+    this.isEnabled = isEnabled;
+  }
 }

@@ -8,7 +8,7 @@
   <cmdLine></cmdLine>
   <chdir>.</chdir>
   <priority>normal</priority>
-  <downloadUrl>https://www.azul.com/downloads/zulu/</downloadUrl>
+  <downloadUrl>https://adoptopenjdk.net/</downloadUrl>
   <supportUrl></supportUrl>
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>

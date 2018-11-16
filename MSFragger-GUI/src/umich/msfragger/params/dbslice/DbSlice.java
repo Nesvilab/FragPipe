@@ -24,7 +24,7 @@ public class DbSlice {
 
   private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
   private static final String SCRIPT_SPEC_LIB_GEN = "/speclib/gen_con_spec_lib.py";
-  private static final String SCRIPT_SPLITTER = "/" + MsfraggerProps.PYTHON_SPLITTER_NAME;
+  private static final String SCRIPT_SPLITTER = "/" + MsfraggerProps.DBSPLIT_SCRIPT_NAME;
   public static final String[] RESOURCE_LOCATIONS = {SCRIPT_SPLITTER};
   public static final PythonModule[] REQUIRED_MODULES = {
       new PythonModule("numpy", "numpy"),
@@ -215,7 +215,8 @@ public class DbSlice {
     for (String rl : RESOURCE_LOCATIONS) {
       Path subDir = Paths.get(UNPACK_SUBDIR_IN_TEMP);
       Path path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, false);
-      if (SCRIPT_SPEC_LIB_GEN.equals(rl))
+      // record the location of the main script that we'll be running
+      if (SCRIPT_SPLITTER.equals(rl))
         scriptDbslicingPath = path;
     }
     return new CheckResult(true, " Assets unpacked OK.");
