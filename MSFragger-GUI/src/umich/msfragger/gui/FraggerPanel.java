@@ -967,7 +967,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
-    jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Open Search Parameters"));
+    jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Advanced Open Search Parameters"));
 
     spinnerTrackZeroTopN.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 5));
     spinnerTrackZeroTopN.setToolTipText(lblTrackZeroTopN.getToolTipText());
