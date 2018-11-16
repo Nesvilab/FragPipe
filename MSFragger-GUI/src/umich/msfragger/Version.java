@@ -53,7 +53,9 @@ public class Version {
     static {
         CHANGELOG.put("8.5", Arrays.asList(
             "Updated spectral library generation. LCMS files are copied and deleted from the right locations.",
-            "Multi-experiment report."));
+            "Multi-experiment protein level report.",
+            "Multi-experiment quantitation",
+            "Allow separate processing of input files one-by-one."));
 
         CHANGELOG.put("8.4", Arrays.asList(
             "Combined protein report for multiple file groups."));
