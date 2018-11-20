@@ -19,7 +19,8 @@ public class CmdReportAbacus extends CmdBase {
   private static final String NAME = "ReportAbacus";
 
   private final List<String> KNOWN_OPTS = Arrays.asList(
-      "comb",
+      "protein",
+      "peptide",
       "labels",
       "pepProb",
       "picked",
@@ -66,7 +67,7 @@ public class CmdReportAbacus extends CmdBase {
       if (!StringUtils.isNullOrWhitespace(textAbacusCmdOpts)) {
         cmd.addAll(Arrays.asList(textAbacusCmdOpts.trim().split("[\\s]+")));
       }
-      cmd.add("--comb");
+      cmd.add("--protein");
       cmd.add(protxml.toString());
 
       // list locations with pepxml files
