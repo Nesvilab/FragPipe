@@ -78,9 +78,11 @@ dependencies {
     //compile 'com.google.guava:guava:23.0'
     compile 'org.apache.httpcomponents:httpcore:4.4.10'
     compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6') {
-        exclude group: 'commons-logging', module: 'commons-logging'
+        //exclude group: 'commons-logging', module: 'commons-logging'
         //exclude group: 'commons-codec', module: 'commons-codec'
     }
+    compile 'commons-logging:commons-logging-api:1.1'
+    
     compile 'org.apache.httpcomponents:httpmime:4.5.6'
     compile 'org.apache.commons:commons-lang3:3.8.1'
     //compile group: 'commons-io', name: 'commons-io', version: '2.6'
