@@ -52,6 +52,9 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("8.7", Arrays.asList(
+        "Support for new Philosopher 20181119, Report Abacus --protein flag."));
+
     CHANGELOG.put("8.6", Arrays.asList(
         "Updated nonspecific search default options.",
         "Colorized console output.",
