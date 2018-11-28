@@ -3,6 +3,7 @@ import datetime
 import itertools
 import mmap
 import os
+import os.path
 import pathlib
 import re
 import shlex
@@ -16,7 +17,7 @@ import pandas as pd
 
 import multiprocessing as mp
 
-# argv = shlex.split("/storage/teog/bin/msfragger_pep_split.pyz 3 'java -Xmx311g -jar' /storage/teog/bin/msfragger-20180316.one-jar.jar fragger.params 20120321_EXQ1_MiBa_SA_HCC1143_1.mzML 20130504_EXQ3_MiBa_SA_Fib-1.mzML")
+# argv = shlex.split("/storage/teog/bin/msfragger_pep_split.pyz 3 'java -Xmx311g -jar' /storage/teog/bin/MSFragger-latest.jar fragger.params 20120321_EXQ1_MiBa_SA_HCC1143_1.mzML 20130504_EXQ3_MiBa_SA_Fib-1.mzML")
 argv = sys.argv[1:]
 if len(argv) == 0:
 	print('python3 msfragger_pep_split.pyz 3 "java -Xmx10g -jar" msfragger-20180316.one-jar.jar fragger.params *.mzML')
@@ -72,8 +73,8 @@ def set_up_directories():
 def run_msfragger():
 	for cmd, cwd in zip(cmds, tempdir_parts):
 		subprocess.run(list(map(os.fspath, cmd)), cwd=cwd, check=True)
-	# procs = [subprocess.Popen(cmd, cwd=cwd) for cmd, cwd in zip(cmds, tempdir_parts)]
-	# [p.wait() for p in procs]
+# procs = [subprocess.Popen(cmd, cwd=cwd) for cmd, cwd in zip(cmds, tempdir_parts)]
+# [p.wait() for p in procs]
 
 ##########
 def write_combined_scores_histo():
@@ -196,7 +197,7 @@ def new_spec(expect_func, spectrum_query_parts):
 		search_hit_with_massdiff_and_scores = (get_massdiff_and_scores(search_hit) + (search_hit,) for search_hit in search_hits)
 		# sort by hyperscore and massdiff
 		sorted_search_hits0 = [e[1:] for e in
-			sorted(search_hit_with_massdiff_and_scores, key=lambda x: (1 / x[1], x[0]))[:output_report_topN]]
+							   sorted(search_hit_with_massdiff_and_scores, key=lambda x: (1 / x[1], x[0]))[:output_report_topN]]
 
 		sorted_search_hits1 = list(itertools.takewhile(lambda x: x[2] <= output_max_expect, sorted_search_hits0))
 		if len(sorted_search_hits1) == 0:
@@ -215,7 +216,7 @@ def new_spec(expect_func, spectrum_query_parts):
 '''.encode(), search_hit)
 
 		b = [make_new_txt(search_hit, hit_rank, hyperscore, nextscore, expectscore)
-						for hit_rank, (hyperscore, nextscore, expectscore, search_hit) in enumerate(sorted_search_hits, 1)]
+			 for hit_rank, (hyperscore, nextscore, expectscore, search_hit) in enumerate(sorted_search_hits, 1)]
 		return [spectrum_query_header, b'\n<search_result>\n'] + b + [b'</search_result>\n</spectrum_query>\n']
 
 	return step2(search_hits)
@@ -224,7 +225,8 @@ def new_spec(expect_func, spectrum_query_parts):
 re_pepxml_header = re.compile(b'''(.+?)^</search_summary>''', re.DOTALL|re.MULTILINE)
 def get_pepxml_header(p: pathlib.Path):
 	with p.open('rb') as f:
-		mm= mmap.mmap(f.fileno(), 10_000, access=mmap.ACCESS_READ)
+		mmap_length = min(10_000, os.path.getsize(p))
+		mm= mmap.mmap(f.fileno(), mmap_length, access=mmap.ACCESS_READ)
 		ret = re_pepxml_header.match(mm).group()
 		ret0 = re.compile(b'date="(.+?)"').sub(b'date="%b"', ret)
 		return re.compile(b'summary_xml="(.+?)"').sub(b'summary_xml="%b"', ret0)
