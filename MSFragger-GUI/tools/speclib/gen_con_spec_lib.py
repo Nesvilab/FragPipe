@@ -146,7 +146,7 @@ def get_window_setup(p: pathlib.Path):
 
 
 iproph_pep_xmls = sorted(e.resolve() for e in iproph_RT_aligned.glob("*.pep.xml"))
-assert len(iproph_pep_xmls) > 0
+assert len(iproph_pep_xmls) > 0, iproph_RT_aligned
 
 def pred_DIA_Umpire_output():
 	endswith_Q123 = set(re.compile(r"_Q[123].(?:iproph)?.pep.xml\Z").search(e.name) is not None
@@ -226,6 +226,7 @@ spectrast_cmds_part3=fr"""
 spectrast_cmds = spectrast_cmds_part1 + spectrast_cmds_part2 + spectrast_cmds_part3
 
 phi_log = output_directory / "philosopher.log"
+use_philosopher_fo = not True
 phi_cmd_part1= f"""
 set -xe
 {philosopher} workspace --clean --analytics false
@@ -236,7 +237,8 @@ set -xe
 	--sequential \
 	--pepxml {iproph_RT_aligned}/ \
 	--protxml {prot_xml_file} \
-	--tag {decoy_prefix}"""
+	--tag {decoy_prefix}\
+	{'--fo' if use_philosopher_fo else ''}"""
 
 r"""
 do not use:
@@ -274,9 +276,24 @@ def get_pep_ion_minprob(opt: Filter_option):
 				f2.write(line)
 				f2.flush()
 				outl.append(line)
-	assert proc1.returncode == 0, [proc1.args, proc1.returncode]
-	## filter original fasta file
-	subprocess.run(phi_cmd_part2, shell=True, stderr=subprocess.STDOUT, cwd=os_fspath(output_directory), check=True)
+	if use_philosopher_fo and proc1.returncode == 1:
+		import pathlib, re
+		a = (output_directory/'.meta'/'pep_pro_mappings.tsv').read_text()
+		l = [e.split('\t') for e in re.compile('(?=sp\\|)').split(a)]
+		d = {ee2: e for e, *e2 in l for ee2 in e2}
+		##create dummy fasta
+		with (output_directory / 'proteins.fas').open('x') as f:
+			for prot in sorted(set(d.values())):
+				f.write(f'>{prot}\nDUMMY\n')
+		# create dummy psm.tsv
+		(output_directory / 'psm.tsv').write_text(
+			'Peptide\tProtein\n' +
+			'\n'.join(f'{ee2}\t{e}' for e, *e2 in l for ee2 in e2)
+		)
+	else:
+		assert proc1.returncode == 0, [proc1.args, proc1.returncode]
+		## filter original fasta file
+		subprocess.run(phi_cmd_part2, shell=True, stderr=subprocess.STDOUT, cwd=os_fspath(output_directory), check=True)
 	out = b"".join(filter(lambda line: not line.startswith(b"+"), outl))
 	outtxt = out.decode("ascii")
 	res2 = [float(e) for e in re.compile(' Ions.+threshold.*?=([0-9.]+)').findall(outtxt)]

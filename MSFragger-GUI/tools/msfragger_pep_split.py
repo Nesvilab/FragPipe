@@ -59,6 +59,12 @@ cmds = [msfragger_cmd + [param_part_path.name, *infiles_name, '--partial', f'{i}
 generate_expect_cmd = msfragger_cmd + ['--generate_expect_functions'] + [f.stem + '_scores_histogram.tsv' for f in infiles]
 
 def set_up_directories():
+	try:
+		shutil.rmtree(tempdir)
+	except FileNotFoundError:
+		pass
+	else:
+		print(f'deleted existing temporary directory “{tempdir.resolve(strict=False)}”', flush=True)
 	tempdir.mkdir()
 	for e in tempdir_parts:
 		e.mkdir()
@@ -70,11 +76,13 @@ def set_up_directories():
 		param_part_path.write_text(
 			recomp_fasta.sub(f'database_name = {fasta_name.name}', params_txt))
 
+
 def run_msfragger():
-	for cmd, cwd in zip(cmds, tempdir_parts):
+	for i, (cmd, cwd) in enumerate(zip(cmds, tempdir_parts), start=1):
+		print(f'STARTED: slice {i} of {len(cmds)}', flush=True)
 		subprocess.run(list(map(os.fspath, cmd)), cwd=cwd, check=True)
-# procs = [subprocess.Popen(cmd, cwd=cwd) for cmd, cwd in zip(cmds, tempdir_parts)]
-# [p.wait() for p in procs]
+		print(f'DONE: slice {i} of {len(cmds)}', flush=True)
+
 
 ##########
 def write_combined_scores_histo():
@@ -197,7 +205,7 @@ def new_spec(expect_func, spectrum_query_parts):
 		search_hit_with_massdiff_and_scores = (get_massdiff_and_scores(search_hit) + (search_hit,) for search_hit in search_hits)
 		# sort by hyperscore and massdiff
 		sorted_search_hits0 = [e[1:] for e in
-							   sorted(search_hit_with_massdiff_and_scores, key=lambda x: (1 / x[1], x[0]))[:output_report_topN]]
+			sorted(search_hit_with_massdiff_and_scores, key=lambda x: (1 / x[1], x[0]))[:output_report_topN]]
 
 		sorted_search_hits1 = list(itertools.takewhile(lambda x: x[2] <= output_max_expect, sorted_search_hits0))
 		if len(sorted_search_hits1) == 0:
@@ -216,7 +224,7 @@ def new_spec(expect_func, spectrum_query_parts):
 '''.encode(), search_hit)
 
 		b = [make_new_txt(search_hit, hit_rank, hyperscore, nextscore, expectscore)
-			 for hit_rank, (hyperscore, nextscore, expectscore, search_hit) in enumerate(sorted_search_hits, 1)]
+						for hit_rank, (hyperscore, nextscore, expectscore, search_hit) in enumerate(sorted_search_hits, 1)]
 		return [spectrum_query_header, b'\n<search_result>\n'] + b + [b'</search_result>\n</spectrum_query>\n']
 
 	return step2(search_hits)
