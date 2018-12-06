@@ -202,6 +202,9 @@ public class DbSlice {
         case NO:
           sb.append(" - No");
           break;
+        case INSTALLED_WITH_IMPORTERROR:
+          sb.append(" - Error loading module");
+          break;
         case UNKNOWN:
           sb.append(" - N/A");
           break;

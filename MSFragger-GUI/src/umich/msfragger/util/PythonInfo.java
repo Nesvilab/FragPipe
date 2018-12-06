@@ -240,7 +240,16 @@ public class PythonInfo {
 
     Installed installed = Installed.UNKNOWN;
     ProcessBuilder pb = new ProcessBuilder(command,
-        "-c", "import pkgutil; print(1 if pkgutil.find_loader('" + module.someImportName + "') else 0)");
+            "-c", String.format(
+                    "try:\n" +
+                    "    import %s\n" +
+                    "except ModuleNotFoundError:\n" +
+                    "    print('ModuleNotFoundError')\n" +
+                    "except ImportError:\n" +
+                    "    print('Installed with ImportError')\n" +
+                    "else:\n" +
+                    "    print('Installed and imported with no error')",
+            module.someImportName));
     Process pr = null;
     try {
       pr = pb.start();
@@ -252,10 +261,12 @@ public class PythonInfo {
       try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
         String line;
         while ((line = in.readLine()) != null) {
-          if ("1".equals(line))
+          if ("Installed and imported with no error".equals(line))
             installed = Installed.YES;
-          else if ("0".equals(line))
+          else if ("ModuleNotFoundError".equals(line))
             installed = Installed.NO;
+          else if ("Installed with ImportError".equals(line))
+            installed = Installed.INSTALLED_WITH_IMPORTERROR;
         }
       } catch (IOException ex) {
         Logger.getLogger(PythonInfo.class.getName()).log(Level.SEVERE,
