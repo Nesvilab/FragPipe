@@ -56,6 +56,7 @@ import umich.msfragger.messages.MessageShiftedIonsEnablement;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.enums.CleavageType;
 import umich.msfragger.params.enums.FraggerOutputType;
+import umich.msfragger.params.enums.FraggerPrecursorMassMode;
 import umich.msfragger.params.enums.MassTolUnits;
 import umich.msfragger.params.enums.MsLevel;
 import umich.msfragger.params.fragger.Mod;
@@ -230,6 +231,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         
         textIsotopeError.setText(params.getIsotopeError());
         textMassOffsets.setText(params.getMassOffsets());
+        comboPrecursorMode.setSelectedItem(params.getPrecursorMassMode().name());
         spinnerPrecursorChargeLo.setValue(params.getPrecursorCharge()[0]);
         spinnerPrecursorChargeHi.setValue(params.getPrecursorCharge()[1]);
         checkOverrideCharge.setSelected(params.getOverrideCharge());
@@ -372,6 +374,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         
         params.setIsotopeError(textIsotopeError.getText());
         params.setMassOffsets(textMassOffsets.getText());
+        params.setPrecursorMassMode(FraggerPrecursorMassMode.valueOf(comboPrecursorMode.getItemAt(comboPrecursorMode.getSelectedIndex())));
         
         int zLo = (Integer)spinnerPrecursorChargeLo.getValue();
         int zHi = (Integer)spinnerPrecursorChargeHi.getValue();
@@ -602,6 +605,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     checkShiftedIons = new javax.swing.JCheckBox();
     jLabel30 = new javax.swing.JLabel();
     textShiftedIons = new javax.swing.JTextField();
+    comboPrecursorMode = new javax.swing.JComboBox<>();
     jPanel8 = new javax.swing.JPanel();
     spinnerReportTopN = new javax.swing.JSpinner();
     spinnerOutputMaxExpect = new javax.swing.JSpinner();
@@ -1180,6 +1184,8 @@ public class FraggerPanel extends javax.swing.JPanel {
       }
     });
 
+    comboPrecursorMode.setModel(createPrecursorModeComboModel());
+
     javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
     jPanel7.setLayout(jPanel7Layout);
     jPanel7Layout.setHorizontalGroup(
@@ -1211,7 +1217,9 @@ public class FraggerPanel extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addComponent(jLabel25)))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(comboFraggerOutputType, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+              .addComponent(comboFraggerOutputType, 0, 100, Short.MAX_VALUE)
+              .addComponent(comboPrecursorMode, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
           .addGroup(jPanel7Layout.createSequentialGroup()
             .addGap(9, 9, 9)
             .addComponent(checkShiftedIons)
@@ -1229,7 +1237,8 @@ public class FraggerPanel extends javax.swing.JPanel {
           .addComponent(jLabel6)
           .addComponent(textIsotopeError, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
           .addComponent(jLabel1)
-          .addComponent(textMassOffsets, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+          .addComponent(textMassOffsets, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(comboPrecursorMode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(spinnerPrecursorChargeLo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1892,6 +1901,7 @@ public class FraggerPanel extends javax.swing.JPanel {
   private javax.swing.JComboBox<String> comboFragMassTol;
   private javax.swing.JComboBox<String> comboFraggerOutputType;
   private javax.swing.JComboBox<String> comboPrecursorMassTol;
+  private javax.swing.JComboBox<String> comboPrecursorMode;
   private javax.swing.JComboBox<String> comboPrecursorTrueTol;
   private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel10;
@@ -2024,6 +2034,15 @@ public class FraggerPanel extends javax.swing.JPanel {
     public boolean isRunMsfragger() {
         return chkRunMsfragger.isSelected();
     }
+
+  private ComboBoxModel<String> createPrecursorModeComboModel() {
+    final FraggerPrecursorMassMode[] values = FraggerPrecursorMassMode.values();
+    String[] items = new String[values.length];
+    for (int i = 0; i < items.length; i++) {
+      items[i] = values[i].toString();
+    }
+    return new DefaultComboBoxModel<String>(items);
+  }
 
     
 }

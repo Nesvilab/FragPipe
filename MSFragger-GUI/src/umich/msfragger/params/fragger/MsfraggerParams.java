@@ -29,8 +29,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import umich.msfragger.params.AbstractParams;
 import umich.msfragger.params.Props;
+import umich.msfragger.params.Props.Prop;
 import umich.msfragger.params.enums.CleavageType;
 import umich.msfragger.params.enums.FraggerOutputType;
+import umich.msfragger.params.enums.FraggerPrecursorMassMode;
 import umich.msfragger.params.enums.MassTolUnits;
 import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.StringUtils;
@@ -56,6 +58,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_fragment_mass_units = "fragment_mass_units";
     public static final String PROP_isotope_error = "isotope_error";
     public static final String PROP_mass_offsets = "mass_offsets";
+    public static final String PROP_precursor_mass_mode = "precursor_mass_mode";
     public static final String PROP_search_enzyme_name = "search_enzyme_name";
     public static final String PROP_search_enzyme_cutafter = "search_enzyme_cutafter";
     public static final String PROP_search_enzyme_butnotafter = "search_enzyme_butnotafter";
@@ -345,7 +348,17 @@ public class MsfraggerParams extends AbstractParams {
     public void setMassOffsets(String v) {
         props.setProp(PROP_mass_offsets, v);
     }
-    
+
+    public void setPrecursorMassMode(FraggerPrecursorMassMode v) {
+        props.setProp(PROP_precursor_mass_mode, v.name());
+    }
+
+    public FraggerPrecursorMassMode getPrecursorMassMode() {
+        Prop v = props
+            .getProp(PROP_precursor_mass_mode, FraggerPrecursorMassMode.isolated.name());
+        return FraggerPrecursorMassMode.valueOf(v.value);
+    }
+
     public String getSearchEnzymeName() {
         return props.getProp(PROP_search_enzyme_name, "Trypsin").value;
     }
