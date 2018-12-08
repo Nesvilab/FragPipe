@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
-import org.apache.commons.lang3.NotImplementedException;
 import umich.msfragger.gui.FraggerPanel;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.MsfraggerGuiFrame;
@@ -28,7 +27,7 @@ public class CmdCrystalc extends CmdBase {
   public static final String NAME = "Crystal-C";
 
   public CmdCrystalc(boolean isRun, Path workDir) {
-    super(isRun, workDir);
+    super(isRun, workDir, fileCaptureStdout, fileCaptureStderr);
   }
 
   @Override

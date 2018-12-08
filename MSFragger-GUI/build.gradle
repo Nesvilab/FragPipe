@@ -22,7 +22,7 @@ plugins {
 }
 
 group = 'com.github.chhh'
-version = '8.8-SNAPSHOT'
+version = '8.8.b01'
 
 description = """FragPipe - run complete proteomics analyses from the GUI"""
 

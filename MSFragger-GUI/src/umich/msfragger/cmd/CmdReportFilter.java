@@ -15,9 +15,10 @@ import umich.msfragger.util.UsageTrigger;
 public class CmdReportFilter extends CmdBase {
 
   public static final String NAME = "ReportFilter";
+  public static final String FN_CAPTURE_STDOUT = "filter.log";
 
   public CmdReportFilter(boolean isRun, Path workDir) {
-    super(isRun, workDir);
+    super(isRun, workDir, FN_CAPTURE_STDOUT, "");
   }
 
   @Override

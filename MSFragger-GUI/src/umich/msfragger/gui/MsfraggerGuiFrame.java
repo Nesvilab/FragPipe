@@ -34,12 +34,14 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
@@ -3726,7 +3728,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     LogUtils.println(console, "");
 
     final List<ProcessBuilderInfo> pbis = pbDescsToFill.stream()
-        .flatMap(desc -> desc.pbs.stream().map(pb -> new ProcessBuilderInfo(pb, desc.name)))
+        .flatMap(pbd -> pbd.pbs.stream().map(pb -> new ProcessBuilderInfo(pb, pbd.name,
+            pbd.fileCaptureStdout, pbd.fileCaptureStderr)))
         .collect(Collectors.toList());
 
     LogUtils.println(console, String.format(Locale.ROOT, "%d commands to execute:", pbis.size()));
@@ -3778,18 +3781,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         final int index = i;
         final ProcessBuilderInfo pbi = pbis.get(index);
-        final ProcessBuilder pb = pbi.pb;
-        final ProcessResult pr = new ProcessResult(pb);
+        final ProcessResult pr = new ProcessResult(pbi);
         processResults[index] = pr;
 
-        if (pb.directory() == null) {
-          pb.directory(wdPath.toFile());
+        // set work dir to the main working directory if it's not set for the process builder
+        if (pbi.pb.directory() == null) {
+          pbi.pb.directory(wdPath.toFile());
         }
-        pr.setWorkingDir(pb.directory().toPath());
+
         REHandler reHandler = new REHandler(() -> {
 
           StringBuilder command = new StringBuilder();
-          for (String part : pb.command()) {
+          for (String part : pbi.pb.command()) {
             command.append(part).append(" ");
           }
 
@@ -3818,19 +3821,41 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             LogUtils.print(black, console, true, getTimestamp() + " Executing command [", false);
             LogUtils.print(colorTool, console, true, pbi.name, false);
             LogUtils.print(black, console, true, "] from working dir: ", false);
-            final String workDirToPrint = pb.directory() == null ? "N/A" : pb.directory().toString();
+            final String workDirToPrint = pbi.pb.directory() == null ? "N/A" : pbi.pb.directory().toString();
             LogUtils.print(colorWd, console, true, workDirToPrint, true);
             LogUtils.print(black, console, true, "$> ", false);
             LogUtils.print(colorCmdLine, console, true, command.toString(), true);
 
-            process = pb.start();
+            process = pr.start();
             pr.setStarted(true);
             LogUtils.println(console, getTimestamp() + " Process started");
 
             InputStream err = process.getErrorStream();
             InputStream out = process.getInputStream();
+            pr.createRedirects();
+
+            final File pbWorkDir = pbi.pb.directory();
+            final OutputStream osLogOut;
+            // TODO: error stream is not redirected to a file
+            if (!StringUtils.isNullOrWhitespace(pbi.fnStdOut) && pbWorkDir != null) {
+              final Path pathLogOut = pbWorkDir.toPath().resolve(pbi.fnStdOut);
+              if (!Files.exists(pathLogOut.getParent())) {
+                Files.createDirectories(pathLogOut);
+              }
+              osLogOut = new BufferedOutputStream(Files
+                  .newOutputStream(pathLogOut, StandardOpenOption.CREATE,
+                      StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE));
+            } else {
+              osLogOut = null;
+            }
+
             while (true) {
               Thread.sleep(200L);
+              String pollErr = ProcessResult.poll(err);
+              if (!StringUtils.isNullOrWhitespace(pollErr)) {
+                LogUtils.println(console, pollErr);
+                pr.append();
+              }
               int errAvailable = err.available();
               if (errAvailable > 0) {
                 byte[] bytes = new byte[errAvailable];
@@ -3902,6 +3927,31 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     exec.shutdown();
 
   }//GEN-LAST:event_btnRunActionPerformed
+
+
+  private void teeProcessStream(InputStream is, OutputStream... os) throws IOException {
+    int available = is.available();
+    if (available > 0) {
+      byte[] bytes = new byte[available];
+      int read = is.read(bytes);
+
+      for (int i = 0; i < os.length; i++) {
+        OutputStream o = os[i];
+        if (o == null) {
+          continue;
+        }
+        o.write(bytes);
+      }
+
+      String asStr = new String(bytes);
+      if (!StringUtils.isNullOrWhitespace(asStr)) {
+        LogUtils.println(console, asStr);
+      }
+
+    } else {
+      // zero bytes available, do nothing I guess
+    }
+  }
 
   private String getTimestamp() {
     return "[" + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) + "]";
