@@ -173,6 +173,7 @@ public class CmdMsfragger extends CmdBase {
       }
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
+      PythonInfo.modifyEnvironmentVariablesForAnacondaPython(pb);
       pb.directory(wd.toFile());
       pbs.add(pb);
       sb.setLength(0);

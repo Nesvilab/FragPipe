@@ -13,6 +13,7 @@ import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.util.OsUtils;
+import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.UsageTrigger;
 
 public class CmdSpecLibGen extends CmdBase {
@@ -101,6 +102,7 @@ public class CmdSpecLibGen extends CmdBase {
       cmd.add(usePhilosopher.useBin()); // philosopher binary path (optional)
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
+      PythonInfo.modifyEnvironmentVariablesForAnacondaPython(pb);
       pb.directory(groupWd.toFile());
 
       pbs.add(pb);
