@@ -21,7 +21,7 @@ search_enzyme_name = nonspecific
 search_enzyme_cutafter = KR
 search_enzyme_butnotafter = P
 
-num_enzyme_termini = 2                 # 2 for enzymatic, 1 for semi-enzymatic, 0 for nonspecific digestion
+num_enzyme_termini = 0                 # 2 for enzymatic, 1 for semi-enzymatic, 0 for nonspecific digestion
 allowed_missed_cleavage = 1            # maximum value is 5
 
 clip_nTerm_M = 1 
