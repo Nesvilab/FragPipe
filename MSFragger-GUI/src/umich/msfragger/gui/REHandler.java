@@ -16,6 +16,8 @@
  */
 package umich.msfragger.gui;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import umich.msfragger.util.LogUtils;
 
 /**
@@ -38,7 +40,11 @@ public class REHandler implements Runnable {
             delegate.run();
         } catch (Exception e) {
             //log.error("Something bad happened in a worker thread", e);
-            String msg = String.format("Something bad happened in a worker thread:\n%s", e.getMessage());
+            StringWriter errors = new StringWriter();
+            e.printStackTrace(new PrintWriter(errors));
+            String msg = String.format("Something bad happened in a worker thread:\n%s\n"
+                + "~~~~~~~~~~~~~~~~~~~~~~~~\nSome details: ", e.getMessage(), errors.toString());
+
             for (Appendable out : outs) {
                 LogUtils.println(out, msg);
             }
