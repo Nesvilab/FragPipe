@@ -51,6 +51,7 @@ public class Version {
 
   static {
     CHANGELOG.put("8.8", Arrays.asList(
+        "iProphet for peptide level reports.",
         "Moved all downstream tools (Peptide/Protein Prophet, Crystal-C) to a single tab.",
         "Simplified reports tab.",
         "Ask twice about loading defaults automatically.",
