@@ -11,23 +11,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import umich.msfragger.gui.LcmsFileGroup;
-import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.UsageTrigger;
 
 public class CmdReportAbacus extends CmdBase {
 
   private static final String NAME = "ReportAbacus";
-
-  private final List<String> KNOWN_OPTS = Arrays.asList(
-      "protein",
-      "peptide",
-      "labels",
-      "pepProb",
-      "picked",
-      "prtProb",
-      "razor",
-      "tag",
-      "uniqueonly");
 
   public CmdReportAbacus(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -39,7 +27,7 @@ public class CmdReportAbacus extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      String textReportFilterCmdOpts, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+      String textReportFilterCmdOpts, String decoyTag, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
 //    Usage:
 //    philosopher abacus [flags]
@@ -57,7 +45,7 @@ public class CmdReportAbacus extends CmdBase {
 //    --tag string       decoy tag (default "rev_")
 //    --uniqueonly       report TMT quantification based on only unique peptides
 
-
+    final List<String> flagsAbacus = Arrays.asList("--picked", "--razor", "--reprint", "--uniqueonly");
 //    Usage:
 //    philosopher filter [flags]
 //
@@ -79,6 +67,8 @@ public class CmdReportAbacus extends CmdBase {
 //    --tag string       decoy tag (default "rev_")
 //    --weight float     threshold for defining peptide uniqueness (default 1)
 
+    final List<String> flagsFilter = Arrays.asList("--mapmods", "--models", "--picked", "--razor", "--sequential");
+
     pbs.clear();
     Map<Path, List<Entry<LcmsFileGroup, Path>>> protxmlToGroups = mapGroupsToProtxml.entrySet().stream()
         .collect(Collectors.groupingBy(Entry::getValue));
@@ -98,13 +88,19 @@ public class CmdReportAbacus extends CmdBase {
         return false;
       }
 
+      List<String> filterCmdParts = Arrays.asList(textReportFilterCmdOpts.trim().split("[\\s]+"));
+      List<String> matchingFlags = filterCmdParts.stream()
+          .filter(flagsFilter::contains) // these are 'filter' command's flags
+          .filter(flagsAbacus::contains) // and as well are 'abacus' command's flags
+          .collect(Collectors.toList());
+
       List<String> cmd = new ArrayList<>();
       final Path executeInDir = protxml.getParent();
       cmd.add(usePhilosopher.useBin(executeInDir));
       cmd.add("abacus");
-      if (!StringUtils.isNullOrWhitespace(textReportFilterCmdOpts)) {
-        cmd.addAll(Arrays.asList(textReportFilterCmdOpts.trim().split("[\\s]+")));
-      }
+      cmd.addAll(matchingFlags);
+      cmd.add("--tag");
+      cmd.add(decoyTag);
       cmd.add("--protein");
       cmd.add(protxml.toString());
 

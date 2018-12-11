@@ -3951,6 +3951,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     // run Peptide Prophet
+    final String decoyTag = textDecoyTagSeqDb.getText().trim();
     CmdPeptideProphet cmdPeptideProphet = new CmdPeptideProphet(
         chkRunPeptideProphet.isEnabled() && chkRunPeptideProphet.isSelected(), wd);
     if (cmdPeptideProphet.isRun()) {
@@ -4044,7 +4045,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       final CmdReportAbacus cmdReportAbacus = new CmdReportAbacus(SwingUtils.isEnabledAndChecked(checkReportAbacus), wd);
       if (cmdReportAbacus.isRun()) {
         if (!cmdReportAbacus.configure(this, usePhi,
-            textReportFilter.getText(), mapGroupsToProtxml)) {
+            textReportFilter.getText(), decoyTag, mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(cmdReportAbacus.builders());
