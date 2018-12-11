@@ -483,7 +483,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onDecoyTagChanged(MessageDecoyTag m) {
     updateDecoyTagReportAnnotate(m.tag, false);
-    updateDecoyTagReportFilter(m.tag, false);
     updateDecoyTagSeqDb(m.tag, false);
   }
 
@@ -3329,9 +3328,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final String oldText = savedText != null ? savedText : comp.getText().trim();
     final String updText = newText != null ? newText : comp.getText().trim();
 
-    if (!updateOtherTags || oldText
-        .equals(updText)) // newText == null means it was a programmatic update
-    {
+    // newText == null means it was a programmatic update
+    if (!updateOtherTags || oldText.equals(updText)) {
       return;
     }
 
@@ -3357,7 +3355,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
       if (ans == JOptionPane.YES_OPTION) {
         updateDecoyTagSeqDb(newVal, false);
-        updateDecoyTagReportFilter(newVal, false);
       }
     }
   }
@@ -4013,7 +4010,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       if (cmdReportFilter.isRun()) {
         final  boolean isReportProtLevelFdr = SwingUtils.isEnabledAndChecked(checkReportProteinLevelFdr);
         if (!cmdReportFilter.configure(this, usePhi,
-            isReportProtLevelFdr, textReportFilter.getText(), mapGroupsToProtxml)) {
+            isReportProtLevelFdr, decoyTag, textReportFilter.getText(), mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(cmdReportFilter.builders());
@@ -4541,7 +4538,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       if (selectedPrefix != null) {
         updateDecoyTagSeqDb(selectedPrefix, false);
         updateDecoyTagReportAnnotate(selectedPrefix, false);
-        updateDecoyTagReportFilter(selectedPrefix, false);
       }
 
     } catch (IOException ex) {
@@ -4974,6 +4970,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (!ThisAppProps.load(textReportFilter, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER)) {
       loadDefaultsReportFilter(DEFAULT_TYPE);
     }
+    removeOldSavedDecoyTagValue(textReportFilter, "--tag");
   }
 
   public void loadDefaultsReportFilter(SearchTypeProp type) {
@@ -5070,7 +5067,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       if (ans == JOptionPane.YES_OPTION) {
         updateDecoyTagSeqDb(newDecoyTag, false);
         updateDecoyTagReportAnnotate(newDecoyTag, false);
-        updateDecoyTagReportFilter(newDecoyTag, false);
       }
     }
   }
@@ -5171,7 +5167,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
     if (ans == JOptionPane.YES_OPTION) {
       updateDecoyTagReportAnnotate(updText, false);
-      updateDecoyTagReportFilter(updText, false);
     }
   }
 
@@ -5197,11 +5192,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void updateDecoyTagSeqDb(String newVal, boolean updateOtherTags) {
     textDecoyTagSeqDb.setText(newVal);
     validateAndSaveDecoyTagSeqDb(null, updateOtherTags);
-  }
-
-  private void updateDecoyTagReportFilter(String newVal, boolean updateOtherTags) {
-    updateTextCmdLine(reDecoyTagReportFilter, textReportFilter, newVal, "--tag");
-    validateAndSaveReportFilter(null, updateOtherTags);
   }
 
   private void updateDecoyTagReportAnnotate(String newVal, boolean updateOtherTags) {

@@ -28,7 +28,7 @@ public class CmdReportFilter extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      boolean isReportProteinLevelFdr, String textReportFilter,
+      boolean isReportProteinLevelFdr, String decoyTag, String textReportFilter,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
     pbs.clear();
@@ -47,6 +47,8 @@ public class CmdReportFilter extends CmdBase {
         String[] params = textReportFilter.trim().split("[\\s]+");
         cmd.addAll(Arrays.asList(params));
       }
+      cmd.add("--tag");
+      cmd.add(decoyTag);
       cmd.add("--pepxml");
       cmd.add(groupWd.toString());
       if (isReportProteinLevelFdr) {
