@@ -1565,7 +1565,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(spinnerCrystalcMassTol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
           .addComponent(jLabel9)
           .addComponent(spinnerCrystalcPrecIsoWindow, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addContainerGap(543, Short.MAX_VALUE))
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
     jLabel12.setText("<html>Crystal-C performs additional search results cleanup<br/>\n<b>Recommended for Open Searches</b>");
@@ -1595,8 +1595,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(chkRunCrystalc)
           .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-        .addComponent(panelCrystalcOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        .addContainerGap())
+        .addComponent(panelCrystalcOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap(543, Short.MAX_VALUE))
     );
 
     tabPane.addTab("Crystal-C", panelCrystalc);
@@ -4087,8 +4087,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void btnPepProphDefaults(SearchTypeProp t) {
     loadDefaultsPeptideProphet(t);
     int choice = JOptionPane.showConfirmDialog(this,
-        "Loading " + t + " search defaults.\n"
-            + "Do you want to load defaults for other tools as well?");
+        "<html>Loaded " + t + " search defaults.<br/><br/>"
+            + "Do you want to load defaults <b>for other tools</b> as well?<br/><br/>"
+                + "<b>WARNING:</b><br/>"
+                + "This will reset MSFragger settings!");
     if (JOptionPane.YES_OPTION == choice) {
       EventBus.getDefault().post(new MessageSearchType(t));
     }
@@ -4107,8 +4109,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void btnProtProphDefaults(SearchTypeProp t) {
     loadDefaultsProteinProphet(t);
     int choice = JOptionPane.showConfirmDialog(this,
-        "Loading " + t + " search defaults.\n"
-            + "Do you want to load defaults for other tools as well?");
+        "<html>Loaded " + t + " search defaults.<br/><br/>"
+            + "Do you want to load defaults <b>for other tools</b> as well?<br/><br/>"
+                + "<b>WARNING:</b><br/>"
+                + "This will reset MSFragger settings!");
     if (JOptionPane.YES_OPTION == choice) {
       EventBus.getDefault().post(new MessageSearchType(t));
     }
