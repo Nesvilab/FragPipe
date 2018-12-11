@@ -20,6 +20,8 @@ public class CmdReportFilter extends CmdBase {
 
   public CmdReportFilter(boolean isRun, Path workDir) {
     super(isRun, workDir, FN_CAPTURE_STDOUT, FN_CAPTURE_STDERR);
+    // philisopher filter logs to stdout in Windows and stderr in Linux,
+    // to simplify code, merge the stderr with stdout
   }
 
   @Override
