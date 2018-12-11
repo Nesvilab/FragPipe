@@ -16,10 +16,11 @@
  */
 package umich.msfragger.gui;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -28,28 +29,27 @@ import umich.msfragger.util.StringUtils;
 
 class ProcessResult implements AutoCloseable {
 
-  private ProcessBuilderInfo pbi;
-
-  public ProcessResult(ProcessBuilderInfo pbi) {
-    this.pbi = pbi;
-  }
+  private final ProcessBuilderInfo pbi;
 
   private boolean started;
-  private Path workingDir;
   private StringBuilder output = new StringBuilder();
   private Integer exitCode;
   private Process proc;
   private InputStream stdOut;
   private InputStream stdErr;
-  private OutputStream stdErrRedirect;
-  private OutputStream stdOutRedirect;
+  private BufferedOutputStream stdErrRedirect;
+  private BufferedOutputStream stdOutRedirect;
+
+  public ProcessResult(ProcessBuilderInfo pbi) {
+    this.pbi = pbi;
+  }
 
   public Process start() throws IOException {
     stdErrRedirect = createStdErrRedirect();
     stdOutRedirect = createStdOutRedirect();
-    proc = pbi.pb.start();
     stdOut = proc.getInputStream();
     stdErr = proc.getErrorStream();
+    proc = pbi.pb.start();
     started = true;
     return proc;
   }
@@ -64,15 +64,19 @@ class ProcessResult implements AutoCloseable {
     }
   }
 
-  public String pollStdOut() throws IOException {
+  public Process getProc() {
+    return proc;
+  }
+
+  public byte[] pollStdOut() throws IOException {
     return poll(stdOut);
   }
 
-  public String pollStdErr() throws IOException {
+  public byte[] pollStdErr() throws IOException {
     return poll(stdErr);
   }
 
-  private static String poll(InputStream is) throws IOException {
+  private static byte[] poll(InputStream is) throws IOException {
     if (is == null) {
       return null;
     }
@@ -80,23 +84,23 @@ class ProcessResult implements AutoCloseable {
     if (available > 0) {
       byte[] bytes = new byte[available];
       int read = is.read(bytes);
-      return new String(bytes);
+      return bytes;
     }
     return null;
   }
 
-  private OutputStream createStdOutRedirect() throws IOException {
+  private BufferedOutputStream createStdOutRedirect() throws IOException {
     return createOutputStream(pbi.pb, pbi.fnStdOut);
   }
 
-  private OutputStream createStdErrRedirect() throws IOException {
+  private BufferedOutputStream createStdErrRedirect() throws IOException {
     return createOutputStream(pbi.pb, pbi.fnStdErr);
   }
 
   /**
    * Creates a new file output stream to the
    */
-  public static OutputStream createOutputStream(ProcessBuilder pb, String fn) throws IOException {
+  private static BufferedOutputStream createOutputStream(ProcessBuilder pb, String fn) throws IOException {
     if (!StringUtils.isNullOrWhitespace(fn) && pb.directory() != null) {
       final Path pathLogOut = pb.directory().toPath().resolve(fn);
       if (!Files.exists(pathLogOut.getParent())) {
@@ -117,17 +121,28 @@ class ProcessResult implements AutoCloseable {
     return started;
   }
 
-  public void setStarted(boolean started) {
-    this.started = started;
-  }
-
   public StringBuilder getOutput() {
     return output;
   }
 
-  public void append(String s) {
-    output.append(s);
+  public String appendOut(byte[] bytes) throws IOException {
+    return append(bytes, stdOutRedirect);
+  }
 
+  public String appendErr(byte[] bytes) throws IOException {
+    return append(bytes, stdErrRedirect);
+  }
+
+  private String append(byte[] bytes, BufferedOutputStream bos) throws IOException {
+    if (bytes == null || bytes.length == 0) {
+      return null;
+    }
+    String s = new String(bytes, UTF_8);
+    output.append(s);
+    if (bos != null) {
+      bos.write(bytes);
+    }
+    return s;
   }
 
   public Integer getExitCode() {

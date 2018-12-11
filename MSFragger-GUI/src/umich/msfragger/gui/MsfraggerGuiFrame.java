@@ -3815,7 +3815,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
           }
 
-          Process process = null;
           try {
 
             LogUtils.print(black, console, true, getTimestamp() + " Executing command [", false);
@@ -3826,54 +3825,37 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             LogUtils.print(black, console, true, "$> ", false);
             LogUtils.print(colorCmdLine, console, true, command.toString(), true);
 
-            process = pr.start();
-            pr.setStarted(true);
+            Process proc = pr.start();
             LogUtils.println(console, getTimestamp() + " Process started");
 
-            InputStream err = process.getErrorStream();
-            InputStream out = process.getInputStream();
-            pr.createRedirects();
-
-            final File pbWorkDir = pbi.pb.directory();
-            final OutputStream osLogOut;
-            // TODO: error stream is not redirected to a file
-            if (!StringUtils.isNullOrWhitespace(pbi.fnStdOut) && pbWorkDir != null) {
-              final Path pathLogOut = pbWorkDir.toPath().resolve(pbi.fnStdOut);
-              if (!Files.exists(pathLogOut.getParent())) {
-                Files.createDirectories(pathLogOut);
-              }
-              osLogOut = new BufferedOutputStream(Files
-                  .newOutputStream(pathLogOut, StandardOpenOption.CREATE,
-                      StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE));
-            } else {
-              osLogOut = null;
-            }
+//            final File pbWorkDir = pbi.pb.directory();
+//            final OutputStream osLogOut;
+//            if (!StringUtils.isNullOrWhitespace(pbi.fnStdOut) && pbWorkDir != null) {
+//              final Path pathLogOut = pbWorkDir.toPath().resolve(pbi.fnStdOut);
+//              if (!Files.exists(pathLogOut.getParent())) {
+//                Files.createDirectories(pathLogOut);
+//              }
+//              osLogOut = new BufferedOutputStream(Files
+//                  .newOutputStream(pathLogOut, StandardOpenOption.CREATE,
+//                      StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE));
+//            } else {
+//              osLogOut = null;
+//            }
 
             while (true) {
               Thread.sleep(200L);
-              String pollErr = ProcessResult.poll(err);
-              if (!StringUtils.isNullOrWhitespace(pollErr)) {
-                LogUtils.println(console, pollErr);
-                pr.append();
+              byte[] pollErr = pr.pollStdErr();
+              String errStr = pr.appendErr(pollErr);
+              if (!StringUtils.isNullOrWhitespace(errStr)) {
+                LogUtils.println(console, errStr);
               }
-              int errAvailable = err.available();
-              if (errAvailable > 0) {
-                byte[] bytes = new byte[errAvailable];
-                int read = err.read(bytes);
-                String toAppend = new String(bytes);
-                LogUtils.println(console, toAppend);
-                pr.getOutput().append(toAppend);
-              }
-              int outAvailable = out.available();
-              if (outAvailable > 0) {
-                byte[] bytes = new byte[outAvailable];
-                int read = out.read(bytes);
-                String toAppend = new String(bytes);
-                LogUtils.println(console, toAppend);
-                pr.getOutput().append(toAppend);
+              byte[] pollOut = pr.pollStdOut();
+              String outStr = pr.appendOut(pollOut);
+              if (!StringUtils.isNullOrWhitespace(outStr)) {
+                LogUtils.println(console, outStr);
               }
               try {
-                final int exitValue = process.exitValue();
+                final int exitValue = proc.exitValue();
                 pr.setExitCode(exitValue);
                 SwingUtilities.invokeLater(() -> {
                     Color c = exitValue == 0 ? greenDarker : red;
@@ -3892,8 +3874,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .format(Locale.ROOT, "IOException: Error in process,\n%s", ex.getMessage());
             LogUtils.println(console, toAppend);
           } catch (InterruptedException ex) {
-            if (process != null) {
-              process.destroy();
+            final Process proc = pr.getProc();
+            if (proc != null) {
+              proc.destroy();
             }
             String toAppend = String
                 .format(Locale.ROOT, "InterruptedException: Error in process,\n%s",
