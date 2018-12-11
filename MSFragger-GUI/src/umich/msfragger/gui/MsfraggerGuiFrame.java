@@ -4804,7 +4804,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private static void removeOldSavedDecoyTagValue(JTextComponent jtc, String tagName) {
     final String text = jtc.getText().trim();
     //Pattern compile = Pattern.compile("--decoy(?:\\s+?[^-]\\S+)?");
-    String replaced = text.replaceAll(tagName + "(?:\\s+?[^-]\\S+)?", "");
+    String replaced = text.replaceAll(tagName + "(?!\\S)(?:\\s+?[^-]\\S+)?", "");
     jtc.setText(replaced.trim());
   }
 
@@ -4925,37 +4925,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final String oldText = savedText != null ? savedText : comp.getText().trim();
     final String updText = newText != null ? newText : comp.getText().trim();
 
-    if (!updateOtherTags || oldText
-        .equals(updText)) // newText == null means it was a programmatic update
-    {
+    // newText == null means it was a programmatic update
+    if (!updateOtherTags || oldText.equals(updText)) {
       return;
     }
 
     // text in the field has changed
-    Pattern re = reDecoyTagPepProphCmd;
-    String newDecoyTag = "", oldDecoyTag = "";
-    Matcher m = re.matcher(updText);
-    if (m.find()) {
-      newDecoyTag = m.group(1);
-    }
-    m = re.matcher(oldText);
-    if (m.find()) {
-      oldDecoyTag = m.group(1);
-    }
-
-    // if the new prefix differs from the old one
-    if (!oldDecoyTag.equals(newDecoyTag)) {
-      final String message = String.format(
-          "Decoy prefix in PepetideProphet options has changed from '%s' to '%s'.\n"
-              + "Do you want to also change it in other commands?", oldDecoyTag, newDecoyTag);
-
-      // does the user want to chnage the Report tag automatically?
-      int ans = JOptionPane
-          .showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
-      if (ans == JOptionPane.YES_OPTION) {
-        updateDecoyTagSeqDb(newDecoyTag, false);
-      }
-    }
   }
 
   private boolean validateAndSaveFastaPath(String path) {
