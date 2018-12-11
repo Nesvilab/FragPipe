@@ -783,7 +783,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     jScrollPane4 = new javax.swing.JScrollPane();
     txtProteinProphetCmdLineOpts = new javax.swing.JTextArea();
     jLabel40 = new javax.swing.JLabel();
-    chkProteinProphetInteractStar = new javax.swing.JCheckBox();
     txtCombinedProtFile = new javax.swing.JTextField();
     jLabel1 = new javax.swing.JLabel();
     btnProtProphDefaultsClosed = new javax.swing.JButton();
@@ -1643,12 +1642,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     panelPeptideProphetOptionsLayout.setVerticalGroup(
       panelPeptideProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
-        .addContainerGap()
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         .addGroup(panelPeptideProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
-            .addComponent(jLabel34)
-            .addGap(0, 0, Short.MAX_VALUE))
-          .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)))
+          .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(jLabel34)))
     );
 
     btnPepProphDefaultsClosed.setText("Defaults Closed Search");
@@ -1691,7 +1688,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(btnPepProphDefaultsOpen))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addComponent(panelPeptideProphetOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(475, Short.MAX_VALUE))
+        .addContainerGap(525, Short.MAX_VALUE))
     );
 
     tabPane.addTab("PeptideProphet", panelPeptideProphet);
@@ -1720,9 +1717,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     jLabel40.setText("Cmd Line Options");
 
-    chkProteinProphetInteractStar.setText("Use 'interact-*pep.xml' as file filter for ProteinProphet (Philosopher only)");
-    chkProteinProphetInteractStar.setToolTipText("<html>If checked will use 'interact-*pep.xml' to match pep.xml files to be passed to ProteinProphet.<br/> Otherwise will add files as separate entries, \nwhich might cause problems on Windows<br/> when there are many pepxml files, as the length of command line parameter string is limited to 8192 chars."); // NOI18N
-
     txtCombinedProtFile.setText("interact.prot.xml");
     txtCombinedProtFile.setToolTipText("<html>The .pep.xml extension will be added to this name.<br/>\nIf left empty will default to \"interact.pep.xml\"");
 
@@ -1738,10 +1732,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addGap(29, 29, 29)
             .addComponent(jLabel40)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jScrollPane4))
-          .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelProteinProphetOptionsLayout.createSequentialGroup()
-            .addContainerGap(318, Short.MAX_VALUE)
-            .addComponent(chkProteinProphetInteractStar))
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 575, Short.MAX_VALUE))
           .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelProteinProphetOptionsLayout.createSequentialGroup()
             .addGap(59, 59, 59)
             .addComponent(jLabel1)
@@ -1758,9 +1749,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addComponent(jLabel40)
-          .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-        .addComponent(chkProteinProphetInteractStar)
+          .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
@@ -1804,8 +1793,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addComponent(btnProtProphDefaultsClosed)
             .addComponent(btnProtProphDefaultsOpen)))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-        .addComponent(panelProteinProphetOptions, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(449, Short.MAX_VALUE))
+        .addComponent(panelProteinProphetOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap(499, Short.MAX_VALUE))
     );
 
     tabPane.addTab("ProteinProphet", panelProteinProphet);
@@ -3894,7 +3883,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (cmdProteinProphet.isRun()) {
       final String protProphCmdStr = txtProteinProphetCmdLineOpts.getText().trim();
       if (!cmdProteinProphet.configure(this,
-          fp, usePhi, protProphCmdStr, chkProteinProphetInteractStar.isSelected(),
+          fp, usePhi, protProphCmdStr,
           isProcessGroupsSeparately, pepxmlFiles)) {
         return false;
       }
@@ -5615,7 +5604,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JCheckBox checkReportAbacus;
   private javax.swing.JCheckBox checkReportFilter;
   private javax.swing.JCheckBox checkReportProteinLevelFdr;
-  private javax.swing.JCheckBox chkProteinProphetInteractStar;
   private javax.swing.JCheckBox chkRunCrystalc;
   private javax.swing.JCheckBox chkRunPeptideProphet;
   private javax.swing.JCheckBox chkRunProteinProphet;

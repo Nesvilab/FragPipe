@@ -77,81 +77,54 @@ public class CmdProteinProphet extends CmdBase {
   }
 
   public boolean configure(Component comp, FraggerPanel fp, UsageTrigger usePhilosopher,
-      String txtProteinProphetCmdLineOpts, boolean isProteinProphetInteractStar,
+      String txtProteinProphetCmdLineOpts,
       boolean isProcessGroupsSeparately, Map<InputLcmsFile, Path> pepxmlFiles) {
 
     pbs.clear();
     ProteinProphetParams proteinProphetParams = new ProteinProphetParams();
     proteinProphetParams.setCmdLineParams(txtProteinProphetCmdLineOpts);
 
-    if (isProteinProphetInteractStar) {
-      // when that option is used all "interact-*.pep.xml" files must be in the same location
-      Set<Path> pepxmlFileLocations = pepxmlFiles.values().stream().map(Path::getParent)
-          .collect(Collectors.toSet());
-      if (pepxmlFileLocations.size() > 1) {
-        JOptionPane.showMessageDialog(comp, "[Protein Prophet]\n"
-            + "When \"interact-*.pep.xml\" option is used all input\n"
-            + "pepxml files must be in the same folder. Which in turn\n"
-            + "means all the input files must belong to the same experiment/group.",
-            "ProteinProphet Error", JOptionPane.WARNING_MESSAGE);
-        return false;
-      }
+    Map<LcmsFileGroup, Path> groupToProtxml = outputs(pepxmlFiles, isProcessGroupsSeparately);
 
-      Path location = pepxmlFileLocations.iterator().next();
-
-      List<String> cmd = createCmdStub(usePhilosopher, location, proteinProphetParams);
-
-      final String sep = FileSystems.getDefault().getSeparator();
-      final String interactsGlob = location.toString() + sep + "interact-*.pep.xml";
-      cmd.add(interactsGlob);
-      ProcessBuilder pb = new ProcessBuilder(cmd);
-      pb.directory(location.toFile());
-      pbs.add(pb);
-
-      // END: isProteinProphetInteractStar
-    } else {
-      Map<LcmsFileGroup, Path> groupToProtxml = outputs(pepxmlFiles, isProcessGroupsSeparately);
-
-      if (isProcessGroupsSeparately) {
-        for (Entry<LcmsFileGroup, Path> e : groupToProtxml.entrySet()) {
-          LcmsFileGroup group = e.getKey();
-          Path protxml = e.getValue();
-          List<String> pepxmlsPaths = pepxmlFiles.entrySet().stream()
-              .filter(pepxml -> pepxml.getKey().experiment.equals(group.name))
-              .map(pepxml -> pepxml.getValue().getFileName().toString())
-              .collect(Collectors.toList());
-          List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
-          cmd.addAll(pepxmlsPaths);
-          ProcessBuilder pb = new ProcessBuilder(cmd);
-          pb.directory(protxml.getParent().toFile());
-          pbs.add(pb);
-        }
-
-        // END: isProcessGroupsSeparately
-      } else {
-
-        Set<Path> interactProtXmls = new HashSet<>(groupToProtxml.values());
-        if (interactProtXmls.size() > 1) {
-          JOptionPane.showMessageDialog(comp, "[Protein Prophet]\n"
-              + "Report to developers, more than one interact protxml file when\n"
-              + "processing experimental groups together.");
-          return false;
-        }
-        Path protxml = interactProtXmls.iterator().next();
-        if (!protxml.getParent().equals(wd)) {
-          throw new IllegalStateException("Protxml not in global output directory when groups processed together.");
-        }
+    if (isProcessGroupsSeparately) {
+      for (Entry<LcmsFileGroup, Path> e : groupToProtxml.entrySet()) {
+        LcmsFileGroup group = e.getKey();
+        Path protxml = e.getValue();
         List<String> pepxmlsPaths = pepxmlFiles.entrySet().stream()
-            .map(pepxml -> pepxml.getValue().toString())
+            .filter(pepxml -> pepxml.getKey().experiment.equals(group.name))
+            .map(pepxml -> pepxml.getValue().getFileName().toString())
             .collect(Collectors.toList());
         List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
         cmd.addAll(pepxmlsPaths);
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(protxml.getParent().toFile());
         pbs.add(pb);
-
-        // END: !isProcessGroupsSeparately
       }
+
+      // END: isProcessGroupsSeparately
+    } else {
+
+      Set<Path> interactProtXmls = new HashSet<>(groupToProtxml.values());
+      if (interactProtXmls.size() > 1) {
+        JOptionPane.showMessageDialog(comp, "[Protein Prophet]\n"
+            + "Report to developers, more than one interact protxml file when\n"
+            + "processing experimental groups together.");
+        return false;
+      }
+      Path protxml = interactProtXmls.iterator().next();
+      if (!protxml.getParent().equals(wd)) {
+        throw new IllegalStateException("Protxml not in global output directory when groups processed together.");
+      }
+      List<String> pepxmlsPaths = pepxmlFiles.entrySet().stream()
+          .map(pepxml -> pepxml.getValue().toString())
+          .collect(Collectors.toList());
+      List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
+      cmd.addAll(pepxmlsPaths);
+      ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.directory(protxml.getParent().toFile());
+      pbs.add(pb);
+
+      // END: !isProcessGroupsSeparately
     }
 
 
