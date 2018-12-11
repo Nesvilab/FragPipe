@@ -482,7 +482,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onDecoyTagChanged(MessageDecoyTag m) {
-    updateDecoyTagPepProphCmd(m.tag, false);
     updateDecoyTagReportAnnotate(m.tag, false);
     updateDecoyTagReportFilter(m.tag, false);
     updateDecoyTagSeqDb(m.tag, false);
@@ -3358,7 +3357,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
       if (ans == JOptionPane.YES_OPTION) {
         updateDecoyTagSeqDb(newVal, false);
-        updateDecoyTagPepProphCmd(newVal, false);
         updateDecoyTagReportFilter(newVal, false);
       }
     }
@@ -3957,7 +3955,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (cmdPeptideProphet.isRun()) {
       final String pepProphCmd = textPepProphCmd.getText().trim();
       if (!cmdPeptideProphet.configure(this,
-          usePhi, fastaFile, pepProphCmd, pepxmlFiles)) {
+          usePhi, fastaFile, decoyTag, pepProphCmd, pepxmlFiles)) {
         return false;
       }
       pbDescs.add(cmdPeptideProphet.builders());
@@ -4542,7 +4540,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
       if (selectedPrefix != null) {
         updateDecoyTagSeqDb(selectedPrefix, false);
-        updateDecoyTagPepProphCmd(selectedPrefix, false);
         updateDecoyTagReportAnnotate(selectedPrefix, false);
         updateDecoyTagReportFilter(selectedPrefix, false);
       }
@@ -4911,6 +4908,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (!ThisAppProps.load(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET)) {
       loadDefaultsPeptideProphet(DEFAULT_TYPE);
     }
+    removeOldSavedDecoyTagValue(textPepProphCmd, "--decoy");
+  }
+
+  private static void removeOldSavedDecoyTagValue(JTextComponent jtc, String tagName) {
+    final String text = jtc.getText().trim();
+    //Pattern compile = Pattern.compile("--decoy(?:\\s+?[^-]\\S+)?");
+    String replaced = text.replaceAll(tagName + "(?:\\s+?[^-]\\S+)?", "");
+    jtc.setText(replaced.trim());
   }
 
   public void loadDefaultsPeptideProphet(SearchTypeProp type) {
@@ -5165,7 +5170,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     int ans = JOptionPane
         .showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
     if (ans == JOptionPane.YES_OPTION) {
-      updateDecoyTagPepProphCmd(updText, false);
       updateDecoyTagReportAnnotate(updText, false);
       updateDecoyTagReportFilter(updText, false);
     }
@@ -5193,11 +5197,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void updateDecoyTagSeqDb(String newVal, boolean updateOtherTags) {
     textDecoyTagSeqDb.setText(newVal);
     validateAndSaveDecoyTagSeqDb(null, updateOtherTags);
-  }
-
-  private void updateDecoyTagPepProphCmd(String newVal, boolean updateOtherTags) {
-    updateTextCmdLine(reDecoyTagPepProphCmd, textPepProphCmd, newVal, "--decoy");
-    validateAndSavePeptideProphetCmdLineOptions(null, updateOtherTags);
   }
 
   private void updateDecoyTagReportFilter(String newVal, boolean updateOtherTags) {
