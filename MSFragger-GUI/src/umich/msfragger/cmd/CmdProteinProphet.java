@@ -195,4 +195,9 @@ public class CmdProteinProphet extends CmdBase {
     }
     return cmd;
   }
+
+  @Override
+  public int getPriority() {
+    return 96;
+  }
 }

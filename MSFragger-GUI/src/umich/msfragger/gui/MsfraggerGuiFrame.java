@@ -120,6 +120,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import umich.msfragger.Version;
 import umich.msfragger.cmd.CmdCrystalc;
+import umich.msfragger.cmd.CmdIprophet;
 import umich.msfragger.cmd.CmdMsAdjuster;
 import umich.msfragger.cmd.CmdMsfragger;
 import umich.msfragger.cmd.CmdPeptideProphet;
@@ -3951,9 +3952,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         pbDescs.add(cmdReportReport.builders());
       }
 
-      // run Report - Abacus
+      // run Report - Multi-Experiment report
+      final int nThreads = fraggerPanel.getThreads();
       final CmdReportAbacus cmdReportAbacus = new CmdReportAbacus(SwingUtils.isEnabledAndChecked(checkReportAbacus), wd);
       if (cmdReportAbacus.isRun()) {
+        // run iProphet, will run right after Peptide Prophet because of priority setting
+        final CmdIprophet cmdIprophet = new CmdIprophet(cmdReportAbacus.isRun(), wd);
+        if (!cmdIprophet.configure(this, usePhi, decoyTag, nThreads, pepxmlFiles)) {
+          return false;
+        }
+        pbDescs.add(cmdIprophet.builders());
+
+        // run Abacus
         if (!cmdReportAbacus.configure(this, usePhi,
             textReportFilter.getText(), decoyTag, mapGroupsToProtxml)) {
           return false;

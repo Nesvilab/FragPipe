@@ -99,4 +99,9 @@ public class CmdPeptideProphet extends CmdBase {
     isConfigured = true;
     return true;
   }
+
+  @Override
+  public int getPriority() {
+    return 92;
+  }
 }

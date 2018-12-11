@@ -13,6 +13,9 @@ import javax.swing.JOptionPane;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.util.UsageTrigger;
 
+/**
+ * The `Multi-Experiment Report`.
+ */
 public class CmdReportAbacus extends CmdBase {
 
   private static final String NAME = "ReportAbacus";
@@ -94,15 +97,22 @@ public class CmdReportAbacus extends CmdBase {
           .filter(flagsAbacus::contains) // and as well are 'abacus' command's flags
           .collect(Collectors.toList());
 
+//      String experimentNames = mapGroupsToProtxml.keySet().stream().map(g -> g.name)
+//          .collect(Collectors.joining(" "));
+      String pepxmlCombined = wd.resolve(getCombinedPepFileName()).toString();
+
       List<String> cmd = new ArrayList<>();
       final Path executeInDir = protxml.getParent();
       cmd.add(usePhilosopher.useBin(executeInDir));
       cmd.add("abacus");
+      cmd.add("--reprint");
       cmd.addAll(matchingFlags);
       cmd.add("--tag");
       cmd.add(decoyTag);
       cmd.add("--protein");
       cmd.add(protxml.toString());
+      cmd.add("--peptide");
+      cmd.add(pepxmlCombined);
 
       // list locations with pepxml files
       for (Path pepxmlDir : foldersWithPepxmls) {
@@ -116,5 +126,9 @@ public class CmdReportAbacus extends CmdBase {
 
     isConfigured = true;
     return true;
+  }
+
+  private String getCombinedPepFileName() {
+    return "interact.pep.xml";
   }
 }
