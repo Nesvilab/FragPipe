@@ -766,8 +766,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     jScrollPane4 = new javax.swing.JScrollPane();
     txtProteinProphetCmdLineOpts = new javax.swing.JTextArea();
     jLabel40 = new javax.swing.JLabel();
-    txtCombinedProtFile = new javax.swing.JTextField();
-    jLabel1 = new javax.swing.JLabel();
     panelPeptideProphet = new javax.swing.JPanel();
     chkRunPeptideProphet = new javax.swing.JCheckBox();
     btnPepProphDefaultsOpen = new javax.swing.JButton();
@@ -1534,36 +1532,26 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     jLabel40.setText("Cmd Line Options");
 
-    txtCombinedProtFile.setText("interact.prot.xml");
-    txtCombinedProtFile.setToolTipText("<html>The .pep.xml extension will be added to this name.<br/>\nIf left empty will default to \"interact.pep.xml\"");
-
-    jLabel1.setText("Output File");
-
     javax.swing.GroupLayout panelProteinProphetOptionsLayout = new javax.swing.GroupLayout(panelProteinProphetOptions);
     panelProteinProphetOptions.setLayout(panelProteinProphetOptionsLayout);
     panelProteinProphetOptionsLayout.setHorizontalGroup(
       panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelProteinProphetOptionsLayout.createSequentialGroup()
+      .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
         .addContainerGap()
-        .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-          .addComponent(jLabel40)
-          .addComponent(jLabel1))
-        .addGap(23, 23, 23)
-        .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-          .addComponent(txtCombinedProtFile)
-          .addComponent(jScrollPane4))
+        .addComponent(jLabel40)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(jScrollPane4)
         .addContainerGap())
     );
     panelProteinProphetOptionsLayout.setVerticalGroup(
       panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
-        .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(jLabel1)
-          .addComponent(txtCombinedProtFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jLabel40)
-          .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)))
+          .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
+            .addContainerGap()
+            .addComponent(jLabel40))
+          .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
     javax.swing.GroupLayout panelProteinProphetLayout = new javax.swing.GroupLayout(panelProteinProphet);
@@ -1587,7 +1575,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(btnProtProphDefaultsClosed)
           .addComponent(btnProtProphDefaultsOpen))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(panelProteinProphetOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addComponent(panelProteinProphetOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap())
     );
 
     chkRunPeptideProphet.setSelected(true);
@@ -4016,7 +4005,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   private String getCombinedProtFn() {
-    return txtCombinedProtFile.getText().trim();
+    return "interact.prot.xml";
   }
 
   private String getRegexMatch(Pattern re, String text, int groupNum) {
@@ -5646,7 +5635,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JEditorPane editorMsfraggerCitation;
   private javax.swing.JEditorPane editorPhilosopherLink;
   private javax.swing.JEditorPane editorSequenceDb;
-  private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel10;
   private javax.swing.JLabel jLabel12;
   private javax.swing.JLabel jLabel2;
@@ -5712,7 +5700,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JTextField textReportFilter;
   private javax.swing.JTextField textReportLabelfree;
   private javax.swing.JTextField textSequenceDbPath;
-  private javax.swing.JTextField txtCombinedProtFile;
   private javax.swing.JTextArea txtProteinProphetCmdLineOpts;
   private javax.swing.JTextField txtWorkingDir;
   // End of variables declaration//GEN-END:variables
