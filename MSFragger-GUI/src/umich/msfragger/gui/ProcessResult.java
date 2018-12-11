@@ -47,9 +47,9 @@ class ProcessResult implements AutoCloseable {
   public Process start() throws IOException {
     stdErrRedirect = createStdErrRedirect();
     stdOutRedirect = createStdOutRedirect();
+    proc = pbi.pb.start();
     stdOut = proc.getInputStream();
     stdErr = proc.getErrorStream();
-    proc = pbi.pb.start();
     started = true;
     return proc;
   }
@@ -101,16 +101,16 @@ class ProcessResult implements AutoCloseable {
    * Creates a new file output stream to the
    */
   private static BufferedOutputStream createOutputStream(ProcessBuilder pb, String fn) throws IOException {
-    if (!StringUtils.isNullOrWhitespace(fn) && pb.directory() != null) {
-      final Path pathLogOut = pb.directory().toPath().resolve(fn);
-      if (!Files.exists(pathLogOut.getParent())) {
-        Files.createDirectories(pathLogOut);
-      }
-      return new BufferedOutputStream(Files
-          .newOutputStream(pathLogOut, StandardOpenOption.CREATE,
-              StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE));
+    if (pb == null || pb.directory() == null || StringUtils.isNullOrWhitespace(fn)) {
+      return null;
     }
-    return null;
+    final Path pathLogOut = pb.directory().toPath().resolve(fn);
+    if (!Files.exists(pathLogOut.getParent())) {
+      Files.createDirectories(pathLogOut);
+    }
+    return new BufferedOutputStream(Files
+        .newOutputStream(pathLogOut, StandardOpenOption.CREATE,
+            StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE));
   }
 
   public ProcessBuilder getPb() {
@@ -141,6 +141,7 @@ class ProcessResult implements AutoCloseable {
     output.append(s);
     if (bos != null) {
       bos.write(bytes);
+      bos.flush();
     }
     return s;
   }

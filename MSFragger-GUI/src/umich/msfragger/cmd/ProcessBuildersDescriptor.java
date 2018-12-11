@@ -19,8 +19,8 @@ public class ProcessBuildersDescriptor {
     this(name, priority, "", "");
   }
 
-  public ProcessBuildersDescriptor(String name, int priority, String fileCaptureStdout,
-      String fileCaptureStderr) {
+  public ProcessBuildersDescriptor(String name, int priority,
+      String fileCaptureStdout, String fileCaptureStderr) {
     this.name = name;
     this.priority = priority;
     this.pbs = new ArrayList<>();

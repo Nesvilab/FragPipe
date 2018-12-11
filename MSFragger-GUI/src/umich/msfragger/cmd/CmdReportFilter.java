@@ -16,9 +16,10 @@ public class CmdReportFilter extends CmdBase {
 
   public static final String NAME = "ReportFilter";
   public static final String FN_CAPTURE_STDOUT = "filter.log";
+  public static final String FN_CAPTURE_STDERR = "filter.log";
 
   public CmdReportFilter(boolean isRun, Path workDir) {
-    super(isRun, workDir, FN_CAPTURE_STDOUT, "");
+    super(isRun, workDir, FN_CAPTURE_STDOUT, FN_CAPTURE_STDERR);
   }
 
   @Override

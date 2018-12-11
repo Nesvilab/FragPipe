@@ -27,7 +27,7 @@ public class CmdCrystalc extends CmdBase {
   public static final String NAME = "Crystal-C";
 
   public CmdCrystalc(boolean isRun, Path workDir) {
-    super(isRun, workDir, fileCaptureStdout, fileCaptureStderr);
+    super(isRun, workDir);
   }
 
   @Override
