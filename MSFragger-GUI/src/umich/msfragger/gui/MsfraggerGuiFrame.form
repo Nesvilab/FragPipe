@@ -1609,7 +1609,7 @@
                       <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelSpecLibOpts" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="380" max="32767" attributes="0"/>
+                      <EmptySpace pref="381" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1639,7 +1639,7 @@
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Group type="102" attributes="0">
                                           <Component id="checkReportProteinLevelFdr" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                          <EmptySpace min="0" pref="397" max="32767" attributes="0"/>
                                       </Group>
                                       <Component id="textReportFilter" max="32767" attributes="0"/>
                                       <Component id="textReportAnnotate" max="32767" attributes="0"/>
@@ -1647,8 +1647,6 @@
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="checkReportAbacus" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Component id="textReportAbacus" min="-2" pref="534" max="-2" attributes="0"/>
                                   <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
                           </Group>
@@ -1672,11 +1670,8 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="checkReportProteinLevelFdr" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="checkReportAbacus" min="-2" max="-2" attributes="0"/>
-                              <Component id="textReportAbacus" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <Component id="checkReportAbacus" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace pref="11" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -1749,19 +1744,6 @@
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkReportAbacusActionPerformed"/>
                   </Events>
-                </Component>
-                <Component class="javax.swing.JTextField" name="textReportAbacus">
-                  <Properties>
-                    <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection component="checkReportAbacus" name="toolTipText" type="property"/>
-                    </Property>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportAbacusFocusLost"/>
-                  </Events>
-                  <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastAbacus();"/>
-                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>
