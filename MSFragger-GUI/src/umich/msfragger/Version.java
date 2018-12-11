@@ -50,6 +50,12 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("8.8", Arrays.asList(
+        "Moved all downstream tools (Peptide/Protein Prophet, Crystal-C) to a single tab.",
+        "Simplified reports tab.",
+        "Ask twice about loading defaults automatically.",
+        "Removed decoy tag specification from command line fields. It's now always added implicitly."));
+
     CHANGELOG.put("8.7", Arrays.asList(
         "Support for new Philosopher 20181119, Report Abacus --protein flag."));
 
