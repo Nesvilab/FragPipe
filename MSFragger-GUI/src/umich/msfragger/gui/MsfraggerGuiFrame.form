@@ -1579,7 +1579,7 @@
                       <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelSpecLibOpts" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="416" max="32767" attributes="0"/>
+                      <EmptySpace pref="450" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1597,27 +1597,16 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="checkReportFilter" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Group type="102" attributes="0">
-                                          <Component id="checkReportProteinLevelFdr" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                                      </Group>
-                                      <Group type="102" attributes="0">
-                                          <Component id="textReportFilter" max="32767" attributes="0"/>
-                                          <EmptySpace max="-2" attributes="0"/>
-                                      </Group>
-                                  </Group>
-                              </Group>
-                              <Group type="102" alignment="0" attributes="0">
+                              <Group type="102" attributes="0">
                                   <Component id="checkReportAbacus" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
+                              <Component id="textReportFilter" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -1625,30 +1614,17 @@
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace max="32767" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="textReportFilter" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="checkReportFilter" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="checkReportProteinLevelFdr" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="checkReportAbacus" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JCheckBox" name="checkReportFilter">
-                  <Properties>
-                    <Property name="selected" type="boolean" value="true"/>
-                    <Property name="text" type="java.lang.String" value="Filter"/>
-                    <Property name="enabled" type="boolean" value="false"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkReportFilterActionPerformed"/>
-                  </Events>
-                </Component>
                 <Component class="javax.swing.JTextField" name="textReportFilter">
                   <Properties>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;--pepxml path-to-pepxml --protxml path-to-combined-protxml&lt;br/&gt;&#xa;will be added automatically based on previous tabs.&lt;br/&gt;&#xa;&#xa;Statistical filtering, validation and False Discovery Rates assessment&lt;br/&gt;&#xa;philosopher filter [flags]&lt;br&gt;&#xa;Flags:&lt;br/&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;--ion float        peptide ion FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--mapmods          map modifications aquired by an open search&lt;/li&gt;&#xa;&lt;li&gt;--models           print model distribution&lt;/li&gt;&#xa;&lt;li&gt;--pep float        peptide FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--pepProb float    top peptide probability treshold for the FDR filtering (default 0.7)&lt;/li&gt;&#xa;&lt;li&gt;--pepxml string    pepXML file or directory containing a set of pepXML files&lt;/li&gt;&#xa;&lt;li&gt;--picked           apply the picked FDR algorithm before the protein scoring&lt;/li&gt;&#xa;&lt;li&gt;--prot float       protein FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--protProb float   protein probability treshold for the FDR filtering (not used with the razor algorithm) (default 0.5)&lt;/li&gt;&#xa;&lt;li&gt;--protxml string   protXML file path&lt;/li&gt;&#xa;&lt;li&gt;--psm float        psm FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--razor            use razor peptides for protein FDR scoring&lt;/li&gt;&#xa;&lt;li&gt;--sequential       alternative algorithm that estimates FDR using both filtered PSM and Protein lists&lt;/li&gt;&#xa;&lt;li&gt;--tag string       decoy tag (default &quot;rev_&quot;)&lt;/li&gt;&#xa;&lt;li&gt;--weight float     threshold for defining peptide uniqueness (default 1)&lt;/li&gt;&#xa;&lt;/ul&gt;"/>
@@ -1662,19 +1638,6 @@
                     <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastReportFilter();"/>
                   </AuxValues>
                 </Component>
-                <Component class="javax.swing.JCheckBox" name="checkReportProteinLevelFdr">
-                  <Properties>
-                    <Property name="selected" type="boolean" value="true"/>
-                    <Property name="text" type="java.lang.String" value="Apply Protein level FDR"/>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Which FDR (False Discovery Rate) level to use:&#xa;&lt;ul&gt;&#xa;  &lt;li&gt;Checked - Protein level FDR&lt;/li&gt;&#xa;  &lt;li&gt;Unchecked - Peptide level FDR&lt;/li&gt;&#xa;&lt;/ul&gt;"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="checkReportProteinLevelFdrStateChanged"/>
-                  </Events>
-                  <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastReportProteinLevelFdr();"/>
-                  </AuxValues>
-                </Component>
                 <Component class="javax.swing.JCheckBox" name="checkReportAbacus">
                   <Properties>
                     <Property name="selected" type="boolean" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
@@ -1686,6 +1649,11 @@
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkReportAbacusActionPerformed"/>
                   </Events>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabel1">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Filter"/>
+                  </Properties>
                 </Component>
               </SubComponents>
             </Container>

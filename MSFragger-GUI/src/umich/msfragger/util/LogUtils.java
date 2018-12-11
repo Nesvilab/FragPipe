@@ -68,14 +68,11 @@ public class LogUtils {
     }
 
     public static final void print(final Appendable out, final String toPrint, boolean doOnEDT) {
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    out.append(toPrint);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        Runnable runnable = () -> {
+            try {
+                out.append(toPrint);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         };
 
