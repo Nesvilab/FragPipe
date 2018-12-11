@@ -4960,10 +4960,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnGroupsAssignToSelectedActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGroupsAssignToSelectedActionPerformed
+
     UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
-    List<String> files = m.dataCopy().stream().map(f -> f.path.toString())
+    final List<String> allFiles = m.dataCopy().stream().map(f -> f.path.toString())
         .collect(Collectors.toList());
-    ExperimentNameDialog d = new ExperimentNameDialog(this, true, files);
+
+    final List<String> selected = Arrays.stream(this.tableRawFiles.getSelectedRows())
+        .map(tableRawFiles::convertRowIndexToModel)
+        .mapToObj(allFiles::get)
+        .collect(Collectors.toList());
+
+    ExperimentNameDialog d = new ExperimentNameDialog(this, true, selected);
     d.setVisible(true);
     if (d.isOk()) {
       final String group = d.getExperimentName();
