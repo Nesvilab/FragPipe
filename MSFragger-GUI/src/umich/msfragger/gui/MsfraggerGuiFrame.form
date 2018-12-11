@@ -1639,8 +1639,6 @@
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Group type="102" attributes="0">
                                           <Component id="checkReportProteinLevelFdr" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace type="separate" max="-2" attributes="0"/>
-                                          <Component id="jCheckBox1" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                                       </Group>
                                       <Component id="textReportFilter" max="32767" attributes="0"/>
@@ -1672,10 +1670,7 @@
                               <Component id="textReportFilter" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="checkReportProteinLevelFdr" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="jCheckBox1" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
+                          <Component id="checkReportProteinLevelFdr" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
                               <Component id="checkReportAbacus" min="-2" max="-2" attributes="0"/>
@@ -1767,13 +1762,6 @@
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastAbacus();"/>
                   </AuxValues>
-                </Component>
-                <Component class="javax.swing.JCheckBox" name="jCheckBox1">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Include combined peptide-level report"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Combined peptide-level report feature will come in the next release."/>
-                    <Property name="enabled" type="boolean" value="false"/>
-                  </Properties>
                 </Component>
               </SubComponents>
             </Container>
