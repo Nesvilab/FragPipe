@@ -21,11 +21,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
-import org.apache.commons.lang3.text.StrSubstitutor;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.VersionComparator;
 

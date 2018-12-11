@@ -59,7 +59,7 @@ public class CmdPeptideProphet extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      String fastaPath, String textPepProphCmd, Map<InputLcmsFile, Path> pepxmlFiles) {
+      String fastaPath, String decoyTag, String textPepProphCmd, Map<InputLcmsFile, Path> pepxmlFiles) {
 
     pbs.clear();
     PeptideProphetParams peptideProphetParams = new PeptideProphetParams();
@@ -82,6 +82,8 @@ public class CmdPeptideProphet extends CmdBase {
           }
         }
       }
+      cmd.add("--decoy");
+      cmd.add(decoyTag);
       cmd.add("--database");
       cmd.add(fastaPath);
 
