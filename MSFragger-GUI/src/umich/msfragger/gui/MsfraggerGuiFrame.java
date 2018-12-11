@@ -3624,7 +3624,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
           }
 
-          try {
+          try { // External Processes start in this try block
 
             LogUtils.print(black, console, true, getTimestamp() + " Executing command [", false);
             LogUtils.print(colorTool, console, true, pbi.name, false);
@@ -3636,20 +3636,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
             Process proc = pr.start();
             LogUtils.println(console, getTimestamp() + " Process started");
-
-//            final File pbWorkDir = pbi.pb.directory();
-//            final OutputStream osLogOut;
-//            if (!StringUtils.isNullOrWhitespace(pbi.fnStdOut) && pbWorkDir != null) {
-//              final Path pathLogOut = pbWorkDir.toPath().resolve(pbi.fnStdOut);
-//              if (!Files.exists(pathLogOut.getParent())) {
-//                Files.createDirectories(pathLogOut);
-//              }
-//              osLogOut = new BufferedOutputStream(Files
-//                  .newOutputStream(pathLogOut, StandardOpenOption.CREATE,
-//                      StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE));
-//            } else {
-//              osLogOut = null;
-//            }
 
             while (true) {
               Thread.sleep(200L);
@@ -3691,6 +3677,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .format(Locale.ROOT, "InterruptedException: Error in process,\n%s",
                     ex.getMessage());
             LogUtils.println(console, toAppend);
+          } finally {
+            try {
+              pr.close();
+            } catch (Exception e) {
+              LogUtils.println(console,
+                  "Error while closing redirected output streams from process, details:\n\n"
+                      + LogUtils.stacktrace(e));
+
+            }
           }
         }, console, System.err);
 
@@ -5370,57 +5365,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     return result;
   }
-
-  // Not used anymore
-//    /**
-//     * This returns the paths to files to be created. Might be symlinks or
-//     * actual file copies. It does not create the files!
-//     *
-//     * @param workDir
-//     * @return
-//     */
-//    private List<Path> getLcmsFilePathsInWorkdir(Path workDir) {
-//        List<String> lcmsFilePaths = getLcmsFilePaths();
-//        Map<String, LcmsFileGroup> lcmsFileGroups = getLcmsFileGroups();
-//
-//        ArrayList<Path> result = new ArrayList<>();
-//        for (String lcmsFilePath : lcmsFilePaths) {
-//            result.add(workDir.resolve(Paths.get(lcmsFilePath).getFileName()));
-//        }
-//        return result;
-//    }
-
-  // Not used anymore
-//    private void createLcmsFileSymlinks(Path workDir) throws IOException {
-//        List<String> lcmsFilePaths = getLcmsFilePaths();
-//        List<Path> paths = new ArrayList<>();
-//        for (String s : lcmsFilePaths) {
-//            paths.add(Paths.get(s));
-//        }
-//
-//        List<Path> links = getLcmsFilePathsInWorkdir(workDir);
-//        for (int i = 0; i < paths.size(); i++) {
-//            Path lcmsPath = paths.get(i);
-//            Path link = links.get(i);
-//            if (link.equals(lcmsPath)) {
-//                return;
-//            }
-//            if (Files.exists(link)) {
-//                // if that link already exists we need to make sure it points to
-//                // the same file
-//                if (!Files.isSymbolicLink(link)) {
-//                    throw new FileAlreadyExistsException(link.toString(), null, "A file already exists and is not a symbolic link");
-//                }
-//                Path linkTarget = Files.readSymbolicLink(link);
-//                if (!linkTarget.equals(lcmsPath)) {
-//                    String msg = String.format("A symblic link to mzXML file already exists, but points to a different file: %s", link);
-//                    throw new FileAlreadyExistsException(link.toString(), null, msg);
-//                }
-//                return;
-//            }
-//            Files.createSymbolicLink(link, lcmsPath);
-//        }
-//    }
 
   /**
    * Get the name of the file less the provided suffix.

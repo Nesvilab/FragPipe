@@ -17,6 +17,8 @@
 package umich.msfragger.util;
 
 import java.awt.Color;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import javax.swing.*;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -50,6 +52,15 @@ public class LogUtils {
                             + "LogHelper.class.getResourceAsStream(\"/logging.properties\")");
             java.util.logging.Logger.getAnonymousLogger().severe(e.getMessage());
         }
+    }
+
+    /**
+     * Top stack trace messages as string.
+     */
+    public static String stacktrace(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw, true));
+        return sw.toString();
     }
 
     public static final void print(Appendable out, String toPrint) {
