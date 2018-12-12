@@ -226,7 +226,7 @@ spectrast2tsv_additional_mods_tsv_txt = r'''modified-AA	TPP-nomenclature	Unimod-
 C	C[222]	312	[XXX]	FALSE	"{'C': 3, 'H': 5, 'N' : 1, 'O' : 2, 'S' : 1 }"
 C	C[143]	385	[XXX]	FALSE	"{'H' : -3, 'N' : -1 }"
 C-term	c[17]	2	[XXX]	FALSE	"{'H' : 1, 'N' : 1 , 'O': -1 }"'''
-spectrast2tsv_additional_mods_path = pathlib.Path('spectrast2tsv_additional_mods_path.tsv')
+spectrast2tsv_additional_mods_path = output_directory / 'spectrast2tsv_additional_mods_path.tsv'
 
 spectrast_cmds_part3=fr"""
 ## Filter the consensus splib library into a transition list
