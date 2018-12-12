@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-# PATH=/storage/teog/anaconda3/bin:"$PATH"
+
+use_philosopher_fo: bool = not True
+
 from common_funcs import (raise_if, raise_if_not, str_to_path, unexpanduser_quote, list_as_shell_cmd, name_no_ext, strIII, os_fspath)
 from detect_decoy_prefix import detect_decoy_prefix
 
@@ -13,7 +15,7 @@ import shlex
 import subprocess
 import sys
 import shutil
-
+import pandas as pd
 
 def to_windows(cmd):
 	r"""convert linux sh scripts to windows
@@ -101,6 +103,10 @@ splib_original = output_directory / "input.splib"
 splib_original_backup = output_directory / "input.splib_orig.txt"
 splib_new = output_directory / "input_Qcombined.splib"
 
+philosopher_filter_log_path = output_directory / 'filter.log'
+peptide_tsv_path = output_directory / 'peptide.tsv'
+use_peptide_tsv: bool = peptide_tsv_path.exists()
+assert peptide_tsv_path.exists()==philosopher_filter_log_path.exists()
 
 
 
@@ -204,7 +210,7 @@ set -o xtrace -o errexit
 {sys.executable} {script_dir / "spectrast_gen_pepidx.py"} -i input.splib -o input_irt.splib # generate .pepidx file
 #outfiles: input_irt.splib, input_irt.csv
 ## Consolidate the library into a single consensus spectrum entry for each peptide sequence.
-{SPECTRAST_PATH} -cAC -c_BIN! -cIHCD -cNoutput_file_irt_con000 input_irt.splib
+{SPECTRAST_PATH} -M spectrast.usermods -cAC -c_BIN! -cIHCD -cNoutput_file_irt_con000 input_irt.splib
 #outfile:output_file_irt_con000.splib
 {sys.executable} {script_dir / "unite_runs.py"} output_file_irt_con000.splib output_file_irt_con001.splib
 #outfile:output_file_irt_con001.splib
@@ -226,7 +232,7 @@ spectrast_cmds_part3=fr"""
 spectrast_cmds = spectrast_cmds_part1 + spectrast_cmds_part2 + spectrast_cmds_part3
 
 phi_log = output_directory / "philosopher.log"
-use_philosopher_fo = not True
+
 phi_cmd_part1= f"""
 set -xe
 {philosopher} workspace --clean --analytics false
@@ -253,8 +259,13 @@ class Filter_option(enum.Enum):
 	all = 0
 	by_2D_filtering = 1
 
+def get_pep_ion_minprob_from_log(opt: Filter_option, philosopher_filter_log: str):
+	res2 = [float(e) for e in re.compile(' Ions.+threshold.*?=([0-9.]+)').findall(philosopher_filter_log)]
+	return res2[opt.value]
 
-def get_pep_ion_minprob(opt: Filter_option):
+def get_pep_ion_minprob(opt: Filter_option, philosopher_filter_log: str = None):
+	if philosopher_filter_log is not None:
+		return get_pep_ion_minprob_from_log(opt, philosopher_filter_log)
 	outl=[]
 	f=sys.stdout.buffer
 	### get 2D FDR
@@ -277,7 +288,6 @@ def get_pep_ion_minprob(opt: Filter_option):
 				f2.flush()
 				outl.append(line)
 	if use_philosopher_fo and proc1.returncode == 1:
-		import pathlib, re
 		a = (output_directory/'.meta'/'pep_pro_mappings.tsv').read_text()
 		l = [e.split('\t') for e in re.compile('(?=sp\\|)').split(a)]
 		d = {ee2: e for e, *e2 in l for ee2 in e2}
@@ -309,6 +319,7 @@ def get_pep_ion_minprob(opt: Filter_option):
 def spectrast_cmd(prob):
 	return [
 			   os_fspath(SPECTRAST_PATH),
+			   '-M', 'spectrast.usermods',
 			   "-c_BIN!",
 			   f"-cP{prob}",
 			   "-cIHCD", f"-cN{output_directory / 'input000'}"] + \
@@ -322,7 +333,6 @@ allcmds = "\n".join([phi_cmd_part1, phi_cmd_part2, " ".join(spectrast_cmd("{}"))
 def filter_proteins(fasta, decoy_prefix):
 	"""filter out proteins that are not in the protein list by philosopher (proteins.fas)
 	"""
-	import re, pathlib
 
 	### get the iRT protein sequences
 	gen = (e.split("\n", 1)[0].split(' ', 1)[0] for e in fasta.read_text()[1:].split("\n>"))
@@ -332,11 +342,14 @@ def filter_proteins(fasta, decoy_prefix):
 	# assert len(irt_prots_with_decoys) == len(irt_prots) * 2, irt_prots
 	# print("irt_prots_with_decoys",irt_prots_with_decoys)
 	# print("irt_prots",irt_prots)
-
-	fasta_file = output_directory / "proteins.fas"
-	# gen0 = (e.split("\n", 1)[0].split(' ', 1)[0] for e in fasta_file.read_text()[1:].split("\n>"))
-	# proteins_fas = frozenset(filter(lambda x: not x.startswith(decoy_prefix), gen0))
-	proteins_fas = frozenset(e.split("\n", 1)[0].split(' ', 1)[0] for e in fasta_file.read_text()[1:].split("\n>"))
+	if use_peptide_tsv:
+		philosopher_peptide_tsv = pd.read_table(peptide_tsv_path)
+		proteins_fas = frozenset(philosopher_peptide_tsv['Protein'])
+	else:
+		fasta_file = output_directory / "proteins.fas"
+		# gen0 = (e.split("\n", 1)[0].split(' ', 1)[0] for e in fasta_file.read_text()[1:].split("\n>"))
+		# proteins_fas = frozenset(filter(lambda x: not x.startswith(decoy_prefix), gen0))
+		proteins_fas = frozenset(e.split("\n", 1)[0].split(' ', 1)[0] for e in fasta_file.read_text()[1:].split("\n>"))
 
 	recomp = re.compile(r"(Comment: .+\bProtein=)(?:\d+)/(\S+)(.+\n)")
 
@@ -407,12 +420,20 @@ def main0():
 	output_directory.mkdir(exist_ok=overwrite)
 	print("running:\n" + allcmds, flush=True)
 	(output_directory / "cmds.txt").write_text(allcmds)
-
 	pep_ion_minprob=get_pep_ion_minprob(
 		Filter_option.all
 		# Filter_option.by_2D_filtering
+		,
+		philosopher_filter_log_path.read_text() if philosopher_filter_log_path.exists() else None
 	)
-
+	# http://tools.proteomecenter.org/wiki/index.php?title=Software:SpectraST#User-defined_Modifications
+	# http://tools.proteomecenter.org/wiki/index.php?title=Spectrast.usermods
+	(output_directory / 'spectrast.usermods').write_text(
+		r'''M|+16|
+C|+57|
+n|+42|
+C|119.004099|Cysteinyl
+c|-0.984016|Amidated''')
 	cmd2 = " ".join(spectrast_cmd(pep_ion_minprob))
 	print(f"running:\n{cmd2}\n…")
 	(output_directory / "cmds2.txt").write_text(cmd2)
@@ -491,8 +512,6 @@ def get_prot_razor_dict(l) -> dict:
 
 
 def edit_raw_con_lib():
-	import pandas as pd
-	import pathlib
 	# p = data_directory / "ProteinProphet/interact.prot.xml"
 	p = prot_xml_file
 	import concurrent.futures
@@ -522,8 +541,12 @@ def edit_raw_con_lib():
 
 	import pandas as pd, pathlib
 	t = pd.read_table("output_irt_con.tsv")
-	philosopher_psm_tsv = pd.read_table('psm.tsv')
-	pep_to_razor_prot = {pep: razor_prot for _, pep, razor_prot in philosopher_psm_tsv[["Peptide", "Protein"]].itertuples()}
+	if use_peptide_tsv:
+		philosopher_peptide_tsv = pd.read_table(peptide_tsv_path)
+		pep_to_razor_prot = dict(philosopher_peptide_tsv[["Peptide", "Protein"]].itertuples(index=False))
+	else:
+		philosopher_psm_tsv = pd.read_table('psm.tsv')
+		pep_to_razor_prot = {pep: razor_prot for pep, razor_prot in philosopher_psm_tsv[["Peptide", "Protein"]].itertuples(index=False)}
 	t["razor_Protein"] = t["PeptideSequence"].map(pep_to_razor_prot.get)
 	pep_init_prob = get_pep_init_prob(p)
 	pathlib.Path('con_lib_not_in_psm_tsv.tsv').write_text(
