@@ -222,9 +222,15 @@ spectrast_cmds_part2= fr"""
 #outfile:output_file_irt_con.splib
 """
 
+spectrast2tsv_additional_mods_tsv_txt = r'''modified-AA	TPP-nomenclature	Unimod-Accession	ProteinPilot-nomenclature	is_a_labeling	composition-dictionary
+C	C[222]	312	[XXX]	FALSE	"{'C': 3, 'H': 5, 'N' : 1, 'O' : 2, 'S' : 1 }"
+C	C[143]	385	[XXX]	FALSE	"{'H' : -3, 'N' : -1 }"
+C-term	c[17]	2	[XXX]	FALSE	"{'H' : 1, 'N' : 1 , 'O': -1 }"'''
+spectrast2tsv_additional_mods_path = pathlib.Path('spectrast2tsv_additional_mods_path.tsv')
+
 spectrast_cmds_part3=fr"""
 ## Filter the consensus splib library into a transition list
-{sys.executable} {spectrast2tsv_py_path} -l 300,2000 -s b,y -x 1,2 -o 3 -n 6 -p 0.05 -d -e -k openswath -a output_irt_con.tsv output_file_irt_con.splib
+{sys.executable} {spectrast2tsv_py_path} -m {spectrast2tsv_additional_mods_path} -l 300,2000 -s b,y -x 1,2 -o 3 -n 6 -p 0.05 -d -e -k openswath -a output_irt_con.tsv output_file_irt_con.splib
 #outfile:output_irt_con.tsv
 """
 
@@ -458,6 +464,7 @@ c|-0.984016|Amidated''')
 			print(cp.stdout)
 	else:
 		shutil.move(output_directory / 'output_file_irt_con001.splib', output_directory / 'output_file_irt_con.splib')
+	spectrast2tsv_additional_mods_path.write_text(spectrast2tsv_additional_mods_tsv_txt)
 	subprocess.run(adjust_command(spectrast_cmds_part3), shell=True, cwd=os_fspath(output_directory), check=True)
 
 
