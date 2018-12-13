@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 use_philosopher_fo: bool = not True
+delete_temp_files: bool = True
 
 from common_funcs import (raise_if, raise_if_not, str_to_path, unexpanduser_quote, list_as_shell_cmd, name_no_ext, strIII, os_fspath)
 from detect_decoy_prefix import detect_decoy_prefix
@@ -106,6 +107,7 @@ splib_new = output_directory / "input_Qcombined.splib"
 philosopher_filter_log_path = output_directory / 'filter.log'
 peptide_tsv_path = output_directory / 'peptide.tsv'
 use_peptide_tsv: bool = peptide_tsv_path.exists()
+skip_philosopher_filter: bool = philosopher_filter_log_path.exists()
 assert peptide_tsv_path.exists()==philosopher_filter_log_path.exists()
 
 
@@ -332,7 +334,9 @@ def spectrast_cmd(prob):
 		   list(map(os_fspath, iproph_pep_xmls))
 
 
-allcmds = "\n".join([phi_cmd_part1, phi_cmd_part2, " ".join(spectrast_cmd("{}")), spectrast_cmds])
+allcmds = "\n".join([" ".join(spectrast_cmd("{}")), spectrast_cmds]) \
+	if skip_philosopher_filter else \
+	"\n".join([phi_cmd_part1, phi_cmd_part2, " ".join(spectrast_cmd("{}")), spectrast_cmds])
 
 
 
@@ -430,7 +434,7 @@ def main0():
 		Filter_option.all
 		# Filter_option.by_2D_filtering
 		,
-		philosopher_filter_log_path.read_text() if philosopher_filter_log_path.exists() else None
+		philosopher_filter_log_path.read_text() if skip_philosopher_filter else None
 	)
 	# http://tools.proteomecenter.org/wiki/index.php?title=Software:SpectraST#User-defined_Modifications
 	# http://tools.proteomecenter.org/wiki/index.php?title=Spectrast.usermods
@@ -445,7 +449,7 @@ c|-0.984016|Amidated''')
 	(output_directory / "cmds2.txt").write_text(cmd2)
 	subprocess.run(spectrast_cmd(pep_ion_minprob), cwd=os_fspath(output_directory), check=True)
 
-	print("take only proteins from philosopher’s proteins.fas…")
+	# print("take only proteins from philosopher’s proteins.fas…")
 	filter_proteins(fasta, decoy_prefix)
 	# swathwindowssetup_file_path.write_text(txt, "ascii")
 	if is_DIA_Umpire_output:
@@ -548,22 +552,30 @@ def edit_raw_con_lib():
 
 	import pandas as pd, pathlib
 	t = pd.read_table("output_irt_con.tsv")
-	if use_peptide_tsv:
-		philosopher_peptide_tsv = pd.read_table(peptide_tsv_path)
-		pep_to_razor_prot = dict(philosopher_peptide_tsv[["Peptide", "Protein"]].itertuples(index=False))
-	else:
+
+	philosopher_peptide_tsv = pd.read_table(peptide_tsv_path)
+	pep_to_xxx = {peptide: rest
+	for peptide, *rest in
+	 philosopher_peptide_tsv[['Peptide','Protein', 'Protein ID', 'Entry Name', 'Gene', 'Protein Description']].itertuples(index=False)}
+	t[['Protein', 'Protein ID', 'Entry Name', 'Gene', 'Protein Description']] = t[["PeptideSequence"]].apply(
+		lambda x: pep_to_xxx.get(x.item()),
+		axis=1, result_type='expand')
+
+	if False:
 		philosopher_psm_tsv = pd.read_table('psm.tsv')
 		pep_to_razor_prot = {pep: razor_prot for pep, razor_prot in philosopher_psm_tsv[["Peptide", "Protein"]].itertuples(index=False)}
-	t["razor_Protein"] = t["PeptideSequence"].map(pep_to_razor_prot.get)
+		t["Protein"] = t["PeptideSequence"].map(pep_to_razor_prot.get)
+
 	pep_init_prob = get_pep_init_prob(p)
 	pathlib.Path('con_lib_not_in_psm_tsv.tsv').write_text(
-		t[t["razor_Protein"].isnull()].assign(init_prob=t["PeptideSequence"].map(pep_init_prob.get).map(lambda x: "" if x is None else ','.join(x)))
+		t[t["Protein"].isnull()].assign(init_prob=t["PeptideSequence"].map(pep_init_prob.get).map(lambda x: "" if x is None else ','.join(x)))
 			.to_csv(sep='\t', index=False).replace('(UniMod:5)', '(UniMod:1)')
 	)
+	del t['UniprotID']
 	fout = pathlib.Path('con_lib.tsv')
 	print(f'writing {fout.resolve()}')
 	fout.write_text(
-		t[t["razor_Protein"].notnull()].to_csv(sep='\t', index=False).replace('(UniMod:5)', '(UniMod:1)')
+		t[t["Protein"].notnull()].to_csv(sep='\t', index=False).replace('(UniMod:5)', '(UniMod:1)')
 	)
 
 
@@ -571,12 +583,21 @@ main0()
 
 os.chdir(os_fspath(output_directory))
 edit_raw_con_lib()
-for f in TEMP_FILES:
-	try:
-		pathlib.Path(f).unlink()
-	except FileNotFoundError as e:
-		pass
-os.chdir(CWD)
+if delete_temp_files:
+	for f in TEMP_FILES:
+		try:
+			pathlib.Path(f).unlink()
+		except FileNotFoundError as e:
+			pass
+else:
+	print('not deleting temporary files:')
+	for f in TEMP_FILES:
+		try:
+			print(pathlib.Path(f).resolve(strict=True))
+		except FileNotFoundError as e:
+			pass
 
+os.chdir(CWD)
+print('done generating spectral library')
 # if __name__=='__main__':
 # 	main()
