@@ -91,7 +91,7 @@ assert philosopher.exists()
 assert spectrast2spectrast_irt_py_path.exists()
 assert spectrast2tsv_py_path.exists()
 
-print("\n".join(map(str, [SPECTRAST_PATH, fasta, iproph_RT_aligned])))
+"\n".join(map(str, [SPECTRAST_PATH, fasta, iproph_RT_aligned]))
 
 CWD = os.getcwd()
 
@@ -204,22 +204,27 @@ TEMP_FILES = ['input000.splib', 'input000.spidx', 'input000.pepidx',
 			  'input.splib',
 			  'input_irt.pepidx', 'input_irt.splib', 'input_irt.csv',
 			  'output_file_irt_con000.splib', 'output_file_irt_con000.spidx', 'output_file_irt_con000.pepidx',
-			  'output_file_irt_con001.splib', 'output_file_irt_con.splib', 'output_irt_con.tsv',
+			  'output_file_irt_con001.splib',
+			  # 'output_file_irt_con.splib', # keep splib for now, not used by OpenSWATH
+			  'output_irt_con.tsv',
 			  'con_lib_not_in_psm_tsv.tsv']
 
 spectrast_cmds_part1= fr'''
-set -o xtrace -o errexit
-{sys.executable} {script_dir / "spectrast_gen_pepidx.py"} -i input.splib -o input_irt.splib # generate .pepidx file
+## generate .pepidx file
+{sys.executable} {script_dir / "spectrast_gen_pepidx.py"} -i input.splib -o input_irt.splib
 #outfiles: input_irt.splib, input_irt.csv
+
 ## Consolidate the library into a single consensus spectrum entry for each peptide sequence.
 {SPECTRAST_PATH} -M spectrast.usermods -cAC -c_BIN! -cIHCD -cNoutput_file_irt_con000 input_irt.splib
 #outfile:output_file_irt_con000.splib
+
+## unite runs
 {sys.executable} {script_dir / "unite_runs.py"} output_file_irt_con000.splib output_file_irt_con001.splib
 #outfile:output_file_irt_con001.splib
 '''
 
 spectrast_cmds_part2= fr"""
-### if self aligned, use iRT alignment here.
+### iRT alignment
 {sys.executable} {spectrast2spectrast_irt_py_path} --kit {rtkit_str} --rsq_threshold=0.25 -r -i output_file_irt_con001.splib -o output_file_irt_con.splib
 #outfile:output_file_irt_con.splib
 """
@@ -334,9 +339,9 @@ def spectrast_cmd(prob):
 		   list(map(os_fspath, iproph_pep_xmls))
 
 
-allcmds = "\n".join([" ".join(spectrast_cmd("{}")), spectrast_cmds]) \
-	if skip_philosopher_filter else \
-	"\n".join([phi_cmd_part1, phi_cmd_part2, " ".join(spectrast_cmd("{}")), spectrast_cmds])
+spectrast_first = '## Run spectrast to build spectral library\n'+' '.join(spectrast_cmd('?'))
+allcmds = '\n\n'.join(([] if skip_philosopher_filter else [phi_cmd_part1, phi_cmd_part2]) +
+					  [spectrast_first, spectrast_cmds])
 
 
 
@@ -428,7 +433,10 @@ def filter_proteins(fasta, decoy_prefix):
 def main0():
 
 	output_directory.mkdir(exist_ok=overwrite)
-	print("running:\n" + allcmds, flush=True)
+	print(f'''Spectral library building
+Commands to execute:
+{allcmds}
+{'~' * 69}''', flush=True)
 	(output_directory / "cmds.txt").write_text(allcmds)
 	pep_ion_minprob=get_pep_ion_minprob(
 		Filter_option.all
@@ -445,7 +453,7 @@ n|+42|
 C|119.004099|Cysteinyl
 c|-0.984016|Amidated''')
 	cmd2 = " ".join(spectrast_cmd(pep_ion_minprob))
-	print(f"running:\n{cmd2}\n…")
+	print(f'Executing:{cmd2}…\n')
 	(output_directory / "cmds2.txt").write_text(cmd2)
 	subprocess.run(spectrast_cmd(pep_ion_minprob), cwd=os_fspath(output_directory), check=True)
 
@@ -455,20 +463,23 @@ c|-0.984016|Amidated''')
 	if is_DIA_Umpire_output:
 		print("modifying splib file to combine Q[123] from DIA-umpire…")
 		modify_splib()
-	# %%time
-	# subprocess.run(spectrast_cmds, shell=True, cwd=os_fspath(output_directory), check=True)
+
+	print(f'Executing:{spectrast_cmds_part1}…\n')
 	subprocess.run(adjust_command(spectrast_cmds_part1), shell=True, cwd=os_fspath(output_directory), check=True)
 	if align_with_iRT:
+		print(f'Executing:{spectrast_cmds_part2}…\n')
 		cp = subprocess.run(adjust_command(spectrast_cmds_part2), shell=True, cwd=os_fspath(output_directory), check=not True,
 							stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 		if cp.returncode != 0:
 			print('Skipping iRT alignment')
 			shutil.move(output_directory / 'output_file_irt_con001.splib', output_directory / 'output_file_irt_con.splib')
 		else:
-			print(cp.stdout)
+			print(cp.stdout.decode())
+			print('iRT alignment done')
 	else:
 		shutil.move(output_directory / 'output_file_irt_con001.splib', output_directory / 'output_file_irt_con.splib')
 	spectrast2tsv_additional_mods_path.write_text(spectrast2tsv_additional_mods_tsv_txt)
+	print(f'Executing:{spectrast_cmds_part3}…\n')
 	subprocess.run(adjust_command(spectrast_cmds_part3), shell=True, cwd=os_fspath(output_directory), check=True)
 
 
@@ -573,7 +584,7 @@ def edit_raw_con_lib():
 	)
 	del t['UniprotID']
 	fout = pathlib.Path('con_lib.tsv')
-	print(f'writing {fout.resolve()}')
+	print(f'Writing {fout.resolve()}')
 	fout.write_text(
 		t[t["Protein"].notnull()].to_csv(sep='\t', index=False).replace('(UniMod:5)', '(UniMod:1)')
 	)
@@ -598,6 +609,6 @@ else:
 			pass
 
 os.chdir(CWD)
-print('done generating spectral library')
+print('Done generating spectral library')
 # if __name__=='__main__':
 # 	main()
