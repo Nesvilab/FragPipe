@@ -102,6 +102,7 @@ public class CmdSpecLibGen extends CmdBase {
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(groupWd.toFile());
+      pb.environment().put("PYTHONIOENCODING", "utf-8");
 
       pbs.add(pb);
     }
