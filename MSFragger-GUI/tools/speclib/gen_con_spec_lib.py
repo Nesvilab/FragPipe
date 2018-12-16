@@ -18,6 +18,9 @@ import sys
 import shutil
 import pandas as pd
 
+if sys.version_info[:2] >= (3, 7):
+	sys.stdout.reconfigure(encoding='utf-8')
+
 def to_windows(cmd):
 	r"""convert linux sh scripts to windows
 
@@ -210,7 +213,7 @@ TEMP_FILES = ['input000.splib', 'input000.spidx', 'input000.pepidx',
 			  'con_lib_not_in_psm_tsv.tsv']
 
 spectrast_cmds_part1= fr'''
-## generate .pepidx file
+## Generate .pepidx file
 {sys.executable} {script_dir / "spectrast_gen_pepidx.py"} -i input.splib -o input_irt.splib
 #outfiles: input_irt.splib, input_irt.csv
 
@@ -218,13 +221,13 @@ spectrast_cmds_part1= fr'''
 {SPECTRAST_PATH} -M spectrast.usermods -cAC -c_BIN! -cIHCD -cNoutput_file_irt_con000 input_irt.splib
 #outfile:output_file_irt_con000.splib
 
-## unite runs
+## Unite runs
 {sys.executable} {script_dir / "unite_runs.py"} output_file_irt_con000.splib output_file_irt_con001.splib
 #outfile:output_file_irt_con001.splib
 '''
 
 spectrast_cmds_part2= fr"""
-### iRT alignment
+## iRT alignment
 {sys.executable} {spectrast2spectrast_irt_py_path} --kit {rtkit_str} --rsq_threshold=0.25 -r -i output_file_irt_con001.splib -o output_file_irt_con.splib
 #outfile:output_file_irt_con.splib
 """
@@ -340,7 +343,8 @@ def spectrast_cmd(prob):
 
 
 spectrast_first = '## Run spectrast to build spectral library\n'+' '.join(spectrast_cmd('?'))
-allcmds = '\n\n'.join(([] if skip_philosopher_filter else [phi_cmd_part1, phi_cmd_part2]) +
+allcmds = '\n\n'.join(e.strip() for e in
+					  ([] if skip_philosopher_filter else [phi_cmd_part1, phi_cmd_part2]) +
 					  [spectrast_first, spectrast_cmds])
 
 
@@ -453,33 +457,33 @@ n|+42|
 C|119.004099|Cysteinyl
 c|-0.984016|Amidated''')
 	cmd2 = " ".join(spectrast_cmd(pep_ion_minprob))
-	print(f'Executing:{cmd2}…\n')
+	print(f'Executing:{cmd2}\n')
 	(output_directory / "cmds2.txt").write_text(cmd2)
 	subprocess.run(spectrast_cmd(pep_ion_minprob), cwd=os_fspath(output_directory), check=True)
 
-	# print("take only proteins from philosopher’s proteins.fas…")
+	# print("take only proteins from philosopher’s proteins.fas")
 	filter_proteins(fasta, decoy_prefix)
 	# swathwindowssetup_file_path.write_text(txt, "ascii")
 	if is_DIA_Umpire_output:
-		print("modifying splib file to combine Q[123] from DIA-umpire…")
+		print("modifying splib file to combine Q[123] from DIA-umpire")
 		modify_splib()
 
-	print(f'Executing:{spectrast_cmds_part1}…\n')
+	print(f'Executing:{spectrast_cmds_part1}\n')
 	subprocess.run(adjust_command(spectrast_cmds_part1), shell=True, cwd=os_fspath(output_directory), check=True)
 	if align_with_iRT:
-		print(f'Executing:{spectrast_cmds_part2}…\n')
+		print(f'Executing:{spectrast_cmds_part2}\n')
 		cp = subprocess.run(adjust_command(spectrast_cmds_part2), shell=True, cwd=os_fspath(output_directory), check=not True,
 							stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 		if cp.returncode != 0:
-			print('Skipping iRT alignment')
+			print('Skipping iRT alignment\n')
 			shutil.move(output_directory / 'output_file_irt_con001.splib', output_directory / 'output_file_irt_con.splib')
 		else:
 			print(cp.stdout.decode())
-			print('iRT alignment done')
+			print('iRT alignment done\n')
 	else:
 		shutil.move(output_directory / 'output_file_irt_con001.splib', output_directory / 'output_file_irt_con.splib')
 	spectrast2tsv_additional_mods_path.write_text(spectrast2tsv_additional_mods_tsv_txt)
-	print(f'Executing:{spectrast_cmds_part3}…\n')
+	print(f'Executing:{spectrast_cmds_part3}\n')
 	subprocess.run(adjust_command(spectrast_cmds_part3), shell=True, cwd=os_fspath(output_directory), check=True)
 
 
