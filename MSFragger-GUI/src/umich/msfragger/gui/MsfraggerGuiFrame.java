@@ -149,6 +149,7 @@ import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.enums.FraggerOutputType;
+import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
@@ -386,6 +387,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
+    FraggerMigPanel fmp = new FraggerMigPanel();
+    tabPane.add("Fragger", fmp);
+
 
     // set icons for tabs
     Map<String, Integer> mapTabNameToIdx = new HashMap<>();
@@ -397,6 +401,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     setTabIcon(mapTabNameToIdx, "Sequence DB", "/umich/msfragger/gui/icons/093-drawer.png");
     setTabIcon(mapTabNameToIdx, "Downstream", "/umich/msfragger/gui/icons/328-move-down.png");
     setTabIcon(mapTabNameToIdx, "Report", "/umich/msfragger/gui/icons/185-clipboard.png");
+    setTabIcon(mapTabNameToIdx, "Fragger", "/umich/msfragger/gui/icons/bolt-16.png");
     //setTabIcon(mapTabNameToIdx, "", "");
 
     // check binary paths (can only be done after manual MSFragger panel creation)
@@ -1342,7 +1347,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addComponent(btnGroupsAssignToSelected)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnGroupsClear)))
-            .addGap(0, 94, Short.MAX_VALUE)))
+            .addGap(0, 96, Short.MAX_VALUE)))
         .addContainerGap())
     );
     panelSelectedFilesLayout.setVerticalGroup(
