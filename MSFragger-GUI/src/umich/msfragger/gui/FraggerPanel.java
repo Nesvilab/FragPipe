@@ -1785,17 +1785,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_chkMsadjusterActionPerformed
 
   private void btnDefaultsNonSpecificActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDefaultsNonSpecificActionPerformed
-
-    final SearchTypeProp type = SearchTypeProp.nonspecific;
-    loadDefaults(type);
-
-    int updateOthers = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
-        "<html>New parameters for MSFragger loaded.<br/>"
-            + "<b>Highly recommended</b> to auto-update parameters for other tools.<br/><br/>"
-            + "Dow you want to proceed?");
-    if (JOptionPane.YES_OPTION != updateOthers)
-      return;
-    EventBus.getDefault().post(new MessageSearchType(type));
+    loadDefaultsForUi(SearchTypeProp.nonspecific, true);
   }//GEN-LAST:event_btnDefaultsNonSpecificActionPerformed
 
   private void checkShiftedIonsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkShiftedIonsActionPerformed
