@@ -67,20 +67,15 @@ launch4j {
     outputDir = 'libs'
     dontWrapJar = false
     downloadUrl = 'https://adoptopenjdk.net/'
-//    messagesStartupError = "Startup error"
-//    messagesLauncherError = "Launcher error"
-//    messagesBundledJreError = "Error with bundled JRE"
-//    messagesJreVersionError = "Java Runtime version error"
+    // messagesStartupError = "Startup error"
+    // messagesLauncherError = "Launcher error"
+    // messagesBundledJreError = "Error with bundled JRE"
+    // messagesJreVersionError = "Java Runtime version error"
 }
 
 dependencies {
-    // This dependency is found on compile classpath of this component and consumers.
-    //compile 'com.google.guava:guava:23.0'
     compile 'org.apache.httpcomponents:httpcore:4.4.10'
-    compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6') {
-        //exclude group: 'commons-logging', module: 'commons-logging'
-        //exclude group: 'commons-codec', module: 'commons-codec'
-    }
+    compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6')
     compile 'commons-logging:commons-logging-api:1.1'
     
     compile 'org.apache.httpcomponents:httpmime:4.5.6'
