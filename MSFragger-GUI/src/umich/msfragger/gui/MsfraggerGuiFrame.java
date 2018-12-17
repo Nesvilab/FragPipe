@@ -1819,6 +1819,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     checkReportAbacus.setSelected(loadLastCheckboxAbacus());
     checkReportAbacus.setText("Multi-Experiment Report ");
     checkReportAbacus.setToolTipText("<html>Philosopher abacus command");
+    checkReportAbacus.setMargin(new java.awt.Insets(10, 0, 2, 2));
     checkReportAbacus.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         checkReportAbacusActionPerformed(evt);
@@ -1833,13 +1834,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(panelReportOptionsLayout.createSequentialGroup()
         .addContainerGap()
-        .addComponent(jLabel1)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addGroup(panelReportOptionsLayout.createSequentialGroup()
+            .addComponent(jLabel1)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(textReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, 663, Short.MAX_VALUE))
+          .addGroup(panelReportOptionsLayout.createSequentialGroup()
             .addComponent(checkReportAbacus)
-            .addGap(0, 0, Short.MAX_VALUE))
-          .addComponent(textReportFilter)))
+            .addGap(0, 0, Short.MAX_VALUE))))
     );
     panelReportOptionsLayout.setVerticalGroup(
       panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1847,8 +1849,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(textReportFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
           .addComponent(jLabel1))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-        .addComponent(checkReportAbacus))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(checkReportAbacus)
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
     loadLastReportFilter();
@@ -1975,7 +1978,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(btnReportDefaultsOpen)
           .addComponent(btnReportDefaultsClosed))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(panelReportOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addComponent(panelReportOptions, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
