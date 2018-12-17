@@ -57,25 +57,30 @@ public class FraggerMigPanel extends JPanel {
     // Top panel with checkbox and buttons
     {
       JPanel pTop = new JPanel(new MigLayout(lc));
-      checkRun = new JCheckBox("Run DIA-Umpire SE (Signal Extraction)");
-      JButton closed = new JButton("Closed");
+      checkRun = new JCheckBox("Run MSFragger");
+      JButton closed = new JButton("Closed Search");
       closed.addActionListener(e -> {
         EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.closed));
       });
-      JButton open = new JButton("Open");
+      JButton open = new JButton("Open Search");
       open.addActionListener(e -> {
         EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.open));
       });
-      JButton nonspecific = new JButton("Non-specific");
+      JButton nonspecific = new JButton("Non-specific Search");
       open.addActionListener(e -> {
         EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.nonspecific));
       });
 
       pTop.add(checkRun);
-      pTop.add(new JLabel("Defaults:"), new CC().gapLeft("35px"));
+      pTop.add(new JLabel("Load defaults:"), new CC().gapLeft("15px"));
       pTop.add(closed, new CC().gapLeft("1px"));
       pTop.add(open, new CC().gapLeft("1px"));
-      pTop.add(nonspecific, new CC().gapLeft("1px"));
+      pTop.add(nonspecific, new CC().gapLeft("1px").wrap());
+
+      JButton save = new JButton("Save Options");
+      JButton load = new JButton("Load Options");
+      pTop.add(save, new CC().split(2).spanX());
+      pTop.add(load, new CC().wrap());
 
       this.add(pTop, BorderLayout.NORTH);
     }
@@ -90,6 +95,11 @@ public class FraggerMigPanel extends JPanel {
     {
       JPanel pBasic = new JPanel(new MigLayout(lc));
       pBasic.setBorder(new TitledBorder("Basic Options"));
+
+
+
+
+
       pBasic.add(new JLabel("Basic Options panel"), new CC().wrap());
       pBasic.add(new JLabel("Basic Options panel"), new CC().wrap());
       pBasic.add(new JLabel("Basic Options panel"), new CC().wrap());
