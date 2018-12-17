@@ -654,7 +654,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     textCutAfter.setText("KR");
     textCutAfter.setToolTipText("Enzyme cleaves after these residues");
 
-    jLabel10.setText("But Not After");
+    jLabel10.setText("But Not Before");
 
     textButNotAfter.setDocument(DocumentFilters.getFilter("[^A-Z]+"));
     textButNotAfter.setText("P");
