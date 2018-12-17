@@ -1407,7 +1407,7 @@
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel12">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="&lt;html&gt;Crystal-C performs additional search results cleanup&lt;br/&gt;&#xa;&lt;b&gt;Recommended for Open Searches&lt;/b&gt;"/>
+                    <Property name="text" type="java.lang.String" value="&lt;html&gt;Crystal-C performs additional search results cleanup&lt;br/&gt;&#xa;&lt;b&gt;Recommended for Open Searches only&lt;/b&gt;"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JButton" name="btnCrystalcDefaults">
@@ -1550,10 +1550,6 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
                               <Component id="checkCreateReport" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="btnReportDefaultsOpen" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="btnReportDefaultsClosed" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           </Group>
                           <Component id="panelReportOptions" max="32767" attributes="0"/>
@@ -1568,18 +1564,14 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="checkCreateReport" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="btnReportDefaultsOpen" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="btnReportDefaultsClosed" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="checkCreateReport" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelReportOptions" min="-2" pref="73" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelSpecLibOpts" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="450" max="32767" attributes="0"/>
+                      <EmptySpace pref="458" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1589,7 +1581,7 @@
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="Options"/>
+                    <TitledBorder title="Report Options"/>
                   </Border>
                 </Property>
               </Properties>
@@ -1671,22 +1663,6 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkCreateReportActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JButton" name="btnReportDefaultsClosed">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Defaults Closed Search"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReportDefaultsClosedActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JButton" name="btnReportDefaultsOpen">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Defaults Open Search"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReportDefaultsOpenActionPerformed"/>
               </Events>
             </Component>
             <Container class="javax.swing.JPanel" name="panelSpecLibOpts">

@@ -795,8 +795,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     checkReportAbacus = new javax.swing.JCheckBox();
     jLabel1 = new javax.swing.JLabel();
     checkCreateReport = new javax.swing.JCheckBox();
-    btnReportDefaultsClosed = new javax.swing.JButton();
-    btnReportDefaultsOpen = new javax.swing.JButton();
     panelSpecLibOpts = new javax.swing.JPanel();
     checkGenerateSpecLib = new javax.swing.JCheckBox();
     jPanel4 = new javax.swing.JPanel();
@@ -1674,7 +1672,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    jLabel12.setText("<html>Crystal-C performs additional search results cleanup<br/>\n<b>Recommended for Open Searches</b>");
+    jLabel12.setText("<html>Crystal-C performs additional search results cleanup<br/>\n<b>Recommended for Open Searches only</b>");
 
     btnCrystalcDefaults.setText("Load Defaults");
     btnCrystalcDefaults.addActionListener(new java.awt.event.ActionListener() {
@@ -1799,7 +1797,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     tabPane.addTab("Downstream", panelDownstream);
     loadLastCrystalc();
 
-    panelReportOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("Options"));
+    panelReportOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("Report Options"));
 
     textReportFilter.setToolTipText("<html>--pepxml path-to-pepxml --protxml path-to-combined-protxml<br/>\nwill be added automatically based on previous tabs.<br/>\n\nStatistical filtering, validation and False Discovery Rates assessment<br/>\nphilosopher filter [flags]<br>\nFlags:<br/>\n<ul>\n<li>--ion float        peptide ion FDR level (default 0.01)</li>\n<li>--mapmods          map modifications aquired by an open search</li>\n<li>--models           print model distribution</li>\n<li>--pep float        peptide FDR level (default 0.01)</li>\n<li>--pepProb float    top peptide probability treshold for the FDR filtering (default 0.7)</li>\n<li>--pepxml string    pepXML file or directory containing a set of pepXML files</li>\n<li>--picked           apply the picked FDR algorithm before the protein scoring</li>\n<li>--prot float       protein FDR level (default 0.01)</li>\n<li>--protProb float   protein probability treshold for the FDR filtering (not used with the razor algorithm) (default 0.5)</li>\n<li>--protxml string   protXML file path</li>\n<li>--psm float        psm FDR level (default 0.01)</li>\n<li>--razor            use razor peptides for protein FDR scoring</li>\n<li>--sequential       alternative algorithm that estimates FDR using both filtered PSM and Protein lists</li>\n<li>--tag string       decoy tag (default \"rev_\")</li>\n<li>--weight float     threshold for defining peptide uniqueness (default 1)</li>\n</ul>");
     textReportFilter.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -1862,20 +1860,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     checkCreateReport.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         checkCreateReportActionPerformed(evt);
-      }
-    });
-
-    btnReportDefaultsClosed.setText("Defaults Closed Search");
-    btnReportDefaultsClosed.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        btnReportDefaultsClosedActionPerformed(evt);
-      }
-    });
-
-    btnReportDefaultsOpen.setText("Defaults Open Search");
-    btnReportDefaultsOpen.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        btnReportDefaultsOpenActionPerformed(evt);
       }
     });
 
@@ -1959,10 +1943,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addGroup(panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addGroup(panelReportLayout.createSequentialGroup()
             .addComponent(checkCreateReport)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(btnReportDefaultsOpen)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(btnReportDefaultsClosed)
             .addGap(0, 0, Short.MAX_VALUE))
           .addComponent(panelReportOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1973,17 +1953,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(panelReportLayout.createSequentialGroup()
         .addContainerGap()
-        .addGroup(panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(checkCreateReport)
-          .addComponent(btnReportDefaultsOpen)
-          .addComponent(btnReportDefaultsClosed))
+        .addComponent(checkCreateReport)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(panelReportOptions, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(450, Short.MAX_VALUE))
+        .addContainerGap(458, Short.MAX_VALUE))
     );
 
     tabPane.addTab("Report", null, panelReport, "");
@@ -4109,16 +4086,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     btnAboutActionPerformed(null);
   }//GEN-LAST:event_btnAboutInConfigActionPerformed
 
-  private void btnReportDefaultsClosedActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportDefaultsClosedActionPerformed
-    loadDefaultsReport(SearchTypeProp.closed, true);
-  }//GEN-LAST:event_btnReportDefaultsClosedActionPerformed
-
-  private void btnReportDefaultsOpenActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportDefaultsOpenActionPerformed
-    loadDefaultsReport(SearchTypeProp.open, true);
-  }//GEN-LAST:event_btnReportDefaultsOpenActionPerformed
-
   private void loadDefaultsReport(SearchTypeProp type, boolean askConfirmation) {
 
     int confirm1 = JOptionPane.showConfirmDialog(this,
@@ -5525,8 +5492,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JButton btnRawAddFolder;
   private javax.swing.JButton btnRawClear;
   private javax.swing.JButton btnRawRemove;
-  private javax.swing.JButton btnReportDefaultsClosed;
-  private javax.swing.JButton btnReportDefaultsOpen;
   private javax.swing.JButton btnReportErrors;
   private javax.swing.JButton btnRun;
   private javax.swing.JButton btnSelectWrkingDir;
