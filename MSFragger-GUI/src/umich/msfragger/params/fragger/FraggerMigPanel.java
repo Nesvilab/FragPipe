@@ -15,6 +15,7 @@
  */
 package umich.msfragger.params.fragger;
 
+import com.github.chhh.utils.swing.UiSpinnerInt;
 import java.awt.BorderLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -30,6 +31,7 @@ import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.EventBus;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.messages.MessageSearchType;
+import umich.msfragger.util.swing.FormEntry;
 
 /**
  *
@@ -79,8 +81,10 @@ public class FraggerMigPanel extends JPanel {
 
       JButton save = new JButton("Save Options");
       JButton load = new JButton("Load Options");
+      UiSpinnerInt spinnerRam = new UiSpinnerInt(0, 0, 1024, 1);
+      new FormEntry()
       pTop.add(save, new CC().split(2).spanX());
-      pTop.add(load, new CC().wrap());
+      pTop.add(load, new CC());
 
       this.add(pTop, BorderLayout.NORTH);
     }
