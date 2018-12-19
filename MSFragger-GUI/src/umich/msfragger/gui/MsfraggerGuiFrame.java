@@ -255,7 +255,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
         Date now = new Date();
         fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(now))));
-        Component parent = SwingUtils.findParentComponentForDialog(MsfraggerGuiFrame.this);
+        Component parent = SwingUtils.findParentFrameForDialog(MsfraggerGuiFrame.this);
         int saveResult = fc.showSaveDialog(parent);
         if (JFileChooser.APPROVE_OPTION == saveResult) {
           File selectedFile = fc.getSelectedFile();
@@ -2367,7 +2367,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     String fcPath = ThisAppProps.tryFindPath(props, true);
     SwingUtils.setFileChooserPath(fileChooser, fcPath);
 
-    int showOpenDialog = fileChooser.showOpenDialog(SwingUtils.findParentComponentForDialog(this));
+    int showOpenDialog = fileChooser.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
     switch (showOpenDialog) {
       case JFileChooser.APPROVE_OPTION:
         File foundFile = fileChooser.getSelectedFile();
@@ -3106,7 +3106,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     String fcPath = ThisAppProps.tryFindPath(props, true);
     SwingUtils.setFileChooserPath(fileChooser, fcPath);
 
-    int showOpenDialog = fileChooser.showOpenDialog(SwingUtils.findParentComponentForDialog(this));
+    int showOpenDialog = fileChooser.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
     switch (showOpenDialog) {
       case JFileChooser.APPROVE_OPTION:
         File f = fileChooser.getSelectedFile();
@@ -3172,7 +3172,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     SwingUtils.setFileChooserPath(fc, fcPath);
 
     if (JFileChooser.APPROVE_OPTION == fc
-        .showOpenDialog(SwingUtils.findParentComponentForDialog(this))) {
+        .showOpenDialog(SwingUtils.findParentFrameForDialog(this))) {
       String path = fc.getSelectedFile().getAbsolutePath();
       if (validateAndSavePhilosopherPath(path)) {
         // already saved to PROP_PHILOSOPHER, now save to general PROP_BINARIES
@@ -3977,7 +3977,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnLoadDefaultsOpenActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadDefaultsOpenActionPerformed
-    int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
+    int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
         "Are you sure you want to load defaults for open search?\n"
             + "It's a search with large precursor mass tolerance\n"
             + "usually used to identify PTMs.\n"
@@ -3996,7 +3996,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnLoadDefaultsClosedActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadDefaultsClosedActionPerformed
-    int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
+    int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
         "Are you sure you want to load defaults for open search?\n"
             + "It's a search with large precursor mass tolerance\n"
             + "usually used to identify PTMs.\n"
@@ -4159,7 +4159,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     String fcPath = ThisAppProps.tryFindPath(Arrays.asList(propName), true);
     SwingUtils.setFileChooserPath(fileChooser, fcPath);
 
-    int showOpenDialog = fileChooser.showOpenDialog(SwingUtils.findParentComponentForDialog(this));
+    int showOpenDialog = fileChooser.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
     switch (showOpenDialog) {
       case JFileChooser.APPROVE_OPTION:
         File foundFile = fileChooser.getSelectedFile();
@@ -4571,7 +4571,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnCrystalcDefaultsActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrystalcDefaultsActionPerformed
-    int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
+    int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
         "Are you sure you want to load defaults for Crystal-C?\n",
         "Confirmation", JOptionPane.OK_CANCEL_OPTION);
     if (JOptionPane.OK_OPTION != confirmation) {
@@ -4650,7 +4650,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     SwingUtils.setFileChooserPath(fc, fcPath);
 
     if (JFileChooser.APPROVE_OPTION == fc
-        .showOpenDialog(SwingUtils.findParentComponentForDialog(this))) {
+        .showOpenDialog(SwingUtils.findParentFrameForDialog(this))) {
       String path = fc.getSelectedFile().getAbsolutePath();
       validateAndSavePython(path, true);
     }

@@ -25,6 +25,7 @@ import static umich.msfragger.params.umpire.UmpireParams.PROP_WindowType;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -41,12 +42,14 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 import net.miginfocom.layout.CC;
@@ -251,13 +254,24 @@ public class UmpirePanel extends JPanel {
 
           } catch (Exception ignore) {}
         });
-    FormEntry feConfigFile = new FormEntry(UmpireParams.DEFAULT_FILE, "Default config file", textConfigFile);
-    pOther.add(feConfigFile.label(), ccLbl);
-    pOther.add(feConfigFile.comp, new CC().growX().pushX());
-    pOther.add(feConfigFile.browseButton("Browse", "Select file", "Config file",
-        this, ghostTextConfigFile),
-        new CC().minWidth("button").wrap());
-
+    {
+      FormEntry feConfigFile = new FormEntry(UmpireParams.DEFAULT_FILE, "Default config file",
+          textConfigFile);
+      pOther.add(feConfigFile.label(), ccLbl);
+      pOther.add(feConfigFile.comp, new CC().growX().pushX());
+      JFileChooser fc = new JFileChooser();
+      fc.setMultiSelectionEnabled(false);
+      fc.setDialogTitle("Config file");
+      final String curFile = textConfigFile.getText();
+      if (curFile != null) {
+        try {
+          fc.setCurrentDirectory(Paths.get(curFile).toFile());
+        } catch (Exception ignored) {
+        }
+      }
+      pOther.add(feConfigFile.browseButton("Browse", fc, ghostTextConfigFile, null),
+          new CC().minWidth("button").wrap());
+    }
 
     // msconvert binary
     String binMsconvert = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_MSCONVERT);
@@ -275,13 +289,25 @@ public class UmpirePanel extends JPanel {
           } catch (Exception ignore) {}
         });
 
-    FormEntry feBinMsconvert = new FormEntry(ThisAppProps.PROP_BIN_PATH_MSCONVERT, "MsConvert binary", textBinMsconvert);
-    pOther.add(feBinMsconvert.label(), ccLbl);
-    pOther.add(feBinMsconvert.comp, new CC().growX().pushX());
-    pOther.add(feBinMsconvert.browseButton("Browse", "Select file", "MSConvert binary",
-        this, "MsConvert is optional on Linux and mandatory on Windows"),
-        new CC().minWidth("button").wrap());
-
+    {
+      FormEntry feBinMsconvert = new FormEntry(ThisAppProps.PROP_BIN_PATH_MSCONVERT,
+          "MsConvert binary", textBinMsconvert, "MsConvert is optional on Linux and mandatory on Windows");
+      pOther.add(feBinMsconvert.label(), ccLbl);
+      pOther.add(feBinMsconvert.comp, new CC().growX().pushX());
+      final JFileChooser fc = new JFileChooser();
+      fc.setMultiSelectionEnabled(false);
+      fc.setDialogTitle("MSConvert binary");
+      final String curFile = textBinMsconvert.getText();
+      if (curFile != null) {
+        try {
+          fc.setCurrentDirectory(Paths.get(curFile).toFile());
+        } catch (Exception ignored) {
+        }
+      }
+      pOther.add(feBinMsconvert.browseButton("Browse", fc,
+          "Path to msconvert binary (part of ProteoWizard)", null),
+          new CC().minWidth("button").wrap());
+    }
 
     CC ccGrowX = new CC().growX();
     this.add(pTop, ccGrowX);

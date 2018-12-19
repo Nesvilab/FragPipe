@@ -1561,7 +1561,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         final String propName = ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN;
         ThisAppProps.load(propName, fc);
         
-        Component parent = SwingUtils.findParentComponentForDialog(this);
+        Component parent = SwingUtils.findParentFrameForDialog(this);
         int saveResult = fc.showOpenDialog(parent);
         if (JFileChooser.APPROVE_OPTION == saveResult) {
             File selectedFile = fc.getSelectedFile();
@@ -1605,7 +1605,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         ThisAppProps.load(propName, fc);
         
         fc.setSelectedFile(new File(MsfraggerParams.DEFAULT_FILE));
-        Component parent = SwingUtils.findParentComponentForDialog(this);
+        Component parent = SwingUtils.findParentFrameForDialog(this);
         int saveResult = fc.showSaveDialog(parent);
         if (JFileChooser.APPROVE_OPTION == saveResult) {
             File selectedFile = fc.getSelectedFile();
@@ -1644,7 +1644,7 @@ public class FraggerPanel extends javax.swing.JPanel {
 
     public void loadDefaultsForUi(SearchTypeProp type, boolean askUser) {
       if (askUser) {
-        int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this), 
+        int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
                 "Load " + type + " search default configuration?");
         if (JOptionPane.YES_OPTION != confirmation) {
           return;
@@ -1655,7 +1655,7 @@ public class FraggerPanel extends javax.swing.JPanel {
       MsfraggerGuiFrame f = frame.get();
       if (f != null) {
         if (askUser) {
-          int updateOther = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
+          int updateOther = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
                   "<html>Would you like to update options for other tools as well?<br/>"
                   + "<b>Highly recommended</b>, unless you're sure what you're doing)");
           if (JOptionPane.OK_OPTION != updateOther) {

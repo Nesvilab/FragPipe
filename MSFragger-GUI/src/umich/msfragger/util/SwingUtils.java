@@ -29,6 +29,7 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -47,18 +48,28 @@ import java.util.Properties;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
+import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +83,128 @@ public class SwingUtils {
   private static final Object fontLock = new Object();
 
   private SwingUtils() {
+  }
+
+  public static String getStrVal(Component c) {
+
+    String val;
+    if (c instanceof JFormattedTextField) {
+      val = ((JFormattedTextField) c).getText();
+    } else if (c instanceof JTextField) {
+      val = ((JTextField) c).getText();
+    } else if (c instanceof JSpinner) {
+      val = ((JSpinner) c).getValue().toString();
+    } else if (c instanceof JCheckBox) {
+      val = Boolean.valueOf(((JCheckBox) c).isSelected()).toString();
+    } else if (c instanceof JComboBox) {
+      val = ((JComboBox<?>) c).getModel().getSelectedItem().toString();
+    } else {
+      throw new UnsupportedOperationException("getStrVal() not implemented for type: " + c.getClass().getCanonicalName());
+    }
+
+    return val.trim();
+  }
+
+  public static void setStrVal(Component c, String val) {
+    if (c instanceof JFormattedTextField) {
+      ((JFormattedTextField) c).setText(val);
+    } else if (c instanceof JTextField) {
+      ((JTextField) c).setText(val);
+    } else if (c instanceof JCheckBox) {
+      ((JCheckBox) c).setSelected(Boolean.valueOf(val));
+    } else if (c instanceof JComboBox) {
+      ((JComboBox<?>) c).getModel().setSelectedItem(val);
+    } else if (c instanceof JSpinner) {
+      ((JSpinner) c).setValue(Double.parseDouble(val));
+    } else {
+      throw new UnsupportedOperationException("setStrVal() not implemented for type: " + c.getClass().getCanonicalName());
+    }
+  }
+
+  /**
+   * Installs a listener to receive notification when the text of any {@code JTextComponent} is
+   * changed. Internally, it installs a {@link DocumentListener} on the text component's {@link
+   * Document}, and a {@link PropertyChangeListener} on the text component to detect if the {@code
+   * Document} itself is replaced.
+   *
+   * @param text any text component, such as a {@link JTextField} or {@link JTextArea}
+   * @param changeListener a listener to receieve {@link ChangeEvent}s when the text is changed; the
+   * source object for the events will be the text component
+   * @throws NullPointerException if either parameter is null
+   *
+   * Taken from http://stackoverflow.com/questions/3953208/value-change-listener-to-jtextfield
+   * @author Boann
+   */
+  public static void addChangeListener(final JTextComponent text,
+      final ChangeListener changeListener) {
+    if (text == null || changeListener == null) {
+      throw new IllegalArgumentException(
+          "Both the text component and the change listener need to be non-null");
+    }
+
+    final DocumentListener dl = new DocumentListener() {
+      private int lastChange = 0, lastNotifiedChange = 0;
+
+      @Override
+      public void insertUpdate(DocumentEvent e) {
+        changedUpdate(e);
+      }
+
+      @Override
+      public void removeUpdate(DocumentEvent e) {
+        changedUpdate(e);
+      }
+
+      @Override
+      public void changedUpdate(DocumentEvent e) {
+        lastChange++;
+
+        SwingUtilities.invokeLater(() -> {
+          if (lastNotifiedChange != lastChange) {
+            lastNotifiedChange = lastChange;
+            changeListener.stateChanged(new ChangeEvent(text));
+          }
+        });
+      }
+    };
+
+    PropertyChangeListener pcl = e -> {
+      Document d1 = (Document) e.getOldValue();
+      Document d2 = (Document) e.getNewValue();
+      if (d1 != null) {
+        d1.removeDocumentListener(dl);
+      }
+      if (d2 != null) {
+        d2.addDocumentListener(dl);
+      }
+      dl.changedUpdate(null);
+    };
+    text.addPropertyChangeListener("document", pcl);
+
+    Document d = text.getDocument();
+    if (d != null) {
+      d.addDocumentListener(dl);
+    }
+  }
+
+  public static void enableComponents(Container container, boolean enabled) {
+    enableComponents(container, enabled, false);
+  }
+
+  public static void enableComponents(Container container, boolean enabled, boolean applyToContainer) {
+    if (applyToContainer)
+      container.setEnabled(enabled);
+    Component[] components = container.getComponents();
+    for (Component component : components) {
+      component.setEnabled(enabled);
+//            if (component instanceof JScrollPane) {
+//                JScrollPane jsp = (JScrollPane)component;
+//                enableComponents(jsp.getViewport(), enable);
+//            }
+      if (component instanceof Container) {
+        enableComponents((Container) component, enabled, applyToContainer);
+      }
+    }
   }
 
   /**

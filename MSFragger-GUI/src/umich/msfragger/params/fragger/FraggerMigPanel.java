@@ -82,7 +82,7 @@ public class FraggerMigPanel extends JPanel {
       JButton save = new JButton("Save Options");
       JButton load = new JButton("Load Options");
       UiSpinnerInt spinnerRam = new UiSpinnerInt(0, 0, 1024, 1);
-      new FormEntry()
+      //new FormEntry()
       pTop.add(save, new CC().split(2).spanX());
       pTop.add(load, new CC());
 
