@@ -1792,7 +1792,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     int updateOthers = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
         "<html>New parameters for MSFragger loaded.<br/>"
             + "<b>Highly recommended</b> to auto-update parameters for other tools.<br/><br/>"
-            + "Dow you want to proceed?");
+            + "Do you want to proceed?");
     if (JOptionPane.YES_OPTION != updateOthers)
       return;
     EventBus.getDefault().post(new MessageSearchType(type));
