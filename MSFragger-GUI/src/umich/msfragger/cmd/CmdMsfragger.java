@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -129,22 +130,22 @@ public class CmdMsfragger extends CmdBase {
     final String ext = fp.getOutputFileExt();
     Map<InputLcmsFile, Path> mapLcmsToPepxml = outputs(lcmsFiles, ext, wd);
 
+    final List<String> javaCmd = ramGb > 0 ?
+            Arrays.asList("java", "-jar", "-Dfile.encoding=UTF-8", "-Xmx" + ramGb + "G") :
+            Arrays.asList("java", "-jar", "-Dfile.encoding=UTF-8");
+    final List<String> slicingCmd = isSlicing ?
+            Arrays.asList(
+                    PythonInfo.get().getCommand(),
+                    DbSlice.get().getScriptDbslicingPath().toAbsolutePath().normalize().toString(),
+                    Integer.toString(numSlices),
+                    "\"" + String.join(" ", javaCmd) + "\"")
+            : null;
     while (fileIndex < lcmsFiles.size()) {
       ArrayList<String> cmd = new ArrayList<>();
-
       if (isSlicing) {
-        cmd.add(PythonInfo.get().getCommand());
-        cmd.add(DbSlice.get().getScriptDbslicingPath().toAbsolutePath().normalize().toString());
-        cmd.add(Integer.toString(numSlices));
-        cmd.add("\"");
-      }
-      cmd.add("java");
-      cmd.add("-jar");
-      if (ramGb > 0) {
-        cmd.add("-Xmx" + ramGb + "G");
-      }
-      if (isSlicing) {
-        cmd.add("\"");
+        cmd.addAll(slicingCmd);
+      } else {
+        cmd.addAll(javaCmd);
       }
       cmd.add(binFragger.useBin());
       cmd.add(savedParamsPath.toString());
