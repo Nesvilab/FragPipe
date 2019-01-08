@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -52,11 +53,12 @@ public class PythonInfo {
   }
 
   private void reset(boolean notify) {
+    final boolean unchanged = command == null && version == null && majorVersion == -1;
     command = null;
     version = null;
     majorVersion = -1;
     modules = new HashMap<>();
-    if (notify)
+    if (notify && !unchanged)
       notifyInfoChanged();
   }
 
@@ -83,15 +85,21 @@ public class PythonInfo {
       reset(true);
       return false;
     }
+    boolean notify = false;
+    notify |= !Objects.equals(this.command, command);
     this.command = command;
+    notify |= !Objects.equals(this.version, version);
     this.version = version;
     Pattern verRe = Pattern.compile("python\\s+([0-9]+)", Pattern.CASE_INSENSITIVE);
     Matcher m1 = verRe.matcher(version);
     if (m1.find()) {
       final String pythonMajorVer = m1.group(1);
+      notify |= !Objects.equals(this.majorVersion, Integer.valueOf(pythonMajorVer));
       this.majorVersion = Integer.valueOf(pythonMajorVer);
     }
-    notifyInfoChanged();
+
+    if (notify)
+      notifyInfoChanged();
     return true;
   }
 
@@ -119,7 +127,7 @@ public class PythonInfo {
     return majorVersion == this.majorVersion;
   }
 
-  private String tryPythonCommandVersion(String cmd) throws Exception {
+  private static String tryPythonCommandVersion(String cmd) throws Exception {
     ProcessBuilder pb = new ProcessBuilder(cmd, "--version");
     pb.redirectErrorStream(true);
 
