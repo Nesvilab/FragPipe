@@ -218,7 +218,7 @@ public class Props {
     private void writeProps(OutputStream os) throws IOException {
         Set<Map.Entry<String, Prop>> entries = map.entrySet();
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-        for (final String name : propOrdering) {
+        for (final String name : propOrdering.isEmpty() ? map.keySet() : propOrdering) {
             if (name.isEmpty() || name.startsWith(COMMENT_SYMBOL)) {
                 bw.write(name + "\n");
                 continue;
