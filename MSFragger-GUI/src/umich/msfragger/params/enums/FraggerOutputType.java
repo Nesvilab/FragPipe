@@ -23,8 +23,9 @@ package umich.msfragger.params.enums;
 public enum FraggerOutputType {
     
     PEP_XML("pepXML", "pepXML"),
-    TSV("tsv", "tsv");
-    
+    TSV("tsv", "tsv"),
+    TSV_AND_PEPXML("pepXML", "tsv_pepXML");
+
     
     String extension;
     String valueInParamsFile;
