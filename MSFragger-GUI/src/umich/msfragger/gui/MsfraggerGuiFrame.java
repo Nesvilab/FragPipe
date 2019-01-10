@@ -3596,12 +3596,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
               byte[] pollErr = pr.pollStdErr();
               String errStr = pr.appendErr(pollErr);
               if (!StringUtils.isNullOrWhitespace(errStr)) {
-                LogUtils.println(console, errStr);
+                LogUtils.print(console, errStr);
               }
               byte[] pollOut = pr.pollStdOut();
               String outStr = pr.appendOut(pollOut);
               if (!StringUtils.isNullOrWhitespace(outStr)) {
-                LogUtils.println(console, outStr);
+                LogUtils.print(console, outStr);
               }
               try {
                 final int exitValue = proc.exitValue();
