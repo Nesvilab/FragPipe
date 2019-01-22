@@ -234,18 +234,21 @@ public class PythonInfo {
   /**
    * modify environment variables for Anaconda Python on Windows
    */
-  public static void modifyEnvironmentVariablesForAnacondaPython(final ProcessBuilder pb) {
+  public static void modifyEnvironmentVariablesForPythonSubprocesses(final ProcessBuilder pb) {
     final String command = pb.command().get(0);
     if (Paths.get(command).isAbsolute() && OsUtils.isWindows()) {
       final String root = Paths.get(command).getParent().toString();
       final Map<String, String> env = pb.environment();
       env.put("Path", String.join(";",
           root,
+          // for Anaconda Python
           Paths.get(root, "Library\\mingw-w64\\bin").toString(),
           Paths.get(root, "Library\\usr\\bin").toString(),
           Paths.get(root, "Library\\bin").toString(),
           Paths.get(root, "Scripts").toString(),
           Paths.get(root, "bin").toString(),
+          // for Python programs invoking Java programs
+          Paths.get(System.getProperty("java.home"), "bin").toString(),
           env.get("Path")));
     }
   }
@@ -277,7 +280,7 @@ public class PythonInfo {
                     "else:\n" +
                     "    print('Installed and imported with no error')",
             module.someImportName));
-    modifyEnvironmentVariablesForAnacondaPython(pb);
+    modifyEnvironmentVariablesForPythonSubprocesses(pb);
     Process pr = null;
     try {
       pr = pb.start();
