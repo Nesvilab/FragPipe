@@ -807,7 +807,7 @@
                               <Component id="lblZeroBinMultiplyExpect" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="spinnerZeroBinMultiplyExpect" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="12" max="32767" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -1179,6 +1179,9 @@
                     </Component>
                     <Component class="javax.swing.JSpinner" name="spinnerPrecursorChargeLo">
                       <Properties>
+                        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                          <SpinnerModel initial="1" maximum="8" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                        </Property>
                         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Assume range of potential precursor charge states.&lt;br&gt;&#xa;Only relevant when override_charge is set to 1.&lt;br&gt;&#xa;Specified as space separated range of integers.&lt;br&gt;"/>
                       </Properties>
                     </Component>
@@ -1189,6 +1192,9 @@
                     </Component>
                     <Component class="javax.swing.JSpinner" name="spinnerPrecursorChargeHi">
                       <Properties>
+                        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                          <SpinnerModel initial="4" maximum="8" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                        </Property>
                         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Assume range of potential precursor charge states.&lt;br&gt;&#xa;Only relevant when override_charge is set to 1.&lt;br&gt;&#xa;Specified as space separated range of integers.&lt;br&gt;"/>
                       </Properties>
                     </Component>
