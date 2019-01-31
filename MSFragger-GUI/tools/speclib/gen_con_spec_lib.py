@@ -578,8 +578,15 @@ def edit_raw_con_lib():
 	pep_to_xxx = {peptide: rest
 				  for peptide, *rest in
 				  philosopher_peptide_tsv[['Peptide', 'Protein', 'Protein ID', 'Entry Name', 'Gene', 'Protein Description']].itertuples(index=False)}
+
+	def f(x):
+		try:
+			return pep_to_xxx[x.item()]
+		except KeyError as e:
+			# print(e)
+			return None
 	t[['Protein', 'Protein ID', 'Entry Name', 'Gene', 'Protein Description']] = t[["PeptideSequence"]].apply(
-		lambda x: pep_to_xxx[x.item()],
+		f,
 		axis=1, result_type='expand')
 
 	if False:
