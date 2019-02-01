@@ -204,20 +204,22 @@ public class FraggerPanel extends javax.swing.JPanel {
         
         
         comboPrecursorMassTol.setSelectedItem(params.getPrecursorMassUnits().toString());
-        Double precursorMassTolerance = params.getPrecursorMassTolerance();
         Double precursorMassLower = params.getPrecursorMassLower();
         Double precursorMassUpper = params.getPrecursorMassUpper();
-        boolean asymmetricTolerancePresent = precursorMassLower != null && precursorMassUpper != null;
-        boolean isAsymmetric = asymmetricTolerancePresent && 
-                Math.abs(precursorMassLower) != Math.abs(precursorMassUpper);
-        
-        if (asymmetricTolerancePresent) {
-            spinnerPrecursorMassTolLo.setValue(precursorMassLower);
-            spinnerPrecursorMassTolHi.setValue(precursorMassUpper);
-        } else if (precursorMassTolerance != null) {
-            spinnerPrecursorMassTolLo.setValue(Math.abs(precursorMassTolerance) * -1);
-            spinnerPrecursorMassTolHi.setValue(Math.abs(precursorMassTolerance));
+        boolean bothTolPresent = precursorMassLower != null && precursorMassUpper != null;
+        if (!bothTolPresent) {
+          throw new IllegalStateException("MSFragger option precursor_mass_tolerance has been replaced by precursor_mass_lower, precursor_mass_upper");
         }
+        if (Double.compare(precursorMassLower, precursorMassUpper) == 0) {
+          // safety net for cases when both tolerances are the same
+          precursorMassLower = Math.abs(precursorMassLower) * -1;
+          precursorMassUpper = Math.abs(precursorMassUpper);
+        }
+        if (precursorMassLower > precursorMassUpper) {
+          throw new IllegalStateException("MSFragger precursor_mass_lower can't be higher than precursor_mass_upper");
+        }
+        spinnerPrecursorMassTolLo.setValue(precursorMassLower);
+        spinnerPrecursorMassTolHi.setValue(precursorMassUpper);
         
         comboPrecursorTrueTol.setSelectedItem(params.getPrecursorTrueUnits().toString());
         spinnerPrecursorTrueTol.setValue(params.getPrecursorTrueTolerance());

@@ -50,7 +50,6 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_num_threads = "num_threads";
     public static final String PROP_precursor_mass_lower = "precursor_mass_lower";
     public static final String PROP_precursor_mass_upper = "precursor_mass_upper";
-    public static final String PROP_precursor_mass_tolerance = "precursor_mass_tolerance";
     public static final String PROP_precursor_mass_units = "precursor_mass_units";
     public static final String PROP_precursor_true_tolerance = "precursor_true_tolerance";
     public static final String PROP_precursor_true_units = "precursor_true_units";
@@ -151,8 +150,6 @@ public class MsfraggerParams extends AbstractParams {
         super();
         comments = new HashMap<>();
         comments.put(PROP_num_threads, "0=poll CPU to set num threads; else specify num threads directly (max 64)");
-        comments.put(PROP_precursor_mass_lower, "Overrides the lower bound of the window set by precursor_mass_tolerance");
-        comments.put(PROP_precursor_mass_upper, "Overrides the upper bound of the window set by precursor_mass_tolerance");
         comments.put(PROP_precursor_mass_units, "0=Daltons, 1=ppm");
         comments.put(PROP_precursor_true_units, "0=Daltons, 1=ppm");
         comments.put(PROP_fragment_mass_units, "0=Daltons, 1=ppm");
@@ -254,14 +251,6 @@ public class MsfraggerParams extends AbstractParams {
     
     public void setPrecursorMassUnits(MassTolUnits u) {
         props.setProp(PROP_precursor_mass_units, Integer.toString(u.valueInParamsFile()));
-    }
-    
-    public Double getPrecursorMassTolerance() {
-        return Double.parseDouble(props.getProp(PROP_precursor_mass_tolerance, "20.0").value);
-    }
-    
-    public void setPrecursorMassTolerance(Double v) {
-        props.setProp(PROP_precursor_mass_tolerance, DF.format(v));
     }
     
     public Double getPrecursorMassUpper() {
