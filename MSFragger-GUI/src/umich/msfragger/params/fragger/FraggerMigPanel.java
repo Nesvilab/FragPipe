@@ -67,12 +67,9 @@ public class FraggerMigPanel extends JPanel {
 
     this.setLayout(new BorderLayout());
 
-//    LC lc = new LC();//.debug();
-    LC lc = new LC().debug();
-
     // Top panel with checkbox, buttons and RAM+Threads spinners
     {
-      JPanel pTop = new JPanel(new MigLayout(lc));
+      JPanel pTop = new JPanel(new MigLayout(new LC()));
       checkRun = new JCheckBox("Run MSFragger");
       JButton closed = new JButton("Closed Search");
       closed.addActionListener(e -> {
@@ -119,8 +116,11 @@ public class FraggerMigPanel extends JPanel {
 
     // Panel with all the basic options
     {
-      JPanel pBasic = new JPanel(new MigLayout(lc));
-      pBasic.setBorder(new TitledBorder("Basic Options"));
+      JPanel pBase = new JPanel(new MigLayout(new LC().fillX()));
+      pBase.setBorder(new TitledBorder("Common Options"));
+
+      JPanel pPeakMatch = new JPanel(new MigLayout(new LC()));
+      pPeakMatch.setBorder(new TitledBorder("Peak matching"));
 
       // precursor mass tolerance
       UiCombo comboPrecTolUnits = new UiCombo();
@@ -139,12 +139,12 @@ public class FraggerMigPanel extends JPanel {
       FormEntry feAdjustPrecMass = new FormEntry(PROP_adjust_precurosr_mass, "<html><i>Adjust precursor mass",
           new UiCheck("<html><i>Adjust precursor mass", null),
           "<html>Run a separate program to trace MS1 peaks <br/>over LC time and use obtained averaged masses.");
-      pBasic.add(fePrecTolUnits.label(), new CC().alignX("right"));
-      pBasic.add(fePrecTolUnits.comp, new CC());
-      pBasic.add(feSpinnerPrecTolLo.comp, new CC().minWidth("45px"));
-      pBasic.add(new JLabel("-"), new CC().span(2));
-      pBasic.add(feSpinnerPrecTolHi.comp, new CC().minWidth("45px"));
-      pBasic.add(feAdjustPrecMass.comp, new CC().gapLeft("5px").wrap());
+      pPeakMatch.add(fePrecTolUnits.label(), new CC().alignX("right"));
+      pPeakMatch.add(fePrecTolUnits.comp, new CC());
+      pPeakMatch.add(feSpinnerPrecTolLo.comp, new CC().minWidth("45px"));
+      pPeakMatch.add(new JLabel("-"), new CC().span(2));
+      pPeakMatch.add(feSpinnerPrecTolHi.comp, new CC().minWidth("45px"));
+      pPeakMatch.add(feAdjustPrecMass.comp, new CC().gapLeft("5px").wrap());
 
       // fragment mass tolerance
       UiCombo comboFragTolUnits = new UiCombo();
@@ -156,17 +156,17 @@ public class FraggerMigPanel extends JPanel {
           new DecimalFormat("0.#"));
       FormEntry feFragTol = new FormEntry(MsfraggerParams.PROP_fragment_mass_tolerance, "not-shown",
           uiSpinnerFragTol);
-      pBasic.add(feFragTolUnits.label(), new CC().alignX("right"));
-      pBasic.add(feFragTolUnits.comp, new CC());
-      pBasic.add(feFragTol.comp, new CC().minWidth("45px").maxWidth("100px").growX().wrap());
+      pPeakMatch.add(feFragTolUnits.label(), new CC().alignX("right"));
+      pPeakMatch.add(feFragTolUnits.comp, new CC());
+      pPeakMatch.add(feFragTol.comp, new CC().minWidth("45px").maxWidth("100px").growX().wrap());
 
       UiText uiTextIsoErr = new UiText();
       uiTextIsoErr.setDocument(DocumentFilters.getFilter("[^\\d/-]+"));
       uiTextIsoErr.setText("-1/0/1/2");
       FormEntry feIsotopeError = new FormEntry(MsfraggerParams.PROP_isotope_error, "Isotope error", uiTextIsoErr,
           "<html>String of the form -1/0/1/2 indicating which isotopic<br/>peak selection errors MSFragger will try to correct.");
-      pBasic.add(feIsotopeError.label(), new CC().alignX("right"));
-      pBasic.add(feIsotopeError.comp, new CC().minWidth("45px").span(2).growX().wrap());
+      pPeakMatch.add(feIsotopeError.label(), new CC().alignX("right"));
+      pPeakMatch.add(feIsotopeError.comp, new CC().minWidth("45px").span(2).growX().wrap());
 
       FormEntry feShiftedIonsCheck = new FormEntry(MsfraggerParams.PROP_shifted_ions, "not-shown",
           new UiCheck("<html>Use shifted ion series", null),
@@ -178,17 +178,17 @@ public class FraggerMigPanel extends JPanel {
       uiTextShiftedIonsExclusion.setText("(-1.5,3.5)");
       FormEntry feShiftedIonsExclusion = new FormEntry(MsfraggerParams.PROP_shifted_ions_exclude_ranges, "Shifted ions exclusion ranges",
           uiTextShiftedIonsExclusion, "<html>Ranges expressed like: (-1.5,3.5)");
-      pBasic.add(feShiftedIonsCheck.comp, new CC().alignX("right"));
-      pBasic.add(feShiftedIonsExclusion.label(), new CC().split(2).spanX());
-      pBasic.add(feShiftedIonsExclusion.comp, new CC().growX());
+      pPeakMatch.add(feShiftedIonsCheck.comp, new CC().alignX("right"));
+      pPeakMatch.add(feShiftedIonsExclusion.label(), new CC().split(2).spanX());
+      pPeakMatch.add(feShiftedIonsExclusion.comp, new CC().growX());
 
-
-      pContent.add(pBasic, new CC().wrap().growX());
+      pBase.add(pPeakMatch, new CC().wrap().growX());
+      pContent.add(pBase, new CC().wrap().growX());
     }
 
     // Panel with all the advanced options
     {
-      JPanel pAdvanced = new JPanel(new MigLayout(lc));
+      JPanel pAdvanced = new JPanel(new MigLayout(new LC()));
       pAdvanced.setBorder(new TitledBorder("Advanced Options"));
       pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
       pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
