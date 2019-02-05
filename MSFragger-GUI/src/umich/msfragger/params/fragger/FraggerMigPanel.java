@@ -168,6 +168,19 @@ public class FraggerMigPanel extends JPanel {
       pBasic.add(feIsotopeError.label(), new CC().alignX("right"));
       pBasic.add(feIsotopeError.comp, new CC().minWidth("45px").span(2).growX().wrap());
 
+      FormEntry feShiftedIonsCheck = new FormEntry(MsfraggerParams.PROP_shifted_ions, "not-shown",
+          new UiCheck("<html>Use shifted ion series", null),
+          "<html>Shifted ion series are the same as regular b/y ions,<br/>"
+              + "but with the addition of the mass shift of the precursor.<br/>"
+              + "Regular ion series will still be used.");
+      UiText uiTextShiftedIonsExclusion = new UiText();
+      uiTextShiftedIonsExclusion.setDocument(DocumentFilters.getFilter("[A-Za-z]"));
+      uiTextShiftedIonsExclusion.setText("(-1.5,3.5)");
+      FormEntry feShiftedIonsExclusion = new FormEntry(MsfraggerParams.PROP_shifted_ions_exclude_ranges, "Shifted ions exclusion ranges",
+          uiTextShiftedIonsExclusion, "<html>Ranges expressed like: (-1.5,3.5)");
+      pBasic.add(feShiftedIonsCheck.comp, new CC().alignX("right"));
+      pBasic.add(feShiftedIonsExclusion.label(), new CC().split(2).spanX());
+      pBasic.add(feShiftedIonsExclusion.comp, new CC().growX());
 
 
       pContent.add(pBasic, new CC().wrap().growX());
