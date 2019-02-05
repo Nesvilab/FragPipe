@@ -15,8 +15,16 @@
  */
 package umich.msfragger.params.fragger;
 
+import com.github.chhh.utils.swing.DocumentFilters;
+import com.github.chhh.utils.swing.UiCheck;
+import com.github.chhh.utils.swing.UiCombo;
+import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
+import com.github.chhh.utils.swing.UiText;
 import java.awt.BorderLayout;
+import java.text.DecimalFormat;
+import java.util.Arrays;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -31,6 +39,7 @@ import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.EventBus;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.messages.MessageSearchType;
+import umich.msfragger.params.enums.MassTolUnits;
 import umich.msfragger.util.swing.FormEntry;
 
 /**
@@ -43,6 +52,11 @@ public class FraggerMigPanel extends JPanel {
   private JCheckBox checkRun;
   private JScrollPane scroll;
 
+  private static final String PROP_adjust_precurosr_mass = "misc.adjust-precursor-mass";
+  private static final String PROP_slice_db = "misc.slice-db";
+  private static final String PROP_ram = "misc.ram";
+  private static String[] PROPS_MISC = {PROP_adjust_precurosr_mass, PROP_slice_db, PROP_ram};
+
   public FraggerMigPanel() {
     initMore();
   }
@@ -53,10 +67,10 @@ public class FraggerMigPanel extends JPanel {
 
     this.setLayout(new BorderLayout());
 
-    LC lc = new LC();//.debug();
-//    LC lc = new LC().debug();
+//    LC lc = new LC();//.debug();
+    LC lc = new LC().debug();
 
-    // Top panel with checkbox and buttons
+    // Top panel with checkbox, buttons and RAM+Threads spinners
     {
       JPanel pTop = new JPanel(new MigLayout(lc));
       checkRun = new JCheckBox("Run MSFragger");
@@ -82,9 +96,17 @@ public class FraggerMigPanel extends JPanel {
       JButton save = new JButton("Save Options");
       JButton load = new JButton("Load Options");
       UiSpinnerInt spinnerRam = new UiSpinnerInt(0, 0, 1024, 1);
-      //new FormEntry()
-      pTop.add(save, new CC().split(2).spanX());
+      UiSpinnerInt spinnerThreads = new UiSpinnerInt(0, 0, 128, 1);
+      FormEntry feRam = new FormEntry(PROP_ram, "RAM", spinnerRam);
+      FormEntry feThreads = new FormEntry(MsfraggerParams.PROP_num_threads, "Threads", spinnerThreads);
+      pTop.add(save, new CC().split(6).spanX());
       pTop.add(load, new CC());
+      pTop.add(feRam.label(), new CC());
+      pTop.add(feRam.comp, new CC());
+      pTop.add(feThreads.label(), new CC());
+      pTop.add(feThreads.comp, new CC());
+
+
 
       this.add(pTop, BorderLayout.NORTH);
     }
@@ -100,29 +122,53 @@ public class FraggerMigPanel extends JPanel {
       JPanel pBasic = new JPanel(new MigLayout(lc));
       pBasic.setBorder(new TitledBorder("Basic Options"));
 
+      // precursor mass tolerance
+      UiCombo comboPrecTolUnits = new UiCombo();
+      comboPrecTolUnits.setModel(new DefaultComboBoxModel<>(
+          Arrays.stream(MassTolUnits.values()).map(MassTolUnits::name).toArray(String[]::new)));
+      FormEntry fePrecTolUnits = new FormEntry("precursor_mass_units", "Precursor mass tolerance",
+          comboPrecTolUnits);
+      UiSpinnerDouble uiSpinnerPrecTolLo = new UiSpinnerDouble(-10, -10000, 10000, 1,
+          new DecimalFormat("0.#"));
+      FormEntry feSpinnerPrecTolLo = new FormEntry(MsfraggerParams.PROP_precursor_mass_lower,
+          "not-shown", uiSpinnerPrecTolLo);
+      UiSpinnerDouble uiSpinnerPrecTolHi = new UiSpinnerDouble(+10, -10000, 10000, 1,
+          new DecimalFormat("0.#"));
+      FormEntry feSpinnerPrecTolHi = new FormEntry(MsfraggerParams.PROP_precursor_mass_upper,
+          "not-shown", uiSpinnerPrecTolHi);
+      FormEntry feAdjustPrecMass = new FormEntry(PROP_adjust_precurosr_mass, "<html><i>Adjust precursor mass",
+          new UiCheck("<html><i>Adjust precursor mass", null),
+          "<html>Run a separate program to trace MS1 peaks <br/>over LC time and use obtained averaged masses.");
+      pBasic.add(fePrecTolUnits.label(), new CC().alignX("right"));
+      pBasic.add(fePrecTolUnits.comp, new CC());
+      pBasic.add(feSpinnerPrecTolLo.comp, new CC().minWidth("45px"));
+      pBasic.add(new JLabel("-"), new CC().span(2));
+      pBasic.add(feSpinnerPrecTolHi.comp, new CC().minWidth("45px"));
+      pBasic.add(feAdjustPrecMass.comp, new CC().gapLeft("5px").wrap());
+
+      // fragment mass tolerance
+      UiCombo comboFragTolUnits = new UiCombo();
+      comboFragTolUnits.setModel(new DefaultComboBoxModel<>(
+          Arrays.stream(MassTolUnits.values()).map(MassTolUnits::name).toArray(String[]::new)));
+      FormEntry feFragTolUnits = new FormEntry(MsfraggerParams.PROP_fragment_mass_units,
+          "Fragment mass tolerance", comboFragTolUnits);
+      UiSpinnerDouble uiSpinnerFragTol = new UiSpinnerDouble(10, 0, 10000, 1,
+          new DecimalFormat("0.#"));
+      FormEntry feFragTol = new FormEntry(MsfraggerParams.PROP_fragment_mass_tolerance, "not-shown",
+          uiSpinnerFragTol);
+      pBasic.add(feFragTolUnits.label(), new CC().alignX("right"));
+      pBasic.add(feFragTolUnits.comp, new CC());
+      pBasic.add(feFragTol.comp, new CC().minWidth("45px").maxWidth("100px").growX().wrap());
+
+      UiText uiTextIsoErr = new UiText();
+      uiTextIsoErr.setDocument(DocumentFilters.getFilter("[^\\d/-]+"));
+      uiTextIsoErr.setText("-1/0/1/2");
+      FormEntry feIsotopeError = new FormEntry(MsfraggerParams.PROP_isotope_error, "Isotope error", uiTextIsoErr,
+          "<html>String of the form -1/0/1/2 indicating which isotopic<br/>peak selection errors MSFragger will try to correct.");
+      pBasic.add(feIsotopeError.label(), new CC().alignX("right"));
+      pBasic.add(feIsotopeError.comp, new CC().minWidth("45px").span(2).growX().wrap());
 
 
-
-
-      pBasic.add(new JLabel("Basic Options panel"), new CC().wrap());
-      pBasic.add(new JLabel("Basic Options panel"), new CC().wrap());
-      pBasic.add(new JLabel("Basic Options panel"), new CC().wrap());
-      pBasic.add(new JLabel("Basic Options panel"), new CC().wrap());
-      pBasic.add(new JLabel("Basic Options panel"), new CC());
-      pBasic.add(new JLabel("Basic Options panel"), new CC());
-      pBasic.add(new JLabel("Basic Options panel"), new CC());
-      pBasic.add(new JLabel("Basic Options panel"), new CC());
-      pBasic.add(new JLabel("Basic Options panel"), new CC());
-      pBasic.add(new JLabel("Basic Options panel"), new CC());
-      pBasic.add(new JLabel("Basic Options panel"), new CC());
-      pBasic.add(new JLabel("Basic Options panel"), new CC().wrap());
-      pBasic.add(new JLabel("Basic Options panel"), new CC().wrap());
-      pBasic.add(new JLabel("Basic Options panel"), new CC().wrap());
-      pBasic.add(new JLabel("Basic Options panel"), new CC().wrap());
-      pBasic.add(new JLabel("Basic Options panel"), new CC().wrap());
-      pBasic.add(new JLabel("Basic Options panel"), new CC().wrap());
-      pBasic.add(new JLabel("Basic Options panel"), new CC().wrap());
-      pBasic.add(new JLabel("Basic Options panel"), new CC().wrap());
 
       pContent.add(pBasic, new CC().wrap().growX());
     }
