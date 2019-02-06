@@ -2,6 +2,7 @@ package com.github.chhh.utils.swing;
 
 import java.text.DecimalFormat;
 import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
@@ -26,7 +27,7 @@ public class UiSpinnerDouble extends JSpinner implements StringRepresentable {
 
   @Override
   public String asString() {
-    return format.format((Double)getValue());
+    return format.format(getValue());
   }
 
   @Override
@@ -36,5 +37,16 @@ public class UiSpinnerDouble extends JSpinner implements StringRepresentable {
     } catch (Exception e) {
       throw new IllegalArgumentException(String.format("String [%s] does not represent a double", s), e);
     }
+  }
+
+  /** Sets the number of columns the spinner can display. */
+  private void setCols(int cols) {
+    JFormattedTextField tf = ((DefaultEditor) getEditor()).getTextField();
+    tf.setColumns(cols);
+  }
+
+  /** Sets the number of columns the spinner can display. */
+  public void setColumns(int cols) {
+    setCols(cols);
   }
 }
