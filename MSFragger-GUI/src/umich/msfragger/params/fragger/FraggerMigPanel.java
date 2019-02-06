@@ -23,6 +23,7 @@ import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.text.DecimalFormat;
 import java.util.Arrays;
@@ -38,13 +39,19 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JSpinner.DefaultEditor;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.EventBus;
+import umich.msfragger.gui.ModificationsTableModel;
 import umich.msfragger.gui.api.SearchTypeProp;
+import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.params.enums.CleavageType;
 import umich.msfragger.params.enums.MassTolUnits;
@@ -59,6 +66,13 @@ public class FraggerMigPanel extends JPanel {
   private ImageIcon icon;
   private JCheckBox checkRun;
   private JScrollPane scroll;
+
+  private static final String[] TABLE_VAR_MODS_COL_NAMES = {"Enabled", "Site (editable)", "Mass Delta (editable)"};
+  private ModificationsTableModel tableModelVarMods;
+  private static final String[] TABLE_ADD_MODS_COL_NAMES = {"Enabled", "Site", "Mass Delta (editable)"};
+  private ModificationsTableModel tableModelAddMods;
+  private javax.swing.JTable tableVarMods;
+  private javax.swing.JTable tableAddMods;
 
   private static final String PROP_adjust_precurosr_mass = "misc.adjust-precursor-mass";
   private static final String PROP_ram = "misc.ram";
@@ -249,7 +263,51 @@ public class FraggerMigPanel extends JPanel {
 
       pBase.add(pPeakMatch, new CC().wrap().growX());
       pBase.add(pDigest, new CC().wrap().growX());
+
       pContent.add(pBase, new CC().wrap().growX());
+    }
+
+    // Panel with modifications
+    {
+      JPanel pMods = new JPanel(new MigLayout(new LC().fillX()));
+      pMods.setBorder(new TitledBorder("Modifications"));
+
+      JPanel pVarmods = new JPanel(new MigLayout(new LC()));
+      pVarmods.setBorder(new TitledBorder("Variable modifications"));
+
+      FormEntry feMaxVarmodsPerMod = new FormEntry(MsfraggerParams.PROP_max_variable_mods_per_mod, "Max variable mods per mod",
+          new UiSpinnerInt(3, 0, 100, 1, 4));
+      FormEntry feMaxCombos = new FormEntry(MsfraggerParams.PROP_max_variable_mods_combinations, "Max combinations",
+          new UiSpinnerInt(5000, 0, 100000, 500, 4));
+      FormEntry feMultipleVarModsOnResidue = new FormEntry(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue,
+          "not-shown", new UiCheck("Allow multiple variable mods on residue", null));
+      pVarmods.add(feMaxVarmodsPerMod.label(), new CC().alignX("right"));
+      pVarmods.add(feMaxVarmodsPerMod.comp);
+      pVarmods.add(feMaxCombos.label(), new CC().alignX("right"));
+      pVarmods.add(feMaxCombos.comp);
+      pVarmods.add(feMultipleVarModsOnResidue.comp, new CC().wrap());
+
+      tableVarMods = new JTable();
+      tableVarMods.setModel(getDefaultVarModTableModel());
+      tableVarMods.setToolTipText("<html>Variable Modifications.<br/>\nValues:<br/>\n<ul>\n<li>A-Z amino acid codes</li>\n<li>*​ ​is​ ​used​ ​to​ ​represent​ ​any​ ​amino​ ​acid</li>\n<li>^​ ​is​ ​used​ ​to​ ​represent​ ​a​ ​terminus</li>\n<li>[​ ​is​ ​a​ ​modifier​ ​for​ ​protein​ ​N-terminal</li>\n<li>]​ ​is​ ​a​ ​modifier​ ​for​ ​protein​ ​C-terminal</li>\n<li>n​ ​is​ ​a​ ​modifier​ ​for​ ​peptide​ ​N-terminal</li>\n<li>c​ ​is​ ​a​ ​modifier​ ​for​ ​peptide​ ​C-terminal</li>\n</ul>\nSyntax​ ​Examples:\n<ul>\n<li>15.9949​ ​M​ ​(for​ ​oxidation​ ​on​ ​methionine)</li>\n<li>79.66331​ ​STY​ ​(for​ ​phosphorylation)</li>\n<li>-17.0265​ ​nQnC​ ​(for​ ​pyro-Glu​ ​or​ ​loss​ ​of​ ​ammonia​ ​at peptide​ ​N-terminal)</li>\n</ul>\nExample​ ​(M​ ​oxidation​ ​and​ ​N-terminal​ ​acetylation):\n<ul>\n<li>variable_mod_01​ ​=​ ​15.9949​ ​M</li>\n<li>variable_mod_02​ ​=​ ​42.0106​ ​[^</li>\n</ul>");
+      tableVarMods.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
+      tableVarMods.setFillsViewportHeight(true);
+      SwingUtilities.invokeLater(() -> {
+        tableVarMods.getColumnModel().getColumn(0).setMaxWidth(150);
+        tableVarMods.getColumnModel().getColumn(0).setMinWidth(20);
+        tableVarMods.getColumnModel().getColumn(0).setPreferredWidth(50);
+      });
+
+      JScrollPane tableScrollVarMods = new JScrollPane(tableVarMods, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+      //tableScrollVarMods.setPreferredSize(new Dimension(tableScrollVarMods.getPreferredSize().width, 140));
+      pVarmods.add(tableScrollVarMods, new CC().minHeight("100px").maxHeight("150px").growX().spanX().wrap());
+
+      JPanel pFixmods = new JPanel(new MigLayout(new LC()));
+      pFixmods.setBorder(new TitledBorder("Fixed modifications"));
+
+      pMods.add(pVarmods, new CC().wrap().growX());
+      pMods.add(pFixmods, new CC().wrap().growX());
+      pContent.add(pMods, new CC().wrap().growX());
     }
 
     // Panel with all the advanced options
@@ -286,5 +344,61 @@ public class FraggerMigPanel extends JPanel {
     }
 
     this.add(scroll, BorderLayout.CENTER);
+  }
+
+  private synchronized TableModel getDefaultVarModTableModel() {
+    if (tableModelVarMods != null)
+      return tableModelVarMods;
+    int cols = 3;
+    Object[][] data = new Object[MsfraggerParams.VAR_MOD_COUNT_MAX][cols];
+    for (int i = 0; i < data.length; i++) {
+      data[i][0] = false;
+      data[i][1] = null;
+      data[i][2] = null;
+    }
+
+    tableModelVarMods = new ModificationsTableModel(
+        TABLE_VAR_MODS_COL_NAMES,
+        new Class<?>[] { Boolean.class, String.class, Double.class },
+        new boolean[] {true, true, true},
+        new int[] {0, 1, 2},
+        data);
+
+    return tableModelVarMods;
+  }
+
+  private synchronized TableModel getDefaultAddonTableModel() {
+    if (tableModelAddMods != null)
+      return tableModelAddMods;
+
+    int cols = 3;
+    Object[][] data = new Object[MsfraggerParams.ADDONS_HUMAN_READABLE.length][cols];
+    for (int i = 0; i < data.length; i++) {
+      data[i][0] = false;
+      data[i][1] = MsfraggerParams.ADDONS_HUMAN_READABLE[i];
+      data[i][2] = 0.0;
+    }
+
+    tableModelAddMods = new ModificationsTableModel(
+        TABLE_ADD_MODS_COL_NAMES,
+        new Class<?>[] {Boolean.class, String.class, Double.class},
+        new boolean[] {true, false, true},
+        new int[] {0, 1, 2},
+        data);
+
+    return tableModelAddMods;
+  }
+
+  private void updateRowHeights(JTable table) {
+    for (int row = 0; row < table.getRowCount(); row++) {
+      int rowHeight = table.getRowHeight();
+
+      for (int column = 0; column < table.getColumnCount(); column++) {
+        Component comp = table.prepareRenderer(table.getCellRenderer(row, column), row, column);
+        rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
+      }
+
+      table.setRowHeight(row, rowHeight);
+    }
   }
 }
