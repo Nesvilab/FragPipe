@@ -240,11 +240,12 @@ public class FraggerMigPanel extends JPanel {
       pDigest.add(fePepMassHi.comp, new CC().wrap());
 
       FormEntry feMaxFragCharge = new FormEntry(MsfraggerParams.PROP_max_fragment_charge, "Max fragment charge", new UiSpinnerInt(2, 0, 20, 1, 2));
-      FormEntry feSliceDb = new FormEntry(PROP_slice_db, "not-shown", new UiCheck("<html><i>Slice up database", null),
+      FormEntry feSliceDb = new FormEntry(PROP_slice_db, "<html><i>Slice up database", new UiSpinnerInt(1, 1, 99, 1, 2),
           "<html>Split database into smaller chunks.<br/>Only use for very large databases (200MB+) or<br/>non-specific digestion.");
       pDigest.add(feMaxFragCharge.label(), new CC().split(2).span(2).alignX("right"));
       pDigest.add(feMaxFragCharge.comp);
-      pDigest.add(feSliceDb.comp, new CC().skip(1).spanX().wrap());
+      pDigest.add(feSliceDb.label(), new CC().alignX("right"));
+      pDigest.add(feSliceDb.comp, new CC().spanX().wrap());
 
       pBase.add(pPeakMatch, new CC().wrap().growX());
       pBase.add(pDigest, new CC().wrap().growX());
