@@ -61,10 +61,10 @@ public class FraggerMigPanel extends JPanel {
   private JScrollPane scroll;
 
   private static final String PROP_adjust_precurosr_mass = "misc.adjust-precursor-mass";
-  private static final String PROP_slice_db = "misc.slice-db";
   private static final String PROP_ram = "misc.ram";
   private static final String PROP_digest_mass_lo = "misc.digest-mass-lo";
   private static final String PROP_digest_mass_hi = "misc.digest-mass-hi";
+  private static final String PROP_slice_db = "misc.slice-db";
   private static String[] PROPS_MISC = {PROP_adjust_precurosr_mass, PROP_slice_db, PROP_ram};
 
   public FraggerMigPanel() {
@@ -146,9 +146,9 @@ public class FraggerMigPanel extends JPanel {
           new DecimalFormat("0.#"));
       FormEntry feSpinnerPrecTolHi = new FormEntry(MsfraggerParams.PROP_precursor_mass_upper,
           "not-shown", uiSpinnerPrecTolHi);
-      FormEntry feAdjustPrecMass = new FormEntry(PROP_adjust_precurosr_mass, "<html><i>Adjust precursor mass",
+      FormEntry feAdjustPrecMass = new FormEntry(PROP_adjust_precurosr_mass, "not-shown",
           new UiCheck("<html><i>Adjust precursor mass", null),
-          "<html>Run a separate program to trace MS1 peaks <br/>over LC time and use obtained averaged masses.");
+          "<html>Correct monoisotopic mass determination erros.<br/>Requires MSFragger 20180924+.");
       pPeakMatch.add(fePrecTolUnits.label(), new CC().alignX("right"));
       pPeakMatch.add(fePrecTolUnits.comp, new CC());
       pPeakMatch.add(feSpinnerPrecTolLo.comp, new CC().minWidth("45px"));
@@ -198,15 +198,15 @@ public class FraggerMigPanel extends JPanel {
 
       FormEntry feEnzymeName = new FormEntry(MsfraggerParams.PROP_search_enzyme_name, "Enzyme name", new UiText());
       FormEntry feCutAfter = new FormEntry(MsfraggerParams.PROP_search_enzyme_cutafter, "Cut after",
-          UiUtils.createUiText("[^A-Z]"), "Capital letters for amino acids after which the enzyme cuts.");
+          UiUtils.uiTextBuilder().cols(6).filter("[^A-Z]").text("KR").create(), "Capital letters for amino acids after which the enzyme cuts.");
       FormEntry feButNotBefore = new FormEntry(MsfraggerParams.PROP_search_enzyme_butnotafter, "But not before",
-          UiUtils.createUiText("[^A-Z]"), "Amino acids before which the enzyme won't cut.");
+          UiUtils.uiTextBuilder().cols(6).filter("[^A-Z]").text("P").create(), "Amino acids before which the enzyme won't cut.");
       pDigest.add(feEnzymeName.label(), new CC().alignX("right"));
       pDigest.add(feEnzymeName.comp, new CC().minWidth("120px").growX());
-      pDigest.add(feCutAfter.label(), new CC().split(2).gapLeft("5px"));
-      pDigest.add(feCutAfter.comp, new CC().minWidth("45px"));
-      pDigest.add(feButNotBefore.label(), new CC().split(2).gapLeft("5px"));
-      pDigest.add(feButNotBefore.comp, new CC().minWidth("45px").wrap());
+      pDigest.add(feCutAfter.label(), new CC().split(4).spanX().gapLeft("5px"));
+      pDigest.add(feCutAfter.comp);//, new CC().minWidth("45px"));
+      pDigest.add(feButNotBefore.label());//, new CC().split(2).spanX().gapLeft("5px"));
+      pDigest.add(feButNotBefore.comp, new CC().wrap());
 
       List<String> cleavageTypeNames = Arrays.stream(CleavageType.values()).map(Enum::name)
           .collect(Collectors.toList());
@@ -214,10 +214,13 @@ public class FraggerMigPanel extends JPanel {
       UiSpinnerInt uiSpinnerMissedCleavages = new UiSpinnerInt(1, 0, 1000, 1);
       uiSpinnerMissedCleavages.setColumns(6);
       FormEntry feMissedCleavages = new FormEntry(MsfraggerParams.PROP_allowed_missed_cleavage, "Missed cleavages", uiSpinnerMissedCleavages);
+      FormEntry feClipM = new FormEntry(MsfraggerParams.PROP_clip_nTerm_M, "not-shown", new UiCheck("Clip N-term M", null),
+          "Trim protein N-terminal Methionine as a variable modification");
       pDigest.add(feCleavageType.label(), new CC().alignX("right"));
       pDigest.add(feCleavageType.comp, new CC().minWidth("120px").growX());
       pDigest.add(feMissedCleavages.label(), new CC().alignX("right"));
-      pDigest.add(feMissedCleavages.comp, new CC().minWidth("45px").wrap());
+      pDigest.add(feMissedCleavages.comp, new CC());
+      pDigest.add(feClipM.comp, new CC().gapLeft("5px").wrap());
 
       FormEntry fePepLenMin = new FormEntry(MsfraggerParams.PROP_digest_min_length, "Peptide length", new UiSpinnerInt(7, 0, 1000, 1, 3));
       FormEntry fePepLenMax = new FormEntry(MsfraggerParams.PROP_digest_max_length, "not-shown", new UiSpinnerInt(50, 0, 1000, 1, 3));
@@ -236,6 +239,12 @@ public class FraggerMigPanel extends JPanel {
       pDigest.add(new JLabel("-"));
       pDigest.add(fePepMassHi.comp, new CC().wrap());
 
+      FormEntry feMaxFragCharge = new FormEntry(MsfraggerParams.PROP_max_fragment_charge, "Max fragment charge", new UiSpinnerInt(2, 0, 20, 1, 2));
+      FormEntry feSliceDb = new FormEntry(PROP_slice_db, "not-shown", new UiCheck("<html><i>Slice up database", null),
+          "<html>Split database into smaller chunks.<br/>Only use for very large databases (200MB+) or<br/>non-specific digestion.");
+      pDigest.add(feMaxFragCharge.label(), new CC().split(2).span(2).alignX("right"));
+      pDigest.add(feMaxFragCharge.comp);
+      pDigest.add(feSliceDb.comp, new CC().skip(1).spanX().wrap());
 
       pBase.add(pPeakMatch, new CC().wrap().growX());
       pBase.add(pDigest, new CC().wrap().growX());
