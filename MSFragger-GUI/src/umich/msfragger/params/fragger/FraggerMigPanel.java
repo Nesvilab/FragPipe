@@ -24,7 +24,6 @@ import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
@@ -33,17 +32,13 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -69,10 +64,10 @@ public class FraggerMigPanel extends JPanel {
 
   private static final String[] TABLE_VAR_MODS_COL_NAMES = {"Enabled", "Site (editable)", "Mass Delta (editable)"};
   private ModificationsTableModel tableModelVarMods;
-  private static final String[] TABLE_ADD_MODS_COL_NAMES = {"Enabled", "Site", "Mass Delta (editable)"};
-  private ModificationsTableModel tableModelAddMods;
   private javax.swing.JTable tableVarMods;
-  private javax.swing.JTable tableAddMods;
+  private static final String[] TABLE_ADD_MODS_COL_NAMES = {"Enabled", "Site", "Mass Delta (editable)"};
+  private ModificationsTableModel tableModelFixMods;
+  private javax.swing.JTable tableFixMods;
 
   private static final String PROP_adjust_precurosr_mass = "misc.adjust-precursor-mass";
   private static final String PROP_ram = "misc.ram";
@@ -305,6 +300,19 @@ public class FraggerMigPanel extends JPanel {
       JPanel pFixmods = new JPanel(new MigLayout(new LC()));
       pFixmods.setBorder(new TitledBorder("Fixed modifications"));
 
+      tableFixMods = new JTable();
+      tableFixMods.setModel(getDefaultFixModTableModel());
+      tableFixMods.setToolTipText("<html>Fixed Modifications.<br/>Act as if the mass of aminoacids/termini was permanently changed.");
+      tableFixMods.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
+      tableFixMods.setFillsViewportHeight(true);
+      SwingUtilities.invokeLater(() -> {
+        tableFixMods.getColumnModel().getColumn(0).setMaxWidth(150);
+        tableFixMods.getColumnModel().getColumn(0).setMinWidth(20);
+        tableFixMods.getColumnModel().getColumn(0).setPreferredWidth(50);
+      });
+      JScrollPane tableScrollFixMods = new JScrollPane(tableFixMods, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+      pFixmods.add(tableScrollFixMods, new CC().minHeight("100px").maxHeight("200px").growX().spanX().wrap());
+
       pMods.add(pVarmods, new CC().wrap().growX());
       pMods.add(pFixmods, new CC().wrap().growX());
       pContent.add(pMods, new CC().wrap().growX());
@@ -314,31 +322,7 @@ public class FraggerMigPanel extends JPanel {
     {
       JPanel pAdvanced = new JPanel(new MigLayout(new LC()));
       pAdvanced.setBorder(new TitledBorder("Advanced Options"));
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
-      pAdvanced.add(new JLabel("Advanced Options panel"), new CC().wrap());
+      
 
       pContent.add(pAdvanced, new CC().wrap().growX());
     }
@@ -367,9 +351,9 @@ public class FraggerMigPanel extends JPanel {
     return tableModelVarMods;
   }
 
-  private synchronized TableModel getDefaultAddonTableModel() {
-    if (tableModelAddMods != null)
-      return tableModelAddMods;
+  private synchronized TableModel getDefaultFixModTableModel() {
+    if (tableModelFixMods != null)
+      return tableModelFixMods;
 
     int cols = 3;
     Object[][] data = new Object[MsfraggerParams.ADDONS_HUMAN_READABLE.length][cols];
@@ -379,14 +363,14 @@ public class FraggerMigPanel extends JPanel {
       data[i][2] = 0.0;
     }
 
-    tableModelAddMods = new ModificationsTableModel(
+    tableModelFixMods = new ModificationsTableModel(
         TABLE_ADD_MODS_COL_NAMES,
         new Class<?>[] {Boolean.class, String.class, Double.class},
         new boolean[] {true, false, true},
         new int[] {0, 1, 2},
         data);
 
-    return tableModelAddMods;
+    return tableModelFixMods;
   }
 
   private void updateRowHeights(JTable table) {
