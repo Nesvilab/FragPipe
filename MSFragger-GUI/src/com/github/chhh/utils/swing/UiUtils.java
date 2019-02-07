@@ -1,6 +1,7 @@
 package com.github.chhh.utils.swing;
 
 import java.util.List;
+import java.util.stream.Stream;
 import javax.swing.DefaultComboBoxModel;
 
 public class UiUtils {
@@ -51,5 +52,12 @@ public class UiUtils {
 
   public static UiCombo createUiCombo(List<String> options) {
     return createUiCombo(options.toArray(new String[0]));
+  }
+
+  /**
+   * Use '#values()' method of enum to create a dropdown.
+   */
+  public static UiCombo createUiCombo(Enum<?>[] enumValues) {
+    return createUiCombo(Stream.of(enumValues).map(Enum::name).toArray(String[]::new));
   }
 }

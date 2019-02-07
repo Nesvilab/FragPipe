@@ -28,6 +28,7 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -49,6 +50,8 @@ import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.params.enums.CleavageType;
+import umich.msfragger.params.enums.FraggerOutputType;
+import umich.msfragger.params.enums.FraggerPrecursorMassMode;
 import umich.msfragger.params.enums.MassTolUnits;
 import umich.msfragger.util.swing.FormEntry;
 
@@ -149,11 +152,8 @@ public class FraggerMigPanel extends JPanel {
       pPeakMatch.setBorder(new TitledBorder("Peak Matching"));
 
       // precursor mass tolerance
-      UiCombo comboPrecTolUnits = new UiCombo();
-      comboPrecTolUnits.setModel(new DefaultComboBoxModel<>(
-          Arrays.stream(MassTolUnits.values()).map(MassTolUnits::name).toArray(String[]::new)));
       FormEntry fePrecTolUnits = new FormEntry("precursor_mass_units", "Precursor mass tolerance",
-          comboPrecTolUnits);
+          UiUtils.createUiCombo(MassTolUnits.values()));
       UiSpinnerDouble uiSpinnerPrecTolLo = new UiSpinnerDouble(-10, -10000, 10000, 1,
           new DecimalFormat("0.#"));
       uiSpinnerPrecTolLo.setColumns(4);
@@ -175,11 +175,8 @@ public class FraggerMigPanel extends JPanel {
       pPeakMatch.add(feAdjustPrecMass.comp, new CC().gapLeft("5px").wrap());
 
       // fragment mass tolerance
-      UiCombo comboFragTolUnits = new UiCombo();
-      comboFragTolUnits.setModel(new DefaultComboBoxModel<>(
-          Arrays.stream(MassTolUnits.values()).map(MassTolUnits::name).toArray(String[]::new)));
       FormEntry feFragTolUnits = new FormEntry(MsfraggerParams.PROP_fragment_mass_units,
-          "Fragment mass tolerance", comboFragTolUnits);
+          "Fragment mass tolerance", UiUtils.createUiCombo(MassTolUnits.values()));
       UiSpinnerDouble uiSpinnerFragTol = new UiSpinnerDouble(10, 0, 10000, 1,
           new DecimalFormat("0.#"));
       uiSpinnerFragTol.setColumns(4);
@@ -436,24 +433,25 @@ public class FraggerMigPanel extends JPanel {
         pAdvanced.add(pSpectral, new CC().wrap().growX());
       }
 
+      // Advanced peak matching panel
       {
-        JPanel pPeakMatch = new JPanel(new MigLayout(new LC()));
+        JPanel pPeakMatch = new JPanel(new MigLayout(new LC().debug()));
         pPeakMatch.setBorder(new TitledBorder("Peak Matching Advanced Options"));
 
-        UiCombo comboTrueTolUnits = UiUtils.createUiCombo(
-            Arrays.stream(MassTolUnits.values()).map(MassTolUnits::name).toArray(String[]::new));
-        FormEntry feFragTolUnits = new FormEntry(MsfraggerParams.PROP_precursor_true_units,
-            "Precursor true tolerance", comboTrueTolUnits);
+        FormEntry feTrueTolUnits = new FormEntry(MsfraggerParams.PROP_precursor_true_units,
+            "Precursor true tolerance", UiUtils.createUiCombo(MassTolUnits.values()));
         UiSpinnerDouble uiSpinnerTrueTol = new UiSpinnerDouble(10, 0, 100000, 5,
             new DecimalFormat("0.#"));
         uiSpinnerTrueTol.setColumns(4);
         FormEntry feTrueTol = new FormEntry(MsfraggerParams.PROP_precursor_true_tolerance,
             "not-shown",
-            uiSpinnerTrueTol,
-            "<html>True precursor mass tolerance <br>\nshould be set to your instrument's "
-                + "precursor mass accuracy <br>\n(window is +/- this value).  This value is used "
-                + "for tie breaking <br>\nof results and boosting of unmodified peptides in open "
-                + "search.<br>");
+            uiSpinnerTrueTol, "<html>True precursor mass tolerance <br>\n"
+            + "should be set to your instrument's \n"
+            + "precursor mass accuracy <br>\n"
+            + "(window is +/- this value).  This value is used \n"
+            + "for tie breaking <br>\n"
+            + "of results and boosting of unmodified peptides in open \n"
+            + "search.<br>");
         FormEntry feReportTopN = new FormEntry(MsfraggerParams.PROP_output_report_topN,
             "Report top N", new UiSpinnerInt(1, 1, 10000, 1, 4),
             "Report top N PSMs per input spectrum.");
@@ -464,16 +462,67 @@ public class FraggerMigPanel extends JPanel {
             "Output max expect", spinnerOutputMaxExpect,
             "<html>Suppresses reporting of PSM if top hit has<br> expectation greater "
                 + "than this threshold");
-        String tooltipMassOffsets = "<html>Mass_offsets in MSFragger creates multiple precursor "
-            + "tolerance windows with<br>\nspecified mass offsets. These values are multiplexed "
-            + "with the isotope error option. <br><br>\n\nFor example, mass_offsets = 0/79.966 "
-            + "can be used as a restricted \"open\" search that <br>\nlooks for unmodified and "
-            + "phosphorylated peptides (on any residue).<br><br>\n\nSetting isotope_error to "
-            + "0/1/2 in combination with this example will create <br>\nsearch windows around "
+        String tooltipMassOffsets = "<html>Mass_offsets in MSFragger creates multiple precursor \n"
+            + "tolerance windows with<br>\n"
+            + "specified mass offsets. These values are multiplexed \n"
+            + "with the isotope error option. <br><br>\n"
+            + "\n"
+            + "For example, mass_offsets = 0/79.966 \n"
+            + "can be used as a restricted \"open\" search that <br>\n"
+            + "looks for unmodified and \n"
+            + "phosphorylated peptides (on any residue).<br><br>\n"
+            + "\n"
+            + "Setting isotope_error to \n"
+            + "0/1/2 in combination with this example will create <br>\n"
+            + "search windows around \n"
             + "(0,1,2,79.966, 80.966, 81.966).";
         FormEntry feMassOffsets = new FormEntry(MsfraggerParams.PROP_mass_offsets, "Mass offsets",
-            UiUtils.uiTextBuilder().filter("[^\\(\\)\\.,\\d ]").text("0").create(), tooltipMassOffsets);
+            UiUtils.uiTextBuilder().filter("[^\\(\\)\\.,\\d ]").text("0").create(),
+            tooltipMassOffsets);
 
+        FormEntry feOutputType = new FormEntry(MsfraggerParams.PROP_output_format, "Output format",
+            UiUtils.createUiCombo(FraggerOutputType.values()),
+            "<html>How the search results are to be reported.<br>\n" +
+                "Downstream tools only support PepXML format.<br><br>\n" +
+                "Only use TSV (tab delimited file) if you want to process <br>\n" +
+                "search resutls yourself for easier import into other software.<br>");
+        FormEntry fePrecursorMassMode = new FormEntry(MsfraggerParams.PROP_precursor_mass_mode,
+            "Precursor mass mode",
+            UiUtils.createUiCombo(FraggerPrecursorMassMode.values()),
+            "<html>Determines which entry from mzML files will be<br/>"
+                + "used as the precursor's mass. 'Selected' or 'Isolated' ion.)");
+        String tooltipPrecursorCHarge =
+            "<html>Assume range of potential precursor charge states.<br>\n" +
+                "Only relevant when override_charge is set to 1.<br>\n" +
+                "Specified as space separated range of integers.<br>";
+        FormEntry fePrecursorChargeLo = new FormEntry(PROP_precursor_charge_lo, "with precursor charge",
+            new UiSpinnerInt(1, 0, 30, 1, 2), tooltipPrecursorCHarge);
+        FormEntry fePrecursorChargeHi = new FormEntry(PROP_precursor_charge_hi, "not-shown",
+            new UiSpinnerInt(4, 0, 30, 1, 2), tooltipPrecursorCHarge);
+        FormEntry feOverrideCharge = new FormEntry(MsfraggerParams.PROP_override_charge,
+            "not-shown", new UiCheck("Override charge", null),
+            "<html>Ignores precursor charge and uses charge state<br>\n" +
+                "specified in precursor_charge range.<br>");
+
+        pPeakMatch.add(feTrueTolUnits.label(), alignRight);
+        pPeakMatch.add(feTrueTolUnits.comp, new CC().split(2));
+        pPeakMatch.add(feTrueTol.comp);
+        pPeakMatch.add(feMassOffsets.label(), alignRight);
+        pPeakMatch.add(feMassOffsets.comp, new CC().minWidth("45px").growX().wrap());
+
+        pPeakMatch.add(feOverrideCharge.comp, alignRight);
+        pPeakMatch.add(fePrecursorChargeLo.label(), new CC().split(4).spanX());
+        pPeakMatch.add(fePrecursorChargeLo.comp);
+        pPeakMatch.add(new JLabel("-"));
+        pPeakMatch.add(fePrecursorChargeHi.comp, wrap);
+        pPeakMatch.add(feReportTopN.label(), alignRight);
+        pPeakMatch.add(feReportTopN.comp);
+        pPeakMatch.add(feOutputMaxExpect.label(), alignRight);
+        pPeakMatch.add(feOutputMaxExpect.comp, wrap);
+        pPeakMatch.add(fePrecursorMassMode.label(), alignRight);
+        pPeakMatch.add(fePrecursorMassMode.comp);
+        pPeakMatch.add(feOutputType.label(), alignRight);
+        pPeakMatch.add(feOutputType.comp, wrap);
 
         pAdvanced.add(pPeakMatch, new CC().wrap().growX());
       }
