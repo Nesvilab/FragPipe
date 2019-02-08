@@ -87,23 +87,23 @@ public class FraggerMigPanel extends JPanel {
   private static final String PROP_misc_adjust_precurosr_mass = "misc.adjust-precursor-mass";
   private static final String PROP_misc_slice_db = "misc.slice-db";
   private static final String PROP_misc_ram = "misc.ram";
-  private static final String PROP_misc_digest_mass_lo = "misc.digest-mass-lo";
-  private static final String PROP_misc_digest_mass_hi = "misc.digest-mass-hi";
-  private static final String PROP_misc_clear_mz_lo = "misc.clear-mz-lo";
-  private static final String PROP_misc_clear_mz_hi = "misc.clear-mz-hi";
-  private static final String PROP_misc_precursor_charge_lo = "misc.precursor-charge-lo";
-  private static final String PROP_misc_precursor_charge_hi = "misc.precursor-charge-hi";
+  private static final String PROP_misc_fragger_digest_mass_lo = "misc.fragger.digest-mass-lo";
+  private static final String PROP_misc_fragger_digest_mass_hi = "misc.fragger.digest-mass-hi";
+  private static final String PROP_misc_fragger_clear_mz_lo = "misc.fragger.clear-mz-lo";
+  private static final String PROP_misc_fragger_clear_mz_hi = "misc.fragger.clear-mz-hi";
+  private static final String PROP_misc_fragger_precursor_charge_lo = "misc.fragger.precursor-charge-lo";
+  private static final String PROP_misc_fragger_precursor_charge_hi = "misc.fragger.precursor-charge-hi";
   private static final Set<String> PROPS_MISC_NAMES;
   private static String[] PROPS_MISC = {
       PROP_misc_adjust_precurosr_mass,
       PROP_misc_slice_db,
       PROP_misc_ram,
-      PROP_misc_digest_mass_lo,
-      PROP_misc_digest_mass_hi,
-      PROP_misc_clear_mz_lo,
-      PROP_misc_clear_mz_hi,
-      PROP_misc_precursor_charge_lo,
-      PROP_misc_precursor_charge_hi
+      PROP_misc_fragger_digest_mass_lo,
+      PROP_misc_fragger_digest_mass_hi,
+      PROP_misc_fragger_clear_mz_lo,
+      PROP_misc_fragger_clear_mz_hi,
+      PROP_misc_fragger_precursor_charge_lo,
+      PROP_misc_fragger_precursor_charge_hi
   };
 
   static {
@@ -230,7 +230,7 @@ public class FraggerMigPanel extends JPanel {
 
     // Panel with all the basic options
     {
-      JPanel pBase = new JPanel(new MigLayout(new LC().fillX()));
+      JPanel pBase = new JPanel(new MigLayout(new LC().fillX().debug()));
       pBase.setBorder(
           new TitledBorder("Common Options (Advanced Options are at the end of the page)"));
 
@@ -348,12 +348,12 @@ public class FraggerMigPanel extends JPanel {
       UiSpinnerDouble uiSpinnerDigestMassLo = new UiSpinnerDouble(200, 0, 50000, 100,
           new DecimalFormat("0.#"));
       uiSpinnerDigestMassLo.setColumns(6);
-      FormEntry fePepMassLo = new FormEntry(PROP_misc_digest_mass_lo, "Peptide mass range",
+      FormEntry fePepMassLo = new FormEntry(PROP_misc_fragger_digest_mass_lo, "Peptide mass range",
           uiSpinnerDigestMassLo);
       UiSpinnerDouble uiSpinnerDigestMassHi = new UiSpinnerDouble(5000, 0, 50000, 100,
           new DecimalFormat("0.#"));
       uiSpinnerDigestMassHi.setColumns(6);
-      FormEntry fePepMassHi = new FormEntry(PROP_misc_digest_mass_hi, "not-shown",
+      FormEntry fePepMassHi = new FormEntry(PROP_misc_fragger_digest_mass_hi, "not-shown",
           uiSpinnerDigestMassHi);
       pDigest.add(fePepLenMin.label(), new CC().alignX("right"));
       pDigest.add(fePepLenMin.comp, new CC().split(3).growX());
@@ -504,9 +504,9 @@ public class FraggerMigPanel extends JPanel {
         spinnerMinRatio.setColumns(4);
         FormEntry feMinRatio = new FormEntry(MsfraggerParams.PROP_minimum_ratio, "Min ratio",
             spinnerMinRatio);
-        FormEntry feClearRangeMzLo = new FormEntry(PROP_misc_clear_mz_lo, "Clear m/z range",
+        FormEntry feClearRangeMzLo = new FormEntry(PROP_misc_fragger_clear_mz_lo, "Clear m/z range",
             new UiSpinnerInt(0, 0, 100000, 10, 4));
-        FormEntry feClearRangeMzHi = new FormEntry(PROP_misc_clear_mz_hi, "not-shown",
+        FormEntry feClearRangeMzHi = new FormEntry(PROP_misc_fragger_clear_mz_hi, "not-shown",
             new UiSpinnerInt(0, 0, 100000, 10, 4));
 
         pSpectral.add(feMinPeaks.label(), alignRight);
@@ -585,10 +585,10 @@ public class FraggerMigPanel extends JPanel {
             "<html>Assume range of potential precursor charge states.<br>\n" +
                 "Only relevant when override_charge is set to 1.<br>\n" +
                 "Specified as space separated range of integers.<br>";
-        FormEntry fePrecursorChargeLo = new FormEntry(PROP_misc_precursor_charge_lo,
+        FormEntry fePrecursorChargeLo = new FormEntry(PROP_misc_fragger_precursor_charge_lo,
             "with precursor charge",
             new UiSpinnerInt(1, 0, 30, 1, 2), tooltipPrecursorCHarge);
-        FormEntry fePrecursorChargeHi = new FormEntry(PROP_misc_precursor_charge_hi, "not-shown",
+        FormEntry fePrecursorChargeHi = new FormEntry(PROP_misc_fragger_precursor_charge_hi, "not-shown",
             new UiSpinnerInt(4, 0, 30, 1, 2), tooltipPrecursorCHarge);
         FormEntry feOverrideCharge = new FormEntry(MsfraggerParams.PROP_override_charge,
             "not-shown", new UiCheck("Override charge", null),
@@ -723,6 +723,9 @@ public class FraggerMigPanel extends JPanel {
 
   private MsfraggerParams paramsFromMap(Map<String, String> map) {
     MsfraggerParams p = new MsfraggerParams();
+    final double[] clearMzRange = new double[2];
+    final double[] digestMassRange = new double[2];
+    final int[] precursorChargeRange = new int[2];
     for (Entry<String, String> e : map.entrySet()) {
       final String k = e.getKey();
       final String v = e.getValue();
@@ -732,6 +735,28 @@ public class FraggerMigPanel extends JPanel {
         // unknown prop, it better should be from the "misc" category we added in this panel
         if (PROPS_MISC_NAMES.contains(k) || k.startsWith("misc.")) {
           log.debug("Found misc option: {}={}", k, v);
+
+          switch (k) {
+            case PROP_misc_fragger_clear_mz_lo:
+              clearMzRange[0] = Double.parseDouble(v);
+              break;
+            case PROP_misc_fragger_clear_mz_hi:
+              clearMzRange[1] = Double.parseDouble(v);
+              break;
+            case PROP_misc_fragger_digest_mass_lo:
+              digestMassRange[0] = Double.parseDouble(v);
+              break;
+            case PROP_misc_fragger_digest_mass_hi:
+              digestMassRange[1] = Double.parseDouble(v);
+              break;
+            case PROP_misc_fragger_precursor_charge_lo:
+              precursorChargeRange[0] = Integer.parseInt(v);
+              break;
+            case PROP_misc_fragger_precursor_charge_hi:
+              precursorChargeRange[1] = Integer.parseInt(v);
+              break;
+          }
+
         } else {
           // we don't know what this option is, someone probably forgot to add it to the list of
           // known ones
@@ -739,6 +764,10 @@ public class FraggerMigPanel extends JPanel {
         }
       }
     }
+    p.setClearMzRange(clearMzRange);
+    p.setDigestMassRange(digestMassRange);
+    p.setPrecursorCharge(precursorChargeRange);
+
     return p;
   }
 
@@ -749,6 +778,19 @@ public class FraggerMigPanel extends JPanel {
         map.put(e.getKey(), e.getValue().value);
       }
     }
+
+    // special treatment of some fields
+    double[] clearMzRange = params.getClearMzRange();
+    double[] digestMassRange = params.getDigestMassRange();
+    int[] precursorCharge = params.getPrecursorCharge();
+    DecimalFormat fmt = new DecimalFormat("0.#");
+    map.put(PROP_misc_fragger_clear_mz_lo, fmt.format(clearMzRange[0]));
+    map.put(PROP_misc_fragger_clear_mz_hi, fmt.format(clearMzRange[1]));
+    map.put(PROP_misc_fragger_digest_mass_lo, fmt.format(clearMzRange[0]));
+    map.put(PROP_misc_fragger_digest_mass_hi, fmt.format(clearMzRange[1]));
+    map.put(PROP_misc_fragger_precursor_charge_lo, fmt.format(clearMzRange[0]));
+    map.put(PROP_misc_fragger_precursor_charge_hi, fmt.format(clearMzRange[1]));
+
     return map;
   }
 
