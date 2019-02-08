@@ -56,11 +56,13 @@ import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.ModificationsTableModel;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
+import umich.msfragger.messages.MessageFraggerValidity;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.params.Props.Prop;
 import umich.msfragger.params.ThisAppProps;
@@ -122,6 +124,8 @@ public class FraggerMigPanel extends JPanel {
 
   public FraggerMigPanel() {
     initMore();
+    // register on the bus only after all the components have been created to avoid NPEs
+    EventBus.getDefault().register(this);
   }
 
   private void initMore() {
@@ -133,7 +137,10 @@ public class FraggerMigPanel extends JPanel {
     // Top panel with checkbox, buttons and RAM+Threads spinners
     {
       JPanel pTop = new JPanel(new MigLayout(new LC()));
-      checkRun = new JCheckBox("Run MSFragger");
+      checkRun = new JCheckBox("Run MSFragger",true);
+      checkRun.addActionListener(e -> {
+        SwingUtils.enableComponents(pContent, checkRun.isSelected(), true);
+      });
       JButton closed = new JButton("Closed Search");
       closed.addActionListener(e -> {
         EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.closed));
@@ -707,5 +714,13 @@ public class FraggerMigPanel extends JPanel {
       }
     }
     return map;
+  }
+
+  @Subscribe
+  public void onFraggerValidity(MessageFraggerValidity msg) {
+    if (msg.isValid == this.isEnabled()) {
+      return;
+    }
+    SwingUtilities.invokeLater(() -> SwingUtils.enableComponents(this, msg.isValid));
   }
 }

@@ -144,6 +144,7 @@ import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
 import umich.msfragger.messages.MessageDecoyTag;
+import umich.msfragger.messages.MessageFraggerValidity;
 import umich.msfragger.messages.MessageIsUmpireRun;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.params.ThisAppProps;
@@ -187,6 +188,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private static final org.slf4j.Logger log = LoggerFactory.getLogger(MsfraggerGuiFrame.class);
 
   protected FraggerPanel fraggerPanel;
+  protected FraggerMigPanel fraggerMigPanel;
   protected TextConsole console;
   protected ExecutorService exec;
   private final List<Process> submittedProcesses = new ArrayList<>(100);
@@ -390,8 +392,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    FraggerMigPanel fmp = new FraggerMigPanel();
-    tabPane.add("Fragger", fmp);
+    fraggerMigPanel = new FraggerMigPanel();
+    tabPane.add("Fragger", fraggerMigPanel);
 
 
     // set icons for tabs
@@ -657,6 +659,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void enableMsfraggerPanels(boolean enabled) {
     SwingUtils.enableComponents(scrollPaneMsFragger, enabled);
     fraggerPanel.getCheckboxIsRunFragger().setSelected(enabled);
+    SwingUtils.enableComponents(fraggerMigPanel, enabled);
   }
 
   private void enableSpecLibGenPanel(boolean enabled) {
@@ -2433,7 +2436,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       balloonMsfragger.setVisible(true);
     }
 
-    enableMsfraggerPanels(isJarValid && isVersionValid && isJavaValid);
+    final boolean msfraggerEnabled = isJarValid && isVersionValid && isJavaValid;
+    EventBus.getDefault().postSticky(new MessageFraggerValidity(msfraggerEnabled));
+    enableMsfraggerPanels(msfraggerEnabled);
 
     return isJarValid;
   }
