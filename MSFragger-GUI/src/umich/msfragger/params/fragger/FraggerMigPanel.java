@@ -17,6 +17,7 @@ package umich.msfragger.params.fragger;
 
 import com.github.chhh.utils.swing.DocumentFilters;
 import com.github.chhh.utils.swing.UiCheck;
+import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
@@ -79,21 +80,10 @@ import umich.msfragger.util.swing.FormEntry;
 public class FraggerMigPanel extends JPanel {
 
   private static final Logger log = LoggerFactory.getLogger(FraggerMigPanel.class);
-
-  private ImageIcon icon;
-  private JCheckBox checkRun;
-  private JScrollPane scroll;
-  private JPanel pContent;
-
   private static final String[] TABLE_VAR_MODS_COL_NAMES = {"Enabled", "Site (editable)",
       "Mass Delta (editable)"};
-  private ModificationsTableModel tableModelVarMods;
-  private javax.swing.JTable tableVarMods;
   private static final String[] TABLE_ADD_MODS_COL_NAMES = {"Enabled", "Site",
       "Mass Delta (editable)"};
-  private ModificationsTableModel tableModelFixMods;
-  private javax.swing.JTable tableFixMods;
-
   private static final String PROP_misc_adjust_precurosr_mass = "misc.adjust-precursor-mass";
   private static final String PROP_misc_slice_db = "misc.slice-db";
   private static final String PROP_misc_ram = "misc.ram";
@@ -103,7 +93,7 @@ public class FraggerMigPanel extends JPanel {
   private static final String PROP_misc_clear_mz_hi = "misc.clear-mz-hi";
   private static final String PROP_misc_precursor_charge_lo = "misc.precursor-charge-lo";
   private static final String PROP_misc_precursor_charge_hi = "misc.precursor-charge-hi";
-
+  private static final Set<String> PROPS_MISC_NAMES;
   private static String[] PROPS_MISC = {
       PROP_misc_adjust_precurosr_mass,
       PROP_misc_slice_db,
@@ -116,11 +106,21 @@ public class FraggerMigPanel extends JPanel {
       PROP_misc_precursor_charge_hi
   };
 
-  private static final Set<String> PROPS_MISC_NAMES;
-
   static {
     PROPS_MISC_NAMES = new HashSet<>(Arrays.asList(PROPS_MISC));
   }
+
+  private ImageIcon icon;
+  private JCheckBox checkRun;
+  private JScrollPane scroll;
+  private JPanel pContent;
+  private ModificationsTableModel tableModelVarMods;
+  private javax.swing.JTable tableVarMods;
+  private ModificationsTableModel tableModelFixMods;
+  private javax.swing.JTable tableFixMods;
+  private UiSpinnerInt uiSpinnerRam;
+  private UiSpinnerInt uiSpinnerThreads;
+  private UiCombo uiComboOutputType;
 
   public FraggerMigPanel() {
     initMore();
@@ -137,7 +137,7 @@ public class FraggerMigPanel extends JPanel {
     // Top panel with checkbox, buttons and RAM+Threads spinners
     {
       JPanel pTop = new JPanel(new MigLayout(new LC()));
-      checkRun = new JCheckBox("Run MSFragger",true);
+      checkRun = new JCheckBox("Run MSFragger", true);
       checkRun.addActionListener(e -> {
         SwingUtils.enableComponents(pContent, checkRun.isSelected(), true);
       });
@@ -194,17 +194,24 @@ public class FraggerMigPanel extends JPanel {
               params.save();
             } catch (Exception ex) {
               JOptionPane
-                  .showMessageDialog(parent, "<html>Could not load the saved file: <br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                  .showMessageDialog(parent,
+                      "<html>Could not load the saved file: <br/>" + ex.getMessage(), "Error",
+                      JOptionPane.ERROR_MESSAGE);
             }
           } else {
             JOptionPane.showMessageDialog(parent, "<html>This is strange,<br/> "
-                + "but the file you chose to load doesn't exist anymore.", "Strange", JOptionPane.ERROR_MESSAGE);
+                    + "but the file you chose to load doesn't exist anymore.", "Strange",
+                JOptionPane.ERROR_MESSAGE);
           }
         }
       });
-      FormEntry feRam = new FormEntry(PROP_misc_ram, "RAM (GB)", new UiSpinnerInt(0, 0, 1024, 1, 3));
+
+      uiSpinnerRam = new UiSpinnerInt(0, 0, 1024, 1, 3);
+      FormEntry feRam = new FormEntry(PROP_misc_ram, "RAM (GB)", uiSpinnerRam);
+      uiSpinnerThreads = new UiSpinnerInt(0, 0, 128, 3);
       FormEntry feThreads = new FormEntry(MsfraggerParams.PROP_num_threads, "Threads",
-          new UiSpinnerInt(0, 0, 128, 3));
+          uiSpinnerThreads);
+
       pTop.add(save, new CC().split(6).spanX());
       pTop.add(load, new CC());
       pTop.add(feRam.label(), new CC());
@@ -558,8 +565,9 @@ public class FraggerMigPanel extends JPanel {
             UiUtils.uiTextBuilder().filter("[^\\(\\)\\.,\\d ]").text("0").create(),
             tooltipMassOffsets);
 
+        uiComboOutputType = UiUtils.createUiCombo(FraggerOutputType.values());
         FormEntry feOutputType = new FormEntry(MsfraggerParams.PROP_output_format, "Output format",
-            UiUtils.createUiCombo(FraggerOutputType.values()),
+            uiComboOutputType,
             "<html>How the search results are to be reported.<br>\n" +
                 "Downstream tools only support PepXML format.<br><br>\n" +
                 "Only use TSV (tab delimited file) if you want to process <br>\n" +
@@ -573,7 +581,8 @@ public class FraggerMigPanel extends JPanel {
             "<html>Assume range of potential precursor charge states.<br>\n" +
                 "Only relevant when override_charge is set to 1.<br>\n" +
                 "Specified as space separated range of integers.<br>";
-        FormEntry fePrecursorChargeLo = new FormEntry(PROP_misc_precursor_charge_lo, "with precursor charge",
+        FormEntry fePrecursorChargeLo = new FormEntry(PROP_misc_precursor_charge_lo,
+            "with precursor charge",
             new UiSpinnerInt(1, 0, 30, 1, 2), tooltipPrecursorCHarge);
         FormEntry fePrecursorChargeHi = new FormEntry(PROP_misc_precursor_charge_hi, "not-shown",
             new UiSpinnerInt(4, 0, 30, 1, 2), tooltipPrecursorCHarge);
@@ -656,6 +665,29 @@ public class FraggerMigPanel extends JPanel {
     return tableModelFixMods;
   }
 
+  /**
+   * Tables need to be cleared separately as they may contain more rows than would be filled by the
+   * new properties. So old 'ghost' entries might be left at the end of the table in such a case.
+   */
+  private void clearFormTables() {
+    Object[][] varModsData = new Object[MsfraggerParams.VAR_MOD_COUNT_MAX][3];
+    // set defaults for all fields
+    for (int i = 0; i < MsfraggerParams.VAR_MOD_COUNT_MAX; i++) {
+      varModsData[i][0] = false;
+      varModsData[i][1] = null;
+      varModsData[i][2] = null;
+    }
+    tableModelVarMods.setDataVector(varModsData, TABLE_VAR_MODS_COL_NAMES);
+
+    Object[][] addModsData = new Object[MsfraggerParams.ADDON_NAMES.length][3];
+    for (int i = 0; i < MsfraggerParams.ADDON_NAMES.length; i++) {
+      addModsData[i][0] = false;
+      addModsData[i][1] = null;
+      addModsData[i][2] = null;
+    }
+    tableModelFixMods.setDataVector(addModsData, TABLE_ADD_MODS_COL_NAMES);
+  }
+
   private void updateRowHeights(JTable table) {
     for (int row = 0; row < table.getRowCount(); row++) {
       int rowHeight = table.getRowHeight();
@@ -722,5 +754,22 @@ public class FraggerMigPanel extends JPanel {
       return;
     }
     SwingUtilities.invokeLater(() -> SwingUtils.enableComponents(this, msg.isValid));
+  }
+
+  public int getRamGb() {
+    return (Integer) uiSpinnerRam.getValue();
+  }
+
+  public int getThreads() {
+    return (Integer) uiSpinnerThreads.getValue();
+  }
+
+  public String getOutputFileExt() {
+    return getOutputType().getExtension();
+  }
+
+  public FraggerOutputType getOutputType() {
+    String val = uiComboOutputType.getItemAt(uiComboOutputType.getSelectedIndex());
+    return FraggerOutputType.valueOf(val);
   }
 }
