@@ -17,42 +17,58 @@ package umich.msfragger.params.fragger;
 
 import com.github.chhh.utils.swing.DocumentFilters;
 import com.github.chhh.utils.swing.UiCheck;
-import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableModel;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.EventBus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.ModificationsTableModel;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
 import umich.msfragger.messages.MessageSearchType;
+import umich.msfragger.params.Props.Prop;
+import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.enums.CleavageType;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.enums.FraggerPrecursorMassMode;
 import umich.msfragger.params.enums.MassTolUnits;
+import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.swing.FormEntry;
 
 /**
@@ -60,9 +76,12 @@ import umich.msfragger.util.swing.FormEntry;
  */
 public class FraggerMigPanel extends JPanel {
 
+  private static final Logger log = LoggerFactory.getLogger(FraggerMigPanel.class);
+
   private ImageIcon icon;
   private JCheckBox checkRun;
   private JScrollPane scroll;
+  private JPanel pContent;
 
   private static final String[] TABLE_VAR_MODS_COL_NAMES = {"Enabled", "Site (editable)",
       "Mass Delta (editable)"};
@@ -73,20 +92,33 @@ public class FraggerMigPanel extends JPanel {
   private ModificationsTableModel tableModelFixMods;
   private javax.swing.JTable tableFixMods;
 
-  private static final String PROP_adjust_precurosr_mass = "misc.adjust-precursor-mass";
-  private static final String PROP_slice_db = "misc.slice-db";
-  private static final String PROP_ram = "misc.ram";
-  private static final String PROP_digest_mass_lo = "misc.digest-mass-lo";
-  private static final String PROP_digest_mass_hi = "misc.digest-mass-hi";
-  private static final String PROP_clear_mz_lo = "misc.clear-mz-lo";
-  private static final String PROP_clear_mz_hi = "misc.clear-mz-hi";
-  private static final String PROP_precursor_charge_lo = "misc.precursor-charge-lo";
-  private static final String PROP_precursor_charge_hi = "misc.precursor-charge-hi";
+  private static final String PROP_misc_adjust_precurosr_mass = "misc.adjust-precursor-mass";
+  private static final String PROP_misc_slice_db = "misc.slice-db";
+  private static final String PROP_misc_ram = "misc.ram";
+  private static final String PROP_misc_digest_mass_lo = "misc.digest-mass-lo";
+  private static final String PROP_misc_digest_mass_hi = "misc.digest-mass-hi";
+  private static final String PROP_misc_clear_mz_lo = "misc.clear-mz-lo";
+  private static final String PROP_misc_clear_mz_hi = "misc.clear-mz-hi";
+  private static final String PROP_misc_precursor_charge_lo = "misc.precursor-charge-lo";
+  private static final String PROP_misc_precursor_charge_hi = "misc.precursor-charge-hi";
 
-
-  private static String[] PROPS_MISC = {PROP_adjust_precurosr_mass, PROP_slice_db, PROP_ram,
-      PROP_digest_mass_lo, PROP_digest_mass_hi, PROP_precursor_charge_lo, PROP_precursor_charge_hi
+  private static String[] PROPS_MISC = {
+      PROP_misc_adjust_precurosr_mass,
+      PROP_misc_slice_db,
+      PROP_misc_ram,
+      PROP_misc_digest_mass_lo,
+      PROP_misc_digest_mass_hi,
+      PROP_misc_clear_mz_lo,
+      PROP_misc_clear_mz_hi,
+      PROP_misc_precursor_charge_lo,
+      PROP_misc_precursor_charge_hi
   };
+
+  private static final Set<String> PROPS_MISC_NAMES;
+
+  static {
+    PROPS_MISC_NAMES = new HashSet<>(Arrays.asList(PROPS_MISC));
+  }
 
   public FraggerMigPanel() {
     initMore();
@@ -123,7 +155,47 @@ public class FraggerMigPanel extends JPanel {
 
       JButton save = new JButton("Save Options");
       JButton load = new JButton("Load Options");
-      FormEntry feRam = new FormEntry(PROP_ram, "RAM (GB)", new UiSpinnerInt(0, 0, 1024, 1, 3));
+      load.addActionListener(e -> {
+        JFileChooser fc = new JFileChooser();
+        fc.setApproveButtonText("Load");
+        fc.setApproveButtonToolTipText("Load into the form");
+        fc.setDialogTitle("Select saved file");
+        fc.setMultiSelectionEnabled(false);
+
+        fc.setAcceptAllFileFilterUsed(true);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Properties/Params",
+            "properties", "params", "para", "conf", "txt");
+        fc.setFileFilter(filter);
+
+        final String propName = ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN;
+        ThisAppProps.load(propName, fc);
+
+        Component parent = SwingUtils.findParentFrameForDialog(this);
+        int saveResult = fc.showOpenDialog(parent);
+        if (JFileChooser.APPROVE_OPTION == saveResult) {
+          File selectedFile = fc.getSelectedFile();
+          Path path = Paths.get(selectedFile.getAbsolutePath());
+          ThisAppProps.save(propName, path.toString());
+
+          if (Files.exists(path)) {
+            try {
+              Map<String, String> collect = formCollect();
+              MsfraggerParams params = mapToParams(collect);
+              params.load(new FileInputStream(selectedFile), true);
+              Map<String, String> paramsAsMap = paramsToMap(params);
+              formFill(paramsAsMap);
+              params.save();
+            } catch (Exception ex) {
+              JOptionPane
+                  .showMessageDialog(parent, "<html>Could not load the saved file: <br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+          } else {
+            JOptionPane.showMessageDialog(parent, "<html>This is strange,<br/> "
+                + "but the file you chose to load doesn't exist anymore.", "Strange", JOptionPane.ERROR_MESSAGE);
+          }
+        }
+      });
+      FormEntry feRam = new FormEntry(PROP_misc_ram, "RAM (GB)", new UiSpinnerInt(0, 0, 1024, 1, 3));
       FormEntry feThreads = new FormEntry(MsfraggerParams.PROP_num_threads, "Threads",
           new UiSpinnerInt(0, 0, 128, 3));
       pTop.add(save, new CC().split(6).spanX());
@@ -136,7 +208,7 @@ public class FraggerMigPanel extends JPanel {
       this.add(pTop, BorderLayout.NORTH);
     }
 
-    JPanel pContent = new JPanel();
+    pContent = new JPanel();
     pContent.setLayout(new MigLayout(new LC().fillX()));
     scroll = new JScrollPane(pContent);
     scroll.setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -164,7 +236,7 @@ public class FraggerMigPanel extends JPanel {
       uiSpinnerPrecTolHi.setColumns(4);
       FormEntry feSpinnerPrecTolHi = new FormEntry(MsfraggerParams.PROP_precursor_mass_upper,
           "not-shown", uiSpinnerPrecTolHi);
-      FormEntry feAdjustPrecMass = new FormEntry(PROP_adjust_precurosr_mass, "not-shown",
+      FormEntry feAdjustPrecMass = new FormEntry(PROP_misc_adjust_precurosr_mass, "not-shown",
           new UiCheck("<html><i>Adjust precursor mass", null),
           "<html>Correct monoisotopic mass determination erros.<br/>Requires MSFragger 20180924+.");
       pPeakMatch.add(fePrecTolUnits.label(), new CC().alignX("right"));
@@ -254,12 +326,12 @@ public class FraggerMigPanel extends JPanel {
       UiSpinnerDouble uiSpinnerDigestMassLo = new UiSpinnerDouble(200, 0, 50000, 100,
           new DecimalFormat("0.#"));
       uiSpinnerDigestMassLo.setColumns(6);
-      FormEntry fePepMassLo = new FormEntry(PROP_digest_mass_lo, "Peptide mass range",
+      FormEntry fePepMassLo = new FormEntry(PROP_misc_digest_mass_lo, "Peptide mass range",
           uiSpinnerDigestMassLo);
       UiSpinnerDouble uiSpinnerDigestMassHi = new UiSpinnerDouble(5000, 0, 50000, 100,
           new DecimalFormat("0.#"));
       uiSpinnerDigestMassHi.setColumns(6);
-      FormEntry fePepMassHi = new FormEntry(PROP_digest_mass_hi, "not-shown",
+      FormEntry fePepMassHi = new FormEntry(PROP_misc_digest_mass_hi, "not-shown",
           uiSpinnerDigestMassHi);
       pDigest.add(fePepLenMin.label(), new CC().alignX("right"));
       pDigest.add(fePepLenMin.comp, new CC().split(3).growX());
@@ -272,7 +344,7 @@ public class FraggerMigPanel extends JPanel {
 
       FormEntry feMaxFragCharge = new FormEntry(MsfraggerParams.PROP_max_fragment_charge,
           "Max fragment charge", new UiSpinnerInt(2, 0, 20, 1, 2));
-      FormEntry feSliceDb = new FormEntry(PROP_slice_db, "<html><i>Slice up database",
+      FormEntry feSliceDb = new FormEntry(PROP_misc_slice_db, "<html><i>Slice up database",
           new UiSpinnerInt(1, 1, 99, 1, 2),
           "<html>Split database into smaller chunks.<br/>Only use for very large databases (200MB+) or<br/>non-specific digestion.");
       pDigest.add(feMaxFragCharge.label(), new CC().split(2).span(2).alignX("right"));
@@ -410,9 +482,9 @@ public class FraggerMigPanel extends JPanel {
         spinnerMinRatio.setColumns(4);
         FormEntry feMinRatio = new FormEntry(MsfraggerParams.PROP_minimum_ratio, "Min ratio",
             spinnerMinRatio);
-        FormEntry feClearRangeMzLo = new FormEntry(PROP_clear_mz_lo, "Clear m/z range",
+        FormEntry feClearRangeMzLo = new FormEntry(PROP_misc_clear_mz_lo, "Clear m/z range",
             new UiSpinnerInt(0, 0, 100000, 10, 4));
-        FormEntry feClearRangeMzHi = new FormEntry(PROP_clear_mz_hi, "not-shown",
+        FormEntry feClearRangeMzHi = new FormEntry(PROP_misc_clear_mz_hi, "not-shown",
             new UiSpinnerInt(0, 0, 100000, 10, 4));
 
         pSpectral.add(feMinPeaks.label(), alignRight);
@@ -435,7 +507,7 @@ public class FraggerMigPanel extends JPanel {
 
       // Advanced peak matching panel
       {
-        JPanel pPeakMatch = new JPanel(new MigLayout(new LC().debug()));
+        JPanel pPeakMatch = new JPanel(new MigLayout(new LC()));
         pPeakMatch.setBorder(new TitledBorder("Peak Matching Advanced Options"));
 
         FormEntry feTrueTolUnits = new FormEntry(MsfraggerParams.PROP_precursor_true_units,
@@ -495,9 +567,9 @@ public class FraggerMigPanel extends JPanel {
             "<html>Assume range of potential precursor charge states.<br>\n" +
                 "Only relevant when override_charge is set to 1.<br>\n" +
                 "Specified as space separated range of integers.<br>";
-        FormEntry fePrecursorChargeLo = new FormEntry(PROP_precursor_charge_lo, "with precursor charge",
+        FormEntry fePrecursorChargeLo = new FormEntry(PROP_misc_precursor_charge_lo, "with precursor charge",
             new UiSpinnerInt(1, 0, 30, 1, 2), tooltipPrecursorCHarge);
-        FormEntry fePrecursorChargeHi = new FormEntry(PROP_precursor_charge_hi, "not-shown",
+        FormEntry fePrecursorChargeHi = new FormEntry(PROP_misc_precursor_charge_hi, "not-shown",
             new UiSpinnerInt(4, 0, 30, 1, 2), tooltipPrecursorCHarge);
         FormEntry feOverrideCharge = new FormEntry(MsfraggerParams.PROP_override_charge,
             "not-shown", new UiCheck("Override charge", null),
@@ -589,5 +661,53 @@ public class FraggerMigPanel extends JPanel {
 
       table.setRowHeight(row, rowHeight);
     }
+  }
+
+  private void enablePanels(boolean enabled) {
+    SwingUtilities.invokeLater(() -> {
+      for (Container c : Arrays.asList(pContent)) {
+        SwingUtils.enableComponents(c, enabled);
+      }
+    });
+  }
+
+  private void formFill(Map<String, String> map) {
+    SwingUtilities.invokeLater(() -> SwingUtils.valuesFromMap(pContent, map));
+  }
+
+  private Map<String, String> formCollect() {
+    Map<String, String> map = SwingUtils.valuesToMap(pContent);
+    return map;
+  }
+
+  private MsfraggerParams mapToParams(Map<String, String> map) {
+    MsfraggerParams p = new MsfraggerParams();
+    for (Entry<String, String> e : map.entrySet()) {
+      final String k = e.getKey();
+      final String v = e.getValue();
+      if (MsfraggerParams.PROP_NAMES_SET.contains(k)) {
+        p.getProps().setProp(k, v);
+      } else {
+        // unknown prop, it better should be from the "misc" category we added in this panel
+        if (PROPS_MISC_NAMES.contains(k) || k.startsWith("misc.")) {
+          log.debug("Found misc option: {}={}", k, v);
+        } else {
+          // we don't know what this option is, someone probably forgot to add it to the list of
+          // known ones
+          log.debug("Unknown prop name in fragger panel: [{}] with value [{}]", k, v);
+        }
+      }
+    }
+    return p;
+  }
+
+  private Map<String, String> paramsToMap(MsfraggerParams params) {
+    HashMap<String, String> map = new HashMap<>();
+    for (Entry<String, Prop> e : params.getProps().getMap().entrySet()) {
+      if (e.getValue().isEnabled) {
+        map.put(e.getKey(), e.getValue().value);
+      }
+    }
+    return map;
   }
 }

@@ -48,7 +48,11 @@ public class Props {
     public Props(Map<String, String> comments) {
         this.comments.putAll(comments);
     }
-    
+
+    public Map<String, Prop> getMap() {
+        return map;
+    }
+
     /**
      * Same as {@link #readProps(java.io.InputStream) }.
      * @param is
@@ -151,7 +155,6 @@ public class Props {
      * Loads properties from a stream. Typically a FileInputStream or an input 
      * stream that you get via Class.getResourceAsStream() method.
      * @param is  Stream is closed after reading.
-     * @param properties  
      * @throws IOException 
      */
     private void readProps(InputStream is) throws IOException {
@@ -202,8 +205,6 @@ public class Props {
     /**
      * Writes to the stream (buffers it), includes comments after each parameter.
      * @param os  The stream is closed after writing.
-     * @param properties
-     * @param comments
      * @throws IOException 
      */
     private void writeProps(OutputStream os) throws IOException {

@@ -291,13 +291,13 @@ public class SwingUtils {
 
   /**
    * Drills down a {@link Container}, mapping all components that 1) have their name set, 2) are
-   * {@link StringRepresentable} and returns the mapping as a {@link Properties} object.<br/>
+   * {@link StringRepresentable} and returns the mapping.<br/>
    * Useful for persisting values from Swing windows.
    */
-  public static Properties toProperties(Container origin) {
-    Map<String, Component> map = SwingUtils.mapComponentsByName(origin, true);
-    Properties properties = new Properties();
-    for (Entry<String, Component> e : map.entrySet()) {
+  public static Map<String, String> valuesToMap(Container origin) {
+    Map<String, Component> comps = SwingUtils.mapComponentsByName(origin, true);
+    Map<String, String> map = new HashMap<>(comps.size());
+    for (Entry<String, Component> e : comps.entrySet()) {
       final String name = e.getKey();
       if (name == null || name.isEmpty()) {
         continue;
@@ -305,36 +305,37 @@ public class SwingUtils {
       final Component comp = e.getValue();
       if (!(comp instanceof StringRepresentable)) {
         log.debug(String
-            .format("SwingUtils.toProperties() found component of type [%s] by name [%s] which "
+            .format("SwingUtils.valuesToMap() found component of type [%s] by name [%s] which "
                     + "does not implement [%s]",
                 comp.getClass().getSimpleName(), comp.getName(),
                 StringRepresentable.class.getSimpleName()));
         continue;
       }
-      properties.setProperty(name, ((StringRepresentable) comp).asString());
+      map.put(name, ((StringRepresentable) comp).asString());
     }
-    return properties;
+    return map;
   }
 
   /**
    * Sets values for components in a {@link Container}. Components must 1) have their name set,
    * 2) be {@link StringRepresentable}.
    */
-  public static void fromProperties(Container origin, Properties properties) {
-    Map<String, Component> map = SwingUtils.mapComponentsByName(origin, true);
-    for (String name : properties.stringPropertyNames()) {
-      Component component = map.get(name);
+  public static void valuesFromMap(Container origin, Map<String, String> map) {
+    Map<String, Component> comps = SwingUtils.mapComponentsByName(origin, true);
+    for (Entry<String, String> entry : map.entrySet()) {
+      final String key = entry.getKey();
+      Component component = comps.get(key);
       if (component != null) {
-        String val = properties.getProperty(name);
         if (!(component instanceof StringRepresentable)) {
           log.trace(String
-              .format("fromProps() Found component of type [%s] by name [%s] which does not implement [%s]",
-                  component.getClass().getSimpleName(), name,
+              .format("SwingUtils.valuesFromMap() Found component of type [%s] by name [%s] which does not implement [%s]",
+                  component.getClass().getSimpleName(), key,
                   StringRepresentable.class.getSimpleName()));
           continue;
         }
-        ((StringRepresentable) component).fromString(val);
+        ((StringRepresentable) component).fromString(entry.getValue());
       }
+
     }
   }
 

@@ -118,6 +118,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
 import umich.msfragger.cmd.CmdCrystalc;
 import umich.msfragger.cmd.CmdIprophet;
@@ -182,6 +183,8 @@ import umich.swing.console.TextConsole;
  * @author dattam
  */
 public class MsfraggerGuiFrame extends javax.swing.JFrame {
+
+  private static final org.slf4j.Logger log = LoggerFactory.getLogger(MsfraggerGuiFrame.class);
 
   protected FraggerPanel fraggerPanel;
   protected TextConsole console;
@@ -3158,18 +3161,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     fc.setApproveButtonText("Select");
     fc.setDialogTitle("Select Philosopher binary");
     fc.setMultiSelectionEnabled(false);
-    if (OsUtils.isWindows()) {
-      FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Executables",
-          "exe");
-      fc.setFileFilter(fileNameExtensionFilter);
-    }
+//    if (OsUtils.isWindows()) {
+//      FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Executables",
+//          "exe");
+//      fc.setFileFilter(fileNameExtensionFilter);
+//    }
 
     fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
+    log.debug("Start searching for philosopher bin");
     List<String> props = Arrays
         .asList(ThisAppProps.PROP_BIN_PATH_PHILOSOPHER, ThisAppProps.PROP_BINARIES_IN);
     String fcPath = ThisAppProps.tryFindPath(props, true);
+    log.debug("Done searching for philosopher bin");
     SwingUtils.setFileChooserPath(fc, fcPath);
+    log.debug("Done setting philosopher bin path in fc");
 
     if (JFileChooser.APPROVE_OPTION == fc
         .showOpenDialog(SwingUtils.findParentFrameForDialog(this))) {

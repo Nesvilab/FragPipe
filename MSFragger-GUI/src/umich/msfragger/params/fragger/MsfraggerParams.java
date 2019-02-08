@@ -21,10 +21,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import umich.msfragger.params.AbstractParams;
@@ -105,7 +109,62 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_add = "add";
     public static final String PROP_add_enabled = "add_enabled";
     //public static final String PROP_ = "";
-    
+
+    public static final String[] PROP_NAMES = {PROP_database_name,
+        PROP_fragpipe_ram,
+        PROP_num_threads,
+        PROP_precursor_mass_lower,
+        PROP_precursor_mass_upper,
+        PROP_precursor_mass_units,
+        PROP_precursor_true_tolerance,
+        PROP_precursor_true_units,
+        PROP_fragment_mass_tolerance,
+        PROP_fragment_mass_units,
+        PROP_isotope_error,
+        PROP_mass_offsets,
+        PROP_precursor_mass_mode,
+        PROP_search_enzyme_name,
+        PROP_search_enzyme_cutafter,
+        PROP_search_enzyme_butnotafter,
+        PROP_num_enzyme_termini,
+        PROP_allowed_missed_cleavage,
+        PROP_clip_nTerm_M,
+        PROP_variable_mod,
+        PROP_allow_multiple_variable_mods_on_residue,
+        PROP_max_variable_mods_per_mod,
+        PROP_max_variable_mods_combinations,
+        PROP_output_file_extension,
+        PROP_output_format,
+        PROP_output_report_topN,
+        PROP_output_max_expect,
+        PROP_precursor_charge,
+        PROP_override_charge,
+        PROP_ms_level,
+        PROP_digest_min_length,
+        PROP_digest_max_length,
+        PROP_digest_mass_range,
+        PROP_max_fragment_charge,
+        PROP_track_zero_topN,
+        PROP_zero_bin_accept_expect,
+        PROP_zero_bin_mult_expect,
+        PROP_add_topN_complementary,
+        PROP_shifted_ions,
+        PROP_shifted_ions_exclude_ranges,
+        PROP_minimum_peaks,
+        PROP_use_topN_peaks,
+        PROP_min_fragments_modelling,
+        PROP_min_matched_fragments,
+        PROP_minimum_ratio,
+        PROP_clear_mz_range,
+        PROP_add,
+        PROP_add_enabled,
+    };
+
+    public static final Set<String> PROP_NAMES_SET;
+    static {
+        PROP_NAMES_SET = new HashSet<>(Arrays.asList(PROP_NAMES));
+    }
+
     public static final String[] ADDON_NAMES = {"Cterm_peptide", "Nterm_peptide", "Cterm_protein", "Nterm_protein",
         "G_glycine", "A_alanine", "S_serine", "P_proline", "V_valine", "T_threonine", "C_cysteine", "L_leucine", 
         "I_isoleucine", "N_asparagine", "D_aspartic_acid", "Q_glutamine", "K_lysine", "E_glutamic_acid", "M_methionine", 
