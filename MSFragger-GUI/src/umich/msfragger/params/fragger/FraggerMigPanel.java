@@ -187,7 +187,7 @@ public class FraggerMigPanel extends JPanel {
           if (Files.exists(path)) {
             try {
               Map<String, String> collect = formToMap();
-              MsfraggerParams params = mapToParams(collect);
+              MsfraggerParams params = paramsFromMap(collect);
               params.load(new FileInputStream(selectedFile), true);
               Map<String, String> paramsAsMap = paramsToMap(params);
               formFromMap(paramsAsMap);
@@ -278,8 +278,16 @@ public class FraggerMigPanel extends JPanel {
       FormEntry feIsotopeError = new FormEntry(MsfraggerParams.PROP_isotope_error, "Isotope error",
           uiTextIsoErr,
           "<html>String of the form -1/0/1/2 indicating which isotopic<br/>peak selection errors MSFragger will try to correct.");
+      FormEntry fePrecursorMassMode = new FormEntry(MsfraggerParams.PROP_precursor_mass_mode,
+          "Precursor mass mode",
+          UiUtils.createUiCombo(FraggerPrecursorMassMode.values()),
+          "<html>Determines which entry from mzML files will be<br/>"
+              + "used as the precursor's mass. 'Selected' or 'Isolated' ion.)");
+
       pPeakMatch.add(feIsotopeError.label(), new CC().alignX("right"));
-      pPeakMatch.add(feIsotopeError.comp, new CC().minWidth("45px").span(2).growX().wrap());
+      pPeakMatch.add(feIsotopeError.comp, new CC().span(2));
+      pPeakMatch.add(fePrecursorMassMode.label(), new CC().split(2).spanX());
+      pPeakMatch.add(fePrecursorMassMode.comp, new CC().wrap());
 
       FormEntry feShiftedIonsCheck = new FormEntry(MsfraggerParams.PROP_shifted_ions, "not-shown",
           new UiCheck("<html>Use shifted ion series", null),
@@ -572,11 +580,7 @@ public class FraggerMigPanel extends JPanel {
                 "Downstream tools only support PepXML format.<br><br>\n" +
                 "Only use TSV (tab delimited file) if you want to process <br>\n" +
                 "search resutls yourself for easier import into other software.<br>");
-        FormEntry fePrecursorMassMode = new FormEntry(MsfraggerParams.PROP_precursor_mass_mode,
-            "Precursor mass mode",
-            UiUtils.createUiCombo(FraggerPrecursorMassMode.values()),
-            "<html>Determines which entry from mzML files will be<br/>"
-                + "used as the precursor's mass. 'Selected' or 'Isolated' ion.)");
+
         String tooltipPrecursorCHarge =
             "<html>Assume range of potential precursor charge states.<br>\n" +
                 "Only relevant when override_charge is set to 1.<br>\n" +
@@ -606,8 +610,8 @@ public class FraggerMigPanel extends JPanel {
         pPeakMatch.add(feReportTopN.comp);
         pPeakMatch.add(feOutputMaxExpect.label(), alignRight);
         pPeakMatch.add(feOutputMaxExpect.comp, wrap);
-        pPeakMatch.add(fePrecursorMassMode.label(), alignRight);
-        pPeakMatch.add(fePrecursorMassMode.comp);
+//        pPeakMatch.add(fePrecursorMassMode.label(), alignRight);
+//        pPeakMatch.add(fePrecursorMassMode.comp);
         pPeakMatch.add(feOutputType.label(), alignRight);
         pPeakMatch.add(feOutputType.comp, wrap);
 
@@ -717,7 +721,7 @@ public class FraggerMigPanel extends JPanel {
     return SwingUtils.valuesToMap(pContent);
   }
 
-  private MsfraggerParams mapToParams(Map<String, String> map) {
+  private MsfraggerParams paramsFromMap(Map<String, String> map) {
     MsfraggerParams p = new MsfraggerParams();
     for (Entry<String, String> e : map.entrySet()) {
       final String k = e.getKey();
