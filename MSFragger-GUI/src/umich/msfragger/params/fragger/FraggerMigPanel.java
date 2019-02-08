@@ -179,11 +179,11 @@ public class FraggerMigPanel extends JPanel {
 
           if (Files.exists(path)) {
             try {
-              Map<String, String> collect = formCollect();
+              Map<String, String> collect = formToMap();
               MsfraggerParams params = mapToParams(collect);
               params.load(new FileInputStream(selectedFile), true);
               Map<String, String> paramsAsMap = paramsToMap(params);
-              formFill(paramsAsMap);
+              formFromMap(paramsAsMap);
               params.save();
             } catch (Exception ex) {
               JOptionPane
@@ -516,8 +516,7 @@ public class FraggerMigPanel extends JPanel {
             new DecimalFormat("0.#"));
         uiSpinnerTrueTol.setColumns(4);
         FormEntry feTrueTol = new FormEntry(MsfraggerParams.PROP_precursor_true_tolerance,
-            "not-shown",
-            uiSpinnerTrueTol, "<html>True precursor mass tolerance <br>\n"
+            "not-shown", uiSpinnerTrueTol, "<html>True precursor mass tolerance <br>\n"
             + "should be set to your instrument's \n"
             + "precursor mass accuracy <br>\n"
             + "(window is +/- this value).  This value is used \n"
@@ -527,11 +526,11 @@ public class FraggerMigPanel extends JPanel {
         FormEntry feReportTopN = new FormEntry(MsfraggerParams.PROP_output_report_topN,
             "Report top N", new UiSpinnerInt(1, 1, 10000, 1, 4),
             "Report top N PSMs per input spectrum.");
-        UiSpinnerDouble spinnerOutputMaxExpect = new UiSpinnerDouble(50, 0, Double.MAX_VALUE, 1,
+        UiSpinnerDouble uiSpinnerOutputMaxExpect = new UiSpinnerDouble(50, 0, Double.MAX_VALUE, 1,
             new DecimalFormat("0.#"));
-        spinnerOutputMaxExpect.setColumns(4);
+        uiSpinnerOutputMaxExpect.setColumns(4);
         FormEntry feOutputMaxExpect = new FormEntry(MsfraggerParams.PROP_output_max_expect,
-            "Output max expect", spinnerOutputMaxExpect,
+            "Output max expect", uiSpinnerOutputMaxExpect,
             "<html>Suppresses reporting of PSM if top hit has<br> expectation greater "
                 + "than this threshold");
         String tooltipMassOffsets = "<html>Mass_offsets in MSFragger creates multiple precursor \n"
@@ -671,13 +670,12 @@ public class FraggerMigPanel extends JPanel {
     });
   }
 
-  private void formFill(Map<String, String> map) {
+  private void formFromMap(Map<String, String> map) {
     SwingUtilities.invokeLater(() -> SwingUtils.valuesFromMap(pContent, map));
   }
 
-  private Map<String, String> formCollect() {
-    Map<String, String> map = SwingUtils.valuesToMap(pContent);
-    return map;
+  private Map<String, String> formToMap() {
+    return SwingUtils.valuesToMap(pContent);
   }
 
   private MsfraggerParams mapToParams(Map<String, String> map) {
