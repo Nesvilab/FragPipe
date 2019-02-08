@@ -5284,7 +5284,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     try {
       Desktop.getDesktop()
-          .browse(URI.create("https://github.com/prvst/philosopher/releases/latest"));
+          .browse(URI.create("https://github.com/Nesvilab/philosopher/releases/latest"));
     } catch (IOException ex) {
       Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
@@ -5341,7 +5341,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     //sb.append("<body>");
 
     sb.append("<p style=\"margin-top: 0\">");
-    sb.append("<a href=\"https://prvst.github.io/philosopher\">Philosopher GitHub page</a>");
+    sb.append("<a href=\"https://nesvilab.github.io/philosopher/\">Philosopher GitHub page</a>");
     sb.append("<br/>");
     sb.append("</p>");
 
