@@ -25,6 +25,7 @@ import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Files;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -52,6 +54,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -64,6 +67,7 @@ import umich.msfragger.gui.ModificationsTableModel;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
 import umich.msfragger.messages.MessageFraggerValidity;
+import umich.msfragger.messages.MessagePrecursorSelectionMode;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.params.Props.Prop;
 import umich.msfragger.params.ThisAppProps;
@@ -82,7 +86,7 @@ public class FraggerMigPanel extends JPanel {
   private static final Logger log = LoggerFactory.getLogger(FraggerMigPanel.class);
   private static final String[] TABLE_VAR_MODS_COL_NAMES = {"Enabled", "Site (editable)",
       "Mass Delta (editable)"};
-  private static final String[] TABLE_ADD_MODS_COL_NAMES = {"Enabled", "Site",
+  private static final String[] TABLE_FIX_MODS_COL_NAMES = {"Enabled", "Site",
       "Mass Delta (editable)"};
   private static final String PROP_misc_adjust_precurosr_mass = "misc.adjust-precursor-mass";
   private static final String PROP_misc_slice_db = "misc.slice-db";
@@ -94,6 +98,8 @@ public class FraggerMigPanel extends JPanel {
   private static final String PROP_misc_fragger_precursor_charge_lo = "misc.fragger.precursor-charge-lo";
   private static final String PROP_misc_fragger_precursor_charge_hi = "misc.fragger.precursor-charge-hi";
   private static final Set<String> PROPS_MISC_NAMES;
+  private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
+  private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
   private static String[] PROPS_MISC = {
       PROP_misc_adjust_precurosr_mass,
       PROP_misc_slice_db,
@@ -108,6 +114,29 @@ public class FraggerMigPanel extends JPanel {
 
   static {
     PROPS_MISC_NAMES = new HashSet<>(Arrays.asList(PROPS_MISC));
+    CONVERT_TO_FILE = new HashMap<>();
+    CONVERT_TO_GUI = new HashMap<>();
+
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_mass_units, s -> Integer.toString(MassTolUnits.valueOf(s).valueInParamsFile()));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_mass_units, s -> Integer.toString(MassTolUnits.valueOf(s).valueInParamsFile()));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_true_units, s -> Integer.toString(MassTolUnits.valueOf(s).valueInParamsFile()));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_num_enzyme_termini, s -> Integer.toString(CleavageType.valueOf(s).valueInParamsFile()));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_shifted_ions, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_override_charge, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.valueOf(s).valueInParamsFile());
+
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_true_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_num_enzyme_termini, s -> CleavageType.fromValueInParamsFile(s).name());
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_shifted_ions, s -> Boolean.toString(Integer.parseInt(s) > 0));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Boolean.toString(Integer.parseInt(s) > 0));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> Boolean.toString(Integer.parseInt(s) > 0));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_override_charge, s -> Boolean.toString(Integer.parseInt(s) > 0));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.fromValueInParamsFile(s).name());
+
   }
 
   private ImageIcon icon;
@@ -121,6 +150,7 @@ public class FraggerMigPanel extends JPanel {
   private UiSpinnerInt uiSpinnerRam;
   private UiSpinnerInt uiSpinnerThreads;
   private UiCombo uiComboOutputType;
+  private UiCheck uiCheckAdjustPrecursorMass;
 
   public FraggerMigPanel() {
     initMore();
@@ -230,7 +260,7 @@ public class FraggerMigPanel extends JPanel {
 
     // Panel with all the basic options
     {
-      JPanel pBase = new JPanel(new MigLayout(new LC().fillX().debug()));
+      JPanel pBase = new JPanel(new MigLayout(new LC().fillX()));
       pBase.setBorder(
           new TitledBorder("Common Options (Advanced Options are at the end of the page)"));
 
@@ -250,8 +280,9 @@ public class FraggerMigPanel extends JPanel {
       uiSpinnerPrecTolHi.setColumns(4);
       FormEntry feSpinnerPrecTolHi = new FormEntry(MsfraggerParams.PROP_precursor_mass_upper,
           "not-shown", uiSpinnerPrecTolHi);
+      uiCheckAdjustPrecursorMass = new UiCheck("<html><i>Adjust precursor mass", null);
       FormEntry feAdjustPrecMass = new FormEntry(PROP_misc_adjust_precurosr_mass, "not-shown",
-          new UiCheck("<html><i>Adjust precursor mass", null),
+          uiCheckAdjustPrecursorMass,
           "<html>Correct monoisotopic mass determination erros.<br/>Requires MSFragger 20180924+.");
       pPeakMatch.add(fePrecTolUnits.label(), new CC().alignX("right"));
       pPeakMatch.add(fePrecTolUnits.comp, new CC());
@@ -278,9 +309,25 @@ public class FraggerMigPanel extends JPanel {
       FormEntry feIsotopeError = new FormEntry(MsfraggerParams.PROP_isotope_error, "Isotope error",
           uiTextIsoErr,
           "<html>String of the form -1/0/1/2 indicating which isotopic<br/>peak selection errors MSFragger will try to correct.");
+      UiCombo uiComboMassMode = UiUtils.createUiCombo(FraggerPrecursorMassMode.values());
+      uiComboMassMode.addItemListener(e -> {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+
+          final Object item = e.getItem();
+          if (!(item instanceof String)) {
+            return;
+          }
+          try {
+            FraggerPrecursorMassMode mode = FraggerPrecursorMassMode.valueOf((String) item);
+            EventBus.getDefault().post(new MessagePrecursorSelectionMode(mode));
+
+          } catch (IllegalArgumentException ex) {
+            log.debug("Value [{}] not in FraggerPrecursorMassMode enum", item);
+          }
+        }
+      });
       FormEntry fePrecursorMassMode = new FormEntry(MsfraggerParams.PROP_precursor_mass_mode,
-          "Precursor mass mode",
-          UiUtils.createUiCombo(FraggerPrecursorMassMode.values()),
+          "Precursor mass mode", uiComboMassMode,
           "<html>Determines which entry from mzML files will be<br/>"
               + "used as the precursor's mass. 'Selected' or 'Isolated' ion.)");
 
@@ -588,7 +635,8 @@ public class FraggerMigPanel extends JPanel {
         FormEntry fePrecursorChargeLo = new FormEntry(PROP_misc_fragger_precursor_charge_lo,
             "with precursor charge",
             new UiSpinnerInt(1, 0, 30, 1, 2), tooltipPrecursorCHarge);
-        FormEntry fePrecursorChargeHi = new FormEntry(PROP_misc_fragger_precursor_charge_hi, "not-shown",
+        FormEntry fePrecursorChargeHi = new FormEntry(PROP_misc_fragger_precursor_charge_hi,
+            "not-shown",
             new UiSpinnerInt(4, 0, 30, 1, 2), tooltipPrecursorCHarge);
         FormEntry feOverrideCharge = new FormEntry(MsfraggerParams.PROP_override_charge,
             "not-shown", new UiCheck("Override charge", null),
@@ -610,8 +658,6 @@ public class FraggerMigPanel extends JPanel {
         pPeakMatch.add(feReportTopN.comp);
         pPeakMatch.add(feOutputMaxExpect.label(), alignRight);
         pPeakMatch.add(feOutputMaxExpect.comp, wrap);
-//        pPeakMatch.add(fePrecursorMassMode.label(), alignRight);
-//        pPeakMatch.add(fePrecursorMassMode.comp);
         pPeakMatch.add(feOutputType.label(), alignRight);
         pPeakMatch.add(feOutputType.comp, wrap);
 
@@ -628,8 +674,7 @@ public class FraggerMigPanel extends JPanel {
     if (tableModelVarMods != null) {
       return tableModelVarMods;
     }
-    int cols = 3;
-    Object[][] data = new Object[MsfraggerParams.VAR_MOD_COUNT_MAX][cols];
+    Object[][] data = new Object[MsfraggerParams.VAR_MOD_COUNT_MAX][TABLE_VAR_MODS_COL_NAMES.length];
     for (int i = 0; i < data.length; i++) {
       data[i][0] = false;
       data[i][1] = null;
@@ -650,9 +695,7 @@ public class FraggerMigPanel extends JPanel {
     if (tableModelFixMods != null) {
       return tableModelFixMods;
     }
-
-    int cols = 3;
-    Object[][] data = new Object[MsfraggerParams.ADDONS_HUMAN_READABLE.length][cols];
+    Object[][] data = new Object[MsfraggerParams.ADDONS_HUMAN_READABLE.length][TABLE_FIX_MODS_COL_NAMES.length];
     for (int i = 0; i < data.length; i++) {
       data[i][0] = false;
       data[i][1] = MsfraggerParams.ADDONS_HUMAN_READABLE[i];
@@ -660,7 +703,7 @@ public class FraggerMigPanel extends JPanel {
     }
 
     tableModelFixMods = new ModificationsTableModel(
-        TABLE_ADD_MODS_COL_NAMES,
+        TABLE_FIX_MODS_COL_NAMES,
         new Class<?>[]{Boolean.class, String.class, Double.class},
         new boolean[]{true, false, true},
         new int[]{0, 1, 2},
@@ -674,22 +717,10 @@ public class FraggerMigPanel extends JPanel {
    * new properties. So old 'ghost' entries might be left at the end of the table in such a case.
    */
   private void clearFormTables() {
-    Object[][] varModsData = new Object[MsfraggerParams.VAR_MOD_COUNT_MAX][3];
-    // set defaults for all fields
-    for (int i = 0; i < MsfraggerParams.VAR_MOD_COUNT_MAX; i++) {
-      varModsData[i][0] = false;
-      varModsData[i][1] = null;
-      varModsData[i][2] = null;
-    }
-    tableModelVarMods.setDataVector(varModsData, TABLE_VAR_MODS_COL_NAMES);
-
-    Object[][] addModsData = new Object[MsfraggerParams.ADDON_NAMES.length][3];
-    for (int i = 0; i < MsfraggerParams.ADDON_NAMES.length; i++) {
-      addModsData[i][0] = false;
-      addModsData[i][1] = null;
-      addModsData[i][2] = null;
-    }
-    tableModelFixMods.setDataVector(addModsData, TABLE_ADD_MODS_COL_NAMES);
+    setTableData(tableModelVarMods, new Object[0][TABLE_VAR_MODS_COL_NAMES.length],
+        TABLE_VAR_MODS_COL_NAMES, MsfraggerParams.VAR_MOD_COUNT_MAX);
+    setTableData(tableModelFixMods, new Object[0][TABLE_FIX_MODS_COL_NAMES.length],
+        TABLE_FIX_MODS_COL_NAMES, MsfraggerParams.ADDON_NAMES.length);
   }
 
   private void updateRowHeights(JTable table) {
@@ -721,6 +752,9 @@ public class FraggerMigPanel extends JPanel {
     return SwingUtils.valuesToMap(pContent);
   }
 
+  /**
+   * Converts textual representations of all fields in the form to stadard {@link MsfraggerParams}.
+   */
   private MsfraggerParams paramsFromMap(Map<String, String> map) {
     MsfraggerParams p = new MsfraggerParams();
     final double[] clearMzRange = new double[2];
@@ -775,7 +809,18 @@ public class FraggerMigPanel extends JPanel {
     HashMap<String, String> map = new HashMap<>();
     for (Entry<String, Prop> e : params.getProps().getMap().entrySet()) {
       if (e.getValue().isEnabled) {
-        map.put(e.getKey(), e.getValue().value);
+//        final Function<String, String> converter = CONVERT_TO_GUI.getOrDefault(e.getKey(), s -> s);
+//        final String converted = converter.apply(e.getValue().value);
+        Function<String, String> converter = CONVERT_TO_GUI.get(e.getKey());
+        //final String converted = converter == null ? e.getValue().value : converter.apply(e.getValue().value) ;
+        String converted;
+        if (converter != null) {
+          converted = converter.apply(e.getValue().value);
+        } else {
+          converted = e.getValue().value;
+        }
+
+        map.put(e.getKey(), converted);
       }
     }
 
@@ -794,12 +839,44 @@ public class FraggerMigPanel extends JPanel {
     return map;
   }
 
+  private boolean modListContainsIllegalSites(List<Mod> mods) {
+    return mods.stream().anyMatch(m -> m.sites != null && m.sites.contains("[*"));
+  }
+
+  private Object[][] modListToTableData(List<Mod> mods) {
+    final Object[][] data = new Object[mods.size()][3];
+    for (int i = 0; i < mods.size(); i++) {
+      Mod m = mods.get(i);
+      data[i][0] = m.isEnabled;
+      data[i][1] = m.sites;
+      data[i][2] = m.massDelta;
+    }
+    return data;
+  }
+
+  private void setTableData(DefaultTableModel model, Object[][] data, String[] colNames,
+      int maxRows) {
+    model.setRowCount(0);
+    model.setRowCount(maxRows);
+    model.setDataVector(data, colNames);
+  }
+
   @Subscribe
   public void onFraggerValidity(MessageFraggerValidity msg) {
     if (msg.isValid == this.isEnabled()) {
       return;
     }
     SwingUtilities.invokeLater(() -> SwingUtils.enableComponents(this, msg.isValid));
+  }
+
+  @Subscribe
+  public void onPrecursorSelectionMode(MessagePrecursorSelectionMode m) {
+    if (FraggerPrecursorMassMode.recalculated.equals(m.mode)) {
+      uiCheckAdjustPrecursorMass.setSelected(true);
+    } else {
+      final boolean origState = uiCheckAdjustPrecursorMass.isSelected();
+      uiCheckAdjustPrecursorMass.setSelected(false);
+    }
   }
 
   public int getRamGb() {

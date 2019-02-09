@@ -16,6 +16,8 @@
  */
 package umich.msfragger.params.enums;
 
+import umich.msfragger.params.fragger.MsfraggerParams;
+
 /**
  *
  * @author Dmitry Avtonomov
@@ -40,5 +42,14 @@ public enum FraggerOutputType {
 
     public String getExtension() {
         return extension;
+    }
+
+    public static FraggerOutputType fromValueInParamsFile(String val) {
+        for (FraggerOutputType t : FraggerOutputType.values()) {
+            if (t.valueInParamsFile().equalsIgnoreCase(val))
+                return t;
+        }
+        throw new IllegalStateException("Unknown output format stored in properties (property '"
+            + MsfraggerParams.PROP_output_format + "')");
     }
 }

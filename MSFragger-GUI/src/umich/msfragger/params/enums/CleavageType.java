@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2018 Dmitry Avtonomov
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,21 +17,31 @@
 package umich.msfragger.params.enums;
 
 /**
- *
  * @author Dmitry Avtonomov
  */
 public enum CleavageType {
-    ENZYMATIC (2),
-    SEMI (1), 
-    NON_SPECIFIC (0);
-    
-    private final int numEnzymeTermini;
-    
-    CleavageType(int num_enzyme_termini) {
-        this.numEnzymeTermini = num_enzyme_termini;
+  ENZYMATIC(2),
+  SEMI(1),
+  NON_SPECIFIC(0);
+
+  private final int numEnzymeTermini;
+
+  CleavageType(int num_enzyme_termini) {
+    this.numEnzymeTermini = num_enzyme_termini;
+  }
+
+  public int valueInParamsFile() {
+    return numEnzymeTermini;
+  }
+
+  public static CleavageType fromValueInParamsFile(String paramsFileRepresentation) {
+    for (CleavageType ct : CleavageType.values()) {
+      if (Integer.toString(ct.valueInParamsFile()).equals(paramsFileRepresentation)) {
+        return ct;
+      }
     }
-    
-    public int valueInParamsFile() {
-        return numEnzymeTermini;
-    }
+    throw new IllegalArgumentException(
+        "Enum CleavageType does not contain a mapping for params file value of '"
+            + paramsFileRepresentation + "'");
+  }
 }

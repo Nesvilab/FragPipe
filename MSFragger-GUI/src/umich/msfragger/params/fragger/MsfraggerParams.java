@@ -22,7 +22,6 @@ import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -298,14 +297,7 @@ public class MsfraggerParams extends AbstractParams {
     
     // =======================================================================
     public MassTolUnits getPrecursorMassUnits() {
-        int v = Integer.parseInt(props.getProp(PROP_precursor_mass_units, "1").value);
-        for (int i = 0; i < MassTolUnits.values().length; i++) {
-            MassTolUnits u = MassTolUnits.values()[i];
-            if (u.valueInParamsFile() == v)
-                return u;
-        }
-        throw new IllegalStateException("Value for MassTolUnits stored in params file for property " + PROP_precursor_mass_units + 
-                " does not correspond to enum values of MassTolUnits.");
+        return MassTolUnits.fromParamsFileRepresentation(props.getProp(PROP_precursor_mass_units, "1").value);
     }
     
     public void setPrecursorMassUnits(MassTolUnits u) {
