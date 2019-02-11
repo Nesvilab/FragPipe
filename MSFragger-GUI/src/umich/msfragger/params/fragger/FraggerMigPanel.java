@@ -69,6 +69,7 @@ import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
 import umich.msfragger.messages.MessageFraggerValidity;
 import umich.msfragger.messages.MessagePrecursorSelectionMode;
 import umich.msfragger.messages.MessageSearchType;
+import umich.msfragger.messages.MsfraggerParamsUpdate;
 import umich.msfragger.params.Props.Prop;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.enums.CleavageType;
@@ -216,12 +217,11 @@ public class FraggerMigPanel extends JPanel {
 
           if (Files.exists(path)) {
             try {
-              Map<String, String> collect = formToMap();
-              MsfraggerParams params = paramsFromMap(collect);
-              params.load(new FileInputStream(selectedFile), true);
-              Map<String, String> paramsAsMap = paramsToMap(params);
-              formFromMap(paramsAsMap);
-              params.save();
+              MsfraggerParams p = formCollect();
+              p.load(new FileInputStream(selectedFile), true);
+              EventBus.getDefault().post(new MsfraggerParamsUpdate(p));
+              p.save();
+
             } catch (Exception ex) {
               JOptionPane
                   .showMessageDialog(parent,
@@ -744,18 +744,46 @@ public class FraggerMigPanel extends JPanel {
     });
   }
 
-  private void formFromMap(Map<String, String> map) {
+  private void formFill(MsfraggerParams params) {
+    Map<String, String> map = paramsTo(params);
+    formFrom(map);
+    formFromMods(tableModelVarMods, TABLE_VAR_MODS_COL_NAMES, params.getVariableMods());
+    formFromMods(tableModelFixMods, TABLE_FIX_MODS_COL_NAMES, params.getAdditionalMods());
+    updateRowHeights(tableVarMods);
+    updateRowHeights(tableFixMods);
+  }
+
+  private MsfraggerParams formCollect() {
+    Map<String, String> map = formTo();
+    MsfraggerParams params = paramsFrom(map);
+    List<Mod> modsVar = formTo(tableModelVarMods);
+    List<Mod> modsFix = formTo(tableModelFixMods);
+    params.setVariableMods(modsVar);
+    params.setAdditionalMods(modsFix);
+    return params;
+  }
+
+  private void formFromMods(ModificationsTableModel model, Object[] colNames, List<Mod> mods) {
+    Object[][] data = modListToTableData(mods);
+    model.setDataVector(data, colNames);
+  }
+
+  private List<Mod> formTo(ModificationsTableModel model) {
+    return model.getModifications();
+  }
+
+  private void formFrom(Map<String, String> map) {
     SwingUtilities.invokeLater(() -> SwingUtils.valuesFromMap(pContent, map));
   }
 
-  private Map<String, String> formToMap() {
+  private Map<String, String> formTo() {
     return SwingUtils.valuesToMap(pContent);
   }
 
   /**
    * Converts textual representations of all fields in the form to stadard {@link MsfraggerParams}.
    */
-  private MsfraggerParams paramsFromMap(Map<String, String> map) {
+  private MsfraggerParams paramsFrom(Map<String, String> map) {
     MsfraggerParams p = new MsfraggerParams();
     final double[] clearMzRange = new double[2];
     final double[] digestMassRange = new double[2];
@@ -805,7 +833,7 @@ public class FraggerMigPanel extends JPanel {
     return p;
   }
 
-  private Map<String, String> paramsToMap(MsfraggerParams params) {
+  private Map<String, String> paramsTo(MsfraggerParams params) {
     HashMap<String, String> map = new HashMap<>();
     for (Entry<String, Prop> e : params.getProps().getMap().entrySet()) {
       if (e.getValue().isEnabled) {
@@ -877,6 +905,11 @@ public class FraggerMigPanel extends JPanel {
       final boolean origState = uiCheckAdjustPrecursorMass.isSelected();
       uiCheckAdjustPrecursorMass.setSelected(false);
     }
+  }
+
+  @Subscribe
+  public void onMsfraggerParamsUpdated(MsfraggerParamsUpdate m) {
+    formFill(m.params);
   }
 
   public int getRamGb() {
