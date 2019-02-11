@@ -1606,7 +1606,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         final String propName = ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN;
         ThisAppProps.load(propName, fc);
         
-        fc.setSelectedFile(new File(MsfraggerParams.DEFAULT_FILE));
+        fc.setSelectedFile(new File(MsfraggerParams.CACHE_FILE));
         Component parent = SwingUtils.findParentFrameForDialog(this);
         int saveResult = fc.showSaveDialog(parent);
         if (JFileChooser.APPROVE_OPTION == saveResult) {

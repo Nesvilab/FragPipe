@@ -16,21 +16,30 @@
  */
 package umich.msfragger.util;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
-import umich.msfragger.exceptions.FileWritingException;
-import umich.msfragger.params.PropLine;
-import umich.msfragger.params.PropertyFileContent;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import umich.msfragger.exceptions.FileWritingException;
+import umich.msfragger.params.PropLine;
+import umich.msfragger.params.PropertyFileContent;
 import umich.msfragger.params.Props.Prop;
 
 /**
@@ -144,6 +153,12 @@ public class PropertiesUtils {
             }
         }
 
+    }
+
+    public static Properties from(Path file) throws IOException {
+        Properties p = new Properties();
+        p.load(Files.newBufferedReader(file));
+        return p;
     }
 
     public static Properties from(Map<String, String> map) {

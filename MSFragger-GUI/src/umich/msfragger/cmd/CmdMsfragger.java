@@ -95,7 +95,7 @@ public class CmdMsfragger extends CmdBase {
           "Error", JOptionPane.ERROR_MESSAGE);
       return false;
     }
-    Path savedParamsPath = wd.resolve(MsfraggerParams.DEFAULT_FILE);
+    Path savedParamsPath = wd.resolve(MsfraggerParams.CACHE_FILE);
     if (!isDryRun) {
       try {
         params.save(new FileOutputStream(savedParamsPath.toFile()));

@@ -29,11 +29,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.swing.ImageIcon;
@@ -198,7 +199,7 @@ public class FraggerMigPanel extends JPanel {
   }
 
   private void initPostCreation() {
-
+    ForkJoinPool.commonPool().execute(this::cacheLoad);
   }
 
   private void initMore() {
@@ -648,7 +649,7 @@ public class FraggerMigPanel extends JPanel {
   }
 
   private void onClickSave(ActionEvent e) {
-
+    cacheSave();
   }
 
   private void cacheSave() {
@@ -677,7 +678,34 @@ public class FraggerMigPanel extends JPanel {
   }
 
   private void cacheLoad() {
+    // load form as map first
+    {
+      try {
+        Path path = CacheUtils.locateTempFile(CACHE_FORM);
+        Properties propsFromFile = PropertiesUtils.from(path);
+        Map<String, String> map = PropertiesUtils.to(propsFromFile);
+        formFrom(map);
+      } catch (FileNotFoundException ignored) {
+        // no form cache yet
+      } catch (IOException e) {
+        log.warn("Could not load properties as map from cache file: {}", e.getMessage());
+      }
+    }
 
+    // then load specific msfragger non-properties-representable params
+    {
+      try {
+        Path path = CacheUtils.locateTempFile(CACHE_PROPS);
+        MsfraggerParams params = new MsfraggerParams();
+        params.load();
+        formFrom(params);
+      } catch (FileNotFoundException ignored) {
+        // no form cache yet
+      } catch (IOException e) {
+        log.warn("Could not load properties as map from cache file: {}", e.getMessage());
+      }
+
+    }
   }
 
   private void setJTableColSize(JTable table, int colIndex, int minW, int maxW, int prefW) {
@@ -760,7 +788,7 @@ public class FraggerMigPanel extends JPanel {
     });
   }
 
-  private void formFill(MsfraggerParams params) {
+  private void formFrom(MsfraggerParams params) {
     Map<String, String> map = paramsTo(params);
     formFrom(map);
     formFromMods(tableModelVarMods, TABLE_VAR_MODS_COL_NAMES, params.getVariableMods());
@@ -931,7 +959,8 @@ public class FraggerMigPanel extends JPanel {
 
   @Subscribe
   public void onMsfraggerParamsUpdated(MsfraggerParamsUpdate m) {
-    formFill(m.params);
+    formFrom(m.params);
+    cacheSave();
   }
 
   public int getRamGb() {

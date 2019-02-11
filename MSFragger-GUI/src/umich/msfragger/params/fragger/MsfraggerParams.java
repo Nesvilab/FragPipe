@@ -194,7 +194,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String FILE_BASE_NAME = "fragger";
     public static final String FILE_BASE_EXT = "params";
     /** This file is in the jar, use getResourceAsStream() to get it.  */
-    public static final String DEFAULT_FILE = "fragger.params";
+    public static final String CACHE_FILE = "fragger.params";
     public static final String DEFAULT_FILE_OPENSEARCH = "fragger_open.params";
     public static final String DEFAULT_FILE_CLOSEDSEARCH = "fragger_closed.params";
     public static final String DEFAULT_FILE_NONSPECIFICSEARCH = "fragger_nonspecific.params";
@@ -238,8 +238,8 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     @Override
-    public Path tempFilePath() {
-        return Paths.get(PathUtils.getTempDir().toString(), DEFAULT_FILE);
+    public Path tempFileName() {
+        return Paths.get(CACHE_FILE);
     }
     
     

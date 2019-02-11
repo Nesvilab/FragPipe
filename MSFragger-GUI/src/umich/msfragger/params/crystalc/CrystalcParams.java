@@ -42,10 +42,10 @@ public class CrystalcParams extends AbstractParams {
     public static final String PROP_PrecursorIsolationWindow = "PrecursorIsolationWindow";
     public static final String PROP_UseAdjustedPrecursors = "UseAdjustedPrecursors";
     
-    public static final String DEFAULT_FILE = "crystalc.params";
+    public static final String CACHE_FILE = "crystalc.params";
     
     public static Properties loadProperties() {
-        return PropertiesUtils.loadPropertiesLocal(CrystalcParams.class, DEFAULT_FILE);
+        return PropertiesUtils.loadPropertiesLocal(CrystalcParams.class, CACHE_FILE);
     }
 
     public CrystalcParams() {
@@ -53,14 +53,14 @@ public class CrystalcParams extends AbstractParams {
     }
 
     @Override
-    public Path tempFilePath() {
-        return Paths.get(PathUtils.getTempDir().toString(), DEFAULT_FILE);
+    public Path tempFileName() {
+        return Paths.get(CACHE_FILE);
     }
 
     @Override
     public void loadDefault() {
         try {
-            InputStream is = CrystalcParams.class.getResourceAsStream(DEFAULT_FILE);
+            InputStream is = CrystalcParams.class.getResourceAsStream(CACHE_FILE);
             props.load(is);
         } catch (IOException ex) {
             throw new IllegalStateException("Could not load CrystalC deafult properties from jar");

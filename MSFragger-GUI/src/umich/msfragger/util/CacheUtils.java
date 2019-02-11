@@ -4,6 +4,9 @@ import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import umich.msfragger.params.ThisAppProps;
 
 public class CacheUtils {
@@ -35,6 +38,23 @@ public class CacheUtils {
     } catch (FileNotFoundException ex) {
       return locateTempFile(getTempDirOld(), fn);
     }
+  }
+
+  /**
+   * Search for all existing files in known (new and old) locations.
+   */
+  public static List<Path> locateTempFiles(String fn) {
+    final List<Path> paths = new ArrayList<>();
+    final List<Path> dirs = Arrays.asList(getTempDir(), getTempDirOld());
+    for (Path dir : dirs) {
+      try {
+        Path path = locateTempFile(fn);
+        if (path != null) {
+          paths.add(path);
+        }
+      } catch (Exception ignored) {}
+    }
+    return paths;
   }
 
   /**
