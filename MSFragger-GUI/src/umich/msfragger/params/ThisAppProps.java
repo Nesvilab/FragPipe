@@ -45,7 +45,7 @@ public class ThisAppProps extends Properties {
     public static final String PROP_BINARIES_IN = "path.params.bins.in";
     public static final String PROP_LCMS_FILES_IN = "path.lcms.files.in";
     public static final String PROP_FILE_OUT = "path.file.out";
-    
+
     public static final String SYS_TEMP_DIR = System.getProperty("java.io.tmpdir");
     public static final String APP_TEMP_DIR = "fragpipe";
     public static final String TEMP_FILE_EXT = ".cache";

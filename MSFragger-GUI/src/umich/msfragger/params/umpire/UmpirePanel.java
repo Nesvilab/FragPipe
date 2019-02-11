@@ -229,7 +229,7 @@ public class UmpirePanel extends JPanel {
     pOther.add(panelSpinners, "span");
 
     // default config file
-    String pathConfigFile = ThisAppProps.load(UmpireParams.DEFAULT_FILE);
+    String pathConfigFile = ThisAppProps.load(UmpireParams.CACHE_FILE);
     textConfigFile = new JTextField(pathConfigFile);
     DocumentEventSource.fromDocumentEventsOf(textConfigFile.getDocument())
         .debounce(3, TimeUnit.SECONDS)
@@ -237,7 +237,7 @@ public class UmpirePanel extends JPanel {
           try {
             final String val = textConfigFile.getText();
             final String toSave = ghostTextConfigFile.equals(val) ? null : val;
-            ThisAppProps.save(UmpireParams.DEFAULT_FILE, toSave);
+            ThisAppProps.save(UmpireParams.CACHE_FILE, toSave);
 
             if (!StringUtils.isNullOrWhitespace(toSave)) {
               Path path = Paths.get(toSave);
@@ -253,7 +253,7 @@ public class UmpirePanel extends JPanel {
           } catch (Exception ignore) {}
         });
     {
-      FormEntry feConfigFile = new FormEntry(UmpireParams.DEFAULT_FILE, "Default config file",
+      FormEntry feConfigFile = new FormEntry(UmpireParams.CACHE_FILE, "Default config file",
           textConfigFile);
       pOther.add(feConfigFile.label(), ccLbl);
       pOther.add(feConfigFile.comp, new CC().growX().pushX());

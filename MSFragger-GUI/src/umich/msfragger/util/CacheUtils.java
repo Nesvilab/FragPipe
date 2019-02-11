@@ -10,14 +10,16 @@ import java.util.List;
 import umich.msfragger.params.ThisAppProps;
 
 public class CacheUtils {
+  public static final String SYS_TEMP_DIR = System.getProperty("java.io.tmpdir");
+
   private CacheUtils() {}
 
   public static Path getTempDir() {
-    return Paths.get(ThisAppProps.SYS_TEMP_DIR).resolve(ThisAppProps.APP_TEMP_DIR);
+    return getSystemTempDir().resolve(ThisAppProps.APP_TEMP_DIR);
   }
 
   public static Path getTempDirOld() {
-    return Paths.get(ThisAppProps.SYS_TEMP_DIR);
+    return Paths.get(SYS_TEMP_DIR);
   }
 
   private static Path locateTempFile(Path tempDir, String fn) throws FileNotFoundException {
@@ -63,4 +65,15 @@ public class CacheUtils {
   public static Path getTempFile(String fn) {
     return getTempDir().resolve(fn);
   }
+
+  /**
+   * System-wide temporary directory.
+   * @return
+   */
+  public static Path getSystemTempDir() {
+    if (SYS_TEMP_DIR == null || SYS_TEMP_DIR.isEmpty())
+      throw new IllegalStateException("Could not locate system-wide temporary directory");
+    return Paths.get(SYS_TEMP_DIR);
+  }
+
 }

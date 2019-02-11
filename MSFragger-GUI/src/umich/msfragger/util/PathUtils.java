@@ -41,7 +41,6 @@ import umich.msfragger.gui.MsfraggerGuiFrame;
  * @author Dmitry Avtonomov
  */
 public class PathUtils {
-    public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
 
     public static String testFilePath(String fileName, String dir) {
         try {
@@ -276,14 +275,4 @@ public class PathUtils {
     }
     
     private PathUtils() {}
-    
-    /**
-     * System-wide temporary directory.
-     * @return 
-     */
-    public static Path getTempDir() {
-        if (TEMP_DIR == null || TEMP_DIR.isEmpty())
-            throw new IllegalStateException("Could not locate system-wide temporary directory");
-        return Paths.get(TEMP_DIR);
-    }
 }
