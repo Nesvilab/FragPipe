@@ -25,6 +25,7 @@ import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.FileInputStream;
@@ -155,8 +156,42 @@ public class FraggerMigPanel extends JPanel {
 
   public FraggerMigPanel() {
     initMore();
+    initPostCreation();
     // register on the bus only after all the components have been created to avoid NPEs
     EventBus.getDefault().register(this);
+  }
+
+  private static void onClickDefautlsNonspecific(ActionEvent e) {
+    EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.nonspecific));
+  }
+
+  private static void onClickDefaultsOpen(ActionEvent e) {
+    EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.open));
+  }
+
+  private static void onClickDefaultsClosed(ActionEvent e) {
+    EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.closed));
+  }
+
+  private static void onChangeMassMode(ItemEvent e) {
+    if (e.getStateChange() == ItemEvent.SELECTED) {
+
+      final Object item = e.getItem();
+      if (!(item instanceof String)) {
+        return;
+      }
+      try {
+        FraggerPrecursorMassMode mode = FraggerPrecursorMassMode.valueOf((String) item);
+        EventBus.getDefault().post(new MessagePrecursorSelectionMode(mode));
+
+      } catch (IllegalArgumentException ex) {
+        log.debug("Value [{}] not in FraggerPrecursorMassMode enum", item);
+      }
+    }
+  }
+
+  private void initPostCreation() {
+
   }
 
   private void initMore() {
@@ -173,17 +208,11 @@ public class FraggerMigPanel extends JPanel {
         SwingUtils.enableComponents(pContent, checkRun.isSelected(), true);
       });
       JButton closed = new JButton("Closed Search");
-      closed.addActionListener(e -> {
-        EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.closed));
-      });
+      closed.addActionListener(FraggerMigPanel::onClickDefaultsClosed);
       JButton open = new JButton("Open Search");
-      open.addActionListener(e -> {
-        EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.open));
-      });
+      open.addActionListener(FraggerMigPanel::onClickDefaultsOpen);
       JButton nonspecific = new JButton("Non-specific Search");
-      open.addActionListener(e -> {
-        EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.nonspecific));
-      });
+      open.addActionListener(FraggerMigPanel::onClickDefautlsNonspecific);
 
       pTop.add(checkRun);
       pTop.add(new JLabel("Load defaults:"), new CC().gapLeft("15px"));
@@ -193,48 +222,7 @@ public class FraggerMigPanel extends JPanel {
 
       JButton save = new JButton("Save Options");
       JButton load = new JButton("Load Options");
-      load.addActionListener(e -> {
-        JFileChooser fc = new JFileChooser();
-        fc.setApproveButtonText("Load");
-        fc.setApproveButtonToolTipText("Load into the form");
-        fc.setDialogTitle("Select saved file");
-        fc.setMultiSelectionEnabled(false);
-
-        fc.setAcceptAllFileFilterUsed(true);
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Properties/Params",
-            "properties", "params", "para", "conf", "txt");
-        fc.setFileFilter(filter);
-
-        final String propName = ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN;
-        ThisAppProps.load(propName, fc);
-
-        Component parent = SwingUtils.findParentFrameForDialog(this);
-        int saveResult = fc.showOpenDialog(parent);
-        if (JFileChooser.APPROVE_OPTION == saveResult) {
-          File selectedFile = fc.getSelectedFile();
-          Path path = Paths.get(selectedFile.getAbsolutePath());
-          ThisAppProps.save(propName, path.toString());
-
-          if (Files.exists(path)) {
-            try {
-              MsfraggerParams p = formCollect();
-              p.load(new FileInputStream(selectedFile), true);
-              EventBus.getDefault().post(new MsfraggerParamsUpdate(p));
-              p.save();
-
-            } catch (Exception ex) {
-              JOptionPane
-                  .showMessageDialog(parent,
-                      "<html>Could not load the saved file: <br/>" + ex.getMessage(), "Error",
-                      JOptionPane.ERROR_MESSAGE);
-            }
-          } else {
-            JOptionPane.showMessageDialog(parent, "<html>This is strange,<br/> "
-                    + "but the file you chose to load doesn't exist anymore.", "Strange",
-                JOptionPane.ERROR_MESSAGE);
-          }
-        }
-      });
+      load.addActionListener(this::onClickLoad);
 
       uiSpinnerRam = new UiSpinnerInt(0, 0, 1024, 1, 3);
       FormEntry feRam = new FormEntry(PROP_misc_ram, "RAM (GB)", uiSpinnerRam);
@@ -310,22 +298,7 @@ public class FraggerMigPanel extends JPanel {
           uiTextIsoErr,
           "<html>String of the form -1/0/1/2 indicating which isotopic<br/>peak selection errors MSFragger will try to correct.");
       UiCombo uiComboMassMode = UiUtils.createUiCombo(FraggerPrecursorMassMode.values());
-      uiComboMassMode.addItemListener(e -> {
-        if (e.getStateChange() == ItemEvent.SELECTED) {
-
-          final Object item = e.getItem();
-          if (!(item instanceof String)) {
-            return;
-          }
-          try {
-            FraggerPrecursorMassMode mode = FraggerPrecursorMassMode.valueOf((String) item);
-            EventBus.getDefault().post(new MessagePrecursorSelectionMode(mode));
-
-          } catch (IllegalArgumentException ex) {
-            log.debug("Value [{}] not in FraggerPrecursorMassMode enum", item);
-          }
-        }
-      });
+      uiComboMassMode.addItemListener(FraggerMigPanel::onChangeMassMode);
       FormEntry fePrecursorMassMode = new FormEntry(MsfraggerParams.PROP_precursor_mass_mode,
           "Precursor mass mode", uiComboMassMode,
           "<html>Determines which entry from mzML files will be<br/>"
@@ -451,9 +424,7 @@ public class FraggerMigPanel extends JPanel {
       tableVarMods.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
       tableVarMods.setFillsViewportHeight(true);
       SwingUtilities.invokeLater(() -> {
-        tableVarMods.getColumnModel().getColumn(0).setMaxWidth(150);
-        tableVarMods.getColumnModel().getColumn(0).setMinWidth(20);
-        tableVarMods.getColumnModel().getColumn(0).setPreferredWidth(50);
+        setJTableColSize(tableVarMods, 0, 20, 150, 50);
       });
       JScrollPane tableScrollVarMods = new JScrollPane(tableVarMods,
           JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -477,9 +448,7 @@ public class FraggerMigPanel extends JPanel {
       tableFixMods.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
       tableFixMods.setFillsViewportHeight(true);
       SwingUtilities.invokeLater(() -> {
-        tableFixMods.getColumnModel().getColumn(0).setMaxWidth(150);
-        tableFixMods.getColumnModel().getColumn(0).setMinWidth(20);
-        tableFixMods.getColumnModel().getColumn(0).setPreferredWidth(50);
+        setJTableColSize(tableFixMods, 0, 20, 150, 50);
       });
       JScrollPane tableScrollFixMods = new JScrollPane(tableFixMods,
           JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -670,6 +639,12 @@ public class FraggerMigPanel extends JPanel {
     this.add(scroll, BorderLayout.CENTER);
   }
 
+  private void setJTableColSize(JTable table, int colIndex, int minW, int maxW, int prefW) {
+    table.getColumnModel().getColumn(colIndex).setMinWidth(minW);
+    table.getColumnModel().getColumn(colIndex).setMaxWidth(maxW);
+    table.getColumnModel().getColumn(colIndex).setPreferredWidth(prefW);
+  }
+
   private synchronized TableModel getDefaultVarModTableModel() {
     if (tableModelVarMods != null) {
       return tableModelVarMods;
@@ -750,7 +725,9 @@ public class FraggerMigPanel extends JPanel {
     formFromMods(tableModelVarMods, TABLE_VAR_MODS_COL_NAMES, params.getVariableMods());
     formFromMods(tableModelFixMods, TABLE_FIX_MODS_COL_NAMES, params.getAdditionalMods());
     updateRowHeights(tableVarMods);
+    setJTableColSize(tableVarMods, 0, 20, 150, 50);
     updateRowHeights(tableFixMods);
+    setJTableColSize(tableFixMods, 0, 20, 150, 50);
   }
 
   private MsfraggerParams formCollect() {
@@ -927,5 +904,48 @@ public class FraggerMigPanel extends JPanel {
   public FraggerOutputType getOutputType() {
     String val = uiComboOutputType.getItemAt(uiComboOutputType.getSelectedIndex());
     return FraggerOutputType.valueOf(val);
+  }
+
+  private void onClickLoad(ActionEvent e) {
+    JFileChooser fc = new JFileChooser();
+    fc.setApproveButtonText("Load");
+    fc.setApproveButtonToolTipText("Load into the form");
+    fc.setDialogTitle("Select saved file");
+    fc.setMultiSelectionEnabled(false);
+
+    fc.setAcceptAllFileFilterUsed(true);
+    FileNameExtensionFilter filter = new FileNameExtensionFilter("Properties/Params",
+        "properties", "params", "para", "conf", "txt");
+    fc.setFileFilter(filter);
+
+    final String propName = ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN;
+    ThisAppProps.load(propName, fc);
+
+    Component parent = SwingUtils.findParentFrameForDialog(this);
+    int saveResult = fc.showOpenDialog(parent);
+    if (JFileChooser.APPROVE_OPTION == saveResult) {
+      File selectedFile = fc.getSelectedFile();
+      Path path = Paths.get(selectedFile.getAbsolutePath());
+      ThisAppProps.save(propName, path.toString());
+
+      if (Files.exists(path)) {
+        try {
+          MsfraggerParams p = formCollect();
+          p.load(new FileInputStream(selectedFile), true);
+          EventBus.getDefault().post(new MsfraggerParamsUpdate(p));
+          p.save();
+
+        } catch (Exception ex) {
+          JOptionPane
+              .showMessageDialog(parent,
+                  "<html>Could not load the saved file: <br/>" + ex.getMessage(), "Error",
+                  JOptionPane.ERROR_MESSAGE);
+        }
+      } else {
+        JOptionPane.showMessageDialog(parent, "<html>This is strange,<br/> "
+                + "but the file you chose to load doesn't exist anymore.", "Strange",
+            JOptionPane.ERROR_MESSAGE);
+      }
+    }
   }
 }
