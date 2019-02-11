@@ -105,6 +105,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -3611,12 +3612,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
               byte[] pollErr = pr.pollStdErr();
               String errStr = pr.appendErr(pollErr);
               if (!StringUtils.isNullOrWhitespace(errStr)) {
-                LogUtils.println(console, errStr);
+                LogUtils.print(console, errStr);
               }
               byte[] pollOut = pr.pollStdOut();
               String outStr = pr.appendOut(pollOut);
               if (!StringUtils.isNullOrWhitespace(outStr)) {
-                LogUtils.println(console, outStr);
+                LogUtils.print(console, outStr);
               }
               try {
                 final int exitValue = proc.exitValue();
@@ -5395,6 +5396,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
      * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
      */
 
+    ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
     try {
       if (OsUtils.isWindows()) {
         // native look on windows

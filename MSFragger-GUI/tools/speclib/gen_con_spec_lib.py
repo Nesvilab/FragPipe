@@ -20,6 +20,7 @@ import pandas as pd
 
 if sys.version_info[:2] >= (3, 7):
 	sys.stdout.reconfigure(encoding='utf-8')
+	sys.stderr.reconfigure(encoding='utf-8')
 
 def to_windows(cmd):
 	r"""convert linux sh scripts to windows
@@ -240,7 +241,7 @@ spectrast2tsv_additional_mods_path = output_directory / 'spectrast2tsv_additiona
 
 spectrast_cmds_part3=fr"""
 ## Filter the consensus splib library into a transition list
-{sys.executable} {spectrast2tsv_py_path} -m {spectrast2tsv_additional_mods_path} -l 300,2000 -s b,y -x 1,2 -o 3 -n 6 -p 0.05 -d -e -k openswath -a output_irt_con.tsv output_file_irt_con.splib
+{sys.executable} {spectrast2tsv_py_path} -m {spectrast2tsv_additional_mods_path} -g -17.03,-18.01 -l 250,2000 -s b,y -x 1,2 -o 3 -n 6 -p 0.05 -d -e -k openswath -a output_irt_con.tsv output_file_irt_con.splib
 #outfile:output_irt_con.tsv
 """
 
@@ -455,7 +456,12 @@ Commands to execute:
 C|+57|
 n|+42|
 C|119.004099|Cysteinyl
-c|-0.984016|Amidated''')
+c|-0.02|AmidatedCorrected
+''')
+	'''
+	c|-0.984016|Amidated
+	c[c[17]]|-0.984016|Amidated
+	'''
 	cmd2 = " ".join(spectrast_cmd(pep_ion_minprob))
 	print(f'Executing:{cmd2}\n')
 	(output_directory / "cmds2.txt").write_text(cmd2)
@@ -570,10 +576,17 @@ def edit_raw_con_lib():
 
 	philosopher_peptide_tsv = pd.read_table(peptide_tsv_path)
 	pep_to_xxx = {peptide: rest
-	for peptide, *rest in
-	 philosopher_peptide_tsv[['Peptide','Protein', 'Protein ID', 'Entry Name', 'Gene', 'Protein Description']].itertuples(index=False)}
+				  for peptide, *rest in
+				  philosopher_peptide_tsv[['Peptide', 'Protein', 'Protein ID', 'Entry Name', 'Gene', 'Protein Description']].itertuples(index=False)}
+
+	def f(x):
+		try:
+			return pep_to_xxx[x.item()]
+		except KeyError as e:
+			# print(e)
+			return None
 	t[['Protein', 'Protein ID', 'Entry Name', 'Gene', 'Protein Description']] = t[["PeptideSequence"]].apply(
-		lambda x: pep_to_xxx.get(x.item()),
+		f,
 		axis=1, result_type='expand')
 
 	if False:
@@ -587,6 +600,14 @@ def edit_raw_con_lib():
 			.to_csv(sep='\t', index=False).replace('(UniMod:5)', '(UniMod:1)')
 	)
 	del t['UniprotID']
+	d = {'-18': 'H2O', '-17': 'NH3', '': ''}
+
+	def separate_FragmentType_for_Spectronaut(x):
+		x = x.item()
+		return [x[0], d[x[1:]]]
+
+	t[['FragmentType', 'FragmentLossType']] = \
+		t[['FragmentType']].apply(separate_FragmentType_for_Spectronaut, axis=1, result_type='expand')
 	fout = pathlib.Path('con_lib.tsv')
 	print(f'Writing {fout.resolve()}')
 	fout.write_text(
