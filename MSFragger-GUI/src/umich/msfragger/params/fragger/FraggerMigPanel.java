@@ -29,9 +29,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -77,6 +80,8 @@ import umich.msfragger.params.enums.CleavageType;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.enums.FraggerPrecursorMassMode;
 import umich.msfragger.params.enums.MassTolUnits;
+import umich.msfragger.util.CacheUtils;
+import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.swing.FormEntry;
 
@@ -86,6 +91,8 @@ import umich.msfragger.util.swing.FormEntry;
 public class FraggerMigPanel extends JPanel {
 
   private static final Logger log = LoggerFactory.getLogger(FraggerMigPanel.class);
+  public static final String CACHE_FORM = "msfragger-form" + ThisAppProps.TEMP_FILE_EXT;
+  public static final String CACHE_PROPS = "msfragger-props" + ThisAppProps.TEMP_FILE_EXT;
   private static final String[] TABLE_VAR_MODS_COL_NAMES = {"Enabled", "Site (editable)",
       "Mass Delta (editable)"};
   private static final String[] TABLE_FIX_MODS_COL_NAMES = {"Enabled", "Site",
@@ -221,6 +228,7 @@ public class FraggerMigPanel extends JPanel {
       pTop.add(nonspecific, new CC().gapLeft("1px").wrap());
 
       JButton save = new JButton("Save Options");
+      save.addActionListener(this::onClickSave);
       JButton load = new JButton("Load Options");
       load.addActionListener(this::onClickLoad);
 
@@ -639,6 +647,39 @@ public class FraggerMigPanel extends JPanel {
     this.add(scroll, BorderLayout.CENTER);
   }
 
+  private void onClickSave(ActionEvent e) {
+
+  }
+
+  private void cacheSave() {
+    // saving form data, except modification tables
+    {
+      Map<String, String> map = formTo();
+      Properties mapAsProps = PropertiesUtils.from(map);
+      Path tempFileForm = CacheUtils.getTempFile(CACHE_FORM);
+      try {
+        mapAsProps.store(Files.newBufferedWriter(tempFileForm), ThisAppProps.cacheComments());
+      } catch (IOException e) {
+        log.warn("Could not store {} cache as map to: {}", this.getClass().getSimpleName(), tempFileForm.toString());
+      }
+    }
+
+    // storing form properties that can't be just represented in the map
+    {
+      MsfraggerParams msfraggerParams = formCollect();
+      Path tempFileProps = CacheUtils.getTempFile(CACHE_PROPS);
+      try {
+        msfraggerParams.save(Files.newOutputStream(tempFileProps));
+      } catch (IOException e) {
+        log.warn("Could not store {} cache as msfragger props to: {}", this.getClass().getSimpleName(), tempFileProps.toString());
+      }
+    }
+  }
+
+  private void cacheLoad() {
+
+  }
+
   private void setJTableColSize(JTable table, int colIndex, int minW, int maxW, int prefW) {
     table.getColumnModel().getColumn(colIndex).setMinWidth(minW);
     table.getColumnModel().getColumn(colIndex).setMaxWidth(maxW);
@@ -734,8 +775,8 @@ public class FraggerMigPanel extends JPanel {
     Map<String, String> map = formTo();
     MsfraggerParams params = paramsFrom(map);
     List<Mod> modsVar = formTo(tableModelVarMods);
-    List<Mod> modsFix = formTo(tableModelFixMods);
     params.setVariableMods(modsVar);
+    List<Mod> modsFix = formTo(tableModelFixMods);
     params.setAdditionalMods(modsFix);
     return params;
   }
@@ -755,6 +796,10 @@ public class FraggerMigPanel extends JPanel {
 
   private Map<String, String> formTo() {
     return SwingUtils.valuesToMap(pContent);
+  }
+
+  public MsfraggerParams getParams() {
+    return formCollect();
   }
 
   /**

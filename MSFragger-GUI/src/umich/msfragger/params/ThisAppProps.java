@@ -18,6 +18,7 @@ package umich.msfragger.params;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -29,11 +30,15 @@ import java.util.Properties;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.text.JTextComponent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
 import umich.msfragger.gui.api.SearchTypeProp;
+import umich.msfragger.util.CacheUtils;
 import umich.msfragger.util.PathUtils;
 
 public class ThisAppProps extends Properties {
+  private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
     //private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
     public static final String PROP_DB_FILE_IN = "path.db.file.in";
     public static final String PROP_FRAGGER_PARAMS_FILE_IN = "path.fragger.params.file.in";
@@ -41,9 +46,11 @@ public class ThisAppProps extends Properties {
     public static final String PROP_LCMS_FILES_IN = "path.lcms.files.in";
     public static final String PROP_FILE_OUT = "path.file.out";
     
-    public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
-    public static final String TEMP_FILE_NAME = "msfragger.cache";
-    
+    public static final String SYS_TEMP_DIR = System.getProperty("java.io.tmpdir");
+    public static final String APP_TEMP_DIR = "fragpipe";
+    public static final String TEMP_FILE_EXT = ".cache";
+    public static final String TEMP_FILE_NAME = "msfragger" + TEMP_FILE_EXT;
+
     public static final String PROP_BIN_PATH_MSCONVERT = "path.textfield.msconvert";
     public static final String PROP_BIN_PATH_MSFRAGGER = "path.textfield.msfragger";
     public static final String PROP_BIN_PATH_PHILOSOPHER = "path.textfield.peptide-prophet";
@@ -88,20 +95,20 @@ public class ThisAppProps extends Properties {
      * @return null if the file didn't exist or could not be loaded.
      */
     public static ThisAppProps loadFromTemp()  {
-        Path path = Paths.get(TEMP_DIR, TEMP_FILE_NAME);
-        if (!Files.exists(path)) {
-            return null;
-        }
-        try {
-            ThisAppProps props = new ThisAppProps();
-            props.load(new FileInputStream(path.toFile()));
-            return props;
+      try {
 
-        } catch (IOException ex) {
-            //log.warn("Could not load properties from temporary directory: {}", ex.getMessage());
-        }
+        final Path path = CacheUtils.locateTempFile(TEMP_FILE_NAME);
+        final ThisAppProps props = new ThisAppProps();
+        props.load(new FileInputStream(path.toFile()));
+        return props;
 
+      } catch (FileNotFoundException ex) {
         return null;
+      } catch (IOException ex) {
+        log.debug("Could not load properties from temporary directory: {}", ex.getMessage());
+      }
+
+      return null;
     }
 
     
@@ -221,10 +228,14 @@ public class ThisAppProps extends Properties {
       save(propName, val);
   }
 
+  public static String cacheComments() {
+    return Version.PROGRAM_TITLE + " (" + Version.version() + ") runtime properties";
+  }
+
     public void save() {
-        Path path = Paths.get(TEMP_DIR, TEMP_FILE_NAME);
+        Path path = CacheUtils.getTempFile(TEMP_FILE_NAME);
         try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
-            store(fos, Version.PROGRAM_TITLE + " runtime properties");
+            store(fos, cacheComments());
         } catch (IOException ex) {
             //log.warn("Could not load properties from temporary directory: {}", ex.getMessage());
         }

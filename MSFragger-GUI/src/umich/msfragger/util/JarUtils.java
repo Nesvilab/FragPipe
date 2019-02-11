@@ -41,7 +41,7 @@ public class JarUtils {
 
       Path tempFile = randomizeName
           ? Files.createTempFile("fragpipe-", "-" + resourceNameDest)
-          : Paths.get(ThisAppProps.TEMP_DIR, resourceNameDest);
+          : Paths.get(ThisAppProps.SYS_TEMP_DIR, resourceNameDest);
 
       Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
       if (scheduleForDeletion)
@@ -68,7 +68,7 @@ public class JarUtils {
     try (InputStream in = clazz.getResourceAsStream(resourceLocation)) {
       final String resourceNameDest = computeFinalResourceName(resourceLocation);
 
-      final Path tempDir = Paths.get(ThisAppProps.TEMP_DIR);
+      final Path tempDir = Paths.get(ThisAppProps.SYS_TEMP_DIR);
       Path destDir = tempDir;
       if (locationInTemp != null)
         destDir = destDir.resolve(locationInTemp);

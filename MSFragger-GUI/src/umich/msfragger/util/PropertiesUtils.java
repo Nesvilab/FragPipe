@@ -16,6 +16,8 @@
  */
 package umich.msfragger.util;
 
+import java.util.HashMap;
+import java.util.Map.Entry;
 import umich.msfragger.exceptions.FileWritingException;
 import umich.msfragger.params.PropLine;
 import umich.msfragger.params.PropertyFileContent;
@@ -29,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import umich.msfragger.params.Props.Prop;
 
 /**
  *
@@ -143,12 +146,30 @@ public class PropertiesUtils {
 
     }
 
+    public static Properties from(Map<String, String> map) {
+        Properties p = new Properties();
+        for (Entry<String, String> e : map.entrySet()) {
+            if (StringUtils.isNullOrWhitespace(e.getKey()))
+                continue;
+            p.setProperty(e.getKey(), e.getValue());
+        }
+        return p;
+    }
+
+    public static Map<String, String> to(Properties props) {
+        Set<String> names = props.stringPropertyNames();
+        HashMap<String, String> map = new HashMap<>(names.size());
+        for (String name : names) {
+            map.put(name, props.getProperty(name));
+        }
+        return map;
+    }
+
     /**
      * Slurps the whole properties file into a string and replaces occasional 
      * backslashes with double ones. Keeps the backslashes that are allowed at
      * the end of the line in properties files.<br/>
-     * You probably don't need this method, use {@link #readProperties(java.io.InputStream) }
-     * instead.
+     * You probably don't need this method.
      * @param is  InputStream to read from. The stream is closed.
      * @return  A StringReader wrapped around the slurped string representation of the file.
      * @throws IOException 
