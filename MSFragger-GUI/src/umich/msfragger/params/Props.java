@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -211,6 +212,37 @@ public class Props {
         }
     }
 
+    private void writeProps(Writer w) throws IOException {
+        for (final String name : propOrdering.isEmpty() ? map.keySet() : propOrdering) {
+            if (name.isEmpty() || name.startsWith(COMMENT_SYMBOL)) {
+                w.write(name + "\n");
+                continue;
+            }
+            Prop prop = map.get(name);
+            if (StringUtils.isNullOrWhitespace(prop.value)) {
+                continue;
+            }
+            if (!prop.isEnabled)
+                w.write(COMMENT_SYMBOL + " ");
+            w.write(name);
+            w.write(" = ");
+            w.write(prop.value);
+            if (comments != null && !comments.isEmpty()) {
+                String comment = comments.get(name);
+                if (!StringUtils.isNullOrWhitespace(comment)) {
+                    w.write("\t\t\t# ");
+                    w.write(comment);
+                }
+            } else if (!StringUtils.isNullOrWhitespace(prop.comment)) {
+                w.write("\t\t\t# ");
+                w.write(prop.comment);
+            }
+            w.write("\n");
+        }
+        w.write("\n");
+        w.flush();
+    }
+
     /**
      * Writes to the stream (buffers it), includes comments after each parameter.
      * @param os  The stream is closed after writing.
@@ -218,36 +250,9 @@ public class Props {
      */
     private void writeProps(OutputStream os) throws IOException {
         Set<Map.Entry<String, Prop>> entries = map.entrySet();
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-        for (final String name : propOrdering.isEmpty() ? map.keySet() : propOrdering) {
-            if (name.isEmpty() || name.startsWith(COMMENT_SYMBOL)) {
-                bw.write(name + "\n");
-                continue;
-            }
-            Prop prop = map.get(name);
-            if (StringUtils.isNullOrWhitespace(prop.value)) {
-              continue;
-            }
-            if (!prop.isEnabled)
-                bw.write(COMMENT_SYMBOL + " ");
-            bw.write(name);
-            bw.write(" = ");
-            bw.write(prop.value);
-            if (comments != null && !comments.isEmpty()) {
-                String comment = comments.get(name);
-                if (!StringUtils.isNullOrWhitespace(comment)) {
-                    bw.write("\t\t\t# ");
-                    bw.write(comment);
-                }
-            } else if (!StringUtils.isNullOrWhitespace(prop.comment)) {
-                bw.write("\t\t\t# ");
-                bw.write(prop.comment);
-            }
-            bw.write("\n");
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"))) {
+            writeProps(bw);
         }
-        bw.write("\n");
-
-        bw.flush();
         os.close();
     }
 }

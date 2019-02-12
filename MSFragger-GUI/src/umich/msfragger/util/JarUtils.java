@@ -8,9 +8,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.params.ThisAppProps;
 
 public class JarUtils {
+  private static final Logger log = LoggerFactory.getLogger(JarUtils.class);
   private JarUtils() {}
 
   /**
@@ -44,8 +47,10 @@ public class JarUtils {
           : Paths.get(CacheUtils.SYS_TEMP_DIR, resourceNameDest);
 
       Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
-      if (scheduleForDeletion)
+      if (scheduleForDeletion) {
         tempFile.toFile().deleteOnExit();
+      }
+      log.debug("Unpacked temp file (delete on exit = {}): {}", scheduleForDeletion, tempFile.toString());
       return tempFile;
     }
 
@@ -87,8 +92,10 @@ public class JarUtils {
       }
 
       Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
-      if (scheduleForDeletion)
+      if (scheduleForDeletion) {
         tempFile.toFile().deleteOnExit();
+      }
+      log.debug("Unpacked temp file (delete on exit = {}): {}", scheduleForDeletion, tempFile.toString());
       return tempFile;
     }
   }

@@ -29,6 +29,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -681,21 +682,20 @@ public class FraggerMigPanel extends JPanel {
       // if exists, overwrite
       if (Files.exists(path)) {
         int overwrite = JOptionPane.showConfirmDialog(parent, "<html>File exists,<br/> overwrtie?", "Overwrite", JOptionPane.OK_CANCEL_OPTION);
-        if (JOptionPane.OK_OPTION == overwrite) {
-          try {
-            Files.delete(path);
-          } catch (IOException ex) {
-            JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite", JOptionPane.ERROR_MESSAGE);
-            return;
-          }
+        if (JOptionPane.OK_OPTION != overwrite) {
+          return;
+        }
+        try {
+          Files.delete(path);
+        } catch (IOException ex) {
+          JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite", JOptionPane.ERROR_MESSAGE);
+          return;
         }
       }
       try {
         ThisAppProps.save(PROP_FILECHOOSER_LAST_PATH, path.toAbsolutePath().toString());
-        MsfraggerParams saved = new MsfraggerParams();
-        saved.load();               // load defaults
-        fillParamsFromForm(saved);  // overwrite with data from form
-        saved.save(new FileOutputStream(path.toFile()));
+        MsfraggerParams params = formCollect();
+        params.save(new FileOutputStream(path.toFile()));
       } catch (IOException ex) {
         JOptionPane.showMessageDialog(parent, "<html>Could not save file: <br/>" + path.toString() +
             "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -852,7 +852,7 @@ public class FraggerMigPanel extends JPanel {
   }
 
   private void formFrom(Map<String, String> map) {
-    SwingUtilities.invokeLater(() -> SwingUtils.valuesFromMap(pContent, map));
+    SwingUtilities.invokeLater(() -> SwingUtils.valuesFromMap(this, map));
   }
 
   private Map<String, String> formTo() {
@@ -946,10 +946,10 @@ public class FraggerMigPanel extends JPanel {
     DecimalFormat fmt = new DecimalFormat("0.#");
     map.put(PROP_misc_fragger_clear_mz_lo, fmt.format(clearMzRange[0]));
     map.put(PROP_misc_fragger_clear_mz_hi, fmt.format(clearMzRange[1]));
-    map.put(PROP_misc_fragger_digest_mass_lo, fmt.format(clearMzRange[0]));
-    map.put(PROP_misc_fragger_digest_mass_hi, fmt.format(clearMzRange[1]));
-    map.put(PROP_misc_fragger_precursor_charge_lo, fmt.format(clearMzRange[0]));
-    map.put(PROP_misc_fragger_precursor_charge_hi, fmt.format(clearMzRange[1]));
+    map.put(PROP_misc_fragger_digest_mass_lo, fmt.format(digestMassRange[0]));
+    map.put(PROP_misc_fragger_digest_mass_hi, fmt.format(digestMassRange[1]));
+    map.put(PROP_misc_fragger_precursor_charge_lo, fmt.format(precursorCharge[0]));
+    map.put(PROP_misc_fragger_precursor_charge_hi, fmt.format(precursorCharge[1]));
 
     return map;
   }
