@@ -2151,6 +2151,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         + "<ul>"
         + "<li>Andy Kong</li>"
         + "<li>Dmitry Avtonomov</li>"
+        + "<li>Guo-Ci Teo</li>"
         + "<li>Alexey Nesvizhskii</li>"
         + "</ul>"
         + "<a href=\"http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html\">Original MSFragger paper link</a><br/>"
