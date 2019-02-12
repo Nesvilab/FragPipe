@@ -1,15 +1,19 @@
 package umich.msfragger.util;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.params.ThisAppProps;
 
 public class CacheUtils {
+  private static final Logger log = LoggerFactory.getLogger(CacheUtils.class);
   public static final String SYS_TEMP_DIR = System.getProperty("java.io.tmpdir");
 
   private CacheUtils() {}
@@ -63,7 +67,15 @@ public class CacheUtils {
    * @param fn File-name for the temp file. Location is predetermined.
    */
   public static Path getTempFile(String fn) {
-    return getTempDir().resolve(fn);
+    Path p = getTempDir().resolve(fn);
+    if (!Files.exists(p.getParent())) {
+      try {
+        Files.createDirectories(p.getParent());
+      } catch (IOException e) {
+        throw new IllegalStateException("Could not create directory structure for a temporary file: " + p.toString());
+      }
+    }
+    return p;
   }
 
   /**

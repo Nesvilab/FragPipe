@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -232,18 +233,23 @@ public class ThisAppProps extends Properties {
     return Version.PROGRAM_TITLE + " (" + Version.version() + ") runtime properties";
   }
 
+  private static Path getCacheFilePath() {
+    return CacheUtils.getTempFile(TEMP_FILE_NAME);
+  }
+
     public void save() {
-        Path path = CacheUtils.getTempFile(TEMP_FILE_NAME);
-        try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
-            store(fos, cacheComments());
-        } catch (IOException ex) {
-            //log.warn("Could not load properties from temporary directory: {}", ex.getMessage());
-        }
+      try (OutputStream os = Files.newOutputStream(getCacheFilePath())) {
+          store(os, cacheComments());
+          os.flush();
+      } catch (IOException ex) {
+          //log.warn("Could not load properties from temporary directory: {}", ex.getMessage());
+      }
     }
     
     public static void save(String propName, String propVal) {
         if (propName == null)
             throw new IllegalArgumentException("Property name must be non-null");
+        log.debug("ThisAppProps saving property: {} = {} to {}", propName, propVal, getCacheFilePath().toString());
         ThisAppProps thisAppProps = ThisAppProps.loadFromTemp();
         if (thisAppProps == null)
             thisAppProps = new ThisAppProps();
