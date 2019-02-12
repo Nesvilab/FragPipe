@@ -217,7 +217,7 @@ public class DbSlice {
   private CheckResult unpack() throws Exception {
     for (String rl : RESOURCE_LOCATIONS) {
       Path subDir = Paths.get(UNPACK_SUBDIR_IN_TEMP);
-      Path path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, false);
+      Path path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, true);
       // record the location of the main script that we'll be running
       if (SCRIPT_SPLITTER.equals(rl))
         scriptDbslicingPath = path;

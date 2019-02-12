@@ -206,7 +206,7 @@ public class SpecLibGen {
   private CheckResult unpack() throws Exception {
     for (String rl : RESOURCE_LOCATIONS) {
       Path subDir = Paths.get(UNPACK_SUBDIR_IN_TEMP);
-      Path path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, false);
+      Path path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, true);
       if (SCRIPT_SPEC_LIB_GEN.equals(rl))
         scriptSpecLibGenPath = path;
     }
