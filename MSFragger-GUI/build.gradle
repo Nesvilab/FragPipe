@@ -16,7 +16,7 @@ plugins {
     id 'idea'
 
     id "com.jonaslasauskas.capsule" version "0.3.0"
-    id "com.github.johnrengelman.shadow" version "4.0.3"
+    id "com.github.johnrengelman.shadow" version "4.0.4"
     id 'edu.sc.seis.launch4j' version '2.4.4'
     id "com.github.ben-manes.versions" version "0.20.0"
 }
@@ -74,11 +74,11 @@ launch4j {
 }
 
 dependencies {
-    compile 'org.apache.httpcomponents:httpcore:4.4.10'
-    compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6')
+    compile 'org.apache.httpcomponents:httpcore:4.4.11'
+    compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7')
     compile 'commons-logging:commons-logging-api:1.1'
     
-    compile 'org.apache.httpcomponents:httpmime:4.5.6'
+    compile 'org.apache.httpcomponents:httpmime:4.5.7'
     compile 'org.apache.commons:commons-lang3:3.8.1'
     //compile group: 'commons-io', name: 'commons-io', version: '2.6'
     compile 'com.miglayout:miglayout-swing:5.2'
