@@ -89,6 +89,7 @@ public class CmdMsfragger extends CmdBase {
 
     // Search parameter file
     MsfraggerParams params = fp.getParams();
+    params.setDatabaseName(pathFasta);
     Path savedParamsPath = wd.resolve(MsfraggerParams.CACHE_FILE);
     if (!isDryRun) {
       try {
