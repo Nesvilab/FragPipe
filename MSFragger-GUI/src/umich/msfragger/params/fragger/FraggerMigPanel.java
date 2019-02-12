@@ -15,6 +15,8 @@
  */
 package umich.msfragger.params.fragger;
 
+import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
+
 import com.github.chhh.utils.swing.DocumentFilters;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
@@ -30,6 +32,7 @@ import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -221,18 +224,18 @@ public class FraggerMigPanel extends JPanel {
       checkRun.addActionListener(e -> {
         SwingUtils.enableComponents(pContent, checkRun.isSelected(), true);
       });
-      JButton closed = new JButton("Closed Search");
-      closed.addActionListener(this::onClickDefaultsClosed);
-      JButton open = new JButton("Open Search");
-      open.addActionListener(this::onClickDefaultsOpen);
-      JButton nonspecific = new JButton("Non-specific Search");
-      open.addActionListener(this::onClickDefautlsNonspecific);
+      JButton btnDefaultsClosed = new JButton("Closed Search");
+      btnDefaultsClosed.addActionListener(this::onClickDefaultsClosed);
+      JButton btnDefaultsOpen = new JButton("Open Search");
+      btnDefaultsOpen.addActionListener(this::onClickDefaultsOpen);
+      JButton btnDefaultsNonspecific = new JButton("Non-specific Search");
+      btnDefaultsNonspecific.addActionListener(this::onClickDefautlsNonspecific);
 
       pTop.add(checkRun);
       pTop.add(new JLabel("Load defaults:"), new CC().gapLeft("15px"));
-      pTop.add(closed, new CC().gapLeft("1px"));
-      pTop.add(open, new CC().gapLeft("1px"));
-      pTop.add(nonspecific, new CC().gapLeft("1px").wrap());
+      pTop.add(btnDefaultsClosed, new CC().gapLeft("1px"));
+      pTop.add(btnDefaultsOpen, new CC().gapLeft("1px"));
+      pTop.add(btnDefaultsNonspecific, new CC().gapLeft("1px").wrap());
 
       JButton save = new JButton("Save Options");
       save.addActionListener(this::onClickSave);
@@ -656,6 +659,49 @@ public class FraggerMigPanel extends JPanel {
 
   private void onClickSave(ActionEvent e) {
     cacheSave();
+
+    // now save the actual user's choice
+    JFileChooser fc = new JFileChooser();
+    fc.setApproveButtonText("Save");
+    fc.setApproveButtonToolTipText("Save to a file");
+    fc.setDialogTitle("Choose where params file should be saved");
+    fc.setMultiSelectionEnabled(false);
+
+    final String propName = ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN;
+    ThisAppProps.load(propName, fc);
+
+    fc.setSelectedFile(new File(MsfraggerParams.CACHE_FILE));
+    Component parent = SwingUtils.findParentFrameForDialog(this);
+    int saveResult = fc.showSaveDialog(parent);
+    if (JFileChooser.APPROVE_OPTION == saveResult) {
+      File selectedFile = fc.getSelectedFile();
+      Path path = Paths.get(selectedFile.getAbsolutePath());
+      ThisAppProps.save(propName, path.toString());
+
+      // if exists, overwrite
+      if (Files.exists(path)) {
+        int overwrite = JOptionPane.showConfirmDialog(parent, "<html>File exists,<br/> overwrtie?", "Overwrite", JOptionPane.OK_CANCEL_OPTION);
+        if (JOptionPane.OK_OPTION == overwrite) {
+          try {
+            Files.delete(path);
+          } catch (IOException ex) {
+            JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite", JOptionPane.ERROR_MESSAGE);
+            return;
+          }
+        }
+      }
+      try {
+        ThisAppProps.save(PROP_FILECHOOSER_LAST_PATH, path.toAbsolutePath().toString());
+        MsfraggerParams saved = new MsfraggerParams();
+        saved.load();               // load defaults
+        fillParamsFromForm(saved);  // overwrite with data from form
+        saved.save(new FileOutputStream(path.toFile()));
+      } catch (IOException ex) {
+        JOptionPane.showMessageDialog(parent, "<html>Could not save file: <br/>" + path.toString() +
+            "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+    }
   }
 
   private void cacheSave() {
@@ -810,7 +856,7 @@ public class FraggerMigPanel extends JPanel {
   }
 
   private Map<String, String> formTo() {
-    return SwingUtils.valuesToMap(pContent);
+    return SwingUtils.valuesToMap(this);
   }
 
   public MsfraggerParams getParams() {
