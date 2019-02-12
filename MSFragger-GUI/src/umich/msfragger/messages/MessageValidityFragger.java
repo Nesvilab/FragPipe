@@ -1,9 +1,9 @@
 package umich.msfragger.messages;
 
-public class MessageFraggerValidity {
+public class MessageValidityFragger {
   public final boolean isValid;
 
-  public MessageFraggerValidity(boolean isValid) {
+  public MessageValidityFragger(boolean isValid) {
     this.isValid = isValid;
   }
 }

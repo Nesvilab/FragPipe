@@ -145,12 +145,14 @@ import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
 import umich.msfragger.messages.MessageDecoyTag;
-import umich.msfragger.messages.MessageFraggerValidity;
+import umich.msfragger.messages.MessageValidityFragger;
 import umich.msfragger.messages.MessageIsUmpireRun;
 import umich.msfragger.messages.MessageSearchType;
+import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.dbslice.DbSlice;
+import umich.msfragger.params.dbslice.DbSlice.MessageInitDone;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
@@ -162,6 +164,7 @@ import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.umpire.UmpirePanel;
 import umich.msfragger.util.FileDrop;
+import umich.msfragger.util.FileDrop.Event;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.GhostText;
 import umich.msfragger.util.HSLColor;
@@ -188,7 +191,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private static final org.slf4j.Logger log = LoggerFactory.getLogger(MsfraggerGuiFrame.class);
 
-  protected FraggerPanel fraggerPanel;
   protected FraggerMigPanel fraggerMigPanel;
   protected TextConsole console;
   protected ExecutorService exec;
@@ -332,13 +334,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     exec = Executors.newFixedThreadPool(1);
-    fraggerPanel = new FraggerPanel(this);
-    scrollPaneMsFragger.setViewportView(fraggerPanel);
-    scrollPaneMsFragger.getVerticalScrollBar().setUnitIncrement(16);
 
     // check if fragger jar points to a correct location
     if (!validateMsfraggerJarContents(textBinMsfragger.getText())) {
-      enableMsfraggerPanels(false);
+      log.debug("Msfragger jar is not valid");
     }
 
     if (validatePhilosopherPath(textBinPhilosopher.getText()) == null) {
@@ -394,7 +393,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     fraggerMigPanel = new FraggerMigPanel();
-    tabPane.add("Fragger", fraggerMigPanel);
+    final int fraggerTabIndex = 3;
+    final String fraggerTabName = "MsFragger";
+    tabPane.add(fraggerMigPanel, fraggerTabIndex);
+    tabPane.setTitleAt(fraggerTabIndex, fraggerTabName);
 
 
     // set icons for tabs
@@ -407,7 +409,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     setTabIcon(mapTabNameToIdx, "Sequence DB", "/umich/msfragger/gui/icons/093-drawer.png");
     setTabIcon(mapTabNameToIdx, "Downstream", "/umich/msfragger/gui/icons/328-move-down.png");
     setTabIcon(mapTabNameToIdx, "Report", "/umich/msfragger/gui/icons/185-clipboard.png");
-    setTabIcon(mapTabNameToIdx, "Fragger", "/umich/msfragger/gui/icons/bolt-16.png");
+    setTabIcon(mapTabNameToIdx, fraggerTabName, "/umich/msfragger/gui/icons/bolt-16.png");
     //setTabIcon(mapTabNameToIdx, "", "");
 
     // check binary paths (can only be done after manual MSFragger panel creation)
@@ -506,9 +508,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     loadDefaultsProteinProphet(t);
     loadDefaultsReportFilter(t);
     loadDefaultsLabelfree(t);
-    if (fraggerPanel != null) {
-      fraggerPanel.loadDefaults(t);
-    }
   }
 
 
@@ -545,14 +544,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-  public void onDbsliceInitDone(DbSlice.InitDone m) {
+  public void onDbsliceInitDone(MessageInitDone m) {
     final String text = m.isSuccess ? "Database Slicing enabled." : "Database Slicing disabled.";
     messageToLabel(lblDbsliceInfo2, new DbSlice.Message2(true, !m.isSuccess, text));
-    if (fraggerPanel == null) {
-      throw new IllegalStateException(
-          "Fragger panel must be created before running DB Slicing checks.");
-    }
-    fraggerPanel.enableDbSlicing(m.isSuccess);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
@@ -655,12 +649,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     chkRunProteinProphet.setSelected(enabled);
     SwingUtils.enableComponents(panelReport, enabled);
     checkCreateReport.setSelected(enabled);
-  }
-
-  private void enableMsfraggerPanels(boolean enabled) {
-    SwingUtils.enableComponents(scrollPaneMsFragger, enabled);
-    fraggerPanel.getCheckboxIsRunFragger().setSelected(enabled);
-    SwingUtils.enableComponents(fraggerMigPanel, enabled);
   }
 
   private void enableSpecLibGenPanel(boolean enabled) {
@@ -770,7 +758,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     lblFastaCount = new javax.swing.JLabel();
     jScrollPane5 = new javax.swing.JScrollPane();
     editorSequenceDb = new javax.swing.JEditorPane();
-    scrollPaneMsFragger = new javax.swing.JScrollPane();
     panelDownstream = new javax.swing.JPanel();
     panelProteinProphet = new javax.swing.JPanel();
     chkRunProteinProphet = new javax.swing.JCheckBox();
@@ -1503,7 +1490,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     );
 
     tabPane.addTab("Sequence DB", panelSequenceDb);
-    tabPane.addTab("MSFragger", new javax.swing.ImageIcon(getClass().getResource("/umich/msfragger/gui/icons/bolt-16.png")), scrollPaneMsFragger, "MSFragger search engine"); // NOI18N
 
     chkRunProteinProphet.setSelected(true);
     chkRunProteinProphet.setText("Run ProteinProphet");
@@ -2438,8 +2424,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     final boolean msfraggerEnabled = isJarValid && isVersionValid && isJavaValid;
-    EventBus.getDefault().postSticky(new MessageFraggerValidity(msfraggerEnabled));
-    enableMsfraggerPanels(msfraggerEnabled);
+    EventBus.getDefault().postSticky(new MessageValidityFragger(msfraggerEnabled));
 
     return isJarValid;
   }
@@ -2703,7 +2688,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       if (fraggerVersionCmp >= 0) {
         enableMsadjuster = true;
       }
-      fraggerPanel.enableMsadjuster(enableMsadjuster);
+      EventBus.getDefault().postSticky(new MessageValidityMsadjuster(enableMsadjuster));
     }).start();
   }
 
@@ -3284,12 +3269,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         btnPrintCommands != null && btnPrintCommands.equals(evt.getSource());
     final boolean isDryRun = checkDryRun.isSelected() || isPrintButtonClicked;
 
-    boolean doRunFragger = fraggerPanel.isRunMsfragger();
+    final boolean doRunFragger = fraggerMigPanel.isRun();
     boolean doRunProphetsAndReport = chkRunPeptideProphet.isSelected()
         || chkRunProteinProphet.isSelected()
         || checkCreateReport.isSelected();
 
-    if (!fraggerPanel.isRunMsfragger()
+    if (!doRunFragger
+        && !isRunUmpireSe()
         && !chkRunPeptideProphet.isSelected()
         && !chkRunProteinProphet.isSelected()
         && !checkCreateReport.isSelected()) {
@@ -3302,7 +3288,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     // check for TSV output when any other downstream tools are requested
     if (doRunFragger && doRunProphetsAndReport) {
-      if (fraggerPanel.getOutputType().equals(FraggerOutputType.TSV)) {
+      if (fraggerMigPanel.getOutputType().equals(FraggerOutputType.TSV)) {
         int confirm = JOptionPane.showConfirmDialog(this,
             "You've chosen TSV output for MSFragger while\n"
                 + "also requesting to run other downstream processing\n"
@@ -3744,10 +3730,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
 
-    final FraggerPanel fp = fraggerPanel;
+    final FraggerMigPanel fp = fraggerMigPanel;
 
     // run MSAdjuster
-    final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(fp.isRunMsfragger() && fp.isMsadjuster(), wd);
+    final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(fp.isRun() && fp.isMsadjuster(), wd);
     if (cmdMsAdjuster.isRun()) {
       if (!cmdMsAdjuster.configure(this,
           jarFragpipe, fp, lcmsFiles, false, 49)) {
@@ -3763,7 +3749,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final String fastaFile = getFastaPath();
     final UsageTrigger binMsfragger = new UsageTrigger(
         textBinMsfragger.getText().trim(), "MsFragger");
-    final CmdMsfragger cmdMsfragger = new CmdMsfragger(fp.isRunMsfragger(), wd);
+    final CmdMsfragger cmdMsfragger = new CmdMsfragger(fp.isRun(), wd);
     if (cmdMsfragger.isRun()) {
       if (!cmdMsfragger.configure(this,
           isDryRun, fp, jarFragpipe, binMsfragger, fastaFile, lcmsFiles)) {
@@ -3848,7 +3834,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (cmdProteinProphet.isRun()) {
       final String protProphCmdStr = txtProteinProphetCmdLineOpts.getText().trim();
       if (!cmdProteinProphet.configure(this,
-          fp, usePhi, protProphCmdStr,
+          usePhi, protProphCmdStr,
           isProcessGroupsSeparately, pepxmlFiles)) {
         return false;
       }
@@ -3917,7 +3903,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
 
       // run Report - Multi-Experiment report
-      final int nThreads = fraggerPanel.getThreads();
+      final int nThreads = fraggerMigPanel.getThreads();
       final CmdReportAbacus cmdReportAbacus = new CmdReportAbacus(SwingUtils.isEnabledAndChecked(checkReportAbacus), wd);
       if (cmdReportAbacus.isRun()) {
         // run iProphet, will run right after Peptide Prophet because of priority setting
@@ -3997,12 +3983,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             + "and Report Filter.", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
     if (JOptionPane.OK_OPTION == confirmation) {
       SearchTypeProp type = SearchTypeProp.open;
-      fraggerPanel.loadDefaults(type);
-      loadDefaultsSequenceDb(type);
-      loadDefaultsPeptideProphet(type);
-      loadDefaultsProteinProphet(type);
-      loadDefaultsReportFilter(type);
-      loadDefaultsLabelfree(type);
+      EventBus.getDefault().post(new MessageSearchType(type));
+      // TODO: check this event bus substitution worked
+//      fraggerMigPanel.loadDefaults(type);
+//      loadDefaultsSequenceDb(type);
+//      loadDefaultsPeptideProphet(type);
+//      loadDefaultsProteinProphet(type);
+//      loadDefaultsReportFilter(type);
+//      loadDefaultsLabelfree(type);
     }
   }//GEN-LAST:event_btnLoadDefaultsOpenActionPerformed
 
@@ -4016,12 +4004,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             + "and Report Filter.", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
     if (JOptionPane.OK_OPTION == confirmation) {
       SearchTypeProp type = SearchTypeProp.closed;
-      fraggerPanel.loadDefaults(type);
-      loadDefaultsSequenceDb(type);
-      loadDefaultsPeptideProphet(type);
-      loadDefaultsProteinProphet(type);
-      loadDefaultsReportFilter(type);
-      loadDefaultsLabelfree(type);
+      EventBus.getDefault().post(new MessageSearchType(type));
+      // TODO: check this event bus substitution worked
+//      fraggerMigPanel.loadDefaults(type);
+//      loadDefaultsSequenceDb(type);
+//      loadDefaultsPeptideProphet(type);
+//      loadDefaultsProteinProphet(type);
+//      loadDefaultsReportFilter(type);
+//      loadDefaultsLabelfree(type);
     }
   }//GEN-LAST:event_btnLoadDefaultsClosedActionPerformed
 
@@ -5098,7 +5088,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     p.setMassTol((Double) spinnerCrystalcMassTol.getValue());
     p.setMaxZ((Integer) spinnerCrystalcMaxCharge.getValue());
     p.setPrecursorIsolationWindow((Double) spinnerCrystalcPrecIsoWindow.getValue());
-    int threads = fraggerPanel.getThreads();
+    int threads = fraggerMigPanel.getThreads();
     threads = threads > 0 ? threads : -1;
     p.setThread(threads);
 
@@ -5580,7 +5570,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JPanel panelSelectedFiles;
   private javax.swing.JPanel panelSequenceDb;
   private javax.swing.JPanel panelSpecLibOpts;
-  private javax.swing.JScrollPane scrollPaneMsFragger;
   private javax.swing.JScrollPane scrollPaneRawFiles;
   private javax.swing.JSpinner spinnerCrystalcMassTol;
   private javax.swing.JSpinner spinnerCrystalcMaxCharge;

@@ -2,10 +2,10 @@ package umich.msfragger.messages;
 
 import umich.msfragger.params.fragger.MsfraggerParams;
 
-public class MsfraggerParamsUpdate {
+public class MessageMsfraggerParamsUpdate {
   public final MsfraggerParams params;
 
-  public MsfraggerParamsUpdate(MsfraggerParams params) {
+  public MessageMsfraggerParamsUpdate(MsfraggerParams params) {
     this.params = params;
   }
 }

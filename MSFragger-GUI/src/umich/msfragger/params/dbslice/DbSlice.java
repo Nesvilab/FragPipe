@@ -86,10 +86,10 @@ public class DbSlice {
     }
   }
 
-  public static class InitDone {
+  public static class MessageInitDone {
     public final boolean isSuccess;
 
-    public InitDone(boolean isSuccess) {
+    public MessageInitDone(boolean isSuccess) {
       this.isSuccess = isSuccess;
     }
   }
@@ -158,7 +158,7 @@ public class DbSlice {
 
     final boolean isInitSuccess = isPythonOk && isModulesInstalled && isUnpacked && isFraggerOk;
     isInitialized = isInitSuccess;
-    EventBus.getDefault().postSticky(new InitDone(isInitSuccess));
+    EventBus.getDefault().postSticky(new MessageInitDone(isInitSuccess));
   }
 
   private CheckResult checkPythonVer() throws Exception {

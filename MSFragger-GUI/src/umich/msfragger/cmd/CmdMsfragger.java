@@ -6,16 +6,16 @@ import java.awt.Component;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
-import umich.msfragger.gui.FraggerPanel;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.dbslice.DbSlice;
+import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.StringUtils;
@@ -48,11 +48,11 @@ public class CmdMsfragger extends CmdBase {
   }
 
   public boolean configure(Component comp, boolean isDryRun,
-      FraggerPanel fp, Path jarFragpipe, UsageTrigger binFragger, String pathFasta,
+      FraggerMigPanel fp, Path jarFragpipe, UsageTrigger binFragger, String pathFasta,
       List<InputLcmsFile> lcmsFiles) {
 
     pbs.clear();
-    final int numSlices = fp.getNumSlices();
+    final int numSlices = fp.getNumDbSlices();
     final boolean isSlicing = numSlices > 1;
     if (isSlicing) {
       // slicing requested
@@ -88,14 +88,7 @@ public class CmdMsfragger extends CmdBase {
     }
 
     // Search parameter file
-    MsfraggerParams params;
-    try {
-      params = fp.collectParams();
-    } catch (IOException ex) {
-      JOptionPane.showMessageDialog(comp, "Could not collect MSFragger params from GUI.\n",
-          "Error", JOptionPane.ERROR_MESSAGE);
-      return false;
-    }
+    MsfraggerParams params = fp.getParams();
     Path savedParamsPath = wd.resolve(MsfraggerParams.CACHE_FILE);
     if (!isDryRun) {
       try {

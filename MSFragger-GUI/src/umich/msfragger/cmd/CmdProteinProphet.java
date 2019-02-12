@@ -1,7 +1,6 @@
 package umich.msfragger.cmd;
 
 import java.awt.Component;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,9 +13,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
-import umich.msfragger.gui.FraggerPanel;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
+import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.protproph.ProteinProphetParams;
 import umich.msfragger.util.StringUtils;
@@ -76,7 +75,7 @@ public class CmdProteinProphet extends CmdBase {
     return m;
   }
 
-  public boolean configure(Component comp, FraggerPanel fp, UsageTrigger usePhilosopher,
+  public boolean configure(Component comp, UsageTrigger usePhilosopher,
       String txtProteinProphetCmdLineOpts,
       boolean isProcessGroupsSeparately, Map<InputLcmsFile, Path> pepxmlFiles) {
 

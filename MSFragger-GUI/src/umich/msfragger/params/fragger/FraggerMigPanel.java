@@ -35,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -71,12 +72,14 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.ModificationsTableModel;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
-import umich.msfragger.messages.MessageFraggerValidity;
+import umich.msfragger.messages.MessageValidityFragger;
 import umich.msfragger.messages.MessagePrecursorSelectionMode;
 import umich.msfragger.messages.MessageSearchType;
-import umich.msfragger.messages.MsfraggerParamsUpdate;
+import umich.msfragger.messages.MessageMsfraggerParamsUpdate;
+import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.Props.Prop;
 import umich.msfragger.params.ThisAppProps;
+import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.enums.CleavageType;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.enums.FraggerPrecursorMassMode;
@@ -146,7 +149,6 @@ public class FraggerMigPanel extends JPanel {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_override_charge, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.fromValueInParamsFile(s).name());
-
   }
 
   private ImageIcon icon;
@@ -161,6 +163,8 @@ public class FraggerMigPanel extends JPanel {
   private UiSpinnerInt uiSpinnerThreads;
   private UiCombo uiComboOutputType;
   private UiCheck uiCheckAdjustPrecursorMass;
+  private UiSpinnerInt uiSpinnerDbslice;
+  private Map<Component, Boolean> enablementMapping = new HashMap<>();
 
   public FraggerMigPanel() {
     initMore();
@@ -169,16 +173,16 @@ public class FraggerMigPanel extends JPanel {
     EventBus.getDefault().register(this);
   }
 
-  private static void onClickDefautlsNonspecific(ActionEvent e) {
-    EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.nonspecific));
+  private void onClickDefautlsNonspecific(ActionEvent e) {
+    loadDefaults(SearchTypeProp.nonspecific, true);
   }
 
-  private static void onClickDefaultsOpen(ActionEvent e) {
-    EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.open));
+  private void onClickDefaultsOpen(ActionEvent e) {
+    loadDefaults(SearchTypeProp.open, true);
   }
 
-  private static void onClickDefaultsClosed(ActionEvent e) {
-    EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.closed));
+  private void onClickDefaultsClosed(ActionEvent e) {
+    loadDefaults(SearchTypeProp.closed, true);
   }
 
   private static void onChangeMassMode(ItemEvent e) {
@@ -216,11 +220,11 @@ public class FraggerMigPanel extends JPanel {
         SwingUtils.enableComponents(pContent, checkRun.isSelected(), true);
       });
       JButton closed = new JButton("Closed Search");
-      closed.addActionListener(FraggerMigPanel::onClickDefaultsClosed);
+      closed.addActionListener(this::onClickDefaultsClosed);
       JButton open = new JButton("Open Search");
-      open.addActionListener(FraggerMigPanel::onClickDefaultsOpen);
+      open.addActionListener(this::onClickDefaultsOpen);
       JButton nonspecific = new JButton("Non-specific Search");
-      open.addActionListener(FraggerMigPanel::onClickDefautlsNonspecific);
+      open.addActionListener(this::onClickDefautlsNonspecific);
 
       pTop.add(checkRun);
       pTop.add(new JLabel("Load defaults:"), new CC().gapLeft("15px"));
@@ -395,8 +399,8 @@ public class FraggerMigPanel extends JPanel {
 
       FormEntry feMaxFragCharge = new FormEntry(MsfraggerParams.PROP_max_fragment_charge,
           "Max fragment charge", new UiSpinnerInt(2, 0, 20, 1, 2));
-      FormEntry feSliceDb = new FormEntry(PROP_misc_slice_db, "<html><i>Slice up database",
-          new UiSpinnerInt(1, 1, 99, 1, 2),
+      uiSpinnerDbslice = new UiSpinnerInt(1, 1, 99, 1, 2);
+      FormEntry feSliceDb = new FormEntry(PROP_misc_slice_db, "<html><i>Slice up database", uiSpinnerDbslice,
           "<html>Split database into smaller chunks.<br/>Only use for very large databases (200MB+) or<br/>non-specific digestion.");
       pDigest.add(feMaxFragCharge.label(), new CC().split(2).span(2).alignX("right"));
       pDigest.add(feMaxFragCharge.comp);
@@ -940,11 +944,34 @@ public class FraggerMigPanel extends JPanel {
   }
 
   @Subscribe
-  public void onFraggerValidity(MessageFraggerValidity msg) {
-    if (msg.isValid == this.isEnabled()) {
+  public void onValidityFragger(MessageValidityFragger msg) {
+    enablementMapping.put(this, msg.isValid);
+    updateEnabledStatus(this, msg.isValid);
+  }
+
+  @Subscribe
+  public void onValidityMsadjuster(MessageValidityMsadjuster msg) {
+    enablementMapping.put(uiCheckAdjustPrecursorMass, msg.isValid);
+    updateEnabledStatus(uiCheckAdjustPrecursorMass, msg.isValid);
+  }
+
+  private void updateEnabledStatus(Component top, boolean enabled) {
+    if (top == null || top.isEnabled() == enabled)
       return;
-    }
-    SwingUtilities.invokeLater(() -> SwingUtils.enableComponents(this, msg.isValid));
+    SwingUtilities.invokeLater(() -> {
+      ArrayDeque<Component> stack = new ArrayDeque<>();
+      stack.push(top);
+      while (!stack.isEmpty()) {
+        Component c = stack.pop();
+        boolean enabledStatus = enabled && enablementMapping.getOrDefault(c, true);
+        c.setEnabled(enabledStatus);
+        if (c instanceof Container) {
+          for (Component child : ((Container) c).getComponents()) {
+            stack.push(child);
+          }
+        }
+      }
+    });
   }
 
   @Subscribe
@@ -958,9 +985,13 @@ public class FraggerMigPanel extends JPanel {
   }
 
   @Subscribe
-  public void onMsfraggerParamsUpdated(MsfraggerParamsUpdate m) {
+  public void onMsfraggerParamsUpdated(MessageMsfraggerParamsUpdate m) {
     formFrom(m.params);
     cacheSave();
+  }
+
+  public void onSearchType(MessageSearchType m) {
+
   }
 
   public int getRamGb() {
@@ -969,6 +1000,18 @@ public class FraggerMigPanel extends JPanel {
 
   public int getThreads() {
     return (Integer) uiSpinnerThreads.getValue();
+  }
+
+  public boolean isRun() {
+    return checkRun.isSelected() && checkRun.isEnabled();
+  }
+
+  public boolean isMsadjuster() {
+    return uiCheckAdjustPrecursorMass.isEnabled() && uiCheckAdjustPrecursorMass.isSelected();
+  }
+
+  public int getNumDbSlices() {
+    return uiSpinnerDbslice.getActualValue();
   }
 
   public String getOutputFileExt() {
@@ -1006,7 +1049,7 @@ public class FraggerMigPanel extends JPanel {
         try {
           MsfraggerParams p = formCollect();
           p.load(new FileInputStream(selectedFile), true);
-          EventBus.getDefault().post(new MsfraggerParamsUpdate(p));
+          EventBus.getDefault().post(new MessageMsfraggerParamsUpdate(p));
           p.save();
 
         } catch (Exception ex) {
@@ -1021,5 +1064,50 @@ public class FraggerMigPanel extends JPanel {
             JOptionPane.ERROR_MESSAGE);
       }
     }
+  }
+
+  private void loadDefaults(SearchTypeProp type) {
+    MsfraggerParams params = new MsfraggerParams();
+    switch (type) {
+      case open:
+        params.loadDefaultsOpenSearch();
+        break;
+      case closed:
+        params.loadDefaultsClosedSearch();
+        break;
+      case nonspecific:
+        params.loadDefaultsNonspecific();
+        break;
+      default:
+        throw new AssertionError(type.name());
+    }
+    formFrom(params);
+  }
+
+  private void loadDefaults(SearchTypeProp type, boolean askUser) {
+    if (askUser) {
+      int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
+          "Load " + type + " search default configuration?");
+      if (JOptionPane.YES_OPTION != confirmation) {
+        return;
+      }
+    }
+    loadDefaults(type);
+
+    if (askUser) {
+      int updateOther = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
+          "<html>Would you like to update options for other tools as well?<br/>"
+              + "<b>Highly recommended</b>, unless you're sure what you're doing)");
+      if (JOptionPane.OK_OPTION != updateOther) {
+        return;
+      }
+      EventBus.getDefault().post(new MessageSearchType(type));
+    }
+  }
+
+  @Subscribe
+  public void onDbslicingInitDone(DbSlice.MessageInitDone m) {
+    enablementMapping.put(uiSpinnerDbslice, m.isSuccess);
+    updateEnabledStatus(uiSpinnerDbslice, m.isSuccess);
   }
 }
