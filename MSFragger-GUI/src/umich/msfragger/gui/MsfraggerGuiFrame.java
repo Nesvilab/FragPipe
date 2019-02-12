@@ -168,7 +168,6 @@ import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.umpire.UmpirePanel;
 import umich.msfragger.util.FileDrop;
-import umich.msfragger.util.FileDrop.Event;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.GhostText;
 import umich.msfragger.util.HSLColor;
@@ -3265,17 +3264,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     return textSequenceDbPath.getText().trim();
   }
 
-
-  private void btnRunActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRunActionPerformed
-
-    EventBus.getDefault().post(new MessageRun());
+  @Subscribe
+  public void onRun(MessageRun m) {
+    final boolean isDryRun = m.isDryRun;
 
     resetRunButtons(false);
-    final boolean isPrintButtonClicked =
-        btnPrintCommands != null && btnPrintCommands.equals(evt.getSource());
-    final boolean isDryRun = checkDryRun.isSelected() || isPrintButtonClicked;
-
     final boolean doRunFragger = fraggerMigPanel.isRun();
     boolean doRunProphetsAndReport = chkRunPeptideProphet.isSelected()
         || chkRunProteinProphet.isSelected()
@@ -3467,12 +3460,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
 
-    final boolean isProcessGroupsSeparately = checkProcessGroupsSeparately.isSelected();
     final String binPhilosopher = textBinPhilosopher.getText().trim();
     final List<ProcessBuildersDescriptor> pbDescsToFill = new ArrayList<>();
 
     // main call to generate all the process builders
-    if (!processBuildersNew(wdPath, jarFragpipePath, binPhilosopher, pbDescsToFill)) {
+    if (!processBuildersNew(wdPath, jarFragpipePath, binPhilosopher, isDryRun, pbDescsToFill)) {
       resetRunButtons(true);
       return;
     }
@@ -3616,10 +3608,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 final int exitValue = proc.exitValue();
                 pr.setExitCode(exitValue);
                 SwingUtilities.invokeLater(() -> {
-                    Color c = exitValue == 0 ? greenDarker : red;
-                    console.append(c, String.format(
-                        Locale.ROOT, "Process finished, exit value: %d\n", exitValue));
-                  });
+                  Color c = exitValue == 0 ? greenDarker : red;
+                  console.append(c, String.format(
+                      Locale.ROOT, "Process finished, exit value: %d\n", exitValue));
+                });
 
                 break;
               } catch (IllegalThreadStateException ignore) {
@@ -3675,7 +3667,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     exec.submit(finalizerTask);
 
     exec.shutdown();
+  }
 
+  private void btnRunActionPerformed(
+      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRunActionPerformed
+    final boolean isDryRun = checkDryRun.isSelected();
+    EventBus.getDefault().post(new MessageRun(isDryRun));
   }//GEN-LAST:event_btnRunActionPerformed
 
 
@@ -3710,7 +3707,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   /**
    * @param wd Global working directory. LCMS file groups' output will be created inside this one.
    */
-  private boolean processBuildersNew(Path wd, Path jarFragpipe, String binPhilosopher,
+  private boolean processBuildersNew(Path wd, Path jarFragpipe, String binPhilosopher, boolean isDryRun,
       final List<ProcessBuildersDescriptor> pbDescsToFill) {
 
     final List<ProcessBuildersDescriptor> pbDescs = new ArrayList<>();
@@ -3721,8 +3718,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .flatMap(g -> g.lcmsFiles.stream())
         .collect(Collectors.toList());
 
-
-    final boolean isDryRun = checkDryRun.isSelected();
     final UsageTrigger usePhi = new UsageTrigger(binPhilosopher, "Philosopher");
 
 
@@ -4751,7 +4746,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnPrintCommandsActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintCommandsActionPerformed
-    btnRunActionPerformed(evt);
+    EventBus.getDefault().post(new MessageRun(true));
   }//GEN-LAST:event_btnPrintCommandsActionPerformed
 
   private void checkReportAbacusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkReportAbacusActionPerformed
