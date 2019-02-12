@@ -923,6 +923,12 @@ public class FraggerMigPanel extends JPanel {
     p.setDigestMassRange(digestMassRange);
     p.setPrecursorCharge(precursorChargeRange);
 
+    FraggerOutputType outType = p.getOutputFormat();
+    if (outType == null) {
+      throw new IllegalStateException("FraggerOutputType was not set by the point where we needed to provide the output extension.");
+    }
+    p.setOutputFileExtension(outType.getExtension());
+
     return p;
   }
 
