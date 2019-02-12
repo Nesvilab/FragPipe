@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.params.AbstractParams;
 import umich.msfragger.params.Props;
 import umich.msfragger.params.Props.Prop;
@@ -234,39 +235,31 @@ public class MsfraggerParams extends AbstractParams {
     
     @Override
     public void loadDefault() {
-        loadDefaultsClosedSearch();
+        loadDefaults(SearchTypeProp.closed);
     }
     
     @Override
     public Path tempFileName() {
         return Paths.get(CACHE_FILE);
     }
-    
-    
-    public void loadDefaultsOpenSearch() {
+
+    public void loadDefaults(SearchTypeProp type) {
         try {
-            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_OPENSEARCH), true);
+            switch (type) {
+                case open:
+                    load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_OPENSEARCH), true);
+                    break;
+                case closed:
+                    load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_CLOSEDSEARCH), true);
+                    break;
+                case nonspecific:
+                    load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_NONSPECIFICSEARCH), true);
+                    break;
+                default:
+                    throw new AssertionError(type.name());
+            }
         } catch (IOException e) {
-            // this is strange, we're loading stuff from our own jar, should not happen
-            throw new IllegalStateException("Could not load MSFragger defaults for Open Search from the jar itself.", e);
-        }
-    }
-    
-    public void loadDefaultsClosedSearch() {
-        try {
-            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_CLOSEDSEARCH), true);
-        } catch (IOException e) {
-            // this is strange, we're loading stuff from our own jar, should not happen
-            throw new IllegalStateException("Could not load MSFragger defaults for Closed Search from the jar itself.", e);
-        }
-    }
-    
-    public void loadDefaultsNonspecific() {
-      try {
-            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_NONSPECIFICSEARCH), true);
-        } catch (IOException e) {
-            // this is strange, we're loading stuff from our own jar, should not happen
-            throw new IllegalStateException("Could not load MSFragger defaults for Closed Search from the jar itself.", e);
+            throw new IllegalStateException("Could not load MSFragger defaults for " + type.name() + " from the jar itself.", e);
         }
     }
     

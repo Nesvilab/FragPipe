@@ -133,27 +133,10 @@ public class FraggerPanel extends javax.swing.JPanel {
             // something went wrong when loading defaults from the temp storage
             String message = String.format(Locale.ROOT, "Could not load previously stored "
                     + "parameters while creating MSFragger panel.\n\n"
-                    + "Load defaults instead?\n\n"
-                    + "If you choose to load defaults you might also want to click\n"
-                    + "the 'Load defaults..' button on the Config panel to make sure\n"
-                    + "that other panels are in synch with all the correct options.\n\n"
-                    + "If you choose cancel, some parts of the MSFragger panel might not\n"
-                    + "be pre-populated with data.");
-            String[] options = {"Cancel", "Load defaults for Closed", "Load defaults of Open"};
+                    + "You can load defaults instead.");
+            String[] options = {"Cancel"};
             int result = JOptionPane.showOptionDialog(this, message, "Reset to defautls", 
                         JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-            switch (result) {
-                case 1:
-                    params.clear();
-                    params.loadDefaultsClosedSearch();
-                    fillFormFromParams(params);
-                    break;
-                case 2:
-                    params.clear();
-                    params.loadDefaultsOpenSearch();
-                    fillFormFromParams(params);
-                    break;
-            }
         }
         
         EventBus.getDefault().register(this);
@@ -342,7 +325,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     
     public MsfraggerParams collectParams() throws IOException {
         MsfraggerParams p = new MsfraggerParams();
-        p.loadDefaultsOpenSearch();
+        p.loadDefaults(SearchTypeProp.open);
         fillParamsFromForm(p);
         return p;
     }
@@ -1669,19 +1652,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     }
     
     public void loadDefaults(SearchTypeProp type) {
-      switch (type) {
-        case open:
-          params.loadDefaultsOpenSearch();
-          break;
-        case closed:
-          params.loadDefaultsClosedSearch();
-          break;
-        case nonspecific:
-          params.loadDefaultsNonspecific();
-          break;
-        default:
-          throw new AssertionError(type.name());
-      }
+      params.loadDefaults(type);
       fillFormFromParams(params);
       loadDefaultsMsadjuster(type);
     }

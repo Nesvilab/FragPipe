@@ -72,6 +72,8 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.ModificationsTableModel;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
+import umich.msfragger.messages.MessageRun;
+import umich.msfragger.messages.MessageSaveCache;
 import umich.msfragger.messages.MessageValidityFragger;
 import umich.msfragger.messages.MessagePrecursorSelectionMode;
 import umich.msfragger.messages.MessageSearchType;
@@ -239,7 +241,7 @@ public class FraggerMigPanel extends JPanel {
 
       uiSpinnerRam = new UiSpinnerInt(0, 0, 1024, 1, 3);
       FormEntry feRam = new FormEntry(PROP_misc_ram, "RAM (GB)", uiSpinnerRam);
-      uiSpinnerThreads = new UiSpinnerInt(0, 0, 128, 3);
+      uiSpinnerThreads = new UiSpinnerInt(0, 0, 128, 1);
       FormEntry feThreads = new FormEntry(MsfraggerParams.PROP_num_threads, "Threads",
           uiSpinnerThreads);
 
@@ -701,7 +703,7 @@ public class FraggerMigPanel extends JPanel {
       try {
         Path path = CacheUtils.locateTempFile(CACHE_PROPS);
         MsfraggerParams params = new MsfraggerParams();
-        params.load();
+        params.load(Files.newInputStream(path), false);
         formFrom(params);
       } catch (FileNotFoundException ignored) {
         // no form cache yet
@@ -760,17 +762,6 @@ public class FraggerMigPanel extends JPanel {
     return tableModelFixMods;
   }
 
-  /**
-   * Tables need to be cleared separately as they may contain more rows than would be filled by the
-   * new properties. So old 'ghost' entries might be left at the end of the table in such a case.
-   */
-  private void clearFormTables() {
-    setTableData(tableModelVarMods, new Object[0][TABLE_VAR_MODS_COL_NAMES.length],
-        TABLE_VAR_MODS_COL_NAMES, MsfraggerParams.VAR_MOD_COUNT_MAX);
-    setTableData(tableModelFixMods, new Object[0][TABLE_FIX_MODS_COL_NAMES.length],
-        TABLE_FIX_MODS_COL_NAMES, MsfraggerParams.ADDON_NAMES.length);
-  }
-
   private void updateRowHeights(JTable table) {
     for (int row = 0; row < table.getRowCount(); row++) {
       int rowHeight = table.getRowHeight();
@@ -782,14 +773,6 @@ public class FraggerMigPanel extends JPanel {
 
       table.setRowHeight(row, rowHeight);
     }
-  }
-
-  private void enablePanels(boolean enabled) {
-    SwingUtilities.invokeLater(() -> {
-      for (Container c : Arrays.asList(pContent)) {
-        SwingUtils.enableComponents(c, enabled);
-      }
-    });
   }
 
   private void formFrom(MsfraggerParams params) {
@@ -842,15 +825,18 @@ public class FraggerMigPanel extends JPanel {
     final double[] clearMzRange = new double[2];
     final double[] digestMassRange = new double[2];
     final int[] precursorChargeRange = new int[2];
+
     for (Entry<String, String> e : map.entrySet()) {
       final String k = e.getKey();
       final String v = e.getValue();
       if (MsfraggerParams.PROP_NAMES_SET.contains(k)) {
-        p.getProps().setProp(k, v);
+        // known property
+        Function<String, String> converter = CONVERT_TO_FILE.getOrDefault(k, s -> s);
+        p.getProps().setProp(k, converter.apply(v));
       } else {
         // unknown prop, it better should be from the "misc" category we added in this panel
         if (PROPS_MISC_NAMES.contains(k) || k.startsWith("misc.")) {
-          log.debug("Found misc option: {}={}", k, v);
+          log.trace("Found misc option: {}={}", k, v);
 
           switch (k) {
             case PROP_misc_fragger_clear_mz_lo:
@@ -891,18 +877,19 @@ public class FraggerMigPanel extends JPanel {
     HashMap<String, String> map = new HashMap<>();
     for (Entry<String, Prop> e : params.getProps().getMap().entrySet()) {
       if (e.getValue().isEnabled) {
-//        final Function<String, String> converter = CONVERT_TO_GUI.getOrDefault(e.getKey(), s -> s);
-//        final String converted = converter.apply(e.getValue().value);
-        Function<String, String> converter = CONVERT_TO_GUI.get(e.getKey());
-        //final String converted = converter == null ? e.getValue().value : converter.apply(e.getValue().value) ;
-        String converted;
+        final Function<String, String> converter = CONVERT_TO_GUI.get(e.getKey());
+        final String converted;
         if (converter != null) {
-          converted = converter.apply(e.getValue().value);
+          try {
+            converted = converter.apply(e.getValue().value);
+            map.put(e.getKey(), converted);
+          } catch (Exception ex) {
+            log.error("Error converting parameter [{}={}]", e.getKey(), e.getValue().value);
+          }
         } else {
           converted = e.getValue().value;
+          map.put(e.getKey(), converted);
         }
-
-        map.put(e.getKey(), converted);
       }
     }
 
@@ -963,6 +950,10 @@ public class FraggerMigPanel extends JPanel {
       stack.push(top);
       while (!stack.isEmpty()) {
         Component c = stack.pop();
+        Boolean orDefault = enablementMapping.get(c);
+        if (orDefault != null) {
+          int a = 1;
+        }
         boolean enabledStatus = enabled && enablementMapping.getOrDefault(c, true);
         c.setEnabled(enabledStatus);
         if (c instanceof Container) {
@@ -1068,19 +1059,7 @@ public class FraggerMigPanel extends JPanel {
 
   private void loadDefaults(SearchTypeProp type) {
     MsfraggerParams params = new MsfraggerParams();
-    switch (type) {
-      case open:
-        params.loadDefaultsOpenSearch();
-        break;
-      case closed:
-        params.loadDefaultsClosedSearch();
-        break;
-      case nonspecific:
-        params.loadDefaultsNonspecific();
-        break;
-      default:
-        throw new AssertionError(type.name());
-    }
+    params.loadDefaults(type);
     formFrom(params);
   }
 
@@ -1109,5 +1088,15 @@ public class FraggerMigPanel extends JPanel {
   public void onDbslicingInitDone(DbSlice.MessageInitDone m) {
     enablementMapping.put(uiSpinnerDbslice, m.isSuccess);
     updateEnabledStatus(uiSpinnerDbslice, m.isSuccess);
+  }
+
+  @Subscribe
+  public void onRun(MessageRun msg) {
+    cacheSave();
+  }
+
+  @Subscribe
+  public void onSaveCache(MessageSaveCache msg) {
+    cacheSave();
   }
 }

@@ -34,6 +34,8 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -145,6 +147,8 @@ import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
 import umich.msfragger.messages.MessageDecoyTag;
+import umich.msfragger.messages.MessageRun;
+import umich.msfragger.messages.MessageSaveCache;
 import umich.msfragger.messages.MessageValidityFragger;
 import umich.msfragger.messages.MessageIsUmpireRun;
 import umich.msfragger.messages.MessageSearchType;
@@ -3264,6 +3268,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void btnRunActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRunActionPerformed
 
+    EventBus.getDefault().post(new MessageRun());
+
     resetRunButtons(false);
     final boolean isPrintButtonClicked =
         btnPrintCommands != null && btnPrintCommands.equals(evt.getSource());
@@ -5422,6 +5428,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     /* Create and display the form */
     java.awt.EventQueue.invokeLater(() -> {
       final MsfraggerGuiFrame frame = new MsfraggerGuiFrame();
+
+      frame.addWindowListener(new WindowAdapter() {
+        @Override
+        public void windowClosing(WindowEvent e) {
+          EventBus.getDefault().post(new MessageSaveCache());
+        }
+
+
+      });
 
       Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
         StringWriter sw = new StringWriter();
