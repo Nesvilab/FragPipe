@@ -950,11 +950,6 @@ public class FraggerMigPanel extends JPanel {
       stack.push(top);
       while (!stack.isEmpty()) {
         Component c = stack.pop();
-        Boolean orDefault = enablementMapping.get(c);
-        if (orDefault != null) {
-          int a = 1;
-        }
-
         Container parent = c.getParent();
         boolean parentsEnabledStatus = parent != null && parent.isEnabled();
         boolean enabledStatus = enabled && parentsEnabledStatus && enablementMapping.getOrDefault(c, true);
@@ -1067,7 +1062,7 @@ public class FraggerMigPanel extends JPanel {
     formFrom(params);
   }
 
-  private void loadDefaults(SearchTypeProp type, boolean askUser) {
+  private void loadDefaults(final SearchTypeProp type, boolean askUser) {
     if (askUser) {
       int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
           "Load " + type + " search default configuration?");
