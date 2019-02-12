@@ -180,15 +180,21 @@ public class FraggerMigPanel extends JPanel {
   }
 
   private void onClickDefautlsNonspecific(ActionEvent e) {
-    loadDefaults(SearchTypeProp.nonspecific, true);
+    if (loadDefaults(SearchTypeProp.nonspecific, true)) {
+      postSearchTypeUpdate(SearchTypeProp.nonspecific, true);
+    }
   }
 
   private void onClickDefaultsOpen(ActionEvent e) {
-    loadDefaults(SearchTypeProp.open, true);
+    if (loadDefaults(SearchTypeProp.open, true)) {
+      postSearchTypeUpdate(SearchTypeProp.open, true);
+    }
   }
 
   private void onClickDefaultsClosed(ActionEvent e) {
-    loadDefaults(SearchTypeProp.closed, true);
+    if (loadDefaults(SearchTypeProp.closed, true)) {
+      postSearchTypeUpdate(SearchTypeProp.closed, true);
+    }
   }
 
   private static void onChangeMassMode(ItemEvent e) {
@@ -1026,8 +1032,9 @@ public class FraggerMigPanel extends JPanel {
     cacheSave();
   }
 
+  @Subscribe
   public void onSearchType(MessageSearchType m) {
-
+    loadDefaults(m.type);
   }
 
   public int getRamGb() {
@@ -1108,25 +1115,37 @@ public class FraggerMigPanel extends JPanel {
     formFrom(params);
   }
 
-  private void loadDefaults(final SearchTypeProp type, boolean askUser) {
-    if (askUser) {
+  /**
+   * @return False if user's confirmation was required, but they cancelled the operation. True
+   *         otherwise.
+   */
+  private boolean loadDefaults(final SearchTypeProp type, boolean askConfirmation) {
+    if (askConfirmation) {
       int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
           "Load " + type + " search default configuration?");
       if (JOptionPane.YES_OPTION != confirmation) {
-        return;
+        return false;
       }
     }
     loadDefaults(type);
+    return true;
+  }
 
-    if (askUser) {
-      int updateOther = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
+  /**
+   * @return False if user's confirmation was required, but they cancelled the operation. True
+   *         otherwise.
+   */
+  private boolean postSearchTypeUpdate(SearchTypeProp type, boolean askConfirmation) {
+    if (askConfirmation) {
+      int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
           "<html>Would you like to update options for other tools as well?<br/>"
               + "<b>Highly recommended</b>, unless you're sure what you're doing)");
-      if (JOptionPane.OK_OPTION != updateOther) {
-        return;
+      if (JOptionPane.OK_OPTION != confirmation) {
+        return false;
       }
-      EventBus.getDefault().post(new MessageSearchType(type));
     }
+    EventBus.getDefault().post(new MessageSearchType(type));
+    return true;
   }
 
   @Subscribe
