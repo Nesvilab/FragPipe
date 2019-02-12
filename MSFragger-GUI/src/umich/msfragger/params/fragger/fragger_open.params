@@ -58,7 +58,7 @@ add_topN_complementary = 0
 # spectral processing
 
 minimum_peaks = 15                   # required minimum number of peaks in spectrum to search (default 10)
-use_topN_peaks = 100
+use_topN_peaks = 150
 min_fragments_modelling = 3
 min_matched_fragments = 6 
 minimum_ratio = 0.01		         # filter peaks below this fraction of strongest peak
