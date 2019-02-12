@@ -319,6 +319,7 @@ public class FraggerMigPanel extends JPanel {
       UiText uiTextIsoErr = new UiText();
       uiTextIsoErr.setDocument(DocumentFilters.getFilter("[^\\d/-]+"));
       uiTextIsoErr.setText("-1/0/1/2");
+      uiTextIsoErr.setColumns(10);
       FormEntry feIsotopeError = new FormEntry(MsfraggerParams.PROP_isotope_error, "Isotope error",
           uiTextIsoErr,
           "<html>String of the form -1/0/1/2 indicating which isotopic<br/>peak selection errors MSFragger will try to correct.");
