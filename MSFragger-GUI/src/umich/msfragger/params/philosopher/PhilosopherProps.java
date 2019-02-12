@@ -43,6 +43,6 @@ public class PhilosopherProps {
     public static final String PROP_LATEST_COMPATIBLE_VERSION = "philosopher.version.latest-compatible";
     public static final String PROP_DOWNLOAD_URL = "philosopher.download.url";
     
-    public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/philosopher/philosopher.properties";
+    public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/philosopher/philosopher.properties";
     public static final URI PROPERTIES_URI = URI.create(PROPERTIES_URL);
 }

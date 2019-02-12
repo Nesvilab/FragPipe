@@ -42,7 +42,7 @@ public class Version {
 
   public static final String PATH_BUNDLE = "umich/msfragger/gui/Bundle";
   public static final String PROPERTIES_REMOTE_URL =
-      "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/"
+      "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/"
           + PATH_BUNDLE + ".properties";
   public static final URI PROPERTIES_REMOTE_URI = URI.create(PROPERTIES_REMOTE_URL);
 
