@@ -954,7 +954,11 @@ public class FraggerMigPanel extends JPanel {
         if (orDefault != null) {
           int a = 1;
         }
-        boolean enabledStatus = enabled && enablementMapping.getOrDefault(c, true);
+
+        Container parent = c.getParent();
+        boolean parentsEnabledStatus = parent != null && parent.isEnabled();
+        boolean enabledStatus = enabled && parentsEnabledStatus && enablementMapping.getOrDefault(c, true);
+
         c.setEnabled(enabledStatus);
         if (c instanceof Container) {
           for (Component child : ((Container) c).getComponents()) {
