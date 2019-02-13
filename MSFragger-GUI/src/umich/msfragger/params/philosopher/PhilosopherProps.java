@@ -18,6 +18,9 @@ package umich.msfragger.params.philosopher;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
+import umich.msfragger.params.Props.Prop;
+import umich.msfragger.util.PropertiesUtils;
 
 /**
  *
@@ -25,9 +28,6 @@ import java.util.List;
  */
 public class PhilosopherProps {
     public static final String PROGRAM_NAME = "Philosopher";
-
-    public static final String DOWNLOAD_URL = "https://github.com/Nesvilab/philosopher/releases/latest";
-
     public static final String CMD_COMET = "comet";
     public static final String CMD_PEPTIDE_PROPHET = "peptideprophet";
     public static final String CMD_PROTEIN_PROPHET = "proteinprophet";
@@ -36,10 +36,9 @@ public class PhilosopherProps {
     public static final String CMD_REPORT = "report";
     public static final String CMD_IPROPHET = "iprophet";
     public static final String CMD_LABELFREE = "freequant";
-
     public static final String PROTEIN_PROPHET_OUTPUT_FILE = "interact.prot.xml";
 
-    public static final String PROPERTY_FILE_NAME = "philosopher.properties";
+    private static final String PROPERTIES_FILE_NAME = "philosopher.properties";
 
     public static final String PROP_LATEST_COMPATIBLE_VERSION = "philosopher.version.latest-compatible";
     public static final String PROP_DOWNLOAD_URL = "philosopher.download.url";
@@ -49,4 +48,16 @@ public class PhilosopherProps {
         "https://raw.githubusercontent.com/chhh/FragPipe/updates/MSFragger-GUI/src/umich/msfragger/params/philosopher/philosopher.properties",
         "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/philosopher/philosopher.properties"
     );
+
+    private static class Holder {
+        private static final Properties properties = PropertiesUtils
+            .initProperties(PROPERTIES_URLS, PROPERTIES_FILE_NAME, PhilosopherProps.class);
+        public static Properties getProperties() {
+            return properties;
+        }
+    }
+
+    public static Properties getProperties() {
+        return Holder.getProperties();
+    }
 }

@@ -41,17 +41,32 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.exceptions.FileWritingException;
 import umich.msfragger.params.PropLine;
 import umich.msfragger.params.PropertyFileContent;
+import umich.msfragger.params.Props.Prop;
+import umich.msfragger.params.fragger.MsfraggerProps;
 
 /**
  *
  * @author dmitriya
  */
-public class PropertiesUtils {
+public final class PropertiesUtils {
     private static final Logger log = LoggerFactory.getLogger(PropertiesUtils.class);
 
     private PropertiesUtils() {
     }
-    
+
+    public static Properties initProperties(List<String> urls, String propFileName, Class<?> clazz) {
+        Properties props = PropertiesUtils
+            .fetchPropertiesFromRemote(urls);
+        if (props == null) {
+            log.debug("Did not get {} from any of remote sources", propFileName);
+            props = PropertiesUtils.loadPropertiesLocal(clazz, propFileName);
+        }
+        if (props == null) {
+            throw new IllegalStateException("Could not init properties object");
+        }
+        return props;
+    }
+
     /**
      * Loads properties from a properties file that sits next to a given class on the classpath.
      * @param clazz Class relative to which to look for.
@@ -70,7 +85,7 @@ public class PropertiesUtils {
             p.load(is);
             return p;
         } catch (IOException e) {
-            throw new IllegalStateException("Error reading msfragger.properties from the classpath");
+            throw new IllegalStateException("Error reading properties from the classpath");
         }
     }
     

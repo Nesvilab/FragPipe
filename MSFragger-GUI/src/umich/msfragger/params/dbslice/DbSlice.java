@@ -227,16 +227,7 @@ public class DbSlice {
 
   private CheckResult checkFraggerVer(String fraggerVer) {
     VersionComparator cmp = new VersionComparator();
-    // for the lack of a better default, we'll just hard code this here
-    String minFraggerVer = "20180924";
-    Properties props = PropertiesUtils
-        .loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
-    if (props != null)
-      minFraggerVer = props.getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, minFraggerVer);
-    if (minFraggerVer == null) {
-      throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_SLICING +
-          " property needs to be in the local properties: " + MsfraggerProps.PROPERTIES_FILE_NAME);
-    }
+    String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, "20180924");
     int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
 
     if (fraggerVersionCmp >= 0)

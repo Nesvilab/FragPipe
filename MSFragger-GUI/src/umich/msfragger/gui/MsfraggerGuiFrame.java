@@ -47,7 +47,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -79,10 +78,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -119,7 +116,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
@@ -2470,25 +2466,27 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     boolean isJavaValid = isVersionValid && validateMsfraggerJavaVersion();
 
     if (!isPathValid) {
+      final String downloadUrl = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_DOWNLOAD_URL, "");
       JEditorPane ep = SwingUtils.createClickableHtml(String.format(
           "<html>Could not find MSFragger jar file at this location.<br/>\n"
               + "Corresponding panel won't be active.<br/><br/>"
               + "<b>If that's the first time you're using %s</b>,<br/>"
               + "you will need to <a href=\"%s\">download MSFragger.jar (click here)</a> first.<br/>"
               + "Use the button on the right to proceed to the download website.",
-          Version.PROGRAM_TITLE, MsfraggerProps.DOWNLOAD_URL));
+          Version.PROGRAM_TITLE, downloadUrl));
 
       balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
           new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
       balloonMsfragger.setVisible(true);
     } else if (!isJarValid) {
+      final String downloadUrl = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_DOWNLOAD_URL, "");
       JEditorPane ep = SwingUtils.createClickableHtml(String.format(
-          "<html>Looks like you selected an existing jar file, but we.<br/>\n"
+          "<html>Looks like you selected an existing jar file, but we<br/>\n"
               + "don't recognize it as a valid MSFragger distribution.<br/><br/>"
               + "<b>If that's the first time you're using %s</b>,<br/>"
               + "you will need to <a href=\"%s\">download MSFragger.jar (click here)</a> first.<br/>"
               + "Use the button on the right to proceed to the download website.",
-          Version.PROGRAM_TITLE, MsfraggerProps.DOWNLOAD_URL));
+          Version.PROGRAM_TITLE, downloadUrl));
 
       balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
           new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
@@ -2586,17 +2584,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   public void validateMsadjusterEligibility() {
     new Thread(() -> {
       boolean enableMsadjuster = false;
-      String minFraggerVer = null;
-      Properties props = PropertiesUtils
-          .loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
-      if (props != null) {
-        minFraggerVer = props
-            .getProperty(MsfraggerProps.PROP_MIN_VERSION_MSADJUSTER, minFraggerVer);
-      }
+      String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_MSADJUSTER);
       if (minFraggerVer == null) {
         throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_MSADJUSTER +
-            " property needs to be in the local properties: "
-            + MsfraggerProps.PROPERTIES_FILE_NAME);
+            " property needs to be in Msfragger properties");
       }
 
       VersionComparator cmp = new VersionComparator();
@@ -2684,14 +2675,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           }
         }
 
-        Properties props = PropertiesUtils.fetchPropertiesFromRemote(PhilosopherProps.PROPERTIES_URLS);
-        if (props == null) // if we couldn't download remote properties, try using local ones
-        {
-          log.debug("Didn't get {} from any remote sources", PhilosopherProps.PROPERTY_FILE_NAME);
-          props = PropertiesUtils
-              .loadPropertiesLocal(PhilosopherProps.class, PhilosopherProps.PROPERTY_FILE_NAME);
-        }
-
         philosopherVer = StringUtils.isNullOrWhitespace(curVersionAndBuild) ? UNKNOWN_VERSION
             : curVersionAndBuild;
         lblPhilosopherInfo.setText(String.format(
@@ -2703,8 +2686,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (isNewVersionStringFound) {
           StringBuilder sb = new StringBuilder();
           sb.append("Newer version of Philosopher available.<br>\n");
-          sb.append("<a href=\"").append(downloadLink)
-              .append("\">Click here</a> to download.<br>\n");
+          sb.append("<a href=\"").append(downloadLink).append("\">Click here</a> to download.<br>\n");
+          Properties props = PhilosopherProps.getProperties();
           if (props != null) {
             // if we have some philosopher properties (local or better remote)
             // then check if this version is known to be compatible
@@ -2733,7 +2716,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT,
               "Philosopher version too old and is no longer supported.<br>\n"
                   + "Please <a href=\"%s\">click here</a> to download a newer one.",
-              PhilosopherProps.DOWNLOAD_URL));
+              PhilosopherProps.getProperties().getProperty(PhilosopherProps.PROP_DOWNLOAD_URL, "")));
         }
         if (ep != null) {
           if (balloonPhilosopher != null) {
@@ -2956,7 +2939,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void btnMsfraggerBinDownloadActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMsfraggerBinDownloadActionPerformed
     try {
-      Desktop.getDesktop().browse(MsfraggerProps.DOWNLOAD_URI);
+      final String downloadUrl = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_DOWNLOAD_URL, "");
+      Desktop.getDesktop().browse(URI.create(downloadUrl));
     } catch (IOException ex) {
       throw new IllegalStateException("Could not open MSFragger download link in browser.", ex);
     }
@@ -4400,7 +4384,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void btnMsfraggerUpdateActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMsfraggerUpdateActionPerformed
     try {
-      String url = MsfraggerProps.loadProperties()
+      String url = MsfraggerProps.getProperties()
           .getProperty(MsfraggerProps.PROP_UPDATESERVER_WEBSITE_URL);
       Desktop.getDesktop().browse(URI.create(url));
     } catch (IOException ex) {
@@ -5089,7 +5073,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                   + "<b>If that's the first time you're using %s</b>,<br/>"
                   + "you will need to <a href=\"%s\">download Philosopher (click here)</a> first.<br/>"
                   + "Use the button on the right to proceed to the download website.",
-              Version.PROGRAM_TITLE, PhilosopherProps.DOWNLOAD_URL));
+              Version.PROGRAM_TITLE, PhilosopherProps.getProperties().getProperty(PhilosopherProps.PROP_DOWNLOAD_URL, "")));
 
           balloonPhilosopher = new BalloonTip(textBinPhilosopher, ep,
               new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
