@@ -5,6 +5,7 @@ import static umich.msfragger.util.PathUtils.testFilePath;
 import java.awt.Component;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.fragger.FraggerMigPanel;
@@ -22,7 +26,7 @@ import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.UsageTrigger;
 
 public class CmdMsfragger extends CmdBase {
-
+  private static final Logger log = LoggerFactory.getLogger(CmdMsfragger.class);
   public static final String NAME = "MsFragger";
 
   public CmdMsfragger(boolean isRun, Path workDir) {
@@ -115,6 +119,13 @@ public class CmdMsfragger extends CmdBase {
       // schedule to always try to delete the temp dir when FragPipe finishes execution
       final String tempDirName = "split_peptide_index_tempdir";
       Path toDelete = wd.resolve(tempDirName).toAbsolutePath().normalize();
+      try {
+        if (Files.exists(toDelete)) {
+          FileUtils.deleteDirectory(toDelete.toFile());
+        }
+      } catch (IOException e) {
+        log.warn("Could not delete leftover temporary directory: {}", toDelete.toString());
+      }
       toDelete.toFile().deleteOnExit();
     }
 
