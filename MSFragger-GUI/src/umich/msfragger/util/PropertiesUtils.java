@@ -80,7 +80,7 @@ public class PropertiesUtils {
      */
     public static Properties loadPropertiesRemote(URI uri) {
         try {
-            String remoteText = org.apache.commons.io.IOUtils.toString(uri.toURL(), Charset.forName("UTF-8"));
+            String remoteText = org.apache.commons.io.IOUtils.toString(uri.toURL(), StandardCharsets.UTF_8);
             final Properties p = new Properties();
             p.load(new StringReader(remoteText));
             return p;

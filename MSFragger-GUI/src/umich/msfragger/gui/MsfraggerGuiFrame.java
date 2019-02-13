@@ -156,6 +156,7 @@ import umich.msfragger.messages.MessageLcmsFilesAdded;
 import umich.msfragger.messages.MessageRun;
 import umich.msfragger.messages.MessageSaveCache;
 import umich.msfragger.messages.MessageSearchType;
+import umich.msfragger.messages.MessageTipNotification;
 import umich.msfragger.messages.MessageValidityFragger;
 import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.ThisAppProps;
@@ -419,13 +420,22 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     //setTabIcon(mapTabNameToIdx, "", "");
 
     // check binary paths (can only be done after manual MSFragger panel creation)
-    SwingUtilities.invokeLater(() -> validateAndSaveMsfraggerPath(textBinMsfragger.getText()));
-    SwingUtilities.invokeLater(() -> validateAndSavePhilosopherPath(textBinPhilosopher.getText()));
-    SwingUtilities.invokeLater(this::checkPreviouslySavedParams);
-    SwingUtilities.invokeLater(this::checkPython);
-    SwingUtilities.invokeLater(this::validateMsadjusterEligibility);
-    SwingUtilities.invokeLater(this::validateDbslicing);
-    SwingUtilities.invokeLater(this::validateSpeclibgen);
+//    SwingUtilities.invokeLater(() -> validateAndSaveMsfraggerPath(textBinMsfragger.getText()));
+//    SwingUtilities.invokeLater(() -> validateAndSavePhilosopherPath(textBinPhilosopher.getText()));
+//    SwingUtilities.invokeLater(this::checkPreviouslySavedParams);
+//    SwingUtilities.invokeLater(this::checkPython);
+//    SwingUtilities.invokeLater(this::validateMsadjusterEligibility);
+//    SwingUtilities.invokeLater(this::validateDbslicing);
+//    SwingUtilities.invokeLater(this::validateSpeclibgen);
+
+    exec.submit(() -> validateAndSaveMsfraggerPath(textBinMsfragger.getText()));
+    exec.submit(() -> validateAndSavePhilosopherPath(textBinPhilosopher.getText()));
+    exec.submit(() -> Version.checkUpdates());
+    exec.submit(this::checkPreviouslySavedParams);
+    exec.submit(this::checkPython);
+    exec.submit(this::validateMsadjusterEligibility);
+    exec.submit(this::validateDbslicing);
+    exec.submit(this::validateSpeclibgen);
 
     initActions();
   }
@@ -626,6 +636,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     tableModelRawFiles.dataAddAll(
         toAdd.map(path -> new InputLcmsFile(path, ThisAppProps.DEFAULT_LCMS_GROUP_NAME))
         .collect(Collectors.toList()));
+  }
+
+  @Subscribe
+  public void onTipNotification(MessageTipNotification m) {
+    SwingUtilities.invokeLater(() -> {
+      tipMap.computeIfPresent(m.key, (key, tip) -> {
+        tip.closeBalloon();
+        return null;
+      });
+      BalloonTip tip = new BalloonTip(btnAboutInConfig, SwingUtils.createClickableHtml(m.text),
+          new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
+      tip.setVisible(true);
+      tipMap.put(m.key, tip);
+    });
   }
   //endregion
 
@@ -1284,8 +1308,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addContainerGap())
     );
-
-    validateGuiVersion();
 
     tabPane.addTab("Config", null, panelConfig, "Set up paths to tools");
 
@@ -2534,160 +2556,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     return locallyKnownDownloadUrl;
     //final String downloadUrl = props.getProperty(Version.PROP_DOWNLOAD_URL, locallyKnownDownloadUrl);
-  }
-
-  public static Properties loadPropertiesFromBundle() {
-    try (InputStream is = MsfraggerGuiFrame.class.getResourceAsStream("Bundle.properties")) {
-      if (is == null) {
-        throw new IllegalStateException("Could not read Bundle.properties from the classpath");
-      }
-      Properties props = new Properties();
-      props.load(is);
-      return props;
-    } catch (IOException e) {
-      throw new IllegalStateException("Error reading Bundle.properties from the classpath");
-    }
-  }
-
-  public static String loadPropFromBundle(String propName) {
-    Properties props = loadPropertiesFromBundle();
-    String value = props.getProperty(propName);
-    if (value == null) {
-      throw new IllegalStateException("Property " + propName
-          + " was not found in Bundle.properties");
-    }
-    return value;
-  }
-
-  private void validateGuiVersion() {
-    Thread t = new Thread(() -> {
-      try {
-        String githubProps = IOUtils
-            .toString(Version.PROPERTIES_REMOTE_URI.toURL(), Charset.forName("UTF-8"));
-
-        //Properties propsGh = new Properties();
-        //propsGh.load(new StringReader(githubProps));
-        Properties propsGh = PropertiesUtils.loadPropertiesRemote(Version.PROPERTIES_REMOTE_URI);
-        //Properties propsGh = PropertiesUtils.loadPropertiesRemoteOrLocal(
-        //        Arrays.asList(Version.PROPERTIES_REMOTE_URI), MsfraggerGuiFrame.class, "Bundle.properties");
-
-        if (propsGh == null) {
-          propsGh = new Properties();
-        }
-
-        // this is used to test functionality without pushing changes to github
-//                        propsGh.put("msfragger.gui.version", "5.7");
-//                        propsGh.put("msfragger.gui.important-updates", "3.1,3.5,4.9,5.2");
-//                        propsGh.put("msfragger.gui.critical-updates", "2.0,3.0,4.6,5.0, 4.7");
-//                        propsGh.put("msfragger.gui.download-message", "Happy new year!");
-//                        propsGh.put("msfragger.gui.download-message.4.7", "Crit 4.7");
-//                        propsGh.put("msfragger.gui.download-message.2.0", "Crit 2.0");
-//                        propsGh.put("msfragger.gui.download-message.5.0", "Crit 4.7");
-//                        propsGh.put("msfragger.gui.download-message.5.0", "Crit 5.0");
-//                        propsGh.put("msfragger.gui.download-message.3.1", "Important 3.1");
-//                        propsGh.put("msfragger.gui.download-message.4.9", "Important 4.9");
-        final StringBuilder sb = new StringBuilder();
-        final VersionComparator vc = new VersionComparator();
-
-        // add new versions notification
-        final String githubVersion = propsGh.getProperty(Version.PROP_VER);
-        final String localVersion = Version.version();
-        if (githubVersion != null && vc.compare(localVersion, githubVersion) < 0) {
-          if (sb.length() > 0) {
-            sb.append("<br><br>");
-          }
-          final String defaultDlUrl = loadPropFromBundle(Version.PROP_DOWNLOAD_URL);
-          final String dlUrl = propsGh.getProperty(Version.PROP_DOWNLOAD_URL, defaultDlUrl);
-          sb.append(String.format(Locale.ROOT,
-              "Your %s version is [%s]<br>\n"
-                  + "There is a newer version of %s available [%s]).<br/>\n"
-                  + "Please <a href=\"%s\">click here</a> to download a newer one.<br/>",
-              Version.PROGRAM_TITLE, localVersion, Version.PROGRAM_TITLE, githubVersion, dlUrl));
-
-          // check for critical or important updates since the current version
-          List<String> updatesImportant = Version.updatesSinceCurrentVersion(
-              propsGh.getProperty(Version.PROP_IMPORTANT_UPDATES, ""));
-          List<String> updatesCritical = Version.updatesSinceCurrentVersion(
-              propsGh.getProperty(Version.PROP_CRITICAL_UPDATES, ""));
-
-          if (!updatesCritical.isEmpty()) {
-            TreeSet<String> newerVersions = new TreeSet<>(updatesCritical);
-            List<String> messages = createGuiUpdateMessages(newerVersions, propsGh);
-            if (!messages.isEmpty()) {
-              sb.append("<br/><br/><b>Critical updates:</b><br><ul>");
-              for (String message : messages) {
-                sb.append("<li>").append(message).append("</li>");
-              }
-              sb.append("</ul>");
-            } else {
-              sb.append("<br/><b>There have been critical updates.</b><br>");
-            }
-          }
-
-          if (!updatesImportant.isEmpty()) {
-            TreeSet<String> newerVersions = new TreeSet<>(updatesImportant);
-            List<String> messages = createGuiUpdateMessages(newerVersions, propsGh);
-            if (!messages.isEmpty()) {
-              sb.append("<br/>Important updates:<br><ul>");
-              for (String message : messages) {
-                sb.append("<li>").append(message).append("</li>");
-              }
-              sb.append("</ul>");
-            } else {
-              sb.append("<br/><br/>There have been important updates.<br>");
-            }
-          }
-        }
-
-        final String downloadMessage = propsGh.getProperty(Version.PROP_DOWNLOAD_MESSAGE, "");
-        if (!StringUtils.isNullOrWhitespace(downloadMessage)) {
-          if (sb.length() > 0) {
-            sb.append("<br><br><b>");
-          }
-          sb.append(downloadMessage).append("</b>");
-        }
-
-        if (sb.length() > 0) {
-          // show balloon popup, must be done on EDT
-          SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-              BalloonTip tip = tipMap.get(Version.PROP_VER);
-              if (tip != null) {
-                tip.closeBalloon();
-                tipMap.remove(Version.PROP_VER);
-              }
-
-              JEditorPane ep = SwingUtils.createClickableHtml(sb.toString());
-
-              BalloonTip t1 = new BalloonTip(btnAboutInConfig, ep,
-                  new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
-              t1.setVisible(true);
-              tipMap.put(Version.PROP_VER, t1);
-            }
-          });
-        }
-      } catch (IOException ex) {
-        // it doesn't matter, it's fine if we can't fetch the file from github
-        log.info("Could not download/read update info");
-      }
-    });
-    t.start();
-
-  }
-
-  private List<String> createGuiUpdateMessages(TreeSet<String> newerVersionStrings,
-      Properties propsRemote) {
-    List<String> messages = new ArrayList<>();
-    for (String newerVersion : newerVersionStrings) {
-      String verMsg = propsRemote
-          .getProperty(Version.PROP_DOWNLOAD_MESSAGE + "." + newerVersion, "");
-      if (StringUtils.isNullOrWhitespace(verMsg)) {
-        continue;
-      }
-      messages.add(verMsg);
-    }
-    return messages;
   }
 
   private static String tryPythonCommand() throws Exception {

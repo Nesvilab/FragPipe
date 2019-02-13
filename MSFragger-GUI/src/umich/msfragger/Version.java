@@ -16,22 +16,43 @@
  */
 package umich.msfragger;
 
+import java.awt.Color;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
+import java.util.TreeSet;
+import javax.swing.JEditorPane;
+import javax.swing.SwingUtilities;
+import net.java.balloontip.BalloonTip;
+import net.java.balloontip.styles.RoundedBalloonStyle;
+import org.apache.commons.io.IOUtils;
+import org.greenrobot.eventbus.EventBus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import umich.msfragger.gui.MsfraggerGuiFrame;
+import umich.msfragger.messages.MessageTipNotification;
+import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
+import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.VersionComparator;
 
 /**
  * @author Dmitry Avtonomov
  */
 public class Version {
-
+  private static final Logger log = LoggerFactory.getLogger(Version.class);
   public static final String PROGRAM_TITLE = "FragPipe";
   public static final String PROP_VER = "msfragger.gui.version";
   public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
@@ -41,10 +62,11 @@ public class Version {
   public static final String PROP_CRITICAL_UPDATES = "msfragger.gui.critical-updates";
 
   public static final String PATH_BUNDLE = "umich/msfragger/gui/Bundle";
-  public static final String PROPERTIES_REMOTE_URL =
-      "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/"
-          + PATH_BUNDLE + ".properties";
-  public static final URI PROPERTIES_REMOTE_URI = URI.create(PROPERTIES_REMOTE_URL);
+  public static final List<String> PROPERTIES_REMOTE_URL = Arrays.asList(
+      "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties",
+      "https://raw.githubusercontent.com/chhh/FragPipe/updates/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties",
+      "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties"
+  );
 
   private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>(
       new VersionComparator());
@@ -311,5 +333,146 @@ public class Version {
       }
     }
     System.out.println(sb.toString());
+  }
+
+  public static Properties loadPropertiesFromBundle() {
+    try (InputStream is = MsfraggerGuiFrame.class.getResourceAsStream("Bundle.properties")) {
+      if (is == null) {
+        throw new IllegalStateException("Could not read Bundle.properties from the classpath");
+      }
+      Properties props = new Properties();
+      props.load(is);
+      return props;
+    } catch (IOException e) {
+      throw new IllegalStateException("Error reading Bundle.properties from the classpath");
+    }
+  }
+
+  public static String loadPropFromBundle(String propName) {
+    Properties props = loadPropertiesFromBundle();
+    String value = props.getProperty(propName);
+    if (value == null) {
+      throw new IllegalStateException("Property " + propName
+          + " was not found in Bundle.properties");
+    }
+    return value;
+  }
+
+  private static List<String> createGuiUpdateMessages(TreeSet<String> newerVersionStrings,
+      Properties propsRemote) {
+    List<String> messages = new ArrayList<>();
+    for (String newerVersion : newerVersionStrings) {
+      String verMsg = propsRemote
+          .getProperty(Version.PROP_DOWNLOAD_MESSAGE + "." + newerVersion, "");
+      if (StringUtils.isNullOrWhitespace(verMsg)) {
+        continue;
+      }
+      messages.add(verMsg);
+    }
+    return messages;
+  }
+
+  public static void checkUpdates() {
+    Properties props = null;
+    for (String updateFileUrl: PROPERTIES_REMOTE_URL) {
+      try {
+        Properties p = PropertiesUtils.loadPropertiesRemote(URI.create(updateFileUrl));
+        if (p == null || p.isEmpty()) {
+          log.debug("Didn't get update info from: {}", updateFileUrl);
+          continue;
+        }
+        props = p;
+        log.debug("Got update info from: {}", updateFileUrl);
+        break;
+      } catch (Exception ex) {
+        log.debug("Failed to get update info from: {}\nReason: {}", updateFileUrl, ex.getMessage());
+      }
+    }
+    if (props == null) {
+      log.debug("Didn't get update info from any of the sources");
+      return;
+    }
+
+//      final URI tmp = URI.create("https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties");
+//      final URI tmp = URI.create("https://raw.githubusercontent.com/chhh/FragPipe/fragger-advanced/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties");
+//      String githubProps = IOUtils.toString(tmp, StandardCharsets.UTF_8);
+//      Properties props = new Properties();
+//      props.load(new StringReader(githubProps));
+
+    // this is used to test functionality without pushing changes to github
+//                        props.put("msfragger.gui.version", "5.7");
+//                        props.put("msfragger.gui.important-updates", "3.1,3.5,4.9,5.2");
+//                        props.put("msfragger.gui.critical-updates", "2.0,3.0,4.6,5.0, 4.7");
+//                        props.put("msfragger.gui.download-message", "Happy new year!");
+//                        props.put("msfragger.gui.download-message.4.7", "Crit 4.7");
+//                        props.put("msfragger.gui.download-message.2.0", "Crit 2.0");
+//                        props.put("msfragger.gui.download-message.5.0", "Crit 4.7");
+//                        props.put("msfragger.gui.download-message.5.0", "Crit 5.0");
+//                        props.put("msfragger.gui.download-message.3.1", "Important 3.1");
+//                        props.put("msfragger.gui.download-message.4.9", "Important 4.9");
+    final StringBuilder sb = new StringBuilder();
+    final VersionComparator vc = new VersionComparator();
+
+    // add new versions notification
+    final String githubVersion = props.getProperty(Version.PROP_VER);
+    final String localVersion = Version.version();
+    if (githubVersion != null && vc.compare(localVersion, githubVersion) < 0) {
+      if (sb.length() > 0) {
+        sb.append("<br><br>");
+      }
+      final String defaultDlUrl = loadPropFromBundle(Version.PROP_DOWNLOAD_URL);
+      final String dlUrl = props.getProperty(Version.PROP_DOWNLOAD_URL, defaultDlUrl);
+      sb.append(String.format(Locale.ROOT,
+          "Your %s version is [%s]<br>\n"
+              + "There is a newer version of %s available [%s]).<br/>\n"
+              + "Please <a href=\"%s\">click here</a> to download a newer one.<br/>",
+          Version.PROGRAM_TITLE, localVersion, Version.PROGRAM_TITLE, githubVersion, dlUrl));
+
+      // check for critical or important updates since the current version
+      List<String> updatesImportant = Version.updatesSinceCurrentVersion(
+          props.getProperty(Version.PROP_IMPORTANT_UPDATES, ""));
+      List<String> updatesCritical = Version.updatesSinceCurrentVersion(
+          props.getProperty(Version.PROP_CRITICAL_UPDATES, ""));
+
+      if (!updatesCritical.isEmpty()) {
+        TreeSet<String> newerVersions = new TreeSet<>(updatesCritical);
+        List<String> messages = createGuiUpdateMessages(newerVersions, props);
+        if (!messages.isEmpty()) {
+          sb.append("<br/><br/><b>Critical updates:</b><br><ul>");
+          for (String message : messages) {
+            sb.append("<li>").append(message).append("</li>");
+          }
+          sb.append("</ul>");
+        } else {
+          sb.append("<br/><b>There have been critical updates.</b><br>");
+        }
+      }
+
+      if (!updatesImportant.isEmpty()) {
+        TreeSet<String> newerVersions = new TreeSet<>(updatesImportant);
+        List<String> messages = createGuiUpdateMessages(newerVersions, props);
+        if (!messages.isEmpty()) {
+          sb.append("<br/>Important updates:<br><ul>");
+          for (String message : messages) {
+            sb.append("<li>").append(message).append("</li>");
+          }
+          sb.append("</ul>");
+        } else {
+          sb.append("<br/><br/>There have been important updates.<br>");
+        }
+      }
+    }
+
+    final String downloadMessage = props.getProperty(Version.PROP_DOWNLOAD_MESSAGE, "");
+    if (!StringUtils.isNullOrWhitespace(downloadMessage)) {
+      if (sb.length() > 0) {
+        sb.append("<br><br><b>");
+      }
+      sb.append(downloadMessage).append("</b>");
+    }
+
+    if (sb.length() > 0) {
+      EventBus.getDefault().post(new MessageTipNotification(Version.PROP_VER, sb.toString()));
+    }
   }
 }
