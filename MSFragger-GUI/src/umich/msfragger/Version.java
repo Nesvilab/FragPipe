@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.messages.MessageTipNotification;
+import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.VersionComparator;
@@ -50,12 +51,7 @@ public class Version {
   public static final String PROP_IMPORTANT_UPDATES = "msfragger.gui.important-updates";
   public static final String PROP_CRITICAL_UPDATES = "msfragger.gui.critical-updates";
 
-  public static final String PATH_BUNDLE = "umich/msfragger/gui/Bundle";
-  public static final List<String> PROPERTIES_REMOTE_URLS = Arrays.asList(
-      "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties",
-      "https://raw.githubusercontent.com/chhh/FragPipe/updates/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties",
-      "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties"
-  );
+
 
   private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>(
       new VersionComparator());
@@ -189,10 +185,6 @@ public class Version {
     ));
   }
 
-  public static java.util.ResourceBundle bundle() {
-    return java.util.ResourceBundle.getBundle(PATH_BUNDLE);
-  }
-
   public static Map<String, List<String>> getChangelog() {
     return Collections.unmodifiableMap(CHANGELOG);
   }
@@ -217,16 +209,10 @@ public class Version {
   }
 
   public static String version() {
-    ResourceBundle bundle;
-    try {
-      bundle = ResourceBundle.getBundle(Version.PATH_BUNDLE);
-    } catch (Exception e) {
-      throw new IllegalStateException(
-          "Could not fetch the resource bundle at: " + Version.PATH_BUNDLE, e);
-    }
+    final ResourceBundle bundle = ThisAppProps.getLocalBundle();
     if (!bundle.containsKey(Version.PROP_VER)) {
       throw new IllegalStateException(String.format("Key '%s' not found in bundle '%s'",
-          Version.PROP_VER, Version.PATH_BUNDLE));
+          Version.PROP_VER, ThisAppProps.PATH_BUNDLE));
     }
     return bundle.getString(Version.PROP_VER);
   }
@@ -263,7 +249,7 @@ public class Version {
       }
     }
 
-    ResourceBundle fragpipeBundle = Version.bundle();
+    ResourceBundle fragpipeBundle = ThisAppProps.getLocalBundle();
     if (!fragpipeBundle.containsKey(PROP_DOWNLOAD_URL)) {
       throw new IllegalStateException(String.format("Didn't find '%s' in "
           + "FragPipe Bundle file", PROP_DOWNLOAD_URL));
@@ -362,7 +348,7 @@ public class Version {
   }
 
   public static void checkUpdates() {
-    Properties props = PropertiesUtils.fetchPropertiesFromRemote(Version.PROPERTIES_REMOTE_URLS);
+    Properties props = ThisAppProps.getRemoteProperties();
     if (props == null) {
       log.debug("Didn't get update info from any of the sources");
       return;

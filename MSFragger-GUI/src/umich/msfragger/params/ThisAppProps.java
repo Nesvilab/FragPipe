@@ -19,26 +19,33 @@ package umich.msfragger.params;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.text.JTextComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
+import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.gui.api.SearchTypeProp;
+import umich.msfragger.util.BundleUtils;
 import umich.msfragger.util.CacheUtils;
 import umich.msfragger.util.PathUtils;
+import umich.msfragger.util.PropertiesUtils;
 
 public class ThisAppProps extends Properties {
+
+  public static final String PROP_LAB_SITE_URL = "lab.site.url";
+  public static final String PROP_MANUSCRIPT_URL = "manuscript.url";
   private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
     //private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
     public static final String PROP_DB_FILE_IN = "path.db.file.in";
@@ -74,12 +81,58 @@ public class ThisAppProps extends Properties {
   public static final String PROP_CRYSTALC_USE = "crystalc.use";
   public static final String PROP_SPECLIBGEN_RUN = "speclibgen.run";
 
-
   public static final String PROP_MGF_WARNING = "warn.mgf";
 
   public static final String JAR_FILE_AS_RESOURCE_EXT = ".jazz";
   public static final Path UNPACK_TEMP_SUBDIR = Paths.get("fragpipe");
   public static final String DEFAULT_LCMS_GROUP_NAME = "";
+
+  public static final String PATH_BUNDLE = "umich/msfragger/gui/Bundle";
+  public static final List<String> PROPERTIES_URLS = Arrays.asList(
+      "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties",
+      "https://raw.githubusercontent.com/chhh/FragPipe/updates/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties",
+      "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties"
+  );
+
+  private static class Holder {
+    private static final Properties propsLocal = PropertiesUtils.initProperties("Bundle.properties", MsfraggerGuiFrame.class);
+    private static final Properties propsRemote = PropertiesUtils.initProperties(PROPERTIES_URLS);
+    private static final Properties properties;
+
+    static {
+      properties = new Properties();
+      properties.putAll(propsLocal);
+      properties.putAll(propsRemote);
+    }
+
+    public static Properties getProperties() {
+      return properties;
+    }
+
+    public static Properties getLocalProperties() {
+      return propsLocal;
+    }
+
+    public static Properties getRemoteProperties() {
+      return propsRemote;
+    }
+  }
+
+  public static Properties getProperties() {
+    return Holder.getProperties();
+  }
+
+  public static Properties getLocalProperties() {
+    return Holder.getLocalProperties();
+  }
+
+  public static Properties getRemoteProperties() {
+    return Holder.getRemoteProperties();
+  }
+
+  public static ResourceBundle getLocalBundle() {
+    return BundleUtils.getBundle(PATH_BUNDLE);
+  }
 
   public ThisAppProps() {
           this.setProperty(Version.PROP_VER, Version.version());
@@ -211,8 +264,7 @@ public class ThisAppProps extends Properties {
   }
 
   public static void loadFromBundle(JTextComponent text, String propName) {
-      java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
-      String val = bundle.getString(propName);
+      String val = getProperties().getProperty(propName);
       text.setText(val);
       save(propName, val);
   }
@@ -223,8 +275,7 @@ public class ThisAppProps extends Properties {
   }
 
   public static void loadFromBundle(JCheckBox checkBox, String propName) {
-      java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle(Version.PATH_BUNDLE);
-      String val = bundle.getString(propName);
+      String val = getProperties().getProperty(propName);
       checkBox.setSelected(Boolean.valueOf(val));
       save(propName, val);
   }

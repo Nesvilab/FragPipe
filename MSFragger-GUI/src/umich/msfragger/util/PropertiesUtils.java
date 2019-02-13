@@ -67,6 +67,23 @@ public final class PropertiesUtils {
         return props;
     }
 
+    public static Properties initProperties(List<String> urls) {
+        Properties props = PropertiesUtils
+            .fetchPropertiesFromRemote(urls);
+        if (props == null) {
+            log.debug("Did not get properties from any of remote sources");
+        }
+        return props;
+    }
+
+    public static Properties initProperties(String propFileName, Class<?> clazz) {
+        Properties props = PropertiesUtils.loadPropertiesLocal(clazz, propFileName);
+        if (props == null) {
+            throw new IllegalStateException("Could not init properties object");
+        }
+        return props;
+    }
+
     /**
      * Loads properties from a properties file that sits next to a given class on the classpath.
      * @param clazz Class relative to which to look for.

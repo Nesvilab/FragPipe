@@ -87,47 +87,33 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="1" attributes="0">
+                  <Component id="jLabel4" alignment="1" max="32767" attributes="0"/>
+                  <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="panelMsfraggerConfig" max="32767" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="panelMsfraggerConfig" alignment="1" max="32767" attributes="0"/>
+                          <Component id="panelPhilosopherConfig" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jPanel3" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jPanel2" alignment="0" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
-                              <Component id="btnLoadDefaultsOpen" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="btnLoadDefaultsClosed" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="btnAboutInConfig" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="btnClearCache" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                      <Component id="checkEnableDiaumpire" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="btnFindTools" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="lblFindAutomatically" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
                               <EmptySpace max="32767" attributes="0"/>
-                              <Component id="btnAboutInConfig" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <Component id="btnFindTools" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="lblFindAutomatically" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="111" max="32767" attributes="0"/>
-                              <Component id="checkEnableDiaumpire" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Component id="btnClearCache" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="panelPhilosopherConfig" max="32767" attributes="0"/>
-                  </Group>
-                  <Component id="jLabel4" alignment="1" max="32767" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jPanel1" max="32767" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jPanel3" max="32767" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jPanel2" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -136,16 +122,14 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="btnFindTools" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="lblFindAutomatically" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnAboutInConfig" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnClearCache" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="checkEnableDiaumpire" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="btnLoadDefaultsOpen" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="btnLoadDefaultsClosed" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="btnAboutInConfig" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnFindTools" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="lblFindAutomatically" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="panelMsfraggerConfig" min="-2" max="-2" attributes="0"/>
@@ -190,7 +174,7 @@
                               <Component id="jScrollPane1" alignment="1" max="32767" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="lblMsfraggerCitation" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                  <EmptySpace min="0" pref="257" max="32767" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="textBinMsfragger" max="32767" attributes="0"/>
@@ -447,7 +431,7 @@
             </Container>
             <Component class="javax.swing.JButton" name="btnFindTools">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Search tools"/>
+                <Property name="text" type="java.lang.String" value="Search tools automatically"/>
                 <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection component="lblFindAutomatically" name="toolTipText" type="property"/>
                 </Property>
@@ -462,7 +446,7 @@
                   <ComponentRef name="lblFindAutomatically"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Recursively search for tools in a directory (e.g. Downloads)"/>
-                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If you have the tools downloaded somewhere already, you can&lt;br/&gt;&#xa;use this button to automatically look for them."/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If you have the tools downloaded somewhere already, you can&lt;br/&gt;&#xa;use this button to automatically look for them.&lt;br/&gt;&#xa;It&apos;s probably simpler to just set them manually though."/>
               </Properties>
             </Component>
             <Component class="javax.swing.JButton" name="btnClearCache">
@@ -474,24 +458,6 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnClearCacheActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="btnLoadDefaultsOpen">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Load Defaults for Open Search"/>
-                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Load default parameters for MSFragger and Prophets&lt;br/&gt;&#xa;for &quot;Open&quot; search - large mass tolerances, good for unknown PTM identification"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnLoadDefaultsOpenActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JButton" name="btnLoadDefaultsClosed">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Load Defaults for Closed Search"/>
-                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Load default parameters for MSFragger and Prophets&lt;br/&gt;&#xa;for &quot;Closed&quot; search - small mass tolerances, super-fast conventional search"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnLoadDefaultsClosedActionPerformed"/>
-              </Events>
-            </Component>
             <Component class="javax.swing.JButton" name="btnAboutInConfig">
               <Properties>
                 <Property name="text" type="java.lang.String" value="About"/>
@@ -499,9 +465,6 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAboutInConfigActionPerformed"/>
               </Events>
-              <AuxValues>
-                <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="validateGuiVersion();"/>
-              </AuxValues>
             </Component>
             <Container class="javax.swing.JPanel" name="jPanel2">
               <Properties>
@@ -739,8 +702,6 @@
                                           <Component id="btnRawRemove" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Component id="btnRawClear" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                          <Component id="checkProcessGroupsSeparately" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                       <Group type="102" alignment="0" attributes="0">
                                           <Component id="btnGroupsConsecutive" min="-2" max="-2" attributes="0"/>
@@ -754,7 +715,7 @@
                                           <Component id="btnGroupsClear" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
-                                  <EmptySpace min="0" pref="96" max="32767" attributes="0"/>
+                                  <EmptySpace min="0" pref="136" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -770,7 +731,6 @@
                               <Component id="btnRawAddFiles" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnRawAddFolder" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnRawClear" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="checkProcessGroupsSeparately" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
                           <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
@@ -800,7 +760,7 @@
                 </Component>
                 <Component class="javax.swing.JButton" name="btnRawClear">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Clear"/>
+                    <Property name="text" type="java.lang.String" value="Clear Files"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRawClearActionPerformed"/>
@@ -812,7 +772,7 @@
                 </Container>
                 <Component class="javax.swing.JButton" name="btnRawAddFolder">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Add Folder"/>
+                    <Property name="text" type="java.lang.String" value="Add Folder Recursively"/>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Recursively search a directory, importing&lt;br/&gt;&#xa;all compatible LC/MS files."/>
                   </Properties>
                   <Events>
@@ -861,7 +821,7 @@
                 </Component>
                 <Component class="javax.swing.JButton" name="btnGroupsClear">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Clear"/>
+                    <Property name="text" type="java.lang.String" value="Clear Groups"/>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Each file is assigned to the &lt;b&gt;default&lt;/b&gt; experiment."/>
                   </Properties>
                   <Events>
@@ -875,18 +835,6 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsAssignToSelectedActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JCheckBox" name="checkProcessGroupsSeparately">
-                  <Properties>
-                    <Property name="selected" type="boolean" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="loadLastProcessGroupsSeparately()" type="code"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" value="Independent Experiment/Group processing"/>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;Uncheck&lt;/b&gt; if you want a report comparing protein abundances across&lt;br/&gt;&#xa;experiments or just want a single protein identification result from all&lt;br/&gt;&#xa;the runs.&lt;br/&gt;&#xa;&lt;b&gt;Only check&lt;/b&gt; if you want peptide/protein ID results&lt;br/&gt;&#xa;for each experiment separately. E.g. this might be useful if you have&lt;br/&gt;&#xa;100 files on hand and use the &quot;assign to experiments&quot; feature to quickly&lt;br/&gt;&#xa;run MSFragger + downstream processing on each of those and get a pepxml&lt;br/&gt;&#xa;and/or protxml files."/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkProcessGroupsSeparatelyActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>
@@ -1064,18 +1012,14 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="1" attributes="0">
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="panelProteinProphet" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="panelPeptideProphet" alignment="0" max="32767" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                          </Group>
+                      <Group type="103" groupAlignment="1" attributes="0">
                           <Component id="panelCrystalc" max="32767" attributes="0"/>
+                          <Component id="panelProteinProphet" alignment="0" max="32767" attributes="0"/>
+                          <Component id="panelPeptideProphet" alignment="0" max="32767" attributes="0"/>
                       </Group>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1085,10 +1029,10 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelPeptideProphet" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="panelProteinProphet" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="panelProteinProphet" min="-2" pref="131" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="panelCrystalc" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="290" max="32767" attributes="0"/>
+                      <EmptySpace pref="293" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1102,9 +1046,9 @@
                       <Group type="102" attributes="0">
                           <Component id="chkRunProteinProphet" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnProtProphDefaultsOpen" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="btnProtProphDefaultsClosed" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="btnProtProphDefaultsOpen" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
                       <Component id="panelProteinProphetOptions" alignment="0" max="32767" attributes="0"/>
@@ -1163,11 +1107,19 @@
                   <Layout>
                     <DimensionLayout dim="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
+                          <Group type="102" alignment="1" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jLabel40" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jScrollPane4" max="32767" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Group type="102" attributes="0">
+                                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                      <Component id="checkProcessGroupsSeparately" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" attributes="0">
+                                      <Component id="jLabel40" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="jScrollPane4" max="32767" attributes="0"/>
+                                  </Group>
+                              </Group>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -1176,18 +1128,31 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" alignment="0" attributes="0">
+                                  <Group type="102" attributes="0">
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="jLabel40" min="-2" max="-2" attributes="0"/>
                                   </Group>
-                                  <Component id="jScrollPane4" alignment="0" min="-2" pref="57" max="-2" attributes="0"/>
+                                  <Component id="jScrollPane4" min="-2" pref="57" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace max="32767" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="checkProcessGroupsSeparately" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
                   </Layout>
                   <SubComponents>
+                    <Component class="javax.swing.JCheckBox" name="checkProcessGroupsSeparately">
+                      <Properties>
+                        <Property name="selected" type="boolean" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                          <Connection code="loadLastProcessGroupsSeparately()" type="code"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="Separate prot-xml file per group/experiment"/>
+                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;Uncheck&lt;/b&gt; if you want a report comparing protein abundances across&lt;br/&gt;&#xa;experiments or just want a single protein identification result from all&lt;br/&gt;&#xa;the runs.&lt;br/&gt;&#xa;&lt;b&gt;Only check&lt;/b&gt; if you want peptide/protein ID results&lt;br/&gt;&#xa;for each experiment separately. E.g. this might be useful if you have&lt;br/&gt;&#xa;100 files on hand and use the &quot;assign to experiments&quot; feature to quickly&lt;br/&gt;&#xa;run MSFragger + downstream processing on each of those and get a pepxml&lt;br/&gt;&#xa;and/or protxml files."/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkProcessGroupsSeparatelyActionPerformed"/>
+                      </Events>
+                    </Component>
                     <Container class="javax.swing.JScrollPane" name="jScrollPane4">
                       <AuxValues>
                         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
@@ -1228,9 +1193,9 @@
                       <Group type="102" attributes="0">
                           <Component id="chkRunPeptideProphet" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnPepProphDefaultsOpen" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="btnPepProphDefaultsClosed" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="btnPepProphDefaultsOpen" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
                       <Component id="panelPeptideProphetOptions" alignment="0" max="32767" attributes="0"/>
@@ -1292,7 +1257,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jLabel34" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jScrollPane2" max="32767" attributes="0"/>
+                              <Component id="jScrollPane2" pref="594" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -1357,23 +1322,22 @@
                           <Component id="chkRunCrystalc" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="btnCrystalcDefaults" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="jLabel12" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="261" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="panelCrystalcOptions" max="32767" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="panelCrystalcOptions" alignment="0" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="chkRunCrystalc" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="btnCrystalcDefaults" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="chkRunCrystalc" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="btnCrystalcDefaults" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <Component id="jLabel12" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="panelCrystalcOptions" min="-2" max="-2" attributes="0"/>

@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
 import umich.msfragger.gui.api.VersionFetcher;
+import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.util.PropertiesUtils;
 
 /**
@@ -34,7 +35,7 @@ public class MsfraggerVersionFetcherGithub implements VersionFetcher {
     
     @Override
     public String fetchVersion() {
-        Properties props = PropertiesUtils.fetchPropertiesFromRemote(Version.PROPERTIES_REMOTE_URLS);
+        Properties props = ThisAppProps.getRemoteProperties();
         if (props == null) {
             log.debug("Didn't get msfragger update info from any of the sources");
             props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
