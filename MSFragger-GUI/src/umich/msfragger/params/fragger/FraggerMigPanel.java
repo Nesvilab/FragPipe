@@ -51,6 +51,7 @@ import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -323,7 +324,12 @@ public class FraggerMigPanel extends JPanel {
       FormEntry feIsotopeError = new FormEntry(MsfraggerParams.PROP_isotope_error, "Isotope error",
           uiTextIsoErr,
           "<html>String of the form -1/0/1/2 indicating which isotopic<br/>peak selection errors MSFragger will try to correct.");
-      UiCombo uiComboMassMode = UiUtils.createUiCombo(FraggerPrecursorMassMode.values());
+      UiCombo uiComboMassMode = new UiCombo();// UiUtils.createUiCombo(FraggerPrecursorMassMode.values());asd
+      uiComboMassMode.setModel(new DefaultComboBoxModel<>(new String[] {
+          FraggerPrecursorMassMode.selected.name(),
+          FraggerPrecursorMassMode.isolated.name(),
+          FraggerPrecursorMassMode.recalculated.name(),
+      }));
       uiComboMassMode.addItemListener(FraggerMigPanel::onChangeMassMode);
       FormEntry fePrecursorMassMode = new FormEntry(MsfraggerParams.PROP_precursor_mass_mode,
           "Precursor mass mode", uiComboMassMode,
