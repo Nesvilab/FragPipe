@@ -3944,14 +3944,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     loadDefaultsPeptideProphet(t);
-    int choice = JOptionPane.showConfirmDialog(this,
-        "<html>Loaded " + t + " search defaults.<br/><br/>"
-            + "Do you want to load defaults <b>for other tools</b> as well?<br/><br/>"
-                + "<b>WARNING:</b><br/>"
-                + "This will reset MSFragger settings!");
-    if (JOptionPane.YES_OPTION == choice) {
-      EventBus.getDefault().post(new MessageSearchType(t));
-    }
+
+//    int choice = JOptionPane.showConfirmDialog(this,
+//        "<html>Loaded " + t + " search defaults.<br/><br/>"
+//            + "Do you want to load defaults <b>for other tools</b> as well?<br/><br/>"
+//                + "<b>WARNING:</b><br/>"
+//                + "This will reset MSFragger settings!");
+//    if (JOptionPane.YES_OPTION == choice) {
+//      EventBus.getDefault().post(new MessageSearchType(t));
+//    }
   }
   
   private void btnProtProphDefaultsOpenActionPerformed(
@@ -3973,14 +3974,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     loadDefaultsProteinProphet(t);
-    int choice = JOptionPane.showConfirmDialog(this,
-        "<html>Loaded " + t + " search defaults.<br/><br/>"
-            + "Do you want to load defaults <b>for other tools</b> as well?<br/><br/>"
-                + "<b>WARNING:</b><br/>"
-                + "This will reset MSFragger settings!");
-    if (JOptionPane.YES_OPTION == choice) {
-      EventBus.getDefault().post(new MessageSearchType(t));
-    }
+
+//    int choice = JOptionPane.showConfirmDialog(this,
+//        "<html>Loaded " + t + " search defaults.<br/><br/>"
+//            + "Do you want to load defaults <b>for other tools</b> as well?<br/><br/>"
+//                + "<b>WARNING:</b><br/>"
+//                + "This will reset MSFragger settings!");
+//    if (JOptionPane.YES_OPTION == choice) {
+//      EventBus.getDefault().post(new MessageSearchType(t));
+//    }
   }
 
   private void textReportFilterFocusLost(
