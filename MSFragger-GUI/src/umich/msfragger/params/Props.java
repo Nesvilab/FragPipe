@@ -24,7 +24,10 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -153,7 +156,11 @@ public class Props {
         
         
     }
-    
+
+    public void setOrdering(List<String> order) {
+        this.propOrdering.clear();
+        this.propOrdering.addAll(new LinkedHashSet<>(order));
+    }
     
     /**
      * Loads properties from a stream. Typically a FileInputStream or an input 
@@ -213,7 +220,10 @@ public class Props {
     }
 
     private void writeProps(Writer w) throws IOException {
-        for (final String name : propOrdering.isEmpty() ? map.keySet() : propOrdering) {
+        LinkedHashSet<String> orederedKeys = new LinkedHashSet<>(propOrdering);
+        orederedKeys.addAll(map.keySet());
+
+        for (final String name : orederedKeys) {
             if (name.isEmpty() || name.startsWith(COMMENT_SYMBOL)) {
                 w.write(name + "\n");
                 continue;
@@ -249,7 +259,6 @@ public class Props {
      * @throws IOException 
      */
     private void writeProps(OutputStream os) throws IOException {
-        Set<Map.Entry<String, Prop>> entries = map.entrySet();
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"))) {
             writeProps(bw);
         }

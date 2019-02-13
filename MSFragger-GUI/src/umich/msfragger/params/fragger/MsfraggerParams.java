@@ -230,7 +230,12 @@ public class MsfraggerParams extends AbstractParams {
         comments.put(PROP_allow_multiple_variable_mods_on_residue, "static mods are not considered");
         comments.put(PROP_max_variable_mods_per_mod, "maximum of 5");
         comments.put(PROP_max_variable_mods_combinations, "maximum of 65534, limits number of modified peptides generated from sequence");
-        props = new Props(comments);    
+        props = new Props(comments);
+
+        try {
+            // preload some defaults to get the correct ordering
+            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_CLOSEDSEARCH), true);
+        } catch (IOException ignored) {}
     }
     
     @Override
