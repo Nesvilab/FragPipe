@@ -16,13 +16,8 @@
  */
 package umich.msfragger;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.net.URI;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,11 +28,6 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import javax.swing.JEditorPane;
-import javax.swing.SwingUtilities;
-import net.java.balloontip.BalloonTip;
-import net.java.balloontip.styles.RoundedBalloonStyle;
-import org.apache.commons.io.IOUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +35,6 @@ import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.messages.MessageTipNotification;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.VersionComparator;
 
 /**
@@ -62,7 +51,7 @@ public class Version {
   public static final String PROP_CRITICAL_UPDATES = "msfragger.gui.critical-updates";
 
   public static final String PATH_BUNDLE = "umich/msfragger/gui/Bundle";
-  public static final List<String> PROPERTIES_REMOTE_URL = Arrays.asList(
+  public static final List<String> PROPERTIES_REMOTE_URLS = Arrays.asList(
       "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties",
       "https://raw.githubusercontent.com/chhh/FragPipe/updates/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties",
       "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties"
@@ -373,21 +362,7 @@ public class Version {
   }
 
   public static void checkUpdates() {
-    Properties props = null;
-    for (String updateFileUrl: PROPERTIES_REMOTE_URL) {
-      try {
-        Properties p = PropertiesUtils.loadPropertiesRemote(URI.create(updateFileUrl));
-        if (p == null || p.isEmpty()) {
-          log.debug("Didn't get update info from: {}", updateFileUrl);
-          continue;
-        }
-        props = p;
-        log.debug("Got update info from: {}", updateFileUrl);
-        break;
-      } catch (Exception ex) {
-        log.debug("Failed to get update info from: {}\nReason: {}", updateFileUrl, ex.getMessage());
-      }
-    }
+    Properties props = PropertiesUtils.fetchPropertiesFromRemote(Version.PROPERTIES_REMOTE_URLS);
     if (props == null) {
       log.debug("Didn't get update info from any of the sources");
       return;
@@ -475,4 +450,5 @@ public class Version {
       EventBus.getDefault().post(new MessageTipNotification(Version.PROP_VER, sb.toString()));
     }
   }
+
 }

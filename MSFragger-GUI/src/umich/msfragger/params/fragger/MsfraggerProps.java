@@ -20,6 +20,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,9 +44,12 @@ public class MsfraggerProps {
     // This way the user will get notifications about new versions of
     // MSFragger when we only update the online repository.
     /** Github master branch location of "umich/msfragger/params/fragger/msfragger.properties". */
-    public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties";
-    /** Github master branch location of "umich/msfragger/params/fragger/msfragger.properties". */
-    public static final URI PROPERTIES_URI = URI.create(PROPERTIES_URL);
+    public static final List<String> PROPERTIES_URLS = Arrays.asList(
+        "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties",
+        "https://raw.githubusercontent.com/chhh/FragPipe/updates/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties",
+        "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties"
+    );
+    //public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties";
     public static final String PROPERTIES_FILE_NAME = "msfragger.properties";
         
     public static final String PROP_LATEST_VERSION = "msfragger.version.latest-known";

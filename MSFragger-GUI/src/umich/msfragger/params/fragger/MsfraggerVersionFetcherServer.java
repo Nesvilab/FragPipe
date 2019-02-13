@@ -42,6 +42,8 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
@@ -51,7 +53,8 @@ import umich.msfragger.util.StringUtils;
  * @author Dmitry Avtonomov
  */
 public class MsfraggerVersionFetcherServer implements VersionFetcher {
-    
+    private static final Logger log = LoggerFactory.getLogger(MsfraggerVersionFetcherServer.class);
+
     private final Pattern re = Pattern.compile("([\\d.]+)");
     String latestVerResponse = null;
     String latestVerParsed = null;
@@ -79,12 +82,16 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
     }
     
     private Properties loadProps() {
-        Properties p = PropertiesUtils.loadPropertiesRemoteOrLocal(Collections.singletonList(MsfraggerProps.PROPERTIES_URI), 
-                MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
-        if (p == null)
+        Properties props = PropertiesUtils
+            .fetchPropertiesFromRemote(MsfraggerProps.PROPERTIES_URLS);
+        if (props == null) {
+            log.debug("Didn't get msfragger.properties file from remote locations");
+            props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
+        }
+        if (props == null)
             throw new IllegalStateException(String.format("Could not laod %s "
-                    + "neither from GitHub nor from local jar", MsfraggerProps.PROPERTIES_FILE_NAME));
-        return p;
+                    + "neither from remotes nor from local jar", MsfraggerProps.PROPERTIES_FILE_NAME));
+        return props;
     }
 
     @Override

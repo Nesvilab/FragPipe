@@ -26,7 +26,6 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,16 +36,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.exceptions.FileWritingException;
 import umich.msfragger.params.PropLine;
 import umich.msfragger.params.PropertyFileContent;
-import umich.msfragger.params.Props.Prop;
 
 /**
  *
  * @author dmitriya
  */
 public class PropertiesUtils {
+    private static final Logger log = LoggerFactory.getLogger(PropertiesUtils.class);
 
     private PropertiesUtils() {
     }
@@ -211,5 +212,29 @@ public class PropertiesUtils {
         
         is.close();
         return new StringReader(sb.toString());
+    }
+
+    /**
+     * Try to load properties from one of URLs given.
+     * @return null if properties could not be obtained from any source. Getting empty property file
+     * doesn't count, it will be returned as null (and other sources will be tried first).
+     */
+    public static Properties fetchPropertiesFromRemote(List<String> urls) {
+        Properties props = null;
+        for (String url : urls) {
+            try {
+                Properties p = loadPropertiesRemote(URI.create(url));
+                if (p == null || p.isEmpty()) {
+                    log.debug("Didn't get properties from: {}", url);
+                    continue;
+                }
+                props = p;
+                log.debug("Got properties from: {}", url);
+                break;
+            } catch (Exception ex) {
+                log.debug("Failed to get properties from: {}\nReason: {}", url, ex.getMessage());
+            }
+        }
+        return props;
     }
 }

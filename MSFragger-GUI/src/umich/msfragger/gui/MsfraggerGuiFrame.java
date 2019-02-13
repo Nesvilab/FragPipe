@@ -2684,9 +2684,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           }
         }
 
-        Properties props = PropertiesUtils.loadPropertiesRemote(PhilosopherProps.PROPERTIES_URI);
+        Properties props = PropertiesUtils.fetchPropertiesFromRemote(PhilosopherProps.PROPERTIES_URLS);
         if (props == null) // if we couldn't download remote properties, try using local ones
         {
+          log.debug("Didn't get {} from any remote sources", PhilosopherProps.PROPERTY_FILE_NAME);
           props = PropertiesUtils
               .loadPropertiesLocal(PhilosopherProps.class, PhilosopherProps.PROPERTY_FILE_NAME);
         }
