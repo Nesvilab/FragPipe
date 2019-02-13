@@ -485,22 +485,24 @@ public class SwingUtils {
     });
   }
 
-  public static void setFileChooserPath(JFileChooser fc, Path path) {
+  public static boolean setFileChooserPath(JFileChooser fc, Path path) {
     try {
       if (Files.exists(path)) {
         fc.setCurrentDirectory(path.toFile());
+        return true;
       }
-    } catch (Exception e) {
-      fc.setCurrentDirectory(null);
-    }
+    } catch (Exception ignored) {}
+    fc.setCurrentDirectory(null);
+    return false;
   }
 
-  public static void setFileChooserPath(JFileChooser fc, String path) {
+  public static boolean setFileChooserPath(JFileChooser fc, String path) {
     try {
-      setFileChooserPath(fc, Paths.get(path));
-    } catch (Exception e) {
-      fc.setCurrentDirectory(null);
-    }
+      Path p = Paths.get(path);
+      return setFileChooserPath(fc, p);
+    } catch (Exception ignored) {}
+    fc.setCurrentDirectory(null);
+    return false;
   }
 
   /**

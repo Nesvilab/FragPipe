@@ -42,6 +42,19 @@ import umich.msfragger.gui.MsfraggerGuiFrame;
  */
 public class PathUtils {
 
+    /**
+     * @return null if path does not exist or contains illegal characters. The actual normalized
+     * path otherwise.
+     */
+    public static Path isExisting(String path) {
+        try {
+            Path p = Paths.get(path);
+            if (Files.exists(p))
+                return p;
+        } catch (Exception ignored) {}
+        return null;
+    }
+
     public static String testFilePath(String fileName, String dir) {
         try {
             Path fileNameWasAbsolute = Paths.get(fileName);

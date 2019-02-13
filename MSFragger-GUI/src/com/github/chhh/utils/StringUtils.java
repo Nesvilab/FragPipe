@@ -1,5 +1,6 @@
 package com.github.chhh.utils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -14,6 +15,10 @@ public final class StringUtils {
 
   private StringUtils() {
     throw new AssertionError("This class can not be instantiated");
+  }
+
+  public static boolean isPureAscii(String text) {
+    return StandardCharsets.US_ASCII.newEncoder().canEncode(text);
   }
 
   /**

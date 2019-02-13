@@ -82,6 +82,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -91,6 +92,7 @@ import java.util.stream.Stream;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -105,6 +107,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -112,6 +115,7 @@ import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
@@ -147,11 +151,12 @@ import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
 import umich.msfragger.messages.MessageDecoyTag;
+import umich.msfragger.messages.MessageIsUmpireRun;
+import umich.msfragger.messages.MessageLcmsFilesAdded;
 import umich.msfragger.messages.MessageRun;
 import umich.msfragger.messages.MessageSaveCache;
-import umich.msfragger.messages.MessageValidityFragger;
-import umich.msfragger.messages.MessageIsUmpireRun;
 import umich.msfragger.messages.MessageSearchType;
+import umich.msfragger.messages.MessageValidityFragger;
 import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
@@ -382,9 +387,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
               .traverseDirectoriesAcceptingFiles(f, FraggerPanel.fileNameExtensionFilter, paths);
         }
       }
-      tableModelRawFiles.dataAddAll(paths.stream()
-          .map(path -> new InputLcmsFile(path, ThisAppProps.DEFAULT_LCMS_GROUP_NAME))
-          .collect(Collectors.toList()));
+      EventBus.getDefault().post(new MessageLcmsFilesAdded(paths));
     });
 
     textBinPython.addFocusListener(new FocusAdapter() {
@@ -568,6 +571,61 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         : "Spectral Library Generation disabled.";
     messageToLabel(lblSpeclibInfo2, new SpecLibGen.Message2(true, !m.isSuccess, text));
     enableSpecLibGenPanel(m.isSuccess);
+  }
+
+  @Subscribe
+  public void onLcmsFilesAdded(MessageLcmsFilesAdded m) {
+    // vet the files
+    final HashMap<Path, String> reasons = new HashMap<>();
+    m.paths.stream()
+        .filter(p -> !com.github.chhh.utils.StringUtils.isPureAscii(p.toString()))
+        .forEach(p -> { reasons.merge(p, "Non-ASCII chars", (s1, s2) -> String.join(", ", s1, s2)); });
+    m.paths.stream()
+        .filter(p -> p.toString().contains(" "))
+        .forEach(p -> { reasons.merge(p, "Contains spaces", (s1, s2) -> String.join(", ", s1, s2)); });
+    m.paths.stream()
+        .filter(p -> !FraggerPanel.fileNameExtensionFilter.accept(p.toFile()))
+        .forEach(p -> { reasons.merge(p, "Not supported", (s1, s2) -> String.join(", ", s1, s2)); });
+
+    Stream<Path> toAdd = m.paths.stream();
+    if (!reasons.isEmpty()) {
+      String[] columns = {"Reason", "Path"};
+      String[][] data = new String[reasons.size()][2];
+      int index = -1;
+      for (Entry<Path, String> kv : reasons.entrySet()) {
+        data[++index][0] = kv.getValue();
+        data[index][1] = kv.getKey().toString();
+      }
+
+      DefaultTableModel model = new DefaultTableModel(data, columns);
+      JTable table = new JTable(model);
+      table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+      JPanel panel = new JPanel(new BorderLayout());
+      panel.add(new JLabel("<html>Found problems with some files (" + Integer.toString(reasons.size()) + ").<br/>"
+          + "This <b>will likely cause trouble</b> with some of processing tools.<br/><br/>"
+          + "Do you want to add these files?<br/>"), BorderLayout.NORTH);
+      panel.add(Box.createVerticalStrut(100), BorderLayout.CENTER);
+      panel.add(new  JScrollPane(table), BorderLayout.CENTER);
+
+      int confirmation = JOptionPane
+          //.showConfirmDialog(this, SwingUtils.wrapInScrollForDialog(panel),
+          .showConfirmDialog(this, panel,
+              "Add these files?", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+      switch (confirmation) {
+        case JOptionPane.CANCEL_OPTION:
+          return;
+        case JOptionPane.YES_OPTION:
+          break;
+        case JOptionPane.NO_OPTION:
+          toAdd = toAdd.filter(path -> !reasons.containsKey(path));
+          break;
+      }
+    }
+
+    // add the files
+    tableModelRawFiles.dataAddAll(
+        toAdd.map(path -> new InputLcmsFile(path, ThisAppProps.DEFAULT_LCMS_GROUP_NAME))
+        .collect(Collectors.toList()));
   }
   //endregion
 
@@ -2268,21 +2326,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN, fc);
 
       int retVal = fc.showDialog(this, approveText);
-      if (retVal == JFileChooser.APPROVE_OPTION) {
-        File[] files = fc.getSelectedFiles();
-        if (files.length > 0) {
-          ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, files[0]);
-          List<InputLcmsFile> paths = new ArrayList<>(files.length);
-          for (File f : files) {
-            paths.add(new InputLcmsFile(Paths.get(f.getAbsolutePath()),
-                ThisAppProps.DEFAULT_LCMS_GROUP_NAME));
-          }
-          tableModelRawFiles.dataAddAll(paths);
-        }
-
-      } else {
-
-      }
+      if (retVal != JFileChooser.APPROVE_OPTION)
+        return;
+      final List<Path> paths = Arrays.stream(fc.getSelectedFiles()).map(File::toPath)
+          .collect(Collectors.toList());
+      EventBus.getDefault().post(new MessageLcmsFilesAdded(paths));
     }
   }//GEN-LAST:event_btnRawAddFilesActionPerformed
 
@@ -2302,39 +2350,32 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnRawAddFolderActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRawAddFolderActionPerformed
-    JFileChooser fileChooser = new JFileChooser();
-    fileChooser.setApproveButtonText("Select");
-    fileChooser.setApproveButtonToolTipText("Select folder to import");
-    fileChooser.setDialogTitle("Select a folder with LC/MS files (searched recursively)");
-    fileChooser.setAcceptAllFileFilterUsed(true);
+    JFileChooser fc = new JFileChooser();
+    fc.setApproveButtonText("Select");
+    fc.setApproveButtonToolTipText("Select folder to import");
+    fc.setDialogTitle("Select a folder with LC/MS files (searched recursively)");
+    fc.setAcceptAllFileFilterUsed(true);
     FileNameExtensionFilter fileNameExtensionFilter = FraggerPanel.fileNameExtensionFilter;
-    fileChooser.setFileFilter(fileNameExtensionFilter);
-    fileChooser.setMultiSelectionEnabled(true);
-    fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+    fc.setFileFilter(fileNameExtensionFilter);
+    fc.setMultiSelectionEnabled(true);
+    fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
-    SwingUtils.setFileChooserPath(fileChooser, ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN));
+    SwingUtils.setFileChooserPath(fc, ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN));
 
-    int showOpenDialog = fileChooser.showOpenDialog(this);
-    switch (showOpenDialog) {
-      case JFileChooser.APPROVE_OPTION:
-        File[] files = fileChooser.getSelectedFiles();
-        ArrayList<Path> paths = new ArrayList<>(files.length);
-        for (File f : files) {
-          boolean isDirectory = f.isDirectory();
-          if (isDirectory) {
-            ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, f);
-            PathUtils
-                .traverseDirectoriesAcceptingFiles(f, FraggerPanel.fileNameExtensionFilter, paths);
-          } else if (FraggerPanel.fileNameExtensionFilter.accept(f)) {
-            paths.add(Paths.get(f.getAbsolutePath()));
-          }
-        }
-        tableModelRawFiles.dataAddAll(paths.stream()
-            .map(path -> new InputLcmsFile(path, ThisAppProps.DEFAULT_LCMS_GROUP_NAME))
-            .collect(Collectors.toList()));
+    int confirmation = fc.showOpenDialog(this);
 
-        break;
+    if (confirmation != JFileChooser.APPROVE_OPTION)
+      return;
+    List<Path> paths = new ArrayList<>();
+    for (File f : fc.getSelectedFiles()) {
+      if (f.isDirectory()) {
+        ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, f);
+        PathUtils.traverseDirectoriesAcceptingFiles(f, FraggerPanel.fileNameExtensionFilter, paths);
+      } else if (FraggerPanel.fileNameExtensionFilter.accept(f)) {
+        paths.add(Paths.get(f.getAbsolutePath()));
+      }
     }
+    EventBus.getDefault().post(new MessageLcmsFilesAdded(paths));
   }//GEN-LAST:event_btnRawAddFolderActionPerformed
 
   private void btnReportErrorsActionPerformed(
@@ -2359,10 +2400,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-    List<String> props = Arrays
-        .asList(ThisAppProps.PROP_BIN_PATH_MSFRAGGER, ThisAppProps.PROP_BINARIES_IN);
-    String fcPath = ThisAppProps.tryFindPath(props, true);
-    SwingUtils.setFileChooserPath(fileChooser, fcPath);
+    Path curExistingPath = PathUtils.isExisting(textBinMsfragger.getText().trim());
+    if (curExistingPath != null) {
+      SwingUtils.setFileChooserPath(fileChooser, curExistingPath);
+    } else {
+      List<String> props = Arrays
+          .asList(ThisAppProps.PROP_BIN_PATH_MSFRAGGER, ThisAppProps.PROP_BINARIES_IN);
+      String fcPath = ThisAppProps.tryFindPath(props, true);
+      SwingUtils.setFileChooserPath(fileChooser, fcPath);
+    }
 
     int showOpenDialog = fileChooser.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
     switch (showOpenDialog) {
@@ -2550,15 +2596,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           if (sb.length() > 0) {
             sb.append("<br><br>");
           }
-          String locallyKnownDownloadUrl = loadPropFromBundle(Version.PROP_DOWNLOAD_URL);
-          final String downloadUrl = propsGh
-              .getProperty(Version.PROP_DOWNLOAD_URL, locallyKnownDownloadUrl);
+          final String defaultDlUrl = loadPropFromBundle(Version.PROP_DOWNLOAD_URL);
+          final String dlUrl = propsGh.getProperty(Version.PROP_DOWNLOAD_URL, defaultDlUrl);
           sb.append(String.format(Locale.ROOT,
               "Your %s version is [%s]<br>\n"
                   + "There is a newer version of %s available [%s]).<br/>\n"
                   + "Please <a href=\"%s\">click here</a> to download a newer one.<br/>",
-              Version.PROGRAM_TITLE, localVersion, Version.PROGRAM_TITLE, githubVersion,
-              downloadUrl));
+              Version.PROGRAM_TITLE, localVersion, Version.PROGRAM_TITLE, githubVersion, dlUrl));
 
           // check for critical or important updates since the current version
           List<String> updatesImportant = Version.updatesSinceCurrentVersion(
@@ -2625,7 +2669,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
       } catch (IOException ex) {
         // it doesn't matter, it's fine if we can't fetch the file from github
-        System.err.println("Could not download Bundle.properties file from github");
+        log.info("Could not download/read update info");
       }
     });
     t.start();
@@ -3164,13 +3208,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-    log.debug("Start searching for philosopher bin");
-    List<String> props = Arrays
-        .asList(ThisAppProps.PROP_BIN_PATH_PHILOSOPHER, ThisAppProps.PROP_BINARIES_IN);
-    String fcPath = ThisAppProps.tryFindPath(props, true);
-    log.debug("Done searching for philosopher bin");
-    SwingUtils.setFileChooserPath(fc, fcPath);
-    log.debug("Done setting philosopher bin path in fc");
+    Path curExistingPath = PathUtils.isExisting(textBinPhilosopher.getText().trim());
+    if (curExistingPath != null) {
+      SwingUtils.setFileChooserPath(fc, curExistingPath);
+    } else {
+      List<String> props = Arrays
+          .asList(ThisAppProps.PROP_BIN_PATH_PHILOSOPHER, ThisAppProps.PROP_BINARIES_IN);
+      String fcPath = ThisAppProps.tryFindPath(props, true);
+      SwingUtils.setFileChooserPath(fc, fcPath);
+    }
 
     if (JFileChooser.APPROVE_OPTION == fc
         .showOpenDialog(SwingUtils.findParentFrameForDialog(this))) {
@@ -3385,7 +3431,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final Map<String, LcmsFileGroup> lcmsFileGroups = getLcmsFileGroups();
     final ArrayList<InputLcmsFile> lcmsFilesAll = lcmsFileGroups.values().stream()
         .flatMap(group -> group.lcmsFiles.stream()).collect(Collectors.toCollection(ArrayList::new));
-    final ArrayList<InputLcmsFile> lcmsFilesAllMutated = new ArrayList<>();
 
     if (lcmsFilesAll.isEmpty()) {
       JOptionPane.showMessageDialog(this, "No LC/MS data files selected.\n"
