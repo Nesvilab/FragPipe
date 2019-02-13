@@ -448,7 +448,7 @@ public class FraggerMigPanel extends JPanel {
           new UiSpinnerInt(5000, 0, 100000, 500, 4));
       FormEntry feMultipleVarModsOnResidue = new FormEntry(
           MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue,
-          "not-shown", new UiCheck("Allow multiple variable mods on residue", null));
+          "not-shown", new UiCheck("Multiple var mods on residue", null));
       tableVarMods = new JTable();
       tableVarMods.setModel(getDefaultVarModTableModel());
       tableVarMods.setToolTipText(
@@ -489,6 +489,23 @@ public class FraggerMigPanel extends JPanel {
 
       pMods.add(pVarmods, new CC().wrap().growX());
       pMods.add(pFixmods, new CC().wrap().growX());
+
+      // mass offsets text field separately
+      String tooltipMassOffsets = "<html>Creates multiple precursor tolerance windows with<br>\n"
+          + "specified mass offsets. These values are multiplexed<br>\n"
+          + "with the isotope error option.<br><br>\n\n"
+          + "For example, value \"0/79.966\" can be used<br>\n"
+          + "as a restricted open search that looks for unmodified<br>\n"
+          + "and phosphorylated peptides (on any residue).<br><br>\n\n"
+          + "Setting isotope_error to 0/1/2 in combination<br>\n"
+          + "with this example will create search windows around<br>\n"
+          + "(0,1,2,79.966, 80.966, 81.966).";
+      FormEntry feMassOffsets = new FormEntry(MsfraggerParams.PROP_mass_offsets, "User defined variable mass shifts (on any aminoacid)",
+          UiUtils.uiTextBuilder().filter("[^\\(\\)\\./,\\d ]").text("0").create(),
+          tooltipMassOffsets);
+      pMods.add(feMassOffsets.label(), new CC().split(2));
+      pMods.add(feMassOffsets.comp, new CC().alignX("left").growX().wrap());
+
       pContent.add(pMods, new CC().wrap().growX());
     }
 
@@ -603,23 +620,7 @@ public class FraggerMigPanel extends JPanel {
             "Output max expect", uiSpinnerOutputMaxExpect,
             "<html>Suppresses reporting of PSM if top hit has<br> expectation greater "
                 + "than this threshold");
-        String tooltipMassOffsets = "<html>Mass_offsets in MSFragger creates multiple precursor \n"
-            + "tolerance windows with<br>\n"
-            + "specified mass offsets. These values are multiplexed \n"
-            + "with the isotope error option. <br><br>\n"
-            + "\n"
-            + "For example, mass_offsets = 0/79.966 \n"
-            + "can be used as a restricted \"open\" search that <br>\n"
-            + "looks for unmodified and \n"
-            + "phosphorylated peptides (on any residue).<br><br>\n"
-            + "\n"
-            + "Setting isotope_error to \n"
-            + "0/1/2 in combination with this example will create <br>\n"
-            + "search windows around \n"
-            + "(0,1,2,79.966, 80.966, 81.966).";
-        FormEntry feMassOffsets = new FormEntry(MsfraggerParams.PROP_mass_offsets, "Mass offsets",
-            UiUtils.uiTextBuilder().filter("[^\\(\\)\\.,\\d ]").text("0").create(),
-            tooltipMassOffsets);
+
 
         uiComboOutputType = UiUtils.createUiCombo(FraggerOutputType.values());
         FormEntry feOutputType = new FormEntry(MsfraggerParams.PROP_output_format, "Output format",
@@ -647,8 +648,6 @@ public class FraggerMigPanel extends JPanel {
         pPeakMatch.add(feTrueTolUnits.label(), alignRight);
         pPeakMatch.add(feTrueTolUnits.comp, new CC().split(2));
         pPeakMatch.add(feTrueTol.comp);
-        pPeakMatch.add(feMassOffsets.label(), alignRight);
-        pPeakMatch.add(feMassOffsets.comp, new CC().minWidth("45px").growX().wrap());
 
         pPeakMatch.add(feOverrideCharge.comp, alignRight);
         pPeakMatch.add(fePrecursorChargeLo.label(), new CC().split(4).spanX());
