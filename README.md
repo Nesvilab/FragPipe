@@ -1,4 +1,4 @@
-![Release](https://img.shields.io/github/release/chhh/FragPipe.svg) ![Downloads](https://img.shields.io/github/downloads/chhh/FragPipe/total.svg)
+![Release](https://img.shields.io/github/release/Nesvilab/FragPipe.svg) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/total.svg)
 
 <img src="frag-pipe/images/fragpipe-01.png" width="350px"/>
 <img src="logo/msfragger-logo.png" width="350px"/>
