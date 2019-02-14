@@ -581,6 +581,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   @Subscribe
   public void onLcmsFilesAdded(MessageLcmsFilesAdded m) {
+    // save locations
+    ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, m.paths.get(m.paths.size()-1).toString());
+
     // vet the files
     final HashMap<Path, String> reasons = new HashMap<>();
     m.paths.stream()
@@ -613,16 +616,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       panel.add(Box.createVerticalStrut(100), BorderLayout.CENTER);
       panel.add(new  JScrollPane(table), BorderLayout.CENTER);
 
+      String[] options = {"Cancel", "Add anyway", "Only add well-behaved paths"};
       int confirmation = JOptionPane
-          //.showConfirmDialog(this, SwingUtils.wrapInScrollForDialog(panel),
-          .showConfirmDialog(this, panel,
-              "Add these files?", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+          .showOptionDialog(this, panel, "Add these files?",
+              JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
       switch (confirmation) {
-        case JOptionPane.CANCEL_OPTION:
+        case 0:
           return;
-        case JOptionPane.YES_OPTION:
+        case 1:
           break;
-        case JOptionPane.NO_OPTION:
+        case 2:
           toAdd = toAdd.filter(path -> !reasons.containsKey(path));
           break;
       }

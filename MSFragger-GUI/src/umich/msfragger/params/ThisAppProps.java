@@ -172,15 +172,17 @@ public class ThisAppProps extends Properties {
      * @param propName 
      */
     public static void load(String propName, JFileChooser fileChooser) {
-        ThisAppProps thisAppProps = ThisAppProps.loadFromTemp();
-        if (thisAppProps == null) {
+        try {
+          ThisAppProps thisAppProps = ThisAppProps.loadFromTemp();
+          if (thisAppProps == null) {
             return;
-        }
-        String inputPath = thisAppProps.getProperty(propName);
-        if (inputPath != null) {
+          }
+          String inputPath = thisAppProps.getProperty(propName);
+          if (inputPath != null) {
             File file = Paths.get(inputPath).toFile();
             fileChooser.setCurrentDirectory(file);
-        }
+          }
+        } catch (Exception ignored) {}
     }
 
     public static void save(String propName, JTextComponent txt) {
