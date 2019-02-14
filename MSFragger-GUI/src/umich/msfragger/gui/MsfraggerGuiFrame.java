@@ -1036,7 +1036,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(jScrollPane1)
           .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelMsfraggerConfigLayout.createSequentialGroup()
             .addComponent(lblMsfraggerCitation)
-            .addGap(0, 257, Short.MAX_VALUE))
+            .addGap(0, 159, Short.MAX_VALUE))
           .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelMsfraggerConfigLayout.createSequentialGroup()
             .addComponent(textBinMsfragger)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1433,7 +1433,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addComponent(btnGroupsAssignToSelected)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnGroupsClear)))
-            .addGap(0, 136, Short.MAX_VALUE)))
+            .addGap(0, 38, Short.MAX_VALUE)))
         .addContainerGap())
     );
     panelSelectedFilesLayout.setVerticalGroup(
@@ -1526,7 +1526,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelDbInfoLayout.createSequentialGroup()
         .addContainerGap()
         .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-          .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 681, Short.MAX_VALUE)
+          .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 583, Short.MAX_VALUE)
           .addGroup(panelDbInfoLayout.createSequentialGroup()
             .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
               .addGroup(panelDbInfoLayout.createSequentialGroup()
@@ -1731,7 +1731,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addContainerGap()
         .addComponent(jLabel34)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 594, Short.MAX_VALUE)
+        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE)
         .addContainerGap())
     );
     panelPeptideProphetOptionsLayout.setVerticalGroup(
@@ -1937,7 +1937,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addGroup(panelReportOptionsLayout.createSequentialGroup()
             .addComponent(jLabel1)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(textReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, 663, Short.MAX_VALUE))
+            .addComponent(textReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, 565, Short.MAX_VALUE))
           .addGroup(panelReportOptionsLayout.createSequentialGroup()
             .addComponent(checkReportAbacus)
             .addGap(0, 0, Short.MAX_VALUE))))
@@ -1982,7 +1982,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       .addGroup(panelSpecLibOptsLayout.createSequentialGroup()
         .addContainerGap()
         .addComponent(checkGenerateSpecLib)
-        .addContainerGap(452, Short.MAX_VALUE))
+        .addContainerGap(354, Short.MAX_VALUE))
     );
     panelSpecLibOptsLayout.setVerticalGroup(
       panelSpecLibOptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2160,7 +2160,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addComponent(btnStop)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(checkDryRun)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 108, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
                 .addComponent(btnPrintCommands)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnExportLog)
@@ -2212,7 +2212,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
         .addGap(0, 0, 0)
-        .addComponent(tabPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        .addComponent(tabPane, javax.swing.GroupLayout.DEFAULT_SIZE, 640, Short.MAX_VALUE))
     );
     layout.setVerticalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

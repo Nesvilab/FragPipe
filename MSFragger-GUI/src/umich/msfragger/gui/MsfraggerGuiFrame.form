@@ -43,7 +43,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace min="-2" pref="0" max="-2" attributes="0"/>
-              <Component id="tabPane" max="32767" attributes="0"/>
+              <Component id="tabPane" pref="640" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -174,7 +174,7 @@
                               <Component id="jScrollPane1" alignment="1" max="32767" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="lblMsfraggerCitation" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="0" pref="257" max="32767" attributes="0"/>
+                                  <EmptySpace min="0" pref="159" max="32767" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="textBinMsfragger" max="32767" attributes="0"/>
@@ -715,7 +715,7 @@
                                           <Component id="btnGroupsClear" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
-                                  <EmptySpace min="0" pref="136" max="32767" attributes="0"/>
+                                  <EmptySpace min="0" pref="38" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -886,7 +886,7 @@
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="jScrollPane5" pref="681" max="32767" attributes="0"/>
+                              <Component id="jScrollPane5" pref="583" max="32767" attributes="0"/>
                               <Group type="102" alignment="1" attributes="0">
                                   <Group type="103" groupAlignment="1" attributes="0">
                                       <Group type="102" attributes="0">
@@ -1257,7 +1257,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jLabel34" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jScrollPane2" pref="594" max="32767" attributes="0"/>
+                              <Component id="jScrollPane2" pref="496" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -1544,7 +1544,7 @@
                               <Group type="102" attributes="0">
                                   <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="textReportFilter" pref="663" max="32767" attributes="0"/>
+                                  <Component id="textReportFilter" pref="565" max="32767" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="checkReportAbacus" min="-2" max="-2" attributes="0"/>
@@ -1630,7 +1630,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="checkGenerateSpecLib" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="452" max="32767" attributes="0"/>
+                          <EmptySpace pref="354" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -1741,7 +1741,7 @@
                                       <Component id="btnStop" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="checkDryRun" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace pref="108" max="32767" attributes="0"/>
+                                      <EmptySpace pref="10" max="32767" attributes="0"/>
                                       <Component id="btnPrintCommands" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="btnExportLog" min="-2" max="-2" attributes="0"/>
