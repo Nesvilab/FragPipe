@@ -321,20 +321,19 @@ public class SwingUtils {
    */
   public static void valuesFromMap(Container origin, Map<String, String> map) {
     Map<String, Component> comps = SwingUtils.mapComponentsByName(origin, true);
-    for (Entry<String, String> entry : map.entrySet()) {
-      final String key = entry.getKey();
-      Component component = comps.get(key);
+    for (Entry<String, String> kv : map.entrySet()) {
+      final String name = kv.getKey();
+      Component component = comps.get(name);
       if (component != null) {
         if (!(component instanceof StringRepresentable)) {
           log.trace(String
               .format("SwingUtils.valuesFromMap() Found component of type [%s] by name [%s] which does not implement [%s]",
-                  component.getClass().getSimpleName(), key,
+                  component.getClass().getSimpleName(), name,
                   StringRepresentable.class.getSimpleName()));
           continue;
         }
-        ((StringRepresentable) component).fromString(entry.getValue());
+        ((StringRepresentable) component).fromString(kv.getValue());
       }
-
     }
   }
 

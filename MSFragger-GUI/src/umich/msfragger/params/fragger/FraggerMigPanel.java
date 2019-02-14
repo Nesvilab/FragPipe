@@ -18,6 +18,7 @@ package umich.msfragger.params.fragger;
 import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
 
 import com.github.chhh.utils.swing.DocumentFilters;
+import com.github.chhh.utils.swing.StringRepresentable;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
@@ -29,7 +30,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -55,6 +55,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -77,12 +78,12 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.ModificationsTableModel;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
+import umich.msfragger.messages.MessageMsfraggerParamsUpdate;
+import umich.msfragger.messages.MessagePrecursorSelectionMode;
 import umich.msfragger.messages.MessageRun;
 import umich.msfragger.messages.MessageSaveCache;
-import umich.msfragger.messages.MessageValidityFragger;
-import umich.msfragger.messages.MessagePrecursorSelectionMode;
 import umich.msfragger.messages.MessageSearchType;
-import umich.msfragger.messages.MessageMsfraggerParamsUpdate;
+import umich.msfragger.messages.MessageValidityFragger;
 import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.Props.Prop;
 import umich.msfragger.params.ThisAppProps;
@@ -169,7 +170,7 @@ public class FraggerMigPanel extends JPanel {
   private UiSpinnerInt uiSpinnerRam;
   private UiSpinnerInt uiSpinnerThreads;
   private UiCombo uiComboOutputType;
-  private UiCheck uiCheckAdjustPrecursorMass;
+  private UiCombo uiComboMassMode;
   private UiSpinnerInt uiSpinnerDbslice;
   private Map<Component, Boolean> enablementMapping = new HashMap<>();
 
@@ -282,7 +283,7 @@ public class FraggerMigPanel extends JPanel {
       pPeakMatch.setBorder(new TitledBorder("Peak Matching"));
 
       // precursor mass tolerance
-      FormEntry fePrecTolUnits = new FormEntry("precursor_mass_units", "Precursor mass tolerance",
+      FormEntry fePrecTolUnits = new FormEntry(MsfraggerParams.PROP_precursor_true_units, "Precursor mass tolerance",
           UiUtils.createUiCombo(MassTolUnits.values()));
       UiSpinnerDouble uiSpinnerPrecTolLo = new UiSpinnerDouble(-10, -10000, 10000, 1,
           new DecimalFormat("0.#"));
@@ -294,16 +295,16 @@ public class FraggerMigPanel extends JPanel {
       uiSpinnerPrecTolHi.setColumns(4);
       FormEntry feSpinnerPrecTolHi = new FormEntry(MsfraggerParams.PROP_precursor_mass_upper,
           "not-shown", uiSpinnerPrecTolHi);
-      uiCheckAdjustPrecursorMass = new UiCheck("<html><i>Adjust precursor mass", null);
-      FormEntry feAdjustPrecMass = new FormEntry(PROP_misc_adjust_precurosr_mass, "not-shown",
-          uiCheckAdjustPrecursorMass,
-          "<html>Correct monoisotopic mass determination erros.<br/>Requires MSFragger 20180924+.");
+//      uiCheckAdjustPrecursorMass = new UiCheck("<html><i>Adjust precursor mass", null);
+//      FormEntry feAdjustPrecMass = new FormEntry(PROP_misc_adjust_precurosr_mass, "not-shown",
+//          uiCheckAdjustPrecursorMass,
+//          "<html>Correct monoisotopic mass determination erros.<br/>Requires MSFragger 20180924+.");
       pPeakMatch.add(fePrecTolUnits.label(), new CC().alignX("right"));
       pPeakMatch.add(fePrecTolUnits.comp, new CC());
       pPeakMatch.add(feSpinnerPrecTolLo.comp, new CC());
       pPeakMatch.add(new JLabel("-"), new CC().span(2));
-      pPeakMatch.add(feSpinnerPrecTolHi.comp, new CC());
-      pPeakMatch.add(feAdjustPrecMass.comp, new CC().gapLeft("5px").wrap());
+      pPeakMatch.add(feSpinnerPrecTolHi.comp, new CC().wrap());
+//      pPeakMatch.add(feAdjustPrecMass.comp, new CC().gapLeft("5px").wrap());
 
       // fragment mass tolerance
       FormEntry feFragTolUnits = new FormEntry(MsfraggerParams.PROP_fragment_mass_units,
@@ -324,7 +325,7 @@ public class FraggerMigPanel extends JPanel {
       FormEntry feIsotopeError = new FormEntry(MsfraggerParams.PROP_isotope_error, "Isotope error",
           uiTextIsoErr,
           "<html>String of the form -1/0/1/2 indicating which isotopic<br/>peak selection errors MSFragger will try to correct.");
-      UiCombo uiComboMassMode = new UiCombo();// UiUtils.createUiCombo(FraggerPrecursorMassMode.values());asd
+      uiComboMassMode = new UiCombo(); // UiUtils.createUiCombo(FraggerPrecursorMassMode.values());asd
       uiComboMassMode.setModel(new DefaultComboBoxModel<>(new String[] {
           FraggerPrecursorMassMode.selected.name(),
           FraggerPrecursorMassMode.isolated.name(),
@@ -864,7 +865,40 @@ public class FraggerMigPanel extends JPanel {
   }
 
   private void formFrom(Map<String, String> map) {
-    SwingUtilities.invokeLater(() -> SwingUtils.valuesFromMap(this, map));
+    SwingUtilities.invokeLater(() -> valuesFromMap(this, map));
+  }
+
+  public void valuesFromMap(Container origin, Map<String, String> map) {
+    Map<String, Component> comps = SwingUtils.mapComponentsByName(origin, true);
+    for (Entry<String, String> kv : map.entrySet()) {
+      final String name = kv.getKey();
+      Component component = comps.get(name);
+      if (component != null) {
+        if (!(component instanceof StringRepresentable)) {
+          log.trace(String
+              .format("SwingUtils.valuesFromMap() Found component of type [%s] by name [%s] which does not implement [%s]",
+                  component.getClass().getSimpleName(), name,
+                  StringRepresentable.class.getSimpleName()));
+          continue;
+        }
+        try {
+          ((StringRepresentable) component).fromString(kv.getValue());
+        } catch (IllegalArgumentException ex) {
+          if (component.equals(uiComboMassMode)) {
+            log.error("When loading fragger-mass-mode option, the given value ({}) is no longer an option in MSfragger/FragPipe. "
+                + "Not changing value, please select manually", kv.getValue());
+          } else if (component instanceof JComboBox) {
+            log.warn(
+                "Tried to load a value in combo-box that is not in combo-box's model. Component name={}, input value={}",
+                name, kv.getValue());
+          } else {
+            log.warn(
+                "Illegal input when filling UI form. Name={}, input value={}", name, kv.getValue());
+          }
+        }
+
+      }
+    }
   }
 
   private Map<String, String> formTo() {
@@ -1002,8 +1036,9 @@ public class FraggerMigPanel extends JPanel {
 
   @Subscribe
   public void onValidityMsadjuster(MessageValidityMsadjuster msg) {
-    enablementMapping.put(uiCheckAdjustPrecursorMass, msg.isValid);
-    updateEnabledStatus(uiCheckAdjustPrecursorMass, msg.isValid);
+    log.debug("'Adjust precursor masses' checkbox was removed. Not reacting to MessageValidityMsadjuster event.");
+//    enablementMapping.put(uiCheckAdjustPrecursorMass, msg.isValid);
+//    updateEnabledStatus(uiCheckAdjustPrecursorMass, msg.isValid);
   }
 
   private void updateEnabledStatus(Component top, boolean enabled) {
@@ -1030,12 +1065,7 @@ public class FraggerMigPanel extends JPanel {
 
   @Subscribe
   public void onPrecursorSelectionMode(MessagePrecursorSelectionMode m) {
-    if (FraggerPrecursorMassMode.recalculated.equals(m.mode)) {
-      uiCheckAdjustPrecursorMass.setSelected(true);
-    } else {
-      final boolean origState = uiCheckAdjustPrecursorMass.isSelected();
-      uiCheckAdjustPrecursorMass.setSelected(false);
-    }
+    log.debug("Received MessagePrecursorSelectionMode [{}]. Doing nothing.", m.mode.name());
   }
 
   @Subscribe
@@ -1062,7 +1092,11 @@ public class FraggerMigPanel extends JPanel {
   }
 
   public boolean isMsadjuster() {
-    return uiCheckAdjustPrecursorMass.isEnabled() && uiCheckAdjustPrecursorMass.isSelected();
+    FraggerPrecursorMassMode mode = FraggerPrecursorMassMode.valueOf((String) uiComboMassMode.getSelectedItem());
+    if (FraggerPrecursorMassMode.recalculated.equals(mode)) {
+      return true;
+    }
+    return false;
   }
 
   public int getNumDbSlices() {
