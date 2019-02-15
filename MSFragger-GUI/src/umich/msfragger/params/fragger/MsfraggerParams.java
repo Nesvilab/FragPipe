@@ -21,12 +21,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.params.AbstractParams;
 import umich.msfragger.params.Props;
 import umich.msfragger.params.Props.Prop;
@@ -50,7 +54,6 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_num_threads = "num_threads";
     public static final String PROP_precursor_mass_lower = "precursor_mass_lower";
     public static final String PROP_precursor_mass_upper = "precursor_mass_upper";
-    public static final String PROP_precursor_mass_tolerance = "precursor_mass_tolerance";
     public static final String PROP_precursor_mass_units = "precursor_mass_units";
     public static final String PROP_precursor_true_tolerance = "precursor_true_tolerance";
     public static final String PROP_precursor_true_units = "precursor_true_units";
@@ -106,7 +109,62 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_add = "add";
     public static final String PROP_add_enabled = "add_enabled";
     //public static final String PROP_ = "";
-    
+
+    public static final String[] PROP_NAMES = {PROP_database_name,
+        PROP_fragpipe_ram,
+        PROP_num_threads,
+        PROP_precursor_mass_lower,
+        PROP_precursor_mass_upper,
+        PROP_precursor_mass_units,
+        PROP_precursor_true_tolerance,
+        PROP_precursor_true_units,
+        PROP_fragment_mass_tolerance,
+        PROP_fragment_mass_units,
+        PROP_isotope_error,
+        PROP_mass_offsets,
+        PROP_precursor_mass_mode,
+        PROP_search_enzyme_name,
+        PROP_search_enzyme_cutafter,
+        PROP_search_enzyme_butnotafter,
+        PROP_num_enzyme_termini,
+        PROP_allowed_missed_cleavage,
+        PROP_clip_nTerm_M,
+        PROP_variable_mod,
+        PROP_allow_multiple_variable_mods_on_residue,
+        PROP_max_variable_mods_per_mod,
+        PROP_max_variable_mods_combinations,
+        PROP_output_file_extension,
+        PROP_output_format,
+        PROP_output_report_topN,
+        PROP_output_max_expect,
+        PROP_precursor_charge,
+        PROP_override_charge,
+        PROP_ms_level,
+        PROP_digest_min_length,
+        PROP_digest_max_length,
+        PROP_digest_mass_range,
+        PROP_max_fragment_charge,
+        PROP_track_zero_topN,
+        PROP_zero_bin_accept_expect,
+        PROP_zero_bin_mult_expect,
+        PROP_add_topN_complementary,
+        PROP_shifted_ions,
+        PROP_shifted_ions_exclude_ranges,
+        PROP_minimum_peaks,
+        PROP_use_topN_peaks,
+        PROP_min_fragments_modelling,
+        PROP_min_matched_fragments,
+        PROP_minimum_ratio,
+        PROP_clear_mz_range,
+        PROP_add,
+        PROP_add_enabled,
+    };
+
+    public static final Set<String> PROP_NAMES_SET;
+    static {
+        PROP_NAMES_SET = new HashSet<>(Arrays.asList(PROP_NAMES));
+    }
+
     public static final String[] ADDON_NAMES = {"Cterm_peptide", "Nterm_peptide", "Cterm_protein", "Nterm_protein",
         "G_glycine", "A_alanine", "S_serine", "P_proline", "V_valine", "T_threonine", "C_cysteine", "L_leucine", 
         "I_isoleucine", "N_asparagine", "D_aspartic_acid", "Q_glutamine", "K_lysine", "E_glutamic_acid", "M_methionine", 
@@ -137,7 +195,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String FILE_BASE_NAME = "fragger";
     public static final String FILE_BASE_EXT = "params";
     /** This file is in the jar, use getResourceAsStream() to get it.  */
-    public static final String DEFAULT_FILE = "fragger.params";
+    public static final String CACHE_FILE = "fragger.params";
     public static final String DEFAULT_FILE_OPENSEARCH = "fragger_open.params";
     public static final String DEFAULT_FILE_CLOSEDSEARCH = "fragger_closed.params";
     public static final String DEFAULT_FILE_NONSPECIFICSEARCH = "fragger_nonspecific.params";
@@ -149,69 +207,67 @@ public class MsfraggerParams extends AbstractParams {
         
     public MsfraggerParams() {
         super();
-        comments = new HashMap<>();
-        comments.put(PROP_num_threads, "0=poll CPU to set num threads; else specify num threads directly (max 64)");
-        comments.put(PROP_precursor_mass_lower, "Overrides the lower bound of the window set by precursor_mass_tolerance");
-        comments.put(PROP_precursor_mass_upper, "Overrides the upper bound of the window set by precursor_mass_tolerance");
-        comments.put(PROP_precursor_mass_units, "0=Daltons, 1=ppm");
-        comments.put(PROP_precursor_true_units, "0=Daltons, 1=ppm");
-        comments.put(PROP_fragment_mass_units, "0=Daltons, 1=ppm");
-        comments.put(PROP_isotope_error, "0=off, -1/0/1/2/3 (standard C13 error)");
-        comments.put(PROP_mass_offsets, "allow for additional precursor mass window shifts. Multiplexed with isotope_error. mass_offsets = 0/79.966 can be used as a restricted ‘open’ search that looks for unmodified and phosphorylated peptides (on any residue)");
-        comments.put(PROP_num_enzyme_termini, "2 for enzymatic, 1 for semi-enzymatic, 0 for nonspecific digestion");
-        comments.put(PROP_allowed_missed_cleavage, "maximum value is 5");
-        comments.put(PROP_precursor_charge, "precursor charge range to analyze; does not override any existing charge; 0 as 1st entry ignores parameter");
-        comments.put(PROP_override_charge, "0=no, 1=yes to override existing precursor charge states with precursor_charge parameter");
-        comments.put(PROP_ms_level, "MS level to analyze, valid are levels 2 (default) or 3");
-        comments.put(PROP_digest_mass_range, "MH+ peptide mass range to analyze");
-        comments.put(PROP_max_fragment_charge, "set maximum fragment charge state to analyze (allowed max 5)");
-        comments.put(PROP_track_zero_topN, "in addition to topN results, keep track of top results in zero bin");
-        comments.put(PROP_zero_bin_accept_expect, "boost top zero bin entry to top if it has expect under 0.01 - set to 0 to disable");
-        comments.put(PROP_zero_bin_mult_expect, "disabled if above passes - multiply expect of zero bin for ordering purposes (does not affect reported expect)");
-        comments.put(PROP_minimum_peaks, "required minimum number of peaks in spectrum to search (default 10)");
-        comments.put(PROP_minimum_ratio, "filter peaks below this fraction of strongest peak");
-        comments.put(PROP_clear_mz_range, "for iTRAQ/TMT type data; will clear out all peaks in the specified m/z range");
-        comments.put(PROP_allow_multiple_variable_mods_on_residue, "static mods are not considered");
-        comments.put(PROP_max_variable_mods_per_mod, "maximum of 5");
-        comments.put(PROP_max_variable_mods_combinations, "maximum of 65534, limits number of modified peptides generated from sequence");
-        props = new Props(comments);    
+        props = new Props(createComments());
+        try {
+            // preload some defaults to get the correct ordering
+            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_CLOSEDSEARCH), true);
+        } catch (IOException ignored) {}
     }
-    
+
+    private Map<String, String> createComments() {
+        Map<String, String> c= new HashMap<>();
+        c.put(PROP_num_threads, "0=poll CPU to set num threads; else specify num threads directly (max 64)");
+        c.put(PROP_precursor_mass_units, "0=Daltons, 1=ppm");
+        c.put(PROP_precursor_true_units, "0=Daltons, 1=ppm");
+        c.put(PROP_fragment_mass_units, "0=Daltons, 1=ppm");
+        c.put(PROP_isotope_error, "0=off, -1/0/1/2/3 (standard C13 error)");
+        c.put(PROP_mass_offsets, "allow for additional precursor mass window shifts. Multiplexed with isotope_error. mass_offsets = 0/79.966 can be used as a restricted ‘open’ search that looks for unmodified and phosphorylated peptides (on any residue)");
+        c.put(PROP_num_enzyme_termini, "2 for enzymatic, 1 for semi-enzymatic, 0 for nonspecific digestion");
+        c.put(PROP_allowed_missed_cleavage, "maximum value is 5");
+        c.put(PROP_precursor_charge, "precursor charge range to analyze; does not override any existing charge; 0 as 1st entry ignores parameter");
+        c.put(PROP_override_charge, "0=no, 1=yes to override existing precursor charge states with precursor_charge parameter");
+        c.put(PROP_ms_level, "MS level to analyze, valid are levels 2 (default) or 3");
+        c.put(PROP_digest_mass_range, "MH+ peptide mass range to analyze");
+        c.put(PROP_max_fragment_charge, "set maximum fragment charge state to analyze (allowed max 5)");
+        c.put(PROP_track_zero_topN, "in addition to topN results, keep track of top results in zero bin");
+        c.put(PROP_zero_bin_accept_expect, "boost top zero bin entry to top if it has expect under 0.01 - set to 0 to disable");
+        c.put(PROP_zero_bin_mult_expect, "disabled if above passes - multiply expect of zero bin for ordering purposes (does not affect reported expect)");
+        c.put(PROP_minimum_peaks, "required minimum number of peaks in spectrum to search (default 10)");
+        c.put(PROP_minimum_ratio, "filter peaks below this fraction of strongest peak");
+        c.put(PROP_clear_mz_range, "for iTRAQ/TMT type data; will clear out all peaks in the specified m/z range");
+        c.put(PROP_allow_multiple_variable_mods_on_residue, "static mods are not considered");
+        c.put(PROP_max_variable_mods_per_mod, "maximum of 5");
+        c.put(PROP_max_variable_mods_combinations, "maximum of 65534, limits number of modified peptides generated from sequence");
+        return c;
+    }
+
     @Override
     public void loadDefault() {
-        loadDefaultsClosedSearch();
+        loadDefaults(SearchTypeProp.closed);
     }
     
     @Override
-    public Path tempFilePath() {
-        return Paths.get(PathUtils.getTempDir().toString(), DEFAULT_FILE);
+    public Path tempFileName() {
+        return Paths.get(CACHE_FILE);
     }
-    
-    
-    public void loadDefaultsOpenSearch() {
+
+    public void loadDefaults(SearchTypeProp type) {
         try {
-            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_OPENSEARCH), true);
+            switch (type) {
+                case open:
+                    load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_OPENSEARCH), true);
+                    break;
+                case closed:
+                    load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_CLOSEDSEARCH), true);
+                    break;
+                case nonspecific:
+                    load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_NONSPECIFICSEARCH), true);
+                    break;
+                default:
+                    throw new AssertionError(type.name());
+            }
         } catch (IOException e) {
-            // this is strange, we're loading stuff from our own jar, should not happen
-            throw new IllegalStateException("Could not load MSFragger defaults for Open Search from the jar itself.", e);
-        }
-    }
-    
-    public void loadDefaultsClosedSearch() {
-        try {
-            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_CLOSEDSEARCH), true);
-        } catch (IOException e) {
-            // this is strange, we're loading stuff from our own jar, should not happen
-            throw new IllegalStateException("Could not load MSFragger defaults for Closed Search from the jar itself.", e);
-        }
-    }
-    
-    public void loadDefaultsNonspecific() {
-      try {
-            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_NONSPECIFICSEARCH), true);
-        } catch (IOException e) {
-            // this is strange, we're loading stuff from our own jar, should not happen
-            throw new IllegalStateException("Could not load MSFragger defaults for Closed Search from the jar itself.", e);
+            throw new IllegalStateException("Could not load MSFragger defaults for " + type.name() + " from the jar itself.", e);
         }
     }
     
@@ -242,26 +298,11 @@ public class MsfraggerParams extends AbstractParams {
     
     // =======================================================================
     public MassTolUnits getPrecursorMassUnits() {
-        int v = Integer.parseInt(props.getProp(PROP_precursor_mass_units, "1").value);
-        for (int i = 0; i < MassTolUnits.values().length; i++) {
-            MassTolUnits u = MassTolUnits.values()[i];
-            if (u.valueInParamsFile() == v)
-                return u;
-        }
-        throw new IllegalStateException("Value for MassTolUnits stored in params file for property " + PROP_precursor_mass_units + 
-                " does not correspond to enum values of MassTolUnits.");
+        return MassTolUnits.fromParamsFileRepresentation(props.getProp(PROP_precursor_mass_units, "1").value);
     }
     
     public void setPrecursorMassUnits(MassTolUnits u) {
         props.setProp(PROP_precursor_mass_units, Integer.toString(u.valueInParamsFile()));
-    }
-    
-    public Double getPrecursorMassTolerance() {
-        return Double.parseDouble(props.getProp(PROP_precursor_mass_tolerance, "20.0").value);
-    }
-    
-    public void setPrecursorMassTolerance(Double v) {
-        props.setProp(PROP_precursor_mass_tolerance, DF.format(v));
     }
     
     public Double getPrecursorMassUpper() {

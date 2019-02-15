@@ -133,27 +133,10 @@ public class FraggerPanel extends javax.swing.JPanel {
             // something went wrong when loading defaults from the temp storage
             String message = String.format(Locale.ROOT, "Could not load previously stored "
                     + "parameters while creating MSFragger panel.\n\n"
-                    + "Load defaults instead?\n\n"
-                    + "If you choose to load defaults you might also want to click\n"
-                    + "the 'Load defaults..' button on the Config panel to make sure\n"
-                    + "that other panels are in synch with all the correct options.\n\n"
-                    + "If you choose cancel, some parts of the MSFragger panel might not\n"
-                    + "be pre-populated with data.");
-            String[] options = {"Cancel", "Load defaults for Closed", "Load defaults of Open"};
+                    + "You can load defaults instead.");
+            String[] options = {"Cancel"};
             int result = JOptionPane.showOptionDialog(this, message, "Reset to defautls", 
                         JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-            switch (result) {
-                case 1:
-                    params.clear();
-                    params.loadDefaultsClosedSearch();
-                    fillFormFromParams(params);
-                    break;
-                case 2:
-                    params.clear();
-                    params.loadDefaultsOpenSearch();
-                    fillFormFromParams(params);
-                    break;
-            }
         }
         
         EventBus.getDefault().register(this);
@@ -204,20 +187,22 @@ public class FraggerPanel extends javax.swing.JPanel {
         
         
         comboPrecursorMassTol.setSelectedItem(params.getPrecursorMassUnits().toString());
-        Double precursorMassTolerance = params.getPrecursorMassTolerance();
         Double precursorMassLower = params.getPrecursorMassLower();
         Double precursorMassUpper = params.getPrecursorMassUpper();
-        boolean asymmetricTolerancePresent = precursorMassLower != null && precursorMassUpper != null;
-        boolean isAsymmetric = asymmetricTolerancePresent && 
-                Math.abs(precursorMassLower) != Math.abs(precursorMassUpper);
-        
-        if (asymmetricTolerancePresent) {
-            spinnerPrecursorMassTolLo.setValue(precursorMassLower);
-            spinnerPrecursorMassTolHi.setValue(precursorMassUpper);
-        } else if (precursorMassTolerance != null) {
-            spinnerPrecursorMassTolLo.setValue(Math.abs(precursorMassTolerance) * -1);
-            spinnerPrecursorMassTolHi.setValue(Math.abs(precursorMassTolerance));
+        boolean bothTolPresent = precursorMassLower != null && precursorMassUpper != null;
+        if (!bothTolPresent) {
+          throw new IllegalStateException("MSFragger option precursor_mass_tolerance has been replaced by precursor_mass_lower, precursor_mass_upper");
         }
+        if (Double.compare(precursorMassLower, precursorMassUpper) == 0) {
+          // safety net for cases when both tolerances are the same
+          precursorMassLower = Math.abs(precursorMassLower) * -1;
+          precursorMassUpper = Math.abs(precursorMassUpper);
+        }
+        if (precursorMassLower > precursorMassUpper) {
+          throw new IllegalStateException("MSFragger precursor_mass_lower can't be higher than precursor_mass_upper");
+        }
+        spinnerPrecursorMassTolLo.setValue(precursorMassLower);
+        spinnerPrecursorMassTolHi.setValue(precursorMassUpper);
         
         comboPrecursorTrueTol.setSelectedItem(params.getPrecursorTrueUnits().toString());
         spinnerPrecursorTrueTol.setValue(params.getPrecursorTrueTolerance());
@@ -340,7 +325,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     
     public MsfraggerParams collectParams() throws IOException {
         MsfraggerParams p = new MsfraggerParams();
-        p.loadDefaultsOpenSearch();
+        p.loadDefaults(SearchTypeProp.open);
         fillParamsFromForm(p);
         return p;
     }
@@ -654,7 +639,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     textCutAfter.setText("KR");
     textCutAfter.setToolTipText("Enzyme cleaves after these residues");
 
-    jLabel10.setText("But Not After");
+    jLabel10.setText("But Not Before");
 
     textButNotAfter.setDocument(DocumentFilters.getFilter("[^A-Z]+"));
     textButNotAfter.setText("P");
@@ -1415,7 +1400,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         .addComponent(btnSave)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(btnLoad)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addGap(18, 18, 18)
         .addComponent(lblRam)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(spinnerFraggerRam, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1425,7 +1410,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         .addComponent(lblThreads)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(spinnerFraggerThreads, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap())
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
       .addComponent(panelFraggerMatchingConfig, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
     );
     panelMsfraggerParamsLayout.setVerticalGroup(
@@ -1490,18 +1475,16 @@ public class FraggerPanel extends javax.swing.JPanel {
       .addGroup(panelMsFraggerLayout.createSequentialGroup()
         .addContainerGap()
         .addGroup(panelMsFraggerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addGroup(panelMsFraggerLayout.createSequentialGroup()
-            .addComponent(panelMsfraggerParams, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addGap(0, 0, Short.MAX_VALUE))
+          .addComponent(panelMsfraggerParams, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
           .addGroup(panelMsFraggerLayout.createSequentialGroup()
             .addComponent(chkRunMsfragger)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(btnDefaultsNonSpecific)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
             .addComponent(btnMsfraggerDefaultsOpen)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(btnMsfraggerDefaultsClosed)))
-        .addContainerGap())
+            .addComponent(btnMsfraggerDefaultsClosed)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(btnDefaultsNonSpecific)))
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
     panelMsFraggerLayout.setVerticalGroup(
       panelMsFraggerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1563,7 +1546,7 @@ public class FraggerPanel extends javax.swing.JPanel {
         final String propName = ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN;
         ThisAppProps.load(propName, fc);
         
-        Component parent = SwingUtils.findParentComponentForDialog(this);
+        Component parent = SwingUtils.findParentFrameForDialog(this);
         int saveResult = fc.showOpenDialog(parent);
         if (JFileChooser.APPROVE_OPTION == saveResult) {
             File selectedFile = fc.getSelectedFile();
@@ -1606,8 +1589,8 @@ public class FraggerPanel extends javax.swing.JPanel {
         final String propName = ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN;
         ThisAppProps.load(propName, fc);
         
-        fc.setSelectedFile(new File(MsfraggerParams.DEFAULT_FILE));
-        Component parent = SwingUtils.findParentComponentForDialog(this);
+        fc.setSelectedFile(new File(MsfraggerParams.CACHE_FILE));
+        Component parent = SwingUtils.findParentFrameForDialog(this);
         int saveResult = fc.showSaveDialog(parent);
         if (JFileChooser.APPROVE_OPTION == saveResult) {
             File selectedFile = fc.getSelectedFile();
@@ -1646,7 +1629,7 @@ public class FraggerPanel extends javax.swing.JPanel {
 
     public void loadDefaultsForUi(SearchTypeProp type, boolean askUser) {
       if (askUser) {
-        int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this), 
+        int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
                 "Load " + type + " search default configuration?");
         if (JOptionPane.YES_OPTION != confirmation) {
           return;
@@ -1657,7 +1640,7 @@ public class FraggerPanel extends javax.swing.JPanel {
       MsfraggerGuiFrame f = frame.get();
       if (f != null) {
         if (askUser) {
-          int updateOther = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
+          int updateOther = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
                   "<html>Would you like to update options for other tools as well?<br/>"
                   + "<b>Highly recommended</b>, unless you're sure what you're doing)");
           if (JOptionPane.OK_OPTION != updateOther) {
@@ -1669,19 +1652,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     }
     
     public void loadDefaults(SearchTypeProp type) {
-      switch (type) {
-        case open:
-          params.loadDefaultsOpenSearch();
-          break;
-        case closed:
-          params.loadDefaultsClosedSearch();
-          break;
-        case nonspecific:
-          params.loadDefaultsNonspecific();
-          break;
-        default:
-          throw new AssertionError(type.name());
-      }
+      params.loadDefaults(type);
       fillFormFromParams(params);
       loadDefaultsMsadjuster(type);
     }
@@ -1787,17 +1758,7 @@ public class FraggerPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_chkMsadjusterActionPerformed
 
   private void btnDefaultsNonSpecificActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDefaultsNonSpecificActionPerformed
-
-    final SearchTypeProp type = SearchTypeProp.nonspecific;
-    loadDefaults(type);
-
-    int updateOthers = JOptionPane.showConfirmDialog(SwingUtils.findParentComponentForDialog(this),
-        "<html>New parameters for MSFragger loaded.<br/>"
-            + "<b>Highly recommended</b> to auto-update parameters for other tools.<br/><br/>"
-            + "Dow you want to proceed?");
-    if (JOptionPane.YES_OPTION != updateOthers)
-      return;
-    EventBus.getDefault().post(new MessageSearchType(type));
+    loadDefaultsForUi(SearchTypeProp.nonspecific, true);
   }//GEN-LAST:event_btnDefaultsNonSpecificActionPerformed
 
   private void checkShiftedIonsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkShiftedIonsActionPerformed

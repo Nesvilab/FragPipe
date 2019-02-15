@@ -20,9 +20,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.util.PropertiesUtils;
 
 /**
@@ -30,21 +34,27 @@ import umich.msfragger.util.PropertiesUtils;
  * @author Dmitry Avtonomov
  */
 public class MsfraggerProps {
+    private static final Logger log = LoggerFactory.getLogger(MsfraggerProps.class);
     public static final String PROGRAM_NAME = "MSFragger";
     public static final String DBSPLIT_SCRIPT_NAME = "msfragger_pep_split.py";
-    
-    /** Umich Tech Ttransfer Office MSFragger download URL. */
-    public static final String DOWNLOAD_URL = "http://inventions.umich.edu/technologies/7143_msfrager-ultrafast-and-comprehensive-identification-of-peptides-from-tandem-mass-spectra";
-    /** Umich Tech Ttransfer Office MSFragger download URI. */
-    public static final URI DOWNLOAD_URI = URI.create(DOWNLOAD_URL);
+
+    private static class Holder {
+        private static final Properties properties = PropertiesUtils.initProperties(PROPERTIES_URLS, PROPERTIES_FILE_NAME, MsfraggerProps.class);
+        public static Properties getProperties() {
+            return properties;
+        }
+    }
     
     // This URL wil be checked to compare versions of MSFragger.
     // This way the user will get notifications about new versions of
     // MSFragger when we only update the online repository.
     /** Github master branch location of "umich/msfragger/params/fragger/msfragger.properties". */
-    public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties";
-    /** Github master branch location of "umich/msfragger/params/fragger/msfragger.properties". */
-    public static final URI PROPERTIES_URI = URI.create(PROPERTIES_URL);
+    public static final List<String> PROPERTIES_URLS = Arrays.asList(
+        "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties",
+        "https://raw.githubusercontent.com/chhh/FragPipe/updates/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties",
+        "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties"
+    );
+    //public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties";
     public static final String PROPERTIES_FILE_NAME = "msfragger.properties";
         
     public static final String PROP_LATEST_VERSION = "msfragger.version.latest-known";
@@ -90,8 +100,8 @@ public class MsfraggerProps {
             this.version = version;
         }
     }
-    
-    public static Properties loadProperties() {
-        return PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, PROPERTIES_FILE_NAME);
+
+    public static Properties getProperties() {
+        return Holder.getProperties();
     }
 }

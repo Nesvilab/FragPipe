@@ -42,6 +42,8 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
@@ -51,45 +53,32 @@ import umich.msfragger.util.StringUtils;
  * @author Dmitry Avtonomov
  */
 public class MsfraggerVersionFetcherServer implements VersionFetcher {
-    
+    private static final Logger log = LoggerFactory.getLogger(MsfraggerVersionFetcherServer.class);
+
     private final Pattern re = Pattern.compile("([\\d.]+)");
-    String latestVerResponse = null;
-    String latestVerParsed = null;
-    String downloadUrl = null;
-    /** Properties are persisted here after fetchVersion() call, in case we need to auto-update. */
-    Properties props = null;
+    private String latestVerResponse = null;
+    private String latestVerParsed = null;
+    private static final Object lock = new Object();
     
     @Override
-    public String fetchVersion() throws MalformedURLException, IOException {
-        
-        
-        props = loadProps();
-        
-        String verSvcResponse = fetchVersionResponse();
-        
-        Matcher m = re.matcher(verSvcResponse);
-        if (m.find()) {
-            downloadUrl = props.getProperty(MsfraggerProps.PROP_UPDATESERVER_WEBSITE_URL, MsfraggerProps.DOWNLOAD_URL);
-            latestVerResponse = verSvcResponse;
-            latestVerParsed = m.group(1);
-            return m.group(1);
-        }
-        
-        throw new IllegalStateException("Version string retrieved from the remote service was not recoginsed: '" + verSvcResponse + "'");
-    }
-    
-    private Properties loadProps() {
-        Properties p = PropertiesUtils.loadPropertiesRemoteOrLocal(Collections.singletonList(MsfraggerProps.PROPERTIES_URI), 
-                MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
-        if (p == null)
-            throw new IllegalStateException(String.format("Could not laod %s "
-                    + "neither from GitHub nor from local jar", MsfraggerProps.PROPERTIES_FILE_NAME));
-        return p;
-    }
+    public String fetchVersion() throws IOException {
+        synchronized (lock) {
+            String verSvcResponse = fetchVersionResponse();
+            Matcher m = re.matcher(verSvcResponse);
+            if (m.find()) {
+                latestVerResponse = verSvcResponse;
+                latestVerParsed = m.group(1);
+                return m.group(1);
+            }
 
+            throw new IllegalStateException(
+                "Version string retrieved from the remote service was not recoginsed: '"
+                    + verSvcResponse + "'");
+        }
+    }
     @Override
     public String getDownloadUrl() {
-        return downloadUrl;
+        return MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_UPDATESERVER_WEBSITE_URL, "");
     }
 
     @Override
@@ -102,24 +91,35 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
         return true;
     }
 
-    private String fetchVersionResponse() throws MalformedURLException, IOException {
-        String serviceUrl = props.getProperty(MsfraggerProps.PROP_UPDATESERVER_VERSION_URL);
-        if (StringUtils.isNullOrWhitespace(serviceUrl))
-            throw new IllegalStateException("Could not get versionServiceUrl");
-        String response = org.apache.commons.io.IOUtils.toString(new URL(serviceUrl), Charset.forName("UTF-8"));
-        if (StringUtils.isNullOrWhitespace(response))
-            throw new IllegalStateException("Update server returned empty string for the latest available version.");
-        return response.trim();
+    private void throwIfNull(Object val, String message) {
+        if (val == null) {
+            throw new IllegalStateException(message);
+        }
+    }
+
+    private String fetchVersionResponse() throws IOException {
+        synchronized (lock) {
+            String serviceUrl = MsfraggerProps.getProperties()
+                .getProperty(MsfraggerProps.PROP_UPDATESERVER_VERSION_URL);
+            throwIfNull(serviceUrl,
+                "Property " + MsfraggerProps.PROP_UPDATESERVER_VERSION_URL + " not found");
+            String response = org.apache.commons.io.IOUtils
+                .toString(new URL(serviceUrl), Charset.forName("UTF-8"));
+            if (StringUtils.isNullOrWhitespace(response))
+                throw new IllegalStateException(
+                    "Update server returned empty string for the latest available version.");
+            return response.trim();
+        }
     }
     
     @Override
-    public Path autoUpdate(Path p) throws MalformedURLException, IOException {
+    public Path autoUpdate(Path p) throws IOException {
         if (p == null || !Files.exists(p) || Files.isDirectory(p))
             throw new IllegalArgumentException("The path to file to be updated must be non-null, must exist and not point to a directory.");
         
         String lastVersionStr = fetchVersion();
         
-        String updateSvcUrl = props.getProperty(MsfraggerProps.PROP_UPDATESERVER_UPDATE_URL);
+        String updateSvcUrl = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_UPDATESERVER_UPDATE_URL);
         if (updateSvcUrl == null)
             throw new IllegalStateException("Obtained properties file didn't contain a URL for the updater service.");
         

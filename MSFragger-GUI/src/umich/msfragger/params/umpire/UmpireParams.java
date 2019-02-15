@@ -24,9 +24,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,10 +35,9 @@ import java.util.Properties;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.NotImplementedException;
 import umich.msfragger.params.PropLine;
 import umich.msfragger.params.PropertyFileContent;
-import umich.msfragger.params.ThisAppProps;
+import umich.msfragger.util.CacheUtils;
 import umich.msfragger.util.PathUtils;
 
 /**
@@ -78,7 +75,7 @@ public class UmpireParams implements PropertyFileContent {
     public static final String FILE_BASE_NAME = "umpire-se";
     public static final String FILE_BASE_EXT = "params";
     /** This file is in the jar, use getResourceAsStream() to get it.  */
-    public static final String DEFAULT_FILE = "diaumpire_se.params";
+    public static final String CACHE_FILE = "diaumpire_se.params";
     public static final String JAR_UMPIRESE_NAME = "DIA_Umpire_SE-2.1.5.jazz";
     
     Properties props = new Properties();
@@ -88,7 +85,7 @@ public class UmpireParams implements PropertyFileContent {
 
     
     public void loadDefault() throws IOException {
-        InputStream is = UmpireParams.class.getResourceAsStream(DEFAULT_FILE);
+        InputStream is = UmpireParams.class.getResourceAsStream(CACHE_FILE);
         this.load(is);
     }
 
@@ -104,7 +101,7 @@ public class UmpireParams implements PropertyFileContent {
 
     public void saveCache() throws IOException {
         Path cached = getCachePath();
-        try (OutputStream os = Files.newOutputStream(cached, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+        try (OutputStream os = Files.newOutputStream(cached)) {
             write(os);
         }
     }
@@ -115,7 +112,7 @@ public class UmpireParams implements PropertyFileContent {
     }
 
     public Path getCachePath() {
-        return PathUtils.getTempDir().resolve(DEFAULT_FILE);
+        return CacheUtils.getTempFile(CACHE_FILE);
     }
 
     public UmpireParams() {

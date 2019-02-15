@@ -86,10 +86,10 @@ public class DbSlice {
     }
   }
 
-  public static class InitDone {
+  public static class MessageInitDone {
     public final boolean isSuccess;
 
-    public InitDone(boolean isSuccess) {
+    public MessageInitDone(boolean isSuccess) {
       this.isSuccess = isSuccess;
     }
   }
@@ -158,7 +158,7 @@ public class DbSlice {
 
     final boolean isInitSuccess = isPythonOk && isModulesInstalled && isUnpacked && isFraggerOk;
     isInitialized = isInitSuccess;
-    EventBus.getDefault().postSticky(new InitDone(isInitSuccess));
+    EventBus.getDefault().postSticky(new MessageInitDone(isInitSuccess));
   }
 
   private CheckResult checkPythonVer() throws Exception {
@@ -217,7 +217,7 @@ public class DbSlice {
   private CheckResult unpack() throws Exception {
     for (String rl : RESOURCE_LOCATIONS) {
       Path subDir = Paths.get(UNPACK_SUBDIR_IN_TEMP);
-      Path path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, false);
+      Path path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, true);
       // record the location of the main script that we'll be running
       if (SCRIPT_SPLITTER.equals(rl))
         scriptDbslicingPath = path;
@@ -227,16 +227,7 @@ public class DbSlice {
 
   private CheckResult checkFraggerVer(String fraggerVer) {
     VersionComparator cmp = new VersionComparator();
-    // for the lack of a better default, we'll just hard code this here
-    String minFraggerVer = "20180924";
-    Properties props = PropertiesUtils
-        .loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
-    if (props != null)
-      minFraggerVer = props.getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, minFraggerVer);
-    if (minFraggerVer == null) {
-      throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_SLICING +
-          " property needs to be in the local properties: " + MsfraggerProps.PROPERTIES_FILE_NAME);
-    }
+    String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, "20180924");
     int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
 
     if (fraggerVersionCmp >= 0)

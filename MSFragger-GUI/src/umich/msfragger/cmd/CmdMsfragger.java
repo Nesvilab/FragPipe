@@ -5,23 +5,28 @@ import static umich.msfragger.util.PathUtils.testFilePath;
 import java.awt.Component;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
-import umich.msfragger.gui.FraggerPanel;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.dbslice.DbSlice;
+import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.UsageTrigger;
 
 public class CmdMsfragger extends CmdBase {
-
+  private static final Logger log = LoggerFactory.getLogger(CmdMsfragger.class);
   public static final String NAME = "MsFragger";
 
   public CmdMsfragger(boolean isRun, Path workDir) {
@@ -47,11 +52,11 @@ public class CmdMsfragger extends CmdBase {
   }
 
   public boolean configure(Component comp, boolean isDryRun,
-      FraggerPanel fp, Path jarFragpipe, UsageTrigger binFragger, String pathFasta,
+      FraggerMigPanel fp, Path jarFragpipe, UsageTrigger binFragger, String pathFasta,
       List<InputLcmsFile> lcmsFiles) {
 
     pbs.clear();
-    final int numSlices = fp.getNumSlices();
+    final int numSlices = fp.getNumDbSlices();
     final boolean isSlicing = numSlices > 1;
     if (isSlicing) {
       // slicing requested
@@ -87,15 +92,9 @@ public class CmdMsfragger extends CmdBase {
     }
 
     // Search parameter file
-    MsfraggerParams params;
-    try {
-      params = fp.collectParams();
-    } catch (IOException ex) {
-      JOptionPane.showMessageDialog(comp, "Could not collect MSFragger params from GUI.\n",
-          "Error", JOptionPane.ERROR_MESSAGE);
-      return false;
-    }
-    Path savedParamsPath = wd.resolve(MsfraggerParams.DEFAULT_FILE);
+    MsfraggerParams params = fp.getParams();
+    params.setDatabaseName(pathFasta);
+    Path savedParamsPath = wd.resolve(MsfraggerParams.CACHE_FILE);
     if (!isDryRun) {
       try {
         params.save(new FileOutputStream(savedParamsPath.toFile()));
@@ -120,6 +119,13 @@ public class CmdMsfragger extends CmdBase {
       // schedule to always try to delete the temp dir when FragPipe finishes execution
       final String tempDirName = "split_peptide_index_tempdir";
       Path toDelete = wd.resolve(tempDirName).toAbsolutePath().normalize();
+      try {
+        if (Files.exists(toDelete)) {
+          FileUtils.deleteDirectory(toDelete.toFile());
+        }
+      } catch (IOException e) {
+        log.warn("Could not delete leftover temporary directory: {}", toDelete.toString());
+      }
       toDelete.toFile().deleteOnExit();
     }
 
@@ -129,22 +135,22 @@ public class CmdMsfragger extends CmdBase {
     final String ext = fp.getOutputFileExt();
     Map<InputLcmsFile, Path> mapLcmsToPepxml = outputs(lcmsFiles, ext, wd);
 
+    final List<String> javaCmd = ramGb > 0 ?
+            Arrays.asList("java", "-jar", "-Dfile.encoding=UTF-8", "-Xmx" + ramGb + "G") :
+            Arrays.asList("java", "-jar", "-Dfile.encoding=UTF-8");
+    final List<String> slicingCmd = isSlicing ?
+            Arrays.asList(
+                    PythonInfo.get().getCommand(),
+                    DbSlice.get().getScriptDbslicingPath().toAbsolutePath().normalize().toString(),
+                    Integer.toString(numSlices),
+                    "\"" + String.join(" ", javaCmd) + "\"")
+            : null;
     while (fileIndex < lcmsFiles.size()) {
       ArrayList<String> cmd = new ArrayList<>();
-
       if (isSlicing) {
-        cmd.add(PythonInfo.get().getCommand());
-        cmd.add(DbSlice.get().getScriptDbslicingPath().toAbsolutePath().normalize().toString());
-        cmd.add(Integer.toString(numSlices));
-        cmd.add("\"");
-      }
-      cmd.add("java");
-      cmd.add("-jar");
-      if (ramGb > 0) {
-        cmd.add("-Xmx" + ramGb + "G");
-      }
-      if (isSlicing) {
-        cmd.add("\"");
+        cmd.addAll(slicingCmd);
+      } else {
+        cmd.addAll(javaCmd);
       }
       cmd.add(binFragger.useBin());
       cmd.add(savedParamsPath.toString());
@@ -173,8 +179,9 @@ public class CmdMsfragger extends CmdBase {
       }
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
-      PythonInfo.modifyEnvironmentVariablesForAnacondaPython(pb);
+      PythonInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
       pb.directory(wd.toFile());
+      pb.environment().put("PYTHONIOENCODING", "utf-8");
       pbs.add(pb);
       sb.setLength(0);
 

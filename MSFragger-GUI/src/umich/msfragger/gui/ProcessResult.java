@@ -45,8 +45,13 @@ class ProcessResult implements AutoCloseable {
   }
 
   public Process start() throws IOException {
-    stdErrRedirect = createStdErrRedirect();
-    stdOutRedirect = createStdOutRedirect();
+    stdOutRedirect = redirectToFile(pbi.pb, pbi.fnStdOut);
+    if (pbi.fnStdErr != null && pbi.fnStdErr.equals(pbi.fnStdOut)) {
+      stdErrRedirect = stdOutRedirect;
+    } else {
+      stdErrRedirect = redirectToFile(pbi.pb, pbi.fnStdErr);
+    }
+
     proc = pbi.pb.start();
     stdOut = proc.getInputStream();
     stdErr = proc.getErrorStream();
@@ -89,18 +94,10 @@ class ProcessResult implements AutoCloseable {
     return null;
   }
 
-  private BufferedOutputStream createStdOutRedirect() throws IOException {
-    return createOutputStream(pbi.pb, pbi.fnStdOut);
-  }
-
-  private BufferedOutputStream createStdErrRedirect() throws IOException {
-    return createOutputStream(pbi.pb, pbi.fnStdErr);
-  }
-
   /**
    * Creates a new file output stream to the
    */
-  private static BufferedOutputStream createOutputStream(ProcessBuilder pb, String fn) throws IOException {
+  private static BufferedOutputStream redirectToFile(ProcessBuilder pb, String fn) throws IOException {
     if (pb == null || pb.directory() == null || StringUtils.isNullOrWhitespace(fn)) {
       return null;
     }

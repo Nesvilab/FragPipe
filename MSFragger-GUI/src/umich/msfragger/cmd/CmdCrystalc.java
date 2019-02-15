@@ -13,12 +13,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
-import umich.msfragger.gui.FraggerPanel;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.crystalc.CrystalcProps;
+import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.util.JarUtils;
 import umich.msfragger.util.StringUtils;
 
@@ -71,7 +71,7 @@ public class CmdCrystalc extends CmdBase {
    * @param ccParams Get these by calling {@link MsfraggerGuiFrame#crystalcFormToParams()}.
    */
   public boolean configure(Component comp,
-      FraggerPanel fp, boolean isDryRun,
+      FraggerMigPanel fp, boolean isDryRun,
       CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, Path> pepxmlFiles) {
     pbs.clear();
     if (StringUtils.isNullOrWhitespace(fastaPath)) {

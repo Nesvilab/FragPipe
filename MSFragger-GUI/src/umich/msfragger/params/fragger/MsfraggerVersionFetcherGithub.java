@@ -18,7 +18,11 @@ package umich.msfragger.params.fragger;
 
 import java.nio.file.Path;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import umich.msfragger.Version;
 import umich.msfragger.gui.api.VersionFetcher;
+import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.util.PropertiesUtils;
 
 /**
@@ -26,20 +30,26 @@ import umich.msfragger.util.PropertiesUtils;
  * @author Dmitry Avtonomov
  */
 public class MsfraggerVersionFetcherGithub implements VersionFetcher {
+    private static final Logger log = LoggerFactory.getLogger(MsfraggerVersionFetcherGithub.class);
     String downloadUrl = "";
     
     @Override
     public String fetchVersion() {
-        Properties props = PropertiesUtils.loadPropertiesRemote(MsfraggerProps.PROPERTIES_URI);
+        Properties props = ThisAppProps.getRemoteProperties();
+        if (props == null) {
+            log.debug("Didn't get msfragger update info from any of the sources");
+            props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
+        }
+
         final String latestKnownVer = props.getProperty(MsfraggerProps.PROP_LATEST_VERSION);
         if (latestKnownVer == null) {
-            throw new IllegalStateException(String.format("Property '%s' was not found in '%s' from github", 
-                    MsfraggerProps.PROP_LATEST_VERSION, MsfraggerProps.PROPERTIES_FILE_NAME));
+            throw new IllegalStateException(String.format("Philosopher property '%s' was not found",
+                    MsfraggerProps.PROP_LATEST_VERSION));
         }
         downloadUrl = props.getProperty(MsfraggerProps.PROP_DOWNLOAD_URL);
         if (downloadUrl == null)
-            throw new IllegalStateException(String.format("Property '%s' was not found in '%s' from github", 
-                    MsfraggerProps.PROP_DOWNLOAD_URL, MsfraggerProps.PROPERTIES_FILE_NAME));
+            throw new IllegalStateException(String.format("Philosopher property '%s' was not found",
+                    MsfraggerProps.PROP_DOWNLOAD_URL));
         
         return latestKnownVer;
     }

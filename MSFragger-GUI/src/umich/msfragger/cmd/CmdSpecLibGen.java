@@ -102,8 +102,9 @@ public class CmdSpecLibGen extends CmdBase {
       cmd.add(usePhilosopher.useBin()); // philosopher binary path (optional)
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
-      PythonInfo.modifyEnvironmentVariablesForAnacondaPython(pb);
+      PythonInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
       pb.directory(groupWd.toFile());
+      pb.environment().put("PYTHONIOENCODING", "utf-8");
 
       pbs.add(pb);
     }

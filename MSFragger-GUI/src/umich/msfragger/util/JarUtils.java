@@ -8,9 +8,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.params.ThisAppProps;
 
 public class JarUtils {
+  private static final Logger log = LoggerFactory.getLogger(JarUtils.class);
   private JarUtils() {}
 
   /**
@@ -41,11 +44,13 @@ public class JarUtils {
 
       Path tempFile = randomizeName
           ? Files.createTempFile("fragpipe-", "-" + resourceNameDest)
-          : Paths.get(ThisAppProps.TEMP_DIR, resourceNameDest);
+          : Paths.get(CacheUtils.SYS_TEMP_DIR, resourceNameDest);
 
       Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
-      if (scheduleForDeletion)
+      if (scheduleForDeletion) {
         tempFile.toFile().deleteOnExit();
+      }
+      log.debug("Unpacked temp file (delete on exit = {}): {}", scheduleForDeletion, tempFile.toString());
       return tempFile;
     }
 
@@ -68,7 +73,7 @@ public class JarUtils {
     try (InputStream in = clazz.getResourceAsStream(resourceLocation)) {
       final String resourceNameDest = computeFinalResourceName(resourceLocation);
 
-      final Path tempDir = Paths.get(ThisAppProps.TEMP_DIR);
+      final Path tempDir = Paths.get(CacheUtils.SYS_TEMP_DIR);
       Path destDir = tempDir;
       if (locationInTemp != null)
         destDir = destDir.resolve(locationInTemp);
@@ -87,8 +92,10 @@ public class JarUtils {
       }
 
       Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
-      if (scheduleForDeletion)
+      if (scheduleForDeletion) {
         tempFile.toFile().deleteOnExit();
+      }
+      log.debug("Unpacked temp file (delete on exit = {}): {}", scheduleForDeletion, tempFile.toString());
       return tempFile;
     }
   }
