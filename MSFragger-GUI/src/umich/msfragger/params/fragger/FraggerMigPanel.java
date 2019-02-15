@@ -283,7 +283,7 @@ public class FraggerMigPanel extends JPanel {
       pPeakMatch.setBorder(new TitledBorder("Peak Matching"));
 
       // precursor mass tolerance
-      FormEntry fePrecTolUnits = new FormEntry(MsfraggerParams.PROP_precursor_true_units, "Precursor mass tolerance",
+      FormEntry fePrecTolUnits = new FormEntry(MsfraggerParams.PROP_precursor_mass_units, "Precursor mass tolerance",
           UiUtils.createUiCombo(MassTolUnits.values()));
       UiSpinnerDouble uiSpinnerPrecTolLo = new UiSpinnerDouble(-10, -10000, 10000, 1,
           new DecimalFormat("0.#"));
@@ -708,7 +708,10 @@ public class FraggerMigPanel extends JPanel {
       try {
         ThisAppProps.save(PROP_FILECHOOSER_LAST_PATH, path.toAbsolutePath().toString());
         MsfraggerParams params = formCollect();
+
         params.save(new FileOutputStream(path.toFile()));
+        params.save();
+
       } catch (IOException ex) {
         JOptionPane.showMessageDialog(parent, "<html>Could not save file: <br/>" + path.toString() +
             "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

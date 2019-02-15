@@ -207,37 +207,40 @@ public class MsfraggerParams extends AbstractParams {
         
     public MsfraggerParams() {
         super();
-        comments = new HashMap<>();
-        comments.put(PROP_num_threads, "0=poll CPU to set num threads; else specify num threads directly (max 64)");
-        comments.put(PROP_precursor_mass_units, "0=Daltons, 1=ppm");
-        comments.put(PROP_precursor_true_units, "0=Daltons, 1=ppm");
-        comments.put(PROP_fragment_mass_units, "0=Daltons, 1=ppm");
-        comments.put(PROP_isotope_error, "0=off, -1/0/1/2/3 (standard C13 error)");
-        comments.put(PROP_mass_offsets, "allow for additional precursor mass window shifts. Multiplexed with isotope_error. mass_offsets = 0/79.966 can be used as a restricted ‘open’ search that looks for unmodified and phosphorylated peptides (on any residue)");
-        comments.put(PROP_num_enzyme_termini, "2 for enzymatic, 1 for semi-enzymatic, 0 for nonspecific digestion");
-        comments.put(PROP_allowed_missed_cleavage, "maximum value is 5");
-        comments.put(PROP_precursor_charge, "precursor charge range to analyze; does not override any existing charge; 0 as 1st entry ignores parameter");
-        comments.put(PROP_override_charge, "0=no, 1=yes to override existing precursor charge states with precursor_charge parameter");
-        comments.put(PROP_ms_level, "MS level to analyze, valid are levels 2 (default) or 3");
-        comments.put(PROP_digest_mass_range, "MH+ peptide mass range to analyze");
-        comments.put(PROP_max_fragment_charge, "set maximum fragment charge state to analyze (allowed max 5)");
-        comments.put(PROP_track_zero_topN, "in addition to topN results, keep track of top results in zero bin");
-        comments.put(PROP_zero_bin_accept_expect, "boost top zero bin entry to top if it has expect under 0.01 - set to 0 to disable");
-        comments.put(PROP_zero_bin_mult_expect, "disabled if above passes - multiply expect of zero bin for ordering purposes (does not affect reported expect)");
-        comments.put(PROP_minimum_peaks, "required minimum number of peaks in spectrum to search (default 10)");
-        comments.put(PROP_minimum_ratio, "filter peaks below this fraction of strongest peak");
-        comments.put(PROP_clear_mz_range, "for iTRAQ/TMT type data; will clear out all peaks in the specified m/z range");
-        comments.put(PROP_allow_multiple_variable_mods_on_residue, "static mods are not considered");
-        comments.put(PROP_max_variable_mods_per_mod, "maximum of 5");
-        comments.put(PROP_max_variable_mods_combinations, "maximum of 65534, limits number of modified peptides generated from sequence");
-        props = new Props(comments);
-
+        props = new Props(createComments());
         try {
             // preload some defaults to get the correct ordering
             load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_CLOSEDSEARCH), true);
         } catch (IOException ignored) {}
     }
-    
+
+    private Map<String, String> createComments() {
+        Map<String, String> c= new HashMap<>();
+        c.put(PROP_num_threads, "0=poll CPU to set num threads; else specify num threads directly (max 64)");
+        c.put(PROP_precursor_mass_units, "0=Daltons, 1=ppm");
+        c.put(PROP_precursor_true_units, "0=Daltons, 1=ppm");
+        c.put(PROP_fragment_mass_units, "0=Daltons, 1=ppm");
+        c.put(PROP_isotope_error, "0=off, -1/0/1/2/3 (standard C13 error)");
+        c.put(PROP_mass_offsets, "allow for additional precursor mass window shifts. Multiplexed with isotope_error. mass_offsets = 0/79.966 can be used as a restricted ‘open’ search that looks for unmodified and phosphorylated peptides (on any residue)");
+        c.put(PROP_num_enzyme_termini, "2 for enzymatic, 1 for semi-enzymatic, 0 for nonspecific digestion");
+        c.put(PROP_allowed_missed_cleavage, "maximum value is 5");
+        c.put(PROP_precursor_charge, "precursor charge range to analyze; does not override any existing charge; 0 as 1st entry ignores parameter");
+        c.put(PROP_override_charge, "0=no, 1=yes to override existing precursor charge states with precursor_charge parameter");
+        c.put(PROP_ms_level, "MS level to analyze, valid are levels 2 (default) or 3");
+        c.put(PROP_digest_mass_range, "MH+ peptide mass range to analyze");
+        c.put(PROP_max_fragment_charge, "set maximum fragment charge state to analyze (allowed max 5)");
+        c.put(PROP_track_zero_topN, "in addition to topN results, keep track of top results in zero bin");
+        c.put(PROP_zero_bin_accept_expect, "boost top zero bin entry to top if it has expect under 0.01 - set to 0 to disable");
+        c.put(PROP_zero_bin_mult_expect, "disabled if above passes - multiply expect of zero bin for ordering purposes (does not affect reported expect)");
+        c.put(PROP_minimum_peaks, "required minimum number of peaks in spectrum to search (default 10)");
+        c.put(PROP_minimum_ratio, "filter peaks below this fraction of strongest peak");
+        c.put(PROP_clear_mz_range, "for iTRAQ/TMT type data; will clear out all peaks in the specified m/z range");
+        c.put(PROP_allow_multiple_variable_mods_on_residue, "static mods are not considered");
+        c.put(PROP_max_variable_mods_per_mod, "maximum of 5");
+        c.put(PROP_max_variable_mods_combinations, "maximum of 65534, limits number of modified peptides generated from sequence");
+        return c;
+    }
+
     @Override
     public void loadDefault() {
         loadDefaults(SearchTypeProp.closed);

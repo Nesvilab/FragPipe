@@ -105,7 +105,6 @@ public class Props {
     public void clearProps() {
         this.propOrdering.clear();
         this.map.clear();
-        this.comments.clear();
     }
     
     public void clearComments() {
