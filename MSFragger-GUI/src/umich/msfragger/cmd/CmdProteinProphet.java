@@ -89,12 +89,13 @@ public class CmdProteinProphet extends CmdBase {
       for (Entry<LcmsFileGroup, Path> e : groupToProtxml.entrySet()) {
         LcmsFileGroup group = e.getKey();
         Path protxml = e.getValue();
-        List<String> pepxmlsPaths = pepxmlFiles.entrySet().stream()
+        List<String> pepxmlFns = pepxmlFiles.entrySet().stream()
             .filter(pepxml -> pepxml.getKey().experiment.equals(group.name))
             .map(pepxml -> pepxml.getValue().getFileName().toString())
+            .distinct()
             .collect(Collectors.toList());
         List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
-        cmd.addAll(pepxmlsPaths);
+        cmd.addAll(pepxmlFns);
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(protxml.getParent().toFile());
         pbs.add(pb);
@@ -116,6 +117,7 @@ public class CmdProteinProphet extends CmdBase {
       }
       List<String> pepxmlsPaths = pepxmlFiles.entrySet().stream()
           .map(pepxml -> pepxml.getValue().toString())
+          .distinct()
           .collect(Collectors.toList());
       List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
       cmd.addAll(pepxmlsPaths);
