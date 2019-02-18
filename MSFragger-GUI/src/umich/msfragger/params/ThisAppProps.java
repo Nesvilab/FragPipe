@@ -72,6 +72,7 @@ public class ThisAppProps extends Properties {
   public static final String PROP_TEXTFIELD_DECOY_TAG = "decoy.tag";
   public static final String PROP_CHECKBOX_REPORT_PROTEIN_LEVEL_FDR = "report.proteinlevelfdr";
   public static final String PROP_CHECKBOX_PROCESS_GROUPS_SEPARATELY = "process.groups.separately";
+  public static final String PROP_CHECKBOX_COMBINE_PEPXML = "peptideprophet.combine.pepxml";
   public static final String PROP_CHECKBOX_REPORT_ABACUS = "report.run.abacus";
 
   public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
@@ -260,6 +261,11 @@ public class ThisAppProps extends Properties {
       save(propName, text.getText().trim());
   }
 
+  public static void loadFromBundle(JTextComponent text, String propName, String type) {
+      final String prop = propName + "." + type;
+      loadFromBundle(text, prop);
+  }
+  
   public static void loadFromBundle(JTextComponent text, String propName, SearchTypeProp type) {
       final String prop = propName + "." + type.name();
       loadFromBundle(text, prop);
