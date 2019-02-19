@@ -45,6 +45,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -120,6 +121,7 @@ import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
@@ -415,15 +417,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     setTabIcon(mapTabNameToIdx, fraggerTabName, "/umich/msfragger/gui/icons/bolt-16.png");
     //setTabIcon(mapTabNameToIdx, "", "");
 
-    // check binary paths (can only be done after manual MSFragger panel creation)
-//    SwingUtilities.invokeLater(() -> validateAndSaveMsfraggerPath(textBinMsfragger.getText()));
-//    SwingUtilities.invokeLater(() -> validateAndSavePhilosopherPath(textBinPhilosopher.getText()));
-//    SwingUtilities.invokeLater(this::checkPreviouslySavedParams);
-//    SwingUtilities.invokeLater(this::checkPython);
-//    SwingUtilities.invokeLater(this::validateMsadjusterEligibility);
-//    SwingUtilities.invokeLater(this::validateDbslicing);
-//    SwingUtilities.invokeLater(this::validateSpeclibgen);
-
     exec.submit(() -> validateAndSaveMsfraggerPath(textBinMsfragger.getText()));
     exec.submit(() -> validateAndSavePhilosopherPath(textBinPhilosopher.getText()));
     exec.submit(() -> Version.checkUpdates());
@@ -432,6 +425,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     exec.submit(this::validateMsadjusterEligibility);
     exec.submit(this::validateDbslicing);
     exec.submit(this::validateSpeclibgen);
+
+    // submitting all "loadLast" methods for invocation
+    for (Method method : this.getClass().getDeclaredMethods()) {
+      if (method.getName().startsWith("loadLast") && method.getParameterCount() == 0) {
+        exec.submit(() -> method.invoke(this));
+      }
+    }
 
     initActions();
   }
@@ -513,6 +513,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   @Subscribe
+  public void onSubscriberException(SubscriberExceptionEvent msg) {
+    SwingUtils.showErrorDialog(msg.throwable, this);
+  }
+
+  @Subscribe
   public void loadDefaults(MessageSearchType m) {
     final SearchTypeProp t = m.type;
     loadDefaultsLabelfree(t);
@@ -520,6 +525,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     loadDefaultsProteinProphet(t);
     loadDefaultsReportFilter(t);
     loadDefaultsLabelfree(t);
+    loadDefaultsCrystalC(t);
   }
 
 
@@ -4586,15 +4592,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }//GEN-LAST:event_chkRunPeptideProphetActionPerformed
 
   private void checkCombinedPepxmlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkCombinedPepxmlActionPerformed
+    log.debug("Saving checkbox checkCombinedPepxml, value={}", Boolean.toString(checkCombinedPepxml.isSelected()));
     ThisAppProps.save(checkCombinedPepxml, ThisAppProps.PROP_CHECKBOX_COMBINE_PEPXML);
   }//GEN-LAST:event_checkCombinedPepxmlActionPerformed
 
 
   //region Load-Last methods
   public void loadLastPeptideProphet() {
-    if (!ThisAppProps.load(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET)) {
+    boolean allLoaded = true;
+    allLoaded = allLoaded & ThisAppProps.load(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET);
+    allLoaded = allLoaded & ThisAppProps.load(checkCombinedPepxml, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET);
+
+    if (!allLoaded) {
       loadDefaultsPeptideProphet(DEFAULT_TYPE);
     }
+
     removeOldSavedDecoyTagValue(textPepProphCmd, "--decoy");
   }
 
