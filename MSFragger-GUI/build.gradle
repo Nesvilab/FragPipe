@@ -52,7 +52,12 @@ sourceSets {
             excludes = ['*.java']
             //excludes = ['*.java', '*.jar']
         }
-       // add tests sources here (this project didn't have them!)
+    }
+    // add tests sources here (this project didn't have them!)
+    test {
+        java {
+            srcDirs = ['test']
+        }
     }
 }
 
