@@ -484,6 +484,30 @@ public class SwingUtils {
     });
   }
 
+  /**
+   * @param parent Can be null.
+   */
+  public static void showErrorDialog(Throwable e, Component parent) {
+    StringWriter sw = new StringWriter();
+    e.printStackTrace(new PrintWriter(sw, true));
+    String notes = sw.toString();
+
+    JPanel panel = new JPanel();
+    panel.setLayout(new BorderLayout());
+    panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    panel.add(new JLabel("Something unexpected happened"), BorderLayout.PAGE_START);
+    JTextArea notesArea = new JTextArea(40, 80);
+    notesArea.setText(notes);
+    JScrollPane notesScroller = new JScrollPane();
+    notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
+    notesScroller.setViewportView(notesArea);
+    panel.add(notesScroller, BorderLayout.CENTER);
+
+    //JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + notes, "Error", JOptionPane.ERROR_MESSAGE);
+    //JOptionPane.showMessageDialog(frame, panel, "Error", JOptionPane.ERROR_MESSAGE);
+    showDialog(parent, panel);
+  }
+
   public static boolean setFileChooserPath(JFileChooser fc, Path path) {
     try {
       if (Files.exists(path)) {
