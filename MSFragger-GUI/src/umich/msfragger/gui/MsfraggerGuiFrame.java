@@ -676,7 +676,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
     style.append("font-size:").append(font.getSize()).append("pt;");
 
-    final Properties p = ThisAppProps.getProperties();
+    final Properties p = ThisAppProps.getLocalProperties();
+    // merge with remote properties
+    Properties remoteProperties = ThisAppProps.getRemoteProperties();
+    if (remoteProperties != null) {
+      for (String name : remoteProperties.stringPropertyNames()) {
+        p.setProperty(name, remoteProperties.getProperty(name));
+      }
+    }
     String linkDl = p.getProperty(Version.PROP_DOWNLOAD_URL, "");
     String linkSite = p.getProperty(ThisAppProps.PROP_LAB_SITE_URL, "http://nesvilab.org");
     String linkToPaper = p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL, "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
@@ -2388,7 +2395,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnReportErrorsActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportErrorsActionPerformed
-    final String issueTrackerAddress = ThisAppProps.getProperties().getProperty(Version.PROP_ISSUE_TRACKER_URL);
+    final String issueTrackerAddress = ThisAppProps.getLocalProperties().getProperty(Version.PROP_ISSUE_TRACKER_URL);
     try {
       Desktop.getDesktop().browse(URI.create(issueTrackerAddress));
     } catch (IOException ex) {

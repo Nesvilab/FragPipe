@@ -95,32 +95,19 @@ public class ThisAppProps extends Properties {
       "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties"
   );
 
-  private static class Holder {
-    private static final Properties propsLocal = PropertiesUtils.initProperties("Bundle.properties", MsfraggerGuiFrame.class);
+  private static class HolderRemote {
     private static final Properties propsRemote = PropertiesUtils.initProperties(PROPERTIES_URLS);
-    private static final Properties properties;
-
-    static {
-      properties = new Properties();
-      properties.putAll(propsLocal);
-      properties.putAll(propsRemote);
-    }
-
-    public static Properties getProperties() {
-      return properties;
-    }
-
-    public static Properties getLocalProperties() {
-      return propsLocal;
-    }
-
     public static Properties getRemoteProperties() {
       return propsRemote;
     }
   }
 
-  public static Properties getProperties() {
-    return Holder.getProperties();
+  private static class Holder {
+    private static final Properties propsLocal = PropertiesUtils.initProperties("Bundle.properties", MsfraggerGuiFrame.class);
+
+    public static Properties getLocalProperties() {
+      return propsLocal;
+    }
   }
 
   public static Properties getLocalProperties() {
@@ -128,7 +115,7 @@ public class ThisAppProps extends Properties {
   }
 
   public static Properties getRemoteProperties() {
-    return Holder.getRemoteProperties();
+    return HolderRemote.getRemoteProperties();
   }
 
   public static ResourceBundle getLocalBundle() {
@@ -272,7 +259,7 @@ public class ThisAppProps extends Properties {
   }
 
   public static void loadFromBundle(JTextComponent text, String propName) {
-      String val = getProperties().getProperty(propName);
+      String val = getLocalProperties().getProperty(propName);
       text.setText(val);
       save(propName, val);
   }
@@ -283,7 +270,7 @@ public class ThisAppProps extends Properties {
   }
 
   public static void loadFromBundle(JCheckBox checkBox, String propName) {
-      String val = getProperties().getProperty(propName);
+      String val = getLocalProperties().getProperty(propName);
       checkBox.setSelected(Boolean.valueOf(val));
       save(propName, val);
   }
