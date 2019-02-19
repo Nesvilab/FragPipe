@@ -520,12 +520,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   @Subscribe
   public void loadDefaults(MessageSearchType m) {
     final SearchTypeProp t = m.type;
-    loadDefaultsLabelfree(t);
-    loadDefaultsPeptideProphet(t);
-    loadDefaultsProteinProphet(t);
-    loadDefaultsReportFilter(t);
-    loadDefaultsLabelfree(t);
-    loadDefaultsCrystalC(t);
+
+    for (Method method : this.getClass().getDeclaredMethods()) {
+      // method name starts with "loadDefaults" and has MessageSearchType as the only parameter
+      if (method.getName().startsWith("loadDefaults") && method.getParameterCount() == 1 &&
+          SearchTypeProp.class.equals(method.getParameterTypes()[0])) {
+        if (method.getName().toLowerCase().contains("decoytag")) {
+          log.debug("Skipping 'loadDefaults' method with 1 param of SearchTypeProp.class: {}", method.getName());
+        } else {
+          log.debug("Invoking 'loadDefaults' method with 1 param of SearchTypeProp.class: {}",
+              method.getName());
+          exec.submit(() -> method.invoke(MsfraggerGuiFrame.this, t));
+        }
+      }
+    }
   }
 
 
@@ -3882,30 +3890,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     EventBus.getDefault().post(new MessageShowAboutDialog());
   }//GEN-LAST:event_btnAboutInConfigActionPerformed
 
-  private void loadDefaultsReport(SearchTypeProp type, boolean askConfirmation) {
-
-    int confirm1 = JOptionPane.showConfirmDialog(this,
-        "<html>Load " + type + " search defaults?");
-    if (JOptionPane.YES_OPTION != confirm1) {
-      return;
-    }
-
-    loadDefaultsReportFilter(type);
-    loadDefaultsLabelfree(type);
-
-    if (askConfirmation) {
-      int confirm2 = JOptionPane.showConfirmDialog(this,
-          "<html>Loaded " + type + " search defaults.<br/><br/>"
-            + "Do you want to load defaults <b>for other tools</b> as well?<br/><br/>"
-                + "<b>WARNING:</b><br/>"
-                + "This will reset MSFragger settings!");
-      if (JOptionPane.YES_OPTION != confirm2) {
-        return;
-      }
-    }
-    EventBus.getDefault().post(new MessageSearchType(type));
-  }
-  
   private void textReportFilterActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textReportFilterActionPerformed
 
@@ -4663,6 +4647,30 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.save(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG, val);
   }
 
+  private void loadDefaultsReport(SearchTypeProp type, boolean askConfirmation) {
+
+    int confirm1 = JOptionPane.showConfirmDialog(this,
+        "<html>Load " + type + " search defaults?");
+    if (JOptionPane.YES_OPTION != confirm1) {
+      return;
+    }
+
+    loadDefaultsReportFilter(type);
+    loadDefaultsLabelfree(type);
+
+    if (askConfirmation) {
+      int confirm2 = JOptionPane.showConfirmDialog(this,
+          "<html>Loaded " + type + " search defaults.<br/><br/>"
+              + "Do you want to load defaults <b>for other tools</b> as well?<br/><br/>"
+              + "<b>WARNING:</b><br/>"
+              + "This will reset MSFragger settings!");
+      if (JOptionPane.YES_OPTION != confirm2) {
+        return;
+      }
+    }
+    EventBus.getDefault().post(new MessageSearchType(type));
+  }
+
   private void loadLastReportFilter() {
     if (!ThisAppProps.load(textReportFilter, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER)) {
       loadDefaultsReportFilter(DEFAULT_TYPE);
@@ -4678,6 +4686,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   public void loadDefaultsReportFilter(SearchTypeProp type) {
     ThisAppProps.loadFromBundle(textReportFilter, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER, type);
+  }
+
+  public void loadDefaultsLabelfree(SearchTypeProp type) {
+    ThisAppProps.loadFromBundle(textReportLabelfree, ThisAppProps.PROP_TEXTFIELD_LABELFREE, type);
   }
 
   private void loadLastSequenceDb() {
@@ -4851,17 +4863,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     textDecoyTagSeqDb.setText(newVal);
     validateAndSaveDecoyTagSeqDb(null, updateOtherTags);
   }
-
-
-  //region Load-Defaults methods
-  public void loadDefaultsLabelfree(SearchTypeProp type) {
-    ThisAppProps.loadFromBundle(textReportLabelfree, ThisAppProps.PROP_TEXTFIELD_LABELFREE, type);
-  }
-
-  public void loadDefaultsSequenceDb(SearchTypeProp type) {
-    ThisAppProps.loadFromBundle(textDecoyTagSeqDb, ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
-  }
-  //endregion
 
   private void addChangeListenerTextSequenceDb() {
     SwingUtils.addChangeListener(textSequenceDbPath, e -> {
