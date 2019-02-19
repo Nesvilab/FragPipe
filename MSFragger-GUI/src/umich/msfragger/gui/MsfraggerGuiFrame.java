@@ -4438,7 +4438,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      int count = f.path.getNameCount();
       String group = f.path.getFileName().toString();
       m.dataSet(i, new InputLcmsFile(f.path, group));
     }
@@ -4450,7 +4449,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      int count = f.path.getNameCount();
       m.dataSet(i, new InputLcmsFile(f.path, ThisAppProps.DEFAULT_LCMS_GROUP_NAME));
     }
   }//GEN-LAST:event_btnGroupsClearActionPerformed
@@ -4458,11 +4456,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void btnGroupsAssignToSelectedActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGroupsAssignToSelectedActionPerformed
 
-    UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+    final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
     final List<String> allFiles = m.dataCopy().stream().map(f -> f.path.toString())
         .collect(Collectors.toList());
 
-    final List<String> selected = Arrays.stream(this.tableRawFiles.getSelectedRows())
+    final int[] selectedRows = this.tableRawFiles.getSelectedRows();
+    final List<String> selected = Arrays.stream(selectedRows)
         .map(tableRawFiles::convertRowIndexToModel)
         .mapToObj(allFiles::get)
         .collect(Collectors.toList());
@@ -4471,9 +4470,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     d.setVisible(true);
     if (d.isOk()) {
       final String group = d.getExperimentName();
-      for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+      for (int selectedRow : selectedRows) {
+        int i = tableRawFiles.convertRowIndexToModel(selectedRow);
         InputLcmsFile f = m.dataGet(i);
-        int count = f.path.getNameCount();
         m.dataSet(i, new InputLcmsFile(f.path, group));
       }
     }
