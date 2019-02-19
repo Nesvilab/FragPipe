@@ -42,6 +42,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
@@ -190,11 +191,20 @@ public class SwingUtils {
     enableComponents(container, enabled, false);
   }
 
-  public static void enableComponents(Container container, boolean enabled, boolean applyToContainer) {
+  public static void enableComponents(Container container, boolean enabled,
+    boolean applyToContainer) {
+    enableComponents(container, enabled, applyToContainer, Collections.emptyList());
+  }
+
+  public static void enableComponents(Container container, boolean enabled,
+      boolean applyToContainer, List<Component> exclusions) {
     if (applyToContainer)
       container.setEnabled(enabled);
     Component[] components = container.getComponents();
     for (Component component : components) {
+      if (exclusions.contains(component)) {
+        continue; // skipping excluded components
+      }
       component.setEnabled(enabled);
 //            if (component instanceof JScrollPane) {
 //                JScrollPane jsp = (JScrollPane)component;

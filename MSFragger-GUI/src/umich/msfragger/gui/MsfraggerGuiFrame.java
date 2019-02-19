@@ -4516,13 +4516,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }//GEN-LAST:event_btnCrystalcDefaultsActionPerformed
 
   private void chkRunCrystalcActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkRunCrystalcActionPerformed
-    boolean selected = chkRunCrystalc.isSelected();
-    Container[] comps = new Container[]{
-      panelCrystalcOptions
-    };
-    for (Container c : comps) {
-      SwingUtils.enableComponents(c, selected);
-    }
+    final boolean selected = chkRunCrystalc.isSelected();
+    SwingUtils.enableComponents(panelCrystalc, selected, true,
+        Collections.singletonList(chkRunCrystalc));
 
     ThisAppProps.save(ThisAppProps.PROP_CRYSTALC_USE, Boolean.toString(selected));
   }//GEN-LAST:event_chkRunCrystalcActionPerformed
@@ -4556,13 +4552,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }//GEN-LAST:event_btnProtProphDefaultsClosedActionPerformed
 
   private void chkRunProteinProphetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkRunProteinProphetActionPerformed
-    boolean selected = chkRunProteinProphet.isSelected();
-    Container[] comps = new Container[]{
-      panelProteinProphetOptions
-    };
-    for (Container c : comps) {
-      SwingUtils.enableComponents(c, selected);
-    }
+    final boolean selected = chkRunProteinProphet.isSelected();
+    SwingUtils.enableComponents(panelProteinProphet, selected, true,
+        Collections.singletonList(chkRunProteinProphet));
   }//GEN-LAST:event_chkRunProteinProphetActionPerformed
 
   private void textPepProphCmdFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textPepProphCmdFocusLost
@@ -4582,13 +4574,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }//GEN-LAST:event_btnPepProphDefaultsOpenActionPerformed
 
   private void chkRunPeptideProphetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkRunPeptideProphetActionPerformed
-    boolean selected = chkRunPeptideProphet.isSelected();
-    Container[] comps = new Container[]{
-      panelPeptideProphetOptions
-    };
-    for (Container c : comps) {
-      SwingUtils.enableComponents(c, selected);
-    }
+    final boolean selected = chkRunPeptideProphet.isSelected();
+    SwingUtils.enableComponents(panelPeptideProphet, selected, true,
+        Collections.singletonList(chkRunPeptideProphet));
   }//GEN-LAST:event_chkRunPeptideProphetActionPerformed
 
   private void checkCombinedPepxmlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkCombinedPepxmlActionPerformed
@@ -4631,6 +4619,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   
   public void loadDefaultsCrystalC(SearchTypeProp type) {
     ThisAppProps.loadFromBundle(chkRunCrystalc, ThisAppProps.PROP_CRYSTALC_USE, type);
+    SwingUtils.enableComponents(panelCrystalc, chkRunCrystalc.isSelected(), true,
+        Collections.singletonList(chkRunCrystalc));
   }
 
   public void loadDefaultsProteinProphet(SearchTypeProp type) {
