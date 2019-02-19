@@ -59,8 +59,8 @@ public class CmdPeptideProphet extends CmdBase {
         }
         interactXml = cleanDir.resolve("interact-" + nameWithoutExt + "pep.xml").toAbsolutePath();
       } else {
-        // --combine option for peptide prophet
-        interactXml = Paths.get("interact.pep.xml");
+        // --combine option for peptide prophet means there's a single interact.pep.xml for each experiment/group
+        interactXml = cleanDir.resolve(Paths.get("interact.pep.xml"));
       }
 
       m.put(lcms, interactXml);
