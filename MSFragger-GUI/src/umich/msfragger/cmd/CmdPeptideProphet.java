@@ -1,6 +1,9 @@
 package umich.msfragger.cmd;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -8,15 +11,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.swing.Box;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.pepproph.PeptideProphetParams;
 import umich.msfragger.params.philosopher.PhilosopherProps;
+import umich.msfragger.util.FileListing;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.UsageTrigger;
 
 public class CmdPeptideProphet extends CmdBase {
+  private static final Logger log = LoggerFactory.getLogger(CmdPeptideProphet.class);
 
   public static final String NAME = "PeptideProphet";
 
@@ -68,11 +83,91 @@ public class CmdPeptideProphet extends CmdBase {
     return m;
   }
 
+  private List<Path> findOldFilesForDeletion(Map<InputLcmsFile, Path> outputs) {
+//    final Set<Path> outputPaths = pepxmlFiles.keySet().stream()
+//        .map(f -> f.outputDir(wd)).collect(Collectors.toSet());
+    final Set<Path> outputPaths = outputs.values().stream()
+        .map(Path::getParent).collect(Collectors.toSet());
+    final Pattern pepxmlRegex = Pattern.compile(".+?\\.pep\\.xml$", Pattern.CASE_INSENSITIVE);
+    final List<Path> pepxmlsToDelete = new ArrayList<>();
+    for (Path outputPath : outputPaths) {
+      FileListing fl = new FileListing(outputPath, pepxmlRegex);
+      fl.setRecursive(false);
+      fl.setIncludeDirectories(false);
+      pepxmlsToDelete.addAll(fl.findFiles());
+    }
+    return pepxmlsToDelete;
+  }
+
+  /**
+   * Asks user confirmation before deleting the files.
+   * Shows all the file paths to be deleted.
+   */
+  private boolean deleteFiles(Component comp, List<Path> forDeletion) {
+    if (forDeletion == null || forDeletion.isEmpty())
+      return true;
+
+    String[][] data = new String[forDeletion.size()][1];
+    int index = -1;
+    for (Path path : forDeletion) {
+      data[++index][0] = path.toString();
+    }
+
+    if (!forDeletion.isEmpty()) {
+      DefaultTableModel model = new DefaultTableModel(data, new String[] {"To be deleted"});
+      JTable table = new JTable(model);
+      table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+      JPanel panel = new JPanel(new BorderLayout());
+      panel.add(new JLabel("<html>Found " + forDeletion.size() + " old pep-xml files.<br/>"
+          + "This might cause problems depending on the selected options.<br/>"
+          + "It's recommended to delete the files first.<br/><br/>"
+          + "<ul><li><b>Yes</b> - delete files now</li>"
+          + "<li><b>No</b> - continue without deleting files</li>"
+          + "<li><b>Cancel</b> - don't run anything</li></ul>"
+          ), BorderLayout.NORTH);
+      panel.add(Box.createVerticalStrut(100), BorderLayout.CENTER);
+      panel.add(new JScrollPane(table), BorderLayout.CENTER);
+
+      String[] options = {"Yes - Delete now", "No - Continue as is", "Cancel"};
+      int confirmation = JOptionPane
+          .showOptionDialog(comp, panel, "Delete the files?",
+              JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+      switch (confirmation) {
+        case 0:
+          for (Path path : forDeletion) {
+            try {
+              Files.deleteIfExists(path);
+            } catch (IOException e) {
+              log.error("Error while trying to delete old files: {}", e.getMessage());
+              throw new IllegalStateException(e);
+            }
+          }
+          return true;
+        case 1:
+          return true;
+        case 2:
+          return false;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * @param pepxmlFiles Either pepxml files after search or after Crystal-C.
+   */
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       String fastaPath, String decoyTag, String textPepProphCmd, boolean combine,
       Map<InputLcmsFile, Path> pepxmlFiles) {
 
     pbs.clear();
+
+    // check for existing pepxml files and delete them
+    final Map<InputLcmsFile, Path> outputs = outputs(pepxmlFiles, "pepxml", combine);
+    final List<Path> forDeletion = findOldFilesForDeletion(outputs);
+    if (!deleteFiles(comp, forDeletion)) {
+      return false;
+    }
+
     PeptideProphetParams peptideProphetParams = new PeptideProphetParams();
     peptideProphetParams.setCmdLineParams(textPepProphCmd);
 
