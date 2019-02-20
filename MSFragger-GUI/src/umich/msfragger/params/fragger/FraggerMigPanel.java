@@ -622,7 +622,7 @@ public class FraggerMigPanel extends JPanel {
       // Advanced peak matching panel
       {
         JPanel pPeakMatch = new JPanel(new MigLayout(new LC()));
-        pPeakMatch.setBorder(new TitledBorder("Peak Matching Advanced Options"));
+        pPeakMatch.setBorder(new TitledBorder("Peak Matching and Output Advanced Options"));
 
         FormEntry feTrueTolUnits = new FormEntry(MsfraggerParams.PROP_precursor_true_units,
             "Precursor true tolerance", UiUtils.createUiCombo(MassTolUnits.values()));
@@ -671,22 +671,25 @@ public class FraggerMigPanel extends JPanel {
             "not-shown", new UiCheck("Override charge", null),
             "<html>Ignores precursor charge and uses charge state<br>\n" +
                 "specified in precursor_charge range.<br>");
+        FormEntry feReportAltProts = new FormEntry(MsfraggerParams.PROP_report_alternative_proteins,
+            "not-shown", new UiCheck("Report alternative proteins", null, false));
 
         pPeakMatch.add(feTrueTolUnits.label(), alignRight);
         pPeakMatch.add(feTrueTolUnits.comp, new CC().split(2));
-        pPeakMatch.add(feTrueTol.comp);
+        pPeakMatch.add(feTrueTol.comp, new CC().growX());
 
-        pPeakMatch.add(feOverrideCharge.comp, alignRight);
-        pPeakMatch.add(fePrecursorChargeLo.label(), new CC().split(4).spanX());
+        pPeakMatch.add(feOverrideCharge.comp, new CC().split(5).spanX());
+        pPeakMatch.add(fePrecursorChargeLo.label());
         pPeakMatch.add(fePrecursorChargeLo.comp);
         pPeakMatch.add(new JLabel("-"));
         pPeakMatch.add(fePrecursorChargeHi.comp, wrap);
         pPeakMatch.add(feReportTopN.label(), alignRight);
-        pPeakMatch.add(feReportTopN.comp);
+        pPeakMatch.add(feReportTopN.comp, new CC().growX());
+        pPeakMatch.add(feReportAltProts.comp, wrap);
+        pPeakMatch.add(feOutputType.label(), alignRight);
+        pPeakMatch.add(feOutputType.comp);
         pPeakMatch.add(feOutputMaxExpect.label(), alignRight);
         pPeakMatch.add(feOutputMaxExpect.comp, wrap);
-        pPeakMatch.add(feOutputType.label(), alignRight);
-        pPeakMatch.add(feOutputType.comp, wrap);
 
         pAdvanced.add(pPeakMatch, new CC().wrap().growX());
       }
