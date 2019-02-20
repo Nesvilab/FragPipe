@@ -13,7 +13,7 @@ isotope_error = 0                      # 0=off, 0/1/2 (standard C13 error)
 mass_offsets = 0
 precursor_mass_mode = selected
 
-shifted_ions = 1
+shifted_ions = 0
 shifted_ions_exclude_ranges = (-1.5,3.5)
 
 search_enzyme_name = Trypsin
