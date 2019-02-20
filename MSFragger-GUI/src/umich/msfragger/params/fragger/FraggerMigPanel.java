@@ -344,11 +344,12 @@ public class FraggerMigPanel extends JPanel {
       pPeakMatch.add(fePrecursorMassMode.label(), new CC().split(2).spanX());
       pPeakMatch.add(fePrecursorMassMode.comp, new CC().wrap());
 
+      final UiCheck uiCheckShiftedIons = new UiCheck("<html>Use shifted ion series", null);
       FormEntry feShiftedIonsCheck = new FormEntry(MsfraggerParams.PROP_shifted_ions, "not-shown",
-          new UiCheck("<html>Use shifted ion series", null),
-          "<html>Shifted ion series are the same as regular b/y ions,<br/>"
+          uiCheckShiftedIons, "<html>Shifted ion series are the same as regular b/y ions,<br/>"
               + "but with the addition of the mass shift of the precursor.<br/>"
-              + "Regular ion series will still be used.");
+              + "Regular ion series will still be used.<br/>"
+          + "This option is </b>incompatible</b> with database slicing.");
       UiText uiTextShiftedIonsExclusion = new UiText();
       uiTextShiftedIonsExclusion.setDocument(DocumentFilters.getFilter("[A-Za-z]"));
       uiTextShiftedIonsExclusion.setText("(-1.5,3.5)");
@@ -424,6 +425,29 @@ public class FraggerMigPanel extends JPanel {
       uiSpinnerDbslice = new UiSpinnerInt(1, 1, 99, 1, 2);
       FormEntry feSliceDb = new FormEntry(PROP_misc_slice_db, "<html><i>Slice up database", uiSpinnerDbslice,
           "<html>Split database into smaller chunks.<br/>Only use for very large databases (200MB+) or<br/>non-specific digestion.");
+
+      uiCheckShiftedIons.addActionListener(e -> {
+        final boolean selected = uiCheckShiftedIons.isSelected();
+        final int dbSlicing = uiSpinnerDbslice.getActualValue();
+        if (selected && dbSlicing > 1) {
+          JOptionPane.showMessageDialog(FraggerMigPanel.this,
+              "<html>This option is incompatible with DB Slicing.<br/>"
+                  + "Please either turn it off, or turn off DB Slicing by setting<br/>"
+                  + "it to 1.", "Incompatible options", JOptionPane.WARNING_MESSAGE);
+        }
+      });
+
+      uiSpinnerDbslice.addChangeListener(e -> {
+        final boolean selected = uiCheckShiftedIons.isSelected();
+        final int dbSlicing = uiSpinnerDbslice.getActualValue();
+        if (selected && dbSlicing > 1) {
+          JOptionPane.showMessageDialog(FraggerMigPanel.this,
+              "<html>DB Slicing is incompatible with Shifted Ions option.<br/>"
+                  + "Please either set it to 1, or uncheck Shifted Ions.",
+              "Incompatible options", JOptionPane.WARNING_MESSAGE);
+        }
+      });
+
       pDigest.add(feMaxFragCharge.label(), new CC().split(2).span(2).alignX("right"));
       pDigest.add(feMaxFragCharge.comp);
       pDigest.add(feSliceDb.label(), new CC().alignX("right"));
