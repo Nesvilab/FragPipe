@@ -61,6 +61,7 @@ public class MsfraggerProps {
     public static final String PROP_MIN_VERSION_SLICING = "msfragger.version.min-for-slicing";
     public static final String PROP_MIN_VERSION_MSADJUSTER = "msfragger.version.min-for-msadjuster";
     public static final String PROP_DOWNLOAD_URL = "msfragger.download.url";
+    public static final String PROP_FRAGGER_SITE_URL = "msfragger.site.url";
     
     public static final String PROP_UPDATESERVER_WEBSITE_URL = "msfragger.update-server.website.url";
     public static final String PROP_UPDATESERVER_VERSION_URL = "msfragger.update-server.version-service.url";

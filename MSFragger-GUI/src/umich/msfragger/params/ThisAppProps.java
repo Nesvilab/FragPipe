@@ -46,6 +46,9 @@ public class ThisAppProps extends Properties {
 
   public static final String PROP_LAB_SITE_URL = "lab.site.url";
   public static final String PROP_MANUSCRIPT_URL = "manuscript.url";
+  public static final String PROP_MANUSCRIPT_DOI = "manuscript.doi";
+  public static final String PROP_FRAGPIPE_SITE_URL = "msfragger.gui.site.url";
+
   private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
     //private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
     public static final String PROP_DB_FILE_IN = "path.db.file.in";
@@ -116,6 +119,18 @@ public class ThisAppProps extends Properties {
 
   public static Properties getRemoteProperties() {
     return HolderRemote.getRemoteProperties();
+  }
+
+  public static Properties getRemotePropertiesWithLocalDefaults() {
+    final Properties p = new Properties(getLocalProperties());
+    // merge with remote properties
+    Properties remote = ThisAppProps.getRemoteProperties();
+    if (remote!= null) {
+      for (String name : remote.stringPropertyNames()) {
+        p.setProperty(name, remote.getProperty(name));
+      }
+    }
+    return p;
   }
 
   public static ResourceBundle getLocalBundle() {

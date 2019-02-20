@@ -678,14 +678,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
     style.append("font-size:").append(font.getSize()).append("pt;");
 
-    final Properties p = ThisAppProps.getLocalProperties();
-    // merge with remote properties
-    Properties remoteProperties = ThisAppProps.getRemoteProperties();
-    if (remoteProperties != null) {
-      for (String name : remoteProperties.stringPropertyNames()) {
-        p.setProperty(name, remoteProperties.getProperty(name));
-      }
-    }
+
+    final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
     String linkDl = p.getProperty(Version.PROP_DOWNLOAD_URL, "");
     String linkSite = p.getProperty(ThisAppProps.PROP_LAB_SITE_URL, "http://nesvilab.org");
     String linkToPaper = p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL, "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
@@ -5210,12 +5204,23 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     sb.append("<body style=\"").append(style.toString()).append("\"");
     //sb.append("<body>");
 
+    final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
+    final String linkMsfragger = p.getProperty(MsfraggerProps.PROP_FRAGGER_SITE_URL, "https://nesvilab.github.io/MSFragger/");
+    final String linkFragpipe = p.getProperty(ThisAppProps.PROP_FRAGPIPE_SITE_URL, "https://github.com/Nesvilab/FragPipe");
+    final String doi= p.getProperty(ThisAppProps.PROP_MANUSCRIPT_DOI, "10.1038/nmeth.4256");
+    final String linkManuscript= p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL, "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
+
     sb.append("<p style=\"margin-top: 0\">");
     sb.append(
-        "<a href=\"http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html\">MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics</a>");
+        "<a href=\"").append(linkManuscript).append("\">MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics</a>");
     sb.append("<br/>");
-    sb.append("<b>DOI:10.1038/nmeth.4256</b>");
+    sb.append("<b>DOI:</b>").append(doi);
     sb.append("</p>");
+
+
+    sb.append("More info: <a href=\"").append(linkMsfragger)
+        .append("\">MSFragger website</a>, <a href=\"").append(linkFragpipe)
+        .append("\">FragPipe GitHub page</a>");
 
     sb.append("</body>");
     sb.append("</html>");
