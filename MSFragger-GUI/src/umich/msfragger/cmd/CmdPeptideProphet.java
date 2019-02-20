@@ -123,7 +123,7 @@ public class CmdPeptideProphet extends CmdBase {
           + "It's recommended to delete the files first.<br/><br/>"
           + "<ul><li><b>Yes</b> - delete files now</li>"
           + "<li><b>No</b> - continue without deleting files</li>"
-          + "<li><b>Cancel</b> - don't run anything</li></ul>"
+          + "<li><b>Cancel</b> - stop and don't run anything</li></ul>"
           ), BorderLayout.NORTH);
       panel.add(Box.createVerticalStrut(100), BorderLayout.CENTER);
       panel.add(new JScrollPane(table), BorderLayout.CENTER);
