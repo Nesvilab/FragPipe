@@ -150,7 +150,9 @@ import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
 import umich.msfragger.messages.MessageDecoyTag;
 import umich.msfragger.messages.MessageIsUmpireRun;
+import umich.msfragger.messages.MessageKillAll;
 import umich.msfragger.messages.MessageLcmsFilesAdded;
+import umich.msfragger.messages.MessageProcessStarted;
 import umich.msfragger.messages.MessageRun;
 import umich.msfragger.messages.MessageSaveCache;
 import umich.msfragger.messages.MessageSearchType;
@@ -197,11 +199,13 @@ import umich.swing.console.TextConsole;
 public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private static final org.slf4j.Logger log = LoggerFactory.getLogger(MsfraggerGuiFrame.class);
+  private final Object procRunLock = new Object();
 
-  protected FraggerMigPanel fraggerMigPanel;
-  protected TextConsole console;
-  protected ExecutorService exec;
-  private final List<Process> submittedProcesses = new ArrayList<>(100);
+  private FraggerMigPanel fraggerMigPanel;
+  private TextConsole console;
+  private ExecutorService exec = Executors.newFixedThreadPool(1);;
+  private ExecutorService procRunner = null;
+
   //private static final String TEXT_SAME_SEQ_DB = "<Same as in MSFragger>";
   private Color defTextColor;
   private GhostText ghostTextPepProph;
@@ -339,8 +343,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (defTextColor == null) {
       defTextColor = Color.BLACK;
     }
-
-    exec = Executors.newFixedThreadPool(1);
 
     // check if fragger jar points to a correct location
     if (!validateMsfraggerJarContents(textBinMsfragger.getText())) {
@@ -2311,13 +2313,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     btnRun.setEnabled(true);
     btnStop.setEnabled(false);
 
-    if (exec != null) {
-      exec.shutdownNow();
+    if (procRunner != null) {
+      List<Runnable> notRun = procRunner.shutdownNow();
     }
-    for (Process p : submittedProcesses) {
-      p.destroy();
-    }
-    submittedProcesses.clear();
+
   }//GEN-LAST:event_btnStopActionPerformed
 
 
@@ -3397,11 +3396,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
 
-    if (exec != null && !exec.isTerminated()) {
-      exec.shutdownNow();
-    }
-
-
     final Color green = new Color(105, 193, 38);
     final Color greenDarker = new Color(104, 184, 55);
     final Color greenDarkest = new Color(82, 140, 26);
@@ -3409,9 +3403,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final Color redDarker = new Color(166, 56, 68);
     final Color redDarkest = new Color(155, 35, 29);
     final Color black = new Color(0, 0, 0);
-    exec = Executors.newFixedThreadPool(1);
+
     try // run everything
     {
+      procRunner = prepareProcessRunner(procRunner);
+      EventBus.getDefault().post(new MessageKillAll());
+
       final ProcessResult[] processResults = new ProcessResult[pbis.size()];
 
       for (int i = 0; i < pbis.size(); i++) {
@@ -3428,10 +3425,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         REHandler reHandler = new REHandler(() -> {
 
-          StringBuilder command = new StringBuilder();
-          for (String part : pbi.pb.command()) {
-            command.append(part).append(" ");
-          }
+          String command = String.join(" ", pbi.pb.command());
 
           // if it's not the first process, check that the previous
           // one returned zero exit code
@@ -3439,7 +3433,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             Integer exitCode = processResults[index - 1].getExitCode();
             if (exitCode == null) {
               LogUtils.print(redDarker, console, true, "Cancelled execution of: ", false);
-              LogUtils.print(black, console, true, command.toString(), true);
+              LogUtils.print(black, console, true, command, true);
               return;
             } else if (exitCode != 0) {
               LogUtils.print(red, console, true,
@@ -3447,7 +3441,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                       "Previous process returned exit code [%d], cancelling further processing..",
                       exitCode), true);
               LogUtils.print(redDarker, console, true, "Cancelled execution of: ", false);
-              LogUtils.print(black, console, true, command.toString(), true);
+              LogUtils.print(black, console, true, command, true);
               return;
             }
           }
@@ -3457,12 +3451,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             LogUtils.print(black, console, true, getTimestamp() + " Executing command [", false);
             LogUtils.print(colorTool, console, true, pbi.name, false);
             LogUtils.print(black, console, true, "] from working dir: ", false);
-            final String workDirToPrint = pbi.pb.directory() == null ? "N/A" : pbi.pb.directory().toString();
+            final String workDirToPrint =
+                pbi.pb.directory() == null ? "N/A" : pbi.pb.directory().toString();
             LogUtils.print(colorWd, console, true, workDirToPrint, true);
             LogUtils.print(black, console, true, "$> ", false);
-            LogUtils.print(colorCmdLine, console, true, command.toString(), true);
+            LogUtils.print(colorCmdLine, console, true, command, true);
 
             Process proc = pr.start();
+            EventBus.getDefault().post(new MessageProcessStarted(pr));
             LogUtils.println(console, getTimestamp() + " Process started");
 
             while (true) {
@@ -3488,58 +3484,67 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
                 break;
               } catch (IllegalThreadStateException ignore) {
+                log.debug("Caught IllegalThreadStateException: {}", ignore.getMessage());
                 // this error is thrown by process.exitValue() if the underlying process has not yet finished
               }
             }
 
           } catch (IOException ex) {
-            String toAppend = String
-                .format(Locale.ROOT, "IOException: Error in process,\n%s", ex.getMessage());
-            LogUtils.println(console, toAppend);
+            String msg = String.format(Locale.ROOT,
+                "IOException: Error in process,\n%s", ex.getMessage());
+            LogUtils.println(console, msg);
+            log.error(msg, ex);
           } catch (InterruptedException ex) {
-            final Process proc = pr.getProc();
+            final Process proc = pr.getProcess();
             if (proc != null) {
-              proc.destroy();
+              proc.destroyForcibly();
             }
-            String toAppend = String
-                .format(Locale.ROOT, "InterruptedException: Error in process,\n%s",
-                    ex.getMessage());
-            LogUtils.println(console, toAppend);
+            String msg = String.format(Locale.ROOT,
+                "InterruptedException: Error in process,\n%s", ex.getMessage());
+            LogUtils.println(console, msg);
+            log.error(msg, ex);
           } finally {
             try {
               pr.close();
             } catch (Exception e) {
-              LogUtils.println(console,
-                  "Error while closing redirected output streams from process, details:\n\n"
-                      + LogUtils.stacktrace(e));
-
+              String msg = "Error while closing redirected output streams from process, details:\n\n"
+                      + LogUtils.stacktrace(e);
+              LogUtils.println(console, msg);
+              log.error(msg, e);
             }
           }
         }, console, System.err);
 
         // this error is thrown by process.exitValue() if the underlying process has not yet finished
-        exec.submit(reHandler);
+        procRunner.submit(reHandler);
       }
+
+      final JButton btnStartPtr = btnRun;
+      final JButton btnStopPtr = btnStop;
+      REHandler finalizerTask = new REHandler(() -> {
+        btnStartPtr.setEnabled(true);
+        btnStopPtr.setEnabled(false);
+        LogUtils.println(console, "=========================");
+        LogUtils.println(console, "===");
+        LogUtils.println(console, "===        Done");
+        LogUtils.println(console, "===");
+        LogUtils.println(console, "=========================");
+      }, console, System.err);
+
+      procRunner.submit(finalizerTask);
+
     } finally {
-
+      if (procRunner != null) {
+        procRunner.shutdown();
+      }
     }
+  }
 
-    final JButton btnStartPtr = btnRun;
-    final JButton btnStopPtr = btnStop;
-    REHandler finalizerTask = new REHandler(() -> {
-      submittedProcesses.clear();
-      btnStartPtr.setEnabled(true);
-      btnStopPtr.setEnabled(false);
-      LogUtils.println(console, "=========================");
-      LogUtils.println(console, "===");
-      LogUtils.println(console, "===        Done");
-      LogUtils.println(console, "===");
-      LogUtils.println(console, "=========================");
-    }, console, System.err);
-
-    exec.submit(finalizerTask);
-
-    exec.shutdown();
+  private static ExecutorService prepareProcessRunner(ExecutorService runner) {
+    if (runner != null && !runner.isTerminated()) {
+      runner.shutdownNow();
+    }
+    return Executors.newFixedThreadPool(1);
   }
 
   private void btnRunActionPerformed(

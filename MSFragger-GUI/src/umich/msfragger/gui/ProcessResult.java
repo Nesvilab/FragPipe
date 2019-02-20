@@ -27,7 +27,7 @@ import java.nio.file.StandardOpenOption;
 import umich.msfragger.cmd.ProcessBuilderInfo;
 import umich.msfragger.util.StringUtils;
 
-class ProcessResult implements AutoCloseable {
+public class ProcessResult implements AutoCloseable {
 
   private final ProcessBuilderInfo pbi;
 
@@ -69,7 +69,7 @@ class ProcessResult implements AutoCloseable {
     }
   }
 
-  public Process getProc() {
+  public Process getProcess() {
     return proc;
   }
 
@@ -110,8 +110,12 @@ class ProcessResult implements AutoCloseable {
             StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE));
   }
 
-  public ProcessBuilder getPb() {
+  public ProcessBuilder getProcessBuilder() {
     return pbi.pb;
+  }
+
+  public ProcessBuilderInfo getProcessBuilderInfo() {
+    return pbi;
   }
 
   public boolean isStarted() {
