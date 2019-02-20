@@ -8,7 +8,7 @@ public interface ISimpleTextComponent {
   String getText();
   void setText(String text);
 
-  public static ISimpleTextComponent fromJLabel(final JLabel comp) {
+  public static ISimpleTextComponent from(final JLabel comp) {
     return new ISimpleTextComponent() {
       @Override
       public String getText() {
@@ -22,7 +22,7 @@ public interface ISimpleTextComponent {
     };
   }
 
-  public static ISimpleTextComponent fromTextComponent(final JTextComponent comp) {
+  public static ISimpleTextComponent from(final JTextComponent comp) {
     return new ISimpleTextComponent() {
       @Override
       public String getText() {

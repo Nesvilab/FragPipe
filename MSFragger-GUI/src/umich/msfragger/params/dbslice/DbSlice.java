@@ -2,16 +2,15 @@ package umich.msfragger.params.dbslice;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import umich.msfragger.messages.MessageToolInit;
 import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.util.CheckResult;
 import umich.msfragger.util.Installed;
 import umich.msfragger.util.JarUtils;
-import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.PythonModule;
 import umich.msfragger.util.VersionComparator;
@@ -53,34 +52,13 @@ public class DbSlice {
     return scriptDbslicingPath;
   }
 
-  public static abstract class Message {
-    public final boolean append;
-    public final boolean isError;
-    public final String text;
-
-    public Message(boolean append, boolean isError, String text) {
-      this.append = append;
-      this.isError = isError;
-      this.text = text;
-    }
-
-    @Override
-    public String toString() {
-      return "Message{" +
-          "append=" + append +
-          ", isError=" + isError +
-          ", text='" + text + '\'' +
-          '}';
-    }
-  }
-
-  public static class Message1 extends Message {
+  public static class Message1 extends MessageToolInit {
     public Message1(boolean append, boolean isError, String text) {
       super(append, isError, text);
     }
   }
 
-  public static class Message2 extends Message {
+  public static class Message2 extends MessageToolInit {
     public Message2(boolean append, boolean isError, String text) {
       super(append, isError, text);
     }

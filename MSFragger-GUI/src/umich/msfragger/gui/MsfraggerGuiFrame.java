@@ -158,6 +158,7 @@ import umich.msfragger.messages.MessageSaveCache;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.messages.MessageShowAboutDialog;
 import umich.msfragger.messages.MessageTipNotification;
+import umich.msfragger.messages.MessageToolInit;
 import umich.msfragger.messages.MessageValidityFragger;
 import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.ThisAppProps;
@@ -539,59 +540,64 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }
 
-  private void messageToTextComponent(ISimpleTextComponent comp, DbSlice.Message m) {
-    final String old = comp.getText();
-    StringBuilder sb;
+  private void messageToTextComponent(ISimpleTextComponent comp, MessageToolInit m) {
+    final String old = comp.getText().trim();
+    Pattern reHtml = Pattern.compile("<\\s*/?\\s*html\\s*>", Pattern.CASE_INSENSITIVE);
+    String noHtml = reHtml.matcher(old).replaceAll("");
+
+    StringBuilder sb = new StringBuilder("<html>");
     if (m.append) {
-      sb = new StringBuilder();
-      if (!old.startsWith("<html>")) {
-        sb.append("<html>");
-      }
-      sb.append(old);
-    } else {
-      sb = new StringBuilder("<html>");
+      sb.append(noHtml);
     }
     if (m.isError) {
       sb.append("<b>");
     }
-    sb.append(" ").append(m.text);
+    sb.append(m.text);
     if (m.isError) {
       sb.append("</b>");
     }
-    comp.setText(sb.toString());
+
+    sb.append("</html>");
+    String html = sb.toString();
+
+    if (m instanceof DbSlice.Message2) {
+      int a = 1;
+    }
+
+    comp.setText(html);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onDbsliceMessage1(DbSlice.Message1 m) {
-    messageToTextComponent(ISimpleTextComponent.fromJLabel(lblDbsliceInfo1), m);
+    messageToTextComponent(ISimpleTextComponent.from(lblDbsliceInfo1), m);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onDbsliceMessage2(DbSlice.Message2 m) {
-    messageToTextComponent(ISimpleTextComponent.fromJLabel(lblDbsliceInfo2), m);
+    messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo), m);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
   public void onDbsliceInitDone(MessageInitDone m) {
     final String text = m.isSuccess ? "Database Slicing enabled." : "Database Slicing disabled.";
-    messageToTextComponent(ISimpleTextComponent.fromJLabel(lblDbsliceInfo2), new DbSlice.Message2(true, !m.isSuccess, text));
+    messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo), new DbSlice.Message2(true, !m.isSuccess, text));
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onSpeclibgenMessage1(SpecLibGen.Message1 m) {
-    messageToTextComponent(ISimpleTextComponent.fromJLabel(lblSpeclibInfo1), m);
+    messageToTextComponent(ISimpleTextComponent.from(lblSpeclibInfo1), m);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onSpeclibgenMessage2(SpecLibGen.Message2 m) {
-    messageToTextComponent(ISimpleTextComponent.fromJLabel(lblSpeclibInfo2), m);
+    messageToTextComponent(ISimpleTextComponent.from(lblSpeclibInfo2), m);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
   public void onSpeclibgenInitDone(SpecLibGen.InitDone m) {
     final String text = m.isSuccess ? "Spectral Library Generation enabled. See Report tab."
         : "Spectral Library Generation disabled.";
-    messageToTextComponent(ISimpleTextComponent.fromJLabel(lblSpeclibInfo2), new SpecLibGen.Message2(true, !m.isSuccess, text));
+    messageToTextComponent(ISimpleTextComponent.from(lblSpeclibInfo2), new SpecLibGen.Message2(true, !m.isSuccess, text));
     enableSpecLibGenPanel(m.isSuccess);
   }
 
@@ -878,7 +884,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     btnAboutInConfig = new javax.swing.JButton();
     jPanel2 = new javax.swing.JPanel();
     lblDbsliceInfo1 = new javax.swing.JLabel();
-    lblDbsliceInfo2 = new javax.swing.JLabel();
     jScrollPane6 = new javax.swing.JScrollPane();
     epDbsliceInfo = new javax.swing.JEditorPane();
     checkEnableDiaumpire = new javax.swing.JCheckBox();
@@ -1195,10 +1200,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     lblDbsliceInfo1.setText(DbSlice.DEFAULT_MESSAGE);
 
-    lblDbsliceInfo2.setText("");
-
     epDbsliceInfo.setEditable(false);
-    epDbsliceInfo.setBackground(lblFraggerJavaVer.getBackground());
+    epDbsliceInfo.setText("");
     jScrollPane6.setViewportView(epDbsliceInfo);
 
     javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -1208,23 +1211,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       .addGroup(jPanel2Layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jScrollPane6)
+          .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 593, Short.MAX_VALUE)
           .addGroup(jPanel2Layout.createSequentialGroup()
-            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-              .addComponent(lblDbsliceInfo1)
-              .addComponent(lblDbsliceInfo2))
+            .addComponent(lblDbsliceInfo1)
             .addGap(0, 0, Short.MAX_VALUE)))
         .addContainerGap())
     );
     jPanel2Layout.setVerticalGroup(
       jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(jPanel2Layout.createSequentialGroup()
-        .addContainerGap()
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         .addComponent(lblDbsliceInfo1)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(lblDbsliceInfo2)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addGap(22, 22, 22))
     );
 
     checkEnableDiaumpire.setText("Enable DIA-Umpire");
@@ -1347,8 +1347,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addGap(26, 26, 26)
         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -5411,7 +5411,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JScrollPane jScrollPane5;
   private javax.swing.JScrollPane jScrollPane6;
   private javax.swing.JLabel lblDbsliceInfo1;
-  private javax.swing.JLabel lblDbsliceInfo2;
   private javax.swing.JLabel lblFastaCount;
   private javax.swing.JLabel lblFindAutomatically;
   private javax.swing.JLabel lblFraggerJavaVer;
