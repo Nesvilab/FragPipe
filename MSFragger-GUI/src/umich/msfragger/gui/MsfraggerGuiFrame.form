@@ -174,11 +174,7 @@
                               <Component id="lblFraggerJavaVer" max="32767" attributes="0"/>
                               <Component id="jScrollPane1" alignment="1" max="32767" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
-                                  <Component id="lblMsfraggerCitation" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="0" pref="159" max="32767" attributes="0"/>
-                              </Group>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="textBinMsfragger" max="32767" attributes="0"/>
+                                  <Component id="textBinMsfragger" pref="362" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="btnMsfraggerBinBrowse" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
@@ -204,9 +200,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="lblFraggerJavaVer" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="lblMsfraggerCitation" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane1" min="-2" pref="48" max="-2" attributes="0"/>
+                          <Component id="jScrollPane1" min="-2" pref="68" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -240,11 +234,6 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textBinMsfraggerActionPerformed"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JLabel" name="lblMsfraggerCitation">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="If you are using MSFragger search engine for publications, please cite the following paper:"/>
-                  </Properties>
-                </Component>
                 <Container class="javax.swing.JScrollPane" name="jScrollPane1">
                   <Properties>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
@@ -261,7 +250,7 @@
                       <Properties>
                         <Property name="editable" type="boolean" value="false"/>
                         <Property name="background" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                          <Connection component="lblMsfraggerCitation" name="background" type="property"/>
+                          <Connection component="lblFraggerJavaVer" name="background" type="property"/>
                         </Property>
                         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                           <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
@@ -270,7 +259,7 @@
                         </Property>
                         <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                          <Connection component="lblMsfraggerCitation" name="font" type="property"/>
+                          <Connection component="lblFraggerJavaVer" name="font" type="property"/>
                         </Property>
                         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                           <Connection code="getFraggerCitationHtml()" type="code"/>
@@ -407,7 +396,7 @@
                       <Properties>
                         <Property name="editable" type="boolean" value="false"/>
                         <Property name="background" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                          <Connection component="lblMsfraggerCitation" name="background" type="property"/>
+                          <Connection component="lblFraggerJavaVer" name="background" type="property"/>
                         </Property>
                         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                           <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
@@ -416,7 +405,7 @@
                         </Property>
                         <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                          <Connection component="lblMsfraggerCitation" name="font" type="property"/>
+                          <Connection component="lblFraggerJavaVer" name="font" type="property"/>
                         </Property>
                         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                           <Connection code="createPhilosopherCitationHtml()" type="code"/>

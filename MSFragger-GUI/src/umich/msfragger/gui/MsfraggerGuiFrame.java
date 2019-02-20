@@ -860,7 +860,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     btnMsfraggerBinDownload = new javax.swing.JButton();
     btnMsfraggerBinBrowse = new javax.swing.JButton();
     textBinMsfragger = new javax.swing.JTextField();
-    lblMsfraggerCitation = new javax.swing.JLabel();
     jScrollPane1 = new javax.swing.JScrollPane();
     editorMsfraggerCitation = new javax.swing.JEditorPane();
     lblFraggerJavaVer = new javax.swing.JLabel();
@@ -1020,15 +1019,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    lblMsfraggerCitation.setText("If you are using MSFragger search engine for publications, please cite the following paper:");
-
     jScrollPane1.setBorder(null);
 
     editorMsfraggerCitation.setEditable(false);
-    editorMsfraggerCitation.setBackground(lblMsfraggerCitation.getBackground());
+    editorMsfraggerCitation.setBackground(lblFraggerJavaVer.getBackground());
     editorMsfraggerCitation.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
     editorMsfraggerCitation.setContentType("text/html"); // NOI18N
-    editorMsfraggerCitation.setFont(lblMsfraggerCitation.getFont());
+    editorMsfraggerCitation.setFont(lblFraggerJavaVer.getFont());
     editorMsfraggerCitation.setText(getFraggerCitationHtml());
     editorMsfraggerCitation.setAutoscrolls(false);
     editorMsfraggerCitation.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
@@ -1058,10 +1055,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(lblFraggerJavaVer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addComponent(jScrollPane1)
           .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelMsfraggerConfigLayout.createSequentialGroup()
-            .addComponent(lblMsfraggerCitation)
-            .addGap(0, 159, Short.MAX_VALUE))
-          .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelMsfraggerConfigLayout.createSequentialGroup()
-            .addComponent(textBinMsfragger)
+            .addComponent(textBinMsfragger, javax.swing.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(btnMsfraggerBinBrowse)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1082,9 +1076,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(lblFraggerJavaVer)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(lblMsfraggerCitation)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE))
     );
 
     panelPhilosopherConfig.setBorder(javax.swing.BorderFactory.createTitledBorder("Philosopher"));
@@ -1123,10 +1115,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     jScrollPane3.setBorder(null);
 
     editorPhilosopherLink.setEditable(false);
-    editorPhilosopherLink.setBackground(lblMsfraggerCitation.getBackground());
+    editorPhilosopherLink.setBackground(lblPhilosopherInfo.getBackground());
     editorPhilosopherLink.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
     editorPhilosopherLink.setContentType("text/html"); // NOI18N
-    editorPhilosopherLink.setFont(lblMsfraggerCitation.getFont());
+    editorPhilosopherLink.setFont(lblPhilosopherInfo.getFont());
     editorPhilosopherLink.setText(createPhilosopherCitationHtml());
     editorPhilosopherLink.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
       public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
@@ -5156,7 +5148,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private String createPhilosopherCitationHtml() {
     // for copying style
-    Font font = lblMsfraggerCitation.getFont();
+    Font font = lblFraggerJavaVer.getFont();
 
     // create some css from the label's font
     StringBuilder style = new StringBuilder();
@@ -5174,7 +5166,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     //sb.append("<body>");
 
     sb.append("<p style=\"margin-top: 0\">");
-    sb.append("<a href=\"https://nesvilab.github.io/philosopher/\">Philosopher GitHub page</a>");
+    sb.append("More info: <a href=\"https://nesvilab.github.io/philosopher/\">Philosopher GitHub page</a>");
     sb.append("<br/>");
     sb.append("</p>");
 
@@ -5187,7 +5179,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private String getFraggerCitationHtml() {
 
     // for copying style
-    Font font = lblMsfraggerCitation.getFont();
+    Font font = lblFraggerJavaVer.getFont();
 
     // create some css from the label's font
     StringBuilder style = new StringBuilder();
@@ -5211,13 +5203,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final String linkManuscript= p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL, "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
 
     sb.append("<p style=\"margin-top: 0\">");
+    sb.append("<b>Please cite: </b>");
     sb.append(
         "<a href=\"").append(linkManuscript).append("\">MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics</a>");
     sb.append("<br/>");
-    sb.append("<b>DOI:</b>").append(doi);
+    sb.append("<b>DOI: </b>").append(doi);
     sb.append("</p>");
 
-
+    sb.append("<p style=\"margin-top: 10\">");
     sb.append("More info: <a href=\"").append(linkMsfragger)
         .append("\">MSFragger website</a>, <a href=\"").append(linkFragpipe)
         .append("\">FragPipe GitHub page</a>");
@@ -5409,7 +5402,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JLabel lblFastaCount;
   private javax.swing.JLabel lblFindAutomatically;
   private javax.swing.JLabel lblFraggerJavaVer;
-  private javax.swing.JLabel lblMsfraggerCitation;
   private javax.swing.JLabel lblOutputDir;
   private javax.swing.JLabel lblPhilosopherInfo;
   private javax.swing.JLabel lblPythonInfo;
