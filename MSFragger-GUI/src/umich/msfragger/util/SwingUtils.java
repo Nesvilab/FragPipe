@@ -480,7 +480,7 @@ public class SwingUtils {
       JPanel panel = new JPanel();
       panel.setLayout(new BorderLayout());
       panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-      panel.add(new JLabel("Something unexpected happened"), BorderLayout.PAGE_START);
+      panel.add(new JLabel("Something unexpected happened (2)"), BorderLayout.PAGE_START);
       JTextArea notesArea = new JTextArea(40, 80);
       notesArea.setText(notes);
       JScrollPane notesScroller = new JScrollPane();
@@ -495,19 +495,24 @@ public class SwingUtils {
   }
 
   /**
+   * Prints the contents of the stacktrace to a string.
+   */
+  public static String stacktraceToString(Throwable t) {
+    StringWriter sw = new StringWriter();
+    t.printStackTrace(new PrintWriter(sw, true));
+    return sw.toString();
+  }
+
+  /**
    * @param parent Can be null.
    */
   public static void showErrorDialog(Throwable e, Component parent) {
-    StringWriter sw = new StringWriter();
-    e.printStackTrace(new PrintWriter(sw, true));
-    String notes = sw.toString();
-
     JPanel panel = new JPanel();
     panel.setLayout(new BorderLayout());
     panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-    panel.add(new JLabel("Something unexpected happened"), BorderLayout.PAGE_START);
+    panel.add(new JLabel("Something unexpected happened (" + e.getClass().getSimpleName() + ")"), BorderLayout.PAGE_START);
     JTextArea notesArea = new JTextArea(40, 80);
-    notesArea.setText(notes);
+    notesArea.setText(stacktraceToString(e));
     JScrollPane notesScroller = new JScrollPane();
     notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
     notesScroller.setViewportView(notesArea);

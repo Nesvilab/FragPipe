@@ -5292,7 +5292,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        panel.add(new JLabel("Something unexpected happened"), BorderLayout.PAGE_START);
+        panel.add(new JLabel("Something unexpected happened (1)"), BorderLayout.PAGE_START);
         JTextArea notesArea = new JTextArea(40, 80);
         notesArea.setText(notes);
         JScrollPane notesScroller = new JScrollPane();
