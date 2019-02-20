@@ -1046,11 +1046,15 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
                           <Component id="chkRunPeptideProphet" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <Component id="jLabel11" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="btnPepProphDefaultsClosed" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="btnPepProphDefaultsOpen" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="btnPepProphDefaultsNonspecific" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                       <Component id="panelPeptideProphetOptions" alignment="0" max="32767" attributes="0"/>
                   </Group>
@@ -1062,6 +1066,8 @@
                               <Component id="chkRunPeptideProphet" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnPepProphDefaultsOpen" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnPepProphDefaultsClosed" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnPepProphDefaultsNonspecific" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="panelPeptideProphetOptions" min="-2" max="-2" attributes="0"/>
@@ -1081,7 +1087,7 @@
                 </Component>
                 <Component class="javax.swing.JButton" name="btnPepProphDefaultsOpen">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Defaults for Open Search"/>
+                    <Property name="text" type="java.lang.String" value="Open Search"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPepProphDefaultsOpenActionPerformed"/>
@@ -1089,7 +1095,7 @@
                 </Component>
                 <Component class="javax.swing.JButton" name="btnPepProphDefaultsClosed">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Defaults for Closed Search"/>
+                    <Property name="text" type="java.lang.String" value="Closed Search"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPepProphDefaultsClosedActionPerformed"/>
@@ -1184,6 +1190,19 @@
                     </Component>
                   </SubComponents>
                 </Container>
+                <Component class="javax.swing.JButton" name="btnPepProphDefaultsNonspecific">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Non-specific Search"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPepProphDefaultsNonspecificActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabel11">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Load defaults for:"/>
+                  </Properties>
+                </Component>
               </SubComponents>
             </Container>
             <Container class="javax.swing.JPanel" name="panelProteinProphet">

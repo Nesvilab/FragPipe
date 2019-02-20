@@ -927,6 +927,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     textPepProphCmd = new javax.swing.JTextArea();
     jLabel34 = new javax.swing.JLabel();
     checkCombinedPepxml = new javax.swing.JCheckBox();
+    btnPepProphDefaultsNonspecific = new javax.swing.JButton();
+    jLabel11 = new javax.swing.JLabel();
     panelProteinProphet = new javax.swing.JPanel();
     chkRunProteinProphet = new javax.swing.JCheckBox();
     btnProtProphDefaultsClosed = new javax.swing.JButton();
@@ -1617,14 +1619,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    btnPepProphDefaultsOpen.setText("Defaults for Open Search");
+    btnPepProphDefaultsOpen.setText("Open Search");
     btnPepProphDefaultsOpen.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnPepProphDefaultsOpenActionPerformed(evt);
       }
     });
 
-    btnPepProphDefaultsClosed.setText("Defaults for Closed Search");
+    btnPepProphDefaultsClosed.setText("Closed Search");
     btnPepProphDefaultsClosed.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnPepProphDefaultsClosedActionPerformed(evt);
@@ -1688,17 +1690,30 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addGap(0, 5, Short.MAX_VALUE))
     );
 
+    btnPepProphDefaultsNonspecific.setText("Non-specific Search");
+    btnPepProphDefaultsNonspecific.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btnPepProphDefaultsNonspecificActionPerformed(evt);
+      }
+    });
+
+    jLabel11.setText("Load defaults for:");
+
     javax.swing.GroupLayout panelPeptideProphetLayout = new javax.swing.GroupLayout(panelPeptideProphet);
     panelPeptideProphet.setLayout(panelPeptideProphetLayout);
     panelPeptideProphetLayout.setHorizontalGroup(
       panelPeptideProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(panelPeptideProphetLayout.createSequentialGroup()
         .addComponent(chkRunPeptideProphet)
+        .addGap(18, 18, 18)
+        .addComponent(jLabel11)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(btnPepProphDefaultsClosed)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(btnPepProphDefaultsOpen)
-        .addGap(0, 0, Short.MAX_VALUE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(btnPepProphDefaultsNonspecific)
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
       .addComponent(panelPeptideProphetOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
     );
     panelPeptideProphetLayout.setVerticalGroup(
@@ -1707,7 +1722,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addGroup(panelPeptideProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(chkRunPeptideProphet)
           .addComponent(btnPepProphDefaultsOpen)
-          .addComponent(btnPepProphDefaultsClosed))
+          .addComponent(btnPepProphDefaultsClosed)
+          .addComponent(btnPepProphDefaultsNonspecific)
+          .addComponent(jLabel11))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(panelPeptideProphetOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
     );
@@ -4580,6 +4597,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.save(checkCombinedPepxml, ThisAppProps.PROP_CHECKBOX_COMBINE_PEPXML);
   }//GEN-LAST:event_checkCombinedPepxmlActionPerformed
 
+  private void btnPepProphDefaultsNonspecificActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPepProphDefaultsNonspecificActionPerformed
+    btnPepProphDefaults(SearchTypeProp.nonspecific);
+  }//GEN-LAST:event_btnPepProphDefaultsNonspecificActionPerformed
+
 
   //region Load-Last methods
   public void loadLastPeptideProphet() {
@@ -5324,6 +5345,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JButton btnMsfraggerUpdate;
   private javax.swing.JButton btnOpenInExplorer;
   private javax.swing.JButton btnPepProphDefaultsClosed;
+  private javax.swing.JButton btnPepProphDefaultsNonspecific;
   private javax.swing.JButton btnPepProphDefaultsOpen;
   private javax.swing.JButton btnPhilosopherBinBrowse;
   private javax.swing.JButton btnPhilosopherBinDownload;
@@ -5356,6 +5378,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JEditorPane editorSequenceDb;
   private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel10;
+  private javax.swing.JLabel jLabel11;
   private javax.swing.JLabel jLabel12;
   private javax.swing.JLabel jLabel2;
   private javax.swing.JLabel jLabel3;
