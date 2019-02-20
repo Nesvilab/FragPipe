@@ -79,6 +79,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_output_file_extension = "output_file_extension";
     public static final String PROP_output_format = "output_format";
     public static final String PROP_output_report_topN = "output_report_topN";
+    public static final String PROP_report_alternative_proteins = "report_alternative_proteins";
     public static final String PROP_output_max_expect = "output_max_expect";
     public static final String PROP_precursor_charge = "precursor_charge";
     public static final String PROP_override_charge = "override_charge";
@@ -110,7 +111,8 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_add_enabled = "add_enabled";
     //public static final String PROP_ = "";
 
-    public static final String[] PROP_NAMES = {PROP_database_name,
+    public static final String[] PROP_NAMES = {
+        PROP_database_name,
         PROP_fragpipe_ram,
         PROP_num_threads,
         PROP_precursor_mass_lower,
@@ -136,6 +138,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_output_file_extension,
         PROP_output_format,
         PROP_output_report_topN,
+        PROP_report_alternative_proteins,
         PROP_output_max_expect,
         PROP_precursor_charge,
         PROP_override_charge,
@@ -238,6 +241,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_allow_multiple_variable_mods_on_residue, "static mods are not considered");
         c.put(PROP_max_variable_mods_per_mod, "maximum of 5");
         c.put(PROP_max_variable_mods_combinations, "maximum of 65534, limits number of modified peptides generated from sequence");
+        c.put(PROP_report_alternative_proteins, "0=no, 1=yes");
         return c;
     }
 
@@ -482,7 +486,17 @@ public class MsfraggerParams extends AbstractParams {
     public void setOutputReportTopN(int v) {
         props.setProp(PROP_output_report_topN, Integer.toString(v));
     }
-    
+
+    public boolean getReportAlternativeProteins() {
+        int v = Integer.parseInt(props.getProp(PROP_report_alternative_proteins, "0").value);
+        return v == 1;
+    }
+
+    public void setReportAlternativeProteins(boolean v) {
+        int vInt = v ? 1 : 0;
+        props.setProp(PROP_report_alternative_proteins, Integer.toString(vInt));
+    }
+
     public double getOutputMaxExpect() {
         return Double.parseDouble(props.getProp(PROP_output_max_expect, "50").value);
     }
