@@ -165,9 +165,10 @@ public class CmdPeptideProphet extends CmdBase {
     if (cmdLineContainsCombine && !combine) {
       // command line contained '--combine', but the checkbox was not checked.
       combine = true;
-      String msg = String.format("<html>PeptideProphet command line options contained '--combine' flag,<br/>"
-          + "however the checkbox to combine pepxml files wasn't selected.<br/>"
-          + "This is just an information message to bring that to your attention.<br/>"
+      String msg = String.format(
+          "<html>PeptideProphet command line options text field contained '--combine' flag,<br/>"
+          + "however the checkbox to combine pepxml files wasn't selected.<br/><br/>"
+          + "This is just an information message to bring that to your attention.<br/><br/>"
           + "PeptideProphet will be launched as if the 'combine pepxmls' checkbox was selected.");
       JOptionPane.showMessageDialog(comp, msg, "Inconsistent options for PeptideProphet", JOptionPane.INFORMATION_MESSAGE);
     }
