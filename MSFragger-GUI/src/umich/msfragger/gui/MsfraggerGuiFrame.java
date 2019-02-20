@@ -4964,40 +4964,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   private void validateAndSaveLabelfree(final String newText) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     final JTextComponent comp = textReportLabelfree;
+    IValidateString validator = s -> true;
     final boolean isValid = validateAndSave(comp, ThisAppProps.PROP_TEXTFIELD_LABELFREE,
-        newText, s -> {
-          Pattern re = Pattern.compile("--([^\\s]+)");
-          Matcher m = re.matcher(s);
-          List<String> allowed = new ArrayList<>();
-          allowed.add("ptw");
-          allowed.add("tol");
-          while (m.find()) {
-            if (!allowed.contains(m.group(1))) {
-              return false;
-            }
-          }
-
-          for (String paramName : allowed) {
-            Pattern reFullParam = Pattern
-                .compile(String.format("--%s\\s+(\\d+(?:\\.\\d+)?)", paramName));
-            if (!reFullParam.matcher(s).find()) {
-              return false;
-            }
-          }
-
-          return true;
-        });
-
-    if (!isValid) {
-      return;
-    }
-
-    // check if the filter line has changed since focus was gained
-    final String savedText = textReportFilterFocusGained;
-    final String oldText = savedText != null ? savedText : comp.getText().trim();
-    final String updText = newText != null ? newText : comp.getText().trim();
+        newText, validator);
   }
 
   private boolean validateAndSavePhilosopherPath(final String path) {
