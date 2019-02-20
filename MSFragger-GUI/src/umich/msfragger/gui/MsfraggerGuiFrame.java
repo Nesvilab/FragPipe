@@ -1661,29 +1661,29 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     panelPeptideProphetOptions.setLayout(panelPeptideProphetOptionsLayout);
     panelPeptideProphetOptionsLayout.setHorizontalGroup(
       panelPeptideProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPeptideProphetOptionsLayout.createSequentialGroup()
+      .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
         .addContainerGap()
-        .addGroup(panelPeptideProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-          .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
-            .addGap(0, 0, Short.MAX_VALUE)
-            .addComponent(checkCombinedPepxml, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-          .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
+        .addGroup(panelPeptideProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPeptideProphetOptionsLayout.createSequentialGroup()
             .addComponent(jLabel34)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE)))
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE))
+          .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
+            .addComponent(checkCombinedPepxml, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGap(0, 0, Short.MAX_VALUE)))
         .addContainerGap())
     );
     panelPeptideProphetOptionsLayout.setVerticalGroup(
       panelPeptideProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
-        .addContainerGap()
-        .addComponent(jLabel34)
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-      .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
-        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addGroup(panelPeptideProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
+            .addContainerGap()
+            .addComponent(jLabel34))
+          .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(checkCombinedPepxml, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addGap(0, 0, Short.MAX_VALUE))
+        .addGap(0, 5, Short.MAX_VALUE))
     );
 
     javax.swing.GroupLayout panelPeptideProphetLayout = new javax.swing.GroupLayout(panelPeptideProphet);
@@ -1761,16 +1761,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     panelProteinProphetOptions.setLayout(panelProteinProphetOptionsLayout);
     panelProteinProphetOptionsLayout.setHorizontalGroup(
       panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelProteinProphetOptionsLayout.createSequentialGroup()
+      .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
         .addContainerGap()
-        .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+        .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
-            .addGap(0, 0, Short.MAX_VALUE)
-            .addComponent(checkProcessGroupsSeparately, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(checkProcessGroupsSeparately, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGap(0, 0, Short.MAX_VALUE))
           .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
             .addComponent(jLabel40)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jScrollPane4)))
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE)))
         .addContainerGap())
     );
     panelProteinProphetOptionsLayout.setVerticalGroup(
@@ -1782,7 +1782,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addComponent(jLabel40))
           .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(checkProcessGroupsSeparately, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addComponent(checkProcessGroupsSeparately, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap())
     );
 
     javax.swing.GroupLayout panelProteinProphetLayout = new javax.swing.GroupLayout(panelProteinProphet);
@@ -1927,11 +1928,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       .addGroup(panelDownstreamLayout.createSequentialGroup()
         .addContainerGap()
         .addComponent(panelPeptideProphet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(panelProteinProphet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addComponent(panelProteinProphet, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addComponent(panelCrystalc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(256, Short.MAX_VALUE))
+        .addContainerGap(246, Short.MAX_VALUE))
     );
 
     loadLastCrystalc();
