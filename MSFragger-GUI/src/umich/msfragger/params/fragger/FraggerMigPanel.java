@@ -335,7 +335,9 @@ public class FraggerMigPanel extends JPanel {
       FormEntry fePrecursorMassMode = new FormEntry(MsfraggerParams.PROP_precursor_mass_mode,
           "Precursor mass mode", uiComboMassMode,
           "<html>Determines which entry from mzML files will be<br/>"
-              + "used as the precursor's mass. 'Selected' or 'Isolated' ion.)");
+              + "used as the precursor's mass - 'Selected' or 'Isolated' ion.<br/>"
+              + "'Recalculated' option runs a separate MSAdjuster tool to<br/>"
+              + "perform mono-isotopic mass correction");
 
       pPeakMatch.add(feIsotopeError.label(), new CC().alignX("right"));
       pPeakMatch.add(feIsotopeError.comp, new CC().span(2));
