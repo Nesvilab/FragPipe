@@ -89,6 +89,7 @@ dependencies {
     compile 'com.miglayout:miglayout-swing:5.2'
     compile 'io.reactivex:rxswing:0.27.0'
     compile 'org.greenrobot:eventbus:3.1.1'
+    compile 'org.jsoup:jsoup:1.11.3'
 
     // logging
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'

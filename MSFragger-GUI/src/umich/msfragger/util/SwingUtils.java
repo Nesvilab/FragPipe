@@ -227,6 +227,18 @@ public class SwingUtils {
     return createClickableHtml(text, true);
   }
 
+  public static String getHtmlBodyStyle() {
+    // for copying style
+    JLabel label = new JLabel();
+    Font font = label.getFont();
+
+    // create some css from the label's font
+    StringBuilder style = new StringBuilder("font-family:" + font.getFamily() + ";");
+    style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
+    style.append("font-size:").append(font.getSize()).append("pt;");
+    return style.toString();
+  }
+
   /**
    * Creates a non-editable JEditorPane that has the same styling as default JLabels and with
    * hyperlinks clickable. They will be opened in the system default browser.
@@ -237,16 +249,9 @@ public class SwingUtils {
    * default system browser.
    */
   public static JEditorPane createClickableHtml(String text, boolean handleHyperlinks) {
-    // for copying style
-    JLabel label = new JLabel();
-    Font font = label.getFont();
 
-    // create some css from the label's font
-    StringBuilder style = new StringBuilder("font-family:" + font.getFamily() + ";");
-    style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
-    style.append("font-size:").append(font.getSize()).append("pt;");
 
-    JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">"
+    JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + getHtmlBodyStyle() + "\">"
         + text
         + "</body></html>");
     ep.setEditable(false);
