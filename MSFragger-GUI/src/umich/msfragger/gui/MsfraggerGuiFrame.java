@@ -1217,7 +1217,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("DB Slicing"));
+    jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("DB Splitting"));
     jPanel2.setToolTipText("<html>Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>\nWays to get everything set up:<br>\n<ul>\n<li>Install Python 3 if you don't yet have it.</li>\n<li>Install required python modules using <i>pip</i>, the python package manager, with command:</li>\n<ul>\n<li>pip install numpy pandas</li>\n</ul>\n</ul>\n");
 
     lblDbsliceInfo1.setText(DbSlice.DEFAULT_MESSAGE);
@@ -1402,6 +1402,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
+
+    jPanel2.getAccessibleContext().setAccessibleName("DB Splitting");
 
     jScrollPane8.setViewportView(panelConfig);
 
