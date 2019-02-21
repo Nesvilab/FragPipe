@@ -65,19 +65,7 @@ public class CmdReportFreequant extends CmdBase {
       List<String> cmd = new ArrayList<>();
       cmd.add(usePhilosopher.useBin(groupWd));
       cmd.add(PhilosopherProps.CMD_LABELFREE);
-
-      List<String> allowed = new ArrayList<>();
-      allowed.add("ptw");
-      allowed.add("tol");
-      for (String paramName : allowed) {
-        Pattern reFullParam = Pattern
-            .compile(String.format("--%s\\s+(\\d+(?:\\.\\d+)?)", paramName));
-        Matcher m = reFullParam.matcher(textReportLabelfree);
-        if (m.find()) {
-          cmd.add("--" + paramName);
-          cmd.add(m.group(1));
-        }
-      }
+      cmd.addAll(StringUtils.splitCommandLine(textReportLabelfree));
 
       // we have checked that all lcms files are in the same folder, so
       cmd.add("--dir");
