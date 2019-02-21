@@ -15,8 +15,6 @@
  */
 package umich.msfragger.params.fragger;
 
-import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
-
 import com.github.chhh.utils.swing.DocumentFilters;
 import com.github.chhh.utils.swing.StringRepresentable;
 import com.github.chhh.utils.swing.UiCheck;
@@ -102,6 +100,7 @@ import umich.msfragger.util.swing.FormEntry;
  */
 public class FraggerMigPanel extends JPanel {
 
+  public static final String PROP_FILECHOOSER_LAST_PATH = "msfragger.filechooser.path";
   private static final Logger log = LoggerFactory.getLogger(FraggerMigPanel.class);
   public static final String CACHE_FORM = "msfragger-form" + ThisAppProps.TEMP_FILE_EXT;
   public static final String CACHE_PROPS = "msfragger-props" + ThisAppProps.TEMP_FILE_EXT;
@@ -121,6 +120,7 @@ public class FraggerMigPanel extends JPanel {
   private static final Set<String> PROPS_MISC_NAMES;
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
+  public static FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf)", "mzml", "mzxml", "mgf");
   private static String[] PROPS_MISC = {
       PROP_misc_adjust_precurosr_mass,
       PROP_misc_slice_db,

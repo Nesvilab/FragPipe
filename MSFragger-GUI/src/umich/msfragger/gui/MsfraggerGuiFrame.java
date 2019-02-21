@@ -16,7 +16,7 @@
  */
 package umich.msfragger.gui;
 
-import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
+import static umich.msfragger.params.fragger.FraggerMigPanel.PROP_FILECHOOSER_LAST_PATH;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -386,12 +386,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       for (File f : files) {
         boolean isDirectory = f.isDirectory();
         if (!isDirectory) {
-          if (FraggerPanel.fileNameExtensionFilter.accept(f)) {
+          if (FraggerMigPanel.fileNameExtensionFilter.accept(f)) {
             paths.add(Paths.get(f.getAbsolutePath()));
           }
         } else {
           PathUtils
-              .traverseDirectoriesAcceptingFiles(f, FraggerPanel.fileNameExtensionFilter, paths);
+              .traverseDirectoriesAcceptingFiles(f, FraggerMigPanel.fileNameExtensionFilter, paths);
         }
       }
       EventBus.getDefault().post(new MessageLcmsFilesAdded(paths));
@@ -632,7 +632,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .filter(p -> p.toString().contains(" "))
         .forEach(p -> { reasons.merge(p, "Contains spaces", (s1, s2) -> String.join(", ", s1, s2)); });
     m.paths.stream()
-        .filter(p -> !FraggerPanel.fileNameExtensionFilter.accept(p.toFile()))
+        .filter(p -> !FraggerMigPanel.fileNameExtensionFilter.accept(p.toFile()))
         .forEach(p -> { reasons.merge(p, "Not supported", (s1, s2) -> String.join(", ", s1, s2)); });
 
     Stream<Path> toAdd = m.paths.stream();
@@ -2397,7 +2397,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       String approveText = "Select";
       JFileChooser fc = new JFileChooser();
       fc.setAcceptAllFileFilterUsed(true);
-      FileNameExtensionFilter fileNameExtensionFilter = FraggerPanel.fileNameExtensionFilter;
+      FileNameExtensionFilter fileNameExtensionFilter = FraggerMigPanel.fileNameExtensionFilter;
       fc.setFileFilter(fileNameExtensionFilter);
       fc.setApproveButtonText(approveText);
       fc.setDialogTitle("Choose raw data files");
@@ -2436,7 +2436,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     fc.setApproveButtonToolTipText("Select folder to import");
     fc.setDialogTitle("Select a folder with LC/MS files (searched recursively)");
     fc.setAcceptAllFileFilterUsed(true);
-    FileNameExtensionFilter fileNameExtensionFilter = FraggerPanel.fileNameExtensionFilter;
+    FileNameExtensionFilter fileNameExtensionFilter = FraggerMigPanel.fileNameExtensionFilter;
     fc.setFileFilter(fileNameExtensionFilter);
     fc.setMultiSelectionEnabled(true);
     fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
@@ -2451,8 +2451,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     for (File f : fc.getSelectedFiles()) {
       if (f.isDirectory()) {
         ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, f);
-        PathUtils.traverseDirectoriesAcceptingFiles(f, FraggerPanel.fileNameExtensionFilter, paths);
-      } else if (FraggerPanel.fileNameExtensionFilter.accept(f)) {
+        PathUtils.traverseDirectoriesAcceptingFiles(f, FraggerMigPanel.fileNameExtensionFilter, paths);
+      } else if (FraggerMigPanel.fileNameExtensionFilter.accept(f)) {
         paths.add(Paths.get(f.getAbsolutePath()));
       }
     }
