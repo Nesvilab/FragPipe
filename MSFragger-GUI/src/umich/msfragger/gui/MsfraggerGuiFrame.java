@@ -252,6 +252,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   public MsfraggerGuiFrame() {
     EventBus.getDefault().register(this);
     initComponents();
+    ProcessManager.get().init();
     initMore();
   }
 
@@ -549,28 +550,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final String old = comp.getText().trim();
     Pattern reHtml = Pattern.compile("<\\s*/?\\s*html\\s*>", Pattern.CASE_INSENSITIVE);
     String noHtml = reHtml.matcher(old).replaceAll("");
-
-
-
     Document doc = Jsoup.parse(old);
     doc.body().attr("style", SwingUtils.getHtmlBodyStyle());
     if (!m.append) {
       doc.body().html("");
     }
-
-
     if (m.isError) {
       doc.body().appendChild(new Element("b").html(m.text));
     } else {
       doc.body().append(m.text);
     }
     String html = doc.html();
-
-    if (m instanceof DbSlice.Message2) {
-      int a = 1;
-      log.warn("Setting HTML from DbSlice.Message2 to:\n{}", html);
-    }
-
     comp.setText(html);
   }
 
@@ -2391,6 +2381,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       List<Runnable> notRun = procRunner.shutdownNow();
     }
 
+    EventBus.getDefault().post(new MessageKillAll());
+
   }//GEN-LAST:event_btnStopActionPerformed
 
 
@@ -3480,8 +3472,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     try // run everything
     {
-      procRunner = prepareProcessRunner(procRunner);
       EventBus.getDefault().post(new MessageKillAll());
+      procRunner = prepareProcessRunner(procRunner);
 
       final ProcessResult[] processResults = new ProcessResult[pbis.size()];
 
@@ -3550,6 +3542,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
               try {
                 final int exitValue = proc.exitValue();
                 pr.setExitCode(exitValue);
+
                 SwingUtilities.invokeLater(() -> {
                   Color c = exitValue == 0 ? greenDarker : red;
                   console.append(c, String.format(
@@ -3566,24 +3559,26 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           } catch (IOException ex) {
             String msg = String.format(Locale.ROOT,
                 "IOException: Error in process,\n%s", ex.getMessage());
-            LogUtils.println(console, msg);
+            LogUtils.print(Color.RED, console, true, msg, true);
             log.error(msg, ex);
           } catch (InterruptedException ex) {
             final Process proc = pr.getProcess();
             if (proc != null) {
               proc.destroyForcibly();
             }
-            String msg = String.format(Locale.ROOT,
-                "InterruptedException: Error in process,\n%s", ex.getMessage());
-            LogUtils.println(console, msg);
-            log.error(msg, ex);
+            if (!"sleep interrupted".equals(ex.getMessage())) {
+              String msg = String.format(Locale.ROOT,
+                  "InterruptedException: Error in process,\n%s", ex.getMessage());
+              LogUtils.print(Color.RED, console, true, msg, true);
+              log.error(msg, ex);
+            }
           } finally {
             try {
               pr.close();
             } catch (Exception e) {
               String msg = "Error while closing redirected output streams from process, details:\n\n"
                       + LogUtils.stacktrace(e);
-              LogUtils.println(console, msg);
+              LogUtils.print(Color.RED, console, true, msg, true);
               log.error(msg, e);
             }
           }
