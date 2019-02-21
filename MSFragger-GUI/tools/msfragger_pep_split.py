@@ -21,6 +21,13 @@ import multiprocessing as mp
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
 
+
+def _warning(message, category=UserWarning, filename='', lineno=-1, file=None, line=None):
+	print(message)
+
+
+warnings.showwarning = _warning
+
 # argv = shlex.split("/storage/teog/bin/msfragger_pep_split.pyz 3 'java -Xmx311g -jar' /storage/teog/bin/MSFragger-latest.jar fragger.params 20120321_EXQ1_MiBa_SA_HCC1143_1.mzML 20130504_EXQ3_MiBa_SA_Fib-1.mzML")
 argv = sys.argv[1:]
 if len(argv) == 0:
