@@ -3551,7 +3551,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
                 break;
               } catch (IllegalThreadStateException ignore) {
-                log.debug("Caught IllegalThreadStateException: {}", ignore.getMessage());
                 // this error is thrown by process.exitValue() if the underlying process has not yet finished
               }
             }
