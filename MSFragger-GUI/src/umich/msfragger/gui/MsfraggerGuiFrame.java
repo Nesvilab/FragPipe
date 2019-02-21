@@ -576,7 +576,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
   public void onDbsliceInitDone(MessageInitDone m) {
-    final String text = m.isSuccess ? "Database Slicing enabled." : "Database Slicing disabled.";
+    final String text = m.isSuccess ? "Database Splitting enabled." : "Database Splitting disabled.";
     messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo), new DbSlice.Message2(true, !m.isSuccess, text));
 
     if (!m.isSuccess) {
@@ -3489,7 +3489,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           pbi.pb.directory(wdPath.toFile());
         }
 
-        REHandler reHandler = new REHandler(() -> {
+        ExceptionLoggingRunnable exceptionLoggingRunnable = new ExceptionLoggingRunnable(() -> {
 
           String command = String.join(" ", pbi.pb.command());
 
@@ -3585,12 +3585,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }, console, System.err);
 
         // this error is thrown by process.exitValue() if the underlying process has not yet finished
-        procRunner.submit(reHandler);
+        procRunner.submit(exceptionLoggingRunnable);
       }
 
       final JButton btnStartPtr = btnRun;
       final JButton btnStopPtr = btnStop;
-      REHandler finalizerTask = new REHandler(() -> {
+      ExceptionLoggingRunnable finalizerTask = new ExceptionLoggingRunnable(() -> {
         btnStartPtr.setEnabled(true);
         btnStopPtr.setEnabled(false);
         LogUtils.println(console, "=========================");

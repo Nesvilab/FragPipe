@@ -1,5 +1,6 @@
 package umich.msfragger.gui;
 
+import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.cmd.ProcessBuilderInfo;
 import umich.msfragger.messages.MessageKillAll;
 import umich.msfragger.messages.MessageProcessStarted;
+import umich.msfragger.messages.MessageStartProcess;
 import umich.msfragger.util.FileDrop.Event;
 
 public class ProcessManager {
@@ -36,8 +38,20 @@ public class ProcessManager {
     log.debug("Initializing Process Manager: init()");
   }
 
+//  @Subscribe
+//  public void onStartProcess(MessageStartProcess m) {
+//    log.debug("Received start request for: {}", m.pbi.name);
+//    ProcessResult pr = new ProcessResult(m.pbi);
+//    procs.add(pr);
+//    try {
+//      pr.start();
+//    } catch (IOException e) {
+//      log.error("Error while starting process " + m.pbi.name, e);
+//    }
+//  }
+
   @Subscribe
-  public void killAll(MessageKillAll m) {
+  public void onKillAll(MessageKillAll m) {
     synchronized (lock) {
       ProcessResult pr;
       while ((pr = procs.poll()) != null) {
@@ -45,7 +59,7 @@ public class ProcessManager {
         ProcessBuilder pb = pr.getProcessBuilder();
         Process p = pr.getProcess();
         if (p.isAlive()) {
-          log.info("ProcMan#killAll (queue size {}): Killing process '{}': {}",
+          log.info("ProcMan#onKillAll (queue size {}): Killing process '{}': {}",
               procs.size(), pbi.name, String.join(" ", pb.command()));
           try {
             p.destroyForcibly();
@@ -55,7 +69,7 @@ public class ProcessManager {
             // I guess we can't do much about it
           }
         } else {
-          log.info("ProcMan#killAll (queue size {}): Process '{}' already finished execution with code {}: {}",
+          log.info("ProcMan#onKillAll (queue size {}): Process '{}' already finished execution with code {}: {}",
               procs.size(), pbi.name, p.exitValue(), String.join(" ", pb.command()));
         }
       }

@@ -351,7 +351,7 @@ public class FraggerMigPanel extends JPanel {
           uiCheckShiftedIons, "<html>Shifted ion series are the same as regular b/y ions,<br/>"
               + "but with the addition of the mass shift of the precursor.<br/>"
               + "Regular ion series will still be used.<br/>"
-          + "This option is </b>incompatible</b> with database slicing.");
+          + "This option is </b>incompatible</b> with database splitting.");
       UiText uiTextShiftedIonsExclusion = new UiText();
       uiTextShiftedIonsExclusion.setDocument(DocumentFilters.getFilter("[A-Za-z]"));
       uiTextShiftedIonsExclusion.setText("(-1.5,3.5)");
@@ -425,7 +425,7 @@ public class FraggerMigPanel extends JPanel {
       FormEntry feMaxFragCharge = new FormEntry(MsfraggerParams.PROP_max_fragment_charge,
           "Max fragment charge", new UiSpinnerInt(2, 0, 20, 1, 2));
       uiSpinnerDbslice = new UiSpinnerInt(1, 1, 99, 1, 2);
-      FormEntry feSliceDb = new FormEntry(PROP_misc_slice_db, "<html><i>Slice up database", uiSpinnerDbslice,
+      FormEntry feSliceDb = new FormEntry(PROP_misc_slice_db, "<html><i>Split database", uiSpinnerDbslice,
           "<html>Split database into smaller chunks.<br/>Only use for very large databases (200MB+) or<br/>non-specific digestion.");
 
       uiCheckShiftedIons.addActionListener(e -> {
@@ -433,8 +433,8 @@ public class FraggerMigPanel extends JPanel {
         final int dbSlicing = uiSpinnerDbslice.getActualValue();
         if (selected && dbSlicing > 1) {
           JOptionPane.showMessageDialog(FraggerMigPanel.this,
-              "<html>This option is incompatible with DB Slicing.<br/>"
-                  + "Please either turn it off, or turn off DB Slicing by setting<br/>"
+              "<html>This option is incompatible with DB Splitting.<br/>"
+                  + "Please either turn it off, or turn off DB Splitting by setting<br/>"
                   + "it to 1.", "Incompatible options", JOptionPane.WARNING_MESSAGE);
         }
       });

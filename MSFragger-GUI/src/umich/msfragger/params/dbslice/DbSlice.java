@@ -19,7 +19,7 @@ public class DbSlice {
   private static DbSlice instance = new DbSlice();
   public static DbSlice get() { return instance; }
   public static final String DEFAULT_MESSAGE = "Python 3 with numpy, pandas is "
-      + "needed for DB Slicing functionality.";
+      + "needed for DB Splitting functionality.";
 
   private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
   private static final String SCRIPT_SPEC_LIB_GEN = "/speclib/gen_con_spec_lib.py";
