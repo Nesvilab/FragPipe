@@ -126,14 +126,26 @@ public class ProcessResult implements AutoCloseable {
     return output;
   }
 
+  /**
+   * @return String representation of whatever has been appended, not the whole string after
+   * appending!
+   */
   public String appendOut(byte[] bytes) throws IOException {
     return append(bytes, stdOutRedirect);
   }
 
+  /**
+   * @return String representation of whatever has been appended, not the whole string after
+   * appending!
+   */
   public String appendErr(byte[] bytes) throws IOException {
     return append(bytes, stdErrRedirect);
   }
 
+  /**
+   * @return String representation of whatever has been appended, not the whole string after
+   * appending!
+   */
   private String append(byte[] bytes, BufferedOutputStream bos) throws IOException {
     if (bytes == null || bytes.length == 0) {
       return null;

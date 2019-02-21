@@ -151,11 +151,12 @@ import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
+import umich.msfragger.messages.MessageAppendToConsole;
 import umich.msfragger.messages.MessageDecoyTag;
+import umich.msfragger.messages.MessageExternalProcessOutput;
 import umich.msfragger.messages.MessageIsUmpireRun;
 import umich.msfragger.messages.MessageKillAll;
 import umich.msfragger.messages.MessageLcmsFilesAdded;
-import umich.msfragger.messages.MessageProcessStarted;
 import umich.msfragger.messages.MessageRun;
 import umich.msfragger.messages.MessageSaveCache;
 import umich.msfragger.messages.MessageSearchType;
@@ -246,6 +247,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private UmpirePanel umpirePanel = null;
   private JScrollPane umpireScroll = null;
+
+  public static final Color COLOR_GREEN = new Color(105, 193, 38);
+  public static final Color COLOR_GREEN_DARKER = new Color(104, 184, 55);
+  public static final Color COLOR_GREEN_DARKEST = new Color(82, 140, 26);
+  public static final Color COLOR_RED = new Color(236, 99, 80);
+  public static final Color COLOR_RED_DARKER = new Color(166, 56, 68);
+  public static final Color COLOR_RED_DARKEST = new Color(155, 35, 29);
+  public static final Color COLOR_BLACK = new Color(0, 0, 0);
 
   private static final String ACTION_EXPORT_LOG = "Export-Log";
 
@@ -3464,14 +3473,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
 
-    final Color green = new Color(105, 193, 38);
-    final Color greenDarker = new Color(104, 184, 55);
-    final Color greenDarkest = new Color(82, 140, 26);
-    final Color red = new Color(236, 99, 80);
-    final Color redDarker = new Color(166, 56, 68);
-    final Color redDarkest = new Color(155, 35, 29);
-    final Color black = new Color(0, 0, 0);
-
     try // run everything
     {
       EventBus.getDefault().post(new MessageKillAll());
@@ -3500,33 +3501,34 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           if (index > 0) {
             Integer exitCode = processResults[index - 1].getExitCode();
             if (exitCode == null) {
-              LogUtils.print(redDarker, console, true, "Cancelled execution of: ", false);
-              LogUtils.print(black, console, true, command, true);
+              LogUtils.print(COLOR_RED_DARKER, console, true, "Cancelled execution of: ", false);
+              LogUtils.print(COLOR_BLACK, console, true, command, true);
               return;
             } else if (exitCode != 0) {
-              LogUtils.print(red, console, true,
+              LogUtils.print(COLOR_RED, console, true,
                   String.format(
                       "Previous process returned exit code [%d], cancelling further processing..",
                       exitCode), true);
-              LogUtils.print(redDarker, console, true, "Cancelled execution of: ", false);
-              LogUtils.print(black, console, true, command, true);
+              LogUtils.print(COLOR_RED_DARKER, console, true, "Cancelled execution of: ", false);
+              LogUtils.print(COLOR_BLACK, console, true, command, true);
               return;
             }
           }
 
+
+          LogUtils.print(COLOR_BLACK, console, true, getTimestamp() + " Executing command [", false);
+          LogUtils.print(colorTool, console, true, pbi.name, false);
+          LogUtils.print(COLOR_BLACK, console, true, "] from working dir: ", false);
+          final String workDirToPrint =
+              pbi.pb.directory() == null ? "N/A" : pbi.pb.directory().toString();
+          LogUtils.print(colorWd, console, true, workDirToPrint, true);
+          LogUtils.print(COLOR_BLACK, console, true, "$> ", false);
+          LogUtils.print(colorCmdLine, console, true, command, true);
+
+
           try { // External Processes start in this try block
 
-            LogUtils.print(black, console, true, getTimestamp() + " Executing command [", false);
-            LogUtils.print(colorTool, console, true, pbi.name, false);
-            LogUtils.print(black, console, true, "] from working dir: ", false);
-            final String workDirToPrint =
-                pbi.pb.directory() == null ? "N/A" : pbi.pb.directory().toString();
-            LogUtils.print(colorWd, console, true, workDirToPrint, true);
-            LogUtils.print(black, console, true, "$> ", false);
-            LogUtils.print(colorCmdLine, console, true, command, true);
-
             Process proc = pr.start();
-            EventBus.getDefault().post(new MessageProcessStarted(pr));
             LogUtils.println(console, getTimestamp() + " Process started");
 
             while (true) {
@@ -3546,7 +3548,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 pr.setExitCode(exitValue);
 
                 SwingUtilities.invokeLater(() -> {
-                  Color c = exitValue == 0 ? greenDarker : red;
+                  Color c = exitValue == 0 ? COLOR_GREEN_DARKER : COLOR_RED;
                   console.append(c, String.format(
                       Locale.ROOT, "Process finished, exit value: %d\n", exitValue));
                 });
@@ -3608,6 +3610,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         procRunner.shutdown();
       }
     }
+  }
+
+  @Subscribe
+  public void onExternalProcessOutput(MessageExternalProcessOutput m) {
+    if (m.isError) {
+      LogUtils.print(COLOR_RED, console, true, m.output, false);
+    } else {
+      LogUtils.print(COLOR_BLACK, console, true, m.output, false);
+    }
+  }
+
+  @Subscribe
+  public void onAppendToConsole(MessageAppendToConsole m) {
+    Color c = m.color == null ? COLOR_BLACK : m.color;
+    LogUtils.print(c, console, true, m.text, true);
   }
 
   private static ExecutorService prepareProcessRunner(ExecutorService runner) {

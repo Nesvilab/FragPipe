@@ -1,11 +1,12 @@
 package umich.msfragger.messages;
 
+import java.util.List;
 import umich.msfragger.cmd.ProcessBuilderInfo;
 
 public class MessageStartProcess {
-  public final ProcessBuilderInfo pbi;
+  public final List<ProcessBuilderInfo> pbis;
 
-  public MessageStartProcess(ProcessBuilderInfo pbi) {
-    this.pbi = pbi;
+  public MessageStartProcess(List<ProcessBuilderInfo> pbi) {
+    this.pbis = pbi;
   }
 }
