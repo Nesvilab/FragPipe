@@ -57,6 +57,12 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("9.0", Arrays.asList(
+        "Downstream tab groups all downstream processing tools in one place.",
+        "Simplified Config tab with more links and hint.",
+        "Much improved saving and restoring of edited fields.",
+        "Support MSFragger 20190222"));
+
     CHANGELOG.put("8.8", Arrays.asList(
         "iProphet for peptide level reports.",
         "Moved all downstream tools (Peptide/Protein Prophet, Crystal-C) to a single tab.",
