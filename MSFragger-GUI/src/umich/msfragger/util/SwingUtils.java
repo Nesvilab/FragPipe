@@ -446,6 +446,15 @@ public class SwingUtils {
    * @param parent The parent for the dialog, null is ok.
    * @param component The component to be used as the message.
    */
+  public static void showDialog(Component parent, final Component component, String title, int msgType) {
+    JOptionPane.showMessageDialog(parent, wrapInScrollForDialog(component), title, msgType);
+  }
+
+  /**
+   * Show a message dialog wrapped into a scroll pane.
+   * @param parent The parent for the dialog, null is ok.
+   * @param component The component to be used as the message.
+   */
   public static void showConfirmDialog(Component parent, final Component component) {
     JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component));
   }
