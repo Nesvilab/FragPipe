@@ -3543,11 +3543,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 try {
                   log.debug("Checking exit value: {}", pbi.name);
                   final int exitValue = started.exitValue();
-                  Color c = exitValue == 0 ? MsfraggerGuiFrame.COLOR_GREEN_DARKER
+                  log.debug("Exit value '{}': {}", exitValue, pbi.name);
+                  Color c = exitValue == 0
+                      ? MsfraggerGuiFrame.COLOR_GREEN_DARKER
                       : MsfraggerGuiFrame.COLOR_RED;
                   String msg = String.format(Locale.ROOT,
                       "Process '%s' finished, exit code: %d\n", pbi.name, exitValue);
                   EventBus.getDefault().post(new MessageAppendToConsole(msg, c));
+                  if (exitValue != 0) {
+                    log.debug("Exit value not zero, killing all processes");
+                    EventBus.getDefault().post(new MessageAppendToConsole(
+                        "Process returned non-zero exit code, stopping", MsfraggerGuiFrame.COLOR_RED));
+                    EventBus.getDefault().post(new MessageKillAll());
+                  }
+
                 } catch (IllegalThreadStateException ex) {
                   log.warn("Checking for exit value when subprocess was not alive threw exception.");
                 }
@@ -3586,10 +3595,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       log.warn("MessageExternalProcessOutput with null text, this is a bug, report to devs");
       return;
     }
+
+    // check if the line starts with an ANSI color code
+
+
     if (m.isError) {
-      LogUtils.print(COLOR_RED, console, true, m.output, false);
+      LogUtils.print(COLOR_RED_DARKEST, console, true, m.output, false);
     } else {
-      LogUtils.print(COLOR_BLACK, console, true, m.output, false);
+      LogUtils.printWithAnsiColorCodes(console, true, m.output, false);
     }
   }
 

@@ -126,4 +126,25 @@ public class LogUtils {
             runnable.run();
         }
     }
+
+    public static final void printWithAnsiColorCodes(final TextConsole out, boolean doOnEDT,
+        final String toPrint, final boolean appendNewLine) {
+        Runnable runnable = () -> {
+            try {
+                out.append(toPrint);
+                if (appendNewLine) {
+                    out.append("\n");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
+
+
+        if (doOnEDT) {
+            SwingUtilities.invokeLater(runnable);
+        } else {
+            runnable.run();
+        }
+    }
 }
