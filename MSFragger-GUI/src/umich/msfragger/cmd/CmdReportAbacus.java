@@ -4,19 +4,27 @@ import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.LcmsFileGroup;
+import umich.msfragger.util.StringUtils;
+import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.UsageTrigger;
 
 /**
  * The `Multi-Experiment Report`.
  */
 public class CmdReportAbacus extends CmdBase {
+  private static final Logger log = LoggerFactory.getLogger(CmdReportAbacus.class);
 
   private static final String NAME = "ReportAbacus";
 
@@ -48,7 +56,6 @@ public class CmdReportAbacus extends CmdBase {
 //    --tag string       decoy tag (default "rev_")
 //    --uniqueonly       report TMT quantification based on only unique peptides
 
-    final List<String> flagsAbacus = Arrays.asList("--picked", "--razor", "--reprint", "--uniqueonly");
 //    Usage:
 //    philosopher filter [flags]
 //
@@ -70,43 +77,62 @@ public class CmdReportAbacus extends CmdBase {
 //    --tag string       decoy tag (default "rev_")
 //    --weight float     threshold for defining peptide uniqueness (default 1)
 
-    final List<String> flagsFilter = Arrays.asList("--mapmods", "--models", "--picked", "--razor", "--sequential");
+
+//    final List<String> flagsAbacus = Arrays.asList("--picked", "--razor", "--reprint", "--uniqueonly");
+//    final List<String> flagsFilter = Arrays.asList("--mapmods", "--models", "--picked", "--razor", "--sequential");
 
     pbs.clear();
-    Map<Path, List<Entry<LcmsFileGroup, Path>>> protxmlToGroups = mapGroupsToProtxml.entrySet().stream()
-        .collect(Collectors.groupingBy(Entry::getValue));
 
-    for (Entry<Path, List<Entry<LcmsFileGroup, Path>>> e : protxmlToGroups.entrySet()) {
-      Path protxml = e.getKey();
-      Set<Path> foldersWithPepxmls = e.getValue().stream().map(g -> g.getKey().outputDir(wd))
-          .collect(Collectors.toSet());
+    final long numGroups = mapGroupsToProtxml.keySet().stream()
+        .map(group -> group.name).distinct().count();
+    if (numGroups < 2) {
+      String msg = "Multi-experiment report requires more than one experiment/group.<br/>"
+          + "You can assign experiment/group names to LCMS files on the LCMS file selection tab.";
+      JEditorPane ep = SwingUtils.createClickableHtml(msg);
+      SwingUtils.showDialog(comp, ep, "Multi-experiment report configuration error", JOptionPane.WARNING_MESSAGE);
+      return false;
+    }
 
-      if (foldersWithPepxmls.size() < 2) {
-        JOptionPane.showMessageDialog(comp,
-            "Multi-experiment report requires more than one\n"
-            + "experiment/group being processed together.\n\n"
-                + "Turn off separate processing of groups on LCMS\n"
-                + "tab or add another experiment/group.",
-            "Multi-experiment report error", JOptionPane.WARNING_MESSAGE);
+    final Map<Path, List<LcmsFileGroup>> mapProtxmlToGroups = new HashMap<>();
+    mapGroupsToProtxml.forEach((group, protxml) -> {
+      final List<LcmsFileGroup> groups = mapProtxmlToGroups.get(protxml);
+      if (groups == null) {
+        mapProtxmlToGroups.put(protxml, new ArrayList<>(Collections.singleton(group)));
+      } else {
+        groups.add(group);
+      }
+    });
+
+    for (Entry<Path, List<LcmsFileGroup>> entry : mapProtxmlToGroups.entrySet()) {
+      Path protxml = entry.getKey();
+      List<LcmsFileGroup> groups = entry.getValue();
+
+      List<Path> outputDirsForProtxml = groups.stream().map(group -> group.outputDir(wd))
+          .distinct().collect(Collectors.toList());
+      log.error("Protxml: {}, outputDirsForProtxml: {}", protxml.toString(),
+          outputDirsForProtxml.stream().map(Path::toString).collect(Collectors.joining(", ")));
+
+      if (outputDirsForProtxml.size() < 2) {
+        String msg = "Multi-experiment report requires experiments processed together by "
+            + "Protein Prophet.<br/><br/>"
+            + "Encountered a prot-xml file mapped to only one experiment/group:<br/>"
+            + "&nbsp;&nbsp;" + protxml.toString() + "<br/><br/>"
+            + "On <b>Downstream tab</b> in <b>Protein Prophet group</b> please uncheck "
+            + "the checkbox <i>Separate prot-xml per experiment/group</i>.";
+        JEditorPane ep = SwingUtils.createClickableHtml(msg);
+        SwingUtils.showDialog(comp, ep, "Multi-experiment report configuration error", JOptionPane.WARNING_MESSAGE);
         return false;
       }
 
-      List<String> filterCmdParts = Arrays.asList(textReportFilterCmdOpts.trim().split("[\\s]+"));
-      List<String> matchingFlags = filterCmdParts.stream()
-          .filter(flagsFilter::contains) // these are 'filter' command's flags
-          .filter(flagsAbacus::contains) // and as well are 'abacus' command's flags
-          .collect(Collectors.toList());
 
-//      String experimentNames = mapGroupsToProtxml.keySet().stream().map(g -> g.name)
-//          .collect(Collectors.joining(" "));
       String pepxmlCombined = wd.resolve(getCombinedPepFileName()).toString();
-
+      List<String> cmdParts = StringUtils.splitCommandLine(textReportFilterCmdOpts);
       List<String> cmd = new ArrayList<>();
       final Path executeInDir = protxml.getParent();
       cmd.add(usePhilosopher.useBin(executeInDir));
       cmd.add("abacus");
       cmd.add("--reprint");
-      cmd.addAll(matchingFlags);
+      cmd.addAll(cmdParts);
       cmd.add("--tag");
       cmd.add(decoyTag);
       cmd.add("--protein");
@@ -115,7 +141,7 @@ public class CmdReportAbacus extends CmdBase {
       cmd.add(pepxmlCombined);
 
       // list locations with pepxml files
-      for (Path pepxmlDir : foldersWithPepxmls) {
+      for (Path pepxmlDir : outputDirsForProtxml) {
         cmd.add(pepxmlDir.getFileName().toString());
       }
 

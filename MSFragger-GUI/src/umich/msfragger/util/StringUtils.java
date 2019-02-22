@@ -93,7 +93,7 @@ public class StringUtils {
     }
     
     public static List<String> splitCommandLine(String line) {
-        String pattern = "(\"[^\"]+\"|[^\\s\"]+)";
+        String pattern = "([\"'][^\"']+[\"']|[^\\s\"']+)";
         Pattern regex = Pattern.compile(pattern);
         Matcher matcher = regex.matcher(line);
         LinkedList<String> list = new LinkedList<>();

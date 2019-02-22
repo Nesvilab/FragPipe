@@ -22,7 +22,7 @@ plugins {
 }
 
 group = 'com.github.chhh'
-version = '8.8.b07'
+version = '9.0-RC10'
 
 description = """FragPipe - run complete proteomics analyses from the GUI"""
 
@@ -52,7 +52,12 @@ sourceSets {
             excludes = ['*.java']
             //excludes = ['*.java', '*.jar']
         }
-       // add tests sources here (this project didn't have them!)
+    }
+    // add tests sources here (this project didn't have them!)
+    test {
+        java {
+            srcDirs = ['test']
+        }
     }
 }
 
@@ -84,6 +89,7 @@ dependencies {
     compile 'com.miglayout:miglayout-swing:5.2'
     compile 'io.reactivex:rxswing:0.27.0'
     compile 'org.greenrobot:eventbus:3.1.1'
+    compile 'org.jsoup:jsoup:1.11.3'
 
     // logging
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'

@@ -13,6 +13,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.params.ThisAppProps;
@@ -23,6 +25,7 @@ import umich.msfragger.util.JarUtils;
 import umich.msfragger.util.StringUtils;
 
 public class CmdCrystalc extends CmdBase {
+  private static final Logger log = LoggerFactory.getLogger(CmdCrystalc.class);
 
   public static final String NAME = "Crystal-C";
 
@@ -92,6 +95,7 @@ public class CmdCrystalc extends CmdBase {
           ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
 
     } catch (IOException | NullPointerException ex) {
+      log.error("Could not unpack Crystal-C to temp dir", ex);
       JOptionPane.showMessageDialog(comp,
           "Could not unpack tools to a temporary directory.\n"
               + "Disable Crystal-C.",

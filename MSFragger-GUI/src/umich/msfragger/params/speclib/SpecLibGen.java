@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import umich.msfragger.params.dbslice.DbSlice;
+import umich.msfragger.messages.MessageToolInit;
 import umich.msfragger.util.CheckResult;
 import umich.msfragger.util.Installed;
 import umich.msfragger.util.JarUtils;
@@ -82,13 +82,13 @@ public class SpecLibGen {
     }
   }
 
-  public static class Message1 extends DbSlice.Message {
+  public static class Message1 extends MessageToolInit {
     public Message1(boolean append, boolean isError, String text) {
       super(append, isError, text);
     }
   }
 
-  public static class Message2 extends DbSlice.Message {
+  public static class Message2 extends MessageToolInit {
     public Message2(boolean append, boolean isError, String text) {
       super(append, isError, text);
     }

@@ -62,7 +62,7 @@ public class CmdMsfragger extends CmdBase {
       // slicing requested
       if (!DbSlice.get().isInitialized()) {
         JOptionPane.showMessageDialog(comp,
-            "MSFragger number of DB slices requested was more than 1.\n"
+            "MSFragger: database splitting in more than 1 chunk.\n"
                 + "However not all preconditions for enabling slicing were met.\n"
                 + "Check the bottom of \"Config\" tab for details.",
             "Error", JOptionPane.ERROR_MESSAGE);

@@ -1,7 +1,7 @@
 database_name =
 num_threads = 0                        # 0=poll CPU to set num threads; else specify num threads directly (max 64)
 
-precursor_mass_lower = -500.00
+precursor_mass_lower = -150.00
 precursor_mass_upper = 500.00
 precursor_mass_units = 0               # 0=Daltons, 1=ppm
 precursor_true_tolerance = 20.00
@@ -40,6 +40,7 @@ output_file_extension = pepXML	       #pepXML
 output_format = pepXML				   #pepXML or tsv
 output_report_topN = 1 
 output_max_expect = 50
+report_alternative_proteins=0          # 0=no, 1=yes
 
 precursor_charge = 1 4                 # precursor charge range to analyze; does not override any existing charge; 0 as 1st entry ignores parameter
 override_charge = 0                    # 0=no, 1=yes to override existing precursor charge states with precursor_charge parameter
@@ -58,7 +59,7 @@ add_topN_complementary = 0
 # spectral processing
 
 minimum_peaks = 15                   # required minimum number of peaks in spectrum to search (default 10)
-use_topN_peaks = 150
+use_topN_peaks = 100
 min_fragments_modelling = 3
 min_matched_fragments = 6 
 minimum_ratio = 0.01		         # filter peaks below this fraction of strongest peak

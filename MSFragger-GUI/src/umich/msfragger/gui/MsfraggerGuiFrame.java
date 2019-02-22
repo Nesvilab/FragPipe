@@ -16,7 +16,7 @@
  */
 package umich.msfragger.gui;
 
-import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
+import static umich.msfragger.params.fragger.FraggerMigPanel.PROP_FILECHOOSER_LAST_PATH;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -43,8 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -62,6 +61,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -105,7 +105,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
@@ -120,7 +119,11 @@ import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
 import umich.msfragger.cmd.CmdCrystalc;
@@ -140,20 +143,28 @@ import umich.msfragger.cmd.CmdUmpireSe;
 import umich.msfragger.cmd.ProcessBuilderInfo;
 import umich.msfragger.cmd.ProcessBuildersDescriptor;
 import umich.msfragger.cmd.ToolingUtils;
+import umich.msfragger.gui.ProcessDescription.Builder;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
+import umich.msfragger.messages.MessageLastRunWorkDir;
+import umich.msfragger.messages.MessageAppendToConsole;
 import umich.msfragger.messages.MessageDecoyTag;
+import umich.msfragger.messages.MessageExternalProcessOutput;
 import umich.msfragger.messages.MessageIsUmpireRun;
+import umich.msfragger.messages.MessageKillAll;
 import umich.msfragger.messages.MessageLcmsFilesAdded;
 import umich.msfragger.messages.MessageRun;
 import umich.msfragger.messages.MessageSaveCache;
+import umich.msfragger.messages.MessageSaveLog;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.messages.MessageShowAboutDialog;
+import umich.msfragger.messages.MessageStartProcesses;
 import umich.msfragger.messages.MessageTipNotification;
+import umich.msfragger.messages.MessageToolInit;
 import umich.msfragger.messages.MessageValidityFragger;
 import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.ThisAppProps;
@@ -187,6 +198,7 @@ import umich.msfragger.util.Tuple2;
 import umich.msfragger.util.UsageTrigger;
 import umich.msfragger.util.ValidateTrue;
 import umich.msfragger.util.VersionComparator;
+import umich.msfragger.util.swing.ISimpleTextComponent;
 import umich.swing.console.TextConsole;
 
 /**
@@ -195,11 +207,13 @@ import umich.swing.console.TextConsole;
 public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private static final org.slf4j.Logger log = LoggerFactory.getLogger(MsfraggerGuiFrame.class);
+  private final Object procRunLock = new Object();
 
-  protected FraggerMigPanel fraggerMigPanel;
-  protected TextConsole console;
-  protected ExecutorService exec;
-  private final List<Process> submittedProcesses = new ArrayList<>(100);
+  private FraggerMigPanel fraggerMigPanel;
+  private TextConsole console;
+  private ExecutorService exec = Executors.newFixedThreadPool(1);;
+
+
   //private static final String TEXT_SAME_SEQ_DB = "<Same as in MSFragger>";
   private Color defTextColor;
   private GhostText ghostTextPepProph;
@@ -236,11 +250,24 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private UmpirePanel umpirePanel = null;
   private JScrollPane umpireScroll = null;
 
+  public static final Color COLOR_GREEN = new Color(105, 193, 38);
+  public static final Color COLOR_GREEN_DARKER = new Color(104, 184, 55);
+  public static final Color COLOR_GREEN_DARKEST = new Color(82, 140, 26);
+  public static final Color COLOR_RED = new Color(236, 99, 80);
+  public static final Color COLOR_RED_DARKER = new Color(166, 56, 68);
+  public static final Color COLOR_RED_DARKEST = new Color(155, 35, 29);
+  public static final Color COLOR_BLACK = new Color(0, 0, 0);
+
+  final Color COLOR_TOOL = new Color(140, 3, 89);
+  final Color COLOR_WORKDIR = new Color(6, 2, 140);
+  final Color COLOR_CMDLINE = new Color(0, 107, 109);
+
   private static final String ACTION_EXPORT_LOG = "Export-Log";
 
   public MsfraggerGuiFrame() {
     EventBus.getDefault().register(this);
     initComponents();
+    ProcessManager.get().init();
     initMore();
   }
 
@@ -254,56 +281,70 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
       @Override
       public void actionPerformed(ActionEvent e) {
-
-        if (console == null) {
-          return;
-        }
-        String text = console.getText();
-
-        JFileChooser fc = new JFileChooser();
-        fc.setApproveButtonText("Save");
-        fc.setDialogTitle("Export to");
-        fc.setMultiSelectionEnabled(false);
-        SwingUtils.setFileChooserPath(fc, ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH));
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-        Date now = new Date();
-        fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(now))));
-        Component parent = SwingUtils.findParentFrameForDialog(MsfraggerGuiFrame.this);
-        int saveResult = fc.showSaveDialog(parent);
-        if (JFileChooser.APPROVE_OPTION == saveResult) {
-          File selectedFile = fc.getSelectedFile();
-          Path path = Paths.get(selectedFile.getAbsolutePath());
-          // if exists, overwrite
-          if (Files.exists(path)) {
-            int overwrite = JOptionPane
-                .showConfirmDialog(parent, "<html>File exists,<br/> overwrtie?", "Overwrite",
-                    JOptionPane.OK_CANCEL_OPTION);
-            if (JOptionPane.OK_OPTION == overwrite) {
-              try {
-                Files.delete(path);
-              } catch (IOException ex) {
-                JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite",
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-              }
-            }
-          }
-          try {
-            // save the file
-            byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
-            Files.write(path, bytes, StandardOpenOption.CREATE_NEW);
-
-          } catch (IOException ex) {
-            JOptionPane
-                .showMessageDialog(parent, "<html>Could not save file: <br/>" + path.toString()
-                    + "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-          }
-        }
+        exportLogToFile();
       }
     };
 
     panelRun.getActionMap().put(exportToTextFile.getValue(Action.NAME), exportToTextFile);
+  }
+
+  private void exportLogToFile() {
+    if (console == null) {
+      return;
+    }
+    final String text = console.getText();
+
+    JFileChooser fc = new JFileChooser();
+    fc.setApproveButtonText("Save");
+    fc.setDialogTitle("Export to");
+    fc.setMultiSelectionEnabled(false);
+    SwingUtils.setFileChooserPath(fc, ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH));
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+    Date now = new Date();
+    fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(now))));
+    Component parent = SwingUtils.findParentFrameForDialog(MsfraggerGuiFrame.this);
+    int saveResult = fc.showSaveDialog(parent);
+    if (JFileChooser.APPROVE_OPTION == saveResult) {
+      File selectedFile = fc.getSelectedFile();
+      Path path = Paths.get(selectedFile.getAbsolutePath());
+      // if exists, overwrite
+      if (Files.exists(path)) {
+        int overwrite = JOptionPane
+            .showConfirmDialog(parent, "<html>File exists,<br/> overwrtie?", "Overwrite",
+                JOptionPane.OK_CANCEL_OPTION);
+        if (JOptionPane.OK_OPTION == overwrite) {
+          try {
+            Files.delete(path);
+          } catch (IOException ex) {
+            JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite",
+                JOptionPane.ERROR_MESSAGE);
+            return;
+          }
+        }
+      }
+      try {
+        // save the file
+        byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+        Files.write(path, bytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+      } catch (IOException ex) {
+        JOptionPane
+            .showMessageDialog(parent, "<html>Could not save file: <br/>" + path.toString()
+                + "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+    }
+
+  }
+
+  private void saveLogToFile(Path path) {
+    final String text = console.getText();
+    byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+    try {
+      Files.write(path, bytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    } catch (IOException e) {
+      log.error("Error writing log to file", e);
+    }
   }
 
   private void initMore() {
@@ -337,8 +378,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (defTextColor == null) {
       defTextColor = Color.BLACK;
     }
-
-    exec = Executors.newFixedThreadPool(1);
 
     // check if fragger jar points to a correct location
     if (!validateMsfraggerJarContents(textBinMsfragger.getText())) {
@@ -376,12 +415,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       for (File f : files) {
         boolean isDirectory = f.isDirectory();
         if (!isDirectory) {
-          if (FraggerPanel.fileNameExtensionFilter.accept(f)) {
+          if (FraggerMigPanel.fileNameExtensionFilter.accept(f)) {
             paths.add(Paths.get(f.getAbsolutePath()));
           }
         } else {
           PathUtils
-              .traverseDirectoriesAcceptingFiles(f, FraggerPanel.fileNameExtensionFilter, paths);
+              .traverseDirectoriesAcceptingFiles(f, FraggerMigPanel.fileNameExtensionFilter, paths);
         }
       }
       EventBus.getDefault().post(new MessageLcmsFilesAdded(paths));
@@ -397,7 +436,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     fraggerMigPanel = new FraggerMigPanel();
     final int fraggerTabIndex = 3;
-    final String fraggerTabName = "MsFragger";
+    final String fraggerTabName = "MSFragger";
     tabPane.add(fraggerMigPanel, fraggerTabIndex);
     tabPane.setTitleAt(fraggerTabIndex, fraggerTabName);
 
@@ -415,15 +454,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     setTabIcon(mapTabNameToIdx, fraggerTabName, "/umich/msfragger/gui/icons/bolt-16.png");
     //setTabIcon(mapTabNameToIdx, "", "");
 
-    // check binary paths (can only be done after manual MSFragger panel creation)
-//    SwingUtilities.invokeLater(() -> validateAndSaveMsfraggerPath(textBinMsfragger.getText()));
-//    SwingUtilities.invokeLater(() -> validateAndSavePhilosopherPath(textBinPhilosopher.getText()));
-//    SwingUtilities.invokeLater(this::checkPreviouslySavedParams);
-//    SwingUtilities.invokeLater(this::checkPython);
-//    SwingUtilities.invokeLater(this::validateMsadjusterEligibility);
-//    SwingUtilities.invokeLater(this::validateDbslicing);
-//    SwingUtilities.invokeLater(this::validateSpeclibgen);
-
     exec.submit(() -> validateAndSaveMsfraggerPath(textBinMsfragger.getText()));
     exec.submit(() -> validateAndSavePhilosopherPath(textBinPhilosopher.getText()));
     exec.submit(() -> Version.checkUpdates());
@@ -432,6 +462,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     exec.submit(this::validateMsadjusterEligibility);
     exec.submit(this::validateDbslicing);
     exec.submit(this::validateSpeclibgen);
+
+    // submitting all "loadLast" methods for invocation
+    for (Method method : this.getClass().getDeclaredMethods()) {
+      if (method.getName().startsWith("loadLast") && method.getParameterCount() == 0) {
+        exec.submit(() -> method.invoke(this));
+      }
+    }
 
     initActions();
   }
@@ -481,7 +518,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (name != null) {
       ImageIcon icon = new ImageIcon(
           getClass().getResource(iconPathInJar));
-      tabPane.setIconAt(index, icon);
+      if (tabPane != null && index != null && icon != null) {
+        tabPane.setIconAt(index, icon);
+      }
     } else {
       throw new IllegalStateException("Tab with name '" + name + "' does not exist.");
     }
@@ -513,69 +552,98 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   @Subscribe
-  public void loadDefaults(MessageSearchType m) {
-    final SearchTypeProp t = m.type;
-    loadDefaultsLabelfree(t);
-    loadDefaultsPeptideProphet(t);
-    loadDefaultsProteinProphet(t);
-    loadDefaultsReportFilter(t);
-    loadDefaultsLabelfree(t);
+  public void onSubscriberException(SubscriberExceptionEvent msg) {
+    SwingUtils.showErrorDialog(msg.throwable, this);
   }
 
+  @Subscribe
+  public void loadDefaults(MessageSearchType m) {
+    final SearchTypeProp t = m.type;
 
-  private void messageToLabel(JLabel comp, DbSlice.Message m) {
-    final String old = comp.getText();
-    StringBuilder sb;
-    if (m.append) {
-      sb = new StringBuilder();
-      if (!old.startsWith("<html>")) {
-        sb.append("<html>");
+    for (Method method : this.getClass().getDeclaredMethods()) {
+      // method name starts with "loadDefaults" and has MessageSearchType as the only parameter
+      if (method.getName().startsWith("loadDefaults") && method.getParameterCount() == 1 &&
+          SearchTypeProp.class.equals(method.getParameterTypes()[0])) {
+        if (method.getName().toLowerCase().contains("decoytag")) {
+          log.debug("Skipping 'loadDefaults' method with 1 param of SearchTypeProp.class: {}", method.getName());
+        } else {
+          log.debug("Invoking 'loadDefaults' method with 1 param of SearchTypeProp.class: {}",
+              method.getName());
+          exec.submit(() -> method.invoke(MsfraggerGuiFrame.this, t));
+        }
       }
-      sb.append(old);
+    }
+  }
+
+  private void messageToTextComponent(ISimpleTextComponent comp, MessageToolInit m) {
+    final String old = comp.getText().trim();
+    Pattern reHtml = Pattern.compile("<\\s*/?\\s*html\\s*>", Pattern.CASE_INSENSITIVE);
+    String noHtml = reHtml.matcher(old).replaceAll("");
+    Document doc = Jsoup.parse(old);
+    doc.body().attr("style", SwingUtils.getHtmlBodyStyle());
+    if (!m.append) {
+      doc.body().html("");
+    }
+    if (m.isError) {
+      doc.body().appendChild(new Element("b").html(m.text));
     } else {
-      sb = new StringBuilder("<html>");
+      doc.body().append(m.text);
     }
-    if (m.isError) {
-      sb.append("<b>");
-    }
-    sb.append(" ").append(m.text);
-    if (m.isError) {
-      sb.append("</b>");
-    }
-    comp.setText(sb.toString());
+    String html = doc.html();
+    comp.setText(html);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onDbsliceMessage1(DbSlice.Message1 m) {
-    messageToLabel(lblDbsliceInfo1, m);
+    messageToTextComponent(ISimpleTextComponent.from(lblDbsliceInfo1), m);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onDbsliceMessage2(DbSlice.Message2 m) {
-    messageToLabel(lblDbsliceInfo2, m);
+    messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo), m);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
   public void onDbsliceInitDone(MessageInitDone m) {
-    final String text = m.isSuccess ? "Database Slicing enabled." : "Database Slicing disabled.";
-    messageToLabel(lblDbsliceInfo2, new DbSlice.Message2(true, !m.isSuccess, text));
+    final String text = m.isSuccess ? "Database Splitting enabled." : "Database Splitting disabled.";
+    messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo), new DbSlice.Message2(true, !m.isSuccess, text));
+
+    if (!m.isSuccess) {
+      // attach link with instructions
+      Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
+      String link = p.getProperty(MsfraggerProps.PROP_DBSPLIT_INSTRUCTIONS_URL,
+          "https://nesvilab.github.io/MSFragger/");
+      String instructions = "<br/>For docs/instructions visit <a href=\"" + link + "\">" + link + "</a>";
+      messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo),
+          new DbSlice.Message2(true, false, instructions));
+    }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onSpeclibgenMessage1(SpecLibGen.Message1 m) {
-    messageToLabel(lblSpeclibInfo1, m);
+    messageToTextComponent(ISimpleTextComponent.from(lblSpeclibInfo1), m);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onSpeclibgenMessage2(SpecLibGen.Message2 m) {
-    messageToLabel(lblSpeclibInfo2, m);
+    messageToTextComponent(ISimpleTextComponent.from(epSpeclibInfo2), m);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
   public void onSpeclibgenInitDone(SpecLibGen.InitDone m) {
     final String text = m.isSuccess ? "Spectral Library Generation enabled. See Report tab."
         : "Spectral Library Generation disabled.";
-    messageToLabel(lblSpeclibInfo2, new SpecLibGen.Message2(true, !m.isSuccess, text));
+    messageToTextComponent(ISimpleTextComponent.from(epSpeclibInfo2), new SpecLibGen.Message2(true, !m.isSuccess, text));
+
+    if (!m.isSuccess) {
+      // attach link with instructions
+      Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
+      String link = p.getProperty(MsfraggerProps.PROP_SPECLIBGEN_INSTRUCTIONS_URL,
+          "https://nesvilab.github.io/MSFragger/");
+      String instructions = "<br/>For docs/instructions visit <a href=\"" + link + "\">" + link + "</a>";
+      messageToTextComponent(ISimpleTextComponent.from(epSpeclibInfo2),
+          new SpecLibGen.Message2(true, false, instructions));
+    }
     enableSpecLibGenPanel(m.isSuccess);
   }
 
@@ -593,7 +661,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .filter(p -> p.toString().contains(" "))
         .forEach(p -> { reasons.merge(p, "Contains spaces", (s1, s2) -> String.join(", ", s1, s2)); });
     m.paths.stream()
-        .filter(p -> !FraggerPanel.fileNameExtensionFilter.accept(p.toFile()))
+        .filter(p -> !FraggerMigPanel.fileNameExtensionFilter.accept(p.toFile()))
         .forEach(p -> { reasons.merge(p, "Not supported", (s1, s2) -> String.join(", ", s1, s2)); });
 
     Stream<Path> toAdd = m.paths.stream();
@@ -662,7 +730,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
     style.append("font-size:").append(font.getSize()).append("pt;");
 
-    final Properties p = ThisAppProps.getProperties();
+
+    final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
     String linkDl = p.getProperty(Version.PROP_DOWNLOAD_URL, "");
     String linkSite = p.getProperty(ThisAppProps.PROP_LAB_SITE_URL, "http://nesvilab.org");
     String linkToPaper = p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL, "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
@@ -837,13 +906,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     jLabel2 = new javax.swing.JLabel();
     tabPane = new javax.swing.JTabbedPane();
+    jScrollPane8 = new javax.swing.JScrollPane();
     panelConfig = new javax.swing.JPanel();
     jLabel4 = new javax.swing.JLabel();
     panelMsfraggerConfig = new javax.swing.JPanel();
     btnMsfraggerBinDownload = new javax.swing.JButton();
     btnMsfraggerBinBrowse = new javax.swing.JButton();
     textBinMsfragger = new javax.swing.JTextField();
-    lblMsfraggerCitation = new javax.swing.JLabel();
     jScrollPane1 = new javax.swing.JScrollPane();
     editorMsfraggerCitation = new javax.swing.JEditorPane();
     lblFraggerJavaVer = new javax.swing.JLabel();
@@ -862,11 +931,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     btnAboutInConfig = new javax.swing.JButton();
     jPanel2 = new javax.swing.JPanel();
     lblDbsliceInfo1 = new javax.swing.JLabel();
-    lblDbsliceInfo2 = new javax.swing.JLabel();
+    jScrollPane6 = new javax.swing.JScrollPane();
+    epDbsliceInfo = new javax.swing.JEditorPane();
     checkEnableDiaumpire = new javax.swing.JCheckBox();
     jPanel1 = new javax.swing.JPanel();
     lblSpeclibInfo1 = new javax.swing.JLabel();
-    lblSpeclibInfo2 = new javax.swing.JLabel();
+    scrollEpSpeclibInfo2 = new javax.swing.JScrollPane();
+    epSpeclibInfo2 = new javax.swing.JEditorPane();
     jPanel3 = new javax.swing.JPanel();
     btnBrowseBinPython = new javax.swing.JButton();
     textBinPython = new javax.swing.JTextField();
@@ -895,6 +966,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     jScrollPane5 = new javax.swing.JScrollPane();
     editorSequenceDb = new javax.swing.JEditorPane();
     panelDownstream = new javax.swing.JPanel();
+    panelPeptideProphet = new javax.swing.JPanel();
+    chkRunPeptideProphet = new javax.swing.JCheckBox();
+    btnPepProphDefaultsOpen = new javax.swing.JButton();
+    btnPepProphDefaultsClosed = new javax.swing.JButton();
+    panelPeptideProphetOptions = new javax.swing.JPanel();
+    jScrollPane2 = new javax.swing.JScrollPane();
+    textPepProphCmd = new javax.swing.JTextArea();
+    jLabel34 = new javax.swing.JLabel();
+    checkCombinedPepxml = new javax.swing.JCheckBox();
+    btnPepProphDefaultsNonspecific = new javax.swing.JButton();
+    jLabel11 = new javax.swing.JLabel();
     panelProteinProphet = new javax.swing.JPanel();
     chkRunProteinProphet = new javax.swing.JCheckBox();
     btnProtProphDefaultsClosed = new javax.swing.JButton();
@@ -904,14 +986,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     jScrollPane4 = new javax.swing.JScrollPane();
     txtProteinProphetCmdLineOpts = new javax.swing.JTextArea();
     jLabel40 = new javax.swing.JLabel();
-    panelPeptideProphet = new javax.swing.JPanel();
-    chkRunPeptideProphet = new javax.swing.JCheckBox();
-    btnPepProphDefaultsOpen = new javax.swing.JButton();
-    btnPepProphDefaultsClosed = new javax.swing.JButton();
-    panelPeptideProphetOptions = new javax.swing.JPanel();
-    jScrollPane2 = new javax.swing.JScrollPane();
-    textPepProphCmd = new javax.swing.JTextArea();
-    jLabel34 = new javax.swing.JLabel();
     panelCrystalc = new javax.swing.JPanel();
     chkRunCrystalc = new javax.swing.JCheckBox();
     jLabel12 = new javax.swing.JLabel();
@@ -968,6 +1042,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     tabPane.setMinimumSize(new java.awt.Dimension(640, 480));
     tabPane.setName(""); // NOI18N
 
+    jScrollPane8.setBorder(null);
+
+    jLabel4.setFont(lblFraggerJavaVer.getFont());
     jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
     jLabel4.setText("<html>Tabs on top represent processing steps and will be performed sequentially.<br/>\nTabs will become enabled once the tools on this panel are configured."); // NOI18N
 
@@ -1000,15 +1077,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    lblMsfraggerCitation.setText("If you are using MSFragger search engine for publications, please cite the following paper:");
-
     jScrollPane1.setBorder(null);
 
     editorMsfraggerCitation.setEditable(false);
-    editorMsfraggerCitation.setBackground(lblMsfraggerCitation.getBackground());
+    editorMsfraggerCitation.setBackground(lblFraggerJavaVer.getBackground());
     editorMsfraggerCitation.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
     editorMsfraggerCitation.setContentType("text/html"); // NOI18N
-    editorMsfraggerCitation.setFont(lblMsfraggerCitation.getFont());
+    editorMsfraggerCitation.setFont(lblFraggerJavaVer.getFont());
     editorMsfraggerCitation.setText(getFraggerCitationHtml());
     editorMsfraggerCitation.setAutoscrolls(false);
     editorMsfraggerCitation.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
@@ -1038,9 +1113,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(lblFraggerJavaVer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addComponent(jScrollPane1)
           .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelMsfraggerConfigLayout.createSequentialGroup()
-            .addComponent(lblMsfraggerCitation)
-            .addGap(0, 159, Short.MAX_VALUE))
-          .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelMsfraggerConfigLayout.createSequentialGroup()
             .addComponent(textBinMsfragger)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(btnMsfraggerBinBrowse)
@@ -1062,9 +1134,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(lblFraggerJavaVer)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(lblMsfraggerCitation)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE))
     );
 
     panelPhilosopherConfig.setBorder(javax.swing.BorderFactory.createTitledBorder("Philosopher"));
@@ -1103,10 +1173,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     jScrollPane3.setBorder(null);
 
     editorPhilosopherLink.setEditable(false);
-    editorPhilosopherLink.setBackground(lblMsfraggerCitation.getBackground());
+    editorPhilosopherLink.setBackground(lblFraggerJavaVer.getBackground());
     editorPhilosopherLink.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
     editorPhilosopherLink.setContentType("text/html"); // NOI18N
-    editorPhilosopherLink.setFont(lblMsfraggerCitation.getFont());
+    editorPhilosopherLink.setFont(lblFraggerJavaVer.getFont());
     editorPhilosopherLink.setText(createPhilosopherCitationHtml());
     editorPhilosopherLink.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
       public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
@@ -1176,12 +1246,24 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("DB Slicing"));
+    jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("DB Splitting"));
     jPanel2.setToolTipText("<html>Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>\nWays to get everything set up:<br>\n<ul>\n<li>Install Python 3 if you don't yet have it.</li>\n<li>Install required python modules using <i>pip</i>, the python package manager, with command:</li>\n<ul>\n<li>pip install numpy pandas</li>\n</ul>\n</ul>\n");
 
     lblDbsliceInfo1.setText(DbSlice.DEFAULT_MESSAGE);
 
-    lblDbsliceInfo2.setText("");
+    jScrollPane6.setBorder(null);
+
+    epDbsliceInfo.setEditable(false);
+    epDbsliceInfo.setBackground(lblFraggerJavaVer.getBackground());
+    epDbsliceInfo.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+    epDbsliceInfo.setContentType("text/html"); // NOI18N
+    epDbsliceInfo.setText("");
+    epDbsliceInfo.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
+      public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
+        urlHandlerViaSystemBrowser(evt);
+      }
+    });
+    jScrollPane6.setViewportView(epDbsliceInfo);
 
     javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
     jPanel2.setLayout(jPanel2Layout);
@@ -1190,18 +1272,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       .addGroup(jPanel2Layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(lblDbsliceInfo1)
-          .addComponent(lblDbsliceInfo2))
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+          .addComponent(jScrollPane6)
+          .addGroup(jPanel2Layout.createSequentialGroup()
+            .addComponent(lblDbsliceInfo1)
+            .addGap(0, 0, Short.MAX_VALUE)))
+        .addContainerGap())
     );
     jPanel2Layout.setVerticalGroup(
       jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(jPanel2Layout.createSequentialGroup()
-        .addContainerGap()
         .addComponent(lblDbsliceInfo1)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(lblDbsliceInfo2)
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
     );
 
     checkEnableDiaumpire.setText("Enable DIA-Umpire");
@@ -1217,7 +1299,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     lblSpeclibInfo1.setText(SpecLibGen.DEFAULT_MESSAGE);
 
-    lblSpeclibInfo2.setText("");
+    scrollEpSpeclibInfo2.setBorder(null);
+
+    epSpeclibInfo2.setEditable(false);
+    epSpeclibInfo2.setBackground(lblFraggerJavaVer.getBackground());
+    epSpeclibInfo2.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+    epSpeclibInfo2.setContentType("text/html"); // NOI18N
+    epSpeclibInfo2.setFont(lblFraggerJavaVer.getFont());
+    epSpeclibInfo2.setText("");
+    epSpeclibInfo2.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
+      public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
+        urlHandlerViaSystemBrowser(evt);
+      }
+    });
+    scrollEpSpeclibInfo2.setViewportView(epSpeclibInfo2);
 
     javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
     jPanel1.setLayout(jPanel1Layout);
@@ -1226,18 +1321,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       .addGroup(jPanel1Layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(lblSpeclibInfo1)
-          .addComponent(lblSpeclibInfo2))
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+          .addGroup(jPanel1Layout.createSequentialGroup()
+            .addComponent(lblSpeclibInfo1)
+            .addGap(0, 0, Short.MAX_VALUE))
+          .addComponent(scrollEpSpeclibInfo2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+        .addContainerGap())
     );
     jPanel1Layout.setVerticalGroup(
       jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(jPanel1Layout.createSequentialGroup()
-        .addContainerGap()
         .addComponent(lblSpeclibInfo1)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-        .addComponent(lblSpeclibInfo2)
-        .addContainerGap(15, Short.MAX_VALUE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(scrollEpSpeclibInfo2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
     );
 
     jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Python"));
@@ -1282,28 +1377,33 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     panelConfig.setLayout(panelConfigLayout);
     panelConfigLayout.setHorizontalGroup(
       panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
       .addGroup(panelConfigLayout.createSequentialGroup()
         .addContainerGap()
         .addGroup(panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(panelMsfraggerConfig, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(panelPhilosopherConfig, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addGroup(panelConfigLayout.createSequentialGroup()
-            .addGroup(panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-              .addGroup(panelConfigLayout.createSequentialGroup()
-                .addComponent(btnAboutInConfig)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnClearCache)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(checkEnableDiaumpire))
-              .addGroup(panelConfigLayout.createSequentialGroup()
-                .addComponent(btnFindTools)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblFindAutomatically)))
-            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+            .addComponent(btnAboutInConfig)
+            .addGap(0, 0, Short.MAX_VALUE))
+          .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelConfigLayout.createSequentialGroup()
+            .addGroup(panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+              .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING)
+              .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addComponent(panelPhilosopherConfig, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addComponent(panelMsfraggerConfig, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelConfigLayout.createSequentialGroup()
+                .addGroup(panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                  .addGroup(panelConfigLayout.createSequentialGroup()
+                    .addComponent(btnFindTools)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(lblFindAutomatically))
+                  .addGroup(panelConfigLayout.createSequentialGroup()
+                    .addGap(67, 67, 67)
+                    .addComponent(btnClearCache)
+                    .addGap(18, 18, 18)
+                    .addComponent(checkEnableDiaumpire)))
+                .addGap(0, 188, Short.MAX_VALUE)))
+            .addContainerGap())))
     );
     panelConfigLayout.setVerticalGroup(
       panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1313,11 +1413,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(btnAboutInConfig)
           .addComponent(btnClearCache)
           .addComponent(checkEnableDiaumpire))
-        .addGap(18, 18, 18)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(panelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(btnFindTools)
           .addComponent(lblFindAutomatically))
-        .addGap(18, 18, 18)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(panelMsfraggerConfig, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(panelPhilosopherConfig, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1327,12 +1427,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap())
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
-    tabPane.addTab("Config", null, panelConfig, "Set up paths to tools");
+    jScrollPane8.setViewportView(panelConfig);
+
+    tabPane.addTab("Config", jScrollPane8);
 
     panelSelectedFiles.setBorder(javax.swing.BorderFactory.createTitledBorder("Selected files (Drag & Drop files or folders here, it's OK if they contain non LC/MS files)"));
 
@@ -1436,7 +1538,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addComponent(btnGroupsAssignToSelected)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnGroupsClear)))
-            .addGap(0, 38, Short.MAX_VALUE)))
+            .addGap(0, 57, Short.MAX_VALUE)))
         .addContainerGap())
     );
     panelSelectedFilesLayout.setVerticalGroup(
@@ -1529,7 +1631,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelDbInfoLayout.createSequentialGroup()
         .addContainerGap()
         .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-          .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 583, Short.MAX_VALUE)
+          .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE)
           .addGroup(panelDbInfoLayout.createSequentialGroup()
             .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
               .addGroup(panelDbInfoLayout.createSequentialGroup()
@@ -1585,106 +1687,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     tabPane.addTab("Sequence DB", panelSequenceDb);
 
-    chkRunProteinProphet.setSelected(true);
-    chkRunProteinProphet.setText("Run ProteinProphet");
-    chkRunProteinProphet.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        chkRunProteinProphetActionPerformed(evt);
-      }
-    });
-
-    btnProtProphDefaultsClosed.setText("Defaults Closed Search");
-    btnProtProphDefaultsClosed.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        btnProtProphDefaultsClosedActionPerformed(evt);
-      }
-    });
-
-    btnProtProphDefaultsOpen.setText("Defaults Open Search");
-    btnProtProphDefaultsOpen.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        btnProtProphDefaultsOpenActionPerformed(evt);
-      }
-    });
-
-    panelProteinProphetOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("Protein Prophet Options"));
-
-    checkProcessGroupsSeparately.setSelected(loadLastProcessGroupsSeparately());
-    checkProcessGroupsSeparately.setText("Separate prot-xml file per group/experiment");
-    checkProcessGroupsSeparately.setToolTipText("<html><b>Uncheck</b> if you want a report comparing protein abundances across<br/>\nexperiments or just want a single protein identification result from all<br/>\nthe runs.<br/>\n<b>Only check</b> if you want peptide/protein ID results<br/>\nfor each experiment separately. E.g. this might be useful if you have<br/>\n100 files on hand and use the \"assign to experiments\" feature to quickly<br/>\nrun MSFragger + downstream processing on each of those and get a pepxml<br/>\nand/or protxml files.");
-    checkProcessGroupsSeparately.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        checkProcessGroupsSeparatelyActionPerformed(evt);
-      }
-    });
-
-    txtProteinProphetCmdLineOpts.setColumns(20);
-    txtProteinProphetCmdLineOpts.setLineWrap(true);
-    txtProteinProphetCmdLineOpts.setRows(5);
-    txtProteinProphetCmdLineOpts.setWrapStyleWord(true);
-    txtProteinProphetCmdLineOpts.addFocusListener(new java.awt.event.FocusAdapter() {
-      public void focusLost(java.awt.event.FocusEvent evt) {
-        txtProteinProphetCmdLineOptsFocusLost(evt);
-      }
-    });
-    jScrollPane4.setViewportView(txtProteinProphetCmdLineOpts);
-    loadLastProteinProphet();
-
-    jLabel40.setText("Cmd Line Options");
-
-    javax.swing.GroupLayout panelProteinProphetOptionsLayout = new javax.swing.GroupLayout(panelProteinProphetOptions);
-    panelProteinProphetOptions.setLayout(panelProteinProphetOptionsLayout);
-    panelProteinProphetOptionsLayout.setHorizontalGroup(
-      panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelProteinProphetOptionsLayout.createSequentialGroup()
-        .addContainerGap()
-        .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-          .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
-            .addGap(0, 0, Short.MAX_VALUE)
-            .addComponent(checkProcessGroupsSeparately))
-          .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
-            .addComponent(jLabel40)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jScrollPane4)))
-        .addContainerGap())
-    );
-    panelProteinProphetOptionsLayout.setVerticalGroup(
-      panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
-        .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
-            .addContainerGap()
-            .addComponent(jLabel40))
-          .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(checkProcessGroupsSeparately))
-    );
-
-    javax.swing.GroupLayout panelProteinProphetLayout = new javax.swing.GroupLayout(panelProteinProphet);
-    panelProteinProphet.setLayout(panelProteinProphetLayout);
-    panelProteinProphetLayout.setHorizontalGroup(
-      panelProteinProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(panelProteinProphetLayout.createSequentialGroup()
-        .addComponent(chkRunProteinProphet)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(btnProtProphDefaultsClosed)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(btnProtProphDefaultsOpen)
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-      .addComponent(panelProteinProphetOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-    );
-    panelProteinProphetLayout.setVerticalGroup(
-      panelProteinProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(panelProteinProphetLayout.createSequentialGroup()
-        .addGroup(panelProteinProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(chkRunProteinProphet)
-          .addComponent(btnProtProphDefaultsClosed)
-          .addComponent(btnProtProphDefaultsOpen))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(panelProteinProphetOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap())
-    );
-
     chkRunPeptideProphet.setSelected(true);
     chkRunPeptideProphet.setText("Run PeptideProphet");
     chkRunPeptideProphet.addActionListener(new java.awt.event.ActionListener() {
@@ -1693,14 +1695,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    btnPepProphDefaultsOpen.setText("Defaults Open Search");
+    btnPepProphDefaultsOpen.setText("Open Search");
     btnPepProphDefaultsOpen.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnPepProphDefaultsOpenActionPerformed(evt);
       }
     });
 
-    btnPepProphDefaultsClosed.setText("Defaults Closed Search");
+    btnPepProphDefaultsClosed.setText("Closed Search");
     btnPepProphDefaultsClosed.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnPepProphDefaultsClosedActionPerformed(evt);
@@ -1726,27 +1728,52 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     jLabel34.setText("Cmd Line Options");
 
+    checkCombinedPepxml.setText("<html>Single <b>combined</b> pep-xml file per experiment/group");
+    java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("umich/msfragger/gui/Bundle"); // NOI18N
+    checkCombinedPepxml.setName(bundle.getString("ui.name.check.combine-pepxml")); // NOI18N
+    checkCombinedPepxml.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        checkCombinedPepxmlActionPerformed(evt);
+      }
+    });
+
     javax.swing.GroupLayout panelPeptideProphetOptionsLayout = new javax.swing.GroupLayout(panelPeptideProphetOptions);
     panelPeptideProphetOptions.setLayout(panelPeptideProphetOptionsLayout);
     panelPeptideProphetOptionsLayout.setHorizontalGroup(
       panelPeptideProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
         .addContainerGap()
-        .addComponent(jLabel34)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE)
+        .addGroup(panelPeptideProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPeptideProphetOptionsLayout.createSequentialGroup()
+            .addComponent(jLabel34)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE))
+          .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
+            .addComponent(checkCombinedPepxml, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGap(0, 0, Short.MAX_VALUE)))
         .addContainerGap())
     );
     panelPeptideProphetOptionsLayout.setVerticalGroup(
       panelPeptideProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
-        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-        .addContainerGap())
-      .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
-        .addContainerGap()
-        .addComponent(jLabel34)
-        .addContainerGap(34, Short.MAX_VALUE))
+        .addGroup(panelPeptideProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
+            .addContainerGap()
+            .addComponent(jLabel34))
+          .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(checkCombinedPepxml, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addGap(0, 5, Short.MAX_VALUE))
     );
+
+    btnPepProphDefaultsNonspecific.setText("Non-specific Search");
+    btnPepProphDefaultsNonspecific.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btnPepProphDefaultsNonspecificActionPerformed(evt);
+      }
+    });
+
+    jLabel11.setText("Load defaults for:");
 
     javax.swing.GroupLayout panelPeptideProphetLayout = new javax.swing.GroupLayout(panelPeptideProphet);
     panelPeptideProphet.setLayout(panelPeptideProphetLayout);
@@ -1754,11 +1781,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       panelPeptideProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(panelPeptideProphetLayout.createSequentialGroup()
         .addComponent(chkRunPeptideProphet)
+        .addGap(18, 18, 18)
+        .addComponent(jLabel11)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(btnPepProphDefaultsClosed)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(btnPepProphDefaultsOpen)
-        .addGap(0, 0, Short.MAX_VALUE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(btnPepProphDefaultsNonspecific)
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
       .addComponent(panelPeptideProphetOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
     );
     panelPeptideProphetLayout.setVerticalGroup(
@@ -1767,9 +1798,112 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addGroup(panelPeptideProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(chkRunPeptideProphet)
           .addComponent(btnPepProphDefaultsOpen)
-          .addComponent(btnPepProphDefaultsClosed))
+          .addComponent(btnPepProphDefaultsClosed)
+          .addComponent(btnPepProphDefaultsNonspecific)
+          .addComponent(jLabel11))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(panelPeptideProphetOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+    );
+
+    chkRunProteinProphet.setSelected(true);
+    chkRunProteinProphet.setText("Run ProteinProphet");
+    chkRunProteinProphet.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        chkRunProteinProphetActionPerformed(evt);
+      }
+    });
+
+    btnProtProphDefaultsClosed.setText("Allow mass shifted peptides");
+    btnProtProphDefaultsClosed.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btnProtProphDefaultsClosedActionPerformed(evt);
+      }
+    });
+
+    btnProtProphDefaultsOpen.setText("Do NOT allow mass shifted peptides");
+    btnProtProphDefaultsOpen.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btnProtProphDefaultsOpenActionPerformed(evt);
+      }
+    });
+
+    panelProteinProphetOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("Protein Prophet Options"));
+
+    checkProcessGroupsSeparately.setSelected(loadLastProcessGroupsSeparately());
+    checkProcessGroupsSeparately.setText("<html>A <b>separate</b> prot-xml file per group/experiment");
+    checkProcessGroupsSeparately.setToolTipText("<html><b>Uncheck</b> if you want a report comparing protein abundances across<br/>\nexperiments or just want a single protein identification result from all<br/>\nthe runs.<br/>\n<b>Only check</b> if you want peptide/protein ID results<br/>\nfor each experiment separately. E.g. this might be useful if you have<br/>\n100 files on hand and use the \"assign to experiments\" feature to quickly<br/>\nrun MSFragger + downstream processing on each of those and get a pepxml<br/>\nand/or protxml files.");
+    checkProcessGroupsSeparately.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        checkProcessGroupsSeparatelyActionPerformed(evt);
+      }
+    });
+
+    txtProteinProphetCmdLineOpts.setColumns(20);
+    txtProteinProphetCmdLineOpts.setLineWrap(true);
+    txtProteinProphetCmdLineOpts.setRows(5);
+    txtProteinProphetCmdLineOpts.setWrapStyleWord(true);
+    txtProteinProphetCmdLineOpts.addFocusListener(new java.awt.event.FocusAdapter() {
+      public void focusLost(java.awt.event.FocusEvent evt) {
+        txtProteinProphetCmdLineOptsFocusLost(evt);
+      }
+    });
+    jScrollPane4.setViewportView(txtProteinProphetCmdLineOpts);
+    loadLastProteinProphet();
+
+    jLabel40.setText("Cmd Line Options");
+
+    javax.swing.GroupLayout panelProteinProphetOptionsLayout = new javax.swing.GroupLayout(panelProteinProphetOptions);
+    panelProteinProphetOptions.setLayout(panelProteinProphetOptionsLayout);
+    panelProteinProphetOptionsLayout.setHorizontalGroup(
+      panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
+            .addComponent(checkProcessGroupsSeparately, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGap(0, 0, Short.MAX_VALUE))
+          .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
+            .addComponent(jLabel40)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE)))
+        .addContainerGap())
+    );
+    panelProteinProphetOptionsLayout.setVerticalGroup(
+      panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
+        .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
+            .addContainerGap()
+            .addComponent(jLabel40))
+          .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(checkProcessGroupsSeparately, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap())
+    );
+
+    javax.swing.GroupLayout panelProteinProphetLayout = new javax.swing.GroupLayout(panelProteinProphet);
+    panelProteinProphet.setLayout(panelProteinProphetLayout);
+    panelProteinProphetLayout.setHorizontalGroup(
+      panelProteinProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelProteinProphetLayout.createSequentialGroup()
+        .addComponent(chkRunProteinProphet)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(btnProtProphDefaultsClosed)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(btnProtProphDefaultsOpen)
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+      .addComponent(panelProteinProphetOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+    );
+    panelProteinProphetLayout.setVerticalGroup(
+      panelProteinProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(panelProteinProphetLayout.createSequentialGroup()
+        .addGroup(panelProteinProphetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(chkRunProteinProphet)
+          .addComponent(btnProtProphDefaultsClosed)
+          .addComponent(btnProtProphDefaultsOpen))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(panelProteinProphetOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap())
     );
 
     chkRunCrystalc.setText("Run Crystal-C");
@@ -1876,24 +2010,24 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     panelDownstream.setLayout(panelDownstreamLayout);
     panelDownstreamLayout.setHorizontalGroup(
       panelDownstreamLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelDownstreamLayout.createSequentialGroup()
+      .addGroup(panelDownstreamLayout.createSequentialGroup()
         .addContainerGap()
-        .addGroup(panelDownstreamLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-          .addComponent(panelCrystalc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(panelProteinProphet, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(panelPeptideProphet, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        .addGroup(panelDownstreamLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(panelPeptideProphet, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(panelProteinProphet, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(panelCrystalc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         .addContainerGap())
     );
     panelDownstreamLayout.setVerticalGroup(
       panelDownstreamLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelDownstreamLayout.createSequentialGroup()
+      .addGroup(panelDownstreamLayout.createSequentialGroup()
         .addContainerGap()
         .addComponent(panelPeptideProphet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(panelProteinProphet, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addComponent(panelProteinProphet, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addComponent(panelCrystalc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(293, Short.MAX_VALUE))
+        .addContainerGap(246, Short.MAX_VALUE))
     );
 
     loadLastCrystalc();
@@ -1940,7 +2074,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addGroup(panelReportOptionsLayout.createSequentialGroup()
             .addComponent(jLabel1)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(textReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, 565, Short.MAX_VALUE))
+            .addComponent(textReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE))
           .addGroup(panelReportOptionsLayout.createSequentialGroup()
             .addComponent(checkReportAbacus)
             .addGap(0, 0, Short.MAX_VALUE))))
@@ -1985,7 +2119,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       .addGroup(panelSpecLibOptsLayout.createSequentialGroup()
         .addContainerGap()
         .addComponent(checkGenerateSpecLib)
-        .addContainerGap(354, Short.MAX_VALUE))
+        .addContainerGap(373, Short.MAX_VALUE))
     );
     panelSpecLibOptsLayout.setVerticalGroup(
       panelSpecLibOptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2096,6 +2230,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     txtWorkingDir.setToolTipText(lblOutputDir.getToolTipText());
+    txtWorkingDir.addFocusListener(new java.awt.event.FocusAdapter() {
+      public void focusLost(java.awt.event.FocusEvent evt) {
+        txtWorkingDirFocusLost(evt);
+      }
+    });
 
     btnAbout.setText("About");
     btnAbout.addActionListener(new java.awt.event.ActionListener() {
@@ -2163,7 +2302,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addComponent(btnStop)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(checkDryRun)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
                 .addComponent(btnPrintCommands)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnExportLog)
@@ -2215,7 +2354,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
         .addGap(0, 0, 0)
-        .addComponent(tabPane, javax.swing.GroupLayout.DEFAULT_SIZE, 640, Short.MAX_VALUE))
+        .addComponent(tabPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
     layout.setVerticalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2247,9 +2386,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     SwingUtils.setFileChooserPath(fileChooser, ThisAppProps.load(ThisAppProps.PROP_FILE_OUT));
 
-    if (!txtWorkingDir.getText().isEmpty()) {
-      File toFile = Paths.get(txtWorkingDir.getText()).toFile();
-      fileChooser.setCurrentDirectory(toFile);
+    final String text = txtWorkingDir.getText().trim();
+    if (!StringUtils.isNullOrWhitespace(text)) {
+      try {
+        Path p = Paths.get(txtWorkingDir.getText());
+        if (Files.exists(p)) {        
+          fileChooser.setSelectedFile(p.toFile());
+        }
+      } catch (Exception ignored) {}
     }
 
     int showOpenDialog = fileChooser.showOpenDialog(this);
@@ -2262,46 +2406,28 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }//GEN-LAST:event_btnSelectWrkingDirActionPerformed
 
+  private void clearConsole() {
+    console.setText("");
+  }
+  
   private void btnClearConsoleActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearConsoleActionPerformed
-    console.setText("");
+    clearConsole();
   }//GEN-LAST:event_btnClearConsoleActionPerformed
 
   private void btnStopActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStopActionPerformed
     btnRun.setEnabled(true);
     btnStop.setEnabled(false);
+    EventBus.getDefault().post(new MessageKillAll());
 
-    if (exec != null) {
-      exec.shutdownNow();
+    // try saving log
+    MessageLastRunWorkDir m = EventBus.getDefault().getStickyEvent(MessageLastRunWorkDir.class);
+    if (m != null) {
+      EventBus.getDefault().post(new MessageSaveLog(m.workDir));
     }
-    for (Process p : submittedProcesses) {
-      p.destroy();
-    }
-    submittedProcesses.clear();
+
   }//GEN-LAST:event_btnStopActionPerformed
-
-  private void chkRunProteinProphetActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkRunProteinProphetActionPerformed
-    boolean selected = chkRunProteinProphet.isSelected();
-    Container[] comps = new Container[]{
-        panelProteinProphetOptions
-    };
-    for (Container c : comps) {
-      SwingUtils.enableComponents(c, selected);
-    }
-  }//GEN-LAST:event_chkRunProteinProphetActionPerformed
-
-  private void chkRunPeptideProphetActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkRunPeptideProphetActionPerformed
-    boolean selected = chkRunPeptideProphet.isSelected();
-    Container[] comps = new Container[]{
-        panelPeptideProphetOptions
-    };
-    for (Container c : comps) {
-      SwingUtils.enableComponents(c, selected);
-    }
-  }//GEN-LAST:event_chkRunPeptideProphetActionPerformed
 
 
   private void btnRawClearActionPerformed(
@@ -2315,7 +2441,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       String approveText = "Select";
       JFileChooser fc = new JFileChooser();
       fc.setAcceptAllFileFilterUsed(true);
-      FileNameExtensionFilter fileNameExtensionFilter = FraggerPanel.fileNameExtensionFilter;
+      FileNameExtensionFilter fileNameExtensionFilter = FraggerMigPanel.fileNameExtensionFilter;
       fc.setFileFilter(fileNameExtensionFilter);
       fc.setApproveButtonText(approveText);
       fc.setDialogTitle("Choose raw data files");
@@ -2354,7 +2480,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     fc.setApproveButtonToolTipText("Select folder to import");
     fc.setDialogTitle("Select a folder with LC/MS files (searched recursively)");
     fc.setAcceptAllFileFilterUsed(true);
-    FileNameExtensionFilter fileNameExtensionFilter = FraggerPanel.fileNameExtensionFilter;
+    FileNameExtensionFilter fileNameExtensionFilter = FraggerMigPanel.fileNameExtensionFilter;
     fc.setFileFilter(fileNameExtensionFilter);
     fc.setMultiSelectionEnabled(true);
     fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
@@ -2369,8 +2495,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     for (File f : fc.getSelectedFiles()) {
       if (f.isDirectory()) {
         ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, f);
-        PathUtils.traverseDirectoriesAcceptingFiles(f, FraggerPanel.fileNameExtensionFilter, paths);
-      } else if (FraggerPanel.fileNameExtensionFilter.accept(f)) {
+        PathUtils.traverseDirectoriesAcceptingFiles(f, FraggerMigPanel.fileNameExtensionFilter, paths);
+      } else if (FraggerMigPanel.fileNameExtensionFilter.accept(f)) {
         paths.add(Paths.get(f.getAbsolutePath()));
       }
     }
@@ -2379,7 +2505,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnReportErrorsActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportErrorsActionPerformed
-    final String issueTrackerAddress = ThisAppProps.getProperties().getProperty(Version.PROP_ISSUE_TRACKER_URL);
+    final String issueTrackerAddress = ThisAppProps.getLocalProperties().getProperty(Version.PROP_ISSUE_TRACKER_URL);
     try {
       Desktop.getDesktop().browse(URI.create(issueTrackerAddress));
     } catch (IOException ex) {
@@ -3124,6 +3250,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   @Subscribe
   public void onRun(MessageRun m) {
     final boolean isDryRun = m.isDryRun;
+    saveWorkdirText();
+    clearConsole();
 
     resetRunButtons(false);
     final boolean doRunFragger = fraggerMigPanel.isRun();
@@ -3178,6 +3306,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
     final Path wdPath = testWdPath;
+    EventBus.getDefault().postSticky(new MessageLastRunWorkDir(wdPath));
 
     if (!isDryRun) {
       if (!Files.exists(wdPath)) {
@@ -3353,21 +3482,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .collect(Collectors.toList());
 
     LogUtils.println(console, String.format(Locale.ROOT, "%d commands to execute:", pbis.size()));
-    final Color colorTool = new Color(140, 3, 89);
-    final Color colorWd = new Color(6, 2, 140);
-    final Color colorCmdLine = new Color(0, 107, 109);
 
     for (final ProcessBuilderInfo pbi : pbis) {
-      int printed = 0;
-      if (!StringUtils.isNullOrWhitespace(pbi.name)) {
-        LogUtils.print(colorTool, console, true, pbi.name, false);
-      }
-      if (pbi.pb.directory() != null) {
-        LogUtils.print(colorWd, console, true, " [Work dir: " + pbi.pb.directory() + "]", false);
-      }
-      LogUtils.println(console, "");
-      final String cmd = org.apache.commons.lang3.StringUtils.join(pbi.pb.command(), " ");
-      LogUtils.print(colorCmdLine, console, true, cmd, true);
+      printProcessDescription(pbi);
 
     }
     LogUtils.println(console, "~~~~~~~~~~~~~~~~~~~~~~");
@@ -3380,149 +3497,195 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
 
-    if (exec != null && !exec.isTerminated()) {
-      exec.shutdownNow();
-    }
-
-
-    final Color green = new Color(105, 193, 38);
-    final Color greenDarker = new Color(104, 184, 55);
-    final Color greenDarkest = new Color(82, 140, 26);
-    final Color red = new Color(236, 99, 80);
-    final Color redDarker = new Color(166, 56, 68);
-    final Color redDarkest = new Color(155, 35, 29);
-    final Color black = new Color(0, 0, 0);
-    exec = Executors.newFixedThreadPool(1);
-    try // run everything
-    {
-      final ProcessResult[] processResults = new ProcessResult[pbis.size()];
-
-      for (int i = 0; i < pbis.size(); i++) {
-
-        final int index = i;
-        final ProcessBuilderInfo pbi = pbis.get(index);
-        final ProcessResult pr = new ProcessResult(pbi);
-        processResults[index] = pr;
-
-        // set work dir to the main working directory if it's not set for the process builder
-        if (pbi.pb.directory() == null) {
-          pbi.pb.directory(wdPath.toFile());
-        }
-
-        REHandler reHandler = new REHandler(() -> {
-
-          StringBuilder command = new StringBuilder();
-          for (String part : pbi.pb.command()) {
-            command.append(part).append(" ");
-          }
-
-          // if it's not the first process, check that the previous
-          // one returned zero exit code
-          if (index > 0) {
-            Integer exitCode = processResults[index - 1].getExitCode();
-            if (exitCode == null) {
-              LogUtils.print(redDarker, console, true, "Cancelled execution of: ", false);
-              LogUtils.print(black, console, true, command.toString(), true);
-              return;
-            } else if (exitCode != 0) {
-              LogUtils.print(red, console, true,
-                  String.format(
-                      "Previous process returned exit code [%d], cancelling further processing..",
-                      exitCode), true);
-              LogUtils.print(redDarker, console, true, "Cancelled execution of: ", false);
-              LogUtils.print(black, console, true, command.toString(), true);
-              return;
-            }
-          }
-
-          try { // External Processes start in this try block
-
-            LogUtils.print(black, console, true, getTimestamp() + " Executing command [", false);
-            LogUtils.print(colorTool, console, true, pbi.name, false);
-            LogUtils.print(black, console, true, "] from working dir: ", false);
-            final String workDirToPrint = pbi.pb.directory() == null ? "N/A" : pbi.pb.directory().toString();
-            LogUtils.print(colorWd, console, true, workDirToPrint, true);
-            LogUtils.print(black, console, true, "$> ", false);
-            LogUtils.print(colorCmdLine, console, true, command.toString(), true);
-
-            Process proc = pr.start();
-            LogUtils.println(console, getTimestamp() + " Process started");
-
-            while (true) {
-              Thread.sleep(200L);
-              byte[] pollErr = pr.pollStdErr();
-              String errStr = pr.appendErr(pollErr);
-              if (!StringUtils.isNullOrWhitespace(errStr)) {
-                LogUtils.print(console, errStr);
-              }
-              byte[] pollOut = pr.pollStdOut();
-              String outStr = pr.appendOut(pollOut);
-              if (!StringUtils.isNullOrWhitespace(outStr)) {
-                LogUtils.print(console, outStr);
-              }
-              try {
-                final int exitValue = proc.exitValue();
-                pr.setExitCode(exitValue);
-                SwingUtilities.invokeLater(() -> {
-                  Color c = exitValue == 0 ? greenDarker : red;
-                  console.append(c, String.format(
-                      Locale.ROOT, "Process finished, exit value: %d\n", exitValue));
-                });
-
-                break;
-              } catch (IllegalThreadStateException ignore) {
-                // this error is thrown by process.exitValue() if the underlying process has not yet finished
-              }
-            }
-
-          } catch (IOException ex) {
-            String toAppend = String
-                .format(Locale.ROOT, "IOException: Error in process,\n%s", ex.getMessage());
-            LogUtils.println(console, toAppend);
-          } catch (InterruptedException ex) {
-            final Process proc = pr.getProc();
-            if (proc != null) {
-              proc.destroy();
-            }
-            String toAppend = String
-                .format(Locale.ROOT, "InterruptedException: Error in process,\n%s",
-                    ex.getMessage());
-            LogUtils.println(console, toAppend);
-          } finally {
-            try {
-              pr.close();
-            } catch (Exception e) {
-              LogUtils.println(console,
-                  "Error while closing redirected output streams from process, details:\n\n"
-                      + LogUtils.stacktrace(e));
-
-            }
-          }
-        }, console, System.err);
-
-        // this error is thrown by process.exitValue() if the underlying process has not yet finished
-        exec.submit(reHandler);
+    // run everything
+    List<RunnableDescription> toRun = new ArrayList<>();
+    for (final ProcessBuilderInfo pbi : pbis) {
+      Runnable runnable = pbiToRunnable(pbi, wdPath);
+      Builder b = new Builder().setName(pbi.name);
+      if (pbi.pb.directory() != null) {
+        b.setWorkDir(pbi.pb.directory().toString());
       }
-    } finally {
-
+      if (pbi.pb.command() != null && !pbi.pb.command().isEmpty()) {
+        b.setCommand(String.join(" ", pbi.pb.command()));
+      }
+      toRun.add(new RunnableDescription(b.create(), runnable));
     }
 
+    // add finalizer process
     final JButton btnStartPtr = btnRun;
     final JButton btnStopPtr = btnStop;
-    REHandler finalizerTask = new REHandler(() -> {
-      submittedProcesses.clear();
+    Runnable finalizerRun = () -> {
       btnStartPtr.setEnabled(true);
       btnStopPtr.setEnabled(false);
-      LogUtils.println(console, "=========================");
-      LogUtils.println(console, "===");
-      LogUtils.println(console, "===        Done");
-      LogUtils.println(console, "===");
-      LogUtils.println(console, "=========================");
-    }, console, System.err);
+      String msg =
+          "=========================" +
+              "===" +
+              "===      Done" +
+              "===" +
+              "=========================";
+      EventBus.getDefault()
+          .post(new MessageAppendToConsole(msg, MsfraggerGuiFrame.COLOR_RED_DARKEST));
+      EventBus.getDefault().post(new MessageSaveLog(wdPath));
+    };
+    String finalizerDesc = "Finalizer task";
+    toRun.add(new RunnableDescription(new Builder().setName("Finalizer Task").create(), finalizerRun));
+    EventBus.getDefault().post(new MessageStartProcesses(toRun));
+  }
 
-    exec.submit(finalizerTask);
+  private void printProcessDescription(ProcessBuilderInfo pbi) {
+    if (!StringUtils.isNullOrWhitespace(pbi.name)) {
+      LogUtils.print(COLOR_TOOL, console, true, pbi.name, false);
+    }
+    if (pbi.pb.directory() != null) {
+      LogUtils.print(COLOR_WORKDIR, console, true, " [Work dir: " + pbi.pb.directory() + "]", false);
+    }
+    LogUtils.println(console, "");
+    final String cmd = org.apache.commons.lang3.StringUtils.join(pbi.pb.command(), " ");
+    LogUtils.print(COLOR_CMDLINE, console, true, cmd, true);
+  }
 
-    exec.shutdown();
+  private Runnable pbiToRunnable(final ProcessBuilderInfo pbi, final Path wdPath) {
+    return () -> {
+
+            final ProcessResult pr = new ProcessResult(pbi);
+            Process started;
+            try {
+              log.debug("Starting: {}", pbi.name);
+              printProcessDescription(pbi);
+              started = pr.start();
+              log.debug("Started: {}", pbi.name);
+            } catch (IOException e) {
+              log.error("Error while starting process: " + pbi.name + ", stopping", e);
+              EventBus.getDefault().post(new MessageKillAll());
+              return;
+            }
+
+            // main loop reading process' output
+            try {
+              while (true) {
+
+                Thread.sleep(200L);
+                final byte[] pollErr = pr.pollStdErr();
+                final String errStr = pr.appendErr(pollErr);
+                if (errStr != null) {
+                  EventBus.getDefault().post(new MessageExternalProcessOutput(true, errStr,
+                      pbi.name));
+                }
+                final byte[] pollOut = pr.pollStdOut();
+                final String outStr = pr.appendOut(pollOut);
+                if (outStr != null) {
+                  EventBus.getDefault().post(new MessageExternalProcessOutput(false, outStr,
+                      pbi.name));
+                }
+                if (started.isAlive()) {
+                  continue;
+                }
+
+                try {
+                  log.debug("Checking exit value: {}", pbi.name);
+                  final int exitValue = started.exitValue();
+                  log.debug("Exit value '{}': {}", exitValue, pbi.name);
+                  Color c = exitValue == 0
+                      ? MsfraggerGuiFrame.COLOR_GREEN_DARKER
+                      : MsfraggerGuiFrame.COLOR_RED;
+                  String msg = String.format(Locale.ROOT,
+                      "Process '%s' finished, exit code: %d\n", pbi.name, exitValue);
+                  EventBus.getDefault().post(new MessageAppendToConsole(msg, c));
+                  if (exitValue != 0) {
+                    log.debug("Exit value not zero, killing all processes");
+                    EventBus.getDefault().post(new MessageAppendToConsole(
+                        "Process returned non-zero exit code, stopping", MsfraggerGuiFrame.COLOR_RED));
+                    EventBus.getDefault().post(new MessageKillAll());
+                  }
+
+                } catch (IllegalThreadStateException ex) {
+                  log.warn("Checking for exit value when subprocess was not alive threw exception.");
+                }
+                break;
+              }
+
+            } catch (IOException e) {
+              log.error("Error while starting process " + pbi.name, e);
+
+            } catch (InterruptedException e) {
+              // graceful stop request
+              String msg = "Processing interrupted, stopping " + pbi.name;
+              log.debug(msg, e);
+              EventBus.getDefault()
+                  .post(new MessageAppendToConsole(msg, MsfraggerGuiFrame.COLOR_RED_DARKEST));
+              // all the cleanup is done in the finally block
+
+            } finally {
+              // in the end whatever happens always try to kill the process
+              if (started != null && started.isAlive()) {
+                log.debug("Killing underlying external process");
+                started.destroyForcibly();
+              }
+              try {
+                pr.close();
+              } catch (Exception e) {
+                log.error("Error closing redirected std/err streams from external process", e);
+              }
+            }
+          };
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void onExternalProcessOutput(MessageExternalProcessOutput m) {
+    if (m.output == null) {
+      log.warn("MessageExternalProcessOutput with null text, this is a bug, report to devs");
+      return;
+    }
+
+    // special case, colorize output from MSFragger
+    if (CmdMsfragger.NAME.equals(m.procName)) {
+      if (m.isError) {
+        LogUtils.print(COLOR_RED_DARKEST, console, true, m.output, false);
+      } else {
+        LogUtils.printWithAnsiColorCodes(console, true, m.output, false);
+      }
+      return;
+    }
+
+    LogUtils.printWithAnsiColorCodes(console, true, m.output, false);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void onAppendToConsole(MessageAppendToConsole m) {
+    Color c = m.color == null ? COLOR_BLACK : m.color;
+    LogUtils.print(c, console, true, m.text, true);
+  }
+
+  @Subscribe(threadMode = ThreadMode.BACKGROUND)
+  public void onLastRunWorkDir(MessageLastRunWorkDir m) {
+    ThisAppProps.save(ThisAppProps.PROP_FILE_OUT, m.workDir.toAbsolutePath().toString());
+  }
+
+  @Subscribe(threadMode = ThreadMode.BACKGROUND)
+  public void onSaveLog(MessageSaveLog m) {
+    final Path dir = m.workDir;
+    final int numAttempts = 20;
+    int attempt = 0;
+    while (++attempt <= numAttempts) {
+      LocalDateTime time = LocalDateTime.now();
+      String timestamp = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+      Path path = dir.resolve(ThisAppProps.LOG_FILE_NAME + "_" + timestamp + ThisAppProps.LOG_FILE_EXT);
+      if (!Files.exists(path)) {
+        saveLogToFile(path);
+        return;
+      }
+      try {
+        Thread.sleep(200L);
+      } catch (InterruptedException ignore) {}
+    }
+    log.error("Did not save log file, number of attempts exceeded");
+  }
+
+  private static ExecutorService prepareProcessRunner(ExecutorService runner) {
+    if (runner != null && !runner.isTerminated()) {
+      runner.shutdownNow();
+    }
+    return Executors.newFixedThreadPool(1);
   }
 
   private void btnRunActionPerformed(
@@ -3671,18 +3834,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     // run Peptide Prophet
+    final boolean isCombinedPepxml = checkCombinedPepxml.isSelected();
     final String decoyTag = textDecoyTagSeqDb.getText().trim();
     CmdPeptideProphet cmdPeptideProphet = new CmdPeptideProphet(
         chkRunPeptideProphet.isEnabled() && chkRunPeptideProphet.isSelected(), wd);
     if (cmdPeptideProphet.isRun()) {
       final String pepProphCmd = textPepProphCmd.getText().trim();
       if (!cmdPeptideProphet.configure(this,
-          usePhi, fastaFile, decoyTag, pepProphCmd, pepxmlFiles)) {
+          usePhi, fastaFile, decoyTag, pepProphCmd, isCombinedPepxml, pepxmlFiles)) {
         return false;
       }
       pbDescs.add(cmdPeptideProphet.builders());
     }
-    pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, fp.getOutputFileExt());
+    pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, fp.getOutputFileExt(), isCombinedPepxml);
 
 
     // run Protein Prophet
@@ -3831,27 +3995,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     return m.find() ? m.group(groupNum) : "";
   }
 
-  private void textPepProphCmdFocusLost(
-      java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textPepProphCmdFocusLost
-    validateAndSavePeptideProphetCmdLineOptions(null, true);
-  }//GEN-LAST:event_textPepProphCmdFocusLost
-
-  private void txtProteinProphetCmdLineOptsFocusLost(
-      java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtProteinProphetCmdLineOptsFocusLost
-    String val = txtProteinProphetCmdLineOpts.getText();
-    ThisAppProps.save(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, val);
-  }//GEN-LAST:event_txtProteinProphetCmdLineOptsFocusLost
-
-  private void btnPepProphDefaultsOpenActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPepProphDefaultsOpenActionPerformed
-    btnPepProphDefaults(SearchTypeProp.open);
-  }//GEN-LAST:event_btnPepProphDefaultsOpenActionPerformed
-
-  private void btnPepProphDefaultsClosedActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPepProphDefaultsClosedActionPerformed
-    btnPepProphDefaults(SearchTypeProp.closed);
-  }//GEN-LAST:event_btnPepProphDefaultsClosedActionPerformed
-
   private void btnPepProphDefaults(SearchTypeProp t) {
     int confirm1 = JOptionPane.showConfirmDialog(this,
         "<html>Load " + t + " search defaults?");
@@ -3871,16 +4014,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //    }
   }
   
-  private void btnProtProphDefaultsOpenActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProtProphDefaultsOpenActionPerformed
-    btnProtProphDefaults(SearchTypeProp.open);
-  }//GEN-LAST:event_btnProtProphDefaultsOpenActionPerformed
-
-  private void btnProtProphDefaultsClosedActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProtProphDefaultsClosedActionPerformed
-    btnProtProphDefaults(SearchTypeProp.closed);
-  }//GEN-LAST:event_btnProtProphDefaultsClosedActionPerformed
-
   private void btnProtProphDefaults(SearchTypeProp t) {
 
     int confirm1 = JOptionPane.showConfirmDialog(this,
@@ -3910,35 +4043,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAboutInConfigActionPerformed
     EventBus.getDefault().post(new MessageShowAboutDialog());
   }//GEN-LAST:event_btnAboutInConfigActionPerformed
-
-  private void loadDefaultsReport(SearchTypeProp type, boolean askConfirmation) {
-
-    int confirm1 = JOptionPane.showConfirmDialog(this,
-        "<html>Load " + type + " search defaults?");
-    if (JOptionPane.YES_OPTION != confirm1) {
-      return;
-    }
-
-    loadDefaultsReportFilter(type);
-    loadDefaultsLabelfree(type);
-
-    if (askConfirmation) {
-      int confirm2 = JOptionPane.showConfirmDialog(this,
-          "<html>Loaded " + type + " search defaults.<br/><br/>"
-            + "Do you want to load defaults <b>for other tools</b> as well?<br/><br/>"
-                + "<b>WARNING:</b><br/>"
-                + "This will reset MSFragger settings!");
-      if (JOptionPane.YES_OPTION != confirm2) {
-        return;
-      }
-    }
-    EventBus.getDefault().post(new MessageSearchType(type));
-  }
-  
-  private void textPepProphCmdFocusGained(
-      java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textPepProphCmdFocusGained
-    textPepProphetFocusGained = textPepProphCmd.getText().trim();
-  }//GEN-LAST:event_textPepProphCmdFocusGained
 
   private void textReportFilterActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textReportFilterActionPerformed
@@ -4376,38 +4480,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }//GEN-LAST:event_checkCreateReportActionPerformed
 
-  private void chkRunCrystalcActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkRunCrystalcActionPerformed
-    boolean selected = chkRunCrystalc.isSelected();
-    Container[] comps = new Container[]{
-        panelCrystalcOptions
-    };
-    for (Container c : comps) {
-      SwingUtils.enableComponents(c, selected);
-    }
-
-    ThisAppProps.save(ThisAppProps.PROP_CRYSTALC_USE, Boolean.toString(selected));
-  }//GEN-LAST:event_chkRunCrystalcActionPerformed
-
-  private void btnCrystalcDefaultsActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrystalcDefaultsActionPerformed
-    int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
-        "Are you sure you want to load defaults for Crystal-C?\n",
-        "Confirmation", JOptionPane.OK_CANCEL_OPTION);
-    if (JOptionPane.OK_OPTION != confirmation) {
-      return;
-    }
-
-    CrystalcParams p = new CrystalcParams();
-    p.loadDefault();
-    try {
-      crystalcParamsToForm(p);
-      p.save();
-    } catch (IOException e) {
-      // don't care
-    }
-  }//GEN-LAST:event_btnCrystalcDefaultsActionPerformed
-
   private void checkEnableDiaumpireStateChanged(
       javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_checkEnableDiaumpireStateChanged
     final String umpireTabName = "DIA-Umpire";
@@ -4513,7 +4585,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      int count = f.path.getNameCount();
       String group = f.path.getFileName().toString();
       m.dataSet(i, new InputLcmsFile(f.path, group));
     }
@@ -4525,7 +4596,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      int count = f.path.getNameCount();
       m.dataSet(i, new InputLcmsFile(f.path, ThisAppProps.DEFAULT_LCMS_GROUP_NAME));
     }
   }//GEN-LAST:event_btnGroupsClearActionPerformed
@@ -4533,11 +4603,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void btnGroupsAssignToSelectedActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGroupsAssignToSelectedActionPerformed
 
-    UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+    final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
     final List<String> allFiles = m.dataCopy().stream().map(f -> f.path.toString())
         .collect(Collectors.toList());
 
-    final List<String> selected = Arrays.stream(this.tableRawFiles.getSelectedRows())
+    final int[] selectedRows = this.tableRawFiles.getSelectedRows();
+    final List<String> selected = Arrays.stream(selectedRows)
         .map(tableRawFiles::convertRowIndexToModel)
         .mapToObj(allFiles::get)
         .collect(Collectors.toList());
@@ -4546,19 +4617,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     d.setVisible(true);
     if (d.isOk()) {
       final String group = d.getExperimentName();
-      for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+      for (int selectedRow : selectedRows) {
+        int i = tableRawFiles.convertRowIndexToModel(selectedRow);
         InputLcmsFile f = m.dataGet(i);
-        int count = f.path.getNameCount();
         m.dataSet(i, new InputLcmsFile(f.path, group));
       }
     }
   }//GEN-LAST:event_btnGroupsAssignToSelectedActionPerformed
-
-  private void checkProcessGroupsSeparatelyActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkProcessGroupsSeparatelyActionPerformed
-    ThisAppProps
-        .save(checkProcessGroupsSeparately, ThisAppProps.PROP_CHECKBOX_PROCESS_GROUPS_SEPARATELY);
-  }//GEN-LAST:event_checkProcessGroupsSeparatelyActionPerformed
 
   private void btnPrintCommandsActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintCommandsActionPerformed
@@ -4569,12 +4634,122 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.save(checkReportAbacus, ThisAppProps.PROP_CHECKBOX_REPORT_ABACUS);
   }//GEN-LAST:event_checkReportAbacusActionPerformed
 
+  private void btnCrystalcDefaultsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrystalcDefaultsActionPerformed
+    int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
+      "Are you sure you want to load defaults for Crystal-C?\n",
+      "Confirmation", JOptionPane.OK_CANCEL_OPTION);
+    if (JOptionPane.OK_OPTION != confirmation) {
+      return;
+    }
+
+    CrystalcParams p = new CrystalcParams();
+    p.loadDefault();
+    try {
+      crystalcParamsToForm(p);
+      p.save();
+    } catch (IOException e) {
+      // don't care
+    }
+  }//GEN-LAST:event_btnCrystalcDefaultsActionPerformed
+
+  private void chkRunCrystalcActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkRunCrystalcActionPerformed
+    final boolean selected = chkRunCrystalc.isSelected();
+    SwingUtils.enableComponents(panelCrystalc, selected, true,
+        Collections.singletonList(chkRunCrystalc));
+
+    ThisAppProps.save(ThisAppProps.PROP_CRYSTALC_USE, Boolean.toString(selected));
+  }//GEN-LAST:event_chkRunCrystalcActionPerformed
+
+  private void txtProteinProphetCmdLineOptsFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtProteinProphetCmdLineOptsFocusLost
+    String val = txtProteinProphetCmdLineOpts.getText();
+    ThisAppProps.save(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, val);
+  }//GEN-LAST:event_txtProteinProphetCmdLineOptsFocusLost
+
+  private void checkProcessGroupsSeparatelyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkProcessGroupsSeparatelyActionPerformed
+    ThisAppProps
+    .save(checkProcessGroupsSeparately, ThisAppProps.PROP_CHECKBOX_PROCESS_GROUPS_SEPARATELY);
+  }//GEN-LAST:event_checkProcessGroupsSeparatelyActionPerformed
+
+  private void btnProtProphDefaultsOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProtProphDefaultsOpenActionPerformed
+    //btnProtProphDefaults(SearchTypeProp.open);
+    
+    // do NOT allow mass shifted peptides
+    ThisAppProps
+        .loadFromBundle(txtProteinProphetCmdLineOpts, ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET,
+            "tight");
+  }//GEN-LAST:event_btnProtProphDefaultsOpenActionPerformed
+
+  private void btnProtProphDefaultsClosedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProtProphDefaultsClosedActionPerformed
+    //btnProtProphDefaults(SearchTypeProp.closed);
+    
+    // allow mass shifted peptides
+    ThisAppProps
+        .loadFromBundle(txtProteinProphetCmdLineOpts, ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET,
+            "open");
+  }//GEN-LAST:event_btnProtProphDefaultsClosedActionPerformed
+
+  private void chkRunProteinProphetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkRunProteinProphetActionPerformed
+    final boolean selected = chkRunProteinProphet.isSelected();
+    SwingUtils.enableComponents(panelProteinProphet, selected, true,
+        Collections.singletonList(chkRunProteinProphet));
+  }//GEN-LAST:event_chkRunProteinProphetActionPerformed
+
+  private void textPepProphCmdFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textPepProphCmdFocusLost
+    validateAndSavePeptideProphetCmdLineOptions(null, true);
+  }//GEN-LAST:event_textPepProphCmdFocusLost
+
+  private void textPepProphCmdFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textPepProphCmdFocusGained
+    textPepProphetFocusGained = textPepProphCmd.getText().trim();
+  }//GEN-LAST:event_textPepProphCmdFocusGained
+
+  private void btnPepProphDefaultsClosedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPepProphDefaultsClosedActionPerformed
+    btnPepProphDefaults(SearchTypeProp.closed);
+  }//GEN-LAST:event_btnPepProphDefaultsClosedActionPerformed
+
+  private void btnPepProphDefaultsOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPepProphDefaultsOpenActionPerformed
+    btnPepProphDefaults(SearchTypeProp.open);
+  }//GEN-LAST:event_btnPepProphDefaultsOpenActionPerformed
+
+  private void chkRunPeptideProphetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkRunPeptideProphetActionPerformed
+    final boolean selected = chkRunPeptideProphet.isSelected();
+    SwingUtils.enableComponents(panelPeptideProphet, selected, true,
+        Collections.singletonList(chkRunPeptideProphet));
+  }//GEN-LAST:event_chkRunPeptideProphetActionPerformed
+
+  private void checkCombinedPepxmlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkCombinedPepxmlActionPerformed
+    log.debug("Saving checkbox checkCombinedPepxml, value={}", Boolean.toString(checkCombinedPepxml.isSelected()));
+    ThisAppProps.save(checkCombinedPepxml, ThisAppProps.PROP_CHECKBOX_COMBINE_PEPXML);
+  }//GEN-LAST:event_checkCombinedPepxmlActionPerformed
+
+  private void btnPepProphDefaultsNonspecificActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPepProphDefaultsNonspecificActionPerformed
+    btnPepProphDefaults(SearchTypeProp.nonspecific);
+  }//GEN-LAST:event_btnPepProphDefaultsNonspecificActionPerformed
+
+  private void saveWorkdirText() {
+    final String text = txtWorkingDir.getText().trim();
+    try {
+      Path p = Paths.get(text);
+      if (Files.exists(p)) {
+        ThisAppProps.save(ThisAppProps.PROP_FILE_OUT, text);
+      }
+    } catch (Exception ignore) {}
+  }
+
+  private void txtWorkingDirFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtWorkingDirFocusLost
+    saveWorkdirText();
+  }//GEN-LAST:event_txtWorkingDirFocusLost
+
 
   //region Load-Last methods
   public void loadLastPeptideProphet() {
-    if (!ThisAppProps.load(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET)) {
+    boolean allLoaded = true;
+    allLoaded = allLoaded & ThisAppProps.load(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET);
+    allLoaded = allLoaded & ThisAppProps.load(checkCombinedPepxml, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET);
+
+    if (!allLoaded) {
       loadDefaultsPeptideProphet(DEFAULT_TYPE);
     }
+
     removeOldSavedDecoyTagValue(textPepProphCmd, "--decoy");
   }
 
@@ -4587,6 +4762,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   public void loadDefaultsPeptideProphet(SearchTypeProp type) {
     ThisAppProps.loadFromBundle(textPepProphCmd, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET, type);
+    ThisAppProps.loadFromBundle(checkCombinedPepxml, ThisAppProps.PROP_CHECKBOX_COMBINE_PEPXML, type);
   }
 
   public void loadLastProteinProphet() {
@@ -4594,6 +4770,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .load(txtProteinProphetCmdLineOpts, ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET)) {
       loadDefaultsProteinProphet(DEFAULT_TYPE);
     }
+  }
+  
+  public void loadDefaultsCrystalC(SearchTypeProp type) {
+    ThisAppProps.loadFromBundle(chkRunCrystalc, ThisAppProps.PROP_CRYSTALC_USE, type);
+    SwingUtils.enableComponents(panelCrystalc, chkRunCrystalc.isSelected(), true,
+        Collections.singletonList(chkRunCrystalc));
   }
 
   public void loadDefaultsProteinProphet(SearchTypeProp type) {
@@ -4636,6 +4818,30 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.save(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG, val);
   }
 
+  private void loadDefaultsReport(SearchTypeProp type, boolean askConfirmation) {
+
+    int confirm1 = JOptionPane.showConfirmDialog(this,
+        "<html>Load " + type + " search defaults?");
+    if (JOptionPane.YES_OPTION != confirm1) {
+      return;
+    }
+
+    loadDefaultsReportFilter(type);
+    loadDefaultsLabelfree(type);
+
+    if (askConfirmation) {
+      int confirm2 = JOptionPane.showConfirmDialog(this,
+          "<html>Loaded " + type + " search defaults.<br/><br/>"
+              + "Do you want to load defaults <b>for other tools</b> as well?<br/><br/>"
+              + "<b>WARNING:</b><br/>"
+              + "This will reset MSFragger settings!");
+      if (JOptionPane.YES_OPTION != confirm2) {
+        return;
+      }
+    }
+    EventBus.getDefault().post(new MessageSearchType(type));
+  }
+
   private void loadLastReportFilter() {
     if (!ThisAppProps.load(textReportFilter, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER)) {
       loadDefaultsReportFilter(DEFAULT_TYPE);
@@ -4653,6 +4859,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.loadFromBundle(textReportFilter, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER, type);
   }
 
+  public void loadDefaultsLabelfree(SearchTypeProp type) {
+    ThisAppProps.loadFromBundle(textReportLabelfree, ThisAppProps.PROP_TEXTFIELD_LABELFREE, type);
+  }
+
   private void loadLastSequenceDb() {
     String val = ThisAppProps.load(ThisAppProps.PROP_DB_FILE_IN);
     if (val != null) {
@@ -4662,7 +4872,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void loadLastCrystalc() {
     if (!ThisAppProps.load(chkRunCrystalc, ThisAppProps.PROP_CRYSTALC_USE)) {
-      chkRunCrystalc.setSelected(false);
+      loadDefaultsCrystalC(DEFAULT_TYPE);
     }
     chkRunCrystalcActionPerformed(null);
 
@@ -4825,17 +5035,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     validateAndSaveDecoyTagSeqDb(null, updateOtherTags);
   }
 
-
-  //region Load-Defaults methods
-  public void loadDefaultsLabelfree(SearchTypeProp type) {
-    ThisAppProps.loadFromBundle(textReportLabelfree, ThisAppProps.PROP_TEXTFIELD_LABELFREE, type);
-  }
-
-  public void loadDefaultsSequenceDb(SearchTypeProp type) {
-    ThisAppProps.loadFromBundle(textDecoyTagSeqDb, ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
-  }
-  //endregion
-
   private void addChangeListenerTextSequenceDb() {
     SwingUtils.addChangeListener(textSequenceDbPath, e -> {
       if (btnTryDetectDecoyTag != null) {
@@ -4929,40 +5128,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   private void validateAndSaveLabelfree(final String newText) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     final JTextComponent comp = textReportLabelfree;
+    IValidateString validator = s -> true;
     final boolean isValid = validateAndSave(comp, ThisAppProps.PROP_TEXTFIELD_LABELFREE,
-        newText, s -> {
-          Pattern re = Pattern.compile("--([^\\s]+)");
-          Matcher m = re.matcher(s);
-          List<String> allowed = new ArrayList<>();
-          allowed.add("ptw");
-          allowed.add("tol");
-          while (m.find()) {
-            if (!allowed.contains(m.group(1))) {
-              return false;
-            }
-          }
-
-          for (String paramName : allowed) {
-            Pattern reFullParam = Pattern
-                .compile(String.format("--%s\\s+(\\d+(?:\\.\\d+)?)", paramName));
-            if (!reFullParam.matcher(s).find()) {
-              return false;
-            }
-          }
-
-          return true;
-        });
-
-    if (!isValid) {
-      return;
-    }
-
-    // check if the filter line has changed since focus was gained
-    final String savedText = textReportFilterFocusGained;
-    final String oldText = savedText != null ? savedText : comp.getText().trim();
-    final String updText = newText != null ? newText : comp.getText().trim();
+        newText, validator);
   }
 
   private boolean validateAndSavePhilosopherPath(final String path) {
@@ -5131,7 +5300,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private String createPhilosopherCitationHtml() {
     // for copying style
-    Font font = lblMsfraggerCitation.getFont();
+    Font font = lblFraggerJavaVer.getFont();
 
     // create some css from the label's font
     StringBuilder style = new StringBuilder();
@@ -5149,7 +5318,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     //sb.append("<body>");
 
     sb.append("<p style=\"margin-top: 0\">");
-    sb.append("<a href=\"https://nesvilab.github.io/philosopher/\">Philosopher GitHub page</a>");
+    sb.append("More info: <a href=\"https://nesvilab.github.io/philosopher/\">Philosopher GitHub page</a>");
     sb.append("<br/>");
     sb.append("</p>");
 
@@ -5162,7 +5331,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private String getFraggerCitationHtml() {
 
     // for copying style
-    Font font = lblMsfraggerCitation.getFont();
+    Font font = lblFraggerJavaVer.getFont();
 
     // create some css from the label's font
     StringBuilder style = new StringBuilder();
@@ -5179,12 +5348,23 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     sb.append("<body style=\"").append(style.toString()).append("\"");
     //sb.append("<body>");
 
+    final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
+    final String linkMsfragger = p.getProperty(MsfraggerProps.PROP_FRAGGER_SITE_URL, "https://nesvilab.github.io/MSFragger/");
+    final String linkFragpipe = p.getProperty(ThisAppProps.PROP_FRAGPIPE_SITE_URL, "https://github.com/Nesvilab/FragPipe");
+    final String doi= p.getProperty(ThisAppProps.PROP_MANUSCRIPT_DOI, "10.1038/nmeth.4256");
+    final String linkManuscript= p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL, "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
+
     sb.append("<p style=\"margin-top: 0\">");
+    sb.append("<b>Please cite: </b>");
     sb.append(
-        "<a href=\"http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html\">MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics</a>");
+        "<a href=\"").append(linkManuscript).append("\">MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics</a>");
     sb.append("<br/>");
-    sb.append("<b>DOI:10.1038/nmeth.4256</b>");
+    sb.append("<b>DOI: </b>").append(doi);
     sb.append("</p>");
+
+    sb.append("<p style=\"margin-top: 10\">");
+    sb.append("More info and docs: <a href=\"").append(linkMsfragger).append("\">MSFragger website</a>")
+        .append(", <a href=\"").append(linkFragpipe).append("\">FragPipe GitHub page</a>");
 
     sb.append("</body>");
     sb.append("</html>");
@@ -5250,24 +5430,24 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       });
 
       Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-        StringWriter sw = new StringWriter();
-        e.printStackTrace(new PrintWriter(sw, true));
-        String notes = sw.toString();
+        String stacktrace = LogUtils.stacktrace(e);
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        panel.add(new JLabel("Something unexpected happened"), BorderLayout.PAGE_START);
-        JTextArea notesArea = new JTextArea(40, 80);
-        notesArea.setText(notes);
-        JScrollPane notesScroller = new JScrollPane();
-        notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
-        notesScroller.setViewportView(notesArea);
-        panel.add(notesScroller, BorderLayout.CENTER);
+        log.debug("Something unexpected happened (1)", e);
+        return;
 
-        //JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + notes, "Error", JOptionPane.ERROR_MESSAGE);
-        //JOptionPane.showMessageDialog(frame, panel, "Error", JOptionPane.ERROR_MESSAGE);
-        showDialog(frame, panel);
+//        JPanel panel = new JPanel();
+//        panel.setLayout(new BorderLayout());
+//        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+//        panel.add(new JLabel("Something unexpected happened (1)"), BorderLayout.PAGE_START);
+//        JTextArea notesArea = new JTextArea(40, 80);
+//        notesArea.setText(stacktrace);
+//        JScrollPane notesScroller = new JScrollPane();
+//        notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
+//        notesScroller.setViewportView(notesArea);
+//        panel.add(notesScroller, BorderLayout.CENTER);
+//        //JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + notes, "Error", JOptionPane.ERROR_MESSAGE);
+//        //JOptionPane.showMessageDialog(frame, panel, "Error", JOptionPane.ERROR_MESSAGE);
+//        showDialog(frame, panel);
       });
 
       frame.setVisible(true);
@@ -5314,6 +5494,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JButton btnMsfraggerUpdate;
   private javax.swing.JButton btnOpenInExplorer;
   private javax.swing.JButton btnPepProphDefaultsClosed;
+  private javax.swing.JButton btnPepProphDefaultsNonspecific;
   private javax.swing.JButton btnPepProphDefaultsOpen;
   private javax.swing.JButton btnPhilosopherBinBrowse;
   private javax.swing.JButton btnPhilosopherBinDownload;
@@ -5329,6 +5510,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JButton btnSelectWrkingDir;
   private javax.swing.JButton btnStop;
   private javax.swing.JButton btnTryDetectDecoyTag;
+  private javax.swing.JCheckBox checkCombinedPepxml;
   private javax.swing.JCheckBox checkCreateReport;
   private javax.swing.JCheckBox checkDryRun;
   private javax.swing.JCheckBox checkEnableDiaumpire;
@@ -5343,8 +5525,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JEditorPane editorMsfraggerCitation;
   private javax.swing.JEditorPane editorPhilosopherLink;
   private javax.swing.JEditorPane editorSequenceDb;
+  private javax.swing.JEditorPane epDbsliceInfo;
+  private javax.swing.JEditorPane epSpeclibInfo2;
   private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel10;
+  private javax.swing.JLabel jLabel11;
   private javax.swing.JLabel jLabel12;
   private javax.swing.JLabel jLabel2;
   private javax.swing.JLabel jLabel3;
@@ -5365,17 +5550,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JScrollPane jScrollPane3;
   private javax.swing.JScrollPane jScrollPane4;
   private javax.swing.JScrollPane jScrollPane5;
+  private javax.swing.JScrollPane jScrollPane6;
+  private javax.swing.JScrollPane jScrollPane8;
   private javax.swing.JLabel lblDbsliceInfo1;
-  private javax.swing.JLabel lblDbsliceInfo2;
   private javax.swing.JLabel lblFastaCount;
   private javax.swing.JLabel lblFindAutomatically;
   private javax.swing.JLabel lblFraggerJavaVer;
-  private javax.swing.JLabel lblMsfraggerCitation;
   private javax.swing.JLabel lblOutputDir;
   private javax.swing.JLabel lblPhilosopherInfo;
   private javax.swing.JLabel lblPythonInfo;
   private javax.swing.JLabel lblSpeclibInfo1;
-  private javax.swing.JLabel lblSpeclibInfo2;
   private javax.swing.JPanel panelConfig;
   private javax.swing.JPanel panelCrystalc;
   private javax.swing.JPanel panelCrystalcOptions;
@@ -5394,6 +5578,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JPanel panelSelectedFiles;
   private javax.swing.JPanel panelSequenceDb;
   private javax.swing.JPanel panelSpecLibOpts;
+  private javax.swing.JScrollPane scrollEpSpeclibInfo2;
   private javax.swing.JScrollPane scrollPaneRawFiles;
   private javax.swing.JSpinner spinnerCrystalcMassTol;
   private javax.swing.JSpinner spinnerCrystalcMaxCharge;

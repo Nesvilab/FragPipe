@@ -32,22 +32,22 @@ import javax.swing.text.StyledDocument;
  */
 public class TextConsole extends JTextPane implements Appendable {
 
-    static final Color D_Black = Color.getHSBColor(0.000f, 0.000f, 0.000f);
-    static final Color D_Red = Color.getHSBColor(0.000f, 1.000f, 0.502f);
-    static final Color D_Blue = Color.getHSBColor(0.667f, 1.000f, 0.502f);
-    static final Color D_Magenta = Color.getHSBColor(0.833f, 1.000f, 0.502f);
-    static final Color D_Green = Color.getHSBColor(0.333f, 1.000f, 0.502f);
-    static final Color D_Yellow = Color.getHSBColor(0.167f, 1.000f, 0.502f);
-    static final Color D_Cyan = Color.getHSBColor(0.500f, 1.000f, 0.502f);
-    static final Color D_White = Color.getHSBColor(0.000f, 0.000f, 0.753f);
-    static final Color B_Black = Color.getHSBColor(0.000f, 0.000f, 0.502f);
-    static final Color B_Red = Color.getHSBColor(0.000f, 1.000f, 1.000f);
-    static final Color B_Blue = Color.getHSBColor(0.667f, 1.000f, 1.000f);
-    static final Color B_Magenta = Color.getHSBColor(0.833f, 1.000f, 1.000f);
-    static final Color B_Green = Color.getHSBColor(0.333f, 1.000f, 1.000f);
-    static final Color B_Yellow = Color.getHSBColor(0.167f, 1.000f, 1.000f);
-    static final Color B_Cyan = Color.getHSBColor(0.500f, 1.000f, 1.000f);
-    static final Color B_White = Color.getHSBColor(0.000f, 0.000f, 1.000f);
+    public static final Color D_Black = Color.getHSBColor(0.000f, 0.000f, 0.000f);
+    public static final Color D_Red = Color.getHSBColor(0.000f, 1.000f, 0.502f);
+    public static final Color D_Blue = Color.getHSBColor(0.667f, 1.000f, 0.502f);
+    public static final Color D_Magenta = Color.getHSBColor(0.833f, 1.000f, 0.502f);
+    public static final Color D_Green = Color.getHSBColor(0.333f, 1.000f, 0.502f);
+    public static final Color D_Yellow = Color.getHSBColor(0.167f, 1.000f, 0.502f);
+    public static final Color D_Cyan = Color.getHSBColor(0.500f, 1.000f, 0.502f);
+    public static final Color D_White = Color.getHSBColor(0.000f, 0.000f, 0.753f);
+    public static final Color B_Black = Color.getHSBColor(0.000f, 0.000f, 0.502f);
+    public static final Color B_Red = Color.getHSBColor(0.000f, 1.000f, 1.000f);
+    public static final Color B_Blue = Color.getHSBColor(0.667f, 1.000f, 1.000f);
+    public static final Color B_Magenta = Color.getHSBColor(0.833f, 1.000f, 1.000f);
+    public static final Color B_Green = Color.getHSBColor(0.333f, 1.000f, 1.000f);
+    public static final Color B_Yellow = Color.getHSBColor(0.167f, 1.000f, 1.000f);
+    public static final Color B_Cyan = Color.getHSBColor(0.500f, 1.000f, 1.000f);
+    public static final Color B_White = Color.getHSBColor(0.000f, 0.000f, 1.000f);
     
     static final Color cReset = Color.getHSBColor(0.000f, 0.000f, 0.000f);
     static Color colorCurrent = cReset;

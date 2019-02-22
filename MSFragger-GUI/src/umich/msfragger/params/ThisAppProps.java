@@ -46,6 +46,9 @@ public class ThisAppProps extends Properties {
 
   public static final String PROP_LAB_SITE_URL = "lab.site.url";
   public static final String PROP_MANUSCRIPT_URL = "manuscript.url";
+  public static final String PROP_MANUSCRIPT_DOI = "manuscript.doi";
+  public static final String PROP_FRAGPIPE_SITE_URL = "msfragger.gui.site.url";
+
   private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
     //private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
     public static final String PROP_DB_FILE_IN = "path.db.file.in";
@@ -58,6 +61,8 @@ public class ThisAppProps extends Properties {
     public static final String APP_TEMP_DIR = "fragpipe";
     public static final String TEMP_FILE_EXT = ".cache";
     public static final String TEMP_FILE_NAME = "msfragger" + TEMP_FILE_EXT;
+    public static final String LOG_FILE_NAME = "log-fragpipe-run-at";
+    public static final String LOG_FILE_EXT = ".log";
 
     public static final String PROP_BIN_PATH_MSCONVERT = "path.textfield.msconvert";
     public static final String PROP_BIN_PATH_MSFRAGGER = "path.textfield.msfragger";
@@ -72,6 +77,7 @@ public class ThisAppProps extends Properties {
   public static final String PROP_TEXTFIELD_DECOY_TAG = "decoy.tag";
   public static final String PROP_CHECKBOX_REPORT_PROTEIN_LEVEL_FDR = "report.proteinlevelfdr";
   public static final String PROP_CHECKBOX_PROCESS_GROUPS_SEPARATELY = "process.groups.separately";
+  public static final String PROP_CHECKBOX_COMBINE_PEPXML = "peptideprophet.combine.pepxml";
   public static final String PROP_CHECKBOX_REPORT_ABACUS = "report.run.abacus";
 
   public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
@@ -94,32 +100,19 @@ public class ThisAppProps extends Properties {
       "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties"
   );
 
-  private static class Holder {
-    private static final Properties propsLocal = PropertiesUtils.initProperties("Bundle.properties", MsfraggerGuiFrame.class);
+  private static class HolderRemote {
     private static final Properties propsRemote = PropertiesUtils.initProperties(PROPERTIES_URLS);
-    private static final Properties properties;
-
-    static {
-      properties = new Properties();
-      properties.putAll(propsLocal);
-      properties.putAll(propsRemote);
-    }
-
-    public static Properties getProperties() {
-      return properties;
-    }
-
-    public static Properties getLocalProperties() {
-      return propsLocal;
-    }
-
     public static Properties getRemoteProperties() {
       return propsRemote;
     }
   }
 
-  public static Properties getProperties() {
-    return Holder.getProperties();
+  private static class Holder {
+    private static final Properties propsLocal = PropertiesUtils.initProperties("Bundle.properties", MsfraggerGuiFrame.class);
+
+    public static Properties getLocalProperties() {
+      return propsLocal;
+    }
   }
 
   public static Properties getLocalProperties() {
@@ -127,7 +120,19 @@ public class ThisAppProps extends Properties {
   }
 
   public static Properties getRemoteProperties() {
-    return Holder.getRemoteProperties();
+    return HolderRemote.getRemoteProperties();
+  }
+
+  public static Properties getRemotePropertiesWithLocalDefaults() {
+    final Properties p = new Properties(getLocalProperties());
+    // merge with remote properties
+    Properties remote = ThisAppProps.getRemoteProperties();
+    if (remote!= null) {
+      for (String name : remote.stringPropertyNames()) {
+        p.setProperty(name, remote.getProperty(name));
+      }
+    }
+    return p;
   }
 
   public static ResourceBundle getLocalBundle() {
@@ -260,13 +265,18 @@ public class ThisAppProps extends Properties {
       save(propName, text.getText().trim());
   }
 
+  public static void loadFromBundle(JTextComponent text, String propName, String type) {
+      final String prop = propName + "." + type;
+      loadFromBundle(text, prop);
+  }
+  
   public static void loadFromBundle(JTextComponent text, String propName, SearchTypeProp type) {
       final String prop = propName + "." + type.name();
       loadFromBundle(text, prop);
   }
 
   public static void loadFromBundle(JTextComponent text, String propName) {
-      String val = getProperties().getProperty(propName);
+      String val = getLocalProperties().getProperty(propName);
       text.setText(val);
       save(propName, val);
   }
@@ -277,7 +287,7 @@ public class ThisAppProps extends Properties {
   }
 
   public static void loadFromBundle(JCheckBox checkBox, String propName) {
-      String val = getProperties().getProperty(propName);
+      String val = getLocalProperties().getProperty(propName);
       checkBox.setSelected(Boolean.valueOf(val));
       save(propName, val);
   }

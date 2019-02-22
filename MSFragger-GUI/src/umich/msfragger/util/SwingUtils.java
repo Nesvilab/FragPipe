@@ -42,6 +42,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
@@ -190,11 +191,20 @@ public class SwingUtils {
     enableComponents(container, enabled, false);
   }
 
-  public static void enableComponents(Container container, boolean enabled, boolean applyToContainer) {
+  public static void enableComponents(Container container, boolean enabled,
+    boolean applyToContainer) {
+    enableComponents(container, enabled, applyToContainer, Collections.emptyList());
+  }
+
+  public static void enableComponents(Container container, boolean enabled,
+      boolean applyToContainer, List<Component> exclusions) {
     if (applyToContainer)
       container.setEnabled(enabled);
     Component[] components = container.getComponents();
     for (Component component : components) {
+      if (exclusions.contains(component)) {
+        continue; // skipping excluded components
+      }
       component.setEnabled(enabled);
 //            if (component instanceof JScrollPane) {
 //                JScrollPane jsp = (JScrollPane)component;
@@ -217,6 +227,18 @@ public class SwingUtils {
     return createClickableHtml(text, true);
   }
 
+  public static String getHtmlBodyStyle() {
+    // for copying style
+    JLabel label = new JLabel();
+    Font font = label.getFont();
+
+    // create some css from the label's font
+    StringBuilder style = new StringBuilder("font-family:" + font.getFamily() + ";");
+    style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
+    style.append("font-size:").append(font.getSize()).append("pt;");
+    return style.toString();
+  }
+
   /**
    * Creates a non-editable JEditorPane that has the same styling as default JLabels and with
    * hyperlinks clickable. They will be opened in the system default browser.
@@ -227,16 +249,9 @@ public class SwingUtils {
    * default system browser.
    */
   public static JEditorPane createClickableHtml(String text, boolean handleHyperlinks) {
-    // for copying style
-    JLabel label = new JLabel();
-    Font font = label.getFont();
 
-    // create some css from the label's font
-    StringBuilder style = new StringBuilder("font-family:" + font.getFamily() + ";");
-    style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
-    style.append("font-size:").append(font.getSize()).append("pt;");
 
-    JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">"
+    JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + getHtmlBodyStyle() + "\">"
         + text
         + "</body></html>");
     ep.setEditable(false);
@@ -431,6 +446,15 @@ public class SwingUtils {
    * @param parent The parent for the dialog, null is ok.
    * @param component The component to be used as the message.
    */
+  public static void showDialog(Component parent, final Component component, String title, int msgType) {
+    JOptionPane.showMessageDialog(parent, wrapInScrollForDialog(component), title, msgType);
+  }
+
+  /**
+   * Show a message dialog wrapped into a scroll pane.
+   * @param parent The parent for the dialog, null is ok.
+   * @param component The component to be used as the message.
+   */
   public static void showConfirmDialog(Component parent, final Component component) {
     JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component));
   }
@@ -470,7 +494,7 @@ public class SwingUtils {
       JPanel panel = new JPanel();
       panel.setLayout(new BorderLayout());
       panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-      panel.add(new JLabel("Something unexpected happened"), BorderLayout.PAGE_START);
+      panel.add(new JLabel("Something unexpected happened (2)"), BorderLayout.PAGE_START);
       JTextArea notesArea = new JTextArea(40, 80);
       notesArea.setText(notes);
       JScrollPane notesScroller = new JScrollPane();
@@ -482,6 +506,35 @@ public class SwingUtils {
       //JOptionPane.showMessageDialog(frame, panel, "Error", JOptionPane.ERROR_MESSAGE);
       showDialog(parent, panel);
     });
+  }
+
+  /**
+   * Prints the contents of the stacktrace to a string.
+   */
+  public static String stacktraceToString(Throwable t) {
+    StringWriter sw = new StringWriter();
+    t.printStackTrace(new PrintWriter(sw, true));
+    return sw.toString();
+  }
+
+  /**
+   * @param parent Can be null.
+   */
+  public static void showErrorDialog(Throwable e, Component parent) {
+    JPanel panel = new JPanel();
+    panel.setLayout(new BorderLayout());
+    panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    panel.add(new JLabel("Something unexpected happened (" + e.getClass().getSimpleName() + ")"), BorderLayout.PAGE_START);
+    JTextArea notesArea = new JTextArea(40, 80);
+    notesArea.setText(stacktraceToString(e));
+    JScrollPane notesScroller = new JScrollPane();
+    notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
+    notesScroller.setViewportView(notesArea);
+    panel.add(notesScroller, BorderLayout.CENTER);
+
+    //JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + notes, "Error", JOptionPane.ERROR_MESSAGE);
+    //JOptionPane.showMessageDialog(frame, panel, "Error", JOptionPane.ERROR_MESSAGE);
+    showDialog(parent, panel);
   }
 
   public static boolean setFileChooserPath(JFileChooser fc, Path path) {

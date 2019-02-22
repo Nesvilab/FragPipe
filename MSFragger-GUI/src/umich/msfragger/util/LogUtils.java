@@ -57,7 +57,7 @@ public class LogUtils {
     /**
      * Top stack trace messages as string.
      */
-    public static String stacktrace(Exception e) {
+    public static String stacktrace(Throwable e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw, true));
         return sw.toString();
@@ -111,6 +111,27 @@ public class LogUtils {
         Runnable runnable = () -> {
             try {
                 out.append(c, toPrint);
+                if (appendNewLine) {
+                    out.append("\n");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
+
+
+        if (doOnEDT) {
+            SwingUtilities.invokeLater(runnable);
+        } else {
+            runnable.run();
+        }
+    }
+
+    public static final void printWithAnsiColorCodes(final TextConsole out, boolean doOnEDT,
+        final String toPrint, final boolean appendNewLine) {
+        Runnable runnable = () -> {
+            try {
+                out.append(toPrint);
                 if (appendNewLine) {
                     out.append("\n");
                 }

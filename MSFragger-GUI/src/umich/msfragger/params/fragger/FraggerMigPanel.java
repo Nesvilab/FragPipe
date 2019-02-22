@@ -15,8 +15,6 @@
  */
 package umich.msfragger.params.fragger;
 
-import static umich.msfragger.gui.FraggerPanel.PROP_FILECHOOSER_LAST_PATH;
-
 import com.github.chhh.utils.swing.DocumentFilters;
 import com.github.chhh.utils.swing.StringRepresentable;
 import com.github.chhh.utils.swing.UiCheck;
@@ -102,6 +100,7 @@ import umich.msfragger.util.swing.FormEntry;
  */
 public class FraggerMigPanel extends JPanel {
 
+  public static final String PROP_FILECHOOSER_LAST_PATH = "msfragger.filechooser.path";
   private static final Logger log = LoggerFactory.getLogger(FraggerMigPanel.class);
   public static final String CACHE_FORM = "msfragger-form" + ThisAppProps.TEMP_FILE_EXT;
   public static final String CACHE_PROPS = "msfragger-props" + ThisAppProps.TEMP_FILE_EXT;
@@ -121,6 +120,7 @@ public class FraggerMigPanel extends JPanel {
   private static final Set<String> PROPS_MISC_NAMES;
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
+  public static FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf)", "mzml", "mzxml", "mgf");
   private static String[] PROPS_MISC = {
       PROP_misc_adjust_precurosr_mass,
       PROP_misc_slice_db,
@@ -147,6 +147,7 @@ public class FraggerMigPanel extends JPanel {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_override_charge, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.valueOf(s).valueInParamsFile());
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
 
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
@@ -157,6 +158,7 @@ public class FraggerMigPanel extends JPanel {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_override_charge, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.fromValueInParamsFile(s).name());
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Boolean.toString(Integer.parseInt(s) > 0));
   }
 
   private ImageIcon icon;
@@ -335,18 +337,21 @@ public class FraggerMigPanel extends JPanel {
       FormEntry fePrecursorMassMode = new FormEntry(MsfraggerParams.PROP_precursor_mass_mode,
           "Precursor mass mode", uiComboMassMode,
           "<html>Determines which entry from mzML files will be<br/>"
-              + "used as the precursor's mass. 'Selected' or 'Isolated' ion.)");
+              + "used as the precursor's mass - 'Selected' or 'Isolated' ion.<br/>"
+              + "'Recalculated' option runs a separate MSAdjuster tool to<br/>"
+              + "perform mono-isotopic mass correction");
 
       pPeakMatch.add(feIsotopeError.label(), new CC().alignX("right"));
       pPeakMatch.add(feIsotopeError.comp, new CC().span(2));
       pPeakMatch.add(fePrecursorMassMode.label(), new CC().split(2).spanX());
       pPeakMatch.add(fePrecursorMassMode.comp, new CC().wrap());
 
+      final UiCheck uiCheckShiftedIons = new UiCheck("<html>Use shifted ion series", null);
       FormEntry feShiftedIonsCheck = new FormEntry(MsfraggerParams.PROP_shifted_ions, "not-shown",
-          new UiCheck("<html>Use shifted ion series", null),
-          "<html>Shifted ion series are the same as regular b/y ions,<br/>"
+          uiCheckShiftedIons, "<html>Shifted ion series are the same as regular b/y ions,<br/>"
               + "but with the addition of the mass shift of the precursor.<br/>"
-              + "Regular ion series will still be used.");
+              + "Regular ion series will still be used.<br/>"
+          + "This option is </b>incompatible</b> with database splitting.");
       UiText uiTextShiftedIonsExclusion = new UiText();
       uiTextShiftedIonsExclusion.setDocument(DocumentFilters.getFilter("[A-Za-z]"));
       uiTextShiftedIonsExclusion.setText("(-1.5,3.5)");
@@ -420,8 +425,31 @@ public class FraggerMigPanel extends JPanel {
       FormEntry feMaxFragCharge = new FormEntry(MsfraggerParams.PROP_max_fragment_charge,
           "Max fragment charge", new UiSpinnerInt(2, 0, 20, 1, 2));
       uiSpinnerDbslice = new UiSpinnerInt(1, 1, 99, 1, 2);
-      FormEntry feSliceDb = new FormEntry(PROP_misc_slice_db, "<html><i>Slice up database", uiSpinnerDbslice,
+      FormEntry feSliceDb = new FormEntry(PROP_misc_slice_db, "<html><i>Split database", uiSpinnerDbslice,
           "<html>Split database into smaller chunks.<br/>Only use for very large databases (200MB+) or<br/>non-specific digestion.");
+
+      uiCheckShiftedIons.addActionListener(e -> {
+        final boolean selected = uiCheckShiftedIons.isSelected();
+        final int dbSlicing = uiSpinnerDbslice.getActualValue();
+        if (selected && dbSlicing > 1) {
+          JOptionPane.showMessageDialog(FraggerMigPanel.this,
+              "<html>This option is incompatible with DB Splitting.<br/>"
+                  + "Please either turn it off, or turn off DB Splitting by setting<br/>"
+                  + "it to 1.", "Incompatible options", JOptionPane.WARNING_MESSAGE);
+        }
+      });
+
+      uiSpinnerDbslice.addChangeListener(e -> {
+        final boolean selected = uiCheckShiftedIons.isSelected();
+        final int dbSlicing = uiSpinnerDbslice.getActualValue();
+        if (selected && dbSlicing > 1) {
+          JOptionPane.showMessageDialog(FraggerMigPanel.this,
+              "<html>DB Slicing is incompatible with Shifted Ions option.<br/>"
+                  + "Please either set it to 1, or uncheck Shifted Ions.",
+              "Incompatible options", JOptionPane.WARNING_MESSAGE);
+        }
+      });
+
       pDigest.add(feMaxFragCharge.label(), new CC().split(2).span(2).alignX("right"));
       pDigest.add(feMaxFragCharge.comp);
       pDigest.add(feSliceDb.label(), new CC().alignX("right"));
@@ -596,7 +624,7 @@ public class FraggerMigPanel extends JPanel {
       // Advanced peak matching panel
       {
         JPanel pPeakMatch = new JPanel(new MigLayout(new LC()));
-        pPeakMatch.setBorder(new TitledBorder("Peak Matching Advanced Options"));
+        pPeakMatch.setBorder(new TitledBorder("Peak Matching and Output Advanced Options"));
 
         FormEntry feTrueTolUnits = new FormEntry(MsfraggerParams.PROP_precursor_true_units,
             "Precursor true tolerance", UiUtils.createUiCombo(MassTolUnits.values()));
@@ -645,22 +673,25 @@ public class FraggerMigPanel extends JPanel {
             "not-shown", new UiCheck("Override charge", null),
             "<html>Ignores precursor charge and uses charge state<br>\n" +
                 "specified in precursor_charge range.<br>");
+        FormEntry feReportAltProts = new FormEntry(MsfraggerParams.PROP_report_alternative_proteins,
+            "not-shown", new UiCheck("Report alternative proteins", null, false));
 
         pPeakMatch.add(feTrueTolUnits.label(), alignRight);
         pPeakMatch.add(feTrueTolUnits.comp, new CC().split(2));
-        pPeakMatch.add(feTrueTol.comp);
+        pPeakMatch.add(feTrueTol.comp, new CC().growX());
 
-        pPeakMatch.add(feOverrideCharge.comp, alignRight);
-        pPeakMatch.add(fePrecursorChargeLo.label(), new CC().split(4).spanX());
+        pPeakMatch.add(feOverrideCharge.comp, new CC().split(5).spanX());
+        pPeakMatch.add(fePrecursorChargeLo.label());
         pPeakMatch.add(fePrecursorChargeLo.comp);
         pPeakMatch.add(new JLabel("-"));
         pPeakMatch.add(fePrecursorChargeHi.comp, wrap);
         pPeakMatch.add(feReportTopN.label(), alignRight);
-        pPeakMatch.add(feReportTopN.comp);
+        pPeakMatch.add(feReportTopN.comp, new CC().growX());
+        pPeakMatch.add(feReportAltProts.comp, wrap);
+        pPeakMatch.add(feOutputType.label(), alignRight);
+        pPeakMatch.add(feOutputType.comp);
         pPeakMatch.add(feOutputMaxExpect.label(), alignRight);
         pPeakMatch.add(feOutputMaxExpect.comp, wrap);
-        pPeakMatch.add(feOutputType.label(), alignRight);
-        pPeakMatch.add(feOutputType.comp, wrap);
 
         pAdvanced.add(pPeakMatch, new CC().wrap().growX());
       }
