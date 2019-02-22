@@ -61,6 +61,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -149,6 +150,7 @@ import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
+import umich.msfragger.messages.MessageLastRunWorkDir;
 import umich.msfragger.messages.MessageAppendToConsole;
 import umich.msfragger.messages.MessageDecoyTag;
 import umich.msfragger.messages.MessageExternalProcessOutput;
@@ -157,6 +159,7 @@ import umich.msfragger.messages.MessageKillAll;
 import umich.msfragger.messages.MessageLcmsFilesAdded;
 import umich.msfragger.messages.MessageRun;
 import umich.msfragger.messages.MessageSaveCache;
+import umich.msfragger.messages.MessageSaveLog;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.messages.MessageShowAboutDialog;
 import umich.msfragger.messages.MessageStartProcesses;
@@ -278,56 +281,70 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
       @Override
       public void actionPerformed(ActionEvent e) {
-
-        if (console == null) {
-          return;
-        }
-        String text = console.getText();
-
-        JFileChooser fc = new JFileChooser();
-        fc.setApproveButtonText("Save");
-        fc.setDialogTitle("Export to");
-        fc.setMultiSelectionEnabled(false);
-        SwingUtils.setFileChooserPath(fc, ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH));
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-        Date now = new Date();
-        fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(now))));
-        Component parent = SwingUtils.findParentFrameForDialog(MsfraggerGuiFrame.this);
-        int saveResult = fc.showSaveDialog(parent);
-        if (JFileChooser.APPROVE_OPTION == saveResult) {
-          File selectedFile = fc.getSelectedFile();
-          Path path = Paths.get(selectedFile.getAbsolutePath());
-          // if exists, overwrite
-          if (Files.exists(path)) {
-            int overwrite = JOptionPane
-                .showConfirmDialog(parent, "<html>File exists,<br/> overwrtie?", "Overwrite",
-                    JOptionPane.OK_CANCEL_OPTION);
-            if (JOptionPane.OK_OPTION == overwrite) {
-              try {
-                Files.delete(path);
-              } catch (IOException ex) {
-                JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite",
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-              }
-            }
-          }
-          try {
-            // save the file
-            byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
-            Files.write(path, bytes, StandardOpenOption.CREATE_NEW);
-
-          } catch (IOException ex) {
-            JOptionPane
-                .showMessageDialog(parent, "<html>Could not save file: <br/>" + path.toString()
-                    + "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-          }
-        }
+        exportLogToFile();
       }
     };
 
     panelRun.getActionMap().put(exportToTextFile.getValue(Action.NAME), exportToTextFile);
+  }
+
+  private void exportLogToFile() {
+    if (console == null) {
+      return;
+    }
+    final String text = console.getText();
+
+    JFileChooser fc = new JFileChooser();
+    fc.setApproveButtonText("Save");
+    fc.setDialogTitle("Export to");
+    fc.setMultiSelectionEnabled(false);
+    SwingUtils.setFileChooserPath(fc, ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH));
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+    Date now = new Date();
+    fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(now))));
+    Component parent = SwingUtils.findParentFrameForDialog(MsfraggerGuiFrame.this);
+    int saveResult = fc.showSaveDialog(parent);
+    if (JFileChooser.APPROVE_OPTION == saveResult) {
+      File selectedFile = fc.getSelectedFile();
+      Path path = Paths.get(selectedFile.getAbsolutePath());
+      // if exists, overwrite
+      if (Files.exists(path)) {
+        int overwrite = JOptionPane
+            .showConfirmDialog(parent, "<html>File exists,<br/> overwrtie?", "Overwrite",
+                JOptionPane.OK_CANCEL_OPTION);
+        if (JOptionPane.OK_OPTION == overwrite) {
+          try {
+            Files.delete(path);
+          } catch (IOException ex) {
+            JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite",
+                JOptionPane.ERROR_MESSAGE);
+            return;
+          }
+        }
+      }
+      try {
+        // save the file
+        byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+        Files.write(path, bytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+      } catch (IOException ex) {
+        JOptionPane
+            .showMessageDialog(parent, "<html>Could not save file: <br/>" + path.toString()
+                + "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+    }
+
+  }
+
+  private void saveLogToFile(Path path) {
+    final String text = console.getText();
+    byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+    try {
+      Files.write(path, bytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    } catch (IOException e) {
+      log.error("Error writing log to file", e);
+    }
   }
 
   private void initMore() {
@@ -2389,9 +2406,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }//GEN-LAST:event_btnSelectWrkingDirActionPerformed
 
+  private void clearConsole() {
+    console.setText("");
+  }
+  
   private void btnClearConsoleActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearConsoleActionPerformed
-    console.setText("");
+    clearConsole();
   }//GEN-LAST:event_btnClearConsoleActionPerformed
 
   private void btnStopActionPerformed(
@@ -2399,6 +2420,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     btnRun.setEnabled(true);
     btnStop.setEnabled(false);
     EventBus.getDefault().post(new MessageKillAll());
+
+    // try saving log
+    MessageLastRunWorkDir m = EventBus.getDefault().getStickyEvent(MessageLastRunWorkDir.class);
+    if (m != null) {
+      EventBus.getDefault().post(new MessageSaveLog(m.workDir));
+    }
 
   }//GEN-LAST:event_btnStopActionPerformed
 
@@ -3224,6 +3251,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   public void onRun(MessageRun m) {
     final boolean isDryRun = m.isDryRun;
     saveWorkdirText();
+    clearConsole();
 
     resetRunButtons(false);
     final boolean doRunFragger = fraggerMigPanel.isRun();
@@ -3278,6 +3306,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
     final Path wdPath = testWdPath;
+    EventBus.getDefault().postSticky(new MessageLastRunWorkDir(wdPath));
 
     if (!isDryRun) {
       if (!Files.exists(wdPath)) {
@@ -3471,7 +3500,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     // run everything
     List<RunnableDescription> toRun = new ArrayList<>();
     for (final ProcessBuilderInfo pbi : pbis) {
-      Runnable runnable = pbiToRunnable(pbi);
+      Runnable runnable = pbiToRunnable(pbi, wdPath);
       Builder b = new Builder().setName(pbi.name);
       if (pbi.pb.directory() != null) {
         b.setWorkDir(pbi.pb.directory().toString());
@@ -3496,6 +3525,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
               "=========================";
       EventBus.getDefault()
           .post(new MessageAppendToConsole(msg, MsfraggerGuiFrame.COLOR_RED_DARKEST));
+      EventBus.getDefault().post(new MessageSaveLog(wdPath));
     };
     String finalizerDesc = "Finalizer task";
     toRun.add(new RunnableDescription(new Builder().setName("Finalizer Task").create(), finalizerRun));
@@ -3514,7 +3544,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     LogUtils.print(COLOR_CMDLINE, console, true, cmd, true);
   }
 
-  private Runnable pbiToRunnable(final ProcessBuilderInfo pbi) {
+  private Runnable pbiToRunnable(final ProcessBuilderInfo pbi, final Path wdPath) {
     return () -> {
 
             final ProcessResult pr = new ProcessResult(pbi);
@@ -3624,6 +3654,31 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   public void onAppendToConsole(MessageAppendToConsole m) {
     Color c = m.color == null ? COLOR_BLACK : m.color;
     LogUtils.print(c, console, true, m.text, true);
+  }
+
+  @Subscribe(threadMode = ThreadMode.BACKGROUND)
+  public void onLastRunWorkDir(MessageLastRunWorkDir m) {
+    ThisAppProps.save(ThisAppProps.PROP_FILE_OUT, m.workDir.toAbsolutePath().toString());
+  }
+
+  @Subscribe(threadMode = ThreadMode.BACKGROUND)
+  public void onSaveLog(MessageSaveLog m) {
+    final Path dir = m.workDir;
+    final int numAttempts = 20;
+    int attempt = 0;
+    while (++attempt <= numAttempts) {
+      LocalDateTime time = LocalDateTime.now();
+      String timestamp = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+      Path path = dir.resolve(ThisAppProps.LOG_FILE_NAME + "_" + timestamp + ThisAppProps.LOG_FILE_EXT);
+      if (!Files.exists(path)) {
+        saveLogToFile(path);
+        return;
+      }
+      try {
+        Thread.sleep(200L);
+      } catch (InterruptedException ignore) {}
+    }
+    log.error("Did not save log file, number of attempts exceeded");
   }
 
   private static ExecutorService prepareProcessRunner(ExecutorService runner) {
