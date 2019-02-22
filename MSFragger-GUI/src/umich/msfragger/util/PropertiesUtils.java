@@ -16,29 +16,74 @@
  */
 package umich.msfragger.util;
 
-import umich.msfragger.exceptions.FileWritingException;
-import umich.msfragger.params.PropLine;
-import umich.msfragger.params.PropertyFileContent;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import umich.msfragger.exceptions.FileWritingException;
+import umich.msfragger.params.PropLine;
+import umich.msfragger.params.PropertyFileContent;
+import umich.msfragger.params.Props.Prop;
+import umich.msfragger.params.fragger.MsfraggerProps;
 
 /**
  *
  * @author dmitriya
  */
-public class PropertiesUtils {
+public final class PropertiesUtils {
+    private static final Logger log = LoggerFactory.getLogger(PropertiesUtils.class);
 
     private PropertiesUtils() {
     }
-    
+
+    public static Properties initProperties(List<String> urls, String propFileName, Class<?> clazz) {
+        Properties props = PropertiesUtils
+            .fetchPropertiesFromRemote(urls);
+        if (props == null) {
+            log.debug("Did not get {} from any of remote sources", propFileName);
+            props = PropertiesUtils.loadPropertiesLocal(clazz, propFileName);
+        }
+        if (props == null) {
+            throw new IllegalStateException("Could not init properties object");
+        }
+        return props;
+    }
+
+    public static Properties initProperties(List<String> urls) {
+        Properties props = PropertiesUtils
+            .fetchPropertiesFromRemote(urls);
+        if (props == null) {
+            log.debug("Did not get properties from any of remote sources");
+        }
+        return props;
+    }
+
+    public static Properties initProperties(String propFileName, Class<?> clazz) {
+        Properties props = PropertiesUtils.loadPropertiesLocal(clazz, propFileName);
+        if (props == null) {
+            throw new IllegalStateException("Could not init properties object");
+        }
+        return props;
+    }
+
     /**
      * Loads properties from a properties file that sits next to a given class on the classpath.
      * @param clazz Class relative to which to look for.
@@ -57,7 +102,7 @@ public class PropertiesUtils {
             p.load(is);
             return p;
         } catch (IOException e) {
-            throw new IllegalStateException("Error reading msfragger.properties from the classpath");
+            throw new IllegalStateException("Error reading properties from the classpath");
         }
     }
     
@@ -68,7 +113,7 @@ public class PropertiesUtils {
      */
     public static Properties loadPropertiesRemote(URI uri) {
         try {
-            String remoteText = org.apache.commons.io.IOUtils.toString(uri.toURL(), Charset.forName("UTF-8"));
+            String remoteText = org.apache.commons.io.IOUtils.toString(uri.toURL(), StandardCharsets.UTF_8);
             final Properties p = new Properties();
             p.load(new StringReader(remoteText));
             return p;
@@ -143,12 +188,36 @@ public class PropertiesUtils {
 
     }
 
+    public static Properties from(Path file) throws IOException {
+        Properties p = new Properties();
+        p.load(Files.newBufferedReader(file));
+        return p;
+    }
+
+    public static Properties from(Map<String, String> map) {
+        Properties p = new Properties();
+        for (Entry<String, String> e : map.entrySet()) {
+            if (StringUtils.isNullOrWhitespace(e.getKey()))
+                continue;
+            p.setProperty(e.getKey(), e.getValue());
+        }
+        return p;
+    }
+
+    public static Map<String, String> to(Properties props) {
+        Set<String> names = props.stringPropertyNames();
+        HashMap<String, String> map = new HashMap<>(names.size());
+        for (String name : names) {
+            map.put(name, props.getProperty(name));
+        }
+        return map;
+    }
+
     /**
      * Slurps the whole properties file into a string and replaces occasional 
      * backslashes with double ones. Keeps the backslashes that are allowed at
      * the end of the line in properties files.<br/>
-     * You probably don't need this method, use {@link #readProperties(java.io.InputStream) }
-     * instead.
+     * You probably don't need this method.
      * @param is  InputStream to read from. The stream is closed.
      * @return  A StringReader wrapped around the slurped string representation of the file.
      * @throws IOException 
@@ -175,5 +244,29 @@ public class PropertiesUtils {
         
         is.close();
         return new StringReader(sb.toString());
+    }
+
+    /**
+     * Try to load properties from one of URLs given.
+     * @return null if properties could not be obtained from any source. Getting empty property file
+     * doesn't count, it will be returned as null (and other sources will be tried first).
+     */
+    public static Properties fetchPropertiesFromRemote(List<String> urls) {
+        Properties props = null;
+        for (String url : urls) {
+            try {
+                Properties p = loadPropertiesRemote(URI.create(url));
+                if (p == null || p.isEmpty()) {
+                    log.debug("Didn't get properties from: {}", url);
+                    continue;
+                }
+                props = p;
+                log.debug("Got properties from: {}", url);
+                break;
+            } catch (Exception ex) {
+                log.debug("Failed to get properties from: {}\nReason: {}", url, ex.getMessage());
+            }
+        }
+        return props;
     }
 }

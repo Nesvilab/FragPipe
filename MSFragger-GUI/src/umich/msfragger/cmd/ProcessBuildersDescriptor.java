@@ -7,16 +7,25 @@ import java.util.List;
 public class ProcessBuildersDescriptor {
   public final List<ProcessBuilder> pbs;
   public final String name;
+  public final String fileCaptureStdout;
+  public final String fileCaptureStderr;
   public final int priority;
 
   public ProcessBuildersDescriptor(String name) {
-    this(name, 100);
+    this(name, 100, "", "");
   }
 
   public ProcessBuildersDescriptor(String name, int priority) {
+    this(name, priority, "", "");
+  }
+
+  public ProcessBuildersDescriptor(String name, int priority,
+      String fileCaptureStdout, String fileCaptureStderr) {
     this.name = name;
     this.priority = priority;
     this.pbs = new ArrayList<>();
+    this.fileCaptureStdout = fileCaptureStdout;
+    this.fileCaptureStderr = fileCaptureStderr;
   }
 
   public int size() {
@@ -36,4 +45,6 @@ public class ProcessBuildersDescriptor {
     pbs.addAll(c);
     return this;
   }
+
+
 }

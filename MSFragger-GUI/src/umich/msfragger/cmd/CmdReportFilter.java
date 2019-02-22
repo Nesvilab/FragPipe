@@ -15,9 +15,11 @@ import umich.msfragger.util.UsageTrigger;
 public class CmdReportFilter extends CmdBase {
 
   public static final String NAME = "ReportFilter";
+  public static final String FN_CAPTURE_STDOUT = "filter.log";
+  public static final String FN_CAPTURE_STDERR = "filter.log";
 
   public CmdReportFilter(boolean isRun, Path workDir) {
-    super(isRun, workDir);
+    super(isRun, workDir, FN_CAPTURE_STDOUT, FN_CAPTURE_STDERR);
   }
 
   @Override
@@ -26,7 +28,7 @@ public class CmdReportFilter extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      boolean isReportProteinLevelFdr, String textReportFilter,
+      String decoyTag, String textReportFilter,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
     pbs.clear();
@@ -45,12 +47,13 @@ public class CmdReportFilter extends CmdBase {
         String[] params = textReportFilter.trim().split("[\\s]+");
         cmd.addAll(Arrays.asList(params));
       }
+      cmd.add("--tag");
+      cmd.add(decoyTag);
       cmd.add("--pepxml");
       cmd.add(groupWd.toString());
-      if (isReportProteinLevelFdr) {
-        cmd.add("--protxml");
-        cmd.add(protxml.toString());
-      }
+      cmd.add("--protxml");
+      cmd.add(protxml.toString());
+
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(groupWd.toFile());
       pbs.add(pb);

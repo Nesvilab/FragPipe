@@ -16,13 +16,13 @@ plugins {
     id 'idea'
 
     id "com.jonaslasauskas.capsule" version "0.3.0"
-    id "com.github.johnrengelman.shadow" version "4.0.1"
+    id "com.github.johnrengelman.shadow" version "4.0.4"
     id 'edu.sc.seis.launch4j' version '2.4.4'
     id "com.github.ben-manes.versions" version "0.20.0"
 }
 
 group = 'com.github.chhh'
-version = '8.7'
+version = '9.0-RC10'
 
 description = """FragPipe - run complete proteomics analyses from the GUI"""
 
@@ -52,7 +52,12 @@ sourceSets {
             excludes = ['*.java']
             //excludes = ['*.java', '*.jar']
         }
-       // add tests sources here (this project didn't have them!)
+    }
+    // add tests sources here (this project didn't have them!)
+    test {
+        java {
+            srcDirs = ['test']
+        }
     }
 }
 
@@ -66,30 +71,29 @@ launch4j {
     icon = "${projectDir}/../logo/msfragger-icon-set_win_16-512.ico"
     outputDir = 'libs'
     dontWrapJar = false
-    downloadUrl = 'https://www.azul.com/downloads/zulu/'
-//    messagesStartupError = "Startup error"
-//    messagesLauncherError = "Launcher error"
-//    messagesBundledJreError = "Error with bundled JRE"
-//    messagesJreVersionError = "Java Runtime version error"
+    downloadUrl = 'https://adoptopenjdk.net/'
+    // messagesStartupError = "Startup error"
+    // messagesLauncherError = "Launcher error"
+    // messagesBundledJreError = "Error with bundled JRE"
+    // messagesJreVersionError = "Java Runtime version error"
 }
 
 dependencies {
-    // This dependency is found on compile classpath of this component and consumers.
-    //compile 'com.google.guava:guava:23.0'
-    compile 'org.apache.httpcomponents:httpcore:4.4.10'
-    compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6') {
-        //exclude group: 'commons-logging', module: 'commons-logging'
-        //exclude group: 'commons-codec', module: 'commons-codec'
-    }
+    compile 'org.apache.httpcomponents:httpcore:4.4.11'
+    compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7')
     compile 'commons-logging:commons-logging-api:1.1'
     
-    compile 'org.apache.httpcomponents:httpmime:4.5.6'
+    compile 'org.apache.httpcomponents:httpmime:4.5.7'
     compile 'org.apache.commons:commons-lang3:3.8.1'
     //compile group: 'commons-io', name: 'commons-io', version: '2.6'
     compile 'com.miglayout:miglayout-swing:5.2'
     compile 'io.reactivex:rxswing:0.27.0'
     compile 'org.greenrobot:eventbus:3.1.1'
+    compile 'org.jsoup:jsoup:1.11.3'
 
+    // logging
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
 
     // downloaded / precompiled jars
     compile fileTree(dir: 'libs', include: '*.jar')
@@ -110,6 +114,8 @@ capsule {
   }
 }
 
-task listJars << {
-    configurations.compile.each { File file -> println file.name }
+task listJars {
+    doLast {
+        configurations.compile.each { File file -> println file.name }
+    }
 }

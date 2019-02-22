@@ -27,24 +27,30 @@ import umich.msfragger.util.StringUtils;
  * @author Dmitry Avtonomov
  */
 public class MsfraggerVersionFetcherLocal implements VersionFetcher {
-    String downloadUrl = "";
-    
+
+    private Properties getProperties() {
+        return PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
+    }
+
     @Override
     public String fetchVersion() {
-        Properties props = PropertiesUtils.loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
+        final Properties props = getProperties();
         final String latestKnownVer = props.getProperty(MsfraggerProps.PROP_LATEST_VERSION);
         if (latestKnownVer == null) {
             throw new IllegalStateException(String.format("Property '%s' was not found in '%s' from local jar", 
                     MsfraggerProps.PROP_LATEST_VERSION, MsfraggerProps.PROPERTIES_FILE_NAME));
         }
-        downloadUrl = props.getProperty(MsfraggerProps.PROP_DOWNLOAD_URL);
-        
         return latestKnownVer;
     }
 
     @Override
     public String getDownloadUrl() {
-        return StringUtils.isNullOrWhitespace(downloadUrl) ? MsfraggerProps.DOWNLOAD_URL : downloadUrl;
+        Properties props = getProperties();
+        String url = props.getProperty(MsfraggerProps.PROP_DOWNLOAD_URL);
+        if (url == null) {
+            throw new IllegalStateException("Download URL should not be null in the local version fetcher");
+        }
+        return url;
     }
     
     @Override

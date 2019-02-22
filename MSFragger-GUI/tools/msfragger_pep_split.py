@@ -3,6 +3,7 @@ import datetime
 import itertools
 import mmap
 import os
+import os.path
 import pathlib
 import re
 import shlex
@@ -10,23 +11,36 @@ import shutil
 import subprocess
 import sys
 import typing
+import warnings
 
 import numpy as np
 import pandas as pd
 
 import multiprocessing as mp
 
-# argv = shlex.split("/storage/teog/bin/msfragger_pep_split.pyz 3 'java -Xmx311g -jar' /storage/teog/bin/msfragger-20180316.one-jar.jar fragger.params 20120321_EXQ1_MiBa_SA_HCC1143_1.mzML 20130504_EXQ3_MiBa_SA_Fib-1.mzML")
+sys.stdout.reconfigure(encoding='utf-8')
+sys.stderr.reconfigure(encoding='utf-8')
+
+
+def _warning(message, category=UserWarning, filename='', lineno=-1, file=None, line=None):
+	print(message)
+
+
+warnings.showwarning = _warning
+
+# argv = shlex.split("/storage/teog/bin/msfragger_pep_split.pyz 3 'java -Xmx311g -jar' /storage/teog/bin/MSFragger-latest.jar fragger.params 20120321_EXQ1_MiBa_SA_HCC1143_1.mzML 20130504_EXQ3_MiBa_SA_Fib-1.mzML")
 argv = sys.argv[1:]
 if len(argv) == 0:
-	print('python3 msfragger_pep_split.pyz 3 "java -Xmx10g -jar" msfragger-20180316.one-jar.jar fragger.params *.mzML')
+	print('Example usage:')
+	print('python3 msfragger_pep_split.pyz 3 "java -Xmx10g -jar" msfragger.jar fragger.params *.mzML')
 	sys.exit(0)
 
-'python3 ./msfragger_pep_split.pyz 3 "java -Xmx10g -jar" msfragger-20180316.one-jar.jar fragger.params *.mzML'
-'python3 msfragger_pep_split.pyz 3 "java -Xmx10g -jar" msfragger-20180316.one-jar.jar fragger.params *.mzML'
-'python3 main.py 3 "java -Xmx10g -jar" ./msfragger.jar fragger.params *.mzML'
-if 0:
-	argv = ['3', 'java -Xmx10g -XX:+UseParallelGC -jar', './msfragger.jar', 'fragger_open_forGuiCi.params', 'b1906_293T_proteinID_01A_QE3_122212.mzML', 'b1922_293T_proteinID_02A_QE3_122212.mzML']
+# python3 ./msfragger_pep_split.pyz 3 "java -Xmx10g -jar" msfragger-20180316.one-jar.jar fragger.params *.mzML
+# python3 msfragger_pep_split.pyz 3 "java -Xmx10g -jar" msfragger-20180316.one-jar.jar fragger.params *.mzML
+# python3 main.py 3 "java -Xmx10g -jar" ./msfragger.jar fragger.params *.mzML
+
+# argv = ['3', 'java -Xmx10g -XX:+UseParallelGC -jar', './msfragger.jar', 'fragger_open_forGuiCi.params', 'b1906_293T_proteinID_01A_QE3_122212.mzML', 'b1922_293T_proteinID_02A_QE3_122212.mzML']
+
 num_parts_str, jvm_cmd_str, msfragger_jar_path_str, param_path_str, *infiles_str = argv
 
 jvm_cmd = shlex.split(jvm_cmd_str)
@@ -47,7 +61,39 @@ tempdir_parts = [tempdir / str(i) for i in range(num_parts)]
 recomp_fasta = re.compile(r'^database_name\s*=\s*(.+?)$', re.MULTILINE)
 [fasta_path_str] = recomp_fasta.findall(params_txt)
 fasta_path = pathlib.Path(fasta_path_str)
-fasta_prots: typing.List[bytes] = [e.rstrip() for e in fasta_path.read_bytes()[1:].split(b'\n>')]
+if 0:
+	fasta_prots: typing.List[bytes] = [e.rstrip() for e in fasta_path.read_bytes()[1:].split(b'\n>')]
+
+with fasta_path.open('rb') as fo:
+	mm = mmap.mmap(fo.fileno(), 0, access=mmap.ACCESS_READ)
+	pos = [0] + [e.start() + 1 for e in re.compile(b'\n>').finditer(mm)]
+	startpos = [e[0] for e in np.array_split(pos, num_parts)]
+	file_parts_offsets = [slice(s, e) for s,e in zip(startpos, startpos[1:] + [len(mm)])]
+
+if 0:
+	import pathlib, typing, mmap, re, numpy as np, shutil, os
+	num_parts = 5
+	fasta_path = pathlib.Path('/home/ci/fasta/Human_canon_iso_uniprot_Common_Contaminant_20140722_1_rev.fasta')
+	##############
+	pti = [mm[s] for s in file_parts_offsets]
+	fasta_prots: typing.List[bytes] = [e.rstrip() for e in fasta_path.read_bytes()[1:].split(b'\n>')]
+	pti2 = [b''.join(b'>' + fasta_part + b'\n')
+			for fasta_part in np.array_split(np.array(fasta_prots, object), num_parts)]
+	print(pti == pti2)
+
+	fasta_part_paths: typing.List[pathlib.Path] = [pathlib.Path(f'{fasta_path.name}_{i}') for i in range(num_parts)]
+	with fasta_path.open('rb') as fo:
+		for s, fasta_part_path in zip(file_parts_offsets, fasta_part_paths):
+			with pathlib.Path(fasta_part_path).open('wb') as f:
+				mm = mmap.mmap(fo.fileno(), 0 if s.stop is None else s.stop, access=mmap.ACCESS_READ)
+				mm.seek(s.start)
+				shutil.copyfileobj(mm, f)
+	with fasta_path.open('rb') as fo:
+		for s, fasta_part_path in zip(file_parts_offsets, fasta_part_paths):
+			with pathlib.Path(fasta_part_path).open('wb') as f:
+				os.sendfile(f.fileno(), fo.fileno(), s.start, s.stop - s.start)
+	pti == pti2 == [fasta_part_path.read_bytes() for fasta_part_path in fasta_part_paths]
+
 fasta_part_paths: typing.List[pathlib.Path] = [tempdir / str(i) / f'{fasta_path.name}' for i in range(num_parts)]
 param_part_paths: typing.List[pathlib.Path] = [tempdir / str(i) / param_path.name for i in range(num_parts)]
 infiles_name = [e.resolve() for e in infiles]
@@ -58,22 +104,38 @@ cmds = [msfragger_cmd + [param_part_path.name, *infiles_name, '--partial', f'{i}
 generate_expect_cmd = msfragger_cmd + ['--generate_expect_functions'] + [f.stem + '_scores_histogram.tsv' for f in infiles]
 
 def set_up_directories():
+	try:
+		shutil.rmtree(tempdir)
+	except FileNotFoundError:
+		pass
+	else:
+		print(f'deleted existing temporary directory “{tempdir.resolve(strict=False)}”', flush=True)
 	tempdir.mkdir()
 	for e in tempdir_parts:
 		e.mkdir()
-	for fasta_part, fasta_part_path in zip(np.array_split(np.array(fasta_prots, object), num_parts), fasta_part_paths):
-		with pathlib.Path(fasta_part_path).open('wb') as f:
-			f.writelines(b'>' + e + b'\n' for e in fasta_part)
+	if 0:
+		for fasta_part, fasta_part_path in zip(np.array_split(np.array(fasta_prots, object), num_parts), fasta_part_paths):
+			with pathlib.Path(fasta_part_path).open('wb') as f:
+				f.writelines(b'>' + e + b'\n' for e in fasta_part)
+
+	with fasta_path.open('rb') as fo:
+		for s, fasta_part_path in zip(file_parts_offsets, fasta_part_paths):
+			with pathlib.Path(fasta_part_path).open('wb') as f:
+				mm = mmap.mmap(fo.fileno(), 0 if s.stop is None else s.stop, access=mmap.ACCESS_READ)
+				mm.seek(s.start)
+				shutil.copyfileobj(mm, f)
 
 	for param_part_path, fasta_name in zip(param_part_paths, fasta_part_paths):
 		param_part_path.write_text(
 			recomp_fasta.sub(f'database_name = {fasta_name.name}', params_txt))
 
+
 def run_msfragger():
-	for cmd, cwd in zip(cmds, tempdir_parts):
+	for i, (cmd, cwd) in enumerate(zip(cmds, tempdir_parts), start=1):
+		print(f'STARTED: slice {i} of {len(cmds)}', flush=True)
 		subprocess.run(list(map(os.fspath, cmd)), cwd=cwd, check=True)
-	# procs = [subprocess.Popen(cmd, cwd=cwd) for cmd, cwd in zip(cmds, tempdir_parts)]
-	# [p.wait() for p in procs]
+		print(f'DONE: slice {i} of {len(cmds)}', flush=True)
+
 
 ##########
 def write_combined_scores_histo():
@@ -81,7 +143,7 @@ def write_combined_scores_histo():
 		scores_histos = [sum(np.loadtxt(ee / (e.stem + '_scores_histogram.tsv'), dtype=np.uint, delimiter='\t', comments=None) for ee in tempdir_parts)
 						 for e in infiles]
 
-	scores_histos = [sum(pd.read_table(ee / (e.stem + '_scores_histogram.tsv'), dtype=np.uint64, delimiter='\t', header=None).values for ee in tempdir_parts)
+	scores_histos = [sum(pd.read_csv(ee / (e.stem + '_scores_histogram.tsv'), dtype=np.uint64, delimiter='\t', header=None, sep='\t').values for ee in tempdir_parts)
 					 for e in infiles]
 	for f, scores_histo in zip(infiles, scores_histos):
 		np.savetxt(tempdir / (f.stem + '_scores_histogram.tsv'), scores_histo, delimiter='\t', fmt='%d')
@@ -122,11 +184,11 @@ if 0:
 	ss=b'<search_hit peptide="RSPMAFIPFSAGPR" massdiff="-346.1690" calc_neutral_pep_mass="1532.7920" peptide_next_aa="N" num_missed_cleavages="1" num_tol_term="2" num_tot_proteins="1" tot_num_ions="52" hit_rank="13" num_matched_ions="11" protein="sp|P98187|CP4F8_HUMAN Cytochrome P450 4F8 OS=Homo sapiens GN=CYP4F8 PE=1 SV=1" peptide_prev_aa="K" is_rejected="0">'
 	' '.join(e for e in shlex.split(ss.decode()) if not e.startswith(('hit_rank=','protein=')))
 
-	aa0 = re.compile(b'(?<=hit_rank=")(\d+)(?=" )').sub(b'{}', ss)
+	aa0 = re.compile(rb'(?<=hit_rank=")(\d+)(?=" )').sub(b'{}', ss)
 	re.compile(b'(?<=protein=")(.+?)(?=" )').sub(b'{}', aa0)
-	re.compile(b'(?<=hit_rank=")(\d+)(?=")').sub(b'{}', ss)==re.compile(b'hit_rank="(\d+)"').sub(b'hit_rank="{}"', ss)
+	re.compile(rb'(?<=hit_rank=")(\d+)(?=")').sub(b'{}', ss)==re.compile(rb'hit_rank="(\d+)"').sub(b'hit_rank="{}"', ss)
 
-re_search_hit_first_line = re.compile(b'(?<=hit_rank=")(\d+)(?=" )'
+re_search_hit_first_line = re.compile(rb'(?<=hit_rank=")(\d+)(?=" )'
 									  b'|'
 									  b'(?<=protein=")(.+?)(?=" )')
 re_search_hit = re.compile(b'^(<search_hit.+?^</search_hit>)', re.DOTALL | re.MULTILINE)
@@ -136,6 +198,9 @@ def step1(spec_queries: typing.Tuple[bytes]) -> (bytes, typing.List[bytes]):
 	'get all search hits and search hit headers'
 	spec_query_head0 = set(spectrum_query.splitlines()[0] for spectrum_query in spec_queries if len(spectrum_query) > 0)
 	if len(spec_query_head0) == 0:
+		return None
+	if len(spec_query_head0) > 1:  # skip scan when we have multiple charges
+		warnings.warn("Input file contains MS/MS scans with no precursor charge state information. All such scans will be skipped when using Split Database option.")
 		return None
 	spec_query_head, = spec_query_head0
 	search_hits = sum([re_search_hit.findall(spectrum_query) for spectrum_query in spec_queries], [])
@@ -166,7 +231,7 @@ re_massdiff_scores.match(b'''<search_hit peptide="MSKDKANMQHR" massdiff="0.0033"
 <search_score name="expect" value="2.001e-01"/>
 </search_hit>
 ''').groups()
-re_update_search_hit = re.compile(b'''\A(.+hit_rank=")(?:.+?)("(?s:.+?))
+re_update_search_hit = re.compile(rb'''\A(.+hit_rank=")(?:.+?)("(?s:.+?))
 <search_score name="hyperscore" value="(?:.+?)"/>
 <search_score name="nextscore" value="(?:.+?)"/>
 <search_score name="expect" value="(?:.+?)"/>
@@ -224,7 +289,8 @@ def new_spec(expect_func, spectrum_query_parts):
 re_pepxml_header = re.compile(b'''(.+?)^</search_summary>''', re.DOTALL|re.MULTILINE)
 def get_pepxml_header(p: pathlib.Path):
 	with p.open('rb') as f:
-		mm= mmap.mmap(f.fileno(), 10_000, access=mmap.ACCESS_READ)
+		mmap_length = min(10_000, os.path.getsize(p))
+		mm= mmap.mmap(f.fileno(), mmap_length, access=mmap.ACCESS_READ)
 		ret = re_pepxml_header.match(mm).group()
 		ret0 = re.compile(b'date="(.+?)"').sub(b'date="%b"', ret)
 		return re.compile(b'summary_xml="(.+?)"').sub(b'summary_xml="%b"', ret0)

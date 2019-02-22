@@ -1,7 +1,8 @@
 package umich.msfragger.cmd;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
-import java.nio.file.FileSystems;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,17 +13,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.swing.Box;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import umich.msfragger.gui.FraggerPanel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
+import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.protproph.ProteinProphetParams;
+import umich.msfragger.util.FileListing;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.UsageTrigger;
 
 public class CmdProteinProphet extends CmdBase {
+  private static final Logger log = LoggerFactory.getLogger(CmdProteinProphet.class);
 
   public static final String NAME = "ProteinProphet";
 
@@ -76,82 +88,131 @@ public class CmdProteinProphet extends CmdBase {
     return m;
   }
 
-  public boolean configure(Component comp, FraggerPanel fp, UsageTrigger usePhilosopher,
-      String txtProteinProphetCmdLineOpts, boolean isProteinProphetInteractStar,
+  private List<Path> findOldFilesForDeletion(List<Path> outputs) {
+    Set<Path> outputDirs = outputs.stream().map(Path::getParent).collect(Collectors.toSet());
+    final Pattern regex = Pattern.compile(".+?\\.prot\\.xml$", Pattern.CASE_INSENSITIVE);
+    final List<Path> toDelete = new ArrayList<>();
+    for (Path dir : outputDirs) {
+      FileListing fl = new FileListing(dir, regex);
+      fl.setRecursive(false);
+      fl.setIncludeDirectories(false);
+      toDelete.addAll(fl.findFiles());
+    }
+    return toDelete;
+  }
+
+  /**
+   * Asks user confirmation before deleting the files.
+   * Shows all the file paths to be deleted.
+   */
+  private boolean deleteFiles(Component comp, List<Path> forDeletion) {
+    if (forDeletion == null || forDeletion.isEmpty())
+      return true;
+
+    String[][] data = new String[forDeletion.size()][1];
+    int index = -1;
+    for (Path path : forDeletion) {
+      data[++index][0] = path.toString();
+    }
+
+    if (!forDeletion.isEmpty()) {
+      DefaultTableModel model = new DefaultTableModel(data, new String[] {"To be deleted"});
+      JTable table = new JTable(model);
+      table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+      JPanel panel = new JPanel(new BorderLayout());
+      panel.add(new JLabel("<html>Found " + forDeletion.size() + " old prot-xml files.<br/>"
+          + "This might cause problems depending on the selected options.<br/>"
+          + "It's recommended to delete the files first.<br/><br/>"
+          + "<ul><li><b>Yes</b> - delete files now</li>"
+          + "<li><b>No</b> - continue without deleting files</li>"
+          + "<li><b>Cancel</b> - stop and don't run anything</li></ul>"
+      ), BorderLayout.NORTH);
+      panel.add(Box.createVerticalStrut(100), BorderLayout.CENTER);
+      panel.add(new JScrollPane(table), BorderLayout.CENTER);
+
+      String[] options = {"Yes - Delete now", "No - Continue as is", "Cancel"};
+      int confirmation = JOptionPane
+          .showOptionDialog(comp, panel, "Delete the files?",
+              JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+      switch (confirmation) {
+        case 0:
+          for (Path path : forDeletion) {
+            try {
+              Files.deleteIfExists(path);
+            } catch (IOException e) {
+              log.error("Error while trying to delete old files: {}", e.getMessage());
+              throw new IllegalStateException(e);
+            }
+          }
+          return true;
+        case 1:
+          return true;
+        case 2:
+          return false;
+      }
+    }
+    return false;
+  }
+
+  public boolean configure(Component comp, UsageTrigger usePhilosopher,
+      String txtProteinProphetCmdLineOpts,
       boolean isProcessGroupsSeparately, Map<InputLcmsFile, Path> pepxmlFiles) {
 
     pbs.clear();
+
+    // check for existence of old files
+    final Map<LcmsFileGroup, Path> outputs = outputs(pepxmlFiles, isProcessGroupsSeparately);
+    final List<Path> oldFilesForDeletion = findOldFilesForDeletion(new ArrayList<>(outputs.values()));
+    if (!deleteFiles(comp, oldFilesForDeletion)) {
+      return false;
+    }
+
     ProteinProphetParams proteinProphetParams = new ProteinProphetParams();
     proteinProphetParams.setCmdLineParams(txtProteinProphetCmdLineOpts);
 
-    if (isProteinProphetInteractStar) {
-      // when that option is used all "interact-*.pep.xml" files must be in the same location
-      Set<Path> pepxmlFileLocations = pepxmlFiles.values().stream().map(Path::getParent)
-          .collect(Collectors.toSet());
-      if (pepxmlFileLocations.size() > 1) {
-        JOptionPane.showMessageDialog(comp, "[Protein Prophet]\n"
-            + "When \"interact-*.pep.xml\" option is used all input\n"
-            + "pepxml files must be in the same folder. Which in turn\n"
-            + "means all the input files must belong to the same experiment/group.",
-            "ProteinProphet Error", JOptionPane.WARNING_MESSAGE);
-        return false;
-      }
+    Map<LcmsFileGroup, Path> groupToProtxml = outputs(pepxmlFiles, isProcessGroupsSeparately);
 
-      Path location = pepxmlFileLocations.iterator().next();
-
-      List<String> cmd = createCmdStub(usePhilosopher, location, proteinProphetParams);
-
-      final String sep = FileSystems.getDefault().getSeparator();
-      final String interactsGlob = location.toString() + sep + "interact-*.pep.xml";
-      cmd.add(interactsGlob);
-      ProcessBuilder pb = new ProcessBuilder(cmd);
-      pb.directory(location.toFile());
-      pbs.add(pb);
-
-      // END: isProteinProphetInteractStar
-    } else {
-      Map<LcmsFileGroup, Path> groupToProtxml = outputs(pepxmlFiles, isProcessGroupsSeparately);
-
-      if (isProcessGroupsSeparately) {
-        for (Entry<LcmsFileGroup, Path> e : groupToProtxml.entrySet()) {
-          LcmsFileGroup group = e.getKey();
-          Path protxml = e.getValue();
-          List<String> pepxmlsPaths = pepxmlFiles.entrySet().stream()
-              .filter(pepxml -> pepxml.getKey().experiment.equals(group.name))
-              .map(pepxml -> pepxml.getValue().getFileName().toString())
-              .collect(Collectors.toList());
-          List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
-          cmd.addAll(pepxmlsPaths);
-          ProcessBuilder pb = new ProcessBuilder(cmd);
-          pb.directory(protxml.getParent().toFile());
-          pbs.add(pb);
-        }
-
-        // END: isProcessGroupsSeparately
-      } else {
-
-        Set<Path> interactProtXmls = new HashSet<>(groupToProtxml.values());
-        if (interactProtXmls.size() > 1) {
-          JOptionPane.showMessageDialog(comp, "[Protein Prophet]\n"
-              + "Report to developers, more than one interact protxml file when\n"
-              + "processing experimental groups together.");
-          return false;
-        }
-        Path protxml = interactProtXmls.iterator().next();
-        if (!protxml.getParent().equals(wd)) {
-          throw new IllegalStateException("Protxml not in global output directory when groups processed together.");
-        }
-        List<String> pepxmlsPaths = pepxmlFiles.entrySet().stream()
-            .map(pepxml -> pepxml.getValue().toString())
+    if (isProcessGroupsSeparately) {
+      for (Entry<LcmsFileGroup, Path> e : groupToProtxml.entrySet()) {
+        LcmsFileGroup group = e.getKey();
+        Path protxml = e.getValue();
+        List<String> pepxmlFns = pepxmlFiles.entrySet().stream()
+            .filter(pepxml -> pepxml.getKey().experiment.equals(group.name))
+            .map(pepxml -> pepxml.getValue().getFileName().toString())
+            .distinct()
             .collect(Collectors.toList());
         List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
-        cmd.addAll(pepxmlsPaths);
+        cmd.addAll(pepxmlFns);
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(protxml.getParent().toFile());
         pbs.add(pb);
-
-        // END: !isProcessGroupsSeparately
       }
+
+      // END: isProcessGroupsSeparately
+    } else {
+
+      Set<Path> interactProtXmls = new HashSet<>(groupToProtxml.values());
+      if (interactProtXmls.size() > 1) {
+        JOptionPane.showMessageDialog(comp, "[Protein Prophet]\n"
+            + "Report to developers, more than one interact protxml file when\n"
+            + "processing experimental groups together.");
+        return false;
+      }
+      Path protxml = interactProtXmls.iterator().next();
+      if (!protxml.getParent().equals(wd)) {
+        throw new IllegalStateException("Protxml not in global output directory when groups processed together.");
+      }
+      List<String> pepxmlsPaths = pepxmlFiles.entrySet().stream()
+          .map(pepxml -> pepxml.getValue().toString())
+          .distinct()
+          .collect(Collectors.toList());
+      List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
+      cmd.addAll(pepxmlsPaths);
+      ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.directory(protxml.getParent().toFile());
+      pbs.add(pb);
+
+      // END: !isProcessGroupsSeparately
     }
 
 
@@ -221,5 +282,10 @@ public class CmdProteinProphet extends CmdBase {
       cmd.addAll(opts);
     }
     return cmd;
+  }
+
+  @Override
+  public int getPriority() {
+    return 96;
   }
 }

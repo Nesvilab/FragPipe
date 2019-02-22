@@ -30,7 +30,7 @@ public class CmdReportDbAnnotate extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger binPhilosopher,
-      String textReportAnnotate, String dbPath,
+      String dbPath, String decoyTag,
       Map<InputLcmsFile, Path> pepxmlFiles, Map<LcmsFileGroup, Path> protxmlFiles) {
 
     pbs.clear();
@@ -51,10 +51,8 @@ public class CmdReportDbAnnotate extends CmdBase {
       cmd.add(PhilosopherProps.CMD_DATABASE);
       cmd.add("--annotate");
       cmd.add(dbPath);
-      if (!StringUtils.isNullOrWhitespace(textReportAnnotate)) {
-        String[] params = textReportAnnotate.trim().split("[\\s]+");
-        cmd.addAll(Arrays.asList(params));
-      }
+      cmd.add("--prefix");
+      cmd.add(decoyTag);
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(pepxmlDir.toFile());
       pbs.add(pb);

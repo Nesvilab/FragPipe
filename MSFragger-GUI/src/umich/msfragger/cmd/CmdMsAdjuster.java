@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.JOptionPane;
-import umich.msfragger.gui.FraggerPanel;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcProps;
+import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.util.JarUtils;
 import umich.msfragger.util.StringUtils;
 
@@ -30,7 +30,7 @@ public class CmdMsAdjuster extends CmdBase {
     return !isCleanup ? NAME : NAME + " (Cleanup)";
   }
 
-  public boolean configure(Component comp, Path jarFragpipe, FraggerPanel fp,
+  public boolean configure(Component comp, Path jarFragpipe, FraggerMigPanel fp,
       List<InputLcmsFile> lcmsFiles, boolean doCleanup, int priority) {
     pbs.clear();
     isCleanup = doCleanup;

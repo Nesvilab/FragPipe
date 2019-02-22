@@ -21,8 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +45,7 @@ public class Props {
     private static final Pattern DISABLED_PROP = Pattern.compile("^#\\s*([^\\s]+)\\s*=([^#]+)(?:\\s*#\\s*(.+))?.*");
     private static final Pattern ENABLED_PROP = Pattern.compile("^\\s*([^\\s]+)\\s*=([^#]*)(?:\\s*#\\s*(.+))?.*");
     private LinkedHashMap<String, Prop> map = new LinkedHashMap<>();
+    private ArrayList<String> propOrdering = new ArrayList<>();
     private LinkedHashMap<String, String> comments = new LinkedHashMap<>();
 
     public Props() {
@@ -48,7 +54,11 @@ public class Props {
     public Props(Map<String, String> comments) {
         this.comments.putAll(comments);
     }
-    
+
+    public Map<String, Prop> getMap() {
+        return map;
+    }
+
     /**
      * Same as {@link #readProps(java.io.InputStream) }.
      * @param is
@@ -93,8 +103,8 @@ public class Props {
     }
     
     public void clearProps() {
+        this.propOrdering.clear();
         this.map.clear();
-        this.comments.clear();
     }
     
     public void clearComments() {
@@ -145,13 +155,16 @@ public class Props {
         
         
     }
-    
+
+    public void setOrdering(List<String> order) {
+        this.propOrdering.clear();
+        this.propOrdering.addAll(new LinkedHashSet<>(order));
+    }
     
     /**
      * Loads properties from a stream. Typically a FileInputStream or an input 
      * stream that you get via Class.getResourceAsStream() method.
      * @param is  Stream is closed after reading.
-     * @param properties  
      * @throws IOException 
      */
     private void readProps(InputStream is) throws IOException {
@@ -159,9 +172,11 @@ public class Props {
         is.close();
         for (String line : allLines) {
             line = line.trim();
-            if (StringUtils.isNullOrWhitespace(line))
-                continue;
-            
+            if (StringUtils.isNullOrWhitespace(line)) {
+              propOrdering.add("");
+              continue;
+            }
+
             if (line.contains("mass_tol")) {
                     int a = 1;
                 }
@@ -181,10 +196,13 @@ public class Props {
                         continue;
                     Prop p = new Prop(name, value, false, m.group(3));
                     map.put(p.name, p);
+                    propOrdering.add(p.name);
+                } else {
+                    propOrdering.add(line);
                 }
                 continue;
             }
-            
+
             Matcher m = ENABLED_PROP.matcher(line);
             if (m.matches()) {
                 String name = m.group(1).trim();
@@ -195,45 +213,54 @@ public class Props {
                         value = "";
                 Prop p = new Prop(name, value, true, m.group(3));
                 map.put(p.name, p);
+                propOrdering.add(p.name);
             }
         }
     }
-    
+
+    private void writeProps(Writer w) throws IOException {
+        LinkedHashSet<String> orederedKeys = new LinkedHashSet<>(propOrdering);
+        orederedKeys.addAll(map.keySet());
+
+        for (final String name : orederedKeys) {
+            if (name.isEmpty() || name.startsWith(COMMENT_SYMBOL)) {
+                w.write(name + "\n");
+                continue;
+            }
+            Prop prop = map.get(name);
+            if (StringUtils.isNullOrWhitespace(prop.value)) {
+                continue;
+            }
+            if (!prop.isEnabled)
+                w.write(COMMENT_SYMBOL + " ");
+            w.write(name);
+            w.write(" = ");
+            w.write(prop.value);
+            if (comments != null && !comments.isEmpty()) {
+                String comment = comments.get(name);
+                if (!StringUtils.isNullOrWhitespace(comment)) {
+                    w.write("\t\t\t# ");
+                    w.write(comment);
+                }
+            } else if (!StringUtils.isNullOrWhitespace(prop.comment)) {
+                w.write("\t\t\t# ");
+                w.write(prop.comment);
+            }
+            w.write("\n");
+        }
+        w.write("\n");
+        w.flush();
+    }
+
     /**
      * Writes to the stream (buffers it), includes comments after each parameter.
      * @param os  The stream is closed after writing.
-     * @param properties
-     * @param comments
      * @throws IOException 
      */
     private void writeProps(OutputStream os) throws IOException {
-        Set<Map.Entry<String, Prop>> entries = map.entrySet();
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-        for (Map.Entry<String, Prop> e : entries) {
-            Prop prop = e.getValue();
-            if (StringUtils.isNullOrWhitespace(prop.value)) {
-              continue;
-            }
-            if (!prop.isEnabled)
-                bw.write(COMMENT_SYMBOL + " ");
-            bw.write(e.getKey());
-            bw.write(" = ");
-            bw.write(prop.value);
-            if (comments != null && !comments.isEmpty()) {
-                String comment = comments.get(e.getKey());
-                if (!StringUtils.isNullOrWhitespace(comment)) {
-                    bw.write("\t\t\t# ");
-                    bw.write(comment);
-                }
-            } else if (!StringUtils.isNullOrWhitespace(prop.comment)) {
-                bw.write("\t\t\t# ");
-                bw.write(prop.comment);
-            }
-            bw.write("\n");
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"))) {
+            writeProps(bw);
         }
-        bw.write("\n");
-        
-        bw.flush();
         os.close();
     }
 }

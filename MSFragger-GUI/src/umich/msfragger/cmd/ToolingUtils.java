@@ -25,7 +25,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
-import umich.msfragger.Version;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.params.ThisAppProps;
@@ -166,7 +165,7 @@ public class ToolingUtils {
     if (path != null) {
       return path;
     }
-    ResourceBundle bundle = ResourceBundle.getBundle(Version.PATH_BUNDLE);
+    ResourceBundle bundle = ThisAppProps.getLocalBundle();
     String winName = bundle.getString("default.philosopher.win"); // NOI18N
     String nixName = bundle.getString("default.philosopher.nix"); // NOI18N
     return OsUtils.isWindows() ? winName : nixName;
@@ -185,7 +184,7 @@ public class ToolingUtils {
     }
 
     String binaryName;
-    ResourceBundle bundle = ResourceBundle.getBundle(Version.PATH_BUNDLE); // NOI18N
+    ResourceBundle bundle = ThisAppProps.getLocalBundle();
     binaryName = OsUtils.isWindows() ? bundle.getString("default.msconvert.win")
         : bundle.getString("default.msconvert.nix");
     String testedBinaryPath = testBinaryPath(binaryName);

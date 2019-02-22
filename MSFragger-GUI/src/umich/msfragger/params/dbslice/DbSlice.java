@@ -2,16 +2,15 @@ package umich.msfragger.params.dbslice;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import umich.msfragger.messages.MessageToolInit;
 import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.util.CheckResult;
 import umich.msfragger.util.Installed;
 import umich.msfragger.util.JarUtils;
-import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.PythonModule;
 import umich.msfragger.util.VersionComparator;
@@ -20,7 +19,7 @@ public class DbSlice {
   private static DbSlice instance = new DbSlice();
   public static DbSlice get() { return instance; }
   public static final String DEFAULT_MESSAGE = "Python 3 with numpy, pandas is "
-      + "needed for DB Slicing functionality.";
+      + "needed for DB Splitting functionality.";
 
   private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
   private static final String SCRIPT_SPEC_LIB_GEN = "/speclib/gen_con_spec_lib.py";
@@ -53,43 +52,22 @@ public class DbSlice {
     return scriptDbslicingPath;
   }
 
-  public static abstract class Message {
-    public final boolean append;
-    public final boolean isError;
-    public final String text;
-
-    public Message(boolean append, boolean isError, String text) {
-      this.append = append;
-      this.isError = isError;
-      this.text = text;
-    }
-
-    @Override
-    public String toString() {
-      return "Message{" +
-          "append=" + append +
-          ", isError=" + isError +
-          ", text='" + text + '\'' +
-          '}';
-    }
-  }
-
-  public static class Message1 extends Message {
+  public static class Message1 extends MessageToolInit {
     public Message1(boolean append, boolean isError, String text) {
       super(append, isError, text);
     }
   }
 
-  public static class Message2 extends Message {
+  public static class Message2 extends MessageToolInit {
     public Message2(boolean append, boolean isError, String text) {
       super(append, isError, text);
     }
   }
 
-  public static class InitDone {
+  public static class MessageInitDone {
     public final boolean isSuccess;
 
-    public InitDone(boolean isSuccess) {
+    public MessageInitDone(boolean isSuccess) {
       this.isSuccess = isSuccess;
     }
   }
@@ -158,7 +136,7 @@ public class DbSlice {
 
     final boolean isInitSuccess = isPythonOk && isModulesInstalled && isUnpacked && isFraggerOk;
     isInitialized = isInitSuccess;
-    EventBus.getDefault().postSticky(new InitDone(isInitSuccess));
+    EventBus.getDefault().postSticky(new MessageInitDone(isInitSuccess));
   }
 
   private CheckResult checkPythonVer() throws Exception {
@@ -202,6 +180,9 @@ public class DbSlice {
         case NO:
           sb.append(" - No");
           break;
+        case INSTALLED_WITH_IMPORTERROR:
+          sb.append(" - Error loading module");
+          break;
         case UNKNOWN:
           sb.append(" - N/A");
           break;
@@ -214,7 +195,7 @@ public class DbSlice {
   private CheckResult unpack() throws Exception {
     for (String rl : RESOURCE_LOCATIONS) {
       Path subDir = Paths.get(UNPACK_SUBDIR_IN_TEMP);
-      Path path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, false);
+      Path path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, true);
       // record the location of the main script that we'll be running
       if (SCRIPT_SPLITTER.equals(rl))
         scriptDbslicingPath = path;
@@ -224,16 +205,7 @@ public class DbSlice {
 
   private CheckResult checkFraggerVer(String fraggerVer) {
     VersionComparator cmp = new VersionComparator();
-    // for the lack of a better default, we'll just hard code this here
-    String minFraggerVer = "20180924";
-    Properties props = PropertiesUtils
-        .loadPropertiesLocal(MsfraggerProps.class, MsfraggerProps.PROPERTIES_FILE_NAME);
-    if (props != null)
-      minFraggerVer = props.getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, minFraggerVer);
-    if (minFraggerVer == null) {
-      throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_SLICING +
-          " property needs to be in the local properties: " + MsfraggerProps.PROPERTIES_FILE_NAME);
-    }
+    String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, "20180924");
     int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
 
     if (fraggerVersionCmp >= 0)

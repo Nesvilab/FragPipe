@@ -16,6 +16,8 @@
  */
 package umich.msfragger.params.enums;
 
+import static umich.msfragger.params.fragger.MsfraggerParams.PROP_precursor_mass_units;
+
 /**
  *
  * @author Dmitry Avtonomov
@@ -32,5 +34,16 @@ public enum MassTolUnits {
 
     public int valueInParamsFile() {
         return val;
+    }
+
+    public static MassTolUnits fromParamsFileRepresentation(String fileRepresentation) {
+        int v = Integer.parseInt(fileRepresentation);
+        for (int i = 0; i < MassTolUnits.values().length; i++) {
+            MassTolUnits u = MassTolUnits.values()[i];
+            if (u.valueInParamsFile() == v)
+                return u;
+        }
+        throw new IllegalStateException("Value for MassTolUnits stored in params file for property " + PROP_precursor_mass_units +
+            " does not correspond to enum values of MassTolUnits.");
     }
 }

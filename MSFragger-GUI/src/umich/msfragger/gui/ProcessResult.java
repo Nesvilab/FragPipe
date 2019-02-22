@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2018 Dmitry Avtonomov
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,58 +16,154 @@
  */
 package umich.msfragger.gui;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import umich.msfragger.cmd.ProcessBuilderInfo;
+import umich.msfragger.util.StringUtils;
 
-/**
- *
- * @author Dmitry Avtonomov
- */
-class ProcessResult {
-    private ProcessBuilder processBuilder;
+public class ProcessResult implements AutoCloseable {
 
-    public ProcessResult(ProcessBuilder processBuilder) {
-        this.processBuilder = processBuilder;
-    }
-    private boolean started;
-    private Path workingDir;
-    private StringBuilder output = new StringBuilder();
-    private Integer exitCode;
+  private final ProcessBuilderInfo pbi;
 
-    public Path getWorkingDir() {
-        return workingDir;
-    }
+  private boolean started;
+  private StringBuilder output = new StringBuilder();
+  private Integer exitCode;
+  private Process proc;
+  private InputStream stdOut;
+  private InputStream stdErr;
+  private BufferedOutputStream stdErrRedirect;
+  private BufferedOutputStream stdOutRedirect;
 
-    public void setWorkingDir(Path workingDir) {
-        this.workingDir = workingDir;
-    }
+  public ProcessResult(ProcessBuilderInfo pbi) {
+    this.pbi = pbi;
+  }
 
-    public ProcessBuilder getProcessBuilder() {
-        return processBuilder;
-    }
-
-    public boolean isStarted() {
-        return started;
+  public Process start() throws IOException {
+    stdOutRedirect = redirectToFile(pbi.pb, pbi.fnStdOut);
+    if (pbi.fnStdErr != null && pbi.fnStdErr.equals(pbi.fnStdOut)) {
+      stdErrRedirect = stdOutRedirect;
+    } else {
+      stdErrRedirect = redirectToFile(pbi.pb, pbi.fnStdErr);
     }
 
-    public void setStarted(boolean started) {
-        this.started = started;
-    }
+    proc = pbi.pb.start();
+    stdOut = proc.getInputStream();
+    stdErr = proc.getErrorStream();
+    started = true;
+    return proc;
+  }
 
-    public StringBuilder getOutput() {
-        return output;
+  @Override
+  public void close() throws Exception {
+    if (stdOutRedirect != null) {
+      stdOutRedirect.close();
     }
+    if (stdErrRedirect != null) {
+      stdErrRedirect.close();
+    }
+  }
 
-    public void setOutput(StringBuilder output) {
-        this.output = output;
-    }
+  public Process getProcess() {
+    return proc;
+  }
 
-    public Integer getExitCode() {
-        return exitCode;
-    }
+  public byte[] pollStdOut() throws IOException {
+    return poll(stdOut);
+  }
 
-    public void setExitCode(Integer exitCode) {
-        this.exitCode = exitCode;
+  public byte[] pollStdErr() throws IOException {
+    return poll(stdErr);
+  }
+
+  private static byte[] poll(InputStream is) throws IOException {
+    if (is == null) {
+      return null;
     }
-    
-    
+    int available = is.available();
+    if (available > 0) {
+      byte[] bytes = new byte[available];
+      int read = is.read(bytes);
+      return bytes;
+    }
+    return null;
+  }
+
+  /**
+   * Creates a new file output stream to the
+   */
+  private static BufferedOutputStream redirectToFile(ProcessBuilder pb, String fn) throws IOException {
+    if (pb == null || pb.directory() == null || StringUtils.isNullOrWhitespace(fn)) {
+      return null;
+    }
+    final Path pathLogOut = pb.directory().toPath().resolve(fn);
+    if (!Files.exists(pathLogOut.getParent())) {
+      Files.createDirectories(pathLogOut);
+    }
+    return new BufferedOutputStream(Files
+        .newOutputStream(pathLogOut, StandardOpenOption.CREATE,
+            StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE));
+  }
+
+  public ProcessBuilder getProcessBuilder() {
+    return pbi.pb;
+  }
+
+  public ProcessBuilderInfo getProcessBuilderInfo() {
+    return pbi;
+  }
+
+  public boolean isStarted() {
+    return started;
+  }
+
+  public StringBuilder getOutput() {
+    return output;
+  }
+
+  /**
+   * @return String representation of whatever has been appended, not the whole string after
+   * appending!
+   */
+  public String appendOut(byte[] bytes) throws IOException {
+    return append(bytes, stdOutRedirect);
+  }
+
+  /**
+   * @return String representation of whatever has been appended, not the whole string after
+   * appending!
+   */
+  public String appendErr(byte[] bytes) throws IOException {
+    return append(bytes, stdErrRedirect);
+  }
+
+  /**
+   * @return String representation of whatever has been appended, not the whole string after
+   * appending!
+   */
+  private String append(byte[] bytes, BufferedOutputStream bos) throws IOException {
+    if (bytes == null || bytes.length == 0) {
+      return null;
+    }
+    String s = new String(bytes, UTF_8);
+    output.append(s);
+    if (bos != null) {
+      bos.write(bytes);
+      bos.flush();
+    }
+    return s;
+  }
+
+  public Integer getExitCode() {
+    return exitCode;
+  }
+
+  public void setExitCode(Integer exitCode) {
+    this.exitCode = exitCode;
+  }
 }

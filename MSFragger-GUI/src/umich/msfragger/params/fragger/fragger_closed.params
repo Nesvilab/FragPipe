@@ -1,9 +1,8 @@
-
+database_name =
 num_threads = 0                        # 0=poll CPU to set num threads; else specify num threads directly (max 64)
 
-precursor_mass_tolerance = 100.00
-precursor_mass_lower = -100.00
-precursor_mass_upper = 100.00
+precursor_mass_lower = -50.00
+precursor_mass_upper = 50.00
 precursor_mass_units = 1               # 0=Daltons, 1=ppm
 precursor_true_tolerance = 20.00
 precursor_true_units = 1               # 0=Daltons, 1=ppm
@@ -12,6 +11,7 @@ fragment_mass_units = 1		           # 0=Daltons, 1=ppm
 
 isotope_error = 0/1/2                  # 0=off, 0/1/2 (standard C13 error)
 mass_offsets = 0
+precursor_mass_mode = selected
 
 shifted_ions = 0
 shifted_ions_exclude_ranges = (-1.5,3.5)
@@ -40,8 +40,9 @@ output_file_extension = pepXML	       #pepXML
 output_format = pepXML				   #pepXML or tsv
 output_report_topN = 1 
 output_max_expect = 50
+report_alternative_proteins=0          # 0=no, 1=yes
 
-precursor_charge = 0 0                 # precursor charge range to analyze; does not override any existing charge; 0 as 1st entry ignores parameter
+precursor_charge = 1 4                 # precursor charge range to analyze; does not override any existing charge; 0 as 1st entry ignores parameter
 override_charge = 0                    # 0=no, 1=yes to override existing precursor charge states with precursor_charge parameter
 
 digest_min_length = 7
@@ -58,7 +59,7 @@ add_topN_complementary = 0
 # spectral processing
 
 minimum_peaks = 15                   # required minimum number of peaks in spectrum to search (default 10)
-use_topN_peaks = 100
+use_topN_peaks = 150
 min_fragments_modelling = 3
 min_matched_fragments = 4 
 minimum_ratio = 0.01		         # filter peaks below this fraction of strongest peak

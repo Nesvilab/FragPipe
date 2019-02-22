@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import umich.msfragger.params.dbslice.DbSlice;
+import umich.msfragger.messages.MessageToolInit;
 import umich.msfragger.util.CheckResult;
 import umich.msfragger.util.Installed;
 import umich.msfragger.util.JarUtils;
@@ -82,13 +82,13 @@ public class SpecLibGen {
     }
   }
 
-  public static class Message1 extends DbSlice.Message {
+  public static class Message1 extends MessageToolInit {
     public Message1(boolean append, boolean isError, String text) {
       super(append, isError, text);
     }
   }
 
-  public static class Message2 extends DbSlice.Message {
+  public static class Message2 extends MessageToolInit {
     public Message2(boolean append, boolean isError, String text) {
       super(append, isError, text);
     }
@@ -191,6 +191,9 @@ public class SpecLibGen {
         case NO:
           sb.append(" - No");
           break;
+        case INSTALLED_WITH_IMPORTERROR:
+          sb.append(" - Error loading module");
+          break;
         case UNKNOWN:
           sb.append(" - N/A");
           break;
@@ -203,7 +206,7 @@ public class SpecLibGen {
   private CheckResult unpack() throws Exception {
     for (String rl : RESOURCE_LOCATIONS) {
       Path subDir = Paths.get(UNPACK_SUBDIR_IN_TEMP);
-      Path path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, false);
+      Path path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, true);
       if (SCRIPT_SPEC_LIB_GEN.equals(rl))
         scriptSpecLibGenPath = path;
     }
