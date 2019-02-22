@@ -3529,12 +3529,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 final byte[] pollErr = pr.pollStdErr();
                 final String errStr = pr.appendErr(pollErr);
                 if (errStr != null) {
-                  EventBus.getDefault().post(new MessageExternalProcessOutput(true, errStr));
+                  EventBus.getDefault().post(new MessageExternalProcessOutput(true, errStr,
+                      pbi.name));
                 }
                 final byte[] pollOut = pr.pollStdOut();
                 final String outStr = pr.appendOut(pollOut);
                 if (outStr != null) {
-                  EventBus.getDefault().post(new MessageExternalProcessOutput(false, outStr));
+                  EventBus.getDefault().post(new MessageExternalProcessOutput(false, outStr,
+                      pbi.name));
                 }
                 if (started.isAlive()) {
                   continue;
@@ -3596,14 +3598,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
 
-    // check if the line starts with an ANSI color code
-
-
-    if (m.isError) {
-      LogUtils.print(COLOR_RED_DARKEST, console, true, m.output, false);
-    } else {
-      LogUtils.printWithAnsiColorCodes(console, true, m.output, false);
+    // special case, colorize output from MSFragger
+    if (CmdMsfragger.NAME.equals(m.procName)) {
+      if (m.isError) {
+        LogUtils.print(COLOR_RED_DARKEST, console, true, m.output, false);
+      } else {
+        LogUtils.printWithAnsiColorCodes(console, true, m.output, false);
+      }
+      return;
     }
+
+    LogUtils.printWithAnsiColorCodes(console, true, m.output, false);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
