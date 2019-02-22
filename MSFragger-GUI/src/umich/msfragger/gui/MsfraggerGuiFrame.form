@@ -484,9 +484,6 @@
                     </Property>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Requires &lt;b&gt;Python 3&lt;/b&gt; with packages &lt;b&gt;Numpy, Pandas&lt;/b&gt;&#xa;Ways to get everything set up:&lt;br&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;Install Python 3 if you don&apos;t yet have it.&lt;/li&gt;&#xa;&lt;li&gt;Install required python modules using &lt;i&gt;pip&lt;/i&gt;, the python package manager, with command:&lt;/li&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;pip install numpy pandas&lt;/li&gt;&#xa;&lt;/ul&gt;&#xa;&lt;/ul&gt;&#xa;"/>
                   </Properties>
-                  <AccessibilityProperties>
-                    <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="DB Splitting"/>
-                  </AccessibilityProperties>
 
                   <Layout>
                     <DimensionLayout dim="0">
@@ -1951,6 +1948,9 @@
                   <Connection component="lblOutputDir" name="toolTipText" type="property"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="txtWorkingDirFocusLost"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="btnAbout">
               <Properties>

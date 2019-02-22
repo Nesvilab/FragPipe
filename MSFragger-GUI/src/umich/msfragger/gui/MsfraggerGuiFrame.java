@@ -1415,8 +1415,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
-    jPanel2.getAccessibleContext().setAccessibleName("DB Splitting");
-
     jScrollPane8.setViewportView(panelConfig);
 
     tabPane.addTab("Config", jScrollPane8);
@@ -2215,6 +2213,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     txtWorkingDir.setToolTipText(lblOutputDir.getToolTipText());
+    txtWorkingDir.addFocusListener(new java.awt.event.FocusAdapter() {
+      public void focusLost(java.awt.event.FocusEvent evt) {
+        txtWorkingDirFocusLost(evt);
+      }
+    });
 
     btnAbout.setText("About");
     btnAbout.addActionListener(new java.awt.event.ActionListener() {
@@ -2366,9 +2369,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     SwingUtils.setFileChooserPath(fileChooser, ThisAppProps.load(ThisAppProps.PROP_FILE_OUT));
 
-    if (!txtWorkingDir.getText().isEmpty()) {
-      File toFile = Paths.get(txtWorkingDir.getText()).toFile();
-      fileChooser.setCurrentDirectory(toFile);
+    final String text = txtWorkingDir.getText().trim();
+    if (!StringUtils.isNullOrWhitespace(text)) {
+      try {
+        Path p = Paths.get(txtWorkingDir.getText());
+        if (Files.exists(p)) {        
+          fileChooser.setSelectedFile(p.toFile());
+        }
+      } catch (Exception ignored) {}
     }
 
     int showOpenDialog = fileChooser.showOpenDialog(this);
@@ -3215,6 +3223,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   @Subscribe
   public void onRun(MessageRun m) {
     final boolean isDryRun = m.isDryRun;
+    saveWorkdirText();
 
     resetRunButtons(false);
     final boolean doRunFragger = fraggerMigPanel.isRun();
@@ -4660,6 +4669,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void btnPepProphDefaultsNonspecificActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPepProphDefaultsNonspecificActionPerformed
     btnPepProphDefaults(SearchTypeProp.nonspecific);
   }//GEN-LAST:event_btnPepProphDefaultsNonspecificActionPerformed
+
+  private void saveWorkdirText() {
+    final String text = txtWorkingDir.getText().trim();
+    try {
+      Path p = Paths.get(text);
+      if (Files.exists(p)) {
+        ThisAppProps.save(ThisAppProps.PROP_FILE_OUT, text);
+      }
+    } catch (Exception ignore) {}
+  }
+
+  private void txtWorkingDirFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtWorkingDirFocusLost
+    saveWorkdirText();
+  }//GEN-LAST:event_txtWorkingDirFocusLost
 
 
   //region Load-Last methods
