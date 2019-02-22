@@ -43,8 +43,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -106,7 +104,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
@@ -145,6 +142,7 @@ import umich.msfragger.cmd.CmdUmpireSe;
 import umich.msfragger.cmd.ProcessBuilderInfo;
 import umich.msfragger.cmd.ProcessBuildersDescriptor;
 import umich.msfragger.cmd.ToolingUtils;
+import umich.msfragger.gui.ProcessDescription.Builder;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.TableModelColumn;
@@ -161,6 +159,7 @@ import umich.msfragger.messages.MessageRun;
 import umich.msfragger.messages.MessageSaveCache;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.messages.MessageShowAboutDialog;
+import umich.msfragger.messages.MessageStartProcesses;
 import umich.msfragger.messages.MessageTipNotification;
 import umich.msfragger.messages.MessageToolInit;
 import umich.msfragger.messages.MessageValidityFragger;
@@ -210,7 +209,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private FraggerMigPanel fraggerMigPanel;
   private TextConsole console;
   private ExecutorService exec = Executors.newFixedThreadPool(1);;
-  private ExecutorService procRunner = null;
+
 
   //private static final String TEXT_SAME_SEQ_DB = "<Same as in MSFragger>";
   private Color defTextColor;
@@ -255,6 +254,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   public static final Color COLOR_RED_DARKER = new Color(166, 56, 68);
   public static final Color COLOR_RED_DARKEST = new Color(155, 35, 29);
   public static final Color COLOR_BLACK = new Color(0, 0, 0);
+
+  final Color COLOR_TOOL = new Color(140, 3, 89);
+  final Color COLOR_WORKDIR = new Color(6, 2, 140);
+  final Color COLOR_CMDLINE = new Color(0, 107, 109);
 
   private static final String ACTION_EXPORT_LOG = "Export-Log";
 
@@ -593,7 +596,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
       String link = p.getProperty(MsfraggerProps.PROP_DBSPLIT_INSTRUCTIONS_URL,
           "https://nesvilab.github.io/MSFragger/");
-      String instructions = "<br/>For docs/instructions <a href=\"" + link + "\">see the link</a>.";
+      String instructions = "<br/>For docs/instructions visit <a href=\"" + link + "\">" + link + "</a>";
       messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo),
           new DbSlice.Message2(true, false, instructions));
     }
@@ -620,7 +623,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
       String link = p.getProperty(MsfraggerProps.PROP_SPECLIBGEN_INSTRUCTIONS_URL,
           "https://nesvilab.github.io/MSFragger/");
-      String instructions = "<br/>For docs/instructions <a href=\"" + link + "\">see the link</a>.";
+      String instructions = "<br/>For docs/instructions visit <a href=\"" + link + "\">" + link + "</a>";
       messageToTextComponent(ISimpleTextComponent.from(epSpeclibInfo2),
           new SpecLibGen.Message2(true, false, instructions));
     }
@@ -2387,11 +2390,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStopActionPerformed
     btnRun.setEnabled(true);
     btnStop.setEnabled(false);
-
-    if (procRunner != null) {
-      List<Runnable> notRun = procRunner.shutdownNow();
-    }
-
     EventBus.getDefault().post(new MessageKillAll());
 
   }//GEN-LAST:event_btnStopActionPerformed
@@ -3446,21 +3444,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .collect(Collectors.toList());
 
     LogUtils.println(console, String.format(Locale.ROOT, "%d commands to execute:", pbis.size()));
-    final Color colorTool = new Color(140, 3, 89);
-    final Color colorWd = new Color(6, 2, 140);
-    final Color colorCmdLine = new Color(0, 107, 109);
 
     for (final ProcessBuilderInfo pbi : pbis) {
-      int printed = 0;
-      if (!StringUtils.isNullOrWhitespace(pbi.name)) {
-        LogUtils.print(colorTool, console, true, pbi.name, false);
-      }
-      if (pbi.pb.directory() != null) {
-        LogUtils.print(colorWd, console, true, " [Work dir: " + pbi.pb.directory() + "]", false);
-      }
-      LogUtils.println(console, "");
-      final String cmd = org.apache.commons.lang3.StringUtils.join(pbi.pb.command(), " ");
-      LogUtils.print(colorCmdLine, console, true, cmd, true);
+      printProcessDescription(pbi);
 
     }
     LogUtils.println(console, "~~~~~~~~~~~~~~~~~~~~~~");
@@ -3473,147 +3459,133 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
 
-    try // run everything
-    {
-      EventBus.getDefault().post(new MessageKillAll());
-      procRunner = prepareProcessRunner(procRunner);
-
-      final ProcessResult[] processResults = new ProcessResult[pbis.size()];
-
-      for (int i = 0; i < pbis.size(); i++) {
-
-        final int index = i;
-        final ProcessBuilderInfo pbi = pbis.get(index);
-        final ProcessResult pr = new ProcessResult(pbi);
-        processResults[index] = pr;
-
-        // set work dir to the main working directory if it's not set for the process builder
-        if (pbi.pb.directory() == null) {
-          pbi.pb.directory(wdPath.toFile());
-        }
-
-        ExceptionLoggingRunnable exceptionLoggingRunnable = new ExceptionLoggingRunnable(() -> {
-
-          String command = String.join(" ", pbi.pb.command());
-
-          // if it's not the first process, check that the previous
-          // one returned zero exit code
-          if (index > 0) {
-            Integer exitCode = processResults[index - 1].getExitCode();
-            if (exitCode == null) {
-              LogUtils.print(COLOR_RED_DARKER, console, true, "Cancelled execution of: ", false);
-              LogUtils.print(COLOR_BLACK, console, true, command, true);
-              return;
-            } else if (exitCode != 0) {
-              LogUtils.print(COLOR_RED, console, true,
-                  String.format(
-                      "Previous process returned exit code [%d], cancelling further processing..",
-                      exitCode), true);
-              LogUtils.print(COLOR_RED_DARKER, console, true, "Cancelled execution of: ", false);
-              LogUtils.print(COLOR_BLACK, console, true, command, true);
-              return;
-            }
-          }
-
-
-          LogUtils.print(COLOR_BLACK, console, true, getTimestamp() + " Executing command [", false);
-          LogUtils.print(colorTool, console, true, pbi.name, false);
-          LogUtils.print(COLOR_BLACK, console, true, "] from working dir: ", false);
-          final String workDirToPrint =
-              pbi.pb.directory() == null ? "N/A" : pbi.pb.directory().toString();
-          LogUtils.print(colorWd, console, true, workDirToPrint, true);
-          LogUtils.print(COLOR_BLACK, console, true, "$> ", false);
-          LogUtils.print(colorCmdLine, console, true, command, true);
-
-
-          try { // External Processes start in this try block
-
-            Process proc = pr.start();
-            LogUtils.println(console, getTimestamp() + " Process started");
-
-            while (true) {
-              Thread.sleep(200L);
-              byte[] pollErr = pr.pollStdErr();
-              String errStr = pr.appendErr(pollErr);
-              if (!StringUtils.isNullOrWhitespace(errStr)) {
-                LogUtils.print(console, errStr);
-              }
-              byte[] pollOut = pr.pollStdOut();
-              String outStr = pr.appendOut(pollOut);
-              if (!StringUtils.isNullOrWhitespace(outStr)) {
-                LogUtils.print(console, outStr);
-              }
-              try {
-                final int exitValue = proc.exitValue();
-                pr.setExitCode(exitValue);
-
-                SwingUtilities.invokeLater(() -> {
-                  Color c = exitValue == 0 ? COLOR_GREEN_DARKER : COLOR_RED;
-                  console.append(c, String.format(
-                      Locale.ROOT, "Process finished, exit value: %d\n", exitValue));
-                });
-
-                break;
-              } catch (IllegalThreadStateException ignore) {
-                // this error is thrown by process.exitValue() if the underlying process has not yet finished
-              }
-            }
-
-          } catch (IOException ex) {
-            String msg = String.format(Locale.ROOT,
-                "IOException: Error in process,\n%s", ex.getMessage());
-            LogUtils.print(Color.RED, console, true, msg, true);
-            log.error(msg, ex);
-          } catch (InterruptedException ex) {
-            final Process proc = pr.getProcess();
-            if (proc != null) {
-              proc.destroyForcibly();
-            }
-            if (!"sleep interrupted".equals(ex.getMessage())) {
-              String msg = String.format(Locale.ROOT,
-                  "InterruptedException: Error in process,\n%s", ex.getMessage());
-              LogUtils.print(Color.RED, console, true, msg, true);
-              log.error(msg, ex);
-            }
-          } finally {
-            try {
-              pr.close();
-            } catch (Exception e) {
-              String msg = "Error while closing redirected output streams from process, details:\n\n"
-                      + LogUtils.stacktrace(e);
-              LogUtils.print(Color.RED, console, true, msg, true);
-              log.error(msg, e);
-            }
-          }
-        }, console, System.err);
-
-        // this error is thrown by process.exitValue() if the underlying process has not yet finished
-        procRunner.submit(exceptionLoggingRunnable);
+    // run everything
+    List<RunnableDescription> toRun = new ArrayList<>();
+    for (final ProcessBuilderInfo pbi : pbis) {
+      Runnable runnable = pbiToRunnable(pbi);
+      Builder b = new Builder().setName(pbi.name);
+      if (pbi.pb.directory() != null) {
+        b.setWorkDir(pbi.pb.directory().toString());
       }
-
-      final JButton btnStartPtr = btnRun;
-      final JButton btnStopPtr = btnStop;
-      ExceptionLoggingRunnable finalizerTask = new ExceptionLoggingRunnable(() -> {
-        btnStartPtr.setEnabled(true);
-        btnStopPtr.setEnabled(false);
-        LogUtils.println(console, "=========================");
-        LogUtils.println(console, "===");
-        LogUtils.println(console, "===        Done");
-        LogUtils.println(console, "===");
-        LogUtils.println(console, "=========================");
-      }, console, System.err);
-
-      procRunner.submit(finalizerTask);
-
-    } finally {
-      if (procRunner != null) {
-        procRunner.shutdown();
+      if (pbi.pb.command() != null && !pbi.pb.command().isEmpty()) {
+        b.setCommand(String.join(" ", pbi.pb.command()));
       }
+      toRun.add(new RunnableDescription(b.create(), runnable));
     }
+
+    // add finalizer process
+    final JButton btnStartPtr = btnRun;
+    final JButton btnStopPtr = btnStop;
+    Runnable finalizerRun = () -> {
+      btnStartPtr.setEnabled(true);
+      btnStopPtr.setEnabled(false);
+      String msg =
+          "=========================" +
+              "===" +
+              "===      Done" +
+              "===" +
+              "=========================";
+      EventBus.getDefault()
+          .post(new MessageAppendToConsole(msg, MsfraggerGuiFrame.COLOR_RED_DARKEST));
+    };
+    String finalizerDesc = "Finalizer task";
+    toRun.add(new RunnableDescription(new Builder().setName("Finalizer Task").create(), finalizerRun));
+    EventBus.getDefault().post(new MessageStartProcesses(toRun));
   }
 
-  @Subscribe
+  private void printProcessDescription(ProcessBuilderInfo pbi) {
+    if (!StringUtils.isNullOrWhitespace(pbi.name)) {
+      LogUtils.print(COLOR_TOOL, console, true, pbi.name, false);
+    }
+    if (pbi.pb.directory() != null) {
+      LogUtils.print(COLOR_WORKDIR, console, true, " [Work dir: " + pbi.pb.directory() + "]", false);
+    }
+    LogUtils.println(console, "");
+    final String cmd = org.apache.commons.lang3.StringUtils.join(pbi.pb.command(), " ");
+    LogUtils.print(COLOR_CMDLINE, console, true, cmd, true);
+  }
+
+  private Runnable pbiToRunnable(final ProcessBuilderInfo pbi) {
+    return () -> {
+
+            final ProcessResult pr = new ProcessResult(pbi);
+            Process started;
+            try {
+              log.debug("Starting: {}", pbi.name);
+              printProcessDescription(pbi);
+              started = pr.start();
+              log.debug("Started: {}", pbi.name);
+            } catch (IOException e) {
+              log.error("Error while starting process: " + pbi.name + ", stopping", e);
+              EventBus.getDefault().post(new MessageKillAll());
+              return;
+            }
+
+            // main loop reading process' output
+            try {
+              while (true) {
+
+                Thread.sleep(200L);
+                final byte[] pollErr = pr.pollStdErr();
+                final String errStr = pr.appendErr(pollErr);
+                if (errStr != null) {
+                  EventBus.getDefault().post(new MessageExternalProcessOutput(true, errStr));
+                }
+                final byte[] pollOut = pr.pollStdOut();
+                final String outStr = pr.appendOut(pollOut);
+                if (outStr != null) {
+                  EventBus.getDefault().post(new MessageExternalProcessOutput(false, outStr));
+                }
+                if (started.isAlive()) {
+                  continue;
+                }
+
+                try {
+                  log.debug("Checking exit value: {}", pbi.name);
+                  final int exitValue = started.exitValue();
+                  Color c = exitValue == 0 ? MsfraggerGuiFrame.COLOR_GREEN_DARKER
+                      : MsfraggerGuiFrame.COLOR_RED;
+                  String msg = String.format(Locale.ROOT,
+                      "Process '%s' finished, exit code: %d\n", pbi.name, exitValue);
+                  EventBus.getDefault().post(new MessageAppendToConsole(msg, c));
+                } catch (IllegalThreadStateException ex) {
+                  log.warn("Checking for exit value when subprocess was not alive threw exception.");
+                }
+                break;
+              }
+
+            } catch (IOException e) {
+              log.error("Error while starting process " + pbi.name, e);
+
+            } catch (InterruptedException e) {
+              // graceful stop request
+              String msg = "Processing interrupted, stopping " + pbi.name;
+              log.debug(msg, e);
+              EventBus.getDefault()
+                  .post(new MessageAppendToConsole(msg, MsfraggerGuiFrame.COLOR_RED_DARKEST));
+              // all the cleanup is done in the finally block
+
+            } finally {
+              // in the end whatever happens always try to kill the process
+              if (started != null && started.isAlive()) {
+                log.debug("Killing underlying external process");
+                started.destroyForcibly();
+              }
+              try {
+                pr.close();
+              } catch (Exception e) {
+                log.error("Error closing redirected std/err streams from external process", e);
+              }
+            }
+          };
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void onExternalProcessOutput(MessageExternalProcessOutput m) {
+    if (m.output == null) {
+      log.warn("MessageExternalProcessOutput with null text, this is a bug, report to devs");
+      return;
+    }
     if (m.isError) {
       LogUtils.print(COLOR_RED, console, true, m.output, false);
     } else {
@@ -3621,7 +3593,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }
 
-  @Subscribe
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void onAppendToConsole(MessageAppendToConsole m) {
     Color c = m.color == null ? COLOR_BLACK : m.color;
     LogUtils.print(c, console, true, m.text, true);
@@ -5295,9 +5267,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     sb.append("</p>");
 
     sb.append("<p style=\"margin-top: 10\">");
-    sb.append("More info: <a href=\"").append(linkMsfragger)
-        .append("\">MSFragger website</a>, <a href=\"").append(linkFragpipe)
-        .append("\">FragPipe GitHub page</a>");
+    sb.append("More info and docs: <a href=\"").append(linkMsfragger).append("\">MSFragger website</a>")
+        .append(", <a href=\"").append(linkFragpipe).append("\">FragPipe GitHub page</a>");
 
     sb.append("</body>");
     sb.append("</html>");
@@ -5363,24 +5334,24 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       });
 
       Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-        StringWriter sw = new StringWriter();
-        e.printStackTrace(new PrintWriter(sw, true));
-        String notes = sw.toString();
+        String stacktrace = LogUtils.stacktrace(e);
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        panel.add(new JLabel("Something unexpected happened (1)"), BorderLayout.PAGE_START);
-        JTextArea notesArea = new JTextArea(40, 80);
-        notesArea.setText(notes);
-        JScrollPane notesScroller = new JScrollPane();
-        notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
-        notesScroller.setViewportView(notesArea);
-        panel.add(notesScroller, BorderLayout.CENTER);
+        log.debug("Something unexpected happened (1)", e);
+        return;
 
-        //JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + notes, "Error", JOptionPane.ERROR_MESSAGE);
-        //JOptionPane.showMessageDialog(frame, panel, "Error", JOptionPane.ERROR_MESSAGE);
-        showDialog(frame, panel);
+//        JPanel panel = new JPanel();
+//        panel.setLayout(new BorderLayout());
+//        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+//        panel.add(new JLabel("Something unexpected happened (1)"), BorderLayout.PAGE_START);
+//        JTextArea notesArea = new JTextArea(40, 80);
+//        notesArea.setText(stacktrace);
+//        JScrollPane notesScroller = new JScrollPane();
+//        notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
+//        notesScroller.setViewportView(notesArea);
+//        panel.add(notesScroller, BorderLayout.CENTER);
+//        //JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + notes, "Error", JOptionPane.ERROR_MESSAGE);
+//        //JOptionPane.showMessageDialog(frame, panel, "Error", JOptionPane.ERROR_MESSAGE);
+//        showDialog(frame, panel);
       });
 
       frame.setVisible(true);

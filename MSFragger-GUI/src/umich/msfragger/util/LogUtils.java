@@ -57,7 +57,7 @@ public class LogUtils {
     /**
      * Top stack trace messages as string.
      */
-    public static String stacktrace(Exception e) {
+    public static String stacktrace(Throwable e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw, true));
         return sw.toString();

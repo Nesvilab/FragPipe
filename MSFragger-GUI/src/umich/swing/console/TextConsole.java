@@ -105,6 +105,9 @@ public class TextConsole extends JTextPane implements Appendable {
     }
     
     public void append(Color c, String s) {
+        if (s == null || c == null) {
+            int a= 1;
+        }
         StyleContext sc = StyleContext.getDefaultStyleContext();
         AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
         int len = getDocument().getLength(); // same value as getText().length();
