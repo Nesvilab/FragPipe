@@ -3,12 +3,13 @@
 <img src="frag-pipe/images/fragpipe-01.png" width="350px"/>
 <img src="logo/msfragger-logo.png" width="350px"/>
 
-# FragPipe (previously - MSfragger GUI)
-This is a very basic Java GUI wrapper for [MSFragger](http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html) - ultrafast proteomic search engine.  
-It will help you launch MSFragger for Open and Closed searches and can also run post-processing of results with Peptide/Protein Prophets as well as generate tabular summary results using [Philosopher](https://nesvilab.github.io/philosopher/).
+# FragPipe
+FragPipe is a Java Graphical User Interface (GUI) for a suite of computational tools enabling comprehensive analysis of mass spectrometry-based proteomics data. It is powered by [MSFragger](https://msfragger.nesvilab.org/) - an ultrafast proteomic search engine suitable for both conventional ("closed") and "open" peptide identification. FragPipe also includes [Philosopher](https://nesvilab.github.io/philosopher/) tools for downstream post-processing of MSFragger search results (Peptideprophet, iProphet, ProteinProphet), FDR filtering, label-free quantification, multi-experiment summary report generation. Also included in FragPipe binary are SpectraST-based spectral library building module, and DIA-Umpire SE module for direct analysis of DIA data. 
 
 ## Download
-Download precompiled binaries from the [Releases](https://github.com/Nesvilab/FragPipe/releases/) section of this repository
+Download precompiled binaries from the [Releases](https://github.com/Nesvilab/FragPipe/releases/) section of this repository.
+
+You will need to download MSFragger separately as described on the [MSFragge website](https://msfragger.nesvilab.org/).
 
 ## Running
 - on **Windows** use one of the following:
