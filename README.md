@@ -8,16 +8,15 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 
 ## Download
 Download precompiled binaries from the [Releases](https://github.com/Nesvilab/FragPipe/releases/) section of this repository.
-The latest release is FragPipe v. 9 (released Feabrurary 22, 2019). 
+The latest release is FragPipe v.9 (02/22/2019). 
 
 You will need to download MSFragger separately as described on the [MSFragger website](https://msfragger.nesvilab.org/).
 
 ## Documentation
 We are currently working on creating Tutorials for most commonly used workflows supported in FragPipe.
 
-For documentation on MSFragger (hardware requirements, search parameters, etc.), see MSFragger [Documentation Wiki page](https://github.com/Nesvilab/MSFragger/wiki).  
-
-For documentation on Philosopher see [Philosopher page](http://philosopher.nesvilab.org/).  
+For documentation on MSFragger (search parameters etc.), see MSFragger [Documentation Wiki page](https://github.com/Nesvilab/MSFragger/wiki).  
+For documentation on Philosopher toolkit see [Philosopher page](http://philosopher.nesvilab.org/).  
 
 ## Questions and Technical Support
 Please post all questions/bug reports regarding FragPipe on the [FragPipe GitHub page](https://github.com/Nesvilab/FragPipe).
