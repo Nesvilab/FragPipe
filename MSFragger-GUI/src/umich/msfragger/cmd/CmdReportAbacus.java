@@ -1,16 +1,20 @@
 package umich.msfragger.cmd;
 
 import java.awt.Component;
+import java.lang.reflect.Array;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
@@ -78,8 +82,8 @@ public class CmdReportAbacus extends CmdBase {
 //    --weight float     threshold for defining peptide uniqueness (default 1)
 
 
-//    final List<String> flagsAbacus = Arrays.asList("--picked", "--razor", "--reprint", "--uniqueonly");
-//    final List<String> flagsFilter = Arrays.asList("--mapmods", "--models", "--picked", "--razor", "--sequential");
+    final List<String> flagsAbacus = Arrays.asList("--picked", "--razor", "--reprint", "--uniqueonly");
+    final List<String> flagsFilter = Arrays.asList("--picked", "--razor", "--mapmods", "--sequential", "--models");
 
     pbs.clear();
 
@@ -124,15 +128,18 @@ public class CmdReportAbacus extends CmdBase {
         return false;
       }
 
+      // we'll only take the flags from the command that Abacus recognizes
+      final List<String> filterCmdLineParts = StringUtils.splitCommandLine(textReportFilterCmdOpts);
+      final LinkedHashSet<String> cmdAddonParts = filterCmdLineParts.stream()
+          .filter(flagsAbacus::contains).collect(Collectors.toCollection(LinkedHashSet::new));
+      cmdAddonParts.add("--reprint"); // Alexey wants to always use only `--reprint  --razor`
 
       String pepxmlCombined = wd.resolve(getCombinedPepFileName()).toString();
-      List<String> cmdParts = StringUtils.splitCommandLine(textReportFilterCmdOpts);
       List<String> cmd = new ArrayList<>();
       final Path executeInDir = protxml.getParent();
       cmd.add(usePhilosopher.useBin(executeInDir));
       cmd.add("abacus");
-      cmd.add("--reprint");
-      cmd.addAll(cmdParts);
+      cmd.addAll(cmdAddonParts);
       cmd.add("--tag");
       cmd.add(decoyTag);
       cmd.add("--protein");

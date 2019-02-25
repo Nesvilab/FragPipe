@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,9 +44,10 @@ public class CmdReportFilter extends CmdBase {
       List<String> cmd = new ArrayList<>();
       cmd.add(usePhilosopher.useBin(wd));
       cmd.add(PhilosopherProps.CMD_FILTER);
+
+      // check for extra arguments
       if (!StringUtils.isNullOrWhitespace(textReportFilter)) {
-        String[] params = textReportFilter.trim().split("[\\s]+");
-        cmd.addAll(Arrays.asList(params));
+        cmd.addAll(StringUtils.splitCommandLine(textReportFilter));
       }
       cmd.add("--tag");
       cmd.add(decoyTag);
