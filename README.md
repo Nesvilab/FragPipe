@@ -3,12 +3,26 @@
 <img src="frag-pipe/images/fragpipe-01.png" width="350px"/>
 <img src="logo/msfragger-logo.png" width="350px"/>
 
-# FragPipe (previously - MSfragger GUI)
-This is a very basic Java GUI wrapper for [MSFragger](http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html) - ultrafast proteomic search engine.  
-It will help you launch MSFragger for Open and Closed searches and can also run post-processing of results with Peptide/Protein Prophets as well as generate tabular summary results using [Philosopher](https://nesvilab.github.io/philosopher/).
+# FragPipe
+FragPipe is a Java Graphical User Interface (GUI) for a suite of computational tools enabling comprehensive analysis of mass spectrometry-based proteomics data. It is powered by [MSFragger](https://msfragger.nesvilab.org/) - an ultrafast proteomic search engine suitable for both conventional and "open" (wide precursor mass tolerance) peptide identification. FragPipe also includes [Philosopher](https://nesvilab.github.io/philosopher/) toolkit for downstream post-processing of MSFragger search results (PeptideProphet, iProphet, ProteinProphet), FDR filtering, label-free quantification, and multi-experiment summary report generation. Also included in FragPipe binary are SpectraST-based spectral library building module, and DIA-Umpire SE module for direct analysis of data independent acquisition (DIA) data. 
 
 ## Download
-Download precompiled binaries from the [Releases](https://github.com/Nesvilab/FragPipe/releases/) section of this repository
+Download precompiled binaries from the [Releases](https://github.com/Nesvilab/FragPipe/releases/) section of this repository.
+The latest release is FragPipe v.9 (02/22/2019). 
+
+You will need to download MSFragger separately as described on the [MSFragger website](https://msfragger.nesvilab.org/).
+
+## Documentation
+We are currently working on creating Tutorials for most commonly used workflows supported in FragPipe.
+
+For documentation on MSFragger (search parameters etc.), see MSFragger [Documentation Wiki page](https://github.com/Nesvilab/MSFragger/wiki).  
+For documentation on Philosopher toolkit see [Philosopher page](http://philosopher.nesvilab.org/).  
+
+## Questions and Technical Support
+Please post all questions/bug reports regarding FragPipe on the [FragPipe GitHub page](https://github.com/Nesvilab/FragPipe).
+For questions more specific to various individual components of FragPipe you can also use [MSFragger GitHub page](https://github.com/Nesvilab/MSFragger) and [Philosopher page](https://github.com/Nesvilab/philosopher).
+
+For other tools developed by Nesvizhskii lab, go to our website [www.nesvilab.org](http://www.nesvilab.org)
 
 ## Running
 - on **Windows** use one of the following:
