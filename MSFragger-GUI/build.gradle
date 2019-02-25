@@ -119,3 +119,8 @@ task listJars {
         configurations.compile.each { File file -> println file.name }
     }
 }
+
+task depsCompile(type: DependencyReportTask, group: 'help', description: "Show only compile time dependencies") {
+    configurations = [project.configurations.compile] as Set
+}
+
