@@ -86,9 +86,9 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 
 ## Download
 Download precompiled binaries from the [Releases](https://github.com/Nesvilab/FragPipe/releases/) section of this repository.
-The latest release is FragPipe v.9 (02/22/2019). 
 
-You will need to download MSFragger separately as described on the [MSFragger website](https://msfragger.nesvilab.org/).
+MSFragger binary needs to be downloaded separately, there is a link in the user interface that will take you to the right web page.
+You can find detailed instructions on the [MSFragger website](https://msfragger.nesvilab.org/) as well.
 
 ## Documentation
 We are currently working on creating Tutorials for most commonly used workflows supported in FragPipe.
@@ -103,13 +103,15 @@ For questions more specific to various individual components of FragPipe you can
 For other tools developed by Nesvizhskii lab, go to our website [www.nesvilab.org](http://www.nesvilab.org)
 
 ## Running
-- on **Windows** use one of the following:
-  - Run the Windows executable (*.exe*)
-  - `start javaw -jar FragPipe.jar`
-  - `java -jar FragPipe.jar`
-- **Linux/MacOS**
+- for **Windows**:
+  - Run the Windows executable (*.exe*)  
+  or execute one of the following commands:
+  - `start javaw -jar FragPipe-x.x.jar`
+  - `java -jar FragPipe-x.x.jar`
+- for **Linux/MacOS** use one of the following:
   - Run the shell script included in the release zip file
-  - `java -jar FragPipe.jar`
+  or execute the following command:
+  - `java -jar FragPipe-x.x.jar`
 
 
 ## Citing the work
