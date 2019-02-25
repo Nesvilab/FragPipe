@@ -57,6 +57,9 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("9.1", Arrays.asList(
+        "Fix Abacus command bug with unrecognized options from Filter command being carried over."));
+
     CHANGELOG.put("9.0", Arrays.asList(
         "Downstream tab groups all downstream processing tools in one place.",
         "Simplified Config tab with more links and hint.",
