@@ -55,7 +55,7 @@ Inspect the output in `MSFragger-GUI/build/lbis` and
 
 
 
-### Building with NetBeans (Ant build, deprecated)
+#### Building with NetBeans/Ant (deprecated)
 **Deprecated:** Use Gradle build instead.  
 Open the source project in NetBeans and do "Clean Build". You will get the jar in ./dist directory and a zip file with the current version in the file name and start scripts bundled.
 
