@@ -36,9 +36,9 @@ tasks.withType(JavaCompile) {
 mainClassName = 'umich.msfragger.gui.MsFraggerGui'
 
 repositories {
-    mavenLocal()
-    mavenCentral()
     jcenter()
+    mavenCentral()
+    mavenLocal()
 }
 
 // This is really the important part
@@ -62,7 +62,8 @@ sourceSets {
 }
 
 shadowJar {
-    classifier = null
+    archiveBaseName = "${project.name}"
+    archiveClassifier = ""
     minimize()
 }
 
@@ -139,4 +140,29 @@ task listJars {
 task depsCompile(type: DependencyReportTask, group: 'help', description: "Show only compile time dependencies") {
     configurations = [project.configurations.compile] as Set
 }
+
+task makeShadowedAndWinExe(type: Copy) {
+    dependsOn 'createAllExecutables'
+    from "$buildDir/libs/FragPipe.exe"
+    from "$buildDir/libs/FragPipe-${project.version}.jar"
+    into file("$buildDir/github-release")
+}
+
+task makeShadowedWithStartScripts(type: Zip) {
+    dependsOn 'shadowDistZip'
+    archiveFileName = "FragPipe-${project.version}.zip"
+    destinationDirectory = file("$buildDir/github-release")
+
+    from "$buildDir/scriptsShadow"
+    from "$buildDir/libs/FragPipe-${project.version}.jar"
+}
+
+task prepareRelease() {
+    dependsOn 'clean'
+    dependsOn 'makeShadowedAndWinExe'
+    dependsOn 'makeShadowedWithStartScripts'
+    tasks.findByName('makeShadowedAndWinExe').mustRunAfter 'clean'
+    tasks.findByName('makeShadowedWithStartScripts').mustRunAfter 'makeShadowedAndWinExe'
+}
+
 
