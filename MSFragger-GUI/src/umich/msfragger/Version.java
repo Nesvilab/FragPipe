@@ -271,32 +271,30 @@ public class Version {
 
     final String version = version();
     if (printGihubPreamble) {
-      final String urlExe = String.format("%s/download/%s/%s.exe", url, version, PROGRAM_TITLE);
+      final String exeFn = String.format("%s.exe", PROGRAM_TITLE, version);
+      final String exeUrl = String.format("%s/download/%s/%s", url, version, exeFn);
       final String jarFn = String.format("%s-%s.jar", PROGRAM_TITLE, version);
-      final String urlJar = String.format("%s/download/%s/%s", url, version, jarFn);
-      String githubReleaseMessage = String.format(
-          "### Windows users\n" +
-              "- Download the [*.exe* file]"
-              + "(%s) and "
-              + "just run that. Windows 10 might show a UAC prompt, saying that this is not a trusted "
-              + "program, it's up to you whether to run it or not.\n" +
-              "  - If you don't have a compatible Java version, you will be redirected to a website where you "
-              + "can download one.\n" +
-              "- Or download the [*.jar* file]"
-              + "(%s).\n" +
-              "  - You can start the `jar` file with `java -jar %s` or "
-              + "`start javaw -jar %s` if you prefer to not have the console window open.\n" +
-              "If Java is configured to auto-run `.jar` files, double clicking might also work.\n" +
-              "\n" +
-              "\n" +
-              "### Linux/MacOS users\n" +
-              "Download the [*.jar* file]"
-              + "(%s) "
-              + "and run with "
-              + "`java -jar %s`.",
-          urlExe,
-          urlJar, jarFn, jarFn,
-          urlJar, jarFn);
+      final String jarUrl = String.format("%s/download/%s/%s", url, version, jarFn);
+      final String zipFn = String.format("%s-%s.zip", PROGRAM_TITLE, version);
+      final String zipUrl = String.format("%s/download/%s/%s", url, version, zipFn);
+      String githubReleaseMessage = "FragPipe v" + version + "\n\n"
+          + "### Windows users\n" +
+          "- Download *.exe*: [" + exeFn + "](" + exeUrl + ") and just run that. Windows 10 might "
+          + "show a UAC prompt, saying that this is not a trusted program, it's up to you whether "
+          + "to run it or not.\n"
+          + "  - If you don't have a compatible Java version, you will be redirected to a website "
+          + "where you can download one.\n"
+          + "- Or download *.zip*: [" + zipFn + "](" + zipUrl + ").\n"
+          + "  - Zip contains `FragPipe.bat` file, which can be started by either clicking or "
+          + "running it from the command line.\n"
+          + "- Or download the [" + jarFn + "](" + jarUrl + ").\n"
+          + "  - You can start the `jar` file with `java -jar " + jarFn + "` or `start javaw -jar "
+          + jarFn + "` if you prefer to not have the console window open.\n"
+          + "If Java is configured to auto-run `.jar` files, double clicking might also work.\n\n\n"
+          + "### Linux/MacOS users\n"
+          + "Either download [" + zipFn + "](" + zipUrl + "), which contains *FragPipe* shell "
+          + "script to start the program or download the [" + jarFn + "](" + jarUrl + ") and run "
+          + "with `java -jar " + jarFn + "`.";
       System.out.println(githubReleaseMessage);
       System.out.println();
       System.out.println();
