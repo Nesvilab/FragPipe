@@ -141,28 +141,36 @@ task depsCompile(type: DependencyReportTask, group: 'help', description: "Show o
     configurations = [project.configurations.compile] as Set
 }
 
-task makeShadowedAndWinExe(type: Copy) {
-    dependsOn 'createAllExecutables'
-    from "$buildDir/libs/FragPipe.exe"
+task releaseShadowJar(type: Copy) {
+    dependsOn 'shadowJar'
     from "$buildDir/libs/FragPipe-${project.version}.jar"
     into file("$buildDir/github-release")
 }
 
-task makeShadowedWithStartScripts(type: Zip) {
+task releaseZip(type: Zip) {
     dependsOn 'shadowDistZip'
     archiveFileName = "FragPipe-${project.version}.zip"
     destinationDirectory = file("$buildDir/github-release")
-
     from "$buildDir/scriptsShadow"
     from "$buildDir/libs/FragPipe-${project.version}.jar"
 }
 
-task prepareRelease() {
-    dependsOn 'clean'
-    dependsOn 'makeShadowedAndWinExe'
-    dependsOn 'makeShadowedWithStartScripts'
-    tasks.findByName('makeShadowedAndWinExe').mustRunAfter 'clean'
-    tasks.findByName('makeShadowedWithStartScripts').mustRunAfter 'makeShadowedAndWinExe'
+task releaseWinExe(type: Copy) {
+    dependsOn 'createExe'
+    from "$buildDir/libs/FragPipe.exe"
+    into file("$buildDir/github-release")
 }
 
+task prepareReleaseNoExe(group: 'release') {
+    dependsOn 'clean'
+    dependsOn 'releaseShadowJar'
+    dependsOn 'releaseZip'
+    tasks.findByName('releaseShadowJar').mustRunAfter 'clean'
+    tasks.findByName('releaseZip').mustRunAfter 'releaseShadowJar'
+}
 
+task prepareReleaseWithExe(group: 'release') {
+    dependsOn 'prepareReleaseNoExe'
+    dependsOn 'releaseWinExe'
+    tasks.findByName('releaseWinExe').mustRunAfter 'prepareReleaseNoExe'
+}
