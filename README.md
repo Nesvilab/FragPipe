@@ -103,15 +103,16 @@ For questions more specific to various individual components of FragPipe you can
 For other tools developed by Nesvizhskii lab, go to our website [www.nesvilab.org](http://www.nesvilab.org)
 
 ## Running
-- for **Windows**:
-  - Run the Windows executable (*.exe*)  
+- **Windows**:
+  - Run the Windows executable (*.exe*)
+  - Or start the `FragPipe.bat` from the *.zip* distribution  
   or execute one of the following commands:
   - `start javaw -jar FragPipe-x.x.jar`
   - `java -jar FragPipe-x.x.jar`
-- for **Linux/MacOS** use one of the following:
-  - Run the shell script included in the release zip file
+- **Linux/Mac**:
+  - Either run the `FragPipe` shell script from *.zip* distribution  
   or execute the following command:
-  - `java -jar FragPipe-x.x.jar`
+  - Or execute `java -jar FragPipe-x.x.jar`
 
 
 ## Citing the work
