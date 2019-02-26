@@ -59,8 +59,12 @@ You don't need to have Gradle installed. Gradle wrapper included in this reposit
 
     ```bash
     cd ./MSFragger-GUI
-    ./gradlew prepareRelease
+    ./gradlew prepareReleaseNoExe
     ```
 3. Inspect the output in `MSFragger-GUI/build/github-release` directory.
+4. If you want *.exe* file for Windows, then you have to build on Windows with [Launch4j](http://launch4j.sourceforge.net/) installed.
+    ```bash
+    ./gradlew prepareReleaseWithExe
+    ```
 
 [![Analytics](https://ga-beacon-nocache.appspot.com/UA-5572974-15/github/chhh/msfragger-gui/landing-page?flat&useReferer)](https://github.com/igrigorik/ga-beacon)
