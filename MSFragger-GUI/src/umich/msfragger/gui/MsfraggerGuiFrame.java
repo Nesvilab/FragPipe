@@ -61,7 +61,6 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -131,6 +130,7 @@ import umich.msfragger.cmd.CmdIprophet;
 import umich.msfragger.cmd.CmdMsAdjuster;
 import umich.msfragger.cmd.CmdMsfragger;
 import umich.msfragger.cmd.CmdPeptideProphet;
+import umich.msfragger.cmd.CmdPhilosopherWorkspaceClean;
 import umich.msfragger.cmd.CmdPhilosopherWorkspaceCleanInit;
 import umich.msfragger.cmd.CmdProteinProphet;
 import umich.msfragger.cmd.CmdReportAbacus;
@@ -3961,6 +3961,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           true, pathPhiIsRunIn);
       cmdPhiCleanInit.configure(usePhi);
       pbDescs.add(cmdPhiCleanInit.builders());
+      CmdPhilosopherWorkspaceClean cmdPhiClean = new CmdPhilosopherWorkspaceClean(
+          true, pathPhiIsRunIn);
+      cmdPhiClean.configure(usePhi);
+      pbDescs.add(cmdPhiClean.builders());
     }
 
     // make sure that all subfolders are created for groups/experiments
