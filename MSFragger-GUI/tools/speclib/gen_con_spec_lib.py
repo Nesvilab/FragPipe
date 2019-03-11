@@ -363,7 +363,7 @@ def filter_proteins(fasta, decoy_prefix):
 	# print("irt_prots_with_decoys",irt_prots_with_decoys)
 	# print("irt_prots",irt_prots)
 	if use_peptide_tsv:
-		philosopher_peptide_tsv = pd.read_table(peptide_tsv_path)
+		philosopher_peptide_tsv = pd.read_csv(peptide_tsv_path, sep='\t')
 		proteins_fas = frozenset(philosopher_peptide_tsv['Protein'])
 	else:
 		fasta_file = output_directory / "proteins.fas"
@@ -482,6 +482,7 @@ c|-0.02|AmidatedCorrected
 							stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 		if cp.returncode != 0:
 			print('Skipping iRT alignment\n')
+			(output_directory / 'spectrast2spectrast_irt.log').write_bytes(cp.stdout)
 			shutil.move(output_directory / 'output_file_irt_con001.splib', output_directory / 'output_file_irt_con.splib')
 		else:
 			print(cp.stdout.decode())
@@ -572,9 +573,9 @@ def edit_raw_con_lib():
 		return m[1]
 
 	import pandas as pd, pathlib
-	t = pd.read_table("output_irt_con.tsv")
+	t = pd.read_csv("output_irt_con.tsv", sep='\t')
 
-	philosopher_peptide_tsv = pd.read_table(peptide_tsv_path)
+	philosopher_peptide_tsv = pd.read_csv(peptide_tsv_path, sep='\t')
 	pep_to_xxx = {peptide: rest
 				  for peptide, *rest in
 				  philosopher_peptide_tsv[['Peptide', 'Protein', 'Protein ID', 'Entry Name', 'Gene', 'Protein Description']].itertuples(index=False)}
@@ -590,7 +591,7 @@ def edit_raw_con_lib():
 		axis=1, result_type='expand')
 
 	if False:
-		philosopher_psm_tsv = pd.read_table('psm.tsv')
+		philosopher_psm_tsv = pd.read_csv('psm.tsv', sep='\t')
 		pep_to_razor_prot = {pep: razor_prot for pep, razor_prot in philosopher_psm_tsv[["Peptide", "Protein"]].itertuples(index=False)}
 		t["Protein"] = t["PeptideSequence"].map(pep_to_razor_prot.get)
 
@@ -611,7 +612,7 @@ def edit_raw_con_lib():
 	fout = pathlib.Path('con_lib.tsv')
 	print(f'Writing {fout.resolve()}')
 	fout.write_text(
-		t[t["Protein"].notnull()].to_csv(sep='\t', index=False).replace('(UniMod:5)', '(UniMod:1)')
+		t[t["Protein"].notnull()].to_csv(sep='\t', index=False, line_terminator='\n').replace('(UniMod:5)', '(UniMod:1)')
 	)
 
 
