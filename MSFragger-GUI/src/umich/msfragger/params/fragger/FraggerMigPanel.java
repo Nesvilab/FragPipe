@@ -92,6 +92,7 @@ import umich.msfragger.params.enums.FraggerPrecursorMassMode;
 import umich.msfragger.params.enums.MassTolUnits;
 import umich.msfragger.util.CacheUtils;
 import umich.msfragger.util.PropertiesUtils;
+import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.swing.FormEntry;
 
@@ -130,7 +131,7 @@ public class FraggerMigPanel extends JPanel {
       PROP_misc_fragger_clear_mz_lo,
       PROP_misc_fragger_clear_mz_hi,
       PROP_misc_fragger_precursor_charge_lo,
-      PROP_misc_fragger_precursor_charge_hi
+      PROP_misc_fragger_precursor_charge_hi,
   };
 
   static {
@@ -148,6 +149,8 @@ public class FraggerMigPanel extends JPanel {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_override_charge, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.valueOf(s).valueInParamsFile());
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_ion_series, ionStr -> ionStr.trim().replaceAll("[\\w,;]+",","));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_ion_series_definitions, defStr -> defStr.trim().replaceAll("\\w*[,;]+\\w*",", "));
 
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
@@ -529,7 +532,8 @@ public class FraggerMigPanel extends JPanel {
           + "Setting isotope_error to 0/1/2 in combination<br>\n"
           + "with this example will create search windows around<br>\n"
           + "(0,1,2,79.966, 80.966, 81.966).";
-      FormEntry feMassOffsets = new FormEntry(MsfraggerParams.PROP_mass_offsets, "User defined variable mass shifts (on any aminoacid)",
+      FormEntry feMassOffsets = new FormEntry(MsfraggerParams.PROP_mass_offsets,
+          "User defined variable mass shifts (on any aminoacid)",
           UiUtils.uiTextBuilder().filter("[^\\(\\)\\./,\\d ]").text("0").create(),
           tooltipMassOffsets);
       pMods.add(feMassOffsets.label(), new CC().split(2));
@@ -546,10 +550,10 @@ public class FraggerMigPanel extends JPanel {
       CC alignRight = new CC().alignX("right");
       CC wrap = new CC().wrap();
 
+      JPanel pOpenSearch = new JPanel(new MigLayout(new LC()));
       {
-        JPanel pOpenSearch = new JPanel(new MigLayout(new LC()));
-        pOpenSearch.setBorder(new TitledBorder("Open Search Options"));
 
+        pOpenSearch.setBorder(new TitledBorder("Open Search Options"));
         FormEntry feTrackZeroTopN = new FormEntry(MsfraggerParams.PROP_track_zero_topN,
             "Track zero top N",
             new UiSpinnerInt(0, 0, 1000, 5, 3));
@@ -577,12 +581,10 @@ public class FraggerMigPanel extends JPanel {
         pOpenSearch.add(feZeroBinAcceptExpect.comp);
         pOpenSearch.add(feZeroBinMultExpect.label(), alignRight);
         pOpenSearch.add(feZeroBinMultExpect.comp, wrap);
-
-        pAdvanced.add(pOpenSearch, new CC().wrap().growX());
       }
 
+      JPanel pSpectral = new JPanel(new MigLayout(new LC()));
       {
-        JPanel pSpectral = new JPanel(new MigLayout(new LC()));
         pSpectral.setBorder(new TitledBorder("Spectral Processing"));
 
         FormEntry feMinPeaks = new FormEntry(MsfraggerParams.PROP_minimum_peaks, "Min peaks",
@@ -617,14 +619,37 @@ public class FraggerMigPanel extends JPanel {
         pSpectral.add(feClearRangeMzLo.comp, new CC().split(3).spanX());
         pSpectral.add(new JLabel("-"));
         pSpectral.add(feClearRangeMzHi.comp, new CC().wrap());
-
-        pAdvanced.add(pSpectral, new CC().wrap().growX());
       }
 
       // Advanced peak matching panel
+      JPanel pPeakMatch = new JPanel(new MigLayout(new LC()));
       {
-        JPanel pPeakMatch = new JPanel(new MigLayout(new LC()));
         pPeakMatch.setBorder(new TitledBorder("Peak Matching and Output Advanced Options"));
+
+        FormEntry feIonSeries = new FormEntry(MsfraggerParams.PROP_fragment_ion_series,
+            "Fragment ion series", new UiText(10), ""
+            + "<html>Which peptide ion series to check against.<br/>\n"
+            + "<b>Use spaces, commas or semicolons as delimiters</b>, e.g. \"b,y\"<br/>\n"
+            + "This mostly depends on fragmentation method.<br/>\n"
+            + "Typically \"b,y\" are used for CID and \"c,z\" for ECD.<br/>\n"
+            + "MSFragger can generate \"a,b,c,x,y,z\" ion series by default,<br/>\n"
+            + "but <b>you can define your own in 'Define custom ion series' field</b>.<br/>\n"
+            + "If you define custom series, you will need to include the name you<br/>\n"
+            + "gave it here.");
+        FormEntry feCustomSeries = new FormEntry(MsfraggerParams.PROP_ion_series_definitions,
+            "Define custom ion series", new UiText(10),
+            "<html>Custom ion series allow specification of arbitrary mass gains/losses<br/>\n"
+            + "for N- and C-terminal ions. Separate multiple definitions by commas or semicolons.<br/>\n"
+            + "<b>Format:</b> name terminus mass-delta<br/>\n"
+            + "Example definition string:<br/>\n"
+            + "b* N -17.026548; b0 N -18.010565<br/>\n"
+            + "This would define two new ion types named <i>b*</i> and <i>b0</i>,<br/>\n"
+            + "you can name them whatever you fancy. <i>b*</i> is the equivalent of an<br/>\n"
+            + "N terminal b-ion with ammonia loss, <i>b0</i> is the same with water loss.<br/>\n");
+        pPeakMatch.add(feIonSeries.label(), alignRight);
+        pPeakMatch.add(feIonSeries.comp, new CC().growX());
+        pPeakMatch.add(feCustomSeries.label(), new CC().split(2).spanX());
+        pPeakMatch.add(feCustomSeries.comp, new CC().growX().wrap());
 
         FormEntry feTrueTolUnits = new FormEntry(MsfraggerParams.PROP_precursor_true_units,
             "Precursor true tolerance", UiUtils.createUiCombo(MassTolUnits.values()));
@@ -692,9 +717,11 @@ public class FraggerMigPanel extends JPanel {
         pPeakMatch.add(feOutputType.comp);
         pPeakMatch.add(feOutputMaxExpect.label(), alignRight);
         pPeakMatch.add(feOutputMaxExpect.comp, wrap);
-
-        pAdvanced.add(pPeakMatch, new CC().wrap().growX());
       }
+
+      pAdvanced.add(pSpectral, new CC().wrap().growX());
+      pAdvanced.add(pPeakMatch, new CC().wrap().growX());
+      pAdvanced.add(pOpenSearch, new CC().wrap().growX());
 
       pContent.add(pAdvanced, new CC().wrap().growX());
     }
@@ -958,7 +985,14 @@ public class FraggerMigPanel extends JPanel {
       if (MsfraggerParams.PROP_NAMES_SET.contains(k)) {
         // known property
         Function<String, String> converter = CONVERT_TO_FILE.getOrDefault(k, s -> s);
-        p.getProps().setProp(k, converter.apply(v));
+        String converted = converter.apply(v);
+
+        if (MsfraggerParams.PROP_fragment_ion_series.equals(k) && StringUtils.isNullOrWhitespace(converted)) {
+          // don't set ion series to be used in the fragger config file if the string is emtpty
+          continue;
+        }
+        p.getProps().setProp(k, converted);
+
       } else {
         // unknown prop, it better should be from the "misc" category we added in this panel
         if (PROPS_MISC_NAMES.contains(k) || k.startsWith("misc.")) {

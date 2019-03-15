@@ -15,6 +15,8 @@ precursor_mass_mode = selected
 
 shifted_ions = 0
 shifted_ions_exclude_ranges = (-1.5,3.5)
+fragment_ion_series=b,y
+ion_series_definitions=               # Example: "b* N -17.026548; b0 N -18.010565"
 
 search_enzyme_name = Trypsin
 search_enzyme_cutafter = KR

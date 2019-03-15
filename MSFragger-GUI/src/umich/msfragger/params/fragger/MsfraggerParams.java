@@ -38,7 +38,6 @@ import umich.msfragger.params.enums.CleavageType;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.enums.FraggerPrecursorMassMode;
 import umich.msfragger.params.enums.MassTolUnits;
-import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.StringUtils;
 
 /**
@@ -88,7 +87,9 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_digest_max_length = "digest_max_length";
     public static final String PROP_digest_mass_range = "digest_mass_range";
     public static final String PROP_max_fragment_charge = "max_fragment_charge";
-    
+    public static final String PROP_fragment_ion_series = "fragment_ion_series";
+    public static final String PROP_ion_series_definitions = "ion_series_definitions";
+
     
     // Open search params
     
@@ -147,6 +148,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_digest_max_length,
         PROP_digest_mass_range,
         PROP_max_fragment_charge,
+        PROP_fragment_ion_series,
         PROP_track_zero_topN,
         PROP_zero_bin_accept_expect,
         PROP_zero_bin_mult_expect,
@@ -586,15 +588,23 @@ public class MsfraggerParams extends AbstractParams {
     public void setMaxFragmentCharge(int v) {
         props.setProp(PROP_max_fragment_charge, Integer.toString(v));
     }
-    
-//    public int getTrackZeroTopN() {
-//        return Integer.parseInt(props.getProp(PROP_track_zero_topN, "0").value);
-//    }
-//    
-//    public void setTrackZeroTopN(int v) {
-//        props.setProp(PROP_track_zero_topN, Integer.toString(v));
-//    }
-    
+
+    public String getFragmentIonSeries() {
+        return props.getProp(PROP_fragment_ion_series, "b,y").value;
+    }
+
+    public void setFragmentIonSeries(String v) {
+        props.setProp(PROP_fragment_ion_series, v);
+    }
+
+    public String getIonSeriesDefinitions() {
+        return props.getProp(PROP_ion_series_definitions, "").value;
+    }
+
+    public void setIonSeriesDefinitions(String v) {
+        props.setProp(PROP_ion_series_definitions, v);
+    }
+
     public int getTrackZeroTopN() {
         int v = Integer.parseInt(props.getProp(PROP_track_zero_topN, "0").value);
         return v;
