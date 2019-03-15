@@ -149,6 +149,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_digest_mass_range,
         PROP_max_fragment_charge,
         PROP_fragment_ion_series,
+        PROP_ion_series_definitions,
         PROP_track_zero_topN,
         PROP_zero_bin_accept_expect,
         PROP_zero_bin_mult_expect,
