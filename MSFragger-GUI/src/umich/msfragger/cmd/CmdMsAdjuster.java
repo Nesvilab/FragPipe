@@ -13,6 +13,7 @@ import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcProps;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.util.JarUtils;
+import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.StringUtils;
 
 public class CmdMsAdjuster extends CmdBase {
@@ -72,7 +73,11 @@ public class CmdMsAdjuster extends CmdBase {
           toJoin.add(jarDepsPath.toString());
           toJoin.add(jarMsadjusterPath.toString());
           final String sep = System.getProperties().getProperty("path.separator");
-          cmd.add("\"" + org.apache.commons.lang3.StringUtils.join(toJoin, sep) + "\"");
+          final String classpath = org.apache.commons.lang3.StringUtils.join(toJoin, sep);
+          if (OsUtils.isWindows())
+            cmd.add("\"" + classpath + "\"");
+          else
+            cmd.add(classpath);
           cmd.add(CrystalcProps.JAR_MSADJUSTER_MAIN_CLASS);
         } else {
           cmd.add("-jar");

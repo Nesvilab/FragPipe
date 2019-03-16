@@ -22,6 +22,7 @@ import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.crystalc.CrystalcProps;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.util.JarUtils;
+import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.StringUtils;
 
 public class CmdCrystalc extends CmdBase {
@@ -171,7 +172,11 @@ public class CmdCrystalc extends CmdBase {
       toJoin.add(jarDeps.toAbsolutePath().normalize().toString());
       toJoin.add(jarCystalc.toAbsolutePath().normalize().toString());
       final String sep = System.getProperties().getProperty("path.separator");
-      cmd.add("\"" + org.apache.commons.lang3.StringUtils.join(toJoin, sep) + "\"");
+      final String classpath = org.apache.commons.lang3.StringUtils.join(toJoin, sep);
+      if (OsUtils.isWindows())
+        cmd.add("\"" + classpath + "\"");
+      else
+        cmd.add(classpath);
       cmd.add(CrystalcProps.JAR_CRYSTALC_MAIN_CLASS);
       cmd.add(ccParamsPath.toString());
       cmd.add(pepxml.toString());
