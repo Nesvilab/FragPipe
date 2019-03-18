@@ -1004,6 +1004,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     textReportFilter = new javax.swing.JTextField();
     checkReportAbacus = new javax.swing.JCheckBox();
     jLabel1 = new javax.swing.JLabel();
+    checkFilterNoProtxml = new javax.swing.JCheckBox();
     checkCreateReport = new javax.swing.JCheckBox();
     panelSpecLibOpts = new javax.swing.JPanel();
     checkGenerateSpecLib = new javax.swing.JCheckBox();
@@ -2064,6 +2065,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     jLabel1.setText("Filter");
 
+    checkFilterNoProtxml.setSelected(loadLastCheckboxUseProtxmlInFilter());
+    checkFilterNoProtxml.setText("Do not use ProteinProphet file");
+    checkFilterNoProtxml.setToolTipText("<html>Only to be used in rare cases.<br/>\nConsider turning off Protein Prophet instead of using this checkbox.");
+    checkFilterNoProtxml.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        checkFilterNoProtxmlActionPerformed(evt);
+      }
+    });
+
     javax.swing.GroupLayout panelReportOptionsLayout = new javax.swing.GroupLayout(panelReportOptions);
     panelReportOptions.setLayout(panelReportOptionsLayout);
     panelReportOptionsLayout.setHorizontalGroup(
@@ -2077,6 +2087,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addComponent(textReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE))
           .addGroup(panelReportOptionsLayout.createSequentialGroup()
             .addComponent(checkReportAbacus)
+            .addGap(18, 18, 18)
+            .addComponent(checkFilterNoProtxml)
             .addGap(0, 0, Short.MAX_VALUE))))
     );
     panelReportOptionsLayout.setVerticalGroup(
@@ -2086,7 +2098,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(textReportFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
           .addComponent(jLabel1))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(checkReportAbacus)
+        .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(checkReportAbacus)
+          .addComponent(checkFilterNoProtxml))
         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
@@ -3897,8 +3911,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       final boolean isFilter = isReport;
       final CmdReportFilter cmdReportFilter = new CmdReportFilter(isFilter, wd);
       if (cmdReportFilter.isRun()) {
+        final boolean isCheckFilterNoProtxml = SwingUtils.isEnabledAndChecked(checkFilterNoProtxml);
+        final boolean dontUseFilterProtxml = !isRunProteinProphet || isCheckFilterNoProtxml;
         if (!cmdReportFilter.configure(this, usePhi,
-            decoyTag, textReportFilter.getText(), mapGroupsToProtxml)) {
+            decoyTag, textReportFilter.getText(), dontUseFilterProtxml, mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(cmdReportFilter.builders());
@@ -4743,6 +4759,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     saveWorkdirText();
   }//GEN-LAST:event_txtWorkingDirFocusLost
 
+  private void checkFilterNoProtxmlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkFilterNoProtxmlActionPerformed
+    ThisAppProps.save(checkFilterNoProtxml, ThisAppProps.PROP_CHECKBOX_REPORT_FILTER_NO_PROTXML);
+  }//GEN-LAST:event_checkFilterNoProtxmlActionPerformed
+
 
   //region Load-Last methods
   public void loadLastPeptideProphet() {
@@ -4795,6 +4815,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     } else {
       loadDefaultDecoyTag();
     }
+  }
+
+  private boolean loadLastCheckboxUseProtxmlInFilter() {
+    final String checked = ThisAppProps.load(ThisAppProps.PROP_CHECKBOX_REPORT_FILTER_NO_PROTXML);
+    try {
+      return Boolean.valueOf(checked);
+    } catch (Exception ignored) {
+    }
+    return false;
   }
 
   private boolean loadLastCheckboxAbacus() {
@@ -5518,6 +5547,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JCheckBox checkCreateReport;
   private javax.swing.JCheckBox checkDryRun;
   private javax.swing.JCheckBox checkEnableDiaumpire;
+  private javax.swing.JCheckBox checkFilterNoProtxml;
   private javax.swing.JCheckBox checkGenerateSpecLib;
   private javax.swing.JCheckBox checkLabelfree;
   private javax.swing.JCheckBox checkProcessGroupsSeparately;

@@ -29,7 +29,7 @@ public class CmdReportFilter extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      String decoyTag, String textReportFilter,
+      String decoyTag, String textReportFilter, boolean dontUseFilterProtxml,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
     pbs.clear();
@@ -53,8 +53,10 @@ public class CmdReportFilter extends CmdBase {
       cmd.add(decoyTag);
       cmd.add("--pepxml");
       cmd.add(groupWd.toString());
-      cmd.add("--protxml");
-      cmd.add(protxml.toString());
+      if (!dontUseFilterProtxml) {
+        cmd.add("--protxml");
+        cmd.add(protxml.toString());
+      }
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(groupWd.toFile());

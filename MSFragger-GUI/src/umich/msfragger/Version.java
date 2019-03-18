@@ -57,6 +57,10 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("9.3", Arrays.asList(
+        "Custom ion series in MSFragger",
+        "Turning off usage of protxml file in Filter command when Protein Prophet is not run"));
+
     CHANGELOG.put("9.1", Arrays.asList(
         "Fix Abacus command bug with unrecognized options from Filter command being carried over."));
 

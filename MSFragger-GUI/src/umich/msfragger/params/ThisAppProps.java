@@ -79,6 +79,7 @@ public class ThisAppProps extends Properties {
   public static final String PROP_CHECKBOX_PROCESS_GROUPS_SEPARATELY = "process.groups.separately";
   public static final String PROP_CHECKBOX_COMBINE_PEPXML = "peptideprophet.combine.pepxml";
   public static final String PROP_CHECKBOX_REPORT_ABACUS = "report.run.abacus";
+  public static final String PROP_CHECKBOX_REPORT_FILTER_NO_PROTXML = "report.filter.no-protxml";
 
   public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
   public static final String PROP_TEXT_CMD_PROTEIN_PROPHET = "proteinprophet.cmd.line.opts";
