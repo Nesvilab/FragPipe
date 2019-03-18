@@ -1379,7 +1379,7 @@
                         <Property name="selected" type="boolean" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                           <Connection code="loadLastProcessGroupsSeparately()" type="code"/>
                         </Property>
-                        <Property name="text" type="java.lang.String" value="&lt;html&gt;A &lt;b&gt;separate&lt;/b&gt; prot-xml file per group/experiment"/>
+                        <Property name="text" type="java.lang.String" value="&lt;html&gt;Separate ProteinProphet prot.xml file per group/experiment"/>
                         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;Uncheck&lt;/b&gt; if you want a report comparing protein abundances across&lt;br/&gt;&#xa;experiments or just want a single protein identification result from all&lt;br/&gt;&#xa;the runs.&lt;br/&gt;&#xa;&lt;b&gt;Only check&lt;/b&gt; if you want peptide/protein ID results&lt;br/&gt;&#xa;for each experiment separately. E.g. this might be useful if you have&lt;br/&gt;&#xa;100 files on hand and use the &quot;assign to experiments&quot; feature to quickly&lt;br/&gt;&#xa;run MSFragger + downstream processing on each of those and get a pepxml&lt;br/&gt;&#xa;and/or protxml files."/>
                       </Properties>
                       <Events>

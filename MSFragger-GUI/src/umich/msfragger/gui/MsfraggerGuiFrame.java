@@ -1831,7 +1831,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     panelProteinProphetOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("Protein Prophet Options"));
 
     checkProcessGroupsSeparately.setSelected(loadLastProcessGroupsSeparately());
-    checkProcessGroupsSeparately.setText("<html>A <b>separate</b> prot-xml file per group/experiment");
+    checkProcessGroupsSeparately.setText("<html>Separate ProteinProphet prot.xml file per group/experiment");
     checkProcessGroupsSeparately.setToolTipText("<html><b>Uncheck</b> if you want a report comparing protein abundances across<br/>\nexperiments or just want a single protein identification result from all<br/>\nthe runs.<br/>\n<b>Only check</b> if you want peptide/protein ID results<br/>\nfor each experiment separately. E.g. this might be useful if you have<br/>\n100 files on hand and use the \"assign to experiments\" feature to quickly<br/>\nrun MSFragger + downstream processing on each of those and get a pepxml<br/>\nand/or protxml files.");
     checkProcessGroupsSeparately.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
