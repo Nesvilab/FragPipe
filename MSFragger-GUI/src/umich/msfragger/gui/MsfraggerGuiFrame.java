@@ -1005,6 +1005,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     checkReportAbacus = new javax.swing.JCheckBox();
     jLabel1 = new javax.swing.JLabel();
     checkFilterNoProtxml = new javax.swing.JCheckBox();
+    checkReportPrintDecoys = new javax.swing.JCheckBox();
     checkCreateReport = new javax.swing.JCheckBox();
     panelSpecLibOpts = new javax.swing.JPanel();
     checkGenerateSpecLib = new javax.swing.JCheckBox();
@@ -2074,6 +2075,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
+    checkReportPrintDecoys.setSelected(loadLastCheckReportPrintDecoys());
+    checkReportPrintDecoys.setText("Print decoys");
+    checkReportPrintDecoys.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        checkReportPrintDecoysActionPerformed(evt);
+      }
+    });
+
     javax.swing.GroupLayout panelReportOptionsLayout = new javax.swing.GroupLayout(panelReportOptions);
     panelReportOptions.setLayout(panelReportOptionsLayout);
     panelReportOptionsLayout.setHorizontalGroup(
@@ -2087,9 +2096,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addComponent(textReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE))
           .addGroup(panelReportOptionsLayout.createSequentialGroup()
             .addComponent(checkReportAbacus)
-            .addGap(18, 18, 18)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(checkReportPrintDecoys)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(checkFilterNoProtxml)
-            .addGap(0, 0, Short.MAX_VALUE))))
+            .addContainerGap())))
     );
     panelReportOptionsLayout.setVerticalGroup(
       panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2100,7 +2111,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(checkReportAbacus)
-          .addComponent(checkFilterNoProtxml))
+          .addComponent(checkFilterNoProtxml)
+          .addComponent(checkReportPrintDecoys))
         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
@@ -3933,8 +3945,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
       // run Report - Report command itself
       final CmdReportReport cmdReportReport = new CmdReportReport(isReport, wd);
+      final boolean doPrintDecoys = checkReportPrintDecoys.isSelected();
       if (cmdReportReport.isRun()) {
-        if (!cmdReportReport.configure(this, usePhi, mapGroupsToProtxml)) {
+        if (!cmdReportReport.configure(this, usePhi, doPrintDecoys, mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(cmdReportReport.builders());
@@ -4763,6 +4776,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.save(checkFilterNoProtxml, ThisAppProps.PROP_CHECKBOX_REPORT_FILTER_NO_PROTXML);
   }//GEN-LAST:event_checkFilterNoProtxmlActionPerformed
 
+  private void checkReportPrintDecoysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkReportPrintDecoysActionPerformed
+    ThisAppProps.save(checkReportPrintDecoys, ThisAppProps.PROP_CHECKBOX_REPORT_PRINT_DECOYS);
+  }//GEN-LAST:event_checkReportPrintDecoysActionPerformed
+
 
   //region Load-Last methods
   public void loadLastPeptideProphet() {
@@ -4886,6 +4903,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (loaded != null && !loaded.contains("--prot")) {
       textReportFilter.setText(loaded + " --prot 0.01");
     }
+  }
+
+  private boolean loadLastCheckReportPrintDecoys() {
+    final String checked = ThisAppProps.load(ThisAppProps.PROP_CHECKBOX_REPORT_PRINT_DECOYS);
+    try {
+      return Boolean.valueOf(checked);
+    } catch (Exception ignored) {
+    }
+    return false;
   }
 
   public void loadDefaultsReportFilter(SearchTypeProp type) {
@@ -5553,6 +5579,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JCheckBox checkLabelfree;
   private javax.swing.JCheckBox checkProcessGroupsSeparately;
   private javax.swing.JCheckBox checkReportAbacus;
+  private javax.swing.JCheckBox checkReportPrintDecoys;
   private javax.swing.JCheckBox chkRunCrystalc;
   private javax.swing.JCheckBox chkRunPeptideProphet;
   private javax.swing.JCheckBox chkRunProteinProphet;
