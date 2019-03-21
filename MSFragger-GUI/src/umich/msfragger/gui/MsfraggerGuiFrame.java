@@ -5417,6 +5417,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
      */
 
     ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
+    Locale.setDefault(Locale.ROOT);
     try {
       if (OsUtils.isWindows()) {
         // native look on windows
