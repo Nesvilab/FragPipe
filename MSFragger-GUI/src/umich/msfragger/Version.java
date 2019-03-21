@@ -60,7 +60,8 @@ public class Version {
     CHANGELOG.put("9.3", Arrays.asList(
         "Custom ion series in MSFragger",
         "Turning off usage of protxml file in Filter command when Protein Prophet is not run",
-        "'Print Decoys' option/checkbox for Report command"));
+        "'Print Decoys' option/checkbox for Report command",
+        "Update CrystalC-1.0.5"));
 
     CHANGELOG.put("9.1", Arrays.asList(
         "Fix Abacus command bug with unrecognized options from Filter command being carried over."));
