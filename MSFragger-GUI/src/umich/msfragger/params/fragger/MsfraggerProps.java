@@ -27,6 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.util.PropertiesUtils;
 
 /**
@@ -38,12 +39,12 @@ public class MsfraggerProps {
     public static final String PROGRAM_NAME = "MSFragger";
     public static final String DBSPLIT_SCRIPT_NAME = "msfragger_pep_split.py";
 
-    private static class Holder {
-        private static final Properties properties = PropertiesUtils.initProperties(PROPERTIES_URLS, PROPERTIES_FILE_NAME, MsfraggerProps.class);
-        public static Properties getProperties() {
-            return properties;
-        }
-    }
+//    private static class Holder {
+//        private static final Properties properties = PropertiesUtils.initProperties(PROPERTIES_URLS, PROPERTIES_FILE_NAME, MsfraggerProps.class);
+//        public static Properties getProperties() {
+//            return properties;
+//        }
+//    }
     
     // This URL wil be checked to compare versions of MSFragger.
     // This way the user will get notifications about new versions of
@@ -60,6 +61,7 @@ public class MsfraggerProps {
     public static final String PROP_LATEST_VERSION = "msfragger.version.latest-known";
     public static final String PROP_MIN_VERSION_SLICING = "msfragger.version.min-for-slicing";
     public static final String PROP_MIN_VERSION_MSADJUSTER = "msfragger.version.min-for-msadjuster";
+    public static final String PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE = "msfragger.version.min-for-calibrate";
     public static final String PROP_DOWNLOAD_URL = "msfragger.download.url";
     public static final String PROP_FRAGGER_SITE_URL = "msfragger.site.url";
     public static final String PROP_DBSPLIT_INSTRUCTIONS_URL = "msfragger.dbsplit.instructions.url";
@@ -105,6 +107,42 @@ public class MsfraggerProps {
     }
 
     public static Properties getProperties() {
-        return Holder.getProperties();
+        return getRemotePropertiesWithLocalDefaults();
+    }
+
+
+    private static class HolderRemote {
+        private static final Properties propsRemote = PropertiesUtils.initProperties(PROPERTIES_URLS);
+        public static Properties getRemoteProperties() {
+            return propsRemote;
+        }
+    }
+
+    private static class HolderLocal {
+        private static final Properties propsLocal = PropertiesUtils.initProperties(PROPERTIES_FILE_NAME, MsfraggerProps.class);
+
+        public static Properties getLocalProperties() {
+            return propsLocal;
+        }
+    }
+
+    public static Properties getLocalProperties() {
+        return HolderLocal.getLocalProperties();
+    }
+
+    public static Properties getRemoteProperties() {
+        return HolderRemote.getRemoteProperties();
+    }
+
+    public static Properties getRemotePropertiesWithLocalDefaults() {
+        final Properties p = new Properties(getLocalProperties());
+        // merge with remote properties
+        Properties remote = getRemoteProperties();
+        if (remote!= null) {
+            for (String name : remote.stringPropertyNames()) {
+                p.setProperty(name, remote.getProperty(name));
+            }
+        }
+        return p;
     }
 }

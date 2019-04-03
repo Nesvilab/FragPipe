@@ -166,6 +166,7 @@ import umich.msfragger.messages.MessageStartProcesses;
 import umich.msfragger.messages.MessageTipNotification;
 import umich.msfragger.messages.MessageToolInit;
 import umich.msfragger.messages.MessageValidityFragger;
+import umich.msfragger.messages.MessageValidityMassCalibration;
 import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
@@ -310,7 +311,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       // if exists, overwrite
       if (Files.exists(path)) {
         int overwrite = JOptionPane
-            .showConfirmDialog(parent, "<html>File exists,<br/> overwrtie?", "Overwrite",
+            .showConfirmDialog(parent, "<html>File exists, overwrtie?<br/><br/>" + path.toString(), "Overwrite",
                 JOptionPane.OK_CANCEL_OPTION);
         if (JOptionPane.OK_OPTION == overwrite) {
           try {
@@ -459,9 +460,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     exec.submit(() -> Version.checkUpdates());
     exec.submit(this::checkPreviouslySavedParams);
     exec.submit(this::checkPython);
-    exec.submit(this::validateMsadjusterEligibility);
     exec.submit(this::validateDbslicing);
     exec.submit(this::validateSpeclibgen);
+    exec.submit(this::validateMsadjusterEligibility);
+    exec.submit(this::validateMsfraggerMassCalibrationEligibility);
 
     // submitting all "loadLast" methods for invocation
     for (Method method : this.getClass().getDeclaredMethods()) {
@@ -2571,9 +2573,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         break;
     }
 
-    // rerun slicing checks
-    validateMsadjusterEligibility();
-    validateDbslicing();
   }//GEN-LAST:event_btnMsfraggerBinBrowseActionPerformed
 
   /**
@@ -2628,6 +2627,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     final boolean msfraggerEnabled = isJarValid && isVersionValid && isJavaValid;
     EventBus.getDefault().postSticky(new MessageValidityFragger(msfraggerEnabled));
+
+    // rerun slicing checks
+    validateMsadjusterEligibility();
+    validateMsfraggerMassCalibrationEligibility();
+    validateDbslicing();
 
     return isJarValid;
   }
@@ -2690,6 +2694,25 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     return null;
   }
 
+  public void validateMsfraggerMassCalibrationEligibility() {
+    String s = " - UHUHU HU HU HU HU HU HU HU HU HU HU HU HU HU H HU HU H";
+    new Thread(() -> {
+      boolean enableCalibrate = false;
+      String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE);
+      if (minFraggerVer == null) {
+        throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE +
+            " property needs to be in Msfragger properties");
+      }
+      VersionComparator cmp = new VersionComparator();
+      int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
+      if (fraggerVersionCmp >= 0) {
+        enableCalibrate = true;
+      }
+      log.debug("Posting enableCalibrate = {}", enableCalibrate);
+      EventBus.getDefault().postSticky(new MessageValidityMassCalibration(enableCalibrate));
+    }).start();
+
+  }
 
   public void validateMsadjusterEligibility() {
     new Thread(() -> {

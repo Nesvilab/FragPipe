@@ -109,7 +109,7 @@ public class ThisAppProps extends Properties {
     }
   }
 
-  private static class Holder {
+  private static class HolderLocal {
     private static final Properties propsLocal = PropertiesUtils.initProperties("Bundle.properties", MsfraggerGuiFrame.class);
 
     public static Properties getLocalProperties() {
@@ -118,7 +118,7 @@ public class ThisAppProps extends Properties {
   }
 
   public static Properties getLocalProperties() {
-    return Holder.getLocalProperties();
+    return HolderLocal.getLocalProperties();
   }
 
   public static Properties getRemoteProperties() {

@@ -82,6 +82,7 @@ import umich.msfragger.messages.MessageRun;
 import umich.msfragger.messages.MessageSaveCache;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.messages.MessageValidityFragger;
+import umich.msfragger.messages.MessageValidityMassCalibration;
 import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.Props.Prop;
 import umich.msfragger.params.ThisAppProps;
@@ -142,6 +143,7 @@ public class FraggerMigPanel extends JPanel {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_mass_units, s -> Integer.toString(MassTolUnits.valueOf(s).valueInParamsFile()));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_mass_units, s -> Integer.toString(MassTolUnits.valueOf(s).valueInParamsFile()));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_true_units, s -> Integer.toString(MassTolUnits.valueOf(s).valueInParamsFile()));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_calibrate_mass, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_num_enzyme_termini, s -> Integer.toString(CleavageType.valueOf(s).valueInParamsFile()));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_shifted_ions, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
@@ -155,6 +157,7 @@ public class FraggerMigPanel extends JPanel {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_true_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_calibrate_mass, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_num_enzyme_termini, s -> CleavageType.fromValueInParamsFile(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_shifted_ions, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Boolean.toString(Integer.parseInt(s) > 0));
@@ -174,6 +177,7 @@ public class FraggerMigPanel extends JPanel {
   private javax.swing.JTable tableFixMods;
   private UiSpinnerInt uiSpinnerRam;
   private UiSpinnerInt uiSpinnerThreads;
+  private UiCheck uiCheckMassCalibrate;
   private UiCombo uiComboOutputType;
   private UiCombo uiComboMassMode;
   private UiSpinnerInt uiSpinnerDbslice;
@@ -236,7 +240,8 @@ public class FraggerMigPanel extends JPanel {
       JPanel pTop = new JPanel(new MigLayout(new LC()));
       checkRun = new JCheckBox("Run MSFragger", true);
       checkRun.addActionListener(e -> {
-        SwingUtils.enableComponents(pContent, checkRun.isSelected(), true);
+        final boolean isSelected = checkRun.isSelected();
+        updateEnabledStatus(pContent, isSelected);
       });
       JButton btnDefaultsClosed = new JButton("Closed Search");
       btnDefaultsClosed.addActionListener(this::onClickDefaultsClosed);
@@ -300,16 +305,18 @@ public class FraggerMigPanel extends JPanel {
       uiSpinnerPrecTolHi.setColumns(4);
       FormEntry feSpinnerPrecTolHi = new FormEntry(MsfraggerParams.PROP_precursor_mass_upper,
           "not-shown", uiSpinnerPrecTolHi);
-//      uiCheckAdjustPrecursorMass = new UiCheck("<html><i>Adjust precursor mass", null);
-//      FormEntry feAdjustPrecMass = new FormEntry(PROP_misc_adjust_precurosr_mass, "not-shown",
-//          uiCheckAdjustPrecursorMass,
-//          "<html>Correct monoisotopic mass determination erros.<br/>Requires MSFragger 20180924+.");
+      uiCheckMassCalibrate = new UiCheck("<html><i>Calibrate masses", null);
+      String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE, "201904");
+      FormEntry feCalibrate = new FormEntry(MsfraggerParams.PROP_calibrate_mass, "not-shown",
+          uiCheckMassCalibrate, String.format("<html>Requires MSFragger %s+.", minFraggerVer));
+
+
       pPeakMatch.add(fePrecTolUnits.label(), new CC().alignX("right"));
       pPeakMatch.add(fePrecTolUnits.comp, new CC());
       pPeakMatch.add(feSpinnerPrecTolLo.comp, new CC());
       pPeakMatch.add(new JLabel("-"), new CC().span(2));
-      pPeakMatch.add(feSpinnerPrecTolHi.comp, new CC().wrap());
-//      pPeakMatch.add(feAdjustPrecMass.comp, new CC().gapLeft("5px").wrap());
+      pPeakMatch.add(feSpinnerPrecTolHi.comp, new CC());
+      pPeakMatch.add(feCalibrate.comp, new CC().gapLeft("5px").wrap());
 
       // fragment mass tolerance
       FormEntry feFragTolUnits = new FormEntry(MsfraggerParams.PROP_fragment_mass_units,
@@ -752,7 +759,7 @@ public class FraggerMigPanel extends JPanel {
 
       // if exists, overwrite
       if (Files.exists(path)) {
-        int overwrite = JOptionPane.showConfirmDialog(parent, "<html>File exists,<br/> overwrtie?", "Overwrite", JOptionPane.OK_CANCEL_OPTION);
+        int overwrite = JOptionPane.showConfirmDialog(parent, "<html>File exists, overwrtie?<br/><br/>" + path.toString(), "Overwrite", JOptionPane.OK_CANCEL_OPTION);
         if (JOptionPane.OK_OPTION != overwrite) {
           return;
         }
@@ -1107,6 +1114,13 @@ public class FraggerMigPanel extends JPanel {
     log.debug("'Adjust precursor masses' checkbox was removed. Not reacting to MessageValidityMsadjuster event.");
 //    enablementMapping.put(uiCheckAdjustPrecursorMass, msg.isValid);
 //    updateEnabledStatus(uiCheckAdjustPrecursorMass, msg.isValid);
+  }
+
+  @Subscribe
+  public void onValidityMassCalibration(MessageValidityMassCalibration msg) {
+    log.debug("Got message 'MessageValidityMassCalibration' reading isValid = {} ", msg.isValid);
+    enablementMapping.put(uiCheckMassCalibrate, msg.isValid);
+    updateEnabledStatus(uiCheckMassCalibrate, msg.isValid);
   }
 
   private void updateEnabledStatus(Component top, boolean enabled) {

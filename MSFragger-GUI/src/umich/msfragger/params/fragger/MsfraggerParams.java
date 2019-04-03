@@ -58,6 +58,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_precursor_true_units = "precursor_true_units";
     public static final String PROP_fragment_mass_tolerance = "fragment_mass_tolerance";
     public static final String PROP_fragment_mass_units = "fragment_mass_units";
+    public static final String PROP_calibrate_mass = "calibrate_mass";
     public static final String PROP_isotope_error = "isotope_error";
     public static final String PROP_mass_offsets = "mass_offsets";
     public static final String PROP_precursor_mass_mode = "precursor_mass_mode";
@@ -123,6 +124,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_precursor_true_units,
         PROP_fragment_mass_tolerance,
         PROP_fragment_mass_units,
+        PROP_calibrate_mass,
         PROP_isotope_error,
         PROP_mass_offsets,
         PROP_precursor_mass_mode,
@@ -378,7 +380,15 @@ public class MsfraggerParams extends AbstractParams {
     public void setFragmentMassTolerance(double v) {
         props.setProp(PROP_fragment_mass_tolerance, DF.format(v));
     }
-    
+
+    public int getCalibrateMass() {
+        return Integer.parseInt(props.getProp(PROP_calibrate_mass, "0").value);
+    }
+
+    public void setCalibrateMass(int v) {
+        props.setProp(PROP_calibrate_mass, Integer.toString(v));
+    }
+
     // =======================================================================
     
     public String getIsotopeError() {
