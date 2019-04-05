@@ -3190,15 +3190,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-    Path curExistingPath = PathUtils.isExisting(textBinPhilosopher.getText().trim());
-    if (curExistingPath != null) {
-      SwingUtils.setFileChooserPath(fc, curExistingPath);
+
+    // ==============================================================
+    Path current = tryFindStartingPath(textBinPhilosopher.getText());
+    if (current != null) {
+      SwingUtils.setFileChooserPath(fc, current);
     } else {
-      List<String> props = Arrays
-          .asList(ThisAppProps.PROP_BIN_PATH_PHILOSOPHER, ThisAppProps.PROP_BINARIES_IN);
-      String fcPath = ThisAppProps.tryFindPath(props, true);
+      List<String> props = Arrays.asList(ThisAppProps.PROP_BIN_PATH_PHILOSOPHER, ThisAppProps.PROP_BINARIES_IN);
+      String fcPath = ThisAppProps.tryFindPath(props, false);
       SwingUtils.setFileChooserPath(fc, fcPath);
     }
+    // ==============================================================
+
 
     if (JFileChooser.APPROVE_OPTION == fc
         .showOpenDialog(SwingUtils.findParentFrameForDialog(this))) {
