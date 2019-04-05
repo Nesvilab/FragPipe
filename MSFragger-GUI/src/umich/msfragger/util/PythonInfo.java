@@ -103,19 +103,19 @@ public class PythonInfo {
     return true;
   }
 
-  public boolean isAvailable() {
+  public synchronized boolean isAvailable() {
     return !StringUtils.isNullOrWhitespace(command);
   }
 
-  public String getCommand() {
+  public synchronized String getCommand() {
     return command;
   }
 
-  public String getVersion() {
+  public synchronized String getVersion() {
     return version;
   }
 
-  public int getMajorVersion() {
+  public synchronized int getMajorVersion() {
     return majorVersion;
   }
 
