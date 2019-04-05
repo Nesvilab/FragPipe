@@ -172,7 +172,6 @@ import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.dbslice.DbSlice;
-import umich.msfragger.params.dbslice.DbSlice.MessageInitDone;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
@@ -460,9 +459,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     exec.submit(() -> validateAndSavePhilosopherPath(textBinPhilosopher.getText()));
     exec.submit(() -> Version.checkUpdates());
     exec.submit(this::checkPreviouslySavedParams);
+
+    // The python check must be run before DbSlice and SpecLibGen.
+    // Don't run these checks asynchronously
     exec.submit(this::checkPython);
     exec.submit(this::validateDbslicing);
     exec.submit(this::validateSpeclibgen);
+
+
     exec.submit(this::validateMsadjusterEligibility);
     exec.submit(this::validateMsfraggerMassCalibrationEligibility);
 
@@ -494,7 +498,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (JOptionPane.YES_OPTION == yesNo) {
           try {
             pi.findPythonCommand();
-            if (!pi.isAvailable()) {
+            if (!pi.isInitialized()) {
               throw new Exception("Python command not found");
             }
           } catch (Exception e1) {
@@ -546,7 +550,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onMessagePythonInfoChanged(PythonInfo.MessageInfoChanged m) {
     PythonInfo pi = PythonInfo.get();
-    if (pi.isAvailable()) {
+    if (pi.isInitialized()) {
       textBinPython.setText(pi.getCommand());
       lblPythonInfo.setText("Version: " + pi.getVersion());
     } else {
@@ -604,16 +608,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onDbsliceMessage1(DbSlice.Message1 m) {
+    log.debug("Got DbSlice.Message1 m = {} [append={}, error={}]", m.text, m.append, m.isError);
     messageToTextComponent(ISimpleTextComponent.from(lblDbsliceInfo1), m);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onDbsliceMessage2(DbSlice.Message2 m) {
+    log.debug("Got DbSlice.Message2 m = {} [append={}, error={}]", m.text, m.append, m.isError);
     messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo), m);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-  public void onDbsliceInitDone(MessageInitDone m) {
+  public void onDbsliceInitDone(DbSlice.MessageInitDone m) {
+    log.debug("Got DbSlice.MessageInitDone m [success={}]", m.isSuccess);
     final String text = m.isSuccess ? "Database Splitting enabled." : "Database Splitting disabled.";
     messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo), new DbSlice.Message2(true, !m.isSuccess, text));
 
@@ -639,7 +646,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-  public void onSpeclibgenInitDone(SpecLibGen.InitDone m) {
+  public void onSpeclibgenInitDone(SpecLibGen.MessageInitDone m) {
     final String text = m.isSuccess ? "Spectral Library Generation enabled. See Report tab."
         : "Spectral Library Generation disabled.";
     messageToTextComponent(ISimpleTextComponent.from(epSpeclibInfo2), new SpecLibGen.Message2(true, !m.isSuccess, text));
@@ -791,6 +798,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   private void checkPreviouslySavedParams() {
+    log.debug("entered checkPreviouslySavedParams");
     ThisAppProps cached = ThisAppProps.loadFromTemp();
     if (cached != null) {
       // if there was a cached version of properties
@@ -2678,70 +2686,77 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   public void validateMsfraggerMassCalibrationEligibility() {
-    new Thread(() -> {
-      boolean enableCalibrate = false;
-      String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE);
-      if (minFraggerVer == null) {
-        throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE +
-            " property needs to be in Msfragger properties");
-      }
-      VersionComparator cmp = new VersionComparator();
-      int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
-      if (fraggerVersionCmp >= 0) {
-        enableCalibrate = true;
-      }
-      log.debug("Posting enableCalibrate = {}", enableCalibrate);
-      EventBus.getDefault().postSticky(new MessageValidityMassCalibration(enableCalibrate));
-    }).start();
+//    new Thread(() -> {
+//    }).start();
+    boolean enableCalibrate = false;
+    String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE);
+    if (minFraggerVer == null) {
+      throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE +
+          " property needs to be in Msfragger properties");
+    }
+    VersionComparator cmp = new VersionComparator();
+    int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
+    if (fraggerVersionCmp >= 0) {
+      enableCalibrate = true;
+    }
+    log.debug("Posting enableCalibrate = {}", enableCalibrate);
+    EventBus.getDefault().postSticky(new MessageValidityMassCalibration(enableCalibrate));
+
   }
 
   public void validateMsadjusterEligibility() {
-    new Thread(() -> {
-      boolean enableMsadjuster = false;
-      String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_MSADJUSTER);
-      if (minFraggerVer == null) {
-        throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_MSADJUSTER +
-            " property needs to be in Msfragger properties");
-      }
+//    new Thread(() -> {
+//    }).start();
+    boolean enableMsadjuster = false;
+    String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_MSADJUSTER);
+    if (minFraggerVer == null) {
+      throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_MSADJUSTER +
+          " property needs to be in Msfragger properties");
+    }
 
-      VersionComparator cmp = new VersionComparator();
-      int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
-      if (fraggerVersionCmp >= 0) {
-        enableMsadjuster = true;
-      }
-      EventBus.getDefault().postSticky(new MessageValidityMsadjuster(enableMsadjuster));
-    }).start();
+    VersionComparator cmp = new VersionComparator();
+    int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
+    if (fraggerVersionCmp >= 0) {
+      enableMsadjuster = true;
+    }
+    EventBus.getDefault().postSticky(new MessageValidityMsadjuster(enableMsadjuster));
+
   }
 
   public void validateSpeclibgen() {
-    new Thread(() -> SpecLibGen.get().init()).start();
+    log.debug("entered validateSpeclibgen");
+//    new Thread(() -> SpecLibGen.get().init()).start();
+    SpecLibGen.get().init();
   }
 
   public void validateDbslicing() {
-    new Thread(() -> DbSlice.get().init(fraggerVer)).start();
+    log.debug("entered validateDbslicing");
+//    new Thread(() -> DbSlice.get().init(fraggerVer)).start();
+    DbSlice.get().init(fraggerVer);
   }
 
   public void validateAndSavePython(final String binPath, boolean showPopupOnError) {
-//    new Thread(() -> {
-//    }).start();
-    boolean ok;
-    PythonInfo pi = PythonInfo.get();
-    try {
-      ok = PythonInfo.get().setPythonCommand(binPath);
-    } catch (Exception e) {
-      ok = false;
-    }
-    if (ok) {
-      ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, pi.getCommand());
-    } else {
-      ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, "");
-    }
-    if (!ok && showPopupOnError) {
-      JOptionPane.showMessageDialog(MsfraggerGuiFrame.this,
-          "Not a valid Python binary path:\n\n" + binPath, "Not a Python binary",
-          JOptionPane.WARNING_MESSAGE);
-    }
-
+    log.debug("Inside validateAndSavePython, thread not yet started");
+    new Thread(() -> {
+      log.debug("Inside validateAndSavePython, from started thread");
+      boolean ok;
+      PythonInfo pi = PythonInfo.get();
+      try {
+        ok = PythonInfo.get().setPythonCommand(binPath);
+      } catch (Exception e) {
+        ok = false;
+      }
+      if (ok) {
+        ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, pi.getCommand());
+      } else {
+        ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, "");
+      }
+      if (!ok && showPopupOnError) {
+        JOptionPane.showMessageDialog(MsfraggerGuiFrame.this,
+            "Not a valid Python binary path:\n\n" + binPath, "Not a Python binary",
+            JOptionPane.WARNING_MESSAGE);
+      }
+    }).start();
   }
 
   private void validatePhilosopherVersion(final String binPath) {
@@ -4595,10 +4610,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     Path current = tryFindStartingPath(textBinPython.getText());
     if (current != null) {
-      log.warn("FC path DOES exist");
       SwingUtils.setFileChooserPath(fc, current);
     } else {
-      log.warn("FC path NOT exists");
       List<String> props = Arrays.asList(ThisAppProps.PROP_BIN_PATH_PYTHON, ThisAppProps.PROP_BINARIES_IN);
       String fcPath = ThisAppProps.tryFindPath(props, false);
       SwingUtils.setFileChooserPath(fc, fcPath);

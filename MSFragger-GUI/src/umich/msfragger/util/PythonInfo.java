@@ -39,6 +39,7 @@ import org.greenrobot.eventbus.EventBus;
  */
 public class PythonInfo {
   private static PythonInfo instance = new PythonInfo();
+  private final Object initLock = new Object();
   public static PythonInfo get() {
     return instance;
   }
@@ -73,49 +74,54 @@ public class PythonInfo {
    * @param command The command to start python interpreter.
    * @return If the provided command works.
    */
-  private synchronized boolean trySetPythonCommand(String command) throws Exception {
-    String version = null;
-    try {
-      version = tryPythonCommandVersion(command);
-    } catch (Exception e) {
-      reset(true);
-      throw e;
-    }
-    if (version == null) {
-      reset(true);
-      return false;
-    }
-    boolean notify = false;
-    notify |= !Objects.equals(this.command, command);
-    this.command = command;
-    notify |= !Objects.equals(this.version, version);
-    this.version = version;
-    Pattern verRe = Pattern.compile("python\\s+([0-9]+)", Pattern.CASE_INSENSITIVE);
-    Matcher m1 = verRe.matcher(version);
-    if (m1.find()) {
-      final String pythonMajorVer = m1.group(1);
-      notify |= !Objects.equals(this.majorVersion, Integer.valueOf(pythonMajorVer));
-      this.majorVersion = Integer.valueOf(pythonMajorVer);
-    }
+  private boolean trySetPythonCommand(String command) throws Exception {
+    synchronized (initLock) {
+      String version = null;
+      try {
+        version = tryPythonCommandVersion(command);
+      } catch (Exception e) {
+        reset(true);
+        throw e;
+      }
+      if (version == null) {
+        reset(true);
+        return false;
+      }
+      boolean notify = false;
+      notify |= !Objects.equals(this.command, command);
+      this.command = command;
+      notify |= !Objects.equals(this.version, version);
+      this.version = version;
+      Pattern verRe = Pattern.compile("python\\s+([0-9]+)", Pattern.CASE_INSENSITIVE);
+      Matcher m1 = verRe.matcher(version);
+      if (m1.find()) {
+        final String pythonMajorVer = m1.group(1);
+        notify |= !Objects.equals(this.majorVersion, Integer.valueOf(pythonMajorVer));
+        this.majorVersion = Integer.valueOf(pythonMajorVer);
+      }
 
-    if (notify)
-      notifyInfoChanged();
-    return true;
+      if (notify) {
+        notifyInfoChanged();
+      }
+      return true;
+    }
   }
 
-  public synchronized boolean isAvailable() {
-    return !StringUtils.isNullOrWhitespace(command);
+  public boolean isInitialized() {
+    synchronized (initLock) {
+      return !StringUtils.isNullOrWhitespace(command);
+    }
   }
 
-  public synchronized String getCommand() {
+  public String getCommand() {
     return command;
   }
 
-  public synchronized String getVersion() {
+  public String getVersion() {
     return version;
   }
 
-  public synchronized int getMajorVersion() {
+  public int getMajorVersion() {
     return majorVersion;
   }
 
@@ -162,7 +168,9 @@ public class PythonInfo {
   }
 
   public boolean setPythonCommand(String command) throws Exception {
+    synchronized (initLock) {
       return trySetPythonCommand(command);
+    }
   }
 
   /**
@@ -179,55 +187,56 @@ public class PythonInfo {
   }
 
   public void findPythonCommand() throws Exception {
-    String[] commands = {"python", "python3"};
+    synchronized (initLock) {
+      String[] commands = {"python", "python3"};
 
-    // try to query the registry on Windows
-    if (OsUtils.isWindows()) {
-      final String[] roots = {"HKCU", "HKU", "HKLM", "HKCR", "HKCC"};
-      final String[] locations = {
-          "\\Software\\Python\\PythonCore"
-      };
-      List<String> potentialLocs = new ArrayList<>();
-      for (String root : roots) {
-        for (String loc : locations) {
-          List<String> query = RegQuery.query(root + loc);
-          potentialLocs.addAll(query.stream()
-              .filter(this::vetRegistryLocation)
-              .collect(Collectors.toList()));
+      // try to query the registry on Windows
+      if (OsUtils.isWindows()) {
+        final String[] roots = {"HKCU", "HKU", "HKLM", "HKCR", "HKCC"};
+        final String[] locations = {
+            "\\Software\\Python\\PythonCore"
+        };
+        List<String> potentialLocs = new ArrayList<>();
+        for (String root : roots) {
+          for (String loc : locations) {
+            List<String> query = RegQuery.query(root + loc);
+            potentialLocs.addAll(query.stream()
+                .filter(this::vetRegistryLocation)
+                .collect(Collectors.toList()));
+          }
         }
-      }
 
-      List<String> possiblePython3InstallPaths = potentialLocs.stream()
-          .filter(loc -> Paths.get(loc).getFileName().toString().startsWith("3."))
-          .sorted(Comparator.reverseOrder())
-          .collect(Collectors.toList());
-      for (String possiblePython3InstallPath : possiblePython3InstallPaths) {
-        final List<String> qureyInstallPath;
-        try {
-          qureyInstallPath = RegQuery.query(possiblePython3InstallPath + "\\InstallPath", "");
-        } catch (Exception ignored) {
-          continue;
-        }
-        for (String installPath : qureyInstallPath) {
-          for (String cmd : commands) {
-            try {
-              final String rVal = RegQuery.getTokenValue(RegQuery.TOKEN_REGSZ, installPath);
-              final String pythonBinPath = Paths.get(rVal, cmd).toString();
-              if (trySetPythonCommand(pythonBinPath))
-                return;
-            } catch (Exception ignored) {
-              // on Windows the registry might be dirty, those paths don't mean much
+        List<String> possiblePython3InstallPaths = potentialLocs.stream()
+            .filter(loc -> Paths.get(loc).getFileName().toString().startsWith("3."))
+            .sorted(Comparator.reverseOrder())
+            .collect(Collectors.toList());
+        for (String possiblePython3InstallPath : possiblePython3InstallPaths) {
+          final List<String> qureyInstallPath;
+          try {
+            qureyInstallPath = RegQuery.query(possiblePython3InstallPath + "\\InstallPath", "");
+          } catch (Exception ignored) {
+            continue;
+          }
+          for (String installPath : qureyInstallPath) {
+            for (String cmd : commands) {
+              try {
+                final String rVal = RegQuery.getTokenValue(RegQuery.TOKEN_REGSZ, installPath);
+                final String pythonBinPath = Paths.get(rVal, cmd).toString();
+                if (trySetPythonCommand(pythonBinPath))
+                  return;
+              } catch (Exception ignored) {
+                // on Windows the registry might be dirty, those paths don't mean much
+              }
             }
           }
         }
       }
-    }
 
-
-    // try the Python commands searching PATH env-var
-    for(String cmd : commands) {
-      if (trySetPythonCommand(cmd))
-        return;
+      // try the Python commands searching PATH env-var
+      for (String cmd : commands) {
+        if (trySetPythonCommand(cmd))
+          return;
+      }
     }
   }
 
@@ -260,7 +269,7 @@ public class PythonInfo {
    *      {@code packages = [...]} array.
    * @return UNKNOWN if some errors occur while trying to start the interpreter.
    */
-  public synchronized Installed checkModuleInstalled(PythonModule module) {
+  public Installed checkModuleInstalled(PythonModule module) {
     Installed cached = modules.get(module);
     if (cached != null)
       return cached;

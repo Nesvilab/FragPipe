@@ -14,6 +14,8 @@ import umich.msfragger.util.PythonModule;
 
 public class SpecLibGen {
   private static SpecLibGen instance = new SpecLibGen();
+  private final Object initLock = new Object();
+
   public static SpecLibGen get() {
     return instance;
   }
@@ -94,66 +96,70 @@ public class SpecLibGen {
     }
   }
 
-  public static class InitDone {
+  public static class MessageInitDone {
     public final boolean isSuccess;
 
-    public InitDone(boolean isSuccess) {
+    public MessageInitDone(boolean isSuccess) {
       this.isSuccess = isSuccess;
     }
   }
 
   public boolean isInitialized() {
-    return isInitialized;
+    synchronized (initLock) {
+      return isInitialized;
+    }
   }
 
   public void init() {
-    // reset default label text
-    EventBus.getDefault().post(new SpecLibGen.Message1(false, false, ""));
-    EventBus.getDefault().post(new SpecLibGen.Message2(false, false, ""));
+    synchronized (initLock) {
+      // reset default label text
+      EventBus.getDefault().post(new SpecLibGen.Message1(false, false, ""));
+      EventBus.getDefault().post(new SpecLibGen.Message2(false, false, ""));
 
-    // check python version
-    boolean isVersionOk = false;
-    try {
-      CheckResult res = checkPythonVer();
-      isVersionOk = res.isSuccess;
-      EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
-    } catch (Exception e) {
-      EventBus.getDefault().post(new Message1(true,true, "Error checking python version."));
-    }
-
-
-    // check installed modules
-    boolean isModulesInstalled = false;
-    if (isVersionOk) {
+      // check python version
+      boolean isVersionOk = false;
       try {
-        CheckResult res = checkPythonModules();
-        isModulesInstalled = res.isSuccess;
-        EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
-      } catch (Exception ex) {
-        EventBus.getDefault().post(new Message1(true, true, "Error checking installed python modules."));
-      }
-    }
-
-    boolean isUnpacked = false;
-    if (isModulesInstalled) {
-      try {
-        CheckResult res = unpack();
-        isUnpacked = res.isSuccess;
+        CheckResult res = checkPythonVer();
+        isVersionOk = res.isSuccess;
         EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
       } catch (Exception e) {
-        EventBus.getDefault().post(new Message1(true, true, "Error unpacking necessary tools."));
+        EventBus.getDefault().post(new Message1(true, true, "Error checking python version."));
       }
-    }
 
-    final boolean isInitSuccess = isVersionOk && isModulesInstalled && isUnpacked;
-    isInitialized = isInitSuccess;
-    EventBus.getDefault().postSticky(new InitDone(isInitSuccess));
+      // check installed modules
+      boolean isModulesInstalled = false;
+      if (isVersionOk) {
+        try {
+          CheckResult res = checkPythonModules();
+          isModulesInstalled = res.isSuccess;
+          EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
+        } catch (Exception ex) {
+          EventBus.getDefault()
+              .post(new Message1(true, true, "Error checking installed python modules."));
+        }
+      }
+
+      boolean isUnpacked = false;
+      if (isModulesInstalled) {
+        try {
+          CheckResult res = unpack();
+          isUnpacked = res.isSuccess;
+          EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
+        } catch (Exception e) {
+          EventBus.getDefault().post(new Message1(true, true, "Error unpacking necessary tools."));
+        }
+      }
+
+      final boolean isInitSuccess = isVersionOk && isModulesInstalled && isUnpacked;
+      isInitialized = isInitSuccess;
+      EventBus.getDefault().postSticky(new MessageInitDone(isInitSuccess));
+    }
   }
 
   private CheckResult checkPythonVer() throws Exception {
-    if (!pi.isAvailable())
+    if (!pi.isInitialized())
       pi.findPythonCommand();
-    if (!pi.isAvailable()) {
+    if (!pi.isInitialized()) {
       return new CheckResult(false, "Python not found.");
     } else if (pi.getMajorVersion() != 3) {
       return new CheckResult(false, "Python: " + pi.getVersion() + ".");
@@ -162,7 +168,7 @@ public class SpecLibGen {
   }
 
   private CheckResult checkPythonModules() {
-    if (!pi.isAvailable())
+    if (!pi.isInitialized())
       throw new IllegalStateException("Checking for installed modules while python is not available.");
     boolean isAllModules = true;
     for (PythonModule m : REQUIRED_MODULES) {

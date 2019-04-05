@@ -17,6 +17,7 @@ import umich.msfragger.util.VersionComparator;
 
 public class DbSlice {
   private static DbSlice instance = new DbSlice();
+  private final Object initLock = new Object();
   public static DbSlice get() { return instance; }
   public static final String DEFAULT_MESSAGE = "Python 3 with numpy, pandas is "
       + "needed for DB Splitting functionality.";
@@ -40,6 +41,7 @@ public class DbSlice {
     pi = PythonInfo.get();
     scriptDbslicingPath = null;
     msfraggerVer = null;
+    isInitialized = false;
     EventBus.getDefault().register(this);
   }
 
@@ -77,72 +79,76 @@ public class DbSlice {
   }
 
   public boolean isInitialized() {
-    return isInitialized;
+    synchronized (initLock) {
+      return isInitialized;
+    }
   }
 
   public void init(String msfraggerVersion) {
-    // reset default label text
-    EventBus.getDefault().post(new Message1(false, false, ""));
-    EventBus.getDefault().post(new Message2(false, false, ""));
+    synchronized (initLock) {
+      // reset default label text
+      EventBus.getDefault().post(new Message1(false, false, ""));
+      EventBus.getDefault().post(new Message2(false, false, ""));
 
-    // check python version
-    boolean isPythonOk = false;
-    try {
-      CheckResult res = checkPythonVer();
-      isPythonOk = res.isSuccess;
-      EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
-    } catch (Exception e) {
-      EventBus.getDefault().post(new Message1(true, true, "Error checking python version."));
-    }
-
-
-    // check installed modules
-    boolean isModulesInstalled = false;
-    if (isPythonOk) {
+      // check python version
+      boolean isPythonOk = false;
       try {
-        CheckResult res = checkPythonModules();
-        isModulesInstalled = res.isSuccess;
-        EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
-      } catch (Exception ex) {
-        EventBus.getDefault().post(new Message1(true, true, "Error checking installed python modules."
-        ));
-      }
-    }
-
-    boolean isUnpacked = false;
-    if (isModulesInstalled) {
-      try {
-        CheckResult res = unpack();
-        isUnpacked = res.isSuccess;
+        CheckResult res = checkPythonVer();
+        isPythonOk = res.isSuccess;
         EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
       } catch (Exception e) {
-        EventBus.getDefault().post(new Message1(true, true, "Error unpacking necessary tools."));
+        EventBus.getDefault().post(new Message1(true, true, "Error checking python version."));
       }
-    }
 
-    boolean isFraggerOk = true;
-    if (msfraggerVersion != null) {
-      CheckResult res = checkFraggerVer(msfraggerVersion);
-      isFraggerOk = res.isSuccess;
-      if (!res.isSuccess) {
-        EventBus.getDefault()
-            .post(new Message2(true, true, "Update MSFragger to a newer version."));
-        EventBus.getDefault()
-            .post(new Message2(true, false, "Use the Update button next to MSFragger field."));
-      } else {
-        this.msfraggerVer = msfraggerVersion;
+      // check installed modules
+      boolean isModulesInstalled = false;
+      if (isPythonOk) {
+        try {
+          CheckResult res = checkPythonModules();
+          isModulesInstalled = res.isSuccess;
+          EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
+        } catch (Exception ex) {
+          EventBus.getDefault()
+              .post(new Message1(true, true, "Error checking installed python modules."
+              ));
+        }
       }
-    }
 
-    final boolean isInitSuccess = isPythonOk && isModulesInstalled && isUnpacked && isFraggerOk;
-    isInitialized = isInitSuccess;
-    EventBus.getDefault().postSticky(new MessageInitDone(isInitSuccess));
+      boolean isUnpacked = false;
+      if (isModulesInstalled) {
+        try {
+          CheckResult res = unpack();
+          isUnpacked = res.isSuccess;
+          EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
+        } catch (Exception e) {
+          EventBus.getDefault().post(new Message1(true, true, "Error unpacking necessary tools."));
+        }
+      }
+
+      boolean isFraggerOk = true;
+      if (msfraggerVersion != null) {
+        CheckResult res = checkFraggerVer(msfraggerVersion);
+        isFraggerOk = res.isSuccess;
+        if (!res.isSuccess) {
+          EventBus.getDefault()
+              .post(new Message2(true, true, "Update MSFragger to a newer version."));
+          EventBus.getDefault()
+              .post(new Message2(true, false, "Use the Update button next to MSFragger field."));
+        } else {
+          this.msfraggerVer = msfraggerVersion;
+        }
+      }
+
+      final boolean isInitSuccess = isPythonOk && isModulesInstalled && isUnpacked && isFraggerOk;
+      isInitialized = isInitSuccess;
+      EventBus.getDefault().postSticky(new MessageInitDone(isInitSuccess));
+    }
   }
 
   private CheckResult checkPythonVer() throws Exception {
-    if (!pi.isAvailable())
+    if (!pi.isInitialized())
       pi.findPythonCommand();
-    if (!pi.isAvailable()) {
+    if (!pi.isInitialized()) {
       return new CheckResult(false, "Python not found.");
     } else if (pi.getMajorVersion() != 3) {
       return new CheckResult(false, "Python: " + pi.getVersion() + ".");
@@ -151,7 +157,7 @@ public class DbSlice {
   }
 
   private CheckResult checkPythonModules() {
-    if (!pi.isAvailable())
+    if (!pi.isInitialized())
       throw new IllegalStateException("Checking for installed modules while python is not available.");
     boolean isAllModulesOk = true;
     for (PythonModule m : REQUIRED_MODULES) {
@@ -175,10 +181,10 @@ public class DbSlice {
       sb.append(m.installName);
       switch (installed) {
         case YES:
-          sb.append(" - Yes");
+          sb.append(" - OK");
           break;
         case NO:
-          sb.append(" - No");
+          sb.append(" - Missing");
           break;
         case INSTALLED_WITH_IMPORTERROR:
           sb.append(" - Error loading module");
@@ -200,7 +206,7 @@ public class DbSlice {
       if (SCRIPT_SPLITTER.equals(rl))
         scriptDbslicingPath = path;
     }
-    return new CheckResult(true, " Assets unpacked OK.");
+    return new CheckResult(true, "Assets unpacked OK.");
   }
 
   private CheckResult checkFraggerVer(String fraggerVer) {
