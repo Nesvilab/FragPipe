@@ -3949,8 +3949,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (!isRunProteinProphet) {
           dontUseProtxmlInFilter = true; // default, but we will ask the user if the files are already there
           boolean allProtxmlsExist = true;
-          String paths = mapGroupsToProtxml.values().stream().map(Path::toString).collect(Collectors.joining("\n\t"));
-          log.error("ACHTUNG: Checking for existence of all protxml files:\n{}\n", paths);
+          String paths = mapGroupsToProtxml.values().stream().map(path -> "- " + path.toString()).collect(Collectors.joining("\n"));
+          log.debug("Checking for existence of all protxml files:\n{}\n", paths);
           for (Entry<LcmsFileGroup, Path> kv : mapGroupsToProtxml.entrySet()) {
             Path protxml = kv.getValue();
             try {
@@ -3967,8 +3967,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             // ProtProph is not run, but all protxmls are there
             int confirm = JOptionPane.showConfirmDialog(this,
                 "Protein Prophet is not run, but prot.xml files for all groups\n"
-                    + "do exist.\n\n"
-                    + "Do you still want to use them for the Filter command?\n",
+                    + "do already exist:\n\n"
+                    + paths
+                    + "\n\n"
+                    + "Do you want to use them for the Filter command?\n",
                 "Use previously existing prot.xml files?\n", JOptionPane.YES_NO_OPTION);
             if (JOptionPane.YES_OPTION == confirm) {
               dontUseProtxmlInFilter = false;
