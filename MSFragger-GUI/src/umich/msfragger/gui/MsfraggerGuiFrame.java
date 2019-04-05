@@ -157,6 +157,7 @@ import umich.msfragger.messages.MessageExternalProcessOutput;
 import umich.msfragger.messages.MessageIsUmpireRun;
 import umich.msfragger.messages.MessageKillAll;
 import umich.msfragger.messages.MessageLcmsFilesAdded;
+import umich.msfragger.messages.MessagePythonBinSelectedByUser;
 import umich.msfragger.messages.MessageRun;
 import umich.msfragger.messages.MessageSaveCache;
 import umich.msfragger.messages.MessageSaveLog;
@@ -430,8 +431,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     textBinPython.addFocusListener(new FocusAdapter() {
       @Override
       public void focusLost(FocusEvent e) {
-        final String text = textBinPython.getText();
-        validateAndSavePython(text, true);
+        EventBus.getDefault().post(new MessagePythonBinSelectedByUser(textBinPython.getText()));
       }
     });
 
@@ -535,6 +535,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       checkLabelfree.setSelected(false);
     }
   }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void onPythonBinSelectedByUser(MessagePythonBinSelectedByUser m) {
+    validateAndSavePython(m.path, true);
+  }
+
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onMessagePythonInfoChanged(PythonInfo.MessageInfoChanged m) {
@@ -2670,32 +2676,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     return javaAtLeast18;
   }
 
-  private static String tryPythonCommand() throws Exception {
-    String[] commands = {"python", "python3"};
-    for (String cmd : commands) {
-      ProcessBuilder pb = new ProcessBuilder(cmd, "--version");
-      pb.redirectErrorStream(true);
-
-      Process pr;
-      try {
-        pr = pb.start();
-      } catch (IOException ex) {
-        throw new Exception("Could not start the python/python3 process.");
-      }
-      try {
-        int exitCode = pr.waitFor();
-        if (exitCode == 0) {
-          return cmd;
-        }
-      } catch (InterruptedException ex) {
-        throw new Exception("Error waiting for python/python3 process to finish.");
-      }
-    }
-    return null;
-  }
-
   public void validateMsfraggerMassCalibrationEligibility() {
-    String s = " - UHUHU HU HU HU HU HU HU HU HU HU HU HU HU HU H HU HU H";
     new Thread(() -> {
       boolean enableCalibrate = false;
       String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE);
@@ -2711,7 +2692,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       log.debug("Posting enableCalibrate = {}", enableCalibrate);
       EventBus.getDefault().postSticky(new MessageValidityMassCalibration(enableCalibrate));
     }).start();
-
   }
 
   public void validateMsadjusterEligibility() {
@@ -2741,25 +2721,25 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   public void validateAndSavePython(final String binPath, boolean showPopupOnError) {
-    new Thread(() -> {
-      boolean ok;
-      PythonInfo pi = PythonInfo.get();
-      try {
-        ok = PythonInfo.get().setPythonCommand(binPath);
-      } catch (Exception e) {
-        ok = false;
-      }
-      if (ok) {
-        ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, pi.getCommand());
-      } else {
-        ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, "");
-      }
-      if (!ok && showPopupOnError) {
-        JOptionPane.showMessageDialog(MsfraggerGuiFrame.this,
-            "Not a valid Python binary path:\n\n" + binPath, "Not a Python binary",
-            JOptionPane.WARNING_MESSAGE);
-      }
-    }).start();
+//    new Thread(() -> {
+//    }).start();
+    boolean ok;
+    PythonInfo pi = PythonInfo.get();
+    try {
+      ok = PythonInfo.get().setPythonCommand(binPath);
+    } catch (Exception e) {
+      ok = false;
+    }
+    if (ok) {
+      ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, pi.getCommand());
+    } else {
+      ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, "");
+    }
+    if (!ok && showPopupOnError) {
+      JOptionPane.showMessageDialog(MsfraggerGuiFrame.this,
+          "Not a valid Python binary path:\n\n" + binPath, "Not a Python binary",
+          JOptionPane.WARNING_MESSAGE);
+    }
 
   }
 
@@ -4578,6 +4558,26 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.save(checkGenerateSpecLib, ThisAppProps.PROP_SPECLIBGEN_RUN);
   }//GEN-LAST:event_checkGenerateSpecLibActionPerformed
 
+  private Path tryFindStartingPath(String currentPath) {
+    try {
+      Path path = Paths.get(currentPath);
+      if (Files.exists(path)) {
+        return path;
+      }
+      // didn't find anything yet
+      if (currentPath.contains("/") || currentPath.contains("\\")) {
+        // if there was a slash character, we can try the parent dir
+        Path parent = path.getParent();
+        if (Files.exists(parent)) {
+          return parent;
+        }
+      }
+    } catch (Exception ignored) {
+      // supplied path was likely not good
+    }
+    return null;
+  }
+
   private void btnBrowseBinPythonActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowseBinPythonActionPerformed
     JFileChooser fc = new JFileChooser();
@@ -4592,15 +4592,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-    List<String> props = Arrays
-        .asList(ThisAppProps.PROP_BIN_PATH_PYTHON, ThisAppProps.PROP_BINARIES_IN);
-    String fcPath = ThisAppProps.tryFindPath(props, false);
-    SwingUtils.setFileChooserPath(fc, fcPath);
+    Path current = tryFindStartingPath(textBinPython.getText());
+    if (current != null) {
+      log.warn("FC path DOES exist");
+      SwingUtils.setFileChooserPath(fc, current);
+    } else {
+      log.warn("FC path NOT exists");
+      List<String> props = Arrays.asList(ThisAppProps.PROP_BIN_PATH_PYTHON, ThisAppProps.PROP_BINARIES_IN);
+      String fcPath = ThisAppProps.tryFindPath(props, false);
+      SwingUtils.setFileChooserPath(fc, fcPath);
+    }
 
     if (JFileChooser.APPROVE_OPTION == fc
         .showOpenDialog(SwingUtils.findParentFrameForDialog(this))) {
       String path = fc.getSelectedFile().getAbsolutePath();
-      validateAndSavePython(path, true);
+      EventBus.getDefault().post(new MessagePythonBinSelectedByUser(path));
     }
   }//GEN-LAST:event_btnBrowseBinPythonActionPerformed
 
