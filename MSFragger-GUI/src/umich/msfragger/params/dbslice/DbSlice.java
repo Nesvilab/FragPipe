@@ -2,6 +2,12 @@ package umich.msfragger.params.dbslice;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -95,18 +101,30 @@ public class DbSlice {
       try {
         CheckResult res = checkPythonVer();
         isPythonOk = res.isSuccess;
-        EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
+        EventBus.getDefault().post(new Message1(true, !isPythonOk, res.message));
       } catch (Exception e) {
         EventBus.getDefault().post(new Message1(true, true, "Error checking python version."));
       }
 
-      // check installed modules
-      boolean isModulesInstalled = false;
+      // check ok/installed modules
       if (isPythonOk) {
         try {
-          CheckResult res = checkPythonModules();
-          isModulesInstalled = res.isSuccess;
-          EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
+          CheckResult res = checkPythonOkModules();
+          EventBus.getDefault().post(new Message1(true, false, res.message));
+        } catch (Exception ex) {
+          EventBus.getDefault()
+              .post(new Message1(true, true, "Error checking installed/ok python modules."
+              ));
+        }
+      }
+
+      // check missing/error modules
+      boolean isNoErrorModules = false;
+      if (isPythonOk) {
+        try {
+          CheckResult res = checkPythonErrorModules();
+          isNoErrorModules = res.isSuccess;
+          EventBus.getDefault().post(new Message1(true, !isNoErrorModules, res.message));
         } catch (Exception ex) {
           EventBus.getDefault()
               .post(new Message1(true, true, "Error checking installed python modules."
@@ -115,11 +133,11 @@ public class DbSlice {
       }
 
       boolean isUnpacked = false;
-      if (isModulesInstalled) {
+      if (isNoErrorModules) {
         try {
           CheckResult res = unpack();
           isUnpacked = res.isSuccess;
-          EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
+          EventBus.getDefault().post(new Message1(true, !isUnpacked, res.message));
         } catch (Exception e) {
           EventBus.getDefault().post(new Message1(true, true, "Error unpacking necessary tools."));
         }
@@ -139,10 +157,50 @@ public class DbSlice {
         }
       }
 
-      final boolean isInitSuccess = isPythonOk && isModulesInstalled && isUnpacked && isFraggerOk;
+      final boolean isInitSuccess = isPythonOk && isNoErrorModules && isUnpacked && isFraggerOk;
       isInitialized = isInitSuccess;
       EventBus.getDefault().postSticky(new MessageInitDone(isInitSuccess));
     }
+  }
+
+  private CheckResult checkPythonOkModules() {
+    StringBuilder sb = new StringBuilder("Modules:");
+    if (REQUIRED_MODULES.length == 0) {
+      sb.append(" none required");
+    } else {
+      List<PythonModule> okMods = createPythonModulesStatusList(Installed.YES);
+      if (!okMods.isEmpty()) {
+        String pmList = okMods.stream().map(pm -> pm.installName).collect(Collectors.joining(", "));
+        sb.append(" ").append(pmList).append(" - OK;");
+      }
+    }
+    return new CheckResult(true, sb.toString());
+  }
+
+  private CheckResult checkPythonErrorModules() {
+    List<Installed> badStatuses = Arrays.stream(Installed.values())
+        .filter(installed -> !installed.equals(Installed.YES)).collect(
+            Collectors.toList());
+
+    final Map<Installed, String> statusNameMap = new HashMap<>();
+    statusNameMap.put(Installed.INSTALLED_WITH_IMPORTERROR, "Error loading module");
+    statusNameMap.put(Installed.NO, "Missing");
+    statusNameMap.put(Installed.UNKNOWN, "N/A");
+
+    final List<String> badModsByStatus = new ArrayList<>();
+    for (Installed badStatus : badStatuses) {
+      List<PythonModule> badMods = createPythonModulesStatusList(badStatus);
+      if (!badMods.isEmpty()) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(badMods.stream().map(pm -> pm.installName).collect(Collectors.joining(", ")))
+            .append(" - ").append(statusNameMap.getOrDefault(badStatus, badStatus.name()));
+        badModsByStatus.add(sb.toString());
+      }
+    }
+    if (badModsByStatus.isEmpty()) {
+      return new CheckResult(true, "");
+    }
+    return new CheckResult(false, " " + String.join(", ", badModsByStatus));
   }
 
   private CheckResult checkPythonVer() throws Exception {
@@ -156,46 +214,10 @@ public class DbSlice {
     return new CheckResult(true, "Python: " + pi.getVersion() + ".");
   }
 
-  private CheckResult checkPythonModules() {
-    if (!pi.isInitialized())
-      throw new IllegalStateException("Checking for installed modules while python is not available.");
-    boolean isAllModulesOk = true;
-    for (PythonModule m : REQUIRED_MODULES) {
-      if (pi.checkModuleInstalled(m) != Installed.YES)
-        isAllModulesOk = false;
-    }
-    StringBuilder sb = createPythonModulesReport();
-    return new CheckResult(isAllModulesOk, sb.toString());
-  }
-
-  private StringBuilder createPythonModulesReport() {
-    if (REQUIRED_MODULES.length == 0) {
-      return new StringBuilder("Modules: none required.");
-    }
-    StringBuilder sb = new StringBuilder("Modules: ");
-    for (int i = 0; i < REQUIRED_MODULES.length; i++) {
-      PythonModule m = REQUIRED_MODULES[i];
-      Installed installed = pi.checkModuleInstalled(m);
-      if (i > 0)
-        sb.append(", ");
-      sb.append(m.installName);
-      switch (installed) {
-        case YES:
-          sb.append(" - OK");
-          break;
-        case NO:
-          sb.append(" - Missing");
-          break;
-        case INSTALLED_WITH_IMPORTERROR:
-          sb.append(" - Error loading module");
-          break;
-        case UNKNOWN:
-          sb.append(" - N/A");
-          break;
-      }
-    }
-    sb.append(".");
-    return sb;
+  private List<PythonModule> createPythonModulesStatusList(Installed installedStatus) {
+    return Arrays.stream(REQUIRED_MODULES)
+        .filter(pm -> installedStatus.equals(pi.checkModuleInstalled(pm)))
+        .collect(Collectors.toList());
   }
 
   private CheckResult unpack() throws Exception {
