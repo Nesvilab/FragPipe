@@ -5292,13 +5292,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             balloonPhilosopher = null;
           }
 
-          JEditorPane ep = SwingUtils.createClickableHtml(String.format(
-              "<html>Could not find Philosopher binary file at this location.<br/>\n"
-                  + "Corresponding panel won't be active.<br/><br/>"
-                  + "<b>If that's the first time you're using %s</b>,<br/>"
-                  + "you will need to <a href=\"%s\">download Philosopher (click here)</a> first.<br/>"
-                  + "Use the button on the right to proceed to the download website.",
-              Version.PROGRAM_TITLE, PhilosopherProps.getProperties().getProperty(PhilosopherProps.PROP_DOWNLOAD_URL, "")));
+          String linkHardcoded = "https://github.com/Nesvilab/philosopher/releases/latest";
+          String link = linkHardcoded;
+          try {
+            link = PhilosopherProps.getProperties().getProperty(PhilosopherProps.PROP_DOWNLOAD_URL, linkHardcoded);
+            log.debug("philosopher link acquired: {}", link);
+          } catch (Exception ignored) {}
+
+          boolean areEqual = linkHardcoded.equals(link);
+
+          String msg = "Could not find Philosopher binary file at this location.<br/>\n"
+              + "Corresponding panel won't be active.<br/><br/>"
+              + "<b>If that's the first time you're using " + Version.PROGRAM_TITLE + "</b>,<br/>"
+              + "you will need to <a href=\"" + link + "\">download Philosopher (click here)</a> first.<br/>"
+              + "Use the button on the right to proceed to the download website.";
+          JEditorPane ep = SwingUtils.createClickableHtml(msg, true);
 
           balloonPhilosopher = new BalloonTip(textBinPhilosopher, ep,
               new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
