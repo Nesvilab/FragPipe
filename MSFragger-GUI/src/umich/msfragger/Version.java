@@ -61,6 +61,7 @@ public class Version {
         "Calibrate masses option in MSFragger",
         "Custom ion series option in MSFragger",
         "Turning off usage of protxml file in Filter command when Protein Prophet is not run",
+        "Query user if protxml files exist while Protein Prophet is not run",
         "'Print Decoys' option/checkbox for Report command",
         "Update CrystalC-1.0.5"));
 
