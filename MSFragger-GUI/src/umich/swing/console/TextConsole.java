@@ -17,6 +17,7 @@
 package umich.swing.console;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.io.IOException;
 import javax.swing.JTextPane;
 import javax.swing.text.AttributeSet;
@@ -55,6 +56,7 @@ public class TextConsole extends JTextPane implements Appendable {
     protected String remaining = "";
     
     public TextConsole() {
+        setFont(Font.getFont(Font.MONOSPACED));
     }
     
     
