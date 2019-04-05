@@ -56,7 +56,6 @@ public class TextConsole extends JTextPane implements Appendable {
     protected String remaining = "";
     
     public TextConsole() {
-        setFont(Font.getFont(Font.MONOSPACED));
     }
     
     

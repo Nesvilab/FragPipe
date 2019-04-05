@@ -355,6 +355,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     setLocale(Locale.ROOT);
 
     console = new TextConsole();
+    console.setFont(Font.getFont(Font.MONOSPACED));
     console.setContentType("text/plain; charset=UTF-8");
     console.addMouseListener(new MouseAdapter() {
 
