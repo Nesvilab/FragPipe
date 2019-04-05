@@ -3943,9 +3943,44 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       final CmdReportFilter cmdReportFilter = new CmdReportFilter(isFilter, wd);
       if (cmdReportFilter.isRun()) {
         final boolean isCheckFilterNoProtxml = SwingUtils.isEnabledAndChecked(checkFilterNoProtxml);
-        final boolean dontUseFilterProtxml = !isRunProteinProphet || isCheckFilterNoProtxml;
+
+        // if ProtProph is not run but protxml is there - query the user
+        boolean dontUseProtxmlInFilter;
+        if (!isRunProteinProphet) {
+          dontUseProtxmlInFilter = true; // default, but we will ask the user if the files are already there
+          boolean allProtxmlsExist = true;
+          String paths = mapGroupsToProtxml.values().stream().map(Path::toString).collect(Collectors.joining("\n\t"));
+          log.error("ACHTUNG: Checking for existence of all protxml files:\n{}\n", paths);
+          for (Entry<LcmsFileGroup, Path> kv : mapGroupsToProtxml.entrySet()) {
+            Path protxml = kv.getValue();
+            try {
+              if (protxml == null || !Files.exists(protxml)) {
+                allProtxmlsExist = false;
+                break;
+              }
+            } catch (Exception e) {
+              allProtxmlsExist = false;
+              break;
+            }
+          }
+          if (allProtxmlsExist) {
+            // ProtProph is not run, but all protxmls are there
+            int confirm = JOptionPane.showConfirmDialog(this,
+                "Protein Prophet is not run, but prot.xml files for all groups\n"
+                    + "do exist.\n\n"
+                    + "Do you still want to use them for the Filter command?\n",
+                "Use previously existing prot.xml files?\n", JOptionPane.YES_NO_OPTION);
+            if (JOptionPane.YES_OPTION == confirm) {
+              dontUseProtxmlInFilter = false;
+            }
+          }
+        } else { // if (!isRunProteinProphet) {
+          // protein prophet is run, respenct the checkFilterNoProtxml checkbox
+          dontUseProtxmlInFilter = isCheckFilterNoProtxml;
+        }
+
         if (!cmdReportFilter.configure(this, usePhi,
-            decoyTag, textReportFilter.getText(), dontUseFilterProtxml, mapGroupsToProtxml)) {
+            decoyTag, textReportFilter.getText(), dontUseProtxmlInFilter, mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(cmdReportFilter.builders());
