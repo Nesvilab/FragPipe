@@ -228,7 +228,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_precursor_mass_units, "0=Daltons, 1=ppm");
         c.put(PROP_precursor_true_units, "0=Daltons, 1=ppm");
         c.put(PROP_fragment_mass_units, "0=Daltons, 1=ppm");
-        c.put(PROP_calibrate_mass, "0=Off, 1=On, small fragment tolerance, 2=On, small precursor and fragment tolerances");
+        c.put(PROP_calibrate_mass, "0=Off, 1=On, adjusted fragment tolerance, 2=On, adjusted fragment and precursor tolerances");
         c.put(PROP_isotope_error, "0=off, -1/0/1/2/3 (standard C13 error)");
         c.put(PROP_mass_offsets, "allow for additional precursor mass window shifts. Multiplexed with isotope_error. mass_offsets = 0/79.966 can be used as a restricted ‘open’ search that looks for unmodified and phosphorylated peptides (on any residue)");
         c.put(PROP_num_enzyme_termini, "2 for enzymatic, 1 for semi-enzymatic, 0 for nonspecific digestion");
