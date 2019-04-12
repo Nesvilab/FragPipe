@@ -28,8 +28,9 @@ def _warning(message, category=UserWarning, filename='', lineno=-1, file=None, l
 
 warnings.showwarning = _warning
 
-# argv = shlex.split("/storage/teog/bin/msfragger_pep_split.pyz 3 'java -Xmx311g -jar' /storage/teog/bin/MSFragger-latest.jar fragger.params 20120321_EXQ1_MiBa_SA_HCC1143_1.mzML 20130504_EXQ3_MiBa_SA_Fib-1.mzML")
 argv = sys.argv[1:]
+# argv = shlex.split("/storage/teog/bin/msfragger_pep_split.pyz 3 'java -Xmx311g -jar' /storage/teog/bin/MSFragger-latest.jar fragger.params 20120321_EXQ1_MiBa_SA_HCC1143_1.mzML 20130504_EXQ3_MiBa_SA_Fib-1.mzML")
+# argv = shlex.split("3 'java -Xmx111g -jar' msfragger.jar fragger.params b1906_293T_proteinID_01A_QE3_122212.mzML b1922_293T_proteinID_02A_QE3_122212.mzML")
 if len(argv) == 0:
 	print('Example usage:')
 	print('python3 msfragger_pep_split.pyz 3 "java -Xmx10g -jar" msfragger.jar fragger.params *.mzML')
@@ -54,6 +55,12 @@ params_txt = param_path.read_text()
 output_report_topN = int(re.compile(r'^output_report_topN *= *(\d+)', re.MULTILINE).search(params_txt).group(1))
 output_max_expect_mo = re.compile(r'^output_max_expect *= *(\S+)', re.MULTILINE).search(params_txt)
 output_max_expect = 50.0 if output_max_expect_mo is None else float(output_max_expect_mo.group(1))
+calibrate_mass_mo = re.compile(r'^calibrate_mass *= *([01])\b', re.MULTILINE).search(params_txt)
+calibrate_mass: bool = True if calibrate_mass_mo is None else bool(int(calibrate_mass_mo.group(1)))
+assert [bool(int(re.compile(r'^calibrate_mass *= *([01])\b', re.MULTILINE).search(a).group(1)))
+ for a in ['calibrate_mass = 0', 'calibrate_mass = 1']] == [False, True]
+
+
 num_parts = int(num_parts_str)
 tempdir_parts = [tempdir / str(i) for i in range(num_parts)]
 
@@ -64,11 +71,16 @@ fasta_path = pathlib.Path(fasta_path_str)
 if 0:
 	fasta_prots: typing.List[bytes] = [e.rstrip() for e in fasta_path.read_bytes()[1:].split(b'\n>')]
 
-with fasta_path.open('rb') as fo:
-	mm = mmap.mmap(fo.fileno(), 0, access=mmap.ACCESS_READ)
-	pos = [0] + [e.start() + 1 for e in re.compile(b'\n>').finditer(mm)]
-	startpos = [e[0] for e in np.array_split(pos, num_parts)]
-	file_parts_offsets = [slice(s, e) for s,e in zip(startpos, startpos[1:] + [len(mm)])]
+def get_fasta_offsets(fasta_path):
+
+	with fasta_path.open('rb') as fo:
+		mm = mmap.mmap(fo.fileno(), 0, access=mmap.ACCESS_READ)
+		pos = [0] + [e.start() + 1 for e in re.compile(b'\n>').finditer(mm)]
+		startpos = [e[0] for e in np.array_split(pos, num_parts)]
+		return [slice(s, e) for s, e in zip(startpos, startpos[1:] + [len(mm)])]
+
+
+file_parts_offsets = get_fasta_offsets(fasta_path)
 
 if 0:
 	import pathlib, typing, mmap, re, numpy as np, shutil, os
@@ -98,8 +110,8 @@ fasta_part_paths: typing.List[pathlib.Path] = [tempdir / str(i) / f'{fasta_path.
 param_part_paths: typing.List[pathlib.Path] = [tempdir / str(i) / param_path.name for i in range(num_parts)]
 infiles_name = [e.resolve() for e in infiles]
 infiles_symlinks_target_pairs = [(ee / e.name, e) for e in infiles for ee in tempdir_parts]
-cmds = [msfragger_cmd + [param_part_path.name, *infiles_name, '--partial', f'{i}']
-		for i, param_part_path in zip(range(num_parts), param_part_paths)]
+# cmds = [msfragger_cmd + [param_part_path.name, *infiles_name, '--partial', f'{i}']
+# 		for i, param_part_path in zip(range(num_parts), param_part_paths)]
 
 generate_expect_cmd = msfragger_cmd + ['--generate_expect_functions'] + [f.stem + '_scores_histogram.tsv' for f in infiles]
 
@@ -118,19 +130,22 @@ def set_up_directories():
 			with pathlib.Path(fasta_part_path).open('wb') as f:
 				f.writelines(b'>' + e + b'\n' for e in fasta_part)
 
+	# write fasta for each part
 	with fasta_path.open('rb') as fo:
 		for s, fasta_part_path in zip(file_parts_offsets, fasta_part_paths):
 			with pathlib.Path(fasta_part_path).open('wb') as f:
 				mm = mmap.mmap(fo.fileno(), 0 if s.stop is None else s.stop, access=mmap.ACCESS_READ)
 				mm.seek(s.start)
 				shutil.copyfileobj(mm, f)
-
+	## write params file for each part
 	for param_part_path, fasta_name in zip(param_part_paths, fasta_part_paths):
 		param_part_path.write_text(
 			recomp_fasta.sub(f'database_name = {fasta_name.name}', params_txt))
 
 
-def run_msfragger():
+def run_msfragger(infiles_name):
+	cmds = [msfragger_cmd + [param_part_path.name, *infiles_name, '--partial', f'{i}'] # + (['--split2', '1'] if calibrate_mass else [])
+			for i, param_part_path in zip(range(num_parts), param_part_paths)]
 	for i, (cmd, cwd) in enumerate(zip(cmds, tempdir_parts), start=1):
 		print(f'STARTED: slice {i} of {len(cmds)}', flush=True)
 		subprocess.run(list(map(os.fspath, cmd)), cwd=cwd, check=True)
@@ -325,11 +340,38 @@ def combine_results():
 	for e in fs:
 		e.result()
 
+def calibrate(fasta_path_sample):
+	params_path_calibrate = tempdir / param_path.name
+	params_path_calibrate.write_text(recomp_fasta.sub(f'database_name = {fasta_path_sample.relative_to(tempdir)}', params_txt))
+	calibrate_cmd = msfragger_cmd + [params_path_calibrate.resolve(), '--split1', *infiles_name]
+	subprocess.run(list(map(os.fspath, calibrate_cmd)), cwd=tempdir, check=True)
+	mzBINs0 = [e.with_suffix('.mzBIN_calibrated').resolve(strict=True) for e in infiles_name]
+	mzBINs = [(tempdir / e.name).with_suffix('.mzBIN_calibrated').resolve() for e in infiles_name]
+	for fr, to in zip(mzBINs0, mzBINs):
+		fr.rename(to)
+	return mzBINs
+
+
+def sample_fasta(fasta_path, fasta_path_sample, n):
+	fasta_prots: typing.List[bytes] = [b'>' + e + b'\n' for e in fasta_path.read_bytes()[1:].split(b'\n>')]
+	sample_prots = sorted(fasta_prots)[::n]
+	with fasta_path_sample.open('wb') as f:
+		f.writelines(sample_prots)
+
+'''
+fasta_path = pathlib.Path('/home/ci/msfragger_split_peptides/Uniprot.20160729.Hs.revDecoyPeps.fa').resolve()
+fasta_path_sample = pathlib.Path('/home/ci/msfragger_split_peptides/Uniprot.20160729.Hs.revDecoyPeps_sorted.fa')
+sample_fasta(fasta_path, fasta_path_sample, 3)
+'''
 
 def main():
 	# mp.set_start_method('spawn')
 	set_up_directories()
-	run_msfragger()
+	if calibrate_mass:
+		fasta_path_sample = tempdir / fasta_path.name
+		sample_fasta(fasta_path, fasta_path_sample, num_parts)
+		calibrate_mzBIN = calibrate(fasta_path_sample)
+	run_msfragger(calibrate_mzBIN if calibrate_mass else infiles_name)
 
 	write_combined_scores_histo()
 	subprocess.run(list(map(os.fspath, generate_expect_cmd)), cwd=tempdir, check=True)
