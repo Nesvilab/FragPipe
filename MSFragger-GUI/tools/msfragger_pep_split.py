@@ -29,18 +29,11 @@ def _warning(message, category=UserWarning, filename='', lineno=-1, file=None, l
 warnings.showwarning = _warning
 
 argv = sys.argv[1:]
-# argv = shlex.split("/storage/teog/bin/msfragger_pep_split.pyz 3 'java -Xmx311g -jar' /storage/teog/bin/MSFragger-latest.jar fragger.params 20120321_EXQ1_MiBa_SA_HCC1143_1.mzML 20130504_EXQ3_MiBa_SA_Fib-1.mzML")
-# argv = shlex.split("3 'java -Xmx111g -jar' msfragger.jar fragger.params b1906_293T_proteinID_01A_QE3_122212.mzML b1922_293T_proteinID_02A_QE3_122212.mzML")
 if len(argv) == 0:
 	print('Example usage:')
 	print('python3 msfragger_pep_split.pyz 3 "java -Xmx10g -jar" msfragger.jar fragger.params *.mzML')
 	sys.exit(0)
 
-# python3 ./msfragger_pep_split.pyz 3 "java -Xmx10g -jar" msfragger-20180316.one-jar.jar fragger.params *.mzML
-# python3 msfragger_pep_split.pyz 3 "java -Xmx10g -jar" msfragger-20180316.one-jar.jar fragger.params *.mzML
-# python3 main.py 3 "java -Xmx10g -jar" ./msfragger.jar fragger.params *.mzML
-
-# argv = ['3', 'java -Xmx10g -XX:+UseParallelGC -jar', './msfragger.jar', 'fragger_open_forGuiCi.params', 'b1906_293T_proteinID_01A_QE3_122212.mzML', 'b1922_293T_proteinID_02A_QE3_122212.mzML']
 
 num_parts_str, jvm_cmd_str, msfragger_jar_path_str, param_path_str, *infiles_str = argv
 
@@ -55,8 +48,8 @@ params_txt = param_path.read_text()
 output_report_topN = int(re.compile(r'^output_report_topN *= *(\d+)', re.MULTILINE).search(params_txt).group(1))
 output_max_expect_mo = re.compile(r'^output_max_expect *= *(\S+)', re.MULTILINE).search(params_txt)
 output_max_expect = 50.0 if output_max_expect_mo is None else float(output_max_expect_mo.group(1))
-calibrate_mass_mo = re.compile(r'^calibrate_mass *= *([01])\b', re.MULTILINE).search(params_txt)
-calibrate_mass: bool = True if calibrate_mass_mo is None else bool(int(calibrate_mass_mo.group(1)))
+calibrate_mass_mo = re.compile(r'^calibrate_mass *= *([012])\b', re.MULTILINE).search(params_txt)
+calibrate_mass: bool = False if calibrate_mass_mo is None else int(calibrate_mass_mo.group(1)) in [1, 2]
 assert [bool(int(re.compile(r'^calibrate_mass *= *([01])\b', re.MULTILINE).search(a).group(1)))
  for a in ['calibrate_mass = 0', 'calibrate_mass = 1']] == [False, True]
 
@@ -137,6 +130,8 @@ def set_up_directories():
 				mm = mmap.mmap(fo.fileno(), 0 if s.stop is None else s.stop, access=mmap.ACCESS_READ)
 				mm.seek(s.start)
 				shutil.copyfileobj(mm, f)
+
+def write_params(params_txt):
 	## write params file for each part
 	for param_part_path, fasta_name in zip(param_part_paths, fasta_part_paths):
 		param_part_path.write_text(
@@ -344,12 +339,58 @@ def calibrate(fasta_path_sample):
 	params_path_calibrate = tempdir / param_path.name
 	params_path_calibrate.write_text(recomp_fasta.sub(f'database_name = {fasta_path_sample.relative_to(tempdir)}', params_txt))
 	calibrate_cmd = msfragger_cmd + [params_path_calibrate.resolve(), '--split1', *infiles_name]
-	subprocess.run(list(map(os.fspath, calibrate_cmd)), cwd=tempdir, check=True)
+	p = subprocess.Popen(list(map(os.fspath, calibrate_cmd)), cwd=tempdir, stdout=subprocess.PIPE)
+	out = b''
+	with p.stdout as f:
+		for l in f:
+			out += l
+			sys.stdout.buffer.write(l)
+			sys.stdout.buffer.flush()
+	out = out.decode()
+	p.wait()
+	if p.returncode != 0:
+		raise AssertionError(p)
+	if False:
+		p = subprocess.run(list(map(os.fspath, calibrate_cmd)), cwd=tempdir, check=True, stdout=subprocess.PIPE)
+		sys.stdout.buffer.write(p.stdout)
+		out = p.stdout.decode()
+
+	orig_ms1_tol: bool = 'Using the original MS1 tolerance.' in out
+	if not orig_ms1_tol:
+		new_ms1_tol, = re.compile('New MS1 tolerance: (.+)').findall(out)
+	new_ms2_tol, = re.compile('New MS2 tolerance: (.+)').findall(out)
+
+	params_txt_new = params_txt
+	precursor_mass_units, = re.compile(r'^precursor_mass_units\s*=\s*([01])', re.MULTILINE).findall(params_txt)
+	precursor_mass_units = int(precursor_mass_units)
+	precursor_mass_lower, = re.compile(r'^precursor_mass_lower\s*=\s*([\S]+)', re.MULTILINE).findall(params_txt)
+	precursor_mass_upper, = re.compile(r'^precursor_mass_upper\s*=\s*([\S]+)', re.MULTILINE).findall(params_txt)
+	precursor_mass_lower, precursor_mass_upper = float(precursor_mass_lower), float(precursor_mass_upper)
+	is_closed_search: bool = (precursor_mass_units == 0 and -1 < precursor_mass_lower < precursor_mass_upper < 1) or \
+							 (precursor_mass_units == 1 and -100 < precursor_mass_lower < precursor_mass_upper < 100)
+
+	if not orig_ms1_tol:
+		params_txt_new = re.compile(r'^precursor_true_tolerance\s*=\s*([0-9.]+)', re.MULTILINE).sub(
+			f'precursor_true_tolerance = {new_ms1_tol}', params_txt_new)
+		params_txt_new = re.compile(r'^precursor_true_units\s*=\s*([01])', re.MULTILINE).sub(
+			'precursor_true_units = 1', params_txt_new)
+		if is_closed_search:
+			params_txt_new = re.compile(r'^precursor_mass_units\s*=\s*([01])', re.MULTILINE).sub(
+				r'precursor_mass_units = 1', params_txt_new)
+			params_txt_new = re.compile(r'^precursor_mass_lower\s*=\s*([\S]+)', re.MULTILINE).sub(
+				f'precursor_mass_lower = -{new_ms1_tol}', params_txt_new)
+			params_txt_new = re.compile(r'^precursor_mass_upper\s*=\s*([\S]+)', re.MULTILINE).sub(
+				f'precursor_mass_upper = {new_ms1_tol}', params_txt_new)
+
+	params_txt_new = re.compile(r'^fragment_mass_tolerance\s*=\s*([0-9.]+)', re.MULTILINE).sub(
+		f'fragment_mass_tolerance = {new_ms2_tol}', params_txt_new)
+	params_txt_new = re.compile(r'^fragment_mass_units\s*=\s*([01])', re.MULTILINE).sub(
+		'fragment_mass_units = 1', params_txt_new)
 	mzBINs0 = [e.with_suffix('.mzBIN_calibrated').resolve(strict=True) for e in infiles_name]
 	mzBINs = [(tempdir / e.name).with_suffix('.mzBIN_calibrated').resolve() for e in infiles_name]
 	for fr, to in zip(mzBINs0, mzBINs):
 		fr.rename(to)
-	return mzBINs
+	return mzBINs, params_txt_new
 
 
 def sample_fasta(fasta_path, fasta_path_sample, n):
@@ -370,7 +411,8 @@ def main():
 	if calibrate_mass:
 		fasta_path_sample = tempdir / fasta_path.name
 		sample_fasta(fasta_path, fasta_path_sample, num_parts)
-		calibrate_mzBIN = calibrate(fasta_path_sample)
+		calibrate_mzBIN, params_txt_new = calibrate(fasta_path_sample)
+	write_params(params_txt_new if calibrate_mass else params_txt)
 	run_msfragger(calibrate_mzBIN if calibrate_mass else infiles_name)
 
 	write_combined_scores_histo()
