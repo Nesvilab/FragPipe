@@ -4212,18 +4212,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
 
+    List<String> descriptors = new ArrayList<>();
+    List<List<String>> ordered = new ArrayList<>();
+
     try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(p),
         StandardCharsets.UTF_8))) {
       String line;
-      List<String> descriptors = new ArrayList<>();
-      List<List<String>> ordered = new ArrayList<>();
-      long totalDescriptors = 0;
-      long totalLines = 0;
       while ((line = br.readLine()) != null) {
         if (!line.startsWith(">")) {
           continue;
         }
-        totalLines++;
         int pos = 1, next;
         int depth = 1;
         while ((next = line.indexOf('|', pos)) >= 0 || pos < line.length() - 1) {
@@ -4236,40 +4234,78 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             ordered.add(new ArrayList<String>());
           }
           ordered.get(depth - 1).add(desc);
-          totalDescriptors++;
           pos = next + 1;
           depth++;
         }
       }
+    } catch (IOException ex) {
+      JOptionPane.showMessageDialog(btnTryDetectDecoyTag,
+          "<html>Error reading sequence database file", "Error",
+          JOptionPane.ERROR_MESSAGE);
+      return;
+    }
 
-      List<List<Tuple2<String, Double>>> prefixesByCol = new ArrayList<>();
-      List<List<Tuple2<String, Double>>> suffixesByCol = new ArrayList<>();
+    List<List<Tuple2<String, Double>>> prefixesByCol = new ArrayList<>();
+    List<List<Tuple2<String, Double>>> suffixesByCol = new ArrayList<>();
 
-      for (int descCol = 0; descCol < ordered.size(); descCol++) {
+    for (int descCol = 0; descCol < ordered.size(); descCol++) {
 
-        List<String> descriptorCol = ordered.get(descCol);
-        final int maxDepth = 16;
-        PrefixCounter cntFwd = new PrefixCounter(PrefixCounter.Mode.FWD, maxDepth);
-        PrefixCounter cntRev = new PrefixCounter(PrefixCounter.Mode.REV, maxDepth);
+      List<String> descriptorCol = ordered.get(descCol);
+      final int maxDepth = 16;
+      PrefixCounter cntFwd = new PrefixCounter(PrefixCounter.Mode.FWD, maxDepth);
+      PrefixCounter cntRev = new PrefixCounter(PrefixCounter.Mode.REV, maxDepth);
 
-        for (int i = 0; i < descriptorCol.size(); i++) {
-          String descriptor = descriptorCol.get(i);
-          cntFwd.add(descriptor);
-          cntRev.add(descriptor);
-        }
-        final long total = descriptorCol.size();
-        final StringBuilder sb = new StringBuilder();
+      for (int i = 0; i < descriptorCol.size(); i++) {
+        String descriptor = descriptorCol.get(i);
+        cntFwd.add(descriptor);
+        cntRev.add(descriptor);
+      }
+      final long total = descriptorCol.size();
+      final StringBuilder sb = new StringBuilder();
 
-        final double pctMin = 0.3;
-        final double pctMax = 0.7;
+      final double pctMin = 0.3;
+      final double pctMax = 0.7;
 
-        { // prefixes
-          final List<Tuple2<String, Double>> result = new ArrayList<>();
-          Proc2<PrefixCounter.Node, PrefixCounter.Mode> action = (n, mode) -> {
+      { // prefixes
+        final List<Tuple2<String, Double>> result = new ArrayList<>();
+        Proc2<PrefixCounter.Node, PrefixCounter.Mode> action = (n, mode) -> {
+
+          PrefixCounter.Node cur = n;
+          if (cur.getTerminals() > 0)
+              return; // no prefix or a suffix can be a whole protein id
+          double pct = cur.getHits() / (double) total;
+          if (pct < pctMin || pct > pctMax) {
+            return;
+          }
+          sb.setLength(0);
+          while (cur != null) {
+            if (cur.parent != null) {
+              sb.append(cur.ch);
+            }
+            cur = cur.parent;
+          }
+
+          if (sb.length() < 2) {
+            return; // no prefixes smaller than 2 characters
+          }
+
+          StringBuilder sbPrint = sb
+              .reverse();// mode == PrefixCounter.Mode.REV ? sb.reverse() : sb;
+          result.add(new Tuple2<>(sbPrint.toString(), pct));
+        };
+        cntFwd.iterPrefixCounts(maxDepth, action);
+        prefixesByCol.add(cleanUpDecoyTagCandidates(result));
+      }
+
+      { // suffixes
+        final List<Tuple2<String, Double>> result = new ArrayList<>();
+        Proc2<PrefixCounter.Node, PrefixCounter.Mode> action = new Proc2<PrefixCounter.Node, PrefixCounter.Mode>() {
+          @Override
+          public void call(PrefixCounter.Node n, PrefixCounter.Mode mode) {
 
             PrefixCounter.Node cur = n;
-            //if (cur.getTerminals() > 0)
-            //    return; // a prefix or a suffix can never be the whole protein id
+            if (cur.getTerminals() > 0)
+                return; // a prefix or a suffix can never be the whole protein id
             double pct = cur.getHits() / (double) total;
             if (pct < pctMin || pct > pctMax) {
               return;
@@ -4283,139 +4319,94 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             }
 
             if (sb.length() < 2) {
-              return; // no prefixes smaller than 2 characters
+              return; // no suffixes smaller than 2 chars
             }
 
-            StringBuilder sbPrint = sb
-                .reverse();// mode == PrefixCounter.Mode.REV ? sb.reverse() : sb;
+            StringBuilder sbPrint = sb;// mode == PrefixCounter.Mode.REV ? sb.reverse() : sb;
             result.add(new Tuple2<>(sbPrint.toString(), pct));
-            //System.out.printf("%s : (full string: %s) hits=%.1f%%\n", n, sbPrint.toString(), pct*100d);
-          };
-//                    System.out.println("Prefixes:");
-          cntFwd.iterPrefixCounts(maxDepth, action);
-          prefixesByCol.add(cleanUpDecoyTagCandidates(result));
-//                    for (Tuple2<String, Double> tuple2 : cleanedResult) {
-//                        System.out.printf("% 3.1f%% -> %s\n", tuple2.item2 * 100d, tuple2.item1);
-//                    }
-//                    System.out.println("Prefixes Done");
-        }
+          }
+        };
+        cntRev.iterPrefixCounts(maxDepth, action);
+        suffixesByCol.add(cleanUpDecoyTagCandidates(result));
+      }
+    }
 
-        { // suffixes
-          final List<Tuple2<String, Double>> result = new ArrayList<>();
-          Proc2<PrefixCounter.Node, PrefixCounter.Mode> action = new Proc2<PrefixCounter.Node, PrefixCounter.Mode>() {
-            @Override
-            public void call(PrefixCounter.Node n, PrefixCounter.Mode mode) {
+    int totalCandidates = 0;
+    int supportedPrefixes = 0;
+    int totalPrefixes = 0;
+    int totalSuffixes = 0;
+    for (int i = 0; i < prefixesByCol.size(); i++) {
+      List<Tuple2<String, Double>> list = prefixesByCol.get(i);
+      totalCandidates += list.size();
+      totalPrefixes += list.size();
+      if (i == 0) {
+        supportedPrefixes = list.size();
+      }
+    }
+    for (List<Tuple2<String, Double>> list : suffixesByCol) {
+      totalCandidates += list.size();
+      totalSuffixes += list.size();
+    }
 
-              PrefixCounter.Node cur = n;
-              //if (cur.getTerminals() > 0)
-              //    return; // a prefix or a suffix can never be the whole protein id
-              double pct = cur.getHits() / (double) total;
-              if (pct < pctMin || pct > pctMax) {
-                return;
-              }
-              sb.setLength(0);
-              while (cur != null) {
-                if (cur.parent != null) {
-                  sb.append(cur.ch);
-                }
-                cur = cur.parent;
-              }
+    String selectedPrefix = null;
+    if (totalCandidates == 0) {
+      String msg = "No candidates for decoy tags found";
+      String[] options = {"Ok"};
+      int result = JOptionPane.showOptionDialog(this, msg, "Nothing found",
+          JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
 
-              if (sb.length() < 2) {
-                return; // no suffixes smaller than 2 chars
-              }
-
-              StringBuilder sbPrint = sb;// mode == PrefixCounter.Mode.REV ? sb.reverse() : sb;
-              result.add(new Tuple2<>(sbPrint.toString(), pct));
-            }
-          };
-          cntRev.iterPrefixCounts(maxDepth, action);
-          suffixesByCol.add(cleanUpDecoyTagCandidates(result));
-        }
+    } else if (supportedPrefixes == 1) {
+      // good, we've found the one good decoy prefix
+      Tuple2<String, Double> prefix = prefixesByCol.get(0).get(0);
+      StringBuilder sb = new StringBuilder();
+      sb.append(String.format(Locale.ROOT,
+          "Found candidate decoy tag: \n\"%s\" in % 3.1f%% entries", prefix.item1,
+          prefix.item2 * 100d));
+      sb.append("\n\nAll found candidates:");
+      appendFoundPrefixes(sb, prefixesByCol, suffixesByCol);
+      String[] options = {"Set \"" + prefix.item1 + "\" as decoy tag", "Cancel"};
+      int result = JOptionPane.showOptionDialog(this, sb.toString(), "Found prefix",
+          JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+      if (result == 0) {
+        selectedPrefix = prefix.item1;
       }
 
-      int totalCandidates = 0;
-      int supportedPrefixes = 0;
-      int totalPrefixes = 0;
-      int totalSuffixes = 0;
-      for (int i = 0; i < prefixesByCol.size(); i++) {
-        List<Tuple2<String, Double>> list = prefixesByCol.get(i);
-        totalCandidates += list.size();
-        totalPrefixes += list.size();
-        if (i == 0) {
-          supportedPrefixes = list.size();
-        }
+    } else if (supportedPrefixes > 1) {
+      // several possible prefixes found
+      StringBuilder sb = new StringBuilder();
+      sb.append("Found several possible supported decoy tag prefixes.\n")
+          .append("Note: only prefixes in the 1st column are supported by downstream tools.\n");
+      appendFoundPrefixes(sb, prefixesByCol, suffixesByCol);
+      sb.append("\nOnly supported variants are lsited on buttons below.\n");
+
+      List<Tuple2<String, Double>> supported = prefixesByCol.get(0);
+      String[] options = new String[supported.size() + 1];
+      options[options.length - 1] = "Cancel";
+      for (int i = 0; i < supported.size(); i++) {
+        options[i] = String.format("Set \"%s\"", supported.get(i).item1);
       }
-      for (List<Tuple2<String, Double>> list : suffixesByCol) {
-        totalCandidates += list.size();
-        totalSuffixes += list.size();
-      }
-
-      String selectedPrefix = null;
-      if (totalCandidates == 0) {
-        String msg = "No candidates for decoy tags found";
-        String[] options = {"Ok"};
-        int result = JOptionPane.showOptionDialog(this, msg, "Nothing found",
-            JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
-
-      } else if (supportedPrefixes == 1) {
-        // good, we've found the one good decoy prefix
-        Tuple2<String, Double> prefix = prefixesByCol.get(0).get(0);
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format(Locale.ROOT,
-            "Found candidate decoy tag: \n\"%s\" in % 3.1f%% entries", prefix.item1,
-            prefix.item2 * 100d));
-        sb.append("\n\nAll found candidates:");
-        appendFoundPrefixes(sb, prefixesByCol, suffixesByCol);
-        String[] options = {"Set \"" + prefix.item1 + "\" as decoy tag", "Cancel"};
-        int result = JOptionPane.showOptionDialog(this, sb.toString(), "Found prefix",
-            JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-        if (result == 0) {
-          selectedPrefix = prefix.item1;
-        }
-
-      } else if (supportedPrefixes > 1) {
-        // several possible prefixes found
-        StringBuilder sb = new StringBuilder();
-        sb.append("Found several possible supported decoy tag prefixes.\n")
-            .append("Note: only prefixes in the 1st column are supported by downstream tools.\n");
-        appendFoundPrefixes(sb, prefixesByCol, suffixesByCol);
-        sb.append("\nOnly supported variants are lsited on buttons below.\n");
-
-        List<Tuple2<String, Double>> supported = prefixesByCol.get(0);
-        String[] options = new String[supported.size() + 1];
-        options[options.length - 1] = "Cancel";
-        for (int i = 0; i < supported.size(); i++) {
-          options[i] = String.format("Set \"%s\"", supported.get(i).item1);
-        }
-        int result = JOptionPane
-            .showOptionDialog(this, sb.toString(), "Found several possible prefixes",
-                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-                options[0]);
-        if (result >= 0 && result < options.length - 1) {
-          selectedPrefix = supported.get(result).item1;
-        }
-
-      } else if (supportedPrefixes == 0) {
-        // no prefixes found - this is not supported by downstream tools
-        StringBuilder sb = new StringBuilder();
-        sb.append("No supported decoy tag prefixes found.\n")
-            .append("However found other possible decoy markers, listed below.\n")
-            .append("Note: only prefixes in the 1st column are supported by downstream tools.\n");
-        appendFoundPrefixes(sb, prefixesByCol, suffixesByCol);
-        String[] options = {"Ok"};
-        int result = JOptionPane.showOptionDialog(this, sb.toString(),
-            "Found incompatible decoy marker candidates",
-            JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
-      }
-      if (selectedPrefix != null) {
-        updateDecoyTagSeqDb(selectedPrefix, false);
+      int result = JOptionPane
+          .showOptionDialog(this, sb.toString(), "Found several possible prefixes",
+              JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+              options[0]);
+      if (result >= 0 && result < options.length - 1) {
+        selectedPrefix = supported.get(result).item1;
       }
 
-    } catch (IOException ex) {
-      JOptionPane.showMessageDialog(btnTryDetectDecoyTag,
-          "<html>Error reading sequence database file", "Error",
-          JOptionPane.ERROR_MESSAGE);
+    } else if (supportedPrefixes == 0) {
+      // no prefixes found - this is not supported by downstream tools
+      StringBuilder sb = new StringBuilder();
+      sb.append("No supported decoy tag prefixes found.\n")
+          .append("However found other possible decoy markers, listed below.\n")
+          .append("Note: only prefixes in the 1st column are supported by downstream tools.\n");
+      appendFoundPrefixes(sb, prefixesByCol, suffixesByCol);
+      String[] options = {"Ok"};
+      int result = JOptionPane.showOptionDialog(this, sb.toString(),
+          "Found incompatible decoy marker candidates",
+          JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+    }
+    if (selectedPrefix != null) {
+      updateDecoyTagSeqDb(selectedPrefix, false);
     }
   }//GEN-LAST:event_btnTryDetectDecoyTagActionPerformed
 
@@ -4465,29 +4456,51 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     Collections.sort(candidates, (t1, t2) -> {
       int cmp0 = Double.compare(Math.abs(t1.item2 - 0.5), Math.abs(t2.item2 - 0.5));
       if (cmp0 == 0) {
-        cmp0 = t2.item1.compareTo(t1.item1);
+        cmp0 = Integer.compare(t1.item1.length(), t2.item1.length());
       }
       return cmp0;
     });
 
-    for (Tuple2<String, Double> cur : candidates) {
-      boolean isBest = true;
-      for (Tuple2<String, Double> other : candidates) {
-        if (Double.compare(other.item2, cur.item2) == 0) {
-          String curStr = cur.item1;
-          String othStr = other.item1;
-          if (othStr.length() > curStr.length()) {
-            if (othStr.startsWith(curStr) || othStr.endsWith(curStr)) {
-              isBest = false;
-              break;
-            }
-          }
-        }
-      }
-      if (isBest) {
+    for (int i = 0; i < candidates.size(); i++) {
+      Tuple2<String, Double> cur = candidates.get(i);
+      String prefix = cur.item1;
+      double pct = cur.item2;
+
+      if (prefix.endsWith("-") || prefix.endsWith("_")) {
         result.add(cur);
+        continue;
+      }
+
+      if (i + 1 < candidates.size()) {
+        Tuple2<String, Double> next = candidates.get(i + 1);
+        if (!next.item1.startsWith(prefix) || pct != next.item2) {
+          result.add(cur);
+          continue;
+        }
+      } else if ( i == candidates.size() - 1 && result.isEmpty()) {
+        result.add(cur);
+        continue;
       }
     }
+
+//    for (Tuple2<String, Double> cur : candidates) {
+//      boolean isBest = true;
+//      for (Tuple2<String, Double> other : candidates) {
+//        if (Double.compare(other.item2, cur.item2) == 0) {
+//          String curStr = cur.item1;
+//          String othStr = other.item1;
+//          if (othStr.length() > curStr.length()) {
+//            if (othStr.startsWith(curStr) || othStr.endsWith(curStr)) {
+//              isBest = false;
+//              break;
+//            }
+//          }
+//        }
+//      }
+//      if (isBest) {
+//        result.add(cur);
+//      }
+//    }
     return result;
   }
 
