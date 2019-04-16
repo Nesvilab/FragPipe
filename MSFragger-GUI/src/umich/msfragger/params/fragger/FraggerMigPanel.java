@@ -182,6 +182,8 @@ public class FraggerMigPanel extends JPanel {
   private UiCombo uiComboOutputType;
   private UiCombo uiComboMassMode;
   private UiSpinnerInt uiSpinnerDbslice;
+  private UiText uiTextCustomIonSeries;
+  private JLabel labelCustomIonSeries;
   private Map<Component, Boolean> enablementMapping = new HashMap<>();
 
   public FraggerMigPanel() {
@@ -228,6 +230,11 @@ public class FraggerMigPanel extends JPanel {
 
   private void initPostCreation() {
     ForkJoinPool.commonPool().execute(this::cacheLoad);
+
+    // TODO: ACHTUNG: temporary fix, disabling "Define custom ion series field"
+    // Remove when custom ion series work properly in msfragger
+    updateEnabledStatus(uiTextCustomIonSeries, false);
+    updateEnabledStatus(labelCustomIonSeries, false);
   }
 
   private void initMore() {
@@ -646,17 +653,20 @@ public class FraggerMigPanel extends JPanel {
             + "but <b>you can define your own in 'Define custom ion series' field</b>.<br/>\n"
             + "If you define custom series, you will need to include the name you<br/>\n"
             + "gave it here.");
-        FormEntry feCustomSeries = new FormEntry(MsfraggerParams.PROP_ion_series_definitions,
-            "Define custom ion series", new UiText(10),
-            "<html>Custom ion series allow specification of arbitrary mass gains/losses<br/>\n"
+        uiTextCustomIonSeries = new UiText(10);
+        String tooltipCustomIonSeriesDisabled = "This feature is currently disabled";
+        String tooltipCustomIonSeriesOriginal = "<html>Custom ion series allow specification of arbitrary mass gains/losses<br/>\n"
             + "for N- and C-terminal ions. Separate multiple definitions by commas or semicolons.<br/>\n"
             + "<b>Format:</b> name terminus mass-delta<br/>\n"
             + "Example definition string:<br/>\n"
             + "b* N -17.026548; b0 N -18.010565<br/>\n"
             + "This would define two new ion types named <i>b*</i> and <i>b0</i>,<br/>\n"
             + "you can name them whatever you fancy. <i>b*</i> is the equivalent of an<br/>\n"
-            + "N terminal b-ion with ammonia loss, <i>b0</i> is the same with water loss.<br/>\n");
-        pPeakMatch.add(feIonSeries.label(), alignRight);
+            + "N terminal b-ion with ammonia loss, <i>b0</i> is the same with water loss.<br/>\n";
+        FormEntry feCustomSeries = new FormEntry(MsfraggerParams.PROP_ion_series_definitions,
+            "Define custom ion series", uiTextCustomIonSeries, tooltipCustomIonSeriesDisabled);
+        labelCustomIonSeries = feIonSeries.label();
+        pPeakMatch.add(labelCustomIonSeries, alignRight);
         pPeakMatch.add(feIonSeries.comp, new CC().growX());
         pPeakMatch.add(feCustomSeries.label(), new CC().split(2).spanX());
         pPeakMatch.add(feCustomSeries.comp, new CC().growX().wrap());
