@@ -135,6 +135,7 @@ public class CmdMsfragger extends CmdBase {
 
     final String ext = fp.getOutputFileExt();
     Map<InputLcmsFile, Path> mapLcmsToPepxml = outputs(lcmsFiles, ext, wd);
+    Map<InputLcmsFile, Path> mapLcmsToTsv = outputs(lcmsFiles, "tsv", wd);
 
     final List<String> javaCmd = ramGb > 0 ?
             Arrays.asList("java", "-jar", "-Dfile.encoding=UTF-8", "-Xmx" + ramGb + "G") :
@@ -198,6 +199,14 @@ public class CmdMsfragger extends CmdBase {
           pbs.addAll(ToolingUtils
               .pbsMoveFiles(jarFragpipe, pepxmlWhereItShouldBe.getParent(),
                   Collections.singletonList(pepxmlAsCreatedByFragger)));
+        }
+        Path tsvWhereItShouldBe = mapLcmsToTsv.get(f);
+        String tsvFn = tsvWhereItShouldBe.getFileName().toString();
+        Path tsvAsCreatedByFragger = f.path.getParent().resolve(tsvFn);
+        if (!tsvAsCreatedByFragger.equals(tsvWhereItShouldBe) && params.getShiftedIons()) {
+          pbs.addAll(ToolingUtils
+              .pbsMoveFiles(jarFragpipe, tsvWhereItShouldBe.getParent(),
+                  Collections.singletonList(tsvAsCreatedByFragger)));
         }
       }
     }
