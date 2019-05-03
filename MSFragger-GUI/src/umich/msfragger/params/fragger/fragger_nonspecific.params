@@ -33,7 +33,9 @@ variable_mod_01 = 15.9949 M
 variable_mod_02 = 42.0106 [^
 #variable_mod_03 = 79.96633 STY
 #variable_mod_04 = -17.0265 nQnC
-#variable_mod_05 = -18.0106 nE 
+#variable_mod_05 = -18.0106 nE
+#variable_mod_06 = 0 site_06
+#variable_mod_07 = 0 site_07
 
 allow_multiple_variable_mods_on_residue = 1  	# static mods are not considered
 max_variable_mods_per_mod = 3 			        # maximum of 5
