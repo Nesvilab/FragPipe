@@ -665,10 +665,10 @@ public class FraggerMigPanel extends JPanel {
             + "N terminal b-ion with ammonia loss, <i>b0</i> is the same with water loss.<br/>\n";
         FormEntry feCustomSeries = new FormEntry(MsfraggerParams.PROP_ion_series_definitions,
             "Define custom ion series", uiTextCustomIonSeries, tooltipCustomIonSeriesDisabled);
-        labelCustomIonSeries = feIonSeries.label();
-        pPeakMatch.add(labelCustomIonSeries, alignRight);
+        labelCustomIonSeries = feCustomSeries.label();
+        pPeakMatch.add(feIonSeries.label(), alignRight);
         pPeakMatch.add(feIonSeries.comp, new CC().growX());
-        pPeakMatch.add(feCustomSeries.label(), new CC().split(2).spanX());
+        pPeakMatch.add(labelCustomIonSeries, new CC().split(2).spanX());
         pPeakMatch.add(feCustomSeries.comp, new CC().growX().wrap());
 
         FormEntry feTrueTolUnits = new FormEntry(MsfraggerParams.PROP_precursor_true_units,
