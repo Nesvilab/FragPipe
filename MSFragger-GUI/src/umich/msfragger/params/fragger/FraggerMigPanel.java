@@ -709,13 +709,13 @@ public class FraggerMigPanel extends JPanel {
                 "Only relevant when override_charge is set to 1.<br>\n" +
                 "Specified as space separated range of integers.<br>";
         FormEntry fePrecursorChargeLo = new FormEntry(PROP_misc_fragger_precursor_charge_lo,
-            "with precursor charge",
+            "",
             new UiSpinnerInt(1, 0, 30, 1, 2), tooltipPrecursorCHarge);
         FormEntry fePrecursorChargeHi = new FormEntry(PROP_misc_fragger_precursor_charge_hi,
             "not-shown",
             new UiSpinnerInt(4, 0, 30, 1, 2), tooltipPrecursorCHarge);
         FormEntry feOverrideCharge = new FormEntry(MsfraggerParams.PROP_override_charge,
-            "not-shown", new UiCheck("Override charge", null),
+            "not-shown", new UiCheck("Override charge with precursor charge", null),
             "<html>Ignores precursor charge and uses charge state<br>\n" +
                 "specified in precursor_charge range.<br>");
         FormEntry feReportAltProts = new FormEntry(MsfraggerParams.PROP_report_alternative_proteins,
