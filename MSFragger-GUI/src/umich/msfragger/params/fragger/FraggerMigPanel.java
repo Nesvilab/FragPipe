@@ -335,7 +335,7 @@ public class FraggerMigPanel extends JPanel {
       // mass calibrate
       uiComboMassCalibrate = UiUtils.createUiCombo(CALIBRATE_LABELS);
       String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE, "201904");
-      FormEntry feCalibrate = new FormEntry(MsfraggerParams.PROP_calibrate_mass, "<html><i>Calibrate masses",
+      FormEntry feCalibrate = new FormEntry(MsfraggerParams.PROP_calibrate_mass, "<html>Calibrate masses",
           uiComboMassCalibrate, String.format("<html>Requires MSFragger %s+.", minFraggerVer));
       pPeakMatch.add(feCalibrate.label(), new CC().alignX("right"));
       pPeakMatch.add(feCalibrate.comp, new CC().spanX().wrap());
@@ -445,7 +445,7 @@ public class FraggerMigPanel extends JPanel {
       FormEntry feMaxFragCharge = new FormEntry(MsfraggerParams.PROP_max_fragment_charge,
           "Max fragment charge", new UiSpinnerInt(2, 0, 20, 1, 2));
       uiSpinnerDbslice = new UiSpinnerInt(1, 1, 99, 1, 2);
-      FormEntry feSliceDb = new FormEntry(PROP_misc_slice_db, "<html><i>Split database", uiSpinnerDbslice,
+      FormEntry feSliceDb = new FormEntry(PROP_misc_slice_db, "<html>Split database", uiSpinnerDbslice,
           "<html>Split database into smaller chunks.<br/>Only use for very large databases (200MB+) or<br/>non-specific digestion.");
 
       uiCheckShiftedIons.addActionListener(e -> {
