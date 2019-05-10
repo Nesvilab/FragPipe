@@ -42,6 +42,7 @@ import umich.msfragger.util.StringUtils;
  */
 public class Props {
     public static final String COMMENT_SYMBOL = "#";
+    public static final String BLANK_LINE_MARKER = COMMENT_SYMBOL + " blank line ";
     private static final Pattern DISABLED_PROP = Pattern.compile("^#\\s*([^\\s]+)\\s*=([^#]+)(?:\\s*#\\s*(.+))?.*");
     private static final Pattern ENABLED_PROP = Pattern.compile("^\\s*([^\\s]+)\\s*=([^#]*)(?:\\s*#\\s*(.+))?.*");
     private LinkedHashMap<String, Prop> map = new LinkedHashMap<>();
@@ -170,10 +171,11 @@ public class Props {
     private void readProps(InputStream is) throws IOException {
         List<String> allLines = IOUtils.readAllLines(is, Charset.forName("UTF-8"));
         is.close();
+        int cnt = 0;
         for (String line : allLines) {
             line = line.trim();
             if (StringUtils.isNullOrWhitespace(line)) {
-              propOrdering.add("");
+              propOrdering.add(BLANK_LINE_MARKER + (cnt++));
               continue;
             }
 
@@ -224,7 +226,7 @@ public class Props {
 
         for (final String name : orederedKeys) {
             if (name.isEmpty() || name.startsWith(COMMENT_SYMBOL)) {
-                w.write(name + "\n");
+                w.write((name.startsWith(BLANK_LINE_MARKER) ? "" : name) + "\n");
                 continue;
             }
             Prop prop = map.get(name);
