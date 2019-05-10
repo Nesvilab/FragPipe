@@ -49,6 +49,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final Pattern reShiftedIonsExclusionRange = Pattern.compile("\\(\\s*(?<v1>-?\\d+(?:\\.\\d+)?)\\s*,\\s*(?<v2>-?\\d+(?:\\.\\d+)?)\\s*\\)");
 
     public static final String PROP_database_name = "database_name";
+    public static final String PROP_decoy_prefix = "decoy_prefix";
     public static final String PROP_fragpipe_ram = "fragpipe_ram";
     public static final String PROP_num_threads = "num_threads";
     public static final String PROP_precursor_mass_lower = "precursor_mass_lower";
@@ -115,6 +116,7 @@ public class MsfraggerParams extends AbstractParams {
 
     public static final String[] PROP_NAMES = {
         PROP_database_name,
+        PROP_decoy_prefix,
         PROP_fragpipe_ram,
         PROP_num_threads,
         PROP_precursor_mass_lower,
@@ -289,6 +291,14 @@ public class MsfraggerParams extends AbstractParams {
         props.setProp(PROP_database_name, databaseName);
     }
     
+    public String getDecoyPrefix() {
+        return props.getProp(PROP_decoy_prefix, "rev_").value;
+    }
+
+    public void setDecoyPrefix(String decoyPrefix) {
+        props.setProp(PROP_decoy_prefix, decoyPrefix);
+    }
+
     public int getFragpipeRam() {
         return Integer.parseInt(props.getProp(PROP_fragpipe_ram, "0").value);
     }

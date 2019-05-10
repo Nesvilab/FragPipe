@@ -1,6 +1,8 @@
 database_name =
 num_threads = 0                        # 0=poll CPU to set num threads; else specify num threads directly (max 64)
 
+decoy_prefix = rev_
+
 precursor_mass_lower = -150.00
 precursor_mass_upper = 500.00
 precursor_mass_units = 0               # 0=Daltons, 1=ppm
@@ -9,6 +11,7 @@ precursor_true_units = 1               # 0=Daltons, 1=ppm
 fragment_mass_tolerance = 20.00
 fragment_mass_units = 1		           # 0=Daltons, 1=ppm
 calibrate_mass = 0
+decoy_prefix = rev_
 
 isotope_error = 0                      # 0=off, 0/1/2 (standard C13 error)
 mass_offsets = 0

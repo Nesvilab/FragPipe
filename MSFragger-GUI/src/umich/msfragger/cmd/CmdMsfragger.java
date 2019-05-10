@@ -53,7 +53,7 @@ public class CmdMsfragger extends CmdBase {
 
   public boolean configure(Component comp, boolean isDryRun,
       FraggerMigPanel fp, Path jarFragpipe, UsageTrigger binFragger, String pathFasta,
-      List<InputLcmsFile> lcmsFiles) {
+      List<InputLcmsFile> lcmsFiles, final String decoyTag) {
 
     pbs.clear();
     final int numSlices = fp.getNumDbSlices();
@@ -94,6 +94,7 @@ public class CmdMsfragger extends CmdBase {
     // Search parameter file
     MsfraggerParams params = fp.getParams();
     params.setDatabaseName(pathFasta);
+    params.setDecoyPrefix(decoyTag);
     Path savedParamsPath = wd.resolve(MsfraggerParams.CACHE_FILE);
     if (!isDryRun) {
       try {

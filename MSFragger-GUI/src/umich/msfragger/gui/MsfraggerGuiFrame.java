@@ -3820,8 +3820,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         textBinMsfragger.getText().trim(), "MsFragger");
     final CmdMsfragger cmdMsfragger = new CmdMsfragger(fp.isRun(), wd);
     if (cmdMsfragger.isRun()) {
+      final String decoyTag = textDecoyTagSeqDb.getText().trim();
       if (!cmdMsfragger.configure(this,
-          isDryRun, fp, jarFragpipe, binMsfragger, fastaFile, lcmsFiles)) {
+          isDryRun, fp, jarFragpipe, binMsfragger, fastaFile, lcmsFiles, decoyTag)) {
         return false;
       }
       pbDescs.add(cmdMsfragger.builders());
