@@ -66,7 +66,7 @@ add_topN_complementary = 0
 
 minimum_peaks = 15                   # required minimum number of peaks in spectrum to search (default 10)
 use_topN_peaks = 150
-min_fragments_modelling = 3
+min_fragments_modelling = 2
 min_matched_fragments = 4 
 minimum_ratio = 0.01		         # filter peaks below this fraction of strongest peak
 clear_mz_range = 0.0 0.0             # for iTRAQ/TMT type data; will clear out all peaks in the specified m/z range
