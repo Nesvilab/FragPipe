@@ -324,7 +324,7 @@ public class FraggerMigPanel extends JPanel {
       FormEntry feFragTolUnits = new FormEntry(MsfraggerParams.PROP_fragment_mass_units,
           "Fragment mass tolerance", UiUtils.createUiCombo(MassTolUnits.values()));
       UiSpinnerDouble uiSpinnerFragTol = new UiSpinnerDouble(10, 0, 10000, 1,
-          new DecimalFormat("0.#"));
+          new DecimalFormat("0.###"));
       uiSpinnerFragTol.setColumns(4);
       FormEntry feFragTol = new FormEntry(MsfraggerParams.PROP_fragment_mass_tolerance, "not-shown",
           uiSpinnerFragTol);
