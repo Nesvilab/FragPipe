@@ -355,10 +355,14 @@ def calibrate(fasta_path_sample):
 		sys.stdout.buffer.write(p.stdout)
 		out = p.stdout.decode()
 
-	orig_ms1_tol: bool = 'Using the original MS1 tolerance.' in out
+	# orig_ms1_tol: bool = 'Using the original MS1 tolerance.' in out
+	orig_ms1_tol: bool = True
 	if not orig_ms1_tol:
 		new_ms1_tol, = re.compile('New MS1 tolerance: (.+)').findall(out)
-	new_ms2_tol, = re.compile('New MS2 tolerance: (.+)').findall(out)
+	# new_ms2_tol, = re.compile('New MS2 tolerance: (.+)').findall(out)
+	new_ms2_tol, = re.compile('New fragment_mass_tolerance = (.+) PPM').findall(out)
+	new_use_topN_peak, = re.compile('New use_topN_peaks = (.+)').findall(out)
+	new_minimum_ratio, = re.compile('New minimum_ratio = (.+)').findall(out)
 
 	params_txt_new = params_txt
 	precursor_mass_units, = re.compile(r'^precursor_mass_units\s*=\s*([01])', re.MULTILINE).findall(params_txt)
@@ -382,10 +386,14 @@ def calibrate(fasta_path_sample):
 			params_txt_new = re.compile(r'^precursor_mass_upper\s*=\s*([\S]+)', re.MULTILINE).sub(
 				f'precursor_mass_upper = {new_ms1_tol}', params_txt_new)
 
-	params_txt_new = re.compile(r'^fragment_mass_tolerance\s*=\s*([0-9.]+)', re.MULTILINE).sub(
+	params_txt_new = re.compile(r'^fragment_mass_tolerance\s*=\s*[0-9.]+', re.MULTILINE).sub(
 		f'fragment_mass_tolerance = {new_ms2_tol}', params_txt_new)
-	params_txt_new = re.compile(r'^fragment_mass_units\s*=\s*([01])', re.MULTILINE).sub(
+	params_txt_new = re.compile(r'^fragment_mass_units\s*=\s*[01]', re.MULTILINE).sub(
 		'fragment_mass_units = 1', params_txt_new)
+	params_txt_new = re.compile(r'^use_topN_peaks\s*=\s*[0-9]+', re.MULTILINE).sub(
+		f'use_topN_peaks = {new_use_topN_peak}', params_txt_new)
+	params_txt_new = re.compile(r'^minimum_ratio\s*=\s*[0-9.]+', re.MULTILINE).sub(
+		f'minimum_ratio = {new_minimum_ratio}', params_txt_new)
 	mzBINs0 = [e.with_suffix('.mzBIN_calibrated').resolve(strict=True) for e in infiles_name]
 	mzBINs = [(tempdir / e.name).with_suffix('.mzBIN_calibrated').resolve() for e in infiles_name]
 	for fr, to in zip(mzBINs0, mzBINs):
