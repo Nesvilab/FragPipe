@@ -1023,6 +1023,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     jLabel1 = new javax.swing.JLabel();
     checkFilterNoProtxml = new javax.swing.JCheckBox();
     checkReportPrintDecoys = new javax.swing.JCheckBox();
+    jLabel13 = new javax.swing.JLabel();
+    comboReportOutputFormat = new javax.swing.JComboBox<>();
     checkCreateReport = new javax.swing.JCheckBox();
     panelSpecLibOpts = new javax.swing.JPanel();
     checkGenerateSpecLib = new javax.swing.JCheckBox();
@@ -2100,6 +2102,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
+    jLabel13.setText("Output format");
+
+    comboReportOutputFormat.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "report.tsv (stable)", "mzID (experimental)" }));
+    comboReportOutputFormat.setSelectedItem(loadLastComboReportOutputFormat());
+    comboReportOutputFormat.setToolTipText("mzID format requires Philosopher 20190515+");
+    comboReportOutputFormat.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        comboReportOutputFormatActionPerformed(evt);
+      }
+    });
+
     javax.swing.GroupLayout panelReportOptionsLayout = new javax.swing.GroupLayout(panelReportOptions);
     panelReportOptions.setLayout(panelReportOptionsLayout);
     panelReportOptionsLayout.setHorizontalGroup(
@@ -2112,9 +2125,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(textReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE))
           .addGroup(panelReportOptionsLayout.createSequentialGroup()
-            .addComponent(checkReportAbacus)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(checkReportPrintDecoys)
+            .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+              .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelReportOptionsLayout.createSequentialGroup()
+                .addComponent(jLabel13)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(comboReportOutputFormat, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+              .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelReportOptionsLayout.createSequentialGroup()
+                .addComponent(checkReportAbacus)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(checkReportPrintDecoys)))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(checkFilterNoProtxml)
             .addContainerGap())))
@@ -2130,6 +2149,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(checkReportAbacus)
           .addComponent(checkFilterNoProtxml)
           .addComponent(checkReportPrintDecoys))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(jLabel13)
+          .addComponent(comboReportOutputFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
@@ -2236,12 +2259,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addContainerGap()
         .addComponent(checkCreateReport)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(panelReportOptions, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addComponent(panelReportOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(458, Short.MAX_VALUE))
+        .addContainerGap(419, Short.MAX_VALUE))
     );
 
     tabPane.addTab("Report", null, panelReport, "");
@@ -4006,8 +4029,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       // run Report - Report command itself
       final CmdReportReport cmdReportReport = new CmdReportReport(isReport, wd);
       final boolean doPrintDecoys = checkReportPrintDecoys.isSelected();
+      final boolean doMzid = comboReportOutputFormat.getSelectedItem().toString().toLowerCase().contains("mzid");
       if (cmdReportReport.isRun()) {
-        if (!cmdReportReport.configure(this, usePhi, doPrintDecoys, mapGroupsToProtxml)) {
+        if (!cmdReportReport.configure(this, usePhi, doPrintDecoys, doMzid, mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(cmdReportReport.builders());
@@ -4877,6 +4901,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.save(checkReportPrintDecoys, ThisAppProps.PROP_CHECKBOX_REPORT_PRINT_DECOYS);
   }//GEN-LAST:event_checkReportPrintDecoysActionPerformed
 
+  private void comboReportOutputFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboReportOutputFormatActionPerformed
+    final String val = (String)comboReportOutputFormat.getSelectedItem();
+    ThisAppProps.save(ThisAppProps.PROP_COMBO_REPORT_OUTPUT_FORMAT, val);
+  }//GEN-LAST:event_comboReportOutputFormatActionPerformed
+
 
   //region Load-Last methods
   public void loadLastPeptideProphet() {
@@ -4949,6 +4978,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     return false;
   }
 
+  private String loadLastComboReportOutputFormat() {
+    String format = ThisAppProps.load(ThisAppProps.PROP_COMBO_REPORT_OUTPUT_FORMAT);
+    if (StringUtils.isNullOrWhitespace(format)) {
+      format = comboReportOutputFormat.getItemAt(0);
+    }
+    return format;
+  }
+  
   private boolean loadLastProcessGroupsSeparately() {
     final String checked = ThisAppProps.load(ThisAppProps.PROP_CHECKBOX_PROCESS_GROUPS_SEPARATELY);
     try {
@@ -5688,6 +5725,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JCheckBox chkRunCrystalc;
   private javax.swing.JCheckBox chkRunPeptideProphet;
   private javax.swing.JCheckBox chkRunProteinProphet;
+  private javax.swing.JComboBox<String> comboReportOutputFormat;
   private javax.swing.JScrollPane consoleScrollPane;
   private javax.swing.JEditorPane editorMsfraggerCitation;
   private javax.swing.JEditorPane editorPhilosopherLink;
@@ -5698,6 +5736,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JLabel jLabel10;
   private javax.swing.JLabel jLabel11;
   private javax.swing.JLabel jLabel12;
+  private javax.swing.JLabel jLabel13;
   private javax.swing.JLabel jLabel2;
   private javax.swing.JLabel jLabel3;
   private javax.swing.JLabel jLabel34;

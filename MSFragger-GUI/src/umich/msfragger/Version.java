@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.messages.MessageTipNotification;
 import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.VersionComparator;
 
@@ -63,7 +62,8 @@ public class Version {
         "Turning off usage of protxml file in Filter command when Protein Prophet is not run",
         "Query user if protxml files exist while Protein Prophet is not run",
         "'Print Decoys' option/checkbox for Report command",
-        "Update CrystalC-1.0.5"));
+        "Update CrystalC-1.0.5",
+        "Dropdown for generating report in mzID format"));
 
     CHANGELOG.put("9.1", Arrays.asList(
         "Fix Abacus command bug with unrecognized options from Filter command being carried over."));

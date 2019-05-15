@@ -25,7 +25,7 @@ public class CmdReportReport extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      boolean doPrintDecoys, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+      boolean doPrintDecoys, boolean doMzId, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
     pbs.clear();
     Set<Path> groupWds = mapGroupsToProtxml.keySet().stream().map(g -> g.outputDir(wd))
@@ -36,6 +36,9 @@ public class CmdReportReport extends CmdBase {
       cmd.add(PhilosopherProps.CMD_REPORT);
       if (doPrintDecoys) {
         cmd.add("--decoys");
+      }
+      if (doMzId) {
+        cmd.add("--mzid");
       }
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(groupWd.toFile());
