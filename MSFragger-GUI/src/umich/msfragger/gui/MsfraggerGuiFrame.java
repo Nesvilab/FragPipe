@@ -5250,16 +5250,43 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     JEditorPane ep = editorSequenceDb;
     ep.setContentType("text/html");
+    final String codeTag = "<code style=\" font-size:" + font.getSize() + "; \">";
     ep.setText("<html><body style=\"" + style + "\">"
-        + "If you don't have a protein database, you can use Philosopher from the command line to download "
-        + "one from UniProt, e.g.:<br/><br/>"
-        + "&nbsp;&nbsp;&nbsp;&nbsp;philosopher.exe database --prefix rev_ --contam --id UP000005640<br/>"
+        + "<u>If you don't have a protein database:</u><br/>"
+        + "Run Philosopher from the command line to download one from UniProt.<br/>"
+        + "Please execute the following two commands:<br/>"
         + "<br/>"
-        + "To find the proteome ID for the above command or download other databases visit "
-        + "<a href=\"http://www.uniprot.org/proteomes/\">UniProt website</a><br/>"
+        + codeTag
+        + "&nbsp;&nbsp;&nbsp;&nbsp;philosopher_windows_amd64.exe workspace --init <br/>"
+        + "&nbsp;&nbsp;&nbsp;&nbsp;philosopher_windows_amd64.exe database --prefix rev_ --reviewed --contam --id UP000005640<br/>"
+        + "</code>"
         + "<br/>"
-        + "PeptideProphet and other downstream tools require the decoy tag to be a prefix to the whole protein "
-        + "string in FASTA file.<br/>"
+        + "This will generate a human UniProt/SwissProt (i.e. reviewed sequences only) database, with common contaminants and decoys added (with a default decoy prefix rev_). If you would like to use the full UniProt, remove " + codeTag + "--reviewed</code> tag.<br/>"
+        + "<br/>"
+        + "For mouse use UP000000589, to find the proteome ID for other organisms visit <a href=\"http://www.uniprot.org/proteomes/\">UniProt website</a>.<br/>"
+        + "<br/>"
+        + "<br/>"
+        + "<u>If you have your own database, without decoys and contaminants</u><br/>"
+        + "<br/>"
+        + "Please add decoys and contaminants and reformat it for FragPipe using the following commands:<br/>"
+        + "<br/>"
+        + codeTag
+        + "&nbsp;&nbsp;&nbsp;&nbsp;philosopher_windows_amd64.exe workspace --init <br/>"
+        + "&nbsp;&nbsp;&nbsp;&nbsp;philosopher_windows_amd64.exe database --custom &lt;file_name&gt; --contam <br/>"
+        + "</code>"
+        + "<br/>"
+        + "<br/>"
+        + "<u>If you have your own database, with decoys and contaminants:</u><br/>"
+        + "<br/>"
+        + "Please reformat it for FragPipe using the following commands:<br/>"
+        + "<br/>"
+        + codeTag
+        + "&nbsp;&nbsp;&nbsp;&nbsp;philosopher_windows_amd64.exe workspace --init <br/>"
+        + "&nbsp;&nbsp;&nbsp;&nbsp;philosopher_windows_amd64.exe database --annotate &lt;file_name&gt; --prefix &lt;prefix&gt;<br/>"
+        + "</code>"
+        + "<br/>"
+        + "Note that decoys needs to be formatted as a whole protein string in FASTA file with a decoy &lt;prefix&gt; (e.g. rev_ or DECOY_) added at the beginning.<br/>"
+        + "<br/>"
         + "Examples of compatible formats:"
         + "<ul>"
         + "<li>&gt;<b>rev_</b>tr|J3KNE0|J3KNE0_HUMAN RanBP2-like and GRIP domain-containing protein</li>"
@@ -5271,7 +5298,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         + "<li>&gt;tr|<b>fake_</b>J3KNE0|J3KNE0_HUMAN RanBP2-like ...</li>"
         + "<li>&gt;tr|J3KNE0<b>_DECOY</b>|J3KNE0_HUMAN ...</li>"
         + "</ul>"
-        + ""
+        + "<br/>"
         + "</body></html>");
 
     // handle link messages
