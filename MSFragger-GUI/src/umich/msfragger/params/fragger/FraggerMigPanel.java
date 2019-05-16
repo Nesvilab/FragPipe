@@ -551,7 +551,7 @@ public class FraggerMigPanel extends JPanel {
           + "(0,1,2,79.966, 80.966, 81.966).";
       FormEntry feMassOffsets = new FormEntry(MsfraggerParams.PROP_mass_offsets,
           "User defined variable mass shifts (on any aminoacid)",
-          UiUtils.uiTextBuilder().filter("[^\\(\\)\\./,\\d ]").text("0").create(),
+          UiUtils.uiTextBuilder().filter("[^-\\(\\)\\./,\\d ]").text("0").create(),
           tooltipMassOffsets);
       pMods.add(feMassOffsets.label(), new CC().split(2));
       pMods.add(feMassOffsets.comp, new CC().alignX("left").growX().wrap());
