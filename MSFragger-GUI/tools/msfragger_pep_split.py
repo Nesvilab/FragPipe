@@ -49,9 +49,10 @@ output_report_topN = int(re.compile(r'^output_report_topN *= *(\d+)', re.MULTILI
 output_max_expect_mo = re.compile(r'^output_max_expect *= *(\S+)', re.MULTILINE).search(params_txt)
 output_max_expect = 50.0 if output_max_expect_mo is None else float(output_max_expect_mo.group(1))
 calibrate_mass_mo = re.compile(r'^calibrate_mass *= *([012])\b', re.MULTILINE).search(params_txt)
-calibrate_mass: bool = False if calibrate_mass_mo is None else int(calibrate_mass_mo.group(1)) in [1, 2]
-assert [bool(int(re.compile(r'^calibrate_mass *= *([01])\b', re.MULTILINE).search(a).group(1)))
- for a in ['calibrate_mass = 0', 'calibrate_mass = 1']] == [False, True]
+calibrate_mass: int = int(calibrate_mass_mo.group(1))
+assert calibrate_mass in [0, 1, 2]
+assert [int(re.compile(r'^calibrate_mass *= *([012])\b', re.MULTILINE).search(a).group(1))
+		for a in ['calibrate_mass = 0', 'calibrate_mass = 1', 'calibrate_mass = 2']] == [0, 1, 2]
 
 
 num_parts = int(num_parts_str)
@@ -335,7 +336,7 @@ def combine_results():
 	for e in fs:
 		e.result()
 
-def calibrate(fasta_path_sample):
+def calibrate(fasta_path_sample, calibrate_mass: int):
 	params_path_calibrate = tempdir / param_path.name
 	params_path_calibrate.write_text(recomp_fasta.sub(f'database_name = {fasta_path_sample.relative_to(tempdir)}', params_txt))
 	calibrate_cmd = msfragger_cmd + [params_path_calibrate.resolve(), '--split1', *infiles_name]
@@ -360,9 +361,12 @@ def calibrate(fasta_path_sample):
 	if not orig_ms1_tol:
 		new_ms1_tol, = re.compile('New MS1 tolerance: (.+)').findall(out)
 	# new_ms2_tol, = re.compile('New MS2 tolerance: (.+)').findall(out)
-	new_ms2_tol, = re.compile('New fragment_mass_tolerance = (.+) PPM').findall(out)
-	new_use_topN_peak, = re.compile('New use_topN_peaks = (.+)').findall(out)
-	new_minimum_ratio, = re.compile('New minimum_ratio = (.+)').findall(out)
+	if calibrate_mass == 2:
+		new_precursor_true_tol0 = re.compile('New precursor_true_tolerance = (.+) PPM').findall(out)
+		new_precursor_true_tol = new_precursor_true_tol0[0] if len(new_precursor_true_tol0) == 1 else None
+		new_ms2_tol, = re.compile('New fragment_mass_tolerance = (.+) PPM').findall(out)
+		new_use_topN_peak, = re.compile('New use_topN_peaks = (.+)').findall(out)
+		new_minimum_ratio, = re.compile('New minimum_ratio = (.+)').findall(out)
 
 	params_txt_new = params_txt
 	precursor_mass_units, = re.compile(r'^precursor_mass_units\s*=\s*([01])', re.MULTILINE).findall(params_txt)
@@ -385,15 +389,20 @@ def calibrate(fasta_path_sample):
 				f'precursor_mass_lower = -{new_ms1_tol}', params_txt_new)
 			params_txt_new = re.compile(r'^precursor_mass_upper\s*=\s*([\S]+)', re.MULTILINE).sub(
 				f'precursor_mass_upper = {new_ms1_tol}', params_txt_new)
-
-	params_txt_new = re.compile(r'^fragment_mass_tolerance\s*=\s*[0-9.]+', re.MULTILINE).sub(
-		f'fragment_mass_tolerance = {new_ms2_tol}', params_txt_new)
-	params_txt_new = re.compile(r'^fragment_mass_units\s*=\s*[01]', re.MULTILINE).sub(
-		'fragment_mass_units = 1', params_txt_new)
-	params_txt_new = re.compile(r'^use_topN_peaks\s*=\s*[0-9]+', re.MULTILINE).sub(
-		f'use_topN_peaks = {new_use_topN_peak}', params_txt_new)
-	params_txt_new = re.compile(r'^minimum_ratio\s*=\s*[0-9.]+', re.MULTILINE).sub(
-		f'minimum_ratio = {new_minimum_ratio}', params_txt_new)
+	if calibrate_mass == 2:
+		if new_precursor_true_tol is not None:
+			params_txt_new = re.compile(r'^precursor_true_tolerance\s*=\s*[0-9.]+', re.MULTILINE).sub(
+				f'precursor_true_tolerance = {new_precursor_true_tol}', params_txt_new)
+			params_txt_new = re.compile(r'^precursor_true_units\s*=\s*[01]', re.MULTILINE).sub(
+				'precursor_true_units = 1', params_txt_new)
+		params_txt_new = re.compile(r'^fragment_mass_tolerance\s*=\s*[0-9.]+', re.MULTILINE).sub(
+			f'fragment_mass_tolerance = {new_ms2_tol}', params_txt_new)
+		params_txt_new = re.compile(r'^fragment_mass_units\s*=\s*[01]', re.MULTILINE).sub(
+			'fragment_mass_units = 1', params_txt_new)
+		params_txt_new = re.compile(r'^use_topN_peaks\s*=\s*[0-9]+', re.MULTILINE).sub(
+			f'use_topN_peaks = {new_use_topN_peak}', params_txt_new)
+		params_txt_new = re.compile(r'^minimum_ratio\s*=\s*[0-9.]+', re.MULTILINE).sub(
+			f'minimum_ratio = {new_minimum_ratio}', params_txt_new)
 	mzBINs0 = [e.with_suffix('.mzBIN_calibrated').resolve(strict=True) for e in infiles_name]
 	mzBINs = [(tempdir / e.name).with_suffix('.mzBIN_calibrated').resolve() for e in infiles_name]
 	for fr, to in zip(mzBINs0, mzBINs):
@@ -416,12 +425,12 @@ sample_fasta(fasta_path, fasta_path_sample, 3)
 def main():
 	# mp.set_start_method('spawn')
 	set_up_directories()
-	if calibrate_mass:
+	if calibrate_mass in [1, 2]:
 		fasta_path_sample = tempdir / fasta_path.name
 		sample_fasta(fasta_path, fasta_path_sample, num_parts)
-		calibrate_mzBIN, params_txt_new = calibrate(fasta_path_sample)
-	write_params(params_txt_new if calibrate_mass else params_txt)
-	run_msfragger(calibrate_mzBIN if calibrate_mass else infiles_name)
+		calibrate_mzBIN, params_txt_new = calibrate(fasta_path_sample, calibrate_mass)
+	write_params(params_txt_new if calibrate_mass in [1, 2] else params_txt)
+	run_msfragger(calibrate_mzBIN if calibrate_mass in [1, 2] else infiles_name)
 
 	write_combined_scores_histo()
 	subprocess.run(list(map(os.fspath, generate_expect_cmd)), cwd=tempdir, check=True)
