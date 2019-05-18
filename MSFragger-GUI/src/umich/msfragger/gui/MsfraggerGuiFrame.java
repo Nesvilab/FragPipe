@@ -5246,11 +5246,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ep.setText("<html><body style=\"" + style + "\">"
         + "<b>To create protein sequence database for FragPipe analysis:</b><br/><br/>"
         + "Run Philosopher from the command line to download protein sequences from UniProt.<br/>"
-        + "Execute the following two commands (see LINK for detailed instructions): <br/>"
+        + "Execute the following two commands (see <a href=\"https://github.com/Nesvilab/philosopher/wiki/Database\">here</a> for detailed instructions): <br/>"
         + "<br/>"
         + codeTag
         + "&nbsp;&nbsp;&nbsp;&nbsp;philosopher_windows_amd64.exe workspace --init <br/>"
-        + "&nbsp;&nbsp;&nbsp;&nbsp;philosopher_windows_amd64.exe database --prefix rev_ --reviewed --contam --id UP000005640<br/>"
+        + "&nbsp;&nbsp;&nbsp;&nbsp;philosopher_windows_amd64.exe database --reviewed --contam --id UP000005640<br/>"
         + "</code>"
         + "<br/>"
         + "This will generate a human UniProt (reviewed sequences only) database, with common contaminants and decoys (with a prefix rev_) added.<br/>"
