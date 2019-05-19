@@ -99,8 +99,8 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_zero_bin_accept_expect = "zero_bin_accept_expect";
     public static final String PROP_zero_bin_mult_expect = "zero_bin_mult_expect";
     public static final String PROP_add_topN_complementary = "add_topN_complementary";
-    public static final String PROP_shifted_ions = "shifted_ions";
-    public static final String PROP_shifted_ions_exclude_ranges = "shifted_ions_exclude_ranges";
+    public static final String PROP_localize_delta_mass = "localize_delta_mass";
+    public static final String PROP_delta_mass_exclude_ranges = "delta_mass_exclude_ranges";
 
     // Spectral processing
     
@@ -158,8 +158,8 @@ public class MsfraggerParams extends AbstractParams {
         PROP_zero_bin_accept_expect,
         PROP_zero_bin_mult_expect,
         PROP_add_topN_complementary,
-        PROP_shifted_ions,
-        PROP_shifted_ions_exclude_ranges,
+        PROP_localize_delta_mass,
+        PROP_delta_mass_exclude_ranges,
         PROP_minimum_peaks,
         PROP_use_topN_peaks,
         PROP_min_fragments_modelling,
@@ -728,7 +728,7 @@ public class MsfraggerParams extends AbstractParams {
     }
 
     public double[] getShiftedIonsExcludeRanges() {
-        final String name = PROP_shifted_ions_exclude_ranges;
+        final String name = PROP_delta_mass_exclude_ranges;
         final String val = props.getProp(name, "(-1.5,3.5)").value;
         Matcher m = reShiftedIonsExclusionRange.matcher(val);
         if (!m.find()) {
@@ -745,17 +745,17 @@ public class MsfraggerParams extends AbstractParams {
         if (v == null || v.length != 2) {
             throw new IllegalArgumentException("Array length must be 2");
         }
-        props.setProp(PROP_shifted_ions_exclude_ranges, "(" + v[0] + "," + v[1] + ")");
+        props.setProp(PROP_delta_mass_exclude_ranges, "(" + v[0] + "," + v[1] + ")");
     }
 
     public boolean getShiftedIons() {
-        int v = Integer.parseInt(props.getProp(PROP_shifted_ions, "0").value);
+        int v = Integer.parseInt(props.getProp(PROP_localize_delta_mass, "0").value);
         return v == 1;
     }
 
     public void setShiftedIons(boolean v) {
         int vInt = v ? 1 : 0;
-        props.setProp(PROP_shifted_ions, Integer.toString(vInt));
+        props.setProp(PROP_localize_delta_mass, Integer.toString(vInt));
     }
     
     public boolean getAllowMultipleVariableModsOnResidue() {

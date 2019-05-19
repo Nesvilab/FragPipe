@@ -146,7 +146,7 @@ public class FraggerMigPanel extends JPanel {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_true_units, s -> Integer.toString(MassTolUnits.valueOf(s).valueInParamsFile()));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_calibrate_mass, s -> Integer.toString(Arrays.asList(CALIBRATE_LABELS).indexOf(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_num_enzyme_termini, s -> Integer.toString(CleavageType.valueOf(s).valueInParamsFile()));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_shifted_ions, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_localize_delta_mass, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_override_charge, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
@@ -160,7 +160,7 @@ public class FraggerMigPanel extends JPanel {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_true_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_calibrate_mass, s -> CALIBRATE_LABELS[Integer.parseInt(s)]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_num_enzyme_termini, s -> CleavageType.fromValueInParamsFile(s).name());
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_shifted_ions, s -> Boolean.toString(Integer.parseInt(s) > 0));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_localize_delta_mass, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_override_charge, s -> Boolean.toString(Integer.parseInt(s) > 0));
@@ -366,8 +366,8 @@ public class FraggerMigPanel extends JPanel {
       pPeakMatch.add(fePrecursorMassMode.label(), new CC().split(2).spanX());
       pPeakMatch.add(fePrecursorMassMode.comp, new CC().wrap());
 
-      final UiCheck uiCheckShiftedIons = new UiCheck("<html>Use shifted ion series", null);
-      FormEntry feShiftedIonsCheck = new FormEntry(MsfraggerParams.PROP_shifted_ions, "not-shown",
+      final UiCheck uiCheckShiftedIons = new UiCheck("<html>Localize delta mass", null);
+      FormEntry feShiftedIonsCheck = new FormEntry(MsfraggerParams.PROP_localize_delta_mass, "not-shown",
           uiCheckShiftedIons, "<html>Shifted ion series are the same as regular b/y ions,<br/>"
               + "but with the addition of the mass shift of the precursor.<br/>"
               + "Regular ion series will still be used.<br/>"
@@ -376,7 +376,7 @@ public class FraggerMigPanel extends JPanel {
       uiTextShiftedIonsExclusion.setDocument(DocumentFilters.getFilter("[A-Za-z]"));
       uiTextShiftedIonsExclusion.setText("(-1.5,3.5)");
       FormEntry feShiftedIonsExclusion = new FormEntry(
-          MsfraggerParams.PROP_shifted_ions_exclude_ranges, "Shifted ions exclusion ranges",
+          MsfraggerParams.PROP_delta_mass_exclude_ranges, "Delta mass exclude ranges",
           uiTextShiftedIonsExclusion, "<html>Ranges expressed like: (-1.5,3.5)");
       pPeakMatch.add(feShiftedIonsCheck.comp, new CC().alignX("right"));
       pPeakMatch.add(feShiftedIonsExclusion.label(), new CC().split(2).spanX());
@@ -464,8 +464,8 @@ public class FraggerMigPanel extends JPanel {
         final int dbSlicing = uiSpinnerDbslice.getActualValue();
         if (selected && dbSlicing > 1) {
           JOptionPane.showMessageDialog(FraggerMigPanel.this,
-              "<html>DB Slicing is incompatible with Shifted Ions option.<br/>"
-                  + "Please either set it to 1, or uncheck Shifted Ions.",
+              "<html>DB Slicing is incompatible with <code>Localize delta mass</code> option.<br/>"
+                  + "Please either set it to 1, or uncheck <code>Localize delta mass</code>.",
               "Incompatible options", JOptionPane.WARNING_MESSAGE);
         }
       });
