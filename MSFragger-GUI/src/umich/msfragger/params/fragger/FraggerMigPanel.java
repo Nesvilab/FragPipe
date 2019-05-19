@@ -182,6 +182,7 @@ public class FraggerMigPanel extends JPanel {
   private UiCombo uiComboOutputType;
   private UiCombo uiComboMassMode;
   private UiSpinnerInt uiSpinnerDbslice;
+  private UiCheck uiCheckShiftedIons;
   private UiText uiTextCustomIonSeries;
   private JLabel labelCustomIonSeries;
   private Map<Component, Boolean> enablementMapping = new HashMap<>();
@@ -366,22 +367,6 @@ public class FraggerMigPanel extends JPanel {
       pPeakMatch.add(fePrecursorMassMode.label(), new CC().split(2).spanX());
       pPeakMatch.add(fePrecursorMassMode.comp, new CC().wrap());
 
-      final UiCheck uiCheckShiftedIons = new UiCheck("<html>Localize delta mass", null);
-      FormEntry feShiftedIonsCheck = new FormEntry(MsfraggerParams.PROP_localize_delta_mass, "not-shown",
-          uiCheckShiftedIons, "<html>Shifted ion series are the same as regular b/y ions,<br/>"
-              + "but with the addition of the mass shift of the precursor.<br/>"
-              + "Regular ion series will still be used.<br/>"
-          + "This option is </b>incompatible</b> with database splitting.");
-      UiText uiTextShiftedIonsExclusion = new UiText();
-      uiTextShiftedIonsExclusion.setDocument(DocumentFilters.getFilter("[A-Za-z]"));
-      uiTextShiftedIonsExclusion.setText("(-1.5,3.5)");
-      FormEntry feShiftedIonsExclusion = new FormEntry(
-          MsfraggerParams.PROP_delta_mass_exclude_ranges, "Delta mass exclude ranges",
-          uiTextShiftedIonsExclusion, "<html>Ranges expressed like: (-1.5,3.5)");
-      pPeakMatch.add(feShiftedIonsCheck.comp, new CC().alignX("right"));
-      pPeakMatch.add(feShiftedIonsExclusion.label(), new CC().split(2).spanX());
-      pPeakMatch.add(feShiftedIonsExclusion.comp, new CC().growX());
-
       // Digest panel
       JPanel pDigest = new JPanel(new MigLayout(new LC()));
       pDigest.setBorder(new TitledBorder("Protein Digestion"));
@@ -448,27 +433,6 @@ public class FraggerMigPanel extends JPanel {
       FormEntry feSliceDb = new FormEntry(PROP_misc_slice_db, "<html>Split database", uiSpinnerDbslice,
           "<html>Split database into smaller chunks.<br/>Only use for very large databases (200MB+) or<br/>non-specific digestion.");
 
-      uiCheckShiftedIons.addActionListener(e -> {
-        final boolean selected = uiCheckShiftedIons.isSelected();
-        final int dbSlicing = uiSpinnerDbslice.getActualValue();
-        if (selected && dbSlicing > 1) {
-          JOptionPane.showMessageDialog(FraggerMigPanel.this,
-              "<html>This option is incompatible with DB Splitting.<br/>"
-                  + "Please either turn it off, or turn off DB Splitting by setting<br/>"
-                  + "it to 1.", "Incompatible options", JOptionPane.WARNING_MESSAGE);
-        }
-      });
-
-      uiSpinnerDbslice.addChangeListener(e -> {
-        final boolean selected = uiCheckShiftedIons.isSelected();
-        final int dbSlicing = uiSpinnerDbslice.getActualValue();
-        if (selected && dbSlicing > 1) {
-          JOptionPane.showMessageDialog(FraggerMigPanel.this,
-              "<html>DB Slicing is incompatible with <code>Localize delta mass</code> option.<br/>"
-                  + "Please either set it to 1, or uncheck <code>Localize delta mass</code>.",
-              "Incompatible options", JOptionPane.WARNING_MESSAGE);
-        }
-      });
 
       pDigest.add(feMaxFragCharge.label(), new CC().split(2).span(2).alignX("right"));
       pDigest.add(feMaxFragCharge.comp);
@@ -598,6 +562,45 @@ public class FraggerMigPanel extends JPanel {
         pOpenSearch.add(feZeroBinAcceptExpect.comp);
         pOpenSearch.add(feZeroBinMultExpect.label(), alignRight);
         pOpenSearch.add(feZeroBinMultExpect.comp, wrap);
+
+        uiCheckShiftedIons = new UiCheck("<html>Localize delta mass", null);
+        FormEntry feShiftedIonsCheck = new FormEntry(MsfraggerParams.PROP_localize_delta_mass, "not-shown",
+            uiCheckShiftedIons, "<html>Shifted ion series are the same as regular b/y ions,<br/>"
+            + "but with the addition of the mass shift of the precursor.<br/>"
+            + "Regular ion series will still be used.<br/>"
+            + "This option is </b>incompatible</b> with database splitting.");
+        UiText uiTextShiftedIonsExclusion = new UiText();
+        uiTextShiftedIonsExclusion.setDocument(DocumentFilters.getFilter("[A-Za-z]"));
+        uiTextShiftedIonsExclusion.setText("(-1.5,3.5)");
+        FormEntry feShiftedIonsExclusion = new FormEntry(
+            MsfraggerParams.PROP_delta_mass_exclude_ranges, "Delta mass exclude ranges",
+            uiTextShiftedIonsExclusion, "<html>Ranges expressed like: (-1.5,3.5)");
+        pOpenSearch.add(feShiftedIonsCheck.comp, new CC().alignX("right"));
+        pOpenSearch.add(feShiftedIonsExclusion.label(), new CC().split(2).spanX().gapLeft("25px"));
+        pOpenSearch.add(feShiftedIonsExclusion.comp, new CC().growX());
+
+        uiCheckShiftedIons.addActionListener(e -> {
+          final boolean selected = uiCheckShiftedIons.isSelected();
+          final int dbSlicing = uiSpinnerDbslice.getActualValue();
+          if (selected && dbSlicing > 1) {
+            JOptionPane.showMessageDialog(FraggerMigPanel.this,
+                "<html>This option is incompatible with DB Splitting.<br/>"
+                    + "Please either turn it off, or turn off DB Splitting by setting<br/>"
+                    + "it to 1.", "Incompatible options", JOptionPane.WARNING_MESSAGE);
+          }
+        });
+
+        uiSpinnerDbslice.addChangeListener(e -> {
+          final boolean selected = uiCheckShiftedIons.isSelected();
+          final int dbSlicing = uiSpinnerDbslice.getActualValue();
+          if (selected && dbSlicing > 1) {
+            JOptionPane.showMessageDialog(FraggerMigPanel.this,
+                "<html>DB Slicing is incompatible with <code>Localize delta mass</code> option.<br/>"
+                    + "Please either set it to 1, or uncheck <code>Localize delta mass</code>.",
+                "Incompatible options", JOptionPane.WARNING_MESSAGE);
+          }
+        });
+
       }
 
       JPanel pSpectral = new JPanel(new MigLayout(new LC()));
