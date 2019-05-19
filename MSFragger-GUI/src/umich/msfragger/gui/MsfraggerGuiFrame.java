@@ -69,6 +69,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -79,6 +80,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -150,6 +152,7 @@ import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
+import umich.msfragger.messages.MessageDbUpdate;
 import umich.msfragger.messages.MessageLastRunWorkDir;
 import umich.msfragger.messages.MessageAppendToConsole;
 import umich.msfragger.messages.MessageDecoyTag;
@@ -875,6 +878,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     chkRunProteinProphet.setSelected(enabled);
     SwingUtils.enableComponents(panelReport, enabled);
     checkCreateReport.setSelected(enabled);
+
+    btnDbDownload.setEnabled(enabled);
+    final String tooltip = enabled ?
+        "Download protein database and add decoys + contaminants" :
+        "<html>Automatic downloading of database requires Philospher<br/>\n"
+            + "binary to be selected on Config tab";
+    btnDbDownload.setToolTipText(tooltip);
   }
 
   private void enableSpecLibGenPanel(boolean enabled) {
@@ -983,6 +993,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     lblFastaCount = new javax.swing.JLabel();
     jScrollPane5 = new javax.swing.JScrollPane();
     editorSequenceDb = new javax.swing.JEditorPane();
+    btnDbDownload = new javax.swing.JButton();
     panelDownstream = new javax.swing.JPanel();
     panelPeptideProphet = new javax.swing.JPanel();
     chkRunPeptideProphet = new javax.swing.JCheckBox();
@@ -1645,6 +1656,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     jScrollPane5.setViewportView(editorSequenceDb);
     initEditorPaneSeqDb();
 
+    btnDbDownload.setText("Download");
+    btnDbDownload.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btnDbDownloadActionPerformed(evt);
+      }
+    });
+
     javax.swing.GroupLayout panelDbInfoLayout = new javax.swing.GroupLayout(panelDbInfo);
     panelDbInfo.setLayout(panelDbInfoLayout);
     panelDbInfoLayout.setHorizontalGroup(
@@ -1654,18 +1672,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
           .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE)
           .addGroup(panelDbInfoLayout.createSequentialGroup()
-            .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-              .addGroup(panelDbInfoLayout.createSequentialGroup()
-                .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(textDecoyTagSeqDb, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnTryDetectDecoyTag)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(lblFastaCount))
-              .addComponent(textSequenceDbPath))
+            .addComponent(jLabel5)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(btnBrowse)))
+            .addComponent(textDecoyTagSeqDb, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addComponent(btnTryDetectDecoyTag)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(lblFastaCount)
+            .addGap(71, 71, 71))
+          .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelDbInfoLayout.createSequentialGroup()
+            .addComponent(textSequenceDbPath)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addComponent(btnBrowse)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addComponent(btnDbDownload)))
         .addContainerGap())
     );
     panelDbInfoLayout.setVerticalGroup(
@@ -1674,7 +1694,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addContainerGap()
         .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(textSequenceDbPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-          .addComponent(btnBrowse))
+          .addComponent(btnBrowse)
+          .addComponent(btnDbDownload))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(jLabel5)
@@ -3563,7 +3584,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     // run everything
     List<RunnableDescription> toRun = new ArrayList<>();
     for (final ProcessBuilderInfo pbi : pbis) {
-      Runnable runnable = pbiToRunnable(pbi, wdPath);
+      Runnable runnable = pbiToRunnable(pbi, wdPath, this::printProcessDescription);
       Builder b = new Builder().setName(pbi.name);
       if (pbi.pb.directory() != null) {
         b.setWorkDir(pbi.pb.directory().toString());
@@ -3595,7 +3616,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     EventBus.getDefault().post(new MessageStartProcesses(toRun));
   }
 
-  private void printProcessDescription(ProcessBuilderInfo pbi) {
+  public void printProcessDescription(ProcessBuilderInfo pbi) {
     if (!StringUtils.isNullOrWhitespace(pbi.name)) {
       LogUtils.print(COLOR_TOOL, console, true, pbi.name, false);
     }
@@ -3607,14 +3628,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     LogUtils.print(COLOR_CMDLINE, console, true, cmd, true);
   }
 
-  private Runnable pbiToRunnable(final ProcessBuilderInfo pbi, final Path wdPath) {
+  public static Runnable pbiToRunnable(final ProcessBuilderInfo pbi, final Path wdPath,
+      Consumer<ProcessBuilderInfo> pbiPrinter) {
     return () -> {
 
             final ProcessResult pr = new ProcessResult(pbi);
             Process started;
             try {
               log.debug("Starting: {}", pbi.name);
-              printProcessDescription(pbi);
+              if (pbiPrinter != null) {
+                pbiPrinter.accept(pbi);
+              }
               started = pr.start();
               log.debug("Started: {}", pbi.name);
             } catch (IOException e) {
@@ -4898,6 +4922,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.save(checkReportWriteMzid, ThisAppProps.PROP_CHECKBOX_WRITE_MZID);
   }//GEN-LAST:event_checkReportWriteMzidActionPerformed
 
+  private void btnDbDownloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDbDownloadActionPerformed
+    String bin = textBinPhilosopher.getText();
+    try {
+      FragpipeUtil.downloadDb(this, bin);
+    } catch (Exception e) {
+      JOptionPane.showMessageDialog(this, "Error when trying to download.\n " + e.getMessage(),
+          "Error", JOptionPane.ERROR_MESSAGE);
+    }
+  }//GEN-LAST:event_btnDbDownloadActionPerformed
+
+  @Subscribe
+  public void databaseUpdate(MessageDbUpdate m) {
+    textSequenceDbPath.setText(m.dbPath);
+  }
 
   //region Load-Last methods
   public void loadLastPeptideProphet() {
@@ -5244,14 +5282,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     JEditorPane ep = editorSequenceDb;
     ep.setContentType("text/html");
     final String codeTag = "<code style=\" font-size:" + font.getSize() + "; \">";
+    final String bin = OsUtils.isWindows() ? "philosopher_windows_amd64.exe" : "philosopher";
     ep.setText("<html><body style=\"" + style + "\">"
         + "<b>To create protein sequence database for FragPipe analysis:</b><br/><br/>"
         + "Run Philosopher from the command line to download protein sequences from UniProt.<br/>"
         + "Execute the following two commands (see <a href=\"https://github.com/Nesvilab/philosopher/wiki/Database\">here</a> for detailed instructions): <br/>"
         + "<br/>"
         + codeTag
-        + "&nbsp;&nbsp;&nbsp;&nbsp;philosopher_windows_amd64.exe workspace --init <br/>"
-        + "&nbsp;&nbsp;&nbsp;&nbsp;philosopher_windows_amd64.exe database --reviewed --contam --id UP000005640<br/>"
+        + "&nbsp;&nbsp;&nbsp;&nbsp;" + bin + " workspace --init <br/>"
+        + "&nbsp;&nbsp;&nbsp;&nbsp;" + bin + " database --reviewed --contam --id UP000005640<br/>"
         + "</code>"
         + "<br/>"
         + "This will generate a human UniProt (reviewed sequences only) database, with common contaminants and decoys (with a prefix rev_) added.<br/>"
@@ -5680,6 +5719,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JButton btnClearCache;
   private javax.swing.JButton btnClearConsole;
   private javax.swing.JButton btnCrystalcDefaults;
+  private javax.swing.JButton btnDbDownload;
   private javax.swing.JButton btnExportLog;
   private javax.swing.JButton btnFindTools;
   private javax.swing.JButton btnGroupsAssignToSelected;

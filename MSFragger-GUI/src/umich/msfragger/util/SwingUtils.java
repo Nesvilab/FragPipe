@@ -455,8 +455,8 @@ public class SwingUtils {
    * @param parent The parent for the dialog, null is ok.
    * @param component The component to be used as the message.
    */
-  public static void showConfirmDialog(Component parent, final Component component) {
-    JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component));
+  public static int showConfirmDialog(Component parent, final Component component) {
+    return JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component));
   }
 
   /**
@@ -555,6 +555,14 @@ public class SwingUtils {
     } catch (Exception ignored) {}
     fc.setCurrentDirectory(null);
     return false;
+  }
+
+  public static JFrame findParentFrame(Component origin) {
+    Component parentFrameForDialog = findParentFrameForDialog(origin);
+    if (parentFrameForDialog instanceof JFrame) {
+      return (JFrame) parentFrameForDialog;
+    }
+    return null;
   }
 
   /**

@@ -18,18 +18,24 @@ package umich.msfragger.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.CodeSource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -41,6 +47,56 @@ import umich.msfragger.gui.MsfraggerGuiFrame;
  * @author Dmitry Avtonomov
  */
 public class PathUtils {
+
+    public static List<String> getClasspaths() {
+        String nameCp = "java.class.path";
+        String nameSep = "path.separator";
+
+        String classpath = System.getProperty(nameCp);
+        String sep = System.getProperty(nameSep);
+        return Arrays.asList(classpath.split(sep));
+    }
+
+    /**
+     * Returns the set of unique directories containing stuff that's on classpath.
+     */
+    public static Set<String> getClasspathDirs() {
+        List<String> cps = PathUtils.getClasspaths();
+        LinkedHashSet<String> classpaths = new LinkedHashSet<>();
+        for (String cp : cps) {
+            Path path;
+            try {
+                path = Paths.get(cp);
+            } catch (InvalidPathException e) {
+                continue;
+            }
+
+            boolean exists;
+            try {
+                exists = Files.exists(path);
+            } catch (Exception e) {
+                continue;
+            }
+            if (!exists) {
+                continue;
+            }
+
+            boolean isDir;
+            try {
+                isDir = Files.isDirectory(path);
+            } catch (Exception e) {
+                continue;
+            }
+            if (isDir) {
+                classpaths.add(path.toString());
+            } else {
+                Path parent = path.getParent();
+                classpaths.add(parent != null ? parent.toString() : ".");
+            }
+        }
+
+        return classpaths;
+    }
 
     /**
      * @return null if path does not exist or contains illegal characters. The actual normalized
@@ -276,6 +332,20 @@ public class PathUtils {
         }
     }
 
+    public static Path getCurrentJarPath() {
+        URI uri = getCurrentJarUri();
+        if (uri == null)
+            return null;
+        String mainPath = extractMainFilePath(uri);
+        if (mainPath == null)
+            return null;
+        try {
+            return Paths.get(mainPath);
+        } catch (Exception ignore) {
+            return null;
+        }
+    }
+
     public static URI getCurrentJarUri() {
         try {
             CodeSource codeSource = OsUtils.class.getProtectionDomain().getCodeSource();
@@ -286,6 +356,48 @@ public class PathUtils {
         }
         return null;
     }
-    
+
+    /**
+     * Extract the outermost JAR file path from a URI possibly containing resource locations
+     * within a JAR. Such URIs contain '!' to indicate locations within a JAR and that breaks
+     * normal path parsing utilities, such as {@link Paths#get(URI)}.
+     */
+    public static String extractMainFilePath(URI uri) {
+        String scheme = uri.getScheme();
+        URL uriUrl;
+        try {
+            uriUrl = uri.toURL();
+        } catch (MalformedURLException e) {
+            return null;
+        }
+
+        switch (scheme) {
+            case "jar":
+            case "jar:file":
+                final JarURLConnection conJar;
+                try {
+                    conJar = (JarURLConnection) uriUrl.openConnection();
+                } catch (IOException e) {
+                    return null;
+                }
+                final URL url = conJar.getJarFileURL();
+                try {
+                    URI uri1 = url.toURI();
+                    Path path = Paths.get(uri1);
+                    return path.toAbsolutePath().toString();
+                } catch (Exception e) {
+                    return null;
+                }
+
+
+            case "file":
+                return Paths.get(uri).toAbsolutePath().toString();
+
+            default:
+                return null;
+        }
+    }
+
+
     private PathUtils() {}
 }

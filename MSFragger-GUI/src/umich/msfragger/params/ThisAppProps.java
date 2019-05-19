@@ -82,6 +82,7 @@ public class ThisAppProps extends Properties {
   public static final String PROP_CHECKBOX_WRITE_MZID = "report.output.format";
   public static final String PROP_CHECKBOX_REPORT_FILTER_NO_PROTXML = "report.filter.no-protxml";
   public static final String PROP_CHECKBOX_REPORT_PRINT_DECOYS = "report.print-decoys";
+  public static final String PROP_DB_SAVE_PATH = "db.save.path";
 
   public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
   public static final String PROP_TEXT_CMD_PROTEIN_PROPHET = "proteinprophet.cmd.line.opts";
