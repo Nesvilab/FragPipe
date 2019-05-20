@@ -338,7 +338,10 @@ def combine_results():
 
 def calibrate(fasta_path_sample, calibrate_mass: int):
 	params_path_calibrate = tempdir / param_path.name
-	params_path_calibrate.write_text(recomp_fasta.sub(f'database_name = {fasta_path_sample.relative_to(tempdir)}', params_txt))
+	params_txt_new = params_txt
+	params_txt_new = re.compile(r'^precursor_mass_mode\s*=\s*RECALCULATED', re.MULTILINE | re.IGNORECASE).sub(
+			'precursor_mass_mode = selected', params_txt_new)
+	params_path_calibrate.write_text(recomp_fasta.sub(f'database_name = {fasta_path_sample.relative_to(tempdir)}', params_txt_new))
 	calibrate_cmd = msfragger_cmd + [params_path_calibrate.resolve(), '--split1', *infiles_name]
 	p = subprocess.Popen(list(map(os.fspath, calibrate_cmd)), cwd=tempdir, stdout=subprocess.PIPE)
 	out = b''
@@ -368,7 +371,6 @@ def calibrate(fasta_path_sample, calibrate_mass: int):
 		new_use_topN_peak, = re.compile('New use_topN_peaks = (.+)').findall(out)
 		new_minimum_ratio, = re.compile('New minimum_ratio = (.+)').findall(out)
 
-	params_txt_new = params_txt
 	precursor_mass_units, = re.compile(r'^precursor_mass_units\s*=\s*([01])', re.MULTILINE).findall(params_txt)
 	precursor_mass_units = int(precursor_mass_units)
 	precursor_mass_lower, = re.compile(r'^precursor_mass_lower\s*=\s*([\S]+)', re.MULTILINE).findall(params_txt)
