@@ -89,6 +89,8 @@ public class PythonInfo {
       }
       boolean notify = false;
       notify |= !Objects.equals(this.command, command);
+      if (!Objects.equals(this.command, command))
+        reset(false);
       this.command = command;
       notify |= !Objects.equals(this.version, version);
       this.version = version;
