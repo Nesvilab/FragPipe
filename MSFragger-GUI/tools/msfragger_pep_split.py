@@ -429,7 +429,7 @@ def main():
 	set_up_directories()
 	if calibrate_mass in [1, 2]:
 		fasta_path_sample = tempdir / fasta_path.name
-		sample_fasta(fasta_path, fasta_path_sample, num_parts)
+		sample_fasta(fasta_path, fasta_path_sample, min(num_parts, 4))
 		calibrate_mzBIN, params_txt_new = calibrate(fasta_path_sample, calibrate_mass)
 	write_params(params_txt_new if calibrate_mass in [1, 2] else params_txt)
 	run_msfragger(calibrate_mzBIN if calibrate_mass in [1, 2] else infiles_name)
