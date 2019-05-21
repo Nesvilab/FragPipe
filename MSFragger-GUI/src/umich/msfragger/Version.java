@@ -63,7 +63,8 @@ public class Version {
         "Query user if protxml files exist while Protein Prophet is not run",
         "'Print Decoys' option/checkbox for Report command",
         "Update CrystalC-1.0.5",
-        "Dropdown for generating report in mzID format"));
+        "Checkbox for generating report in mzID format",
+        "UI for downloading protein databases via philosopher"));
 
     CHANGELOG.put("9.1", Arrays.asList(
         "Fix Abacus command bug with unrecognized options from Filter command being carried over."));
