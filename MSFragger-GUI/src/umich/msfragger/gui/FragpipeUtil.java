@@ -88,22 +88,21 @@ public class FragpipeUtil {
       if (JOptionPane.OK_OPTION == confirmation) {
         final String uniprotId = dbUniprotIdPanel.getSelectedUniprotId();
         log.info("Database for download ID: {}", uniprotId);
+        final boolean isReviewed = dbUniprotIdPanel.isReviewed();
+        final boolean isAddContaminants = dbUniprotIdPanel.isAddContaminants();
+        final boolean isAddIsoforms = dbUniprotIdPanel.isAddIsoforms();
+
         // philosopher workspace --init
         // philosopher database --reviewed --contam --id UP000005640
+        UsageTrigger usePhi = new UsageTrigger(binPhi, "philosopher binary");
         CmdPhilosopherWorkspaceCleanInit cmdCleanInit = new CmdPhilosopherWorkspaceCleanInit(
             true, dir);
-        UsageTrigger usePhi = new UsageTrigger(binPhi, "philosopher binary");
         if (!cmdCleanInit.configure(usePhi, false)) {
           log.error("configuration of philosopher clean/init not successful");
           return;
         }
         CmdDatabaseDownload cmdDownload = new CmdDatabaseDownload(true, dir);
-        cmdDownload.configure(parent, usePhi, uniprotId);
-
-
-        final List<ProcessBuildersDescriptor> pbDescs = new ArrayList<>();
-        pbDescs.add(cmdCleanInit.builders());
-        pbDescs.add(cmdDownload.builders());
+        cmdDownload.configure(parent, usePhi, uniprotId, isReviewed, isAddContaminants, isAddIsoforms);
 
         List<ProcessBuilder> pbs = Stream.of(cmdCleanInit, cmdDownload)
             .flatMap(cmdBase -> cmdBase.builders().pbs.stream())
@@ -135,7 +134,7 @@ public class FragpipeUtil {
                 ProcessBuilderInfo pbi = new ProcessBuilderInfo(pb, pb.toString(),
                     null, null);
                 ProcessResult pr = new ProcessResult(pbi);
-                pr.start().waitFor(3, TimeUnit.MINUTES);
+                pr.start().waitFor(5, TimeUnit.MINUTES);
                 log.info("Process output: {}", pr.getOutput().toString());
                 final int exitValue = pr.getProcess().exitValue();
                 if (!cmd.toLowerCase().contains("workspace") && exitValue != 0) {
@@ -164,7 +163,7 @@ public class FragpipeUtil {
           if (watch != null) {
             for (;;) {
               // retrieve key
-              WatchKey key = null;
+              WatchKey key;
               try {
                 key = watch.poll();
               } catch (Exception e) {
@@ -198,6 +197,7 @@ public class FragpipeUtil {
                             "<html>Downloaded new file:<br/>" + fullDbPath.toString(),
                             "Download complete", JOptionPane.INFORMATION_MESSAGE);
                         EventBus.getDefault().post(new MessageDbUpdate(fullDbPath.toString()));
+                        break; // TODO: is it OK to discard the rest of the events?
                       }
                     }
                   }

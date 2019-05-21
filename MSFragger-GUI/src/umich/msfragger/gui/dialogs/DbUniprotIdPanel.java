@@ -1,6 +1,8 @@
 package umich.msfragger.gui.dialogs;
 
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,10 +10,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.util.StringUtils;
 
@@ -21,6 +25,9 @@ public class DbUniprotIdPanel extends JPanel {
   private List<JRadioButton> radios;
   private JRadioButton radioOther;
   private JTextField textOther;
+  private JCheckBox checkIsReviewed;
+  private JCheckBox checkAddContaminants;
+  private JCheckBox checkAddIsoforms;
 
   private static final String PROP_UNIPROT_IDS = "database.uniprot.ids";
   public static final Pattern RE_UNIPROT_ID = Pattern.compile("Uniprot ID:.*?\\b(.+?)\\b", Pattern.CASE_INSENSITIVE);
@@ -30,6 +37,27 @@ public class DbUniprotIdPanel extends JPanel {
   }
 
   private void initMore() {
+    JPanel container = new JPanel();
+//    container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+    container.setLayout(new GridBagLayout());
+
+    // option checkboxes
+    JPanel panelCheckboxes = new JPanel();
+    panelCheckboxes.setLayout(new BoxLayout(panelCheckboxes, BoxLayout.Y_AXIS));
+    panelCheckboxes.setBorder(new TitledBorder("Options"));
+    checkIsReviewed = new JCheckBox("Only reviewed sequences", true);
+    checkAddIsoforms = new JCheckBox("Add isoforms", false);
+    checkAddContaminants = new JCheckBox("Add common contaminants", true);
+    panelCheckboxes.add(checkIsReviewed);
+    panelCheckboxes.add(checkAddContaminants);
+    panelCheckboxes.add(checkAddIsoforms);
+
+
+    // organism selection radio buttons
+    JPanel panelRadios = new JPanel();
+    panelRadios.setLayout(new BoxLayout(panelRadios, BoxLayout.Y_AXIS));
+    panelRadios.setBorder(new TitledBorder("Select organism / proteome ID"));
+
     radios = new ArrayList<>();
     btnGroupUniprotIds = new ButtonGroup();
     String ids = null;
@@ -49,17 +77,26 @@ public class DbUniprotIdPanel extends JPanel {
     radios.get(0).setSelected(true);
     radios.forEach(r -> btnGroupUniprotIds.add(r));
 
-    JPanel boxPanel = new JPanel();
-    boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.Y_AXIS));
-
     for (JRadioButton radio : radios) {
-      boxPanel.add(radio);
+      panelRadios.add(radio);
     }
     textOther = new JTextField();
     textOther.setToolTipText("<html>Uniprot ID, similar to: UP000005640<br/>See http://www.uniprot.org/proteomes");
-    boxPanel.add(textOther);
+    panelRadios.add(textOther);
 
-    JScrollPane scroll = new JScrollPane(boxPanel);
+    // pack the main panel
+    GridBagConstraints cc = new GridBagConstraints();
+    cc.gridx = 0;
+    cc.gridy = 0;
+    cc.fill = GridBagConstraints.HORIZONTAL;
+    container.add(panelCheckboxes, cc);
+    GridBagConstraints cr = new GridBagConstraints();
+    cr.gridx = 0;
+    cr.gridy = 1;
+    cr.fill = GridBagConstraints.BOTH;
+    container.add(panelRadios, cr);
+
+    JScrollPane scroll = new JScrollPane(container);
     this.setLayout(new BorderLayout());
     this.add(scroll, BorderLayout.CENTER);
   }
@@ -77,14 +114,24 @@ public class DbUniprotIdPanel extends JPanel {
         return StringUtils.isNullOrWhitespace(text) ? null : text;
       } else {
         final String text = radio.getText();
-        Matcher m = RE_UNIPROT_ID.matcher(text); // TODO: the regex doesnt work. Remove the \b modifier
+        Matcher m = RE_UNIPROT_ID.matcher(text);
         if (!m.find())
           throw new IllegalStateException("Could not match radio button text to regular expression.");
-        String group = m.group(1);
-        return group;
+        return m.group(1);
       }
     }
     return null;
   }
 
+  public boolean isReviewed() {
+    return checkIsReviewed.isSelected();
+  }
+
+  public boolean isAddContaminants() {
+    return checkAddContaminants.isSelected();
+  }
+
+  public boolean isAddIsoforms() {
+    return checkAddIsoforms.isSelected();
+  }
 }

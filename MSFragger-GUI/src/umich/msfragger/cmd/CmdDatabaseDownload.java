@@ -20,14 +20,22 @@ public class CmdDatabaseDownload extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, UsageTrigger binPhilosopher, String uniprotId) {
+  public boolean configure(Component comp, UsageTrigger binPhilosopher, String uniprotId,
+      boolean isReviewed, boolean isAddContaminants, boolean isAddIsoforms) {
 
     pbs.clear();
     List<String> cmd = new ArrayList<>();
     cmd.add(binPhilosopher.useBin(this.wd));
     cmd.add(PhilosopherProps.CMD_DATABASE);
-    cmd.add("--reviewed");
-    cmd.add("--contam");
+    if (isReviewed) {
+      cmd.add("--reviewed");
+    }
+    if (isAddContaminants) {
+      cmd.add("--contam");
+    }
+    if (isAddIsoforms) {
+      cmd.add("--isoform");
+    }
     cmd.add("--id");
     cmd.add(uniprotId);
     ProcessBuilder pb = new ProcessBuilder(cmd);
