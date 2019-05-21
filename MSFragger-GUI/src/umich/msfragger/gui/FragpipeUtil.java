@@ -18,6 +18,7 @@ import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.cmd.CmdDatabaseDownload;
 import umich.msfragger.cmd.CmdPhilosopherWorkspaceCleanInit;
+import umich.msfragger.cmd.ProcessBuilderInfo;
 import umich.msfragger.cmd.ProcessBuildersDescriptor;
 import umich.msfragger.gui.dialogs.DbUniprotIdPanel;
 import umich.msfragger.messages.MessageDbUpdate;
@@ -108,7 +110,9 @@ public class FragpipeUtil {
             .collect(Collectors.toList());
 
         WatchService watch = FileSystems.getDefault().newWatchService();
-        dir.register(watch, ENTRY_CREATE, ENTRY_MODIFY);
+        if (watch != null) {
+          dir.register(watch, ENTRY_CREATE, ENTRY_MODIFY);
+        }
 
         try {
           JFrame frame = SwingUtils.findParentFrame(parent);
@@ -124,15 +128,17 @@ public class FragpipeUtil {
 
           Thread updateThread = new Thread(() -> {
             try {
-
               for (ProcessBuilder pb : pbs) {
                 final String cmd = String.join(" ", pb.command());
                 log.info("Executing: " + cmd);
 
-                Process proc = pb.start();
-
-                proc.waitFor(1, TimeUnit.MINUTES);
-                if (proc.exitValue() != 0) {
+                ProcessBuilderInfo pbi = new ProcessBuilderInfo(pb, pb.toString(),
+                    null, null);
+                ProcessResult pr = new ProcessResult(pbi);
+                pr.start().waitFor(3, TimeUnit.MINUTES);
+                log.info("Process output: {}", pr.getOutput().toString());
+                final int exitValue = pr.getProcess().exitValue();
+                if (!cmd.toLowerCase().contains("workspace") && exitValue != 0) {
                   throw new IllegalStateException("Process returned non zero value");
                 }
               }
@@ -141,9 +147,9 @@ public class FragpipeUtil {
               throw new IllegalStateException("Something happened during database download", ex);
             } finally {
               dlg.setVisible(false);
+              dlg.dispose();
             }
 
-             // TODO: show notification if download successful
           });
           updateThread.start();
 
@@ -154,62 +160,62 @@ public class FragpipeUtil {
         } catch (Exception e) {
           log.error("Error while trying to download database", e);
         } finally {
-          WatchKey poll = watch.poll();
-          if (poll.isValid() && !poll.pollEvents().isEmpty()) {
-            for (WatchEvent<?> event : poll.pollEvents()) {
-              Kind<?> kind = event.kind();
-              if (kind == OVERFLOW) {
-                continue;
+
+          if (watch != null) {
+            for (;;) {
+              // retrieve key
+              WatchKey key = null;
+              try {
+                key = watch.poll();
+              } catch (Exception e) {
+                log.warn("Something happened wihle waiting for WatcherSerice.poll().", e);
+                break;
               }
-              WatchEvent<Path> ev = (WatchEvent<Path>)event;
-              final Path filename = ev.context();
-              log.info("Detected new or changed file: " + filename.toString());
-              final String fn = filename.getFileName().toString();
-              int lastIndexOf = fn.lastIndexOf('.');
-              String ext = lastIndexOf < 0 ? fn : fn.substring(lastIndexOf + 1);
-              if (ext.startsWith(".fa") || ext.startsWith("fa")) {
-                // most likely a fasta file
-                final Path fullDbPath = dir.resolve(filename);
-                EventBus.getDefault().post(new MessageDbUpdate(fullDbPath.toString()));
+              if (key == null) {
+                log.info("No more file events when downloading database");
+                break;
+              }
+
+              // process events
+              for (WatchEvent<?> event: key.pollEvents()) {
+                Kind<?> kind = event.kind();
+                if (OVERFLOW.equals(kind)) {
+                  continue;
+                } else if (ENTRY_CREATE.equals(kind) || ENTRY_MODIFY.equals(kind)) {
+                  Object context = event.context();
+                  if (context != null) {
+                    if (context instanceof Path) {
+                      Path path = (Path) event.context();
+                      log.info("Detected new or changed file: " + path.toString());
+                      final String fn = path.getFileName().toString();
+                      int lastIndexOf = fn.lastIndexOf('.');
+                      String ext = lastIndexOf < 0 ? fn : fn.substring(lastIndexOf + 1);
+                      if (ext.startsWith(".fa") || ext.startsWith("fa")) {
+                        // most likely a fasta file
+                        final Path fullDbPath = dir.resolve(path);
+                        log.info("Sending new MessageDbUpdate: " + fullDbPath.toString());
+                        JOptionPane.showMessageDialog(parent,
+                            "<html>Downloaded new file:<br/>" + fullDbPath.toString(),
+                            "Download complete", JOptionPane.INFORMATION_MESSAGE);
+                        EventBus.getDefault().post(new MessageDbUpdate(fullDbPath.toString()));
+                      }
+                    }
+                  }
+                } else {
+                  log.error("unknown event kind: " + kind.toString());
+                }
+              }
+
+              // reset the key
+              boolean valid = key.reset();
+              if (!valid) {
+                // object no longer registered
               }
             }
+
+            watch.close();
           }
         }
-
-
-
-//        final List<ProcessBuilderInfo> pbis = pbDescs.stream()
-//            .flatMap(pbd -> pbd.pbs.stream()
-//                .map(pb -> new ProcessBuilderInfo(pb, pbd.name,pbd.fileCaptureStdout, pbd.fileCaptureStderr)))
-//            .collect(Collectors.toList());
-//
-//        List<RunnableDescription> toRun = new ArrayList<>();
-//        for (ProcessBuilderInfo pbi : pbis) {
-//          final String command = String.join(" ", pbi.pb.command());
-//
-////          Runnable runnable = MsfraggerGuiFrame.pbiToRunnable(pbi, dir, info -> {
-////            log.info("Running: {}", command);
-////          });
-////
-////
-//          Runnable runnable = () -> {
-//            log.info("Fake runnable for command: {}", command);
-//          };
-//
-//          ProcessDescription pd = new Builder().setCommand(command)
-//              .setWorkDir(dir.toString()).setName(pbi.name).create();
-//          RunnableDescription rd = new RunnableDescription(pd, runnable);
-//          toRun.add(rd);
-//        }
-//        ProcessDescription pdFinalizer = new Builder().setCommand("EventBus.getDefault().post(new MessageDecoyTag(\"rev_\"));")
-//            .setWorkDir(dir.toString()).setName("Finalizer - update decoy tag").create();
-//        toRun.add(new RunnableDescription(pdFinalizer, () -> {
-//          // update decoy tag
-//          log.info("Running finalizer task: {}", pdFinalizer.command);
-//          EventBus.getDefault().post(new MessageDecoyTag("rev_"));
-//        }));
-//
-//        EventBus.getDefault().post(new MessageStartProcesses(toRun));
       }
     }
   }

@@ -4214,7 +4214,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
     final String propName = ThisAppProps.PROP_DB_FILE_IN;
-    String fcPath = ThisAppProps.tryFindPath(Arrays.asList(propName), true);
+    String oldPath = textSequenceDbPath.getText().trim();
+    String fcPath;
+
+    if (!StringUtils.isNullOrWhitespace(oldPath)) {
+      fcPath = oldPath;
+    } else {
+      fcPath = ThisAppProps.tryFindPath(Arrays.asList(propName), true);
+    }
+
     SwingUtils.setFileChooserPath(fileChooser, fcPath);
 
     int showOpenDialog = fileChooser.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
@@ -4934,6 +4942,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   @Subscribe
   public void databaseUpdate(MessageDbUpdate m) {
+    validateAndSaveFastaPath(m.dbPath);
     textSequenceDbPath.setText(m.dbPath);
   }
 
@@ -5284,8 +5293,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final String codeTag = "<code style=\" font-size:" + font.getSize() + "; \">";
     final String bin = OsUtils.isWindows() ? "philosopher_windows_amd64.exe" : "philosopher";
     ep.setText("<html><body style=\"" + style + "\">"
-        + "<b>To create protein sequence database for FragPipe analysis:</b><br/><br/>"
-        + "Run Philosopher from the command line to download protein sequences from UniProt.<br/>"
+        + "<b>To create protein sequence database for FragPipe analysis either:</b><br/><br/>"
+        + "1) Simply click 'Download' button next to the text field above.<br/><br/>"
+        + "or<br/><br/>"
+        + "2) Run Philosopher from the command line to download protein sequences from UniProt.<br/>"
         + "Execute the following two commands (see <a href=\"https://github.com/Nesvilab/philosopher/wiki/Database\">here</a> for detailed instructions): <br/>"
         + "<br/>"
         + codeTag
