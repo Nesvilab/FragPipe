@@ -1258,6 +1258,9 @@ public class FraggerMigPanel extends JPanel {
     MsfraggerParams params = new MsfraggerParams();
     params.loadDefaults(type);
     formFrom(params);
+
+    // reset some fields that are not part of Fragger config file
+    uiSpinnerDbslice.setValue(1);
   }
 
   /**
