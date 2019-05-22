@@ -316,9 +316,9 @@ public class FraggerMigPanel extends JPanel {
           "not-shown", uiSpinnerPrecTolHi);
 
       pPeakMatch.add(fePrecTolUnits.label(), new CC().alignX("right"));
-      pPeakMatch.add(fePrecTolUnits.comp, new CC());
-      pPeakMatch.add(feSpinnerPrecTolLo.comp, new CC());
-      pPeakMatch.add(new JLabel("-"), new CC().span(2));
+      pPeakMatch.add(fePrecTolUnits.comp, new CC().split(4));
+      pPeakMatch.add(feSpinnerPrecTolLo.comp);
+      pPeakMatch.add(new JLabel("-"), new CC());
       pPeakMatch.add(feSpinnerPrecTolHi.comp, new CC().wrap());
 
       // fragment mass tolerance
@@ -330,7 +330,7 @@ public class FraggerMigPanel extends JPanel {
       FormEntry feFragTol = new FormEntry(MsfraggerParams.PROP_fragment_mass_tolerance, "not-shown",
           uiSpinnerFragTol);
       pPeakMatch.add(feFragTolUnits.label(), new CC().alignX("right"));
-      pPeakMatch.add(feFragTolUnits.comp, new CC());
+      pPeakMatch.add(feFragTolUnits.comp, new CC().split(2));
       pPeakMatch.add(feFragTol.comp, new CC().wrap());
 
       // mass calibrate
@@ -339,7 +339,7 @@ public class FraggerMigPanel extends JPanel {
       FormEntry feCalibrate = new FormEntry(MsfraggerParams.PROP_calibrate_mass, "<html>Calibrate masses",
           uiComboMassCalibrate, String.format("<html>Requires MSFragger %s+.", minFraggerVer));
       pPeakMatch.add(feCalibrate.label(), new CC().alignX("right"));
-      pPeakMatch.add(feCalibrate.comp, new CC().spanX().wrap());
+      pPeakMatch.add(feCalibrate.comp, new CC());
 
       UiText uiTextIsoErr = new UiText();
       uiTextIsoErr.setDocument(DocumentFilters.getFilter("[^\\d/-]+"));
@@ -348,24 +348,9 @@ public class FraggerMigPanel extends JPanel {
       FormEntry feIsotopeError = new FormEntry(MsfraggerParams.PROP_isotope_error, "Isotope error",
           uiTextIsoErr,
           "<html>String of the form -1/0/1/2 indicating which isotopic<br/>peak selection errors MSFragger will try to correct.");
-      uiComboMassMode = new UiCombo(); // UiUtils.createUiCombo(FraggerPrecursorMassMode.values());asd
-      uiComboMassMode.setModel(new DefaultComboBoxModel<>(new String[] {
-          FraggerPrecursorMassMode.selected.name(),
-          FraggerPrecursorMassMode.isolated.name(),
-          FraggerPrecursorMassMode.recalculated.name(),
-      }));
-      uiComboMassMode.addItemListener(FraggerMigPanel::onChangeMassMode);
-      FormEntry fePrecursorMassMode = new FormEntry(MsfraggerParams.PROP_precursor_mass_mode,
-          "Precursor mass mode", uiComboMassMode,
-          "<html>Determines which entry from mzML files will be<br/>"
-              + "used as the precursor's mass - 'Selected' or 'Isolated' ion.<br/>"
-              + "'Recalculated' option runs a separate MSAdjuster tool to<br/>"
-              + "perform mono-isotopic mass correction");
 
       pPeakMatch.add(feIsotopeError.label(), new CC().alignX("right"));
-      pPeakMatch.add(feIsotopeError.comp, new CC().span(2));
-      pPeakMatch.add(fePrecursorMassMode.label(), new CC().split(2).spanX());
-      pPeakMatch.add(fePrecursorMassMode.comp, new CC().wrap());
+      pPeakMatch.add(feIsotopeError.comp, new CC().wrap());
 
       // Digest panel
       JPanel pDigest = new JPanel(new MigLayout(new LC()));
@@ -624,6 +609,22 @@ public class FraggerMigPanel extends JPanel {
             new UiSpinnerInt(0, 0, 100000, 10, 4));
         FormEntry feClearRangeMzHi = new FormEntry(PROP_misc_fragger_clear_mz_hi, "not-shown",
             new UiSpinnerInt(0, 0, 100000, 10, 4));
+
+        uiComboMassMode = new UiCombo(); // UiUtils.createUiCombo(FraggerPrecursorMassMode.values());asd
+        uiComboMassMode.setModel(new DefaultComboBoxModel<>(new String[] {
+            FraggerPrecursorMassMode.selected.name(),
+            FraggerPrecursorMassMode.isolated.name(),
+            FraggerPrecursorMassMode.recalculated.name(),
+        }));
+        uiComboMassMode.addItemListener(FraggerMigPanel::onChangeMassMode);
+        FormEntry fePrecursorMassMode = new FormEntry(MsfraggerParams.PROP_precursor_mass_mode,
+            "Precursor mass mode", uiComboMassMode,
+            "<html>Determines which entry from mzML files will be<br/>"
+                + "used as the precursor's mass - 'Selected' or 'Isolated' ion.<br/>"
+                + "'Recalculated' option runs a separate MSAdjuster tool to<br/>"
+                + "perform mono-isotopic mass correction");
+        pSpectral.add(fePrecursorMassMode.label(), new CC().alignX("right"));
+        pSpectral.add(fePrecursorMassMode.comp, new CC().wrap());
 
         pSpectral.add(feMinPeaks.label(), alignRight);
         pSpectral.add(feMinPeaks.comp);
