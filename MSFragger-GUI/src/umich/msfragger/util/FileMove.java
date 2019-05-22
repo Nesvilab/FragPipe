@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 
 /**
  * Usage: <code>java -cp path-to-jar umich.msfragger.util.FileMove path-from path-to</code>.<br/>
@@ -29,18 +30,24 @@ import java.nio.file.StandardCopyOption;
  * @author Dmitry Avtonomov
  */
 public class FileMove {
-
+    public static final String NO_ERR = "--no-err";
     /**
      *
      * @param args Two args: {@code from}, {@code to}
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
-        if (args.length != 2) {
-            throw new IllegalArgumentException("Input must be exactly 2 arguments: origin and destination");
+        if (args.length != 2 && args.length != 3) {
+            throw new IllegalArgumentException("Input must be either 2 arguments: origin and destination "
+                + "or optionally prepended with --no-err ot suppress file existence checks.");
         }
-        Path origin = Paths.get(args[0]);
-        Path destination = Paths.get(args[1]);
+        boolean noErrors = NO_ERR.equals(args[0]);
+        int ptr = 0;
+        if (noErrors)
+            ptr++;
+
+        Path origin = Paths.get(args[ptr++]);
+        Path destination = Paths.get(args[ptr++]);
         if (!Files.exists(origin)) {
             System.err.printf("File does not exist: %s", origin.toString());
             System.exit(1);

@@ -56,8 +56,24 @@ public class ToolingUtils {
   /**
    * @param jarFragpipe Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
    */
+  public static List<ProcessBuilder> pbsCopyFiles(Path jarFragpipe, Path dest,
+      boolean ignoreMissingFiles, List<Path> files) {
+    return pbsCopyMoveFiles(jarFragpipe, Op.COPY, dest, ignoreMissingFiles, files);
+  }
+
+  /**
+   * @param jarFragpipe Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
+   */
   public static List<ProcessBuilder> pbsCopyFiles(Path jarFragpipe, Path dest, List<Path> files) {
     return pbsCopyMoveFiles(jarFragpipe, Op.COPY, dest, files);
+  }
+
+  /**
+   * @param jarFragpipe Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
+   */
+  public static List<ProcessBuilder> pbsMoveFiles(Path jarFragpipe, Path dest,
+      boolean ignoreMissingFiles, List<Path> files) {
+    return pbsCopyMoveFiles(jarFragpipe, Op.MOVE, dest, ignoreMissingFiles, files);
   }
 
   /**
@@ -70,7 +86,16 @@ public class ToolingUtils {
   /**
    * @param jarFragpipe Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
    */
-  private static List<ProcessBuilder> pbsCopyMoveFiles(Path jarFragpipe, Op operation, Path dest, List<Path> files) {
+  private static List<ProcessBuilder> pbsCopyMoveFiles(Path jarFragpipe, Op operation, Path dest,
+      List<Path> files) {
+    return pbsCopyMoveFiles(jarFragpipe, operation, dest, false, files);
+  }
+
+  /**
+   * @param jarFragpipe Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
+   */
+  private static List<ProcessBuilder> pbsCopyMoveFiles(Path jarFragpipe, Op operation, Path dest,
+      boolean ignoreMissingFiles, List<Path> files) {
     if (jarFragpipe == null) {
       throw new IllegalArgumentException("jar can't be null");
     }
@@ -93,6 +118,9 @@ public class ToolingUtils {
           break;
         default:
           throw new IllegalStateException("Unknown enum value: " + operation.toString());
+      }
+      if (ignoreMissingFiles) {
+        cmd.add(FileMove.NO_ERR);
       }
       cmd.add(file.toAbsolutePath().normalize().toString());
       cmd.add(dest.resolve(file.getFileName()).toString());
