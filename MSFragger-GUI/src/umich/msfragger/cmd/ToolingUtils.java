@@ -29,6 +29,7 @@ import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.util.FileCopy;
+import umich.msfragger.util.FileDelete;
 import umich.msfragger.util.FileMove;
 import umich.msfragger.util.Holder;
 import umich.msfragger.util.OsUtils;
@@ -51,7 +52,7 @@ public class ToolingUtils {
     return workingDir.resolve(combinedProtFn).normalize().toAbsolutePath();
   }
 
-  private enum Op {COPY, MOVE}
+  private enum Op {COPY, MOVE, DELETE}
 
   /**
    * @param jarFragpipe Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
@@ -81,6 +82,21 @@ public class ToolingUtils {
    */
   public static List<ProcessBuilder> pbsMoveFiles(Path jarFragpipe, Path dest, List<Path> files) {
     return pbsCopyMoveFiles(jarFragpipe, Op.MOVE, dest, files);
+  }
+
+  /**
+   * @param jarFragpipe Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
+   */
+  public static List<ProcessBuilder> pbsDeleteFiles(Path jarFragpipe, Path dest,
+      boolean ignoreMissingFiles, List<Path> files) {
+    return pbsCopyMoveFiles(jarFragpipe, Op.DELETE, dest, ignoreMissingFiles, files);
+  }
+
+  /**
+   * @param jarFragpipe Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
+   */
+  public static List<ProcessBuilder> pbsDeleteFiles(Path jarFragpipe, Path dest, List<Path> files) {
+    return pbsCopyMoveFiles(jarFragpipe, Op.DELETE, dest, files);
   }
 
   /**
@@ -116,6 +132,8 @@ public class ToolingUtils {
         case MOVE:
           cmd.add(FileMove.class.getCanonicalName());
           break;
+        case DELETE:
+          cmd.add(FileDelete.class.getCanonicalName());
         default:
           throw new IllegalStateException("Unknown enum value: " + operation.toString());
       }

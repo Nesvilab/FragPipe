@@ -74,6 +74,7 @@ public class CmdSpecLibGen extends CmdBase {
 
       // for current implementation of speclibgen scripts mzml files need to be
       // located next to pepxml files
+      final List<ProcessBuilder> pbsDeleteLcmsFiles = new ArrayList<>();
       for (InputLcmsFile lcms : group.lcmsFiles) {
         if (!groupWd.equals(lcms.path.getParent())) {
           final Path copy = groupWd.resolve(lcms.path.getFileName());
@@ -85,7 +86,8 @@ public class CmdSpecLibGen extends CmdBase {
             List<ProcessBuilder> pbCopy = ToolingUtils
                 .pbsCopyFiles(jarFragpipe, groupWd, Collections.singletonList(lcms.path));
             pbs.addAll(pbCopy);
-            copy.toFile().deleteOnExit(); // schedule for deletion
+            pbsDeleteLcmsFiles.addAll(ToolingUtils
+                .pbsDeleteFiles(jarFragpipe, groupWd, Collections.singletonList(lcms.path)));
           }
         }
       }
@@ -107,6 +109,7 @@ public class CmdSpecLibGen extends CmdBase {
       pb.environment().put("PYTHONIOENCODING", "utf-8");
 
       pbs.add(pb);
+      pbs.addAll(pbsDeleteLcmsFiles);
     }
 
     isConfigured = true;
