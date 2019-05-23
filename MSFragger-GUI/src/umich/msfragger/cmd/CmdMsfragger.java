@@ -205,7 +205,7 @@ public class CmdMsfragger extends CmdBase {
         Path tsvAsCreatedByFragger = f.path.getParent().resolve(tsvFn);
         if (!tsvAsCreatedByFragger.equals(tsvWhereItShouldBe) && params.getShiftedIons()) {
           pbs.addAll(ToolingUtils
-              .pbsMoveFiles(jarFragpipe, tsvWhereItShouldBe.getParent(),
+              .pbsMoveFiles(jarFragpipe, tsvWhereItShouldBe.getParent(), true,
                   Collections.singletonList(tsvAsCreatedByFragger)));
         }
       }

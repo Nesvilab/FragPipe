@@ -48,11 +48,16 @@ public class FileMove {
 
         Path origin = Paths.get(args[ptr++]);
         Path destination = Paths.get(args[ptr++]);
-        if (!Files.exists(origin)) {
+        if (!noErrors && !Files.exists(origin)) {
             System.err.printf("File does not exist: %s", origin.toString());
             System.exit(1);
         }
-        Files.move(origin, destination, StandardCopyOption.REPLACE_EXISTING);
+        try {
+            Files.move(origin, destination, StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            if (!noErrors)
+                throw e;
+        }
     }
 
 
