@@ -417,6 +417,8 @@ def sample_fasta(fasta_path, fasta_path_sample, n):
 	sample_prots = sorted(fasta_prots)[::n]
 	with fasta_path_sample.open('wb') as f:
 		f.writelines(sample_prots)
+	with fasta_path_sample.with_suffix('.sorted_fasta').open('wb') as f:
+		f.writelines(sorted(fasta_prots))
 
 '''
 fasta_path = pathlib.Path('/home/ci/msfragger_split_peptides/Uniprot.20160729.Hs.revDecoyPeps.fa').resolve()
@@ -429,7 +431,7 @@ def main():
 	set_up_directories()
 	if calibrate_mass in [1, 2]:
 		fasta_path_sample = tempdir / fasta_path.name
-		sample_fasta(fasta_path, fasta_path_sample, min(num_parts, 2))
+		sample_fasta(fasta_path, fasta_path_sample, min(num_parts, 1))
 		calibrate_mzBIN, params_txt_new = calibrate(fasta_path_sample, calibrate_mass)
 	write_params(params_txt_new if calibrate_mass in [1, 2] else params_txt)
 	run_msfragger(calibrate_mzBIN if calibrate_mass in [1, 2] else infiles_name)
