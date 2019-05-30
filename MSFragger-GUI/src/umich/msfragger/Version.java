@@ -56,6 +56,8 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("9.4", Arrays.asList("Fixes to MSFragger Split program for very large databases."));
+
     CHANGELOG.put("9.3", Arrays.asList(
         "Calibrate masses option in MSFragger",
         "Custom ion series option in MSFragger",
