@@ -134,6 +134,7 @@ public class ToolingUtils {
           break;
         case DELETE:
           cmd.add(FileDelete.class.getCanonicalName());
+          break;
         default:
           throw new IllegalStateException("Unknown enum value: " + operation.toString());
       }
