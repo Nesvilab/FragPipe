@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -95,8 +96,8 @@ public class ToolingUtils {
   /**
    * @param jarFragpipe Use {@link PathUtils#getCurrentJarUri()} to get that from the current Jar.
    */
-  public static List<ProcessBuilder> pbsDeleteFiles(Path jarFragpipe, Path dest, List<Path> files) {
-    return pbsCopyMoveFiles(jarFragpipe, Op.DELETE, dest, files);
+  public static List<ProcessBuilder> pbsDeleteFiles(Path jarFragpipe, List<Path> files) {
+    return pbsCopyMoveFiles(jarFragpipe, Op.DELETE, null, files);
   }
 
   /**
@@ -118,7 +119,7 @@ public class ToolingUtils {
 
     List<ProcessBuilder> pbs = new LinkedList<>();
     for (Path file : files) {
-      if (dest.equals(file.getParent())) {
+      if (Objects.equals(file.getParent(), (dest))) {
         continue;
       }
       List<String> cmd = new ArrayList<>();
@@ -142,7 +143,8 @@ public class ToolingUtils {
         cmd.add(FileMove.NO_ERR);
       }
       cmd.add(file.toAbsolutePath().normalize().toString());
-      cmd.add(dest.resolve(file.getFileName()).toString());
+      if (dest != null)
+        cmd.add(dest.resolve(file.getFileName()).toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pbs.add(pb);
     }
