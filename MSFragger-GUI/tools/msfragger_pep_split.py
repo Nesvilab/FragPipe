@@ -405,11 +405,18 @@ def calibrate(fasta_path_sample, calibrate_mass: int):
 			f'use_topN_peaks = {new_use_topN_peak}', params_txt_new)
 		params_txt_new = re.compile(r'^minimum_ratio\s*=\s*[0-9.]+', re.MULTILINE).sub(
 			f'minimum_ratio = {new_minimum_ratio}', params_txt_new)
-	mzBINs0 = [e.with_suffix('.mzBIN_calibrated').resolve(strict=True) for e in infiles_name]
-	mzBINs = [(tempdir / e.name).with_suffix('.mzBIN_calibrated').resolve() for e in infiles_name]
-	for fr, to in zip(mzBINs0, mzBINs):
-		fr.rename(to)
-	return mzBINs, params_txt_new
+	mzBINs0 = [e.with_suffix('.mzBIN_calibrated') for e in infiles_name]
+	is_calibrated = [e.with_suffix('.mzBIN_calibrated').exists() for e in infiles_name]
+	dests = [(tempdir / mzBin.name).with_suffix('.mzBIN_calibrated')
+			if iscali else
+			tempdir / orig.name
+					 for mzBin, orig, iscali in zip(mzBINs0, infiles_name, is_calibrated)]
+	for mzBIN0, orig, dest, iscali in zip(mzBINs0, infiles_name, dests, is_calibrated):
+		if iscali:
+			mzBIN0.rename(dest)
+		else:
+			shutil.copy(orig, dest)
+	return dest, params_txt_new
 
 
 def sample_fasta(fasta_path, fasta_path_sample, n):
