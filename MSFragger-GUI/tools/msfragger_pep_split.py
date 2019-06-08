@@ -416,7 +416,7 @@ def calibrate(fasta_path_sample, calibrate_mass: int):
 			mzBIN0.rename(dest)
 		else:
 			shutil.copy(orig, dest)
-	return dest, params_txt_new
+	return [e.resolve(strict=True) for e in dests], params_txt_new
 
 
 def sample_fasta(fasta_path, fasta_path_sample, n):
