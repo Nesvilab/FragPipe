@@ -87,7 +87,7 @@ public class CmdSpecLibGen extends CmdBase {
                 .pbsCopyFiles(jarFragpipe, groupWd, Collections.singletonList(lcms.path));
             pbs.addAll(pbCopy);
             pbsDeleteLcmsFiles.addAll(ToolingUtils
-                .pbsDeleteFiles(jarFragpipe, Collections.singletonList(lcms.path)));
+                .pbsDeleteFiles(jarFragpipe, Collections.singletonList(groupWd.resolve(lcms.path.getFileName()))));
           }
         }
       }
