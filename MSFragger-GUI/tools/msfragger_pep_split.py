@@ -191,14 +191,6 @@ def get_spectrum(p: pathlib.Path):
 			else:
 				yield b''
 
-if 0:
-	ss=b'<search_hit peptide="RSPMAFIPFSAGPR" massdiff="-346.1690" calc_neutral_pep_mass="1532.7920" peptide_next_aa="N" num_missed_cleavages="1" num_tol_term="2" num_tot_proteins="1" tot_num_ions="52" hit_rank="13" num_matched_ions="11" protein="sp|P98187|CP4F8_HUMAN Cytochrome P450 4F8 OS=Homo sapiens GN=CYP4F8 PE=1 SV=1" peptide_prev_aa="K" is_rejected="0">'
-	' '.join(e for e in shlex.split(ss.decode()) if not e.startswith(('hit_rank=','protein=')))
-
-	aa0 = re.compile(rb'(?<=hit_rank=")(\d+)(?=" )').sub(b'{}', ss)
-	re.compile(b'(?<=protein=")(.+?)(?=" )').sub(b'{}', aa0)
-	re.compile(rb'(?<=hit_rank=")(\d+)(?=")').sub(b'{}', ss)==re.compile(rb'hit_rank="(\d+)"').sub(b'hit_rank="{}"', ss)
-
 re_search_hit_first_line = re.compile(rb'(?<=hit_rank=")(\d+)(?=" )'
 									  b'|'
 									  b'(?<=protein=")(.+?)(?=" )')
