@@ -109,7 +109,9 @@ public class CmdMsfragger extends CmdBase {
       }
     }
 
-    int ramGb = fp.getRamGb();
+    final int ramGb = fp.getRamGb() > 0 ? fp.getRamGb() :
+        (int) (((com.sun.management.OperatingSystemMXBean) java.lang.management.ManagementFactory
+            .getOperatingSystemMXBean()).getFreePhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0);
 
     // 32k symbols splitting for regular command.
     // But for slicing it's all up to the python script.
@@ -137,9 +139,7 @@ public class CmdMsfragger extends CmdBase {
     Map<InputLcmsFile, Path> mapLcmsToPepxml = outputs(lcmsFiles, ext, wd);
     Map<InputLcmsFile, Path> mapLcmsToTsv = outputs(lcmsFiles, "tsv", wd);
 
-    final List<String> javaCmd = ramGb > 0 ?
-            Arrays.asList("java", "-jar", "-Dfile.encoding=UTF-8", "-Xmx" + ramGb + "G") :
-            Arrays.asList("java", "-jar", "-Dfile.encoding=UTF-8");
+    final List<String> javaCmd = Arrays.asList("java", "-jar", "-Dfile.encoding=UTF-8", "-Xmx" + ramGb + "G");
     final List<String> slicingCmd = isSlicing ?
             Arrays.asList(
                     PythonInfo.get().getCommand(),
