@@ -21,6 +21,7 @@ import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
+import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.UsageTrigger;
@@ -141,12 +142,15 @@ public class CmdMsfragger extends CmdBase {
 
     final List<String> javaCmd = Arrays.asList("java", "-jar", "-Dfile.encoding=UTF-8", "-Xmx" + ramGb + "G");
     final List<String> slicingCmd = isSlicing ?
-            Arrays.asList(
-                    PythonInfo.get().getCommand(),
-                    DbSlice.get().getScriptDbslicingPath().toAbsolutePath().normalize().toString(),
-                    Integer.toString(numSlices),
-                    "\"" + String.join(" ", javaCmd) + "\"")
-            : null;
+        Arrays.asList(
+            PythonInfo.get().getCommand(),
+            DbSlice.get().getScriptDbslicingPath().toAbsolutePath().normalize().toString(),
+            Integer.toString(numSlices),
+            OsUtils.isWindows() ?
+                "\"" + String.join(" ", javaCmd) + "\"" :
+                String.join(" ", javaCmd)
+        )
+        : null;
     while (fileIndex < lcmsFiles.size()) {
       ArrayList<String> cmd = new ArrayList<>();
       if (isSlicing) {
