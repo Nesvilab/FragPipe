@@ -123,7 +123,7 @@ public class FraggerMigPanel extends JPanel {
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
   private static final String[] CALIBRATE_LABELS = {"Off", "On", "On and find optimal parameters"};
-  public static FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf)", "mzml", "mzxml", "mgf");
+  public static FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf/raw)", "mzml", "mzxml", "mgf", "raw");
   private static String[] PROPS_MISC = {
       PROP_misc_adjust_precurosr_mass,
       PROP_misc_slice_db,
