@@ -910,8 +910,8 @@
         <Container class="javax.swing.JPanel" name="panelSequenceDb">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-              <JTabbedPaneConstraints tabName="Sequence DB">
-                <Property name="tabTitle" type="java.lang.String" value="Sequence DB"/>
+              <JTabbedPaneConstraints tabName="Database">
+                <Property name="tabTitle" type="java.lang.String" value="Database"/>
               </JTabbedPaneConstraints>
             </Constraint>
           </Constraints>
@@ -941,7 +941,7 @@
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="General DB Info (FASTA)"/>
+                    <TitledBorder title="FASTA sequence database"/>
                   </Border>
                 </Property>
               </Properties>

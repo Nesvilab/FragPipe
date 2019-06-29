@@ -453,7 +453,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
     setTabIcon(mapTabNameToIdx, "Config", "/umich/msfragger/gui/icons/146-wrench.png");
     setTabIcon(mapTabNameToIdx, "Select LC/MS Files", "/umich/msfragger/gui/icons/198-download2.png");
-    setTabIcon(mapTabNameToIdx, "Sequence DB", "/umich/msfragger/gui/icons/093-drawer.png");
+    setTabIcon(mapTabNameToIdx, "Database", "/umich/msfragger/gui/icons/093-drawer.png");
     setTabIcon(mapTabNameToIdx, "Downstream", "/umich/msfragger/gui/icons/328-move-down.png");
     setTabIcon(mapTabNameToIdx, "Report", "/umich/msfragger/gui/icons/185-clipboard.png");
     setTabIcon(mapTabNameToIdx, fraggerTabName, "/umich/msfragger/gui/icons/bolt-16.png");
@@ -1615,7 +1615,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     tabPane.addTab("Select LC/MS Files", null, panelSelectFiles, "Input mzML or mzXML files");
 
-    panelDbInfo.setBorder(javax.swing.BorderFactory.createTitledBorder("General DB Info (FASTA)"));
+    panelDbInfo.setBorder(javax.swing.BorderFactory.createTitledBorder("FASTA sequence database"));
 
     textSequenceDbPath.setToolTipText("Path to fasta file");
     textSequenceDbPath.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -1727,7 +1727,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addContainerGap())
     );
 
-    tabPane.addTab("Sequence DB", panelSequenceDb);
+    tabPane.addTab("Database", panelSequenceDb);
 
     chkRunPeptideProphet.setSelected(true);
     chkRunPeptideProphet.setText("Run PeptideProphet");
@@ -3514,7 +3514,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     // check fasta file path
     String fastaPathText = textSequenceDbPath.getText().trim();
     if (StringUtils.isNullOrWhitespace(fastaPathText)) {
-      JOptionPane.showMessageDialog(this, "Fasta file path (Sequence DB tab) can't be empty",
+      JOptionPane.showMessageDialog(this, "Fasta file path (Database tab) can't be empty",
           "Warning", JOptionPane.WARNING_MESSAGE);
       resetRunButtons(true);
       return;
@@ -3523,7 +3523,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final String fastaPath = PathUtils.testFilePath(fastaPathText, workingDir);
     if (fastaPath == null) {
       JOptionPane.showMessageDialog(this,
-          String.format("Could not find fasta file (Sequence DB) at:\n%s", fastaPathText),
+          String.format("Could not find fasta file (Database) at:\n%s", fastaPathText),
           "Errors", JOptionPane.ERROR_MESSAGE);
       resetRunButtons(true);
       return;
@@ -5195,7 +5195,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     if (!isValid) {
-      tip = new BalloonTip(anchor, "<html>Could not find sequence DB file.");
+      tip = new BalloonTip(anchor, "<html>Could not find database file.");
       tip.setVisible(true);
       tipMap.put(name, tip);
     }
