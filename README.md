@@ -15,9 +15,7 @@ MSFragger binary needs to be downloaded separately, the user interface has a lin
 You can find detailed instructions on the [MSFragger website](https://msfragger.nesvilab.org/).
 
 ## Documentation
-We are currently working on creating Tutorials for most commonly used workflows supported in FragPipe.
-
-[msconvert](https://msfragger.nesvilab.org/tutorial_convert.html).
+A tutorial on converting LC/MS data files to the mzML format used by MSFragger can be found [here](https://msfragger.nesvilab.org/tutorial_convert.html). A tutorial for basic FragPipe use can be found [here](https://msfragger.nesvilab.org/tutorial_fragpipe.html). We are currently working on creating  additional tutorials for most commonly used workflows supported in FragPipe.
 
 For MSFragger documentation (search parameters etc.) see [MSFragger Documentation Wiki page](https://github.com/Nesvilab/MSFragger/wiki).  
 For documentation on Philosopher toolkit see [Philosopher site](http://philosopher.nesvilab.org/).
