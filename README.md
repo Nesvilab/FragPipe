@@ -17,6 +17,8 @@ You can find detailed instructions on the [MSFragger website](https://msfragger.
 ## Documentation
 We are currently working on creating Tutorials for most commonly used workflows supported in FragPipe.
 
+[msconvert](https://msfragger.nesvilab.org/tutorial_convert.html).
+
 For MSFragger documentation (search parameters etc.) see [MSFragger Documentation Wiki page](https://github.com/Nesvilab/MSFragger/wiki).  
 For documentation on Philosopher toolkit see [Philosopher site](http://philosopher.nesvilab.org/).
 
