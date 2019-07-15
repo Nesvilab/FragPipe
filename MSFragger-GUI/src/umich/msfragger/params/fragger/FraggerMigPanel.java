@@ -65,6 +65,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableModel;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -933,11 +934,26 @@ public class FraggerMigPanel extends JPanel {
   private MsfraggerParams formCollect() {
     Map<String, String> map = formTo();
     MsfraggerParams params = paramsFrom(map);
+
+    // before collecting mods, make sure that no table cell editor is open
+    stopJTableEditing(tableFixMods);
+    stopJTableEditing(tableVarMods);
+
     List<Mod> modsVar = formTo(tableModelVarMods);
     params.setVariableMods(modsVar);
     List<Mod> modsFix = formTo(tableModelFixMods);
     params.setAdditionalMods(modsFix);
     return params;
+  }
+
+  private boolean stopJTableEditing(JTable t) {
+    TableCellEditor editor = t.getCellEditor();
+    if (editor == null) {
+      log.debug("cell editor was null");
+      return true;
+    }
+    log.debug("cell editor existed, trying to close");
+    return editor.stopCellEditing();
   }
 
   private void formFromMods(ModificationsTableModel model, Object[] colNames, List<Mod> mods) {
