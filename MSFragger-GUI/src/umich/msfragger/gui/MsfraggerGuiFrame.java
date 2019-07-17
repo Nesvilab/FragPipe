@@ -5315,7 +5315,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         + "<b>If you have your own custom database:</b><br/><br/>"
         + "The headers in the custom sequence database should follow a certain format. <br/>"
         + "<br/>"
-        + "For detailed information on creating and formatting databases for FragPipe analysis, please see <a href=\"https://github.com/Nesvilab/philosopher/wiki/Database\">https://github.com/Nesvilab/philosopher/wiki/Database</a>.<br/>"
+        + "For detailed information on creating and formatting databases for FragPipe analysis, please see <a href=\"https://github.com/Nesvilab/philosopher/wiki/How-to-Prepare-a-Protein-Database\">https://github.com/Nesvilab/philosopher/wiki/How-to-Prepare-a-Protein-Database</a>.<br/>"
         + "<br/>"
         + "<br/>"
         + "</body></html>");
