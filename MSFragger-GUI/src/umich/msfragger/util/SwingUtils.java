@@ -45,6 +45,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -303,29 +305,42 @@ public class SwingUtils {
     return checkbox.isEnabled() && checkbox.isSelected();
   }
 
+  public static Map<String, String> valuesToMap(Container origin) {
+    return valuesToMap(origin, null);
+  }
+
   /**
    * Drills down a {@link Container}, mapping all components that 1) have their name set, 2) are
    * {@link StringRepresentable} and returns the mapping.<br/>
    * Useful for persisting values from Swing windows.
+   * @param compNameFilter Can be null, will accept all Component names then.
    */
-  public static Map<String, String> valuesToMap(Container origin) {
+  public static Map<String, String> valuesToMap(Container origin, Predicate<String> compNameFilter) {
     Map<String, Component> comps = SwingUtils.mapComponentsByName(origin, true);
     Map<String, String> map = new HashMap<>(comps.size());
+    compNameFilter = compNameFilter == null ? s -> true : compNameFilter;
     for (Entry<String, Component> e : comps.entrySet()) {
       final String name = e.getKey();
-      if (name == null || name.isEmpty()) {
+      if (name == null || name.isEmpty() || !compNameFilter.test(name)) {
         continue;
       }
+
       final Component comp = e.getValue();
-      if (!(comp instanceof StringRepresentable)) {
+      if (comp instanceof StringRepresentable) {
+        map.put(name, ((StringRepresentable) comp).asString());
+      } else if (comp instanceof JCheckBox) {
+        map.put(name, Boolean.toString(((JCheckBox)comp).isSelected()));
+      } else if (comp instanceof JTextComponent) {
+        map.put(name, ((JTextComponent)comp).getText());
+      } else {
         log.debug(String
             .format("SwingUtils.valuesToMap() found component of type [%s] by name [%s] which "
-                    + "does not implement [%s]",
+                    + "does not implement [%s] and is not [%s, %s]",
                 comp.getClass().getSimpleName(), comp.getName(),
-                StringRepresentable.class.getSimpleName()));
+                StringRepresentable.class.getSimpleName(), JCheckBox
+                    .class.getSimpleName(), JTextComponent.class.getSimpleName()));
         continue;
       }
-      map.put(name, ((StringRepresentable) comp).asString());
     }
     return map;
   }
@@ -338,16 +353,24 @@ public class SwingUtils {
     Map<String, Component> comps = SwingUtils.mapComponentsByName(origin, true);
     for (Entry<String, String> kv : map.entrySet()) {
       final String name = kv.getKey();
-      Component component = comps.get(name);
-      if (component != null) {
-        if (!(component instanceof StringRepresentable)) {
-          log.trace(String
-              .format("SwingUtils.valuesFromMap() Found component of type [%s] by name [%s] which does not implement [%s]",
-                  component.getClass().getSimpleName(), name,
-                  StringRepresentable.class.getSimpleName()));
+      Component comp = comps.get(name);
+      if (comp != null) {
+        String s = kv.getValue();
+        if (comp instanceof StringRepresentable) {
+          ((StringRepresentable) comp).fromString(s);
+        } else if (comp instanceof JCheckBox) {
+          ((JCheckBox)comp).setSelected(Boolean.parseBoolean(s));
+        } else if (comp instanceof JTextComponent) {
+          ((JTextComponent)comp).setText(s);
+        } else {
+          log.debug(String
+              .format("SwingUtils.valuesFromMap() found component of type [%s] by name [%s] which "
+                      + "does not implement [%s] and is not [%s, %s]",
+                  comp.getClass().getSimpleName(), comp.getName(),
+                  StringRepresentable.class.getSimpleName(), JCheckBox
+                      .class.getSimpleName(), JTextComponent.class.getSimpleName()));
           continue;
         }
-        ((StringRepresentable) component).fromString(kv.getValue());
       }
     }
   }

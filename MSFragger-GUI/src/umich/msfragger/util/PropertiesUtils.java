@@ -54,6 +54,14 @@ public final class PropertiesUtils {
     private PropertiesUtils() {
     }
 
+    public static Properties merge(Properties... properties) {
+        Properties merged = new Properties();
+        for (Properties property : properties) {
+            merged.putAll(property);
+        }
+        return merged;
+    }
+
     public static Properties initProperties(List<String> urls, String propFileName, Class<?> clazz) {
         Properties props = PropertiesUtils
             .fetchPropertiesFromRemote(urls);

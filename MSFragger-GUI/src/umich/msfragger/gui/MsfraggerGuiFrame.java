@@ -16,8 +16,10 @@
  */
 package umich.msfragger.gui;
 
+import static umich.msfragger.params.fragger.FraggerMigPanel.CACHE_FORM;
 import static umich.msfragger.params.fragger.FraggerMigPanel.PROP_FILECHOOSER_LAST_PATH;
 
+import ch.qos.logback.classic.gaffer.PropertyUtil;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -69,7 +71,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -80,7 +81,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -152,6 +155,8 @@ import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
+import umich.msfragger.messages.MessageLoadFormCaches;
+import umich.msfragger.messages.MessageSaveFormCaches;
 import umich.msfragger.messages.MessageDbUpdate;
 import umich.msfragger.messages.MessageLastRunWorkDir;
 import umich.msfragger.messages.MessageAppendToConsole;
@@ -161,6 +166,7 @@ import umich.msfragger.messages.MessageIsUmpireRun;
 import umich.msfragger.messages.MessageKillAll;
 import umich.msfragger.messages.MessageLcmsFilesAdded;
 import umich.msfragger.messages.MessagePythonBinSelectedByUser;
+import umich.msfragger.messages.MessageReportEnablement;
 import umich.msfragger.messages.MessageRun;
 import umich.msfragger.messages.MessageSaveCache;
 import umich.msfragger.messages.MessageSaveLog;
@@ -185,6 +191,7 @@ import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.umpire.UmpirePanel;
+import umich.msfragger.util.CacheUtils;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.GhostText;
@@ -195,6 +202,7 @@ import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.PrefixCounter;
 import umich.msfragger.util.Proc2;
+import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
@@ -474,12 +482,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     exec.submit(this::validateMsadjusterEligibility);
     exec.submit(this::validateMsfraggerMassCalibrationEligibility);
 
+    // TODO: This 'loadLast' mechanism will be replaced by the automatic saving/loading of components by 'name'
     // submitting all "loadLast" methods for invocation
     for (Method method : this.getClass().getDeclaredMethods()) {
       if (method.getName().startsWith("loadLast") && method.getParameterCount() == 0) {
         exec.submit(() -> method.invoke(this));
       }
     }
+    EventBus.getDefault().post(new MessageLoadFormCaches());
 
     initActions();
   }
@@ -566,6 +576,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onDecoyTagChanged(MessageDecoyTag m) {
     updateDecoyTagSeqDb(m.tag, false);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void onMessageReportEnablement(MessageReportEnablement m) {
+    final boolean selected = m.isReportEnabled;
+    Container[] comps = new Container[]{
+        panelReportOptions
+    };
+    for (Container c : comps) {
+      SwingUtils.enableComponents(c, selected);
+    }
   }
 
   @Subscribe
@@ -1036,6 +1057,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     checkFilterNoProtxml = new javax.swing.JCheckBox();
     checkReportPrintDecoys = new javax.swing.JCheckBox();
     checkReportWriteMzid = new javax.swing.JCheckBox();
+    checkPtmshepherd = new javax.swing.JCheckBox();
     checkCreateReport = new javax.swing.JCheckBox();
     panelSpecLibOpts = new javax.swing.JPanel();
     checkGenerateSpecLib = new javax.swing.JCheckBox();
@@ -1731,6 +1753,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     chkRunPeptideProphet.setSelected(true);
     chkRunPeptideProphet.setText("Run PeptideProphet");
+    chkRunPeptideProphet.setName("ui.name.downstream.check.run-pep-proph"); // NOI18N
     chkRunPeptideProphet.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         chkRunPeptideProphetActionPerformed(evt);
@@ -1757,6 +1780,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     textPepProphCmd.setLineWrap(true);
     textPepProphCmd.setRows(5);
     textPepProphCmd.setWrapStyleWord(true);
+    textPepProphCmd.setName("ui.name.downstream.text.pep-proph-cmd"); // NOI18N
     textPepProphCmd.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusGained(java.awt.event.FocusEvent evt) {
         textPepProphCmdFocusGained(evt);
@@ -1849,6 +1873,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     chkRunProteinProphet.setSelected(true);
     chkRunProteinProphet.setText("Run ProteinProphet");
+    chkRunProteinProphet.setName("ui.name.downstream.check.run-prot-proph"); // NOI18N
     chkRunProteinProphet.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         chkRunProteinProphetActionPerformed(evt);
@@ -1874,6 +1899,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     checkProcessGroupsSeparately.setSelected(loadLastProcessGroupsSeparately());
     checkProcessGroupsSeparately.setText("<html>Separate ProteinProphet prot.xml file per group/experiment");
     checkProcessGroupsSeparately.setToolTipText("<html><b>Uncheck</b> if you want a report comparing protein abundances across<br/>\nexperiments or just want a single protein identification result from all<br/>\nthe runs.<br/>\n<b>Only check</b> if you want peptide/protein ID results<br/>\nfor each experiment separately. E.g. this might be useful if you have<br/>\n100 files on hand and use the \"assign to experiments\" feature to quickly<br/>\nrun MSFragger + downstream processing on each of those and get a pepxml<br/>\nand/or protxml files.");
+    checkProcessGroupsSeparately.setName("ui.name.downstream.check.separate-protxml"); // NOI18N
     checkProcessGroupsSeparately.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         checkProcessGroupsSeparatelyActionPerformed(evt);
@@ -1884,6 +1910,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     txtProteinProphetCmdLineOpts.setLineWrap(true);
     txtProteinProphetCmdLineOpts.setRows(5);
     txtProteinProphetCmdLineOpts.setWrapStyleWord(true);
+    txtProteinProphetCmdLineOpts.setName("ui.name.downstream.text.prot-proph-cmd"); // NOI18N
     txtProteinProphetCmdLineOpts.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(java.awt.event.FocusEvent evt) {
         txtProteinProphetCmdLineOptsFocusLost(evt);
@@ -1949,6 +1976,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     );
 
     chkRunCrystalc.setText("Run Crystal-C");
+    chkRunCrystalc.setName("ui.name.downstream.check.run-crystalc"); // NOI18N
     chkRunCrystalc.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         chkRunCrystalcActionPerformed(evt);
@@ -2080,6 +2108,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     panelReportOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("Report Options"));
 
     textReportFilter.setToolTipText("<html>--pepxml path-to-pepxml --protxml path-to-combined-protxml<br/>\nwill be added automatically based on previous tabs.<br/>\n\nStatistical filtering, validation and False Discovery Rates assessment<br/>\nphilosopher filter [flags]<br>\nFlags:<br/>\n<ul>\n<li>--ion float        peptide ion FDR level (default 0.01)</li>\n<li>--mapmods          map modifications aquired by an open search</li>\n<li>--models           print model distribution</li>\n<li>--pep float        peptide FDR level (default 0.01)</li>\n<li>--pepProb float    top peptide probability treshold for the FDR filtering (default 0.7)</li>\n<li>--pepxml string    pepXML file or directory containing a set of pepXML files</li>\n<li>--picked           apply the picked FDR algorithm before the protein scoring</li>\n<li>--prot float       protein FDR level (default 0.01)</li>\n<li>--protProb float   protein probability treshold for the FDR filtering (not used with the razor algorithm) (default 0.5)</li>\n<li>--protxml string   protXML file path</li>\n<li>--psm float        psm FDR level (default 0.01)</li>\n<li>--razor            use razor peptides for protein FDR scoring</li>\n<li>--sequential       alternative algorithm that estimates FDR using both filtered PSM and Protein lists</li>\n<li>--tag string       decoy tag (default \"rev_\")</li>\n<li>--weight float     threshold for defining peptide uniqueness (default 1)</li>\n</ul>");
+    textReportFilter.setName("ui.name.report.text.filter"); // NOI18N
     textReportFilter.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusGained(java.awt.event.FocusEvent evt) {
         textReportFilterFocusGained(evt);
@@ -2097,7 +2126,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     checkReportAbacus.setSelected(loadLastCheckboxAbacus());
     checkReportAbacus.setText("Multi-Experiment Report ");
     checkReportAbacus.setToolTipText("<html>Philosopher abacus command");
-    checkReportAbacus.setMargin(new java.awt.Insets(10, 0, 2, 2));
+    checkReportAbacus.setName("ui.name.report.check.multiexp"); // NOI18N
     checkReportAbacus.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         checkReportAbacusActionPerformed(evt);
@@ -2109,6 +2138,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     checkFilterNoProtxml.setSelected(loadLastCheckboxUseProtxmlInFilter());
     checkFilterNoProtxml.setText("Do not use ProteinProphet file");
     checkFilterNoProtxml.setToolTipText("<html>Only to be used in rare cases.<br/>\nConsider turning off Protein Prophet instead of using this checkbox.");
+    checkFilterNoProtxml.setName("ui.name.report.check.dontuseprotprophfile"); // NOI18N
     checkFilterNoProtxml.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         checkFilterNoProtxmlActionPerformed(evt);
@@ -2117,6 +2147,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     checkReportPrintDecoys.setSelected(loadLastCheckReportPrintDecoys());
     checkReportPrintDecoys.setText("Print decoys");
+    checkReportPrintDecoys.setName("ui.name.report.check.printdecoys"); // NOI18N
     checkReportPrintDecoys.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         checkReportPrintDecoysActionPerformed(evt);
@@ -2125,11 +2156,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     checkReportWriteMzid.setSelected(loadLastReportWriteMzid());
     checkReportWriteMzid.setText("Write mzID output (experimental)");
+    checkReportWriteMzid.setName("ui.name.report.check.mzid"); // NOI18N
     checkReportWriteMzid.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         checkReportWriteMzidActionPerformed(evt);
       }
     });
+
+    checkPtmshepherd.setText("Generate PTM report with PTMShepherd");
+    checkPtmshepherd.setName("ui.name.report.check.ptmshepherd"); // NOI18N
 
     javax.swing.GroupLayout panelReportOptionsLayout = new javax.swing.GroupLayout(panelReportOptions);
     panelReportOptions.setLayout(panelReportOptionsLayout);
@@ -2139,19 +2174,24 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addContainerGap()
         .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addGroup(panelReportOptionsLayout.createSequentialGroup()
+            .addComponent(checkPtmshepherd)
+            .addGap(0, 0, Short.MAX_VALUE))
+          .addGroup(panelReportOptionsLayout.createSequentialGroup()
             .addComponent(jLabel1)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(textReportFilter, javax.swing.GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE))
           .addGroup(panelReportOptionsLayout.createSequentialGroup()
-            .addComponent(checkReportAbacus)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(checkReportPrintDecoys)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(checkFilterNoProtxml)
-            .addContainerGap())
-          .addGroup(panelReportOptionsLayout.createSequentialGroup()
-            .addComponent(checkReportWriteMzid)
-            .addGap(0, 0, Short.MAX_VALUE))))
+            .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+              .addGroup(panelReportOptionsLayout.createSequentialGroup()
+                .addComponent(checkReportWriteMzid)
+                .addGap(0, 0, Short.MAX_VALUE))
+              .addGroup(panelReportOptionsLayout.createSequentialGroup()
+                .addComponent(checkReportAbacus)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(checkReportPrintDecoys)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(checkFilterNoProtxml)))
+            .addContainerGap())))
     );
     panelReportOptionsLayout.setVerticalGroup(
       panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2159,14 +2199,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(textReportFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
           .addComponent(jLabel1))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(checkReportAbacus)
-          .addComponent(checkFilterNoProtxml)
-          .addComponent(checkReportPrintDecoys))
+          .addComponent(checkReportPrintDecoys)
+          .addComponent(checkFilterNoProtxml))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addComponent(checkReportWriteMzid)
-        .addContainerGap(12, Short.MAX_VALUE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addComponent(checkPtmshepherd)
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
     loadLastReportFilter();
@@ -2185,6 +2227,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     checkGenerateSpecLib.setText("Generate Spectral Library from search results");
     checkGenerateSpecLib.setEnabled(false);
+    checkGenerateSpecLib.setName("ui.name.report.check.genspeclib"); // NOI18N
     checkGenerateSpecLib.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         checkGenerateSpecLibActionPerformed(evt);
@@ -2212,8 +2255,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     checkLabelfree.setText("Label-free Quant");
     checkLabelfree.setToolTipText("<html>Label free quantitation");
+    checkLabelfree.setName("ui.name.report.check.labelfree"); // NOI18N
 
     textReportLabelfree.setToolTipText("<html>Label free quantitation<br/>\nFlags:<br/>\n<ul>\n<li>--ptw float    specify the time windows for the peak (minute) (default 0.4)</li>\n<li>--tol float    m/z tolerance in ppm (default 10)</li>\n</ul>");
+    textReportLabelfree.setName("ui.name.report.text.labelfree"); // NOI18N
     textReportLabelfree.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusGained(java.awt.event.FocusEvent evt) {
         textReportLabelfreeFocusGained(evt);
@@ -2277,7 +2322,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(419, Short.MAX_VALUE))
+        .addContainerGap(399, Short.MAX_VALUE))
     );
 
     tabPane.addTab("Report", null, panelReport, "");
@@ -3332,7 +3377,93 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   @Subscribe
+  public void saveFormCaches(MessageSaveFormCaches m) {
+
+    // getting tab names
+    Map<String, Integer> mapTabNameToIdx = new HashMap<>();
+    for (int i = 0, tabCount = tabPane.getTabCount(); i < tabCount; i++) {
+      mapTabNameToIdx.put(tabPane.getTitleAt(i), i);
+    }
+
+//    Integer reportIdx = mapTabNameToIdx.get("Report");
+//    if (reportIdx == null) {
+//      log.warn("Couldn't get Report tab Component");
+//    } else {
+//
+//    }
+
+    BiConsumer<Component, Integer> consumer = (awtComp, i) -> {
+      if (awtComp instanceof Container) {
+        Container awtContainer = (Container)awtComp;
+        final Pattern re = Pattern.compile("ui\\.name\\..*");
+        Predicate<String> filter = re.asPredicate();
+        Map<String, String> map = SwingUtils.valuesToMap(awtContainer, filter);
+        if (map.isEmpty()) {
+          log.debug("No mapping for Tab #{}", i);
+        } else {
+          log.debug("Got mapping for Tab #{}: {}", i, map);
+          Properties mapAsProps = PropertiesUtils.from(map);
+
+          Path formCachePath = CacheUtils.getTempFile(FORMS_CACHE_FN);
+          if (Files.exists(formCachePath)) {
+            // we have an old file, merge properties
+            try {
+              Properties propsFromFile = PropertiesUtils.from(formCachePath);
+              mapAsProps = PropertiesUtils.merge(propsFromFile, mapAsProps);
+            } catch (IOException e) {
+              log.error("Could not load old properties", e);
+            }
+          }
+          log.debug("Saving forms cache to file: {}", formCachePath);
+          try {
+            mapAsProps.store(Files.newBufferedWriter(formCachePath), ThisAppProps.cacheComments());
+          } catch (IOException e) {
+            log.error("Could not save forms cache to file", e);
+          }
+        }
+      }
+    };
+
+    for (int i = 0; i < tabPane.getTabCount(); i++) {
+      Component compAt = tabPane.getComponentAt(i);
+      consumer.accept(compAt, i);
+    }
+  }
+
+  final String FORMS_CACHE_FN = "fragpipe-forms" + ThisAppProps.TEMP_FILE_EXT;
+
+  @Subscribe
+  public void cacheLoad(MessageLoadFormCaches m) {
+    // load form as map first
+    {
+      Map<String, String> map = null;
+      try {
+        Path path = CacheUtils.locateTempFile(FORMS_CACHE_FN);
+        log.debug("Loading forms cache from  file: {}", path);
+        Properties propsFromFile = PropertiesUtils.from(path);
+        map = PropertiesUtils.to(propsFromFile);
+      } catch (FileNotFoundException ignored) {
+        // no form cache yet
+      } catch (IOException e) {
+        log.error("Could not load properties as map from cache file: {}", e);
+      }
+
+      if (map != null) {
+        for (int i = 0; i < tabPane.getTabCount(); i++) {
+          Component compAt = tabPane.getComponentAt(i);
+          if (compAt instanceof Container) {
+            SwingUtils.valuesFromMap((Container)compAt, map);
+          }
+        }
+      }
+    }
+
+  }
+
+  @Subscribe
   public void onRun(MessageRun m) {
+    saveFormCaches(new MessageSaveFormCaches());
+
     final boolean isDryRun = m.isDryRun;
     saveWorkdirText();
     clearConsole();
@@ -4626,13 +4757,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void checkCreateReportActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkCreateReportActionPerformed
-    final boolean selected = checkCreateReport.isSelected();
-    Container[] comps = new Container[]{
-        panelReportOptions
-    };
-    for (Container c : comps) {
-      SwingUtils.enableComponents(c, selected);
-    }
+    EventBus.getDefault().postSticky(new MessageReportEnablement(checkCreateReport.isSelected()));
   }//GEN-LAST:event_checkCreateReportActionPerformed
 
   private void checkEnableDiaumpireStateChanged(
@@ -5767,6 +5892,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JCheckBox checkGenerateSpecLib;
   private javax.swing.JCheckBox checkLabelfree;
   private javax.swing.JCheckBox checkProcessGroupsSeparately;
+  private javax.swing.JCheckBox checkPtmshepherd;
   private javax.swing.JCheckBox checkReportAbacus;
   private javax.swing.JCheckBox checkReportPrintDecoys;
   private javax.swing.JCheckBox checkReportWriteMzid;

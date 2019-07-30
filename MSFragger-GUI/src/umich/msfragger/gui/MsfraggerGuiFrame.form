@@ -1155,6 +1155,7 @@
                   <Properties>
                     <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" value="Run PeptideProphet"/>
+                    <Property name="name" type="java.lang.String" value="ui.name.downstream.check.run-pep-proph" noResource="true"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkRunPeptideProphetActionPerformed"/>
@@ -1236,6 +1237,7 @@
                             <Property name="lineWrap" type="boolean" value="true"/>
                             <Property name="rows" type="int" value="5"/>
                             <Property name="wrapStyleWord" type="boolean" value="true"/>
+                            <Property name="name" type="java.lang.String" value="ui.name.downstream.text.pep-proph-cmd" noResource="true"/>
                           </Properties>
                           <Events>
                             <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textPepProphCmdFocusGained"/>
@@ -1316,6 +1318,7 @@
                   <Properties>
                     <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" value="Run ProteinProphet"/>
+                    <Property name="name" type="java.lang.String" value="ui.name.downstream.check.run-prot-proph" noResource="true"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkRunProteinProphetActionPerformed"/>
@@ -1391,6 +1394,7 @@
                         </Property>
                         <Property name="text" type="java.lang.String" value="&lt;html&gt;Separate ProteinProphet prot.xml file per group/experiment"/>
                         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;Uncheck&lt;/b&gt; if you want a report comparing protein abundances across&lt;br/&gt;&#xa;experiments or just want a single protein identification result from all&lt;br/&gt;&#xa;the runs.&lt;br/&gt;&#xa;&lt;b&gt;Only check&lt;/b&gt; if you want peptide/protein ID results&lt;br/&gt;&#xa;for each experiment separately. E.g. this might be useful if you have&lt;br/&gt;&#xa;100 files on hand and use the &quot;assign to experiments&quot; feature to quickly&lt;br/&gt;&#xa;run MSFragger + downstream processing on each of those and get a pepxml&lt;br/&gt;&#xa;and/or protxml files."/>
+                        <Property name="name" type="java.lang.String" value="ui.name.downstream.check.separate-protxml" noResource="true"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkProcessGroupsSeparatelyActionPerformed"/>
@@ -1409,6 +1413,7 @@
                             <Property name="lineWrap" type="boolean" value="true"/>
                             <Property name="rows" type="int" value="5"/>
                             <Property name="wrapStyleWord" type="boolean" value="true"/>
+                            <Property name="name" type="java.lang.String" value="ui.name.downstream.text.prot-proph-cmd" noResource="true"/>
                           </Properties>
                           <Events>
                             <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="txtProteinProphetCmdLineOptsFocusLost"/>
@@ -1467,6 +1472,7 @@
                 <Component class="javax.swing.JCheckBox" name="chkRunCrystalc">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Run Crystal-C"/>
+                    <Property name="name" type="java.lang.String" value="ui.name.downstream.check.run-crystalc" noResource="true"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkRunCrystalcActionPerformed"/>
@@ -1638,7 +1644,7 @@
                       <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelSpecLibOpts" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="419" max="32767" attributes="0"/>
+                      <EmptySpace pref="399" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1660,21 +1666,29 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" attributes="0">
+                                  <Component id="checkPtmshepherd" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                              </Group>
+                              <Group type="102" attributes="0">
                                   <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="textReportFilter" pref="584" max="32767" attributes="0"/>
                               </Group>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="checkReportAbacus" min="-2" max="-2" attributes="0"/>
+                              <Group type="102" attributes="0">
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Group type="102" attributes="0">
+                                          <Component id="checkReportWriteMzid" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                      </Group>
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="checkReportAbacus" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="32767" attributes="0"/>
+                                          <Component id="checkReportPrintDecoys" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          <Component id="checkFilterNoProtxml" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                  </Group>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="checkReportPrintDecoys" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="32767" attributes="0"/>
-                                  <Component id="checkFilterNoProtxml" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                              </Group>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="checkReportWriteMzid" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
@@ -1687,15 +1701,17 @@
                               <Component id="textReportFilter" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="checkReportAbacus" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="checkFilterNoProtxml" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="checkReportPrintDecoys" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="checkFilterNoProtxml" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="checkReportWriteMzid" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="12" max="32767" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="checkPtmshepherd" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -1704,6 +1720,7 @@
                 <Component class="javax.swing.JTextField" name="textReportFilter">
                   <Properties>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;--pepxml path-to-pepxml --protxml path-to-combined-protxml&lt;br/&gt;&#xa;will be added automatically based on previous tabs.&lt;br/&gt;&#xa;&#xa;Statistical filtering, validation and False Discovery Rates assessment&lt;br/&gt;&#xa;philosopher filter [flags]&lt;br&gt;&#xa;Flags:&lt;br/&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;--ion float        peptide ion FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--mapmods          map modifications aquired by an open search&lt;/li&gt;&#xa;&lt;li&gt;--models           print model distribution&lt;/li&gt;&#xa;&lt;li&gt;--pep float        peptide FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--pepProb float    top peptide probability treshold for the FDR filtering (default 0.7)&lt;/li&gt;&#xa;&lt;li&gt;--pepxml string    pepXML file or directory containing a set of pepXML files&lt;/li&gt;&#xa;&lt;li&gt;--picked           apply the picked FDR algorithm before the protein scoring&lt;/li&gt;&#xa;&lt;li&gt;--prot float       protein FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--protProb float   protein probability treshold for the FDR filtering (not used with the razor algorithm) (default 0.5)&lt;/li&gt;&#xa;&lt;li&gt;--protxml string   protXML file path&lt;/li&gt;&#xa;&lt;li&gt;--psm float        psm FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--razor            use razor peptides for protein FDR scoring&lt;/li&gt;&#xa;&lt;li&gt;--sequential       alternative algorithm that estimates FDR using both filtered PSM and Protein lists&lt;/li&gt;&#xa;&lt;li&gt;--tag string       decoy tag (default &quot;rev_&quot;)&lt;/li&gt;&#xa;&lt;li&gt;--weight float     threshold for defining peptide uniqueness (default 1)&lt;/li&gt;&#xa;&lt;/ul&gt;"/>
+                    <Property name="name" type="java.lang.String" value="ui.name.report.text.filter" noResource="true"/>
                   </Properties>
                   <Events>
                     <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportFilterFocusGained"/>
@@ -1721,9 +1738,7 @@
                     </Property>
                     <Property name="text" type="java.lang.String" value="Multi-Experiment Report "/>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Philosopher abacus command"/>
-                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-                      <Insets value="[10, 0, 2, 2]"/>
-                    </Property>
+                    <Property name="name" type="java.lang.String" value="ui.name.report.check.multiexp" noResource="true"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkReportAbacusActionPerformed"/>
@@ -1741,6 +1756,7 @@
                     </Property>
                     <Property name="text" type="java.lang.String" value="Do not use ProteinProphet file"/>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Only to be used in rare cases.&lt;br/&gt;&#xa;Consider turning off Protein Prophet instead of using this checkbox."/>
+                    <Property name="name" type="java.lang.String" value="ui.name.report.check.dontuseprotprophfile" noResource="true"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkFilterNoProtxmlActionPerformed"/>
@@ -1752,6 +1768,7 @@
                       <Connection code="loadLastCheckReportPrintDecoys()" type="code"/>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Print decoys"/>
+                    <Property name="name" type="java.lang.String" value="ui.name.report.check.printdecoys" noResource="true"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkReportPrintDecoysActionPerformed"/>
@@ -1763,10 +1780,17 @@
                       <Connection code="loadLastReportWriteMzid()" type="code"/>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Write mzID output (experimental)"/>
+                    <Property name="name" type="java.lang.String" value="ui.name.report.check.mzid" noResource="true"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkReportWriteMzidActionPerformed"/>
                   </Events>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="checkPtmshepherd">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Generate PTM report with PTMShepherd"/>
+                    <Property name="name" type="java.lang.String" value="ui.name.report.check.ptmshepherd" noResource="true"/>
+                  </Properties>
                 </Component>
               </SubComponents>
             </Container>
@@ -1815,6 +1839,7 @@
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Generate Spectral Library from search results"/>
                     <Property name="enabled" type="boolean" value="false"/>
+                    <Property name="name" type="java.lang.String" value="ui.name.report.check.genspeclib" noResource="true"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkGenerateSpecLibActionPerformed"/>
@@ -1861,11 +1886,13 @@
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Label-free Quant"/>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Label free quantitation"/>
+                    <Property name="name" type="java.lang.String" value="ui.name.report.check.labelfree" noResource="true"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JTextField" name="textReportLabelfree">
                   <Properties>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Label free quantitation&lt;br/&gt;&#xa;Flags:&lt;br/&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;--ptw float    specify the time windows for the peak (minute) (default 0.4)&lt;/li&gt;&#xa;&lt;li&gt;--tol float    m/z tolerance in ppm (default 10)&lt;/li&gt;&#xa;&lt;/ul&gt;"/>
+                    <Property name="name" type="java.lang.String" value="ui.name.report.text.labelfree" noResource="true"/>
                   </Properties>
                   <Events>
                     <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportLabelfreeFocusGained"/>
