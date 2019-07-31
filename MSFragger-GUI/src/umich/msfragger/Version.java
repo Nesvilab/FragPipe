@@ -61,7 +61,8 @@ public class Version {
         "Thermo RAW files are enabled by default, but they do require Fragger with 'ext' "
             + "directory for libraries and additional binaries.",
         "Probable fix for changes to modification tables not always being propagated to config files "
-            + "if the user didn't leave the editing field."
+            + "if the user didn't leave the editing field.",
+        "Saving all the FragPipe options before run + buttons to Save/Load configurations."
         ));
 
     CHANGELOG.put("9.4", Arrays.asList("Fixes to MSFragger Split program for very large databases."));
