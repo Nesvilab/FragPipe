@@ -56,6 +56,14 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("10.0", Arrays.asList(
+        "Add PTMShepherd.",
+        "Thermo RAW files are enabled by default, but they do require Fragger with 'ext' "
+            + "directory for libraries and additional binaries.",
+        "Probable fix for changes to modification tables not always being propagated to config files "
+            + "if the user didn't leave the editing field."
+        ));
+
     CHANGELOG.put("9.4", Arrays.asList("Fixes to MSFragger Split program for very large databases."));
 
     CHANGELOG.put("9.3", Arrays.asList(
