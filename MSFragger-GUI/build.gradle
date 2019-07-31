@@ -101,29 +101,29 @@ launch4j {
 //}
 
 dependencies {
-    compile 'org.apache.httpcomponents:httpcore:4.4.11'
-    compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7')
-    compile 'commons-logging:commons-logging-api:1.1'
-    
-    compile 'org.apache.httpcomponents:httpmime:4.5.7'
-    compile 'org.apache.commons:commons-lang3:3.8.1'
-    //compile group: 'commons-io', name: 'commons-io', version: '2.6'
-    compile 'com.miglayout:miglayout-swing:5.2'
+    implementation 'org.apache.httpcomponents:httpcore:4.4.11'
+    implementation(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7')
+    implementation 'commons-logging:commons-logging-api:1.1'
 
-    compile ('io.reactivex:rxswing:0.27.0'){
+    implementation 'org.apache.httpcomponents:httpmime:4.5.7'
+    implementation 'org.apache.commons:commons-lang3:3.8.1'
+    //compile group: 'commons-io', name: 'commons-io', version: '2.6'
+    implementation 'com.miglayout:miglayout-swing:5.2'
+
+    implementation ('io.reactivex:rxswing:0.27.0'){
         exclude group: 'io.reactivex', module: 'rxjava'
     }
-    compile 'io.reactivex:rxjava:1.3.8'
+    implementation 'io.reactivex:rxjava:1.3.8'
 
-    compile 'org.greenrobot:eventbus:3.1.1'
-    compile 'org.jsoup:jsoup:1.11.3'
+    implementation 'org.greenrobot:eventbus:3.1.1'
+    implementation 'org.jsoup:jsoup:1.11.3'
 
     // logging
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
 
     // downloaded / precompiled jars
-    compile fileTree(dir: 'libs', include: '*.jar')
+    implementation fileTree(dir: 'libs', include: '*.jar')
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
@@ -141,29 +141,30 @@ capsule {
   }
 }
 
-task listJars {
+task listJars(group: 'chhh-help') {
     doLast {
-        configurations.compile.each { File file -> println file.name }
+        configurations.runtimeClasspath.each { File file -> println file.name }
     }
 }
 
-task depsCompile(type: DependencyReportTask, group: 'help', description: "Show only compile time dependencies") {
-    configurations = [project.configurations.compile] as Set
+task showImplDeps(type: DependencyReportTask, group: 'chhh-help',
+        description: "Show only implementation dependencies") {
+    configurations = [project.configurations.implementation] as Set
 }
 
-task releaseShadowJar(type: Copy, group: 'release') {
+task releaseShadowJar(type: Copy, group: 'chhh-release') {
     dependsOn 'shadowJar'
     from "$buildDir/libs/FragPipe-${project.version}.jar"
     into file("$buildDir/github-release")
 }
 
-task copyShadowScripts(type: Copy, group: 'release') {
+task copyShadowScripts(type: Copy, group: 'chhh-release') {
     dependsOn 'startShadowScripts'
     from "$buildDir/scriptsShadow"
     into file("$buildDir/pre-zip-release/bin")
 }
 
-task copyShadowJar(type: Copy, group: 'release') {
+task copyShadowJar(type: Copy, group: 'chhh-release') {
     dependsOn 'shadowJar'
     from "$buildDir/libs/FragPipe-${project.version}.jar"
     into file("$buildDir/pre-zip-release/lib")
@@ -177,7 +178,7 @@ task copyShadowJar(type: Copy, group: 'release') {
 //    from "$buildDir/libs/FragPipe-${project.version}.jar"
 //}
 
-task releaseZip(type: Zip, group: 'release') {
+task releaseZip(type: Zip, group: 'chhh-release') {
     dependsOn 'copyShadowJar'
     dependsOn 'copyShadowScripts'
     //dependsOn 'createStartScripts'
@@ -186,13 +187,13 @@ task releaseZip(type: Zip, group: 'release') {
     from "$buildDir/pre-zip-release"
 }
 
-task releaseWinExe(type: Copy, group: 'release') {
+task releaseWinExe(type: Copy, group: 'chhh-release') {
     dependsOn 'createExe'
     from "$buildDir/libs/FragPipe.exe"
     into file("$buildDir/github-release")
 }
 
-task prepareReleaseNoExe(group: 'release') {
+task prepareReleaseNoExe(group: 'chhh-release') {
     dependsOn 'clean'
     dependsOn 'releaseShadowJar'
     dependsOn 'releaseZip'
@@ -200,13 +201,13 @@ task prepareReleaseNoExe(group: 'release') {
     tasks.findByName('releaseZip').mustRunAfter 'releaseShadowJar'
 }
 
-task prepareReleaseWithExe(group: 'release') {
+task prepareReleaseWithExe(group: 'chhh-release') {
     dependsOn 'prepareReleaseNoExe'
     dependsOn 'releaseWinExe'
     tasks.findByName('releaseWinExe').mustRunAfter 'prepareReleaseNoExe'
 }
 
-task createStartScripts(type: CreateStartScripts, group: "release") {
+task createStartScripts(type: CreateStartScripts, group: "chhh-release") {
     outputDir = file('build/pre-zip-release')
     mainClassName = "${startClass}"
     applicationName = 'FragPipe'
