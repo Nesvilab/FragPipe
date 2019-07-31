@@ -37,6 +37,7 @@ import java.awt.event.WindowEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -117,6 +118,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
@@ -3870,11 +3872,22 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     Path path = wdPath.resolve("fragpipe" + "_" + timestamp + ".config");
     try {
       Files.deleteIfExists(path);
-
     } catch (IOException e) {
       log.error("Could not delete old fragpipe.config at: {}", path.toString());
     }
     EventBus.getDefault().post(new MessageSaveAllForms(path));
+
+
+    // print all the options
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try {
+      formWrite(baos);
+      LogUtils.println(console, "~~~~~~~~~ fragpipe.config ~~~~~~~~~");
+      LogUtils.println(console, baos.toString(Charsets.UTF_8.name()));
+      LogUtils.println(console, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    } catch (IOException e) {
+      log.error("Could not collect form text representation for printing to console");
+    }
 
     // run everything
     List<RunnableDescription> toRun = new ArrayList<>();
