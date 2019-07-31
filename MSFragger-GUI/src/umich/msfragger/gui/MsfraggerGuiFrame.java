@@ -138,6 +138,7 @@ import umich.msfragger.cmd.CmdPeptideProphet;
 import umich.msfragger.cmd.CmdPhilosopherWorkspaceClean;
 import umich.msfragger.cmd.CmdPhilosopherWorkspaceCleanInit;
 import umich.msfragger.cmd.CmdProteinProphet;
+import umich.msfragger.cmd.CmdPtmshepherd;
 import umich.msfragger.cmd.CmdReportAbacus;
 import umich.msfragger.cmd.CmdReportDbAnnotate;
 import umich.msfragger.cmd.CmdReportFilter;
@@ -489,6 +490,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         exec.submit(() -> method.invoke(this));
       }
     }
+
+    // TODO: This replaces the 'loadLast' mechanism.
+    // Force loading form caches
     EventBus.getDefault().post(new MessageLoadFormCaches());
 
     initActions();
@@ -4204,6 +4208,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         pbDescs.add(cmdReportAbacus.builders());
       }
     }
+
+    // run PTMShepherd
+    final CmdPtmshepherd cmdPtmshepherd = new CmdPtmshepherd(SwingUtils.isEnabledAndChecked(checkPtmshepherd), wd);
+    if (cmdPtmshepherd.isRun()) {
+      Path fastaPath = Paths.get(fastaFile);
+      int ramGb = fp.getRamGb();
+      if (!cmdPtmshepherd.configure(this, isDryRun, ramGb, fastaPath, mapGroupsToProtxml)) {
+        return false;
+      }
+      pbDescs.add(cmdPtmshepherd.builders());
+    }
+
 
     // run Spectral library generation
     final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(SwingUtils.isEnabledAndChecked(checkGenerateSpecLib), wd);
