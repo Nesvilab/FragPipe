@@ -100,7 +100,7 @@ public class CmdPtmshepherd extends CmdBase {
 
     // write config file
     Path pathConfig = wd.resolve(CONFIG_FN);
-    if (true || !isDryRun) {
+    if (!isDryRun) {
       log.debug("Writing {} config to file: {}", NAME, pathConfig.toString());
       try (BufferedWriter bw = Files
           .newBufferedWriter(pathConfig, Charsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.WRITE,

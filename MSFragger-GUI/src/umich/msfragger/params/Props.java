@@ -178,10 +178,6 @@ public class Props {
               propOrdering.add(BLANK_LINE_MARKER + (cnt++));
               continue;
             }
-
-            if (line.contains("mass_tol")) {
-                    int a = 1;
-                }
             
             // a comment line, but also can be a disabled option
             if (line.startsWith(COMMENT_SYMBOL)) {
