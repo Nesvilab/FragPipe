@@ -581,8 +581,9 @@ public class FraggerMigPanel extends JPanel {
           final int dbSlicing = uiSpinnerDbslice.getActualValue();
           if (selected && dbSlicing > 1) {
             JOptionPane.showMessageDialog(FraggerMigPanel.this,
-                "<html>DB Slicing is incompatible with <code>Localize delta mass</code> option.<br/>"
-                    + "Please either set it to 1, or uncheck <code>Localize delta mass</code>.",
+                "<html><code>DB Slicing<code> is incompatible with <code>Localize delta mass</code> option.<br/>"
+                    + "Please either set <code>DB Slicing<code> to 1, or uncheck <code>Localize delta mass</code> checkbox<br/>"
+                    + "at the end of this form.",
                 "Incompatible options", JOptionPane.WARNING_MESSAGE);
           }
         });

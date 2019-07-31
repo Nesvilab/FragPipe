@@ -16,21 +16,17 @@
  */
 package umich.msfragger.gui;
 
-import static umich.msfragger.params.fragger.FraggerMigPanel.CACHE_FORM;
 import static umich.msfragger.params.fragger.FraggerMigPanel.PROP_FILECHOOSER_LAST_PATH;
 
-import ch.qos.logback.classic.gaffer.PropertyUtil;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -38,6 +34,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -81,8 +79,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -156,8 +154,8 @@ import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
-import umich.msfragger.messages.MessageLoadFormCaches;
-import umich.msfragger.messages.MessageSaveFormCaches;
+import umich.msfragger.messages.MessageLoadAllForms;
+import umich.msfragger.messages.MessageSaveAllForms;
 import umich.msfragger.messages.MessageDbUpdate;
 import umich.msfragger.messages.MessageLastRunWorkDir;
 import umich.msfragger.messages.MessageAppendToConsole;
@@ -192,7 +190,6 @@ import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.umpire.UmpirePanel;
-import umich.msfragger.util.CacheUtils;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.GhostText;
@@ -299,6 +296,112 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     };
 
     panelRun.getActionMap().put(exportToTextFile.getValue(Action.NAME), exportToTextFile);
+  }
+
+
+  public static Path userShowLoadFileDialog(String title, FileNameExtensionFilter filter, Component owner) {
+    JFileChooser fc = new JFileChooser();
+    fc.setApproveButtonText("Load");
+    fc.setDialogTitle(title);
+    fc.setMultiSelectionEnabled(false);
+
+    fc.setAcceptAllFileFilterUsed(true);
+    if (filter != null) {
+      fc.setFileFilter(filter);
+    }
+
+    final String propName = ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN;
+    ThisAppProps.load(propName, fc);
+
+    Component parent = SwingUtils.findParentFrameForDialog(owner);
+    int saveResult = fc.showOpenDialog(parent);
+    if (JFileChooser.APPROVE_OPTION == saveResult) {
+      File selectedFile = fc.getSelectedFile();
+      Path path = Paths.get(selectedFile.getAbsolutePath());
+      ThisAppProps.save(propName, path.toString());
+      if (Files.exists(path)) {
+        return path;
+      } else {
+        JOptionPane.showMessageDialog(parent, "<html>This is strange,<br/> "
+                + "but the file you chose to load doesn't exist anymore.", "Strange",
+            JOptionPane.ERROR_MESSAGE);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * @param selectedFn can be null.
+   * @param owner can be null. Used for positioning the dialog on the screen.
+   */
+  public static Path userShowSaveFileDialog(String title, String selectedFn, Component owner) {
+    JFileChooser fc = new JFileChooser();
+    fc.setApproveButtonText("Save");
+    fc.setDialogTitle(title);
+    fc.setMultiSelectionEnabled(false);
+    SwingUtils.setFileChooserPath(fc, ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH));
+//    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+//    Date now = new Date();
+//    fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(now))));
+    if (selectedFn != null) {
+      fc.setSelectedFile(new File(selectedFn));
+    }
+    Component parent = SwingUtils.findParentFrameForDialog(owner);
+    int saveResult = fc.showSaveDialog(parent);
+
+    if (JFileChooser.APPROVE_OPTION != saveResult) {
+      return null;
+    }
+    File selectedFile = fc.getSelectedFile();
+    Path path = Paths.get(selectedFile.getAbsolutePath());
+    // if exists, overwrite
+    if (Files.exists(path)) {
+      int overwrite = JOptionPane
+          .showConfirmDialog(parent, "<html>File exists, overwrtie?<br/><br/>" + path.toString(), "Overwrite",
+              JOptionPane.OK_CANCEL_OPTION);
+      if (JOptionPane.OK_OPTION == overwrite) {
+        try {
+          Files.delete(path);
+        } catch (IOException ex) {
+          JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite",
+              JOptionPane.ERROR_MESSAGE);
+          return null;
+        }
+      }
+    }
+    // do something with the path
+    return path;
+  }
+
+
+  private void userSaveForms() {
+    Path p = userShowSaveFileDialog("Save all FragPipe parameters", "fragpipe.config", this);
+    if (p == null) {
+      return;
+    }
+    try {
+      formWrite(Files.newOutputStream(p));
+    } catch (IOException ex) {
+      JOptionPane.showMessageDialog(this, "<html>Could not save file: <br/>" + p.toString()
+              + "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+  }
+
+  private void userLoadForms() {
+     FileNameExtensionFilter filter = new FileNameExtensionFilter("Config/Properties",
+    "config", "properties", "params", "para", "conf", "txt");
+    Path p = userShowLoadFileDialog("Load all FragPipe parameters", filter, this);
+    if (p == null) {
+      return;
+    }
+    try {
+      formRead(Files.newInputStream(p));
+    } catch (IOException e) {
+      JOptionPane.showMessageDialog(this,
+              "<html>Could not load the saved file: <br/>" + e.getMessage(), "Error",
+              JOptionPane.ERROR_MESSAGE);
+    }
   }
 
   private void exportLogToFile() {
@@ -493,7 +596,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     // TODO: This replaces the 'loadLast' mechanism.
     // Force loading form caches
-    EventBus.getDefault().post(new MessageLoadFormCaches());
+    EventBus.getDefault().post(MessageLoadAllForms.forCaching());
 
     initActions();
   }
@@ -1082,6 +1185,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     btnExportLog = new javax.swing.JButton();
     btnOpenInExplorer = new javax.swing.JButton();
     btnPrintCommands = new javax.swing.JButton();
+    btnSaveAllToolsConfig = new javax.swing.JButton();
+    btnLoadAllToolsConfig = new javax.swing.JButton();
 
     jLabel2.setText("jLabel2");
 
@@ -2414,6 +2519,22 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
+    btnSaveAllToolsConfig.setText("Save All Tools Config");
+    btnSaveAllToolsConfig.setToolTipText("<html>Save parameters for the whole pipeline, including MSFragger,<br/>\nProtein and Peptide Prophets, Reports and all other to a file<br/>\nwhich can be loaded back using the `Load All Tools Config`<br/>\nbutton on the `Run` tab.<br/>\nDuring each run parameters are also saved to `fragpipe.config` file<br/>\nin the output directory.");
+    btnSaveAllToolsConfig.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btnSaveAllToolsConfigActionPerformed(evt);
+      }
+    });
+
+    btnLoadAllToolsConfig.setText("Load All Tools Config");
+    btnLoadAllToolsConfig.setToolTipText("<html>Load previously saved parameters for the whole pipeline.<br/>\nParameters can be saved using the `Save All Tools Config` button<br/>\non the `Run` tab.<br/>\nDuring each run parameters are also saved to `fragpipe.config` file<br/>\nin the output directory.");
+    btnLoadAllToolsConfig.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btnLoadAllToolsConfigActionPerformed(evt);
+      }
+    });
+
     javax.swing.GroupLayout panelRunLayout = new javax.swing.GroupLayout(panelRun);
     panelRun.setLayout(panelRunLayout);
     panelRunLayout.setHorizontalGroup(
@@ -2423,8 +2544,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addComponent(consoleScrollPane)
           .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRunLayout.createSequentialGroup()
-            .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-              .addGroup(panelRunLayout.createSequentialGroup()
+            .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+              .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRunLayout.createSequentialGroup()
                 .addComponent(btnRun, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnStop)
@@ -2436,12 +2557,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addComponent(btnExportLog)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnReportErrors))
-              .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelRunLayout.createSequentialGroup()
+              .addGroup(panelRunLayout.createSequentialGroup()
                 .addComponent(lblOutputDir)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtWorkingDir)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnSelectWrkingDir)))
+                .addComponent(btnSelectWrkingDir))
+              .addGroup(panelRunLayout.createSequentialGroup()
+                .addComponent(btnSaveAllToolsConfig)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnLoadAllToolsConfig)
+                .addGap(0, 0, Short.MAX_VALUE)))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
               .addComponent(btnClearConsole, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -2453,7 +2579,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(panelRunLayout.createSequentialGroup()
         .addContainerGap()
-        .addComponent(btnAbout)
+        .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(btnAbout)
+          .addComponent(btnSaveAllToolsConfig)
+          .addComponent(btnLoadAllToolsConfig))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(panelRunLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(lblOutputDir)
@@ -3319,6 +3448,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.clearCache();
     new MsfraggerParams().clearCache();
     new CrystalcParams().clearCache();
+    Path p = MessageSaveAllForms.forCaching().path;
+    try {
+      Files.deleteIfExists(p);
+    } catch (IOException e) {
+      log.error("Could not delete fragpipe form cache file: {}", p.toString());
+    }
   }//GEN-LAST:event_btnClearCacheActionPerformed
 
   private boolean validateAndSave(final JTextComponent comp, final String propName,
@@ -3380,93 +3515,106 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     return textSequenceDbPath.getText().trim();
   }
 
-  @Subscribe
-  public void saveFormCaches(MessageSaveFormCaches m) {
-
+  /**
+   * Collects all tabs' components that have names with values from the map.
+   */
+  private Map<String, String> formTo() {
     // getting tab names
-    Map<String, Integer> mapTabNameToIdx = new HashMap<>();
+    Map<Integer, String> mapTabNameToIdx = new HashMap<>();
     for (int i = 0, tabCount = tabPane.getTabCount(); i < tabCount; i++) {
-      mapTabNameToIdx.put(tabPane.getTitleAt(i), i);
+      mapTabNameToIdx.put(i, tabPane.getTitleAt(i));
     }
 
-//    Integer reportIdx = mapTabNameToIdx.get("Report");
-//    if (reportIdx == null) {
-//      log.warn("Couldn't get Report tab Component");
-//    } else {
-//
-//    }
-
-    BiConsumer<Component, Integer> consumer = (awtComp, i) -> {
-      if (awtComp instanceof Container) {
-        Container awtContainer = (Container)awtComp;
-        final Pattern re = Pattern.compile("ui\\.name\\..*");
-        Predicate<String> filter = re.asPredicate();
-        Map<String, String> map = SwingUtils.valuesToMap(awtContainer, filter);
-        if (map.isEmpty()) {
-          log.debug("No mapping for Tab #{}", i);
-        } else {
-          log.debug("Got mapping for Tab #{}: {}", i, map);
-          Properties mapAsProps = PropertiesUtils.from(map);
-
-          Path formCachePath = CacheUtils.getTempFile(FORMS_CACHE_FN);
-          if (Files.exists(formCachePath)) {
-            // we have an old file, merge properties
-            try {
-              Properties propsFromFile = PropertiesUtils.from(formCachePath);
-              mapAsProps = PropertiesUtils.merge(propsFromFile, mapAsProps);
-            } catch (IOException e) {
-              log.error("Could not load old properties", e);
-            }
-          }
-          log.debug("Saving forms cache to file: {}", formCachePath);
-          try {
-            mapAsProps.store(Files.newBufferedWriter(formCachePath), ThisAppProps.cacheComments());
-          } catch (IOException e) {
-            log.error("Could not save forms cache to file", e);
-          }
-        }
+    final Function<Component, Map<String, String>> compToMap = awtComponent -> {
+      if (!(awtComponent instanceof Container)) {
+        return Collections.emptyMap();
       }
+      Container awtContainer = (Container)awtComponent;
+//      final Pattern re = Pattern.compile("ui\\.name\\..*");
+//      Predicate<String> filter = re.asPredicate();
+      Predicate<String> filter = s -> true;
+      Map<String, String> map = SwingUtils.valuesToMap(awtContainer, filter);
+      return map;
     };
 
+    Map<String, String> whole = new HashMap<>();
     for (int i = 0; i < tabPane.getTabCount(); i++) {
       Component compAt = tabPane.getComponentAt(i);
-      consumer.accept(compAt, i);
-    }
-  }
-
-  final String FORMS_CACHE_FN = "fragpipe-forms" + ThisAppProps.TEMP_FILE_EXT;
-
-  @Subscribe
-  public void cacheLoad(MessageLoadFormCaches m) {
-    // load form as map first
-    {
-      Map<String, String> map = null;
-      try {
-        Path path = CacheUtils.locateTempFile(FORMS_CACHE_FN);
-        log.debug("Loading forms cache from  file: {}", path);
-        Properties propsFromFile = PropertiesUtils.from(path);
-        map = PropertiesUtils.to(propsFromFile);
-      } catch (FileNotFoundException ignored) {
-        // no form cache yet
-      } catch (IOException e) {
-        log.error("Could not load properties as map from cache file: {}", e);
+      final String tabname = mapTabNameToIdx.getOrDefault(i, "?");
+      Map<String, String> map = compToMap.apply(compAt);
+      final String badName = "Spinner.formattedTextField";
+      if (map.containsKey(badName)) {
+        map.remove(badName);
       }
+      if (map.isEmpty()) {
+        log.debug("No mapping for Tab #{} [{}]", i, tabname);
+      } else {
 
-      if (map != null) {
-        for (int i = 0; i < tabPane.getTabCount(); i++) {
-          Component compAt = tabPane.getComponentAt(i);
-          if (compAt instanceof Container) {
-            SwingUtils.valuesFromMap((Container)compAt, map);
-          }
+        log.debug("Got mapping for Tab #{} [{}]: {}", i, tabname, map);
+        for (Entry<String, String> e : map.entrySet()) {
+          whole.merge(e.getKey(), e.getValue(), (s1, s2) -> {
+            String msg = String.format("Duplicate ui-element key '%s' in tab [%s]", e.getKey(), tabname);
+            throw new IllegalStateException(msg);
+          });
         }
       }
     }
+    return whole;
+  }
 
+
+  /**
+   * Fills all tabs' components that have names with values from the map.
+   */
+  private void formFrom(Map<String, String> map) {
+    for (int i = 0; i < tabPane.getTabCount(); i++) {
+      Component compAt = tabPane.getComponentAt(i);
+      if (compAt instanceof Container) {
+        SwingUtils.valuesFromMap((Container)compAt, map);
+      }
+    }
+  }
+
+  public void formWrite(OutputStream os) throws IOException {
+    Map<String, String> map = formTo();
+    Properties props = PropertiesUtils.from(map);
+    try (BufferedOutputStream bos = new BufferedOutputStream(os)) {
+      props.store(bos, ThisAppProps.cacheComments());
+    }
+  }
+
+  public void formRead(InputStream is) throws IOException {
+    Properties props = new Properties();
+    try (BufferedInputStream bis = new BufferedInputStream(is)) {
+      props.load(bis);
+    }
+    Map<String, String> map = PropertiesUtils.to(props);
+    formFrom(map);
   }
 
   @Subscribe
-  public void onRun(MessageRun m) {
-    saveFormCaches(new MessageSaveFormCaches());
+  public void onMessageSaveFormCaches(MessageSaveAllForms m) {
+    log.debug("Writing form caches to: {}", m.path.toString());
+    try (OutputStream os = Files.newOutputStream(m.path)) {
+      formWrite(os);
+    } catch (IOException e) {
+      log.error("Could not write fragpipe form cache to: {}", m.path.toString());
+    }
+  }
+
+  @Subscribe
+  public void onMessageLoadFormCaches(MessageLoadAllForms m) {
+    log.debug("Loading form caches from: {}", m.path.toString());
+    try (InputStream is = Files.newInputStream(m.path)) {
+      formRead(is);
+    } catch (IOException e) {
+      log.error("Could not read fragpipe form cache from: {}", m.path.toString());
+    }
+  }
+
+  @Subscribe
+  public void onMessageRun(MessageRun m) {
+    EventBus.getDefault().post(MessageSaveAllForms.forCaching());
 
     final boolean isDryRun = m.isDryRun;
     saveWorkdirText();
@@ -3716,6 +3864,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
 
+    // save all the options
+    LocalDateTime time = LocalDateTime.now();
+    String timestamp = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+    Path path = wdPath.resolve("fragpipe" + "_" + timestamp + ".config");
+    try {
+      Files.deleteIfExists(path);
+
+    } catch (IOException e) {
+      log.error("Could not delete old fragpipe.config at: {}", path.toString());
+    }
+    EventBus.getDefault().post(new MessageSaveAllForms(path));
+
     // run everything
     List<RunnableDescription> toRun = new ArrayList<>();
     for (final ProcessBuilderInfo pbi : pbis) {
@@ -3853,7 +4013,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void onExternalProcessOutput(MessageExternalProcessOutput m) {
+  public void onMessageExternalProcessOutput(MessageExternalProcessOutput m) {
     if (m.output == null) {
       log.warn("MessageExternalProcessOutput with null text, this is a bug, report to devs");
       return;
@@ -3873,18 +4033,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void onAppendToConsole(MessageAppendToConsole m) {
+  public void onMessageAppendToConsole(MessageAppendToConsole m) {
     Color c = m.color == null ? COLOR_BLACK : m.color;
     LogUtils.print(c, console, true, m.text, true);
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
-  public void onLastRunWorkDir(MessageLastRunWorkDir m) {
+  public void onMessageLastRunWorkDir(MessageLastRunWorkDir m) {
     ThisAppProps.save(ThisAppProps.PROP_FILE_OUT, m.workDir.toAbsolutePath().toString());
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
-  public void onSaveLog(MessageSaveLog m) {
+  public void onMessageSaveLog(MessageSaveLog m) {
     final Path dir = m.workDir;
     final int numAttempts = 20;
     int attempt = 0;
@@ -5081,6 +5241,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }//GEN-LAST:event_btnDbDownloadActionPerformed
 
+  private void btnSaveAllToolsConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveAllToolsConfigActionPerformed
+    userSaveForms();
+  }//GEN-LAST:event_btnSaveAllToolsConfigActionPerformed
+
+  private void btnLoadAllToolsConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadAllToolsConfigActionPerformed
+    userLoadForms();
+  }//GEN-LAST:event_btnLoadAllToolsConfigActionPerformed
+
   @Subscribe
   public void databaseUpdate(MessageDbUpdate m) {
     validateAndSaveFastaPath(m.dbPath);
@@ -5813,6 +5981,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         @Override
         public void windowClosing(WindowEvent e) {
           EventBus.getDefault().post(new MessageSaveCache());
+          EventBus.getDefault().post(MessageSaveAllForms.forCaching());
         }
 
 
@@ -5822,21 +5991,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         String stacktrace = LogUtils.stacktrace(e);
 
         log.debug("Something unexpected happened (1)", e);
-        return;
+//        return;
 
-//        JPanel panel = new JPanel();
-//        panel.setLayout(new BorderLayout());
-//        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-//        panel.add(new JLabel("Something unexpected happened (1)"), BorderLayout.PAGE_START);
-//        JTextArea notesArea = new JTextArea(40, 80);
-//        notesArea.setText(stacktrace);
-//        JScrollPane notesScroller = new JScrollPane();
-//        notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
-//        notesScroller.setViewportView(notesArea);
-//        panel.add(notesScroller, BorderLayout.CENTER);
-//        //JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + notes, "Error", JOptionPane.ERROR_MESSAGE);
-//        //JOptionPane.showMessageDialog(frame, panel, "Error", JOptionPane.ERROR_MESSAGE);
-//        showDialog(frame, panel);
+        SwingUtils.userShowError(frame, stacktrace);
       });
 
       frame.setVisible(true);
@@ -5844,23 +6001,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       frame.setLocation(dim.width / 2 - frame.getSize().width / 2,
           dim.height / 2 - frame.getSize().height / 2);
     });
-  }
-
-  private static void showDialog(Component frame, final Component component) {
-    // wrap a scrollpane around the component
-    JScrollPane scrollPane = new JScrollPane(component);
-    // make the dialog resizable
-    component.addHierarchyListener(e -> {
-      Window window = SwingUtilities.getWindowAncestor(component);
-      if (window instanceof Dialog) {
-        Dialog dialog = (Dialog) window;
-        if (!dialog.isResizable()) {
-          dialog.setResizable(true);
-        }
-      }
-    });
-    // display them in a message dialog
-    JOptionPane.showMessageDialog(frame, scrollPane);
   }
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -5879,6 +6019,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JButton btnGroupsByParentDir;
   private javax.swing.JButton btnGroupsClear;
   private javax.swing.JButton btnGroupsConsecutive;
+  private javax.swing.JButton btnLoadAllToolsConfig;
   private javax.swing.JButton btnMsfraggerBinBrowse;
   private javax.swing.JButton btnMsfraggerBinDownload;
   private javax.swing.JButton btnMsfraggerUpdate;
@@ -5897,6 +6038,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JButton btnRawRemove;
   private javax.swing.JButton btnReportErrors;
   private javax.swing.JButton btnRun;
+  private javax.swing.JButton btnSaveAllToolsConfig;
   private javax.swing.JButton btnSelectWrkingDir;
   private javax.swing.JButton btnStop;
   private javax.swing.JButton btnTryDetectDecoyTag;

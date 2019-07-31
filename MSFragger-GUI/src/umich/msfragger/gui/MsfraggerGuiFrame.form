@@ -1927,8 +1927,8 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="consoleScrollPane" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Group type="102" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="102" alignment="1" attributes="0">
                                       <Component id="btnRun" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="btnStop" min="-2" max="-2" attributes="0"/>
@@ -1948,6 +1948,12 @@
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="btnSelectWrkingDir" min="-2" max="-2" attributes="0"/>
                                   </Group>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="btnSaveAllToolsConfig" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="btnLoadAllToolsConfig" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                  </Group>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
@@ -1965,7 +1971,11 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="btnAbout" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="btnAbout" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnSaveAllToolsConfig" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnLoadAllToolsConfig" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="lblOutputDir" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -2096,6 +2106,24 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPrintCommandsActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="btnSaveAllToolsConfig">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Save All Tools Config"/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Save parameters for the whole pipeline, including MSFragger,&lt;br/&gt;&#xa;Protein and Peptide Prophets, Reports and all other to a file&lt;br/&gt;&#xa;which can be loaded back using the `Load All Tools Config`&lt;br/&gt;&#xa;button on the `Run` tab.&lt;br/&gt;&#xa;During each run parameters are also saved to `fragpipe.config` file&lt;br/&gt;&#xa;in the output directory."/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSaveAllToolsConfigActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="btnLoadAllToolsConfig">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Load All Tools Config"/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Load previously saved parameters for the whole pipeline.&lt;br/&gt;&#xa;Parameters can be saved using the `Save All Tools Config` button&lt;br/&gt;&#xa;on the `Run` tab.&lt;br/&gt;&#xa;During each run parameters are also saved to `fragpipe.config` file&lt;br/&gt;&#xa;in the output directory."/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnLoadAllToolsConfigActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>

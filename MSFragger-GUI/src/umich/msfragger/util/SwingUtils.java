@@ -701,4 +701,37 @@ public class SwingUtils {
 
     return !headless;
   }
+
+  public static void userShowDialog(Component frame, final Component component) {
+    // wrap a scrollpane around the component
+    JScrollPane scrollPane = new JScrollPane(component);
+    // make the dialog resizable
+    component.addHierarchyListener(e -> {
+      Window window = SwingUtilities.getWindowAncestor(component);
+      if (window instanceof Dialog) {
+        Dialog dialog = (Dialog) window;
+        if (!dialog.isResizable()) {
+          dialog.setResizable(true);
+        }
+      }
+    });
+    // display them in a message dialog
+    JOptionPane.showMessageDialog(frame, scrollPane);
+  }
+
+  public static void userShowError(Component frame, String stacktrace) {
+    JPanel panel = new JPanel();
+    panel.setLayout(new BorderLayout());
+    panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    panel.add(new JLabel("Something unexpected happened (1)"), BorderLayout.PAGE_START);
+    JTextArea notesArea = new JTextArea(40, 80);
+    notesArea.setText(stacktrace);
+    JScrollPane notesScroller = new JScrollPane();
+    notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
+    notesScroller.setViewportView(notesArea);
+    panel.add(notesScroller, BorderLayout.CENTER);
+    //JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + notes, "Error", JOptionPane.ERROR_MESSAGE);
+    //JOptionPane.showMessageDialog(frame, panel, "Error", JOptionPane.ERROR_MESSAGE);
+    userShowDialog(frame, panel);
+  }
 }
