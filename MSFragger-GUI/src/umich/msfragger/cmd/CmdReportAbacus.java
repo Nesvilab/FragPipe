@@ -143,9 +143,9 @@ public class CmdReportAbacus extends CmdBase {
       cmd.add("--tag");
       cmd.add(decoyTag);
       cmd.add("--protein");
-      cmd.add(protxml.toString());
+      //cmd.add(protxml.toString()); // Commented out as newer Philosopher won't work
       cmd.add("--peptide");
-      cmd.add(pepxmlCombined);
+      //cmd.add(pepxmlCombined); // Commented out as newer Philosopher won't work
 
       // list locations with pepxml files
       for (Path pepxmlDir : outputDirsForProtxml) {

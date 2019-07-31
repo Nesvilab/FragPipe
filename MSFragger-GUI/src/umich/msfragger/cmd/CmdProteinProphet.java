@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -280,6 +281,9 @@ public class CmdProteinProphet extends CmdBase {
     if (!StringUtils.isNullOrWhitespace(cmdLineOpts)) {
       List<String> opts = StringUtils.splitCommandLine(cmdLineOpts);
       cmd.addAll(opts);
+    }
+    if (!cmd.contains("--output")) {
+      cmd.addAll(Arrays.asList("--output", "combined"));
     }
     return cmd;
   }

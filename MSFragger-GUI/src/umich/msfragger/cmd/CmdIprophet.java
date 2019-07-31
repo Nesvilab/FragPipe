@@ -34,9 +34,15 @@ public class CmdIprophet extends CmdBase {
     cmd.add(decoyTag);
     cmd.add("--nonsp");
     cmd.add("--output");
-    cmd.add("interact");
+    cmd.add("combined");
     cmd.add("--threads");
-    cmd.add(Integer.toString(nThreads));
+    final int threads;
+    if (nThreads > 0) {
+      threads = nThreads;
+    } else {
+      threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+    }
+    cmd.add(Integer.toString(threads));
     for (Path value : pepxmlFiles.values()) {
       cmd.add(value.toString());
     }
