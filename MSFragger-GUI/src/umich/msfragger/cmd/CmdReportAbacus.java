@@ -162,6 +162,6 @@ public class CmdReportAbacus extends CmdBase {
   }
 
   private String getCombinedPepFileName() {
-    return "interact.pep.xml";
+    return "combined.pep.xml";
   }
 }

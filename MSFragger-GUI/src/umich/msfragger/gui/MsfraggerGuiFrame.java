@@ -4248,17 +4248,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     // run Protein Prophet
     final boolean isProcessGroupsSeparately = checkProcessGroupsSeparately.isSelected();
     final boolean isRunProteinProphet = SwingUtils.isEnabledAndChecked(chkRunProteinProphet);
+    final boolean isMuiltiExperimentReport = SwingUtils.isEnabledAndChecked(checkReportAbacus);
     final CmdProteinProphet cmdProteinProphet = new CmdProteinProphet(isRunProteinProphet, wd);
     if (cmdProteinProphet.isRun()) {
       final String protProphCmdStr = txtProteinProphetCmdLineOpts.getText().trim();
       if (!cmdProteinProphet.configure(this,
-          usePhi, protProphCmdStr,
+          usePhi, protProphCmdStr, isMuiltiExperimentReport,
           isProcessGroupsSeparately, pepxmlFiles)) {
         return false;
       }
       pbDescs.add(cmdProteinProphet.builders());
     }
-    Map<LcmsFileGroup, Path> mapGroupsToProtxml = cmdProteinProphet.outputs(pepxmlFiles, isProcessGroupsSeparately);
+    Map<LcmsFileGroup, Path> mapGroupsToProtxml = cmdProteinProphet.outputs(pepxmlFiles, isProcessGroupsSeparately, isMuiltiExperimentReport);
 
 
     if (cmdPeptideProphet.isRun() || cmdProteinProphet.isRun()) {
@@ -4364,7 +4365,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
       // run Report - Multi-Experiment report
       final int nThreads = fraggerMigPanel.getThreads();
-      final CmdReportAbacus cmdReportAbacus = new CmdReportAbacus(SwingUtils.isEnabledAndChecked(checkReportAbacus), wd);
+      final CmdReportAbacus cmdReportAbacus = new CmdReportAbacus(isMuiltiExperimentReport, wd);
       if (cmdReportAbacus.isRun()) {
         // run iProphet, will run right after Peptide Prophet because of priority setting
         final CmdIprophet cmdIprophet = new CmdIprophet(cmdReportAbacus.isRun(), wd);
