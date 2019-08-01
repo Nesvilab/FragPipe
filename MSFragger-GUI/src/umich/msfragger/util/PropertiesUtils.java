@@ -63,16 +63,13 @@ public final class PropertiesUtils {
     }
 
     public static Properties initProperties(List<String> urls, String propFileName, Class<?> clazz) {
-        Properties props = PropertiesUtils
-            .fetchPropertiesFromRemote(urls);
-        if (props == null) {
-            log.debug("Did not get {} from any of remote sources", propFileName);
-            props = PropertiesUtils.loadPropertiesLocal(clazz, propFileName);
+        Properties propsLocal = PropertiesUtils.loadPropertiesLocal(clazz, propFileName);
+        Properties propsRemote = PropertiesUtils.fetchPropertiesFromRemote(urls);
+        if (propsRemote == null) {
+            log.info("Did not get {} from any of remote sources", propFileName);
         }
-        if (props == null) {
-            throw new IllegalStateException("Could not init properties object");
-        }
-        return props;
+
+        return PropertiesUtils.merge(propsLocal, propsRemote);
     }
 
     public static Properties initProperties(List<String> urls) {

@@ -36,11 +36,11 @@ public class PhilosopherProps {
     public static final String CMD_REPORT = "report";
     public static final String CMD_IPROPHET = "iprophet";
     public static final String CMD_LABELFREE = "freequant";
-    public static final String PROTEIN_PROPHET_OUTPUT_FILE = "interact.prot.xml";
 
     private static final String PROPERTIES_FILE_NAME = "philosopher.properties";
 
     public static final String PROP_LATEST_COMPATIBLE_VERSION = "philosopher.version.latest-compatible";
+    public static final String PROP_LOWEST_COMPATIBLE_VERSION = "philosopher.version.lowest-compatible";
     public static final String PROP_DOWNLOAD_URL = "philosopher.download.url";
 
     public static final List<String> PROPERTIES_URLS = Arrays.asList(

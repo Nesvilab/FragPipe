@@ -75,6 +75,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
@@ -156,19 +157,19 @@ import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
-import umich.msfragger.messages.MessageLoadAllForms;
-import umich.msfragger.messages.MessageSaveAllForms;
-import umich.msfragger.messages.MessageDbUpdate;
-import umich.msfragger.messages.MessageLastRunWorkDir;
 import umich.msfragger.messages.MessageAppendToConsole;
+import umich.msfragger.messages.MessageDbUpdate;
 import umich.msfragger.messages.MessageDecoyTag;
 import umich.msfragger.messages.MessageExternalProcessOutput;
 import umich.msfragger.messages.MessageIsUmpireRun;
 import umich.msfragger.messages.MessageKillAll;
+import umich.msfragger.messages.MessageLastRunWorkDir;
 import umich.msfragger.messages.MessageLcmsFilesAdded;
+import umich.msfragger.messages.MessageLoadAllForms;
 import umich.msfragger.messages.MessagePythonBinSelectedByUser;
 import umich.msfragger.messages.MessageReportEnablement;
 import umich.msfragger.messages.MessageRun;
+import umich.msfragger.messages.MessageSaveAllForms;
 import umich.msfragger.messages.MessageSaveCache;
 import umich.msfragger.messages.MessageSaveLog;
 import umich.msfragger.messages.MessageSearchType;
@@ -2975,6 +2976,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }).start();
   }
 
+  public static class PhiVersionValidation {
+
+  }
+
   private void validatePhilosopherVersion(final String binPath) {
     if (balloonPhilosopher != null) {
       balloonPhilosopher.closeBalloon();
@@ -2983,8 +2988,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final Pattern regexNewerVerFound = Pattern
         .compile("new version.*available.*?:\\s*(\\S+)", Pattern.CASE_INSENSITIVE);
     final Pattern regexVersion = Pattern
-        .compile("build\\s+and\\s+version.*?build.*?=(?<build>\\S+).*version.*?=(?<version>\\S+)",
+        .compile("build.*?=(?<build>\\S+).*version.*?=v?\\.?(?<version>\\S+)",
             Pattern.CASE_INSENSITIVE);
+    final Pattern regexOldPhiVer = Pattern.compile("\\d{6,}");
     final VersionComparator vc = new VersionComparator();
 
     // Check releases on github by running `philosopher version`.
@@ -2999,10 +3005,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
       boolean isNewVersionStringFound = false;
       String curVersionAndBuild = null;
-      String curVersion = null;
+      String curPhiVer = null;
 
       // get the vesrion reported by the current executable
-      String downloadLink = null;
+      String oldUnusedDownloadLink = null;
       try {
         Process pr = pb.start();
         BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
@@ -3011,12 +3017,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           Matcher m = regexNewerVerFound.matcher(line);
           if (m.find()) {
             isNewVersionStringFound = true;
-            downloadLink = m.group(1);
+            oldUnusedDownloadLink = m.group(1);
           }
           Matcher mVer = regexVersion.matcher(line);
           if (mVer.find()) {
             curVersionAndBuild = mVer.group("version") + " (build " + mVer.group("build") + ")";
-            curVersion = mVer.group("version");
+            curPhiVer = mVer.group("version");
+            log.debug("Detected philosopher version: {}", curPhiVer);
           }
         }
 
@@ -3026,43 +3033,72 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             "Philosopher version: %s. %s", philosopherVer, OsUtils.OsInfo()));
 
         int returnCode = pr.waitFor();
-
         JEditorPane ep = null;
-        if (isNewVersionStringFound) {
-          StringBuilder sb = new StringBuilder();
-          sb.append("Newer version of Philosopher available.<br>\n");
-          sb.append("<a href=\"").append(downloadLink).append("\">Click here</a> to download.<br>\n");
-          Properties props = PhilosopherProps.getProperties();
-          if (props != null) {
-            // if we have some philosopher properties (local or better remote)
-            // then check if this version is known to be compatible
-            String latestCompatible = props.getProperty(
-                PhilosopherProps.PROP_LATEST_COMPATIBLE_VERSION + "." + Version.version());
-            if (latestCompatible == null) {
+
+        String vCurMajor = Version.version().split("[-_]+")[0];
+        Properties props = PhilosopherProps.getProperties();
+        String propKeyStubMin = PhilosopherProps.PROP_LOWEST_COMPATIBLE_VERSION + "." + vCurMajor;
+        Optional<String> propKeyMin = props.stringPropertyNames().stream()
+            .filter(name -> name.startsWith(propKeyStubMin)).findFirst();
+        String minPhiVer = !propKeyMin.isPresent() ? null : props.getProperty(propKeyMin.get());
+        String propKeyStubMax = PhilosopherProps.PROP_LATEST_COMPATIBLE_VERSION + "." + vCurMajor;
+        Optional<String> propKeyMax = props.stringPropertyNames().stream()
+            .filter(name -> name.startsWith(propKeyStubMax)).findFirst();
+        String maxPhiVer = !propKeyMax.isPresent() ? null : props.getProperty(propKeyMax.get());
+
+        String link = PhilosopherProps.getProperties().getProperty(PhilosopherProps.PROP_DOWNLOAD_URL, "");
+
+        boolean isOldVersionScheme = curPhiVer != null && regexOldPhiVer.matcher(curPhiVer).find();
+        if (isOldVersionScheme)
+          log.debug("Old philosopher versioning scheme detected");
+
+        if (returnCode != 0 || isOldVersionScheme || curPhiVer == null) {
+          StringBuilder sb = new StringBuilder("This Philosopher version is no longer supported by FragPipe.<br/>\n");
+          if (minPhiVer != null)
+            sb.append("Minimum required version: ").append(minPhiVer).append("<br/>\n");
+          if (maxPhiVer != null)
+            sb.append("Latest known stable version: ").append(maxPhiVer).append("<br/>\n");
+          sb.append("Please <a href=\"").append(link).append("\">click here</a> to download a newer one.");
+          ep = SwingUtils.createClickableHtml(sb.toString());
+
+        } else {
+
+          if (minPhiVer != null && vc.compare(curPhiVer, minPhiVer) < 0) {
+            // doesn't meet min version requirement
+            StringBuilder sb = new StringBuilder("Philosopher version ")
+                .append(curPhiVer).append(" is no longer supported by FragPipe.<br/>\n");
+            if (minPhiVer != null)
+              sb.append("Minimum required version: ").append(minPhiVer).append("<br/>\n");
+            if (maxPhiVer != null)
+              sb.append("Latest known stable version: ").append(maxPhiVer).append("<br/>\n");
+            sb.append("Please <a href=\"").append(link).append("\">click here</a> to download a newer one.");
+            ep = SwingUtils.createClickableHtml(sb.toString());
+
+          } else if (isNewVersionStringFound) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Newer version of Philosopher available.<br/>\n");
+            sb.append("<a href=\"").append(link).append("\">Click here</a> to download.<br/>\n");
+
+            if (maxPhiVer == null) {
               sb.append(
                   "<br>\nHowever, we have not yet checked if it's fully compatible with this version of ")
                   .append(Version.PROGRAM_TITLE).append(".");
-            } else if (curVersion != null) {
-              int cmp = vc.compare(curVersion, latestCompatible);
+            } else if (curPhiVer != null) {
+              int cmp = vc.compare(curPhiVer, maxPhiVer);
               if (cmp == 0) {
                 sb.append(
                     "<br>\nHowever, <b>you currently have the latest known tested version</b>.");
               } else if (cmp < 0) {
-                sb.append("<br>\nThe latest known tested version is<br>\n"
-                    + "<b>Philosopher ").append(latestCompatible).append("</b>.<br/>\n");
+                sb.append("<br>\nThe latest known tested version is<br>\n")
+                    .append("<b>Philosopher ").append(maxPhiVer).append("</b>.<br/>\n");
                 sb.append(
                     "It is not recommended to upgrade to newer versions unless they are tested.");
               }
             }
+            ep = SwingUtils.createClickableHtml(sb.toString());
           }
-          ep = SwingUtils.createClickableHtml(sb.toString());
-
-        } else if (returnCode != 0) {
-          ep = SwingUtils.createClickableHtml(String.format(Locale.ROOT,
-              "Philosopher version too old and is no longer supported.<br>\n"
-                  + "Please <a href=\"%s\">click here</a> to download a newer one.",
-              PhilosopherProps.getProperties().getProperty(PhilosopherProps.PROP_DOWNLOAD_URL, "")));
         }
+
         if (ep != null) {
           if (balloonPhilosopher != null) {
             balloonPhilosopher.closeBalloon();
