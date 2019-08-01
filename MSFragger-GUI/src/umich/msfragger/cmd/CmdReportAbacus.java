@@ -90,8 +90,9 @@ public class CmdReportAbacus extends CmdBase {
     final long numGroups = mapGroupsToProtxml.keySet().stream()
         .map(group -> group.name).distinct().count();
     if (numGroups < 2) {
-      String msg = "Multi-experiment report requires more than one experiment/group.<br/>"
-          + "You can assign experiment/group names to LCMS files on the LCMS file selection tab.";
+      String msg = "<code>Multi-experiment report</code> requires more than one experiment/group.<br/>\n"
+          + "You can assign experiment/group names to LCMS files on the LCMS file selection tab.<br/>\n"
+          + "Alternatively, you can turn off <code>Multi-experiment report<code> checkbox on Report tab.<br/>\n";
       JEditorPane ep = SwingUtils.createClickableHtml(msg);
       SwingUtils.showDialog(comp, ep, "Multi-experiment report configuration error", JOptionPane.WARNING_MESSAGE);
       return false;

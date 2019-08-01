@@ -3946,11 +3946,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       btnStartPtr.setEnabled(true);
       btnStopPtr.setEnabled(false);
       String msg =
-          "=========================" +
-              "===" +
-              "===      Done" +
-              "===" +
-              "=========================";
+          "=========================\n" +
+              "===\n" +
+              "===      Done\n" +
+              "===\n" +
+              "=========================\n";
       EventBus.getDefault()
           .post(new MessageAppendToConsole(msg, MsfraggerGuiFrame.COLOR_RED_DARKEST));
       EventBus.getDefault().post(new MessageSaveLog(wdPath));
@@ -4478,7 +4478,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   private String getCombinedProtFn() {
-    return "interact.prot.xml";
+    return "combined.prot.xml";
   }
 
   private String getRegexMatch(Pattern re, String text, int groupNum) {

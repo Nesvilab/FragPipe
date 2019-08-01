@@ -39,7 +39,7 @@ public class CmdProteinProphet extends CmdBase {
 
   public static final String NAME = "ProteinProphet";
 
-  private static final String INTERACT_FN = "interact.prot.xml";
+  private static final String INTERACT_FN = "combined.prot.xml";
   private static final String COMBINED_FN = "combined.prot.xml";
 
   public CmdProteinProphet(boolean isRun, Path workDir) {
@@ -53,6 +53,7 @@ public class CmdProteinProphet extends CmdBase {
 
   /**
    * @return Mapping from Experiment/Group name to interact.prot.xml file location.
+   * 'interact' has been renamed to 'combined'.
    */
   public Map<LcmsFileGroup, Path> outputs(Map<InputLcmsFile, Path> pepxmlFiles,
       boolean isProcessGroupsSeparately, boolean isMultiExperimentReport) {
