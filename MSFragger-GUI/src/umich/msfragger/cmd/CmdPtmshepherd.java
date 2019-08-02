@@ -31,7 +31,8 @@ public class CmdPtmshepherd extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdPtmshepherd.class);
   public static final String NAME = "PTMShepherd";
   public static final String CONFIG_FN = "shepherd.config";
-  public static final String JAR_SHEPHERD_NAME = "PTMShepherd-20180820_2.jazz";
+  public static final String JAR_SHEPHERD_NAME = "ptmshepherd-0.1.2.jazz";
+//  public static final String JAR_SHEPHERD_NAME = "PTMShepherd-20180820_2.jazz";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_SHEPHERD_MAIN_CLASS = "edu.umich.andykong.ptmshepherd.PTMShepherd";
   public static final String JAR_COMMON_DEPS = "common-deps-1.0.3.jazz";
@@ -126,8 +127,7 @@ public class CmdPtmshepherd extends CmdBase {
     }
     cmd.add("-cp");
     List<String> toJoin = new ArrayList<>();
-    // TODO: uncomment when we use small Shepherd jar without dependencies
-    //toJoin.add(jarDeps.toAbsolutePath().normalize().toString());
+    toJoin.add(jarDeps.toAbsolutePath().normalize().toString()); // common jar dependencies
     toJoin.add(jarShepherd.toAbsolutePath().normalize().toString());
     final String sep = System.getProperties().getProperty("path.separator");
     final String classpath = org.apache.commons.lang3.StringUtils.join(toJoin, sep);
