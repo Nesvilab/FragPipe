@@ -24,7 +24,7 @@ public class CrystalcProps {
     /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
     public static final String JAR_MSADJUSTER_MAIN_CLASS = "Main";
     
-    public static final String JAR_CRYSTALC_NAME = "original-CrystalC-1.0.5.jazz";
+    public static final String JAR_CRYSTALC_NAME = "original-CrystalC-1.0.7.jazz";
     /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
     public static final String JAR_CRYSTALC_MAIN_CLASS = "Main";
     
