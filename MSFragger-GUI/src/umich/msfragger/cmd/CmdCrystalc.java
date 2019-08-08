@@ -31,7 +31,7 @@ public class CmdCrystalc extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdCrystalc.class);
 
   public static final String NAME = "Crystal-C";
-  public static final String JAR_GRPPR_NAME = "grppr-0.3.22.jazz";
+  public static final String JAR_GRPPR_NAME = "grppr-0.3.23.jazz";
   public static final String JAR_MSFTBX_NAME = "lib-msftbx-grpc-1.10.4.jazz";
   private static String[] JAR_DEPS = {JAR_MSFTBX_NAME, JAR_GRPPR_NAME};
 
