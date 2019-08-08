@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import umich.msfragger.params.Props;
 import umich.msfragger.params.AbstractParams;
 import umich.msfragger.util.PathUtils;
@@ -43,9 +45,9 @@ public class CrystalcParams extends AbstractParams {
     public static final String PROP_MassTol = "precursor_mass";
     public static final String PROP_PrecursorIsolationWindow = "precursor_isolation_window";
     public static final String PROP_UseAdjustedPrecursors = "UseAdjustedPrecursors";
-    
+
     public static final String CACHE_FILE = "crystalc.params";
-    
+
     public static Properties loadProperties() {
         return PropertiesUtils.loadPropertiesLocal(CrystalcParams.class, CACHE_FILE);
     }
@@ -68,29 +70,40 @@ public class CrystalcParams extends AbstractParams {
             throw new IllegalStateException("Could not load CrystalC deafult properties from jar");
         }
     }
-    
+
     public int getThread() {
         return getInt(PROP_Thread, "-1");
     }
-    
+
     public String getFasta() {
         return getString(PROP_Fasta, "");
     }
-    
+
     public String getRawDirectory() {
         return getString(PROP_RawDataDictionary, "");
     }
-    
+
     public String getOutputFolder() {
         return getString(PROP_OutputFolder, "");
     }
-    
+
     public String getRawFileExt() {
         return getString(PROP_RawFileExtension, "mzML");
     }
-    
+
     public int getMaxZ() {
-        return getInt(PROP_MaxZ, "6");
+        String val = getString(PROP_MaxZ, "1 6");
+        Pattern re = Pattern.compile("^\\d+$"); // old format, single number
+        if (re.matcher(val).matches()) {
+            val = "1 " + val;
+        }
+
+        Pattern re2 = Pattern.compile("^(\\d+)\\s+(\\d+)$");
+        Matcher m = re2.matcher(val);
+        if (!m.matches()) {
+            throw new IllegalStateException("CrystalC format for charge should be two numbers separated by whitespace.");
+        }
+        return Integer.parseInt(m.group(2));
     }
     
     public int getIsoNum() {
@@ -126,7 +139,7 @@ public class CrystalcParams extends AbstractParams {
     }
 
     public void setMaxZ(int z) {
-        setInt(PROP_MaxZ, z);
+        setString(PROP_MaxZ, String.format("%d %d", 1, z));
     }
 
     public void setIsoNum(int iso) {
