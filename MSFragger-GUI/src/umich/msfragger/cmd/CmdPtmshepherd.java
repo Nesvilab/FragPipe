@@ -5,25 +5,21 @@ import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.swing.JEditorPane;
+import java.util.stream.Stream;
 import javax.swing.JOptionPane;
 import org.apache.commons.codec.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.LcmsFileGroup;
-import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.params.crystalc.CrystalcProps;
 import umich.msfragger.params.ptmshepherd.PtmshepherdParams;
-import umich.msfragger.util.JarUtils;
-import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.SwingUtils;
 
 
@@ -35,7 +31,7 @@ public class CmdPtmshepherd extends CmdBase {
 //  public static final String JAR_SHEPHERD_NAME = "PTMShepherd-20180820_2.jazz";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_SHEPHERD_MAIN_CLASS = "edu.umich.andykong.ptmshepherd.PTMShepherd";
-  public static final String JAR_COMMON_DEPS = "common-deps-1.0.3.jazz";
+  public static final String[] JAR_DEPS = {"lib-msftbx-grpc-1.10.4.jazz"};
   public static final String FN_CAPTURE_STDOUT = "ptm-shepherd.log";
   public static final String FN_CAPTURE_STDERR = "ptm-shepherd.log";
 
@@ -70,22 +66,10 @@ public class CmdPtmshepherd extends CmdBase {
       }
     }
 
-    Path jarShepherd;
-    Path jarDeps;
-    try {
-      // common deps
-      jarDeps = JarUtils
-          .unpackFromJar(ToolingUtils.class, "/" + JAR_COMMON_DEPS,
-              ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
-      // Shepherd jar
-      jarShepherd = JarUtils.unpackFromJar(ToolingUtils.class, "/" + JAR_SHEPHERD_NAME,
-          ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
-
-    } catch (IOException | NullPointerException ex) {
-      log.error("Could not unpack Shepherd to temp dir", ex);
-      JOptionPane.showMessageDialog(comp,
-          "Could not unpack tools to a temporary directory.\n"
-              + "Disable Shepherd.", "Can't unpack", JOptionPane.ERROR_MESSAGE);
+    List<String> jars = Stream.concat(Arrays.stream(JAR_DEPS), Stream.of(JAR_SHEPHERD_NAME))
+        .collect(Collectors.toList());
+    final List<Path> unpacked = new ArrayList<>();
+    if (!unpackJars(jars, unpacked, NAME)) {
       return false;
     }
 
@@ -126,15 +110,7 @@ public class CmdPtmshepherd extends CmdBase {
       cmd.add("-Xmx" + ramGb + "G");
     }
     cmd.add("-cp");
-    List<String> toJoin = new ArrayList<>();
-    toJoin.add(jarDeps.toAbsolutePath().normalize().toString()); // common jar dependencies
-    toJoin.add(jarShepherd.toAbsolutePath().normalize().toString());
-    final String sep = System.getProperties().getProperty("path.separator");
-    final String classpath = org.apache.commons.lang3.StringUtils.join(toJoin, sep);
-    if (OsUtils.isWindows())
-      cmd.add("\"" + classpath + "\"");
-    else
-      cmd.add(classpath);
+    cmd.add(constructClasspathString(unpacked));
     cmd.add(JAR_SHEPHERD_MAIN_CLASS);
     cmd.add(pathConfig.toString());
     ProcessBuilder pb = new ProcessBuilder(cmd);

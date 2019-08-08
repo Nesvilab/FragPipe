@@ -6,29 +6,34 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.MsfraggerGuiFrame;
-import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
-import umich.msfragger.params.crystalc.CrystalcProps;
 import umich.msfragger.params.fragger.FraggerMigPanel;
-import umich.msfragger.util.JarUtils;
-import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.StringUtils;
 
 public class CmdCrystalc extends CmdBase {
+
+  public static final String JAR_CRYSTALC_NAME = "original-CrystalC-1.0.7.jazz";
+  /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
+  public static final String JAR_CRYSTALC_MAIN_CLASS = "crystalc.Run";
   private static final Logger log = LoggerFactory.getLogger(CmdCrystalc.class);
 
   public static final String NAME = "Crystal-C";
+  public static final String JAR_GRPPR_NAME = "grppr-0.3.22.jazz";
+  public static final String JAR_MSFTBX_NAME = "lib-msftbx-grpc-1.10.4.jazz";
+  private static String[] JAR_DEPS = {JAR_MSFTBX_NAME, JAR_GRPPR_NAME};
 
   public CmdCrystalc(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -44,12 +49,6 @@ public class CmdCrystalc extends CmdBase {
    * in the extension, so can't guess what the extension is.
    */
   private String getModifiedPepxmlFn(String pepxmlFn, String pepxmlExtFragger) {
-
-    //throw new NotImplementedException("TODO: this calc of filename doesn't work right, there are extra letters."); // TODO: Not implemented
-    // example
-    //[23:20:59.444] Executing command [PeptideProphet] from working dir: D:\Gygi_data\Subset\Test11\B
-    //$> C:\Users\nesvi\Desktop\MSFragger-20180316\philosopher_windows_amd64.exe peptideprophet --decoy rev_ --nonparam --expectscore --decoyprobs --masswidth 1000.0 --clevel -2 --database C:\Users\nesvi\Desktop\AATC\DIA-full\2017-12-09-td-up000005640.fasta b1931_293T_proteinID_11A_QE3_122212.p_c.pepXML
-
     int lastIndexOf = pepxmlFn.toLowerCase().lastIndexOf(pepxmlExtFragger.toLowerCase());
     if (lastIndexOf < 0) {
       throw new IllegalArgumentException("Pepxml file name must end with the extension from Fragger config");
@@ -84,23 +83,10 @@ public class CmdCrystalc extends CmdBase {
       return false;
     }
 
-    Path jarCystalc;
-    Path jarDeps;
-    try {
-      // common deps
-      jarDeps = JarUtils
-          .unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_COMMON_DEPS,
-              ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
-      // msadjuster jar
-      jarCystalc = JarUtils.unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_CRYSTALC_NAME,
-          ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
-
-    } catch (IOException | NullPointerException ex) {
-      log.error("Could not unpack Crystal-C to temp dir", ex);
-      JOptionPane.showMessageDialog(comp,
-          "Could not unpack tools to a temporary directory.\n"
-              + "Disable Crystal-C.",
-          "Can't unpack", JOptionPane.ERROR_MESSAGE);
+    List<String> jars = Stream.concat(Arrays.stream(JAR_DEPS), Stream.of(JAR_CRYSTALC_NAME))
+        .collect(Collectors.toList());
+    final List<Path> unpacked = new ArrayList<>();
+    if (!unpackJars(jars, unpacked, NAME)) {
       return false;
     }
 
@@ -168,16 +154,8 @@ public class CmdCrystalc extends CmdBase {
         cmd.add("-Xmx" + ramGb + "G");
       }
       cmd.add("-cp");
-      List<String> toJoin = new ArrayList<>();
-      toJoin.add(jarDeps.toAbsolutePath().normalize().toString());
-      toJoin.add(jarCystalc.toAbsolutePath().normalize().toString());
-      final String sep = System.getProperties().getProperty("path.separator");
-      final String classpath = org.apache.commons.lang3.StringUtils.join(toJoin, sep);
-      if (OsUtils.isWindows())
-        cmd.add("\"" + classpath + "\"");
-      else
-        cmd.add(classpath);
-      cmd.add(CrystalcProps.JAR_CRYSTALC_MAIN_CLASS);
+      cmd.add(constructClasspathString(unpacked));
+      cmd.add(JAR_CRYSTALC_MAIN_CLASS);
       cmd.add(ccParamsPath.toString());
       cmd.add(pepxml.toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);

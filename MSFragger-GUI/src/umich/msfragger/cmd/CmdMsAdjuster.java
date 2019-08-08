@@ -1,26 +1,27 @@
 package umich.msfragger.cmd;
 
 import java.awt.Component;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import javax.swing.JOptionPane;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import umich.msfragger.gui.InputLcmsFile;
-import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.params.crystalc.CrystalcProps;
 import umich.msfragger.params.fragger.FraggerMigPanel;
-import umich.msfragger.util.JarUtils;
-import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.StringUtils;
 
 public class CmdMsAdjuster extends CmdBase {
 
   public static final String NAME = "MsAdjuster";
+  public static final String JAR_MSADJUSTER_NAME = "original-MsAdjuster-1.0.3.jazz";
+  /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
+  public static final String JAR_MSADJUSTER_MAIN_CLASS = "Main";
   private int priority;
   private boolean isCleanup;
+  private static String[] JAR_DEPS = {CmdCrystalc.JAR_MSFTBX_NAME, CmdCrystalc.JAR_GRPPR_NAME};
 
   public CmdMsAdjuster(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -35,23 +36,11 @@ public class CmdMsAdjuster extends CmdBase {
       List<InputLcmsFile> lcmsFiles, boolean doCleanup, int priority) {
     pbs.clear();
     isCleanup = doCleanup;
-    Path jarMsadjusterPath;
-    Path jarDepsPath;
-    try {
-      // common deps
-      jarDepsPath = JarUtils
-          .unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_COMMON_DEPS,
-              ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
-      // msadjuster jar
-      jarMsadjusterPath = JarUtils
-          .unpackFromJar(ToolingUtils.class, "/" + CrystalcProps.JAR_MSADJUSTER_NAME,
-              ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
 
-    } catch (IOException | NullPointerException ex) {
-      JOptionPane.showMessageDialog(comp,
-          "Could not unpack tools to a temporary directory.\n"
-              + "Disable precursor mass adjustment in MSFragger tab.",
-          "Can't unpack", JOptionPane.ERROR_MESSAGE);
+    List<String> jars = Stream.concat(Arrays.stream(JAR_DEPS), Stream.of(JAR_MSADJUSTER_NAME))
+        .collect(Collectors.toList());
+    final List<Path> unpacked = new ArrayList<>();
+    if (!unpackJars(jars, unpacked, NAME)) {
       return false;
     }
 
@@ -67,22 +56,9 @@ public class CmdMsAdjuster extends CmdBase {
         if (ramGb > 0) {
           cmd.add("-Xmx" + ramGb + "G");
         }
-        if (jarDepsPath != null) {
-          cmd.add("-cp");
-          List<String> toJoin = new ArrayList<>();
-          toJoin.add(jarDepsPath.toString());
-          toJoin.add(jarMsadjusterPath.toString());
-          final String sep = System.getProperties().getProperty("path.separator");
-          final String classpath = org.apache.commons.lang3.StringUtils.join(toJoin, sep);
-          if (OsUtils.isWindows())
-            cmd.add("\"" + classpath + "\"");
-          else
-            cmd.add(classpath);
-          cmd.add(CrystalcProps.JAR_MSADJUSTER_MAIN_CLASS);
-        } else {
-          cmd.add("-jar");
-          cmd.add(jarMsadjusterPath.toAbsolutePath().normalize().toString());
-        }
+        cmd.add("-cp");
+        cmd.add(constructClasspathString(unpacked));
+        cmd.add(JAR_MSADJUSTER_MAIN_CLASS);
         cmd.add("20");
         cmd.add(f.path.toString());
 
