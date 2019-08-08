@@ -31,15 +31,17 @@ import umich.msfragger.util.PropertiesUtils;
  */
 public class CrystalcParams extends AbstractParams {
     
-    public static final String PROP_Thread = "Thread";
-    public static final String PROP_Fasta = "Fasta";
-    public static final String PROP_RawDataDictionary = "RawDataDictionary";
-    public static final String PROP_OutputFolder = "OutputFolder";
-    public static final String PROP_RawFileExtension = "RawFileExtension";
-    public static final String PROP_MaxZ = "MaxZ";
-    public static final String PROP_IsoNum = "IsoNum";
-    public static final String PROP_MassTol = "MassTol";
-    public static final String PROP_PrecursorIsolationWindow = "PrecursorIsolationWindow";
+    public static final String PROP_Thread = "thread";
+    public static final String PROP_Fasta = "fasta";
+    public static final String PROP_RawDataDictionary = "raw_file_location";
+    public static final String PROP_OutputFolder = "output_location";
+    public static final String PROP_RawFileExtension = "raw_file_extension";
+    // precursor charge range for detecting chimeric spectra
+    public static final String PROP_MaxZ = "precursor_charge";
+    public static final String PROP_IsoNum = "isotope_number";
+    // precursor mass tolerance (unit: ppm)
+    public static final String PROP_MassTol = "precursor_mass";
+    public static final String PROP_PrecursorIsolationWindow = "precursor_isolation_window";
     public static final String PROP_UseAdjustedPrecursors = "UseAdjustedPrecursors";
     
     public static final String CACHE_FILE = "crystalc.params";
