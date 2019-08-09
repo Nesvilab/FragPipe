@@ -3664,17 +3664,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         || chkRunProteinProphet.isSelected()
         || checkCreateReport.isSelected();
 
-    if (!doRunFragger
-        && !isRunUmpireSe()
-        && !chkRunPeptideProphet.isSelected()
-        && !chkRunProteinProphet.isSelected()
-        && !checkCreateReport.isSelected()) {
-      JOptionPane.showMessageDialog(this, "Nothing to run.\n"
-              + "Please mark checkboxes in other tabs to run processing tools.", "Error",
-          JOptionPane.WARNING_MESSAGE);
-      resetRunButtons(true);
-      return;
-    }
+//    if (!doRunFragger
+//        && !isRunUmpireSe()
+//        && !chkRunPeptideProphet.isSelected()
+//        && !chkRunProteinProphet.isSelected()
+//        && !checkCreateReport.isSelected()) {
+//      JOptionPane.showMessageDialog(this, "Nothing to run.\n"
+//              + "Please mark checkboxes in other tabs to run processing tools.", "Error",
+//          JOptionPane.WARNING_MESSAGE);
+//      resetRunButtons(true);
+//      return;
+//    }
 
     // check for TSV output when any other downstream tools are requested
     if (doRunFragger && doRunProphetsAndReport) {
