@@ -27,7 +27,7 @@ public class CmdIprophet extends CmdBase {
 
     pbs.clear();
 
-    List<String> cmd = new ArrayList<>();
+    final List<String> cmd = new ArrayList<>();
     cmd.add(usePhilosopher.useBin());
     cmd.add(PhilosopherProps.CMD_IPROPHET);
     cmd.add("--decoy");
@@ -43,9 +43,7 @@ public class CmdIprophet extends CmdBase {
       threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     }
     cmd.add(Integer.toString(threads));
-    for (Path value : pepxmlFiles.values()) {
-      cmd.add(value.toString());
-    }
+    pepxmlFiles.values().stream().distinct().forEach(pepxml -> cmd.add(pepxml.toString()));
 
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(wd.toFile());
