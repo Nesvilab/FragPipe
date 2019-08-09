@@ -208,11 +208,11 @@ public class PtmshepherdPanel extends JPanel {
 
       UiSpinnerInt uiSpinnerSpecCondPeaks = new UiSpinnerInt(100, 0, 1000000, 20);
       uiSpinnerSpecCondPeaks.setColumns(5);
-      FormEntry feSpecCondPeaks = new FormEntry(PROP_peakpicking_topN, "spectra_condPeaks", uiSpinnerSpecCondPeaks);
+      FormEntry feSpecCondPeaks = new FormEntry(PROP_spectra_condPeaks, "spectra_condPeaks", uiSpinnerSpecCondPeaks);
 
       UiSpinnerDouble uiSpinnerSpecCondRatio = UiSpinnerDouble.builder(0.01, 0.001, 1e6, 0.01)
           .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
-      FormEntry feSpecCondRatio = new FormEntry(PROP_precursor_tol_ppm, "spectra_condRatio", uiSpinnerSpecCondRatio);
+      FormEntry feSpecCondRatio = new FormEntry(PROP_spectra_condRatio, "spectra_condRatio", uiSpinnerSpecCondRatio);
 
       pPeakPicking.add(feSpecPpmTol.label(), new CC().alignX("right"));
       pPeakPicking.add(feSpecPpmTol.comp, new CC());
@@ -257,6 +257,10 @@ public class PtmshepherdPanel extends JPanel {
 
   public boolean isRunShepherd() {
     return checkRun.isEnabled() && checkRun.isSelected();
+  }
+
+  public Map<String, String> toMap() {
+    return SwingUtils.valuesToMap(this, (name) -> !name.startsWith("Spinner.formattedTextField"));
   }
 
 }

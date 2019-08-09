@@ -1,6 +1,7 @@
 package umich.msfragger.params.ptmshepherd;
 
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,11 +24,17 @@ public class PtmshepherdParams {
   private Path workDir;
   private Path db;
   private Map<LcmsFileGroup, Path> groups;
+  private Map<String, String> props;
 
   public PtmshepherdParams(Path workDir, Path db, Map<LcmsFileGroup, Path> groups) {
     this.workDir = workDir;
     this.db = db;
     this.groups = groups;
+  }
+
+  public PtmshepherdParams(Path workDir, Path db, Map<LcmsFileGroup, Path> groups, Map<String, String> additionalProperties) {
+    this(workDir, db, groups);
+    props = additionalProperties;
   }
 
   public String createConfig() {
@@ -51,6 +58,14 @@ public class PtmshepherdParams {
           .append(psmTsv.toString()).append(" ")
           .append(lcmsFilesDir.toString()).append("\n");
     }
+
+    if (props != null && !props.isEmpty()) {
+      sb.append("\n");
+      props.entrySet().stream().sorted(Comparator.comparing(Entry::getKey)).forEach(e -> {
+        sb.append(e.getKey()).append(" = ").append(e.getValue()).append("\n");
+      });
+    }
+
     return sb.toString();
   }
 }

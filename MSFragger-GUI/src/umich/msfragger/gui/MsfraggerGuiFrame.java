@@ -4419,7 +4419,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (cmdPtmshepherd.isRun()) {
       Path fastaPath = Paths.get(fastaFile);
       int ramGb = fp.getRamGb();
-      if (!cmdPtmshepherd.configure(this, isDryRun, ramGb, fastaPath, mapGroupsToProtxml)) {
+      int threads = fp.getThreads();
+      Map<String, String> additionalShepherdParams = ptmshepherdPanel.toMap();
+      if (threads > 0) {
+        additionalShepherdParams.put("threads", Integer.toString(threads));
+      }
+      if (!cmdPtmshepherd.configure(this, isDryRun, ramGb, fastaPath, mapGroupsToProtxml, additionalShepherdParams)) {
         return false;
       }
       pbDescs.add(cmdPtmshepherd.builders());
