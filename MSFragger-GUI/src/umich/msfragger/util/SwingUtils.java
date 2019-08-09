@@ -65,6 +65,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -347,7 +348,7 @@ public class SwingUtils {
 
   /**
    * Sets values for components in a {@link Container}. Components must 1) have their name set,
-   * 2) be {@link StringRepresentable}.
+   * 2) be either {@link StringRepresentable} or 3) {@link JCheckBox}, {@link JTextComponent}.
    */
   public static void valuesFromMap(Container origin, Map<String, String> map) {
     Map<String, Component> comps = SwingUtils.mapComponentsByName(origin, true);
@@ -501,6 +502,7 @@ public class SwingUtils {
         }
       }
     });
+    scrollPane.setBorder(new EmptyBorder(10, 10, 10, 10));
     return scrollPane;
   }
 

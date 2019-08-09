@@ -12,6 +12,7 @@ import umich.msfragger.util.StringUtils;
 
 public class PtmshepherdParams {
   private static final Logger log = LoggerFactory.getLogger(PtmshepherdParams.class);
+  public static final String DEFAULT_PROPERTIES_FN = "shepherd.properties";
   public static final String PROP_DATABASE = "database";
   /**
    * Dataset string format is `dataset = (set-name) (path-to-psm.tsv) (path-to-mzml-folder)`

@@ -26,7 +26,7 @@ import umich.msfragger.util.SwingUtils;
 public class CmdPtmshepherd extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdPtmshepherd.class);
   public static final String NAME = "PTMShepherd";
-  public static final String CONFIG_FN = "shepherd.config";
+  public static final String CONFIG_FN = "shepherd.properties";
   public static final String JAR_SHEPHERD_NAME = "ptmshepherd-0.1.4.jazz";
 //  public static final String JAR_SHEPHERD_NAME = "PTMShepherd-20180820_2.jazz";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
