@@ -1,6 +1,7 @@
 package umich.msfragger.params.ptmshepherd;
 
 import com.github.chhh.utils.swing.UiSpinnerDouble;
+import com.github.chhh.utils.swing.UiSpinnerDouble.UiSpinnerDoubleBuilder;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -105,7 +106,8 @@ public class PtmshepherdPanel extends JPanel {
 
     // Top panel with run checkbox
     {
-      pTop = new JPanel(new MigLayout(new LC()));
+      // setting the insets allows the top panel to be shifted left of the options panel
+      pTop = new JPanel(new MigLayout(new LC().insetsAll("0px")));
       checkRun = new JCheckBox("Run PTMShepherd", true);
       checkRun.addActionListener(e -> {
         final boolean isSelected = checkRun.isSelected();
@@ -113,16 +115,18 @@ public class PtmshepherdPanel extends JPanel {
         updateEnabledStatus(pContent, isSelected);
       });
       pTop.add(checkRun, new CC().alignX("left"));
-      JButton btnLoadDefaults = new JButton("Load deafaults");
+      JButton btnLoadDefaults = new JButton("Load PTMShepherd deafaults");
       btnLoadDefaults.addActionListener((e) -> EventBus.getDefault().post(new MessageLoadShepherdDefaults(true)));
       pTop.add(btnLoadDefaults, new CC().alignX("left"));
 
+      pTop.setBorder(new EmptyBorder(0,0,0,0));
       this.add(pTop, BorderLayout.NORTH);
     }
 
     // Main content panel - container
     {
       pContent = new JPanel(new MigLayout(new LC().fillX()));
+      pContent.setBorder(new EmptyBorder(0,0,0,0));
 
       // when "Run Report" checkbox is switched, this panel can decide not to turn on,
       // if "Run Shepherd" checkbox is off
@@ -148,9 +152,9 @@ public class PtmshepherdPanel extends JPanel {
       pPeakPicking.setBorder(new TitledBorder("PTMShepherd options"));
 
       // precursor mass tolerance
-      FormEntry feHistoBinDivs = new FormEntry(PROP_histo_bindivs, PROP_histo_bindivs,
+      FormEntry feHistoBinDivs = new FormEntry(PROP_histo_bindivs, "Histogram bins",
           new UiSpinnerInt(5000, 10, 1000000, 100, 5));
-      FormEntry feHistoSmoothBins = new FormEntry(PROP_histo_smoothbins, PROP_histo_smoothbins,
+      FormEntry feHistoSmoothBins = new FormEntry(PROP_histo_smoothbins, "Histogram bin smoothing",
           new UiSpinnerInt(3, 0, 1000000, 1, 5));
 
       pPeakPicking.add(feHistoBinDivs.label(), new CC().alignX("right"));
@@ -158,32 +162,64 @@ public class PtmshepherdPanel extends JPanel {
       pPeakPicking.add(feHistoSmoothBins.label(), new CC().alignX("right"));
       pPeakPicking.add(feHistoSmoothBins.comp, new CC().wrap());
 
-      UiSpinnerDouble uiSpinnerPromRatio = new UiSpinnerDouble(0.3, 0.0, 1e6, 0.1, new DecimalFormat("0.#"));
-      uiSpinnerPromRatio.setColumns(5);
-      FormEntry fePromRatio = new FormEntry(PROP_peakpicking_promRatio, PROP_peakpicking_promRatio, uiSpinnerPromRatio);
+      UiSpinnerDouble uiSpinnerPromRatio = UiSpinnerDouble.builder(0.3,0.0,1e6, 0.1)
+          .setFormat(new DecimalFormat("0.#")).setNumCols(5).create();
+      FormEntry fePromRatio = new FormEntry(PROP_peakpicking_promRatio, "Peak-picking prominence ratio", uiSpinnerPromRatio);
 
-      UiSpinnerDouble uiSpinnerWidth = new UiSpinnerDouble(0.002, 0.0, 1e6, 0.001, new DecimalFormat("0.####"));
-      uiSpinnerWidth.setColumns(5);
-      FormEntry feWidth = new FormEntry(PROP_peakpicking_width, PROP_peakpicking_width, uiSpinnerWidth);
+      UiSpinnerDouble uiSpinnerWidth = UiSpinnerDouble.builder(0.002, 0.0, 1e6, 0.001)
+          .setFormat(new DecimalFormat("0.####")).setNumCols(5).create();
+      FormEntry feWidth = new FormEntry(PROP_peakpicking_width, "Peak-picking width", uiSpinnerWidth);
 
       pPeakPicking.add(fePromRatio.label(), new CC().alignX("right"));
       pPeakPicking.add(fePromRatio.comp, new CC());
       pPeakPicking.add(feWidth.label(), new CC().alignX("right"));
       pPeakPicking.add(feWidth.comp, new CC().wrap());
 
-      UiSpinnerDouble uiSpinnerBackground = new UiSpinnerDouble(0.005, 0.0, 1e6, 0.001, new DecimalFormat("0.####"));
-      uiSpinnerBackground.setColumns(5);
-      FormEntry feBackground = new FormEntry(PROP_peakpicking_background, PROP_peakpicking_background, uiSpinnerBackground);
+      UiSpinnerDouble uiSpinnerBackground = UiSpinnerDouble.builder(0.005, 0.0, 1e6, 0.001)
+          .setFormat(new DecimalFormat("0.####")).setNumCols(5).create();
+      FormEntry feBackground = new FormEntry(PROP_peakpicking_background, "Peak-picking background", uiSpinnerBackground);
 
       UiSpinnerInt uiSpinnerTopN = new UiSpinnerInt(500, 1, 1000000, 50);
       uiSpinnerTopN.setColumns(5);
-      FormEntry feTopN = new FormEntry(PROP_peakpicking_topN, PROP_peakpicking_topN, uiSpinnerTopN);
+      FormEntry feTopN = new FormEntry(PROP_peakpicking_topN, "Peak-picking Top-N", uiSpinnerTopN);
 
       pPeakPicking.add(feBackground.label(), new CC().alignX("right"));
       pPeakPicking.add(feBackground.comp, new CC());
       pPeakPicking.add(feTopN.label(), new CC().alignX("right"));
       pPeakPicking.add(feTopN.comp, new CC().wrap());
 
+      UiSpinnerDouble uiSpinnerPrecTol = UiSpinnerDouble.builder(0.01, 0.001, 1e6, 0.01)
+          .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
+      uiSpinnerPrecTol.setColumns(5);
+      FormEntry fePrecTol = new FormEntry(PROP_precursor_tol, "Precursor tolerance", uiSpinnerPrecTol);
+
+      UiSpinnerDouble uiSpinnerPrecTolPpm = UiSpinnerDouble.builder(20.0, 0.001, 1e6, 1.0)
+          .setFormat(new DecimalFormat("0.#")).setNumCols(5).create();
+      FormEntry fePrecTolPpm = new FormEntry(PROP_precursor_tol_ppm, "Precursor tolerance ppm", uiSpinnerPrecTolPpm);
+
+      pPeakPicking.add(fePrecTol.label(), new CC().alignX("right"));
+      pPeakPicking.add(fePrecTol.comp, new CC());
+      pPeakPicking.add(fePrecTolPpm.label(), new CC().alignX("right"));
+      pPeakPicking.add(fePrecTolPpm.comp, new CC().wrap());
+
+      UiSpinnerDouble uiSpinnerSpecPpmTol = UiSpinnerDouble.builder(20.0, 0.001, 1e6, 1.0)
+          .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
+      FormEntry feSpecPpmTol = new FormEntry(PROP_spectra_ppmtol, "Spectrum ppm tolerance", uiSpinnerSpecPpmTol);
+
+      UiSpinnerInt uiSpinnerSpecCondPeaks = new UiSpinnerInt(100, 0, 1000000, 20);
+      uiSpinnerSpecCondPeaks.setColumns(5);
+      FormEntry feSpecCondPeaks = new FormEntry(PROP_peakpicking_topN, "spectra_condPeaks", uiSpinnerSpecCondPeaks);
+
+      UiSpinnerDouble uiSpinnerSpecCondRatio = UiSpinnerDouble.builder(0.01, 0.001, 1e6, 0.01)
+          .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
+      FormEntry feSpecCondRatio = new FormEntry(PROP_precursor_tol_ppm, "spectra_condRatio", uiSpinnerSpecCondRatio);
+
+      pPeakPicking.add(feSpecPpmTol.label(), new CC().alignX("right"));
+      pPeakPicking.add(feSpecPpmTol.comp, new CC());
+      pPeakPicking.add(feSpecCondPeaks.label(), new CC().alignX("right"));
+      pPeakPicking.add(feSpecCondPeaks.comp, new CC().wrap());
+      pPeakPicking.add(feSpecCondRatio.label(), new CC().alignX("right"));
+      pPeakPicking.add(feSpecCondRatio.comp, new CC().wrap());
 
 
       pContent.add(pPeakPicking, new CC().wrap().growX());
@@ -219,5 +255,8 @@ public class PtmshepherdPanel extends JPanel {
     });
   }
 
+  public boolean isRunShepherd() {
+    return checkRun.isEnabled() && checkRun.isSelected();
+  }
 
 }

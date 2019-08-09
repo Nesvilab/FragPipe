@@ -1167,8 +1167,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     checkFilterNoProtxml = new javax.swing.JCheckBox();
     checkReportPrintDecoys = new javax.swing.JCheckBox();
     checkReportWriteMzid = new javax.swing.JCheckBox();
-    checkPtmshepherd = new javax.swing.JCheckBox();
-    ptmshepherdPanel1 = new umich.msfragger.params.ptmshepherd.PtmshepherdPanel();
+    ptmshepherdPanel = new umich.msfragger.params.ptmshepherd.PtmshepherdPanel();
     checkCreateReport = new javax.swing.JCheckBox();
     panelSpecLibOpts = new javax.swing.JPanel();
     checkGenerateSpecLib = new javax.swing.JCheckBox();
@@ -2276,9 +2275,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    checkPtmshepherd.setText("Generate PTM report with PTMShepherd");
-    checkPtmshepherd.setName("ui.name.report.check.ptmshepherd"); // NOI18N
-
     javax.swing.GroupLayout panelReportOptionsLayout = new javax.swing.GroupLayout(panelReportOptions);
     panelReportOptions.setLayout(panelReportOptionsLayout);
     panelReportOptionsLayout.setHorizontalGroup(
@@ -2290,22 +2286,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addComponent(jLabel1)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(textReportFilter))
-          .addGroup(panelReportOptionsLayout.createSequentialGroup()
-            .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-              .addGroup(panelReportOptionsLayout.createSequentialGroup()
+          .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReportOptionsLayout.createSequentialGroup()
+            .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+              .addComponent(ptmshepherdPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelReportOptionsLayout.createSequentialGroup()
                 .addComponent(checkReportWriteMzid)
                 .addGap(0, 0, Short.MAX_VALUE))
-              .addGroup(panelReportOptionsLayout.createSequentialGroup()
+              .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelReportOptionsLayout.createSequentialGroup()
                 .addComponent(checkReportAbacus)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 205, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 201, Short.MAX_VALUE)
                 .addComponent(checkReportPrintDecoys)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkFilterNoProtxml)))
-            .addContainerGap())
-          .addGroup(panelReportOptionsLayout.createSequentialGroup()
-            .addComponent(checkPtmshepherd)
-            .addGap(0, 0, Short.MAX_VALUE))
-          .addComponent(ptmshepherdPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+            .addContainerGap())))
     );
     panelReportOptionsLayout.setVerticalGroup(
       panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2320,11 +2313,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(checkFilterNoProtxml))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addComponent(checkReportWriteMzid)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-        .addComponent(checkPtmshepherd)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(ptmshepherdPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        .addComponent(ptmshepherdPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
     );
 
     loadLastReportFilter();
@@ -2438,7 +2428,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(228, Short.MAX_VALUE))
+        .addContainerGap(265, Short.MAX_VALUE))
     );
 
     tabPane.addTab("Report", null, panelReport, "");
@@ -4424,7 +4414,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     // run PTMShepherd
-    final CmdPtmshepherd cmdPtmshepherd = new CmdPtmshepherd(SwingUtils.isEnabledAndChecked(checkPtmshepherd), wd);
+    final boolean isRunShepherd = ptmshepherdPanel.isRunShepherd();
+    final CmdPtmshepherd cmdPtmshepherd = new CmdPtmshepherd(isRunShepherd, wd);
     if (cmdPtmshepherd.isRun()) {
       Path fastaPath = Paths.get(fastaFile);
       int ramGb = fp.getRamGb();
@@ -6104,7 +6095,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JCheckBox checkGenerateSpecLib;
   private javax.swing.JCheckBox checkLabelfree;
   private javax.swing.JCheckBox checkProcessGroupsSeparately;
-  private javax.swing.JCheckBox checkPtmshepherd;
   private javax.swing.JCheckBox checkReportAbacus;
   private javax.swing.JCheckBox checkReportPrintDecoys;
   private javax.swing.JCheckBox checkReportWriteMzid;
@@ -6168,7 +6158,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JPanel panelSelectedFiles;
   private javax.swing.JPanel panelSequenceDb;
   private javax.swing.JPanel panelSpecLibOpts;
-  private umich.msfragger.params.ptmshepherd.PtmshepherdPanel ptmshepherdPanel1;
+  private umich.msfragger.params.ptmshepherd.PtmshepherdPanel ptmshepherdPanel;
   private javax.swing.JScrollPane scrollEpSpeclibInfo2;
   private javax.swing.JScrollPane scrollPaneRawFiles;
   private javax.swing.JSpinner spinnerCrystalcMassTol;

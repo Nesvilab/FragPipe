@@ -1644,7 +1644,7 @@
                       <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelSpecLibOpts" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="228" max="32767" attributes="0"/>
+                      <EmptySpace pref="265" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1670,15 +1670,16 @@
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="textReportFilter" max="32767" attributes="0"/>
                               </Group>
-                              <Group type="102" attributes="0">
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Group type="102" attributes="0">
+                              <Group type="102" alignment="1" attributes="0">
+                                  <Group type="103" groupAlignment="1" attributes="0">
+                                      <Component id="ptmshepherdPanel" alignment="0" max="32767" attributes="0"/>
+                                      <Group type="102" alignment="0" attributes="0">
                                           <Component id="checkReportWriteMzid" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                                       </Group>
                                       <Group type="102" alignment="0" attributes="0">
                                           <Component id="checkReportAbacus" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace pref="205" max="32767" attributes="0"/>
+                                          <EmptySpace pref="201" max="32767" attributes="0"/>
                                           <Component id="checkReportPrintDecoys" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                           <Component id="checkFilterNoProtxml" min="-2" max="-2" attributes="0"/>
@@ -1686,11 +1687,6 @@
                                   </Group>
                                   <EmptySpace max="-2" attributes="0"/>
                               </Group>
-                              <Group type="102" attributes="0">
-                                  <Component id="checkPtmshepherd" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                              </Group>
-                              <Component id="ptmshepherdPanel1" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -1710,11 +1706,8 @@
                           </Group>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="checkReportWriteMzid" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="checkPtmshepherd" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="ptmshepherdPanel1" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <Component id="ptmshepherdPanel" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -1789,13 +1782,7 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkReportWriteMzidActionPerformed"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JCheckBox" name="checkPtmshepherd">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Generate PTM report with PTMShepherd"/>
-                    <Property name="name" type="java.lang.String" value="ui.name.report.check.ptmshepherd" noResource="true"/>
-                  </Properties>
-                </Component>
-                <Component class="umich.msfragger.params.ptmshepherd.PtmshepherdPanel" name="ptmshepherdPanel1">
+                <Component class="umich.msfragger.params.ptmshepherd.PtmshepherdPanel" name="ptmshepherdPanel">
                 </Component>
               </SubComponents>
             </Container>
