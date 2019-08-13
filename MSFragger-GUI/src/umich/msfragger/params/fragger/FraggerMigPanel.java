@@ -91,7 +91,9 @@ import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.enums.CleavageType;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.enums.FraggerPrecursorMassMode;
+import umich.msfragger.params.enums.IntensityTransform;
 import umich.msfragger.params.enums.MassTolUnits;
+import umich.msfragger.params.enums.RemovePrecursorPeak;
 import umich.msfragger.util.CacheUtils;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
@@ -114,6 +116,8 @@ public class FraggerMigPanel extends JPanel {
   private static final String PROP_misc_adjust_precurosr_mass = "misc.adjust-precursor-mass";
   private static final String PROP_misc_slice_db = "misc.slice-db";
   private static final String PROP_misc_ram = "misc.ram";
+  private static final String PROP_misc_fragger_remove_precursor_range_lo = "misc.fragger.remove-precursor-range-lo";
+  private static final String PROP_misc_fragger_remove_precursor_range_hi = "misc.fragger.remove-precursor-range-hi";
   private static final String PROP_misc_fragger_digest_mass_lo = "misc.fragger.digest-mass-lo";
   private static final String PROP_misc_fragger_digest_mass_hi = "misc.fragger.digest-mass-hi";
   private static final String PROP_misc_fragger_clear_mz_lo = "misc.fragger.clear-mz-lo";
@@ -131,6 +135,8 @@ public class FraggerMigPanel extends JPanel {
       PROP_misc_ram,
       PROP_misc_fragger_digest_mass_lo,
       PROP_misc_fragger_digest_mass_hi,
+      PROP_misc_fragger_remove_precursor_range_lo,
+      PROP_misc_fragger_remove_precursor_range_hi,
       PROP_misc_fragger_clear_mz_lo,
       PROP_misc_fragger_clear_mz_hi,
       PROP_misc_fragger_precursor_charge_lo,
@@ -147,6 +153,8 @@ public class FraggerMigPanel extends JPanel {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_true_units, s -> Integer.toString(MassTolUnits.valueOf(s).valueInParamsFile()));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_calibrate_mass, s -> Integer.toString(Arrays.asList(CALIBRATE_LABELS).indexOf(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_num_enzyme_termini, s -> Integer.toString(CleavageType.valueOf(s).valueInParamsFile()));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_remove_precursor_peak, s -> Integer.toString(RemovePrecursorPeak.get(s)));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_intensity_transform, s -> Integer.toString(IntensityTransform.get(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_localize_delta_mass, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
@@ -161,6 +169,8 @@ public class FraggerMigPanel extends JPanel {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_true_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_calibrate_mass, s -> CALIBRATE_LABELS[Integer.parseInt(s)]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_num_enzyme_termini, s -> CleavageType.fromValueInParamsFile(s).name());
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_remove_precursor_peak, s -> RemovePrecursorPeak.get(Integer.parseInt(s)));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_intensity_transform, s -> IntensityTransform.get(Integer.parseInt(s)));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_localize_delta_mass, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> Boolean.toString(Integer.parseInt(s) > 0));
@@ -244,6 +254,11 @@ public class FraggerMigPanel extends JPanel {
         getClass().getResource("/umich/msfragger/gui/icons/bolt-16.png"));
 
     this.setLayout(new BorderLayout());
+
+    DecimalFormat df1 = new DecimalFormat("0.#");
+    DecimalFormat df2 = new DecimalFormat("0.##");
+    DecimalFormat df3 = new DecimalFormat("0.###");
+    DecimalFormat df4 = new DecimalFormat("0.####");
 
     // Top panel with checkbox, buttons and RAM+Threads spinners
     {
@@ -612,7 +627,7 @@ public class FraggerMigPanel extends JPanel {
         FormEntry feClearRangeMzHi = new FormEntry(PROP_misc_fragger_clear_mz_hi, "not-shown",
             new UiSpinnerInt(0, 0, 100000, 10, 4));
 
-        uiComboMassMode = new UiCombo(); // UiUtils.createUiCombo(FraggerPrecursorMassMode.values());asd
+        uiComboMassMode = new UiCombo(); // UiUtils.createUiCombo(FraggerPrecursorMassMode.values());
         uiComboMassMode.setModel(new DefaultComboBoxModel<>(new String[] {
             FraggerPrecursorMassMode.selected.name(),
             FraggerPrecursorMassMode.isolated.name(),
@@ -625,9 +640,18 @@ public class FraggerMigPanel extends JPanel {
                 + "used as the precursor's mass - 'Selected' or 'Isolated' ion.<br/>"
                 + "'Recalculated' option runs a separate MSAdjuster tool to<br/>"
                 + "perform mono-isotopic mass correction");
+
+        FormEntry feRemovePrecPeak = new FormEntry(MsfraggerParams.PROP_remove_precursor_peak,
+            "Remove precursor peak", UiUtils.createUiCombo(RemovePrecursorPeak.getNames()));
+        FormEntry fePrecRemoveRangeLo = new FormEntry(PROP_misc_fragger_remove_precursor_range_lo, "removal m/z range",
+            UiSpinnerDouble.builder(-1.5, -1000.0, 1000.0, 0.1).setNumCols(5).setFormat(df1).create());
+        FormEntry fePrecRemoveRangeHi = new FormEntry(PROP_misc_fragger_remove_precursor_range_hi, "not-shown",
+            UiSpinnerDouble.builder(+1.5, -1000.0, 1000.0, 0.1).setNumCols(5).setFormat(df1).create());
+        FormEntry feIntensityTransform = new FormEntry(MsfraggerParams.PROP_intensity_transform,
+            "Intensity transform", UiUtils.createUiCombo(IntensityTransform.getNames()));
+
         pSpectral.add(fePrecursorMassMode.label(), new CC().alignX("right"));
         pSpectral.add(fePrecursorMassMode.comp, new CC().wrap());
-
         pSpectral.add(feMinPeaks.label(), alignRight);
         pSpectral.add(feMinPeaks.comp);
         pSpectral.add(feUseTopN.label(), alignRight);
@@ -642,6 +666,15 @@ public class FraggerMigPanel extends JPanel {
         pSpectral.add(feClearRangeMzLo.comp, new CC().split(3).spanX());
         pSpectral.add(new JLabel("-"));
         pSpectral.add(feClearRangeMzHi.comp, new CC().wrap());
+
+        pSpectral.add(feRemovePrecPeak.label(), alignRight);
+        pSpectral.add(feRemovePrecPeak.comp, new CC());
+        pSpectral.add(fePrecRemoveRangeLo.label(), new CC().split(4).spanX());
+        pSpectral.add(fePrecRemoveRangeLo.comp, new CC());
+        pSpectral.add(new JLabel("-"));
+        pSpectral.add(fePrecRemoveRangeHi.comp, new CC().wrap());
+        pSpectral.add(feIntensityTransform.label(), alignRight);
+        pSpectral.add(feIntensityTransform.comp, new CC().wrap());
       }
 
       // Advanced peak matching panel
@@ -1016,6 +1049,7 @@ public class FraggerMigPanel extends JPanel {
    */
   private MsfraggerParams paramsFrom(Map<String, String> map) {
     MsfraggerParams p = new MsfraggerParams();
+    final double[] precursorRemoveRange = new double[2];
     final double[] clearMzRange = new double[2];
     final double[] digestMassRange = new double[2];
     final int[] precursorChargeRange = new int[2];
@@ -1040,6 +1074,12 @@ public class FraggerMigPanel extends JPanel {
           log.trace("Found misc option: {}={}", k, v);
 
           switch (k) {
+            case PROP_misc_fragger_remove_precursor_range_lo:
+              precursorRemoveRange[0] = Double.parseDouble(v);
+              break;
+            case PROP_misc_fragger_remove_precursor_range_hi:
+              precursorRemoveRange[1] = Double.parseDouble(v);
+              break;
             case PROP_misc_fragger_clear_mz_lo:
               clearMzRange[0] = Double.parseDouble(v);
               break;
@@ -1070,6 +1110,7 @@ public class FraggerMigPanel extends JPanel {
     p.setClearMzRange(clearMzRange);
     p.setDigestMassRange(digestMassRange);
     p.setPrecursorCharge(precursorChargeRange);
+    p.setRemovePrecursorRange(precursorRemoveRange);
 
     FraggerOutputType outType = p.getOutputFormat();
     if (outType == null) {
@@ -1101,16 +1142,20 @@ public class FraggerMigPanel extends JPanel {
     }
 
     // special treatment of some fields
+    double[] precursorRemoveRange = params.getRemovePrecursorRange();
     double[] clearMzRange = params.getClearMzRange();
     double[] digestMassRange = params.getDigestMassRange();
     int[] precursorCharge = params.getPrecursorCharge();
     DecimalFormat fmt = new DecimalFormat("0.#");
+    DecimalFormat fmt2 = new DecimalFormat("0.##");
     map.put(PROP_misc_fragger_clear_mz_lo, fmt.format(clearMzRange[0]));
     map.put(PROP_misc_fragger_clear_mz_hi, fmt.format(clearMzRange[1]));
     map.put(PROP_misc_fragger_digest_mass_lo, fmt.format(digestMassRange[0]));
     map.put(PROP_misc_fragger_digest_mass_hi, fmt.format(digestMassRange[1]));
     map.put(PROP_misc_fragger_precursor_charge_lo, fmt.format(precursorCharge[0]));
     map.put(PROP_misc_fragger_precursor_charge_hi, fmt.format(precursorCharge[1]));
+    map.put(PROP_misc_fragger_remove_precursor_range_lo, fmt2.format(precursorRemoveRange[0]));
+    map.put(PROP_misc_fragger_remove_precursor_range_hi, fmt2.format(precursorRemoveRange[1]));
 
     return map;
   }

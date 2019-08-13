@@ -411,7 +411,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (console == null) {
       return;
     }
-    final String text = console.getText();
 
     JFileChooser fc = new JFileChooser();
     fc.setApproveButtonText("Save");
@@ -441,17 +440,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           }
         }
       }
-      try {
-        // save the file
-        byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
-        Files.write(path, bytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-
-      } catch (IOException ex) {
-        JOptionPane
-            .showMessageDialog(parent, "<html>Could not save file: <br/>" + path.toString()
-                + "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-      }
+      saveLogToFile(path);
     }
 
   }
@@ -2674,16 +2663,27 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     btnRun.setEnabled(true);
     btnStop.setEnabled(false);
     EventBus.getDefault().post(new MessageKillAll());
-
-    // try saving log
-    MessageLastRunWorkDir m = EventBus.getDefault().getStickyEvent(MessageLastRunWorkDir.class);
-    if (m != null) {
-      EventBus.getDefault().post(new MessageSaveLog(m.workDir));
-    }
-
   }//GEN-LAST:event_btnStopActionPerformed
 
-
+  @Subscribe
+  public void onMessageKillAll(MessageKillAll m) {
+    // try saving log
+    MessageLastRunWorkDir wdMsg = EventBus.getDefault().getStickyEvent(MessageLastRunWorkDir.class);
+    Path workDir = null;
+    if (wdMsg != null) {
+      workDir = wdMsg.workDir;
+    } else {
+      try {
+        Path p = Paths.get(txtWorkingDir.getText());
+        if (Files.exists(p)) {
+          workDir = p;
+        }
+      } catch (Exception ignored) {}
+    }
+    if (workDir != null) {
+      EventBus.getDefault().post(new MessageSaveLog(workDir));
+    }
+  }
   private void btnRawClearActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRawClearActionPerformed
     tableModelRawFiles.dataClear();

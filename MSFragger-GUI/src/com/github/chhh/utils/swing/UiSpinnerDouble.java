@@ -99,6 +99,9 @@ public class UiSpinnerDouble extends JSpinner implements StringRepresentable {
     }
 
     public UiSpinnerDouble create() {
+      if (format == null) {
+        throw new IllegalStateException("You must set the format before creating the spinner");
+      }
       UiSpinnerDouble ui = new UiSpinnerDouble(initVal, minVal, maxVal, step, format);
       ui.setColumns(numDecimalDigits);
       return ui;

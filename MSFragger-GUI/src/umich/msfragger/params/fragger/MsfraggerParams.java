@@ -59,6 +59,11 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_precursor_true_units = "precursor_true_units";
     public static final String PROP_fragment_mass_tolerance = "fragment_mass_tolerance";
     public static final String PROP_fragment_mass_units = "fragment_mass_units";
+
+    public static final String PROP_remove_precursor_peak = "remove_precursor_peak";
+    public static final String PROP_remove_precursor_range = "remove_precursor_range";
+    public static final String PROP_intensity_transform = "intensity_transform";
+
     public static final String PROP_calibrate_mass = "calibrate_mass";
     public static final String PROP_isotope_error = "isotope_error";
     public static final String PROP_mass_offsets = "mass_offsets";
@@ -126,6 +131,9 @@ public class MsfraggerParams extends AbstractParams {
         PROP_precursor_true_units,
         PROP_fragment_mass_tolerance,
         PROP_fragment_mass_units,
+        PROP_remove_precursor_peak,
+        PROP_remove_precursor_range,
+        PROP_intensity_transform,
         PROP_calibrate_mass,
         PROP_isotope_error,
         PROP_mass_offsets,
@@ -250,6 +258,9 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_max_variable_mods_per_mod, "maximum of 5");
         c.put(PROP_max_variable_mods_combinations, "maximum of 65534, limits number of modified peptides generated from sequence");
         c.put(PROP_report_alternative_proteins, "0=no, 1=yes");
+        c.put(PROP_remove_precursor_peak, "0 = not remove, 1 = only remove the peak with the precursor charge, 2 = remove all peaks with all charge states. Default: 0");
+        c.put(PROP_remove_precursor_range, "Unit: Da. Default: -1.5,1.5");
+        c.put(PROP_intensity_transform, "0 = none, 1 = sqrt root. Default: 0");
         return c;
     }
 
@@ -317,6 +328,29 @@ public class MsfraggerParams extends AbstractParams {
     
     
     // =======================================================================
+    public int getRemovePrecursorPeak() {
+        return getInt(PROP_remove_precursor_peak, "0");
+    }
+
+    public void setRemovePrecursorPeak(int v) {
+        setInt(PROP_remove_precursor_peak, v);
+    }
+
+    public double[] getRemovePrecursorRange() {
+        String s = getString(PROP_remove_precursor_range, "-1.5,1.5");
+        String[] split = s.split("\\s*,\\s*");
+        if (split.length != 2) {
+            throw new IllegalStateException(String.format("Property %s must be of form '-1.5,1.5'", PROP_remove_precursor_range));
+        }
+        return new double[] {Double.parseDouble(split[0]), Double.parseDouble(split[1])};
+    }
+
+    public void setRemovePrecursorRange(double[] v) {
+        if (v.length != 2)
+            throw new IllegalArgumentException(PROP_remove_precursor_range + " array must have length 2");
+        setString(PROP_remove_precursor_range, String.format("%.2f,%.2f", v[0], v[1]));
+    }
+
     public MassTolUnits getPrecursorMassUnits() {
         return MassTolUnits.fromParamsFileRepresentation(props.getProp(PROP_precursor_mass_units, "1").value);
     }
@@ -746,6 +780,14 @@ public class MsfraggerParams extends AbstractParams {
             throw new IllegalArgumentException("Array length must be 2");
         }
         props.setProp(PROP_delta_mass_exclude_ranges, "(" + v[0] + "," + v[1] + ")");
+    }
+
+    public int getIntensityTransform() {
+        return getInt(PROP_intensity_transform, "0");
+    }
+
+    public void setIntensityTransform(int v) {
+        setInt(PROP_intensity_transform, v);
     }
 
     public boolean getShiftedIons() {

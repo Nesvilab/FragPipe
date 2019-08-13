@@ -11,6 +11,10 @@ fragment_mass_units = 1		           # 0=Daltons, 1=ppm
 calibrate_mass = 2
 decoy_prefix = rev_
 
+remove_precursor_peak = 0           # 0 = not remove, 1 = only remove the peak with the precursor charge, 2 = remove all peaks with all charge states. Default: 0
+remove_precursor_range = -1.5,1.5   # Unit: Da. Default: -1.5,1.5
+intensity_transform = 0             # 0 = none, 1 = sqrt root. Default: 0
+
 isotope_error = 0/1                      # 0=off, 0/1/2 (standard C13 error)
 mass_offsets = 0
 precursor_mass_mode = selected
