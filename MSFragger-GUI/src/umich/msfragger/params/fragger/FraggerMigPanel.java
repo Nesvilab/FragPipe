@@ -605,7 +605,7 @@ public class FraggerMigPanel extends JPanel {
 
       }
 
-      JPanel pSpectral = new JPanel(new MigLayout(new LC()));
+      JPanel pSpectral = new JPanel(new MigLayout(new LC().debug()));
       {
         pSpectral.setBorder(new TitledBorder("Spectral Processing"));
 
@@ -613,10 +613,6 @@ public class FraggerMigPanel extends JPanel {
             new UiSpinnerInt(15, 0, 1000, 1, 4));
         FormEntry feUseTopN = new FormEntry(MsfraggerParams.PROP_use_topN_peaks, "Use top N peaks",
             new UiSpinnerInt(100, 0, 1000000, 10, 4));
-        FormEntry feMinFragsModeling = new FormEntry(MsfraggerParams.PROP_min_fragments_modelling,
-            "Min frags modeling", new UiSpinnerInt(3, 0, 1000, 1, 4));
-        FormEntry feMinMatchedFrags = new FormEntry(MsfraggerParams.PROP_min_matched_fragments,
-            "Min matched frags", new UiSpinnerInt(4, 0, 1000, 1, 4));
         UiSpinnerDouble spinnerMinRatio = new UiSpinnerDouble(0.01, 0, Double.MAX_VALUE, 0.1, 2,
             new DecimalFormat("0.00"));
         spinnerMinRatio.setColumns(4);
@@ -652,24 +648,22 @@ public class FraggerMigPanel extends JPanel {
 
         pSpectral.add(fePrecursorMassMode.label(), new CC().alignX("right"));
         pSpectral.add(fePrecursorMassMode.comp, new CC().wrap());
+
         pSpectral.add(feMinPeaks.label(), alignRight);
-        pSpectral.add(feMinPeaks.comp);
-        pSpectral.add(feUseTopN.label(), alignRight);
-        pSpectral.add(feUseTopN.comp, wrap);
-        pSpectral.add(feMinFragsModeling.label(), alignRight);
-        pSpectral.add(feMinFragsModeling.comp);
-        pSpectral.add(feMinMatchedFrags.label(), alignRight);
-        pSpectral.add(feMinMatchedFrags.comp);
-        pSpectral.add(feMinRatio.label(), alignRight);
+        pSpectral.add(feMinPeaks.comp, new CC().split(5).spanX());
+        pSpectral.add(feUseTopN.label(), new CC().gapBefore("20px"));
+        pSpectral.add(feUseTopN.comp, new CC());
+        pSpectral.add(feMinRatio.label(), new CC().gapBefore("20px"));
         pSpectral.add(feMinRatio.comp, wrap);
+
         pSpectral.add(feClearRangeMzLo.label(), alignRight);
         pSpectral.add(feClearRangeMzLo.comp, new CC().split(3).spanX());
         pSpectral.add(new JLabel("-"));
         pSpectral.add(feClearRangeMzHi.comp, new CC().wrap());
 
         pSpectral.add(feRemovePrecPeak.label(), alignRight);
-        pSpectral.add(feRemovePrecPeak.comp, new CC());
-        pSpectral.add(fePrecRemoveRangeLo.label(), new CC().split(4).spanX());
+        pSpectral.add(feRemovePrecPeak.comp, new CC().split(5).spanX());
+        pSpectral.add(fePrecRemoveRangeLo.label(), new CC());
         pSpectral.add(fePrecRemoveRangeLo.comp, new CC());
         pSpectral.add(new JLabel("-"));
         pSpectral.add(fePrecRemoveRangeHi.comp, new CC().wrap());
@@ -681,6 +675,11 @@ public class FraggerMigPanel extends JPanel {
       JPanel pPeakMatch = new JPanel(new MigLayout(new LC()));
       {
         pPeakMatch.setBorder(new TitledBorder("Peak Matching and Output Advanced Options"));
+
+        FormEntry feMinFragsModeling = new FormEntry(MsfraggerParams.PROP_min_fragments_modelling,
+            "Min frags modeling", new UiSpinnerInt(3, 0, 1000, 1, 4));
+        FormEntry feMinMatchedFrags = new FormEntry(MsfraggerParams.PROP_min_matched_fragments,
+            "Min matched frags", new UiSpinnerInt(4, 0, 1000, 1, 4));
 
         FormEntry feIonSeries = new FormEntry(MsfraggerParams.PROP_fragment_ion_series,
             "Fragment ion series", new UiText(10), ""
@@ -705,10 +704,6 @@ public class FraggerMigPanel extends JPanel {
         FormEntry feCustomSeries = new FormEntry(MsfraggerParams.PROP_ion_series_definitions,
             "Define custom ion series", uiTextCustomIonSeries, tooltipCustomIonSeriesDisabled);
         labelCustomIonSeries = feCustomSeries.label();
-        pPeakMatch.add(feIonSeries.label(), alignRight);
-        pPeakMatch.add(feIonSeries.comp, new CC().growX());
-        pPeakMatch.add(labelCustomIonSeries, new CC().split(2).spanX());
-        pPeakMatch.add(feCustomSeries.comp, new CC().growX().wrap());
 
         FormEntry feTrueTolUnits = new FormEntry(MsfraggerParams.PROP_precursor_true_units,
             "Precursor true tolerance", UiUtils.createUiCombo(MassTolUnits.values()));
@@ -760,18 +755,27 @@ public class FraggerMigPanel extends JPanel {
         FormEntry feReportAltProts = new FormEntry(MsfraggerParams.PROP_report_alternative_proteins,
             "not-shown", new UiCheck("Report alternative proteins", null, false));
 
+        pPeakMatch.add(feMinFragsModeling.label(), alignRight);
+        pPeakMatch.add(feMinFragsModeling.comp);
+        pPeakMatch.add(feMinMatchedFrags.label(), alignRight);
+        pPeakMatch.add(feMinMatchedFrags.comp, new CC().wrap());
+
+        pPeakMatch.add(feIonSeries.label(), alignRight);
+        pPeakMatch.add(feIonSeries.comp, new CC().growX());
+        pPeakMatch.add(labelCustomIonSeries, new CC().split(2).spanX());
+        pPeakMatch.add(feCustomSeries.comp, new CC().growX().wrap());
+
         pPeakMatch.add(feTrueTolUnits.label(), alignRight);
         pPeakMatch.add(feTrueTolUnits.comp, new CC().split(2));
         pPeakMatch.add(feTrueTol.comp, new CC().growX());
 
-        pPeakMatch.add(feOverrideCharge.comp, new CC().split(5).spanX());
-        pPeakMatch.add(fePrecursorChargeLo.label());
+        pPeakMatch.add(feOverrideCharge.comp, new CC().split(4).spanX());
         pPeakMatch.add(fePrecursorChargeLo.comp);
         pPeakMatch.add(new JLabel("-"));
         pPeakMatch.add(fePrecursorChargeHi.comp, wrap);
         pPeakMatch.add(feReportTopN.label(), alignRight);
         pPeakMatch.add(feReportTopN.comp, new CC().growX());
-        pPeakMatch.add(feReportAltProts.comp, wrap);
+        pPeakMatch.add(feReportAltProts.comp, new CC().alignX("left").spanX().wrap());
         pPeakMatch.add(feOutputType.label(), alignRight);
         pPeakMatch.add(feOutputType.comp);
         pPeakMatch.add(feOutputMaxExpect.label(), alignRight);

@@ -115,7 +115,7 @@ public class PtmshepherdPanel extends JPanel {
         updateEnabledStatus(pContent, isSelected);
       });
       pTop.add(checkRun, new CC().alignX("left"));
-      JButton btnLoadDefaults = new JButton("Load PTMShepherd deafaults");
+      JButton btnLoadDefaults = new JButton("Load PTMShepherd defaults");
       btnLoadDefaults.addActionListener((e) -> EventBus.getDefault().post(new MessageLoadShepherdDefaults(true)));
       pTop.add(btnLoadDefaults, new CC().alignX("left"));
 
