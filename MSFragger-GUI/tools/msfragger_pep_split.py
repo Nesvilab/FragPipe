@@ -264,7 +264,7 @@ def new_spec(expect_func, spectrum_query_parts):
 		search_hit_with_massdiff_and_scores = (get_massdiff_and_scores(search_hit) + (search_hit,) for search_hit in search_hits)
 		# sort by hyperscore and massdiff
 		sorted_search_hits0 = [e[1:] for e in
-			sorted(search_hit_with_massdiff_and_scores, key=lambda x: (1 / x[1], x[0]))[:output_report_topN]]
+			sorted(search_hit_with_massdiff_and_scores, key=lambda x: (1 / x[1], abs(x[0])))[:output_report_topN]]
 
 		sorted_search_hits1 = list(itertools.takewhile(lambda x: x[2] <= output_max_expect, sorted_search_hits0))
 		if len(sorted_search_hits1) == 0:
