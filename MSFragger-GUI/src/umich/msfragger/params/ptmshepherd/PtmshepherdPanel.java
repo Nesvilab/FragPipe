@@ -151,75 +151,80 @@ public class PtmshepherdPanel extends JPanel {
       pPeakPicking = new JPanel(new MigLayout(new LC()));
       pPeakPicking.setBorder(new TitledBorder("PTMShepherd options"));
 
-      // precursor mass tolerance
-      FormEntry feHistoBinDivs = new FormEntry(PROP_histo_bindivs, "Histogram bins",
-          new UiSpinnerInt(5000, 10, 1000000, 100, 5));
-      FormEntry feHistoSmoothBins = new FormEntry(PROP_histo_smoothbins, "Histogram bin smoothing",
+      FormEntry feHistoSmoothBins = new FormEntry(PROP_histo_smoothbins, "Smoothing factor",
           new UiSpinnerInt(3, 0, 1000000, 1, 5));
 
-      pPeakPicking.add(feHistoBinDivs.label(), new CC().alignX("right"));
-      pPeakPicking.add(feHistoBinDivs.comp, new CC());
       pPeakPicking.add(feHistoSmoothBins.label(), new CC().alignX("right"));
-      pPeakPicking.add(feHistoSmoothBins.comp, new CC().wrap());
+      pPeakPicking.add(feHistoSmoothBins.comp, new CC().spanX().wrap());
 
-      UiSpinnerDouble uiSpinnerPromRatio = UiSpinnerDouble.builder(0.3,0.0,1e6, 0.1)
+      UiSpinnerDouble uiSpinnerPromRatio = UiSpinnerDouble.builder(0.3,0.0,1.0, 0.1)
           .setFormat(new DecimalFormat("0.#")).setNumCols(5).create();
-      FormEntry fePromRatio = new FormEntry(PROP_peakpicking_promRatio, "Peak-picking prominence ratio", uiSpinnerPromRatio);
+      FormEntry fePromRatio = new FormEntry(PROP_peakpicking_promRatio, "Prominence ratio", uiSpinnerPromRatio,
+          "Ratio of peak prominence to total peak height.");
 
-      UiSpinnerDouble uiSpinnerWidth = UiSpinnerDouble.builder(0.002, 0.0, 1e6, 0.001)
+      UiSpinnerDouble uiSpinnerWidth = UiSpinnerDouble.builder(0.002, 0.0, 0.5, 0.001)
           .setFormat(new DecimalFormat("0.####")).setNumCols(5).create();
-      FormEntry feWidth = new FormEntry(PROP_peakpicking_width, "Peak-picking width", uiSpinnerWidth);
+      FormEntry feWidth = new FormEntry(PROP_peakpicking_width, "Max peak width (Da)", uiSpinnerWidth);
 
       pPeakPicking.add(fePromRatio.label(), new CC().alignX("right"));
       pPeakPicking.add(fePromRatio.comp, new CC());
       pPeakPicking.add(feWidth.label(), new CC().alignX("right"));
       pPeakPicking.add(feWidth.comp, new CC().wrap());
 
-      UiSpinnerDouble uiSpinnerBackground = UiSpinnerDouble.builder(0.005, 0.0, 1e6, 0.001)
-          .setFormat(new DecimalFormat("0.####")).setNumCols(5).create();
-      FormEntry feBackground = new FormEntry(PROP_peakpicking_background, "Peak-picking background", uiSpinnerBackground);
 
-      UiSpinnerInt uiSpinnerTopN = new UiSpinnerInt(500, 1, 1000000, 50);
-      uiSpinnerTopN.setColumns(5);
-      FormEntry feTopN = new FormEntry(PROP_peakpicking_topN, "Peak-picking Top-N", uiSpinnerTopN);
+      // these are valid shepherd parameters, but not displayed in the UI anymore
 
-      pPeakPicking.add(feBackground.label(), new CC().alignX("right"));
-      pPeakPicking.add(feBackground.comp, new CC());
-      pPeakPicking.add(feTopN.label(), new CC().alignX("right"));
-      pPeakPicking.add(feTopN.comp, new CC().wrap());
+//      FormEntry feHistoBinDivs = new FormEntry(PROP_histo_bindivs, "Histogram bins",
+//          new UiSpinnerInt(5000, 10, 1000000, 100, 5));
+//
+//      pPeakPicking.add(feHistoBinDivs.label(), new CC().alignX("right"));
+//      pPeakPicking.add(feHistoBinDivs.comp, new CC());
+//
+//      UiSpinnerDouble uiSpinnerBackground = UiSpinnerDouble.builder(0.005, 0.0, 1e6, 0.001)
+//          .setFormat(new DecimalFormat("0.####")).setNumCols(5).create();
+//      FormEntry feBackground = new FormEntry(PROP_peakpicking_background, "Peak-picking background", uiSpinnerBackground);
+//
+//      UiSpinnerInt uiSpinnerTopN = new UiSpinnerInt(500, 1, 1000000, 50);
+//      uiSpinnerTopN.setColumns(5);
+//      FormEntry feTopN = new FormEntry(PROP_peakpicking_topN, "Peak-picking Top-N", uiSpinnerTopN);
 
-      UiSpinnerDouble uiSpinnerPrecTol = UiSpinnerDouble.builder(0.01, 0.001, 1e6, 0.01)
-          .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
-      uiSpinnerPrecTol.setColumns(5);
-      FormEntry fePrecTol = new FormEntry(PROP_precursor_tol, "Precursor tolerance", uiSpinnerPrecTol);
+//      pPeakPicking.add(feBackground.label(), new CC().alignX("right"));
+//      pPeakPicking.add(feBackground.comp, new CC());
+//      pPeakPicking.add(feTopN.label(), new CC().alignX("right"));
+//      pPeakPicking.add(feTopN.comp, new CC().wrap());
 
-      UiSpinnerDouble uiSpinnerPrecTolPpm = UiSpinnerDouble.builder(20.0, 0.001, 1e6, 1.0)
-          .setFormat(new DecimalFormat("0.#")).setNumCols(5).create();
-      FormEntry fePrecTolPpm = new FormEntry(PROP_precursor_tol_ppm, "Precursor tolerance ppm", uiSpinnerPrecTolPpm);
-
-      pPeakPicking.add(fePrecTol.label(), new CC().alignX("right"));
-      pPeakPicking.add(fePrecTol.comp, new CC());
-      pPeakPicking.add(fePrecTolPpm.label(), new CC().alignX("right"));
-      pPeakPicking.add(fePrecTolPpm.comp, new CC().wrap());
-
-      UiSpinnerDouble uiSpinnerSpecPpmTol = UiSpinnerDouble.builder(20.0, 0.001, 1e6, 1.0)
-          .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
-      FormEntry feSpecPpmTol = new FormEntry(PROP_spectra_ppmtol, "Spectrum ppm tolerance", uiSpinnerSpecPpmTol);
-
-      UiSpinnerInt uiSpinnerSpecCondPeaks = new UiSpinnerInt(100, 0, 1000000, 20);
-      uiSpinnerSpecCondPeaks.setColumns(5);
-      FormEntry feSpecCondPeaks = new FormEntry(PROP_spectra_condPeaks, "spectra_condPeaks", uiSpinnerSpecCondPeaks);
-
-      UiSpinnerDouble uiSpinnerSpecCondRatio = UiSpinnerDouble.builder(0.01, 0.001, 1e6, 0.01)
-          .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
-      FormEntry feSpecCondRatio = new FormEntry(PROP_spectra_condRatio, "spectra_condRatio", uiSpinnerSpecCondRatio);
-
-      pPeakPicking.add(feSpecPpmTol.label(), new CC().alignX("right"));
-      pPeakPicking.add(feSpecPpmTol.comp, new CC());
-      pPeakPicking.add(feSpecCondPeaks.label(), new CC().alignX("right"));
-      pPeakPicking.add(feSpecCondPeaks.comp, new CC().wrap());
-      pPeakPicking.add(feSpecCondRatio.label(), new CC().alignX("right"));
-      pPeakPicking.add(feSpecCondRatio.comp, new CC().wrap());
+//      UiSpinnerDouble uiSpinnerPrecTol = UiSpinnerDouble.builder(0.01, 0.001, 1e6, 0.01)
+//          .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
+//      uiSpinnerPrecTol.setColumns(5);
+//      FormEntry fePrecTol = new FormEntry(PROP_precursor_tol, "Precursor tolerance", uiSpinnerPrecTol);
+//
+//      UiSpinnerDouble uiSpinnerPrecTolPpm = UiSpinnerDouble.builder(20.0, 0.001, 1e6, 1.0)
+//          .setFormat(new DecimalFormat("0.#")).setNumCols(5).create();
+//      FormEntry fePrecTolPpm = new FormEntry(PROP_precursor_tol_ppm, "Precursor tolerance ppm", uiSpinnerPrecTolPpm);
+//
+//      pPeakPicking.add(fePrecTol.label(), new CC().alignX("right"));
+//      pPeakPicking.add(fePrecTol.comp, new CC());
+//      pPeakPicking.add(fePrecTolPpm.label(), new CC().alignX("right"));
+//      pPeakPicking.add(fePrecTolPpm.comp, new CC().wrap());
+//
+//      UiSpinnerDouble uiSpinnerSpecPpmTol = UiSpinnerDouble.builder(20.0, 0.001, 1e6, 1.0)
+//          .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
+//      FormEntry feSpecPpmTol = new FormEntry(PROP_spectra_ppmtol, "Spectrum ppm tolerance", uiSpinnerSpecPpmTol);
+//
+//      UiSpinnerInt uiSpinnerSpecCondPeaks = new UiSpinnerInt(100, 0, 1000000, 20);
+//      uiSpinnerSpecCondPeaks.setColumns(5);
+//      FormEntry feSpecCondPeaks = new FormEntry(PROP_spectra_condPeaks, "spectra_condPeaks", uiSpinnerSpecCondPeaks);
+//
+//      UiSpinnerDouble uiSpinnerSpecCondRatio = UiSpinnerDouble.builder(0.01, 0.001, 1e6, 0.01)
+//          .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
+//      FormEntry feSpecCondRatio = new FormEntry(PROP_spectra_condRatio, "spectra_condRatio", uiSpinnerSpecCondRatio);
+//
+//      pPeakPicking.add(feSpecPpmTol.label(), new CC().alignX("right"));
+//      pPeakPicking.add(feSpecPpmTol.comp, new CC());
+//      pPeakPicking.add(feSpecCondPeaks.label(), new CC().alignX("right"));
+//      pPeakPicking.add(feSpecCondPeaks.comp, new CC().wrap());
+//      pPeakPicking.add(feSpecCondRatio.label(), new CC().alignX("right"));
+//      pPeakPicking.add(feSpecCondRatio.comp, new CC().wrap());
 
 
       pContent.add(pPeakPicking, new CC().wrap().growX());
