@@ -1875,7 +1875,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    panelPeptideProphetOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("Peptide Prophet Options"));
+    panelPeptideProphetOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("PeptideProphet Options"));
 
     textPepProphCmd.setColumns(20);
     textPepProphCmd.setLineWrap(true);
@@ -1995,7 +1995,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    panelProteinProphetOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("Protein Prophet Options"));
+    panelProteinProphetOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("ProteinProphet Options"));
 
     checkProcessGroupsSeparately.setSelected(loadLastProcessGroupsSeparately());
     checkProcessGroupsSeparately.setText("<html>Separate ProteinProphet prot.xml file per group/experiment");
