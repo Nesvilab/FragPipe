@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,8 @@ public class CmdCrystalc extends CmdBase {
   public static final String JAR_GRPPR_NAME = "grppr-0.3.23.jazz";
   public static final String JAR_MSFTBX_NAME = "lib-msftbx-grpc-1.11.0.jazz";
   private static String[] JAR_DEPS = {JAR_MSFTBX_NAME, JAR_GRPPR_NAME};
-  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML", "RAW");
+  private static final String THERMO_RAW_EXT = "RAW";
+  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
 
   public CmdCrystalc(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -73,13 +75,15 @@ public class CmdCrystalc extends CmdBase {
     return m;
   }
 
-  private boolean checkCompatibleFormats(Component comp, Map<InputLcmsFile, Path> pepxmlFiles) {
-    List<String> notSupportedExts = getNotSupportedExts1(pepxmlFiles, SUPPORTED_FORMATS);
+  private boolean checkCompatibleFormats(Component comp, Map<InputLcmsFile, Path> pepxmlFiles, List<String> supportedFormats) {
+    List<String> notSupportedExts = getNotSupportedExts1(pepxmlFiles, supportedFormats);
     if (!notSupportedExts.isEmpty()) {
       JOptionPane.showMessageDialog(comp, String.format(
-          "<html>%s doesn't work with '.%s' files.<br/>"
+          "<html>%s can't work with '.%s' files.<br/>"
+              + "Compatible formats are: %s<br/>"
               + "Either remove files from input or disable %s<br/>"
-              + "You can also convert files using <i>msconvert</i> from ProteoWizard.",NAME, NAME, String.join(", ", notSupportedExts)),
+              + "You can also convert files using <i>msconvert</i> from ProteoWizard.",
+          NAME, String.join(", ", notSupportedExts), String.join(", ", supportedFormats), NAME),
           NAME + " error", JOptionPane.WARNING_MESSAGE);
       return false;
     }
@@ -90,7 +94,7 @@ public class CmdCrystalc extends CmdBase {
    * @param ccParams Get these by calling {@link MsfraggerGuiFrame#crystalcFormToParams()}.
    */
   public boolean configure(Component comp,
-      FraggerMigPanel fp, boolean isDryRun, UsageTrigger binFragger,
+      FraggerMigPanel fp, boolean isDryRun, Path binFragger,
       CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, Path> pepxmlFiles) {
     pbs.clear();
     if (StringUtils.isNullOrWhitespace(fastaPath)) {
@@ -106,10 +110,13 @@ public class CmdCrystalc extends CmdBase {
       return false;
     }
 
-    // TODO: first check if ext/thermo exists next to MSfragger. If so, then CrystalC should support .RAW
-    // TODO: and include new extra command line params for lib-msftbx-grpc
+    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
 
-    if (!checkCompatibleFormats(comp, pepxmlFiles)) {
+    ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
+    if (extLibsThermo != null) {
+      sup.add(THERMO_RAW_EXT);
+    }
+    if (!checkCompatibleFormats(comp, pepxmlFiles, sup)) {
       return false;
     }
 
@@ -158,6 +165,9 @@ public class CmdCrystalc extends CmdBase {
 
       List<String> cmd = new ArrayList<>();
       cmd.add("java");
+      if (extLibsThermo != null) {
+        cmd.add("-Dbatmass.io.libs.thermo.dir=\"" + extLibsThermo.toString() + "\"" );
+      }
       if (ramGb > 0) {
         cmd.add("-Xmx" + ramGb + "G");
       }

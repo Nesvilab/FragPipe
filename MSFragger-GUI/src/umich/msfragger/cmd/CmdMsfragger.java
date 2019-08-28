@@ -92,7 +92,9 @@ public class CmdMsfragger extends CmdBase {
       "ThermoFisher.CommonCore.Data.dll",
       "ThermoFisher.CommonCore.RawFileReader.dll"
     );
-    return searchExtLibs(searchLocations, files.stream().map(rel::resolve).collect(Collectors.toList()));
+    ArrayList<Path> locs = new ArrayList<>(searchLocations);
+    searchLocations.forEach(p -> locs.add(p.resolve(rel)));
+    return searchExtLibs(locs, files.stream().map(Paths::get).collect(Collectors.toList()));
   }
 
   public boolean configure(Component comp, boolean isDryRun,

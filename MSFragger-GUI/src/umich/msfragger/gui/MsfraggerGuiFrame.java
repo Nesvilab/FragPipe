@@ -4252,7 +4252,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         return false;
       }
       if (!cmdCrystalc.configure(this,
-          fp, isDryRun, ccParams, fastaFile, pepxmlFiles)) {
+          fp, isDryRun, Paths.get(binMsfragger.getBin()), ccParams, fastaFile, pepxmlFiles)) {
         return false;
       }
       pbDescs.add(cmdCrystalc.builders());
