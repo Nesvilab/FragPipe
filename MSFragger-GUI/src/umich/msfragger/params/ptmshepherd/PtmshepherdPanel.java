@@ -1,5 +1,6 @@
 package umich.msfragger.params.ptmshepherd;
 
+import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerDouble.UiSpinnerDoubleBuilder;
 import com.github.chhh.utils.swing.UiSpinnerInt;
@@ -108,7 +109,9 @@ public class PtmshepherdPanel extends JPanel {
     {
       // setting the insets allows the top panel to be shifted left of the options panel
       pTop = new JPanel(new MigLayout(new LC().insetsAll("0px")));
-      checkRun = new JCheckBox("Run PTMShepherd", true);
+
+      checkRun = new UiCheck("Run PTMShepherd", null, true);
+      checkRun.setName("ui.name.report.run-shepherd");
       checkRun.addActionListener(e -> {
         final boolean isSelected = checkRun.isSelected();
         enablementMapping.put(pContent, isSelected);
