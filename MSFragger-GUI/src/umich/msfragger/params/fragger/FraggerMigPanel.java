@@ -605,7 +605,7 @@ public class FraggerMigPanel extends JPanel {
 
       }
 
-      JPanel pSpectral = new JPanel(new MigLayout(new LC().debug()));
+      JPanel pSpectral = new JPanel(new MigLayout(new LC()));
       {
         pSpectral.setBorder(new TitledBorder("Spectral Processing"));
 
