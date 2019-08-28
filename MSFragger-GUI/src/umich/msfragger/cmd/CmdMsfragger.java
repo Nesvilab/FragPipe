@@ -7,12 +7,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -52,6 +55,46 @@ public class CmdMsfragger extends CmdBase {
     return m;
   }
 
+  /**
+   * Search for the presence of library files in relative paths.
+   *
+   * @return Path where the 'ext' folder with needed libraries was found, otherwise null.
+   */
+  private static Path searchExtLibs(List<Path> searchLocations, List<Path> mustBePresent) {
+    Optional<Path> found = searchLocations.stream()
+        .filter(loc -> mustBePresent.stream()
+            .allMatch(rel -> loc.resolve(rel).toFile().exists())).findFirst();
+    return found.orElse(null);
+  }
+
+  public static Path searchExtLibsThermo(List<Path> searchLocations) {
+    Path rel = Paths.get("ext/thermo");
+    List<String> files = Arrays.asList(
+//      "Google.Protobuf.dll",
+//      "Grpc.Core.Api.dll",
+//      "Grpc.Core.dll",
+//      "grpc_csharp_ext.x64.dll",
+//      "grpc_csharp_ext.x86.dll",
+//      "NLog.dll",
+//      "System.Data.Common.dll",
+//      "System.Diagnostics.StackTrace.dll",
+//      "System.Diagnostics.Tracing.dll",
+//      "System.Globalization.Extensions.dll",
+//      "System.Interactive.Async.dll",
+//      "System.IO.Compression.dll",
+//      "System.Net.Http.dll",
+//      "System.Net.Sockets.dll",
+//      "System.Runtime.Serialization.Primitives.dll",
+//      "System.Security.Cryptography.Algorithms.dll",
+//      "System.Security.SecureString.dll",
+//      "System.Threading.Overlapped.dll",
+//      "System.Xml.XPath.XDocument.dll",
+      "ThermoFisher.CommonCore.Data.dll",
+      "ThermoFisher.CommonCore.RawFileReader.dll"
+    );
+    return searchExtLibs(searchLocations, files.stream().map(rel::resolve).collect(Collectors.toList()));
+  }
+
   public boolean configure(Component comp, boolean isDryRun,
       FraggerMigPanel fp, Path jarFragpipe, UsageTrigger binFragger, String pathFasta,
       List<InputLcmsFile> lcmsFiles, final String decoyTag) {
@@ -83,6 +126,20 @@ public class CmdMsfragger extends CmdBase {
                   + "Neither on PATH, nor in the working directory",
               "Error", JOptionPane.ERROR_MESSAGE);
       return false;
+    }
+
+    boolean isThermoRaw = lcmsFiles.stream().anyMatch(f -> f.path.toString().toLowerCase().endsWith(".raw"));
+    if (isThermoRaw) {
+      Path fraggerJarLoc = Paths.get(binFragger.getBin()).getParent();
+      Path libs = searchExtLibsThermo(Collections.singletonList(fraggerJarLoc));
+      if (libs == null) {
+        JOptionPane
+            .showMessageDialog(comp, "Thermo RAW files were used as input.\n"
+                    + "'ext/thermo' folder was not found next to MSFragger jar file.\n"
+                    + "You can obtain it by upgrading your MSFragger from the Config tab.\n",
+                "Libraries missing", JOptionPane.ERROR_MESSAGE);
+        return false;
+      }
     }
 
     // Fasta file

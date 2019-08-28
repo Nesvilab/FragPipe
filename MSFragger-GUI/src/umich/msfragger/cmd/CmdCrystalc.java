@@ -18,10 +18,12 @@ import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
+import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.util.StringUtils;
+import umich.msfragger.util.UsageTrigger;
 
 public class CmdCrystalc extends CmdBase {
 
@@ -32,8 +34,9 @@ public class CmdCrystalc extends CmdBase {
 
   public static final String NAME = "Crystal-C";
   public static final String JAR_GRPPR_NAME = "grppr-0.3.23.jazz";
-  public static final String JAR_MSFTBX_NAME = "lib-msftbx-grpc-1.10.4.jazz";
+  public static final String JAR_MSFTBX_NAME = "lib-msftbx-grpc-1.11.0.jazz";
   private static String[] JAR_DEPS = {JAR_MSFTBX_NAME, JAR_GRPPR_NAME};
+  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML", "RAW");
 
   public CmdCrystalc(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -70,11 +73,24 @@ public class CmdCrystalc extends CmdBase {
     return m;
   }
 
+  private boolean checkCompatibleFormats(Component comp, Map<InputLcmsFile, Path> pepxmlFiles) {
+    List<String> notSupportedExts = getNotSupportedExts1(pepxmlFiles, SUPPORTED_FORMATS);
+    if (!notSupportedExts.isEmpty()) {
+      JOptionPane.showMessageDialog(comp, String.format(
+          "<html>%s doesn't work with '.%s' files.<br/>"
+              + "Either remove files from input or disable %s<br/>"
+              + "You can also convert files using <i>msconvert</i> from ProteoWizard.",NAME, NAME, String.join(", ", notSupportedExts)),
+          NAME + " error", JOptionPane.WARNING_MESSAGE);
+      return false;
+    }
+    return true;
+  }
+
   /**
    * @param ccParams Get these by calling {@link MsfraggerGuiFrame#crystalcFormToParams()}.
    */
   public boolean configure(Component comp,
-      FraggerMigPanel fp, boolean isDryRun,
+      FraggerMigPanel fp, boolean isDryRun, UsageTrigger binFragger,
       CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, Path> pepxmlFiles) {
     pbs.clear();
     if (StringUtils.isNullOrWhitespace(fastaPath)) {
@@ -90,18 +106,10 @@ public class CmdCrystalc extends CmdBase {
       return false;
     }
 
-    final Set<String> lcmsExts = pepxmlFiles.keySet().stream()
-        .map(f -> StringUtils.afterLastDot(f.path.getFileName().toString()))
-        .collect(Collectors.toSet());
-    boolean anyMatch = lcmsExts.stream().map(String::toLowerCase)
-        .anyMatch(ext -> !("mzml".equals(ext) || "mzxml".equals(ext)));
-    if (lcmsExts.isEmpty() || anyMatch) {
-      String foundExts = String.join(", ", lcmsExts);
-      JOptionPane.showMessageDialog(comp,
-          "Crystal-C only supports mzML and mzXML input files.\n" +
-              "The following LCMS file extensions found: " + foundExts + ".\n"
-              + "Disable Crystal-C.",
-          "Unsupported by Crystal-C", JOptionPane.ERROR_MESSAGE);
+    // TODO: first check if ext/thermo exists next to MSfragger. If so, then CrystalC should support .RAW
+    // TODO: and include new extra command line params for lib-msftbx-grpc
+
+    if (!checkCompatibleFormats(comp, pepxmlFiles)) {
       return false;
     }
 
@@ -110,7 +118,7 @@ public class CmdCrystalc extends CmdBase {
       JOptionPane.showMessageDialog(comp,
           "Crystal-C only accepts pepXML file extension.\n"
               + "Switch to pepXML in MSFragger options or disable Crystal-C :\\",
-          "Unsupported by Crystal-C", JOptionPane.ERROR_MESSAGE);
+          "Not supported by Crystal-C", JOptionPane.ERROR_MESSAGE);
       return false;
     }
 

@@ -3,6 +3,7 @@ package umich.msfragger.cmd;
 import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +18,8 @@ import umich.msfragger.util.UsageTrigger;
 
 public class CmdReportFreequant extends CmdBase {
 
-  public static final String NAME = "ReportFreequant";
+  public static final String NAME = "Freequant";
+  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML");
 
   public CmdReportFreequant(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -26,6 +28,19 @@ public class CmdReportFreequant extends CmdBase {
   @Override
   public String getCmdName() {
     return NAME;
+  }
+
+  private boolean checkCompatibleFormats(Component comp, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+    List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, SUPPORTED_FORMATS);
+    if (!notSupportedExts.isEmpty()) {
+      JOptionPane.showMessageDialog(comp, String.format(
+          "<html>%s doesn't support '.%s' files.<br/>"
+              + "Either remove them from input or disable %s<br/>"
+              + "You can convert files using <i>msconvert</i> from ProteoWizard.", NAME, String.join(", ", notSupportedExts), NAME),
+          NAME + "error", JOptionPane.WARNING_MESSAGE);
+      return false;
+    }
+    return true;
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
@@ -46,18 +61,7 @@ public class CmdReportFreequant extends CmdBase {
         return false;
       }
 
-      boolean mzxmlInInput = mapGroupsToProtxml.keySet().stream().flatMap(g -> g.lcmsFiles.stream())
-          .map(f -> StringUtils.afterLastDot(f.path.getFileName().toString()))
-          .anyMatch("mzxml"::equalsIgnoreCase);
-      if (mzxmlInInput) {
-        JOptionPane.showMessageDialog(comp,
-            "<html>Freequant doesn't work with mzXML files.<br/>"
-                + "Either remove mzXML files from input or disable<br/>"
-                + "Freequant on the Report tab. You can also convert<br/>"
-                + "mzXML files to mzML using <i>msconvert</i> from ProteoWizard.",
-            "Freequant error", JOptionPane.WARNING_MESSAGE);
-        return false;
-      }
+      checkCompatibleFormats(comp, mapGroupsToProtxml);
 
       final Path lcmsDir = lcmsDirsForProtxml.iterator().next().toAbsolutePath();
       final Path groupWd = group.outputDir(wd);

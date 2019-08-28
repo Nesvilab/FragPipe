@@ -6,14 +6,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.msfragger.gui.InputLcmsFile;
+import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.util.JarUtils;
 import umich.msfragger.util.OsUtils;
+import umich.msfragger.util.StringUtils;
 
 public abstract class CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdBase.class);
@@ -51,6 +55,26 @@ public abstract class CmdBase {
     final String sep = System.getProperties().getProperty("path.separator");
     final String classpath = org.apache.commons.lang3.StringUtils.join(toJoin, sep);
     return OsUtils.isWindows() ? "\"" + classpath + "\"" : classpath;
+  }
+
+  public static List<String> getNotSupportedExts(Map<LcmsFileGroup, Path> mapGroupsToProtxml, List<String> supportedExts) {
+    List<String> supportedLoCase = supportedExts.stream().map(String::toLowerCase)
+        .collect(Collectors.toList());
+    List<String> exts = mapGroupsToProtxml.keySet().stream().flatMap(g -> g.lcmsFiles.stream())
+        .map(f -> StringUtils.afterLastDot(f.path.getFileName().toString().toLowerCase()))
+        .distinct()
+        .filter(ext -> !supportedLoCase.contains(ext)).collect(Collectors.toList());
+    return exts;
+  }
+
+  public static List<String> getNotSupportedExts1(Map<InputLcmsFile, Path> pepxmlFiles, List<String> supportedExts) {
+    List<String> supportedLoCase = supportedExts.stream().map(String::toLowerCase)
+        .collect(Collectors.toList());
+    List<String> exts = pepxmlFiles.keySet().stream()
+        .map(f -> StringUtils.afterLastDot(f.path.getFileName().toString().toLowerCase()))
+        .distinct()
+        .filter(ext -> !supportedLoCase.contains(ext)).collect(Collectors.toList());
+    return exts;
   }
 
   /**

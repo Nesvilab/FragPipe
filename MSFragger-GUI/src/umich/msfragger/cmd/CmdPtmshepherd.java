@@ -31,9 +31,10 @@ public class CmdPtmshepherd extends CmdBase {
 //  public static final String JAR_SHEPHERD_NAME = "PTMShepherd-20180820_2.jazz";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_SHEPHERD_MAIN_CLASS = "edu.umich.andykong.ptmshepherd.PTMShepherd";
-  public static final String[] JAR_DEPS = {"lib-msftbx-grpc-1.10.4.jazz", "commons-math3-3.6.1.jazz"};
+  public static final String[] JAR_DEPS = {"lib-msftbx-grpc-1.11.0.jazz", "commons-math3-3.6.1.jazz"};
   public static final String FN_CAPTURE_STDOUT = "ptm-shepherd.log";
   public static final String FN_CAPTURE_STDERR = "ptm-shepherd.log";
+  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
 
   public CmdPtmshepherd(boolean isRun, Path workDir) {
     super(isRun, workDir, FN_CAPTURE_STDOUT, FN_CAPTURE_STDERR);
@@ -44,8 +45,25 @@ public class CmdPtmshepherd extends CmdBase {
     return NAME;
   }
 
+  private boolean checkCompatibleFormats(Component comp, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+    List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, SUPPORTED_FORMATS);
+    if (!notSupportedExts.isEmpty()) {
+      JOptionPane.showMessageDialog(comp, String.format(
+          "<html>%s doesn't support '.%s' files.<br/>"
+              + "Either remove them from input or disable %s<br/>"
+              + "You can convert files using <i>msconvert</i> from ProteoWizard.", NAME, String.join(", ", notSupportedExts), NAME),
+          NAME + "error", JOptionPane.WARNING_MESSAGE);
+      return false;
+    }
+    return true;
+  }
+
   public boolean configure(Component comp, boolean isDryRun, int ramGb,
       Path db, Map<LcmsFileGroup, Path> mapGroupsToProtxml, Map<String, String> additionalProps) {
+
+    if (!checkCompatibleFormats(comp, mapGroupsToProtxml)) {
+      return false;
+    }
 
     final long numGroups = mapGroupsToProtxml.keySet().stream()
         .map(group -> group.name).distinct().count();
