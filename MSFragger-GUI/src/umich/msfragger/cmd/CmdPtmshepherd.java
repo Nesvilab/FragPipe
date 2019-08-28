@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,10 +32,11 @@ public class CmdPtmshepherd extends CmdBase {
 //  public static final String JAR_SHEPHERD_NAME = "PTMShepherd-20180820_2.jazz";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_SHEPHERD_MAIN_CLASS = "edu.umich.andykong.ptmshepherd.PTMShepherd";
-  public static final String[] JAR_DEPS = {"lib-msftbx-grpc-1.13.0.jazz", "commons-math3-3.6.1.jazz"};
+  public static final String[] JAR_DEPS = {"batmass-io-1.13.0.jazz", "commons-math3-3.6.1.jazz"};
   public static final String FN_CAPTURE_STDOUT = "ptm-shepherd.log";
   public static final String FN_CAPTURE_STDERR = "ptm-shepherd.log";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
+  private static final String THERMO_RAW_EXT = "RAW";
 
   public CmdPtmshepherd(boolean isRun, Path workDir) {
     super(isRun, workDir, FN_CAPTURE_STDOUT, FN_CAPTURE_STDERR);
@@ -58,7 +60,7 @@ public class CmdPtmshepherd extends CmdBase {
     return true;
   }
 
-  public boolean configure(Component comp, boolean isDryRun, int ramGb,
+  public boolean configure(Component comp, boolean isDryRun, Path binFragger, int ramGb,
       Path db, Map<LcmsFileGroup, Path> mapGroupsToProtxml, Map<String, String> additionalProps) {
 
     if (!checkCompatibleFormats(comp, mapGroupsToProtxml)) {
@@ -82,6 +84,13 @@ public class CmdPtmshepherd extends CmdBase {
         log.error(msg);
         return false;
       }
+    }
+
+    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
+
+    ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
+    if (extLibsThermo != null) {
+      sup.add(THERMO_RAW_EXT);
     }
 
     List<String> jars = Stream.concat(Arrays.stream(JAR_DEPS), Stream.of(JAR_SHEPHERD_NAME))
@@ -124,6 +133,12 @@ public class CmdPtmshepherd extends CmdBase {
     // builders
     List<String> cmd = new ArrayList<>();
     cmd.add("java");
+    if (ramGb > 0) {
+      cmd.add("-Xmx" + ramGb + "G");
+    }
+    if (extLibsThermo != null) {
+      cmd.add("-Dbatmass.io.libs.thermo.dir=\"" + extLibsThermo.toString() + "\"" );
+    }
     if (ramGb > 0) {
       cmd.add("-Xmx" + ramGb + "G");
     }
