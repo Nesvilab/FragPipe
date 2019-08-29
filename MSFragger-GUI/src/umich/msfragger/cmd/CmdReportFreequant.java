@@ -47,6 +47,10 @@ public class CmdReportFreequant extends CmdBase {
       String textReportLabelfree, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
     pbs.clear();
+    if (!checkCompatibleFormats(comp, mapGroupsToProtxml)) {
+      return false;
+    }
+
     for (Map.Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
       final LcmsFileGroup group = e.getKey();
       final Path protxml = e.getValue();
@@ -60,8 +64,6 @@ public class CmdReportFreequant extends CmdBase {
         JOptionPane.showMessageDialog(comp, msg, "Freequant Error", JOptionPane.WARNING_MESSAGE);
         return false;
       }
-
-      checkCompatibleFormats(comp, mapGroupsToProtxml);
 
       final Path lcmsDir = lcmsDirsForProtxml.iterator().next().toAbsolutePath();
       final Path groupWd = group.outputDir(wd);

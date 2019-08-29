@@ -97,6 +97,16 @@ public class CmdCrystalc extends CmdBase {
       FraggerMigPanel fp, boolean isDryRun, Path binFragger,
       CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, Path> pepxmlFiles) {
     pbs.clear();
+
+    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
+    ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
+    if (extLibsThermo != null) {
+      sup.add(THERMO_RAW_EXT);
+    }
+    if (!checkCompatibleFormats(comp, pepxmlFiles, sup)) {
+      return false;
+    }
+
     if (StringUtils.isNullOrWhitespace(fastaPath)) {
       JOptionPane.showMessageDialog(comp, "Fasta file [Crystal-C] path can't be empty.",
           "Warning", JOptionPane.WARNING_MESSAGE);
@@ -107,16 +117,6 @@ public class CmdCrystalc extends CmdBase {
         .collect(Collectors.toList());
     final List<Path> unpacked = new ArrayList<>();
     if (!unpackJars(jars, unpacked, NAME)) {
-      return false;
-    }
-
-    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
-
-    ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
-    if (extLibsThermo != null) {
-      sup.add(THERMO_RAW_EXT);
-    }
-    if (!checkCompatibleFormats(comp, pepxmlFiles, sup)) {
       return false;
     }
 

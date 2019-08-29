@@ -28,7 +28,7 @@ public class CmdPtmshepherd extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdPtmshepherd.class);
   public static final String NAME = "PTMShepherd";
   public static final String CONFIG_FN = "shepherd.config";
-  public static final String JAR_SHEPHERD_NAME = "ptmshepherd-0.2.0.jazz";
+  public static final String JAR_SHEPHERD_NAME = "ptmshepherd-0.2.1.jazz";
 //  public static final String JAR_SHEPHERD_NAME = "PTMShepherd-20180820_2.jazz";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_SHEPHERD_MAIN_CLASS = "edu.umich.andykong.ptmshepherd.PTMShepherd";
@@ -47,8 +47,8 @@ public class CmdPtmshepherd extends CmdBase {
     return NAME;
   }
 
-  private boolean checkCompatibleFormats(Component comp, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
-    List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, SUPPORTED_FORMATS);
+  private boolean checkCompatibleFormats(Component comp, Map<LcmsFileGroup, Path> mapGroupsToProtxml, List<String> supportedExts) {
+    List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, supportedExts);
     if (!notSupportedExts.isEmpty()) {
       JOptionPane.showMessageDialog(comp, String.format(
           "<html>%s doesn't support '.%s' files.<br/>"
@@ -63,7 +63,12 @@ public class CmdPtmshepherd extends CmdBase {
   public boolean configure(Component comp, boolean isDryRun, Path binFragger, int ramGb,
       Path db, Map<LcmsFileGroup, Path> mapGroupsToProtxml, Map<String, String> additionalProps) {
 
-    if (!checkCompatibleFormats(comp, mapGroupsToProtxml)) {
+    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
+    ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
+    if (extLibsThermo != null) {
+      sup.add(THERMO_RAW_EXT);
+    }
+    if (!checkCompatibleFormats(comp, mapGroupsToProtxml, sup)) {
       return false;
     }
 
@@ -84,13 +89,6 @@ public class CmdPtmshepherd extends CmdBase {
         log.error(msg);
         return false;
       }
-    }
-
-    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
-
-    ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
-    if (extLibsThermo != null) {
-      sup.add(THERMO_RAW_EXT);
     }
 
     List<String> jars = Stream.concat(Arrays.stream(JAR_DEPS), Stream.of(JAR_SHEPHERD_NAME))
