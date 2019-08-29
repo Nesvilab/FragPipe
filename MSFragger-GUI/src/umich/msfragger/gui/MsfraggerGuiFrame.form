@@ -1628,6 +1628,7 @@
                           <Component id="panelReportOptions" max="32767" attributes="0"/>
                           <Component id="panelSpecLibOpts" alignment="0" max="32767" attributes="0"/>
                           <Component id="jPanel4" alignment="0" max="32767" attributes="0"/>
+                          <Component id="ptmshepherdPanel" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -1643,8 +1644,10 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
+                      <Component id="ptmshepherdPanel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelSpecLibOpts" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="265" max="32767" attributes="0"/>
+                      <EmptySpace pref="268" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1672,14 +1675,13 @@
                               </Group>
                               <Group type="102" alignment="1" attributes="0">
                                   <Group type="103" groupAlignment="1" attributes="0">
-                                      <Component id="ptmshepherdPanel" alignment="0" max="32767" attributes="0"/>
                                       <Group type="102" alignment="0" attributes="0">
                                           <Component id="checkReportWriteMzid" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                                       </Group>
                                       <Group type="102" alignment="0" attributes="0">
                                           <Component id="checkReportAbacus" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace pref="201" max="32767" attributes="0"/>
+                                          <EmptySpace pref="205" max="32767" attributes="0"/>
                                           <Component id="checkReportPrintDecoys" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                           <Component id="checkFilterNoProtxml" min="-2" max="-2" attributes="0"/>
@@ -1706,8 +1708,6 @@
                           </Group>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="checkReportWriteMzid" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="ptmshepherdPanel" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -1781,8 +1781,6 @@
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkReportWriteMzidActionPerformed"/>
                   </Events>
-                </Component>
-                <Component class="umich.msfragger.params.ptmshepherd.PtmshepherdPanel" name="ptmshepherdPanel">
                 </Component>
               </SubComponents>
             </Container>
@@ -1897,6 +1895,15 @@
                 </Component>
               </SubComponents>
             </Container>
+            <Component class="umich.msfragger.params.ptmshepherd.PtmshepherdPanel" name="ptmshepherdPanel">
+              <Properties>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                    <TitledBorder title="PTM Analysis"/>
+                  </Border>
+                </Property>
+              </Properties>
+            </Component>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="panelRun">

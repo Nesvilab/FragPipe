@@ -152,7 +152,8 @@ public class PtmshepherdPanel extends JPanel {
 
     {
       pPeakPicking = new JPanel(new MigLayout(new LC()));
-      pPeakPicking.setBorder(new TitledBorder("PTMShepherd options"));
+      //pPeakPicking.setBorder(new TitledBorder("PTMShepherd options"));
+      pPeakPicking.setBorder(new EmptyBorder(0, 0, 0, 0));
 
       FormEntry feHistoSmoothBins = new FormEntry(PROP_histo_smoothbins, "Smoothing factor",
           new UiSpinnerInt(3, 1, 5, 1, 5));

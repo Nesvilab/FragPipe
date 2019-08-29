@@ -1165,13 +1165,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     checkFilterNoProtxml = new javax.swing.JCheckBox();
     checkReportPrintDecoys = new javax.swing.JCheckBox();
     checkReportWriteMzid = new javax.swing.JCheckBox();
-    ptmshepherdPanel = new umich.msfragger.params.ptmshepherd.PtmshepherdPanel();
     checkCreateReport = new javax.swing.JCheckBox();
     panelSpecLibOpts = new javax.swing.JPanel();
     checkGenerateSpecLib = new javax.swing.JCheckBox();
     jPanel4 = new javax.swing.JPanel();
     checkLabelfree = new javax.swing.JCheckBox();
     textReportLabelfree = new javax.swing.JTextField();
+    ptmshepherdPanel = new umich.msfragger.params.ptmshepherd.PtmshepherdPanel();
     panelRun = new javax.swing.JPanel();
     btnStop = new javax.swing.JButton();
     btnClearConsole = new javax.swing.JButton();
@@ -2286,13 +2286,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addComponent(textReportFilter))
           .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReportOptionsLayout.createSequentialGroup()
             .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-              .addComponent(ptmshepherdPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
               .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelReportOptionsLayout.createSequentialGroup()
                 .addComponent(checkReportWriteMzid)
                 .addGap(0, 0, Short.MAX_VALUE))
               .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelReportOptionsLayout.createSequentialGroup()
                 .addComponent(checkReportAbacus)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 201, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 205, Short.MAX_VALUE)
                 .addComponent(checkReportPrintDecoys)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkFilterNoProtxml)))
@@ -2310,9 +2309,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(checkReportPrintDecoys)
           .addComponent(checkFilterNoProtxml))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-        .addComponent(checkReportWriteMzid)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(ptmshepherdPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addComponent(checkReportWriteMzid))
     );
 
     loadLastReportFilter();
@@ -2400,6 +2397,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     loadLastFreequant();
 
+    ptmshepherdPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("PTM Analysis"));
+
     javax.swing.GroupLayout panelReportLayout = new javax.swing.GroupLayout(panelReport);
     panelReport.setLayout(panelReportLayout);
     panelReportLayout.setHorizontalGroup(
@@ -2412,7 +2411,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addGap(0, 0, Short.MAX_VALUE))
           .addComponent(panelReportOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+          .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(ptmshepherdPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         .addContainerGap())
     );
     panelReportLayout.setVerticalGroup(
@@ -2425,8 +2425,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(ptmshepherdPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(265, Short.MAX_VALUE))
+        .addContainerGap(268, Short.MAX_VALUE))
     );
 
     tabPane.addTab("Report", null, panelReport, "");
