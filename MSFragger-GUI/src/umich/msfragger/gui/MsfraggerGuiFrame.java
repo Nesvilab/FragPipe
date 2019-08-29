@@ -889,10 +889,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         + "<li>Andy Kong</li>"
         + "<li>Dmitry Avtonomov</li>"
         + "<li>Guo-Ci Teo</li>"
+        + "<li>Fengchao Yu</li>"
         + "<li>Alexey Nesvizhskii</li>"
         + "</ul>"
         + "<a href=\"" + linkToPaper + "\">Link to the research manuscript</a><br/>"
         + "Reference: <b>doi:10.1038/nmeth.4256</b>"
+        + "Philosopher tools by Felipe Leprevost<br/>"
+        + "PTM-Shepherd by Andy Kong<br/>"
+        + "Crystal-C by Hui-Yin Chang<br/>"
         + "</body></html>");
 
     // handle link messages
@@ -4374,8 +4378,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       final boolean isFreequant = SwingUtils.isEnabledAndChecked(checkLabelfree);
       final CmdReportFreequant cmdReportFreequant = new CmdReportFreequant(isFreequant, wd);
       if (cmdReportFreequant.isRun()) {
-        if (!cmdReportFreequant.configure(this, usePhi,
-            textReportLabelfree.getText(), mapGroupsToProtxml)) {
+        if (!cmdReportFreequant.configure(this, usePhi, textReportLabelfree.getText(), mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(cmdReportFreequant.builders());
@@ -4424,7 +4427,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       if (threads > 0) {
         additionalShepherdParams.put("threads", Integer.toString(threads));
       }
-      if (!cmdPtmshepherd.configure(this, isDryRun, ramGb, fastaPath, mapGroupsToProtxml, additionalShepherdParams)) {
+      if (!cmdPtmshepherd.configure(this, isDryRun, Paths.get(binMsfragger.getBin()),
+          ramGb, fastaPath, mapGroupsToProtxml, additionalShepherdParams)) {
         return false;
       }
       pbDescs.add(cmdPtmshepherd.builders());
