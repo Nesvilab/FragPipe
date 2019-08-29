@@ -155,7 +155,7 @@ public class PtmshepherdPanel extends JPanel {
       pPeakPicking.setBorder(new TitledBorder("PTMShepherd options"));
 
       FormEntry feHistoSmoothBins = new FormEntry(PROP_histo_smoothbins, "Smoothing factor",
-          new UiSpinnerInt(3, 0, 1000000, 1, 5));
+          new UiSpinnerInt(3, 1, 5, 1, 5));
 
       pPeakPicking.add(feHistoSmoothBins.label(), new CC().alignX("right"));
       pPeakPicking.add(feHistoSmoothBins.comp, new CC().spanX().wrap());
