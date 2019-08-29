@@ -893,10 +893,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         + "<li>Alexey Nesvizhskii</li>"
         + "</ul>"
         + "<a href=\"" + linkToPaper + "\">Link to the research manuscript</a><br/>"
-        + "Reference: <b>doi:10.1038/nmeth.4256</b>"
-        + "Philosopher tools by Felipe Leprevost<br/>"
-        + "PTM-Shepherd by Andy Kong<br/>"
-        + "Crystal-C by Hui-Yin Chang<br/>"
+        + "Reference: <b>doi:10.1038/nmeth.4256</b><br/><br/>"
+        + "Components and Downstream tools:"
+        + "<ul>"
+        + "<li><a href='https://philosopher.nesvilab.org/'>Philosopher</a>: Felipe Leprevost</li>"
+        + "<li>PTM-Shepherd: Andy Kong</li>"
+        + "<li>Crystal-C: Hui-Yin Chang</li>"
+        + "<li>Spectral library generation: Guo-Ci Teo</li>"
+        + "<li><a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou</li>"
+        + "</ul>"
         + "</body></html>");
 
     // handle link messages
