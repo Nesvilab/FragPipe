@@ -694,7 +694,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   @Subscribe
-  public void loadDefaults(MessageSearchType m) {
+  public void onMessageSearchType(MessageSearchType m) {
     final SearchTypeProp t = m.type;
 
     for (Method method : this.getClass().getDeclaredMethods()) {

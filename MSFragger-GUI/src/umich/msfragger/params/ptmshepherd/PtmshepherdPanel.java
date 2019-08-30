@@ -29,6 +29,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.messages.MessageLoadShepherdDefaults;
+import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.swing.FormEntry;
@@ -98,6 +99,19 @@ public class PtmshepherdPanel extends JPanel {
       SwingUtils.showErrorDialog(e, this);
     }
 
+  }
+
+  @Subscribe
+  public void onMessageSearchTypePtms(MessageSearchType m) {
+    switch (m.type) {
+      case open:
+        checkRun.setSelected(true);
+        break;
+      case closed:
+      case nonspecific:
+        checkRun.setSelected(false);
+        break;
+    }
   }
 
   private void initMore() {
