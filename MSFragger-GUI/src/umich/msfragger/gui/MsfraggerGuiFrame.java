@@ -3127,9 +3127,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return true;
     }
 
-    Pattern regex = Pattern
-        .compile("MSFragger version (MSFragger-([\\d\\.]{4,}))", Pattern.CASE_INSENSITIVE);
-
     // get the vesrion reported by the current executable
     final MsfraggerProps.FraggerRunResult jarTest = MsfraggerProps.testJar(jarPath);
     final String localVer = jarTest.isVersionPrintedAtAll ? jarTest.version : "0.0";
@@ -3140,8 +3137,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     lblFraggerJavaVer.setText(String.format(
         "MSFragger version: %s. %s", fraggerVer, OsUtils.JavaInfo()));
 
-    // The version from cmd line ouput is new enough to pass the local
-    // test. Now check the versions on remotes.
+    // Now check the versions on remotes.
     final VersionComparator vc = new VersionComparator();
     Thread t = new Thread(() -> {
 
@@ -3177,7 +3173,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     localVer, updateVer));
               } else {
                 sb.append(
-                    String.format("Your version is <b>too old and not supported anymore</b><br>\n"
+                    String.format("<b>This version is not supported anymore</b><br>\n"
                         + "Get a new version of MSFragger [%s].<br>\n", updateVer));
               }
               if (vf.canAutoUpdate()) {
