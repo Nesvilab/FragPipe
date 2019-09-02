@@ -75,17 +75,19 @@ public class MsfraggerProps {
         String verStr = null;
         boolean isVersionPrintedAtAll = false;
         try {
-            Pattern regex = Pattern.compile("MSFragger version (MSFragger-([\\d\\.]{4,}))", Pattern.CASE_INSENSITIVE);
             ProcessBuilder pb = new ProcessBuilder("java", "-jar", jarPath);
+            List<Pattern> regexs = Arrays.asList(MsfraggerVersionComparator.regexOldScheme1, MsfraggerVersionComparator.regexNewScheme1);
             pb.redirectErrorStream(true);
             Process pr = pb.start();
             try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
                 String line;
                 while ((line = in.readLine()) != null) {
-                    Matcher m = regex.matcher(line);
-                    if (m.matches()) {
-                        isVersionPrintedAtAll = true;
-                        verStr = m.group(2);
+                    for (Pattern re : regexs) {
+                        Matcher m = re.matcher(line);
+                        if (m.find()) {
+                            isVersionPrintedAtAll = true;
+                            verStr = m.group(2);
+                        }
                     }
                 }
                 pr.waitFor();

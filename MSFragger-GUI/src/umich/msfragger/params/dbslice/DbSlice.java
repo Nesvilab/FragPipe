@@ -13,6 +13,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import umich.msfragger.messages.MessageToolInit;
 import umich.msfragger.params.fragger.MsfraggerProps;
+import umich.msfragger.params.fragger.MsfraggerVersionComparator;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.util.CheckResult;
 import umich.msfragger.util.Installed;
@@ -232,7 +233,7 @@ public class DbSlice {
   }
 
   private CheckResult checkFraggerVer(String fraggerVer) {
-    VersionComparator cmp = new VersionComparator();
+    MsfraggerVersionComparator cmp = new MsfraggerVersionComparator();
     String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, "20180924");
     int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
 

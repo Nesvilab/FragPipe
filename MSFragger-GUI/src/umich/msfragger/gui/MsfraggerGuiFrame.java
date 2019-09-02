@@ -187,6 +187,7 @@ import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.fragger.MsfraggerProps;
+import umich.msfragger.params.fragger.MsfraggerVersionComparator;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
@@ -2916,7 +2917,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE +
           " property needs to be in Msfragger properties");
     }
-    VersionComparator cmp = new VersionComparator();
+    MsfraggerVersionComparator cmp = new MsfraggerVersionComparator();
     int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
     if (fraggerVersionCmp >= 0) {
       enableCalibrate = true;
@@ -2936,7 +2937,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           " property needs to be in Msfragger properties");
     }
 
-    VersionComparator cmp = new VersionComparator();
+    MsfraggerVersionComparator cmp = new MsfraggerVersionComparator();
     int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
     if (fraggerVersionCmp >= 0) {
       enableMsadjuster = true;
@@ -3138,11 +3139,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         "MSFragger version: %s. %s", fraggerVer, OsUtils.JavaInfo()));
 
     // Now check the versions on remotes.
-    final VersionComparator vc = new VersionComparator();
+    final MsfraggerVersionComparator vc = new MsfraggerVersionComparator();
     Thread t = new Thread(() -> {
 
       MsfraggerVersionFetcherServer vfServer = new MsfraggerVersionFetcherServer();
       MsfraggerVersionFetcherGithub vfGithub = new MsfraggerVersionFetcherGithub();
+//      MsfraggerVersionFetcherServer vfServer = null;
+//      MsfraggerVersionFetcherGithub vfGithub = null;
       MsfraggerVersionFetcherLocal vfLocal = new MsfraggerVersionFetcherLocal();
       List<VersionFetcher> verFetchers = Arrays.asList(vfServer, vfGithub, vfLocal);
       for (final VersionFetcher vf : verFetchers) {
