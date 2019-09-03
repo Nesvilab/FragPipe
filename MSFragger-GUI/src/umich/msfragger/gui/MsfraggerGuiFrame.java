@@ -811,10 +811,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     // save locations
     ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, m.paths.get(m.paths.size()-1).toString());
 
-    // vet the files
+    // vet/check input LCMS files for bad naming
     final FileNameExtensionFilter ff = CmdMsfragger
         .getFileFilter(Arrays.asList(getBinMsfragger()));
     final HashMap<Path, String> reasons = new HashMap<>();
+    String allowedChars = "[A-Za-z0-9-_\\+\\.\\[\\]\\(\\)]";
+    Pattern re = Pattern.compile(allowedChars + "+");
     m.paths.stream()
         .filter(p -> !com.github.chhh.utils.StringUtils.isPureAscii(p.toString()))
         .forEach(p -> { reasons.merge(p, "Non-ASCII chars", (s1, s2) -> String.join(", ", s1, s2)); });
@@ -822,8 +824,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .filter(p -> p.toString().contains(" "))
         .forEach(p -> { reasons.merge(p, "Contains spaces", (s1, s2) -> String.join(", ", s1, s2)); });
     m.paths.stream()
+        .filter(p -> p.getFileName().toString().chars().filter(ch -> ch == '.').count() > 1)
+        .forEach(p -> { reasons.merge(p, "Contains dots", (s1, s2) -> String.join(", ", s1, s2)); });
+    m.paths.stream()
         .filter(p -> !ff.accept(p.toFile()))
         .forEach(p -> { reasons.merge(p, "Not supported", (s1, s2) -> String.join(", ", s1, s2)); });
+    m.paths.stream()
+        .filter(p -> !re.matcher(p.getFileName().toString()).matches())
+        .forEach(p -> { reasons.merge(p, "Contains characters other than: " + allowedChars, (s1, s2) -> String.join(", ", s1, s2)); });
 
     Stream<Path> toAdd = m.paths.stream();
     if (!reasons.isEmpty()) {
@@ -855,6 +863,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         case 1:
           break;
         case 2:
+          int a = 1;
           toAdd = toAdd.filter(path -> !reasons.containsKey(path));
           break;
       }
@@ -3815,6 +3824,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final ArrayList<InputLcmsFile> lcmsFilesAll = lcmsFileGroups.values().stream()
         .flatMap(group -> group.lcmsFiles.stream()).collect(Collectors.toCollection(ArrayList::new));
 
+    // check input LCMS files
     if (lcmsFilesAll.isEmpty()) {
       JOptionPane.showMessageDialog(this, "No LC/MS data files selected.\n"
           + "Check 'Select Raw Files' tab.", "Error", JOptionPane.WARNING_MESSAGE);
@@ -3830,6 +3840,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           inputFnMap.computeIfAbsent(fn, s -> new LinkedList<>()).add(path);
         }
       }
+
+      // check LCMS files only have one dot in the name
+
       List<Entry<String, List<Path>>> collect = inputFnMap.entrySet().stream()
           .filter(kv -> kv.getValue().size() > 1).collect(Collectors.toList());
       if (!collect.isEmpty()) {
