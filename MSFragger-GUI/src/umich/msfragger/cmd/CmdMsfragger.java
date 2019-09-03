@@ -14,9 +14,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +36,10 @@ import umich.msfragger.util.UsageTrigger;
 public class CmdMsfragger extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdMsfragger.class);
   public static final String NAME = "MsFragger";
+
+  private static volatile FileNameExtensionFilter ff = null;
+  private static FileNameExtensionFilter ffDedault = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf)", "mzml", "mzxml", "mgf");
+
 
   public CmdMsfragger(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -56,45 +64,108 @@ public class CmdMsfragger extends CmdBase {
   }
 
   /**
+   * @param searchPaths Paths were to search for native libraries. Pass in the location of
+   * MSFragger.jar.
+   */
+  public static FileNameExtensionFilter getFileFilter(List<Path> searchPaths) {
+    if (searchPaths == null || searchPaths.isEmpty()
+        || searchPaths.stream().allMatch(Objects::isNull)) {
+      return ffDedault;
+    }
+    FileNameExtensionFilter local = ff;
+    if (local == null) {
+      synchronized (CmdMsfragger.class) {
+        local = ff;
+        if (local == null) {
+          ff = local = createFileFilter(searchPaths);
+        }
+      }
+    }
+    return local;
+  }
+
+  private static FileNameExtensionFilter createFileFilter(List<Path> searchPaths) {
+    List<String> desc = new ArrayList<>(Arrays.asList("mzML", "mzXML", "mgf"));
+    List<String> exts = new ArrayList<>(Arrays.asList("mzml", "mzxml", "mgf"));
+    if (searchExtLibsThermo(searchPaths) != null) {
+      desc.add("Thermo RAW");
+      exts.add("raw");
+    }
+    if (searchExtLibsBruker(searchPaths) != null) {
+      desc.add("Buker PASEF .d");
+      exts.add("d");
+    }
+    String d = String.format("LCMS Files (%s)", String.join("/", desc));
+    return new FileNameExtensionFilter(d, exts.toArray(new String[0]));
+  }
+
+  /**
    * Search for the presence of library files in relative paths.
    *
    * @return Path where the 'ext' folder with needed libraries was found, otherwise null.
    */
-  private static Path searchExtLibs(List<Path> searchLocations, List<Path> mustBePresent) {
+  private static Path searchExtLibsByPath(List<Path> searchLocations, List<Path> mustBePresent) {
     Optional<Path> found = searchLocations.stream()
         .filter(loc -> mustBePresent.stream()
             .allMatch(rel -> loc.resolve(rel).toFile().exists())).findFirst();
     return found.orElse(null);
   }
 
+  /**
+   * Search for the presence of library files in relative paths.
+   *
+   * @return Path where the 'ext' folder with needed libraries was found, otherwise null.
+   */
+  private static Path searchExtLibsByPattern(List<Path> searchLocations, List<Pattern> fileNamePattern) {
+    Optional<Path> found = searchLocations.stream()
+        .filter(loc -> fileNamePattern.stream().allMatch(re -> {
+          try {
+            return Files.list(loc).anyMatch(file ->
+                re.matcher(file.getFileName().toString()).find());
+          } catch (IOException ignored) {
+            return false;
+          }
+        }))
+        .findFirst();
+    return found.orElse(null);
+  }
+
+  public static Path searchExtLibsBruker(List<Path> searchLocations) {
+    Path rel = Paths.get("ext/bruker");
+    List<String> filenamePatterns = Arrays.asList(
+        "^timsdata.*?\\.dll",
+        "^libtimsdata.*?\\.so"
+    );
+    List<Path> dirs = searchLocations.stream()
+        .map(path -> Files.isDirectory(path) ? path : path.getParent()).distinct().collect(
+            Collectors.toList());
+    List<Path> locs = createRelSearchPaths(dirs, rel);
+    return searchExtLibsByPattern(locs, filenamePatterns.stream().map(Pattern::compile).collect(Collectors.toList()));
+  }
+
   public static Path searchExtLibsThermo(List<Path> searchLocations) {
     Path rel = Paths.get("ext/thermo");
     List<String> files = Arrays.asList(
-//      "Google.Protobuf.dll",
-//      "Grpc.Core.Api.dll",
-//      "Grpc.Core.dll",
-//      "grpc_csharp_ext.x64.dll",
-//      "grpc_csharp_ext.x86.dll",
-//      "NLog.dll",
-//      "System.Data.Common.dll",
-//      "System.Diagnostics.StackTrace.dll",
-//      "System.Diagnostics.Tracing.dll",
-//      "System.Globalization.Extensions.dll",
-//      "System.Interactive.Async.dll",
-//      "System.IO.Compression.dll",
-//      "System.Net.Http.dll",
-//      "System.Net.Sockets.dll",
-//      "System.Runtime.Serialization.Primitives.dll",
-//      "System.Security.Cryptography.Algorithms.dll",
-//      "System.Security.SecureString.dll",
-//      "System.Threading.Overlapped.dll",
-//      "System.Xml.XPath.XDocument.dll",
       "ThermoFisher.CommonCore.Data.dll",
       "ThermoFisher.CommonCore.RawFileReader.dll"
     );
+    List<Path> dirs = searchLocations.stream()
+        .map(path -> Files.isDirectory(path) ? path : path.getParent()).distinct().collect(
+            Collectors.toList());
+    List<Path> locs = createRelSearchPaths(dirs, rel);
+    return searchExtLibsByPath(locs, files.stream().map(Paths::get).collect(Collectors.toList()));
+  }
+
+  private static List<Path> createRelSearchPaths(List<Path> searchLocations, Path rel) {
     ArrayList<Path> locs = new ArrayList<>(searchLocations);
-    searchLocations.forEach(p -> locs.add(p.resolve(rel)));
-    return searchExtLibs(locs, files.stream().map(Paths::get).collect(Collectors.toList()));
+    searchLocations.forEach(p -> {
+      if (Files.isDirectory(p)) {
+        locs.add(p.resolve(rel));
+      } else {
+        locs.add(p.getParent().resolve(rel));
+      }
+    });
+    return locs;
   }
 
   public boolean configure(Component comp, boolean isDryRun,

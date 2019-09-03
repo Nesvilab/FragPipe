@@ -523,15 +523,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     // dropping onto enclosing JPanel works.
     tableRawFilesFileDrop = new FileDrop(panelSelectedFiles, true, files -> {
       ArrayList<Path> paths = new ArrayList<>(files.length);
+
+      final FileNameExtensionFilter ff = CmdMsfragger
+          .getFileFilter(Arrays.asList(getBinMsfragger()));
+
       for (File f : files) {
         boolean isDirectory = f.isDirectory();
         if (!isDirectory) {
-          if (FraggerMigPanel.fileNameExtensionFilter.accept(f)) {
+          if (ff.accept(f)) {
             paths.add(Paths.get(f.getAbsolutePath()));
           }
         } else {
           PathUtils
-              .traverseDirectoriesAcceptingFiles(f, FraggerMigPanel.fileNameExtensionFilter, paths);
+              .traverseDirectoriesAcceptingFiles(f, ff, paths);
         }
       }
       EventBus.getDefault().post(new MessageLcmsFilesAdded(paths));
@@ -592,6 +596,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     EventBus.getDefault().post(MessageLoadAllForms.forCaching());
 
     initActions();
+  }
+
+  public Path getBinMsfragger() {
+    try {
+      return Paths.get(textBinMsfragger.getText());
+    } catch (Exception e) {
+      log.error("Invalid MSFragger path", e);
+    }
+    return null;
   }
 
   private void checkPython() {
@@ -790,10 +803,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   @Subscribe
   public void onLcmsFilesAdded(MessageLcmsFilesAdded m) {
+    if (m.paths == null || m.paths.isEmpty()) {
+      log.warn("Got MessageLcmsFilesAdded with empty paths");
+      return;
+    }
+
     // save locations
     ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, m.paths.get(m.paths.size()-1).toString());
 
     // vet the files
+    final FileNameExtensionFilter ff = CmdMsfragger
+        .getFileFilter(Arrays.asList(getBinMsfragger()));
     final HashMap<Path, String> reasons = new HashMap<>();
     m.paths.stream()
         .filter(p -> !com.github.chhh.utils.StringUtils.isPureAscii(p.toString()))
@@ -802,7 +822,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .filter(p -> p.toString().contains(" "))
         .forEach(p -> { reasons.merge(p, "Contains spaces", (s1, s2) -> String.join(", ", s1, s2)); });
     m.paths.stream()
-        .filter(p -> !FraggerMigPanel.fileNameExtensionFilter.accept(p.toFile()))
+        .filter(p -> !ff.accept(p.toFile()))
         .forEach(p -> { reasons.merge(p, "Not supported", (s1, s2) -> String.join(", ", s1, s2)); });
 
     Stream<Path> toAdd = m.paths.stream();
@@ -2704,24 +2724,36 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void btnRawAddFilesActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRawAddFilesActionPerformed
     if (btnRawAddFiles == evt.getSource()) {
+      final FileNameExtensionFilter ff = CmdMsfragger
+          .getFileFilter(Arrays.asList(getBinMsfragger()));
       String approveText = "Select";
       JFileChooser fc = new JFileChooser();
       fc.setAcceptAllFileFilterUsed(true);
-      FileNameExtensionFilter fileNameExtensionFilter = FraggerMigPanel.fileNameExtensionFilter;
+      FileNameExtensionFilter fileNameExtensionFilter = ff;
       fc.setFileFilter(fileNameExtensionFilter);
       fc.setApproveButtonText(approveText);
       fc.setDialogTitle("Choose raw data files");
       fc.setMultiSelectionEnabled(true);
-      fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+      //fc.setFileSelectionMode(JFileChooser.FILES_ONLY); // TODO: check if the change worked
+      fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES); // TODO: check if the change worked
 
       ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN, fc);
 
       int retVal = fc.showDialog(this, approveText);
       if (retVal != JFileChooser.APPROVE_OPTION)
         return;
-      final List<Path> paths = Arrays.stream(fc.getSelectedFiles()).map(File::toPath)
+      List<String> extsLoCase = Arrays.stream(ff.getExtensions()).map(String::toLowerCase).collect(
+          Collectors.toList());
+      final List<Path> paths = Arrays.stream(fc.getSelectedFiles())
+          .map(f -> f.toPath().normalize().toAbsolutePath())
+          .filter(p -> extsLoCase.stream().anyMatch(extLoCase -> p.getFileName().toString().toLowerCase().endsWith(extLoCase)))
           .collect(Collectors.toList());
-      EventBus.getDefault().post(new MessageLcmsFilesAdded(paths));
+      if (paths.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "None of selected files/folders are supported", "Warning", JOptionPane.WARNING_MESSAGE);
+        return;
+      } else {
+        EventBus.getDefault().post(new MessageLcmsFilesAdded(paths));
+      }
     }
   }//GEN-LAST:event_btnRawAddFilesActionPerformed
 
@@ -2741,12 +2773,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnRawAddFolderActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRawAddFolderActionPerformed
+    final FileNameExtensionFilter ff = CmdMsfragger
+        .getFileFilter(Arrays.asList(getBinMsfragger()));
     JFileChooser fc = new JFileChooser();
     fc.setApproveButtonText("Select");
     fc.setApproveButtonToolTipText("Select folder to import");
     fc.setDialogTitle("Select a folder with LC/MS files (searched recursively)");
     fc.setAcceptAllFileFilterUsed(true);
-    FileNameExtensionFilter fileNameExtensionFilter = FraggerMigPanel.fileNameExtensionFilter;
+    FileNameExtensionFilter fileNameExtensionFilter = ff;
     fc.setFileFilter(fileNameExtensionFilter);
     fc.setMultiSelectionEnabled(true);
     fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
@@ -2761,8 +2795,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     for (File f : fc.getSelectedFiles()) {
       if (f.isDirectory()) {
         ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, f);
-        PathUtils.traverseDirectoriesAcceptingFiles(f, FraggerMigPanel.fileNameExtensionFilter, paths);
-      } else if (FraggerMigPanel.fileNameExtensionFilter.accept(f)) {
+        PathUtils.traverseDirectoriesAcceptingFiles(f, ff, paths);
+      } else if (ff.accept(f)) {
         paths.add(Paths.get(f.getAbsolutePath()));
       }
     }

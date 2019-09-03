@@ -38,6 +38,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -74,6 +75,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.msfragger.cmd.CmdMsfragger;
 import umich.msfragger.gui.ModificationsTableModel;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
@@ -128,7 +130,7 @@ public class FraggerMigPanel extends JPanel {
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
   private static final String[] CALIBRATE_LABELS = {"Off", "On", "On and find optimal parameters"};
-  public static FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf/raw)", "mzml", "mzxml", "mgf", "raw");
+  //public static FileNameExtensionFilter fnExtFilter = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf/raw/d)", "mzml", "mzxml", "mgf", "raw", "d");
   private static String[] PROPS_MISC = {
       PROP_misc_adjust_precurosr_mass,
       PROP_misc_slice_db,
