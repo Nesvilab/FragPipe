@@ -58,9 +58,9 @@ public class Version {
   static {
     CHANGELOG.put("10.0", Arrays.asList(
         "Add PTMShepherd with UI.",
-        "Thermo RAW files are enabled by default, but they do require Fragger with 'ext' "
-            + "directory for libraries and additional binaries.",
-        "Probable fix for changes to modification tables not always being propagated to config files "
+        "Thermo RAW files and Bruker TimsTOF .d directories are supported. They do require "
+            + "new MSFragger with 'ext' directory for libraries and additional binaries.",
+        "Fix for changes to modification tables not always being propagated to config files "
             + "if the user didn't leave the editing field.",
         "Saving all the FragPipe options before run + buttons to Save/Load configurations.",
         "Fix iProphet command threads and how it's invoked when multi-experiment is enabled."
