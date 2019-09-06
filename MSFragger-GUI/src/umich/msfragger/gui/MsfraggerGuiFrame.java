@@ -2920,6 +2920,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private boolean validateMsfraggerJavaVersion() {
     final boolean javaAtLeast18 = SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8);
     final VersionComparator vc = new VersionComparator();
+    final MsfraggerVersionComparator mvc = new MsfraggerVersionComparator();
     SwingUtilities.invokeLater(() -> {
       BalloonTip tip = tipMap.remove(TIP_NAME_FRAGGER_JAVA_VER);
       if (tip != null) {
@@ -2936,7 +2937,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         final String fver = fraggerVer != null ? fraggerVer
             : MsfraggerProps.testJar(textBinMsfragger.getText()).version;
         if (jver != null && fver != null) {
-          if (vc.compare(fver, "20180316") < 0 && vc.compare(jver, "1.9") >= 0) {
+          if (mvc.compare(fver, "20180316") < 0 && vc.compare(jver, "1.9") >= 0) {
             tip = new BalloonTip(lblFraggerJavaVer, "<html>Looks like you're "
                 + "running Java 9 or higher with MSFragger v20180316 or lower.<br/>"
                 + "That version of MSFragger only supports Java 8.\n");

@@ -26,12 +26,12 @@ public class MsfraggerVersionComparator implements Comparator<String> {
   public int compare(String v1, String v2) {
     boolean isV1old = isOldScheme(v1);
     boolean isV1new = isNewScheme(v1);
-    if (isV1new == isV1old) {
+    if (isV1new && isV1old) {
       log.error("v1 was determined to be both old and new scheme, something is wrong");
     }
     boolean isV2old = isOldScheme(v2);
     boolean isV2new = isNewScheme(v2);
-    if (isV2new == isV2old) {
+    if (isV2new && isV2old) {
       log.error("v2 was determined to be both old and new scheme, something is wrong");
     }
     if (isV1old && isV2new) {
