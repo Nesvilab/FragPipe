@@ -224,7 +224,7 @@ public class Version {
    */
   public static List<String> updatesSinceCurrentVersion(String versionList) {
     if (StringUtils.isNullOrWhitespace(versionList)) {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     }
 
     VersionComparator vc = new VersionComparator();
@@ -255,7 +255,7 @@ public class Version {
 
   /**
    * To print changelog using just the jar file use:<br/>
-   * <code>`java -cp ".\dist\FragPipe.jar" umich.msfragger.Version true 2`</code>
+   * <code>java -cp ".\build\libs\FragPipe.jar" umich.msfragger.Version true 2</code>
    *
    * @param args The 1st param is a boolean whether to print GitHub release info preamble or not.
    * Use true, to indicate "yes", any other string for "no". The 2nd parameter is an integer how
@@ -292,14 +292,14 @@ public class Version {
 
     final String version = version();
     if (printGihubPreamble) {
-      final String exeFn = String.format("%s.exe", PROGRAM_TITLE, version);
+      final String exeFn = String.format("%s.exe", PROGRAM_TITLE);
       final String exeUrl = String.format("%s/download/%s/%s", url, version, exeFn);
       final String jarFn = String.format("%s-%s.jar", PROGRAM_TITLE, version);
       final String jarUrl = String.format("%s/download/%s/%s", url, version, jarFn);
       final String zipFn = String.format("%s-%s.zip", PROGRAM_TITLE, version);
       final String zipUrl = String.format("%s/download/%s/%s", url, version, zipFn);
       String githubReleaseMessage = "FragPipe v" + version + "\n\n"
-          + "### Windows users\n" +
+          + "## Windows users\n" +
           "- Download *.exe*: [" + exeFn + "](" + exeUrl + ") and just run that. Windows 10 might "
           + "show a UAC prompt, saying that this is not a trusted program, it's up to you whether "
           + "to run it or not.\n"
@@ -312,7 +312,7 @@ public class Version {
           + "  - You can start the `jar` file with `java -jar " + jarFn + "` or `start javaw -jar "
           + jarFn + "` if you prefer to not have the console window open.\n"
           + "If Java is configured to auto-run `.jar` files, double clicking might also work.\n\n\n"
-          + "### Linux/MacOS users\n"
+          + "## Linux/MacOS users\n"
           + "Either download [" + zipFn + "](" + zipUrl + "), which contains *FragPipe* shell "
           + "script to start the program or download the [" + jarFn + "](" + jarUrl + ") and run "
           + "with `java -jar " + jarFn + "`.";
@@ -323,7 +323,7 @@ public class Version {
     }
 
     StringBuilder sb = new StringBuilder();
-    sb.append("## ").append(PROGRAM_TITLE).append(" v").append(version).append(" changelog:\n");
+    sb.append("### ").append("Changelog:\n");
     int cnt = 0;
     for (Map.Entry<String, List<String>> e : CHANGELOG.descendingMap().entrySet()) {
       if (maxVersionsToPrint > 0 && ++cnt > maxVersionsToPrint) {
