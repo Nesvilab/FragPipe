@@ -583,15 +583,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     exec.submit(this::validateMsadjusterEligibility);
     exec.submit(this::validateMsfraggerMassCalibrationEligibility);
 
-    // TODO: This 'loadLast' mechanism will be replaced by the automatic saving/loading of components by 'name'
+
     // submitting all "loadLast" methods for invocation
     for (Method method : this.getClass().getDeclaredMethods()) {
+      // TODO: Old 'loadLast' mechanism is mostly replaced by auto save/load of components by 'name'
       if (method.getName().startsWith("loadLast") && method.getParameterCount() == 0) {
         exec.submit(() -> method.invoke(this));
       }
     }
 
-    // TODO: This replaces the 'loadLast' mechanism.
     // Force loading form caches
     EventBus.getDefault().post(MessageLoadAllForms.forCaching());
 
@@ -2743,8 +2743,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       fc.setApproveButtonText(approveText);
       fc.setDialogTitle("Choose raw data files");
       fc.setMultiSelectionEnabled(true);
-      //fc.setFileSelectionMode(JFileChooser.FILES_ONLY); // TODO: check if the change worked
-      fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES); // TODO: check if the change worked
+      fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
       ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN, fc);
 
@@ -2788,6 +2787,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     fc.setApproveButtonText("Select");
     fc.setApproveButtonToolTipText("Select folder to import");
     fc.setDialogTitle("Select a folder with LC/MS files (searched recursively)");
+
+
+    // TODO: Need to accept files/folders recursively
+    // TODO: Once accepted, recursion should stop (i.e. not dig deeped in accepted directories)
+    asd
+
+
     fc.setAcceptAllFileFilterUsed(true);
     FileNameExtensionFilter fileNameExtensionFilter = ff;
     fc.setFileFilter(fileNameExtensionFilter);
@@ -4986,7 +4992,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void textReportLabelfreeActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textReportLabelfreeActionPerformed
-    // TODO add your handling code here:
   }//GEN-LAST:event_textReportLabelfreeActionPerformed
 
   private void textReportLabelfreeFocusGained(
@@ -5001,7 +5006,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void textBinMsfraggerActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textBinMsfraggerActionPerformed
-    // TODO add your handling code here:
   }//GEN-LAST:event_textBinMsfraggerActionPerformed
 
   private void btnOpenInExplorerActionPerformed(

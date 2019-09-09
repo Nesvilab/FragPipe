@@ -139,7 +139,6 @@ public class CmdUmpireSe extends CmdBase {
         // destination dir is different from mzXML file location
         // need to move output and cleanup
         List<Path> garbage = UmpireSeGarbageFiles.getGarbageFiles(f.path);
-        // TODO: verify this actually moves all the garbage files. Use files at: C:\data\dia\40-50-minutes
         List<ProcessBuilder> pbsMove = ToolingUtils.pbsMoveFiles(jarFragpipe, destDir, garbage);
         pbs.addAll(pbsMove);
       }

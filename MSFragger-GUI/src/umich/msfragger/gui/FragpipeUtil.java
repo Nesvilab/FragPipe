@@ -193,7 +193,7 @@ public class FragpipeUtil {
                             "<html>Downloaded new file:<br/>" + fullDbPath.toString(),
                             "Download complete", JOptionPane.INFORMATION_MESSAGE);
                         EventBus.getDefault().post(new MessageDbUpdate(fullDbPath.toString()));
-                        break; // TODO: is it OK to discard the rest of the events?
+                        break;
                       }
                     }
                   }
