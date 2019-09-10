@@ -36,10 +36,13 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.swing.filechooser.FileFilter;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 
 /**
@@ -47,6 +50,7 @@ import umich.msfragger.gui.MsfraggerGuiFrame;
  * @author Dmitry Avtonomov
  */
 public class PathUtils {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(PathUtils.class);
 
     public static List<String> getClasspaths() {
         String nameCp = "java.class.path";
@@ -304,6 +308,32 @@ public class PathUtils {
             
         }
         return null;
+    }
+
+    public static void traverseDirectoriesAcceptingFiles(File start, Predicate<File> predicate, List<Path> accepted, boolean digAfterAccepting) {
+
+        if (!start.isDirectory()) {
+            // start file is not a dir
+            if (predicate.test(start)) {
+                accepted.add(Paths.get(start.getAbsolutePath()));
+            }
+        } else {
+            // start file is a dir
+            if (predicate.test(start)) {
+                accepted.add(start.toPath());
+                if (!digAfterAccepting) {
+                    return;
+                }
+            }
+            try {
+                List<Path> content = Files.list(start.toPath()).collect(Collectors.toList());
+                for (Path path : content) {
+                    traverseDirectoriesAcceptingFiles(path.toFile(), predicate, accepted, digAfterAccepting);
+                }
+            } catch (IOException e) {
+                log.error("Error traversing directories", e);
+            }
+        }
     }
 
     public static void traverseDirectoriesAcceptingFiles(File dir, FileFilter filter, List<Path> accepted) {

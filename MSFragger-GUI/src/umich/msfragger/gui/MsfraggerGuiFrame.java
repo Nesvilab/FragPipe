@@ -522,23 +522,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //        tableRawFiles.setTransferHandler(newHandler);
     // dropping onto enclosing JPanel works.
     tableRawFilesFileDrop = new FileDrop(panelSelectedFiles, true, files -> {
-      ArrayList<Path> paths = new ArrayList<>(files.length);
-
-      final FileNameExtensionFilter ff = CmdMsfragger
-          .getFileFilter(Arrays.asList(getBinMsfragger()));
-
+      Predicate<File> pred = CmdMsfragger
+          .getSupportedFilePredicate(Arrays.asList(getBinMsfragger()));
+      ArrayList<Path> accepted = new ArrayList<>(files.length);
       for (File f : files) {
-        boolean isDirectory = f.isDirectory();
-        if (!isDirectory) {
-          if (ff.accept(f)) {
-            paths.add(Paths.get(f.getAbsolutePath()));
-          }
-        } else {
-          PathUtils
-              .traverseDirectoriesAcceptingFiles(f, ff, paths);
-        }
+        PathUtils.traverseDirectoriesAcceptingFiles(f, pred, accepted, false);
       }
-      EventBus.getDefault().post(new MessageLcmsFilesAdded(paths));
+      if (!accepted.isEmpty()) {
+        EventBus.getDefault().post(new MessageLcmsFilesAdded(accepted));
+      }
     });
 
     textBinPython.addFocusListener(new FocusAdapter() {
@@ -812,8 +804,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, m.paths.get(m.paths.size()-1).toString());
 
     // vet/check input LCMS files for bad naming
-    final FileNameExtensionFilter ff = CmdMsfragger
-        .getFileFilter(Arrays.asList(getBinMsfragger()));
+    final javax.swing.filechooser.FileFilter ff = CmdMsfragger
+        .getFileChooserFilter(Arrays.asList(getBinMsfragger()));
     final HashMap<Path, String> reasons = new HashMap<>();
     String allowedChars = "[A-Za-z0-9-_\\+\\.\\[\\]\\(\\)]";
     Pattern re = Pattern.compile(allowedChars + "+");
@@ -2732,14 +2724,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnRawAddFilesActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRawAddFilesActionPerformed
+    // button add raw lcms files
     if (btnRawAddFiles == evt.getSource()) {
-      final FileNameExtensionFilter ff = CmdMsfragger
-          .getFileFilter(Arrays.asList(getBinMsfragger()));
+      final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(Arrays.asList(getBinMsfragger()));
+      Predicate<File> supportedFilePredicate = CmdMsfragger
+          .getSupportedFilePredicate(Arrays.asList(getBinMsfragger()));
       String approveText = "Select";
       JFileChooser fc = new JFileChooser();
       fc.setAcceptAllFileFilterUsed(true);
-      FileNameExtensionFilter fileNameExtensionFilter = ff;
-      fc.setFileFilter(fileNameExtensionFilter);
+      fc.setFileFilter(ff);
       fc.setApproveButtonText(approveText);
       fc.setDialogTitle("Choose raw data files");
       fc.setMultiSelectionEnabled(true);
@@ -2750,14 +2743,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       int retVal = fc.showDialog(this, approveText);
       if (retVal != JFileChooser.APPROVE_OPTION)
         return;
-      List<String> extsLoCase = Arrays.stream(ff.getExtensions()).map(String::toLowerCase).collect(
-          Collectors.toList());
       final List<Path> paths = Arrays.stream(fc.getSelectedFiles())
-          .map(f -> f.toPath().normalize().toAbsolutePath())
-          .filter(p -> extsLoCase.stream().anyMatch(extLoCase -> p.getFileName().toString().toLowerCase().endsWith(extLoCase)))
+          .filter(f -> supportedFilePredicate.test(f))
+          .map(File::toPath)
           .collect(Collectors.toList());
       if (paths.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "None of selected files/folders are supported", "Warning", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(this,
+            "None of selected files/folders are supported", "Warning", JOptionPane.WARNING_MESSAGE);
         return;
       } else {
         EventBus.getDefault().post(new MessageLcmsFilesAdded(paths));
@@ -2767,36 +2759,41 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnRawRemoveActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRawRemoveActionPerformed
-    int[] sel = tableRawFiles.getSelectedRows();
-    if (sel.length == 0) {
-      return;
-    }
-    List<InputLcmsFile> toRemove = new ArrayList<>();
-    for (int i = 0; i < sel.length; i++) {
-      toRemove.add(tableModelRawFiles.dataGet(sel[i]));
-    }
+
+    final List<InputLcmsFile> toRemove = new ArrayList<>();
+    Arrays.stream(this.tableRawFiles.getSelectedRows())
+        .map(tableRawFiles::convertRowIndexToModel)
+        .boxed()
+        .forEach(i -> toRemove.add(tableModelRawFiles.dataGet(i)));
+
+    // TODO: convert to selected model
+
     tableRawFiles.getSelectionModel().clearSelection();
     tableModelRawFiles.dataRemoveAll(toRemove);
   }//GEN-LAST:event_btnRawRemoveActionPerformed
 
   private void btnRawAddFolderActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRawAddFolderActionPerformed
-    final FileNameExtensionFilter ff = CmdMsfragger
-        .getFileFilter(Arrays.asList(getBinMsfragger()));
+    final javax.swing.filechooser.FileFilter ff = CmdMsfragger
+        .getFileChooserFilter(Arrays.asList(getBinMsfragger()));
+
+//    final FileFilter ff = new FileFilter() {
+//      final Predicate<String> rawLcmsFnPredicate = CmdMsfragger
+//          .getRawLcmsFnPredicate(Arrays.asList(getBinMsfragger()));
+//      @Override
+//      public boolean accept(File pathname) {
+//        return rawLcmsFnPredicate.test(pathname.getName().toLowerCase());
+//      }
+//    };
+
     JFileChooser fc = new JFileChooser();
     fc.setApproveButtonText("Select");
     fc.setApproveButtonToolTipText("Select folder to import");
     fc.setDialogTitle("Select a folder with LC/MS files (searched recursively)");
 
 
-    // TODO: Need to accept files/folders recursively
-    // TODO: Once accepted, recursion should stop (i.e. not dig deeped in accepted directories)
-    asd
-
-
     fc.setAcceptAllFileFilterUsed(true);
-    FileNameExtensionFilter fileNameExtensionFilter = ff;
-    fc.setFileFilter(fileNameExtensionFilter);
+    fc.setFileFilter(ff);
     fc.setMultiSelectionEnabled(true);
     fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
@@ -2806,16 +2803,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     if (confirmation != JFileChooser.APPROVE_OPTION)
       return;
+
+    final Predicate<File> pred = CmdMsfragger
+        .getSupportedFilePredicate(Arrays.asList(getBinMsfragger()));
     List<Path> paths = new ArrayList<>();
     for (File f : fc.getSelectedFiles()) {
-      if (f.isDirectory()) {
-        ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, f);
-        PathUtils.traverseDirectoriesAcceptingFiles(f, ff, paths);
-      } else if (ff.accept(f)) {
-        paths.add(Paths.get(f.getAbsolutePath()));
-      }
+      ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, f);
+      PathUtils.traverseDirectoriesAcceptingFiles(f, pred, paths, false);
     }
-    EventBus.getDefault().post(new MessageLcmsFilesAdded(paths));
+
+    if (!paths.isEmpty()) {
+      EventBus.getDefault().post(new MessageLcmsFilesAdded(paths));
+    }
   }//GEN-LAST:event_btnRawAddFolderActionPerformed
 
   private void btnReportErrorsActionPerformed(

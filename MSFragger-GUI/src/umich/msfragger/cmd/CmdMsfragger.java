@@ -3,6 +3,7 @@ package umich.msfragger.cmd;
 import static umich.msfragger.util.PathUtils.testFilePath;
 
 import java.awt.Component;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,13 +15,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileFilter;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +37,11 @@ public class CmdMsfragger extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdMsfragger.class);
   public static final String NAME = "MsFragger";
 
-  private static volatile FileNameExtensionFilter ff = null;
-  private static FileNameExtensionFilter ffDedault = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf)", "mzml", "mzxml", "mgf");
-
+  private static volatile FileFilter ff = null;
+  private static volatile Predicate<File> supportedFilePredicate = null;
+  private static final Path PATH_NONE = Paths.get("");
+  private static volatile Path pathThermo = PATH_NONE;
+  private static volatile Path pathBruker = PATH_NONE;
 
   public CmdMsfragger(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -63,40 +65,93 @@ public class CmdMsfragger extends CmdBase {
     return m;
   }
 
+//  public static Predicate<String> getRawLcmsFnPredicate(List<Path> searchPaths) {
+//    final List<String> exts = new ArrayList<>(Arrays.asList(".mzml", ".mzxml", ".mgf"));
+//    if (searchExtLibsBruker(searchPaths) != null) {
+//      exts.add(".d");
+//    }
+//    if (searchExtLibsThermo(searchPaths) != null) {
+//      exts.add(".raw");
+//    }
+//    return fn -> {
+//      for (String ext : exts) {
+//        if (fn.endsWith(ext)) {
+//          return true;
+//        }
+//      }
+//      return false;
+//    };
+//  }
+
   /**
    * @param searchPaths Paths were to search for native libraries. Pass in the location of
    * MSFragger.jar.
    */
-  public static FileNameExtensionFilter getFileFilter(List<Path> searchPaths) {
-    if (searchPaths == null || searchPaths.isEmpty()
-        || searchPaths.stream().allMatch(Objects::isNull)) {
-      return ffDedault;
-    }
-    FileNameExtensionFilter local = ff;
+  public static FileFilter getFileChooserFilter(List<Path> searchPaths) {
+    FileFilter local = ff;
     if (local == null) {
       synchronized (CmdMsfragger.class) {
         local = ff;
         if (local == null) {
-          ff = local = createFileFilter(searchPaths);
+          ff = local = createFileChooserFilter(searchPaths);
         }
       }
     }
     return local;
   }
 
-  private static FileNameExtensionFilter createFileFilter(List<Path> searchPaths) {
-    List<String> desc = new ArrayList<>(Arrays.asList("mzML", "mzXML", "mgf"));
-    List<String> exts = new ArrayList<>(Arrays.asList("mzml", "mzxml", "mgf"));
-    if (searchExtLibsThermo(searchPaths) != null) {
-      desc.add("Thermo RAW");
-      exts.add("raw");
+  public static Predicate<File> getSupportedFilePredicate(List<Path> searchPaths) {
+    Predicate<File> local = supportedFilePredicate;
+    if (local == null) {
+      synchronized (CmdMsfragger.class) {
+        local = supportedFilePredicate;
+        if (local == null) {
+          final GetSupportedExts exts = new GetSupportedExts(searchPaths).invoke();
+          supportedFilePredicate = local = new Predicate<File>() {
+            @Override
+            public boolean test(File file) {
+              String fnLoCase = file.getName().toLowerCase();
+              for (String ext : exts.exts) {
+                if (fnLoCase.endsWith(ext)) {
+                  return true;
+                }
+              }
+              return false;
+            }
+          };
+        }
+      }
     }
-    if (searchExtLibsBruker(searchPaths) != null) {
-      desc.add("Buker PASEF .d");
-      exts.add("d");
-    }
-    String d = String.format("LCMS Files (%s)", String.join("/", desc));
-    return new FileNameExtensionFilter(d, exts.toArray(new String[0]));
+    return local;
+  }
+
+  private static javax.swing.filechooser.FileFilter createFileChooserFilter(List<Path> searchPaths) {
+    GetSupportedExts getSupportedExts = new GetSupportedExts(searchPaths).invoke();
+    List<String> desc = getSupportedExts.getDesc();
+    List<String> exts = getSupportedExts.getExts();
+
+    javax.swing.filechooser.FileFilter filter = new javax.swing.filechooser.FileFilter() {
+      @Override
+      public boolean accept(File f) {
+        if (f.isDirectory()) {
+          return true;
+        }
+        String fnLoCase = f.getName().toLowerCase();
+        for (String ext : exts) {
+          if (fnLoCase.endsWith(ext)) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      @Override
+      public String getDescription() {
+        return String.format("LCMS files (%s)", String.join(", ", desc));
+      }
+    };
+
+    return filter;
   }
 
   /**
@@ -131,29 +186,47 @@ public class CmdMsfragger extends CmdBase {
   }
 
   public static Path searchExtLibsBruker(List<Path> searchLocations) {
-    Path rel = Paths.get("ext/bruker");
-    List<String> filenamePatterns = Arrays.asList(
-        "^timsdata.*?\\.dll",
-        "^libtimsdata.*?\\.so"
-    );
-    List<Path> dirs = searchLocations.stream()
-        .map(path -> Files.isDirectory(path) ? path : path.getParent()).distinct().collect(
-            Collectors.toList());
-    List<Path> locs = createRelSearchPaths(dirs, rel);
-    return searchExtLibsByPattern(locs, filenamePatterns.stream().map(Pattern::compile).collect(Collectors.toList()));
+    Path local = pathBruker;
+    if (PATH_NONE.equals(local)) {
+      synchronized (CmdMsfragger.class) {
+        local = pathBruker;
+        if (PATH_NONE.equals(local)) {
+          Path rel = Paths.get("ext/bruker");
+          List<String> filenamePatterns = Arrays.asList(
+              "^timsdata.*?\\.dll",
+              "^libtimsdata.*?\\.so"
+          );
+          List<Path> dirs = searchLocations.stream()
+              .map(path -> Files.isDirectory(path) ? path : path.getParent()).distinct().collect(
+                  Collectors.toList());
+          List<Path> locs = createRelSearchPaths(dirs, rel);
+          pathBruker = local = searchExtLibsByPattern(locs, filenamePatterns.stream().map(Pattern::compile).collect(Collectors.toList()));
+        }
+      }
+    }
+    return local;
   }
 
   public static Path searchExtLibsThermo(List<Path> searchLocations) {
-    Path rel = Paths.get("ext/thermo");
-    List<String> files = Arrays.asList(
-      "ThermoFisher.CommonCore.Data.dll",
-      "ThermoFisher.CommonCore.RawFileReader.dll"
-    );
-    List<Path> dirs = searchLocations.stream()
-        .map(path -> Files.isDirectory(path) ? path : path.getParent()).distinct().collect(
-            Collectors.toList());
-    List<Path> locs = createRelSearchPaths(dirs, rel);
-    return searchExtLibsByPath(locs, files.stream().map(Paths::get).collect(Collectors.toList()));
+    Path local = pathThermo;
+    if (PATH_NONE.equals(local)) {
+      synchronized (CmdMsfragger.class) {
+        local = pathThermo;
+        if (PATH_NONE.equals(local)) {
+          Path rel = Paths.get("ext/thermo");
+          List<String> files = Arrays.asList(
+              "ThermoFisher.CommonCore.Data.dll",
+              "ThermoFisher.CommonCore.RawFileReader.dll"
+          );
+          List<Path> dirs = searchLocations.stream()
+              .map(path -> Files.isDirectory(path) ? path : path.getParent()).distinct().collect(
+                  Collectors.toList());
+          List<Path> locs = createRelSearchPaths(dirs, rel);
+          pathThermo = local = searchExtLibsByPath(locs, files.stream().map(Paths::get).collect(Collectors.toList()));
+        }
+      }
+    }
+    return local;
   }
 
   private static List<Path> createRelSearchPaths(List<Path> searchLocations, Path rel) {
@@ -352,5 +425,43 @@ public class CmdMsfragger extends CmdBase {
   @Override
   public int getPriority() {
     return 50;
+  }
+
+  private static class GetSupportedExts {
+
+    private List<Path> searchPaths;
+    private List<String> desc;
+    private List<String> exts;
+
+    public GetSupportedExts(List<Path> searchPaths) {
+      this.searchPaths = searchPaths;
+    }
+
+    public List<String> getDesc() {
+      return desc;
+    }
+
+    public List<String> getExts() {
+      return exts;
+    }
+
+    public GetSupportedExts invoke() {
+      desc = new ArrayList<>(Arrays.asList("mzML", "mzXML", "mgf"));
+      exts = new ArrayList<>(Arrays.asList(".mgf", ".mzml", ".mzxml"));
+      if (searchPaths != null && !searchPaths.isEmpty()) {
+        if (searchExtLibsThermo(searchPaths) != null) {
+          desc.add("Thermo RAW");
+          exts.add(".raw");
+        }
+        if (searchExtLibsBruker(searchPaths) != null) {
+          desc.add("Buker PASEF .d");
+          exts.add(".d");
+        }
+        for (int i = 0; i < exts.size(); i++) {
+          exts.set(i, exts.get(i).toLowerCase());
+        }
+      }
+      return this;
+    }
   }
 }
