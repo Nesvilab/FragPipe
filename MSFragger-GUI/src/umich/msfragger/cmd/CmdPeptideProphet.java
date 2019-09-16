@@ -227,9 +227,8 @@ public class CmdPeptideProphet extends CmdBase {
         cmd.add(decoyTag);
         cmd.add("--database");
         cmd.add(fastaPath);
-        if (textPepProphCmd != null && !textPepProphCmd.toLowerCase().contains("--combine")) {
-          cmd.add("--combine");
-        }
+        cmd.add("--combine");
+
         exp.stream().map(e -> e.getValue().getFileName())
             .forEach(pepxmlFn -> cmd.add(pepxmlFn.toString()));
         final ProcessBuilder pb = new ProcessBuilder(cmd);
