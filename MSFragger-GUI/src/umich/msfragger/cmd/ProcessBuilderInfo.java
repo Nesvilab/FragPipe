@@ -18,16 +18,17 @@ public class ProcessBuilderInfo {
   private static final Logger log = LoggerFactory.getLogger(ProcessBuilderInfo.class);
   public final ProcessBuilder pb;
   public final String name;
-  public final String fnStdOut;
-  public final String fnStdErr;
+  public final String fnStdout;
+  public final String fnStderr;
   public final String parallelGroup;
+  public static final String GROUP_SEQUENTIAL = "SEQUENTIAL EXECUTION";
 
-  public ProcessBuilderInfo(ProcessBuilder pb, String name, String fnStdOut,
-      String fnStdErr, String parallelGroup) {
+  public ProcessBuilderInfo(ProcessBuilder pb, String name, String fnStdout,
+      String fnStderr, String parallelGroup) {
     this.pb = pb;
     this.name = name;
-    this.fnStdOut = fnStdOut;
-    this.fnStdErr = fnStdErr;
+    this.fnStdout = fnStdout;
+    this.fnStderr = fnStderr;
     this.parallelGroup = parallelGroup;
   }
 

@@ -23,7 +23,7 @@ public class CmdDatabaseDownload extends CmdBase {
   public boolean configure(Component comp, UsageTrigger binPhilosopher, String uniprotId,
       boolean isReviewed, boolean isAddContaminants, boolean isAddIsoforms) {
 
-    pbs.clear();
+    pbis.clear();
     List<String> cmd = new ArrayList<>();
     cmd.add(binPhilosopher.useBin(this.wd));
     cmd.add(PhilosopherProps.CMD_DATABASE);
@@ -40,7 +40,7 @@ public class CmdDatabaseDownload extends CmdBase {
     cmd.add(uniprotId);
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(this.wd.toFile());
-    pbs.add(pb);
+    pbis.add(PbiBuilder.from(pb));
 
     isConfigured = true;
     return true;

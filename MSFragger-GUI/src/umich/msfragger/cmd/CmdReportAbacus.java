@@ -1,20 +1,16 @@
 package umich.msfragger.cmd;
 
 import java.awt.Component;
-import java.lang.reflect.Array;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
@@ -85,7 +81,7 @@ public class CmdReportAbacus extends CmdBase {
     final List<String> flagsAbacus = Arrays.asList("--picked", "--razor", "--reprint", "--uniqueonly");
     final List<String> flagsFilter = Arrays.asList("--picked", "--razor", "--mapmods", "--sequential", "--models");
 
-    pbs.clear();
+    pbis.clear();
 
     final long numGroups = mapGroupsToProtxml.keySet().stream()
         .map(group -> group.name).distinct().count();
@@ -155,7 +151,7 @@ public class CmdReportAbacus extends CmdBase {
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(executeInDir.toFile());
-      pbs.add(pb);
+      pbis.add(PbiBuilder.from(pb));
     }
 
     isConfigured = true;

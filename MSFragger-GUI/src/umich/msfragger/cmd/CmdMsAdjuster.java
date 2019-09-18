@@ -34,7 +34,7 @@ public class CmdMsAdjuster extends CmdBase {
 
   public boolean configure(Component comp, Path jarFragpipe, FraggerMigPanel fp,
       List<InputLcmsFile> lcmsFiles, boolean doCleanup, int priority) {
-    pbs.clear();
+    pbis.clear();
     isCleanup = doCleanup;
 
     List<String> jars = Stream.concat(Arrays.stream(JAR_DEPS), Stream.of(JAR_MSADJUSTER_NAME))
@@ -64,7 +64,7 @@ public class CmdMsAdjuster extends CmdBase {
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(f.outputDir(wd).toFile());
-        pbs.add(pb);
+        pbis.add(PbiBuilder.from(pb));
 
       } else {
         // run MsAdjuster cleanup
@@ -73,8 +73,9 @@ public class CmdMsAdjuster extends CmdBase {
         Path origin = Paths.get(StringUtils.upToLastDot(f.path.toString()) + ".ma");
         Path destination = f.outputDir(wd);
         if (!destination.equals(origin.getParent())) {
-          pbs.addAll(ToolingUtils
-              .pbsMoveFiles(jarFragpipe, destination, Collections.singletonList(origin)));
+          List<ProcessBuilder> pbsMove = ToolingUtils
+              .pbsMoveFiles(jarFragpipe, destination, Collections.singletonList(origin));
+          pbis.addAll(PbiBuilder.from(pbsMove));
         }
       }
     }

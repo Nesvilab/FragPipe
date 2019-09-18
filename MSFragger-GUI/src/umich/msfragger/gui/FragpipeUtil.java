@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.cmd.CmdDatabaseDownload;
 import umich.msfragger.cmd.CmdPhilosopherWorkspaceCleanInit;
 import umich.msfragger.cmd.ProcessBuilderInfo;
+import umich.msfragger.cmd.PbiBuilder;
 import umich.msfragger.gui.dialogs.DbUniprotIdPanel;
 import umich.msfragger.messages.MessageDbUpdate;
 import umich.msfragger.params.ThisAppProps;
@@ -101,7 +102,7 @@ public class FragpipeUtil {
         cmdDownload.configure(parent, usePhi, uniprotId, isReviewed, isAddContaminants, isAddIsoforms);
 
         List<ProcessBuilder> pbs = Stream.of(cmdCleanInit, cmdDownload)
-            .flatMap(cmdBase -> cmdBase.getBuilderDescriptor().pbs.stream())
+            .flatMap(cmdBase -> cmdBase.getBuilderDescriptor().pbis.stream().map(pbi -> pbi.pb))
             .collect(Collectors.toList());
 
         WatchService watch = FileSystems.getDefault().newWatchService();
@@ -127,8 +128,9 @@ public class FragpipeUtil {
                 final String cmd = String.join(" ", pb.command());
                 log.info("Executing: " + cmd);
 
-                ProcessBuilderInfo pbi = new ProcessBuilderInfo(pb, pb.toString(),
-                    null, null, null);
+                ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb)
+                    .setName(pb.toString()).setFnStdOut(null).setFnStdErr(null)
+                    .setParallelGroup(null).create();
                 ProcessResult pr = new ProcessResult(pbi);
                 pr.start().waitFor(5, TimeUnit.MINUTES);
                 log.info("Process output: {}", pr.getOutput().toString());

@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
-import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.protproph.ProteinProphetParams;
 import umich.msfragger.util.FileListing;
@@ -161,7 +160,7 @@ public class CmdProteinProphet extends CmdBase {
       String txtProteinProphetCmdLineOpts, boolean isMultiExperiment,
       boolean isProcessGroupsSeparately, Map<InputLcmsFile, Path> pepxmlFiles) {
 
-    pbs.clear();
+    pbis.clear();
 
     // check for existence of old files
     final Map<LcmsFileGroup, Path> outputs = outputs(pepxmlFiles, isProcessGroupsSeparately, isMultiExperiment);
@@ -188,7 +187,7 @@ public class CmdProteinProphet extends CmdBase {
         cmd.addAll(pepxmlFns);
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(protxml.getParent().toFile());
-        pbs.add(pb);
+        pbis.add(PbiBuilder.from(pb));
       }
 
       // END: isProcessGroupsSeparately
@@ -213,14 +212,15 @@ public class CmdProteinProphet extends CmdBase {
       cmd.addAll(pepxmlsPaths);
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(protxml.getParent().toFile());
-      pbs.add(pb);
+      pbis.add(PbiBuilder.from(pb));
 
       // END: !isProcessGroupsSeparately
     }
 
 
     // by this point each process builder should have its working dir set
-    for (ProcessBuilder pb : pbs) {
+    for (ProcessBuilderInfo pbi : pbis) {
+      ProcessBuilder pb = pbi.pb;
       Map<String, String> env = pb.environment();
 
       // add this variable so that TPP didn't try to use webserver stuff

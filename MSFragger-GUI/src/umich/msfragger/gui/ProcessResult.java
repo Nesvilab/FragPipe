@@ -45,11 +45,11 @@ public class ProcessResult implements AutoCloseable {
   }
 
   public Process start() throws IOException {
-    stdOutRedirect = redirectToFile(pbi.pb, pbi.fnStdOut);
-    if (pbi.fnStdErr != null && pbi.fnStdErr.equals(pbi.fnStdOut)) {
+    stdOutRedirect = redirectToFile(pbi.pb, pbi.fnStdout);
+    if (pbi.fnStderr != null && pbi.fnStderr.equals(pbi.fnStdout)) {
       stdErrRedirect = stdOutRedirect;
     } else {
-      stdErrRedirect = redirectToFile(pbi.pb, pbi.fnStdErr);
+      stdErrRedirect = redirectToFile(pbi.pb, pbi.fnStderr);
     }
 
     proc = pbi.pb.start();

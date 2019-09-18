@@ -12,19 +12,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
-import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.UsageTrigger;
 
 public class CmdCrystalc extends CmdBase {
 
@@ -96,7 +93,7 @@ public class CmdCrystalc extends CmdBase {
   public boolean configure(Component comp,
       FraggerMigPanel fp, boolean isDryRun, Path binFragger,
       CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, Path> pepxmlFiles) {
-    pbs.clear();
+    pbis.clear();
 
     final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
     ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
@@ -178,7 +175,7 @@ public class CmdCrystalc extends CmdBase {
       cmd.add(pepxml.toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(outDir.toFile());
-      pbs.add(pb);
+      pbis.add(PbiBuilder.from(pb));
     }
 
     isConfigured = true;

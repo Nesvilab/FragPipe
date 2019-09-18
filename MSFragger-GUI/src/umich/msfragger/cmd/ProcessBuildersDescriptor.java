@@ -5,20 +5,20 @@ import java.util.Collection;
 import java.util.List;
 
 public class ProcessBuildersDescriptor {
-  public final List<ProcessBuilder> pbs;
+  public final List<ProcessBuilderInfo> pbis;
   public final String name;
-  public final String fileCaptureStdout;
-  public final String fileCaptureStderr;
+  public final String fnStdout;
+  public final String fnStderr;
   public final int priority;
   private String parallelGroup = null;
 
   public ProcessBuildersDescriptor(String name, int priority,
-      String fileCaptureStdout, String fileCaptureStderr) {
+      String fnStdout, String fnStderr) {
     this.name = name;
     this.priority = priority;
-    this.pbs = new ArrayList<>();
-    this.fileCaptureStdout = fileCaptureStdout;
-    this.fileCaptureStderr = fileCaptureStderr;
+    this.pbis = new ArrayList<>();
+    this.fnStdout = fnStdout;
+    this.fnStderr = fnStderr;
   }
 
   public String getParallelGroup() {
@@ -30,20 +30,20 @@ public class ProcessBuildersDescriptor {
   }
 
   public int size() {
-    return pbs.size();
+    return pbis.size();
   }
 
   public boolean isEmpty() {
-    return pbs.isEmpty();
+    return pbis.isEmpty();
   }
 
-  public ProcessBuildersDescriptor add(ProcessBuilder processBuilder) {
-    pbs.add(processBuilder);
+  public ProcessBuildersDescriptor add(ProcessBuilderInfo pbi) {
+    pbis.add(pbi);
     return this;
   }
 
-  public ProcessBuildersDescriptor addAll(Collection<? extends ProcessBuilder> c) {
-    pbs.addAll(c);
+  public ProcessBuildersDescriptor addAll(Collection<? extends ProcessBuilderInfo> c) {
+    pbis.addAll(c);
     return this;
   }
 

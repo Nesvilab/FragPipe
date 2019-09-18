@@ -245,7 +245,7 @@ public class CmdMsfragger extends CmdBase {
       FraggerMigPanel fp, Path jarFragpipe, UsageTrigger binFragger, String pathFasta,
       List<InputLcmsFile> lcmsFiles, final String decoyTag) {
 
-    pbs.clear();
+    pbis.clear();
     final int numSlices = fp.getNumDbSlices();
     final boolean isSlicing = numSlices > 1;
     if (isSlicing) {
@@ -391,7 +391,7 @@ public class CmdMsfragger extends CmdBase {
       PythonInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
       pb.directory(wd.toFile());
       pb.environment().put("PYTHONIOENCODING", "utf-8");
-      pbs.add(pb);
+      pbis.add(PbiBuilder.from(pb));
       sb.setLength(0);
 
       // move the pepxml files if the output directory is not the same as where
@@ -403,17 +403,19 @@ public class CmdMsfragger extends CmdBase {
         String pepxmlFn = pepxmlWhereItShouldBe.getFileName().toString();
         Path pepxmlAsCreatedByFragger = f.path.getParent().resolve(pepxmlFn);
         if (!pepxmlAsCreatedByFragger.equals(pepxmlWhereItShouldBe)) {
-          pbs.addAll(ToolingUtils
+          List<ProcessBuilder> pbsMove = ToolingUtils
               .pbsMoveFiles(jarFragpipe, pepxmlWhereItShouldBe.getParent(),
-                  Collections.singletonList(pepxmlAsCreatedByFragger)));
+                  Collections.singletonList(pepxmlAsCreatedByFragger));
+          pbis.addAll(PbiBuilder.from(pbsMove));
         }
         Path tsvWhereItShouldBe = mapLcmsToTsv.get(f);
         String tsvFn = tsvWhereItShouldBe.getFileName().toString();
         Path tsvAsCreatedByFragger = f.path.getParent().resolve(tsvFn);
         if (!tsvAsCreatedByFragger.equals(tsvWhereItShouldBe) && params.getShiftedIons()) {
-          pbs.addAll(ToolingUtils
+          List<ProcessBuilder> pbsMove = ToolingUtils
               .pbsMoveFiles(jarFragpipe, tsvWhereItShouldBe.getParent(), true,
-                  Collections.singletonList(tsvAsCreatedByFragger)));
+                  Collections.singletonList(tsvAsCreatedByFragger));
+          pbis.addAll(PbiBuilder.from(pbsMove));
         }
       }
     }

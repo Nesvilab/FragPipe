@@ -60,7 +60,7 @@ public class CmdUmpireSe extends CmdBase {
       Path jarFragpipe, UsageTrigger philo, UmpirePanel umpirePanel,
       List<InputLcmsFile> lcmsFiles) {
 
-    pbs.clear();
+    pbis.clear();
 
     // check if there are only mzXML input files
     boolean hasNonMzxml = lcmsFiles.stream().map(f -> f.path.getFileName().toString().toLowerCase())
@@ -127,7 +127,7 @@ public class CmdUmpireSe extends CmdBase {
       cmd.add(umpireParamsFilePath.toString());
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
-      pbs.add(pb);
+      pbis.add(PbiBuilder.from(pb));
 
       // check if the working dir is the dir where the mzXML file was
       // if it is, then don't do anything, if it is not, then copy
@@ -140,7 +140,7 @@ public class CmdUmpireSe extends CmdBase {
         // need to move output and cleanup
         List<Path> garbage = UmpireSeGarbageFiles.getGarbageFiles(f.path);
         List<ProcessBuilder> pbsMove = ToolingUtils.pbsMoveFiles(jarFragpipe, destDir, garbage);
-        pbs.addAll(pbsMove);
+        pbis.addAll(PbiBuilder.from(pbsMove));
       }
 
       // msconvert
@@ -181,7 +181,7 @@ public class CmdUmpireSe extends CmdBase {
         cmdMsConvert.add(mgfPath.toString());
         ProcessBuilder pbMsConvert = new ProcessBuilder(cmdMsConvert);
         pbMsConvert.directory(mgfPath.getParent().toFile());
-        pbs.add(pbMsConvert);
+        pbis.add(PbiBuilder.from(pbMsConvert));
       }
     }
 

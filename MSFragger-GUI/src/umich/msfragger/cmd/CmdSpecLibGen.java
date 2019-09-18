@@ -32,7 +32,7 @@ public class CmdSpecLibGen extends CmdBase {
   public boolean configure(Component comp, UsageTrigger usePhilosopher, Path jarFragpipe,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet) {
 
-    pbs.clear();
+    pbis.clear();
     final SpecLibGen slg = SpecLibGen.get();
     if (!slg.isInitialized()) {
       JOptionPane.showMessageDialog(comp,
@@ -85,7 +85,7 @@ public class CmdSpecLibGen extends CmdBase {
             // Copy over the file and schedule for deletion.
             List<ProcessBuilder> pbCopy = ToolingUtils
                 .pbsCopyFiles(jarFragpipe, groupWd, Collections.singletonList(lcms.path));
-            pbs.addAll(pbCopy);
+            pbis.addAll(PbiBuilder.from(pbCopy));
             pbsDeleteLcmsFiles.addAll(ToolingUtils
                 .pbsDeleteFiles(jarFragpipe, Collections.singletonList(groupWd.resolve(lcms.path.getFileName()))));
           }
@@ -108,8 +108,8 @@ public class CmdSpecLibGen extends CmdBase {
       pb.directory(groupWd.toFile());
       pb.environment().put("PYTHONIOENCODING", "utf-8");
 
-      pbs.add(pb);
-      pbs.addAll(pbsDeleteLcmsFiles);
+      pbis.add(PbiBuilder.from(pb));
+      pbis.addAll(PbiBuilder.from(pbsDeleteLcmsFiles));
     }
 
     isConfigured = true;

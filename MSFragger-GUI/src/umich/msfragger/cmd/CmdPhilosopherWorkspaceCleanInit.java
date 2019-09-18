@@ -24,7 +24,7 @@ public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
   }
 
   public boolean configure(UsageTrigger usePhilosopher, boolean doClean) {
-    pbs.clear();
+    pbis.clear();
     if (doClean) {
       List<String> cmd = new ArrayList<>();
       cmd.add(usePhilosopher.useBin(wd));
@@ -32,7 +32,7 @@ public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
       cmd.add("--clean");
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.toFile());
-      pbs.add(pb);
+      pbis.add(PbiBuilder.from(pb));
     }
 
     {
@@ -42,7 +42,7 @@ public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
       cmd.add("--init");
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.toFile());
-      pbs.add(pb);
+      pbis.add(PbiBuilder.from(pb));
     }
 
     isConfigured = true;

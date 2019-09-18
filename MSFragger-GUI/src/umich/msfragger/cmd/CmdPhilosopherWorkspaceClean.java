@@ -18,7 +18,7 @@ public class CmdPhilosopherWorkspaceClean extends CmdBase {
   }
 
   public boolean configure(UsageTrigger usePhilosopher) {
-    pbs.clear();
+    pbis.clear();
     {
       List<String> cmd = new ArrayList<>();
       cmd.add(usePhilosopher.useBin(wd));
@@ -26,7 +26,7 @@ public class CmdPhilosopherWorkspaceClean extends CmdBase {
       cmd.add("--clean");
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.toFile());
-      pbs.add(pb);
+      pbis.add(PbiBuilder.from(pb));
     }
 
     isConfigured = true;

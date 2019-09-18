@@ -25,7 +25,7 @@ public class CmdIprophet extends CmdBase {
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       String decoyTag, int nThreads, Map<InputLcmsFile, Path> pepxmlFiles) {
 
-    pbs.clear();
+    pbis.clear();
 
     final List<String> cmd = new ArrayList<>();
     cmd.add(usePhilosopher.useBin());
@@ -47,7 +47,7 @@ public class CmdIprophet extends CmdBase {
 
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(wd.toFile());
-    pbs.add(pb);
+    pbis.add(PbiBuilder.from(pb));
 
     isConfigured = true;
     return true;

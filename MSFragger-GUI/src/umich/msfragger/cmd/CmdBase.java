@@ -24,7 +24,7 @@ public abstract class CmdBase {
 
   final boolean isRun;
   final Path wd;
-  final LinkedList<ProcessBuilder> pbs;
+  final LinkedList<ProcessBuilderInfo> pbis;
   final String fileCaptureStdout;
   final String fileCaptureStderr;
   boolean isConfigured;
@@ -35,7 +35,7 @@ public abstract class CmdBase {
     this.wd = workDir;
     this.fileCaptureStdout = fileCaptureStdout;
     this.fileCaptureStderr = fileCaptureStderr;
-    this.pbs = new LinkedList<>();
+    this.pbis = new LinkedList<>();
   }
 
   public CmdBase(
@@ -44,7 +44,7 @@ public abstract class CmdBase {
     this.wd = workDir;
     this.fileCaptureStdout = "";
     this.fileCaptureStderr = "";
-    this.pbs = new LinkedList<>();
+    this.pbis = new LinkedList<>();
   }
 
   public static String constructClasspathString(List<Path> jarDepsPaths, Path ... additionalJars) {
@@ -121,6 +121,7 @@ public abstract class CmdBase {
     if (!isConfigured)
       throw new IllegalStateException("Call to #getBuilderDescriptor() before calling #configure()");
     return new ProcessBuildersDescriptor(getCmdName(), getPriority(), fileCaptureStdout,
-        fileCaptureStderr).addAll(pbs);
+        fileCaptureStderr).addAll(pbis);
   }
+
 }

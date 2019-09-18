@@ -7,8 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import umich.msfragger.gui.LcmsFileGroup;
@@ -46,7 +44,7 @@ public class CmdReportFreequant extends CmdBase {
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       String textReportLabelfree, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
-    pbs.clear();
+    pbis.clear();
     if (!checkCompatibleFormats(comp, mapGroupsToProtxml)) {
       return false;
     }
@@ -79,7 +77,7 @@ public class CmdReportFreequant extends CmdBase {
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(groupWd.toFile());
 
-      pbs.add(pb);
+      pbis.add(PbiBuilder.from(pb));
     }
 
     isConfigured = true;

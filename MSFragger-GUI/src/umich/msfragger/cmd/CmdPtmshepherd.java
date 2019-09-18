@@ -74,7 +74,7 @@ public class CmdPtmshepherd extends CmdBase {
 
     final long numGroups = mapGroupsToProtxml.keySet().stream()
         .map(group -> group.name).distinct().count();
-    pbs.clear();
+    pbis.clear();
     Set<Path> groupWds = mapGroupsToProtxml.keySet().stream().map(g -> g.outputDir(wd))
         .collect(Collectors.toSet());
 
@@ -146,7 +146,7 @@ public class CmdPtmshepherd extends CmdBase {
     cmd.add(pathConfig.toString());
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(wd.toFile());
-    pbs.add(pb);
+    pbis.add(PbiBuilder.from(pb));
 
     isConfigured = true;
     return true;

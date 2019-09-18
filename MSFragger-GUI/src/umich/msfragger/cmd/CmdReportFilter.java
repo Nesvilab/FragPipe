@@ -3,8 +3,6 @@ package umich.msfragger.cmd;
 import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,7 +30,7 @@ public class CmdReportFilter extends CmdBase {
       String decoyTag, String textReportFilter, boolean dontUseFilterProtxml,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
-    pbs.clear();
+    pbis.clear();
     for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
       final LcmsFileGroup group = e.getKey();
       final Path protxml = e.getValue();
@@ -60,7 +58,7 @@ public class CmdReportFilter extends CmdBase {
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(groupWd.toFile());
-      pbs.add(pb);
+      pbis.add(PbiBuilder.from(pb));
     }
 
     isConfigured = true;

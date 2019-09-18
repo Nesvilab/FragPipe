@@ -9,11 +9,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.msfragger.cmd.ProcessBuilderInfo;
 import umich.msfragger.messages.MessageAppendToConsole;
 import umich.msfragger.messages.MessageKillAll;
 import umich.msfragger.messages.MessageStartProcesses;
@@ -24,7 +26,8 @@ public class ProcessManager {
   private static final ProcessManager instance = new ProcessManager();
   private final Object lock = new Object();
   private final ConcurrentLinkedQueue<RunnableDescription> tasks = new ConcurrentLinkedQueue<>();
-  private final ConcurrentLinkedQueue<Future<?>> procs = new ConcurrentLinkedQueue<>();
+  private final ConcurrentLinkedQueue<List<RunnableDescription>> groups = new ConcurrentLinkedQueue<>();
+  private final ConcurrentLinkedQueue<CompletableFuture<?>> procs = new ConcurrentLinkedQueue<>();
 
   private volatile CompletableFuture<Void> cf = CompletableFuture.completedFuture(null);
   private ExecutorService execSingle;
@@ -64,7 +67,15 @@ public class ProcessManager {
           execSingle.shutdownNow();
           execSingle.awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException ex) {
-          log.error("Interrupted while waiting for excutor shutdown", ex);
+          log.error("Interrupted while waiting for sequential excutor shutdown", ex);
+        }
+      }
+      if (execMulti != null) {
+        try {
+          execMulti.shutdownNow();
+          execMulti.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException ex) {
+          log.error("Interrupted while waiting for parallel excutor shutdown", ex);
         }
       }
       execSingle = newSingleExecutor();
@@ -93,9 +104,11 @@ public class ProcessManager {
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void onStartProcess(MessageStartProcesses m) {
-    if (m.runDescs.isEmpty())
-      return;
     synchronized (lock) {
+
+      if (m.runDescs.isEmpty())
+        return;
+
       tasks.addAll(m.runDescs);
 
       Iterator<RunnableDescription> it = tasks.iterator();
@@ -113,59 +126,75 @@ public class ProcessManager {
             processGroup(group);
           }
         }
-        // next is either a null group element or a new group element
+        // next is either a null/sequential group element or a new group element
         group.add(next);
-        if (next.parallelGroup == null) {
+        if (next.parallelGroup == null || next.parallelGroup.equals(ProcessBuilderInfo.GROUP_SEQUENTIAL)) {
           processGroup(group);
         }
       }
 
-//      for (RunnableDescription runDesc : m.runDescs) {
-//        Future<?> future = execSingle.submit(runDesc.runnable);
-//        procs.add(future);
-//      }
+      if (groups.isEmpty()) {
+        log.error("No runnable groups found");
+        return;
+      }
+      submit();
+
     } // END: sync
 
   }
 
-  private void processGroup(List<RunnableDescription> group) {
+//  private CompletableFuture<Void> submit() {
+  private void submit() {
     synchronized (lock) {
-      final List<RunnableDescription> copy = new ArrayList<>(group);
+      List<RunnableDescription> rds = groups.poll();
+      if (rds == null) {
+        log.debug("No more groups to process");
+        return;
+      }
 
-      if (group.size() == 1) {
-        RunnableDescription rd = copy.get(0);
-        log.debug("Submitting for serial execution: [{}] {}", rd.description.name, rd.description.command);
-        cf = cf.whenCompleteAsync((aVoid, throwable) -> {
-          if (throwable != null) {
-            log.error("Error occurred at some stage of pipeline", throwable);
-            return;
-          }
-
-          rd.runnable.run();
-        }, execSingle);
-        procs.add(cf);
+      if (rds.size() == 1) {
+        RunnableDescription rd = rds.get(0);
+        log.debug("Submitting for serial execution: [{}] {}", rd.description.name,
+            rd.description.command);
+        cf = CompletableFuture.runAsync(rd.runnable, execSingle)
+            .thenRunAsync(this::submit, execSingle);
 
       } else {
-        // group of several processes to be run in parallel
-
-        cf = cf.whenCompleteAsync((aVoid, throwable) -> {
-          if (throwable != null) {
-            log.error("Error occurred at some stage of pipeline", throwable);
-            return;
-          }
-          List<CompletableFuture<Void>> groupCfs = new ArrayList<>();
-          for (RunnableDescription rd : copy) {
-            log.debug("Submitting for parallel execution: [{}] {}", rd.description.name, rd.description.command);
-            CompletableFuture<Void> groupCf = CompletableFuture.runAsync(rd.runnable, execMulti);
-            procs.add(groupCf);
-            groupCfs.add(groupCf);
-            cf = CompletableFuture.allOf(groupCfs.toArray(new CompletableFuture[0]));
-          }
-        }, execSingle);
-        procs.add(cf);
+        String groupName = rds.stream().map(rd -> rd.parallelGroup).distinct()
+            .collect(Collectors.joining(", "));
+        String cmds = rds.stream().map(rd -> rd.description.command)
+            .collect(Collectors.joining("\n\t"));
+        log.debug("Submitting for parallel execution: [{}] {} commands:\n\t{}", groupName,
+            rds.size(), cmds);
+        List<CompletableFuture<Void>> cfs = new ArrayList<>();
+        for (RunnableDescription rd : rds) {
+          CompletableFuture<Void> f = CompletableFuture.runAsync(rd.runnable, execMulti);
+          cfs.add(f);
+        }
+        final CompletableFuture<Void> f = CompletableFuture
+            .allOf(cfs.toArray(new CompletableFuture[0]));
+        cf = f.thenRunAsync(this::submit, execSingle);
       }
-      group.clear();
     }
+  }
+
+  private void processGroup(List<RunnableDescription> group) {
+    final List<RunnableDescription> copy = new ArrayList<>(group);
+    if (group.size() == 1) {
+      RunnableDescription rd = copy.get(0);
+      log.debug("Scheduling for serial execution: [{}] {}", rd.description.name, rd.description.command);
+    } else {
+      // group of several processes to be run in parallel
+      String groupName = group.stream().map(rd -> rd.parallelGroup).distinct()
+          .collect(Collectors.joining(", "));
+      String cmds = group.stream().map(rd -> rd.description.command)
+          .collect(Collectors.joining("\n\t"));
+      log.debug("Scheduling for parallel execution: [{}] {} commands:\n\t{}", groupName,
+          group.size(), cmds);
+    }
+
+    groups.add(copy);
+    group.clear();
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)

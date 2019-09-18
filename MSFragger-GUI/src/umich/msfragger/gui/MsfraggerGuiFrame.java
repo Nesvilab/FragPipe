@@ -147,6 +147,7 @@ import umich.msfragger.cmd.CmdReportReport;
 import umich.msfragger.cmd.CmdSpecLibGen;
 import umich.msfragger.cmd.CmdUmpireSe;
 import umich.msfragger.cmd.ProcessBuilderInfo;
+import umich.msfragger.cmd.PbiBuilder;
 import umich.msfragger.cmd.ProcessBuildersDescriptor;
 import umich.msfragger.cmd.ToolingUtils;
 import umich.msfragger.gui.ProcessDescription.Builder;
@@ -3937,10 +3938,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
     LogUtils.println(console, "");
 
-    // Converting process builder descriptors to process builders
+    // Converting process builders descriptors to process builder infos
     final List<ProcessBuilderInfo> pbis = pbDescsToFill.stream()
-        .flatMap(pbd -> pbd.pbs.stream().map(pb -> new ProcessBuilderInfo(pb, pbd.name,
-            pbd.fileCaptureStdout, pbd.fileCaptureStderr, pbd.getParallelGroup())))
+        .flatMap(pbd -> pbd.pbis.stream().map(pbi ->
+        {
+          PbiBuilder b = new PbiBuilder();
+          b.setPb(pbi.pb);
+          b.setName(pbi.name != null ? pbi.name : pbd.name);
+          b.setFnStdOut(pbi.fnStdout != null ? pbi.fnStdout : pbd.fnStdout);
+          b.setFnStdErr(pbi.fnStderr != null ? pbi.fnStderr : pbd.fnStderr);
+          b.setParallelGroup(pbi.parallelGroup != null ? pbi.parallelGroup : pbd.getParallelGroup());
+          return b.create();
+        }))
         .collect(Collectors.toList());
 
     LogUtils.println(console, String.format(Locale.ROOT, "%d commands to execute:", pbis.size()));

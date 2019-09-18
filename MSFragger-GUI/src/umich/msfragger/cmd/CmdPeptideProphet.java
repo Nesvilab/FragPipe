@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -162,7 +163,7 @@ public class CmdPeptideProphet extends CmdBase {
       String fastaPath, String decoyTag, String textPepProphCmd, boolean combine,
       Map<InputLcmsFile, Path> pepxmlFiles) {
 
-    pbs.clear();
+    pbis.clear();
 
     final boolean cmdLineContainsCombine = textPepProphCmd.toLowerCase().contains("--combine");
     if (cmdLineContainsCombine && !combine) {
@@ -188,6 +189,10 @@ public class CmdPeptideProphet extends CmdBase {
     peptideProphetParams.setCmdLineParams(textPepProphCmd);
 
     if (!combine) {
+      LinkedList<ProcessBuilderInfo> pbisPreParallel = new LinkedList<>();
+      LinkedList<ProcessBuilderInfo> pbisParallel = new LinkedList<>();
+      LinkedList<ProcessBuilderInfo> pbisPostParallel = new LinkedList<>();
+
       for (Map.Entry<InputLcmsFile, Path> e : pepxmlFiles.entrySet()) {
         final Path pepxmlPath = e.getValue();
         final Path pepxmlDir = pepxmlPath.getParent();
@@ -197,7 +202,7 @@ public class CmdPeptideProphet extends CmdBase {
         // Needed for parallel Peptide Prophet
 
         // create temp dir to move pepxml to, otherwise philosopher breaks
-        Path temp = pepxmlDir.resolve("fragpipe-temp-" + pepxmlFn);
+        Path temp = pepxmlDir.resolve("fragpipe-" + pepxmlFn + "-temp");
         if (!isDryRun) {
           try {
             if (Files.exists(temp)) {
@@ -214,7 +219,11 @@ public class CmdPeptideProphet extends CmdBase {
         // copy original pepxml to temp
         List<ProcessBuilder> pbsCopyToTemp = ToolingUtils
             .pbsCopyFiles(jarFragpipe, temp, false, Collections.singletonList(pepxmlPath));
-        pbs.addAll(pbsCopyToTemp);
+        pbisPreParallel.addAll(pbsCopyToTemp.stream()
+            .map(pb -> new PbiBuilder().setPb(pb)
+                .setName(getCmdName() + ": Copy pepxml to temp").setFnStdOut(null).setFnStdErr(null)
+                .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create())
+            .collect(Collectors.toList()));
 
         // workspace init
         List<String> cmdPhiInit = new ArrayList<>();
@@ -223,7 +232,10 @@ public class CmdPeptideProphet extends CmdBase {
         cmdPhiInit.add("--init");
         ProcessBuilder pbPhiInit = new ProcessBuilder(cmdPhiInit);
         pbPhiInit.directory(temp.toFile());
-        pbs.add(pbPhiInit);
+        pbisPreParallel.add(new PbiBuilder()
+            .setPb(pbPhiInit)
+            .setName(getCmdName() + ": Workspace init")
+            .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
 
         // peptide prophet itself
         List<String> cmdPp = new ArrayList<>();
@@ -238,7 +250,9 @@ public class CmdPeptideProphet extends CmdBase {
         cmdPp.add(pepxmlPath.getFileName().toString());
         ProcessBuilder pbPp = new ProcessBuilder(cmdPp);
         setupEnv(temp, pbPp);
-        pbs.add(pbPp);
+        pbisParallel.add(new PbiBuilder()
+            .setPb(pbPp)
+            .setParallelGroup(getCmdName()).create());
 
         // move pepxml after peptide prophet back to original directory
         HashMap<InputLcmsFile, Path> tempMap = new HashMap<>();
@@ -248,13 +262,28 @@ public class CmdPeptideProphet extends CmdBase {
         List<ProcessBuilder> pbsMoveFromTemp = ToolingUtils
             .pbsMoveFiles(jarFragpipe, pepxmlDir, false,
                 Collections.singletonList(pepxmlAfterSearch.getValue()));
-        pbs.addAll(pbsMoveFromTemp);
+        pbisPostParallel.addAll(pbsMoveFromTemp.stream()
+            .map(pb -> new PbiBuilder()
+                .setPb(pb)
+                .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL)
+                .setName(getCmdName() + ": Move pepxmls back").create())
+            .collect(Collectors.toList()));
 
         // delete temp dir
         List<ProcessBuilder> pbsDeleteTemp = ToolingUtils
             .pbsDeleteFiles(jarFragpipe, Collections.singletonList(temp));
-        pbs.addAll(pbsDeleteTemp);
+        pbisPostParallel.addAll(pbsDeleteTemp.stream()
+            .map(pb -> new PbiBuilder()
+                .setPb(pb)
+                .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL)
+                .setName(getCmdName() + ": Delete temp").create())
+            .collect(Collectors.toList()));
+
       }
+      pbis.addAll(pbisPreParallel);
+      pbis.addAll(pbisParallel);
+      pbis.addAll(pbisPostParallel);
+
     } else {
       // --combine specified
       Map<String, List<Entry<InputLcmsFile, Path>>> pepxmlByExp = pepxmlFiles.entrySet().stream()
@@ -287,7 +316,7 @@ public class CmdPeptideProphet extends CmdBase {
         final ProcessBuilder pb = new ProcessBuilder(cmd);
         final Path pepxmlDir = pepxmlDirs.get(0);
         setupEnv(pepxmlDir, pb);
-        pbs.add(pb);
+        pbis.add(new PbiBuilder().setPb(pb).create());
       }
     }
 

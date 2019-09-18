@@ -27,7 +27,7 @@ public class CmdReportReport extends CmdBase {
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       boolean doPrintDecoys, boolean doMzId, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
-    pbs.clear();
+    pbis.clear();
     Set<Path> groupWds = mapGroupsToProtxml.keySet().stream().map(g -> g.outputDir(wd))
         .collect(Collectors.toSet());
     for (Path groupWd : groupWds) {
@@ -42,7 +42,7 @@ public class CmdReportReport extends CmdBase {
       }
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(groupWd.toFile());
-      pbs.add(pb);
+      pbis.add(PbiBuilder.from(pb));
     }
 
     isConfigured = true;

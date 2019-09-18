@@ -3,7 +3,6 @@ package umich.msfragger.cmd;
 import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +12,6 @@ import javax.swing.JOptionPane;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.philosopher.PhilosopherProps;
-import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.UsageTrigger;
 
 public class CmdReportDbAnnotate extends CmdBase {
@@ -33,7 +31,7 @@ public class CmdReportDbAnnotate extends CmdBase {
       String dbPath, String decoyTag,
       Map<InputLcmsFile, Path> pepxmlFiles, Map<LcmsFileGroup, Path> protxmlFiles) {
 
-    pbs.clear();
+    pbis.clear();
     if (dbPath == null) {
       JOptionPane.showMessageDialog(comp, "Fasta file path can't be empty (Report)",
           "Warning", JOptionPane.WARNING_MESSAGE);
@@ -55,7 +53,7 @@ public class CmdReportDbAnnotate extends CmdBase {
       cmd.add(decoyTag);
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(pepxmlDir.toFile());
-      pbs.add(pb);
+      pbis.add(PbiBuilder.from(pb));
     }
 
     isConfigured = true;
