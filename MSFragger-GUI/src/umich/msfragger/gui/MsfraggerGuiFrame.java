@@ -3937,9 +3937,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
     LogUtils.println(console, "");
 
+    // Converting process builder descriptors to process builders
     final List<ProcessBuilderInfo> pbis = pbDescsToFill.stream()
         .flatMap(pbd -> pbd.pbs.stream().map(pb -> new ProcessBuilderInfo(pb, pbd.name,
-            pbd.fileCaptureStdout, pbd.fileCaptureStderr)))
+            pbd.fileCaptureStdout, pbd.fileCaptureStderr, pbd.getParallelGroup())))
         .collect(Collectors.toList());
 
     LogUtils.println(console, String.format(Locale.ROOT, "%d commands to execute:", pbis.size()));
@@ -3985,14 +3986,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     List<RunnableDescription> toRun = new ArrayList<>();
     for (final ProcessBuilderInfo pbi : pbis) {
       Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, wdPath, this::printProcessDescription);
-      Builder b = new Builder().setName(pbi.name);
+      ProcessDescription.Builder b = new ProcessDescription.Builder().setName(pbi.name);
       if (pbi.pb.directory() != null) {
         b.setWorkDir(pbi.pb.directory().toString());
       }
       if (pbi.pb.command() != null && !pbi.pb.command().isEmpty()) {
         b.setCommand(String.join(" ", pbi.pb.command()));
       }
-      toRun.add(new RunnableDescription(b.create(), runnable));
+      toRun.add(new RunnableDescription(b.create(), runnable, pbi.parallelGroup));
     }
 
     // add finalizer process
@@ -4144,7 +4145,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       if (!cmdUmpireSe.configure(this, isDryRun, jarFragpipe, usePhi,
           umpirePanel, lcmsFiles))
         return false;
-      pbDescs.add(cmdUmpireSe.builders());
+      pbDescs.add(cmdUmpireSe.getBuilderDescriptor());
       lcmsFiles = cmdUmpireSe.outputs(lcmsFiles);
     }
 
@@ -4158,7 +4159,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           jarFragpipe, fp, lcmsFiles, false, 49)) {
         return false;
       }
-      pbDescs.add(cmdMsAdjuster.builders());
+      pbDescs.add(cmdMsAdjuster.getBuilderDescriptor());
       // MsAdjuster only makes files that are discovered by MsFragger
       // automatically, so no file-list changes are needed
     }
@@ -4175,7 +4176,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           isDryRun, fp, jarFragpipe, binMsfragger, fastaFile, lcmsFiles, decoyTag)) {
         return false;
       }
-      pbDescs.add(cmdMsfragger.builders());
+      pbDescs.add(cmdMsfragger.getBuilderDescriptor());
 
       String warn = ThisAppProps.load(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
       if (warn != null && Boolean.valueOf(warn)) {
@@ -4207,7 +4208,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           jarFragpipe, fp, lcmsFiles, true, 51)) {
         return false;
       }
-      pbDescs.add(cmdMsAdjuster.builders());
+      pbDescs.add(cmdMsAdjuster.getBuilderDescriptor());
     }
 
 
@@ -4228,7 +4229,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           fp, isDryRun, Paths.get(binMsfragger.getBin()), ccParams, fastaFile, pepxmlFiles)) {
         return false;
       }
-      pbDescs.add(cmdCrystalc.builders());
+      pbDescs.add(cmdCrystalc.getBuilderDescriptor());
       pepxmlFiles = cmdCrystalc.outputs(pepxmlFiles, fp.getOutputFileExt());
     }
 
@@ -4243,7 +4244,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           usePhi, fastaFile, decoyTag, pepProphCmd, isCombinedPepxml, pepxmlFiles)) {
         return false;
       }
-      pbDescs.add(cmdPeptideProphet.builders());
+      pbDescs.add(cmdPeptideProphet.getBuilderDescriptor());
     }
     pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, fp.getOutputFileExt(), isCombinedPepxml);
 
@@ -4260,7 +4261,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           isProcessGroupsSeparately, pepxmlFiles)) {
         return false;
       }
-      pbDescs.add(cmdProteinProphet.builders());
+      pbDescs.add(cmdProteinProphet.getBuilderDescriptor());
     }
     Map<LcmsFileGroup, Path> mapGroupsToProtxml = cmdProteinProphet.outputs(pepxmlFiles, isProcessGroupsSeparately, isMuiltiExperimentReport);
 
@@ -4290,7 +4291,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .configure(this, usePhi, fastaFile, decoyTag, pepxmlFiles, mapGroupsToProtxml)) {
           return false;
         }
-        pbDescs.add(cmdReportDbAnnotate.builders());
+        pbDescs.add(cmdReportDbAnnotate.getBuilderDescriptor());
       }
 
       // run Report - Filter
@@ -4340,7 +4341,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             decoyTag, textReportFilter.getText(), dontUseProtxmlInFilter, mapGroupsToProtxml)) {
           return false;
         }
-        pbDescs.add(cmdReportFilter.builders());
+        pbDescs.add(cmdReportFilter.getBuilderDescriptor());
       }
 
       // run Report - Freequant (Labelfree)
@@ -4350,7 +4351,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (!cmdReportFreequant.configure(this, usePhi, textReportLabelfree.getText(), mapGroupsToProtxml)) {
           return false;
         }
-        pbDescs.add(cmdReportFreequant.builders());
+        pbDescs.add(cmdReportFreequant.getBuilderDescriptor());
       }
 
       // run Report - Report command itself
@@ -4362,7 +4363,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (!cmdReportReport.configure(this, usePhi, doPrintDecoys, doMzid, mapGroupsToProtxml)) {
           return false;
         }
-        pbDescs.add(cmdReportReport.builders());
+        pbDescs.add(cmdReportReport.getBuilderDescriptor());
       }
 
       // run Report - Multi-Experiment report
@@ -4374,14 +4375,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         if (!cmdIprophet.configure(this, usePhi, decoyTag, nThreads, pepxmlFiles)) {
           return false;
         }
-        pbDescs.add(cmdIprophet.builders());
+        pbDescs.add(cmdIprophet.getBuilderDescriptor());
 
         // run Abacus
         if (!cmdReportAbacus.configure(this, usePhi,
             textReportFilter.getText(), decoyTag, mapGroupsToProtxml)) {
           return false;
         }
-        pbDescs.add(cmdReportAbacus.builders());
+        pbDescs.add(cmdReportAbacus.getBuilderDescriptor());
       }
     }
 
@@ -4400,7 +4401,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           ramGb, fastaPath, mapGroupsToProtxml, additionalShepherdParams)) {
         return false;
       }
-      pbDescs.add(cmdPtmshepherd.builders());
+      pbDescs.add(cmdPtmshepherd.getBuilderDescriptor());
     }
 
 
@@ -4411,7 +4412,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           mapGroupsToProtxml, fastaFile, isRunProteinProphet)) {
         return false;
       }
-      pbDescs.add(cmdSpecLibGen.builders());
+      pbDescs.add(cmdSpecLibGen.getBuilderDescriptor());
     }
 
 
@@ -4420,11 +4421,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       CmdPhilosopherWorkspaceCleanInit cmdPhiCleanInit = new CmdPhilosopherWorkspaceCleanInit(
           true, pathPhiIsRunIn);
       cmdPhiCleanInit.configure(usePhi);
-      pbDescs.add(cmdPhiCleanInit.builders());
+      pbDescs.add(cmdPhiCleanInit.getBuilderDescriptor());
       CmdPhilosopherWorkspaceClean cmdPhiClean = new CmdPhilosopherWorkspaceClean(
           true, pathPhiIsRunIn);
       cmdPhiClean.configure(usePhi);
-      pbDescs.add(cmdPhiClean.builders());
+      pbDescs.add(cmdPhiClean.getBuilderDescriptor());
     }
 
     // make sure that all subfolders are created for groups/experiments

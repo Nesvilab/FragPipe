@@ -10,14 +10,7 @@ public class ProcessBuildersDescriptor {
   public final String fileCaptureStdout;
   public final String fileCaptureStderr;
   public final int priority;
-
-  public ProcessBuildersDescriptor(String name) {
-    this(name, 100, "", "");
-  }
-
-  public ProcessBuildersDescriptor(String name, int priority) {
-    this(name, priority, "", "");
-  }
+  private String parallelGroup = null;
 
   public ProcessBuildersDescriptor(String name, int priority,
       String fileCaptureStdout, String fileCaptureStderr) {
@@ -26,6 +19,14 @@ public class ProcessBuildersDescriptor {
     this.pbs = new ArrayList<>();
     this.fileCaptureStdout = fileCaptureStdout;
     this.fileCaptureStderr = fileCaptureStderr;
+  }
+
+  public String getParallelGroup() {
+    return parallelGroup;
+  }
+
+  public void setParallelGroup(String parallelGroup) {
+    this.parallelGroup = parallelGroup;
   }
 
   public int size() {

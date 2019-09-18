@@ -20,13 +20,15 @@ public class ProcessBuilderInfo {
   public final String name;
   public final String fnStdOut;
   public final String fnStdErr;
+  public final String parallelGroup;
 
   public ProcessBuilderInfo(ProcessBuilder pb, String name, String fnStdOut,
-      String fnStdErr) {
+      String fnStdErr, String parallelGroup) {
     this.pb = pb;
     this.name = name;
     this.fnStdOut = fnStdOut;
     this.fnStdErr = fnStdErr;
+    this.parallelGroup = parallelGroup;
   }
 
   public static Runnable toRunnable(final ProcessBuilderInfo pbi, final Path wdPath,

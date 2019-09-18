@@ -268,4 +268,11 @@ public class CmdPeptideProphet extends CmdBase {
   public int getPriority() {
     return 92;
   }
+
+  @Override
+  public ProcessBuildersDescriptor getBuilderDescriptor() {
+    ProcessBuildersDescriptor b = super.getBuilderDescriptor();
+    b.setParallelGroup(getCmdName());
+    return b;
+  }
 }

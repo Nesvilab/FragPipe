@@ -101,7 +101,7 @@ public class FragpipeUtil {
         cmdDownload.configure(parent, usePhi, uniprotId, isReviewed, isAddContaminants, isAddIsoforms);
 
         List<ProcessBuilder> pbs = Stream.of(cmdCleanInit, cmdDownload)
-            .flatMap(cmdBase -> cmdBase.builders().pbs.stream())
+            .flatMap(cmdBase -> cmdBase.getBuilderDescriptor().pbs.stream())
             .collect(Collectors.toList());
 
         WatchService watch = FileSystems.getDefault().newWatchService();
@@ -128,7 +128,7 @@ public class FragpipeUtil {
                 log.info("Executing: " + cmd);
 
                 ProcessBuilderInfo pbi = new ProcessBuilderInfo(pb, pb.toString(),
-                    null, null);
+                    null, null, null);
                 ProcessResult pr = new ProcessResult(pbi);
                 pr.start().waitFor(5, TimeUnit.MINUTES);
                 log.info("Process output: {}", pr.getOutput().toString());
