@@ -49,7 +49,7 @@ public class ProcessManager {
   }
 
   private ExecutorService newMultiExecutor() {
-    return Executors.newWorkStealingPool(Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
+    return Executors.newFixedThreadPool(Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
   }
 
   private void init0() {
@@ -133,12 +133,15 @@ public class ProcessManager {
       final List<RunnableDescription> copy = new ArrayList<>(group);
 
       if (group.size() == 1) {
+        RunnableDescription rd = copy.get(0);
+        log.debug("Submitting for serial execution: [{}] {}", rd.description.name, rd.description.command);
         cf = cf.whenCompleteAsync((aVoid, throwable) -> {
           if (throwable != null) {
             log.error("Error occurred at some stage of pipeline", throwable);
             return;
           }
-          copy.get(0).runnable.run();
+
+          rd.runnable.run();
         }, execSingle);
         procs.add(cf);
 
@@ -152,6 +155,7 @@ public class ProcessManager {
           }
           List<CompletableFuture<Void>> groupCfs = new ArrayList<>();
           for (RunnableDescription rd : copy) {
+            log.debug("Submitting for parallel execution: [{}] {}", rd.description.name, rd.description.command);
             CompletableFuture<Void> groupCf = CompletableFuture.runAsync(rd.runnable, execMulti);
             procs.add(groupCf);
             groupCfs.add(groupCf);

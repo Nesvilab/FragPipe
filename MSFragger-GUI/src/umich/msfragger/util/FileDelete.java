@@ -23,14 +23,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Dmitry Avtonomov
  */
 public class FileDelete {
+//    private static final org.slf4j.Logger log = LoggerFactory.getLogger(FileDelete.class);
+
     public static void main(String[] args) throws IOException {
         if (args.length != 1)
             throw new IllegalArgumentException("Must provide exactly one argument - the file or directory to delete.");
@@ -43,23 +43,24 @@ public class FileDelete {
     public static void deleteFileOrFolder(final Path path) throws IOException {
         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
             @Override
-            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.delete(file);
                 return FileVisitResult.CONTINUE;
             }
 
             @Override
-            public FileVisitResult visitFileFailed(final Path file, final IOException e) {
+            public FileVisitResult visitFileFailed(Path file, IOException e) {
                 return handleException(e);
             }
 
-            private FileVisitResult handleException(final IOException e) {
-                Logger.getLogger(FileDelete.class.getCanonicalName()).log(Level.SEVERE, String.format("Error traversing directory for deletion.", e.getMessage()));
+            private FileVisitResult handleException(IOException e) {
+                //log.error("Error traversing directory for deletion.", e);
+                System.err.println("Error traversing directory for deletion:\n" + e.getMessage());
                 return FileVisitResult.TERMINATE;
             }
 
             @Override
-            public FileVisitResult postVisitDirectory(final Path dir, final IOException e) throws IOException {
+            public FileVisitResult postVisitDirectory(Path dir, IOException e) throws IOException {
                 if (e != null) {
                     return handleException(e);
                 }

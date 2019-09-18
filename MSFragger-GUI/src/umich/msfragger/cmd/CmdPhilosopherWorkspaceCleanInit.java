@@ -8,6 +8,7 @@ import umich.msfragger.util.UsageTrigger;
 public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
 
   public static final String NAME = "Workspace";
+  private int priority = 10;
 
   public CmdPhilosopherWorkspaceCleanInit(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -50,6 +51,10 @@ public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
 
   @Override
   public int getPriority() {
-    return 10;
+    return priority;
+  }
+
+  public void setPriority(int priority) {
+    this.priority = priority;
   }
 }

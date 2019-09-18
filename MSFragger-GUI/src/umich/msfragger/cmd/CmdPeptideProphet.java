@@ -3,10 +3,12 @@ package umich.msfragger.cmd;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.pepproph.PeptideProphetParams;
 import umich.msfragger.params.philosopher.PhilosopherProps;
+import umich.msfragger.util.FileDelete;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.UsageTrigger;
@@ -155,7 +158,7 @@ public class CmdPeptideProphet extends CmdBase {
   /**
    * @param pepxmlFiles Either pepxml files after search or after Crystal-C.
    */
-  public boolean configure(Component comp, UsageTrigger usePhilosopher,
+  public boolean configure(Component comp, UsageTrigger phi, Path jarFragpipe, boolean isDryRun,
       String fastaPath, String decoyTag, String textPepProphCmd, boolean combine,
       Map<InputLcmsFile, Path> pepxmlFiles) {
 
@@ -186,21 +189,71 @@ public class CmdPeptideProphet extends CmdBase {
 
     if (!combine) {
       for (Map.Entry<InputLcmsFile, Path> e : pepxmlFiles.entrySet()) {
-        List<String> cmd = new ArrayList<>();
-        cmd.add(usePhilosopher.useBin());
-        cmd.add(PhilosopherProps.CMD_PEPTIDE_PROPHET);
-
-        addFreeCommandLineParams(peptideProphetParams, cmd);
-        cmd.add("--decoy");
-        cmd.add(decoyTag);
-        cmd.add("--database");
-        cmd.add(fastaPath);
-
         final Path pepxmlPath = e.getValue();
-        cmd.add(pepxmlPath.getFileName().toString());
-        ProcessBuilder pb = new ProcessBuilder(cmd);
-        setupEnv(pepxmlPath.getParent(), pb);
-        pbs.add(pb);
+        final Path pepxmlDir = pepxmlPath.getParent();
+        final String pepxmlFn = pepxmlPath.getFileName().toString();
+
+
+        // Needed for parallel Peptide Prophet
+
+        // create temp dir to move pepxml to, otherwise philosopher breaks
+        Path temp = pepxmlDir.resolve("fragpipe-temp-" + pepxmlFn);
+        if (!isDryRun) {
+          try {
+            if (Files.exists(temp)) {
+              FileDelete.deleteFileOrFolder(temp);
+            }
+            Path created = Files.createDirectories(temp);
+          } catch (FileAlreadyExistsException ignored) {
+            log.debug("Temp dir already exists, no biggie");
+          } catch (IOException ex) {
+            log.error("Could not create temporary directory for running peptide prophet in parallel", ex);
+          }
+        }
+
+        // copy original pepxml to temp
+        List<ProcessBuilder> pbsCopyToTemp = ToolingUtils
+            .pbsCopyFiles(jarFragpipe, temp, false, Collections.singletonList(pepxmlPath));
+        pbs.addAll(pbsCopyToTemp);
+
+        // workspace init
+        List<String> cmdPhiInit = new ArrayList<>();
+        cmdPhiInit.add(phi.useBin());
+        cmdPhiInit.add("workspace");
+        cmdPhiInit.add("--init");
+        ProcessBuilder pbPhiInit = new ProcessBuilder(cmdPhiInit);
+        pbPhiInit.directory(temp.toFile());
+        pbs.add(pbPhiInit);
+
+        // peptide prophet itself
+        List<String> cmdPp = new ArrayList<>();
+        cmdPp.add(phi.useBin());
+        cmdPp.add(PhilosopherProps.CMD_PEPTIDE_PROPHET);
+        addFreeCommandLineParams(peptideProphetParams, cmdPp);
+        cmdPp.add("--decoy");
+        cmdPp.add(decoyTag);
+        cmdPp.add("--database");
+        cmdPp.add(fastaPath);
+
+        cmdPp.add(pepxmlPath.getFileName().toString());
+        ProcessBuilder pbPp = new ProcessBuilder(cmdPp);
+        setupEnv(temp, pbPp);
+        pbs.add(pbPp);
+
+        // move pepxml after peptide prophet back to original directory
+        HashMap<InputLcmsFile, Path> tempMap = new HashMap<>();
+        tempMap.put(e.getKey(), temp.resolve(pepxmlFn));
+        Map<InputLcmsFile, Path> outputsInTemp = outputs(tempMap, "pepxml", combine);
+        Entry<InputLcmsFile, Path> pepxmlAfterSearch = outputsInTemp.entrySet().iterator().next();
+        List<ProcessBuilder> pbsMoveFromTemp = ToolingUtils
+            .pbsMoveFiles(jarFragpipe, pepxmlDir, false,
+                Collections.singletonList(pepxmlAfterSearch.getValue()));
+        pbs.addAll(pbsMoveFromTemp);
+
+        // delete temp dir
+        List<ProcessBuilder> pbsDeleteTemp = ToolingUtils
+            .pbsDeleteFiles(jarFragpipe, Collections.singletonList(temp));
+        pbs.addAll(pbsDeleteTemp);
       }
     } else {
       // --combine specified
@@ -219,7 +272,7 @@ public class CmdPeptideProphet extends CmdBase {
         }
 
         List<String> cmd = new ArrayList<>();
-        cmd.add(usePhilosopher.useBin());
+        cmd.add(phi.useBin());
         cmd.add(PhilosopherProps.CMD_PEPTIDE_PROPHET);
 
         addFreeCommandLineParams(peptideProphetParams, cmd);
