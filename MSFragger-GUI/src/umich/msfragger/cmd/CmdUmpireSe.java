@@ -147,9 +147,9 @@ public class CmdUmpireSe extends CmdBase {
       // now all the generated garbage is in the working directory
       final boolean isWin = OsUtils.isWindows();
       final String binMsconvert = umpirePanel.getBinMsconvert();
-      if (isWin && StringUtils.isNullOrWhitespace(binMsconvert)) {
+      if (StringUtils.isNullOrWhitespace(binMsconvert)) {
         JOptionPane.showMessageDialog(errMsgParent,
-            "[DIA Umpire SE]\nOn Windows specifying path to msconvert binary is required.",
+            "[DIA Umpire SE]\nSpecifying path to msconvert binary is required.",
             "Error", JOptionPane.ERROR_MESSAGE);
         return false;
       }
@@ -158,25 +158,28 @@ public class CmdUmpireSe extends CmdBase {
       for (String mgf : mgfs) {
         List<String> cmdMsConvert = new ArrayList<>();
 
-        if (isWin) {
-          cmdMsConvert.add(binMsconvert);
-          cmdMsConvert.add("--verbose");
-          cmdMsConvert.add("--32");
-          cmdMsConvert.add("--zlib");
-          cmdMsConvert.add("--" + OUTPUT_EXT.toString());
-          cmdMsConvert.add("--outdir");
-          cmdMsConvert.add(f.outputDir(wd).toString());
-        } else {
-          // on Linux philosopher includes msconvert
-          cmdMsConvert.add(philo.useBin(f.outputDir(wd)));
-          cmdMsConvert.add("--format");
-          cmdMsConvert.add(OUTPUT_EXT.toString());
-          cmdMsConvert.add("--intencoding");
-          cmdMsConvert.add("32");
-          cmdMsConvert.add("--mzencoding");
-          cmdMsConvert.add("32");
-          cmdMsConvert.add("--zlib");
-        }
+        cmdMsConvert.add(binMsconvert);
+        cmdMsConvert.add("--verbose");
+        cmdMsConvert.add("--32");
+        cmdMsConvert.add("--zlib");
+        cmdMsConvert.add("--" + OUTPUT_EXT.toString());
+        cmdMsConvert.add("--outdir");
+        cmdMsConvert.add(f.outputDir(wd).toString());
+
+//        if (isWin) { // since philosopher 1.5.0 msconvert is not included
+//        } else {
+//          // on Linux philosopher includes msconvert
+//          cmdMsConvert.add(philo.useBin(f.outputDir(wd)));
+//          cmdMsConvert.add("msconvert");
+//          cmdMsConvert.add("--format");
+//          cmdMsConvert.add(OUTPUT_EXT.toString());
+//          cmdMsConvert.add("--intencoding");
+//          cmdMsConvert.add("32");
+//          cmdMsConvert.add("--mzencoding");
+//          cmdMsConvert.add("32");
+//          cmdMsConvert.add("--zlib");
+//        }
+
         Path mgfPath = f.outputDir(wd).resolve(mgf);
         cmdMsConvert.add(mgfPath.toString());
         ProcessBuilder pbMsConvert = new ProcessBuilder(cmdMsConvert);
