@@ -18,6 +18,7 @@ package umich.msfragger.util;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -31,8 +32,25 @@ public class FileCopy {
         if (args.length != 2) {
             throw new IllegalArgumentException("Input must be exactly 2 arguments: origin and destination");
         }
-        Path origin = Paths.get(args[0]);
-        Path destination = Paths.get(args[1]);
+
+        Path origin = null;
+        Path destination = null;
+        try {
+            origin = Paths.get(args[0]);
+            destination = Paths.get(args[1]);
+        } catch (InvalidPathException e) {
+            System.err.println("Given paths are not valid: " + e.getMessage());
+            System.exit(1);
+        }
+        if (!Files.exists(origin)) {
+            System.err.println("Origin file does not exist: " + origin.toString());
+            System.exit(1);
+        }
+        if (!Files.exists(destination.getParent())) {
+            System.err.println("Destination directory does not exist: " + destination.getParent());
+            System.exit(1);
+        }
+
         Files.copy(origin, destination, StandardCopyOption.REPLACE_EXISTING);
     }
 }

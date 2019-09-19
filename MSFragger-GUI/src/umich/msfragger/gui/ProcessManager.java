@@ -25,9 +25,8 @@ public class ProcessManager {
 
   private static final ProcessManager instance = new ProcessManager();
   private final Object lock = new Object();
-  private final ConcurrentLinkedQueue<RunnableDescription> tasks = new ConcurrentLinkedQueue<>();
-  private final ConcurrentLinkedQueue<List<RunnableDescription>> groups = new ConcurrentLinkedQueue<>();
-  private final ConcurrentLinkedQueue<CompletableFuture<?>> procs = new ConcurrentLinkedQueue<>();
+  private final ConcurrentLinkedQueue<List<RunnableDescription>> taskGroups = new ConcurrentLinkedQueue<>();
+  private final ConcurrentLinkedQueue<CompletableFuture<?>> started = new ConcurrentLinkedQueue<>();
 
   private volatile CompletableFuture<Void> cf = CompletableFuture.completedFuture(null);
   private ExecutorService execSingle;
@@ -57,8 +56,9 @@ public class ProcessManager {
 
   private void init0() {
     synchronized (lock) {
-      procs.clear();
-      tasks.clear();
+      taskGroups.clear();
+      started.forEach(cf -> cf.cancel(true));
+      started.clear();
       cf.cancel(true);
       cf = CompletableFuture.completedFuture(null);
 
@@ -86,15 +86,9 @@ public class ProcessManager {
   private void stop() {
     synchronized (lock) {
       try {
-        long done = procs.stream().filter(Future::isDone).count();
-        long total = procs.size();
-        String msg = String.format("\n~~~~~~~~~~~~~~~~~~~~\nStopping %d/%d processes (%d already finished)", total - done, total, done);
-        EventBus.getDefault()
-            .post(new MessageAppendToConsole(msg, MsfraggerGuiFrame.COLOR_RED_DARKEST));
-        for (Future<?> proc : procs) {
+        for (Future<?> proc : started) {
           proc.cancel(true);
         }
-
       } finally {
         // whatever happens, kill the old executor service, start a new one, clear queues
         init0();
@@ -105,13 +99,12 @@ public class ProcessManager {
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void onStartProcess(MessageStartProcesses m) {
     synchronized (lock) {
-
-      if (m.runDescs.isEmpty())
+      if (m.runDescs.isEmpty()) {
         return;
+      }
+      stop();
 
-      tasks.addAll(m.runDescs);
-
-      Iterator<RunnableDescription> it = tasks.iterator();
+      Iterator<RunnableDescription> it = m.runDescs.iterator();
       final List<RunnableDescription> group = new ArrayList<>();
       while (it.hasNext()) {
         RunnableDescription next = it.next();
@@ -133,7 +126,7 @@ public class ProcessManager {
         }
       }
 
-      if (groups.isEmpty()) {
+      if (taskGroups.isEmpty()) {
         log.error("No runnable groups found");
         return;
       }
@@ -146,9 +139,10 @@ public class ProcessManager {
 //  private CompletableFuture<Void> submit() {
   private void submit() {
     synchronized (lock) {
-      List<RunnableDescription> rds = groups.poll();
+      List<RunnableDescription> rds = taskGroups.poll();
       if (rds == null) {
-        log.debug("No more groups to process");
+        log.debug("No more groups to process, stopping");
+        stop();
         return;
       }
 
@@ -193,12 +187,17 @@ public class ProcessManager {
           group.size(), cmds);
     }
 
-    groups.add(copy);
+    taskGroups.add(copy);
     group.clear();
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void onKillAll(MessageKillAll m) {
+    long notStarted = taskGroups.stream().mapToInt(List::size).sum();
+    String msg = String.format(
+        "\n~~~~~~~~~~~~~~~~~~~~\nCancelling %d remaining tasks", notStarted);
+    EventBus.getDefault()
+        .post(new MessageAppendToConsole(msg, MsfraggerGuiFrame.COLOR_RED_DARKEST));
     stop();
   }
 }

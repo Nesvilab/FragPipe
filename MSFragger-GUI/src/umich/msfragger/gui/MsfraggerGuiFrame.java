@@ -2716,6 +2716,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (workDir != null) {
       EventBus.getDefault().post(new MessageSaveLog(workDir));
     }
+    resetRunButtons(true);
   }
   private void btnRawClearActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRawClearActionPerformed
