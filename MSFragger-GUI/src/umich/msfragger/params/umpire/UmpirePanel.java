@@ -23,6 +23,7 @@ import static umich.msfragger.params.umpire.UmpireParams.PROP_Thread;
 import static umich.msfragger.params.umpire.UmpireParams.PROP_WindowSize;
 import static umich.msfragger.params.umpire.UmpireParams.PROP_WindowType;
 
+import com.github.chhh.utils.swing.UiText;
 import java.awt.Component;
 import java.awt.Container;
 import java.io.IOException;
@@ -65,10 +66,10 @@ import umich.msfragger.util.swing.FormEntry;
 public class UmpirePanel extends JPanel {
   public JCheckBox checkRunUmpireSe;
   public JSpinner spinnerRam;
-  private JTextField textBinMsconvert;
-  private final String ghostTextBinMsconvert = "MsConvert is optional on Linux and mandatory on Windows";
-  private JTextField textConfigFile;
-  private final String ghostTextConfigFile = "Optional path to a config file with defaults";
+  private UiText textBinMsconvert;
+  private final String ghostTextBinMsconvert = "Path to msconvert binary (part of ProteoWizard) - Required";
+  private UiText textConfigFile;
+  private final String ghostTextConfigFile = "Path to a config file with defaults - Optional";
   private JPanel pFrag;
   private JPanel pSe;
   private JPanel pSwath;
@@ -230,13 +231,13 @@ public class UmpirePanel extends JPanel {
 
     // default config file
     String pathConfigFile = ThisAppProps.load(UmpireParams.CACHE_FILE);
-    textConfigFile = new JTextField(pathConfigFile);
+    textConfigFile = new UiText(pathConfigFile, ghostTextConfigFile);
     DocumentEventSource.fromDocumentEventsOf(textConfigFile.getDocument())
         .debounce(3, TimeUnit.SECONDS)
         .subscribe(documentEvent -> {
           try {
             final String val = textConfigFile.getText();
-            final String toSave = ghostTextConfigFile.equals(val) ? null : val;
+            final String toSave = textConfigFile.getGhostText().equals(val) ? null : val;
             ThisAppProps.save(UmpireParams.CACHE_FILE, toSave);
 
             if (!StringUtils.isNullOrWhitespace(toSave)) {
@@ -275,21 +276,22 @@ public class UmpirePanel extends JPanel {
     String binMsconvert = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_MSCONVERT);
     if (binMsconvert == null)
       binMsconvert = ToolingUtils.getBinMsconvert();
-    textBinMsconvert = new JTextField(binMsconvert);
+    textBinMsconvert = new UiText(binMsconvert, ghostTextBinMsconvert);
     // save the text once there are no change events for 3 seconds
     DocumentEventSource.fromDocumentEventsOf(textBinMsconvert.getDocument())
         .debounce(3, TimeUnit.SECONDS)
         .subscribe(documentEvent -> {
           try {
             final String val = textBinMsconvert.getText();
-            final String toSave = ghostTextBinMsconvert.equals(val) ? null : val;
+            final String toSave = textBinMsconvert.getGhostText().equals(val) ? null : val;
             ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_MSCONVERT, toSave);
           } catch (Exception ignore) {}
         });
 
     {
       FormEntry feBinMsconvert = new FormEntry(ThisAppProps.PROP_BIN_PATH_MSCONVERT,
-          "MsConvert binary", textBinMsconvert, "MsConvert is optional on Linux and mandatory on Windows");
+          "MsConvert binary", textBinMsconvert, "mconvert program is a part of "
+          + " ProteoWizard suite. It is no longer included in Philosopher. Download at: http://proteowizard.sourceforge.net/");
       pOther.add(feBinMsconvert.label(), ccLbl);
       pOther.add(feBinMsconvert.comp, new CC().growX().pushX());
       final JFileChooser fc = new JFileChooser();
@@ -302,8 +304,7 @@ public class UmpirePanel extends JPanel {
         } catch (Exception ignored) {
         }
       }
-      pOther.add(feBinMsconvert.browseButton("Browse", fc,
-          "Path to msconvert binary (part of ProteoWizard)", null),
+      pOther.add(feBinMsconvert.browseButton("Browse", fc, ghostTextBinMsconvert, null),
           new CC().minWidth("button").wrap());
     }
 
@@ -332,17 +333,13 @@ public class UmpirePanel extends JPanel {
   }
 
   public String getDefaultConfigFile() {
-    String text = textConfigFile.getText();
-    if (StringUtils.isNullOrWhitespace(text) || ghostTextConfigFile.equals(text))
-      return null;
-    return text;
+    String text = textConfigFile.getNonGhostText();
+    return StringUtils.isNullOrWhitespace(text) ? null : text;
   }
 
   public String getBinMsconvert() {
-    String text = textBinMsconvert.getText();
-    if (StringUtils.isNullOrWhitespace(text) || ghostTextBinMsconvert.equals(text))
-      return null;
-    return text;
+    String text = textBinMsconvert.getNonGhostText();
+    return StringUtils.isNullOrWhitespace(text) ? null : text;
   }
 
   public void reloadUmpireParams() {

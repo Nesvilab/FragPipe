@@ -5747,7 +5747,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
               + "<b>If that's the first time you're using " + Version.PROGRAM_TITLE + "</b>,<br/>"
               + "you will need to <a href=\"" + link + "\">download Philosopher (click here)</a> first.<br/>"
               + "Use the button on the right to proceed to the download website.";
-          JEditorPane ep = SwingUtils.createClickableHtml(msg, true);
+          JEditorPane ep = SwingUtils.createClickableHtml(msg, true, true);
 
           balloonPhilosopher = new BalloonTip(textBinPhilosopher, ep,
               new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
@@ -6021,10 +6021,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
       Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
         String stacktrace = LogUtils.stacktrace(e);
-
-        log.debug("Something unexpected happened (1)", e);
-//        return;
-
+        log.debug("Something unexpected happened!", e);
         SwingUtils.userShowError(frame, stacktrace);
       });
 

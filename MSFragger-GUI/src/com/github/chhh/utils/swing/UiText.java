@@ -7,10 +7,16 @@ public class UiText extends JTextField implements StringRepresentable, GhostedTe
   private String ghostText = null;
 
   public UiText() {
+    super();
   }
 
   public UiText(String text) {
     super(text);
+  }
+
+  public UiText(String text, String ghostText) {
+    super(text);
+    this.ghostText = ghostText;
   }
 
   public UiText(int columns) {

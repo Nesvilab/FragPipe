@@ -11,7 +11,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.exceptions.FileWritingException;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.ThisAppProps;
@@ -22,10 +25,11 @@ import umich.msfragger.util.JarUtils;
 import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
+import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.UsageTrigger;
 
 public class CmdUmpireSe extends CmdBase {
-
+  private static final Logger log = LoggerFactory.getLogger(CmdUmpireSe.class);
   public static final String NAME = "UmpireSe";
   private static final EXTENSION OUTPUT_EXT = EXTENSION.mzXML;
   public enum EXTENSION {mzXML, mzML}
@@ -62,14 +66,30 @@ public class CmdUmpireSe extends CmdBase {
 
     pbis.clear();
 
+    // msconvert
+    // now all the generated garbage is in the working directory
+    //final boolean isWin = OsUtils.isWindows();
+    final String binMsconvert = umpirePanel.getBinMsconvert();
+    log.debug("Got bin msconvert: {}", binMsconvert);
+    if (StringUtils.isNullOrWhitespace(binMsconvert)) {
+      JEditorPane message = SwingUtils.createClickableHtml(
+          "Specifying path to msconvert binary is required.<br/>\n"
+          + "It can be downloaded as part of ProteoWizard:<br/>\n"
+          + "<a href='http://proteowizard.sourceforge.net/index.html'>http://proteowizard.sourceforge.net/index.html</a>");
+      SwingUtils.makeDialogResizable(message);
+      JOptionPane.showMessageDialog(errMsgParent, SwingUtils.wrapInScrollForDialog(message),
+          "DIA Umpire SE: Error", JOptionPane.ERROR_MESSAGE);
+      return false;
+    }
+
     // check if there are only mzXML input files
     boolean hasNonMzxml = lcmsFiles.stream().map(f -> f.path.getFileName().toString().toLowerCase())
-        .anyMatch(p -> !p.endsWith("mzxml"));
+        .anyMatch(p -> !p.endsWith(".mzxml"));
     if (hasNonMzxml) {
       JOptionPane.showMessageDialog(errMsgParent,
-          "[DIA Umpire SE]\nNot all input files are mzXML.\n"
+          "Not all input files are mzXML.\n"
               + "DIA-Umpire only supports mzXML inputs.",
-          "Error", JOptionPane.ERROR_MESSAGE);
+          "DIA Umpire SE: Error", JOptionPane.ERROR_MESSAGE);
       return false;
     }
 
@@ -141,17 +161,6 @@ public class CmdUmpireSe extends CmdBase {
         List<Path> garbage = UmpireSeGarbageFiles.getGarbageFiles(f.path);
         List<ProcessBuilder> pbsMove = ToolingUtils.pbsMoveFiles(jarFragpipe, destDir, garbage);
         pbis.addAll(PbiBuilder.from(pbsMove));
-      }
-
-      // msconvert
-      // now all the generated garbage is in the working directory
-      final boolean isWin = OsUtils.isWindows();
-      final String binMsconvert = umpirePanel.getBinMsconvert();
-      if (StringUtils.isNullOrWhitespace(binMsconvert)) {
-        JOptionPane.showMessageDialog(errMsgParent,
-            "[DIA Umpire SE]\nSpecifying path to msconvert binary is required.",
-            "Error", JOptionPane.ERROR_MESSAGE);
-        return false;
       }
 
       List<String> mgfs = getGeneratedMgfFnsForMzxml(inputFn.toString());

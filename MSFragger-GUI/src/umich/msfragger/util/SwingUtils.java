@@ -28,6 +28,8 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -46,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -227,7 +228,7 @@ public class SwingUtils {
    * tags. To include links use the regular A tags.
    */
   public static JEditorPane createClickableHtml(String text) {
-    return createClickableHtml(text, true);
+    return createClickableHtml(text, true, true);
   }
 
   public static String getHtmlBodyStyle() {
@@ -245,13 +246,13 @@ public class SwingUtils {
   /**
    * Creates a non-editable JEditorPane that has the same styling as default JLabels and with
    * hyperlinks clickable. They will be opened in the system default browser.
-   *
-   * @param text Your text to be displayed in HTML context. Don't add the opening and closing HTML
+   *  @param text Your text to be displayed in HTML context. Don't add the opening and closing HTML
    * tags. To include links use the regular A tags.
    * @param handleHyperlinks Add a handler for hyperlinks to be opened in the
-   * default system browser.
+   * @param useJlabelBackground
    */
-  public static JEditorPane createClickableHtml(String text, boolean handleHyperlinks) {
+  public static JEditorPane createClickableHtml(String text, boolean handleHyperlinks,
+      boolean useJlabelBackground) {
 
 
     JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + getHtmlBodyStyle() + "\">"
@@ -273,7 +274,27 @@ public class SwingUtils {
       });
     }
 
+    if (useJlabelBackground) {
+      ep.setBackground(new JLabel().getBackground());
+    }
+
     return ep;
+  }
+
+  /**
+   * Make the parent JDialog of a component resizable using the HierarchyListener.
+   * Taken from: https://stackoverflow.com/a/7989417/88814
+   */
+  public static void makeDialogResizable(Component c) {
+    c.addHierarchyListener(e -> {
+      Window window = SwingUtilities.getWindowAncestor(c);
+      if (window instanceof Dialog) {
+        Dialog dialog = (Dialog)window;
+        if (!dialog.isResizable()) {
+          dialog.setResizable(true);
+        }
+      }
+    });
   }
 
   /**
@@ -519,7 +540,7 @@ public class SwingUtils {
       JPanel panel = new JPanel();
       panel.setLayout(new BorderLayout());
       panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-      panel.add(new JLabel("Something unexpected happened (2)"), BorderLayout.PAGE_START);
+      panel.add(new JLabel("Something unexpected happened"), BorderLayout.PAGE_START);
       JTextArea notesArea = new JTextArea(40, 80);
       notesArea.setText(notes);
       JScrollPane notesScroller = new JScrollPane();
@@ -529,6 +550,7 @@ public class SwingUtils {
 
       //JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + notes, "Error", JOptionPane.ERROR_MESSAGE);
       //JOptionPane.showMessageDialog(frame, panel, "Error", JOptionPane.ERROR_MESSAGE);
+      makeDialogResizable(panel);
       showDialog(parent, panel);
     });
   }
@@ -559,6 +581,7 @@ public class SwingUtils {
 
     //JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + notes, "Error", JOptionPane.ERROR_MESSAGE);
     //JOptionPane.showMessageDialog(frame, panel, "Error", JOptionPane.ERROR_MESSAGE);
+    makeDialogResizable(panel);
     showDialog(parent, panel);
   }
 
@@ -725,7 +748,7 @@ public class SwingUtils {
     JPanel panel = new JPanel();
     panel.setLayout(new BorderLayout());
     panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-    panel.add(new JLabel("Something unexpected happened (1)"), BorderLayout.PAGE_START);
+    panel.add(new JLabel("Something unexpected happened"), BorderLayout.PAGE_START);
     JTextArea notesArea = new JTextArea(40, 80);
     notesArea.setText(stacktrace);
     JScrollPane notesScroller = new JScrollPane();
@@ -734,6 +757,7 @@ public class SwingUtils {
     panel.add(notesScroller, BorderLayout.CENTER);
     //JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + notes, "Error", JOptionPane.ERROR_MESSAGE);
     //JOptionPane.showMessageDialog(frame, panel, "Error", JOptionPane.ERROR_MESSAGE);
+    makeDialogResizable(panel);
     userShowDialog(frame, panel);
   }
 }
