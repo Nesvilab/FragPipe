@@ -12,15 +12,15 @@ plugins {
     // Apply the application plugin to add support for building an application
     id 'application'
     id 'idea'
-    id 'edu.sc.seis.launch4j' version '2.4.4'
+    id 'edu.sc.seis.launch4j' version '2.4.6'
 
     id "com.jonaslasauskas.capsule" version "0.3.0"
-    id "com.github.johnrengelman.shadow" version "4.0.4"
-    id "com.github.ben-manes.versions" version "0.20.0"
+    id "com.github.johnrengelman.shadow" version "5.1.0"
+    id "com.github.ben-manes.versions" version "0.25.0"
 }
 
 group = 'com.github.chhh'
-version = '10.2'
+version = '11.0'
 
 description = """FragPipe - run complete proteomics analyses from the GUI"""
 
@@ -106,7 +106,7 @@ dependencies {
     implementation 'commons-logging:commons-logging-api:1.1'
 
     implementation 'org.apache.httpcomponents:httpmime:4.5.7'
-    implementation 'org.apache.commons:commons-lang3:3.8.1'
+    implementation 'org.apache.commons:commons-lang3:3.9'
     //compile group: 'commons-io', name: 'commons-io', version: '2.6'
     implementation 'com.miglayout:miglayout-swing:5.2'
 
