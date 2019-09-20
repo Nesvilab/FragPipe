@@ -61,7 +61,7 @@ public class Version {
   static {
     CHANGELOG.put("11.0", Arrays.asList(
         "Parallel execution engine. Used only for PeptideProphet now, utilizing all CPU cores.",
-        "Require MSConvert from ProteoWizard on Linux."
+        "DIA-Umpire requires MSConvert from ProteoWizard on Linux."
     ));
 
     CHANGELOG.put("10.0", Arrays.asList(
@@ -309,12 +309,12 @@ public class Version {
       final String zipUrl = String.format("%s/download/%s/%s", url, version, zipFn);
       String githubReleaseMessage = "FragPipe v" + version + "\n\n"
           + "## Windows users\n" +
-          "- Download *.exe*: [" + exeFn + "](" + exeUrl + ") and just run that. Windows 10 might "
+          "- Download [" + exeFn + "](" + exeUrl + ") and just run that. Windows 10 might "
           + "show a UAC prompt, saying that this is not a trusted program, it's up to you whether "
           + "to run it or not.\n"
           + "  - If you don't have a compatible Java version, you will be redirected to a website "
           + "where you can download one.\n"
-          + "- Or download *.zip*: [" + zipFn + "](" + zipUrl + ").\n"
+          + "- Or download [" + zipFn + "](" + zipUrl + ").\n"
           + "  - Zip contains `FragPipe.bat` file, which can be started by either clicking or "
           + "running it from the command line.\n"
           + "- Or download the [" + jarFn + "](" + jarUrl + ").\n"
@@ -322,8 +322,9 @@ public class Version {
           + jarFn + "` if you prefer to not have the console window open.\n"
           + "If Java is configured to auto-run `.jar` files, double clicking might also work.\n\n\n"
           + "## Linux/MacOS users\n"
-          + "Either download [" + zipFn + "](" + zipUrl + "), which contains *FragPipe* shell "
-          + "script to start the program or download the [" + jarFn + "](" + jarUrl + ") and run "
+          + "- Either download [" + zipFn + "](" + zipUrl + "), which contains *FragPipe* shell "
+          + "script to start the program\n"
+          + "- Or download the [" + jarFn + "](" + jarUrl + ") and run "
           + "with `java -jar " + jarFn + "`.";
       System.out.println(githubReleaseMessage);
       System.out.println();
