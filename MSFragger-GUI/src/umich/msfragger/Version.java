@@ -18,6 +18,9 @@ package umich.msfragger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,6 +59,11 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("11.0", Arrays.asList(
+        "Parallel execution engine. Used only for PeptideProphet now, utilizing all CPU cores.",
+        "Require MSConvert from ProteoWizard on Linux."
+    ));
+
     CHANGELOG.put("10.0", Arrays.asList(
         "Add PTMShepherd with UI.",
         "Thermo RAW files and Bruker TimsTOF .d directories are supported. They do require "
@@ -239,12 +247,12 @@ public class Version {
   }
 
   public static String version() {
-    final ResourceBundle bundle = ThisAppProps.getLocalBundle();
-    if (!bundle.containsKey(Version.PROP_VER)) {
+    Properties p = loadPropertiesWithIdeDebugHack();
+    if (!p.containsKey(Version.PROP_VER)) {
       throw new IllegalStateException(String.format("Key '%s' not found in bundle '%s'",
           Version.PROP_VER, ThisAppProps.PATH_BUNDLE));
     }
-    return bundle.getString(Version.PROP_VER);
+    return p.getProperty(Version.PROP_VER);
   }
 
   private static String chop(String original, String toChop) {
@@ -279,12 +287,13 @@ public class Version {
       }
     }
 
-    ResourceBundle fragpipeBundle = ThisAppProps.getLocalBundle();
-    if (!fragpipeBundle.containsKey(PROP_DOWNLOAD_URL)) {
+    Properties props = loadPropertiesWithIdeDebugHack();
+
+    if (!props.containsKey(PROP_DOWNLOAD_URL)) {
       throw new IllegalStateException(String.format("Didn't find '%s' in "
           + "FragPipe Bundle file", PROP_DOWNLOAD_URL));
     }
-    String url = fragpipeBundle.getString(PROP_DOWNLOAD_URL);
+    String url = props.getProperty(PROP_DOWNLOAD_URL);
     String latest = "latest";
     url = chop(url, "/");
     url = chop(url, latest);
@@ -336,6 +345,26 @@ public class Version {
       }
     }
     System.out.println(sb.toString());
+  }
+
+  private static Properties loadPropertiesWithIdeDebugHack() {
+    Properties props = new Properties();
+    try {
+      ResourceBundle bundle = ThisAppProps.getLocalBundle();
+      bundle.keySet().forEach(k -> props.setProperty(k, bundle.getString(k)));
+    } catch (Exception e) {
+      log.debug("Could not load local Bundle for fragpipe, retrying with properties", e);
+      try {
+        Properties p = new Properties();
+        Path path = Paths
+            .get(".").toAbsolutePath().resolve("src").resolve(ThisAppProps.PATH_BUNDLE + ".properties");
+        p.load(Files.newBufferedReader(path));
+        p.stringPropertyNames().forEach(k -> props.setProperty(k, p.getProperty(k)));
+      } catch (IOException ex) {
+        log.error("Could not load local Bundle for fragpipe at all", ex);
+      }
+    }
+    return props;
   }
 
   public static Properties loadPropertiesFromBundle() {
