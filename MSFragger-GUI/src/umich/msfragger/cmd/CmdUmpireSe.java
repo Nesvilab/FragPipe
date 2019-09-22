@@ -193,6 +193,7 @@ public class CmdUmpireSe extends CmdBase {
         cmdMsConvert.add(mgfPath.toString());
         ProcessBuilder pbMsConvert = new ProcessBuilder(cmdMsConvert);
         pbMsConvert.directory(mgfPath.getParent().toFile());
+        pb.environment().putIfAbsent("LC_ALL", "C");
         pbis.add(PbiBuilder.from(pbMsConvert));
       }
     }
