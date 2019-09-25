@@ -136,18 +136,20 @@ public class CmdUmpireSe extends CmdBase {
 
       // Umpire-SE
       // java -jar -Xmx8G DIA_Umpire_SE.jar mzMXL_file diaumpire_se.params
-      List<String> cmd = new ArrayList<>();
-      cmd.add("java");
-      //commands.add("-d64");
-      cmd.add("-jar");
-      if (ram > 0 && ram < 256)
-        cmd.add("-Xmx" + ram + "G");
-      cmd.add(jarUmpireSe.toString()); // unpacked UmpireSE jar
-      cmd.add(f.path.toString());
-      cmd.add(umpireParamsFilePath.toString());
+      {
+        List<String> cmd = new ArrayList<>();
+        cmd.add("java");
+        //commands.add("-d64");
+        cmd.add("-jar");
+        if (ram > 0 && ram < 256)
+          cmd.add("-Xmx" + ram + "G");
+        cmd.add(jarUmpireSe.toString()); // unpacked UmpireSE jar
+        cmd.add(f.path.toString());
+        cmd.add(umpireParamsFilePath.toString());
 
-      ProcessBuilder pb = new ProcessBuilder(cmd);
-      pbis.add(PbiBuilder.from(pb));
+        ProcessBuilder pbUmpireSe = new ProcessBuilder(cmd);
+        pbis.add(PbiBuilder.from(pbUmpireSe));
+      }
 
       // check if the working dir is the dir where the mzXML file was
       // if it is, then don't do anything, if it is not, then copy
@@ -193,7 +195,7 @@ public class CmdUmpireSe extends CmdBase {
         cmdMsConvert.add(mgfPath.toString());
         ProcessBuilder pbMsConvert = new ProcessBuilder(cmdMsConvert);
         pbMsConvert.directory(mgfPath.getParent().toFile());
-        pb.environment().putIfAbsent("LC_ALL", "C");
+        pbMsConvert.environment().putIfAbsent("LC_ALL", "C");
         pbis.add(PbiBuilder.from(pbMsConvert));
       }
     }
