@@ -8,7 +8,7 @@ precursor_true_tolerance = 20.00
 precursor_true_units = 1               # 0=Daltons, 1=ppm
 fragment_mass_tolerance = 20.00
 fragment_mass_units = 1		           # 0=Daltons, 1=ppm
-calibrate_mass = 2
+calibrate_mass = 1
 decoy_prefix = rev_
 
 remove_precursor_peak = 0           # 0 = not remove, 1 = only remove the peak with the precursor charge, 2 = remove all peaks with all charge states. Default: 0
