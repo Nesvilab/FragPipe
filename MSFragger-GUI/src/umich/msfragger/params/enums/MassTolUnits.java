@@ -24,7 +24,7 @@ import static umich.msfragger.params.fragger.MsfraggerParams.PROP_precursor_mass
  */
 public enum MassTolUnits {
     PPM (1),
-    ABS (0);
+    Da(0);
     
     private final int val;
 
