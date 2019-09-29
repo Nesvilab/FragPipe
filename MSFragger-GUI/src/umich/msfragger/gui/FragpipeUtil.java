@@ -29,6 +29,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.cmd.CmdDatabaseDownload;
+import umich.msfragger.cmd.CmdPhilosopherWorkspaceClean;
 import umich.msfragger.cmd.CmdPhilosopherWorkspaceCleanInit;
 import umich.msfragger.cmd.ProcessBuilderInfo;
 import umich.msfragger.cmd.PbiBuilder;
@@ -100,8 +101,10 @@ public class FragpipeUtil {
         }
         CmdDatabaseDownload cmdDownload = new CmdDatabaseDownload(true, dir);
         cmdDownload.configure(parent, usePhi, uniprotId, isReviewed, isAddContaminants, isAddIsoforms);
+        CmdPhilosopherWorkspaceClean cmdClean = new CmdPhilosopherWorkspaceClean(true, dir);
+        cmdClean.configure(usePhi);
 
-        List<ProcessBuilder> pbs = Stream.of(cmdCleanInit, cmdDownload)
+        List<ProcessBuilder> pbs = Stream.of(cmdCleanInit, cmdDownload, cmdClean)
             .flatMap(cmdBase -> cmdBase.getBuilderDescriptor().pbis.stream().map(pbi -> pbi.pb))
             .collect(Collectors.toList());
 
