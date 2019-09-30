@@ -201,7 +201,7 @@ public class CmdPeptideProphet extends CmdBase {
 
         // Needed for parallel Peptide Prophet
 
-        // create temp dir to move pepxml to, otherwise philosopher breaks
+        // create temp dir to house philosopher's .meta directory, otherwise philosopher breaks
         Path temp = pepxmlDir.resolve("fragpipe-" + pepxmlFn + "-temp");
         if (!isDryRun) {
           try {
@@ -215,15 +215,6 @@ public class CmdPeptideProphet extends CmdBase {
             log.error("Could not create temporary directory for running peptide prophet in parallel", ex);
           }
         }
-
-        // copy original pepxml to temp
-        List<ProcessBuilder> pbsCopyToTemp = ToolingUtils
-            .pbsCopyFiles(jarFragpipe, temp, false, Collections.singletonList(pepxmlPath));
-        pbisPreParallel.addAll(pbsCopyToTemp.stream()
-            .map(pb -> new PbiBuilder().setPb(pb)
-                .setName(getCmdName() + ": Copy pepxml to temp").setFnStdOut(null).setFnStdErr(null)
-                .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create())
-            .collect(Collectors.toList()));
 
         // workspace init
         List<String> cmdPhiInit = new ArrayList<>();
@@ -247,27 +238,12 @@ public class CmdPeptideProphet extends CmdBase {
         cmdPp.add("--database");
         cmdPp.add(fastaPath);
 
-        cmdPp.add(pepxmlPath.getFileName().toString());
+        cmdPp.add(Paths.get("..", pepxmlPath.getFileName().toString()).toString());
         ProcessBuilder pbPp = new ProcessBuilder(cmdPp);
         setupEnv(temp, pbPp);
         pbisParallel.add(new PbiBuilder()
             .setPb(pbPp)
             .setParallelGroup(getCmdName()).create());
-
-        // move pepxml after peptide prophet back to original directory
-        HashMap<InputLcmsFile, Path> tempMap = new HashMap<>();
-        tempMap.put(e.getKey(), temp.resolve(pepxmlFn));
-        Map<InputLcmsFile, Path> outputsInTemp = outputs(tempMap, "pepxml", combine);
-        Entry<InputLcmsFile, Path> pepxmlAfterSearch = outputsInTemp.entrySet().iterator().next();
-        List<ProcessBuilder> pbsMoveFromTemp = ToolingUtils
-            .pbsMoveFiles(jarFragpipe, pepxmlDir, false,
-                Collections.singletonList(pepxmlAfterSearch.getValue()));
-        pbisPostParallel.addAll(pbsMoveFromTemp.stream()
-            .map(pb -> new PbiBuilder()
-                .setPb(pb)
-                .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL)
-                .setName(getCmdName() + ": Move pepxmls back").create())
-            .collect(Collectors.toList()));
 
         // delete temp dir
         List<ProcessBuilder> pbsDeleteTemp = ToolingUtils
