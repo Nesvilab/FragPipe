@@ -192,7 +192,6 @@ import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
 import umich.msfragger.params.philosopher.PhilosopherProps;
-import umich.msfragger.params.ptmshepherd.PtmshepherdJPanel;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.umpire.UmpirePanel;
 import umich.msfragger.util.FileDrop;
@@ -654,13 +653,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   //region EventBus listeners
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void onMessageIsUmpireRun(MessageIsUmpireRun m) {
-    if (checkLabelfree.isSelected() && isRunUmpireSe()) {
-      checkLabelfree.setSelected(false);
-    }
-  }
-
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onPythonBinSelectedByUser(MessagePythonBinSelectedByUser m) {
     validateAndSavePython(m.path, true);
@@ -1191,10 +1183,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     checkCreateReport = new javax.swing.JCheckBox();
     panelSpecLibOpts = new javax.swing.JPanel();
     checkGenerateSpecLib = new javax.swing.JCheckBox();
-    jPanel4 = new javax.swing.JPanel();
-    checkLabelfree = new javax.swing.JCheckBox();
-    textReportLabelfree = new javax.swing.JTextField();
-    ptmshepherdPanel = new PtmshepherdJPanel();
+    ptmshepherdPanel = new umich.msfragger.params.ptmshepherd.PtmshepherdJPanel();
+    panelQuant = new umich.msfragger.params.imquant.QuantJPanel();
     panelRun = new javax.swing.JPanel();
     btnStop = new javax.swing.JButton();
     btnClearConsole = new javax.swing.JButton();
@@ -2375,52 +2365,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
-    jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Quantitation"));
-
-    checkLabelfree.setText("Label-free Quant");
-    checkLabelfree.setToolTipText("<html>Label free quantitation");
-    checkLabelfree.setName("ui.name.report.check.labelfree"); // NOI18N
-
-    textReportLabelfree.setToolTipText("<html>Label free quantitation<br/>\nFlags:<br/>\n<ul>\n<li>--ptw float    specify the time windows for the peak (minute) (default 0.4)</li>\n<li>--tol float    m/z tolerance in ppm (default 10)</li>\n</ul>");
-    textReportLabelfree.setName("ui.name.report.text.labelfree"); // NOI18N
-    textReportLabelfree.addFocusListener(new java.awt.event.FocusAdapter() {
-      public void focusGained(java.awt.event.FocusEvent evt) {
-        textReportLabelfreeFocusGained(evt);
-      }
-      public void focusLost(java.awt.event.FocusEvent evt) {
-        textReportLabelfreeFocusLost(evt);
-      }
-    });
-    textReportLabelfree.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        textReportLabelfreeActionPerformed(evt);
-      }
-    });
-
-    javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-    jPanel4.setLayout(jPanel4Layout);
-    jPanel4Layout.setHorizontalGroup(
-      jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(jPanel4Layout.createSequentialGroup()
-        .addContainerGap()
-        .addComponent(checkLabelfree)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(textReportLabelfree)
-        .addContainerGap())
-    );
-    jPanel4Layout.setVerticalGroup(
-      jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(jPanel4Layout.createSequentialGroup()
-        .addContainerGap()
-        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(checkLabelfree)
-          .addComponent(textReportLabelfree, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-    );
-
-    loadLastFreequant();
-
     ptmshepherdPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("PTM Analysis"));
+
+    panelQuant.setBorder(javax.swing.BorderFactory.createTitledBorder("Quantitation"));
 
     javax.swing.GroupLayout panelReportLayout = new javax.swing.GroupLayout(panelReport);
     panelReport.setLayout(panelReportLayout);
@@ -2429,13 +2376,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       .addGroup(panelReportLayout.createSequentialGroup()
         .addContainerGap()
         .addGroup(panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(panelReportOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(ptmshepherdPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addGroup(panelReportLayout.createSequentialGroup()
             .addComponent(checkCreateReport)
             .addGap(0, 0, Short.MAX_VALUE))
-          .addComponent(panelReportOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(ptmshepherdPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+          .addComponent(panelQuant, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         .addContainerGap())
     );
     panelReportLayout.setVerticalGroup(
@@ -2446,12 +2393,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(panelReportOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addComponent(panelQuant, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(ptmshepherdPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(268, Short.MAX_VALUE))
+        .addContainerGap(194, Short.MAX_VALUE))
     );
 
     tabPane.addTab("Report", null, panelReport, "");
@@ -4356,10 +4303,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
 
       // run Report - Freequant (Labelfree)
-      final boolean isFreequant = SwingUtils.isEnabledAndChecked(checkLabelfree);
+      final boolean isFreequant = panelQuant.isFreequant();
       final CmdReportFreequant cmdReportFreequant = new CmdReportFreequant(isFreequant, wd);
       if (cmdReportFreequant.isRun()) {
-        if (!cmdReportFreequant.configure(this, usePhi, textReportLabelfree.getText(), mapGroupsToProtxml)) {
+        if (!cmdReportFreequant.configure(this, usePhi, panelQuant.getFreequantOptsAsText(), mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(cmdReportFreequant.getBuilderDescriptor());
@@ -4911,20 +4858,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }//GEN-LAST:event_btnMsfraggerUpdateActionPerformed
 
-  private void textReportLabelfreeActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textReportLabelfreeActionPerformed
-  }//GEN-LAST:event_textReportLabelfreeActionPerformed
-
-  private void textReportLabelfreeFocusGained(
-      java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textReportLabelfreeFocusGained
-    textLabelfreeFocusGained = textReportLabelfree.getText();
-  }//GEN-LAST:event_textReportLabelfreeFocusGained
-
-  private void textReportLabelfreeFocusLost(
-      java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textReportLabelfreeFocusLost
-    validateAndSaveLabelfree(null);
-  }//GEN-LAST:event_textReportLabelfreeFocusLost
-
   private void textBinMsfraggerActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textBinMsfraggerActionPerformed
   }//GEN-LAST:event_textBinMsfraggerActionPerformed
@@ -5393,7 +5326,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     loadDefaultsReportFilter(type);
-    loadDefaultsLabelfree(type);
 
     if (askConfirmation) {
       int confirm2 = JOptionPane.showConfirmDialog(this,
@@ -5434,10 +5366,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.loadFromBundle(textReportFilter, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER, type);
   }
 
-  public void loadDefaultsLabelfree(SearchTypeProp type) {
-    ThisAppProps.loadFromBundle(textReportLabelfree, ThisAppProps.PROP_TEXTFIELD_LABELFREE, type);
-  }
-
   private void loadLastSequenceDb() {
     String val = ThisAppProps.load(ThisAppProps.PROP_DB_FILE_IN);
     if (val != null) {
@@ -5456,12 +5384,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       crystalcParamsToForm(p);
     } catch (Exception e) {
       // doesn't matter
-    }
-  }
-
-  private void loadLastFreequant() {
-    if (!ThisAppProps.load(textReportLabelfree, ThisAppProps.PROP_TEXTFIELD_LABELFREE)) {
-      loadDefaultsLabelfree(DEFAULT_TYPE);
     }
   }
 
@@ -5706,13 +5628,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     spinnerCrystalcPrecIsoWindow.setValue(precursorIsolationWindow);
 
     p.save();
-  }
-
-  private void validateAndSaveLabelfree(final String newText) {
-    final JTextComponent comp = textReportLabelfree;
-    IValidateString validator = s -> true;
-    final boolean isValid = validateAndSave(comp, ThisAppProps.PROP_TEXTFIELD_LABELFREE,
-        newText, validator);
   }
 
   private boolean validateAndSavePhilosopherPath(final String path) {
@@ -6078,7 +5993,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JCheckBox checkEnableDiaumpire;
   private javax.swing.JCheckBox checkFilterNoProtxml;
   private javax.swing.JCheckBox checkGenerateSpecLib;
-  private javax.swing.JCheckBox checkLabelfree;
   private javax.swing.JCheckBox checkProcessGroupsSeparately;
   private javax.swing.JCheckBox checkReportAbacus;
   private javax.swing.JCheckBox checkReportPrintDecoys;
@@ -6109,7 +6023,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JPanel jPanel1;
   private javax.swing.JPanel jPanel2;
   private javax.swing.JPanel jPanel3;
-  private javax.swing.JPanel jPanel4;
   private javax.swing.JScrollPane jScrollPane1;
   private javax.swing.JScrollPane jScrollPane2;
   private javax.swing.JScrollPane jScrollPane3;
@@ -6136,6 +6049,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JPanel panelPhilosopherConfig;
   private javax.swing.JPanel panelProteinProphet;
   private javax.swing.JPanel panelProteinProphetOptions;
+  private umich.msfragger.params.imquant.QuantJPanel panelQuant;
   private javax.swing.JPanel panelReport;
   private javax.swing.JPanel panelReportOptions;
   private javax.swing.JPanel panelRun;
@@ -6143,7 +6057,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JPanel panelSelectedFiles;
   private javax.swing.JPanel panelSequenceDb;
   private javax.swing.JPanel panelSpecLibOpts;
-  private PtmshepherdJPanel ptmshepherdPanel;
+  private umich.msfragger.params.ptmshepherd.PtmshepherdJPanel ptmshepherdPanel;
   private javax.swing.JScrollPane scrollEpSpeclibInfo2;
   private javax.swing.JScrollPane scrollPaneRawFiles;
   private javax.swing.JSpinner spinnerCrystalcMassTol;
@@ -6157,7 +6071,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JTextField textDecoyTagSeqDb;
   private javax.swing.JTextArea textPepProphCmd;
   private javax.swing.JTextField textReportFilter;
-  private javax.swing.JTextField textReportLabelfree;
   private javax.swing.JTextField textSequenceDbPath;
   private javax.swing.JTextArea txtProteinProphetCmdLineOpts;
   private javax.swing.JTextField txtWorkingDir;

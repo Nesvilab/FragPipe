@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -108,7 +109,8 @@ public class PtmshepherdJPanel extends JPanelWithEnablement {
   private void initMore() {
 
     this.setLayout(new BorderLayout());
-    this.setBorder(new EmptyBorder(0,0,0,0));
+//    this.setBorder(new EmptyBorder(0,0,0,0));
+    this.setBorder(new TitledBorder("PTM Analysis"));
 
     // Top panel with run checkbox
     {

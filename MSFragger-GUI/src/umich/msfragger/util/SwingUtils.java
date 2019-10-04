@@ -63,6 +63,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -325,6 +326,10 @@ public class SwingUtils {
 
   public static boolean isEnabledAndChecked(JCheckBox checkbox) {
     return checkbox.isEnabled() && checkbox.isSelected();
+  }
+
+  public static boolean isEnabledAndChecked(JToggleButton toggle) {
+    return toggle.isEnabled() && toggle.isSelected();
   }
 
   public static Map<String, String> valuesToMap(Container origin) {
