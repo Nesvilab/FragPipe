@@ -192,6 +192,7 @@ import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
 import umich.msfragger.params.philosopher.PhilosopherProps;
+import umich.msfragger.params.ptmshepherd.PtmshepherdJPanel;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.umpire.UmpirePanel;
 import umich.msfragger.util.FileDrop;
@@ -1193,7 +1194,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     jPanel4 = new javax.swing.JPanel();
     checkLabelfree = new javax.swing.JCheckBox();
     textReportLabelfree = new javax.swing.JTextField();
-    ptmshepherdPanel = new umich.msfragger.params.ptmshepherd.PtmshepherdPanel();
+    ptmshepherdPanel = new PtmshepherdJPanel();
     panelRun = new javax.swing.JPanel();
     btnStop = new javax.swing.JButton();
     btnClearConsole = new javax.swing.JButton();
@@ -6142,7 +6143,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JPanel panelSelectedFiles;
   private javax.swing.JPanel panelSequenceDb;
   private javax.swing.JPanel panelSpecLibOpts;
-  private umich.msfragger.params.ptmshepherd.PtmshepherdPanel ptmshepherdPanel;
+  private PtmshepherdJPanel ptmshepherdPanel;
   private javax.swing.JScrollPane scrollEpSpeclibInfo2;
   private javax.swing.JScrollPane scrollPaneRawFiles;
   private javax.swing.JSpinner spinnerCrystalcMassTol;

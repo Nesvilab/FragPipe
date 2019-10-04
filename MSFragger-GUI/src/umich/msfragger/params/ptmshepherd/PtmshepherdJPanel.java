@@ -2,15 +2,9 @@ package umich.msfragger.params.ptmshepherd;
 
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
-import com.github.chhh.utils.swing.UiSpinnerDouble.UiSpinnerDoubleBuilder;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
 import java.text.DecimalFormat;
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -18,9 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -33,9 +25,10 @@ import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.swing.FormEntry;
+import umich.msfragger.util.swing.JPanelWithEnablement;
 
-public class PtmshepherdPanel extends JPanel {
-  private static final Logger log = LoggerFactory.getLogger(PtmshepherdPanel.class);
+public class PtmshepherdJPanel extends JPanelWithEnablement {
+  private static final Logger log = LoggerFactory.getLogger(PtmshepherdJPanel.class);
 
   public static final String PROP_threads = "threads";
   public static final String PROP_histo_bindivs = "histo_bindivs";
@@ -50,8 +43,6 @@ public class PtmshepherdPanel extends JPanel {
   public static final String PROP_spectra_condPeaks = "spectra_condPeaks";
   public static final String PROP_spectra_condRatio = "spectra_condRatio";
 
-  private Map<Component, Boolean> enablementMapping = new HashMap<>();
-
   private JCheckBox checkRun;
   private JPanel pContent;
   private JScrollPane scroll;
@@ -60,7 +51,7 @@ public class PtmshepherdPanel extends JPanel {
   private JPanel pTop;
 
 
-  public PtmshepherdPanel() {
+  public PtmshepherdJPanel() {
     initMore();
     initPostCreation();
     // register on the bus only after all the components have been created to avoid NPEs
@@ -256,34 +247,8 @@ public class PtmshepherdPanel extends JPanel {
 //    }
   }
 
-  private void updateEnabledStatus(Component top, boolean enabled) {
-    if (top == null || top.isEnabled() == enabled)
-      return;
-    SwingUtilities.invokeLater(() -> {
-      ArrayDeque<Component> stack = new ArrayDeque<>();
-      stack.push(top);
-      while (!stack.isEmpty()) {
-        Component c = stack.pop();
-        Container parent = c.getParent();
-        boolean parentsEnabledStatus = parent != null && parent.isEnabled();
-        boolean enabledStatus = enabled && parentsEnabledStatus && enablementMapping.getOrDefault(c, true);
-
-        c.setEnabled(enabledStatus);
-        if (c instanceof Container) {
-          for (Component child : ((Container) c).getComponents()) {
-            stack.push(child);
-          }
-        }
-      }
-    });
-  }
-
   public boolean isRunShepherd() {
     return checkRun.isEnabled() && checkRun.isSelected();
-  }
-
-  public Map<String, String> toMap() {
-    return SwingUtils.valuesToMap(this, (name) -> !name.startsWith("Spinner.formattedTextField"));
   }
 
 }
