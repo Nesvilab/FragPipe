@@ -12,11 +12,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JOptionPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.util.OsUtils;
 
 public class CmdImquant extends CmdBase {
+  private static final Logger log = LoggerFactory.getLogger(CmdImquant.class);
+
   public static final String NAME = "IMQuant";
   public static final String JAR_IMQUANT_NAME = "imquant-1.0.0.jazz";
   public static final String JAR_MSFTBX_NAME = "batmass-io-1.16.1.jazz";
@@ -87,8 +91,9 @@ public class CmdImquant extends CmdBase {
 
     for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
       LcmsFileGroup group = e.getKey();
-      Path protxml = e.getValue();
-      Path psmtsvRel = wd.relativize(protxml).getParent().resolve("psm.tsv");
+      Path psmTsv = group.outputDir(wd).resolve("psm.tsv");
+      cmd.add("--psm");
+      cmd.add(psmTsv.toString());
     }
 
     if (mapGroupsToProtxml.size() > 1) {
@@ -100,7 +105,7 @@ public class CmdImquant extends CmdBase {
       InputLcmsFile lcms = e.getKey();
       Path pepxml = e.getValue();
       cmd.add(lcms.path.toString());
-      cmd.add(pepxml.toString());
+      cmd.add(wd.relativize(pepxml).toString());
     }
 
     ProcessBuilder pb = new ProcessBuilder(cmd);

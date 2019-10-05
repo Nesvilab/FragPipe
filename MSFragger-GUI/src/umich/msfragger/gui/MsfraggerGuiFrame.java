@@ -4354,7 +4354,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             pepxmlFilesFromMsfragger, mapGroupsToProtxml)) {
           return false;
         }
-        pbDescs.add(cmdReportFreequant.getBuilderDescriptor());
+        pbDescs.add(cmdImquant.getBuilderDescriptor());
       }
     }
 

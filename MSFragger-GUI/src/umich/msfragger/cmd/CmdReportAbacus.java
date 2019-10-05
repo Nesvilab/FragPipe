@@ -110,7 +110,7 @@ public class CmdReportAbacus extends CmdBase {
 
       List<Path> outputDirsForProtxml = groups.stream().map(group -> group.outputDir(wd))
           .distinct().collect(Collectors.toList());
-      log.error("Protxml: {}, outputDirsForProtxml: {}", protxml.toString(),
+      log.debug("Protxml: {}, outputDirsForProtxml: {}", protxml.toString(),
           outputDirsForProtxml.stream().map(Path::toString).collect(Collectors.joining(", ")));
 
       if (outputDirsForProtxml.size() < 2) {
