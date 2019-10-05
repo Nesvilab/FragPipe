@@ -131,6 +131,7 @@ import org.jsoup.nodes.Element;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
 import umich.msfragger.cmd.CmdCrystalc;
+import umich.msfragger.cmd.CmdImquant;
 import umich.msfragger.cmd.CmdIprophet;
 import umich.msfragger.cmd.CmdMsAdjuster;
 import umich.msfragger.cmd.CmdMsfragger;
@@ -4158,6 +4159,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
     Map<InputLcmsFile, Path> pepxmlFiles = cmdMsfragger.outputs(
         lcmsFiles, fp.getOutputFileExt(), wd);
+    final Map<InputLcmsFile, Path> pepxmlFilesFromMsfragger = new HashMap<>(pepxmlFiles);
 
 
     // run MsAdjuster Cleanup
@@ -4302,16 +4304,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         pbDescs.add(cmdReportFilter.getBuilderDescriptor());
       }
 
-      // run Report - Freequant (Labelfree)
-      final boolean isFreequant = panelQuant.isFreequant();
-      final CmdReportFreequant cmdReportFreequant = new CmdReportFreequant(isFreequant, wd);
-      if (cmdReportFreequant.isRun()) {
-        if (!cmdReportFreequant.configure(this, usePhi, panelQuant.getFreequantOptsAsText(), mapGroupsToProtxml)) {
-          return false;
-        }
-        pbDescs.add(cmdReportFreequant.getBuilderDescriptor());
-      }
-
       // run Report - Report command itself
       final CmdReportReport cmdReportReport = new CmdReportReport(isReport, wd);
       final boolean doPrintDecoys = checkReportPrintDecoys.isSelected();
@@ -4341,6 +4333,28 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           return false;
         }
         pbDescs.add(cmdReportAbacus.getBuilderDescriptor());
+      }
+
+      // run Report - Freequant (Labelfree)
+      final boolean isFreequant = panelQuant.isFreequant();
+      final CmdReportFreequant cmdReportFreequant = new CmdReportFreequant(isFreequant, wd);
+      if (cmdReportFreequant.isRun()) {
+        if (!cmdReportFreequant.configure(this, usePhi, panelQuant.getFreequantOptsAsText(), mapGroupsToProtxml)) {
+          return false;
+        }
+        pbDescs.add(cmdReportFreequant.getBuilderDescriptor());
+      }
+
+      // run Report - IMQuant (Labelfree)
+      final boolean isImquant = panelQuant.isImquant();
+      final CmdImquant cmdImquant = new CmdImquant(isImquant, wd);
+      if (cmdImquant.isRun()) {
+        int ramGb = fp.getRamGb();
+        if (!cmdImquant.configure(this, Paths.get(binMsfragger.getBin()), ramGb, panelQuant.toMap(),
+            pepxmlFilesFromMsfragger, mapGroupsToProtxml)) {
+          return false;
+        }
+        pbDescs.add(cmdReportFreequant.getBuilderDescriptor());
       }
     }
 
