@@ -87,7 +87,7 @@ public class CmdImquant extends CmdBase {
     cmd.add("--imtol");
     cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.im-tol"));
     cmd.add("--plot");
-    cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.is-plot"));
+    cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.is-plot").contentEquals("true") ? "1" : "0");
 
     for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
       LcmsFileGroup group = e.getKey();
