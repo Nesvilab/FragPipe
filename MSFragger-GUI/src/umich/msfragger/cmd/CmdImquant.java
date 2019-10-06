@@ -22,9 +22,9 @@ public class CmdImquant extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdImquant.class);
 
   public static final String NAME = "IMQuant";
-  public static final String JAR_IMQUANT_NAME = "imquant-1.0.0.jazz";
+  public static final String JAR_IMQUANT_NAME = "IMQuant-1.0.0.jazz";
   public static final String JAR_MSFTBX_NAME = "batmass-io-1.16.6.jazz";
-  public static final String JAR_IMQUANT_MAIN_CLASS = "imquant.ImQuant";
+  public static final String JAR_IMQUANT_MAIN_CLASS = "imquant.IMQuant";
   private static String[] JAR_DEPS = {JAR_MSFTBX_NAME};
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
 
