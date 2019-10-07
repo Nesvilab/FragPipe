@@ -16,7 +16,7 @@ import umich.msfragger.util.StringUtils;
 public class CmdMsAdjuster extends CmdBase {
 
   public static final String NAME = "MsAdjuster";
-  public static final String JAR_MSADJUSTER_NAME = "original-MsAdjuster-1.0.3.jazz";
+  public static final String JAR_MSADJUSTER_NAME = "original-msadjuster-1.0.3.jazz";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_MSADJUSTER_MAIN_CLASS = "Main";
   private int priority;
