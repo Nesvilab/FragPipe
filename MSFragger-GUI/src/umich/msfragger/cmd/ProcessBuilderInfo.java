@@ -13,6 +13,7 @@ import umich.msfragger.gui.ProcessResult;
 import umich.msfragger.messages.MessageAppendToConsole;
 import umich.msfragger.messages.MessageExternalProcessOutput;
 import umich.msfragger.messages.MessageKillAll;
+import umich.msfragger.messages.MessageKillAll.REASON;
 
 public class ProcessBuilderInfo {
   private static final Logger log = LoggerFactory.getLogger(ProcessBuilderInfo.class);
@@ -47,7 +48,7 @@ public class ProcessBuilderInfo {
               log.debug("Started: {}", pbi.name);
             } catch (IOException e) {
               log.error("Error while starting process: " + pbi.name + ", stopping", e);
-              EventBus.getDefault().post(new MessageKillAll());
+              EventBus.getDefault().post(new MessageKillAll(REASON.CANT_START_PROCESS));
               return;
             }
 
@@ -86,7 +87,7 @@ public class ProcessBuilderInfo {
                     log.debug("Exit value not zero, killing all processes");
                     EventBus.getDefault().post(new MessageAppendToConsole(
                         "Process returned non-zero exit code, stopping", MsfraggerGuiFrame.COLOR_RED));
-                    EventBus.getDefault().post(new MessageKillAll());
+                    EventBus.getDefault().post(new MessageKillAll(REASON.NON_ZERO_RETURN_FROM_PROCESS));
                   }
 
                 } catch (IllegalThreadStateException ex) {

@@ -41,6 +41,7 @@ import umich.msfragger.util.BundleUtils;
 import umich.msfragger.util.CacheUtils;
 import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.PropertiesUtils;
+import umich.msfragger.util.SwingUtils;
 
 public class ThisAppProps extends Properties {
 
@@ -187,17 +188,21 @@ public class ThisAppProps extends Properties {
             return;
           }
           String inputPath = thisAppProps.getProperty(propName);
-          if (inputPath != null) {
-            Path path = Paths.get(inputPath);
-            if (Files.isDirectory(path)) {
-              path = path.getParent();
-            }
-            fileChooser.setCurrentDirectory(path.toFile());
-          }
+          SwingUtils.setFileChooserPath(fileChooser, inputPath);
         } catch (Exception ignored) {}
     }
 
-    public static void save(String propName, JTextComponent txt) {
+//  public static void setFileChooserPath(JFileChooser fileChooser, String inputPath) {
+//    if (inputPath != null) {
+//      Path path = Paths.get(inputPath);
+//      if (Files.isDirectory(path)) {
+//        path = path.getParent();
+//      }
+//      fileChooser.setCurrentDirectory(path.toFile());
+//    }
+//  }
+
+  public static void save(String propName, JTextComponent txt) {
         String text = txt.getText().trim();
         if (!text.isEmpty()) {
             ThisAppProps.save(propName, text);

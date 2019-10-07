@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
+import umich.msfragger.gui.ProcessManager;
 import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
@@ -326,14 +328,15 @@ public class CmdMsfragger extends CmdBase {
       // schedule to always try to delete the temp dir when FragPipe finishes execution
       final String tempDirName = "split_peptide_index_tempdir";
       Path toDelete = wd.resolve(tempDirName).toAbsolutePath().normalize();
+      toDelete.toFile().deleteOnExit();
+      ProcessManager.addFilesToDelete(Collections.singleton(toDelete));
       try {
         if (Files.exists(toDelete)) {
           FileUtils.deleteDirectory(toDelete.toFile());
         }
       } catch (IOException e) {
-        log.warn("Could not delete leftover temporary directory: {}", toDelete.toString());
+        log.error("Could not delete leftover temporary directory from DB Splitting", e);
       }
-      toDelete.toFile().deleteOnExit();
     }
 
     int fileIndex = 0;

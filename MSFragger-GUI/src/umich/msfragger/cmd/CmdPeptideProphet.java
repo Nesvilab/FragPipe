@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +25,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
+import umich.msfragger.gui.ProcessManager;
+import umich.msfragger.messages.MessageDeletePaths;
 import umich.msfragger.params.pepproph.PeptideProphetParams;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.util.FileDelete;
@@ -163,6 +167,7 @@ public class CmdPeptideProphet extends CmdBase {
       String fastaPath, String decoyTag, String textPepProphCmd, boolean combine,
       Map<InputLcmsFile, Path> pepxmlFiles) {
 
+    isConfigured = false;
     pbis.clear();
 
     final boolean cmdLineContainsCombine = textPepProphCmd.toLowerCase().contains("--combine");
@@ -188,6 +193,8 @@ public class CmdPeptideProphet extends CmdBase {
     PeptideProphetParams peptideProphetParams = new PeptideProphetParams();
     peptideProphetParams.setCmdLineParams(textPepProphCmd);
 
+    Set<Path> workspacesToBeCleaned = new HashSet<>();
+
     if (!combine) {
       LinkedList<ProcessBuilderInfo> pbisPreParallel = new LinkedList<>();
       LinkedList<ProcessBuilderInfo> pbisParallel = new LinkedList<>();
@@ -208,11 +215,16 @@ public class CmdPeptideProphet extends CmdBase {
             if (Files.exists(temp)) {
               FileDelete.deleteFileOrFolder(temp);
             }
-            Path created = Files.createDirectories(temp);
-          } catch (FileAlreadyExistsException ignored) {
-            log.debug("Temp dir already exists, no biggie");
           } catch (IOException ex) {
-            log.error("Could not create temporary directory for running peptide prophet in parallel", ex);
+            log.error("Could not delete old temporary directory for running peptide prophet in parallel", ex);
+          }
+          try {
+            temp = Files.createDirectories(temp);
+          } catch (FileAlreadyExistsException ignored) {
+            log.error("Temp dir already exists, but we should have tried deleting it first. This is not critical.");
+          } catch (IOException ex) {
+            log.error("Could not create directory for parallel peptide prophet execution", ex);
+            return false;
           }
         }
 
@@ -246,6 +258,7 @@ public class CmdPeptideProphet extends CmdBase {
             .setParallelGroup(getCmdName()).create());
 
         // delete temp dir
+        workspacesToBeCleaned.add(temp);
         List<ProcessBuilder> pbsDeleteTemp = ToolingUtils
             .pbsDeleteFiles(jarFragpipe, Collections.singletonList(temp));
         pbisPostParallel.addAll(pbsDeleteTemp.stream()
@@ -295,6 +308,9 @@ public class CmdPeptideProphet extends CmdBase {
         pbis.add(new PbiBuilder().setPb(pb).create());
       }
     }
+
+    // update global cleanup
+    ProcessManager.addFilesToDelete(workspacesToBeCleaned);
 
     isConfigured = true;
     return true;

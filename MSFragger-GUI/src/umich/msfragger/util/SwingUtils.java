@@ -590,14 +590,35 @@ public class SwingUtils {
     showDialog(parent, panel);
   }
 
+  /**
+   * @param path If the passed path already exists, just returns it.
+   * @return null if no existing Path could be found on the filesystem all the way up to root.
+   */
+  public static Path findExistingUpstreamPath(Path path) {
+    if (path == null || Files.exists(path)) {
+      return path;
+    } else {
+      return findExistingUpstreamPath(path.getParent());
+    }
+  }
+
   public static boolean setFileChooserPath(JFileChooser fc, Path path) {
     try {
       if (Files.exists(path)) {
-        fc.setCurrentDirectory(path.toFile());
-        return true;
+        if (Files.isDirectory(path)) {
+          fc.setCurrentDirectory(path.getParent().toFile());
+          fc.setSelectedFile(path.toFile());
+          return true;
+        } else { // Files.exists(path) && !Files.isDirectory(path)
+          fc.setCurrentDirectory(path.toFile());
+        }
+      } else { // !Files.exists(path)
+        Path existing = findExistingUpstreamPath(path);
+        fc.setCurrentDirectory(existing == null ? null : existing.toFile());
       }
-    } catch (Exception ignored) {}
-    fc.setCurrentDirectory(null);
+    } catch (Exception ignored) {
+      fc.setCurrentDirectory(null);
+    }
     return false;
   }
 
@@ -605,8 +626,9 @@ public class SwingUtils {
     try {
       Path p = Paths.get(path);
       return setFileChooserPath(fc, p);
-    } catch (Exception ignored) {}
-    fc.setCurrentDirectory(null);
+    } catch (Exception ignored) {
+      fc.setCurrentDirectory(null);
+    }
     return false;
   }
 

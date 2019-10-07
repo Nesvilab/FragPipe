@@ -164,6 +164,7 @@ import umich.msfragger.messages.MessageDecoyTag;
 import umich.msfragger.messages.MessageExternalProcessOutput;
 import umich.msfragger.messages.MessageIsUmpireRun;
 import umich.msfragger.messages.MessageKillAll;
+import umich.msfragger.messages.MessageKillAll.REASON;
 import umich.msfragger.messages.MessageLastRunWorkDir;
 import umich.msfragger.messages.MessageLcmsFilesAdded;
 import umich.msfragger.messages.MessageLoadAllForms;
@@ -2600,31 +2601,33 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnSelectWrkingDirActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSelectWrkingDirActionPerformed
-    JFileChooser fileChooser = new JFileChooser();
+    JFileChooser fc = new JFileChooser();
     //FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("FASTA files", "fa", "fasta");
     //fileChooser.setFileFilter(fileNameExtensionFilter);
-    fileChooser.setApproveButtonText("Select directory");
-    fileChooser.setApproveButtonToolTipText("Select");
-    fileChooser.setDialogTitle("Choose working directory");
-    fileChooser.setMultiSelectionEnabled(false);
-    fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    fc.setApproveButtonText("Select directory");
+    fc.setApproveButtonToolTipText("Select");
+    fc.setDialogTitle("Choose working directory");
+    fc.setMultiSelectionEnabled(false);
+    fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-    SwingUtils.setFileChooserPath(fileChooser, ThisAppProps.load(ThisAppProps.PROP_FILE_OUT));
-
+    // use either current text in the field or saved cache
+    log.debug("Preparing work dir file chooser, ThisAppProps.PROP_FILE_OUT is: {}", ThisAppProps.load(ThisAppProps.PROP_FILE_OUT));
     final String text = txtWorkingDir.getText().trim();
     if (!StringUtils.isNullOrWhitespace(text)) {
       try {
         Path p = Paths.get(txtWorkingDir.getText());
         if (Files.exists(p)) {        
-          fileChooser.setSelectedFile(p.toFile());
+          fc.setSelectedFile(p.toFile());
         }
       } catch (Exception ignored) {}
+    } else {
+      ThisAppProps.load(ThisAppProps.PROP_FILE_OUT, fc);
     }
 
-    int showOpenDialog = fileChooser.showOpenDialog(this);
+    int showOpenDialog = fc.showOpenDialog(this);
     switch (showOpenDialog) {
       case JFileChooser.APPROVE_OPTION:
-        File f = fileChooser.getSelectedFile();
+        File f = fc.getSelectedFile();
         txtWorkingDir.setText(f.getAbsolutePath());
         ThisAppProps.save(ThisAppProps.PROP_FILE_OUT, f.getAbsolutePath());
         break;
@@ -2644,7 +2647,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStopActionPerformed
     btnRun.setEnabled(true);
     btnStop.setEnabled(false);
-    EventBus.getDefault().post(new MessageKillAll());
+    EventBus.getDefault().post(new MessageKillAll(REASON.USER_ACTION));
   }//GEN-LAST:event_btnStopActionPerformed
 
   @Subscribe
