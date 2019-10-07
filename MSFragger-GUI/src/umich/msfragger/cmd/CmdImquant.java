@@ -24,9 +24,17 @@ public class CmdImquant extends CmdBase {
   public static final String NAME = "IMQuant";
   public static final String JAR_IMQUANT_NAME = "imquant-1.0.0.jazz";
   public static final String JAR_MSFTBX_NAME = "batmass-io-1.16.6.jazz";
-  public static final String JAR_IMQUANT_MAIN_CLASS = "imquant.ImQuant";
+  public static final String JAR_IMQUANT_MAIN_CLASS = "imquant.IMQuant";
   private static String[] JAR_DEPS = {JAR_MSFTBX_NAME};
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
+  private static List<String> RESOURCE_LOCATIONS = new ArrayList<>();
+
+  static {
+    RESOURCE_LOCATIONS.add("ext/bruker/libtimsdata-2-4-4.so");
+    RESOURCE_LOCATIONS.add("ext/bruker/timsdata-2-4-4.dll");
+  }
+
+  private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
 
   public CmdImquant(boolean isRun, Path workDir, String fileCaptureStdout,
       String fileCaptureStderr) {
@@ -74,6 +82,10 @@ public class CmdImquant extends CmdBase {
       return false;
     }
 
+    if (!unpackJars(RESOURCE_LOCATIONS, new ArrayList<>(), NAME)) { // copy timsdata library to temp directory
+      return false;
+    }
+
     List<String> cmd = new ArrayList<>();
     cmd.add("java");
     if (ramGb > 0) {
@@ -87,7 +99,7 @@ public class CmdImquant extends CmdBase {
     cmd.add("--imtol");
     cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.im-tol"));
     cmd.add("--plot");
-    cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.is-plot"));
+    cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.is-plot").contentEquals("true") ? "1" : "0");
 
     for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
       LcmsFileGroup group = e.getKey();
