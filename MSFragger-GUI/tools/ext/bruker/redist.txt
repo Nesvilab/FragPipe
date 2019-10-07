@@ -1,0 +1,12 @@
+
+These are the files that may be distributed by authors of software
+using TDF SDK 1.0.1.0.
+
+timsdata_sdk/linux64/libtimsdata.so
+timsdata_sdk/win32/timsdata.dll
+timsdata_sdk/win64/timsdata.dll
+
+The following two file must always accompany a distribution of one of
+the shared libraries:
+
+timsdata_sdk/THIRD-PARTY-LICENSE-README.txt
