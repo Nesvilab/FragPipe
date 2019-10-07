@@ -44,7 +44,7 @@ variable_mod_02 = 42.0106 [^
 #variable_mod_06 = 0 site_06
 #variable_mod_07 = 0 site_07
 
-allow_multiple_variable_mods_on_residue = 1  	# static mods are not considered
+allow_multiple_variable_mods_on_residue = 0  	# static mods are not considered
 max_variable_mods_per_mod = 3 			        # maximum of 5
 max_variable_mods_combinations = 5000  		    # maximum of 65534, limits number of modified peptides generated from sequence
 
