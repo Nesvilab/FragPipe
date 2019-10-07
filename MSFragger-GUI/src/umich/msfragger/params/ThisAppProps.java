@@ -188,8 +188,11 @@ public class ThisAppProps extends Properties {
           }
           String inputPath = thisAppProps.getProperty(propName);
           if (inputPath != null) {
-            File file = Paths.get(inputPath).toFile();
-            fileChooser.setCurrentDirectory(file);
+            Path path = Paths.get(inputPath);
+            if (Files.isDirectory(path)) {
+              path = path.getParent();
+            }
+            fileChooser.setCurrentDirectory(path.toFile());
           }
         } catch (Exception ignored) {}
     }
