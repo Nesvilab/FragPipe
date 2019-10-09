@@ -105,9 +105,9 @@ public class QuantJPanel extends JPanelWithEnablement {
     // report.labelfree.nonspecific=--ptw 0.4 --tol 10 --isolated
     Map<String, String> m = toMap();
     StringBuilder sb = new StringBuilder();
-    sb.append("--ptw ").append(getOrThrow(m, "ui.freequant.rt-tol"));
-    sb.append("--tol ").append(getOrThrow(m, "ui.freequant.mz-tol"));
-    sb.append("--isolated");
+    sb.append(" --ptw ").append(getOrThrow(m, "ui.freequant.rt-tol"));
+    sb.append(" --tol ").append(getOrThrow(m, "ui.freequant.mz-tol"));
+    sb.append(" --isolated ");
     return sb.toString();
   }
 
