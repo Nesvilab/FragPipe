@@ -1,8 +1,7 @@
 ![Release](https://img.shields.io/github/release/Nesvilab/FragPipe.svg) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/total.svg)
 
 <div align="center">
-<img src="frag-pipe/images/fragpipe-01.png" width="350px"/><br/>
-<img src="logo/msfragger-logo.png" width="350px"/>
+<img src="frag-pipe/images/fragpipe-01.png" width="350px"/>
 </div>
 
 # FragPipe
