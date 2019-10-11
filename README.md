@@ -8,16 +8,20 @@
 FragPipe is a Java Graphical User Interface (GUI) for a suite of computational tools enabling comprehensive analysis of mass spectrometry-based proteomics data. It is powered by [MSFragger](https://msfragger.nesvilab.org/) - an ultrafast proteomic search engine suitable for both conventional and "open" (wide precursor mass tolerance) peptide identification. FragPipe also includes [Philosopher](https://nesvilab.github.io/philosopher/) toolkit for downstream post-processing of MSFragger search results (PeptideProphet, iProphet, ProteinProphet), FDR filtering, label-free quantification, and multi-experiment summary report generation. Also included in FragPipe binary are SpectraST-based spectral library building module, and DIA-Umpire SE module for direct analysis of data independent acquisition (DIA) data. 
 
 ### Download
-Download precompiled binaries from the [Releases](https://github.com/Nesvilab/FragPipe/releases/) section of this repository.
+Download precompiled binaries from [Releases](https://github.com/Nesvilab/FragPipe/releases/).
 
-MSFragger binary needs to be downloaded separately, the user interface has a link to the download location.
+MSFragger binary (.jar) needs to be downloaded separately, the download location can be found through FragPipe.
 You can find detailed instructions on the [MSFragger website](https://msfragger.nesvilab.org/).
 
-### Documentation
-A tutorial on converting LC/MS data files to the mzML format used by MSFragger can be found [here](https://msfragger.nesvilab.org/tutorial_convert.html). A tutorial for basic FragPipe use can be found [here](https://msfragger.nesvilab.org/tutorial_fragpipe.html). We are currently working on creating  additional tutorials for most commonly used workflows supported in FragPipe.
+### Tutorials
+- [Basic FragPipe use](https://msfragger.nesvilab.org/tutorial_fragpipe.html)
+- [Converting LC/MS data files to mzML](https://msfragger.nesvilab.org/tutorial_convert.html)
 
-For MSFragger documentation (search parameters etc.) see [MSFragger Documentation Wiki page](https://github.com/Nesvilab/MSFragger/wiki).  
-For documentation on Philosopher toolkit see [Philosopher site](http://philosopher.nesvilab.org/).
+
+### Documentation
+Complete MSFragger documentation can be found on the [MSFragger Documentation Wiki page](https://github.com/Nesvilab/MSFragger/wiki).
+
+For documentation on the Philosopher toolkit see the [Philosopher site](http://philosopher.nesvilab.org/).
 
 ### Questions and Technical Support
 See the MSFragger [wiki](https://github.com/Nesvilab/MSFragger/wiki) and [FAQ](https://github.com/Nesvilab/MSFragger/wiki/Frequently-Asked-Questions). View previous questions/bug reports in the
