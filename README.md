@@ -21,11 +21,12 @@ For MSFragger documentation (search parameters etc.) see [MSFragger Documentatio
 For documentation on Philosopher toolkit see [Philosopher site](http://philosopher.nesvilab.org/).
 
 ### Questions and Technical Support
-Please post all questions/bug reports regarding FragPipe itself in the
-[FragPipe issue tracker](https://github.com/Nesvilab/FragPipe/issues).  
+See the MSFragger [wiki](https://github.com/Nesvilab/MSFragger/wiki) and [FAQ](https://github.com/Nesvilab/MSFragger/wiki/Frequently-Asked-Questions). View previous questions/bug reports in the
+[FragPipe issue tracker](https://github.com/Nesvilab/FragPipe/issues). Please post any new questions/bug reports regarding FragPipe itself here as well.
 For questions specific to individual components of FragPipe you can also
 use [MSFragger issue tracker](https://github.com/Nesvilab/MSFragger/issues)
 and [Philosopher issue tracker](https://github.com/Nesvilab/philosopher/issues).
+
 
 For other tools developed by Nesvizhskii lab, visit our website 
 [nesvilab.org](http://www.nesvilab.org)
