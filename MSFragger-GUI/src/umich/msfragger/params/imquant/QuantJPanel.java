@@ -128,8 +128,8 @@ public class QuantJPanel extends JPanelWithEnablement {
       // setting the insets allows the top panel to be shifted left of the options panel
       pTop = new JPanel(new MigLayout(new LC().insetsAll("0px")));
 
-      checkRun = new UiCheck("Run Qunatitation", null, false);
-      checkRun.setName("ui.run-quantitation");
+      checkRun = new UiCheck("Run Quantification", null, false);
+      checkRun.setName("ui.run-quantification");
       checkRun.addActionListener(e -> {
         EventBus.getDefault().post(new MessageQuantRun(SwingUtils.isEnabledAndChecked(checkRun)));
       });
