@@ -451,8 +451,8 @@ public class CmdMsfragger extends CmdBase {
     }
 
     public GetSupportedExts invoke() {
-      desc = new ArrayList<>(Arrays.asList("mzML", "mzXML", "mgf"));
-      exts = new ArrayList<>(Arrays.asList(".mgf", ".mzml", ".mzxml"));
+      desc = new ArrayList<>(Arrays.asList("mzML", "mzXML", "mgf", "mzBIN"));
+      exts = new ArrayList<>(Arrays.asList(".mgf", ".mzml", ".mzxml", ".mzBIN"));
       if (searchPaths != null && !searchPaths.isEmpty()) {
         if (searchExtLibsThermo(searchPaths) != null) {
           desc.add("Thermo RAW");
