@@ -2877,6 +2877,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private boolean validateMsfraggerJavaVersion() {
     final boolean javaAtLeast18 = SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8);
+    final boolean is64bitJava = System.getProperty("sun.arch.data.model").equals("64");
     final VersionComparator vc = new VersionComparator();
     final MsfraggerVersionComparator mvc = new MsfraggerVersionComparator();
     SwingUtilities.invokeLater(() -> {
@@ -2886,7 +2887,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
       tip = null;
 
-      if (!javaAtLeast18) {
+      if (!is64bitJava) {
+        tip = new BalloonTip(lblFraggerJavaVer,
+            "Msfragger requires 64-bit Java, you are using 32-bit\n");
+      } else if (!javaAtLeast18) {
         tip = new BalloonTip(lblFraggerJavaVer,
             "Msfragger requires Java 1.8. Your version is lower.\n");
       } else {
@@ -2907,7 +2911,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         tip.setVisible(true);
       }
     });
-    return javaAtLeast18;
+    return javaAtLeast18 && is64bitJava;
   }
 
   public void validateMsfraggerMassCalibrationEligibility() {
