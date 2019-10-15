@@ -209,6 +209,9 @@ public class Props {
                     continue;
                 if (StringUtils.isNullOrWhitespace(value))
                         value = "";
+                if (name.contentEquals("num_threads")) {
+                    value = String.valueOf(Runtime.getRuntime().availableProcessors() -1);
+                }
                 Prop p = new Prop(name, value, true, m.group(3));
                 map.put(p.name, p);
                 propOrdering.add(p.name);

@@ -290,7 +290,7 @@ public class FraggerMigPanel extends JPanel {
 
       uiSpinnerRam = new UiSpinnerInt(0, 0, 1024, 1, 3);
       FormEntry feRam = new FormEntry(PROP_misc_ram, "RAM (GB)", uiSpinnerRam);
-      uiSpinnerThreads = new UiSpinnerInt(0, 0, 128, 1);
+      uiSpinnerThreads = new UiSpinnerInt(Runtime.getRuntime().availableProcessors() - 1, 0, 128, 1);
       FormEntry feThreads = new FormEntry(MsfraggerParams.PROP_num_threads, "Threads",
           uiSpinnerThreads);
 
