@@ -11,14 +11,15 @@ cache:
 before_deploy:
 - git config --local user.name $GIT_USERNAME
 - git config --local user.email $GIT_EMAIL
-- export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+- export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d')-$(git log --format=%h -1)}
 - git tag $TRAVIS_TAG
 
 deploy:
   provider: releases
-  api_key:
-    secure: mlnpXQrEhogYieL34VglD1Z3wl6O+joIP/zYExFrbpd/QDwLTmBZJ0c9w6xjvLFyXN0guXirPWT8yTjp9QlcB+7z6zyqpr9cV40Bcg2CcrKIinvvGXHD1r8kaKprRr8BdPWDDPJGY8fec7VMMD7MCLxi/V9P4QRI7PF1VYxQ/RdPf3NBxaJQSkKZ3Po135qjVGLms8ZlWCqg0rPvNOPgHAp17Hhf5nIU+qj+7Qv7x/n8xqXj8K3Z+uUlXaaUuO+J5Z1W+uFyh0yjVdLYtRFX8bPLBHxxdUDckhlzSEbARCzw5CpMMOOkkZZzCmW9y8yVAthVXMVR0weO6XD6SN/eQbSkOasGEeY5Q2Jo5q2+iZG0mh9t5kQcvRqEE3s/74K4pXOTb3tSzbudOaldcuuOJlXf62kPd8F+uXLp3+oul+iZR2jImNn6XkpQSxL0nGfiqs6wko73tjdQJSIfMDlD3WhRuuvfATw+w4smn1NhbxvvQq4RdE+dSteRLTulaIqSvxt9VMLXqiqHXM/gyFYzHUvNld7z165V1/32Zlzzih6EtlEzyIeTW32IWMA/Ej0fcWqmZfsunfFs0gFO5T9PBtlNJP+d/aRdpTUm2DcN5n1sqM25tbPEcKdIB7DW4Dbv8KGdz5lD6HgtEVGpd39xgCYxiN/vP8JsZVvhyeZmSgU=
-  file: build/github-release/*
+  edge: true
+  token: mlnpXQrEhogYieL34VglD1Z3wl6O+joIP/zYExFrbpd/QDwLTmBZJ0c9w6xjvLFyXN0guXirPWT8yTjp9QlcB+7z6zyqpr9cV40Bcg2CcrKIinvvGXHD1r8kaKprRr8BdPWDDPJGY8fec7VMMD7MCLxi/V9P4QRI7PF1VYxQ/RdPf3NBxaJQSkKZ3Po135qjVGLms8ZlWCqg0rPvNOPgHAp17Hhf5nIU+qj+7Qv7x/n8xqXj8K3Z+uUlXaaUuO+J5Z1W+uFyh0yjVdLYtRFX8bPLBHxxdUDckhlzSEbARCzw5CpMMOOkkZZzCmW9y8yVAthVXMVR0weO6XD6SN/eQbSkOasGEeY5Q2Jo5q2+iZG0mh9t5kQcvRqEE3s/74K4pXOTb3tSzbudOaldcuuOJlXf62kPd8F+uXLp3+oul+iZR2jImNn6XkpQSxL0nGfiqs6wko73tjdQJSIfMDlD3WhRuuvfATw+w4smn1NhbxvvQq4RdE+dSteRLTulaIqSvxt9VMLXqiqHXM/gyFYzHUvNld7z165V1/32Zlzzih6EtlEzyIeTW32IWMA/Ej0fcWqmZfsunfFs0gFO5T9PBtlNJP+d/aRdpTUm2DcN5n1sqM25tbPEcKdIB7DW4Dbv8KGdz5lD6HgtEVGpd39xgCYxiN/vP8JsZVvhyeZmSgU=
+  file_glob: true
+  file: MSFragger-GUI/build/github-release/*
   on:
     repo: chhh/FragPipe
     branch: gh-releases
