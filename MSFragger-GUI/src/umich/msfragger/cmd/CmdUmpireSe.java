@@ -22,7 +22,6 @@ import umich.msfragger.params.umpire.UmpirePanel;
 import umich.msfragger.params.umpire.UmpireParams;
 import umich.msfragger.params.umpire.UmpireSeGarbageFiles;
 import umich.msfragger.util.JarUtils;
-import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
@@ -49,12 +48,12 @@ public class CmdUmpireSe extends CmdBase {
 
     List<InputLcmsFile> out = new ArrayList<>();
     for (InputLcmsFile f: inputs) {
-      final String inputFn = f.path.getFileName().toString();
+      final String inputFn = f.getPath().getFileName().toString();
       final Path outPath = f.outputDir(wd);
       List<String> mgfs = getGeneratedMgfFnsForMzxml(inputFn);
       List<String> lcmsFns = getGeneratedLcmsFns(mgfs);
       for (String lcmsFn : lcmsFns) {
-        out.add(new InputLcmsFile(outPath.resolve(lcmsFn), f.experiment));
+        out.add(new InputLcmsFile(outPath.resolve(lcmsFn), f.getGroup()));
       }
     }
     return out;
@@ -83,7 +82,7 @@ public class CmdUmpireSe extends CmdBase {
     }
 
     // check if there are only mzXML input files
-    boolean hasNonMzxml = lcmsFiles.stream().map(f -> f.path.getFileName().toString().toLowerCase())
+    boolean hasNonMzxml = lcmsFiles.stream().map(f -> f.getPath().getFileName().toString().toLowerCase())
         .anyMatch(p -> !p.endsWith(".mzxml"));
     if (hasNonMzxml) {
       JOptionPane.showMessageDialog(errMsgParent,
@@ -130,8 +129,8 @@ public class CmdUmpireSe extends CmdBase {
     int ram = ramGb > 0 ? ramGb : 0;
 
     for (InputLcmsFile f: lcmsFiles) {
-      Path inputFn = f.path.getFileName();
-      Path inputDir = f.path.getParent();
+      Path inputFn = f.getPath().getFileName();
+      Path inputDir = f.getPath().getParent();
       Path destDir = f.outputDir(wd);
 
       // Umpire-SE
@@ -144,7 +143,7 @@ public class CmdUmpireSe extends CmdBase {
         if (ram > 0 && ram < 256)
           cmd.add("-Xmx" + ram + "G");
         cmd.add(jarUmpireSe.toString()); // unpacked UmpireSE jar
-        cmd.add(f.path.toString());
+        cmd.add(f.getPath().toString());
         cmd.add(umpireParamsFilePath.toString());
 
         ProcessBuilder pbUmpireSe = new ProcessBuilder(cmd);
@@ -160,7 +159,7 @@ public class CmdUmpireSe extends CmdBase {
       if (!inputDir.equals(destDir)) {
         // destination dir is different from mzXML file location
         // need to move output and cleanup
-        List<Path> garbage = UmpireSeGarbageFiles.getGarbageFiles(f.path);
+        List<Path> garbage = UmpireSeGarbageFiles.getGarbageFiles(f.getPath());
         List<ProcessBuilder> pbsMove = ToolingUtils.pbsMoveFiles(jarFragpipe, destDir, garbage);
         pbis.addAll(PbiBuilder.from(pbsMove));
       }

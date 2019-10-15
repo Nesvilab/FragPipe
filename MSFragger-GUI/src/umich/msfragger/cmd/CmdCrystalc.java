@@ -135,7 +135,7 @@ public class CmdCrystalc extends CmdBase {
     int index = -1;
     for (Map.Entry<InputLcmsFile, Path> kv : pepxmlFiles.entrySet()) {
       final InputLcmsFile lcms = kv.getKey();
-      final String lcmsFn = lcms.path.getFileName().toString();
+      final String lcmsFn = lcms.getPath().getFileName().toString();
       final Path pepxml = kv.getValue();
       final String pepxmlFn = pepxml.getFileName().toString();
       final Path outDir = lcms.outputDir(wd);
@@ -145,7 +145,7 @@ public class CmdCrystalc extends CmdBase {
       try {
         ccp = ccParams;
         String ext = StringUtils.afterLastDot(lcmsFn);
-        ccp.setRawDirectory(lcms.path.getParent().toString());
+        ccp.setRawDirectory(lcms.getPath().getParent().toString());
         ccp.setRawFileExt(ext);
         ccp.setOutputFolder(outDir.toString());
         ccp.setFasta(fastaPath);

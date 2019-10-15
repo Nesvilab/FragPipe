@@ -58,7 +58,7 @@ public class CmdProteinProphet extends CmdBase {
       boolean isProcessGroupsSeparately, boolean isMultiExperimentReport) {
 
     Map<String, List<InputLcmsFile>> lcmsByExp = pepxmlFiles.keySet().stream()
-        .collect(Collectors.groupingBy(f -> f.experiment));
+        .collect(Collectors.groupingBy(f -> f.getGroup()));
 
     Map<LcmsFileGroup, Path> m = new HashMap<>();
 
@@ -179,7 +179,7 @@ public class CmdProteinProphet extends CmdBase {
         LcmsFileGroup group = e.getKey();
         Path protxml = e.getValue();
         List<String> pepxmlFns = pepxmlFiles.entrySet().stream()
-            .filter(pepxml -> pepxml.getKey().experiment.equals(group.name))
+            .filter(pepxml -> pepxml.getKey().getGroup().equals(group.name))
             .map(pepxml -> pepxml.getValue().getFileName().toString())
             .distinct()
             .collect(Collectors.toList());

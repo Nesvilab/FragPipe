@@ -116,7 +116,7 @@ public class CmdImquant extends CmdBase {
     for (Entry<InputLcmsFile, Path> e : lcmsToFraggerPepxml.entrySet()) {
       InputLcmsFile lcms = e.getKey();
       Path pepxml = e.getValue();
-      cmd.add(lcms.path.toString());
+      cmd.add(lcms.getPath().toString());
       cmd.add(wd.relativize(pepxml).toString());
     }
 

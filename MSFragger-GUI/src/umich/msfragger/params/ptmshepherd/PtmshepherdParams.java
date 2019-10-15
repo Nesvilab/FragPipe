@@ -42,7 +42,8 @@ public class PtmshepherdParams {
     sb.append(PROP_DATABASE).append(" = ").append(db.toAbsolutePath().normalize().toString()).append("\n");
     for (Entry<LcmsFileGroup, Path> e : groups.entrySet()) {
       LcmsFileGroup g = e.getKey();
-      List<Path> lcmsPathsForGroup = g.lcmsFiles.stream().map(inputLcmsFile -> inputLcmsFile.path.getParent())
+      List<Path> lcmsPathsForGroup = g.lcmsFiles.stream().map(inputLcmsFile -> inputLcmsFile
+          .getPath().getParent())
           .distinct().collect(Collectors.toList());
       if (lcmsPathsForGroup.size() != 1) {
         String msg = "PTM Shepherd config only works when LCMS files in a group are in one directory.";

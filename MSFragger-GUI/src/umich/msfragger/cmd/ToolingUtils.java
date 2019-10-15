@@ -146,7 +146,7 @@ public class ToolingUtils {
   public static Map<InputLcmsFile, Path> getPepxmlFilePathsAfterSearch(List<InputLcmsFile> lcmsFiles, String ext) {
     HashMap<InputLcmsFile, Path> pepxmls = new HashMap<>();
     for (InputLcmsFile f : lcmsFiles)
-      pepxmls.put(f, Paths.get(StringUtils.upToLastDot(f.path.toString()) + "." + ext));
+      pepxmls.put(f, Paths.get(StringUtils.upToLastDot(f.getPath().toString()) + "." + ext));
     return pepxmls;
   }
 
@@ -192,7 +192,7 @@ public class ToolingUtils {
 
   public static List<Path> getUmpireCreatedMzxmlFiles(List<InputLcmsFile> lcmsFiles, Path workingDir) {
     return lcmsFiles.stream()
-        .map(f -> workingDir.resolve(f.path.getFileName()))
+        .map(f -> workingDir.resolve(f.getPath().getFileName()))
         .collect(Collectors.toList());
   }
 

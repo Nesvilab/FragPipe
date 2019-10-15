@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -55,7 +54,7 @@ public class CmdMsfragger extends CmdBase {
   }
 
   private String getPepxmlFn(InputLcmsFile f, String ext) {
-    return StringUtils.upToLastDot(f.path.getFileName().toString()) + "." + ext;
+    return StringUtils.upToLastDot(f.getPath().getFileName().toString()) + "." + ext;
   }
 
   public Map<InputLcmsFile, Path> outputs(List<InputLcmsFile> inputs, String ext, Path workDir) {
@@ -276,7 +275,7 @@ public class CmdMsfragger extends CmdBase {
       return false;
     }
 
-    boolean isThermoRaw = lcmsFiles.stream().anyMatch(f -> f.path.toString().toLowerCase().endsWith(".raw"));
+    boolean isThermoRaw = lcmsFiles.stream().anyMatch(f -> f.getPath().toString().toLowerCase().endsWith(".raw"));
     if (isThermoRaw) {
       Path fraggerJarLoc = Paths.get(binFragger.getBin()).getParent();
       Path libs = searchExtLibsThermo(Collections.singletonList(fraggerJarLoc));
@@ -381,11 +380,11 @@ public class CmdMsfragger extends CmdBase {
         InputLcmsFile f = lcmsFiles.get(fileIndex);
         // if adding this file to the command line will make the command length
         // longer than the allowed maximum, stop adding files
-        if (sb.length() + f.path.toString().length() + 1 > commandLenLimit) {
+        if (sb.length() + f.getPath().toString().length() + 1 > commandLenLimit) {
           break;
         }
-        sb.append(f.path.toString()).append(" ");
-        cmd.add(f.path.toString());
+        sb.append(f.getPath().toString()).append(" ");
+        cmd.add(f.getPath().toString());
         addedLcmsFiles.add(f);
         fileIndex++;
       }
@@ -404,7 +403,7 @@ public class CmdMsfragger extends CmdBase {
         if (pepxmlWhereItShouldBe == null)
           throw new IllegalStateException("LCMS file mapped to no pepxml file");
         String pepxmlFn = pepxmlWhereItShouldBe.getFileName().toString();
-        Path pepxmlAsCreatedByFragger = f.path.getParent().resolve(pepxmlFn);
+        Path pepxmlAsCreatedByFragger = f.getPath().getParent().resolve(pepxmlFn);
         if (!pepxmlAsCreatedByFragger.equals(pepxmlWhereItShouldBe)) {
           List<ProcessBuilder> pbsMove = ToolingUtils
               .pbsMoveFiles(jarFragpipe, pepxmlWhereItShouldBe.getParent(),
@@ -413,7 +412,7 @@ public class CmdMsfragger extends CmdBase {
         }
         Path tsvWhereItShouldBe = mapLcmsToTsv.get(f);
         String tsvFn = tsvWhereItShouldBe.getFileName().toString();
-        Path tsvAsCreatedByFragger = f.path.getParent().resolve(tsvFn);
+        Path tsvAsCreatedByFragger = f.getPath().getParent().resolve(tsvFn);
         if (!tsvAsCreatedByFragger.equals(tsvWhereItShouldBe) && params.getShiftedIons()) {
           List<ProcessBuilder> pbsMove = ToolingUtils
               .pbsMoveFiles(jarFragpipe, tsvWhereItShouldBe.getParent(), true,

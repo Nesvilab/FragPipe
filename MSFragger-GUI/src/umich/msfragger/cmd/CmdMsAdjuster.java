@@ -60,7 +60,7 @@ public class CmdMsAdjuster extends CmdBase {
         cmd.add(constructClasspathString(unpacked));
         cmd.add(JAR_MSADJUSTER_MAIN_CLASS);
         cmd.add("20");
-        cmd.add(f.path.toString());
+        cmd.add(f.getPath().toString());
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(f.outputDir(wd).toFile());
@@ -70,7 +70,7 @@ public class CmdMsAdjuster extends CmdBase {
         // run MsAdjuster cleanup
 
         // MsAdjuster creates these files
-        Path origin = Paths.get(StringUtils.upToLastDot(f.path.toString()) + ".ma");
+        Path origin = Paths.get(StringUtils.upToLastDot(f.getPath().toString()) + ".ma");
         Path destination = f.outputDir(wd);
         if (!destination.equals(origin.getParent())) {
           List<ProcessBuilder> pbsMove = ToolingUtils

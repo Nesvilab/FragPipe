@@ -61,7 +61,7 @@ public abstract class CmdBase {
     List<String> supportedLoCase = supportedExts.stream().map(String::toLowerCase)
         .collect(Collectors.toList());
     List<String> exts = mapGroupsToProtxml.keySet().stream().flatMap(g -> g.lcmsFiles.stream())
-        .map(f -> StringUtils.afterLastDot(f.path.getFileName().toString().toLowerCase()))
+        .map(f -> StringUtils.afterLastDot(f.getPath().getFileName().toString().toLowerCase()))
         .distinct()
         .filter(ext -> !supportedLoCase.contains(ext)).collect(Collectors.toList());
     return exts;
@@ -71,7 +71,7 @@ public abstract class CmdBase {
     List<String> supportedLoCase = supportedExts.stream().map(String::toLowerCase)
         .collect(Collectors.toList());
     List<String> exts = pepxmlFiles.keySet().stream()
-        .map(f -> StringUtils.afterLastDot(f.path.getFileName().toString().toLowerCase()))
+        .map(f -> StringUtils.afterLastDot(f.getPath().getFileName().toString().toLowerCase()))
         .distinct()
         .filter(ext -> !supportedLoCase.contains(ext)).collect(Collectors.toList());
     return exts;

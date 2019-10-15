@@ -96,7 +96,7 @@ public class ThisAppProps extends Properties {
 
   public static final String JAR_FILE_AS_RESOURCE_EXT = ".jazz";
   public static final Path UNPACK_TEMP_SUBDIR = Paths.get("fragpipe");
-  public static final String DEFAULT_LCMS_GROUP_NAME = "";
+  public static final String DEFAULT_LCMS_EXP_NAME = "";
 
   public static final String PATH_BUNDLE = "umich/msfragger/gui/Bundle";
   public static final List<String> PROPERTIES_URLS = Arrays.asList(

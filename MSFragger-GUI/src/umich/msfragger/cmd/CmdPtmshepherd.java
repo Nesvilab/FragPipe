@@ -80,7 +80,8 @@ public class CmdPtmshepherd extends CmdBase {
 
     // check that each group only has lcms files in one directory
     for (LcmsFileGroup g : mapGroupsToProtxml.keySet()) {
-      List<Path> lcmsPathsForGroup = g.lcmsFiles.stream().map(inputLcmsFile -> inputLcmsFile.path.getParent())
+      List<Path> lcmsPathsForGroup = g.lcmsFiles.stream().map(inputLcmsFile -> inputLcmsFile
+          .getPath().getParent())
           .distinct().collect(Collectors.toList());
       if (lcmsPathsForGroup.size() != 1) {
         String msg = "PTM Shepherd requires all LCMS files in a group/experiment to be in one directory.\n<br/><br/>"

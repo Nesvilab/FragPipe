@@ -25,12 +25,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.ProcessManager;
-import umich.msfragger.messages.MessageDeletePaths;
 import umich.msfragger.params.pepproph.PeptideProphetParams;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.util.FileDelete;
@@ -276,7 +274,7 @@ public class CmdPeptideProphet extends CmdBase {
     } else {
       // --combine specified
       Map<String, List<Entry<InputLcmsFile, Path>>> pepxmlByExp = pepxmlFiles.entrySet().stream()
-          .collect(Collectors.groupingBy(kv -> kv.getKey().experiment));
+          .collect(Collectors.groupingBy(kv -> kv.getKey().getGroup()));
       for (List<Entry<InputLcmsFile, Path>> exp : pepxmlByExp.values()) {
         // check that all pepxml files are in one folder
         List<Path> pepxmlDirs = exp.stream().map(e -> e.getValue().getParent()).distinct()
@@ -284,7 +282,7 @@ public class CmdPeptideProphet extends CmdBase {
         if (pepxmlDirs.size() > 1) {
           String msg = String.format("When 'combine'd PeptideProphet processing requested all files "
               + "for each experiment must be located in the same folder. We found experiment: "
-              + "%s with files from %d folders.", exp.get(0).getKey().experiment, pepxmlDirs.size());
+              + "%s with files from %d folders.", exp.get(0).getKey().getGroup(), pepxmlDirs.size());
           JOptionPane.showMessageDialog(comp, msg, "Experiment/Group files in different folders", JOptionPane.WARNING_MESSAGE);
           return false;
         }

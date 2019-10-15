@@ -54,7 +54,7 @@ public class CmdReportFreequant extends CmdBase {
       final Path protxml = e.getValue();
 
       final Set<Path> lcmsDirsForProtxml = group.lcmsFiles.stream()
-          .map(f -> f.path.getParent())
+          .map(f -> f.getPath().getParent())
           .collect(Collectors.toSet());
       if (lcmsDirsForProtxml.size() > 1) {
         String msg = "All LCMS input files for an experiment/group must be\n"

@@ -502,7 +502,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     tableModelRawFiles = createTableModelRawFiles();
-    tableRawFiles = new SimpleETable(tableModelRawFiles);
+    tableRawFiles = new LcmsInputFileTable(tableModelRawFiles);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnRawClear);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsConsecutive);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsByParentDir);
@@ -858,7 +858,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     // add the files
     tableModelRawFiles.dataAddAll(
-        toAdd.map(path -> new InputLcmsFile(path, ThisAppProps.DEFAULT_LCMS_GROUP_NAME))
+        toAdd.map(path -> new InputLcmsFile(path, ThisAppProps.DEFAULT_LCMS_EXP_NAME))
         .collect(Collectors.toList()));
   }
 
@@ -1050,11 +1050,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     TableModelColumn<InputLcmsFile, String> colPath = new TableModelColumn<>(
         "Path (can drag & drop from Explorer)",
-        String.class, false, data -> data.path.toString());
+        String.class, false, data -> data.getPath().toString());
     TableModelColumn<InputLcmsFile, String> colExp = new TableModelColumn<>(
-        "Experiment/Group (editable)", String.class, true, data -> data.experiment);
+        "Experiment (Condition, group, etc.) ", String.class, true, data -> data.getGroup());
+    TableModelColumn<InputLcmsFile, Integer> colRep = new TableModelColumn<>(
+        "Replicate (bio-, technical, etc.)", Integer.class, true, lcms -> {
+//          return lcms.replicate == null ? "" : Integer.toString(lcms.replicate);
+          return lcms.getReplicate();
+    });
     cols.add(colPath);
     cols.add(colExp);
+    cols.add(colRep);
+
 
     tableModelRawFiles = new UniqueLcmsFilesTableModel(cols, 0);
     return tableModelRawFiles;
@@ -1680,7 +1687,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
-    btnGroupsAssignToSelected.setText("Assign to selected");
+    btnGroupsAssignToSelected.setText("Set experiment/replicate");
     btnGroupsAssignToSelected.setToolTipText("<html>Brings up a dialog to assign selected runs to an<br/>\nexperiment name of your choice.");
     btnGroupsAssignToSelected.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1717,7 +1724,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addComponent(btnGroupsAssignToSelected)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnGroupsClear)))
-            .addGap(0, 57, Short.MAX_VALUE)))
+            .addGap(0, 61, Short.MAX_VALUE)))
         .addContainerGap())
     );
     panelSelectedFilesLayout.setVerticalGroup(
@@ -2306,7 +2313,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addGap(0, 0, Short.MAX_VALUE))
               .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelReportOptionsLayout.createSequentialGroup()
                 .addComponent(checkReportAbacus)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 205, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(checkReportPrintDecoys)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkFilterNoProtxml)))
@@ -3798,7 +3805,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       Map<String, List<Path>> inputFnMap = new HashMap<>();
       for (LcmsFileGroup group : lcmsFileGroups.values()) {
         for (InputLcmsFile inputLcmsFile : group.lcmsFiles) {
-          Path path = inputLcmsFile.path;
+          Path path = inputLcmsFile.getPath();
           String fn = path.getFileName().toString();
           inputFnMap.computeIfAbsent(fn, s -> new LinkedList<>()).add(path);
         }
@@ -3890,7 +3897,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       LogUtils.println(console,
           String.format(Locale.ROOT, "  Experiment/Group: %s", e.getValue().name));
       for (InputLcmsFile f : e.getValue().lcmsFiles) {
-        LogUtils.println(console, String.format(Locale.ROOT, "  - %s", f.path.toString()));
+        LogUtils.println(console, String.format(Locale.ROOT, "  - %s", f.getPath().toString()));
       }
     }
     LogUtils.println(console, "");
@@ -4147,7 +4154,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       String warn = ThisAppProps.load(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
       if (warn != null && Boolean.valueOf(warn)) {
         for (InputLcmsFile f : lcmsFiles) {
-          if (f.path.toString().toLowerCase().endsWith(".mgf")) {
+          if (f.getPath().toString().toLowerCase().endsWith(".mgf")) {
             JCheckBox checkbox = new JCheckBox("Do not show this message again.");
             String msg = "The list of input files contains MGF entries.\n"
                 + "MSFragger has limited MGF support (ProteoWizard output is OK).\n"
@@ -5029,7 +5036,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
       final String group = "experiment-" + fmt.format(i + 1);
-      m.dataSet(i, new InputLcmsFile(f.path, group));
+      m.dataSet(i, new InputLcmsFile(f.getPath(), group));
     }
 
   }//GEN-LAST:event_btnGroupsConsecutiveActionPerformed
@@ -5040,11 +5047,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      int count = f.path.getNameCount();
+      int count = f.getPath().getNameCount();
       String group = count - 2 >= 0
-          ? f.path.getName(count - 2).toString()
-          : f.path.getName(count - 1).toString();
-      m.dataSet(i, new InputLcmsFile(f.path, group));
+          ? f.getPath().getName(count - 2).toString()
+          : f.getPath().getName(count - 1).toString();
+      m.dataSet(i, new InputLcmsFile(f.getPath(), group));
     }
   }//GEN-LAST:event_btnGroupsByParentDirActionPerformed
 
@@ -5054,8 +5061,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      String group = f.path.getFileName().toString();
-      m.dataSet(i, new InputLcmsFile(f.path, group));
+      String group = f.getPath().getFileName().toString();
+      m.dataSet(i, new InputLcmsFile(f.getPath(), group));
     }
   }//GEN-LAST:event_btnGroupsByFilenameActionPerformed
 
@@ -5065,7 +5072,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      m.dataSet(i, new InputLcmsFile(f.path, ThisAppProps.DEFAULT_LCMS_GROUP_NAME));
+      m.dataSet(i, new InputLcmsFile(f.getPath(), ThisAppProps.DEFAULT_LCMS_EXP_NAME));
     }
   }//GEN-LAST:event_btnGroupsClearActionPerformed
 
@@ -5073,23 +5080,30 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGroupsAssignToSelectedActionPerformed
 
     final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
-    final List<String> allFiles = m.dataCopy().stream().map(f -> f.path.toString())
+    final ArrayList<InputLcmsFile> data = m.dataCopy();
+    List<Integer> selectedRows = Arrays.stream(this.tableRawFiles.getSelectedRows())
+        .mapToObj(tableRawFiles::convertRowIndexToModel).collect(Collectors.toList());
+
+    final List<String> paths = selectedRows.stream()
+        .map(i -> data.get(i).getPath().toString())
         .collect(Collectors.toList());
 
-    final int[] selectedRows = this.tableRawFiles.getSelectedRows();
-    final List<String> selected = Arrays.stream(selectedRows)
-        .map(tableRawFiles::convertRowIndexToModel)
-        .mapToObj(allFiles::get)
-        .collect(Collectors.toList());
+    final Set<String> exps = selectedRows.stream()
+        .flatMap(i -> data.get(i).getExperiment() == null ? Stream.empty() : Stream.of(data.get(i).getExperiment()))
+        .collect(Collectors.toSet());
+    final Set<Integer> reps = selectedRows.stream()
+        .flatMap(i -> data.get(i).getReplicate() == null ? Stream.empty() : Stream.of(data.get(i).getReplicate()))
+        .collect(Collectors.toSet());
+    final String defaultExp = exps.size() == 1 ? exps.iterator().next() : null;
+    final Integer defaultRep = reps.size() == 1 ? reps.iterator().next() : null;
 
-    ExperimentNameDialog d = new ExperimentNameDialog(this, true, selected);
+    ExperimentNameDialog d = new ExperimentNameDialog(this, true, paths, defaultExp, defaultRep);
     d.setVisible(true);
     if (d.isOk()) {
-      final String group = d.getExperimentName();
       for (int selectedRow : selectedRows) {
         int i = tableRawFiles.convertRowIndexToModel(selectedRow);
         InputLcmsFile f = m.dataGet(i);
-        m.dataSet(i, new InputLcmsFile(f.path, group));
+        m.dataSet(i, new InputLcmsFile(f.getPath(), d.getExperimentName(), d.getReplicateNumber()));
       }
     }
   }//GEN-LAST:event_btnGroupsAssignToSelectedActionPerformed
@@ -5802,7 +5816,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private Map<String, LcmsFileGroup> getLcmsFileGroups() {
     List<InputLcmsFile> lcmsInputs = tableModelRawFiles.dataCopy();
     Map<String, List<InputLcmsFile>> mapGroup2Files = lcmsInputs.stream()
-        .collect(Collectors.groupingBy(inputLcmsFile -> inputLcmsFile.experiment));
+        .collect(Collectors.groupingBy(inputLcmsFile -> inputLcmsFile.getGroup()));
 
     Map<String, LcmsFileGroup> result = new TreeMap<>();
     for (Entry<String, List<InputLcmsFile>> e : mapGroup2Files.entrySet()) {
