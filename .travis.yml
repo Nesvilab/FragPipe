@@ -22,5 +22,6 @@ deploy:
   file_glob: true
   file: MSFragger-GUI/build/github-release/*
   on:
-    repo: chhh/FragPipe
-    branch: gh-releases
+    tags: true
+    # repo: chhh/FragPipe
+    # branch: gh-releases
