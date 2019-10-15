@@ -1052,12 +1052,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         "Path (can drag & drop from Explorer)",
         String.class, false, data -> data.getPath().toString());
     TableModelColumn<InputLcmsFile, String> colExp = new TableModelColumn<>(
-        "Experiment (Condition, group, etc.) ", String.class, true, data -> data.getGroup());
+        "Experiment (Condition, group, etc.) ", String.class, true, InputLcmsFile::getExperiment);
     TableModelColumn<InputLcmsFile, Integer> colRep = new TableModelColumn<>(
-        "Replicate (bio-, technical, etc.)", Integer.class, true, lcms -> {
-//          return lcms.replicate == null ? "" : Integer.toString(lcms.replicate);
-          return lcms.getReplicate();
-    });
+        "Replicate (bio-, technical, etc.)", Integer.class, true, InputLcmsFile::getReplicate);
     cols.add(colPath);
     cols.add(colExp);
     cols.add(colRep);
@@ -1688,7 +1685,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     btnGroupsAssignToSelected.setText("Set experiment/replicate");
-    btnGroupsAssignToSelected.setToolTipText("<html>Brings up a dialog to assign selected runs to an<br/>\nexperiment name of your choice.");
+    btnGroupsAssignToSelected.setToolTipText(Tooltips.tipBtnAssignToSelected());
     btnGroupsAssignToSelected.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnGroupsAssignToSelectedActionPerformed(evt);
@@ -3681,18 +3678,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         || chkRunProteinProphet.isSelected()
         || checkCreateReport.isSelected();
 
-//    if (!doRunFragger
-//        && !isRunUmpireSe()
-//        && !chkRunPeptideProphet.isSelected()
-//        && !chkRunProteinProphet.isSelected()
-//        && !checkCreateReport.isSelected()) {
-//      JOptionPane.showMessageDialog(this, "Nothing to run.\n"
-//              + "Please mark checkboxes in other tabs to run processing tools.", "Error",
-//          JOptionPane.WARNING_MESSAGE);
-//      resetRunButtons(true);
-//      return;
-//    }
-
     // check for TSV output when any other downstream tools are requested
     if (doRunFragger && doRunProphetsAndReport) {
       if (fraggerMigPanel.getOutputType().equals(FraggerOutputType.TSV)) {
@@ -3787,6 +3772,23 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             return;
           }
         }
+      }
+    }
+
+    List<InputLcmsFile> lcmsExpEmptyRepNonNull = getLcmsFileGroups().values().stream()
+        .flatMap(g -> g.lcmsFiles.stream())
+        .filter(lcms -> StringUtils.isNullOrWhitespace(lcms.getExperiment())
+            && lcms.getReplicate() != null)
+        .collect(Collectors.toList());
+    if (!lcmsExpEmptyRepNonNull.isEmpty()) {
+      int confirm = SwingUtils.showConfirmDialog(this, new JLabel(
+          "<html>For " + lcmsExpEmptyRepNonNull.size()
+              + " input files Experiment was left empty while Replicate was not.<br/><br/>\n"
+              + "<b>Yes</b> - if you want to auto-add 'exp_' prefix and continue as-is.<br/>\n"
+              + "<b>No, Cancel</b> - stop and change manually on Select LC/MS Files tab."));
+      if (confirm != JOptionPane.YES_OPTION) {
+        resetRunButtons(true);
+        return;
       }
     }
 
@@ -5816,7 +5818,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private Map<String, LcmsFileGroup> getLcmsFileGroups() {
     List<InputLcmsFile> lcmsInputs = tableModelRawFiles.dataCopy();
     Map<String, List<InputLcmsFile>> mapGroup2Files = lcmsInputs.stream()
-        .collect(Collectors.groupingBy(inputLcmsFile -> inputLcmsFile.getGroup()));
+        .collect(Collectors.groupingBy(InputLcmsFile::getGroup));
 
     Map<String, LcmsFileGroup> result = new TreeMap<>();
     for (Entry<String, List<InputLcmsFile>> e : mapGroup2Files.entrySet()) {

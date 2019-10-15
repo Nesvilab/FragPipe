@@ -897,7 +897,9 @@
                 <Component class="javax.swing.JButton" name="btnGroupsAssignToSelected">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Set experiment/replicate"/>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Brings up a dialog to assign selected runs to an&lt;br/&gt;&#xa;experiment name of your choice."/>
+                    <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="Tooltips.tipBtnAssignToSelected()" type="code"/>
+                    </Property>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsAssignToSelectedActionPerformed"/>
