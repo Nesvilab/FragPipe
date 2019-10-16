@@ -193,6 +193,13 @@ task releaseWinExe(type: Copy, group: 'chhh-release') {
     into file("$buildDir/github-release")
 }
 
+task releaseWinExeNamedWithVer(type: Copy, group: 'chhh-release') {
+    dependsOn 'createExe'
+    from "$buildDir/libs/FragPipe.exe"
+    into file("$buildDir/github-release")
+    rename '(.+)(\\.exe)', '$1' + "-${project.version}" + '$2'
+}
+
 task prepareReleaseNoExe(group: 'chhh-release') {
     dependsOn 'clean'
     dependsOn 'releaseShadowJar'
@@ -205,6 +212,12 @@ task prepareReleaseWithExe(group: 'chhh-release') {
     dependsOn 'prepareReleaseNoExe'
     dependsOn 'releaseWinExe'
     tasks.findByName('releaseWinExe').mustRunAfter 'prepareReleaseNoExe'
+}
+
+task prepareReleaseWithExeNamedWithVer(group: 'chhh-release') {
+    dependsOn 'prepareReleaseNoExe'
+    dependsOn 'releaseWinExeNamedWithVer'
+    tasks.findByName('releaseWinExeNamedWithVer').mustRunAfter 'prepareReleaseNoExe'
 }
 
 task createStartScripts(type: CreateStartScripts, group: "chhh-release") {
