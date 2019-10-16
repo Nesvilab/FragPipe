@@ -1052,9 +1052,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         "Path (can drag & drop from Explorer)",
         String.class, false, data -> data.getPath().toString());
     TableModelColumn<InputLcmsFile, String> colExp = new TableModelColumn<>(
-        "Experiment (Condition, group, etc.) ", String.class, true, InputLcmsFile::getExperiment);
+        "Experiment (can be empty)", String.class, true, InputLcmsFile::getExperiment);
     TableModelColumn<InputLcmsFile, Integer> colRep = new TableModelColumn<>(
-        "Replicate (bio-, technical, etc.)", Integer.class, true, InputLcmsFile::getReplicate);
+        "Replicate (can be empty)", Integer.class, true, InputLcmsFile::getReplicate);
     cols.add(colPath);
     cols.add(colExp);
     cols.add(colRep);
