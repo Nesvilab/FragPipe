@@ -1,30 +1,13 @@
-# Crystal-C (Version: 2017.10)
+# Crystal-C (Version: 2019.08)
 
-# No. of threads. "-1" means that Crystal-C automatically uses (thread number - 1) in your computer for processing.
-Thread = -1
+thread = -1                                 # number of threads. "-1" means that Crystal-C automatically uses (thread number - 1) in your computer for processing.
+fasta = D:\Test.fasta                       # protein fasta file
+raw_file_location = D:\Test                 # the location of raw file
+raw_file_extension = mzML                   # the file extension of raw data
+output_location = D:\Test                   # output location
 
-# Protein Fasta File
-Fasta = 
-
-# The directory where the LCMS files are
-RawDataDictionary = 
-
-OutputFolder = 
-
-# The file extension of raw data
-RawFileExtension = mzML
-
-# Maximum charge state for precursors
-MaxZ = 6
-
-# No. of theoretical isotope peaks
-IsoNum = 3
-
-# Precursor Mass tolerance
-MassTol = 20
-
-# Precursor Isolation Window
-PrecursorIsolationWindow = 0.7
-
-# Use Adjusted Precursors
-UseAdjustedPrecursors = false
+precursor_charge = 1 6                      # precursor charge range for detecting chimeric spectra
+isotope_number = 3                          # number of theoretical isotope peaks
+precursor_mass = 20                         # precursor mass tolerance (unit: ppm)
+precursor_isolation_window = 0.7            # precursor isolation window
+correct_isotope_error = false                # correct isotope error by updating precursor neutral mass with the monoisotopic mass

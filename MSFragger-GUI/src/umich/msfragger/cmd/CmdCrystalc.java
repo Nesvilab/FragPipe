@@ -25,7 +25,7 @@ import umich.msfragger.util.StringUtils;
 
 public class CmdCrystalc extends CmdBase {
 
-  public static final String JAR_CRYSTALC_NAME = "original-crystalc-1.0.7.jazz";
+  public static final String JAR_CRYSTALC_NAME = "original-crystalc-1.0.8.jazz";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_CRYSTALC_MAIN_CLASS = "crystalc.Run";
   private static final Logger log = LoggerFactory.getLogger(CmdCrystalc.class);
@@ -35,6 +35,7 @@ public class CmdCrystalc extends CmdBase {
   public static final String JAR_MSFTBX_NAME = "batmass-io-1.16.6.jazz";
   private static String[] JAR_DEPS = {JAR_MSFTBX_NAME, JAR_GRPPR_NAME};
   private static final String THERMO_RAW_EXT = "RAW";
+  private static final String BRUKER_RAW_EXT = "d";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
 
   public CmdCrystalc(boolean isRun, Path workDir) {
@@ -95,10 +96,14 @@ public class CmdCrystalc extends CmdBase {
       CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, Path> pepxmlFiles) {
     pbis.clear();
 
+    final ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
     final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
-    ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
     if (extLibsThermo != null) {
       sup.add(THERMO_RAW_EXT);
+    }
+    final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.getParent()));
+    if (extLibsBruker != null) {
+      sup.add(BRUKER_RAW_EXT);
     }
     if (!checkCompatibleFormats(comp, pepxmlFiles, sup)) {
       return false;
