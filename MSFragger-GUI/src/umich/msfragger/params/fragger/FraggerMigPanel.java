@@ -38,7 +38,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -75,7 +74,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.cmd.CmdMsfragger;
 import umich.msfragger.gui.ModificationsTableModel;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
@@ -126,10 +124,12 @@ public class FraggerMigPanel extends JPanel {
   private static final String PROP_misc_fragger_clear_mz_hi = "misc.fragger.clear-mz-hi";
   private static final String PROP_misc_fragger_precursor_charge_lo = "misc.fragger.precursor-charge-lo";
   private static final String PROP_misc_fragger_precursor_charge_hi = "misc.fragger.precursor-charge-hi";
+  private static final String PROP_misc_fragger_enzyme_dropdown = "misc.fragger.enzyme-dropdown";
   private static final Set<String> PROPS_MISC_NAMES;
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
   private static final String[] CALIBRATE_LABELS = {"Off", "On", "On and find optimal parameters"};
+  private static final List<MsfraggerEnzyme> ENZYMES = new EnzymeProvider().get();
   //public static FileNameExtensionFilter fnExtFilter = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf/raw/d)", "mzml", "mzxml", "mgf", "raw", "d");
   private static String[] PROPS_MISC = {
       PROP_misc_adjust_precurosr_mass,
@@ -199,6 +199,10 @@ public class FraggerMigPanel extends JPanel {
   private UiText uiTextCustomIonSeries;
   private JLabel labelCustomIonSeries;
   private Map<Component, Boolean> enablementMapping = new HashMap<>();
+  private UiCombo uiComboEnzymes;
+  private UiText uiTextCuts;
+  private UiText uiTextNocuts;
+  private UiText uiTextEnzymeName;
 
   public FraggerMigPanel() {
     initMore();
@@ -374,21 +378,47 @@ public class FraggerMigPanel extends JPanel {
       JPanel pDigest = new JPanel(new MigLayout(new LC()));
       pDigest.setBorder(new TitledBorder("Protein Digestion"));
 
+
+      uiComboEnzymes = UiUtils
+          .createUiCombo(ENZYMES.stream().map(msfe -> msfe.name).collect(Collectors.toList()));
+      FormEntry feEnzymeList = new FormEntry(PROP_misc_fragger_enzyme_dropdown, "Load rules",
+          uiComboEnzymes, "<html>Load one of default definitions of enzyme cleavage rules.<br/>\n"
+          + "You can still edit the name and rules manually after loading.");
+      uiComboEnzymes.addItemListener(event -> {
+        if (event.getStateChange() == ItemEvent.SELECTED) {
+          Object item = event.getItem();
+          log.debug("User selected enzyme: {}, of class {}", item, item.getClass());
+          if (!(item instanceof String)) {
+            throw new IllegalStateException("Ui Combo Boxes should just contain strings");
+          }
+          String name = (String) item;
+          MsfraggerEnzyme enzyme = ENZYMES.stream()
+              .filter(msfe -> msfe.name.equals(name)).findFirst()
+              .orElseThrow(() -> new IllegalStateException(
+                  "Enzymes list should have contained the name from dropdown"));
+          uiTextEnzymeName.setText(enzyme.name);
+          uiTextCuts.setText(enzyme.cut);
+          uiTextNocuts.setText(enzyme.nocuts);
+        }
+      });
+
+      uiTextEnzymeName = new UiText();
       FormEntry feEnzymeName = new FormEntry(MsfraggerParams.PROP_search_enzyme_name, "Enzyme name",
-          new UiText());
-      FormEntry feCutAfter = new FormEntry(MsfraggerParams.PROP_search_enzyme_cutafter, "Cut after",
-          UiUtils.uiTextBuilder().cols(6).filter("[^A-Z]").text("KR").create(),
-          "Capital letters for amino acids after which the enzyme cuts.");
-      FormEntry feButNotBefore = new FormEntry(MsfraggerParams.PROP_search_enzyme_butnotafter,
-          "But not before",
-          UiUtils.uiTextBuilder().cols(6).filter("[^A-Z]").text("P").create(),
-          "Amino acids before which the enzyme won't cut.");
+          uiTextEnzymeName);
+      uiTextCuts = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z]").text("KR").create();
+      FormEntry feCuts = new FormEntry(MsfraggerParams.PROP_search_enzyme_cutafter, "Cut after",
+          uiTextCuts, "Capital letters for amino acids after which the enzyme cuts.");
+      uiTextNocuts = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z]").text("P").create();
+      FormEntry feNocuts = new FormEntry(MsfraggerParams.PROP_search_enzyme_butnotafter,
+          "But not before", uiTextNocuts, "Amino acids before which the enzyme won't cut.");
+      pDigest.add(feEnzymeList.label(), new CC().span(2).split(2).alignX("right"));
+      pDigest.add(feEnzymeList.comp, new CC());
       pDigest.add(feEnzymeName.label(), new CC().alignX("right"));
-      pDigest.add(feEnzymeName.comp, new CC().minWidth("120px").growX());
-      pDigest.add(feCutAfter.label(), new CC().split(4).spanX().gapLeft("5px"));
-      pDigest.add(feCutAfter.comp);//, new CC().minWidth("45px"));
-      pDigest.add(feButNotBefore.label());//, new CC().split(2).spanX().gapLeft("5px"));
-      pDigest.add(feButNotBefore.comp, new CC().wrap());
+      pDigest.add(feEnzymeName.comp, new CC().minWidth("120px").split().spanX());
+      pDigest.add(feCuts.label(), new CC().gapLeft("5px"));
+      pDigest.add(feCuts.comp);//, new CC().minWidth("45px"));
+      pDigest.add(feNocuts.label());//, new CC().split(2).spanX().gapLeft("5px"));
+      pDigest.add(feNocuts.comp, new CC().wrap());
 
       List<String> cleavageTypeNames = Arrays.stream(CleavageType.values()).map(Enum::name)
           .collect(Collectors.toList());
