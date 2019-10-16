@@ -2889,14 +2889,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       if (tip != null) {
         tip.closeBalloon();
       }
-      tip = null;
+      String msg = null;
 
       if (!is64bitJava) {
-        tip = new BalloonTip(lblFraggerJavaVer,
-            "Msfragger requires 64-bit Java, you are using 32-bit\n");
+        msg = "MSFragger requires <b>64-bit</b> Java.";
       } else if (!javaAtLeast18) {
-        tip = new BalloonTip(lblFraggerJavaVer,
-            "Msfragger requires Java 1.8. Your version is lower.\n");
+        msg = "Msfragger requires Java 1.8. Your version is lower.";
       } else {
         // check for Java 9
         final String jver = SystemUtils.JAVA_SPECIFICATION_VERSION;
@@ -2904,13 +2902,19 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             : MsfraggerProps.testJar(textBinMsfragger.getText()).version;
         if (jver != null && fver != null) {
           if (mvc.compare(fver, "20180316") < 0 && vc.compare(jver, "1.9") >= 0) {
-            tip = new BalloonTip(lblFraggerJavaVer, "<html>Looks like you're "
+            msg = "Looks like you're "
                 + "running Java 9 or higher with MSFragger v20180316 or lower.<br/>"
-                + "That version of MSFragger only supports Java 8.\n");
+                + "That version of MSFragger only supports Java 8.";
           }
         }
       }
-      if (tip != null) {
+
+      if (msg != null) {
+        JEditorPane ep = SwingUtils.createClickableHtml(msg
+                + "<br/>Download <a href=\"https://www.java.com/en/download/manual.jsp\">here</a> or see the configuration help page (link below).\n.",
+            true, true);
+        tip = new BalloonTip(lblFraggerJavaVer, ep,
+            new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
         tipMap.put(TIP_NAME_FRAGGER_JAVA_VER, tip);
         tip.setVisible(true);
       }
