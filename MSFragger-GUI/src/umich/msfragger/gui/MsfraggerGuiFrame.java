@@ -125,9 +125,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
 import umich.msfragger.cmd.CmdCrystalc;
@@ -147,8 +144,8 @@ import umich.msfragger.cmd.CmdReportFreequant;
 import umich.msfragger.cmd.CmdReportReport;
 import umich.msfragger.cmd.CmdSpecLibGen;
 import umich.msfragger.cmd.CmdUmpireSe;
-import umich.msfragger.cmd.ProcessBuilderInfo;
 import umich.msfragger.cmd.PbiBuilder;
+import umich.msfragger.cmd.ProcessBuilderInfo;
 import umich.msfragger.cmd.ProcessBuildersDescriptor;
 import umich.msfragger.cmd.ToolingUtils;
 import umich.msfragger.gui.ProcessDescription.Builder;
@@ -178,13 +175,13 @@ import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.messages.MessageShowAboutDialog;
 import umich.msfragger.messages.MessageStartProcesses;
 import umich.msfragger.messages.MessageTipNotification;
-import umich.msfragger.messages.MessageToolInit;
 import umich.msfragger.messages.MessageValidityFragger;
 import umich.msfragger.messages.MessageValidityMassCalibration;
 import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.dbslice.DbSlice;
+import umich.msfragger.params.dbslice.DbSlice.MessageInitDone;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
@@ -478,8 +475,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       panelBottomHints.add(c);
     }
     {
+      Properties props = ThisAppProps.getRemotePropertiesWithLocalDefaults();
+//      Properties p = ThisAppProps.getLocalProperties(); // for testing
+      String linkUrl = props.getProperty(ThisAppProps.PROP_FRAGPIPE_SITE_URL,
+          "https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html");
+
       JEditorPane c = SwingUtils.createClickableHtml(
-          "<a href='https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html'>Configuration Help</a>");
+          "<a href='" + linkUrl + "'>Configuration Help</a>");
       c.setFont(lblFraggerJavaVer.getFont());
       c.setAlignmentX(Component.CENTER_ALIGNMENT);
       JPanel p = new JPanel();
@@ -738,76 +740,100 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }
 
-  private void messageToTextComponent(ISimpleTextComponent comp, MessageToolInit m) {
-    final String old = comp.getText().trim();
-    Pattern reHtml = Pattern.compile("<\\s*/?\\s*html\\s*>", Pattern.CASE_INSENSITIVE);
-    String noHtml = reHtml.matcher(old).replaceAll("");
-    Document doc = Jsoup.parse(old);
-    doc.body().attr("style", SwingUtils.getHtmlBodyStyle());
-    if (!m.append) {
-      doc.body().html("");
-    }
-    if (m.isError) {
-      doc.body().appendChild(new Element("b").html(m.text));
-    } else {
-      doc.body().append(m.text);
-    }
-    String html = doc.html();
-    comp.setText(html);
-  }
-
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onDbsliceMessage1(DbSlice.Message1 m) {
     log.debug("Got DbSlice.Message1 m = {} [append={}, error={}]", m.text, m.append, m.isError);
-    messageToTextComponent(ISimpleTextComponent.from(lblDbsliceInfo1), m);
+    FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(lblDbsliceInfo1), m);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onDbsliceMessage2(DbSlice.Message2 m) {
     log.debug("Got DbSlice.Message2 m = {} [append={}, error={}]", m.text, m.append, m.isError);
-    messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo), m);
+    FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo), m);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
   public void onDbsliceInitDone(DbSlice.MessageInitDone m) {
     log.debug("Got DbSlice.MessageInitDone m [success={}]", m.isSuccess);
-    final String text = m.isSuccess ? "Database Splitting enabled." : "Database Splitting disabled.";
-    messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo), new DbSlice.Message2(true, !m.isSuccess, text));
+    final Map<DbSlice.MessageInitDone.REASON, String> map = new HashMap<>();
+    map.put(MessageInitDone.REASON.PY_VER, "Python 3 is required.");
+    map.put(MessageInitDone.REASON.WRONG_FRAGGER, "Latest version of MSFragger is required.");
+    map.put(MessageInitDone.REASON.PY_MODULES, "Python modules required.");
+    map.put(MessageInitDone.REASON.NOT_UNPACKED, "Error unpacking.");
+    StringBuilder sb = new StringBuilder();
+    sb.append(m.isSuccess ? "Database Splitting enabled." : "Database Splitting disabled.");
+    if (!m.isSuccess) {
+      String reasons = m.reasons.stream().flatMap(reason ->
+          map.containsKey(reason) ? Stream.of(map.get(reason)) : Stream.empty())
+          .collect(Collectors.joining(" "));
+      if (reasons.length() > 0) {
+        sb.append(" ").append(reasons);
+      }
+      sb.append(" ").append("FragPipe will work fine without this functionality.");
+    }
+    FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo),
+        new DbSlice.Message2(true, false, sb.toString()));
 
     if (!m.isSuccess) {
       // attach link with instructions
       Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
-      String link = p.getProperty(MsfraggerProps.PROP_DBSPLIT_INSTRUCTIONS_URL,
-          "https://nesvilab.github.io/MSFragger/");
-      String instructions = "<br/>For docs/instructions visit <a href=\"" + link + "\">" + link + "</a>";
-      messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo),
+//      Properties p = ThisAppProps.getLocalProperties(); // for testing
+      String linkUrl = p.getProperty(MsfraggerProps.PROP_DBSPLIT_INSTRUCTIONS_URL,
+          "https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html");
+      String instructions = String.format(
+          "<br/>See <a href='%s'>configuration help</a> online for instructions how to enable.",
+          linkUrl);
+      FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo),
           new DbSlice.Message2(true, false, instructions));
     }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onSpeclibgenMessage1(SpecLibGen.Message1 m) {
-    messageToTextComponent(ISimpleTextComponent.from(lblSpeclibInfo1), m);
+    FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(lblSpeclibInfo1), m);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onSpeclibgenMessage2(SpecLibGen.Message2 m) {
-    messageToTextComponent(ISimpleTextComponent.from(epSpeclibInfo2), m);
+    FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(epSpeclibInfo2), m);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
   public void onSpeclibgenInitDone(SpecLibGen.MessageInitDone m) {
-    final String text = m.isSuccess ? "Spectral Library Generation enabled. See Report tab."
-        : "Spectral Library Generation disabled.";
-    messageToTextComponent(ISimpleTextComponent.from(epSpeclibInfo2), new SpecLibGen.Message2(true, !m.isSuccess, text));
+    log.debug("Got SpecLibGen.MessageInitDone m [success={}]", m.isSuccess);
+//    FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(epSpeclibInfo2),
+//        new SpecLibGen.Message2(true, !m.isSuccess, text));
+
+    final Map<SpecLibGen.MessageInitDone.REASON, String> map = new HashMap<>();
+    map.put(SpecLibGen.MessageInitDone.REASON.PY_VER, "Python 3 is required.");
+    map.put(SpecLibGen.MessageInitDone.REASON.WRONG_FRAGGER,
+        "Latest version of MSFragger is required.");
+    map.put(SpecLibGen.MessageInitDone.REASON.PY_MODULES, "Python modules required.");
+    map.put(SpecLibGen.MessageInitDone.REASON.NOT_UNPACKED, "Error unpacking.");
+    StringBuilder sb = new StringBuilder();
+    sb.append(m.isSuccess ? "Spectral library generation enabled." : "Spectral library generation disabled.");
+    if (!m.isSuccess) {
+      String reasons = m.reasons.stream().flatMap(reason ->
+          map.containsKey(reason) ? Stream.of(map.get(reason)) : Stream.empty())
+          .collect(Collectors.joining(" "));
+      if (reasons.length() > 0) {
+        sb.append(" ").append(reasons);
+      }
+      sb.append(" ").append("FragPipe will work fine without this functionality.");
+    }
+    FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(epSpeclibInfo2),
+        new DbSlice.Message2(true, false, sb.toString()));
 
     if (!m.isSuccess) {
       // attach link with instructions
       Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
-      String link = p.getProperty(MsfraggerProps.PROP_SPECLIBGEN_INSTRUCTIONS_URL,
-          "https://nesvilab.github.io/MSFragger/");
-      String instructions = "<br/>For docs/instructions visit <a href=\"" + link + "\">" + link + "</a>";
-      messageToTextComponent(ISimpleTextComponent.from(epSpeclibInfo2),
+//      Properties p = ThisAppProps.getLocalProperties(); // for testing
+      String linkUrl = p.getProperty(MsfraggerProps.PROP_SPECLIBGEN_INSTRUCTIONS_URL,
+          "https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html");
+      String instructions = String.format(
+          "<br/>See <a href='%s'>configuration help</a> online for instructions how to enable.",
+          linkUrl);
+      FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(epSpeclibInfo2),
           new SpecLibGen.Message2(true, false, instructions));
     }
     enableSpecLibGenPanel(m.isSuccess);

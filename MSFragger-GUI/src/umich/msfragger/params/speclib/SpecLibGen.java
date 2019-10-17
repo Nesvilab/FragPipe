@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import umich.msfragger.messages.MessageToolInit;
+import umich.msfragger.params.speclib.SpecLibGen.MessageInitDone.REASON;
 import umich.msfragger.util.CheckResult;
 import umich.msfragger.util.Installed;
 import umich.msfragger.util.JarUtils;
@@ -103,10 +105,13 @@ public class SpecLibGen {
   }
 
   public static class MessageInitDone {
+    public enum REASON {NOT_UNPACKED, PY_VER, PY_MODULES, WRONG_FRAGGER}
     public final boolean isSuccess;
+    public final EnumSet<SpecLibGen.MessageInitDone.REASON> reasons;
 
-    public MessageInitDone(boolean isSuccess) {
+    public MessageInitDone(boolean isSuccess, EnumSet<REASON> reasons) {
       this.isSuccess = isSuccess;
+      this.reasons = reasons;
     }
   }
 
@@ -118,6 +123,8 @@ public class SpecLibGen {
 
   public void init() {
     synchronized (initLock) {
+      EnumSet<REASON> reasons = EnumSet.noneOf(REASON.class);
+
       // reset default label text
       EventBus.getDefault().post(new SpecLibGen.Message1(false, false, ""));
       EventBus.getDefault().post(new SpecLibGen.Message2(false, false, ""));
@@ -128,8 +135,11 @@ public class SpecLibGen {
         CheckResult res = checkPythonVer();
         isPythonOk = res.isSuccess;
         EventBus.getDefault().post(new Message1(true, !isPythonOk, res.message));
+        if (!isPythonOk)
+          reasons.add(REASON.PY_VER);
       } catch (Exception e) {
         EventBus.getDefault().post(new Message1(true, true, "Error checking python version."));
+        reasons.add(REASON.PY_VER);
       }
 
       // check ok/installed modules
@@ -137,10 +147,14 @@ public class SpecLibGen {
         try {
           CheckResult res = checkPythonOkModules();
           EventBus.getDefault().post(new Message1(true, false, res.message));
+          if (!res.isSuccess) {
+            reasons.add(REASON.PY_MODULES);
+          }
         } catch (Exception ex) {
           EventBus.getDefault()
               .post(new Message1(true, true, "Error checking installed/ok python modules."
               ));
+          reasons.add(REASON.PY_MODULES);
         }
       }
 
@@ -151,10 +165,14 @@ public class SpecLibGen {
           CheckResult res = checkPythonErrorModules();
           isNoErrorModules = res.isSuccess;
           EventBus.getDefault().post(new Message1(true, !isNoErrorModules, res.message));
+          if (!res.isSuccess) {
+            reasons.add(REASON.PY_MODULES);
+          }
         } catch (Exception ex) {
           EventBus.getDefault()
               .post(new Message1(true, true, "Error checking installed python modules."
               ));
+          reasons.add(REASON.PY_MODULES);
         }
       }
 
@@ -164,14 +182,18 @@ public class SpecLibGen {
           CheckResult res = unpack();
           isUnpacked = res.isSuccess;
           EventBus.getDefault().post(new Message1(true, !res.isSuccess, res.message));
+          if (!res.isSuccess) {
+            reasons.add(REASON.NOT_UNPACKED);
+          }
         } catch (Exception e) {
           EventBus.getDefault().post(new Message1(true, true, "Error unpacking necessary tools."));
+          reasons.add(REASON.NOT_UNPACKED);
         }
       }
 
       final boolean isInitSuccess = isPythonOk && isNoErrorModules && isUnpacked;
       isInitialized = isInitSuccess;
-      EventBus.getDefault().postSticky(new MessageInitDone(isInitSuccess));
+      EventBus.getDefault().postSticky(new MessageInitDone(isInitSuccess, reasons));
     }
   }
 

@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import umich.msfragger.messages.MessageToolInit;
+import umich.msfragger.params.dbslice.DbSlice.MessageInitDone.REASON;
 import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.params.fragger.MsfraggerVersionComparator;
 import umich.msfragger.params.speclib.SpecLibGen;
@@ -20,7 +22,6 @@ import umich.msfragger.util.Installed;
 import umich.msfragger.util.JarUtils;
 import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.PythonModule;
-import umich.msfragger.util.VersionComparator;
 
 public class DbSlice {
   private static DbSlice instance = new DbSlice();
@@ -74,11 +75,16 @@ public class DbSlice {
   }
 
   public static class MessageInitDone {
+    public enum REASON {NOT_UNPACKED, PY_VER, PY_MODULES, WRONG_FRAGGER}
     public final boolean isSuccess;
+    public final EnumSet<REASON> reasons;
 
-    public MessageInitDone(boolean isSuccess) {
+    public MessageInitDone(boolean isSuccess, EnumSet<REASON> reasons) {
       this.isSuccess = isSuccess;
+      this.reasons = reasons;
     }
+
+
   }
 
   public PythonInfo getPi() {
@@ -93,6 +99,8 @@ public class DbSlice {
 
   public void init(String msfraggerVersion) {
     synchronized (initLock) {
+      EnumSet<REASON> reasons = EnumSet.noneOf(REASON.class);
+
       // reset default label text
       EventBus.getDefault().post(new Message1(false, false, ""));
       EventBus.getDefault().post(new Message2(false, false, ""));
@@ -103,8 +111,12 @@ public class DbSlice {
         CheckResult res = checkPythonVer();
         isPythonOk = res.isSuccess;
         EventBus.getDefault().post(new Message1(true, !isPythonOk, res.message));
+        if (!isPythonOk) {
+          reasons.add(REASON.PY_VER);
+        }
       } catch (Exception e) {
         EventBus.getDefault().post(new Message1(true, true, "Error checking python version."));
+        reasons.add(REASON.PY_VER);
       }
 
       // check ok/installed modules
@@ -126,10 +138,14 @@ public class DbSlice {
           CheckResult res = checkPythonErrorModules();
           isNoErrorModules = res.isSuccess;
           EventBus.getDefault().post(new Message1(true, !isNoErrorModules, res.message));
+          if (!isNoErrorModules) {
+            reasons.add(REASON.PY_MODULES);
+          }
         } catch (Exception ex) {
           EventBus.getDefault()
               .post(new Message1(true, true, "Error checking installed python modules."
               ));
+          reasons.add(REASON.PY_MODULES);
         }
       }
 
@@ -139,8 +155,12 @@ public class DbSlice {
           CheckResult res = unpack();
           isUnpacked = res.isSuccess;
           EventBus.getDefault().post(new Message1(true, !isUnpacked, res.message));
+          if (!isUnpacked) {
+            reasons.add(REASON.NOT_UNPACKED);
+          }
         } catch (Exception e) {
           EventBus.getDefault().post(new Message1(true, true, "Error unpacking necessary tools."));
+          reasons.add(REASON.NOT_UNPACKED);
         }
       }
 
@@ -157,10 +177,14 @@ public class DbSlice {
           this.msfraggerVer = msfraggerVersion;
         }
       }
+      if (!isFraggerOk) {
+        reasons.add(REASON.WRONG_FRAGGER);
+      }
 
       final boolean isInitSuccess = isPythonOk && isNoErrorModules && isUnpacked && isFraggerOk;
       isInitialized = isInitSuccess;
-      EventBus.getDefault().postSticky(new MessageInitDone(isInitSuccess));
+
+      EventBus.getDefault().postSticky(new MessageInitDone(isInitSuccess, reasons));
     }
   }
 
