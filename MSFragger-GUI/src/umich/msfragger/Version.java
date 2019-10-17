@@ -16,6 +16,8 @@
  */
 package umich.msfragger;
 
+import static umich.msfragger.params.ThisAppProps.PATH_BUNDLE;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -37,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.messages.MessageTipNotification;
 import umich.msfragger.params.ThisAppProps;
+import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.VersionComparator;
 
@@ -47,6 +50,7 @@ public class Version {
   private static final Logger log = LoggerFactory.getLogger(Version.class);
   public static final String PROGRAM_TITLE = "FragPipe";
   public static final String PROP_VER = "msfragger.gui.version";
+  public static final String PROP_LAST_RELEASE_VER = "fragpipe.last.release.version";
   public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
   public static final String PROP_ISSUE_TRACKER_URL = "msfragger.gui.issue-tracker";
   public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
@@ -250,7 +254,7 @@ public class Version {
     Properties p = loadPropertiesWithIdeDebugHack();
     if (!p.containsKey(Version.PROP_VER)) {
       throw new IllegalStateException(String.format("Key '%s' not found in bundle '%s'",
-          Version.PROP_VER, ThisAppProps.PATH_BUNDLE));
+          Version.PROP_VER, PATH_BUNDLE));
     }
     return p.getProperty(Version.PROP_VER);
   }
@@ -358,7 +362,7 @@ public class Version {
       try {
         Properties p = new Properties();
         Path path = Paths
-            .get(".").toAbsolutePath().resolve("src").resolve(ThisAppProps.PATH_BUNDLE + ".properties");
+            .get(".").toAbsolutePath().resolve("src").resolve(PATH_BUNDLE + ".properties");
         p.load(Files.newBufferedReader(path));
         p.stringPropertyNames().forEach(k -> props.setProperty(k, p.getProperty(k)));
       } catch (IOException ex) {
@@ -408,8 +412,24 @@ public class Version {
   public static void checkUpdates() {
     Properties props = ThisAppProps.getRemoteProperties();
     if (props == null) {
-      log.debug("Didn't get update info from any of the sources");
+      log.info("Didn't get update info from any of the sources");
       return;
+    }
+
+    String lastVerKey = PROP_LAST_RELEASE_VER;
+    if (!props.stringPropertyNames().contains(lastVerKey)) {
+      List<String> urls = Arrays.asList(
+          "https://raw.githubusercontent.com/Nesvilab/FragPipe/release/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties");
+      props = PropertiesUtils.initProperties(urls);
+      if (props == null) {
+        log.debug("Didn't get dev update info");
+        return;
+      }
+      if (!props.stringPropertyNames().contains(Version.PROP_VER)) {
+        log.info("Release branch didn't contain version info in: {}", Version.PROP_VER);
+        return;
+      }
+      lastVerKey = Version.PROP_VER;
     }
 
 //      final URI tmp = URI.create("https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties");
@@ -429,11 +449,12 @@ public class Version {
 //                        props.put("msfragger.gui.download-message.5.0", "Crit 5.0");
 //                        props.put("msfragger.gui.download-message.3.1", "Important 3.1");
 //                        props.put("msfragger.gui.download-message.4.9", "Important 4.9");
+
     final StringBuilder sb = new StringBuilder();
     final VersionComparator vc = new VersionComparator();
 
     // add new versions notification
-    final String githubVersion = props.getProperty(Version.PROP_VER);
+    final String githubVersion = props.getProperty(lastVerKey);
     final String localVersion = Version.version();
     if (githubVersion != null && vc.compare(localVersion, githubVersion) < 0) {
       if (sb.length() > 0) {
