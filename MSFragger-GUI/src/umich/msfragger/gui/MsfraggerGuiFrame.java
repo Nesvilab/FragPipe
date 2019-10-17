@@ -477,7 +477,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     {
       Properties props = ThisAppProps.getRemotePropertiesWithLocalDefaults();
 //      Properties p = ThisAppProps.getLocalProperties(); // for testing
-      String linkUrl = props.getProperty(ThisAppProps.PROP_FRAGPIPE_SITE_URL,
+      String linkUrl = props.getProperty(ThisAppProps.PROP_SETUP_TUTORIAL_URL,
           "https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html");
 
       JEditorPane c = SwingUtils.createClickableHtml(
