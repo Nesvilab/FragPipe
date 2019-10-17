@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
@@ -35,8 +36,6 @@ import umich.msfragger.util.swing.JPanelWithEnablement;
 public class CrystalcPanel extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(CrystalcPanel.class);
   public JCheckBox checkRun;
-  private JPanel pPar;
-  private List<String> paramNames;
   private JPanel pTop;
   private JPanel pContent;
   private JPanel pParams;
@@ -48,7 +47,6 @@ public class CrystalcPanel extends JPanelWithEnablement {
   private UiSpinnerDouble uiSpinnerPrecIsol;
 
   public CrystalcPanel() {
-    paramNames = new ArrayList<>();
     initMore();
     EventBus.getDefault().register(this);
   }
@@ -67,18 +65,16 @@ public class CrystalcPanel extends JPanelWithEnablement {
       pTop = new JPanel(new MigLayout(new LC().insetsAll("0px").debug()));
 
       checkRun = new UiCheck("Run Crystal-C", null, false);
-      log.error("checkRun is created as selected: {}", checkRun.isSelected());
+
       checkRun.setName("ui.name.crystalc.run-crystalc");
 
       checkRun.addActionListener(e -> {
         final boolean isSelected = checkRun.isSelected();
-        log.error("checkRun addActionListener as selected: {}", checkRun.isSelected());
         enablementMapping.put(pContent, isSelected);
         updateEnabledStatus(pContent, isSelected);
       });
       checkRun.addChangeListener(e -> {
         final boolean isSelected = checkRun.isSelected();
-        log.error("checkRun addChangeListener as selected: {}", checkRun.isSelected());
         enablementMapping.put(pContent, isSelected);
         updateEnabledStatus(pContent, isSelected);
       });
@@ -194,6 +190,14 @@ public class CrystalcPanel extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onMessageLoadCrystalcDefaults(MessageLoadCrystalcDefaults m) {
+    if (m.doAskUser) {
+      int answer = SwingUtils.showConfirmDialog(this, new JLabel("<html>Load Crystal-C defaults?"));
+      if (JOptionPane.OK_OPTION != answer) {
+        log.debug("User cancelled Loading Crystal-C defaults");
+        return;
+      }
+    }
+
     loadDefaults();
   }
 
