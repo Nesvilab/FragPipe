@@ -482,7 +482,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           "<a href='https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html'>Configuration Help</a>");
       c.setFont(lblFraggerJavaVer.getFont());
       c.setAlignmentX(Component.CENTER_ALIGNMENT);
-      c.setBorder(BorderFactory.createLineBorder(Color.RED));
       JPanel p = new JPanel();
       p.setAlignmentX(Component.CENTER_ALIGNMENT);
       p.add(c);
@@ -1204,6 +1203,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     spinnerCrystalcMassTol = new javax.swing.JSpinner();
     jLabel9 = new javax.swing.JLabel();
     spinnerCrystalcPrecIsoWindow = new javax.swing.JSpinner();
+    crystalcPanel1 = new umich.msfragger.params.crystalc.CrystalcPanel();
     panelReport = new javax.swing.JPanel();
     panelReportOptions = new javax.swing.JPanel();
     textReportFilter = new javax.swing.JTextField();
@@ -2008,7 +2008,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addComponent(btnPepProphDefaultsOpen)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(btnPepProphDefaultsNonspecific)
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        .addContainerGap(164, Short.MAX_VALUE))
       .addComponent(panelPeptideProphetOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
     );
     panelPeptideProphetLayout.setVerticalGroup(
@@ -2238,7 +2238,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addGroup(panelDownstreamLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addComponent(panelPeptideProphet, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addComponent(panelProteinProphet, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(panelCrystalc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+          .addComponent(panelCrystalc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(crystalcPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         .addContainerGap())
     );
     panelDownstreamLayout.setVerticalGroup(
@@ -2250,7 +2251,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addComponent(panelProteinProphet, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addComponent(panelCrystalc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(246, Short.MAX_VALUE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(crystalcPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap(102, Short.MAX_VALUE))
     );
 
     loadLastCrystalc();
@@ -6068,6 +6071,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JCheckBox chkRunPeptideProphet;
   private javax.swing.JCheckBox chkRunProteinProphet;
   private javax.swing.JScrollPane consoleScrollPane;
+  private umich.msfragger.params.crystalc.CrystalcPanel crystalcPanel1;
   private javax.swing.JEditorPane editorMsfraggerCitation;
   private javax.swing.JEditorPane editorPhilosopherLink;
   private javax.swing.JEditorPane editorSequenceDb;

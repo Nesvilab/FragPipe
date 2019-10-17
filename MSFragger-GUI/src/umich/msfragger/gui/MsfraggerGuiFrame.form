@@ -1093,6 +1093,7 @@
                           <Component id="panelPeptideProphet" alignment="1" max="32767" attributes="0"/>
                           <Component id="panelProteinProphet" alignment="0" max="32767" attributes="0"/>
                           <Component id="panelCrystalc" alignment="0" max="32767" attributes="0"/>
+                          <Component id="crystalcPanel1" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -1107,7 +1108,9 @@
                       <Component id="panelProteinProphet" min="-2" pref="145" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="panelCrystalc" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="246" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="crystalcPanel1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="102" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1128,7 +1131,7 @@
                           <Component id="btnPepProphDefaultsOpen" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="btnPepProphDefaultsNonspecific" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace pref="164" max="32767" attributes="0"/>
                       </Group>
                       <Component id="panelPeptideProphetOptions" alignment="0" max="32767" attributes="0"/>
                   </Group>
@@ -1602,6 +1605,8 @@
                 </Container>
               </SubComponents>
             </Container>
+            <Component class="umich.msfragger.params.crystalc.CrystalcPanel" name="crystalcPanel1">
+            </Component>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="panelReport">
