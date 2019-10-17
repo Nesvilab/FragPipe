@@ -1190,20 +1190,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     jScrollPane4 = new javax.swing.JScrollPane();
     txtProteinProphetCmdLineOpts = new javax.swing.JTextArea();
     jLabel40 = new javax.swing.JLabel();
-    panelCrystalc = new javax.swing.JPanel();
-    chkRunCrystalc = new javax.swing.JCheckBox();
-    jLabel12 = new javax.swing.JLabel();
-    btnCrystalcDefaults = new javax.swing.JButton();
-    panelCrystalcOptions = new javax.swing.JPanel();
-    jLabel6 = new javax.swing.JLabel();
-    spinnerCrystalcMaxCharge = new javax.swing.JSpinner();
-    jLabel7 = new javax.swing.JLabel();
-    spinnerCrystalcNumIsotopes = new javax.swing.JSpinner();
-    jLabel8 = new javax.swing.JLabel();
-    spinnerCrystalcMassTol = new javax.swing.JSpinner();
-    jLabel9 = new javax.swing.JLabel();
-    spinnerCrystalcPrecIsoWindow = new javax.swing.JSpinner();
-    crystalcPanel1 = new umich.msfragger.params.crystalc.CrystalcPanel();
+    panelCrystalc = new umich.msfragger.params.crystalc.CrystalcPanel();
     panelReport = new javax.swing.JPanel();
     panelReportOptions = new javax.swing.JPanel();
     textReportFilter = new javax.swing.JTextField();
@@ -2083,7 +2070,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
             .addComponent(checkProcessGroupsSeparately, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addGap(0, 0, Short.MAX_VALUE))
+            .addGap(0, 383, Short.MAX_VALUE))
           .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
             .addComponent(jLabel40)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -2100,7 +2087,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(checkProcessGroupsSeparately, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap())
+        .addGap(156, 156, 156))
     );
 
     javax.swing.GroupLayout panelProteinProphetLayout = new javax.swing.GroupLayout(panelProteinProphet);
@@ -2124,109 +2111,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           .addComponent(btnProtProphDefaultsClosed)
           .addComponent(btnProtProphDefaultsOpen))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(panelProteinProphetOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addComponent(panelProteinProphetOptions, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addContainerGap())
-    );
-
-    chkRunCrystalc.setText("Run Crystal-C");
-    chkRunCrystalc.setName("ui.name.downstream.check.run-crystalc"); // NOI18N
-    chkRunCrystalc.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        chkRunCrystalcActionPerformed(evt);
-      }
-    });
-
-    jLabel12.setText("<html>Crystal-C performs additional search results cleanup<br/>\n<b>Recommended for Open Searches only</b>");
-
-    btnCrystalcDefaults.setText("Load Defaults");
-    btnCrystalcDefaults.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        btnCrystalcDefaultsActionPerformed(evt);
-      }
-    });
-
-    panelCrystalcOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("Crystal-C Options"));
-
-    jLabel6.setText("Max charge");
-
-    spinnerCrystalcMaxCharge.setModel(new javax.swing.SpinnerNumberModel(6, 1, 50, 1));
-
-    jLabel7.setText("Number of isotopes");
-
-    spinnerCrystalcNumIsotopes.setModel(new javax.swing.SpinnerNumberModel(3, 1, 50, 1));
-
-    jLabel8.setText("Mass tolerance (ppm)");
-
-    spinnerCrystalcMassTol.setModel(new javax.swing.SpinnerNumberModel(20.0d, 0.1d, 10000.0d, 0.5d));
-
-    jLabel9.setText("Precursor isolation window");
-
-    spinnerCrystalcPrecIsoWindow.setModel(new javax.swing.SpinnerNumberModel(0.7d, 0.1d, 10.0d, 0.1d));
-
-    javax.swing.GroupLayout panelCrystalcOptionsLayout = new javax.swing.GroupLayout(panelCrystalcOptions);
-    panelCrystalcOptions.setLayout(panelCrystalcOptionsLayout);
-    panelCrystalcOptionsLayout.setHorizontalGroup(
-      panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(panelCrystalcOptionsLayout.createSequentialGroup()
-        .addContainerGap()
-        .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-          .addComponent(jLabel8)
-          .addComponent(jLabel6))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-          .addComponent(spinnerCrystalcMassTol, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-          .addComponent(spinnerCrystalcMaxCharge))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-        .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-          .addComponent(jLabel9)
-          .addComponent(jLabel7))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-          .addComponent(spinnerCrystalcPrecIsoWindow, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
-          .addComponent(spinnerCrystalcNumIsotopes))
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-    );
-    panelCrystalcOptionsLayout.setVerticalGroup(
-      panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(panelCrystalcOptionsLayout.createSequentialGroup()
-        .addContainerGap()
-        .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(jLabel6)
-          .addComponent(spinnerCrystalcMaxCharge, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-          .addComponent(jLabel7)
-          .addComponent(spinnerCrystalcNumIsotopes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addGap(18, 18, 18)
-        .addGroup(panelCrystalcOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(jLabel8)
-          .addComponent(spinnerCrystalcMassTol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-          .addComponent(jLabel9)
-          .addComponent(spinnerCrystalcPrecIsoWindow, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-    );
-
-    javax.swing.GroupLayout panelCrystalcLayout = new javax.swing.GroupLayout(panelCrystalc);
-    panelCrystalc.setLayout(panelCrystalcLayout);
-    panelCrystalcLayout.setHorizontalGroup(
-      panelCrystalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(panelCrystalcLayout.createSequentialGroup()
-        .addComponent(chkRunCrystalc)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(btnCrystalcDefaults)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-        .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addGap(0, 0, Short.MAX_VALUE))
-      .addComponent(panelCrystalcOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-    );
-    panelCrystalcLayout.setVerticalGroup(
-      panelCrystalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(panelCrystalcLayout.createSequentialGroup()
-        .addGroup(panelCrystalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addGroup(panelCrystalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-            .addComponent(chkRunCrystalc)
-            .addComponent(btnCrystalcDefaults))
-          .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(panelCrystalcOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
     );
 
     javax.swing.GroupLayout panelDownstreamLayout = new javax.swing.GroupLayout(panelDownstream);
@@ -2238,8 +2124,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addGroup(panelDownstreamLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addComponent(panelPeptideProphet, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addComponent(panelProteinProphet, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(panelCrystalc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(crystalcPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+          .addComponent(panelCrystalc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         .addContainerGap())
     );
     panelDownstreamLayout.setVerticalGroup(
@@ -2249,17 +2134,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .addComponent(panelPeptideProphet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addComponent(panelProteinProphet, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-        .addComponent(panelCrystalc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(crystalcPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(102, Short.MAX_VALUE))
+        .addComponent(panelCrystalc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap(250, Short.MAX_VALUE))
     );
 
-    loadLastCrystalc();
-
     tabPane.addTab("Downstream", panelDownstream);
-    loadLastCrystalc();
 
     panelReportOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("Report Options"));
 
@@ -4220,20 +4100,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
     // run Crystalc
-    final CmdCrystalc cmdCrystalc = new CmdCrystalc(
-        chkRunCrystalc.isEnabled() && chkRunCrystalc.isSelected(), wd);
+    final CmdCrystalc cmdCrystalc = new CmdCrystalc(panelCrystalc.isRun(), wd);
     if (cmdCrystalc.isRun()) {
       CrystalcParams ccParams;
-      try {
-        ccParams = crystalcFormToParams();
-      } catch (IOException e) {
-        JOptionPane.showMessageDialog(this,
-            "Could not construct Crystal-C parameters from the GUI form input.", "Error",
-            JOptionPane.ERROR_MESSAGE);
-        return false;
-      }
       if (!cmdCrystalc.configure(this,
-          fp, isDryRun, Paths.get(binMsfragger.getBin()), ccParams, fastaFile, pepxmlFiles)) {
+          fp, isDryRun, Paths.get(binMsfragger.getBin()), panelCrystalc.toParams(), fastaFile, pepxmlFiles)) {
         return false;
       }
       pbDescs.add(cmdCrystalc.getBuilderDescriptor());
@@ -5150,32 +5021,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.save(checkReportAbacus, ThisAppProps.PROP_CHECKBOX_REPORT_ABACUS);
   }//GEN-LAST:event_checkReportAbacusActionPerformed
 
-  private void btnCrystalcDefaultsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrystalcDefaultsActionPerformed
-    int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
-      "Are you sure you want to load defaults for Crystal-C?\n",
-      "Confirmation", JOptionPane.OK_CANCEL_OPTION);
-    if (JOptionPane.OK_OPTION != confirmation) {
-      return;
-    }
-
-    CrystalcParams p = new CrystalcParams();
-    p.loadDefault();
-    try {
-      crystalcParamsToForm(p);
-      p.save();
-    } catch (IOException e) {
-      // don't care
-    }
-  }//GEN-LAST:event_btnCrystalcDefaultsActionPerformed
-
-  private void chkRunCrystalcActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkRunCrystalcActionPerformed
-    final boolean selected = chkRunCrystalc.isSelected();
-    SwingUtils.enableComponents(panelCrystalc, selected, true,
-        Collections.singletonList(chkRunCrystalc));
-
-    ThisAppProps.save(ThisAppProps.PROP_CRYSTALC_USE, Boolean.toString(selected));
-  }//GEN-LAST:event_chkRunCrystalcActionPerformed
-
   private void txtProteinProphetCmdLineOptsFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtProteinProphetCmdLineOptsFocusLost
     String val = txtProteinProphetCmdLineOpts.getText();
     ThisAppProps.save(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, val);
@@ -5322,12 +5167,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       loadDefaultsProteinProphet(DEFAULT_TYPE);
     }
   }
-  
-  public void loadDefaultsCrystalC(SearchTypeProp type) {
-    ThisAppProps.loadFromBundle(chkRunCrystalc, ThisAppProps.PROP_CRYSTALC_USE, type);
-    SwingUtils.enableComponents(panelCrystalc, chkRunCrystalc.isSelected(), true,
-        Collections.singletonList(chkRunCrystalc));
-  }
 
   public void loadDefaultsProteinProphet(SearchTypeProp type) {
     ThisAppProps
@@ -5440,20 +5279,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     String val = ThisAppProps.load(ThisAppProps.PROP_DB_FILE_IN);
     if (val != null) {
       textSequenceDbPath.setText(val);
-    }
-  }
-
-  private void loadLastCrystalc() {
-    if (!ThisAppProps.load(chkRunCrystalc, ThisAppProps.PROP_CRYSTALC_USE)) {
-      loadDefaultsCrystalC(DEFAULT_TYPE);
-    }
-    chkRunCrystalcActionPerformed(null);
-
-    try {
-      CrystalcParams p = new CrystalcParams();
-      crystalcParamsToForm(p);
-    } catch (Exception e) {
-      // doesn't matter
     }
   }
 
@@ -5666,38 +5491,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
     ep.setEditable(false);
     ep.setBackground(label.getBackground());
-  }
-
-
-  public CrystalcParams crystalcFormToParams() throws IOException {
-    CrystalcParams p = new CrystalcParams();
-
-    p.setFasta(textSequenceDbPath.getText());
-    p.setIsoNum((Integer) spinnerCrystalcNumIsotopes.getValue());
-    p.setMassTol((Double) spinnerCrystalcMassTol.getValue());
-    p.setMaxZ((Integer) spinnerCrystalcMaxCharge.getValue());
-    p.setPrecursorIsolationWindow((Double) spinnerCrystalcPrecIsoWindow.getValue());
-    int threads = fraggerMigPanel.getThreads();
-    threads = threads > 0 ? threads : -1;
-    p.setThread(threads);
-
-    p.save();
-
-    return p;
-  }
-
-  private void crystalcParamsToForm(CrystalcParams p) throws IOException {
-
-    double massTol = p.getMassTol();
-    spinnerCrystalcMassTol.setValue(massTol);
-    int maxZ = p.getMaxZ();
-    spinnerCrystalcMaxCharge.setValue(maxZ);
-    int isoNum = p.getIsoNum();
-    spinnerCrystalcNumIsotopes.setValue(isoNum);
-    double precursorIsolationWindow = p.getPrecursorIsolationWindow();
-    spinnerCrystalcPrecIsoWindow.setValue(precursorIsolationWindow);
-
-    p.save();
   }
 
   private boolean validateAndSavePhilosopherPath(final String path) {
@@ -6025,7 +5818,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JButton btnBrowseBinPython;
   private javax.swing.JButton btnClearCache;
   private javax.swing.JButton btnClearConsole;
-  private javax.swing.JButton btnCrystalcDefaults;
   private javax.swing.JButton btnDbDownload;
   private javax.swing.JButton btnExportLog;
   private javax.swing.JButton btnFindTools;
@@ -6067,11 +5859,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JCheckBox checkReportAbacus;
   private javax.swing.JCheckBox checkReportPrintDecoys;
   private javax.swing.JCheckBox checkReportWriteMzid;
-  private javax.swing.JCheckBox chkRunCrystalc;
   private javax.swing.JCheckBox chkRunPeptideProphet;
   private javax.swing.JCheckBox chkRunProteinProphet;
   private javax.swing.JScrollPane consoleScrollPane;
-  private umich.msfragger.params.crystalc.CrystalcPanel crystalcPanel1;
   private javax.swing.JEditorPane editorMsfraggerCitation;
   private javax.swing.JEditorPane editorPhilosopherLink;
   private javax.swing.JEditorPane editorSequenceDb;
@@ -6080,16 +5870,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel10;
   private javax.swing.JLabel jLabel11;
-  private javax.swing.JLabel jLabel12;
   private javax.swing.JLabel jLabel2;
   private javax.swing.JLabel jLabel3;
   private javax.swing.JLabel jLabel34;
   private javax.swing.JLabel jLabel40;
   private javax.swing.JLabel jLabel5;
-  private javax.swing.JLabel jLabel6;
-  private javax.swing.JLabel jLabel7;
-  private javax.swing.JLabel jLabel8;
-  private javax.swing.JLabel jLabel9;
   private javax.swing.JPanel jPanel1;
   private javax.swing.JPanel jPanel2;
   private javax.swing.JPanel jPanel3;
@@ -6110,8 +5895,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JLabel lblSpeclibInfo1;
   private javax.swing.JPanel panelBottomHints;
   private javax.swing.JPanel panelConfig;
-  private javax.swing.JPanel panelCrystalc;
-  private javax.swing.JPanel panelCrystalcOptions;
+  private umich.msfragger.params.crystalc.CrystalcPanel panelCrystalc;
   private javax.swing.JPanel panelDbInfo;
   private javax.swing.JPanel panelDownstream;
   private javax.swing.JPanel panelMsfraggerConfig;
@@ -6131,10 +5915,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private umich.msfragger.params.ptmshepherd.PtmshepherdJPanel ptmshepherdPanel;
   private javax.swing.JScrollPane scrollEpSpeclibInfo2;
   private javax.swing.JScrollPane scrollPaneRawFiles;
-  private javax.swing.JSpinner spinnerCrystalcMassTol;
-  private javax.swing.JSpinner spinnerCrystalcMaxCharge;
-  private javax.swing.JSpinner spinnerCrystalcNumIsotopes;
-  private javax.swing.JSpinner spinnerCrystalcPrecIsoWindow;
   private javax.swing.JTabbedPane tabPane;
   private javax.swing.JTextField textBinMsfragger;
   private javax.swing.JTextField textBinPhilosopher;

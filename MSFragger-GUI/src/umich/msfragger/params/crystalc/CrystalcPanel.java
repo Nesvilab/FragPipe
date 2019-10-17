@@ -21,9 +21,13 @@ import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.messages.MessageLoadCrystalcDefaults;
+import umich.msfragger.messages.MessageSearchType;
+import umich.msfragger.util.FileDrop.Event;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.swing.FormEntry;
 import umich.msfragger.util.swing.JPanelWithEnablement;
@@ -46,6 +50,7 @@ public class CrystalcPanel extends JPanelWithEnablement {
   public CrystalcPanel() {
     paramNames = new ArrayList<>();
     initMore();
+    EventBus.getDefault().register(this);
   }
 
   private void initMore() {
@@ -62,12 +67,23 @@ public class CrystalcPanel extends JPanelWithEnablement {
       pTop = new JPanel(new MigLayout(new LC().insetsAll("0px").debug()));
 
       checkRun = new UiCheck("Run Crystal-C", null, false);
+      log.error("checkRun is created as selected: {}", checkRun.isSelected());
       checkRun.setName("ui.name.crystalc.run-crystalc");
+
       checkRun.addActionListener(e -> {
         final boolean isSelected = checkRun.isSelected();
+        log.error("checkRun addActionListener as selected: {}", checkRun.isSelected());
         enablementMapping.put(pContent, isSelected);
         updateEnabledStatus(pContent, isSelected);
       });
+      checkRun.addChangeListener(e -> {
+        final boolean isSelected = checkRun.isSelected();
+        log.error("checkRun addChangeListener as selected: {}", checkRun.isSelected());
+        enablementMapping.put(pContent, isSelected);
+        updateEnabledStatus(pContent, isSelected);
+      });
+
+
       pTop.add(checkRun, new CC().alignX("left"));
       JButton btnLoadDefaults = new JButton("Load Crystal-C defaults");
       btnLoadDefaults.addActionListener((e) -> EventBus
@@ -131,23 +147,18 @@ public class CrystalcPanel extends JPanelWithEnablement {
       pParams.add(feMaxCharge.label(), new CC().alignX("right"));
       pParams.add(feMaxCharge.comp, new CC().alignX("left"));
       pParams.add(feNumIsotopes.label(), new CC().alignX("right"));
-      pParams.add(feNumIsotopes.comp, new CC().alignX("left").wrap());
+      pParams.add(feNumIsotopes.comp, new CC().alignX("left"));
+      pParams.add(feCheckCorrectIsoErr.comp, new CC().alignX("left").wrap());
       pParams.add(feMassTolPpm.label(), new CC().alignX("right"));
       pParams.add(feMassTolPpm.comp, new CC().alignX("left"));
       pParams.add(fePrecIsol.label(), new CC().alignX("right"));
-      pParams.add(fePrecIsol.comp, new CC().alignX("left"));
-      pParams.add(feCheckCorrectIsoErr.comp, new CC().alignX("left").wrap());
+      pParams.add(fePrecIsol.comp, new CC().alignX("left").wrap());
 
 
       pContent.add(pParams, new CC().wrap().growX());
     }
 
     this.add(pContent, BorderLayout.CENTER);
-
-//    {
-//      pPrecursorSpectrum = new JPanel(new MigLayout(new LC()));
-//      pPrecursorSpectrum.setBorder(new TitledBorder("Peak Matching"));
-//    }
     updateEnabledStatus(pContent, SwingUtils.isEnabledAndChecked(checkRun));
   }
 
@@ -156,15 +167,10 @@ public class CrystalcPanel extends JPanelWithEnablement {
       final Map<String, String> map = new HashMap<>();
       final CrystalcParams props = new CrystalcParams();
       props.loadDefault();
-      props.getProps().getMap().keySet().stream().forEachOrdered(key -> {
+      props.getProps().getMap().keySet().forEach(key -> {
         map.put(nameBase + key, props.getProps().getProp(key).value);
       });
       map.put("ui.name.crystalc.max-charge", Integer.toString(props.getMaxZ()));
-//      final Properties props = PropertiesUtils
-//          .loadPropertiesLocal(CrystalcParams.class, "crystalc.params");
-//      props.stringPropertyNames().stream().forEachOrdered(key -> {
-//        map.put(nameBase + key, props.getProperty(key));
-//      });
       SwingUtils.valuesFromMap(this, map);
     } catch (Exception e) {
       log.error("Error loading Crystal-C defaults", e);
@@ -182,4 +188,25 @@ public class CrystalcPanel extends JPanelWithEnablement {
     return p;
   }
 
+  public boolean isRun() {
+    return SwingUtils.isEnabledAndChecked(checkRun);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void onMessageLoadCrystalcDefaults(MessageLoadCrystalcDefaults m) {
+    loadDefaults();
+  }
+
+  @Subscribe
+  public void onMessageSearchType(MessageSearchType m) {
+    switch (m.type) {
+      case open:
+        checkRun.setSelected(true);
+        break;
+      case closed:
+      case nonspecific:
+        checkRun.setSelected(false);
+        break;
+    }
+  }
 }
