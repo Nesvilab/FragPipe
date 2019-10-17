@@ -4102,9 +4102,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     // run Crystalc
     final CmdCrystalc cmdCrystalc = new CmdCrystalc(panelCrystalc.isRun(), wd);
     if (cmdCrystalc.isRun()) {
-      CrystalcParams ccParams;
+      CrystalcParams ccParams = panelCrystalc.toParams();
+      final int fraggerThreads = fraggerMigPanel.getThreads();
+      if (fraggerThreads > 0) {
+        ccParams.setThread(fraggerThreads);
+      }
       if (!cmdCrystalc.configure(this,
-          fp, isDryRun, Paths.get(binMsfragger.getBin()), panelCrystalc.toParams(), fastaFile, pepxmlFiles)) {
+          fp, isDryRun, Paths.get(binMsfragger.getBin()), ccParams, fastaFile, pepxmlFiles)) {
         return false;
       }
       pbDescs.add(cmdCrystalc.getBuilderDescriptor());

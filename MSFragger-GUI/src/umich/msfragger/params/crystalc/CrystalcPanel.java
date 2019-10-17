@@ -6,9 +6,7 @@ import com.github.chhh.utils.swing.UiSpinnerInt;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -28,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.messages.MessageLoadCrystalcDefaults;
 import umich.msfragger.messages.MessageSearchType;
-import umich.msfragger.util.FileDrop.Event;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.swing.FormEntry;
 import umich.msfragger.util.swing.JPanelWithEnablement;
@@ -176,9 +173,10 @@ public class CrystalcPanel extends JPanelWithEnablement {
 
   public CrystalcParams toParams() {
     CrystalcParams p = new CrystalcParams();
+    p.loadDefault();
     p.setMaxZ(uiSpinnerIntMaxCharge.getActualValue());
     p.setIsoNum(uiSpinnerIntNumIsotopes.getActualValue());
-    p.setMassTol(uiSpinnerIntMassTolPpm.getActualValue());
+    p.setPrecursorMassTol(uiSpinnerIntMassTolPpm.getActualValue());
     p.setPrecursorIsolationWindow((Double)uiSpinnerPrecIsol.getValue());
     p.setCorrectIsotopeError(uiCheckCorrectIsoErr.isSelected());
     return p;

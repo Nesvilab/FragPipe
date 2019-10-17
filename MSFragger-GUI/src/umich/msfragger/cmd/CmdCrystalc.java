@@ -150,9 +150,9 @@ public class CmdCrystalc extends CmdBase {
       try {
         ccp = ccParams;
         String ext = StringUtils.afterLastDot(lcmsFn);
-        ccp.setRawDirectory(lcms.getPath().getParent().toString());
+        ccp.setRawFileLocation(lcms.getPath().getParent().toString());
         ccp.setRawFileExt(ext);
-        ccp.setOutputFolder(outDir.toString());
+        ccp.setOutputLocation(outDir.toString());
         ccp.setFasta(fastaPath);
         if (!isDryRun) {
           Files.deleteIfExists(ccParamsPath);

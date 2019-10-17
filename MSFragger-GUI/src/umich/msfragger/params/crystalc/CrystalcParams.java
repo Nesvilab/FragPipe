@@ -19,141 +19,139 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import umich.msfragger.params.Props;
 import umich.msfragger.params.AbstractParams;
-import umich.msfragger.util.PropertiesUtils;
+import umich.msfragger.params.Props;
 
 /**
- *
  * @author Dmitry Avtonomov
  */
 public class CrystalcParams extends AbstractParams {
-    
-    public static final String PROP_thread = "thread";
-    public static final String PROP_fasta = "fasta";
-    public static final String PROP_raw_file_location = "raw_file_location";
-    public static final String PROP_output_location = "output_location";
-    public static final String PROP_raw_file_extension = "raw_file_extension";
-    // precursor charge range for detecting chimeric spectra
-    public static final String PROP_precursor_charge = "precursor_charge";
-    public static final String PROP_isotope_number = "isotope_number";
-    // precursor mass tolerance (unit: ppm)
-    public static final String PROP_precursor_mass = "precursor_mass";
-    public static final String PROP_precursor_isolation_window = "precursor_isolation_window";
-    public static final String PROP_correct_isotope_error = "correct_isotope_error";
 
-    public static final String CACHE_FILE = "crystalc.params";
+  public static final String PROP_thread = "thread";
+  public static final String PROP_fasta = "fasta";
+  public static final String PROP_raw_file_location = "raw_file_location";
+  public static final String PROP_output_location = "output_location";
+  public static final String PROP_raw_file_extension = "raw_file_extension";
+  // precursor charge range for detecting chimeric spectra
+  public static final String PROP_precursor_charge = "precursor_charge";
+  public static final String PROP_isotope_number = "isotope_number";
+  // precursor mass tolerance (unit: ppm)
+  public static final String PROP_precursor_mass = "precursor_mass";
+  public static final String PROP_precursor_isolation_window = "precursor_isolation_window";
+  public static final String PROP_correct_isotope_error = "correct_isotope_error";
 
-    public CrystalcParams() {
-        props = new Props();
-    }
+  public static final String CACHE_FILE = "crystalc.params";
 
-    @Override
-    public Path tempFileName() {
-        return Paths.get(CACHE_FILE);
-    }
+  public CrystalcParams() {
+    props = new Props();
+  }
 
-    @Override
-    public void loadDefault() {
-        try {
-            InputStream is = CrystalcParams.class.getResourceAsStream(CACHE_FILE);
-            props.load(is);
-        } catch (IOException ex) {
-            throw new IllegalStateException("Could not load CrystalC deafult properties from jar");
-        }
-    }
+  @Override
+  public Path tempFileName() {
+    return Paths.get(CACHE_FILE);
+  }
 
-    public int getThread() {
-        return getInt(PROP_thread, "-1");
+  @Override
+  public void loadDefault() {
+    try {
+      InputStream is = CrystalcParams.class.getResourceAsStream(CACHE_FILE);
+      props.load(is);
+    } catch (IOException ex) {
+      throw new IllegalStateException("Could not load CrystalC deafult properties from jar");
     }
+  }
 
-    public String getFasta() {
-        return getString(PROP_fasta, "");
-    }
+  public int getThread() {
+    return getInt(PROP_thread, "-1");
+  }
 
-    public String getRawDirectory() {
-        return getString(PROP_raw_file_location, "");
-    }
+  public void setThread(int threads) {
+    setInt(PROP_thread, threads);
+  }
 
-    public String getOutputFolder() {
-        return getString(PROP_output_location, "");
-    }
+  public String getFasta() {
+    return getString(PROP_fasta, "");
+  }
 
-    public String getRawFileExt() {
-        return getString(PROP_raw_file_extension, "mzML");
-    }
+  public void setFasta(String fastaPath) {
+    setString(PROP_fasta, fastaPath);
+  }
 
-    public int getMaxZ() {
-        String val = getString(PROP_precursor_charge, "1 6");
-        Pattern re = Pattern.compile("^\\d+$"); // old format, single number
-        if (re.matcher(val).matches()) {
-            val = "1 " + val;
-        }
+  public String getRawFileLocation() {
+    return getString(PROP_raw_file_location, "");
+  }
 
-        Pattern re2 = Pattern.compile("^(\\d+)\\s+(\\d+)$");
-        Matcher m = re2.matcher(val);
-        if (!m.matches()) {
-            throw new IllegalStateException("CrystalC format for charge should be two numbers separated by whitespace.");
-        }
-        return Integer.parseInt(m.group(2));
-    }
-    
-    public int getIsoNum() {
-        return getInt(PROP_isotope_number, "3");
-    }
-    
-    public double getMassTol() {
-        return getDouble(PROP_precursor_mass, "20");
-    }
-    
-    public double getPrecursorIsolationWindow() {
-        return getDouble(PROP_precursor_isolation_window, "0.7");
-    }
-    
-    public void setThread(int threads) {
-        setInt(PROP_thread, threads);
+  public void setRawFileLocation(String rawDir) {
+    setString(PROP_raw_file_location, rawDir);
+  }
+
+  public String getOutputLocation() {
+    return getString(PROP_output_location, "");
+  }
+
+  public void setOutputLocation(String out) {
+    setString(PROP_output_location, out);
+  }
+
+  public String getRawFileExt() {
+    return getString(PROP_raw_file_extension, "mzML");
+  }
+
+  public void setRawFileExt(String rawFileExt) {
+    setString(PROP_raw_file_extension, rawFileExt);
+  }
+
+  public int getMaxZ() {
+    String val = getString(PROP_precursor_charge, "1 6");
+    Pattern re = Pattern.compile("^\\d+$"); // old format, single number
+    if (re.matcher(val).matches()) {
+      val = "1 " + val;
     }
 
-    public void setFasta(String fastaPath) {
-        setString(PROP_fasta, fastaPath);
+    Pattern re2 = Pattern.compile("^(\\d+)\\s+(\\d+)$");
+    Matcher m = re2.matcher(val);
+    if (!m.matches()) {
+      throw new IllegalStateException(
+          "CrystalC format for charge should be two numbers separated by whitespace.");
     }
+    return Integer.parseInt(m.group(2));
+  }
 
-    public void setRawDirectory(String rawDir) {
-        setString(PROP_raw_file_location, rawDir);
-    }
-    
-    public void setOutputFolder(String out) {
-        setString(PROP_output_location, out);
-    }
+  public void setMaxZ(int z) {
+    setString(PROP_precursor_charge, String.format("%d %d", 1, z));
+  }
 
-    public void setRawFileExt(String rawFileExt) {
-        setString(PROP_raw_file_extension, rawFileExt);
-    }
+  public int getIsoNum() {
+    return getInt(PROP_isotope_number, "3");
+  }
 
-    public void setMaxZ(int z) {
-        setString(PROP_precursor_charge, String.format("%d %d", 1, z));
-    }
+  public void setIsoNum(int iso) {
+    setInt(PROP_isotope_number, iso);
+  }
 
-    public void setIsoNum(int iso) {
-        setInt(PROP_isotope_number, iso);
-    }
+  public double getPrecursorMassTol() {
+    return getDouble(PROP_precursor_mass, "20");
+  }
 
-    public void setMassTol(double tolPpm) {
-        setDouble(PROP_precursor_mass, tolPpm);
-    }
+  public void setPrecursorMassTol(double tolPpm) {
+    setDouble(PROP_precursor_mass, tolPpm);
+  }
 
-    public void setPrecursorIsolationWindow(double window) {
-        setDouble(PROP_precursor_isolation_window, window);
-    }
+  public double getPrecursorIsolationWindow() {
+    return getDouble(PROP_precursor_isolation_window, "0.7");
+  }
 
-    public void setCorrectIsotopeError(boolean correctIsotopeError) {
-        setBool(PROP_correct_isotope_error, correctIsotopeError);
-    }
+  public void setPrecursorIsolationWindow(double window) {
+    setDouble(PROP_precursor_isolation_window, window);
+  }
 
-    public void getCorrectIsotopeError(boolean correctIsotopeError) {
-        getBoolean(PROP_correct_isotope_error, "false");
-    }
+  public void setCorrectIsotopeError(boolean correctIsotopeError) {
+    setBool(PROP_correct_isotope_error, correctIsotopeError);
+  }
+
+  public void getCorrectIsotopeError(boolean correctIsotopeError) {
+    getBoolean(PROP_correct_isotope_error, "false");
+  }
 }
