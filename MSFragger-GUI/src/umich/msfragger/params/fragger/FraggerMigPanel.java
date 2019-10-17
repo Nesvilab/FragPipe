@@ -39,11 +39,13 @@ import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
@@ -381,6 +383,10 @@ public class FraggerMigPanel extends JPanel {
 
       uiComboEnzymes = UiUtils
           .createUiCombo(ENZYMES.stream().map(msfe -> msfe.name).collect(Collectors.toList()));
+      Optional<MsfraggerEnzyme> trypsin = ENZYMES.stream()
+          .filter(e -> e.name.toLowerCase().startsWith("trypsin"))
+          .min(Comparator.comparing(o -> o.name));
+      trypsin.ifPresent(msfraggerEnzyme -> uiComboEnzymes.setSelectedItem(msfraggerEnzyme.name));
       FormEntry feEnzymeList = new FormEntry(PROP_misc_fragger_enzyme_dropdown, "Load rules",
           uiComboEnzymes, "<html>Load one of default definitions of enzyme cleavage rules.<br/>\n"
           + "You can still edit the name and rules manually after loading.");
