@@ -1,5 +1,6 @@
 package umich.msfragger.params.ptmshepherd;
 
+import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
@@ -310,7 +311,7 @@ public class PtmshepherdJPanel extends JPanelWithEnablement {
     Pattern reVarMods = Pattern.compile("[^\\s]+:-?\\d+(?:\\.\\d+)?(?:\\s*,\\s*[^\\s]+:-?\\d+(?:\\.\\d+)?)*");
     String text = uiTextVarMods.getNonGhostText().trim();
     boolean ok = true;
-    if (!reVarMods.matcher(text).matches()) {
+    if (!StringUtils.isNullOrWhitespace(text) && !reVarMods.matcher(text).matches()) {
       BalloonTip tip = new BalloonTip(uiTextVarMods,
           "<html>Does not match allowed format \"&lt;name&gt;:&lt;mass&gt;\"");
       tip.setVisible(true);
