@@ -4310,6 +4310,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     // run PTMShepherd
     final boolean isRunShepherd = ptmshepherdPanel.isRunShepherd();
+    final boolean isPtmsFormValid = ptmshepherdPanel.validateForm();
+    if (!isPtmsFormValid) {
+      JOptionPane.showMessageDialog(this,
+          "There are errors in PTM-Shepherd configuraiton panel on Report tab.",
+          "PTMShepherd Error", JOptionPane.ERROR_MESSAGE);
+      return false;
+    }
     final CmdPtmshepherd cmdPtmshepherd = new CmdPtmshepherd(isRunShepherd, wd);
     if (cmdPtmshepherd.isRun()) {
       Path fastaPath = Paths.get(fastaFile);

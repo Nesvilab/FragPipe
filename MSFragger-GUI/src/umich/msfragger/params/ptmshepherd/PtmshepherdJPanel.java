@@ -3,9 +3,16 @@ package umich.msfragger.params.ptmshepherd;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
+import com.github.chhh.utils.swing.UiText;
+import com.github.chhh.utils.swing.UiUtils.UiTextBuilder;
 import java.awt.BorderLayout;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -14,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import net.java.balloontip.BalloonTip;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -43,13 +51,17 @@ public class PtmshepherdJPanel extends JPanelWithEnablement {
   public static final String PROP_spectra_ppmtol = "spectra_ppmtol";
   public static final String PROP_spectra_condPeaks = "spectra_condPeaks";
   public static final String PROP_spectra_condRatio = "spectra_condRatio";
+  public static final String PROP_localization_background = "localization_background";
+  private String PROP_varmod_masses = "varmod_masses";
 
+  private final List<BalloonTip> balloonTips = new ArrayList<>();
   private JCheckBox checkRun;
   private JPanel pContent;
   private JScrollPane scroll;
   private JPanel pPeakPicking;
   private JPanel pPrecursorSpectrum;
   private JPanel pTop;
+  private UiText uiTextVarMods;
 
 
   public PtmshepherdJPanel() {
@@ -164,9 +176,13 @@ public class PtmshepherdJPanel extends JPanelWithEnablement {
 
       FormEntry feHistoSmoothBins = new FormEntry(PROP_histo_smoothbins, "Smoothing factor",
           new UiSpinnerInt(3, 1, 5, 1, 5));
+      FormEntry feLocBackground = new FormEntry(PROP_localization_background, "Localization background",
+          new UiSpinnerInt(1, 1, 4, 1, 5));
 
       pPeakPicking.add(feHistoSmoothBins.label(), new CC().alignX("right"));
-      pPeakPicking.add(feHistoSmoothBins.comp, new CC().spanX().wrap());
+      pPeakPicking.add(feHistoSmoothBins.comp, new CC().alignX("left"));
+      pPeakPicking.add(feLocBackground.label(), new CC().alignX("right"));
+      pPeakPicking.add(feLocBackground.comp, new CC().alignX("left").wrap());
 
       UiSpinnerDouble uiSpinnerPromRatio = UiSpinnerDouble.builder(0.3,0.0,1.0, 0.1)
           .setFormat(new DecimalFormat("0.#")).setNumCols(5).create();
@@ -178,10 +194,34 @@ public class PtmshepherdJPanel extends JPanelWithEnablement {
       FormEntry feWidth = new FormEntry(PROP_peakpicking_width, "Max peak width (Da)", uiSpinnerWidth);
 
       pPeakPicking.add(fePromRatio.label(), new CC().alignX("right"));
-      pPeakPicking.add(fePromRatio.comp, new CC());
+      pPeakPicking.add(fePromRatio.comp, new CC().alignX("left"));
       pPeakPicking.add(feWidth.label(), new CC().alignX("right"));
-      pPeakPicking.add(feWidth.comp, new CC().wrap());
+      pPeakPicking.add(feWidth.comp, new CC().alignX("left").pushX().wrap());
 
+
+      uiTextVarMods = new UiTextBuilder().create();
+      uiTextVarMods.setGhostText("Phospho:79.9663, Something-else:-20.123");
+      uiTextVarMods.addFocusListener(new FocusAdapter() {
+        @Override
+        public void focusLost(FocusEvent e) {
+          super.focusLost(e);
+          PtmshepherdJPanel.this.validateForm();
+        }
+
+        @Override
+        public void focusGained(FocusEvent e) {
+          super.focusGained(e);
+          PtmshepherdJPanel.this.clearBalloonTips();
+        }
+      });
+
+      FormEntry feVarMods = new FormEntry(PROP_varmod_masses, "Variable mod masses", uiTextVarMods,
+          "<html>Variable modification masses.<br/>\n"
+              + "Comma separated entries of form \"&lt;name&gt;:&lt;mass&gt;\"<br/>\n"
+              + "Example:<br/>\n"
+              + "&nbsp;&nbsp;&nbsp;&nbsp;Phospho:79.9663, Something-else:-20.123");
+      pPeakPicking.add(feVarMods.label(), new CC().alignX("right"));
+      pPeakPicking.add(feVarMods.comp, new CC().alignX("left").spanX().growX());
 
       // these are valid shepherd parameters, but not displayed in the UI anymore
 
@@ -253,4 +293,30 @@ public class PtmshepherdJPanel extends JPanelWithEnablement {
     return checkRun.isEnabled() && checkRun.isSelected();
   }
 
+  private void clearBalloonTips() {
+    for (BalloonTip balloonTip : balloonTips) {
+      if (balloonTip != null) {
+        try {
+          balloonTip.closeBalloon();
+        } catch (Exception ignore) {
+        }
+      }
+    }
+    balloonTips.clear();
+  }
+
+  public boolean validateForm() {
+
+    Pattern reVarMods = Pattern.compile("[^\\s]+:-?\\d+(?:\\.\\d+)?(?:\\s*,\\s*[^\\s]+:-?\\d+(?:\\.\\d+)?)*");
+    String text = uiTextVarMods.getNonGhostText().trim();
+    boolean ok = true;
+    if (!reVarMods.matcher(text).matches()) {
+      BalloonTip tip = new BalloonTip(uiTextVarMods,
+          "<html>Does not match allowed format \"&lt;name&gt;:&lt;mass&gt;\"");
+      tip.setVisible(true);
+      balloonTips.add(tip);
+      ok = false;
+    }
+    return ok;
+  }
 }
