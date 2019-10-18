@@ -64,19 +64,30 @@ public final class PropertiesUtils {
 
     public static Properties initProperties(List<String> urls, String propFileName, Class<?> clazz) {
         Properties propsLocal = PropertiesUtils.loadPropertiesLocal(clazz, propFileName);
-        Properties propsRemote = PropertiesUtils.fetchPropertiesFromRemote(urls);
+        Properties propsRemote = null;
+        try {
+            propsRemote = PropertiesUtils.fetchPropertiesFromRemote(urls);
+        } catch (Exception e) {
+            log.warn("Could not fetch properties from remote", e);
+        }
         if (propsRemote == null) {
             log.info("Did not get {} from any of remote sources", propFileName);
+            propsRemote = new Properties();
         }
 
         return PropertiesUtils.merge(propsLocal, propsRemote);
     }
 
     public static Properties initProperties(List<String> urls) {
-        Properties props = PropertiesUtils
-            .fetchPropertiesFromRemote(urls);
+        Properties props = null;
+        try {
+            props = PropertiesUtils.fetchPropertiesFromRemote(urls);
+        } catch (Exception e) {
+            log.warn("Could not fetch propertiess from remote", e);
+        }
         if (props == null) {
             log.debug("Did not get properties from any of remote sources");
+            props = new Properties();
         }
         return props;
     }
