@@ -163,4 +163,9 @@ public class CmdImquant extends CmdBase {
     }
     return true;
   }
+
+  @Override
+  public int getPriority() {
+    return 101;
+  }
 }

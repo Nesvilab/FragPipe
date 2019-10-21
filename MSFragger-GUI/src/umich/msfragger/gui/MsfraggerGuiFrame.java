@@ -4375,7 +4375,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     }
 
+    final StringBuilder sb = new StringBuilder();
+    pbDescs.forEach(pbd -> sb.append(String.format("%03d", pbd.priority)).append(" : ").append(pbd.name).append("\n"));
+    log.debug("Descriptors before sorting:\n{}", sb.toString());
+
     pbDescs.sort(Comparator.comparing(pbDesc -> pbDesc.priority, Integer::compare));
+    sb.setLength(0);
+    pbDescs.forEach(pbd -> sb.append(String.format("%03d", pbd.priority)).append(" : ").append(pbd.name).append("\n"));
+    log.debug("Descriptors after sorting:\n{}", sb.toString());
+
     pbDescsToFill.addAll(pbDescs);
     return true;
   }

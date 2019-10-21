@@ -152,4 +152,9 @@ public class CmdPtmshepherd extends CmdBase {
     isConfigured = true;
     return true;
   }
+
+  @Override
+  public int getPriority() {
+    return 110;
+  }
 }
