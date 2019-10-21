@@ -32,7 +32,7 @@ public class CmdCrystalc extends CmdBase {
 
   public static final String NAME = "Crystal-C";
   public static final String JAR_GRPPR_NAME = "grppr-0.3.23.jazz";
-  public static final String JAR_MSFTBX_NAME = "batmass-io-1.16.6.jazz";
+  public static final String JAR_MSFTBX_NAME = "batmass-io-1.17.0.jazz";
   private static String[] JAR_DEPS = {JAR_MSFTBX_NAME, JAR_GRPPR_NAME};
   private static final String THERMO_RAW_EXT = "RAW";
   private static final String BRUKER_RAW_EXT = "d";
