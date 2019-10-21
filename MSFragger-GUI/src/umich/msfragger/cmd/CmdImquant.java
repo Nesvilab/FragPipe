@@ -98,6 +98,10 @@ public class CmdImquant extends CmdBase {
     cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.mz-tol"));
     cmd.add("--imtol");
     cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.im-tol"));
+    cmd.add("--rttol");
+    cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.rt-tol"));
+    cmd.add("--minfreq");
+    cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.min-freq"));
     cmd.add("--plot");
     cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.is-plot").contentEquals("true") ? "1" : "0");
 
