@@ -206,10 +206,10 @@ public class QuantJPanel extends JPanelWithEnablement {
         UiCheck uiCheckImquantPlot = new UiCheck("Plot (for debug)", null, false);
         FormEntry fePlot = new FormEntry("ui.imquant.is-plot", "Not shown", uiCheckImquantPlot);
 
-        UiSpinnerDouble uiSpinnerRtTol = UiSpinnerDouble.builder(0.4, 0.1, 10.0, 0.1)
+        UiSpinnerDouble uiSpinnerRtTol = UiSpinnerDouble.builder(0.4, 0.0, 10.0, 0.1)
             .setFormat(new DecimalFormat("0.0")).setNumCols(5).create();
         FormEntry feRtTol = new FormEntry("ui.imquant.rt-tol", "RT Window (minutes)", uiSpinnerRtTol);
-        UiSpinnerDouble uiSpinnerMinFreq = UiSpinnerDouble.builder(0.5, 0.1, 1.0, 0.1)
+        UiSpinnerDouble uiSpinnerMinFreq = UiSpinnerDouble.builder(0.5, 0.0, 1.0, 0.1)
             .setFormat(new DecimalFormat("0.00")).setNumCols(5).create();
         FormEntry feMinFreq = new FormEntry("ui.imquant.min-freq", "MinFreq", uiSpinnerMinFreq);
 
