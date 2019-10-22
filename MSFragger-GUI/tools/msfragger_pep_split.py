@@ -406,7 +406,7 @@ def calibrate(fasta_path_sample, calibrate_mass: int):
 					 for mzBin, orig, iscali in zip(mzBINs0, infiles_name, is_calibrated)]
 	for mzBIN0, orig, dest, iscali in zip(mzBINs0, infiles_name, dests, is_calibrated):
 		if iscali:
-			mzBIN0.rename(dest)
+			shutil.move(mzBIN0, dest)
 		else:
 			shutil.copy(orig, dest)
 	return [e.resolve(strict=True) for e in dests], params_txt_new
