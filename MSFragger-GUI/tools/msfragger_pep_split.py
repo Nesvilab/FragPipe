@@ -103,7 +103,7 @@ if 0:
 
 fasta_part_paths: typing.List[pathlib.Path] = [tempdir / str(i) / f'{fasta_path.name}' for i in range(num_parts)]
 param_part_paths: typing.List[pathlib.Path] = [tempdir / str(i) / param_path.name for i in range(num_parts)]
-infiles_name = [e.resolve() for e in infiles]
+infiles_name = [e.absolute() for e in infiles]
 infiles_symlinks_target_pairs = [(ee / e.name, e) for e in infiles for ee in tempdir_parts]
 # cmds = [msfragger_cmd + [param_part_path.name, *infiles_name, '--partial', f'{i}']
 # 		for i, param_part_path in zip(range(num_parts), param_part_paths)]
