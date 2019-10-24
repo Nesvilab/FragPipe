@@ -4158,9 +4158,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
     // run Protein Prophet
-    final boolean isProcessGroupsSeparately = checkProcessGroupsSeparately.isSelected();
     final boolean isRunProteinProphet = SwingUtils.isEnabledAndChecked(chkRunProteinProphet);
-    final boolean isMuiltiExperimentReport = SwingUtils.isEnabledAndChecked(checkReportAbacus);
+    final boolean isProcessGroupsSeparately = checkProcessGroupsSeparately.isSelected();
+    final boolean isMuiltiExperimentReport = checkReportAbacus.isSelected();
     final CmdProteinProphet cmdProteinProphet = new CmdProteinProphet(isRunProteinProphet, wd);
     if (cmdProteinProphet.isRun()) {
       final String protProphCmdStr = txtProteinProphetCmdLineOpts.getText().trim();
@@ -4206,7 +4206,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       final boolean isFilter = isReport;
       final CmdReportFilter cmdReportFilter = new CmdReportFilter(isFilter, wd);
       if (cmdReportFilter.isRun()) {
-        final boolean isCheckFilterNoProtxml = SwingUtils.isEnabledAndChecked(checkFilterNoProtxml);
+        final boolean isCheckFilterNoProtxml = checkFilterNoProtxml.isSelected();
 
         // if ProtProph is not run but protxml is there - query the user
         boolean dontUseProtxmlInFilter;
@@ -4335,7 +4335,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
     // run Spectral library generation
-    final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(SwingUtils.isEnabledAndChecked(checkGenerateSpecLib), wd);
+    final boolean isRunSpeclibgen = SwingUtils.isEnabledAndChecked(checkGenerateSpecLib);
+    final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(isRunSpeclibgen, wd);
     if (cmdSpecLibGen.isRun()) {
       if (!cmdSpecLibGen.configure(this, usePhi, jarFragpipe,
           mapGroupsToProtxml, fastaFile, isRunProteinProphet)) {
