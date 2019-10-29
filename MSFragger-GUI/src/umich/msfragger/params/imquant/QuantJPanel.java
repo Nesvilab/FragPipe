@@ -202,7 +202,7 @@ public class QuantJPanel extends JPanelWithEnablement {
         FormEntry feImTol = new FormEntry("ui.imquant.im-tol", "IM Window (1/k0)", uiSpinnerImTol);
         UiSpinnerDouble uiSpinnerMzTol = UiSpinnerDouble.builder(10.0, 1.0, 1000.0, 1.0)
             .setFormat(new DecimalFormat("0.#")).setNumCols(5).create();
-        FormEntry feMzTol = new FormEntry("ui.imquant.mz-tol", "M/z Window (ppm)", uiSpinnerMzTol);
+        FormEntry feMzTol = new FormEntry("ui.imquant.mz-tol", "M/Z Window (ppm)", uiSpinnerMzTol);
         UiCheck uiCheckImquantPlot = new UiCheck("Plot (for debug)", null, false);
         FormEntry fePlot = new FormEntry("ui.imquant.is-plot", "Not shown", uiCheckImquantPlot);
 
