@@ -192,7 +192,7 @@ public class PtmshepherdJPanel extends JPanelWithEnablement {
 
       UiSpinnerDouble uiSpinnerWidth = UiSpinnerDouble.builder(0.002, 0.0, 0.5, 0.001)
           .setFormat(new DecimalFormat("0.####")).setNumCols(5).create();
-      FormEntry feWidth = new FormEntry(PROP_peakpicking_width, "Max peak width (Da)", uiSpinnerWidth);
+      FormEntry feWidth = new FormEntry(PROP_peakpicking_width, "Peak picking width (Da)", uiSpinnerWidth);
 
       pPeakPicking.add(fePromRatio.label(), new CC().alignX("right"));
       pPeakPicking.add(fePromRatio.comp, new CC().alignX("left"));
