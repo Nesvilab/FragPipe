@@ -48,11 +48,11 @@ public class PtmshepherdJPanel extends JPanelWithEnablement {
   public static final String PROP_peakpicking_background = "peakpicking_background";
   public static final String PROP_peakpicking_topN = "peakpicking_topN";
   public static final String PROP_precursor_tol = "precursor_tol";
-  public static final String PROP_precursor_tol_ppm = "precursor_tol_ppm";
   public static final String PROP_spectra_ppmtol = "spectra_ppmtol";
   public static final String PROP_spectra_condPeaks = "spectra_condPeaks";
   public static final String PROP_spectra_condRatio = "spectra_condRatio";
   public static final String PROP_localization_background = "localization_background";
+  public static final String PROP_output_extended = "output_extended";
   private String PROP_varmod_masses = "varmod_masses";
 
   private final List<BalloonTip> balloonTips = new ArrayList<>();
@@ -176,7 +176,8 @@ public class PtmshepherdJPanel extends JPanelWithEnablement {
       pPeakPicking.setBorder(new EmptyBorder(0, 0, 0, 0));
 
       FormEntry feHistoSmoothBins = new FormEntry(PROP_histo_smoothbins, "Smoothing factor",
-          new UiSpinnerInt(5, 1, 5, 1, 5));
+          new UiSpinnerInt(2, 0, 5, 1, 5),
+          "<html>Histogram smoothing. 0 = No smoothing, 1 = smooth using +/-1 bin, etc.");
       FormEntry feLocBackground = new FormEntry(PROP_localization_background, "Localization background",
           new UiSpinnerInt(4, 1, 4, 1, 5));
 
@@ -193,11 +194,15 @@ public class PtmshepherdJPanel extends JPanelWithEnablement {
       UiSpinnerDouble uiSpinnerWidth = UiSpinnerDouble.builder(0.002, 0.0, 0.5, 0.001)
           .setFormat(new DecimalFormat("0.####")).setNumCols(5).create();
       FormEntry feWidth = new FormEntry(PROP_peakpicking_width, "Peak picking width (Da)", uiSpinnerWidth);
+      FormEntry feExtendedOut = new FormEntry(PROP_output_extended, "not-shown",
+          new UiCheck("Extended output", null, false),
+          "<html>Write additional files with more detailed information.");
 
       pPeakPicking.add(fePromRatio.label(), new CC().alignX("right"));
       pPeakPicking.add(fePromRatio.comp, new CC().alignX("left"));
       pPeakPicking.add(feWidth.label(), new CC().alignX("right"));
-      pPeakPicking.add(feWidth.comp, new CC().alignX("left").pushX().wrap());
+      pPeakPicking.add(feWidth.comp, new CC().alignX("left"));
+      pPeakPicking.add(feExtendedOut.comp, new CC().alignX("left").pushX().wrap());
 
 
       uiTextVarMods = new UiTextBuilder().create();
