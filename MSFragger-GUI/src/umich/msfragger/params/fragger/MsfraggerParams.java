@@ -714,7 +714,7 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     public int getMinFragmentsModelling() {
-        return Integer.parseInt(props.getProp(PROP_min_fragments_modelling, "3").value);
+        return Integer.parseInt(props.getProp(PROP_min_fragments_modelling, "2").value);
     }
     
     public void setMinFragmentsModelling(int v) {
@@ -722,7 +722,7 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     public int getMinMatchedFragments() {
-        return Integer.parseInt(props.getProp(PROP_min_matched_fragments, "6").value);
+        return Integer.parseInt(props.getProp(PROP_min_matched_fragments, "4").value);
     }
     
     public void setMinMatchedFragments(int v) {

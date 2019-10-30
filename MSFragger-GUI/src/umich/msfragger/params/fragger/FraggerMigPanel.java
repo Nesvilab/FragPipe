@@ -715,7 +715,7 @@ public class FraggerMigPanel extends JPanel {
         pPeakMatch.setBorder(new TitledBorder("Peak Matching and Output Advanced Options"));
 
         FormEntry feMinFragsModeling = new FormEntry(MsfraggerParams.PROP_min_fragments_modelling,
-            "Min frags modeling", new UiSpinnerInt(3, 0, 1000, 1, 4));
+            "Min frags modeling", new UiSpinnerInt(2, 0, 1000, 1, 4));
         FormEntry feMinMatchedFrags = new FormEntry(MsfraggerParams.PROP_min_matched_fragments,
             "Min matched frags", new UiSpinnerInt(4, 0, 1000, 1, 4));
 
