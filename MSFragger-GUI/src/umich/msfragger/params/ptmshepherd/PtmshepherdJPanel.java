@@ -176,9 +176,9 @@ public class PtmshepherdJPanel extends JPanelWithEnablement {
       pPeakPicking.setBorder(new EmptyBorder(0, 0, 0, 0));
 
       FormEntry feHistoSmoothBins = new FormEntry(PROP_histo_smoothbins, "Smoothing factor",
-          new UiSpinnerInt(3, 1, 5, 1, 5));
+          new UiSpinnerInt(5, 1, 5, 1, 5));
       FormEntry feLocBackground = new FormEntry(PROP_localization_background, "Localization background",
-          new UiSpinnerInt(1, 1, 4, 1, 5));
+          new UiSpinnerInt(4, 1, 4, 1, 5));
 
       pPeakPicking.add(feHistoSmoothBins.label(), new CC().alignX("right"));
       pPeakPicking.add(feHistoSmoothBins.comp, new CC().alignX("left"));
