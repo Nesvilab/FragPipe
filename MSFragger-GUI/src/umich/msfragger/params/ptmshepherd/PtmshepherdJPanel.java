@@ -221,7 +221,7 @@ public class PtmshepherdJPanel extends JPanelWithEnablement {
         }
       });
 
-      FormEntry feVarMods = new FormEntry(PROP_varmod_masses, "Variable mod masses", uiTextVarMods,
+      FormEntry feVarMods = new FormEntry(PROP_varmod_masses, "Custom mass shifts", uiTextVarMods,
           "<html>Variable modification masses.<br/>\n"
               + "Comma separated entries of form \"&lt;name&gt;:&lt;mass&gt;\"<br/>\n"
               + "Example:<br/>\n"

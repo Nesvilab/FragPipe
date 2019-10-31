@@ -2993,13 +2993,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         String propKeyStubMin = PhilosopherProps.PROP_LOWEST_COMPATIBLE_VERSION + "." + vCurMajor;
         Optional<String> propKeyMin = props.stringPropertyNames().stream()
             .filter(name -> name.startsWith(propKeyStubMin)).findFirst();
-        String minPhiVer = !propKeyMin.isPresent() ? null : props.getProperty(propKeyMin.get());
+        String minPhiVer = propKeyMin.map(props::getProperty).orElse(null);
         String propKeyStubMax = PhilosopherProps.PROP_LATEST_COMPATIBLE_VERSION + "." + vCurMajor;
         Optional<String> propKeyMax = props.stringPropertyNames().stream()
             .filter(name -> name.startsWith(propKeyStubMax)).findFirst();
-        String maxPhiVer = !propKeyMax.isPresent() ? null : props.getProperty(propKeyMax.get());
+        String maxPhiVer = propKeyMax.map(props::getProperty).orElse(null);
 
-        String link = PhilosopherProps.getProperties().getProperty(PhilosopherProps.PROP_DOWNLOAD_URL, "");
+        String link = PhilosopherProps.getProperties().getProperty(PhilosopherProps.PROP_DOWNLOAD_URL, "https://github.com/Nesvilab/philosopher/releases");
 
         boolean isOldVersionScheme = curPhiVer != null && regexOldPhiVer.matcher(curPhiVer).find();
         if (isOldVersionScheme)
@@ -3010,7 +3010,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           if (minPhiVer != null)
             sb.append("Minimum required version: ").append(minPhiVer).append("<br/>\n");
           if (maxPhiVer != null)
-            sb.append("Latest known stable version: ").append(maxPhiVer).append("<br/>\n");
+            sb.append("Latest known compatible version: ").append(maxPhiVer).append("<br/>\n");
           sb.append("Please <a href=\"").append(link).append("\">click here</a> to download a newer one.");
           ep = SwingUtils.createClickableHtml(sb.toString());
 
@@ -3020,10 +3020,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             // doesn't meet min version requirement
             StringBuilder sb = new StringBuilder("Philosopher version ")
                 .append(curPhiVer).append(" is no longer supported by FragPipe.<br/>\n");
-            if (minPhiVer != null)
-              sb.append("Minimum required version: ").append(minPhiVer).append("<br/>\n");
+            sb.append("Minimum required version: ").append(minPhiVer).append("<br/>\n");
             if (maxPhiVer != null)
-              sb.append("Latest known stable version: ").append(maxPhiVer).append("<br/>\n");
+              sb.append("Latest known compatible version: ").append(maxPhiVer).append("<br/>\n");
             sb.append("Please <a href=\"").append(link).append("\">click here</a> to download a newer one.");
             ep = SwingUtils.createClickableHtml(sb.toString());
 
@@ -3036,7 +3035,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
               sb.append(
                   "<br>\nHowever, we have not yet checked if it's fully compatible with this version of ")
                   .append(Version.PROGRAM_TITLE).append(".");
-            } else if (curPhiVer != null) {
+            } else { // max ver != null
               int cmp = vc.compare(curPhiVer, maxPhiVer);
               if (cmp == 0) {
                 sb.append(
@@ -3046,6 +3045,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .append("<b>Philosopher ").append(maxPhiVer).append("</b>.<br/>\n");
                 sb.append(
                     "It is not recommended to upgrade to newer versions unless they are tested.");
+              } else if (cmp > 0) {
+                sb.append("<br>\nYour current version is higher than the last known tested version.");
               }
             }
             ep = SwingUtils.createClickableHtml(sb.toString());
