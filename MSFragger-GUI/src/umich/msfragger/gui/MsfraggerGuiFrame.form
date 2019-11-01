@@ -1073,9 +1073,6 @@
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="panelDownstream">
-          <AuxValues>
-            <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastCrystalc();"/>
-          </AuxValues>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
               <JTabbedPaneConstraints tabName="Downstream">
@@ -1455,11 +1452,12 @@
                           <Component id="panelReportOptions" max="32767" attributes="0"/>
                           <Component id="panelSpecLibOpts" alignment="0" max="32767" attributes="0"/>
                           <Component id="ptmshepherdPanel" alignment="0" max="32767" attributes="0"/>
+                          <Component id="panelQuant" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="checkCreateReport" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           </Group>
-                          <Component id="panelQuant" max="32767" attributes="0"/>
+                          <Component id="reportPanel1" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -1478,7 +1476,9 @@
                       <Component id="ptmshepherdPanel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelSpecLibOpts" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="194" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="reportPanel1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="32" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1685,6 +1685,8 @@
                   </Border>
                 </Property>
               </Properties>
+            </Component>
+            <Component class="umich.msfragger.params.philosopher.ReportPanel" name="reportPanel1">
             </Component>
           </SubComponents>
         </Container>
