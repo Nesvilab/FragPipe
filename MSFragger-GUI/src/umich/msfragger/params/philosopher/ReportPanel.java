@@ -77,6 +77,7 @@ public class ReportPanel extends JPanelWithEnablement {
       throw new IllegalStateException("No Report Filter deafults found in bundle for key: " + key);
     }
     uiTextFilter.setText(val);
+    uiCheckPepSummary.setSelected(false);
   }
 
   public void activate(boolean isActive) {
@@ -194,6 +195,10 @@ public class ReportPanel extends JPanelWithEnablement {
 
   public boolean isMultiExpReport() {
     return uiCheckMultiexp.isSelected();
+  }
+
+  public boolean isPepSummary() {
+    return uiCheckPepSummary.isSelected();
   }
 
   public boolean isNoProtXml() {
