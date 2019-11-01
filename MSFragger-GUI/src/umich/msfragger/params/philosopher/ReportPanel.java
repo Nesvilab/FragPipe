@@ -22,6 +22,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.messages.MessageSearchType;
+import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.util.swing.FormEntry;
 import umich.msfragger.util.swing.JPanelWithEnablement;
 
@@ -69,14 +70,17 @@ public class ReportPanel extends JPanelWithEnablement {
 
   @Subscribe
   public void onMessageSearchType(MessageSearchType m) {
-    switch (m.type) {
-      case open:
-        break;
-      case closed:
-        break;
-      case nonspecific:
-        break;
+    String key = "report.filter." + m.type.name();
+//    String val = ThisAppProps.getRemotePropertiesWithLocalDefaults().getProperty(key);
+    String val = ThisAppProps.getLocalProperties().getProperty(key);
+    if (val == null) {
+      throw new IllegalStateException("No Report Filter deafults found in bundle for key: " + key);
     }
+    uiTextFilter.setText(val);
+  }
+
+  public void activate(boolean isActive) {
+    updateEnabledStatus(pContent, isActive);
   }
 
   private void initMore() {
@@ -108,16 +112,16 @@ public class ReportPanel extends JPanelWithEnablement {
 
     // Main content panel - container
     {
-      pContent = new JPanel(new MigLayout(new LC().fillX()));
+      pContent = new JPanel(new MigLayout(new LC().fillX().insetsAll("0px")));
       pContent.setBorder(new EmptyBorder(0, 0, 0, 0));
     }
 
     {
-      pOptions = new JPanel(new MigLayout(new LC().debug()));
+      pOptions = new JPanel(new MigLayout(new LC()));//.debug()));
       //pPeakPicking.setBorder(new TitledBorder("PTMShepherd options"));
       pOptions.setBorder(new EmptyBorder(0, 0, 0, 0));
 
-      uiTextFilter = new UiTextBuilder().cols(5).create();
+      uiTextFilter = new UiTextBuilder().cols(5).text("--sequential --razor --prot 0.01").create();
       FormEntry feFilter = new FormEntry("ui.name.report.text.filter", "Filter", uiTextFilter,
           "<html>A custom algorithm for MS/MS data filtering and multi-level false discovery rate estimation.<br/>\n"
               + "See: https://github.com/Nesvilab/philosopher/wiki/Filter<br/><br/>\n" +
@@ -186,6 +190,26 @@ public class ReportPanel extends JPanelWithEnablement {
 
   public boolean isGenerateReport() {
     return checkRun.isEnabled() && checkRun.isSelected();
+  }
+
+  public boolean isMultiExpReport() {
+    return uiCheckMultiexp.isSelected();
+  }
+
+  public boolean isNoProtXml() {
+    return uiCheckDontUseProtProphFile.isSelected();
+  }
+
+  public String getFilterCmdText() {
+    return uiTextFilter.getNonGhostText();
+  }
+
+  public boolean isPrintDecoys() {
+    return uiCheckPrintDecoys.isSelected();
+  }
+
+  public boolean isWriteMzid() {
+    return uiCheckWriteMzid.isSelected();
   }
 
   private void clearBalloonTips() {
