@@ -4123,17 +4123,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       final int nThreads = fraggerMigPanel.getThreads();
       final CmdReportAbacus cmdReportAbacus = new CmdReportAbacus(isMuiltiExperimentReport, wd);
       final boolean isMultiexpPepLevelSummary = panelReportOptions.isPepSummary();
-      if (cmdReportAbacus.isRun() && isMultiexpPepLevelSummary) { // iProphet is not needed if we don't generate peptide level summry
+      if (cmdReportAbacus.isRun()) {
+
         // run iProphet, will run right after Peptide Prophet because of priority setting
-        final CmdIprophet cmdIprophet = new CmdIprophet(cmdReportAbacus.isRun(), wd);
-        if (!cmdIprophet.configure(this, usePhi, decoyTag, nThreads, pepxmlFiles)) {
-          return false;
+        if (isMultiexpPepLevelSummary) { // iProphet is not needed if we don't generate peptide level summry
+          final CmdIprophet cmdIprophet = new CmdIprophet(cmdReportAbacus.isRun(), wd);
+          if (!cmdIprophet.configure(this, usePhi, decoyTag, nThreads, pepxmlFiles)) {
+            return false;
+          }
+          pbDescs.add(cmdIprophet.getBuilderDescriptor());
         }
-        pbDescs.add(cmdIprophet.getBuilderDescriptor());
 
         // run Abacus
-        if (!cmdReportAbacus.configure(this, usePhi,
-            panelReportOptions.getFilterCmdText(), panelReportOptions.isPepSummary(), decoyTag, mapGroupsToProtxml)) {
+        if (!cmdReportAbacus.configure(this, usePhi, panelReportOptions.getFilterCmdText(),
+            isMultiexpPepLevelSummary, decoyTag, mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(cmdReportAbacus.getBuilderDescriptor());

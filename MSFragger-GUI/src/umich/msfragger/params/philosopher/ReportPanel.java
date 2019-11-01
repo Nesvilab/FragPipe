@@ -113,7 +113,8 @@ public class ReportPanel extends JPanelWithEnablement {
 
     // Main content panel - container
     {
-      pContent = new JPanel(new MigLayout(new LC().fillX().insetsAll("0px")));
+      pContent = new JPanel(new MigLayout(new LC().fillX()));
+//      pContent = new JPanel(new MigLayout(new LC().fillX().insetsAll("0px")));
       pContent.setBorder(new EmptyBorder(0, 0, 0, 0));
     }
 
