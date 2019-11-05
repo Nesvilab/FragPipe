@@ -19,9 +19,13 @@ public interface FragpipeUiHelpers {
     if (!m.append) {
       doc.body().html("");
     }
+//    if (!doc.body().text().isEmpty()) { // This adds more line breaks to the tools descriptions
+//      doc.body().append("<br/>");
+//    }
     if (m.isError) {
       doc.body().appendChild(new Element("i").html(m.text));
     } else {
+
       doc.body().append(m.text);
     }
     String html = doc.html();

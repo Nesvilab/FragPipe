@@ -765,11 +765,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (!m.isSuccess) {
       String reasons = m.reasons.stream().flatMap(reason ->
           map.containsKey(reason) ? Stream.of(map.get(reason)) : Stream.empty())
-          .collect(Collectors.joining(" "));
+          .collect(Collectors.joining(" <br/>"));
       if (reasons.length() > 0) {
-        sb.append(" ").append(reasons);
+        sb.append(" <br/>").append(reasons);
       }
-      sb.append(" ").append("FragPipe will work fine without this functionality.");
+      sb.append(" <br/>").append("FragPipe will work fine without this functionality.");
     }
     FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo),
         new DbSlice.Message2(true, false, sb.toString()));
@@ -815,11 +815,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (!m.isSuccess) {
       String reasons = m.reasons.stream().flatMap(reason ->
           map.containsKey(reason) ? Stream.of(map.get(reason)) : Stream.empty())
-          .collect(Collectors.joining(" "));
+          .collect(Collectors.joining(" <br/>"));
       if (reasons.length() > 0) {
-        sb.append(" ").append(reasons);
+        sb.append(" <br/>").append(reasons);
       }
-      sb.append(" ").append("FragPipe will work fine without this functionality.");
+      sb.append(" <br/>").append("FragPipe will work fine without this functionality.");
     }
     FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(epSpeclibInfo2),
         new DbSlice.Message2(true, false, sb.toString()));
