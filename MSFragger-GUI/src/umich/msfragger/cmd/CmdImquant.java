@@ -27,12 +27,6 @@ public class CmdImquant extends CmdBase {
   public static final String JAR_IMQUANT_MAIN_CLASS = "imquant.IMQuant";
   private static String[] JAR_DEPS = {JAR_MSFTBX_NAME};
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
-  private static List<String> RESOURCE_LOCATIONS = new ArrayList<>();
-
-  static {
-    RESOURCE_LOCATIONS.add("ext/bruker/libtimsdata-2-4-4.so");
-    RESOURCE_LOCATIONS.add("ext/bruker/timsdata-2-4-4.dll");
-  }
 
   private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
 
@@ -82,15 +76,16 @@ public class CmdImquant extends CmdBase {
       return false;
     }
 
-    if (!unpackJars(RESOURCE_LOCATIONS, new ArrayList<>(), NAME)) { // copy timsdata library to temp directory
-      return false;
-    }
-
     List<String> cmd = new ArrayList<>();
     cmd.add("java");
     if (ramGb > 0) {
       cmd.add("-Xmx" + ramGb + "G");
     }
+
+    if (extLibsBruker != null) {
+      cmd.add("-Dbruker.lib.path=\"" + extLibsBruker.toString() + "\"" );
+    }
+
     cmd.add("-cp");
     cmd.add(constructClasspathString(unpacked));
     cmd.add(JAR_IMQUANT_MAIN_CLASS);
