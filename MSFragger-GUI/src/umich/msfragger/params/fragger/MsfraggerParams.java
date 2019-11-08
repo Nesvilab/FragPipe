@@ -66,6 +66,7 @@ public class MsfraggerParams extends AbstractParams {
 
     public static final String PROP_calibrate_mass = "calibrate_mass";
     public static final String PROP_isotope_error = "isotope_error";
+    public static final String PROP_deisotope = "deisotope";
     public static final String PROP_mass_offsets = "mass_offsets";
     public static final String PROP_precursor_mass_mode = "precursor_mass_mode";
     public static final String PROP_search_enzyme_name = "search_enzyme_name";
@@ -136,6 +137,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_intensity_transform,
         PROP_calibrate_mass,
         PROP_isotope_error,
+        PROP_deisotope,
         PROP_mass_offsets,
         PROP_precursor_mass_mode,
         PROP_search_enzyme_name,
