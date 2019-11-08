@@ -162,7 +162,7 @@ public class CmdPeptideProphet extends CmdBase {
    * @param pepxmlFiles Either pepxml files after search or after Crystal-C.
    */
   public boolean configure(Component comp, UsageTrigger phi, Path jarFragpipe, boolean isDryRun,
-      String fastaPath, String decoyTag, String textPepProphCmd, boolean combine,
+      String fastaPath, String decoyTag, String textPepProphCmd, boolean combine, String enzymeName,
       Map<InputLcmsFile, Path> pepxmlFiles) {
 
     isConfigured = false;
@@ -242,7 +242,7 @@ public class CmdPeptideProphet extends CmdBase {
         List<String> cmdPp = new ArrayList<>();
         cmdPp.add(phi.useBin());
         cmdPp.add(PhilosopherProps.CMD_PEPTIDE_PROPHET);
-        addFreeCommandLineParams(peptideProphetParams, cmdPp);
+        addFreeCommandLineParams(peptideProphetParams, cmdPp, enzymeName);
         cmdPp.add("--decoy");
         cmdPp.add(decoyTag);
         cmdPp.add("--database");
@@ -291,7 +291,7 @@ public class CmdPeptideProphet extends CmdBase {
         cmd.add(phi.useBin());
         cmd.add(PhilosopherProps.CMD_PEPTIDE_PROPHET);
 
-        addFreeCommandLineParams(peptideProphetParams, cmd);
+        addFreeCommandLineParams(peptideProphetParams, cmd, enzymeName);
         cmd.add("--decoy");
         cmd.add(decoyTag);
         cmd.add("--database");
@@ -321,7 +321,7 @@ public class CmdPeptideProphet extends CmdBase {
   }
 
   private void addFreeCommandLineParams(PeptideProphetParams peptideProphetParams,
-      List<String> cmd) {
+      List<String> cmd, String enzymeName) {
     if (!peptideProphetParams.getCmdLineParams().isEmpty()) {
       String cmdOpts = peptideProphetParams.getCmdLineParams();
       List<String> opts = StringUtils.splitCommandLine(cmdOpts);
@@ -334,6 +334,28 @@ public class CmdPeptideProphet extends CmdBase {
         }
       }
     }
+
+    final String optNontt = "--nontt";
+    final String optEnzyme = "--enzyme";
+    final String nonspecific = "nonspecific";
+    if (nonspecific.equals(enzymeName)) {
+      addToListIfNotThere(cmd, optNontt);
+    } else if ("custom".equals(enzymeName)) {
+      addToListIfNotThere(cmd, optNontt);
+      if (addToListIfNotThere(cmd, optEnzyme)) {
+        cmd.add(nonspecific);
+      }
+    }
+  }
+
+  private boolean addToListIfNotThere(List<String> cmd, String opt) {
+    if (cmd.contains(opt)) {
+      return false;
+    }
+    for (String s : opt.split("\\s+")) {
+      cmd.add(opt);
+    }
+    return true;
   }
 
   @Override

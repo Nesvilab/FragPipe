@@ -207,6 +207,7 @@ public class FraggerMigPanel extends JPanel {
   private UiText uiTextCuts;
   private UiText uiTextNocuts;
   private UiText uiTextEnzymeName;
+  private UiCombo uiComboCleavage;
 
   public FraggerMigPanel() {
     initMore();
@@ -382,9 +383,10 @@ public class FraggerMigPanel extends JPanel {
       JPanel pDigest = new JPanel(new MigLayout(new LC()));
       pDigest.setBorder(new TitledBorder("Protein Digestion"));
 
-
       uiComboEnzymes = UiUtils
-          .createUiCombo(ENZYMES.stream().map(msfe -> msfe.name).collect(Collectors.toList()));
+          .createUiCombo(ENZYMES.stream().map(msfe -> msfe.name)
+              //.filter(name -> !"custom".equals(name))
+              .collect(Collectors.toList()));
       Optional<MsfraggerEnzyme> trypsin = ENZYMES.stream()
           .filter(e -> e.name.toLowerCase().startsWith("trypsin"))
           .min(Comparator.comparing(o -> o.name));
@@ -407,6 +409,7 @@ public class FraggerMigPanel extends JPanel {
           uiTextEnzymeName.setText(enzyme.name);
           uiTextCuts.setText(enzyme.cut);
           uiTextNocuts.setText(enzyme.nocuts);
+          uiComboCleavage.setSelectedItem("nonspecific".equals(item) ? CleavageType.NON_SPECIFIC.name() : CleavageType.ENZYMATIC.name());
         }
       });
 
@@ -415,20 +418,41 @@ public class FraggerMigPanel extends JPanel {
         @Override
         public void focusLost(FocusEvent evt) {
           super.focusLost(evt);
-          String cuts = StringUtils.sortedChars(uiTextCuts.getNonGhostText());
-          String nocuts = StringUtils.sortedChars(uiTextNocuts.getNonGhostText());
+          final String cuts = StringUtils.sortedChars(uiTextCuts.getNonGhostText());
+          final String nocuts = StringUtils.sortedChars(uiTextNocuts.getNonGhostText());
           List<MsfraggerEnzyme> enzymes = ENZYMES.stream()
               .map(e -> new MsfraggerEnzyme(e.name, StringUtils.sortedChars(e.cut),
                   StringUtils.sortedChars(e.nocuts)))
               .collect(Collectors.toList());
-          List<MsfraggerEnzyme> matching = enzymes.stream()
+          List<String> matching = enzymes.stream()
               .filter(e -> e.cut.equals(cuts) && e.nocuts.equals(nocuts))
-              .collect(Collectors.toList());
-          if (matching.size() >0) {
-            uiTextEnzymeName.setText(matching.get(0).name);
+              .map(e -> e.name).collect(Collectors.toList());
+          log.warn("Found matching enzymes: {}", matching);
+          if (matching.contains("nonspecific")) {
+            trySelectEnzymeDropdown("nonspecific");
+          } else if (!matching.isEmpty()) {
+            trySelectEnzymeDropdown(matching.get(0));
           } else {
-            uiTextEnzymeName.setText("custom");
+            trySelectEnzymeDropdown("custom");
           }
+//          if (matching.size() > 0) {
+//            if (cuts.isEmpty() && nocuts.isEmpty()) {
+//              uiTextEnzymeName.setText("nonspecific");
+//            } else {
+//              uiTextEnzymeName.setText(matching.get(0).name);
+//            }
+//          } else {
+//            uiTextEnzymeName.setText("custom");
+//            try {
+//              // need to either disable the action listener on dropdown or just restore the
+//              // user-input values
+//              String saveCuts = uiTextCuts.getNonGhostText();
+//              String saveNouts = uiTextNocuts.getNonGhostText();
+//              uiComboEnzymes.setSelectedItem("custom");
+//              uiTextCuts.setText(saveCuts);
+//              uiTextNocuts.setText(saveNouts);
+//            } catch (Exception ignored) {}
+//          }
         }
       };
 
@@ -454,8 +478,9 @@ public class FraggerMigPanel extends JPanel {
 
       List<String> cleavageTypeNames = Arrays.stream(CleavageType.values()).map(Enum::name)
           .collect(Collectors.toList());
+      uiComboCleavage = UiUtils.createUiCombo(cleavageTypeNames);
       FormEntry feCleavageType = new FormEntry(MsfraggerParams.PROP_num_enzyme_termini, "Cleavage",
-          UiUtils.createUiCombo(cleavageTypeNames));
+          uiComboCleavage);
       UiSpinnerInt uiSpinnerMissedCleavages = new UiSpinnerInt(1, 0, 1000, 1);
       uiSpinnerMissedCleavages.setColumns(6);
       FormEntry feMissedCleavages = new FormEntry(MsfraggerParams.PROP_allowed_missed_cleavage,
@@ -1409,6 +1434,21 @@ public class FraggerMigPanel extends JPanel {
     return true;
   }
 
+  private boolean trySelectEnzymeDropdown(String name) {
+    try {
+      String saveCuts = uiTextCuts.getNonGhostText();
+      String saveNouts = uiTextNocuts.getNonGhostText();
+      uiComboEnzymes.setSelectedItem(name);
+      if (true || "custom".equals(name)) { // remove 'true' to reset specificities to their definitions in our file
+        uiTextCuts.setText(saveCuts);
+        uiTextNocuts.setText(saveNouts);
+      }
+      return true;
+    } catch (Exception ignored) {
+    }
+    return false;
+  }
+
   /**
    * @return False if user's confirmation was required, but they cancelled the operation. True
    *         otherwise.
@@ -1440,5 +1480,9 @@ public class FraggerMigPanel extends JPanel {
   @Subscribe
   public void onSaveCache(MessageSaveCache msg) {
     cacheSave();
+  }
+
+  public String getEnzymeName() {
+    return uiTextEnzymeName.getNonGhostText();
   }
 }

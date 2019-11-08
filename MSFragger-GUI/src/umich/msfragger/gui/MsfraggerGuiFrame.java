@@ -4003,8 +4003,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         chkRunPeptideProphet.isEnabled() && chkRunPeptideProphet.isSelected(), wd);
     if (cmdPeptideProphet.isRun()) {
       final String pepProphCmd = textPepProphCmd.getText().trim();
+      final String enzymeName = fraggerMigPanel.getEnzymeName();
       if (!cmdPeptideProphet.configure(this, usePhi, jarFragpipe, isDryRun,
-          fastaFile, decoyTag, pepProphCmd, isCombinedPepxml, pepxmlFiles)) {
+          fastaFile, decoyTag, pepProphCmd, isCombinedPepxml, enzymeName, pepxmlFiles)) {
         return false;
       }
       pbDescs.add(cmdPeptideProphet.getBuilderDescriptor());
