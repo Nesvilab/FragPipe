@@ -63,6 +63,13 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("12.0", Arrays.asList(
+        "Add IMQuant - quantitation for timsTOF.",
+        "PTMShepherd updates - in-depth PTM analysis and reporting.",
+        "Fix running FragPipe without an internet connection.",
+        "Choice of default enzyme specifications in MSFragger config."
+    ));
+
     CHANGELOG.put("11.0", Arrays.asList(
         "Parallel execution engine. Used only for PeptideProphet now, utilizing all CPU cores.",
         "DIA-Umpire requires MSConvert from ProteoWizard on Linux."

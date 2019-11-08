@@ -17,6 +17,7 @@
 package umich.msfragger.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +30,12 @@ import java.util.regex.Pattern;
  */
 public class StringUtils {
     private static Pattern WHITESPACE_STRING = Pattern.compile("^\\s*$");
+
+    public static String sortedChars(String s) {
+        char[] chars = s.toCharArray();
+        Arrays.sort(chars);
+        return new String(chars);
+    }
 
     public static String upToLastDot(String s) {
         int last = s.lastIndexOf('.');

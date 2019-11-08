@@ -27,6 +27,8 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.FileInputStream;
@@ -408,13 +410,37 @@ public class FraggerMigPanel extends JPanel {
         }
       });
 
+
+      FocusAdapter enzymeSpecFocusListener = new FocusAdapter() {
+        @Override
+        public void focusLost(FocusEvent evt) {
+          super.focusLost(evt);
+          String cuts = StringUtils.sortedChars(uiTextCuts.getNonGhostText());
+          String nocuts = StringUtils.sortedChars(uiTextNocuts.getNonGhostText());
+          List<MsfraggerEnzyme> enzymes = ENZYMES.stream()
+              .map(e -> new MsfraggerEnzyme(e.name, StringUtils.sortedChars(e.cut),
+                  StringUtils.sortedChars(e.nocuts)))
+              .collect(Collectors.toList());
+          List<MsfraggerEnzyme> matching = enzymes.stream()
+              .filter(e -> e.cut.equals(cuts) && e.nocuts.equals(nocuts))
+              .collect(Collectors.toList());
+          if (matching.size() >0) {
+            uiTextEnzymeName.setText(matching.get(0).name);
+          } else {
+            uiTextEnzymeName.setText("custom");
+          }
+        }
+      };
+
       uiTextEnzymeName = new UiText();
       FormEntry feEnzymeName = new FormEntry(MsfraggerParams.PROP_search_enzyme_name, "Enzyme name",
           uiTextEnzymeName);
       uiTextCuts = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z]").text("KR").create();
+      uiTextCuts.addFocusListener(enzymeSpecFocusListener);
       FormEntry feCuts = new FormEntry(MsfraggerParams.PROP_search_enzyme_cutafter, "Cut after",
           uiTextCuts, "Capital letters for amino acids after which the enzyme cuts.");
       uiTextNocuts = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z]").text("P").create();
+      uiTextNocuts.addFocusListener(enzymeSpecFocusListener);
       FormEntry feNocuts = new FormEntry(MsfraggerParams.PROP_search_enzyme_butnotafter,
           "But not before", uiTextNocuts, "Amino acids before which the enzyme won't cut.");
       pDigest.add(feEnzymeList.label(), new CC().span(2).split(2).alignX("right"));
