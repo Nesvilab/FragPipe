@@ -3,6 +3,7 @@ package com.github.chhh.utils.swing;
 import java.util.List;
 import java.util.stream.Stream;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.text.Document;
 
 public class UiUtils {
   private UiUtils() {}

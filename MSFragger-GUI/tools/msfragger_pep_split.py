@@ -45,6 +45,7 @@ jvm_cmd, msfragger_jar_path, param_path, infiles
 msfragger_cmd = jvm_cmd + [msfragger_jar_path]
 tempdir = pathlib.Path('./split_peptide_index_tempdir')
 params_txt = param_path.read_text()
+output_file_extension = re.compile(r'^output_file_extension *= *(\S+)', re.MULTILINE).search(params_txt).group(1)
 output_report_topN = int(re.compile(r'^output_report_topN *= *(\d+)', re.MULTILINE).search(params_txt).group(1))
 output_max_expect_mo = re.compile(r'^output_max_expect *= *(\S+)', re.MULTILINE).search(params_txt)
 output_max_expect = 50.0 if output_max_expect_mo is None else float(output_max_expect_mo.group(1))
@@ -102,7 +103,7 @@ if 0:
 
 fasta_part_paths: typing.List[pathlib.Path] = [tempdir / str(i) / f'{fasta_path.name}' for i in range(num_parts)]
 param_part_paths: typing.List[pathlib.Path] = [tempdir / str(i) / param_path.name for i in range(num_parts)]
-infiles_name = [e.resolve() for e in infiles]
+infiles_name = [e.absolute() for e in infiles]
 infiles_symlinks_target_pairs = [(ee / e.name, e) for e in infiles for ee in tempdir_parts]
 # cmds = [msfragger_cmd + [param_part_path.name, *infiles_name, '--partial', f'{i}']
 # 		for i, param_part_path in zip(range(num_parts), param_part_paths)]
@@ -309,9 +310,9 @@ printf 'java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'"'"'T'"'"'HH:mm
 
 def write_pepxml(infile):
 	expect_funcs = get_expect_functions(infile)
-	zip_spec_pos=zip(*[get_spectrum(tempdir_part / (infile.stem + '.pepXML')) for tempdir_part in tempdir_parts])
-	pepxml_header, = set([get_pepxml_header(tempdir_part / (infile.stem + '.pepXML')) for tempdir_part in tempdir_parts])
-	outfile = infile.with_suffix('.pepXML')
+	zip_spec_pos=zip(*[get_spectrum(tempdir_part / (infile.stem + '.' + output_file_extension)) for tempdir_part in tempdir_parts])
+	pepxml_header, = set([get_pepxml_header(tempdir_part / (infile.stem + '.' + output_file_extension)) for tempdir_part in tempdir_parts])
+	outfile = infile.with_suffix('.' + output_file_extension)
 	with pathlib.Path(outfile).open('wb') as f:
 		f.write(pepxml_header % (datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S').encode(), os.fspath(outfile).encode()))
 		f.write(b'\n')
@@ -405,7 +406,7 @@ def calibrate(fasta_path_sample, calibrate_mass: int):
 					 for mzBin, orig, iscali in zip(mzBINs0, infiles_name, is_calibrated)]
 	for mzBIN0, orig, dest, iscali in zip(mzBINs0, infiles_name, dests, is_calibrated):
 		if iscali:
-			mzBIN0.rename(dest)
+			shutil.move(mzBIN0, dest)
 		else:
 			shutil.copy(orig, dest)
 	return [e.resolve(strict=True) for e in dests], params_txt_new

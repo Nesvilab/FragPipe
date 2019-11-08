@@ -28,11 +28,11 @@ public class CmdPtmshepherd extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdPtmshepherd.class);
   public static final String NAME = "PTMShepherd";
   public static final String CONFIG_FN = "shepherd.config";
-  public static final String JAR_SHEPHERD_NAME = "ptmshepherd-0.2.2.jazz";
+  public static final String JAR_SHEPHERD_NAME = "ptmshepherd-0.2.13.jazz";
 //  public static final String JAR_SHEPHERD_NAME = "PTMShepherd-20180820_2.jazz";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_SHEPHERD_MAIN_CLASS = "edu.umich.andykong.ptmshepherd.PTMShepherd";
-  public static final String[] JAR_DEPS = {"batmass-io-1.16.6.jazz", "commons-math3-3.6.1.jazz"};
+  public static final String[] JAR_DEPS = {"batmass-io-1.17.1.jazz", "commons-math3-3.6.1.jazz"};
   public static final String FN_CAPTURE_STDOUT = "ptm-shepherd.log";
   public static final String FN_CAPTURE_STDERR = "ptm-shepherd.log";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
@@ -151,5 +151,10 @@ public class CmdPtmshepherd extends CmdBase {
 
     isConfigured = true;
     return true;
+  }
+
+  @Override
+  public int getPriority() {
+    return 110;
   }
 }

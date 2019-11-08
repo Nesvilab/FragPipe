@@ -49,6 +49,7 @@ public class ThisAppProps extends Properties {
   public static final String PROP_MANUSCRIPT_URL = "manuscript.url";
   public static final String PROP_MANUSCRIPT_DOI = "manuscript.doi";
   public static final String PROP_FRAGPIPE_SITE_URL = "msfragger.gui.site.url";
+  public static final String PROP_SETUP_TUTORIAL_URL = "fragpipe.setup-tutorial.url";
 
   private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
     //private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);

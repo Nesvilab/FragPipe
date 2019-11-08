@@ -116,4 +116,9 @@ public class CmdSpecLibGen extends CmdBase {
     isConfigured = true;
     return true;
   }
+
+  @Override
+  public int getPriority() {
+    return 150;
+  }
 }

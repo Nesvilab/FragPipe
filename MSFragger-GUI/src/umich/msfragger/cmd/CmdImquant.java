@@ -22,17 +22,11 @@ public class CmdImquant extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdImquant.class);
 
   public static final String NAME = "IMQuant";
-  public static final String JAR_IMQUANT_NAME = "imquant-1.3.0.jazz";
-  public static final String JAR_MSFTBX_NAME = "batmass-io-1.16.6.jazz";
+  public static final String JAR_IMQUANT_NAME = "imquant-1.6.3.jazz";
+  public static final String JAR_MSFTBX_NAME = "batmass-io-1.17.1.jazz";
   public static final String JAR_IMQUANT_MAIN_CLASS = "imquant.IMQuant";
   private static String[] JAR_DEPS = {JAR_MSFTBX_NAME};
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
-  private static List<String> RESOURCE_LOCATIONS = new ArrayList<>();
-
-  static {
-    RESOURCE_LOCATIONS.add("ext/bruker/libtimsdata-2-4-4.so");
-    RESOURCE_LOCATIONS.add("ext/bruker/timsdata-2-4-4.dll");
-  }
 
   private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
 
@@ -82,15 +76,16 @@ public class CmdImquant extends CmdBase {
       return false;
     }
 
-    if (!unpackJars(RESOURCE_LOCATIONS, new ArrayList<>(), NAME)) { // copy timsdata library to temp directory
-      return false;
-    }
-
     List<String> cmd = new ArrayList<>();
     cmd.add("java");
     if (ramGb > 0) {
       cmd.add("-Xmx" + ramGb + "G");
     }
+
+    if (extLibsBruker != null) {
+      cmd.add("-Dbruker.lib.path=\"" + extLibsBruker.toString() + "\"" );
+    }
+
     cmd.add("-cp");
     cmd.add(constructClasspathString(unpacked));
     cmd.add(JAR_IMQUANT_MAIN_CLASS);
@@ -98,6 +93,10 @@ public class CmdImquant extends CmdBase {
     cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.mz-tol"));
     cmd.add("--imtol");
     cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.im-tol"));
+    cmd.add("--rttol");
+    cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.rt-tol"));
+    cmd.add("--minfreq");
+    cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.min-freq"));
     cmd.add("--plot");
     cmd.add(getOrThrow(uiCompsRepresentation, "ui.imquant.is-plot").contentEquals("true") ? "1" : "0");
 
@@ -162,5 +161,10 @@ public class CmdImquant extends CmdBase {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public int getPriority() {
+    return 101;
   }
 }

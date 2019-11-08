@@ -477,7 +477,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     {
       Properties props = ThisAppProps.getRemotePropertiesWithLocalDefaults();
 //      Properties p = ThisAppProps.getLocalProperties(); // for testing
-      String linkUrl = props.getProperty(ThisAppProps.PROP_FRAGPIPE_SITE_URL,
+      String linkUrl = props.getProperty(ThisAppProps.PROP_SETUP_TUTORIAL_URL,
           "https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html");
 
       JEditorPane c = SwingUtils.createClickableHtml(
@@ -765,11 +765,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (!m.isSuccess) {
       String reasons = m.reasons.stream().flatMap(reason ->
           map.containsKey(reason) ? Stream.of(map.get(reason)) : Stream.empty())
-          .collect(Collectors.joining(" "));
+          .collect(Collectors.joining(" <br/>"));
       if (reasons.length() > 0) {
-        sb.append(" ").append(reasons);
+        sb.append(" <br/>").append(reasons);
       }
-      sb.append(" ").append("FragPipe will work fine without this functionality.");
+      sb.append(" <br/>").append("FragPipe will work fine without this functionality.");
     }
     FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo),
         new DbSlice.Message2(true, false, sb.toString()));
@@ -815,11 +815,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     if (!m.isSuccess) {
       String reasons = m.reasons.stream().flatMap(reason ->
           map.containsKey(reason) ? Stream.of(map.get(reason)) : Stream.empty())
-          .collect(Collectors.joining(" "));
+          .collect(Collectors.joining(" <br/>"));
       if (reasons.length() > 0) {
-        sb.append(" ").append(reasons);
+        sb.append(" <br/>").append(reasons);
       }
-      sb.append(" ").append("FragPipe will work fine without this functionality.");
+      sb.append(" <br/>").append("FragPipe will work fine without this functionality.");
     }
     FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(epSpeclibInfo2),
         new DbSlice.Message2(true, false, sb.toString()));
@@ -1074,7 +1074,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     SwingUtils.enableComponents(panelProteinProphet, enabled);
     chkRunProteinProphet.setSelected(enabled);
     SwingUtils.enableComponents(panelReport, enabled);
-    checkCreateReport.setSelected(enabled);
+    panelReportOptions.activate(enabled);
 
     btnDbDownload.setEnabled(enabled);
     final String tooltip = enabled ?
@@ -1218,18 +1218,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     jLabel40 = new javax.swing.JLabel();
     panelCrystalc = new umich.msfragger.params.crystalc.CrystalcPanel();
     panelReport = new javax.swing.JPanel();
-    panelReportOptions = new javax.swing.JPanel();
-    textReportFilter = new javax.swing.JTextField();
-    checkReportAbacus = new javax.swing.JCheckBox();
-    jLabel1 = new javax.swing.JLabel();
-    checkFilterNoProtxml = new javax.swing.JCheckBox();
-    checkReportPrintDecoys = new javax.swing.JCheckBox();
-    checkReportWriteMzid = new javax.swing.JCheckBox();
-    checkCreateReport = new javax.swing.JCheckBox();
     panelSpecLibOpts = new javax.swing.JPanel();
     checkGenerateSpecLib = new javax.swing.JCheckBox();
     ptmshepherdPanel = new umich.msfragger.params.ptmshepherd.PtmshepherdJPanel();
     panelQuant = new umich.msfragger.params.imquant.QuantJPanel();
+    panelReportOptions = new umich.msfragger.params.philosopher.ReportPanel();
     panelRun = new javax.swing.JPanel();
     btnStop = new javax.swing.JButton();
     btnClearConsole = new javax.swing.JButton();
@@ -2167,114 +2160,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     tabPane.addTab("Downstream", panelDownstream);
 
-    panelReportOptions.setBorder(javax.swing.BorderFactory.createTitledBorder("Report Options"));
-
-    textReportFilter.setToolTipText("<html>--pepxml path-to-pepxml --protxml path-to-combined-protxml<br/>\nwill be added automatically based on previous tabs.<br/>\n\nStatistical filtering, validation and False Discovery Rates assessment<br/>\nphilosopher filter [flags]<br>\nFlags:<br/>\n<ul>\n<li>--ion float        peptide ion FDR level (default 0.01)</li>\n<li>--mapmods          map modifications aquired by an open search</li>\n<li>--models           print model distribution</li>\n<li>--pep float        peptide FDR level (default 0.01)</li>\n<li>--pepProb float    top peptide probability treshold for the FDR filtering (default 0.7)</li>\n<li>--pepxml string    pepXML file or directory containing a set of pepXML files</li>\n<li>--picked           apply the picked FDR algorithm before the protein scoring</li>\n<li>--prot float       protein FDR level (default 0.01)</li>\n<li>--protProb float   protein probability treshold for the FDR filtering (not used with the razor algorithm) (default 0.5)</li>\n<li>--protxml string   protXML file path</li>\n<li>--psm float        psm FDR level (default 0.01)</li>\n<li>--razor            use razor peptides for protein FDR scoring</li>\n<li>--sequential       alternative algorithm that estimates FDR using both filtered PSM and Protein lists</li>\n<li>--tag string       decoy tag (default \"rev_\")</li>\n<li>--weight float     threshold for defining peptide uniqueness (default 1)</li>\n</ul>");
-    textReportFilter.setName("ui.name.report.text.filter"); // NOI18N
-    textReportFilter.addFocusListener(new java.awt.event.FocusAdapter() {
-      public void focusGained(java.awt.event.FocusEvent evt) {
-        textReportFilterFocusGained(evt);
-      }
-      public void focusLost(java.awt.event.FocusEvent evt) {
-        textReportFilterFocusLost(evt);
-      }
-    });
-    textReportFilter.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        textReportFilterActionPerformed(evt);
-      }
-    });
-
-    checkReportAbacus.setSelected(loadLastCheckboxAbacus());
-    checkReportAbacus.setText("Multi-Experiment Report ");
-    checkReportAbacus.setToolTipText("<html>Philosopher abacus command");
-    checkReportAbacus.setName("ui.name.report.check.multiexp"); // NOI18N
-    checkReportAbacus.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        checkReportAbacusActionPerformed(evt);
-      }
-    });
-
-    jLabel1.setText("Filter");
-
-    checkFilterNoProtxml.setSelected(loadLastCheckboxUseProtxmlInFilter());
-    checkFilterNoProtxml.setText("Do not use ProteinProphet file");
-    checkFilterNoProtxml.setToolTipText("<html>Only to be used in rare cases.<br/>\nConsider turning off Protein Prophet instead of using this checkbox.");
-    checkFilterNoProtxml.setName("ui.name.report.check.dontuseprotprophfile"); // NOI18N
-    checkFilterNoProtxml.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        checkFilterNoProtxmlActionPerformed(evt);
-      }
-    });
-
-    checkReportPrintDecoys.setSelected(loadLastCheckReportPrintDecoys());
-    checkReportPrintDecoys.setText("Print decoys");
-    checkReportPrintDecoys.setName("ui.name.report.check.printdecoys"); // NOI18N
-    checkReportPrintDecoys.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        checkReportPrintDecoysActionPerformed(evt);
-      }
-    });
-
-    checkReportWriteMzid.setSelected(loadLastReportWriteMzid());
-    checkReportWriteMzid.setText("Write mzID output (experimental)");
-    checkReportWriteMzid.setName("ui.name.report.check.mzid"); // NOI18N
-    checkReportWriteMzid.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        checkReportWriteMzidActionPerformed(evt);
-      }
-    });
-
-    javax.swing.GroupLayout panelReportOptionsLayout = new javax.swing.GroupLayout(panelReportOptions);
-    panelReportOptions.setLayout(panelReportOptionsLayout);
-    panelReportOptionsLayout.setHorizontalGroup(
-      panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(panelReportOptionsLayout.createSequentialGroup()
-        .addContainerGap()
-        .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addGroup(panelReportOptionsLayout.createSequentialGroup()
-            .addComponent(jLabel1)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(textReportFilter))
-          .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReportOptionsLayout.createSequentialGroup()
-            .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-              .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelReportOptionsLayout.createSequentialGroup()
-                .addComponent(checkReportWriteMzid)
-                .addGap(0, 0, Short.MAX_VALUE))
-              .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelReportOptionsLayout.createSequentialGroup()
-                .addComponent(checkReportAbacus)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(checkReportPrintDecoys)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(checkFilterNoProtxml)))
-            .addContainerGap())))
-    );
-    panelReportOptionsLayout.setVerticalGroup(
-      panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(panelReportOptionsLayout.createSequentialGroup()
-        .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(textReportFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-          .addComponent(jLabel1))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-        .addGroup(panelReportOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(checkReportAbacus)
-          .addComponent(checkReportPrintDecoys)
-          .addComponent(checkFilterNoProtxml))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-        .addComponent(checkReportWriteMzid))
-    );
-
-    loadLastReportFilter();
-
-    checkCreateReport.setSelected(true);
-    checkCreateReport.setText("Create report");
-    checkCreateReport.setToolTipText("<html>Create tab separated report files with \nsome statistics about search results.");
-    checkCreateReport.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        checkCreateReportActionPerformed(evt);
-      }
-    });
-
     panelSpecLibOpts.setBorder(javax.swing.BorderFactory.createTitledBorder("Spectral Library"));
     panelSpecLibOpts.setEnabled(false);
 
@@ -2315,29 +2200,24 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       .addGroup(panelReportLayout.createSequentialGroup()
         .addContainerGap()
         .addGroup(panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(panelReportOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addComponent(ptmshepherdPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addGroup(panelReportLayout.createSequentialGroup()
-            .addComponent(checkCreateReport)
-            .addGap(0, 0, Short.MAX_VALUE))
-          .addComponent(panelQuant, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+          .addComponent(panelQuant, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(panelReportOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         .addContainerGap())
     );
     panelReportLayout.setVerticalGroup(
       panelReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(panelReportLayout.createSequentialGroup()
         .addContainerGap()
-        .addComponent(checkCreateReport)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(panelReportOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(panelQuant, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addComponent(ptmshepherdPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(panelSpecLibOpts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(194, Short.MAX_VALUE))
+        .addContainerGap(153, Short.MAX_VALUE))
     );
 
     tabPane.addTab("Report", null, panelReport, "");
@@ -2993,13 +2873,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         String propKeyStubMin = PhilosopherProps.PROP_LOWEST_COMPATIBLE_VERSION + "." + vCurMajor;
         Optional<String> propKeyMin = props.stringPropertyNames().stream()
             .filter(name -> name.startsWith(propKeyStubMin)).findFirst();
-        String minPhiVer = !propKeyMin.isPresent() ? null : props.getProperty(propKeyMin.get());
+        String minPhiVer = propKeyMin.map(props::getProperty).orElse(null);
         String propKeyStubMax = PhilosopherProps.PROP_LATEST_COMPATIBLE_VERSION + "." + vCurMajor;
         Optional<String> propKeyMax = props.stringPropertyNames().stream()
             .filter(name -> name.startsWith(propKeyStubMax)).findFirst();
-        String maxPhiVer = !propKeyMax.isPresent() ? null : props.getProperty(propKeyMax.get());
+        String maxPhiVer = propKeyMax.map(props::getProperty).orElse(null);
 
-        String link = PhilosopherProps.getProperties().getProperty(PhilosopherProps.PROP_DOWNLOAD_URL, "");
+        String link = PhilosopherProps.getProperties().getProperty(PhilosopherProps.PROP_DOWNLOAD_URL, "https://github.com/Nesvilab/philosopher/releases");
 
         boolean isOldVersionScheme = curPhiVer != null && regexOldPhiVer.matcher(curPhiVer).find();
         if (isOldVersionScheme)
@@ -3010,7 +2890,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           if (minPhiVer != null)
             sb.append("Minimum required version: ").append(minPhiVer).append("<br/>\n");
           if (maxPhiVer != null)
-            sb.append("Latest known stable version: ").append(maxPhiVer).append("<br/>\n");
+            sb.append("Latest known compatible version: ").append(maxPhiVer).append("<br/>\n");
           sb.append("Please <a href=\"").append(link).append("\">click here</a> to download a newer one.");
           ep = SwingUtils.createClickableHtml(sb.toString());
 
@@ -3020,10 +2900,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             // doesn't meet min version requirement
             StringBuilder sb = new StringBuilder("Philosopher version ")
                 .append(curPhiVer).append(" is no longer supported by FragPipe.<br/>\n");
-            if (minPhiVer != null)
-              sb.append("Minimum required version: ").append(minPhiVer).append("<br/>\n");
+            sb.append("Minimum required version: ").append(minPhiVer).append("<br/>\n");
             if (maxPhiVer != null)
-              sb.append("Latest known stable version: ").append(maxPhiVer).append("<br/>\n");
+              sb.append("Latest known compatible version: ").append(maxPhiVer).append("<br/>\n");
             sb.append("Please <a href=\"").append(link).append("\">click here</a> to download a newer one.");
             ep = SwingUtils.createClickableHtml(sb.toString());
 
@@ -3036,7 +2915,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
               sb.append(
                   "<br>\nHowever, we have not yet checked if it's fully compatible with this version of ")
                   .append(Version.PROGRAM_TITLE).append(".");
-            } else if (curPhiVer != null) {
+            } else { // max ver != null
               int cmp = vc.compare(curPhiVer, maxPhiVer);
               if (cmp == 0) {
                 sb.append(
@@ -3046,6 +2925,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .append("<b>Philosopher ").append(maxPhiVer).append("</b>.<br/>\n");
                 sb.append(
                     "It is not recommended to upgrade to newer versions unless they are tested.");
+              } else if (cmp > 0) {
+                sb.append("<br>\nYour current version is higher than the last known tested version.");
               }
             }
             ep = SwingUtils.createClickableHtml(sb.toString());
@@ -3474,32 +3355,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     return isValid;
   }
 
-  /**
-   * Called with null from FocusChange listener. Call it with a new value if you want to update the
-   * field programmatically.
-   */
-  private void validateAndSaveReportFilter(final String newText, boolean updateOtherTags) {
-    final JTextComponent comp = textReportFilter;
-    final boolean isValid = validateAndSave(comp, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER,
-        newText, ValidateTrue.getInstance());
-
-    if (!isValid) {
-      return;
-    }
-
-    // check if the filter line has changed since focus was gained
-    final String savedText = textReportFilterFocusGained;
-    final String oldText = savedText != null ? savedText : comp.getText().trim();
-    final String updText = newText != null ? newText : comp.getText().trim();
-
-    // newText == null means it was a programmatic update
-    if (!updateOtherTags || oldText.equals(updText)) {
-      return;
-    }
-
-    // something has changed
-  }
-
   public String getFastaPath() {
     return textSequenceDbPath.getText().trim();
   }
@@ -3613,7 +3468,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final boolean doRunFragger = fraggerMigPanel.isRun();
     boolean doRunProphetsAndReport = chkRunPeptideProphet.isSelected()
         || chkRunProteinProphet.isSelected()
-        || checkCreateReport.isSelected();
+        || panelReportOptions.isGenerateReport();
 
     // check for TSV output when any other downstream tools are requested
     if (doRunFragger && doRunProphetsAndReport) {
@@ -4158,9 +4013,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
     // run Protein Prophet
-    final boolean isProcessGroupsSeparately = checkProcessGroupsSeparately.isSelected();
     final boolean isRunProteinProphet = SwingUtils.isEnabledAndChecked(chkRunProteinProphet);
-    final boolean isMuiltiExperimentReport = SwingUtils.isEnabledAndChecked(checkReportAbacus);
+    final boolean isProcessGroupsSeparately = checkProcessGroupsSeparately.isSelected();
+    final boolean isMuiltiExperimentReport = panelReportOptions.isMultiExpReport();
     final CmdProteinProphet cmdProteinProphet = new CmdProteinProphet(isRunProteinProphet, wd);
     if (cmdProteinProphet.isRun()) {
       final String protProphCmdStr = txtProteinProphetCmdLineOpts.getText().trim();
@@ -4189,7 +4044,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     }
 
-    final boolean isReport = SwingUtils.isEnabledAndChecked(checkCreateReport);
+    final boolean isReport = panelReportOptions.isGenerateReport();
     if (isReport) {
       // run Report - DbAnnotate
       final boolean isDbAnnotate = true;
@@ -4206,7 +4061,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       final boolean isFilter = isReport;
       final CmdReportFilter cmdReportFilter = new CmdReportFilter(isFilter, wd);
       if (cmdReportFilter.isRun()) {
-        final boolean isCheckFilterNoProtxml = SwingUtils.isEnabledAndChecked(checkFilterNoProtxml);
+        final boolean isCheckFilterNoProtxml = panelReportOptions.isNoProtXml();
 
         // if ProtProph is not run but protxml is there - query the user
         boolean dontUseProtxmlInFilter;
@@ -4246,7 +4101,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         }
 
         if (!cmdReportFilter.configure(this, usePhi,
-            decoyTag, textReportFilter.getText(), dontUseProtxmlInFilter, mapGroupsToProtxml)) {
+            decoyTag, panelReportOptions.getFilterCmdText(), dontUseProtxmlInFilter, mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(cmdReportFilter.getBuilderDescriptor());
@@ -4254,9 +4109,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
       // run Report - Report command itself
       final CmdReportReport cmdReportReport = new CmdReportReport(isReport, wd);
-      final boolean doPrintDecoys = checkReportPrintDecoys.isSelected();
+      final boolean doPrintDecoys = panelReportOptions.isPrintDecoys();
 //      final boolean doMzid = comboReportOutputFormat.getSelectedItem().toString().toLowerCase().contains("mzid");
-      final boolean doMzid = checkReportWriteMzid.isSelected();
+      final boolean doMzid = panelReportOptions.isWriteMzid();
       if (cmdReportReport.isRun()) {
         if (!cmdReportReport.configure(this, usePhi, doPrintDecoys, doMzid, mapGroupsToProtxml)) {
           return false;
@@ -4267,17 +4122,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       // run Report - Multi-Experiment report
       final int nThreads = fraggerMigPanel.getThreads();
       final CmdReportAbacus cmdReportAbacus = new CmdReportAbacus(isMuiltiExperimentReport, wd);
+      final boolean isMultiexpPepLevelSummary = panelReportOptions.isPepSummary();
       if (cmdReportAbacus.isRun()) {
+
         // run iProphet, will run right after Peptide Prophet because of priority setting
-        final CmdIprophet cmdIprophet = new CmdIprophet(cmdReportAbacus.isRun(), wd);
-        if (!cmdIprophet.configure(this, usePhi, decoyTag, nThreads, pepxmlFiles)) {
-          return false;
+        if (isMultiexpPepLevelSummary) { // iProphet is not needed if we don't generate peptide level summry
+          final CmdIprophet cmdIprophet = new CmdIprophet(cmdReportAbacus.isRun(), wd);
+          if (!cmdIprophet.configure(this, usePhi, decoyTag, nThreads, pepxmlFiles)) {
+            return false;
+          }
+          pbDescs.add(cmdIprophet.getBuilderDescriptor());
         }
-        pbDescs.add(cmdIprophet.getBuilderDescriptor());
 
         // run Abacus
-        if (!cmdReportAbacus.configure(this, usePhi,
-            textReportFilter.getText(), decoyTag, mapGroupsToProtxml)) {
+        if (!cmdReportAbacus.configure(this, usePhi, panelReportOptions.getFilterCmdText(),
+            isMultiexpPepLevelSummary, decoyTag, mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(cmdReportAbacus.getBuilderDescriptor());
@@ -4310,8 +4169,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     // run PTMShepherd
     final boolean isRunShepherd = ptmshepherdPanel.isRunShepherd();
+    final boolean isPtmsFormValid = ptmshepherdPanel.validateForm();
     final CmdPtmshepherd cmdPtmshepherd = new CmdPtmshepherd(isRunShepherd, wd);
     if (cmdPtmshepherd.isRun()) {
+      if (!isPtmsFormValid) {
+        JOptionPane.showMessageDialog(this,
+            "There are errors in PTM-Shepherd configuraiton panel on Report tab.",
+            "PTMShepherd Error", JOptionPane.ERROR_MESSAGE);
+        return false;
+      }
       Path fastaPath = Paths.get(fastaFile);
       int ramGb = fp.getRamGb();
       int threads = fp.getThreads();
@@ -4328,7 +4194,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
     // run Spectral library generation
-    final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(SwingUtils.isEnabledAndChecked(checkGenerateSpecLib), wd);
+    final boolean isRunSpeclibgen = SwingUtils.isEnabledAndChecked(checkGenerateSpecLib);
+    final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(isRunSpeclibgen, wd);
     if (cmdSpecLibGen.isRun()) {
       if (!cmdSpecLibGen.configure(this, usePhi, jarFragpipe,
           mapGroupsToProtxml, fastaFile, isRunProteinProphet)) {
@@ -4368,7 +4235,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     }
 
+    final StringBuilder sb = new StringBuilder();
+    pbDescs.forEach(pbd -> sb.append(String.format("%03d", pbd.priority)).append(" : ").append(pbd.name).append("\n"));
+    log.debug("Descriptors before sorting:\n{}", sb.toString());
+
     pbDescs.sort(Comparator.comparing(pbDesc -> pbDesc.priority, Integer::compare));
+    sb.setLength(0);
+    pbDescs.forEach(pbd -> sb.append(String.format("%03d", pbd.priority)).append(" : ").append(pbd.name).append("\n"));
+    log.debug("Descriptors after sorting:\n{}", sb.toString());
+
     pbDescsToFill.addAll(pbDescs);
     return true;
   }
@@ -4421,25 +4296,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //    }
   }
 
-  private void textReportFilterFocusLost(
-      java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textReportFilterFocusLost
-    validateAndSaveReportFilter(null, true);
-  }//GEN-LAST:event_textReportFilterFocusLost
-
   private void btnAboutInConfigActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAboutInConfigActionPerformed
     EventBus.getDefault().post(new MessageShowAboutDialog());
   }//GEN-LAST:event_btnAboutInConfigActionPerformed
-
-  private void textReportFilterActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textReportFilterActionPerformed
-
-  }//GEN-LAST:event_textReportFilterActionPerformed
-
-  private void textReportFilterFocusGained(
-      java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textReportFilterFocusGained
-    textReportFilterFocusGained = textReportFilter.getText();
-  }//GEN-LAST:event_textReportFilterFocusGained
 
   private void btnExportLogActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportLogActionPerformed
@@ -4861,11 +4721,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }//GEN-LAST:event_btnOpenInExplorerActionPerformed
 
-  private void checkCreateReportActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkCreateReportActionPerformed
-    EventBus.getDefault().postSticky(new MessageReportEnablement(checkCreateReport.isSelected()));
-  }//GEN-LAST:event_checkCreateReportActionPerformed
-
   private void checkEnableDiaumpireStateChanged(
       javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_checkEnableDiaumpireStateChanged
     final String umpireTabName = "DIA-Umpire";
@@ -5047,10 +4902,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     EventBus.getDefault().post(new MessageRun(true));
   }//GEN-LAST:event_btnPrintCommandsActionPerformed
 
-  private void checkReportAbacusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkReportAbacusActionPerformed
-    ThisAppProps.save(checkReportAbacus, ThisAppProps.PROP_CHECKBOX_REPORT_ABACUS);
-  }//GEN-LAST:event_checkReportAbacusActionPerformed
-
   private void txtProteinProphetCmdLineOptsFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtProteinProphetCmdLineOptsFocusLost
     String val = txtProteinProphetCmdLineOpts.getText();
     ThisAppProps.save(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, val);
@@ -5086,7 +4937,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }//GEN-LAST:event_chkRunProteinProphetActionPerformed
 
   private void textPepProphCmdFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textPepProphCmdFocusLost
-    validateAndSavePeptideProphetCmdLineOptions(null, true);
+    validateAndSavePeptideProphetCmdLineOptions();
   }//GEN-LAST:event_textPepProphCmdFocusLost
 
   private void textPepProphCmdFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textPepProphCmdFocusGained
@@ -5129,18 +4980,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void txtWorkingDirFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtWorkingDirFocusLost
     saveWorkdirText();
   }//GEN-LAST:event_txtWorkingDirFocusLost
-
-  private void checkFilterNoProtxmlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkFilterNoProtxmlActionPerformed
-    ThisAppProps.save(checkFilterNoProtxml, ThisAppProps.PROP_CHECKBOX_REPORT_FILTER_NO_PROTXML);
-  }//GEN-LAST:event_checkFilterNoProtxmlActionPerformed
-
-  private void checkReportPrintDecoysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkReportPrintDecoysActionPerformed
-    ThisAppProps.save(checkReportPrintDecoys, ThisAppProps.PROP_CHECKBOX_REPORT_PRINT_DECOYS);
-  }//GEN-LAST:event_checkReportPrintDecoysActionPerformed
-
-  private void checkReportWriteMzidActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkReportWriteMzidActionPerformed
-    ThisAppProps.save(checkReportWriteMzid, ThisAppProps.PROP_CHECKBOX_WRITE_MZID);
-  }//GEN-LAST:event_checkReportWriteMzidActionPerformed
 
   private void btnDbDownloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDbDownloadActionPerformed
     String bin = textBinPhilosopher.getText();
@@ -5221,29 +5060,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
     return false;
   }
-
-  private boolean loadLastCheckboxAbacus() {
-    final String checked = ThisAppProps.load(ThisAppProps.PROP_CHECKBOX_REPORT_ABACUS);
-    try {
-      return Boolean.valueOf(checked);
-    } catch (Exception ignored) {
-    }
-    return false;
-  }
-  
-  private boolean loadLastReportWriteMzid() {
-    final String checked = ThisAppProps.load(ThisAppProps.PROP_CHECKBOX_WRITE_MZID);
-    try {
-      return Boolean.valueOf(checked);
-    } catch (Exception ignored) {
-    }
-    return false;
-  }
   
   private boolean loadLastProcessGroupsSeparately() {
     final String checked = ThisAppProps.load(ThisAppProps.PROP_CHECKBOX_PROCESS_GROUPS_SEPARATELY);
     try {
-      return Boolean.valueOf(checked);
+      return Boolean.parseBoolean(checked);
     } catch (Exception ignored) {
     }
     return false;
@@ -5251,58 +5072,17 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void loadDefaultDecoyTag() {
     String val = ThisAppProps.getLocalBundle().getString(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
-
-    textReportFilter.setText(val);
+    textDecoyTagSeqDb.setText(val);
     ThisAppProps.save(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG, val);
-  }
-
-  private void loadDefaultsReport(SearchTypeProp type, boolean askConfirmation) {
-
-    int confirm1 = JOptionPane.showConfirmDialog(this,
-        "<html>Load " + type + " search defaults?");
-    if (JOptionPane.YES_OPTION != confirm1) {
-      return;
-    }
-
-    loadDefaultsReportFilter(type);
-
-    if (askConfirmation) {
-      int confirm2 = JOptionPane.showConfirmDialog(this,
-          "<html>Loaded " + type + " search defaults.<br/><br/>"
-              + "Do you want to load defaults <b>for other tools</b> as well?<br/><br/>"
-              + "<b>WARNING:</b><br/>"
-              + "This will reset MSFragger settings!");
-      if (JOptionPane.YES_OPTION != confirm2) {
-        return;
-      }
-    }
-    EventBus.getDefault().post(new MessageSearchType(type));
-  }
-
-  private void loadLastReportFilter() {
-    if (!ThisAppProps.load(textReportFilter, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER)) {
-      loadDefaultsReportFilter(DEFAULT_TYPE);
-    }
-    removeOldSavedDecoyTagValue(textReportFilter, "--tag");
-
-    // temporary plug for old cached data
-    final String loaded = textReportFilter.getText().trim();
-    if (loaded != null && !loaded.contains("--prot")) {
-      textReportFilter.setText(loaded + " --prot 0.01");
-    }
   }
 
   private boolean loadLastCheckReportPrintDecoys() {
     final String checked = ThisAppProps.load(ThisAppProps.PROP_CHECKBOX_REPORT_PRINT_DECOYS);
     try {
-      return Boolean.valueOf(checked);
+      return Boolean.parseBoolean(checked);
     } catch (Exception ignored) {
     }
     return false;
-  }
-
-  public void loadDefaultsReportFilter(SearchTypeProp type) {
-    ThisAppProps.loadFromBundle(textReportFilter, ThisAppProps.PROP_TEXTFIELD_REPORT_FILTER, type);
   }
 
   private void loadLastSequenceDb() {
@@ -5314,11 +5094,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   //endregion
 
-  private void validateAndSavePeptideProphetCmdLineOptions(final String newText,
-      boolean updateOtherTags) {
+  private void validateAndSavePeptideProphetCmdLineOptions() {
     final JTextComponent comp = textPepProphCmd;
     final boolean isValid = validateAndSave(comp, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET,
-        newText, ValidateTrue.getInstance());
+        null, ValidateTrue.getInstance());
 
     if (!isValid) {
       return;
@@ -5327,14 +5106,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     // check if the filter line has changed since focus was gained
     final String savedText = textPepProphetFocusGained;
     final String oldText = savedText != null ? savedText : comp.getText().trim();
-    final String updText = newText != null ? newText : comp.getText().trim();
-
-    // newText == null means it was a programmatic update
-    if (!updateOtherTags || oldText.equals(updText)) {
-      return;
-    }
-
-    // text in the field has changed
+    final String updText = comp.getText().trim();
   }
 
   private boolean validateAndSaveFastaPath(String path) {
@@ -5880,15 +5652,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JButton btnStop;
   private javax.swing.JButton btnTryDetectDecoyTag;
   private javax.swing.JCheckBox checkCombinedPepxml;
-  private javax.swing.JCheckBox checkCreateReport;
   private javax.swing.JCheckBox checkDryRun;
   private javax.swing.JCheckBox checkEnableDiaumpire;
-  private javax.swing.JCheckBox checkFilterNoProtxml;
   private javax.swing.JCheckBox checkGenerateSpecLib;
   private javax.swing.JCheckBox checkProcessGroupsSeparately;
-  private javax.swing.JCheckBox checkReportAbacus;
-  private javax.swing.JCheckBox checkReportPrintDecoys;
-  private javax.swing.JCheckBox checkReportWriteMzid;
   private javax.swing.JCheckBox chkRunPeptideProphet;
   private javax.swing.JCheckBox chkRunProteinProphet;
   private javax.swing.JScrollPane consoleScrollPane;
@@ -5897,7 +5664,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JEditorPane editorSequenceDb;
   private javax.swing.JEditorPane epDbsliceInfo;
   private javax.swing.JEditorPane epSpeclibInfo2;
-  private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel10;
   private javax.swing.JLabel jLabel11;
   private javax.swing.JLabel jLabel2;
@@ -5936,7 +5702,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JPanel panelProteinProphetOptions;
   private umich.msfragger.params.imquant.QuantJPanel panelQuant;
   private javax.swing.JPanel panelReport;
-  private javax.swing.JPanel panelReportOptions;
+  private umich.msfragger.params.philosopher.ReportPanel panelReportOptions;
   private javax.swing.JPanel panelRun;
   private javax.swing.JPanel panelSelectFiles;
   private javax.swing.JPanel panelSelectedFiles;
@@ -5951,7 +5717,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JTextField textBinPython;
   private javax.swing.JTextField textDecoyTagSeqDb;
   private javax.swing.JTextArea textPepProphCmd;
-  private javax.swing.JTextField textReportFilter;
   private javax.swing.JTextField textSequenceDbPath;
   private javax.swing.JTextArea txtProteinProphetCmdLineOpts;
   private javax.swing.JTextField txtWorkingDir;

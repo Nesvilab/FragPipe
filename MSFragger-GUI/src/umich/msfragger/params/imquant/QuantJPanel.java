@@ -4,6 +4,7 @@ import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiRadio;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.Properties;
@@ -12,6 +13,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import net.miginfocom.layout.CC;
@@ -186,25 +189,41 @@ public class QuantJPanel extends JPanelWithEnablement {
         pBothQuants.add(feMzTol.comp, new CC().alignX("left").spanX(2).wrap());
       }
 
+      JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
+      pBothQuants.add(sep, new CC().growX().spanX().wrap());
+
       { // IMQuant
         uiRadioUseImquant = new UiRadio("IMQuant (use for timsTOF ion mobility data)", null, false);
         radioGroupQuant.add(uiRadioUseImquant);
         FormEntry feRadioImquant = new FormEntry("ui.imquant.is-run", "Not shown",
             uiRadioUseImquant);
-        UiSpinnerDouble uiSpinnerImTol = UiSpinnerDouble.builder(0.1, 0.01, 1.0, 0.01)
+        UiSpinnerDouble uiSpinnerImTol = UiSpinnerDouble.builder(0.05, 0.01, 1.0, 0.01)
             .setFormat(new DecimalFormat("0.00")).setNumCols(5).create();
         FormEntry feImTol = new FormEntry("ui.imquant.im-tol", "IM Window (1/k0)", uiSpinnerImTol);
-        UiSpinnerDouble uiSpinnerMzTol = UiSpinnerDouble.builder(20.0, 1.0, 1000.0, 1.0)
+        UiSpinnerDouble uiSpinnerMzTol = UiSpinnerDouble.builder(10.0, 1.0, 1000.0, 1.0)
             .setFormat(new DecimalFormat("0.#")).setNumCols(5).create();
-        FormEntry feMzTol = new FormEntry("ui.imquant.mz-tol", "M/z Window (ppm)", uiSpinnerMzTol);
+        FormEntry feMzTol = new FormEntry("ui.imquant.mz-tol", "M/Z Window (ppm)", uiSpinnerMzTol);
         UiCheck uiCheckImquantPlot = new UiCheck("Plot (for debug)", null, false);
         FormEntry fePlot = new FormEntry("ui.imquant.is-plot", "Not shown", uiCheckImquantPlot);
+
+        UiSpinnerDouble uiSpinnerRtTol = UiSpinnerDouble.builder(0.4, 0.0, 10.0, 0.1)
+            .setFormat(new DecimalFormat("0.0")).setNumCols(5).create();
+        FormEntry feRtTol = new FormEntry("ui.imquant.rt-tol", "RT Window (minutes)", uiSpinnerRtTol);
+        UiSpinnerDouble uiSpinnerMinFreq = UiSpinnerDouble.builder(0.5, 0.0, 1.0, 0.1)
+            .setFormat(new DecimalFormat("0.00")).setNumCols(5).create();
+        FormEntry feMinFreq = new FormEntry("ui.imquant.min-freq", "MinFreq", uiSpinnerMinFreq);
+
         pBothQuants.add(feRadioImquant.comp, new CC().alignX("left"));
         pBothQuants.add(feImTol.label(), new CC().alignX("right"));
         pBothQuants.add(feImTol.comp, new CC().alignX("left"));
         pBothQuants.add(feMzTol.label(), new CC().alignX("right"));
         pBothQuants.add(feMzTol.comp, new CC().alignX("left"));
         pBothQuants.add(fePlot.comp, new CC().alignX("left").wrap());
+
+        pBothQuants.add(feRtTol.label(), new CC().span(2).alignX("right"));
+        pBothQuants.add(feRtTol.comp, new CC().alignX("left"));
+        pBothQuants.add(feMinFreq.label(), new CC().alignX("right"));
+        pBothQuants.add(feMinFreq.comp, new CC().alignX("left"));
       }
     }
     pContent.add(pBothQuants, new CC().wrap().growX());

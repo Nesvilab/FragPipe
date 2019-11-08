@@ -1073,9 +1073,6 @@
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="panelDownstream">
-          <AuxValues>
-            <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastCrystalc();"/>
-          </AuxValues>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
               <JTabbedPaneConstraints tabName="Downstream">
@@ -1452,14 +1449,10 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="panelReportOptions" max="32767" attributes="0"/>
                           <Component id="panelSpecLibOpts" alignment="0" max="32767" attributes="0"/>
                           <Component id="ptmshepherdPanel" alignment="0" max="32767" attributes="0"/>
-                          <Group type="102" attributes="0">
-                              <Component id="checkCreateReport" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                          </Group>
                           <Component id="panelQuant" max="32767" attributes="0"/>
+                          <Component id="panelReportOptions" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -1469,162 +1462,19 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="checkCreateReport" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelReportOptions" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelQuant" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="ptmshepherdPanel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelSpecLibOpts" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="194" max="32767" attributes="0"/>
+                      <EmptySpace pref="153" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Container class="javax.swing.JPanel" name="panelReportOptions">
-              <Properties>
-                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                  <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="Report Options"/>
-                  </Border>
-                </Property>
-              </Properties>
-
-              <Layout>
-                <DimensionLayout dim="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" attributes="0">
-                                  <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="textReportFilter" max="32767" attributes="0"/>
-                              </Group>
-                              <Group type="102" alignment="1" attributes="0">
-                                  <Group type="103" groupAlignment="1" attributes="0">
-                                      <Group type="102" alignment="0" attributes="0">
-                                          <Component id="checkReportWriteMzid" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                                      </Group>
-                                      <Group type="102" alignment="0" attributes="0">
-                                          <Component id="checkReportAbacus" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace max="32767" attributes="0"/>
-                                          <Component id="checkReportPrintDecoys" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                          <Component id="checkFilterNoProtxml" min="-2" max="-2" attributes="0"/>
-                                      </Group>
-                                  </Group>
-                                  <EmptySpace max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-                <DimensionLayout dim="1">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="textReportFilter" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="checkReportAbacus" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="checkReportPrintDecoys" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="checkFilterNoProtxml" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="checkReportWriteMzid" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-              </Layout>
-              <SubComponents>
-                <Component class="javax.swing.JTextField" name="textReportFilter">
-                  <Properties>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;--pepxml path-to-pepxml --protxml path-to-combined-protxml&lt;br/&gt;&#xa;will be added automatically based on previous tabs.&lt;br/&gt;&#xa;&#xa;Statistical filtering, validation and False Discovery Rates assessment&lt;br/&gt;&#xa;philosopher filter [flags]&lt;br&gt;&#xa;Flags:&lt;br/&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;--ion float        peptide ion FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--mapmods          map modifications aquired by an open search&lt;/li&gt;&#xa;&lt;li&gt;--models           print model distribution&lt;/li&gt;&#xa;&lt;li&gt;--pep float        peptide FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--pepProb float    top peptide probability treshold for the FDR filtering (default 0.7)&lt;/li&gt;&#xa;&lt;li&gt;--pepxml string    pepXML file or directory containing a set of pepXML files&lt;/li&gt;&#xa;&lt;li&gt;--picked           apply the picked FDR algorithm before the protein scoring&lt;/li&gt;&#xa;&lt;li&gt;--prot float       protein FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--protProb float   protein probability treshold for the FDR filtering (not used with the razor algorithm) (default 0.5)&lt;/li&gt;&#xa;&lt;li&gt;--protxml string   protXML file path&lt;/li&gt;&#xa;&lt;li&gt;--psm float        psm FDR level (default 0.01)&lt;/li&gt;&#xa;&lt;li&gt;--razor            use razor peptides for protein FDR scoring&lt;/li&gt;&#xa;&lt;li&gt;--sequential       alternative algorithm that estimates FDR using both filtered PSM and Protein lists&lt;/li&gt;&#xa;&lt;li&gt;--tag string       decoy tag (default &quot;rev_&quot;)&lt;/li&gt;&#xa;&lt;li&gt;--weight float     threshold for defining peptide uniqueness (default 1)&lt;/li&gt;&#xa;&lt;/ul&gt;"/>
-                    <Property name="name" type="java.lang.String" value="ui.name.report.text.filter" noResource="true"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportFilterFocusGained"/>
-                    <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textReportFilterFocusLost"/>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textReportFilterActionPerformed"/>
-                  </Events>
-                  <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastReportFilter();"/>
-                  </AuxValues>
-                </Component>
-                <Component class="javax.swing.JCheckBox" name="checkReportAbacus">
-                  <Properties>
-                    <Property name="selected" type="boolean" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="loadLastCheckboxAbacus()" type="code"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" value="Multi-Experiment Report "/>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Philosopher abacus command"/>
-                    <Property name="name" type="java.lang.String" value="ui.name.report.check.multiexp" noResource="true"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkReportAbacusActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JLabel" name="jLabel1">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Filter"/>
-                  </Properties>
-                </Component>
-                <Component class="javax.swing.JCheckBox" name="checkFilterNoProtxml">
-                  <Properties>
-                    <Property name="selected" type="boolean" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="loadLastCheckboxUseProtxmlInFilter()" type="code"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" value="Do not use ProteinProphet file"/>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Only to be used in rare cases.&lt;br/&gt;&#xa;Consider turning off Protein Prophet instead of using this checkbox."/>
-                    <Property name="name" type="java.lang.String" value="ui.name.report.check.dontuseprotprophfile" noResource="true"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkFilterNoProtxmlActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JCheckBox" name="checkReportPrintDecoys">
-                  <Properties>
-                    <Property name="selected" type="boolean" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="loadLastCheckReportPrintDecoys()" type="code"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" value="Print decoys"/>
-                    <Property name="name" type="java.lang.String" value="ui.name.report.check.printdecoys" noResource="true"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkReportPrintDecoysActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JCheckBox" name="checkReportWriteMzid">
-                  <Properties>
-                    <Property name="selected" type="boolean" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="loadLastReportWriteMzid()" type="code"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" value="Write mzID output (experimental)"/>
-                    <Property name="name" type="java.lang.String" value="ui.name.report.check.mzid" noResource="true"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkReportWriteMzidActionPerformed"/>
-                  </Events>
-                </Component>
-              </SubComponents>
-            </Container>
-            <Component class="javax.swing.JCheckBox" name="checkCreateReport">
-              <Properties>
-                <Property name="selected" type="boolean" value="true"/>
-                <Property name="text" type="java.lang.String" value="Create report"/>
-                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Create tab separated report files with &#xa;some statistics about search results."/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkCreateReportActionPerformed"/>
-              </Events>
-            </Component>
             <Container class="javax.swing.JPanel" name="panelSpecLibOpts">
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
@@ -1685,6 +1535,8 @@
                   </Border>
                 </Property>
               </Properties>
+            </Component>
+            <Component class="umich.msfragger.params.philosopher.ReportPanel" name="panelReportOptions">
             </Component>
           </SubComponents>
         </Container>

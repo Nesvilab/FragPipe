@@ -419,7 +419,7 @@ public class Version {
     String lastVerKey = PROP_LAST_RELEASE_VER;
     if (!props.stringPropertyNames().contains(lastVerKey)) {
       List<String> urls = Arrays.asList(
-          "https://raw.githubusercontent.com/Nesvilab/FragPipe/release/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties");
+          "https://raw.githubusercontent.com/Nesvilab/FragPipe/last-release/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties");
       props = PropertiesUtils.initProperties(urls);
       if (props == null) {
         log.debug("Didn't get dev update info");

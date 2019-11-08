@@ -9,7 +9,7 @@
 
   <logger name="umich.msfragger.params.imquant" level="info" />
 
-  <root level="debug">
+  <root level="info">
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>

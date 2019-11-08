@@ -38,7 +38,7 @@ public class CmdReportAbacus extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      String textReportFilterCmdOpts, String decoyTag, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+      String textReportFilterCmdOpts, boolean isPepLevelSummary, String decoyTag, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
 //    Usage:
 //    philosopher abacus [flags]
@@ -141,9 +141,10 @@ public class CmdReportAbacus extends CmdBase {
       cmd.add(decoyTag);
       cmd.add("--protein");
       //cmd.add(protxml.toString()); // Commented out as newer Philosopher won't work
-      cmd.add("--peptide");
-      //cmd.add(pepxmlCombined); // Commented out as newer Philosopher won't work
-
+      if (isPepLevelSummary) {
+        cmd.add("--peptide");
+        //cmd.add(pepxmlCombined); // Commented out as newer Philosopher won't work
+      }
       // list locations with pepxml files
       for (Path pepxmlDir : outputDirsForProtxml) {
         cmd.add(pepxmlDir.getFileName().toString());

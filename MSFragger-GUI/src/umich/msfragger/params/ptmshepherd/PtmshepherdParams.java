@@ -2,13 +2,16 @@ package umich.msfragger.params.ptmshepherd;
 
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.LcmsFileGroup;
+import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
 
 public class PtmshepherdParams {
@@ -34,7 +37,10 @@ public class PtmshepherdParams {
 
   public PtmshepherdParams(Path workDir, Path db, Map<LcmsFileGroup, Path> groups, Map<String, String> additionalProperties) {
     this(workDir, db, groups);
-    props = additionalProperties;
+    Properties defaults = PropertiesUtils
+        .loadPropertiesLocal(PtmshepherdParams.class, DEFAULT_PROPERTIES_FN);
+    props = new HashMap<>(PropertiesUtils.to(defaults));
+    props.putAll(additionalProperties);
   }
 
   public String createConfig() {
@@ -62,9 +68,10 @@ public class PtmshepherdParams {
 
     if (props != null && !props.isEmpty()) {
       sb.append("\n");
-      props.entrySet().stream().sorted(Comparator.comparing(Entry::getKey)).forEach(e -> {
-        sb.append(e.getKey()).append(" = ").append(e.getValue()).append("\n");
-      });
+      props.entrySet().stream()
+          .filter(e -> !e.getKey().startsWith("ui."))
+          .sorted(Comparator.comparing(Entry::getKey))
+          .forEach(e -> sb.append(e.getKey()).append(" = ").append(e.getValue()).append("\n"));
     }
 
     return sb.toString();
