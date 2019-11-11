@@ -4157,9 +4157,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       final boolean isImquant = panelQuant.isImquant();
       final CmdImquant cmdImquant = new CmdImquant(isImquant, wd);
       if (cmdImquant.isRun()) {
-        final int ramGb = fp.getRamGb() > 0 ? fp.getRamGb() :
-            (int) (((com.sun.management.OperatingSystemMXBean) java.lang.management.ManagementFactory
-                .getOperatingSystemMXBean()).getFreePhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0);
+        final int ramGb = fp.getRamGb() > 0 ? fp.getRamGb() : OsUtils.getDefaultXmx();
         if (!cmdImquant.configure(this, Paths.get(binMsfragger.getBin()), ramGb, panelQuant.toMap(),
             pepxmlFilesFromMsfragger, mapGroupsToProtxml)) {
           return false;

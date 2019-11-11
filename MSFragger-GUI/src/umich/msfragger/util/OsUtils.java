@@ -108,4 +108,21 @@ public class OsUtils {
         String osArch = System.getProperty("os.arch");
         return osArch;
     }
+
+    /**
+     * Calculate a reasonable size for JVM's memory allocation pool (-Xmx), to be used when a user does not
+     * set the size
+     *
+     * @return recommended size in Gb for JVM's -Xmx option
+     */
+    public static int getDefaultXmx() {
+        final com.sun.management.OperatingSystemMXBean operatingSystemMXBean = ((com.sun.management.OperatingSystemMXBean) java.lang.management.ManagementFactory
+            .getOperatingSystemMXBean());
+        final long freePhysicalMemorySize = operatingSystemMXBean.getFreePhysicalMemorySize();
+        final long totalPhysicalMemorySize = operatingSystemMXBean.getTotalPhysicalMemorySize();
+        // Java has no builtin method to get system available memory, system free memory can be close to zero when system available memory is high
+        final double mem = freePhysicalMemorySize < 0.75 * totalPhysicalMemorySize ?
+            0.75 * totalPhysicalMemorySize : freePhysicalMemorySize;
+        return (int) (mem / 1024.0 / 1024.0 / 1024.0);
+    }
 }
