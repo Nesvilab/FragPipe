@@ -127,27 +127,7 @@ import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
-import umich.msfragger.cmd.CmdCrystalc;
-import umich.msfragger.cmd.CmdImquant;
-import umich.msfragger.cmd.CmdIprophet;
-import umich.msfragger.cmd.CmdMsAdjuster;
-import umich.msfragger.cmd.CmdMsfragger;
-import umich.msfragger.cmd.CmdPeptideProphet;
-import umich.msfragger.cmd.CmdPhilosopherWorkspaceClean;
-import umich.msfragger.cmd.CmdPhilosopherWorkspaceCleanInit;
-import umich.msfragger.cmd.CmdProteinProphet;
-import umich.msfragger.cmd.CmdPtmshepherd;
-import umich.msfragger.cmd.CmdReportAbacus;
-import umich.msfragger.cmd.CmdReportDbAnnotate;
-import umich.msfragger.cmd.CmdReportFilter;
-import umich.msfragger.cmd.CmdReportFreequant;
-import umich.msfragger.cmd.CmdReportReport;
-import umich.msfragger.cmd.CmdSpecLibGen;
-import umich.msfragger.cmd.CmdUmpireSe;
-import umich.msfragger.cmd.PbiBuilder;
-import umich.msfragger.cmd.ProcessBuilderInfo;
-import umich.msfragger.cmd.ProcessBuildersDescriptor;
-import umich.msfragger.cmd.ToolingUtils;
+import umich.msfragger.cmd.*;
 import umich.msfragger.gui.ProcessDescription.Builder;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
@@ -4891,6 +4871,24 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnPrintCommandsActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintCommandsActionPerformed
+
+    // debugging section, triggered by Print Commands button
+//    String wd = txtWorkingDir.getText();
+//    if (wd == null) {
+//      log.error("work dir null");
+//      return;
+//    }
+//    Path wdp = Paths.get(wd);
+//    CmdBrukerLibLoadTest cmd = new CmdBrukerLibLoadTest(true, wdp);
+//    cmd.configure(getBinMsfragger());
+//    ProcessBuildersDescriptor pbd = cmd.getBuilderDescriptor();
+//    for (ProcessBuilderInfo pbi : pbd.pbis) {
+//      log.info("About to run external process");
+//      Runnable r = ProcessBuilderInfo.toRunnable(pbi, wdp, this::printProcessDescription);
+//      r.run();
+//    }
+
+
     EventBus.getDefault().post(new MessageRun(true));
   }//GEN-LAST:event_btnPrintCommandsActionPerformed
 

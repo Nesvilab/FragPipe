@@ -124,4 +124,9 @@ public abstract class CmdBase {
         fileCaptureStderr).addAll(pbis);
   }
 
+  public static String createJavaDParamString(String name, String value) {
+    return OsUtils.isWindows()
+            ? "-D" + name + "=\"" + value + "\""
+            : "-D" + name + "=" + value;
+  }
 }

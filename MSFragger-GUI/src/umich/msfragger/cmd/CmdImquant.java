@@ -83,7 +83,18 @@ public class CmdImquant extends CmdBase {
     }
 
     if (extLibsBruker != null) {
-      cmd.add("-Dbruker.lib.path=\"" + extLibsBruker.toString() + "\"" );
+      cmd.add(createJavaDParamString("bruker.lib.path", extLibsBruker.toString()));
+    } else {
+      if (lcmsToFraggerPepxml.keySet().stream().anyMatch(f ->
+              f.getPath().getFileName().toString().toLowerCase().endsWith(".d"))) {
+        JOptionPane.showMessageDialog(comp,
+                "<html>When processing .d files IMQuant requires native Bruker libraries.<br/>\n"
+                + "Native libraries come with MSFragger zip download, contained in <i>ext</i><br/>\n"
+                + "sub-directory. If you don't have an <i>ext</i> directory next to MSfragger.jar<br/>\n"
+                + "please go to Config tab and Update MSFragger.",
+                NAME + "error", JOptionPane.WARNING_MESSAGE);
+        return false;
+      }
     }
 
     cmd.add("-cp");
