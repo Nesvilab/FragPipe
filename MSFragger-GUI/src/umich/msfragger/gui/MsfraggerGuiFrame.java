@@ -1681,7 +1681,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     btnGroupsConsecutive.setText("Consecutive");
-    btnGroupsConsecutive.setToolTipText("<html>Assign each run to its own experiment.<br/>\n<b>Names like \"experiment-01\"</b> will be assgined.");
+    btnGroupsConsecutive.setToolTipText("<html>Assign each run to its own experiment.<br/>\n<b>Names like \"exp_1\"</b> will be assgined.");
     btnGroupsConsecutive.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnGroupsConsecutiveActionPerformed(evt);
@@ -4816,17 +4816,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGroupsConsecutiveActionPerformed
     UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
     final int groupNumMaxLen = (int) Math.ceil(Math.log(m.dataSize()));
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < groupNumMaxLen; i++) {
-      sb.append("0");
-    }
-    final DecimalFormat fmt = new DecimalFormat(sb.toString());
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      final String group = "experiment-" + fmt.format(i + 1);
-      m.dataSet(i, new InputLcmsFile(f.getPath(), group));
+      m.dataSet(i, new InputLcmsFile(f.getPath(), "exp", i + 1));
     }
-
   }//GEN-LAST:event_btnGroupsConsecutiveActionPerformed
 
   private void btnGroupsByParentDirActionPerformed(

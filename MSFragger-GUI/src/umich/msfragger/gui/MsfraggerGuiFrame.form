@@ -853,7 +853,7 @@
                 <Component class="javax.swing.JButton" name="btnGroupsConsecutive">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Consecutive"/>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Assign each run to its own experiment.&lt;br/&gt;&#xa;&lt;b&gt;Names like &quot;experiment-01&quot;&lt;/b&gt; will be assgined."/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Assign each run to its own experiment.&lt;br/&gt; &lt;b&gt;Names like &quot;exp_1&quot;&lt;/b&gt; will be assgined."/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGroupsConsecutiveActionPerformed"/>
