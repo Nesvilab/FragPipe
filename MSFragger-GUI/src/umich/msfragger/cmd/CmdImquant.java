@@ -134,16 +134,6 @@ public class CmdImquant extends CmdBase {
     return s;
   }
 
-  public static String constructClasspathString(List<Path> jarDepsPaths, Path ... additionalJars) {
-    List<String> toJoin = new ArrayList<>();
-    final Function<Path, String> pathMapping = (Path p) -> p.toAbsolutePath().normalize().toString();
-    toJoin.addAll(jarDepsPaths.stream().map(pathMapping).collect(Collectors.toList()));
-    toJoin.addAll(Arrays.stream(additionalJars).map(pathMapping).collect(Collectors.toList()));
-    final String sep = System.getProperties().getProperty("path.separator");
-    final String classpath = org.apache.commons.lang3.StringUtils.join(toJoin, sep);
-    return OsUtils.isWindows() ? "\"" + classpath + "\"" : classpath;
-  }
-
   private boolean checkCompatibleFormats(Component comp,  Map<InputLcmsFile, Path> lcmsToPepxml, List<String> supportedFormats) {
     List<String> notSupportedExts = getNotSupportedExts1(lcmsToPepxml, supportedFormats);
     if (!notSupportedExts.isEmpty()) {
