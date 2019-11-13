@@ -16,6 +16,7 @@
  */
 package umich.msfragger.util;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Arrays;
 
@@ -117,10 +118,21 @@ public class OsUtils {
      */
     public static int getDefaultXmx() {
         final com.sun.management.OperatingSystemMXBean operatingSystemMXBean = ((com.sun.management.OperatingSystemMXBean) java.lang.management.ManagementFactory
-            .getOperatingSystemMXBean());
-        // Java has no builtin method to get system available memory, system free memory can be close to zero when system available memory is high.
-        // If gave an arbitrary value, it would have a high chance of exceeding the actual available memory, which would crash the program because GC cannot work appropriately.
-        // There is nothing we can do. Just give 0 and let users troubleshoot their computers.
-        return (int) (operatingSystemMXBean.getFreePhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0);
+                .getOperatingSystemMXBean());
+        if (isWindows()) {
+            // for Windows, this will get available memory
+            return (int) (operatingSystemMXBean.getFreePhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0);
+        } else {
+            // for linux, getFreePhysicalMemorySize, returns system free memory.
+            final int availMem;
+            try (final java.io.InputStream inputStream = new ProcessBuilder("free", "-wg").start().getInputStream()) {
+                final String s = new java.util.Scanner(inputStream).useDelimiter("\\A").next();
+                availMem = Integer.parseInt(s.split("\n")[1].split(" +")[7]);
+            } catch (IOException | NumberFormatException ex) {
+                // return system free memory if we can't get available memory
+                return (int) (operatingSystemMXBean.getFreePhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0);
+            }
+            return availMem;
+        }
     }
 }
