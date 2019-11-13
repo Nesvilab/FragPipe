@@ -63,6 +63,9 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("12.1", Arrays.asList(
+            "IMQuant fixes after initial release."
+    ));
     CHANGELOG.put("12.0", Arrays.asList(
         "Add IMQuant - quantitation for timsTOF.",
         "PTMShepherd updates - in-depth PTM analysis and reporting.",
