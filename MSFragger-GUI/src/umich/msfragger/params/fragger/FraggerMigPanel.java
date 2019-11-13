@@ -341,12 +341,18 @@ public class FraggerMigPanel extends JPanel {
       uiSpinnerPrecTolHi.setColumns(4);
       FormEntry feSpinnerPrecTolHi = new FormEntry(MsfraggerParams.PROP_precursor_mass_upper,
           "not-shown", uiSpinnerPrecTolHi);
+      FormEntry feDeisotope = new FormEntry(MsfraggerParams.PROP_deisotope,
+          "Deisotope", new UiSpinnerInt(0, 0, 1, 1, 4),
+          "<html>0 = deisotoping off<br/>\n"
+              + "1 = deisotoping on");
 
       pPeakMatch.add(fePrecTolUnits.label(), new CC().alignX("right"));
       pPeakMatch.add(fePrecTolUnits.comp, new CC().split(4));
       pPeakMatch.add(feSpinnerPrecTolLo.comp);
       pPeakMatch.add(new JLabel("-"), new CC());
-      pPeakMatch.add(feSpinnerPrecTolHi.comp, new CC().wrap());
+      pPeakMatch.add(feSpinnerPrecTolHi.comp, new CC());
+      pPeakMatch.add(feDeisotope.label(), new CC().alignX("right"));
+      pPeakMatch.add(feDeisotope.comp, new CC().wrap());
 
       // fragment mass tolerance
       FormEntry feFragTolUnits = new FormEntry(MsfraggerParams.PROP_fragment_mass_units,

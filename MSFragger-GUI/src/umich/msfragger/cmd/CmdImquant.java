@@ -22,7 +22,7 @@ public class CmdImquant extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdImquant.class);
 
   public static final String NAME = "IMQuant";
-  public static final String JAR_IMQUANT_NAME = "imquant-1.6.3.jazz";
+  public static final String JAR_IMQUANT_NAME = "imquant-1.6.5.jazz";
   public static final String JAR_MSFTBX_NAME = "batmass-io-1.17.1.jazz";
   public static final String JAR_IMQUANT_MAIN_CLASS = "imquant.IMQuant";
   private static String[] JAR_DEPS = {JAR_MSFTBX_NAME};
@@ -83,7 +83,18 @@ public class CmdImquant extends CmdBase {
     }
 
     if (extLibsBruker != null) {
-      cmd.add("-Dbruker.lib.path=\"" + extLibsBruker.toString() + "\"" );
+      cmd.add(createJavaDParamString("bruker.lib.path", extLibsBruker.toString()));
+    } else {
+      if (lcmsToFraggerPepxml.keySet().stream().anyMatch(f ->
+              f.getPath().getFileName().toString().toLowerCase().endsWith(".d"))) {
+        JOptionPane.showMessageDialog(comp,
+                "<html>When processing .d files IMQuant requires native Bruker libraries.<br/>\n"
+                + "Native libraries come with MSFragger zip download, contained in <i>ext</i><br/>\n"
+                + "sub-directory. If you don't have an <i>ext</i> directory next to MSfragger.jar<br/>\n"
+                + "please go to Config tab and Update MSFragger.",
+                NAME + "error", JOptionPane.WARNING_MESSAGE);
+        return false;
+      }
     }
 
     cmd.add("-cp");
@@ -132,16 +143,6 @@ public class CmdImquant extends CmdBase {
     if (s == null)
       throw new IllegalStateException("Could not get key: " + key);
     return s;
-  }
-
-  public static String constructClasspathString(List<Path> jarDepsPaths, Path ... additionalJars) {
-    List<String> toJoin = new ArrayList<>();
-    final Function<Path, String> pathMapping = (Path p) -> p.toAbsolutePath().normalize().toString();
-    toJoin.addAll(jarDepsPaths.stream().map(pathMapping).collect(Collectors.toList()));
-    toJoin.addAll(Arrays.stream(additionalJars).map(pathMapping).collect(Collectors.toList()));
-    final String sep = System.getProperties().getProperty("path.separator");
-    final String classpath = org.apache.commons.lang3.StringUtils.join(toJoin, sep);
-    return OsUtils.isWindows() ? "\"" + classpath + "\"" : classpath;
   }
 
   private boolean checkCompatibleFormats(Component comp,  Map<InputLcmsFile, Path> lcmsToPepxml, List<String> supportedFormats) {

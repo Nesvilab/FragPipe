@@ -127,27 +127,7 @@ import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
-import umich.msfragger.cmd.CmdCrystalc;
-import umich.msfragger.cmd.CmdImquant;
-import umich.msfragger.cmd.CmdIprophet;
-import umich.msfragger.cmd.CmdMsAdjuster;
-import umich.msfragger.cmd.CmdMsfragger;
-import umich.msfragger.cmd.CmdPeptideProphet;
-import umich.msfragger.cmd.CmdPhilosopherWorkspaceClean;
-import umich.msfragger.cmd.CmdPhilosopherWorkspaceCleanInit;
-import umich.msfragger.cmd.CmdProteinProphet;
-import umich.msfragger.cmd.CmdPtmshepherd;
-import umich.msfragger.cmd.CmdReportAbacus;
-import umich.msfragger.cmd.CmdReportDbAnnotate;
-import umich.msfragger.cmd.CmdReportFilter;
-import umich.msfragger.cmd.CmdReportFreequant;
-import umich.msfragger.cmd.CmdReportReport;
-import umich.msfragger.cmd.CmdSpecLibGen;
-import umich.msfragger.cmd.CmdUmpireSe;
-import umich.msfragger.cmd.PbiBuilder;
-import umich.msfragger.cmd.ProcessBuilderInfo;
-import umich.msfragger.cmd.ProcessBuildersDescriptor;
-import umich.msfragger.cmd.ToolingUtils;
+import umich.msfragger.cmd.*;
 import umich.msfragger.gui.ProcessDescription.Builder;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
@@ -1681,7 +1661,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     });
 
     btnGroupsConsecutive.setText("Consecutive");
-    btnGroupsConsecutive.setToolTipText("<html>Assign each run to its own experiment.<br/>\n<b>Names like \"experiment-01\"</b> will be assgined.");
+    btnGroupsConsecutive.setToolTipText("<html>Assign each run to its own experiment.<br/>\n<b>Names like \"exp_1\"</b> will be assgined.");
     btnGroupsConsecutive.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         btnGroupsConsecutiveActionPerformed(evt);
@@ -4157,9 +4137,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       final boolean isImquant = panelQuant.isImquant();
       final CmdImquant cmdImquant = new CmdImquant(isImquant, wd);
       if (cmdImquant.isRun()) {
-        final int ramGb = fp.getRamGb() > 0 ? fp.getRamGb() :
-            (int) (((com.sun.management.OperatingSystemMXBean) java.lang.management.ManagementFactory
-                .getOperatingSystemMXBean()).getFreePhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0);
+        final int ramGb = fp.getRamGb() > 0 ? fp.getRamGb() : OsUtils.getDefaultXmx();
         if (!cmdImquant.configure(this, Paths.get(binMsfragger.getBin()), ramGb, panelQuant.toMap(),
             pepxmlFilesFromMsfragger, mapGroupsToProtxml)) {
           return false;
@@ -4818,17 +4796,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGroupsConsecutiveActionPerformed
     UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
     final int groupNumMaxLen = (int) Math.ceil(Math.log(m.dataSize()));
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < groupNumMaxLen; i++) {
-      sb.append("0");
-    }
-    final DecimalFormat fmt = new DecimalFormat(sb.toString());
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      final String group = "experiment-" + fmt.format(i + 1);
-      m.dataSet(i, new InputLcmsFile(f.getPath(), group));
+      m.dataSet(i, new InputLcmsFile(f.getPath(), "exp", i + 1));
     }
-
   }//GEN-LAST:event_btnGroupsConsecutiveActionPerformed
 
   private void btnGroupsByParentDirActionPerformed(
@@ -4900,6 +4871,24 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnPrintCommandsActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintCommandsActionPerformed
+
+    // debugging section, triggered by Print Commands button
+//    String wd = txtWorkingDir.getText();
+//    if (wd == null) {
+//      log.error("work dir null");
+//      return;
+//    }
+//    Path wdp = Paths.get(wd);
+//    CmdBrukerLibLoadTest cmd = new CmdBrukerLibLoadTest(true, wdp);
+//    cmd.configure(getBinMsfragger());
+//    ProcessBuildersDescriptor pbd = cmd.getBuilderDescriptor();
+//    for (ProcessBuilderInfo pbi : pbd.pbis) {
+//      log.info("About to run external process");
+//      Runnable r = ProcessBuilderInfo.toRunnable(pbi, wdp, this::printProcessDescription);
+//      r.run();
+//    }
+
+
     EventBus.getDefault().post(new MessageRun(true));
   }//GEN-LAST:event_btnPrintCommandsActionPerformed
 

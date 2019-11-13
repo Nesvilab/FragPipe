@@ -16,6 +16,7 @@
  */
 package umich.msfragger.util;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Arrays;
 
@@ -107,5 +108,31 @@ public class OsUtils {
         // which might still be null
         String osArch = System.getProperty("os.arch");
         return osArch;
+    }
+
+    /**
+     * Calculate a reasonable size for JVM's memory allocation pool (-Xmx), to be used when a user does not
+     * set the size
+     *
+     * @return recommended size in Gb for JVM's -Xmx option
+     */
+    public static int getDefaultXmx() {
+        final com.sun.management.OperatingSystemMXBean operatingSystemMXBean = ((com.sun.management.OperatingSystemMXBean) java.lang.management.ManagementFactory
+                .getOperatingSystemMXBean());
+        if (isWindows()) {
+            // for Windows, this will get available memory
+            return (int) (operatingSystemMXBean.getFreePhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0);
+        } else {
+            // for linux, getFreePhysicalMemorySize, returns system free memory.
+            final int availMem;
+            try (final java.io.InputStream inputStream = new ProcessBuilder("free", "-wg").start().getInputStream()) {
+                final String s = new java.util.Scanner(inputStream).useDelimiter("\\A").next();
+                availMem = Integer.parseInt(s.split("\n")[1].split(" +")[7]);
+            } catch (IOException | NumberFormatException ex) {
+                // return system free memory if we can't get available memory
+                return (int) (operatingSystemMXBean.getFreePhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0);
+            }
+            return availMem;
+        }
     }
 }

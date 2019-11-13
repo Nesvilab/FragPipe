@@ -314,9 +314,7 @@ public class CmdMsfragger extends CmdBase {
       }
     }
 
-    final int ramGb = fp.getRamGb() > 0 ? fp.getRamGb() :
-        (int) (((com.sun.management.OperatingSystemMXBean) java.lang.management.ManagementFactory
-            .getOperatingSystemMXBean()).getFreePhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0);
+    final int ramGb = fp.getRamGb() > 0 ? fp.getRamGb() : OsUtils.getDefaultXmx();
 
     // 32k symbols splitting for regular command.
     // But for slicing it's all up to the python script.
