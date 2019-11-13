@@ -118,11 +118,9 @@ public class OsUtils {
     public static int getDefaultXmx() {
         final com.sun.management.OperatingSystemMXBean operatingSystemMXBean = ((com.sun.management.OperatingSystemMXBean) java.lang.management.ManagementFactory
             .getOperatingSystemMXBean());
-        final long freePhysicalMemorySize = operatingSystemMXBean.getFreePhysicalMemorySize();
-        final long totalPhysicalMemorySize = operatingSystemMXBean.getTotalPhysicalMemorySize();
-        // Java has no builtin method to get system available memory, system free memory can be close to zero when system available memory is high
-        final double mem = freePhysicalMemorySize < 0.75 * totalPhysicalMemorySize ?
-            0.75 * totalPhysicalMemorySize : freePhysicalMemorySize;
-        return (int) (mem / 1024.0 / 1024.0 / 1024.0);
+        // Java has no builtin method to get system available memory, system free memory can be close to zero when system available memory is high.
+        // If gave an arbitrary value, it would have a high chance of exceeding the actual available memory, which would crash the program because GC cannot work appropriately.
+        // There is nothing we can do. Just give 0 and let users troubleshoot their computers.
+        return (int) (operatingSystemMXBean.getFreePhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0);
     }
 }
