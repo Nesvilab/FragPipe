@@ -132,7 +132,7 @@ public class OsUtils {
                 // return system free memory if we can't get available memory
                 return (int) (operatingSystemMXBean.getFreePhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0);
             }
-            return availMem;
+            return availMem - 3; // Leave a few GB to make sure that the value for -Xmx is always smaller than the available memory.
         }
     }
 }
