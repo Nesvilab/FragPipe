@@ -17,6 +17,7 @@ remove_precursor_peak = 0           # 0 = not remove, 1 = only remove the peak w
 remove_precursor_range = -1.5,1.5   # Unit: Da. Default: -1.5,1.5
 intensity_transform = 0             # 0 = none, 1 = sqrt root. Default: 0
 
+deisotope = 0
 isotope_error = 0                      # 0=off, 0/1/2 (standard C13 error)
 mass_offsets = 0
 precursor_mass_mode = selected
@@ -45,7 +46,8 @@ variable_mod_02 = 42.01060 [^ 1
 # variable_mod_07 = 0.00000 site_07 1
 
 allow_multiple_variable_mods_on_residue = 0  	# static mods are not considered
-max_variable_mods_per_mod = 3 			        # maximum of 5
+max_variable_mods_per_mod = 3		            # maximum of 5
+max_variable_mods_per_peptide = 3		        # maximum of 5
 max_variable_mods_combinations = 5000  		    # maximum of 65534, limits number of modified peptides generated from sequence
 
 output_file_extension = pepXML	       #pepXML
