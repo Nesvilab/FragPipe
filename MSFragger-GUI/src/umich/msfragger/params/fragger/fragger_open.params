@@ -36,13 +36,13 @@ allowed_missed_cleavage = 1            # maximum value is 5
 clip_nTerm_M = 1 
 
 #maximum of 7 mods - amino acid codes, * for any amino acid, [ and ] specifies protein termini, n and c specifies peptide termini
-variable_mod_01 = 15.9949 M
-variable_mod_02 = 42.0106 [^
-#variable_mod_03 = 79.96633 STY
-#variable_mod_04 = -17.0265 nQnC
-#variable_mod_05 = -18.0106 nE
-#variable_mod_06 = 0 site_06
-#variable_mod_07 = 0 site_07
+variable_mod_01 = 15.99490 M 3
+variable_mod_02 = 42.01060 [^ 1
+# variable_mod_03 = 79.96633 STY 3
+# variable_mod_04 = -17.02650 nQnC 1
+# variable_mod_05 = -18.01060 nE 1
+# variable_mod_06 = 0.00000 site_06 1
+# variable_mod_07 = 0.00000 site_07 1
 
 allow_multiple_variable_mods_on_residue = 0  	# static mods are not considered
 max_variable_mods_per_mod = 3 			        # maximum of 5

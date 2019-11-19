@@ -30,6 +30,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.params.AbstractParams;
 import umich.msfragger.params.Props;
@@ -45,6 +48,7 @@ import umich.msfragger.util.StringUtils;
  * @author dmitriya
  */
 public class MsfraggerParams extends AbstractParams {
+    private static final Logger log = LoggerFactory.getLogger(MsfraggerParams.class);
 
     public static final Pattern reShiftedIonsExclusionRange = Pattern.compile("\\(\\s*(?<v1>-?\\d+(?:\\.\\d+)?)\\s*,\\s*(?<v2>-?\\d+(?:\\.\\d+)?)\\s*\\)");
 
@@ -80,7 +84,8 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_variable_mod = "variable_mod";
     public static final int VAR_MOD_COUNT_MAX = 7;  
     public static final String PROP_allow_multiple_variable_mods_on_residue = "allow_multiple_variable_mods_on_residue";
-    public static final String PROP_max_variable_mods_per_mod = "max_variable_mods_per_mod";
+    //public static final String PROP_max_variable_mods_per_mod = "max_variable_mods_per_mod";
+    public static final String PROP_max_variable_mods_per_peptide = "max_variable_mods_per_peptide";
     public static final String PROP_max_variable_mods_combinations = "max_variable_mods_combinations";
     
     public static final String PROP_output_file_extension = "output_file_extension";
@@ -148,7 +153,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_clip_nTerm_M,
         PROP_variable_mod,
         PROP_allow_multiple_variable_mods_on_residue,
-        PROP_max_variable_mods_per_mod,
+        PROP_max_variable_mods_per_peptide,
         PROP_max_variable_mods_combinations,
         PROP_output_file_extension,
         PROP_output_format,
@@ -257,8 +262,8 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_minimum_ratio, "filter peaks below this fraction of strongest peak");
         c.put(PROP_clear_mz_range, "for iTRAQ/TMT type data; will clear out all peaks in the specified m/z range");
         c.put(PROP_allow_multiple_variable_mods_on_residue, "static mods are not considered");
-        c.put(PROP_max_variable_mods_per_mod, "maximum of 5");
-        c.put(PROP_max_variable_mods_combinations, "maximum of 65534, limits number of modified peptides generated from sequence");
+        c.put(PROP_max_variable_mods_per_peptide, "maximum 5");
+        c.put(PROP_max_variable_mods_combinations, "maximum 65534, limits number of modified peptides generated from sequence");
         c.put(PROP_report_alternative_proteins, "0=no, 1=yes");
         c.put(PROP_remove_precursor_peak, "0 = not remove, 1 = only remove the peak with the precursor charge, 2 = remove all peaks with all charge states. Default: 0");
         c.put(PROP_remove_precursor_range, "Unit: Da. Default: -1.5,1.5");
@@ -812,12 +817,12 @@ public class MsfraggerParams extends AbstractParams {
         props.setProp(PROP_allow_multiple_variable_mods_on_residue, Integer.toString(vInt));
     }
     
-    public int getMaxVariableModsPerMod() {
-        return Integer.parseInt(props.getProp(PROP_max_variable_mods_per_mod, "3").value);
+    public int getMaxVariableModsPerPeptide() {
+        return Integer.parseInt(props.getProp(PROP_max_variable_mods_per_peptide, "3").value);
     }
     
-    public void setMaxVariableModsPerMod(int v) {
-        props.setProp(PROP_max_variable_mods_per_mod, Integer.toString(v));
+    public void setMaxVariableModsPerPeptide(int v) {
+        props.setProp(PROP_max_variable_mods_per_peptide, Integer.toString(v));
     }
     
     public int getMaxVariableModsCombinations() {
@@ -836,10 +841,10 @@ public class MsfraggerParams extends AbstractParams {
             if (p == null)
                 continue;
             String[] split = p.value.split("\\s+");
-            if (split.length != 2)
+            if (split.length != 3)
                 throw new IllegalStateException(String.format(
                         "Can't interpret variable mod from properties as delta mass and sites.\n"
-                        + "Splitting by '\\s+' regex resulted not in 2 columns, as expected.\n"
+                        + "Splitting by '\\s+' regex resulted not in 3 columns, as expected.\n"
                         + "Variable mod string was: \"%s\"", p.value));
             for (int j = 0; j < split.length; j++)
                 split[j] = split[j].trim();
@@ -858,8 +863,14 @@ public class MsfraggerParams extends AbstractParams {
                         "Can't interpret variable mod from properties as delta mass and sites.\n"
                         + "The second column was null or whitespace.\n"
                         + "Variable mod string was: \"%s\"", p.value));
-            
-            mods.add(new Mod(dm, split[1], p.isEnabled));
+            int maxOccurrences;
+            try {
+                maxOccurrences = Integer.parseInt(split[2]);
+            } catch (Exception e) {
+                throw new IllegalStateException("Could not parse max occurrences column for a variable mod in msfragger.");
+            }
+
+            mods.add(new Mod(dm, split[1], p.isEnabled, maxOccurrences));
         }
         
         return mods;
@@ -869,7 +880,11 @@ public class MsfraggerParams extends AbstractParams {
         for (int i = 0; i < mods.size(); i++) {
             Mod vm = mods.get(i);
             String name = String.format(Locale.ROOT, "%s_%02d", PROP_variable_mod, i+1);
-            String value = String.format(Locale.ROOT, "%.5f %s", vm.massDelta, vm.sites);
+            if (vm.maxOccurrences > 5) {
+                log.warn("Var mod max occurences was {}, 5 is max allowed, limiting to 5 for sites: {}, dm: {}",
+                        vm.maxOccurrences, vm.sites, vm.massDelta);
+            }
+            String value = String.format(Locale.ROOT, "%.5f %s %d", vm.massDelta, vm.sites, vm.maxOccurrences);
             props.setProp(name, value, vm.isEnabled);
         }
     }
@@ -886,7 +901,7 @@ public class MsfraggerParams extends AbstractParams {
             String sites = ADDON_MAP_NAME2HUMAN.get(siteName);
             if (sites == null)
                 throw new IllegalStateException("Could not map addon modificaiton site name to a human readable name.");
-            mods.add(new Mod(dm, sites, p.isEnabled));
+            mods.add(new Mod(dm, sites, p.isEnabled, 1));
         }
         
         return mods;

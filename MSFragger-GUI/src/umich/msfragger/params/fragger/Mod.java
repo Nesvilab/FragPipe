@@ -25,11 +25,13 @@ public class Mod {
     public final double massDelta;
     public final String sites;
     public final boolean isEnabled;
+    public final int maxOccurrences;
 
-    public Mod(double massDelta, String sites, boolean isEnabled) {
+    public Mod(double massDelta, String sites, boolean isEnabled, int maxOccurrences) {
         this.massDelta = massDelta;
         this.sites = sites;
         this.isEnabled = isEnabled;
+        this.maxOccurrences = maxOccurrences;
     }
     
 }

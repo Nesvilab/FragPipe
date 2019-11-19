@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.params.fragger.Mod;
 import umich.msfragger.util.StringUtils;
 
@@ -28,6 +31,7 @@ import umich.msfragger.util.StringUtils;
  * @author Dmitry Avtonomov
  */
 public class ModificationsTableModel extends DefaultTableModel {
+    private static final Logger log = LoggerFactory.getLogger(ModificationsTableModel.class);
     
     private static final long serialVersionUID = 1L;
     private Class<?>[] classes;
@@ -38,7 +42,8 @@ public class ModificationsTableModel extends DefaultTableModel {
     private static final int COL_ENABLED = 0;
     private static final int COL_SITES = 1;
     private static final int COL_DELTA = 2;
-    
+    private static final int COL_MAX_OCCURS = 3;
+
     
 
     /**
@@ -57,7 +62,7 @@ public class ModificationsTableModel extends DefaultTableModel {
         this.modMapping = modMapping;
     }
 
-    public Class getColumnClass(int columnIndex) {
+    public Class<?> getColumnClass(int columnIndex) {
         return classes [columnIndex];
     }
 
@@ -68,17 +73,27 @@ public class ModificationsTableModel extends DefaultTableModel {
     public List<Mod> getModifications() {
         ArrayList<Mod> list = new ArrayList<>(dataVector.size());
         for (int i = 0; i < dataVector.size(); i++) {
-            Vector row = (Vector)dataVector.get(i);
+            Vector<?> row = (Vector<?>)dataVector.get(i);
             if (row != null) {
                 Double delta = (Double)row.get(COL_DELTA);
                 String sites = (String)row.get(COL_SITES);
                 Boolean enabled = (Boolean)row.get(COL_ENABLED);
+                int maxOccurrences = -1;
+                if (row.size() > COL_MAX_OCCURS) {
+                    Object maxOccursCol = row.get(COL_MAX_OCCURS);
+                    if (maxOccursCol != null) {
+                        maxOccurrences = (Integer)row.get(COL_MAX_OCCURS);
+                    } else {
+                        maxOccurrences = 1;
+                    }
+                }
                 if (!StringUtils.isNullOrWhitespace(sites) && delta != null) {
-                    Mod m = new Mod(delta, sites, enabled);
+                    Mod m = new Mod(delta, sites, enabled, maxOccurrences);
                     list.add(m);
                 }
             } else {
-                // row is null? strange
+                // row is null? strange, but ok
+                log.warn("Null row found in modifications table");
             }
             
         }

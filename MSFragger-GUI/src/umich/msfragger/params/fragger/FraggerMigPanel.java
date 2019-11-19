@@ -53,18 +53,7 @@ import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -80,7 +69,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.ModificationsTableModel;
 import umich.msfragger.gui.api.SearchTypeProp;
+import umich.msfragger.gui.renderers.TableCellIntSpinnerEditor;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
+import umich.msfragger.gui.renderers.TableCellIntRenderer;
 import umich.msfragger.messages.MessageMsfraggerParamsUpdate;
 import umich.msfragger.messages.MessagePrecursorSelectionMode;
 import umich.msfragger.messages.MessageRun;
@@ -114,7 +105,7 @@ public class FraggerMigPanel extends JPanel {
   public static final String CACHE_FORM = "msfragger-form" + ThisAppProps.TEMP_FILE_EXT;
   public static final String CACHE_PROPS = "msfragger-props" + ThisAppProps.TEMP_FILE_EXT;
   private static final String[] TABLE_VAR_MODS_COL_NAMES = {"Enabled", "Site (editable)",
-      "Mass Delta (editable)"};
+      "Mass Delta (editable)", "Max occurrences (editable)"};
   private static final String[] TABLE_FIX_MODS_COL_NAMES = {"Enabled", "Site",
       "Mass Delta (editable)"};
   private static final String PROP_misc_adjust_precurosr_mass = "misc.adjust-precursor-mass";
@@ -292,9 +283,9 @@ public class FraggerMigPanel extends JPanel {
       pTop.add(btnDefaultsOpen, new CC().gapLeft("1px"));
       pTop.add(btnDefaultsNonspecific, new CC().gapLeft("1px").wrap());
 
-      JButton save = new JButton("Save Options");
+      JButton save = new JButton("Save Parameters");
       save.addActionListener(this::onClickSave);
-      JButton load = new JButton("Load Options");
+      JButton load = new JButton("Load Parameters");
       load.addActionListener(this::onClickLoad);
 
       uiSpinnerRam = new UiSpinnerInt(0, 0, 1024, 1, 3);
@@ -549,20 +540,52 @@ public class FraggerMigPanel extends JPanel {
       JPanel pVarmods = new JPanel(new MigLayout(new LC()));
       pVarmods.setBorder(new TitledBorder("Variable modifications"));
 
-      FormEntry feMaxVarmodsPerMod = new FormEntry(MsfraggerParams.PROP_max_variable_mods_per_mod,
-          "Max variable mods per mod",
-          new UiSpinnerInt(3, 0, 100, 1, 4));
+      FormEntry feMaxVarmodsPerMod = new FormEntry(MsfraggerParams.PROP_max_variable_mods_per_peptide,
+          "Max variable mods on a peptide",
+          new UiSpinnerInt(3, 0, 5, 1, 4),
+              "<html>The maximum number of variable modifications allowed per<br/>" +
+                      "peptide sequence. This number does not include fixed modifications.");
       FormEntry feMaxCombos = new FormEntry(MsfraggerParams.PROP_max_variable_mods_combinations,
           "Max combinations",
           new UiSpinnerInt(5000, 0, 100000, 500, 4));
       FormEntry feMultipleVarModsOnResidue = new FormEntry(
           MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue,
-          "not-shown", new UiCheck("Multiple var mods on residue", null));
+          "not-shown", new UiCheck("Multiple mods on residue", null),
+              "<html>Allow a single residue to carry multiple modifications.");
       tableVarMods = new JTable();
       tableVarMods.setModel(getDefaultVarModTableModel());
       tableVarMods.setToolTipText(
-          "<html>Variable Modifications.<br/>\nValues:<br/>\n<ul>\n<li>A-Z amino acid codes</li>\n<li>*​ ​is​ ​used​ ​to​ ​represent​ ​any​ ​amino​ ​acid</li>\n<li>^​ ​is​ ​used​ ​to​ ​represent​ ​a​ ​terminus</li>\n<li>[​ ​is​ ​a​ ​modifier​ ​for​ ​protein​ ​N-terminal</li>\n<li>]​ ​is​ ​a​ ​modifier​ ​for​ ​protein​ ​C-terminal</li>\n<li>n​ ​is​ ​a​ ​modifier​ ​for​ ​peptide​ ​N-terminal</li>\n<li>c​ ​is​ ​a​ ​modifier​ ​for​ ​peptide​ ​C-terminal</li>\n</ul>\nSyntax​ ​Examples:\n<ul>\n<li>15.9949​ ​M​ ​(for​ ​oxidation​ ​on​ ​methionine)</li>\n<li>79.66331​ ​STY​ ​(for​ ​phosphorylation)</li>\n<li>-17.0265​ ​nQnC​ ​(for​ ​pyro-Glu​ ​or​ ​loss​ ​of​ ​ammonia​ ​at peptide​ ​N-terminal)</li>\n</ul>\nExample​ ​(M​ ​oxidation​ ​and​ ​N-terminal​ ​acetylation):\n<ul>\n<li>variable_mod_01​ ​=​ ​15.9949​ ​M</li>\n<li>variable_mod_02​ ​=​ ​42.0106​ ​[^</li>\n</ul>");
+              "<html>Variable Modifications.<br/>\n" +
+                      "Values:<br/>\n" +
+                      "<ul>\n" +
+                      "<li>A-Z amino acid codes</li>\n" +
+                      "<li>*​ ​is​ ​used​ ​to​ ​represent​ ​any​ ​amino​ ​acid</li>\n" +
+                      "<li>^​ ​is​ ​used​ ​to​ ​represent​ ​a​ ​terminus</li>\n" +
+                      "<li>[​ ​is​ ​a​ ​modifier​ ​for​ ​protein​ ​N-terminal</li>\n" +
+                      "<li>]​ ​is​ ​a​ ​modifier​ ​for​ ​protein​ ​C-terminal</li>\n" +
+                      "<li>n​ ​is​ ​a​ ​modifier​ ​for​ ​peptide​ ​N-terminal</li>\n" +
+                      "<li>c​ ​is​ ​a​ ​modifier​ ​for​ ​peptide​ ​C-terminal</li>\n" +
+                      "</ul>\n" +
+                      "Syntax​ ​Examples:\n" +
+                      "<ul>\n" +
+                      "<li>15.9949​ ​M​ ​3(for​ ​oxidation​ ​on​ ​methionine)</li>\n" +
+                      "<li>79.66331​ ​STY​ 1​(for​ ​phosphorylation)</li>\n" +
+                      "<li>-17.0265​ ​nQnC​ ​1(for​ ​pyro-Glu​ ​or​ ​loss​ ​of​ ​ammonia​ ​at peptide​ ​N-terminal)</li>\n" +
+                      "</ul>\n" +
+                      "Example​ ​(M​ ​oxidation​ ​and​ ​N-terminal​ ​acetylation):\n" +
+                      "<ul>\n" +
+                      "<li>variable_mod_01​ ​=​ ​15.9949​ ​M 3</li>\n" +
+                      "<li>variable_mod_02​ ​=​ ​42.0106​ ​[^ 1</li>\n" +
+                      "</ul>");
       tableVarMods.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
+      tableVarMods.setDefaultRenderer(Integer.class, new TableCellIntRenderer());
+
+      // set cell editor for max occurs for var mods
+      DefaultCellEditor cellEditorMaxOccurs = new TableCellIntSpinnerEditor(1, 5, 1);
+      //String lastColName = tableVarMods.getColumnName(tableModelVarMods.getColumnCount() - 1);
+      //tableVarMods.getColumn(lastColName).setCellEditor(cellEditorMaxOccurs);
+      tableVarMods.setDefaultEditor(Integer.class, cellEditorMaxOccurs);
+
       tableVarMods.setFillsViewportHeight(true);
       SwingUtilities.invokeLater(() -> {
         setJTableColSize(tableVarMods, 0, 20, 150, 50);
@@ -1007,15 +1030,15 @@ public class FraggerMigPanel extends JPanel {
       data[i][0] = false;
       data[i][1] = null;
       data[i][2] = null;
+      data[i][3] = null;
     }
 
     tableModelVarMods = new ModificationsTableModel(
         TABLE_VAR_MODS_COL_NAMES,
-        new Class<?>[]{Boolean.class, String.class, Double.class},
-        new boolean[]{true, true, true},
-        new int[]{0, 1, 2},
+        new Class<?>[]{Boolean.class, String.class, Double.class, Integer.class},
+        new boolean[]{true, true, true, true},
+        new int[]{0, 1, 2, 3},
         data);
-
     return tableModelVarMods;
   }
 
@@ -1056,8 +1079,8 @@ public class FraggerMigPanel extends JPanel {
   private void formFrom(MsfraggerParams params) {
     Map<String, String> map = paramsTo(params);
     formFrom(map);
-    formFromMods(tableModelVarMods, TABLE_VAR_MODS_COL_NAMES, params.getVariableMods());
-    formFromMods(tableModelFixMods, TABLE_FIX_MODS_COL_NAMES, params.getAdditionalMods());
+    formFromVarMods(tableModelVarMods, TABLE_VAR_MODS_COL_NAMES, params.getVariableMods());
+    formFromFixMods(tableModelFixMods, TABLE_FIX_MODS_COL_NAMES, params.getAdditionalMods());
     updateRowHeights(tableVarMods);
     setJTableColSize(tableVarMods, 0, 20, 150, 50);
     updateRowHeights(tableFixMods);
@@ -1089,8 +1112,13 @@ public class FraggerMigPanel extends JPanel {
     return editor.stopCellEditing();
   }
 
-  private void formFromMods(ModificationsTableModel model, Object[] colNames, List<Mod> mods) {
-    Object[][] data = modListToTableData(mods);
+  private void formFromVarMods(ModificationsTableModel model, Object[] colNames, List<Mod> mods) {
+    Object[][] data = modListToVarTableData(mods);
+    model.setDataVector(data, colNames);
+  }
+
+  private void formFromFixMods(ModificationsTableModel model, Object[] colNames, List<Mod> mods) {
+    Object[][] data = modListToFixTableData(mods);
     model.setDataVector(data, colNames);
   }
 
@@ -1263,8 +1291,19 @@ public class FraggerMigPanel extends JPanel {
     return mods.stream().anyMatch(m -> m.sites != null && m.sites.contains("[*"));
   }
 
-  private Object[][] modListToTableData(List<Mod> mods) {
-    final Object[][] data = new Object[mods.size()][3];
+  private Object[][] modListToVarTableData(List<Mod> mods) {
+    final Object[][] data = new Object[mods.size()][TABLE_VAR_MODS_COL_NAMES.length];
+    for (int i = 0; i < mods.size(); i++) {
+      Mod m = mods.get(i);
+      data[i][0] = m.isEnabled;
+      data[i][1] = m.sites;
+      data[i][2] = m.massDelta;
+      data[i][3] = m.maxOccurrences;
+    }
+    return data;
+  }
+  private Object[][] modListToFixTableData(List<Mod> mods) {
+    final Object[][] data = new Object[mods.size()][TABLE_FIX_MODS_COL_NAMES.length];
     for (int i = 0; i < mods.size(); i++) {
       Mod m = mods.get(i);
       data[i][0] = m.isEnabled;
