@@ -4822,7 +4822,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      String group = f.getPath().getFileName().toString();
+      String group = StringUtils.upToLastDot(f.getPath().getFileName().toString());
       m.dataSet(i, new InputLcmsFile(f.getPath(), group));
     }
   }//GEN-LAST:event_btnGroupsByFilenameActionPerformed
