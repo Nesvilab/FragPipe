@@ -108,17 +108,14 @@ public class CmdMsfragger extends CmdBase {
         local = supportedFilePredicate;
         if (local == null) {
           final GetSupportedExts exts = new GetSupportedExts(searchPaths).invoke();
-          supportedFilePredicate = local = new Predicate<File>() {
-            @Override
-            public boolean test(File file) {
-              String fnLoCase = file.getName().toLowerCase();
-              for (String ext : exts.exts) {
-                if (fnLoCase.endsWith(ext)) {
-                  return true;
-                }
+          supportedFilePredicate = local = file -> {
+            String fnLoCase = file.getName().toLowerCase();
+            for (String ext : exts.exts) {
+              if (fnLoCase.endsWith(ext)) {
+                return true;
               }
-              return false;
             }
+            return false;
           };
         }
       }

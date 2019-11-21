@@ -48,15 +48,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -64,23 +56,11 @@ import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -89,28 +69,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JEditorPane;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
-import javax.swing.ToolTipManager;
-import javax.swing.UIManager;
+import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -832,31 +792,50 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     // vet/check input LCMS files for bad naming
     final javax.swing.filechooser.FileFilter ff = CmdMsfragger
         .getFileChooserFilter(Arrays.asList(getBinMsfragger()));
-    final HashMap<Path, String> reasons = new HashMap<>();
-    String allowedChars = "[A-Za-z0-9-_\\+\\.\\[\\]\\(\\)]";
+    final HashMap<Path, Set<String>> reasonsDir = new HashMap<>();
+    final HashMap<Path, Set<String>> reasonsFn = new HashMap<>();
+    //final HashMap<String, List<Path>> reasonsRev = new HashMap<>();
+    final String allowedChars = "[A-Za-z0-9-_+.\\[\\]()]";
     Pattern re = Pattern.compile(allowedChars + "+");
-    m.paths.stream()
-        .filter(p -> !com.github.chhh.utils.StringUtils.isPureAscii(p.toString()))
-        .forEach(p -> { reasons.merge(p, "Non-ASCII chars", (s1, s2) -> String.join(", ", s1, s2)); });
-    m.paths.stream()
-        .filter(p -> p.toString().contains(" "))
-        .forEach(p -> { reasons.merge(p, "Contains spaces", (s1, s2) -> String.join(", ", s1, s2)); });
-    m.paths.stream()
-        .filter(p -> p.getFileName().toString().chars().filter(ch -> ch == '.').count() > 1)
-        .forEach(p -> { reasons.merge(p, "Contains dots", (s1, s2) -> String.join(", ", s1, s2)); });
-    m.paths.stream()
-        .filter(p -> !ff.accept(p.toFile()))
-        .forEach(p -> { reasons.merge(p, "Not supported", (s1, s2) -> String.join(", ", s1, s2)); });
-    m.paths.stream()
-        .filter(p -> !re.matcher(p.getFileName().toString()).matches())
-        .forEach(p -> { reasons.merge(p, "Contains characters other than: " + allowedChars, (s1, s2) -> String.join(", ", s1, s2)); });
+    final String REASON_NON_ASCII = "Non-ASCII chars";
+    final String REASON_PATH_SPACES = "Path contains spaces";
+    final String REASON_FN_DOTS = "Filename contains dots";
+    final String REASON_UNSUPPORTED = "Not supported";
+    final String REASON_DISALLOWED_CHARS = "Contains characters other than: " + allowedChars;
+
+    for (Path path : m.paths) {
+      Set<String> why = InputLcmsFile.validatePath(path.getParent());
+      if (!why.isEmpty()) {
+        reasonsDir.put(path, why);
+      }
+    }
+
+    for (Path path : m.paths) {
+      Set<String> why = InputLcmsFile.validateFilename(path.getFileName());
+      if (!why.isEmpty()) {
+        reasonsFn.put(path, why);
+      }
+    }
 
     Stream<Path> toAdd = m.paths.stream();
-    if (!reasons.isEmpty()) {
-      String[] columns = {"Reason", "Path"};
-      String[][] data = new String[reasons.size()][2];
+
+    // in case there were suspicious paths
+    if (!reasonsDir.isEmpty() || !reasonsFn.isEmpty()) {
+      HashMap<Path, String> path2reasons = new HashMap<>();
+      for (Entry<Path, Set<String>> kv : reasonsDir.entrySet()) {
+        for (String reason : kv.getValue()) {
+          path2reasons.compute(kv.getKey(), (path, s) -> s == null ? "Direcotry " + reason : s.concat(", Direcotry " + reason));
+        }
+      }
+      for (Entry<Path, Set<String>> kv : reasonsFn.entrySet()) {
+        for (String reason : kv.getValue()) {
+          path2reasons.compute(kv.getKey(), (path, s) -> s == null ? "File name " + reason : s.concat(", File name " + reason));
+        }
+      }
+      String[] columns = {"Reasons", "Path"};
+      String[][] data = new String[path2reasons.size()][2];
       int index = -1;
-      for (Entry<Path, String> kv : reasons.entrySet()) {
+      for (Entry<Path, String> kv : path2reasons.entrySet()) {
         data[++index][0] = kv.getValue();
         data[index][1] = kv.getKey().toString();
       }
@@ -865,24 +844,94 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       JTable table = new JTable(model);
       table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
       JPanel panel = new JPanel(new BorderLayout());
-      panel.add(new JLabel("<html>Found problems with some files (" + Integer.toString(reasons.size()) + ").<br/>"
+      panel.add(new JLabel("<html>Found problems with some files (" + path2reasons.size() + ").<br/>"
           + "This <b>will likely cause trouble</b> with some of processing tools.<br/><br/>"
           + "Do you want to add these files?<br/>"), BorderLayout.NORTH);
       panel.add(Box.createVerticalStrut(100), BorderLayout.CENTER);
       panel.add(new  JScrollPane(table), BorderLayout.CENTER);
+      SwingUtils.makeDialogResizable(panel);
 
-      String[] options = {"Cancel", "Add anyway", "Only add well-behaved paths"};
+
+      String[] options;
+      if (!reasonsFn.isEmpty()) {
+        options = new String[]{"Cancel", "Add anyway", "Only add well-behaved files", "Rename files"};
+      } else {
+        options = new String[]{"Cancel", "Add anyway", "Only add well-behaved files"};
+      }
+
       int confirmation = JOptionPane
           .showOptionDialog(this, panel, "Add these files?",
               JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+
       switch (confirmation) {
         case 0:
           return;
         case 1:
           break;
         case 2:
-          int a = 1;
-          toAdd = toAdd.filter(path -> !reasons.containsKey(path));
+          toAdd = toAdd.filter(path -> !path2reasons.containsKey(path));
+          break;
+        case 3: // rename files
+          int confirm1 = SwingUtils.showConfirmDialog(this, new JLabel(
+                  "<html>Attempt to rename files without moving them.<br/>\n" +
+                          "This is a non-reversible operation.<br/><br/>\n" +
+                          "We'll show you a preview before proceeding with actual renaming.<br/>\n" +
+                          "Do you want to continue?"));
+          if (JOptionPane.YES_OPTION != confirm1) {
+            return;
+          }
+          final Map<Path, Path> renamed = reasonsFn.keySet().stream()
+                  .collect(Collectors.toMap(Function.identity(), InputLcmsFile::renameBadFile));
+          Set<Path> uniqueRenamed = new HashSet<>(renamed.values());
+          if (uniqueRenamed.size() != reasonsFn.size()) {
+            SwingUtils.showDialog(this, new JLabel(
+                            "<html>Renaming given files according to our scheme would result<br/>\n" +
+                                    "in clashing file paths. Renaming cancelled. Consider renaming manually.<br/>\n" +
+                                    "It is preferable to not have spaces in file names and to not have more than one dot."),
+                    "Not safe to rename files", JOptionPane.WARNING_MESSAGE);
+            return;
+          }
+
+          final AtomicInteger renamedExist = new AtomicInteger(0);
+          for (Path path : uniqueRenamed) {
+            if (Files.exists(path)) {
+              renamedExist.incrementAndGet();
+            }
+          }
+          if (renamedExist.get() > 0) {
+            SwingUtils.showDialog(this, new JLabel(
+                            "<html>Renaming given files according to our scheme would result<br/>\n" +
+                                    "in file paths that already exist on your computer.<br/>\n" +
+                                    "Renaming cancelled."),
+                    "Not safe to rename files", JOptionPane.WARNING_MESSAGE);
+            return;
+          }
+
+          final AtomicInteger renamedOk = new AtomicInteger(0);
+          final Map<Path, Path> couldNotRename = new HashMap<>();
+          SwingUtils.runThreadWithProgressBar("Renaming files", this, () -> {
+            for (Entry<Path, Path> kv : renamed.entrySet()) {
+              try {
+                Files.move(kv.getKey(), kv.getValue());
+                renamedOk.incrementAndGet();
+              } catch (Exception e) {
+                log.error(String.format("From '%s' to '%s' at '%s'",
+                        kv.getKey().getFileName(), kv.getValue().getFileName(), kv.getKey().getParent()));
+                couldNotRename.put(kv.getKey(), kv.getValue());
+              }
+            }
+          });
+          if (renamedOk.get() != renamed.size()) {
+            JPanel pane = new JPanel(new BorderLayout());
+            pane.add(new JLabel("<html>Unfortunately could not rename some of the files:<br/>"), BorderLayout.NORTH);
+            pane.add(SwingUtils.tableFromTwoSiblingFiles(couldNotRename), BorderLayout.CENTER);
+            SwingUtils.showDialog(this, pane, "Renaming failed", JOptionPane.WARNING_MESSAGE);
+            return;
+          }
+
+          // renaming succeeded, change paths to renamed ones
+          toAdd = toAdd.map(renamed::get);
+
           break;
       }
     }
@@ -892,6 +941,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         toAdd.map(path -> new InputLcmsFile(path, ThisAppProps.DEFAULT_LCMS_EXP_NAME))
         .collect(Collectors.toList()));
   }
+
+
 
   @Subscribe
   public void onTipNotification(MessageTipNotification m) {
@@ -2494,7 +2545,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       if (retVal != JFileChooser.APPROVE_OPTION)
         return;
       final List<Path> paths = Arrays.stream(fc.getSelectedFiles())
-          .filter(f -> supportedFilePredicate.test(f))
+          .filter(supportedFilePredicate)
           .map(File::toPath)
           .collect(Collectors.toList());
       if (paths.isEmpty()) {

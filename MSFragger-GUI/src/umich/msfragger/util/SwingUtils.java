@@ -47,36 +47,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JEditorPane;
-import javax.swing.JFileChooser;
-import javax.swing.JFormattedTextField;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JToggleButton;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.msfragger.cmd.PbiBuilder;
+import umich.msfragger.cmd.ProcessBuilderInfo;
+import umich.msfragger.gui.ProcessResult;
 
 /**
  * @author dmitriya
@@ -88,6 +75,52 @@ public class SwingUtils {
   private static final Object fontLock = new Object();
 
   private SwingUtils() {
+  }
+
+  public static void runThreadWithProgressBar(String title, Component parent, Runnable runnable) {
+    JFrame frame = SwingUtils.findParentFrame(parent);
+    final JDialog dlg = new JDialog(frame, title, true);
+    JProgressBar bar = new JProgressBar(0, 100);
+    bar.setIndeterminate(true);
+    Dimension d = new Dimension(300, 75);
+    bar.setMinimumSize(d);
+    bar.setSize(d);
+    dlg.add(bar, BorderLayout.CENTER);
+    dlg.setSize(d);
+    dlg.setLocationRelativeTo(parent);
+
+    Thread updateThread = new Thread(() -> {
+      try {
+        runnable.run();
+      } catch (Exception ex) {
+        throw new IllegalStateException("Something happened while running behind a progress bar", ex);
+      } finally {
+        dlg.setVisible(false);
+        dlg.dispose();
+      }
+
+    });
+    updateThread.start();
+  }
+
+  public static JTable tableFromTwoSiblingFiles(Map<Path, Path> paths) {
+    String[] columns = {"From", "To", "At"};
+    String[][] data = new String[paths.size()][3];
+    int index = -1;
+    for (Entry<Path, Path> kv : paths.entrySet()) {
+      data[++index][0] = kv.getKey().getFileName().toString();
+      data[index][1] = kv.getValue().getFileName().toString();
+      if (!kv.getValue().getParent().equals(kv.getKey().getParent())) {
+        throw new IllegalArgumentException("Files must be siblings");
+      }
+      data[index][2] = kv.getKey().getParent().toString();
+    }
+
+    DefaultTableModel model = new DefaultTableModel(data, columns);
+    JTable table = new JTable(model);
+    table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+    return table;
   }
 
   public static String getStrVal(Component c) {
@@ -488,6 +521,7 @@ public class SwingUtils {
    * @param component The component to be used as the message.
    */
   public static void showDialog(Component parent, final Component component) {
+    makeDialogResizable(component);
     JOptionPane.showMessageDialog(parent, wrapInScrollForDialog(component));
   }
 
@@ -497,6 +531,7 @@ public class SwingUtils {
    * @param component The component to be used as the message.
    */
   public static void showDialog(Component parent, final Component component, String title, int msgType) {
+    makeDialogResizable(component);
     JOptionPane.showMessageDialog(parent, wrapInScrollForDialog(component), title, msgType);
   }
 
@@ -506,6 +541,7 @@ public class SwingUtils {
    * @param component The component to be used as the message.
    */
   public static int showConfirmDialog(Component parent, final Component component) {
+    makeDialogResizable(component);
     return JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component));
   }
 

@@ -1,12 +1,25 @@
 package umich.msfragger.gui;
 
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import umich.msfragger.util.StringUtils;
 
 public class InputLcmsFile {
     private final Path path;
     private final String experiment;
     private final Integer replicate;
+
+    public static final String REASON_NON_ASCII = "has non-ASCII chars";
+    public static final String REASON_DOTS = "has dots";
+    public static final String REASON_MULTIPLE_DOTS = "has multiple dots";
+    public static final String REASON_SPACES = "has spaces";
+    public static final String REASON_UNSUPPORTED = "not supported";
+    public static final String allowedChars = "[A-Za-z0-9-_+.\\[\\]()]";
+    public static final String REASON_DISALLOWED_CHARS = "has characters other than: " + allowedChars;
+
 
     public InputLcmsFile(Path path, String experiment) {
         this(path, experiment, null);
@@ -72,5 +85,54 @@ public class InputLcmsFile {
 
     public Path getPath() {
         return path;
+    }
+
+    private static<T> void addNonNull(Collection<? super T> collection, T value) {
+        if (value != null) {
+            collection.add(value);
+        }
+    }
+
+    public static Set<String> validatePath(Path p) {
+        String dir = p.getParent().toString();
+        Set<String> reasons = new HashSet<>();
+        addNonNull(reasons, testIsNotAscii(dir));
+        addNonNull(reasons, testHasSpaces(dir));
+        return reasons;
+    }
+
+    public static Set<String> validateFilename(Path p) {
+        String fn = p.getFileName().toString();
+        Set<String> reasons = new HashSet<>();
+        addNonNull(reasons, testIsNotAscii(fn));
+        addNonNull(reasons, testHasSpaces(fn));
+        addNonNull(reasons, testHasMoreThanOneDot(fn));
+        return reasons;
+    }
+
+    private static String testIsNotAscii(String s) {
+        return (s != null && !com.github.chhh.utils.StringUtils.isPureAscii(s)) ? REASON_NON_ASCII : null;
+    }
+
+    private static String testHasSpaces(String s) {
+        return (s != null && s.contains(" ")) ? REASON_SPACES : null;
+    }
+
+    private static String testHasDots(String s) {
+        return (s != null && s.contains(".")) ? REASON_DOTS : null;
+    }
+
+    private static String testHasMoreThanOneDot(String s) {
+        return (s != null && s.chars().filter(c -> c == '.').count() > 1) ? REASON_MULTIPLE_DOTS : null;
+    }
+
+    public static Path renameBadFile(Path p) {
+        String oldFn = p.getFileName().toString();
+        final String replacement = "_";
+        String newFn = oldFn.replaceAll(" ", replacement);
+        if (testHasDots(newFn) != null) {
+            newFn = StringUtils.upToLastDot(newFn).replaceAll("\\.", replacement) + "." + StringUtils.afterLastDot(newFn);
+        }
+        return p.resolveSibling(newFn);
     }
 }
