@@ -806,20 +806,20 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final String REASON_DISALLOWED_CHARS = "Contains characters other than: " + allowedChars;
 
     for (Path path : m.paths) {
-      Set<String> why = InputLcmsFile.validatePath(path.getParent());
+      Set<String> why = InputLcmsFile.validatePath(path.getParent().toString());
       if (!why.isEmpty()) {
         reasonsDir.put(path, why);
       }
     }
 
     for (Path path : m.paths) {
-      Set<String> why = InputLcmsFile.validateFilename(path.getFileName());
+      Set<String> why = InputLcmsFile.validateFilename(path.getFileName().toString());
       if (!why.isEmpty()) {
         reasonsFn.put(path, why);
       }
     }
 
-    Stream<Path> toAdd = m.paths.stream();
+    List<Path> toAdd = new ArrayList<>(m.paths);
 
     // in case there were suspicious paths
     if (!reasonsDir.isEmpty() || !reasonsFn.isEmpty()) {
@@ -870,7 +870,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         case 1:
           break;
         case 2:
-          toAdd = toAdd.filter(path -> !path2reasons.containsKey(path));
+          toAdd = toAdd.stream().filter(path -> !path2reasons.containsKey(path)).collect(Collectors.toList());
           break;
         case 3: // rename files
           int confirm1 = SwingUtils.showConfirmDialog(this, new JLabel(
@@ -881,23 +881,22 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           if (JOptionPane.YES_OPTION != confirm1) {
             return;
           }
-          final Map<Path, Path> renamed = reasonsFn.keySet().stream()
+          final Map<Path, Path> toRename = reasonsFn.keySet().stream()
                   .collect(Collectors.toMap(Function.identity(), InputLcmsFile::renameBadFile));
-          Set<Path> uniqueRenamed = new HashSet<>(renamed.values());
+          Set<Path> uniqueRenamed = new HashSet<>(toRename.values());
           if (uniqueRenamed.size() != reasonsFn.size()) {
             SwingUtils.showDialog(this, new JLabel(
                             "<html>Renaming given files according to our scheme would result<br/>\n" +
                                     "in clashing file paths. Renaming cancelled. Consider renaming manually.<br/>\n" +
-                                    "It is preferable to not have spaces in file names and to not have more than one dot."),
+                                    "It is preferable to not have spaces in file names, not have more than one dot<br/>\n" +
+                                    "and to not use non-latin characters."),
                     "Not safe to rename files", JOptionPane.WARNING_MESSAGE);
             return;
           }
 
-          final AtomicInteger renamedExistCount = new AtomicInteger(0);
           final Map<Path, Path> existingRenames = new HashMap<>();
-          for (Entry<Path, Path> kv : renamed.entrySet()) {
+          for (Entry<Path, Path> kv : toRename.entrySet()) {
             if (Files.exists(kv.getValue())) {
-              renamedExistCount.incrementAndGet();
               existingRenames.put(kv.getKey(), kv.getValue());
             }
           }
@@ -913,37 +912,54 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             return;
           }
 
-          final Map<Path, Path> couldNotRename = new HashMap<>();
-          SwingUtils.runThreadWithProgressBar("Renaming files", this, () -> {
-            for (Entry<Path, Path> kv : renamed.entrySet()) {
-              try {
-                Files.move(kv.getKey(), kv.getValue());
-              } catch (Exception e) {
-                log.error(String.format("From '%s' to '%s' at '%s'",
-                        kv.getKey().getFileName(), kv.getValue().getFileName(), kv.getKey().getParent()));
-                couldNotRename.put(kv.getKey(), kv.getValue());
-              }
-            }
-          });
-          if (!couldNotRename.isEmpty()) {
-            JPanel pane = new JPanel(new BorderLayout());
-            pane.add(new JLabel("<html>Unfortunately could not rename some of the files:<br/>"), BorderLayout.NORTH);
-            pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(couldNotRename)), BorderLayout.CENTER);
-            SwingUtils.showDialog(this, pane, "Renaming failed", JOptionPane.WARNING_MESSAGE);
+        {
+          JPanel pane = new JPanel(new BorderLayout());
+          pane.add(new JLabel("<html>Proposed renaming scheme, do you agree?<br/>\n"));
+          pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(toRename)));
+          int confirm2 = SwingUtils.showConfirmDialog(this, pane);
+          if (JOptionPane.YES_OPTION != confirm2) {
             return;
           }
+        }
 
-          // renaming succeeded, change paths to renamed ones
-          toAdd = toAdd.map(renamed::get);
+        final Map<Path, Path> couldNotRename = new HashMap<>();
+        final Map<Path, Path> renamedOk = new HashMap<>();
+        Runnable runnable = () -> {
+          for (Entry<Path, Path> kv : toRename.entrySet()) {
+            try {
+              Files.move(kv.getKey(), kv.getValue());
+              renamedOk.put(kv.getKey(), kv.getValue());
+            } catch (Exception e) {
+              log.error(String.format("From '%s' to '%s' at '%s'",
+                      kv.getKey().getFileName(), kv.getValue().getFileName(), kv.getKey().getParent()));
+              couldNotRename.put(kv.getKey(), kv.getValue());
+            }
+          }
+        };
 
-          break;
+        SwingUtils.DialogAndThread dat = SwingUtils.runThreadWithProgressBar("Renaming files", this, runnable);
+        dat.thread.start();
+        dat.dialog.setVisible(true);
+
+        if (!couldNotRename.isEmpty()) {
+          JPanel pane = new JPanel(new BorderLayout());
+          pane.add(new JLabel("<html>Unfortunately could not rename some of the files:<br/>"), BorderLayout.NORTH);
+          pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(couldNotRename)), BorderLayout.CENTER);
+          SwingUtils.showDialog(this, pane, "Renaming failed", JOptionPane.WARNING_MESSAGE);
+          return;
+        }
+
+        // renaming succeeded, change paths to renamed ones
+        toAdd = toAdd.stream().map(path -> renamedOk.getOrDefault(path, path)).collect(Collectors.toList());
+
+        break;
       }
     }
 
     // add the files
     tableModelRawFiles.dataAddAll(
-        toAdd.map(path -> new InputLcmsFile(path, ThisAppProps.DEFAULT_LCMS_EXP_NAME))
-        .collect(Collectors.toList()));
+            toAdd.stream().map(p -> new InputLcmsFile(p, ThisAppProps.DEFAULT_LCMS_EXP_NAME)).collect(Collectors.toList())
+    );
   }
 
 

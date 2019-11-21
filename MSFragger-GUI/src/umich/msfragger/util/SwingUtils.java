@@ -28,8 +28,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.Window;
-import java.awt.event.HierarchyEvent;
-import java.awt.event.HierarchyListener;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -47,7 +45,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -61,9 +58,6 @@ import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.cmd.PbiBuilder;
-import umich.msfragger.cmd.ProcessBuilderInfo;
-import umich.msfragger.gui.ProcessResult;
 
 /**
  * @author dmitriya
@@ -77,30 +71,40 @@ public class SwingUtils {
   private SwingUtils() {
   }
 
-  public static void runThreadWithProgressBar(String title, Component parent, Runnable runnable) {
+  public static DialogAndThread runThreadWithProgressBar(String title, Component parent, Runnable runnable) {
     JFrame frame = SwingUtils.findParentFrame(parent);
-    final JDialog dlg = new JDialog(frame, title, true);
+    final JDialog dialog = new JDialog(frame, title, true);
     JProgressBar bar = new JProgressBar(0, 100);
     bar.setIndeterminate(true);
     Dimension d = new Dimension(300, 75);
     bar.setMinimumSize(d);
     bar.setSize(d);
-    dlg.add(bar, BorderLayout.CENTER);
-    dlg.setSize(d);
-    dlg.setLocationRelativeTo(parent);
+    dialog.add(bar, BorderLayout.CENTER);
+    dialog.setSize(d);
+    dialog.setLocationRelativeTo(parent);
 
-    Thread updateThread = new Thread(() -> {
+    Thread thread = new Thread(() -> {
       try {
         runnable.run();
       } catch (Exception ex) {
         throw new IllegalStateException("Something happened while running behind a progress bar", ex);
       } finally {
-        dlg.setVisible(false);
-        dlg.dispose();
+        dialog.setVisible(false);
+        dialog.dispose();
       }
 
     });
-    updateThread.start();
+    return new DialogAndThread(dialog, thread);
+  }
+
+  public static class DialogAndThread {
+    public final JDialog dialog;
+    public final Thread thread;
+
+    public DialogAndThread(JDialog dialog, Thread thread) {
+      this.dialog = dialog;
+      this.thread = thread;
+    }
   }
 
   public static JTable tableFromTwoSiblingFiles(Map<Path, Path> paths) {

@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import umich.msfragger.util.StringUtils;
 
@@ -18,6 +19,7 @@ public class InputLcmsFile {
     public static final String REASON_SPACES = "has spaces";
     public static final String REASON_UNSUPPORTED = "not supported";
     public static final String allowedChars = "[A-Za-z0-9-_+.\\[\\]()]";
+    public static final String disallowedChars = "[^A-Za-z0-9-_ +.\\[\\]()]";
     public static final String REASON_DISALLOWED_CHARS = "has characters other than: " + allowedChars;
 
 
@@ -93,20 +95,22 @@ public class InputLcmsFile {
         }
     }
 
-    public static Set<String> validatePath(Path p) {
-        String dir = p.getParent().toString();
+    public static Set<String> validatePath(String dir) {
+//        if (p.getFileName().toString().contains("2file space")) {
+//            int a = 1;
+//        }
         Set<String> reasons = new HashSet<>();
         addNonNull(reasons, testIsNotAscii(dir));
         addNonNull(reasons, testHasSpaces(dir));
         return reasons;
     }
 
-    public static Set<String> validateFilename(Path p) {
-        String fn = p.getFileName().toString();
+    public static Set<String> validateFilename(String fn) {
         Set<String> reasons = new HashSet<>();
         //addNonNull(reasons, testIsNotAscii(fn));
         addNonNull(reasons, testHasSpaces(fn));
         addNonNull(reasons, testHasMoreThanOneDot(fn));
+        addNonNull(reasons, testHasNonAllowedChars(fn));
         return reasons;
     }
 
@@ -126,6 +130,13 @@ public class InputLcmsFile {
         return (s != null && s.chars().filter(c -> c == '.').count() > 1) ? REASON_MULTIPLE_DOTS : null;
     }
 
+    private static String testHasNonAllowedChars(String s) {
+        if (s == null) {
+            return null;
+        }
+        return Pattern.compile(disallowedChars).matcher(s).find() ? REASON_DISALLOWED_CHARS : null;
+    }
+
     public static Path renameBadFile(Path p) {
         String oldFn = p.getFileName().toString();
         final String replacement = "_";
@@ -133,6 +144,7 @@ public class InputLcmsFile {
         if (testHasDots(newFn) != null) {
             newFn = StringUtils.upToLastDot(newFn).replaceAll("\\.", replacement) + "." + StringUtils.afterLastDot(newFn);
         }
+        newFn = newFn.replaceAll(disallowedChars, replacement);
         return p.resolveSibling(newFn);
     }
 }
