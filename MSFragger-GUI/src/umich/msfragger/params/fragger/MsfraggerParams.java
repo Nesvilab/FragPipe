@@ -42,6 +42,9 @@ import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.enums.FraggerPrecursorMassMode;
 import umich.msfragger.params.enums.MassTolUnits;
 import umich.msfragger.util.StringUtils;
+import umich.msfragger.util.SwingUtils;
+
+import javax.swing.*;
 
 /**
  *
@@ -835,19 +838,33 @@ public class MsfraggerParams extends AbstractParams {
     
     public List<Mod> getVariableMods() {
         ArrayList<Mod> mods = new ArrayList<>(VAR_MOD_COUNT_MAX);
+        boolean haveShownOldParamsFileWarning = false;
         for (int i = 0; i < VAR_MOD_COUNT_MAX; i++) {
             String name = String.format(Locale.ROOT, "%s_%02d", PROP_variable_mod, i+1);
             Props.Prop p = props.getProp(name);
             if (p == null)
                 continue;
             String[] split = p.value.split("\\s+");
-            if (split.length != 3)
-                throw new IllegalStateException(String.format(
-                        "Can't interpret variable mod from properties as delta mass and sites.\n"
-                        + "Splitting by '\\s+' regex resulted not in 3 columns, as expected.\n"
-                        + "Variable mod string was: \"%s\"", p.value));
             for (int j = 0; j < split.length; j++)
                 split[j] = split[j].trim();
+            if (split.length == 2) {
+                // possibly old parameter file
+                if (!haveShownOldParamsFileWarning) {
+                    SwingUtils.showDialog(null, new JLabel(
+                            "<html>" +
+                                    "Looks like you might be loading a parameter file from older version of MSFragger.<br/>\n" +
+                                    "Variable mods are now expected to have 3 values per mod: sites, mass and max<br/>\n" +
+                                    "number of occurrences.<br/><br/>\n" +
+                                    "We will still try to parse the file if possible, and set the max number of occurrences<br/>\n" +
+                                    "to current defaults. But you are encouraged to load new defaults instead."));
+                    haveShownOldParamsFileWarning = true;
+                }
+            } else if (split.length != 3) {
+                throw new IllegalStateException(String.format(
+                        "Can't interpret variable mod from properties as delta mass and sites.\n"
+                                + "Splitting by '\\s+' regex resulted not in 3 columns, as expected.\n"
+                                + "Variable mod string was: \"%s\"", p.value));
+            }
             
             double dm;
             try {
@@ -858,19 +875,32 @@ public class MsfraggerParams extends AbstractParams {
                         + "Could not parse the first column as a Double.\n"
                         + "Variable mod string was: \"%s\"", p.value));
             }
-            if (StringUtils.isNullOrWhitespace(split[1]))
+            final String sites = split[1];
+            if (StringUtils.isNullOrWhitespace(sites))
                 throw new IllegalStateException(String.format(
                         "Can't interpret variable mod from properties as delta mass and sites.\n"
                         + "The second column was null or whitespace.\n"
                         + "Variable mod string was: \"%s\"", p.value));
             int maxOccurrences;
             try {
-                maxOccurrences = Integer.parseInt(split[2]);
+                if (split.length <= 2) {
+                    switch (sites) {
+                        case "M":
+                        case "STY":
+                            maxOccurrences = 3;
+                            break;
+                        default:
+                            maxOccurrences = 1;
+                            break;
+                    }
+                } else {
+                    maxOccurrences = Integer.parseInt(split[2]);
+                }
             } catch (Exception e) {
                 throw new IllegalStateException("Could not parse max occurrences column for a variable mod in msfragger.");
             }
 
-            mods.add(new Mod(dm, split[1], p.isEnabled, maxOccurrences));
+            mods.add(new Mod(dm, sites, p.isEnabled, maxOccurrences));
         }
         
         return mods;
