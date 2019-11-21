@@ -74,7 +74,9 @@ import javax.swing.border.Border;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.JTextComponent;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
@@ -844,17 +846,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       JTable table = new JTable(model);
       table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
       JPanel panel = new JPanel(new BorderLayout());
-      panel.add(new JLabel("<html>Found problems with some files (" + path2reasons.size() + ").<br/>"
+      panel.add(new JLabel("<html>Found problems with some files (" + path2reasons.size() + " of " + m.paths.size() + ").<br/>"
           + "This <b>will likely cause trouble</b> with some of processing tools.<br/><br/>"
-          + "Do you want to add these files?<br/>"), BorderLayout.NORTH);
+          + "What do you want to do with these files?<br/>"), BorderLayout.NORTH);
       panel.add(Box.createVerticalStrut(100), BorderLayout.CENTER);
       panel.add(new  JScrollPane(table), BorderLayout.CENTER);
       SwingUtils.makeDialogResizable(panel);
 
-
       String[] options;
       if (!reasonsFn.isEmpty()) {
-        options = new String[]{"Cancel", "Add anyway", "Only add well-behaved files", "Rename files"};
+        options = new String[]{"Cancel", "Add anyway", "Only add well-behaved files", "Try rename files"};
       } else {
         options = new String[]{"Cancel", "Add anyway", "Only add well-behaved files"};
       }
@@ -892,28 +893,31 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             return;
           }
 
-          final AtomicInteger renamedExist = new AtomicInteger(0);
-          for (Path path : uniqueRenamed) {
-            if (Files.exists(path)) {
-              renamedExist.incrementAndGet();
+          final AtomicInteger renamedExistCount = new AtomicInteger(0);
+          final Map<Path, Path> existingRenames = new HashMap<>();
+          for (Entry<Path, Path> kv : renamed.entrySet()) {
+            if (Files.exists(kv.getValue())) {
+              renamedExistCount.incrementAndGet();
+              existingRenames.put(kv.getKey(), kv.getValue());
             }
           }
-          if (renamedExist.get() > 0) {
-            SwingUtils.showDialog(this, new JLabel(
-                            "<html>Renaming given files according to our scheme would result<br/>\n" +
-                                    "in file paths that already exist on your computer.<br/>\n" +
-                                    "Renaming cancelled."),
+          if (!existingRenames.isEmpty()) {
+            JPanel pane = new JPanel(new BorderLayout());
+            pane.add(new JLabel("<html>Renaming given files according to our scheme would result<br/>\n" +
+                            "in file paths that already exist on your computer.<br/>\n" +
+                            "Renaming cancelled."), BorderLayout.NORTH);
+
+            pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(existingRenames)));
+            SwingUtils.showDialog(this, pane,
                     "Not safe to rename files", JOptionPane.WARNING_MESSAGE);
             return;
           }
 
-          final AtomicInteger renamedOk = new AtomicInteger(0);
           final Map<Path, Path> couldNotRename = new HashMap<>();
           SwingUtils.runThreadWithProgressBar("Renaming files", this, () -> {
             for (Entry<Path, Path> kv : renamed.entrySet()) {
               try {
                 Files.move(kv.getKey(), kv.getValue());
-                renamedOk.incrementAndGet();
               } catch (Exception e) {
                 log.error(String.format("From '%s' to '%s' at '%s'",
                         kv.getKey().getFileName(), kv.getValue().getFileName(), kv.getKey().getParent()));
@@ -921,10 +925,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
               }
             }
           });
-          if (renamedOk.get() != renamed.size()) {
+          if (!couldNotRename.isEmpty()) {
             JPanel pane = new JPanel(new BorderLayout());
             pane.add(new JLabel("<html>Unfortunately could not rename some of the files:<br/>"), BorderLayout.NORTH);
-            pane.add(SwingUtils.tableFromTwoSiblingFiles(couldNotRename), BorderLayout.CENTER);
+            pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(couldNotRename)), BorderLayout.CENTER);
             SwingUtils.showDialog(this, pane, "Renaming failed", JOptionPane.WARNING_MESSAGE);
             return;
           }

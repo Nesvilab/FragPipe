@@ -104,7 +104,7 @@ public class InputLcmsFile {
     public static Set<String> validateFilename(Path p) {
         String fn = p.getFileName().toString();
         Set<String> reasons = new HashSet<>();
-        addNonNull(reasons, testIsNotAscii(fn));
+        //addNonNull(reasons, testIsNotAscii(fn));
         addNonNull(reasons, testHasSpaces(fn));
         addNonNull(reasons, testHasMoreThanOneDot(fn));
         return reasons;
