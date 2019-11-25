@@ -45,6 +45,12 @@ public class CmdReportFilter extends CmdBase {
 
       // check for extra arguments
       if (!StringUtils.isNullOrWhitespace(textReportFilter)) {
+        if (dontUseFilterProtxml) {
+          // add everything except --sequential --razor --prot 0.01`
+          textReportFilter = textReportFilter.replaceAll("--sequential", "");
+          textReportFilter = textReportFilter.replaceAll("--razor", "");
+          textReportFilter = textReportFilter.replaceAll("--prot\\s+\\d+(?:\\.\\d+)?", "");
+        }
         cmd.addAll(StringUtils.splitCommandLine(textReportFilter));
       }
       cmd.add("--tag");
