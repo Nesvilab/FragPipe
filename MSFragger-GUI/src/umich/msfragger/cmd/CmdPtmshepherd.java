@@ -15,7 +15,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.swing.JOptionPane;
+import javax.swing.*;
+
 import org.apache.commons.codec.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,7 @@ public class CmdPtmshepherd extends CmdBase {
 
   public boolean configure(Component comp, boolean isDryRun, Path binFragger, int ramGb,
       Path db, Map<LcmsFileGroup, Path> mapGroupsToProtxml, Map<String, String> additionalProps) {
-
+    isConfigured = false;
     final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
     ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
     if (extLibsThermo != null) {
@@ -70,6 +71,18 @@ public class CmdPtmshepherd extends CmdBase {
     }
     if (!checkCompatibleFormats(comp, mapGroupsToProtxml, sup)) {
       return false;
+    }
+    boolean inputHasThermoRaw = mapGroupsToProtxml.keySet().stream().anyMatch(group ->
+            group.lcmsFiles.stream().anyMatch(lcms -> lcms.getPath().getFileName().toString().toLowerCase().endsWith(".raw")));
+    if (inputHasThermoRaw) {
+      int confirmation = SwingUtils.showConfirmDialog(comp, new JLabel("<html>Input LCMS files contain Thermo RAW.<br/>\n" +
+              "PTMShepherd does not yet work stably with these files.<br/>\n" +
+              "It is advised to convert those files to mzML.<br/>\n" +
+              "<br/>\n" +
+              "<b>Click Yes to continue at your own risk, otherwise Cancel.</b>"));
+      if (JOptionPane.YES_OPTION != confirmation) {
+        return false;
+      }
     }
 
     final long numGroups = mapGroupsToProtxml.keySet().stream()
