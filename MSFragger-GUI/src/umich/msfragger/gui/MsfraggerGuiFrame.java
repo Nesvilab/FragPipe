@@ -60,7 +60,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -70,13 +69,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.text.JTextComponent;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
@@ -493,8 +489,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 //        tableRawFiles.setTransferHandler(newHandler);
     // dropping onto enclosing JPanel works.
     tableRawFilesFileDrop = new FileDrop(panelSelectedFiles, true, files -> {
-      Predicate<File> pred = CmdMsfragger
-          .getSupportedFilePredicate(Arrays.asList(getBinMsfragger()));
+      Predicate<File> pred = CmdMsfragger.getSupportedFilePredicate(getExtBinSearchPaths());
       ArrayList<Path> accepted = new ArrayList<>(files.length);
       for (File f : files) {
         PathUtils.traverseDirectoriesAcceptingFiles(f, pred, accepted, false);
@@ -562,12 +557,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   public Path getBinMsfragger() {
-    try {
-      return Paths.get(textBinMsfragger.getText());
-    } catch (Exception e) {
-      log.error("Invalid MSFragger path", e);
+    String text = textBinMsfragger.getText();
+    if (StringUtils.isNullOrWhitespace(text)) {
+      return null;
     }
-    return null;
+    try {
+      return Paths.get(text);
+    } catch (Exception e) {
+      throw new IllegalArgumentException(e);
+    }
   }
 
   private void checkPython() {
@@ -792,8 +790,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, m.paths.get(m.paths.size()-1).toString());
 
     // vet/check input LCMS files for bad naming
-    final javax.swing.filechooser.FileFilter ff = CmdMsfragger
-        .getFileChooserFilter(Arrays.asList(getBinMsfragger()));
+    final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(getExtBinSearchPaths());
     final HashMap<Path, Set<String>> reasonsDir = new HashMap<>();
     final HashMap<Path, Set<String>> reasonsFn = new HashMap<>();
     //final HashMap<String, List<Path>> reasonsRev = new HashMap<>();
@@ -2543,13 +2540,22 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     tableModelRawFiles.dataClear();
   }//GEN-LAST:event_btnRawClearActionPerformed
 
+  private List<Path> getExtBinSearchPaths() {
+    List<Path> searchPaths = new ArrayList<>();
+    Path binMsfragger = getBinMsfragger();
+    if (binMsfragger != null) {
+      searchPaths.add(binMsfragger);
+    }
+    return searchPaths;
+  }
+
   private void btnRawAddFilesActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRawAddFilesActionPerformed
     // button add raw lcms files
     if (btnRawAddFiles == evt.getSource()) {
-      final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(Arrays.asList(getBinMsfragger()));
-      Predicate<File> supportedFilePredicate = CmdMsfragger
-          .getSupportedFilePredicate(Arrays.asList(getBinMsfragger()));
+      List<Path> searchPaths = getExtBinSearchPaths();
+      final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(searchPaths);
+      Predicate<File> supportedFilePredicate = CmdMsfragger.getSupportedFilePredicate(searchPaths);
       String approveText = "Select";
       JFileChooser fc = new JFileChooser();
       fc.setAcceptAllFileFilterUsed(true);
@@ -2595,8 +2601,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnRawAddFolderActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRawAddFolderActionPerformed
-    final javax.swing.filechooser.FileFilter ff = CmdMsfragger
-        .getFileChooserFilter(Arrays.asList(getBinMsfragger()));
+    final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(getExtBinSearchPaths());
 
 //    final FileFilter ff = new FileFilter() {
 //      final Predicate<String> rawLcmsFnPredicate = CmdMsfragger
