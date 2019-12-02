@@ -361,8 +361,22 @@ def calibrate(fasta_path_sample, calibrate_mass: int):
 		new_precursor_true_tol0 = re.compile('New precursor_true_tolerance = (.+) PPM').findall(out)
 		new_precursor_true_tol = new_precursor_true_tol0[0] if len(new_precursor_true_tol0) == 1 else None
 		new_ms2_tol, = re.compile('New fragment_mass_tolerance = (.+) PPM').findall(out)
-		new_use_topN_peak, = re.compile('New use_topN_peaks = (.+)').findall(out)
-		new_minimum_ratio, = re.compile('New minimum_ratio = (.+)').findall(out)
+		try:
+			new_use_topN_peak, =re.compile('New use_topN_peaks = (.+)').findall(out)
+		except ValueError:
+			new_use_topN_peak = None
+		try:
+			new_minimum_ratio, = re.compile('New minimum_ratio = (.+)').findall(out)
+		except ValueError:
+			new_minimum_ratio = None
+		try:
+			new_intensity_transform, = re.compile('New intensity_transform = (.+)').findall(out)
+		except ValueError:
+			new_intensity_transform = None
+		try:
+			new_remove_precursor_peak, = re.compile('New remove_precursor_peaks = (.+)').findall(out)
+		except ValueError:
+			new_remove_precursor_peak = None
 
 	precursor_mass_units, = re.compile(r'^precursor_mass_units\s*=\s*([01])', re.MULTILINE).findall(params_txt)
 	precursor_mass_units = int(precursor_mass_units)
@@ -394,10 +408,18 @@ def calibrate(fasta_path_sample, calibrate_mass: int):
 			f'fragment_mass_tolerance = {new_ms2_tol}', params_txt_new)
 		params_txt_new = re.compile(r'^fragment_mass_units\s*=\s*[01]', re.MULTILINE).sub(
 			'fragment_mass_units = 1', params_txt_new)
-		params_txt_new = re.compile(r'^use_topN_peaks\s*=\s*[0-9]+', re.MULTILINE).sub(
-			f'use_topN_peaks = {new_use_topN_peak}', params_txt_new)
-		params_txt_new = re.compile(r'^minimum_ratio\s*=\s*[0-9.]+', re.MULTILINE).sub(
-			f'minimum_ratio = {new_minimum_ratio}', params_txt_new)
+		if new_use_topN_peak is not None:
+			params_txt_new = re.compile(r'^use_topN_peaks\s*=\s*[0-9]+', re.MULTILINE).sub(
+				f'use_topN_peaks = {new_use_topN_peak}', params_txt_new)
+		if new_minimum_ratio is not None:
+			params_txt_new = re.compile(r'^minimum_ratio\s*=\s*[0-9.]+', re.MULTILINE).sub(
+				f'minimum_ratio = {new_minimum_ratio}', params_txt_new)
+		if new_intensity_transform is not None:
+			params_txt_new = re.compile(r'^intensity_transform\s*=\s*[0-9]', re.MULTILINE).sub(
+				f'minimum_ratio = {new_intensity_transform}', params_txt_new)
+		if new_remove_precursor_peak is not None:
+			params_txt_new = re.compile(r'^remove_precursor_peak\s*=\s*[0-9]', re.MULTILINE).sub(
+				f'remove_precursor_peak = {new_remove_precursor_peak}', params_txt_new)
 	mzBINs0 = [e.with_suffix('.mzBIN_calibrated') for e in infiles_name]
 	is_calibrated = [e.with_suffix('.mzBIN_calibrated').exists() for e in infiles_name]
 	dests = [(tempdir / mzBin.name).with_suffix('.mzBIN_calibrated')
