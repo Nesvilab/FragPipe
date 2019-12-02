@@ -230,10 +230,14 @@ public class CmdMsfragger extends CmdBase {
   private static List<Path> createRelSearchPaths(List<Path> searchLocations, Path rel) {
     ArrayList<Path> locs = new ArrayList<>(searchLocations);
     searchLocations.forEach(p -> {
-      if (Files.isDirectory(p)) {
-        locs.add(p.resolve(rel));
-      } else {
-        locs.add(p.getParent().resolve(rel));
+      if (p != null) {
+        if (Files.isDirectory(p)) {
+          locs.add(p.resolve(rel));
+        } else {
+          Path parent = p.getParent();
+          if (parent != null)
+          locs.add(parent.resolve(rel));
+        }
       }
     });
     return locs;
