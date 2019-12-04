@@ -4,12 +4,17 @@
 <img src="frag-pipe/images/fragpipe-01.png" width="350px"/>
 </div>
 
-# FragPipe
+## FragPipe:
+- [MSFragger](https://msfragger.nesvilab.org/)
+- [Philosopher](https://philosopher.nesvilab.org/)
+- [Crystal-C](https://www.nesvilab.org/Crystal-C/)
+- [PTM-Shepherd](https://github.com/Nesvilab/PTM-Shepherd)
+
 FragPipe is a Java Graphical User Interface (GUI) for a suite of computational tools enabling comprehensive analysis of mass spectrometry-based proteomics data. It is powered by [MSFragger](https://msfragger.nesvilab.org/) - an ultrafast proteomic search engine suitable for both conventional and "open" (wide precursor mass tolerance) peptide identification. FragPipe also includes [Philosopher](https://nesvilab.github.io/philosopher/) toolkit for downstream post-processing of MSFragger search results (PeptideProphet, iProphet, ProteinProphet), FDR filtering, label-free quantification, and multi-experiment summary report generation. Also included in FragPipe binary are SpectraST-based spectral library building module, and DIA-Umpire SE module for direct analysis of data independent acquisition (DIA) data. 
 
 
 ### Download
-Find the latest [FragPipe release here](https://github.com/Nesvilab/FragPipe/releases) & see the setup tutorial below.
+Find the latest release [here](https://github.com/Nesvilab/FragPipe/releases) & see the setup tutorial below.
 
 
 ### Tutorials
@@ -20,9 +25,8 @@ Find the latest [FragPipe release here](https://github.com/Nesvilab/FragPipe/rel
 
 
 ### Documentation
-Complete MSFragger documentation can be found on the [MSFragger Documentation Wiki page](https://github.com/Nesvilab/MSFragger/wiki).
-
-For documentation on the Philosopher toolkit see the [Philosopher site](http://philosopher.nesvilab.org/).
+Complete MSFragger documentation can be found on the [MSFragger wiki](https://github.com/Nesvilab/MSFragger/wiki).
+For documentation on the Philosopher toolkit see the [Philosopher wiki](https://github.com/Nesvilab/philosopher/wiki).
 
 ### Questions and Technical Support
 See the MSFragger [wiki](https://github.com/Nesvilab/MSFragger/wiki) and [FAQ](https://github.com/Nesvilab/MSFragger/wiki/Frequently-Asked-Questions). View previous questions/bug reports in the
