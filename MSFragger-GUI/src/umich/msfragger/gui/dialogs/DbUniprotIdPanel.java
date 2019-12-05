@@ -28,6 +28,8 @@ public class DbUniprotIdPanel extends JPanel {
   private JCheckBox checkIsReviewed;
   private JCheckBox checkAddContaminants;
   private JCheckBox checkAddIsoforms;
+  private JCheckBox checkAddDecoys;
+  private JCheckBox checkAddIrt;
 
   private static final String PROP_UNIPROT_IDS = "database.uniprot.ids";
   public static final Pattern RE_UNIPROT_ID = Pattern.compile("Uniprot ID:.*?\\b(.+?)\\b", Pattern.CASE_INSENSITIVE);
@@ -46,11 +48,17 @@ public class DbUniprotIdPanel extends JPanel {
     panelCheckboxes.setLayout(new BoxLayout(panelCheckboxes, BoxLayout.Y_AXIS));
     panelCheckboxes.setBorder(new TitledBorder("Options"));
     checkIsReviewed = new JCheckBox("Only reviewed sequences", true);
-    checkAddIsoforms = new JCheckBox("Add isoforms", false);
+    checkAddDecoys = new JCheckBox("Add decoys", true);
     checkAddContaminants = new JCheckBox("Add common contaminants", true);
+    checkAddIsoforms = new JCheckBox("Add isoforms", false);
+    checkAddIrt = new JCheckBox("Add iRT sequences", false);
+    checkAddDecoys.setToolTipText("<html>Decoy sequences will be generated based on the downloaded database.<br/>\n" +
+            "Decoys are required for FDR estimation using PeptideProphet.");
     panelCheckboxes.add(checkIsReviewed);
+    panelCheckboxes.add(checkAddDecoys);
     panelCheckboxes.add(checkAddContaminants);
     panelCheckboxes.add(checkAddIsoforms);
+    panelCheckboxes.add(checkAddIrt);
 
 
     // organism selection radio buttons
@@ -133,5 +141,13 @@ public class DbUniprotIdPanel extends JPanel {
 
   public boolean isAddIsoforms() {
     return checkAddIsoforms.isSelected();
+  }
+
+  public boolean isAddDecoys() {
+    return checkAddDecoys.isSelected();
+  }
+
+  public boolean isAddIrt() {
+    return checkAddIrt.isSelected();
   }
 }

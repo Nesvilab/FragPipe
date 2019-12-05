@@ -8,34 +8,25 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.io.File;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.WatchEvent;
+import java.nio.file.*;
 import java.nio.file.WatchEvent.Kind;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
+import javax.swing.*;
+
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.cmd.CmdDatabaseDownload;
-import umich.msfragger.cmd.CmdPhilosopherWorkspaceClean;
-import umich.msfragger.cmd.CmdPhilosopherWorkspaceCleanInit;
-import umich.msfragger.cmd.ProcessBuilderInfo;
-import umich.msfragger.cmd.PbiBuilder;
+import umich.msfragger.cmd.*;
 import umich.msfragger.gui.dialogs.DbUniprotIdPanel;
 import umich.msfragger.messages.MessageDbUpdate;
 import umich.msfragger.params.ThisAppProps;
+import umich.msfragger.params.umpire.UmpireParams;
+import umich.msfragger.util.JarUtils;
 import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.UsageTrigger;
@@ -89,6 +80,8 @@ public class FragpipeUtil {
         final boolean isReviewed = dbUniprotIdPanel.isReviewed();
         final boolean isAddContaminants = dbUniprotIdPanel.isAddContaminants();
         final boolean isAddIsoforms = dbUniprotIdPanel.isAddIsoforms();
+        final boolean isAddDecoys = dbUniprotIdPanel.isAddDecoys();
+        final boolean isAddIrt = dbUniprotIdPanel.isAddIrt();
 
         // philosopher workspace --init
         // philosopher database --reviewed --contam --id UP000005640
@@ -99,8 +92,23 @@ public class FragpipeUtil {
           log.error("configuration of philosopher clean/init not successful");
           return;
         }
+
+        // unpack iRT fasta
+        Path pathIrt = null;
+        if (isAddIrt) {
+          String pathInJar = "/fasta/irtfusion.fasta";
+          pathIrt = JarUtils.unpackFromJar(ToolingUtils.class, pathInJar,
+                  ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
+          if (!Files.exists(pathIrt)) {
+            log.error("Could not unpack " + pathInJar);
+            SwingUtils.showDialog(dbUniprotIdPanel, new JLabel("<html>Could not unpack iRT fasta file."),
+                    "Error preparing for DB download", JOptionPane.ERROR_MESSAGE);
+            return;
+          }
+        }
+
         CmdDatabaseDownload cmdDownload = new CmdDatabaseDownload(true, dir);
-        cmdDownload.configure(parent, usePhi, uniprotId, isReviewed, isAddContaminants, isAddIsoforms);
+        cmdDownload.configure(parent, usePhi, uniprotId, isReviewed, isAddContaminants, isAddIsoforms, isAddDecoys, pathIrt);
         CmdPhilosopherWorkspaceClean cmdClean = new CmdPhilosopherWorkspaceClean(true, dir);
         cmdClean.configure(usePhi);
 

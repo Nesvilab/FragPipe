@@ -21,7 +21,8 @@ public class CmdDatabaseDownload extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger binPhilosopher, String uniprotId,
-      boolean isReviewed, boolean isAddContaminants, boolean isAddIsoforms) {
+      boolean isReviewed, boolean isAddContaminants, boolean isAddIsoforms, boolean isAddDecoys,
+                           Path addFastaPath) {
 
     pbis.clear();
     List<String> cmd = new ArrayList<>();
@@ -36,8 +37,15 @@ public class CmdDatabaseDownload extends CmdBase {
     if (isAddIsoforms) {
       cmd.add("--isoform");
     }
+    if (!isAddDecoys) {
+      cmd.add("--nodecoys");
+    }
     cmd.add("--id");
     cmd.add(uniprotId);
+    if (addFastaPath != null) {
+      cmd.add("--add");
+      cmd.add(addFastaPath.toAbsolutePath().normalize().toString());
+    }
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(this.wd.toFile());
     pbis.add(PbiBuilder.from(pb));

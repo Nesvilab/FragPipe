@@ -18,7 +18,6 @@ public class JarUtils {
 
   /**
    * Unpack and possibly rename a file from this jar to a temp dir.
-   * @throws IOException
    */
   public static Path unpackFromJar(String resourceLocation, boolean randomizeName,
       boolean scheduleForDeletion) throws IOException {
@@ -34,7 +33,6 @@ public class JarUtils {
    * temp directory.
    * @param scheduleForDeletion The file will be scheduled for deletion before JVM stops.
    * @return Path to unpacked file.
-   * @throws IOException
    */
   public static Path unpackFromJar(Class<?> clazz, String resourceLocation,
       boolean randomizeName, boolean scheduleForDeletion) throws IOException {
