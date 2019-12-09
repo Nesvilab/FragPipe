@@ -4240,6 +4240,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       if (threads > 0) {
         additionalShepherdParams.put("threads", Integer.toString(threads));
       }
+      String massOffsets = fraggerMigPanel.getMassOffsets();
+      if (!StringUtils.isNullOrWhitespace(massOffsets)) {
+        additionalShepherdParams.put("mass_offsets", massOffsets);
+      }
       if (!cmdPtmshepherd.configure(this, isDryRun, Paths.get(binMsfragger.getBin()),
           ramGb, fastaPath, mapGroupsToProtxml, additionalShepherdParams)) {
         return false;

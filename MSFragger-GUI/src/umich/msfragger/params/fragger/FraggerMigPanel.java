@@ -104,6 +104,8 @@ public class FraggerMigPanel extends JPanel {
   private static final Logger log = LoggerFactory.getLogger(FraggerMigPanel.class);
   public static final String CACHE_FORM = "msfragger-form" + ThisAppProps.TEMP_FILE_EXT;
   public static final String CACHE_PROPS = "msfragger-props" + ThisAppProps.TEMP_FILE_EXT;
+  public static final String[] SEARCH_TYPE_DROPDOWN_NAMES = {"Closed Search", "Open Search", "Non-specific Search", "Mass Offset Search"};
+  public static final Map<String, SearchTypeProp> SEARCH_TYPE_NAME_MAPPING;
   private static final String[] TABLE_VAR_MODS_COL_NAMES = {"Enabled", "Site (editable)",
       "Mass Delta (editable)", "Max occurrences (editable)"};
   private static final String[] TABLE_FIX_MODS_COL_NAMES = {"Enabled", "Site",
@@ -144,6 +146,7 @@ public class FraggerMigPanel extends JPanel {
     PROPS_MISC_NAMES = new HashSet<>(Arrays.asList(PROPS_MISC));
     CONVERT_TO_FILE = new HashMap<>();
     CONVERT_TO_GUI = new HashMap<>();
+    SEARCH_TYPE_NAME_MAPPING = new HashMap<>();
 
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_mass_units, s -> Integer.toString(MassTolUnits.valueOf(s).valueInParamsFile()));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_mass_units, s -> Integer.toString(MassTolUnits.valueOf(s).valueInParamsFile()));
@@ -174,6 +177,12 @@ public class FraggerMigPanel extends JPanel {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_override_charge, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.fromValueInParamsFile(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Boolean.toString(Integer.parseInt(s) > 0));
+
+    //{"Closed Search", "Open Search", "Non-specific Search", "Mass Offset Search"}
+    SEARCH_TYPE_NAME_MAPPING.put("Closed Search", SearchTypeProp.closed);
+    SEARCH_TYPE_NAME_MAPPING.put("Open Search", SearchTypeProp.open);
+    SEARCH_TYPE_NAME_MAPPING.put("Non-specific Search", SearchTypeProp.nonspecific);
+    SEARCH_TYPE_NAME_MAPPING.put("Mass Offset Search", SearchTypeProp.offset);
   }
 
   private ImageIcon icon;
@@ -199,6 +208,8 @@ public class FraggerMigPanel extends JPanel {
   private UiText uiTextNocuts;
   private UiText uiTextEnzymeName;
   private UiCombo uiComboCleavage;
+  private UiCombo uiComboLoadDefaultsNames;
+  private UiText uiTextMassOffsets;
 
   public FraggerMigPanel() {
     initMore();
@@ -270,18 +281,26 @@ public class FraggerMigPanel extends JPanel {
         final boolean isSelected = checkRun.isSelected();
         updateEnabledStatus(pContent, isSelected);
       });
-      JButton btnDefaultsClosed = new JButton("Closed Search");
-      btnDefaultsClosed.addActionListener(this::onClickDefaultsClosed);
-      JButton btnDefaultsOpen = new JButton("Open Search");
-      btnDefaultsOpen.addActionListener(this::onClickDefaultsOpen);
-      JButton btnDefaultsNonspecific = new JButton("Non-specific Search");
-      btnDefaultsNonspecific.addActionListener(this::onClickDefautlsNonspecific);
 
-      pTop.add(checkRun);
-      pTop.add(new JLabel("Load defaults:"), new CC().gapLeft("15px"));
-      pTop.add(btnDefaultsClosed, new CC().gapLeft("1px"));
-      pTop.add(btnDefaultsOpen, new CC().gapLeft("1px"));
-      pTop.add(btnDefaultsNonspecific, new CC().gapLeft("1px").wrap());
+//      JButton btnDefaultsClosed = new JButton("Closed Search");
+//      btnDefaultsClosed.addActionListener(this::onClickDefaultsClosed);
+//      JButton btnDefaultsOpen = new JButton("Open Search");
+//      btnDefaultsOpen.addActionListener(this::onClickDefaultsOpen);
+//      JButton btnDefaultsNonspecific = new JButton("Non-specific Search");
+//      btnDefaultsNonspecific.addActionListener(this::onClickDefautlsNonspecific);
+
+      uiComboLoadDefaultsNames = UiUtils.createUiCombo(SEARCH_TYPE_DROPDOWN_NAMES);
+      JButton btnLoadDefaults = new JButton("Load");
+      btnLoadDefaults.addActionListener(this::onClickLoadDefaults);
+
+      pTop.add(checkRun, new CC());
+      pTop.add(new JLabel("Load default parameters for:"), new CC().gapLeft("15px"));
+      pTop.add(uiComboLoadDefaultsNames, new CC().gapLeft("1px"));
+      pTop.add(btnLoadDefaults, new CC().wrap());
+
+//      pTop.add(btnDefaultsClosed, new CC().gapLeft("1px"));
+//      pTop.add(btnDefaultsOpen, new CC().gapLeft("1px"));
+//      pTop.add(btnDefaultsNonspecific, new CC().gapLeft("1px").wrap());
 
       JButton save = new JButton("Save Parameters");
       save.addActionListener(this::onClickSave);
@@ -632,10 +651,9 @@ public class FraggerMigPanel extends JPanel {
           + "Setting isotope_error to 0/1/2 in combination<br>\n"
           + "with this example will create search windows around<br>\n"
           + "(0,1,2,79.966, 80.966, 81.966).";
+      uiTextMassOffsets = UiUtils.uiTextBuilder().filter("[^-\\(\\)\\./,\\d ]").text("0").create();
       FormEntry feMassOffsets = new FormEntry(MsfraggerParams.PROP_mass_offsets,
-          "User defined variable mass shifts (on any aminoacid)",
-          UiUtils.uiTextBuilder().filter("[^-\\(\\)\\./,\\d ]").text("0").create(),
-          tooltipMassOffsets);
+          "User defined variable mass shifts (on any aminoacid)", uiTextMassOffsets, tooltipMassOffsets);
       pMods.add(feMassOffsets.label(), new CC().split(2));
       pMods.add(feMassOffsets.comp, new CC().alignX("left").growX().wrap());
 
@@ -908,6 +926,17 @@ public class FraggerMigPanel extends JPanel {
     }
 
     this.add(scroll, BorderLayout.CENTER);
+  }
+
+  private void onClickLoadDefaults(ActionEvent actionEvent) {
+    String s = (String)uiComboLoadDefaultsNames.getSelectedItem();
+    SearchTypeProp type = SEARCH_TYPE_NAME_MAPPING.get(s);
+    if (type == null) {
+      throw new IllegalStateException(String.format("No mapping for search type string '%s'", s));
+    }
+    if (loadDefaults(type, true)) {
+      postSearchTypeUpdate(type, true);
+    }
   }
 
   private void onClickSave(ActionEvent e) {
@@ -1400,6 +1429,10 @@ public class FraggerMigPanel extends JPanel {
 
   public int getNumDbSlices() {
     return uiSpinnerDbslice.getActualValue();
+  }
+
+  public String getMassOffsets() {
+    return uiTextMassOffsets.getNonGhostText();
   }
 
   public String getOutputFileExt() {

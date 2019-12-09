@@ -227,6 +227,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String DEFAULT_FILE_OPENSEARCH = "fragger_open.params";
     public static final String DEFAULT_FILE_CLOSEDSEARCH = "fragger_closed.params";
     public static final String DEFAULT_FILE_NONSPECIFICSEARCH = "fragger_nonspecific.params";
+    public static final String DEFAULT_FILE_OFFSETSEARCH = "fragger_offset.params";
     private static final long serialVersionUID = 1L;
 
     private static final DecimalFormat DF = new DecimalFormat("0.##########");
@@ -295,6 +296,9 @@ public class MsfraggerParams extends AbstractParams {
                     break;
                 case nonspecific:
                     load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_NONSPECIFICSEARCH), true);
+                    break;
+                case offset:
+                    load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_OFFSETSEARCH), true);
                     break;
                 default:
                     throw new AssertionError(type.name());

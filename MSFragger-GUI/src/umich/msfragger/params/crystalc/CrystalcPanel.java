@@ -207,6 +207,7 @@ public class CrystalcPanel extends JPanelWithEnablement {
         break;
       case closed:
       case nonspecific:
+      case offset:
         checkRun.setSelected(false);
         break;
     }

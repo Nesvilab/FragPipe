@@ -110,12 +110,15 @@ public class PtmshepherdJPanel extends JPanelWithEnablement {
   public void onMessageSearchTypePtms(MessageSearchType m) {
     switch (m.type) {
       case open:
+      case offset:
         checkRun.setSelected(true);
         break;
       case closed:
       case nonspecific:
         checkRun.setSelected(false);
         break;
+      default:
+        throw new IllegalStateException("Not covered enum option: " + m.type.name());
     }
   }
 
