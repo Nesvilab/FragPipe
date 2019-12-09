@@ -1,8 +1,6 @@
 database_name =
 num_threads = 0                        # 0=poll CPU to set num threads; else specify num threads directly (max 64)
 
-decoy_prefix = rev_
-
 precursor_mass_lower = -150.00
 precursor_mass_upper = 500.00
 precursor_mass_units = 0               # 0=Daltons, 1=ppm
@@ -13,14 +11,14 @@ fragment_mass_units = 1		           # 0=Daltons, 1=ppm
 calibrate_mass = 2
 decoy_prefix = rev_
 
-remove_precursor_peak = 0           # 0 = not remove, 1 = only remove the peak with the precursor charge, 2 = remove all peaks with all charge states. Default: 0
-remove_precursor_range = -1.5,1.5   # Unit: Da. Default: -1.5,1.5
-intensity_transform = 0             # 0 = none, 1 = sqrt root. Default: 0
-
 deisotope = 0
 isotope_error = 0                      # 0=off, 0/1/2 (standard C13 error)
 mass_offsets = 0
 precursor_mass_mode = selected
+
+remove_precursor_peak = 0           # 0 = not remove, 1 = only remove the peak with the precursor charge, 2 = remove all peaks with all charge states. Default: 0
+remove_precursor_range = -1.5,1.5   # Unit: Da. Default: -1.5,1.5
+intensity_transform = 0             # 0 = none, 1 = sqrt root. Default: 0
 
 localize_delta_mass = 1
 delta_mass_exclude_ranges = (-1.5,3.5)
