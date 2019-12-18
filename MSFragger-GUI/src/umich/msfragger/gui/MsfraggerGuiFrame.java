@@ -384,7 +384,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   private void saveLogToFile(Path path) {
-    final String text = console.getText();
+    final String text = console.getText().replaceAll("[^\n]+\u200B\r\n", "");
     byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
     try {
       Files.write(path, bytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
