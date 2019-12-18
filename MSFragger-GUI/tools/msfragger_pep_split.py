@@ -416,7 +416,7 @@ def calibrate(fasta_path_sample, calibrate_mass: int):
 				f'minimum_ratio = {new_minimum_ratio}', params_txt_new)
 		if new_intensity_transform is not None:
 			params_txt_new = re.compile(r'^intensity_transform\s*=\s*[0-9]', re.MULTILINE).sub(
-				f'minimum_ratio = {new_intensity_transform}', params_txt_new)
+				f'intensity_transform = {new_intensity_transform}', params_txt_new)
 		if new_remove_precursor_peak is not None:
 			params_txt_new = re.compile(r'^remove_precursor_peak\s*=\s*[0-9]', re.MULTILINE).sub(
 				f'remove_precursor_peak = {new_remove_precursor_peak}', params_txt_new)
