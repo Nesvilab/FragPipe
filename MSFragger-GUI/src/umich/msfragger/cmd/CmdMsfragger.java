@@ -157,10 +157,10 @@ public class CmdMsfragger extends CmdBase {
    *
    * @return Path where the 'ext' folder with needed libraries was found, otherwise null.
    */
-  private static Path searchExtLibsByPath(List<Path> searchLocations, List<Path> mustBePresent) {
+  private static Path searchExtLibsByPath(List<Path> searchLocations, List<Path> anyPresent) {
     Optional<Path> found = searchLocations.stream()
-        .filter(loc -> mustBePresent.stream()
-            .allMatch(rel -> loc.resolve(rel).toFile().exists())).findFirst();
+        .filter(loc -> anyPresent.stream()
+            .anyMatch(rel -> loc.resolve(rel).toFile().exists())).findFirst();
     return found.orElse(null);
   }
 
@@ -214,7 +214,9 @@ public class CmdMsfragger extends CmdBase {
           Path rel = Paths.get("ext/thermo");
           List<String> files = Arrays.asList(
               "ThermoFisher.CommonCore.Data.dll",
-              "ThermoFisher.CommonCore.RawFileReader.dll"
+              "ThermoFisher.CommonCore.RawFileReader.dll",
+              "BatmassIoThermoServer",
+              "BatmassIoThermoServer.exe"
           );
           List<Path> dirs = searchLocations.stream()
               .map(path -> Files.isDirectory(path) ? path : path.getParent()).distinct().collect(
