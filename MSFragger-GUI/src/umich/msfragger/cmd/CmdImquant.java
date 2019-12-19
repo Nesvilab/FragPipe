@@ -23,7 +23,7 @@ public class CmdImquant extends CmdBase {
 
   public static final String NAME = "IMQuant";
   public static final String JAR_IMQUANT_NAME = "imquant-1.6.5.jazz";
-  public static final String JAR_MSFTBX_NAME = "batmass-io-1.17.1.jazz";
+  public static final String JAR_MSFTBX_NAME = ToolingUtils.BATMASS_IO_JAZZ;
   public static final String JAR_IMQUANT_MAIN_CLASS = "imquant.IMQuant";
   private static String[] JAR_DEPS = {JAR_MSFTBX_NAME};
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");

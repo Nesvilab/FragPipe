@@ -40,6 +40,7 @@ import umich.msfragger.util.StringUtils;
 public class ToolingUtils {
   private ToolingUtils() {}
 
+  public static final String BATMASS_IO_JAZZ = "batmass-io-1.17.2.jazz";
 
   /**
    * @return Full absolute normalized path to the output combined protein file.
