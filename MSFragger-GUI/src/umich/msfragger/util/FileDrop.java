@@ -317,7 +317,8 @@ public class FileDrop {
                             log(out, "FileDrop: file list accepted.");
 
                             // Get a useful list
-                            java.util.List fileList = (java.util.List) tr.getTransferData(java.awt.datatransfer.DataFlavor.javaFileListFlavor);
+                            @SuppressWarnings("unchecked")
+                            java.util.List<java.io.File> fileList = (java.util.List<java.io.File>) tr.getTransferData(java.awt.datatransfer.DataFlavor.javaFileListFlavor);
                             java.util.Iterator iterator = fileList.iterator();
 
                             // Convert list to array
@@ -441,7 +442,7 @@ public class FileDrop {
 
     private static File[] createFileArray(BufferedReader bReader, PrintStream out) {
         try {
-            java.util.List list = new java.util.ArrayList();
+            java.util.List<java.io.File> list = new java.util.ArrayList<>();
             java.lang.String line = null;
             while ((line = bReader.readLine()) != null) {
                 try {
