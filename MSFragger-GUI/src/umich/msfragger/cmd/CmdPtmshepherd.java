@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.ptmshepherd.PtmshepherdParams;
+import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.SwingUtils;
 
 
@@ -157,7 +158,7 @@ public class CmdPtmshepherd extends CmdBase {
     cmd.add("-cp");
     cmd.add(constructClasspathString(unpacked));
     cmd.add(JAR_SHEPHERD_MAIN_CLASS);
-    cmd.add(pathConfig.toString());
+    cmd.add(PathUtils.quotePath(pathConfig.toString(), false));
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(wd.toFile());
     pbis.add(PbiBuilder.from(pb));

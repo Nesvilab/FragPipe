@@ -3546,7 +3546,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final String workingDir = txtWorkingDir.getText();
     if (workingDir.isEmpty()) {
       JOptionPane.showMessageDialog(this, "Output directory can't be left empty.\n"
-              + "Please select an existing directory for the output.", "Error",
+              + "Please select an existing directory for the output.", "Bad output directory path",
           JOptionPane.WARNING_MESSAGE);
       resetRunButtons(true);
       return;
@@ -3556,7 +3556,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       testWdPath = Paths.get(workingDir);
     } catch (InvalidPathException e) {
       JOptionPane.showMessageDialog(this, "Output directory path is not a valid path.\n"
-          + "Please select a directory for the output.", "Error", JOptionPane.WARNING_MESSAGE);
+          + "Please select a directory for the output.", "Bad output directory path", JOptionPane.WARNING_MESSAGE);
+      resetRunButtons(true);
+      return;
+    }
+    Pattern reWhitespace = Pattern.compile("\\s");
+    if (reWhitespace.matcher(testWdPath.toString()).find()) {
+      JOptionPane.showMessageDialog(this,
+          "Output directory path contains whitespace characters.\n"
+              + "Some programs in the pipeline might not work properly in this case.\n\n"
+          + "Please change output directory to one without spaces.", "Bad output directory path", JOptionPane.WARNING_MESSAGE);
       resetRunButtons(true);
       return;
     }

@@ -430,4 +430,11 @@ public class PathUtils {
 
 
     private PathUtils() {}
+
+    public static String quotePath(String s, boolean useSingleQuotes) {
+
+        return useSingleQuotes
+            ? com.github.chhh.utils.StringUtils.surround(s, "'")
+            : com.github.chhh.utils.StringUtils.surround(s, "\"");
+    }
 }

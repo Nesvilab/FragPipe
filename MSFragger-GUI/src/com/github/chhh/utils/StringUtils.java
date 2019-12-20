@@ -166,11 +166,15 @@ public final class StringUtils {
       return true;
     }
     for (int i = 0; i < strLen; i++) {
-      if (Character.isWhitespace(cs.charAt(i)) == false) {
+      if (!Character.isWhitespace(cs.charAt(i))) {
         return false;
       }
     }
     return true;
+  }
+
+  public static String surround(String s, String surroundWith) {
+      return surroundWith + s + s;
   }
 }
 
