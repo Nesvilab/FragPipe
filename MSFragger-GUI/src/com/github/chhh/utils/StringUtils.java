@@ -174,7 +174,7 @@ public final class StringUtils {
   }
 
   public static String surround(String s, String surroundWith) {
-      return surroundWith + s + s;
+      return surroundWith + s + surroundWith;
   }
 }
 
