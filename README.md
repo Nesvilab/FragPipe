@@ -20,6 +20,7 @@ Find the latest release [here](https://github.com/Nesvilab/FragPipe/releases) & 
 ### Tutorials
 - [FragPipe setup](https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html)
 - [Basic FragPipe use](https://msfragger.nesvilab.org/tutorial_fragpipe.html)
+- [Using TIMS-TOF PASEF data with FragPipe](https://msfragger.nesvilab.org/tutorial_fragpipe_pasef.html)
 - [Converting LC/MS data files to mzML](https://msfragger.nesvilab.org/tutorial_convert.html)
 - [Running MSstats on timsTOF data](https://msfragger.nesvilab.org/tutorial_msstats.html)
 - [Importing results from TIMS-TOF data to Skyline](https://msfragger.nesvilab.org/tutorial_pasef_skyline.html)
