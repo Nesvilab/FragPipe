@@ -288,7 +288,8 @@ public class CmdPeptideProphet extends CmdBase {
         }
 
         List<String> cmd = new ArrayList<>();
-        cmd.add(phi.useBin());
+        final Path pepxmlDir = pepxmlDirs.get(0);
+        cmd.add(phi.useBin(pepxmlDir));
         cmd.add(PhilosopherProps.CMD_PEPTIDE_PROPHET);
 
         addFreeCommandLineParams(peptideProphetParams, cmd, enzymeName);
@@ -301,7 +302,6 @@ public class CmdPeptideProphet extends CmdBase {
         exp.stream().map(e -> e.getValue().getFileName())
             .forEach(pepxmlFn -> cmd.add(pepxmlFn.toString()));
         final ProcessBuilder pb = new ProcessBuilder(cmd);
-        final Path pepxmlDir = pepxmlDirs.get(0);
         setupEnv(pepxmlDir, pb);
         pbis.add(new PbiBuilder().setPb(pb).create());
       }
