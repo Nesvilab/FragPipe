@@ -30,7 +30,7 @@ public class CmdSpecLibGen extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher, Path jarFragpipe,
-      Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet) {
+      Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, boolean useEasypqp) {
 
     pbis.clear();
     final SpecLibGen slg = SpecLibGen.get();
@@ -97,13 +97,29 @@ public class CmdSpecLibGen extends CmdBase {
       cmd.add(slg.getPi().getCommand());
       cmd.add("-u"); // PYTHONUNBUFFERED: when mixing subprocess output with Python output, use this to keep the outputs in order
       cmd.add(slg.getScriptSpecLibGenPath().toString());
-      cmd.add(fastaPath);
-      cmd.add(groupWd.toString()); // this is "Pep xml directory"
-      cmd.add(protxml.toString()); // protxml file
-      cmd.add(groupWd.toString()); // output directory
-      cmd.add("True"); // overwrite (true/false), optional arg
-      cmd.add(usePhilosopher.useBin()); // philosopher binary path (optional)
-
+      if (useEasypqp) {
+        /**
+         * TODO
+         * See https://github.com/grosenberger/easypqp on how to install EasyPQP
+         * EasyPQP needs the following placed in the pep xml directory
+         * - MGFs or mzMLs
+         * - interact.pep.xml
+         * - peptide.tsv, psm.tsv from Philosopher
+         * */
+        cmd.add(fastaPath);
+        cmd.add(groupWd.toString()); // this is "Pep xml directory"
+        cmd.add("protxml_not_used_by_easyPQP"); // protxml file
+        cmd.add(groupWd.toString()); // output directory
+        cmd.add("True"); // overwrite (true/false), optional arg
+        // cmd.add(usePhilosopher.useBin()); // philosopher binary path (not needed for easyPQP)
+      } else {
+        cmd.add(fastaPath);
+        cmd.add(groupWd.toString()); // this is "Pep xml directory"
+        cmd.add(protxml.toString()); // protxml file
+        cmd.add(groupWd.toString()); // output directory
+        cmd.add("True"); // overwrite (true/false), optional arg
+        cmd.add(usePhilosopher.useBin()); // philosopher binary path (optional)
+      }
       ProcessBuilder pb = new ProcessBuilder(cmd);
       PythonInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
       pb.directory(groupWd.toFile());

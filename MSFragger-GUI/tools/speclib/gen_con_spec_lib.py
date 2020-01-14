@@ -16,7 +16,13 @@ import shlex
 import subprocess
 import sys
 import shutil
+import numpy as np
 import pandas as pd
+
+use_spectrast: bool = len(sys.argv) >= 7
+use_easypqp: bool = not use_spectrast
+
+assert use_spectrast ^ use_easypqp
 
 if sys.version_info[:2] >= (3, 7):
 	sys.stdout.reconfigure(encoding='utf-8')
@@ -57,12 +63,13 @@ script_dir = pathlib.Path(__file__).resolve().parent
 if script_dir.suffix == '.pyz':
 	script_dir = script_dir.parent
 
-SPECTRAST_PATH = (script_dir / {'linux': 'linux/spectrast', 'win32': 'win/spectrast.exe'}[sys.platform]).resolve(strict=True)
+if use_spectrast:
+	SPECTRAST_PATH = (script_dir / {'linux': 'linux/spectrast', 'win32': 'win/spectrast.exe'}[sys.platform]).resolve(strict=True)
 fasta = str_to_path(sys.argv[1]).resolve(strict=True)
 # msproteomicstools_bin_path = str_to_path(sys.argv[3]).resolve(strict=True)
 # msproteomicstools_bin_path = str_to_path(pathlib.Path(sys.executable).parent).resolve(strict=True)
 iproph_RT_aligned = str_to_path(sys.argv[2]).resolve(strict=True)
-prot_xml_file = str_to_path(sys.argv[3]).resolve(strict=True)
+prot_xml_file = str_to_path(sys.argv[3]).resolve(strict=use_spectrast)
 output_directory = str_to_path(sys.argv[4])
 overwrite = False
 if len(sys.argv) >= 6:
@@ -73,29 +80,35 @@ if 'PATHEXT' in os.environ:
 	os.environ['PATHEXT'] = '.py' + os.pathsep + os.environ['PATHEXT']
 os.environ['PATH'] = os.getcwd() + os.pathsep + os.environ['PATH']
 
-which_philosopher = shutil.which('philosopher')
-if which_philosopher is None:
-	try:
-		philosopher = str_to_path(sys.argv[6]).resolve(strict=True)
-	except (FileNotFoundError, IndexError):
-		print("Philosopher not found on path and not provided as 6th argument. Exiting.", file=sys.stderr)
-		sys.exit(1)
-else:
-	philosopher = pathlib.Path(which_philosopher)
-philosopher = philosopher.resolve(strict=True)
+philosopher = 'philosopher'
+which_philosopher = None if len(sys.argv) >= 7 else shutil.which('philosopher')
+if use_spectrast:
+	if which_philosopher is None:
+		try:
+			philosopher = str_to_path(sys.argv[6]).resolve(strict=True)
+		except (FileNotFoundError, IndexError):
+			print("Philosopher not found on path and not provided as 6th argument. Exiting.", file=sys.stderr)
+			sys.exit(1)
+	else:
+		philosopher = pathlib.Path(which_philosopher)
+
 # msproteomicstools_path = pathlib.Path('/storage/teog/anaconda3/bin')
 align_with_iRT: bool = True
 
-# spectrast2spectrast_irt_py_path = msproteomicstools_bin_path / 'spectrast2spectrast_irt.py'
-# spectrast2tsv_py_path = msproteomicstools_bin_path / 'spectrast2tsv.py'
-spectrast2spectrast_irt_py_path = pathlib.Path(shutil.which('spectrast2spectrast_irt.py'))
-spectrast2tsv_py_path = pathlib.Path(shutil.which('spectrast2tsv.py'))
+if use_spectrast:
+	# spectrast2spectrast_irt_py_path = msproteomicstools_bin_path / 'spectrast2spectrast_irt.py'
+	# spectrast2tsv_py_path = msproteomicstools_bin_path / 'spectrast2tsv.py'
+	spectrast2spectrast_irt_py_path = pathlib.Path(shutil.which('spectrast2spectrast_irt.py'))
+	spectrast2tsv_py_path = pathlib.Path(shutil.which('spectrast2tsv.py'))
 
-assert philosopher.exists()
-assert spectrast2spectrast_irt_py_path.exists()
-assert spectrast2tsv_py_path.exists()
+	philosopher = philosopher.resolve(strict=True)
+	assert spectrast2spectrast_irt_py_path.exists()
+	assert spectrast2tsv_py_path.exists()
 
-"\n".join(map(str, [SPECTRAST_PATH, fasta, iproph_RT_aligned]))
+	"\n".join(map(str, [SPECTRAST_PATH, fasta, iproph_RT_aligned]))
+
+if use_easypqp:
+	easypqp = pathlib.Path(shutil.which('easypqp'))
 
 CWD = os.getcwd()
 
@@ -213,7 +226,8 @@ TEMP_FILES = ['input000.splib', 'input000.spidx', 'input000.pepidx',
 			  'output_irt_con.tsv',
 			  'con_lib_not_in_psm_tsv.tsv']
 
-spectrast_cmds_part1= fr'''
+if use_spectrast:
+	spectrast_cmds_part1= fr'''
 ## Generate .pepidx file
 {sys.executable} {script_dir / "spectrast_gen_pepidx.py"} -i input.splib -o input_irt.splib
 #outfiles: input_irt.splib, input_irt.csv
@@ -227,26 +241,26 @@ spectrast_cmds_part1= fr'''
 #outfile:output_file_irt_con001.splib
 '''
 
-spectrast_cmds_part2= fr"""
+	spectrast_cmds_part2= fr"""
 ## iRT alignment
 {sys.executable} {spectrast2spectrast_irt_py_path} --kit {rtkit_str} --rsq_threshold=0.25 -r -i output_file_irt_con001.splib -o output_file_irt_con.splib
 #outfile:output_file_irt_con.splib
 """
 
-spectrast2tsv_additional_mods_tsv_txt = r'''modified-AA	TPP-nomenclature	Unimod-Accession	ProteinPilot-nomenclature	is_a_labeling	composition-dictionary
+	spectrast2tsv_additional_mods_tsv_txt = r'''modified-AA	TPP-nomenclature	Unimod-Accession	ProteinPilot-nomenclature	is_a_labeling	composition-dictionary
 C	C[222]	312	[XXX]	FALSE	"{'C': 3, 'H': 5, 'N' : 1, 'O' : 2, 'S' : 1 }"
 C	C[143]	385	[XXX]	FALSE	"{'H' : -3, 'N' : -1 }"
 C-term	c[17]	2	[XXX]	FALSE	"{'H' : 1, 'N' : 1 , 'O': -1 }"'''
-spectrast2tsv_additional_mods_path = output_directory / 'spectrast2tsv_additional_mods_path.tsv'
+	spectrast2tsv_additional_mods_path = output_directory / 'spectrast2tsv_additional_mods_path.tsv'
 
-spectrast_cmds_part3=fr"""
+	spectrast_cmds_part3=fr"""
 ## Filter the consensus splib library into a transition list
 {sys.executable} {spectrast2tsv_py_path} -m {spectrast2tsv_additional_mods_path} -g -17.03,-18.01 -l 250,2000 -s b,y -x 1,2 -o 3 -n 6 -p 0.05 -d -e -k openswath -a output_irt_con.tsv output_file_irt_con.splib
 #outfile:output_irt_con.tsv
 """
 
 
-spectrast_cmds = spectrast_cmds_part1 + spectrast_cmds_part2 + spectrast_cmds_part3
+	spectrast_cmds = spectrast_cmds_part1 + spectrast_cmds_part2 + spectrast_cmds_part3
 
 phi_log = output_directory / "philosopher.log"
 
@@ -309,7 +323,7 @@ def get_pep_ion_minprob(opt: Filter_option, philosopher_filter_log: str = None):
 		l = [e.split('\t') for e in re.compile('(?=sp\\|)').split(a)]
 		d = {ee2: e for e, *e2 in l for ee2 in e2}
 		##create dummy fasta
-		with (output_directory / 'proteins.fas').open('x') as f:
+		with (output_directory / 'protein.fas').open('x') as f:
 			for prot in sorted(set(d.values())):
 				f.write(f'>{prot}\nDUMMY\n')
 		# create dummy psm.tsv
@@ -333,25 +347,75 @@ def get_pep_ion_minprob(opt: Filter_option, philosopher_filter_log: str = None):
 	assert len(res2) == 2, res2
 	return res2[opt.value]
 
-def spectrast_cmd(prob):
-	return [
-			   os_fspath(SPECTRAST_PATH),
-			   '-M', 'spectrast.usermods',
-			   "-c_BIN!",
-			   f"-cP{prob}",
-			   "-cIHCD", f"-cN{output_directory / 'input000'}"] + \
-		   list(map(os_fspath, iproph_pep_xmls))
+
+if use_spectrast:
+	def spectrast_cmd(prob):
+		return [
+				   os_fspath(SPECTRAST_PATH),
+				   '-M', 'spectrast.usermods',
+				   "-c_BIN!",
+				   f"-cP{prob}",
+				   "-cIHCD", f"-cN{output_directory / 'input000'}"] + \
+			   list(map(os_fspath, iproph_pep_xmls))
 
 
-spectrast_first = '## Run spectrast to build spectral library\n'+' '.join(spectrast_cmd('?'))
+	spectrast_first = '## Run spectrast to build spectral library\n' + ' '.join(spectrast_cmd('?'))
+if use_easypqp:
+	mzXMLs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mzXML'))
+	mgfs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mgf'))
+	psm_tsv_file = iproph_RT_aligned / 'psm.tsv'
+	peptide_tsv_file = iproph_RT_aligned / 'peptide.tsv'
+	if len(mzXMLs) > 0:
+		spectra_files = mzXMLs
+	else:
+		spectra_files = mgfs
+	'easypqp convert --pepxml interact.pep.xml --spectra 1.mgf --unimod unimod.xml --exclude-range -1.5,3.5'
+	# if 0:
+	# 	import pandas as pd, numpy as np, itertools, io, pathlib
+
+	dd = [pd.DataFrame({'modified_peptide': [e[0] for e in biognosys_rtkit_sorted],
+						'precursor_charge': np.repeat(i, len(biognosys_rtkit_sorted)),
+						'irt': [e[1] for e in biognosys_rtkit_sorted]
+						# 'im':
+						})
+		  for i in range(1, 8)]
+	irt_df = pd.concat(dd).reset_index(drop=True)
+	irt_file = output_directory / 'irt.tsv'
+	# irt_df.to_csv(irt_file, index=False, sep='\t', line_terminator='\n')
+	'''easypqp convert --pepxml 1.pep_xml --spectra 1.mgf --exclude-range -1.5,3.5
+	easypqp convert --pepxml 2.pep_xml --spectra 2.mgf --exclude-range -1.5,3.5'''
+	'easypqp convert --pepxml interact.pep.xml --spectra 1.mgf --unimod unimod.xml --exclude-range -1.5,3.5'
+	f'easypqp library --psmtsv {psm_tsv_file} --rt_reference {irt_file} --out out.tsv *_psms.tsv *.peakpkl'
+	# https://github.com/grosenberger/easypqp/blob/master/easypqp/data/unimod.xml?raw=true
+	# http://www.unimod.org/xml/unimod.xml
+	if len(iproph_pep_xmls) == 1:
+		iproph_pep_xmls = list(itertools.repeat(iproph_pep_xmls[0], len(spectra_files)))
+	assert len(iproph_pep_xmls) == len(spectra_files)
+	easypqp_convert_cmds = [[os.fspath(easypqp), 'convert', '--pepxml', os.fspath(pep_xml), '--spectra', os.fspath(spectra), '--exclude-range', '-1.5,3.5']
+							for pep_xml, spectra in zip(iproph_pep_xmls, spectra_files)]
+	easypqp_library_infiles = [output_directory / (e.stem + '_psms.tsv') for e in spectra_files] + \
+							  [output_directory / (e.stem + '.peakpkl') for e in spectra_files]
+	def easypqp_library_cmd(use_irt: bool):
+	# def easypqp_library_cmd(pep_fdr: float = None, prot_fdr: float = None):
+		return [os.fspath(easypqp), 'library',
+				# '--peptide_fdr_threshold', str(pep_fdr), '--protein_fdr_threshold', str(prot_fdr),
+				'--psmtsv', os.fspath(psm_tsv_file), '--peptidetsv', os.fspath(peptide_tsv_file), ] + \
+			   (['--rt_reference', os.fspath(irt_file)] if use_irt else []) + \
+			   ['--out', 'out.tsv'] + easypqp_library_infiles
+
+
+	easypqp_cmds = '\n'.join(' '.join(map(shlex.quote, e)) for e in easypqp_convert_cmds) + '\n' + \
+				   ' '.join(map(lambda x: shlex.quote(os.fspath(x)), easypqp_library_cmd(False)))
+
 allcmds = '\n\n'.join(e.strip() for e in
-					  ([] if skip_philosopher_filter else [phi_cmd_part1, phi_cmd_part2]) +
-					  [spectrast_first, spectrast_cmds])
+					  ([] if (skip_philosopher_filter or use_easypqp) else [phi_cmd_part1, phi_cmd_part2]) +
+					  ([spectrast_first, spectrast_cmds] if use_spectrast else []) +
+					  ([easypqp_cmds] if use_easypqp else []))
 
 
 
 def filter_proteins(fasta, decoy_prefix):
-	"""filter out proteins that are not in the protein list by philosopher (proteins.fas)
+	"""filter out proteins that are not in the protein list by philosopher (protein.fas)
 	"""
 
 	### get the iRT protein sequences
@@ -366,7 +430,7 @@ def filter_proteins(fasta, decoy_prefix):
 		philosopher_peptide_tsv = pd.read_csv(peptide_tsv_path, sep='\t')
 		proteins_fas = frozenset(philosopher_peptide_tsv['Protein'])
 	else:
-		fasta_file = output_directory / "proteins.fas"
+		fasta_file = output_directory / "protein.fas"
 		# gen0 = (e.split("\n", 1)[0].split(' ', 1)[0] for e in fasta_file.read_text()[1:].split("\n>"))
 		# proteins_fas = frozenset(filter(lambda x: not x.startswith(decoy_prefix), gen0))
 		proteins_fas = frozenset(e.split("\n", 1)[0].split(' ', 1)[0] for e in fasta_file.read_text()[1:].split("\n>"))
@@ -467,7 +531,7 @@ c|-0.02|AmidatedCorrected
 	(output_directory / "cmds2.txt").write_text(cmd2)
 	subprocess.run(spectrast_cmd(pep_ion_minprob), cwd=os_fspath(output_directory), check=True)
 
-	# print("take only proteins from philosopher’s proteins.fas")
+	# print("take only proteins from philosopher’s protein.fas")
 	filter_proteins(fasta, decoy_prefix)
 	# swathwindowssetup_file_path.write_text(txt, "ascii")
 	if is_DIA_Umpire_output:
@@ -492,6 +556,22 @@ c|-0.02|AmidatedCorrected
 	spectrast2tsv_additional_mods_path.write_text(spectrast2tsv_additional_mods_tsv_txt)
 	print(f'Executing:{spectrast_cmds_part3}\n')
 	subprocess.run(adjust_command(spectrast_cmds_part3), shell=True, cwd=os_fspath(output_directory), check=True)
+
+
+def main_easypqp():
+
+	output_directory.mkdir(exist_ok=overwrite)
+	irt_df.to_csv(irt_file, index=False, sep='\t', line_terminator='\n')
+	print(f'''Spectral library building
+Commands to execute:
+{allcmds}
+{'~' * 69}''', flush=True)
+	(output_directory / "cmds.txt").write_text(allcmds)
+	procs=[subprocess.Popen(e, cwd=os_fspath(output_directory)) for e in easypqp_convert_cmds]
+	for p in procs:
+		p.wait()
+	assert all(p.returncode==0 for p in procs)
+	subprocess.run(easypqp_library_cmd(False), cwd=os_fspath(output_directory))
 
 
 
@@ -548,7 +628,7 @@ def edit_raw_con_lib():
 	# p = data_directory / "ProteinProphet/interact.prot.xml"
 	p = prot_xml_file
 	import concurrent.futures
-	 # with concurrent.futures.ProcessPoolExecutor(1) as exe:
+	# with concurrent.futures.ProcessPoolExecutor(1) as exe:
 		# l = exe.submit(get_prot_group_infos2, p).result()
 	l = get_prot_group_infos2(p)
 	# l = get_prot_group_infos(p)
@@ -598,7 +678,7 @@ def edit_raw_con_lib():
 	pep_init_prob = get_pep_init_prob(p)
 	pathlib.Path('con_lib_not_in_psm_tsv.tsv').write_text(
 		t[t["Protein"].isnull()].assign(init_prob=t["PeptideSequence"].map(pep_init_prob.get).map(lambda x: "" if x is None else ','.join(x)))
-			.to_csv(sep='\t', index=False).replace('(UniMod:5)', '(UniMod:1)')
+			.to_csv(sep='\t', index=False, line_terminator='\n').replace('(UniMod:5)', '(UniMod:1)')
 	)
 	del t['UniprotID']
 	d = {'-18': 'H2O', '-17': 'NH3', '': ''}
@@ -615,26 +695,53 @@ def edit_raw_con_lib():
 		t[t["Protein"].notnull()].to_csv(sep='\t', index=False, line_terminator='\n').replace('(UniMod:5)', '(UniMod:1)')
 	)
 
+if use_spectrast:
+	main0()
 
-main0()
+	os.chdir(os_fspath(output_directory))
+	edit_raw_con_lib()
+	if delete_temp_files:
+		for f in TEMP_FILES:
+			try:
+				pathlib.Path(f).unlink()
+			except FileNotFoundError as e:
+				pass
+	else:
+		print('not deleting temporary files:')
+		for f in TEMP_FILES:
+			try:
+				print(pathlib.Path(f).resolve(strict=True))
+			except FileNotFoundError as e:
+				pass
 
-os.chdir(os_fspath(output_directory))
-edit_raw_con_lib()
-if delete_temp_files:
-	for f in TEMP_FILES:
-		try:
-			pathlib.Path(f).unlink()
-		except FileNotFoundError as e:
-			pass
-else:
-	print('not deleting temporary files:')
-	for f in TEMP_FILES:
-		try:
-			print(pathlib.Path(f).resolve(strict=True))
-		except FileNotFoundError as e:
-			pass
+	os.chdir(CWD)
 
-os.chdir(CWD)
+def easypqp_lib_export(lib_type: str):
+	import pandas as pd
+
+	easypqp_lib = pd.read_csv('out.tsv', sep='\t')
+
+	frag_df = easypqp_lib['Annotation'].str.extract('\\A(.+?)(\\d){1,2}(?:-(.*?))?\\^(.+)\\Z')
+	frag_df.columns = 'FragmentType', 'FragmentSeriesNumber', 'loss_type', 'FragmentCharge'
+	frag_df = frag_df.reindex(columns=['FragmentType', 'FragmentCharge', 'FragmentSeriesNumber', 'FragmentLossType'], copy=False)
+	if 0:
+		frag_df = easypqp_lib['Annotation'].str.extract('\\A(.+?)(\\d){1,2}\\^(.+)\\Z')
+		frag_df.columns = 'FragmentType', 'FragmentSeriesNumber', 'FragmentCharge'
+		frag_df.reindex(columns=['FragmentType', 'FragmentCharge', 'FragmentSeriesNumber'])
+		print((easypqp_lib['ModifiedPeptideSequence'].str.find('.(UniMod:') >= 0).mean())
+	if lib_type == 'spectranaut':
+		easypqp_lib['ModifiedPeptideSequence'] = easypqp_lib['ModifiedPeptideSequence'].str.replace('.(UniMod:', '(UniMod:', regex=False)
+	pd.concat([easypqp_lib, frag_df], axis=1).to_csv(f'easypqp_lib_{lib_type}.tsv', sep='\t', index=False)
+
+
+if use_easypqp:
+	main_easypqp()
+	os.chdir(os_fspath(output_directory))
+	easypqp_lib_export('spectranaut')
+	if 0:
+		easypqp_lib_export('skyline')
+	os.chdir(CWD)
+
 print('Done generating spectral library')
 # if __name__=='__main__':
 # 	main()

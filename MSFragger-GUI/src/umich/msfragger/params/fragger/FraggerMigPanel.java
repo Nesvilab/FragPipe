@@ -15,14 +15,8 @@
  */
 package umich.msfragger.params.fragger;
 
-import com.github.chhh.utils.swing.DocumentFilters;
-import com.github.chhh.utils.swing.StringRepresentable;
-import com.github.chhh.utils.swing.UiCheck;
-import com.github.chhh.utils.swing.UiCombo;
-import com.github.chhh.utils.swing.UiSpinnerDouble;
-import com.github.chhh.utils.swing.UiSpinnerInt;
-import com.github.chhh.utils.swing.UiText;
-import com.github.chhh.utils.swing.UiUtils;
+import com.github.chhh.utils.swing.*;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;

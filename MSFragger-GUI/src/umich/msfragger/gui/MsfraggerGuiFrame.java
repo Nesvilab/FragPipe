@@ -74,6 +74,8 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
+
+import com.github.chhh.utils.swing.UiRadio;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.codec.Charsets;
@@ -1273,6 +1275,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     panelReport = new javax.swing.JPanel();
     panelSpecLibOpts = new javax.swing.JPanel();
     checkGenerateSpecLib = new javax.swing.JCheckBox();
+    radioGroupLibGen = new ButtonGroup();
+    uiRadioUseEasypqp = new UiRadio("EasyPQP", null, false);
+    uiRadioUseSpectrast = new UiRadio("SpectraST", null, true);
     ptmshepherdPanel = new umich.msfragger.params.ptmshepherd.PtmshepherdJPanel();
     panelQuant = new umich.msfragger.params.imquant.QuantJPanel();
     panelReportOptions = new umich.msfragger.params.philosopher.ReportPanel();
@@ -2225,6 +2230,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     });
 
+    radioGroupLibGen.add(uiRadioUseEasypqp);
+    radioGroupLibGen.add(uiRadioUseSpectrast);
+
     javax.swing.GroupLayout panelSpecLibOptsLayout = new javax.swing.GroupLayout(panelSpecLibOpts);
     panelSpecLibOpts.setLayout(panelSpecLibOptsLayout);
     panelSpecLibOptsLayout.setHorizontalGroup(
@@ -2232,6 +2240,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       .addGroup(panelSpecLibOptsLayout.createSequentialGroup()
         .addContainerGap()
         .addComponent(checkGenerateSpecLib)
+        .addComponent(uiRadioUseEasypqp)
+        .addComponent(uiRadioUseSpectrast)
         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
     panelSpecLibOptsLayout.setVerticalGroup(
@@ -2239,6 +2249,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       .addGroup(panelSpecLibOptsLayout.createSequentialGroup()
         .addContainerGap()
         .addComponent(checkGenerateSpecLib)
+        .addComponent(uiRadioUseEasypqp)
+        .addComponent(uiRadioUseSpectrast)
         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
@@ -4308,10 +4320,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     // run Spectral library generation
     final boolean isRunSpeclibgen = SwingUtils.isEnabledAndChecked(checkGenerateSpecLib);
+    final boolean useEasypqp = SwingUtils.isEnabledAndChecked(uiRadioUseEasypqp);
     final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(isRunSpeclibgen, wd);
     if (cmdSpecLibGen.isRun()) {
       if (!cmdSpecLibGen.configure(this, usePhi, jarFragpipe,
-          mapGroupsToProtxml, fastaFile, isRunProteinProphet)) {
+          mapGroupsToProtxml, fastaFile, isRunProteinProphet, useEasypqp)) {
         return false;
       }
       pbDescs.add(cmdSpecLibGen.getBuilderDescriptor());
@@ -5622,7 +5635,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private javax.swing.JCheckBox checkCombinedPepxml;
   private javax.swing.JCheckBox checkDryRun;
   private javax.swing.JCheckBox checkEnableDiaumpire;
+
   private javax.swing.JCheckBox checkGenerateSpecLib;
+  private UiRadio uiRadioUseEasypqp;
+  private UiRadio uiRadioUseSpectrast;
+  private ButtonGroup radioGroupLibGen;
+
   private javax.swing.JCheckBox checkProcessGroupsSeparately;
   private javax.swing.JCheckBox chkRunPeptideProphet;
   private javax.swing.JCheckBox chkRunProteinProphet;
