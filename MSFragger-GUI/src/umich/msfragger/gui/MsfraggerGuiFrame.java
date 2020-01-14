@@ -131,6 +131,9 @@ import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.umpire.UmpirePanel;
+import umich.msfragger.util.FastaUtils;
+import umich.msfragger.util.FastaUtils.FastaContent;
+import umich.msfragger.util.FastaUtils.InferFastaPrefixesAndSuffixes;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.GhostText;
@@ -140,6 +143,8 @@ import umich.msfragger.util.LogUtils;
 import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.PrefixCounter;
+import umich.msfragger.util.PrefixCounter.Mode;
+import umich.msfragger.util.PrefixCounter.Node;
 import umich.msfragger.util.Proc2;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.PythonInfo;
@@ -3712,7 +3717,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
 
-    // check fasta file path
+    // check fasta file
     String fastaPathText = textSequenceDbPath.getText().trim();
     if (StringUtils.isNullOrWhitespace(fastaPathText)) {
       JOptionPane.showMessageDialog(this, "Fasta file path (Database tab) can't be empty",
@@ -3720,7 +3725,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       resetRunButtons(true);
       return;
     }
-
     final String fastaPath = PathUtils.testFilePath(fastaPathText, workingDir);
     if (fastaPath == null) {
       JOptionPane.showMessageDialog(this,
@@ -3751,7 +3755,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     LogUtils.println(console, String.format(Locale.ROOT, "Version info:\n%s", sbVer.toString()));
     LogUtils.println(console, "");
 
-    LogUtils.println(console, String.format(Locale.ROOT, "LCMS files:", sbVer.toString()));
+    LogUtils.println(console, "LCMS files:");
     for (Map.Entry<String, LcmsFileGroup> e : lcmsFileGroups.entrySet()) {
       LogUtils.println(console,
           String.format(Locale.ROOT, "  Experiment/Group: %s", e.getValue().name));
@@ -4062,10 +4066,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     // run Peptide Prophet
+    final boolean isRunPeptideProphet = SwingUtils.isEnabledAndChecked(chkRunPeptideProphet);
     final boolean isCombinedPepxml = checkCombinedPepxml.isSelected();
     final String decoyTag = textDecoyTagSeqDb.getText().trim();
-    CmdPeptideProphet cmdPeptideProphet = new CmdPeptideProphet(
-        chkRunPeptideProphet.isEnabled() && chkRunPeptideProphet.isSelected(), wd);
+    CmdPeptideProphet cmdPeptideProphet = new CmdPeptideProphet(isRunPeptideProphet, wd);
     if (cmdPeptideProphet.isRun()) {
       final String pepProphCmd = textPepProphCmd.getText().trim();
       final String enzymeName = fraggerMigPanel.getEnzymeName();
@@ -4093,7 +4097,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       pbDescs.add(cmdProteinProphet.getBuilderDescriptor());
     }
     Map<LcmsFileGroup, Path> mapGroupsToProtxml = cmdProteinProphet.outputs(pepxmlFiles, isProcessGroupsSeparately, isMuiltiExperimentReport);
-
 
     if (cmdPeptideProphet.isRun() || cmdProteinProphet.isRun()) {
       // Check Decoy tags if any of the downstream tools are requested
@@ -4228,6 +4231,48 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           return false;
         }
         pbDescs.add(cmdImquant.getBuilderDescriptor());
+      }
+    }
+
+    // check fasta file for presence of decoys
+    if (isRunPeptideProphet || isReport) {
+      FastaContent fasta;
+      try {
+        fasta = FastaUtils.readFasta(Paths.get(fastaFile));
+      } catch (IOException e) {
+        SwingUtils.showErrorDialog(e, this);
+        return false;
+      }
+      double decoysPercentage = FastaUtils.checkDecoysPercentage(fasta.ordered.get(0), decoyTag);
+      if (decoysPercentage <= 0) {
+        int confirm = SwingUtils.showConfirmDialog(this, new JLabel(
+            "<html>No decoys found in the FASTA file.<br/>\n" +
+                "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
+                "<br/>\n" +
+                "You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
+        if (JOptionPane.YES_OPTION != confirm) {
+          return false;
+        }
+      } else if (decoysPercentage >= 1) {
+        int confirm = SwingUtils.showConfirmDialog(this, new JLabel(
+            "<html>All FASTA entries seem to be decoys.<br/>\n" +
+                "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
+                "<br/>\n" +
+                "You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
+        if (JOptionPane.YES_OPTION != confirm) {
+          return false;
+        }
+      } else if (decoysPercentage < 0.4 || decoysPercentage > 0.6) {
+        DecimalFormat dfPct = new DecimalFormat("##.#'%'");
+        int confirm = SwingUtils.showConfirmDialog(this, new JLabel(
+            "<html>FASTA file contains " + dfPct.format(decoysPercentage * 100)  + ".<br/>\n" +
+                "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
+                "<br/>\n" +
+                "You can also continue as-is, if that's what you're expected.</br>\n"
+                + "Do you want to continue?"));
+        if (JOptionPane.YES_OPTION != confirm) {
+          return false;
+        }
       }
     }
 
@@ -4443,124 +4488,23 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
 
-    List<String> descriptors = new ArrayList<>();
-    List<List<String>> ordered = new ArrayList<>();
-
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(p),
-        StandardCharsets.UTF_8))) {
-      String line;
-      while ((line = br.readLine()) != null) {
-        if (!line.startsWith(">")) {
-          continue;
-        }
-        int pos = 1, next;
-        int depth = 1;
-        while ((next = line.indexOf('|', pos)) >= 0 || pos < line.length() - 1) {
-          if (next < 0) {
-            next = line.length();
-          }
-          String desc = line.substring(pos, next).trim();
-          descriptors.add(desc);
-          if (ordered.size() < depth) {
-            ordered.add(new ArrayList<String>());
-          }
-          ordered.get(depth - 1).add(desc);
-          pos = next + 1;
-          depth++;
-        }
-      }
-    } catch (IOException ex) {
-      JOptionPane.showMessageDialog(btnTryDetectDecoyTag,
-          "<html>Error reading sequence database file", "Error",
-          JOptionPane.ERROR_MESSAGE);
+    FastaContent fastaContent;
+    try {
+      fastaContent = FastaUtils.readFasta(p);
+    } catch (IOException e) {
+      SwingUtils.showErrorDialog(e, btnTryDetectDecoyTag);
       return;
     }
 
-    List<List<Tuple2<String, Double>>> prefixesByCol = new ArrayList<>();
-    List<List<Tuple2<String, Double>>> suffixesByCol = new ArrayList<>();
+    List<String> descriptors = fastaContent.descriptors;
+    List<List<String>> ordered = fastaContent.ordered;
 
-    for (int descCol = 0; descCol < ordered.size(); descCol++) {
-
-      List<String> descriptorCol = ordered.get(descCol);
-      final int maxDepth = 16;
-      PrefixCounter cntFwd = new PrefixCounter(PrefixCounter.Mode.FWD, maxDepth);
-      PrefixCounter cntRev = new PrefixCounter(PrefixCounter.Mode.REV, maxDepth);
-
-      for (int i = 0; i < descriptorCol.size(); i++) {
-        String descriptor = descriptorCol.get(i);
-        cntFwd.add(descriptor);
-        cntRev.add(descriptor);
-      }
-      final long total = descriptorCol.size();
-      final StringBuilder sb = new StringBuilder();
-
-      final double pctMin = 0.3;
-      final double pctMax = 0.7;
-
-      { // prefixes
-        final List<Tuple2<String, Double>> result = new ArrayList<>();
-        Proc2<PrefixCounter.Node, PrefixCounter.Mode> action = (n, mode) -> {
-
-          PrefixCounter.Node cur = n;
-          if (cur.getTerminals() > 0)
-              return; // no prefix or a suffix can be a whole protein id
-          double pct = cur.getHits() / (double) total;
-          if (pct < pctMin || pct > pctMax) {
-            return;
-          }
-          sb.setLength(0);
-          while (cur != null) {
-            if (cur.parent != null) {
-              sb.append(cur.ch);
-            }
-            cur = cur.parent;
-          }
-
-          if (sb.length() < 2) {
-            return; // no prefixes smaller than 2 characters
-          }
-
-          StringBuilder sbPrint = sb
-              .reverse();// mode == PrefixCounter.Mode.REV ? sb.reverse() : sb;
-          result.add(new Tuple2<>(sbPrint.toString(), pct));
-        };
-        cntFwd.iterPrefixCounts(maxDepth, action);
-        prefixesByCol.add(cleanUpDecoyTagCandidates(result));
-      }
-
-      { // suffixes
-        final List<Tuple2<String, Double>> result = new ArrayList<>();
-        Proc2<PrefixCounter.Node, PrefixCounter.Mode> action = new Proc2<PrefixCounter.Node, PrefixCounter.Mode>() {
-          @Override
-          public void call(PrefixCounter.Node n, PrefixCounter.Mode mode) {
-
-            PrefixCounter.Node cur = n;
-            if (cur.getTerminals() > 0)
-                return; // a prefix or a suffix can never be the whole protein id
-            double pct = cur.getHits() / (double) total;
-            if (pct < pctMin || pct > pctMax) {
-              return;
-            }
-            sb.setLength(0);
-            while (cur != null) {
-              if (cur.parent != null) {
-                sb.append(cur.ch);
-              }
-              cur = cur.parent;
-            }
-
-            if (sb.length() < 2) {
-              return; // no suffixes smaller than 2 chars
-            }
-
-            StringBuilder sbPrint = sb;// mode == PrefixCounter.Mode.REV ? sb.reverse() : sb;
-            result.add(new Tuple2<>(sbPrint.toString(), pct));
-          }
-        };
-        cntRev.iterPrefixCounts(maxDepth, action);
-        suffixesByCol.add(cleanUpDecoyTagCandidates(result));
-      }
-    }
+    InferFastaPrefixesAndSuffixes inferFastaPrefixesAndSuffixes = new InferFastaPrefixesAndSuffixes(
+        ordered).invoke();
+    List<List<Tuple2<String, Double>>> prefixesByCol = inferFastaPrefixesAndSuffixes
+        .getPrefixesByCol();
+    List<List<Tuple2<String, Double>>> suffixesByCol = inferFastaPrefixesAndSuffixes
+        .getSuffixesByCol();
 
     int totalCandidates = 0;
     int supportedPrefixes = 0;
@@ -4678,61 +4622,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
     }
 
-  }
-
-  private List<Tuple2<String, Double>> cleanUpDecoyTagCandidates(
-      List<Tuple2<String, Double>> candidates) {
-    List<Tuple2<String, Double>> result = new ArrayList<>();
-
-    Collections.sort(candidates, (t1, t2) -> {
-      int cmp0 = Double.compare(Math.abs(t1.item2 - 0.5), Math.abs(t2.item2 - 0.5));
-      if (cmp0 == 0) {
-        cmp0 = Integer.compare(t1.item1.length(), t2.item1.length());
-      }
-      return cmp0;
-    });
-
-    for (int i = 0; i < candidates.size(); i++) {
-      Tuple2<String, Double> cur = candidates.get(i);
-      String prefix = cur.item1;
-      double pct = cur.item2;
-
-      if (prefix.endsWith("-") || prefix.endsWith("_")) {
-        result.add(cur);
-        continue;
-      }
-
-      if (i + 1 < candidates.size()) {
-        Tuple2<String, Double> next = candidates.get(i + 1);
-        if (!next.item1.startsWith(prefix) || pct != next.item2) {
-          result.add(cur);
-          continue;
-        }
-      } else if ( i == candidates.size() - 1 && result.isEmpty()) {
-        result.add(cur);
-        continue;
-      }
-    }
-
-//    for (Tuple2<String, Double> cur : candidates) {
-//      boolean isBest = true;
-//      for (Tuple2<String, Double> other : candidates) {
-//        if (Double.compare(other.item2, cur.item2) == 0) {
-//          String curStr = cur.item1;
-//          String othStr = other.item1;
-//          if (othStr.length() > curStr.length()) {
-//            if (othStr.startsWith(curStr) || othStr.endsWith(curStr)) {
-//              isBest = false;
-//              break;
-//            }
-//          }
-//        }
-//      }
-//      if (isBest) {
-//        result.add(cur);
-//      }
-//    }
-    return result;
   }
 
   private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
