@@ -63,6 +63,10 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("12.2", Arrays.asList(
+        "Check FASTA file for presence of decoys before running PeptideProphet or Report",
+        "Fix some Philosopher workspace related bugs"
+    ));
     CHANGELOG.put("12.1", Arrays.asList(
             "IMQuant fixes after initial release."
     ));
