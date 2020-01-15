@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import umich.msfragger.messages.MessageEasypqpInit;
 import umich.msfragger.messages.MessageToolInit;
 import umich.msfragger.params.speclib.SpecLibGen.MessageInitDone.REASON;
 import umich.msfragger.util.CheckResult;
@@ -31,7 +32,6 @@ public class SpecLibGen {
       + "needed for Spectral Library generation functionality.";
   private static final String SCRIPT_SPEC_LIB_GEN = "/speclib/gen_con_spec_lib.py";
   private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
-
 
   private PythonInfo pi;
   private Path scriptSpecLibGenPath;
@@ -61,6 +61,9 @@ public class SpecLibGen {
   public static final PythonModule[] REQUIRED_MODULES = {
       new PythonModule("Cython", "Cython"),
       new PythonModule("msproteomicstools", "msproteomicstoolslib")
+  };
+  public static final PythonModule[] REQUIRED_FOR_EASYPQP = {
+      new PythonModule("easypqp", "easypqp"),
   };
 
   public PythonInfo getPi() {
@@ -174,6 +177,16 @@ public class SpecLibGen {
               ));
           reasons.add(REASON.PY_MODULES);
         }
+
+        // check EasyPqp installation separately
+        CheckResult result = checkPythonErrorModulesEasypqp();
+        if (result.isSuccess) {
+          EventBus.getDefault().postSticky(new MessageEasypqpInit(true, true, null));
+        } else {
+          EventBus.getDefault().postSticky(new MessageEasypqpInit(true, false, result.message));
+        }
+      } else {
+        EventBus.getDefault().postSticky(new MessageEasypqpInit(false, false, "Python incompatible"));
       }
 
       boolean isUnpacked = false;
@@ -208,8 +221,8 @@ public class SpecLibGen {
     return new CheckResult(true, "Python: " + pi.getVersion() + ".");
   }
 
-  private List<PythonModule> createPythonModulesStatusList(Installed installedStatus) {
-    return Arrays.stream(REQUIRED_MODULES)
+  private List<PythonModule> createPythonModulesStatusList(Installed installedStatus, PythonModule[] modules) {
+    return Arrays.stream(modules)
         .filter(pm -> installedStatus.equals(pi.checkModuleInstalled(pm)))
         .collect(Collectors.toList());
   }
@@ -219,7 +232,7 @@ public class SpecLibGen {
     if (REQUIRED_MODULES.length == 0) {
       sb.append(" none required");
     } else {
-      List<PythonModule> okMods = createPythonModulesStatusList(Installed.YES);
+      List<PythonModule> okMods = createPythonModulesStatusList(Installed.YES, REQUIRED_MODULES);
       if (!okMods.isEmpty()) {
         String pmList = okMods.stream().map(pm -> pm.installName).collect(Collectors.joining(", "));
         sb.append(" ").append(pmList).append(" - OK;");
@@ -240,7 +253,33 @@ public class SpecLibGen {
 
     final List<String> badModsByStatus = new ArrayList<>();
     for (Installed badStatus : badStatuses) {
-      List<PythonModule> badMods = createPythonModulesStatusList(badStatus);
+      List<PythonModule> badMods = createPythonModulesStatusList(badStatus, REQUIRED_MODULES);
+      if (!badMods.isEmpty()) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(badMods.stream().map(pm -> pm.installName).collect(Collectors.joining(", ")))
+            .append(" - ").append(statusNameMap.getOrDefault(badStatus, badStatus.name()));
+        badModsByStatus.add(sb.toString());
+      }
+    }
+    if (badModsByStatus.isEmpty()) {
+      return new CheckResult(true, "");
+    }
+    return new CheckResult(false, " " + String.join(", ", badModsByStatus));
+  }
+
+  private CheckResult checkPythonErrorModulesEasypqp() {
+    List<Installed> badStatuses = Arrays.stream(Installed.values())
+        .filter(installed -> !installed.equals(Installed.YES)).collect(
+            Collectors.toList());
+
+    final Map<Installed, String> statusNameMap = new HashMap<>();
+    statusNameMap.put(Installed.INSTALLED_WITH_IMPORTERROR, "Error loading module");
+    statusNameMap.put(Installed.NO, "Missing");
+    statusNameMap.put(Installed.UNKNOWN, "N/A");
+
+    final List<String> badModsByStatus = new ArrayList<>();
+    for (Installed badStatus : badStatuses) {
+      List<PythonModule> badMods = createPythonModulesStatusList(badStatus, REQUIRED_FOR_EASYPQP);
       if (!badMods.isEmpty()) {
         StringBuilder sb = new StringBuilder();
         sb.append(badMods.stream().map(pm -> pm.installName).collect(Collectors.joining(", ")))

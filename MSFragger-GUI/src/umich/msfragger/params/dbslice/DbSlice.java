@@ -39,7 +39,6 @@ public class DbSlice {
       new PythonModule("pandas", "pandas"),
   };
 
-
   private PythonInfo pi;
   private Path scriptDbslicingPath;
   private String msfraggerVer;
@@ -147,6 +146,7 @@ public class DbSlice {
               ));
           reasons.add(REASON.PY_MODULES);
         }
+
       }
 
       boolean isUnpacked = false;

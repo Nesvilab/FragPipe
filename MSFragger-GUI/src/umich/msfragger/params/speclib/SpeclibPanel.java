@@ -5,11 +5,10 @@ import com.github.chhh.utils.swing.UiRadio;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
@@ -22,10 +21,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.messages.MessageLoadShepherdDefaults;
-import umich.msfragger.messages.MessageSearchType;
-import umich.msfragger.params.ptmshepherd.PtmshepherdParams;
-import umich.msfragger.util.PropertiesUtils;
+import umich.msfragger.messages.MessageEasypqpInit;
+import umich.msfragger.messages.MessageSpeclibGenSpectrastInit;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.swing.FormEntry;
 import umich.msfragger.util.swing.JPanelWithEnablement;
@@ -65,40 +62,24 @@ public class SpeclibPanel extends JPanelWithEnablement {
   }
 
   @Subscribe
-  public void onMessageLoadShepherdDefaults(MessageLoadShepherdDefaults m) {
-    log.debug("Got MessageLoadShepherdDefaults");
-    if (m.doAskUser) {
-      int answer = SwingUtils.showConfirmDialog(this, new JLabel("<html>Load PTMShepherd defaults?"));
-      if (JOptionPane.OK_OPTION != answer) {
-        log.debug("User cancelled Loading Shepherd defaults");
-        return;
-      }
+  public void onMessageEasypqpInit(MessageEasypqpInit m) {
+    log.debug("Got MessageEasypqpInit");
+    updateEnabledStatus(uiRadioUseEasypqp, m.isPythonOk && m.isEasypqpPackageInstalled);
+    if (!m.isPythonOk || !m.isEasypqpPackageInstalled) {
+      uiRadioUseEasypqp.setToolTipText("Toolchain not initialized: " + (m.message == null ? "N/A" : m.message));
     }
-
-    try {
-      Properties props = PropertiesUtils
-          .loadPropertiesLocal(PtmshepherdParams.class, PtmshepherdParams.DEFAULT_PROPERTIES_FN);
-      SwingUtils.valuesFromMap(this, PropertiesUtils.to(props));
-    } catch (Exception e) {
-      log.error("Error loading shepherd defaults", e);
-      SwingUtils.showErrorDialog(e, this);
-    }
-
   }
 
   @Subscribe
-  public void onMessageSearchTypePtms(MessageSearchType m) {
-    switch (m.type) {
-      case open:
-      case offset:
-        checkRun.setSelected(true);
-        break;
-      case closed:
-      case nonspecific:
-        checkRun.setSelected(false);
-        break;
-      default:
-        throw new IllegalStateException("Not covered enum option: " + m.type.name());
+  public void onMessageSpeclibGenSpectrastInit(SpecLibGen.MessageInitDone m) {
+    log.debug("Got MessageSpeclibGenSpectrastInit");
+    updateEnabledStatus(uiRadioUseSpectrast, m.isSuccess);
+    if (!m.isSuccess) {
+      String reasons = "";
+      if (m.reasons != null && !m.reasons.isEmpty()) {
+        reasons = "Reasons: " + m.reasons.stream().map(reason -> reason.toString()).collect(Collectors.joining("<br/>"));
+      }
+      uiRadioUseSpectrast.setToolTipText("<html>Toolchain not initialized.<br/>" + reasons);
     }
   }
 
@@ -162,10 +143,12 @@ public class SpeclibPanel extends JPanelWithEnablement {
       radioGroupTools = new ButtonGroup();
       uiRadioUseSpectrast = new UiRadio("SpectraST - included, requires Python, see Config tab", null, true);
       radioGroupTools.add(uiRadioUseSpectrast);
+      updateEnabledStatus(uiRadioUseSpectrast, false);
       FormEntry feRadioUseSpectrast = new FormEntry("ui.name.report.speclibgen.use-spectrast", "Not shown",
           uiRadioUseSpectrast);
-      uiRadioUseEasypqp = new UiRadio("EastPQP - requires separate installation", null, true);
+      uiRadioUseEasypqp = new UiRadio("EasyPQP - requires separate installation, follow instructions at: https://github.com/grosenberger/easypqp", null, true);
       radioGroupTools.add(uiRadioUseEasypqp);
+      updateEnabledStatus(uiRadioUseEasypqp, false);
       FormEntry feRadioUseEasypqp = new FormEntry("ui.name.report.speclibgen.use-easypqp", "Not shown",
           uiRadioUseEasypqp);
 
@@ -184,7 +167,15 @@ public class SpeclibPanel extends JPanelWithEnablement {
   }
 
   public boolean isRunSpeclibgen() {
-    return checkRun.isEnabled() && checkRun.isSelected();
+    return SwingUtils.isEnabledAndChecked(checkRun) && (useEasypqp() || useSpectrast());
+  }
+
+  public boolean useEasypqp() {
+    return SwingUtils.isEnabledAndChecked(uiRadioUseEasypqp);
+  }
+
+  public boolean useSpectrast() {
+    return SwingUtils.isEnabledAndChecked(uiRadioUseSpectrast);
   }
 
   private void clearBalloonTips() {

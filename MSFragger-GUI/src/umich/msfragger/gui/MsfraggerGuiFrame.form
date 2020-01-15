@@ -1449,10 +1449,10 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="panelSpecLibOpts" alignment="0" max="32767" attributes="0"/>
                           <Component id="ptmshepherdPanel" alignment="0" max="32767" attributes="0"/>
                           <Component id="panelQuant" max="32767" attributes="0"/>
                           <Component id="panelReportOptions" alignment="0" max="32767" attributes="0"/>
+                          <Component id="speclibPanel1" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -1468,56 +1468,13 @@
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="ptmshepherdPanel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="panelSpecLibOpts" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="153" max="32767" attributes="0"/>
+                      <Component id="speclibPanel1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="72" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Container class="javax.swing.JPanel" name="panelSpecLibOpts">
-              <Properties>
-                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                  <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="Spectral Library"/>
-                  </Border>
-                </Property>
-                <Property name="enabled" type="boolean" value="false"/>
-              </Properties>
-
-              <Layout>
-                <DimensionLayout dim="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="checkGenerateSpecLib" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="32767" attributes="0"/>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-                <DimensionLayout dim="1">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="checkGenerateSpecLib" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="32767" attributes="0"/>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-              </Layout>
-              <SubComponents>
-                <Component class="javax.swing.JCheckBox" name="checkGenerateSpecLib">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Generate Spectral Library from search results"/>
-                    <Property name="enabled" type="boolean" value="false"/>
-                    <Property name="name" type="java.lang.String" value="ui.name.report.check.genspeclib" noResource="true"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkGenerateSpecLibActionPerformed"/>
-                  </Events>
-                </Component>
-              </SubComponents>
-            </Container>
             <Component class="umich.msfragger.params.ptmshepherd.PtmshepherdJPanel" name="ptmshepherdPanel">
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
@@ -1537,6 +1494,8 @@
               </Properties>
             </Component>
             <Component class="umich.msfragger.params.philosopher.ReportPanel" name="panelReportOptions">
+            </Component>
+            <Component class="umich.msfragger.params.speclib.SpeclibPanel" name="speclibPanel1">
             </Component>
           </SubComponents>
         </Container>
