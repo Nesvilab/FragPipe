@@ -574,7 +574,7 @@ Commands to execute:
 	for p in procs:
 		p.wait()
 	assert all(p.returncode==0 for p in procs)
-	subprocess.run(easypqp_library_cmd(False), cwd=os_fspath(output_directory))
+	subprocess.run(easypqp_library_cmd(False), cwd=os_fspath(output_directory), check=True)
 
 
 
