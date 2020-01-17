@@ -11,7 +11,7 @@ fragment_mass_units = 1		           # 0=Daltons, 1=ppm
 calibrate_mass = 1
 decoy_prefix = rev_
 
-deisotope = 0
+deisotope = 1
 isotope_error = 0/1                      # 0=off, 0/1/2 (standard C13 error)
 mass_offsets = 0
 precursor_mass_mode = selected

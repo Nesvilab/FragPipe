@@ -352,7 +352,7 @@ public class FraggerMigPanel extends JPanel {
       FormEntry feSpinnerPrecTolHi = new FormEntry(MsfraggerParams.PROP_precursor_mass_upper,
           "not-shown", uiSpinnerPrecTolHi);
       FormEntry feDeisotope = new FormEntry(MsfraggerParams.PROP_deisotope,
-          "Deisotope", new UiSpinnerInt(0, 0, 2, 1, 4),
+          "Deisotope", new UiSpinnerInt(1, 0, 2, 1, 4),
           "<html>0 = deisotoping off<br/>\n"
               + "1 = deisotoping on");
 
