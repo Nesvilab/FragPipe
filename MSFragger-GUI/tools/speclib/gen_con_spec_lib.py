@@ -393,8 +393,11 @@ if use_easypqp:
 	assert len(iproph_pep_xmls) == len(spectra_files)
 	easypqp_convert_cmds = [[os.fspath(easypqp), 'convert', '--pepxml', os.fspath(pep_xml), '--spectra', os.fspath(spectra), '--exclude-range', '-1.5,3.5']
 							for pep_xml, spectra in zip(iproph_pep_xmls, spectra_files)]
-	easypqp_library_infiles = [output_directory / (e.stem + '_psms.tsv') for e in spectra_files] + \
-							  [output_directory / (e.stem + '.peakpkl') for e in spectra_files]
+	spectra_files_basename = [e.stem[:-len('_calibrated')]
+							  if e.stem.endswith('_calibrated') else e.stem
+							  for e in spectra_files]
+	easypqp_library_infiles = [output_directory / (e + '_psms.tsv') for e in spectra_files_basename] + \
+							  [output_directory / (e + '.peakpkl') for e in spectra_files_basename]
 	def easypqp_library_cmd(use_irt: bool):
 	# def easypqp_library_cmd(pep_fdr: float = None, prot_fdr: float = None):
 		return [os.fspath(easypqp), 'library',
