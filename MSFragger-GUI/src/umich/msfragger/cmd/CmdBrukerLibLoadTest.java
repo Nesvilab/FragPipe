@@ -17,7 +17,7 @@ public class CmdBrukerLibLoadTest extends CmdBase {
 
     public static final String JAR_NAME = "batmass-io-consumer.jazz";
     public static final String JAR_MAIN_CLASS = "com.dmtavt.batmass.io.consumer.App";
-    private static String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAZZ, "imquant-1.6.5.jazz"};
+    private static String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAZZ, "ionquant-1.0.0.jazz"};
 
     public CmdBrukerLibLoadTest(boolean isRun, Path workDir, String fileCaptureStdout, String fileCaptureStderr) {
         super(isRun, workDir, fileCaptureStdout, fileCaptureStderr);

@@ -1265,7 +1265,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         panelCrystalc = new umich.msfragger.params.crystalc.CrystalcPanel();
         panelReport = new javax.swing.JPanel();
         ptmshepherdPanel = new umich.msfragger.params.ptmshepherd.PtmshepherdJPanel();
-        panelQuant = new umich.msfragger.params.imquant.QuantJPanel();
+        panelQuant = new umich.msfragger.params.ionquant.QuantJPanel();
         panelReportOptions = new umich.msfragger.params.philosopher.ReportPanel();
         speclibPanel1 = new umich.msfragger.params.speclib.SpeclibPanel();
         panelRun = new javax.swing.JPanel();
@@ -4184,16 +4184,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         pbDescs.add(cmdReportFreequant.getBuilderDescriptor());
       }
 
-      // run Report - IMQuant (Labelfree)
-      final boolean isImquant = panelQuant.isImquant();
-      final CmdImquant cmdImquant = new CmdImquant(isImquant, wd);
-      if (cmdImquant.isRun()) {
+      // run Report - IonQuant (Labelfree)
+      final boolean isIonquant = panelQuant.isIonquant();
+      final CmdIonquant cmdIonquant = new CmdIonquant(isIonquant, wd);
+      if (cmdIonquant.isRun()) {
         final int ramGb = fp.getRamGb() > 0 ? fp.getRamGb() : OsUtils.getDefaultXmx();
-        if (!cmdImquant.configure(this, Paths.get(binMsfragger.getBin()), ramGb, panelQuant.toMap(),
-            pepxmlFilesFromMsfragger, mapGroupsToProtxml)) {
+        if (!cmdIonquant.configure(this, Paths.get(binMsfragger.getBin()), ramGb, panelQuant.toMap(),
+            pepxmlFilesFromMsfragger, mapGroupsToProtxml, nThreads)) {
           return false;
         }
-        pbDescs.add(cmdImquant.getBuilderDescriptor());
+        pbDescs.add(cmdIonquant.getBuilderDescriptor());
       }
     }
 
@@ -5626,7 +5626,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelPhilosopherConfig;
     private javax.swing.JPanel panelProteinProphet;
     private javax.swing.JPanel panelProteinProphetOptions;
-    private umich.msfragger.params.imquant.QuantJPanel panelQuant;
+    private umich.msfragger.params.ionquant.QuantJPanel panelQuant;
     private javax.swing.JPanel panelReport;
     private umich.msfragger.params.philosopher.ReportPanel panelReportOptions;
     private javax.swing.JPanel panelRun;

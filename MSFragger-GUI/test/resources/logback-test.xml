@@ -7,7 +7,7 @@
     </encoder>
   </appender>
 
-  <logger name="umich.msfragger.params.imquant" level="info" />
+  <logger name="umich.msfragger.params.ionquant" level="info" />
 
   <root level="debug">
     <appender-ref ref="STDOUT" />
