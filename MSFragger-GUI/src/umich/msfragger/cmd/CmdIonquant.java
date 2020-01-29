@@ -100,6 +100,8 @@ public class CmdIonquant extends CmdBase {
     cmd.add("-cp");
     cmd.add(constructClasspathString(unpacked));
     cmd.add(JAR_IONQUANT_MAIN_CLASS);
+    cmd.add("--threads");
+    cmd.add(String.valueOf(nThreads));
     cmd.add("--mztol");
     cmd.add(getOrThrow(uiCompsRepresentation, "ui.ionquant.mz-tol"));
     cmd.add("--imtol");
