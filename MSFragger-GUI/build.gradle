@@ -24,8 +24,13 @@ version = '12.2-build16'
 
 description = """FragPipe - run complete proteomics analyses from the GUI"""
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
 tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
 }
