@@ -88,7 +88,13 @@ public class HSLColor {
         rgb = toRGB(hsl, alpha);
     }
 
-    /**
+  public static Color getLighterColor(Color original, float alpha) {
+    HSLColor hslColor = new HSLColor(original);
+    Color lighter = toRGB(hslColor.getHSL(), alpha);
+    return lighter;
+  }
+
+  /**
      * Create a RGB Color object based on this HSLColor with a different Hue
      * value. The degrees specified is an absolute value.
      *

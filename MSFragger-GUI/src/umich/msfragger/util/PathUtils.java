@@ -437,4 +437,17 @@ public class PathUtils {
             ? com.github.chhh.utils.StringUtils.surround(s, "'")
             : com.github.chhh.utils.StringUtils.surround(s, "\"");
     }
+
+  /**
+   * Get the name of the file less the provided suffix.
+   *
+   * @param path the filename component will be taken
+   * @param suffix lowercase suffix
+   * @return filename less suffix
+   */
+  public static String getFileNameLessSuffix(Path path, String suffix) {
+    String name = path.getFileName().toString();
+    int indexOf = name.toLowerCase().indexOf(suffix);
+    return indexOf >= 0 ? name.substring(0, indexOf) : name;
+  }
 }

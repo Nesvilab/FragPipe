@@ -160,9 +160,6 @@ import umich.msfragger.util.VersionComparator;
 import umich.msfragger.util.swing.ISimpleTextComponent;
 import umich.swing.console.TextConsole;
 
-/**
- * @author dattam
- */
 public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private static final org.slf4j.Logger log = LoggerFactory.getLogger(MsfraggerGuiFrame.class);
@@ -179,6 +176,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private GhostText ghostTextProtProp;
   private BalloonTip balloonMsfragger;
   private BalloonTip balloonPhilosopher;
+  private Color balloonBgColor = Color.WHITE;
 
   private HashMap<String, BalloonTip> tipMap = new HashMap<>();
   private static final String TIP_NAME_FRAGGER_JAVA_VER = "msfragger.java.min.ver";
@@ -399,10 +397,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     } catch (IOException e) {
       log.error("Error writing log to file", e);
     }
-  }
-
-  private void addBottomHint(JComponent comp) {
-
   }
 
   private void initMore() {
@@ -975,8 +969,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         tip.closeBalloon();
         return null;
       });
-      BalloonTip tip = new BalloonTip(btnAboutInConfig, SwingUtils.createClickableHtml(m.text),
-          new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
+      BalloonTip tip = new BalloonTip(btnAboutInConfig, SwingUtils.createClickableHtml(m.text, balloonBgColor),
+          new RoundedBalloonStyle(5, 5, balloonBgColor, Color.BLACK), true);
       tip.setVisible(true);
       tipMap.put(m.key, tip);
     });
@@ -1159,16 +1153,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     tableModelRawFiles = new UniqueLcmsFilesTableModel(cols, 0);
     return tableModelRawFiles;
-  }
-
-  private String getDefaultPhilosopherBinName() {
-    java.util.ResourceBundle bundle = ThisAppProps.getLocalBundle();
-    String winName = bundle.getString("default.philosopher.win"); // NOI18N
-    String nixName = bundle.getString("default.philosopher.nix"); // NOI18N
-    if (OsUtils.isWindows()) {
-      return winName;
-    }
-    return nixName;
   }
 
   /**
@@ -2685,10 +2669,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
               + "<b>If that's the first time you're using %s</b>,<br/>"
               + "you will need to <a href=\"%s\">download MSFragger.jar (click here)</a> first.<br/>"
               + "Use the button on the right to proceed to the download website.",
-          Version.PROGRAM_TITLE, downloadUrl));
+          Version.PROGRAM_TITLE, downloadUrl), balloonBgColor);
 
       balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
-          new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
+          new RoundedBalloonStyle(5, 5, balloonBgColor, Color.BLACK), true);
       balloonMsfragger.setVisible(true);
     } else if (!isJarValid) {
       final String downloadUrl = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_DOWNLOAD_URL, "");
@@ -2698,10 +2682,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
               + "<b>If that's the first time you're using %s</b>,<br/>"
               + "you will need to <a href=\"%s\">download MSFragger.jar (click here)</a> first.<br/>"
               + "Use the button on the right to proceed to the download website.",
-          Version.PROGRAM_TITLE, downloadUrl));
+          Version.PROGRAM_TITLE, downloadUrl), balloonBgColor);
 
       balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
-          new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
+          new RoundedBalloonStyle(5, 5, balloonBgColor, Color.BLACK), true);
       balloonMsfragger.setVisible(true);
     }
 
@@ -2749,9 +2733,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       if (msg != null) {
         JEditorPane ep = SwingUtils.createClickableHtml(msg
                 + "<br/>Download <a href=\"https://www.java.com/en/download/manual.jsp\">here</a> or see the configuration help page (link below).\n.",
-            true, true);
+            true, false, balloonBgColor);
         tip = new BalloonTip(lblFraggerJavaVer, ep,
-            new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
+            new RoundedBalloonStyle(5, 5, balloonBgColor, Color.BLACK), true);
         tipMap.put(TIP_NAME_FRAGGER_JAVA_VER, tip);
         tip.setVisible(true);
       }
@@ -2833,10 +2817,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }).start();
   }
 
-  public static class PhiVersionValidation {
-
-  }
-
   private void validatePhilosopherVersion(final String binPath) {
     if (balloonPhilosopher != null) {
       balloonPhilosopher.closeBalloon();
@@ -2916,7 +2896,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           if (maxPhiVer != null)
             sb.append("Latest known compatible version: ").append(maxPhiVer).append("<br/>\n");
           sb.append("Please <a href=\"").append(link).append("\">click here</a> to download a newer one.");
-          ep = SwingUtils.createClickableHtml(sb.toString());
+          ep = SwingUtils.createClickableHtml(sb.toString(), balloonBgColor);
 
         } else {
 
@@ -2928,7 +2908,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             if (maxPhiVer != null)
               sb.append("Latest known compatible version: ").append(maxPhiVer).append("<br/>\n");
             sb.append("Please <a href=\"").append(link).append("\">click here</a> to download a newer one.");
-            ep = SwingUtils.createClickableHtml(sb.toString());
+            ep = SwingUtils.createClickableHtml(sb.toString(), balloonBgColor);
 
           } else if (isNewVersionStringFound) {
             StringBuilder sb = new StringBuilder();
@@ -2953,7 +2933,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 sb.append("<br>\nYour current version is higher than the last known tested version.");
               }
             }
-            ep = SwingUtils.createClickableHtml(sb.toString());
+            ep = SwingUtils.createClickableHtml(sb.toString(), balloonBgColor);
           }
         }
 
@@ -2962,7 +2942,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             balloonPhilosopher.closeBalloon();
           }
           balloonPhilosopher = new BalloonTip(textBinPhilosopher, ep,
-              new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
+              new RoundedBalloonStyle(5, 5, balloonBgColor, Color.BLACK), true);
           balloonPhilosopher.setVisible(true);
         }
 
@@ -3035,7 +3015,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 sb.append("<br>If you choose to auto-update a new version will be downloaded<br>\n"
                     + "and placed in the same folder as the old one. The old one will be kept.");
               }
-              JEditorPane ep = SwingUtils.createClickableHtml(sb.toString());
+              JEditorPane ep = SwingUtils.createClickableHtml(sb.toString(), balloonBgColor);
 
               JPanel panel = new JPanel();
               panel.setBackground(ep.getBackground());
@@ -3113,7 +3093,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
               panel.add(panelButtons, BorderLayout.SOUTH);
 
               balloonMsfragger = new BalloonTip(textBinMsfragger, panel,
-                  new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
+                  new RoundedBalloonStyle(5, 5, balloonBgColor, Color.BLACK), true);
               balloonMsfragger.setVisible(true);
             });
           }
@@ -3892,35 +3872,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     EventBus.getDefault().post(new MessageRun(isDryRun));
   }//GEN-LAST:event_btnRunActionPerformed
 
-
-  private void teeProcessStream(InputStream is, OutputStream... os) throws IOException {
-    int available = is.available();
-    if (available > 0) {
-      byte[] bytes = new byte[available];
-      int read = is.read(bytes);
-
-      for (int i = 0; i < os.length; i++) {
-        OutputStream o = os[i];
-        if (o == null) {
-          continue;
-        }
-        o.write(bytes);
-      }
-
-      String asStr = new String(bytes);
-      if (!StringUtils.isNullOrWhitespace(asStr)) {
-        LogUtils.println(console, asStr);
-      }
-
-    } else {
-      // zero bytes available, do nothing I guess
-    }
-  }
-
-  private String getTimestamp() {
-    return "[" + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) + "]";
-  }
-
   /**
    * @param wd Global working directory. LCMS file groups' output will be created inside this one.
    */
@@ -3978,7 +3929,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       pbDescs.add(cmdMsfragger.getBuilderDescriptor());
 
       String warn = ThisAppProps.load(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
-      if (warn != null && Boolean.valueOf(warn)) {
+      if (Boolean.parseBoolean(warn)) {
         for (InputLcmsFile f : lcmsFiles) {
           if (f.getPath().toString().toLowerCase().endsWith(".mgf")) {
             JCheckBox checkbox = new JCheckBox("Do not show this message again.");
@@ -4325,15 +4276,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     return true;
   }
 
-  private String getCombinedProtFn() {
-    return "combined.prot.xml";
-  }
-
-  private String getRegexMatch(Pattern re, String text, int groupNum) {
-    Matcher m = re.matcher(text);
-    return m.find() ? m.group(groupNum) : "";
-  }
-
   private void btnPepProphDefaults(SearchTypeProp t) {
     int confirm1 = JOptionPane.showConfirmDialog(this,
         "<html>Load " + t + " search defaults?");
@@ -4342,15 +4284,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     loadDefaultsPeptideProphet(t);
-
-//    int choice = JOptionPane.showConfirmDialog(this,
-//        "<html>Loaded " + t + " search defaults.<br/><br/>"
-//            + "Do you want to load defaults <b>for other tools</b> as well?<br/><br/>"
-//                + "<b>WARNING:</b><br/>"
-//                + "This will reset MSFragger settings!");
-//    if (JOptionPane.YES_OPTION == choice) {
-//      EventBus.getDefault().post(new MessageSearchType(t));
-//    }
   }
   
   private void btnProtProphDefaults(SearchTypeProp t) {
@@ -4362,15 +4295,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     loadDefaultsProteinProphet(t);
-
-//    int choice = JOptionPane.showConfirmDialog(this,
-//        "<html>Loaded " + t + " search defaults.<br/><br/>"
-//            + "Do you want to load defaults <b>for other tools</b> as well?<br/><br/>"
-//                + "<b>WARNING:</b><br/>"
-//                + "This will reset MSFragger settings!");
-//    if (JOptionPane.YES_OPTION == choice) {
-//      EventBus.getDefault().post(new MessageSearchType(t));
-//    }
   }
 
   private void btnAboutInConfigActionPerformed(
@@ -4438,7 +4362,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnTryDetectDecoyTagActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTryDetectDecoyTagActionPerformed
-    Path p = null;
+    Path p;
     try {
       p = Paths.get(textSequenceDbPath.getText());
       if (!Files.exists(p)) {
@@ -4808,24 +4732,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnPrintCommandsActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintCommandsActionPerformed
-
-    // debugging section, triggered by Print Commands button
-//    String wd = txtWorkingDir.getText();
-//    if (wd == null) {
-//      log.error("work dir null");
-//      return;
-//    }
-//    Path wdp = Paths.get(wd);
-//    CmdBrukerLibLoadTest cmd = new CmdBrukerLibLoadTest(true, wdp);
-//    cmd.configure(getBinMsfragger());
-//    ProcessBuildersDescriptor pbd = cmd.getBuilderDescriptor();
-//    for (ProcessBuilderInfo pbi : pbd.pbis) {
-//      log.info("About to run external process");
-//      Runnable r = ProcessBuilderInfo.toRunnable(pbi, wdp, this::printProcessDescription);
-//      r.run();
-//    }
-
-
     EventBus.getDefault().post(new MessageRun(true));
   }//GEN-LAST:event_btnPrintCommandsActionPerformed
 
@@ -5123,13 +5029,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
 
-//    final String message = String.format(Locale.ROOT,
-//        "Decoy prefix has changed: from '%s', to '%s'.\n", oldText, updText);
-//    int ans = JOptionPane
-//        .showConfirmDialog(this, message, "Decoy prefix change", JOptionPane.YES_NO_OPTION);
-//    if (ans == JOptionPane.YES_OPTION) {
-//      // do something
-//    }
   }
 
   private void updateTextCmdLine(Pattern re, JTextComponent textComp, String newVal,
@@ -5255,10 +5154,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
               + "<b>If that's the first time you're using " + Version.PROGRAM_TITLE + "</b>,<br/>"
               + "you will need to <a href=\"" + link + "\">download Philosopher (click here)</a> first.<br/>"
               + "Use the button on the right to proceed to the download website.";
-          JEditorPane ep = SwingUtils.createClickableHtml(msg, true, true);
+          JEditorPane ep = SwingUtils.createClickableHtml(msg, balloonBgColor);
 
           balloonPhilosopher = new BalloonTip(textBinPhilosopher, ep,
-              new RoundedBalloonStyle(5, 5, Color.WHITE, Color.BLACK), true);
+              new RoundedBalloonStyle(5, 5, balloonBgColor, Color.BLACK), true);
 
           balloonPhilosopher.setVisible(true);
           enablePhilosopherPanels(false);
@@ -5323,15 +5222,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
 
       if (needsDisplay) {
-        SwingUtilities.invokeLater(new Runnable() {
-          @Override
-          public void run() {
-            if (balloonPhilosopher != null) {
-              balloonPhilosopher.closeBalloon();
-            }
-            balloonPhilosopher = new BalloonTip(textBinPhilosopher, sb.toString());
-            balloonPhilosopher.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+          if (balloonPhilosopher != null) {
+            balloonPhilosopher.closeBalloon();
           }
+          balloonPhilosopher = new BalloonTip(textBinPhilosopher, sb.toString());
+          balloonPhilosopher.setVisible(true);
         });
       } else {
         validatePhilosopherVersion(validatedPath);
@@ -5345,12 +5241,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private String validatePhilosopherPath(String path) {
     return PathUtils.testBinaryPath(path);
-  }
-
-  private Color getLighterColor(Color original, float alpha) {
-    HSLColor hslColor = new HSLColor(original);
-    Color lighter = HSLColor.toRGB(hslColor.getHSL(), alpha);
-    return lighter;
   }
 
   private void downloadPhilosopher() {
@@ -5379,19 +5269,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     return result;
-  }
-
-  /**
-   * Get the name of the file less the provided suffix.
-   *
-   * @param path the filename component will be taken
-   * @param suffix lowercase suffix
-   * @return filename less suffix
-   */
-  private String getFileNameLessSuffix(Path path, String suffix) {
-    String name = path.getFileName().toString();
-    int indexOf = name.toLowerCase().indexOf(suffix);
-    return indexOf >= 0 ? name.substring(0, indexOf) : name;
   }
 
   private String createPhilosopherCitationHtml() {

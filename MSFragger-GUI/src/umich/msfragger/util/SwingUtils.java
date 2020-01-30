@@ -18,6 +18,7 @@ package umich.msfragger.util;
 
 import com.github.chhh.utils.swing.StringRepresentable;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
@@ -266,7 +267,7 @@ public class SwingUtils {
    * tags. To include links use the regular A tags.
    */
   public static JEditorPane createClickableHtml(String text) {
-    return createClickableHtml(text, true, true);
+    return createClickableHtml(text, true, true, null);
   }
 
   public static String getHtmlBodyStyle() {
@@ -281,16 +282,42 @@ public class SwingUtils {
     return style.toString();
   }
 
+//  /**
+//   * Creates a non-editable JEditorPane that has the same styling as default JLabels and with
+//   * hyperlinks clickable. They will be opened in the system default browser.
+// * @param text Your text to be displayed in HTML context. Don't add the opening and closing HTML
+//   * tags. To include links use the regular A tags.
+//   * @param handleHyperlinks Add a handler for hyperlinks to be opened in the
+// * @param useJlabelBackground Use default background of JLabels.
+//   */
+//  public static JEditorPane createClickableHtml(String text, boolean handleHyperlinks,
+//      boolean useJlabelBackground) {
+//    return createClickableHtml(text, handleHyperlinks, useJlabelBackground, null);
+//  }
+
+  /**
+   * Creates a non-editable JEditorPane that has the same styling as default JLabels and with
+   * hyperlinks clickable. They will be opened in the system default browser.
+ * @param text Your text to be displayed in HTML context. Don't add the opening and closing HTML
+   * tags. To include links use the regular A tags.
+   * @param bgColor if {@code useJlabelBackground} is false, force this color. Can be null
+   */
+  public static JEditorPane createClickableHtml(String text,
+      Color bgColor) {
+    return createClickableHtml(text, true, false, bgColor);
+  }
+
   /**
    * Creates a non-editable JEditorPane that has the same styling as default JLabels and with
    * hyperlinks clickable. They will be opened in the system default browser.
    *  @param text Your text to be displayed in HTML context. Don't add the opening and closing HTML
    * tags. To include links use the regular A tags.
    * @param handleHyperlinks Add a handler for hyperlinks to be opened in the
-   * @param useJlabelBackground
+   * @param useJlabelBackground Use default background of JLabels.
+   * @param bgColor if {@code useJlabelBackground} is false, force this color. Can be null
    */
   public static JEditorPane createClickableHtml(String text, boolean handleHyperlinks,
-      boolean useJlabelBackground) {
+      boolean useJlabelBackground, Color bgColor) {
 
 
     JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + getHtmlBodyStyle() + "\">"
@@ -314,6 +341,8 @@ public class SwingUtils {
 
     if (useJlabelBackground) {
       ep.setBackground(new JLabel().getBackground());
+    } else if (bgColor != null) {
+      ep.setBackground(bgColor);
     }
 
     return ep;
