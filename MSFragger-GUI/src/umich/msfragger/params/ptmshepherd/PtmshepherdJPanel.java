@@ -228,7 +228,7 @@ public class PtmshepherdJPanel extends JPanelWithEnablement {
           "<html>Variable modification masses.<br/>\n"
               + "Comma separated entries of form \"&lt;name&gt;:&lt;mass&gt;\"<br/>\n"
               + "Example:<br/>\n"
-              + "&nbsp;&nbsp;&nbsp;&nbsp;Phospho:79.9663, Something-else:-20.123");
+              + "&nbsp;&nbsp;&nbsp;&nbsp;Phospho:79.9663,Something-else:-20.123");
       pPeakPicking.add(feVarMods.label(), new CC().alignX("right"));
       pPeakPicking.add(feVarMods.comp, new CC().alignX("left").spanX().growX());
 
