@@ -85,7 +85,7 @@ public class SpeclibPanel extends JPanelWithEnablement {
 
     this.setLayout(new BorderLayout());
 //    this.setBorder(new EmptyBorder(0,0,0,0));
-    this.setBorder(new TitledBorder("Spectral Liibrary"));
+    this.setBorder(new TitledBorder("Spectral Library"));
 
     // Top panel with run checkbox
     {
