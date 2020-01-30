@@ -219,6 +219,7 @@ public class QuantJPanel extends JPanelWithEnablement {
         pBothQuants.add(feMzTol.label(), new CC().alignX("right"));
         pBothQuants.add(feMzTol.comp, new CC().alignX("left"));
         pBothQuants.add(fePlot.comp, new CC().alignX("left").wrap());
+        fePlot.comp.setVisible(false);
 
         pBothQuants.add(feRtTol.label(), new CC().span(2).alignX("right"));
         pBothQuants.add(feRtTol.comp, new CC().alignX("left"));
