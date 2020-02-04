@@ -45,7 +45,7 @@ public class CmdSpecLibGen extends CmdBase {
       return false;
     }
 
-    final String[] compatibleExts = useEasypqp ? new String[]{".mgf"} : new String[]{".mzml", ".mzxml"};
+    final String[] compatibleExts = useEasypqp ? new String[]{".d", ".mzml"} : new String[]{".mzml", ".mzxml"};
     final Predicate<String> isFileCompatible = fn -> Arrays.stream(compatibleExts).anyMatch(ext -> fn.toLowerCase().endsWith(ext));
 
     boolean isIncompatibleInputs = mapGroupsToProtxml.keySet().stream()
