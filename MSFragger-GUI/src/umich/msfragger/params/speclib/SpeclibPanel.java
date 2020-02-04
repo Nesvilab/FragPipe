@@ -149,7 +149,7 @@ public class SpeclibPanel extends JPanelWithEnablement {
       updateEnabledStatus(uiRadioUseEasypqp, false);
       FormEntry feRadioUseEasypqp = new FormEntry("ui.name.report.speclibgen.use-easypqp", "Not shown",
           uiRadioUseEasypqp);
-      uiRadioUseEasypqp.setVisible(false);
+      uiRadioUseEasypqp.setVisible(true);
 
       pOptions.add(feRadioUseSpectrast.comp, new CC().alignX("left").wrap());
       pOptions.add(feRadioUseEasypqp.comp, new CC().alignX("left").wrap());
