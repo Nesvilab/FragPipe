@@ -4,11 +4,15 @@ import java.awt.Component;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import jdk.nashorn.internal.scripts.JO;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.speclib.SpecLibGen;
@@ -40,6 +44,24 @@ public class CmdSpecLibGen extends CmdBase {
           "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
       return false;
     }
+
+    final String[] compatibleExts = useEasypqp ? new String[]{".mgf"} : new String[]{".mzml", ".mzxml"};
+    final Predicate<String> isFileCompatible = fn -> Arrays.stream(compatibleExts).anyMatch(ext -> fn.toLowerCase().endsWith(ext));
+
+    boolean isIncompatibleInputs = mapGroupsToProtxml.keySet().stream()
+        .flatMap(g -> g.lcmsFiles.stream())
+        .anyMatch(lcms -> isFileCompatible.negate().test(lcms.getPath().getFileName().toString()));
+
+    if (isIncompatibleInputs) {
+      JOptionPane.showMessageDialog(comp, String.format(
+          "<html>Spectral library generation with %s is currently only<br/>\n"
+              + "compatible with %s input files.<br/>\n"
+              + "You can convert your data using Msconvert program from ProteoWizard.",
+          useEasypqp ? "EasyPQP" : "SpectraST", String.join(", ", compatibleExts)),
+          "Incompatible input data", JOptionPane.WARNING_MESSAGE);
+      return false;
+    }
+
 
     if (mapGroupsToProtxml.size() > 1) {
       int res = JOptionPane.showConfirmDialog(comp,
