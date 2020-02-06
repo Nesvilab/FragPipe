@@ -116,7 +116,6 @@ import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.dbslice.DbSlice;
-import umich.msfragger.params.dbslice.DbSlice.MessageInitDone;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
@@ -533,37 +532,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
   public void onDbsliceInitDone(DbSlice.MessageInitDone m) {
     log.debug("Got DbSlice.MessageInitDone m [success={}]", m.isSuccess);
-    final Map<DbSlice.MessageInitDone.REASON, String> map = new HashMap<>();
-    map.put(MessageInitDone.REASON.PY_VER, "Python 3 is required.");
-    map.put(MessageInitDone.REASON.WRONG_FRAGGER, "Latest version of MSFragger is required.");
-    map.put(MessageInitDone.REASON.PY_MODULES, "Python modules required.");
-    map.put(MessageInitDone.REASON.NOT_UNPACKED, "Error unpacking.");
-    StringBuilder sb = new StringBuilder();
-    sb.append(m.isSuccess ? "Database Splitting enabled." : "Database Splitting disabled.");
-    if (!m.isSuccess) {
-      String reasons = m.reasons.stream().flatMap(reason ->
-          map.containsKey(reason) ? Stream.of(map.get(reason)) : Stream.empty())
-          .collect(Collectors.joining(" <br/>"));
-      if (reasons.length() > 0) {
-        sb.append(" <br/>").append(reasons);
-      }
-      sb.append(" <br/>").append("FragPipe will work fine without this functionality.");
-    }
-    FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo),
-        new DbSlice.Message2(true, false, sb.toString()));
-
-    if (!m.isSuccess) {
-      // attach link with instructions
-      Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
-//      Properties p = ThisAppProps.getLocalProperties(); // for testing
-      String linkUrl = p.getProperty(MsfraggerProps.PROP_DBSPLIT_INSTRUCTIONS_URL,
-          "https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html");
-      String instructions = String.format(
-          "<br/>See <a href='%s'>configuration help</a> online for instructions how to enable.",
-          linkUrl);
-      FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(epDbsliceInfo),
-          new DbSlice.Message2(true, false, instructions));
-    }
+    MsfraggerGuiFrameUtils.actionDbspliceInitDone(epDbsliceInfo, m);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
