@@ -16,8 +16,6 @@
  */
 package umich.msfragger.gui;
 
-import static umich.msfragger.params.fragger.FraggerMigPanel.PROP_FILECHOOSER_LAST_PATH;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -226,13 +224,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
       @Override
       public void actionPerformed(ActionEvent e) {
-        exportLogToFile();
+        MsfraggerGuiFrameUtils.exportLogToFile(MsfraggerGuiFrame.this);
       }
     };
 
     panelRun.getActionMap().put(exportToTextFile.getValue(Action.NAME), exportToTextFile);
   }
 
+  public JTextField getTxtWorkingDir() {
+    return txtWorkingDir;
+  }
 
   private void userSaveForms() {
     Path p = MsfraggerGuiFrameUtils
@@ -263,54 +264,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       JOptionPane.showMessageDialog(this,
               "<html>Could not load the saved file: <br/>" + e.getMessage(), "Error",
               JOptionPane.ERROR_MESSAGE);
-    }
-  }
-
-  private void exportLogToFile() {
-    if (console == null) {
-      return;
-    }
-
-    JFileChooser fc = new JFileChooser();
-    fc.setApproveButtonText("Save");
-    fc.setDialogTitle("Export to");
-    fc.setMultiSelectionEnabled(false);
-    SwingUtils.setFileChooserPath(fc, ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH));
-    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-    Date now = new Date();
-    fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(now))));
-    Component parent = SwingUtils.findParentFrameForDialog(MsfraggerGuiFrame.this);
-    int saveResult = fc.showSaveDialog(parent);
-    if (JFileChooser.APPROVE_OPTION == saveResult) {
-      File selectedFile = fc.getSelectedFile();
-      Path path = Paths.get(selectedFile.getAbsolutePath());
-      // if exists, overwrite
-      if (Files.exists(path)) {
-        int overwrite = JOptionPane
-            .showConfirmDialog(parent, "<html>File exists, overwrtie?<br/><br/>" + path.toString(), "Overwrite",
-                JOptionPane.OK_CANCEL_OPTION);
-        if (JOptionPane.OK_OPTION == overwrite) {
-          try {
-            Files.delete(path);
-          } catch (IOException ex) {
-            JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite",
-                JOptionPane.ERROR_MESSAGE);
-            return;
-          }
-        }
-      }
-      saveLogToFile(path);
-    }
-
-  }
-
-  private void saveLogToFile(Path path) {
-    final String text = console.getText().replaceAll("[^\n]+\u200B\r\n", "");
-    byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
-    try {
-      Files.write(path, bytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-    } catch (IOException e) {
-      log.error("Error writing log to file", e);
     }
   }
 
@@ -458,7 +411,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     // The python check must be run before DbSlice and SpecLibGen.
     // Don't run these checks asynchronously
-    exec.submit(this::checkPython);
+    exec.submit(() -> MsfraggerGuiFrameUtils.checkPython(MsfraggerGuiFrame.this));
     exec.submit(this::validateDbslicing);
     exec.submit(this::validateSpeclibgen);
 
@@ -490,46 +443,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return Paths.get(text);
     } catch (Exception e) {
       throw new IllegalArgumentException(e);
-    }
-  }
-
-  private void checkPython() {
-    String path = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_PYTHON);
-    PythonInfo pi = PythonInfo.get();
-    if (path != null) {
-      try {
-        if (!pi.setPythonCommand(path)) {
-          throw new Exception("Could not set python command to the old value");
-        }
-      } catch (Exception e) {
-        ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, "");
-        int yesNo = JOptionPane.showConfirmDialog(this,
-            "Previously stored Python location is now invalid:\n"
-                + "\t" + path + "\n\nDo you want to try automatically find the Python binary?",
-            "Previously used Python not available", JOptionPane.YES_NO_OPTION,
-            JOptionPane.WARNING_MESSAGE);
-        if (JOptionPane.YES_OPTION == yesNo) {
-          try {
-            pi.findPythonCommand();
-            if (!pi.isInitialized()) {
-              throw new Exception("Python command not found");
-            }
-          } catch (Exception e1) {
-            JOptionPane.showMessageDialog(this,
-                "Python not found.\n\n"
-                    + "You can manually select Python binary\n"
-                    + "if you know where it is located.",
-                "Error", JOptionPane.WARNING_MESSAGE);
-          }
-        }
-      }
-      return;
-    }
-    // No python location was stored. It's only stored when a user manually changes the location.
-    // try to auto-detect Python binary
-    try {
-      PythonInfo.get().findPythonCommand();
-    } catch (Exception ignored) {
     }
   }
 
@@ -2052,37 +1965,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void btnSelectWrkingDirActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSelectWrkingDirActionPerformed
-    JFileChooser fc = new JFileChooser();
-    //FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("FASTA files", "fa", "fasta");
-    //fileChooser.setFileFilter(fileNameExtensionFilter);
-    fc.setApproveButtonText("Select directory");
-    fc.setApproveButtonToolTipText("Select");
-    fc.setDialogTitle("Choose working directory");
-    fc.setMultiSelectionEnabled(false);
-    fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-    // use either current text in the field or saved cache
-    log.debug("Preparing work dir file chooser, ThisAppProps.PROP_FILE_OUT is: {}", ThisAppProps.load(ThisAppProps.PROP_FILE_OUT));
-    final String text = txtWorkingDir.getText().trim();
-    if (!StringUtils.isNullOrWhitespace(text)) {
-      try {
-        Path p = Paths.get(txtWorkingDir.getText());
-        if (Files.exists(p)) {        
-          fc.setSelectedFile(p.toFile());
-        }
-      } catch (Exception ignored) {}
-    } else {
-      ThisAppProps.load(ThisAppProps.PROP_FILE_OUT, fc);
-    }
-
-    int showOpenDialog = fc.showOpenDialog(this);
-    switch (showOpenDialog) {
-      case JFileChooser.APPROVE_OPTION:
-        File f = fc.getSelectedFile();
-        txtWorkingDir.setText(f.getAbsolutePath());
-        ThisAppProps.save(ThisAppProps.PROP_FILE_OUT, f.getAbsolutePath());
-        break;
-    }
+    MsfraggerGuiFrameUtils.actionSelectWorkingDir(this);
   }//GEN-LAST:event_btnSelectWrkingDirActionPerformed
 
   private void clearConsole() {
@@ -3176,7 +3059,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       String timestamp = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
       Path path = dir.resolve(ThisAppProps.LOG_FILE_NAME + "_" + timestamp + ThisAppProps.LOG_FILE_EXT);
       if (!Files.exists(path)) {
-        saveLogToFile(path);
+        MsfraggerGuiFrameUtils.saveLogToFile(console, path);
         return;
       }
       try {
@@ -4737,7 +4620,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JTextArea textPepProphCmd;
     private javax.swing.JTextField textSequenceDbPath;
     private javax.swing.JTextArea txtProteinProphetCmdLineOpts;
-    private javax.swing.JTextField txtWorkingDir;
+
+  private javax.swing.JTextField txtWorkingDir;
 
   // End of variables declaration//GEN-END:variables
 }

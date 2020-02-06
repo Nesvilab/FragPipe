@@ -13,11 +13,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -51,7 +55,6 @@ import javax.swing.text.JTextComponent;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
@@ -68,6 +71,7 @@ import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.VersionComparator;
+import umich.swing.console.TextConsole;
 
 public class MsfraggerGuiFrameUtils {
   private static final Logger log = LoggerFactory.getLogger(MsfraggerGuiFrameUtils.class);
@@ -605,6 +609,128 @@ public class MsfraggerGuiFrameUtils {
         // rewrite the cached params file with a versioned one
         ThisAppProps.save(Version.PROP_VER, Version.version());
       }
+    }
+  }
+
+  static void actionSelectWorkingDir(MsfraggerGuiFrame guiFrame) {
+    JFileChooser fc = new JFileChooser();
+    //FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("FASTA files", "fa", "fasta");
+    //fileChooser.setFileFilter(fileNameExtensionFilter);
+    fc.setApproveButtonText("Select directory");
+    fc.setApproveButtonToolTipText("Select");
+    fc.setDialogTitle("Choose working directory");
+    fc.setMultiSelectionEnabled(false);
+    fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+    // use either current text in the field or saved cache
+    log.debug("Preparing work dir file chooser, ThisAppProps.PROP_FILE_OUT is: {}", ThisAppProps.load(ThisAppProps.PROP_FILE_OUT));
+    final String text = guiFrame.getTxtWorkingDir().getText().trim();
+    if (!StringUtils.isNullOrWhitespace(text)) {
+      try {
+        Path p = Paths.get(guiFrame.getTxtWorkingDir().getText());
+        if (Files.exists(p)) {
+          fc.setSelectedFile(p.toFile());
+        }
+      } catch (Exception ignored) {}
+    } else {
+      ThisAppProps.load(ThisAppProps.PROP_FILE_OUT, fc);
+    }
+
+    int showOpenDialog = fc.showOpenDialog(guiFrame);
+    switch (showOpenDialog) {
+      case JFileChooser.APPROVE_OPTION:
+        File f = fc.getSelectedFile();
+        guiFrame.getTxtWorkingDir().setText(f.getAbsolutePath());
+        ThisAppProps.save(ThisAppProps.PROP_FILE_OUT, f.getAbsolutePath());
+        break;
+    }
+  }
+
+  static void exportLogToFile(MsfraggerGuiFrame guiFrame) {
+    if (guiFrame.console == null) {
+      return;
+    }
+
+    JFileChooser fc = new JFileChooser();
+    fc.setApproveButtonText("Save");
+    fc.setDialogTitle("Export to");
+    fc.setMultiSelectionEnabled(false);
+    SwingUtils.setFileChooserPath(fc, ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH));
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+    Date now = new Date();
+    fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(now))));
+    Component parent = SwingUtils.findParentFrameForDialog(guiFrame);
+    int saveResult = fc.showSaveDialog(parent);
+    if (JFileChooser.APPROVE_OPTION == saveResult) {
+      File selectedFile = fc.getSelectedFile();
+      Path path = Paths.get(selectedFile.getAbsolutePath());
+      // if exists, overwrite
+      if (Files.exists(path)) {
+        int overwrite = JOptionPane
+            .showConfirmDialog(parent, "<html>File exists, overwrtie?<br/><br/>" + path.toString(), "Overwrite",
+                JOptionPane.OK_CANCEL_OPTION);
+        if (JOptionPane.OK_OPTION == overwrite) {
+          try {
+            Files.delete(path);
+          } catch (IOException ex) {
+            JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite",
+                JOptionPane.ERROR_MESSAGE);
+            return;
+          }
+        }
+      }
+      saveLogToFile(guiFrame.console, path);
+    }
+
+  }
+
+  static void saveLogToFile(TextConsole console, Path path) {
+    final String text = console.getText().replaceAll("[^\n]+\u200B\r\n", "");
+    byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+    try {
+      Files.write(path, bytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    } catch (IOException e) {
+      log.error("Error writing log to file", e);
+    }
+  }
+
+  static void checkPython(MsfraggerGuiFrame guiFrame) {
+    String path = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_PYTHON);
+    PythonInfo pi = PythonInfo.get();
+    if (path != null) {
+      try {
+        if (!pi.setPythonCommand(path)) {
+          throw new Exception("Could not set python command to the old value");
+        }
+      } catch (Exception e) {
+        ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, "");
+        int yesNo = JOptionPane.showConfirmDialog(guiFrame,
+            "Previously stored Python location is now invalid:\n"
+                + "\t" + path + "\n\nDo you want to try automatically find the Python binary?",
+            "Previously used Python not available", JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE);
+        if (JOptionPane.YES_OPTION == yesNo) {
+          try {
+            pi.findPythonCommand();
+            if (!pi.isInitialized()) {
+              throw new Exception("Python command not found");
+            }
+          } catch (Exception e1) {
+            JOptionPane.showMessageDialog(guiFrame,
+                "Python not found.\n\n"
+                    + "You can manually select Python binary\n"
+                    + "if you know where it is located.",
+                "Error", JOptionPane.WARNING_MESSAGE);
+          }
+        }
+      }
+      return;
+    }
+    // No python location was stored. It's only stored when a user manually changes the location.
+    // try to auto-detect Python binary
+    try {
+      PythonInfo.get().findPythonCommand();
+    } catch (Exception ignored) {
     }
   }
 
