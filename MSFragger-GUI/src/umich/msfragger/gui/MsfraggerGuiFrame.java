@@ -45,14 +45,30 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Predicate;
@@ -62,11 +78,31 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
-
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.lang3.JavaVersion;
@@ -77,7 +113,9 @@ import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
-import umich.msfragger.cmd.*;
+import umich.msfragger.cmd.CmdMsfragger;
+import umich.msfragger.cmd.ProcessBuilderInfo;
+import umich.msfragger.cmd.ToolingUtils;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils.LcmsFileAddition;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
@@ -108,6 +146,7 @@ import umich.msfragger.messages.MessageValidityFragger;
 import umich.msfragger.messages.MessageValidityMassCalibration;
 import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.ThisAppProps;
+import umich.msfragger.params.crystalc.CrystalcPanel;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.fragger.FraggerMigPanel;
@@ -118,10 +157,9 @@ import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
 import umich.msfragger.params.philosopher.PhilosopherProps;
+import umich.msfragger.params.philosopher.ReportPanel;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.umpire.UmpirePanel;
-import umich.msfragger.util.FastaUtils;
-import umich.msfragger.util.FastaUtils.FastaContent;
 import umich.msfragger.util.FastaUtils.FastaDecoyPrefixSearchResult;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.GhostText;
@@ -132,7 +170,6 @@ import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.UsageTrigger;
 import umich.msfragger.util.ValidateTrue;
 import umich.msfragger.util.VersionComparator;
 import umich.msfragger.util.swing.ISimpleTextComponent;
@@ -182,7 +219,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   String fraggerVer = UNKNOWN_VERSION;
   String philosopherVer = UNKNOWN_VERSION;
 
-  private UmpirePanel umpirePanel = null;
+  UmpirePanel umpirePanel = null;
   private JScrollPane umpireScroll = null;
 
   public static final Color COLOR_GREEN = new Color(105, 193, 38);
@@ -227,6 +264,70 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     return txtWorkingDir;
   }
 
+  public JCheckBox getChkRunPeptideProphet() {
+    return chkRunPeptideProphet;
+  }
+
+  public JCheckBox getChkRunProteinProphet() {
+    return chkRunProteinProphet;
+  }
+
+  public ReportPanel getPanelReportOptions() {
+    return panelReportOptions;
+  }
+
+  public JTextField getTextSequenceDbPath() {
+    return textSequenceDbPath;
+  }
+
+  public JTextField getTextBinMsfragger() {
+    return textBinMsfragger;
+  }
+
+  public JButton getBtnRun() {
+    return btnRun;
+  }
+
+  public JButton getBtnStop() {
+    return btnStop;
+  }
+
+  public JTextField getTextDecoyTagSeqDb() {
+    return textDecoyTagSeqDb;
+  }
+
+  public CrystalcPanel getPanelCrystalc() {
+    return panelCrystalc;
+  }
+
+  public JCheckBox getCheckCombinedPepxml() {
+    return checkCombinedPepxml;
+  }
+
+  public JTextArea getTextPepProphCmd() {
+    return textPepProphCmd;
+  }
+
+  public JCheckBox getCheckProcessGroupsSeparately() {
+    return checkProcessGroupsSeparately;
+  }
+
+  public JTextArea getTxtProteinProphetCmdLineOpts() {
+    return txtProteinProphetCmdLineOpts;
+  }
+
+  public umich.msfragger.params.ionquant.QuantJPanel getPanelQuant() {
+    return panelQuant;
+  }
+
+  public umich.msfragger.params.ptmshepherd.PtmshepherdJPanel getPtmshepherdPanel() {
+    return ptmshepherdPanel;
+  }
+
+  public umich.msfragger.params.speclib.SpeclibPanel getSpeclibPanel1() {
+    return speclibPanel1;
+  }
+
   private void userSaveForms() {
     Path p = MsfraggerGuiFrameUtils
         .userShowSaveFileDialog("Save all FragPipe parameters", "fragpipe.config", this);
@@ -259,7 +360,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }
 
-  public JTextField getTextPhilosopherBin() {
+  public JTextField getTextBinPhilosopher() {
     return textBinPhilosopher;
   }
 
@@ -622,10 +723,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .isSelected();
   }
 
-  public JTextArea getTextPepProphCmd() {
-    return textPepProphCmd;
-  }
-
   private void enablePhilosopherPanels(boolean enabled) {
     SwingUtils.enableComponents(panelPeptideProphet, enabled);
     chkRunPeptideProphet.setSelected(enabled);
@@ -755,11 +852,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         jScrollPane4 = new javax.swing.JScrollPane();
         txtProteinProphetCmdLineOpts = new javax.swing.JTextArea();
         jLabel40 = new javax.swing.JLabel();
-        panelCrystalc = new umich.msfragger.params.crystalc.CrystalcPanel();
+        panelCrystalc = new CrystalcPanel();
         panelReport = new javax.swing.JPanel();
         ptmshepherdPanel = new umich.msfragger.params.ptmshepherd.PtmshepherdJPanel();
         panelQuant = new umich.msfragger.params.ionquant.QuantJPanel();
-        panelReportOptions = new umich.msfragger.params.philosopher.ReportPanel();
+        panelReportOptions = new ReportPanel();
         speclibPanel1 = new umich.msfragger.params.speclib.SpeclibPanel();
         panelRun = new javax.swing.JPanel();
         btnStop = new javax.swing.JButton();
@@ -2713,423 +2810,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     EventBus.getDefault().post(new MessageRun(isDryRun));
   }//GEN-LAST:event_btnRunActionPerformed
 
-  /**
-   * @param wd Global working directory. LCMS file groups' output will be created inside this one.
-   */
-  private boolean processBuildersNew(Path wd, Path jarFragpipe, String binPhilosopher, boolean isDryRun,
-      final List<ProcessBuildersDescriptor> pbDescsToFill) {
-
-    final List<ProcessBuildersDescriptor> pbDescs = new ArrayList<>();
-
-    // Collect input LCMS files
-    final Map<String, LcmsFileGroup> lcmsFileGroups = getLcmsFileGroups();
-    List<InputLcmsFile> lcmsFiles = lcmsFileGroups.values().stream()
-        .flatMap(g -> g.lcmsFiles.stream())
-        .collect(Collectors.toList());
-
-    final UsageTrigger usePhi = new UsageTrigger(binPhilosopher, "Philosopher");
-
-
-    // run DIA-Umpire SE
-    final CmdUmpireSe cmdUmpireSe = new CmdUmpireSe(isRunUmpireSe(), wd);
-    if (cmdUmpireSe.isRun()) {
-      if (!cmdUmpireSe.configure(this, isDryRun, jarFragpipe, usePhi,
-          umpirePanel, lcmsFiles))
-        return false;
-      pbDescs.add(cmdUmpireSe.getBuilderDescriptor());
-      lcmsFiles = cmdUmpireSe.outputs(lcmsFiles);
-    }
-
-
-    final FraggerMigPanel fp = fraggerMigPanel;
-
-    // run MSAdjuster
-    final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(fp.isRun() && fp.isMsadjuster(), wd);
-    if (cmdMsAdjuster.isRun()) {
-      if (!cmdMsAdjuster.configure(this,
-          jarFragpipe, fp, lcmsFiles, false, 49)) {
-        return false;
-      }
-      pbDescs.add(cmdMsAdjuster.getBuilderDescriptor());
-      // MsAdjuster only makes files that are discovered by MsFragger
-      // automatically, so no file-list changes are needed
-    }
-
-
-    // run MsFragger
-    final String fastaFile = getFastaPath();
-    final UsageTrigger binMsfragger = new UsageTrigger(
-        textBinMsfragger.getText().trim(), "MsFragger");
-    final CmdMsfragger cmdMsfragger = new CmdMsfragger(fp.isRun(), wd);
-    if (cmdMsfragger.isRun()) {
-      final String decoyTag = textDecoyTagSeqDb.getText().trim();
-      if (!cmdMsfragger.configure(this,
-          isDryRun, fp, jarFragpipe, binMsfragger, fastaFile, lcmsFiles, decoyTag)) {
-        return false;
-      }
-      pbDescs.add(cmdMsfragger.getBuilderDescriptor());
-
-      String warn = ThisAppProps.load(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
-      if (Boolean.parseBoolean(warn)) {
-        for (InputLcmsFile f : lcmsFiles) {
-          if (f.getPath().toString().toLowerCase().endsWith(".mgf")) {
-            JCheckBox checkbox = new JCheckBox("Do not show this message again.");
-            String msg = "The list of input files contains MGF entries.\n"
-                + "MSFragger has limited MGF support (ProteoWizard output is OK).\n"
-                + "The search might fail unexpectedly with errors.\n"
-                + "Please consider converting files to mzML/mzXML with ProteoWizard.";
-            Object[] params = {msg, checkbox};
-            JOptionPane.showMessageDialog(this, params, "Warning",
-                JOptionPane.WARNING_MESSAGE);
-            if (checkbox.isSelected()) {
-              ThisAppProps.save(ThisAppProps.PROP_MGF_WARNING, Boolean.FALSE.toString());
-            }
-            break;
-          }
-        }
-      }
-    }
-    Map<InputLcmsFile, Path> pepxmlFiles = cmdMsfragger.outputs(
-        lcmsFiles, fp.getOutputFileExt(), wd);
-    final Map<InputLcmsFile, Path> pepxmlFilesFromMsfragger = new HashMap<>(pepxmlFiles);
-
-
-    // run MsAdjuster Cleanup
-    if (cmdMsAdjuster.isRun()) {
-      if (!cmdMsAdjuster.configure(this,
-          jarFragpipe, fp, lcmsFiles, true, 51)) {
-        return false;
-      }
-      pbDescs.add(cmdMsAdjuster.getBuilderDescriptor());
-    }
-
-
-    // run Crystalc
-    final CmdCrystalc cmdCrystalc = new CmdCrystalc(panelCrystalc.isRun(), wd);
-    if (cmdCrystalc.isRun()) {
-      CrystalcParams ccParams = panelCrystalc.toParams();
-      final int fraggerThreads = fraggerMigPanel.getThreads();
-      if (fraggerThreads > 0) {
-        ccParams.setThread(fraggerThreads);
-      }
-      if (!cmdCrystalc.configure(this,
-          fp, isDryRun, Paths.get(binMsfragger.getBin()), ccParams, fastaFile, pepxmlFiles)) {
-        return false;
-      }
-      pbDescs.add(cmdCrystalc.getBuilderDescriptor());
-      pepxmlFiles = cmdCrystalc.outputs(pepxmlFiles, fp.getOutputFileExt());
-    }
-
-    // run Peptide Prophet
-    final boolean isRunPeptideProphet = SwingUtils.isEnabledAndChecked(chkRunPeptideProphet);
-    final boolean isCombinedPepxml = checkCombinedPepxml.isSelected();
-    final String decoyTag = textDecoyTagSeqDb.getText().trim();
-    CmdPeptideProphet cmdPeptideProphet = new CmdPeptideProphet(isRunPeptideProphet, wd);
-    if (cmdPeptideProphet.isRun()) {
-      final String pepProphCmd = textPepProphCmd.getText().trim();
-      final String enzymeName = fraggerMigPanel.getEnzymeName();
-      if (!cmdPeptideProphet.configure(this, usePhi, jarFragpipe, isDryRun,
-          fastaFile, decoyTag, pepProphCmd, isCombinedPepxml, enzymeName, pepxmlFiles)) {
-        return false;
-      }
-      pbDescs.add(cmdPeptideProphet.getBuilderDescriptor());
-    }
-    pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, fp.getOutputFileExt(), isCombinedPepxml);
-
-
-    // run Protein Prophet
-    final boolean isRunProteinProphet = SwingUtils.isEnabledAndChecked(chkRunProteinProphet);
-    final boolean isProcessGroupsSeparately = checkProcessGroupsSeparately.isSelected();
-    final boolean isMuiltiExperimentReport = panelReportOptions.isMultiExpReport();
-    final CmdProteinProphet cmdProteinProphet = new CmdProteinProphet(isRunProteinProphet, wd);
-    if (cmdProteinProphet.isRun()) {
-      final String protProphCmdStr = txtProteinProphetCmdLineOpts.getText().trim();
-      if (!cmdProteinProphet.configure(this,
-          usePhi, protProphCmdStr, isMuiltiExperimentReport,
-          isProcessGroupsSeparately, pepxmlFiles)) {
-        return false;
-      }
-      pbDescs.add(cmdProteinProphet.getBuilderDescriptor());
-    }
-    Map<LcmsFileGroup, Path> mapGroupsToProtxml = cmdProteinProphet.outputs(pepxmlFiles, isProcessGroupsSeparately, isMuiltiExperimentReport);
-
-    // confirm with user that multi-experiment report is not needed
-    if (!isProcessGroupsSeparately && mapGroupsToProtxml.keySet().size() > 1 && !isMuiltiExperimentReport) {
-      int confirmation = SwingUtils.showConfirmDialog(this, new JLabel(
-          "<html>You've specified more than one experiment/group.<br/>\n" +
-          "However, multi-experiment report is turned off.<br/>\n" +
-          "It is advised to convert those files to mzML.<br/>\n" +
-          "<br/>\n" +
-          "<b>Click Yes to continue at your own risk, otherwise Cancel.</b>"));
-      if (JOptionPane.YES_OPTION != confirmation) {
-        return false;
-      }
-    }
-
-    // Check Decoy tags if any of the downstream tools are requested
-    if (cmdPeptideProphet.isRun() || cmdProteinProphet.isRun()) {
-      if (StringUtils.isNullOrWhitespace(textDecoyTagSeqDb.getText())) {
-        int confirm = JOptionPane.showConfirmDialog(this,
-            "Downstream analysis tools require decoys in the database,\n"
-                + "but the decoy tag was left empty. It's recommended that\n"
-                + "you set it.\n\n"
-                + "Cancel operation and fix the problem (manually)?",
-            "Cancel run and fix parameters?\n", JOptionPane.YES_NO_OPTION);
-        if (JOptionPane.YES_OPTION == confirm) {
-          return false;
-        }
-      }
-    }
-
-    final boolean isReport = panelReportOptions.isGenerateReport();
-    if (isReport) {
-      // run Report - DbAnnotate
-      final boolean isDbAnnotate = true;
-      final CmdReportDbAnnotate cmdReportDbAnnotate = new CmdReportDbAnnotate(isDbAnnotate, wd);
-      if (cmdReportDbAnnotate.isRun()) {
-        if (!cmdReportDbAnnotate
-            .configure(this, usePhi, fastaFile, decoyTag, pepxmlFiles, mapGroupsToProtxml)) {
-          return false;
-        }
-        pbDescs.add(cmdReportDbAnnotate.getBuilderDescriptor());
-      }
-
-      // run Report - Filter
-      final boolean isFilter = isReport;
-      final CmdReportFilter cmdReportFilter = new CmdReportFilter(isFilter, wd);
-      if (cmdReportFilter.isRun()) {
-        final boolean isCheckFilterNoProtxml = panelReportOptions.isNoProtXml();
-
-        // if ProtProph is not run but protxml is there - query the user
-        boolean dontUseProtxmlInFilter;
-        if (!isRunProteinProphet) {
-          dontUseProtxmlInFilter = true; // default, but we will ask the user if the files are already there
-          boolean allProtxmlsExist = true;
-          String paths = mapGroupsToProtxml.values().stream().map(path -> "- " + path.toString()).collect(Collectors.joining("\n"));
-          log.debug("Checking for existence of all protxml files:\n{}\n", paths);
-          for (Entry<LcmsFileGroup, Path> kv : mapGroupsToProtxml.entrySet()) {
-            Path protxml = kv.getValue();
-            try {
-              if (protxml == null || !Files.exists(protxml)) {
-                allProtxmlsExist = false;
-                break;
-              }
-            } catch (Exception e) {
-              allProtxmlsExist = false;
-              break;
-            }
-          }
-          if (allProtxmlsExist) {
-            // ProtProph is not run, but all protxmls are there
-            int confirm = JOptionPane.showConfirmDialog(this,
-                "Protein Prophet is not run, but prot.xml files for all groups\n"
-                    + "do already exist:\n\n"
-                    + paths
-                    + "\n\n"
-                    + "Do you want to use them for the Filter command?\n",
-                "Use previously existing prot.xml files?\n", JOptionPane.YES_NO_OPTION);
-            if (JOptionPane.YES_OPTION == confirm) {
-              dontUseProtxmlInFilter = false;
-            }
-          }
-        } else { // if (!isRunProteinProphet) {
-          // protein prophet is run, respenct the checkFilterNoProtxml checkbox
-          dontUseProtxmlInFilter = isCheckFilterNoProtxml;
-        }
-
-        if (!cmdReportFilter.configure(this, usePhi,
-            decoyTag, panelReportOptions.getFilterCmdText(), dontUseProtxmlInFilter, mapGroupsToProtxml)) {
-          return false;
-        }
-        pbDescs.add(cmdReportFilter.getBuilderDescriptor());
-      }
-
-      // run Report - Report command itself
-      final CmdReportReport cmdReportReport = new CmdReportReport(isReport, wd);
-      final boolean doPrintDecoys = panelReportOptions.isPrintDecoys();
-//      final boolean doMzid = comboReportOutputFormat.getSelectedItem().toString().toLowerCase().contains("mzid");
-      final boolean doMzid = panelReportOptions.isWriteMzid();
-      if (cmdReportReport.isRun()) {
-        if (!cmdReportReport.configure(this, usePhi, doPrintDecoys, doMzid, mapGroupsToProtxml)) {
-          return false;
-        }
-        pbDescs.add(cmdReportReport.getBuilderDescriptor());
-      }
-
-      // run Report - Multi-Experiment report
-      final int nThreads = fraggerMigPanel.getThreads();
-      final CmdReportAbacus cmdReportAbacus = new CmdReportAbacus(isMuiltiExperimentReport, wd);
-      final boolean isMultiexpPepLevelSummary = panelReportOptions.isPepSummary();
-      if (cmdReportAbacus.isRun()) {
-
-        // run iProphet, will run right after Peptide Prophet because of priority setting
-        if (isMultiexpPepLevelSummary) { // iProphet is not needed if we don't generate peptide level summry
-          final CmdIprophet cmdIprophet = new CmdIprophet(cmdReportAbacus.isRun(), wd);
-          if (!cmdIprophet.configure(this, usePhi, decoyTag, nThreads, pepxmlFiles)) {
-            return false;
-          }
-          pbDescs.add(cmdIprophet.getBuilderDescriptor());
-        }
-
-        // run Abacus
-        if (!cmdReportAbacus.configure(this, usePhi, panelReportOptions.getFilterCmdText(),
-            isMultiexpPepLevelSummary, decoyTag, mapGroupsToProtxml)) {
-          return false;
-        }
-        pbDescs.add(cmdReportAbacus.getBuilderDescriptor());
-      }
-
-      // run Report - Freequant (Labelfree)
-      final boolean isFreequant = panelQuant.isFreequant();
-      final CmdReportFreequant cmdReportFreequant = new CmdReportFreequant(isFreequant, wd);
-      if (cmdReportFreequant.isRun()) {
-        if (!cmdReportFreequant.configure(this, usePhi, panelQuant.getFreequantOptsAsText(), mapGroupsToProtxml)) {
-          return false;
-        }
-        pbDescs.add(cmdReportFreequant.getBuilderDescriptor());
-      }
-
-      // run Report - IonQuant (Labelfree)
-      final boolean isIonquant = panelQuant.isIonquant();
-      final CmdIonquant cmdIonquant = new CmdIonquant(isIonquant, wd);
-      if (cmdIonquant.isRun()) {
-        final int ramGb = fp.getRamGb() > 0 ? fp.getRamGb() : OsUtils.getDefaultXmx();
-        if (!cmdIonquant.configure(this, Paths.get(binMsfragger.getBin()), ramGb, panelQuant.toMap(),
-            pepxmlFilesFromMsfragger, mapGroupsToProtxml, nThreads)) {
-          return false;
-        }
-        pbDescs.add(cmdIonquant.getBuilderDescriptor());
-      }
-    }
-
-    // check fasta file for presence of decoys
-    if (isRunPeptideProphet || isReport) {
-      FastaContent fasta;
-      try {
-        fasta = FastaUtils.readFasta(Paths.get(fastaFile));
-      } catch (IOException e) {
-        SwingUtils.showErrorDialog(e, this);
-        return false;
-      }
-      double decoysPercentage = FastaUtils.checkDecoysPercentage(fasta.ordered.get(0), decoyTag);
-      if (decoysPercentage <= 0) {
-        int confirm = SwingUtils.showConfirmDialog(this, new JLabel(
-            "<html>No decoys found in the FASTA file.<br/>\n" +
-                "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
-                "<br/>\n" +
-                "You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
-        if (JOptionPane.YES_OPTION != confirm) {
-          return false;
-        }
-      } else if (decoysPercentage >= 1) {
-        int confirm = SwingUtils.showConfirmDialog(this, new JLabel(
-            "<html>All FASTA entries seem to be decoys.<br/>\n" +
-                "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
-                "<br/>\n" +
-                "You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
-        if (JOptionPane.YES_OPTION != confirm) {
-          return false;
-        }
-      } else if (decoysPercentage < 0.4 || decoysPercentage > 0.6) {
-        DecimalFormat dfPct = new DecimalFormat("##.#'%'");
-        int confirm = SwingUtils.showConfirmDialog(this, new JLabel(
-            "<html>FASTA file contains " + dfPct.format(decoysPercentage * 100)  + ".<br/>\n" +
-                "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
-                "<br/>\n" +
-                "You can also continue as-is, if that's what you're expected.</br>\n"
-                + "Do you want to continue?"));
-        if (JOptionPane.YES_OPTION != confirm) {
-          return false;
-        }
-      }
-    }
-
-    // run PTMShepherd
-    final boolean isRunShepherd = ptmshepherdPanel.isRunShepherd();
-    final boolean isPtmsFormValid = ptmshepherdPanel.validateForm();
-    final CmdPtmshepherd cmdPtmshepherd = new CmdPtmshepherd(isRunShepherd, wd);
-    if (cmdPtmshepherd.isRun()) {
-      if (!isPtmsFormValid) {
-        JOptionPane.showMessageDialog(this,
-            "There are errors in PTM-Shepherd configuraiton panel on Report tab.",
-            "PTMShepherd Error", JOptionPane.ERROR_MESSAGE);
-        return false;
-      }
-      Path fastaPath = Paths.get(fastaFile);
-      int ramGb = fp.getRamGb();
-      int threads = fp.getThreads();
-      Map<String, String> additionalShepherdParams = ptmshepherdPanel.toMap();
-      if (threads > 0) {
-        additionalShepherdParams.put("threads", Integer.toString(threads));
-      }
-      String massOffsets = fraggerMigPanel.getMassOffsets();
-      if (!StringUtils.isNullOrWhitespace(massOffsets)) {
-        additionalShepherdParams.put("mass_offsets", massOffsets);
-      }
-      if (!cmdPtmshepherd.configure(this, isDryRun, Paths.get(binMsfragger.getBin()),
-          ramGb, fastaPath, mapGroupsToProtxml, additionalShepherdParams)) {
-        return false;
-      }
-      pbDescs.add(cmdPtmshepherd.getBuilderDescriptor());
-    }
-
-
-    // run Spectral library generation
-    final boolean isRunSpeclibgen = speclibPanel1.isRunSpeclibgen();
-    final boolean useEasypqp = speclibPanel1.useEasypqp();
-    final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(isRunSpeclibgen, wd);
-    if (cmdSpecLibGen.isRun()) {
-      if (!cmdSpecLibGen.configure(this, usePhi, jarFragpipe,
-          mapGroupsToProtxml, fastaFile, isRunProteinProphet, useEasypqp)) {
-        return false;
-      }
-      pbDescs.add(cmdSpecLibGen.getBuilderDescriptor());
-    }
-
-
-    // run Philosopher clean/init in all directories where Philosopher will be invoked
-    for (Path pathPhiIsRunIn : usePhi.getWorkDirs()) {
-      CmdPhilosopherWorkspaceCleanInit cmdPhiCleanInit = new CmdPhilosopherWorkspaceCleanInit(
-          true, pathPhiIsRunIn);
-      cmdPhiCleanInit.configure(usePhi);
-      pbDescs.add(cmdPhiCleanInit.getBuilderDescriptor());
-      CmdPhilosopherWorkspaceClean cmdPhiClean = new CmdPhilosopherWorkspaceClean(
-          true, pathPhiIsRunIn);
-      cmdPhiClean.configure(usePhi);
-      pbDescs.add(cmdPhiClean.getBuilderDescriptor());
-    }
-
-    // make sure that all subfolders are created for groups/experiments
-    if (!isDryRun) {
-      List<Path> paths = Stream
-          .concat(pepxmlFiles.values().stream(), mapGroupsToProtxml.values().stream())
-          .map(Path::getParent).collect(Collectors.toList());
-      try {
-        for (Path path : paths) {
-          if (!Files.exists(path)) {
-            Files.createDirectories(path);
-          }
-        }
-      } catch (IOException e) {
-        JOptionPane.showMessageDialog(this,
-            "Not all directories could be created:\n" + e.getMessage());
-        return false;
-      }
-    }
-
-    final StringBuilder sb = new StringBuilder();
-    pbDescs.forEach(pbd -> sb.append(String.format("%03d", pbd.priority)).append(" : ").append(pbd.name).append("\n"));
-    log.debug("Descriptors before sorting:\n{}", sb.toString());
-
-    pbDescs.sort(Comparator.comparing(pbDesc -> pbDesc.priority, Integer::compare));
-    sb.setLength(0);
-    pbDescs.forEach(pbd -> sb.append(String.format("%03d", pbd.priority)).append(" : ").append(pbd.name).append("\n"));
-    log.debug("Descriptors after sorting:\n{}", sb.toString());
-
-    pbDescsToFill.addAll(pbDescs);
-    return true;
-  }
-
   private void btnPepProphDefaults(SearchTypeProp t) {
     int confirm1 = JOptionPane.showConfirmDialog(this,
         "<html>Load " + t + " search defaults?");
@@ -4223,7 +3903,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JLabel lblSpeclibInfo1;
     private javax.swing.JPanel panelBottomHints;
     private javax.swing.JPanel panelConfig;
-    private umich.msfragger.params.crystalc.CrystalcPanel panelCrystalc;
+    private CrystalcPanel panelCrystalc;
     private javax.swing.JPanel panelDbInfo;
     private javax.swing.JPanel panelDownstream;
     private javax.swing.JPanel panelMsfraggerConfig;
@@ -4234,7 +3914,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelProteinProphetOptions;
     private umich.msfragger.params.ionquant.QuantJPanel panelQuant;
     private javax.swing.JPanel panelReport;
-    private umich.msfragger.params.philosopher.ReportPanel panelReportOptions;
+    private ReportPanel panelReportOptions;
     private javax.swing.JPanel panelRun;
     private javax.swing.JPanel panelSelectFiles;
     private javax.swing.JPanel panelSelectedFiles;

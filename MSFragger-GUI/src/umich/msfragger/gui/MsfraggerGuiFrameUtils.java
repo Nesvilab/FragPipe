@@ -294,7 +294,7 @@ public class MsfraggerGuiFrameUtils {
         if (msfraggerGuiFrame.balloonPhilosopher != null) {
           msfraggerGuiFrame.balloonPhilosopher.closeBalloon();
         }
-        msfraggerGuiFrame.balloonPhilosopher = new BalloonTip(msfraggerGuiFrame.getTextPhilosopherBin(), ep,
+        msfraggerGuiFrame.balloonPhilosopher = new BalloonTip(msfraggerGuiFrame.getTextBinPhilosopher(), ep,
             new RoundedBalloonStyle(5, 5, msfraggerGuiFrame.balloonBgColor, Color.BLACK), true);
         msfraggerGuiFrame.balloonPhilosopher.setVisible(true);
       }
@@ -383,7 +383,7 @@ public class MsfraggerGuiFrameUtils {
     fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
     // ==============================================================
-    Path current = msfraggerGuiFrame.tryFindStartingPath(msfraggerGuiFrame.getTextPhilosopherBin().getText());
+    Path current = msfraggerGuiFrame.tryFindStartingPath(msfraggerGuiFrame.getTextBinPhilosopher().getText());
     if (current != null) {
       SwingUtils.setFileChooserPath(fc, current);
     } else {
