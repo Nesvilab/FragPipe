@@ -35,7 +35,6 @@ import java.awt.event.WindowEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -48,10 +47,8 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -72,7 +69,6 @@ import javax.swing.text.JTextComponent;
 
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
-import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
@@ -83,7 +79,6 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
 import umich.msfragger.cmd.*;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils.LcmsFileAddition;
-import umich.msfragger.gui.ProcessDescription.Builder;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.TableModelColumn;
@@ -108,7 +103,6 @@ import umich.msfragger.messages.MessageSaveCache;
 import umich.msfragger.messages.MessageSaveLog;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.messages.MessageShowAboutDialog;
-import umich.msfragger.messages.MessageStartProcesses;
 import umich.msfragger.messages.MessageTipNotification;
 import umich.msfragger.messages.MessageValidityFragger;
 import umich.msfragger.messages.MessageValidityMassCalibration;
@@ -116,7 +110,6 @@ import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.dbslice.DbSlice;
-import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.fragger.MsfraggerProps;
@@ -1937,7 +1930,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     MsfraggerGuiFrameUtils.actionSelectWorkingDir(this);
   }//GEN-LAST:event_btnSelectWrkingDirActionPerformed
 
-  private void clearConsole() {
+  void clearConsole() {
     console.setText("");
   }
   
@@ -2641,338 +2634,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   @Subscribe
   public void onMessageRun(MessageRun m) {
-    EventBus.getDefault().post(MessageSaveAllForms.forCaching());
-
-    final boolean isDryRun = m.isDryRun;
-    saveWorkdirText();
-    clearConsole();
-
-    resetRunButtons(false);
-    final boolean doRunFragger = fraggerMigPanel.isRun();
-    boolean doRunProphetsAndReport = chkRunPeptideProphet.isSelected()
-        || chkRunProteinProphet.isSelected()
-        || panelReportOptions.isGenerateReport();
-
-    // check for TSV output when any other downstream tools are requested
-    if (doRunFragger && doRunProphetsAndReport) {
-      if (fraggerMigPanel.getOutputType().equals(FraggerOutputType.TSV)) {
-        int confirm = JOptionPane.showConfirmDialog(this,
-            "You've chosen TSV output for MSFragger while\n"
-                + "also requesting to run other downstream processing\n"
-                + "tools. Those tools only support PepXML input.\n\n"
-                + "Cancel operation and switch before running (manually)?",
-            "Switch to pep.xml?", JOptionPane.YES_NO_OPTION);
-        if (JOptionPane.YES_OPTION == confirm) {
-          resetRunButtons(true);
-          return;
-        }
-      }
-    }
-
-    final TextConsole textConsole = console;
-    final String workingDir = txtWorkingDir.getText();
-    if (workingDir.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Output directory can't be left empty.\n"
-              + "Please select an existing directory for the output.", "Bad output directory path",
-          JOptionPane.WARNING_MESSAGE);
-      resetRunButtons(true);
-      return;
-    }
-    Path testWdPath;
-    try {
-      testWdPath = Paths.get(workingDir);
-    } catch (InvalidPathException e) {
-      JOptionPane.showMessageDialog(this, "Output directory path is not a valid path.\n"
-          + "Please select a directory for the output.", "Bad output directory path", JOptionPane.WARNING_MESSAGE);
-      resetRunButtons(true);
-      return;
-    }
-    Pattern reWhitespace = Pattern.compile("\\s");
-    if (reWhitespace.matcher(testWdPath.toString()).find()) {
-      JOptionPane.showMessageDialog(this,
-          "Output directory path contains whitespace characters.\n"
-              + "Some programs in the pipeline might not work properly in this case.\n\n"
-          + "Please change output directory to one without spaces.", "Bad output directory path", JOptionPane.WARNING_MESSAGE);
-      resetRunButtons(true);
-      return;
-    }
-    final Path wdPath = testWdPath;
-    EventBus.getDefault().postSticky(new MessageLastRunWorkDir(wdPath));
-
-    if (!isDryRun) {
-      if (!Files.exists(wdPath)) {
-        int confirmCreation = JOptionPane.showConfirmDialog(this,
-            "Output directory doesn't exist. Create?",
-            "Create output directory?", JOptionPane.OK_CANCEL_OPTION);
-        if (JOptionPane.OK_OPTION != confirmCreation) {
-          resetRunButtons(true);
-          return;
-        }
-        try {
-          Files.createDirectories(wdPath);
-        } catch (Exception e) {
-          // something went not right during creation of directory structure
-          JOptionPane.showMessageDialog(this,
-              "Could not create directory structure.\n" + e.getMessage(), "Error",
-              JOptionPane.ERROR_MESSAGE);
-          resetRunButtons(true);
-          return;
-        }
-
-      } else {
-        try (Stream<Path> inWd = Files.list(wdPath)) {
-          if (inWd.findAny().isPresent()) {
-            int confirm = JOptionPane.showConfirmDialog(this,
-                "The output directory is not empty.\n\n"
-                    + "Some files might be overwritten in:\n"
-                    + " > " + wdPath.toString() + "\n\n"
-                    + "Do you want to proceed?", "Confirmation", JOptionPane.YES_NO_OPTION);
-            if (JOptionPane.YES_OPTION != confirm) {
-              resetRunButtons(true);
-              return;
-            }
-          }
-        } catch (Exception e) {
-          JOptionPane.showMessageDialog(this,
-              "Could not create directory structure.\n" + e.getMessage(), "Error",
-              JOptionPane.ERROR_MESSAGE);
-          resetRunButtons(true);
-          return;
-        }
-      }
-
-      // make sure subdirs for experiments are created
-      Set<Path> subdirs = getLcmsFileGroups().values().stream().map(g -> g.outputDir(wdPath))
-          .collect(Collectors.toSet());
-      for (Path subdir : subdirs) {
-        if (!Files.exists(subdir)) {
-          try {
-            Files.createDirectories(subdir);
-          } catch (IOException e) {
-            JOptionPane.showMessageDialog(this,
-                "Could not create directory structure.\n" + e.getMessage(), "Error",
-                JOptionPane.ERROR_MESSAGE);
-            resetRunButtons(true);
-            return;
-          }
-        }
-      }
-    }
-
-    List<InputLcmsFile> lcmsExpEmptyRepNonNull = getLcmsFileGroups().values().stream()
-        .flatMap(g -> g.lcmsFiles.stream())
-        .filter(lcms -> StringUtils.isNullOrWhitespace(lcms.getExperiment())
-            && lcms.getReplicate() != null)
-        .collect(Collectors.toList());
-    if (!lcmsExpEmptyRepNonNull.isEmpty()) {
-      int confirm = SwingUtils.showConfirmDialog(this, new JLabel(
-          "<html>For " + lcmsExpEmptyRepNonNull.size()
-              + " input files Experiment was left empty while Replicate was not.<br/><br/>\n"
-              + "<b>Yes</b> - if you want to auto-add 'exp_' prefix and continue as-is.<br/>\n"
-              + "<b>No, Cancel</b> - stop and change manually on Select LC/MS Files tab."));
-      if (confirm != JOptionPane.YES_OPTION) {
-        resetRunButtons(true);
-        return;
-      }
-    }
-
-    final Map<String, LcmsFileGroup> lcmsFileGroups = getLcmsFileGroups();
-    final ArrayList<InputLcmsFile> lcmsFilesAll = lcmsFileGroups.values().stream()
-        .flatMap(group -> group.lcmsFiles.stream()).collect(Collectors.toCollection(ArrayList::new));
-
-    // check input LCMS files
-    if (lcmsFilesAll.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "No LC/MS data files selected.\n"
-          + "Check 'Select Raw Files' tab.", "Error", JOptionPane.WARNING_MESSAGE);
-      resetRunButtons(true);
-      return;
-    } else {
-      // check that all input LCMS files have unique filenames
-      Map<String, List<Path>> inputFnMap = new HashMap<>();
-      for (LcmsFileGroup group : lcmsFileGroups.values()) {
-        for (InputLcmsFile inputLcmsFile : group.lcmsFiles) {
-          Path path = inputLcmsFile.getPath();
-          String fn = path.getFileName().toString();
-          inputFnMap.computeIfAbsent(fn, s -> new LinkedList<>()).add(path);
-        }
-      }
-
-      // check LCMS files only have one dot in the name
-
-      List<Entry<String, List<Path>>> collect = inputFnMap.entrySet().stream()
-          .filter(kv -> kv.getValue().size() > 1).collect(Collectors.toList());
-      if (!collect.isEmpty()) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("<html>Some input LCMS files have the same name, "
-            + "even though located in different folders:\n");
-        collect.forEach(kv -> {
-          sb.append("\n<html>File Name - <b>").append(kv.getKey()).append("</b>:");
-          kv.getValue().forEach(path -> sb.append("\n    - ").append(path.toString()));
-          sb.append("\n");
-        });
-        sb.append("\nFiles might get overwritten and results might be not what's expected.\n"
-            + "Consider renaming input files.");
-
-        JOptionPane.showMessageDialog(this,
-            sb.toString(),
-            "Input files with same names", JOptionPane.WARNING_MESSAGE);
-        resetRunButtons(true);
-        return;
-      }
-    }
-
-    DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-    String dateString = df.format(new Date());
-
-    URI jarFragpipeUri = null;
-    Path jarFragpipePath = null;
-    try {
-      jarFragpipeUri = PathUtils.getCurrentJarUri();
-      jarFragpipePath = Paths.get(jarFragpipeUri);
-    } catch (Exception ignore) {
-      // don't care
-    }
-    if (jarFragpipeUri == null) {
-      JOptionPane.showMessageDialog(this, "Could not get the URI of the currently running jar",
-          "Errors", JOptionPane.ERROR_MESSAGE);
-      resetRunButtons(true);
-      return;
-    }
-
-    // check fasta file
-    String fastaPathText = textSequenceDbPath.getText().trim();
-    if (StringUtils.isNullOrWhitespace(fastaPathText)) {
-      JOptionPane.showMessageDialog(this, "Fasta file path (Database tab) can't be empty",
-          "Warning", JOptionPane.WARNING_MESSAGE);
-      resetRunButtons(true);
-      return;
-    }
-    final String fastaPath = PathUtils.testFilePath(fastaPathText, workingDir);
-    if (fastaPath == null) {
-      JOptionPane.showMessageDialog(this,
-          String.format("Could not find fasta file (Database) at:\n%s", fastaPathText),
-          "Errors", JOptionPane.ERROR_MESSAGE);
-      resetRunButtons(true);
-      return;
-    }
-
-    final String binPhilosopher = textBinPhilosopher.getText().trim();
-    final List<ProcessBuildersDescriptor> pbDescsToFill = new ArrayList<>();
-
-    // main call to generate all the process builders
-    if (!processBuildersNew(wdPath, jarFragpipePath, binPhilosopher, isDryRun, pbDescsToFill)) {
-      resetRunButtons(true);
-      return;
-    }
-
-
-    String sbSysinfo = OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo() + "\n";
-    LogUtils.println(console, String.format(Locale.ROOT, "System info:\n%s",
-        sbSysinfo));
-
-    StringBuilder sbVer = new StringBuilder();
-    sbVer.append(Version.PROGRAM_TITLE).append(" version ").append(Version.version()).append("\n");
-    sbVer.append("MSFragger version ").append(fraggerVer).append("\n");
-    sbVer.append("Philosopher version ").append(philosopherVer).append("\n");
-    LogUtils.println(console, String.format(Locale.ROOT, "Version info:\n%s", sbVer.toString()));
-    LogUtils.println(console, "");
-
-    LogUtils.println(console, "LCMS files:");
-    for (Map.Entry<String, LcmsFileGroup> e : lcmsFileGroups.entrySet()) {
-      LogUtils.println(console,
-          String.format(Locale.ROOT, "  Experiment/Group: %s", e.getValue().name));
-      for (InputLcmsFile f : e.getValue().lcmsFiles) {
-        LogUtils.println(console, String.format(Locale.ROOT, "  - %s", f.getPath().toString()));
-      }
-    }
-    LogUtils.println(console, "");
-
-    // Converting process builders descriptors to process builder infos
-    final List<ProcessBuilderInfo> pbis = pbDescsToFill.stream()
-        .flatMap(pbd -> pbd.pbis.stream().map(pbi ->
-        {
-          PbiBuilder b = new PbiBuilder();
-          b.setPb(pbi.pb);
-          b.setName(pbi.name != null ? pbi.name : pbd.name);
-          b.setFnStdOut(pbi.fnStdout != null ? pbi.fnStdout : pbd.fnStdout);
-          b.setFnStdErr(pbi.fnStderr != null ? pbi.fnStderr : pbd.fnStderr);
-          b.setParallelGroup(pbi.parallelGroup != null ? pbi.parallelGroup : pbd.getParallelGroup());
-          return b.create();
-        }))
-        .collect(Collectors.toList());
-
-    LogUtils.println(console, String.format(Locale.ROOT, "%d commands to execute:", pbis.size()));
-
-    for (final ProcessBuilderInfo pbi : pbis) {
-      printProcessDescription(pbi);
-
-    }
-    LogUtils.println(console, "~~~~~~~~~~~~~~~~~~~~~~");
-    LogUtils.println(console, "");
-    LogUtils.println(console, "");
-
-    if (isDryRun) {
-      LogUtils.println(console, "It's a dry-run, not running the commands.");
-      resetRunButtons(true);
-      return;
-    }
-
-    // save all the options
-    LocalDateTime time = LocalDateTime.now();
-    String timestamp = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
-    Path path = wdPath.resolve("fragpipe" + "_" + timestamp + ".config");
-    try {
-      Files.deleteIfExists(path);
-    } catch (IOException e) {
-      log.error("Could not delete old fragpipe.config at: {}", path.toString());
-    }
-    EventBus.getDefault().post(new MessageSaveAllForms(path));
-
-
-    // print all the options
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    try {
-      formWrite(baos);
-      LogUtils.println(console, "~~~~~~~~~ fragpipe.config ~~~~~~~~~");
-      LogUtils.println(console, baos.toString(Charsets.UTF_8.name()));
-      LogUtils.println(console, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    } catch (IOException e) {
-      log.error("Could not collect form text representation for printing to console");
-    }
-
-    // run everything
-    List<RunnableDescription> toRun = new ArrayList<>();
-    for (final ProcessBuilderInfo pbi : pbis) {
-      Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, wdPath, this::printProcessDescription);
-      ProcessDescription.Builder b = new ProcessDescription.Builder().setName(pbi.name);
-      if (pbi.pb.directory() != null) {
-        b.setWorkDir(pbi.pb.directory().toString());
-      }
-      if (pbi.pb.command() != null && !pbi.pb.command().isEmpty()) {
-        b.setCommand(String.join(" ", pbi.pb.command()));
-      }
-      toRun.add(new RunnableDescription(b.create(), runnable, pbi.parallelGroup));
-    }
-
-    // add finalizer process
-    final JButton btnStartPtr = btnRun;
-    final JButton btnStopPtr = btnStop;
-    Runnable finalizerRun = () -> {
-      btnStartPtr.setEnabled(true);
-      btnStopPtr.setEnabled(false);
-      String msg =
-          "=========================\n" +
-              "===\n" +
-              "===      Done\n" +
-              "===\n" +
-              "=========================\n";
-      EventBus.getDefault()
-          .post(new MessageAppendToConsole(msg, MsfraggerGuiFrame.COLOR_RED_DARKEST));
-      EventBus.getDefault().post(new MessageSaveLog(wdPath));
-    };
-    String finalizerDesc = "Finalizer task";
-    toRun.add(new RunnableDescription(new Builder().setName("Finalizer Task").create(), finalizerRun));
-    EventBus.getDefault().post(new MessageStartProcesses(toRun));
+    FragpipeOnMessages.onMessageRun(this, m);
   }
 
   public void printProcessDescription(ProcessBuilderInfo pbi) {
@@ -3867,7 +3529,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     btnPepProphDefaults(SearchTypeProp.nonspecific);
   }//GEN-LAST:event_btnPepProphDefaultsNonspecificActionPerformed
 
-  private void saveWorkdirText() {
+  void saveWorkdirText() {
     final String text = txtWorkingDir.getText().trim();
     try {
       Path p = Paths.get(text);
@@ -4320,12 +3982,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }
 
-  private void resetRunButtons(boolean runEnabled) {
+  void resetRunButtons(boolean runEnabled) {
     btnRun.setEnabled(runEnabled);
     btnStop.setEnabled(!runEnabled);
   }
 
-  private Map<String, LcmsFileGroup> getLcmsFileGroups() {
+  Map<String, LcmsFileGroup> getLcmsFileGroups() {
     List<InputLcmsFile> lcmsInputs = tableModelRawFiles.dataCopy();
     Map<String, List<InputLcmsFile>> mapGroup2Files = lcmsInputs.stream()
         .collect(Collectors.groupingBy(InputLcmsFile::getGroup));
