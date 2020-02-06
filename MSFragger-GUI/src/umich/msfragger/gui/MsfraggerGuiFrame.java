@@ -75,7 +75,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
 
-import com.github.chhh.utils.swing.UiRadio;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.apache.commons.codec.Charsets;
@@ -113,7 +112,6 @@ import umich.msfragger.messages.MessageSaveCache;
 import umich.msfragger.messages.MessageSaveLog;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.messages.MessageShowAboutDialog;
-import umich.msfragger.messages.MessageSpeclibGenSpectrastInit;
 import umich.msfragger.messages.MessageStartProcesses;
 import umich.msfragger.messages.MessageTipNotification;
 import umich.msfragger.messages.MessageValidityFragger;
@@ -136,24 +134,18 @@ import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.umpire.UmpirePanel;
 import umich.msfragger.util.FastaUtils;
 import umich.msfragger.util.FastaUtils.FastaContent;
-import umich.msfragger.util.FastaUtils.InferFastaPrefixesAndSuffixes;
+import umich.msfragger.util.FastaUtils.FastaDecoyPrefixSearchResult;
 import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.GhostText;
-import umich.msfragger.util.HSLColor;
 import umich.msfragger.util.IValidateString;
 import umich.msfragger.util.LogUtils;
 import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PathUtils;
-import umich.msfragger.util.PrefixCounter;
-import umich.msfragger.util.PrefixCounter.Mode;
-import umich.msfragger.util.PrefixCounter.Node;
-import umich.msfragger.util.Proc2;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.Tuple2;
 import umich.msfragger.util.UsageTrigger;
 import umich.msfragger.util.ValidateTrue;
 import umich.msfragger.util.VersionComparator;
@@ -4012,8 +4004,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
     Map<LcmsFileGroup, Path> mapGroupsToProtxml = cmdProteinProphet.outputs(pepxmlFiles, isProcessGroupsSeparately, isMuiltiExperimentReport);
 
+    // confirm with user that multi-experiment report is not needed
+    if (!isProcessGroupsSeparately && mapGroupsToProtxml.keySet().size() > 1 && !isMuiltiExperimentReport) {
+      int confirmation = SwingUtils.showConfirmDialog(this, new JLabel(
+          "<html>You've specified more than one experiment/group.<br/>\n" +
+          "However, multi-experiment report is turned off.<br/>\n" +
+          "It is advised to convert those files to mzML.<br/>\n" +
+          "<br/>\n" +
+          "<b>Click Yes to continue at your own risk, otherwise Cancel.</b>"));
+      if (JOptionPane.YES_OPTION != confirmation) {
+        return false;
+      }
+    }
+
+    // Check Decoy tags if any of the downstream tools are requested
     if (cmdPeptideProphet.isRun() || cmdProteinProphet.isRun()) {
-      // Check Decoy tags if any of the downstream tools are requested
       if (StringUtils.isNullOrWhitespace(textDecoyTagSeqDb.getText())) {
         int confirm = JOptionPane.showConfirmDialog(this,
             "Downstream analysis tools require decoys in the database,\n"
@@ -4376,141 +4381,16 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
 
-    FastaContent fastaContent;
-    try {
-      fastaContent = FastaUtils.readFasta(p);
-    } catch (IOException e) {
-      SwingUtils.showErrorDialog(e, btnTryDetectDecoyTag);
+    FastaDecoyPrefixSearchResult fastaDecoyPrefixSearchResult = new FastaDecoyPrefixSearchResult(p, this)
+        .invoke();
+    if (fastaDecoyPrefixSearchResult.isError()) {
       return;
     }
-
-    List<String> descriptors = fastaContent.descriptors;
-    List<List<String>> ordered = fastaContent.ordered;
-
-    InferFastaPrefixesAndSuffixes inferFastaPrefixesAndSuffixes = new InferFastaPrefixesAndSuffixes(
-        ordered).invoke();
-    List<List<Tuple2<String, Double>>> prefixesByCol = inferFastaPrefixesAndSuffixes
-        .getPrefixesByCol();
-    List<List<Tuple2<String, Double>>> suffixesByCol = inferFastaPrefixesAndSuffixes
-        .getSuffixesByCol();
-
-    int totalCandidates = 0;
-    int supportedPrefixes = 0;
-    int totalPrefixes = 0;
-    int totalSuffixes = 0;
-    for (int i = 0; i < prefixesByCol.size(); i++) {
-      List<Tuple2<String, Double>> list = prefixesByCol.get(i);
-      totalCandidates += list.size();
-      totalPrefixes += list.size();
-      if (i == 0) {
-        supportedPrefixes = list.size();
-      }
-    }
-    for (List<Tuple2<String, Double>> list : suffixesByCol) {
-      totalCandidates += list.size();
-      totalSuffixes += list.size();
-    }
-
-    String selectedPrefix = null;
-    if (totalCandidates == 0) {
-      String msg = "No candidates for decoy tags found";
-      String[] options = {"Ok"};
-      int result = JOptionPane.showOptionDialog(this, msg, "Nothing found",
-          JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
-
-    } else if (supportedPrefixes == 1) {
-      // good, we've found the one good decoy prefix
-      Tuple2<String, Double> prefix = prefixesByCol.get(0).get(0);
-      StringBuilder sb = new StringBuilder();
-      sb.append(String.format(Locale.ROOT,
-          "Found candidate decoy tag: \n\"%s\" in % 3.1f%% entries", prefix.item1,
-          prefix.item2 * 100d));
-      sb.append("\n\nAll found candidates:");
-      appendFoundPrefixes(sb, prefixesByCol, suffixesByCol);
-      String[] options = {"Set \"" + prefix.item1 + "\" as decoy tag", "Cancel"};
-      int result = JOptionPane.showOptionDialog(this, sb.toString(), "Found prefix",
-          JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-      if (result == 0) {
-        selectedPrefix = prefix.item1;
-      }
-
-    } else if (supportedPrefixes > 1) {
-      // several possible prefixes found
-      StringBuilder sb = new StringBuilder();
-      sb.append("Found several possible supported decoy tag prefixes.\n")
-          .append("Note: only prefixes in the 1st column are supported by downstream tools.\n");
-      appendFoundPrefixes(sb, prefixesByCol, suffixesByCol);
-      sb.append("\nOnly supported variants are lsited on buttons below.\n");
-
-      List<Tuple2<String, Double>> supported = prefixesByCol.get(0);
-      String[] options = new String[supported.size() + 1];
-      options[options.length - 1] = "Cancel";
-      for (int i = 0; i < supported.size(); i++) {
-        options[i] = String.format("Set \"%s\"", supported.get(i).item1);
-      }
-      int result = JOptionPane
-          .showOptionDialog(this, sb.toString(), "Found several possible prefixes",
-              JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-              options[0]);
-      if (result >= 0 && result < options.length - 1) {
-        selectedPrefix = supported.get(result).item1;
-      }
-
-    } else if (supportedPrefixes == 0) {
-      // no prefixes found - this is not supported by downstream tools
-      StringBuilder sb = new StringBuilder();
-      sb.append("No supported decoy tag prefixes found.\n")
-          .append("However found other possible decoy markers, listed below.\n")
-          .append("Note: only prefixes in the 1st column are supported by downstream tools.\n");
-      appendFoundPrefixes(sb, prefixesByCol, suffixesByCol);
-      String[] options = {"Ok"};
-      int result = JOptionPane.showOptionDialog(this, sb.toString(),
-          "Found incompatible decoy marker candidates",
-          JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
-    }
+    String selectedPrefix = fastaDecoyPrefixSearchResult.getSelectedPrefix();
     if (selectedPrefix != null) {
       updateDecoyTagSeqDb(selectedPrefix, false);
     }
   }//GEN-LAST:event_btnTryDetectDecoyTagActionPerformed
-
-  private void appendFoundPrefixes(StringBuilder sb,
-      List<List<Tuple2<String, Double>>> prefixesByCol,
-      List<List<Tuple2<String, Double>>> suffixesByCol) {
-
-    int totalPrefixes = 0;
-    int totalSuffixes = 0;
-    for (int i = 0; i < prefixesByCol.size(); i++) {
-      List<Tuple2<String, Double>> list = prefixesByCol.get(i);
-      totalPrefixes += list.size();
-    }
-    for (List<Tuple2<String, Double>> list : suffixesByCol) {
-      totalSuffixes += list.size();
-    }
-
-    final String tab1 = "  ";
-    final String tab2 = tab1 + tab1;
-
-    if (totalPrefixes > 0) {
-      sb.append(tab1).append("\nPrefixes:\n");
-      for (int i = 0; i < prefixesByCol.size(); i++) {
-        for (Tuple2<String, Double> tuple2 : prefixesByCol.get(i)) {
-          sb.append(tab2).append(String.format("\tColumn #%d: \"%s\" in % 3.1f%% entries\n",
-              i + 1, tuple2.item1, tuple2.item2 * 100d));
-        }
-      }
-    }
-
-    if (totalSuffixes > 0) {
-      sb.append(tab1).append("\nSuffixes:\n");
-      for (int i = 0; i < suffixesByCol.size(); i++) {
-        for (Tuple2<String, Double> tuple2 : suffixesByCol.get(i)) {
-          sb.append(tab2).append(String.format("\tColumn #%d: \"%s\" in % 3.1f%% entries\n",
-              i + 1, tuple2.item1, tuple2.item2 * 100d));
-        }
-      }
-    }
-
-  }
 
   private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
 
@@ -5523,5 +5403,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JTextField textSequenceDbPath;
     private javax.swing.JTextArea txtProteinProphetCmdLineOpts;
     private javax.swing.JTextField txtWorkingDir;
-    // End of variables declaration//GEN-END:variables
+
+  // End of variables declaration//GEN-END:variables
 }

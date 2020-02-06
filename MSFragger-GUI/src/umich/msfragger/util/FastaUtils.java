@@ -1,5 +1,6 @@
 package umich.msfragger.util;
 
+import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,6 +10,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.util.PrefixCounter.Mode;
@@ -229,6 +232,164 @@ public class FastaUtils {
 //      }
 //    }
       return result;
+    }
+  }
+
+  public static class FastaDecoyPrefixSearchResult {
+
+    private boolean isError = false;
+    private final Path p;
+    private String selectedPrefix;
+    private Component comp;
+
+    public FastaDecoyPrefixSearchResult(Path p, Component comp) {
+      this.p = p;
+      this.comp = comp;
+    }
+
+    public boolean isError() {
+      return isError;
+    }
+
+    public String getSelectedPrefix() {
+      return selectedPrefix;
+    }
+
+    public FastaDecoyPrefixSearchResult invoke() {
+      FastaContent fastaContent;
+      try {
+        fastaContent = readFasta(p);
+      } catch (IOException e) {
+        SwingUtils.showErrorDialog(e, comp);
+        isError = true;
+        return this;
+      }
+
+      List<String> descriptors = fastaContent.descriptors;
+      List<List<String>> ordered = fastaContent.ordered;
+
+      InferFastaPrefixesAndSuffixes inferFastaPrefixesAndSuffixes = new InferFastaPrefixesAndSuffixes(
+          ordered).invoke();
+      List<List<Tuple2<String, Double>>> prefixesByCol = inferFastaPrefixesAndSuffixes
+          .getPrefixesByCol();
+      List<List<Tuple2<String, Double>>> suffixesByCol = inferFastaPrefixesAndSuffixes
+          .getSuffixesByCol();
+
+      int totalCandidates = 0;
+      int supportedPrefixes = 0;
+      int totalPrefixes = 0;
+      int totalSuffixes = 0;
+      for (int i = 0; i < prefixesByCol.size(); i++) {
+        List<Tuple2<String, Double>> list = prefixesByCol.get(i);
+        totalCandidates += list.size();
+        totalPrefixes += list.size();
+        if (i == 0) {
+          supportedPrefixes = list.size();
+        }
+      }
+      for (List<Tuple2<String, Double>> list : suffixesByCol) {
+        totalCandidates += list.size();
+        totalSuffixes += list.size();
+      }
+
+      selectedPrefix = null;
+      if (totalCandidates == 0) {
+        String msg = "No candidates for decoy tags found";
+        String[] options = {"Ok"};
+        JOptionPane.showOptionDialog(comp, msg, "Nothing found",
+            JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+
+      } else if (supportedPrefixes == 1) {
+        // good, we've found the one good decoy prefix
+        Tuple2<String, Double> prefix = prefixesByCol.get(0).get(0);
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format(Locale.ROOT,
+            "Found candidate decoy tag: \n\"%s\" in % 3.1f%% entries", prefix.item1,
+            prefix.item2 * 100d));
+        sb.append("\n\nAll found candidates:");
+        appendFoundPrefixes(sb, prefixesByCol, suffixesByCol);
+        String[] options = {"Set \"" + prefix.item1 + "\" as decoy tag", "Cancel"};
+        int result = JOptionPane.showOptionDialog(comp, sb.toString(), "Found prefix",
+            JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+        if (result == 0) {
+          selectedPrefix = prefix.item1;
+        }
+
+      } else if (supportedPrefixes > 1) {
+        // several possible prefixes found
+        StringBuilder sb = new StringBuilder();
+        sb.append("Found several possible supported decoy tag prefixes.\n")
+            .append("Note: only prefixes in the 1st column are supported by downstream tools.\n");
+        appendFoundPrefixes(sb, prefixesByCol, suffixesByCol);
+        sb.append("\nOnly supported variants are lsited on buttons below.\n");
+
+        List<Tuple2<String, Double>> supported = prefixesByCol.get(0);
+        String[] options = new String[supported.size() + 1];
+        options[options.length - 1] = "Cancel";
+        for (int i = 0; i < supported.size(); i++) {
+          options[i] = String.format("Set \"%s\"", supported.get(i).item1);
+        }
+        int result = JOptionPane
+            .showOptionDialog(comp, sb.toString(), "Found several possible prefixes",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+                options[0]);
+        if (result >= 0 && result < options.length - 1) {
+          selectedPrefix = supported.get(result).item1;
+        }
+
+      } else if (supportedPrefixes == 0) {
+        // no prefixes found - this is not supported by downstream tools
+        StringBuilder sb = new StringBuilder();
+        sb.append("No supported decoy tag prefixes found.\n")
+            .append("However found other possible decoy markers, listed below.\n")
+            .append("Note: only prefixes in the 1st column are supported by downstream tools.\n");
+        appendFoundPrefixes(sb, prefixesByCol, suffixesByCol);
+        String[] options = {"Ok"};
+        JOptionPane.showOptionDialog(comp, sb.toString(),
+            "Found incompatible decoy marker candidates",
+            JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+      }
+      isError = false;
+      return this;
+    }
+
+    private void appendFoundPrefixes(StringBuilder sb,
+        List<List<Tuple2<String, Double>>> prefixesByCol,
+        List<List<Tuple2<String, Double>>> suffixesByCol) {
+
+      int totalPrefixes = 0;
+      int totalSuffixes = 0;
+      for (int i = 0; i < prefixesByCol.size(); i++) {
+        List<Tuple2<String, Double>> list = prefixesByCol.get(i);
+        totalPrefixes += list.size();
+      }
+      for (List<Tuple2<String, Double>> list : suffixesByCol) {
+        totalSuffixes += list.size();
+      }
+
+      final String tab1 = "  ";
+      final String tab2 = tab1 + tab1;
+
+      if (totalPrefixes > 0) {
+        sb.append(tab1).append("\nPrefixes:\n");
+        for (int i = 0; i < prefixesByCol.size(); i++) {
+          for (Tuple2<String, Double> tuple2 : prefixesByCol.get(i)) {
+            sb.append(tab2).append(String.format("\tColumn #%d: \"%s\" in % 3.1f%% entries\n",
+                i + 1, tuple2.item1, tuple2.item2 * 100d));
+          }
+        }
+      }
+
+      if (totalSuffixes > 0) {
+        sb.append(tab1).append("\nSuffixes:\n");
+        for (int i = 0; i < suffixesByCol.size(); i++) {
+          for (Tuple2<String, Double> tuple2 : suffixesByCol.get(i)) {
+            sb.append(tab2).append(String.format("\tColumn #%d: \"%s\" in % 3.1f%% entries\n",
+                i + 1, tuple2.item1, tuple2.item2 * 100d));
+          }
+        }
+      }
+
     }
   }
 }
