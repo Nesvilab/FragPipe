@@ -60,7 +60,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,7 +71,6 @@ import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
 
 import net.java.balloontip.BalloonTip;
@@ -740,68 +738,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   @Subscribe
   public void onShowAbout(MessageShowAboutDialog m) {
-    // for copying style
-    JLabel label = new JLabel();
-    Font font = label.getFont();
-
-    // create some css from the label's font
-    StringBuilder style = new StringBuilder("font-family:" + font.getFamily() + ";");
-    style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
-    style.append("font-size:").append(font.getSize()).append("pt;");
-
-
-    final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
-    String linkDl = p.getProperty(Version.PROP_DOWNLOAD_URL, "");
-    String linkSite = p.getProperty(ThisAppProps.PROP_LAB_SITE_URL, "http://nesvilab.org");
-    String linkToPaper = p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL, "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
-
-    JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">"
-        + "MSFragger - Ultrafast Proteomics Search Engine<br/>"
-        + "FragPipe (v" + Version.version() + ")<br/>"
-        + "Dmitry Avtonomov<br/>"
-        + "University of Michigan, 2017<br/><br/>"
-        + "<a href=\"" + linkDl
-        + "\">Click here to download</a> the latest version<br/><br/>"
-        + "<a href=\"" + linkSite + "\">Alexey Nesvizhskii lab</a><br/>&nbsp;<br/>&nbsp;"
-        + "MSFragger authors and contributors:<br/>"
-        + "<ul>"
-        + "<li>Andy Kong</li>"
-        + "<li>Dmitry Avtonomov</li>"
-        + "<li>Guo-Ci Teo</li>"
-        + "<li>Fengchao Yu</li>"
-        + "<li>Alexey Nesvizhskii</li>"
-        + "</ul>"
-        + "<a href=\"" + linkToPaper + "\">Link to the research manuscript</a><br/>"
-        + "Reference: <b>doi:10.1038/nmeth.4256</b><br/><br/>"
-        + "Components and Downstream tools:"
-        + "<ul>"
-        + "<li><a href='https://philosopher.nesvilab.org/'>Philosopher</a>: Felipe Leprevost</li>"
-        + "<li>PTM-Shepherd: Andy Kong</li>"
-        + "<li>Crystal-C: Hui-Yin Chang</li>"
-        + "<li>Spectral library generation: Guo-Ci Teo</li>"
-        + "<li><a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou</li>"
-        + "</ul>"
-        + "</body></html>");
-
-    // handle link messages
-    ep.addHyperlinkListener(new HyperlinkListener() {
-      @Override
-      public void hyperlinkUpdate(HyperlinkEvent e) {
-        if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
-          try {
-            Desktop.getDesktop().browse(e.getURL().toURI());
-          } catch (URISyntaxException | IOException ex) {
-            Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
-          }
-        }
-      }
-    });
-    ep.setEditable(false);
-    ep.setBackground(label.getBackground());
-
-    // show
-    JOptionPane.showMessageDialog(this, ep, "About", JOptionPane.INFORMATION_MESSAGE);
+    MsfraggerGuiFrameUtils.onShowAbout(this, m);
   }
+
   //endregion
 
   public boolean isRunUmpireSe() {

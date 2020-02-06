@@ -6,10 +6,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Desktop;
+import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,6 +28,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -38,15 +42,19 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
+import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
 import umich.msfragger.cmd.CmdMsfragger;
+import umich.msfragger.messages.MessageShowAboutDialog;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.util.FileListing;
@@ -458,6 +466,71 @@ public class MsfraggerGuiFrameUtils {
       }
     }
     return whole;
+  }
+
+  public static void onShowAbout(MsfraggerGuiFrame guiFrame, MessageShowAboutDialog m) {
+    // for copying style
+    JLabel label = new JLabel();
+    Font font = label.getFont();
+
+    // create some css from the label's font
+    StringBuilder style = new StringBuilder("font-family:" + font.getFamily() + ";");
+    style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
+    style.append("font-size:").append(font.getSize()).append("pt;");
+
+
+    final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
+    String linkDl = p.getProperty(Version.PROP_DOWNLOAD_URL, "");
+    String linkSite = p.getProperty(ThisAppProps.PROP_LAB_SITE_URL, "http://nesvilab.org");
+    String linkToPaper = p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL, "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
+
+    JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">"
+        + "MSFragger - Ultrafast Proteomics Search Engine<br/>"
+        + "FragPipe (v" + Version.version() + ")<br/>"
+        + "Dmitry Avtonomov<br/>"
+        + "University of Michigan, 2017<br/><br/>"
+        + "<a href=\"" + linkDl
+        + "\">Click here to download</a> the latest version<br/><br/>"
+        + "<a href=\"" + linkSite + "\">Alexey Nesvizhskii lab</a><br/>&nbsp;<br/>&nbsp;"
+        + "MSFragger authors and contributors:<br/>"
+        + "<ul>"
+        + "<li>Andy Kong</li>"
+        + "<li>Dmitry Avtonomov</li>"
+        + "<li>Guo-Ci Teo</li>"
+        + "<li>Fengchao Yu</li>"
+        + "<li>Alexey Nesvizhskii</li>"
+        + "</ul>"
+        + "<a href=\"" + linkToPaper + "\">Link to the research manuscript</a><br/>"
+        + "Reference: <b>doi:10.1038/nmeth.4256</b><br/><br/>"
+        + "Components and Downstream tools:"
+        + "<ul>"
+        + "<li><a href='https://philosopher.nesvilab.org/'>Philosopher</a>: Felipe Leprevost</li>"
+        + "<li>PTM-Shepherd: Andy Kong</li>"
+        + "<li>Crystal-C: Hui-Yin Chang</li>"
+        + "<li>Spectral library generation: Guo-Ci Teo</li>"
+        + "<li><a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou</li>"
+        + "</ul>"
+        + "</body></html>");
+
+    // handle link messages
+    ep.addHyperlinkListener(new HyperlinkListener() {
+      @Override
+      public void hyperlinkUpdate(HyperlinkEvent e) {
+        if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
+          try {
+            Desktop.getDesktop().browse(e.getURL().toURI());
+          } catch (URISyntaxException | IOException ex) {
+            java.util.logging.Logger
+                .getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
+          }
+        }
+      }
+    });
+    ep.setEditable(false);
+    ep.setBackground(label.getBackground());
+
+    // show
+    JOptionPane.showMessageDialog(guiFrame, ep, "About", JOptionPane.INFORMATION_MESSAGE);
   }
 
   public static class LcmsFileAddition {
