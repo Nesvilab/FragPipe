@@ -62,6 +62,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
@@ -1436,6 +1437,22 @@ public class MsfraggerGuiFrameUtils {
     } catch (Exception e) {
       return false;
     }
+  }
+
+  static void validateAndSavePeptideProphetCmdLineOptions(JTextArea textPepProphCmd,
+      String textPepProphetFocusGained, HashMap<String, BalloonTip> tipMap) {
+    final JTextComponent comp = textPepProphCmd;
+    final boolean isValid = validateAndSave(tipMap, comp, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET,
+        null, ValidateTrue.getInstance());
+
+    if (!isValid) {
+      return;
+    }
+
+    // check if the filter line has changed since focus was gained
+    final String savedText = textPepProphetFocusGained;
+    final String oldText = savedText != null ? savedText : comp.getText().trim();
+    final String updText = comp.getText().trim();
   }
 
   public static class LcmsFileAddition {

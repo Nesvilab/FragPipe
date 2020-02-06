@@ -147,7 +147,6 @@ import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.ValidateTrue;
 import umich.msfragger.util.swing.ISimpleTextComponent;
 import umich.swing.console.TextConsole;
 
@@ -2840,7 +2839,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }//GEN-LAST:event_chkRunProteinProphetActionPerformed
 
   private void textPepProphCmdFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textPepProphCmdFocusLost
-    validateAndSavePeptideProphetCmdLineOptions();
+    MsfraggerGuiFrameUtils
+        .validateAndSavePeptideProphetCmdLineOptions(textPepProphCmd, textPepProphetFocusGained, tipMap);
   }//GEN-LAST:event_textPepProphCmdFocusLost
 
   private void textPepProphCmdFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textPepProphCmdFocusGained
@@ -2987,21 +2987,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   //endregion
-
-  private void validateAndSavePeptideProphetCmdLineOptions() {
-    final JTextComponent comp = textPepProphCmd;
-    final boolean isValid = MsfraggerGuiFrameUtils.validateAndSave(tipMap, comp, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET,
-        null, ValidateTrue.getInstance());
-
-    if (!isValid) {
-      return;
-    }
-
-    // check if the filter line has changed since focus was gained
-    final String savedText = textPepProphetFocusGained;
-    final String oldText = savedText != null ? savedText : comp.getText().trim();
-    final String updText = comp.getText().trim();
-  }
 
   void updateTextCmdLine(Pattern re, JTextComponent textComp, String newVal,
       String prefix) {
