@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -49,11 +50,14 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
 import umich.msfragger.cmd.CmdMsfragger;
+import umich.msfragger.gui.api.SearchTypeProp;
+import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.messages.MessageShowAboutDialog;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.philosopher.PhilosopherProps;
@@ -531,6 +535,77 @@ public class MsfraggerGuiFrameUtils {
 
     // show
     JOptionPane.showMessageDialog(guiFrame, ep, "About", JOptionPane.INFORMATION_MESSAGE);
+  }
+
+  static void checkPreviouslySavedParams(MsfraggerGuiFrame guiFrame) {
+    log.debug("entered checkPreviouslySavedParams");
+    ThisAppProps cached = ThisAppProps.loadFromTemp();
+    if (cached != null) {
+      // if there was a cached version of properties
+      VersionComparator vc = new VersionComparator();
+      String storedVer = cached.getProperty(Version.PROP_VER, "0.0");
+      if (vc.compare(storedVer, "4.0") < 0) {
+        // and the version was less than 4.0
+        String msg = String.format(Locale.ROOT, "Looks like you've upgraded from an "
+            + "older version to 4.0+,\n"
+            + "it is HIGHLY recommended to reset the default parameters.\n\n"
+            + "Reset the parameters now? \n\n"
+            + "This message won't be displayed again.");
+        String[] options = {"Cancel", "Load defaults for Closed", "Load defaults of Open"};
+        int result = JOptionPane.showOptionDialog(guiFrame, msg, "Reset to defautls",
+            JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+        switch (result) {
+          case 1:
+            EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.closed));
+            break;
+          case 2:
+            EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.open));
+            break;
+        }
+
+        // rewrite the cached params file with a versioned one
+        ThisAppProps.save(Version.PROP_VER, Version.version());
+      } else if (vc.compare(storedVer, "4.0") >= 0 && vc.compare(storedVer, "5.1") <= 0) {
+        // and the version between 4.0 and 5.1
+        final String prop = ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET;
+        String oldPepProphStr = ThisAppProps.load(prop);
+        Pattern re = Pattern.compile("--clevel\\s+2");
+        if (oldPepProphStr != null) {
+          Matcher m = re.matcher(oldPepProphStr);
+          if (m.find()) {
+            String replaced = oldPepProphStr.replaceAll(re.pattern(), "--clevel -2");
+            ThisAppProps.save(prop, replaced);
+            ThisAppProps.load(prop, guiFrame.getTextPepProphCmd());
+
+            String msg = String.format(Locale.ROOT,
+                "<html>We've noticed a cached leftover buggy option for PeptideProphet "
+                    + "'--clevel 2' and automatically replaced \n"
+                    + "it with '--clevel -2'.\n\n"
+                    + "If you know what you're doing and intended it to be '--clevel 2' "
+                    + "please change it back on PeptideProphet tab.\n\n"
+                    + "You also have the option to reload defaults. "
+                    + "This message won't be displayed again.");
+            String[] options = {"Ok", "Load defaults for Closed Search",
+                "Load defaults of Open Search"};
+            int result = JOptionPane
+                .showOptionDialog(guiFrame, msg, "Cached option automatically replaced",
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+                    options[0]);
+            switch (result) {
+              case 1:
+                EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.closed));
+                break;
+              case 2:
+                EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.open));
+                break;
+            }
+          }
+        }
+
+        // rewrite the cached params file with a versioned one
+        ThisAppProps.save(Version.PROP_VER, Version.version());
+      }
+    }
   }
 
   public static class LcmsFileAddition {

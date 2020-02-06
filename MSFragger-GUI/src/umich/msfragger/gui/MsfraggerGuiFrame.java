@@ -69,7 +69,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
 
@@ -455,7 +454,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     exec.submit(() -> validateAndSaveMsfraggerPath(textBinMsfragger.getText()));
     exec.submit(() -> validateAndSavePhilosopherPath(textBinPhilosopher.getText()));
     exec.submit(() -> Version.checkUpdates());
-    exec.submit(this::checkPreviouslySavedParams);
+    exec.submit(() -> MsfraggerGuiFrameUtils.checkPreviouslySavedParams(MsfraggerGuiFrame.this));
 
     // The python check must be run before DbSlice and SpecLibGen.
     // Don't run these checks asynchronously
@@ -748,74 +747,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .isSelected();
   }
 
-  private void checkPreviouslySavedParams() {
-    log.debug("entered checkPreviouslySavedParams");
-    ThisAppProps cached = ThisAppProps.loadFromTemp();
-    if (cached != null) {
-      // if there was a cached version of properties
-      VersionComparator vc = new VersionComparator();
-      String storedVer = cached.getProperty(Version.PROP_VER, "0.0");
-      if (vc.compare(storedVer, "4.0") < 0) {
-        // and the version was less than 4.0
-        String msg = String.format(Locale.ROOT, "Looks like you've upgraded from an "
-            + "older version to 4.0+,\n"
-            + "it is HIGHLY recommended to reset the default parameters.\n\n"
-            + "Reset the parameters now? \n\n"
-            + "This message won't be displayed again.");
-        String[] options = {"Cancel", "Load defaults for Closed", "Load defaults of Open"};
-        int result = JOptionPane.showOptionDialog(this, msg, "Reset to defautls",
-            JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-        switch (result) {
-          case 1:
-            EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.closed));
-            break;
-          case 2:
-            EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.open));
-            break;
-        }
-
-        // rewrite the cached params file with a versioned one
-        ThisAppProps.save(Version.PROP_VER, Version.version());
-      } else if (vc.compare(storedVer, "4.0") >= 0 && vc.compare(storedVer, "5.1") <= 0) {
-        // and the version between 4.0 and 5.1
-        final String prop = ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET;
-        String oldPepProphStr = ThisAppProps.load(prop);
-        Pattern re = Pattern.compile("--clevel\\s+2");
-        Matcher m = re.matcher(oldPepProphStr);
-        if (m.find()) {
-          String replaced = oldPepProphStr.replaceAll(re.pattern(), "--clevel -2");
-          ThisAppProps.save(prop, replaced);
-          ThisAppProps.load(prop, textPepProphCmd);
-
-          String msg = String.format(Locale.ROOT,
-              "<html>We've noticed a cached leftover buggy option for PeptideProphet "
-                  + "'--clevel 2' and automatically replaced \n"
-                  + "it with '--clevel -2'.\n\n"
-                  + "If you know what you're doing and intended it to be '--clevel 2' "
-                  + "please change it back on PeptideProphet tab.\n\n"
-                  + "You also have the option to reload defaults. "
-                  + "This message won't be displayed again.");
-          String[] options = {"Ok", "Load defaults for Closed Search",
-              "Load defaults of Open Search"};
-          int result = JOptionPane
-              .showOptionDialog(this, msg, "Cached option automatically replaced",
-                  JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-                  options[0]);
-          switch (result) {
-            case 1:
-              EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.closed));
-              break;
-            case 2:
-              EventBus.getDefault().post(new MessageSearchType(SearchTypeProp.open));
-              break;
-          }
-
-        }
-
-        // rewrite the cached params file with a versioned one
-        ThisAppProps.save(Version.PROP_VER, Version.version());
-      }
-    }
+  public JTextArea getTextPepProphCmd() {
+    return textPepProphCmd;
   }
 
   private void enablePhilosopherPanels(boolean enabled) {
