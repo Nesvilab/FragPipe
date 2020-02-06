@@ -2988,25 +2988,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   //endregion
 
-  void updateTextCmdLine(Pattern re, JTextComponent textComp, String newVal,
-      String prefix) {
-    String line = textComp.getText();
-    Matcher m = re.matcher(line);
-    String newText;
-
-    if (StringUtils.isNullOrWhitespace(newVal)) {
-      // the new value is a zero length string, i.e. it was deleted
-      newText = m.replaceAll("");
-    } else if (m.find()) {
-      // replace all previous instances
-      newText = m.replaceAll(String.format(Locale.ROOT, "%s %s", prefix, newVal));
-    } else {
-      // if it didn't have decoy tag, add it at the end
-      newText = String.format(Locale.ROOT, "%s %s %s", line, prefix, newVal);
-    }
-    textComp.setText(newText);
-  }
-
   private void updateDecoyTagSeqDb(String newVal, boolean updateOtherTags) {
     textDecoyTagSeqDb.setText(newVal);
     MsfraggerGuiFrameUtils
