@@ -16,13 +16,11 @@
  */
 package umich.msfragger.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -34,28 +32,18 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -84,8 +72,6 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -93,7 +79,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -105,8 +90,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.RoundedBalloonStyle;
-import org.apache.commons.lang3.JavaVersion;
-import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.SubscriberExceptionEvent;
@@ -121,7 +104,6 @@ import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
-import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
 import umich.msfragger.messages.MessageAppendToConsole;
 import umich.msfragger.messages.MessageDbUpdate;
@@ -142,7 +124,6 @@ import umich.msfragger.messages.MessageSaveLog;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.messages.MessageShowAboutDialog;
 import umich.msfragger.messages.MessageTipNotification;
-import umich.msfragger.messages.MessageValidityFragger;
 import umich.msfragger.messages.MessageValidityMassCalibration;
 import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.ThisAppProps;
@@ -153,10 +134,6 @@ import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.params.fragger.MsfraggerVersionComparator;
-import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
-import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
-import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
-import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.philosopher.ReportPanel;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.umpire.UmpirePanel;
@@ -171,7 +148,6 @@ import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.ValidateTrue;
-import umich.msfragger.util.VersionComparator;
 import umich.msfragger.util.swing.ISimpleTextComponent;
 import umich.swing.console.TextConsole;
 
@@ -328,6 +304,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     return speclibPanel1;
   }
 
+  public JLabel getLblFraggerJavaVer() {
+    return lblFraggerJavaVer;
+  }
+
+  public JLabel getLblFastaCount() {
+    return lblFastaCount;
+  }
+
   private void userSaveForms() {
     Path p = MsfraggerGuiFrameUtils
         .userShowSaveFileDialog("Save all FragPipe parameters", "fragpipe.config", this);
@@ -429,7 +413,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     // check if fragger jar points to a correct location
-    if (!validateMsfraggerJarContents(textBinMsfragger.getText())) {
+    if (!MsfraggerGuiFrameUtils.validateMsfraggerJarContents(textBinMsfragger.getText())) {
       log.debug("Msfragger jar is not valid");
     }
 
@@ -497,8 +481,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     setTabIcon(mapTabNameToIdx, fraggerTabName, "/umich/msfragger/gui/icons/bolt-16.png");
     //setTabIcon(mapTabNameToIdx, "", "");
 
-    exec.submit(() -> validateAndSaveMsfraggerPath(textBinMsfragger.getText()));
-    exec.submit(() -> validateAndSavePhilosopherPath(textBinPhilosopher.getText()));
+    exec.submit(() -> MsfraggerGuiFrameUtils.validateAndSaveMsfraggerPath(this, textBinMsfragger.getText()));
+    exec.submit(() -> MsfraggerGuiFrameUtils.validateAndSavePhilosopherPath(this, textBinPhilosopher.getText()));
     exec.submit(() -> Version.checkUpdates());
     exec.submit(() -> MsfraggerGuiFrameUtils.checkPreviouslySavedParams(MsfraggerGuiFrame.this));
 
@@ -723,7 +707,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .isSelected();
   }
 
-  private void enablePhilosopherPanels(boolean enabled) {
+  void enablePhilosopherPanels(boolean enabled) {
     SwingUtils.enableComponents(panelPeptideProphet, enabled);
     chkRunPeptideProphet.setSelected(enabled);
     SwingUtils.enableComponents(panelProteinProphet, enabled);
@@ -930,7 +914,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         editorMsfraggerCitation.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         editorMsfraggerCitation.setContentType("text/html"); // NOI18N
         editorMsfraggerCitation.setFont(lblFraggerJavaVer.getFont());
-        editorMsfraggerCitation.setText(getFraggerCitationHtml());
+        editorMsfraggerCitation.setText(MsfraggerGuiFrameUtils.createFraggerCitationHtml(lblFraggerJavaVer));
         editorMsfraggerCitation.setAutoscrolls(false);
         editorMsfraggerCitation.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
             public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
@@ -1470,7 +1454,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         lblFastaCount.setToolTipText("Number of proteins in fasta file");
 
         jScrollPane5.setViewportView(editorSequenceDb);
-        initEditorPaneSeqDb();
+        MsfraggerGuiFrameUtils.initEditorPaneSeqDb(editorSequenceDb);
 
         btnDbDownload.setText("Download");
         btnDbDownload.addActionListener(new java.awt.event.ActionListener() {
@@ -2207,117 +2191,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     switch (showOpenDialog) {
       case JFileChooser.APPROVE_OPTION:
         File foundFile = fileChooser.getSelectedFile();
-        if (validateAndSaveMsfraggerPath(foundFile.getAbsolutePath())) {
+        if (MsfraggerGuiFrameUtils.validateAndSaveMsfraggerPath(this, foundFile.getAbsolutePath())) {
           ThisAppProps.save(ThisAppProps.PROP_BINARIES_IN, foundFile.getAbsolutePath());
         }
         break;
     }
 
   }//GEN-LAST:event_btnMsfraggerBinBrowseActionPerformed
-
-  /**
-   * Checks if a file is a JAR file and that it contains MSFragger.class at the top level.
-   *
-   * @param path file to check.
-   * @return True if it's a real JAR file with MSFragger.class at the top level inside.
-   */
-  boolean validateAndSaveMsfraggerPath(final String path) {
-    boolean isJarValid = validateMsfraggerJarContents(path);
-    if (isJarValid) {
-      textBinMsfragger.setText(path);
-      ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_MSFRAGGER, path);
-    }
-
-    if (balloonMsfragger != null) {
-      balloonMsfragger.closeBalloon();
-      balloonMsfragger = null;
-    }
-
-    boolean isPathValid = validateMsfraggerPath(path);
-    boolean isVersionValid = isJarValid && validateMsfraggerVersion(path);
-    boolean isJavaValid = isVersionValid && validateMsfraggerJavaVersion();
-
-    if (!isPathValid) {
-      final String downloadUrl = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_DOWNLOAD_URL, "");
-      JEditorPane ep = SwingUtils.createClickableHtml(String.format(
-          "<html>Could not find MSFragger jar file at this location.<br/>\n"
-              + "Corresponding panel won't be active.<br/><br/>"
-              + "<b>If that's the first time you're using %s</b>,<br/>"
-              + "you will need to <a href=\"%s\">download MSFragger.jar (click here)</a> first.<br/>"
-              + "Use the button on the right to proceed to the download website.",
-          Version.PROGRAM_TITLE, downloadUrl), balloonBgColor);
-
-      balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
-          new RoundedBalloonStyle(5, 5, balloonBgColor, Color.BLACK), true);
-      balloonMsfragger.setVisible(true);
-    } else if (!isJarValid) {
-      final String downloadUrl = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_DOWNLOAD_URL, "");
-      JEditorPane ep = SwingUtils.createClickableHtml(String.format(
-          "<html>Looks like you selected an existing jar file, but we<br/>\n"
-              + "don't recognize it as a valid MSFragger distribution.<br/><br/>"
-              + "<b>If that's the first time you're using %s</b>,<br/>"
-              + "you will need to <a href=\"%s\">download MSFragger.jar (click here)</a> first.<br/>"
-              + "Use the button on the right to proceed to the download website.",
-          Version.PROGRAM_TITLE, downloadUrl), balloonBgColor);
-
-      balloonMsfragger = new BalloonTip(textBinMsfragger, ep,
-          new RoundedBalloonStyle(5, 5, balloonBgColor, Color.BLACK), true);
-      balloonMsfragger.setVisible(true);
-    }
-
-    final boolean msfraggerEnabled = isJarValid && isVersionValid && isJavaValid;
-    EventBus.getDefault().postSticky(new MessageValidityFragger(msfraggerEnabled));
-
-    // rerun slicing checks
-    validateMsadjusterEligibility();
-    validateMsfraggerMassCalibrationEligibility();
-    validateDbslicing();
-
-    return isJarValid;
-  }
-
-  private boolean validateMsfraggerJavaVersion() {
-    final boolean javaAtLeast18 = SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8);
-    final boolean is64bitJava = System.getProperty("sun.arch.data.model").equals("64");
-    final VersionComparator vc = new VersionComparator();
-    final MsfraggerVersionComparator mvc = new MsfraggerVersionComparator();
-    SwingUtilities.invokeLater(() -> {
-      BalloonTip tip = tipMap.remove(TIP_NAME_FRAGGER_JAVA_VER);
-      if (tip != null) {
-        tip.closeBalloon();
-      }
-      String msg = null;
-
-      if (!is64bitJava) {
-        msg = "MSFragger requires <b>64-bit</b> Java.";
-      } else if (!javaAtLeast18) {
-        msg = "Msfragger requires Java 1.8. Your version is lower.";
-      } else {
-        // check for Java 9
-        final String jver = SystemUtils.JAVA_SPECIFICATION_VERSION;
-        final String fver = fraggerVer != null ? fraggerVer
-            : MsfraggerProps.testJar(textBinMsfragger.getText()).version;
-        if (jver != null && fver != null) {
-          if (mvc.compare(fver, "20180316") < 0 && vc.compare(jver, "1.9") >= 0) {
-            msg = "Looks like you're "
-                + "running Java 9 or higher with MSFragger v20180316 or lower.<br/>"
-                + "That version of MSFragger only supports Java 8.";
-          }
-        }
-      }
-
-      if (msg != null) {
-        JEditorPane ep = SwingUtils.createClickableHtml(msg
-                + "<br/>Download <a href=\"https://www.java.com/en/download/manual.jsp\">here</a> or see the configuration help page (link below).\n.",
-            true, false, balloonBgColor);
-        tip = new BalloonTip(lblFraggerJavaVer, ep,
-            new RoundedBalloonStyle(5, 5, balloonBgColor, Color.BLACK), true);
-        tipMap.put(TIP_NAME_FRAGGER_JAVA_VER, tip);
-        tip.setVisible(true);
-      }
-    });
-    return javaAtLeast18 && is64bitJava;
-  }
 
   public void validateMsfraggerMassCalibrationEligibility() {
 //    new Thread(() -> {
@@ -2367,226 +2247,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     log.debug("entered validateDbslicing");
 //    new Thread(() -> DbSlice.get().init(fraggerVer)).start();
     DbSlice.get().init(fraggerVer);
-  }
-
-  private void validatePhilosopherVersion(final String binPath) {
-    if (balloonPhilosopher != null) {
-      balloonPhilosopher.closeBalloon();
-    }
-
-    final Pattern regexNewerVerFound = Pattern
-        .compile("new version.*available.*?:\\s*(\\S+)", Pattern.CASE_INSENSITIVE);
-    final Pattern regexVersion = Pattern
-        .compile("build.*?=(?<build>\\S+).*version.*?=v?\\.?(?<version>\\S+)",
-            Pattern.CASE_INSENSITIVE);
-    final Pattern regexOldPhiVer = Pattern.compile("\\d{6,}");
-    final VersionComparator vc = new VersionComparator();
-
-    // Check releases on github by running `philosopher version`.
-    new Thread(() -> {
-      MsfraggerGuiFrameUtils
-          .validatePhilosopherVersion(this, binPath, regexNewerVerFound, regexVersion, regexOldPhiVer, vc);
-    }).start();
-  }
-
-  private boolean validateMsfraggerVersion(final String jarPath) {
-    // only validate Fragger version if the current Java version is 1.8 or higher
-    if (!SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8)) {
-      // we can't test fragger binary verison when java version is less than 1.8
-      return true;
-    }
-
-    // get the vesrion reported by the current executable
-    final MsfraggerProps.FraggerRunResult jarTest = MsfraggerProps.testJar(jarPath);
-    final String localVer = jarTest.isVersionPrintedAtAll ? jarTest.version : "0.0";
-    fraggerVer = localVer;
-
-    // update the version label
-    fraggerVer = StringUtils.isNullOrWhitespace(localVer) ? UNKNOWN_VERSION : localVer;
-    lblFraggerJavaVer.setText(String.format(
-        "MSFragger version: %s. %s", fraggerVer, OsUtils.JavaInfo()));
-
-    // Now check the versions on remotes.
-    final MsfraggerVersionComparator vc = new MsfraggerVersionComparator();
-    Thread t = new Thread(() -> {
-
-      MsfraggerVersionFetcherServer vfServer = new MsfraggerVersionFetcherServer();
-      MsfraggerVersionFetcherGithub vfGithub = new MsfraggerVersionFetcherGithub();
-//      MsfraggerVersionFetcherServer vfServer = null;
-//      MsfraggerVersionFetcherGithub vfGithub = null;
-      MsfraggerVersionFetcherLocal vfLocal = new MsfraggerVersionFetcherLocal();
-      List<VersionFetcher> verFetchers = Arrays.asList(vfServer, vfGithub, vfLocal);
-      for (final VersionFetcher vf : verFetchers) {
-        if (vf == null) {
-          continue;
-        }
-        try {
-          final String updateVer = vf.fetchVersion();
-          if (StringUtils.isNullOrWhitespace(updateVer)) {
-            continue;
-          }
-          // we got a non-empty version from some version fetcher
-          if (vc.compare(localVer, updateVer) < 0) {
-            // local versin is older, than the fetched version
-            // show balloon popup, must be done on EDT
-            String url = vf.getDownloadUrl();
-            final String manualDownloadUrl = StringUtils.isNullOrWhitespace(url)
-                ? vfLocal.getDownloadUrl() : url;
-            SwingUtilities.invokeLater(() -> {
-              if (balloonMsfragger != null) {
-                balloonMsfragger.closeBalloon();
-              }
-
-              StringBuilder sb = new StringBuilder();
-              if (jarTest.isVersionPrintedAtAll) {
-                sb.append(String.format("Your version is [%s]<br>\n"
-                        + "There is a newer version of MSFragger available [%s].<br>\n",
-                    localVer, updateVer));
-              } else {
-                sb.append(
-                    String.format("<b>This version is not supported anymore</b><br>\n"
-                        + "Get a new version of MSFragger [%s].<br>\n", updateVer));
-              }
-              if (vf.canAutoUpdate()) {
-                sb.append("<br>If you choose to auto-update a new version will be downloaded<br>\n"
-                    + "and placed in the same folder as the old one. The old one will be kept.");
-              }
-              JEditorPane ep = SwingUtils.createClickableHtml(sb.toString(), balloonBgColor);
-
-              JPanel panel = new JPanel();
-              panel.setBackground(ep.getBackground());
-              panel.setLayout(new BorderLayout());
-
-              JPanel panelButtons = new JPanel();
-              panelButtons.setBackground(ep.getBackground());
-              panelButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
-
-              if (vf.canAutoUpdate()) {
-                JButton btnAutoUpdate = new JButton("Auto-update");
-                btnAutoUpdate.addActionListener(e -> {
-                  if (balloonMsfragger == null) {
-                    return;
-                  }
-                  balloonMsfragger.setVisible(false);
-                  balloonMsfragger = null;
-
-                  final JDialog dlg = new JDialog(MsfraggerGuiFrame.this, "Updating MSFragger",
-                      true);
-                  JProgressBar pb = new JProgressBar(0, 100);
-                  pb.setIndeterminate(true);
-                  Dimension d = new Dimension(300, 75);
-                  pb.setMinimumSize(d);
-                  pb.setSize(d);
-                  dlg.add(pb, BorderLayout.CENTER);
-                  dlg.setSize(d);
-                  dlg.setLocationRelativeTo(MsfraggerGuiFrame.this);
-
-                  Thread updateThread = new Thread(() -> {
-                    try {
-
-                      Path updated = vf.autoUpdate(Paths.get(jarPath));
-                      validateAndSaveMsfraggerPath(updated.toAbsolutePath().toString());
-
-                    } catch (Exception ex) {
-                      throw new IllegalStateException(
-                          "Something happened during MSFragger auto-update", ex);
-                    } finally {
-                      dlg.setVisible(false);
-                    }
-                  });
-                  updateThread.start();
-
-                  // show the dialog, this blocks until dlg.setVisible(false) is called
-                  // so this call is made in the finally block
-                  dlg.setVisible(true);
-                });
-                panelButtons.add(btnAutoUpdate);
-              }
-
-              if (!StringUtils.isNullOrWhitespace(manualDownloadUrl)) {
-                JButton btnManualUpdate = new JButton("Manual update");
-                btnManualUpdate.addActionListener(e -> {
-                  try {
-                    SwingUtils.openBrowserOrThrow(new URI(manualDownloadUrl));
-                  } catch (URISyntaxException ex) {
-                    throw new IllegalStateException("Incorrect url/uri", ex);
-                  }
-                });
-                panelButtons.add(btnManualUpdate);
-              }
-
-              JButton btnClose = new JButton("Close");
-              btnClose.addActionListener(e -> {
-                if (balloonMsfragger == null) {
-                  return;
-                }
-                balloonMsfragger.setVisible(false);
-                balloonMsfragger = null;
-              });
-
-              panel.add(ep, BorderLayout.CENTER);
-              panelButtons.add(btnClose);
-              panel.add(panelButtons, BorderLayout.SOUTH);
-
-              balloonMsfragger = new BalloonTip(textBinMsfragger, panel,
-                  new RoundedBalloonStyle(5, 5, balloonBgColor, Color.BLACK), true);
-              balloonMsfragger.setVisible(true);
-            });
-          }
-          return; // stop iterations, we've found that there is no better version than the current
-
-        } catch (Exception ex) {
-          // no biggie
-          continue;
-        }
-      }
-    });
-    t.start();
-
-    return true;
-  }
-
-  private boolean validateMsfraggerPath(String path) {
-    File f = new File(path);
-    if (!f.getName().toLowerCase().endsWith(".jar")) {
-      return false;
-    }
-    Path p = Paths.get(path).toAbsolutePath();
-    return Files.exists(p);
-
-  }
-
-  private boolean validateMsfraggerJarContents(String path) {
-    if (!validateMsfraggerPath(path)) {
-      return false;
-    }
-    Path p = Paths.get(path).toAbsolutePath();
-    final boolean[] found = {false};
-    try (FileSystem fs = FileSystems.newFileSystem(p, null)) {
-      for (Path root : fs.getRootDirectories()) {
-        Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
-          Pattern regex = Pattern.compile("msfragger.*\\.jar", Pattern.CASE_INSENSITIVE);
-
-          @Override
-          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-            String fileName = file.getFileName().toString();
-            if ("MSFragger.class".equalsIgnoreCase(fileName)) {
-              found[0] = true;
-              return FileVisitResult.TERMINATE;
-            } else if (regex.matcher(fileName).find()) {
-              found[0] = true;
-              return FileVisitResult.TERMINATE;
-            }
-            return FileVisitResult.CONTINUE;
-          }
-        });
-      }
-    } catch (IOException ex) {
-      // doesn't matter
-      Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
-    }
-
-    return found[0];
   }
 
   private void btnMsfraggerBinDownloadActionPerformed(
@@ -2649,12 +2309,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void textBinMsfraggerFocusLost(
       java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textBinMsfraggerFocusLost
-    validateAndSaveMsfraggerPath(textBinMsfragger.getText());
+    MsfraggerGuiFrameUtils.validateAndSaveMsfraggerPath(this, textBinMsfragger.getText());
   }//GEN-LAST:event_textBinMsfraggerFocusLost
 
   private void textBinPhilosopherFocusLost(
       java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textBinPhilosopherFocusLost
-    validateAndSavePhilosopherPath(textBinPhilosopher.getText());
+    MsfraggerGuiFrameUtils.validateAndSavePhilosopherPath(this, textBinPhilosopher.getText());
   }//GEN-LAST:event_textBinPhilosopherFocusLost
 
   private void textBinPhilosopherActionPerformed(
@@ -2846,7 +2506,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void textSequenceDbPathFocusLost(
       java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textSequenceDbPathFocusLost
-    validateAndSaveFastaPath(textSequenceDbPath.getText());
+    MsfraggerGuiFrameUtils.validateAndSaveFastaPath(this, textSequenceDbPath.getText());
   }//GEN-LAST:event_textSequenceDbPathFocusLost
 
   private void btnBrowseActionPerformed(
@@ -2877,7 +2537,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     switch (showOpenDialog) {
       case JFileChooser.APPROVE_OPTION:
         File foundFile = fileChooser.getSelectedFile();
-        if (validateAndSaveFastaPath(foundFile.getAbsolutePath())) {
+        if (MsfraggerGuiFrameUtils.validateAndSaveFastaPath(this, foundFile.getAbsolutePath())) {
           ThisAppProps.save(propName, foundFile.getAbsolutePath());
         }
         break;
@@ -2886,7 +2546,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void textDecoyTagSeqDbFocusLost(
       java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textDecoyTagSeqDbFocusLost
-    validateAndSaveDecoyTagSeqDb(null, true);
+    MsfraggerGuiFrameUtils
+        .validateAndSaveDecoyTagSeqDb(textDecoyTagFocusGained, textDecoyTagSeqDb, tipMap, null, true);
   }//GEN-LAST:event_textDecoyTagSeqDbFocusLost
 
   private void textDecoyTagSeqDbFocusGained(
@@ -3243,7 +2904,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   @Subscribe
   public void databaseUpdate(MessageDbUpdate m) {
-    validateAndSaveFastaPath(m.dbPath);
+    MsfraggerGuiFrameUtils.validateAndSaveFastaPath(this, m.dbPath);
     textSequenceDbPath.setText(m.dbPath);
   }
 
@@ -3318,15 +2979,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.save(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG, val);
   }
 
-  private boolean loadLastCheckReportPrintDecoys() {
-    final String checked = ThisAppProps.load(ThisAppProps.PROP_CHECKBOX_REPORT_PRINT_DECOYS);
-    try {
-      return Boolean.parseBoolean(checked);
-    } catch (Exception ignored) {
-    }
-    return false;
-  }
-
   private void loadLastSequenceDb() {
     String val = ThisAppProps.load(ThisAppProps.PROP_DB_FILE_IN);
     if (val != null) {
@@ -3351,96 +3003,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     final String updText = comp.getText().trim();
   }
 
-  private boolean validateAndSaveFastaPath(String path) {
-    boolean isValid = validateFastaPath(path);
-    if (isValid) {
-      textSequenceDbPath.setText(path);
-      ThisAppProps.save(ThisAppProps.PROP_DB_FILE_IN, path);
-      Thread thread;
-      thread = new Thread(() -> {
-        Path p = Paths.get(textSequenceDbPath.getText());
-        if (!Files.exists(p)) {
-          return;
-        }
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(p),
-            StandardCharsets.UTF_8))) {
-          String line;
-          final List<String> descriptors = new ArrayList<>();
-          while ((line = br.readLine()) != null) {
-            if (!line.startsWith(">")) {
-              continue;
-            }
-            descriptors.add(line);
-          }
-          SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-              String format = "###,###";
-              DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.ROOT);
-              otherSymbols.setDecimalSeparator(',');
-              otherSymbols.setGroupingSeparator(' ');
-              DecimalFormat df = new DecimalFormat(format, otherSymbols);
-              lblFastaCount.setText(String.format("%s entries", df.format(descriptors.size())));
-            }
-          });
-        } catch (IOException ex) {
-          return;
-        }
-      });
-      thread.start();
-    }
-
-    final JComponent anchor = textSequenceDbPath;
-    final String name = "textSequenceDbPath";
-    BalloonTip tip = tipMap.remove(name);
-    if (tip != null) {
-      tip.closeBalloon();
-    }
-
-    if (!isValid) {
-      tip = new BalloonTip(anchor, "<html>Could not find database file.");
-      tip.setVisible(true);
-      tipMap.put(name, tip);
-    }
-
-    return isValid;
-  }
-
-  private boolean validateFastaPath(String path) {
-    if (StringUtils.isNullOrWhitespace(path)) {
-      return false;
-    }
-    try {
-      Path p = Paths.get(path).toAbsolutePath();
-      return Files.exists(p) && !Files.isDirectory(p);
-    } catch (Exception e) {
-      return false;
-    }
-  }
-
-  private void validateAndSaveDecoyTagSeqDb(final String newText, boolean updateOtherTags) {
-
-    final JTextComponent comp = textDecoyTagSeqDb;
-    final boolean isValid = MsfraggerGuiFrameUtils.validateAndSave(tipMap, comp, ThisAppProps.PROP_TEXTFIELD_DECOY_TAG,
-        newText, ValidateTrue.getInstance());
-
-    if (!isValid) {
-      return;
-    }
-
-    // check if the filter line has changed since focus was gained
-    final String savedText = textDecoyTagFocusGained;
-    final String oldText = savedText != null ? savedText : comp.getText().trim();
-    final String updText = newText != null ? newText : comp.getText().trim();
-
-    // newText == null means it was a programmatic update
-    if (!updateOtherTags || oldText.equals(updText)) {
-      return;
-    }
-
-  }
-
-  private void updateTextCmdLine(Pattern re, JTextComponent textComp, String newVal,
+  void updateTextCmdLine(Pattern re, JTextComponent textComp, String newVal,
       String prefix) {
     String line = textComp.getText();
     Matcher m = re.matcher(line);
@@ -3461,7 +3024,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void updateDecoyTagSeqDb(String newVal, boolean updateOtherTags) {
     textDecoyTagSeqDb.setText(newVal);
-    validateAndSaveDecoyTagSeqDb(null, updateOtherTags);
+    MsfraggerGuiFrameUtils
+        .validateAndSaveDecoyTagSeqDb(textDecoyTagFocusGained, textDecoyTagSeqDb, tipMap, null, updateOtherTags);
   }
 
   private void addChangeListenerTextSequenceDb() {
@@ -3474,181 +3038,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   }
 
-  private void initEditorPaneSeqDb() {
-    // for copying style
-    JLabel label = new JLabel();
-    Font font = label.getFont();
-
-    // create some css from the label's font
-    StringBuilder style = new StringBuilder("font-family:" + font.getFamily() + ";");
-    style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
-    style.append("font-size:").append(font.getSize()).append("pt;");
-
-    JEditorPane ep = editorSequenceDb;
-    ep.setContentType("text/html");
-    final String codeTag = "<code style=\" font-size:" + font.getSize() + "; \">";
-    final String bin = OsUtils.isWindows() ? "philosopher_windows_amd64.exe" : "philosopher";
-    ep.setText("<html><body style=\"" + style + "\">"
-        + "<b>To create protein sequence database for FragPipe analysis either:</b><br/><br/>"
-        + "1) Simply click 'Download' button next to the text field above.<br/><br/>"
-        + "or<br/><br/>"
-        + "2) Run Philosopher from the command line to download protein sequences from UniProt.<br/>"
-        + "Execute the following two commands (see <a href=\"https://github.com/Nesvilab/philosopher/wiki/Database\">here</a> for detailed instructions): <br/>"
-        + "<br/>"
-        + codeTag
-        + "&nbsp;&nbsp;&nbsp;&nbsp;" + bin + " workspace --init <br/>"
-        + "&nbsp;&nbsp;&nbsp;&nbsp;" + bin + " database --reviewed --contam --id UP000005640<br/>"
-        + "</code>"
-        + "<br/>"
-        + "This will generate a human UniProt (reviewed sequences only) database, with common contaminants and decoys (with a prefix rev_) added.<br/>"
-        + "<br/>"
-        + "For full UniProt, remove " + codeTag + "--reviewed</code> tag.<br/>"
-        + "To include isoforms, add " + codeTag + "--isoform</code> tag.<br/>"
-        + "<br/>"
-        + "For mouse use UP000000589, to find the proteome ID for other organisms visit <a href=\"http://www.uniprot.org/proteomes/\">UniProt website</a>.<br/>"
-        + "<br/>"
-        + "<br/>"
-        + "<b>If you have your own custom database:</b><br/><br/>"
-        + "The headers in the custom sequence database should follow a certain format. <br/>"
-        + "<br/>"
-        + "For detailed information on creating and formatting databases for FragPipe analysis, please see <a href=\"https://github.com/Nesvilab/philosopher/wiki/How-to-Prepare-a-Protein-Database\">https://github.com/Nesvilab/philosopher/wiki/How-to-Prepare-a-Protein-Database</a>.<br/>"
-        + "<br/>"
-        + "<br/>"
-        + "</body></html>");
-
-    // handle link messages
-    ep.addHyperlinkListener(e -> {
-      if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
-        try {
-          Desktop.getDesktop().browse(e.getURL().toURI());
-        } catch (URISyntaxException | IOException ex) {
-          Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
-      }
-    });
-    ep.setEditable(false);
-    ep.setBackground(label.getBackground());
-  }
-
-  boolean validateAndSavePhilosopherPath(final String path) {
-
-    Path p = null;
-    try {
-      p = Paths.get(path);
-    } catch (Exception e) {
-      // path not parseable
-    }
-
-    if (p == null || !Files.exists(p) || Files.isDirectory(p)) {
-      // invalid input
-      SwingUtilities.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          if (balloonPhilosopher != null) {
-            balloonPhilosopher.closeBalloon();
-            balloonPhilosopher = null;
-          }
-
-          String linkHardcoded = "https://github.com/Nesvilab/philosopher/releases/latest";
-          String link = linkHardcoded;
-          try {
-            link = PhilosopherProps.getProperties().getProperty(PhilosopherProps.PROP_DOWNLOAD_URL, linkHardcoded);
-            log.debug("philosopher link acquired: {}", link);
-          } catch (Exception ignored) {}
-
-          boolean areEqual = linkHardcoded.equals(link);
-
-          String msg = "Could not find Philosopher binary file at this location.<br/>\n"
-              + "Corresponding panel won't be active.<br/><br/>"
-              + "<b>If that's the first time you're using " + Version.PROGRAM_TITLE + "</b>,<br/>"
-              + "you will need to <a href=\"" + link + "\">download Philosopher (click here)</a> first.<br/>"
-              + "Use the button on the right to proceed to the download website.";
-          JEditorPane ep = SwingUtils.createClickableHtml(msg, balloonBgColor);
-
-          balloonPhilosopher = new BalloonTip(textBinPhilosopher, ep,
-              new RoundedBalloonStyle(5, 5, balloonBgColor, Color.BLACK), true);
-
-          balloonPhilosopher.setVisible(true);
-          enablePhilosopherPanels(false);
-        }
-      });
-      return false;
-    }
-
-    final boolean isPathAbsolute = p.isAbsolute();
-    if (p.isAbsolute()) {
-      p = p.normalize().toAbsolutePath();
-    }
-    final boolean isPathExists = Files.exists(p);
-    final boolean isPathRunnable = Files.isExecutable(p);
-
-    final String validatedPath = validatePhilosopherPath(path);
-    final boolean isPathValid = validatedPath != null;
-
-    if (isPathValid) {
-      textBinPhilosopher.setText(validatedPath);
-      ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PHILOSOPHER, validatedPath);
-    }
-
-    Thread t = new Thread(() -> {
-      if (balloonPhilosopher != null) {
-        balloonPhilosopher.closeBalloon();
-        balloonPhilosopher = null;
-      }
-
-      final StringBuilder sb = new StringBuilder();
-      boolean needsDisplay = false;
-      if (isPathAbsolute) {
-        sb.append("<html>Absolute path for Philosopher binary provided: <br/>\n")
-            .append(path).append("<br/>\n");
-        if (!isPathExists) {
-          sb.append("\nBut the file does not exist.");
-          needsDisplay = true;
-        } else if (!isPathRunnable) {
-          sb.append("\nBut the file is not runnable.");
-          needsDisplay = true;
-          if (OsUtils.isWindows()) {
-            sb.append("Right click the file, Properties -> Security -> Advanced<br/>\n")
-                .append("And change the executable permissions for the file.<br/>\n")
-                .append("All the security implications are your responsibility.");
-          } else {
-            sb.append("Check that the file has execute permission for the JVM.<br/>\n")
-                .append("Or you can just try `chmod a+x <philosopher-binary-file>`.<br/>\n")
-                .append("All the security implications are your responsibility.");
-          }
-        } else if (!isPathValid) {
-          sb.append("\nBut the file is invalid. It can't be run by the JVM.");
-          needsDisplay = true;
-        }
-      } else {
-        // relative path given, i.e. philosopher must be on PATH
-        sb.append("<html>Relative path for Philosopher binary provided: <br/>\n")
-            .append(path).append("<br/>\n");
-        if (!isPathValid) {
-          sb.append("But it couldn't be launched properly for some reason.");
-          needsDisplay = true;
-        }
-      }
-
-      if (needsDisplay) {
-        SwingUtilities.invokeLater(() -> {
-          if (balloonPhilosopher != null) {
-            balloonPhilosopher.closeBalloon();
-          }
-          balloonPhilosopher = new BalloonTip(textBinPhilosopher, sb.toString());
-          balloonPhilosopher.setVisible(true);
-        });
-      } else {
-        validatePhilosopherVersion(validatedPath);
-      }
-      enablePhilosopherPanels(isPathValid);
-    });
-    t.start();
-
-    return isPathValid;
-  }
-
-  private String validatePhilosopherPath(String path) {
+  String validatePhilosopherPath(String path) {
     return PathUtils.testBinaryPath(path);
   }
 
@@ -3703,50 +3093,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     sb.append("More info: <a href=\"https://nesvilab.github.io/philosopher/\">Philosopher GitHub page</a>");
     sb.append("<br/>");
     sb.append("</p>");
-
-    sb.append("</body>");
-    sb.append("</html>");
-
-    return sb.toString();
-  }
-
-  private String getFraggerCitationHtml() {
-
-    // for copying style
-    Font font = lblFraggerJavaVer.getFont();
-
-    // create some css from the label's font
-    StringBuilder style = new StringBuilder();
-    style.append("font-family:").append(font.getFamily()).append(";");
-    style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
-    style.append("font-size:").append(font.getSize()).append("pt;");
-
-    StringBuilder sb = new StringBuilder();
-    sb.append("<html>");
-
-    sb.append("<head>");
-    sb.append("</head>");
-
-    sb.append("<body style=\"").append(style.toString()).append("\"");
-    //sb.append("<body>");
-
-    final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
-    final String linkMsfragger = p.getProperty(MsfraggerProps.PROP_FRAGGER_SITE_URL, "https://nesvilab.github.io/MSFragger/");
-    final String linkFragpipe = p.getProperty(ThisAppProps.PROP_FRAGPIPE_SITE_URL, "https://github.com/Nesvilab/FragPipe");
-    final String doi= p.getProperty(ThisAppProps.PROP_MANUSCRIPT_DOI, "10.1038/nmeth.4256");
-    final String linkManuscript= p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL, "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
-
-    sb.append("<p style=\"margin-top: 0\">");
-    sb.append("<b>Please cite: </b>");
-    sb.append(
-        "<a href=\"").append(linkManuscript).append("\">MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics</a>");
-    sb.append("<br/>");
-    sb.append("<b>DOI: </b>").append(doi);
-    sb.append("</p>");
-
-    sb.append("<p style=\"margin-top: 10\">");
-    sb.append("More info and docs: <a href=\"").append(linkMsfragger).append("\">MSFragger website</a>")
-        .append(", <a href=\"").append(linkFragpipe).append("\">FragPipe GitHub page</a>");
 
     sb.append("</body>");
     sb.append("</html>");
