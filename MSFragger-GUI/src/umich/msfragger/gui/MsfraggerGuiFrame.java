@@ -87,6 +87,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
 import umich.msfragger.cmd.*;
+import umich.msfragger.gui.MsfraggerGuiFrameUtils.LcmsFileAddition;
 import umich.msfragger.gui.ProcessDescription.Builder;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
@@ -136,9 +137,7 @@ import umich.msfragger.util.FastaUtils;
 import umich.msfragger.util.FastaUtils.FastaContent;
 import umich.msfragger.util.FastaUtils.FastaDecoyPrefixSearchResult;
 import umich.msfragger.util.FileDrop;
-import umich.msfragger.util.FileListing;
 import umich.msfragger.util.GhostText;
-import umich.msfragger.util.IValidateString;
 import umich.msfragger.util.LogUtils;
 import umich.msfragger.util.OsUtils;
 import umich.msfragger.util.PathUtils;
@@ -157,21 +156,21 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private static final org.slf4j.Logger log = LoggerFactory.getLogger(MsfraggerGuiFrame.class);
   private final Object procRunLock = new Object();
 
-  private FraggerMigPanel fraggerMigPanel;
-  private TextConsole console;
-  private ExecutorService exec = Executors.newFixedThreadPool(1);;
+  FraggerMigPanel fraggerMigPanel;
+  TextConsole console;
+  ExecutorService exec = Executors.newFixedThreadPool(1);;
 
 
-  //private static final String TEXT_SAME_SEQ_DB = "<Same as in MSFragger>";
-  private Color defTextColor;
-  private GhostText ghostTextPepProph;
-  private GhostText ghostTextProtProp;
-  private BalloonTip balloonMsfragger;
-  private BalloonTip balloonPhilosopher;
-  private Color balloonBgColor = Color.WHITE;
+  //e static final String TEXT_SAME_SEQ_DB = "<Same as in MSFragger>";
+  Color defTextColor;
+  GhostText ghostTextPepProph;
+  GhostText ghostTextProtProp;
+  BalloonTip balloonMsfragger;
+  BalloonTip balloonPhilosopher;
+  Color balloonBgColor = Color.WHITE;
 
-  private HashMap<String, BalloonTip> tipMap = new HashMap<>();
-  private static final String TIP_NAME_FRAGGER_JAVA_VER = "msfragger.java.min.ver";
+  HashMap<String, BalloonTip> tipMap = new HashMap<>();
+  static final String TIP_NAME_FRAGGER_JAVA_VER = "msfragger.java.min.ver";
 
   SimpleETable tableRawFiles;
   UniqueLcmsFilesTableModel tableModelRawFiles;
@@ -179,22 +178,22 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   public static final SearchTypeProp DEFAULT_TYPE = SearchTypeProp.closed;
 
-  private String textPepProphetFocusGained = null;
-  private String textReportAnnotateFocusGained = null;
-  private String textReportFilterFocusGained = null;
-  private String textReportAbacusFocusGained = null;
-  private String textDecoyTagFocusGained = null;
-  private String textLabelfreeFocusGained = null;
+  String textPepProphetFocusGained = null;
+  String textReportAnnotateFocusGained = null;
+  String textReportFilterFocusGained = null;
+  String textReportAbacusFocusGained = null;
+  String textDecoyTagFocusGained = null;
+  String textLabelfreeFocusGained = null;
 
-  private Pattern reDecoyTagReportAnnotate = Pattern.compile("--prefix\\s+([^\\s]+)");
-  private Pattern reDecoyTagReportFilter = Pattern.compile("--tag\\s+([^\\s]+)");
-  private Pattern reDecoyTagReportAbacus = Pattern.compile("--tag\\s+([^\\s]+)");
-  private Pattern reDecoyTagPepProphCmd = Pattern.compile("--decoy\\s+([^\\s]+)");
-  private Pattern reDecoyTagSequenceDb = Pattern.compile("([^\\s]+)");
+  Pattern reDecoyTagReportAnnotate = Pattern.compile("--prefix\\s+([^\\s]+)");
+  Pattern reDecoyTagReportFilter = Pattern.compile("--tag\\s+([^\\s]+)");
+  Pattern reDecoyTagReportAbacus = Pattern.compile("--tag\\s+([^\\s]+)");
+  Pattern reDecoyTagPepProphCmd = Pattern.compile("--decoy\\s+([^\\s]+)");
+  Pattern reDecoyTagSequenceDb = Pattern.compile("([^\\s]+)");
 
-  private static final String UNKNOWN_VERSION = "Unknown";
-  private String fraggerVer = UNKNOWN_VERSION;
-  private String philosopherVer = UNKNOWN_VERSION;
+  static final String UNKNOWN_VERSION = "Unknown";
+  String fraggerVer = UNKNOWN_VERSION;
+  String philosopherVer = UNKNOWN_VERSION;
 
   private UmpirePanel umpirePanel = null;
   private JScrollPane umpireScroll = null;
@@ -238,83 +237,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
 
-  public static Path userShowLoadFileDialog(String title, FileNameExtensionFilter filter, Component owner) {
-    JFileChooser fc = new JFileChooser();
-    fc.setApproveButtonText("Load");
-    fc.setDialogTitle(title);
-    fc.setMultiSelectionEnabled(false);
-
-    fc.setAcceptAllFileFilterUsed(true);
-    if (filter != null) {
-      fc.setFileFilter(filter);
-    }
-
-    final String propName = ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN;
-    ThisAppProps.load(propName, fc);
-
-    Component parent = SwingUtils.findParentFrameForDialog(owner);
-    int saveResult = fc.showOpenDialog(parent);
-    if (JFileChooser.APPROVE_OPTION == saveResult) {
-      File selectedFile = fc.getSelectedFile();
-      Path path = Paths.get(selectedFile.getAbsolutePath());
-      ThisAppProps.save(propName, path.toString());
-      if (Files.exists(path)) {
-        return path;
-      } else {
-        JOptionPane.showMessageDialog(parent, "<html>This is strange,<br/> "
-                + "but the file you chose to load doesn't exist anymore.", "Strange",
-            JOptionPane.ERROR_MESSAGE);
-      }
-    }
-    return null;
-  }
-
-  /**
-   * @param selectedFn can be null.
-   * @param owner can be null. Used for positioning the dialog on the screen.
-   */
-  public static Path userShowSaveFileDialog(String title, String selectedFn, Component owner) {
-    JFileChooser fc = new JFileChooser();
-    fc.setApproveButtonText("Save");
-    fc.setDialogTitle(title);
-    fc.setMultiSelectionEnabled(false);
-    SwingUtils.setFileChooserPath(fc, ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH));
-//    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-//    Date now = new Date();
-//    fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(now))));
-    if (selectedFn != null) {
-      fc.setSelectedFile(new File(selectedFn));
-    }
-    Component parent = SwingUtils.findParentFrameForDialog(owner);
-    int saveResult = fc.showSaveDialog(parent);
-
-    if (JFileChooser.APPROVE_OPTION != saveResult) {
-      return null;
-    }
-    File selectedFile = fc.getSelectedFile();
-    Path path = Paths.get(selectedFile.getAbsolutePath());
-    // if exists, overwrite
-    if (Files.exists(path)) {
-      int overwrite = JOptionPane
-          .showConfirmDialog(parent, "<html>File exists, overwrtie?<br/><br/>" + path.toString(), "Overwrite",
-              JOptionPane.OK_CANCEL_OPTION);
-      if (JOptionPane.OK_OPTION == overwrite) {
-        try {
-          Files.delete(path);
-        } catch (IOException ex) {
-          JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite",
-              JOptionPane.ERROR_MESSAGE);
-          return null;
-        }
-      }
-    }
-    // do something with the path
-    return path;
-  }
-
-
   private void userSaveForms() {
-    Path p = userShowSaveFileDialog("Save all FragPipe parameters", "fragpipe.config", this);
+    Path p = MsfraggerGuiFrameUtils
+        .userShowSaveFileDialog("Save all FragPipe parameters", "fragpipe.config", this);
     if (p == null) {
       return;
     }
@@ -330,7 +255,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void userLoadForms() {
      FileNameExtensionFilter filter = new FileNameExtensionFilter("Config/Properties",
     "config", "properties", "params", "para", "conf", "txt");
-    Path p = userShowLoadFileDialog("Load all FragPipe parameters", filter, this);
+    Path p = MsfraggerGuiFrameUtils
+        .userShowLoadFileDialog("Load all FragPipe parameters", filter, this);
     if (p == null) {
       return;
     }
@@ -389,6 +315,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     } catch (IOException e) {
       log.error("Error writing log to file", e);
     }
+  }
+
+  public JTextField getTextPhilosopherBin() {
+    return textBinPhilosopher;
+  }
+
+  public JLabel getLabelPhilosopherInfo() {
+    return lblPhilosopherInfo;
   }
 
   private void initMore() {
@@ -618,7 +552,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   //region EventBus listeners
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onPythonBinSelectedByUser(MessagePythonBinSelectedByUser m) {
-    validateAndSavePython(m.path, true);
+    MsfraggerGuiFrameUtils.validateAndSavePython(m.path, true, this);
   }
 
 
@@ -779,176 +713,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
 
-    // save locations
-    ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, m.paths.get(m.paths.size()-1).toString());
-
-    // vet/check input LCMS files for bad naming
-    final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(getExtBinSearchPaths());
-    final HashMap<Path, Set<String>> reasonsDir = new HashMap<>();
-    final HashMap<Path, Set<String>> reasonsFn = new HashMap<>();
-    //final HashMap<String, List<Path>> reasonsRev = new HashMap<>();
-    final String allowedChars = "[A-Za-z0-9-_+.\\[\\]()]";
-    Pattern re = Pattern.compile(allowedChars + "+");
-    final String REASON_NON_ASCII = "Non-ASCII chars";
-    final String REASON_PATH_SPACES = "Path contains spaces";
-    final String REASON_FN_DOTS = "Filename contains dots";
-    final String REASON_UNSUPPORTED = "Not supported";
-    final String REASON_DISALLOWED_CHARS = "Contains characters other than: " + allowedChars;
-
-    for (Path path : m.paths) {
-      Set<String> why = InputLcmsFile.validatePath(path.getParent().toString());
-      if (!why.isEmpty()) {
-        reasonsDir.put(path, why);
-      }
-    }
-
-    for (Path path : m.paths) {
-      Set<String> why = InputLcmsFile.validateFilename(path.getFileName().toString());
-      if (!why.isEmpty()) {
-        reasonsFn.put(path, why);
-      }
-    }
-
-    List<Path> toAdd = new ArrayList<>(m.paths);
-
-    // in case there were suspicious paths
-    if (!reasonsDir.isEmpty() || !reasonsFn.isEmpty()) {
-      HashMap<Path, String> path2reasons = new HashMap<>();
-      for (Entry<Path, Set<String>> kv : reasonsDir.entrySet()) {
-        for (String reason : kv.getValue()) {
-          path2reasons.compute(kv.getKey(), (path, s) -> s == null ? "Direcotry " + reason : s.concat(", Direcotry " + reason));
-        }
-      }
-      for (Entry<Path, Set<String>> kv : reasonsFn.entrySet()) {
-        for (String reason : kv.getValue()) {
-          path2reasons.compute(kv.getKey(), (path, s) -> s == null ? "File name " + reason : s.concat(", File name " + reason));
-        }
-      }
-      String[] columns = {"Reasons", "Path"};
-      String[][] data = new String[path2reasons.size()][2];
-      int index = -1;
-      for (Entry<Path, String> kv : path2reasons.entrySet()) {
-        data[++index][0] = kv.getValue();
-        data[index][1] = kv.getKey().toString();
-      }
-
-      DefaultTableModel model = new DefaultTableModel(data, columns);
-      JTable table = new JTable(model);
-      table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-      JPanel panel = new JPanel(new BorderLayout());
-      panel.add(new JLabel("<html>Found problems with some files (" + path2reasons.size() + " of " + m.paths.size() + ").<br/>"
-          + "This <b>will likely cause trouble</b> with some of processing tools.<br/><br/>"
-          + "What do you want to do with these files?<br/>"), BorderLayout.NORTH);
-      panel.add(Box.createVerticalStrut(100), BorderLayout.CENTER);
-      panel.add(new  JScrollPane(table), BorderLayout.CENTER);
-      SwingUtils.makeDialogResizable(panel);
-
-      String[] options;
-      if (!reasonsFn.isEmpty()) {
-        options = new String[]{"Cancel", "Add anyway", "Only add well-behaved files", "Try rename files"};
-      } else {
-        options = new String[]{"Cancel", "Add anyway", "Only add well-behaved files"};
-      }
-
-      int confirmation = JOptionPane
-          .showOptionDialog(this, panel, "Add these files?",
-              JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
-
-      switch (confirmation) {
-        case 0:
-          return;
-        case 1:
-          break;
-        case 2:
-          toAdd = toAdd.stream().filter(path -> !path2reasons.containsKey(path)).collect(Collectors.toList());
-          break;
-        case 3: // rename files
-          int confirm1 = SwingUtils.showConfirmDialog(this, new JLabel(
-                  "<html>Attempt to rename files without moving them.<br/>\n" +
-                          "This is a non-reversible operation.<br/><br/>\n" +
-                          "We'll show you a preview before proceeding with actual renaming.<br/>\n" +
-                          "Do you want to continue?"));
-          if (JOptionPane.YES_OPTION != confirm1) {
-            return;
-          }
-          final Map<Path, Path> toRename = reasonsFn.keySet().stream()
-                  .collect(Collectors.toMap(Function.identity(), InputLcmsFile::renameBadFile));
-          Set<Path> uniqueRenamed = new HashSet<>(toRename.values());
-          if (uniqueRenamed.size() != reasonsFn.size()) {
-            SwingUtils.showDialog(this, new JLabel(
-                            "<html>Renaming given files according to our scheme would result<br/>\n" +
-                                    "in clashing file paths. Renaming cancelled. Consider renaming manually.<br/>\n" +
-                                    "It is preferable to not have spaces in file names, not have more than one dot<br/>\n" +
-                                    "and to not use non-latin characters."),
-                    "Not safe to rename files", JOptionPane.WARNING_MESSAGE);
-            return;
-          }
-
-          final Map<Path, Path> existingRenames = new HashMap<>();
-          for (Entry<Path, Path> kv : toRename.entrySet()) {
-            if (Files.exists(kv.getValue())) {
-              existingRenames.put(kv.getKey(), kv.getValue());
-            }
-          }
-          if (!existingRenames.isEmpty()) {
-            JPanel pane = new JPanel(new BorderLayout());
-            pane.add(new JLabel("<html>Renaming given files according to our scheme would result<br/>\n" +
-                            "in file paths that already exist on your computer.<br/>\n" +
-                            "Renaming cancelled."), BorderLayout.NORTH);
-
-            pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(existingRenames)));
-            SwingUtils.showDialog(this, pane,
-                    "Not safe to rename files", JOptionPane.WARNING_MESSAGE);
-            return;
-          }
-
-        {
-          JPanel pane = new JPanel(new BorderLayout());
-          pane.add(new JLabel("<html>Proposed renaming scheme, do you agree?<br/>\n"));
-          pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(toRename)));
-          int confirm2 = SwingUtils.showConfirmDialog(this, pane);
-          if (JOptionPane.YES_OPTION != confirm2) {
-            return;
-          }
-        }
-
-        final Map<Path, Path> couldNotRename = new HashMap<>();
-        final Map<Path, Path> renamedOk = new HashMap<>();
-        Runnable runnable = () -> {
-          for (Entry<Path, Path> kv : toRename.entrySet()) {
-            try {
-              Files.move(kv.getKey(), kv.getValue());
-              renamedOk.put(kv.getKey(), kv.getValue());
-            } catch (Exception e) {
-              log.error(String.format("From '%s' to '%s' at '%s'",
-                      kv.getKey().getFileName(), kv.getValue().getFileName(), kv.getKey().getParent()));
-              couldNotRename.put(kv.getKey(), kv.getValue());
-            }
-          }
-        };
-
-        SwingUtils.DialogAndThread dat = SwingUtils.runThreadWithProgressBar("Renaming files", this, runnable);
-        dat.thread.start();
-        dat.dialog.setVisible(true);
-
-        if (!couldNotRename.isEmpty()) {
-          JPanel pane = new JPanel(new BorderLayout());
-          pane.add(new JLabel("<html>Unfortunately could not rename some of the files:<br/>"), BorderLayout.NORTH);
-          pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(couldNotRename)), BorderLayout.CENTER);
-          SwingUtils.showDialog(this, pane, "Renaming failed", JOptionPane.WARNING_MESSAGE);
-          return;
-        }
-
-        // renaming succeeded, change paths to renamed ones
-        toAdd = toAdd.stream().map(path -> renamedOk.getOrDefault(path, path)).collect(Collectors.toList());
-
-        break;
-      }
-    }
+    LcmsFileAddition lfa = new LcmsFileAddition(m.paths, new ArrayList<>(m.paths));
+    MsfraggerGuiFrameUtils.processAddedLcmsPaths(lfa, this);
 
     // add the files
     tableModelRawFiles.dataAddAll(
-            toAdd.stream().map(p -> new InputLcmsFile(p, ThisAppProps.DEFAULT_LCMS_EXP_NAME)).collect(Collectors.toList())
+            lfa.toAdd.stream().map(p -> new InputLcmsFile(p, ThisAppProps.DEFAULT_LCMS_EXP_NAME)).collect(Collectors.toList())
     );
   }
 
@@ -2484,7 +2254,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     tableModelRawFiles.dataClear();
   }//GEN-LAST:event_btnRawClearActionPerformed
 
-  private List<Path> getExtBinSearchPaths() {
+  List<Path> getExtBinSearchPaths() {
     List<Path> searchPaths = new ArrayList<>();
     Path binMsfragger = getBinMsfragger();
     if (binMsfragger != null) {
@@ -2637,7 +2407,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
    * @param path file to check.
    * @return True if it's a real JAR file with MSFragger.class at the top level inside.
    */
-  private boolean validateAndSaveMsfraggerPath(final String path) {
+  boolean validateAndSaveMsfraggerPath(final String path) {
     boolean isJarValid = validateMsfraggerJarContents(path);
     if (isJarValid) {
       textBinMsfragger.setText(path);
@@ -2785,30 +2555,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     DbSlice.get().init(fraggerVer);
   }
 
-  public void validateAndSavePython(final String binPath, boolean showPopupOnError) {
-    log.debug("Inside validateAndSavePython, thread not yet started");
-    new Thread(() -> {
-      log.debug("Inside validateAndSavePython, from started thread");
-      boolean ok;
-      PythonInfo pi = PythonInfo.get();
-      try {
-        ok = PythonInfo.get().setPythonCommand(binPath);
-      } catch (Exception e) {
-        ok = false;
-      }
-      if (ok) {
-        ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, pi.getCommand());
-      } else {
-        ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_PYTHON, "");
-      }
-      if (!ok && showPopupOnError) {
-        JOptionPane.showMessageDialog(MsfraggerGuiFrame.this,
-            "Not a valid Python binary path:\n\n" + binPath, "Not a Python binary",
-            JOptionPane.WARNING_MESSAGE);
-      }
-    }).start();
-  }
-
   private void validatePhilosopherVersion(final String binPath) {
     if (balloonPhilosopher != null) {
       balloonPhilosopher.closeBalloon();
@@ -2824,124 +2570,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     // Check releases on github by running `philosopher version`.
     new Thread(() -> {
-      // get the vesrion reported by the current executable
-      // if we couldn't download remote properties, try using local ones
-      // if we have some philosopher properties (local or better remote)
-      // then check if this version is known to be compatible
-
-      ProcessBuilder pb = new ProcessBuilder(binPath, "version");
-      pb.redirectErrorStream(true);
-
-      boolean isNewVersionStringFound = false;
-      String curVersionAndBuild = null;
-      String curPhiVer = null;
-
-      // get the vesrion reported by the current executable
-      String oldUnusedDownloadLink = null;
-      try {
-        Process pr = pb.start();
-        BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-        String line;
-        while ((line = in.readLine()) != null) {
-          Matcher m = regexNewerVerFound.matcher(line);
-          if (m.find()) {
-            isNewVersionStringFound = true;
-            oldUnusedDownloadLink = m.group(1);
-          }
-          Matcher mVer = regexVersion.matcher(line);
-          if (mVer.find()) {
-            curVersionAndBuild = mVer.group("version") + " (build " + mVer.group("build") + ")";
-            curPhiVer = mVer.group("version");
-            log.debug("Detected philosopher version: {}", curPhiVer);
-          }
-        }
-
-        philosopherVer = StringUtils.isNullOrWhitespace(curVersionAndBuild) ? UNKNOWN_VERSION
-            : curVersionAndBuild;
-        lblPhilosopherInfo.setText(String.format(
-            "Philosopher version: %s. %s", philosopherVer, OsUtils.OsInfo()));
-
-        int returnCode = pr.waitFor();
-        JEditorPane ep = null;
-
-        String vCurMajor = Version.version().split("[-_]+")[0];
-        Properties props = PhilosopherProps.getProperties();
-        String propKeyStubMin = PhilosopherProps.PROP_LOWEST_COMPATIBLE_VERSION + "." + vCurMajor;
-        Optional<String> propKeyMin = props.stringPropertyNames().stream()
-            .filter(name -> name.startsWith(propKeyStubMin)).findFirst();
-        String minPhiVer = propKeyMin.map(props::getProperty).orElse(null);
-        String propKeyStubMax = PhilosopherProps.PROP_LATEST_COMPATIBLE_VERSION + "." + vCurMajor;
-        Optional<String> propKeyMax = props.stringPropertyNames().stream()
-            .filter(name -> name.startsWith(propKeyStubMax)).findFirst();
-        String maxPhiVer = propKeyMax.map(props::getProperty).orElse(null);
-
-        String link = PhilosopherProps.getProperties().getProperty(PhilosopherProps.PROP_DOWNLOAD_URL, "https://github.com/Nesvilab/philosopher/releases");
-
-        boolean isOldVersionScheme = curPhiVer != null && regexOldPhiVer.matcher(curPhiVer).find();
-        if (isOldVersionScheme)
-          log.debug("Old philosopher versioning scheme detected");
-
-        if (returnCode != 0 || isOldVersionScheme || curPhiVer == null) {
-          StringBuilder sb = new StringBuilder("This Philosopher version is no longer supported by FragPipe.<br/>\n");
-          if (minPhiVer != null)
-            sb.append("Minimum required version: ").append(minPhiVer).append("<br/>\n");
-          if (maxPhiVer != null)
-            sb.append("Latest known compatible version: ").append(maxPhiVer).append("<br/>\n");
-          sb.append("Please <a href=\"").append(link).append("\">click here</a> to download a newer one.");
-          ep = SwingUtils.createClickableHtml(sb.toString(), balloonBgColor);
-
-        } else {
-
-          if (minPhiVer != null && vc.compare(curPhiVer, minPhiVer) < 0) {
-            // doesn't meet min version requirement
-            StringBuilder sb = new StringBuilder("Philosopher version ")
-                .append(curPhiVer).append(" is no longer supported by FragPipe.<br/>\n");
-            sb.append("Minimum required version: ").append(minPhiVer).append("<br/>\n");
-            if (maxPhiVer != null)
-              sb.append("Latest known compatible version: ").append(maxPhiVer).append("<br/>\n");
-            sb.append("Please <a href=\"").append(link).append("\">click here</a> to download a newer one.");
-            ep = SwingUtils.createClickableHtml(sb.toString(), balloonBgColor);
-
-          } else if (isNewVersionStringFound) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Newer version of Philosopher available.<br/>\n");
-            sb.append("<a href=\"").append(link).append("\">Click here</a> to download.<br/>\n");
-
-            if (maxPhiVer == null) {
-              sb.append(
-                  "<br>\nHowever, we have not yet checked if it's fully compatible with this version of ")
-                  .append(Version.PROGRAM_TITLE).append(".");
-            } else { // max ver != null
-              int cmp = vc.compare(curPhiVer, maxPhiVer);
-              if (cmp == 0) {
-                sb.append(
-                    "<br>\nHowever, <b>you currently have the latest known tested version</b>.");
-              } else if (cmp < 0) {
-                sb.append("<br>\nThe latest known tested version is<br>\n")
-                    .append("<b>Philosopher ").append(maxPhiVer).append("</b>.<br/>\n");
-                sb.append(
-                    "It is not recommended to upgrade to newer versions unless they are tested.");
-              } else if (cmp > 0) {
-                sb.append("<br>\nYour current version is higher than the last known tested version.");
-              }
-            }
-            ep = SwingUtils.createClickableHtml(sb.toString(), balloonBgColor);
-          }
-        }
-
-        if (ep != null) {
-          if (balloonPhilosopher != null) {
-            balloonPhilosopher.closeBalloon();
-          }
-          balloonPhilosopher = new BalloonTip(textBinPhilosopher, ep,
-              new RoundedBalloonStyle(5, 5, balloonBgColor, Color.BLACK), true);
-          balloonPhilosopher.setVisible(true);
-        }
-
-      } catch (IOException | InterruptedException e) {
-        throw new IllegalStateException(
-            "Error while creating a java process for Philosopher test.");
-      }
+      MsfraggerGuiFrameUtils
+          .validatePhilosopherVersion(this, binPath, regexNewerVerFound, regexVersion, regexOldPhiVer, vc);
     }).start();
   }
 
@@ -3194,103 +2824,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void btnFindToolsActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFindToolsActionPerformed
 
-    String fraggerFoundPath = null;
-    String philosopherFoundPath = null;
-
-    JFileChooser fileChooser = new JFileChooser();
-    fileChooser.setApproveButtonText("Search here");
-    fileChooser.setApproveButtonToolTipText("Search this directory recursively");
-    fileChooser.setDialogTitle("Select path to search for binaries");
-    fileChooser.setMultiSelectionEnabled(false);
-    fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-    List<String> props = Arrays
-        .asList(ThisAppProps.PROP_BIN_PATH_MSFRAGGER, ThisAppProps.PROP_BINARIES_IN,
-            ThisAppProps.PROP_BIN_PATH_PHILOSOPHER);
-    String fcPath = ThisAppProps.tryFindPath(props, true);
-    SwingUtils.setFileChooserPath(fileChooser, fcPath);
-
-    int showOpenDialog = fileChooser.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
-    switch (showOpenDialog) {
-      case JFileChooser.APPROVE_OPTION:
-        File f = fileChooser.getSelectedFile();
-
-        // Fragger first
-        Pattern regexFragger = Pattern
-            .compile(".*?MSFragger[^\\/]+?\\.jar", Pattern.CASE_INSENSITIVE);
-        FileListing listing = new FileListing(Paths.get(f.getAbsolutePath()), regexFragger);
-        List<Path> foundFiles = listing.findFiles();
-        for (Path foundFile : foundFiles) {
-          if (validateAndSaveMsfraggerPath(foundFile.toString())) {
-            fraggerFoundPath = foundFile.toString();
-            ThisAppProps.save(ThisAppProps.PROP_BINARIES_IN, fraggerFoundPath);
-            JOptionPane.showMessageDialog(this, "Found MSFragger jar.\n"
-                + fraggerFoundPath, "Info", JOptionPane.INFORMATION_MESSAGE);
-            break;
-          }
-        }
-        if (fraggerFoundPath == null) {
-          JOptionPane.showMessageDialog(this, "Could not locate MSFragger jar.", "Info",
-              JOptionPane.INFORMATION_MESSAGE);
-        }
-
-        // now philosopher
-        Pattern regexPhilosopher = Pattern
-            .compile(".*?philosopher[^\\/]*", Pattern.CASE_INSENSITIVE);
-        foundFiles = new FileListing(Paths.get(f.getAbsolutePath()), regexPhilosopher).findFiles();
-        for (Path foundFile : foundFiles) {
-          if (validateAndSavePhilosopherPath(foundFile.toString())) {
-            philosopherFoundPath = foundFile.toString();
-            ThisAppProps.save(ThisAppProps.PROP_BINARIES_IN, philosopherFoundPath);
-            JOptionPane.showMessageDialog(this, "Found Philosopher.\n"
-                + philosopherFoundPath, "Info", JOptionPane.INFORMATION_MESSAGE);
-            break;
-          }
-        }
-        if (philosopherFoundPath == null) {
-          JOptionPane.showMessageDialog(this, "Could not locate Philosopher.", "Info",
-              JOptionPane.INFORMATION_MESSAGE);
-        }
-
-        break;
-    }
+    MsfraggerGuiFrameUtils.findToolsAction(this);
   }//GEN-LAST:event_btnFindToolsActionPerformed
 
   private void btnPhilosopherBinBrowseActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPhilosopherBinBrowseActionPerformed
-    JFileChooser fc = new JFileChooser();
-    fc.setApproveButtonText("Select");
-    fc.setDialogTitle("Select Philosopher binary");
-    fc.setMultiSelectionEnabled(false);
-//    if (OsUtils.isWindows()) {
-//      FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Executables",
-//          "exe");
-//      fc.setFileFilter(fileNameExtensionFilter);
-//    }
-
-    fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
-
-    // ==============================================================
-    Path current = tryFindStartingPath(textBinPhilosopher.getText());
-    if (current != null) {
-      SwingUtils.setFileChooserPath(fc, current);
-    } else {
-      List<String> props = Arrays.asList(ThisAppProps.PROP_BIN_PATH_PHILOSOPHER, ThisAppProps.PROP_BINARIES_IN);
-      String fcPath = ThisAppProps.tryFindPath(props, false);
-      SwingUtils.setFileChooserPath(fc, fcPath);
-    }
-    // ==============================================================
-
-
-    if (JFileChooser.APPROVE_OPTION == fc
-        .showOpenDialog(SwingUtils.findParentFrameForDialog(this))) {
-      String path = fc.getSelectedFile().getAbsolutePath();
-      if (validateAndSavePhilosopherPath(path)) {
-        // already saved to PROP_PHILOSOPHER, now save to general PROP_BINARIES
-        ThisAppProps.save(ThisAppProps.PROP_BINARIES_IN, path);
-      }
-    }
+    MsfraggerGuiFrameUtils.userBrowsePhilosopherBin(this);
 
   }//GEN-LAST:event_btnPhilosopherBinBrowseActionPerformed
 
@@ -3322,84 +2861,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }//GEN-LAST:event_btnClearCacheActionPerformed
 
-  private boolean validateAndSave(final JTextComponent comp, final String propName,
-      final String newText, final IValidateString valid) {
-
-    final String updText = newText != null ? newText : comp.getText().trim();
-    final boolean isValid = valid.test(updText);
-    comp.setText(updText);
-    if (isValid) {
-      ThisAppProps.save(propName, updText);
-    }
-
-    SwingUtilities.invokeLater(new Runnable() {
-      @Override
-      public void run() {
-        BalloonTip tip = tipMap.get(propName);
-        if (tip != null) {
-          tip.closeBalloon();
-        }
-
-        if (!isValid) {
-          tip = new BalloonTip(comp, "Invalid format.");
-          tip.setVisible(true);
-          tipMap.put(propName, tip);
-        }
-      }
-    });
-
-    return isValid;
-  }
-
   public String getFastaPath() {
     return textSequenceDbPath.getText().trim();
-  }
-
-  /**
-   * Collects all tabs' components that have names with values from the map.
-   */
-  private Map<String, String> formTo() {
-    // getting tab names
-    Map<Integer, String> mapTabNameToIdx = new HashMap<>();
-    for (int i = 0, tabCount = tabPane.getTabCount(); i < tabCount; i++) {
-      mapTabNameToIdx.put(i, tabPane.getTitleAt(i));
-    }
-
-    final Function<Component, Map<String, String>> compToMap = awtComponent -> {
-      if (!(awtComponent instanceof Container)) {
-        return Collections.emptyMap();
-      }
-      Container awtContainer = (Container)awtComponent;
-//      final Pattern re = Pattern.compile("ui\\.name\\..*");
-//      Predicate<String> filter = re.asPredicate();
-      Predicate<String> filter = s -> true;
-      Map<String, String> map = SwingUtils.valuesToMap(awtContainer, filter);
-      return map;
-    };
-
-    Map<String, String> whole = new HashMap<>();
-    for (int i = 0; i < tabPane.getTabCount(); i++) {
-      Component compAt = tabPane.getComponentAt(i);
-      final String tabname = mapTabNameToIdx.getOrDefault(i, "?");
-      Map<String, String> map = compToMap.apply(compAt);
-      final String badName = "Spinner.formattedTextField";
-      if (map.containsKey(badName)) {
-        map.remove(badName);
-      }
-      if (map.isEmpty()) {
-        log.debug("No mapping for Tab #{} [{}]", i, tabname);
-      } else {
-
-        log.debug("Got mapping for Tab #{} [{}]: {}", i, tabname, map);
-        for (Entry<String, String> e : map.entrySet()) {
-          whole.merge(e.getKey(), e.getValue(), (s1, s2) -> {
-            String msg = String.format("Duplicate ui-element key '%s' in tab [%s]", e.getKey(), tabname);
-            throw new IllegalStateException(msg);
-          });
-        }
-      }
-    }
-    return whole;
   }
 
 
@@ -3416,7 +2879,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
   public void formWrite(OutputStream os) throws IOException {
-    Map<String, String> map = formTo();
+    Map<String, String> map = MsfraggerGuiFrameUtils.formTo(tabPane);
     Properties props = PropertiesUtils.from(map);
     try (BufferedOutputStream bos = new BufferedOutputStream(os)) {
       props.store(bos, ThisAppProps.cacheComments());
@@ -4483,7 +3946,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }//GEN-LAST:event_checkEnableDiaumpireStateChanged
 
-  private Path tryFindStartingPath(String currentPath) {
+  Path tryFindStartingPath(String currentPath) {
     try {
       Path path = Paths.get(currentPath);
       if (Files.exists(path)) {
@@ -4809,7 +4272,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   private void validateAndSavePeptideProphetCmdLineOptions() {
     final JTextComponent comp = textPepProphCmd;
-    final boolean isValid = validateAndSave(comp, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET,
+    final boolean isValid = MsfraggerGuiFrameUtils.validateAndSave(tipMap, comp, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET,
         null, ValidateTrue.getInstance());
 
     if (!isValid) {
@@ -4892,7 +4355,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private void validateAndSaveDecoyTagSeqDb(final String newText, boolean updateOtherTags) {
 
     final JTextComponent comp = textDecoyTagSeqDb;
-    final boolean isValid = validateAndSave(comp, ThisAppProps.PROP_TEXTFIELD_DECOY_TAG,
+    final boolean isValid = MsfraggerGuiFrameUtils.validateAndSave(tipMap, comp, ThisAppProps.PROP_TEXTFIELD_DECOY_TAG,
         newText, ValidateTrue.getInstance());
 
     if (!isValid) {
@@ -5001,7 +4464,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ep.setBackground(label.getBackground());
   }
 
-  private boolean validateAndSavePhilosopherPath(final String path) {
+  boolean validateAndSavePhilosopherPath(final String path) {
 
     Path p = null;
     try {
