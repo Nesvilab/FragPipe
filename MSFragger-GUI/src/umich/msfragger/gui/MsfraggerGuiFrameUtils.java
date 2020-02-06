@@ -79,11 +79,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
 import umich.msfragger.cmd.CmdMsfragger;
+import umich.msfragger.cmd.ProcessBuilderInfo;
 import umich.msfragger.gui.api.SearchTypeProp;
+import umich.msfragger.gui.api.TableModelColumn;
+import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.messages.MessageShowAboutDialog;
 import umich.msfragger.messages.MessageValidityFragger;
+import umich.msfragger.messages.MessageValidityMassCalibration;
+import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.dbslice.DbSlice.MessageInitDone;
@@ -93,9 +98,12 @@ import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
 import umich.msfragger.params.philosopher.PhilosopherProps;
+import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.util.FileListing;
 import umich.msfragger.util.IValidateString;
+import umich.msfragger.util.LogUtils;
 import umich.msfragger.util.OsUtils;
+import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.PythonInfo;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
@@ -409,7 +417,7 @@ public class MsfraggerGuiFrameUtils {
     fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
     // ==============================================================
-    Path current = msfraggerGuiFrame.tryFindStartingPath(msfraggerGuiFrame.getTextBinPhilosopher().getText());
+    Path current = tryFindStartingPath(msfraggerGuiFrame.getTextBinPhilosopher().getText());
     if (current != null) {
       SwingUtils.setFileChooserPath(fc, current);
     } else {
@@ -908,7 +916,7 @@ public class MsfraggerGuiFrameUtils {
     final boolean isPathExists = Files.exists(p);
     final boolean isPathRunnable = Files.isExecutable(p);
 
-    final String validatedPath = guiFrame.validatePhilosopherPath(path);
+    final String validatedPath = validatePhilosopherPath(path);
     final boolean isPathValid = validatedPath != null;
 
     if (isPathValid) {
@@ -1243,9 +1251,9 @@ public class MsfraggerGuiFrameUtils {
     EventBus.getDefault().postSticky(new MessageValidityFragger(msfraggerEnabled));
 
     // rerun slicing checks
-    guiFrame.validateMsadjusterEligibility();
-    guiFrame.validateMsfraggerMassCalibrationEligibility();
-    guiFrame.validateDbslicing();
+    validateMsadjusterEligibility(guiFrame.fraggerVer);
+    validateMsfraggerMassCalibrationEligibility(guiFrame.fraggerVer);
+    validateDbslicing(guiFrame.fraggerVer);
 
     return isJarValid;
   }
@@ -1453,6 +1461,240 @@ public class MsfraggerGuiFrameUtils {
     final String savedText = textPepProphetFocusGained;
     final String oldText = savedText != null ? savedText : comp.getText().trim();
     final String updText = comp.getText().trim();
+  }
+
+  public static void validateSpeclibgen() {
+    log.debug("entered validateSpeclibgen");
+//    new Thread(() -> SpecLibGen.get().init()).start();
+    SpecLibGen.get().init();
+  }
+
+  public static void validateDbslicing(String fraggerVer) {
+    log.debug("entered validateDbslicing");
+//    new Thread(() -> DbSlice.get().init(fraggerVer)).start();
+    DbSlice.get().init(fraggerVer);
+  }
+
+  static void urlEventHandle(HyperlinkEvent evt) {
+    if (evt.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
+
+      URI uri;
+      try {
+        uri = evt.getURL().toURI();
+      } catch (URISyntaxException ex) {
+        JOptionPane.showMessageDialog(null,
+            "Could not convert URL to URI: " + evt.getURL(),
+            "Cannot Open Link", JOptionPane.WARNING_MESSAGE);
+        return;
+      }
+
+      if (Desktop.isDesktopSupported()) {
+        Desktop desktop = Desktop.getDesktop();
+        try {
+          desktop.browse(uri);
+        } catch (IOException e) {
+          JOptionPane.showMessageDialog(null,
+              "Failed to open " + uri + " - your computer is likely misconfigured.\n"
+                  + "Error Message: " + e.getMessage(),
+              "Cannot Open Link", JOptionPane.WARNING_MESSAGE);
+        }
+      } else {
+        JOptionPane.showMessageDialog(null, "Java is not able to open a browser on your computer.",
+            "Cannot Open Link", JOptionPane.WARNING_MESSAGE);
+      }
+    }
+  }
+
+  static void userLoadForms(MsfraggerGuiFrame guiFrame) {
+     FileNameExtensionFilter filter = new FileNameExtensionFilter("Config/Properties",
+    "config", "properties", "params", "para", "conf", "txt");
+    Path p = userShowLoadFileDialog("Load all FragPipe parameters", filter, guiFrame);
+    if (p == null) {
+      return;
+    }
+    try {
+      guiFrame.formRead(Files.newInputStream(p));
+    } catch (IOException e) {
+      JOptionPane.showMessageDialog(guiFrame,
+              "<html>Could not load the saved file: <br/>" + e.getMessage(), "Error",
+              JOptionPane.ERROR_MESSAGE);
+    }
+  }
+
+  static String createPhilosopherCitationHtml(JLabel lblFraggerJavaVer) {
+    // for copying style
+    Font font = lblFraggerJavaVer.getFont();
+
+    // create some css from the label's font
+    StringBuilder style = new StringBuilder();
+    style.append("font-family:").append(font.getFamily()).append(";");
+    style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
+    style.append("font-size:").append(font.getSize()).append("pt;");
+
+    StringBuilder sb = new StringBuilder();
+    sb.append("<html>");
+
+    sb.append("<head>");
+    sb.append("</head>");
+
+    sb.append("<body style=\"").append(style.toString()).append("\"");
+    //sb.append("<body>");
+
+    sb.append("<p style=\"margin-top: 0\">");
+    sb.append("More info: <a href=\"https://nesvilab.github.io/philosopher/\">Philosopher GitHub page</a>");
+    sb.append("<br/>");
+    sb.append("</p>");
+
+    sb.append("</body>");
+    sb.append("</html>");
+
+    return sb.toString();
+  }
+
+  static void userSaveForms(MsfraggerGuiFrame guiFrame) {
+    Path p = userShowSaveFileDialog("Save all FragPipe parameters", "fragpipe.config", guiFrame);
+    if (p == null) {
+      return;
+    }
+    try {
+      guiFrame.formWrite(Files.newOutputStream(p));
+    } catch (IOException ex) {
+      JOptionPane.showMessageDialog(guiFrame, "<html>Could not save file: <br/>" + p.toString()
+              + "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+  }
+
+  /**
+   * Fills all tabs' components that have names with values from the map.
+   */
+  static void formFrom(JTabbedPane tabPane, Map<String, String> map) {
+    for (int i = 0; i < tabPane.getTabCount(); i++) {
+      Component compAt = tabPane.getComponentAt(i);
+      if (compAt instanceof Container) {
+        SwingUtils.valuesFromMap((Container)compAt, map);
+      }
+    }
+  }
+
+  static String validatePhilosopherPath(String path) {
+    return PathUtils.testBinaryPath(path);
+  }
+
+  static Path tryFindStartingPath(String currentPath) {
+    try {
+      Path path = Paths.get(currentPath);
+      if (Files.exists(path)) {
+        return path;
+      }
+      // didn't find anything yet
+      if (currentPath.contains("/") || currentPath.contains("\\")) {
+        // if there was a slash character, we can try the parent dir
+        Path parent = path.getParent();
+        if (Files.exists(parent)) {
+          return parent;
+        }
+      }
+    } catch (Exception ignored) {
+      // supplied path was likely not good
+    }
+    return null;
+  }
+
+  static void saveWorkdirText(JTextField txtWorkingDir) {
+    final String text = txtWorkingDir.getText().trim();
+    try {
+      Path p = Paths.get(text);
+      if (Files.exists(p)) {
+        ThisAppProps.save(ThisAppProps.PROP_FILE_OUT, text);
+      }
+    } catch (Exception ignore) {}
+  }
+
+  static void downloadPhilosopher() {
+
+    try {
+      Desktop.getDesktop()
+          .browse(URI.create("https://github.com/Nesvilab/philosopher/releases/latest"));
+    } catch (IOException ex) {
+      java.util.logging.Logger
+          .getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
+
+  static void validateMsadjusterEligibility(String fraggerVer) {
+//    new Thread(() -> {
+//    }).start();
+    boolean enableMsadjuster = false;
+    String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_MSADJUSTER);
+    if (minFraggerVer == null) {
+      throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_MSADJUSTER +
+          " property needs to be in Msfragger properties");
+    }
+
+    MsfraggerVersionComparator cmp = new MsfraggerVersionComparator();
+    int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
+    if (fraggerVersionCmp >= 0) {
+      enableMsadjuster = true;
+    }
+    EventBus.getDefault().postSticky(new MessageValidityMsadjuster(enableMsadjuster));
+
+  }
+
+  public static UniqueLcmsFilesTableModel createTableModelRawFiles(MsfraggerGuiFrame guiFrame) {
+    if (guiFrame.tableModelRawFiles != null) {
+      return guiFrame.tableModelRawFiles;
+    }
+    List<TableModelColumn<InputLcmsFile, ?>> cols = new ArrayList<>();
+
+    TableModelColumn<InputLcmsFile, String> colPath = new TableModelColumn<>(
+        "Path (can drag & drop from Explorer)",
+        String.class, false, data -> data.getPath().toString());
+    TableModelColumn<InputLcmsFile, String> colExp = new TableModelColumn<>(
+        "Experiment (can be empty)", String.class, true, InputLcmsFile::getExperiment);
+    TableModelColumn<InputLcmsFile, Integer> colRep = new TableModelColumn<>(
+        "Replicate (can be empty)", Integer.class, true, InputLcmsFile::getReplicate);
+    cols.add(colPath);
+    cols.add(colExp);
+    cols.add(colRep);
+
+
+    guiFrame.tableModelRawFiles = new UniqueLcmsFilesTableModel(cols, 0);
+    return guiFrame.tableModelRawFiles;
+  }
+
+  public static void validateMsfraggerMassCalibrationEligibility(String fraggerVer) {
+//    new Thread(() -> {
+//    }).start();
+    boolean enableCalibrate = false;
+    String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE);
+    if (minFraggerVer == null) {
+      throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE +
+          " property needs to be in Msfragger properties");
+    }
+    MsfraggerVersionComparator cmp = new MsfraggerVersionComparator();
+    int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
+    if (fraggerVersionCmp >= 0) {
+      enableCalibrate = true;
+    }
+    log.debug("Posting enableCalibrate = {}", enableCalibrate);
+    EventBus.getDefault().postSticky(new MessageValidityMassCalibration(enableCalibrate));
+
+  }
+
+  public static void printProcessDescription(Color COLOR_CMDLINE, Color COLOR_TOOL,
+      Color COLOR_WORKDIR,
+      TextConsole console,
+      ProcessBuilderInfo pbi) {
+    if (!StringUtils.isNullOrWhitespace(pbi.name)) {
+      LogUtils.print(COLOR_TOOL, console, true, pbi.name, false);
+    }
+    if (pbi.pb.directory() != null) {
+      LogUtils.print(COLOR_WORKDIR, console, true, " [Work dir: " + pbi.pb.directory() + "]", false);
+    }
+    LogUtils.println(console, "");
+    final String cmd = org.apache.commons.lang3.StringUtils.join(pbi.pb.command(), " ");
+    LogUtils.print(COLOR_CMDLINE, console, true, cmd, true);
   }
 
   public static class LcmsFileAddition {

@@ -85,7 +85,7 @@ public class FragpipeOnMessages {
     EventBus.getDefault().post(MessageSaveAllForms.forCaching());
 
     final boolean isDryRun = m.isDryRun;
-    msfgf.saveWorkdirText();
+    MsfraggerGuiFrameUtils.saveWorkdirText(msfgf.getTxtWorkingDir());
     msfgf.clearConsole();
 
     msfgf.resetRunButtons(false);
@@ -345,7 +345,9 @@ public class FragpipeOnMessages {
     LogUtils.println(msfgf.console, String.format(Locale.ROOT, "%d commands to execute:", pbis.size()));
 
     for (final ProcessBuilderInfo pbi : pbis) {
-      msfgf.printProcessDescription(pbi);
+      MsfraggerGuiFrameUtils
+          .printProcessDescription(msfgf.COLOR_CMDLINE, msfgf.COLOR_TOOL, msfgf.COLOR_WORKDIR,
+              msfgf.console, pbi);
 
     }
     LogUtils.println(msfgf.console, "~~~~~~~~~~~~~~~~~~~~~~");
@@ -384,7 +386,9 @@ public class FragpipeOnMessages {
     // run everything
     List<RunnableDescription> toRun = new ArrayList<>();
     for (final ProcessBuilderInfo pbi : pbis) {
-      Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, wdPath, msfgf::printProcessDescription);
+      Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, wdPath, pbi1 -> MsfraggerGuiFrameUtils
+          .printProcessDescription(msfgf.COLOR_CMDLINE, msfgf.COLOR_TOOL, msfgf.COLOR_WORKDIR,
+              msfgf.console, pbi1));
       ProcessDescription.Builder b = new ProcessDescription.Builder().setName(pbi.name);
       if (pbi.pb.directory() != null) {
         b.setWorkDir(pbi.pb.directory().toString());

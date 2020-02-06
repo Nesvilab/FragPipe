@@ -39,7 +39,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -60,9 +59,6 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -85,7 +81,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
-import javax.swing.event.HyperlinkEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
 import net.java.balloontip.BalloonTip;
@@ -102,7 +97,6 @@ import umich.msfragger.cmd.ToolingUtils;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils.LcmsFileAddition;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
-import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
 import umich.msfragger.messages.MessageAppendToConsole;
@@ -124,8 +118,6 @@ import umich.msfragger.messages.MessageSaveLog;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.messages.MessageShowAboutDialog;
 import umich.msfragger.messages.MessageTipNotification;
-import umich.msfragger.messages.MessageValidityMassCalibration;
-import umich.msfragger.messages.MessageValidityMsadjuster;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcPanel;
 import umich.msfragger.params.crystalc.CrystalcParams;
@@ -133,7 +125,6 @@ import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.fragger.MsfraggerProps;
-import umich.msfragger.params.fragger.MsfraggerVersionComparator;
 import umich.msfragger.params.philosopher.ReportPanel;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.umpire.UmpirePanel;
@@ -311,38 +302,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     return lblFastaCount;
   }
 
-  private void userSaveForms() {
-    Path p = MsfraggerGuiFrameUtils
-        .userShowSaveFileDialog("Save all FragPipe parameters", "fragpipe.config", this);
-    if (p == null) {
-      return;
-    }
-    try {
-      formWrite(Files.newOutputStream(p));
-    } catch (IOException ex) {
-      JOptionPane.showMessageDialog(this, "<html>Could not save file: <br/>" + p.toString()
-              + "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-      return;
-    }
-  }
-
-  private void userLoadForms() {
-     FileNameExtensionFilter filter = new FileNameExtensionFilter("Config/Properties",
-    "config", "properties", "params", "para", "conf", "txt");
-    Path p = MsfraggerGuiFrameUtils
-        .userShowLoadFileDialog("Load all FragPipe parameters", filter, this);
-    if (p == null) {
-      return;
-    }
-    try {
-      formRead(Files.newInputStream(p));
-    } catch (IOException e) {
-      JOptionPane.showMessageDialog(this,
-              "<html>Could not load the saved file: <br/>" + e.getMessage(), "Error",
-              JOptionPane.ERROR_MESSAGE);
-    }
-  }
-
   public JTextField getTextBinPhilosopher() {
     return textBinPhilosopher;
   }
@@ -416,11 +375,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       log.debug("Msfragger jar is not valid");
     }
 
-    if (validatePhilosopherPath(textBinPhilosopher.getText()) == null) {
+    if (MsfraggerGuiFrameUtils.validatePhilosopherPath(textBinPhilosopher.getText()) == null) {
       enablePhilosopherPanels(false);
     }
 
-    tableModelRawFiles = createTableModelRawFiles();
+    tableModelRawFiles = MsfraggerGuiFrameUtils.createTableModelRawFiles(this);
     tableRawFiles = new LcmsInputFileTable(tableModelRawFiles);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnRawClear);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsConsecutive);
@@ -488,12 +447,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     // The python check must be run before DbSlice and SpecLibGen.
     // Don't run these checks asynchronously
     exec.submit(() -> MsfraggerGuiFrameUtils.checkPython(MsfraggerGuiFrame.this));
-    exec.submit(this::validateDbslicing);
-    exec.submit(this::validateSpeclibgen);
+    exec.submit(() -> MsfraggerGuiFrameUtils.validateDbslicing(fraggerVer));
+    exec.submit(MsfraggerGuiFrameUtils::validateSpeclibgen);
 
 
-    exec.submit(this::validateMsadjusterEligibility);
-    exec.submit(this::validateMsfraggerMassCalibrationEligibility);
+    exec.submit(() -> MsfraggerGuiFrameUtils.validateMsadjusterEligibility(fraggerVer));
+    exec.submit(() -> MsfraggerGuiFrameUtils.validateMsfraggerMassCalibrationEligibility(fraggerVer));
 
 
     // submitting all "loadLast" methods for invocation
@@ -720,28 +679,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         "<html>Automatic downloading of database requires Philospher<br/>\n"
             + "binary to be selected on Config tab";
     btnDbDownload.setToolTipText(tooltip);
-  }
-
-  public UniqueLcmsFilesTableModel createTableModelRawFiles() {
-    if (tableModelRawFiles != null) {
-      return tableModelRawFiles;
-    }
-    List<TableModelColumn<InputLcmsFile, ?>> cols = new ArrayList<>();
-
-    TableModelColumn<InputLcmsFile, String> colPath = new TableModelColumn<>(
-        "Path (can drag & drop from Explorer)",
-        String.class, false, data -> data.getPath().toString());
-    TableModelColumn<InputLcmsFile, String> colExp = new TableModelColumn<>(
-        "Experiment (can be empty)", String.class, true, InputLcmsFile::getExperiment);
-    TableModelColumn<InputLcmsFile, Integer> colRep = new TableModelColumn<>(
-        "Replicate (can be empty)", Integer.class, true, InputLcmsFile::getReplicate);
-    cols.add(colPath);
-    cols.add(colExp);
-    cols.add(colRep);
-
-
-    tableModelRawFiles = new UniqueLcmsFilesTableModel(cols, 0);
-    return tableModelRawFiles;
   }
 
   /**
@@ -1006,7 +943,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         editorPhilosopherLink.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         editorPhilosopherLink.setContentType("text/html"); // NOI18N
         editorPhilosopherLink.setFont(lblFraggerJavaVer.getFont());
-        editorPhilosopherLink.setText(createPhilosopherCitationHtml());
+        editorPhilosopherLink.setText(MsfraggerGuiFrameUtils.createPhilosopherCitationHtml(lblFraggerJavaVer));
         editorPhilosopherLink.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
             public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
                 urlHandlerViaSystemBrowser(evt);
@@ -2198,56 +2135,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   }//GEN-LAST:event_btnMsfraggerBinBrowseActionPerformed
 
-  public void validateMsfraggerMassCalibrationEligibility() {
-//    new Thread(() -> {
-//    }).start();
-    boolean enableCalibrate = false;
-    String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE);
-    if (minFraggerVer == null) {
-      throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE +
-          " property needs to be in Msfragger properties");
-    }
-    MsfraggerVersionComparator cmp = new MsfraggerVersionComparator();
-    int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
-    if (fraggerVersionCmp >= 0) {
-      enableCalibrate = true;
-    }
-    log.debug("Posting enableCalibrate = {}", enableCalibrate);
-    EventBus.getDefault().postSticky(new MessageValidityMassCalibration(enableCalibrate));
-
-  }
-
-  public void validateMsadjusterEligibility() {
-//    new Thread(() -> {
-//    }).start();
-    boolean enableMsadjuster = false;
-    String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_MSADJUSTER);
-    if (minFraggerVer == null) {
-      throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_MSADJUSTER +
-          " property needs to be in Msfragger properties");
-    }
-
-    MsfraggerVersionComparator cmp = new MsfraggerVersionComparator();
-    int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
-    if (fraggerVersionCmp >= 0) {
-      enableMsadjuster = true;
-    }
-    EventBus.getDefault().postSticky(new MessageValidityMsadjuster(enableMsadjuster));
-
-  }
-
-  public void validateSpeclibgen() {
-    log.debug("entered validateSpeclibgen");
-//    new Thread(() -> SpecLibGen.get().init()).start();
-    SpecLibGen.get().init();
-  }
-
-  public void validateDbslicing() {
-    log.debug("entered validateDbslicing");
-//    new Thread(() -> DbSlice.get().init(fraggerVer)).start();
-    DbSlice.get().init(fraggerVer);
-  }
-
   private void btnMsfraggerBinDownloadActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMsfraggerBinDownloadActionPerformed
     try {
@@ -2258,40 +2145,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }//GEN-LAST:event_btnMsfraggerBinDownloadActionPerformed
 
-  private void urlHandlerViaSystemBrowser(
+  private static void urlHandlerViaSystemBrowser(
       javax.swing.event.HyperlinkEvent evt) {//GEN-FIRST:event_urlHandlerViaSystemBrowser
-    if (evt.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
-
-      URI uri;
-      try {
-        uri = evt.getURL().toURI();
-      } catch (URISyntaxException ex) {
-        JOptionPane.showMessageDialog(null,
-            "Could not convert URL to URI: " + evt.getURL(),
-            "Cannot Open Link", JOptionPane.WARNING_MESSAGE);
-        return;
-      }
-
-      if (Desktop.isDesktopSupported()) {
-        Desktop desktop = Desktop.getDesktop();
-        try {
-          desktop.browse(uri);
-        } catch (IOException e) {
-          JOptionPane.showMessageDialog(null,
-              "Failed to open " + uri + " - your computer is likely misconfigured.\n"
-                  + "Error Message: " + e.getMessage(),
-              "Cannot Open Link", JOptionPane.WARNING_MESSAGE);
-        }
-      } else {
-        JOptionPane.showMessageDialog(null, "Java is not able to open a browser on your computer.",
-            "Cannot Open Link", JOptionPane.WARNING_MESSAGE);
-      }
-    }
+    MsfraggerGuiFrameUtils.urlEventHandle(evt);
   }//GEN-LAST:event_urlHandlerViaSystemBrowser
 
   private void btnPhilosopherBinDownloadActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPhilosopherBinDownloadActionPerformed
-    downloadPhilosopher();
+    MsfraggerGuiFrameUtils.downloadPhilosopher();
   }//GEN-LAST:event_btnPhilosopherBinDownloadActionPerformed
 
   private void btnFindToolsActionPerformed(
@@ -2339,18 +2200,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }
 
 
-  /**
-   * Fills all tabs' components that have names with values from the map.
-   */
-  private void formFrom(Map<String, String> map) {
-    for (int i = 0; i < tabPane.getTabCount(); i++) {
-      Component compAt = tabPane.getComponentAt(i);
-      if (compAt instanceof Container) {
-        SwingUtils.valuesFromMap((Container)compAt, map);
-      }
-    }
-  }
-
   public void formWrite(OutputStream os) throws IOException {
     Map<String, String> map = MsfraggerGuiFrameUtils.formTo(tabPane);
     Properties props = PropertiesUtils.from(map);
@@ -2365,7 +2214,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       props.load(bis);
     }
     Map<String, String> map = PropertiesUtils.to(props);
-    formFrom(map);
+    MsfraggerGuiFrameUtils.formFrom(tabPane, map);
   }
 
   @Subscribe
@@ -2391,18 +2240,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   @Subscribe
   public void onMessageRun(MessageRun m) {
     FragpipeOnMessages.onMessageRun(this, m);
-  }
-
-  public void printProcessDescription(ProcessBuilderInfo pbi) {
-    if (!StringUtils.isNullOrWhitespace(pbi.name)) {
-      LogUtils.print(COLOR_TOOL, console, true, pbi.name, false);
-    }
-    if (pbi.pb.directory() != null) {
-      LogUtils.print(COLOR_WORKDIR, console, true, " [Work dir: " + pbi.pb.directory() + "]", false);
-    }
-    LogUtils.println(console, "");
-    final String cmd = org.apache.commons.lang3.StringUtils.join(pbi.pb.command(), " ");
-    LogUtils.print(COLOR_CMDLINE, console, true, cmd, true);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
@@ -2456,13 +2293,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     log.error("Did not save log file, number of attempts exceeded");
   }
 
-  private static ExecutorService prepareProcessRunner(ExecutorService runner) {
-    if (runner != null && !runner.isTerminated()) {
-      runner.shutdownNow();
-    }
-    return Executors.newFixedThreadPool(1);
-  }
-
   private void btnRunActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRunActionPerformed
     final boolean isDryRun = checkDryRun.isSelected();
@@ -2477,17 +2307,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     loadDefaultsPeptideProphet(t);
-  }
-  
-  private void btnProtProphDefaults(SearchTypeProp t) {
-
-    int confirm1 = JOptionPane.showConfirmDialog(this,
-        "<html>Load " + t + " search defaults?");
-    if (JOptionPane.YES_OPTION != confirm1) {
-      return;
-    }
-
-    loadDefaultsProteinProphet(t);
   }
 
   private void btnAboutInConfigActionPerformed(
@@ -2672,26 +2491,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
   }//GEN-LAST:event_checkEnableDiaumpireStateChanged
 
-  Path tryFindStartingPath(String currentPath) {
-    try {
-      Path path = Paths.get(currentPath);
-      if (Files.exists(path)) {
-        return path;
-      }
-      // didn't find anything yet
-      if (currentPath.contains("/") || currentPath.contains("\\")) {
-        // if there was a slash character, we can try the parent dir
-        Path parent = path.getParent();
-        if (Files.exists(parent)) {
-          return parent;
-        }
-      }
-    } catch (Exception ignored) {
-      // supplied path was likely not good
-    }
-    return null;
-  }
-
   private void btnBrowseBinPythonActionPerformed(
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowseBinPythonActionPerformed
     JFileChooser fc = new JFileChooser();
@@ -2706,7 +2505,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-    Path current = tryFindStartingPath(textBinPython.getText());
+    Path current = MsfraggerGuiFrameUtils.tryFindStartingPath(textBinPython.getText());
     if (current != null) {
       SwingUtils.setFileChooserPath(fc, current);
     } else {
@@ -2870,18 +2669,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     btnPepProphDefaults(SearchTypeProp.nonspecific);
   }//GEN-LAST:event_btnPepProphDefaultsNonspecificActionPerformed
 
-  void saveWorkdirText() {
-    final String text = txtWorkingDir.getText().trim();
-    try {
-      Path p = Paths.get(text);
-      if (Files.exists(p)) {
-        ThisAppProps.save(ThisAppProps.PROP_FILE_OUT, text);
-      }
-    } catch (Exception ignore) {}
-  }
-
   private void txtWorkingDirFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtWorkingDirFocusLost
-    saveWorkdirText();
+    MsfraggerGuiFrameUtils.saveWorkdirText(txtWorkingDir);
   }//GEN-LAST:event_txtWorkingDirFocusLost
 
   private void btnDbDownloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDbDownloadActionPerformed
@@ -2895,11 +2684,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }//GEN-LAST:event_btnDbDownloadActionPerformed
 
   private void btnSaveAllToolsConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveAllToolsConfigActionPerformed
-    userSaveForms();
+    MsfraggerGuiFrameUtils.userSaveForms(this);
   }//GEN-LAST:event_btnSaveAllToolsConfigActionPerformed
 
   private void btnLoadAllToolsConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadAllToolsConfigActionPerformed
-    userLoadForms();
+    MsfraggerGuiFrameUtils.userLoadForms(this);
   }//GEN-LAST:event_btnLoadAllToolsConfigActionPerformed
 
   @Subscribe
@@ -3004,20 +2793,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   }
 
-  String validatePhilosopherPath(String path) {
-    return PathUtils.testBinaryPath(path);
-  }
-
-  private void downloadPhilosopher() {
-
-    try {
-      Desktop.getDesktop()
-          .browse(URI.create("https://github.com/Nesvilab/philosopher/releases/latest"));
-    } catch (IOException ex) {
-      Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
-    }
-  }
-
   void resetRunButtons(boolean runEnabled) {
     btnRun.setEnabled(runEnabled);
     btnStop.setEnabled(!runEnabled);
@@ -3034,36 +2809,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     return result;
-  }
-
-  private String createPhilosopherCitationHtml() {
-    // for copying style
-    Font font = lblFraggerJavaVer.getFont();
-
-    // create some css from the label's font
-    StringBuilder style = new StringBuilder();
-    style.append("font-family:").append(font.getFamily()).append(";");
-    style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
-    style.append("font-size:").append(font.getSize()).append("pt;");
-
-    StringBuilder sb = new StringBuilder();
-    sb.append("<html>");
-
-    sb.append("<head>");
-    sb.append("</head>");
-
-    sb.append("<body style=\"").append(style.toString()).append("\"");
-    //sb.append("<body>");
-
-    sb.append("<p style=\"margin-top: 0\">");
-    sb.append("More info: <a href=\"https://nesvilab.github.io/philosopher/\">Philosopher GitHub page</a>");
-    sb.append("<br/>");
-    sb.append("</p>");
-
-    sb.append("</body>");
-    sb.append("</html>");
-
-    return sb.toString();
   }
 
 
