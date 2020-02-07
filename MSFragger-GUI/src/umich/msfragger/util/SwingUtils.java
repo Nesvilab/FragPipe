@@ -578,6 +578,12 @@ public class SwingUtils {
     return JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component));
   }
 
+  public static int showChoiceDialog(Component parent, Object message, String[] options, int startingOption) {
+    return JOptionPane
+        .showOptionDialog(parent, message, "Delete the files?",
+            JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[startingOption]);
+  }
+
   /**
    * Wraps the given component in a scroll pane and attaches a hierarchy listener
    * that makes the parent dialog resizeable if the component is attached to a {@link Dialog}.

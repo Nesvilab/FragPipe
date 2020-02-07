@@ -198,6 +198,10 @@ public class ReportPanel extends JPanelWithEnablement {
     return uiCheckMultiexp.isSelected();
   }
 
+  public void setMultiExpReport(boolean value) {
+    uiCheckMultiexp.setSelected(value);
+  }
+
   public boolean isPepSummary() {
     return uiCheckPepSummary.isSelected();
   }

@@ -438,6 +438,22 @@ public class FragpipeOnMessages {
 
     final UsageTrigger usePhi = new UsageTrigger(binPhilosopher, "Philosopher");
 
+    // confirm with user that multi-experiment report is not needed
+    final boolean isProcessGroupsSeparately = msfgf.getCheckProcessGroupsSeparately().isSelected();
+    if (!isProcessGroupsSeparately && lcmsFileGroups.size() > 1 && !msfgf.getPanelReportOptions().isMultiExpReport()) {
+      String[] options = {"Turn on and continue", "Continue as-is", "Cancel"};
+      int choice = SwingUtils.showChoiceDialog(msfgf, new JLabel(
+          "<html>You grouped input file into more than one experiment.<br/>\n" +
+              "However, multi-experiment report was turned off.<br/>\n" +
+              "<br/>\n" +
+              "<b>What would you like to do with multi-experiment report?</b>\n"), options, 0);
+      if (choice == 0) {
+        msfgf.getPanelReportOptions().setMultiExpReport(true);
+      } else if (choice != 1) {
+        return false; // either Window Closed, or Cancel option
+      }
+    }
+    final boolean isMuiltiExperimentReport = msfgf.getPanelReportOptions().isMultiExpReport();
 
     // run DIA-Umpire SE
     final CmdUmpireSe cmdUmpireSe = new CmdUmpireSe(msfgf.isRunUmpireSe(), wd);
@@ -545,12 +561,9 @@ public class FragpipeOnMessages {
     }
     pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, fp.getOutputFileExt(), isCombinedPepxml);
 
-
     // run Protein Prophet
     final boolean isRunProteinProphet = SwingUtils.isEnabledAndChecked(
         msfgf.getChkRunProteinProphet());
-    final boolean isProcessGroupsSeparately = msfgf.getCheckProcessGroupsSeparately().isSelected();
-    final boolean isMuiltiExperimentReport = msfgf.getPanelReportOptions().isMultiExpReport();
     final CmdProteinProphet cmdProteinProphet = new CmdProteinProphet(isRunProteinProphet, wd);
     if (cmdProteinProphet.isRun()) {
       final String protProphCmdStr = msfgf.getTxtProteinProphetCmdLineOpts().getText().trim();
@@ -562,19 +575,6 @@ public class FragpipeOnMessages {
       pbDescs.add(cmdProteinProphet.getBuilderDescriptor());
     }
     Map<LcmsFileGroup, Path> mapGroupsToProtxml = cmdProteinProphet.outputs(pepxmlFiles, isProcessGroupsSeparately, isMuiltiExperimentReport);
-
-    // confirm with user that multi-experiment report is not needed
-    if (!isProcessGroupsSeparately && mapGroupsToProtxml.keySet().size() > 1 && !isMuiltiExperimentReport) {
-      int confirmation = SwingUtils.showConfirmDialog(msfgf, new JLabel(
-          "<html>You've specified more than one experiment/group.<br/>\n" +
-          "However, multi-experiment report is turned off.<br/>\n" +
-          "It is advised to convert those files to mzML.<br/>\n" +
-          "<br/>\n" +
-          "<b>Click Yes to continue at your own risk, otherwise Cancel.</b>"));
-      if (JOptionPane.YES_OPTION != confirmation) {
-        return false;
-      }
-    }
 
     // Check Decoy tags if any of the downstream tools are requested
     if (cmdPeptideProphet.isRun() || cmdProteinProphet.isRun()) {
