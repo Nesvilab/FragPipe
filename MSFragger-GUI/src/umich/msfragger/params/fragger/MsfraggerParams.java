@@ -85,7 +85,7 @@ public class MsfraggerParams extends AbstractParams {
     
     /** Followed by '_N' (underscore and a number), max 7 mods. */
     public static final String PROP_variable_mod = "variable_mod";
-    public static final int VAR_MOD_COUNT_MAX = 7;  
+    public static final int VAR_MOD_COUNT_MAX = Short.BYTES * 8;
     public static final String PROP_allow_multiple_variable_mods_on_residue = "allow_multiple_variable_mods_on_residue";
     //public static final String PROP_max_variable_mods_per_mod = "max_variable_mods_per_mod";
     public static final String PROP_max_variable_mods_per_peptide = "max_variable_mods_per_peptide";
