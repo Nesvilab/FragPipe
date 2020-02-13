@@ -92,7 +92,7 @@ public class SpeclibPanel extends JPanelWithEnablement {
       // setting the insets allows the top panel to be shifted left of the options panel
       pTop = new JPanel(new MigLayout(new LC().insetsAll("0px")));
 
-      checkRun = new UiCheck("Generate Spectral Library from search results", null, true);
+      checkRun = new UiCheck("Generate Spectral Library from search results", null, false);
       checkRun.setName("ui.name.report.speclibgen.run");
       checkRun.addActionListener(e -> {
         final boolean isSelected = checkRun.isSelected();
