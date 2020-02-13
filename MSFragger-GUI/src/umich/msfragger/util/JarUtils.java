@@ -8,6 +8,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.PosixFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.params.ThisAppProps;
@@ -90,6 +94,13 @@ public class JarUtils {
       }
 
       Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
+      if (!OsUtils.isWindows()) {
+        final Set<PosixFilePermission> permissions = Files.readAttributes(tempFile, PosixFileAttributes.class).permissions();
+        permissions.add(PosixFilePermission.OWNER_EXECUTE);
+        permissions.add(PosixFilePermission.GROUP_EXECUTE);
+        permissions.add(PosixFilePermission.OTHERS_EXECUTE);
+        Files.setAttribute(tempFile, "posix:permissions", permissions);
+      }
       if (scheduleForDeletion) {
         tempFile.toFile().deleteOnExit();
       }
