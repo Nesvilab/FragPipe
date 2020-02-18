@@ -724,7 +724,7 @@ public class MsfraggerGuiFrameUtils {
   }
 
   static void saveLogToFile(TextConsole console, Path path) {
-    final String text = console.getText().replaceAll("[^\n]+\u200B\r\n", "");
+    final String text = console.getText().replaceAll("[^\n]+\u200B" + System.getProperty("line.separator"), "");
     byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
     try {
       Files.write(path, bytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
