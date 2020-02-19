@@ -28,7 +28,7 @@ public class SpecLibGen {
   public static SpecLibGen get() {
     return instance;
   }
-  public static final String DEFAULT_MESSAGE = "Python 3 with cython, msproteomicstools is "
+  public static final String DEFAULT_MESSAGE = "Python 3 with cython, msproteomicstools, matplotlib is "
       + "needed for Spectral Library generation functionality.";
   private static final String SCRIPT_SPEC_LIB_GEN = "/speclib/gen_con_spec_lib.py";
   private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
@@ -60,7 +60,8 @@ public class SpecLibGen {
 
   public static final PythonModule[] REQUIRED_MODULES = {
       new PythonModule("Cython", "Cython"),
-      new PythonModule("msproteomicstools", "msproteomicstoolslib")
+      new PythonModule("msproteomicstools", "msproteomicstoolslib"),
+      new PythonModule("matplotlib", "matplotlib"),
   };
   public static final PythonModule[] REQUIRED_FOR_EASYPQP = {
       new PythonModule("easypqp", "easypqp"),

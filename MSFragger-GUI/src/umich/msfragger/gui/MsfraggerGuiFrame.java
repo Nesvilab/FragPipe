@@ -1061,7 +1061,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         });
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Spectral Lib generation"));
-        jPanel1.setToolTipText("<html>Requires <b>Python 3</b> with packages <b>Cython, Msproteomicstools</b>.<br/>\nWays to get everything set up:<br>\n<ul>\n<li>Install Python 3 if you don't yet have it.</li>\n<li>Install required python modules using <i>pip</i>, the python package manager, with commands:</li>\n<ul>\n<li>pip install numpy pandas cython</li>\n<li>pip install msproteomicstools</li>\n</ul>\n</ul>\n");
+        jPanel1.setToolTipText("<html>Requires <b>Python 3</b> with packages <b>Cython, Msproteomicstools, matplotlib</b>.<br/>\nWays to get everything set up:<br>\n<ul>\n<li>Install Python 3 if you don't yet have it.</li>\n<li>Install required python modules using <i>pip</i>, the python package manager, with commands:</li>\n<ul>\n<li>pip install numpy pandas cython</li>\n<li>pip install msproteomicstools matplotlib</li>\n</ul>\n</ul>\n");
 
         lblSpeclibInfo1.setText(SpecLibGen.DEFAULT_MESSAGE);
 

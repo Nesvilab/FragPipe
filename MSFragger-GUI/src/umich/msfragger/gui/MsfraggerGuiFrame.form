@@ -560,7 +560,7 @@
                         <TitledBorder title="Spectral Lib generation"/>
                       </Border>
                     </Property>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Requires &lt;b&gt;Python 3&lt;/b&gt; with packages &lt;b&gt;Cython, Msproteomicstools&lt;/b&gt;.&lt;br/&gt;&#xa;Ways to get everything set up:&lt;br&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;Install Python 3 if you don&apos;t yet have it.&lt;/li&gt;&#xa;&lt;li&gt;Install required python modules using &lt;i&gt;pip&lt;/i&gt;, the python package manager, with commands:&lt;/li&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;pip install numpy pandas cython&lt;/li&gt;&#xa;&lt;li&gt;pip install msproteomicstools&lt;/li&gt;&#xa;&lt;/ul&gt;&#xa;&lt;/ul&gt;&#xa;"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Requires &lt;b&gt;Python 3&lt;/b&gt; with packages &lt;b&gt;Cython, Msproteomicstools, matplotlib&lt;/b&gt;.&lt;br/&gt;&#xa;Ways to get everything set up:&lt;br&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;Install Python 3 if you don&apos;t yet have it.&lt;/li&gt;&#xa;&lt;li&gt;Install required python modules using &lt;i&gt;pip&lt;/i&gt;, the python package manager, with commands:&lt;/li&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;pip install numpy pandas cython&lt;/li&gt;&#xa;&lt;li&gt;pip install msproteomicstools matplotlib&lt;/li&gt;&#xa;&lt;/ul&gt;&#xa;&lt;/ul&gt;&#xa;"/>
                   </Properties>
 
                   <Layout>
