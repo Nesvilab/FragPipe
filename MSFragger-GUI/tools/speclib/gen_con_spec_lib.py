@@ -385,7 +385,7 @@ if use_easypqp:
 	'''easypqp convert --pepxml 1.pep_xml --spectra 1.mgf --exclude-range -1.5,3.5
 	easypqp convert --pepxml 2.pep_xml --spectra 2.mgf --exclude-range -1.5,3.5'''
 	'easypqp convert --pepxml interact.pep.xml --spectra 1.mgf --unimod unimod.xml --exclude-range -1.5,3.5'
-	f'easypqp library --psmtsv {psm_tsv_file} --rt_reference {irt_file} --out out.tsv *_psms.tsv *.peakpkl'
+	f'easypqp library --psmtsv {psm_tsv_file} --rt_reference {irt_file} --out out.tsv *.psmpkl *.peakpkl'
 	# https://github.com/grosenberger/easypqp/blob/master/easypqp/data/unimod.xml?raw=true
 	# http://www.unimod.org/xml/unimod.xml
 	if len(iproph_pep_xmls) == 1:
@@ -396,7 +396,7 @@ if use_easypqp:
 	spectra_files_basename = [e.stem[:-len('_calibrated')]
 							  if e.stem.endswith('_calibrated') else e.stem
 							  for e in spectra_files]
-	easypqp_library_infiles = [output_directory / (e + '_psms.tsv') for e in spectra_files_basename] + \
+	easypqp_library_infiles = [output_directory / (e + '.psmpkl') for e in spectra_files_basename] + \
 							  [output_directory / (e + '.peakpkl') for e in spectra_files_basename]
 	def easypqp_library_cmd(use_irt: bool):
 	# def easypqp_library_cmd(pep_fdr: float = None, prot_fdr: float = None):
@@ -404,7 +404,7 @@ if use_easypqp:
 				# '--peptide_fdr_threshold', str(pep_fdr), '--protein_fdr_threshold', str(prot_fdr),
 				'--psmtsv', os.fspath(psm_tsv_file), '--peptidetsv', os.fspath(peptide_tsv_file), ] + \
 			   (['--rt_reference', os.fspath(irt_file)] if use_irt else []) + \
-			   ['--out', 'out.tsv'] + easypqp_library_infiles
+			   ['--out', 'easypqp_lib_openswath.tsv'] + easypqp_library_infiles
 
 
 	easypqp_cmds = '\n'.join(' '.join(map(shlex.quote, e)) for e in easypqp_convert_cmds) + '\n' + \
@@ -722,7 +722,7 @@ if use_spectrast:
 def easypqp_lib_export(lib_type: str):
 	import pandas as pd
 
-	easypqp_lib = pd.read_csv('out.tsv', sep='\t')
+	easypqp_lib = pd.read_csv('easypqp_lib_openswath.tsv', sep='\t')
 
 	frag_df = easypqp_lib['Annotation'].str.extract('\\A(.+?)(\\d){1,2}(?:-(.*?))?\\^(.+)\\Z')
 	frag_df.columns = 'FragmentType', 'FragmentSeriesNumber', 'loss_type', 'FragmentCharge'
@@ -732,7 +732,7 @@ def easypqp_lib_export(lib_type: str):
 		frag_df.columns = 'FragmentType', 'FragmentSeriesNumber', 'FragmentCharge'
 		frag_df.reindex(columns=['FragmentType', 'FragmentCharge', 'FragmentSeriesNumber'])
 		print((easypqp_lib['ModifiedPeptideSequence'].str.find('.(UniMod:') >= 0).mean())
-	if lib_type == 'spectranaut':
+	if lib_type == 'Spectronaut':
 		easypqp_lib['ModifiedPeptideSequence'] = easypqp_lib['ModifiedPeptideSequence'].str.replace('.(UniMod:', '(UniMod:', regex=False)
 	pd.concat([easypqp_lib, frag_df], axis=1).to_csv(f'easypqp_lib_{lib_type}.tsv', sep='\t', index=False)
 
@@ -740,7 +740,7 @@ def easypqp_lib_export(lib_type: str):
 if use_easypqp:
 	main_easypqp()
 	os.chdir(os_fspath(output_directory))
-	easypqp_lib_export('spectranaut')
+	easypqp_lib_export('Spectronaut')
 	if 0:
 		easypqp_lib_export('skyline')
 	os.chdir(CWD)

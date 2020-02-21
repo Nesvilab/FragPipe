@@ -13,6 +13,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import jdk.nashorn.internal.scripts.JO;
+import org.apache.commons.io.FilenameUtils;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.speclib.SpecLibGen;
@@ -98,19 +99,22 @@ public class CmdSpecLibGen extends CmdBase {
       // located next to pepxml files
       final List<ProcessBuilder> pbsDeleteLcmsFiles = new ArrayList<>();
       for (InputLcmsFile lcms : group.lcmsFiles) {
-        if (!groupWd.equals(lcms.getPath().getParent())) {
-          final Path copy = groupWd.resolve(lcms.getPath().getFileName());
-          final boolean isWindows = OsUtils.isWindows();
+        final String fn_sans_extension = useEasypqp ?
+                FilenameUtils.removeExtension(lcms.getPath().getFileName().toString()) : null;
+        final Path lcms_path = useEasypqp ?
+                lcms.getPath().getParent().resolve(fn_sans_extension + "_calibrated.mgf") :
+                lcms.getPath();
+        if (!groupWd.equals(lcms_path.getParent())) {
+          final Path copy = groupWd.resolve(lcms_path.getFileName());
           if (!Files.exists(copy)) {
             // Directory of LCMS file is different from pepxml file
             // and the file does not yet exist.
             // Copy over the file and schedule for deletion.
             List<ProcessBuilder> pbCopy = ToolingUtils
-                .pbsCopyFiles(jarFragpipe, groupWd, Collections.singletonList(lcms.getPath()));
+                .pbsCopyFiles(jarFragpipe, groupWd, Collections.singletonList(lcms_path));
             pbis.addAll(PbiBuilder.from(pbCopy));
             pbsDeleteLcmsFiles.addAll(ToolingUtils
-                .pbsDeleteFiles(jarFragpipe, Collections.singletonList(groupWd.resolve(
-                    lcms.getPath().getFileName()))));
+                .pbsDeleteFiles(jarFragpipe, Collections.singletonList(groupWd.resolve(lcms_path.getFileName()))));
           }
         }
       }
