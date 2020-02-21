@@ -126,6 +126,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_clear_mz_range = "clear_mz_range";
     public static final String PROP_add = "add";
     public static final String PROP_add_enabled = "add_enabled";
+    public static final String PROP_discard_zero_xic_scans = "discard_zero_xic_scans";
     //public static final String PROP_ = "";
 
     public static final String[] PROP_NAMES = {
@@ -186,6 +187,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_clear_mz_range,
         PROP_add,
         PROP_add_enabled,
+        PROP_discard_zero_xic_scans,
     };
 
     public static final Set<String> PROP_NAMES_SET;
@@ -273,6 +275,16 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_remove_precursor_range, "Unit: Da. Default: -1.5,1.5");
         c.put(PROP_intensity_transform, "0 = none, 1 = sqrt root. Default: 0");
         return c;
+    }
+
+    public boolean getDiscardZeroXicScans() {
+        int v = Integer.parseInt(props.getProp(PROP_discard_zero_xic_scans, "1").value);
+        return v == 1;
+    }
+
+    public void setDiscardZeroXicScans(boolean v) {
+        int vInt = v ? 1 : 0;
+        props.setProp(PROP_discard_zero_xic_scans, Integer.toString(vInt));
     }
 
     @Override

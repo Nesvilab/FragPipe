@@ -157,6 +157,7 @@ public class FraggerMigPanel extends JPanel {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_ion_series, ionStr -> ionStr.trim().replaceAll("[\\s,;]+",","));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_ion_series_definitions, defStr -> defStr.trim().replaceAll("\\s*[,;]+\\s*",", "));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_discard_zero_xic_scans, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
 
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
@@ -171,6 +172,7 @@ public class FraggerMigPanel extends JPanel {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_override_charge, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.fromValueInParamsFile(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Boolean.toString(Integer.parseInt(s) > 0));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_discard_zero_xic_scans, s -> Boolean.toString(Integer.parseInt(s) > 0));
 
     //{"Closed Search", "Open Search", "Non-specific Search", "Mass Offset Search"}
     SEARCH_TYPE_NAME_MAPPING.put("Closed Search", SearchTypeProp.closed);
@@ -858,7 +860,8 @@ public class FraggerMigPanel extends JPanel {
             "Output max expect", uiSpinnerOutputMaxExpect,
             "<html>Suppresses reporting of PSM if top hit has<br> expectation greater "
                 + "than this threshold");
-
+        FormEntry feDiscardZeroXicScans = new FormEntry(MsfraggerParams.PROP_discard_zero_xic_scans,
+            "not-shown", new UiCheck("Discard zero XIC scans", null, true));
 
         uiComboOutputType = UiUtils.createUiCombo(FraggerOutputType.values());
         FormEntry feOutputType = new FormEntry(MsfraggerParams.PROP_output_format, "Output format",
@@ -909,7 +912,8 @@ public class FraggerMigPanel extends JPanel {
         pPeakMatch.add(feOutputType.label(), alignRight);
         pPeakMatch.add(feOutputType.comp);
         pPeakMatch.add(feOutputMaxExpect.label(), alignRight);
-        pPeakMatch.add(feOutputMaxExpect.comp, wrap);
+        pPeakMatch.add(feOutputMaxExpect.comp, new CC().alignX("left"));
+        pPeakMatch.add(feDiscardZeroXicScans.comp, wrap);
       }
 
       pAdvanced.add(pSpectral, new CC().wrap().growX());
