@@ -627,6 +627,11 @@ def get_prot_razor_dict(l) -> dict:
 			for representative_protein, _, number_id_peps__pep_prob_sum_pair in l}
 
 
+def format_con_lib_for_DIA_NN(t: pd.DataFrame):
+	return t.rename({'Protein ID':'UniprotID',
+			  'Entry Name':'ProteinName',
+			  'ProteinName':'ProteinId'}, axis=1, inplace=False, errors='raise')
+
 def edit_raw_con_lib():
 	# p = data_directory / "ProteinProphet/interact.prot.xml"
 	p = prot_xml_file
@@ -695,7 +700,7 @@ def edit_raw_con_lib():
 	fout = pathlib.Path('con_lib.tsv')
 	print(f'Writing {fout.resolve()}')
 	fout.write_text(
-		t[t["Protein"].notnull()].to_csv(sep='\t', index=False, line_terminator='\n').replace('(UniMod:5)', '(UniMod:1)')
+		format_con_lib_for_DIA_NN(t[t["Protein"].notnull()]).to_csv(sep='\t', index=False, line_terminator='\n').replace('(UniMod:5)', '(UniMod:1)')
 	)
 
 if use_spectrast:
