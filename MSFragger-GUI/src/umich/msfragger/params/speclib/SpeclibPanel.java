@@ -139,12 +139,12 @@ public class SpeclibPanel extends JPanelWithEnablement {
       pOptions.setBorder(new EmptyBorder(0, 0, 0, 0));
 
       radioGroupTools = new ButtonGroup();
-      uiRadioUseSpectrast = new UiRadio("SpectraST - included, requires Python, see Config tab", null, true);
+      uiRadioUseSpectrast = new UiRadio("SpectraST (for non-ion mobility data) - included, requires Python, see Config tab", null, true);
       radioGroupTools.add(uiRadioUseSpectrast);
       updateEnabledStatus(uiRadioUseSpectrast, false);
       FormEntry feRadioUseSpectrast = new FormEntry("ui.name.report.speclibgen.use-spectrast", "Not shown",
           uiRadioUseSpectrast);
-      uiRadioUseEasypqp = new UiRadio("EasyPQP - requires separate installation, follow instructions at: https://github.com/grosenberger/easypqp", null, true);
+      uiRadioUseEasypqp = new UiRadio("<html>EasyPQP (use for timsTOF ion mobility data) - requires separate installation, follow instructions at: <a href=\"https://github.com/grosenberger/easypqp\">https://github.com/grosenberger/easypqp</a></html>", null, true);
       radioGroupTools.add(uiRadioUseEasypqp);
       updateEnabledStatus(uiRadioUseEasypqp, false);
       FormEntry feRadioUseEasypqp = new FormEntry("ui.name.report.speclibgen.use-easypqp", "Not shown",
