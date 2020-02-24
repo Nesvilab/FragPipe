@@ -594,7 +594,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     map.put(SpecLibGen.MessageInitDone.REASON.PY_MODULES, "Python modules required.");
     map.put(SpecLibGen.MessageInitDone.REASON.NOT_UNPACKED, "Error unpacking.");
     StringBuilder sb = new StringBuilder();
-    sb.append(m.isSuccess ? "Spectral library generation enabled." : "Spectral library generation disabled.");
+    sb.append("Spectral library generation ");
+    sb.append("<b>");
+    sb.append(m.isSuccess ? "enabled" : "disabled");
+    sb.append("</b>");
+    sb.append(" for non-ion mobility data (with SpectraST).");
     if (!m.isSuccess) {
       String reasons = m.reasons.stream().flatMap(reason ->
           map.containsKey(reason) ? Stream.of(map.get(reason)) : Stream.empty())
@@ -604,6 +608,18 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       }
       sb.append(" <br/>").append("FragPipe will work fine without this functionality.");
     }
+
+    sb.append("<br/><br/>Spectral library generation ");
+    sb.append("<b>");
+    sb.append(SpecLibGen.get().checkPythonErrorModulesEasypqp().isSuccess ? "enabled" : "disabled");
+    sb.append("</b>");
+    sb.append(" for ion mobility data (with EasyPQP).");
+    if (!SpecLibGen.get().checkPythonErrorModulesEasypqp().isSuccess) {
+      sb.append(" <br/>").append("EasyPQP not installed");
+      sb.append(" <br/>").append("follow instructions at: <a href=\"https://github.com/grosenberger/easypqp\">https://github.com/grosenberger/easypqp</a>");
+      sb.append(" <br/>").append("FragPipe will work fine without this functionality.");
+    }
+
     FragpipeUiHelpers.messageToTextComponent(ISimpleTextComponent.from(epSpeclibInfo2),
         new DbSlice.Message2(true, false, sb.toString()));
 

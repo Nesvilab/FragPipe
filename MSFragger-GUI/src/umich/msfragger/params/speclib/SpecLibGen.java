@@ -268,7 +268,7 @@ public class SpecLibGen {
     return new CheckResult(false, " " + String.join(", ", badModsByStatus));
   }
 
-  private CheckResult checkPythonErrorModulesEasypqp() {
+  public CheckResult checkPythonErrorModulesEasypqp() {
     List<Installed> badStatuses = Arrays.stream(Installed.values())
         .filter(installed -> !installed.equals(Installed.YES)).collect(
             Collectors.toList());
