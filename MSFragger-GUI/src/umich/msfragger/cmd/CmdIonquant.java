@@ -47,7 +47,7 @@ public class CmdIonquant extends CmdBase {
 
   public boolean configure(Component comp, Path binFragger, int ramGb,
       Map<String, String> uiCompsRepresentation,
-      Map<InputLcmsFile, Path> lcmsToFraggerPepxml,
+      Map<InputLcmsFile, ArrayList<Path>> lcmsToFraggerPepxml,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads) {
 
 //    Usage:
@@ -125,11 +125,12 @@ public class CmdIonquant extends CmdBase {
       cmd.add(wd.toString());
     }
 
-    for (Entry<InputLcmsFile, Path> e : lcmsToFraggerPepxml.entrySet()) {
+    for (Entry<InputLcmsFile, ArrayList<Path>> e : lcmsToFraggerPepxml.entrySet()) {
       InputLcmsFile lcms = e.getKey();
-      Path pepxml = e.getValue();
-      cmd.add(lcms.getPath().toString());
-      cmd.add(wd.relativize(pepxml).toString());
+      for (Path pepxml : e.getValue()) {
+        cmd.add(lcms.getPath().toString());
+        cmd.add(wd.relativize(pepxml).toString());
+      }
     }
 
     ProcessBuilder pb = new ProcessBuilder(cmd);
@@ -147,7 +148,7 @@ public class CmdIonquant extends CmdBase {
     return s;
   }
 
-  private boolean checkCompatibleFormats(Component comp,  Map<InputLcmsFile, Path> lcmsToPepxml, List<String> supportedFormats) {
+  private boolean checkCompatibleFormats(Component comp,  Map<InputLcmsFile, ArrayList<Path>> lcmsToPepxml, List<String> supportedFormats) {
     List<String> notSupportedExts = getNotSupportedExts1(lcmsToPepxml, supportedFormats);
     if (!notSupportedExts.isEmpty()) {
       StringBuilder sb = new StringBuilder();

@@ -67,7 +67,7 @@ public abstract class CmdBase {
     return exts;
   }
 
-  public static List<String> getNotSupportedExts1(Map<InputLcmsFile, Path> pepxmlFiles, List<String> supportedExts) {
+  public static List<String> getNotSupportedExts1(Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles, List<String> supportedExts) {
     List<String> supportedLoCase = supportedExts.stream().map(String::toLowerCase)
         .collect(Collectors.toList());
     List<String> exts = pepxmlFiles.keySet().stream()

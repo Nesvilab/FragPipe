@@ -63,17 +63,26 @@ public class CmdCrystalc extends CmdBase {
   /**
    * @param inputs Pepxml files after search engine, but before Peptide Prophet.
    */
-  public Map<InputLcmsFile, Path> outputs(Map<InputLcmsFile, Path> inputs, String pepxmlExtFragger) {
-    Map<InputLcmsFile, Path> m = new HashMap<>();
-    for (Entry<InputLcmsFile, Path> e : inputs.entrySet()) {
-      Path dir = e.getValue().getParent();
-      String pepxmlFn = e.getValue().getFileName().toString();
-      m.put(e.getKey(), dir.resolve(getModifiedPepxmlFn(pepxmlFn, pepxmlExtFragger)));
+  public Map<InputLcmsFile, ArrayList<Path>> outputs(Map<InputLcmsFile, ArrayList<Path>> inputs, String pepxmlExtFragger) {
+    Map<InputLcmsFile, ArrayList<Path>> m = new HashMap<>();
+    for (Entry<InputLcmsFile, ArrayList<Path>> e : inputs.entrySet()) {
+      for (Path p : e.getValue()) {
+        Path dir = p.getParent();
+        String pepxmlFn = p.getFileName().toString();
+        ArrayList<Path> t = m.get(e.getKey());
+        if (t == null) {
+          t = new ArrayList<>(e.getValue().size());
+          t.add(dir.resolve(getModifiedPepxmlFn(pepxmlFn, pepxmlExtFragger)));
+          m.put(e.getKey(), t);
+        } else {
+          t.add(dir.resolve(getModifiedPepxmlFn(pepxmlFn, pepxmlExtFragger)));
+        }
+      }
     }
     return m;
   }
 
-  private boolean checkCompatibleFormats(Component comp, Map<InputLcmsFile, Path> pepxmlFiles, List<String> supportedFormats) {
+  private boolean checkCompatibleFormats(Component comp, Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles, List<String> supportedFormats) {
     List<String> notSupportedExts = getNotSupportedExts1(pepxmlFiles, supportedFormats);
     if (!notSupportedExts.isEmpty()) {
       JOptionPane.showMessageDialog(comp, String.format(
@@ -93,7 +102,7 @@ public class CmdCrystalc extends CmdBase {
    */
   public boolean configure(Component comp,
       FraggerMigPanel fp, boolean isDryRun, Path binFragger,
-      CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, Path> pepxmlFiles) {
+      CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles) {
     pbis.clear();
 
     final ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
@@ -138,49 +147,50 @@ public class CmdCrystalc extends CmdBase {
     // multiple raw file extensions or multiple lcms file locaitons
     // issue a separate command for each pepxml file
     int index = -1;
-    for (Map.Entry<InputLcmsFile, Path> kv : pepxmlFiles.entrySet()) {
-      final InputLcmsFile lcms = kv.getKey();
-      final String lcmsFn = lcms.getPath().getFileName().toString();
-      final Path pepxml = kv.getValue();
-      final String pepxmlFn = pepxml.getFileName().toString();
-      final Path outDir = lcms.outputDir(wd);
+    for (Map.Entry<InputLcmsFile, ArrayList<Path>> kv : pepxmlFiles.entrySet()) {
+      for (Path pepxml : kv.getValue()) {
+        final InputLcmsFile lcms = kv.getKey();
+        final String lcmsFn = lcms.getPath().getFileName().toString();
+        final String pepxmlFn = pepxml.getFileName().toString();
+        final Path outDir = lcms.outputDir(wd);
 
-      CrystalcParams ccp;
-      Path ccParamsPath = lcms.outputDir(wd).resolve(ccParamsFilePrefix + "-" + (++index) + "-" + pepxmlFn + ccParamsFileSuffix);
-      try {
-        ccp = ccParams;
-        String ext = StringUtils.afterLastDot(lcmsFn);
-        ccp.setRawFileLocation(lcms.getPath().getParent().toString());
-        ccp.setRawFileExt(ext);
-        ccp.setOutputLocation(outDir.toString());
-        ccp.setFasta(fastaPath);
-        if (!isDryRun) {
-          Files.deleteIfExists(ccParamsPath);
-          ccp.save(Files.newOutputStream(ccParamsPath, StandardOpenOption.CREATE));
+        CrystalcParams ccp;
+        Path ccParamsPath = lcms.outputDir(wd).resolve(ccParamsFilePrefix + "-" + (++index) + "-" + pepxmlFn + ccParamsFileSuffix);
+        try {
+          ccp = ccParams;
+          String ext = StringUtils.afterLastDot(lcmsFn);
+          ccp.setRawFileLocation(lcms.getPath().getParent().toString());
+          ccp.setRawFileExt(ext);
+          ccp.setOutputLocation(outDir.toString());
+          ccp.setFasta(fastaPath);
+          if (!isDryRun) {
+            Files.deleteIfExists(ccParamsPath);
+            ccp.save(Files.newOutputStream(ccParamsPath, StandardOpenOption.CREATE));
+          }
+        } catch (IOException e) {
+          JOptionPane.showMessageDialog(comp,
+              "Could not create Crystal-C parameter file.\n" + e.getMessage(),
+              "Error", JOptionPane.ERROR_MESSAGE);
+          return false;
         }
-      } catch (IOException e) {
-        JOptionPane.showMessageDialog(comp,
-            "Could not create Crystal-C parameter file.\n" + e.getMessage(),
-            "Error", JOptionPane.ERROR_MESSAGE);
-        return false;
-      }
 
-      List<String> cmd = new ArrayList<>();
-      cmd.add("java");
-      if (extLibsThermo != null) {
-        cmd.add("-Dbatmass.io.libs.thermo.dir=\"" + extLibsThermo.toString() + "\"" );
+        List<String> cmd = new ArrayList<>();
+        cmd.add("java");
+        if (extLibsThermo != null) {
+          cmd.add("-Dbatmass.io.libs.thermo.dir=\"" + extLibsThermo.toString() + "\"");
+        }
+        if (ramGb > 0) {
+          cmd.add("-Xmx" + ramGb + "G");
+        }
+        cmd.add("-cp");
+        cmd.add(constructClasspathString(unpacked));
+        cmd.add(JAR_CRYSTALC_MAIN_CLASS);
+        cmd.add(ccParamsPath.toString());
+        cmd.add(pepxml.toString());
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        pb.directory(outDir.toFile());
+        pbis.add(PbiBuilder.from(pb));
       }
-      if (ramGb > 0) {
-        cmd.add("-Xmx" + ramGb + "G");
-      }
-      cmd.add("-cp");
-      cmd.add(constructClasspathString(unpacked));
-      cmd.add(JAR_CRYSTALC_MAIN_CLASS);
-      cmd.add(ccParamsPath.toString());
-      cmd.add(pepxml.toString());
-      ProcessBuilder pb = new ProcessBuilder(cmd);
-      pb.directory(outDir.toFile());
-      pbis.add(PbiBuilder.from(pb));
     }
 
     isConfigured = true;

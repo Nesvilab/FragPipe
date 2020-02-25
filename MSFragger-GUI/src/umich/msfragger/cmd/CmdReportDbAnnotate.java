@@ -3,6 +3,7 @@ package umich.msfragger.cmd;
 import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +30,7 @@ public class CmdReportDbAnnotate extends CmdBase {
 
   public boolean configure(Component comp, UsageTrigger binPhilosopher,
       String dbPath, String decoyTag,
-      Map<InputLcmsFile, Path> pepxmlFiles, Map<LcmsFileGroup, Path> protxmlFiles) {
+      Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles, Map<LcmsFileGroup, Path> protxmlFiles) {
 
     pbis.clear();
     if (dbPath == null) {
@@ -39,7 +40,7 @@ public class CmdReportDbAnnotate extends CmdBase {
     }
 
     Set<Path> pepProtDirs = Stream
-        .concat(pepxmlFiles.values().stream(), protxmlFiles.values().stream())
+        .concat(pepxmlFiles.values().stream().flatMap(List::stream), protxmlFiles.values().stream())
         .map(Path::getParent)
         .collect(Collectors.toSet());
 

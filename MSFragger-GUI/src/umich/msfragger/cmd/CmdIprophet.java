@@ -23,7 +23,7 @@ public class CmdIprophet extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      String decoyTag, int nThreads, Map<InputLcmsFile, Path> pepxmlFiles) {
+      String decoyTag, int nThreads, Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles) {
 
     pbis.clear();
 
@@ -43,7 +43,7 @@ public class CmdIprophet extends CmdBase {
       threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     }
     cmd.add(Integer.toString(threads));
-    pepxmlFiles.values().stream().distinct().forEach(pepxml -> cmd.add(pepxml.toString()));
+    pepxmlFiles.values().stream().flatMap(List::stream).distinct().forEach(pepxml -> cmd.add(pepxml.toString()));
 
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(wd.toFile());

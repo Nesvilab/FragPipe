@@ -485,7 +485,7 @@ public class FragpipeOnMessages {
     final String fastaFile = msfgf.getFastaPath();
     final UsageTrigger binMsfragger = new UsageTrigger(
         msfgf.getTextBinMsfragger().getText().trim(), "MsFragger");
-    final CmdMsfragger cmdMsfragger = new CmdMsfragger(fp.isRun(), wd);
+    final CmdMsfragger cmdMsfragger = new CmdMsfragger(fp.isRun(), wd, fp.getParams().getPrecursorMassUnits(), fp.getParams().getOutputReportTopN());
     if (cmdMsfragger.isRun()) {
       final String decoyTag = msfgf.getTextDecoyTagSeqDb().getText().trim();
       if (!cmdMsfragger.configure(msfgf,
@@ -514,9 +514,9 @@ public class FragpipeOnMessages {
         }
       }
     }
-    Map<InputLcmsFile, Path> pepxmlFiles = cmdMsfragger.outputs(
+    Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles = cmdMsfragger.outputs(
         lcmsFiles, fp.getOutputFileExt(), wd);
-    final Map<InputLcmsFile, Path> pepxmlFilesFromMsfragger = new HashMap<>(pepxmlFiles);
+    final Map<InputLcmsFile, ArrayList<Path>> pepxmlFilesFromMsfragger = new HashMap<>(pepxmlFiles);
 
 
     // run MsAdjuster Cleanup
@@ -813,7 +813,7 @@ public class FragpipeOnMessages {
     // make sure that all subfolders are created for groups/experiments
     if (!isDryRun) {
       List<Path> paths = Stream
-          .concat(pepxmlFiles.values().stream(), mapGroupsToProtxml.values().stream())
+          .concat(pepxmlFiles.values().stream().flatMap(List::stream), mapGroupsToProtxml.values().stream())
           .map(Path::getParent).collect(Collectors.toList());
       try {
         for (Path path : paths) {

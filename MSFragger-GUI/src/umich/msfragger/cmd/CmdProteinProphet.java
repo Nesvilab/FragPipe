@@ -54,7 +54,7 @@ public class CmdProteinProphet extends CmdBase {
    * @return Mapping from Experiment/Group name to interact.prot.xml file location.
    * 'interact' has been renamed to 'combined'.
    */
-  public Map<LcmsFileGroup, Path> outputs(Map<InputLcmsFile, Path> pepxmlFiles,
+  public Map<LcmsFileGroup, Path> outputs(Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles,
       boolean isProcessGroupsSeparately, boolean isMultiExperimentReport) {
 
     Map<String, List<InputLcmsFile>> lcmsByExp = pepxmlFiles.keySet().stream()
@@ -158,7 +158,7 @@ public class CmdProteinProphet extends CmdBase {
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       String txtProteinProphetCmdLineOpts, boolean isMultiExperiment,
-      boolean isProcessGroupsSeparately, Map<InputLcmsFile, Path> pepxmlFiles) {
+      boolean isProcessGroupsSeparately, Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles) {
 
     pbis.clear();
 
@@ -180,7 +180,7 @@ public class CmdProteinProphet extends CmdBase {
         Path protxml = e.getValue();
         List<String> pepxmlFns = pepxmlFiles.entrySet().stream()
             .filter(pepxml -> pepxml.getKey().getGroup().equals(group.name))
-            .map(pepxml -> pepxml.getValue().getFileName().toString())
+            .flatMap(pepxml -> pepxml.getValue().stream()).map(Path::getFileName).map(Path::toString)
             .distinct()
             .collect(Collectors.toList());
         List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
@@ -205,7 +205,7 @@ public class CmdProteinProphet extends CmdBase {
         throw new IllegalStateException("Protxml not in global output directory when groups processed together.");
       }
       List<String> pepxmlsPaths = pepxmlFiles.entrySet().stream()
-          .map(pepxml -> pepxml.getValue().toString())
+          .flatMap(pepxml -> pepxml.getValue().stream()).map(Path::toString)
           .distinct()
           .collect(Collectors.toList());
       List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);

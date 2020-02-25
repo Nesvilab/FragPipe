@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.ProcessManager;
 import umich.msfragger.params.dbslice.DbSlice;
+import umich.msfragger.params.enums.MassTolUnits;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.util.OsUtils;
@@ -44,8 +45,13 @@ public class CmdMsfragger extends CmdBase {
   private static volatile Path pathThermo = PATH_NONE;
   private static volatile Path pathBruker = PATH_NONE;
 
-  public CmdMsfragger(boolean isRun, Path workDir) {
+  private final MassTolUnits precursorMassUnits;
+  private final int outputReportTopN;
+
+  public CmdMsfragger(boolean isRun, Path workDir, MassTolUnits precursorMassUnits, int outputReportTopN) {
     super(isRun, workDir);
+    this.precursorMassUnits = precursorMassUnits;
+    this.outputReportTopN = outputReportTopN;
   }
 
   @Override
@@ -53,15 +59,35 @@ public class CmdMsfragger extends CmdBase {
     return NAME;
   }
 
-  private String getPepxmlFn(InputLcmsFile f, String ext) {
-    return StringUtils.upToLastDot(f.getPath().getFileName().toString()) + "." + ext;
+  private String getPepxmlFn(InputLcmsFile f, String ext, int rank) {
+    if (rank > 0) {
+      return StringUtils.upToLastDot(f.getPath().getFileName().toString()) + "_rank" + rank + "." + ext;
+    } else {
+      return StringUtils.upToLastDot(f.getPath().getFileName().toString()) + "." + ext;
+    }
   }
 
-  public Map<InputLcmsFile, Path> outputs(List<InputLcmsFile> inputs, String ext, Path workDir) {
-    Map<InputLcmsFile, Path> m = new HashMap<>();
+  public Map<InputLcmsFile, ArrayList<Path>> outputs(List<InputLcmsFile> inputs, String ext, Path workDir) {
+    Map<InputLcmsFile, ArrayList<Path>> m = new HashMap<>();
     for (InputLcmsFile f : inputs) {
-      String pepxmlFn = getPepxmlFn(f, ext);
-      m.put(f, f.outputDir(workDir).resolve(pepxmlFn));
+      if (precursorMassUnits.valueInParamsFile() > 1 && outputReportTopN > 1 && !ext.contentEquals("tsv") && !ext.contentEquals("pin")) {
+        for (int rank = 1; rank <= outputReportTopN; ++rank) {
+          String pepxmlFn = getPepxmlFn(f, ext, rank);
+          ArrayList<Path> t = m.get(f);
+          if (t == null) {
+            t = new ArrayList<>(outputReportTopN);
+            t.add(f.outputDir(workDir).resolve(pepxmlFn));
+            m.put(f, t);
+          } else {
+            t.add(f.outputDir(workDir).resolve(pepxmlFn));
+          }
+        }
+      } else {
+        String pepxmlFn = getPepxmlFn(f, ext, 0);
+        ArrayList<Path> tempList = new ArrayList<>(1);
+        tempList.add(f.outputDir(workDir).resolve(pepxmlFn));
+        m.put(f, tempList);
+      }
     }
     return m;
   }
@@ -343,8 +369,9 @@ public class CmdMsfragger extends CmdBase {
     StringBuilder sb = new StringBuilder();
 
     final String ext = fp.getOutputFileExt();
-    Map<InputLcmsFile, Path> mapLcmsToPepxml = outputs(lcmsFiles, ext, wd);
-    Map<InputLcmsFile, Path> mapLcmsToTsv = outputs(lcmsFiles, "tsv", wd);
+    Map<InputLcmsFile, ArrayList<Path>> mapLcmsToPepxml = outputs(lcmsFiles, ext, wd);
+    Map<InputLcmsFile, ArrayList<Path>> mapLcmsToTsv = outputs(lcmsFiles, "tsv", wd);
+    Map<InputLcmsFile, ArrayList<Path>> mapLcmsToPin = outputs(lcmsFiles, "pin", wd);
 
     final List<String> javaCmd = Arrays.asList("java", "-jar", "-Dfile.encoding=UTF-8", "-Xmx" + ramGb + "G");
     final List<String> slicingCmd = isSlicing ?
@@ -400,25 +427,42 @@ public class CmdMsfragger extends CmdBase {
       // move the pepxml files if the output directory is not the same as where
       // the lcms files were
       for (InputLcmsFile f : addedLcmsFiles) {
-        Path pepxmlWhereItShouldBe = mapLcmsToPepxml.get(f);
-        if (pepxmlWhereItShouldBe == null)
+        ArrayList<Path> pepxmlWhereItShouldBeList = mapLcmsToPepxml.get(f);
+        if (pepxmlWhereItShouldBeList == null || pepxmlWhereItShouldBeList.isEmpty())
           throw new IllegalStateException("LCMS file mapped to no pepxml file");
-        String pepxmlFn = pepxmlWhereItShouldBe.getFileName().toString();
-        Path pepxmlAsCreatedByFragger = f.getPath().getParent().resolve(pepxmlFn);
-        if (!pepxmlAsCreatedByFragger.equals(pepxmlWhereItShouldBe)) {
-          List<ProcessBuilder> pbsMove = ToolingUtils
-              .pbsMoveFiles(jarFragpipe, pepxmlWhereItShouldBe.getParent(),
-                  Collections.singletonList(pepxmlAsCreatedByFragger));
-          pbis.addAll(PbiBuilder.from(pbsMove));
+        for (Path pepxmlWhereItShouldBe : pepxmlWhereItShouldBeList) {
+          String pepxmlFn = pepxmlWhereItShouldBe.getFileName().toString();
+          Path pepxmlAsCreatedByFragger = f.getPath().getParent().resolve(pepxmlFn);
+          if (!pepxmlAsCreatedByFragger.equals(pepxmlWhereItShouldBe)) {
+            List<ProcessBuilder> pbsMove = ToolingUtils
+                .pbsMoveFiles(jarFragpipe, pepxmlWhereItShouldBe.getParent(),
+                    Collections.singletonList(pepxmlAsCreatedByFragger));
+            pbis.addAll(PbiBuilder.from(pbsMove));
+          }
         }
-        Path tsvWhereItShouldBe = mapLcmsToTsv.get(f);
-        String tsvFn = tsvWhereItShouldBe.getFileName().toString();
-        Path tsvAsCreatedByFragger = f.getPath().getParent().resolve(tsvFn);
-        if (!tsvAsCreatedByFragger.equals(tsvWhereItShouldBe) && params.getShiftedIons()) {
-          List<ProcessBuilder> pbsMove = ToolingUtils
-              .pbsMoveFiles(jarFragpipe, tsvWhereItShouldBe.getParent(), true,
-                  Collections.singletonList(tsvAsCreatedByFragger));
-          pbis.addAll(PbiBuilder.from(pbsMove));
+        ArrayList<Path> tsvWhereItShouldBeList = mapLcmsToTsv.get(f);
+        for (Path tsvWhereItShouldBe : tsvWhereItShouldBeList) {
+          String tsvFn = tsvWhereItShouldBe.getFileName().toString();
+          Path tsvAsCreatedByFragger = f.getPath().getParent().resolve(tsvFn);
+          if (!tsvAsCreatedByFragger.equals(tsvWhereItShouldBe) && params.getShiftedIons()) {
+            List<ProcessBuilder> pbsMove = ToolingUtils
+                .pbsMoveFiles(jarFragpipe, tsvWhereItShouldBe.getParent(), true,
+                    Collections.singletonList(tsvAsCreatedByFragger));
+            pbis.addAll(PbiBuilder.from(pbsMove));
+          }
+        }
+        if (fp.getParams().getPrecursorMassUnits().valueInParamsFile() > 1) {
+          ArrayList<Path> pinWhereItShouldBeList = mapLcmsToPin.get(f);
+          for (Path pinWhereItShouldBe : pinWhereItShouldBeList) {
+            String pinFn = pinWhereItShouldBe.getFileName().toString();
+            Path pinAsCreatedByFragger = f.getPath().getParent().resolve(pinFn);
+            if (!pinAsCreatedByFragger.equals(pinWhereItShouldBe)) {
+              List<ProcessBuilder> pbsMove = ToolingUtils
+                  .pbsMoveFiles(jarFragpipe, pinWhereItShouldBe.getParent(), true,
+                      Collections.singletonList(pinAsCreatedByFragger));
+              pbis.addAll(PbiBuilder.from(pbsMove));
+            }
+          }
         }
       }
     }

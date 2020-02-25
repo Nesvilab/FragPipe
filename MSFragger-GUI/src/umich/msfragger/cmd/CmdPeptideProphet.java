@@ -53,46 +53,54 @@ public class CmdPeptideProphet extends CmdBase {
   /**
    * @param inputs Either pepxml files after search or after Crystal-C.
    */
-  public Map<InputLcmsFile, Path> outputs(Map<InputLcmsFile, Path> inputs, String pepxmlExt, boolean combine) {
-    Map<InputLcmsFile, Path> m = new HashMap<>();
-    for (Entry<InputLcmsFile, Path> e : inputs.entrySet()) {
+  public Map<InputLcmsFile, ArrayList<Path>> outputs(Map<InputLcmsFile, ArrayList<Path>> inputs, String pepxmlExt, boolean combine) {
+    Map<InputLcmsFile, ArrayList<Path>> m = new HashMap<>();
+    for (Entry<InputLcmsFile, ArrayList<Path>> e : inputs.entrySet()) {
       InputLcmsFile lcms = e.getKey();
-      final Path pepxml = e.getValue();
-      final String cleanFn = pepxml.getFileName().toString();
-      final Path cleanDir = pepxml.getParent();
+      for (Path pepxml : e.getValue()) {
+        final String cleanFn = pepxml.getFileName().toString();
+        final Path cleanDir = pepxml.getParent();
 
-      Path interactXml;
-      if (!combine) {
-        // getting rid of extension (done like that because of file extensions with
-        // with multiple dots in them)
-        String[] typicalExts = {pepxmlExt, "pep.xml", "pepxml"};
-        String nameWithoutExt = null;
-        for (String ext : typicalExts) {
-          if (cleanFn.toLowerCase().endsWith(ext)) {
-            int lastIndex = cleanFn.toLowerCase().lastIndexOf(ext);
-            nameWithoutExt = cleanFn.substring(0, lastIndex);
-            break;
+        Path interactXml;
+        if (!combine) {
+          // getting rid of extension (done like that because of file extensions with
+          // with multiple dots in them)
+          String[] typicalExts = {pepxmlExt, "pep.xml", "pepxml"};
+          String nameWithoutExt = null;
+          for (String ext : typicalExts) {
+            if (cleanFn.toLowerCase().endsWith(ext)) {
+              int lastIndex = cleanFn.toLowerCase().lastIndexOf(ext);
+              nameWithoutExt = cleanFn.substring(0, lastIndex);
+              break;
+            }
           }
+          if (nameWithoutExt == null) {
+            throw new IllegalStateException(
+                String.format("Could not identify the extension for file: %s", pepxml));
+          }
+          interactXml = cleanDir.resolve("interact-" + nameWithoutExt + "pep.xml").toAbsolutePath();
+        } else {
+          // --combine option for peptide prophet means there's a single interact.pep.xml for each experiment/group
+          interactXml = cleanDir.resolve(Paths.get("interact.pep.xml"));
         }
-        if (nameWithoutExt == null) {
-          throw new IllegalStateException(
-              String.format("Could not identify the extension for file: %s", pepxml));
-        }
-        interactXml = cleanDir.resolve("interact-" + nameWithoutExt + "pep.xml").toAbsolutePath();
-      } else {
-        // --combine option for peptide prophet means there's a single interact.pep.xml for each experiment/group
-        interactXml = cleanDir.resolve(Paths.get("interact.pep.xml"));
-      }
 
-      m.put(lcms, interactXml);
+        ArrayList<Path> t = m.get(lcms);
+        if (t == null) {
+          t = new ArrayList<>(e.getValue().size());
+          t.add(interactXml);
+          m.put(lcms, t);
+        } else {
+          t.add(interactXml);
+        }
+      }
     }
     return m;
   }
 
-  private List<Path> findOldFilesForDeletion(Map<InputLcmsFile, Path> outputs) {
+  private List<Path> findOldFilesForDeletion(Map<InputLcmsFile, ArrayList<Path>> outputs) {
 //    final Set<Path> outputPaths = pepxmlFiles.keySet().stream()
 //        .map(f -> f.outputDir(wd)).collect(Collectors.toSet());
-    final Set<Path> outputPaths = outputs.values().stream()
+    final Set<Path> outputPaths = outputs.values().stream().flatMap(List::stream)
         .map(Path::getParent).collect(Collectors.toSet());
     final Pattern pepxmlRegex = Pattern.compile(".+?\\.pep\\.xml$", Pattern.CASE_INSENSITIVE);
     final List<Path> pepxmlsToDelete = new ArrayList<>();
@@ -163,7 +171,7 @@ public class CmdPeptideProphet extends CmdBase {
    */
   public boolean configure(Component comp, UsageTrigger phi, Path jarFragpipe, boolean isDryRun,
       String fastaPath, String decoyTag, String textPepProphCmd, boolean combine, String enzymeName,
-      Map<InputLcmsFile, Path> pepxmlFiles) {
+      Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles) {
 
     isConfigured = false;
     pbis.clear();
@@ -182,7 +190,7 @@ public class CmdPeptideProphet extends CmdBase {
     combine = combine || cmdLineContainsCombine;
 
     // check for existing pepxml files and delete them
-    final Map<InputLcmsFile, Path> outputs = outputs(pepxmlFiles, "pepxml", combine);
+    final Map<InputLcmsFile, ArrayList<Path>> outputs = outputs(pepxmlFiles, "pepxml", combine);
     final List<Path> forDeletion = findOldFilesForDeletion(outputs);
     if (!deleteFiles(comp, forDeletion)) {
       return false;
@@ -198,74 +206,74 @@ public class CmdPeptideProphet extends CmdBase {
       LinkedList<ProcessBuilderInfo> pbisParallel = new LinkedList<>();
       LinkedList<ProcessBuilderInfo> pbisPostParallel = new LinkedList<>();
 
-      for (Map.Entry<InputLcmsFile, Path> e : pepxmlFiles.entrySet()) {
-        final Path pepxmlPath = e.getValue();
-        final Path pepxmlDir = pepxmlPath.getParent();
-        final String pepxmlFn = pepxmlPath.getFileName().toString();
+      for (Map.Entry<InputLcmsFile, ArrayList<Path>> e : pepxmlFiles.entrySet()) {
+        for (Path pepxmlPath : e.getValue()) {
+          final Path pepxmlDir = pepxmlPath.getParent();
+          final String pepxmlFn = pepxmlPath.getFileName().toString();
 
 
         // Needed for parallel Peptide Prophet
 
-        // create temp dir to house philosopher's .meta directory, otherwise philosopher breaks
-        Path temp = pepxmlDir.resolve("fragpipe-" + pepxmlFn + "-temp");
-        if (!isDryRun) {
-          try {
-            if (Files.exists(temp)) {
-              FileDelete.deleteFileOrFolder(temp);
+          // create temp dir to house philosopher's .meta directory, otherwise philosopher breaks
+          Path temp = pepxmlDir.resolve("fragpipe-" + pepxmlFn + "-temp");
+          if (!isDryRun) {
+            try {
+              if (Files.exists(temp)) {
+                FileDelete.deleteFileOrFolder(temp);
+              }
+            } catch (IOException ex) {
+              log.error("Could not delete old temporary directory for running peptide prophet in parallel", ex);
             }
-          } catch (IOException ex) {
-            log.error("Could not delete old temporary directory for running peptide prophet in parallel", ex);
+            try {
+              temp = Files.createDirectories(temp);
+            } catch (FileAlreadyExistsException ignored) {
+              log.error("Temp dir already exists, but we should have tried deleting it first. This is not critical.");
+            } catch (IOException ex) {
+              log.error("Could not create directory for parallel peptide prophet execution", ex);
+              return false;
+            }
           }
-          try {
-            temp = Files.createDirectories(temp);
-          } catch (FileAlreadyExistsException ignored) {
-            log.error("Temp dir already exists, but we should have tried deleting it first. This is not critical.");
-          } catch (IOException ex) {
-            log.error("Could not create directory for parallel peptide prophet execution", ex);
-            return false;
-          }
+
+          // workspace init
+          List<String> cmdPhiInit = new ArrayList<>();
+          cmdPhiInit.add(phi.useBin());
+          cmdPhiInit.add("workspace");
+          cmdPhiInit.add("--init");
+          ProcessBuilder pbPhiInit = new ProcessBuilder(cmdPhiInit);
+          pbPhiInit.directory(temp.toFile());
+          pbisPreParallel.add(new PbiBuilder()
+              .setPb(pbPhiInit)
+              .setName(getCmdName() + ": Workspace init")
+              .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
+
+          // peptide prophet itself
+          List<String> cmdPp = new ArrayList<>();
+          cmdPp.add(phi.useBin());
+          cmdPp.add(PhilosopherProps.CMD_PEPTIDE_PROPHET);
+          addFreeCommandLineParams(peptideProphetParams, cmdPp, enzymeName);
+          cmdPp.add("--decoy");
+          cmdPp.add(decoyTag);
+          cmdPp.add("--database");
+          cmdPp.add(fastaPath);
+
+          cmdPp.add(Paths.get("..", pepxmlPath.getFileName().toString()).toString());
+          ProcessBuilder pbPp = new ProcessBuilder(cmdPp);
+          setupEnv(temp, pbPp);
+          pbisParallel.add(new PbiBuilder()
+              .setPb(pbPp)
+              .setParallelGroup(getCmdName()).create());
+
+          // delete temp dir
+          workspacesToBeCleaned.add(temp);
+          List<ProcessBuilder> pbsDeleteTemp = ToolingUtils
+              .pbsDeleteFiles(jarFragpipe, Collections.singletonList(temp));
+          pbisPostParallel.addAll(pbsDeleteTemp.stream()
+              .map(pb -> new PbiBuilder()
+                  .setPb(pb)
+                  .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL)
+                  .setName(getCmdName() + ": Delete temp").create())
+              .collect(Collectors.toList()));
         }
-
-        // workspace init
-        List<String> cmdPhiInit = new ArrayList<>();
-        cmdPhiInit.add(phi.useBin());
-        cmdPhiInit.add("workspace");
-        cmdPhiInit.add("--init");
-        ProcessBuilder pbPhiInit = new ProcessBuilder(cmdPhiInit);
-        pbPhiInit.directory(temp.toFile());
-        pbisPreParallel.add(new PbiBuilder()
-            .setPb(pbPhiInit)
-            .setName(getCmdName() + ": Workspace init")
-            .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
-
-        // peptide prophet itself
-        List<String> cmdPp = new ArrayList<>();
-        cmdPp.add(phi.useBin());
-        cmdPp.add(PhilosopherProps.CMD_PEPTIDE_PROPHET);
-        addFreeCommandLineParams(peptideProphetParams, cmdPp, enzymeName);
-        cmdPp.add("--decoy");
-        cmdPp.add(decoyTag);
-        cmdPp.add("--database");
-        cmdPp.add(fastaPath);
-
-        cmdPp.add(Paths.get("..", pepxmlPath.getFileName().toString()).toString());
-        ProcessBuilder pbPp = new ProcessBuilder(cmdPp);
-        setupEnv(temp, pbPp);
-        pbisParallel.add(new PbiBuilder()
-            .setPb(pbPp)
-            .setParallelGroup(getCmdName()).create());
-
-        // delete temp dir
-        workspacesToBeCleaned.add(temp);
-        List<ProcessBuilder> pbsDeleteTemp = ToolingUtils
-            .pbsDeleteFiles(jarFragpipe, Collections.singletonList(temp));
-        pbisPostParallel.addAll(pbsDeleteTemp.stream()
-            .map(pb -> new PbiBuilder()
-                .setPb(pb)
-                .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL)
-                .setName(getCmdName() + ": Delete temp").create())
-            .collect(Collectors.toList()));
-
       }
       pbis.addAll(pbisPreParallel);
       pbis.addAll(pbisParallel);
@@ -273,11 +281,11 @@ public class CmdPeptideProphet extends CmdBase {
 
     } else {
       // --combine specified
-      Map<String, List<Entry<InputLcmsFile, Path>>> pepxmlByExp = pepxmlFiles.entrySet().stream()
+      Map<String, List<Entry<InputLcmsFile, ArrayList<Path>>>> pepxmlByExp = pepxmlFiles.entrySet().stream()
           .collect(Collectors.groupingBy(kv -> kv.getKey().getGroup()));
-      for (List<Entry<InputLcmsFile, Path>> exp : pepxmlByExp.values()) {
+      for (List<Entry<InputLcmsFile, ArrayList<Path>>> exp : pepxmlByExp.values()) {
         // check that all pepxml files are in one folder
-        List<Path> pepxmlDirs = exp.stream().map(e -> e.getValue().getParent()).distinct()
+        List<Path> pepxmlDirs = exp.stream().flatMap(e -> e.getValue().stream()).map(Path::getParent).distinct()
             .collect(Collectors.toList());
         if (pepxmlDirs.size() > 1) {
           String msg = String.format("When 'combine'd PeptideProphet processing requested all files "
@@ -299,7 +307,7 @@ public class CmdPeptideProphet extends CmdBase {
         cmd.add(fastaPath);
         cmd.add("--combine");
 
-        exp.stream().map(e -> e.getValue().getFileName())
+        exp.stream().flatMap(e -> e.getValue().stream()).map(Path::getFileName)
             .forEach(pepxmlFn -> cmd.add(pepxmlFn.toString()));
         final ProcessBuilder pb = new ProcessBuilder(cmd);
         setupEnv(pepxmlDir, pb);
