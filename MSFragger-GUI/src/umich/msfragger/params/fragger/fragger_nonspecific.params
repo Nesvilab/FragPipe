@@ -15,7 +15,6 @@ deisotope = 1
 isotope_error = 0/1                      # 0=off, 0/1/2 (standard C13 error)
 mass_offsets = 0
 precursor_mass_mode = selected
-discard_zero_xic_scans = 1
 
 remove_precursor_peak = 0           # 0 = not remove, 1 = only remove the peak with the precursor charge, 2 = remove all peaks with all charge states. Default: 0
 remove_precursor_range = -1.5,1.5   # Unit: Da. Default: -1.5,1.5
