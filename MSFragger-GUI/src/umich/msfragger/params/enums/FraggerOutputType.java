@@ -26,8 +26,7 @@ public enum FraggerOutputType {
     
     PEP_XML("pepXML", "pepXML"),
     TSV("tsv", "tsv"),
-    TSV_AND_PEPXML("pepXML", "tsv_pepXML"),
-    PIN("pin", "pin");
+    TSV_AND_PEPXML("pepXML", "tsv_pepXML");
 
     
     String extension;
