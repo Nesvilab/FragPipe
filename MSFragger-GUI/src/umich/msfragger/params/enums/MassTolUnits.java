@@ -23,7 +23,8 @@ import static umich.msfragger.params.fragger.MsfraggerParams.PROP_precursor_mass
  * @author Dmitry Avtonomov
  */
 public enum MassTolUnits {
-    Th (2),
+    DIA_all (3),
+    DIA_MS1 (2),
     PPM (1),
     Da(0);
     
