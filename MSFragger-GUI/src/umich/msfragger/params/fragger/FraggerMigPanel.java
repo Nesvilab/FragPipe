@@ -120,7 +120,8 @@ public class FraggerMigPanel extends JPanel {
   private static final Set<String> PROPS_MISC_NAMES;
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
-  private static final String[] CALIBRATE_LABELS = {"Off", "On", "On and find optimal parameters"};
+  private static final String CALIBRATE_VALUE_OFF = "Off";
+  private static final String[] CALIBRATE_LABELS = {CALIBRATE_VALUE_OFF, "On", "On and find optimal parameters"};
   private static final List<MsfraggerEnzyme> ENZYMES = new EnzymeProvider().get();
   //public static FileNameExtensionFilter fnExtFilter = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf/raw/d)", "mzml", "mzxml", "mgf", "raw", "d");
   private static String[] PROPS_MISC = {
@@ -208,6 +209,7 @@ public class FraggerMigPanel extends JPanel {
   private UiSpinnerDouble uiSpinnerPrecTolLo;
   private UiSpinnerDouble uiSpinnerPrecTolHi;
   private UiCombo uiComboPrecursorTolUnits;
+  private final Map<String, String> cache = new HashMap<>();
 
   public FraggerMigPanel() {
     initMore();
@@ -359,9 +361,26 @@ public class FraggerMigPanel extends JPanel {
         Object selected = uiComboPrecursorTolUnits.getSelectedItem();
         if (selected == null || StringUtils.isNullOrWhitespace((String)selected))
           return;
-        final boolean isNotEditable = PrecursorMassTolUnits.valueOf((String)selected).valueInParamsFile() > 1;
-        uiSpinnerPrecTolLo.setEnabled(!isNotEditable);
-        uiSpinnerPrecTolHi.setEnabled(!isNotEditable);
+        final boolean isDisabled = PrecursorMassTolUnits.valueOf((String)selected).valueInParamsFile() > 1;
+        uiSpinnerPrecTolLo.setEnabled(!isDisabled);
+        uiSpinnerPrecTolHi.setEnabled(!isDisabled);
+
+        // treat calibrate masses dropdown
+        boolean wasEnabled = uiComboMassCalibrate.isEnabled();
+        if (wasEnabled && isDisabled) { //  switching from enabled to disabled
+          String oldVal = (String)uiComboMassCalibrate.getSelectedItem();
+          if (oldVal != null) {
+            cache.put(MsfraggerParams.PROP_calibrate_mass, oldVal);
+          }
+          uiComboMassCalibrate.setSelectedItem(CALIBRATE_VALUE_OFF);
+          uiComboMassCalibrate.setEnabled(false);
+        } else if (!wasEnabled && !isDisabled) { // switching from disabled to enabled
+          String cachedVal = cache.get(MsfraggerParams.PROP_calibrate_mass);
+          if (cachedVal != null) {
+            uiComboMassCalibrate.setSelectedItem(cachedVal);
+          }
+          uiComboMassCalibrate.setEnabled(true);
+        }
       });
 
       pPeakMatch.add(fePrecTolUnits.label(), new CC().alignX("right"));
