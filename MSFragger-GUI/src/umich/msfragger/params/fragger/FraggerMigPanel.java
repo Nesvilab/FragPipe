@@ -80,8 +80,9 @@ import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.enums.CleavageType;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.enums.FraggerPrecursorMassMode;
+import umich.msfragger.params.enums.FragmentMassTolUnits;
 import umich.msfragger.params.enums.IntensityTransform;
-import umich.msfragger.params.enums.MassTolUnits;
+import umich.msfragger.params.enums.PrecursorMassTolUnits;
 import umich.msfragger.params.enums.RemovePrecursorPeak;
 import umich.msfragger.util.CacheUtils;
 import umich.msfragger.util.PropertiesUtils;
@@ -142,9 +143,9 @@ public class FraggerMigPanel extends JPanel {
     CONVERT_TO_GUI = new HashMap<>();
     SEARCH_TYPE_NAME_MAPPING = new HashMap<>();
 
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_mass_units, s -> Integer.toString(MassTolUnits.valueOf(s).valueInParamsFile()));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_mass_units, s -> Integer.toString(MassTolUnits.valueOf(s).valueInParamsFile()));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_true_units, s -> Integer.toString(MassTolUnits.valueOf(s).valueInParamsFile()));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_mass_units, s -> Integer.toString(PrecursorMassTolUnits.valueOf(s).valueInParamsFile()));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_mass_units, s -> Integer.toString(FragmentMassTolUnits.valueOf(s).valueInParamsFile()));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_true_units, s -> Integer.toString(FragmentMassTolUnits.valueOf(s).valueInParamsFile()));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_calibrate_mass, s -> Integer.toString(Arrays.asList(CALIBRATE_LABELS).indexOf(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_num_enzyme_termini, s -> Integer.toString(CleavageType.valueOf(s).valueInParamsFile()));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_remove_precursor_peak, s -> Integer.toString(RemovePrecursorPeak.get(s)));
@@ -158,9 +159,9 @@ public class FraggerMigPanel extends JPanel {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_ion_series, ionStr -> ionStr.trim().replaceAll("[\\s,;]+",","));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_ion_series_definitions, defStr -> defStr.trim().replaceAll("\\s*[,;]+\\s*",", "));
 
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_true_units, s -> MassTolUnits.fromParamsFileRepresentation(s).name());
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> PrecursorMassTolUnits.fromParamsFileRepresentation(s).name());
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> FragmentMassTolUnits.fromParamsFileRepresentation(s).name());
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_true_units, s -> FragmentMassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_calibrate_mass, s -> CALIBRATE_LABELS[Integer.parseInt(s)]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_num_enzyme_termini, s -> CleavageType.fromValueInParamsFile(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_remove_precursor_peak, s -> RemovePrecursorPeak.get(Integer.parseInt(s)));
@@ -334,7 +335,7 @@ public class FraggerMigPanel extends JPanel {
 
       // precursor mass tolerance
       FormEntry fePrecTolUnits = new FormEntry(MsfraggerParams.PROP_precursor_mass_units, "Precursor mass tolerance",
-          UiUtils.createUiCombo(MassTolUnits.values()));
+          UiUtils.createUiCombo(PrecursorMassTolUnits.values()));
       UiSpinnerDouble uiSpinnerPrecTolLo = new UiSpinnerDouble(-10, -10000, 10000, 1,
           new DecimalFormat("0.#"));
       uiSpinnerPrecTolLo.setColumns(4);
@@ -360,7 +361,7 @@ public class FraggerMigPanel extends JPanel {
 
       // fragment mass tolerance
       FormEntry feFragTolUnits = new FormEntry(MsfraggerParams.PROP_fragment_mass_units,
-          "Fragment mass tolerance", UiUtils.createUiCombo(MassTolUnits.values()));
+          "Fragment mass tolerance", UiUtils.createUiCombo(FragmentMassTolUnits.values()));
       UiSpinnerDouble uiSpinnerFragTol = new UiSpinnerDouble(10, 0, 10000, 1,
           new DecimalFormat("0.###"));
       uiSpinnerFragTol.setColumns(4);
@@ -836,7 +837,7 @@ public class FraggerMigPanel extends JPanel {
         labelCustomIonSeries = feCustomSeries.label();
 
         FormEntry feTrueTolUnits = new FormEntry(MsfraggerParams.PROP_precursor_true_units,
-            "Precursor true tolerance", UiUtils.createUiCombo(MassTolUnits.values()));
+            "Precursor true tolerance", UiUtils.createUiCombo(FragmentMassTolUnits.values()));
         UiSpinnerDouble uiSpinnerTrueTol = new UiSpinnerDouble(10, 0, 100000, 5,
             new DecimalFormat("0.#"));
         uiSpinnerTrueTol.setColumns(4);

@@ -22,7 +22,7 @@ import static umich.msfragger.params.fragger.MsfraggerParams.PROP_precursor_mass
  *
  * @author Dmitry Avtonomov
  */
-public enum MassTolUnits {
+public enum PrecursorMassTolUnits {
     PPM (1),
     Da(0),
     DIA_MS1 (2),
@@ -30,7 +30,7 @@ public enum MassTolUnits {
     
     private final int val;
 
-    private MassTolUnits(int val) {
+    private PrecursorMassTolUnits(int val) {
         this.val = val;
     }
 
@@ -38,10 +38,10 @@ public enum MassTolUnits {
         return val;
     }
 
-    public static MassTolUnits fromParamsFileRepresentation(String fileRepresentation) {
+    public static PrecursorMassTolUnits fromParamsFileRepresentation(String fileRepresentation) {
         int v = Integer.parseInt(fileRepresentation);
-        for (int i = 0; i < MassTolUnits.values().length; i++) {
-            MassTolUnits u = MassTolUnits.values()[i];
+        for (int i = 0; i < PrecursorMassTolUnits.values().length; i++) {
+            PrecursorMassTolUnits u = PrecursorMassTolUnits.values()[i];
             if (u.valueInParamsFile() == v)
                 return u;
         }

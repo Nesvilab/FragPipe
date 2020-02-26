@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.ProcessManager;
 import umich.msfragger.params.dbslice.DbSlice;
-import umich.msfragger.params.enums.MassTolUnits;
+import umich.msfragger.params.enums.PrecursorMassTolUnits;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.util.OsUtils;
@@ -45,10 +45,10 @@ public class CmdMsfragger extends CmdBase {
   private static volatile Path pathThermo = PATH_NONE;
   private static volatile Path pathBruker = PATH_NONE;
 
-  private final MassTolUnits precursorMassUnits;
+  private final PrecursorMassTolUnits precursorMassUnits;
   private final int outputReportTopN;
 
-  public CmdMsfragger(boolean isRun, Path workDir, MassTolUnits precursorMassUnits, int outputReportTopN) {
+  public CmdMsfragger(boolean isRun, Path workDir, PrecursorMassTolUnits precursorMassUnits, int outputReportTopN) {
     super(isRun, workDir);
     this.precursorMassUnits = precursorMassUnits;
     this.outputReportTopN = outputReportTopN;
