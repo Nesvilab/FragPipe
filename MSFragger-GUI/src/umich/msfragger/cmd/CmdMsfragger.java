@@ -67,13 +67,13 @@ public class CmdMsfragger extends CmdBase {
     }
   }
 
-  public Map<InputLcmsFile, ArrayList<Path>> outputs(List<InputLcmsFile> inputs, String ext, Path workDir) {
-    Map<InputLcmsFile, ArrayList<Path>> m = new HashMap<>();
+  public Map<InputLcmsFile, List<Path>> outputs(List<InputLcmsFile> inputs, String ext, Path workDir) {
+    Map<InputLcmsFile, List<Path>> m = new HashMap<>();
     for (InputLcmsFile f : inputs) {
       if (precursorMassUnits.valueInParamsFile() > 1 && outputReportTopN > 1 && !ext.contentEquals("tsv") && !ext.contentEquals("pin")) {
         for (int rank = 1; rank <= outputReportTopN; ++rank) {
           String pepxmlFn = getPepxmlFn(f, ext, rank);
-          ArrayList<Path> t = m.get(f);
+          List<Path> t = m.get(f);
           if (t == null) {
             t = new ArrayList<>(outputReportTopN);
             t.add(f.outputDir(workDir).resolve(pepxmlFn));
@@ -84,7 +84,7 @@ public class CmdMsfragger extends CmdBase {
         }
       } else {
         String pepxmlFn = getPepxmlFn(f, ext, 0);
-        ArrayList<Path> tempList = new ArrayList<>(1);
+        List<Path> tempList = new ArrayList<>(1);
         tempList.add(f.outputDir(workDir).resolve(pepxmlFn));
         m.put(f, tempList);
       }
@@ -256,7 +256,7 @@ public class CmdMsfragger extends CmdBase {
   }
 
   private static List<Path> createRelSearchPaths(List<Path> searchLocations, Path rel) {
-    ArrayList<Path> locs = new ArrayList<>(searchLocations);
+    List<Path> locs = new ArrayList<>(searchLocations);
     searchLocations.forEach(p -> {
       if (p != null) {
         if (Files.isDirectory(p)) {
@@ -369,9 +369,9 @@ public class CmdMsfragger extends CmdBase {
     StringBuilder sb = new StringBuilder();
 
     final String ext = fp.getOutputFileExt();
-    Map<InputLcmsFile, ArrayList<Path>> mapLcmsToPepxml = outputs(lcmsFiles, ext, wd);
-    Map<InputLcmsFile, ArrayList<Path>> mapLcmsToTsv = outputs(lcmsFiles, "tsv", wd);
-    Map<InputLcmsFile, ArrayList<Path>> mapLcmsToPin = outputs(lcmsFiles, "pin", wd);
+    Map<InputLcmsFile, List<Path>> mapLcmsToPepxml = outputs(lcmsFiles, ext, wd);
+    Map<InputLcmsFile, List<Path>> mapLcmsToTsv = outputs(lcmsFiles, "tsv", wd);
+    Map<InputLcmsFile, List<Path>> mapLcmsToPin = outputs(lcmsFiles, "pin", wd);
 
     final List<String> javaCmd = Arrays.asList("java", "-jar", "-Dfile.encoding=UTF-8", "-Xmx" + ramGb + "G");
     final List<String> slicingCmd = isSlicing ?
@@ -385,7 +385,7 @@ public class CmdMsfragger extends CmdBase {
         )
         : null;
     while (fileIndex < lcmsFiles.size()) {
-      ArrayList<String> cmd = new ArrayList<>();
+      List<String> cmd = new ArrayList<>();
       if (isSlicing) {
         cmd.addAll(slicingCmd);
       } else {
@@ -427,7 +427,7 @@ public class CmdMsfragger extends CmdBase {
       // move the pepxml files if the output directory is not the same as where
       // the lcms files were
       for (InputLcmsFile f : addedLcmsFiles) {
-        ArrayList<Path> pepxmlWhereItShouldBeList = mapLcmsToPepxml.get(f);
+        List<Path> pepxmlWhereItShouldBeList = mapLcmsToPepxml.get(f);
         if (pepxmlWhereItShouldBeList == null || pepxmlWhereItShouldBeList.isEmpty())
           throw new IllegalStateException("LCMS file mapped to no pepxml file");
         for (Path pepxmlWhereItShouldBe : pepxmlWhereItShouldBeList) {
@@ -440,7 +440,7 @@ public class CmdMsfragger extends CmdBase {
             pbis.addAll(PbiBuilder.from(pbsMove));
           }
         }
-        ArrayList<Path> tsvWhereItShouldBeList = mapLcmsToTsv.get(f);
+        List<Path> tsvWhereItShouldBeList = mapLcmsToTsv.get(f);
         for (Path tsvWhereItShouldBe : tsvWhereItShouldBeList) {
           String tsvFn = tsvWhereItShouldBe.getFileName().toString();
           Path tsvAsCreatedByFragger = f.getPath().getParent().resolve(tsvFn);
@@ -452,7 +452,7 @@ public class CmdMsfragger extends CmdBase {
           }
         }
         if (fp.getParams().getPrecursorMassUnits().valueInParamsFile() > 1) {
-          ArrayList<Path> pinWhereItShouldBeList = mapLcmsToPin.get(f);
+          List<Path> pinWhereItShouldBeList = mapLcmsToPin.get(f);
           for (Path pinWhereItShouldBe : pinWhereItShouldBeList) {
             String pinFn = pinWhereItShouldBe.getFileName().toString();
             Path pinAsCreatedByFragger = f.getPath().getParent().resolve(pinFn);

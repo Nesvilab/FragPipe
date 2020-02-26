@@ -54,7 +54,7 @@ public class CmdProteinProphet extends CmdBase {
    * @return Mapping from Experiment/Group name to interact.prot.xml file location.
    * 'interact' has been renamed to 'combined'.
    */
-  public Map<LcmsFileGroup, Path> outputs(Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles,
+  public Map<LcmsFileGroup, Path> outputs(Map<InputLcmsFile, List<Path>> pepxmlFiles,
       boolean isProcessGroupsSeparately, boolean isMultiExperimentReport) {
 
     Map<String, List<InputLcmsFile>> lcmsByExp = pepxmlFiles.keySet().stream()
@@ -158,7 +158,7 @@ public class CmdProteinProphet extends CmdBase {
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       String txtProteinProphetCmdLineOpts, boolean isMultiExperiment,
-      boolean isProcessGroupsSeparately, Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles) {
+      boolean isProcessGroupsSeparately, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
 
     pbis.clear();
 

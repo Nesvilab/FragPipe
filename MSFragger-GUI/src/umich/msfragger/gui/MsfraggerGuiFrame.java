@@ -403,7 +403,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     // dropping onto enclosing JPanel works.
     tableRawFilesFileDrop = new FileDrop(panelSelectedFiles, true, files -> {
       Predicate<File> pred = CmdMsfragger.getSupportedFilePredicate(getExtBinSearchPaths());
-      ArrayList<Path> accepted = new ArrayList<>(files.length);
+      List<Path> accepted = new ArrayList<>(files.length);
       for (File f : files) {
         PathUtils.traverseDirectoriesAcceptingFiles(f, pred, accepted, false);
       }

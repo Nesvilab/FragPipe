@@ -241,7 +241,7 @@ public class UmpireParams implements PropertyFileContent {
      * It does not create the files!
      */
     public static List<Path> getLcmsFilePathsInWorkdir(Path workDir, List<Path> lcmsFilePaths) {
-        ArrayList<Path> result = new ArrayList<>();
+        List<Path> result = new ArrayList<>();
         for (Path lcmsFilePath : lcmsFilePaths) {
             result.add(workDir.resolve(lcmsFilePath.getFileName()));
         }

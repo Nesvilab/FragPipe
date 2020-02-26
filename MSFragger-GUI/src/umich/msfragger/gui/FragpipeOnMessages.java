@@ -218,7 +218,7 @@ public class FragpipeOnMessages {
     }
 
     final Map<String, LcmsFileGroup> lcmsFileGroups = msfgf.getLcmsFileGroups();
-    final ArrayList<InputLcmsFile> lcmsFilesAll = lcmsFileGroups.values().stream()
+    final List<InputLcmsFile> lcmsFilesAll = lcmsFileGroups.values().stream()
         .flatMap(group -> group.lcmsFiles.stream()).collect(Collectors.toCollection(ArrayList::new));
 
     // check input LCMS files
@@ -514,9 +514,9 @@ public class FragpipeOnMessages {
         }
       }
     }
-    Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles = cmdMsfragger.outputs(
+    Map<InputLcmsFile, List<Path>> pepxmlFiles = cmdMsfragger.outputs(
         lcmsFiles, fp.getOutputFileExt(), wd);
-    final Map<InputLcmsFile, ArrayList<Path>> pepxmlFilesFromMsfragger = new HashMap<>(pepxmlFiles);
+    final Map<InputLcmsFile, List<Path>> pepxmlFilesFromMsfragger = new HashMap<>(pepxmlFiles);
 
 
     // run MsAdjuster Cleanup

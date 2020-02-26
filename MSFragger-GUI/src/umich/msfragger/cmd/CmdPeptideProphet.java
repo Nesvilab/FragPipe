@@ -53,9 +53,9 @@ public class CmdPeptideProphet extends CmdBase {
   /**
    * @param inputs Either pepxml files after search or after Crystal-C.
    */
-  public Map<InputLcmsFile, ArrayList<Path>> outputs(Map<InputLcmsFile, ArrayList<Path>> inputs, String pepxmlExt, boolean combine) {
-    Map<InputLcmsFile, ArrayList<Path>> m = new HashMap<>();
-    for (Entry<InputLcmsFile, ArrayList<Path>> e : inputs.entrySet()) {
+  public Map<InputLcmsFile, List<Path>> outputs(Map<InputLcmsFile, List<Path>> inputs, String pepxmlExt, boolean combine) {
+    Map<InputLcmsFile, List<Path>> m = new HashMap<>();
+    for (Entry<InputLcmsFile, List<Path>> e : inputs.entrySet()) {
       InputLcmsFile lcms = e.getKey();
       for (Path pepxml : e.getValue()) {
         final String cleanFn = pepxml.getFileName().toString();
@@ -84,7 +84,7 @@ public class CmdPeptideProphet extends CmdBase {
           interactXml = cleanDir.resolve(Paths.get("interact.pep.xml"));
         }
 
-        ArrayList<Path> t = m.get(lcms);
+        List<Path> t = m.get(lcms);
         if (t == null) {
           t = new ArrayList<>(e.getValue().size());
           t.add(interactXml);
@@ -97,7 +97,7 @@ public class CmdPeptideProphet extends CmdBase {
     return m;
   }
 
-  private List<Path> findOldFilesForDeletion(Map<InputLcmsFile, ArrayList<Path>> outputs) {
+  private List<Path> findOldFilesForDeletion(Map<InputLcmsFile, List<Path>> outputs) {
 //    final Set<Path> outputPaths = pepxmlFiles.keySet().stream()
 //        .map(f -> f.outputDir(wd)).collect(Collectors.toSet());
     final Set<Path> outputPaths = outputs.values().stream().flatMap(List::stream)
@@ -171,7 +171,7 @@ public class CmdPeptideProphet extends CmdBase {
    */
   public boolean configure(Component comp, UsageTrigger phi, Path jarFragpipe, boolean isDryRun,
       String fastaPath, String decoyTag, String textPepProphCmd, boolean combine, String enzymeName,
-      Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles) {
+      Map<InputLcmsFile, List<Path>> pepxmlFiles) {
 
     isConfigured = false;
     pbis.clear();
@@ -190,7 +190,7 @@ public class CmdPeptideProphet extends CmdBase {
     combine = combine || cmdLineContainsCombine;
 
     // check for existing pepxml files and delete them
-    final Map<InputLcmsFile, ArrayList<Path>> outputs = outputs(pepxmlFiles, "pepxml", combine);
+    final Map<InputLcmsFile, List<Path>> outputs = outputs(pepxmlFiles, "pepxml", combine);
     final List<Path> forDeletion = findOldFilesForDeletion(outputs);
     if (!deleteFiles(comp, forDeletion)) {
       return false;
@@ -206,7 +206,7 @@ public class CmdPeptideProphet extends CmdBase {
       LinkedList<ProcessBuilderInfo> pbisParallel = new LinkedList<>();
       LinkedList<ProcessBuilderInfo> pbisPostParallel = new LinkedList<>();
 
-      for (Map.Entry<InputLcmsFile, ArrayList<Path>> e : pepxmlFiles.entrySet()) {
+      for (Map.Entry<InputLcmsFile, List<Path>> e : pepxmlFiles.entrySet()) {
         for (Path pepxmlPath : e.getValue()) {
           final Path pepxmlDir = pepxmlPath.getParent();
           final String pepxmlFn = pepxmlPath.getFileName().toString();
@@ -281,9 +281,9 @@ public class CmdPeptideProphet extends CmdBase {
 
     } else {
       // --combine specified
-      Map<String, List<Entry<InputLcmsFile, ArrayList<Path>>>> pepxmlByExp = pepxmlFiles.entrySet().stream()
+      Map<String, List<Entry<InputLcmsFile, List<Path>>>> pepxmlByExp = pepxmlFiles.entrySet().stream()
           .collect(Collectors.groupingBy(kv -> kv.getKey().getGroup()));
-      for (List<Entry<InputLcmsFile, ArrayList<Path>>> exp : pepxmlByExp.values()) {
+      for (List<Entry<InputLcmsFile, List<Path>>> exp : pepxmlByExp.values()) {
         // check that all pepxml files are in one folder
         List<Path> pepxmlDirs = exp.stream().flatMap(e -> e.getValue().stream()).map(Path::getParent).distinct()
             .collect(Collectors.toList());

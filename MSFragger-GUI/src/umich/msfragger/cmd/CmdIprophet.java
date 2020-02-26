@@ -23,7 +23,7 @@ public class CmdIprophet extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      String decoyTag, int nThreads, Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles) {
+      String decoyTag, int nThreads, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
 
     pbis.clear();
 

@@ -30,7 +30,7 @@ public class CmdReportDbAnnotate extends CmdBase {
 
   public boolean configure(Component comp, UsageTrigger binPhilosopher,
       String dbPath, String decoyTag,
-      Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles, Map<LcmsFileGroup, Path> protxmlFiles) {
+      Map<InputLcmsFile, List<Path>> pepxmlFiles, Map<LcmsFileGroup, Path> protxmlFiles) {
 
     pbis.clear();
     if (dbPath == null) {

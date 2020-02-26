@@ -124,7 +124,7 @@ public class FileListing {
             }
         } else {
             // a directory was given, let's search it
-            ArrayList<Path> result = new ArrayList<>();
+            List<Path> result = new ArrayList<>();
             if (includeDirectories && matches(path)) {
                 // check the top-level directory
                 result.add(path);

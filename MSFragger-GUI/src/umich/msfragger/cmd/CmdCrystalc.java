@@ -63,13 +63,13 @@ public class CmdCrystalc extends CmdBase {
   /**
    * @param inputs Pepxml files after search engine, but before Peptide Prophet.
    */
-  public Map<InputLcmsFile, ArrayList<Path>> outputs(Map<InputLcmsFile, ArrayList<Path>> inputs, String pepxmlExtFragger) {
-    Map<InputLcmsFile, ArrayList<Path>> m = new HashMap<>();
-    for (Entry<InputLcmsFile, ArrayList<Path>> e : inputs.entrySet()) {
+  public Map<InputLcmsFile, List<Path>> outputs(Map<InputLcmsFile, List<Path>> inputs, String pepxmlExtFragger) {
+    Map<InputLcmsFile, List<Path>> m = new HashMap<>();
+    for (Entry<InputLcmsFile, List<Path>> e : inputs.entrySet()) {
       for (Path p : e.getValue()) {
         Path dir = p.getParent();
         String pepxmlFn = p.getFileName().toString();
-        ArrayList<Path> t = m.get(e.getKey());
+        List<Path> t = m.get(e.getKey());
         if (t == null) {
           t = new ArrayList<>(e.getValue().size());
           t.add(dir.resolve(getModifiedPepxmlFn(pepxmlFn, pepxmlExtFragger)));
@@ -82,7 +82,7 @@ public class CmdCrystalc extends CmdBase {
     return m;
   }
 
-  private boolean checkCompatibleFormats(Component comp, Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles, List<String> supportedFormats) {
+  private boolean checkCompatibleFormats(Component comp, Map<InputLcmsFile, List<Path>> pepxmlFiles, List<String> supportedFormats) {
     List<String> notSupportedExts = getNotSupportedExts1(pepxmlFiles, supportedFormats);
     if (!notSupportedExts.isEmpty()) {
       JOptionPane.showMessageDialog(comp, String.format(
@@ -102,10 +102,10 @@ public class CmdCrystalc extends CmdBase {
    */
   public boolean configure(Component comp,
       FraggerMigPanel fp, boolean isDryRun, Path binFragger,
-      CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, ArrayList<Path>> pepxmlFiles) {
+      CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
     pbis.clear();
 
-    final ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
+    final List<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
     final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
     if (extLibsThermo != null) {
       sup.add(THERMO_RAW_EXT);
@@ -147,7 +147,7 @@ public class CmdCrystalc extends CmdBase {
     // multiple raw file extensions or multiple lcms file locaitons
     // issue a separate command for each pepxml file
     int index = -1;
-    for (Map.Entry<InputLcmsFile, ArrayList<Path>> kv : pepxmlFiles.entrySet()) {
+    for (Map.Entry<InputLcmsFile, List<Path>> kv : pepxmlFiles.entrySet()) {
       for (Path pepxml : kv.getValue()) {
         final InputLcmsFile lcms = kv.getKey();
         final String lcmsFn = lcms.getPath().getFileName().toString();
