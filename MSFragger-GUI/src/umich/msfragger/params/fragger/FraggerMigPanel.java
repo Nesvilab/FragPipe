@@ -205,6 +205,9 @@ public class FraggerMigPanel extends JPanel {
   private UiCombo uiComboCleavage;
   private UiCombo uiComboLoadDefaultsNames;
   private UiText uiTextMassOffsets;
+  private UiSpinnerDouble uiSpinnerPrecTolLo;
+  private UiSpinnerDouble uiSpinnerPrecTolHi;
+  private UiCombo uiComboPrecursorTolUnits;
 
   public FraggerMigPanel() {
     initMore();
@@ -334,14 +337,15 @@ public class FraggerMigPanel extends JPanel {
       pPeakMatch.setBorder(new TitledBorder("Peak Matching"));
 
       // precursor mass tolerance
-      FormEntry fePrecTolUnits = new FormEntry(MsfraggerParams.PROP_precursor_mass_units, "Precursor mass tolerance",
-          UiUtils.createUiCombo(PrecursorMassTolUnits.values()));
-      UiSpinnerDouble uiSpinnerPrecTolLo = new UiSpinnerDouble(-10, -10000, 10000, 1,
+      uiComboPrecursorTolUnits = UiUtils.createUiCombo(PrecursorMassTolUnits.values());
+      FormEntry fePrecTolUnits = new FormEntry(MsfraggerParams.PROP_precursor_mass_units,
+          "Precursor mass tolerance", uiComboPrecursorTolUnits);
+      uiSpinnerPrecTolLo = new UiSpinnerDouble(-10, -10000, 10000, 1,
           new DecimalFormat("0.#"));
       uiSpinnerPrecTolLo.setColumns(4);
       FormEntry feSpinnerPrecTolLo = new FormEntry(MsfraggerParams.PROP_precursor_mass_lower,
           "not-shown", uiSpinnerPrecTolLo);
-      UiSpinnerDouble uiSpinnerPrecTolHi = new UiSpinnerDouble(+10, -10000, 10000, 1,
+      uiSpinnerPrecTolHi = new UiSpinnerDouble(+10, -10000, 10000, 1,
           new DecimalFormat("0.#"));
       uiSpinnerPrecTolHi.setColumns(4);
       FormEntry feSpinnerPrecTolHi = new FormEntry(MsfraggerParams.PROP_precursor_mass_upper,
@@ -350,6 +354,15 @@ public class FraggerMigPanel extends JPanel {
           "Deisotope", new UiSpinnerInt(1, 0, 2, 1, 4),
           "<html>0 = deisotoping off<br/>\n"
               + "1 = deisotoping on");
+
+      uiComboPrecursorTolUnits.addItemListener(e -> {
+        Object selected = uiComboPrecursorTolUnits.getSelectedItem();
+        if (selected == null || StringUtils.isNullOrWhitespace((String)selected))
+          return;
+        final boolean isNotEditable = PrecursorMassTolUnits.valueOf((String)selected).valueInParamsFile() > 1;
+        uiSpinnerPrecTolLo.setEnabled(!isNotEditable);
+        uiSpinnerPrecTolHi.setEnabled(!isNotEditable);
+      });
 
       pPeakMatch.add(fePrecTolUnits.label(), new CC().alignX("right"));
       pPeakMatch.add(fePrecTolUnits.comp, new CC().split(4));
