@@ -404,7 +404,7 @@ if use_easypqp:
 				# '--peptide_fdr_threshold', str(pep_fdr), '--protein_fdr_threshold', str(prot_fdr),
 				'--psmtsv', os.fspath(psm_tsv_file), '--peptidetsv', os.fspath(peptide_tsv_file), ] + \
 			   (['--rt_reference', os.fspath(irt_file)] if use_irt else []) + \
-			   ['--out', 'easypqp_lib_openswath.tsv'] + easypqp_library_infiles
+			   ['--out', 'easypqp_lib_openswath.tsv'] + list(map(os.fspath, easypqp_library_infiles))
 
 
 	easypqp_cmds = '\n'.join(' '.join(map(shlex.quote, e)) for e in easypqp_convert_cmds) + '\n' + \
