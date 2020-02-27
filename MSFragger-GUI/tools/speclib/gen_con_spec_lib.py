@@ -98,8 +98,8 @@ align_with_iRT: bool = True
 if use_spectrast:
 	# spectrast2spectrast_irt_py_path = msproteomicstools_bin_path / 'spectrast2spectrast_irt.py'
 	# spectrast2tsv_py_path = msproteomicstools_bin_path / 'spectrast2tsv.py'
-	spectrast2spectrast_irt_py_path = pathlib.Path(shutil.which('spectrast2spectrast_irt.py', path=os.pathsep.join(sys.path)))
-	spectrast2tsv_py_path = pathlib.Path(shutil.which('spectrast2tsv.py', path=os.pathsep.join(sys.path)))
+	spectrast2spectrast_irt_py_path = pathlib.Path(shutil.which('spectrast2spectrast_irt.py'))
+	spectrast2tsv_py_path = pathlib.Path(shutil.which('spectrast2tsv.py'))
 
 	philosopher = philosopher.resolve(strict=True)
 	assert spectrast2spectrast_irt_py_path.exists()
@@ -108,7 +108,7 @@ if use_spectrast:
 	"\n".join(map(str, [SPECTRAST_PATH, fasta, iproph_RT_aligned]))
 
 if use_easypqp:
-	easypqp = pathlib.Path(shutil.which('easypqp', path=os.pathsep.join(sys.path)))
+	easypqp = pathlib.Path(shutil.which('easypqp'))
 
 CWD = os.getcwd()
 
