@@ -78,6 +78,8 @@ if len(sys.argv) >= 6:
 
 if 'PATHEXT' in os.environ:
 	os.environ['PATHEXT'] = '.py' + os.pathsep + os.environ['PATHEXT']
+if os.name == 'posix':
+	os.environ['PATH'] = os.fspath(pathlib.Path(sys.executable).parents[1] / 'bin') + os.pathsep + os.environ['PATH']
 os.environ['PATH'] = os.getcwd() + os.pathsep + os.environ['PATH']
 
 philosopher = 'philosopher'
