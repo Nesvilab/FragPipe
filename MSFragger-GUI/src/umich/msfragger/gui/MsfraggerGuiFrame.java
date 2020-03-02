@@ -711,7 +711,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
         jLabel2 = new javax.swing.JLabel();
         tabPane = new javax.swing.JTabbedPane();
-        jScrollPane8 = new javax.swing.JScrollPane();
+        scrollConfig = new javax.swing.JScrollPane();
         panelConfig = new javax.swing.JPanel();
         panelMsfraggerConfig = new javax.swing.JPanel();
         btnMsfraggerBinDownload = new javax.swing.JButton();
@@ -771,6 +771,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         jScrollPane5 = new javax.swing.JScrollPane();
         editorSequenceDb = new javax.swing.JEditorPane();
         btnDbDownload = new javax.swing.JButton();
+        scrollDownstream = new javax.swing.JScrollPane();
         panelDownstream = new javax.swing.JPanel();
         panelPeptideProphet = new javax.swing.JPanel();
         chkRunPeptideProphet = new javax.swing.JCheckBox();
@@ -833,7 +834,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         tabPane.setMinimumSize(new java.awt.Dimension(640, 480));
         tabPane.setName(""); // NOI18N
 
-        jScrollPane8.setBorder(null);
+        scrollConfig.setBorder(null);
 
         panelMsfraggerConfig.setBorder(javax.swing.BorderFactory.createTitledBorder("MSFragger"));
 
@@ -986,7 +987,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                         .addComponent(btnPhilosopherBinBrowse)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnPhilosopherBinDownload))
-                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 696, Short.MAX_VALUE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 748, Short.MAX_VALUE)
                     .addComponent(jScrollPane3))
                 .addContainerGap())
         );
@@ -1221,9 +1222,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addContainerGap(146, Short.MAX_VALUE))
         );
 
-        jScrollPane8.setViewportView(panelConfig);
+        scrollConfig.setViewportView(panelConfig);
 
-        tabPane.addTab("Config", jScrollPane8);
+        tabPane.addTab("Config", scrollConfig);
 
         panelSelectedFiles.setBorder(javax.swing.BorderFactory.createTitledBorder("Selected files (Drag & Drop files or folders here, it's OK if they contain non LC/MS files)"));
 
@@ -1327,7 +1328,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 .addComponent(btnGroupsAssignToSelected)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(btnGroupsClear)))
-                        .addGap(0, 61, Short.MAX_VALUE)))
+                        .addGap(0, 171, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelSelectedFilesLayout.setVerticalGroup(
@@ -1427,7 +1428,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelDbInfoLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelDbInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE)
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 748, Short.MAX_VALUE)
                     .addGroup(panelDbInfoLayout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1548,7 +1549,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPeptideProphetOptionsLayout.createSequentialGroup()
                         .addComponent(jLabel34)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 642, Short.MAX_VALUE))
                     .addGroup(panelPeptideProphetOptionsLayout.createSequentialGroup()
                         .addComponent(checkCombinedPepxml, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -1590,7 +1591,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addComponent(btnPepProphDefaultsOpen)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnPepProphDefaultsNonspecific)
-                .addContainerGap(179, Short.MAX_VALUE))
+                .addContainerGap(197, Short.MAX_VALUE))
             .addComponent(panelPeptideProphetOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         panelPeptideProphetLayout.setVerticalGroup(
@@ -1665,11 +1666,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addGroup(panelProteinProphetOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
                         .addComponent(checkProcessGroupsSeparately, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 383, Short.MAX_VALUE))
+                        .addGap(0, 416, Short.MAX_VALUE))
                     .addGroup(panelProteinProphetOptionsLayout.createSequentialGroup()
                         .addComponent(jLabel40)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE)))
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 642, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelProteinProphetOptionsLayout.setVerticalGroup(
@@ -1733,11 +1734,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelCrystalc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tmtIntegratorPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(226, Short.MAX_VALUE))
+                .addComponent(tmtIntegratorPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
-        tabPane.addTab("Downstream", panelDownstream);
+        scrollDownstream.setViewportView(panelDownstream);
+
+        tabPane.addTab("Downstream", scrollDownstream);
 
         ptmshepherdPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("PTM Analysis"));
 
@@ -1887,7 +1890,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                                 .addComponent(btnStop)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(checkDryRun)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 175, Short.MAX_VALUE)
                                 .addComponent(btnPrintCommands)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(btnExportLog)
@@ -2973,7 +2976,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
-    private javax.swing.JScrollPane jScrollPane8;
     private javax.swing.JLabel lblDbsliceInfo1;
     private javax.swing.JLabel lblFastaCount;
     private javax.swing.JLabel lblFindAutomatically;
@@ -3001,6 +3003,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelSelectedFiles;
     private javax.swing.JPanel panelSequenceDb;
     private umich.msfragger.params.ptmshepherd.PtmshepherdJPanel ptmshepherdPanel;
+    private javax.swing.JScrollPane scrollConfig;
+    private javax.swing.JScrollPane scrollDownstream;
     private javax.swing.JScrollPane scrollEpSpeclibInfo2;
     private javax.swing.JScrollPane scrollPaneRawFiles;
     private umich.msfragger.params.speclib.SpeclibPanel speclibPanel1;

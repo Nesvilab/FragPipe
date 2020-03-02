@@ -75,7 +75,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
       <SubComponents>
-        <Container class="javax.swing.JScrollPane" name="jScrollPane8">
+        <Container class="javax.swing.JScrollPane" name="scrollConfig">
           <Properties>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="null"/>
@@ -323,7 +323,7 @@
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="btnPhilosopherBinDownload" min="-2" max="-2" attributes="0"/>
                                   </Group>
-                                  <Component id="jLabel3" alignment="0" pref="696" max="32767" attributes="0"/>
+                                  <Component id="jLabel3" alignment="0" pref="748" max="32767" attributes="0"/>
                                   <Component id="jScrollPane3" alignment="0" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
@@ -778,7 +778,7 @@
                                           <Component id="btnGroupsClear" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
-                                  <EmptySpace min="0" pref="61" max="32767" attributes="0"/>
+                                  <EmptySpace min="0" pref="171" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -951,7 +951,7 @@
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="jScrollPane5" pref="602" max="32767" attributes="0"/>
+                              <Component id="jScrollPane5" pref="748" max="32767" attributes="0"/>
                               <Group type="102" alignment="1" attributes="0">
                                   <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
@@ -1072,7 +1072,7 @@
             </Container>
           </SubComponents>
         </Container>
-        <Container class="javax.swing.JPanel" name="panelDownstream">
+        <Container class="javax.swing.JScrollPane" name="scrollDownstream">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
               <JTabbedPaneConstraints tabName="Downstream">
@@ -1081,361 +1081,367 @@
             </Constraint>
           </Constraints>
 
-          <Layout>
-            <DimensionLayout dim="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="panelPeptideProphet" alignment="1" max="32767" attributes="0"/>
-                          <Component id="panelProteinProphet" alignment="0" max="32767" attributes="0"/>
-                          <Component id="panelCrystalc" alignment="0" max="32767" attributes="0"/>
-                          <Component id="tmtIntegratorPanel1" alignment="0" max="32767" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-            <DimensionLayout dim="1">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="panelPeptideProphet" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="panelProteinProphet" min="-2" pref="145" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="panelCrystalc" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="tmtIntegratorPanel1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="226" max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-          </Layout>
+          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Container class="javax.swing.JPanel" name="panelPeptideProphet">
+            <Container class="javax.swing.JPanel" name="panelDownstream">
 
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
-                          <Component id="chkRunPeptideProphet" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Component id="jLabel11" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnPepProphDefaultsClosed" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="panelPeptideProphet" alignment="1" max="32767" attributes="0"/>
+                              <Component id="panelProteinProphet" alignment="0" max="32767" attributes="0"/>
+                              <Component id="panelCrystalc" alignment="0" max="32767" attributes="0"/>
+                              <Component id="tmtIntegratorPanel1" alignment="0" max="32767" attributes="0"/>
+                          </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnPepProphDefaultsOpen" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnPepProphDefaultsNonspecific" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="179" max="32767" attributes="0"/>
                       </Group>
-                      <Component id="panelPeptideProphetOptions" alignment="0" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="chkRunPeptideProphet" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="btnPepProphDefaultsOpen" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="btnPepProphDefaultsClosed" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="btnPepProphDefaultsNonspecific" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="panelPeptideProphetOptions" min="-2" max="-2" attributes="0"/>
+                          <Component id="panelPeptideProphet" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="panelProteinProphet" min="-2" pref="145" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="panelCrystalc" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="tmtIntegratorPanel1" pref="288" max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JCheckBox" name="chkRunPeptideProphet">
-                  <Properties>
-                    <Property name="selected" type="boolean" value="true"/>
-                    <Property name="text" type="java.lang.String" value="Run PeptideProphet"/>
-                    <Property name="name" type="java.lang.String" value="ui.name.downstream.check.run-pep-proph" noResource="true"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkRunPeptideProphetActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JButton" name="btnPepProphDefaultsOpen">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Open Search"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPepProphDefaultsOpenActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JButton" name="btnPepProphDefaultsClosed">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Closed Search"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPepProphDefaultsClosedActionPerformed"/>
-                  </Events>
-                </Component>
-                <Container class="javax.swing.JPanel" name="panelPeptideProphetOptions">
-                  <Properties>
-                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                      <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                        <TitledBorder title="PeptideProphet Options"/>
-                      </Border>
-                    </Property>
-                  </Properties>
+                <Container class="javax.swing.JPanel" name="panelPeptideProphet">
 
                   <Layout>
                     <DimensionLayout dim="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
+                              <Component id="chkRunPeptideProphet" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="jLabel11" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" alignment="1" attributes="0">
-                                      <Component id="jLabel34" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="jScrollPane2" pref="515" max="32767" attributes="0"/>
-                                  </Group>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="checkCombinedPepxml" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                                  </Group>
-                              </Group>
+                              <Component id="btnPepProphDefaultsClosed" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
+                              <Component id="btnPepProphDefaultsOpen" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="btnPepProphDefaultsNonspecific" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace pref="197" max="32767" attributes="0"/>
                           </Group>
+                          <Component id="panelPeptideProphetOptions" alignment="0" max="32767" attributes="0"/>
                       </Group>
                     </DimensionLayout>
                     <DimensionLayout dim="1">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="jLabel34" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <Component id="jScrollPane2" alignment="0" min="-2" pref="57" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="checkCombinedPepxml" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="5" max="32767" attributes="0"/>
-                          </Group>
-                      </Group>
-                    </DimensionLayout>
-                  </Layout>
-                  <SubComponents>
-                    <Container class="javax.swing.JScrollPane" name="jScrollPane2">
-                      <AuxValues>
-                        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-                      </AuxValues>
-
-                      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-                      <SubComponents>
-                        <Component class="javax.swing.JTextArea" name="textPepProphCmd">
-                          <Properties>
-                            <Property name="columns" type="int" value="20"/>
-                            <Property name="lineWrap" type="boolean" value="true"/>
-                            <Property name="rows" type="int" value="5"/>
-                            <Property name="wrapStyleWord" type="boolean" value="true"/>
-                            <Property name="name" type="java.lang.String" value="ui.name.downstream.text.pep-proph-cmd" noResource="true"/>
-                          </Properties>
-                          <Events>
-                            <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textPepProphCmdFocusGained"/>
-                            <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textPepProphCmdFocusLost"/>
-                          </Events>
-                          <AuxValues>
-                            <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastPeptideProphet();"/>
-                          </AuxValues>
-                        </Component>
-                      </SubComponents>
-                    </Container>
-                    <Component class="javax.swing.JLabel" name="jLabel34">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Cmd Line Options"/>
-                      </Properties>
-                    </Component>
-                    <Component class="javax.swing.JCheckBox" name="checkCombinedPepxml">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="&lt;html&gt;Single &lt;b&gt;combined&lt;/b&gt; pep-xml file per experiment/group"/>
-                        <Property name="name" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                          <ResourceString bundle="umich/msfragger/gui/Bundle.properties" key="ui.name.check.combine-pepxml" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
-                        </Property>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkCombinedPepxmlActionPerformed"/>
-                      </Events>
-                    </Component>
-                  </SubComponents>
-                </Container>
-                <Component class="javax.swing.JButton" name="btnPepProphDefaultsNonspecific">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Non-specific Search"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPepProphDefaultsNonspecificActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JLabel" name="jLabel11">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Load defaults for:"/>
-                  </Properties>
-                </Component>
-              </SubComponents>
-            </Container>
-            <Container class="javax.swing.JPanel" name="panelProteinProphet">
-
-              <Layout>
-                <DimensionLayout dim="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <Component id="chkRunProteinProphet" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnProtProphDefaultsClosed" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnProtProphDefaultsOpen" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="32767" attributes="0"/>
-                      </Group>
-                      <Component id="panelProteinProphetOptions" alignment="0" max="32767" attributes="0"/>
-                  </Group>
-                </DimensionLayout>
-                <DimensionLayout dim="1">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="chkRunProteinProphet" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="btnProtProphDefaultsClosed" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="btnProtProphDefaultsOpen" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="panelProteinProphetOptions" min="-2" pref="112" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-              </Layout>
-              <SubComponents>
-                <Component class="javax.swing.JCheckBox" name="chkRunProteinProphet">
-                  <Properties>
-                    <Property name="selected" type="boolean" value="true"/>
-                    <Property name="text" type="java.lang.String" value="Run ProteinProphet"/>
-                    <Property name="name" type="java.lang.String" value="ui.name.downstream.check.run-prot-proph" noResource="true"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkRunProteinProphetActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JButton" name="btnProtProphDefaultsClosed">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Allow mass shifted peptides"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnProtProphDefaultsClosedActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JButton" name="btnProtProphDefaultsOpen">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Do NOT allow mass shifted peptides"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnProtProphDefaultsOpenActionPerformed"/>
-                  </Events>
-                </Component>
-                <Container class="javax.swing.JPanel" name="panelProteinProphetOptions">
-                  <Properties>
-                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                      <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                        <TitledBorder title="ProteinProphet Options"/>
-                      </Border>
-                    </Property>
-                  </Properties>
-
-                  <Layout>
-                    <DimensionLayout dim="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" attributes="0">
-                                      <Component id="checkProcessGroupsSeparately" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace min="0" pref="383" max="32767" attributes="0"/>
-                                  </Group>
-                                  <Group type="102" attributes="0">
-                                      <Component id="jLabel40" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="jScrollPane4" pref="515" max="32767" attributes="0"/>
-                                  </Group>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="chkRunPeptideProphet" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="btnPepProphDefaultsOpen" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="btnPepProphDefaultsClosed" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="btnPepProphDefaultsNonspecific" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
-                    </DimensionLayout>
-                    <DimensionLayout dim="1">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" attributes="0">
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="jLabel40" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <Component id="jScrollPane4" min="-2" pref="57" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="checkProcessGroupsSeparately" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="156" max="-2" attributes="0"/>
+                              <Component id="panelPeptideProphetOptions" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
                   </Layout>
                   <SubComponents>
-                    <Component class="javax.swing.JCheckBox" name="checkProcessGroupsSeparately">
+                    <Component class="javax.swing.JCheckBox" name="chkRunPeptideProphet">
                       <Properties>
-                        <Property name="selected" type="boolean" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                          <Connection code="loadLastProcessGroupsSeparately()" type="code"/>
-                        </Property>
-                        <Property name="text" type="java.lang.String" value="&lt;html&gt;Separate ProteinProphet prot.xml file per group/experiment"/>
-                        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;Uncheck&lt;/b&gt; if you want a report comparing protein abundances across&lt;br/&gt;&#xa;experiments or just want a single protein identification result from all&lt;br/&gt;&#xa;the runs.&lt;br/&gt;&#xa;&lt;b&gt;Only check&lt;/b&gt; if you want peptide/protein ID results&lt;br/&gt;&#xa;for each experiment separately. E.g. this might be useful if you have&lt;br/&gt;&#xa;100 files on hand and use the &quot;assign to experiments&quot; feature to quickly&lt;br/&gt;&#xa;run MSFragger + downstream processing on each of those and get a pepxml&lt;br/&gt;&#xa;and/or protxml files."/>
-                        <Property name="name" type="java.lang.String" value="ui.name.downstream.check.separate-protxml" noResource="true"/>
+                        <Property name="selected" type="boolean" value="true"/>
+                        <Property name="text" type="java.lang.String" value="Run PeptideProphet"/>
+                        <Property name="name" type="java.lang.String" value="ui.name.downstream.check.run-pep-proph" noResource="true"/>
                       </Properties>
                       <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkProcessGroupsSeparatelyActionPerformed"/>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkRunPeptideProphetActionPerformed"/>
                       </Events>
                     </Component>
-                    <Container class="javax.swing.JScrollPane" name="jScrollPane4">
-                      <AuxValues>
-                        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-                      </AuxValues>
+                    <Component class="javax.swing.JButton" name="btnPepProphDefaultsOpen">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Open Search"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPepProphDefaultsOpenActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JButton" name="btnPepProphDefaultsClosed">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Closed Search"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPepProphDefaultsClosedActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Container class="javax.swing.JPanel" name="panelPeptideProphetOptions">
+                      <Properties>
+                        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                          <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                            <TitledBorder title="PeptideProphet Options"/>
+                          </Border>
+                        </Property>
+                      </Properties>
 
-                      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+                      <Layout>
+                        <DimensionLayout dim="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" attributes="0">
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Group type="102" alignment="1" attributes="0">
+                                          <Component id="jLabel34" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="jScrollPane2" pref="642" max="32767" attributes="0"/>
+                                      </Group>
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="checkCombinedPepxml" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                      </Group>
+                                  </Group>
+                                  <EmptySpace max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                        </DimensionLayout>
+                        <DimensionLayout dim="1">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" attributes="0">
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="jLabel34" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Component id="jScrollPane2" alignment="0" min="-2" pref="57" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="checkCombinedPepxml" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="0" pref="5" max="32767" attributes="0"/>
+                              </Group>
+                          </Group>
+                        </DimensionLayout>
+                      </Layout>
                       <SubComponents>
-                        <Component class="javax.swing.JTextArea" name="txtProteinProphetCmdLineOpts">
+                        <Container class="javax.swing.JScrollPane" name="jScrollPane2">
+                          <AuxValues>
+                            <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+                          </AuxValues>
+
+                          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+                          <SubComponents>
+                            <Component class="javax.swing.JTextArea" name="textPepProphCmd">
+                              <Properties>
+                                <Property name="columns" type="int" value="20"/>
+                                <Property name="lineWrap" type="boolean" value="true"/>
+                                <Property name="rows" type="int" value="5"/>
+                                <Property name="wrapStyleWord" type="boolean" value="true"/>
+                                <Property name="name" type="java.lang.String" value="ui.name.downstream.text.pep-proph-cmd" noResource="true"/>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textPepProphCmdFocusGained"/>
+                                <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textPepProphCmdFocusLost"/>
+                              </Events>
+                              <AuxValues>
+                                <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastPeptideProphet();"/>
+                              </AuxValues>
+                            </Component>
+                          </SubComponents>
+                        </Container>
+                        <Component class="javax.swing.JLabel" name="jLabel34">
                           <Properties>
-                            <Property name="columns" type="int" value="20"/>
-                            <Property name="lineWrap" type="boolean" value="true"/>
-                            <Property name="rows" type="int" value="5"/>
-                            <Property name="wrapStyleWord" type="boolean" value="true"/>
-                            <Property name="name" type="java.lang.String" value="ui.name.downstream.text.prot-proph-cmd" noResource="true"/>
+                            <Property name="text" type="java.lang.String" value="Cmd Line Options"/>
+                          </Properties>
+                        </Component>
+                        <Component class="javax.swing.JCheckBox" name="checkCombinedPepxml">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="&lt;html&gt;Single &lt;b&gt;combined&lt;/b&gt; pep-xml file per experiment/group"/>
+                            <Property name="name" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                              <ResourceString bundle="umich/msfragger/gui/Bundle.properties" key="ui.name.check.combine-pepxml" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+                            </Property>
                           </Properties>
                           <Events>
-                            <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="txtProteinProphetCmdLineOptsFocusLost"/>
+                            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkCombinedPepxmlActionPerformed"/>
                           </Events>
-                          <AuxValues>
-                            <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastProteinProphet();"/>
-                          </AuxValues>
                         </Component>
                       </SubComponents>
                     </Container>
-                    <Component class="javax.swing.JLabel" name="jLabel40">
+                    <Component class="javax.swing.JButton" name="btnPepProphDefaultsNonspecific">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Cmd Line Options"/>
+                        <Property name="text" type="java.lang.String" value="Non-specific Search"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPepProphDefaultsNonspecificActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="jLabel11">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Load defaults for:"/>
                       </Properties>
                     </Component>
                   </SubComponents>
                 </Container>
+                <Container class="javax.swing.JPanel" name="panelProteinProphet">
+
+                  <Layout>
+                    <DimensionLayout dim="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Component id="chkRunProteinProphet" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="btnProtProphDefaultsClosed" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="btnProtProphDefaultsOpen" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
+                          </Group>
+                          <Component id="panelProteinProphetOptions" alignment="0" max="32767" attributes="0"/>
+                      </Group>
+                    </DimensionLayout>
+                    <DimensionLayout dim="1">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="chkRunProteinProphet" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="btnProtProphDefaultsClosed" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="btnProtProphDefaultsOpen" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="panelProteinProphetOptions" min="-2" pref="112" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                    </DimensionLayout>
+                  </Layout>
+                  <SubComponents>
+                    <Component class="javax.swing.JCheckBox" name="chkRunProteinProphet">
+                      <Properties>
+                        <Property name="selected" type="boolean" value="true"/>
+                        <Property name="text" type="java.lang.String" value="Run ProteinProphet"/>
+                        <Property name="name" type="java.lang.String" value="ui.name.downstream.check.run-prot-proph" noResource="true"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkRunProteinProphetActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JButton" name="btnProtProphDefaultsClosed">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Allow mass shifted peptides"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnProtProphDefaultsClosedActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JButton" name="btnProtProphDefaultsOpen">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Do NOT allow mass shifted peptides"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnProtProphDefaultsOpenActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Container class="javax.swing.JPanel" name="panelProteinProphetOptions">
+                      <Properties>
+                        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                          <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                            <TitledBorder title="ProteinProphet Options"/>
+                          </Border>
+                        </Property>
+                      </Properties>
+
+                      <Layout>
+                        <DimensionLayout dim="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Group type="102" attributes="0">
+                                          <Component id="checkProcessGroupsSeparately" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace min="0" pref="416" max="32767" attributes="0"/>
+                                      </Group>
+                                      <Group type="102" attributes="0">
+                                          <Component id="jLabel40" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="jScrollPane4" pref="642" max="32767" attributes="0"/>
+                                      </Group>
+                                  </Group>
+                                  <EmptySpace max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                        </DimensionLayout>
+                        <DimensionLayout dim="1">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" attributes="0">
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Group type="102" attributes="0">
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="jLabel40" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Component id="jScrollPane4" min="-2" pref="57" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="checkProcessGroupsSeparately" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="156" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                        </DimensionLayout>
+                      </Layout>
+                      <SubComponents>
+                        <Component class="javax.swing.JCheckBox" name="checkProcessGroupsSeparately">
+                          <Properties>
+                            <Property name="selected" type="boolean" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                              <Connection code="loadLastProcessGroupsSeparately()" type="code"/>
+                            </Property>
+                            <Property name="text" type="java.lang.String" value="&lt;html&gt;Separate ProteinProphet prot.xml file per group/experiment"/>
+                            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;Uncheck&lt;/b&gt; if you want a report comparing protein abundances across&lt;br/&gt;&#xa;experiments or just want a single protein identification result from all&lt;br/&gt;&#xa;the runs.&lt;br/&gt;&#xa;&lt;b&gt;Only check&lt;/b&gt; if you want peptide/protein ID results&lt;br/&gt;&#xa;for each experiment separately. E.g. this might be useful if you have&lt;br/&gt;&#xa;100 files on hand and use the &quot;assign to experiments&quot; feature to quickly&lt;br/&gt;&#xa;run MSFragger + downstream processing on each of those and get a pepxml&lt;br/&gt;&#xa;and/or protxml files."/>
+                            <Property name="name" type="java.lang.String" value="ui.name.downstream.check.separate-protxml" noResource="true"/>
+                          </Properties>
+                          <Events>
+                            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkProcessGroupsSeparatelyActionPerformed"/>
+                          </Events>
+                        </Component>
+                        <Container class="javax.swing.JScrollPane" name="jScrollPane4">
+                          <AuxValues>
+                            <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+                          </AuxValues>
+
+                          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+                          <SubComponents>
+                            <Component class="javax.swing.JTextArea" name="txtProteinProphetCmdLineOpts">
+                              <Properties>
+                                <Property name="columns" type="int" value="20"/>
+                                <Property name="lineWrap" type="boolean" value="true"/>
+                                <Property name="rows" type="int" value="5"/>
+                                <Property name="wrapStyleWord" type="boolean" value="true"/>
+                                <Property name="name" type="java.lang.String" value="ui.name.downstream.text.prot-proph-cmd" noResource="true"/>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="txtProteinProphetCmdLineOptsFocusLost"/>
+                              </Events>
+                              <AuxValues>
+                                <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="loadLastProteinProphet();"/>
+                              </AuxValues>
+                            </Component>
+                          </SubComponents>
+                        </Container>
+                        <Component class="javax.swing.JLabel" name="jLabel40">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="Cmd Line Options"/>
+                          </Properties>
+                        </Component>
+                      </SubComponents>
+                    </Container>
+                  </SubComponents>
+                </Container>
+                <Component class="umich.msfragger.params.crystalc.CrystalcPanel" name="panelCrystalc">
+                </Component>
+                <Component class="umich.msfragger.params.tmtintegrator.TmtIntegratorPanel" name="tmtIntegratorPanel1">
+                </Component>
               </SubComponents>
             </Container>
-            <Component class="umich.msfragger.params.crystalc.CrystalcPanel" name="panelCrystalc">
-            </Component>
-            <Component class="umich.msfragger.params.tmtintegrator.TmtIntegratorPanel" name="tmtIntegratorPanel1">
-            </Component>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="panelReport">
@@ -1531,7 +1537,7 @@
                                       <Component id="btnStop" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="checkDryRun" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace pref="29" max="32767" attributes="0"/>
+                                      <EmptySpace pref="175" max="32767" attributes="0"/>
                                       <Component id="btnPrintCommands" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="btnExportLog" min="-2" max="-2" attributes="0"/>

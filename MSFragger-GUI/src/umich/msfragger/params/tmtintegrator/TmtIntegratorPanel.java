@@ -49,7 +49,7 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
     // Top panel with run checkbox
     {
       // setting the insets allows the top panel to be shifted left of the options panel
-      pTop = new JPanel(new MigLayout(new LC().insetsAll("0px")));
+      pTop = new JPanel(new MigLayout(new LC().insetsAll("0px")));//.debug()));
 
       checkRun = new UiCheck("Run TMT-Integrator", null, true);
       checkRun.setName("ui.name.downstream.run-tmtintegrator");

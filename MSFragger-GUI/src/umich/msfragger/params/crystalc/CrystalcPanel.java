@@ -59,7 +59,8 @@ public class CrystalcPanel extends JPanelWithEnablement {
     // Top panel with run checkbox
     {
       // setting the insets allows the top panel to be shifted left of the options panel
-      pTop = new JPanel(new MigLayout(new LC().insetsAll("0px").debug()));
+      //pTop = new JPanel(new MigLayout(new LC().insetsAll("0px").debug()));
+      pTop = new JPanel(new MigLayout(new LC().insetsAll("0px")));
 
       checkRun = new UiCheck("Run Crystal-C", null, false);
 
