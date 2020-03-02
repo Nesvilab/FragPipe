@@ -12,7 +12,7 @@ import umich.msfragger.gui.api.SimpleUniqueTableModel;
 import umich.msfragger.gui.api.TableModelColumn;
 
 public class TmtAnnotationTable extends SimpleETable {
-  private static final Logger log = LoggerFactory.getLogger(umich.msfragger.gui.LcmsInputFileTable.class);
+  private static final Logger log = LoggerFactory.getLogger(TmtAnnotationTable.class);
   protected final String[] columnToolTips = {
       "<html>Experiment.<br/>"
           + "Name of the experiment in LCMS files selection tab.", // "Path" assumed obvious
@@ -56,11 +56,24 @@ public class TmtAnnotationTable extends SimpleETable {
 
     cols.add(colExp);
     cols.add(colPath);
-    return new SimpleUniqueTableModel<TmtAnnotationRow>(cols, 3);
+
+    SimpleUniqueTableModel<TmtAnnotationRow> model = new SimpleUniqueTableModel<>(
+        cols, 0);
+    model.dataAdd(new TmtAnnotationRow("exp-asd", "c:\\hoho"));
+
+    return model;
   }
 
   public static class TmtAnnotationRow {
     public String expName;
     public String path;
+
+    public TmtAnnotationRow() {
+    }
+
+    public TmtAnnotationRow(String expName, String path) {
+      this.expName = expName;
+      this.path = path;
+    }
   }
 }

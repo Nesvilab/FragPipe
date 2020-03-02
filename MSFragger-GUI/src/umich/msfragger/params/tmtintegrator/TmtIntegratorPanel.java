@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import net.miginfocom.layout.CC;
@@ -27,6 +28,7 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
   private JPanel pContent;
   private JPanel pTable;
   private TmtAnnotationTable tmtAnnotationTable;
+  private JScrollPane scrollPaneTmtTable;
 
   public TmtIntegratorPanel() {
     initMore();
@@ -58,7 +60,7 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
       });
       pTop.add(checkRun, new CC().alignX("left"));
       JButton btnLoadDefaults = new JButton("Load TMT-Integrator defaults");
-      btnLoadDefaults.addActionListener((e) -> EventBus.getDefault().post(new MessageLoadShepherdDefaults(true)));
+      btnLoadDefaults.addActionListener((e) -> EventBus.getDefault().post(new MessageLoadTmtIntegratorDefaults(true)));
       pTop.add(btnLoadDefaults, new CC().alignX("left"));
 
       pTop.setBorder(new EmptyBorder(0,0,0,0));
@@ -94,7 +96,13 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
       pTable.setBorder(new EmptyBorder(0, 0, 0, 0));
       tmtAnnotationTable = new TmtAnnotationTable();
       pTable.add(new JLabel("TMT Annotations"), BorderLayout.NORTH);
-      pTable.add(tmtAnnotationTable, BorderLayout.CENTER);
+
+      tmtAnnotationTable.fireInitialization();
+      tmtAnnotationTable.setFillsViewportHeight(false);
+      scrollPaneTmtTable = new JScrollPane();
+      scrollPaneTmtTable.setViewportView(tmtAnnotationTable);
+
+      pTable.add(scrollPaneTmtTable, BorderLayout.CENTER);
       pContent.add(pTable, new CC().growX());
     }
 
