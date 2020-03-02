@@ -16,6 +16,10 @@
  */
 package umich.msfragger.gui;
 
+import static umich.msfragger.gui.MsfraggerGuiFrameUtils.createFraggerCitationHtml;
+import static umich.msfragger.gui.MsfraggerGuiFrameUtils.createPhilosopherCitationHtml;
+import static umich.msfragger.gui.MsfraggerGuiFrameUtils.initEditorPaneSeqDb;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -788,11 +792,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         jScrollPane4 = new javax.swing.JScrollPane();
         txtProteinProphetCmdLineOpts = new javax.swing.JTextArea();
         jLabel40 = new javax.swing.JLabel();
-        panelCrystalc = new CrystalcPanel();
+        panelCrystalc = new umich.msfragger.params.crystalc.CrystalcPanel();
+        tmtIntegratorPanel1 = new umich.msfragger.params.tmtintegrator.TmtIntegratorPanel();
         panelReport = new javax.swing.JPanel();
         ptmshepherdPanel = new umich.msfragger.params.ptmshepherd.PtmshepherdJPanel();
         panelQuant = new umich.msfragger.params.ionquant.QuantJPanel();
-        panelReportOptions = new ReportPanel();
+        panelReportOptions = new umich.msfragger.params.philosopher.ReportPanel();
         speclibPanel1 = new umich.msfragger.params.speclib.SpeclibPanel();
         panelRun = new javax.swing.JPanel();
         btnStop = new javax.swing.JButton();
@@ -866,7 +871,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         editorMsfraggerCitation.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         editorMsfraggerCitation.setContentType("text/html"); // NOI18N
         editorMsfraggerCitation.setFont(lblFraggerJavaVer.getFont());
-        editorMsfraggerCitation.setText(MsfraggerGuiFrameUtils.createFraggerCitationHtml(lblFraggerJavaVer));
+        editorMsfraggerCitation.setText(createFraggerCitationHtml(lblFraggerJavaVer));
         editorMsfraggerCitation.setAutoscrolls(false);
         editorMsfraggerCitation.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
             public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
@@ -959,7 +964,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         editorPhilosopherLink.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         editorPhilosopherLink.setContentType("text/html"); // NOI18N
         editorPhilosopherLink.setFont(lblFraggerJavaVer.getFont());
-        editorPhilosopherLink.setText(MsfraggerGuiFrameUtils.createPhilosopherCitationHtml(lblFraggerJavaVer));
+        editorPhilosopherLink.setText(createPhilosopherCitationHtml(lblFraggerJavaVer));
         editorPhilosopherLink.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
             public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
                 urlHandlerViaSystemBrowser(evt);
@@ -1406,7 +1411,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         lblFastaCount.setToolTipText("Number of proteins in fasta file");
 
         jScrollPane5.setViewportView(editorSequenceDb);
-        MsfraggerGuiFrameUtils.initEditorPaneSeqDb(editorSequenceDb);
+        initEditorPaneSeqDb(editorSequenceDb);
 
         btnDbDownload.setText("Download");
         btnDbDownload.addActionListener(new java.awt.event.ActionListener() {
@@ -1585,7 +1590,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addComponent(btnPepProphDefaultsOpen)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnPepProphDefaultsNonspecific)
-                .addContainerGap(164, Short.MAX_VALUE))
+                .addContainerGap(179, Short.MAX_VALUE))
             .addComponent(panelPeptideProphetOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         panelPeptideProphetLayout.setVerticalGroup(
@@ -1714,7 +1719,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addGroup(panelDownstreamLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(panelPeptideProphet, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(panelProteinProphet, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelCrystalc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(panelCrystalc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(tmtIntegratorPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelDownstreamLayout.setVerticalGroup(
@@ -1726,7 +1732,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addComponent(panelProteinProphet, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelCrystalc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(250, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tmtIntegratorPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(226, Short.MAX_VALUE))
         );
 
         tabPane.addTab("Downstream", panelDownstream);
@@ -2976,7 +2984,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JLabel lblSpeclibInfo1;
     private javax.swing.JPanel panelBottomHints;
     private javax.swing.JPanel panelConfig;
-    private CrystalcPanel panelCrystalc;
+    private umich.msfragger.params.crystalc.CrystalcPanel panelCrystalc;
     private javax.swing.JPanel panelDbInfo;
     private javax.swing.JPanel panelDownstream;
     private javax.swing.JPanel panelMsfraggerConfig;
@@ -2987,7 +2995,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelProteinProphetOptions;
     private umich.msfragger.params.ionquant.QuantJPanel panelQuant;
     private javax.swing.JPanel panelReport;
-    private ReportPanel panelReportOptions;
+    private umich.msfragger.params.philosopher.ReportPanel panelReportOptions;
     private javax.swing.JPanel panelRun;
     private javax.swing.JPanel panelSelectFiles;
     private javax.swing.JPanel panelSelectedFiles;
@@ -3003,9 +3011,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JTextField textDecoyTagSeqDb;
     private javax.swing.JTextArea textPepProphCmd;
     private javax.swing.JTextField textSequenceDbPath;
+    private umich.msfragger.params.tmtintegrator.TmtIntegratorPanel tmtIntegratorPanel1;
     private javax.swing.JTextArea txtProteinProphetCmdLineOpts;
-
-  private javax.swing.JTextField txtWorkingDir;
-
-  // End of variables declaration//GEN-END:variables
+    private javax.swing.JTextField txtWorkingDir;
+    // End of variables declaration//GEN-END:variables
 }

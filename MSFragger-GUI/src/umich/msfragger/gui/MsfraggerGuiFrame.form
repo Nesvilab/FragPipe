@@ -272,7 +272,7 @@
                               <Connection component="lblFraggerJavaVer" name="font" type="property"/>
                             </Property>
                             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                              <Connection code="getFraggerCitationHtml()" type="code"/>
+                              <Connection code="createFraggerCitationHtml(lblFraggerJavaVer)" type="code"/>
                             </Property>
                             <Property name="autoscrolls" type="boolean" value="false"/>
                           </Properties>
@@ -418,7 +418,7 @@
                               <Connection component="lblFraggerJavaVer" name="font" type="property"/>
                             </Property>
                             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                              <Connection code="createPhilosopherCitationHtml()" type="code"/>
+                              <Connection code="createPhilosopherCitationHtml(lblFraggerJavaVer)" type="code"/>
                             </Property>
                           </Properties>
                           <Events>
@@ -1055,7 +1055,7 @@
                   <SubComponents>
                     <Component class="javax.swing.JEditorPane" name="editorSequenceDb">
                       <AuxValues>
-                        <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="initEditorPaneSeqDb();"/>
+                        <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="initEditorPaneSeqDb(editorSequenceDb);"/>
                       </AuxValues>
                     </Component>
                   </SubComponents>
@@ -1090,6 +1090,7 @@
                           <Component id="panelPeptideProphet" alignment="1" max="32767" attributes="0"/>
                           <Component id="panelProteinProphet" alignment="0" max="32767" attributes="0"/>
                           <Component id="panelCrystalc" alignment="0" max="32767" attributes="0"/>
+                          <Component id="tmtIntegratorPanel1" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -1104,7 +1105,9 @@
                       <Component id="panelProteinProphet" min="-2" pref="145" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="panelCrystalc" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="250" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="tmtIntegratorPanel1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="226" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1125,7 +1128,7 @@
                           <Component id="btnPepProphDefaultsOpen" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="btnPepProphDefaultsNonspecific" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="164" max="32767" attributes="0"/>
+                          <EmptySpace pref="179" max="32767" attributes="0"/>
                       </Group>
                       <Component id="panelPeptideProphetOptions" alignment="0" max="32767" attributes="0"/>
                   </Group>
@@ -1430,6 +1433,8 @@
               </SubComponents>
             </Container>
             <Component class="umich.msfragger.params.crystalc.CrystalcPanel" name="panelCrystalc">
+            </Component>
+            <Component class="umich.msfragger.params.tmtintegrator.TmtIntegratorPanel" name="tmtIntegratorPanel1">
             </Component>
           </SubComponents>
         </Container>

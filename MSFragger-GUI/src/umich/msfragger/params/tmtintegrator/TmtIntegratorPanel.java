@@ -3,6 +3,7 @@ package umich.msfragger.params.tmtintegrator;
 import com.github.chhh.utils.swing.UiCheck;
 import java.awt.BorderLayout;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -10,9 +11,12 @@ import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.messages.MessageLoadShepherdDefaults;
+import umich.msfragger.messages.MessageLoadTmtIntegratorDefaults;
+import umich.msfragger.messages.MessageRunTmtIntegrator;
 import umich.msfragger.util.swing.JPanelWithEnablement;
 
 public class TmtIntegratorPanel extends JPanelWithEnablement {
@@ -21,6 +25,8 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
   private JPanel pTop;
   private UiCheck checkRun;
   private JPanel pContent;
+  private JPanel pTable;
+  private TmtAnnotationTable tmtAnnotationTable;
 
   public TmtIntegratorPanel() {
     initMore();
@@ -36,7 +42,7 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
   private void initMore() {
     this.setLayout(new BorderLayout());
 //    this.setBorder(new EmptyBorder(0,0,0,0));
-    this.setBorder(new TitledBorder("PTM Analysis"));
+    this.setBorder(new TitledBorder("TMT Qunatitation"));
 
     // Top panel with run checkbox
     {
@@ -51,7 +57,7 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
         updateEnabledStatus(pContent, isSelected);
       });
       pTop.add(checkRun, new CC().alignX("left"));
-      JButton btnLoadDefaults = new JButton("Load PTMShepherd defaults");
+      JButton btnLoadDefaults = new JButton("Load TMT-Integrator defaults");
       btnLoadDefaults.addActionListener((e) -> EventBus.getDefault().post(new MessageLoadShepherdDefaults(true)));
       pTop.add(btnLoadDefaults, new CC().alignX("left"));
 
@@ -64,15 +70,13 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
       pContent = new JPanel(new MigLayout(new LC().fillX()));
       pContent.setBorder(new EmptyBorder(0,0,0,0));
 
-      // when "Run Report" checkbox is switched, this panel can decide not to turn on,
-      // if "Run Shepherd" checkbox is off
       pContent.addPropertyChangeListener("enabled", evt -> {
-        log.debug("Shepherd pContent panel property '{}' changed from '{}' to '{}'", evt.getPropertyName(),
+        log.debug("Tmt pContent panel property '{}' changed from '{}' to '{}'", evt.getPropertyName(),
             evt.getOldValue(), evt.getNewValue());
         boolean newValue = (Boolean)evt.getNewValue();
         boolean isSwitchToEnabled = (Boolean) evt.getNewValue() && !(Boolean) evt.getOldValue();
         boolean pContentIsEnabled = newValue && checkRun.isSelected();
-        log.debug("Shepherd pContent panel is switching to enabled? : {}, !checkRun.isSelected() : {}, final state should be: {}",
+        log.debug("Tmt pContent panel is switching to enabled? : {}, !checkRun.isSelected() : {}, final state should be: {}",
             isSwitchToEnabled, !checkRun.isSelected(), pContentIsEnabled);
         enablementMapping.put(pContent, pContentIsEnabled);
         updateEnabledStatus(pContent, pContentIsEnabled);
@@ -83,5 +87,31 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
 //      scroll.getVerticalScrollBar().setUnitIncrement(16);
     }
 
+    {
+      //pTable = new JPanel(new MigLayout(new LC()));
+      pTable = new JPanel(new BorderLayout());
+      //pPeakPicking.setBorder(new TitledBorder("PTMShepherd options"));
+      pTable.setBorder(new EmptyBorder(0, 0, 0, 0));
+      tmtAnnotationTable = new TmtAnnotationTable();
+      pTable.add(new JLabel("TMT Annotations"), BorderLayout.NORTH);
+      pTable.add(tmtAnnotationTable, BorderLayout.CENTER);
+      pContent.add(pTable, new CC().growX());
+    }
+
+    this.add(pContent, BorderLayout.CENTER);
+  }
+
+  public boolean isRun() {
+    return checkRun.isEnabled() && checkRun.isSelected();
+  }
+
+  @Subscribe
+  public void OnRunTmtIntegratorChanged(MessageRunTmtIntegrator m) {
+    log.debug("Got MessageRunTmtIntegrator - is run: {}", m.isRun);
+  }
+
+  @Subscribe
+  public void OnLoadTmtIntegratorDefaults(MessageLoadTmtIntegratorDefaults m) {
+    log.debug("Got MessageLoadTmtIntegratorDefaults, it's an empty marker message");
   }
 }
