@@ -1,14 +1,10 @@
 package umich.msfragger.params.tmtintegrator;
 
 import com.github.chhh.utils.swing.UiCheck;
+import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -30,6 +26,7 @@ import umich.msfragger.messages.MessageLoadTmtIntegratorDefaults;
 import umich.msfragger.messages.MessageTmtIntegratorRun;
 import umich.msfragger.messages.MessageType;
 import umich.msfragger.params.tmtintegrator.TmtAnnotationTable.TmtAnnotationRow;
+import umich.msfragger.util.swing.FormEntry;
 import umich.msfragger.util.swing.JPanelWithEnablement;
 
 public class TmtIntegratorPanel extends JPanelWithEnablement {
@@ -41,6 +38,7 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
   private JPanel pTable;
   private TmtAnnotationTable tmtAnnotationTable;
   private JScrollPane scrollPaneTmtTable;
+  private JPanel pOpts;
 
   public TmtIntegratorPanel() {
     initMore();
@@ -117,6 +115,26 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
 
       pTable.add(scrollPaneTmtTable, BorderLayout.CENTER);
       pContent.add(pTable, new CC().growX());
+    }
+
+    {
+      pOpts = new JPanel(new MigLayout(new LC().debug()));
+//      pOpts = new JPanel(new BorderLayout());
+      //pOpts.setBorder(new TitledBorder("TMT options"));
+      pOpts.setBorder(new EmptyBorder(0, 0, 0, 0));
+      UiCheck doX = new UiCheck("Do x", null, false);
+      FormEntry feDoX = new FormEntry("ui-name.downstream.tmtintegrator.do-x", "not shown", doX);
+      UiCheck doY = new UiCheck("Do y", null, false);
+      FormEntry feDoY = new FormEntry("ui-name.downstream.tmtintegrator.do-y", "not shown", doY);
+      FormEntry feDoZ = new FormEntry("ui-name.downstream.tmtintegrator.do-z", "not shown",
+          new UiCheck("Do z", null, false));
+      FormEntry feDoQ = new FormEntry("ui-name.downstream.tmtintegrator.do-Q", "not shown",
+          new UiCheck("Do q", null, false));
+      pOpts.add(feDoX.comp, new CC().alignX("left"));
+      pOpts.add(feDoY.comp, new CC().alignX("left").wrap());
+      pOpts.add(feDoZ.comp, new CC().alignX("left"));
+      pOpts.add(feDoQ.comp, new CC().alignX("left").wrap());
+      pContent.add(pOpts, new CC().alignY("top").growX().wrap());
     }
 
     this.add(pContent, BorderLayout.CENTER);

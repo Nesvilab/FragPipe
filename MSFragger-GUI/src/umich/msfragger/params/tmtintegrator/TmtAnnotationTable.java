@@ -23,7 +23,13 @@ public class TmtAnnotationTable extends SimpleETable {
 
   public TmtAnnotationTable() {
     super(createTableModel());
-    setFullyEditable(true);
+    setFullyEditable(false);
+  }
+
+  @Override
+  public boolean isCellEditable(int row, int column) {
+    int modelIndex = convertColumnIndexToModel(column);
+    return modelIndex == 1;
   }
 
   @Override
@@ -54,8 +60,8 @@ public class TmtAnnotationTable extends SimpleETable {
     TableModelColumn<TmtAnnotationRow, String> colExp = new TableModelColumn<>(
         "Experiment",
         String.class, false, row -> row.expName);
-    TableModelColumn<TmtAnnotationRow, Path> colPath = new TableModelColumn<>(
-        "Annotation file path", Path.class, true, row -> Paths.get(row.path));
+    TableModelColumn<TmtAnnotationRow, String> colPath = new TableModelColumn<>(
+        "Annotation file path", String.class, true, row -> row.path);
 
     cols.add(colExp);
     cols.add(colPath);
