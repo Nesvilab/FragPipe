@@ -2,6 +2,14 @@ package umich.msfragger.params.tmtintegrator;
 
 import com.github.chhh.utils.swing.UiCheck;
 import java.awt.BorderLayout;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -13,10 +21,15 @@ import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.msfragger.gui.InputLcmsFile;
+import umich.msfragger.messages.MessageLcmsFilesList;
 import umich.msfragger.messages.MessageLoadTmtIntegratorDefaults;
 import umich.msfragger.messages.MessageTmtIntegratorRun;
+import umich.msfragger.messages.MessageType;
+import umich.msfragger.params.tmtintegrator.TmtAnnotationTable.TmtAnnotationRow;
 import umich.msfragger.util.swing.JPanelWithEnablement;
 
 public class TmtIntegratorPanel extends JPanelWithEnablement {
@@ -31,13 +44,13 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
 
   public TmtIntegratorPanel() {
     initMore();
-    initPostCreation();
     // register on the bus only after all the components have been created to avoid NPEs
     EventBus.getDefault().register(this);
+    initPostCreation();
   }
 
   private void initPostCreation() {
-
+    EventBus.getDefault().post(new MessageLcmsFilesList(MessageType.REQUEST, null));
   }
 
   private void initMore() {
@@ -114,12 +127,31 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
   }
 
   @Subscribe
-  public void OnRunTmtIntegratorChanged(MessageTmtIntegratorRun m) {
+  public void onMessageTmtIntegratorRun(MessageTmtIntegratorRun m) {
     log.debug("Got MessageRunTmtIntegrator - is run: {}", m.isRun);
   }
 
   @Subscribe
-  public void OnLoadTmtIntegratorDefaults(MessageLoadTmtIntegratorDefaults m) {
+  public void onMessageLoadTmtIntegratorDefaults(MessageLoadTmtIntegratorDefaults m) {
     log.debug("Got MessageLoadTmtIntegratorDefaults, it's an empty marker message");
+  }
+
+  @Subscribe(threadMode =  ThreadMode.MAIN_ORDERED)
+  public void onMessageLcmsFilesList(MessageLcmsFilesList m) {
+    if (m.type == MessageType.REQUEST)
+      return;
+
+    final Map<String, TmtAnnotationRow> curRows = tmtAnnotationTable.fetchModel().dataCopy().stream()
+        .collect(Collectors.toMap(row -> row.expName, row -> row));
+    List<String> expNames = m.files.stream().map(InputLcmsFile::getExperiment)
+        .distinct().sorted().collect(Collectors.toList());
+    List<TmtAnnotationRow> newRows = m.files.stream().map(InputLcmsFile::getExperiment)
+        .distinct().sorted()
+        .map(name -> curRows.getOrDefault(name, new TmtAnnotationRow(name, "No path set yet")))
+        .collect(Collectors.toList());
+
+    tmtAnnotationTable.fetchModel().dataClear();
+    tmtAnnotationTable.fetchModel().dataAddAll(newRows);
+
   }
 }

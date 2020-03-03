@@ -85,8 +85,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
 import net.java.balloontip.BalloonTip;
@@ -113,7 +111,7 @@ import umich.msfragger.messages.MessageKillAll;
 import umich.msfragger.messages.MessageKillAll.REASON;
 import umich.msfragger.messages.MessageLastRunWorkDir;
 import umich.msfragger.messages.MessageLcmsFilesAdded;
-import umich.msfragger.messages.MessageLcmsFilesTableUpdated;
+import umich.msfragger.messages.MessageLcmsFilesList;
 import umich.msfragger.messages.MessageLoadAllForms;
 import umich.msfragger.messages.MessagePythonBinSelectedByUser;
 import umich.msfragger.messages.MessageReportEnablement;
@@ -124,6 +122,7 @@ import umich.msfragger.messages.MessageSaveLog;
 import umich.msfragger.messages.MessageSearchType;
 import umich.msfragger.messages.MessageShowAboutDialog;
 import umich.msfragger.messages.MessageTipNotification;
+import umich.msfragger.messages.MessageType;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcPanel;
 import umich.msfragger.params.crystalc.CrystalcParams;
@@ -387,8 +386,8 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     tableModelRawFiles = MsfraggerGuiFrameUtils.createTableModelRawFiles();
     tableModelRawFiles.addTableModelListener(e -> {
-      ArrayList<InputLcmsFile> files = tableModelRawFiles.dataCopy();
-      EventBus.getDefault().post(new MessageLcmsFilesTableUpdated(files));
+      List<InputLcmsFile> files = tableModelRawFiles.dataCopy();
+      EventBus.getDefault().post(new MessageLcmsFilesList(MessageType.UPDATE, files));
     });
     tableRawFiles = new LcmsInputFileTable(tableModelRawFiles);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnRawClear);
@@ -2304,6 +2303,14 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void onMessageLastRunWorkDir(MessageLastRunWorkDir m) {
     ThisAppProps.save(ThisAppProps.PROP_FILE_OUT, m.workDir.toAbsolutePath().toString());
+  }
+
+  @Subscribe(threadMode =  ThreadMode.MAIN_ORDERED)
+  public void onMessageLcmsFilesList(MessageLcmsFilesList m) {
+    if (m.type == MessageType.REQUEST) {
+      List<InputLcmsFile> files = tableModelRawFiles != null ? tableModelRawFiles.dataCopy() : Collections.emptyList();
+      EventBus.getDefault().post(new MessageLcmsFilesList(MessageType.RESPONSE, files));
+    }
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)

@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.JTableHeader;
-import javax.swing.table.TableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.api.SimpleETable;
@@ -23,11 +22,7 @@ public class TmtAnnotationTable extends SimpleETable {
           + "be any string of your choosing."};
 
   public TmtAnnotationTable() {
-    this(createTableModel());
-  }
-
-  public TmtAnnotationTable(TableModel dm) {
-    super(dm);
+    super(createTableModel());
     setFullyEditable(true);
   }
 
@@ -48,6 +43,11 @@ public class TmtAnnotationTable extends SimpleETable {
     };
   }
 
+  @SuppressWarnings("unchecked")
+  public SimpleUniqueTableModel<TmtAnnotationRow> fetchModel() {
+    return (SimpleUniqueTableModel<TmtAnnotationRow>) getModel();
+  }
+
   private static SimpleUniqueTableModel<TmtAnnotationRow> createTableModel() {
     List<TableModelColumn<TmtAnnotationRow, ?>> cols = new ArrayList<>();
 
@@ -62,7 +62,6 @@ public class TmtAnnotationTable extends SimpleETable {
 
     SimpleUniqueTableModel<TmtAnnotationRow> model = new SimpleUniqueTableModel<>(
         cols, 0);
-    model.dataAdd(new TmtAnnotationRow("exp-asd", "c:\\hoho"));
 
     return model;
   }
