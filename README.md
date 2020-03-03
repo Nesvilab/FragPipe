@@ -47,7 +47,7 @@ For other tools developed by Nesvizhskii lab, visit our website
   or execute one of the following commands:
   - `start javaw -jar FragPipe-x.x.jar`
   - `java -jar FragPipe-x.x.jar`
-- **Linux/Mac**:
+- **Linux**:
   - Either run the `FragPipe` shell script from *.zip* distribution  
   or execute the following command:
   - Or execute `java -jar FragPipe-x.x.jar`
