@@ -1,9 +1,9 @@
 package umich.msfragger.messages;
 
-public class MessageRunTmtIntegrator {
+public class MessageTmtIntegratorRun {
   public final boolean isRun;
 
-  public MessageRunTmtIntegrator(boolean isRun) {
+  public MessageTmtIntegratorRun(boolean isRun) {
     this.isRun = isRun;
   }
 }

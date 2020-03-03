@@ -15,9 +15,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.messages.MessageLoadShepherdDefaults;
 import umich.msfragger.messages.MessageLoadTmtIntegratorDefaults;
-import umich.msfragger.messages.MessageRunTmtIntegrator;
+import umich.msfragger.messages.MessageTmtIntegratorRun;
 import umich.msfragger.util.swing.JPanelWithEnablement;
 
 public class TmtIntegratorPanel extends JPanelWithEnablement {
@@ -57,6 +56,7 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
         final boolean isSelected = checkRun.isSelected();
         enablementMapping.put(pContent, isSelected);
         updateEnabledStatus(pContent, isSelected);
+        EventBus.getDefault().post(new MessageTmtIntegratorRun(isSelected));
       });
       pTop.add(checkRun, new CC().alignX("left"));
       JButton btnLoadDefaults = new JButton("Load TMT-Integrator defaults");
@@ -114,7 +114,7 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
   }
 
   @Subscribe
-  public void OnRunTmtIntegratorChanged(MessageRunTmtIntegrator m) {
+  public void OnRunTmtIntegratorChanged(MessageTmtIntegratorRun m) {
     log.debug("Got MessageRunTmtIntegrator - is run: {}", m.isRun);
   }
 

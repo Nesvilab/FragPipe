@@ -1,6 +1,8 @@
 package umich.msfragger.params.tmtintegrator;
 
 import java.awt.event.MouseEvent;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.JTableHeader;
@@ -21,11 +23,12 @@ public class TmtAnnotationTable extends SimpleETable {
           + "be any string of your choosing."};
 
   public TmtAnnotationTable() {
-    super(createTableModel());
+    this(createTableModel());
   }
 
   public TmtAnnotationTable(TableModel dm) {
     super(dm);
+    setFullyEditable(true);
   }
 
   @Override
@@ -51,8 +54,8 @@ public class TmtAnnotationTable extends SimpleETable {
     TableModelColumn<TmtAnnotationRow, String> colExp = new TableModelColumn<>(
         "Experiment",
         String.class, false, row -> row.expName);
-    TableModelColumn<TmtAnnotationRow, String> colPath = new TableModelColumn<>(
-        "Annotation file path", String.class, true, row -> row.path);
+    TableModelColumn<TmtAnnotationRow, Path> colPath = new TableModelColumn<>(
+        "Annotation file path", Path.class, true, row -> Paths.get(row.path));
 
     cols.add(colExp);
     cols.add(colPath);

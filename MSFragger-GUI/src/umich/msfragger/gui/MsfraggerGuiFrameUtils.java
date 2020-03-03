@@ -1641,10 +1641,7 @@ public class MsfraggerGuiFrameUtils {
 
   }
 
-  public static UniqueLcmsFilesTableModel createTableModelRawFiles(MsfraggerGuiFrame guiFrame) {
-    if (guiFrame.tableModelRawFiles != null) {
-      return guiFrame.tableModelRawFiles;
-    }
+  public static UniqueLcmsFilesTableModel createTableModelRawFiles() {
     List<TableModelColumn<InputLcmsFile, ?>> cols = new ArrayList<>();
 
     TableModelColumn<InputLcmsFile, String> colPath = new TableModelColumn<>(
@@ -1658,9 +1655,9 @@ public class MsfraggerGuiFrameUtils {
     cols.add(colExp);
     cols.add(colRep);
 
+    UniqueLcmsFilesTableModel m = new UniqueLcmsFilesTableModel(cols, 0);
 
-    guiFrame.tableModelRawFiles = new UniqueLcmsFilesTableModel(cols, 0);
-    return guiFrame.tableModelRawFiles;
+    return m;
   }
 
   public static void validateMsfraggerMassCalibrationEligibility(String fraggerVer) {

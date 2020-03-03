@@ -85,6 +85,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
 import net.java.balloontip.BalloonTip;
@@ -96,7 +98,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
 import umich.msfragger.cmd.CmdMsfragger;
-import umich.msfragger.cmd.ProcessBuilderInfo;
 import umich.msfragger.cmd.ToolingUtils;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils.LcmsFileAddition;
 import umich.msfragger.gui.api.SearchTypeProp;
@@ -112,6 +113,7 @@ import umich.msfragger.messages.MessageKillAll;
 import umich.msfragger.messages.MessageKillAll.REASON;
 import umich.msfragger.messages.MessageLastRunWorkDir;
 import umich.msfragger.messages.MessageLcmsFilesAdded;
+import umich.msfragger.messages.MessageLcmsFilesTableUpdated;
 import umich.msfragger.messages.MessageLoadAllForms;
 import umich.msfragger.messages.MessagePythonBinSelectedByUser;
 import umich.msfragger.messages.MessageReportEnablement;
@@ -383,7 +385,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       enablePhilosopherPanels(false);
     }
 
-    tableModelRawFiles = MsfraggerGuiFrameUtils.createTableModelRawFiles(this);
+    tableModelRawFiles = MsfraggerGuiFrameUtils.createTableModelRawFiles();
+    tableModelRawFiles.addTableModelListener(e -> {
+      ArrayList<InputLcmsFile> files = tableModelRawFiles.dataCopy();
+      EventBus.getDefault().post(new MessageLcmsFilesTableUpdated(files));
+    });
     tableRawFiles = new LcmsInputFileTable(tableModelRawFiles);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnRawClear);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsConsecutive);
