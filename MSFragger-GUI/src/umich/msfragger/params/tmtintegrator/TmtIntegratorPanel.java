@@ -42,8 +42,10 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
   private TmtAnnotationTable tmtAnnotationTable;
   private JScrollPane scrollPaneTmtTable;
   private JPanel pOpts;
-  private Action browseAction;
-  private ButtonColumn buttonColumn;
+  private Action actionBrowse;
+  private Action actionCreate;
+  private ButtonColumn colBrowse;
+  private ButtonColumn colCreate;
 
   public TmtIntegratorPanel() {
     initMore();
@@ -112,15 +114,24 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
       pTable.setBorder(new EmptyBorder(0, 0, 0, 0));
 
       tmtAnnotationTable = new TmtAnnotationTable();
-      browseAction = new AbstractAction()
+      actionBrowse = new AbstractAction()
       {
         public void actionPerformed(ActionEvent e)
         {
           int modelRow = Integer.parseInt( e.getActionCommand() );
-          log.debug("Browse action running in TMT, model row: {}", modelRow);
+          log.debug("Browse action running in TMT, model row number: {}", modelRow);
+
         }
       };
-      buttonColumn = new ButtonColumn(tmtAnnotationTable, browseAction, 2);
+      actionCreate = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          int modelRow = Integer.parseInt( e.getActionCommand() );
+          log.debug("Create action running in TMT, model row number: {}", modelRow);
+        }
+      };
+      colBrowse = new ButtonColumn(tmtAnnotationTable, actionBrowse, 2);
+      colCreate = new ButtonColumn(tmtAnnotationTable, actionCreate, 3);
 
       pTable.add(new JLabel("TMT Annotations"), BorderLayout.NORTH);
       tmtAnnotationTable.fireInitialization();

@@ -66,9 +66,12 @@ public class TmtAnnotationTable extends SimpleETable {
         "Annotation file path", String.class, true, row -> row.path);
     TableModelColumn<TmtAnnotationRow, String> colBrowse = new TableModelColumn<>(
         "", String.class, true, row -> "Browse");
+    TableModelColumn<TmtAnnotationRow, String> colCreate = new TableModelColumn<>(
+        "", String.class, true, row -> "Create/Edit");
     cols.add(colExp);
     cols.add(colPath);
     cols.add(colBrowse);
+    cols.add(colCreate);
 
     SimpleUniqueTableModel<TmtAnnotationRow> model = new SimpleUniqueTableModel<>(
         cols, 0);
