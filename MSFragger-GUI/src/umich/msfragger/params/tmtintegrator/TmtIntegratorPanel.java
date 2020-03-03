@@ -1,11 +1,13 @@
 package umich.msfragger.params.tmtintegrator;
 
 import com.github.chhh.utils.swing.UiCheck;
-import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,6 +23,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
+import umich.msfragger.gui.renderers.ButtonColumn;
 import umich.msfragger.messages.MessageLcmsFilesList;
 import umich.msfragger.messages.MessageLoadTmtIntegratorDefaults;
 import umich.msfragger.messages.MessageTmtIntegratorRun;
@@ -39,6 +42,8 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
   private TmtAnnotationTable tmtAnnotationTable;
   private JScrollPane scrollPaneTmtTable;
   private JPanel pOpts;
+  private Action browseAction;
+  private ButtonColumn buttonColumn;
 
   public TmtIntegratorPanel() {
     initMore();
@@ -105,9 +110,19 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
       pTable = new JPanel(new BorderLayout());
       //pPeakPicking.setBorder(new TitledBorder("PTMShepherd options"));
       pTable.setBorder(new EmptyBorder(0, 0, 0, 0));
-      tmtAnnotationTable = new TmtAnnotationTable();
-      pTable.add(new JLabel("TMT Annotations"), BorderLayout.NORTH);
 
+      tmtAnnotationTable = new TmtAnnotationTable();
+      browseAction = new AbstractAction()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          int modelRow = Integer.parseInt( e.getActionCommand() );
+          log.debug("Browse action running in TMT, model row: {}", modelRow);
+        }
+      };
+      buttonColumn = new ButtonColumn(tmtAnnotationTable, browseAction, 2);
+
+      pTable.add(new JLabel("TMT Annotations"), BorderLayout.NORTH);
       tmtAnnotationTable.fireInitialization();
       tmtAnnotationTable.setFillsViewportHeight(false);
       scrollPaneTmtTable = new JScrollPane();

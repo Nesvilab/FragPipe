@@ -19,18 +19,20 @@ public class TmtAnnotationTable extends SimpleETable {
           + "Name of the experiment in LCMS files selection tab.", // "Path" assumed obvious
       "<html>Annotation.<br/>\n"
           + "A mapping from label type to sample name. Sample name can "
-          + "be any string of your choosing."};
+          + "be any string of your choosing.",
+      "Browse filesystem for an existing file."
+  };
 
   public TmtAnnotationTable() {
     super(createTableModel());
     setFullyEditable(false);
   }
-
-  @Override
-  public boolean isCellEditable(int row, int column) {
-    int modelIndex = convertColumnIndexToModel(column);
-    return modelIndex == 1;
-  }
+//
+//  @Override
+//  public boolean isCellEditable(int row, int column) {
+//    int modelIndex = convertColumnIndexToModel(column);
+//    return modelIndex == 1;
+//  }
 
   @Override
   protected JTableHeader createDefaultTableHeader() {
@@ -62,9 +64,11 @@ public class TmtAnnotationTable extends SimpleETable {
         String.class, false, row -> row.expName);
     TableModelColumn<TmtAnnotationRow, String> colPath = new TableModelColumn<>(
         "Annotation file path", String.class, true, row -> row.path);
-
+    TableModelColumn<TmtAnnotationRow, String> colBrowse = new TableModelColumn<>(
+        "", String.class, true, row -> "Browse");
     cols.add(colExp);
     cols.add(colPath);
+    cols.add(colBrowse);
 
     SimpleUniqueTableModel<TmtAnnotationRow> model = new SimpleUniqueTableModel<>(
         cols, 0);
