@@ -9,8 +9,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,10 +18,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.table.TableModel;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.cmd.ToolingUtils;
@@ -33,7 +31,6 @@ import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.params.tmtintegrator.QuantLabel;
 import umich.msfragger.params.tmtintegrator.QuantLabelAnnotation;
 import umich.msfragger.params.tmtintegrator.TmtAnnotationTable.TmtTableRow;
-import umich.msfragger.util.swing.JTableUtils;
 
 public class TmtAnnotationDialog extends javax.swing.JDialog {
   private static final Logger log = LoggerFactory.getLogger(TmtAnnotationDialog.class);
@@ -44,7 +41,7 @@ public class TmtAnnotationDialog extends javax.swing.JDialog {
   private JPanel p;
   private JButton buttonOK;
   private JButton buttonCancel;
-  private JButton buttonTmtDefaults;
+  private JButton buttonLoad;
   private SimpleETable table;
   private UiCombo comboLabelName;
   private SimpleTableModel<QuantLabelAnnotation> model;
@@ -53,15 +50,17 @@ public class TmtAnnotationDialog extends javax.swing.JDialog {
     this.tmtTableRow = tmtTableRow;
     this.numChannels = numChannels;
     init();
-    initMore();
+  }
+
+  @Override
+  public void dispose() {
+    super.dispose();
+//    EventBus.getDefault().unregister(this);
   }
 
   public TmtAnnotationDialog(TmtTableRow tmtTableRow, int numChannels, Path file) {
-    this.tmtTableRow = tmtTableRow;
-    this.numChannels = numChannels;
+    this(tmtTableRow, numChannels);
     this.file = file;
-    init();
-    initMore();
   }
 
   private void init() {
@@ -78,7 +77,22 @@ public class TmtAnnotationDialog extends javax.swing.JDialog {
     buttonCancel = new JButton("Cancel");
     table = createTable();
 
-    buttonTmtDefaults = new JButton("Populate with labels for");
+    buttonLoad = new JButton("Populate with labels for");
+    buttonLoad.addActionListener(e -> {
+      String labelName = (String) comboLabelName.getSelectedItem();
+      Optional<QuantLabel> label = QuantLabel.LABELS.stream()
+          .filter(ql -> ql.getName().equalsIgnoreCase(labelName)).findFirst();
+      if (!label.isPresent()) {
+        throw new IllegalStateException("Label from dropdown menu not present: " + labelName);
+      }
+      model.dataClear();
+      for (int i = 0; i < label.get().getReagentNames().size(); i++) {
+        String reagent = label.get().getReagentNames().get(i);
+        QuantLabelAnnotation annotation = new QuantLabelAnnotation(reagent,
+            String.format("sample-%02d", i + 1));
+        model.dataAdd(annotation);
+      }
+    });
     comboLabelName = UiUtils.createUiCombo(QuantLabel.LABELS.stream().map(QuantLabel::getName)
         .collect(Collectors.toList()));
     Optional<QuantLabel> label = QuantLabel.LABELS.stream()
@@ -88,7 +102,7 @@ public class TmtAnnotationDialog extends javax.swing.JDialog {
     MigLayout layout = new MigLayout(new LC().fillX().debug());
     p.setLayout(layout);
 
-    p.add(buttonTmtDefaults, new CC().split(3));
+    p.add(buttonLoad, new CC().split(3));
     p.add(comboLabelName, new CC().alignX("left").wrap());
 
     p.add(new JScrollPane(table), new CC().grow().spanX().wrap());
@@ -118,8 +132,6 @@ public class TmtAnnotationDialog extends javax.swing.JDialog {
     // call onCancel() on ESCAPE
     p.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
         JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-
-    initMore();
   }
 
   private void onOK() {
@@ -130,10 +142,6 @@ public class TmtAnnotationDialog extends javax.swing.JDialog {
   private void onCancel() {
     // add your code here if necessary
     dispose();
-  }
-
-  private void initMore() {
-
   }
 
   private static class QuantLabelAnnotationModel extends SimpleTableModel<QuantLabelAnnotation> {
