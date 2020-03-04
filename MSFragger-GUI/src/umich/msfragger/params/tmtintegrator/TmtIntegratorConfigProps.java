@@ -14,13 +14,13 @@ public class TmtIntegratorConfigProps {
   min_pep_prob: 0.9                            # minimum PSM probability threshold (in addition to FDR-based filtering by Philosopher)
   min_purity: 0.5                              # ion purity score threshold
   min_percent: 0.05                            # remove low intensity PSMs (e.g. value of 0.05 indicates removal of PSMs with the summed TMT reporter ions intensity in the lowest 5% of all PSMs)
+  min_site_prob: -1                            # site localization confidence threshold (-1: for Global; 0: as determined by the search engine; above 0 (e.g. 0.75): PTMProphet probability, to be used with phosphorylation only)
   unique_gene: 0                               # additional, gene-level uniqueness filter (0: allow all PSMs; 1: remove PSMs mapping to more than one GENE with evidence of expression in the dataset; 2:remove all PSMs mapping to more than one GENE in the fasta file)
   prot_exclude: none                           # exclude proteins with specified tags at the beginning of the accession number (e.g. none: no exclusion; sp|,tr| : exclude protein with sp| or tr|)
   mod_tag: none                                # PTM info for generation of PTM-specific reports (none: for Global data; S[167],T[181],Y[243]: for Phospho; K[170]: for K-Acetyl)
   groupby: -1                                  # level of data summarization(0: PSM aggregation to the gene level; 1: protein; 2: peptide sequence; 3: PTM site; -1: generate reports at all levels)
   prot_norm: -1                                # normalization (0: None; 1: MD (median centering); 2: GN (median centering + variance scaling); -1: generate reports with all normalization options)
   add_Ref: -1                                  # add an artificial reference channel if there is no reference channel (-1: don't add the reference; 0: use summation as the reference; 1: use average as the reference; 2: use median as the reference)
-  min_site_prob: -1                            # site localization confidence threshold (-1: for Global; 0: as determined by the search engine; above 0 (e.g. 0.75): PTMProphet probability, to be used with phosphorylation only)
   psm_norm: false                              # perform additional retention time-based normalization at the PSM level
   unique_pep: false                            # allow PSMs with unique peptides only (if true) or unique plus razor peptides (if false), as classified by Philosopher and defined in PSM.tsv files
   outlier_removal: true                        # perform outlier removal
@@ -41,13 +41,13 @@ public class TmtIntegratorConfigProps {
   public static final String PROP_min_pep_prob = "min_pep_prob";
   public static final String PROP_min_purity = "min_purity";
   public static final String PROP_min_percent = "min_percent";
+  public static final String PROP_min_site_prob = "min_site_prob";
   public static final String PROP_unique_gene = "unique_gene";
   public static final String PROP_prot_exclude = "prot_exclude";
   public static final String PROP_mod_tag = "mod_tag";
   public static final String PROP_groupby = "groupby";
   public static final String PROP_prot_norm = "prot_norm";
   public static final String PROP_add_Ref = "add_Ref";
-  public static final String PROP_min_site_prob = "min_site_prob";
   public static final String PROP_psm_norm = "psm_norm";
   public static final String PROP_unique_pep = "unique_pep";
   public static final String PROP_outlier_removal = "outlier_removal";
@@ -60,9 +60,9 @@ public class TmtIntegratorConfigProps {
 
   public static final List<String> PROPS = Arrays
       .asList(PROP_path, PROP_memory, PROP_protein_database, PROP_output, PROP_channel_num,
-          PROP_ref_tag, PROP_min_pep_prob, PROP_min_purity, PROP_min_percent, PROP_unique_gene,
-          PROP_prot_exclude, PROP_mod_tag, PROP_groupby, PROP_prot_norm, PROP_add_Ref,
-          PROP_min_site_prob, PROP_psm_norm, PROP_unique_pep, PROP_outlier_removal, PROP_best_psm,
+          PROP_ref_tag, PROP_min_pep_prob, PROP_min_purity, PROP_min_percent, PROP_min_site_prob,
+          PROP_unique_gene, PROP_prot_exclude, PROP_mod_tag, PROP_groupby, PROP_prot_norm,
+          PROP_add_Ref, PROP_psm_norm, PROP_unique_pep, PROP_outlier_removal, PROP_best_psm,
           PROP_allow_overlabel, PROP_allow_unlabeled, PROP_ms1_int, PROP_top3_pep,
           PROP_print_RefInt);
 

@@ -21,13 +21,13 @@ public class TmtIntegratorConfig {
     private double min_pep_prob;
     private double min_purity;
     private double min_percent;
+    private double min_site_prob;
     private int unique_gene;
     private String prot_exclude;
     private String mod_tag;
     private int groupby;
     private int prot_norm;
     private int add_Ref;
-    private int min_site_prob;
     private boolean psm_norm;
     private boolean unique_pep;
     private boolean outlier_removal;
@@ -158,11 +158,11 @@ public class TmtIntegratorConfig {
       this.add_Ref = add_Ref;
     }
 
-    public int getMin_site_prob() {
+    public double getMin_site_prob() {
       return min_site_prob;
     }
 
-    public void setMin_site_prob(int min_site_prob) {
+    public void setMin_site_prob(double min_site_prob) {
       this.min_site_prob = min_site_prob;
     }
 
