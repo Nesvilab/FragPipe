@@ -4,6 +4,7 @@ import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -31,8 +32,8 @@ import umich.msfragger.params.tmtintegrator.QuantLabel;
 import umich.msfragger.params.tmtintegrator.QuantLabelAnnotation;
 import umich.msfragger.params.tmtintegrator.TmtAnnotationTable.TmtTableRow;
 
-public class TmtAnnotationDialog extends javax.swing.JDialog {
-  private static final Logger log = LoggerFactory.getLogger(TmtAnnotationDialog.class);
+public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
+  private static final Logger log = LoggerFactory.getLogger(QuantLabelAnnotationDialog.class);
   private final TmtTableRow tmtTableRow;
   private int numChannels;
   private Path file;
@@ -44,11 +45,24 @@ public class TmtAnnotationDialog extends javax.swing.JDialog {
   private SimpleETable table;
   private UiCombo comboLabelName;
   private SimpleTableModel<QuantLabelAnnotation> model;
+  private Frame parent;
 
-  public TmtAnnotationDialog(TmtTableRow tmtTableRow, int numChannels) {
+  public QuantLabelAnnotationDialog(java.awt.Frame parent, TmtTableRow tmtTableRow, int numChannels) {
+    super(parent);
     this.tmtTableRow = tmtTableRow;
     this.numChannels = numChannels;
+    this.parent = parent;
     init();
+    postInit();
+  }
+
+  public QuantLabelAnnotationDialog(java.awt.Frame parent, TmtTableRow tmtTableRow, int numChannels, Path file) {
+    this(parent, tmtTableRow, numChannels);
+    this.file = file;
+  }
+
+  public SimpleTableModel<QuantLabelAnnotation> getModel() {
+    return model;
   }
 
   @Override
@@ -57,9 +71,10 @@ public class TmtAnnotationDialog extends javax.swing.JDialog {
 //    EventBus.getDefault().unregister(this);
   }
 
-  public TmtAnnotationDialog(TmtTableRow tmtTableRow, int numChannels, Path file) {
-    this(tmtTableRow, numChannels);
-    this.file = file;
+  private void postInit() {
+    this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+    this.setLocationRelativeTo(parent);
+    pack();
   }
 
   private void init() {
@@ -74,7 +89,7 @@ public class TmtAnnotationDialog extends javax.swing.JDialog {
 
     buttonOK = new JButton("OK");
     buttonCancel = new JButton("Cancel");
-    table = createTable();
+    createTable();
 
     buttonLoad = new JButton("Populate with labels for");
     buttonLoad.addActionListener(e -> {
@@ -98,7 +113,7 @@ public class TmtAnnotationDialog extends javax.swing.JDialog {
         .filter(ql -> ql.getReagentNames().size() == numChannels).findFirst();
     label.ifPresent(quantLabel -> comboLabelName.setSelectedItem(quantLabel.getName()));
 
-    MigLayout layout = new MigLayout(new LC().fillX().debug());
+    MigLayout layout = new MigLayout(new LC().fillX());//.debug());
     p.setLayout(layout);
 
     p.add(buttonLoad, new CC().split(3));
@@ -166,7 +181,7 @@ public class TmtAnnotationDialog extends javax.swing.JDialog {
     }
   }
 
-  private SimpleETable createTable() {
+  private void createTable() {
 //    TableModel model = JTableUtils.createTableModelFromBean(QuantLabelAnnotation.class,
 //        Arrays.asList(new QuantLabelAnnotation("126", "test-sample")));
 
@@ -174,21 +189,16 @@ public class TmtAnnotationDialog extends javax.swing.JDialog {
     cols.add(new TableModelColumn<>("Labeling reagent", String.class, false, QuantLabelAnnotation::getLabel));
     cols.add(new TableModelColumn<>("Sample name", String.class, true, QuantLabelAnnotation::getSample));
     final int numRows = 20;
-//    model = new SimpleTableModel<>(cols, numRows);
     model = new QuantLabelAnnotationModel(cols, numRows);
-
     for (int i = 0; i < numRows; i++) {
       model.dataAdd(new QuantLabelAnnotation("", ""));
     }
-
-
-    SimpleETable table = new SimpleETable(model);
+    table = new SimpleETable(model);
     table.setFullyEditable(true);
-    return table;
   }
 
   public static void main(String[] args) {
-    TmtAnnotationDialog dialog = new TmtAnnotationDialog(new TmtTableRow("test-experiment", "Not yet selected"), 6);
+    QuantLabelAnnotationDialog dialog = new QuantLabelAnnotationDialog(null, new TmtTableRow("test-experiment", "Not yet selected"), 6);
     dialog.pack();
     dialog.setVisible(true);
     System.exit(0);

@@ -1,5 +1,7 @@
 package umich.msfragger.params.tmtintegrator;
 
+import java.util.StringJoiner;
+
 public class QuantLabelAnnotation {
 
   private String label;
@@ -27,5 +29,13 @@ public class QuantLabelAnnotation {
 
   public void setSample(String sample) {
     this.sample = sample;
+  }
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", QuantLabelAnnotation.class.getSimpleName() + "[", "]")
+        .add("label='" + label + "'")
+        .add("sample='" + sample + "'")
+        .toString();
   }
 }

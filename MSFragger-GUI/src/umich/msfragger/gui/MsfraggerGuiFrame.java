@@ -653,6 +653,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       return;
     }
 
+    // save locations
+    String savePath = m.recursiveAdditionRoot != null ? m.recursiveAdditionRoot.toString() : m.paths.get(0).toString();
+    ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, savePath);
+
     LcmsFileAddition lfa = new LcmsFileAddition(m.paths, new ArrayList<>(m.paths));
     MsfraggerGuiFrameUtils.processAddedLcmsPaths(lfa, this);
 
@@ -2103,7 +2107,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     fc.setMultiSelectionEnabled(true);
     fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
-    SwingUtils.setFileChooserPath(fc, ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN));
+    String lastPath = ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN);
+    if (!StringUtils.isNullOrWhitespace(lastPath)) {
+      try {
+        Path p = Paths.get(lastPath);
+        fc.setSelectedFile(p.toFile());
+//        Path dir = Files.isDirectory(p) ? p.getParent() : p;
+//        SwingUtils.setFileChooserPath(fc, dir);
+      } catch (Exception ignore) {}
+    }
 
     int confirmation = fc.showOpenDialog(this);
 
@@ -2112,14 +2124,15 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     final Predicate<File> pred = CmdMsfragger
         .getSupportedFilePredicate(Arrays.asList(getBinMsfragger()));
+    File[] selectedFiles = fc.getSelectedFiles();
     List<Path> paths = new ArrayList<>();
-    for (File f : fc.getSelectedFiles()) {
+    for (File f : selectedFiles) {
       ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, f);
       PathUtils.traverseDirectoriesAcceptingFiles(f, pred, paths, false);
     }
 
-    if (!paths.isEmpty()) {
-      EventBus.getDefault().post(new MessageLcmsFilesAdded(paths));
+    if (selectedFiles != null && selectedFiles.length > 0  && !paths.isEmpty()) {
+      EventBus.getDefault().post(new MessageLcmsFilesAdded(paths, selectedFiles[0].toPath()));
     }
   }//GEN-LAST:event_btnRawAddFolderActionPerformed
 

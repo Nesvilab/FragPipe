@@ -1705,9 +1705,6 @@ public class MsfraggerGuiFrameUtils {
   }
 
   public static void processAddedLcmsPaths(LcmsFileAddition files, MsfraggerGuiFrame guiFrame) {
-    // save locations
-    ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, files.paths.get(files.paths.size()-1).toString());
-
     // vet/check input LCMS files for bad naming
     final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(guiFrame.getExtBinSearchPaths());
     final HashMap<Path, Set<String>> reasonsDir = new HashMap<>();

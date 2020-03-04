@@ -3,12 +3,15 @@ package umich.msfragger.params.tmtintegrator;
 import com.github.chhh.utils.swing.UiCheck;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -23,12 +26,15 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
+import umich.msfragger.gui.dialogs.QuantLabelAnnotationDialog;
 import umich.msfragger.gui.renderers.ButtonColumn;
 import umich.msfragger.messages.MessageLcmsFilesList;
 import umich.msfragger.messages.MessageLoadTmtIntegratorDefaults;
 import umich.msfragger.messages.MessageTmtIntegratorRun;
 import umich.msfragger.messages.MessageType;
 import umich.msfragger.params.tmtintegrator.TmtAnnotationTable.TmtTableRow;
+import umich.msfragger.util.StringUtils;
+import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.swing.FormEntry;
 import umich.msfragger.util.swing.JPanelWithEnablement;
 
@@ -48,7 +54,7 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
   private ButtonColumn colCreate;
 
   public TmtIntegratorPanel() {
-    initMore();
+    init();
     // register on the bus only after all the components have been created to avoid NPEs
     EventBus.getDefault().register(this);
     initPostCreation();
@@ -58,7 +64,7 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
     EventBus.getDefault().post(new MessageLcmsFilesList(MessageType.REQUEST, null));
   }
 
-  private void initMore() {
+  private void init() {
     this.setLayout(new BorderLayout());
 //    this.setBorder(new EmptyBorder(0,0,0,0));
     this.setBorder(new TitledBorder("TMT Qunatitation"));
@@ -120,7 +126,6 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
         {
           int modelRow = Integer.parseInt( e.getActionCommand() );
           log.debug("Browse action running in TMT, model row number: {}", modelRow);
-
         }
       };
       actionCreate = new AbstractAction() {
@@ -128,6 +133,15 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
         public void actionPerformed(ActionEvent e) {
           int modelRow = Integer.parseInt( e.getActionCommand() );
           log.debug("Create action running in TMT, model row number: {}", modelRow);
+          TmtTableRow row = tmtAnnotationTable.fetchModel().dataGet(modelRow);
+          try {
+            if (!StringUtils.isNullOrWhitespace(row.getPath()) || Files.exists(Paths.get(row.getPath()))) {
+              JFrame parent = SwingUtils.findParentFrame(TmtIntegratorPanel.this);
+              QuantLabelAnnotationDialog d = new QuantLabelAnnotationDialog(parent, row, 11, Paths.get(row.getPath()));
+              d.setVisible(true);
+              log.debug("Dialog table model:\n{}", d.getModel().dataCopy().stream().map(qla -> qla.toString()).collect(Collectors.joining("\n")));
+            }
+          } catch (Exception ignore) {}
         }
       };
       colBrowse = new ButtonColumn(tmtAnnotationTable, actionBrowse, 2);
@@ -144,7 +158,7 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
     }
 
     {
-      pOpts = new JPanel(new MigLayout(new LC().debug()));
+      pOpts = new JPanel(new MigLayout(new LC()));//.debug()));
 //      pOpts = new JPanel(new BorderLayout());
       //pOpts.setBorder(new TitledBorder("TMT options"));
       pOpts.setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -154,7 +168,7 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
       FormEntry feDoY = new FormEntry("ui-name.downstream.tmtintegrator.do-y", "not shown", doY);
       FormEntry feDoZ = new FormEntry("ui-name.downstream.tmtintegrator.do-z", "not shown",
           new UiCheck("Do z", null, false));
-      FormEntry feDoQ = new FormEntry("ui-name.downstream.tmtintegrator.do-Q", "not shown",
+      FormEntry feDoQ = new FormEntry("ui-name.downstream.tmtintegrator.do-q", "not shown",
           new UiCheck("Do q", null, false));
       pOpts.add(feDoX.comp, new CC().alignX("left"));
       pOpts.add(feDoY.comp, new CC().alignX("left").wrap());
