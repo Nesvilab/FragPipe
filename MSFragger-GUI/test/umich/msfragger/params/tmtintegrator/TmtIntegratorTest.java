@@ -2,6 +2,7 @@ package umich.msfragger.params.tmtintegrator;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -40,5 +41,17 @@ public class TmtIntegratorTest {
     props.setMin_percent(0.05);
     props.setMin_purity(1);
     props.setMin_site_prob(0);
+    config.setTmtintegrator(props);
+
+    Yaml yaml = new Yaml();
+    StringWriter writer = new StringWriter();
+
+//    yaml.dump(config, writer);
+//    String written = writer.toString();
+
+    String written = yaml.dumpAsMap(config);
+
+
+    log.debug("Wrote the following yaml contents:\n{}", written);
   }
 }
