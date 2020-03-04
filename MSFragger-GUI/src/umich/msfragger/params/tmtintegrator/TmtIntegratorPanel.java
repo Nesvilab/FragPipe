@@ -28,7 +28,7 @@ import umich.msfragger.messages.MessageLcmsFilesList;
 import umich.msfragger.messages.MessageLoadTmtIntegratorDefaults;
 import umich.msfragger.messages.MessageTmtIntegratorRun;
 import umich.msfragger.messages.MessageType;
-import umich.msfragger.params.tmtintegrator.TmtAnnotationTable.TmtAnnotationRow;
+import umich.msfragger.params.tmtintegrator.TmtAnnotationTable.TmtTableRow;
 import umich.msfragger.util.swing.FormEntry;
 import umich.msfragger.util.swing.JPanelWithEnablement;
 
@@ -185,13 +185,13 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
     if (m.type == MessageType.REQUEST)
       return;
 
-    final Map<String, TmtAnnotationRow> curRows = tmtAnnotationTable.fetchModel().dataCopy().stream()
+    final Map<String, TmtTableRow> curRows = tmtAnnotationTable.fetchModel().dataCopy().stream()
         .collect(Collectors.toMap(row -> row.expName, row -> row));
     List<String> expNames = m.files.stream().map(InputLcmsFile::getExperiment)
         .distinct().sorted().collect(Collectors.toList());
-    List<TmtAnnotationRow> newRows = m.files.stream().map(InputLcmsFile::getExperiment)
+    List<TmtTableRow> newRows = m.files.stream().map(InputLcmsFile::getExperiment)
         .distinct().sorted()
-        .map(name -> curRows.getOrDefault(name, new TmtAnnotationRow(name, "No path set yet")))
+        .map(name -> curRows.getOrDefault(name, new TmtTableRow(name, "No path set yet")))
         .collect(Collectors.toList());
 
     tmtAnnotationTable.fetchModel().dataClear();

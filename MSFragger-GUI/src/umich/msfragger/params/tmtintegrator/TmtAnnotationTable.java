@@ -1,8 +1,6 @@
 package umich.msfragger.params.tmtintegrator;
 
 import java.awt.event.MouseEvent;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.JTableHeader;
@@ -52,42 +50,58 @@ public class TmtAnnotationTable extends SimpleETable {
   }
 
   @SuppressWarnings("unchecked")
-  public SimpleUniqueTableModel<TmtAnnotationRow> fetchModel() {
-    return (SimpleUniqueTableModel<TmtAnnotationRow>) getModel();
+  public SimpleUniqueTableModel<TmtTableRow> fetchModel() {
+    return (SimpleUniqueTableModel<TmtTableRow>) getModel();
   }
 
-  private static SimpleUniqueTableModel<TmtAnnotationRow> createTableModel() {
-    List<TableModelColumn<TmtAnnotationRow, ?>> cols = new ArrayList<>();
+  private static SimpleUniqueTableModel<TmtTableRow> createTableModel() {
+    List<TableModelColumn<TmtTableRow, ?>> cols = new ArrayList<>();
 
-    TableModelColumn<TmtAnnotationRow, String> colExp = new TableModelColumn<>(
+    TableModelColumn<TmtTableRow, String> colExp = new TableModelColumn<>(
         "Experiment",
         String.class, false, row -> row.expName);
-    TableModelColumn<TmtAnnotationRow, String> colPath = new TableModelColumn<>(
+    TableModelColumn<TmtTableRow, String> colPath = new TableModelColumn<>(
         "Annotation file path", String.class, true, row -> row.path);
-    TableModelColumn<TmtAnnotationRow, String> colBrowse = new TableModelColumn<>(
+    TableModelColumn<TmtTableRow, String> colBrowse = new TableModelColumn<>(
         "", String.class, true, row -> "Browse");
-    TableModelColumn<TmtAnnotationRow, String> colCreate = new TableModelColumn<>(
+    TableModelColumn<TmtTableRow, String> colCreate = new TableModelColumn<>(
         "", String.class, true, row -> "Create/Edit");
     cols.add(colExp);
     cols.add(colPath);
     cols.add(colBrowse);
     cols.add(colCreate);
 
-    SimpleUniqueTableModel<TmtAnnotationRow> model = new SimpleUniqueTableModel<>(
+    SimpleUniqueTableModel<TmtTableRow> model = new SimpleUniqueTableModel<>(
         cols, 0);
 
     return model;
   }
 
-  public static class TmtAnnotationRow {
+  public static class TmtTableRow {
     public String expName;
     public String path;
 
-    public TmtAnnotationRow() {
+    public TmtTableRow() {
     }
 
-    public TmtAnnotationRow(String expName, String path) {
+    public TmtTableRow(String expName, String path) {
       this.expName = expName;
+      this.path = path;
+    }
+
+    public String getExpName() {
+      return expName;
+    }
+
+    public void setExpName(String expName) {
+      this.expName = expName;
+    }
+
+    public String getPath() {
+      return path;
+    }
+
+    public void setPath(String path) {
       this.path = path;
     }
   }

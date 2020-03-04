@@ -20,12 +20,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Dmitry Avtonomov
  */
 public class SimpleTableModel<T> extends AbstractTableModel {
+    private static final Logger log = LoggerFactory.getLogger(SimpleTableModel.class);
 
     private static final long serialVersionUID = 2122960171520812299L;
 
@@ -57,6 +60,12 @@ public class SimpleTableModel<T> extends AbstractTableModel {
 
     public T dataGet(int index) {
         return data.get(index);
+    }
+
+    @Override
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        super.setValueAt(aValue, rowIndex, columnIndex);
+        log.debug("setValueAt() called for row: {}, col: {}", rowIndex, columnIndex);
     }
 
     public synchronized T dataSet(int index, T element) {
