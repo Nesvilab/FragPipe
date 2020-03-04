@@ -70,9 +70,8 @@ sourceSets {
     }
     // add tests sources here (this project didn't have them!)
     test {
-        java {
-            srcDirs = ['test']
-        }
+        java.srcDirs = ['test']
+        resources.srcDirs = ["test/resources"]
     }
 }
 
@@ -129,6 +128,7 @@ dependencies {
 
     // downloaded / precompiled jars
     implementation fileTree(dir: 'libs', include: '*.jar')
+    implementation 'org.yaml:snakeyaml:1.26' // TMT-Integrator config parsing
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'

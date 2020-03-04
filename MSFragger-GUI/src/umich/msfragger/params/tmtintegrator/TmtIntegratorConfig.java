@@ -1,70 +1,241 @@
 package umich.msfragger.params.tmtintegrator;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class TmtIntegratorConfig {
-  /*
-  path: D:\test\TMTIntegrator.jar                 # path to TMT-Integrator jar
-  memory: 30                                      # memory allocation, in Gb
-  protein_database: D:\test\test.fasta            # protein fasta file
-  output: D:\test\reports                         # the location of output files
-  channel_num: 10                              # number of channels in the multiplex (e.g. 10, 11)
-  ref_tag: Bridge                              # unique tag for identifying the reference channel (Bridge sample added to each multiplex)
-  min_pep_prob: 0.9                            # minimum PSM probability threshold (in addition to FDR-based filtering by Philosopher)
-  min_purity: 0.5                              # ion purity score threshold
-  min_percent: 0.05                            # remove low intensity PSMs (e.g. value of 0.05 indicates removal of PSMs with the summed TMT reporter ions intensity in the lowest 5% of all PSMs)
-  unique_gene: 0                               # additional, gene-level uniqueness filter (0: allow all PSMs; 1: remove PSMs mapping to more than one GENE with evidence of expression in the dataset; 2:remove all PSMs mapping to more than one GENE in the fasta file)
-  prot_exclude: none                           # exclude proteins with specified tags at the beginning of the accession number (e.g. none: no exclusion; sp|,tr| : exclude protein with sp| or tr|)
-  mod_tag: none                                # PTM info for generation of PTM-specific reports (none: for Global data; S[167],T[181],Y[243]: for Phospho; K[170]: for K-Acetyl)
-  groupby: -1                                  # level of data summarization(0: PSM aggregation to the gene level; 1: protein; 2: peptide sequence; 3: PTM site; -1: generate reports at all levels)
-  prot_norm: -1                                # normalization (0: None; 1: MD (median centering); 2: GN (median centering + variance scaling); -1: generate reports with all normalization options)
-  add_Ref: -1                                  # add an artificial reference channel if there is no reference channel (-1: don't add the reference; 0: use summation as the reference; 1: use average as the reference; 2: use median as the reference)
-  min_site_prob: -1                            # site localization confidence threshold (-1: for Global; 0: as determined by the search engine; above 0 (e.g. 0.75): PTMProphet probability, to be used with phosphorylation only)
-  psm_norm: false                              # perform additional retention time-based normalization at the PSM level
-  unique_pep: false                            # allow PSMs with unique peptides only (if true) or unique plus razor peptides (if false), as classified by Philosopher and defined in PSM.tsv files
-  outlier_removal: true                        # perform outlier removal
-  best_psm: true                               # keep the best PSM only (highest summed TMT intensity) among all redundant PSMs within the same LC-MS run
-  allow_overlabel: true                        # allow PSMs with TMT on S (when overlabeling on S was allowed in the database search)
-  allow_unlabeled: true                        # allow PSMs without TMT tag or acetylation on the peptide n-terminus
-  ms1_int: true                                # use MS1 precursor ion intensity (if true) or MS2 summed TMT reporter ion intensity (if false) as part of the reference sample abundance estimation
-  top3_pep: true                               # use top 3 most intense peptide ions as part of the reference sample abundance estimation
-  print_RefInt: false                          # print individual reference sample abundance estimates for each multiplex in the final reports (in addition to the combined reference sample abundance estimate)
-   */
+  private Props tmtintegrator;
 
-  public static final String PROP_path = "path";
-  public static final String PROP_memory = "memory";
-  public static final String PROP_protein_database = "protein_database";
-  public static final String PROP_output = "output";
-  public static final String PROP_channel_num = "channel_num";
-  public static final String PROP_ref_tag = "ref_tag";
-  public static final String PROP_min_pep_prob = "min_pep_prob";
-  public static final String PROP_min_purity = "min_purity";
-  public static final String PROP_min_percent = "min_percent";
-  public static final String PROP_unique_gene = "unique_gene";
-  public static final String PROP_prot_exclude = "prot_exclude";
-  public static final String PROP_mod_tag = "mod_tag";
-  public static final String PROP_groupby = "groupby";
-  public static final String PROP_prot_norm = "prot_norm";
-  public static final String PROP_add_Ref = "add_Ref";
-  public static final String PROP_min_site_prob = "min_site_prob";
-  public static final String PROP_psm_norm = "psm_norm";
-  public static final String PROP_unique_pep = "unique_pep";
-  public static final String PROP_outlier_removal = "outlier_removal";
-  public static final String PROP_best_psm = "best_psm";
-  public static final String PROP_allow_overlabel = "allow_overlabel";
-  public static final String PROP_allow_unlabeled = "allow_unlabeled";
-  public static final String PROP_ms1_int = "ms1_int";
-  public static final String PROP_top3_pep = "top3_pep";
-  public static final String PROP_print_RefInt = "print_RefInt";
+  public Props getTmtintegrator() {
+    return tmtintegrator;
+  }
 
-  public static final List<String> PROPS = Arrays
-      .asList(PROP_path, PROP_memory, PROP_protein_database, PROP_output, PROP_channel_num,
-          PROP_ref_tag, PROP_min_pep_prob, PROP_min_purity, PROP_min_percent, PROP_unique_gene,
-          PROP_prot_exclude, PROP_mod_tag, PROP_groupby, PROP_prot_norm, PROP_add_Ref,
-          PROP_min_site_prob, PROP_psm_norm, PROP_unique_pep, PROP_outlier_removal, PROP_best_psm,
-          PROP_allow_overlabel, PROP_allow_unlabeled, PROP_ms1_int, PROP_top3_pep,
-          PROP_print_RefInt);
+  public void setTmtintegrator(Props props) {
+    this.tmtintegrator = props;
+  }
 
-  
+  public static class Props {
+    private String path;
+    private int memory;
+    private String protein_database;
+    private String output;
+    private int channel_num;
+    private String ref_tag;
+    private double min_pep_prob;
+    private double min_purity;
+    private double min_percent;
+    private int unique_gene;
+    private String prot_exclude;
+    private String mod_tag;
+    private int groupby;
+    private int prot_norm;
+    private int add_Ref;
+    private int min_site_prob;
+    private boolean psm_norm;
+    private boolean unique_pep;
+    private boolean outlier_removal;
+    private boolean best_psm;
+    private boolean allow_overlabel;
+    private boolean allow_unlabeled;
+    private boolean ms1_int;
+    private boolean top3_pep;
+    private boolean print_RefInt;
+
+    public String getPath() {
+      return path;
+    }
+
+    public void setPath(String path) {
+      this.path = path;
+    }
+
+    public int getMemory() {
+      return memory;
+    }
+
+    public void setMemory(int memory) {
+      this.memory = memory;
+    }
+
+    public String getProtein_database() {
+      return protein_database;
+    }
+
+    public void setProtein_database(String protein_database) {
+      this.protein_database = protein_database;
+    }
+
+    public String getOutput() {
+      return output;
+    }
+
+    public void setOutput(String output) {
+      this.output = output;
+    }
+
+    public int getChannel_num() {
+      return channel_num;
+    }
+
+    public void setChannel_num(int channel_num) {
+      this.channel_num = channel_num;
+    }
+
+    public String getRef_tag() {
+      return ref_tag;
+    }
+
+    public void setRef_tag(String ref_tag) {
+      this.ref_tag = ref_tag;
+    }
+
+    public double getMin_pep_prob() {
+      return min_pep_prob;
+    }
+
+    public void setMin_pep_prob(double min_pep_prob) {
+      this.min_pep_prob = min_pep_prob;
+    }
+
+    public double getMin_purity() {
+      return min_purity;
+    }
+
+    public void setMin_purity(double min_purity) {
+      this.min_purity = min_purity;
+    }
+
+    public double getMin_percent() {
+      return min_percent;
+    }
+
+    public void setMin_percent(double min_percent) {
+      this.min_percent = min_percent;
+    }
+
+    public int getUnique_gene() {
+      return unique_gene;
+    }
+
+    public void setUnique_gene(int unique_gene) {
+      this.unique_gene = unique_gene;
+    }
+
+    public String getProt_exclude() {
+      return prot_exclude;
+    }
+
+    public void setProt_exclude(String prot_exclude) {
+      this.prot_exclude = prot_exclude;
+    }
+
+    public String getMod_tag() {
+      return mod_tag;
+    }
+
+    public void setMod_tag(String mod_tag) {
+      this.mod_tag = mod_tag;
+    }
+
+    public int getGroupby() {
+      return groupby;
+    }
+
+    public void setGroupby(int groupby) {
+      this.groupby = groupby;
+    }
+
+    public int getProt_norm() {
+      return prot_norm;
+    }
+
+    public void setProt_norm(int prot_norm) {
+      this.prot_norm = prot_norm;
+    }
+
+    public int getAdd_Ref() {
+      return add_Ref;
+    }
+
+    public void setAdd_Ref(int add_Ref) {
+      this.add_Ref = add_Ref;
+    }
+
+    public int getMin_site_prob() {
+      return min_site_prob;
+    }
+
+    public void setMin_site_prob(int min_site_prob) {
+      this.min_site_prob = min_site_prob;
+    }
+
+    public boolean isPsm_norm() {
+      return psm_norm;
+    }
+
+    public void setPsm_norm(boolean psm_norm) {
+      this.psm_norm = psm_norm;
+    }
+
+    public boolean isUnique_pep() {
+      return unique_pep;
+    }
+
+    public void setUnique_pep(boolean unique_pep) {
+      this.unique_pep = unique_pep;
+    }
+
+    public boolean isOutlier_removal() {
+      return outlier_removal;
+    }
+
+    public void setOutlier_removal(boolean outlier_removal) {
+      this.outlier_removal = outlier_removal;
+    }
+
+    public boolean isBest_psm() {
+      return best_psm;
+    }
+
+    public void setBest_psm(boolean best_psm) {
+      this.best_psm = best_psm;
+    }
+
+    public boolean isAllow_overlabel() {
+      return allow_overlabel;
+    }
+
+    public void setAllow_overlabel(boolean allow_overlabel) {
+      this.allow_overlabel = allow_overlabel;
+    }
+
+    public boolean isAllow_unlabeled() {
+      return allow_unlabeled;
+    }
+
+    public void setAllow_unlabeled(boolean allow_unlabeled) {
+      this.allow_unlabeled = allow_unlabeled;
+    }
+
+    public boolean isMs1_int() {
+      return ms1_int;
+    }
+
+    public void setMs1_int(boolean ms1_int) {
+      this.ms1_int = ms1_int;
+    }
+
+    public boolean isTop3_pep() {
+      return top3_pep;
+    }
+
+    public void setTop3_pep(boolean top3_pep) {
+      this.top3_pep = top3_pep;
+    }
+
+    public boolean isPrint_RefInt() {
+      return print_RefInt;
+    }
+
+    public void setPrint_RefInt(boolean print_RefInt) {
+      this.print_RefInt = print_RefInt;
+    }
+  }
 }
