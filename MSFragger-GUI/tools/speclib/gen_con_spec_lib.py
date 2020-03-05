@@ -229,9 +229,10 @@ TEMP_FILES = ['input000.splib', 'input000.spidx', 'input000.pepidx',
 			  'con_lib_not_in_psm_tsv.tsv']
 
 if use_spectrast:
+	sq_sys_exec = shlex.quote(sys.executable)
 	spectrast_cmds_part1= fr'''
 ## Generate .pepidx file
-{sys.executable} {script_dir / "spectrast_gen_pepidx.py"} -i input.splib -o input_irt.splib
+{sq_sys_exec} {script_dir / "spectrast_gen_pepidx.py"} -i input.splib -o input_irt.splib
 #outfiles: input_irt.splib, input_irt.csv
 
 ## Consolidate the library into a single consensus spectrum entry for each peptide sequence.
@@ -239,13 +240,13 @@ if use_spectrast:
 #outfile:output_file_irt_con000.splib
 
 ## Unite runs
-{sys.executable} {script_dir / "unite_runs.py"} output_file_irt_con000.splib output_file_irt_con001.splib
+{sq_sys_exec} {script_dir / "unite_runs.py"} output_file_irt_con000.splib output_file_irt_con001.splib
 #outfile:output_file_irt_con001.splib
 '''
 
 	spectrast_cmds_part2= fr"""
 ## iRT alignment
-{sys.executable} {spectrast2spectrast_irt_py_path} --kit {rtkit_str} --rsq_threshold=0.25 -r -i output_file_irt_con001.splib -o output_file_irt_con.splib
+{sq_sys_exec} {spectrast2spectrast_irt_py_path} --kit {rtkit_str} --rsq_threshold=0.25 -r -i output_file_irt_con001.splib -o output_file_irt_con.splib
 #outfile:output_file_irt_con.splib
 """
 
@@ -257,7 +258,7 @@ C-term	c[17]	2	[XXX]	FALSE	"{'H' : 1, 'N' : 1 , 'O': -1 }"'''
 
 	spectrast_cmds_part3=fr"""
 ## Filter the consensus splib library into a transition list
-{sys.executable} {spectrast2tsv_py_path} -m {spectrast2tsv_additional_mods_path} -g -17.03,-18.01 -l 250,2000 -s b,y -x 1,2 -o 3 -n 6 -p 0.05 -d -e -k openswath -a output_irt_con.tsv output_file_irt_con.splib
+{sq_sys_exec} {spectrast2tsv_py_path} -m {spectrast2tsv_additional_mods_path} -g -17.03,-18.01 -l 250,2000 -s b,y -x 1,2 -o 3 -n 6 -p 0.05 -d -e -k openswath -a output_irt_con.tsv output_file_irt_con.splib
 #outfile:output_irt_con.tsv
 """
 
