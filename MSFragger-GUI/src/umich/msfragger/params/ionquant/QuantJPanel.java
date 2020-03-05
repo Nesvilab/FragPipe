@@ -193,7 +193,7 @@ public class QuantJPanel extends JPanelWithEnablement {
       pBothQuants.add(sep, new CC().growX().spanX().wrap());
 
       { // IonQuant
-        uiRadioUseIonquant = new UiRadio("IonQuant (use for timsTOF ion mobility data)", null, false);
+        uiRadioUseIonquant = new UiRadio("IonQuant (for timsTOF ion mobility data)", null, false);
         radioGroupQuant.add(uiRadioUseIonquant);
         FormEntry feRadioIonquant = new FormEntry("ui.ionquant.is-run", "Not shown",
             uiRadioUseIonquant);
