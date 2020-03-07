@@ -28,6 +28,23 @@ if sys.version_info[:2] >= (3, 7):
 	sys.stdout.reconfigure(encoding='utf-8')
 	sys.stderr.reconfigure(encoding='utf-8')
 
+def get_bin_path(dist, bin_stem):
+	'''
+	get binary path for a package with binary stem
+	:param dist: package name
+	:param bin_stem: name of binary without extension
+	:return: None if not found, binary path if found.
+	'''
+	import pip._internal.commands.show
+	import pathlib
+	try:
+		dist, = list(pip._internal.commands.show.search_packages_info([dist]))
+		rel_loc, = [e for e in dist.get('files') if pathlib.Path(e).stem == bin_stem]
+	except ValueError:
+		return
+	return (pathlib.Path(dist.get('location')) / rel_loc).resolve()
+
+
 def to_windows(cmd):
 	r"""convert linux sh scripts to windows
 
@@ -100,8 +117,8 @@ align_with_iRT: bool = True
 if use_spectrast:
 	# spectrast2spectrast_irt_py_path = msproteomicstools_bin_path / 'spectrast2spectrast_irt.py'
 	# spectrast2tsv_py_path = msproteomicstools_bin_path / 'spectrast2tsv.py'
-	spectrast2spectrast_irt_py_path = pathlib.Path(shutil.which('spectrast2spectrast_irt.py'))
-	spectrast2tsv_py_path = pathlib.Path(shutil.which('spectrast2tsv.py'))
+	spectrast2spectrast_irt_py_path = get_bin_path('msproteomicstools', 'spectrast2spectrast_irt')
+	spectrast2tsv_py_path = get_bin_path('msproteomicstools', 'spectrast2tsv')
 
 	philosopher = philosopher.resolve(strict=True)
 	assert spectrast2spectrast_irt_py_path.exists()
@@ -110,7 +127,7 @@ if use_spectrast:
 	"\n".join(map(str, [SPECTRAST_PATH, fasta, iproph_RT_aligned]))
 
 if use_easypqp:
-	easypqp = pathlib.Path(shutil.which('easypqp'))
+	easypqp = get_bin_path('easypqp', 'easypqp')
 
 CWD = os.getcwd()
 
