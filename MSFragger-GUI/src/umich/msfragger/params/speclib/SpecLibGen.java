@@ -52,6 +52,7 @@ public class SpecLibGen {
       "/speclib/common_funcs.py",
       "/speclib/detect_decoy_prefix.py",
       SCRIPT_SPEC_LIB_GEN,
+      "/speclib/hela_irtkit.tsv",
       "/speclib/linux/spectrast",
       "/speclib/win/spectrast.exe",
       "/speclib/spectrast_gen_pepidx.py",
