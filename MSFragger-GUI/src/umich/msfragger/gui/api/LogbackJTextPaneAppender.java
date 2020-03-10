@@ -1,5 +1,22 @@
 package umich.msfragger.gui.api;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.PatternLayout;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
+import java.awt.Color;
+import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.Element;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @see ch.qos.logback.core.AppenderBase
  */

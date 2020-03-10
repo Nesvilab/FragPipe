@@ -98,6 +98,7 @@ import umich.msfragger.Version;
 import umich.msfragger.cmd.CmdMsfragger;
 import umich.msfragger.cmd.ToolingUtils;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils.LcmsFileAddition;
+import umich.msfragger.gui.api.LogbackJTextPaneAppender;
 import umich.msfragger.gui.api.SearchTypeProp;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
@@ -2928,6 +2929,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         log.debug("Something unexpected happened!", e);
         SwingUtils.userShowError(frame, stacktrace);
       });
+
+      LogbackJTextPaneAppender appender = new LogbackJTextPaneAppender();
+      appender.start();
+      log.debug("Started LogbackJTextPaneAppender logger");
+      appender.setTextPane(frame.console);
 
       frame.setVisible(true);
       Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
