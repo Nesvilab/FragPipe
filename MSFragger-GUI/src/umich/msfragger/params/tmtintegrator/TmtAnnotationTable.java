@@ -50,41 +50,41 @@ public class TmtAnnotationTable extends SimpleETable {
   }
 
   @SuppressWarnings("unchecked")
-  public SimpleUniqueTableModel<TmtTableRow> fetchModel() {
-    return (SimpleUniqueTableModel<TmtTableRow>) getModel();
+  public SimpleUniqueTableModel<ExpNameToAnnotationFile> fetchModel() {
+    return (SimpleUniqueTableModel<ExpNameToAnnotationFile>) getModel();
   }
 
-  private static SimpleUniqueTableModel<TmtTableRow> createTableModel() {
-    List<TableModelColumn<TmtTableRow, ?>> cols = new ArrayList<>();
+  private static SimpleUniqueTableModel<ExpNameToAnnotationFile> createTableModel() {
+    List<TableModelColumn<ExpNameToAnnotationFile, ?>> cols = new ArrayList<>();
 
-    TableModelColumn<TmtTableRow, String> colExp = new TableModelColumn<>(
+    TableModelColumn<ExpNameToAnnotationFile, String> colExp = new TableModelColumn<>(
         "Experiment",
         String.class, false, row -> row.expName);
-    TableModelColumn<TmtTableRow, String> colPath = new TableModelColumn<>(
+    TableModelColumn<ExpNameToAnnotationFile, String> colPath = new TableModelColumn<>(
         "Annotation file path", String.class, true, row -> row.path);
-    TableModelColumn<TmtTableRow, String> colBrowse = new TableModelColumn<>(
+    TableModelColumn<ExpNameToAnnotationFile, String> colBrowse = new TableModelColumn<>(
         "", String.class, true, row -> "Browse");
-    TableModelColumn<TmtTableRow, String> colCreate = new TableModelColumn<>(
+    TableModelColumn<ExpNameToAnnotationFile, String> colCreate = new TableModelColumn<>(
         "", String.class, true, row -> "Create/Edit");
     cols.add(colExp);
     cols.add(colPath);
     cols.add(colBrowse);
     cols.add(colCreate);
 
-    SimpleUniqueTableModel<TmtTableRow> model = new SimpleUniqueTableModel<>(
+    SimpleUniqueTableModel<ExpNameToAnnotationFile> model = new SimpleUniqueTableModel<>(
         cols, 0);
 
     return model;
   }
 
-  public static class TmtTableRow {
+  public static class ExpNameToAnnotationFile {
     public String expName;
     public String path;
 
-    public TmtTableRow() {
+    public ExpNameToAnnotationFile() {
     }
 
-    public TmtTableRow(String expName, String path) {
+    public ExpNameToAnnotationFile(String expName, String path) {
       this.expName = expName;
       this.path = path;
     }

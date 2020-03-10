@@ -648,12 +648,23 @@ public class SwingUtils {
    * @param parent Can be null.
    */
   public static void showErrorDialog(Throwable e, Component parent) {
+    showErrorDialog(e, parent, true);
+  }
+
+  /**
+   * @param parent Can be null.
+   */
+  public static void showErrorDialog(Throwable e, Component parent, boolean doShowStacktrace) {
     JPanel panel = new JPanel();
     panel.setLayout(new BorderLayout());
     panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     panel.add(new JLabel("Something unexpected happened (" + e.getClass().getSimpleName() + ")"), BorderLayout.PAGE_START);
     JTextArea notesArea = new JTextArea(40, 80);
-    notesArea.setText(stacktraceToString(e));
+    if (doShowStacktrace) {
+      notesArea.setText(stacktraceToString(e));
+    } else {
+      notesArea.setText(e.getMessage());
+    }
     JScrollPane notesScroller = new JScrollPane();
     notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
     notesScroller.setViewportView(notesArea);

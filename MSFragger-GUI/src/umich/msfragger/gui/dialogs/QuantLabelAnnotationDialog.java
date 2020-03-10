@@ -29,12 +29,11 @@ import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.SimpleTableModel;
 import umich.msfragger.gui.api.TableModelColumn;
 import umich.msfragger.params.tmtintegrator.QuantLabel;
-import umich.msfragger.params.tmtintegrator.QuantLabelAnnotation;
-import umich.msfragger.params.tmtintegrator.TmtAnnotationTable.TmtTableRow;
+import umich.msfragger.params.tmtintegrator.TmtAnnotationTable.ExpNameToAnnotationFile;
 
 public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
   private static final Logger log = LoggerFactory.getLogger(QuantLabelAnnotationDialog.class);
-  private final TmtTableRow tmtTableRow;
+  private final ExpNameToAnnotationFile expNameToFilePathRow;
   private int numChannels;
   private Path file;
 
@@ -44,24 +43,24 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
   private JButton buttonLoad;
   private SimpleETable table;
   private UiCombo comboLabelName;
-  private SimpleTableModel<QuantLabelAnnotation> model;
+  private SimpleTableModel<umich.msfragger.params.tmtintegrator.QuantLabelAnnotation> model;
   private Frame parent;
 
-  public QuantLabelAnnotationDialog(java.awt.Frame parent, TmtTableRow tmtTableRow, int numChannels) {
+  public QuantLabelAnnotationDialog(java.awt.Frame parent, ExpNameToAnnotationFile expNameToFilePathRow, int numChannels) {
     super(parent);
-    this.tmtTableRow = tmtTableRow;
+    this.expNameToFilePathRow = expNameToFilePathRow;
     this.numChannels = numChannels;
     this.parent = parent;
     init();
     postInit();
   }
 
-  public QuantLabelAnnotationDialog(java.awt.Frame parent, TmtTableRow tmtTableRow, int numChannels, Path file) {
-    this(parent, tmtTableRow, numChannels);
+  public QuantLabelAnnotationDialog(java.awt.Frame parent, ExpNameToAnnotationFile expNameToFilePathRow, int numChannels, Path file) {
+    this(parent, expNameToFilePathRow, numChannels);
     this.file = file;
   }
 
-  public SimpleTableModel<QuantLabelAnnotation> getModel() {
+  public SimpleTableModel<umich.msfragger.params.tmtintegrator.QuantLabelAnnotation> getModel() {
     return model;
   }
 
@@ -102,7 +101,7 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
       model.dataClear();
       for (int i = 0; i < label.get().getReagentNames().size(); i++) {
         String reagent = label.get().getReagentNames().get(i);
-        QuantLabelAnnotation annotation = new QuantLabelAnnotation(reagent,
+        umich.msfragger.params.tmtintegrator.QuantLabelAnnotation annotation = new umich.msfragger.params.tmtintegrator.QuantLabelAnnotation(reagent,
             String.format("sample-%02d", i + 1));
         model.dataAdd(annotation);
       }
@@ -130,7 +129,7 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
     setContentPane(scroll);
     setModal(true);
     setModalityType(ModalityType.APPLICATION_MODAL);
-    setTitle("Annotate labeling experiment: '" + tmtTableRow.expName + "'");
+    setTitle("Annotate labeling experiment: '" + expNameToFilePathRow.expName + "'");
     setIconImages(ToolingUtils.loadIcon());
     getRootPane().setDefaultButton(buttonOK);
 
@@ -158,11 +157,11 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
     dispose();
   }
 
-  private static class QuantLabelAnnotationModel extends SimpleTableModel<QuantLabelAnnotation> {
+  private static class QuantLabelAnnotationModel extends SimpleTableModel<umich.msfragger.params.tmtintegrator.QuantLabelAnnotation> {
     private static final Logger log = LoggerFactory.getLogger(QuantLabelAnnotationModel.class);
 
     public QuantLabelAnnotationModel(
-        List<TableModelColumn<QuantLabelAnnotation, ?>> cols, int initSize) {
+        List<TableModelColumn<umich.msfragger.params.tmtintegrator.QuantLabelAnnotation, ?>> cols, int initSize) {
       super(cols, initSize);
     }
 
@@ -185,20 +184,20 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
 //    TableModel model = JTableUtils.createTableModelFromBean(QuantLabelAnnotation.class,
 //        Arrays.asList(new QuantLabelAnnotation("126", "test-sample")));
 
-    List<TableModelColumn<QuantLabelAnnotation, ?>> cols = new ArrayList<>();
-    cols.add(new TableModelColumn<>("Labeling reagent", String.class, false, QuantLabelAnnotation::getLabel));
-    cols.add(new TableModelColumn<>("Sample name", String.class, true, QuantLabelAnnotation::getSample));
+    List<TableModelColumn<umich.msfragger.params.tmtintegrator.QuantLabelAnnotation, ?>> cols = new ArrayList<>();
+    cols.add(new TableModelColumn<>("Labeling reagent", String.class, false, umich.msfragger.params.tmtintegrator.QuantLabelAnnotation::getLabel));
+    cols.add(new TableModelColumn<>("Sample name", String.class, true, umich.msfragger.params.tmtintegrator.QuantLabelAnnotation::getSample));
     final int numRows = 20;
     model = new QuantLabelAnnotationModel(cols, numRows);
     for (int i = 0; i < numRows; i++) {
-      model.dataAdd(new QuantLabelAnnotation("", ""));
+      model.dataAdd(new umich.msfragger.params.tmtintegrator.QuantLabelAnnotation("", ""));
     }
     table = new SimpleETable(model);
     table.setFullyEditable(true);
   }
 
   public static void main(String[] args) {
-    QuantLabelAnnotationDialog dialog = new QuantLabelAnnotationDialog(null, new TmtTableRow("test-experiment", "Not yet selected"), 6);
+    QuantLabelAnnotationDialog dialog = new QuantLabelAnnotationDialog(null, new ExpNameToAnnotationFile("test-experiment", "Not yet selected"), 6);
     dialog.pack();
     dialog.setVisible(true);
     System.exit(0);
