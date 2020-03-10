@@ -4,6 +4,7 @@ package umich.msfragger.cmd;
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -125,11 +126,18 @@ public class CmdPtmshepherd extends CmdBase {
 
     // write config file
     Path pathConfig = wd.resolve(CONFIG_FN);
+
     if (!isDryRun) {
       log.debug("Writing {} config to file: {}", NAME, pathConfig.toString());
-      try (BufferedWriter bw = Files
-          .newBufferedWriter(pathConfig, Charsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.WRITE,
-              StandardOpenOption.TRUNCATE_EXISTING)) {
+      try {
+        Files.deleteIfExists(pathConfig);
+      } catch (IOException e) {
+        SwingUtils.showDialog(comp, SwingUtils.createClickableHtml("Could not delete existing config file:<br/>\n"
+                + pathConfig.toString()), NAME + " configuration error",
+                JOptionPane.WARNING_MESSAGE);
+        return false;
+      }
+      try (BufferedWriter bw = Files.newBufferedWriter(pathConfig, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW)) {
         bw.write(config);
         bw.flush();
       } catch (IOException e) {
