@@ -25,8 +25,8 @@ import static umich.msfragger.params.fragger.MsfraggerParams.PROP_precursor_mass
 public enum PrecursorMassTolUnits {
     PPM (1),
     Da(0),
-    DIA_MS1 (2),
-    DIA_all (3);
+    DIA (3),
+    DIA_MS1 (2);
     
     private final int val;
 

@@ -247,7 +247,7 @@ public class MsfraggerParams extends AbstractParams {
     private Map<String, String> createComments() {
         Map<String, String> c= new HashMap<>();
         c.put(PROP_num_threads, "0=poll CPU to set num threads; else specify num threads directly (max 64)");
-        c.put(PROP_precursor_mass_units, "0=Daltons, 1=ppm, 2=DIA_MS1, 3=DIA_all");
+        c.put(PROP_precursor_mass_units, "0=Daltons, 1=ppm, 3=DIA, 2=DIA_MS1");
         c.put(PROP_precursor_true_units, "0=Daltons, 1=ppm");
         c.put(PROP_fragment_mass_units, "0=Daltons, 1=ppm");
         c.put(PROP_calibrate_mass, "0=Off, 1=On, 2=On and find optimal parameters");
