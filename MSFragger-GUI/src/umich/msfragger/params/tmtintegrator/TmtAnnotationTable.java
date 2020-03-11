@@ -40,7 +40,8 @@ public class TmtAnnotationTable extends SimpleETable {
           java.awt.Point p = e.getPoint();
           int index = columnModel.getColumnIndexAtX(p.x);
           int realIndex = columnModel.getColumn(index).getModelIndex();
-          return columnToolTips[realIndex];
+          if (columnToolTips != null && realIndex >= 0 && realIndex < columnToolTips.length)
+            return columnToolTips[realIndex];
         } catch (Exception ex) {
           log.error("Error getting tooltip", ex);
         }

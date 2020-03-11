@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,7 @@ import umich.msfragger.util.swing.JPanelWithEnablement;
 
 public class TmtIntegratorPanel extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(TmtIntegratorPanel.class);
+  private static final String STRING_NO_PATH_SET = "No path set yet";
 
   private JPanel pTop;
   private UiCheck checkRun;
@@ -67,6 +69,7 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
   private ButtonColumn colCreate;
   private UiCombo uiComboLabelNames;
   public static final String namePrefix = "ui.tmtintegrator.";
+  public static final String PROP_LAST_ANNOTATION_PATH = "fragpipe.tmt.last-annotation-path";
 
   public TmtIntegratorPanel() {
     init();
@@ -135,81 +138,17 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
       pTable.setBorder(new EmptyBorder(0, 0, 0, 0));
 
       tmtAnnotationTable = new TmtAnnotationTable();
-      actionBrowse = new AbstractAction()
-      {
-        public void actionPerformed(ActionEvent e)
-        {
-          int modelRow = Integer.parseInt( e.getActionCommand() );
-          log.debug("Browse action running in TMT, model row number: {}", modelRow);
-          ExpNameToAnnotationFile row = tmtAnnotationTable.fetchModel().dataGet(modelRow);
-          JFileChooser fc = new JFileChooser();
-          fc.setAcceptAllFileFilterUsed(true);
-          fc.setMultiSelectionEnabled(false);
-          Optional<Path> exisitngFile = Stream
-              .of(row.path, ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN))
-              .map(path -> {
-                try {
-                  return Paths.get(path);
-                } catch (Exception ignore) {
-                  return null;
-                }
-              })
-              .filter(Objects::nonNull)
-              .filter(path -> Files.exists(path))
-              .findFirst();
-
-          exisitngFile.ifPresent(path -> fc.setSelectedFile(path.toFile()));
-          final int answer = fc.showDialog(TmtIntegratorPanel.this.scrollPaneTmtTable, "Select");
-          if (JOptionPane.OK_OPTION == answer) {
-            File selectedFile = fc.getSelectedFile();
-            List<QuantLabelAnnotation> annotations;
-            try {
-              annotations = parseTmtAnnotationFile(selectedFile);
-            } catch (TmtAnnotationValidationException ex) {
-              SwingUtils.showErrorDialog(ex, TmtIntegratorPanel.this.scrollPaneTmtTable, false);
-              return;
-            }
-
-            // do the annotations match anything known to us?
-            Optional<QuantLabel> known = QuantLabel.LABELS.stream()
-                .filter(ql -> ql.getReagentNames().size() == annotations.size()).findFirst();
-            if (!known.isPresent()) throw new IllegalStateException("No known labels match");
-
-            // maybe update selected Label Type (aka number of channels)?
-            if (!getSelectedLabel().getName().equalsIgnoreCase(known.get().getName())) {
-              int confirmation = SwingUtils.showConfirmDialog(TmtIntegratorPanel.this,
-                  new JLabel(String.format("<html>Loaded file looks to be for %s.<br/>\n"
-                      + "Load configuration preset for that label?", known.get().getName())));
-              if (JOptionPane.OK_OPTION == confirmation) {
-                log.debug("User selected to load config preset for known label");
-                uiComboLabelNames.setSelectedItem(known.get().getName());
-              }
-            }
-
-            row.setPath(selectedFile.toString());
-            tmtAnnotationTable.fetchModel().fireTableDataChanged();
-
-            // save the path
-            ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, selectedFile);
-          }
+      actionBrowse = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          TmtIntegratorPanel.this.actionPerformedBrowse(e);
         }
-
       };
 
       actionCreate = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) {
-          int modelRow = Integer.parseInt( e.getActionCommand() );
-          log.debug("Create action running in TMT, model row number: {}", modelRow);
-          ExpNameToAnnotationFile row = tmtAnnotationTable.fetchModel().dataGet(modelRow);
-          try {
-            if (!StringUtils.isNullOrWhitespace(row.getPath()) || Files.exists(Paths.get(row.getPath()))) {
-              JFrame parent = SwingUtils.findParentFrame(TmtIntegratorPanel.this);
-              QuantLabelAnnotationDialog d = new QuantLabelAnnotationDialog(parent, row, 11, Paths.get(row.getPath()));
-              d.setVisible(true);
-              log.debug("Dialog table model:\n{}", d.getModel().dataCopy().stream().map(qla -> qla.toString()).collect(Collectors.joining("\n")));
-            }
-          } catch (Exception ignore) {}
+          TmtIntegratorPanel.this.actionPerformedEditCreate(e);
         }
       };
       colBrowse = new ButtonColumn(tmtAnnotationTable, actionBrowse, 2);
@@ -342,11 +281,180 @@ public class TmtIntegratorPanel extends JPanelWithEnablement {
         .distinct().sorted().collect(Collectors.toList());
     List<ExpNameToAnnotationFile> newRows = m.files.stream().map(InputLcmsFile::getExperiment)
         .distinct().sorted()
-        .map(name -> curRows.getOrDefault(name, new ExpNameToAnnotationFile(name, "No path set yet")))
+        .map(name -> curRows.getOrDefault(name, new ExpNameToAnnotationFile(name, STRING_NO_PATH_SET)))
         .collect(Collectors.toList());
 
     tmtAnnotationTable.fetchModel().dataClear();
     tmtAnnotationTable.fetchModel().dataAddAll(newRows);
 
+  }
+
+  public void actionPerformedBrowse(ActionEvent e)
+  {
+    int modelRow = Integer.parseInt( e.getActionCommand() );
+    log.debug("Browse action running in TMT, model row number: {}", modelRow);
+    ExpNameToAnnotationFile row = tmtAnnotationTable.fetchModel().dataGet(modelRow);
+    JFileChooser fc = new JFileChooser();
+    fc.setAcceptAllFileFilterUsed(true);
+    fc.setMultiSelectionEnabled(false);
+    Optional<Path> exisitngFile = Stream
+        .of(row.path,
+            ThisAppProps.load(PROP_LAST_ANNOTATION_PATH),
+            ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN))
+        .map(path -> {
+          try {
+            return path == null ? null : Paths.get(path);
+          } catch (Exception ignore) {
+            return null;
+          }
+        })
+        .filter(Objects::nonNull)
+        .filter(path -> Files.exists(path))
+        .findFirst();
+
+    exisitngFile.ifPresent(path -> fc.setSelectedFile(path.toFile()));
+    final int answer = fc.showDialog(TmtIntegratorPanel.this.scrollPaneTmtTable, "Select");
+    if (JOptionPane.OK_OPTION == answer) {
+      File selectedFile = fc.getSelectedFile();
+      List<QuantLabelAnnotation> annotations;
+      try {
+        annotations = parseTmtAnnotationFile(selectedFile);
+      } catch (TmtAnnotationValidationException ex) {
+        SwingUtils.showErrorDialog(ex, TmtIntegratorPanel.this.scrollPaneTmtTable, false);
+        return;
+      }
+
+      // do the annotations match anything known to us?
+      Optional<QuantLabel> known = QuantLabel.LABELS.stream()
+          .filter(ql -> ql.getReagentNames().size() == annotations.size()).findFirst();
+      if (!known.isPresent()) throw new IllegalStateException("No known labels match");
+
+      // maybe update selected Label Type (aka number of channels)?
+      if (!getSelectedLabel().getName().equalsIgnoreCase(known.get().getName())) {
+        int confirmation = SwingUtils.showConfirmDialog(TmtIntegratorPanel.this,
+            new JLabel(String.format("<html>Loaded file looks to be for %s.<br/>\n"
+                + "Load configuration preset for that label?", known.get().getName())));
+        if (JOptionPane.OK_OPTION == confirmation) {
+          log.debug("User selected to load config preset for known label");
+          uiComboLabelNames.setSelectedItem(known.get().getName());
+        }
+      }
+
+      row.setPath(selectedFile.toString());
+      tmtAnnotationTable.fetchModel().fireTableDataChanged();
+
+      // save the path
+      ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, selectedFile);
+    }
+  }
+
+  public void actionPerformedEditCreate(ActionEvent e) {
+    int modelRowIndex = Integer.parseInt( e.getActionCommand() );
+    log.debug("Create action running in TMT, model row number: {}", modelRowIndex);
+    ExpNameToAnnotationFile row = tmtAnnotationTable.fetchModel().dataGet(modelRowIndex);
+    String pathInRow = row.getPath();
+
+    Path existingPath = null;
+    try {
+      if (Files.exists(Paths.get(pathInRow))) existingPath = Paths.get(pathInRow);
+    } catch (Exception ignore) {}
+
+    List<QuantLabelAnnotation> quantLabelAnnotations = null;
+    if (existingPath != null) {
+      try {
+        quantLabelAnnotations = parseTmtAnnotationFile(
+            existingPath.toFile());
+      } catch (TmtAnnotationValidationException ex) {
+        log.warn("Could not parse annotation file", ex);
+      }
+    }
+
+    JFrame parent = SwingUtils.findParentFrame(TmtIntegratorPanel.this);
+    String labelName = (String) uiComboLabelNames.getSelectedItem();
+    QuantLabelAnnotationDialog d = new QuantLabelAnnotationDialog(parent, row, labelName, quantLabelAnnotations);
+    log.debug("Dialog table model:\n{}", d.getModel().dataCopy().stream()
+        .map(QuantLabelAnnotation::toString).collect(Collectors.joining("\n")));
+    d.setVisible(true);
+    if (d.getDialogResult() != JOptionPane.OK_OPTION) {
+      return;
+    }
+
+    // get new data
+    ArrayList<QuantLabelAnnotation> userAnnotations = d.getModel().dataCopy();
+
+    // select path to save file to
+    Path selectedPath = null;
+    Path savePath = null;
+    while (selectedPath == null) {
+      JFileChooser fc = new JFileChooser();
+      fc.setDialogTitle("Specify a file to save");
+      String suggestedPaths = Stream
+          .of(existingPath != null ? existingPath.toString() : null,
+              ThisAppProps.load(TmtIntegratorPanel.PROP_LAST_ANNOTATION_PATH),
+              ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN))
+          .filter(Objects::nonNull).findFirst().orElse(null);
+      SwingUtils.setFileChooserPath(fc, suggestedPaths);
+      int userSelection = fc.showSaveDialog(parent);
+      if (JFileChooser.APPROVE_OPTION == userSelection) {
+        selectedPath = fc.getSelectedFile().toPath();
+        log.debug("User selected to save annotattion in file: {}", selectedPath.toString());
+      } else {
+        log.debug("User selected NOT to save annotattion in file");
+        return; // user chose not to save file
+      }
+
+      // ask about overwriting
+      if (Files.exists(selectedPath)) {
+        int answer = SwingUtils.showConfirmDialog(parent, new JLabel("<html>Overwrite existing file?<br/>\n"
+            + selectedPath.toString()));
+        if (JOptionPane.NO_OPTION == answer) {
+          continue;
+        }
+        if (JOptionPane.CANCEL_OPTION == answer) {
+          break;
+        }
+        if (JOptionPane.OK_OPTION == answer) {
+          try {
+            Files.deleteIfExists(selectedPath);
+            savePath = selectedPath;
+          } catch (IOException ex) {
+            SwingUtils.showErrorDialog(ex, parent);
+            log.warn("Something happened while deleting file", ex);
+          }
+
+        }
+      } else {
+        savePath = selectedPath;
+      }
+    }
+
+    if (savePath == null) {
+      log.debug("User chose not to select or not to overwrite annotation file");
+      return;
+    }
+
+    // write file
+    List<String> userAnnotationsList = userAnnotations.stream()
+        .map(qla -> qla.getLabel() + " " + qla.getSample())
+        .collect(Collectors.toList());
+    try {
+      Files.write(savePath, userAnnotationsList, StandardOpenOption.CREATE_NEW);
+      ThisAppProps.save(PROP_LAST_ANNOTATION_PATH, savePath.toFile());
+    } catch (IOException ex) {
+      SwingUtils.showErrorDialog(ex, parent);
+    }
+
+    row.setPath(savePath.toString());
+    //tmtAnnotationTable.fetchModel().dataSet(modelRowIndex, row);
+    tmtAnnotationTable.fetchModel().fireTableDataChanged();
+  }
+
+  private static List<String> tryReadFileFully(String path) {
+    try {
+      return Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      log.warn("Could not fully read file", e);
+    }
+    return null;
   }
 }
