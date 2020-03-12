@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import umich.msfragger.params.tmtintegrator.TmtIntegratorConfig.Props;
+import umich.msfragger.params.tmtintegrator.TmtiConfig.Props;
 
 public class TmtIntegratorTest {
   private static final Logger log = LoggerFactory.getLogger(TmtIntegratorTest.class);
@@ -19,9 +19,9 @@ public class TmtIntegratorTest {
     final String fn = "tmt-i_param_v1.1.2.yml";
     final String resoucePath = "tmtintegrator/" + fn;
     try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(resoucePath)) {
-      Yaml yaml = new Yaml(new Constructor(TmtIntegratorConfig.class));
+      Yaml yaml = new Yaml(new Constructor(TmtiConfig.class));
       log.debug("Resource stream is: {}", is);
-      TmtIntegratorConfig loaded = yaml.load(is);
+      TmtiConfig loaded = yaml.load(is);
       log.debug("Loaded {}\n:{}", resoucePath, yaml.dump(loaded));
       Assert.assertEquals("D:\\test\\reports", loaded.getTmtintegrator().getOutput());
     }
@@ -29,7 +29,7 @@ public class TmtIntegratorTest {
 
   @Test
   public void configWrite() throws IOException {
-    TmtIntegratorConfig config = new TmtIntegratorConfig();
+    TmtiConfig config = new TmtiConfig();
     Props props = new Props();
     props.setAdd_Ref(-1);
     props.setAllow_unlabeled(false);

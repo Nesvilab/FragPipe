@@ -3,7 +3,7 @@ package umich.msfragger.params.tmtintegrator;
 import java.util.Arrays;
 import java.util.List;
 
-public class TmtIntegratorConfigProps {
+public class TmtiConfProps {
   /*
   path: D:\test\TMTIntegrator.jar                 # path to TMT-Integrator jar
   memory: 30                                      # memory allocation, in Gb
@@ -66,5 +66,32 @@ public class TmtIntegratorConfigProps {
           PROP_allow_overlabel, PROP_allow_unlabeled, PROP_ms1_int, PROP_top3_pep,
           PROP_print_RefInt);
 
+  public static List<ComboValue> GROUP_BY = Arrays.asList(
+      new ComboValue("0", "Gene level", "PSM aggregation to the gene level"),
+      new ComboValue("1", "Protein", ""),
+      new ComboValue("2", "Peptide sequence", ""),
+      new ComboValue("3", "Multiple PTM sites", ""),
+      new ComboValue("4", "Single PTM site", ""),
+      new ComboValue("-1", "All", "generate reports at all levels")
+      );
 
+  public static List<ComboValue> PROT_NORM = Arrays.asList(
+      new ComboValue("0", "None", ""),
+      new ComboValue("1", "MD (median centering)", ""),
+      new ComboValue("2", "GN (median centering + variance scaling)", ""),
+      new ComboValue("-1", "All", "generate reports with all normalization options")
+  );
+
+  public static List<ComboValue> COMBO_UNIQUE_GENE = Arrays.asList(
+      new ComboValue("0", "Leave all PSMs", "allow all PSMs"),
+      new ComboValue("1", "No PSMs mapping to multiple genes in dataset", "remove PSMs mapping to more than one GENE with evidence of expression in the dataset"),
+      new ComboValue("2", "No PSMs mapping to multiple genes in FASTA", "remove all PSMs mapping to more than one GENE in the fasta file")
+  );
+
+  public static List<ComboValue> COMBO_ADD_REF = Arrays.asList(
+      new ComboValue("-1","Don't add reference", ""),
+      new ComboValue("0", "Use sum as the reference", ""),
+      new ComboValue("1", "Use average as the reference", ""),
+      new ComboValue("2", "Use median as the reference", "")
+  );
 }

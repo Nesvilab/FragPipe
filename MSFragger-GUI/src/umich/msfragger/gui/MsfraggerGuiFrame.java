@@ -133,6 +133,7 @@ import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.params.philosopher.ReportPanel;
 import umich.msfragger.params.speclib.SpecLibGen;
+import umich.msfragger.params.tmtintegrator.TmtiPanel;
 import umich.msfragger.params.umpire.UmpirePanel;
 import umich.msfragger.util.FastaUtils.FastaDecoyPrefixSearchResult;
 import umich.msfragger.util.FileDrop;
@@ -804,7 +805,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         txtProteinProphetCmdLineOpts = new javax.swing.JTextArea();
         jLabel40 = new javax.swing.JLabel();
         panelCrystalc = new umich.msfragger.params.crystalc.CrystalcPanel();
-        tmtIntegratorPanel1 = new umich.msfragger.params.tmtintegrator.TmtIntegratorPanel();
+        tmtiPanel1 = new TmtiPanel();
         panelReport = new javax.swing.JPanel();
         ptmshepherdPanel = new umich.msfragger.params.ptmshepherd.PtmshepherdJPanel();
         panelQuant = new umich.msfragger.params.ionquant.QuantJPanel();
@@ -1731,7 +1732,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                     .addComponent(panelPeptideProphet, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(panelProteinProphet, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(panelCrystalc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(tmtIntegratorPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(tmtiPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelDownstreamLayout.setVerticalGroup(
@@ -1744,7 +1745,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelCrystalc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tmtIntegratorPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
+                .addComponent(tmtiPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -3047,7 +3048,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JTextField textDecoyTagSeqDb;
     private javax.swing.JTextArea textPepProphCmd;
     private javax.swing.JTextField textSequenceDbPath;
-    private umich.msfragger.params.tmtintegrator.TmtIntegratorPanel tmtIntegratorPanel1;
+    private TmtiPanel tmtiPanel1;
     private javax.swing.JTextArea txtProteinProphetCmdLineOpts;
     private javax.swing.JTextField txtWorkingDir;
     // End of variables declaration//GEN-END:variables

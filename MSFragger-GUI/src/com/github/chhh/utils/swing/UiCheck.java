@@ -24,7 +24,7 @@ public class UiCheck extends JCheckBox implements StringRepresentable {
   @Override
   public void fromString(String s) {
     try {
-      setSelected(Boolean.valueOf(s));
+      setSelected(Boolean.parseBoolean(s));
     } catch (Exception e1) {
       try {
         int i = Integer.parseInt(s);
@@ -33,5 +33,9 @@ public class UiCheck extends JCheckBox implements StringRepresentable {
         throw new IllegalArgumentException("String does not represent a boolean value.");
       }
     }
+  }
+
+  public static UiCheck of(String label, boolean initState) {
+    return new UiCheck(label, null, initState);
   }
 }

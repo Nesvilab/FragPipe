@@ -1438,7 +1438,7 @@
                 </Container>
                 <Component class="umich.msfragger.params.crystalc.CrystalcPanel" name="panelCrystalc">
                 </Component>
-                <Component class="umich.msfragger.params.tmtintegrator.TmtIntegratorPanel" name="tmtIntegratorPanel1">
+                <Component class="umich.msfragger.params.tmtintegrator.TmtiPanel" name="tmtIntegratorPanel1">
                 </Component>
               </SubComponents>
             </Container>

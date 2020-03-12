@@ -1,6 +1,6 @@
 package umich.msfragger.params.tmtintegrator;
 
-public class TmtIntegratorConfig {
+public class TmtiConfig {
   private Props tmtintegrator;
 
   public Props getTmtintegrator() {
