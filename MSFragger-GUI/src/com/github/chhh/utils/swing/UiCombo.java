@@ -17,7 +17,7 @@ public class UiCombo extends JComboBox<String> implements StringRepresentable {
   @Override
   public void fromString(String s) {
     if (!isInModel(s)) {
-      throw new IllegalArgumentException("String '" + s + "' is not in the UiCombo current range.");
+      throw new IllegalArgumentException("String '" + s + "' is not in the UiCombo current range. Component name: [" + getName() + "]" );
     }
     setSelectedItem(s);
   }

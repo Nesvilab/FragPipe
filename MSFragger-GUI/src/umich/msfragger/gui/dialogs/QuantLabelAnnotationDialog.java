@@ -206,7 +206,7 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
 
   public static void main(String[] args) {
     QuantLabelAnnotationDialog dialog = new QuantLabelAnnotationDialog(null,
-        new ExpNameToAnnotationFile("test-experiment", "Not yet selected"),
+        new ExpNameToAnnotationFile("test-experiment", Collections.emptyList(), "Not yet selected"),
         "TMT-10", Collections.emptyList());
     dialog.pack();
     dialog.setVisible(true);

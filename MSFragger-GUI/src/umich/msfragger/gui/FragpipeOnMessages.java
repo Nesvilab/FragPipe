@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import umich.msfragger.Version;
 import umich.msfragger.cmd.CmdCrystalc;
 import umich.msfragger.cmd.CmdIonquant;
 import umich.msfragger.cmd.CmdIprophet;
+import umich.msfragger.cmd.CmdLabelquant;
 import umich.msfragger.cmd.CmdMsAdjuster;
 import umich.msfragger.cmd.CmdMsfragger;
 import umich.msfragger.cmd.CmdPeptideProphet;
@@ -47,9 +49,10 @@ import umich.msfragger.cmd.CmdPtmshepherd;
 import umich.msfragger.cmd.CmdReportAbacus;
 import umich.msfragger.cmd.CmdReportDbAnnotate;
 import umich.msfragger.cmd.CmdReportFilter;
-import umich.msfragger.cmd.CmdReportFreequant;
+import umich.msfragger.cmd.CmdFreequant;
 import umich.msfragger.cmd.CmdReportReport;
 import umich.msfragger.cmd.CmdSpecLibGen;
+import umich.msfragger.cmd.CmdTmtIntegrator;
 import umich.msfragger.cmd.CmdUmpireSe;
 import umich.msfragger.cmd.PbiBuilder;
 import umich.msfragger.cmd.ProcessBuilderInfo;
@@ -65,6 +68,8 @@ import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.fragger.FraggerMigPanel;
+import umich.msfragger.params.tmtintegrator.QuantLabel;
+import umich.msfragger.params.tmtintegrator.TmtiPanel;
 import umich.msfragger.util.FastaUtils;
 import umich.msfragger.util.FastaUtils.FastaContent;
 import umich.msfragger.util.LogUtils;
@@ -443,7 +448,7 @@ public class FragpipeOnMessages {
     if (!isProcessGroupsSeparately && lcmsFileGroups.size() > 1 && !msfgf.getPanelReportOptions().isMultiExpReport()) {
       String[] options = {"Turn on and continue", "Continue as-is", "Cancel"};
       int choice = SwingUtils.showChoiceDialog(msfgf, new JLabel(
-          "<html>You grouped input file into more than one experiment.<br/>\n" +
+          "<html>LCMS files are grouped into more than one experiment.<br/>\n" +
               "However, multi-experiment report was turned off.<br/>\n" +
               "<br/>\n" +
               "<b>What would you like to do with multi-experiment report?</b>\n"), options, 0);
@@ -592,6 +597,7 @@ public class FragpipeOnMessages {
     }
 
     final boolean isReport = msfgf.getPanelReportOptions().isGenerateReport();
+    final boolean isFreequant = msfgf.getPanelQuant().isFreequant();
     if (isReport) {
       // run Report - DbAnnotate
       final boolean isDbAnnotate = true;
@@ -690,13 +696,12 @@ public class FragpipeOnMessages {
       }
 
       // run Report - Freequant (Labelfree)
-      final boolean isFreequant = msfgf.getPanelQuant().isFreequant();
-      final CmdReportFreequant cmdReportFreequant = new CmdReportFreequant(isFreequant, wd);
-      if (cmdReportFreequant.isRun()) {
-        if (!cmdReportFreequant.configure(msfgf, usePhi, msfgf.getPanelQuant().getFreequantOptsAsText(), mapGroupsToProtxml)) {
+      final CmdFreequant cmdFreequant = new CmdFreequant(isFreequant, wd);
+      if (cmdFreequant.isRun()) {
+        if (!cmdFreequant.configure(msfgf, usePhi, msfgf.getPanelQuant().getFreequantOptsAsText(), mapGroupsToProtxml)) {
           return false;
         }
-        pbDescs.add(cmdReportFreequant.getBuilderDescriptor());
+        pbDescs.add(cmdFreequant.getBuilderDescriptor());
       }
 
       // run Report - IonQuant (Labelfree)
@@ -713,13 +718,65 @@ public class FragpipeOnMessages {
       }
     }
 
+
+    final TmtiPanel tmtPanel = msfgf.getTmtPanel();
+    final boolean isTmt = tmtPanel.isRun();
+    if (isTmt) {
+      // check file compatibility separately, as single tools will report errors
+      // that look like they are unrelated to TMT
+      if (lcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml"))) {
+        SwingUtils.showWarningDialog(msfgf,
+            CmdTmtIntegrator.NAME + " only supports mzML files.\n"
+                + "Please remove other files from the input list.", CmdTmtIntegrator.NAME + "error");
+        return false;
+      }
+
+      // run FreeQuant - as part of TMT-I
+      if (isFreequant) {
+        String msg = "<html>FreeQuant needs to be run as part of TMT analysis.<br/>\n"
+            + "You have chosen to run FreeQuant separately as weel.<br/>\n"
+            + "This will interfere with FreeQuant files generated as part of TMT<br/>\n"
+            + "processing.<br/>\n"
+            + "Please turn off standalone FreeQuant.<br/>\n";
+        JOptionPane.showMessageDialog(msfgf, msg, "Warning", JOptionPane.WARNING_MESSAGE);
+        return false;
+      }
+      { // run freequant
+        CmdFreequant fq = new CmdFreequant(true, wd);
+        String opts = tmtPanel.getFreequantOptsAsText();
+        if (!fq.configure(msfgf, usePhi, opts, mapGroupsToProtxml)) {
+          return false;
+        }
+        pbDescs.add(fq.getBuilderDescriptor());
+      }
+      {
+        // run LabelQuant - as part of TMT-I
+        List<String> forbiddenOpts = Arrays.asList("--plex", "--annot", "--dir");
+        CmdLabelquant lq = new CmdLabelquant(true, wd);
+        String opts = tmtPanel.getLabelquantOptsAsText();
+        QuantLabel label = tmtPanel.getSelectedLabel();
+        Map<LcmsFileGroup, Path> annotations = tmtPanel.getAnnotations();
+        if (!lq.configure(msfgf, usePhi, opts, label, forbiddenOpts, annotations, mapGroupsToProtxml)) {
+          return false;
+        }
+        pbDescs.add(lq.getBuilderDescriptor());
+      }
+      // run TMT-Integrator
+      CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(isTmt, wd);
+      if (!cmdTmt.configure(msfgf.getTmtPanel(), msfgf.getBinMsfragger(), usePhi,
+          msfgf.fraggerMigPanel.getRamGb(), msfgf.getFastaPath(), mapGroupsToProtxml)) {
+        return false;
+      }
+      pbDescs.add(cmdTmt.getBuilderDescriptor());
+    }
+
     // check fasta file for presence of decoys
     if (isRunPeptideProphet || isReport) {
       FastaContent fasta;
       try {
         fasta = FastaUtils.readFasta(Paths.get(fastaFile));
       } catch (IOException e) {
-        SwingUtils.showErrorDialog(e, msfgf);
+        SwingUtils.showErrorDialogWithStacktrace(e, msfgf);
         return false;
       }
       double decoysPercentage = FastaUtils.checkDecoysPercentage(fasta.ordered.get(0), decoyTag);

@@ -66,7 +66,7 @@ public class TmtiConfProps {
           PROP_allow_overlabel, PROP_allow_unlabeled, PROP_ms1_int, PROP_top3_pep,
           PROP_print_RefInt);
 
-  public static List<ComboValue> GROUP_BY = Arrays.asList(
+  public static List<ComboValue> COMBO_GROUP_BY = Arrays.asList(
       new ComboValue("0", "Gene level", "PSM aggregation to the gene level"),
       new ComboValue("1", "Protein", ""),
       new ComboValue("2", "Peptide sequence", ""),
@@ -75,7 +75,7 @@ public class TmtiConfProps {
       new ComboValue("-1", "All", "generate reports at all levels")
       );
 
-  public static List<ComboValue> PROT_NORM = Arrays.asList(
+  public static List<ComboValue> COMBO_PROT_NORM = Arrays.asList(
       new ComboValue("0", "None", ""),
       new ComboValue("1", "MD (median centering)", ""),
       new ComboValue("2", "GN (median centering + variance scaling)", ""),

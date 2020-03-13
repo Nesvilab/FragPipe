@@ -77,6 +77,16 @@ public abstract class CmdBase {
     return exts;
   }
 
+  public static List<String> getNotSupportedExts(List<InputLcmsFile> lcmsFiles, List<String> supportedExts) {
+    List<String> supportedLoCase = supportedExts.stream().map(String::toLowerCase)
+        .collect(Collectors.toList());
+    List<String> exts = lcmsFiles.stream()
+        .map(f -> StringUtils.afterLastDot(f.getPath().getFileName().toString().toLowerCase()))
+        .distinct()
+        .filter(ext -> !supportedLoCase.contains(ext)).collect(Collectors.toList());
+    return exts;
+  }
+
   /**
    * Unpacks jar files from the final FragPipe jar (next to ToolingUtils.class).
    * @param jars The names of files to unpack. Here we name them `.jazz` files.

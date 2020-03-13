@@ -317,6 +317,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     return lblPhilosopherInfo;
   }
 
+  public TmtiPanel getTmtPanel() {
+    return tmtiPanel1;
+  }
+
   private void initMore() {
 
     setTitle(Version.PROGRAM_TITLE + " (v" + Version.version() + ")");
@@ -542,7 +546,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   @Subscribe
   public void onSubscriberException(SubscriberExceptionEvent msg) {
-    SwingUtils.showErrorDialog(msg.throwable, this);
+    SwingUtils.showErrorDialogWithStacktrace(msg.throwable, this);
   }
 
   @Subscribe

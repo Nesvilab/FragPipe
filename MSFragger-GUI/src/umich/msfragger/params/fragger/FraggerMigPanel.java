@@ -182,7 +182,7 @@ public class FraggerMigPanel extends JPanel {
   }
 
   private ImageIcon icon;
-  private JCheckBox checkRun;
+  private UiCheck checkRun;
   private JScrollPane scroll;
   private JPanel pContent;
   private ModificationsTableModel tableModelVarMods;
@@ -276,7 +276,9 @@ public class FraggerMigPanel extends JPanel {
     // Top panel with checkbox, buttons and RAM+Threads spinners
     {
       JPanel pTop = new JPanel(new MigLayout(new LC()));
-      checkRun = new JCheckBox("Run MSFragger", true);
+
+      checkRun = new UiCheck("Run MSFragger", null, true);
+      checkRun.setName("ui.fragger.misc.is-run");
       checkRun.addActionListener(e -> {
         final boolean isSelected = checkRun.isSelected();
         updateEnabledStatus(pContent, isSelected);

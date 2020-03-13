@@ -36,6 +36,7 @@ public class PhilosopherProps {
     public static final String CMD_REPORT = "report";
     public static final String CMD_IPROPHET = "iprophet";
     public static final String CMD_LABELFREE = "freequant";
+    public static final String CMD_LABELQUANT = "labelquant";
 
     private static final String PROPERTIES_FILE_NAME = "philosopher.properties";
 

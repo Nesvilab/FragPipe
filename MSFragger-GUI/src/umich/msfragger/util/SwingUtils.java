@@ -47,6 +47,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
@@ -647,14 +649,39 @@ public class SwingUtils {
   /**
    * @param parent Can be null.
    */
-  public static void showErrorDialog(Throwable e, Component parent) {
-    showErrorDialog(e, parent, true);
+  public static void showErrorDialogWithStacktrace(Throwable e, Component parent) {
+    showErrorDialogWithStacktrace(e, parent, true);
+  }
+
+  public static String makeHtml(String html) {
+    Pattern re = Pattern.compile("^\\s*<\\s*html\\s*>\\s*");
+    Pattern reNewline = Pattern.compile("(?<!<br/>)(\n)");
+    Matcher m = reNewline.matcher(html);
+    String s = m.replaceAll("<br/>\n");
+    return re.matcher(s).find() ? s : "<html>" + s;
+  }
+
+  public static void showInfoDialog(Component parent, String htmlMessage, String title) {
+    showDialog(parent, htmlMessage, title, JOptionPane.INFORMATION_MESSAGE);
+  }
+
+  public static void showWarningDialog(Component parent, String htmlMessage, String title) {
+    showDialog(parent, htmlMessage, title, JOptionPane.WARNING_MESSAGE);
+  }
+
+  public static void showErrorDialog(Component parent, String htmlMessage, String title) {
+    showDialog(parent, htmlMessage, title, JOptionPane.ERROR_MESSAGE);
+  }
+
+  public static void showDialog(Component parent, String htmlMessage, String title,
+      int messageType) {
+    JOptionPane.showMessageDialog(parent, new JLabel(makeHtml(htmlMessage)), title, messageType);
   }
 
   /**
    * @param parent Can be null.
    */
-  public static void showErrorDialog(Throwable e, Component parent, boolean doShowStacktrace) {
+  public static void showErrorDialogWithStacktrace(Throwable e, Component parent, boolean doShowStacktrace) {
     JPanel panel = new JPanel();
     panel.setLayout(new BorderLayout());
     panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));

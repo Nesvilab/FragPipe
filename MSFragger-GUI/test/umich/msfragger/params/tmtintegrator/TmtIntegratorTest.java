@@ -51,7 +51,6 @@ public class TmtIntegratorTest {
 
     String written = yaml.dumpAsMap(config);
 
-
     log.debug("Wrote the following yaml contents:\n{}", written);
   }
 }

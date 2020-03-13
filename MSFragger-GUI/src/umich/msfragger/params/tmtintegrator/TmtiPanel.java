@@ -5,24 +5,29 @@ import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
-import com.github.chhh.utils.swing.UiUtils.UiTextBuilder;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.AbstractAction;
@@ -46,6 +51,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
+import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.gui.dialogs.QuantLabelAnnotationDialog;
 import umich.msfragger.gui.renderers.ButtonColumn;
 import umich.msfragger.messages.MessageLcmsFilesList;
@@ -75,8 +81,66 @@ public class TmtiPanel extends JPanelWithEnablement {
   private ButtonColumn colBrowse;
   private ButtonColumn colCreate;
   private UiCombo uiComboLabelNames;
-  public static final String PREFIX = "ui.tmtintegrator.configfile.";
+  public static final String PREFIX = "ui.tmtintegrator.";
+  public static final String PREFIX_CONF = "config.";
   public static final String PROP_LAST_ANNOTATION_PATH = "fragpipe.tmt.last-annotation-path";
+  private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
+  private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
+
+  static {
+    CONVERT_TO_FILE = new HashMap<>();
+    CONVERT_TO_GUI = new HashMap<>();
+
+    CONVERT_TO_FILE.put(TmtiConfProps.PROP_channel_num, s -> {
+      QuantLabel label = QuantLabel.LABELS.stream()
+          .filter(ql -> ql.getName().equalsIgnoreCase(s))
+          .findFirst().orElseThrow(supplyRunEx("No matching quant label"));
+      return Integer.toString(label.getReagentNames().size());
+    });
+    CONVERT_TO_FILE.put(TmtiConfProps.PROP_groupby, s -> findOrThrow(false, TmtiConfProps.COMBO_GROUP_BY,
+        s,supplyRunEx("No matching groupby value")).getValInConfig());
+    CONVERT_TO_FILE.put(TmtiConfProps.PROP_prot_norm, s -> findOrThrow(false, TmtiConfProps.COMBO_PROT_NORM,
+        s,supplyRunEx("No matching prot_norm value")).getValInConfig());
+    CONVERT_TO_FILE.put(TmtiConfProps.PROP_unique_gene, s -> findOrThrow(false, TmtiConfProps.COMBO_UNIQUE_GENE,
+        s,supplyRunEx("No matching unique_gene value")).getValInConfig());
+    CONVERT_TO_FILE.put(TmtiConfProps.PROP_add_Ref, s -> findOrThrow(false, TmtiConfProps.COMBO_ADD_REF,
+        s,supplyRunEx("No matching add_Ref value")).getValInConfig());
+
+    CONVERT_TO_GUI.put(TmtiConfProps.PROP_channel_num, s -> {
+      int numChannels = Integer.parseInt(s);
+      QuantLabel label = QuantLabel.LABELS.stream()
+          .filter(ql -> ql.getReagentNames().size() == numChannels)
+          .findFirst().orElseThrow(supplyRunEx("No matching quant label"));
+      return label.getName();
+    });
+    CONVERT_TO_GUI.put(TmtiConfProps.PROP_groupby, s -> findOrThrow(true, TmtiConfProps.COMBO_GROUP_BY,
+        s,supplyRunEx("No matching groupby value")).getValInUi());
+    CONVERT_TO_GUI.put(TmtiConfProps.PROP_prot_norm, s -> findOrThrow(true, TmtiConfProps.COMBO_PROT_NORM,
+        s,supplyRunEx("No matching prot_norm value")).getValInUi());
+    CONVERT_TO_GUI.put(TmtiConfProps.PROP_unique_gene, s -> findOrThrow(true, TmtiConfProps.COMBO_UNIQUE_GENE,
+        s,supplyRunEx("No matching unique_gene value")).getValInUi());
+    CONVERT_TO_GUI.put(TmtiConfProps.PROP_add_Ref, s -> findOrThrow(true, TmtiConfProps.COMBO_ADD_REF,
+        s,supplyRunEx("No matching add_Ref value")).getValInUi());
+  }
+
+  private UiText uiTextLabelquant;
+  private UiText uiTextFreequant;
+
+  private static Supplier<? extends RuntimeException> supplyRunEx(String message) {
+    return () -> new RuntimeException(message);
+  }
+
+  private static ComboValue findOrThrow(boolean toUi, List<ComboValue> cvs, String searchVal, Supplier<? extends RuntimeException> exceptionSupplier) {
+    return cvs.stream()
+        .filter(cv -> {
+          if (toUi) {
+            return cv.valInConfig.equalsIgnoreCase(searchVal);
+          } else {
+            return cv.valInUi.equalsIgnoreCase(searchVal);
+          }
+        }).findFirst()
+        .orElseThrow(exceptionSupplier);
+  }
 
   public TmtiPanel() {
     init();
@@ -182,7 +246,7 @@ public class TmtiPanel extends JPanelWithEnablement {
         uiComboLabelNames = UiUtils.createUiCombo(
             QuantLabel.LABELS.stream().map(QuantLabel::getName).collect(Collectors.toList()));
         FormEntry feLabelType = fe(TmtiConfProps.PROP_channel_num,
-            "Label type", uiComboLabelNames);
+            "Label type", uiComboLabelNames, null);
 
         UiCheck uiCheckUniquePep = new UiCheck("Unique pep", null, false);
         FormEntry feUniquePep = fe(TmtiConfProps.PROP_unique_pep,
@@ -195,7 +259,7 @@ public class TmtiPanel extends JPanelWithEnablement {
 
       // row 2
       {
-        UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).create();
+        UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).text("Bridge").create();
         FormEntry feRefTag = fe(TmtiConfProps.PROP_ref_tag,
             "Ref tag", uiTextRefTag,
             "<html>Unique tag for identifying the reference channel (Bridge sample added to <br/>\n"
@@ -212,7 +276,7 @@ public class TmtiPanel extends JPanelWithEnablement {
 
       // row 3
       {
-        UiCombo uiComboGroupBy = UiUtils.createUiCombo(TmtiConfProps.GROUP_BY.stream()
+        UiCombo uiComboGroupBy = UiUtils.createUiCombo(TmtiConfProps.COMBO_GROUP_BY.stream()
             .map(ComboValue::getValInUi).collect(Collectors.toList()));
         FormEntry feGroupBy = fe(TmtiConfProps.PROP_groupby,
             "Group by", uiComboGroupBy,
@@ -229,7 +293,7 @@ public class TmtiPanel extends JPanelWithEnablement {
 
       // row 4
       {
-        UiCombo uiComboProtNorm = UiUtils.createUiCombo(TmtiConfProps.PROT_NORM.stream()
+        UiCombo uiComboProtNorm = UiUtils.createUiCombo(TmtiConfProps.COMBO_PROT_NORM.stream()
             .map(ComboValue::getValInUi).collect(Collectors.toList()));
         FormEntry feProtNorm = fe(TmtiConfProps.PROP_prot_norm,
             "Prot norm", uiComboProtNorm,
@@ -366,6 +430,17 @@ public class TmtiPanel extends JPanelWithEnablement {
       pOpts.add(feModTag.label(), new CC().alignX("right"));
       pOpts.add(feModTag.comp, new CC().alignX("left").spanX().wrap());
 
+      uiTextFreequant = new UiText("--ptw 0.4 --tol 10 --isolated");
+      FormEntry feFreequant = fe("freequant", "Freequant opts", uiTextFreequant,
+          "Command line options for Philosopher Freequant command", true);
+      uiTextLabelquant = new UiText("--purity 0.5 --tol 10");
+      FormEntry feLabelquant = fe("labelquant", "Labelquant opts", uiTextLabelquant,
+          "Command line options for Philosopher Labelquant command", true);
+      pOpts.add(feLabelquant.label(), new CC().alignX("right"));
+      pOpts.add(feLabelquant.comp, new CC().alignX("left").spanX().growX().wrap());
+      pOpts.add(feFreequant.label(), new CC().alignX("right"));
+      pOpts.add(feFreequant.comp, new CC().alignX("left").spanX().growX().wrap());
+
 
       // add oOpts to main panel
       pContent.add(pOpts, new CC().alignY("top").growX().wrap());
@@ -375,11 +450,14 @@ public class TmtiPanel extends JPanelWithEnablement {
   }
 
   private static FormEntry fe(String name, String label, JComponent comp, String tooltip) {
-    return new FormEntry(PREFIX + name, label, comp, tooltip);
+    return fe(name, label, comp, tooltip, true);
   }
 
-  private static FormEntry fe(String name, String label, JComponent comp) {
-    return new FormEntry(PREFIX + name, label, comp, null);
+
+  private static FormEntry fe(String name, String label, JComponent comp, String tooltip, boolean isTmtiConf) {
+    String n = PREFIX + (isTmtiConf ? PREFIX_CONF : "") + name;
+    log.error("Created FE with name: {}", n);
+    return new FormEntry(n, label, comp, tooltip);
   }
 
   private static void addPoptsRow(JPanel pOpts, FormEntry fe1, FormEntry fe2) {
@@ -388,7 +466,7 @@ public class TmtiPanel extends JPanelWithEnablement {
     pOpts.add(fe2.comp, new CC().alignX("left").wrap());
   }
 
-  private QuantLabel getSelectedLabel() {
+  public QuantLabel getSelectedLabel() {
     String name  = (String) uiComboLabelNames.getSelectedItem();
     Optional<QuantLabel> label = QuantLabel.LABELS.stream()
         .filter(ql -> ql.getName().equalsIgnoreCase(name)).findFirst();
@@ -407,6 +485,28 @@ public class TmtiPanel extends JPanelWithEnablement {
     final boolean isRun = checkRun.isSelected();
     updateUiOnCheckRunStateChange(isRun);
     EventBus.getDefault().post(new MessageTmtIntegratorRun(isRun));
+  }
+
+  public int getNumChannels() {
+    return getSelectedLabel().getReagentNames().size();
+  }
+
+  public Map<LcmsFileGroup, Path> getAnnotations() {
+    ArrayList<ExpNameToAnnotationFile> annotations = tmtAnnotationTable.fetchModel()
+        .dataCopy();
+    Map<LcmsFileGroup, Path> map = new HashMap<>();
+    for (ExpNameToAnnotationFile row : annotations) {
+      map.put(new LcmsFileGroup(row.expName, new ArrayList<>(row.lcmsFiles)), Paths.get(row.getPath()));
+    }
+    return map;
+  }
+
+  public String getLabelquantOptsAsText() {
+    return uiTextLabelquant.getNonGhostText();
+  }
+
+  public String getFreequantOptsAsText() {
+    return uiTextFreequant.getNonGhostText();
   }
 
   public static class TmtAnnotationValidationException extends Exception {
@@ -464,7 +564,15 @@ public class TmtiPanel extends JPanelWithEnablement {
   @Subscribe
   public void onMessageLoadTmtIntegratorDefaults(MessageLoadTmtIntegratorDefaults m) {
     log.debug("Got MessageLoadTmtIntegratorDefaults, it's an empty marker message");
-    // TODO: implement
+    final Map<String, String> map = TmtiConfig.getDefaultAsMap();
+    log.debug("Read tmt-i default props props: {}", map);
+    HashMap<String, String> prefixed = new HashMap<>();
+    map.forEach((k, v) -> {
+      Function<String, String> conv = CONVERT_TO_GUI.get(k);
+      String converted = CONVERT_TO_GUI.getOrDefault(k, Function.identity()).apply(v);
+      prefixed.put(PREFIX + PREFIX_CONF + k, converted);
+    });
+    SwingUtils.valuesFromMap(this, prefixed);
   }
 
   @Subscribe(threadMode =  ThreadMode.MAIN_ORDERED)
@@ -472,35 +580,74 @@ public class TmtiPanel extends JPanelWithEnablement {
     if (m.type == MessageType.REQUEST)
       return;
 
-    final Map<String, ExpNameToAnnotationFile> curRows = tmtAnnotationTable.fetchModel().dataCopy().stream()
+    final Map<String, ExpNameToAnnotationFile> oldRows = tmtAnnotationTable.fetchModel().dataCopy().stream()
         .collect(Collectors.toMap(row -> row.expName, row -> row));
-    List<String> expNames = m.files.stream().map(InputLcmsFile::getExperiment)
-        .distinct().sorted().collect(Collectors.toList());
-    List<ExpNameToAnnotationFile> newRows = m.files.stream().map(InputLcmsFile::getExperiment)
-        .distinct().sorted()
-        .map(name -> curRows.getOrDefault(name, new ExpNameToAnnotationFile(name, STRING_NO_PATH_SET)))
-        .collect(Collectors.toList());
+
+    // newly added files need to be added to corresponding rows
+    Map<String, List<InputLcmsFile>> filesByExp = m.files.stream()
+        .collect(Collectors.groupingBy(InputLcmsFile::getExperiment));
+    List<ExpNameToAnnotationFile> newRows = new ArrayList<>();
+    for (Entry<String, List<InputLcmsFile>> e : filesByExp.entrySet()) {
+      String expName = e.getKey();
+      List<InputLcmsFile> files = e.getValue();
+      ExpNameToAnnotationFile newRow = new ExpNameToAnnotationFile(expName, files, STRING_NO_PATH_SET);
+      ExpNameToAnnotationFile oldRow = oldRows.get(expName);
+      if (oldRow != null) {
+        newRow.setPath(oldRow.getPath());
+      }
+      newRows.add(newRow);
+    }
 
     tmtAnnotationTable.fetchModel().dataClear();
     tmtAnnotationTable.fetchModel().dataAddAll(newRows);
 
   }
 
+  private Path computePlexDir(String expName, Set<InputLcmsFile> lcmsFiles) {
+    List<Path> dirs = lcmsFiles.stream().map(f -> f.getPath().getParent()).distinct()
+        .collect(Collectors.toList());
+    if (dirs.size() > 1) {
+      String m = String
+          .format("<html>Not all LCMS files in experiment '%s' are in the same folder.<br/>\n"
+                  + "All LCMS files from the same plex should be in one directory:<br/>\n"
+                  + "%s",
+              expName,
+              lcmsFiles.stream().map(f -> f.getPath().toString()).collect(Collectors.joining("<br/>\n")));
+      JOptionPane.showMessageDialog(this, m, "Not all LCMS files in same dir", JOptionPane.WARNING_MESSAGE);
+      return null;
+    }
+    Path saveDir = null;
+    if (dirs.size() == 1) {
+      saveDir = dirs.get(0);
+    } else {
+      log.error("There were no LCMS files in the experiment for TMT annotation file selection. Should not happen, report to developers.");
+      return null;
+    }
+    return saveDir;
+  }
+
   public void actionPerformedBrowse(ActionEvent e)
   {
     int modelRow = Integer.parseInt( e.getActionCommand() );
     log.debug("Browse action running in TMT, model row number: {}", modelRow);
-    ExpNameToAnnotationFile row = tmtAnnotationTable.fetchModel().dataGet(modelRow);
+    final ExpNameToAnnotationFile row = tmtAnnotationTable.fetchModel().dataGet(modelRow);
+
+    Path saveDir = computePlexDir(row.getExpName(), row.lcmsFiles);
+    if (saveDir == null) {
+      return;
+    }
+
     JFileChooser fc = new JFileChooser();
     fc.setAcceptAllFileFilterUsed(true);
     fc.setMultiSelectionEnabled(false);
     Optional<Path> exisitngFile = Stream
         .of(row.path,
+            row.lcmsFiles.stream().map(f -> f.getPath().getParent().toString()).findFirst().orElse(null),
             ThisAppProps.load(PROP_LAST_ANNOTATION_PATH),
             ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN))
         .map(path -> {
           try {
-            return path == null ? null : Paths.get(path);
+            return StringUtils.isNullOrWhitespace(path) ? null : Paths.get(path);
           } catch (Exception ignore) {
             return null;
           }
@@ -517,7 +664,7 @@ public class TmtiPanel extends JPanelWithEnablement {
       try {
         annotations = parseTmtAnnotationFile(selectedFile);
       } catch (TmtAnnotationValidationException ex) {
-        SwingUtils.showErrorDialog(ex, TmtiPanel.this.scrollPaneTmtTable, false);
+        SwingUtils.showErrorDialogWithStacktrace(ex, TmtiPanel.this.scrollPaneTmtTable, false);
         return;
       }
 
@@ -537,11 +684,22 @@ public class TmtiPanel extends JPanelWithEnablement {
         }
       }
 
-      row.setPath(selectedFile.toString());
-      tmtAnnotationTable.fetchModel().fireTableDataChanged();
+      // copy the file
+      Path selectedPath = selectedFile.toPath();
+      Path dest = saveDir.resolve(selectedPath.getFileName());
+      if (!selectedPath.getParent().equals(saveDir)) {
+        try {
+          Files.copy(selectedPath, dest, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ex) {
+          throw new IllegalStateException(ex);
+        }
+      }
 
       // save the path
-      ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, selectedFile);
+      ThisAppProps.save(PROP_LAST_ANNOTATION_PATH, selectedFile);
+
+      row.setPath(dest.toString());
+      tmtAnnotationTable.fetchModel().fireTableDataChanged();
     }
   }
 
@@ -550,6 +708,11 @@ public class TmtiPanel extends JPanelWithEnablement {
     log.debug("Create action running in TMT, model row number: {}", modelRowIndex);
     ExpNameToAnnotationFile row = tmtAnnotationTable.fetchModel().dataGet(modelRowIndex);
     String pathInRow = row.getPath();
+
+    Path saveDir = computePlexDir(row.getExpName(), row.lcmsFiles);
+    if (saveDir == null) {
+      return;
+    }
 
     Path existingPath = null;
     try {
@@ -585,15 +748,29 @@ public class TmtiPanel extends JPanelWithEnablement {
     while (selectedPath == null) {
       JFileChooser fc = new JFileChooser();
       fc.setDialogTitle("Specify a file to save");
-      String suggestedPaths = Stream
-          .of(existingPath != null ? existingPath.toString() : null,
+      String suggestedPath = Stream
+          .of(existingPath != null ? saveDir.resolve(existingPath.getFileName()).toString() : saveDir.toString(),
               ThisAppProps.load(TmtiPanel.PROP_LAST_ANNOTATION_PATH),
               ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN))
           .filter(Objects::nonNull).findFirst().orElse(null);
-      SwingUtils.setFileChooserPath(fc, suggestedPaths);
+      SwingUtils.setFileChooserPath(fc, suggestedPath);
+      fc.setCurrentDirectory(Paths.get(suggestedPath).toFile());
       int userSelection = fc.showSaveDialog(parent);
       if (JFileChooser.APPROVE_OPTION == userSelection) {
         selectedPath = fc.getSelectedFile().toPath();
+        if (!selectedPath.getParent().equals(saveDir)) {
+
+          String msg = "<html>Current implementation requires annotation files to be saved<br/>\n"
+              + "in the same directory as LCMS files for that plex. Please save the<br/>\n"
+              + "file in:<br/>\n<br/>\n" + saveDir.toString();
+          String htmlMsg = SwingUtils.makeHtml(msg);
+
+          SwingUtils.showWarningDialog(this,
+              htmlMsg,
+              "Select different location");
+          selectedPath = null;
+          continue;
+        }
         log.debug("User selected to save annotattion in file: {}", selectedPath.toString());
       } else {
         log.debug("User selected NOT to save annotattion in file");
@@ -615,7 +792,7 @@ public class TmtiPanel extends JPanelWithEnablement {
             Files.deleteIfExists(selectedPath);
             savePath = selectedPath;
           } catch (IOException ex) {
-            SwingUtils.showErrorDialog(ex, parent);
+            SwingUtils.showErrorDialogWithStacktrace(ex, parent);
             log.warn("Something happened while deleting file", ex);
           }
 
@@ -638,7 +815,7 @@ public class TmtiPanel extends JPanelWithEnablement {
       Files.write(savePath, userAnnotationsList, StandardOpenOption.CREATE_NEW);
       ThisAppProps.save(PROP_LAST_ANNOTATION_PATH, savePath.toFile());
     } catch (IOException ex) {
-      SwingUtils.showErrorDialog(ex, parent);
+      SwingUtils.showErrorDialogWithStacktrace(ex, parent);
     }
 
     row.setPath(savePath.toString());
@@ -653,5 +830,30 @@ public class TmtiPanel extends JPanelWithEnablement {
       log.warn("Could not fully read file", e);
     }
     return null;
+  }
+
+  public void formToConfig(Writer w, int ramGb, String pathTmtiJar, String pathFasta, String pathOutput) {
+    Map<String, String> map = SwingUtils.valuesToMap(this);
+    final Map<String, String> mapConv = new HashMap<>();
+    map.forEach((k, v) ->
+    {
+      String prop = StringUtils.afterLastDot(k);
+      if (!TmtiConfProps.PROPS.contains(prop)) {
+        return; // skip values that are not officially supported in config file
+      }
+      mapConv.put(prop, CONVERT_TO_FILE.getOrDefault(prop, Function.identity()).apply(v));
+    });
+
+    mapConv.put("path", pathTmtiJar);
+    mapConv.put("memory", Integer.toString(ramGb));
+    mapConv.put("protein_database", pathFasta);
+    mapConv.put("output", pathOutput);
+
+    try {
+      TmtiConfig.write(mapConv, w);
+    } catch (IOException e) {
+      log.error("Error writing TMT-Integrator config", e);
+      throw new IllegalStateException(e);
+    }
   }
 }

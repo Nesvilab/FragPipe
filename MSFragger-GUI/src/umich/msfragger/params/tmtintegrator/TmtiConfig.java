@@ -1,6 +1,23 @@
 package umich.msfragger.params.tmtintegrator;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import umich.msfragger.util.StringUtils;
+
 public class TmtiConfig {
+  private static final Logger log = LoggerFactory.getLogger(TmtiConfig.class);
   private Props tmtintegrator;
 
   public Props getTmtintegrator() {
@@ -237,5 +254,35 @@ public class TmtiConfig {
     public void setPrint_RefInt(boolean print_RefInt) {
       this.print_RefInt = print_RefInt;
     }
+  }
+
+  public static void write(Map<String, String> map, Writer w) throws IOException {
+    final String space = "  ";
+    w.write("tmtintegrator:\n");
+    for (Entry<String, String> e : map.entrySet()) {
+      w.write(String.format("%s%s: %s\n", space, e.getKey(), e.getValue()));
+    }
+  }
+
+  public static Map<String, String> getDefaultAsMap() {
+    final String fn = "tmt-i_param_default.yml";
+    final String resoucePath = "umich/msfragger/params/tmtintegrator/" + fn;
+    final Map<String, String> map = new LinkedHashMap<>();
+    try (InputStream is = TmtiConfig.class.getClassLoader().getResourceAsStream(resoucePath)) {
+      if (is == null)
+        throw new IllegalStateException("Resource missing: " + resoucePath);
+      List<String> lines = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
+          .lines().filter(s -> !StringUtils.isNullOrWhitespace(s)).collect(Collectors.toList());
+      lines.stream().forEach(l -> {
+        String[] s = l.split(":", 2);
+        if (s.length != 2 || Arrays.stream(s).anyMatch(StringUtils::isNullOrWhitespace))
+          return;
+        map.put(s[0].trim(), StringUtils.upToLastChar(s[1], '#', false).trim());
+      });
+
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+    return map;
   }
 }

@@ -14,12 +14,12 @@ import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.UsageTrigger;
 
-public class CmdReportFreequant extends CmdBase {
+public class CmdFreequant extends CmdBase {
 
-  public static final String NAME = "Freequant";
+  public static final String NAME = "FreeQuant";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML");
 
-  public CmdReportFreequant(boolean isRun, Path workDir) {
+  public CmdFreequant(boolean isRun, Path workDir) {
     super(isRun, workDir);
   }
 

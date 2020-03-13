@@ -1,11 +1,16 @@
 package umich.msfragger.params.tmtintegrator;
 
 import java.awt.event.MouseEvent;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.table.JTableHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.SimpleUniqueTableModel;
 import umich.msfragger.gui.api.TableModelColumn;
@@ -80,13 +85,16 @@ public class TmtAnnotationTable extends SimpleETable {
 
   public static class ExpNameToAnnotationFile {
     public String expName;
+    public Set<InputLcmsFile> lcmsFiles = new HashSet<>();
     public String path;
 
     public ExpNameToAnnotationFile() {
     }
 
-    public ExpNameToAnnotationFile(String expName, String path) {
+    public ExpNameToAnnotationFile(String expName, Collection<? extends InputLcmsFile> lcmsFiles, String path) {
       this.expName = expName;
+      if (lcmsFiles != null)
+        this.lcmsFiles.addAll(lcmsFiles);
       this.path = path;
     }
 

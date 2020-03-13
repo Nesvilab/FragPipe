@@ -1,12 +1,12 @@
 package umich.msfragger.params.tmtintegrator;
 
-public class ComboValue {
-  public final String valInFile;
+public class ComboValue implements UiRepresentableValue {
+  public final String valInConfig;
   public final String valInUi;
   public final String description;
 
-  public ComboValue(String valInFile, String valInUi, String description) {
-    this.valInFile = valInFile;
+  public ComboValue(String valInConfig, String valInUi, String description) {
+    this.valInConfig = valInConfig;
     this.valInUi = valInUi;
     this.description = description;
   }
@@ -15,10 +15,12 @@ public class ComboValue {
     this(valueInFile, valInUi, "");
   }
 
-  public String getValInFile() {
-    return valInFile;
+  @Override
+  public String getValInConfig() {
+    return valInConfig;
   }
 
+  @Override
   public String getValInUi() {
     return valInUi;
   }

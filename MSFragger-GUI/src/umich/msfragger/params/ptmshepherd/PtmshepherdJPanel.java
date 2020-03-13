@@ -101,7 +101,7 @@ public class PtmshepherdJPanel extends JPanelWithEnablement {
       SwingUtils.valuesFromMap(this, PropertiesUtils.to(props));
     } catch (Exception e) {
       log.error("Error loading shepherd defaults", e);
-      SwingUtils.showErrorDialog(e, this);
+      SwingUtils.showErrorDialogWithStacktrace(e, this);
     }
 
   }

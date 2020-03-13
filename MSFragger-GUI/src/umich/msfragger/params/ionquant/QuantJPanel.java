@@ -4,7 +4,6 @@ import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiRadio;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.Properties;
@@ -96,7 +95,7 @@ public class QuantJPanel extends JPanelWithEnablement {
       SwingUtils.valuesFromMap(this, PropertiesUtils.to(props));
     } catch (Exception e) {
       log.error("Error loading quant defaults", e);
-      SwingUtils.showErrorDialog(e, this);
+      SwingUtils.showErrorDialogWithStacktrace(e, this);
     }
   }
 

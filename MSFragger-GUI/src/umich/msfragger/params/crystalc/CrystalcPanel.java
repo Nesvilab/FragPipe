@@ -168,7 +168,7 @@ public class CrystalcPanel extends JPanelWithEnablement {
       SwingUtils.valuesFromMap(this, map);
     } catch (Exception e) {
       log.error("Error loading Crystal-C defaults", e);
-      SwingUtils.showErrorDialog(e, this);
+      SwingUtils.showErrorDialogWithStacktrace(e, this);
     }
   }
 

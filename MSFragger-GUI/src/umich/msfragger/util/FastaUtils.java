@@ -260,7 +260,7 @@ public class FastaUtils {
       try {
         fastaContent = readFasta(p);
       } catch (IOException e) {
-        SwingUtils.showErrorDialog(e, comp);
+        SwingUtils.showErrorDialogWithStacktrace(e, comp);
         isError = true;
         return this;
       }
