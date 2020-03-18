@@ -137,7 +137,9 @@ public class CmdSpecLibGen extends CmdBase {
         cmd.add("protxml_not_used_by_easyPQP"); // protxml file
         cmd.add(groupWd.toString()); // output directory
         cmd.add("True"); // overwrite (true/false), optional arg
-        // cmd.add(usePhilosopher.useBin()); // philosopher binary path (not needed for easyPQP)
+        cmd.add("usePhilosopher.useBin()"); // philosopher binary path (not needed for easyPQP)
+        cmd.add("use_easypqp"); // philosopher binary path (not needed for easyPQP)
+        cmd.add("iRT"); // retention time alignment options
       } else {
         cmd.add(fastaPath);
         cmd.add(groupWd.toString()); // this is "Pep xml directory"

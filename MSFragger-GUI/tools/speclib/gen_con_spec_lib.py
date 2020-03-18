@@ -19,14 +19,33 @@ import shutil
 import numpy as np
 import pandas as pd
 
-use_spectrast: bool = len(sys.argv) >= 7
-use_easypqp: bool = not use_spectrast
-
-assert use_spectrast ^ use_easypqp
-
 if sys.version_info[:2] >= (3, 7):
 	sys.stdout.reconfigure(encoding='utf-8')
 	sys.stderr.reconfigure(encoding='utf-8')
+
+use_easypqp: bool = len(sys.argv) >= 8 and sys.argv[7].casefold() == 'use_easypqp'
+use_spectrast: bool = not use_easypqp
+
+class Irt_choice(enum.Enum):
+	iRT = enum.auto()
+	ciRT = enum.auto()
+	userRT = enum.auto()
+
+if use_easypqp:
+	is_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'irt'
+	is_ciRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'cirt'
+	is_userRT = len(sys.argv) >= 9 and pathlib.Path(sys.argv[8]).exists()
+	userRT_file = pathlib.Path(sys.argv[8]).resolve(strict=True) if is_userRT else None
+	irt_choice = Irt_choice.iRT \
+		if is_iRT else \
+		Irt_choice.ciRT if is_ciRT else \
+			Irt_choice.userRT if userRT_file else \
+				None
+	if irt_choice is None:
+		raise RuntimeError('invalid iRT')
+
+assert use_spectrast ^ use_easypqp
+
 
 def get_bin_path(dist, bin_stem):
 	'''
@@ -244,7 +263,7 @@ TEMP_FILES = ['input000.splib', 'input000.spidx', 'input000.pepidx',
 			  'con_lib_not_in_psm_tsv.tsv']
 
 if use_spectrast:
-	sq_sys_exec = shlex.quote(sys.executable)
+	sq_sys_exec = (sys.executable)
 	spectrast_cmds_part1= fr'''
 ## Generate .pepidx file
 {sq_sys_exec} {script_dir / "spectrast_gen_pepidx.py"} -i input.splib -o input_irt.splib
@@ -582,7 +601,12 @@ c|-0.02|AmidatedCorrected
 def main_easypqp():
 
 	output_directory.mkdir(exist_ok=overwrite)
-	irt_df.to_csv(irt_file, index=False, sep='\t', line_terminator='\n')
+	if irt_choice is Irt_choice.iRT:
+		irt_df.to_csv(irt_file, index=False, sep='\t', line_terminator='\n')
+	elif irt_choice is Irt_choice.ciRT:
+		shutil.copyfile(script_dir / 'hela_irtkit.tsv', irt_file)
+	elif irt_choice is Irt_choice.userRT:
+		shutil.copyfile(userRT_file, irt_file)
 	print(f'''Spectral library building
 Commands to execute:
 {allcmds}
