@@ -37,10 +37,11 @@ public class CmdLabelquant extends CmdBase {
       return false;
     }
 
+
+
     for (Map.Entry<LcmsFileGroup, Path> e : annotations.entrySet()) {
       final LcmsFileGroup group = e.getKey();
-      final Path annotation = e.getValue();
-
+      final Path annotationFile = e.getValue();
       final Set<Path> lcmsGroupParentDir = group.lcmsFiles.stream()
           .map(f -> f.getPath().getParent())
           .collect(Collectors.toSet());
@@ -53,6 +54,13 @@ public class CmdLabelquant extends CmdBase {
 
       final Path lcmsDir = lcmsGroupParentDir.iterator().next().toAbsolutePath();
       final Path groupWd = group.outputDir(wd);
+
+      if (!lcmsDir.equals(annotationFile.getParent())) {
+        String msg = "LCMS files for an experiment/group must be in the same direcotry\n"
+            + "as the annotation file for " + NAME + " to work.";
+        SwingUtils.showWarningDialog(comp, msg, NAME + " Config");
+        return false;
+      }
 
       List<String> cmd = new ArrayList<>();
       cmd.add(phi.useBin(groupWd));
@@ -71,15 +79,21 @@ public class CmdLabelquant extends CmdBase {
       cmd.add("--plex");
       cmd.add(Integer.toString(label.getReagentNames().size()));
       cmd.add("--annot");
-      if (!annotation.getParent().equals(lcmsDir)) {
-        String msg = String.format("Current implementation requires the annotation file:\n\n"
-            + "%s\n\n"
-            + "to be in the same directory as corresponding LCMS files:\n\n"
-            + "%s", annotation.toString(), lcmsDir.toString());
+      if (annotationFile == null || StringUtils.isNullOrWhitespace(annotationFile.toString())) {
+        String msg = String.format("Need to specify TMT file annotations in TMT-Integrator\n"
+            + "configuration.\n");
         SwingUtils.showWarningDialog(comp, msg, NAME + " Error");
         return false;
       }
-      cmd.add(annotation.getFileName().toString());
+      if (!annotationFile.getParent().equals(lcmsDir)) {
+        String msg = String.format("Current implementation requires the annotation file:\n\n"
+            + "%s\n\n"
+            + "to be in the same directory as corresponding LCMS files:\n\n"
+            + "%s", annotationFile.toString(), lcmsDir.toString());
+        SwingUtils.showWarningDialog(comp, msg, NAME + " Error");
+        return false;
+      }
+      cmd.add(annotationFile.getFileName().toString());
 
       cmd.add("--brand");
       if (!"tmt".equalsIgnoreCase(label.getType())) {
@@ -91,6 +105,7 @@ public class CmdLabelquant extends CmdBase {
       cmd.add("--dir");
       cmd.add(lcmsDir.toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);
+      // labelQuant needs to be executed in the dir where mzml files are (and the annotation file)
       pb.directory(groupWd.toFile());
 
       pbis.add(PbiBuilder.from(pb));

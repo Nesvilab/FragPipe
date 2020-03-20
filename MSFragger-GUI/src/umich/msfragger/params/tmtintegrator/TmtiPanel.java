@@ -18,7 +18,6 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -211,14 +210,14 @@ public class TmtiPanel extends JPanelWithEnablement {
       actionBrowse = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) {
-          TmtiPanel.this.actionPerformedBrowse(e);
+          TmtiPanel.this.actionBrowse(e);
         }
       };
 
       actionCreate = new AbstractAction() {
         @Override
         public void actionPerformed(ActionEvent e) {
-          TmtiPanel.this.actionPerformedEditCreate(e);
+          TmtiPanel.this.actionEditCreate(e);
         }
       };
       colBrowse = new ButtonColumn(tmtAnnotationTable, actionBrowse, 2);
@@ -530,31 +529,47 @@ public class TmtiPanel extends JPanelWithEnablement {
       throw new TmtAnnotationValidationException("File does not exist");
     List<String> lines;
     try {
-      lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
+      lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8).stream()
+          .filter(l -> !StringUtils.isNullOrWhitespace(l)).collect(Collectors.toList());
     } catch (IOException e) {
       throw new TmtAnnotationValidationException(e);
     }
-    final long nonEmptyLinesCount = lines.stream()
-        .filter(line -> !StringUtils.isNullOrWhitespace(line)).count();
-    Optional<QuantLabel> label = QuantLabel.LABELS.stream()
-        .filter(ql -> ql.getReagentNames().size() == nonEmptyLinesCount).findFirst();
-    if (!label.isPresent()) {
-      throw new TmtAnnotationValidationException("No known labels with " + nonEmptyLinesCount + " reagents.");
-    }
 
     List<QuantLabelAnnotation> annotations = new ArrayList<>();
-    for (int i = 0; i < lines.size(); i++) {
-      String line = lines.get(i);
+    for (String line : lines) {
       if (StringUtils.isNullOrWhitespace(line))
         continue;
       String[] split = line.split("[ ]+", 2);
-      if (!label.get().getReagentNames().contains(split[0])) {
-        throw new TmtAnnotationValidationException(
-            String.format("Line %d contains unknown labeling reagent name: %s", i + 1, split[0]));
-      }
       annotations.add(new QuantLabelAnnotation(split[0], split[1]));
     }
     return annotations;
+  }
+
+  private static QuantLabel validateAnnotations(List<QuantLabelAnnotation> annoations)
+      throws TmtAnnotationValidationException {
+
+    List<QuantLabel> matching = QuantLabel.LABELS.stream()
+        .filter(ql -> ql.getReagentNames().size() == annoations.size())
+        .filter(ql -> ql.getReagentNames().containsAll(annoations.stream()
+            .map(QuantLabelAnnotation::getLabel).collect(Collectors.toList())))
+        .collect(Collectors.toList());
+    if (matching.isEmpty()) {
+      Set<String> knownLabelNames = QuantLabel.LABELS.stream()
+          .flatMap(ql -> ql.getReagentNames().stream())
+          .collect(Collectors.toSet());
+      String unknownLabelNames = annoations.stream()
+          .filter(qla -> !knownLabelNames.contains(qla.getLabel()))
+          .map(QuantLabelAnnotation::getLabel).distinct().collect(Collectors.joining(", "));
+      throw new TmtAnnotationValidationException("No known quant label types match labeling\n"
+          + "reagent names in given annotations."
+          + (unknownLabelNames.isEmpty() ? "" : ("\nUnknown label names: " + unknownLabelNames)));
+    }
+    if (matching.size() > 1) {
+      throw new TmtAnnotationValidationException("Multiple known quant label types match labeling\n"
+          + "reagent names in given annotations:\n" + matching.stream()
+          .map(QuantLabel::getName).collect(Collectors.joining(", ")));
+    }
+    return matching.get(0);
   }
 
   public boolean isRun() {
@@ -608,12 +623,12 @@ public class TmtiPanel extends JPanelWithEnablement {
         .collect(Collectors.toList());
     if (dirs.size() > 1) {
       String m = String
-          .format("<html>Not all LCMS files in experiment '%s' are in the same folder.<br/>\n"
-                  + "All LCMS files from the same plex should be in one directory:<br/>\n"
+          .format("Not all LCMS files in experiment '%s' are in the same folder.\n"
+                  + "All LCMS files from the same plex should be in one directory:\n"
                   + "%s",
               expName,
-              lcmsFiles.stream().map(f -> f.getPath().toString()).collect(Collectors.joining("<br/>\n")));
-      JOptionPane.showMessageDialog(this, m, "Not all LCMS files in same dir", JOptionPane.WARNING_MESSAGE);
+              lcmsFiles.stream().map(f -> f.getPath().toString()).collect(Collectors.joining("\n")));
+      SwingUtils.showWarningDialog(this, m, "Not all LCMS files in same dir");
       return null;
     }
     Path saveDir = null;
@@ -626,14 +641,15 @@ public class TmtiPanel extends JPanelWithEnablement {
     return saveDir;
   }
 
-  public void actionPerformedBrowse(ActionEvent e)
+  public void actionBrowse(ActionEvent e)
   {
     int modelRow = Integer.parseInt( e.getActionCommand() );
     log.debug("Browse action running in TMT, model row number: {}", modelRow);
     final ExpNameToAnnotationFile row = tmtAnnotationTable.fetchModel().dataGet(modelRow);
 
-    Path saveDir = computePlexDir(row.getExpName(), row.lcmsFiles);
-    if (saveDir == null) {
+    Path expDir = computePlexDir(row.getExpName(), row.lcmsFiles);
+    if (expDir == null) {
+      log.error("No LCMS files in experiment '{}' when browsing for TMT annotation file. Should not happen", row.getExpName());
       return;
     }
 
@@ -642,7 +658,7 @@ public class TmtiPanel extends JPanelWithEnablement {
     fc.setMultiSelectionEnabled(false);
     Optional<Path> exisitngFile = Stream
         .of(row.path,
-            row.lcmsFiles.stream().map(f -> f.getPath().getParent().toString()).findFirst().orElse(null),
+            expDir.toString(),
             ThisAppProps.load(PROP_LAST_ANNOTATION_PATH),
             ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN))
         .map(path -> {
@@ -652,42 +668,47 @@ public class TmtiPanel extends JPanelWithEnablement {
             return null;
           }
         })
-        .filter(Objects::nonNull)
-        .filter(path -> Files.exists(path))
+        .filter(Objects::nonNull).filter(path -> Files.exists(path))
         .findFirst();
 
-    exisitngFile.ifPresent(path -> fc.setSelectedFile(path.toFile()));
+    exisitngFile.ifPresent(path -> fc.setCurrentDirectory(path.toFile()));
     final int answer = fc.showDialog(TmtiPanel.this.scrollPaneTmtTable, "Select");
     if (JOptionPane.OK_OPTION == answer) {
       File selectedFile = fc.getSelectedFile();
       List<QuantLabelAnnotation> annotations;
+      QuantLabel matchingLabel;
       try {
         annotations = parseTmtAnnotationFile(selectedFile);
+        matchingLabel = validateAnnotations(annotations);
       } catch (TmtAnnotationValidationException ex) {
         SwingUtils.showErrorDialogWithStacktrace(ex, TmtiPanel.this.scrollPaneTmtTable, false);
         return;
       }
 
-      // do the annotations match anything known to us?
-      Optional<QuantLabel> known = QuantLabel.LABELS.stream()
-          .filter(ql -> ql.getReagentNames().size() == annotations.size()).findFirst();
-      if (!known.isPresent()) throw new IllegalStateException("No known labels match");
+      if (!expDir.equals(selectedFile.toPath().getParent())) {
+        String m = String.format(
+            "Current implementation requires the annotation file to be\n"
+                + "in the same directory as corresponding LCMS files.\n"
+                + "Please select or create a file in:\n%s", expDir);
+        SwingUtils.showWarningDialog(this, m, "Bad annotation file path");
+        return;
+      }
 
       // maybe update selected Label Type (aka number of channels)?
-      if (!getSelectedLabel().getName().equalsIgnoreCase(known.get().getName())) {
+      if (!getSelectedLabel().getName().equalsIgnoreCase(matchingLabel.getName())) {
         int confirmation = SwingUtils.showConfirmDialog(TmtiPanel.this,
             new JLabel(String.format("<html>Loaded file looks to be for %s.<br/>\n"
-                + "Load configuration preset for that label?", known.get().getName())));
+                + "Load configuration preset for that label?", matchingLabel.getName())));
         if (JOptionPane.OK_OPTION == confirmation) {
           log.debug("User selected to load config preset for known label");
-          uiComboLabelNames.setSelectedItem(known.get().getName());
+          uiComboLabelNames.setSelectedItem(matchingLabel.getName());
         }
       }
 
       // copy the file
       Path selectedPath = selectedFile.toPath();
-      Path dest = saveDir.resolve(selectedPath.getFileName());
-      if (!selectedPath.getParent().equals(saveDir)) {
+      Path dest = expDir.resolve(selectedPath.getFileName());
+      if (!selectedPath.getParent().equals(expDir)) {
         try {
           Files.copy(selectedPath, dest, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ex) {
@@ -703,7 +724,7 @@ public class TmtiPanel extends JPanelWithEnablement {
     }
   }
 
-  public void actionPerformedEditCreate(ActionEvent e) {
+  public void actionEditCreate(ActionEvent e) {
     int modelRowIndex = Integer.parseInt( e.getActionCommand() );
     log.debug("Create action running in TMT, model row number: {}", modelRowIndex);
     ExpNameToAnnotationFile row = tmtAnnotationTable.fetchModel().dataGet(modelRowIndex);

@@ -580,7 +580,7 @@ public class MsfraggerGuiFrameUtils {
     JOptionPane.showMessageDialog(guiFrame, ep, "About", JOptionPane.INFORMATION_MESSAGE);
   }
 
-  static void checkPreviouslySavedParams(MsfraggerGuiFrame guiFrame) {
+  public static void checkPreviouslySavedParams(MsfraggerGuiFrame guiFrame) {
     log.debug("entered checkPreviouslySavedParams");
     ThisAppProps cached = ThisAppProps.loadFromTemp();
     if (cached != null) {
@@ -651,7 +651,7 @@ public class MsfraggerGuiFrameUtils {
     }
   }
 
-  static void actionSelectWorkingDir(MsfraggerGuiFrame guiFrame) {
+  public static void actionSelectWorkingDir(MsfraggerGuiFrame guiFrame) {
     JFileChooser fc = new JFileChooser();
     //FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("FASTA files", "fa", "fasta");
     //fileChooser.setFileFilter(fileNameExtensionFilter);
@@ -685,7 +685,7 @@ public class MsfraggerGuiFrameUtils {
     }
   }
 
-  static void exportLogToFile(MsfraggerGuiFrame guiFrame) {
+  public static void exportLogToFile(MsfraggerGuiFrame guiFrame) {
     if (guiFrame.console == null) {
       return;
     }
@@ -723,7 +723,7 @@ public class MsfraggerGuiFrameUtils {
 
   }
 
-  static void saveLogToFile(TextConsole console, Path path) {
+  public static void saveLogToFile(TextConsole console, Path path) {
     final String text = console.getText().replaceAll("[^\n]+\u200B" + System.getProperty("line.separator"), "");
     byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
     try {
@@ -733,7 +733,7 @@ public class MsfraggerGuiFrameUtils {
     }
   }
 
-  static void checkPython(MsfraggerGuiFrame guiFrame) {
+  public static void checkPython(MsfraggerGuiFrame guiFrame) {
     String path = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_PYTHON);
     PythonInfo pi = PythonInfo.get();
     if (path != null) {
@@ -773,7 +773,7 @@ public class MsfraggerGuiFrameUtils {
     }
   }
 
-  static void actionDbspliceInitDone(JEditorPane epDbsliceInfo, MessageInitDone m) {
+  public static void actionDbspliceInitDone(JEditorPane epDbsliceInfo, MessageInitDone m) {
     final Map<MessageInitDone.REASON, String> map = new HashMap<>();
     map.put(MessageInitDone.REASON.PY_VER, "Python 3 is required.");
     map.put(MessageInitDone.REASON.WRONG_FRAGGER, "Latest version of MSFragger is required.");
@@ -807,7 +807,7 @@ public class MsfraggerGuiFrameUtils {
     }
   }
 
-  static void initEditorPaneSeqDb(JEditorPane editorSequenceDb) {
+  public static void initEditorPaneSeqDb(JEditorPane editorSequenceDb) {
     // for copying style
     JLabel label = new JLabel();
     Font font = label.getFont();
@@ -864,7 +864,7 @@ public class MsfraggerGuiFrameUtils {
     ep.setBackground(label.getBackground());
   }
 
-  static boolean validateAndSavePhilosopherPath(final MsfraggerGuiFrame guiFrame, final String path) {
+   public static boolean validateAndSavePhilosopherPath(final MsfraggerGuiFrame guiFrame, final String path) {
 
     Path p = null;
     try {
@@ -982,7 +982,7 @@ public class MsfraggerGuiFrameUtils {
     return isPathValid;
   }
 
-  static void validatePhilosopherVersion(MsfraggerGuiFrame guiFrame, final String binPath) {
+   public static void validatePhilosopherVersion(MsfraggerGuiFrame guiFrame, final String binPath) {
     if (guiFrame.balloonPhilosopher != null) {
       guiFrame.balloonPhilosopher.closeBalloon();
     }
@@ -1001,7 +1001,7 @@ public class MsfraggerGuiFrameUtils {
     }).start();
   }
 
-  static boolean validateMsfraggerPath(String path) {
+   public static boolean validateMsfraggerPath(String path) {
     File f = new File(path);
     if (!f.getName().toLowerCase().endsWith(".jar")) {
       return false;
@@ -1011,7 +1011,7 @@ public class MsfraggerGuiFrameUtils {
 
   }
 
-  static boolean validateMsfraggerVersion(MsfraggerGuiFrame guiFrame, final String jarPath) {
+   public static boolean validateMsfraggerVersion(MsfraggerGuiFrame guiFrame, final String jarPath) {
     // only validate Fragger version if the current Java version is 1.8 or higher
     if (!SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8)) {
       // we can't test fragger binary verison when java version is less than 1.8
@@ -1169,7 +1169,7 @@ public class MsfraggerGuiFrameUtils {
     return true;
   }
 
-  static void validateAndSaveDecoyTagSeqDb(String textDecoyTagFocusGained,
+   public static void validateAndSaveDecoyTagSeqDb(String textDecoyTagFocusGained,
       JTextField textDecoyTagSeqDb,
       HashMap<String, BalloonTip> tipMap,
       final String newText,
@@ -1202,7 +1202,7 @@ public class MsfraggerGuiFrameUtils {
    * @param path file to check.
    * @return True if it's a real JAR file with MSFragger.class at the top level inside.
    */
-  static boolean validateAndSaveMsfraggerPath(MsfraggerGuiFrame guiFrame, final String path) {
+   public static boolean validateAndSaveMsfraggerPath(MsfraggerGuiFrame guiFrame, final String path) {
     boolean isJarValid = validateMsfraggerJarContents(path);
     if (isJarValid) {
       guiFrame.getTextBinMsfragger().setText(path);
@@ -1258,7 +1258,7 @@ public class MsfraggerGuiFrameUtils {
     return isJarValid;
   }
 
-  static boolean validateMsfraggerJarContents(String path) {
+   public static boolean validateMsfraggerJarContents(String path) {
     if (!validateMsfraggerPath(path)) {
       return false;
     }
@@ -1292,7 +1292,7 @@ public class MsfraggerGuiFrameUtils {
     return found[0];
   }
 
-  static boolean validateMsfraggerJavaVersion(Color balloonBgColor, String fraggerVer,
+   public static boolean validateMsfraggerJavaVersion(Color balloonBgColor, String fraggerVer,
       JLabel lblFraggerJavaVer, JTextField textBinMsfragger, HashMap<String, BalloonTip> tipMap) {
     final boolean javaAtLeast18 = SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8);
     final boolean is64bitJava = System.getProperty("sun.arch.data.model").equals("64");
@@ -1336,7 +1336,7 @@ public class MsfraggerGuiFrameUtils {
     return javaAtLeast18 && is64bitJava;
   }
 
-  static String createFraggerCitationHtml(JLabel lblFraggerJavaVer) {
+  public static String createFraggerCitationHtml(JLabel lblFraggerJavaVer) {
 
     // for copying style
     Font font = lblFraggerJavaVer.getFont();
@@ -1380,7 +1380,7 @@ public class MsfraggerGuiFrameUtils {
     return sb.toString();
   }
 
-  static boolean validateAndSaveFastaPath(final MsfraggerGuiFrame guiFrame, String path) {
+   public static boolean validateAndSaveFastaPath(final MsfraggerGuiFrame guiFrame, String path) {
     boolean isValid = validateFastaPath(path);
     if (isValid) {
       guiFrame.getTextSequenceDbPath().setText(path);
@@ -1435,7 +1435,7 @@ public class MsfraggerGuiFrameUtils {
     return isValid;
   }
 
-  static boolean validateFastaPath(String path) {
+   public static boolean validateFastaPath(String path) {
     if (StringUtils.isNullOrWhitespace(path)) {
       return false;
     }
@@ -1447,7 +1447,7 @@ public class MsfraggerGuiFrameUtils {
     }
   }
 
-  static void validateAndSavePeptideProphetCmdLineOptions(JTextArea textPepProphCmd,
+   public static void validateAndSavePeptideProphetCmdLineOptions(JTextArea textPepProphCmd,
       String textPepProphetFocusGained, HashMap<String, BalloonTip> tipMap) {
     final JTextComponent comp = textPepProphCmd;
     final boolean isValid = validateAndSave(tipMap, comp, ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET,
@@ -1475,7 +1475,7 @@ public class MsfraggerGuiFrameUtils {
     DbSlice.get().init(fraggerVer);
   }
 
-  static void urlEventHandle(HyperlinkEvent evt) {
+   public static void urlEventHandle(HyperlinkEvent evt) {
     if (evt.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
 
       URI uri;
@@ -1505,7 +1505,7 @@ public class MsfraggerGuiFrameUtils {
     }
   }
 
-  static void userLoadForms(MsfraggerGuiFrame guiFrame) {
+   public static void userLoadForms(MsfraggerGuiFrame guiFrame) {
      FileNameExtensionFilter filter = new FileNameExtensionFilter("Config/Properties",
     "config", "properties", "params", "para", "conf", "txt");
     Path p = userShowLoadFileDialog("Load all FragPipe parameters", filter, guiFrame);
@@ -1521,7 +1521,7 @@ public class MsfraggerGuiFrameUtils {
     }
   }
 
-  static String createPhilosopherCitationHtml(JLabel lblFraggerJavaVer) {
+  public static String createPhilosopherCitationHtml(JLabel lblFraggerJavaVer) {
     // for copying style
     Font font = lblFraggerJavaVer.getFont();
 
@@ -1551,7 +1551,7 @@ public class MsfraggerGuiFrameUtils {
     return sb.toString();
   }
 
-  static void userSaveForms(MsfraggerGuiFrame guiFrame) {
+   public static void userSaveForms(MsfraggerGuiFrame guiFrame) {
     Path p = userShowSaveFileDialog("Save all FragPipe parameters", "fragpipe.config", guiFrame);
     if (p == null) {
       return;
@@ -1568,7 +1568,7 @@ public class MsfraggerGuiFrameUtils {
   /**
    * Fills all tabs' components that have names with values from the map.
    */
-  static void formFrom(JTabbedPane tabPane, Map<String, String> map) {
+  public static void formFrom(JTabbedPane tabPane, Map<String, String> map) {
     for (int i = 0; i < tabPane.getTabCount(); i++) {
       Component compAt = tabPane.getComponentAt(i);
       if (compAt instanceof Container) {
@@ -1577,11 +1577,11 @@ public class MsfraggerGuiFrameUtils {
     }
   }
 
-  static String validatePhilosopherPath(String path) {
+   public static String validatePhilosopherPath(String path) {
     return PathUtils.testBinaryPath(path);
   }
 
-  static Path tryFindStartingPath(String currentPath) {
+   public static Path tryFindStartingPath(String currentPath) {
     try {
       Path path = Paths.get(currentPath);
       if (Files.exists(path)) {
@@ -1601,7 +1601,7 @@ public class MsfraggerGuiFrameUtils {
     return null;
   }
 
-  static void saveWorkdirText(JTextField txtWorkingDir) {
+   public static void saveWorkdirText(JTextField txtWorkingDir) {
     final String text = txtWorkingDir.getText().trim();
     try {
       Path p = Paths.get(text);
@@ -1611,7 +1611,7 @@ public class MsfraggerGuiFrameUtils {
     } catch (Exception ignore) {}
   }
 
-  static void downloadPhilosopher() {
+  public static void downloadPhilosopher() {
 
     try {
       Desktop.getDesktop()
@@ -1622,7 +1622,7 @@ public class MsfraggerGuiFrameUtils {
     }
   }
 
-  static void validateMsadjusterEligibility(String fraggerVer) {
+   public static void validateMsadjusterEligibility(String fraggerVer) {
 //    new Thread(() -> {
 //    }).start();
     boolean enableMsadjuster = false;

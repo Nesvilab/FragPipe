@@ -16,8 +16,8 @@ public class QuantLabel {
   static {
     List<QuantLabel> labels = new ArrayList<>();
     labels.add(new QuantLabel("TMT", "TMT-6", Arrays.asList("126, 127, 128, 129, 130, 131".split("[,\\s]+"))));
-    labels.add(new QuantLabel("TMT", "TMT-10", Arrays.asList("126, 127N, 127C, 128N, 128C, 129N, 129C, 130N, 130C, 131".split("[,\\s]+"))));
-    labels.add(new QuantLabel("TMT", "TMT-11", Arrays.asList("126, 127N, 127C, 128N, 128C, 129N, 129C, 130N, 130C, 131C".split("[,\\s]+"))));
+    labels.add(new QuantLabel("TMT", "TMT-10", Arrays.asList("126, 127N, 127C, 128N, 128C, 129N, 129C, 130N, 130C, 131N".split("[,\\s]+"))));
+    labels.add(new QuantLabel("TMT", "TMT-11", Arrays.asList("126, 127N, 127C, 128N, 128C, 129N, 129C, 130N, 130C, 131N, 131C".split("[,\\s]+"))));
     labels.add(new QuantLabel("TMT", "TMT-16", Arrays.asList("126, 127N, 127C, 128N, 128C, 129N, 129C, 130N, 130C, 131N, 131C, 132N, 132C, 133N, 133C, 134N".split("[,\\s]+"))));
     LABELS = Collections.unmodifiableList(labels);
   }
