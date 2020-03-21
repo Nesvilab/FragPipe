@@ -756,7 +756,7 @@ public class FragpipeOnMessages {
         String opts = tmtPanel.getLabelquantOptsAsText();
         QuantLabel label = tmtPanel.getSelectedLabel();
         Map<LcmsFileGroup, Path> annotations = tmtPanel.getAnnotations();
-        if (!lq.configure(msfgf, usePhi, opts, label, forbiddenOpts, annotations, mapGroupsToProtxml)) {
+        if (!lq.configure(msfgf, isDryRun, usePhi, opts, label, forbiddenOpts, annotations, mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(lq.getBuilderDescriptor());

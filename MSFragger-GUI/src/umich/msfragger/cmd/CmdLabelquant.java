@@ -1,7 +1,10 @@
 package umich.msfragger.cmd;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +37,7 @@ public class CmdLabelquant extends CmdBase {
     return 99;
   }
 
-  public boolean configure(Component comp, UsageTrigger phi,
+  public boolean configure(Component comp, boolean isDryRun, UsageTrigger phi,
       String textLabelquantOpts, QuantLabel label, final List<String> forbiddenOpts,
       Map<LcmsFileGroup, Path> annotations, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
     pbis.clear();
@@ -91,6 +94,18 @@ public class CmdLabelquant extends CmdBase {
         return false;
       }
       cmd.add(annotationFile.toString());
+      if (!isDryRun) {
+        // copy annotation files to output directory for Report command to pick up
+        Path annotationFileInGroupDir = groupWd.resolve(annotationFile.getFileName());
+        if (!annotationFileInGroupDir.equals(annotationFile)) {
+          try {
+            //Files.deleteIfExists(annotationFileInGroupDir);
+            Files.copy(annotationFile, annotationFileInGroupDir, StandardCopyOption.REPLACE_EXISTING);
+          } catch (IOException ex) {
+            throw new IllegalStateException(ex);
+          }
+        }
+      }
 
       cmd.add("--brand");
       if (!"tmt".equalsIgnoreCase(label.getType())) {
