@@ -88,7 +88,7 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
 
     @Override
     public boolean canAutoUpdate() {
-        return true;
+        return false;
     }
 
     private void throwIfNull(Object val, String message) {
@@ -123,10 +123,10 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
         if (updateSvcUrl == null)
             throw new IllegalStateException("Obtained properties file didn't contain a URL for the updater service.");
         
-        if (StringUtils.isNullOrWhitespace(latestVerResponse))
+        if (StringUtils.isNullOrWhitespace(latestVerResponse)) {
             latestVerResponse = fetchVersionResponse();
-        
-        
+        }
+
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost post = new HttpPost(updateSvcUrl);
 
