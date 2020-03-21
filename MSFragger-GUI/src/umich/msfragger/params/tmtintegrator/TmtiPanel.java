@@ -523,24 +523,17 @@ public class TmtiPanel extends JPanelWithEnablement {
     }
   }
 
-  private static List<QuantLabelAnnotation> parseTmtAnnotationFile(File file)
-      throws TmtAnnotationValidationException {
-    if (file == null || !Files.exists(file.toPath()))
-      throw new TmtAnnotationValidationException("File does not exist");
-    List<String> lines;
-    try {
-      lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8).stream()
-          .filter(l -> !StringUtils.isNullOrWhitespace(l)).collect(Collectors.toList());
-    } catch (IOException e) {
-      throw new TmtAnnotationValidationException(e);
-    }
+  public static List<QuantLabelAnnotation> parseTmtAnnotationFile(File file)
+      throws IOException {
+    List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8).stream()
+        .filter(l -> !StringUtils.isNullOrWhitespace(l)).collect(Collectors.toList());
 
     List<QuantLabelAnnotation> annotations = new ArrayList<>();
     for (String line : lines) {
       if (StringUtils.isNullOrWhitespace(line))
         continue;
       String[] split = line.split("[ ]+", 2);
-      annotations.add(new QuantLabelAnnotation(split[0], split[1]));
+      annotations.add(new QuantLabelAnnotation(split[0].trim(), split[1].trim()));
     }
     return annotations;
   }
@@ -680,19 +673,19 @@ public class TmtiPanel extends JPanelWithEnablement {
       try {
         annotations = parseTmtAnnotationFile(selectedFile);
         matchingLabel = validateAnnotations(annotations);
-      } catch (TmtAnnotationValidationException ex) {
+      } catch (TmtAnnotationValidationException | IOException ex) {
         SwingUtils.showErrorDialogWithStacktrace(ex, TmtiPanel.this.scrollPaneTmtTable, false);
         return;
       }
 
-      if (!expDir.equals(selectedFile.toPath().getParent())) {
-        String m = String.format(
-            "Current implementation requires the annotation file to be\n"
-                + "in the same directory as corresponding LCMS files.\n"
-                + "Please select or create a file in:\n%s", expDir);
-        SwingUtils.showWarningDialog(this, m, "Bad annotation file path");
-        return;
-      }
+//      if (!expDir.equals(selectedFile.toPath().getParent())) {
+//        String m = String.format(
+//            "Current implementation requires the annotation file to be\n"
+//                + "in the same directory as corresponding LCMS files.\n"
+//                + "Please select or create a file in:\n%s", expDir);
+//        SwingUtils.showWarningDialog(this, m, "Bad annotation file path");
+//        return;
+//      }
 
       // maybe update selected Label Type (aka number of channels)?
       if (!getSelectedLabel().getName().equalsIgnoreCase(matchingLabel.getName())) {
@@ -743,9 +736,8 @@ public class TmtiPanel extends JPanelWithEnablement {
     List<QuantLabelAnnotation> quantLabelAnnotations = null;
     if (existingPath != null) {
       try {
-        quantLabelAnnotations = parseTmtAnnotationFile(
-            existingPath.toFile());
-      } catch (TmtAnnotationValidationException ex) {
+        quantLabelAnnotations = parseTmtAnnotationFile(existingPath.toFile());
+      } catch (IOException ex) {
         log.warn("Could not parse annotation file", ex);
       }
     }
@@ -779,19 +771,18 @@ public class TmtiPanel extends JPanelWithEnablement {
       int userSelection = fc.showSaveDialog(parent);
       if (JFileChooser.APPROVE_OPTION == userSelection) {
         selectedPath = fc.getSelectedFile().toPath();
-        if (!selectedPath.getParent().equals(saveDir)) {
-
-          String msg = "<html>Current implementation requires annotation files to be saved<br/>\n"
-              + "in the same directory as LCMS files for that plex. Please save the<br/>\n"
-              + "file in:<br/>\n<br/>\n" + saveDir.toString();
-          String htmlMsg = SwingUtils.makeHtml(msg);
-
-          SwingUtils.showWarningDialog(this,
-              htmlMsg,
-              "Select different location");
-          selectedPath = null;
-          continue;
-        }
+//        if (!selectedPath.getParent().equals(saveDir)) {
+//          String msg = "<html>Current implementation requires annotation files to be saved<br/>\n"
+//              + "in the same directory as LCMS files for that plex. Please save the<br/>\n"
+//              + "file in:<br/>\n<br/>\n" + saveDir.toString();
+//          String htmlMsg = SwingUtils.makeHtml(msg);
+//
+//          SwingUtils.showWarningDialog(this,
+//              htmlMsg,
+//              "Select different location");
+//          selectedPath = null;
+//          continue;
+//        }
         log.debug("User selected to save annotattion in file: {}", selectedPath.toString());
       } else {
         log.debug("User selected NOT to save annotattion in file");
@@ -853,7 +844,7 @@ public class TmtiPanel extends JPanelWithEnablement {
     return null;
   }
 
-  public void formToConfig(Writer w, int ramGb, String pathTmtiJar, String pathFasta, String pathOutput) {
+  public Map<String, String> formToConfig(int ramGb, String pathTmtiJar, String pathFasta, String pathOutput) {
     Map<String, String> map = SwingUtils.valuesToMap(this);
     final Map<String, String> mapConv = new HashMap<>();
     map.forEach((k, v) ->
@@ -870,8 +861,12 @@ public class TmtiPanel extends JPanelWithEnablement {
     mapConv.put("protein_database", pathFasta);
     mapConv.put("output", pathOutput);
 
+    return mapConv;
+  }
+
+  public void writeConfig(Writer w, Map<String, String> map) {
     try {
-      TmtiConfig.write(mapConv, w);
+      TmtiConfig.write(map, w);
     } catch (IOException e) {
       log.error("Error writing TMT-Integrator config", e);
       throw new IllegalStateException(e);

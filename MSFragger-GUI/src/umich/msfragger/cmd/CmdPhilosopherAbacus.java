@@ -23,18 +23,23 @@ import umich.msfragger.util.UsageTrigger;
 /**
  * The `Multi-Experiment Report`.
  */
-public class CmdReportAbacus extends CmdBase {
-  private static final Logger log = LoggerFactory.getLogger(CmdReportAbacus.class);
+public class CmdPhilosopherAbacus extends CmdBase {
+  private static final Logger log = LoggerFactory.getLogger(CmdPhilosopherAbacus.class);
 
-  private static final String NAME = "ReportAbacus";
+  private static final String NAME = "PhilosopherAbacus";
 
-  public CmdReportAbacus(boolean isRun, Path workDir) {
+  public CmdPhilosopherAbacus(boolean isRun, Path workDir) {
     super(isRun, workDir);
   }
 
   @Override
   public String getCmdName() {
     return NAME;
+  }
+
+  @Override
+  public int getPriority() {
+    return 120;
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,

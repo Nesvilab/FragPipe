@@ -36,7 +36,7 @@ public class SwingUtilsTest {
   @Test @Ignore("Only used to test UI dialog popup manually")
   public void showHtmlMadeDialog() {
     Path saveDir = Paths.get("C:\\tmp\\hoho.txt");
-    String msg = "<html>Current implementation requires annotation files to be saved<br/>\n"
+    String msg = "<html>files need to be saved<br/>\n"
         + "in the same directory as LCMS files for that plex. Please save the<br/>\n"
         + "file in:<br/>\n<br/>\n" + saveDir.toString();
     String htmlMsg = SwingUtils.makeHtml(msg);

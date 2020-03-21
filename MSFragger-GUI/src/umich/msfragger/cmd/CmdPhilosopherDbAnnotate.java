@@ -15,11 +15,11 @@ import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.util.UsageTrigger;
 
-public class CmdReportDbAnnotate extends CmdBase {
+public class CmdPhilosopherDbAnnotate extends CmdBase {
 
-  public static final String NAME = "ReportDbAnnotate";
+  public static final String NAME = "PhilosopherDbAnnotate";
 
-  public CmdReportDbAnnotate(boolean isRun, Path workDir) {
+  public CmdPhilosopherDbAnnotate(boolean isRun, Path workDir) {
     super(isRun, workDir);
   }
 

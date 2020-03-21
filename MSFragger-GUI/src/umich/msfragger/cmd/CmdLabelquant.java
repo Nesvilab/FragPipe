@@ -29,6 +29,11 @@ public class CmdLabelquant extends CmdBase {
     return NAME;
   }
 
+  @Override
+  public int getPriority() {
+    return 99;
+  }
+
   public boolean configure(Component comp, UsageTrigger phi,
       String textLabelquantOpts, QuantLabel label, final List<String> forbiddenOpts,
       Map<LcmsFileGroup, Path> annotations, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
@@ -85,14 +90,6 @@ public class CmdLabelquant extends CmdBase {
         SwingUtils.showWarningDialog(comp, msg, NAME + " Error");
         return false;
       }
-//      if (!annotationFile.getParent().equals(lcmsDir)) {
-//        String msg = String.format("Current implementation requires the annotation file:\n\n"
-//            + "%s\n\n"
-//            + "to be in the same directory as corresponding LCMS files:\n\n"
-//            + "%s", annotationFile.toString(), lcmsDir.toString());
-//        SwingUtils.showWarningDialog(comp, msg, NAME + " Error");
-//        return false;
-//      }
       cmd.add(annotationFile.toString());
 
       cmd.add("--brand");
@@ -127,4 +124,5 @@ public class CmdLabelquant extends CmdBase {
     }
     return true;
   }
+
 }

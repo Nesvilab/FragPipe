@@ -9,18 +9,18 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
+import umich.msfragger.params.tmtintegrator.QuantLabelAnnotation;
 import umich.msfragger.params.tmtintegrator.TmtiPanel;
+import umich.msfragger.util.FileDelete;
+import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.UsageTrigger;
 
@@ -31,12 +31,7 @@ public class CmdTmtIntegrator extends CmdBase {
   public static final String JAR_NAME = "tmt-integrator-1.1.4.jazz";
   public static final String JAR_MAIN = "TMTIntegrator";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML");
-  public static final String CONFIG_FN = "tmt-integrator-conf.yaml";
-
-  public CmdTmtIntegrator(boolean isRun, Path workDir, String fileCaptureStdout,
-      String fileCaptureStderr) {
-    super(isRun, workDir, fileCaptureStdout, fileCaptureStderr);
-  }
+  public static final String CONFIG_FN = "tmt-integrator-conf.yml";
 
   public CmdTmtIntegrator(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -62,7 +57,7 @@ public class CmdTmtIntegrator extends CmdBase {
     return true;
   }
 
-  public boolean configure(TmtiPanel panel, Path binFragger, UsageTrigger phi,
+  public boolean configure(TmtiPanel panel, boolean isDryRun,
       int ramGb, String pathFasta,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
     isConfigured = false;
@@ -89,12 +84,50 @@ public class CmdTmtIntegrator extends CmdBase {
 
     // write and check TMT-I config file
     Path pathConf;
+    final String tmtOutDirName = "tmt-report";
+    final Path outDir = getWd().resolve(tmtOutDirName);
     try {
       pathConf = wd.resolve(CONFIG_FN);
       Files.deleteIfExists(pathConf);
+      if (!isDryRun) {
+        FileDelete.deleteFileOrFolder(outDir);
+        Files.createDirectories(outDir);
+      }
       log.debug("Writing {} config file", NAME);
+      if (!Files.exists(pathConf.getParent())) {
+        log.debug(NAME + " config required presence of output work dir, creating: {}", pathConf.getParent());
+        Files.createDirectories(pathConf.getParent());
+      }
+      Map<String, String> conf = panel.formToConfig(ramGb, jarTmti.toString(), pathFasta, outDir.toString());
+
+      // check that there is a reference channel set in each annotation file
+      String refTag = conf.get("ref_tag");
+      if (StringUtils.isNullOrWhitespace(refTag)) {
+        SwingUtils.showWarningDialog(panel, "Reference channel tag can't be left empty\n"
+            + "in " + NAME + " config.", NAME + " Config");
+      }
+
+      List<Path> filesWithoutRefChannel = new ArrayList<>();
+      for (Path path : panel.getAnnotations().values()) {
+        List<QuantLabelAnnotation> annotations = TmtiPanel
+            .parseTmtAnnotationFile(path.toFile());
+        if (annotations.stream().noneMatch(a -> a.getSample().startsWith(refTag))) {
+          filesWithoutRefChannel.add(path);
+        }
+      }
+      if (!filesWithoutRefChannel.isEmpty()) {
+        String files = filesWithoutRefChannel.stream().map(Path::toString)
+            .collect(Collectors.joining("\n"));
+        SwingUtils.showWarningDialog(panel, "Found annotation files without reference channel\n"
+            + "specified:\n" + files
+            + "\n\nOne sample name in each annotation file must start with\n"
+            + "the reference tag you set. Currently it is: '" + refTag + "'", NAME + " Config");
+        return false;
+      }
+
+
       try (BufferedWriter bw = Files.newBufferedWriter(pathConf, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW)) {
-        panel.formToConfig(bw, ramGb, jarTmti.toString(), pathFasta.toString(), wd.toString());
+        panel.writeConfig(bw, conf);
       }
       List<String> cmdCheck = new ArrayList<>();
       cmdCheck.add("java");
@@ -105,6 +138,7 @@ public class CmdTmtIntegrator extends CmdBase {
       cmdCheck.add("--ValParam");
       ProcessBuilder pb = new ProcessBuilder(cmdCheck);
       pb.directory(wd.toFile());
+      log.debug("Running TMT-I config file check: {}", String.join(", ", pb.command()));
       Process p = pb.start();
       int checkExitCode = p.waitFor();
       if (checkExitCode != 0) {

@@ -11,13 +11,13 @@ import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.util.StringUtils;
 import umich.msfragger.util.UsageTrigger;
 
-public class CmdReportFilter extends CmdBase {
+public class CmdPhilosopherFilter extends CmdBase {
 
-  public static final String NAME = "ReportFilter";
+  public static final String NAME = "PhilosopherFilter";
   public static final String FN_CAPTURE_STDOUT = "filter.log";
   public static final String FN_CAPTURE_STDERR = "filter.log";
 
-  public CmdReportFilter(boolean isRun, Path workDir) {
+  public CmdPhilosopherFilter(boolean isRun, Path workDir) {
     super(isRun, workDir, FN_CAPTURE_STDOUT, FN_CAPTURE_STDERR);
   }
 
@@ -73,6 +73,6 @@ public class CmdReportFilter extends CmdBase {
 
   @Override
   public int getPriority() {
-    return 98;
+    return 97;
   }
 }

@@ -169,6 +169,6 @@ public class CmdIonquant extends CmdBase {
 
   @Override
   public int getPriority() {
-    return 101;
+    return 130;
   }
 }

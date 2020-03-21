@@ -11,17 +11,22 @@ import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.util.UsageTrigger;
 
-public class CmdReportReport extends CmdBase {
+public class CmdPhilosopherReport extends CmdBase {
 
-  public static final String NAME = "ReportReport";
+  public static final String NAME = "PhilosopherReport";
 
-  public CmdReportReport(boolean isRun, Path workDir) {
+  public CmdPhilosopherReport(boolean isRun, Path workDir) {
     super(isRun, workDir);
   }
 
   @Override
   public String getCmdName() {
     return NAME;
+  }
+
+  @Override
+  public int getPriority() {
+    return 110;
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,

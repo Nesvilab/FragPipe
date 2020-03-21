@@ -46,11 +46,11 @@ import umich.msfragger.cmd.CmdPhilosopherWorkspaceClean;
 import umich.msfragger.cmd.CmdPhilosopherWorkspaceCleanInit;
 import umich.msfragger.cmd.CmdProteinProphet;
 import umich.msfragger.cmd.CmdPtmshepherd;
-import umich.msfragger.cmd.CmdReportAbacus;
-import umich.msfragger.cmd.CmdReportDbAnnotate;
-import umich.msfragger.cmd.CmdReportFilter;
+import umich.msfragger.cmd.CmdPhilosopherAbacus;
+import umich.msfragger.cmd.CmdPhilosopherDbAnnotate;
+import umich.msfragger.cmd.CmdPhilosopherFilter;
 import umich.msfragger.cmd.CmdFreequant;
-import umich.msfragger.cmd.CmdReportReport;
+import umich.msfragger.cmd.CmdPhilosopherReport;
 import umich.msfragger.cmd.CmdSpecLibGen;
 import umich.msfragger.cmd.CmdTmtIntegrator;
 import umich.msfragger.cmd.CmdUmpireSe;
@@ -601,19 +601,19 @@ public class FragpipeOnMessages {
     if (isReport) {
       // run Report - DbAnnotate
       final boolean isDbAnnotate = true;
-      final CmdReportDbAnnotate cmdReportDbAnnotate = new CmdReportDbAnnotate(isDbAnnotate, wd);
-      if (cmdReportDbAnnotate.isRun()) {
-        if (!cmdReportDbAnnotate
+      final CmdPhilosopherDbAnnotate cmdPhilosopherDbAnnotate = new CmdPhilosopherDbAnnotate(isDbAnnotate, wd);
+      if (cmdPhilosopherDbAnnotate.isRun()) {
+        if (!cmdPhilosopherDbAnnotate
             .configure(msfgf, usePhi, fastaFile, decoyTag, pepxmlFiles, mapGroupsToProtxml)) {
           return false;
         }
-        pbDescs.add(cmdReportDbAnnotate.getBuilderDescriptor());
+        pbDescs.add(cmdPhilosopherDbAnnotate.getBuilderDescriptor());
       }
 
       // run Report - Filter
       final boolean isFilter = isReport;
-      final CmdReportFilter cmdReportFilter = new CmdReportFilter(isFilter, wd);
-      if (cmdReportFilter.isRun()) {
+      final CmdPhilosopherFilter cmdPhilosopherFilter = new CmdPhilosopherFilter(isFilter, wd);
+      if (cmdPhilosopherFilter.isRun()) {
         final boolean isCheckFilterNoProtxml = msfgf.getPanelReportOptions().isNoProtXml();
 
         // if ProtProph is not run but protxml is there - query the user
@@ -653,34 +653,34 @@ public class FragpipeOnMessages {
           dontUseProtxmlInFilter = isCheckFilterNoProtxml;
         }
 
-        if (!cmdReportFilter.configure(msfgf, usePhi,
+        if (!cmdPhilosopherFilter.configure(msfgf, usePhi,
             decoyTag, msfgf.getPanelReportOptions().getFilterCmdText(), dontUseProtxmlInFilter, mapGroupsToProtxml)) {
           return false;
         }
-        pbDescs.add(cmdReportFilter.getBuilderDescriptor());
+        pbDescs.add(cmdPhilosopherFilter.getBuilderDescriptor());
       }
 
       // run Report - Report command itself
-      final CmdReportReport cmdReportReport = new CmdReportReport(isReport, wd);
+      final CmdPhilosopherReport cmdPhilosopherReport = new CmdPhilosopherReport(isReport, wd);
       final boolean doPrintDecoys = msfgf.getPanelReportOptions().isPrintDecoys();
 //      final boolean doMzid = comboReportOutputFormat.getSelectedItem().toString().toLowerCase().contains("mzid");
       final boolean doMzid = msfgf.getPanelReportOptions().isWriteMzid();
-      if (cmdReportReport.isRun()) {
-        if (!cmdReportReport.configure(msfgf, usePhi, doPrintDecoys, doMzid, mapGroupsToProtxml)) {
+      if (cmdPhilosopherReport.isRun()) {
+        if (!cmdPhilosopherReport.configure(msfgf, usePhi, doPrintDecoys, doMzid, mapGroupsToProtxml)) {
           return false;
         }
-        pbDescs.add(cmdReportReport.getBuilderDescriptor());
+        pbDescs.add(cmdPhilosopherReport.getBuilderDescriptor());
       }
 
       // run Report - Multi-Experiment report
       final int nThreads = msfgf.fraggerMigPanel.getThreads();
-      final CmdReportAbacus cmdReportAbacus = new CmdReportAbacus(isMuiltiExperimentReport, wd);
+      final CmdPhilosopherAbacus cmdPhilosopherAbacus = new CmdPhilosopherAbacus(isMuiltiExperimentReport, wd);
       final boolean isMultiexpPepLevelSummary = msfgf.getPanelReportOptions().isPepSummary();
-      if (cmdReportAbacus.isRun()) {
+      if (cmdPhilosopherAbacus.isRun()) {
 
         // run iProphet, will run right after Peptide Prophet because of priority setting
         if (isMultiexpPepLevelSummary) { // iProphet is not needed if we don't generate peptide level summry
-          final CmdIprophet cmdIprophet = new CmdIprophet(cmdReportAbacus.isRun(), wd);
+          final CmdIprophet cmdIprophet = new CmdIprophet(cmdPhilosopherAbacus.isRun(), wd);
           if (!cmdIprophet.configure(msfgf, usePhi, decoyTag, nThreads, pepxmlFiles)) {
             return false;
           }
@@ -688,11 +688,11 @@ public class FragpipeOnMessages {
         }
 
         // run Abacus
-        if (!cmdReportAbacus.configure(msfgf, usePhi, msfgf.getPanelReportOptions().getFilterCmdText(),
+        if (!cmdPhilosopherAbacus.configure(msfgf, usePhi, msfgf.getPanelReportOptions().getFilterCmdText(),
             isMultiexpPepLevelSummary, decoyTag, mapGroupsToProtxml)) {
           return false;
         }
-        pbDescs.add(cmdReportAbacus.getBuilderDescriptor());
+        pbDescs.add(cmdPhilosopherAbacus.getBuilderDescriptor());
       }
 
       // run Report - Freequant (Labelfree)
@@ -763,7 +763,7 @@ public class FragpipeOnMessages {
       }
       // run TMT-Integrator
       CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(isTmt, wd);
-      if (!cmdTmt.configure(msfgf.getTmtPanel(), msfgf.getBinMsfragger(), usePhi,
+      if (!cmdTmt.configure(msfgf.getTmtPanel(), isDryRun,
           msfgf.fraggerMigPanel.getRamGb(), msfgf.getFastaPath(), mapGroupsToProtxml)) {
         return false;
       }

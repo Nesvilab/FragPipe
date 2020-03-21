@@ -177,6 +177,6 @@ public class CmdPtmshepherd extends CmdBase {
 
   @Override
   public int getPriority() {
-    return 110;
+    return 140;
   }
 }

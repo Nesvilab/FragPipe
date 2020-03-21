@@ -163,6 +163,6 @@ public class CmdSpecLibGen extends CmdBase {
 
   @Override
   public int getPriority() {
-    return 150;
+    return 1000;
   }
 }

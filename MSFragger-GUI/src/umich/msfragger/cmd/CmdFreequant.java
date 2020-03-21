@@ -86,6 +86,6 @@ public class CmdFreequant extends CmdBase {
 
   @Override
   public int getPriority() {
-    return 99;
+    return 98;
   }
 }
