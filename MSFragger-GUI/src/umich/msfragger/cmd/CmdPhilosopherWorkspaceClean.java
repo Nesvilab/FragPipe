@@ -22,8 +22,7 @@ public class CmdPhilosopherWorkspaceClean extends CmdBase {
     {
       List<String> cmd = new ArrayList<>();
       cmd.add(usePhilosopher.useBin(wd));
-      cmd.add("workspace");
-      cmd.add("--clean");
+      cmd.addAll(asParts("workspace --clean --nocheck"));
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.toFile());
       pbis.add(PbiBuilder.from(pb));

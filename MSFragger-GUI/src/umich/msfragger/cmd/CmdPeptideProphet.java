@@ -237,8 +237,7 @@ public class CmdPeptideProphet extends CmdBase {
           // workspace init
           List<String> cmdPhiInit = new ArrayList<>();
           cmdPhiInit.add(phi.useBin());
-          cmdPhiInit.add("workspace");
-          cmdPhiInit.add("--init");
+          cmdPhiInit.addAll(asParts("workspace --init --nocheck"));
           ProcessBuilder pbPhiInit = new ProcessBuilder(cmdPhiInit);
           pbPhiInit.directory(temp.toFile());
           pbisPreParallel.add(new PbiBuilder()

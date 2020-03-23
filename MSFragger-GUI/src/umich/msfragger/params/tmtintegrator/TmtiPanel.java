@@ -260,7 +260,7 @@ public class TmtiPanel extends JPanelWithEnablement {
       {
         UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).text("Bridge").create();
         FormEntry feRefTag = fe(TmtiConfProps.PROP_ref_tag,
-            "Ref tag", uiTextRefTag,
+            "Ref sample tag", uiTextRefTag,
             "<html>Unique tag for identifying the reference channel (Bridge sample added to <br/>\n"
                 + "each multiplex)");
 
@@ -330,7 +330,7 @@ public class TmtiPanel extends JPanelWithEnablement {
         UiCombo uiComboAddRef = UiUtils.createUiCombo(TmtiConfProps.COMBO_ADD_REF.stream()
             .map(ComboValue::getValInUi).collect(Collectors.toList()));
         FormEntry feAddRef = fe(TmtiConfProps.PROP_add_Ref,
-            "Add Ref", uiComboAddRef,
+            "Define reference", uiComboAddRef,
             "<html>add an artificial reference channel if there is no reference channel");
 
         UiCheck uiCheckAllowUnlabeled = UiCheck.of("Allow unlabeled", true);
@@ -353,7 +353,7 @@ public class TmtiPanel extends JPanelWithEnablement {
             "<html>minimum PSM probability threshold (in addition to FDR-based <br/>\n"
                 + "filtering by Philosopher)");
 
-        UiCheck uiCheckMs1Int = UiCheck.of("Allow unlabeled", true);
+        UiCheck uiCheckMs1Int = UiCheck.of("Use MS1 intensity", true);
         FormEntry feMs1Int = fe(TmtiConfProps.PROP_ms1_int,
             "not-shown", uiCheckMs1Int,
             "<html>use MS1 precursor ion intensity (if true) or MS2 summed TMT <br/>\n"

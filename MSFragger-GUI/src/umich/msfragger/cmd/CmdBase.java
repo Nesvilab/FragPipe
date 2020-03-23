@@ -87,6 +87,10 @@ public abstract class CmdBase {
     return exts;
   }
 
+  public static List<String> asParts(String cmdString) {
+    return Arrays.stream(cmdString.split("[ ]+")).collect(Collectors.toList());
+  }
+
   /**
    * Unpacks jar files from the final FragPipe jar (next to ToolingUtils.class).
    * @param jars The names of files to unpack. Here we name them `.jazz` files.
