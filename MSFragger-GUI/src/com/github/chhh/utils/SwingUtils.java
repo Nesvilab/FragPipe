@@ -79,8 +79,15 @@ public class SwingUtils {
   private SwingUtils() {
   }
 
-  public static JScrollPane wrapInScroll(Component comp) {
-    return new JScrollPane(comp);
+  /**
+   * Wraps a component in JScrollPane and sets scroll-bar speed to a reasonable value.
+   */
+  public static JScrollPane scroll(Component comp) {
+    JScrollPane s = new JScrollPane(comp);
+    s.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    s.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+    s.getVerticalScrollBar().setUnitIncrement(16);
+    return s;
   }
 
   public static DialogAndThread runThreadWithProgressBar(String title, Component parent, Runnable runnable) {

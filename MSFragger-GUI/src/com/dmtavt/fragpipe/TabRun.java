@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe;
 
+import com.github.chhh.utils.SwingUtils;
 import javax.swing.JScrollPane;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -20,7 +21,7 @@ public class TabRun extends JPanelWithEnablement {
   private void init() {
     this.setLayout(new MigLayout(new LC().fill()));
 
-    scrollConsole = new JScrollPane(console);
+    scrollConsole = SwingUtils.scroll(console);
     add(scrollConsole, new CC().grow().wrap());
   }
 }

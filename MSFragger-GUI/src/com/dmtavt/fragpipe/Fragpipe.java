@@ -145,7 +145,7 @@ public class Fragpipe extends JFrame {
   private JTabbedPane createTabs(TextConsole console) {
     final JTabbedPane t = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 
-    Consumer<UiTab> addTab = tab -> t.addTab(tab.getTitle(), tab.getIcon(), new JScrollPane(tab.getComponent()), tab.getTooltip());
+    Consumer<UiTab> addTab = tab -> t.addTab(tab.getTitle(), tab.getIcon(), SwingUtils.scroll(tab.getComponent()), tab.getTooltip());
 
     TabConfig tabConfig = new TabConfig();
     TabLcmsFiles tabLcmsFiles = new TabLcmsFiles();
@@ -308,7 +308,7 @@ public class Fragpipe extends JFrame {
           throw new IllegalStateException("Could not find tab named " + prevTabName);
         }
         final ImageIcon icon = UiUtils.loadIcon(Fragpipe.class, "/umich/msfragger/gui/icons/dia-umpire-16x16.png");
-        tabs.insertTab(TAB_NAME_UMPIRE, icon, new JScrollPane(tabUmpire), "", prevTabIndex + 1);
+        tabs.insertTab(TAB_NAME_UMPIRE, icon, SwingUtils.scroll(tabUmpire), "", prevTabIndex + 1);
 
       } else {
         int index = tabs.indexOfTab(TAB_NAME_UMPIRE);
