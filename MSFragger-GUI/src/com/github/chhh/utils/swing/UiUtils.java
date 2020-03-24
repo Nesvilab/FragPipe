@@ -1,19 +1,20 @@
 package com.github.chhh.utils.swing;
 
-import java.awt.event.ActionEvent;
+import java.awt.Component;
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.stream.Stream;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.text.Document;
+import javax.swing.JFileChooser;
 
 public class UiUtils {
   private UiUtils() {}
+
+  public static void name(Component component, String name) {
+    component.setName(name);
+  }
 
   /**
    * Loads icon from current
@@ -38,6 +39,13 @@ public class UiUtils {
     return b;
   }
 
+  public static JButton createButton(String text, String tooltip, ActionListener listener) {
+    JButton b = new JButton(text);
+    b.setToolTipText(tooltip);
+    b.addActionListener(listener);
+    return b;
+  }
+
   public static UiText createUiText(String filteredCharsRegex) {
     UiText uiText = new UiText();
     uiText.setDocument(DocumentFilters.getFilter(filteredCharsRegex));
@@ -49,7 +57,7 @@ public class UiUtils {
   }
 
   public static class UiTextBuilder {
-    private UiText uiText;
+    private final UiText uiText;
 
     public UiTextBuilder() {
       this.uiText = new UiText();
@@ -57,6 +65,11 @@ public class UiUtils {
 
     public UiTextBuilder cols(int cols) {
       uiText.setColumns(cols);
+      return this;
+    }
+
+    public UiTextBuilder ghost(String ghostText) {
+      uiText.setGhostText(ghostText);
       return this;
     }
 

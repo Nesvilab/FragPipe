@@ -43,9 +43,9 @@ public class FragpipeUtil {
     Set<String> searchPaths = new LinkedHashSet<>();
     searchPaths.add(".");
     searchPaths.addAll(PathUtils.getClasspathDirs());
-    Path jarPath = PathUtils.getCurrentJarPath();
+    String jarPath = JarUtils.getCurrentJarPath();
     if (jarPath != null) {
-      searchPaths.add(jarPath.toString());
+      searchPaths.add(jarPath);
     }
     String[] paths = searchPaths.toArray(new String[0]);
     String phi = PathUtils.testBinaryPath(binPhi, paths);

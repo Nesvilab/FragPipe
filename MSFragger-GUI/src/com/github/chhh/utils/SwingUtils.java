@@ -31,6 +31,7 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -46,9 +47,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
@@ -59,6 +62,7 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
@@ -759,13 +763,29 @@ public class SwingUtils {
     }
   }
 
-  public static boolean setFileChooserPath(JFileChooser fc, Path path) {
+  /**
+   * Sets current direcotry of a file chooser to the first non-null, non-empty and existing
+   * path.
+   */
+  public static void setFileChooserPath(JFileChooser fc, Stream<String> possiblePaths) {
+    File f = possiblePaths
+        .map(PathUtils::existing)
+        .filter(Objects::nonNull)
+        .map(Path::toFile)
+        .findFirst().orElse(null);
+    fc.setCurrentDirectory(f);
+  }
+
+  /**
+   * Tries to set file chooser directory to an existing path, bubbling up the file system
+   * looking for existing locations.
+   */
+  public static void setFileChooserPath(JFileChooser fc, Path path) {
     try {
       if (Files.exists(path)) {
         if (Files.isDirectory(path)) {
           fc.setCurrentDirectory(path.getParent().toFile());
           fc.setSelectedFile(path.toFile());
-          return true;
         } else { // Files.exists(path) && !Files.isDirectory(path)
           fc.setCurrentDirectory(path.toFile());
         }
@@ -776,17 +796,15 @@ public class SwingUtils {
     } catch (Exception ignored) {
       fc.setCurrentDirectory(null);
     }
-    return false;
   }
 
-  public static boolean setFileChooserPath(JFileChooser fc, String path) {
+  public static void setFileChooserPath(JFileChooser fc, String path) {
     try {
       Path p = Paths.get(path);
-      return setFileChooserPath(fc, p);
+      setFileChooserPath(fc, p);
     } catch (Exception ignored) {
       fc.setCurrentDirectory(null);
     }
-    return false;
   }
 
   public static JFrame findParentFrame(Component origin) {
@@ -877,6 +895,31 @@ public class SwingUtils {
       icons.add(image.getImage());
     }
     frame.setIconImages(icons);
+  }
+
+  public enum FcMode {
+    FILES_ONLY(JFileChooser.FILES_ONLY),
+    DIRS_ONLY(JFileChooser.DIRECTORIES_ONLY),
+    ANY(JFileChooser.FILES_AND_DIRECTORIES);
+    public final int fileChooserConstant;
+
+    FcMode(int fileChooserConstant) {
+      this.fileChooserConstant = fileChooserConstant;
+    }
+  }
+
+  public static JFileChooser newFileChooser(String title, String approveButton, boolean multiSelection,
+      FcMode selectionMode, boolean isAcceptAllUsed, javax.swing.filechooser.FileFilter... filters) {
+    JFileChooser fc = new JFileChooser();
+    fc.setDialogTitle(title);
+    fc.setApproveButtonText(approveButton);
+    fc.setMultiSelectionEnabled(multiSelection);
+    fc.setFileSelectionMode(selectionMode.fileChooserConstant);
+    fc.setAcceptAllFileFilterUsed(isAcceptAllUsed);
+    for (javax.swing.filechooser.FileFilter filter : filters) {
+      fc.addChoosableFileFilter(filter);
+    }
+    return fc;
   }
 
   /**

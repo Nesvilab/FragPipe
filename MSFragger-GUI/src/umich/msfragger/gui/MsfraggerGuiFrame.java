@@ -2164,7 +2164,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-    Path curExistingPath = PathUtils.isExisting(textBinMsfragger.getText().trim());
+    Path curExistingPath = PathUtils.existing(textBinMsfragger.getText().trim());
     if (curExistingPath != null) {
       SwingUtils.setFileChooserPath(fileChooser, curExistingPath);
     } else {

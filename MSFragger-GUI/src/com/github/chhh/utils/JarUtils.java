@@ -4,14 +4,21 @@ import static umich.msfragger.params.ThisAppProps.JAR_FILE_AS_RESOURCE_EXT;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.JarURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
+import java.security.CodeSource;
 import java.util.Set;
 
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,5 +125,71 @@ public class JarUtils {
     return resourceNameOrig.toLowerCase().endsWith(JAR_FILE_AS_RESOURCE_EXT)
         ? StringUtils.upToLastDot(resourceNameOrig) + ".jar"
         : resourceNameOrig;
+  }
+
+  public static String getCurrentJarPath() {
+      URI uri = getCurrentJarUri();
+      if (uri == null)
+          return null;
+      String mainPath = extractMainFilePath(uri);
+      if (mainPath == null)
+          return null;
+      try {
+          return mainPath;
+      } catch (Exception ignore) {
+          return null;
+      }
+  }
+
+  public static URI getCurrentJarUri() {
+      try {
+          CodeSource codeSource = OsUtils.class.getProtectionDomain().getCodeSource();
+          URL location = codeSource.getLocation();
+          return location.toURI();
+      } catch (URISyntaxException ex) {
+          java.util.logging.Logger.getLogger(OsUtils.class.getName()).log(Level.SEVERE, null, ex);
+      }
+      return null;
+  }
+
+  /**
+   * Extract the outermost JAR file path from a URI possibly containing resource locations
+   * within a JAR. Such URIs contain '!' to indicate locations within a JAR and that breaks
+   * normal path parsing utilities, such as {@link Paths#get(URI)}.
+   */
+  public static String extractMainFilePath(URI uri) {
+      String scheme = uri.getScheme();
+      URL uriUrl;
+      try {
+          uriUrl = uri.toURL();
+      } catch (MalformedURLException e) {
+          return null;
+      }
+
+      switch (scheme) {
+          case "jar":
+          case "jar:file":
+              final JarURLConnection conJar;
+              try {
+                  conJar = (JarURLConnection) uriUrl.openConnection();
+              } catch (IOException e) {
+                  return null;
+              }
+              final URL url = conJar.getJarFileURL();
+              try {
+                  URI uri1 = url.toURI();
+                  Path path = Paths.get(uri1);
+                  return path.toAbsolutePath().toString();
+              } catch (Exception e) {
+                  return null;
+              }
+
+
+          case "file":
+              return Paths.get(uri).toAbsolutePath().toString();
+
+          default:
+              return null;
+      }
   }
 }

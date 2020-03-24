@@ -21,14 +21,12 @@ import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -103,10 +101,10 @@ public class PathUtils {
     }
 
     /**
-     * @return null if path does not exist or contains illegal characters. The actual normalized
-     * path otherwise.
+     * Existing Path or null if path is invalid or does not exist. All exceptions are swallowed.
+     * @return null if path does not exist or contains illegal characters. The actual path otherwise.
      */
-    public static Path isExisting(String path) {
+    public static Path existing(String path) {
         try {
             Path p = Paths.get(path);
             if (Files.exists(p))
@@ -142,7 +140,7 @@ public class PathUtils {
      * 
      * @param searchSystemPath
      * @param recursive
-     * @see #getCurrentJarUri()
+     * @see JarUtils#getCurrentJarUri()
      * 
      * @param name  File name to search for.
      * @param paths
@@ -184,7 +182,7 @@ public class PathUtils {
      * 
      * @param searchSystemPath
      * @param recursive
-     * @see #getCurrentJarUri()
+     * @see JarUtils#getCurrentJarUri()
      * 
      * @param name  File name to search for.
      * @param paths
@@ -359,72 +357,6 @@ public class PathUtils {
             }
         } catch (IOException ex) {
             Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public static Path getCurrentJarPath() {
-        URI uri = getCurrentJarUri();
-        if (uri == null)
-            return null;
-        String mainPath = extractMainFilePath(uri);
-        if (mainPath == null)
-            return null;
-        try {
-            return Paths.get(mainPath);
-        } catch (Exception ignore) {
-            return null;
-        }
-    }
-
-    public static URI getCurrentJarUri() {
-        try {
-            CodeSource codeSource = OsUtils.class.getProtectionDomain().getCodeSource();
-            URL location = codeSource.getLocation();
-            return location.toURI();
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(OsUtils.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    /**
-     * Extract the outermost JAR file path from a URI possibly containing resource locations
-     * within a JAR. Such URIs contain '!' to indicate locations within a JAR and that breaks
-     * normal path parsing utilities, such as {@link Paths#get(URI)}.
-     */
-    public static String extractMainFilePath(URI uri) {
-        String scheme = uri.getScheme();
-        URL uriUrl;
-        try {
-            uriUrl = uri.toURL();
-        } catch (MalformedURLException e) {
-            return null;
-        }
-
-        switch (scheme) {
-            case "jar":
-            case "jar:file":
-                final JarURLConnection conJar;
-                try {
-                    conJar = (JarURLConnection) uriUrl.openConnection();
-                } catch (IOException e) {
-                    return null;
-                }
-                final URL url = conJar.getJarFileURL();
-                try {
-                    URI uri1 = url.toURI();
-                    Path path = Paths.get(uri1);
-                    return path.toAbsolutePath().toString();
-                } catch (Exception e) {
-                    return null;
-                }
-
-
-            case "file":
-                return Paths.get(uri).toAbsolutePath().toString();
-
-            default:
-                return null;
         }
     }
 

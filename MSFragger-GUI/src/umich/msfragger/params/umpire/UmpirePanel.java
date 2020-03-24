@@ -317,8 +317,12 @@ public class UmpirePanel extends JPanel {
     enablePanels(checkRunUmpireSe.isSelected());
     checkRunUmpireSe.addChangeListener(e -> {
       final boolean isRun = checkRunUmpireSe.isSelected();
+      MessageIsUmpireRun m = EventBus.getDefault().getStickyEvent(MessageIsUmpireRun.class);
+      if (m != null && m.isEnabled == isRun) {
+        return; // no change since we last observed it
+      }
       enablePanels(isRun);
-      EventBus.getDefault().post(new MessageIsUmpireRun(isRun));
+      EventBus.getDefault().postSticky(new MessageIsUmpireRun(isRun));
     });
 
     reloadUmpireParams();

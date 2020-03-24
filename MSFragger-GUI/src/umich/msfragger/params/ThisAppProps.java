@@ -16,6 +16,7 @@
  */
 package umich.msfragger.params;
 
+import com.github.chhh.utils.JarUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,7 +40,6 @@ import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.gui.api.SearchTypeProp;
 import com.github.chhh.utils.BundleUtils;
 import com.github.chhh.utils.CacheUtils;
-import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.SwingUtils;
 
@@ -244,7 +244,7 @@ public class ThisAppProps extends Properties {
             }
         }
         if (locateJar) {
-            URI thisJarUri = PathUtils.getCurrentJarUri();
+            URI thisJarUri = JarUtils.getCurrentJarUri();
             if (thisJarUri != null) {
                 return Paths.get(thisJarUri).toString();
             }

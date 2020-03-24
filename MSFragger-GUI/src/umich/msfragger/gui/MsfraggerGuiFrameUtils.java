@@ -2,6 +2,7 @@ package umich.msfragger.gui;
 
 import static umich.msfragger.params.fragger.FraggerMigPanel.PROP_FILECHOOSER_LAST_PATH;
 
+import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.github.chhh.utils.StringUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;

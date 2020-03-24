@@ -1,11 +1,15 @@
 package com.dmtavt.fragpipe;
 
 import com.dmtavt.fragpipe.messages.MessageExportLog;
-import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
+import com.dmtavt.fragpipe.messages.MessageSaveAllForms;
+import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
+import com.github.chhh.utils.LogUtils;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiUtils;
-import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.HeadlessException;
@@ -15,8 +19,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Locale;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import javax.swing.BorderFactory;
+import java.util.function.Function;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -35,12 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
 import umich.msfragger.gui.api.LogbackJTextPaneAppender;
-import com.dmtavt.fragpipe.messages.MessageSaveAllForms;
-import com.dmtavt.fragpipe.messages.MessageSaveCache;
-import com.github.chhh.utils.LogUtils;
-import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.swing.TextConsole;
-import umich.msfragger.params.umpire.UmpirePanel;
 
 public class Fragpipe extends JFrame {
   private static final Logger log = LoggerFactory.getLogger(Fragpipe.class);
@@ -53,6 +52,12 @@ public class Fragpipe extends JFrame {
   public static final Color COLOR_BLACK = new Color(0, 0, 0);
   private static final String TAB_NAME_LCMS = "LCMS Files";
   private static final String TAB_NAME_UMPIRE = "DIA-Umpire SE";
+  public static final String NAME_PRE_FRAGPIPE = "fragpipe.";
+  public static final BiFunction<Component, String, Component> COMP_NAMER = (comp, name) -> {
+    String prefixed = name.startsWith(NAME_PRE_FRAGPIPE) ? name : NAME_PRE_FRAGPIPE + name;
+    comp.setName(prefixed);
+    return comp;
+  };
 
   JTabbedPane tabs;
   TextConsole console;
@@ -124,6 +129,17 @@ public class Fragpipe extends JFrame {
       }
     });
     return c;
+  }
+
+  /**
+   * Use to name all the components that need to save state between runs.
+   * Will prepend their name with "fragpipe.ui" prefix.
+   * @param comp
+   * @param name
+   * @return
+   */
+  public static Component name(Component comp, String name) {
+    return COMP_NAMER.apply(comp, name);
   }
 
   private JTabbedPane createTabs(TextConsole console) {

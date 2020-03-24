@@ -1,5 +1,6 @@
 package umich.msfragger.gui;
 
+import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.StringUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -273,7 +274,7 @@ public class FragpipeOnMessages {
     URI jarFragpipeUri = null;
     Path jarFragpipePath = null;
     try {
-      jarFragpipeUri = PathUtils.getCurrentJarUri();
+      jarFragpipeUri = JarUtils.getCurrentJarUri();
       jarFragpipePath = Paths.get(jarFragpipeUri);
     } catch (Exception ignore) {
       // don't care
