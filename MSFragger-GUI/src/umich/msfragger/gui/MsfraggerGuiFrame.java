@@ -74,6 +74,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -2875,45 +2876,10 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
    * @param args the command line arguments
    */
   public static void main(String args[]) {
-    /* Set the Nimbus look and feel */
-    //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-    /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-     * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-     */
+    SwingUtils.setLaf();
 
     ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
     Locale.setDefault(Locale.ROOT);
-    try {
-      if (OsUtils.isWindows()) {
-        // native look on windows
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      } else {
-        // nimbus otherwise
-        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager
-            .getInstalledLookAndFeels()) {
-          if ("Nimbus".equals(info.getName())) {
-            javax.swing.UIManager.setLookAndFeel(info.getClassName());
-            break;
-          }
-        }
-      }
-    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException e1) {
-      java.util.logging.Logger.getLogger(MsfraggerGuiFrame.class.getName())
-          .log(java.util.logging.Level.SEVERE, null, e1);
-      try {
-        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager
-            .getInstalledLookAndFeels()) {
-          if ("Nimbus".equals(info.getName())) {
-            javax.swing.UIManager.setLookAndFeel(info.getClassName());
-            break;
-          }
-        }
-      } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException e2) {
-        java.util.logging.Logger.getLogger(MsfraggerGuiFrame.class.getName())
-            .log(java.util.logging.Level.SEVERE, null, e2);
-      }
-    }
-    //</editor-fold>
 
     /* Create and display the form */
     java.awt.EventQueue.invokeLater(() -> {

@@ -61,6 +61,7 @@ import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.msfragger.gui.MsfraggerGuiFrame;
 
 /**
  * @author dmitriya
@@ -102,6 +103,45 @@ public class SwingUtils {
 
     });
     return new DialogAndThread(dialog, thread);
+  }
+
+  public static void setLaf() {
+    /* Set the Nimbus look and feel */
+    //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+    /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+     * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
+     */
+    try {
+      if (OsUtils.isWindows()) {
+        // native look on windows
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      } else {
+        // nimbus otherwise
+        for (UIManager.LookAndFeelInfo info : UIManager
+            .getInstalledLookAndFeels()) {
+          if ("Nimbus".equals(info.getName())) {
+            UIManager.setLookAndFeel(info.getClassName());
+            break;
+          }
+        }
+      }
+    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {
+      java.util.logging.Logger.getLogger(MsfraggerGuiFrame.class.getName())
+          .log(java.util.logging.Level.SEVERE, null, e1);
+      try {
+        for (UIManager.LookAndFeelInfo info : UIManager
+            .getInstalledLookAndFeels()) {
+          if ("Nimbus".equals(info.getName())) {
+            UIManager.setLookAndFeel(info.getClassName());
+            break;
+          }
+        }
+      } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e2) {
+        java.util.logging.Logger.getLogger(MsfraggerGuiFrame.class.getName())
+            .log(java.util.logging.Level.SEVERE, null, e2);
+      }
+    }
+    //</editor-fold>
   }
 
   public static class DialogAndThread {

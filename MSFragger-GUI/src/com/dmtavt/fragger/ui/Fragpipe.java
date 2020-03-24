@@ -3,67 +3,32 @@ package com.dmtavt.fragger.ui;
 import com.dmtavt.fragger.ui.messages.MessageExportLog;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.lang.reflect.Method;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
-import javax.swing.ImageIcon;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ToolTipManager;
-import javax.swing.UIManager;
-import net.miginfocom.layout.LC;
-import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
-import umich.msfragger.cmd.CmdMsfragger;
-import umich.msfragger.gui.InputLcmsFile;
-import umich.msfragger.gui.LcmsInputFileTable;
-import umich.msfragger.gui.MsfraggerGuiFrame;
-import umich.msfragger.gui.MsfraggerGuiFrameUtils;
 import umich.msfragger.gui.api.LogbackJTextPaneAppender;
-import umich.msfragger.messages.MessageLcmsFilesAdded;
-import umich.msfragger.messages.MessageLcmsFilesList;
-import umich.msfragger.messages.MessageLoadAllForms;
-import umich.msfragger.messages.MessagePythonBinSelectedByUser;
 import umich.msfragger.messages.MessageSaveAllForms;
 import umich.msfragger.messages.MessageSaveCache;
-import umich.msfragger.messages.MessageType;
-import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.params.fragger.FraggerMigPanel;
-import umich.msfragger.util.FileDrop;
 import umich.msfragger.util.LogUtils;
-import umich.msfragger.util.OsUtils;
-import umich.msfragger.util.PathUtils;
 import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.swing.JPanelWithEnablement;
 import umich.swing.console.TextConsole;
 
 public class Fragpipe extends JFrame {
@@ -85,45 +50,10 @@ public class Fragpipe extends JFrame {
   }
 
   public static void main(String args[]) {
-    /* Set the Nimbus look and feel */
-    //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-    /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-     * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-     */
+    SwingUtils.setLaf();
 
     ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
     Locale.setDefault(Locale.ROOT);
-    try {
-      if (OsUtils.isWindows()) {
-        // native look on windows
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      } else {
-        // nimbus otherwise
-        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager
-            .getInstalledLookAndFeels()) {
-          if ("Nimbus".equals(info.getName())) {
-            javax.swing.UIManager.setLookAndFeel(info.getClassName());
-            break;
-          }
-        }
-      }
-    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException e1) {
-      java.util.logging.Logger.getLogger(MsfraggerGuiFrame.class.getName())
-          .log(java.util.logging.Level.SEVERE, null, e1);
-      try {
-        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager
-            .getInstalledLookAndFeels()) {
-          if ("Nimbus".equals(info.getName())) {
-            javax.swing.UIManager.setLookAndFeel(info.getClassName());
-            break;
-          }
-        }
-      } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException e2) {
-        java.util.logging.Logger.getLogger(MsfraggerGuiFrame.class.getName())
-            .log(java.util.logging.Level.SEVERE, null, e2);
-      }
-    }
-    //</editor-fold>
 
     /* Create and display the form */
     java.awt.EventQueue.invokeLater(() -> {
