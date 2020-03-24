@@ -72,9 +72,9 @@ public class TabConfig extends JPanelWithEnablement {
       JLabel c = new JLabel();
       c.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
       c.setAlignmentX(Component.CENTER_ALIGNMENT);
-      c.setText(
-          "<html>Tabs on top represent processing steps and will be performed sequentially.<br/>\n"
-              + "Tabs will become enabled once the tools on this panel are configured.");
+      c.setText(SwingUtils.makeHtml(
+          "Tabs on top represent processing steps and will be performed sequentially.\n"
+              + "Tabs will become enabled once the tools on this panel are configured."));
       add(c, new CC().growX().wrap());
     }
 

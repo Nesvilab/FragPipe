@@ -322,7 +322,7 @@ public class Fragpipe extends JFrame {
   @Subscribe
   public void onNoSubscriberEvent(NoSubscriberEvent m) {
     String message = String.format("No subscribers for message type [%s]", m.originalEvent.getClass().getSimpleName());
-    log.warn(message);
-    System.err.println(message);
+    log.debug(message);
+    //System.err.println(message);
   }
 }
