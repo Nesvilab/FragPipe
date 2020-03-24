@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,7 +22,6 @@ import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.fragger.FraggerMigPanel;
-import umich.msfragger.util.StringUtils;
 
 public class CmdCrystalc extends CmdBase {
 

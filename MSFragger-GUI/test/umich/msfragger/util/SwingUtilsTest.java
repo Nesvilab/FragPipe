@@ -1,7 +1,6 @@
 package umich.msfragger.util;
 
-import static org.junit.Assert.*;
-
+import com.github.chhh.utils.SwingUtils;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;

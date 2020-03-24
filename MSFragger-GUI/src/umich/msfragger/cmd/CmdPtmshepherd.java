@@ -18,13 +18,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.*;
 
-import org.apache.commons.codec.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.ptmshepherd.PtmshepherdParams;
-import umich.msfragger.util.PathUtils;
-import umich.msfragger.util.SwingUtils;
+import com.github.chhh.utils.PathUtils;
+import com.github.chhh.utils.SwingUtils;
 
 
 public class CmdPtmshepherd extends CmdBase {

@@ -15,6 +15,7 @@
  */
 package umich.msfragger.params.fragger;
 
+import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.*;
 
 import java.awt.BorderLayout;
@@ -84,11 +85,10 @@ import umich.msfragger.params.enums.FragmentMassTolUnits;
 import umich.msfragger.params.enums.IntensityTransform;
 import umich.msfragger.params.enums.PrecursorMassTolUnits;
 import umich.msfragger.params.enums.RemovePrecursorPeak;
-import umich.msfragger.util.CacheUtils;
-import umich.msfragger.util.PropertiesUtils;
-import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.swing.FormEntry;
+import com.github.chhh.utils.CacheUtils;
+import com.github.chhh.utils.PropertiesUtils;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FormEntry;
 
 /**
  * @author Dmitry Avtonomov

@@ -21,9 +21,9 @@ import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.messages.MessageEasypqpInit;
-import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.swing.FormEntry;
-import umich.msfragger.util.swing.JPanelWithEnablement;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.JPanelWithEnablement;
 
 
 public class SpeclibPanel extends JPanelWithEnablement {

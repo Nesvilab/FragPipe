@@ -27,10 +27,10 @@ import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.dmtavt.fragpipe.messages.MessageLoadQuantDefaults;
 import com.dmtavt.fragpipe.messages.MessageQuantRun;
-import umich.msfragger.util.PropertiesUtils;
-import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.swing.FormEntry;
-import umich.msfragger.util.swing.JPanelWithEnablement;
+import com.github.chhh.utils.PropertiesUtils;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.JPanelWithEnablement;
 
 public class QuantJPanel extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(QuantJPanel.class);

@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,9 +16,8 @@ import javax.swing.JOptionPane;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.tmtintegrator.QuantLabel;
-import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.UsageTrigger;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.UsageTrigger;
 
 public class CmdLabelquant extends CmdBase {
   public static final String NAME = "LabelQuant";

@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.philosopher.PhilosopherProps;
-import umich.msfragger.util.UsageTrigger;
+import com.github.chhh.utils.UsageTrigger;
 
 public class CmdPhilosopherReport extends CmdBase {
 

@@ -29,7 +29,7 @@ import com.dmtavt.fragpipe.messages.MessageAppendToConsole;
 import com.dmtavt.fragpipe.messages.MessageDeletePaths;
 import com.dmtavt.fragpipe.messages.MessageKillAll;
 import com.dmtavt.fragpipe.messages.MessageStartProcesses;
-import umich.msfragger.util.FileDelete;
+import com.github.chhh.utils.FileDelete;
 
 public class ProcessManager {
   private static final Logger log = LoggerFactory.getLogger(ProcessManager.class);

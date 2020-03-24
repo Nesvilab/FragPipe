@@ -20,10 +20,9 @@ import java.nio.file.Path;
 import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.Version;
 import umich.msfragger.gui.api.VersionFetcher;
 import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.util.PropertiesUtils;
+import com.github.chhh.utils.PropertiesUtils;
 
 /**
  *

@@ -17,11 +17,11 @@ import umich.msfragger.params.dbslice.DbSlice.MessageInitDone.REASON;
 import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.params.fragger.MsfraggerVersionComparator;
 import umich.msfragger.params.speclib.SpecLibGen;
-import umich.msfragger.util.CheckResult;
-import umich.msfragger.util.Installed;
-import umich.msfragger.util.JarUtils;
-import umich.msfragger.util.PythonInfo;
-import umich.msfragger.util.PythonModule;
+import com.github.chhh.utils.CheckResult;
+import com.github.chhh.utils.Installed;
+import com.github.chhh.utils.JarUtils;
+import com.github.chhh.utils.PythonInfo;
+import com.github.chhh.utils.PythonModule;
 
 public class DbSlice {
   private static DbSlice instance = new DbSlice();

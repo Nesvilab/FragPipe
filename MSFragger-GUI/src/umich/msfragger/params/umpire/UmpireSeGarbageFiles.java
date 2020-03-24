@@ -1,10 +1,10 @@
 package umich.msfragger.params.umpire;
 
+import com.github.chhh.utils.StringUtils;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import umich.msfragger.util.StringUtils;
 
 public class UmpireSeGarbageFiles {
   public static final List<String> filesToMove = Arrays.asList("diaumpire_se.log");

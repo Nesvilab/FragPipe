@@ -10,16 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
-import jdk.nashorn.internal.scripts.JO;
 import org.apache.commons.io.FilenameUtils;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.speclib.SpecLibGen;
-import umich.msfragger.util.OsUtils;
-import umich.msfragger.util.PythonInfo;
-import umich.msfragger.util.UsageTrigger;
+import com.github.chhh.utils.PythonInfo;
+import com.github.chhh.utils.UsageTrigger;
 
 public class CmdSpecLibGen extends CmdBase {
 

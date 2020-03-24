@@ -19,8 +19,7 @@ package umich.msfragger.params.fragger;
 import java.nio.file.Path;
 import java.util.Properties;
 import umich.msfragger.gui.api.VersionFetcher;
-import umich.msfragger.util.PropertiesUtils;
-import umich.msfragger.util.StringUtils;
+import com.github.chhh.utils.PropertiesUtils;
 
 /**
  *

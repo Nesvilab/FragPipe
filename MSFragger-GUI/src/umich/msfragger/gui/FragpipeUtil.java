@@ -25,10 +25,10 @@ import umich.msfragger.cmd.*;
 import umich.msfragger.gui.dialogs.DbUniprotIdPanel;
 import com.dmtavt.fragpipe.messages.MessageDbUpdate;
 import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.util.JarUtils;
-import umich.msfragger.util.PathUtils;
-import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.UsageTrigger;
+import com.github.chhh.utils.JarUtils;
+import com.github.chhh.utils.PathUtils;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.UsageTrigger;
 
 public class FragpipeUtil {
   private static final Logger log = LoggerFactory.getLogger(FragpipeUtil.class);

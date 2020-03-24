@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -15,17 +16,16 @@ import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.exceptions.FileWritingException;
+import com.dmtavt.fragpipe.exceptions.FileWritingException;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.umpire.UmpirePanel;
 import umich.msfragger.params.umpire.UmpireParams;
 import umich.msfragger.params.umpire.UmpireSeGarbageFiles;
-import umich.msfragger.util.JarUtils;
-import umich.msfragger.util.PropertiesUtils;
-import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.UsageTrigger;
+import com.github.chhh.utils.JarUtils;
+import com.github.chhh.utils.PropertiesUtils;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.UsageTrigger;
 
 public class CmdUmpireSe extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdUmpireSe.class);

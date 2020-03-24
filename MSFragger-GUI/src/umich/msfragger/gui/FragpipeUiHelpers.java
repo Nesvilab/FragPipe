@@ -5,8 +5,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import com.dmtavt.fragpipe.messages.MessageToolInit;
-import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.swing.ISimpleTextComponent;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.ISimpleTextComponent;
 
 public interface FragpipeUiHelpers {
 

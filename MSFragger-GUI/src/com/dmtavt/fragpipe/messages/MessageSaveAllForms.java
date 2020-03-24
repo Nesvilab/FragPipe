@@ -2,7 +2,7 @@ package com.dmtavt.fragpipe.messages;
 
 import java.nio.file.Path;
 import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.util.CacheUtils;
+import com.github.chhh.utils.CacheUtils;
 
 public class MessageSaveAllForms {
   public static final String FORMS_CACHE_FN = "fragpipe-forms" + ThisAppProps.TEMP_FILE_EXT;

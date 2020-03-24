@@ -26,9 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.messages.MessageLoadCrystalcDefaults;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
-import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.swing.FormEntry;
-import umich.msfragger.util.swing.JPanelWithEnablement;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.JPanelWithEnablement;
 
 public class CrystalcPanel extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(CrystalcPanel.class);

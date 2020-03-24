@@ -20,6 +20,7 @@ import static umich.msfragger.gui.MsfraggerGuiFrameUtils.createFraggerCitationHt
 import static umich.msfragger.gui.MsfraggerGuiFrameUtils.createPhilosopherCitationHtml;
 import static umich.msfragger.gui.MsfraggerGuiFrameUtils.initEditorPaneSeqDb;
 
+import com.github.chhh.utils.StringUtils;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -135,18 +136,17 @@ import umich.msfragger.params.philosopher.ReportPanel;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.tmtintegrator.TmtiPanel;
 import umich.msfragger.params.umpire.UmpirePanel;
-import umich.msfragger.util.FastaUtils.FastaDecoyPrefixSearchResult;
-import umich.msfragger.util.FileDrop;
-import umich.msfragger.util.GhostText;
-import umich.msfragger.util.LogUtils;
-import umich.msfragger.util.OsUtils;
-import umich.msfragger.util.PathUtils;
-import umich.msfragger.util.PropertiesUtils;
-import umich.msfragger.util.PythonInfo;
-import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.swing.ISimpleTextComponent;
-import umich.swing.console.TextConsole;
+import com.github.chhh.utils.FastaUtils.FastaDecoyPrefixSearchResult;
+import com.github.chhh.utils.FileDrop;
+import com.github.chhh.utils.GhostText;
+import com.github.chhh.utils.LogUtils;
+import com.github.chhh.utils.OsUtils;
+import com.github.chhh.utils.PathUtils;
+import com.github.chhh.utils.PropertiesUtils;
+import com.github.chhh.utils.PythonInfo;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.ISimpleTextComponent;
+import com.github.chhh.utils.swing.TextConsole;
 
 public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
@@ -2890,8 +2890,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
           EventBus.getDefault().post(new MessageSaveCache());
           EventBus.getDefault().post(MessageSaveAllForms.forCaching());
         }
-
-
       });
 
       Thread.setDefaultUncaughtExceptionHandler((t, e) -> {

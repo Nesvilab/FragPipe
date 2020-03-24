@@ -1,5 +1,6 @@
 package umich.msfragger.gui;
 
+import com.github.chhh.utils.StringUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -70,15 +71,14 @@ import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.tmtintegrator.QuantLabel;
 import umich.msfragger.params.tmtintegrator.TmtiPanel;
-import umich.msfragger.util.FastaUtils;
-import umich.msfragger.util.FastaUtils.FastaContent;
-import umich.msfragger.util.LogUtils;
-import umich.msfragger.util.OsUtils;
-import umich.msfragger.util.PathUtils;
-import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.UsageTrigger;
-import umich.swing.console.TextConsole;
+import com.github.chhh.utils.FastaUtils;
+import com.github.chhh.utils.FastaUtils.FastaContent;
+import com.github.chhh.utils.LogUtils;
+import com.github.chhh.utils.OsUtils;
+import com.github.chhh.utils.PathUtils;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.UsageTrigger;
+import com.github.chhh.utils.swing.TextConsole;
 
 public class FragpipeOnMessages {
   private static final Logger log = LoggerFactory.getLogger(FragpipeOnMessages.class);

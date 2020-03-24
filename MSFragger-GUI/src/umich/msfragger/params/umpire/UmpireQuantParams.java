@@ -16,7 +16,7 @@
  */
 package umich.msfragger.params.umpire;
 
-import umich.msfragger.exceptions.ParsingException;
+import com.dmtavt.fragpipe.exceptions.ParsingException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

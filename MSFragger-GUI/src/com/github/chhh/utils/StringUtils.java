@@ -1,8 +1,12 @@
 package com.github.chhh.utils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -17,8 +21,25 @@ public final class StringUtils {
     throw new AssertionError("This class can not be instantiated");
   }
 
+  public static String sortedChars(String s) {
+    char[] chars = s.toCharArray();
+    Arrays.sort(chars);
+    return new String(chars);
+  }
+
   public static boolean isPureAscii(String text) {
     return StandardCharsets.US_ASCII.newEncoder().canEncode(text);
+  }
+
+  public static List<String> splitCommandLine(String line) {
+    String pattern = "([\"'][^\"']+[\"']|[^\\s\"']+)";
+    Pattern regex = Pattern.compile(pattern);
+    Matcher matcher = regex.matcher(line);
+    LinkedList<String> list = new LinkedList<>();
+    while (matcher.find()) {
+      list.add(matcher.group(1));
+    }
+    return list;
   }
 
   /**

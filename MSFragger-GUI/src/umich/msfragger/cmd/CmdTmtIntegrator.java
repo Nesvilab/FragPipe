@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -19,10 +20,8 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.tmtintegrator.QuantLabelAnnotation;
 import umich.msfragger.params.tmtintegrator.TmtiPanel;
-import umich.msfragger.util.FileDelete;
-import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.UsageTrigger;
+import com.github.chhh.utils.FileDelete;
+import com.github.chhh.utils.SwingUtils;
 
 public class CmdTmtIntegrator extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdTmtIntegrator.class);

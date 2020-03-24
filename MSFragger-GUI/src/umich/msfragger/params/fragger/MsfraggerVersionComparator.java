@@ -4,7 +4,7 @@ import java.util.Comparator;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.util.VersionComparator;
+import com.github.chhh.utils.VersionComparator;
 
 public class MsfraggerVersionComparator implements Comparator<String> {
   private static final Logger log = LoggerFactory.getLogger(MsfraggerVersionComparator.class);

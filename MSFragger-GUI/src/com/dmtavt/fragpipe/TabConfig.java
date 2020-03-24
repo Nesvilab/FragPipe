@@ -9,8 +9,8 @@ import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.swing.JPanelWithEnablement;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.JPanelWithEnablement;
 
 public class TabConfig extends JPanelWithEnablement {
 

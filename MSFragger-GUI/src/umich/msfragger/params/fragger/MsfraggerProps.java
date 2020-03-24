@@ -19,7 +19,6 @@ package umich.msfragger.params.fragger;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -27,8 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.gui.MsfraggerGuiFrame;
-import umich.msfragger.util.PropertiesUtils;
+import com.github.chhh.utils.PropertiesUtils;
 
 /**
  *

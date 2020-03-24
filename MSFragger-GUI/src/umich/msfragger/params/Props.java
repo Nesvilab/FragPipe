@@ -16,6 +16,7 @@
  */
 package umich.msfragger.params;
 
+import com.github.chhh.utils.StringUtils;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,17 +25,13 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import umich.msfragger.util.IOUtils;
-import umich.msfragger.util.StringUtils;
+import com.github.chhh.utils.IOUtils;
 
 /**
  *

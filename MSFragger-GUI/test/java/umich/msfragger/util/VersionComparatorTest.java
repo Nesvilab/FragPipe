@@ -1,10 +1,6 @@
 package umich.msfragger.util;
 
-import static org.junit.Assert.*;
-
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
+import com.github.chhh.utils.VersionComparator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

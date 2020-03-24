@@ -2,6 +2,7 @@ package umich.msfragger.gui;
 
 import static umich.msfragger.params.fragger.FraggerMigPanel.PROP_FILECHOOSER_LAST_PATH;
 
+import com.github.chhh.utils.StringUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -99,18 +100,17 @@ import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
 import umich.msfragger.params.philosopher.PhilosopherProps;
 import umich.msfragger.params.speclib.SpecLibGen;
-import umich.msfragger.util.FileListing;
-import umich.msfragger.util.IValidateString;
-import umich.msfragger.util.LogUtils;
-import umich.msfragger.util.OsUtils;
-import umich.msfragger.util.PathUtils;
-import umich.msfragger.util.PythonInfo;
-import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.ValidateTrue;
-import umich.msfragger.util.VersionComparator;
-import umich.msfragger.util.swing.ISimpleTextComponent;
-import umich.swing.console.TextConsole;
+import com.github.chhh.utils.FileListing;
+import com.github.chhh.utils.IValidateString;
+import com.github.chhh.utils.LogUtils;
+import com.github.chhh.utils.OsUtils;
+import com.github.chhh.utils.PathUtils;
+import com.github.chhh.utils.PythonInfo;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.ValidateTrue;
+import com.github.chhh.utils.VersionComparator;
+import com.github.chhh.utils.swing.ISimpleTextComponent;
+import com.github.chhh.utils.swing.TextConsole;
 
 public class MsfraggerGuiFrameUtils {
   private static final Logger log = LoggerFactory.getLogger(MsfraggerGuiFrameUtils.class);

@@ -18,6 +18,7 @@ package umich.msfragger.gui;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.github.chhh.utils.StringUtils;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import umich.msfragger.cmd.ProcessBuilderInfo;
-import umich.msfragger.util.StringUtils;
 
 public class ProcessResult implements AutoCloseable {
 

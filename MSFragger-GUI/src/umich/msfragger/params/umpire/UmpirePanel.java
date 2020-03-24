@@ -23,6 +23,7 @@ import static umich.msfragger.params.umpire.UmpireParams.PROP_Thread;
 import static umich.msfragger.params.umpire.UmpireParams.PROP_WindowSize;
 import static umich.msfragger.params.umpire.UmpireParams.PROP_WindowType;
 
+import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.UiText;
 import java.awt.Component;
 import java.awt.Container;
@@ -58,9 +59,8 @@ import rx.swing.sources.DocumentEventSource;
 import umich.msfragger.cmd.ToolingUtils;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.swing.FormEntry;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FormEntry;
 
 public class UmpirePanel extends JPanel {
   public JCheckBox checkRunUmpireSe;

@@ -3,7 +3,7 @@ package com.dmtavt.fragpipe.messages;
 import static com.dmtavt.fragpipe.messages.MessageSaveAllForms.FORMS_CACHE_FN;
 
 import java.nio.file.Path;
-import umich.msfragger.util.CacheUtils;
+import com.github.chhh.utils.CacheUtils;
 
 public class MessageLoadAllForms {
 

@@ -37,8 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import umich.msfragger.params.PropLine;
 import umich.msfragger.params.PropertyFileContent;
-import umich.msfragger.util.CacheUtils;
-import umich.msfragger.util.PathUtils;
+import com.github.chhh.utils.CacheUtils;
 
 /**
  *

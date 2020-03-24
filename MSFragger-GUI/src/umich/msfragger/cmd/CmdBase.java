@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.github.chhh.utils.StringUtils;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -15,9 +16,8 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.util.JarUtils;
-import umich.msfragger.util.OsUtils;
-import umich.msfragger.util.StringUtils;
+import com.github.chhh.utils.JarUtils;
+import com.github.chhh.utils.OsUtils;
 
 public abstract class CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdBase.class);
@@ -88,7 +88,7 @@ public abstract class CmdBase {
   }
 
   public static List<String> asParts(String cmdString) {
-    return Arrays.stream(cmdString.split("[ ]+")).collect(Collectors.toList());
+    return StringUtils.splitCommandLine(cmdString);
   }
 
   /**

@@ -1,5 +1,6 @@
 package umich.msfragger.params.tmtintegrator;
 
+import com.github.chhh.utils.StringUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +15,6 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.util.StringUtils;
 
 public class TmtiConfig {
   private static final Logger log = LoggerFactory.getLogger(TmtiConfig.class);

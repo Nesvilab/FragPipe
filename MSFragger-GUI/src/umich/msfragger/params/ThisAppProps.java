@@ -37,11 +37,11 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.gui.api.SearchTypeProp;
-import umich.msfragger.util.BundleUtils;
-import umich.msfragger.util.CacheUtils;
-import umich.msfragger.util.PathUtils;
-import umich.msfragger.util.PropertiesUtils;
-import umich.msfragger.util.SwingUtils;
+import com.github.chhh.utils.BundleUtils;
+import com.github.chhh.utils.CacheUtils;
+import com.github.chhh.utils.PathUtils;
+import com.github.chhh.utils.PropertiesUtils;
+import com.github.chhh.utils.SwingUtils;
 
 public class ThisAppProps extends Properties {
 

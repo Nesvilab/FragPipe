@@ -16,6 +16,7 @@
  */
 package umich.msfragger.params.fragger;
 
+import com.github.chhh.utils.StringUtils;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,8 +43,7 @@ import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.enums.FraggerPrecursorMassMode;
 import umich.msfragger.params.enums.FragmentMassTolUnits;
 import umich.msfragger.params.enums.PrecursorMassTolUnits;
-import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.SwingUtils;
+import com.github.chhh.utils.SwingUtils;
 
 import javax.swing.*;
 

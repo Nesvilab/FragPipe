@@ -1,7 +1,8 @@
 package umich.msfragger.cmd;
 
-import static umich.msfragger.util.PathUtils.testFilePath;
+import static com.github.chhh.utils.PathUtils.testFilePath;
 
+import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,10 +31,9 @@ import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.enums.PrecursorMassTolUnits;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
-import umich.msfragger.util.OsUtils;
-import umich.msfragger.util.PythonInfo;
-import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.UsageTrigger;
+import com.github.chhh.utils.OsUtils;
+import com.github.chhh.utils.PythonInfo;
+import com.github.chhh.utils.UsageTrigger;
 
 public class CmdMsfragger extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdMsfragger.class);

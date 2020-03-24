@@ -18,6 +18,7 @@ package umich.msfragger;
 
 import static umich.msfragger.params.ThisAppProps.PATH_BUNDLE;
 
+import com.github.chhh.utils.StringUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -39,9 +40,8 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import com.dmtavt.fragpipe.messages.MessageTipNotification;
 import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.util.PropertiesUtils;
-import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.VersionComparator;
+import com.github.chhh.utils.PropertiesUtils;
+import com.github.chhh.utils.VersionComparator;
 
 /**
  * @author Dmitry Avtonomov

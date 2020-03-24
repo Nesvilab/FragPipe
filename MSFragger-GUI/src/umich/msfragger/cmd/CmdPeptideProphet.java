@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.github.chhh.utils.StringUtils;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.IOException;
@@ -31,10 +32,9 @@ import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.ProcessManager;
 import umich.msfragger.params.pepproph.PeptideProphetParams;
 import umich.msfragger.params.philosopher.PhilosopherProps;
-import umich.msfragger.util.FileDelete;
-import umich.msfragger.util.FileListing;
-import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.UsageTrigger;
+import com.github.chhh.utils.FileDelete;
+import com.github.chhh.utils.FileListing;
+import com.github.chhh.utils.UsageTrigger;
 
 public class CmdPeptideProphet extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdPeptideProphet.class);

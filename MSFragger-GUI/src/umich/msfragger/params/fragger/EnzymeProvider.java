@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import umich.msfragger.util.PropertiesUtils;
+import com.github.chhh.utils.PropertiesUtils;
 
 public class EnzymeProvider implements Supplier<List<MsfraggerEnzyme>> {
   private static final String PROPERTIES_FN = "enzyme-defs-supported.txt";

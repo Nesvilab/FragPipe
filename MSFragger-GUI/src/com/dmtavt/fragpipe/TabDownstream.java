@@ -1,6 +1,6 @@
 package com.dmtavt.fragpipe;
 
-import umich.msfragger.util.swing.JPanelWithEnablement;
+import com.github.chhh.utils.swing.JPanelWithEnablement;
 
 public class TabDownstream extends JPanelWithEnablement {
 

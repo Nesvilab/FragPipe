@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -8,8 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.params.philosopher.PhilosopherProps;
-import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.UsageTrigger;
+import com.github.chhh.utils.UsageTrigger;
 
 public class CmdPhilosopherFilter extends CmdBase {
 

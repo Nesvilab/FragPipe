@@ -1,5 +1,6 @@
 package umich.msfragger.gui.dialogs;
 
+import com.github.chhh.utils.StringUtils;
 import java.awt.BorderLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -19,7 +20,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import umich.msfragger.util.StringUtils;
 
 public class DbIdDialog extends JDialog {
   private static final String PROP_UNIPROT_IDS = "database.uniprot.ids";

@@ -3,7 +3,7 @@ package umich.msfragger.cmd;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import umich.msfragger.util.UsageTrigger;
+import com.github.chhh.utils.UsageTrigger;
 
 public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
 

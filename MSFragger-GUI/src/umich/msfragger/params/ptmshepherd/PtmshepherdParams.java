@@ -1,5 +1,6 @@
 package umich.msfragger.params.ptmshepherd;
 
+import com.github.chhh.utils.StringUtils;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -11,8 +12,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.LcmsFileGroup;
-import umich.msfragger.util.PropertiesUtils;
-import umich.msfragger.util.StringUtils;
+import com.github.chhh.utils.PropertiesUtils;
 
 public class PtmshepherdParams {
   private static final Logger log = LoggerFactory.getLogger(PtmshepherdParams.class);

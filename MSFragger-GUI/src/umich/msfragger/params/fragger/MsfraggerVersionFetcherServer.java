@@ -16,15 +16,13 @@
  */
 package umich.msfragger.params.fragger;
 
+import com.github.chhh.utils.StringUtils;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.http.Header;
@@ -45,8 +43,6 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.api.VersionFetcher;
-import umich.msfragger.util.PropertiesUtils;
-import umich.msfragger.util.StringUtils;
 
 /**
  *

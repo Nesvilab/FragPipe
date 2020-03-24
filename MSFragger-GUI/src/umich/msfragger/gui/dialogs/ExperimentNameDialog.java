@@ -15,6 +15,7 @@
  */
 package umich.msfragger.gui.dialogs;
 
+import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.DocumentFilters;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +23,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.ListModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.util.StringUtils;
 
 /**
  *

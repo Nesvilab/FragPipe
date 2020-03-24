@@ -16,7 +16,7 @@
  */
 package umich.msfragger.params.comet;
 
-import umich.msfragger.exceptions.ParsingException;
+import com.dmtavt.fragpipe.exceptions.ParsingException;
 
 import java.io.*;
 import java.nio.charset.Charset;

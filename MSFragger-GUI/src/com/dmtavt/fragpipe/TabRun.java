@@ -1,12 +1,11 @@
 package com.dmtavt.fragpipe;
 
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import umich.msfragger.util.swing.JPanelWithEnablement;
-import umich.swing.console.TextConsole;
+import com.github.chhh.utils.swing.JPanelWithEnablement;
+import com.github.chhh.utils.swing.TextConsole;
 
 public class TabRun extends JPanelWithEnablement {
   final TextConsole console;

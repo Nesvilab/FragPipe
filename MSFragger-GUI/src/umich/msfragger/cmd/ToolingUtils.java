@@ -1,7 +1,8 @@
 package umich.msfragger.cmd;
 
-import static umich.msfragger.util.PathUtils.testBinaryPath;
+import static com.github.chhh.utils.PathUtils.testBinaryPath;
 
+import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -29,13 +30,12 @@ import javax.swing.JOptionPane;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.util.FileCopy;
-import umich.msfragger.util.FileDelete;
-import umich.msfragger.util.FileMove;
-import umich.msfragger.util.Holder;
-import umich.msfragger.util.OsUtils;
-import umich.msfragger.util.PathUtils;
-import umich.msfragger.util.StringUtils;
+import com.github.chhh.utils.FileCopy;
+import com.github.chhh.utils.FileDelete;
+import com.github.chhh.utils.FileMove;
+import com.github.chhh.utils.Holder;
+import com.github.chhh.utils.OsUtils;
+import com.github.chhh.utils.PathUtils;
 
 public class ToolingUtils {
   private ToolingUtils() {}

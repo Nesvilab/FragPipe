@@ -15,11 +15,11 @@ import org.greenrobot.eventbus.ThreadMode;
 import com.dmtavt.fragpipe.messages.MessageEasypqpInit;
 import com.dmtavt.fragpipe.messages.MessageToolInit;
 import umich.msfragger.params.speclib.SpecLibGen.MessageInitDone.REASON;
-import umich.msfragger.util.CheckResult;
-import umich.msfragger.util.Installed;
-import umich.msfragger.util.JarUtils;
-import umich.msfragger.util.PythonInfo;
-import umich.msfragger.util.PythonModule;
+import com.github.chhh.utils.CheckResult;
+import com.github.chhh.utils.Installed;
+import com.github.chhh.utils.JarUtils;
+import com.github.chhh.utils.PythonInfo;
+import com.github.chhh.utils.PythonModule;
 
 public class SpecLibGen {
   private static SpecLibGen instance = new SpecLibGen();

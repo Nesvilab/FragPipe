@@ -27,9 +27,9 @@ import umich.msfragger.Version;
 import umich.msfragger.gui.api.LogbackJTextPaneAppender;
 import com.dmtavt.fragpipe.messages.MessageSaveAllForms;
 import com.dmtavt.fragpipe.messages.MessageSaveCache;
-import umich.msfragger.util.LogUtils;
-import umich.msfragger.util.SwingUtils;
-import umich.swing.console.TextConsole;
+import com.github.chhh.utils.LogUtils;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.TextConsole;
 
 public class Fragpipe extends JFrame {
   private static final Logger log = LoggerFactory.getLogger(Fragpipe.class);
@@ -47,6 +47,7 @@ public class Fragpipe extends JFrame {
 
   public Fragpipe() throws HeadlessException {
     init();
+    initMore();
   }
 
   public static void main(String args[]) {
@@ -138,10 +139,11 @@ public class Fragpipe extends JFrame {
   }
 
   private void init() {
-
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setTitle(Version.PROGRAM_TITLE + " (v" + Version.version() + ")");
     setLocale(Locale.ROOT);
     setMinimumSize(new Dimension(640, 480));
+
 
 //    this.setLayout(new MigLayout(new LC().fillX()));
     this.setLayout(new BorderLayout());

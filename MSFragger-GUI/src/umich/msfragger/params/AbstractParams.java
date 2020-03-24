@@ -15,7 +15,6 @@
  */
 package umich.msfragger.params;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,7 +25,7 @@ import java.nio.file.Path;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.util.CacheUtils;
+import com.github.chhh.utils.CacheUtils;
 
 /**
  *

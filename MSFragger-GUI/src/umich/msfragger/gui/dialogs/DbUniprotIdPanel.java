@@ -1,5 +1,6 @@
 package umich.msfragger.gui.dialogs;
 
+import com.github.chhh.utils.StringUtils;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -17,7 +18,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.util.StringUtils;
 
 public class DbUniprotIdPanel extends JPanel {
 

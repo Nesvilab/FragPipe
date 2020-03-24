@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.philosopher.PhilosopherProps;
-import umich.msfragger.util.UsageTrigger;
+import com.github.chhh.utils.UsageTrigger;
 
 public class CmdIprophet extends CmdBase {
 

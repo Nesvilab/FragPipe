@@ -1,12 +1,11 @@
 package umich.msfragger.gui;
 
+import com.github.chhh.utils.StringUtils;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import umich.msfragger.util.StringUtils;
 
 public class InputLcmsFile {
     private final Path path;

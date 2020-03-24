@@ -19,8 +19,7 @@ package umich.msfragger.params.philosopher;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import umich.msfragger.params.Props.Prop;
-import umich.msfragger.util.PropertiesUtils;
+import com.github.chhh.utils.PropertiesUtils;
 
 /**
  *

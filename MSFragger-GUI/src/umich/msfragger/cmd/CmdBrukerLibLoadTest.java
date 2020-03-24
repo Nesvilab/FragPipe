@@ -2,7 +2,6 @@ package umich.msfragger.cmd;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.util.OsUtils;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

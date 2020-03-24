@@ -1,5 +1,6 @@
 package umich.msfragger.params.tmtintegrator;
 
+import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
@@ -59,10 +60,9 @@ import com.dmtavt.fragpipe.messages.MessageTmtIntegratorRun;
 import com.dmtavt.fragpipe.messages.MessageType;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.tmtintegrator.TmtAnnotationTable.ExpNameToAnnotationFile;
-import umich.msfragger.util.StringUtils;
-import umich.msfragger.util.SwingUtils;
-import umich.msfragger.util.swing.FormEntry;
-import umich.msfragger.util.swing.JPanelWithEnablement;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.JPanelWithEnablement;
 
 public class TmtiPanel extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(TmtiPanel.class);

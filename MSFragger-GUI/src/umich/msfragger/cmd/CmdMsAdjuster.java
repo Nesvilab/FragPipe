@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,7 +12,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.fragger.FraggerMigPanel;
-import umich.msfragger.util.StringUtils;
 
 public class CmdMsAdjuster extends CmdBase {
 
