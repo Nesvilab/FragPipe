@@ -1,9 +1,15 @@
 package com.dmtavt.fragpipe;
 
+import com.dmtavt.fragpipe.messages.MessageClearCache;
+import com.dmtavt.fragpipe.messages.MessageFindTools;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
+import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
+import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
 import java.util.Properties;
+import java.util.function.Supplier;
+import javax.swing.JCheckBox;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -58,8 +64,20 @@ public class TabConfig extends JPanelWithEnablement {
 
   private JPanel createPanelTopButtons() {
     JPanel p = new JPanel();
-    p.setLayout(new MigLayout(new LC().fillX()));
-    p.add(UiUtils.newButton("About", e -> EventBus.getDefault().post(new MessageShowAboutDialog())));
+    p.setLayout(new MigLayout(new LC().fillX().debug()));
+    Supplier<CC> ccL = () -> new CC().alignX("left");
+    Supplier<CC> ccR = () -> new CC().alignX("right");
+    p.add(UiUtils.createButton("About", e -> post(new MessageShowAboutDialog())), ccL.get().split().spanX());
+    p.add(UiUtils.createButton("Clear Cache", e -> post(new MessageClearCache())), ccL.get());
+    UiCheck uiCheckUmpire = UiUtils.createUiCheck("Enable DIA-Umpire", false,
+        e -> post(new MessageUmpireEnabled(((JCheckBox) e.getSource()).isSelected())));
+    p.add(uiCheckUmpire, ccL.get().wrap());
+    p.add(UiUtils.createButton("Find tools", e -> post(new MessageFindTools())), ccL.get().split().spanX());
+    p.add(new JLabel("Search for tools recursively in a direcotry"), ccL.get().wrap());
     return p;
+  }
+
+  private void post(Object message) {
+    EventBus.getDefault().post(message);
   }
 }

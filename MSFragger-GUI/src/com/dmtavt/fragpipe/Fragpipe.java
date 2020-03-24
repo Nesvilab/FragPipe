@@ -1,6 +1,9 @@
 package com.dmtavt.fragpipe;
 
 import com.dmtavt.fragpipe.messages.MessageExportLog;
+import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
+import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
+import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -13,6 +16,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Locale;
 import java.util.function.Consumer;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -24,6 +29,8 @@ import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.NoSubscriberEvent;
+import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
@@ -33,6 +40,7 @@ import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.github.chhh.utils.LogUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.TextConsole;
+import umich.msfragger.params.umpire.UmpirePanel;
 
 public class Fragpipe extends JFrame {
   private static final Logger log = LoggerFactory.getLogger(Fragpipe.class);
@@ -43,10 +51,13 @@ public class Fragpipe extends JFrame {
   public static final Color COLOR_RED_DARKER = new Color(166, 56, 68);
   public static final Color COLOR_RED_DARKEST = new Color(155, 35, 29);
   public static final Color COLOR_BLACK = new Color(0, 0, 0);
+  private static final String TAB_NAME_LCMS = "LCMS Files";
+  private static final String TAB_NAME_UMPIRE = "DIA-Umpire SE";
 
   JTabbedPane tabs;
   TextConsole console;
   JLabel defFont;
+  private TabUmpire tabUmpire;
 
   public Fragpipe() throws HeadlessException {
     init();
@@ -128,9 +139,10 @@ public class Fragpipe extends JFrame {
     TabQuantitaion tabQuantitaion = new TabQuantitaion();
     TabMisc tabMisc = new TabMisc();
     TabRun tabRun = new TabRun(console);
+    tabUmpire = new TabUmpire();
 
     addTab.accept(new UiTab("Config", tabConfig, "/umich/msfragger/gui/icons/150-cogs.png", null));
-    addTab.accept(new UiTab("LCMS Files", tabLcmsFiles, "/umich/msfragger/gui/icons/186-list-numbered.png", null));
+    addTab.accept(new UiTab(TAB_NAME_LCMS, tabLcmsFiles, "/umich/msfragger/gui/icons/186-list-numbered.png", null));
     addTab.accept(new UiTab("Database", tabDatabase, "/umich/msfragger/gui/icons/093-drawer.png", null));
     addTab.accept(new UiTab("MSFragger", tabMsfragger, "/umich/msfragger/gui/icons/bolt-16.png", null));
     addTab.accept(new UiTab("Downstream", tabDownstream, "/umich/msfragger/gui/icons/348-filter.png", null));
@@ -141,7 +153,7 @@ public class Fragpipe extends JFrame {
     return t;
   }
 
-  private void init() {
+  private synchronized void init() {
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setTitle(Version.PROGRAM_TITLE + " (v" + Version.version() + ")");
     setLocale(Locale.ROOT);
@@ -267,6 +279,34 @@ public class Fragpipe extends JFrame {
   }
 
   private void initMore() {
-    //EventBus.getDefault().register(this);
+    EventBus.getDefault().register(this);
+  }
+
+  @Subscribe
+  public void onUmpireEnabled(MessageUmpireEnabled m) {
+    synchronized (this) {
+      if (m.enabled) {
+        final String prevTabName = TAB_NAME_LCMS;
+        int prevTabIndex = tabs.indexOfTab(prevTabName);
+        if (prevTabIndex < 0) {
+          throw new IllegalStateException("Could not find tab named " + prevTabName);
+        }
+        final ImageIcon icon = UiUtils.loadIcon(Fragpipe.class, "/umich/msfragger/gui/icons/dia-umpire-16x16.png");
+        tabs.insertTab(TAB_NAME_UMPIRE, icon, new JScrollPane(tabUmpire), "", prevTabIndex + 1);
+
+      } else {
+        int index = tabs.indexOfTab(TAB_NAME_UMPIRE);
+        if (index >= 0) {
+          tabs.removeTabAt(index);
+        }
+      }
+    }
+  }
+
+  @Subscribe
+  public void onNoSubscriberEvent(NoSubscriberEvent m) {
+    String message = String.format("No subscribers for message type [%s]", m.originalEvent.getClass().getSimpleName());
+    log.warn(message);
+    System.err.println(message);
   }
 }

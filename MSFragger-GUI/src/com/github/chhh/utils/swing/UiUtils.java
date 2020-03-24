@@ -4,15 +4,35 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.stream.Stream;
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.text.Document;
 
 public class UiUtils {
   private UiUtils() {}
 
-  public static JButton newButton(String text, ActionListener listener) {
+  /**
+   * Loads icon from current
+   * @param resourcePath E.g. "/umich/msfragger/gui/icons/dia-umpire-16x16.png"
+   */
+  public static ImageIcon loadIcon(Class<?> clazz, String resourcePath) {
+    return new ImageIcon(clazz.getResource(resourcePath));
+  }
+
+  public static UiCheck createUiCheck(String label, boolean selected, ActionListener listener) {
+    UiCheck ui = new UiCheck(label, null, selected);
+    ui.addActionListener(listener);
+    return ui;
+  }
+  public static UiCheck createUiCheck(String label, boolean selected) {
+    return new UiCheck(label, null, selected);
+  }
+
+  public static JButton createButton(String text, ActionListener listener) {
     JButton b = new JButton(text);
     b.addActionListener(listener);
     return b;
