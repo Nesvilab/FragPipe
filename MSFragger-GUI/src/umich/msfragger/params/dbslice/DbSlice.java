@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import umich.msfragger.messages.MessageToolInit;
+import com.dmtavt.fragpipe.messages.MessageToolInit;
 import umich.msfragger.params.dbslice.DbSlice.MessageInitDone.REASON;
 import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.params.fragger.MsfraggerVersionComparator;

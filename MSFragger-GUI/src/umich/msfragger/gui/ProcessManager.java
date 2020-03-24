@@ -25,13 +25,11 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.cmd.ProcessBuilderInfo;
-import umich.msfragger.messages.MessageAppendToConsole;
-import umich.msfragger.messages.MessageDeletePaths;
-import umich.msfragger.messages.MessageKillAll;
-import umich.msfragger.messages.MessageStartProcesses;
-import umich.msfragger.params.speclib.SpecLibGen.Message;
+import com.dmtavt.fragpipe.messages.MessageAppendToConsole;
+import com.dmtavt.fragpipe.messages.MessageDeletePaths;
+import com.dmtavt.fragpipe.messages.MessageKillAll;
+import com.dmtavt.fragpipe.messages.MessageStartProcesses;
 import umich.msfragger.util.FileDelete;
-import umich.msfragger.util.FileDrop.Event;
 
 public class ProcessManager {
   private static final Logger log = LoggerFactory.getLogger(ProcessManager.class);

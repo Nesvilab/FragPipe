@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import umich.msfragger.messages.MessageToolInit;
+import com.dmtavt.fragpipe.messages.MessageToolInit;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.swing.ISimpleTextComponent;
 

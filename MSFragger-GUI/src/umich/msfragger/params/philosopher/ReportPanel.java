@@ -21,7 +21,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.messages.MessageSearchType;
+import com.dmtavt.fragpipe.messages.MessageSearchType;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.util.swing.FormEntry;
 import umich.msfragger.util.swing.JPanelWithEnablement;

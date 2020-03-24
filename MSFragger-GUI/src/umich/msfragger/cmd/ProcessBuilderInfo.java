@@ -10,10 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.gui.ProcessResult;
-import umich.msfragger.messages.MessageAppendToConsole;
-import umich.msfragger.messages.MessageExternalProcessOutput;
-import umich.msfragger.messages.MessageKillAll;
-import umich.msfragger.messages.MessageKillAll.REASON;
+import com.dmtavt.fragpipe.messages.MessageAppendToConsole;
+import com.dmtavt.fragpipe.messages.MessageExternalProcessOutput;
+import com.dmtavt.fragpipe.messages.MessageKillAll;
+import com.dmtavt.fragpipe.messages.MessageKillAll.REASON;
 
 public class ProcessBuilderInfo {
   private static final Logger log = LoggerFactory.getLogger(ProcessBuilderInfo.class);

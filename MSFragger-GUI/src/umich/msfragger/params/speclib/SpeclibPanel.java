@@ -20,7 +20,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.messages.MessageEasypqpInit;
+import com.dmtavt.fragpipe.messages.MessageEasypqpInit;
 import umich.msfragger.util.SwingUtils;
 import umich.msfragger.util.swing.FormEntry;
 import umich.msfragger.util.swing.JPanelWithEnablement;

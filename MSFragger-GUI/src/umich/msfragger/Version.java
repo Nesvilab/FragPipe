@@ -37,7 +37,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
-import umich.msfragger.messages.MessageTipNotification;
+import com.dmtavt.fragpipe.messages.MessageTipNotification;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.util.PropertiesUtils;
 import umich.msfragger.util.StringUtils;
