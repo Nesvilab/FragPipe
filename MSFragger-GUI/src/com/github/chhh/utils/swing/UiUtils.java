@@ -1,12 +1,22 @@
 package com.github.chhh.utils.swing;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.stream.Stream;
+import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
 import javax.swing.text.Document;
 
 public class UiUtils {
   private UiUtils() {}
+
+  public static JButton newButton(String text, ActionListener listener) {
+    JButton b = new JButton(text);
+    b.addActionListener(listener);
+    return b;
+  }
 
   public static UiText createUiText(String filteredCharsRegex) {
     UiText uiText = new UiText();

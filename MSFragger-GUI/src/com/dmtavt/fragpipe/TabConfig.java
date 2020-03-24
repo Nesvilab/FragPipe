@@ -1,5 +1,7 @@
 package com.dmtavt.fragpipe;
 
+import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
+import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
 import java.util.Properties;
 import javax.swing.JEditorPane;
@@ -26,6 +28,7 @@ public class TabConfig extends JPanelWithEnablement {
 
   private void init() {
     this.setLayout(new MigLayout(new LC().fillX()));
+    add(createPanelTopButtons(), new CC().growX().wrap());
 
     {
       JLabel c = new JLabel();
@@ -51,5 +54,12 @@ public class TabConfig extends JPanelWithEnablement {
       p.add(c);
       add(p, new CC().growX().wrap());
     }
+  }
+
+  private JPanel createPanelTopButtons() {
+    JPanel p = new JPanel();
+    p.setLayout(new MigLayout(new LC().fillX()));
+    p.add(UiUtils.newButton("About", e -> EventBus.getDefault().post(new MessageShowAboutDialog())));
+    return p;
   }
 }
