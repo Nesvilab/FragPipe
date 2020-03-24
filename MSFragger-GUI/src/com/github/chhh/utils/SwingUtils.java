@@ -181,7 +181,9 @@ public class SwingUtils {
   public static String getStrVal(Component c) {
 
     String val;
-    if (c instanceof JFormattedTextField) {
+    if (c instanceof StringRepresentable) {
+      val = ((StringRepresentable) c).asString();
+    } else if (c instanceof JFormattedTextField) {
       val = ((JFormattedTextField) c).getText();
     } else if (c instanceof JTextField) {
       val = ((JTextField) c).getText();
@@ -199,12 +201,14 @@ public class SwingUtils {
   }
 
   public static void setStrVal(Component c, String val) {
-    if (c instanceof JFormattedTextField) {
+    if (c instanceof StringRepresentable) {
+      ((StringRepresentable) c).fromString(val);
+    } else if (c instanceof JFormattedTextField) {
       ((JFormattedTextField) c).setText(val);
     } else if (c instanceof JTextField) {
       ((JTextField) c).setText(val);
     } else if (c instanceof JCheckBox) {
-      ((JCheckBox) c).setSelected(Boolean.valueOf(val));
+      ((JCheckBox) c).setSelected(Boolean.parseBoolean(val));
     } else if (c instanceof JComboBox) {
       ((JComboBox<?>) c).getModel().setSelectedItem(val);
     } else if (c instanceof JSpinner) {
