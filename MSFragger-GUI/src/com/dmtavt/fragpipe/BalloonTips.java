@@ -1,4 +1,4 @@
-package com.dmtavt.fragger.ui;
+package com.dmtavt.fragpipe;
 
 import java.util.HashMap;
 import java.util.Map;

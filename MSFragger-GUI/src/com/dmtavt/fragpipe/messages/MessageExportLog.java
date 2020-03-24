@@ -1,4 +1,4 @@
-package com.dmtavt.fragger.ui.messages;
+package com.dmtavt.fragpipe.messages;
 
 /**
  * Marker message to trigger exporting of console log.

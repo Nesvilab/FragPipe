@@ -1,4 +1,4 @@
-package com.dmtavt.fragger.ui;
+package com.dmtavt.fragpipe;
 
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;

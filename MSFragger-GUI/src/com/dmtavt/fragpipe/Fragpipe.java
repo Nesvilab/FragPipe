@@ -1,6 +1,6 @@
-package com.dmtavt.fragger.ui;
+package com.dmtavt.fragpipe;
 
-import com.dmtavt.fragger.ui.messages.MessageExportLog;
+import com.dmtavt.fragpipe.messages.MessageExportLog;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;

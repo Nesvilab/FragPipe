@@ -1,4 +1,4 @@
-package com.dmtavt.fragger.ui;
+package com.dmtavt.fragpipe;
 
 import umich.msfragger.util.swing.JPanelWithEnablement;
 
