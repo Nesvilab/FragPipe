@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.greenrobot.eventbus.EventBus;
 import umich.msfragger.params.ThisAppProps;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
@@ -15,6 +16,12 @@ import com.github.chhh.utils.swing.JPanelWithEnablement;
 public class TabConfig extends JPanelWithEnablement {
 
   public TabConfig() {
+    init();
+    initMore();
+  }
+
+  private void initMore() {
+    //EventBus.getDefault().register(this);
   }
 
   private void init() {

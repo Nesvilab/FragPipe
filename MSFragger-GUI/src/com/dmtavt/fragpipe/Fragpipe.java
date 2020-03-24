@@ -20,6 +20,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ToolTipManager;
+import net.miginfocom.layout.CC;
+import net.miginfocom.layout.LC;
+import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,7 +115,7 @@ public class Fragpipe extends JFrame {
     return c;
   }
 
-  private JTabbedPane createTabs() {
+  private JTabbedPane createTabs(TextConsole console) {
     final JTabbedPane t = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 
     Consumer<UiTab> addTab = tab -> t.addTab(tab.getTitle(), tab.getIcon(), new JScrollPane(tab.getComponent()), tab.getTooltip());
@@ -145,17 +148,16 @@ public class Fragpipe extends JFrame {
     setMinimumSize(new Dimension(640, 480));
 
 
-//    this.setLayout(new MigLayout(new LC().fillX()));
-    this.setLayout(new BorderLayout());
+    this.setLayout(new MigLayout(new LC().fill()));
+    //this.setLayout(new BorderLayout());
 
     defFont = new JLabel("dummy label to get default font from");
     console = createConsole();
-    tabs = createTabs();
+    tabs = createTabs(console);
 
-    add(tabs, BorderLayout.CENTER);
+    //add(tabs, BorderLayout.CENTER);
+    add(tabs, new CC().grow());
 
-//    consoleScrollPane.setViewportView(console);
-//
 //    defTextColor = UIManager.getColor("TextField.foreground");
 //    if (defTextColor == null) {
 //      defTextColor = Color.BLACK;

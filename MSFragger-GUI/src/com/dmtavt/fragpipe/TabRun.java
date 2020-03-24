@@ -18,9 +18,9 @@ public class TabRun extends JPanelWithEnablement {
   }
 
   private void init() {
-    this.setLayout(new MigLayout(new LC().fillX()));
+    this.setLayout(new MigLayout(new LC().fill()));
 
     scrollConsole = new JScrollPane(console);
-    add(scrollConsole, new CC().growX().wrap());
+    add(scrollConsole, new CC().grow().wrap());
   }
 }

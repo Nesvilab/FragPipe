@@ -130,6 +130,7 @@ public class ThisAppProps extends Properties {
   }
 
   public static Properties getRemotePropertiesWithLocalDefaults() {
+    // TODO: deliver remote properties via event bus once/if fetched
     final Properties p = new Properties(getLocalProperties());
     // merge with remote properties
     Properties remote = ThisAppProps.getRemoteProperties();
