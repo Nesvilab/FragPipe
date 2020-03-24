@@ -74,6 +74,10 @@ public class SwingUtils {
   private SwingUtils() {
   }
 
+  public static JScrollPane wrapInScroll(Component comp) {
+    return new JScrollPane(comp);
+  }
+
   public static DialogAndThread runThreadWithProgressBar(String title, Component parent, Runnable runnable) {
     JFrame frame = SwingUtils.findParentFrame(parent);
     final JDialog dialog = new JDialog(frame, title, true);
