@@ -6,8 +6,6 @@ import com.dmtavt.fragpipe.messages.MessageConfigMsfragger;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.github.chhh.utils.JarUtils;
-import com.github.chhh.utils.PathUtils;
-import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils.FcMode;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
@@ -24,8 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -54,6 +50,7 @@ public class TabConfig extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(TabConfig.class);
 
   private UiText uiTextBinFragger;
+  private JEditorPane epFraggerVer;
 
   public TabConfig() {
     init();
@@ -115,15 +112,22 @@ public class TabConfig extends JPanelWithEnablement {
     JPanel p = newMigPanel();
     p.setBorder(new TitledBorder("MSFragger"));
     uiTextBinFragger = UiUtils.uiTextBuilder().ghost("Select path to MSFragger.jar").create();
-    p.add(Fragpipe.name(uiTextBinFragger, "config.bin-msfragger"), ccL().split().growX());
+    p.add(Fragpipe.rename(uiTextBinFragger, "config.bin-msfragger"), ccL().split().growX());
     p.add(UiUtils.createButton("Browse", this::actionBrowseBinMsfragger), ccL());
     JButton btnUpdate = UiUtils.createButton("Update", this::actionUpdateBinMsfragger);
     btnUpdate.setToolTipText(SwingUtils.makeHtml("Open MSFragger upgrader tool in browser.\n" +
         "In order to update you <b>must</b> download an\n" +
         "original copy from the <b>download</b> website once."));
     p.add(btnUpdate, ccL().wrap());
+    epFraggerVer = SwingUtils.createClickableHtml("MSFragger: info N/A");
+    Fragpipe.renameNoCache(epFraggerVer, name("msfragger.version-info"));
+    p.add(epFraggerVer, ccL().spanX().growX().wrap());
     p.add(SwingUtils.createClickableHtml(createFraggerCitationBody()), ccL().spanX().growX().wrap());
     return p;
+  }
+
+  private String name(String name) {
+    return name.startsWith("config.") ? name : "config." + name;
   }
 
   private CC ccL() {
@@ -143,7 +147,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private void actionUpdateBinMsfragger(ActionEvent evt) {
-
+    throw new UnsupportedOperationException("Updating MSFragger has not been reimplemented yet");
   }
 
   private void actionBrowseBinMsfragger(ActionEvent evt) {

@@ -21,6 +21,7 @@ import java.awt.event.WindowEvent;
 import java.util.Locale;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -50,12 +51,24 @@ public class Fragpipe extends JFrame {
   public static final Color COLOR_BLACK = new Color(0, 0, 0);
   private static final String TAB_NAME_LCMS = "LCMS Files";
   private static final String TAB_NAME_UMPIRE = "DIA-Umpire SE";
-  public static final String NAME_PRE_FRAGPIPE = "fragpipe.";
-  public static final BiFunction<Component, String, Component> COMP_NAMER = (comp, name) -> {
-    String prefixed = name.startsWith(NAME_PRE_FRAGPIPE) ? name : NAME_PRE_FRAGPIPE + name;
+  public static final String PROP_PREFIX = "fragpipe.";
+  public static final String PROP_NOCACHE = "do-not-cache";
+
+  public static final BiFunction<Component, String, Component> COMP_RENAME = (comp, name) -> {
+    String prefixed = name.startsWith(PROP_PREFIX) ? name : PROP_PREFIX + name;
     comp.setName(prefixed);
     return comp;
   };
+  public static final Function<String, String> APPEND_NO_CACHE = (name) -> {
+    if (name == null)
+      return PROP_NOCACHE;
+    return name.contains(PROP_NOCACHE) ? name : name + "." + PROP_NOCACHE;
+  };
+  public static final BiFunction<Component, String, Component> COMP_RENAME_NOCACHE = (comp, name) -> {
+    comp.setName(APPEND_NO_CACHE.apply(name));
+    return comp;
+  };
+
 
   JTabbedPane tabs;
   TextConsole console;
@@ -136,8 +149,11 @@ public class Fragpipe extends JFrame {
    * @param name
    * @return
    */
-  public static Component name(Component comp, String name) {
-    return COMP_NAMER.apply(comp, name);
+  public static Component rename(Component comp, String name) {
+    return COMP_RENAME.apply(comp, name);
+  }
+  public static Component renameNoCache(Component comp, String name) {
+    return COMP_RENAME_NOCACHE.apply(comp, name);
   }
 
   private JTabbedPane createTabs(TextConsole console) {
