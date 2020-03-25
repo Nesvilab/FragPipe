@@ -3,7 +3,7 @@ package umich.msfragger.gui;
 import static umich.msfragger.params.fragger.FraggerMigPanel.PROP_FILECHOOSER_LAST_PATH;
 
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
-import com.dmtavt.fragpipe.tools.msfragger.Msfragger.FraggerRunResult;
+import com.dmtavt.fragpipe.tools.msfragger.Msfragger.Version;
 import com.github.chhh.utils.StringUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -80,7 +80,6 @@ import org.apache.commons.lang3.SystemUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.Version;
 import umich.msfragger.cmd.CmdMsfragger;
 import umich.msfragger.cmd.ProcessBuilderInfo;
 import umich.msfragger.gui.api.SearchTypeProp;
@@ -261,7 +260,7 @@ public class MsfraggerGuiFrameUtils {
       int returnCode = pr.waitFor();
       JEditorPane ep = null;
 
-      String vCurMajor = Version.version().split("[-_]+")[0];
+      String vCurMajor = umich.msfragger.Version.version().split("[-_]+")[0];
       Properties props = PhilosopherProps.getProperties();
       String propKeyStubMin = PhilosopherProps.PROP_LOWEST_COMPATIBLE_VERSION + "." + vCurMajor;
       Optional<String> propKeyMin = props.stringPropertyNames().stream()
@@ -307,7 +306,7 @@ public class MsfraggerGuiFrameUtils {
           if (maxPhiVer == null) {
             sb.append(
                 "<br>\nHowever, we have not yet checked if it's fully compatible with this version of ")
-                .append(Version.PROGRAM_TITLE).append(".");
+                .append(umich.msfragger.Version.PROGRAM_TITLE).append(".");
           } else { // max ver != null
             int cmp = vc.compare(curPhiVer, maxPhiVer);
             if (cmp == 0) {
@@ -529,13 +528,13 @@ public class MsfraggerGuiFrameUtils {
 
 
     final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
-    String linkDl = p.getProperty(Version.PROP_DOWNLOAD_URL, "");
+    String linkDl = p.getProperty(umich.msfragger.Version.PROP_DOWNLOAD_URL, "");
     String linkSite = p.getProperty(ThisAppProps.PROP_LAB_SITE_URL, "http://nesvilab.org");
     String linkToPaper = p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL, "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
 
     JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">"
         + "MSFragger - Ultrafast Proteomics Search Engine<br/>"
-        + "FragPipe (v" + Version.version() + ")<br/>"
+        + "FragPipe (v" + umich.msfragger.Version.version() + ")<br/>"
         + "Dmitry Avtonomov<br/>"
         + "University of Michigan, 2017<br/><br/>"
         + "<a href=\"" + linkDl
@@ -588,7 +587,7 @@ public class MsfraggerGuiFrameUtils {
     if (cached != null) {
       // if there was a cached version of properties
       VersionComparator vc = new VersionComparator();
-      String storedVer = cached.getProperty(Version.PROP_VER, "0.0");
+      String storedVer = cached.getProperty(umich.msfragger.Version.PROP_VER, "0.0");
       if (vc.compare(storedVer, "4.0") < 0) {
         // and the version was less than 4.0
         String msg = String.format(Locale.ROOT, "Looks like you've upgraded from an "
@@ -609,7 +608,7 @@ public class MsfraggerGuiFrameUtils {
         }
 
         // rewrite the cached params file with a versioned one
-        ThisAppProps.save(Version.PROP_VER, Version.version());
+        ThisAppProps.save(umich.msfragger.Version.PROP_VER, umich.msfragger.Version.version());
       } else if (vc.compare(storedVer, "4.0") >= 0 && vc.compare(storedVer, "5.1") <= 0) {
         // and the version between 4.0 and 5.1
         final String prop = ThisAppProps.PROP_TEXT_CMD_PEPTIDE_PROPHET;
@@ -648,7 +647,7 @@ public class MsfraggerGuiFrameUtils {
         }
 
         // rewrite the cached params file with a versioned one
-        ThisAppProps.save(Version.PROP_VER, Version.version());
+        ThisAppProps.save(umich.msfragger.Version.PROP_VER, umich.msfragger.Version.version());
       }
     }
   }
@@ -896,7 +895,7 @@ public class MsfraggerGuiFrameUtils {
 
           String msg = "Could not find Philosopher binary file at this location.<br/>\n"
               + "Corresponding panel won't be active.<br/><br/>"
-              + "<b>If that's the first time you're using " + Version.PROGRAM_TITLE + "</b>,<br/>"
+              + "<b>If that's the first time you're using " + umich.msfragger.Version.PROGRAM_TITLE + "</b>,<br/>"
               + "you will need to <a href=\"" + link + "\">download Philosopher (click here)</a> first.<br/>"
               + "Use the button on the right to proceed to the download website.";
           JEditorPane ep = SwingUtils.createClickableHtml(msg, guiFrame.balloonBgColor);
@@ -1021,8 +1020,8 @@ public class MsfraggerGuiFrameUtils {
     }
 
     // get the vesrion reported by the current executable
-    final FraggerRunResult jarTest = Msfragger.testJar(jarPath);
-    final String localVer = jarTest.isVersionPrintedAtAll ? jarTest.version : "0.0";
+    final Version jarTest = Msfragger.testJar(jarPath);
+    final String localVer = jarTest.isVersionParsed ? jarTest.version : "0.0";
     guiFrame.fraggerVer = localVer;
 
     // update the version label
@@ -1062,7 +1061,7 @@ public class MsfraggerGuiFrameUtils {
               }
 
               StringBuilder sb = new StringBuilder();
-              if (jarTest.isVersionPrintedAtAll) {
+              if (jarTest.isVersionParsed) {
                 sb.append(String.format("Your version is [%s]<br>\n"
                         + "There is a newer version of MSFragger available [%s].<br>\n",
                     localVer, updateVer));
@@ -1229,7 +1228,7 @@ public class MsfraggerGuiFrameUtils {
               + "<b>If that's the first time you're using %s</b>,<br/>"
               + "you will need to <a href=\"%s\">download MSFragger.jar (click here)</a> first.<br/>"
               + "Use the button on the right to proceed to the download website.",
-          Version.PROGRAM_TITLE, downloadUrl), guiFrame.balloonBgColor);
+          umich.msfragger.Version.PROGRAM_TITLE, downloadUrl), guiFrame.balloonBgColor);
 
       guiFrame.balloonMsfragger = new BalloonTip(guiFrame.getTextBinMsfragger(), ep,
           new RoundedBalloonStyle(5, 5, guiFrame.balloonBgColor, Color.BLACK), true);
@@ -1242,7 +1241,7 @@ public class MsfraggerGuiFrameUtils {
               + "<b>If that's the first time you're using %s</b>,<br/>"
               + "you will need to <a href=\"%s\">download MSFragger.jar (click here)</a> first.<br/>"
               + "Use the button on the right to proceed to the download website.",
-          Version.PROGRAM_TITLE, downloadUrl), guiFrame.balloonBgColor);
+          umich.msfragger.Version.PROGRAM_TITLE, downloadUrl), guiFrame.balloonBgColor);
 
       guiFrame.balloonMsfragger = new BalloonTip(guiFrame.getTextBinMsfragger(), ep,
           new RoundedBalloonStyle(5, 5, guiFrame.balloonBgColor, Color.BLACK), true);

@@ -1,21 +1,31 @@
 package com.dmtavt.fragpipe;
 
+import com.dmtavt.fragpipe.api.BalloonTips;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
+import com.dmtavt.fragpipe.messages.MessageBalloon;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerNewJarPath;
+import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
+import com.dmtavt.fragpipe.tools.msfragger.Msfragger.Version;
 import com.github.chhh.utils.JarUtils;
+import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils.FcMode;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.function.Supplier;
@@ -28,10 +38,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import net.java.balloontip.BalloonTip;
+import net.java.balloontip.styles.RoundedBalloonStyle;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.params.ThisAppProps;
@@ -44,6 +57,7 @@ public class TabConfig extends JPanelWithEnablement {
 
   private UiText uiTextBinFragger;
   private JEditorPane epFraggerVer;
+  public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
 
   public TabConfig() {
     init();
@@ -119,6 +133,42 @@ public class TabConfig extends JPanelWithEnablement {
     return p;
   }
 
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void onMsfraggerUpdateAvailable(MessageMsfraggerUpdateAvailable m) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(String.format("There is a newer version of MSFragger available [%s].<br>\n", m.newVersion));
+
+    JEditorPane ep = SwingUtils.createClickableHtml(sb.toString(), BalloonTips.BG_COLOR);
+    JPanel p = new JPanel(new BorderLayout());
+    p.setBackground(ep.getBackground());
+
+    JPanel pBtns = new JPanel();
+    pBtns.setBackground(ep.getBackground());
+    pBtns.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+
+    if (!StringUtils.isNullOrWhitespace(m.manualDownloadUrl)) {
+      JButton btnManualUpdate = new JButton("Download update");
+      btnManualUpdate.addActionListener(e -> {
+        try {
+          SwingUtils.openBrowserOrThrow(new URI(m.manualDownloadUrl));
+        } catch (URISyntaxException ex) {
+          throw new IllegalStateException("Incorrect url/uri", ex);
+        }
+      });
+      pBtns.add(btnManualUpdate);
+    }
+
+    JButton btnClose = new JButton("Close");
+    btnClose.addActionListener(e -> {
+      Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN));
+    });
+
+    p.add(ep, BorderLayout.CENTER);
+    pBtns.add(btnClose);
+    p.add(pBtns, BorderLayout.SOUTH);
+
+  }
+
   private String name(String name) {
     return name.startsWith("config.") ? name : "config." + name;
   }
@@ -156,21 +206,26 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe
   public void onMsfraggerNewJarPath(MessageMsfraggerNewJarPath m) {
-    String version;
+    Version v;
     try {
       Msfragger.validateJar(m.binPath);
-      version = Msfragger.version(Paths.get(m.binPath));
+      v = Msfragger.version(Paths.get(m.binPath));
     } catch (ValidationException e) {
       SwingUtils.showErrorDialog(this, SwingUtils.makeHtml(e.getMessage()), "Invalid MSFragger jar");
       return;
     }
-    Bus.postSticky(new NoteConfigMsfragger(m.binPath, version));
+    Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version, !v.isVersionParsed));
   }
 
   @Subscribe
   public void onNoteConfigMsfragger(NoteConfigMsfragger m) {
     uiTextBinFragger.setText(m.jarPath);
-    epFraggerVer.setText("MSFragger version: " + m.version);
+    if (m.isTooOld) {
+      epFraggerVer.setText("This MSFragger version is not supported any more, download a newer one.");
+    } else {
+      epFraggerVer.setText("MSFragger version: " + m.version);
+    }
+    Msfragger.checkUpdates(m);
   }
 
   public static String createFraggerCitationHtml(Font font) {

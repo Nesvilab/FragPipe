@@ -1,4 +1,4 @@
-package com.dmtavt.fragpipe;
+package com.dmtavt.fragpipe.api;
 
 import java.awt.Component;
 import javax.swing.Icon;

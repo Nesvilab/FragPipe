@@ -1,6 +1,7 @@
 package com.dmtavt.fragpipe;
 
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.api.UiTab;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
 import com.dmtavt.fragpipe.messages.MessageSaveAllForms;
 import com.dmtavt.fragpipe.messages.MessageSaveCache;
