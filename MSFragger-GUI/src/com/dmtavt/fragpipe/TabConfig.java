@@ -3,9 +3,11 @@ package com.dmtavt.fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
-import com.dmtavt.fragpipe.messages.MessageConfigMsfragger;
+import com.dmtavt.fragpipe.messages.MessageMsfraggerNewJarPath;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
+import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
+import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.SwingUtils.FcMode;
 import com.github.chhh.utils.swing.UiCheck;
@@ -14,18 +16,9 @@ import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Properties;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -38,7 +31,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,7 +112,7 @@ public class TabConfig extends JPanelWithEnablement {
         "In order to update you <b>must</b> download an\n" +
         "original copy from the <b>download</b> website once."));
     p.add(btnUpdate, ccL().wrap());
-    epFraggerVer = SwingUtils.createClickableHtml("MSFragger: info N/A");
+    epFraggerVer = SwingUtils.createClickableHtml("MSFragger version: N/A");
     Fragpipe.renameNoCache(epFraggerVer, name("msfragger.version-info"));
     p.add(epFraggerVer, ccL().spanX().growX().wrap());
     p.add(SwingUtils.createClickableHtml(createFraggerCitationBody()), ccL().spanX().growX().wrap());
@@ -158,62 +150,27 @@ public class TabConfig extends JPanelWithEnablement {
 
     int result = fc.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
     if (JFileChooser.APPROVE_OPTION == result) {
-      Bus.post(new MessageConfigMsfragger(fc.getSelectedFile().toString()));
+      Bus.post(new MessageMsfraggerNewJarPath(fc.getSelectedFile().toString()));
     }
   }
 
   @Subscribe
-  public void onConfigMsfragger(MessageConfigMsfragger m) {
+  public void onMsfraggerNewJarPath(MessageMsfraggerNewJarPath m) {
+    String version;
     try {
-      validateMsfraggerJar(m.binPath);
+      Msfragger.validateJar(m.binPath);
+      version = Msfragger.version(Paths.get(m.binPath));
     } catch (ValidationException e) {
       SwingUtils.showErrorDialog(this, SwingUtils.makeHtml(e.getMessage()), "Invalid MSFragger jar");
+      return;
     }
-    uiTextBinFragger.setText(m.binPath);
+    Bus.postSticky(new NoteConfigMsfragger(m.binPath, version));
   }
 
-  public static void validateMsfraggerJar(String path) throws ValidationException {
-    try {
-      Path p = Paths.get(path);
-      if (!Files.exists(p))
-        throw new ValidationException("Given path not exists: " + path);
-      if (!path.toLowerCase().endsWith(".jar"))
-        throw new ValidationException("Given path not a jar file: " + path);
-      if (!validateMsfraggerJarContents(p))
-        throw new ValidationException("Not an MSFragger jar file: " + path);
-    } catch (Exception e) {
-      if (e instanceof ValidationException)
-        throw e;
-      throw new ValidationException("Invalid MSFragger jar", e);
-    }
-  }
-
-  private static boolean validateMsfraggerJarContents(Path p) {
-    final boolean[] found = {false};
-    try (FileSystem fs = FileSystems.newFileSystem(p, null)) {
-      for (Path root : fs.getRootDirectories()) {
-        Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
-          final Pattern regex = Pattern.compile("msfragger.*\\.jar", Pattern.CASE_INSENSITIVE);
-
-          @Override
-          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-            String fileName = file.getFileName().toString();
-            if ("MSFragger.class".equalsIgnoreCase(fileName)) {
-              found[0] = true;
-              return FileVisitResult.TERMINATE;
-            } else if (regex.matcher(fileName).find()) {
-              found[0] = true;
-              return FileVisitResult.TERMINATE;
-            }
-            return FileVisitResult.CONTINUE;
-          }
-        });
-      }
-    } catch (IOException ex) {
-      log.warn("Error while checking MSFragger jar contents", ex);
-    }
-
-    return found[0];
+  @Subscribe
+  public void onNoteConfigMsfragger(NoteConfigMsfragger m) {
+    uiTextBinFragger.setText(m.jarPath);
+    epFraggerVer.setText("MSFragger version: " + m.version);
   }
 
   public static String createFraggerCitationHtml(Font font) {

@@ -15,7 +15,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import com.dmtavt.fragpipe.messages.MessageToolInit;
 import umich.msfragger.params.dbslice.DbSlice.MessageInitDone.REASON;
 import umich.msfragger.params.fragger.MsfraggerProps;
-import umich.msfragger.params.fragger.MsfraggerVersionComparator;
+import com.dmtavt.fragpipe.tools.msfragger.MsfraggerVersionComparator;
 import umich.msfragger.params.speclib.SpecLibGen;
 import com.github.chhh.utils.CheckResult;
 import com.github.chhh.utils.Installed;

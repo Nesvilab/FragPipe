@@ -2,7 +2,8 @@ package umich.msfragger.gui;
 
 import static umich.msfragger.params.fragger.FraggerMigPanel.PROP_FILECHOOSER_LAST_PATH;
 
-import com.dmtavt.fragpipe.exceptions.ValidationException;
+import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
+import com.dmtavt.fragpipe.tools.msfragger.Msfragger.FraggerRunResult;
 import com.github.chhh.utils.StringUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -95,7 +96,7 @@ import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.dbslice.DbSlice.MessageInitDone;
 import umich.msfragger.params.fragger.MsfraggerProps;
-import umich.msfragger.params.fragger.MsfraggerVersionComparator;
+import com.dmtavt.fragpipe.tools.msfragger.MsfraggerVersionComparator;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
@@ -1020,7 +1021,7 @@ public class MsfraggerGuiFrameUtils {
     }
 
     // get the vesrion reported by the current executable
-    final MsfraggerProps.FraggerRunResult jarTest = MsfraggerProps.testJar(jarPath);
+    final FraggerRunResult jarTest = Msfragger.testJar(jarPath);
     final String localVer = jarTest.isVersionPrintedAtAll ? jarTest.version : "0.0";
     guiFrame.fraggerVer = localVer;
 
@@ -1314,7 +1315,7 @@ public class MsfraggerGuiFrameUtils {
         // check for Java 9
         final String jver = SystemUtils.JAVA_SPECIFICATION_VERSION;
         final String fver = fraggerVer != null ? fraggerVer
-            : MsfraggerProps.testJar(textBinMsfragger.getText()).version;
+            : Msfragger.testJar(textBinMsfragger.getText()).version;
         if (jver != null && fver != null) {
           if (mvc.compare(fver, "20180316") < 0 && vc.compare(jver, "1.9") >= 0) {
             msg = "Looks like you're "

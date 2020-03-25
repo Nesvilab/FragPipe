@@ -1,4 +1,4 @@
-package umich.msfragger.params.fragger;
+package com.dmtavt.fragpipe.tools.msfragger;
 
 import java.util.Comparator;
 import java.util.regex.Pattern;
@@ -8,10 +8,10 @@ import com.github.chhh.utils.VersionComparator;
 
 public class MsfraggerVersionComparator implements Comparator<String> {
   private static final Logger log = LoggerFactory.getLogger(MsfraggerVersionComparator.class);
-  static Pattern regexOldScheme1 = Pattern.compile("(MSFragger-([\\d]{4,}[^\\s]*))", Pattern.CASE_INSENSITIVE);
-  static Pattern regexOldScheme2 = Pattern.compile("([\\d]{4,}[^\\s]*)", Pattern.CASE_INSENSITIVE);
-  static Pattern regexNewScheme1 = Pattern.compile("(MSFragger-(\\d+\\.\\d+[^\\s]*))", Pattern.CASE_INSENSITIVE);
-  static Pattern regexNewScheme2 = Pattern.compile("(\\d+\\.\\d+[^\\s]*)", Pattern.CASE_INSENSITIVE);
+  public static Pattern regexOldScheme1 = Pattern.compile("(MSFragger-([\\d]{4,}[^\\s]*))", Pattern.CASE_INSENSITIVE);
+  public static Pattern regexOldScheme2 = Pattern.compile("([\\d]{4,}[^\\s]*)", Pattern.CASE_INSENSITIVE);
+  public static Pattern regexNewScheme1 = Pattern.compile("(MSFragger-(\\d+\\.\\d+[^\\s]*))", Pattern.CASE_INSENSITIVE);
+  public static Pattern regexNewScheme2 = Pattern.compile("(\\d+\\.\\d+[^\\s]*)", Pattern.CASE_INSENSITIVE);
   static VersionComparator cmp = new VersionComparator();
 
   public static boolean isOldScheme(String ver) {

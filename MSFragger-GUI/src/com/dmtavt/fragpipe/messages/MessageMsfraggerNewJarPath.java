@@ -1,9 +1,9 @@
 package com.dmtavt.fragpipe.messages;
 
-public class MessageConfigMsfragger {
+public class MessageMsfraggerNewJarPath {
   public final String binPath;
 
-  public MessageConfigMsfragger(String binPath) {
+  public MessageMsfraggerNewJarPath(String binPath) {
     this.binPath = binPath;
   }
 }
