@@ -472,7 +472,7 @@ public class MsfraggerGuiFrameUtils {
    * Collects all tabs' components that have names with values from the map.
    * @param tabPane
    */
-  public static Map<String, String> formTo(JTabbedPane tabPane) {
+  public static Map<String, String> formToMap(JTabbedPane tabPane) {
     // getting tab names
     Map<Integer, String> mapTabNameToIdx = new HashMap<>();
     for (int i = 0, tabCount = tabPane.getTabCount(); i < tabCount; i++) {
@@ -1525,7 +1525,7 @@ public class MsfraggerGuiFrameUtils {
   /**
    * Fills all tabs' components that have names with values from the map.
    */
-  public static void formFrom(JTabbedPane tabPane, Map<String, String> map) {
+  public static void formFromMap(JTabbedPane tabPane, Map<String, String> map) {
     for (int i = 0; i < tabPane.getTabCount(); i++) {
       Component compAt = tabPane.getComponentAt(i);
       if (compAt instanceof Container) {

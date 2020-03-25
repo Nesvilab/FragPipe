@@ -88,7 +88,7 @@ public class FragpipeOnMessages {
 
 
   public static void onMessageRun(MsfraggerGuiFrame msfgf, MessageRun m) {
-    EventBus.getDefault().post(MessageSaveAllForms.forCaching());
+    EventBus.getDefault().post(MessageSaveAllForms.newForCaching());
 
     final boolean isDryRun = m.isDryRun;
     MsfraggerGuiFrameUtils.saveWorkdirText(msfgf.getTxtWorkingDir());

@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe;
 
+import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
 import com.dmtavt.fragpipe.messages.MessageSaveAllForms;
 import com.dmtavt.fragpipe.messages.MessageSaveCache;
@@ -32,7 +33,6 @@ import javax.swing.ToolTipManager;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.NoSubscriberEvent;
 import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
@@ -93,8 +93,8 @@ public class Fragpipe extends JFrame {
       fp.addWindowListener(new WindowAdapter() {
         @Override
         public void windowClosing(WindowEvent e) {
-          EventBus.getDefault().post(new MessageSaveCache());
-          EventBus.getDefault().post(MessageSaveAllForms.forCaching());
+          Bus.post(new MessageSaveCache());
+          Bus.post(MessageSaveAllForms.newForCaching());
         }
       });
 
@@ -134,7 +134,7 @@ public class Fragpipe extends JFrame {
       private void doPop(MouseEvent e) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem menuItem = new JMenuItem("Export to text file");
-        menuItem.addActionListener(e1 -> EventBus.getDefault().post(new MessageExportLog()));
+        menuItem.addActionListener(e1 -> Bus.post(new MessageExportLog()));
         menu.add(menuItem);
         menu.show(e.getComponent(), e.getX(), e.getY());
       }
@@ -145,9 +145,6 @@ public class Fragpipe extends JFrame {
   /**
    * Use to name all the components that need to save state between runs.
    * Will prepend their name with "fragpipe.ui" prefix.
-   * @param comp
-   * @param name
-   * @return
    */
   public static Component rename(Component comp, String name) {
     return COMP_RENAME.apply(comp, name);
@@ -217,7 +214,7 @@ public class Fragpipe extends JFrame {
 //    tableModelRawFiles = MsfraggerGuiFrameUtils.createTableModelRawFiles();
 //    tableModelRawFiles.addTableModelListener(e -> {
 //      List<InputLcmsFile> files = tableModelRawFiles.dataCopy();
-//      EventBus.getDefault().post(new MessageLcmsFilesList(MessageType.UPDATE, files));
+//      Bus.post(new MessageLcmsFilesList(MessageType.UPDATE, files));
 //    });
 //    tableRawFiles = new LcmsInputFileTable(tableModelRawFiles);
 //    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnRawClear);
@@ -247,14 +244,14 @@ public class Fragpipe extends JFrame {
 //        PathUtils.traverseDirectoriesAcceptingFiles(f, pred, accepted, false);
 //      }
 //      if (!accepted.isEmpty()) {
-//        EventBus.getDefault().post(new MessageLcmsFilesAdded(accepted));
+//        Bus.post(new MessageLcmsFilesAdded(accepted));
 //      }
 //    });
 //
 //    textBinPython.addFocusListener(new FocusAdapter() {
 //      @Override
 //      public void focusLost(FocusEvent e) {
-//        EventBus.getDefault().post(new MessagePythonBinSelectedByUser(textBinPython.getText()));
+//        Bus.post(new MessagePythonBinSelectedByUser(textBinPython.getText()));
 //      }
 //    });
 //
@@ -303,13 +300,13 @@ public class Fragpipe extends JFrame {
 //    }
 //
 //    // Force loading form caches
-//    EventBus.getDefault().post(MessageLoadAllForms.forCaching());
+//    Bus.post(MessageLoadAllForms.forCaching());
 //
 //    initActions();
   }
 
   private void initMore() {
-    EventBus.getDefault().register(this);
+    Bus.register(this);
   }
 
   @Subscribe

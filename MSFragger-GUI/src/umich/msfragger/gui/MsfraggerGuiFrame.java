@@ -479,7 +479,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     }
 
     // Force loading form caches
-    EventBus.getDefault().post(MessageLoadAllForms.forCaching());
+    EventBus.getDefault().post(MessageLoadAllForms.newForCaching());
 
     initActions();
   }
@@ -2238,7 +2238,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.clearCache();
     new MsfraggerParams().clearCache();
     new CrystalcParams().clearCache();
-    Path p = MessageSaveAllForms.forCaching().path;
+    Path p = MessageSaveAllForms.newForCaching().path;
     try {
       Files.deleteIfExists(p);
     } catch (IOException e) {
@@ -2252,7 +2252,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
   public void formWrite(OutputStream os) throws IOException {
-    Map<String, String> map = MsfraggerGuiFrameUtils.formTo(tabPane);
+    Map<String, String> map = MsfraggerGuiFrameUtils.formToMap(tabPane);
     Properties props = PropertiesUtils.from(map);
     try (BufferedOutputStream bos = new BufferedOutputStream(os)) {
       props.store(bos, ThisAppProps.cacheComments());
@@ -2265,7 +2265,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       props.load(bis);
     }
     Map<String, String> map = PropertiesUtils.to(props);
-    MsfraggerGuiFrameUtils.formFrom(tabPane, map);
+    MsfraggerGuiFrameUtils.formFromMap(tabPane, map);
   }
 
   @Subscribe
@@ -2888,7 +2888,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         @Override
         public void windowClosing(WindowEvent e) {
           EventBus.getDefault().post(new MessageSaveCache());
-          EventBus.getDefault().post(MessageSaveAllForms.forCaching());
+          EventBus.getDefault().post(MessageSaveAllForms.newForCaching());
         }
       });
 

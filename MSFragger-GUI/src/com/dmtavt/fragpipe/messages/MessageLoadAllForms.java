@@ -13,7 +13,7 @@ public class MessageLoadAllForms {
     this.path = path;
   }
 
-  public static MessageLoadAllForms forCaching() {
+  public static MessageLoadAllForms newForCaching() {
     Path formCachePath = CacheUtils.getTempFile(FORMS_CACHE_FN);
     return new MessageLoadAllForms(formCachePath);
   }

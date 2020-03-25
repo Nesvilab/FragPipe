@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe;
 
+import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageConfigMsfragger;
@@ -58,7 +59,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private void initMore() {
-    EventBus.getDefault().register(this);
+    Bus.register(this);
   }
 
   private void init() {
@@ -96,10 +97,10 @@ public class TabConfig extends JPanelWithEnablement {
     JPanel p = newMigPanel();
     Supplier<CC> ccL = () -> new CC().alignX("left");
     Supplier<CC> ccR = () -> new CC().alignX("right");
-    p.add(UiUtils.createButton("About", e -> post(new MessageShowAboutDialog())), ccL.get().split().spanX());
-    p.add(UiUtils.createButton("Clear Cache", e -> post(new MessageClearCache())), ccL.get());
+    p.add(UiUtils.createButton("About", e -> Bus.post(new MessageShowAboutDialog())), ccL.get().split().spanX());
+    p.add(UiUtils.createButton("Clear Cache", e -> Bus.post(new MessageClearCache())), ccL.get());
     UiCheck uiCheckUmpire = UiUtils.createUiCheck("Enable DIA-Umpire", false,
-        e -> post(new MessageUmpireEnabled(((JCheckBox) e.getSource()).isSelected())));
+        e -> Bus.post(new MessageUmpireEnabled(((JCheckBox) e.getSource()).isSelected())));
     p.add(uiCheckUmpire, ccL.get().wrap());
     //p.add(UiUtils.createButton("Find tools", e -> post(new MessageFindTools())), ccL.get().split().spanX());
     JLabel label = new JLabel("Main tools configuration");
@@ -142,10 +143,6 @@ public class TabConfig extends JPanelWithEnablement {
     return new JPanel(new MigLayout(new LC().fillX()));
   }
 
-  private void post(Object message) {
-    EventBus.getDefault().post(message);
-  }
-
   private void actionUpdateBinMsfragger(ActionEvent evt) {
     throw new UnsupportedOperationException("Updating MSFragger has not been reimplemented yet");
   }
@@ -161,7 +158,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     int result = fc.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
     if (JFileChooser.APPROVE_OPTION == result) {
-      post(new MessageConfigMsfragger(fc.getSelectedFile().toString()));
+      Bus.post(new MessageConfigMsfragger(fc.getSelectedFile().toString()));
     }
   }
 
