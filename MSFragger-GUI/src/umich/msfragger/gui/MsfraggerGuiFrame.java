@@ -16,7 +16,7 @@
  */
 package umich.msfragger.gui;
 
-import static umich.msfragger.gui.MsfraggerGuiFrameUtils.createFraggerCitationHtml;
+import static com.dmtavt.fragpipe.TabConfig.createFraggerCitationHtml;
 import static umich.msfragger.gui.MsfraggerGuiFrameUtils.createPhilosopherCitationHtml;
 import static umich.msfragger.gui.MsfraggerGuiFrameUtils.initEditorPaneSeqDb;
 
@@ -887,7 +887,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         editorMsfraggerCitation.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         editorMsfraggerCitation.setContentType("text/html"); // NOI18N
         editorMsfraggerCitation.setFont(lblFraggerJavaVer.getFont());
-        editorMsfraggerCitation.setText(createFraggerCitationHtml(lblFraggerJavaVer));
+        editorMsfraggerCitation.setText(createFraggerCitationHtml(lblFraggerJavaVer.getFont()));
         editorMsfraggerCitation.setAutoscrolls(false);
         editorMsfraggerCitation.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
             public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {

@@ -15,7 +15,7 @@ public interface FragpipeUiHelpers {
     Pattern reHtml = Pattern.compile("<\\s*/?\\s*html\\s*>", Pattern.CASE_INSENSITIVE);
     String noHtml = reHtml.matcher(old).replaceAll("");
     Document doc = Jsoup.parse(old);
-    doc.body().attr("style", SwingUtils.getHtmlBodyStyle());
+    doc.body().attr("style", SwingUtils.createHtmlBodyStyle());
     if (!m.append) {
       doc.body().html("");
     }

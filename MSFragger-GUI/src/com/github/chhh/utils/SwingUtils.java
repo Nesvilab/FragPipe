@@ -62,7 +62,6 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
-import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
@@ -331,10 +330,15 @@ public class SwingUtils {
     return createClickableHtml(text, true, true, null);
   }
 
-  public static String getHtmlBodyStyle() {
+  public static String createHtmlBodyStyle() {
+    return createHtmlBodyStyle(null);
+  }
+
+  public static String createHtmlBodyStyle(Font font) {
     // for copying style
-    JLabel label = new JLabel();
-    Font font = label.getFont();
+    if (font == null) {
+      font = new JLabel().getFont();
+    }
 
     // create some css from the label's font
     StringBuilder style = new StringBuilder("font-family:" + font.getFamily() + ";");
@@ -380,10 +384,11 @@ public class SwingUtils {
   public static JEditorPane createClickableHtml(String text, boolean handleHyperlinks,
       boolean useJlabelBackground, Color bgColor) {
 
-
-    JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + getHtmlBodyStyle() + "\">"
-        + text
-        + "</body></html>");
+    StringBuilder html = new StringBuilder();
+    html.append("<html><body style=\"").append(createHtmlBodyStyle()).append("\">")
+        .append(text)
+        .append("</body></html>");
+    JEditorPane ep = new JEditorPane("text/html", html.toString());
     ep.setEditable(false);
 
     // handle link events

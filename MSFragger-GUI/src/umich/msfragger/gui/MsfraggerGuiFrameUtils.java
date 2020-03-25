@@ -1337,51 +1337,7 @@ public class MsfraggerGuiFrameUtils {
     return javaAtLeast18 && is64bitJava;
   }
 
-  public static String createFraggerCitationHtml(JLabel lblFraggerJavaVer) {
-
-    // for copying style
-    Font font = lblFraggerJavaVer.getFont();
-
-    // create some css from the label's font
-    StringBuilder style = new StringBuilder();
-    style.append("font-family:").append(font.getFamily()).append(";");
-    style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
-    style.append("font-size:").append(font.getSize()).append("pt;");
-
-    StringBuilder sb = new StringBuilder();
-    sb.append("<html>");
-
-    sb.append("<head>");
-    sb.append("</head>");
-
-    sb.append("<body style=\"").append(style.toString()).append("\"");
-    //sb.append("<body>");
-
-    final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
-    final String linkMsfragger = p.getProperty(MsfraggerProps.PROP_FRAGGER_SITE_URL, "https://nesvilab.github.io/MSFragger/");
-    final String linkFragpipe = p.getProperty(ThisAppProps.PROP_FRAGPIPE_SITE_URL, "https://github.com/Nesvilab/FragPipe");
-    final String doi= p.getProperty(ThisAppProps.PROP_MANUSCRIPT_DOI, "10.1038/nmeth.4256");
-    final String linkManuscript= p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL, "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
-
-    sb.append("<p style=\"margin-top: 0\">");
-    sb.append("<b>Please cite: </b>");
-    sb.append(
-        "<a href=\"").append(linkManuscript).append("\">MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics</a>");
-    sb.append("<br/>");
-    sb.append("<b>DOI: </b>").append(doi);
-    sb.append("</p>");
-
-    sb.append("<p style=\"margin-top: 10\">");
-    sb.append("More info and docs: <a href=\"").append(linkMsfragger).append("\">MSFragger website</a>")
-        .append(", <a href=\"").append(linkFragpipe).append("\">FragPipe GitHub page</a>");
-
-    sb.append("</body>");
-    sb.append("</html>");
-
-    return sb.toString();
-  }
-
-   public static boolean validateAndSaveFastaPath(final MsfraggerGuiFrame guiFrame, String path) {
+  public static boolean validateAndSaveFastaPath(final MsfraggerGuiFrame guiFrame, String path) {
     boolean isValid = validateFastaPath(path);
     if (isValid) {
       guiFrame.getTextSequenceDbPath().setText(path);

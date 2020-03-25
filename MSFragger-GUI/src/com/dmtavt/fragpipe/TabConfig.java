@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.params.ThisAppProps;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
+import umich.msfragger.params.fragger.MsfraggerProps;
 
 public class TabConfig extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(TabConfig.class);
@@ -121,6 +122,7 @@ public class TabConfig extends JPanelWithEnablement {
         "In order to update you <b>must</b> download an\n" +
         "original copy from the <b>download</b> website once."));
     p.add(btnUpdate, ccL().wrap());
+    p.add(SwingUtils.createClickableHtml(createFraggerCitationBody()), ccL().spanX().growX().wrap());
     return p;
   }
 
@@ -211,5 +213,44 @@ public class TabConfig extends JPanelWithEnablement {
     }
 
     return found[0];
+  }
+
+  public static String createFraggerCitationHtml(Font font) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("<html>");
+
+    sb.append("<head>");
+    sb.append("</head>");
+
+    sb.append("<body style=\"").append(SwingUtils.createHtmlBodyStyle(font)).append("\"");
+
+    sb.append(createFraggerCitationBody());
+
+    sb.append("</body>");
+    sb.append("</html>");
+
+    return sb.toString();
+  }
+
+  public static String createFraggerCitationBody() {
+    final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
+    final String linkMsfragger = p.getProperty(MsfraggerProps.PROP_FRAGGER_SITE_URL, "https://nesvilab.github.io/MSFragger/");
+    final String linkFragpipe = p.getProperty(ThisAppProps.PROP_FRAGPIPE_SITE_URL, "https://github.com/Nesvilab/FragPipe");
+    final String doi= p.getProperty(ThisAppProps.PROP_MANUSCRIPT_DOI, "10.1038/nmeth.4256");
+    final String linkManuscript= p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL, "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
+    final StringBuilder sb = new StringBuilder();
+
+    sb.append("<p style=\"margin-top: 0\">");
+    sb.append("<b>Please cite: </b>");
+    sb.append(
+        "<a href=\"").append(linkManuscript).append("\">MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics</a>");
+    sb.append("<br/>");
+    sb.append("<b>DOI: </b>").append(doi);
+    sb.append("</p>");
+
+    sb.append("<p style=\"margin-top: 10\">");
+    sb.append("More info and docs: <a href=\"").append(linkMsfragger).append("\">MSFragger website</a>")
+        .append(", <a href=\"").append(linkFragpipe).append("\">FragPipe GitHub page</a>");
+    return sb.toString();
   }
 }
