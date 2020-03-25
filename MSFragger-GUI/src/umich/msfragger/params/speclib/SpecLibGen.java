@@ -164,12 +164,13 @@ public class SpecLibGen {
       }
 
       // check missing/error modules
-      boolean isNoErrorModules = false;
+      boolean isNoErrorModulesSpectrast = false;
+      boolean isNoErrorModulesEasyPQP = false;
       if (isPythonOk) {
         try {
           CheckResult res = checkPythonErrorModules();
-          isNoErrorModules = res.isSuccess;
-          EventBus.getDefault().post(new Message1(true, !isNoErrorModules, res.message));
+          isNoErrorModulesSpectrast = res.isSuccess;
+          EventBus.getDefault().post(new Message1(true, !isNoErrorModulesSpectrast, res.message));
           if (!res.isSuccess) {
             reasons.add(REASON.PY_MODULES);
           }
@@ -182,6 +183,7 @@ public class SpecLibGen {
 
         // check EasyPqp installation separately
         CheckResult result = checkPythonErrorModulesEasypqp();
+        isNoErrorModulesEasyPQP = result.isSuccess;
         if (result.isSuccess) {
           EventBus.getDefault().postSticky(new MessageEasypqpInit(true, true, null));
         } else {
@@ -190,7 +192,7 @@ public class SpecLibGen {
       } else {
         EventBus.getDefault().postSticky(new MessageEasypqpInit(false, false, "Python incompatible"));
       }
-
+      final boolean isNoErrorModules = isNoErrorModulesSpectrast || isNoErrorModulesEasyPQP;
       boolean isUnpacked = false;
       if (isNoErrorModules) {
         try {
@@ -207,8 +209,9 @@ public class SpecLibGen {
       }
 
       final boolean isInitSuccess = isPythonOk && isNoErrorModules && isUnpacked;
+      final boolean isInitSuccessSpectrast = isPythonOk && isNoErrorModulesSpectrast && isUnpacked;
       isInitialized = isInitSuccess;
-      EventBus.getDefault().postSticky(new MessageInitDone(isInitSuccess, reasons));
+      EventBus.getDefault().postSticky(new MessageInitDone(isInitSuccessSpectrast, reasons));
     }
   }
 
