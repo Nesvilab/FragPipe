@@ -330,11 +330,11 @@ public class SwingUtils {
     return createClickableHtml(text, true, true, null);
   }
 
-  public static String createHtmlBodyStyle() {
-    return createHtmlBodyStyle(null);
+  public static String createCssStyle() {
+    return createCssStyle(null);
   }
 
-  public static String createHtmlBodyStyle(Font font) {
+  public static String createCssStyle(Font font) {
     // for copying style
     if (font == null) {
       font = new JLabel().getFont();
@@ -345,6 +345,26 @@ public class SwingUtils {
     style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
     style.append("font-size:").append(font.getSize()).append("pt;");
     return style.toString();
+  }
+
+  public static String wrapInStyledHtml(String text) {
+    return wrapInStyledHtml(text, null);
+  }
+
+  public static String wrapInStyledHtml(String text, Font font) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("<html><body style=\"").append(createCssStyle(font)).append("\">")
+        .append(text)
+        .append("</body></html>");
+    return sb.toString();
+  }
+
+  public static void setJEditorPaneContent(JEditorPane ep, String text) {
+    if (!"text/html".equalsIgnoreCase(ep.getContentType())) {
+      ep.setText(text); // it's not styled with css in html
+    } else {
+      ep.setText(wrapInStyledHtml(text));
+    }
   }
 
 //  /**
@@ -385,7 +405,7 @@ public class SwingUtils {
       boolean useJlabelBackground, Color bgColor) {
 
     StringBuilder html = new StringBuilder();
-    html.append("<html><body style=\"").append(createHtmlBodyStyle()).append("\">")
+    html.append("<html><body style=\"").append(createCssStyle()).append("\">")
         .append(text)
         .append("</body></html>");
     JEditorPane ep = new JEditorPane("text/html", html.toString());

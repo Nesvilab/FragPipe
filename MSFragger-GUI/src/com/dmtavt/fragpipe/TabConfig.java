@@ -19,7 +19,6 @@ import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -38,8 +37,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import net.java.balloontip.BalloonTip;
-import net.java.balloontip.styles.RoundedBalloonStyle;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -221,28 +218,17 @@ public class TabConfig extends JPanelWithEnablement {
   public void onNoteConfigMsfragger(NoteConfigMsfragger m) {
     uiTextBinFragger.setText(m.jarPath);
     if (m.isTooOld) {
-      epFraggerVer.setText("This MSFragger version is not supported any more, download a newer one.");
+      String s = "This MSFragger version is not supported any more, download a newer one.";
+      SwingUtils.setJEditorPaneContent(epFraggerVer, s);
+      Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, s));
     } else {
-      epFraggerVer.setText("MSFragger version: " + m.version);
+      SwingUtils.setJEditorPaneContent(epFraggerVer, "MSFragger version " + m.version);
     }
     Msfragger.checkUpdates(m);
   }
 
   public static String createFraggerCitationHtml(Font font) {
-    StringBuilder sb = new StringBuilder();
-    sb.append("<html>");
-
-    sb.append("<head>");
-    sb.append("</head>");
-
-    sb.append("<body style=\"").append(SwingUtils.createHtmlBodyStyle(font)).append("\"");
-
-    sb.append(createFraggerCitationBody());
-
-    sb.append("</body>");
-    sb.append("</html>");
-
-    return sb.toString();
+    return SwingUtils.wrapInStyledHtml(createFraggerCitationBody(), font);
   }
 
   public static String createFraggerCitationBody() {
