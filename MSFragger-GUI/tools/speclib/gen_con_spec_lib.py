@@ -27,20 +27,22 @@ use_easypqp: bool = len(sys.argv) >= 8 and sys.argv[7].casefold() == 'use_easypq
 use_spectrast: bool = not use_easypqp
 
 class Irt_choice(enum.Enum):
+	no_iRT = enum.auto()
 	iRT = enum.auto()
 	ciRT = enum.auto()
 	userRT = enum.auto()
 
 if use_easypqp:
+	no_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'noirt'
 	is_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'irt'
 	is_ciRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'cirt'
 	is_userRT = len(sys.argv) >= 9 and pathlib.Path(sys.argv[8]).exists()
 	userRT_file = pathlib.Path(sys.argv[8]).resolve(strict=True) if is_userRT else None
-	irt_choice = Irt_choice.iRT \
-		if is_iRT else \
-		Irt_choice.ciRT if is_ciRT else \
-			Irt_choice.userRT if userRT_file else \
-				None
+	irt_choice = Irt_choice.no_iRT if no_iRT else \
+		Irt_choice.iRT if is_iRT else \
+			Irt_choice.ciRT if is_ciRT else \
+				Irt_choice.userRT if userRT_file else \
+					None
 	if irt_choice is None:
 		raise RuntimeError('invalid iRT')
 
@@ -263,7 +265,7 @@ TEMP_FILES = ['input000.splib', 'input000.spidx', 'input000.pepidx',
 			  'con_lib_not_in_psm_tsv.tsv']
 
 if use_spectrast:
-	sq_sys_exec = (sys.executable)
+	sq_sys_exec = subprocess.list2cmdline([sys.executable])
 	spectrast_cmds_part1= fr'''
 ## Generate .pepidx file
 {sq_sys_exec} {script_dir / "spectrast_gen_pepidx.py"} -i input.splib -o input_irt.splib
@@ -435,6 +437,7 @@ if use_easypqp:
 							  for e in spectra_files]
 	easypqp_library_infiles = [output_directory / (e + '.psmpkl') for e in spectra_files_basename] + \
 							  [output_directory / (e + '.peakpkl') for e in spectra_files_basename]
+	use_iRT = irt_choice is not Irt_choice.no_iRT
 	def easypqp_library_cmd(use_irt: bool):
 	# def easypqp_library_cmd(pep_fdr: float = None, prot_fdr: float = None):
 		return [os.fspath(easypqp), 'library',
@@ -445,7 +448,7 @@ if use_easypqp:
 
 
 	easypqp_cmds = '\n'.join(' '.join(map(shlex.quote, e)) for e in easypqp_convert_cmds) + '\n' + \
-				   ' '.join(map(lambda x: shlex.quote(os.fspath(x)), easypqp_library_cmd(False)))
+				   ' '.join(map(lambda x: shlex.quote(os.fspath(x)), easypqp_library_cmd(use_iRT)))
 
 allcmds = '\n\n'.join(e.strip() for e in
 					  ([] if (skip_philosopher_filter or use_easypqp) else [phi_cmd_part1, phi_cmd_part2]) +
@@ -616,7 +619,7 @@ Commands to execute:
 	for p in procs:
 		p.wait()
 	assert all(p.returncode==0 for p in procs)
-	subprocess.run(easypqp_library_cmd(False), cwd=os_fspath(output_directory), check=True)
+	subprocess.run(easypqp_library_cmd(use_iRT), cwd=os_fspath(output_directory), check=True)
 
 
 
