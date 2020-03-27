@@ -63,7 +63,7 @@ import umich.msfragger.gui.ProcessDescription.Builder;
 import com.dmtavt.fragpipe.messages.MessageAppendToConsole;
 import com.dmtavt.fragpipe.messages.MessageLastRunWorkDir;
 import com.dmtavt.fragpipe.messages.MessageRun;
-import com.dmtavt.fragpipe.messages.MessageSaveAllForms;
+import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageStartProcesses;
 import umich.msfragger.params.ThisAppProps;
@@ -88,7 +88,7 @@ public class FragpipeOnMessages {
 
 
   public static void onMessageRun(MsfraggerGuiFrame msfgf, MessageRun m) {
-    EventBus.getDefault().post(MessageSaveAllForms.newForCaching());
+    EventBus.getDefault().post(MessageSaveUiState.newForCache());
 
     final boolean isDryRun = m.isDryRun;
     MsfraggerGuiFrameUtils.saveWorkdirText(msfgf.getTxtWorkingDir());
@@ -375,7 +375,7 @@ public class FragpipeOnMessages {
     } catch (IOException e) {
       log.error("Could not delete old fragpipe.config at: {}", path.toString());
     }
-    EventBus.getDefault().post(new MessageSaveAllForms(path));
+    EventBus.getDefault().post(new MessageSaveUiState(path));
 
 
     // print all the options

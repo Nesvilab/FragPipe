@@ -21,6 +21,7 @@ import static umich.msfragger.gui.MsfraggerGuiFrameUtils.createPhilosopherCitati
 import static umich.msfragger.gui.MsfraggerGuiFrameUtils.initEditorPaneSeqDb;
 
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.swing.FileChooserUtils;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -118,7 +119,7 @@ import com.dmtavt.fragpipe.messages.MessageLoadAllForms;
 import com.dmtavt.fragpipe.messages.MessagePythonBinSelectedByUser;
 import com.dmtavt.fragpipe.messages.MessageReportEnablement;
 import com.dmtavt.fragpipe.messages.MessageRun;
-import com.dmtavt.fragpipe.messages.MessageSaveAllForms;
+import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
@@ -2166,12 +2167,12 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     Path curExistingPath = PathUtils.existing(textBinMsfragger.getText().trim());
     if (curExistingPath != null) {
-      SwingUtils.setFileChooserPath(fileChooser, curExistingPath);
+      FileChooserUtils.setPath(fileChooser, curExistingPath);
     } else {
       List<String> props = Arrays
           .asList(ThisAppProps.PROP_BIN_PATH_MSFRAGGER, ThisAppProps.PROP_BINARIES_IN);
       String fcPath = ThisAppProps.tryFindPath(props, true);
-      SwingUtils.setFileChooserPath(fileChooser, fcPath);
+      FileChooserUtils.setPath(fileChooser, fcPath);
     }
 
     int showOpenDialog = fileChooser.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
@@ -2238,7 +2239,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.clearCache();
     new MsfraggerParams().clearCache();
     new CrystalcParams().clearCache();
-    Path p = MessageSaveAllForms.newForCaching().path;
+    Path p = MessageSaveUiState.newForCache().path;
     try {
       Files.deleteIfExists(p);
     } catch (IOException e) {
@@ -2252,7 +2253,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
   public void formWrite(OutputStream os) throws IOException {
-    Map<String, String> map = MsfraggerGuiFrameUtils.formToMap(tabPane);
+    Map<String, String> map = MsfraggerGuiFrameUtils.tabPaneToMap(tabPane);
     Properties props = PropertiesUtils.from(map);
     try (BufferedOutputStream bos = new BufferedOutputStream(os)) {
       props.store(bos, ThisAppProps.cacheComments());
@@ -2265,11 +2266,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       props.load(bis);
     }
     Map<String, String> map = PropertiesUtils.to(props);
-    MsfraggerGuiFrameUtils.formFromMap(tabPane, map);
+    MsfraggerGuiFrameUtils.tabPaneFromMap(tabPane, map);
   }
 
   @Subscribe
-  public void onMessageSaveFormCaches(MessageSaveAllForms m) {
+  public void onMessageSaveFormCaches(MessageSaveUiState m) {
     log.debug("Writing form caches to: {}", m.path.toString());
     try (OutputStream os = Files.newOutputStream(m.path)) {
       formWrite(os);
@@ -2408,7 +2409,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
       fcPath = ThisAppProps.tryFindPath(Arrays.asList(propName), true);
     }
 
-    SwingUtils.setFileChooserPath(fileChooser, fcPath);
+    FileChooserUtils.setPath(fileChooser, fcPath);
 
     int showOpenDialog = fileChooser.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
     switch (showOpenDialog) {
@@ -2566,11 +2567,11 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     Path current = MsfraggerGuiFrameUtils.tryFindStartingPath(textBinPython.getText());
     if (current != null) {
-      SwingUtils.setFileChooserPath(fc, current);
+      FileChooserUtils.setPath(fc, current);
     } else {
       List<String> props = Arrays.asList(ThisAppProps.PROP_BIN_PATH_PYTHON, ThisAppProps.PROP_BINARIES_IN);
       String fcPath = ThisAppProps.tryFindPath(props, false);
-      SwingUtils.setFileChooserPath(fc, fcPath);
+      FileChooserUtils.setPath(fc, fcPath);
     }
 
     if (JFileChooser.APPROVE_OPTION == fc
@@ -2888,7 +2889,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         @Override
         public void windowClosing(WindowEvent e) {
           EventBus.getDefault().post(new MessageSaveCache());
-          EventBus.getDefault().post(MessageSaveAllForms.newForCaching());
+          EventBus.getDefault().post(MessageSaveUiState.newForCache());
         }
       });
 

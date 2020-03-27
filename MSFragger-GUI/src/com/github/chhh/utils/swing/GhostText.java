@@ -35,25 +35,29 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
     }
   }
 
-  public GhostText(final UiText textfield, Color ghostTextColor) {
-    this.textfield = textfield;
-    this.ghostText = textfield.getGhostText();
-    this.ghostTextColor = ghostTextColor;
-    this.normalTextColor = textfield.getForeground();
-    textfield.addFocusListener(this);
-    registerListeners();
-    updateColor();
-    if (!this.textfield.hasFocus()) {
-      focusLost(null);
-    }
-  }
+//  public GhostText(final UiText textfield, Color ghostTextColor) {
+//    this.textfield = textfield;
+//    this.ghostText = textfield.getGhostText();
+//    this.ghostTextColor = ghostTextColor;
+//    this.normalTextColor = textfield.getForeground();
+//    textfield.addFocusListener(this);
+//    registerListeners();
+//    updateColor();
+//    if (!this.textfield.hasFocus()) {
+//      focusLost(null);
+//    }
+//  }
 
   public static void register(JTextField textfield, String ghostText, Color ghostTextColor) {
     new GhostText(textfield, ghostText, ghostTextColor);
   }
 
-  public static void register(UiText textfield, Color ghostTextColor) {
-    new GhostText(textfield, ghostTextColor);
+  public static void register(UiText uiText) {
+    register(uiText, null);
+  }
+
+  public static void register(UiText uiText, Color ghostTextColor) {
+    new GhostText(uiText, uiText.getGhostText(), ghostTextColor);
   }
 
   public void delete() {

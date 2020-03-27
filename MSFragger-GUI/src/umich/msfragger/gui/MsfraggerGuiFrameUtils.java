@@ -5,6 +5,7 @@ import static umich.msfragger.params.fragger.FraggerMigPanel.PROP_FILECHOOSER_LA
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger.Version;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.swing.FileChooserUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -158,7 +159,7 @@ public class MsfraggerGuiFrameUtils {
     fc.setApproveButtonText("Save");
     fc.setDialogTitle(title);
     fc.setMultiSelectionEnabled(false);
-    SwingUtils.setFileChooserPath(fc, ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH));
+    FileChooserUtils.setPath(fc, ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH));
 //    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 //    Date now = new Date();
 //    fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(now))));
@@ -355,7 +356,7 @@ public class MsfraggerGuiFrameUtils {
         .asList(ThisAppProps.PROP_BIN_PATH_MSFRAGGER, ThisAppProps.PROP_BINARIES_IN,
             ThisAppProps.PROP_BIN_PATH_PHILOSOPHER);
     String fcPath = ThisAppProps.tryFindPath(props, true);
-    SwingUtils.setFileChooserPath(fileChooser, fcPath);
+    FileChooserUtils.setPath(fileChooser, fcPath);
 
     int showOpenDialog = fileChooser.showOpenDialog(SwingUtils.findParentFrameForDialog(
         msfraggerGuiFrame));
@@ -420,11 +421,11 @@ public class MsfraggerGuiFrameUtils {
     // ==============================================================
     Path current = tryFindStartingPath(msfraggerGuiFrame.getTextBinPhilosopher().getText());
     if (current != null) {
-      SwingUtils.setFileChooserPath(fc, current);
+      FileChooserUtils.setPath(fc, current);
     } else {
       List<String> props = Arrays.asList(ThisAppProps.PROP_BIN_PATH_PHILOSOPHER, ThisAppProps.PROP_BINARIES_IN);
       String fcPath = ThisAppProps.tryFindPath(props, false);
-      SwingUtils.setFileChooserPath(fc, fcPath);
+      FileChooserUtils.setPath(fc, fcPath);
     }
     // ==============================================================
 
@@ -472,7 +473,7 @@ public class MsfraggerGuiFrameUtils {
    * Collects all tabs' components that have names with values from the map.
    * @param tabPane
    */
-  public static Map<String, String> formToMap(JTabbedPane tabPane) {
+  public static Map<String, String> tabPaneToMap(JTabbedPane tabPane) {
     // getting tab names
     Map<Integer, String> mapTabNameToIdx = new HashMap<>();
     for (int i = 0, tabCount = tabPane.getTabCount(); i < tabCount; i++) {
@@ -695,7 +696,7 @@ public class MsfraggerGuiFrameUtils {
     fc.setApproveButtonText("Save");
     fc.setDialogTitle("Export to");
     fc.setMultiSelectionEnabled(false);
-    SwingUtils.setFileChooserPath(fc, ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH));
+    FileChooserUtils.setPath(fc, ThisAppProps.load(PROP_FILECHOOSER_LAST_PATH));
     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
     Date now = new Date();
     fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(now))));
@@ -1525,7 +1526,7 @@ public class MsfraggerGuiFrameUtils {
   /**
    * Fills all tabs' components that have names with values from the map.
    */
-  public static void formFromMap(JTabbedPane tabPane, Map<String, String> map) {
+  public static void tabPaneFromMap(JTabbedPane tabPane, Map<String, String> map) {
     for (int i = 0; i < tabPane.getTabCount(); i++) {
       Component compAt = tabPane.getComponentAt(i);
       if (compAt instanceof Container) {

@@ -24,6 +24,8 @@ import static umich.msfragger.params.umpire.UmpireParams.PROP_WindowSize;
 import static umich.msfragger.params.umpire.UmpireParams.PROP_WindowType;
 
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.swing.FileChooserUtils;
+import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.UiText;
 import java.awt.Component;
 import java.awt.Container;
@@ -38,7 +40,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -235,8 +241,7 @@ public class UmpirePanel extends JPanel {
         .debounce(3, TimeUnit.SECONDS)
         .subscribe(documentEvent -> {
           try {
-            final String val = textConfigFile.getText();
-            final String toSave = textConfigFile.getGhostText().equals(val) ? null : val;
+            final String toSave = textConfigFile.getNonGhostText();
             ThisAppProps.save(UmpireParams.CACHE_FILE, toSave);
 
             if (!StringUtils.isNullOrWhitespace(toSave)) {
@@ -257,17 +262,18 @@ public class UmpirePanel extends JPanel {
           textConfigFile);
       pOther.add(feConfigFile.label(), ccLbl);
       pOther.add(feConfigFile.comp, new CC().growX().pushX());
-      JFileChooser fc = new JFileChooser();
-      fc.setMultiSelectionEnabled(false);
-      fc.setDialogTitle("Config file");
-      final String curFile = textConfigFile.getText();
-      if (curFile != null) {
-        try {
-          fc.setCurrentDirectory(Paths.get(curFile).toFile());
-        } catch (Exception ignored) {
-        }
-      }
-      pOther.add(feConfigFile.browseButton("Browse", fc, ghostTextConfigFile, null),
+
+      Supplier<JFileChooser> fcProvider = () -> {
+        JFileChooser fc = FileChooserUtils.create("Config file", "Select", false,
+            FcMode.FILES_ONLY, true);
+        FileChooserUtils.setPath(fc, Stream.of(textConfigFile.getNonGhostText()));
+        return fc;
+      };
+
+      pOther.add(feConfigFile.browseButton("Browse", fcProvider, ghostTextConfigFile,
+          paths -> textConfigFile.setText(paths.stream()
+              .map(Path::toString)
+              .collect(Collectors.joining(FileChooserUtils.MULTI_FILE_DELIMITER)))),
           new CC().minWidth("button").wrap());
     }
 
@@ -293,17 +299,18 @@ public class UmpirePanel extends JPanel {
           + " ProteoWizard suite. It is no longer included in Philosopher. Download at: http://proteowizard.sourceforge.net/");
       pOther.add(feBinMsconvert.label(), ccLbl);
       pOther.add(feBinMsconvert.comp, new CC().growX().pushX());
-      final JFileChooser fc = new JFileChooser();
-      fc.setMultiSelectionEnabled(false);
-      fc.setDialogTitle("MSConvert binary");
-      final String curFile = textBinMsconvert.getText();
-      if (curFile != null) {
-        try {
-          fc.setCurrentDirectory(Paths.get(curFile).toFile());
-        } catch (Exception ignored) {
-        }
-      }
-      pOther.add(feBinMsconvert.browseButton("Browse", fc, ghostTextBinMsconvert, null),
+
+      Supplier<JFileChooser> fcSupplier = () -> {
+        JFileChooser fc = FileChooserUtils
+            .create("MSConvert binary", false, FcMode.FILES_ONLY);
+        FileChooserUtils.setPath(fc, Stream.of(textBinMsconvert.getNonGhostText()));
+        return fc;
+      };
+
+      pOther.add(feBinMsconvert.browseButton("Browse", fcSupplier, ghostTextBinMsconvert,
+          paths -> textBinMsconvert.setText(paths.stream()
+              .map(Path::toString)
+              .collect(Collectors.joining(FileChooserUtils.MULTI_FILE_DELIMITER)))),
           new CC().minWidth("button").wrap());
     }
 

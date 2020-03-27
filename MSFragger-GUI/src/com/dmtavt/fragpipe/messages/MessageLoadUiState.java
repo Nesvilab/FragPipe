@@ -2,19 +2,18 @@ package com.dmtavt.fragpipe.messages;
 
 import static com.dmtavt.fragpipe.Fragpipe.UI_STATE_CACHE_FN;
 
-import java.nio.file.Path;
 import com.github.chhh.utils.CacheUtils;
+import java.nio.file.Path;
 
-public class MessageLoadAllForms {
-
+public class MessageLoadUiState {
   public final Path path;
 
-  public MessageLoadAllForms(Path path) {
+  public MessageLoadUiState(Path path) {
     this.path = path;
   }
 
-  public static MessageLoadAllForms newForCaching() {
+  public static MessageLoadUiState newForCache() {
     Path formCachePath = CacheUtils.getTempFile(UI_STATE_CACHE_FN);
-    return new MessageLoadAllForms(formCachePath);
+    return new MessageLoadUiState(formCachePath);
   }
 }

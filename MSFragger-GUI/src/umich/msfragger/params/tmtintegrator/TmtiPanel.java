@@ -1,6 +1,7 @@
 package umich.msfragger.params.tmtintegrator;
 
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
@@ -766,7 +767,7 @@ public class TmtiPanel extends JPanelWithEnablement {
               ThisAppProps.load(TmtiPanel.PROP_LAST_ANNOTATION_PATH),
               ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN))
           .filter(Objects::nonNull).findFirst().orElse(null);
-      SwingUtils.setFileChooserPath(fc, suggestedPath);
+      FileChooserUtils.setPath(fc, suggestedPath);
       fc.setCurrentDirectory(Paths.get(suggestedPath).toFile());
       int userSelection = fc.showSaveDialog(parent);
       if (JFileChooser.APPROVE_OPTION == userSelection) {

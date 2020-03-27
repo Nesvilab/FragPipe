@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,6 +49,24 @@ public final class StringUtils {
    */
   public static boolean isNullOrWhitespace(String s) {
     return s == null || s.length() == 0 || RE_WHITESPACE.matcher(s).matches();
+  }
+
+  /**
+   * Prepends prefix only if the base doesn't yet start with this prefix.
+   */
+  public static String prependOnce(String base, String prefix) {
+    if (base == null) return prefix;
+    if (prefix == null) return base;
+    return base.startsWith(prefix) ? base : prefix + base;
+  }
+
+  /**
+   * Appends suffix only if the base doesn't yet end with this suffix.
+   */
+  public static String appendOnce(String base, String suffix) {
+    if (base == null) return suffix;
+    if (suffix == null) return base;
+    return base.endsWith(suffix) ? base : base + suffix;
   }
 
   /**

@@ -1,5 +1,7 @@
 package com.dmtavt.fragpipe;
 
+import static com.dmtavt.fragpipe.Fragpipe.fe;
+
 import com.dmtavt.fragpipe.api.BalloonTips;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
@@ -14,7 +16,9 @@ import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger.Version;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.StringUtils;
-import com.github.chhh.utils.SwingUtils.FcMode;
+import com.github.chhh.utils.swing.FileChooserUtils;
+import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
+import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
@@ -55,6 +59,7 @@ public class TabConfig extends JPanelWithEnablement {
   private UiText uiTextBinFragger;
   private JEditorPane epFraggerVer;
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
+  public static final String PREFIX_CONFIG = "fragpipe-config.";
 
   public TabConfig() {
     init();
@@ -115,17 +120,26 @@ public class TabConfig extends JPanelWithEnablement {
   private JPanel createPanelFragger() {
     JPanel p = newMigPanel();
     p.setBorder(new TitledBorder("MSFragger"));
-    uiTextBinFragger = UiUtils.uiTextBuilder().ghost("Select path to MSFragger.jar").create();
-    p.add(Fragpipe.rename(uiTextBinFragger, "config.bin-msfragger"), ccL().split().growX());
-    p.add(UiUtils.createButton("Browse", this::actionBrowseBinMsfragger), ccL());
+
+    final String binMsfraggerTip = "Select path to MSFragger.jar";
+    uiTextBinFragger = UiUtils.uiTextBuilder().ghost(binMsfraggerTip).create();
+    FormEntry feBinMsfragger = fe(uiTextBinFragger, "bin-msfragger", PREFIX_CONFIG)
+        .tooltip(binMsfraggerTip).create();
+    p.add(feBinMsfragger.comp, ccL().split().growX());
+
+    JButton btnBrowse = feBinMsfragger
+        .browseButton("Browse", this::createBinMsfraggerFilechooser, binMsfraggerTip, paths -> {
+          paths.stream().findFirst().ifPresent(jar -> Bus.post(new MessageMsfraggerNewJarPath(jar.toString())));
+        });
+    p.add(btnBrowse, ccL());
+
     JButton btnUpdate = UiUtils.createButton("Update", this::actionUpdateBinMsfragger);
     btnUpdate.setToolTipText(SwingUtils.makeHtml("Open MSFragger upgrader tool in browser.\n" +
         "In order to update you <b>must</b> download an\n" +
         "original copy from the <b>download</b> website once."));
     p.add(btnUpdate, ccL().wrap());
     epFraggerVer = SwingUtils.createClickableHtml("MSFragger version: N/A");
-    Fragpipe.renameNoCache(epFraggerVer, name("msfragger.version-info"));
-    p.add(epFraggerVer, ccL().spanX().growX().wrap());
+    p.add(Fragpipe.rename(epFraggerVer, "msfragger.version-info", PREFIX_CONFIG, true), ccL().spanX().growX().wrap());
     p.add(SwingUtils.createClickableHtml(createFraggerCitationBody()), ccL().spanX().growX().wrap());
     return p;
   }
@@ -166,10 +180,6 @@ public class TabConfig extends JPanelWithEnablement {
 
   }
 
-  private String name(String name) {
-    return name.startsWith("config.") ? name : "config." + name;
-  }
-
   private CC ccL() {
     return new CC().alignX("left");
   }
@@ -186,23 +196,21 @@ public class TabConfig extends JPanelWithEnablement {
     throw new UnsupportedOperationException("Updating MSFragger has not been reimplemented yet");
   }
 
-  private void actionBrowseBinMsfragger(ActionEvent evt) {
-    JFileChooser fc = SwingUtils.newFileChooser("Select MSFragger jar", "Select",
+  private JFileChooser createBinMsfraggerFilechooser() {
+    JFileChooser fc = FileChooserUtils.create("Select MSFragger jar", "Select",
         false, FcMode.FILES_ONLY, true,
         new FileNameExtensionFilter("JAR files", "jar"));
-    SwingUtils.setFileChooserPath(fc, Stream.of(
+    FileChooserUtils.setPath(fc, Stream.of(
         uiTextBinFragger.getNonGhostText(),
         ThisAppProps.load(ThisAppProps.PROP_BINARIES_IN),
         JarUtils.getCurrentJarPath()));
-
-    int result = fc.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
-    if (JFileChooser.APPROVE_OPTION == result) {
-      Bus.post(new MessageMsfraggerNewJarPath(fc.getSelectedFile().toString()));
-    }
+    return fc;
   }
 
   @Subscribe
   public void onMsfraggerNewJarPath(MessageMsfraggerNewJarPath m) {
+    if (StringUtils.isBlank(m.binPath))
+      return;
     Version v;
     try {
       Msfragger.validateJar(m.binPath);
@@ -231,7 +239,7 @@ public class TabConfig extends JPanelWithEnablement {
     return SwingUtils.wrapInStyledHtml(createFraggerCitationBody(), font);
   }
 
-  public static String createFraggerCitationBody() {
+  private static String createFraggerCitationBody() {
     final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
     final String linkMsfragger = p.getProperty(MsfraggerProps.PROP_FRAGGER_SITE_URL, "https://nesvilab.github.io/MSFragger/");
     final String linkFragpipe = p.getProperty(ThisAppProps.PROP_FRAGPIPE_SITE_URL, "https://github.com/Nesvilab/FragPipe");

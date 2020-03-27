@@ -1,13 +1,16 @@
 package com.dmtavt.fragpipe;
 
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.UiTab;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
-import com.dmtavt.fragpipe.messages.MessageSaveAllForms;
-import com.dmtavt.fragpipe.messages.MessageSaveCache;
+import com.dmtavt.fragpipe.messages.MessageLoadUiState;
+import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.github.chhh.utils.LogUtils;
+import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Color;
@@ -20,11 +23,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Locale;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -36,12 +43,15 @@ import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.NoSubscriberEvent;
 import org.greenrobot.eventbus.Subscribe;
+import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
 import umich.msfragger.gui.api.LogbackJTextPaneAppender;
 
 public class Fragpipe extends JFrame {
+
+  public static final String UI_STATE_CACHE_FN = "fragpipe-ui.cache";
   private static final Logger log = LoggerFactory.getLogger(Fragpipe.class);
   public static final Color COLOR_GREEN = new Color(105, 193, 38);
   public static final Color COLOR_GREEN_DARKER = new Color(104, 184, 55);
@@ -52,24 +62,19 @@ public class Fragpipe extends JFrame {
   public static final Color COLOR_BLACK = new Color(0, 0, 0);
   private static final String TAB_NAME_LCMS = "LCMS Files";
   private static final String TAB_NAME_UMPIRE = "DIA-Umpire SE";
-  public static final String PROP_PREFIX = "fragpipe.";
+  public static final String PREFIX_FRAGPIPE = "fragpipe.";
   public static final String PROP_NOCACHE = "do-not-cache";
 
-  public static final BiFunction<Component, String, Component> COMP_RENAME = (comp, name) -> {
-    String prefixed = name.startsWith(PROP_PREFIX) ? name : PROP_PREFIX + name;
-    comp.setName(prefixed);
-    return comp;
+  public static final Function<String, String> PREPEND_FRAGPIPE = (name) -> {
+    if (name == null)
+      return PREFIX_FRAGPIPE;
+    return name.startsWith(PREFIX_FRAGPIPE) ? name : PREFIX_FRAGPIPE + name;
   };
   public static final Function<String, String> APPEND_NO_CACHE = (name) -> {
     if (name == null)
       return PROP_NOCACHE;
     return name.contains(PROP_NOCACHE) ? name : name + "." + PROP_NOCACHE;
   };
-  public static final BiFunction<Component, String, Component> COMP_RENAME_NOCACHE = (comp, name) -> {
-    comp.setName(APPEND_NO_CACHE.apply(name));
-    return comp;
-  };
-
 
   JTabbedPane tabs;
   TextConsole console;
@@ -79,6 +84,14 @@ public class Fragpipe extends JFrame {
   public Fragpipe() throws HeadlessException {
     init();
     initMore();
+  }
+
+  public static FormEntry.Builder fe(JComponent comp, String compName) {
+    return FormEntry.builder(comp, StringUtils.prependOnce(compName, PREFIX_FRAGPIPE));
+  }
+
+  public static FormEntry.Builder fe(JComponent comp, String compName, String prefix) {
+    return FormEntry.builder(comp, StringUtils.prependOnce(compName, prefix));
   }
 
   public static void main(String args[]) {
@@ -94,8 +107,7 @@ public class Fragpipe extends JFrame {
       fp.addWindowListener(new WindowAdapter() {
         @Override
         public void windowClosing(WindowEvent e) {
-          Bus.post(new MessageSaveCache());
-          Bus.post(MessageSaveAllForms.newForCaching());
+          Bus.post(MessageSaveUiState.newForCache());
         }
       });
 
@@ -144,14 +156,46 @@ public class Fragpipe extends JFrame {
   }
 
   /**
-   * Use to name all the components that need to save state between runs.
-   * Will prepend their name with "fragpipe.ui" prefix.
+   * Use to name all the components that need to save state between runs. Will prepend their name
+   * with "fragpipe." prefix.
    */
   public static Component rename(Component comp, String name) {
-    return COMP_RENAME.apply(comp, name);
+    return rename(comp, name, false);
   }
+
+  /**
+   * Use to name all the components that need to save state between runs.
+   * Will prepend their name with "fragpipe." prefix.
+   */
+  public static Component rename(Component comp, String name, boolean isNoCache) {
+    String s = PREPEND_FRAGPIPE.apply(name);
+    comp.setName(isNoCache ? APPEND_NO_CACHE.apply(s) : s);
+    return comp;
+  }
+
+  /**
+   * Use to name all the components that need to save state between runs.
+   * Will prepend their name with provided prefix.
+   */
+  public static Component rename(Component comp, String name, String prefix) {
+    return rename(comp, name, prefix, false);
+  }
+
+  /**
+   * Use to name all the components that need to save state between runs.
+   * Will prepend their name with provided prefix.
+   * @param isNoCache Also append name with 'no-cache' tag. Useful if you want to have a unique name
+   *                  for an element, but don't want it to be saved to cache file.
+   */
+  public static Component rename(Component comp, String name, String prefix, boolean isNoCache) {
+    String s = StringUtils.prependOnce(name, prefix);
+    comp.setName(isNoCache ? APPEND_NO_CACHE.apply(s) : s);
+    return comp;
+  }
+
+  /** Same as calling {@link #rename(Component, String, boolean)} with True as last arg. */
   public static Component renameNoCache(Component comp, String name) {
-    return COMP_RENAME_NOCACHE.apply(comp, name);
+    return rename(comp, name, true);
   }
 
   private JTabbedPane createTabs(TextConsole console) {
@@ -328,6 +372,26 @@ public class Fragpipe extends JFrame {
           tabs.removeTabAt(index);
         }
       }
+    }
+  }
+
+  @Subscribe
+  public void onSaveUiState(MessageSaveUiState m) {
+    log.debug("Writing ui state cache to: {}", m.path.toString());
+    try (OutputStream os = Files.newOutputStream(m.path)) {
+      FragpipeCacheUtils.tabsWrite(os, tabs);
+    } catch (IOException e) {
+      log.error("Could not write fragpipe cache to: {}", m.path.toString());
+    }
+  }
+
+  @Subscribe
+  public void onLoadUiState(MessageLoadUiState m) {
+    log.debug("Loading ui state cache from: {}", m.path.toString());
+    try (InputStream is = Files.newInputStream(m.path)) {
+      FragpipeCacheUtils.tabsRead(is, tabs);
+    } catch (IOException e) {
+      log.error("Could not write fragpipe cache to: {}", m.path.toString());
     }
   }
 

@@ -31,7 +31,6 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -39,7 +38,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,12 +45,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JEditorPane;
+import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JToggleButton;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -799,50 +816,6 @@ public class SwingUtils {
     }
   }
 
-  /**
-   * Sets current direcotry of a file chooser to the first non-null, non-empty and existing
-   * path.
-   */
-  public static void setFileChooserPath(JFileChooser fc, Stream<String> possiblePaths) {
-    File f = possiblePaths
-        .map(PathUtils::existing)
-        .filter(Objects::nonNull)
-        .map(Path::toFile)
-        .findFirst().orElse(null);
-    fc.setCurrentDirectory(f);
-  }
-
-  /**
-   * Tries to set file chooser directory to an existing path, bubbling up the file system
-   * looking for existing locations.
-   */
-  public static void setFileChooserPath(JFileChooser fc, Path path) {
-    try {
-      if (Files.exists(path)) {
-        if (Files.isDirectory(path)) {
-          fc.setCurrentDirectory(path.getParent().toFile());
-          fc.setSelectedFile(path.toFile());
-        } else { // Files.exists(path) && !Files.isDirectory(path)
-          fc.setCurrentDirectory(path.toFile());
-        }
-      } else { // !Files.exists(path)
-        Path existing = findExistingUpstreamPath(path);
-        fc.setCurrentDirectory(existing == null ? null : existing.toFile());
-      }
-    } catch (Exception ignored) {
-      fc.setCurrentDirectory(null);
-    }
-  }
-
-  public static void setFileChooserPath(JFileChooser fc, String path) {
-    try {
-      Path p = Paths.get(path);
-      setFileChooserPath(fc, p);
-    } catch (Exception ignored) {
-      fc.setCurrentDirectory(null);
-    }
-  }
-
   public static JFrame findParentFrame(Component origin) {
     Component parentFrameForDialog = findParentFrameForDialog(origin);
     if (parentFrameForDialog instanceof JFrame) {
@@ -931,31 +904,6 @@ public class SwingUtils {
       icons.add(image.getImage());
     }
     frame.setIconImages(icons);
-  }
-
-  public enum FcMode {
-    FILES_ONLY(JFileChooser.FILES_ONLY),
-    DIRS_ONLY(JFileChooser.DIRECTORIES_ONLY),
-    ANY(JFileChooser.FILES_AND_DIRECTORIES);
-    public final int fileChooserConstant;
-
-    FcMode(int fileChooserConstant) {
-      this.fileChooserConstant = fileChooserConstant;
-    }
-  }
-
-  public static JFileChooser newFileChooser(String title, String approveButton, boolean multiSelection,
-      FcMode selectionMode, boolean isAcceptAllUsed, javax.swing.filechooser.FileFilter... filters) {
-    JFileChooser fc = new JFileChooser();
-    fc.setDialogTitle(title);
-    fc.setApproveButtonText(approveButton);
-    fc.setMultiSelectionEnabled(multiSelection);
-    fc.setFileSelectionMode(selectionMode.fileChooserConstant);
-    fc.setAcceptAllFileFilterUsed(isAcceptAllUsed);
-    for (javax.swing.filechooser.FileFilter filter : filters) {
-      fc.addChoosableFileFilter(filter);
-    }
-    return fc;
   }
 
   /**
