@@ -18,7 +18,6 @@ import net.java.balloontip.styles.BalloonTipStyle;
 import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import sun.jvm.hotspot.asm.sparc.SPARCRegister;
 
 public class BalloonTips {
   public static final Color BG_COLOR = Color.WHITE;
