@@ -43,13 +43,12 @@ public class CmdSpecLibGen extends CmdBase {
       return false;
     }
 
-    final String[] compatibleExts = useEasypqp ? new String[]{".d", ".mzml"} : new String[]{".mzml", ".mzxml"};
+    final String[] compatibleExts = useEasypqp ? new String[]{".d", ".mzml", ".mzxml"} : new String[]{".mzml", ".mzxml"};
     final Predicate<String> isFileCompatible = fn -> Arrays.stream(compatibleExts).anyMatch(ext -> fn.toLowerCase().endsWith(ext));
 
     boolean isIncompatibleInputs = mapGroupsToProtxml.keySet().stream()
         .flatMap(g -> g.lcmsFiles.stream())
         .anyMatch(lcms -> isFileCompatible.negate().test(lcms.getPath().getFileName().toString()));
-
     if (isIncompatibleInputs) {
       JOptionPane.showMessageDialog(comp, String.format(
           "<html>Spectral library generation with %s is currently only<br/>\n"
@@ -98,7 +97,9 @@ public class CmdSpecLibGen extends CmdBase {
       for (InputLcmsFile lcms : group.lcmsFiles) {
         final String fn_sans_extension = useEasypqp ?
                 FilenameUtils.removeExtension(lcms.getPath().getFileName().toString()) : null;
-        final Path lcms_path = useEasypqp ?
+        final String fn = lcms.getPath().getFileName().toString();
+        final boolean isTimsTOF = !(fn.toLowerCase().endsWith(".mzml") || fn.toLowerCase().endsWith(".mzxml"));
+        final Path lcms_path = useEasypqp && isTimsTOF ?
                 lcms.getPath().getParent().resolve(fn_sans_extension + "_calibrated.mgf") :
                 lcms.getPath();
         if (!groupWd.equals(lcms_path.getParent())) {
@@ -122,7 +123,6 @@ public class CmdSpecLibGen extends CmdBase {
       cmd.add(slg.getScriptSpecLibGenPath().toString());
       if (useEasypqp) {
         /**
-         * TODO
          * See https://github.com/grosenberger/easypqp on how to install EasyPQP
          * EasyPQP needs the following placed in the pep xml directory
          * - MGFs or mzMLs
@@ -136,7 +136,10 @@ public class CmdSpecLibGen extends CmdBase {
         cmd.add("True"); // overwrite (true/false), optional arg
         cmd.add("usePhilosopher.useBin()"); // philosopher binary path (not needed for easyPQP)
         cmd.add("use_easypqp"); // philosopher binary path (not needed for easyPQP)
-        cmd.add("iRT"); // retention time alignment options
+        cmd.add("noiRT"); // retention time alignment options
+//        cmd.add("iRT"); // retention time alignment options
+//        cmd.add("ciRT"); // retention time alignment options
+//        cmd.add("ciRT"); // retention time alignment options
       } else {
         cmd.add(fastaPath);
         cmd.add(groupWd.toString()); // this is "Pep xml directory"

@@ -427,8 +427,23 @@ if use_easypqp:
 	f'easypqp library --psmtsv {psm_tsv_file} --rt_reference {irt_file} --out out.tsv *.psmpkl *.peakpkl'
 	# https://github.com/grosenberger/easypqp/blob/master/easypqp/data/unimod.xml?raw=true
 	# http://www.unimod.org/xml/unimod.xml
-	if len(iproph_pep_xmls) == 1:
-		iproph_pep_xmls = list(itertools.repeat(iproph_pep_xmls[0], len(spectra_files)))
+	from typing import List
+	def pairing_pepxml_spectra(iproph_pep_xmls: List[pathlib.Path], spectra_files: List[pathlib.Path]):
+		import difflib, pathlib, os
+		spectra_filenames = [os.fspath(path) for path in spectra_files]
+		pep_xml_filenames = [os.fspath(path) for path in iproph_pep_xmls]
+		if len(spectra_filenames) < len(pep_xml_filenames):
+			shortlist, longlist = spectra_filenames, pep_xml_filenames
+		else:
+			shortlist, longlist = pep_xml_filenames, spectra_filenames
+		shortlist1 = (difflib.get_close_matches(fn, shortlist, n=1, cutoff=0.)[0] for fn in longlist)
+		shortlist2 = [pathlib.Path(e) for e in shortlist1]
+		return (longlist, shortlist2) if \
+			len(spectra_filenames) < len(pep_xml_filenames) else \
+			(shortlist2, longlist)
+
+
+	iproph_pep_xmls, spectra_files = pairing_pepxml_spectra(iproph_pep_xmls, spectra_files)
 	assert len(iproph_pep_xmls) == len(spectra_files)
 	easypqp_convert_cmds = [[os.fspath(easypqp), 'convert', '--pepxml', os.fspath(pep_xml), '--spectra', os.fspath(spectra), '--exclude-range', '-1.5,3.5']
 							for pep_xml, spectra in zip(iproph_pep_xmls, spectra_files)]
