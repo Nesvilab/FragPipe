@@ -42,12 +42,12 @@ public class MsfraggerVersionFetcherGithub implements VersionFetcher {
 
         final String latestKnownVer = props.getProperty(MsfraggerProps.PROP_LATEST_VERSION);
         if (latestKnownVer == null) {
-            throw new IllegalStateException(String.format("Philosopher property '%s' was not found",
+            throw new IllegalStateException(String.format("Msfragger property '%s' was not found",
                     MsfraggerProps.PROP_LATEST_VERSION));
         }
         downloadUrl = props.getProperty(MsfraggerProps.PROP_DOWNLOAD_URL);
         if (downloadUrl == null)
-            throw new IllegalStateException(String.format("Philosopher property '%s' was not found",
+            throw new IllegalStateException(String.format("Msfragger property '%s' was not found",
                     MsfraggerProps.PROP_DOWNLOAD_URL));
         
         return latestKnownVer;

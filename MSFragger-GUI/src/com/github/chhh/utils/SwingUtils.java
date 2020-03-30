@@ -16,6 +16,7 @@
  */
 package com.github.chhh.utils;
 
+import com.github.chhh.utils.swing.GhostedTextComponent;
 import com.github.chhh.utils.swing.StringRepresentable;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -522,12 +523,13 @@ public class SwingUtils {
       }
 
       final Component comp = e.getValue();
+      String value;
       if (comp instanceof StringRepresentable) {
-        map.put(name, ((StringRepresentable) comp).asString());
+         value = ((StringRepresentable) comp).asString();
       } else if (comp instanceof JCheckBox) {
-        map.put(name, Boolean.toString(((JCheckBox)comp).isSelected()));
+        value = Boolean.toString(((JCheckBox)comp).isSelected());
       } else if (comp instanceof JTextComponent) {
-        map.put(name, ((JTextComponent)comp).getText());
+        value = ((JTextComponent)comp).getText();
       } else {
         log.debug(String
             .format("SwingUtils.valuesToMap() found component of type [%s] by name [%s] which "
@@ -537,6 +539,13 @@ public class SwingUtils {
                     .class.getSimpleName(), JTextComponent.class.getSimpleName()));
         continue;
       }
+      if (value != null && comp instanceof GhostedTextComponent) {
+        GhostedTextComponent gt = (GhostedTextComponent) comp;
+        if (value.equals(gt.getGhostText())) {
+          log.debug("Skipping serializing ghost text component to map: '{}' has ghost value: '{}'", name, value);
+        }
+      }
+      map.put(name, value);
     }
     return map;
   }

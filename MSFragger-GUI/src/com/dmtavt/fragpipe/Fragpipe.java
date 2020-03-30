@@ -6,6 +6,7 @@ import com.dmtavt.fragpipe.api.UiTab;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
 import com.dmtavt.fragpipe.messages.MessageLoadUiState;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
+import com.dmtavt.fragpipe.messages.MessageUiInitDone;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.github.chhh.utils.LogUtils;
 import com.github.chhh.utils.StringUtils;
@@ -352,6 +353,8 @@ public class Fragpipe extends JFrame {
 
   private void initMore() {
     Bus.register(this);
+
+    Bus.post(new MessageUiInitDone());
   }
 
   @Subscribe
@@ -383,6 +386,11 @@ public class Fragpipe extends JFrame {
     } catch (IOException e) {
       log.error("Could not write fragpipe cache to: {}", m.path.toString());
     }
+  }
+
+  @Subscribe
+  public void onUiInitDone(MessageUiInitDone m) {
+    Bus.post(MessageLoadUiState.newForCache());
   }
 
   @Subscribe
