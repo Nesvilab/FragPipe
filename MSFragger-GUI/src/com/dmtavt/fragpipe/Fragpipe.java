@@ -1,14 +1,16 @@
 package com.dmtavt.fragpipe;
 
+import com.dmtavt.fragpipe.api.BalloonTips;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.UiTab;
+import com.dmtavt.fragpipe.messages.MessageBalloon;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
 import com.dmtavt.fragpipe.messages.MessageLoadUiState;
-import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
-import com.dmtavt.fragpipe.messages.MessageUiStateLoaded;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
+import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiInitDone;
+import com.dmtavt.fragpipe.messages.MessageUiStateLoaded;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.github.chhh.utils.LogUtils;
 import com.github.chhh.utils.StringUtils;
@@ -18,7 +20,6 @@ import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.HeadlessException;
@@ -30,35 +31,29 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.logging.Level;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.ToolTipManager;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.NoSubscriberEvent;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
-import umich.msfragger.gui.MsfraggerGuiFrame;
-import umich.msfragger.gui.MsfraggerGuiFrameUtils;
 import umich.msfragger.gui.api.LogbackJTextPaneAppender;
 import umich.msfragger.params.ThisAppProps;
 
@@ -66,6 +61,7 @@ public class Fragpipe extends JFrame {
 
   public static final String UI_STATE_CACHE_FN = "fragpipe-ui.cache";
   private static final Logger log = LoggerFactory.getLogger(Fragpipe.class);
+  public final BalloonTips tips = new BalloonTips();
   public static final Color COLOR_GREEN = new Color(105, 193, 38);
   public static final Color COLOR_GREEN_DARKER = new Color(104, 184, 55);
   public static final Color COLOR_GREEN_DARKEST = new Color(82, 140, 26);
@@ -108,10 +104,12 @@ public class Fragpipe extends JFrame {
   }
 
   public static void main(String args[]) {
+    loadClasses();
     SwingUtils.setLaf();
 
     ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
     Locale.setDefault(Locale.ROOT);
+
 
     /* Create and display the form */
     java.awt.EventQueue.invokeLater(() -> {
@@ -238,12 +236,15 @@ public class Fragpipe extends JFrame {
     return t;
   }
 
+  private static void loadClasses() {
+    log.debug("Loading BalloonTips class: {}", BalloonTips.class.getCanonicalName());
+  }
+
   private synchronized void init() {
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setTitle(Version.PROGRAM_TITLE + " (v" + Version.version() + ")");
     setLocale(Locale.ROOT);
     setMinimumSize(new Dimension(640, 480));
-
 
     this.setLayout(new MigLayout(new LC().fill()));
     //this.setLayout(new BorderLayout());
@@ -365,7 +366,7 @@ public class Fragpipe extends JFrame {
 
   private void initMore() {
     Bus.register(this);
-
+    Bus.register(tips);
     Bus.post(new MessageUiInitDone());
   }
 
@@ -414,11 +415,6 @@ public class Fragpipe extends JFrame {
       log.error("Could not write fragpipe cache to: {}", m.path.toString());
     }
     Bus.post(new MessageUiStateLoaded());
-  }
-
-  @Subscribe
-  public void onUiStateLoaded(MessageUiStateLoaded m) {
-    // TODO: check fragger, python, philosopher
   }
 
   @Subscribe

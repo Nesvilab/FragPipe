@@ -1,6 +1,7 @@
 package com.dmtavt.fragpipe.messages;
 
 import java.util.Objects;
+import java.util.StringJoiner;
 import javax.swing.JComponent;
 import net.java.balloontip.BalloonTip;
 
@@ -51,5 +52,16 @@ public class MessageBalloon {
     this.html = html;
     tip = null;
     body = null;
+  }
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", MessageBalloon.class.getSimpleName() + "[", "]")
+        .add("topic='" + topic + "'")
+        .add("tip=" + tip)
+        .add("parent=" + parent)
+        .add("body=" + body)
+        .add("html='" + html + "'")
+        .toString();
   }
 }

@@ -1,16 +1,11 @@
 package com.dmtavt.fragpipe.api;
 
 import com.dmtavt.fragpipe.messages.MessageBalloon;
-import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import net.java.balloontip.BalloonTip;
@@ -18,19 +13,29 @@ import net.java.balloontip.styles.BalloonTipStyle;
 import net.java.balloontip.styles.RoundedBalloonStyle;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BalloonTips {
+  private static final Logger log = LoggerFactory.getLogger(BalloonTips.class);
+//  private static final BalloonTips INSTANCE;
   public static final Color BG_COLOR = Color.WHITE;
   public static final BalloonTipStyle STYLE = new RoundedBalloonStyle(5, 5, BG_COLOR, Color.BLACK);
   /** From component id to tip */
-  Map<String, BalloonTip> tips = new HashMap<>();
+  final Map<String, BalloonTip> tips = new HashMap<>();
+
+//  static {
+//    log.debug("Setting singleton instance of BalloonTips");
+//    INSTANCE = new BalloonTips();
+//    Bus.register(INSTANCE);
+//  }
 
   public BalloonTips() {
-    Bus.register(this);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void onMessageBalloon(MessageBalloon m) {
+    log.debug("Got {}", m);
     synchronized (tips) {
       remove(m); // always remove old balloon
 

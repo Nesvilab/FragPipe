@@ -7,9 +7,10 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageBalloon;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
-import com.dmtavt.fragpipe.messages.MessageMsfraggerNewJarPath;
+import com.dmtavt.fragpipe.messages.MessageMsfraggerNewBin;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
+import com.dmtavt.fragpipe.messages.MessageUiStateLoaded;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
@@ -129,7 +130,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     JButton btnBrowse = feBinMsfragger
         .browseButton("Browse", this::createBinMsfraggerFilechooser, binMsfraggerTip, paths -> {
-          paths.stream().findFirst().ifPresent(jar -> Bus.post(new MessageMsfraggerNewJarPath(jar.toString())));
+          paths.stream().findFirst().ifPresent(jar -> Bus.post(new MessageMsfraggerNewBin(jar.toString())));
         });
     p.add(btnBrowse, ccL());
 
@@ -208,31 +209,43 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe
-  public void onMsfraggerNewJarPath(MessageMsfraggerNewJarPath m) {
+  public void onMsfraggerNewBin(MessageMsfraggerNewBin m) {
     if (StringUtils.isBlank(m.binPath))
       return;
     Version v;
     try {
       Msfragger.validateJar(m.binPath);
       v = Msfragger.version(Paths.get(m.binPath));
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version, true, !v.isVersionParsed));
     } catch (ValidationException e) {
-      SwingUtils.showErrorDialog(this, SwingUtils.makeHtml(e.getMessage()), "Invalid MSFragger jar");
-      return;
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, false));
     }
-    Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version, !v.isVersionParsed));
   }
 
   @Subscribe
   public void onNoteConfigMsfragger(NoteConfigMsfragger m) {
+    log.debug("Got {}", m);
     uiTextBinFragger.setText(m.jarPath);
-    if (m.isTooOld) {
+    if (!m.isValid) {
+      Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, "Not a valid MSFragger jar path"));
+    } else if (m.isTooOld) {
       String s = "This MSFragger version is not supported any more, download a newer one.";
       SwingUtils.setJEditorPaneContent(epFraggerVer, s);
       Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, s));
     } else {
-      SwingUtils.setJEditorPaneContent(epFraggerVer, "MSFragger version " + m.version);
+      SwingUtils.setJEditorPaneContent(epFraggerVer, "MSFragger version: " + m.version);
     }
     Msfragger.checkUpdates(m);
+  }
+
+  @Subscribe
+  public void onMessageUiStateLoaded(MessageUiStateLoaded m) {
+    log.debug("Got MessageUiStateLoaded");
+    String binFragger = uiTextBinFragger.getNonGhostText();
+    if (!StringUtils.isBlank(binFragger)) {
+      log.debug("Posting new MessageUiStateLoaded: {}", binFragger);
+      Bus.post(new MessageMsfraggerNewBin(binFragger));
+    }
   }
 
   public static String createFraggerCitationHtml(Font font) {
