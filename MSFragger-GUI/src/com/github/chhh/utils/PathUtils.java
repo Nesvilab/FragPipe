@@ -16,6 +16,8 @@
  */
 package com.github.chhh.utils;
 
+import com.dmtavt.fragpipe.exceptions.UnexpectedException;
+import com.dmtavt.fragpipe.exceptions.ValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.JarURLConnection;

@@ -4,11 +4,13 @@ import static com.dmtavt.fragpipe.Fragpipe.fe;
 
 import com.dmtavt.fragpipe.api.BalloonTips;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageBalloon;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerNewBin;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
+import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiStateLoaded;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
@@ -29,6 +31,7 @@ import java.awt.Desktop;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -51,6 +54,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.msfragger.gui.MsfraggerGuiFrameUtils;
 import umich.msfragger.params.ThisAppProps;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
@@ -61,8 +65,12 @@ public class TabConfig extends JPanelWithEnablement {
 
   private UiText uiTextBinFragger;
   private JEditorPane epFraggerVer;
+  private UiText uiTextBinPhi;
+  private JEditorPane epPhiVer;
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
+  public static final String TIP_PHILOSOPHER_BIN = "tip.pholosopher.bin";
   public static final String PREFIX_CONFIG = "fragpipe-config.";
+
 
   public TabConfig() {
     init();
@@ -236,26 +244,36 @@ public class TabConfig extends JPanelWithEnablement {
     try {
       Msfragger.validateJar(m.binPath);
       v = Msfragger.version(Paths.get(m.binPath));
-      Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version, true, !v.isVersionParsed));
-    } catch (ValidationException e) {
-      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, false));
+      if (v.isVersionParsed) {
+        Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version));
+      } else {
+        Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version, true, null));
+      }
+    } catch (ValidationException | UnexpectedException e) {
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath,"N/A", e));
     }
   }
 
   @Subscribe
   public void onNoteConfigMsfragger(NoteConfigMsfragger m) {
     log.debug("Got {}", m);
-    uiTextBinFragger.setText(m.jarPath);
-    if (!m.isValid) {
-      Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, "Not a valid MSFragger jar path"));
+    uiTextBinFragger.setText(m.path);
+
+    if (m.validation != null) {
+      SwingUtils.setJEditorPaneContent(epFraggerVer, "MSFragger version: N/A");
+      if (m.validation instanceof ValidationException) {
+        Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, m.validation.getMessage()));
+      } else {
+        SwingUtils.showErrorDialogWithStacktrace(m.validation, this);
+      }
     } else if (m.isTooOld) {
-      String s = "This MSFragger version is not supported any more, download a newer one.";
-      SwingUtils.setJEditorPaneContent(epFraggerVer, s);
-      Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, s));
+      SwingUtils.setJEditorPaneContent(epFraggerVer, "MSFragger version: too old, not supported anymore");
+      Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, "This version is not supported anymore.\n"
+          + "Download a newer one."));
     } else {
       SwingUtils.setJEditorPaneContent(epFraggerVer, "MSFragger version: " + m.version);
     }
-    if (m.isValid || m.isTooOld) {
+    if (m.isValid()) {
       Msfragger.checkUpdates(m);
     }
   }
@@ -293,5 +311,50 @@ public class TabConfig extends JPanelWithEnablement {
     sb.append("More info and docs: <a href=\"").append(linkMsfragger).append("\">MSFragger website</a>")
         .append(", <a href=\"").append(linkFragpipe).append("\">FragPipe GitHub page</a>");
     return sb.toString();
+  }
+
+  private JPanel createPanelPhilosopher() {
+    JPanel p = newMigPanel();
+    p.setBorder(new TitledBorder("Philosopher"));
+
+    final String binTip = "Select path to Philosopher binary";
+    uiTextBinPhi = UiUtils.uiTextBuilder().ghost(binTip).create();
+    FormEntry feBin = fe(uiTextBinFragger, "bin-philosopher", PREFIX_CONFIG)
+        .tooltip(binTip).create();
+    p.add(feBin.comp, ccL().split().growX());
+
+    JButton btnBrowse = feBin
+        .browseButton("Browse", this::createBinPhilosopherFilechooser, binTip,
+            paths -> paths.stream().findFirst()
+                .ifPresent(bin -> Bus.post(new MessagePhilosopherNewBin(bin.toString()))));
+    p.add(btnBrowse, ccL());
+    JButton btnUpdate = UiUtils.createButton("Update", this::actionPhilosopherDownload);
+    JButton btnDownload = UiUtils.createButton("Download", this::actionPhilosopherDownload);
+    p.add(btnUpdate, ccL());
+    p.add(btnDownload, ccL().wrap());
+
+    epPhiVer = SwingUtils.createClickableHtml("Philosopher version: N/A");
+    p.add(Fragpipe.rename(epFraggerVer, "philosopher.version-info", PREFIX_CONFIG, true), ccL().spanX().growX().wrap());
+    p.add(SwingUtils.createClickableHtml(createPhilosopherCitationBody()), ccL().spanX().growX().wrap());
+    return p;
+  }
+
+  private JFileChooser createBinPhilosopherFilechooser() {
+    JFileChooser fc = FileChooserUtils.create("Select Philosopher binary", "Select",
+        false, FcMode.FILES_ONLY, true,
+        new FileNameExtensionFilter("Executables (win)", "exe"));
+    FileChooserUtils.setPath(fc, Stream.of(
+        uiTextBinPhi.getNonGhostText(),
+        ThisAppProps.load(ThisAppProps.PROP_BINARIES_IN),
+        JarUtils.getCurrentJarPath()));
+    return fc;
+  }
+
+  private String createPhilosopherCitationBody() {
+    throw new UnsupportedOperationException();
+  }
+
+  private void actionPhilosopherDownload(ActionEvent e) {
+    MsfraggerGuiFrameUtils.downloadPhilosopher();
   }
 }

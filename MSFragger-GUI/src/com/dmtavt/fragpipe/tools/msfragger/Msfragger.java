@@ -1,17 +1,20 @@
 package com.dmtavt.fragpipe.tools.msfragger;
 
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.github.chhh.utils.StringUtils;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
@@ -115,23 +118,28 @@ public class Msfragger {
     return new Version(isVersionParsed, verStr);
   }
 
-  public static void validateJar(String path) throws ValidationException {
+  public static void validateJar(String path) throws ValidationException, UnexpectedException {
     try {
-      Path p = Paths.get(path);
+      Path p;
+      try {
+        p = Paths.get(path);
+      } catch (InvalidPathException e) {
+        throw new ValidationException("Path is not well formed", e);
+      }
       if (!Files.exists(p)) {
-        throw new ValidationException("Given path not exists: " + path);
+        throw new ValidationException("Path not exists");
       }
       if (!path.toLowerCase().endsWith(".jar")) {
-        throw new ValidationException("Given path not a jar file: " + path);
+        throw new ValidationException("Path not a jar file");
       }
       if (!validateMsfraggerJarContents(p)) {
-        throw new ValidationException("Not an MSFragger jar file: " + path);
+        throw new ValidationException("Not an MSFragger jar file");
       }
     } catch (Exception e) {
       if (e instanceof ValidationException) {
         throw e;
       }
-      throw new ValidationException("Invalid MSFragger jar", e);
+      throw new UnexpectedException("Invalid MSFragger jar path", e);
     }
   }
 

@@ -1570,13 +1570,12 @@ public class MsfraggerGuiFrameUtils {
   }
 
   public static void downloadPhilosopher() {
-
     try {
       Desktop.getDesktop()
           .browse(URI.create("https://github.com/Nesvilab/philosopher/releases/latest"));
     } catch (IOException ex) {
-      java.util.logging.Logger
-          .getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
+      log.error("Error opening browser to download philosopher", ex);
+      SwingUtils.showErrorDialogWithStacktrace(ex, null);
     }
   }
 

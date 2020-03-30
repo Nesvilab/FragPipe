@@ -413,8 +413,9 @@ public class Fragpipe extends JFrame {
       FragpipeCacheUtils.tabsRead(is, tabs);
     } catch (IOException e) {
       log.error("Could not write fragpipe cache to: {}", m.path.toString());
+    } finally {
+      Bus.post(new MessageUiStateLoaded());
     }
-    Bus.post(new MessageUiStateLoaded());
   }
 
   @Subscribe
