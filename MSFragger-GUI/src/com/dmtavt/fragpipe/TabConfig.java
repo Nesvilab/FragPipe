@@ -18,6 +18,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger.Version;
 import com.github.chhh.utils.JarUtils;
+import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
@@ -85,34 +86,39 @@ public class TabConfig extends JPanelWithEnablement {
     this.setLayout(new MigLayout(new LC().fillX()));
     add(createPanelTopButtons(), new CC().growX().wrap());
     add(createPanelFragger(), new CC().growX().wrap());
+    //add(createPanelPhilosopher(), new CC().growX().wrap());
+    add(createPanelBottomInfo(), new CC().growX().wrap());
+    add(createPanelBottomLink(), new CC().growX().wrap());
+  }
 
-    {
-      JLabel c = new JLabel();
-      c.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-      c.setAlignmentX(Component.CENTER_ALIGNMENT);
-      c.setText(SwingUtils.makeHtml(
-          "Tabs on top represent processing steps and will be performed sequentially.\n"
-              + "Tabs will become enabled once the tools on this panel are configured."));
-      add(c, new CC().growX().wrap());
-    }
+  private JLabel createPanelBottomInfo() {
+    JLabel c = new JLabel();
+    c.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+    c.setAlignmentX(Component.CENTER_ALIGNMENT);
+    c.setText(SwingUtils.makeHtml(
+        "Tabs on top represent processing steps and will be performed sequentially.\n"
+            + "Tabs will become enabled once the tools on this panel are configured."));
+    return c;
+  }
 
-    {
-      Properties props = ThisAppProps.getRemotePropertiesWithLocalDefaults();
+  private JPanel createPanelBottomLink() {
+    Properties props = ThisAppProps.getRemotePropertiesWithLocalDefaults();
 //      Properties props = ThisAppProps.getLocalProperties(); // for testing
-      String linkUrl = props.getProperty(ThisAppProps.PROP_SETUP_TUTORIAL_URL,
-          "https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html");
+    String linkUrl = props.getProperty(ThisAppProps.PROP_SETUP_TUTORIAL_URL,
+        "https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html");
 
-      JEditorPane c = SwingUtils.createClickableHtml(
-          "<a href='" + linkUrl + "'>Configuration Help</a>");
-      c.setAlignmentX(Component.CENTER_ALIGNMENT);
-      JPanel p = new JPanel();
-      p.setAlignmentX(Component.CENTER_ALIGNMENT);
-      p.add(c);
-      add(p, new CC().growX().wrap());
-    }
+    JEditorPane c = SwingUtils.createClickableHtml(
+        "<a href='" + linkUrl + "'>Configuration Help</a>");
+    c.setAlignmentX(Component.CENTER_ALIGNMENT);
+    JPanel p = new JPanel();
+    p.setAlignmentX(Component.CENTER_ALIGNMENT);
+    p.add(c);
+
+    return p;
   }
 
   private JPanel createPanelTopButtons() {
+//    JPanel p = newMigPanel();
     JPanel p = newMigPanel();
     Supplier<CC> ccL = () -> new CC().alignX("left");
     Supplier<CC> ccR = () -> new CC().alignX("right");
@@ -120,7 +126,10 @@ public class TabConfig extends JPanelWithEnablement {
     p.add(UiUtils.createButton("Clear Cache", e -> Bus.post(new MessageClearCache())), ccL.get());
     UiCheck uiCheckUmpire = UiUtils.createUiCheck("Enable DIA-Umpire", false,
         e -> Bus.post(new MessageUmpireEnabled(((JCheckBox) e.getSource()).isSelected())));
-    p.add(uiCheckUmpire, ccL.get().wrap());
+    p.add(uiCheckUmpire, ccL.get());
+    JLabel sysInfo = new JLabel(SwingUtils.makeHtml(OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo()));
+    sysInfo.setVerticalAlignment(JLabel.TOP);
+    p.add(sysInfo, ccR.get().wrap());
     //p.add(UiUtils.createButton("Find tools", e -> post(new MessageFindTools())), ccL.get().split().spanX());
     JLabel label = new JLabel("Main tools configuration");
     label.setFont(new Font(label.getFont().getName(), Font.BOLD, label.getFont().getSize()+3));
@@ -203,7 +212,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private JPanel newMigPanel() {
-    return new JPanel(new MigLayout(new LC().fillX()));
+    return new JPanel(new MigLayout(new LC().fillX().insetsAll("0px")));
   }
 
   private void actionMsfraggerUpdate(ActionEvent evt) {
@@ -334,7 +343,7 @@ public class TabConfig extends JPanelWithEnablement {
     p.add(btnDownload, ccL().wrap());
 
     epPhiVer = SwingUtils.createClickableHtml("Philosopher version: N/A");
-    p.add(Fragpipe.rename(epFraggerVer, "philosopher.version-info", PREFIX_CONFIG, true), ccL().spanX().growX().wrap());
+    p.add(Fragpipe.rename(epPhiVer, "philosopher.version-info", PREFIX_CONFIG, true), ccL().spanX().growX().wrap());
     p.add(SwingUtils.createClickableHtml(createPhilosopherCitationBody()), ccL().spanX().growX().wrap());
     return p;
   }
@@ -351,7 +360,12 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private String createPhilosopherCitationBody() {
-    throw new UnsupportedOperationException();
+    StringBuilder sb = new StringBuilder();
+    sb.append("<p style=\"margin-top: 0\">");
+    sb.append("More info: <a href=\"https://nesvilab.github.io/philosopher/\">Philosopher GitHub page</a>");
+    sb.append("<br/>");
+    sb.append("</p>");
+    return sb.toString();
   }
 
   private void actionPhilosopherDownload(ActionEvent e) {
