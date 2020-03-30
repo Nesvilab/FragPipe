@@ -77,6 +77,7 @@ public class Msfragger {
           String url = vf.getDownloadUrl();
           final String manualDownloadUrl = !StringUtils.isNullOrWhitespace(url) ? url : vfLocal.getDownloadUrl();
           Bus.post(new MessageMsfraggerUpdateAvailable(verUpdated, manualDownloadUrl));
+          break;
         } catch (Exception ex) {
           // no biggie
           log.warn("Something happened while checking for MSFragger updates", ex);

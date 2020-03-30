@@ -63,7 +63,7 @@ public class BalloonTips {
         tip = new BalloonTip(m.parent, p, STYLE, true);
 
       } else {
-        throw new IllegalStateException("Must either provide a Tip, a JComponent for tip, or HTML body");
+        remove(m);
       }
 
       if (tip != null) {

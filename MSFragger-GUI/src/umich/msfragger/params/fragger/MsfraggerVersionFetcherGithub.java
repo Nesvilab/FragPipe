@@ -42,8 +42,8 @@ public class MsfraggerVersionFetcherGithub implements VersionFetcher {
 
         final String latestKnownVer = props.getProperty(MsfraggerProps.PROP_LATEST_VERSION);
         if (latestKnownVer == null) {
-            throw new IllegalStateException(String.format("Msfragger property '%s' was not found",
-                    MsfraggerProps.PROP_LATEST_VERSION));
+            log.debug(String.format("Msfragger property '%s' was not found", MsfraggerProps.PROP_LATEST_VERSION));
+            return null;
         }
         downloadUrl = props.getProperty(MsfraggerProps.PROP_DOWNLOAD_URL);
         if (downloadUrl == null)

@@ -25,9 +25,11 @@ import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -133,12 +135,14 @@ public class TabConfig extends JPanelWithEnablement {
           paths.stream().findFirst().ifPresent(jar -> Bus.post(new MessageMsfraggerNewBin(jar.toString())));
         });
     p.add(btnBrowse, ccL());
+    JButton btnUpdate = UiUtils.createButton("Update", this::actionMsfraggerUpdate);
+    JButton btnDownload = UiUtils.createButton("Download", this::actionMsfraggerDownload);
 
-    JButton btnUpdate = UiUtils.createButton("Update", this::actionUpdateBinMsfragger);
     btnUpdate.setToolTipText(SwingUtils.makeHtml("Open MSFragger upgrader tool in browser.\n" +
         "In order to update you <b>must</b> download an\n" +
         "original copy from the <b>download</b> website once."));
-    p.add(btnUpdate, ccL().wrap());
+    p.add(btnUpdate, ccL());
+    p.add(btnDownload, ccL().wrap());
     epFraggerVer = SwingUtils.createClickableHtml("MSFragger version: N/A");
     p.add(Fragpipe.rename(epFraggerVer, "msfragger.version-info", PREFIX_CONFIG, true), ccL().spanX().growX().wrap());
     p.add(SwingUtils.createClickableHtml(createFraggerCitationBody()), ccL().spanX().growX().wrap());
@@ -151,8 +155,8 @@ public class TabConfig extends JPanelWithEnablement {
     sb.append(String.format("There is a newer version of MSFragger available [%s].<br>\n", m.newVersion));
 
     JEditorPane ep = SwingUtils.createClickableHtml(sb.toString(), BalloonTips.BG_COLOR);
-    JPanel p = new JPanel(new BorderLayout());
-    p.setBackground(ep.getBackground());
+    JPanel content = new JPanel(new BorderLayout());
+    content.setBackground(ep.getBackground());
 
     JPanel pBtns = new JPanel();
     pBtns.setBackground(ep.getBackground());
@@ -175,10 +179,11 @@ public class TabConfig extends JPanelWithEnablement {
       Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN));
     });
 
-    p.add(ep, BorderLayout.CENTER);
+    content.add(ep, BorderLayout.CENTER);
     pBtns.add(btnClose);
-    p.add(pBtns, BorderLayout.SOUTH);
+    content.add(pBtns, BorderLayout.SOUTH);
 
+    Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, content));
   }
 
   private CC ccL() {
@@ -193,8 +198,23 @@ public class TabConfig extends JPanelWithEnablement {
     return new JPanel(new MigLayout(new LC().fillX()));
   }
 
-  private void actionUpdateBinMsfragger(ActionEvent evt) {
-    throw new UnsupportedOperationException("Updating MSFragger has not been reimplemented yet");
+  private void actionMsfraggerUpdate(ActionEvent evt) {
+    try {
+      String url = MsfraggerProps.getProperties()
+          .getProperty(MsfraggerProps.PROP_UPDATESERVER_WEBSITE_URL);
+      Desktop.getDesktop().browse(URI.create(url));
+    } catch (IOException ex) {
+      throw new IllegalStateException("Could not open MSFragger update link in browser.", ex);
+    }
+  }
+
+  private void actionMsfraggerDownload(ActionEvent e) {
+    try {
+      final String downloadUrl = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_DOWNLOAD_URL, "");
+      Desktop.getDesktop().browse(URI.create(downloadUrl));
+    } catch (IOException ex) {
+      throw new IllegalStateException("Could not open MSFragger download link in browser.", ex);
+    }
   }
 
   private JFileChooser createBinMsfraggerFilechooser() {
@@ -235,7 +255,9 @@ public class TabConfig extends JPanelWithEnablement {
     } else {
       SwingUtils.setJEditorPaneContent(epFraggerVer, "MSFragger version: " + m.version);
     }
-    Msfragger.checkUpdates(m);
+    if (m.isValid || m.isTooOld) {
+      Msfragger.checkUpdates(m);
+    }
   }
 
   @Subscribe
@@ -243,7 +265,6 @@ public class TabConfig extends JPanelWithEnablement {
     log.debug("Got MessageUiStateLoaded");
     String binFragger = uiTextBinFragger.getNonGhostText();
     if (!StringUtils.isBlank(binFragger)) {
-      log.debug("Posting new MessageUiStateLoaded: {}", binFragger);
       Bus.post(new MessageMsfraggerNewBin(binFragger));
     }
   }
