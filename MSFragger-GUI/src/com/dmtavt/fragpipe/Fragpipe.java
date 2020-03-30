@@ -5,6 +5,8 @@ import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.UiTab;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
 import com.dmtavt.fragpipe.messages.MessageLoadUiState;
+import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
+import com.dmtavt.fragpipe.messages.MessageUiStateLoaded;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageUiInitDone;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
@@ -16,6 +18,7 @@ import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.HeadlessException;
@@ -27,28 +30,37 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.Level;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.ToolTipManager;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.NoSubscriberEvent;
 import org.greenrobot.eventbus.Subscribe;
-import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.Version;
+import umich.msfragger.gui.MsfraggerGuiFrame;
+import umich.msfragger.gui.MsfraggerGuiFrameUtils;
 import umich.msfragger.gui.api.LogbackJTextPaneAppender;
+import umich.msfragger.params.ThisAppProps;
 
 public class Fragpipe extends JFrame {
 
@@ -401,6 +413,56 @@ public class Fragpipe extends JFrame {
     } catch (IOException e) {
       log.error("Could not write fragpipe cache to: {}", m.path.toString());
     }
+    Bus.post(new MessageUiStateLoaded());
+  }
+
+  @Subscribe
+  public void onUiStateLoaded(MessageUiStateLoaded m) {
+    // TODO: check fragger, python, philosopher
+  }
+
+  @Subscribe
+  public void onShowAbout(MessageShowAboutDialog m) {
+    showAboutDialog(this);
+  }
+
+  private String createAboutBody() {
+    final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
+    String linkDl = p.getProperty(umich.msfragger.Version.PROP_DOWNLOAD_URL, "");
+    String linkSite = p.getProperty(ThisAppProps.PROP_LAB_SITE_URL, "http://nesvilab.org");
+    String linkToPaper = p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL, "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
+
+    return "MSFragger - Ultrafast Proteomics Search Engine<br/>"
+        + "FragPipe (v" + umich.msfragger.Version.version() + ")<br/>"
+        + "Dmitry Avtonomov<br/>"
+        + "University of Michigan, 2017<br/><br/>"
+        + "<a href=\"" + linkDl
+        + "\">Click here to download</a> the latest version<br/><br/>"
+        + "<a href=\"" + linkSite + "\">Alexey Nesvizhskii lab</a><br/>&nbsp;<br/>&nbsp;"
+        + "MSFragger authors and contributors:<br/>"
+        + "<ul>"
+        + "<li>Andy Kong</li>"
+        + "<li>Dmitry Avtonomov</li>"
+        + "<li>Guo-Ci Teo</li>"
+        + "<li>Fengchao Yu</li>"
+        + "<li>Alexey Nesvizhskii</li>"
+        + "</ul>"
+        + "<a href=\"" + linkToPaper + "\">Link to the research manuscript</a><br/>"
+        + "Reference: <b>doi:10.1038/nmeth.4256</b><br/><br/>"
+        + "Components and Downstream tools:"
+        + "<ul>"
+        + "<li><a href='https://philosopher.nesvilab.org/'>Philosopher</a>: Felipe Leprevost</li>"
+        + "<li>PTM-Shepherd: Andy Kong</li>"
+        + "<li>Crystal-C: Hui-Yin Chang</li>"
+        + "<li>Spectral library generation: Guo-Ci Teo</li>"
+        + "<li><a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou</li>"
+        + "</ul>";
+  }
+
+  public void showAboutDialog(Component parent) {
+    JEditorPane ep = SwingUtils
+        .createClickableHtml(SwingUtils.wrapInStyledHtml(createAboutBody()));
+    SwingUtils.showDialog(this, ep);
   }
 
   @Subscribe

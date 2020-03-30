@@ -691,7 +691,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
   @Subscribe
   public void onShowAbout(MessageShowAboutDialog m) {
-    MsfraggerGuiFrameUtils.onShowAbout(this, m);
+    MsfraggerGuiFrameUtils.onShowAboutDialog(this, m);
   }
 
   //endregion

@@ -517,7 +517,7 @@ public class MsfraggerGuiFrameUtils {
     return whole;
   }
 
-  public static void onShowAbout(MsfraggerGuiFrame guiFrame, MessageShowAboutDialog m) {
+  public static void onShowAboutDialog(Component parent, MessageShowAboutDialog m) {
     // for copying style
     JLabel label = new JLabel();
     Font font = label.getFont();
@@ -579,7 +579,7 @@ public class MsfraggerGuiFrameUtils {
     ep.setBackground(label.getBackground());
 
     // show
-    JOptionPane.showMessageDialog(guiFrame, ep, "About", JOptionPane.INFORMATION_MESSAGE);
+    JOptionPane.showMessageDialog(parent, ep, "About", JOptionPane.INFORMATION_MESSAGE);
   }
 
   public static void checkPreviouslySavedParams(MsfraggerGuiFrame guiFrame) {
