@@ -86,7 +86,7 @@ public class TabConfig extends JPanelWithEnablement {
     this.setLayout(new MigLayout(new LC().fillX()));
     add(createPanelTopButtons(), new CC().growX().wrap());
     add(createPanelFragger(), new CC().growX().wrap());
-    //add(createPanelPhilosopher(), new CC().growX().wrap());
+    add(createPanelPhilosopher(), new CC().growX().wrap());
     add(createPanelBottomInfo(), new CC().growX().wrap());
     add(createPanelBottomLink(), new CC().growX().wrap());
   }
@@ -328,7 +328,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     final String binTip = "Select path to Philosopher binary";
     uiTextBinPhi = UiUtils.uiTextBuilder().ghost(binTip).create();
-    FormEntry feBin = fe(uiTextBinFragger, "bin-philosopher", PREFIX_CONFIG)
+    FormEntry feBin = fe(uiTextBinPhi, "bin-philosopher", PREFIX_CONFIG)
         .tooltip(binTip).create();
     p.add(feBin.comp, ccL().split().growX());
 
