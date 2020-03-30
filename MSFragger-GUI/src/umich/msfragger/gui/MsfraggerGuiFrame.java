@@ -96,7 +96,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.Version;
+import com.dmtavt.fragpipe.Version;
 import umich.msfragger.cmd.CmdMsfragger;
 import umich.msfragger.cmd.ToolingUtils;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils.LcmsFileAddition;

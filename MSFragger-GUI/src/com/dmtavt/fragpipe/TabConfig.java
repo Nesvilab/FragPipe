@@ -53,6 +53,7 @@ import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils;
@@ -246,6 +247,25 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe
+  public void onPhilosopherNewBin(MessagePhilosopherNewBin m) {
+    if (StringUtils.isBlank(m.path))
+      return;
+    Version v;
+    try {
+      Msfragger.validateJar(m.binPath);
+      v = Msfragger.version(Paths.get(m.binPath));
+      if (v.isVersionParsed) {
+        Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version));
+      } else {
+        Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version, true, null));
+      }
+    } catch (ValidationException | UnexpectedException e) {
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath,"N/A", e));
+    }
+  }
+
+
+  @Subscribe
   public void onMsfraggerNewBin(MessageMsfraggerNewBin m) {
     if (StringUtils.isBlank(m.binPath))
       return;
@@ -291,8 +311,12 @@ public class TabConfig extends JPanelWithEnablement {
   public void onMessageUiStateLoaded(MessageUiStateLoaded m) {
     log.debug("Got MessageUiStateLoaded");
     String binFragger = uiTextBinFragger.getNonGhostText();
-    if (!StringUtils.isBlank(binFragger)) {
+    if (StringUtils.isNotBlank(binFragger)) {
       Bus.post(new MessageMsfraggerNewBin(binFragger));
+    }
+    String binPhi = uiTextBinPhi.getNonGhostText();
+    if (StringUtils.isNotBlank(binPhi)) {
+      Bus.post(new MessagePhilosopherNewBin(binPhi));
     }
   }
 

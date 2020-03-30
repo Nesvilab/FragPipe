@@ -36,7 +36,7 @@ import org.apache.commons.codec.Charsets;
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.Version;
+import com.dmtavt.fragpipe.Version;
 import umich.msfragger.cmd.CmdCrystalc;
 import umich.msfragger.cmd.CmdIonquant;
 import umich.msfragger.cmd.CmdIprophet;

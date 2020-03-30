@@ -36,7 +36,7 @@ import javax.swing.JFileChooser;
 import javax.swing.text.JTextComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.Version;
+import com.dmtavt.fragpipe.Version;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.gui.api.SearchTypeProp;
 import com.github.chhh.utils.BundleUtils;

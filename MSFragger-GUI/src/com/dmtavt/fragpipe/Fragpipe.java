@@ -4,7 +4,6 @@ import com.dmtavt.fragpipe.api.BalloonTips;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.UiTab;
-import com.dmtavt.fragpipe.messages.MessageBalloon;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
 import com.dmtavt.fragpipe.messages.MessageLoadUiState;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
@@ -50,10 +49,8 @@ import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.NoSubscriberEvent;
 import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.Version;
 import umich.msfragger.gui.api.LogbackJTextPaneAppender;
 import umich.msfragger.params.ThisAppProps;
 
@@ -425,12 +422,12 @@ public class Fragpipe extends JFrame {
 
   private String createAboutBody() {
     final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
-    String linkDl = p.getProperty(umich.msfragger.Version.PROP_DOWNLOAD_URL, "");
+    String linkDl = p.getProperty(Version.PROP_DOWNLOAD_URL, "");
     String linkSite = p.getProperty(ThisAppProps.PROP_LAB_SITE_URL, "http://nesvilab.org");
     String linkToPaper = p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL, "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
 
     return "MSFragger - Ultrafast Proteomics Search Engine<br/>"
-        + "FragPipe (v" + umich.msfragger.Version.version() + ")<br/>"
+        + "FragPipe (v" + Version.version() + ")<br/>"
         + "Dmitry Avtonomov<br/>"
         + "University of Michigan, 2017<br/><br/>"
         + "<a href=\"" + linkDl

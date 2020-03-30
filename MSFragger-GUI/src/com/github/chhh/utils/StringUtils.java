@@ -76,6 +76,13 @@ public final class StringUtils {
     return isNullOrWhitespace(s);
   }
 
+  /**
+   * Shorthand for NOT {@link #isNullOrWhitespace(String)}.
+   */
+  public static boolean isNotBlank(String s) {
+    return !isNullOrWhitespace(s);
+  }
+
   public static String upToLastDot(String s) {
     int last = s.lastIndexOf('.');
     return last < 0 ? s : s.substring(0, last);

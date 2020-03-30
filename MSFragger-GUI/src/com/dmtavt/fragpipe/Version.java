@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package umich.msfragger;
+package com.dmtavt.fragpipe;
 
 import static umich.msfragger.params.ThisAppProps.PATH_BUNDLE;
 
@@ -283,7 +283,7 @@ public class Version {
 
   /**
    * To print changelog using just the jar file use:<br/>
-   * <code>java -cp ".\build\libs\FragPipe.jar" umich.msfragger.Version true 2</code>
+   * <code>java -cp ".\build\libs\FragPipe.jar" com.dmtavt.fragpipe.Version true 2</code>
    *
    * @param args The 1st param is a boolean whether to print GitHub release info preamble or not.
    * Use true, to indicate "yes", any other string for "no". The 2nd parameter is an integer how
