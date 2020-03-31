@@ -3,6 +3,7 @@ package com.dmtavt.fragpipe.tools.philosopher;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.github.chhh.utils.PathUtils;
+import com.github.chhh.utils.ProcessUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.VersionComparator;
@@ -37,14 +38,8 @@ public class Philosopher {
   }
 
   public static Version validate(String path) throws ValidationException, UnexpectedException {
-    String binPath = PathUtils.testBinaryPath(path);
 
-    final Pattern regexNewerVerFound = Pattern
-        .compile("new\\s+version.*available.*?:\\s*(\\S+)", Pattern.CASE_INSENSITIVE);
-    final Pattern regexVersion = Pattern
-        .compile("version\\s*=v?\\.?(?<version>\\S+)", Pattern.CASE_INSENSITIVE);
-    final Pattern regexBuild = Pattern
-        .compile("build\\s*=\\s*(?<build>[^\\s,;]+)", Pattern.CASE_INSENSITIVE);
+    String binPath = PathUtils.testBinaryPath(path);
     final VersionComparator vc = new VersionComparator();
 
     // get the vesrion reported by the current executable
@@ -63,30 +58,25 @@ public class Philosopher {
     String oldUnusedDownloadLink = null;
     int returnCode = 0;
     try {
-      Process pr = pb.start();
-      BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-      String line;
-      while ((line = in.readLine()) != null) {
-        Matcher m = regexNewerVerFound.matcher(line);
-        if (m.find()) {
-          isNewVersionStringFound = true;
-          log.debug("Philosopher found newer update version");
-          oldUnusedDownloadLink = m.group(1);
-        }
-        Matcher mVer = regexVersion.matcher(line);
-        if (mVer.find()) {
-          version = mVer.group("version") + " (build " + mVer.group("build") + ")";
-          log.debug("Detected philosopher version: {}", version);
-        }
-        Matcher mBuild = regexBuild.matcher(line);
-        if (mBuild.find()) {
-          build = mVer.group("build");
-          log.debug("Detected philosopher build: {}", build);
-        }
+      String printed = ProcessUtils.captureOutput(pb);
+      log.debug("philosopher version printed: {}", printed);
+      Matcher mNewVer = Pattern.compile("new\\s+version.*available.*?:\\s*(\\S+)", Pattern.CASE_INSENSITIVE).matcher(printed);
+      if (mNewVer.find()) {
+        isNewVersionStringFound = true;
+        log.debug("Philosopher found newer update version");
+        oldUnusedDownloadLink = mNewVer.group(1);
       }
 
-      returnCode = pr.waitFor();
-      log.debug("Got return code '{}' from philospher version test", returnCode);
+      final Matcher mVer = Pattern.compile(".*version[^=]*?=\\s*v?\\.?([^\\s,;]+).*", Pattern.CASE_INSENSITIVE).matcher(printed);
+      if (mVer.matches()) {
+        version = mVer.group(1);
+        log.debug("Detected philosopher version: {}", version);
+      }
+      final Matcher mBuild =  Pattern.compile(".*build[^=]*?=\\s*([^\\s,;]+).*", Pattern.CASE_INSENSITIVE).matcher(printed);
+      if (mBuild.matches()) {
+        build = mBuild.group(1);
+        log.debug("Detected philosopher build: {}", build);
+      }
 
     } catch (IOException | InterruptedException e) {
       log.error("Error while creating a java process for Philosopher test.", e);
