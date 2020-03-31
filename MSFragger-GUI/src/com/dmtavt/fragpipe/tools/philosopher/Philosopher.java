@@ -40,6 +40,9 @@ public class Philosopher {
   public static Version validate(String path) throws ValidationException, UnexpectedException {
 
     String binPath = PathUtils.testBinaryPath(path);
+    if (binPath == null) {
+      throw new ValidationException("Does not appear to be an executable file");
+    }
     final VersionComparator vc = new VersionComparator();
 
     // get the vesrion reported by the current executable

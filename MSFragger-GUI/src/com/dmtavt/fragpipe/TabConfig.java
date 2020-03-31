@@ -15,11 +15,11 @@ import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
 import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
-import com.dmtavt.fragpipe.messages.MessageUiInitDone;
-import com.dmtavt.fragpipe.messages.MessageUiStateLoaded;
+import com.dmtavt.fragpipe.messages.NotePreviousUiState;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteMsfraggerConfig;
 import com.dmtavt.fragpipe.messages.NotePhilosopherConfig;
+import com.dmtavt.fragpipe.messages.NotePythonConfig;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
@@ -30,7 +30,6 @@ import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
-import com.github.chhh.utils.swing.FormEntry.Builder;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
@@ -77,6 +76,7 @@ public class TabConfig extends JPanelWithEnablement {
   private UiText uiTextBinPhi;
   private JEditorPane epPhiVer;
   private UiText uiTextBinPython;
+  private JEditorPane epPythonVer;
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
   public static final String TIP_PHILOSOPHER_BIN = "tip.pholosopher.bin";
   public static final String PREFIX_CONFIG = "fragpipe-config.";
@@ -276,7 +276,7 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  @Subscribe
+  @Subscribe(sticky = true)
   public void onPhilosopherConfig(NotePhilosopherConfig m) {
     log.debug("Got {}", m);
     uiTextBinPhi.setText(m.path);
@@ -313,7 +313,7 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  @Subscribe
+  @Subscribe(sticky = true)
   public void onMsfraggerConfig(NoteMsfraggerConfig m) {
     log.debug("Got {}", m);
     uiTextBinFragger.setText(m.path);
@@ -340,8 +340,8 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  @Subscribe
-  public void onUiStateLoaded(MessageUiStateLoaded m) {
+  @Subscribe(sticky = true)
+  public void onUiStateLoaded(NotePreviousUiState m) {
     log.debug("Got MessageUiStateLoaded");
     String binFragger = uiTextBinFragger.getNonGhostText();
     if (StringUtils.isNotBlank(binFragger)) {
@@ -371,8 +371,25 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  @Subscribe(threadMode = ThreadMode.ASYNC)
   public void onPythonNewBin(MessagePythonNewBin m) {
+    PyInfo pi;
+    try {
+      pi = PyInfo.fromCommand(m.command);
+      if (pi.getMajorVersion() < 3) {
+        Bus.postSticky(
+            new NotePythonConfig(pi, new ValidationException("Python version 3+ required"),
+                pi.getCommand(), pi.getVersion()));
+      } else {
+        Bus.postSticky(new NotePythonConfig(pi));
+      }
+    } catch (ValidationException | UnexpectedException e) {
+      Bus.postSticky(new NotePythonConfig(null, e, m.command, "N/A"));
+    }
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void onPythonConfig(NotePythonConfig m) {
     uiTextBinPython.setText(m.command);
   }
 
@@ -453,6 +470,8 @@ public class TabConfig extends JPanelWithEnablement {
       JButton btnDonwload = UiUtils.createButton("Download", e -> SwingUtils.openBrowserOrThrow(url));
       p.add(btnDonwload, ccL().wrap());
     }
+    epPythonVer = SwingUtils.createClickableHtml("Python version: N/A");
+    p.add(epPythonVer, ccL().wrap());
 
     return p;
   }

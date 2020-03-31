@@ -94,7 +94,7 @@ public class FragpipeCacheUtils {
   }
 
 
-  public static void tabsWrite(OutputStream os, JTabbedPane tabs) throws IOException {
+  public static void tabsSave(OutputStream os, JTabbedPane tabs) throws IOException {
     Map<String, String> map = tabPaneToMap(tabs);
     Properties props = PropertiesUtils.from(map);
     try (BufferedOutputStream bos = new BufferedOutputStream(os)) {
@@ -102,11 +102,20 @@ public class FragpipeCacheUtils {
     }
   }
 
-  public static void tabsRead(InputStream is, JTabbedPane tabs) throws IOException {
+  public static Properties loadAsProperties(InputStream is) throws IOException {
     Properties props = new Properties();
     try (BufferedInputStream bis = new BufferedInputStream(is)) {
       props.load(bis);
     }
+    return props;
+  }
+
+  public static void tabsLoad(InputStream is, JTabbedPane tabs) throws IOException {
+    Map<String, String> map = PropertiesUtils.to(loadAsProperties(is));
+    tabPaneFromMap(tabs, map);
+  }
+
+  public static void tabsLoad(Properties props, JTabbedPane tabs) {
     Map<String, String> map = PropertiesUtils.to(props);
     tabPaneFromMap(tabs, map);
   }

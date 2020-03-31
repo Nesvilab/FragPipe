@@ -5,12 +5,12 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.UiTab;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
-import com.dmtavt.fragpipe.messages.MessageLoadUiState;
+import com.dmtavt.fragpipe.messages.MessageLoadPreviousUiState;
 import com.dmtavt.fragpipe.messages.MessageLoaderUpdate;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiInitDone;
-import com.dmtavt.fragpipe.messages.MessageUiStateLoaded;
+import com.dmtavt.fragpipe.messages.NotePreviousUiState;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
 import com.github.chhh.utils.LogUtils;
@@ -52,6 +52,7 @@ import javax.swing.ToolTipManager;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.NoSubscriberEvent;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -95,6 +96,7 @@ public class Fragpipe extends JFrame {
   private TabUmpire tabUmpire;
 
   public static class Loader {
+    private static final Logger log = LoggerFactory.getLogger(Loader.class);
 
     private final JProgressBar progress;
     private JFrame frameLoading;
@@ -131,6 +133,7 @@ public class Fragpipe extends JFrame {
 
       Fragpipe.displayMainWindow();
       log.debug("Closing loader frame");
+      Bus.unregister(this);
       frameLoading.setVisible(false);
       frameLoading.dispose();
     }
@@ -139,6 +142,18 @@ public class Fragpipe extends JFrame {
     public void onLoadingStateUpdate(MessageLoaderUpdate m) {
       log.debug("Updating loader progress: {}", m.text);
       progress.setString(m.text);
+    }
+
+    @Subscribe
+    public void onLoadPreviousUiState(MessageLoadPreviousUiState m) {
+      log.debug("Fragpipe.Loader Loading ui state cache from: {}", m.path.toString());
+      try (InputStream is = Files.newInputStream(m.path)) {
+        Properties props = FragpipeCacheUtils.loadAsProperties(is);
+        log.debug("Fragpipe.Loader posting sticky note NotePreviousUiState");
+        Bus.postSticky(new NotePreviousUiState(props));
+      } catch (IOException e) {
+        log.error("Fragpipe.Loader Could not read fragpipe cache from: {}", m.path.toString());
+      }
     }
   }
 
@@ -304,6 +319,9 @@ public class Fragpipe extends JFrame {
       props = ThisAppProps.getLocalProperties();
     }
 
+    Bus.post(new MessageLoaderUpdate("Checking cache"));
+    Bus.post(MessageLoadPreviousUiState.newForCache());
+
     try {
       TimeUnit.SECONDS.sleep(1);
     } catch (InterruptedException ignore) {}
@@ -438,9 +456,11 @@ public class Fragpipe extends JFrame {
 //    Bus.post(MessageLoadAllForms.forCaching());
 //
 //    initActions();
+    log.debug("Fragpipe.init() finished, UI ready");
   }
 
   private void initMore() {
+    log.debug("Fragpipe.initMore() started, subscribing to bus");
     Bus.register(this);
     Bus.register(tips);
     Bus.post(new MessageUiInitDone());
@@ -471,27 +491,28 @@ public class Fragpipe extends JFrame {
   public void onSaveUiState(MessageSaveUiState m) {
     log.debug("Writing ui state cache to: {}", m.path.toString());
     try (OutputStream os = Files.newOutputStream(m.path)) {
-      FragpipeCacheUtils.tabsWrite(os, tabs);
+      FragpipeCacheUtils.tabsSave(os, tabs);
     } catch (IOException e) {
       log.error("Could not write fragpipe cache to: {}", m.path.toString());
     }
   }
 
   @Subscribe
-  public void onUiInitDone(MessageUiInitDone m) {
-    Bus.post(MessageLoadUiState.newForCache());
-  }
-
-  @Subscribe
-  public void onLoadUiState(MessageLoadUiState m) {
-    log.debug("Loading ui state cache from: {}", m.path.toString());
+  public void onLoadPreviousUiState(MessageLoadPreviousUiState m) {
+    log.debug("Fragpipe Loading ui state cache from: {}", m.path.toString());
     try (InputStream is = Files.newInputStream(m.path)) {
-      FragpipeCacheUtils.tabsRead(is, tabs);
+      Properties props = FragpipeCacheUtils.loadAsProperties(is);
+      log.debug("Fragpipe posting sticky note NotePreviousUiState");
+      Bus.postSticky(new NotePreviousUiState(props));
     } catch (IOException e) {
-      log.error("Could not write fragpipe cache to: {}", m.path.toString());
-    } finally {
-      Bus.post(new MessageUiStateLoaded());
+      log.error("Fragpipe Could not read fragpipe cache from: {}", m.path.toString());
     }
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void onPreviousUiState(NotePreviousUiState m) {
+    log.debug("Got NotePreviousUiState, updating UI");
+    FragpipeCacheUtils.tabsLoad(m.props, tabs);
   }
 
   @Subscribe
