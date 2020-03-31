@@ -472,6 +472,19 @@ public class SwingUtils {
    * Tries to open the default browser.
    * @throws IllegalStateException if the operation fails.
    */
+  public static void openBrowserOrThrow(String url) {
+    try {
+      Desktop.getDesktop().browse(new URI(url));
+    } catch (IOException | URISyntaxException ex) {
+      throw new IllegalStateException("Could not open link in default system browser", ex);
+    }
+  }
+
+
+  /**
+   * Tries to open the default browser.
+   * @throws IllegalStateException if the operation fails.
+   */
   public static void openBrowserOrThrow(URI uri) {
     try {
       Desktop.getDesktop().browse(uri);

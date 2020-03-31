@@ -50,6 +50,7 @@ public class ThisAppProps extends Properties {
   public static final String PROP_MANUSCRIPT_DOI = "manuscript.doi";
   public static final String PROP_FRAGPIPE_SITE_URL = "msfragger.gui.site.url";
   public static final String PROP_SETUP_TUTORIAL_URL = "fragpipe.setup-tutorial.url";
+  public static final String PROP_PYTHON_DOWNLOAD_URL = "python.url.download";
 
   private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
     //private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
@@ -130,7 +131,6 @@ public class ThisAppProps extends Properties {
   }
 
   public static Properties getRemotePropertiesWithLocalDefaults() {
-    // TODO: deliver remote properties via event bus once/if fetched
     final Properties p = new Properties(getLocalProperties());
     // merge with remote properties
     Properties remote = ThisAppProps.getRemoteProperties();
@@ -140,6 +140,14 @@ public class ThisAppProps extends Properties {
       }
     }
     return p;
+  }
+
+  /**
+   * Default definition of properties added during re-implementation while old FragPipe code is
+   * still being used.
+   */
+  public static Properties def() {
+    return getRemotePropertiesWithLocalDefaults();
   }
 
   public static ResourceBundle getLocalBundle() {

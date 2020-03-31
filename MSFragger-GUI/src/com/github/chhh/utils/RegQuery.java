@@ -1,6 +1,8 @@
 package com.github.chhh.utils;
 
+import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,24 +26,14 @@ public class RegQuery {
    * @param path Path in registry to query.
    * @return
    */
-  public static List<String> query(String path) throws Exception {
+  public static List<String> query(String path) throws UnexpectedException {
     if (path == null)
       throw new NullPointerException("No nulls");
     List<String> cmd = new ArrayList<>();
     cmd.add("reg");
     cmd.add("query");
     cmd.add(path);
-    ProcessBuilder pb = new ProcessBuilder(cmd);
-    Process pr = pb.start();
-    BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-    String line;
-    List<String> results = new ArrayList<>();
-    while ((line = in.readLine()) != null) {
-      if (line.trim().length() == 0)
-        continue;
-      results.add(line);
-    }
-    return results;
+    return ProcessUtils.captureOutputLines(new ProcessBuilder(cmd));
   }
 
   /**
