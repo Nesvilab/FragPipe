@@ -2,9 +2,9 @@ package com.dmtavt.fragpipe.messages;
 
 public class MessagePythonNewBin {
 
-  public final String path;
+  public final String command;
 
-  public MessagePythonNewBin(String path) {
-    this.path = path;
+  public MessagePythonNewBin(String command) {
+    this.command = command;
   }
 }

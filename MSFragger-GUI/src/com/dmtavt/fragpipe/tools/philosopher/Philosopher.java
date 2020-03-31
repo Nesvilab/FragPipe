@@ -57,30 +57,24 @@ public class Philosopher {
     // get the vesrion reported by the current executable
     String oldUnusedDownloadLink = null;
     int returnCode = 0;
-    try {
-      String printed = ProcessUtils.captureOutput(pb);
-      log.debug("philosopher version printed: {}", printed);
-      Matcher mNewVer = Pattern.compile("new\\s+version.*available.*?:\\s*(\\S+)", Pattern.CASE_INSENSITIVE).matcher(printed);
-      if (mNewVer.find()) {
-        isNewVersionStringFound = true;
-        log.debug("Philosopher found newer update version");
-        oldUnusedDownloadLink = mNewVer.group(1);
-      }
+    String printed = ProcessUtils.captureOutput(pb);
+    log.debug("philosopher version printed: {}", printed);
+    Matcher mNewVer = Pattern.compile("new\\s+version.*available.*?:\\s*(\\S+)", Pattern.CASE_INSENSITIVE).matcher(printed);
+    if (mNewVer.find()) {
+      isNewVersionStringFound = true;
+      log.debug("Philosopher found newer update version");
+      oldUnusedDownloadLink = mNewVer.group(1);
+    }
 
-      final Matcher mVer = Pattern.compile(".*version[^=]*?=\\s*v?\\.?([^\\s,;]+).*", Pattern.CASE_INSENSITIVE).matcher(printed);
-      if (mVer.matches()) {
-        version = mVer.group(1);
-        log.debug("Detected philosopher version: {}", version);
-      }
-      final Matcher mBuild =  Pattern.compile(".*build[^=]*?=\\s*([^\\s,;]+).*", Pattern.CASE_INSENSITIVE).matcher(printed);
-      if (mBuild.matches()) {
-        build = mBuild.group(1);
-        log.debug("Detected philosopher build: {}", build);
-      }
-
-    } catch (IOException | InterruptedException e) {
-      log.error("Error while creating a java process for Philosopher test.", e);
-      throw new UnexpectedException("Error while creating a java process for Philosopher test.");
+    final Matcher mVer = Pattern.compile(".*version[^=]*?=\\s*v?\\.?([^\\s,;]+).*", Pattern.CASE_INSENSITIVE).matcher(printed);
+    if (mVer.matches()) {
+      version = mVer.group(1);
+      log.debug("Detected philosopher version: {}", version);
+    }
+    final Matcher mBuild =  Pattern.compile(".*build[^=]*?=\\s*([^\\s,;]+).*", Pattern.CASE_INSENSITIVE).matcher(printed);
+    if (mBuild.matches()) {
+      build = mBuild.group(1);
+      log.debug("Detected philosopher build: {}", build);
     }
 
     final String fragpipeVerMajor = com.dmtavt.fragpipe.Version.version().split("[-_]+")[0];

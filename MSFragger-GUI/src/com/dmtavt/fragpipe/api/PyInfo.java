@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -30,6 +31,15 @@ public class PyInfo {
   private String version;
   private int majorVersion;
   private Map<PythonModule, Installed> modules;
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", PyInfo.class.getSimpleName() + "[", "]")
+        .add("command='" + command + "'")
+        .add("version='" + version + "'")
+        .add("majorVersion=" + majorVersion)
+        .toString();
+  }
 
   private PyInfo() {
 

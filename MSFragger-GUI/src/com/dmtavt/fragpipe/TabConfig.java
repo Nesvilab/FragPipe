@@ -4,10 +4,12 @@ import static com.dmtavt.fragpipe.Fragpipe.fe;
 
 import com.dmtavt.fragpipe.api.BalloonTips;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageBalloon;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
+import com.dmtavt.fragpipe.messages.MessageFindSystemPython;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerNewBin;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
@@ -349,6 +351,29 @@ public class TabConfig extends JPanelWithEnablement {
     if (StringUtils.isNotBlank(binPhi)) {
       Bus.post(new MessagePhilosopherNewBin(binPhi));
     }
+    String binPython = uiTextBinPython.getNonGhostText();
+    if (StringUtils.isNotBlank(binPython)) {
+      Bus.post(new MessagePythonNewBin(binPython));
+    } else {
+      // python was not loaded, try finding system python
+      Bus.post(new MessageFindSystemPython());
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.ASYNC)
+  public void onFindSystemPython(MessageFindSystemPython m) {
+    try {
+      PyInfo pi = PyInfo.findSystemPython(3);
+      log.debug("Found system wide python install: {}", pi);
+      Bus.post(new MessagePythonNewBin(pi.getCommand()));
+    } catch (UnexpectedException e) {
+      log.warn("Problems while searching for system wide python installation", e);
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void onPythonNewBin(MessagePythonNewBin m) {
+    uiTextBinPython.setText(m.command);
   }
 
   public static String createFraggerCitationHtml(Font font) {
