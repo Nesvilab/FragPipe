@@ -277,7 +277,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
 
-  @Subscribe
+  @Subscribe(threadMode = ThreadMode.ASYNC)
   public void onMsfraggerNewBin(MessageMsfraggerNewBin m) {
     if (StringUtils.isBlank(m.binPath))
       return;
