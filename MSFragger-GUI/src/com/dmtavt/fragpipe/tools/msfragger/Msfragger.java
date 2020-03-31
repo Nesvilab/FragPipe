@@ -4,10 +4,9 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
-import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
+import com.dmtavt.fragpipe.messages.NoteMsfraggerConfig;
 import com.github.chhh.utils.StringUtils;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.FileSystem;
@@ -52,7 +51,7 @@ public class Msfragger {
   }
 
 
-  public static void checkUpdates(NoteConfigMsfragger m) {
+  public static void checkUpdates(NoteMsfraggerConfig m) {
     final MsfraggerVersionComparator vc = new MsfraggerVersionComparator();
     final String verLocal = m.version;
     Thread t = new Thread(() -> {

@@ -14,9 +14,11 @@ import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiStateLoaded;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
-import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
+import com.dmtavt.fragpipe.messages.NoteMsfraggerConfig;
+import com.dmtavt.fragpipe.messages.NotePhilosopherConfig;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger.Version;
+import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
@@ -32,7 +34,6 @@ import java.awt.Desktop;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -53,7 +54,6 @@ import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils;
@@ -149,7 +149,7 @@ public class TabConfig extends JPanelWithEnablement {
     p.add(feBinMsfragger.comp, ccL().split().growX());
 
     JButton btnBrowse = feBinMsfragger
-        .browseButton("Browse", this::createBinMsfraggerFilechooser, binMsfraggerTip, paths -> {
+        .browseButton("Browse", this::createFraggerFilechooser, binMsfraggerTip, paths -> {
           paths.stream().findFirst().ifPresent(jar -> Bus.post(new MessageMsfraggerNewBin(jar.toString())));
         });
     p.add(btnBrowse, ccL());
@@ -235,7 +235,7 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  private JFileChooser createBinMsfraggerFilechooser() {
+  private JFileChooser createFraggerFilechooser() {
     JFileChooser fc = FileChooserUtils.create("Select MSFragger jar", "Select",
         false, FcMode.FILES_ONLY, true,
         new FileNameExtensionFilter("JAR files", "jar"));
@@ -246,21 +246,33 @@ public class TabConfig extends JPanelWithEnablement {
     return fc;
   }
 
-  @Subscribe
+  @Subscribe(threadMode = ThreadMode.ASYNC)
   public void onPhilosopherNewBin(MessagePhilosopherNewBin m) {
     if (StringUtils.isBlank(m.path))
       return;
-    Version v;
     try {
-      Msfragger.validateJar(m.binPath);
-      v = Msfragger.version(Paths.get(m.binPath));
-      if (v.isVersionParsed) {
-        Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version));
-      } else {
-        Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version, true, null));
-      }
+      Philosopher.Version v = Philosopher.validate(m.path);
+      String version = v.version + (StringUtils.isBlank(v.build) ? "" : "(build " + v.build + ")");
+      Bus.postSticky(new NotePhilosopherConfig(m.path, version));
     } catch (ValidationException | UnexpectedException e) {
-      Bus.postSticky(new NoteConfigMsfragger(m.binPath,"N/A", e));
+      Bus.postSticky(new NotePhilosopherConfig(m.path,"N/A", e));
+    }
+  }
+
+  @Subscribe
+  public void onPhilosopherConfig(NotePhilosopherConfig m) {
+    log.debug("Got {}", m);
+    uiTextBinPhi.setText(m.path);
+
+    if (m.validation != null) {
+      SwingUtils.setJEditorPaneContent(epPhiVer, "Philosopher version: N/A");
+      if (m.validation instanceof ValidationException) {
+        Bus.post(new MessageBalloon(TIP_PHILOSOPHER_BIN, uiTextBinPhi, m.validation.getMessage()));
+      } else {
+        SwingUtils.showErrorDialogWithStacktrace(m.validation, this);
+      }
+    } else {
+      SwingUtils.setJEditorPaneContent(epPhiVer, "Philosopher version: " + m.version);
     }
   }
 
@@ -274,17 +286,17 @@ public class TabConfig extends JPanelWithEnablement {
       Msfragger.validateJar(m.binPath);
       v = Msfragger.version(Paths.get(m.binPath));
       if (v.isVersionParsed) {
-        Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version));
+        Bus.postSticky(new NoteMsfraggerConfig(m.binPath, v.version));
       } else {
-        Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version, true, null));
+        Bus.postSticky(new NoteMsfraggerConfig(m.binPath, v.version, true, null));
       }
     } catch (ValidationException | UnexpectedException e) {
-      Bus.postSticky(new NoteConfigMsfragger(m.binPath,"N/A", e));
+      Bus.postSticky(new NoteMsfraggerConfig(m.binPath,"N/A", e));
     }
   }
 
   @Subscribe
-  public void onNoteConfigMsfragger(NoteConfigMsfragger m) {
+  public void onMsfraggerConfig(NoteMsfraggerConfig m) {
     log.debug("Got {}", m);
     uiTextBinFragger.setText(m.path);
 
@@ -308,7 +320,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe
-  public void onMessageUiStateLoaded(MessageUiStateLoaded m) {
+  public void onUiStateLoaded(MessageUiStateLoaded m) {
     log.debug("Got MessageUiStateLoaded");
     String binFragger = uiTextBinFragger.getNonGhostText();
     if (StringUtils.isNotBlank(binFragger)) {
@@ -350,14 +362,14 @@ public class TabConfig extends JPanelWithEnablement {
     JPanel p = newMigPanel();
     p.setBorder(new TitledBorder("Philosopher"));
 
-    final String binTip = "Select path to Philosopher binary";
-    uiTextBinPhi = UiUtils.uiTextBuilder().ghost(binTip).create();
+    final String tip = "Select path to Philosopher binary";
+    uiTextBinPhi = UiUtils.uiTextBuilder().ghost(tip).create();
     FormEntry feBin = fe(uiTextBinPhi, "bin-philosopher", PREFIX_CONFIG)
-        .tooltip(binTip).create();
+        .tooltip(tip).create();
     p.add(feBin.comp, ccL().split().growX());
 
     JButton btnBrowse = feBin
-        .browseButton("Browse", this::createBinPhilosopherFilechooser, binTip,
+        .browseButton("Browse", this::createPhilosopherFilechooser, tip,
             paths -> paths.stream().findFirst()
                 .ifPresent(bin -> Bus.post(new MessagePhilosopherNewBin(bin.toString()))));
     p.add(btnBrowse, ccL());
@@ -372,7 +384,7 @@ public class TabConfig extends JPanelWithEnablement {
     return p;
   }
 
-  private JFileChooser createBinPhilosopherFilechooser() {
+  private JFileChooser createPhilosopherFilechooser() {
     JFileChooser fc = FileChooserUtils.create("Select Philosopher binary", "Select",
         false, FcMode.FILES_ONLY, true,
         new FileNameExtensionFilter("Executables (win)", "exe"));
