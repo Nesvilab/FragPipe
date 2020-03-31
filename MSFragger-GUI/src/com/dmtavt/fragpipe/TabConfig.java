@@ -42,6 +42,7 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.function.Supplier;
@@ -495,12 +496,28 @@ public class TabConfig extends JPanelWithEnablement {
     if (OsUtils.isWindows()) {
       fc.addChoosableFileFilter(new FileNameExtensionFilter("Executables", "exe"));
     }
+
+    PyInfo sysPy = null;
     try {
-      PythonInfo.get().findPythonCommand();
-    } catch (Exception e) { }
-    FileChooserUtils.setPath(fc, Stream.of(
-        uiTextBinPython.getNonGhostText()
-    ));
+      sysPy = PyInfo.findSystemPython(null);
+    } catch (UnexpectedException e) {
+      log.debug("Something happened while checking system python for Python bin file chooser", e);
+    }
+
+    Stream<String> pathsToCheck = Stream.of(uiTextBinPython.getNonGhostText(), sysPy == null ? "" : sysPy.getCommand())
+        .filter(StringUtils::isNotBlank)
+        .flatMap(text -> {
+          try {
+            Path path = Paths.get(text);
+            if (path.isAbsolute()) {
+              return Stream.of(path, path.getParent());
+            }
+            return Stream.of(path);
+          } catch (Exception e) {
+            return Stream.empty();
+          }
+        }).distinct().map(Path::toString);
+    FileChooserUtils.setPath(fc, pathsToCheck);
     return fc;
   }
 
