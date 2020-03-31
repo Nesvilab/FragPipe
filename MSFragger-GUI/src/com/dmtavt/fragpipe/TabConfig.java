@@ -55,6 +55,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import net.java.balloontip.BalloonTip;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -80,6 +81,7 @@ public class TabConfig extends JPanelWithEnablement {
   private JEditorPane epPythonVer;
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
   public static final String TIP_PHILOSOPHER_BIN = "tip.pholosopher.bin";
+  public static final String TIP_PYTHON_BIN = "tip.python.bin";
   public static final String PREFIX_CONFIG = "fragpipe-config.";
 
 
@@ -392,6 +394,12 @@ public class TabConfig extends JPanelWithEnablement {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void onPythonConfig(NotePythonConfig m) {
     uiTextBinPython.setText(m.command);
+    SwingUtils.setJEditorPaneContent(epPythonVer, StringUtils.isBlank(m.version) ? "Python version: N/A" : "Python version: " + m.version);
+    if (m.ex != null) {
+      if (m.ex instanceof ValidationException) {
+        Bus.post(new MessageBalloon(TIP_PYTHON_BIN, uiTextBinPython, m.ex.getMessage()));
+      }
+    }
   }
 
   public static String createFraggerCitationHtml(Font font) {
@@ -499,7 +507,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     PyInfo sysPy = null;
     try {
-      sysPy = PyInfo.findSystemPython(null);
+      sysPy = PyInfo.findSystemPython(3);
     } catch (UnexpectedException e) {
       log.debug("Something happened while checking system python for Python bin file chooser", e);
     }
@@ -508,11 +516,8 @@ public class TabConfig extends JPanelWithEnablement {
         .filter(StringUtils::isNotBlank)
         .flatMap(text -> {
           try {
-            Path path = Paths.get(text);
-            if (path.isAbsolute()) {
-              return Stream.of(path, path.getParent());
-            }
-            return Stream.of(path);
+            Path p = Paths.get(text);
+            return p.isAbsolute() ? Stream.of(p, p.getParent()) : Stream.of(p);
           } catch (Exception e) {
             return Stream.empty();
           }

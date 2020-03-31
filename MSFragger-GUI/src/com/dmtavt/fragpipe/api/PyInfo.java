@@ -118,6 +118,10 @@ public class PyInfo {
     return true;
   }
 
+  public static PyInfo findSystemPython() throws UnexpectedException {
+    return findSystemPython(null);
+  }
+
   public static PyInfo findSystemPython(Integer minMajorVersion) throws UnexpectedException {
     String[] commands = {"python", "python3"};
 
