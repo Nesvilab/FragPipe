@@ -12,6 +12,7 @@ import com.dmtavt.fragpipe.messages.MessageMsfraggerNewBin;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
+import com.dmtavt.fragpipe.messages.MessageUiInitDone;
 import com.dmtavt.fragpipe.messages.MessageUiStateLoaded;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteMsfraggerConfig;
@@ -25,6 +26,7 @@ import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.FormEntry.Builder;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
@@ -69,6 +71,7 @@ public class TabConfig extends JPanelWithEnablement {
   private JEditorPane epFraggerVer;
   private UiText uiTextBinPhi;
   private JEditorPane epPhiVer;
+  private UiText uiTextBinPython;
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
   public static final String TIP_PHILOSOPHER_BIN = "tip.pholosopher.bin";
   public static final String PREFIX_CONFIG = "fragpipe-config.";
@@ -119,7 +122,6 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private JPanel createPanelTopButtons() {
-//    JPanel p = newMigPanel();
     JPanel p = newMigPanel();
     Supplier<CC> ccL = () -> new CC().alignX("left");
     Supplier<CC> ccR = () -> new CC().alignX("right");
@@ -213,7 +215,8 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private JPanel newMigPanel() {
-    return new JPanel(new MigLayout(new LC().fillX().insetsAll("0px")));
+    //return new JPanel(new MigLayout(new LC().fillX().insetsAll("0px")));
+    return new JPanel(new MigLayout(new LC().fillX())); // TODO: check if setting insets makes a big difference
   }
 
   private void actionMsfraggerUpdate(ActionEvent evt) {
@@ -382,6 +385,25 @@ public class TabConfig extends JPanelWithEnablement {
     p.add(Fragpipe.rename(epPhiVer, "philosopher.version-info", PREFIX_CONFIG, true), ccL().spanX().growX().wrap());
     p.add(SwingUtils.createClickableHtml(createPhilosopherCitationBody()), ccL().spanX().growX().wrap());
     return p;
+  }
+
+  private JPanel createPanelPython() {
+    JPanel p = newMigPanel();
+    p.setBorder(new TitledBorder("Python"));
+    final String tip = "Python 3 is required for Spectral Library generation";
+    final String ghost = "Select Python 3 binary (Anaconda Python recommended)";
+    uiTextBinPython = UiUtils.uiTextBuilder().ghost(ghost).create();
+    FormEntry fe = fe(uiTextBinPython, "bin-python", PREFIX_CONFIG).tooltip(tip).create();
+
+    p.add(fe.comp, ccL().split().growX());
+//    fe.browseButton()
+    return p;
+  }
+
+  @Subscribe(threadMode = ThreadMode.ASYNC)
+  public void on(MessageUiInitDone m) {
+    // try getting remote properties and updating download links
+    ThisAppProps.getRemotePropertiesWithLocalDefaults();
   }
 
   private JFileChooser createPhilosopherFilechooser() {
