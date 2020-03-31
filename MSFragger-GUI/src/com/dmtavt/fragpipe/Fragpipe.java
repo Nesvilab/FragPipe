@@ -57,6 +57,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.msfragger.cmd.ToolingUtils;
 import umich.msfragger.gui.api.LogbackJTextPaneAppender;
 import umich.msfragger.params.ThisAppProps;
 
@@ -100,6 +101,8 @@ public class Fragpipe extends JFrame {
 
     public Loader() {
       frameLoading = new JFrame();
+      Fragpipe.decorateFrame(frameLoading);
+      frameLoading.setTitle("Starting FragPipe");
       frameLoading.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
       frameLoading.setLayout(new BorderLayout());
 
@@ -115,6 +118,7 @@ public class Fragpipe extends JFrame {
       content.add(progress, new CC().spanX().growX().wrap());
 
       frameLoading.add(content, BorderLayout.CENTER);
+      frameLoading.setMinimumSize(new Dimension(400, 50));
       frameLoading.pack();
       SwingUtils.centerFrame(frameLoading);
       frameLoading.setVisible(true);
@@ -178,6 +182,7 @@ public class Fragpipe extends JFrame {
       appender.setTextPane(fp.console);
 
       fp.pack();
+      decorateFrame(fp);
       fp.setVisible(true);
       SwingUtils.centerFrame(fp);
     });
@@ -279,7 +284,7 @@ public class Fragpipe extends JFrame {
   }
 
   public static void decorateFrame(JFrame frame) {
-
+    frame.setIconImages(ToolingUtils.loadIcon());
   }
 
   private static void initApplication() {
@@ -288,7 +293,7 @@ public class Fragpipe extends JFrame {
     ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
     Locale.setDefault(Locale.ROOT);
 
-    displayLoader();
+    displayLoaderWindow();
     Bus.post(new MessageLoaderUpdate("Trying to load configuration"));
 
     Properties props;
@@ -306,7 +311,7 @@ public class Fragpipe extends JFrame {
     Bus.postSticky(new NoteFragpipeProperties(props));
   }
 
-  private static void displayLoader() {
+  private static void displayLoaderWindow() {
     Loader loader = new Loader();
     Bus.register(loader);
   }
