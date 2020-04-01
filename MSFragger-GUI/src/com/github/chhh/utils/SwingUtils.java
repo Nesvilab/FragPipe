@@ -41,18 +41,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFormattedTextField;
@@ -517,6 +521,40 @@ public class SwingUtils {
 
   public static Map<String, String> valuesToMap(Container origin) {
     return valuesToMap(origin, null);
+  }
+
+//  public static List<Component> allDescendants(Component comp, boolean includeOrigin) {
+//    List<Component> childs = new ArrayList<>();
+//    if (includeOrigin)
+//    synchronized (comp.getTreeLock()) {
+//      if (comp instanceof Container) {
+//        Container c = (Container)comp;
+//        c.
+//      } else {
+//        return Stream.of(comp);
+//      }
+//    }
+//  }
+
+  public static void traverse(Component origin, boolean includeOrigin, Consumer<Component> callback) {
+    synchronized (origin.getTreeLock()) {
+      ArrayDeque<Component> fifo = new ArrayDeque<>();
+      if (includeOrigin)
+        fifo.addLast(origin);
+      else
+      if (origin instanceof Container) {
+        for (Component child : ((Container) origin).getComponents())
+          fifo.addLast(child);
+      }
+      while (!fifo.isEmpty()) {
+        Component comp = fifo.removeLast();
+        callback.accept(comp);
+        if (comp instanceof Container) {
+          for (Component child : ((Container) comp).getComponents())
+            fifo.addLast(child);
+        }
+      }
+    }
   }
 
   /**

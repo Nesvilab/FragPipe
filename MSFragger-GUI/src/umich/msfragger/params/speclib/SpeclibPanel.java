@@ -1,13 +1,28 @@
 package umich.msfragger.params.speclib;
 
+import com.dmtavt.fragpipe.exceptions.ValidationException;
+import com.github.chhh.utils.swing.FileChooserUtils;
+import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.UiCheck;
+import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiRadio;
+import com.github.chhh.utils.swing.UiText;
+import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
@@ -27,6 +42,7 @@ import com.github.chhh.utils.swing.JPanelWithEnablement;
 
 
 public class SpeclibPanel extends JPanelWithEnablement {
+
   private static final Logger log = LoggerFactory.getLogger(SpeclibPanel.class);
 
   private final List<BalloonTip> balloonTips = new ArrayList<>();
@@ -38,6 +54,11 @@ public class SpeclibPanel extends JPanelWithEnablement {
   private UiRadio uiRadioUseSpectrast;
   private UiRadio uiRadioUseEasypqp;
   private ButtonGroup radioGroupTools;
+  private List<String> pqpType;
+  private List<String> pqpCal;
+  private UiText uiTextPqpCalFile;
+  private UiCombo uiComboPqpType;
+  private UiCombo uiComboPqpCal;
 
 
   public SpeclibPanel() {
@@ -49,9 +70,11 @@ public class SpeclibPanel extends JPanelWithEnablement {
 
   private void initPostCreation() {
     this.addPropertyChangeListener("enabled", evt -> {
-      log.debug("Shepherd panel property '{}' changed from '{}' to '{}'", evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
-      boolean isSwitchToEnabled = (Boolean)evt.getNewValue() && !(Boolean)evt.getOldValue();
-      log.debug("Shepherd panel is switching to enabled? : {}, !checkRun.isSelected() : {}", isSwitchToEnabled, !checkRun.isSelected());
+      log.debug("Shepherd panel property '{}' changed from '{}' to '{}'", evt.getPropertyName(),
+          evt.getOldValue(), evt.getNewValue());
+      boolean isSwitchToEnabled = (Boolean) evt.getNewValue() && !(Boolean) evt.getOldValue();
+      log.debug("Shepherd panel is switching to enabled? : {}, !checkRun.isSelected() : {}",
+          isSwitchToEnabled, !checkRun.isSelected());
       if (isSwitchToEnabled && !checkRun.isSelected()) {
         enablementMapping.put(pContent, false);
         updateEnabledStatus(pContent, false);
@@ -64,7 +87,8 @@ public class SpeclibPanel extends JPanelWithEnablement {
     log.debug("Got MessageEasypqpInit");
     updateEnabledStatus(uiRadioUseEasypqp, m.isPythonOk && m.isEasypqpPackageInstalled);
     if (!m.isPythonOk || !m.isEasypqpPackageInstalled) {
-      uiRadioUseEasypqp.setToolTipText("Toolchain not initialized: " + (m.message == null ? "N/A" : m.message));
+      uiRadioUseEasypqp
+          .setToolTipText("Toolchain not initialized: " + (m.message == null ? "N/A" : m.message));
     }
   }
 
@@ -75,7 +99,8 @@ public class SpeclibPanel extends JPanelWithEnablement {
     if (!m.isSuccess) {
       String reasons = "";
       if (m.reasons != null && !m.reasons.isEmpty()) {
-        reasons = "Reasons: " + m.reasons.stream().map(reason -> reason.toString()).collect(Collectors.joining("<br/>"));
+        reasons = "Reasons: " + m.reasons.stream().map(reason -> reason.toString())
+            .collect(Collectors.joining("<br/>"));
       }
       uiRadioUseSpectrast.setToolTipText("<html>Toolchain not initialized.<br/>" + reasons);
     }
@@ -105,24 +130,26 @@ public class SpeclibPanel extends JPanelWithEnablement {
 //      btnLoadDefaults.addActionListener((e) -> EventBus.getDefault().post(new MessageLoadShepherdDefaults(true)));
 //      pTop.add(btnLoadDefaults, new CC().alignX("left"));
 
-      pTop.setBorder(new EmptyBorder(0,0,0,0));
+      pTop.setBorder(new EmptyBorder(0, 0, 0, 0));
       this.add(pTop, BorderLayout.NORTH);
     }
 
     // Main content panel - container
     {
       pContent = new JPanel(new MigLayout(new LC().fillX()));
-      pContent.setBorder(new EmptyBorder(0,0,0,0));
+      pContent.setBorder(new EmptyBorder(0, 0, 0, 0));
 
       // when "Run Report" checkbox is switched, this panel can decide not to turn on,
       // if "Run Speclibgen" checkbox is off
       pContent.addPropertyChangeListener("enabled", evt -> {
-        log.debug("Speclibgen pContent panel property '{}' changed from '{}' to '{}'", evt.getPropertyName(),
+        log.debug("Speclibgen pContent panel property '{}' changed from '{}' to '{}'",
+            evt.getPropertyName(),
             evt.getOldValue(), evt.getNewValue());
-        boolean newValue = (Boolean)evt.getNewValue();
+        boolean newValue = (Boolean) evt.getNewValue();
         boolean isSwitchToEnabled = (Boolean) evt.getNewValue() && !(Boolean) evt.getOldValue();
         boolean pContentIsEnabled = newValue && checkRun.isSelected();
-        log.debug("Speclibgen pContent panel is switching to enabled? : {}, !checkRun.isSelected() : {}, final state should be: {}",
+        log.debug(
+            "Speclibgen pContent panel is switching to enabled? : {}, !checkRun.isSelected() : {}, final state should be: {}",
             isSwitchToEnabled, !checkRun.isSelected(), pContentIsEnabled);
         enablementMapping.put(pContent, pContentIsEnabled);
         updateEnabledStatus(pContent, pContentIsEnabled);
@@ -134,7 +161,7 @@ public class SpeclibPanel extends JPanelWithEnablement {
     }
 
     {
-      pOptions = new JPanel(new MigLayout(new LC()));
+      pOptions = new JPanel(new MigLayout(new LC().fillX()));
       //pPeakPicking.setBorder(new TitledBorder("PTMShepherd options"));
       pOptions.setBorder(new EmptyBorder(0, 0, 0, 0));
 
@@ -142,18 +169,96 @@ public class SpeclibPanel extends JPanelWithEnablement {
       uiRadioUseSpectrast = new UiRadio("SpectraST (for non-ion mobility data)", null, true);
       radioGroupTools.add(uiRadioUseSpectrast);
       updateEnabledStatus(uiRadioUseSpectrast, false);
-      FormEntry feRadioUseSpectrast = new FormEntry("ui.name.report.speclibgen.use-spectrast", "Not shown",
+      FormEntry feRadioUseSpectrast = new FormEntry("ui.name.report.speclibgen.use-spectrast",
+          "Not shown",
           uiRadioUseSpectrast);
-      uiRadioUseEasypqp = new UiRadio("EasyPQP (for timsTOF ion mobility data)", null, true);
+      uiRadioUseEasypqp = new UiRadio("EasyPQP", null, false);
       radioGroupTools.add(uiRadioUseEasypqp);
       updateEnabledStatus(uiRadioUseEasypqp, false);
-      FormEntry feRadioUseEasypqp = new FormEntry("ui.name.report.speclibgen.use-easypqp", "Not shown",
+      FormEntry feRadioUseEasypqp = new FormEntry("ui.name.report.speclibgen.use-easypqp",
+          "Not shown",
           uiRadioUseEasypqp);
-      uiRadioUseEasypqp.setVisible(true);
 
-      pOptions.add(feRadioUseSpectrast.comp, new CC().alignX("left").wrap());
-      pOptions.add(feRadioUseEasypqp.comp, new CC().alignX("left").wrap());
+      pOptions.add(feRadioUseSpectrast.comp, new CC().alignX("left").spanX().wrap());
+      pOptions.add(feRadioUseEasypqp.comp, new CC().alignX("left").spanX().wrap());
 
+      final JPanel pPqp = new JPanel(
+          new MigLayout(new LC().fillX().alignX("left")));
+      { // pqp options stuff
+        final String optionAuto = "Automatic selection of a run as reference RT";
+        final String optionManual = "User provided RT calibration file";
+        pqpCal = Arrays.asList(optionAuto, "iRT", "ciRT", optionManual);
+        pqpType = Arrays.asList("timsTOF", "non-timsTOF");
+
+        pPqp.setBorder(new TitledBorder("EasyPQP Options"));
+        uiComboPqpCal = UiUtils.createUiCombo(pqpCal);
+        FormEntry fePqpCal = new FormEntry("ui.name.report.speclibgen.easypqp.rt-cal",
+            "RT Calibration",
+            uiComboPqpCal);
+        uiTextPqpCalFile = UiUtils.uiTextBuilder().create();
+        FormEntry fePqpCalFile = new FormEntry(
+            "ui.name.report.speclibgen.easypqp.select-file.text",
+            "Calibration file", uiTextPqpCalFile);
+        JLabel labelPqpCalFile = fePqpCalFile.label();
+        labelPqpCalFile.setName("ui.name.report.speclibgen.easypqp.select-file.label");
+        final JButton btnPqpCalFile = fePqpCalFile.browseButton("Browse",
+            () -> {
+              JFileChooser fc = FileChooserUtils
+                  .create("Calibration file", false, FcMode.FILES_ONLY);
+              FileChooserUtils.setPath(fc, Stream.of(uiTextPqpCalFile.getNonGhostText()));
+              return fc;
+            },
+            "Select calibration file", paths -> {
+              log.debug("User selected PQP file: {}",
+                  paths.stream().map(Path::toString).collect(Collectors.joining(", ")));
+              Path path = paths
+                  .get(0); // we only allowed selection of a single file in the file chooser
+              try {
+                validateCalFile(path);
+              } catch (ValidationException e) {
+                SwingUtils.showErrorDialog(this, SwingUtils.makeHtml(e.getMessage()), "Cal file error");
+                return;
+              }
+              // validation went without exceptions
+              uiTextPqpCalFile.setText(path.toString());
+            });
+        btnPqpCalFile.setName("ui.name.report.speclibgen.easypqp.select-file.button");
+
+        uiComboPqpType = UiUtils.createUiCombo(pqpType);
+        FormEntry feDataType = new FormEntry("ui.name.report.speclibgen.easypqp.data-type",
+            "Data type", uiComboPqpType);
+
+        pPqp.add(fePqpCal.label(), ccR());
+        pPqp.add(fePqpCal.comp, ccL().split());
+        pPqp.add(labelPqpCalFile, ccL());
+        pPqp.add(fePqpCalFile.comp, ccL().pushX().growX());
+        pPqp.add(btnPqpCalFile, ccL().wrap());
+        pPqp.add(feDataType.label(), ccR());
+        pPqp.add(feDataType.comp, ccL().wrap());
+
+        uiComboPqpCal.addItemListener(e -> {
+          String selected = (String) e.getItem();
+          final boolean show = optionManual.equals(selected);
+          final AtomicBoolean visibilityChanged = new AtomicBoolean(false);
+          SwingUtils.traverse(pPqp, false, c -> {
+            String name = c.getName();
+            if (name != null && name.contains("ui.name.report.speclibgen.easypqp.select-file.")) {
+              log.debug("Traversing easyPQP options panel, found matching component: {}", name);
+              if (c.isVisible() != show) {
+                visibilityChanged.set(show);
+                c.setVisible(show);
+              }
+            }
+          });
+          if (visibilityChanged.get()) {
+            pPqp.revalidate();
+          }
+        });
+        uiComboPqpCal.setSelectedIndex(1);
+        uiComboPqpCal.setSelectedIndex(0);
+      }
+
+      pOptions.add(pPqp, new CC().spanX().growX().wrap());
       pContent.add(pOptions, new CC().wrap().growX());
     }
 
@@ -163,6 +268,18 @@ public class SpeclibPanel extends JPanelWithEnablement {
 //      pPrecursorSpectrum = new JPanel(new MigLayout(new LC()));
 //      pPrecursorSpectrum.setBorder(new TitledBorder("Peak Matching"));
 //    }
+  }
+
+  private void validateCalFile(Path path) throws ValidationException {
+    throw new ValidationException("GUOCI - implement"); // TODO: GUOCI - check cal file content
+  }
+
+  private static CC ccL() {
+    return new CC().alignX("left");
+  }
+
+  private static CC ccR() {
+    return new CC().alignX("right");
   }
 
   public boolean isRunSpeclibgen() {
