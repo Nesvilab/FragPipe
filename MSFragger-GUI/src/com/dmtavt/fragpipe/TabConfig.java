@@ -499,7 +499,7 @@ public class TabConfig extends JPanelWithEnablement {
     JPanel p = newMigPanel();
     p.setBorder(new TitledBorder("DB Splitting"));
     StringBuilder tip = new StringBuilder()
-        .append("Used for searching very large databases. Splits the DB in smaller chunks.")
+        .append("Used for searching very large databases by splitting into smaller chunks.")
         .append("<br/>Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>")
         .append("Ways to get everything set up:").append("<ul>")
         .append("<li>Install Python 3 if you don't yet have it.</li>")
@@ -508,7 +508,9 @@ public class TabConfig extends JPanelWithEnablement {
         .append("</ul>");
     String tipHtml = SwingUtils.makeHtml(tip.toString());
     p.setToolTipText(tipHtml);
-    epDbsplitText = SwingUtils.createClickableHtml(SwingUtils.makeHtml("DB Splitting: Disabled\nRequires Python 3 with modules Numpy and Pandas"));
+    epDbsplitText = SwingUtils.createClickableHtml(SwingUtils.makeHtml("DB Splitting: Disabled\n"
+        + "Used for searching very large databases by splitting into smaller chunks.\n" +
+        "Requires Python 3 with modules Numpy and Pandas."));
     epDbsplitText.setToolTipText(tipHtml);
     p.add(epDbsplitText, ccL().wrap());
 
