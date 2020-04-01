@@ -57,9 +57,7 @@ public class FragpipeCacheUtils {
         return Collections.emptyMap();
       }
       Container awtContainer = (Container)awtComponent;
-//      final Pattern re = Pattern.compile("ui\\.name\\..*");
-//      Predicate<String> filter = re.asPredicate();
-      Predicate<String> filter = s -> true;
+      Predicate<String> filter = name -> !name.toLowerCase().contains(Fragpipe.PROP_NOCACHE.toLowerCase());
       return SwingUtils.valuesToMap(awtContainer, filter);
     };
 
@@ -67,14 +65,13 @@ public class FragpipeCacheUtils {
     for (int i = 0; i < tabs.getTabCount(); i++) {
       Component compAt = tabs.getComponentAt(i);
       final String tabname = mapTabNameToIdx.getOrDefault(i, "?");
-      //Map<String, String> map = compToMap.apply(compAt);
 
       Map<String, String> map = compToMap.apply(compAt).entrySet().stream()
-          .filter(kv -> {
-            boolean b1 = !kv.getKey().equalsIgnoreCase("Spinner.formattedTextField");
-            boolean b2 = !kv.getKey().toLowerCase().contains(Fragpipe.PROP_NOCACHE.toLowerCase());
-            return b1 && b2;
-          })
+//          .filter(kv -> {
+//            boolean b1 = !kv.getKey().equalsIgnoreCase("Spinner.formattedTextField");
+//            boolean b2 = !kv.getKey().toLowerCase().contains(Fragpipe.PROP_NOCACHE.toLowerCase());
+//            return b1 && b2;
+//          })
           .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
       if (map.isEmpty()) {

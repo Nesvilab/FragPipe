@@ -15,6 +15,7 @@ import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
 import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
+import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.NotePreviousUiState;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteMsfraggerConfig;
@@ -42,6 +43,7 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -61,6 +63,7 @@ import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils;
@@ -79,6 +82,7 @@ public class TabConfig extends JPanelWithEnablement {
   private JEditorPane epPhiVer;
   private UiText uiTextBinPython;
   private JEditorPane epPythonVer;
+  private JEditorPane epDbsplitText;
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
   public static final String TIP_PHILOSOPHER_BIN = "tip.pholosopher.bin";
   public static final String TIP_PYTHON_BIN = "tip.python.bin";
@@ -100,6 +104,7 @@ public class TabConfig extends JPanelWithEnablement {
     add(createPanelFragger(), new CC().growX().wrap());
     add(createPanelPhilosopher(), new CC().growX().wrap());
     add(createPanelPython(), new CC().growX().wrap());
+    add(createPanelDbsplit(), new CC().growX().wrap());
     add(createPanelBottomInfo(), new CC().growX().wrap());
     add(createPanelBottomLink(), new CC().growX().wrap());
   }
@@ -281,10 +286,11 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe(sticky = true)
   public void onPhilosopherConfig(NotePhilosopherConfig m) {
-    log.debug("Got {}", m);
+    log.debug("Got NotePhilosopherConfig", m);
     uiTextBinPhi.setText(m.path);
 
     if (m.validation != null) {
+      log.debug("Philosopher config validation was not null");
       SwingUtils.setJEditorPaneContent(epPhiVer, "Philosopher version: N/A");
       if (m.validation instanceof ValidationException) {
         Bus.post(new MessageBalloon(TIP_PHILOSOPHER_BIN, uiTextBinPhi, m.validation.getMessage()));
@@ -343,9 +349,9 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  @Subscribe(sticky = true)
-  public void onUiStateLoaded(NotePreviousUiState m) {
-    log.debug("Got MessageUiStateLoaded");
+  @Subscribe
+  public void onUiRevalidate(MessageUiRevalidate m) {
+    log.debug("Got MessageUiRevalidate");
     String binFragger = uiTextBinFragger.getNonGhostText();
     if (StringUtils.isNotBlank(binFragger)) {
       Bus.post(new MessageMsfraggerNewBin(binFragger));
@@ -399,6 +405,10 @@ public class TabConfig extends JPanelWithEnablement {
       if (m.ex instanceof ValidationException) {
         Bus.post(new MessageBalloon(TIP_PYTHON_BIN, uiTextBinPython, m.ex.getMessage()));
       }
+    }
+
+    if (m.isValid()) {
+
     }
   }
 
@@ -483,6 +493,43 @@ public class TabConfig extends JPanelWithEnablement {
     p.add(epPythonVer, ccL().wrap());
 
     return p;
+  }
+
+  private JPanel createPanelDbsplit() {
+    JPanel p = newMigPanel();
+    p.setBorder(new TitledBorder("DB Splitting"));
+    StringBuilder tip = new StringBuilder()
+        .append("Used for searching very large databases. Splits the DB in smaller chunks.")
+        .append("<br/>Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>")
+        .append("Ways to get everything set up:").append("<ul>")
+        .append("<li>Install Python 3 if you don't yet have it.</li>")
+        .append("<li>Install required python modules using <i>pip</i>, the python package manager, with command:</li>")
+        .append("<ul>").append("<li>pip install numpy pandas</li>").append("</ul>")
+        .append("</ul>");
+    String tipHtml = SwingUtils.makeHtml(tip.toString());
+    p.setToolTipText(tipHtml);
+    epDbsplitText = SwingUtils.createClickableHtml(SwingUtils.makeHtml("DB Splitting: Disabled\nRequires Python 3 with modules Numpy and Pandas"));
+    epDbsplitText.setToolTipText(tipHtml);
+    p.add(epDbsplitText, ccL().wrap());
+
+    return p;
+  }
+
+  private String dbsplitInstructions() {
+    String installPython = "<li>Install Python 3 if you don't yet have it.</li>";
+    String href = ThisAppProps.def().getProperty(ThisAppProps.PROP_PYTHON_DOWNLOAD_URL);
+    if (href != null) {
+      installPython = StringUtils.prependOnce(installPython, "<a href=\"" + href + "\">");
+      installPython = StringUtils.appendOnce(installPython, "</a>");
+    }
+    StringBuilder tip = new StringBuilder()
+        .append("<br/>Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>")
+        .append("Ways to get everything set up:").append("<ul>")
+        .append(installPython)
+        .append("<li>Install required python modules using <i>pip</i>, the python package manager, with command:</li>")
+        .append("<ul>").append("<li>pip install numpy pandas</li>").append("</ul>")
+        .append("</ul>");
+    return tip.toString();
   }
 
   private JFileChooser createPhilosopherFilechooser() {

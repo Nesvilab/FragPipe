@@ -531,7 +531,11 @@ public class SwingUtils {
     compNameFilter = compNameFilter == null ? s -> true : compNameFilter;
     for (Entry<String, Component> e : comps.entrySet()) {
       final String name = e.getKey();
-      if (name == null || name.isEmpty() || !compNameFilter.test(name)) {
+      if (name == null || name.isEmpty()) {
+        continue;
+      }
+      if (!compNameFilter.test(name)) {
+        log.debug("Skipping serializing component, name filtered out: {}", name);
         continue;
       }
 
@@ -552,13 +556,14 @@ public class SwingUtils {
                     .class.getSimpleName(), JTextComponent.class.getSimpleName()));
         continue;
       }
-      if (value != null && comp instanceof GhostedTextComponent) {
-        GhostedTextComponent gt = (GhostedTextComponent) comp;
-        if (value.equals(gt.getGhostText())) {
+
+      if (value != null) {
+        if (comp instanceof GhostedTextComponent && value.equals(((GhostedTextComponent) comp).getGhostText())) {
           log.debug("Skipping serializing ghost text component to map: '{}' has ghost value: '{}'", name, value);
+        } else {
+          map.put(name, value);
         }
       }
-      map.put(name, value);
     }
     return map;
   }

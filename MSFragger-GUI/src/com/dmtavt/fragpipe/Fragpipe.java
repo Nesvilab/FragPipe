@@ -10,6 +10,7 @@ import com.dmtavt.fragpipe.messages.MessageLoaderUpdate;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiInitDone;
+import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.NotePreviousUiState;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
@@ -513,6 +514,7 @@ public class Fragpipe extends JFrame {
   public void onPreviousUiState(NotePreviousUiState m) {
     log.debug("Got NotePreviousUiState, updating UI");
     FragpipeCacheUtils.tabsLoad(m.props, tabs);
+    Bus.post(new MessageUiRevalidate());
   }
 
   @Subscribe
