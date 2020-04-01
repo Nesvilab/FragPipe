@@ -27,6 +27,7 @@ import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PythonInfo;
+import com.github.chhh.utils.PythonModule;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
@@ -406,10 +407,6 @@ public class TabConfig extends JPanelWithEnablement {
         Bus.post(new MessageBalloon(TIP_PYTHON_BIN, uiTextBinPython, m.ex.getMessage()));
       }
     }
-
-    if (m.isValid()) {
-
-    }
   }
 
   public static String createFraggerCitationHtml(Font font) {
@@ -499,7 +496,7 @@ public class TabConfig extends JPanelWithEnablement {
     JPanel p = newMigPanel();
     p.setBorder(new TitledBorder("DB Splitting"));
     StringBuilder tip = new StringBuilder()
-        .append("Used for searching very large databases by splitting into smaller chunks.")
+        .append(dbsplitUsecase())
         .append("<br/>Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>")
         .append("Ways to get everything set up:").append("<ul>")
         .append("<li>Install Python 3 if you don't yet have it.</li>")
@@ -509,7 +506,7 @@ public class TabConfig extends JPanelWithEnablement {
     String tipHtml = SwingUtils.makeHtml(tip.toString());
     p.setToolTipText(tipHtml);
     epDbsplitText = SwingUtils.createClickableHtml(SwingUtils.makeHtml("DB Splitting: Disabled\n"
-        + "Used for searching very large databases by splitting into smaller chunks.\n" +
+        + dbsplitUsecase() + "\n" +
         "Requires Python 3 with modules Numpy and Pandas."));
     epDbsplitText.setToolTipText(tipHtml);
     p.add(epDbsplitText, ccL().wrap());
@@ -517,22 +514,26 @@ public class TabConfig extends JPanelWithEnablement {
     return p;
   }
 
-  private String dbsplitInstructions() {
-    String installPython = "<li>Install Python 3 if you don't yet have it.</li>";
-    String href = ThisAppProps.def().getProperty(ThisAppProps.PROP_PYTHON_DOWNLOAD_URL);
-    if (href != null) {
-      installPython = StringUtils.prependOnce(installPython, "<a href=\"" + href + "\">");
-      installPython = StringUtils.appendOnce(installPython, "</a>");
-    }
-    StringBuilder tip = new StringBuilder()
-        .append("<br/>Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>")
-        .append("Ways to get everything set up:").append("<ul>")
-        .append(installPython)
-        .append("<li>Install required python modules using <i>pip</i>, the python package manager, with command:</li>")
-        .append("<ul>").append("<li>pip install numpy pandas</li>").append("</ul>")
-        .append("</ul>");
-    return tip.toString();
+  private String dbsplitUsecase() {
+    return "Used for searching very large databases by splitting into smaller chunks.";
   }
+
+//  private String dbsplitInstructions() {
+//    String installPython = "<li>Install Python 3 if you don't yet have it.</li>";
+//    String href = ThisAppProps.def().getProperty(ThisAppProps.PROP_PYTHON_DOWNLOAD_URL);
+//    if (href != null) {
+//      installPython = StringUtils.prependOnce(installPython, "<a href=\"" + href + "\">");
+//      installPython = StringUtils.appendOnce(installPython, "</a>");
+//    }
+//    StringBuilder tip = new StringBuilder()
+//        .append("<br/>Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>")
+//        .append("Ways to get everything set up:").append("<ul>")
+//        .append(installPython)
+//        .append("<li>Install required python modules using <i>pip</i>, the python package manager, with command:</li>")
+//        .append("<ul>").append("<li>pip install numpy pandas</li>").append("</ul>")
+//        .append("</ul>");
+//    return tip.toString();
+//  }
 
   private JFileChooser createPhilosopherFilechooser() {
     JFileChooser fc = FileChooserUtils.create("Select Philosopher binary", "Select",
