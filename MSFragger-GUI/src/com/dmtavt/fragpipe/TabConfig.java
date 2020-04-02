@@ -21,6 +21,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
+import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
@@ -83,10 +84,14 @@ public class TabConfig extends JPanelWithEnablement {
   private JEditorPane epDbsplitText;
   private JEditorPane epDbsplitErr;
   private Container epDbsplitErrParent;
+  private JEditorPane epSpeclibgenText;
+  private JEditorPane epSpeclibgenErr;
+  private Container epSpeclibgenErrParent;
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
   public static final String TIP_PHILOSOPHER_BIN = "tip.pholosopher.bin";
   public static final String TIP_PYTHON_BIN = "tip.python.bin";
   private static final String TIP_DBSPLIT = "tip.dbsplit";
+  private static final String TIP_SPECLIBGEN = "tip.speclibgen";
   public static final String PREFIX_CONFIG = "fragpipe-config.";
 
 
@@ -106,6 +111,7 @@ public class TabConfig extends JPanelWithEnablement {
     add(createPanelPhilosopher(), new CC().growX().wrap());
     add(createPanelPython(), new CC().growX().wrap());
     add(createPanelDbsplit(), new CC().growX().wrap());
+    add(createPanelSpeclibgen(), new CC().growX().wrap());
     add(createPanelBottomInfo(), new CC().growX().wrap());
     add(createPanelBottomLink(), new CC().growX().wrap());
   }
@@ -273,6 +279,7 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
   public void onPhilosopherNewBin(MessagePhilosopherNewBin m) {
+    log.error("onPhilosopherNewBin triggered");
     if (StringUtils.isBlank(m.path)) {
       Bus.postSticky(new NoteConfigPhilosopher(null, "N/A"));
       return;
@@ -399,7 +406,7 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  private String dbsplitTextIsEnabled(boolean isEnabled) {
+  private String textDbsplitEnabled(boolean isEnabled) {
     return "DB Splitting: <b>" + (isEnabled ? "Enabled" : "Disabled") + "</b>\n"
         + "Used for searching very large databases by splitting into smaller chunks.";
   }
@@ -412,7 +419,7 @@ public class TabConfig extends JPanelWithEnablement {
         epDbsplitErrParent.add(epDbsplitErr, new CC().wrap());
         epDbsplitErr.setVisible(true);
       }
-      SwingUtils.setJEditorPaneContent(epDbsplitText, true, "DB Splitting: <b>Disabled</b>");
+      SwingUtils.setJEditorPaneContent(epDbsplitText, true, textDbsplitEnabled(false));
       if (m.ex instanceof ValidationException) {
         SwingUtils.setJEditorPaneContent(epDbsplitErr, m.ex.getMessage());
       } else {
@@ -428,7 +435,39 @@ public class TabConfig extends JPanelWithEnablement {
 
     epDbsplitErrParent = epDbsplitErr.getParent();
     epDbsplitErrParent.remove(epDbsplitErr);
-    SwingUtils.setJEditorPaneContent(epDbsplitText, true, dbsplitTextIsEnabled(true));
+    SwingUtils.setJEditorPaneContent(epDbsplitText, true, textDbsplitEnabled(true));
+    this.revalidate();
+  }
+
+  private String textSpeclibgenEnabled(boolean isEnabled) {
+    return "Spec lib generation: <b>" + (isEnabled ? "Enabled" : "Disabled") + "</b>";
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void onNoteConfigSpeclibgen(NoteConfigSpeclibgen m) {
+    if (m.ex != null) {
+      log.debug("Got NoteConfigSpeclibgen with exception set");
+      if (epSpeclibgenErrParent != null && !epSpeclibgenErrParent.isAncestorOf(epSpeclibgenErr)) {
+        epSpeclibgenErrParent.add(epSpeclibgenErr, new CC().wrap());
+        epSpeclibgenErr.setVisible(true);
+      }
+      SwingUtils.setJEditorPaneContent(epSpeclibgenText, true, textSpeclibgenEnabled(false));
+      if (m.ex instanceof ValidationException) {
+        SwingUtils.setJEditorPaneContent(epSpeclibgenErr, m.ex.getMessage());
+      } else {
+        showConfigError(m.ex, TIP_SPECLIBGEN, epSpeclibgenText);
+      }
+      this.revalidate();
+      return;
+    }
+    if (m.instance == null) {
+      throw new IllegalStateException("If no exception is reported from Speclibgen init, instance should not be null");
+    }
+    log.debug("Got NoteConfigSpeclibgen without exceptions");
+
+    epSpeclibgenErrParent = epSpeclibgenErr.getParent();
+    epSpeclibgenErrParent.remove(epSpeclibgenErr);
+    SwingUtils.setJEditorPaneContent(epDbsplitText, true, textDbsplitEnabled(true));
     this.revalidate();
   }
 
@@ -538,7 +577,7 @@ public class TabConfig extends JPanelWithEnablement {
         .append("</ul>");
     String tipHtml = SwingUtils.makeHtml(tip.toString());
     p.setToolTipText(tipHtml);
-    epDbsplitText = SwingUtils.createClickableHtml(SwingUtils.makeHtml(dbsplitTextIsEnabled(false)));
+    epDbsplitText = SwingUtils.createClickableHtml(SwingUtils.makeHtml(textDbsplitEnabled(false)));
     epDbsplitErr = SwingUtils.createClickableHtml(
         SwingUtils.makeHtml("Requires Python 3 with modules Numpy and Pandas."));
     epDbsplitText.setToolTipText(tipHtml);
@@ -548,22 +587,23 @@ public class TabConfig extends JPanelWithEnablement {
     return p;
   }
 
-//  private String dbsplitInstructions() {
-//    String installPython = "<li>Install Python 3 if you don't yet have it.</li>";
-//    String href = ThisAppProps.def().getProperty(ThisAppProps.PROP_PYTHON_DOWNLOAD_URL);
-//    if (href != null) {
-//      installPython = StringUtils.prependOnce(installPython, "<a href=\"" + href + "\">");
-//      installPython = StringUtils.appendOnce(installPython, "</a>");
-//    }
-//    StringBuilder tip = new StringBuilder()
-//        .append("<br/>Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>")
-//        .append("Ways to get everything set up:").append("<ul>")
-//        .append(installPython)
-//        .append("<li>Install required python modules using <i>pip</i>, the python package manager, with command:</li>")
-//        .append("<ul>").append("<li>pip install numpy pandas</li>").append("</ul>")
-//        .append("</ul>");
-//    return tip.toString();
-//  }
+  private JPanel createPanelSpeclibgen() {
+    JPanel p = newMigPanel();
+    p.setBorder(new TitledBorder("Spectral Library Generation"));
+    StringBuilder tip = new StringBuilder()
+        .append("Requires <b>Python 3</b> with packages <b>Cython, Matplotlib, msproteomicstools</b>\n")
+        .append("Optionally requires python module EasyPQP to enable EasyPQP functinoality.");
+    String tipHtml = SwingUtils.makeHtml(tip.toString());
+    p.setToolTipText(tipHtml);
+    epSpeclibgenText = SwingUtils.createClickableHtml(SwingUtils.makeHtml(textDbsplitEnabled(false)));
+    epSpeclibgenErr = SwingUtils.createClickableHtml(
+        SwingUtils.makeHtml("Requires Python 3 with modules Cython, Matplotlib, msproteomicstools."));
+    epSpeclibgenText.setToolTipText(tipHtml);
+    p.add(epSpeclibgenText, ccL().wrap());
+    p.add(epSpeclibgenErr, ccL().wrap());
+
+    return p;
+  }
 
   private JFileChooser createPhilosopherFilechooser() {
     JFileChooser fc = FileChooserUtils.create("Select Philosopher binary", "Select",

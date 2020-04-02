@@ -49,8 +49,9 @@ public class DbSplit2 {
    * the singleton and subscribe it to the bus. */
   public static void initClass() {
     log.debug("Static initialization initiated");
-    INSTANCE = new DbSplit2();
-    Bus.register(INSTANCE);
+    DbSplit2 o = new DbSplit2();
+    Bus.register(o);
+    DbSplit2.INSTANCE = o;
   }
 
   private DbSplit2() {

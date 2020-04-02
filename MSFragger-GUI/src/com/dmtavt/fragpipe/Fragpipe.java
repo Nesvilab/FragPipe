@@ -14,13 +14,13 @@ import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.NotePreviousUiState;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
+import com.dmtavt.fragpipe.messages.NoteStartupComplete;
 import com.github.chhh.utils.LogUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiUtils;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -45,9 +45,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JProgressBar;
 import javax.swing.JTabbedPane;
 import javax.swing.ToolTipManager;
 import net.miginfocom.layout.CC;
@@ -58,6 +56,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
+import rx.schedulers.Schedulers;
 import umich.msfragger.cmd.ToolingUtils;
 import umich.msfragger.gui.api.LogbackJTextPaneAppender;
 import umich.msfragger.params.ThisAppProps;
@@ -97,68 +97,6 @@ public class Fragpipe extends JFrame {
   JLabel defFont;
   private TabUmpire tabUmpire;
 
-  public static class Loader {
-    private static final Logger log = LoggerFactory.getLogger(Loader.class);
-
-    private final JProgressBar progress;
-    private JFrame frameLoading;
-
-    public Loader() {
-      frameLoading = new JFrame();
-      Fragpipe.decorateFrame(frameLoading);
-      frameLoading.setTitle("Starting FragPipe");
-      frameLoading.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-      frameLoading.setLayout(new BorderLayout());
-
-      JPanel content = new JPanel(new MigLayout(new LC().fillX()));
-
-      JLabel label = new JLabel("Initializing FragPipe");
-      content.add(label, new CC().alignX("center").spanX().wrap());
-
-      progress = new JProgressBar();
-      progress.setIndeterminate(true);
-      progress.setStringPainted(true);
-      progress.setString("Initialization");
-      content.add(progress, new CC().spanX().growX().wrap());
-
-      frameLoading.add(content, BorderLayout.CENTER);
-      frameLoading.setMinimumSize(new Dimension(400, 50));
-      frameLoading.pack();
-      SwingUtils.centerFrame(frameLoading);
-      frameLoading.setVisible(true);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-    public void onFragpipeProperties(NoteFragpipeProperties m) {
-      log.debug("Got NoteFragpipeProperties, which triggers main app start");
-      Bus.post(new MessageLoaderUpdate("Starting starting FragPipe"));
-
-      Fragpipe.displayMainWindow();
-      log.debug("Closing loader frame");
-      Bus.unregister(this);
-      frameLoading.setVisible(false);
-      frameLoading.dispose();
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-    public void onLoadingStateUpdate(MessageLoaderUpdate m) {
-      log.debug("Updating loader progress: {}", m.text);
-      progress.setString(m.text);
-    }
-
-    @Subscribe
-    public void onLoadPreviousUiState(MessageLoadPreviousUiState m) {
-      log.debug("Fragpipe.Loader Loading ui state cache from: {}", m.path.toString());
-      try (InputStream is = Files.newInputStream(m.path)) {
-        Properties props = FragpipeCacheUtils.loadAsProperties(is);
-        log.debug("Fragpipe.Loader posting sticky note NotePreviousUiState");
-        Bus.postSticky(new NotePreviousUiState(props));
-      } catch (IOException e) {
-        log.error("Fragpipe.Loader Could not read fragpipe cache from: {}", m.path.toString());
-      }
-    }
-  }
-
   public Fragpipe() throws HeadlessException {
     initUi();
     initMore();
@@ -173,11 +111,15 @@ public class Fragpipe extends JFrame {
   }
 
   public static void main(String args[]) {
-    initApplication();
+    SwingUtils.setLaf();
+    FragpipeLoader fragpipeLoader = new FragpipeLoader();
+    Bus.register(fragpipeLoader);
   }
 
-  private static void displayMainWindow() {
+  static void displayMainWindow() {
+    log.debug("Entered displayMainWindow");
     java.awt.EventQueue.invokeLater(() -> {
+      log.debug("Creating Fragpipe instance");
       final Fragpipe fp = new Fragpipe();
 
       fp.addWindowListener(new WindowAdapter() {
@@ -200,6 +142,7 @@ public class Fragpipe extends JFrame {
 
       fp.pack();
       decorateFrame(fp);
+      log.debug("Showing Fragpipe frame");
       fp.setVisible(true);
       SwingUtils.centerFrame(fp);
     });
@@ -302,38 +245,6 @@ public class Fragpipe extends JFrame {
 
   public static void decorateFrame(JFrame frame) {
     frame.setIconImages(ToolingUtils.loadIcon());
-  }
-
-  private static void initApplication() {
-    log.debug("Loading BalloonTips class: {}", BalloonTips.class.getCanonicalName()); // do not remove, triggers static init
-    SwingUtils.setLaf();
-    ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
-    Locale.setDefault(Locale.ROOT);
-
-    displayLoaderWindow();
-    Bus.post(new MessageLoaderUpdate("Trying to load configuration"));
-
-    Properties props;
-    try {
-      props = ThisAppProps.getRemotePropertiesWithLocalDefaults();
-    } catch (Exception e) {
-      log.error("Something happened while trying to get application properties at startup", e);
-      props = ThisAppProps.getLocalProperties();
-    }
-
-    Bus.post(new MessageLoaderUpdate("Checking cache"));
-    Bus.post(MessageLoadPreviousUiState.newForCache());
-
-    try {
-      TimeUnit.SECONDS.sleep(1);
-    } catch (InterruptedException ignore) {}
-
-    Bus.postSticky(new NoteFragpipeProperties(props));
-  }
-
-  private static void displayLoaderWindow() {
-    Loader loader = new Loader();
-    Bus.register(loader);
   }
 
   private synchronized void initUi() {
