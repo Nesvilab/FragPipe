@@ -138,7 +138,7 @@ public class PyInfo {
     // try the Python commands searching PATH env-var
     for (String cmd : commands) {
       try {
-        PyInfo pi = PyInfo.fromCommand(cmd);
+        PyInfo pi = com.dmtavt.fragpipe.api.PyInfo.fromCommand(cmd);
         if (minMajorVersion == null || minMajorVersion <= pi.getMajorVersion()) {
           return pi;
         }
@@ -158,7 +158,7 @@ public class PyInfo {
       for (String loc : locations) {
         List<String> query = RegQuery.query(root + loc);
         potentialLocs.addAll(query.stream()
-            .filter(PyInfo::vetRegistryLocation)
+            .filter(com.dmtavt.fragpipe.api.PyInfo::vetRegistryLocation)
             .collect(Collectors.toList()));
       }
     }
@@ -179,7 +179,7 @@ public class PyInfo {
           try {
             final String rVal = RegQuery.getTokenValue(RegQuery.TOKEN_REGSZ, installPath);
             final String pythonBinPath = Paths.get(rVal, cmd).toString();
-            PyInfo pi = PyInfo.fromCommand(pythonBinPath);
+            PyInfo pi = com.dmtavt.fragpipe.api.PyInfo.fromCommand(pythonBinPath);
             if (minMajorVersion == null || minMajorVersion <= pi.getMajorVersion()) {
               return pi;
             }

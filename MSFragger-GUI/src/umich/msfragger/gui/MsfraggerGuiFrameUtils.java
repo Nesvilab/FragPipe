@@ -96,7 +96,7 @@ import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.dbslice.DbSlice.MessageInitDone;
 import umich.msfragger.params.fragger.MsfraggerProps;
-import com.dmtavt.fragpipe.tools.msfragger.MsfraggerVersionComparator;
+import com.dmtavt.fragpipe.tools.msfragger.MsfraggerVerCmp;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
 import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
@@ -1031,7 +1031,7 @@ public class MsfraggerGuiFrameUtils {
         "MSFragger version: %s. %s", guiFrame.fraggerVer, OsUtils.JavaInfo()));
 
     // Now check the versions on remotes.
-    final MsfraggerVersionComparator vc = new MsfraggerVersionComparator();
+    final MsfraggerVerCmp vc = new MsfraggerVerCmp();
     Thread t = new Thread(() -> {
 
       MsfraggerVersionFetcherServer vfServer = new MsfraggerVersionFetcherServer();
@@ -1299,7 +1299,7 @@ public class MsfraggerGuiFrameUtils {
     final boolean javaAtLeast18 = SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8);
     final boolean is64bitJava = System.getProperty("sun.arch.data.model").equals("64");
     final VersionComparator vc = new VersionComparator();
-    final MsfraggerVersionComparator mvc = new MsfraggerVersionComparator();
+    final MsfraggerVerCmp mvc = new MsfraggerVerCmp();
     SwingUtilities.invokeLater(() -> {
       BalloonTip tip = tipMap.remove(MsfraggerGuiFrame.TIP_NAME_FRAGGER_JAVA_VER);
       if (tip != null) {
@@ -1589,7 +1589,7 @@ public class MsfraggerGuiFrameUtils {
           " property needs to be in Msfragger properties");
     }
 
-    MsfraggerVersionComparator cmp = new MsfraggerVersionComparator();
+    MsfraggerVerCmp cmp = new MsfraggerVerCmp();
     int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
     if (fraggerVersionCmp >= 0) {
       enableMsadjuster = true;
@@ -1626,7 +1626,7 @@ public class MsfraggerGuiFrameUtils {
       throw new IllegalStateException(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE +
           " property needs to be in Msfragger properties");
     }
-    MsfraggerVersionComparator cmp = new MsfraggerVersionComparator();
+    MsfraggerVerCmp cmp = new MsfraggerVerCmp();
     int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
     if (fraggerVersionCmp >= 0) {
       enableCalibrate = true;

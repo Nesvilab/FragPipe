@@ -53,7 +53,6 @@ import javax.swing.ToolTipManager;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.NoSubscriberEvent;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -62,6 +61,7 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.cmd.ToolingUtils;
 import umich.msfragger.gui.api.LogbackJTextPaneAppender;
 import umich.msfragger.params.ThisAppProps;
+import umich.msfragger.params.dbslice.DbSlice2;
 
 public class Fragpipe extends JFrame {
 
@@ -159,7 +159,7 @@ public class Fragpipe extends JFrame {
   }
 
   public Fragpipe() throws HeadlessException {
-    init();
+    initUi();
     initMore();
   }
 
@@ -335,7 +335,7 @@ public class Fragpipe extends JFrame {
     Bus.register(loader);
   }
 
-  private synchronized void init() {
+  private synchronized void initUi() {
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setTitle(Version.PROGRAM_TITLE + " (v" + Version.version() + ")");
     setLocale(Locale.ROOT);
@@ -465,6 +465,8 @@ public class Fragpipe extends JFrame {
     Bus.register(this);
     Bus.register(tips);
     Bus.post(new MessageUiInitDone());
+
+    DbSlice2.initClass(); // initialize DBSlice functionality
   }
 
   @Subscribe

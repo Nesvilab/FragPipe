@@ -52,7 +52,7 @@ public class Msfragger {
 
 
   public static void checkUpdates(NoteMsfraggerConfig m) {
-    final MsfraggerVersionComparator vc = new MsfraggerVersionComparator();
+    final MsfraggerVerCmp vc = new MsfraggerVerCmp();
     final String verLocal = m.version;
     Thread t = new Thread(() -> {
 
@@ -94,8 +94,8 @@ public class Msfragger {
     boolean isVersionParsed = false;
     try {
       ProcessBuilder pb = new ProcessBuilder("java", "-jar", jarPath);
-      List<Pattern> regexs = Arrays.asList(MsfraggerVersionComparator.regexOldScheme1,
-          MsfraggerVersionComparator.regexNewScheme1);
+      List<Pattern> regexs = Arrays.asList(MsfraggerVerCmp.regexOldScheme1,
+          MsfraggerVerCmp.regexNewScheme1);
       pb.redirectErrorStream(true);
       Process pr = pb.start();
       try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {

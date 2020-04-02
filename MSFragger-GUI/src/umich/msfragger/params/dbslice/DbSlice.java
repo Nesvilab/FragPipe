@@ -15,7 +15,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import com.dmtavt.fragpipe.messages.MessageToolInit;
 import umich.msfragger.params.dbslice.DbSlice.MessageInitDone.REASON;
 import umich.msfragger.params.fragger.MsfraggerProps;
-import com.dmtavt.fragpipe.tools.msfragger.MsfraggerVersionComparator;
+import com.dmtavt.fragpipe.tools.msfragger.MsfraggerVerCmp;
 import umich.msfragger.params.speclib.SpecLibGen;
 import com.github.chhh.utils.CheckResult;
 import com.github.chhh.utils.Installed;
@@ -257,7 +257,7 @@ public class DbSlice {
   }
 
   private CheckResult checkFraggerVer(String fraggerVer) {
-    MsfraggerVersionComparator cmp = new MsfraggerVersionComparator();
+    MsfraggerVerCmp cmp = new MsfraggerVerCmp();
     String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, "20180924");
     int fraggerVersionCmp = cmp.compare(fraggerVer, minFraggerVer);
 

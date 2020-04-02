@@ -1,7 +1,6 @@
 package umich.msfragger.util;
 
-import static org.junit.Assert.*;
-
+import com.github.chhh.utils.StringUtils;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
