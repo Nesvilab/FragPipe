@@ -25,57 +25,17 @@ import org.slf4j.LoggerFactory;
 
 public class SpecLibGen2 {
 
-  private static final Logger log = LoggerFactory.getLogger(SpecLibGen2.class);
-  private static SpecLibGen2 INSTANCE = new SpecLibGen2();
-  private final Object initLock = new Object();
-
-  public static SpecLibGen2 get() {
-    return INSTANCE;
-  }
-
   public static final String DEFAULT_MESSAGE =
       "Python 3 with cython, msproteomicstools, matplotlib is "
           + "needed for Spectral Library Generation functionality.";
+  public static final List<PythonModule> REQUIRED_MODULES = Arrays.asList(
+      PythonModule.CYTHON,
+      PythonModule.MSPROTEOMICSTOOLS,
+      PythonModule.MATPLOTLIB);
+  public static final List<PythonModule> REQUIRED_FOR_EASYPQP = Arrays.asList(
+      new PythonModule("easypqp", "easypqp"));
+  private static final Logger log = LoggerFactory.getLogger(SpecLibGen2.class);
   private static final String SCRIPT_SPEC_LIB_GEN = "/speclib/gen_con_spec_lib.py";
-  private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
-
-  private PyInfo pi;
-  private Path scriptSpecLibGenPath;
-  private boolean isEasypqpOk;
-  private boolean isInitialized;
-
-  private SpecLibGen2() {
-    pi = null;
-    isEasypqpOk = false;
-    scriptSpecLibGenPath = null;
-    isInitialized = false;
-    EventBus.getDefault().register(this);
-  }
-
-  public boolean isEasypqpOk() {
-    return isEasypqpOk;
-  }
-
-  public static void initClass() {
-    log.debug("Static initialization initiated");
-    INSTANCE = new SpecLibGen2();
-    Bus.register(INSTANCE);
-  }
-
-  @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
-  public void onNoteConfigPython(NoteConfigPython m) {
-    if (!m.isValid()) {
-      Bus.postSticky(new NoteConfigSpeclibgen(null, new ValidationException("Python binary not valid")));
-      return;
-    }
-    try {
-      init(m);
-      Bus.postSticky(new NoteConfigSpeclibgen(get(), null));
-    } catch (ValidationException e) {
-      Bus.postSticky(new NoteConfigSpeclibgen(null, e));
-    }
-  }
-
   public static final String[] RESOURCE_LOCATIONS = {
       "/speclib/common_funcs.py",
       "/speclib/detect_decoy_prefix.py",
@@ -86,14 +46,50 @@ public class SpecLibGen2 {
       "/speclib/spectrast_gen_pepidx.py",
       "/speclib/unite_runs.py",
   };
+  private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
+  private static SpecLibGen2 INSTANCE = new SpecLibGen2();
+  private final Object initLock = new Object();
+  private PyInfo pi;
+  private Path scriptSpecLibGenPath;
+  private boolean isEasypqpOk;
+  private boolean isInitialized;
 
-  public static final List<PythonModule> REQUIRED_MODULES = Arrays.asList(
-      PythonModule.CYTHON,
-      PythonModule.MSPROTEOMICSTOOLS,
-      PythonModule.MATPLOTLIB);
+  private SpecLibGen2() {
+    pi = null;
+    isEasypqpOk = false;
+    scriptSpecLibGenPath = null;
+    isInitialized = false;
+  }
 
-  public static final List<PythonModule> REQUIRED_FOR_EASYPQP = Arrays.asList(
-      new PythonModule("easypqp", "easypqp"));
+  public static SpecLibGen2 get() {
+    return INSTANCE;
+  }
+
+  public static void initClass() {
+    log.debug("Static initialization initiated");
+    SpecLibGen2 o = new SpecLibGen2();
+    Bus.register(o);
+    SpecLibGen2.INSTANCE = o;
+  }
+
+  public boolean isEasypqpOk() {
+    return isEasypqpOk;
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
+  public void onNoteConfigPython(NoteConfigPython m) {
+    if (!m.isValid()) {
+      Bus.postSticky(
+          new NoteConfigSpeclibgen(null, new ValidationException("Python binary not valid")));
+      return;
+    }
+    try {
+      init(m);
+      Bus.postSticky(new NoteConfigSpeclibgen(get(), null));
+    } catch (ValidationException e) {
+      Bus.postSticky(new NoteConfigSpeclibgen(null, e));
+    }
+  }
 
   public PyInfo getPython() {
     return pi;
@@ -134,8 +130,9 @@ public class SpecLibGen2 {
   }
 
   private void checkPythonVer(NoteConfigPython m) throws ValidationException {
-    if (m.pi == null || !m.isValid() || m.pi.getMajorVersion() != 3)
+    if (m.pi == null || !m.isValid() || m.pi.getMajorVersion() != 3) {
       throw new ValidationException("Requires Python version 3.x");
+    }
   }
 
   private void checkPythonModules(PyInfo pi) throws ValidationException {
@@ -150,7 +147,8 @@ public class SpecLibGen2 {
       for (Installed status : bad.keySet()) {
         List<PythonModule> list = modules.get(status);
         if (list != null) {
-          byStatus.add(bad.get(status) + " - " + list.stream().map(pm -> pm.installName).collect(Collectors.joining(", ")));
+          byStatus.add(bad.get(status) + " - " + list.stream().map(pm -> pm.installName)
+              .collect(Collectors.joining(", ")));
         }
       }
       throw new ValidationException("Python modules: \n" + String.join("\n", byStatus));
