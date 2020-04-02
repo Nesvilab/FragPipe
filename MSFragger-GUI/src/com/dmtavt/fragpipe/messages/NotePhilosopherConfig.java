@@ -5,21 +5,21 @@ import java.util.StringJoiner;
 public class NotePhilosopherConfig implements INoteConfig {
   public final String path;
   public final String version;
-  public final Throwable validation;
+  public final Throwable ex;
 
   public NotePhilosopherConfig(String path, String version) {
     this(path, version, null);
   }
 
-  public NotePhilosopherConfig(String path, String version, Throwable validation) {
+  public NotePhilosopherConfig(String path, String version, Throwable ex) {
     this.path = path;
     this.version = version;
-    this.validation = validation;
+    this.ex = ex;
   }
 
   @Override
   public boolean isValid() {
-    return validation == null && version != null;
+    return ex == null && version != null && path != null;
   }
 
   @Override
@@ -27,7 +27,7 @@ public class NotePhilosopherConfig implements INoteConfig {
     return new StringJoiner(", ", NotePhilosopherConfig.class.getSimpleName() + "[", "]")
         .add("path='" + path + "'")
         .add("version='" + version + "'")
-        .add("validation=" + (validation == null ? "null" : validation.getMessage()))
+        .add("validation=" + (ex == null ? "null" : ex.getMessage()))
         .toString();
   }
 }

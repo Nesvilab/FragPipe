@@ -17,6 +17,7 @@ import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
+import com.dmtavt.fragpipe.messages.NoteDbsplitConfig;
 import com.dmtavt.fragpipe.messages.NoteMsfraggerConfig;
 import com.dmtavt.fragpipe.messages.NotePhilosopherConfig;
 import com.dmtavt.fragpipe.messages.NotePythonConfig;
@@ -34,6 +35,7 @@ import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -48,6 +50,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -78,9 +81,12 @@ public class TabConfig extends JPanelWithEnablement {
   private UiText uiTextBinPython;
   private JEditorPane epPythonVer;
   private JEditorPane epDbsplitText;
+  private JEditorPane epDbsplitErr;
+  private Container epDbsplitErrParent;
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
   public static final String TIP_PHILOSOPHER_BIN = "tip.pholosopher.bin";
   public static final String TIP_PYTHON_BIN = "tip.python.bin";
+  private static final String TIP_DBSPLIT = "tip.dbsplit";
   public static final String PREFIX_CONFIG = "fragpipe-config.";
 
 
@@ -268,6 +274,7 @@ public class TabConfig extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.ASYNC)
   public void onPhilosopherNewBin(MessagePhilosopherNewBin m) {
     if (StringUtils.isBlank(m.path)) {
+      Bus.postSticky(new NotePhilosopherConfig(null, "N/A"));
       return;
     }
     try {
@@ -281,17 +288,12 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe(sticky = true)
   public void onPhilosopherConfig(NotePhilosopherConfig m) {
-    log.debug("Got NotePhilosopherConfig", m);
+    log.debug("Got {}", m);
     uiTextBinPhi.setText(m.path);
 
-    if (m.validation != null) {
-      log.debug("Philosopher config validation was not null");
+    if (m.ex != null) {
       SwingUtils.setJEditorPaneContent(epPhiVer, "Philosopher version: N/A");
-      if (m.validation instanceof ValidationException) {
-        Bus.post(new MessageBalloon(TIP_PHILOSOPHER_BIN, uiTextBinPhi, m.validation.getMessage()));
-      } else {
-        SwingUtils.showErrorDialogWithStacktrace(m.validation, this);
-      }
+      showConfigError(m.ex, TIP_PHILOSOPHER_BIN, uiTextBinPhi);
     } else {
       SwingUtils.setJEditorPaneContent(epPhiVer, "Philosopher version: " + m.version);
     }
@@ -322,14 +324,9 @@ public class TabConfig extends JPanelWithEnablement {
     log.debug("Got {}", m);
     uiTextBinFragger.setText(m.path);
 
-    if (m.validation != null) {
+    if (m.ex != null) {
       SwingUtils.setJEditorPaneContent(epFraggerVer, "MSFragger version: N/A");
-      if (m.validation instanceof ValidationException) {
-        Bus.post(
-            new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, m.validation.getMessage()));
-      } else {
-        SwingUtils.showErrorDialogWithStacktrace(m.validation, this);
-      }
+      showConfigError(m.ex, TIP_MSFRAGGER_BIN, uiTextBinFragger);
     } else if (m.isTooOld) {
       SwingUtils
           .setJEditorPaneContent(epFraggerVer, "MSFragger version: too old, not supported anymore");
@@ -395,11 +392,51 @@ public class TabConfig extends JPanelWithEnablement {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void onPythonConfig(NotePythonConfig m) {
     uiTextBinPython.setText(m.command);
-    SwingUtils.setJEditorPaneContent(epPythonVer, StringUtils.isBlank(m.version) ? "Python version: N/A" : "Python version: " + m.version);
+    SwingUtils.setJEditorPaneContent(epPythonVer,
+        StringUtils.isBlank(m.version) ? "Python version: N/A" : "Python version: " + m.version);
     if (m.ex != null) {
-      if (m.ex instanceof ValidationException) {
-        Bus.post(new MessageBalloon(TIP_PYTHON_BIN, uiTextBinPython, m.ex.getMessage()));
+      showConfigError(m.ex, TIP_PYTHON_BIN, uiTextBinPython);
+    }
+  }
+
+  private String dbsplitTextIsEnabled(boolean isEnabled) {
+    return "DB Splitting: <b>" + (isEnabled ? "Enabled" : "Disabled") + "</b>\n"
+        + "Used for searching very large databases by splitting into smaller chunks.";
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void onDbsplitConfig(NoteDbsplitConfig m) {
+    if (m.ex != null) {
+      log.debug("Got NoteDbsplitConfig with exception set");
+      if (epDbsplitErrParent != null && !epDbsplitErrParent.isAncestorOf(epDbsplitErr)) {
+        epDbsplitErrParent.add(epDbsplitErr, new CC().wrap());
+        epDbsplitErr.setVisible(true);
       }
+      SwingUtils.setJEditorPaneContent(epDbsplitText, true, "DB Splitting: <b>Disabled</b>");
+      if (m.ex instanceof ValidationException) {
+        SwingUtils.setJEditorPaneContent(epDbsplitErr, m.ex.getMessage());
+      } else {
+        showConfigError(m.ex, TIP_DBSPLIT, epDbsplitText);
+      }
+      this.revalidate();
+      return;
+    }
+    if (m.dbSplit2 == null) {
+      throw new IllegalStateException("If no exception is reported from DBSplit init, instance should not be null");
+    }
+    log.debug("Got NoteDbsplitConfig without exceptions");
+
+    epDbsplitErrParent = epDbsplitErr.getParent();
+    epDbsplitErrParent.remove(epDbsplitErr);
+    SwingUtils.setJEditorPaneContent(epDbsplitText, true, dbsplitTextIsEnabled(true));
+    this.revalidate();
+  }
+
+  private void showConfigError(Throwable e, String balloonTopic, JComponent balloonParent) {
+    if (e instanceof ValidationException) {
+      Bus.post(new MessageBalloon(balloonTopic, balloonParent, e.getMessage()));
+    } else {
+      SwingUtils.showErrorDialogWithStacktrace(e, this);
     }
   }
 
@@ -477,7 +514,8 @@ public class TabConfig extends JPanelWithEnablement {
     p.add(btnBrowse, ccL());
     final String url = ThisAppProps.def().getProperty(ThisAppProps.PROP_PYTHON_DOWNLOAD_URL);
     if (StringUtils.isNotBlank(url)) {
-      JButton btnDonwload = UiUtils.createButton("Download", e -> SwingUtils.openBrowserOrThrow(url));
+      JButton btnDonwload = UiUtils
+          .createButton("Download", e -> SwingUtils.openBrowserOrThrow(url));
       p.add(btnDonwload, ccL().wrap());
     }
     epPythonVer = SwingUtils.createClickableHtml("Python version: N/A");
@@ -490,26 +528,24 @@ public class TabConfig extends JPanelWithEnablement {
     JPanel p = newMigPanel();
     p.setBorder(new TitledBorder("DB Splitting"));
     StringBuilder tip = new StringBuilder()
-        .append(dbsplitUsecase())
-        .append("<br/>Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>")
+        .append("Used for searching very large databases by splitting into smaller chunks.<br/>")
+        .append("Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>")
         .append("Ways to get everything set up:").append("<ul>")
         .append("<li>Install Python 3 if you don't yet have it.</li>")
-        .append("<li>Install required python modules using <i>pip</i>, the python package manager, with command:</li>")
+        .append(
+            "<li>Install required python modules using <i>pip</i>, the python package manager, with command:</li>")
         .append("<ul>").append("<li>pip install numpy pandas</li>").append("</ul>")
         .append("</ul>");
     String tipHtml = SwingUtils.makeHtml(tip.toString());
     p.setToolTipText(tipHtml);
-    epDbsplitText = SwingUtils.createClickableHtml(SwingUtils.makeHtml("DB Splitting: Disabled\n"
-        + dbsplitUsecase() + "\n" +
-        "Requires Python 3 with modules Numpy and Pandas."));
+    epDbsplitText = SwingUtils.createClickableHtml(SwingUtils.makeHtml(dbsplitTextIsEnabled(false)));
+    epDbsplitErr = SwingUtils.createClickableHtml(
+        SwingUtils.makeHtml("Requires Python 3 with modules Numpy and Pandas."));
     epDbsplitText.setToolTipText(tipHtml);
     p.add(epDbsplitText, ccL().wrap());
+    p.add(epDbsplitErr, ccL().wrap());
 
     return p;
-  }
-
-  private String dbsplitUsecase() {
-    return "Used for searching very large databases by splitting into smaller chunks.";
   }
 
 //  private String dbsplitInstructions() {
@@ -556,7 +592,8 @@ public class TabConfig extends JPanelWithEnablement {
       log.debug("Something happened while checking system python for Python bin file chooser", e);
     }
 
-    Stream<String> pathsToCheck = Stream.of(uiTextBinPython.getNonGhostText(), sysPy == null ? "" : sysPy.getCommand())
+    Stream<String> pathsToCheck = Stream
+        .of(uiTextBinPython.getNonGhostText(), sysPy == null ? "" : sysPy.getCommand())
         .filter(StringUtils::isNotBlank)
         .flatMap(text -> {
           try {

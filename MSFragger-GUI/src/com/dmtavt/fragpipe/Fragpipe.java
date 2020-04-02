@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
 import umich.msfragger.cmd.ToolingUtils;
 import umich.msfragger.gui.api.LogbackJTextPaneAppender;
 import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.params.dbslice.DbSlice2;
+import umich.msfragger.params.dbslice.DbSplit2;
 
 public class Fragpipe extends JFrame {
 
@@ -466,7 +466,7 @@ public class Fragpipe extends JFrame {
     Bus.register(tips);
     Bus.post(new MessageUiInitDone());
 
-    DbSlice2.initClass(); // initialize DBSlice functionality
+    DbSplit2.initClass(); // initialize DBSlice functionality
   }
 
   @Subscribe

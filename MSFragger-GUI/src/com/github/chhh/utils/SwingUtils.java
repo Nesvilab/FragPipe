@@ -389,6 +389,17 @@ public class SwingUtils {
     }
   }
 
+  public static void setJEditorPaneContent(JEditorPane ep, boolean applyMakeHtml, String text) {
+    if (applyMakeHtml) {
+      text = makeHtml(text);
+    }
+    if (!"text/html".equalsIgnoreCase(ep.getContentType())) {
+      ep.setText(text); // it's not styled with css in html
+    } else {
+      ep.setText(wrapInStyledHtml(text));
+    }
+  }
+
 //  /**
 //   * Creates a non-editable JEditorPane that has the same styling as default JLabels and with
 //   * hyperlinks clickable. They will be opened in the system default browser.

@@ -7,26 +7,26 @@ public class NoteMsfraggerConfig implements INoteConfig {
   public final String path;
   public final String version;
   public final boolean isTooOld;
-  public final Throwable validation;
+  public final Throwable ex;
 
   public NoteMsfraggerConfig(String path, String version) {
     this(path, version, null);
   }
 
-  public NoteMsfraggerConfig(String path, String version, Throwable validation) {
-    this(path, version, false, validation);
+  public NoteMsfraggerConfig(String path, String version, Throwable ex) {
+    this(path, version, false, ex);
   }
 
-  public NoteMsfraggerConfig(String path, String version, boolean isTooOld, Throwable validation) {
+  public NoteMsfraggerConfig(String path, String version, boolean isTooOld, Throwable ex) {
     this.path = path;
     this.version = version;
     this.isTooOld = isTooOld;
-    this.validation = validation;
+    this.ex = ex;
   }
 
   @Override
   public boolean isValid() {
-    return validation == null;
+    return ex == null;
   }
 
   @Override
@@ -35,7 +35,7 @@ public class NoteMsfraggerConfig implements INoteConfig {
         .add("path='" + path + "'")
         .add("version='" + version + "'")
         .add("isTooOld=" + isTooOld)
-        .add("validation=" + (validation == null ? "null" : validation.getMessage()))
+        .add("validation=" + (ex == null ? "null" : ex.getMessage()))
         .toString();
   }
 }

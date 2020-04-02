@@ -1,16 +1,15 @@
 package umich.msfragger.params.dbslice;
 
 import com.dmtavt.fragpipe.api.Bus;
-import com.dmtavt.fragpipe.api.ICheck;
 import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
-import com.dmtavt.fragpipe.messages.NoteDbsliceConfig;
+import com.dmtavt.fragpipe.messages.NoteDbsplitConfig;
 import com.dmtavt.fragpipe.messages.NoteMsfraggerConfig;
 import com.dmtavt.fragpipe.messages.NotePythonConfig;
 import com.dmtavt.fragpipe.tools.msfragger.MsfraggerVerCmp;
-import com.github.chhh.utils.CheckResult;
 import com.github.chhh.utils.Installed;
 import com.github.chhh.utils.JarUtils;
+import com.github.chhh.utils.PythonInfo;
 import com.github.chhh.utils.PythonModule;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -20,22 +19,19 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.params.dbslice.DbSlice.MessageInitDone.REASON;
 import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.params.speclib.SpecLibGen;
 
-public class DbSlice2 {
-  private static final Logger log = LoggerFactory.getLogger(DbSlice2.class);
-  private static DbSlice2 INSTANCE = new DbSlice2();
+public class DbSplit2 {
+  private static final Logger log = LoggerFactory.getLogger(DbSplit2.class);
+  private static DbSplit2 INSTANCE = new DbSplit2();
   private final Object initLock = new Object();
-  public static DbSlice2 get() { return INSTANCE; }
+  public static DbSplit2 get() { return INSTANCE; }
   public static final String DEFAULT_MESSAGE = "Python 3 with numpy, pandas is "
       + "needed for DB Splitting functionality.";
 
@@ -43,10 +39,7 @@ public class DbSlice2 {
   private static final String SCRIPT_SPEC_LIB_GEN = "/speclib/gen_con_spec_lib.py";
   private static final String SCRIPT_SPLITTER = "/" + MsfraggerProps.DBSPLIT_SCRIPT_NAME;
   public static final String[] RESOURCE_LOCATIONS = {SCRIPT_SPLITTER};
-  public static final PythonModule[] REQUIRED_MODULES = {
-      new PythonModule("numpy", "numpy"),
-      new PythonModule("pandas", "pandas"),
-  };
+  public static final PythonModule[] REQUIRED_MODULES = {PythonModule.NUMPY, PythonModule.PANDAS};
 
   private PyInfo pi;
   private Path scriptDbslicingPath;
@@ -57,11 +50,11 @@ public class DbSlice2 {
    * the singleton and subscribe it to the bus. */
   public static void initClass() {
     log.debug("Static initialization initiated");
-    INSTANCE = new DbSlice2();
+    INSTANCE = new DbSplit2();
     Bus.register(INSTANCE);
   }
 
-  private DbSlice2() {
+  private DbSplit2() {
     pi = null;
     scriptDbslicingPath = null;
     msfraggerVer = null;
@@ -80,10 +73,12 @@ public class DbSlice2 {
 
   private void onPythonOrFraggerChange(NotePythonConfig python, NoteMsfraggerConfig fragger) {
     try {
+      log.debug("Started init of: {}, python null={}, fragger null={}", DbSplit2.class.getSimpleName(),
+          python == null, fragger == null);
       init(python, fragger);
-      Bus.postSticky(new NoteDbsliceConfig(this, null));
+      Bus.postSticky(new NoteDbsplitConfig(this, null));
     } catch (ValidationException e) {
-      Bus.postSticky(new NoteDbsliceConfig(null, e));
+      Bus.postSticky(new NoteDbsplitConfig(null, e));
     }
   }
 
@@ -103,22 +98,22 @@ public class DbSlice2 {
 
   private void init(NotePythonConfig python, NoteMsfraggerConfig fragger) throws ValidationException {
     synchronized (initLock) {
-      if (python == null || fragger == null)
+      if (python == null || python.pi == null || fragger == null || fragger.version == null)
         throw new ValidationException("Both Python and MSFragger need to be configured first.");
 
       isInitialized = false;
-
-      checkPythonVer();
-      checkPythonModules();
+      checkPythonVer(python);
+      checkPythonModules(python.pi);
       checkFragger(fragger);
 
       this.pi = python.pi;
       this.msfraggerVer = fragger.version;
       isInitialized = true;
+      log.debug("{} init complete",DbSplit2.class.getSimpleName());
     }
   }
 
-  private void checkPythonModules() throws ValidationException {
+  private void checkPythonModules(PyInfo pi) throws ValidationException {
     List<Installed> badStatuses = Arrays.stream(Installed.values())
         .filter(installed -> !installed.equals(Installed.YES)).collect(
             Collectors.toList());
@@ -130,7 +125,7 @@ public class DbSlice2 {
 
     final List<String> badModsByStatus = new ArrayList<>();
     for (Installed badStatus : badStatuses) {
-      List<PythonModule> badMods = createPythonModulesStatusList(badStatus);
+      List<PythonModule> badMods = createPythonModulesStatusList(badStatus, pi);
       if (!badMods.isEmpty()) {
         String bad = badMods.stream().map(pm -> pm.installName).collect(Collectors.joining(", "))
             + " - " + map.getOrDefault(badStatus, badStatus.name());
@@ -143,13 +138,13 @@ public class DbSlice2 {
 
   }
 
-  private void checkPythonVer() throws ValidationException {
-    if (pi.getMajorVersion() != 3) {
+  private void checkPythonVer(NotePythonConfig m) throws ValidationException {
+    if (m.pi == null || m.pi.getMajorVersion() != 3) {
       throw new ValidationException("Python version 3.x is required");
     }
   }
 
-  private List<PythonModule> createPythonModulesStatusList(Installed installedStatus) {
+  private List<PythonModule> createPythonModulesStatusList(Installed installedStatus, PyInfo pi) {
     return Arrays.stream(REQUIRED_MODULES)
         .filter(pm -> installedStatus.equals(pi.checkModuleInstalled(pm)))
         .collect(Collectors.toList());

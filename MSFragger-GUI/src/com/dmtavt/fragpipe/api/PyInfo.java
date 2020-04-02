@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -30,7 +31,7 @@ public class PyInfo {
   private String command;
   private String version;
   private int majorVersion;
-  private Map<PythonModule, Installed> modules;
+  private Map<PythonModule, Installed> modules = new HashMap<>();
 
   @Override
   public String toString() {
