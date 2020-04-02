@@ -278,5 +278,14 @@ public class PyInfo {
     return installed;
   }
 
+  public List<PythonModule> modulesOfStatus(Installed installedStatus, List<PythonModule> modules) {
+    return modules.stream()
+        .filter(pm -> installedStatus.equals(checkModuleInstalled(pm)))
+        .collect(Collectors.toList());
+  }
 
+  public Map<Installed, List<PythonModule>> modulesByStatus(List<PythonModule> modules) {
+    return modules.stream()
+        .collect(Collectors.groupingBy(this::checkModuleInstalled));
+  }
 }

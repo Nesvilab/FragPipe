@@ -9,14 +9,13 @@ import com.dmtavt.fragpipe.messages.NotePythonConfig;
 import com.dmtavt.fragpipe.tools.msfragger.MsfraggerVerCmp;
 import com.github.chhh.utils.Installed;
 import com.github.chhh.utils.JarUtils;
-import com.github.chhh.utils.PythonInfo;
 import com.github.chhh.utils.PythonModule;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,7 +38,7 @@ public class DbSplit2 {
   private static final String SCRIPT_SPEC_LIB_GEN = "/speclib/gen_con_spec_lib.py";
   private static final String SCRIPT_SPLITTER = "/" + MsfraggerProps.DBSPLIT_SCRIPT_NAME;
   public static final String[] RESOURCE_LOCATIONS = {SCRIPT_SPLITTER};
-  public static final PythonModule[] REQUIRED_MODULES = {PythonModule.NUMPY, PythonModule.PANDAS};
+  public static final List<PythonModule> REQUIRED_MODULES = Arrays.asList(PythonModule.NUMPY, PythonModule.PANDAS);
 
   private PyInfo pi;
   private Path scriptDbslicingPath;
@@ -100,54 +99,48 @@ public class DbSplit2 {
     synchronized (initLock) {
       if (python == null || python.pi == null || fragger == null || fragger.version == null)
         throw new ValidationException("Both Python and MSFragger need to be configured first.");
-
       isInitialized = false;
-      checkPythonVer(python);
-      checkPythonModules(python.pi);
-      checkFragger(fragger);
 
-      this.pi = python.pi;
-      this.msfraggerVer = fragger.version;
+      checkPython(python);
+      checkFragger(fragger);
+      unpack();
+
       isInitialized = true;
       log.debug("{} init complete",DbSplit2.class.getSimpleName());
     }
   }
 
+  private void checkPython(NotePythonConfig m) throws ValidationException {
+    checkPythonVer(m);
+    checkPythonModules(m.pi);
+    this.pi = m.pi;
+  }
+
   private void checkPythonModules(PyInfo pi) throws ValidationException {
-    List<Installed> badStatuses = Arrays.stream(Installed.values())
-        .filter(installed -> !installed.equals(Installed.YES)).collect(
-            Collectors.toList());
+    Map<Installed, List<PythonModule>> modules = pi.modulesByStatus(REQUIRED_MODULES);
+    final Map<Installed, String> bad = new LinkedHashMap<>();
+    bad.put(Installed.NO, "Missing");
+    bad.put(Installed.INSTALLED_WITH_IMPORTERROR, "Error loading module");
+    bad.put(Installed.UNKNOWN, "N/A");
 
-    final Map<Installed, String> map = new HashMap<>();
-    map.put(Installed.INSTALLED_WITH_IMPORTERROR, "Error loading module");
-    map.put(Installed.NO, "Missing");
-    map.put(Installed.UNKNOWN, "N/A");
-
-    final List<String> badModsByStatus = new ArrayList<>();
-    for (Installed badStatus : badStatuses) {
-      List<PythonModule> badMods = createPythonModulesStatusList(badStatus, pi);
-      if (!badMods.isEmpty()) {
-        String bad = badMods.stream().map(pm -> pm.installName).collect(Collectors.joining(", "))
-            + " - " + map.getOrDefault(badStatus, badStatus.name());
-        badModsByStatus.add(bad);
+    if (modules.keySet().stream().anyMatch(bad::containsKey)) {
+      final List<String> byStatus = new ArrayList<>();
+      for (Installed status : bad.keySet()) {
+        List<PythonModule> list = modules.get(status);
+        if (list != null) {
+          byStatus.add(bad.get(status) + " - " + list.stream().map(pm -> pm.installName).collect(Collectors.joining(", ")));
+        }
       }
-    }
-    if (!badModsByStatus.isEmpty()) {
-      throw new ValidationException("Python modules: " + String.join(", ", badModsByStatus) + ".");
+      throw new ValidationException("Python modules: \n" + String.join("\n", byStatus));
     }
 
+    this.pi = pi;
   }
 
   private void checkPythonVer(NotePythonConfig m) throws ValidationException {
     if (m.pi == null || m.pi.getMajorVersion() != 3) {
       throw new ValidationException("Python version 3.x is required");
     }
-  }
-
-  private List<PythonModule> createPythonModulesStatusList(Installed installedStatus, PyInfo pi) {
-    return Arrays.stream(REQUIRED_MODULES)
-        .filter(pm -> installedStatus.equals(pi.checkModuleInstalled(pm)))
-        .collect(Collectors.toList());
   }
 
   private void unpack() throws ValidationException {

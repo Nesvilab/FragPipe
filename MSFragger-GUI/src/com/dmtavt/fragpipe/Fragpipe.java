@@ -62,6 +62,7 @@ import umich.msfragger.cmd.ToolingUtils;
 import umich.msfragger.gui.api.LogbackJTextPaneAppender;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.dbslice.DbSplit2;
+import umich.msfragger.params.speclib.SpecLibGen2;
 
 public class Fragpipe extends JFrame {
 
@@ -467,6 +468,7 @@ public class Fragpipe extends JFrame {
     Bus.post(new MessageUiInitDone());
 
     DbSplit2.initClass(); // initialize DBSlice functionality
+    SpecLibGen2.initClass();
   }
 
   @Subscribe
