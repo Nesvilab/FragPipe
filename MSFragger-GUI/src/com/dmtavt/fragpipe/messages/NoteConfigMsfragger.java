@@ -2,22 +2,22 @@ package com.dmtavt.fragpipe.messages;
 
 import java.util.StringJoiner;
 
-public class NoteMsfraggerConfig implements INoteConfig {
+public class NoteConfigMsfragger implements INoteConfig {
 
   public final String path;
   public final String version;
   public final boolean isTooOld;
   public final Throwable ex;
 
-  public NoteMsfraggerConfig(String path, String version) {
+  public NoteConfigMsfragger(String path, String version) {
     this(path, version, null);
   }
 
-  public NoteMsfraggerConfig(String path, String version, Throwable ex) {
+  public NoteConfigMsfragger(String path, String version, Throwable ex) {
     this(path, version, false, ex);
   }
 
-  public NoteMsfraggerConfig(String path, String version, boolean isTooOld, Throwable ex) {
+  public NoteConfigMsfragger(String path, String version, boolean isTooOld, Throwable ex) {
     this.path = path;
     this.version = version;
     this.isTooOld = isTooOld;
@@ -31,7 +31,7 @@ public class NoteMsfraggerConfig implements INoteConfig {
 
   @Override
   public String toString() {
-    return new StringJoiner(", ", NoteMsfraggerConfig.class.getSimpleName() + "[", "]")
+    return new StringJoiner(", ", NoteConfigMsfragger.class.getSimpleName() + "[", "]")
         .add("path='" + path + "'")
         .add("version='" + version + "'")
         .add("isTooOld=" + isTooOld)

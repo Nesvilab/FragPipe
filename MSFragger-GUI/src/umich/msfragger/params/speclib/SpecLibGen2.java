@@ -3,12 +3,10 @@ package umich.msfragger.params.speclib;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
-import com.dmtavt.fragpipe.messages.NotePythonConfig;
-import com.dmtavt.fragpipe.messages.NoteSpeclibgenConfig;
-import com.github.chhh.utils.CheckResult;
+import com.dmtavt.fragpipe.messages.NoteConfigPython;
+import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.github.chhh.utils.Installed;
 import com.github.chhh.utils.JarUtils;
-import com.github.chhh.utils.PythonInfo;
 import com.github.chhh.utils.PythonModule;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -24,7 +22,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.params.dbslice.DbSplit2;
 
 public class SpecLibGen2 {
 
@@ -66,16 +63,16 @@ public class SpecLibGen2 {
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
-  public void onPythonConfig(NotePythonConfig m) {
+  public void onNoteConfigPython(NoteConfigPython m) {
     if (!m.isValid()) {
-      Bus.postSticky(new NoteSpeclibgenConfig(null, new ValidationException("Python binary not valid")));
+      Bus.postSticky(new NoteConfigSpeclibgen(null, new ValidationException("Python binary not valid")));
       return;
     }
     try {
       init(m);
-      Bus.postSticky(new NoteSpeclibgenConfig(get(), null));
+      Bus.postSticky(new NoteConfigSpeclibgen(get(), null));
     } catch (ValidationException e) {
-      Bus.postSticky(new NoteSpeclibgenConfig(null, e));
+      Bus.postSticky(new NoteConfigSpeclibgen(null, e));
     }
   }
 
@@ -112,7 +109,7 @@ public class SpecLibGen2 {
     }
   }
 
-  public void init(NotePythonConfig python) throws ValidationException {
+  public void init(NoteConfigPython python) throws ValidationException {
     synchronized (initLock) {
       isInitialized = false;
 
@@ -130,13 +127,13 @@ public class SpecLibGen2 {
     }
   }
 
-  private void checkPython(NotePythonConfig m) throws ValidationException {
+  private void checkPython(NoteConfigPython m) throws ValidationException {
     checkPythonVer(m);
     checkPythonModules(m.pi);
     this.pi = m.pi;
   }
 
-  private void checkPythonVer(NotePythonConfig m) throws ValidationException {
+  private void checkPythonVer(NoteConfigPython m) throws ValidationException {
     if (m.pi == null || !m.isValid() || m.pi.getMajorVersion() != 3)
       throw new ValidationException("Requires Python version 3.x");
   }

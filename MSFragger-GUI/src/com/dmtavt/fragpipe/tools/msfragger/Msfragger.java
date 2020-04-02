@@ -4,7 +4,7 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
-import com.dmtavt.fragpipe.messages.NoteMsfraggerConfig;
+import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.github.chhh.utils.StringUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class Msfragger {
   }
 
 
-  public static void checkUpdates(NoteMsfraggerConfig m) {
+  public static void checkUpdates(NoteConfigMsfragger m) {
     final MsfraggerVerCmp vc = new MsfraggerVerCmp();
     final String verLocal = m.version;
     Thread t = new Thread(() -> {

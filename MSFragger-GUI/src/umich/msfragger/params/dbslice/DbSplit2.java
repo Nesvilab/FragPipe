@@ -3,9 +3,9 @@ package umich.msfragger.params.dbslice;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
-import com.dmtavt.fragpipe.messages.NoteDbsplitConfig;
-import com.dmtavt.fragpipe.messages.NoteMsfraggerConfig;
-import com.dmtavt.fragpipe.messages.NotePythonConfig;
+import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
+import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
+import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.tools.msfragger.MsfraggerVerCmp;
 import com.github.chhh.utils.Installed;
 import com.github.chhh.utils.JarUtils;
@@ -60,24 +60,24 @@ public class DbSplit2 {
     isInitialized = false;
   }
 
-  @Subscribe(threadMode = ThreadMode.ASYNC)
-  public void onPythonConfig(NotePythonConfig m) {
-    onPythonOrFraggerChange(m, Bus.getStickyEvent(NoteMsfraggerConfig.class));
+  @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
+  public void onNoteConfigPython(NoteConfigPython m) {
+    onPythonOrFraggerChange(m, Bus.getStickyEvent(NoteConfigMsfragger.class));
   }
 
-  @Subscribe(threadMode = ThreadMode.ASYNC)
-  public void onMsfraggerConfig(NoteMsfraggerConfig m) {
-    onPythonOrFraggerChange(Bus.getStickyEvent(NotePythonConfig.class), m);
+  @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
+  public void onNoteConfigMsfragger(NoteConfigMsfragger m) {
+    onPythonOrFraggerChange(Bus.getStickyEvent(NoteConfigPython.class), m);
   }
 
-  private void onPythonOrFraggerChange(NotePythonConfig python, NoteMsfraggerConfig fragger) {
+  private void onPythonOrFraggerChange(NoteConfigPython python, NoteConfigMsfragger fragger) {
     try {
       log.debug("Started init of: {}, python null={}, fragger null={}", DbSplit2.class.getSimpleName(),
           python == null, fragger == null);
       init(python, fragger);
-      Bus.postSticky(new NoteDbsplitConfig(this, null));
+      Bus.postSticky(new NoteConfigDbsplit(this, null));
     } catch (ValidationException e) {
-      Bus.postSticky(new NoteDbsplitConfig(null, e));
+      Bus.postSticky(new NoteConfigDbsplit(null, e));
     }
   }
 
@@ -95,7 +95,7 @@ public class DbSplit2 {
     }
   }
 
-  private void init(NotePythonConfig python, NoteMsfraggerConfig fragger) throws ValidationException {
+  private void init(NoteConfigPython python, NoteConfigMsfragger fragger) throws ValidationException {
     synchronized (initLock) {
       if (python == null || python.pi == null || fragger == null || fragger.version == null)
         throw new ValidationException("Both Python and MSFragger need to be configured first.");
@@ -110,7 +110,7 @@ public class DbSplit2 {
     }
   }
 
-  private void checkPython(NotePythonConfig m) throws ValidationException {
+  private void checkPython(NoteConfigPython m) throws ValidationException {
     checkPythonVer(m);
     checkPythonModules(m.pi);
     this.pi = m.pi;
@@ -137,7 +137,7 @@ public class DbSplit2 {
     this.pi = pi;
   }
 
-  private void checkPythonVer(NotePythonConfig m) throws ValidationException {
+  private void checkPythonVer(NoteConfigPython m) throws ValidationException {
     if (m.pi == null || m.pi.getMajorVersion() != 3) {
       throw new ValidationException("Python version 3.x is required");
     }
@@ -158,7 +158,7 @@ public class DbSplit2 {
     }
   }
 
-  private void checkFragger(NoteMsfraggerConfig m) throws ValidationException {
+  private void checkFragger(NoteConfigMsfragger m) throws ValidationException {
     if (!m.isValid()) {
       throw new ValidationException("Require valid MSFragger");
     }

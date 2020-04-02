@@ -17,10 +17,10 @@ import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
-import com.dmtavt.fragpipe.messages.NoteDbsplitConfig;
-import com.dmtavt.fragpipe.messages.NoteMsfraggerConfig;
-import com.dmtavt.fragpipe.messages.NotePhilosopherConfig;
-import com.dmtavt.fragpipe.messages.NotePythonConfig;
+import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
+import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
+import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
+import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
@@ -274,20 +274,20 @@ public class TabConfig extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.ASYNC)
   public void onPhilosopherNewBin(MessagePhilosopherNewBin m) {
     if (StringUtils.isBlank(m.path)) {
-      Bus.postSticky(new NotePhilosopherConfig(null, "N/A"));
+      Bus.postSticky(new NoteConfigPhilosopher(null, "N/A"));
       return;
     }
     try {
       Philosopher.Version v = Philosopher.validate(m.path);
       String version = v.version + (StringUtils.isBlank(v.build) ? "" : " (build " + v.build + ")");
-      Bus.postSticky(new NotePhilosopherConfig(m.path, version));
+      Bus.postSticky(new NoteConfigPhilosopher(m.path, version));
     } catch (ValidationException | UnexpectedException e) {
-      Bus.postSticky(new NotePhilosopherConfig(m.path, "N/A", e));
+      Bus.postSticky(new NoteConfigPhilosopher(m.path, "N/A", e));
     }
   }
 
   @Subscribe(sticky = true)
-  public void onPhilosopherConfig(NotePhilosopherConfig m) {
+  public void onNoteConfigPhilosopher(NoteConfigPhilosopher m) {
     log.debug("Got {}", m);
     uiTextBinPhi.setText(m.path);
 
@@ -310,17 +310,17 @@ public class TabConfig extends JPanelWithEnablement {
       Msfragger.validateJar(m.binPath);
       v = Msfragger.version(Paths.get(m.binPath));
       if (v.isVersionParsed) {
-        Bus.postSticky(new NoteMsfraggerConfig(m.binPath, v.version));
+        Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version));
       } else {
-        Bus.postSticky(new NoteMsfraggerConfig(m.binPath, v.version, true, null));
+        Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version, true, null));
       }
     } catch (ValidationException | UnexpectedException e) {
-      Bus.postSticky(new NoteMsfraggerConfig(m.binPath, "N/A", e));
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", e));
     }
   }
 
   @Subscribe(sticky = true)
-  public void onMsfraggerConfig(NoteMsfraggerConfig m) {
+  public void onNoteConfigMsfragger(NoteConfigMsfragger m) {
     log.debug("Got {}", m);
     uiTextBinFragger.setText(m.path);
 
@@ -379,18 +379,18 @@ public class TabConfig extends JPanelWithEnablement {
       pi = PyInfo.fromCommand(m.command);
       if (pi.getMajorVersion() < 3) {
         Bus.postSticky(
-            new NotePythonConfig(pi, new ValidationException("Python version 3+ required"),
+            new NoteConfigPython(pi, new ValidationException("Python version 3+ required"),
                 pi.getCommand(), pi.getVersion()));
       } else {
-        Bus.postSticky(new NotePythonConfig(pi));
+        Bus.postSticky(new NoteConfigPython(pi));
       }
     } catch (ValidationException | UnexpectedException e) {
-      Bus.postSticky(new NotePythonConfig(null, e, m.command, "N/A"));
+      Bus.postSticky(new NoteConfigPython(null, e, m.command, "N/A"));
     }
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void onPythonConfig(NotePythonConfig m) {
+  public void onNoteConfigPython(NoteConfigPython m) {
     uiTextBinPython.setText(m.command);
     SwingUtils.setJEditorPaneContent(epPythonVer,
         StringUtils.isBlank(m.version) ? "Python version: N/A" : "Python version: " + m.version);
@@ -405,7 +405,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void onDbsplitConfig(NoteDbsplitConfig m) {
+  public void onNoteConfigDbsplit(NoteConfigDbsplit m) {
     if (m.ex != null) {
       log.debug("Got NoteDbsplitConfig with exception set");
       if (epDbsplitErrParent != null && !epDbsplitErrParent.isAncestorOf(epDbsplitErr)) {
@@ -421,7 +421,7 @@ public class TabConfig extends JPanelWithEnablement {
       this.revalidate();
       return;
     }
-    if (m.dbSplit2 == null) {
+    if (m.instance == null) {
       throw new IllegalStateException("If no exception is reported from DBSplit init, instance should not be null");
     }
     log.debug("Got NoteDbsplitConfig without exceptions");
