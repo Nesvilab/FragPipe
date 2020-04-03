@@ -19,6 +19,7 @@ import com.github.chhh.utils.ScreenUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.FormEntry.Builder;
 import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Color;
@@ -77,7 +78,7 @@ public class Fragpipe extends JFrame {
   public static final Color COLOR_RED_DARKER = new Color(166, 56, 68);
   public static final Color COLOR_RED_DARKEST = new Color(155, 35, 29);
   public static final Color COLOR_BLACK = new Color(0, 0, 0);
-  private static final String TAB_NAME_LCMS = "LCMS Files";
+  private static final String TAB_NAME_LCMS = "Workflow";
   private static final String TAB_NAME_UMPIRE = "DIA-Umpire SE";
   public static final String PREFIX_FRAGPIPE = "fragpipe.";
   public static final String PROP_NOCACHE = "do-not-cache";
@@ -110,6 +111,15 @@ public class Fragpipe extends JFrame {
   public static FormEntry.Builder fe(JComponent comp, String compName, String prefix) {
     return FormEntry.builder(comp, StringUtils.prependOnce(compName, prefix));
   }
+
+  public static Builder feNoCache(JComponent comp, String compName) {
+    return feNoCache(comp, compName, PREFIX_FRAGPIPE);
+  }
+
+  public static FormEntry.Builder feNoCache(JComponent comp, String compName, String prefix) {
+    return FormEntry.builder(comp, StringUtils.prependOnce(StringUtils.appendOnce(compName, PROP_NOCACHE), prefix));
+  }
+
 
   public static void main(String args[]) {
     SwingUtils.setLaf();
@@ -221,6 +231,11 @@ public class Fragpipe extends JFrame {
     return rename(comp, name, true);
   }
 
+  /** Same as calling {@link #rename(Component, String, boolean)} with True as last arg. */
+  public static Component renameNoCache(Component comp, String name, String prefix) {
+    return rename(comp, name, prefix, true);
+  }
+
   private JTabbedPane createTabs(TextConsole console) {
     final JTabbedPane t = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 
@@ -228,7 +243,7 @@ public class Fragpipe extends JFrame {
     Consumer<UiTab> addTabNoScroll = tab -> t.addTab(tab.getTitle(), tab.getIcon(), tab.getComponent(), tab.getTooltip());
 
     TabConfig tabConfig = new TabConfig();
-    TabLcmsFiles tabLcmsFiles = new TabLcmsFiles();
+    TabWorkflow tabWorkflow = new TabWorkflow();
     TabDatabase tabDatabase = new TabDatabase();
     TabMsfragger tabMsfragger = new TabMsfragger();
     TabDownstream tabDownstream = new TabDownstream();
@@ -238,7 +253,7 @@ public class Fragpipe extends JFrame {
     tabUmpire = new TabUmpire();
 
     addTab.accept(new UiTab("Config", tabConfig, "/umich/msfragger/gui/icons/150-cogs.png", null));
-    addTabNoScroll.accept(new UiTab(TAB_NAME_LCMS, tabLcmsFiles, "/umich/msfragger/gui/icons/186-list-numbered.png", null));
+    addTabNoScroll.accept(new UiTab(TAB_NAME_LCMS, tabWorkflow, "/umich/msfragger/gui/icons/186-list-numbered.png", null));
     addTab.accept(new UiTab("Database", tabDatabase, "/umich/msfragger/gui/icons/093-drawer.png", null));
     addTab.accept(new UiTab("MSFragger", tabMsfragger, "/umich/msfragger/gui/icons/bolt-16.png", null));
     addTab.accept(new UiTab("Downstream", tabDownstream, "/umich/msfragger/gui/icons/348-filter.png", null));

@@ -28,13 +28,10 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.border.TitledBorder;
-import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.RandomUtils;
@@ -50,8 +47,8 @@ import umich.msfragger.gui.MsfraggerGuiFrameUtils;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 
-public class TabLcmsFiles extends JPanelWithEnablement {
-  private static final Logger log = LoggerFactory.getLogger(TabLcmsFiles.class);
+public class TabWorkflow extends JPanelWithEnablement {
+  private static final Logger log = LoggerFactory.getLogger(TabWorkflow.class);
   private final MigUtils mu = MigUtils.get();
   private JButton btnFilesRemove;
   private JButton btnFilesClear;
@@ -70,7 +67,9 @@ public class TabLcmsFiles extends JPanelWithEnablement {
   private JPanel pLcmsFiles;
   private JPanel pContent;
 
-  public TabLcmsFiles() {
+  public static final String TAB_PREFIX = "workflow.";
+
+  public TabWorkflow() {
     init();
     initMore();
   }
@@ -106,8 +105,7 @@ public class TabLcmsFiles extends JPanelWithEnablement {
   }
 
   private JPanel createPanalWorkflows() {
-    JPanel p = mu.panel(false);
-    p.setBorder(new TitledBorder("Workflows"));
+    JPanel p = mu.panel(false, "Workflows");
 
     epWorkflowsInfo = SwingUtils.createClickableHtml(true,
         "FragPipe and its collection of tools support multiple proteomic workflows.\n"
@@ -135,8 +133,7 @@ public class TabLcmsFiles extends JPanelWithEnablement {
   }
 
   private JPanel createPanalLcmsFiles() {
-    JPanel p = mu.panel(false);
-    p.setBorder(new TitledBorder("Input LC/MS Files"));
+    JPanel p = mu.panel(false, "Input LC/MS Files");
 
     JButton btnFilesAddFiles = button("Add files", MessageLcmsAddFiles::new);
     JButton btnFilesAddFolder = button("Add folder recursively", MessageLcmsAddFolder::new);
@@ -155,26 +152,20 @@ public class TabLcmsFiles extends JPanelWithEnablement {
 
     createFileTable();
 
-    add(p, btnFilesAddFiles).split();
-    add(p, btnFilesAddFolder);
-    add(p, btnFilesRemove);
-    add(p, btnFilesClear).wrap();
-    add(p, new JLabel("Assign files to Experiments/Groups (select rows to activate action buttons):")).spanX().wrap();
-    add(p, btnGroupsConsecutive).split();
-    add(p, btnGroupsByParentDir);
-    add(p, btnGroupsByFilename);
-    add(p, btnGroupsAssignToSelected);
-    add(p, btnGroupsClear).wrap();
+    mu.add(p, btnFilesAddFiles).split();
+    mu.add(p, btnFilesAddFolder);
+    mu.add(p, btnFilesRemove);
+    mu.add(p, btnFilesClear).wrap();
+    mu.add(p, new JLabel("Assign files to Experiments/Groups (select rows to activate action buttons):")).spanX().wrap();
+    mu.add(p, btnGroupsConsecutive).split();
+    mu.add(p, btnGroupsByParentDir);
+    mu.add(p, btnGroupsByFilename);
+    mu.add(p, btnGroupsAssignToSelected);
+    mu.add(p, btnGroupsClear).wrap();
 
     p.add(scrollPaneRawFiles, mu.ccGx().wrap());
 
     return p;
-  }
-
-  private CC add(JComponent host, JComponent child) {
-    CC cc = mu.ccL();
-    host.add(child, cc);
-    return cc;
   }
 
   private JButton button(String text, Supplier<Object> message) {

@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -270,7 +269,7 @@ public class UmpirePanel extends JPanel {
         return fc;
       };
 
-      pOther.add(feConfigFile.browseButton("Browse", fcProvider, ghostTextConfigFile,
+      pOther.add(feConfigFile.browseButton("Browse", ghostTextConfigFile, fcProvider,
           paths -> textConfigFile.setText(paths.stream()
               .map(Path::toString)
               .collect(Collectors.joining(FileChooserUtils.MULTI_FILE_DELIMITER)))),
@@ -307,7 +306,7 @@ public class UmpirePanel extends JPanel {
         return fc;
       };
 
-      pOther.add(feBinMsconvert.browseButton("Browse", fcSupplier, ghostTextBinMsconvert,
+      pOther.add(feBinMsconvert.browseButton("Browse", ghostTextBinMsconvert, fcSupplier,
           paths -> textBinMsconvert.setText(paths.stream()
               .map(Path::toString)
               .collect(Collectors.joining(FileChooserUtils.MULTI_FILE_DELIMITER)))),

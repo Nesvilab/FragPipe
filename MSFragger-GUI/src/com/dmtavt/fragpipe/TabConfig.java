@@ -92,7 +92,7 @@ public class TabConfig extends JPanelWithEnablement {
   public static final String TIP_PYTHON_BIN = "tip.python.bin";
   private static final String TIP_DBSPLIT = "tip.dbsplit";
   private static final String TIP_SPECLIBGEN = "tip.speclibgen";
-  public static final String PREFIX_CONFIG = "fragpipe-config.";
+  public static final String TAB_PREFIX = "fragpipe-config.";
 
 
   public TabConfig() {
@@ -168,12 +168,12 @@ public class TabConfig extends JPanelWithEnablement {
 
     final String binMsfraggerTip = "Select path to MSFragger.jar";
     uiTextBinFragger = UiUtils.uiTextBuilder().ghost(binMsfraggerTip).create();
-    FormEntry feBinMsfragger = fe(uiTextBinFragger, "bin-msfragger", PREFIX_CONFIG)
+    FormEntry feBinMsfragger = fe(uiTextBinFragger, "bin-msfragger", TAB_PREFIX)
         .tooltip(binMsfraggerTip).create();
     p.add(feBinMsfragger.comp, ccL().split().growX());
 
     JButton btnBrowse = feBinMsfragger
-        .browseButton("Browse", this::createFraggerFilechooser, binMsfraggerTip, paths -> {
+        .browseButton("Browse", binMsfraggerTip, this::createFraggerFilechooser, paths -> {
           paths.stream().findFirst()
               .ifPresent(jar -> Bus.post(new MessageMsfraggerNewBin(jar.toString())));
         });
@@ -187,7 +187,7 @@ public class TabConfig extends JPanelWithEnablement {
     p.add(btnUpdate, ccL());
     p.add(btnDownload, ccL().wrap());
     epFraggerVer = SwingUtils.createClickableHtml("MSFragger version: N/A");
-    p.add(Fragpipe.rename(epFraggerVer, "msfragger.version-info", PREFIX_CONFIG, true),
+    p.add(Fragpipe.renameNoCache(epFraggerVer, "msfragger.version-info", TAB_PREFIX),
         ccL().spanX().growX().wrap());
     p.add(SwingUtils.createClickableHtml(createFraggerCitationBody()),
         ccL().spanX().growX().wrap());
@@ -520,12 +520,12 @@ public class TabConfig extends JPanelWithEnablement {
 
     final String tip = "Select path to Philosopher binary";
     uiTextBinPhi = UiUtils.uiTextBuilder().ghost(tip).create();
-    FormEntry feBin = fe(uiTextBinPhi, "bin-philosopher", PREFIX_CONFIG)
+    FormEntry feBin = fe(uiTextBinPhi, "bin-philosopher", TAB_PREFIX)
         .tooltip(tip).create();
     p.add(feBin.comp, ccL().split().growX());
 
     JButton btnBrowse = feBin
-        .browseButton("Browse", this::createPhilosopherFilechooser, tip,
+        .browseButton("Browse", tip, this::createPhilosopherFilechooser,
             paths -> paths.stream().findFirst()
                 .ifPresent(bin -> Bus.post(new MessagePhilosopherNewBin(bin.toString()))));
     p.add(btnBrowse, ccL());
@@ -535,7 +535,7 @@ public class TabConfig extends JPanelWithEnablement {
     p.add(btnDownload, ccL().wrap());
 
     epPhiVer = SwingUtils.createClickableHtml("Philosopher version: N/A");
-    p.add(Fragpipe.rename(epPhiVer, "philosopher.version-info", PREFIX_CONFIG, true),
+    p.add(Fragpipe.rename(epPhiVer, "philosopher.version-info", TAB_PREFIX, true),
         ccL().spanX().growX().wrap());
     p.add(SwingUtils.createClickableHtml(createPhilosopherCitationBody()),
         ccL().spanX().growX().wrap());
@@ -548,10 +548,10 @@ public class TabConfig extends JPanelWithEnablement {
     final String tip = "Python 3 is required for Spectral Library generation and DB splitting";
     final String ghost = "Select Python 3 binary (Anaconda Python recommended)";
     uiTextBinPython = UiUtils.uiTextBuilder().ghost(ghost).create();
-    FormEntry fe = fe(uiTextBinPython, "bin-python", PREFIX_CONFIG).tooltip(tip).create();
+    FormEntry fe = fe(uiTextBinPython, "bin-python", TAB_PREFIX).tooltip(tip).create();
 
     p.add(fe.comp, ccL().split().growX());
-    JButton btnBrowse = fe.browseButton("Browse", this::createPythonFilechooser, ghost, paths ->
+    JButton btnBrowse = fe.browseButton("Browse", ghost, this::createPythonFilechooser, paths ->
         paths.stream().findFirst()
             .ifPresent(bin -> Bus.post(new MessagePythonNewBin(bin.toString()))));
     p.add(btnBrowse, ccL());

@@ -4,14 +4,12 @@ import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -23,7 +21,7 @@ public class FormEntry {
 
   public static final String LABEL_NOT_SHOWN = "not-shown";
   public final JComponent comp;
-  public final String propName;
+  public String propName;
   public final String labelText;
   public final String tooltip;
 
@@ -63,8 +61,14 @@ public class FormEntry {
     return l;
   }
 
-  public JButton browseButton(String buttonText, Supplier<JFileChooser> fcProvider,
-      final String ghostText, Consumer<List<Path>> onSuccess) {
+  public JButton browseButton(Supplier<JFileChooser> fcProvider,
+    final String ghostText, Consumer<List<Path>> onSuccess) {
+    return browseButton("Browse", ghostText, fcProvider, onSuccess);
+  }
+
+  public JButton browseButton(String buttonText, final String ghostText,
+      Supplier<JFileChooser> fcProvider,
+      Consumer<List<Path>> onSuccess) {
     if (!(comp instanceof JTextField)) {
       throw new IllegalStateException(
           "Can only call browseButton() method for FormEntries which are JTextField");

@@ -10,8 +10,6 @@ import com.github.chhh.utils.swing.UiRadio;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -204,13 +202,13 @@ public class SpeclibPanel extends JPanelWithEnablement {
         JLabel labelPqpCalFile = fePqpCalFile.label();
         labelPqpCalFile.setName("ui.name.report.speclibgen.easypqp.select-file.label");
         final JButton btnPqpCalFile = fePqpCalFile.browseButton("Browse",
-            () -> {
+            "Select calibration file", () -> {
               JFileChooser fc = FileChooserUtils
                   .create("Calibration file", false, FcMode.FILES_ONLY);
               FileChooserUtils.setPath(fc, Stream.of(uiTextPqpCalFile.getNonGhostText()));
               return fc;
             },
-            "Select calibration file", paths -> {
+            paths -> {
               log.debug("User selected PQP file: {}",
                   paths.stream().map(Path::toString).collect(Collectors.joining(", ")));
               Path path = paths
