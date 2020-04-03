@@ -210,12 +210,17 @@ public class FraggerMigPanel extends JPanel {
   private UiSpinnerDouble uiSpinnerPrecTolHi;
   private UiCombo uiComboPrecursorTolUnits;
   private final Map<String, String> cache = new HashMap<>();
+  private UiText uiTextIsoErr;
 
   public FraggerMigPanel() {
     initMore();
     initPostCreation();
     // register on the bus only after all the components have been created to avoid NPEs
     EventBus.getDefault().register(this);
+  }
+
+  public UiText getUiTextIsoErr() {
+    return uiTextIsoErr;
   }
 
   private void onClickDefautlsNonspecific(ActionEvent e) {
@@ -413,7 +418,7 @@ public class FraggerMigPanel extends JPanel {
       pPeakMatch.add(feCalibrate.label(), new CC().alignX("right"));
       pPeakMatch.add(feCalibrate.comp, new CC());
 
-      UiText uiTextIsoErr = new UiText();
+      uiTextIsoErr = new UiText();
       uiTextIsoErr.setDocument(DocumentFilters.getFilter("[^\\d/-]+"));
       uiTextIsoErr.setText("-1/0/1/2");
       uiTextIsoErr.setColumns(10);
