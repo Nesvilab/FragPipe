@@ -16,6 +16,7 @@ import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
 import com.dmtavt.fragpipe.messages.NoteStartupComplete;
 import com.github.chhh.utils.LogUtils;
+import com.github.chhh.utils.ScreenUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
@@ -26,6 +27,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.HeadlessException;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -144,6 +146,10 @@ public class Fragpipe extends JFrame {
       decorateFrame(fp);
       log.debug("Showing Fragpipe frame");
       fp.setVisible(true);
+
+
+      Rectangle screen = ScreenUtils.getScreenTotalArea(fp);
+      fp.setSize(fp.getWidth(), Math.min((int)(screen.height * 0.8), fp.getHeight()));
       SwingUtils.centerFrame(fp);
     });
   }
