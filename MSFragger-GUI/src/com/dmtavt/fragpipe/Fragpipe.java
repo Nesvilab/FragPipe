@@ -11,6 +11,7 @@ import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiInitDone;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
+import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NotePreviousUiState;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
@@ -36,6 +37,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -226,6 +231,7 @@ public class Fragpipe extends JFrame {
     final JTabbedPane t = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 
     Consumer<UiTab> addTab = tab -> t.addTab(tab.getTitle(), tab.getIcon(), SwingUtils.scroll(tab.getComponent()), tab.getTooltip());
+    Consumer<UiTab> addTabNoScroll = tab -> t.addTab(tab.getTitle(), tab.getIcon(), tab.getComponent(), tab.getTooltip());
 
     TabConfig tabConfig = new TabConfig();
     TabLcmsFiles tabLcmsFiles = new TabLcmsFiles();
@@ -238,7 +244,7 @@ public class Fragpipe extends JFrame {
     tabUmpire = new TabUmpire();
 
     addTab.accept(new UiTab("Config", tabConfig, "/umich/msfragger/gui/icons/150-cogs.png", null));
-    addTab.accept(new UiTab(TAB_NAME_LCMS, tabLcmsFiles, "/umich/msfragger/gui/icons/186-list-numbered.png", null));
+    addTabNoScroll.accept(new UiTab(TAB_NAME_LCMS, tabLcmsFiles, "/umich/msfragger/gui/icons/186-list-numbered.png", null));
     addTab.accept(new UiTab("Database", tabDatabase, "/umich/msfragger/gui/icons/093-drawer.png", null));
     addTab.accept(new UiTab("MSFragger", tabMsfragger, "/umich/msfragger/gui/icons/bolt-16.png", null));
     addTab.accept(new UiTab("Downstream", tabDownstream, "/umich/msfragger/gui/icons/348-filter.png", null));
@@ -487,5 +493,22 @@ public class Fragpipe extends JFrame {
     String message = String.format("No subscribers for message type [%s]", m.originalEvent.getClass().getSimpleName());
     log.debug(message);
     //System.err.println(message);
+  }
+
+  /** Places to search for ext folder with reader libs. */
+  public static List<Path> getExtBinSearchPaths() {
+    NoteConfigMsfragger conf = Bus.getStickyEvent(NoteConfigMsfragger.class);
+    if (conf == null || !conf.isValid())
+      return Collections.emptyList();
+    return Collections.singletonList(Paths.get(conf.path));
+  }
+
+  public static Properties props() {
+    NoteFragpipeProperties p = Bus.getStickyEvent(NoteFragpipeProperties.class);
+    if (p == null || p.props == null) {
+      log.warn("Fragpipe properties sticky note was empty, should not happen");
+      return ThisAppProps.getLocalProperties();
+    }
+    return p.props;
   }
 }

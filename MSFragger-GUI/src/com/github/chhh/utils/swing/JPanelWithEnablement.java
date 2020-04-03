@@ -45,4 +45,6 @@ public class JPanelWithEnablement extends JPanel {
   public Map<String, String> toMap() {
     return SwingUtils.valuesToMap(this, (name) -> !name.startsWith("Spinner.formattedTextField"));
   }
+
+
 }

@@ -84,6 +84,8 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import net.miginfocom.layout.LC;
+import net.miginfocom.swing.MigLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
@@ -351,6 +353,19 @@ public class SwingUtils {
   public static JEditorPane createClickableHtml(String text) {
     return createClickableHtml(text, true, true, null);
   }
+
+  /**
+   * Creates a non-editable JEditorPane that has the same styling as default JLabels. Hyperlink
+   * clicks are opened using the default browser.
+   *
+   * @param applyMakeHtml Apply {@link #makeHtml(String)} function before creating Editor Pane.
+   * @param text Your text to be displayed in HTML context. Don't add the opening and closing HTML
+   * tags. To include links use the regular A tags.
+   */
+  public static JEditorPane createClickableHtml(boolean applyMakeHtml, String text) {
+    return createClickableHtml(applyMakeHtml ? makeHtml(text) : text, true, true, null);
+  }
+
 
   public static String createCssStyle() {
     return createCssStyle(null);

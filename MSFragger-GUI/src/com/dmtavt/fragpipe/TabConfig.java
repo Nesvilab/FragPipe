@@ -242,8 +242,7 @@ public class TabConfig extends JPanelWithEnablement {
 
   private JPanel newMigPanel() {
     //return new JPanel(new MigLayout(new LC().fillX().insetsAll("0px")));
-    return new JPanel(
-        new MigLayout(new LC().fillX())); // TODO: check if setting insets makes a big difference
+    return new JPanel(new MigLayout(new LC().fillX()));
   }
 
   private void actionMsfraggerUpdate(ActionEvent evt) {
