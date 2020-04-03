@@ -155,7 +155,7 @@ public class SpecLibGen2 {
     }
   }
 
-  public void checkPythonEasypqp(PyInfo pi) throws ValidationException {
+  private void checkPythonEasypqp(PyInfo pi) throws ValidationException {
     Map<Installed, List<PythonModule>> modules = pi.modulesByStatus(REQUIRED_FOR_EASYPQP);
     if (modules.keySet().stream().anyMatch(installed -> Installed.YES != installed)) {
       throw new ValidationException("Missing Python EasyPQP module");

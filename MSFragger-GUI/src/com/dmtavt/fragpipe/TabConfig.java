@@ -105,7 +105,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private void init() {
-    this.setLayout(new MigLayout(new LC().fillX().debug()));
+    this.setLayout(new MigLayout(new LC().fillX()));
     add(createPanelTopButtons(), new CC().growX().wrap());
     add(createPanelFragger(), new CC().growX().wrap());
     add(createPanelPhilosopher(), new CC().growX().wrap());
@@ -465,8 +465,13 @@ public class TabConfig extends JPanelWithEnablement {
     }
     log.debug("Got NoteConfigSpeclibgen without exceptions");
 
-    epSpeclibgenErrParent = epSpeclibgenErr.getParent();
-    epSpeclibgenErrParent.remove(epSpeclibgenErr);
+    if (m.instance.isEasypqpOk()) {
+      epSpeclibgenErrParent = epSpeclibgenErr.getParent();
+      epSpeclibgenErrParent.remove(epSpeclibgenErr);
+    } else {
+      SwingUtils.setJEditorPaneContent(epSpeclibgenErr, "Python package EasyPQP not found");
+    }
+
     SwingUtils.setJEditorPaneContent(epSpeclibgenText, true, textSpeclibgenEnabled(true));
     this.revalidate();
   }
