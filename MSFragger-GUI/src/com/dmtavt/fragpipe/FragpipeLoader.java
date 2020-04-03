@@ -1,6 +1,6 @@
 package com.dmtavt.fragpipe;
 
-import com.dmtavt.fragpipe.api.BalloonTips;
+import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.messages.MessageLoadPreviousUiState;
@@ -69,7 +69,7 @@ public class FragpipeLoader {
 
   private void initApplication() {
     Bus.post(new MessageLoaderUpdate("Loading classes"));
-    log.debug("Loading BalloonTips class: {}", BalloonTips.class.getCanonicalName()); // do not remove, triggers static init
+    log.debug("Loading BalloonTips class: {}", Notifications.class.getCanonicalName()); // do not remove, triggers static init
     ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
     Locale.setDefault(Locale.ROOT);
 

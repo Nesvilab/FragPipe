@@ -1,13 +1,20 @@
 package com.dmtavt.fragpipe.api;
 
+import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageBalloon;
+import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
+import com.dmtavt.fragpipe.messages.MessageShowException;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.BalloonTipStyle;
 import net.java.balloontip.styles.RoundedBalloonStyle;
@@ -16,9 +23,10 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BalloonTips {
-  private static final Logger log = LoggerFactory.getLogger(BalloonTips.class);
-//  private static final BalloonTips INSTANCE;
+public class Notifications {
+
+  private static final Logger log = LoggerFactory.getLogger(Notifications.class);
+  //  private static final BalloonTips INSTANCE;
   public static final Color BG_COLOR = Color.WHITE;
   public static final BalloonTipStyle STYLE = new RoundedBalloonStyle(5, 5, BG_COLOR, Color.BLACK);
   /** From component id to tip */
@@ -30,7 +38,7 @@ public class BalloonTips {
 //    Bus.register(INSTANCE);
 //  }
 
-  public BalloonTips() {
+  public Notifications() {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
@@ -75,9 +83,31 @@ public class BalloonTips {
 
   private void remove(MessageBalloon m) {
     BalloonTip tip = tips.remove(m.topic);
-    if (tip == null)
+    if (tip == null) {
       return;
+    }
     tip.closeBalloon();
     tip.setVisible(false);
+  }
+
+  /**
+   * Shows {@link com.dmtavt.fragpipe.exceptions.ValidationException}s as balloon tips. All other
+   * exception classes will be shown as error dialog.
+   */
+  public static void showException(String topic, JComponent comp, Throwable e,
+      boolean showStacktrace) {
+    if (e instanceof ValidationException) {
+      log.debug("Got ValidationException, showing as balloon for topic {}", topic);
+      Bus.post(new MessageBalloon(topic, comp, SwingUtils.makeHtml(e.getMessage())));
+    } else {
+      JScrollPane content = SwingUtils
+          .createClickableHtmlInScroll(true, e.getMessage(), new Dimension(400, 50));
+      SwingUtils.showErrorDialogWithStacktrace(e, comp, content, showStacktrace);
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void onShowException(MessageShowException m) {
+    showException(m.topic, m.comp, m.ex, m.showStacktrace);
   }
 }

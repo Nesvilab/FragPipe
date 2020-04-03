@@ -366,6 +366,19 @@ public class SwingUtils {
     return createClickableHtml(applyMakeHtml ? makeHtml(text) : text, true, true, null);
   }
 
+  public static JScrollPane createClickableHtmlInScroll(boolean applyMakeHtml, String text) {
+    return createClickableHtmlInScroll(applyMakeHtml, text, null);
+  }
+
+  public static JScrollPane createClickableHtmlInScroll(boolean applyMakeHtml, String text, Dimension preferredEditorPaneSize) {
+    JEditorPane ep = createClickableHtml(applyMakeHtml ? makeHtml(text) : text, true,
+        true, null);
+    ep.setPreferredSize(preferredEditorPaneSize);
+    JScrollPane s = new JScrollPane();
+    s.setViewportView(ep);
+    return s;
+  }
+
 
   public static String createCssStyle() {
     return createCssStyle(null);
@@ -873,11 +886,14 @@ public class SwingUtils {
   /**
    * @param parent Can be null.
    */
-  public static void showErrorDialogWithStacktrace(Throwable e, Component parent, boolean doShowStacktrace) {
+  public static void showErrorDialogWithStacktrace(Throwable e, Component parent, JComponent content, boolean doShowStacktrace) {
     JPanel panel = new JPanel();
     panel.setLayout(new BorderLayout());
     panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-    panel.add(new JLabel("Something unexpected happened (" + e.getClass().getSimpleName() + ")"), BorderLayout.PAGE_START);
+    if (content == null) {
+      content = new JLabel("Something unexpected happened (" + e.getClass().getSimpleName() + ")");
+    }
+    panel.add(content, BorderLayout.PAGE_START);
     JTextArea notesArea = new JTextArea(40, 80);
     if (doShowStacktrace) {
       notesArea.setText(stacktraceToString(e));
@@ -893,6 +909,14 @@ public class SwingUtils {
     //JOptionPane.showMessageDialog(frame, panel, "Error", JOptionPane.ERROR_MESSAGE);
     makeDialogResizable(panel);
     showDialog(parent, panel);
+  }
+
+
+  /**
+   * @param parent Can be null.
+   */
+  public static void showErrorDialogWithStacktrace(Throwable e, Component parent, boolean doShowStacktrace) {
+    showErrorDialogWithStacktrace(e, parent, null, doShowStacktrace);
   }
 
   /**

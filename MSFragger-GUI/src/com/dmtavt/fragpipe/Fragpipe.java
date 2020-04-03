@@ -1,6 +1,6 @@
 package com.dmtavt.fragpipe;
 
-import com.dmtavt.fragpipe.api.BalloonTips;
+import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.UiTab;
@@ -70,7 +70,7 @@ public class Fragpipe extends JFrame {
 
   public static final String UI_STATE_CACHE_FN = "fragpipe-ui.cache";
   private static final Logger log = LoggerFactory.getLogger(Fragpipe.class);
-  public final BalloonTips tips = new BalloonTips();
+  public final Notifications tips = new Notifications();
   public static final Color COLOR_GREEN = new Color(105, 193, 38);
   public static final Color COLOR_GREEN_DARKER = new Color(104, 184, 55);
   public static final Color COLOR_GREEN_DARKEST = new Color(82, 140, 26);

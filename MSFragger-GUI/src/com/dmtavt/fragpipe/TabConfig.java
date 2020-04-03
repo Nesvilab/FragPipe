@@ -2,7 +2,7 @@ package com.dmtavt.fragpipe;
 
 import static com.dmtavt.fragpipe.Fragpipe.fe;
 
-import com.dmtavt.fragpipe.api.BalloonTips;
+import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
@@ -200,7 +200,7 @@ public class TabConfig extends JPanelWithEnablement {
     sb.append(
         String.format("There is a newer version of MSFragger available [%s].<br>\n", m.newVersion));
 
-    JEditorPane ep = SwingUtils.createClickableHtml(sb.toString(), BalloonTips.BG_COLOR);
+    JEditorPane ep = SwingUtils.createClickableHtml(sb.toString(), Notifications.BG_COLOR);
     JPanel content = new JPanel(new BorderLayout());
     content.setBackground(ep.getBackground());
 
