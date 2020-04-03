@@ -28,11 +28,13 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
+import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.RandomUtils;
@@ -143,13 +145,6 @@ public class TabLcmsFiles extends JPanelWithEnablement {
     btnFilesClear = button("Clear files", MessageLcmsClearFiles::new);
     btnFilesClear.setEnabled(false);
 
-    p.add(btnFilesAddFiles, mu.ccL().split());
-    p.add(btnFilesAddFolder, mu.ccL());
-    p.add(btnFilesRemove, mu.ccL());
-    p.add(btnFilesClear, mu.ccL().wrap());
-
-    p.add(new JLabel("Assign files to Experiments/Groups (select rows to activate action buttons):"), mu.ccL().spanX().wrap());
-
     btnGroupsConsecutive = button("Consecutive", () -> new MessageLcmsGroupAction(Type.CONSECUTIVE));
     btnGroupsByParentDir = button("By parent directory", () -> new MessageLcmsGroupAction(Type.BY_PARENT_DIR));
     btnGroupsByFilename = button("By file name", () -> new MessageLcmsGroupAction(Type.BY_FILE_NAME));
@@ -159,9 +154,27 @@ public class TabLcmsFiles extends JPanelWithEnablement {
     tableRawFilesFileDrop = makeFileDrop();
 
     createFileTable();
+
+    add(p, btnFilesAddFiles).split();
+    add(p, btnFilesAddFolder);
+    add(p, btnFilesRemove);
+    add(p, btnFilesClear).wrap();
+    add(p, new JLabel("Assign files to Experiments/Groups (select rows to activate action buttons):")).spanX().wrap();
+    add(p, btnGroupsConsecutive).split();
+    add(p, btnGroupsByParentDir);
+    add(p, btnGroupsByFilename);
+    add(p, btnGroupsAssignToSelected);
+    add(p, btnGroupsClear).wrap();
+
     p.add(scrollPaneRawFiles, mu.ccGx().wrap());
 
     return p;
+  }
+
+  private CC add(JComponent host, JComponent child) {
+    CC cc = mu.ccL();
+    host.add(child, cc);
+    return cc;
   }
 
   private JButton button(String text, Supplier<Object> message) {
