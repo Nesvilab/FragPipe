@@ -154,7 +154,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   private static final org.slf4j.Logger log = LoggerFactory.getLogger(MsfraggerGuiFrame.class);
   private final Object procRunLock = new Object();
 
-  FraggerMigPanel fraggerMigPanel;
+  public FraggerMigPanel fraggerMigPanel;
   TextConsole console;
   ExecutorService exec = Executors.newFixedThreadPool(1);;
 

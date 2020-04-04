@@ -18,6 +18,8 @@ package com.github.chhh.utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +50,26 @@ public class PythonInfo {
   private String version;
   private int majorVersion;
   private Map<PythonModule, Installed> modules;
+
+  public String validateCalFile(final Path path) {
+    ProcessBuilder pb = new ProcessBuilder(command, "-c", "import pandas as pd; import sys\n" +
+            "rt_referencefile = sys.argv[1]\n" +
+            "rt_reference_run = pd.read_csv(rt_referencefile, index_col=False, sep='\\t')\n" +
+            "if not {'modified_peptide', 'precursor_charge', 'irt'}.issubset(rt_reference_run.columns):\n" +
+            "\tprint(\"Reference iRT file has wrong format. Requires columns 'modified_peptide', 'precursor_charge' and 'irt'.\")\n" +
+            "\tsys.exit(1)\n" +
+            "print(\"ok\")",
+            path.toString());
+    final String s;
+    try {
+      Process proc = pb.redirectErrorStream(true).start();
+      java.io.InputStream inputStream = proc.getInputStream();
+      s = new java.util.Scanner(inputStream).useDelimiter("\\A").next();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    return s;
+  }
 
   private PythonInfo() {
     reset(false);

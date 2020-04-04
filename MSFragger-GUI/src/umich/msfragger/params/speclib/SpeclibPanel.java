@@ -1,6 +1,7 @@
 package umich.msfragger.params.speclib;
 
 import com.dmtavt.fragpipe.exceptions.ValidationException;
+import com.github.chhh.utils.PythonInfo;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.UiCheck;
@@ -12,6 +13,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -271,7 +273,10 @@ public class SpeclibPanel extends JPanelWithEnablement {
   }
 
   private void validateCalFile(Path path) throws ValidationException {
-    throw new ValidationException("GUOCI - implement"); // TODO: GUOCI - check cal file content
+    final String s = PythonInfo.get().validateCalFile(path);
+    if (s.trim().endsWith("ok"))
+      return;
+    throw new ValidationException(s);
   }
 
   private static CC ccL() {
@@ -288,6 +293,18 @@ public class SpeclibPanel extends JPanelWithEnablement {
 
   public boolean useEasypqp() {
     return SwingUtils.isEnabledAndChecked(uiRadioUseEasypqp);
+  }
+
+  public String getEasypqpCalOption() {
+    return new String[]{"noiRT", "iRT", "ciRT", "a tsv file"}[uiComboPqpCal.getSelectedIndex()];
+  }
+
+  public Path getEasypqpCalFilePath() {
+    return Paths.get(uiTextPqpCalFile.getNonGhostText());
+  }
+
+  public String getEasypqpFileType() {
+    return (String)uiComboPqpType.getSelectedItem();
   }
 
   public boolean useSpectrast() {

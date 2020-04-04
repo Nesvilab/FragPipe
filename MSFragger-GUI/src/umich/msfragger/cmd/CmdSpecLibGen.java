@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
+import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.params.speclib.SpecLibGen;
 import com.github.chhh.utils.PythonInfo;
 import com.github.chhh.utils.UsageTrigger;
@@ -136,10 +137,12 @@ public class CmdSpecLibGen extends CmdBase {
         cmd.add("True"); // overwrite (true/false), optional arg
         cmd.add("usePhilosopher.useBin()"); // philosopher binary path (not needed for easyPQP)
         cmd.add("use_easypqp"); // philosopher binary path (not needed for easyPQP)
-        cmd.add("noiRT"); // retention time alignment options
-//        cmd.add("iRT"); // retention time alignment options
-//        cmd.add("ciRT"); // retention time alignment options
-//        cmd.add("ciRT"); // retention time alignment options
+        final MsfraggerGuiFrame msgf = (MsfraggerGuiFrame) comp;
+        final String cal = msgf.getSpeclibPanel1().getEasypqpCalOption();
+        final Path calTsvPath = msgf.getSpeclibPanel1().getEasypqpCalFilePath();
+        cmd.add(cal.equals("a tsv file") ? calTsvPath.toString() : cal); // retention time alignment options
+        msgf.getSpeclibPanel1().getEasypqpFileType();
+        cmd.add(String.valueOf(msgf.fraggerMigPanel.getThreads()));
       } else {
         cmd.add(fastaPath);
         cmd.add(groupWd.toString()); // this is "Pep xml directory"
