@@ -13,8 +13,6 @@ import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -49,10 +47,10 @@ public class TabDatabase extends JPanelWithEnablement {
   }
 
   private void init() {
-    this.setLayout(new MigLayout(new LC().fill()));
+    this.setLayout(new MigLayout(new LC().fillX()));
 
     JPanel p = mu.panel(false, "FASTA sequence database");
-    uiTextDbPath = UiUtils.uiTextBuilder().filter("[\\/:*?\"|]").create();
+    uiTextDbPath = UiUtils.uiTextBuilder().filter("[\"'|<>]").cols(5).create();
     uiTextDbPath.addFocusListener(new ContentChangedFocusAdapter(uiTextDbPath, (s, s2) -> {
       Bus.post(new MessageFastaNewPath(s2));
     }));
@@ -62,7 +60,7 @@ public class TabDatabase extends JPanelWithEnablement {
         paths -> Bus.post(new MessageFastaNewPath(paths.get(0).toString())));
 
     mu.add(p, feDbPath.label()).split();
-    mu.add(p, feDbPath.comp).pushX();
+    mu.add(p, feDbPath.comp).growX();
     mu.add(p, btnBrowse).wrap();
 
     mu.add(this, p).growX().wrap();
