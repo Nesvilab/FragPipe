@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import time
+
 use_philosopher_fo: bool = not True
 delete_temp_files: bool = True
 
@@ -33,6 +35,7 @@ class Irt_choice(enum.Enum):
 	userRT = enum.auto()
 
 if use_easypqp:
+	nproc = int(sys.argv[9]) if len(sys.argv) >= 10 else len(os.sched_getaffinity(0))
 	no_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'noirt'
 	is_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'irt'
 	is_ciRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'cirt'
@@ -640,7 +643,11 @@ Commands to execute:
 {allcmds}
 {'~' * 69}''', flush=True)
 	(output_directory / "cmds.txt").write_text(allcmds)
-	procs=[subprocess.Popen(e, cwd=os_fspath(output_directory)) for e in easypqp_convert_cmds]
+	procs = []
+	for e in easypqp_convert_cmds:
+		while sum(p.poll() is None for p in procs) >= nproc:
+			time.sleep(1)
+		procs.append(subprocess.Popen(e, cwd=os_fspath(output_directory)))
 	for p in procs:
 		p.wait()
 	assert all(p.returncode==0 for p in procs)

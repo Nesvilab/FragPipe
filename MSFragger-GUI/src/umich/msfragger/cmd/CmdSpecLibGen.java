@@ -141,8 +141,8 @@ public class CmdSpecLibGen extends CmdBase {
         final String cal = msgf.getSpeclibPanel1().getEasypqpCalOption();
         final Path calTsvPath = msgf.getSpeclibPanel1().getEasypqpCalFilePath();
         cmd.add(cal.equals("a tsv file") ? calTsvPath.toString() : cal); // retention time alignment options
-        msgf.getSpeclibPanel1().getEasypqpFileType();
         cmd.add(String.valueOf(msgf.fraggerMigPanel.getThreads()));
+        msgf.getSpeclibPanel1().getEasypqpFileType();
       } else {
         cmd.add(fastaPath);
         cmd.add(groupWd.toString()); // this is "Pep xml directory"
