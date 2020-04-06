@@ -12,7 +12,10 @@ import com.dmtavt.fragpipe.messages.MessageLcmsRemoveSelected;
 import com.dmtavt.fragpipe.messages.MessageType;
 import com.github.chhh.utils.FileDrop;
 import com.github.chhh.utils.PathUtils;
+import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FileChooserUtils;
+import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCombo;
@@ -20,16 +23,22 @@ import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Dimension;
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import net.miginfocom.layout.LC;
@@ -44,8 +53,10 @@ import umich.msfragger.cmd.CmdMsfragger;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsInputFileTable;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils;
+import umich.msfragger.gui.MsfraggerGuiFrameUtils.LcmsFileAddition;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
+import umich.msfragger.params.ThisAppProps;
 
 public class TabWorkflow extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(TabWorkflow.class);
@@ -132,6 +143,130 @@ public class TabWorkflow extends JPanelWithEnablement {
     return p;
   }
 
+  private void logObjectType(Object m) {
+    log.debug("Got {}", m.getClass().getSimpleName());
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageLcmsAddFiles m) {
+    logObjectType(m);
+
+    List<Path> searchPaths = Fragpipe.getExtBinSearchPaths();
+    final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(searchPaths);
+    Predicate<File> supportedFilePredicate = CmdMsfragger.getSupportedFilePredicate(searchPaths);
+    JFileChooser fc = FileChooserUtils
+        .create("Choose raw data files", "Select", true, FcMode.ANY, true,
+            ff);
+    tableModelRawFiles.dataCopy();
+    FileChooserUtils.setPath(fc, Stream.of(ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN)));
+
+    int result = fc.showDialog(this, "Select");
+    if (JFileChooser.APPROVE_OPTION != result)
+      return;
+    final List<Path> paths = Arrays.stream(fc.getSelectedFiles())
+        .filter(supportedFilePredicate)
+        .map(File::toPath).collect(Collectors.toList());
+    if (paths.isEmpty()) {
+      JOptionPane.showMessageDialog(this,
+          "None of selected files/folders are supported", "Warning", JOptionPane.WARNING_MESSAGE);
+      return;
+    } else {
+      Bus.post(new MessageLcmsFilesAdded(paths));
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageLcmsFilesAdded m) {
+    // save locations
+    String savePath = m.recursiveAdditionRoot != null ? m.recursiveAdditionRoot.toString() : m.paths.get(0).toString();
+    ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, savePath);
+
+    LcmsFileAddition lfa = new LcmsFileAddition(m.paths, new ArrayList<>(m.paths));
+    MsfraggerGuiFrameUtils.processAddedLcmsPaths(lfa, this, Fragpipe::getExtBinSearchPaths);
+
+    // add the files
+    List<InputLcmsFile> toAdd = lfa.toAdd.stream()
+        .map(p -> new InputLcmsFile(p, ThisAppProps.DEFAULT_LCMS_EXP_NAME))
+        .collect(Collectors.toList());
+    if (!toAdd.isEmpty()) {
+      tableModelRawFiles.dataAddAll(toAdd);
+      postFileListUpdate();
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageLcmsAddFolder m) {
+    logObjectType(m);
+
+    final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(Fragpipe.getExtBinSearchPaths());
+    JFileChooser fc = FileChooserUtils.create("Select a folder with LC/MS files (searched recursively)", "Select",
+        true, FcMode.ANY, true);
+    FileChooserUtils.setPath(fc, Stream.of(ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN)));
+
+    String lastPath = ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN);
+    if (!StringUtils.isNullOrWhitespace(lastPath)) {
+      try {
+        Path p = Paths.get(lastPath);
+        fc.setSelectedFile(p.toFile());
+      } catch (Exception ignore) {}
+    }
+
+    int confirmation = fc.showOpenDialog(this);
+
+    if (confirmation != JFileChooser.APPROVE_OPTION)
+      return;
+
+    final Predicate<File> pred = CmdMsfragger.getSupportedFilePredicate(Fragpipe.getExtBinSearchPaths());
+    File[] selectedFiles = fc.getSelectedFiles();
+    List<Path> paths = new ArrayList<>();
+    for (File f : selectedFiles) {
+      PathUtils.traverseDirectoriesAcceptingFiles(f, pred, paths, false);
+    }
+
+    if (selectedFiles.length > 0 && !paths.isEmpty()) {
+      EventBus.getDefault().post(new MessageLcmsFilesAdded(paths, selectedFiles[0].toPath()));
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageLcmsRemoveSelected m) {
+    logObjectType(m);
+
+    final List<InputLcmsFile> toRemove = new ArrayList<>();
+    Arrays.stream(this.tableRawFiles.getSelectedRows())
+        .map(tableRawFiles::convertRowIndexToModel)
+        .boxed()
+        .forEach(i -> toRemove.add(tableModelRawFiles.dataGet(i)));
+    tableRawFiles.getSelectionModel().clearSelection();
+
+    if (!toRemove.isEmpty()) {
+      tableModelRawFiles.dataRemoveAll(toRemove);
+      postFileListUpdate();
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageLcmsClearFiles m) {
+    logObjectType(m);
+    tableModelRawFiles.dataClear();
+    postFileListUpdate();
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageLcmsFilesList m) {
+    if (m.type == MessageType.REQUEST) {
+      Bus.post(new MessageLcmsFilesList(MessageType.RESPONSE, tableModelRawFiles.dataCopy()));
+    }
+  }
+
+  private void postFileListUpdate() {
+    ArrayList<InputLcmsFile> data = tableModelRawFiles.dataCopy();
+    if (!data.isEmpty()) {
+      ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, data.get(0).getPath().toString());
+    }
+    Bus.post(new MessageLcmsFilesList(MessageType.UPDATE, data));
+  }
+
   private JPanel createPanalLcmsFiles() {
     JPanel p = mu.panel(false, "Input LC/MS Files");
 
@@ -207,7 +342,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void onLcmsGroupAction(MessageLcmsGroupAction m) {
+  public void on(MessageLcmsGroupAction m) {
     log.debug("Got MessageLcmsGroupAction of type: {}", m.type.toString());
   }
 }

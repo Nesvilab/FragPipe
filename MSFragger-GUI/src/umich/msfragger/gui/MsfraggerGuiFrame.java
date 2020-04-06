@@ -665,7 +665,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, savePath);
 
     LcmsFileAddition lfa = new LcmsFileAddition(m.paths, new ArrayList<>(m.paths));
-    MsfraggerGuiFrameUtils.processAddedLcmsPaths(lfa, this);
+    MsfraggerGuiFrameUtils.processAddedLcmsPaths(lfa, this, this::getExtBinSearchPaths);
 
     // add the files
     tableModelRawFiles.dataAddAll(
@@ -2083,8 +2083,6 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         .map(tableRawFiles::convertRowIndexToModel)
         .boxed()
         .forEach(i -> toRemove.add(tableModelRawFiles.dataGet(i)));
-
-    // TODO: convert to selected model
 
     tableRawFiles.getSelectionModel().clearSelection();
     tableModelRawFiles.dataRemoveAll(toRemove);

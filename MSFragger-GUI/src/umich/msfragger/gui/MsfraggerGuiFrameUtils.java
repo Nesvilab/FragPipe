@@ -2,6 +2,7 @@ package umich.msfragger.gui;
 
 import static umich.msfragger.params.fragger.FraggerMigPanel.PROP_FILECHOOSER_LAST_PATH;
 
+import com.dmtavt.fragpipe.api.IPathsProvider;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger.Version;
 import com.github.chhh.utils.StringUtils;
@@ -1652,8 +1653,8 @@ public class MsfraggerGuiFrameUtils {
   }
 
   public static class LcmsFileAddition {
-    List<Path> paths;
-    List<Path> toAdd;
+    public List<Path> paths;
+    public List<Path> toAdd;
 
     public LcmsFileAddition(List<Path> paths, List<Path> toAdd) {
       this.paths = paths;
@@ -1661,9 +1662,9 @@ public class MsfraggerGuiFrameUtils {
     }
   }
 
-  public static void processAddedLcmsPaths(LcmsFileAddition files, MsfraggerGuiFrame guiFrame) {
+  public static void processAddedLcmsPaths(LcmsFileAddition files, Component parent, IPathsProvider extBinSearchPaths) {
     // vet/check input LCMS files for bad naming
-    final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(guiFrame.getExtBinSearchPaths());
+    final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(extBinSearchPaths.get());
     final HashMap<Path, Set<String>> reasonsDir = new HashMap<>();
     final HashMap<Path, Set<String>> reasonsFn = new HashMap<>();
     //final HashMap<String, List<Path>> reasonsRev = new HashMap<>();
@@ -1729,7 +1730,7 @@ public class MsfraggerGuiFrameUtils {
       }
 
       int confirmation = JOptionPane
-          .showOptionDialog(guiFrame, panel, "Add these files?",
+          .showOptionDialog(parent, panel, "Add these files?",
               JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
 
       switch (confirmation) {
@@ -1741,7 +1742,7 @@ public class MsfraggerGuiFrameUtils {
           files.toAdd = files.toAdd.stream().filter(path -> !path2reasons.containsKey(path)).collect(Collectors.toList());
           break;
         case 3: // rename files
-          int confirm1 = SwingUtils.showConfirmDialog(guiFrame, new JLabel(
+          int confirm1 = SwingUtils.showConfirmDialog(parent, new JLabel(
               "<html>Attempt to rename files without moving them.<br/>\n" +
                   "This is a non-reversible operation.<br/><br/>\n" +
                   "We'll show you a preview before proceeding with actual renaming.<br/>\n" +
@@ -1753,7 +1754,7 @@ public class MsfraggerGuiFrameUtils {
               .collect(Collectors.toMap(Function.identity(), InputLcmsFile::renameBadFile));
           Set<Path> uniqueRenamed = new HashSet<>(toRename.values());
           if (uniqueRenamed.size() != reasonsFn.size()) {
-            SwingUtils.showDialog(guiFrame, new JLabel(
+            SwingUtils.showDialog(parent, new JLabel(
                     "<html>Renaming given files according to our scheme would result<br/>\n" +
                         "in clashing file paths. Renaming cancelled. Consider renaming manually.<br/>\n" +
                         "It is preferable to not have spaces in file names, not have more than one dot<br/>\n" +
@@ -1775,7 +1776,7 @@ public class MsfraggerGuiFrameUtils {
                 "Renaming cancelled."), BorderLayout.NORTH);
 
             pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(existingRenames)));
-            SwingUtils.showDialog(guiFrame, pane,
+            SwingUtils.showDialog(parent, pane,
                 "Not safe to rename files", JOptionPane.WARNING_MESSAGE);
             return;
           }
@@ -1784,7 +1785,7 @@ public class MsfraggerGuiFrameUtils {
           JPanel pane = new JPanel(new BorderLayout());
           pane.add(new JLabel("<html>Proposed renaming scheme, do you agree?<br/>\n"));
           pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(toRename)));
-          int confirm2 = SwingUtils.showConfirmDialog(guiFrame, pane);
+          int confirm2 = SwingUtils.showConfirmDialog(parent, pane);
           if (JOptionPane.YES_OPTION != confirm2) {
             return;
           }
@@ -1805,7 +1806,7 @@ public class MsfraggerGuiFrameUtils {
           }
         };
 
-        SwingUtils.DialogAndThread dat = SwingUtils.runThreadWithProgressBar("Renaming files", guiFrame, runnable);
+        SwingUtils.DialogAndThread dat = SwingUtils.runThreadWithProgressBar("Renaming files", parent, runnable);
         dat.thread.start();
         dat.dialog.setVisible(true);
 
@@ -1813,7 +1814,7 @@ public class MsfraggerGuiFrameUtils {
           JPanel pane = new JPanel(new BorderLayout());
           pane.add(new JLabel("<html>Unfortunately could not rename some of the files:<br/>"), BorderLayout.NORTH);
           pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(couldNotRename)), BorderLayout.CENTER);
-          SwingUtils.showDialog(guiFrame, pane, "Renaming failed", JOptionPane.WARNING_MESSAGE);
+          SwingUtils.showDialog(parent, pane, "Renaming failed", JOptionPane.WARNING_MESSAGE);
           return;
         }
 

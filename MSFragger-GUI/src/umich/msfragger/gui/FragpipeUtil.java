@@ -215,7 +215,7 @@ public class FragpipeUtil {
                     }
                   }
                 } else {
-                  log.error("unknown event kind: " + kind.toString());
+                  log.error("DB Download: Unknown event kind: " + kind.toString());
                 }
               }
 
