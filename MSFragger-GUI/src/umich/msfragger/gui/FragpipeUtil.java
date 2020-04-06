@@ -4,9 +4,14 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
+import com.dmtavt.fragpipe.Fragpipe;
+import com.github.chhh.utils.swing.FileChooserUtils;
+import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.Window;
 import java.io.File;
 import java.nio.file.*;
 import java.nio.file.WatchEvent.Kind;
@@ -34,12 +39,23 @@ public class FragpipeUtil {
   private static final Logger log = LoggerFactory.getLogger(FragpipeUtil.class);
   private FragpipeUtil() {}
 
+
   /**
    * Call from EDT only.
    *
    * @param binPhi Philosopher binary path.
    */
   public static void downloadDb(Component parent, String binPhi) throws Exception {
+    downloadDb(parent, binPhi);
+  }
+
+  /**
+   * Call from EDT only.
+   *
+   * @param binPhi Philosopher binary path.
+   * @param hintSaveLocation Can be null, if not null - used to set file chooser init path.
+   */
+  public static void downloadDb(Component parent, String binPhi, String hintSaveLocation) throws Exception {
     Set<String> searchPaths = new LinkedHashSet<>();
     searchPaths.add(".");
     searchPaths.addAll(PathUtils.getClasspathDirs());
@@ -53,17 +69,10 @@ public class FragpipeUtil {
       throw new IllegalStateException("Philosopher binary not found");
     }
 
-    JFileChooser fc = new JFileChooser();
-    String load = ThisAppProps.load(ThisAppProps.PROP_DB_SAVE_PATH);
-    if (load != null) {
-      fc.setCurrentDirectory(new File(load));
-    }
-    fc.setMultiSelectionEnabled(false);
-    fc.setAcceptAllFileFilterUsed(true);
-    fc.setApproveButtonText("Select directory");
-    fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-    fc.setDialogTitle("Download location");
-    if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+    JFileChooser fc = FileChooserUtils
+        .create("Download to directory", "Select directory", false, FcMode.DIRS_ONLY, true);
+    FileChooserUtils.setPath(fc, Stream.of(hintSaveLocation, ThisAppProps.load(ThisAppProps.PROP_DB_SAVE_PATH)));
+    if (fc.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
       Path dir = fc.getSelectedFile().toPath();
 
       ThisAppProps.save(ThisAppProps.PROP_DB_SAVE_PATH, dir.toAbsolutePath().normalize().toString());
@@ -71,16 +80,16 @@ public class FragpipeUtil {
       // download db
       //DbIdDialog dialog = new DbIdDialog();
       //dialog.setVisible(true);
-      DbUniprotIdPanel dbUniprotIdPanel = new DbUniprotIdPanel();
-      int confirmation = SwingUtils.showConfirmDialog(parent, dbUniprotIdPanel);
+      DbUniprotIdPanel p = new DbUniprotIdPanel();
+      int confirmation = SwingUtils.showConfirmDialog(parent, p);
       if (JOptionPane.OK_OPTION == confirmation) {
-        final String uniprotId = dbUniprotIdPanel.getSelectedUniprotId();
+        final String uniprotId = p.getSelectedUniprotId();
         log.info("Database for download ID: {}", uniprotId);
-        final boolean isReviewed = dbUniprotIdPanel.isReviewed();
-        final boolean isAddContaminants = dbUniprotIdPanel.isAddContaminants();
-        final boolean isAddIsoforms = dbUniprotIdPanel.isAddIsoforms();
-        final boolean isAddDecoys = dbUniprotIdPanel.isAddDecoys();
-        final boolean isAddIrt = dbUniprotIdPanel.isAddIrt();
+        final boolean isReviewed = p.isReviewed();
+        final boolean isAddContaminants = p.isAddContaminants();
+        final boolean isAddIsoforms = p.isAddIsoforms();
+        final boolean isAddDecoys = p.isAddDecoys();
+        final boolean isAddIrt = p.isAddIrt();
 
         // philosopher workspace --init
         // philosopher database --reviewed --contam --id UP000005640
@@ -100,7 +109,7 @@ public class FragpipeUtil {
                   ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
           if (!Files.exists(pathIrt)) {
             log.error("Could not unpack " + pathInJar);
-            SwingUtils.showDialog(dbUniprotIdPanel, new JLabel("<html>Could not unpack iRT fasta file."),
+            SwingUtils.showDialog(p, new JLabel("<html>Could not unpack iRT fasta file."),
                     "Error preparing for DB download", JOptionPane.ERROR_MESSAGE);
             return;
           }

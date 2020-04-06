@@ -1,10 +1,12 @@
 package com.dmtavt.fragpipe;
 
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageDecoyTag;
 import com.dmtavt.fragpipe.messages.MessageFastaNewPath;
 import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
+import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.github.chhh.utils.FastaUtils;
 import com.github.chhh.utils.FastaUtils.FastaContent;
 import com.github.chhh.utils.FastaUtils.FastaDecoyPrefixSearchResult;
@@ -27,6 +29,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.LC;
@@ -35,6 +38,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.msfragger.gui.FragpipeUtil;
 import umich.msfragger.params.ThisAppProps;
 
 public class TabDatabase extends JPanelWithEnablement {
@@ -42,9 +46,11 @@ public class TabDatabase extends JPanelWithEnablement {
   private static final MigUtils mu = MigUtils.get();
   public static final String TAB_PREFIX = "database.";
   public static final String TIP_DB_PATH = "tip.db.path";
+  private static final String TIP_DB_DOWNLOAD = "tip.db.download";
   private UiText uiTextDbPath;
   private UiText uiTextDecoyTag;
   private JEditorPane epDbInfo;
+  private JButton btnDownload;
 
   public TabDatabase() {
     init();
@@ -76,6 +82,8 @@ public class TabDatabase extends JPanelWithEnablement {
     JButton btnBrowse = feDbPath.browseButton("Browse", "Select fasta file",
         () -> createFilechooserFasta(uiTextDbPath),
         paths -> Bus.post(new MessageFastaNewPath(paths.get(0).toString())));
+    btnDownload = UiUtils.createButton("Download", this::actionDbDownload);
+    btnDownload.setEnabled(false);
 
     String defaultTag = Fragpipe.props().getProperty(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
     uiTextDecoyTag = UiUtils.uiTextBuilder().cols(12).text(defaultTag).create();
@@ -86,13 +94,14 @@ public class TabDatabase extends JPanelWithEnablement {
             + "database, use the Try Auto-Detect button to get a statistic about\n"
             + "the usage of prefixes in the give file.").create();
     JButton btnDecoyDetect = feDecoyTag.button("Try atuo-detect tag", "Input decoy tag",
-        this::btnDecoyDetectClicked);
+        this::actionDetectDecoys);
 
     epDbInfo = SwingUtils.createClickableHtml(true, "");
 
     mu.add(p, feDbPath.label()).split();
     mu.add(p, feDbPath.comp).growX();
-    mu.add(p, btnBrowse).wrap();
+    mu.add(p, btnBrowse);
+    mu.add(p, btnDownload).wrap();
 
     mu.add(p, feDecoyTag.label()).split();
     mu.add(p, feDecoyTag.comp);
@@ -170,7 +179,7 @@ public class TabDatabase extends JPanelWithEnablement {
 
   }
 
-  private void btnDecoyDetectClicked(ActionEvent e) {
+  private void actionDetectDecoys(ActionEvent e) {
     Path path = PathUtils.existing(uiTextDbPath.getNonGhostText());
     if (path == null) {
       SwingUtils.showInfoDialog(this, "Select a valid fasta file first", "Fasta file missing");
@@ -186,6 +195,24 @@ public class TabDatabase extends JPanelWithEnablement {
     String tag = fastaDecoyPrefixSearchResult.getSelectedPrefix();
     if (tag != null) {
       Bus.post(new MessageDecoyTag(tag));
+    }
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void onNoteConfigPhilosopher(NoteConfigPhilosopher m) {
+    btnDownload.setEnabled(m.isValid());
+  }
+
+  private void actionDbDownload(ActionEvent e) {
+    NoteConfigPhilosopher conf = Bus.getStickyEvent(NoteConfigPhilosopher.class);
+    if (conf == null || !conf.isValid()) {
+      Notifications.showException(TIP_DB_DOWNLOAD, btnDownload, new ValidationException("Philosopher not configured"), false);
+      return;
+    }
+    try {
+      FragpipeUtil.downloadDb(this, conf.path, getFastaPath());
+    } catch (Exception ex) {
+      Notifications.showException(TIP_DB_DOWNLOAD, btnDownload, ex, true);
     }
   }
 }
