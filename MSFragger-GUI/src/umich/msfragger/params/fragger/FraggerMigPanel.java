@@ -15,12 +15,34 @@
  */
 package umich.msfragger.params.fragger;
 
+import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.messages.MessageMsfraggerParamsUpdate;
+import com.dmtavt.fragpipe.messages.MessagePrecursorSelectionMode;
+import com.dmtavt.fragpipe.messages.MessageRun;
+import com.dmtavt.fragpipe.messages.MessageSaveCache;
+import com.dmtavt.fragpipe.messages.MessageSearchType;
+import com.dmtavt.fragpipe.messages.MessageValidityFragger;
+import com.dmtavt.fragpipe.messages.MessageValidityMassCalibration;
+import com.dmtavt.fragpipe.messages.MessageValidityMsadjuster;
+import com.github.chhh.utils.CacheUtils;
+import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
-import com.github.chhh.utils.swing.*;
-
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.DocumentFilters;
+import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.MigUtils;
+import com.github.chhh.utils.swing.StringRepresentable;
+import com.github.chhh.utils.swing.UiCheck;
+import com.github.chhh.utils.swing.UiCombo;
+import com.github.chhh.utils.swing.UiSpinnerDouble;
+import com.github.chhh.utils.swing.UiSpinnerInt;
+import com.github.chhh.utils.swing.UiText;
+import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -48,8 +70,21 @@ import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.swing.*;
+import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
@@ -64,17 +99,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.ModificationsTableModel;
 import umich.msfragger.gui.api.SearchTypeProp;
-import umich.msfragger.gui.renderers.TableCellIntSpinnerEditor;
 import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
 import umich.msfragger.gui.renderers.TableCellIntRenderer;
-import com.dmtavt.fragpipe.messages.MessageMsfraggerParamsUpdate;
-import com.dmtavt.fragpipe.messages.MessagePrecursorSelectionMode;
-import com.dmtavt.fragpipe.messages.MessageRun;
-import com.dmtavt.fragpipe.messages.MessageSaveCache;
-import com.dmtavt.fragpipe.messages.MessageSearchType;
-import com.dmtavt.fragpipe.messages.MessageValidityFragger;
-import com.dmtavt.fragpipe.messages.MessageValidityMassCalibration;
-import com.dmtavt.fragpipe.messages.MessageValidityMsadjuster;
+import umich.msfragger.gui.renderers.TableCellIntSpinnerEditor;
 import umich.msfragger.params.Props.Prop;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.dbslice.DbSlice;
@@ -85,10 +112,6 @@ import umich.msfragger.params.enums.FragmentMassTolUnits;
 import umich.msfragger.params.enums.IntensityTransform;
 import umich.msfragger.params.enums.PrecursorMassTolUnits;
 import umich.msfragger.params.enums.RemovePrecursorPeak;
-import com.github.chhh.utils.CacheUtils;
-import com.github.chhh.utils.PropertiesUtils;
-import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.swing.FormEntry;
 
 /**
  * @author Dmitry Avtonomov
@@ -211,12 +234,11 @@ public class FraggerMigPanel extends JPanel {
   private UiCombo uiComboPrecursorTolUnits;
   private final Map<String, String> cache = new HashMap<>();
   private UiText uiTextIsoErr;
+  private JEditorPane epMassOffsets;
 
   public FraggerMigPanel() {
+    init();
     initMore();
-    initPostCreation();
-    // register on the bus only after all the components have been created to avoid NPEs
-    EventBus.getDefault().register(this);
   }
 
   public UiText getUiTextIsoErr() {
@@ -258,16 +280,19 @@ public class FraggerMigPanel extends JPanel {
     }
   }
 
-  private void initPostCreation() {
+  private void initMore() {
     ForkJoinPool.commonPool().execute(this::cacheLoad);
 
     // TODO: ACHTUNG: temporary fix, disabling "Define custom ion series field"
     // Remove when custom ion series work properly in msfragger
     updateEnabledStatus(uiTextCustomIonSeries, false);
     updateEnabledStatus(labelCustomIonSeries, false);
+
+    // register on the bus only after all the components have been created to avoid NPEs
+    Bus.register(this);
   }
 
-  private void initMore() {
+  private void init() {
     icon = new ImageIcon(
         getClass().getResource("/umich/msfragger/gui/icons/bolt-16.png"));
 
@@ -685,11 +710,17 @@ public class FraggerMigPanel extends JPanel {
           + "Setting isotope_error to 0/1/2 in combination<br>\n"
           + "with this example will create search windows around<br>\n"
           + "(0,1,2,79.966, 80.966, 81.966).";
+
+      epMassOffsets = SwingUtils.createClickableHtml("test", false,
+          false, null, true);
+      epMassOffsets.setPreferredSize(new Dimension(200, 25));
+      epMassOffsets.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
       uiTextMassOffsets = UiUtils.uiTextBuilder().filter("[^-\\(\\)\\./,\\d ]").text("0").create();
+
       FormEntry feMassOffsets = new FormEntry(MsfraggerParams.PROP_mass_offsets,
-          "User defined variable mass shifts (on any aminoacid)", uiTextMassOffsets, tooltipMassOffsets);
-      pMods.add(feMassOffsets.label(), new CC().split(2));
-      pMods.add(feMassOffsets.comp, new CC().alignX("left").growX().wrap());
+          "User defined variable mass shifts (on any aminoacid)", epMassOffsets, tooltipMassOffsets);
+      MigUtils.get().add(pMods, feMassOffsets.label()).wrap();
+      MigUtils.get().add(pMods, feMassOffsets.comp).growX().wrap();
 
       pContent.add(pMods, new CC().wrap().growX());
     }

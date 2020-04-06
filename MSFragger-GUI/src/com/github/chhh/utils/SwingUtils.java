@@ -456,21 +456,37 @@ public class SwingUtils {
   /**
    * Creates a non-editable JEditorPane that has the same styling as default JLabels and with
    * hyperlinks clickable. They will be opened in the system default browser.
+ * @param text Your text to be displayed in HTML context. Don't add the opening and closing HTML
+   * tags. To include links use the regular A tags.
+   * @param handleHyperlinks Add a handler for hyperlinks to be opened in the
+ * @param useJlabelBackground Use default background of JLabels.
+ * @param bgColor if {@code useJlabelBackground} is false, force this color. Can be null
+   */
+  public static JEditorPane createClickableHtml(String text, boolean handleHyperlinks,
+      boolean useJlabelBackground, Color bgColor) {
+    return createClickableHtml(text, handleHyperlinks, useJlabelBackground, bgColor,
+        false);
+  }
+
+  /**
+   * Creates a non-editable JEditorPane that has the same styling as default JLabels and with
+   * hyperlinks clickable. They will be opened in the system default browser.
    *  @param text Your text to be displayed in HTML context. Don't add the opening and closing HTML
    * tags. To include links use the regular A tags.
    * @param handleHyperlinks Add a handler for hyperlinks to be opened in the
    * @param useJlabelBackground Use default background of JLabels.
    * @param bgColor if {@code useJlabelBackground} is false, force this color. Can be null
+   * @param editable If the editor pane should be editable.
    */
   public static JEditorPane createClickableHtml(String text, boolean handleHyperlinks,
-      boolean useJlabelBackground, Color bgColor) {
+      boolean useJlabelBackground, Color bgColor, boolean editable) {
 
     StringBuilder html = new StringBuilder();
     html.append("<html><body style=\"").append(createCssStyle()).append("\">")
         .append(text)
         .append("</body></html>");
     JEditorPane ep = new JEditorPane("text/html", html.toString());
-    ep.setEditable(false);
+    ep.setEditable(editable);
 
     // handle link events
     if (handleHyperlinks) {
