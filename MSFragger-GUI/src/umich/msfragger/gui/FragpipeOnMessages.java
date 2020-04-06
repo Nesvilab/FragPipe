@@ -781,7 +781,7 @@ public class FragpipeOnMessages {
         SwingUtils.showErrorDialogWithStacktrace(e, msfgf);
         return false;
       }
-      double decoysPercentage = FastaUtils.checkDecoysPercentage(fasta.ordered.get(0), decoyTag);
+      double decoysPercentage = FastaUtils.getDecoysPct(fasta.ordered.get(0), decoyTag);
       if (decoysPercentage <= 0) {
         int confirm = SwingUtils.showConfirmDialog(msfgf, new JLabel(
             "<html>No decoys found in the FASTA file.<br/>\n" +

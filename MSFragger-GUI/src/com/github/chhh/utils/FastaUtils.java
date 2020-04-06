@@ -20,11 +20,16 @@ import com.github.chhh.utils.PrefixCounter.Node;
 public class FastaUtils {
   private static final Logger log = LoggerFactory.getLogger(FastaUtils.class);
 
-  public static double checkDecoysPercentage(List<String> fastaDescriptorLines, String decoyTag) {
-    double total = fastaDescriptorLines.size();
-    long countDecoys = fastaDescriptorLines.stream().filter(line -> line.startsWith(decoyTag)).count();
+  public static double getDecoysPct(List<String> fastaDescriptorLines, String decoyTag) {
+    return getDecoysCnt(fastaDescriptorLines, decoyTag)/(double)getProtsTotal(fastaDescriptorLines);
+  }
 
-    return countDecoys/total;
+  public static long getDecoysCnt(List<String> fastaDescriptorLines, String decoyTag) {
+    return fastaDescriptorLines.stream().filter(line -> line.startsWith(decoyTag)).count();
+  }
+
+  public static int getProtsTotal(List<String> fastaDescriptorLines) {
+    return fastaDescriptorLines.size();
   }
 
   public static FastaContent readFasta(Path p) throws IOException {

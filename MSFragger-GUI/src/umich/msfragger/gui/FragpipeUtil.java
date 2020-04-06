@@ -4,15 +4,12 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
-import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.api.Bus;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.Window;
-import java.io.File;
 import java.nio.file.*;
 import java.nio.file.WatchEvent.Kind;
 import java.util.LinkedHashSet;
@@ -23,12 +20,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.*;
 
-import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.cmd.*;
 import umich.msfragger.gui.dialogs.DbUniprotIdPanel;
-import com.dmtavt.fragpipe.messages.MessageDbUpdate;
+import com.dmtavt.fragpipe.messages.MessageDbNewPath;
 import umich.msfragger.params.ThisAppProps;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.PathUtils;
@@ -213,7 +209,7 @@ public class FragpipeUtil {
                         JOptionPane.showMessageDialog(parent,
                             "<html>Downloaded new file:<br/>" + fullDbPath.toString(),
                             "Download complete", JOptionPane.INFORMATION_MESSAGE);
-                        EventBus.getDefault().post(new MessageDbUpdate(fullDbPath.toString()));
+                        Bus.post(new MessageDbNewPath(fullDbPath.toString()));
                         break;
                       }
                     }
@@ -229,7 +225,6 @@ public class FragpipeUtil {
                 // object no longer registered
               }
             }
-
             watch.close();
           }
         }

@@ -106,7 +106,7 @@ import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
 import com.dmtavt.fragpipe.messages.MessageAppendToConsole;
-import com.dmtavt.fragpipe.messages.MessageDbUpdate;
+import com.dmtavt.fragpipe.messages.MessageDbNewPath;
 import com.dmtavt.fragpipe.messages.MessageDecoyTag;
 import com.dmtavt.fragpipe.messages.MessageExternalProcessOutput;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
@@ -2752,9 +2752,9 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
   }//GEN-LAST:event_btnLoadAllToolsConfigActionPerformed
 
   @Subscribe
-  public void databaseUpdate(MessageDbUpdate m) {
-    MsfraggerGuiFrameUtils.validateAndSaveFastaPath(this, m.dbPath);
-    textSequenceDbPath.setText(m.dbPath);
+  public void databaseUpdate(MessageDbNewPath m) {
+    MsfraggerGuiFrameUtils.validateAndSaveFastaPath(this, m.path);
+    textSequenceDbPath.setText(m.path);
   }
 
   //region Load-Last methods

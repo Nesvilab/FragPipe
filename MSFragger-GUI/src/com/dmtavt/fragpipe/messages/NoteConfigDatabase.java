@@ -5,20 +5,20 @@ import java.nio.file.Path;
 public class NoteConfigDatabase implements INoteConfig {
   public final Path path;
   public final int numEntries;
-  public final double pctDecoys;
+  public final int decoysCnt;
   public final boolean isValid;
 
-  public NoteConfigDatabase(Path path, int numEntries, double pctDecoys, boolean isValid) {
+  public NoteConfigDatabase(Path path, int numEntries, int decoysCnt, boolean isValid) {
     this.path = path;
     this.numEntries = numEntries;
-    this.pctDecoys = pctDecoys;
+    this.decoysCnt = decoysCnt;
     this.isValid = isValid;
   }
 
   public NoteConfigDatabase() {
     path = null;
     numEntries = -1;
-    pctDecoys = Double.NaN;
+    decoysCnt = -1;
     this.isValid = false;
   }
 
