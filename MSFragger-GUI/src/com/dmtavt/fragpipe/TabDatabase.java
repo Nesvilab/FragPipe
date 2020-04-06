@@ -5,6 +5,7 @@ import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageDecoyTag;
 import com.dmtavt.fragpipe.messages.MessageFastaNewPath;
+import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.github.chhh.utils.FastaUtils;
@@ -214,5 +215,10 @@ public class TabDatabase extends JPanelWithEnablement {
     } catch (Exception ex) {
       Notifications.showException(TIP_DB_DOWNLOAD, btnDownload, ex, true);
     }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void onUiRevalidate(MessageUiRevalidate m) {
+    validateFasta(getFastaPath());
   }
 }
