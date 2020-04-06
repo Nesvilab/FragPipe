@@ -19,6 +19,7 @@ package com.github.chhh.utils;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
@@ -111,8 +112,36 @@ public class PathUtils {
             Path p = Paths.get(path);
             if (Files.exists(p))
                 return p;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         return null;
+    }
+
+    /**
+     * Existing Path or null if path is invalid or does not exist.
+     * @param doThrow If false will swallow exceptions instead of throwing.
+     * @return null if path does not exist or contains illegal characters. The actual path otherwise.
+     * @throws ValidationException in case anything is wrong with the path or it does not exist. And
+     * only if 'doThrow' is true.
+     */
+    public static Path existing(String path, boolean doThrow) throws ValidationException {
+        Path p;
+        try {
+            p = Paths.get(path);
+        } catch (InvalidPathException e) {
+            if (doThrow)
+                throw new ValidationException("Not a valid path: " + path, e);
+            else
+                return null;
+        }
+        if (Files.notExists(p)) {
+            if (doThrow)
+                throw new ValidationException("File does not exist: " + path);
+            else
+                return null;
+        } else {
+            return p;
+        }
     }
 
     public static String testFilePath(String fileName, String dir) {

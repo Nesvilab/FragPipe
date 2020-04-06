@@ -27,8 +27,7 @@ public class FastaUtils {
     return countDecoys/total;
   }
 
-  public static FastaContent readFasta(Path p)
-      throws IOException {
+  public static FastaContent readFasta(Path p) throws IOException {
     List<String> descriptors = new ArrayList<>();
     List<List<String>> ordered = new ArrayList<>();
     try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(p),

@@ -859,6 +859,8 @@ public class SwingUtils {
   }
 
   public static String makeHtml(String html) {
+    if (html == null)
+      return null;
     Pattern re = Pattern.compile("^\\s*<\\s*html\\s*>\\s*");
     Pattern reNewline = Pattern.compile("(?<!<br/>)(\n)");
     Matcher m = reNewline.matcher(html);

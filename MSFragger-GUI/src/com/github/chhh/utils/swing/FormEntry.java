@@ -2,14 +2,17 @@ package com.github.chhh.utils.swing;
 
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -51,7 +54,7 @@ public class FormEntry {
 
   private void init() {
     comp.setName(propName);
-    comp.setToolTipText(tooltip);
+    comp.setToolTipText(SwingUtils.makeHtml(tooltip));
   }
 
   public JLabel label() {
@@ -59,6 +62,30 @@ public class FormEntry {
     l.setLabelFor(comp);
     l.setToolTipText(tooltip);
     return l;
+  }
+
+  public static void registerGhost(JComponent comp, String ghostText) {
+    final JTextField tf = (JTextField) comp;
+    if (!StringUtils.isNullOrWhitespace(ghostText)) {
+      if (tf instanceof GhostedTextComponent) {
+        ((GhostedTextComponent) tf).setGhostText(ghostText);
+      }
+      GhostText.register(tf, ghostText, GhostText.LIGHT_GREY);
+    }
+  }
+
+  public JButton button(String buttonText, final String ghostText, ActionListener onClick) {
+    if (!(comp instanceof JTextField)) {
+      throw new IllegalStateException(
+          "Can only call button() method for FormEntries which are JTextField");
+    }
+
+    registerGhost(comp, ghostText);
+
+    final JButton btn = new JButton(buttonText);
+    btn.setToolTipText(tooltip);
+    btn.addActionListener(onClick);
+    return btn;
   }
 
   public JButton browseButton(Supplier<JFileChooser> fcProvider,
@@ -134,7 +161,7 @@ public class FormEntry {
     }
 
     public FormEntry create() {
-      return new FormEntry(propName, labelText, comp, tooltip);
+      return new FormEntry(propName, labelText, comp, SwingUtils.makeHtml(tooltip));
     }
   }
 }

@@ -2,9 +2,14 @@ package com.dmtavt.fragpipe;
 
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
+import com.dmtavt.fragpipe.messages.MessageDecoyTag;
 import com.dmtavt.fragpipe.messages.MessageFastaNewPath;
-import com.dmtavt.fragpipe.messages.MessageShowException;
 import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
+import com.github.chhh.utils.FastaUtils;
+import com.github.chhh.utils.FastaUtils.FastaContent;
+import com.github.chhh.utils.FastaUtils.FastaDecoyPrefixSearchResult;
+import com.github.chhh.utils.PathUtils;
+import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
@@ -13,12 +18,14 @@ import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
-import java.nio.file.Files;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -36,6 +43,8 @@ public class TabDatabase extends JPanelWithEnablement {
   public static final String TAB_PREFIX = "database.";
   public static final String TIP_DB_PATH = "tip.db.path";
   private UiText uiTextDbPath;
+  private UiText uiTextDecoyTag;
+  private JEditorPane epDbInfo;
 
   public TabDatabase() {
     init();
@@ -49,6 +58,15 @@ public class TabDatabase extends JPanelWithEnablement {
   private void init() {
     this.setLayout(new MigLayout(new LC().fillX()));
 
+    mu.add(this, createPanelDbSelection()).growX().wrap();
+
+  }
+
+  private FormEntry.Builder fe(JComponent comp, String name) {
+    return Fragpipe.fe(comp, name, TAB_PREFIX);
+  }
+
+  private JPanel createPanelDbSelection() {
     JPanel p = mu.panel(false, "FASTA sequence database");
     uiTextDbPath = UiUtils.uiTextBuilder().filter("[\"'|<>]").cols(5).create();
     uiTextDbPath.addFocusListener(new ContentChangedFocusAdapter(uiTextDbPath, (s, s2) -> {
@@ -59,11 +77,41 @@ public class TabDatabase extends JPanelWithEnablement {
         () -> createFilechooserFasta(uiTextDbPath),
         paths -> Bus.post(new MessageFastaNewPath(paths.get(0).toString())));
 
+    String defaultTag = Fragpipe.props().getProperty(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
+    uiTextDecoyTag = UiUtils.uiTextBuilder().cols(12).text(defaultTag).create();
+    FormEntry feDecoyTag = fe(uiTextDecoyTag, "decoy-tag").label("Decoy protein prefix")
+        .tooltip( "Decoys are used for FDR estimation.\n"
+            + "Decoy proteins in the database are identified by this prefix\n"
+            + "in their protein ID. If you're unsure what tag is used in your protein\n"
+            + "database, use the Try Auto-Detect button to get a statistic about\n"
+            + "the usage of prefixes in the give file.").create();
+    JButton btnDecoyDetect = feDecoyTag.button("Try atuo-detect tag", "Input decoy tag",
+        this::btnDecoyDetectClicked);
+
+    epDbInfo = SwingUtils.createClickableHtml(true, "");
+
     mu.add(p, feDbPath.label()).split();
     mu.add(p, feDbPath.comp).growX();
     mu.add(p, btnBrowse).wrap();
 
-    mu.add(this, p).growX().wrap();
+    mu.add(p, feDecoyTag.label()).split();
+    mu.add(p, feDecoyTag.comp);
+    uiTextDecoyTag.addFocusListener(new ContentChangedFocusAdapter(uiTextDecoyTag, (s, s2) -> {
+      validateFasta(getFastaPath());
+    }));
+    mu.add(p, btnDecoyDetect);
+    mu.add(p, epDbInfo);
+    return p;
+  }
+
+  private FastaContent readFasta(Path p) throws ValidationException {
+    FastaContent fasta;
+    try {
+      fasta = FastaUtils.readFasta(p);
+    } catch (IOException e) {
+      throw new ValidationException(e);
+    }
+    return fasta;
   }
 
   private JFileChooser createFilechooserFasta(UiText uiTextDbPath) {
@@ -74,34 +122,70 @@ public class TabDatabase extends JPanelWithEnablement {
     return fc;
   }
 
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void onDecoyTag(MessageDecoyTag m) {
+    log.debug("Updating decoy tag text field to: {}", m.tag);
+    uiTextDecoyTag.setText(m.tag);
+    Path fasta = PathUtils.existing(getFastaPath());
+    if (fasta != null) {
+      validateFasta(fasta.toString());
+    }
+  }
+
   @Subscribe
   public void onFastaNewPath(MessageFastaNewPath m) {
     uiTextDbPath.setText(m.path);
-    Path p;
-    try {
-      p = validateFastaPath(m.path);
-    } catch (Exception e) {
-      log.debug("Got bad fasta path: {}", m.path);
-      Bus.post(new MessageShowException(TIP_DB_PATH, uiTextDbPath, e, true));
-      return;
-    }
-    Bus.post(new NoteConfigDatabase(p));
+    validateFasta(m.path);
   }
 
-  private Path validateFastaPath(String path) throws Exception {
-    Path p = Paths.get(path);
-    if (!Files.exists(p)) {
-      throw new ValidationException("Path does not exist");
+  public String getDecoyTag() {
+    return uiTextDecoyTag.getNonGhostText();
+  }
+
+  public String getFastaPath() {
+    return uiTextDbPath.getNonGhostText();
+  }
+
+  private void validateFasta(String path) {
+    try {
+      Path p = PathUtils.existing(path, true);
+      FastaContent fasta = FastaUtils.readFasta(p);
+      double decoysPercentage = FastaUtils.checkDecoysPercentage(fasta.ordered.get(0), getDecoyTag());
+      Bus.postSticky(new NoteConfigDatabase(Paths.get(path), fasta.descriptors.size(), decoysPercentage, true));
+    } catch (Exception e) {
+      log.debug("Got bad fasta path: {}", path);
+      Bus.postSticky(new NoteConfigDatabase());
     }
-    return p;
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void onNoteConfigDatabase(NoteConfigDatabase m) {
-    uiTextDbPath.setText(m.path.toString());
+    if (m.isValid) {
+      uiTextDbPath.setText(m.path.toString());
+      SwingUtils.setJEditorPaneContent(epDbInfo, true,
+          String.format("File contains %d entries (%.1f%% decoys)", m.numEntries, m.pctDecoys * 100.0));
+    } else {
+      SwingUtils.setJEditorPaneContent(epDbInfo, true, "");
+    }
+
   }
 
-  private FormEntry.Builder fe(JComponent comp, String name) {
-    return Fragpipe.fe(comp, name, TAB_PREFIX);
+  private void btnDecoyDetectClicked(ActionEvent e) {
+    Path path = PathUtils.existing(uiTextDbPath.getNonGhostText());
+    if (path == null) {
+      SwingUtils.showInfoDialog(this, "Select a valid fasta file first", "Fasta file missing");
+      return;
+    }
+
+    FastaDecoyPrefixSearchResult fastaDecoyPrefixSearchResult = new FastaDecoyPrefixSearchResult(
+        path, this)
+        .invoke();
+    if (fastaDecoyPrefixSearchResult.isError()) {
+      return;
+    }
+    String tag = fastaDecoyPrefixSearchResult.getSelectedPrefix();
+    if (tag != null) {
+      Bus.post(new MessageDecoyTag(tag));
+    }
   }
 }
