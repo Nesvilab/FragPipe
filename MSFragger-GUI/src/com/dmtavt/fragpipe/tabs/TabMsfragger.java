@@ -364,9 +364,6 @@ public class TabMsfragger extends JPanelWithEnablement {
 
     pContent = new JPanel();
     pContent.setLayout(new MigLayout(new LC().fillX()));
-    scroll = new JScrollPane(pContent);
-    scroll.setBorder(new EmptyBorder(0, 0, 0, 0));
-    scroll.getVerticalScrollBar().setUnitIncrement(16);
 
     // Panel with all the basic options
     {
@@ -710,7 +707,8 @@ public class TabMsfragger extends JPanelWithEnablement {
 
       epMassOffsets = SwingUtils.createClickableHtml(SwingUtils.wrapInStyledHtml(""), false,
           false, null, true);
-      epMassOffsets.setPreferredSize(new Dimension(200, 25));
+      epMassOffsets.setPreferredSize(new Dimension(100, 25));
+      //epMassOffsets.setMaximumSize(new Dimension(200, 25));
       epMassOffsets.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
       epMassOffsets.setFont(new JLabel().getFont());
 
@@ -967,7 +965,7 @@ public class TabMsfragger extends JPanelWithEnablement {
       pContent.add(pAdvanced, new CC().wrap().growX());
     }
 
-    this.add(scroll, BorderLayout.CENTER);
+    this.add(pContent, BorderLayout.CENTER);
   }
 
   private FormEntry.Builder fe(JComponent comp, String name) {

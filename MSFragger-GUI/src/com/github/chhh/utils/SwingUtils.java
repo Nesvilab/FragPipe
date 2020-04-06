@@ -403,20 +403,10 @@ public class SwingUtils {
   }
 
   public static String wrapInStyledHtml(String text, Font font) {
-//    org.jsoup.nodes.Document html;
 //    if (text.contains("<html")) {
-//      html = Jsoup.parse(text);
-//      html.body().attr("style", createCssStyle(font));
-//      return html.toString();
-//    } else {
-//      html = org.jsoup.nodes.Document.createShell("");
-//      html.body().attr("style", createCssStyle(font));
-//      html.body().text(text);
-//      return html.toString();
+//      log.debug("Trimming old html, that was given to wrapInStyledHtml():\n{}", text);
+//      text = Jsoup.parse(text).body().text();
 //    }
-    if (text.contains("<html")) {
-      text = Jsoup.parse(text).body().text();
-    }
 
     StringBuilder sb = new StringBuilder();
     sb.append("<html><body style=\"").append(createCssStyle(font)).append("\">")
