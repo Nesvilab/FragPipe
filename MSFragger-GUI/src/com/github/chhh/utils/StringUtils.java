@@ -22,6 +22,12 @@ public final class StringUtils {
     throw new AssertionError("This class can not be instantiated");
   }
 
+  public static String stripLeading(String text, String prefix) {
+    if (text.startsWith(prefix))
+      return text.substring(prefix.length());
+    return text;
+  }
+
   public static String sortedChars(String s) {
     char[] chars = s.toCharArray();
     Arrays.sort(chars);

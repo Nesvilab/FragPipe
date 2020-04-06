@@ -86,6 +86,7 @@ import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
@@ -402,11 +403,22 @@ public class SwingUtils {
   }
 
   public static String wrapInStyledHtml(String text, Font font) {
-    StringBuilder sb = new StringBuilder();
-    sb.append("<html><body style=\"").append(createCssStyle(font)).append("\">")
-        .append(text)
-        .append("</body></html>");
-    return sb.toString();
+    org.jsoup.nodes.Document html;
+    if (text.contains("<html")) {
+      html = Jsoup.parse(text);
+      html.body().attr("style", createCssStyle(font));
+      return html.toString();
+    } else {
+      html = org.jsoup.nodes.Document.createShell("");
+      html.body().attr("style", createCssStyle(font));
+      html.body().text(text);
+      return html.toString();
+    }
+//    StringBuilder sb = new StringBuilder();
+//    sb.append("<html><body style=\"").append().append("\">")
+//        .append(text)
+//        .append("</body></html>");
+//    return sb.toString();
   }
 
   public static void setJEditorPaneContent(JEditorPane ep, String text) {

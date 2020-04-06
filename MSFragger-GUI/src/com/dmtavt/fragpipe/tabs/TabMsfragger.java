@@ -82,8 +82,8 @@ import javax.swing.table.TableModel;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.ModificationsTableModel;
@@ -171,14 +171,24 @@ public class TabMsfragger extends JPanelWithEnablement {
         RemovePrecursorPeak.get(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_intensity_transform, s -> Integer.toString(
         IntensityTransform.get(s)));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_localize_delta_mass, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_override_charge, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_localize_delta_mass, s -> Integer.toString(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Integer.toString(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> Integer.toString(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_override_charge, s -> Integer.toString(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.valueOf(s).valueInParamsFile());
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Integer.toString(Boolean.valueOf(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Integer.toString(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_ion_series, ionStr -> ionStr.trim().replaceAll("[\\s,;]+",","));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_ion_series_definitions, defStr -> defStr.trim().replaceAll("\\s*[,;]+\\s*",", "));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets, defStr -> {
+      String content;
+      if (!defStr.contains("<html")) {
+        content = defStr;
+      } else {
+        content = Jsoup.parse(defStr).body().text();
+      }
+      return content.replaceAll("[\n\r]+", " ");
+    });
+
 
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> PrecursorMassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> FragmentMassTolUnits.fromParamsFileRepresentation(s).name());
@@ -193,6 +203,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_override_charge, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.fromValueInParamsFile(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Boolean.toString(Integer.parseInt(s) > 0));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_offsets, SwingUtils::wrapInStyledHtml);
 
     //{"Closed Search", "Open Search", "Non-specific Search", "Mass Offset Search"}
     SEARCH_TYPE_NAME_MAPPING.put("Closed Search", SearchTypeProp.closed);
@@ -697,7 +708,7 @@ public class TabMsfragger extends JPanelWithEnablement {
           + "with this example will create search windows around<br>\n"
           + "(0,1,2,79.966, 80.966, 81.966).";
 
-      epMassOffsets = SwingUtils.createClickableHtml("", false,
+      epMassOffsets = SwingUtils.createClickableHtml(SwingUtils.wrapInStyledHtml(""), false,
           false, null, true);
       epMassOffsets.setPreferredSize(new Dimension(200, 25));
       epMassOffsets.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
@@ -1027,16 +1038,19 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
   private void cacheSave() {
+    log.warn("Old cache save fragger tab method called");
     // saving form data, except modification tables
     {
       Map<String, String> map = formTo();
       Properties mapAsProps = PropertiesUtils.from(map);
       Path tempFileForm = CacheUtils.getTempFile(CACHE_FORM);
+      log.debug("Saving cache cacheSave() to: {}", tempFileForm.toString());
       try {
         mapAsProps.store(Files.newBufferedWriter(tempFileForm), ThisAppProps.cacheComments());
       } catch (IOException e) {
         log.warn("Could not store {} cache as map to: {}", this.getClass().getSimpleName(), tempFileForm.toString());
       }
+      log.debug("Done saving cache cacheSave() to: {}", tempFileForm.toString());
     }
 
     // storing form properties that can't be just represented in the map
@@ -1052,7 +1066,7 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
   private void cacheLoad() {
-    log.warn("Old cace load fragger tab method called");
+    log.warn("Old cache load fragger tab method called");
     // load form as map first
     {
       try {
@@ -1232,7 +1246,11 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
   private Map<String, String> formTo() {
-    return SwingUtils.valuesToMap(this);
+    Map<String, String> map = SwingUtils.valuesToMap(this);
+    HashMap<String, String> m = new HashMap<>();
+    //map.forEach((k, v) -> m.put(StringUtils.stripLeading(k, TAB_PREFIX), v));
+    map.forEach((k, v) -> m.put(StringUtils.stripLeading(k, TAB_PREFIX), v));
+    return m;
   }
 
   public MsfraggerParams getParams() {

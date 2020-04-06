@@ -96,6 +96,7 @@ public class FragpipeCacheUtils {
     Properties props = PropertiesUtils.from(map);
     try (BufferedOutputStream bos = new BufferedOutputStream(os)) {
       props.store(bos, ThisAppProps.cacheComments());
+      //PropertiesUtils.storeSorted(props, bos, ThisAppProps.cacheComments());
     }
   }
 

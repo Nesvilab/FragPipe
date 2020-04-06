@@ -442,6 +442,7 @@ public class Fragpipe extends JFrame {
     } catch (IOException e) {
       log.error("Could not write fragpipe cache to: {}", m.path.toString());
     }
+    log.debug("Done writing ui state cache to: {}", m.path.toString());
   }
 
   @Subscribe
