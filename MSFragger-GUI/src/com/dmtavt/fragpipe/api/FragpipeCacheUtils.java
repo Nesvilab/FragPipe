@@ -95,8 +95,8 @@ public class FragpipeCacheUtils {
     Map<String, String> map = tabPaneToMap(tabs);
     Properties props = PropertiesUtils.from(map);
     try (BufferedOutputStream bos = new BufferedOutputStream(os)) {
-      props.store(bos, ThisAppProps.cacheComments());
-      //PropertiesUtils.storeSorted(props, bos, ThisAppProps.cacheComments());
+      //props.store(bos, ThisAppProps.cacheComments()); // This is from Java's Properties - the order or things looks to be random
+      PropertiesUtils.storeSorted(props, bos, ThisAppProps.cacheComments(), true);
     }
   }
 
