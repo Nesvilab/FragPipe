@@ -315,7 +315,7 @@ public class TabMsfragger extends JPanelWithEnablement {
       JPanel pTop = new JPanel(new MigLayout(new LC()));
 
       checkRun = new UiCheck("Run MSFragger", null, true);
-      checkRun.setName("ui.fragger.misc.is-run");
+      checkRun.setName("misc.is-run");
       checkRun.addActionListener(e -> {
         final boolean isSelected = checkRun.isSelected();
         updateEnabledStatus(pContent, isSelected);
@@ -713,6 +713,7 @@ public class TabMsfragger extends JPanelWithEnablement {
       epMassOffsets.setPreferredSize(new Dimension(200, 25));
       epMassOffsets.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
       epMassOffsets.setFont(new JLabel().getFont());
+
       uiTextMassOffsets = UiUtils.uiTextBuilder().filter("[^-\\(\\)\\./,\\d ]").text("0").create();
 
       FormEntry feMassOffsets = fe(MsfraggerParams.PROP_mass_offsets, epMassOffsets)

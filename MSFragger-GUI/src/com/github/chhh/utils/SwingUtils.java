@@ -403,22 +403,26 @@ public class SwingUtils {
   }
 
   public static String wrapInStyledHtml(String text, Font font) {
-    org.jsoup.nodes.Document html;
+//    org.jsoup.nodes.Document html;
+//    if (text.contains("<html")) {
+//      html = Jsoup.parse(text);
+//      html.body().attr("style", createCssStyle(font));
+//      return html.toString();
+//    } else {
+//      html = org.jsoup.nodes.Document.createShell("");
+//      html.body().attr("style", createCssStyle(font));
+//      html.body().text(text);
+//      return html.toString();
+//    }
     if (text.contains("<html")) {
-      html = Jsoup.parse(text);
-      html.body().attr("style", createCssStyle(font));
-      return html.toString();
-    } else {
-      html = org.jsoup.nodes.Document.createShell("");
-      html.body().attr("style", createCssStyle(font));
-      html.body().text(text);
-      return html.toString();
+      text = Jsoup.parse(text).body().text();
     }
-//    StringBuilder sb = new StringBuilder();
-//    sb.append("<html><body style=\"").append().append("\">")
-//        .append(text)
-//        .append("</body></html>");
-//    return sb.toString();
+
+    StringBuilder sb = new StringBuilder();
+    sb.append("<html><body style=\"").append(createCssStyle(font)).append("\">")
+        .append(text)
+        .append("</body></html>");
+    return sb.toString();
   }
 
   public static void setJEditorPaneContent(JEditorPane ep, String text) {
@@ -493,11 +497,15 @@ public class SwingUtils {
   public static JEditorPane createClickableHtml(String text, boolean handleHyperlinks,
       boolean useJlabelBackground, Color bgColor, boolean editable) {
 
-    StringBuilder html = new StringBuilder();
-    html.append("<html><body style=\"").append(createCssStyle()).append("\">")
+    String html1 = wrapInStyledHtml(text);
+    StringBuilder sb = new StringBuilder();
+    String html = sb.append("<html><body style=\"").append(createCssStyle()).append("\">")
         .append(text)
-        .append("</body></html>");
-    JEditorPane ep = new JEditorPane("text/html", html.toString());
+        .append("</body></html>").toString();
+    if (!html.equals(html1)) {
+      int a = 1;
+    }
+    JEditorPane ep = new JEditorPane("text/html", html1);
     ep.setEditable(editable);
 
     // handle link events
@@ -686,7 +694,14 @@ public class SwingUtils {
         String s = kv.getValue();
         if (comp instanceof StringRepresentable) {
           ((StringRepresentable) comp).fromString(s);
-        } else if (comp instanceof JCheckBox) {
+        }
+//        else if (comp instanceof JEditorPane) {
+//          JEditorPane ep = (JEditorPane)comp;
+//          if ("text/html".equals(ep.getContentType())) {
+//            ep.setText(SwingUtils.wrapInStyledHtml(s));
+//          }
+//        }
+        else if (comp instanceof JCheckBox) {
           ((JCheckBox)comp).setSelected(Boolean.parseBoolean(s));
         } else if (comp instanceof JTextComponent) {
           ((JTextComponent)comp).setText(s);
