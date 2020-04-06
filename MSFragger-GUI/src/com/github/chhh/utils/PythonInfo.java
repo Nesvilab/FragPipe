@@ -60,6 +60,8 @@ public class PythonInfo {
             "\tsys.exit(1)\n" +
             "print(\"ok\")",
             path.toString());
+    PythonInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
+    pb.environment().put("PYTHONIOENCODING", "utf-8");
     final String s;
     try {
       Process proc = pb.redirectErrorStream(true).start();

@@ -647,7 +647,9 @@ Commands to execute:
 	for e in easypqp_convert_cmds:
 		while sum(p.poll() is None for p in procs) >= nproc:
 			time.sleep(1)
-		procs.append(subprocess.Popen(e, cwd=os_fspath(output_directory)))
+		procs.append(subprocess.Popen(e, cwd=os_fspath(output_directory), stdout=subprocess.DEVNULL))
+		print(f'Executing {e}')
+
 	for p in procs:
 		p.wait()
 	assert all(p.returncode==0 for p in procs)
@@ -825,6 +827,10 @@ if use_easypqp:
 	easypqp_lib_export('Spectronaut')
 	if 0:
 		easypqp_lib_export('skyline')
+	cwd = pathlib.Path()
+	if delete_temp_files:
+		for f in itertools.chain(cwd.glob('*.psmpkl'), cwd.glob('*.peakpkl')):
+			f.unlink()
 	os.chdir(CWD)
 
 print('Done generating spectral library')
