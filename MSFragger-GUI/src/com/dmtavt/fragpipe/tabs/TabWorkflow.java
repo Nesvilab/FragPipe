@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -58,6 +59,7 @@ import umich.msfragger.gui.MsfraggerGuiFrameUtils;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils.LcmsFileAddition;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
+import umich.msfragger.gui.dialogs.ExperimentNameDialog;
 import umich.msfragger.params.ThisAppProps;
 
 public class TabWorkflow extends JPanelWithEnablement {
@@ -87,6 +89,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private void initMore() {
+    tableRawFilesFileDrop = makeFileDrop(); // file drop is registered after all components are created
     Bus.register(this);
   }
 
@@ -293,8 +296,6 @@ public class TabWorkflow extends JPanelWithEnablement {
     btnGroupsAssignToSelected = button("Set experiment/replicate", () -> new MessageLcmsGroupAction(Type.SET_EXP));
     btnGroupsClear = button("Clear groups", () -> new MessageLcmsGroupAction(Type.CLEAR_GROUPS));
 
-    tableRawFilesFileDrop = makeFileDrop();
-
     createFileTable();
 
     mu.add(p, btnFilesAddFiles).split();
@@ -354,5 +355,99 @@ public class TabWorkflow extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageLcmsGroupAction m) {
     log.debug("Got MessageLcmsGroupAction of type: {}", m.type.toString());
+
+    switch (m.type) {
+
+      case CONSECUTIVE:
+        this.actionConsecutive();
+        break;
+      case BY_PARENT_DIR:
+        this.actionByParentDir();
+        break;
+      case BY_FILE_NAME:
+        this.actionByFileName();
+        break;
+      case SET_EXP:
+        this.actionSetExt();
+        break;
+      case CLEAR_GROUPS:
+        this.actionClearGroups();
+        break;
+      default:
+        throw new IllegalStateException("Unknown enum option: " + m.type.toString());
+    }
+
+    postFileListUpdate();
+  }
+
+  private void actionClearGroups() {
+    UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+
+    for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+      InputLcmsFile f = m.dataGet(i);
+      m.dataSet(i, new InputLcmsFile(f.getPath(), ThisAppProps.DEFAULT_LCMS_EXP_NAME));
+    }
+  }
+
+  private void actionSetExt() {
+    final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+    final ArrayList<InputLcmsFile> data = m.dataCopy();
+    List<Integer> selectedRows = Arrays.stream(this.tableRawFiles.getSelectedRows())
+        .mapToObj(tableRawFiles::convertRowIndexToModel).collect(Collectors.toList());
+
+    final List<String> paths = selectedRows.stream()
+        .map(i -> data.get(i).getPath().toString())
+        .collect(Collectors.toList());
+
+    final Set<String> exps = selectedRows.stream()
+        .flatMap(i -> data.get(i).getExperiment() == null ? Stream.empty() : Stream.of(data.get(i).getExperiment()))
+        .collect(Collectors.toSet());
+    final Set<Integer> reps = selectedRows.stream()
+        .flatMap(i -> data.get(i).getReplicate() == null ? Stream.empty() : Stream.of(data.get(i).getReplicate()))
+        .collect(Collectors.toSet());
+    final String defaultExp = exps.size() == 1 ? exps.iterator().next() : null;
+    final Integer defaultRep = reps.size() == 1 ? reps.iterator().next() : null;
+
+    ExperimentNameDialog d = new ExperimentNameDialog(SwingUtils.findParentFrame(this), true, paths, defaultExp, defaultRep);
+    d.setVisible(true);
+    if (d.isOk()) {
+      for (int selectedRow : selectedRows) {
+        int i = tableRawFiles.convertRowIndexToModel(selectedRow);
+        InputLcmsFile f = m.dataGet(i);
+        m.dataSet(i, new InputLcmsFile(f.getPath(), d.getExperimentName(), d.getReplicateNumber()));
+      }
+    }
+  }
+
+  private void actionByFileName() {
+    UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+
+    for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+      InputLcmsFile f = m.dataGet(i);
+      String group = StringUtils.upToLastDot(f.getPath().getFileName().toString());
+      m.dataSet(i, new InputLcmsFile(f.getPath(), group));
+    }
+  }
+
+  private void actionByParentDir() {
+    UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+
+    for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+      InputLcmsFile f = m.dataGet(i);
+      int count = f.getPath().getNameCount();
+      String group = count - 2 >= 0
+          ? f.getPath().getName(count - 2).toString()
+          : f.getPath().getName(count - 1).toString();
+      m.dataSet(i, new InputLcmsFile(f.getPath(), group));
+    }
+  }
+
+  private void actionConsecutive() {
+    UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+    final int groupNumMaxLen = (int) Math.ceil(Math.log(m.dataSize()));
+    for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+      InputLcmsFile f = m.dataGet(i);
+      m.dataSet(i, new InputLcmsFile(f.getPath(), "exp", i + 1));
+    }
   }
 }

@@ -193,7 +193,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void onMsfraggerUpdateAvailable(MessageMsfraggerUpdateAvailable m) {
+  public void on(MessageMsfraggerUpdateAvailable m) {
     StringBuilder sb = new StringBuilder();
     sb.append(
         String.format("There is a newer version of MSFragger available [%s].<br>\n", m.newVersion));
@@ -275,7 +275,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
-  public void onPhilosopherNewBin(MessagePhilosopherNewBin m) {
+  public void on(MessagePhilosopherNewBin m) {
     log.error("onPhilosopherNewBin triggered");
     if (StringUtils.isBlank(m.path)) {
       Bus.postSticky(new NoteConfigPhilosopher(null, "N/A"));
@@ -291,7 +291,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe(sticky = true)
-  public void onNoteConfigPhilosopher(NoteConfigPhilosopher m) {
+  public void on(NoteConfigPhilosopher m) {
     log.debug("Got {}", m);
     uiTextBinPhi.setText(m.path);
 
@@ -305,7 +305,7 @@ public class TabConfig extends JPanelWithEnablement {
 
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
-  public void onMsfraggerNewBin(MessageMsfraggerNewBin m) {
+  public void on(MessageMsfraggerNewBin m) {
     if (StringUtils.isBlank(m.binPath)) {
       return;
     }
@@ -324,7 +324,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe(sticky = true)
-  public void onNoteConfigMsfragger(NoteConfigMsfragger m) {
+  public void on(NoteConfigMsfragger m) {
     log.debug("Got {}", m);
     uiTextBinFragger.setText(m.path);
 
@@ -346,7 +346,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe
-  public void onUiRevalidate(MessageUiRevalidate m) {
+  public void on(MessageUiRevalidate m) {
     log.debug("Got MessageUiRevalidate");
     String binFragger = uiTextBinFragger.getNonGhostText();
     if (StringUtils.isNotBlank(binFragger)) {
@@ -366,7 +366,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
-  public void onFindSystemPython(MessageFindSystemPython m) {
+  public void on(MessageFindSystemPython m) {
     try {
       PyInfo pi = PyInfo.findSystemPython(3);
       log.debug("Found system wide python install: {}", pi);
@@ -377,7 +377,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
-  public void onPythonNewBin(MessagePythonNewBin m) {
+  public void on(MessagePythonNewBin m) {
     PyInfo pi;
     try {
       pi = PyInfo.fromCommand(m.command);
@@ -394,7 +394,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void onNoteConfigPython(NoteConfigPython m) {
+  public void on(NoteConfigPython m) {
     uiTextBinPython.setText(m.command);
     SwingUtils.setJEditorPaneContent(epPythonVer,
         StringUtils.isBlank(m.version) ? "Python version: N/A" : "Python version: " + m.version);
@@ -409,7 +409,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void onNoteConfigDbsplit(NoteConfigDbsplit m) {
+  public void on(NoteConfigDbsplit m) {
     if (m.ex != null) {
       log.debug("Got NoteDbsplitConfig with exception set");
       if (epDbsplitErrParent != null && !epDbsplitErrParent.isAncestorOf(epDbsplitErr)) {
@@ -441,7 +441,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void onNoteConfigSpeclibgen(NoteConfigSpeclibgen m) {
+  public void on(NoteConfigSpeclibgen m) {
     if (m.ex != null) {
       log.debug("Got NoteConfigSpeclibgen with exception set");
       if (epSpeclibgenErrParent != null && !epSpeclibgenErrParent.isAncestorOf(epSpeclibgenErr)) {

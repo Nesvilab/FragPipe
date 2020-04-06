@@ -29,7 +29,7 @@ public class TabUmpire extends JPanelWithEnablement {
   }
 
   @Subscribe
-  public void onUmpireEnabled(MessageUmpireEnabled m) {
+  public void on(MessageUmpireEnabled m) {
     umpirePanel.checkRunUmpireSe.setSelected(m.enabled);
   }
 }

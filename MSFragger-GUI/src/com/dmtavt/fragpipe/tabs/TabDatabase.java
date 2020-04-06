@@ -133,7 +133,7 @@ public class TabDatabase extends JPanelWithEnablement {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void onDecoyTag(MessageDecoyTag m) {
+  public void on(MessageDecoyTag m) {
     log.debug("Updating decoy tag text field to: {}", m.tag);
     uiTextDecoyTag.setText(m.tag);
     Path fasta = PathUtils.existing(getFastaPath());
@@ -143,7 +143,7 @@ public class TabDatabase extends JPanelWithEnablement {
   }
 
   @Subscribe
-  public void onFastaNewPath(MessageDbNewPath m) {
+  public void on(MessageDbNewPath m) {
     uiTextDbPath.setText(m.path);
     validateFasta(m.path);
   }
@@ -172,7 +172,7 @@ public class TabDatabase extends JPanelWithEnablement {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void onNoteConfigDatabase(NoteConfigDatabase m) {
+  public void on(NoteConfigDatabase m) {
     if (m.isValid) {
       uiTextDbPath.setText(m.path.toString());
       SwingUtils.setJEditorPaneContent(epDbInfo, true,
@@ -203,7 +203,7 @@ public class TabDatabase extends JPanelWithEnablement {
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void onNoteConfigPhilosopher(NoteConfigPhilosopher m) {
+  public void on(NoteConfigPhilosopher m) {
     btnDownload.setEnabled(m.isValid());
   }
 
@@ -221,7 +221,7 @@ public class TabDatabase extends JPanelWithEnablement {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void onUiRevalidate(MessageUiRevalidate m) {
+  public void on(MessageUiRevalidate m) {
     validateFasta(getFastaPath());
   }
 }
