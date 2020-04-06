@@ -16,6 +16,7 @@ import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
+import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCombo;
@@ -27,7 +28,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -63,6 +64,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private final MigUtils mu = MigUtils.get();
   private JButton btnFilesRemove;
   private JButton btnFilesClear;
+  public static final String TAB_PREFIX = "workflow.";
 
   private SimpleETable tableRawFiles;
   private UniqueLcmsFilesTableModel tableModelRawFiles;
@@ -77,8 +79,6 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JPanel pWorkflows;
   private JPanel pLcmsFiles;
   private JPanel pContent;
-
-  public static final String TAB_PREFIX = "workflow.";
 
   public TabWorkflow() {
     init();
@@ -115,6 +115,10 @@ public class TabWorkflow extends JPanelWithEnablement {
         .toString();
   }
 
+  private FormEntry.Builder fe(JComponent comp, String name) {
+    return Fragpipe.fe(comp, name, TAB_PREFIX);
+  }
+
   private JPanel createPanalWorkflows() {
     JPanel p = mu.panel(false, "Workflows");
 
@@ -133,11 +137,17 @@ public class TabWorkflow extends JPanelWithEnablement {
       log.debug("Load workflow button clicked");
       SwingUtils.showInfoDialog(this, "User clicked " + (String)uiCombo.getSelectedItem(), "Loading");
     });
-
+    FormEntry feComboWorkflow = fe(uiCombo, "workflow-option")
+        .label("Select an option to load config for:")
+        .tooltip("This is purely for convenience of loading appropriate defaults\n"
+            + "for various standard workflows.\n"
+            + "You can totally just set up all the options yourself.").create();
 
     p.add(epWorkflowsInfo, mu.ccL().growX().spanX().wrap());
+    p.add(feComboWorkflow.label(), mu.ccL().split());
+    p.add(feComboWorkflow.comp, mu.ccL());
     p.add(btnWorkflowLoad, mu.ccL().split());
-    p.add(uiCombo, mu.ccL().wrap());
+
     p.add(epWorkflowsDesc, mu.ccL().growX().spanX().wrap());
 
     return p;

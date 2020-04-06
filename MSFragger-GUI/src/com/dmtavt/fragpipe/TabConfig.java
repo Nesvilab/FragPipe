@@ -144,21 +144,19 @@ public class TabConfig extends JPanelWithEnablement {
 
   private JPanel createPanelTopButtons() {
     JPanel p = newMigPanel();
-    Supplier<CC> ccL = () -> new CC().alignX("left");
-    Supplier<CC> ccR = () -> new CC().alignX("right");
     p.add(UiUtils.createButton("About", e -> Bus.post(new MessageShowAboutDialog())),
-        ccL.get().split().spanX());
-    p.add(UiUtils.createButton("Clear Cache", e -> Bus.post(new MessageClearCache())), ccL.get());
+        ccL().split().spanX());
+    p.add(UiUtils.createButton("Clear Cache", e -> Bus.post(new MessageClearCache())), ccL());
     UiCheck uiCheckUmpire = UiUtils.createUiCheck("Enable DIA-Umpire", false,
         e -> Bus.post(new MessageUmpireEnabled(((JCheckBox) e.getSource()).isSelected())));
-    p.add(uiCheckUmpire, ccL.get());
+    p.add(uiCheckUmpire, ccL());
     JLabel sysInfo = new JLabel(SwingUtils.makeHtml(OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo()));
     sysInfo.setVerticalAlignment(JLabel.TOP);
-    p.add(sysInfo, ccR.get().wrap());
+    p.add(sysInfo, ccR().wrap());
     //p.add(UiUtils.createButton("Find tools", e -> post(new MessageFindTools())), ccL.get().split().spanX());
     JLabel label = new JLabel("Main tools configuration");
     label.setFont(new Font(label.getFont().getName(), Font.BOLD, label.getFont().getSize() + 3));
-    p.add(label, ccL.get().wrap());
+    p.add(label, ccL().wrap());
     return p;
   }
 
