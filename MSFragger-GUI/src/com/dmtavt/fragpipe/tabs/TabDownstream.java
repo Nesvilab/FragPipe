@@ -1,4 +1,4 @@
-package com.dmtavt.fragpipe;
+package com.dmtavt.fragpipe.tabs;
 
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 

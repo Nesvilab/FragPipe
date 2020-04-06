@@ -1,4 +1,4 @@
-package com.dmtavt.fragpipe;
+package com.dmtavt.fragpipe.tabs;
 
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageExportLog;

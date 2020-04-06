@@ -16,7 +16,7 @@
  */
 package umich.msfragger.gui;
 
-import static com.dmtavt.fragpipe.TabConfig.createFraggerCitationHtml;
+import static com.dmtavt.fragpipe.tabs.TabConfig.createFraggerCitationHtml;
 import static umich.msfragger.gui.MsfraggerGuiFrameUtils.createPhilosopherCitationHtml;
 import static umich.msfragger.gui.MsfraggerGuiFrameUtils.initEditorPaneSeqDb;
 

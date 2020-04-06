@@ -1,5 +1,6 @@
-package com.dmtavt.fragpipe;
+package com.dmtavt.fragpipe.tabs;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFiles;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFolder;
@@ -128,8 +129,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         + "all the tools. You can tweak the options yourself after loading.\n"
         + "Also, <a href=\"https://google.com\">see the tutorial</a>");
     final UiCombo uiCombo = UiUtils.createUiCombo(Arrays
-        .asList("Open Search", "Closed Search", "Non-specific Search", "Speclib generation",
-            "TMT-10 Quant"));
+        .asList("Open Search", "Closed Search", "Non-specific Search", "Speclib generation", "TMT-10 Quant"));
     final JEditorPane epWorkflowsDesc = SwingUtils.createClickableHtml(SwingUtils.makeHtml(genSentence()));
     epWorkflowsDesc.setPreferredSize(new Dimension(400, 50));
     uiCombo.addItemListener(e -> SwingUtils.setJEditorPaneContent(epWorkflowsDesc, genSentence()));
@@ -143,12 +143,12 @@ public class TabWorkflow extends JPanelWithEnablement {
             + "for various standard workflows.\n"
             + "You can totally just set up all the options yourself.").create();
 
-    p.add(epWorkflowsInfo, mu.ccL().growX().spanX().wrap());
-    p.add(feComboWorkflow.label(), mu.ccL().split());
-    p.add(feComboWorkflow.comp, mu.ccL());
-    p.add(btnWorkflowLoad, mu.ccL().split());
+    mu.add(p, epWorkflowsInfo).growX().spanX().wrap();
+    mu.add(p, feComboWorkflow.label()).split();
+    mu.add(p, feComboWorkflow.comp);
+    mu.add(p, btnWorkflowLoad).wrap();
 
-    p.add(epWorkflowsDesc, mu.ccL().growX().spanX().wrap());
+    mu.add(p, epWorkflowsDesc).growX().spanX().wrap();
 
     return p;
   }

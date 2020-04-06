@@ -1,7 +1,8 @@
-package com.dmtavt.fragpipe;
+package com.dmtavt.fragpipe.tabs;
 
 import static com.dmtavt.fragpipe.Fragpipe.fe;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.PyInfo;
@@ -47,7 +48,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
