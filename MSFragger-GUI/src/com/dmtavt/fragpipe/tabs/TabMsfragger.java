@@ -216,10 +216,8 @@ public class TabMsfragger extends JPanelWithEnablement {
   private UiCheck checkRun;
   private JScrollPane scroll;
   private JPanel pContent;
-  private ModificationsTableModel varModsModel;
-  private ModsTable varModsTable;
-  private ModificationsTableModel tableModelFixMods;
-  private javax.swing.JTable tableFixMods;
+  private ModsTable tableVarMods;
+  private ModsTable tableFixMods;
   private UiSpinnerInt uiSpinnerRam;
   private UiSpinnerInt uiSpinnerThreads;
   private UiCombo uiComboMassCalibrate;
@@ -577,11 +575,25 @@ public class TabMsfragger extends JPanelWithEnablement {
       return pBase;
   }
 
-  private ModsTable createVarModsTable() {
-    varModsModel = getDefaultVarModTableModel();
-    varModsTable = new ModsTable(varModsModel, TABLE_VAR_MODS_COL_NAMES, null);
+  private ModsTable createTableVarMods() {
+    Object[][] data = new Object[MsfraggerParams.VAR_MOD_COUNT_MAX][TABLE_VAR_MODS_COL_NAMES.length];
+    for (int i = 0; i < data.length; i++) {
+      data[i][0] = false;
+      data[i][1] = null;
+      data[i][2] = null;
+      data[i][3] = null;
+    }
+
+    ModificationsTableModel m = new ModificationsTableModel(
+        TABLE_VAR_MODS_COL_NAMES,
+        new Class<?>[]{Boolean.class, String.class, Double.class, Integer.class},
+        new boolean[]{true, true, true, true},
+        new int[]{0, 1, 2, 3},
+        data);
+
+    final ModsTable t = new ModsTable(m, TABLE_VAR_MODS_COL_NAMES, null);
     //varModsTable.setModel(varModsModel);
-    varModsTable.setToolTipText(
+    t.setToolTipText(
         "<html>Variable Modifications.<br/>\n" +
             "Values:<br/>\n" +
             "<ul>\n" +
@@ -604,15 +616,40 @@ public class TabMsfragger extends JPanelWithEnablement {
             "<li>variable_mod_01​ ​=​ ​15.9949​ ​M 3</li>\n" +
             "<li>variable_mod_02​ ​=​ ​42.0106​ ​[^ 1</li>\n" +
             "</ul>");
-    varModsTable.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
-    varModsTable.setDefaultRenderer(Integer.class, new TableCellIntRenderer());
+    t.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
+    t.setDefaultRenderer(Integer.class, new TableCellIntRenderer());
 
     // set cell editor for max occurs for var mods
     DefaultCellEditor cellEditorMaxOccurs = new TableCellIntSpinnerEditor(1, 5, 1);
-    varModsTable.setDefaultEditor(Integer.class, cellEditorMaxOccurs);
-    varModsTable.setFillsViewportHeight(true);
+    t.setDefaultEditor(Integer.class, cellEditorMaxOccurs);
+    t.setFillsViewportHeight(true);
 
-    return varModsTable;
+    return t;
+  }
+
+  private ModsTable createTableFixMods() {
+    Object[][] data = new Object[MsfraggerParams.ADDONS_HUMAN_READABLE.length][TABLE_FIX_MODS_COL_NAMES.length];
+    for (int i = 0; i < data.length; i++) {
+      data[i][0] = false;
+      data[i][1] = MsfraggerParams.ADDONS_HUMAN_READABLE[i];
+      data[i][2] = 0.0;
+    }
+
+    ModificationsTableModel m = new ModificationsTableModel(
+        TABLE_FIX_MODS_COL_NAMES,
+        new Class<?>[]{Boolean.class, String.class, Double.class},
+        new boolean[]{true, false, true},
+        new int[]{0, 1, 2},
+        data);
+
+    ModsTable t = new ModsTable(m, TABLE_FIX_MODS_COL_NAMES, null);
+
+    t.setToolTipText(
+        "<html>Fixed Modifications.<br/>Act as if the mass of aminoacids/termini was permanently changed.");
+    t.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
+    t.setFillsViewportHeight(true);
+
+    return t;
   }
 
   private JPanel createPanelMods() {
@@ -631,12 +668,11 @@ public class TabMsfragger extends JPanelWithEnablement {
         .label("Max combinations").create();
     FormEntry feMultipleVarModsOnResidue = fe(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, new UiCheck("Multiple mods on residue", null))
         .tooltip("<html>Allow a single residue to carry multiple modifications.").create();
-    varModsTable = createVarModsTable();
-
+    tableVarMods = createTableVarMods();
     SwingUtilities.invokeLater(() -> {
-      setJTableColSize(varModsTable, 0, 20, 150, 50);
+      setJTableColSize(tableVarMods, 0, 20, 150, 50);
     });
-    JScrollPane varModsScroll = new JScrollPane(varModsTable,
+    JScrollPane varModsScroll = new JScrollPane(tableVarMods,
         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     //tableScrollVarMods.setPreferredSize(new Dimension(tableScrollVarMods.getPreferredSize().width, 140));
 
@@ -651,12 +687,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     JPanel pFixmods = new JPanel(new MigLayout(new LC()));
     pFixmods.setBorder(new TitledBorder("Fixed modifications"));
 
-    tableFixMods = new JTable();
-    tableFixMods.setModel(getDefaultFixModTableModel());
-    tableFixMods.setToolTipText(
-        "<html>Fixed Modifications.<br/>Act as if the mass of aminoacids/termini was permanently changed.");
-    tableFixMods.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
-    tableFixMods.setFillsViewportHeight(true);
+    tableFixMods = createTableFixMods();
     SwingUtilities.invokeLater(() -> {
       setJTableColSize(tableFixMods, 0, 20, 150, 50);
     });
@@ -697,24 +728,6 @@ public class TabMsfragger extends JPanelWithEnablement {
     pContent.add(pMods, new CC().wrap().growX());
 
     return pMods;
-  }
-
-  private synchronized ModificationsTableModel getDefaultVarModTableModel() {
-    Object[][] data = new Object[MsfraggerParams.VAR_MOD_COUNT_MAX][TABLE_VAR_MODS_COL_NAMES.length];
-    for (int i = 0; i < data.length; i++) {
-      data[i][0] = false;
-      data[i][1] = null;
-      data[i][2] = null;
-      data[i][3] = null;
-    }
-
-    ModificationsTableModel m = new ModificationsTableModel(
-        TABLE_VAR_MODS_COL_NAMES,
-        new Class<?>[]{Boolean.class, String.class, Double.class, Integer.class},
-        new boolean[]{true, true, true, true},
-        new int[]{0, 1, 2, 3},
-        data);
-    return m;
   }
 
   /** Panel with all the advanced options. */
@@ -1094,27 +1107,6 @@ public class TabMsfragger extends JPanelWithEnablement {
     table.getColumnModel().getColumn(colIndex).setPreferredWidth(prefW);
   }
 
-  private synchronized TableModel getDefaultFixModTableModel() {
-    if (tableModelFixMods != null) {
-      return tableModelFixMods;
-    }
-    Object[][] data = new Object[MsfraggerParams.ADDONS_HUMAN_READABLE.length][TABLE_FIX_MODS_COL_NAMES.length];
-    for (int i = 0; i < data.length; i++) {
-      data[i][0] = false;
-      data[i][1] = MsfraggerParams.ADDONS_HUMAN_READABLE[i];
-      data[i][2] = 0.0;
-    }
-
-    tableModelFixMods = new ModificationsTableModel(
-        TABLE_FIX_MODS_COL_NAMES,
-        new Class<?>[]{Boolean.class, String.class, Double.class},
-        new boolean[]{true, false, true},
-        new int[]{0, 1, 2},
-        data);
-
-    return tableModelFixMods;
-  }
-
   private void updateRowHeights(JTable table) {
     for (int row = 0; row < table.getRowCount(); row++) {
       int rowHeight = table.getRowHeight();
@@ -1131,10 +1123,10 @@ public class TabMsfragger extends JPanelWithEnablement {
   private void formFrom(MsfraggerParams params) {
     Map<String, String> map = paramsTo(params);
     formFrom(map);
-    formFromVarMods(varModsModel, params.getVariableMods());
-    formFromFixMods(tableModelFixMods, params.getAdditionalMods());
-    updateRowHeights(varModsTable);
-    setJTableColSize(varModsTable, 0, 20, 150, 50);
+    formFromVarMods(tableVarMods.model, params.getVariableMods());
+    formFromFixMods(tableFixMods.model, params.getAdditionalMods());
+    updateRowHeights(tableVarMods);
+    setJTableColSize(tableVarMods, 0, 20, 150, 50);
     updateRowHeights(tableFixMods);
     setJTableColSize(tableFixMods, 0, 20, 150, 50);
   }
@@ -1145,11 +1137,11 @@ public class TabMsfragger extends JPanelWithEnablement {
 
     // before collecting mods, make sure that no table cell editor is open
     stopJTableEditing(tableFixMods);
-    stopJTableEditing(varModsTable);
+    stopJTableEditing(tableVarMods);
 
-    List<Mod> modsVar = formTo(varModsModel);
+    List<Mod> modsVar = formTo(tableVarMods.model);
     params.setVariableMods(modsVar);
-    List<Mod> modsFix = formTo(tableModelFixMods);
+    List<Mod> modsFix = formTo(tableFixMods.model);
     params.setAdditionalMods(modsFix);
     return params;
   }
