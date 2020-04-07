@@ -810,22 +810,20 @@ public class MsfraggerGuiFrameUtils {
     }
   }
 
-  public static void initEditorPaneSeqDb(JEditorPane editorSequenceDb) {
-    // for copying style
+  public static String createSeqDbExplanationContent() {
     JLabel label = new JLabel();
     Font font = label.getFont();
 
-    // create some css from the label's font
-    StringBuilder style = new StringBuilder("font-family:" + font.getFamily() + ";");
-    style.append("font-weight:").append(font.isBold() ? "bold" : "normal").append(";");
-    style.append("font-size:").append(font.getSize()).append("pt;");
-
-    JEditorPane ep = editorSequenceDb;
-    ep.setContentType("text/html");
     final String codeTag = "<code style=\" font-size:" + font.getSize() + "; \">";
-    final String bin = OsUtils.isWindows() ? "philosopher_windows_amd64.exe" : "philosopher";
-    ep.setText("<html><body style=\"" + style + "\">"
-        + "<b>To create protein sequence database for FragPipe analysis either:</b><br/><br/>"
+    final String bin = OsUtils.isWindows() ? "philosopher.exe" : "philosopher";
+
+    String content = ""
+        + "FragPipe requires a standard FASTA formatted protein database to perform the search.<br/>"
+        + "Decoy sequence IDs (used for false discovery rate estimation) must be prepended with "
+        + "the \"Decoy protein prefix\" (see text field above).<br/><br/>"
+        + "If unsure, a good place to start is to go to <a href=\"http://www.uniprot.org/proteomes/\">UniProt website</a>. "
+        + "However, if you just download a fasta file from UniProt, it will not contain decoys.<br/><br/>"
+        + "<b>There are two simple ways to get a database complete with decoys added:</b><br/><br/>"
         + "1) Simply click 'Download' button next to the text field above.<br/><br/>"
         + "or<br/><br/>"
         + "2) Run Philosopher from the command line to download protein sequences from UniProt.<br/>"
@@ -849,9 +847,13 @@ public class MsfraggerGuiFrameUtils {
         + "<br/>"
         + "For detailed information on creating and formatting databases for FragPipe analysis, please see <a href=\"https://github.com/Nesvilab/philosopher/wiki/How-to-Prepare-a-Protein-Database\">https://github.com/Nesvilab/philosopher/wiki/How-to-Prepare-a-Protein-Database</a>.<br/>"
         + "<br/>"
-        + "<br/>"
-        + "</body></html>");
+        + "<br/>";
+    return content;
+  }
 
+  public static void initEditorPaneSeqDb(JEditorPane ep) {
+    ep.setContentType("text/html");
+    SwingUtils.setJEditorPaneContent(ep, SwingUtils.wrapInStyledHtml(createSeqDbExplanationContent()));
     // handle link messages
     ep.addHyperlinkListener(e -> {
       if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
@@ -864,7 +866,7 @@ public class MsfraggerGuiFrameUtils {
       }
     });
     ep.setEditable(false);
-    ep.setBackground(label.getBackground());
+    ep.setBackground(new JLabel().getBackground());
   }
 
    public static boolean validateAndSavePhilosopherPath(final MsfraggerGuiFrame guiFrame, final String path) {

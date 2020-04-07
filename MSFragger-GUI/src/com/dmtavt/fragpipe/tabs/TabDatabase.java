@@ -22,6 +22,7 @@ import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -40,6 +41,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.FragpipeUtil;
+import umich.msfragger.gui.MsfraggerGuiFrameUtils;
 import umich.msfragger.params.ThisAppProps;
 
 public class TabDatabase extends JPanelWithEnablement {
@@ -58,7 +60,15 @@ public class TabDatabase extends JPanelWithEnablement {
     initMore();
   }
 
+  private void setTooltipBtnDownload(boolean isEnabled) {
+    String tip = isEnabled ? null : "Configure Philosopher to enable download button";
+    btnDownload.setToolTipText(tip);
+  }
+
   private void initMore() {
+    updateEnabledStatus(btnDownload, false);
+    setTooltipBtnDownload(false);
+
     Bus.register(this);
   }
 
@@ -66,6 +76,7 @@ public class TabDatabase extends JPanelWithEnablement {
     this.setLayout(new MigLayout(new LC().fillX()));
 
     mu.add(this, createPanelDbSelection()).growX().wrap();
+    mu.add(this, createPanelInfo()).growX().wrap();
 
   }
 
@@ -84,7 +95,6 @@ public class TabDatabase extends JPanelWithEnablement {
         () -> createFilechooserFasta(uiTextDbPath),
         paths -> Bus.post(new MessageDbNewPath(paths.get(0).toString())));
     btnDownload = UiUtils.createButton("Download", this::actionDbDownload);
-    btnDownload.setEnabled(false);
 
     String defaultTag = Fragpipe.props().getProperty(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
     uiTextDecoyTag = UiUtils.uiTextBuilder().cols(12).text(defaultTag).create();
@@ -111,6 +121,16 @@ public class TabDatabase extends JPanelWithEnablement {
     }));
     mu.add(p, btnDecoyDetect);
     mu.add(p, epDbInfo);
+    return p;
+  }
+
+  private JPanel createPanelInfo() {
+    JPanel p = mu.panel(false, "Quick start with protein sequence databases");
+    JEditorPane epInfo = SwingUtils
+        .createClickableHtml(MsfraggerGuiFrameUtils.createSeqDbExplanationContent());
+    epInfo.setPreferredSize(new Dimension(400, 100));
+    mu.add(p, epInfo).growX().wrap();
+
     return p;
   }
 
@@ -204,7 +224,8 @@ public class TabDatabase extends JPanelWithEnablement {
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigPhilosopher m) {
-    btnDownload.setEnabled(m.isValid());
+    updateEnabledStatus(btnDownload, m.isValid());
+    setTooltipBtnDownload(m.isValid());
   }
 
   private void actionDbDownload(ActionEvent e) {
