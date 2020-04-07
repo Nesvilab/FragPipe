@@ -644,10 +644,10 @@ Commands to execute:
 {'~' * 69}''', flush=True)
 	(output_directory / "cmds.txt").write_text(allcmds)
 	procs = []
-	for e in easypqp_convert_cmds:
+	for i, e in enumerate(easypqp_convert_cmds):
 		while sum(p.poll() is None for p in procs) >= nproc:
 			time.sleep(1)
-		procs.append(subprocess.Popen(e, cwd=os_fspath(output_directory), stdout=subprocess.DEVNULL))
+		procs.append(subprocess.Popen(e, cwd=os_fspath(output_directory), stdout=open(output_directory / f'easypqp_convert_{i}.log', 'w'), stderr=subprocess.STDOUT))
 		print(f'Executing {e}')
 
 	for p in procs:
