@@ -8,9 +8,9 @@ import com.dmtavt.fragpipe.messages.MessagePrecursorSelectionMode;
 import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
-import com.dmtavt.fragpipe.messages.MessageValidityFragger;
 import com.dmtavt.fragpipe.messages.MessageValidityMassCalibration;
 import com.dmtavt.fragpipe.messages.MessageValidityMsadjuster;
+import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.github.chhh.utils.CacheUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
@@ -54,13 +54,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
@@ -79,9 +77,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableModel;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -578,7 +574,7 @@ public class TabMsfragger extends JPanelWithEnablement {
       return pBase;
   }
 
-  private static Object[][] createVarModsData(List<Mod> mods) {
+  private static Object[][] convertModsToVarModsData(List<Mod> mods) {
     Object[][] data = new Object[MsfraggerParams.VAR_MOD_COUNT_MAX][TABLE_VAR_MODS_COL_NAMES.length];
     for (int i = 0; i < data.length; i++) {
       data[i][0] = false;
@@ -600,14 +596,15 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
   private ModsTable createTableVarMods() {
-    Object[][] data = createVarModsData(Collections.emptyList());
+    Object[][] data = convertModsToVarModsData(Collections.emptyList());
     ModificationsTableModel m = new ModificationsTableModel(
         TABLE_VAR_MODS_COL_NAMES,
         new Class<?>[]{Boolean.class, String.class, Double.class, Integer.class},
         new boolean[]{true, true, true, true},
         new int[]{0, 1, 2, 3},
         data);
-    final ModsTable t = new ModsTable(m, TABLE_VAR_MODS_COL_NAMES, TabMsfragger::createVarModsData);
+    final ModsTable t = new ModsTable(m, TABLE_VAR_MODS_COL_NAMES, TabMsfragger::convertModsToVarModsData);
+    Fragpipe.rename(t, "table.var-mods", TAB_PREFIX);
 
     t.setToolTipText(
         "<html>Variable Modifications.<br/>\n" +
@@ -643,7 +640,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     return t;
   }
 
-  private Object[][] createFixModsData(List<Mod> mods) {
+  private static Object[][] convertModsToFixTableData(List<Mod> mods) {
     Object[][] data = new Object[MsfraggerParams.ADDONS_HUMAN_READABLE.length][TABLE_FIX_MODS_COL_NAMES.length];
     for (int i = 0; i < data.length; i++) {
       data[i][0] = false;
@@ -663,7 +660,7 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
   private ModsTable createTableFixMods() {
-    Object[][] data = createFixModsData(Collections.emptyList());
+    Object[][] data = convertModsToFixTableData(Collections.emptyList());
 
     ModificationsTableModel m = new ModificationsTableModel(
         TABLE_FIX_MODS_COL_NAMES,
@@ -672,7 +669,8 @@ public class TabMsfragger extends JPanelWithEnablement {
         new int[]{0, 1, 2},
         data);
 
-    ModsTable t = new ModsTable(m, TABLE_FIX_MODS_COL_NAMES, null);
+    ModsTable t = new ModsTable(m, TABLE_FIX_MODS_COL_NAMES, TabMsfragger::convertModsToFixTableData);
+    Fragpipe.rename(t, "table.fix-mods", TAB_PREFIX);
 
     t.setToolTipText(
         "<html>Fixed Modifications.<br/>Act as if the mass of aminoacids/termini was permanently changed.");
@@ -1153,8 +1151,8 @@ public class TabMsfragger extends JPanelWithEnablement {
   private void formFrom(MsfraggerParams params) {
     Map<String, String> map = paramsTo(params);
     formFrom(map);
-    formFromVarMods(tableVarMods.model, params.getVariableMods());
-    formFromFixMods(tableFixMods.model, params.getAdditionalMods());
+    tableVarMods.setData(params.getVariableMods());
+    tableFixMods.setData(params.getAdditionalMods());
     updateRowHeights(tableVarMods);
     setJTableColSize(tableVarMods, 0, 20, 150, 50);
     updateRowHeights(tableFixMods);
@@ -1184,16 +1182,6 @@ public class TabMsfragger extends JPanelWithEnablement {
     }
     log.debug("cell editor existed, trying to close");
     return editor.stopCellEditing();
-  }
-
-  private void formFromVarMods(ModificationsTableModel model, List<Mod> mods) {
-    Object[][] data = modListToVarTableData(mods);
-    model.setDataVector(data, TabMsfragger.TABLE_VAR_MODS_COL_NAMES);
-  }
-
-  private void formFromFixMods(ModificationsTableModel model, List<Mod> mods) {
-    Object[][] data = modListToFixTableData(mods);
-    model.setDataVector(data, TabMsfragger.TABLE_FIX_MODS_COL_NAMES);
   }
 
   private List<Mod> formTo(ModificationsTableModel model) {
@@ -1369,39 +1357,9 @@ public class TabMsfragger extends JPanelWithEnablement {
     return mods.stream().anyMatch(m -> m.sites != null && m.sites.contains("[*"));
   }
 
-  private Object[][] modListToVarTableData(List<Mod> mods) {
-    final Object[][] data = new Object[mods.size()][TABLE_VAR_MODS_COL_NAMES.length];
-    for (int i = 0; i < mods.size(); i++) {
-      Mod m = mods.get(i);
-      data[i][0] = m.isEnabled;
-      data[i][1] = m.sites;
-      data[i][2] = m.massDelta;
-      data[i][3] = m.maxOccurrences;
-    }
-    return data;
-  }
-  private Object[][] modListToFixTableData(List<Mod> mods) {
-    final Object[][] data = new Object[mods.size()][TABLE_FIX_MODS_COL_NAMES.length];
-    for (int i = 0; i < mods.size(); i++) {
-      Mod m = mods.get(i);
-      data[i][0] = m.isEnabled;
-      data[i][1] = m.sites;
-      data[i][2] = m.massDelta;
-    }
-    return data;
-  }
-
-  private void setTableData(DefaultTableModel model, Object[][] data, String[] colNames,
-      int maxRows) {
-    model.setRowCount(0);
-    model.setRowCount(maxRows);
-    model.setDataVector(data, colNames);
-  }
-
   @Subscribe
-  public void on(MessageValidityFragger msg) {
-    enablementMapping.put(this, msg.isValid);
-    updateEnabledStatus(this, msg.isValid);
+  public void on(NoteConfigMsfragger m) {
+    updateEnabledStatus(this, m.isValid());
   }
 
   @Subscribe

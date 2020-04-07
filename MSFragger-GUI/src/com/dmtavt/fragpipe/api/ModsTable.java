@@ -26,6 +26,11 @@ public class ModsTable extends JTable implements StringRepresentable {
     this.modsToData = modsToData;
   }
 
+  public void setData(List<Mod> mods) {
+    Object[][] data = modsToData.apply(mods);
+    model.setDataVector(data, colNames);
+  }
+
   @Override
   public String asString() {
     return model.getModifications().stream()
