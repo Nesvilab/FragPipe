@@ -16,6 +16,7 @@
  */
 package com.github.chhh.utils;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.github.chhh.utils.swing.GhostedTextComponent;
 import com.github.chhh.utils.swing.StringRepresentable;
 import java.awt.BorderLayout;
@@ -41,7 +42,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +51,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -84,9 +83,6 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
-import net.miginfocom.layout.LC;
-import net.miginfocom.swing.MigLayout;
-import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
@@ -95,12 +91,38 @@ import umich.msfragger.gui.MsfraggerGuiFrame;
  * @author dmitriya
  */
 public class SwingUtils {
+
   private static final Logger log = LoggerFactory.getLogger(SwingUtils.class);
   private static volatile String[] fontNames = null;
   private static volatile Font[] fonts = null;
   private static final Object fontLock = new Object();
 
   private SwingUtils() {
+  }
+
+  /**
+   * Drills down component hierarchy renaming every component that has non-empty {@link
+   * JComponent#getName()} with a prefix and suffix.
+   */
+  public static void renameDeep(Component origin, boolean includeOrigin, String prefix,
+      String suffix) {
+    final boolean doPrefix = StringUtils.isNotBlank(prefix);
+    final boolean doSuffix = StringUtils.isNotBlank(suffix);
+    if (!doPrefix && !doSuffix) {
+      return;
+    }
+    SwingUtils.traverse(origin, includeOrigin, component -> {
+      String name = component.getName();
+      if (StringUtils.isNotBlank(name)) {
+        if (doPrefix) {
+          name = StringUtils.prependOnce(name, prefix);
+        }
+        if (doSuffix) {
+          name = StringUtils.appendOnce(name, suffix);
+        }
+        component.setName(name);
+      }
+    });
   }
 
   /**
@@ -114,7 +136,8 @@ public class SwingUtils {
     return s;
   }
 
-  public static DialogAndThread runThreadWithProgressBar(String title, Component parent, Runnable runnable) {
+  public static DialogAndThread runThreadWithProgressBar(String title, Component parent,
+      Runnable runnable) {
     JFrame frame = SwingUtils.findParentFrame(parent);
     final JDialog dialog = new JDialog(frame, title, true);
     JProgressBar bar = new JProgressBar(0, 100);
@@ -130,7 +153,8 @@ public class SwingUtils {
       try {
         runnable.run();
       } catch (Exception ex) {
-        throw new IllegalStateException("Something happened while running behind a progress bar", ex);
+        throw new IllegalStateException("Something happened while running behind a progress bar",
+            ex);
       } finally {
         dialog.setVisible(false);
         dialog.dispose();
@@ -180,6 +204,7 @@ public class SwingUtils {
   }
 
   public static class DialogAndThread {
+
     public final JDialog dialog;
     public final Thread thread;
 
@@ -225,7 +250,8 @@ public class SwingUtils {
     } else if (c instanceof JComboBox) {
       val = ((JComboBox<?>) c).getModel().getSelectedItem().toString();
     } else {
-      throw new UnsupportedOperationException("getStrVal() not implemented for type: " + c.getClass().getCanonicalName());
+      throw new UnsupportedOperationException(
+          "getStrVal() not implemented for type: " + c.getClass().getCanonicalName());
     }
 
     return val.trim();
@@ -245,7 +271,8 @@ public class SwingUtils {
     } else if (c instanceof JSpinner) {
       ((JSpinner) c).setValue(Double.parseDouble(val));
     } else {
-      throw new UnsupportedOperationException("setStrVal() not implemented for type: " + c.getClass().getCanonicalName());
+      throw new UnsupportedOperationException(
+          "setStrVal() not implemented for type: " + c.getClass().getCanonicalName());
     }
   }
 
@@ -255,12 +282,12 @@ public class SwingUtils {
    * Document}, and a {@link PropertyChangeListener} on the text component to detect if the {@code
    * Document} itself is replaced.
    *
-   * @param text any text component, such as a {@link JTextField} or {@link JTextArea}
+   * @param text           any text component, such as a {@link JTextField} or {@link JTextArea}
    * @param changeListener a listener to receieve {@link ChangeEvent}s when the text is changed; the
-   * source object for the events will be the text component
+   *                       source object for the events will be the text component
    * @throws NullPointerException if either parameter is null
-   *
-   * Taken from http://stackoverflow.com/questions/3953208/value-change-listener-to-jtextfield
+   *                              <p>
+   *                              Taken from http://stackoverflow.com/questions/3953208/value-change-listener-to-jtextfield
    * @author Boann
    */
   public static void addChangeListener(final JTextComponent text,
@@ -320,14 +347,15 @@ public class SwingUtils {
   }
 
   public static void enableComponents(Container container, boolean enabled,
-    boolean applyToContainer) {
+      boolean applyToContainer) {
     enableComponents(container, enabled, applyToContainer, Collections.emptyList());
   }
 
   public static void enableComponents(Container container, boolean enabled,
       boolean applyToContainer, List<Component> exclusions) {
-    if (applyToContainer)
+    if (applyToContainer) {
       container.setEnabled(enabled);
+    }
     Component[] components = container.getComponents();
     for (Component component : components) {
       if (exclusions.contains(component)) {
@@ -349,7 +377,7 @@ public class SwingUtils {
    * clicks are opened using the default browser.
    *
    * @param text Your text to be displayed in HTML context. Don't add the opening and closing HTML
-   * tags. To include links use the regular A tags.
+   *             tags. To include links use the regular A tags.
    */
   public static JEditorPane createClickableHtml(String text) {
     return createClickableHtml(text, true, true, null);
@@ -360,8 +388,8 @@ public class SwingUtils {
    * clicks are opened using the default browser.
    *
    * @param applyMakeHtml Apply {@link #makeHtml(String)} function before creating Editor Pane.
-   * @param text Your text to be displayed in HTML context. Don't add the opening and closing HTML
-   * tags. To include links use the regular A tags.
+   * @param text          Your text to be displayed in HTML context. Don't add the opening and
+   *                      closing HTML tags. To include links use the regular A tags.
    */
   public static JEditorPane createClickableHtml(boolean applyMakeHtml, String text) {
     return createClickableHtml(applyMakeHtml ? makeHtml(text) : text, true, true, null);
@@ -371,7 +399,8 @@ public class SwingUtils {
     return createClickableHtmlInScroll(applyMakeHtml, text, null);
   }
 
-  public static JScrollPane createClickableHtmlInScroll(boolean applyMakeHtml, String text, Dimension preferredEditorPaneSize) {
+  public static JScrollPane createClickableHtmlInScroll(boolean applyMakeHtml, String text,
+      Dimension preferredEditorPaneSize) {
     JEditorPane ep = createClickableHtml(applyMakeHtml ? makeHtml(text) : text, true,
         true, null);
     ep.setPreferredSize(preferredEditorPaneSize);
@@ -450,8 +479,9 @@ public class SwingUtils {
   /**
    * Creates a non-editable JEditorPane that has the same styling as default JLabels and with
    * hyperlinks clickable. They will be opened in the system default browser.
- * @param text Your text to be displayed in HTML context. Don't add the opening and closing HTML
-   * tags. To include links use the regular A tags.
+   *
+   * @param text    Your text to be displayed in HTML context. Don't add the opening and closing
+   *                HTML tags. To include links use the regular A tags.
    * @param bgColor if {@code useJlabelBackground} is false, force this color. Can be null
    */
   public static JEditorPane createClickableHtml(String text,
@@ -462,11 +492,13 @@ public class SwingUtils {
   /**
    * Creates a non-editable JEditorPane that has the same styling as default JLabels and with
    * hyperlinks clickable. They will be opened in the system default browser.
- * @param text Your text to be displayed in HTML context. Don't add the opening and closing HTML
-   * tags. To include links use the regular A tags.
-   * @param handleHyperlinks Add a handler for hyperlinks to be opened in the
- * @param useJlabelBackground Use default background of JLabels.
- * @param bgColor if {@code useJlabelBackground} is false, force this color. Can be null
+   *
+   * @param text                Your text to be displayed in HTML context. Don't add the opening and
+   *                            closing HTML tags. To include links use the regular A tags.
+   * @param handleHyperlinks    Add a handler for hyperlinks to be opened in the
+   * @param useJlabelBackground Use default background of JLabels.
+   * @param bgColor             if {@code useJlabelBackground} is false, force this color. Can be
+   *                            null
    */
   public static JEditorPane createClickableHtml(String text, boolean handleHyperlinks,
       boolean useJlabelBackground, Color bgColor) {
@@ -477,12 +509,14 @@ public class SwingUtils {
   /**
    * Creates a non-editable JEditorPane that has the same styling as default JLabels and with
    * hyperlinks clickable. They will be opened in the system default browser.
-   *  @param text Your text to be displayed in HTML context. Don't add the opening and closing HTML
-   * tags. To include links use the regular A tags.
-   * @param handleHyperlinks Add a handler for hyperlinks to be opened in the
+   *
+   * @param text                Your text to be displayed in HTML context. Don't add the opening and
+   *                            closing HTML tags. To include links use the regular A tags.
+   * @param handleHyperlinks    Add a handler for hyperlinks to be opened in the
    * @param useJlabelBackground Use default background of JLabels.
-   * @param bgColor if {@code useJlabelBackground} is false, force this color. Can be null
-   * @param editable If the editor pane should be editable.
+   * @param bgColor             if {@code useJlabelBackground} is false, force this color. Can be
+   *                            null
+   * @param editable            If the editor pane should be editable.
    */
   public static JEditorPane createClickableHtml(String text, boolean handleHyperlinks,
       boolean useJlabelBackground, Color bgColor, boolean editable) {
@@ -522,14 +556,14 @@ public class SwingUtils {
   }
 
   /**
-   * Make the parent JDialog of a component resizable using the HierarchyListener.
-   * Taken from: https://stackoverflow.com/a/7989417/88814
+   * Make the parent JDialog of a component resizable using the HierarchyListener. Taken from:
+   * https://stackoverflow.com/a/7989417/88814
    */
   public static void makeDialogResizable(Component c) {
     c.addHierarchyListener(e -> {
       Window window = SwingUtilities.getWindowAncestor(c);
       if (window instanceof Dialog) {
-        Dialog dialog = (Dialog)window;
+        Dialog dialog = (Dialog) window;
         if (!dialog.isResizable()) {
           dialog.setResizable(true);
         }
@@ -539,6 +573,7 @@ public class SwingUtils {
 
   /**
    * Tries to open the default browser.
+   *
    * @throws IllegalStateException if the operation fails.
    */
   public static void openBrowserOrThrow(String url) {
@@ -552,6 +587,7 @@ public class SwingUtils {
 
   /**
    * Tries to open the default browser.
+   *
    * @throws IllegalStateException if the operation fails.
    */
   public static void openBrowserOrThrow(URI uri) {
@@ -564,6 +600,7 @@ public class SwingUtils {
 
   /**
    * Tries to open the default browser. Does nothing if the operation fails.
+   *
    * @param doLog Log the error with slf4j or not.
    */
   public static void openBrowserOrLog(URI uri, boolean doLog) {
@@ -601,22 +638,24 @@ public class SwingUtils {
 //    }
 //  }
 
-  public static void traverse(Component origin, boolean includeOrigin, Consumer<Component> callback) {
+  public static void traverse(Component origin, boolean includeOrigin,
+      Consumer<Component> callback) {
     synchronized (origin.getTreeLock()) {
       ArrayDeque<Component> fifo = new ArrayDeque<>();
-      if (includeOrigin)
+      if (includeOrigin) {
         fifo.addLast(origin);
-      else
-      if (origin instanceof Container) {
-        for (Component child : ((Container) origin).getComponents())
+      } else if (origin instanceof Container) {
+        for (Component child : ((Container) origin).getComponents()) {
           fifo.addLast(child);
+        }
       }
       while (!fifo.isEmpty()) {
         Component comp = fifo.removeLast();
         callback.accept(comp);
         if (comp instanceof Container) {
-          for (Component child : ((Container) comp).getComponents())
+          for (Component child : ((Container) comp).getComponents()) {
             fifo.addLast(child);
+          }
         }
       }
     }
@@ -624,11 +663,13 @@ public class SwingUtils {
 
   /**
    * Drills down a {@link Container}, mapping all components that 1) have their name set, 2) are
-   * {@link StringRepresentable} and returns the mapping.<br/>
-   * Useful for persisting values from Swing windows.
+   * {@link StringRepresentable} and returns the mapping.<br/> Useful for persisting values from
+   * Swing windows.
+   *
    * @param compNameFilter Can be null, will accept all Component names then.
    */
-  public static Map<String, String> valuesToMap(Container origin, Predicate<String> compNameFilter) {
+  public static Map<String, String> valuesToMap(Container origin,
+      Predicate<String> compNameFilter) {
     Map<String, Component> comps = SwingUtils.mapComponentsByName(origin, true);
     Map<String, String> map = new HashMap<>(comps.size());
     compNameFilter = compNameFilter == null ? s -> true : compNameFilter;
@@ -645,11 +686,11 @@ public class SwingUtils {
       final Component comp = e.getValue();
       String value;
       if (comp instanceof StringRepresentable) {
-         value = ((StringRepresentable) comp).asString();
+        value = ((StringRepresentable) comp).asString();
       } else if (comp instanceof JCheckBox) {
-        value = Boolean.toString(((JCheckBox)comp).isSelected());
+        value = Boolean.toString(((JCheckBox) comp).isSelected());
       } else if (comp instanceof JTextComponent) {
-        value = ((JTextComponent)comp).getText();
+        value = ((JTextComponent) comp).getText();
       } else {
         log.debug(String
             .format("SwingUtils.valuesToMap() found component of type [%s] by name [%s] which "
@@ -661,8 +702,10 @@ public class SwingUtils {
       }
 
       if (value != null) {
-        if (comp instanceof GhostedTextComponent && value.equals(((GhostedTextComponent) comp).getGhostText())) {
-          log.debug("Skipping serializing ghost text component to map: '{}' has ghost value: '{}'", name, value);
+        if (comp instanceof GhostedTextComponent && value
+            .equals(((GhostedTextComponent) comp).getGhostText())) {
+          log.debug("Skipping serializing ghost text component to map: '{}' has ghost value: '{}'",
+              name, value);
         } else {
           map.put(name, value);
         }
@@ -672,8 +715,8 @@ public class SwingUtils {
   }
 
   /**
-   * Sets values for components in a {@link Container}. Components must 1) have their name set,
-   * 2) be either {@link StringRepresentable} or 3) {@link JCheckBox}, {@link JTextComponent}.
+   * Sets values for components in a {@link Container}. Components must 1) have their name set, 2)
+   * be either {@link StringRepresentable} or 3) {@link JCheckBox}, {@link JTextComponent}.
    */
   public static void valuesFromMap(Container origin, Map<String, String> map) {
     Map<String, Component> comps = SwingUtils.mapComponentsByName(origin, true);
@@ -692,9 +735,9 @@ public class SwingUtils {
 //          }
 //        }
         else if (comp instanceof JCheckBox) {
-          ((JCheckBox)comp).setSelected(Boolean.parseBoolean(s));
+          ((JCheckBox) comp).setSelected(Boolean.parseBoolean(s));
         } else if (comp instanceof JTextComponent) {
-          ((JTextComponent)comp).setText(s);
+          ((JTextComponent) comp).setText(s);
         } else {
           log.debug(String
               .format("SwingUtils.valuesFromMap() found component of type [%s] by name [%s] which "
@@ -705,6 +748,31 @@ public class SwingUtils {
           continue;
         }
       }
+    }
+  }
+
+  public static void setValue(Component comp, String s) {
+    if (comp instanceof StringRepresentable) {
+      ((StringRepresentable) comp).fromString(s);
+    }
+//        else if (comp instanceof JEditorPane) {
+//          JEditorPane ep = (JEditorPane)comp;
+//          if ("text/html".equals(ep.getContentType())) {
+//            ep.setText(SwingUtils.wrapInStyledHtml(s));
+//          }
+//        }
+    else if (comp instanceof JCheckBox) {
+      ((JCheckBox) comp).setSelected(Boolean.parseBoolean(s));
+    } else if (comp instanceof JTextComponent) {
+      ((JTextComponent) comp).setText(s);
+    } else {
+//      log.debug(String
+//          .format("SwingUtils.setValue() found component of type [%s] by name [%s] which "
+//                  + "does not implement [%s] and is not [%s, %s]",
+//              comp.getClass().getSimpleName(), comp.getName(),
+//              StringRepresentable.class.getSimpleName(), JCheckBox
+//                  .class.getSimpleName(), JTextComponent.class.getSimpleName()));
+      throw new IllegalArgumentException("Component not StringRepresentable, JCheckBox or JTextComponent. Can't set.");
     }
   }
 
@@ -754,8 +822,7 @@ public class SwingUtils {
   }
 
   /**
-   * Traverses from origin down the hierarchy putting all components with names set to
-   * a map.
+   * Traverses from origin down the hierarchy putting all components with names set to a map.
    */
   public static Map<String, Component> mapComponentsByName(Container origin,
       boolean includeOrigin) {
@@ -779,7 +846,7 @@ public class SwingUtils {
           map.put(name, c);
         }
         if (c instanceof Container) {
-          for (Component child: ((Container)c).getComponents()) {
+          for (Component child : ((Container) c).getComponents()) {
             fifo.addLast(child);
           }
         }
@@ -790,7 +857,8 @@ public class SwingUtils {
 
   /**
    * Show a message dialog wrapped into a scroll pane.
-   * @param parent The parent for the dialog, null is ok.
+   *
+   * @param parent    The parent for the dialog, null is ok.
    * @param component The component to be used as the message.
    */
   public static void showDialog(Component parent, final Component component) {
@@ -800,17 +868,20 @@ public class SwingUtils {
 
   /**
    * Show a message dialog wrapped into a scroll pane.
-   * @param parent The parent for the dialog, null is ok.
+   *
+   * @param parent    The parent for the dialog, null is ok.
    * @param component The component to be used as the message.
    */
-  public static void showDialog(Component parent, final Component component, String title, int msgType) {
+  public static void showDialog(Component parent, final Component component, String title,
+      int msgType) {
     makeDialogResizable(component);
     JOptionPane.showMessageDialog(parent, wrapInScrollForDialog(component), title, msgType);
   }
 
   /**
    * Show a message dialog wrapped into a scroll pane.
-   * @param parent The parent for the dialog, null is ok.
+   *
+   * @param parent    The parent for the dialog, null is ok.
    * @param component The component to be used as the message.
    */
   public static int showConfirmDialog(Component parent, final Component component) {
@@ -818,17 +889,18 @@ public class SwingUtils {
     return JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component));
   }
 
-  public static int showChoiceDialog(Component parent, Object message, String[] options, int startingOption) {
+  public static int showChoiceDialog(Component parent, Object message, String[] options,
+      int startingOption) {
     return JOptionPane
         .showOptionDialog(parent, message, "Delete the files?",
-            JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[startingOption]);
+            JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+            options[startingOption]);
   }
 
   /**
-   * Wraps the given component in a scroll pane and attaches a hierarchy listener
-   * that makes the parent dialog resizeable if the component is attached to a {@link Dialog}.
-   * This is mainly for use with {@link JOptionPane#showMessageDialog(Component, Object)} and
-   * the likes.
+   * Wraps the given component in a scroll pane and attaches a hierarchy listener that makes the
+   * parent dialog resizeable if the component is attached to a {@link Dialog}. This is mainly for
+   * use with {@link JOptionPane#showMessageDialog(Component, Object)} and the likes.
    */
   public static JScrollPane wrapInScrollForDialog(Component component) {
     // wrap a scrollpane around the component
@@ -848,8 +920,8 @@ public class SwingUtils {
   }
 
   /**
-   * Sets the uncaught exception handler for the thread this method is invoked in
-   * to a handler that shows a Swing GUI message dialog with error stacktrace.
+   * Sets the uncaught exception handler for the thread this method is invoked in to a handler that
+   * shows a Swing GUI message dialog with error stacktrace.
    */
   public static void setUncaughtExceptionHandlerMessageDialog(Component parent) {
     Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
@@ -892,8 +964,9 @@ public class SwingUtils {
   }
 
   public static String makeHtml(String html) {
-    if (html == null)
+    if (html == null) {
       return null;
+    }
     Pattern re = Pattern.compile("^\\s*<\\s*html\\s*>\\s*");
     Pattern reNewline = Pattern.compile("(?<!<br/>)(\n)");
     Matcher m = reNewline.matcher(html);
@@ -921,7 +994,8 @@ public class SwingUtils {
   /**
    * @param parent Can be null.
    */
-  public static void showErrorDialogWithStacktrace(Throwable e, Component parent, JComponent content, boolean doShowStacktrace) {
+  public static void showErrorDialogWithStacktrace(Throwable e, Component parent,
+      JComponent content, boolean doShowStacktrace) {
     JPanel panel = new JPanel();
     panel.setLayout(new BorderLayout());
     panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -950,7 +1024,8 @@ public class SwingUtils {
   /**
    * @param parent Can be null.
    */
-  public static void showErrorDialogWithStacktrace(Throwable e, Component parent, boolean doShowStacktrace) {
+  public static void showErrorDialogWithStacktrace(Throwable e, Component parent,
+      boolean doShowStacktrace) {
     showErrorDialogWithStacktrace(e, parent, null, doShowStacktrace);
   }
 
@@ -1013,8 +1088,9 @@ public class SwingUtils {
    * @return true if setting the LAF succeeded.
    */
   public static boolean setPlatformLafOrNimbus() {
-    if (setPlatformLookAndFeel())
+    if (setPlatformLookAndFeel()) {
       return true;
+    }
     try {
       for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
         if ("Nimbus".equals(info.getName())) {
@@ -1022,7 +1098,8 @@ public class SwingUtils {
           return true;
         }
       }
-    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ignored) {}
+    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ignored) {
+    }
     return false;
   }
 
@@ -1040,10 +1117,10 @@ public class SwingUtils {
   /**
    * Sets the icons for a frame. These are also used to display icons in the taskbar.
    *
-   * @param frame The frame to set the icons for.
-   * @param iconPaths The simplest way is to provide just the file names.
+   * @param frame                The frame to set the icons for.
+   * @param iconPaths            The simplest way is to provide just the file names.
    * @param classToFindResources A class relative to which the icons will be searched. This is a
-   * kludge to make things more fool-proof.
+   *                             kludge to make things more fool-proof.
    */
   public static void setFrameIcons(JFrame frame, java.util.List<String> iconPaths,
       Class<?> classToFindResources) {

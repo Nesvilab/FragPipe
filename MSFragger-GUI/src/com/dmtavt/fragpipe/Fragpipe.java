@@ -23,6 +23,7 @@ import com.dmtavt.fragpipe.tabs.TabQuantitaion;
 import com.dmtavt.fragpipe.tabs.TabRun;
 import com.dmtavt.fragpipe.tabs.TabUmpire;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
+import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
 import com.github.chhh.utils.LogUtils;
 import com.github.chhh.utils.ScreenUtils;
 import com.github.chhh.utils.StringUtils;
@@ -173,6 +174,15 @@ public class Fragpipe extends JFrame {
     });
   }
 
+  public static void getPropAndSetVal(String prop, Component comp) {
+    String v = props().getProperty(prop);
+    if (v == null) {
+      log.warn("No property in bundle: {}", prop);
+    } else {
+      SwingUtils.setValue(comp, v);
+    }
+  }
+
   private TextConsole createConsole() {
     TextConsole c = new TextConsole();
     final Font currentFont = c.getFont();
@@ -266,9 +276,10 @@ public class Fragpipe extends JFrame {
     addTabNoScroll.accept(new UiTab(TAB_NAME_LCMS, tabWorkflow, "/umich/msfragger/gui/icons/186-list-numbered.png", null));
     addTab.accept(new UiTab("Database", tabDatabase, "/umich/msfragger/gui/icons/093-drawer.png", null));
     addTab.accept(new UiTab("MSFragger", tabMsfragger, "/umich/msfragger/gui/icons/bolt-16.png", null));
-    addTab.accept(new UiTab("Downstream", tabValidation, "/umich/msfragger/gui/icons/348-filter.png", null));
+    addTab.accept(new UiTab("Validation", tabValidation, "/umich/msfragger/gui/icons/348-filter.png", null));
     addTab.accept(new UiTab("Quant", tabQuantitaion, "/umich/msfragger/gui/icons/360-sigma.png", null));
-    addTab.accept(new UiTab("PTMs + Misc", tabMisc, null, null));
+    addTab.accept(new UiTab("PTMs", tabMisc, null, null));
+    addTab.accept(new UiTab("Spec Lib", tabMisc, null, null));
     addTab.accept(new UiTab("Run", tabRun, "/umich/msfragger/gui/icons/video-play-16.png", null));
 
     return t;
@@ -525,10 +536,10 @@ public class Fragpipe extends JFrame {
 
   public static Properties props() {
     NoteFragpipeProperties p = Bus.getStickyEvent(NoteFragpipeProperties.class);
-    if (p == null || p.props == null) {
-      log.warn("Fragpipe properties sticky note was empty, should not happen");
-      return ThisAppProps.getLocalProperties();
+    if (p != null && p.props != null) {
+      return p.props;
     }
-    return p.props;
+    log.warn("Fragpipe properties sticky note was empty, but should have been loaded at startup");
+    return ThisAppProps.getLocalProperties();
   }
 }

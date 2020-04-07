@@ -16,6 +16,8 @@
  */
 package umich.msfragger.params;
 
+import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;

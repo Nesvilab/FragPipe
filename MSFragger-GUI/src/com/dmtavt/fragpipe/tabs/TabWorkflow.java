@@ -124,7 +124,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private JPanel createPanalWorkflows() {
-    JPanel p = mu.panel(false, "Workflows");
+    JPanel p = mu.newPanel("Workflows", true);
 
     epWorkflowsInfo = SwingUtils.createClickableHtml(true,
         "FragPipe and its collection of tools support multiple proteomic workflows.\n"
@@ -281,7 +281,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private JPanel createPanalLcmsFiles() {
-    JPanel p = mu.panel(false, "Input LC/MS Files");
+    JPanel p = mu.newPanel("Input LC/MS Files", true);
 
     JButton btnFilesAddFiles = button("Add files", MessageLcmsAddFiles::new);
     JButton btnFilesAddFolder = button("Add folder recursively", MessageLcmsAddFolder::new);

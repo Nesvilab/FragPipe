@@ -6,7 +6,6 @@ import javax.swing.border.TitledBorder;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import sun.tools.jconsole.JConsole;
 
 public class MigUtils {
   private static final MigUtils INSTANCE = new MigUtils();
@@ -30,18 +29,37 @@ public class MigUtils {
     return new CC().alignX("right");
   }
 
-  public JPanel panel() {
-    return panel(false, null);
+  public LC layout(JComponent comp) {
+    LC lc = new LC();
+    comp.setLayout(new MigLayout(lc));
+    return lc;
   }
 
-  public JPanel panel(boolean zeroInsets, String borderTitle) {
-    LC lc = new LC().fillX();
-    if (zeroInsets)
-      lc = lc.insetsAll("0px");
-    JPanel p = new JPanel(new MigLayout(lc));
+  public JComponent border(JComponent comp, String borderText) {
+    comp.setBorder(new TitledBorder(borderText));
+    return comp;
+  }
+
+  public JPanel newPanel(String borderTitle, boolean setLayout) {
+    JPanel p = new JPanel();
     if (borderTitle != null)
       p.setBorder(new TitledBorder(borderTitle));
+    if (setLayout)
+      p.setLayout(new MigLayout(new LC().fillX()));
     return p;
+  }
+
+  public JPanel newPanel(String borderTitle, LC layoutConstraints) {
+    JPanel p = new JPanel();
+    if (borderTitle != null)
+      p.setBorder(new TitledBorder(borderTitle));
+    if (layoutConstraints != null)
+      p.setLayout(new MigLayout(layoutConstraints));
+    return p;
+  }
+
+  public LC lcFillX() {
+    return new LC().fillX();
   }
 
   public CC add(JComponent host, JComponent child) {

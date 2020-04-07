@@ -15,7 +15,6 @@ public class UiUtils {
   public static void name(Component component, String name) {
     component.setName(name);
   }
-
   /**
    * Loads icon from current
    * @param resourcePath E.g. "/umich/msfragger/gui/icons/dia-umpire-16x16.png"

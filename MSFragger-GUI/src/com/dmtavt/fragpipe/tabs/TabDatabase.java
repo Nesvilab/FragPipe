@@ -85,7 +85,7 @@ public class TabDatabase extends JPanelWithEnablement {
   }
 
   private JPanel createPanelDbSelection() {
-    JPanel p = mu.panel(false, "FASTA sequence database");
+    JPanel p = mu.newPanel("FASTA sequence database", true);
     uiTextDbPath = UiUtils.uiTextBuilder().filter("[\"'|<>]").cols(5).create();
     uiTextDbPath.addFocusListener(new ContentChangedFocusAdapter(uiTextDbPath, (s, s2) -> {
       Bus.post(new MessageDbNewPath(s2));
@@ -125,7 +125,7 @@ public class TabDatabase extends JPanelWithEnablement {
   }
 
   private JPanel createPanelInfo() {
-    JPanel p = mu.panel(false, "Quick start with protein sequence databases");
+    JPanel p = mu.newPanel("Quick start with protein sequence databases", true);
     JEditorPane epInfo = SwingUtils
         .createClickableHtml(MsfraggerGuiFrameUtils.createSeqDbExplanationContent());
     epInfo.setPreferredSize(new Dimension(400, 100));
