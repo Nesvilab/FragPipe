@@ -47,12 +47,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
@@ -575,7 +577,7 @@ public class TabMsfragger extends JPanelWithEnablement {
       return pBase;
   }
 
-  private ModsTable createTableVarMods() {
+  private static Object[][] createVarModsData(List<Mod> mods) {
     Object[][] data = new Object[MsfraggerParams.VAR_MOD_COUNT_MAX][TABLE_VAR_MODS_COL_NAMES.length];
     for (int i = 0; i < data.length; i++) {
       data[i][0] = false;
@@ -583,16 +585,29 @@ public class TabMsfragger extends JPanelWithEnablement {
       data[i][2] = null;
       data[i][3] = null;
     }
+    if (mods.size() > data.length) {
+      throw new IllegalStateException("loaded mods list length is longer than msfragger supports");
+    }
+    for (int i = 0; i < mods.size(); i++) {
+      Mod m = mods.get(i);
+      data[i][0] = m.isEnabled;
+      data[i][1] = m.sites;
+      data[i][2] = m.massDelta;
+      data[i][3] = m.maxOccurrences;
+    }
+    return data;
+  }
 
+  private ModsTable createTableVarMods() {
+    Object[][] data = createVarModsData(Collections.emptyList());
     ModificationsTableModel m = new ModificationsTableModel(
         TABLE_VAR_MODS_COL_NAMES,
         new Class<?>[]{Boolean.class, String.class, Double.class, Integer.class},
         new boolean[]{true, true, true, true},
         new int[]{0, 1, 2, 3},
         data);
-
-    final ModsTable t = new ModsTable(m, TABLE_VAR_MODS_COL_NAMES, null);
-    //varModsTable.setModel(varModsModel);
+    final ModsTable t = new ModsTable(m, TABLE_VAR_MODS_COL_NAMES, TabMsfragger::createVarModsData);
+    
     t.setToolTipText(
         "<html>Variable Modifications.<br/>\n" +
             "Values:<br/>\n" +
