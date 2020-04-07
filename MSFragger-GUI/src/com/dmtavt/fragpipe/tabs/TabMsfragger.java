@@ -72,7 +72,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -216,8 +215,8 @@ public class TabMsfragger extends JPanelWithEnablement {
   private UiCheck checkRun;
   private JScrollPane scroll;
   private JPanel pContent;
-  private ModificationsTableModel tableModelVarMods;
-  private javax.swing.JTable tableVarMods;
+  private ModificationsTableModel varModsModel;
+  private javax.swing.JTable varModsTable;
   private ModificationsTableModel tableModelFixMods;
   private javax.swing.JTable tableFixMods;
   private UiSpinnerInt uiSpinnerRam;
@@ -254,23 +253,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     return uiTextIsoErr;
   }
 
-  private void onClickDefautlsNonspecific(ActionEvent e) {
-    if (loadDefaults(SearchTypeProp.nonspecific, true)) {
-      postSearchTypeUpdate(SearchTypeProp.nonspecific, true);
-    }
-  }
 
-  private void onClickDefaultsOpen(ActionEvent e) {
-    if (loadDefaults(SearchTypeProp.open, true)) {
-      postSearchTypeUpdate(SearchTypeProp.open, true);
-    }
-  }
-
-  private void onClickDefaultsClosed(ActionEvent e) {
-    if (loadDefaults(SearchTypeProp.closed, true)) {
-      postSearchTypeUpdate(SearchTypeProp.closed, true);
-    }
-  }
 
   private static void actionChangeMassMode(ItemEvent e) {
     if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -609,9 +592,10 @@ public class TabMsfragger extends JPanelWithEnablement {
         .label("Max combinations").create();
     FormEntry feMultipleVarModsOnResidue = fe(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, new UiCheck("Multiple mods on residue", null))
         .tooltip("<html>Allow a single residue to carry multiple modifications.").create();
-    tableVarMods = new JTable();
-    tableVarMods.setModel(getDefaultVarModTableModel());
-    tableVarMods.setToolTipText(
+    varModsTable = new JTable();
+    varModsModel = getDefaultVarModTableModel();
+    varModsTable.setModel(varModsModel);
+    varModsTable.setToolTipText(
         "<html>Variable Modifications.<br/>\n" +
             "Values:<br/>\n" +
             "<ul>\n" +
@@ -634,20 +618,20 @@ public class TabMsfragger extends JPanelWithEnablement {
             "<li>variable_mod_01​ ​=​ ​15.9949​ ​M 3</li>\n" +
             "<li>variable_mod_02​ ​=​ ​42.0106​ ​[^ 1</li>\n" +
             "</ul>");
-    tableVarMods.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
-    tableVarMods.setDefaultRenderer(Integer.class, new TableCellIntRenderer());
+    varModsTable.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
+    varModsTable.setDefaultRenderer(Integer.class, new TableCellIntRenderer());
 
     // set cell editor for max occurs for var mods
     DefaultCellEditor cellEditorMaxOccurs = new TableCellIntSpinnerEditor(1, 5, 1);
     //String lastColName = tableVarMods.getColumnName(tableModelVarMods.getColumnCount() - 1);
     //tableVarMods.getColumn(lastColName).setCellEditor(cellEditorMaxOccurs);
-    tableVarMods.setDefaultEditor(Integer.class, cellEditorMaxOccurs);
+    varModsTable.setDefaultEditor(Integer.class, cellEditorMaxOccurs);
 
-    tableVarMods.setFillsViewportHeight(true);
+    varModsTable.setFillsViewportHeight(true);
     SwingUtilities.invokeLater(() -> {
-      setJTableColSize(tableVarMods, 0, 20, 150, 50);
+      setJTableColSize(varModsTable, 0, 20, 150, 50);
     });
-    JScrollPane tableScrollVarMods = new JScrollPane(tableVarMods,
+    JScrollPane varModsScroll = new JScrollPane(varModsTable,
         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     //tableScrollVarMods.setPreferredSize(new Dimension(tableScrollVarMods.getPreferredSize().width, 140));
 
@@ -657,7 +641,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     pVarmods.add(feMaxCombos.comp);
     pVarmods.add(feMultipleVarModsOnResidue.comp, new CC().wrap());
     pVarmods
-        .add(tableScrollVarMods, new CC().minHeight("100px").maxHeight("150px").spanX().wrap());
+        .add(varModsScroll, new CC().minHeight("100px").maxHeight("150px").spanX().wrap());
 
     JPanel pFixmods = new JPanel(new MigLayout(new LC()));
     pFixmods.setBorder(new TitledBorder("Fixed modifications"));
@@ -708,6 +692,24 @@ public class TabMsfragger extends JPanelWithEnablement {
     pContent.add(pMods, new CC().wrap().growX());
 
     return pMods;
+  }
+
+  private synchronized ModificationsTableModel getDefaultVarModTableModel() {
+    Object[][] data = new Object[MsfraggerParams.VAR_MOD_COUNT_MAX][TABLE_VAR_MODS_COL_NAMES.length];
+    for (int i = 0; i < data.length; i++) {
+      data[i][0] = false;
+      data[i][1] = null;
+      data[i][2] = null;
+      data[i][3] = null;
+    }
+
+    ModificationsTableModel m = new ModificationsTableModel(
+        TABLE_VAR_MODS_COL_NAMES,
+        new Class<?>[]{Boolean.class, String.class, Double.class, Integer.class},
+        new boolean[]{true, true, true, true},
+        new int[]{0, 1, 2, 3},
+        data);
+    return m;
   }
 
   /** Panel with all the advanced options. */
@@ -1087,27 +1089,6 @@ public class TabMsfragger extends JPanelWithEnablement {
     table.getColumnModel().getColumn(colIndex).setPreferredWidth(prefW);
   }
 
-  private synchronized TableModel getDefaultVarModTableModel() {
-    if (tableModelVarMods != null) {
-      return tableModelVarMods;
-    }
-    Object[][] data = new Object[MsfraggerParams.VAR_MOD_COUNT_MAX][TABLE_VAR_MODS_COL_NAMES.length];
-    for (int i = 0; i < data.length; i++) {
-      data[i][0] = false;
-      data[i][1] = null;
-      data[i][2] = null;
-      data[i][3] = null;
-    }
-
-    tableModelVarMods = new ModificationsTableModel(
-        TABLE_VAR_MODS_COL_NAMES,
-        new Class<?>[]{Boolean.class, String.class, Double.class, Integer.class},
-        new boolean[]{true, true, true, true},
-        new int[]{0, 1, 2, 3},
-        data);
-    return tableModelVarMods;
-  }
-
   private synchronized TableModel getDefaultFixModTableModel() {
     if (tableModelFixMods != null) {
       return tableModelFixMods;
@@ -1145,10 +1126,10 @@ public class TabMsfragger extends JPanelWithEnablement {
   private void formFrom(MsfraggerParams params) {
     Map<String, String> map = paramsTo(params);
     formFrom(map);
-    formFromVarMods(tableModelVarMods, TABLE_VAR_MODS_COL_NAMES, params.getVariableMods());
-    formFromFixMods(tableModelFixMods, TABLE_FIX_MODS_COL_NAMES, params.getAdditionalMods());
-    updateRowHeights(tableVarMods);
-    setJTableColSize(tableVarMods, 0, 20, 150, 50);
+    formFromVarMods(varModsModel, params.getVariableMods());
+    formFromFixMods(tableModelFixMods, params.getAdditionalMods());
+    updateRowHeights(varModsTable);
+    setJTableColSize(varModsTable, 0, 20, 150, 50);
     updateRowHeights(tableFixMods);
     setJTableColSize(tableFixMods, 0, 20, 150, 50);
   }
@@ -1159,9 +1140,9 @@ public class TabMsfragger extends JPanelWithEnablement {
 
     // before collecting mods, make sure that no table cell editor is open
     stopJTableEditing(tableFixMods);
-    stopJTableEditing(tableVarMods);
+    stopJTableEditing(varModsTable);
 
-    List<Mod> modsVar = formTo(tableModelVarMods);
+    List<Mod> modsVar = formTo(varModsModel);
     params.setVariableMods(modsVar);
     List<Mod> modsFix = formTo(tableModelFixMods);
     params.setAdditionalMods(modsFix);
@@ -1178,14 +1159,14 @@ public class TabMsfragger extends JPanelWithEnablement {
     return editor.stopCellEditing();
   }
 
-  private void formFromVarMods(ModificationsTableModel model, Object[] colNames, List<Mod> mods) {
+  private void formFromVarMods(ModificationsTableModel model, List<Mod> mods) {
     Object[][] data = modListToVarTableData(mods);
-    model.setDataVector(data, colNames);
+    model.setDataVector(data, TabMsfragger.TABLE_VAR_MODS_COL_NAMES);
   }
 
-  private void formFromFixMods(ModificationsTableModel model, Object[] colNames, List<Mod> mods) {
+  private void formFromFixMods(ModificationsTableModel model, List<Mod> mods) {
     Object[][] data = modListToFixTableData(mods);
-    model.setDataVector(data, colNames);
+    model.setDataVector(data, TabMsfragger.TABLE_FIX_MODS_COL_NAMES);
   }
 
   private List<Mod> formTo(ModificationsTableModel model) {
@@ -1197,6 +1178,7 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
   public void valuesFromMap(Container origin, Map<String, String> map) {
+    // TODO: switch to SwingUtils vesrion of this mehtod
     Map<String, Component> comps = SwingUtils.mapComponentsByName(origin, true);
     for (Entry<String, String> kv : map.entrySet()) {
       final String name = kv.getKey();
@@ -1232,7 +1214,6 @@ public class TabMsfragger extends JPanelWithEnablement {
   private Map<String, String> formTo() {
     Map<String, String> map = SwingUtils.valuesToMap(this);
     HashMap<String, String> m = new HashMap<>();
-    //map.forEach((k, v) -> m.put(StringUtils.stripLeading(k, TAB_PREFIX), v));
     map.forEach((k, v) -> m.put(StringUtils.stripLeading(k, TAB_PREFIX), v));
     return m;
   }
