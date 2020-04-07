@@ -9,14 +9,22 @@ import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
 import com.dmtavt.fragpipe.messages.NotePreviousUiState;
 import com.dmtavt.fragpipe.messages.NoteStartupComplete;
 import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.Tuple2;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.Period;
+import java.time.temporal.TemporalUnit;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,6 +38,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.Subscription;
 import rx.schedulers.Schedulers;
 import umich.msfragger.params.ThisAppProps;
 
@@ -73,12 +82,27 @@ public class FragpipeLoader {
     ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
     Locale.setDefault(Locale.ROOT);
 
-    loadPreviousUiState();
-    loadRemoteProps(3);
+    final ExecutorService exec = Executors.newCachedThreadPool();
+    final Duration timeoutMax = Duration.ofSeconds(5);
+
+    exec.submit(loadPreviousUiState());
+    exec.submit(loadRemoteProps(Math.min(timeoutMax.getSeconds(), 3)));
+
+    try {
+      exec.shutdown();
+      exec.awaitTermination(timeoutMax.getSeconds(), TimeUnit.SECONDS);
+      NoteFragpipeProperties props = Bus.getStickyEvent(NoteFragpipeProperties.class);
+      NotePreviousUiState uiState = Bus.getStickyEvent(NotePreviousUiState.class);
+      Stream.of(props, uiState).filter(Objects::isNull).forEach(o -> log.error("All startup objects must be not null"));
+      Bus.postSticky(new NoteStartupComplete(props, uiState));
+    } catch (InterruptedException e) {
+      log.error("Error waiting for executor service shutdown in FragpipeLoader.initApplication()");
+      SwingUtils.showErrorDialogWithStacktrace(e, frameLoading);
+    }
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void onNoteStartupComplete(NoteStartupComplete m) {
+  public void on(NoteStartupComplete m) {
     log.debug(
         "Got NoteStartupComplete, which triggers main app start, loader window will close now");
     Bus.post(new MessageLoaderUpdate("Starting FragPipe"));
@@ -91,56 +115,67 @@ public class FragpipeLoader {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void onLoaderUpdate(MessageLoaderUpdate m) {
+  public void on(MessageLoaderUpdate m) {
     log.debug("Updating loader progress: {}", m.text);
     progress.setString(m.text);
   }
 
-  @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
-  public void onNoteFragpipeProperties(NoteFragpipeProperties m) {
-    log.debug("Fragpipe Properties file loaded");
-    NotePreviousUiState lastUiState = Bus.getStickyEvent(NotePreviousUiState.class);
-    // trigger main window start
-    Bus.postSticky(new NoteStartupComplete(lastUiState == null ? new Properties() : lastUiState.props, m.props));
+  private static Runnable loadPreviousUiState() {
+    return () -> {
+      Properties props = null;
+      try {
+        log.debug("Trying to check cache");
+        Bus.post(new MessageLoaderUpdate("Checking cache"));
+        MessageLoadPreviousUiState m = MessageLoadPreviousUiState.newForCache();
+        log.debug("Fragpipe.Loader Loading ui state cache from: {}", m.path);
+        try (InputStream is = Files.newInputStream(m.path)) {
+          props = FragpipeCacheUtils.loadAsProperties(is);
+          Bus.post(new MessageLoaderUpdate("Done checking cache"));
+        } catch (IOException e) {
+          log.error("Fragpipe.Loader Could not read fragpipe cache from: {}", m.path.toString());
+          Bus.post(new MessageLoaderUpdate("Error while checking cache"));
+        }
+      } finally {
+        Bus.postSticky(new NotePreviousUiState(props));
+      }
+    };
   }
 
-  private void loadPreviousUiState() {
-    log.debug("Trying to check cache");
-    Bus.post(new MessageLoaderUpdate("Checking cache"));
-    MessageLoadPreviousUiState m = MessageLoadPreviousUiState.newForCache();
-    log.debug("Fragpipe.Loader Loading ui state cache from: {}", m.path);
-    try (InputStream is = Files.newInputStream(m.path)) {
-      Properties props = FragpipeCacheUtils.loadAsProperties(is);
-      Bus.postSticky(new NotePreviousUiState(props));
-    } catch (IOException e) {
-      log.error("Fragpipe.Loader Could not read fragpipe cache from: {}", m.path.toString());
-    }
-  }
+  private static Runnable loadRemoteProps(final long timeoutSeconds) {
+    return () -> {
+      log.debug("Trying to fetch remote properties, {} seconds timeout", timeoutSeconds);
+      Bus.post(new MessageLoaderUpdate("Trying to load remote configuration"));
 
-  private static void loadRemoteProps(long timeoutSeconds) {
-    log.debug("Trying to fetch remote properties, {} seconds timeout", timeoutSeconds);
-    Bus.post(new MessageLoaderUpdate("Trying to load remote configuration"));
+      Observable<Properties> obs = Observable
+          .fromCallable(ThisAppProps::getRemotePropertiesWithLocalDefaults)
+          .timeout(timeoutSeconds, TimeUnit.SECONDS)
+          .subscribeOn(Schedulers.immediate());
 
-    Observable<Properties> obs = Observable
-        .fromCallable(ThisAppProps::getRemotePropertiesWithLocalDefaults)
-        .timeout(timeoutSeconds, TimeUnit.SECONDS)
-        .subscribeOn(Schedulers.immediate());
+      Subscription sub = obs.subscribe(
+          props -> {
+            try {
+              log.debug("Got remote properties successfully");
+            } finally {
+              Bus.postSticky(new NoteFragpipeProperties(props, true));
+              Bus.post(new MessageLoaderUpdate("Loaded remote configuration"));
+            }
+          },
+          ex -> {
+            Properties local = null;
+            try {
+              log.error("Something happened while trying to get application properties at startup", ex);
+              log.debug("Falling back to using local properties file");
+              local = ThisAppProps.getLocalProperties();
+              if (local == null) {
+                throw new IllegalStateException(
+                    "Loading local properties file failed. Please report to developers.");
+              }
+            } finally {
+              Bus.postSticky(new NoteFragpipeProperties(local, false));
+              Bus.post(new MessageLoaderUpdate("Failed to load remote configuration"));
+            }
+          });
+    };
 
-    obs.subscribe(
-        props -> {
-          log.debug("Got remote properties successfully");
-          Bus.postSticky(new NoteFragpipeProperties(props, true));
-        },
-        ex -> {
-          log.error("Something happened while trying to get application properties at startup", ex);
-          Bus.post(new MessageLoaderUpdate("Failed to load remote configuration"));
-          log.debug("Falling back to using local properties file");
-          Properties local = ThisAppProps.getLocalProperties();
-          if (local == null) {
-            throw new IllegalStateException(
-                "Loading local properties file failed. Please report to developers.");
-          }
-          Bus.postSticky(new NoteFragpipeProperties(local, false));
-        });
   }
 }

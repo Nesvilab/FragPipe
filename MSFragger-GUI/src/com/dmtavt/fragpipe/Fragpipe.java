@@ -16,7 +16,7 @@ import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
 import com.dmtavt.fragpipe.messages.NotePreviousUiState;
 import com.dmtavt.fragpipe.tabs.TabConfig;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
-import com.dmtavt.fragpipe.tabs.TabDownstream;
+import com.dmtavt.fragpipe.tabs.TabValidation;
 import com.dmtavt.fragpipe.tabs.TabMisc;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tabs.TabQuantitaion;
@@ -256,7 +256,7 @@ public class Fragpipe extends JFrame {
     TabWorkflow tabWorkflow = new TabWorkflow();
     TabDatabase tabDatabase = new TabDatabase();
     TabMsfragger tabMsfragger = new TabMsfragger();
-    TabDownstream tabDownstream = new TabDownstream();
+    TabValidation tabValidation = new TabValidation();
     TabQuantitaion tabQuantitaion = new TabQuantitaion();
     TabMisc tabMisc = new TabMisc();
     TabRun tabRun = new TabRun(console);
@@ -266,7 +266,7 @@ public class Fragpipe extends JFrame {
     addTabNoScroll.accept(new UiTab(TAB_NAME_LCMS, tabWorkflow, "/umich/msfragger/gui/icons/186-list-numbered.png", null));
     addTab.accept(new UiTab("Database", tabDatabase, "/umich/msfragger/gui/icons/093-drawer.png", null));
     addTab.accept(new UiTab("MSFragger", tabMsfragger, "/umich/msfragger/gui/icons/bolt-16.png", null));
-    addTab.accept(new UiTab("Downstream", tabDownstream, "/umich/msfragger/gui/icons/348-filter.png", null));
+    addTab.accept(new UiTab("Downstream", tabValidation, "/umich/msfragger/gui/icons/348-filter.png", null));
     addTab.accept(new UiTab("Quant", tabQuantitaion, "/umich/msfragger/gui/icons/360-sigma.png", null));
     addTab.accept(new UiTab("PTMs + Misc", tabMisc, null, null));
     addTab.accept(new UiTab("Run", tabRun, "/umich/msfragger/gui/icons/video-play-16.png", null));

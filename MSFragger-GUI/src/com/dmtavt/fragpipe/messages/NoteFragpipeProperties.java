@@ -4,10 +4,10 @@ import java.util.Properties;
 
 public class NoteFragpipeProperties {
   public final Properties props;
-  public final boolean isAttemptedToGetRemote;
+  public final boolean includesRemote;
 
-  public NoteFragpipeProperties(Properties props, boolean isAttemptedToGetRemote) {
+  public NoteFragpipeProperties(Properties props, boolean includesRemote) {
     this.props = props;
-    this.isAttemptedToGetRemote = isAttemptedToGetRemote;
+    this.includesRemote = includesRemote;
   }
 }

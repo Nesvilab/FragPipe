@@ -1,14 +1,15 @@
 package com.dmtavt.fragpipe.messages;
 
+import com.dmtavt.fragpipe.api.Bus;
 import java.util.Properties;
 
 public class NoteStartupComplete {
-  public final Properties lastUiState;
-  public final Properties fragpipeProperties;
+  public final NoteFragpipeProperties props;
+  public final NotePreviousUiState uiState;
 
-
-  public NoteStartupComplete(Properties lastUiState, Properties fragpipeProperties) {
-    this.lastUiState = lastUiState;
-    this.fragpipeProperties = fragpipeProperties;
+  public NoteStartupComplete(NoteFragpipeProperties props,
+      NotePreviousUiState uiState) {
+    this.props = props;
+    this.uiState = uiState;
   }
 }
