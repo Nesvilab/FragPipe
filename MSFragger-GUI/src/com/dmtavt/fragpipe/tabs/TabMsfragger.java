@@ -284,7 +284,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     icon = new ImageIcon(
         getClass().getResource("/umich/msfragger/gui/icons/bolt-16.png"));
 
-    this.setLayout(new MigLayout(new LC().fillX()));
+    this.setLayout(new MigLayout(new LC().fillX().debug()));
 
     JPanel pTop = createPanelTop();
     JPanel pContent = createPanelContent();
@@ -312,17 +312,14 @@ public class TabMsfragger extends JPanelWithEnablement {
 
     uiComboLoadDefaultsNames = UiUtils.createUiCombo(SEARCH_TYPE_DROPDOWN_NAMES);
     JButton btnLoadDefaults = new JButton("Load");
-    btnLoadDefaults.addActionListener(this::onClickLoadDefaults);
+    btnLoadDefaults.addActionListener(this::actionConfigLoadDefaults);
 
-    pTop.add(checkRun, new CC());
-    pTop.add(new JLabel("Load default parameters for:"), new CC().gapLeft("15px"));
-    pTop.add(uiComboLoadDefaultsNames, new CC().gapLeft("1px"));
-    pTop.add(btnLoadDefaults, new CC().wrap());
+    mu.add(pTop, checkRun).wrap();
 
-    JButton save = new JButton("Save Parameters");
-    save.addActionListener(this::onClickSave);
-    JButton load = new JButton("Load Parameters");
-    load.addActionListener(this::onClickLoad);
+    JButton save = new JButton("Save Config");
+    save.addActionListener(this::actionConfigSave);
+    JButton load = new JButton("Load Config");
+    load.addActionListener(this::actionConfigLoad);
 
     uiSpinnerRam = new UiSpinnerInt(0, 0, 1024, 1, 3);
     FormEntry feRam = fe(PROP_misc_ram, uiSpinnerRam).label("RAM (GB)").create();
@@ -330,14 +327,16 @@ public class TabMsfragger extends JPanelWithEnablement {
     FormEntry feThreads = fe(MsfraggerParams.PROP_num_threads,
         uiSpinnerThreads).label("Threads").create();
 
-    pTop.add(save, new CC().split(6).spanX());
-    pTop.add(load, new CC());
-    pTop.add(feRam.label(), new CC());
-    pTop.add(feRam.comp, new CC());
-    pTop.add(feThreads.label(), new CC());
-    pTop.add(feThreads.comp, new CC());
+    mu.add(pTop, feRam.label()).split(4);
+    mu.add(pTop, feRam.comp);
+    mu.add(pTop, feThreads.label());
+    mu.add(pTop, feThreads.comp);
+    mu.add(pTop, save).split();
+    mu.add(pTop, load).wrap();
+    mu.add(pTop, new JLabel("Default config for:")).alignX("right");
+    mu.add(pTop, uiComboLoadDefaultsNames).split();
+    mu.add(pTop, btnLoadDefaults).wrap();
 
-    this.add(pTop, BorderLayout.NORTH);
     return pTop;
   }
 
@@ -1009,66 +1008,6 @@ public class TabMsfragger extends JPanelWithEnablement {
     return fe(comp, name);
   }
 
-  private void onClickLoadDefaults(ActionEvent actionEvent) {
-    String s = (String)uiComboLoadDefaultsNames.getSelectedItem();
-    SearchTypeProp type = SEARCH_TYPE_NAME_MAPPING.get(s);
-    if (type == null) {
-      throw new IllegalStateException(String.format("No mapping for search type string '%s'", s));
-    }
-    if (loadDefaults(type, true)) {
-      postSearchTypeUpdate(type, true);
-    }
-  }
-
-  private void onClickSave(ActionEvent e) {
-    cacheSave();
-
-    // now save the actual user's choice
-    JFileChooser fc = new JFileChooser();
-    fc.setApproveButtonText("Save");
-    fc.setApproveButtonToolTipText("Save to a file");
-    fc.setDialogTitle("Choose where params file should be saved");
-    fc.setMultiSelectionEnabled(false);
-
-    final String propName = ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN;
-    ThisAppProps.load(propName, fc);
-
-    fc.setSelectedFile(new File(MsfraggerParams.CACHE_FILE));
-    Component parent = SwingUtils.findParentFrameForDialog(this);
-    int saveResult = fc.showSaveDialog(parent);
-    if (JFileChooser.APPROVE_OPTION == saveResult) {
-      File selectedFile = fc.getSelectedFile();
-      Path path = Paths.get(selectedFile.getAbsolutePath());
-      ThisAppProps.save(propName, path.toString());
-
-      // if exists, overwrite
-      if (Files.exists(path)) {
-        int overwrite = JOptionPane.showConfirmDialog(parent, "<html>File exists, overwrtie?<br/><br/>" + path.toString(), "Overwrite", JOptionPane.OK_CANCEL_OPTION);
-        if (JOptionPane.OK_OPTION != overwrite) {
-          return;
-        }
-        try {
-          Files.delete(path);
-        } catch (IOException ex) {
-          JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite", JOptionPane.ERROR_MESSAGE);
-          return;
-        }
-      }
-      try {
-        ThisAppProps.save(PROP_FILECHOOSER_LAST_PATH, path.toAbsolutePath().toString());
-        MsfraggerParams params = formCollect();
-
-        params.save(new FileOutputStream(path.toFile()));
-        params.save();
-
-      } catch (IOException ex) {
-        JOptionPane.showMessageDialog(parent, "<html>Could not save file: <br/>" + path.toString() +
-            "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-      }
-    }
-  }
-
   private void cacheSave() {
     log.warn("Old cache save fragger tab method called");
     // saving form data, except modification tables
@@ -1429,7 +1368,56 @@ public class TabMsfragger extends JPanelWithEnablement {
     return FraggerOutputType.valueOf(val);
   }
 
-  private void onClickLoad(ActionEvent e) {
+  private void actionConfigSave(ActionEvent e) {
+    cacheSave();
+
+    // now save the actual user's choice
+    JFileChooser fc = new JFileChooser();
+    fc.setApproveButtonText("Save");
+    fc.setApproveButtonToolTipText("Save to a file");
+    fc.setDialogTitle("Choose where params file should be saved");
+    fc.setMultiSelectionEnabled(false);
+
+    final String propName = ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN;
+    ThisAppProps.load(propName, fc);
+
+    fc.setSelectedFile(new File(MsfraggerParams.CACHE_FILE));
+    Component parent = SwingUtils.findParentFrameForDialog(this);
+    int saveResult = fc.showSaveDialog(parent);
+    if (JFileChooser.APPROVE_OPTION == saveResult) {
+      File selectedFile = fc.getSelectedFile();
+      Path path = Paths.get(selectedFile.getAbsolutePath());
+      ThisAppProps.save(propName, path.toString());
+
+      // if exists, overwrite
+      if (Files.exists(path)) {
+        int overwrite = JOptionPane.showConfirmDialog(parent, "<html>File exists, overwrtie?<br/><br/>" + path.toString(), "Overwrite", JOptionPane.OK_CANCEL_OPTION);
+        if (JOptionPane.OK_OPTION != overwrite) {
+          return;
+        }
+        try {
+          Files.delete(path);
+        } catch (IOException ex) {
+          JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite", JOptionPane.ERROR_MESSAGE);
+          return;
+        }
+      }
+      try {
+        ThisAppProps.save(PROP_FILECHOOSER_LAST_PATH, path.toAbsolutePath().toString());
+        MsfraggerParams params = formCollect();
+
+        params.save(new FileOutputStream(path.toFile()));
+        params.save();
+
+      } catch (IOException ex) {
+        JOptionPane.showMessageDialog(parent, "<html>Could not save file: <br/>" + path.toString() +
+            "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+    }
+  }
+
+  private void actionConfigLoad(ActionEvent e) {
     FileNameExtensionFilter filter = new FileNameExtensionFilter("Properties/Params",
         "properties", "params", "para", "conf", "txt");
     JFileChooser fc = FileChooserUtils.create("Select saved file", "Load", false, FcMode.FILES_ONLY, true, filter);
@@ -1461,6 +1449,17 @@ public class TabMsfragger extends JPanelWithEnablement {
                 + "but the file you chose to load doesn't exist anymore.", "Strange",
             JOptionPane.ERROR_MESSAGE);
       }
+    }
+  }
+
+  private void actionConfigLoadDefaults(ActionEvent actionEvent) {
+    String s = (String)uiComboLoadDefaultsNames.getSelectedItem();
+    SearchTypeProp type = SEARCH_TYPE_NAME_MAPPING.get(s);
+    if (type == null) {
+      throw new IllegalStateException(String.format("No mapping for search type string '%s'", s));
+    }
+    if (loadDefaults(type, true)) {
+      postSearchTypeUpdate(type, true);
     }
   }
 
