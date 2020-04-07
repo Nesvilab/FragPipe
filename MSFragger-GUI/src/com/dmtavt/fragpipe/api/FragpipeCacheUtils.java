@@ -57,7 +57,7 @@ public class FragpipeCacheUtils {
         return Collections.emptyMap();
       }
       Container awtContainer = (Container)awtComponent;
-      Predicate<String> filter = name -> !name.toLowerCase().contains(Fragpipe.PROP_NOCACHE.toLowerCase());
+      Predicate<String> filter = name -> !name.toLowerCase().contains(Fragpipe.PROP_NOCACHE.toLowerCase()) && !name.contains("Spinner.formattedTextField");
       return SwingUtils.valuesToMap(awtContainer, filter);
     };
 

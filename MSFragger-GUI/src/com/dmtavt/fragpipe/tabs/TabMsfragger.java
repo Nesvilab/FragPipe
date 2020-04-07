@@ -9,7 +9,7 @@ import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.MessageValidityMassCalibration;
-import com.dmtavt.fragpipe.messages.MessageValidityMsadjuster;
+import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.github.chhh.utils.CacheUtils;
 import com.github.chhh.utils.PropertiesUtils;
@@ -28,7 +28,6 @@ import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -82,6 +81,7 @@ import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -271,6 +271,9 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
   private void initMore() {
+    updateEnabledStatus(this, false);
+    updateEnabledStatus(uiSpinnerDbslice, false); // only gets enabled when DbSlice2 is initialized
+
     // TODO: ACHTUNG: temporary fix, disabling "Define custom ion series field"
     // Remove when custom ion series work properly in msfragger
     updateEnabledStatus(uiTextCustomIonSeries, false);
@@ -284,7 +287,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     icon = new ImageIcon(
         getClass().getResource("/umich/msfragger/gui/icons/bolt-16.png"));
 
-    this.setLayout(new MigLayout(new LC().fillX().debug()));
+    this.setLayout(new MigLayout(new LC().fillX()));
 
     JPanel pTop = createPanelTop();
     JPanel pContent = createPanelContent();
@@ -327,14 +330,14 @@ public class TabMsfragger extends JPanelWithEnablement {
     FormEntry feThreads = fe(MsfraggerParams.PROP_num_threads,
         uiSpinnerThreads).label("Threads").create();
 
-    mu.add(pTop, feRam.label()).split(4);
+    mu.add(pTop, feRam.label()).split();//.split(4);
     mu.add(pTop, feRam.comp);
     mu.add(pTop, feThreads.label());
     mu.add(pTop, feThreads.comp);
-    mu.add(pTop, save).split();
-    mu.add(pTop, load).wrap();
-    mu.add(pTop, new JLabel("Default config for:")).alignX("right");
-    mu.add(pTop, uiComboLoadDefaultsNames).split();
+    mu.add(pTop, save);//.split();
+    mu.add(pTop, load);//.wrap();
+    mu.add(pTop, new JLabel("Default config for:"));//.alignX("right");
+    mu.add(pTop, uiComboLoadDefaultsNames);//.split();
     mu.add(pTop, btnLoadDefaults).wrap();
 
     return pTop;
@@ -1296,16 +1299,15 @@ public class TabMsfragger extends JPanelWithEnablement {
     return mods.stream().anyMatch(m -> m.sites != null && m.sites.contains("[*"));
   }
 
-  @Subscribe
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigMsfragger m) {
     updateEnabledStatus(this, m.isValid());
   }
 
-  @Subscribe
-  public void on(MessageValidityMsadjuster msg) {
-    log.debug("'Adjust precursor masses' checkbox was removed. Not reacting to MessageValidityMsadjuster event.");
-//    enablementMapping.put(uiCheckAdjustPrecursorMass, msg.isValid);
-//    updateEnabledStatus(uiCheckAdjustPrecursorMass, msg.isValid);
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigDbsplit m) {
+    log.debug("Got NoteConfigDbsplit. Setting MSFragger tab DB Split option to enabled={}", m.isValid());
+    updateEnabledStatus(uiSpinnerDbslice, m.isValid());
   }
 
   @Subscribe
@@ -1340,7 +1342,7 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
   public boolean isRun() {
-    return checkRun.isSelected() && checkRun.isEnabled();
+    return SwingUtils.isEnabledAndChecked(checkRun);
   }
 
   public boolean isMsadjuster() {
