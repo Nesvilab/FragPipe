@@ -60,6 +60,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
@@ -607,7 +608,7 @@ public class TabMsfragger extends JPanelWithEnablement {
         new int[]{0, 1, 2, 3},
         data);
     final ModsTable t = new ModsTable(m, TABLE_VAR_MODS_COL_NAMES, TabMsfragger::createVarModsData);
-    
+
     t.setToolTipText(
         "<html>Variable Modifications.<br/>\n" +
             "Values:<br/>\n" +
@@ -642,13 +643,27 @@ public class TabMsfragger extends JPanelWithEnablement {
     return t;
   }
 
-  private ModsTable createTableFixMods() {
+  private Object[][] createFixModsData(List<Mod> mods) {
     Object[][] data = new Object[MsfraggerParams.ADDONS_HUMAN_READABLE.length][TABLE_FIX_MODS_COL_NAMES.length];
     for (int i = 0; i < data.length; i++) {
       data[i][0] = false;
       data[i][1] = MsfraggerParams.ADDONS_HUMAN_READABLE[i];
       data[i][2] = 0.0;
     }
+    if (mods.size() > data.length) {
+      throw new IllegalStateException("mod list length larger than fix mods used by fragger");
+    }
+    for (int i = 0; i < mods.size(); i++) {
+      Mod m = mods.get(i);
+      data[i][0] = m.isEnabled;
+      data[i][1] = m.sites;
+      data[i][2] = m.massDelta;
+    }
+    return data;
+  }
+
+  private ModsTable createTableFixMods() {
+    Object[][] data = createFixModsData(Collections.emptyList());
 
     ModificationsTableModel m = new ModificationsTableModel(
         TABLE_FIX_MODS_COL_NAMES,
