@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.tabs;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.api.ModsTable;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerParamsUpdate;
 import com.dmtavt.fragpipe.messages.MessagePrecursorSelectionMode;
 import com.dmtavt.fragpipe.messages.MessageRun;
@@ -216,7 +217,7 @@ public class TabMsfragger extends JPanelWithEnablement {
   private JScrollPane scroll;
   private JPanel pContent;
   private ModificationsTableModel varModsModel;
-  private javax.swing.JTable varModsTable;
+  private ModsTable varModsTable;
   private ModificationsTableModel tableModelFixMods;
   private javax.swing.JTable tableFixMods;
   private UiSpinnerInt uiSpinnerRam;
@@ -576,25 +577,10 @@ public class TabMsfragger extends JPanelWithEnablement {
       return pBase;
   }
 
-  private JPanel createPanelMods() {
-    // Panel with modifications
-    JPanel pMods = new JPanel(new MigLayout(new LC().fillX()));
-    pMods.setBorder(new TitledBorder("Modifications"));
-
-    JPanel pVarmods = new JPanel(new MigLayout(new LC()));
-    pVarmods.setBorder(new TitledBorder("Variable modifications"));
-
-    FormEntry feMaxVarmodsPerMod = fe(MsfraggerParams.PROP_max_variable_mods_per_peptide, new UiSpinnerInt(3, 0, 5, 1, 4))
-        .label("Max variable mods on a peptide")
-        .tooltip("<html>The maximum number of variable modifications allowed per\n" +
-            "peptide sequence. This number does not include fixed modifications.").create();
-    FormEntry feMaxCombos = fe(MsfraggerParams.PROP_max_variable_mods_combinations, new UiSpinnerInt(5000, 0, 100000, 500, 4))
-        .label("Max combinations").create();
-    FormEntry feMultipleVarModsOnResidue = fe(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, new UiCheck("Multiple mods on residue", null))
-        .tooltip("<html>Allow a single residue to carry multiple modifications.").create();
-    varModsTable = new JTable();
+  private ModsTable createVarModsTable() {
     varModsModel = getDefaultVarModTableModel();
-    varModsTable.setModel(varModsModel);
+    varModsTable = new ModsTable(varModsModel, TABLE_VAR_MODS_COL_NAMES, null);
+    //varModsTable.setModel(varModsModel);
     varModsTable.setToolTipText(
         "<html>Variable Modifications.<br/>\n" +
             "Values:<br/>\n" +
@@ -623,11 +609,30 @@ public class TabMsfragger extends JPanelWithEnablement {
 
     // set cell editor for max occurs for var mods
     DefaultCellEditor cellEditorMaxOccurs = new TableCellIntSpinnerEditor(1, 5, 1);
-    //String lastColName = tableVarMods.getColumnName(tableModelVarMods.getColumnCount() - 1);
-    //tableVarMods.getColumn(lastColName).setCellEditor(cellEditorMaxOccurs);
     varModsTable.setDefaultEditor(Integer.class, cellEditorMaxOccurs);
-
     varModsTable.setFillsViewportHeight(true);
+
+    return varModsTable;
+  }
+
+  private JPanel createPanelMods() {
+    // Panel with modifications
+    JPanel pMods = new JPanel(new MigLayout(new LC().fillX()));
+    pMods.setBorder(new TitledBorder("Modifications"));
+
+    JPanel pVarmods = new JPanel(new MigLayout(new LC()));
+    pVarmods.setBorder(new TitledBorder("Variable modifications"));
+
+    FormEntry feMaxVarmodsPerMod = fe(MsfraggerParams.PROP_max_variable_mods_per_peptide, new UiSpinnerInt(3, 0, 5, 1, 4))
+        .label("Max variable mods on a peptide")
+        .tooltip("<html>The maximum number of variable modifications allowed per\n" +
+            "peptide sequence. This number does not include fixed modifications.").create();
+    FormEntry feMaxCombos = fe(MsfraggerParams.PROP_max_variable_mods_combinations, new UiSpinnerInt(5000, 0, 100000, 500, 4))
+        .label("Max combinations").create();
+    FormEntry feMultipleVarModsOnResidue = fe(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, new UiCheck("Multiple mods on residue", null))
+        .tooltip("<html>Allow a single residue to carry multiple modifications.").create();
+    varModsTable = createVarModsTable();
+
     SwingUtilities.invokeLater(() -> {
       setJTableColSize(varModsTable, 0, 20, 150, 50);
     });

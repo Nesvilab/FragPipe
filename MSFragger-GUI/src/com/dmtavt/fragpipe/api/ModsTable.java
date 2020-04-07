@@ -20,6 +20,7 @@ public class ModsTable extends JTable implements StringRepresentable {
   public final Function<List<Mod>, Object[][]> modsToData;
 
   public ModsTable(ModificationsTableModel model, Object[] colNames, Function<List<Mod>, Object[][]> modsToData) {
+    super(model);
     this.model = model;
     this.colNames = colNames;
     this.modsToData = modsToData;
