@@ -43,6 +43,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.filechooser.FileFilter;
+import org.jsoup.helper.StringUtil;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 
@@ -108,6 +109,8 @@ public class PathUtils {
      * @return null if path does not exist or contains illegal characters. The actual path otherwise.
      */
     public static Path existing(String path) {
+        if (StringUtils.isBlank(path))
+            return null;
         try {
             Path p = Paths.get(path);
             if (Files.exists(p))
@@ -125,6 +128,12 @@ public class PathUtils {
      * only if 'doThrow' is true.
      */
     public static Path existing(String path, boolean doThrow) throws ValidationException {
+        if (StringUtils.isBlank(path)) {
+            if (doThrow)
+                throw new ValidationException("Empty or null path");
+            else
+                return null;
+        }
         Path p;
         try {
             p = Paths.get(path);
