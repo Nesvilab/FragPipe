@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2018 Dmitry Avtonomov
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,22 +16,33 @@
  */
 package umich.msfragger.params.fragger;
 
+import com.dmtavt.fragpipe.exceptions.ValidationException;
+
 /**
- *
  * @author Dmitry Avtonomov
  */
 public class Mod {
-    
-    public final double massDelta;
-    public final String sites;
-    public final boolean isEnabled;
-    public final int maxOccurrences;
 
-    public Mod(double massDelta, String sites, boolean isEnabled, int maxOccurrences) {
-        this.massDelta = massDelta;
-        this.sites = sites;
-        this.isEnabled = isEnabled;
-        this.maxOccurrences = maxOccurrences;
-    }
-    
+  public final double massDelta;
+  public final String sites;
+  public final boolean isEnabled;
+  public final int maxOccurrences;
+
+  public Mod(double massDelta, String sites, boolean isEnabled, int maxOccurrences) {
+    this.massDelta = massDelta;
+    this.sites = sites;
+    this.isEnabled = isEnabled;
+    this.maxOccurrences = maxOccurrences;
+  }
+
+  public static String asString(Mod m) {
+    return String.format("%.5f,%s,%s,%d", m.massDelta, m.sites, m.isEnabled, m.maxOccurrences);
+  }
+
+  public static Mod fromString(String s) throws ValidationException {
+      String[] split = s.split(",");
+      if (split.length != 4)
+          throw new ValidationException("Not a valid mod string");
+      return new Mod(Double.parseDouble(split[0]), split[1], Boolean.parseBoolean(split[2]), Integer.parseInt(split[3]));
+  }
 }
