@@ -1,7 +1,10 @@
 package com.dmtavt.fragpipe.tools.pepproph;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.UsageTrigger;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
@@ -16,6 +19,8 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.api.SearchTypeProp;
@@ -37,7 +42,13 @@ public class PepProphPanel extends JPanelWithEnablement {
 
   private void initMore() {
     SwingUtils.renameDeep(this, false, PREFIX, null);
-    // TODO: Bus.register(this);
+    updateEnabledStatus(this, false);
+    Bus.register(this);
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigPhilosopher m) {
+    updateEnabledStatus(this, m.isValid());
   }
 
   private void init() {

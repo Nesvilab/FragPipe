@@ -29,6 +29,7 @@ import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
@@ -518,6 +519,9 @@ public class TabConfig extends JPanelWithEnablement {
 
     final String tip = "Select path to Philosopher binary";
     uiTextBinPhi = UiUtils.uiTextBuilder().ghost(tip).create();
+    uiTextBinPhi.addFocusListener(new ContentChangedFocusAdapter(uiTextBinPhi, (s, s2) -> {
+      Bus.post(new MessagePhilosopherNewBin(s2));
+    }));
     FormEntry feBin = fe(uiTextBinPhi, "bin-philosopher", TAB_PREFIX)
         .tooltip(tip).create();
     p.add(feBin.comp, ccL().split().growX());
