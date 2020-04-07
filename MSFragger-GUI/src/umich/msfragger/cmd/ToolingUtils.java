@@ -28,6 +28,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.params.ThisAppProps;
@@ -38,6 +40,7 @@ import com.github.chhh.utils.Holder;
 import com.github.chhh.utils.OsUtils;
 
 public class ToolingUtils {
+  private static final Logger log = LoggerFactory.getLogger(ToolingUtils.class);
   private ToolingUtils() {}
 
   public static final String BATMASS_IO_JAZZ = "batmass-io-1.17.2.jazz";
@@ -198,6 +201,7 @@ public class ToolingUtils {
   }
 
   public static String getDefaultBinMsfragger() {
+    log.debug("Loading MSFragger bin path: ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_MSFRAGGER)");
     String path = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_MSFRAGGER);
     return path == null ? "MSFragger.jar" : path;
   }

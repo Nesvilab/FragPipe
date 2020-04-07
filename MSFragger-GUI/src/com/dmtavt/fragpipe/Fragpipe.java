@@ -414,7 +414,7 @@ public class Fragpipe extends JFrame {
   }
 
   @Subscribe
-  public void onUmpireEnabled(MessageUmpireEnabled m) {
+  public void on(MessageUmpireEnabled m) {
     synchronized (this) {
       if (m.enabled) {
         final String prevTabName = TAB_NAME_LCMS;
@@ -435,7 +435,7 @@ public class Fragpipe extends JFrame {
   }
 
   @Subscribe
-  public void onSaveUiState(MessageSaveUiState m) {
+  public void on(MessageSaveUiState m) {
     log.debug("Writing ui state cache to: {}", m.path.toString());
     try (OutputStream os = Files.newOutputStream(m.path)) {
       FragpipeCacheUtils.tabsSave(os, tabs);
@@ -446,7 +446,7 @@ public class Fragpipe extends JFrame {
   }
 
   @Subscribe
-  public void onLoadPreviousUiState(MessageLoadPreviousUiState m) {
+  public void on(MessageLoadPreviousUiState m) {
     log.debug("Fragpipe Loading ui state cache from: {}", m.path.toString());
     try (InputStream is = Files.newInputStream(m.path)) {
       Properties props = FragpipeCacheUtils.loadAsProperties(is);
@@ -458,14 +458,14 @@ public class Fragpipe extends JFrame {
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void onPreviousUiState(NotePreviousUiState m) {
+  public void on(NotePreviousUiState m) {
     log.debug("Got NotePreviousUiState, updating UI");
     FragpipeCacheUtils.tabsLoad(m.props, tabs);
     Bus.post(new MessageUiRevalidate());
   }
 
   @Subscribe
-  public void onShowAbout(MessageShowAboutDialog m) {
+  public void on(MessageShowAboutDialog m) {
     showAboutDialog(this);
   }
 

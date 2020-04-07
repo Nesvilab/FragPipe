@@ -585,7 +585,7 @@ public class MsfraggerGuiFrameUtils {
 
   public static void checkPreviouslySavedParams(MsfraggerGuiFrame guiFrame) {
     log.debug("entered checkPreviouslySavedParams");
-    ThisAppProps cached = ThisAppProps.loadFromTemp();
+    ThisAppProps cached = ThisAppProps.load();
     if (cached != null) {
       // if there was a cached version of properties
       VersionComparator vc = new VersionComparator();

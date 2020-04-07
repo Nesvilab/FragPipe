@@ -17,26 +17,22 @@
 package umich.msfragger.params;
 
 import com.github.chhh.utils.JarUtils;
+import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.text.JTextComponent;
@@ -182,30 +178,31 @@ public class ThisAppProps extends Properties {
    *
    * @return null if the file didn't exist or could not be loaded.
    */
-  public static ThisAppProps loadFromTemp() {
+  public static ThisAppProps load() {
     try {
-
       final Path path = CacheUtils.locateTempFile(TEMP_FILE_NAME);
       final ThisAppProps props = new ThisAppProps();
       props.load(new FileInputStream(path.toFile()));
       return props;
-
     } catch (FileNotFoundException ex) {
       return null;
     } catch (IOException ex) {
       log.debug("Could not load properties from temporary directory: {}", ex.getMessage());
     }
-
     return null;
   }
 
+  public static ThisAppProps loadOrDefault() {
+    ThisAppProps p = load();
+    return p == null ? new ThisAppProps() : p;
+  }
 
   /**
    * Attempts to set file chooser's directory to the one saved in the property.
    */
   public static void load(String propName, JFileChooser fileChooser) {
     try {
-      ThisAppProps thisAppProps = ThisAppProps.loadFromTemp();
+      ThisAppProps thisAppProps = ThisAppProps.load();
       if (thisAppProps == null) {
         return;
       }
@@ -215,30 +212,19 @@ public class ThisAppProps extends Properties {
     }
   }
 
-//  public static void setFileChooserPath(JFileChooser fileChooser, String inputPath) {
-//    if (inputPath != null) {
-//      Path path = Paths.get(inputPath);
-//      if (Files.isDirectory(path)) {
-//        path = path.getParent();
-//      }
-//      fileChooser.setCurrentDirectory(path.toFile());
-//    }
-//  }
-
   public static void save(String propName, JTextComponent txt) {
     String text = txt.getText().trim();
     if (!text.isEmpty()) {
-      ThisAppProps.save(propName, text);
+      save(propName, text);
     }
   }
 
   public static void save(String propName, File file) {
-    ThisAppProps thisAppProps = ThisAppProps.loadFromTemp();
-    if (thisAppProps == null) {
-      thisAppProps = new ThisAppProps();
-    }
-    thisAppProps.setProperty(propName, file.getAbsolutePath());
-    thisAppProps.save();
+    save(propName, file.getAbsolutePath());
+  }
+
+  public static void save(JCheckBox checkBox,  String propName) {
+    save(propName, Boolean.toString(checkBox.isSelected()));
   }
 
   public static boolean load(String propName, JTextComponent txt) {
@@ -293,10 +279,6 @@ public class ThisAppProps extends Properties {
     return false;
   }
 
-  public static void save(JCheckBox box, String propName) {
-    save(propName, Boolean.toString(box.isSelected()));
-  }
-
   public static void save(JTextComponent text, String propName) {
     save(propName, text.getText().trim());
   }
@@ -324,7 +306,7 @@ public class ThisAppProps extends Properties {
 
   public static void loadFromBundle(JCheckBox checkBox, String propName) {
     String val = getLocalProperties().getProperty(propName);
-    checkBox.setSelected(Boolean.valueOf(val));
+    checkBox.setSelected(Boolean.parseBoolean(val));
     save(propName, val);
   }
 
@@ -347,28 +329,22 @@ public class ThisAppProps extends Properties {
   }
 
   public static void save(String propName, String propVal) {
-    if (propName == null) {
-      throw new IllegalArgumentException("Property name must be non-null");
-    }
-    log.debug("ThisAppProps saving property: {} = {} to {}", propName, propVal,
-        getCacheFilePath().toString());
-    ThisAppProps thisAppProps = ThisAppProps.loadFromTemp();
-    if (thisAppProps == null) {
-      thisAppProps = new ThisAppProps();
-    }
-    if (propVal == null || "".equals(propVal)) {
-      thisAppProps.remove(propName);
+    Objects.requireNonNull(propName, "propName");
+    log.debug("ThisAppProps saving property: {} = {} to {}", propName, propVal, getCacheFilePath().toString());
+    ThisAppProps p = ThisAppProps.loadOrDefault();
+    if (propVal == null) {
+      p.remove(propName);
     } else {
-      thisAppProps.setProperty(propName, propVal);
+      p.setProperty(propName, propVal);
     }
-    thisAppProps.save();
+    p.save();
   }
 
   public static String load(String propName) {
     if (propName == null) {
       throw new IllegalArgumentException("Property name must be non-null");
     }
-    ThisAppProps thisAppProps = ThisAppProps.loadFromTemp();
+    ThisAppProps thisAppProps = ThisAppProps.load();
     if (thisAppProps == null) {
       return null;
     }
@@ -379,7 +355,7 @@ public class ThisAppProps extends Properties {
     if (propName == null) {
       throw new IllegalArgumentException("Property name must be non-null");
     }
-    ThisAppProps thisAppProps = ThisAppProps.loadFromTemp();
+    ThisAppProps thisAppProps = ThisAppProps.load();
     if (thisAppProps == null) {
       return defaultVal;
     }
