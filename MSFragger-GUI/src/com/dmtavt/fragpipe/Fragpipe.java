@@ -174,15 +174,6 @@ public class Fragpipe extends JFrame {
     });
   }
 
-  public static void getPropAndSetVal(String prop, Component comp) {
-    String v = props().getProperty(prop);
-    if (v == null) {
-      log.warn("No property in bundle: {}", prop);
-    } else {
-      SwingUtils.setValue(comp, v);
-    }
-  }
-
   private TextConsole createConsole() {
     TextConsole c = new TextConsole();
     final Font currentFont = c.getFont();
@@ -541,5 +532,23 @@ public class Fragpipe extends JFrame {
     }
     log.warn("Fragpipe properties sticky note was empty, but should have been loaded at startup");
     return ThisAppProps.getLocalProperties();
+  }
+
+  public static void getPropAndSetVal(String prop, Component comp) {
+    String v = props().getProperty(prop);
+    if (v == null) {
+      log.warn("No property in bundle: {}", prop);
+    } else {
+      SwingUtils.setValue(comp, v);
+    }
+  }
+
+  public static String getProp(String prop) {
+    return getProp(prop, null);
+  }
+
+  public static String getProp(String prop, String dotSuffix) {
+    String dotted = StringUtils.isBlank(dotSuffix) ? prop : prop + "." + dotSuffix;
+    return props().getProperty(dotted);
   }
 }

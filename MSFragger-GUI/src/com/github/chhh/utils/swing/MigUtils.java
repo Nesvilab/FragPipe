@@ -1,5 +1,6 @@
 package com.github.chhh.utils.swing;
 
+import com.github.chhh.utils.swing.FormEntry.Builder;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -35,6 +36,11 @@ public class MigUtils {
     return lc;
   }
 
+  public LC layout(JComponent comp, LC lc) {
+    comp.setLayout(new MigLayout(lc));
+    return lc;
+  }
+
   public JComponent border(JComponent comp, String borderText) {
     comp.setBorder(new TitledBorder(borderText));
     return comp;
@@ -62,6 +68,10 @@ public class MigUtils {
     return new LC().fillX();
   }
 
+  public LC lcFillXNoInsetsTopBottom() {
+    return lcFillX().insets("0px", null, "0px", null);
+  }
+
   public CC add(JComponent host, JComponent child) {
     CC cc = ccL();
     host.add(child, cc);
@@ -71,12 +81,19 @@ public class MigUtils {
   public FormEntry fe(String name, JComponent comp) {
     return fe(name, FormEntry.LABEL_NOT_SHOWN, comp, null);
   }
-
   public FormEntry fe(String name, JComponent comp, String tooltip) {
     return fe(name, FormEntry.LABEL_NOT_SHOWN, comp, tooltip);
   }
 
   public FormEntry fe(String name, String label, JComponent comp, String tooltip) {
     return new FormEntry(name, label, comp, tooltip);
+  }
+
+  public FormEntry.Builder feb(String name, JComponent component) {
+    return new Builder(component, name);
+  }
+
+  public FormEntry.Builder feb(JComponent component) {
+    return new Builder(component);
   }
 }

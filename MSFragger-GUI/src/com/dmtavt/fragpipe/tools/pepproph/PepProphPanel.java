@@ -52,13 +52,6 @@ public class PepProphPanel extends JPanelWithEnablement {
   }
 
   private void init() {
-    mu.layout(this).fillX().insetsAll("0px");
-    mu.border(this, "PeptideProphet");
-
-    pTop = mu.newPanel(null, mu.lcFillX().insets(null, null, "0px", null));
-    pContent = mu.newPanel(null, mu.lcFillX().insets("0px", null, "0px", null));
-
-
     checkRunPeptideProphet = UiUtils.createUiCheck("Run PeptideProphet", true);
     JLabel labelDefaults = new JLabel("Defaults for:");
     final LinkedHashMap<String, SearchTypeProp> defaults = new LinkedHashMap<>();
@@ -84,11 +77,16 @@ public class PepProphPanel extends JPanelWithEnablement {
           Fragpipe.getPropAndSetVal("peptideprophet.combine.pepxml." + st.name(), uiCheckCombinePepxml);
         });
 
+    mu.layout(this).fillX();
+    mu.border(this, "PeptideProphet");
+
+    pTop = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.add(pTop, checkRunPeptideProphet).split();
     mu.add(pTop, labelDefaults);
     mu.add(pTop, uiComboDefaults);
     mu.add(pTop, btnLoadDefaults).wrap();
 
+    pContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.add(pContent, feCmdOpts.label()).alignX("right");
     mu.add(pContent, feCmdOpts.comp).growX().pushX().wrap();
     mu.add(pContent, uiCheckCombinePepxml).skip(1).wrap();
