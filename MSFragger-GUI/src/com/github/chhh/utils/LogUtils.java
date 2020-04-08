@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.LogManager;
 import com.github.chhh.utils.swing.TextConsole;
+import org.apache.http.conn.util.PublicSuffixList;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by Dmitry Avtonomov on 2016-04-28.
@@ -82,6 +84,22 @@ public class LogUtils {
         } else {
             runnable.run();
         }
+    }
+
+    public static void logMethodStart(Object clazzInstance, String methodName) {
+        logMethodStart(clazzInstance.getClass(), methodName);
+    }
+
+    public static void logMethodStart(Class<?> clazz, String methodName) {
+        LoggerFactory.getLogger(clazz).debug("Start {}", methodName);
+    }
+
+    public static void logMethodDone(Object clazzInstance, String methodName) {
+        logMethodDone(clazzInstance.getClass(), methodName);
+    }
+
+    public static void logMethodDone(Class<?> clazz, String methodName) {
+        LoggerFactory.getLogger(clazz).debug("Done {}", methodName);
     }
 
     public static final void println(Appendable out, String toPrint) {

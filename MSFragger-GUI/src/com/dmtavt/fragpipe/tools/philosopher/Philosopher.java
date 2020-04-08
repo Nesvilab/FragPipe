@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe.tools.philosopher;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.github.chhh.utils.PathUtils;
@@ -53,48 +54,52 @@ public class Philosopher {
     pb.redirectErrorStream(true);
 
     boolean isNewVersionStringFound = false;
-    String version = null;
-    String build = null;
 
     // get the vesrion reported by the current executable
     String oldUnusedDownloadLink = null;
     int returnCode = 0;
-    String printed = ProcessUtils.captureOutput(pb);
 
-    log.debug("philosopher version printed: {}", printed);
-    Matcher mNewVer = Pattern.compile("new\\s+version.*available.*?:\\s*(\\S+)", Pattern.CASE_INSENSITIVE).matcher(printed);
-    if (mNewVer.find()) {
-      isNewVersionStringFound = true;
-      log.debug("Philosopher found newer update version");
-      oldUnusedDownloadLink = mNewVer.group(1);
-    }
+    final Pattern reNewVer = Pattern.compile("new\\s+version.*available.*?:\\s*(\\S+)", Pattern.CASE_INSENSITIVE);
+    final Pattern reVer = Pattern.compile(".*version[^=]*?=\\s*v?\\.?([^\\s,;]+).*", Pattern.CASE_INSENSITIVE);
+    final Pattern reBuild = Pattern.compile(".*build[^=]*?=\\s*([^\\s,;]+).*", Pattern.CASE_INSENSITIVE);
+    final StringBuilder sbVer = new StringBuilder();
+    final StringBuilder sbBuild = new StringBuilder();
+    ProcessUtils.consumeLines(pb, line -> {
+      Matcher mVer = reVer.matcher(line);
+      if (mVer.matches()) {
+        log.debug("Detected philosopher version: {}", mVer.group(1));
+        sbVer.append(mVer.group(1));
+      }
+      Matcher mBuild = reBuild.matcher(line);
+      if (mBuild.matches()) {
+        log.debug("Detected philosopher build: {}", mBuild.group(1));
+        sbBuild.append(mBuild.group(1));
+      }
+      return sbVer.length() == 0;
+    });
 
-    final Matcher mVer = Pattern.compile(".*version[^=]*?=\\s*v?\\.?([^\\s,;]+).*", Pattern.CASE_INSENSITIVE).matcher(printed);
-    if (mVer.matches()) {
-      version = mVer.group(1);
-      log.debug("Detected philosopher version: {}", version);
-    }
-    final Matcher mBuild =  Pattern.compile(".*build[^=]*?=\\s*([^\\s,;]+).*", Pattern.CASE_INSENSITIVE).matcher(printed);
-    if (mBuild.matches()) {
-      build = mBuild.group(1);
-      log.debug("Detected philosopher build: {}", build);
+    if (sbVer.length() == 0) {
+      throw new ValidationException("Version string not found in output of: " + String.join(" ", pb.command()));
     }
 
     final String fragpipeVerMajor = com.dmtavt.fragpipe.Version.version().split("[-_]+")[0];
-    final Properties props = PhilosopherProps.getProperties();
-    String minPhiVer = props.stringPropertyNames().stream()
+    final Properties p = Fragpipe.props();
+    String minPhiVer = p.stringPropertyNames().stream()
         .filter(name -> name.startsWith(PhilosopherProps.PROP_LOWEST_COMPATIBLE_VERSION + "." + fragpipeVerMajor))
-        .findFirst().map(props::getProperty).orElse(null);
-    String maxPhiVer = props.stringPropertyNames().stream()
+        .findFirst().map(p::getProperty).orElse(null);
+    String maxPhiVer = p.stringPropertyNames().stream()
         .filter(name -> name.startsWith(PhilosopherProps.PROP_LATEST_COMPATIBLE_VERSION + "." + fragpipeVerMajor))
-        .findFirst().map(props::getProperty).orElse(null);
+        .findFirst().map(p::getProperty).orElse(null);
 
-    String link = PhilosopherProps.getProperties().getProperty(PhilosopherProps.PROP_DOWNLOAD_URL,
+    String link = p.getProperty(PhilosopherProps.PROP_DOWNLOAD_URL,
         "https://github.com/Nesvilab/philosopher/releases");
 
 
+    final String version = sbVer.toString();
+    final String build = sbBuild.toString();
+    log.debug("Phi validation, proceeding with Version: {}, Build: {}", version, build);
 
-    if (StringUtils.isBlank(version) || returnCode != 0) {
+    if (StringUtils.isBlank(version)) {
       StringBuilder sb = new StringBuilder(
           "This Philosopher version is no longer supported by FragPipe.<br/>\n");
       if (minPhiVer != null) {
@@ -109,21 +114,21 @@ public class Philosopher {
     }
 
 
-    final VersionComparator vc = new VersionComparator();
-     if (minPhiVer != null && vc.compare(build, minPhiVer) < 0) {
-      // doesn't meet min version requirement
-      StringBuilder sb = new StringBuilder("Philosopher version ")
-          .append(build).append(" is no longer supported by FragPipe.<br/>\n");
-      sb.append("Minimum required version: ").append(minPhiVer).append("<br/>\n");
-      if (maxPhiVer != null) {
-        sb.append("Latest known compatible version: ").append(maxPhiVer).append("<br/>\n");
-      }
-      sb.append("<a href=\"").append(link).append("\">Click here</a> to download a newer one.");
-      throw new ValidationException(sb.toString());
-
-    } else if (isNewVersionStringFound) {
-      return new Version(version, StringUtils.isBlank(build) ? "" : build, true, link);
-    }
+//    final VersionComparator vc = new VersionComparator();
+//     if (minPhiVer != null && vc.compare(build, minPhiVer) < 0) {
+//      // doesn't meet min version requirement
+//      StringBuilder sb = new StringBuilder("Philosopher version ")
+//          .append(build).append(" is no longer supported by FragPipe.<br/>\n");
+//      sb.append("Minimum required version: ").append(minPhiVer).append("<br/>\n");
+//      if (maxPhiVer != null) {
+//        sb.append("Latest known compatible version: ").append(maxPhiVer).append("<br/>\n");
+//      }
+//      sb.append("<a href=\"").append(link).append("\">Click here</a> to download a newer one.");
+//      throw new ValidationException(sb.toString());
+//
+//    } else if (isNewVersionStringFound) {
+//      return new Version(version, StringUtils.isBlank(build) ? "" : build, true, link);
+//    }
     return new Version(version, StringUtils.isBlank(build) ? "" : build, false, link);
   }
 

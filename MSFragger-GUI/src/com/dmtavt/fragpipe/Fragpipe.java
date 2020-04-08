@@ -117,6 +117,7 @@ public class Fragpipe extends JFrame {
   }
 
   private void init() {
+    log.debug("Start init()");
     addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
@@ -129,6 +130,7 @@ public class Fragpipe extends JFrame {
       log.error("Something unexpected happened!", e);
       SwingUtils.userShowError(this, stacktrace);
     });
+    log.debug("Done init()");
   }
 
   public static FormEntry.Builder fe(JComponent comp, String compName) {
@@ -159,6 +161,7 @@ public class Fragpipe extends JFrame {
     java.awt.EventQueue.invokeLater(() -> {
       log.debug("Creating Fragpipe instance");
       final Fragpipe fp = new Fragpipe();
+      log.debug("Done creating Fragpipe instance");
 
       fp.pack();
       decorateFrame(fp);
@@ -251,6 +254,7 @@ public class Fragpipe extends JFrame {
   }
 
   private JTabbedPane createTabs(TextConsole console) {
+    log.debug("Start createTabs()");
     final JTabbedPane t = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 
     Consumer<UiTab> addTab = tab -> t.addTab(tab.getTitle(), tab.getIcon(), SwingUtils.scroll(tab.getComponent()), tab.getTooltip());
@@ -276,6 +280,7 @@ public class Fragpipe extends JFrame {
     addTab.accept(new UiTab("Spec Lib", tabMisc, null, null));
     addTab.accept(new UiTab("Run", tabRun, "/umich/msfragger/gui/icons/video-play-16.png", null));
 
+    log.debug("Done createTabs()");
     return t;
   }
 
@@ -284,6 +289,7 @@ public class Fragpipe extends JFrame {
   }
 
   private synchronized void initUi() {
+    log.debug("Start initUi()");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setTitle(Version.PROGRAM_TITLE + " (v" + Version.version() + ")");
     setLocale(Locale.ROOT);
@@ -405,7 +411,8 @@ public class Fragpipe extends JFrame {
 //    Bus.post(MessageLoadAllForms.forCaching());
 //
 //    initActions();
-    log.debug("Fragpipe.init() finished, UI ready");
+
+    log.debug("Done initUi()");
   }
 
   private void initMore() {

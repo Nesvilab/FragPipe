@@ -30,6 +30,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,10 +38,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.exceptions.FileWritingException;
+import rx.Observable;
+import rx.Scheduler;
+import rx.Subscription;
+import rx.schedulers.Schedulers;
 import umich.msfragger.params.PropLine;
 import umich.msfragger.params.PropertyFileContent;
 
@@ -235,7 +243,38 @@ public final class PropertiesUtils {
         } catch (Exception ex) {
             return null;
         }
-        
+    }
+
+    public static Properties loadPropertiesRemote(URI uri, Duration timeout) {
+        Observable<String> obs = Observable
+            .fromCallable(() -> IOUtils.toString(uri.toURL(), StandardCharsets.UTF_8))
+            .subscribeOn(Schedulers.immediate());
+            //.subscribeOn(Schedulers.io());
+        if (timeout != null) {
+            obs = obs.timeout(timeout.getSeconds(), TimeUnit.SECONDS);
+        }
+        final StringBuilder sb = new StringBuilder();
+        final AtomicBoolean isSuccess = new AtomicBoolean(false);
+        obs.subscribe(remoteText -> {
+            log.debug("Got remote text from URI before timeout: {}", uri.toASCIIString());
+            sb.append(remoteText);
+            isSuccess.set(true);
+        }, throwable -> {
+            log.debug("Got exception while fetching URI: " + uri.toASCIIString(), throwable);
+        });
+
+        if (!isSuccess.get())
+            return null;
+
+        final Properties p = new Properties();
+        try {
+            p.load(new StringReader(sb.toString()));
+            return p;
+        } catch (Exception ex) {
+            log.debug("Error creating properties from remote response", ex);
+            return null;
+        }
+
     }
     
     public static Properties loadPropertiesRemoteOrLocal(List<URI> uris, Class<?> clazz, String propertiesFile) {

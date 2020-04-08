@@ -82,7 +82,7 @@ public class FragpipeLoader {
     ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
     Locale.setDefault(Locale.ROOT);
 
-    final ExecutorService exec = Executors.newCachedThreadPool();
+    final ExecutorService exec = Executors.newWorkStealingPool();
     final Duration timeoutMax = Duration.ofSeconds(5);
 
     exec.submit(loadPreviousUiState());
