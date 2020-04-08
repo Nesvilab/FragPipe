@@ -31,6 +31,7 @@ public class ProtProphPanel extends JPanelBase {
   @Override
   public void init() {
     uiCheckRun = UiUtils.createUiCheck("Run Protein Prophet", true);
+    uiCheckRun.setName("run-protein-prophet");
     btnAllowMassShifted = UiUtils.createButton("Allow mass shifted peptides", e -> {
       log.debug("Clicked button " + btnAllowMassShifted.getText());
       String v = Fragpipe.getProp(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, "open");

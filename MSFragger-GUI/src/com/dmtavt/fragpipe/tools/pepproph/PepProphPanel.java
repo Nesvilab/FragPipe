@@ -53,6 +53,7 @@ public class PepProphPanel extends JPanelWithEnablement {
 
   private void init() {
     checkRunPeptideProphet = UiUtils.createUiCheck("Run PeptideProphet", true);
+    checkRunPeptideProphet.setName("run-peptide-prophet");
     JLabel labelDefaults = new JLabel("Defaults for:");
     final LinkedHashMap<String, SearchTypeProp> defaults = new LinkedHashMap<>();
     defaults.put("Closed Search", SearchTypeProp.closed);

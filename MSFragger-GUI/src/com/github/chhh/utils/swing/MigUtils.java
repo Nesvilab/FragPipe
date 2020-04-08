@@ -78,6 +78,12 @@ public class MigUtils {
     return cc;
   }
 
+  public CC add(JComponent host, JComponent child, boolean isAlignLeft) {
+    CC cc = isAlignLeft ? ccL() : ccR();
+    host.add(child, cc);
+    return cc;
+  }
+
   public FormEntry fe(String name, JComponent comp) {
     return fe(name, FormEntry.LABEL_NOT_SHOWN, comp, null);
   }
