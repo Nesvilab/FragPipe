@@ -43,7 +43,6 @@ public class Philosopher {
     if (binPath == null) {
       throw new ValidationException("Does not appear to be an executable file");
     }
-    final VersionComparator vc = new VersionComparator();
 
     // get the vesrion reported by the current executable
     // if we couldn't download remote properties, try using local ones
@@ -61,6 +60,7 @@ public class Philosopher {
     String oldUnusedDownloadLink = null;
     int returnCode = 0;
     String printed = ProcessUtils.captureOutput(pb);
+
     log.debug("philosopher version printed: {}", printed);
     Matcher mNewVer = Pattern.compile("new\\s+version.*available.*?:\\s*(\\S+)", Pattern.CASE_INSENSITIVE).matcher(printed);
     if (mNewVer.find()) {
@@ -109,6 +109,7 @@ public class Philosopher {
     }
 
 
+    final VersionComparator vc = new VersionComparator();
      if (minPhiVer != null && vc.compare(build, minPhiVer) < 0) {
       // doesn't meet min version requirement
       StringBuilder sb = new StringBuilder("Philosopher version ")
@@ -125,4 +126,6 @@ public class Philosopher {
     }
     return new Version(version, StringUtils.isBlank(build) ? "" : build, false, link);
   }
+
+
 }

@@ -111,8 +111,24 @@ public class Fragpipe extends JFrame {
   private TabUmpire tabUmpire;
 
   public Fragpipe() throws HeadlessException {
+    init();
     initUi();
     initMore();
+  }
+
+  private void init() {
+    addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(WindowEvent e) {
+        Bus.post(MessageSaveUiState.newForCache());
+      }
+    });
+
+    Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+      String stacktrace = LogUtils.stacktrace(e);
+      log.error("Something unexpected happened!", e);
+      SwingUtils.userShowError(this, stacktrace);
+    });
   }
 
   public static FormEntry.Builder fe(JComponent comp, String compName) {
@@ -144,29 +160,10 @@ public class Fragpipe extends JFrame {
       log.debug("Creating Fragpipe instance");
       final Fragpipe fp = new Fragpipe();
 
-      fp.addWindowListener(new WindowAdapter() {
-        @Override
-        public void windowClosing(WindowEvent e) {
-          Bus.post(MessageSaveUiState.newForCache());
-        }
-      });
-
-      Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-        String stacktrace = LogUtils.stacktrace(e);
-        log.error("Something unexpected happened!", e);
-        SwingUtils.userShowError(fp, stacktrace);
-      });
-
-      LogbackJTextPaneAppender appender = new LogbackJTextPaneAppender();
-      appender.start();
-      log.debug("Started LogbackJTextPaneAppender logger");
-      appender.setTextPane(fp.console);
-
       fp.pack();
       decorateFrame(fp);
       log.debug("Showing Fragpipe frame");
       fp.setVisible(true);
-
 
       Rectangle screen = ScreenUtils.getScreenTotalArea(fp);
       fp.setSize(fp.getWidth(), Math.min((int)(screen.height * 0.8), fp.getHeight()));
@@ -196,6 +193,12 @@ public class Fragpipe extends JFrame {
         menu.show(e.getComponent(), e.getX(), e.getY());
       }
     });
+
+    LogbackJTextPaneAppender appender = new LogbackJTextPaneAppender();
+    appender.start();
+    log.debug("Started LogbackJTextPaneAppender logger");
+    appender.setTextPane(c);
+
     return c;
   }
 
