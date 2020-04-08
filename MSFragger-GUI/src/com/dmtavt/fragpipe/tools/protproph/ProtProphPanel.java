@@ -41,7 +41,7 @@ public class ProtProphPanel extends JPanelBase {
       String v = Fragpipe.getProp(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, "tight");
       uiTextCmdOpts.setText(v);
     });
-    uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).create();
+    uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).text(defaultCmdOpt()).create();
     FormEntry feCmdOpts = mu.feb("cmd-opts", uiTextCmdOpts).label("Cmd line opts:").create();
     uiCheckSeparateProtxml = UiUtils
         .createUiCheck("Separate Protein Prophet prot.xml file per experiment / group", false);
@@ -61,6 +61,10 @@ public class ProtProphPanel extends JPanelBase {
 
     mu.add(this, pTop).growX().wrap();
     mu.add(this, pContent).growX().wrap();
+  }
+
+  private String defaultCmdOpt() {
+    return Fragpipe.getProp(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, "open");
   }
 
   @Override
