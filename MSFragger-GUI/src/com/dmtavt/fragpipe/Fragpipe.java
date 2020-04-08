@@ -15,6 +15,7 @@ import com.dmtavt.fragpipe.messages.MessageUiInitDone;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
+import com.dmtavt.fragpipe.messages.NoteConfigTips;
 import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
 import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
 import com.dmtavt.fragpipe.messages.NotePreviousUiState;
@@ -424,6 +425,7 @@ public class Fragpipe extends JFrame {
     log.debug("Fragpipe.initMore() started, subscribing to bus");
     Bus.register(this);
     Bus.register(tips);
+    Bus.postSticky(new NoteConfigTips(tips));
     Bus.post(new MessageUiInitDone());
 
     DbSplit2.initClass(); // initialize DBSlice functionality
@@ -494,6 +496,8 @@ public class Fragpipe extends JFrame {
     if (cmp < 0) {
       Bus.postSticky(new NoteFragpipeUpdate(releaseVer, m.props.getProperty("fragpipe.download-url")));
     }
+
+    // TODO: display custom messages from remote properties
   }
 
   @Subscribe

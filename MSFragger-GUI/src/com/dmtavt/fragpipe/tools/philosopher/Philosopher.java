@@ -8,10 +8,8 @@ import com.github.chhh.utils.ProcessUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.VersionComparator;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
@@ -44,22 +42,14 @@ public class Philosopher {
     if (binPath == null) {
       throw new ValidationException("Does not appear to be an executable file");
     }
-
     // get the vesrion reported by the current executable
     // if we couldn't download remote properties, try using local ones
     // if we have some philosopher properties (local or better remote)
     // then check if this version is known to be compatible
-
     ProcessBuilder pb = new ProcessBuilder(binPath, "version");
     pb.redirectErrorStream(true);
 
-    boolean isNewVersionStringFound = false;
-
     // get the vesrion reported by the current executable
-    String oldUnusedDownloadLink = null;
-    int returnCode = 0;
-
-    final Pattern reNewVer = Pattern.compile("new\\s+version.*available.*?:\\s*(\\S+)", Pattern.CASE_INSENSITIVE);
     final Pattern reVer = Pattern.compile(".*version[^=]*?=\\s*v?\\.?([^\\s,;]+).*", Pattern.CASE_INSENSITIVE);
     final Pattern reBuild = Pattern.compile(".*build[^=]*?=\\s*([^\\s,;]+).*", Pattern.CASE_INSENSITIVE);
     final StringBuilder sbVer = new StringBuilder();
@@ -84,12 +74,14 @@ public class Philosopher {
 
     final String fragpipeVerMajor = com.dmtavt.fragpipe.Version.version().split("[-_]+")[0];
     final Properties p = Fragpipe.props();
+    log.debug("Validating philosopher version compatibility with FragPipe major version: {}", fragpipeVerMajor);
     String minPhiVer = p.stringPropertyNames().stream()
         .filter(name -> name.startsWith(PhilosopherProps.PROP_LOWEST_COMPATIBLE_VERSION + "." + fragpipeVerMajor))
         .findFirst().map(p::getProperty).orElse(null);
     String maxPhiVer = p.stringPropertyNames().stream()
         .filter(name -> name.startsWith(PhilosopherProps.PROP_LATEST_COMPATIBLE_VERSION + "." + fragpipeVerMajor))
         .findFirst().map(p::getProperty).orElse(null);
+    log.debug("Figured fragpipe {} requires philosopher versions in range [{}, {}]", fragpipeVerMajor, minPhiVer, maxPhiVer);
 
     String link = p.getProperty(PhilosopherProps.PROP_DOWNLOAD_URL,
         "https://github.com/Nesvilab/philosopher/releases");
@@ -99,38 +91,63 @@ public class Philosopher {
     final String build = sbBuild.toString();
     log.debug("Phi validation, proceeding with Version: {}, Build: {}", version, build);
 
-    if (StringUtils.isBlank(version)) {
-      StringBuilder sb = new StringBuilder(
-          "This Philosopher version is no longer supported by FragPipe.<br/>\n");
-      if (minPhiVer != null) {
-        sb.append("Minimum required version: ").append(minPhiVer).append("<br/>\n");
+    if (StringUtils.isNotBlank(version)) {
+      StringBuilder sb = new StringBuilder();
+      if (minPhiVer != null && VersionComparator.cmp(version, minPhiVer) < 0) {
+        sb.append("This Philosopher version is no longer supported by FragPipe.\n");
+        sb.append("Minimum required version: ").append(minPhiVer).append("\n");
       }
-      if (maxPhiVer != null) {
-        sb.append("Latest known compatible version: ").append(maxPhiVer).append("<br/>\n");
+      if (maxPhiVer != null && VersionComparator.cmp(version, maxPhiVer) > 0) {
+        sb.append("Latest known compatible version: ").append(maxPhiVer).append("\n");
       }
-      sb.append("<a href=\"").append(link).append("\">Click here</a> to download a newer one.");
-      throw new ValidationException(sb.toString());
-
+      if (sb.length() > 0) {
+        sb.append("<a href=\"").append(link).append("\">Click here</a> to download a newer one.");
+        throw new ValidationException(SwingUtils.makeHtml(sb.toString()));
+      }
     }
 
-
-//    final VersionComparator vc = new VersionComparator();
-//     if (minPhiVer != null && vc.compare(build, minPhiVer) < 0) {
-//      // doesn't meet min version requirement
-//      StringBuilder sb = new StringBuilder("Philosopher version ")
-//          .append(build).append(" is no longer supported by FragPipe.<br/>\n");
-//      sb.append("Minimum required version: ").append(minPhiVer).append("<br/>\n");
-//      if (maxPhiVer != null) {
-//        sb.append("Latest known compatible version: ").append(maxPhiVer).append("<br/>\n");
-//      }
-//      sb.append("<a href=\"").append(link).append("\">Click here</a> to download a newer one.");
-//      throw new ValidationException(sb.toString());
-//
-//    } else if (isNewVersionStringFound) {
-//      return new Version(version, StringUtils.isBlank(build) ? "" : build, true, link);
-//    }
     return new Version(version, StringUtils.isBlank(build) ? "" : build, false, link);
   }
 
 
+  public static UpdateInfo checkUpdates(String path) throws ValidationException, UnexpectedException {
+    String binPath = PathUtils.testBinaryPath(path);
+    if (binPath == null) {
+      throw new ValidationException("Does not appear to be an executable file");
+    }
+    try {
+      ProcessBuilder pb = new ProcessBuilder(binPath, "version");
+      pb.redirectErrorStream(true);
+
+      final Pattern reNewVer = Pattern
+          .compile(".*new\\s+version.*available.*", Pattern.CASE_INSENSITIVE);
+      final AtomicBoolean isUpdateFound = new AtomicBoolean(false);
+      ProcessUtils.consumeLines(pb, line -> {
+        Matcher mVer = reNewVer.matcher(line);
+        if (mVer.matches()) {
+          log.debug("Detected philosopher has an update");
+          isUpdateFound.set(true);
+          return false;
+        }
+        return true;
+      });
+
+      final Properties p = Fragpipe.props();
+      String link = p.getProperty(PhilosopherProps.PROP_DOWNLOAD_URL,
+          "https://github.com/Nesvilab/philosopher/releases");
+      return new UpdateInfo(isUpdateFound.get(), link);
+    } catch (Exception e) {
+      throw new UnexpectedException(e);
+    }
+  }
+
+  public static class UpdateInfo {
+    public final boolean isUpdateAvailable;
+    public final String downloadUrl;
+
+    public UpdateInfo(boolean isUpdateAvailable, String downloadUrl) {
+      this.isUpdateAvailable = isUpdateAvailable;
+      this.downloadUrl = downloadUrl;
+    }
+  }
 }

@@ -4,6 +4,7 @@ import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageBalloon;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageShowException;
+import com.dmtavt.fragpipe.messages.NoteConfigTips;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -41,11 +42,27 @@ public class Notifications {
   public Notifications() {
   }
 
+  public static Notifications get() {
+    NoteConfigTips m = Bus.getStickyEvent(NoteConfigTips.class);
+    if (m.tips == null) {
+      log.error("There was no NoteConfigTips among sticky events");
+    }
+    return m.tips;
+  }
+
+  public static void tryClose(String topic) {
+    Bus.post(new MessageBalloon(topic));
+  }
+
+  public static void tryOpen(MessageBalloon m) {
+    Bus.post(m);
+  }
+
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageBalloon m) {
     log.debug("Got {}", m);
     synchronized (tips) {
-      remove(m); // always remove old balloon
+      remove(m.topic); // always remove old balloon
 
       // create a new tip in one of three ways
       BalloonTip tip = null;
@@ -71,7 +88,7 @@ public class Notifications {
         tip = new BalloonTip(m.parent, p, STYLE, true);
 
       } else {
-        remove(m);
+        remove(m.topic);
       }
 
       if (tip != null) {
@@ -81,8 +98,8 @@ public class Notifications {
     }
   }
 
-  private void remove(MessageBalloon m) {
-    BalloonTip tip = tips.remove(m.topic);
+  private void remove(String topic) {
+    BalloonTip tip = tips.remove(topic);
     if (tip == null) {
       return;
     }

@@ -27,6 +27,7 @@ import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
+import com.dmtavt.fragpipe.tools.philosopher.Philosopher.UpdateInfo;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.LogUtils;
 import com.github.chhh.utils.OsUtils;
@@ -71,6 +72,9 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
+import rx.Scheduler;
+import rx.schedulers.Schedulers;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils;
 import umich.msfragger.params.ThisAppProps;
 import com.github.chhh.utils.SwingUtils;
@@ -314,7 +318,7 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  @Subscribe(sticky = true)
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigPhilosopher m) {
     log.debug("Got {}", m);
     uiTextBinPhi.setText(m.path);
@@ -324,9 +328,26 @@ public class TabConfig extends JPanelWithEnablement {
       showConfigError(m.ex, TIP_PHILOSOPHER_BIN, uiTextBinPhi);
     } else {
       SwingUtils.setJEditorPaneContent(epPhiVer, "Philosopher version: " + m.version);
+      Notifications.tryClose(TIP_PHILOSOPHER_BIN);
+      checkPhilosopherUpdateAsync(m.path);
     }
   }
 
+  private void checkPhilosopherUpdateAsync(String path) {
+    Observable<UpdateInfo> obs = Observable
+        .fromCallable(() -> Philosopher.checkUpdates(path))
+        .subscribeOn(Schedulers.io());
+    obs.subscribe(info -> {
+      log.debug("Got philosopher update info with updateAvailable={}", info.isUpdateAvailable);
+      if (info.isUpdateAvailable) {
+        MessageBalloon tip = new MessageBalloon(TIP_PHILOSOPHER_BIN, uiTextBinPhi,
+            SwingUtils.makeHtml(String.format("Philosopher update available.\n<a href=\"%s\">Click here</a> to download.", info.downloadUrl)));
+        Notifications.tryOpen(tip);
+      }
+    }, throwable -> {
+      log.warn("Something happened when checking for philosopher updates", throwable);
+    });
+  }
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
   public void on(MessageMsfraggerNewBin m) {
@@ -363,6 +384,7 @@ public class TabConfig extends JPanelWithEnablement {
               + "Download a newer one."));
     } else {
       SwingUtils.setJEditorPaneContent(epFraggerVer, "MSFragger version: " + m.version);
+      Notifications.tryClose(TIP_MSFRAGGER_BIN);
     }
     if (m.isValid()) {
       Msfragger.checkUpdates(m);
