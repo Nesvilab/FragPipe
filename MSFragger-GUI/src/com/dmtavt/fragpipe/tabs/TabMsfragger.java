@@ -772,73 +772,6 @@ public class TabMsfragger extends JPanelWithEnablement {
     CC alignRight = new CC().alignX("right");
     CC wrap = new CC().wrap();
 
-    JPanel pOpenSearch = new JPanel(new MigLayout(new LC()));
-    {
-
-      pOpenSearch.setBorder(new TitledBorder("Open Search Options"));
-      FormEntry feTrackZeroTopN = fe(MsfraggerParams.PROP_track_zero_topN,
-          new UiSpinnerInt(0, 0, 1000, 5, 3)).label("Track zero top N").create();
-      FormEntry feAddTopNComplementary = fe(MsfraggerParams.PROP_add_topN_complementary,
-          new UiSpinnerInt(0, 0, 1000, 2, 3)).label("Add top N complementary").create();
-      UiSpinnerDouble spinnerZeroBinAcceptExpect = new UiSpinnerDouble(0, 0, Double.MAX_VALUE,
-          0.1, 1,
-          new DecimalFormat("0.00"));
-      spinnerZeroBinAcceptExpect.setColumns(3);
-      FormEntry feZeroBinAcceptExpect = fe(MsfraggerParams.PROP_zero_bin_accept_expect, spinnerZeroBinAcceptExpect).label("Zero bin accept expect").create();
-      UiSpinnerDouble spinnerZeroBinMultExpect = new UiSpinnerDouble(1, 0, 1, 0.05, 2,
-          new DecimalFormat("0.00"));
-      spinnerZeroBinMultExpect.setColumns(3);
-      FormEntry feZeroBinMultExpect = fe(MsfraggerParams.PROP_zero_bin_mult_expect, spinnerZeroBinMultExpect).label("Zero bin multiply expect").create();
-
-      pOpenSearch.add(feTrackZeroTopN.label(), alignRight);
-      pOpenSearch.add(feTrackZeroTopN.comp);
-      pOpenSearch.add(feAddTopNComplementary.label(), alignRight);
-      pOpenSearch.add(feAddTopNComplementary.comp, wrap);
-      pOpenSearch.add(feZeroBinAcceptExpect.label(), alignRight);
-      pOpenSearch.add(feZeroBinAcceptExpect.comp);
-      pOpenSearch.add(feZeroBinMultExpect.label(), alignRight);
-      pOpenSearch.add(feZeroBinMultExpect.comp, wrap);
-
-      uiCheckShiftedIons = new UiCheck("<html>Localize delta mass", null);
-      FormEntry feShiftedIonsCheck = fe(MsfraggerParams.PROP_localize_delta_mass, uiCheckShiftedIons)
-          .tooltip("<html>Shifted ion series are the same as regular b/y ions,\n"
-              + "but with the addition of the mass shift of the precursor.\n"
-              + "Regular ion series will still be used.\n"
-              + "This option is </b>incompatible</b> with database splitting.").create();
-      UiText uiTextShiftedIonsExclusion = new UiText();
-      uiTextShiftedIonsExclusion.setDocument(DocumentFilters.getFilter("[A-Za-z]"));
-      uiTextShiftedIonsExclusion.setText("(-1.5,3.5)");
-      FormEntry feShiftedIonsExclusion = fe(
-          MsfraggerParams.PROP_delta_mass_exclude_ranges, uiTextShiftedIonsExclusion).label("Delta mass exclude ranges")
-          .tooltip("<html>Ranges expressed like: (-1.5,3.5)").create();
-      pOpenSearch.add(feShiftedIonsCheck.comp, new CC().alignX("right"));
-      pOpenSearch.add(feShiftedIonsExclusion.label(), new CC().split(2).spanX().gapLeft("25px"));
-      pOpenSearch.add(feShiftedIonsExclusion.comp, new CC().growX());
-
-      uiCheckShiftedIons.addActionListener(e -> {
-        final boolean selected = uiCheckShiftedIons.isSelected();
-        final int dbSlicing = uiSpinnerDbslice.getActualValue();
-        if (selected && dbSlicing > 1) {
-          JOptionPane.showMessageDialog(this,
-              "<html>This option is incompatible with DB Splitting.<br/>"
-                  + "Please either turn it off, or turn off DB Splitting by setting<br/>"
-                  + "it to 1.", "Incompatible options", JOptionPane.WARNING_MESSAGE);
-        }
-      });
-
-      uiSpinnerDbslice.addChangeListener(e -> {
-        final boolean selected = uiCheckShiftedIons.isSelected();
-        final int dbSlicing = uiSpinnerDbslice.getActualValue();
-        if (selected && dbSlicing > 1) {
-          JOptionPane.showMessageDialog(this,
-              "<html><code>DB Slicing<code> is incompatible with <code>Localize delta mass</code> option.<br/>"
-                  + "Please either set <code>DB Slicing<code> to 1, or uncheck <code>Localize delta mass</code> checkbox<br/>"
-                  + "at the end of this form.",
-              "Incompatible options", JOptionPane.WARNING_MESSAGE);
-        }
-      });
-
-    }
 
     JPanel pSpectral = new JPanel(new MigLayout(new LC()));
     {
@@ -902,103 +835,9 @@ public class TabMsfragger extends JPanelWithEnablement {
       pSpectral.add(feIntensityTransform.comp, new CC().wrap());
     }
 
-    // Advanced peak matching panel
-    JPanel pPeakMatch = new JPanel(new MigLayout(new LC()));
-    {
-      pPeakMatch.setBorder(new TitledBorder("Peak Matching and Output Advanced Options"));
 
-      FormEntry feMinFragsModeling = fe(MsfraggerParams.PROP_min_fragments_modelling, new UiSpinnerInt(2, 0, 1000, 1, 4)).label("Min frags modeling").create();
-      FormEntry feMinMatchedFrags = fe(MsfraggerParams.PROP_min_matched_fragments, new UiSpinnerInt(4, 0, 1000, 1, 4)).label("Min matched frags").create();
-
-      FormEntry feIonSeries = fe(MsfraggerParams.PROP_fragment_ion_series, new UiText(10))
-          .label("Fragment ion series").tooltip(
-              "Which peptide ion series to check against.\n"
-                  + "<b>Use spaces, commas or semicolons as delimiters</b>, e.g. \"b,y\"\n"
-                  + "This mostly depends on fragmentation method.\n"
-                  + "Typically \"b,y\" are used for CID and \"c,z\" for ECD.\n"
-                  + "MSFragger can generate \"a,b,c,x,y,z\" ion series by default,\n"
-                  + "but <b>you can define your own in 'Define custom ion series' field</b>.\n"
-                  + "If you define custom series, you will need to include the name you\n"
-                  + "gave it here.").create();
-      uiTextCustomIonSeries = new UiText(10);
-      String tooltipCustomIonSeriesDisabled = "This feature is currently disabled";
-      String tooltipCustomIonSeriesOriginal = "Custom ion series allow specification of arbitrary mass gains/losses\n"
-          + "for N- and C-terminal ions. Separate multiple definitions by commas or semicolons.\n"
-          + "<b>Format:</b> name terminus mass-delta\n"
-          + "Example definition string:\n"
-          + "b* N -17.026548; b0 N -18.010565\n"
-          + "This would define two new ion types named <i>b*</i> and <i>b0</i>,\n"
-          + "you can name them whatever you fancy. <i>b*</i> is the equivalent of an\n"
-          + "N terminal b-ion with ammonia loss, <i>b0</i> is the same with water loss.\n";
-      FormEntry feCustomSeries = fe(MsfraggerParams.PROP_ion_series_definitions, uiTextCustomIonSeries)
-          .label("Define custom ion series").tooltip(tooltipCustomIonSeriesDisabled).create();
-      labelCustomIonSeries = feCustomSeries.label();
-
-      FormEntry feTrueTolUnits = fe(MsfraggerParams.PROP_precursor_true_units, UiUtils.createUiCombo(FragmentMassTolUnits.values())).label("Precursor true tolerance").create();
-      UiSpinnerDouble uiSpinnerTrueTol = new UiSpinnerDouble(10, 0, 100000, 5,
-          new DecimalFormat("0.#"));
-      uiSpinnerTrueTol.setColumns(4);
-      FormEntry feTrueTol = fe(MsfraggerParams.PROP_precursor_true_tolerance, uiSpinnerTrueTol)
-          .tooltip("True precursor mass tolerance should be set to your instrument's\n"
-              + "precursor mass accuracy(window is +/- this value).  This value is used\n"
-              + "for tie breaking of results and boosting of unmodified peptides in open\n"
-              + "search.").create();
-      FormEntry feReportTopN = fe(MsfraggerParams.PROP_output_report_topN,
-          new UiSpinnerInt(1, 1, 10000, 1, 4)).label("Report top N")
-          .tooltip("Report top N PSMs per input spectrum.").create();
-      UiSpinnerDouble uiSpinnerOutputMaxExpect = new UiSpinnerDouble(50, 0, Double.MAX_VALUE, 1,
-          new DecimalFormat("0.#"));
-      uiSpinnerOutputMaxExpect.setColumns(4);
-      FormEntry feOutputMaxExpect = fe(MsfraggerParams.PROP_output_max_expect, uiSpinnerOutputMaxExpect).label("Output max expect")
-          .tooltip("Suppresses reporting of PSM if top hit has<br> expectation greater than this threshold").create();
-
-
-      uiComboOutputType = UiUtils.createUiCombo(FraggerOutputType.values());
-      FormEntry feOutputType = fe(MsfraggerParams.PROP_output_format, uiComboOutputType).label("Output format")
-          .tooltip("How the search results are to be reported.\n" +
-              "Downstream tools only support PepXML format.\n\n" +
-              "Only use TSV (tab delimited file) if you want to process \n" +
-              "search resutls yourself for easier import into other software.").create();
-
-      String tooltipPrecursorCHarge =
-          "Assume range of potential precursor charge states.\n" +
-              "Only relevant when override_charge is set to 1.\n" +
-              "Specified as space separated range of integers.";
-      FormEntry fePrecursorChargeLo = fe(PROP_misc_fragger_precursor_charge_lo, new UiSpinnerInt(1, 0, 30, 1, 2))
-          .tooltip(tooltipPrecursorCHarge).create();
-      FormEntry fePrecursorChargeHi = fe(PROP_misc_fragger_precursor_charge_hi, new UiSpinnerInt(4, 0, 30, 1, 2))
-          .tooltip(tooltipPrecursorCHarge).create();
-      FormEntry feOverrideCharge = fe(MsfraggerParams.PROP_override_charge, new UiCheck("Override charge with precursor charge", null))
-          .tooltip("Ignores precursor charge and uses charge state\n" +
-              "specified in precursor_charge range.").create();
-      FormEntry feReportAltProts = fe(MsfraggerParams.PROP_report_alternative_proteins, new UiCheck("Report alternative proteins", null, false)).create();
-
-      pPeakMatch.add(feMinFragsModeling.label(), alignRight);
-      pPeakMatch.add(feMinFragsModeling.comp);
-      pPeakMatch.add(feMinMatchedFrags.label(), alignRight);
-      pPeakMatch.add(feMinMatchedFrags.comp, new CC().wrap());
-
-      pPeakMatch.add(feIonSeries.label(), alignRight);
-      pPeakMatch.add(feIonSeries.comp, new CC().growX());
-      pPeakMatch.add(labelCustomIonSeries, new CC().split(2).spanX());
-      pPeakMatch.add(feCustomSeries.comp, new CC().growX().wrap());
-
-      pPeakMatch.add(feTrueTolUnits.label(), alignRight);
-      pPeakMatch.add(feTrueTolUnits.comp, new CC().split(2));
-      pPeakMatch.add(feTrueTol.comp, new CC().growX());
-
-      pPeakMatch.add(feOverrideCharge.comp, new CC().split(4).spanX());
-      pPeakMatch.add(fePrecursorChargeLo.comp);
-      pPeakMatch.add(new JLabel("-"));
-      pPeakMatch.add(fePrecursorChargeHi.comp, wrap);
-      pPeakMatch.add(feReportTopN.label(), alignRight);
-      pPeakMatch.add(feReportTopN.comp, new CC().growX());
-      pPeakMatch.add(feReportAltProts.comp, new CC().alignX("left").spanX().wrap());
-      pPeakMatch.add(feOutputType.label(), alignRight);
-      pPeakMatch.add(feOutputType.comp);
-      pPeakMatch.add(feOutputMaxExpect.label(), alignRight);
-      pPeakMatch.add(feOutputMaxExpect.comp, wrap);
-    }
+    JPanel pOpenSearch = createPanelOpenSearch();
+    JPanel pPeakMatch = createPanelPeakMatch();
 
     pAdvanced.add(pSpectral, new CC().wrap().growX());
     pAdvanced.add(pPeakMatch, new CC().wrap().growX());
@@ -1006,6 +845,175 @@ public class TabMsfragger extends JPanelWithEnablement {
 
     return pAdvanced;
   }
+
+  /** Advanced peak matching panel */
+  private JPanel createPanelPeakMatch()
+  {
+    JPanel p = new JPanel(new MigLayout(new LC()));
+    p.setBorder(new TitledBorder("Peak Matching and Output Advanced Options"));
+
+    FormEntry feMinFragsModeling = fe(MsfraggerParams.PROP_min_fragments_modelling, new UiSpinnerInt(2, 0, 1000, 1, 4)).label("Min frags modeling").create();
+    FormEntry feMinMatchedFrags = fe(MsfraggerParams.PROP_min_matched_fragments, new UiSpinnerInt(4, 0, 1000, 1, 4)).label("Min matched frags").create();
+
+    FormEntry feIonSeries = fe(MsfraggerParams.PROP_fragment_ion_series, new UiText(10))
+        .label("Fragment ion series").tooltip(
+            "Which peptide ion series to check against.\n"
+                + "<b>Use spaces, commas or semicolons as delimiters</b>, e.g. \"b,y\"\n"
+                + "This mostly depends on fragmentation method.\n"
+                + "Typically \"b,y\" are used for CID and \"c,z\" for ECD.\n"
+                + "MSFragger can generate \"a,b,c,x,y,z\" ion series by default,\n"
+                + "but <b>you can define your own in 'Define custom ion series' field</b>.\n"
+                + "If you define custom series, you will need to include the name you\n"
+                + "gave it here.").create();
+    uiTextCustomIonSeries = new UiText(10);
+    String tooltipCustomIonSeriesDisabled = "This feature is currently disabled";
+    String tooltipCustomIonSeriesOriginal = "Custom ion series allow specification of arbitrary mass gains/losses\n"
+        + "for N- and C-terminal ions. Separate multiple definitions by commas or semicolons.\n"
+        + "<b>Format:</b> name terminus mass-delta\n"
+        + "Example definition string:\n"
+        + "b* N -17.026548; b0 N -18.010565\n"
+        + "This would define two new ion types named <i>b*</i> and <i>b0</i>,\n"
+        + "you can name them whatever you fancy. <i>b*</i> is the equivalent of an\n"
+        + "N terminal b-ion with ammonia loss, <i>b0</i> is the same with water loss.\n";
+    FormEntry feCustomSeries = fe(MsfraggerParams.PROP_ion_series_definitions, uiTextCustomIonSeries)
+        .label("Define custom ion series").tooltip(tooltipCustomIonSeriesDisabled).create();
+    labelCustomIonSeries = feCustomSeries.label();
+
+    FormEntry feTrueTolUnits = fe(MsfraggerParams.PROP_precursor_true_units, UiUtils.createUiCombo(FragmentMassTolUnits.values())).label("Precursor true tolerance").create();
+    UiSpinnerDouble uiSpinnerTrueTol = new UiSpinnerDouble(10, 0, 100000, 5,
+        new DecimalFormat("0.#"));
+    uiSpinnerTrueTol.setColumns(4);
+    FormEntry feTrueTol = fe(MsfraggerParams.PROP_precursor_true_tolerance, uiSpinnerTrueTol)
+        .tooltip("True precursor mass tolerance should be set to your instrument's\n"
+            + "precursor mass accuracy(window is +/- this value).  This value is used\n"
+            + "for tie breaking of results and boosting of unmodified peptides in open\n"
+            + "search.").create();
+    FormEntry feReportTopN = fe(MsfraggerParams.PROP_output_report_topN,
+        new UiSpinnerInt(1, 1, 10000, 1, 4)).label("Report top N")
+        .tooltip("Report top N PSMs per input spectrum.").create();
+    UiSpinnerDouble uiSpinnerOutputMaxExpect = new UiSpinnerDouble(50, 0, Double.MAX_VALUE, 1,
+        new DecimalFormat("0.#"));
+    uiSpinnerOutputMaxExpect.setColumns(4);
+    FormEntry feOutputMaxExpect = fe(MsfraggerParams.PROP_output_max_expect, uiSpinnerOutputMaxExpect).label("Output max expect")
+        .tooltip("Suppresses reporting of PSM if top hit has<br> expectation greater than this threshold").create();
+
+
+    uiComboOutputType = UiUtils.createUiCombo(FraggerOutputType.values());
+    FormEntry feOutputType = fe(MsfraggerParams.PROP_output_format, uiComboOutputType).label("Output format")
+        .tooltip("How the search results are to be reported.\n" +
+            "Downstream tools only support PepXML format.\n\n" +
+            "Only use TSV (tab delimited file) if you want to process \n" +
+            "search resutls yourself for easier import into other software.").create();
+
+    String tooltipPrecursorCHarge =
+        "Assume range of potential precursor charge states.\n" +
+            "Only relevant when override_charge is set to 1.\n" +
+            "Specified as space separated range of integers.";
+    FormEntry fePrecursorChargeLo = fe(PROP_misc_fragger_precursor_charge_lo, new UiSpinnerInt(1, 0, 30, 1, 2))
+        .tooltip(tooltipPrecursorCHarge).create();
+    FormEntry fePrecursorChargeHi = fe(PROP_misc_fragger_precursor_charge_hi, new UiSpinnerInt(4, 0, 30, 1, 2))
+        .tooltip(tooltipPrecursorCHarge).create();
+    FormEntry feOverrideCharge = fe(MsfraggerParams.PROP_override_charge, new UiCheck("Override charge with precursor charge", null))
+        .tooltip("Ignores precursor charge and uses charge state\n" +
+            "specified in precursor_charge range.").create();
+    FormEntry feReportAltProts = fe(MsfraggerParams.PROP_report_alternative_proteins, new UiCheck("Report alternative proteins", null, false)).create();
+
+    mu.add(p, feMinFragsModeling.label(), mu.ccR());
+    mu.add(p, feMinFragsModeling.comp);
+    mu.add(p, feMinMatchedFrags.label(), mu.ccR());
+    mu.add(p, feMinMatchedFrags.comp).wrap();
+    mu.add(p, feIonSeries.label(), mu.ccR());
+    mu.add(p, feIonSeries.comp).growX();
+    mu.add(p, labelCustomIonSeries).split(2).spanX();
+    mu.add(p, feCustomSeries.comp).growX().wrap();
+    mu.add(p, feTrueTolUnits.label(), mu.ccR());
+    mu.add(p, feTrueTolUnits.comp).split(2);
+    mu.add(p, feTrueTol.comp).growX();
+    mu.add(p, feOverrideCharge.comp).split(4).spanX();
+    mu.add(p, fePrecursorChargeLo.comp);
+    mu.add(p, new JLabel("-"));
+    mu.add(p, fePrecursorChargeHi.comp).wrap();
+    mu.add(p, feReportTopN.label(), mu.ccR());
+    mu.add(p, feReportTopN.comp).growX();
+    mu.add(p, feReportAltProts.comp).spanX().wrap();
+    mu.add(p, feOutputType.label(), mu.ccR());
+    mu.add(p, feOutputType.comp);
+    mu.add(p, feOutputMaxExpect.label(), mu.ccR());
+    mu.add(p, feOutputMaxExpect.comp).wrap();
+
+    return p;
+  }
+
+
+  private JPanel createPanelOpenSearch()
+  {
+    JPanel p = new JPanel(new MigLayout(new LC()));
+    p.setBorder(new TitledBorder("Open Search Options"));
+    FormEntry feTrackZeroTopN = fe(MsfraggerParams.PROP_track_zero_topN,
+        new UiSpinnerInt(0, 0, 1000, 5, 3)).label("Track zero top N").create();
+    FormEntry feAddTopNComplementary = fe(MsfraggerParams.PROP_add_topN_complementary,
+        new UiSpinnerInt(0, 0, 1000, 2, 3)).label("Add top N complementary").create();
+    UiSpinnerDouble spinnerZeroBinAcceptExpect = new UiSpinnerDouble(0, 0, Double.MAX_VALUE,
+        0.1, 1,
+        new DecimalFormat("0.00"));
+    spinnerZeroBinAcceptExpect.setColumns(3);
+    FormEntry feZeroBinAcceptExpect = fe(MsfraggerParams.PROP_zero_bin_accept_expect, spinnerZeroBinAcceptExpect).label("Zero bin accept expect").create();
+    UiSpinnerDouble spinnerZeroBinMultExpect = new UiSpinnerDouble(1, 0, 1, 0.05, 2,
+        new DecimalFormat("0.00"));
+    spinnerZeroBinMultExpect.setColumns(3);
+    FormEntry feZeroBinMultExpect = fe(MsfraggerParams.PROP_zero_bin_mult_expect, spinnerZeroBinMultExpect).label("Zero bin multiply expect").create();
+
+
+    mu.add(p, feTrackZeroTopN.label(), mu.ccR());
+    mu.add(p, feTrackZeroTopN.comp);
+    mu.add(p, feAddTopNComplementary.label(), mu.ccR());
+    mu.add(p, feAddTopNComplementary.comp).wrap();
+    mu.add(p, feZeroBinAcceptExpect.label(), mu.ccR());
+    mu.add(p, feZeroBinAcceptExpect.comp);
+    mu.add(p, feZeroBinMultExpect.label(), mu.ccR());
+    mu.add(p, feZeroBinMultExpect.comp).wrap();
+
+    uiCheckShiftedIons = new UiCheck("<html>Localize delta mass", null);
+    FormEntry feShiftedIonsCheck = fe(MsfraggerParams.PROP_localize_delta_mass, uiCheckShiftedIons)
+        .tooltip("<html>Shifted ion series are the same as regular b/y ions,\n"
+            + "but with the addition of the mass shift of the precursor.\n"
+            + "Regular ion series will still be used.\n"
+            + "This option is </b>incompatible</b> with database splitting.").create();
+    UiText uiTextShiftedIonsExclusion = new UiText();
+    uiTextShiftedIonsExclusion.setDocument(DocumentFilters.getFilter("[A-Za-z]"));
+    uiTextShiftedIonsExclusion.setText("(-1.5,3.5)");
+    FormEntry feShiftedIonsExclusion = fe(
+        MsfraggerParams.PROP_delta_mass_exclude_ranges, uiTextShiftedIonsExclusion).label("Delta mass exclude ranges")
+        .tooltip("<html>Ranges expressed like: (-1.5,3.5)").create();
+    p.add(feShiftedIonsCheck.comp, new CC().alignX("right"));
+    p.add(feShiftedIonsExclusion.label(), new CC().split(2).spanX().gapLeft("25px"));
+    p.add(feShiftedIonsExclusion.comp, new CC().growX());
+
+    uiCheckShiftedIons.addActionListener(e -> {
+      final boolean selected = uiCheckShiftedIons.isSelected();
+      final int dbSlicing = uiSpinnerDbslice.getActualValue();
+      if (selected && dbSlicing > 1) {
+        JOptionPane.showMessageDialog(this,
+            "<html>This option is incompatible with DB Splitting.<br/>"
+                + "Please either turn it off, or turn off DB Splitting by setting<br/>"
+                + "it to 1.", "Incompatible options", JOptionPane.WARNING_MESSAGE);
+      }
+    });
+
+    uiSpinnerDbslice.addChangeListener(e -> {
+      final boolean selected = uiCheckShiftedIons.isSelected();
+      final int dbSlicing = uiSpinnerDbslice.getActualValue();
+      if (selected && dbSlicing > 1) {
+        JOptionPane.showMessageDialog(this,
+            "<html><code>DB Slicing<code> is incompatible with <code>Localize delta mass</code> option.<br/>"
+                + "Please either set <code>DB Slicing<code> to 1, or uncheck <code>Localize delta mass</code> checkbox<br/>"
+                + "at the end of this form.",
+            "Incompatible options", JOptionPane.WARNING_MESSAGE);
+      }
+    });
+    return p;
+  }
+
 
   private FormEntry.Builder fe(JComponent comp, String name) {
     return Fragpipe.fe(comp, name, TAB_PREFIX);

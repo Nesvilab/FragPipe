@@ -384,10 +384,6 @@ public class FraggerMigPanel extends JPanel {
       uiSpinnerPrecTolHi.setColumns(4);
       FormEntry feSpinnerPrecTolHi = new FormEntry(MsfraggerParams.PROP_precursor_mass_upper,
           "not-shown", uiSpinnerPrecTolHi);
-      FormEntry feDeisotope = new FormEntry(MsfraggerParams.PROP_deisotope,
-          "Deisotope", new UiSpinnerInt(1, 0, 2, 1, 4),
-          "<html>0 = deisotoping off<br/>\n"
-              + "1 = deisotoping on");
 
       uiComboPrecursorTolUnits.addItemListener(e -> {
         Object selected = uiComboPrecursorTolUnits.getSelectedItem();
@@ -420,8 +416,6 @@ public class FraggerMigPanel extends JPanel {
       pPeakMatch.add(feSpinnerPrecTolLo.comp);
       pPeakMatch.add(new JLabel("-"), new CC());
       pPeakMatch.add(feSpinnerPrecTolHi.comp, new CC());
-      pPeakMatch.add(feDeisotope.label(), new CC().alignX("right"));
-      pPeakMatch.add(feDeisotope.comp, new CC().wrap());
 
       // fragment mass tolerance
       FormEntry feFragTolUnits = new FormEntry(MsfraggerParams.PROP_fragment_mass_units,
@@ -447,12 +441,6 @@ public class FraggerMigPanel extends JPanel {
       uiTextIsoErr.setDocument(DocumentFilters.getFilter("[^\\d/-]+"));
       uiTextIsoErr.setText("-1/0/1/2");
       uiTextIsoErr.setColumns(10);
-      FormEntry feIsotopeError = new FormEntry(MsfraggerParams.PROP_isotope_error, "Isotope error",
-          uiTextIsoErr,
-          "<html>String of the form -1/0/1/2 indicating which isotopic<br/>peak selection errors MSFragger will try to correct.");
-
-      pPeakMatch.add(feIsotopeError.label(), new CC().alignX("right"));
-      pPeakMatch.add(feIsotopeError.comp, new CC().wrap());
 
       // Digest panel
       JPanel pDigest = new JPanel(new MigLayout(new LC()));
@@ -847,6 +835,14 @@ public class FraggerMigPanel extends JPanel {
         FormEntry feIntensityTransform = new FormEntry(MsfraggerParams.PROP_intensity_transform,
             "Intensity transform", UiUtils.createUiCombo(IntensityTransform.getNames()));
 
+        FormEntry feDeisotope = new FormEntry(MsfraggerParams.PROP_deisotope,
+            "Deisotope", new UiSpinnerInt(1, 0, 2, 1, 4),
+            "<html>0 = deisotoping off<br/>\n"
+                + "1 = deisotoping on");
+        FormEntry feIsotopeError = new FormEntry(MsfraggerParams.PROP_isotope_error, "Isotope error",
+            uiTextIsoErr,
+            "<html>String of the form -1/0/1/2 indicating which isotopic<br/>peak selection errors MSFragger will try to correct.");
+
         pSpectral.add(fePrecursorMassMode.label(), new CC().alignX("right"));
         pSpectral.add(fePrecursorMassMode.comp, new CC().wrap());
 
@@ -870,6 +866,12 @@ public class FraggerMigPanel extends JPanel {
         pSpectral.add(fePrecRemoveRangeHi.comp, new CC().wrap());
         pSpectral.add(feIntensityTransform.label(), alignRight);
         pSpectral.add(feIntensityTransform.comp, new CC().wrap());
+
+
+        pSpectral.add(feDeisotope.label(), new CC().alignX("right"));
+        pSpectral.add(feDeisotope.comp, new CC());
+        pSpectral.add(feIsotopeError.label(), new CC().alignX("right"));
+        pSpectral.add(feIsotopeError.comp, new CC().wrap());
       }
 
       // Advanced peak matching panel

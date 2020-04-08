@@ -78,6 +78,11 @@ public class MigUtils {
     return cc;
   }
 
+  public CC add(JComponent host, JComponent child, CC cc) {
+    host.add(child, cc);
+    return cc;
+  }
+
   public CC add(JComponent host, JComponent child, boolean isAlignLeft) {
     CC cc = isAlignLeft ? ccL() : ccR();
     host.add(child, cc);
