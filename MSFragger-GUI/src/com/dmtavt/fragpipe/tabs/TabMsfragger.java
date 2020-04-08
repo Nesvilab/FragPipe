@@ -367,9 +367,6 @@ public class TabMsfragger extends JPanelWithEnablement {
         new DecimalFormat("0.#"));
     uiSpinnerPrecTolHi.setColumns(4);
     FormEntry feSpinnerPrecTolHi = fe(MsfraggerParams.PROP_precursor_mass_upper, uiSpinnerPrecTolHi).create();
-    FormEntry feDeisotope = fe(MsfraggerParams.PROP_deisotope, new UiSpinnerInt(1, 0, 2, 1, 4))
-        .label("Deisotope")
-        .tooltip("<html>0 = deisotoping off<br/>\n1 = deisotoping on").create();
 
     uiComboPrecursorTolUnits.addItemListener(e -> {
       Object selected = uiComboPrecursorTolUnits.getSelectedItem();
@@ -402,8 +399,6 @@ public class TabMsfragger extends JPanelWithEnablement {
     p.add(feSpinnerPrecTolLo.comp);
     p.add(new JLabel("-"), new CC());
     p.add(feSpinnerPrecTolHi.comp, new CC());
-    p.add(feDeisotope.label(), new CC().alignX("right"));
-    p.add(feDeisotope.comp, new CC().wrap());
 
     // fragment mass tolerance
     FormEntry feFragTolUnits = fe(MsfraggerParams.PROP_fragment_mass_units, UiUtils.createUiCombo(FragmentMassTolUnits.values()))
@@ -429,14 +424,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     uiTextIsoErr.setDocument(DocumentFilters.getFilter("[^\\d/-]+"));
     uiTextIsoErr.setText("-1/0/1/2");
     uiTextIsoErr.setColumns(10);
-    FormEntry feIsotopeError = fe(MsfraggerParams.PROP_isotope_error, uiTextIsoErr)
-        .label("Isotope error")
-        .tooltip("<html>String of the form -1/0/1/2 indicating which isotopic\n"
-            + "peak selection errors MSFragger will try to correct.")
-        .create();
 
-    p.add(feIsotopeError.label(), new CC().alignX("right"));
-    p.add(feIsotopeError.comp, new CC().wrap());
     return p;
   }
 
@@ -574,8 +562,8 @@ public class TabMsfragger extends JPanelWithEnablement {
   /** Panel with all the basic options. */
   private JPanel createPanelBasicOptions() {
       JPanel pBase = mu.newPanel("Common Options (Advanced Options are at the end of the page)", true);
-      mu.add(pBase, createPanelPeakMatchBasic()).growX().wrap();
-      mu.add(pBase, createPanelDigest()).growX().wrap();
+      mu.add(pBase, createPanelPeakMatchBasic()).pushX().wrap();
+      mu.add(pBase, createPanelDigest()).pushX().wrap();
 
       return pBase;
   }
@@ -766,11 +754,11 @@ public class TabMsfragger extends JPanelWithEnablement {
 
   /** Panel with all the advanced options. */
   private JPanel createPanelAdvancedOptions() {
-    JPanel p = mu.newPanel("Advanced Options", true);
+    JPanel p = mu.newPanel("Advanced Options", new LC());
 
-    p.add(createPanelSpectral(), new CC().wrap().growX());
-    p.add(createPanelPeakMatchAdvanced(), new CC().wrap().growX());
-    p.add(createPanelOpenSearch(), new CC().wrap().growX());
+    mu.add(p, createPanelSpectral()).pushX().wrap();
+    mu.add(p, createPanelPeakMatchAdvanced()).pushX().wrap();
+    mu.add(p, createPanelOpenSearch()).pushX().wrap();
 
     return p;
   }
@@ -907,10 +895,24 @@ public class TabMsfragger extends JPanelWithEnablement {
             "specified in precursor_charge range.").create();
     FormEntry feReportAltProts = fe(MsfraggerParams.PROP_report_alternative_proteins, new UiCheck("Report alternative proteins", null, false)).create();
 
+    FormEntry feDeisotope = fe(MsfraggerParams.PROP_deisotope, new UiSpinnerInt(1, 0, 2, 1, 4))
+        .label("Deisotope")
+        .tooltip("<html>0 = deisotoping off<br/>\n1 = deisotoping on").create();
+
+    FormEntry feIsotopeError = fe(MsfraggerParams.PROP_isotope_error, uiTextIsoErr)
+        .label("Isotope error")
+        .tooltip("<html>String of the form -1/0/1/2 indicating which isotopic\n"
+            + "peak selection errors MSFragger will try to correct.")
+        .create();
+
     mu.add(p, feMinFragsModeling.label(), mu.ccR());
     mu.add(p, feMinFragsModeling.comp);
     mu.add(p, feMinMatchedFrags.label(), mu.ccR());
     mu.add(p, feMinMatchedFrags.comp).wrap();
+    mu.add(p, feDeisotope.label(), mu.ccR());
+    mu.add(p, feDeisotope.comp);
+    mu.add(p, feIsotopeError.label(), mu.ccR());
+    mu.add(p, feIsotopeError.comp).spanX().wrap();
     mu.add(p, feIonSeries.label(), mu.ccR());
     mu.add(p, feIonSeries.comp).growX();
     mu.add(p, labelCustomIonSeries).split(2).spanX();
