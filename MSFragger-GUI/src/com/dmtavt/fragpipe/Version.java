@@ -18,6 +18,7 @@ package com.dmtavt.fragpipe;
 
 import static umich.msfragger.params.ThisAppProps.PATH_BUNDLE;
 
+import com.dmtavt.fragpipe.api.Bus;
 import com.github.chhh.utils.StringUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,11 +35,10 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
-import com.dmtavt.fragpipe.messages.MessageTipNotification;
+import com.dmtavt.fragpipe.messages.MessageFragpipeUpdate;
 import umich.msfragger.params.ThisAppProps;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.VersionComparator;
@@ -426,7 +426,7 @@ public class Version {
   }
 
   public static void checkUpdates() {
-    Properties props = ThisAppProps.getRemoteProperties();
+    Properties props = Fragpipe.props();
     if (props == null) {
       log.info("Didn't get update info from any of the sources");
       return;
@@ -528,7 +528,7 @@ public class Version {
     }
 
     if (sb.length() > 0) {
-      EventBus.getDefault().post(new MessageTipNotification(Version.PROP_VER, sb.toString()));
+      Bus.post(new MessageFragpipeUpdate(Version.PROP_VER, sb.toString()));
     }
   }
 

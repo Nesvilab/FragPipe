@@ -124,7 +124,7 @@ import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
-import com.dmtavt.fragpipe.messages.MessageTipNotification;
+import com.dmtavt.fragpipe.messages.MessageFragpipeUpdate;
 import com.dmtavt.fragpipe.messages.MessageType;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcPanel;
@@ -676,7 +676,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
 
   @Subscribe
-  public void onTipNotification(MessageTipNotification m) {
+  public void onTipNotification(MessageFragpipeUpdate m) {
     SwingUtilities.invokeLater(() -> {
       tipMap.computeIfPresent(m.key, (key, tip) -> {
         tip.closeBalloon();

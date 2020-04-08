@@ -49,9 +49,9 @@ public class MsfraggerProps {
     // MSFragger when we only update the online repository.
     /** Github master branch location of "umich/msfragger/params/fragger/msfragger.properties". */
     public static final List<String> PROPERTIES_URLS = Arrays.asList(
-        "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties",
-        "https://raw.githubusercontent.com/chhh/FragPipe/updates/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties",
-        "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties"
+        "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties"
+        //"https://raw.githubusercontent.com/chhh/FragPipe/updates/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties"
+        //"https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties"
     );
     //public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties";
     public static final String PROPERTIES_FILE_NAME = "msfragger.properties";

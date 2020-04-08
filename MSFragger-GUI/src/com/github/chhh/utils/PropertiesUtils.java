@@ -39,6 +39,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
@@ -235,14 +236,15 @@ public final class PropertiesUtils {
      * @return null in case of any errors during downloading or parsing.
      */
     public static Properties loadPropertiesRemote(URI uri) {
-        try {
-            String remoteText = org.apache.commons.io.IOUtils.toString(uri.toURL(), StandardCharsets.UTF_8);
-            final Properties p = new Properties();
-            p.load(new StringReader(remoteText));
-            return p;
-        } catch (Exception ex) {
-            return null;
-        }
+//        try {
+//            String remoteText = org.apache.commons.io.IOUtils.toString(uri.toURL(), StandardCharsets.UTF_8);
+//            final Properties p = new Properties();
+//            p.load(new StringReader(remoteText));
+//            return p;
+//        } catch (Exception ex) {
+//            return null;
+//        }
+        return loadPropertiesRemote(uri, Duration.ofSeconds(3));
     }
 
     public static Properties loadPropertiesRemote(URI uri, Duration timeout) {
@@ -251,7 +253,7 @@ public final class PropertiesUtils {
             .subscribeOn(Schedulers.immediate());
             //.subscribeOn(Schedulers.io());
         if (timeout != null) {
-            obs = obs.timeout(timeout.getSeconds(), TimeUnit.SECONDS);
+            //obs = obs.timeout(timeout.getSeconds(), TimeUnit.SECONDS);
         }
         final StringBuilder sb = new StringBuilder();
         final AtomicBoolean isSuccess = new AtomicBoolean(false);
@@ -284,9 +286,7 @@ public final class PropertiesUtils {
                 if (props != null)
                     return props;
             }
-        } catch (Exception e) {
-            // doesn't matter
-        }
+        } catch (Exception ignore) {}
         return loadPropertiesLocal(clazz, propertiesFile);
     }
 

@@ -44,9 +44,9 @@ public class PhilosopherProps {
     public static final String PROP_DOWNLOAD_URL = "philosopher.download.url";
 
     public static final List<String> PROPERTIES_URLS = Arrays.asList(
-        "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/philosopher/philosopher.properties",
-        "https://raw.githubusercontent.com/chhh/FragPipe/updates/MSFragger-GUI/src/umich/msfragger/params/philosopher/philosopher.properties",
-        "https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/philosopher/philosopher.properties"
+        "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/philosopher/philosopher.properties"
+        //"https://raw.githubusercontent.com/chhh/FragPipe/updates/MSFragger-GUI/src/umich/msfragger/params/philosopher/philosopher.properties",
+        //"https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/philosopher/philosopher.properties"
     );
 
     private static class Holder {
