@@ -425,8 +425,8 @@ public class Version {
     return messages;
   }
 
-  public static void checkUpdates() {
-    Properties props = Fragpipe.props();
+  public static void checkUpdatesOld() {
+    Properties props = ThisAppProps.getRemoteProperties();
     if (props == null) {
       log.info("Didn't get update info from any of the sources");
       return;

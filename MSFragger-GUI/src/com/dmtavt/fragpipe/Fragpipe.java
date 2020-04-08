@@ -1,5 +1,8 @@
 package com.dmtavt.fragpipe;
 
+import static com.dmtavt.fragpipe.Version.PROP_LAST_RELEASE_VER;
+import static com.dmtavt.fragpipe.Version.version;
+
 import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
@@ -13,6 +16,7 @@ import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
+import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
 import com.dmtavt.fragpipe.messages.NotePreviousUiState;
 import com.dmtavt.fragpipe.tabs.TabConfig;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
@@ -28,6 +32,7 @@ import com.github.chhh.utils.LogUtils;
 import com.github.chhh.utils.ScreenUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.VersionComparator;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.FormEntry.Builder;
 import com.github.chhh.utils.swing.TextConsole;
@@ -474,6 +479,21 @@ public class Fragpipe extends JFrame {
     log.debug("Got NotePreviousUiState, updating UI");
     FragpipeCacheUtils.tabsLoad(m.props, tabs);
     Bus.post(new MessageUiRevalidate());
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteFragpipeProperties m) {
+
+    if (m.props == null) {
+      log.debug("Got NoteFragpipeProperties with null props");
+      return;
+    }
+    String releaseVer = m.props.getProperty(PROP_LAST_RELEASE_VER);
+    int cmp = VersionComparator.cmp(Version.version(), releaseVer);
+    log.debug("Got NoteFragpipeProperties, property {}={}. Current version: {}, their comparison = {}", PROP_LAST_RELEASE_VER, releaseVer, Version.version(), cmp);
+    if (cmp < 0) {
+      Bus.postSticky(new NoteFragpipeUpdate(releaseVer, m.props.getProperty("fragpipe.download-url")));
+    }
   }
 
   @Subscribe

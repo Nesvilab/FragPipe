@@ -457,7 +457,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
 
     exec.submit(() -> MsfraggerGuiFrameUtils.validateAndSaveMsfraggerPath(this, textBinMsfragger.getText()));
     exec.submit(() -> MsfraggerGuiFrameUtils.validateAndSavePhilosopherPath(this, textBinPhilosopher.getText()));
-    exec.submit(() -> Version.checkUpdates());
+    exec.submit(() -> Version.checkUpdatesOld());
     exec.submit(() -> MsfraggerGuiFrameUtils.checkPreviouslySavedParams(MsfraggerGuiFrame.this));
 
     // The python check must be run before DbSlice and SpecLibGen.

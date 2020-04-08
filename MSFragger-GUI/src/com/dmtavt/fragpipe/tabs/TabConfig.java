@@ -23,6 +23,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
+import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
 import com.dmtavt.fragpipe.tools.msfragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
@@ -39,6 +40,7 @@ import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
@@ -91,11 +93,13 @@ public class TabConfig extends JPanelWithEnablement {
   private JEditorPane epSpeclibgenText;
   private JEditorPane epSpeclibgenErr;
   private Container epSpeclibgenErrParent;
+  private JButton btnAbout;
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
   public static final String TIP_PHILOSOPHER_BIN = "tip.pholosopher.bin";
   public static final String TIP_PYTHON_BIN = "tip.python.bin";
   private static final String TIP_DBSPLIT = "tip.dbsplit";
   private static final String TIP_SPECLIBGEN = "tip.speclibgen";
+  private static final String TIP_FRAGPIPE_UPDATE = "tip.fragpipe.update";
   public static final String TAB_PREFIX = "fragpipe-config.";
 
 
@@ -148,8 +152,8 @@ public class TabConfig extends JPanelWithEnablement {
 
   private JPanel createPanelTopButtons() {
     JPanel p = newMigPanel();
-    p.add(UiUtils.createButton("About", e -> Bus.post(new MessageShowAboutDialog())),
-        ccL().split().spanX());
+    btnAbout = UiUtils.createButton("About", e -> Bus.post(new MessageShowAboutDialog()));
+    p.add(btnAbout, ccL().split().spanX());
     p.add(UiUtils.createButton("Clear Cache", e -> Bus.post(new MessageClearCache())), ccL());
     UiCheck uiCheckUmpire = UiUtils.createUiCheck("Enable DIA-Umpire", false,
         e -> Bus.post(new MessageUmpireEnabled(((JCheckBox) e.getSource()).isSelected())));
@@ -197,6 +201,19 @@ public class TabConfig extends JPanelWithEnablement {
     p.add(SwingUtils.createClickableHtml(createFraggerCitationBody()),
         ccL().spanX().growX().wrap());
     return p;
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteFragpipeUpdate m) {
+    log.debug("Got NoteFragpipeUpdate: {}", m.toString());
+    StringBuilder sb = new StringBuilder();
+    sb.append(String.format("FragPipe update available, new version %s\n", m.releaseVer));
+    if (StringUtils.isNotBlank(m.downloadUrl)) {
+      sb.append(String.format("<a href=\"%s\">Click here to download</a>", m.downloadUrl));
+    }
+    JEditorPane ep = SwingUtils.createClickableHtml(true, sb.toString());
+    ep.setBackground(Color.white);
+    Bus.postSticky(new MessageBalloon(TIP_FRAGPIPE_UPDATE, btnAbout, ep));
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
@@ -330,7 +347,7 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  @Subscribe(sticky = true)
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigMsfragger m) {
     log.debug("Got {}", m);
     uiTextBinFragger.setText(m.path);

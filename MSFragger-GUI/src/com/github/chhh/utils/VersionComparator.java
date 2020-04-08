@@ -1,5 +1,6 @@
 package com.github.chhh.utils;
 
+import com.dmtavt.fragpipe.messages.INoteConfig;
 import java.util.Comparator;
 
 /**
@@ -8,6 +9,11 @@ import java.util.Comparator;
  * https://stackoverflow.com/questions/198431/how-do-you-compare-two-version-strings-in-java
  */
 public class VersionComparator implements Comparator<String> {
+    private static VersionComparator INSTANCE = new VersionComparator();
+
+    public static int cmp(String v1, String v2) {
+        return INSTANCE.compare(v1, v2);
+    }
 
     public boolean equals(String o1, String o2) {
         return compare(o1, o2) == 0;

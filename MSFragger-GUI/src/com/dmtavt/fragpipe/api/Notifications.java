@@ -41,8 +41,8 @@ public class Notifications {
   public Notifications() {
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void onMessageBalloon(MessageBalloon m) {
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageBalloon m) {
     log.debug("Got {}", m);
     synchronized (tips) {
       remove(m); // always remove old balloon
@@ -107,7 +107,7 @@ public class Notifications {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void onShowException(MessageShowException m) {
+  public void on(MessageShowException m) {
     showException(m.topic, m.comp, m.ex, m.showStacktrace);
   }
 }
