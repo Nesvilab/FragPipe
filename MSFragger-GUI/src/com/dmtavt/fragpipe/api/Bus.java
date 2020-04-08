@@ -2,9 +2,6 @@ package com.dmtavt.fragpipe.api;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +16,19 @@ public class Bus {
 
   public static void register(Object subscriber) {
     b.register(subscriber);
+  }
+
+  public static void registerQuietly(Object subscriber) {
+    for (Method m : subscriber.getClass().getMethods()) {
+      for (Annotation a : m.getDeclaredAnnotations()) {
+        Class<? extends Annotation> aClass = a.annotationType();
+        if (org.greenrobot.eventbus.Subscribe.class.equals(aClass)) {
+          b.register(subscriber);
+          return;
+        }
+      }
+    }
+    log.warn("No @Subscribe annotations found on bus subscriber {}", subscriber.getClass().getCanonicalName());
   }
 
   public static boolean isRegistered(Object subscriber) {

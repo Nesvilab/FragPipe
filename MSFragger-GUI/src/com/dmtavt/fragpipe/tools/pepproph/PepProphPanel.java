@@ -43,7 +43,7 @@ public class PepProphPanel extends JPanelWithEnablement {
   private void initMore() {
     SwingUtils.renameDeep(this, false, PREFIX, null);
     updateEnabledStatus(this, false);
-    Bus.register(this);
+    Bus.registerQuietly(this);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
@@ -65,7 +65,7 @@ public class PepProphPanel extends JPanelWithEnablement {
     defaults.put("Closed Search", SearchTypeProp.closed);
     defaults.put("Open Search", SearchTypeProp.open);
     defaults.put("Non-Specific Search", SearchTypeProp.nonspecific);
-    defaults.put("Offset", SearchTypeProp.offset);
+    defaults.put("Offset Search", SearchTypeProp.offset);
     final UiCombo uiComboDefaults = UiUtils.createUiCombo(new ArrayList<>(defaults.keySet()));
     uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).create();
     FormEntry feCmdOpts = fe(uiTextCmdOpts, "cmd-opts")

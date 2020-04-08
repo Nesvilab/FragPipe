@@ -271,6 +271,10 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
   private void initMore() {
+    // pre-load default values, they will be overwritten if there are user params from previous sessions
+    MsfraggerParams params = MsfraggerParams.getDefault(SearchTypeProp.closed);
+    formFrom(params);
+
     updateEnabledStatus(this, false);
     updateEnabledStatus(uiSpinnerDbslice, false); // only gets enabled when DbSlice2 is initialized
 

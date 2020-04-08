@@ -16,6 +16,7 @@
  */
 package umich.msfragger.params.fragger;
 
+import com.dmtavt.fragpipe.tools.msfragger.Msfragger;
 import com.github.chhh.utils.StringUtils;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -238,10 +239,34 @@ public class MsfraggerParams extends AbstractParams {
     public MsfraggerParams() {
         super();
         props = new Props(createComments());
+        // preload some defaults to get the correct ordering
+        initFromResource(DEFAULT_FILE_CLOSEDSEARCH);
+    }
+
+    private MsfraggerParams(SearchTypeProp st) {
+        super();
+        props = new Props(createComments());
+        Map<SearchTypeProp, String> map = new HashMap<>();
+        map.put(SearchTypeProp.open, DEFAULT_FILE_OPENSEARCH);
+        map.put(SearchTypeProp.closed, DEFAULT_FILE_CLOSEDSEARCH);
+        map.put(SearchTypeProp.nonspecific, DEFAULT_FILE_NONSPECIFICSEARCH);
+        map.put(SearchTypeProp.offset, DEFAULT_FILE_OFFSETSEARCH);
+        String resource = map.get(st);
+        if (resource == null)
+            throw new IllegalStateException("No mapping for search type: " + st.name());
+        initFromResource(resource);
+    }
+
+    private void initFromResource(String resource) {
         try {
-            // preload some defaults to get the correct ordering
-            load(MsfraggerParams.class.getResourceAsStream(DEFAULT_FILE_CLOSEDSEARCH), true);
-        } catch (IOException ignored) {}
+            load(MsfraggerParams.class.getResourceAsStream(resource), true);
+        } catch (IOException ex) {
+            log.error("Error while initializing new MsfraggerParams from resource: " + resource, ex);
+        }
+    }
+
+    public static MsfraggerParams getDefault(SearchTypeProp searchType) {
+        return new MsfraggerParams(searchType);
     }
 
     private Map<String, String> createComments() {
