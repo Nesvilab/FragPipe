@@ -28,6 +28,7 @@ import com.dmtavt.fragpipe.tools.msfragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.OsUtils;
+import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.FileChooserUtils;
@@ -46,6 +47,7 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -167,6 +169,9 @@ public class TabConfig extends JPanelWithEnablement {
 
     final String binMsfraggerTip = "Select path to MSFragger.jar";
     uiTextBinFragger = UiUtils.uiTextBuilder().ghost(binMsfraggerTip).create();
+    uiTextBinFragger.addFocusListener(new ContentChangedFocusAdapter(uiTextBinFragger, (s, s2) -> {
+      Bus.post(new MessageMsfraggerNewBin(s2));
+    }));
     FormEntry feBinMsfragger = fe(uiTextBinFragger, "bin-msfragger", TAB_PREFIX)
         .tooltip(binMsfraggerTip).create();
     p.add(feBinMsfragger.comp, ccL().split().growX());
@@ -381,6 +386,14 @@ public class TabConfig extends JPanelWithEnablement {
   public void on(MessagePythonNewBin m) {
     PyInfo pi;
     try {
+      // first check if the path is absolute, then it must exist
+      Path path = Paths.get(m.command);
+      final boolean fileExists = Files.exists(path) || (OsUtils.isWindows() && Files.exists(Paths.get(path.toString() + ".exe")));
+      if (path.isAbsolute() && !fileExists) {
+        throw new ValidationException("File not exists");
+      }
+
+      // if paths.get didn't throw, we can try the binary, it might be on PATH
       pi = PyInfo.fromCommand(m.command);
       if (pi.getMajorVersion() < 3) {
         Bus.postSticky(
@@ -550,6 +563,9 @@ public class TabConfig extends JPanelWithEnablement {
     final String tip = "Python 3 is required for Spectral Library generation and DB splitting";
     final String ghost = "Select Python 3 binary (Anaconda Python recommended)";
     uiTextBinPython = UiUtils.uiTextBuilder().ghost(ghost).create();
+    SwingUtils.addOnFocusLostAndContentChanged(uiTextBinPython, (s, s2) -> {
+      Bus.post(new MessagePythonNewBin(s2));
+    });
     FormEntry fe = fe(uiTextBinPython, "bin-python", TAB_PREFIX).tooltip(tip).create();
 
     p.add(fe.comp, ccL().split().growX());

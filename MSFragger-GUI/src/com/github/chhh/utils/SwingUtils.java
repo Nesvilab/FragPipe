@@ -17,6 +17,7 @@
 package com.github.chhh.utils;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.GhostedTextComponent;
 import com.github.chhh.utils.swing.StringRepresentable;
 import java.awt.BorderLayout;
@@ -34,12 +35,15 @@ import java.awt.Window;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +51,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -85,7 +92,13 @@ import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
+import rx.Subscription;
+import rx.swing.sources.DocumentEventSource;
 import umich.msfragger.gui.MsfraggerGuiFrame;
+import umich.msfragger.params.ThisAppProps;
+import umich.msfragger.params.umpire.UmpirePanel;
+import umich.msfragger.params.umpire.UmpireParams;
 
 /**
  * @author dmitriya
@@ -276,13 +289,38 @@ public class SwingUtils {
     }
   }
 
+  private static DocumentListener createDocListenerNotifyingOnce(final JTextComponent textComp,
+      final ChangeListener changeListener) {
+    return new DocumentListener() {
+      private int lastChange = 0, lastNotifiedChange = 0;
+      @Override
+      public void insertUpdate(DocumentEvent e) {
+        changedUpdate(e);
+      }
+      @Override
+      public void removeUpdate(DocumentEvent e) {
+        changedUpdate(e);
+      }
+      @Override
+      public void changedUpdate(DocumentEvent e) {
+        lastChange++;
+        SwingUtilities.invokeLater(() -> {
+          if (lastNotifiedChange != lastChange) {
+            lastNotifiedChange = lastChange;
+            changeListener.stateChanged(new ChangeEvent(textComp));
+          }
+        });
+      }
+    };
+  }
+
   /**
    * Installs a listener to receive notification when the text of any {@code JTextComponent} is
    * changed. Internally, it installs a {@link DocumentListener} on the text component's {@link
    * Document}, and a {@link PropertyChangeListener} on the text component to detect if the {@code
    * Document} itself is replaced.
    *
-   * @param text           any text component, such as a {@link JTextField} or {@link JTextArea}
+   * @param textComp       any text component, such as a {@link JTextField} or {@link JTextArea}
    * @param changeListener a listener to receieve {@link ChangeEvent}s when the text is changed; the
    *                       source object for the events will be the text component
    * @throws NullPointerException if either parameter is null
@@ -290,38 +328,11 @@ public class SwingUtils {
    *                              Taken from http://stackoverflow.com/questions/3953208/value-change-listener-to-jtextfield
    * @author Boann
    */
-  public static void addChangeListener(final JTextComponent text,
-      final ChangeListener changeListener) {
-    if (text == null || changeListener == null) {
-      throw new IllegalArgumentException(
-          "Both the text component and the change listener need to be non-null");
-    }
+  public static void addChangeListener(final JTextComponent textComp, final ChangeListener changeListener) {
+    Objects.requireNonNull(textComp, "text component");
+    Objects.requireNonNull(changeListener, "change listener");
 
-    final DocumentListener dl = new DocumentListener() {
-      private int lastChange = 0, lastNotifiedChange = 0;
-
-      @Override
-      public void insertUpdate(DocumentEvent e) {
-        changedUpdate(e);
-      }
-
-      @Override
-      public void removeUpdate(DocumentEvent e) {
-        changedUpdate(e);
-      }
-
-      @Override
-      public void changedUpdate(DocumentEvent e) {
-        lastChange++;
-
-        SwingUtilities.invokeLater(() -> {
-          if (lastNotifiedChange != lastChange) {
-            lastNotifiedChange = lastChange;
-            changeListener.stateChanged(new ChangeEvent(text));
-          }
-        });
-      }
-    };
+    final DocumentListener dl = createDocListenerNotifyingOnce(textComp, changeListener);
 
     PropertyChangeListener pcl = e -> {
       Document d1 = (Document) e.getOldValue();
@@ -334,9 +345,9 @@ public class SwingUtils {
       }
       dl.changedUpdate(null);
     };
-    text.addPropertyChangeListener("document", pcl);
+    textComp.addPropertyChangeListener("document", pcl);
 
-    Document d = text.getDocument();
+    Document d = textComp.getDocument();
     if (d != null) {
       d.addDocumentListener(dl);
     }
@@ -749,6 +760,15 @@ public class SwingUtils {
         }
       }
     }
+  }
+
+  /**
+   * @param comp Must implement {@link StringRepresentable}
+   */
+  public static void addOnFocusLostAndContentChanged(Component comp, BiConsumer<String, String> onContentChanged) {
+    if (!(comp instanceof StringRepresentable))
+      throw new IllegalArgumentException("component not StringRepresentable");
+    comp.addFocusListener(new ContentChangedFocusAdapter((StringRepresentable) comp, onContentChanged));
   }
 
   public static void setValue(Component comp, String s) {
