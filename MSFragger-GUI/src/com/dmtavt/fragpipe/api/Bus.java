@@ -28,7 +28,7 @@ public class Bus {
         }
       }
     }
-    log.warn("No @Subscribe annotations found on bus subscriber {}", subscriber.getClass().getCanonicalName());
+    log.warn("Message for developers. No @Subscribe annotations found on bus subscriber {}", subscriber.getClass().getCanonicalName());
   }
 
   public static boolean isRegistered(Object subscriber) {

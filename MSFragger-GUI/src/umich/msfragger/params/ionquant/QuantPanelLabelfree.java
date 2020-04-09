@@ -141,7 +141,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     btnLoadDefaults.addActionListener((e) -> Bus.post(new MessageLoadQuantDefaults(true)));
 
     mu.add(p, checkRun);
-    mu.add(p, btnLoadDefaults);
+    mu.add(p, btnLoadDefaults).pushX().wrap();
 
     return p;
   }

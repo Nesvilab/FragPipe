@@ -304,7 +304,6 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
   public void on(MessagePhilosopherNewBin m) {
-    log.error("onPhilosopherNewBin triggered");
     if (StringUtils.isBlank(m.path)) {
       Bus.postSticky(new NoteConfigPhilosopher(null, "N/A"));
       return;
