@@ -1,5 +1,6 @@
 package umich.msfragger.gui.dialogs;
 
+import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -92,7 +94,8 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
     model.dataClear();
     model.dataAddAll(initAnnotations);
 
-    buttonLoad = new JButton("Populate with labels for");
+    JLabel labelLoad = new JLabel("Load annotation stubs for:");
+    buttonLoad = new JButton("Load into table");
     buttonLoad.addActionListener(e -> {
       String labelName = (String) comboLabelName.getSelectedItem();
       Optional<QuantLabel> label = QuantLabel.LABELS.stream()
@@ -117,12 +120,13 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
     MigLayout layout = new MigLayout(new LC().fillX());//.debug());
     p.setLayout(layout);
 
-    p.add(buttonLoad, new CC().split(3));
-    p.add(comboLabelName, new CC().alignX("left").wrap());
+    p.add(labelLoad, MigUtils.get().ccL().split());
+    p.add(comboLabelName, MigUtils.get().ccL());
+    p.add(buttonLoad, MigUtils.get().ccL().wrap());
 
     p.add(new JScrollPane(table), new CC().grow().spanX().wrap());
 
-    p.add(buttonOK, new CC().tag("ok").split(2));
+    p.add(buttonOK, new CC().tag("ok").split());
     p.add(buttonCancel, new CC().tag("cancel").wrap());
 
 

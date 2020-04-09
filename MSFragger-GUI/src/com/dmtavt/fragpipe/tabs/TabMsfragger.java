@@ -298,6 +298,8 @@ public class TabMsfragger extends JPanelWithEnablement {
     pBasic = createPanelBasicOptions();
     pMods = createPanelMods();
     pAdvanced = createPanelAdvancedOptions();
+    // init fields with default values
+    loadDefaults(SearchTypeProp.closed, false);
 
     mu.add(this, pTop).growX().wrap();
     mu.add(this, pContent).growX().wrap();

@@ -1,13 +1,19 @@
 package umich.msfragger.params.tmtintegrator;
 
+import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.api.Bus;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
+import com.github.chhh.utils.swing.JPanelBase;
+import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.ItemSelectable;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -65,8 +71,9 @@ import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 
-public class TmtiPanel extends JPanelWithEnablement {
+public class TmtiPanel extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(TmtiPanel.class);
+  private static final MigUtils mu = MigUtils.get();
   private static final String STRING_NO_PATH_SET = "No path set yet";
 
   private JPanel pTop;
@@ -81,8 +88,7 @@ public class TmtiPanel extends JPanelWithEnablement {
   private ButtonColumn colBrowse;
   private ButtonColumn colCreate;
   private UiCombo uiComboLabelNames;
-  public static final String PREFIX = "ui.tmtintegrator.";
-  public static final String PREFIX_CONF = "config.";
+  public static final String PREFIX = "tmtintegrator.";
   public static final String PROP_LAST_ANNOTATION_PATH = "fragpipe.tmt.last-annotation-path";
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
@@ -142,322 +148,307 @@ public class TmtiPanel extends JPanelWithEnablement {
         .orElseThrow(exceptionSupplier);
   }
 
-  public TmtiPanel() {
-    init();
-    // register on the bus only after all the components have been created to avoid NPEs
-    EventBus.getDefault().register(this);
-    initPostCreation();
+  @Override
+  protected ItemSelectable getRunCheckbox() {
+    return checkRun;
   }
 
-  private void initPostCreation() {
-    EventBus.getDefault().post(new MessageLcmsFilesList(MessageType.REQUEST, null));
-    this.addHierarchyListener(e -> {
-      log.debug("TMT-I addHierarchyListener - make sure it's selected / deselected when component shown");
-      TmtiPanel.this.updateUiOnCheckRunStateChange(checkRun.isSelected());
-    });
+  @Override
+  protected Component getEnablementToggleComponent() {
+    return pContent;
   }
 
-  private void init() {
+  @Override
+  protected String getComponentNamePrefix() {
+    return PREFIX;
+  }
+
+  @Override
+  protected void initMore() {
+    super.initMore();
+
+    Bus.post(new MessageLcmsFilesList(MessageType.REQUEST, null));
+  }
+
+  @Override
+  protected void init() {
     this.setLayout(new BorderLayout());
-//    this.setBorder(new EmptyBorder(0,0,0,0));
-    this.setBorder(new TitledBorder("TMT Qunatitation"));
+    mu.border(this, "TMT Qunatitation");
 
-    // Top panel with run checkbox
-    {
-      // setting the insets allows the top panel to be shifted left of the options panel
-      pTop = new JPanel(new MigLayout(new LC().insetsAll("0px")));//.debug()));
+    pTop = createPanelTop();
+    pContent = createPanelContent();
+    pTable = createPanelTable();
+    pOpts = createPanelOpts();
 
-      checkRun = new UiCheck("Run TMT-Integrator", null, true);
-      checkRun.setName("ui.name.downstream.run-tmtintegrator");
-      checkRun.addActionListener(this::actionOnCheckboxIsRun);
-      pTop.add(checkRun, new CC().alignX("left"));
-      JButton btnLoadDefaults = new JButton("Load TMT-Integrator defaults");
-      btnLoadDefaults.addActionListener((e) -> EventBus.getDefault().post(new MessageLoadTmtIntegratorDefaults(true)));
-      pTop.add(btnLoadDefaults, new CC().alignX("left"));
+    mu.add(pContent, pTable).growX();
+    mu.add(pContent, pOpts).alignY("top").growX().wrap();
 
-      pTop.setBorder(new EmptyBorder(0,0,0,0));
-      this.add(pTop, BorderLayout.NORTH);
-    }
-
-    // Main content panel - container
-    {
-      pContent = new JPanel(new MigLayout(new LC().fillX()));
-      pContent.setBorder(new EmptyBorder(0,0,0,0));
-
-      pContent.addPropertyChangeListener("enabled", evt -> {
-        log.debug("Tmt pContent panel property '{}' changed from '{}' to '{}'", evt.getPropertyName(),
-            evt.getOldValue(), evt.getNewValue());
-        boolean newValue = (Boolean)evt.getNewValue();
-        boolean isSwitchToEnabled = (Boolean) evt.getNewValue() && !(Boolean) evt.getOldValue();
-        boolean pContentIsEnabled = newValue && checkRun.isSelected();
-        log.debug("Tmt pContent panel is switching to enabled? : {}, !checkRun.isSelected() : {}, final state should be: {}",
-            isSwitchToEnabled, !checkRun.isSelected(), pContentIsEnabled);
-        enablementMapping.put(pContent, pContentIsEnabled);
-        updateEnabledStatus(pContent, pContentIsEnabled);
-      });
-
-//      scroll = new JScrollPane(pContent);
-//      scroll.setBorder(new EmptyBorder(0, 0, 0, 0));
-//      scroll.getVerticalScrollBar().setUnitIncrement(16);
-    }
-
-    {
-      //pTable = new JPanel(new MigLayout(new LC()));
-      pTable = new JPanel(new BorderLayout());
-      //pPeakPicking.setBorder(new TitledBorder("PTMShepherd options"));
-      pTable.setBorder(new EmptyBorder(0, 0, 0, 0));
-
-      tmtAnnotationTable = new TmtAnnotationTable();
-      actionBrowse = new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-          TmtiPanel.this.actionBrowse(e);
-        }
-      };
-
-      actionCreate = new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-          TmtiPanel.this.actionEditCreate(e);
-        }
-      };
-      colBrowse = new ButtonColumn(tmtAnnotationTable, actionBrowse, 2);
-      colCreate = new ButtonColumn(tmtAnnotationTable, actionCreate, 3);
-
-      pTable.add(new JLabel("TMT Annotations"), BorderLayout.NORTH);
-      tmtAnnotationTable.fireInitialization();
-      tmtAnnotationTable.setFillsViewportHeight(false);
-      scrollPaneTmtTable = new JScrollPane();
-      scrollPaneTmtTable.setViewportView(tmtAnnotationTable);
-
-      pTable.add(scrollPaneTmtTable, BorderLayout.CENTER);
-      pContent.add(pTable, new CC().growX());
-    }
-
-    {
-      pOpts = new JPanel(new MigLayout(new LC()));//.debug()));
-//      pOpts = new JPanel(new BorderLayout());
-      //pOpts.setBorder(new TitledBorder("TMT options"));
-      pOpts.setBorder(new EmptyBorder(0, 0, 0, 0));
-
-
-      // row 1
-      {
-        uiComboLabelNames = UiUtils.createUiCombo(
-            QuantLabel.LABELS.stream().map(QuantLabel::getName).collect(Collectors.toList()));
-        FormEntry feLabelType = fe(TmtiConfProps.PROP_channel_num,
-            "Label type", uiComboLabelNames, null);
-
-        UiCheck uiCheckUniquePep = new UiCheck("Unique pep", null, false);
-        FormEntry feUniquePep = fe(TmtiConfProps.PROP_unique_pep,
-            "not-shown", uiCheckUniquePep,
-            "<html>Allow PSMs with unique peptides only (if true) or unique plus <br/>\n"
-                + "razor peptides (if false), as classified by Philosopher and defined in PSM.tsv files");
-
-        addPoptsRow(pOpts, feLabelType, feUniquePep);
-      }
-
-      // row 2
-      {
-        UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).text("Bridge").create();
-        FormEntry feRefTag = fe(TmtiConfProps.PROP_ref_tag,
-            "Ref sample tag", uiTextRefTag,
-            "<html>Unique tag for identifying the reference channel (Bridge sample added to <br/>\n"
-                + "each multiplex)");
-
-        UiCheck uiCheckBestPsm = new UiCheck("Best PSM", null, true);
-        FormEntry feBestPsm = fe(TmtiConfProps.PROP_best_psm,
-            "not-shown", uiCheckBestPsm,
-            "<html>Keep the best PSM only (highest summed TMT intensity) among all redundant PSMs <br/>\n"
-                + "within the same LC-MS run");
-
-        addPoptsRow(pOpts, feRefTag, feBestPsm);
-      }
-
-      // row 3
-      {
-        UiCombo uiComboGroupBy = UiUtils.createUiCombo(TmtiConfProps.COMBO_GROUP_BY.stream()
-            .map(ComboValue::getValInUi).collect(Collectors.toList()));
-        FormEntry feGroupBy = fe(TmtiConfProps.PROP_groupby,
-            "Group by", uiComboGroupBy,
-            "<html>Level of data summarization(0: PSM aggregation to the gene level; 1: protein; <br/>\n"
-                + "2: peptide sequence; 3: multiple PTM sites; 4: single PTM site; <br/>\n"
-                + "-1: generate reports at all levels)");
-
-        UiCheck uiCheckPsmNorm = new UiCheck("PSM norm", null, false);
-        FormEntry fePsmNorm = fe(TmtiConfProps.PROP_psm_norm, "not-shown", uiCheckPsmNorm,
-            "Perform additional retention time-based normalization at the PSM level");
-
-        addPoptsRow(pOpts, feGroupBy, fePsmNorm);
-      }
-
-      // row 4
-      {
-        UiCombo uiComboProtNorm = UiUtils.createUiCombo(TmtiConfProps.COMBO_PROT_NORM.stream()
-            .map(ComboValue::getValInUi).collect(Collectors.toList()));
-        FormEntry feProtNorm = fe(TmtiConfProps.PROP_prot_norm,
-            "Prot norm", uiComboProtNorm,
-            "<html>Normalization (0: None; 1: MD (median centering); 2: GN (median centering + <br/>\n"
-                + "variance scaling); -1: generate reports with all normalization options)");
-
-        UiCheck uiCheckOutlierRemoval = UiCheck.of("Outlier removal", true);
-        FormEntry feOutlierRemoval = fe(TmtiConfProps.PROP_outlier_removal,
-            "not-shown", uiCheckOutlierRemoval,
-            "<html>Perform additional retention time-based normalization at the PSM level");
-
-        addPoptsRow(pOpts, feProtNorm, feOutlierRemoval);
-      }
-
-      // row 5
-      {
-        UiCombo uiComboUniqueGene = UiUtils.createUiCombo(TmtiConfProps.COMBO_UNIQUE_GENE.stream()
-            .map(ComboValue::getValInUi).collect(Collectors.toList()));
-        FormEntry feUniqueGene = fe(TmtiConfProps.PROP_unique_gene,
-            "Unique gene", uiComboUniqueGene,
-            "<html>0: allow all PSMs; 1: remove PSMs mapping to more than one GENE with evidence <br/>\n"
-                + "of expression in the dataset; 2:remove all PSMs mapping to more than one GENE <br/>\n"
-                + "in the fasta file");
-
-        UiCheck uiCheckAllowOverlabel = UiCheck.of("Allow overlabel", true);
-        FormEntry feAllowOverlabel = fe(TmtiConfProps.PROP_allow_overlabel,
-            "not-shown", uiCheckAllowOverlabel,
-            "<html>allow PSMs with TMT on S (when overlabeling on S was allowed in the database search)");
-
-        addPoptsRow(pOpts, feUniqueGene, feAllowOverlabel);
-      }
-
-      // row 6
-      {
-        UiCombo uiComboAddRef = UiUtils.createUiCombo(TmtiConfProps.COMBO_ADD_REF.stream()
-            .map(ComboValue::getValInUi).collect(Collectors.toList()));
-        FormEntry feAddRef = fe(TmtiConfProps.PROP_add_Ref,
-            "Define reference", uiComboAddRef,
-            "<html>add an artificial reference channel if there is no reference channel");
-
-        UiCheck uiCheckAllowUnlabeled = UiCheck.of("Allow unlabeled", true);
-        FormEntry feAllowUnlabeled = fe(TmtiConfProps.PROP_allow_unlabeled,
-            "not-shown", uiCheckAllowUnlabeled,
-            "<html>allow PSMs with TMT on S (when overlabeling on S was allowed <br/>\n"
-                + "in the database search)");
-
-        addPoptsRow(pOpts, feAddRef, feAllowUnlabeled);
-      }
-
-      DecimalFormat df2 = new DecimalFormat("#.##");
-
-      // row 7
-      {
-        UiSpinnerDouble uiSpinnerMinPepProb = UiSpinnerDouble
-            .builder(0.9, 0.0, 1.0, 0.05).setFormat(df2).setNumCols(5).create();
-        FormEntry feMinPepProb = fe(TmtiConfProps.PROP_min_pep_prob,
-            "Min PSM probability", uiSpinnerMinPepProb,
-            "<html>minimum PSM probability threshold (in addition to FDR-based <br/>\n"
-                + "filtering by Philosopher)");
-
-        UiCheck uiCheckMs1Int = UiCheck.of("Use MS1 intensity", true);
-        FormEntry feMs1Int = fe(TmtiConfProps.PROP_ms1_int,
-            "not-shown", uiCheckMs1Int,
-            "<html>use MS1 precursor ion intensity (if true) or MS2 summed TMT <br/>\n"
-                + "reporter ion intensity (if false) as part of the reference <br/>\n"
-                + "sample abundance estimation");
-
-        addPoptsRow(pOpts, feMinPepProb, feMs1Int);
-      }
-
-      // row 8
-      {
-        UiSpinnerDouble uiSpinnerMinPurity = UiSpinnerDouble
-            .builder(0.5, 0.0, 1.0, 0.05).setFormat(df2).setNumCols(5).create();
-        FormEntry feMinPurity = fe(TmtiConfProps.PROP_min_purity,
-            "Min purity", uiSpinnerMinPurity,
-            "<html>ion purity score threshold");
-
-        UiCheck uiCheckTop3 = UiCheck.of("Top 3 ions", true);
-        FormEntry feTop3 = fe(TmtiConfProps.PROP_top3_pep,
-            "not-shown", uiCheckTop3,
-            "<html>use top 3 most intense peptide ions as part of the reference <br/>\n"
-                + "sample abundance estimation");
-
-        addPoptsRow(pOpts, feMinPurity, feTop3);
-      }
-
-      // row 9
-      {
-        UiSpinnerDouble uiSpinnerMinPercent = UiSpinnerDouble
-            .builder(0.5, 0.0, 1.0, 0.05).setFormat(df2).setNumCols(5).create();
-        FormEntry feMinPercent = fe(TmtiConfProps.PROP_min_percent,
-            "Min percent", uiSpinnerMinPercent,
-            "<html>remove low intensity PSMs (e.g. value of 0.05 indicates removal <br/>\n"
-                + "of PSMs with the summed TMT reporter ions intensity in the lowest 5% of <br/>\n"
-                + "all PSMs)");
-
-        UiCheck uiCheckPrintRef = UiCheck.of("Print ref int", false);
-        FormEntry fePrintRefInt = fe(TmtiConfProps.PROP_print_RefInt,
-            "not-shown", uiCheckPrintRef,
-            "<html>print individual reference sample abundance estimates for each <br/>\n"
-                + "multiplex in the final reports (in addition to the combined reference <br/>\n"
-                + "sample abundance estimate)");
-
-        addPoptsRow(pOpts, feMinPercent, fePrintRefInt);
-      }
-
-      // rest of rows
-      UiSpinnerDouble uiSpinnerMinSiteProb = UiSpinnerDouble
-          .builder(-1, -1, 1.0, 0.1).setFormat(df2).setNumCols(5).create();
-      FormEntry feMinSiteProb = fe(TmtiConfProps.PROP_min_site_prob,
-          "Min site probability", uiSpinnerMinSiteProb,
-          "<html>site localization confidence threshold (-1: for Global; <br/>\n"
-              + "0: as determined by the search engine; above 0 (e.g. 0.75): PTMProphet <br/>\n"
-              + "probability, to be used with phosphorylation only)");
-      pOpts.add(feMinSiteProb.label(), new CC().alignX("right"));
-      pOpts.add(feMinSiteProb.comp, new CC().alignX("left").spanX().wrap());
-
-      UiText uiTextProtExclude = UiUtils.uiTextBuilder().cols(10).text("none").create();
-      FormEntry feProtExclude = fe(TmtiConfProps.PROP_prot_exclude,
-          "Exclude proteins", uiTextProtExclude,
-          "exclude proteins with specified tags at the beginning of the accession <br/>\n"
-              + "number (e.g. none: no exclusion; sp|,tr| : exclude protein with sp| or tr|)");
-      pOpts.add(feProtExclude.label(), new CC().alignX("right"));
-      pOpts.add(feProtExclude.comp, new CC().alignX("left").spanX().wrap());
-
-      UiText uiTextModTag = UiUtils.uiTextBuilder().cols(10).text("none").create();
-      FormEntry feModTag = fe(TmtiConfProps.PROP_mod_tag,
-          "Mod tag", uiTextModTag,
-          "<html>TM info for generation of PTM-specific reports <br/>\n"
-              + "none: for Global data<br/>\n"
-              + "S[167],T[181],Y[243]: for Phospho<br/>\n"
-              + "K[170]: for K-Acetyl");
-      pOpts.add(feModTag.label(), new CC().alignX("right"));
-      pOpts.add(feModTag.comp, new CC().alignX("left").spanX().wrap());
-
-      uiTextFreequant = new UiText("--ptw 0.4 --tol 10 --isolated");
-      FormEntry feFreequant = fe("freequant", "Freequant opts", uiTextFreequant,
-          "Command line options for Philosopher Freequant command", true);
-      uiTextLabelquant = new UiText("--purity 0.5 --tol 10");
-      FormEntry feLabelquant = fe("labelquant", "Labelquant opts", uiTextLabelquant,
-          "Command line options for Philosopher Labelquant command", true);
-      pOpts.add(feLabelquant.label(), new CC().alignX("right"));
-      pOpts.add(feLabelquant.comp, new CC().alignX("left").spanX().growX().wrap());
-      pOpts.add(feFreequant.label(), new CC().alignX("right"));
-      pOpts.add(feFreequant.comp, new CC().alignX("left").spanX().growX().wrap());
-
-
-      // add oOpts to main panel
-      pContent.add(pOpts, new CC().alignY("top").growX().wrap());
-    }
-
+    this.add(pTop, BorderLayout.NORTH);
     this.add(pContent, BorderLayout.CENTER);
   }
 
-  private static FormEntry fe(String name, String label, JComponent comp, String tooltip) {
-    return fe(name, label, comp, tooltip, true);
+  private JPanel createPanelTop() {
+    JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
+    mu.borderEmpty(p);
+
+    checkRun = new UiCheck("Run TMT-Integrator", null, true);
+    checkRun.setName("run-tmtintegrator");
+    JButton btnLoadDefaults = UiUtils.createButton("Load TMT-Integrator defaults",
+        (e) -> Bus.post(new MessageLoadTmtIntegratorDefaults(true)));
+
+    mu.add(p, checkRun);
+    mu.add(p, btnLoadDefaults).pushX().wrap();
+
+    return p;
+  }
+
+  private JPanel createPanelContent() {
+    JPanel p = mu.newPanel(mu.lcFillX());
+    mu.borderEmpty(p);
+    return p;
+  }
+
+  private JPanel createPanelTable() {
+    JPanel p = new JPanel(new BorderLayout());
+    mu.borderEmpty(p);
+
+    tmtAnnotationTable = new TmtAnnotationTable();
+    actionBrowse = new AbstractAction() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        TmtiPanel.this.actionBrowse(e);
+      }
+    };
+    actionCreate = new AbstractAction() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        TmtiPanel.this.actionEditCreate(e);
+      }
+    };
+    colBrowse = new ButtonColumn(tmtAnnotationTable, actionBrowse, 2);
+    colCreate = new ButtonColumn(tmtAnnotationTable, actionCreate, 3);
+
+    p.add(new JLabel("TMT Annotations (rows will be filled when you assign LCMS files to experiments)"), BorderLayout.NORTH);
+    tmtAnnotationTable.fireInitialization();
+    tmtAnnotationTable.setFillsViewportHeight(false);
+    scrollPaneTmtTable = new JScrollPane();
+    scrollPaneTmtTable.setViewportView(tmtAnnotationTable);
+
+    p.add(scrollPaneTmtTable, BorderLayout.CENTER);
+
+    return p;
   }
 
 
-  private static FormEntry fe(String name, String label, JComponent comp, String tooltip, boolean isTmtiConf) {
-    String n = PREFIX + (isTmtiConf ? PREFIX_CONF : "") + name;
-    log.error("Created FE with name: {}", n);
-    return new FormEntry(n, label, comp, tooltip);
+  private JPanel createPanelOpts() {
+    JPanel p = new JPanel(new MigLayout(new LC()));//.debug()));
+    mu.borderEmpty(p);
+
+    // row 1
+    {
+      uiComboLabelNames = UiUtils.createUiCombo(
+          QuantLabel.LABELS.stream().map(QuantLabel::getName).collect(Collectors.toList()));
+      FormEntry feLabelType = fe(TmtiConfProps.PROP_channel_num,
+          "Label type", uiComboLabelNames, null);
+
+      UiCheck uiCheckUniquePep = new UiCheck("Unique pep", null, false);
+      FormEntry feUniquePep = fe(TmtiConfProps.PROP_unique_pep,
+          "not-shown", uiCheckUniquePep,
+          "<html>Allow PSMs with unique peptides only (if true) or unique plus <br/>\n"
+              + "razor peptides (if false), as classified by Philosopher and defined in PSM.tsv files");
+
+      addPoptsRow(p, feLabelType, feUniquePep);
+    }
+
+    // row 2
+    {
+      UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).text("Bridge").create();
+      FormEntry feRefTag = fe(TmtiConfProps.PROP_ref_tag,
+          "Ref sample tag", uiTextRefTag,
+          "<html>Unique tag for identifying the reference channel (Bridge sample added to <br/>\n"
+              + "each multiplex)");
+
+      UiCheck uiCheckBestPsm = new UiCheck("Best PSM", null, true);
+      FormEntry feBestPsm = fe(TmtiConfProps.PROP_best_psm,
+          "not-shown", uiCheckBestPsm,
+          "<html>Keep the best PSM only (highest summed TMT intensity) among all redundant PSMs <br/>\n"
+              + "within the same LC-MS run");
+
+      addPoptsRow(p, feRefTag, feBestPsm);
+    }
+
+    // row 3
+    {
+      UiCombo uiComboGroupBy = UiUtils.createUiCombo(TmtiConfProps.COMBO_GROUP_BY.stream()
+          .map(ComboValue::getValInUi).collect(Collectors.toList()));
+      FormEntry feGroupBy = fe(TmtiConfProps.PROP_groupby,
+          "Group by", uiComboGroupBy,
+          "<html>Level of data summarization(0: PSM aggregation to the gene level; 1: protein; <br/>\n"
+              + "2: peptide sequence; 3: multiple PTM sites; 4: single PTM site; <br/>\n"
+              + "-1: generate reports at all levels)");
+
+      UiCheck uiCheckPsmNorm = new UiCheck("PSM norm", null, false);
+      FormEntry fePsmNorm = fe(TmtiConfProps.PROP_psm_norm, "not-shown", uiCheckPsmNorm,
+          "Perform additional retention time-based normalization at the PSM level");
+
+      addPoptsRow(p, feGroupBy, fePsmNorm);
+    }
+
+    // row 4
+    {
+      UiCombo uiComboProtNorm = UiUtils.createUiCombo(TmtiConfProps.COMBO_PROT_NORM.stream()
+          .map(ComboValue::getValInUi).collect(Collectors.toList()));
+      FormEntry feProtNorm = fe(TmtiConfProps.PROP_prot_norm,
+          "Prot norm", uiComboProtNorm,
+          "<html>Normalization (0: None; 1: MD (median centering); 2: GN (median centering + <br/>\n"
+              + "variance scaling); -1: generate reports with all normalization options)");
+
+      UiCheck uiCheckOutlierRemoval = UiCheck.of("Outlier removal", true);
+      FormEntry feOutlierRemoval = fe(TmtiConfProps.PROP_outlier_removal,
+          "not-shown", uiCheckOutlierRemoval,
+          "<html>Perform additional retention time-based normalization at the PSM level");
+
+      addPoptsRow(p, feProtNorm, feOutlierRemoval);
+    }
+
+    // row 5
+    {
+      UiCombo uiComboUniqueGene = UiUtils.createUiCombo(TmtiConfProps.COMBO_UNIQUE_GENE.stream()
+          .map(ComboValue::getValInUi).collect(Collectors.toList()));
+      FormEntry feUniqueGene = fe(TmtiConfProps.PROP_unique_gene,
+          "Unique gene", uiComboUniqueGene,
+          "<html>0: allow all PSMs; 1: remove PSMs mapping to more than one GENE with evidence <br/>\n"
+              + "of expression in the dataset; 2:remove all PSMs mapping to more than one GENE <br/>\n"
+              + "in the fasta file");
+
+      UiCheck uiCheckAllowOverlabel = UiCheck.of("Allow overlabel", true);
+      FormEntry feAllowOverlabel = fe(TmtiConfProps.PROP_allow_overlabel,
+          "not-shown", uiCheckAllowOverlabel,
+          "<html>allow PSMs with TMT on S (when overlabeling on S was allowed in the database search)");
+
+      addPoptsRow(p, feUniqueGene, feAllowOverlabel);
+    }
+
+    // row 6
+    {
+      UiCombo uiComboAddRef = UiUtils.createUiCombo(TmtiConfProps.COMBO_ADD_REF.stream()
+          .map(ComboValue::getValInUi).collect(Collectors.toList()));
+      FormEntry feAddRef = fe(TmtiConfProps.PROP_add_Ref,
+          "Define reference", uiComboAddRef,
+          "<html>add an artificial reference channel if there is no reference channel");
+
+      UiCheck uiCheckAllowUnlabeled = UiCheck.of("Allow unlabeled", true);
+      FormEntry feAllowUnlabeled = fe(TmtiConfProps.PROP_allow_unlabeled,
+          "not-shown", uiCheckAllowUnlabeled,
+          "<html>allow PSMs with TMT on S (when overlabeling on S was allowed <br/>\n"
+              + "in the database search)");
+
+      addPoptsRow(p, feAddRef, feAllowUnlabeled);
+    }
+
+    DecimalFormat df2 = new DecimalFormat("#.##");
+
+    // row 7
+    {
+      UiSpinnerDouble uiSpinnerMinPepProb = UiSpinnerDouble
+          .builder(0.9, 0.0, 1.0, 0.05).setFormat(df2).setNumCols(5).create();
+      FormEntry feMinPepProb = fe(TmtiConfProps.PROP_min_pep_prob,
+          "Min PSM probability", uiSpinnerMinPepProb,
+          "<html>minimum PSM probability threshold (in addition to FDR-based <br/>\n"
+              + "filtering by Philosopher)");
+
+      UiCheck uiCheckMs1Int = UiCheck.of("Use MS1 intensity", true);
+      FormEntry feMs1Int = fe(TmtiConfProps.PROP_ms1_int,
+          "not-shown", uiCheckMs1Int,
+          "<html>use MS1 precursor ion intensity (if true) or MS2 summed TMT <br/>\n"
+              + "reporter ion intensity (if false) as part of the reference <br/>\n"
+              + "sample abundance estimation");
+
+      addPoptsRow(p, feMinPepProb, feMs1Int);
+    }
+
+    // row 8
+    {
+      UiSpinnerDouble uiSpinnerMinPurity = UiSpinnerDouble
+          .builder(0.5, 0.0, 1.0, 0.05).setFormat(df2).setNumCols(5).create();
+      FormEntry feMinPurity = fe(TmtiConfProps.PROP_min_purity,
+          "Min purity", uiSpinnerMinPurity,
+          "<html>ion purity score threshold");
+
+      UiCheck uiCheckTop3 = UiCheck.of("Top 3 ions", true);
+      FormEntry feTop3 = fe(TmtiConfProps.PROP_top3_pep,
+          "not-shown", uiCheckTop3,
+          "<html>use top 3 most intense peptide ions as part of the reference <br/>\n"
+              + "sample abundance estimation");
+
+      addPoptsRow(p, feMinPurity, feTop3);
+    }
+
+    // row 9
+    {
+      UiSpinnerDouble uiSpinnerMinPercent = UiSpinnerDouble
+          .builder(0.5, 0.0, 1.0, 0.05).setFormat(df2).setNumCols(5).create();
+      FormEntry feMinPercent = fe(TmtiConfProps.PROP_min_percent,
+          "Min percent", uiSpinnerMinPercent,
+          "<html>remove low intensity PSMs (e.g. value of 0.05 indicates removal <br/>\n"
+              + "of PSMs with the summed TMT reporter ions intensity in the lowest 5% of <br/>\n"
+              + "all PSMs)");
+
+      UiCheck uiCheckPrintRef = UiCheck.of("Print ref int", false);
+      FormEntry fePrintRefInt = fe(TmtiConfProps.PROP_print_RefInt,
+          "not-shown", uiCheckPrintRef,
+          "<html>print individual reference sample abundance estimates for each <br/>\n"
+              + "multiplex in the final reports (in addition to the combined reference <br/>\n"
+              + "sample abundance estimate)");
+
+      addPoptsRow(p, feMinPercent, fePrintRefInt);
+    }
+
+    // rest of rows
+    UiSpinnerDouble uiSpinnerMinSiteProb = UiSpinnerDouble
+        .builder(-1, -1, 1.0, 0.1).setFormat(df2).setNumCols(5).create();
+    FormEntry feMinSiteProb = fe(TmtiConfProps.PROP_min_site_prob,
+        "Min site probability", uiSpinnerMinSiteProb,
+        "<html>site localization confidence threshold (-1: for Global; <br/>\n"
+            + "0: as determined by the search engine; above 0 (e.g. 0.75): PTMProphet <br/>\n"
+            + "probability, to be used with phosphorylation only)");
+    p.add(feMinSiteProb.label(), new CC().alignX("right"));
+    p.add(feMinSiteProb.comp, new CC().alignX("left").spanX().wrap());
+
+    UiText uiTextProtExclude = UiUtils.uiTextBuilder().cols(10).text("none").create();
+    FormEntry feProtExclude = fe(TmtiConfProps.PROP_prot_exclude,
+        "Exclude proteins", uiTextProtExclude,
+        "exclude proteins with specified tags at the beginning of the accession <br/>\n"
+            + "number (e.g. none: no exclusion; sp|,tr| : exclude protein with sp| or tr|)");
+    p.add(feProtExclude.label(), new CC().alignX("right"));
+    p.add(feProtExclude.comp, new CC().alignX("left").spanX().wrap());
+
+    UiText uiTextModTag = UiUtils.uiTextBuilder().cols(10).text("none").create();
+    FormEntry feModTag = fe(TmtiConfProps.PROP_mod_tag,
+        "Mod tag", uiTextModTag,
+        "<html>TM info for generation of PTM-specific reports <br/>\n"
+            + "none: for Global data<br/>\n"
+            + "S[167],T[181],Y[243]: for Phospho<br/>\n"
+            + "K[170]: for K-Acetyl");
+    p.add(feModTag.label(), new CC().alignX("right"));
+    p.add(feModTag.comp, new CC().alignX("left").spanX().wrap());
+
+    uiTextFreequant = new UiText("--ptw 0.4 --tol 10 --isolated");
+    FormEntry feFreequant = fe("freequant", "Freequant opts", uiTextFreequant,
+        "Command line options for Philosopher Freequant command");
+    uiTextLabelquant = new UiText("--purity 0.5 --tol 10");
+    FormEntry feLabelquant = fe("labelquant", "Labelquant opts", uiTextLabelquant,
+        "Command line options for Philosopher Labelquant command");
+    p.add(feLabelquant.label(), new CC().alignX("right"));
+    p.add(feLabelquant.comp, new CC().alignX("left").spanX().growX().wrap());
+    p.add(feFreequant.label(), new CC().alignX("right"));
+    p.add(feFreequant.comp, new CC().alignX("left").spanX().growX().wrap());
+
+    return p;
+  }
+
+  private static FormEntry fe(String name, String label, JComponent comp, String tooltip) {
+    return new FormEntry(name, label, comp, tooltip);
   }
 
   private static void addPoptsRow(JPanel pOpts, FormEntry fe1, FormEntry fe2) {
@@ -479,12 +470,6 @@ public class TmtiPanel extends JPanelWithEnablement {
   private void updateUiOnCheckRunStateChange(boolean isRun) {
     enablementMapping.put(pContent, isRun);
     updateEnabledStatus(pContent, isRun);
-  }
-
-  private void actionOnCheckboxIsRun(ActionEvent e) {
-    final boolean isRun = checkRun.isSelected();
-    updateUiOnCheckRunStateChange(isRun);
-    EventBus.getDefault().post(new MessageTmtIntegratorRun(isRun));
   }
 
   public int getNumChannels() {
@@ -571,21 +556,20 @@ public class TmtiPanel extends JPanelWithEnablement {
   }
 
   @Subscribe
-  public void onMessageLoadTmtIntegratorDefaults(MessageLoadTmtIntegratorDefaults m) {
+  public void on(MessageLoadTmtIntegratorDefaults m) {
     log.debug("Got MessageLoadTmtIntegratorDefaults, it's an empty marker message");
     final Map<String, String> map = TmtiConfig.getDefaultAsMap();
     log.debug("Read tmt-i default props props: {}", map);
     HashMap<String, String> prefixed = new HashMap<>();
     map.forEach((k, v) -> {
-      Function<String, String> conv = CONVERT_TO_GUI.get(k);
-      String converted = CONVERT_TO_GUI.getOrDefault(k, Function.identity()).apply(v);
-      prefixed.put(PREFIX + PREFIX_CONF + k, converted);
+      String vConvertedToUi = CONVERT_TO_GUI.getOrDefault(k, Function.identity()).apply(v);
+      prefixed.put(StringUtils.prependOnce(k, PREFIX), vConvertedToUi);
     });
     SwingUtils.valuesFromMap(this, prefixed);
   }
 
   @Subscribe(threadMode =  ThreadMode.MAIN_ORDERED)
-  public void onMessageLcmsFilesList(MessageLcmsFilesList m) {
+  public void on(MessageLcmsFilesList m) {
     if (m.type == MessageType.REQUEST)
       return;
 

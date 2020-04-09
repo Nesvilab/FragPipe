@@ -30,7 +30,7 @@ public class TmtAnnotationTable extends SimpleETable {
     super(createTableModel());
     setFullyEditable(false);
   }
-//
+
 //  @Override
 //  public boolean isCellEditable(int row, int column) {
 //    int modelIndex = convertColumnIndexToModel(column);
