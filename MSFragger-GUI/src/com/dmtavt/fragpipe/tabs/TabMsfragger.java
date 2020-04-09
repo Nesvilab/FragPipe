@@ -61,7 +61,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -221,7 +220,7 @@ public class TabMsfragger extends JPanelWithEnablement {
   private UiCombo uiComboOutputType;
   private UiCombo uiComboMassMode;
   private UiSpinnerInt uiSpinnerDbslice;
-  private UiCheck uiCheckShiftedIons;
+  private UiCheck uiCheckLocalizeDeltaMass;
   private UiText uiTextCustomIonSeries;
   private JLabel labelCustomIonSeries;
   private Map<Component, Boolean> enablementMapping = new HashMap<>();
@@ -364,11 +363,11 @@ public class TabMsfragger extends JPanelWithEnablement {
     uiSpinnerPrecTolLo = new UiSpinnerDouble(-10, -10000, 10000, 1,
         new DecimalFormat("0.#"));
     uiSpinnerPrecTolLo.setColumns(4);
-    FormEntry feSpinnerPrecTolLo = fe(MsfraggerParams.PROP_precursor_mass_lower, uiSpinnerPrecTolLo).create();
+    FormEntry fePrecTolLo = fe(MsfraggerParams.PROP_precursor_mass_lower, uiSpinnerPrecTolLo).create();
     uiSpinnerPrecTolHi = new UiSpinnerDouble(+10, -10000, 10000, 1,
         new DecimalFormat("0.#"));
     uiSpinnerPrecTolHi.setColumns(4);
-    FormEntry feSpinnerPrecTolHi = fe(MsfraggerParams.PROP_precursor_mass_upper, uiSpinnerPrecTolHi).create();
+    FormEntry fePrecTolHi = fe(MsfraggerParams.PROP_precursor_mass_upper, uiSpinnerPrecTolHi).create();
 
     uiComboPrecursorTolUnits.addItemListener(e -> {
       Object selected = uiComboPrecursorTolUnits.getSelectedItem();
@@ -396,12 +395,6 @@ public class TabMsfragger extends JPanelWithEnablement {
       }
     });
 
-    p.add(fePrecTolUnits.label(), new CC().alignX("right"));
-    p.add(fePrecTolUnits.comp, new CC().split(4));
-    p.add(feSpinnerPrecTolLo.comp);
-    p.add(new JLabel("-"), new CC());
-    p.add(feSpinnerPrecTolHi.comp, new CC());
-
     // fragment mass tolerance
     FormEntry feFragTolUnits = fe(MsfraggerParams.PROP_fragment_mass_units, UiUtils.createUiCombo(FragmentMassTolUnits.values()))
         .label("Fragment mass tolerance").create();
@@ -409,9 +402,7 @@ public class TabMsfragger extends JPanelWithEnablement {
         new DecimalFormat("0.###"));
     uiSpinnerFragTol.setColumns(4);
     FormEntry feFragTol = fe(MsfraggerParams.PROP_fragment_mass_tolerance, uiSpinnerFragTol).create();
-    p.add(feFragTolUnits.label(), new CC().alignX("right"));
-    p.add(feFragTolUnits.comp, new CC().split(2));
-    p.add(feFragTol.comp, new CC().wrap());
+
 
     // mass calibrate
     uiComboMassCalibrate = UiUtils.createUiCombo(CALIBRATE_LABELS);
@@ -419,13 +410,28 @@ public class TabMsfragger extends JPanelWithEnablement {
     FormEntry feCalibrate = fe(MsfraggerParams.PROP_calibrate_mass, uiComboMassCalibrate)
         .label("<html>Calibrate masses")
         .tooltip(String.format("<html>Requires MSFragger %s+.", minFraggerVer)).create();
-    p.add(feCalibrate.label(), new CC().alignX("right"));
-    p.add(feCalibrate.comp, new CC());
 
-    uiTextIsoErr = new UiText();
-    uiTextIsoErr.setDocument(DocumentFilters.getFilter("[^\\d/-]+"));
-    uiTextIsoErr.setText("-1/0/1/2");
-    uiTextIsoErr.setColumns(10);
+
+    uiCheckLocalizeDeltaMass = new UiCheck("<html>Localize delta mass", null, false);
+    FormEntry feLocalizeDeltaMass = fe(MsfraggerParams.PROP_localize_delta_mass,
+        uiCheckLocalizeDeltaMass)
+        .tooltip("<html>Use additional shifted ion series when matching fragments.\n"
+            + "Shifted ion series are the same as regular b/y ions,\n"
+            + "but with the addition of the mass shift of the precursor.\n"
+            + "Regular ion series will still be used.\n"
+            + "This option is </b>incompatible</b> with database splitting.").create();
+
+    mu.add(p, fePrecTolUnits.label(), mu.ccR());
+    mu.add(p, fePrecTolUnits.comp).split(4);
+    mu.add(p, fePrecTolLo.comp);
+    mu.add(p, new JLabel("-"));
+    mu.add(p, fePrecTolHi.comp);
+    mu.add(p, feFragTolUnits.label(), mu.ccR()).gapLeft("10px");
+    mu.add(p, feFragTolUnits.comp).split(2);
+    mu.add(p, feFragTol.comp).wrap();
+    mu.add(p, feCalibrate.label(), mu.ccR());
+    mu.add(p, feCalibrate.comp).wrap();
+    mu.add(p, feLocalizeDeltaMass.comp).skip(1).wrap();
 
     return p;
   }
@@ -901,6 +907,7 @@ public class TabMsfragger extends JPanelWithEnablement {
         .label("Deisotope")
         .tooltip("<html>0 = deisotoping off<br/>\n1 = deisotoping on").create();
 
+    uiTextIsoErr = UiUtils.uiTextBuilder().text("-1/0/1/2").cols(10).filter("[^\\d/-]+").create();
     FormEntry feIsotopeError = fe(MsfraggerParams.PROP_isotope_error, uiTextIsoErr)
         .label("Isotope error")
         .tooltip("<html>String of the form -1/0/1/2 indicating which isotopic\n"
@@ -966,24 +973,19 @@ public class TabMsfragger extends JPanelWithEnablement {
     mu.add(p, feZeroBinMultExpect.label(), mu.ccR());
     mu.add(p, feZeroBinMultExpect.comp).wrap();
 
-    uiCheckShiftedIons = new UiCheck("<html>Localize delta mass", null);
-    FormEntry feShiftedIonsCheck = fe(MsfraggerParams.PROP_localize_delta_mass, uiCheckShiftedIons)
-        .tooltip("<html>Shifted ion series are the same as regular b/y ions,\n"
-            + "but with the addition of the mass shift of the precursor.\n"
-            + "Regular ion series will still be used.\n"
-            + "This option is </b>incompatible</b> with database splitting.").create();
+
     UiText uiTextShiftedIonsExclusion = new UiText();
     uiTextShiftedIonsExclusion.setDocument(DocumentFilters.getFilter("[A-Za-z]"));
     uiTextShiftedIonsExclusion.setText("(-1.5,3.5)");
     FormEntry feShiftedIonsExclusion = fe(
         MsfraggerParams.PROP_delta_mass_exclude_ranges, uiTextShiftedIonsExclusion).label("Delta mass exclude ranges")
         .tooltip("<html>Ranges expressed like: (-1.5,3.5)").create();
-    p.add(feShiftedIonsCheck.comp, new CC().alignX("right"));
+
     p.add(feShiftedIonsExclusion.label(), new CC().split(2).spanX().gapLeft("25px"));
     p.add(feShiftedIonsExclusion.comp, new CC().growX());
 
-    uiCheckShiftedIons.addActionListener(e -> {
-      final boolean selected = uiCheckShiftedIons.isSelected();
+    uiCheckLocalizeDeltaMass.addActionListener(e -> {
+      final boolean selected = uiCheckLocalizeDeltaMass.isSelected();
       final int dbSlicing = uiSpinnerDbslice.getActualValue();
       if (selected && dbSlicing > 1) {
         JOptionPane.showMessageDialog(this,
@@ -994,7 +996,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     });
 
     uiSpinnerDbslice.addChangeListener(e -> {
-      final boolean selected = uiCheckShiftedIons.isSelected();
+      final boolean selected = uiCheckLocalizeDeltaMass.isSelected();
       final int dbSlicing = uiSpinnerDbslice.getActualValue();
       if (selected && dbSlicing > 1) {
         JOptionPane.showMessageDialog(this,
