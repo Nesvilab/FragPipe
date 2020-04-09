@@ -48,6 +48,7 @@ if use_easypqp:
 					None
 	if irt_choice is None:
 		raise RuntimeError('invalid iRT')
+	spectra_files0 = sorted(pathlib.Path(e) for e in sys.argv[3].split(os.pathsep))
 
 assert use_spectrast ^ use_easypqp
 
@@ -403,17 +404,20 @@ if use_spectrast:
 
 	spectrast_first = '## Run spectrast to build spectral library\n' + ' '.join(spectrast_cmd('?'))
 if use_easypqp:
-	mzXMLs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mzXML'))
-	mzMLs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mzML'))
-	mgfs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mgf'))
+	if len(spectra_files0) < 1 or not spectra_files0[0].exists():
+		mzXMLs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mzXML'))
+		mzMLs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mzML'))
+		mgfs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mgf'))
+		if len(mzXMLs) > 0:
+			spectra_files = mzXMLs
+		elif len(mzMLs) > 0:
+			spectra_files = mzMLs
+		else:
+			spectra_files = mgfs
+	else:
+		spectra_files = spectra_files0
 	psm_tsv_file = iproph_RT_aligned / 'psm.tsv'
 	peptide_tsv_file = iproph_RT_aligned / 'peptide.tsv'
-	if len(mzXMLs) > 0:
-		spectra_files = mzXMLs
-	elif len(mzMLs) > 0:
-		spectra_files = mzMLs
-	else:
-		spectra_files = mgfs
 	'easypqp convert --pepxml interact.pep.xml --spectra 1.mgf --unimod unimod.xml --exclude-range -1.5,3.5'
 	# if 0:
 	# 	import pandas as pd, numpy as np, itertools, io, pathlib

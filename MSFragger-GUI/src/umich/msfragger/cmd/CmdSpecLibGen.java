@@ -1,6 +1,7 @@
 package umich.msfragger.cmd;
 
 import java.awt.Component;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
 import umich.msfragger.gui.InputLcmsFile;
@@ -103,19 +105,20 @@ public class CmdSpecLibGen extends CmdBase {
         final Path lcms_path = useEasypqp && isTimsTOF ?
                 lcms.getPath().getParent().resolve(fn_sans_extension + "_calibrated.mgf") :
                 lcms.getPath();
-        if (!groupWd.equals(lcms_path.getParent())) {
-          final Path copy = groupWd.resolve(lcms_path.getFileName());
-          if (!Files.exists(copy)) {
-            // Directory of LCMS file is different from pepxml file
-            // and the file does not yet exist.
-            // Copy over the file and schedule for deletion.
-            List<ProcessBuilder> pbCopy = ToolingUtils
-                .pbsCopyFiles(jarFragpipe, groupWd, Collections.singletonList(lcms_path));
-            pbis.addAll(PbiBuilder.from(pbCopy));
-            pbsDeleteLcmsFiles.addAll(ToolingUtils
-                .pbsDeleteFiles(jarFragpipe, Collections.singletonList(groupWd.resolve(lcms_path.getFileName()))));
+        if (!useEasypqp)
+          if (!groupWd.equals(lcms_path.getParent())) {
+            final Path copy = groupWd.resolve(lcms_path.getFileName());
+            if (!Files.exists(copy)) {
+              // Directory of LCMS file is different from pepxml file
+              // and the file does not yet exist.
+              // Copy over the file and schedule for deletion.
+              List<ProcessBuilder> pbCopy = ToolingUtils
+                      .pbsCopyFiles(jarFragpipe, groupWd, Collections.singletonList(lcms_path));
+              pbis.addAll(PbiBuilder.from(pbCopy));
+              pbsDeleteLcmsFiles.addAll(ToolingUtils
+                      .pbsDeleteFiles(jarFragpipe, Collections.singletonList(groupWd.resolve(lcms_path.getFileName()))));
+            }
           }
-        }
       }
 
       List<String> cmd = new ArrayList<>();
@@ -132,7 +135,7 @@ public class CmdSpecLibGen extends CmdBase {
          * */
         cmd.add(fastaPath);
         cmd.add(groupWd.toString()); // this is "Pep xml directory"
-        cmd.add("protxml_not_used_by_easyPQP"); // protxml file
+        cmd.add(group.lcmsFiles.stream().map(InputLcmsFile::getPath).map(Path::toString).collect(Collectors.joining(File.pathSeparator))); // lcms files
         cmd.add(groupWd.toString()); // output directory
         cmd.add("True"); // overwrite (true/false), optional arg
         cmd.add("usePhilosopher.useBin()"); // philosopher binary path (not needed for easyPQP)
