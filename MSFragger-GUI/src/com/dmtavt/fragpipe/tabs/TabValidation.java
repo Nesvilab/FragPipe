@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe.tabs;
 
+import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
 import com.dmtavt.fragpipe.tools.protproph.ProtProphPanel;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
@@ -21,7 +22,7 @@ public class TabValidation extends JPanelWithEnablement {
   }
 
   private void initMore() {
-    // TODO: Bus.register(this);
+    Bus.registerQuietly(this);
   }
 
   private void init() {

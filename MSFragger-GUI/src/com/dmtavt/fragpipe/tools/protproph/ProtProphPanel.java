@@ -9,6 +9,8 @@ import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
+import java.awt.Component;
+import java.awt.ItemSelectable;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import org.greenrobot.eventbus.Subscribe;
@@ -27,6 +29,21 @@ public class ProtProphPanel extends JPanelBase {
   private UiCheck uiCheckSeparateProtxml;
   private JPanel pTop;
   private JPanel pContent;
+
+  @Override
+  protected ItemSelectable getRunCheckbox() {
+    return checkRun;
+  }
+
+  @Override
+  protected Component getEnablementToggleComponent() {
+    return pContent;
+  }
+
+  @Override
+  protected String getComponentNamePrefix() {
+    return PREFIX;
+  }
 
   @Override
   public void init() {
@@ -70,10 +87,8 @@ public class ProtProphPanel extends JPanelBase {
 
   @Override
   public void initMore() {
-    SwingUtils.renameDeep(this, false, PREFIX, null);
-    SwingUtils.setEnablementUpdater(this, pContent, checkRun);
+    super.initMore();
     updateEnabledStatus(this, false); // will get enabled when Philosopher is selected
-    Bus.registerQuietly(this);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)

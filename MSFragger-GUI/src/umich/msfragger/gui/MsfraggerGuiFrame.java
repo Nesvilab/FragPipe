@@ -133,6 +133,7 @@ import umich.msfragger.params.dbslice.DbSlice;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.fragger.MsfraggerProps;
+import umich.msfragger.params.ionquant.QuantPanelLabelfree;
 import umich.msfragger.params.philosopher.ReportPanel;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.tmtintegrator.TmtiPanel;
@@ -290,7 +291,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     return txtProteinProphetCmdLineOpts;
   }
 
-  public umich.msfragger.params.ionquant.QuantJPanel getPanelQuant() {
+  public QuantPanelLabelfree getPanelQuant() {
     return panelQuant;
   }
 
@@ -813,7 +814,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         tmtiPanel1 = new TmtiPanel();
         panelReport = new javax.swing.JPanel();
         ptmshepherdPanel = new umich.msfragger.params.ptmshepherd.PtmshepherdJPanel();
-        panelQuant = new umich.msfragger.params.ionquant.QuantJPanel();
+        panelQuant = new QuantPanelLabelfree();
         panelReportOptions = new umich.msfragger.params.philosopher.ReportPanel();
         speclibPanel1 = new umich.msfragger.params.speclib.SpeclibPanel();
         panelRun = new javax.swing.JPanel();
@@ -2994,7 +2995,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelPhilosopherConfig;
     private javax.swing.JPanel panelProteinProphet;
     private javax.swing.JPanel panelProteinProphetOptions;
-    private umich.msfragger.params.ionquant.QuantJPanel panelQuant;
+    private QuantPanelLabelfree panelQuant;
     private javax.swing.JPanel panelReport;
     private umich.msfragger.params.philosopher.ReportPanel panelReportOptions;
     private javax.swing.JPanel panelRun;

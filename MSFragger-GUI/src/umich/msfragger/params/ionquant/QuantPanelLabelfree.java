@@ -1,5 +1,12 @@
 package umich.msfragger.params.ionquant;
 
+import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
+import com.dmtavt.fragpipe.messages.MessageLoadQuantDefaults;
+import com.github.chhh.utils.PropertiesUtils;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiRadio;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
@@ -19,21 +26,13 @@ import javax.swing.border.TitledBorder;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
-import com.dmtavt.fragpipe.messages.MessageLoadQuantDefaults;
-import com.dmtavt.fragpipe.messages.MessageQuantRun;
-import com.github.chhh.utils.PropertiesUtils;
-import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.swing.FormEntry;
-import com.github.chhh.utils.swing.JPanelWithEnablement;
 
-public class QuantJPanel extends JPanelWithEnablement {
-  private static final Logger log = LoggerFactory.getLogger(QuantJPanel.class);
+public class QuantPanelLabelfree extends JPanelWithEnablement {
+  private static final Logger log = LoggerFactory.getLogger(QuantPanelLabelfree.class);
   private JPanel pTop;
   private UiCheck checkRun;
   private JPanel pContent;
@@ -44,24 +43,20 @@ public class QuantJPanel extends JPanelWithEnablement {
   private ButtonGroup radioGroupQuant;
 
 
-  public QuantJPanel() {
+  public QuantPanelLabelfree() {
+    init();
     initMore();
-    initPostCreation();
-    // register on the bus only after all the components have been created to avoid NPEs
-    EventBus.getDefault().register(this);
   }
 
-  private void initPostCreation() {
-    isRun(checkRun.isSelected());
+  private void initMore() {
+    SwingUtils.setEnablementUpdater(this, pContent, checkRun);
+    Bus.register(this);
   }
 
   public boolean isRun() {
     return SwingUtils.isEnabledAndChecked(checkRun);
   }
-  public void isRun(boolean isEnabled) {
-    checkRun.setSelected(isEnabled);
-    updateEnabledStatus(pContent, isEnabled);
-  }
+
   public boolean isIonquant() {
     return isRun() && SwingUtils.isEnabledAndChecked(uiRadioUseIonquant);
   }
@@ -70,19 +65,14 @@ public class QuantJPanel extends JPanelWithEnablement {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void onMessageIsUmpireRun(MessageIsUmpireRun m) {
+  public void on(MessageIsUmpireRun m) {
     if (m.isEnabled) {
-      isRun(false); // disable quant when Umpire Runs
+      checkRun.setSelected(false); // deselect when Umpire runs
     }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void onMessageQuantRun(MessageQuantRun m) {
-    updateEnabledStatus(pContent, m.isRun);
-  }
-
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void onMessageLoadQuantDefaults(MessageLoadQuantDefaults m) {
+  public void on(MessageLoadQuantDefaults m) {
     if (m.doAskUser) {
       int answer = SwingUtils.showConfirmDialog(this, new JLabel("<html>Load default quantitation options?"));
       if (JOptionPane.OK_OPTION != answer) {
@@ -120,9 +110,8 @@ public class QuantJPanel extends JPanelWithEnablement {
     return s;
   }
 
-  private void initMore() {
+  private void init() {
     this.setLayout(new BorderLayout());
-//    this.setBorder(new EmptyBorder(0,0,0,0));
     this.setBorder(new TitledBorder("Quantitation"));
 
     // Top panel with run checkbox
@@ -130,14 +119,11 @@ public class QuantJPanel extends JPanelWithEnablement {
       // setting the insets allows the top panel to be shifted left of the options panel
       pTop = new JPanel(new MigLayout(new LC().insetsAll("0px")));
 
-      checkRun = new UiCheck("Run Quantification", null, false);
-      checkRun.setName("ui.run-quantification");
-      checkRun.addActionListener(e -> {
-        EventBus.getDefault().post(new MessageQuantRun(SwingUtils.isEnabledAndChecked(checkRun)));
-      });
+      checkRun = new UiCheck("Run Label-free quant", null, false);
+      checkRun.setName("run-label-free-quant");
       pTop.add(checkRun, new CC().alignX("left"));
       JButton btnLoadDefaults = new JButton("Load Quant defaults");
-      btnLoadDefaults.addActionListener((e) -> EventBus.getDefault().post(new MessageLoadQuantDefaults(true)));
+      btnLoadDefaults.addActionListener((e) -> Bus.post(new MessageLoadQuantDefaults(true)));
       pTop.add(btnLoadDefaults, new CC().alignX("left"));
 
       pTop.setBorder(new EmptyBorder(0,0,0,0));

@@ -374,7 +374,7 @@ public class SwingUtils {
     });
   }
 
-  public static void setEnablementUpdater(JPanelWithEnablement p, Component toToggle, JCheckBox check) {
+  public static void setEnablementUpdater(JPanelWithEnablement p, Component toToggle, ItemSelectable check) {
     addSelectedStateChangeListener(check, true,
         () -> p.updateEnabledStatus(toToggle, true),
         () -> p.updateEnabledStatus(toToggle, false));
