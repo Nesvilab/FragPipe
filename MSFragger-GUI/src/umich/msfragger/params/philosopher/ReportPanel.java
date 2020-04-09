@@ -1,6 +1,7 @@
 package umich.msfragger.params.philosopher;
 
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.MigUtils;
@@ -25,6 +26,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
+import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.ThisAppProps;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
@@ -82,7 +84,22 @@ public class ReportPanel extends JPanelWithEnablement {
     Bus.register(this);
   }
 
-  @Subscribe
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageLcmsFilesList m) {
+    if (m.files == null)
+      return;
+    long countExps = m.files.stream().map(InputLcmsFile::getExperiment).distinct().count();
+    if (countExps > 1 && !uiCheckMultiexp.isSelected()) {
+      log.info("Auto-flipping 'Validation - Report - Multi-Experiment report' checkbox to Enabled as more than one Experiment is set up");
+      uiCheckMultiexp.setSelected(true);
+    }
+    if (countExps <= 1 && uiCheckMultiexp.isSelected()) {
+      log.info("Auto-flipping 'Validation - Report - Multi-Experiment report' checkbox to Disabled as there is no more than 1 Experiment");
+      uiCheckMultiexp.setSelected(false);
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigPhilosopher m) {
     updateEnabledStatus(this, m.isValid());
   }
