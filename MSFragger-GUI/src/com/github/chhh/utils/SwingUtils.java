@@ -16,9 +16,9 @@
  */
 package com.github.chhh.utils;
 
-import com.dmtavt.fragpipe.Fragpipe;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.GhostedTextComponent;
+import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.StringRepresentable;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -30,20 +30,19 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.awt.ItemSelectable;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.event.ItemEvent;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +51,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -92,13 +90,7 @@ import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.Subscription;
-import rx.swing.sources.DocumentEventSource;
 import umich.msfragger.gui.MsfraggerGuiFrame;
-import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.params.umpire.UmpirePanel;
-import umich.msfragger.params.umpire.UmpireParams;
 
 /**
  * @author dmitriya
@@ -351,6 +343,41 @@ public class SwingUtils {
     if (d != null) {
       d.addDocumentListener(dl);
     }
+  }
+
+  /**
+   * @param itemSelectable E.g. a {@link JCheckBox} will do.
+   * @param triggerOnInit  If true, will call the appropriate action based on the initial state of
+   *                       the checkbox, before adding the listener.
+   */
+  public static void addSelectedStateChangeListener(ItemSelectable itemSelectable, boolean triggerOnInit,
+      Runnable onSelected, Runnable onDeselected) {
+    final boolean initState = itemSelectable.getSelectedObjects() != null;
+    if (triggerOnInit) {
+      if(initState) {
+        onSelected.run();
+      } else {
+        onDeselected.run();
+      }
+    }
+    itemSelectable.addItemListener(e -> {
+      switch (e.getStateChange()) {
+        case ItemEvent.SELECTED:
+          onSelected.run();
+          break;
+        case ItemEvent.DESELECTED:
+          onDeselected.run();
+          break;
+        default:
+          throw new IllegalStateException("Unknown state change event: " + e.getStateChange());
+      }
+    });
+  }
+
+  public static void setEnablementUpdater(JPanelWithEnablement p, Component toToggle, JCheckBox check) {
+    addSelectedStateChangeListener(check, true,
+        () -> p.updateEnabledStatus(toToggle, true),
+        () -> p.updateEnabledStatus(toToggle, false));
   }
 
   public static void enableComponents(Container container, boolean enabled) {

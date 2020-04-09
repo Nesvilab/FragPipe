@@ -4,7 +4,6 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.UsageTrigger;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
@@ -12,7 +11,6 @@ import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import javax.swing.JButton;
@@ -28,7 +26,7 @@ import umich.msfragger.gui.api.SearchTypeProp;
 public class PepProphPanel extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(PepProphPanel.class);
   private static MigUtils mu = MigUtils.get();
-  private UiCheck checkRunPeptideProphet;
+  private UiCheck checkRun;
   private UiText uiTextCmdOpts;
   private UiCheck uiCheckCombinePepxml;
   private JPanel pTop;
@@ -42,6 +40,7 @@ public class PepProphPanel extends JPanelWithEnablement {
 
   private void initMore() {
     SwingUtils.renameDeep(this, false, PREFIX, null);
+    SwingUtils.setEnablementUpdater(this, pContent, checkRun);
     updateEnabledStatus(this, false);
     Bus.registerQuietly(this);
   }
@@ -52,8 +51,8 @@ public class PepProphPanel extends JPanelWithEnablement {
   }
 
   private void init() {
-    checkRunPeptideProphet = UiUtils.createUiCheck("Run PeptideProphet", true);
-    checkRunPeptideProphet.setName("run-peptide-prophet");
+    checkRun = UiUtils.createUiCheck("Run PeptideProphet", true);
+    checkRun.setName("run-peptide-prophet");
     JLabel labelDefaults = new JLabel("Defaults for:");
     final LinkedHashMap<String, SearchTypeProp> defaults = new LinkedHashMap<>();
     defaults.put("Closed Search", SearchTypeProp.closed);
@@ -61,7 +60,7 @@ public class PepProphPanel extends JPanelWithEnablement {
     defaults.put("Non-Specific Search", SearchTypeProp.nonspecific);
     defaults.put("Offset Search", SearchTypeProp.offset);
     final UiCombo uiComboDefaults = UiUtils.createUiCombo(new ArrayList<>(defaults.keySet()));
-    uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).create();
+    uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).text(defaultCmdOpts()).create();
     FormEntry feCmdOpts = fe(uiTextCmdOpts, "cmd-opts")
         .label("Cmd line opts:")
         .tooltip("These options will be passed on to Peptide Prophet.\n"
@@ -82,7 +81,7 @@ public class PepProphPanel extends JPanelWithEnablement {
     mu.border(this, "PeptideProphet");
 
     pTop = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
-    mu.add(pTop, checkRunPeptideProphet).split();
+    mu.add(pTop, checkRun).split();
     mu.add(pTop, labelDefaults);
     mu.add(pTop, uiComboDefaults);
     mu.add(pTop, btnLoadDefaults).wrap();
@@ -94,6 +93,10 @@ public class PepProphPanel extends JPanelWithEnablement {
 
     mu.add(this, pTop).growX().wrap();
     mu.add(this, pContent).growX().wrap();
+  }
+
+  private String defaultCmdOpts() {
+    return Fragpipe.getProp("peptideprophet.cmd.line.opts.", "closed");
   }
 
   private FormEntry.Builder fe(JComponent comp, String name) {

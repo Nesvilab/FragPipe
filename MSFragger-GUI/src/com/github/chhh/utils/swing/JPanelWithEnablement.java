@@ -17,7 +17,7 @@ public class JPanelWithEnablement extends JPanel {
 
   protected Map<Component, Boolean> enablementMapping = new HashMap<>();
 
-  protected void updateEnabledStatus(Component top, boolean enabled) {
+  public void updateEnabledStatus(Component top, boolean enabled) {
     if (top == null)
       return;
     log.debug("Enabled={} Update called for {}", enabled, StringUtils.isNullOrWhitespace(top.getName()) ? top : top.getName());

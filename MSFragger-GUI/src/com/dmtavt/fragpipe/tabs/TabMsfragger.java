@@ -211,9 +211,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     SEARCH_TYPE_NAME_MAPPING.put("Mass Offset Search", SearchTypeProp.offset);
   }
 
-  private ImageIcon icon;
   private UiCheck checkRun;
-  private JScrollPane scroll;
   private JPanel pContent;
   private ModsTable tableVarMods;
   private ModsTable tableFixMods;
@@ -240,6 +238,10 @@ public class TabMsfragger extends JPanelWithEnablement {
   private final Map<String, String> cache = new HashMap<>();
   private UiText uiTextIsoErr;
   private JEditorPane epMassOffsets;
+  private JPanel pTop;
+  private JPanel pBasic;
+  private JPanel pMods;
+  private JPanel pAdvanced;
 
 
   public TabMsfragger() {
@@ -275,6 +277,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     MsfraggerParams params = MsfraggerParams.getDefault(SearchTypeProp.closed);
     formFrom(params);
 
+    SwingUtils.setEnablementUpdater(this, pContent, checkRun);
     updateEnabledStatus(this, false);
     updateEnabledStatus(uiSpinnerDbslice, false); // only gets enabled when DbSlice2 is initialized
 
@@ -288,16 +291,13 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
   private void init() {
-    icon = new ImageIcon(
-        getClass().getResource("/umich/msfragger/gui/icons/bolt-16.png"));
-
     this.setLayout(new MigLayout(new LC().fillX()));
 
-    JPanel pTop = createPanelTop();
-    JPanel pContent = createPanelContent();
-    JPanel pBasic = createPanelBasicOptions();
-    JPanel pMods = createPanelMods();
-    JPanel pAdvanced = createPanelAdvancedOptions();
+    pTop = createPanelTop();
+    pContent = createPanelContent();
+    pBasic = createPanelBasicOptions();
+    pMods = createPanelMods();
+    pAdvanced = createPanelAdvancedOptions();
 
     mu.add(this, pTop).growX().wrap();
     mu.add(this, pContent).growX().wrap();

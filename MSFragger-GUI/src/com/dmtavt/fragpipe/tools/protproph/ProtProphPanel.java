@@ -20,7 +20,7 @@ import umich.msfragger.params.ThisAppProps;
 public class ProtProphPanel extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(ProtProphPanel.class);
   public static final String PREFIX = "protein-prophet.";
-  private UiCheck uiCheckRun;
+  private UiCheck checkRun;
   private JButton btnAllowMassShifted;
   private JButton btnDisallowMassShifted;
   private UiText uiTextCmdOpts;
@@ -30,8 +30,8 @@ public class ProtProphPanel extends JPanelBase {
 
   @Override
   public void init() {
-    uiCheckRun = UiUtils.createUiCheck("Run Protein Prophet", true);
-    uiCheckRun.setName("run-protein-prophet");
+    checkRun = UiUtils.createUiCheck("Run Protein Prophet", true);
+    checkRun.setName("run-protein-prophet");
     btnAllowMassShifted = UiUtils.createButton("Allow mass shifted peptides", e -> {
       log.debug("Clicked button " + btnAllowMassShifted.getText());
       String v = Fragpipe.getProp(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, "open");
@@ -51,7 +51,7 @@ public class ProtProphPanel extends JPanelBase {
     mu.border(this, "ProteinProphet");
 
     pTop = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
-    mu.add(pTop, uiCheckRun).split();
+    mu.add(pTop, checkRun).split();
     mu.add(pTop, btnAllowMassShifted);
     mu.add(pTop, btnDisallowMassShifted).wrap();
 
@@ -71,7 +71,8 @@ public class ProtProphPanel extends JPanelBase {
   @Override
   public void initMore() {
     SwingUtils.renameDeep(this, false, PREFIX, null);
-    updateEnabledStatus(this, false);
+    SwingUtils.setEnablementUpdater(this, pContent, checkRun);
+    updateEnabledStatus(this, false); // will get enabled when Philosopher is selected
     Bus.registerQuietly(this);
   }
 

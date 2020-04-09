@@ -204,7 +204,6 @@ public class FraggerMigPanel extends JPanel {
     SEARCH_TYPE_NAME_MAPPING.put("Mass Offset Search", SearchTypeProp.offset);
   }
 
-  private ImageIcon icon;
   private UiCheck checkRun;
   private JScrollPane scroll;
   private JPanel pContent;
@@ -293,9 +292,6 @@ public class FraggerMigPanel extends JPanel {
   }
 
   private void init() {
-    icon = new ImageIcon(
-        getClass().getResource("/umich/msfragger/gui/icons/bolt-16.png"));
-
     this.setLayout(new BorderLayout());
 
     DecimalFormat df1 = new DecimalFormat("0.#");
