@@ -135,6 +135,7 @@ import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.fragger.MsfraggerProps;
 import umich.msfragger.params.ionquant.QuantPanelLabelfree;
 import umich.msfragger.params.philosopher.ReportPanel;
+import umich.msfragger.params.ptmshepherd.PtmshepherdPanel;
 import umich.msfragger.params.speclib.SpecLibGen;
 import umich.msfragger.params.tmtintegrator.TmtiPanel;
 import umich.msfragger.params.umpire.UmpirePanel;
@@ -295,7 +296,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     return panelQuant;
   }
 
-  public umich.msfragger.params.ptmshepherd.PtmshepherdJPanel getPtmshepherdPanel() {
+  public PtmshepherdPanel getPtmshepherdPanel() {
     return ptmshepherdPanel;
   }
 
@@ -813,7 +814,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         panelCrystalc = new umich.msfragger.params.crystalc.CrystalcPanel();
         tmtiPanel1 = new TmtiPanel();
         panelReport = new javax.swing.JPanel();
-        ptmshepherdPanel = new umich.msfragger.params.ptmshepherd.PtmshepherdJPanel();
+        ptmshepherdPanel = new PtmshepherdPanel();
         panelQuant = new QuantPanelLabelfree();
         panelReportOptions = new umich.msfragger.params.philosopher.ReportPanel();
         speclibPanel1 = new umich.msfragger.params.speclib.SpeclibPanel();
@@ -2264,7 +2265,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     try (BufferedInputStream bis = new BufferedInputStream(is)) {
       props.load(bis);
     }
-    Map<String, String> map = PropertiesUtils.to(props);
+    Map<String, String> map = PropertiesUtils.toMap(props);
     MsfraggerGuiFrameUtils.tabPaneFromMap(tabPane, map);
   }
 
@@ -3002,7 +3003,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelSelectFiles;
     private javax.swing.JPanel panelSelectedFiles;
     private javax.swing.JPanel panelSequenceDb;
-    private umich.msfragger.params.ptmshepherd.PtmshepherdJPanel ptmshepherdPanel;
+    private PtmshepherdPanel ptmshepherdPanel;
     private javax.swing.JScrollPane scrollConfig;
     private javax.swing.JScrollPane scrollDownstream;
     private javax.swing.JScrollPane scrollEpSpeclibInfo2;

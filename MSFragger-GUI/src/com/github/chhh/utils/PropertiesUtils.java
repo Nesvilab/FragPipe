@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -61,6 +62,21 @@ public final class PropertiesUtils {
     private static final Logger log = LoggerFactory.getLogger(PropertiesUtils.class);
 
     private PropertiesUtils() {
+    }
+
+    public static<K,V,R> Map<R,V> remapKeys(Map<K, V> map, Function<K,R> keyMapper) {
+        return map.entrySet().stream()
+            .collect(Collectors.toMap(kv -> keyMapper.apply(kv.getKey()), Entry::getValue));
+    }
+
+    public static<K,V,R> Map<K,R> remapValues(Map<K, V> map, Function<V,R> valMapper) {
+        return map.entrySet().stream()
+            .collect(Collectors.toMap(Entry::getKey, kv -> valMapper.apply(kv.getValue())));
+    }
+
+    public static<K,V,RK, RV> Map<RK,RV> remap(Map<K, V> map, Function<K,RK> keyMapper, Function<V,RV> valMapper) {
+        return map.entrySet().stream()
+            .collect(Collectors.toMap(kv -> keyMapper.apply(kv.getKey()), kv -> valMapper.apply(kv.getValue())));
     }
 
     /**
@@ -358,7 +374,7 @@ public final class PropertiesUtils {
         return p;
     }
 
-    public static Map<String, String> to(Properties props) {
+    public static Map<String, String> toMap(Properties props) {
         Set<String> names = props.stringPropertyNames();
         HashMap<String, String> map = new HashMap<>(names.size());
         for (String name : names) {

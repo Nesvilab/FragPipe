@@ -1053,7 +1053,7 @@ public class TabMsfragger extends JPanelWithEnablement {
       try {
         Path path = CacheUtils.locateTempFile(CACHE_FORM);
         Properties propsFromFile = PropertiesUtils.from(path);
-        Map<String, String> map = PropertiesUtils.to(propsFromFile);
+        Map<String, String> map = PropertiesUtils.toMap(propsFromFile);
         formFrom(map);
       } catch (FileNotFoundException ignored) {
         // no form cache yet

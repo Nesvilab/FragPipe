@@ -39,7 +39,7 @@ public class PtmshepherdParams {
     this(workDir, db, groups);
     Properties defaults = PropertiesUtils
         .loadPropertiesLocal(PtmshepherdParams.class, DEFAULT_PROPERTIES_FN);
-    props = new HashMap<>(PropertiesUtils.to(defaults));
+    props = new HashMap<>(PropertiesUtils.toMap(defaults));
     props.putAll(additionalProperties);
   }
 

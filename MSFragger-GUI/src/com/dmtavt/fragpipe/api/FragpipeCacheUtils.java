@@ -109,12 +109,12 @@ public class FragpipeCacheUtils {
   }
 
   public static void tabsLoad(InputStream is, JTabbedPane tabs) throws IOException {
-    Map<String, String> map = PropertiesUtils.to(loadAsProperties(is));
+    Map<String, String> map = PropertiesUtils.toMap(loadAsProperties(is));
     tabPaneFromMap(tabs, map);
   }
 
   public static void tabsLoad(Properties props, JTabbedPane tabs) {
-    Map<String, String> map = PropertiesUtils.to(props);
+    Map<String, String> map = PropertiesUtils.toMap(props);
     tabPaneFromMap(tabs, map);
   }
 

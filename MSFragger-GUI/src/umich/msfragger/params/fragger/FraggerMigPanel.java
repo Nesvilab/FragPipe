@@ -72,7 +72,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
@@ -1082,7 +1081,7 @@ public class FraggerMigPanel extends JPanel {
       try {
         Path path = CacheUtils.locateTempFile(CACHE_FORM);
         Properties propsFromFile = PropertiesUtils.from(path);
-        Map<String, String> map = PropertiesUtils.to(propsFromFile);
+        Map<String, String> map = PropertiesUtils.toMap(propsFromFile);
         formFrom(map);
       } catch (FileNotFoundException ignored) {
         // no form cache yet

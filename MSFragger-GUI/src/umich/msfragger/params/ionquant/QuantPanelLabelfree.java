@@ -1,6 +1,5 @@
 package umich.msfragger.params.ionquant;
 
-import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.dmtavt.fragpipe.messages.MessageLoadQuantDefaults;
@@ -90,7 +89,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     }
     try {
       Properties props = PropertiesUtils.loadPropertiesLocal(QuantParams.class, QuantParams.DEFAULT_PROPERTIES_FN);
-      SwingUtils.valuesFromMap(this, PropertiesUtils.to(props));
+      SwingUtils.valuesFromMap(this, PropertiesUtils.toMap(props));
     } catch (Exception e) {
       log.error("Error loading quant defaults", e);
       SwingUtils.showErrorDialogWithStacktrace(e, this);
