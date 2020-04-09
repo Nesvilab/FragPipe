@@ -300,125 +300,15 @@ public class Fragpipe extends JFrame {
     setTitle(Version.PROGRAM_TITLE + " (v" + Version.version() + ")");
     setLocale(Locale.ROOT);
     setMinimumSize(new Dimension(640, 480));
-
     this.setLayout(new MigLayout(new LC().fill()));
-    //this.setLayout(new BorderLayout());
 
     defFont = new JLabel("dummy label to get default font from");
     console = createConsole();
     tabs = createTabs(console);
 
-    //add(tabs, BorderLayout.CENTER);
     add(tabs, new CC().grow());
 
-//    defTextColor = UIManager.getColor("TextField.foreground");
-//    if (defTextColor == null) {
-//      defTextColor = Color.BLACK;
-//    }
-//
-//    // check if fragger jar points to a correct location
-//    if (!MsfraggerGuiFrameUtils.validateMsfraggerJarContents(textBinMsfragger.getText())) {
-//      log.debug("Msfragger jar is not valid");
-//    }
-//
-//    if (MsfraggerGuiFrameUtils.validatePhilosopherPath(textBinPhilosopher.getText()) == null) {
-//      enablePhilosopherPanels(false);
-//    }
-//
-//    tableModelRawFiles = MsfraggerGuiFrameUtils.createTableModelRawFiles();
-//    tableModelRawFiles.addTableModelListener(e -> {
-//      List<InputLcmsFile> files = tableModelRawFiles.dataCopy();
-//      Bus.post(new MessageLcmsFilesList(MessageType.UPDATE, files));
-//    });
-//    tableRawFiles = new LcmsInputFileTable(tableModelRawFiles);
-//    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnRawClear);
-//    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsConsecutive);
-//    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsByParentDir);
-//    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsByFilename);
-//    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClear);
-//    tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnRawRemove);
-//    tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnGroupsAssignToSelected);
-//    tableRawFiles.fireInitialization();
-//    tableRawFiles.setFillsViewportHeight(true);
-//    scrollPaneRawFiles.setViewportView(tableRawFiles);
-//
-//    // Drag and drop support for files from Explorer to the Application
-//    // this works only when tableRawFiles.setFillsViewportHeight(true) is called.
-////        tableRawFiles.setDragEnabled(true);
-////        tableRawFiles.setDropMode(DropMode.ON);
-////        tableRawFiles.setFillsViewportHeight(true);
-////        TransferHandler origHandler = tableRawFiles.getTransferHandler();
-////        SimpleETableTransferHandler newHandler = new SimpleETableTransferHandler();
-////        tableRawFiles.setTransferHandler(newHandler);
-//    // dropping onto enclosing JPanel works.
-//    tableRawFilesFileDrop = new FileDrop(panelSelectedFiles, true, files -> {
-//      Predicate<File> pred = CmdMsfragger.getSupportedFilePredicate(getExtBinSearchPaths());
-//      List<Path> accepted = new ArrayList<>(files.length);
-//      for (File f : files) {
-//        PathUtils.traverseDirectoriesAcceptingFiles(f, pred, accepted, false);
-//      }
-//      if (!accepted.isEmpty()) {
-//        Bus.post(new MessageLcmsFilesAdded(accepted));
-//      }
-//    });
-//
-//    textBinPython.addFocusListener(new FocusAdapter() {
-//      @Override
-//      public void focusLost(FocusEvent e) {
-//        Bus.post(new MessagePythonBinSelectedByUser(textBinPython.getText()));
-//      }
-//    });
-//
-//    fraggerMigPanel = new FraggerMigPanel();
-//    final int fraggerTabIndex = 3;
-//    final String fraggerTabName = "MSFragger";
-//    tabPane.add(fraggerMigPanel, fraggerTabIndex);
-//    tabPane.setTitleAt(fraggerTabIndex, fraggerTabName);
-//
-//
-//    // set icons for tabs
-//    Map<String, Integer> mapTabNameToIdx = new HashMap<>();
-//    for (int i = 0, tabCount = tabPane.getTabCount(); i < tabCount; i++) {
-//      mapTabNameToIdx.put(tabPane.getTitleAt(i), i);
-//    }
-//    setTabIcon(mapTabNameToIdx, "Config", "/umich/msfragger/gui/icons/146-wrench.png");
-//    setTabIcon(mapTabNameToIdx, "Select LC/MS Files", "/umich/msfragger/gui/icons/198-download2.png");
-//    setTabIcon(mapTabNameToIdx, "Database", "/umich/msfragger/gui/icons/093-drawer.png");
-//    setTabIcon(mapTabNameToIdx, "Downstream", "/umich/msfragger/gui/icons/328-move-down.png");
-//    setTabIcon(mapTabNameToIdx, "Report", "/umich/msfragger/gui/icons/185-clipboard.png");
-//    setTabIcon(mapTabNameToIdx, fraggerTabName, "/umich/msfragger/gui/icons/bolt-16.png");
-//    //setTabIcon(mapTabNameToIdx, "", "");
-//
-//    exec.submit(() -> MsfraggerGuiFrameUtils.validateAndSaveMsfraggerPath(this, textBinMsfragger.getText()));
-//    exec.submit(() -> MsfraggerGuiFrameUtils.validateAndSavePhilosopherPath(this, textBinPhilosopher.getText()));
-//    exec.submit(() -> Version.checkUpdates());
-//    exec.submit(() -> MsfraggerGuiFrameUtils.checkPreviouslySavedParams(MsfraggerGuiFrame.this));
-//
-//    // The python check must be run before DbSlice and SpecLibGen.
-//    // Don't run these checks asynchronously
-//    exec.submit(() -> MsfraggerGuiFrameUtils.checkPython(MsfraggerGuiFrame.this));
-//    exec.submit(() -> MsfraggerGuiFrameUtils.validateDbslicing(fraggerVer));
-//    exec.submit(MsfraggerGuiFrameUtils::validateSpeclibgen);
-//
-//
-//    exec.submit(() -> MsfraggerGuiFrameUtils.validateMsadjusterEligibility(fraggerVer));
-//    exec.submit(() -> MsfraggerGuiFrameUtils.validateMsfraggerMassCalibrationEligibility(fraggerVer));
-//
-//
-//    // submitting all "loadLast" methods for invocation
-//    for (Method method : this.getClass().getDeclaredMethods()) {
-//      // TODO: Old 'loadLast' mechanism is mostly replaced by auto save/load of components by 'name'
-//      if (method.getName().startsWith("loadLast") && method.getParameterCount() == 0) {
-//        exec.submit(() -> method.invoke(this));
-//      }
-//    }
-//
-//    // Force loading form caches
-//    Bus.post(MessageLoadAllForms.forCaching());
-//
-//    initActions();
-
-    log.debug("Done initUi()");
+    log.debug("Done Fragpipe.initUi()");
   }
 
   private void initMore() {
@@ -428,7 +318,8 @@ public class Fragpipe extends JFrame {
     Bus.postSticky(new NoteConfigTips(tips));
     Bus.post(new MessageUiInitDone());
 
-    DbSplit2.initClass(); // initialize DBSlice functionality
+    // initialize singletons (mainly to subscribe them to the bus)
+    DbSplit2.initClass();
     SpecLibGen2.initClass();
   }
 

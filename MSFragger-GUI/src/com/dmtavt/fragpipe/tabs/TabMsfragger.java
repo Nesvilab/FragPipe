@@ -312,7 +312,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     JPanel pTop = new JPanel(new MigLayout(new LC()));
 
     checkRun = new UiCheck("Run MSFragger", null, true);
-    checkRun.setName("misc.is-run");
+    checkRun.setName("run-msfragger");
     checkRun.addActionListener(e -> {
       final boolean isSelected = checkRun.isSelected();
       updateEnabledStatus(pContent, isSelected);

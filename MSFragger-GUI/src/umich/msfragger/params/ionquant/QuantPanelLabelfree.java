@@ -136,7 +136,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.borderEmpty(p);
 
     checkRun = new UiCheck("Run Label-free quant", null, false);
-    checkRun.setName("run-label-free-quant");
+    checkRun.setName("quantitation.run-label-free-quant");
     JButton btnLoadDefaults = new JButton("Load Quant defaults");
     btnLoadDefaults.addActionListener((e) -> Bus.post(new MessageLoadQuantDefaults(true)));
 
