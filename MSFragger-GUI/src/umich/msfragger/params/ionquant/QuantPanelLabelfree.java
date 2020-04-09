@@ -1,5 +1,6 @@
 package umich.msfragger.params.ionquant;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.dmtavt.fragpipe.messages.MessageLoadQuantDefaults;
@@ -40,12 +41,6 @@ public class QuantPanelLabelfree extends JPanelBase {
   private UiRadio uiRadioUseIonquant;
   private ButtonGroup radioGroupQuant;
 
-
-  public QuantPanelLabelfree() {
-    init();
-    initMore();
-  }
-
   @Override
   protected ItemSelectable getRunCheckbox() {
     return checkRun;
@@ -77,14 +72,14 @@ public class QuantPanelLabelfree extends JPanelBase {
     return isRun() && SwingUtils.isEnabledAndChecked(uiRadioUseFreequant);
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN)
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageIsUmpireRun m) {
     if (m.isEnabled) {
       checkRun.setSelected(false); // deselect when Umpire runs
     }
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN)
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageLoadQuantDefaults m) {
     if (m.doAskUser) {
       int answer = SwingUtils.showConfirmDialog(this, new JLabel("<html>Load default quantitation options?"));
@@ -126,7 +121,7 @@ public class QuantPanelLabelfree extends JPanelBase {
   @Override
   protected void init() {
     this.setLayout(new BorderLayout());
-    this.setBorder(new TitledBorder("Quantitation"));
+    this.setBorder(new TitledBorder("Label-free Quantitation"));
 
     radioGroupQuant = new ButtonGroup();
     pTop = createPanelTop();

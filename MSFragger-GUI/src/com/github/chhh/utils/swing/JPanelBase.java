@@ -5,8 +5,11 @@ import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.awt.ItemSelectable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class JPanelBase extends JPanelWithEnablement {
+  private static final Logger log = LoggerFactory.getLogger(JPanelBase.class);
   protected final MigUtils mu = MigUtils.get();
 
   public JPanelBase() {
@@ -26,6 +29,8 @@ public abstract class JPanelBase extends JPanelWithEnablement {
     if (getRunCheckbox() != null && getEnablementToggleComponent() != null) {
       SwingUtils.setEnablementUpdater(this, getEnablementToggleComponent(), getRunCheckbox());
     }
+
+    log.debug("Trying to register quietly on the bus: {}", this.getClass().getCanonicalName());
     Bus.registerQuietly(this);
   }
 }
