@@ -3,6 +3,8 @@ package com.github.chhh.utils.swing;
 import com.github.chhh.utils.swing.FormEntry.Builder;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -46,6 +48,21 @@ public class MigUtils {
     return comp;
   }
 
+  public JComponent border(JComponent comp, Border border) {
+    comp.setBorder(border);
+    return comp;
+  }
+
+  public JComponent borderEmpty(JComponent comp) {
+    comp.setBorder(new EmptyBorder(0, 0, 0, 0));
+    return comp;
+  }
+
+  public JComponent borderEmpty(JComponent comp, int margin) {
+    comp.setBorder(new EmptyBorder(margin, margin, margin, margin));
+    return comp;
+  }
+
   public JPanel newPanel(String borderTitle, boolean setLayout) {
     JPanel p = new JPanel();
     if (borderTitle != null)
@@ -53,6 +70,10 @@ public class MigUtils {
     if (setLayout)
       p.setLayout(new MigLayout(new LC().fillX()));
     return p;
+  }
+
+  public JPanel newPanel(LC layoutConstraints) {
+    return newPanel(null, layoutConstraints);
   }
 
   public JPanel newPanel(String borderTitle, LC layoutConstraints) {
