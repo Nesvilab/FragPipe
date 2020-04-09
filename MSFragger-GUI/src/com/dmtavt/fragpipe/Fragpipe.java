@@ -1,7 +1,6 @@
 package com.dmtavt.fragpipe;
 
 import static com.dmtavt.fragpipe.Version.PROP_LAST_RELEASE_VER;
-import static com.dmtavt.fragpipe.Version.version;
 
 import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.Bus;
@@ -21,14 +20,14 @@ import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
 import com.dmtavt.fragpipe.messages.NotePreviousUiState;
 import com.dmtavt.fragpipe.tabs.TabConfig;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
+import com.dmtavt.fragpipe.tabs.TabPtms;
 import com.dmtavt.fragpipe.tabs.TabValidation;
-import com.dmtavt.fragpipe.tabs.TabMisc;
+import com.dmtavt.fragpipe.tabs.TabSpecLib;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tabs.TabQuantitaion;
 import com.dmtavt.fragpipe.tabs.TabRun;
 import com.dmtavt.fragpipe.tabs.TabUmpire;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
-import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
 import com.github.chhh.utils.LogUtils;
 import com.github.chhh.utils.ScreenUtils;
 import com.github.chhh.utils.StringUtils;
@@ -272,18 +271,19 @@ public class Fragpipe extends JFrame {
     TabMsfragger tabMsfragger = new TabMsfragger();
     TabValidation tabValidation = new TabValidation();
     TabQuantitaion tabQuantitaion = new TabQuantitaion();
-    TabMisc tabMisc = new TabMisc();
+    TabPtms tabPtms = new TabPtms();
+    TabSpecLib tabSpecLib = new TabSpecLib();
     TabRun tabRun = new TabRun(console);
     tabUmpire = new TabUmpire();
 
     addTab.accept(new UiTab("Config", tabConfig, "/umich/msfragger/gui/icons/150-cogs.png", null));
-    addTabNoScroll.accept(new UiTab(TAB_NAME_LCMS, tabWorkflow, "/umich/msfragger/gui/icons/186-list-numbered.png", null));
-    addTab.accept(new UiTab("Database", tabDatabase, "/umich/msfragger/gui/icons/093-drawer.png", null));
-    addTab.accept(new UiTab("MSFragger", tabMsfragger, "/umich/msfragger/gui/icons/bolt-16.png", null));
-    addTab.accept(new UiTab("Validation", tabValidation, "/umich/msfragger/gui/icons/348-filter.png", null));
-    addTab.accept(new UiTab("Quant", tabQuantitaion, "/umich/msfragger/gui/icons/360-sigma.png", null));
-    addTab.accept(new UiTab("PTMs", tabMisc, null, null));
-    addTab.accept(new UiTab("Spec Lib", tabMisc, null, null));
+    addTabNoScroll.accept(new UiTab(TAB_NAME_LCMS, tabWorkflow, "/umich/msfragger/gui/icons/icon-workflow-16.png", null));
+    addTab.accept(new UiTab("Database", tabDatabase, "/umich/msfragger/gui/icons/icon-dna-helix-16.png", null));
+    addTab.accept(new UiTab("MSFragger", tabMsfragger, "/umich/msfragger/gui/icons/bolt-outlined-16.png", null));
+    addTab.accept(new UiTab("Validation", tabValidation, "/umich/msfragger/gui/icons/icon-filtration-16.png", null));
+    addTab.accept(new UiTab("Quant", tabQuantitaion, "/umich/msfragger/gui/icons/icon-scales-balance-16.png", null));
+    addTab.accept(new UiTab("PTMs", tabPtms, "/umich/msfragger/gui/icons/icon-edit-16.png", null));
+    addTab.accept(new UiTab("Spec Lib", tabSpecLib, "/umich/msfragger/gui/icons/icon-library-16.png", null));
     addTab.accept(new UiTab("Run", tabRun, "/umich/msfragger/gui/icons/video-play-16.png", null));
 
     log.debug("Done createTabs()");
