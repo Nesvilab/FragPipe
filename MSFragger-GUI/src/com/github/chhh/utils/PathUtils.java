@@ -63,7 +63,8 @@ public class PathUtils {
         return Arrays.asList(classpath.split(sep));
     }
 
-
+    /** Silently creates the whole directory structure.
+     * Only throws if given path exists and is not a directory. */
     public static Path createDirs(Path dir) throws IOException {
         if (Files.exists(dir)) {
             if (Files.isDirectory(dir)) {

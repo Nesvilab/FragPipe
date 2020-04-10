@@ -116,7 +116,7 @@ public class FragpipeLoader {
     return () -> {
       Bus.post(new MessageLoaderUpdate("Checking cache"));
       try {
-        NoteFragpipeCache m = FragpipeCache.loadCache();
+        NoteFragpipeCache m = FragpipeLocations.loadCache();
         Bus.postSticky(m);
       } catch (Exception e) {
         throw new IllegalStateException("Loading cache should not result in exceptions");

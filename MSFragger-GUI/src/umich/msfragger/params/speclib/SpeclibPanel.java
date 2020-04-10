@@ -55,6 +55,8 @@ public class SpeclibPanel extends JPanelBase {
   private UiText uiTextPqpCalFile;
   private UiCombo uiComboPqpType;
   private UiCombo uiComboPqpCal;
+  private JPanel panelEasypqp;
+  private JPanel panelSpectrast;
 
   @Override
   protected void initMore() {
@@ -67,7 +69,10 @@ public class SpeclibPanel extends JPanelBase {
     boolean okEasypqp = m.isValid() && m.instance.isInitialized() && m.instance.isEasypqpOk();
     boolean okSpectrast = m.isValid() && m.instance.isInitialized();
 
-    updateEnabledStatus(uiRadioUseEasypqp, okEasypqp);
+    updateEnabledStatus(panelEasypqp, okEasypqp);
+    if (okEasypqp) {
+      uiRadioUseEasypqp.setToolTipText("");
+    }
     updateEnabledStatus(uiRadioUseSpectrast, okSpectrast);
 
     if (!okEasypqp) {
@@ -114,100 +119,107 @@ public class SpeclibPanel extends JPanelBase {
     mu.borderEmpty(p);
 
     radioGroupTools = new ButtonGroup();
-    uiRadioUseSpectrast = new UiRadio("SpectraST (for non-ion mobility data)", null, true);
+    panelSpectrast = createPanelSpectrast(radioGroupTools);
+    panelEasypqp = createPanelEasypqp(radioGroupTools);
+
+    mu.add(p, panelSpectrast).spanX().growX().wrap();
+    mu.add(p, panelEasypqp).spanX().growX().wrap();
+
+    return p;
+  }
+
+  private JPanel createPanelSpectrast(ButtonGroup radioGroupTools) {
+    JPanel p = mu.newPanel("SpectraST", mu.lcFillXNoInsetsTopBottom());
+
+    uiRadioUseSpectrast = new UiRadio("Use SpectraST (for non-ion mobility data)", null, true);
     radioGroupTools.add(uiRadioUseSpectrast);
     updateEnabledStatus(uiRadioUseSpectrast, false);
-    FormEntry feRadioUseSpectrast = new FormEntry("use-spectrast",
-        "Not shown",
+    FormEntry feRadioUseSpectrast = new FormEntry("use-spectrast", "Not shown",
         uiRadioUseSpectrast);
-    uiRadioUseEasypqp = new UiRadio("EasyPQP", null, false);
-    radioGroupTools.add(uiRadioUseEasypqp);
-    updateEnabledStatus(uiRadioUseEasypqp, false);
-    FormEntry feRadioUseEasypqp = new FormEntry("use-easypqp",
-        "Not shown",
-        uiRadioUseEasypqp);
 
-    p.add(feRadioUseSpectrast.comp, new CC().alignX("left").spanX().wrap());
-    p.add(feRadioUseEasypqp.comp, new CC().alignX("left").spanX().wrap());
+    mu.add(p, feRadioUseSpectrast.comp).pushX().growX().wrap();
 
-    final JPanel pPqp = new JPanel(
-        new MigLayout(new LC().fillX().alignX("left")));
-    { // pqp options stuff
-      final String optionAuto = "Automatic selection of a run as reference RT";
-      final String optionManual = "User provided RT calibration file";
-      pqpCal = Arrays.asList(optionAuto, "iRT", "ciRT", optionManual);
-      pqpType = Arrays.asList("timsTOF", "non-timsTOF");
+    return p;
+  }
 
-      pPqp.setBorder(new TitledBorder("EasyPQP Options"));
-      uiComboPqpCal = UiUtils.createUiCombo(pqpCal);
-      FormEntry fePqpCal = new FormEntry("ui.name.report.speclibgen.easypqp.rt-cal",
-          "RT Calibration",
-          uiComboPqpCal);
-      uiTextPqpCalFile = UiUtils.uiTextBuilder().create();
-      FormEntry fePqpCalFile = new FormEntry(
-          "ui.name.report.speclibgen.easypqp.select-file.text",
-          "Calibration file", uiTextPqpCalFile);
-      JLabel labelPqpCalFile = fePqpCalFile.label();
-      labelPqpCalFile.setName("ui.name.report.speclibgen.easypqp.select-file.label");
-      final JButton btnPqpCalFile = fePqpCalFile.browseButton("Browse",
-          "Select calibration file", () -> {
-            JFileChooser fc = FileChooserUtils
-                .create("Calibration file", false, FcMode.FILES_ONLY);
-            FileChooserUtils.setPath(fc, Stream.of(uiTextPqpCalFile.getNonGhostText()));
-            return fc;
-          },
-          paths -> {
-            log.debug("User selected PQP file: {}",
-                paths.stream().map(Path::toString).collect(Collectors.joining(", ")));
-            Path path = paths
-                .get(0); // we only allowed selection of a single file in the file chooser
-            try {
-              validateCalFile(path);
-            } catch (ValidationException e) {
-              SwingUtils.showErrorDialog(this, SwingUtils.makeHtml(e.getMessage()), "Cal file error");
-              return;
-            }
-            // validation went without exceptions
-            uiTextPqpCalFile.setText(path.toString());
-          });
-      btnPqpCalFile.setName("ui.name.report.speclibgen.easypqp.select-file.button");
+  private JPanel createPanelEasypqp(ButtonGroup buttonGroup) {
+    final JPanel p = mu.newPanel("EasyPQP", mu.lcFillXNoInsetsTopBottom());
 
-      uiComboPqpType = UiUtils.createUiCombo(pqpType);
-      FormEntry feDataType = new FormEntry("ui.name.report.speclibgen.easypqp.data-type",
-          "Data type", uiComboPqpType);
+    uiRadioUseEasypqp = new UiRadio("Use EasyPQP", null, false);
+    uiRadioUseEasypqp.setToolTipText("Enablement depends on proper python configuration");
+    buttonGroup.add(uiRadioUseEasypqp);
+    FormEntry feRadioUseEasypqp = new FormEntry("use-easypqp", "not-shown", uiRadioUseEasypqp);
+    final String optionAuto = "Automatic selection of a run as reference RT";
+    final String optionManual = "User provided RT calibration file";
+    pqpCal = Arrays.asList(optionAuto, "iRT", "ciRT", optionManual);
+    pqpType = Arrays.asList("timsTOF", "non-timsTOF");
 
-      pPqp.add(fePqpCal.label(), ccR());
-      pPqp.add(fePqpCal.comp, ccL().split());
-      pPqp.add(labelPqpCalFile, ccL());
-      pPqp.add(fePqpCalFile.comp, ccL().pushX().growX());
-      pPqp.add(btnPqpCalFile, ccL().wrap());
-      pPqp.add(feDataType.label(), ccR());
-      pPqp.add(feDataType.comp, ccL().wrap());
-
-      uiComboPqpCal.addItemListener(e -> {
-        String selected = (String) e.getItem();
-        final boolean show = optionManual.equals(selected);
-        final AtomicBoolean visibilityChanged = new AtomicBoolean(false);
-        SwingUtils.traverse(pPqp, false, c -> {
-          String name = c.getName();
-          if (name != null && name.contains("ui.name.report.speclibgen.easypqp.select-file.")) {
-            log.debug("Traversing easyPQP options panel, found matching component: {}", name);
-            if (c.isVisible() != show) {
-              visibilityChanged.set(show);
-              c.setVisible(show);
-            }
+    uiComboPqpCal = UiUtils.createUiCombo(pqpCal);
+    FormEntry fePqpCal = new FormEntry("ui.name.report.speclibgen.easypqp.rt-cal",
+        "RT Calibration", uiComboPqpCal);
+    uiTextPqpCalFile = UiUtils.uiTextBuilder().create();
+    FormEntry fePqpCalFile = new FormEntry(
+        "ui.name.report.speclibgen.easypqp.select-file.text",
+        "Calibration file", uiTextPqpCalFile);
+    JLabel labelPqpCalFile = fePqpCalFile.label();
+    labelPqpCalFile.setName("ui.name.report.speclibgen.easypqp.select-file.label");
+    final JButton btnPqpCalFile = fePqpCalFile.browseButton("Browse",
+        "Select calibration file", () -> {
+          JFileChooser fc = FileChooserUtils
+              .create("Calibration file", false, FcMode.FILES_ONLY);
+          FileChooserUtils.setPath(fc, Stream.of(uiTextPqpCalFile.getNonGhostText()));
+          return fc;
+        },
+        paths -> {
+          log.debug("User selected PQP file: {}",
+              paths.stream().map(Path::toString).collect(Collectors.joining(", ")));
+          Path path = paths.get(0); // we only allowed selection of a single file in the file chooser
+          try {
+            validateCalFile(path);
+          } catch (ValidationException e) {
+            SwingUtils.showErrorDialog(this, SwingUtils.makeHtml(e.getMessage()), "Cal file error");
+            return;
           }
+          // validation went without exceptions
+          uiTextPqpCalFile.setText(path.toString());
         });
-        if (visibilityChanged.get()) {
-          pPqp.revalidate();
+    btnPqpCalFile.setName("ui.name.report.speclibgen.easypqp.select-file.button");
+
+    uiComboPqpType = UiUtils.createUiCombo(pqpType);
+    FormEntry feDataType = new FormEntry("ui.name.report.speclibgen.easypqp.data-type",
+        "Data type", uiComboPqpType);
+
+    mu.add(p, feRadioUseEasypqp.comp).wrap();
+    p.add(fePqpCal.label(), ccR());
+    p.add(fePqpCal.comp, ccL().split());
+    p.add(labelPqpCalFile, ccL());
+    p.add(fePqpCalFile.comp, ccL().pushX().growX());
+    p.add(btnPqpCalFile, ccL().wrap());
+    p.add(feDataType.label(), ccR());
+    p.add(feDataType.comp, ccL().wrap());
+
+    uiComboPqpCal.addItemListener(e -> {
+      String selected = (String) e.getItem();
+      final boolean show = optionManual.equals(selected);
+      final AtomicBoolean visibilityChanged = new AtomicBoolean(false);
+      SwingUtils.traverse(p, false, c -> {
+        String name = c.getName();
+        if (name != null && name.contains("ui.name.report.speclibgen.easypqp.select-file.")) {
+          log.debug("Traversing easyPQP options panel, found matching component: {}", name);
+          if (c.isVisible() != show) {
+            visibilityChanged.set(show);
+            c.setVisible(show);
+          }
         }
       });
-      uiComboPqpCal.setSelectedIndex(1);
-      uiComboPqpCal.setSelectedIndex(0);
-    }
+      if (visibilityChanged.get()) {
+        p.revalidate();
+      }
+    });
+    uiComboPqpCal.setSelectedIndex(1);
+    uiComboPqpCal.setSelectedIndex(0);
 
-    p.add(pPqp, new CC().spanX().growX().wrap());
-
+    updateEnabledStatus(p, false);
     return p;
   }
 
