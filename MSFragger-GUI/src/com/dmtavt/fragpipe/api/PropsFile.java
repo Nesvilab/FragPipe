@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.api;
 
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.PropertiesUtils;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -23,16 +24,27 @@ public class PropsFile extends Properties {
     this.comments = comments;
   }
 
-  public void load() {
-    log.debug("Loading properties from: {}", path);
+  public boolean isBackingFileExists() {
+    return Files.exists(path);
   }
 
-  public void save() {
+  public void load() throws IOException {
+    log.debug("Loading properties from: {}", path);
+    if (!isBackingFileExists()) {
+      log.debug("Backing file not exists, not loading anything: {}", path.toString());
+    } else {
+      try (BufferedReader br = Files.newBufferedReader(path)) {
+        this.load(br);
+      }
+    }
+  }
+
+  public void save() throws IOException {
     try {
       PathUtils.createDirs(path.getParent());
-    } catch (IOException e) {
+    } catch (IOException ex) {
       log.error("Could not create directory structure to save properties");
-      return;
+      throw(ex);
     }
     try (OutputStream os = Files.newOutputStream(path)) {
       //store(os, cacheComments());
@@ -40,6 +52,7 @@ public class PropsFile extends Properties {
       os.flush();
     } catch (IOException ex) {
       log.error("Could not save properties to: " + path.toString(), ex);
+      throw(ex);
     }
   }
 

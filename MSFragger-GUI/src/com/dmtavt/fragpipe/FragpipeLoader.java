@@ -129,20 +129,14 @@ public class FragpipeLoader {
       Properties uiState = null;
       try {
         Bus.post(new MessageLoaderUpdate("Checking cache"));
-        MessageLoadPreviousUiState m = MessageLoadPreviousUiState.newForCache();
-        log.debug("Fragpipe.Loader Loading ui state cache from: {}", m.path);
-        Path existing = PathUtils.existing(m.path.toString());
-        if (existing == null) {
-          log.info("Previous UI state cache file does not exist");
-        } else {
-          try (InputStream is = Files.newInputStream(existing)) {
-            uiState = FragpipeCacheUtils.loadAsProperties(is);
-            Bus.post(new MessageLoaderUpdate("Done checking cache"));
-          } catch (IOException e) {
-            log.error("Fragpipe.Loader Could not read fragpipe cache from: {}", m.path.toString());
-            Bus.post(new MessageLoaderUpdate("Error while checking cache"));
-          }
+        propsUi.load();
+
+        try (InputStream is = Files.newInputStream(existing)) {
+          uiState = FragpipeCacheUtils.loadAsProperties(is);
+        } catch (IOException e) {
+          log.error("Fragpipe.Loader Could not read fragpipe cache from: {}", m.path.toString());
         }
+
       } finally {
         if (uiState == null) {
           log.error("Error loading previous UI state");
@@ -158,7 +152,7 @@ public class FragpipeLoader {
       Bus.post(new MessageLoaderUpdate("Trying to load remote configuration"));
 
       Observable<Properties> obs = Observable
-          .fromCallable(() -> ThisAppProps.getRemotePropertiesWithLocalDefaults())
+          .fromCallable(ThisAppProps::getRemotePropertiesWithLocalDefaults)
           .timeout(timeoutSeconds, TimeUnit.SECONDS)
           .subscribeOn(Schedulers.immediate());
 
