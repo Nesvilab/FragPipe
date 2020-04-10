@@ -139,11 +139,14 @@ public class Fragpipe extends JFrame {
   }
 
   private void saveCache() {
+    log.debug("Saving cache started");
     NoteFragpipeCache cache = Bus.getStickyEvent(NoteFragpipeCache.class);
     if (cache == null)
       throw new IllegalStateException("cache NoteFragpipeCache can't be null");
     Properties tabsAsProps = FragpipeCacheUtils.tabsSave(tabs);
-    PropertiesUtils.merge(cache.propsUiState, tabsAsProps);
+    PropertiesUtils.merge(cache.propsUiState, Collections.singletonList(tabsAsProps));
+    log.debug("Saving ui cache: collected {} properties from UI. Size after merging with cached object: {}.",
+        tabsAsProps.size(), cache.propsUiState.size());
     try {
       cache.propsUiState.save();
     } catch (IOException ex) {
