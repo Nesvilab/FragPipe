@@ -1,9 +1,7 @@
 package com.dmtavt.fragpipe.tools.protproph;
 
 import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
-import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.UiCheck;
@@ -51,12 +49,12 @@ public class ProtProphPanel extends JPanelBase {
     checkRun.setName("run-protein-prophet");
     btnAllowMassShifted = UiUtils.createButton("Allow mass shifted peptides", e -> {
       log.debug("Clicked button " + btnAllowMassShifted.getText());
-      String v = Fragpipe.getProp(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, "open");
+      String v = Fragpipe.getPropFix(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, "open");
       uiTextCmdOpts.setText(v);
     });
     btnDisallowMassShifted = UiUtils.createButton("Do NOT allow mass shifted peptides", e -> {
       log.debug("Clicked button " + btnDisallowMassShifted.getText());
-      String v = Fragpipe.getProp(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, "tight");
+      String v = Fragpipe.getPropFix(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, "tight");
       uiTextCmdOpts.setText(v);
     });
     uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).text(defaultCmdOpt()).create();
@@ -82,7 +80,7 @@ public class ProtProphPanel extends JPanelBase {
   }
 
   private String defaultCmdOpt() {
-    return Fragpipe.getProp(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, "open");
+    return Fragpipe.getPropFix(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, "open");
   }
 
   @Override

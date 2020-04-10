@@ -73,7 +73,7 @@ public class Philosopher {
     }
 
     final String fragpipeVerMajor = com.dmtavt.fragpipe.Version.version().split("[-_]+")[0];
-    final Properties p = Fragpipe.props();
+    final Properties p = Fragpipe.propsFix();
     log.debug("Validating philosopher version compatibility with FragPipe major version: {}", fragpipeVerMajor);
     String minPhiVer = p.stringPropertyNames().stream()
         .filter(name -> name.startsWith(PhilosopherProps.PROP_LOWEST_COMPATIBLE_VERSION + "." + fragpipeVerMajor))
@@ -132,7 +132,7 @@ public class Philosopher {
         return true;
       });
 
-      final Properties p = Fragpipe.props();
+      final Properties p = Fragpipe.propsFix();
       String link = p.getProperty(PhilosopherProps.PROP_DOWNLOAD_URL,
           "https://github.com/Nesvilab/philosopher/releases");
       return new UpdateInfo(isUpdateFound.get(), link);

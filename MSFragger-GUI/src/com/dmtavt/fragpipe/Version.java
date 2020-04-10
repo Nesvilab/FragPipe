@@ -267,12 +267,17 @@ public class Version {
   }
 
   public static String version() {
+    return version(false);
+  }
+
+  public static String version(boolean includeProgramTitle) {
     Properties p = loadPropertiesWithIdeDebugHack();
     if (!p.containsKey(Version.PROP_VER)) {
       throw new IllegalStateException(String.format("Key '%s' not found in bundle '%s'",
           Version.PROP_VER, PATH_BUNDLE));
     }
-    return p.getProperty(Version.PROP_VER);
+    String v = p.getProperty(Version.PROP_VER);
+    return includeProgramTitle ? String.format("%s v%s", PROGRAM_TITLE, v) : v;
   }
 
   private static String chop(String original, String toChop) {

@@ -96,7 +96,7 @@ public class TabDatabase extends JPanelWithEnablement {
         paths -> Bus.post(new MessageDbNewPath(paths.get(0).toString())));
     btnDownload = UiUtils.createButton("Download", this::actionDbDownload);
 
-    String defaultTag = Fragpipe.props().getProperty(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
+    String defaultTag = Fragpipe.propsFix().getProperty(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
     uiTextDecoyTag = UiUtils.uiTextBuilder().cols(12).text(defaultTag).create();
     FormEntry feDecoyTag = fe(uiTextDecoyTag, "decoy-tag").label("Decoy protein prefix")
         .tooltip( "Decoys are used for FDR estimation.\n"

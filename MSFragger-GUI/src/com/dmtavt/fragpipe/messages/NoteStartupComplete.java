@@ -5,11 +5,10 @@ import java.util.Properties;
 
 public class NoteStartupComplete {
   public final NoteFragpipeProperties props;
-  public final NotePreviousUiState uiState;
+  public final NoteFragpipeCache cache;
 
-  public NoteStartupComplete(NoteFragpipeProperties props,
-      NotePreviousUiState uiState) {
+  public NoteStartupComplete(NoteFragpipeProperties props, NoteFragpipeCache cache) {
     this.props = props;
-    this.uiState = uiState;
+    this.cache = cache;
   }
 }

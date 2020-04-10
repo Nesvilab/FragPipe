@@ -15,9 +15,9 @@ import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigTips;
+import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
 import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
 import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
-import com.dmtavt.fragpipe.messages.NotePreviousUiState;
 import com.dmtavt.fragpipe.tabs.TabConfig;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
 import com.dmtavt.fragpipe.tabs.TabPtms;
@@ -377,15 +377,15 @@ public class Fragpipe extends JFrame {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteFragpipeProperties m) {
 
-    if (m.props == null) {
+    if (m.propsFix == null) {
       log.debug("Got NoteFragpipeProperties with null props");
       return;
     }
-    String releaseVer = m.props.getProperty(PROP_LAST_RELEASE_VER);
+    String releaseVer = m.propsFix.getProperty(PROP_LAST_RELEASE_VER);
     int cmp = VersionComparator.cmp(Version.version(), releaseVer);
     log.debug("Got NoteFragpipeProperties, property {}={}. Current version: {}, their comparison = {}", PROP_LAST_RELEASE_VER, releaseVer, Version.version(), cmp);
     if (cmp < 0) {
-      Bus.postSticky(new NoteFragpipeUpdate(releaseVer, m.props.getProperty("fragpipe.download-url")));
+      Bus.postSticky(new NoteFragpipeUpdate(releaseVer, m.propsFix.getProperty("fragpipe.download-url")));
     }
 
     // TODO: display custom messages from remote properties
@@ -450,17 +450,8 @@ public class Fragpipe extends JFrame {
     return Collections.singletonList(Paths.get(conf.path));
   }
 
-  public static Properties props() {
-    NoteFragpipeProperties p = Bus.getStickyEvent(NoteFragpipeProperties.class);
-    if (p != null && p.props != null) {
-      return p.props;
-    }
-    log.warn("Fragpipe properties sticky note was empty, but should have been loaded at startup");
-    return ThisAppProps.getLocalProperties();
-  }
-
   public static void getPropAndSetVal(String prop, Component comp) {
-    String v = props().getProperty(prop);
+    String v = propsFix().getProperty(prop);
     if (v == null) {
       log.warn("No property in bundle: {}", prop);
     } else {
@@ -468,12 +459,31 @@ public class Fragpipe extends JFrame {
     }
   }
 
-  public static String getProp(String prop) {
-    return getProp(prop, null);
+  public static String getPropFix(String prop) {
+    return getPropFix(prop, null);
   }
 
-  public static String getProp(String prop, String dotSuffix) {
+  public static String getPropFix(String prop, String dotSuffix) {
     String dotted = StringUtils.isBlank(dotSuffix) ? prop : prop + "." + dotSuffix;
-    return props().getProperty(dotted);
+    return propsFix().getProperty(dotted);
   }
+
+  public static Properties propsFix() {
+    NoteFragpipeProperties p = Bus.getStickyEvent(NoteFragpipeProperties.class);
+    if (p != null && p.propsFix != null) {
+      return p.propsFix;
+    }
+    log.error("Message to developers. Fragpipe properties sticky note was empty, but should have been loaded at startup");
+    return ThisAppProps.getLocalProperties();
+  }
+
+  public static Properties propsVar() {
+    NoteFragpipeCache p = Bus.getStickyEvent(NoteFragpipeCache.class);
+    if (p != null && p.propsRuntime != null) {
+      return p.propsRuntime;
+    }
+    throw new IllegalStateException("Runtime properties should always at least be initialized to empty Properties object");
+  }
+
+
 }

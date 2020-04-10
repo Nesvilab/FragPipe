@@ -96,7 +96,7 @@ public class PepProphPanel extends JPanelWithEnablement {
   }
 
   private String defaultCmdOpts() {
-    String v = Fragpipe.getProp("peptideprophet.cmd.line.opts", "closed");
+    String v = Fragpipe.getPropFix("peptideprophet.cmd.line.opts", "closed");
     log.debug("Peptide prophet default value for Cmd Opts in ui fetched from properties: peptideprophet.cmd.line.opts.closed={}", v);
     return v;
   }

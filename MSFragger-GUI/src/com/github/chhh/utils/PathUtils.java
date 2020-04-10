@@ -63,6 +63,18 @@ public class PathUtils {
         return Arrays.asList(classpath.split(sep));
     }
 
+
+    public static Path createDirs(Path dir) throws IOException {
+        if (Files.exists(dir)) {
+            if (Files.isDirectory(dir)) {
+                return dir;
+            }
+            throw new IOException("Exists and not a directory: " + dir.toString());
+        }
+        // not exists
+        return Files.createDirectories(dir);
+    }
+
     /**
      * Returns the set of unique directories containing stuff that's on classpath.
      */
