@@ -90,10 +90,14 @@ public class FragpipeCacheUtils {
     return whole;
   }
 
-
-  public static void tabsSave(OutputStream os, JTabbedPane tabs) throws IOException {
+  public static Properties tabsSave(JTabbedPane tabs) {
     Map<String, String> map = tabPaneToMap(tabs);
     Properties props = PropertiesUtils.from(map);
+    return props;
+  }
+
+  public static void tabsSave(OutputStream os, JTabbedPane tabs) throws IOException {
+    Properties props = tabsSave(tabs);
     try (BufferedOutputStream bos = new BufferedOutputStream(os)) {
       //props.store(bos, ThisAppProps.cacheComments()); // This is from Java's Properties - the order or things looks to be random
       PropertiesUtils.storeSorted(props, bos, ThisAppProps.cacheComments(), true);

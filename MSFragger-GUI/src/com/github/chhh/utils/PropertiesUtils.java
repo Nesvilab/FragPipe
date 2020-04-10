@@ -178,12 +178,21 @@ public final class PropertiesUtils {
     };
 
 
+    /** New Properties object as a combination of all given ones. */
     public static Properties merge(Properties... properties) {
         Properties merged = new Properties();
         for (Properties property : properties) {
             merged.putAll(property);
         }
         return merged;
+    }
+
+    /** Merge a base Properties object with all given ones. Modifies the 1st one. */
+    public static Properties merge(Properties base, List<Properties> toMerge) {
+        for (Properties merge : toMerge) {
+            base.putAll(merge);
+        }
+        return base;
     }
 
     public static Properties initProperties(List<String> urls, String propFileName, Class<?> clazz) {

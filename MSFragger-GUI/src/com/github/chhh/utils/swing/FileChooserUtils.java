@@ -6,6 +6,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 import javax.swing.JFileChooser;
@@ -22,6 +24,69 @@ public class FileChooserUtils {
     FcMode selectionMode, FileFilter... filters) {
     return create(title, "Select", multiSelection, selectionMode, true,
         filters);
+  }
+
+  public static Builder builder(String title) {
+    return new Builder(title);
+  }
+
+  public static class Builder {
+    String title;
+    String approveButton = "Select";
+    boolean multiSelection = false;
+    FcMode selectionMode = FcMode.ANY;
+    boolean isAcceptAllUsed = true;
+    List<FileFilter> filters = Collections.emptyList();
+    Stream<String> possiblePaths = null;
+
+    public Builder(String title) {
+      this.title = title;
+    }
+
+    public JFileChooser create() {
+      JFileChooser fc = FileChooserUtils
+          .create(title, approveButton, multiSelection, selectionMode, isAcceptAllUsed,
+              filters.toArray(new FileFilter[0]));
+      if (possiblePaths != null) {
+        FileChooserUtils.setPath(fc, possiblePaths);
+      }
+      return fc;
+    }
+
+    public Builder title(String title) {
+      this.title = title;
+      return this;
+    }
+
+    public Builder approveButton(String approveButton) {
+      this.approveButton = approveButton;
+      return this;
+    }
+
+    public Builder multi(boolean multiSelection) {
+      this.multiSelection = multiSelection;
+      return this;
+    }
+
+    public Builder mode(FcMode selectionMode) {
+      this.selectionMode = selectionMode;
+      return this;
+    }
+
+    public Builder acceptAll(boolean acceptAllUsed) {
+      isAcceptAllUsed = acceptAllUsed;
+      return this;
+    }
+
+    public Builder filters(List<FileFilter> filters) {
+      this.filters = filters;
+      return this;
+    }
+
+    public Builder paths(Stream<String> possiblePaths) {
+      this.possiblePaths = possiblePaths;
+      return this;
+    }
   }
 
   public static JFileChooser create(String title, String approveButton, boolean multiSelection,

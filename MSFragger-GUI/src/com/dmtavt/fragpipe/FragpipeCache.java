@@ -1,7 +1,10 @@
 package com.dmtavt.fragpipe;
 
+import com.dmtavt.fragpipe.api.PropsFile;
+import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.StringUtils;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -43,5 +46,25 @@ public class FragpipeCache {
 
   public static Path getPathRuntimeCache() {
     return getFragpipeJarPath().resolve(FILE_CACHE_RUNTIME).normalize().toAbsolutePath();
+  }
+
+  public static NoteFragpipeCache loadCache() {
+    PropsFile propsUi = new PropsFile(FragpipeCache.getPathUiCache(),
+        Version.version(true) + " ui state cache");
+    PropsFile propsRuntime = new PropsFile(FragpipeCache.getPathRuntimeCache(),
+        Version.version(true) + " runtime cache");
+
+    try {
+      propsUi.load();
+    } catch (IOException e) {
+      log.error("Error while loading ui cache");
+    }
+    try {
+      propsRuntime.load();
+    } catch (IOException e) {
+      log.error("Error while loading runtime cache");
+    }
+
+    return new NoteFragpipeCache(propsRuntime, propsUi);
   }
 }

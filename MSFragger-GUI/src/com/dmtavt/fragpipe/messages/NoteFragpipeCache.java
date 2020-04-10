@@ -1,12 +1,13 @@
 package com.dmtavt.fragpipe.messages;
 
+import com.dmtavt.fragpipe.api.PropsFile;
 import java.util.Properties;
 
 public class NoteFragpipeCache implements INoteConfig {
-  public final Properties propsRuntime;
-  public final Properties propsUiState;
+  public final PropsFile propsRuntime;
+  public final PropsFile propsUiState;
 
-  public NoteFragpipeCache(Properties propsRuntime, Properties propsUiState) {
+  public NoteFragpipeCache(PropsFile propsRuntime, PropsFile propsUiState) {
     this.propsRuntime = propsRuntime;
     this.propsUiState = propsUiState;
   }

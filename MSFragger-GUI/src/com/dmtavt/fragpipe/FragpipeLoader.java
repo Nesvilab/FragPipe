@@ -2,21 +2,13 @@ package com.dmtavt.fragpipe;
 
 import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.Bus;
-import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
-import com.dmtavt.fragpipe.api.PropsFile;
-import com.dmtavt.fragpipe.messages.MessageLoadPreviousUiState;
 import com.dmtavt.fragpipe.messages.MessageLoaderUpdate;
 import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
 import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
 import com.dmtavt.fragpipe.messages.NoteStartupComplete;
-import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Locale;
 import java.util.Objects;
@@ -122,26 +114,12 @@ public class FragpipeLoader {
 
   private static Runnable loadCache() {
     return () -> {
-      PropsFile propsUi = new PropsFile(FragpipeCache.getPathUiCache(),
-          Version.version(true) + " ui state cache");
-      PropsFile propsRuntime = new PropsFile(FragpipeCache.getPathRuntimeCache(),
-          Version.version(true) + " runtime cache");
-      Properties uiState = null;
+      Bus.post(new MessageLoaderUpdate("Checking cache"));
       try {
-        Bus.post(new MessageLoaderUpdate("Checking cache"));
-        propsUi.load();
-
-        try (InputStream is = Files.newInputStream(existing)) {
-          uiState = FragpipeCacheUtils.loadAsProperties(is);
-        } catch (IOException e) {
-          log.error("Fragpipe.Loader Could not read fragpipe cache from: {}", m.path.toString());
-        }
-
-      } finally {
-        if (uiState == null) {
-          log.error("Error loading previous UI state");
-        }
-        Bus.postSticky(new NoteFragpipeCache(, uiState));
+        NoteFragpipeCache m = FragpipeCache.loadCache();
+        Bus.postSticky(m);
+      } catch (Exception e) {
+        throw new IllegalStateException("Loading cache should not result in exceptions");
       }
     };
   }
@@ -167,17 +145,16 @@ public class FragpipeLoader {
           },
           ex -> {
             Properties local = null;
+            Bus.post(new MessageLoaderUpdate("Failed to load remote configuration"));
             try {
               log.error("Something happened while trying to get application properties at startup", ex);
               log.debug("Falling back to using local properties file");
               local = ThisAppProps.getLocalProperties();
               if (local == null) {
-                throw new IllegalStateException(
-                    "Loading local properties file failed. Please report to developers.");
+                throw new IllegalStateException("Loading local properties file failed. Please report to developers.");
               }
             } finally {
               Bus.postSticky(new NoteFragpipeProperties(local, false));
-              Bus.post(new MessageLoaderUpdate("Failed to load remote configuration"));
             }
           });
     };
