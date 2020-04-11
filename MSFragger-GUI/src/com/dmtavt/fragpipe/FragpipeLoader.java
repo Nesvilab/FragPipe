@@ -75,7 +75,7 @@ public class FragpipeLoader {
     Locale.setDefault(Locale.ROOT);
 
     final ExecutorService exec = Executors.newWorkStealingPool();
-    final Duration timeoutMax = Duration.ofSeconds(5);
+    final Duration timeoutMax = Duration.ofSeconds(5000000);
 
     exec.submit(loadCache());
     exec.submit(loadRemoteProps(Math.min(timeoutMax.getSeconds(), 3)));
@@ -116,10 +116,13 @@ public class FragpipeLoader {
     return () -> {
       Bus.post(new MessageLoaderUpdate("Checking cache"));
       try {
-        NoteFragpipeCache m = FragpipeLocations.loadCache();
+        log.debug("Loading cache");
+        NoteFragpipeCache m = FragpipeLocations.get().loadCache();
+        log.debug("Posting cache note");
         Bus.postSticky(m);
       } catch (Exception e) {
-        throw new IllegalStateException("Loading cache should not result in exceptions");
+        log.error("Loading cache should not result in exceptions", e);
+        throw new IllegalStateException("Loading cache should not result in exceptions", e);
       }
     };
   }

@@ -152,11 +152,17 @@ public class Fragpipe extends JFrame {
     log.debug("Saving ui cache: collected {} properties from UI. Size after merging with cached object: {}.",
         tabsAsProps.size(), cache.propsUiState.size());
     try {
+      cache.propsUiState.setPath(FragpipeLocations.get().getPathUiCache(false));
+      cache.propsUiState.save();
+      cache.propsUiState.setPath(FragpipeLocations.get().getPathUiCache(true));
       cache.propsUiState.save();
     } catch (IOException ex) {
       log.error("Error saving ui cache", ex);
     }
     try {
+      cache.propsRuntime.setPath(FragpipeLocations.get().getPathRuntimeCache(false));
+      cache.propsRuntime.save();
+      cache.propsRuntime.setPath(FragpipeLocations.get().getPathRuntimeCache(true));
       cache.propsRuntime.save();
     } catch (IOException ex) {
       log.error("Error saving runtime cache", ex);

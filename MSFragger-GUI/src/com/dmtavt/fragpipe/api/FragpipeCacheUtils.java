@@ -1,6 +1,7 @@
 package com.dmtavt.fragpipe.api;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
@@ -10,6 +11,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +29,16 @@ public class FragpipeCacheUtils {
   private static final Logger log = LoggerFactory.getLogger(FragpipeCacheUtils.class);
 
   private FragpipeCacheUtils() {
+  }
+
+  public static void saveToFileSorted(Properties props, Path location, String comments) {
+    PropsFile pf = new PropsFile(location, comments);
+    PropertiesUtils.merge(pf, Collections.singletonList(props));
+    try {
+      pf.save();
+    } catch (IOException ex) {
+      log.error("Error during FragpipeCacheUtils.saveToFileSorted()", ex);
+    }
   }
 
   /**

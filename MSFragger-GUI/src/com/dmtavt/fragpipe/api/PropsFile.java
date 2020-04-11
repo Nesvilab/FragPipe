@@ -24,6 +24,10 @@ public class PropsFile extends Properties {
     this.comments = comments;
   }
 
+  public String getComments() {
+    return comments;
+  }
+
   public boolean isBackingFileExists() {
     return Files.exists(path);
   }
@@ -40,6 +44,7 @@ public class PropsFile extends Properties {
   }
 
   public void save() throws IOException {
+    log.debug("Writing PropsFile to: {}", path.toString());
     try {
       PathUtils.createDirs(path.getParent());
     } catch (IOException ex) {
