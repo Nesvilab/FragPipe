@@ -39,7 +39,6 @@ import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.FormEntry.Builder;
 import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiUtils;
-import com.sun.source.tree.BreakTree;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
