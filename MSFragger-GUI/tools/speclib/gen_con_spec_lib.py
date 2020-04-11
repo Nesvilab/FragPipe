@@ -415,7 +415,7 @@ if use_easypqp:
 		else:
 			spectra_files = mgfs
 	else:
-		spectra_files = spectra_files0
+		spectra_files = [e.resolve(strict=True) for e in spectra_files0]
 	psm_tsv_file = iproph_RT_aligned / 'psm.tsv'
 	peptide_tsv_file = iproph_RT_aligned / 'peptide.tsv'
 	'easypqp convert --pepxml interact.pep.xml --spectra 1.mgf --unimod unimod.xml --exclude-range -1.5,3.5'
