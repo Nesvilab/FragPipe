@@ -136,6 +136,10 @@ public class FragpipeLocations {
     return pf;
   }
 
+  public Path getJarPath() {
+    return this.jarPath;
+  }
+
   public Path getPathRuntimeCache() {
     return getPathRuntimeCache(false);
   }
