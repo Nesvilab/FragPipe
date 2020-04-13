@@ -54,11 +54,27 @@ public class TextConsole extends JTextPane implements Appendable {
     static Color colorCurrent = cReset;
     
     protected String remaining = "";
+    private final boolean forceWordWrapInsteadOfScroll;
     
-    public TextConsole() {
+    public TextConsole(boolean forceWordWrapInsteadOfScroll) {
+        this.forceWordWrapInsteadOfScroll = forceWordWrapInsteadOfScroll;
     }
-    
-    
+
+    public TextConsole() {
+        this(true);
+    }
+
+    /**
+     * Returns true if a viewport should always force the width of this
+     * <code>Scrollable</code> to match the width of the viewport.
+     *
+     * @return true if a viewport should force the Scrollables width to match its own, false otherwise
+     */
+    @Override
+    public boolean getScrollableTracksViewportWidth() {
+        return forceWordWrapInsteadOfScroll;
+    }
+
     @Override
     public Appendable append(CharSequence csq) throws IOException {
         //append(csq.toString()); // too simple

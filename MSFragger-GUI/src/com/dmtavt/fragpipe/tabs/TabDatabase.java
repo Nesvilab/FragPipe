@@ -85,7 +85,7 @@ public class TabDatabase extends JPanelWithEnablement {
   }
 
   private JPanel createPanelDbSelection() {
-    JPanel p = mu.newPanel("FASTA sequence database", true);
+
     uiTextDbPath = UiUtils.uiTextBuilder().filter("[\"'|<>]").cols(5).create();
     uiTextDbPath.addFocusListener(new ContentChangedFocusAdapter(uiTextDbPath, (s, s2) -> {
       Bus.post(new MessageDbNewPath(s2));
@@ -109,6 +109,7 @@ public class TabDatabase extends JPanelWithEnablement {
 
     epDbInfo = SwingUtils.createClickableHtml(true, "");
 
+    JPanel p = mu.newPanel("FASTA sequence database", true);
     mu.add(p, feDbPath.label()).split();
     mu.add(p, feDbPath.comp).growX();
     mu.add(p, btnBrowse);

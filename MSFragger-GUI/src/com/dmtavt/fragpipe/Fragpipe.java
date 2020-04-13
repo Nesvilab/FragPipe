@@ -315,7 +315,7 @@ public class Fragpipe extends JFrame {
     addTab.accept(new UiTab("Quant", tabQuantitaion, "/umich/msfragger/gui/icons/icon-scales-balance-16.png", null));
     addTab.accept(new UiTab("PTMs", tabPtms, "/umich/msfragger/gui/icons/icon-edit-16.png", null));
     addTab.accept(new UiTab("Spec Lib", tabSpecLib, "/umich/msfragger/gui/icons/icon-library-16.png", null));
-    addTab.accept(new UiTab("Run", tabRun, "/umich/msfragger/gui/icons/video-play-16.png", null));
+    addTabNoScroll.accept(new UiTab("Run", tabRun, "/umich/msfragger/gui/icons/video-play-16.png", null));
 
     log.debug("Done createTabs()");
     return t;
