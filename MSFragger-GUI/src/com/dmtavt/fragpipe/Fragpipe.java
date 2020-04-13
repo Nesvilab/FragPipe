@@ -211,7 +211,7 @@ public class Fragpipe extends JFrame {
   }
 
   private TextConsole createConsole() {
-    TextConsole c = new TextConsole();
+    TextConsole c = new TextConsole(false);
     final Font currentFont = c.getFont();
     c.setFont(new Font(Font.MONOSPACED, currentFont.getStyle(), currentFont.getSize()));
     c.setContentType("text/plain; charset=UTF-8");

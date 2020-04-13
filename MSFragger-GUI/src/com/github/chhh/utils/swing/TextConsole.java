@@ -54,7 +54,7 @@ public class TextConsole extends JTextPane implements Appendable {
     static Color colorCurrent = cReset;
     
     protected String remaining = "";
-    private final boolean forceWordWrapInsteadOfScroll;
+    private boolean forceWordWrapInsteadOfScroll;
     
     public TextConsole(boolean forceWordWrapInsteadOfScroll) {
         this.forceWordWrapInsteadOfScroll = forceWordWrapInsteadOfScroll;
@@ -73,6 +73,10 @@ public class TextConsole extends JTextPane implements Appendable {
     @Override
     public boolean getScrollableTracksViewportWidth() {
         return forceWordWrapInsteadOfScroll;
+    }
+
+    public void setScrollableTracksViewportWidth(boolean preferWordWrap) {
+        forceWordWrapInsteadOfScroll = preferWordWrap;
     }
 
     @Override

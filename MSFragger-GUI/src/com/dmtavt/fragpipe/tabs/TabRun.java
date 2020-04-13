@@ -64,6 +64,7 @@ public class TabRun extends JPanelWithEnablement {
   private JButton btnRun;
   private JPanel pTop;
   private JPanel pConsole;
+  private UiCheck uiCheckWordWrap;
 
   public TabRun(TextConsole console) {
     this.console = console;
@@ -75,7 +76,7 @@ public class TabRun extends JPanelWithEnablement {
     Bus.registerQuietly(this);
   }
 
-  private JPanel createPanelTop() {
+  private JPanel createPanelTop(TextConsole console) {
     JButton btnSaveAsWorkflow = UiUtils.createButton("Save current config as Workflow",
             e -> Bus.post(new MessageSaveAsWorkflow()));
     JButton btnAbout = UiUtils.createButton("About", e -> Bus.post(new MessageShowAboutDialog()));
@@ -131,7 +132,13 @@ public class TabRun extends JPanelWithEnablement {
         SwingUtils.showErrorDialogWithStacktrace(ex, TabRun.this);
       }
     });
-    JButton btnClearConsole = UiUtils.createButton("Clear Console", e -> console.setText(""));
+    JButton btnClearConsole = UiUtils.createButton("Clear Console", e -> this.console.setText(""));
+    uiCheckWordWrap = UiUtils
+        .createUiCheck("Word wrap", console.getScrollableTracksViewportWidth(), e -> {
+          console.setScrollableTracksViewportWidth(uiCheckWordWrap.isSelected());
+          console.setVisible(false);
+          console.setVisible(true);
+        });
 
     JPanel p = mu.newPanel("Top panel", mu.lcFillXNoInsetsTopBottom());
     mu.add(p, btnSaveAsWorkflow).split().spanX();
@@ -146,7 +153,8 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnPrintCommands);
     mu.add(p, btnExport);
     mu.add(p, btnReportErrors);
-    mu.add(p, btnClearConsole).wrap();
+    mu.add(p, btnClearConsole);
+    mu.add(p, uiCheckWordWrap).wrap();
 
     return p;
   }
@@ -161,7 +169,8 @@ public class TabRun extends JPanelWithEnablement {
       defTextColor = Color.BLACK;
     }
 
-    pTop = createPanelTop();
+    pTop = createPanelTop(console);
+
     //pTop.setMinimumSize(new Dimension(300, 50));
     initConsole(console);
     pConsole = createPanelConsole(console);
