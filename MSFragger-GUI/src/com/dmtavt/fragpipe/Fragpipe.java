@@ -6,6 +6,7 @@ import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.UiTab;
+import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
@@ -70,6 +71,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import net.miginfocom.layout.CC;
@@ -384,6 +386,30 @@ public class Fragpipe extends JFrame {
       log.error("Could not write fragpipe cache to: {}", m.path.toString());
     }
     log.debug("Done writing ui state cache to: {}", m.path.toString());
+  }
+
+  @Subscribe(threadMode = ThreadMode.ASYNC)
+  public void on(MessageClearCache m) {
+    log.debug("Got message MessageClearCache");
+    List<Path> paths = FragpipeLocations.get().getCachePaths();
+
+    JEditorPane msg = SwingUtils.createClickableHtml(true,
+        "Delete the following files?\n&nbsp;&nbsp;&nbsp;&nbsp;" + paths.stream().map(p -> p.toAbsolutePath().normalize().toString())
+            .collect(Collectors.joining("\n&nbsp;&nbsp;&nbsp;&nbsp;")));
+
+    int answer = SwingUtils.showConfirmDialog(this, msg);
+    if (JOptionPane.OK_OPTION != answer) {
+      log.debug("User cancelled cache cleaning");
+    } else {
+      try {
+        log.info("Deleting cache files:\n\t" + paths.stream().map(Path::toString)
+            .collect(Collectors.joining("\n\t")));
+        FragpipeLocations.get().delete(paths);
+      } catch (IOException e) {
+        log.error("Error deleting cache files", e);
+        SwingUtils.showErrorDialogWithStacktrace(e, this);
+      }
+    }
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -63,6 +64,21 @@ public class FragpipeLocations {
         }
       }
       locations = new FragpipeLocations(jarPath, cache, tools, lib);
+    }
+  }
+
+  public List<Path> getCachePaths() {
+    List<Path> paths = new ArrayList<>();
+    paths.add(getPathRuntimeCache(false));
+    paths.add(getPathRuntimeCache(true));
+    paths.add(getPathUiCache(false));
+    paths.add(getPathUiCache(true));
+    return paths;
+  }
+
+  public void delete(List<Path> paths) throws IOException {
+    for (Path path : paths) {
+      Files.deleteIfExists(path);
     }
   }
 
