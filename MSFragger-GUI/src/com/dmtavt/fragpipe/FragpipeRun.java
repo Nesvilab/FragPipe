@@ -14,8 +14,10 @@ import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
+import com.dmtavt.fragpipe.tabs.TabQuantitaion;
 import com.dmtavt.fragpipe.tabs.TabRun;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
+import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
 import com.dmtavt.fragpipe.tools.protproph.ProtProphPanel;
 import com.github.chhh.utils.FastaUtils;
 import com.github.chhh.utils.FastaUtils.FastaContent;
@@ -85,7 +87,10 @@ import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcPanel;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.fragger.FraggerMigPanel;
+import umich.msfragger.params.ionquant.QuantPanelLabelfree;
 import umich.msfragger.params.philosopher.ReportPanel;
+import umich.msfragger.params.ptmshepherd.PtmshepherdPanel;
+import umich.msfragger.params.speclib.SpeclibPanel;
 import umich.msfragger.params.tmtintegrator.QuantLabel;
 import umich.msfragger.params.tmtintegrator.TmtiPanel;
 import umich.msfragger.params.umpire.UmpirePanel;
@@ -507,6 +512,10 @@ public class FragpipeRun {
     }
 
     final FraggerMigPanel fp = Fragpipe.getStickyStrict(FraggerMigPanel.class);
+    final int ramGb = fp.getRamGb();
+    final int ramGbNonzero = ramGb > 0 ? ramGb : OsUtils.getDefaultXmx();
+    final int threads = fp.getThreads();
+
 
     // run MSAdjuster
     final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(fp.isRun() && fp.isMsadjuster(), wd);
@@ -523,10 +532,10 @@ public class FragpipeRun {
     final NoteConfigMsfragger configMsfragger = Fragpipe.getStickyStrict(NoteConfigMsfragger.class);
     final UsageTrigger binMsfragger = new UsageTrigger(configMsfragger.path, "MsFragger");
     TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
+    final String decoyTag = tabDatabase.getDecoyTag();
 
     final CmdMsfragger cmdMsfragger = new CmdMsfragger(fp.isRun(), wd, fp.getParams().getPrecursorMassUnits(), fp.getParams().getOutputReportTopN());
     if (cmdMsfragger.isRun()) {
-      final String decoyTag = tabDatabase.getDecoyTag();
       if (!cmdMsfragger.configure(parent, isDryRun, fp, jarPath, binMsfragger, fastaFile, lcmsFiles, decoyTag)) {
         return false;
       }
@@ -570,9 +579,8 @@ public class FragpipeRun {
     final CmdCrystalc cmdCrystalc = new CmdCrystalc(crystalcPanel.isRun(), wd);
     if (cmdCrystalc.isRun()) {
       CrystalcParams ccParams = crystalcPanel.toParams();
-      final int fraggerThreads = fp.getThreads();
-      if (fraggerThreads > 0) {
-        ccParams.setThread(fraggerThreads);
+      if (threads > 0) {
+        ccParams.setThread(threads);
       }
       if (!cmdCrystalc.configure(parent, fp, isDryRun, Paths.get(binMsfragger.getBin()), ccParams, fastaFile, pepxmlFiles)) {
         return false;
@@ -582,14 +590,15 @@ public class FragpipeRun {
     }
 
     // run Peptide Prophet
-    final boolean isRunPeptideProphet = SwingUtils.isEnabledAndChecked(msfgf.getChkRunPeptideProphet());
-    final boolean isCombinedPepxml = msfgf.getCheckCombinedPepxml().isSelected();
-    final String decoyTag = msfgf.getTextDecoyTagSeqDb().getText().trim();
+    PepProphPanel pepProphPanel = Fragpipe.getStickyStrict(PepProphPanel.class);
+    final boolean isRunPeptideProphet = pepProphPanel.isRun();
+    final boolean isCombinedPepxml = pepProphPanel.isCombinePepxml();
+
     CmdPeptideProphet cmdPeptideProphet = new CmdPeptideProphet(isRunPeptideProphet, wd);
     if (cmdPeptideProphet.isRun()) {
-      final String pepProphCmd = msfgf.getTextPepProphCmd().getText().trim();
-      final String enzymeName = msfgf.fraggerMigPanel.getEnzymeName();
-      if (!cmdPeptideProphet.configure(msfgf, usePhi, jarFragpipe, isDryRun,
+      final String pepProphCmd = pepProphPanel.getCmdOpts();
+      final String enzymeName = fp.getEnzymeName();
+      if (!cmdPeptideProphet.configure(parent, usePhi, jarPath, isDryRun,
           fastaFile, decoyTag, pepProphCmd, isCombinedPepxml, enzymeName, pepxmlFiles)) {
         return false;
       }
@@ -598,12 +607,12 @@ public class FragpipeRun {
     pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, fp.getOutputFileExt(), isCombinedPepxml);
 
     // run Protein Prophet
-    final boolean isRunProteinProphet = SwingUtils.isEnabledAndChecked(
-        msfgf.getChkRunProteinProphet());
+
+    final boolean isRunProteinProphet = protProphPanel.isRun();
     final CmdProteinProphet cmdProteinProphet = new CmdProteinProphet(isRunProteinProphet, wd);
     if (cmdProteinProphet.isRun()) {
-      final String protProphCmdStr = msfgf.getTxtProteinProphetCmdLineOpts().getText().trim();
-      if (!cmdProteinProphet.configure(msfgf,
+      final String protProphCmdStr = protProphPanel.getCmdOpts();
+      if (!cmdProteinProphet.configure(parent,
           usePhi, protProphCmdStr, isMuiltiExperimentReport,
           isProcessGroupsSeparately, pepxmlFiles)) {
         return false;
@@ -614,8 +623,8 @@ public class FragpipeRun {
 
     // Check Decoy tags if any of the downstream tools are requested
     if (cmdPeptideProphet.isRun() || cmdProteinProphet.isRun()) {
-      if (StringUtils.isNullOrWhitespace(msfgf.getTextDecoyTagSeqDb().getText())) {
-        int confirm = JOptionPane.showConfirmDialog(msfgf,
+      if (StringUtils.isNullOrWhitespace(decoyTag)) {
+        int confirm = JOptionPane.showConfirmDialog(parent,
             "Downstream analysis tools require decoys in the database,\n"
                 + "but the decoy tag was left empty. It's recommended that\n"
                 + "you set it.\n\n"
@@ -627,25 +636,26 @@ public class FragpipeRun {
       }
     }
 
-    final boolean isReport = msfgf.getPanelReportOptions().isGenerateReport();
-    final boolean isFreequant = msfgf.getPanelQuant().isFreequant();
+
+    final boolean isReport = reportPanel.isGenerateReport();
+    QuantPanelLabelfree quantPanelLabelfree = Fragpipe.getStickyStrict(QuantPanelLabelfree.class);
+    final boolean isFreequant = quantPanelLabelfree.isFreequant();
     if (isReport) {
       // run Report - DbAnnotate
       final boolean isDbAnnotate = true;
       final CmdPhilosopherDbAnnotate cmdPhilosopherDbAnnotate = new CmdPhilosopherDbAnnotate(isDbAnnotate, wd);
       if (cmdPhilosopherDbAnnotate.isRun()) {
         if (!cmdPhilosopherDbAnnotate
-            .configure(msfgf, usePhi, fastaFile, decoyTag, pepxmlFiles, mapGroupsToProtxml)) {
+            .configure(parent, usePhi, fastaFile, decoyTag, pepxmlFiles, mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(cmdPhilosopherDbAnnotate.getBuilderDescriptor());
       }
 
       // run Report - Filter
-      final boolean isFilter = isReport;
-      final CmdPhilosopherFilter cmdPhilosopherFilter = new CmdPhilosopherFilter(isFilter, wd);
+      final CmdPhilosopherFilter cmdPhilosopherFilter = new CmdPhilosopherFilter(isReport, wd);
       if (cmdPhilosopherFilter.isRun()) {
-        final boolean isCheckFilterNoProtxml = msfgf.getPanelReportOptions().isNoProtXml();
+        final boolean isCheckFilterNoProtxml = reportPanel.isNoProtXml();
 
         // if ProtProph is not run but protxml is there - query the user
         boolean dontUseProtxmlInFilter;
@@ -668,7 +678,7 @@ public class FragpipeRun {
           }
           if (allProtxmlsExist) {
             // ProtProph is not run, but all protxmls are there
-            int confirm = JOptionPane.showConfirmDialog(msfgf,
+            int confirm = JOptionPane.showConfirmDialog(parent,
                 "Protein Prophet is not run, but prot.xml files for all groups\n"
                     + "do already exist:\n\n"
                     + paths
@@ -684,8 +694,8 @@ public class FragpipeRun {
           dontUseProtxmlInFilter = isCheckFilterNoProtxml;
         }
 
-        if (!cmdPhilosopherFilter.configure(msfgf, usePhi,
-            decoyTag, msfgf.getPanelReportOptions().getFilterCmdText(), dontUseProtxmlInFilter, mapGroupsToProtxml)) {
+        if (!cmdPhilosopherFilter.configure(parent, usePhi,
+            decoyTag, reportPanel.getFilterCmdText(), dontUseProtxmlInFilter, mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(cmdPhilosopherFilter.getBuilderDescriptor());
@@ -693,33 +703,32 @@ public class FragpipeRun {
 
       // run Report - Report command itself
       final CmdPhilosopherReport cmdPhilosopherReport = new CmdPhilosopherReport(isReport, wd);
-      final boolean doPrintDecoys = msfgf.getPanelReportOptions().isPrintDecoys();
+      final boolean doPrintDecoys = reportPanel.isPrintDecoys();
 //      final boolean doMzid = comboReportOutputFormat.getSelectedItem().toString().toLowerCase().contains("mzid");
-      final boolean doMzid = msfgf.getPanelReportOptions().isWriteMzid();
+      final boolean doMzid = reportPanel.isWriteMzid();
       if (cmdPhilosopherReport.isRun()) {
-        if (!cmdPhilosopherReport.configure(msfgf, usePhi, doPrintDecoys, doMzid, mapGroupsToProtxml)) {
+        if (!cmdPhilosopherReport.configure(parent, usePhi, doPrintDecoys, doMzid, mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(cmdPhilosopherReport.getBuilderDescriptor());
       }
 
       // run Report - Multi-Experiment report
-      final int nThreads = msfgf.fraggerMigPanel.getThreads();
       final CmdPhilosopherAbacus cmdPhilosopherAbacus = new CmdPhilosopherAbacus(isMuiltiExperimentReport, wd);
-      final boolean isMultiexpPepLevelSummary = msfgf.getPanelReportOptions().isPepSummary();
+      final boolean isMultiexpPepLevelSummary = reportPanel.isPepSummary();
       if (cmdPhilosopherAbacus.isRun()) {
 
         // run iProphet, will run right after Peptide Prophet because of priority setting
         if (isMultiexpPepLevelSummary) { // iProphet is not needed if we don't generate peptide level summry
           final CmdIprophet cmdIprophet = new CmdIprophet(cmdPhilosopherAbacus.isRun(), wd);
-          if (!cmdIprophet.configure(msfgf, usePhi, decoyTag, nThreads, pepxmlFiles)) {
+          if (!cmdIprophet.configure(parent, usePhi, decoyTag, threads, pepxmlFiles)) {
             return false;
           }
           pbDescs.add(cmdIprophet.getBuilderDescriptor());
         }
 
         // run Abacus
-        if (!cmdPhilosopherAbacus.configure(msfgf, usePhi, msfgf.getPanelReportOptions().getFilterCmdText(),
+        if (!cmdPhilosopherAbacus.configure(parent, usePhi, reportPanel.getFilterCmdText(),
             isMultiexpPepLevelSummary, decoyTag, mapGroupsToProtxml)) {
           return false;
         }
@@ -729,20 +738,19 @@ public class FragpipeRun {
       // run Report - Freequant (Labelfree)
       final CmdFreequant cmdFreequant = new CmdFreequant(isFreequant, wd);
       if (cmdFreequant.isRun()) {
-        if (!cmdFreequant.configure(msfgf, usePhi, msfgf.getPanelQuant().getFreequantOptsAsText(), mapGroupsToProtxml)) {
+        if (!cmdFreequant.configure(parent, usePhi, quantPanelLabelfree.getFreequantOptsAsText(), mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(cmdFreequant.getBuilderDescriptor());
       }
 
       // run Report - IonQuant (Labelfree)
-      final boolean isIonquant = msfgf.getPanelQuant().isIonquant();
+      final boolean isIonquant = quantPanelLabelfree.isIonquant();
       final CmdIonquant cmdIonquant = new CmdIonquant(isIonquant, wd);
       if (cmdIonquant.isRun()) {
-        final int ramGb = fp.getRamGb() > 0 ? fp.getRamGb() : OsUtils.getDefaultXmx();
         if (!cmdIonquant.configure(
-            msfgf, Paths.get(binMsfragger.getBin()), ramGb, msfgf.getPanelQuant().toMap(),
-            pepxmlFilesFromMsfragger, mapGroupsToProtxml, nThreads)) {
+            parent, Paths.get(binMsfragger.getBin()), ramGbNonzero, quantPanelLabelfree.toMap(),
+            pepxmlFilesFromMsfragger, mapGroupsToProtxml, threads)) {
           return false;
         }
         pbDescs.add(cmdIonquant.getBuilderDescriptor());
@@ -750,13 +758,13 @@ public class FragpipeRun {
     }
 
 
-    final TmtiPanel tmtPanel = msfgf.getTmtPanel();
-    final boolean isTmt = tmtPanel.isRun();
+    final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
+    final boolean isTmt = tmtiPanel.isRun();
     if (isTmt) {
       // check file compatibility separately, as single tools will report errors
       // that look like they are unrelated to TMT
       if (lcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml"))) {
-        SwingUtils.showWarningDialog(msfgf,
+        SwingUtils.showWarningDialog(parent,
             CmdTmtIntegrator.NAME + " only supports mzML files.\n"
                 + "Please remove other files from the input list.", CmdTmtIntegrator.NAME + "error");
         return false;
@@ -769,13 +777,13 @@ public class FragpipeRun {
             + "This will interfere with FreeQuant files generated as part of TMT<br/>\n"
             + "processing.<br/>\n"
             + "Please turn off standalone FreeQuant.<br/>\n";
-        JOptionPane.showMessageDialog(msfgf, msg, "Warning", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(parent, msg, "Warning", JOptionPane.WARNING_MESSAGE);
         return false;
       }
       { // run freequant
         CmdFreequant fq = new CmdFreequant(true, wd);
-        String opts = tmtPanel.getFreequantOptsAsText();
-        if (!fq.configure(msfgf, usePhi, opts, mapGroupsToProtxml)) {
+        String opts = tmtiPanel.getFreequantOptsAsText();
+        if (!fq.configure(parent, usePhi, opts, mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(fq.getBuilderDescriptor());
@@ -784,18 +792,18 @@ public class FragpipeRun {
         // run LabelQuant - as part of TMT-I
         List<String> forbiddenOpts = Arrays.asList("--plex", "--annot", "--dir");
         CmdLabelquant lq = new CmdLabelquant(true, wd);
-        String opts = tmtPanel.getLabelquantOptsAsText();
-        QuantLabel label = tmtPanel.getSelectedLabel();
-        Map<LcmsFileGroup, Path> annotations = tmtPanel.getAnnotations();
-        if (!lq.configure(msfgf, isDryRun, usePhi, opts, label, forbiddenOpts, annotations, mapGroupsToProtxml)) {
+        String opts = tmtiPanel.getLabelquantOptsAsText();
+        QuantLabel label = tmtiPanel.getSelectedLabel();
+        Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
+        if (!lq.configure(parent, isDryRun, usePhi, opts, label, forbiddenOpts, annotations, mapGroupsToProtxml)) {
           return false;
         }
         pbDescs.add(lq.getBuilderDescriptor());
       }
       // run TMT-Integrator
       CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(isTmt, wd);
-      if (!cmdTmt.configure(msfgf.getTmtPanel(), isDryRun,
-          msfgf.fraggerMigPanel.getRamGb(), msfgf.getFastaPath(), mapGroupsToProtxml)) {
+      if (!cmdTmt.configure(tmtiPanel, isDryRun,
+          ramGb, fastaFile, mapGroupsToProtxml)) {
         return false;
       }
       pbDescs.add(cmdTmt.getBuilderDescriptor());
@@ -807,12 +815,12 @@ public class FragpipeRun {
       try {
         fasta = FastaUtils.readFasta(Paths.get(fastaFile));
       } catch (IOException e) {
-        SwingUtils.showErrorDialogWithStacktrace(e, msfgf);
+        SwingUtils.showErrorDialogWithStacktrace(e, parent);
         return false;
       }
       double decoysPercentage = FastaUtils.getDecoysPct(fasta.ordered.get(0), decoyTag);
       if (decoysPercentage <= 0) {
-        int confirm = SwingUtils.showConfirmDialog(msfgf, new JLabel(
+        int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
             "<html>No decoys found in the FASTA file.<br/>\n" +
                 "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
                 "<br/>\n" +
@@ -821,7 +829,7 @@ public class FragpipeRun {
           return false;
         }
       } else if (decoysPercentage >= 1) {
-        int confirm = SwingUtils.showConfirmDialog(msfgf, new JLabel(
+        int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
             "<html>All FASTA entries seem to be decoys.<br/>\n" +
                 "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
                 "<br/>\n" +
@@ -831,7 +839,7 @@ public class FragpipeRun {
         }
       } else if (decoysPercentage < 0.4 || decoysPercentage > 0.6) {
         DecimalFormat dfPct = new DecimalFormat("##.#'%'");
-        int confirm = SwingUtils.showConfirmDialog(msfgf, new JLabel(
+        int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
             "<html>FASTA file contains " + dfPct.format(decoysPercentage * 100)  + ".<br/>\n" +
                 "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
                 "<br/>\n" +
@@ -844,30 +852,29 @@ public class FragpipeRun {
     }
 
     // run PTMShepherd
-    final boolean isRunShepherd = msfgf.getPtmshepherdPanel().isRunShepherd();
-    final boolean isPtmsFormValid = msfgf.getPtmshepherdPanel().validateForm();
+    PtmshepherdPanel ptmshepherdPanel = Fragpipe.getStickyStrict(PtmshepherdPanel.class);
+    final boolean isRunShepherd = ptmshepherdPanel.isRunShepherd();
+    final boolean isPtmsFormValid = ptmshepherdPanel.validateForm();
     final CmdPtmshepherd cmdPtmshepherd = new CmdPtmshepherd(isRunShepherd, wd);
     if (cmdPtmshepherd.isRun()) {
       if (!isPtmsFormValid) {
-        JOptionPane.showMessageDialog(msfgf,
+        JOptionPane.showMessageDialog(parent,
             "There are errors in PTM-Shepherd configuraiton panel on Report tab.",
             "PTMShepherd Error", JOptionPane.ERROR_MESSAGE);
         return false;
       }
       Path fastaPath = Paths.get(fastaFile);
-      int ramGb = fp.getRamGb();
-      int threads = fp.getThreads();
-      Map<String, String> additionalShepherdParams = msfgf.getPtmshepherdPanel().toMap();
+      Map<String, String> additionalShepherdParams = ptmshepherdPanel.toMap();
       if (threads > 0) {
         additionalShepherdParams.put("threads", Integer.toString(threads));
       }
-      String massOffsets = msfgf.fraggerMigPanel.getMassOffsets();
+      String massOffsets = fp.getMassOffsets();
       if (!StringUtils.isNullOrWhitespace(massOffsets)) {
         additionalShepherdParams.put("mass_offsets", massOffsets);
       }
-      Optional.ofNullable(msfgf.fraggerMigPanel.getUiTextIsoErr().getNonGhostText())
+      Optional.ofNullable(fp.getUiTextIsoErr().getNonGhostText())
           .filter(StringUtils::isNotBlank).ifPresent(v -> additionalShepherdParams.put("isotope_error", v));
-      if (!cmdPtmshepherd.configure(msfgf, isDryRun, Paths.get(binMsfragger.getBin()),
+      if (!cmdPtmshepherd.configure(parent, isDryRun, Paths.get(binMsfragger.getBin()),
           ramGb, fastaPath, mapGroupsToProtxml, additionalShepherdParams)) {
         return false;
       }
@@ -876,11 +883,12 @@ public class FragpipeRun {
 
 
     // run Spectral library generation
-    final boolean isRunSpeclibgen = msfgf.getSpeclibPanel1().isRunSpeclibgen();
-    final boolean useEasypqp = msfgf.getSpeclibPanel1().useEasypqp();
+    SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
+    final boolean isRunSpeclibgen = speclibPanel.isRunSpeclibgen();
+    final boolean useEasypqp = speclibPanel.useEasypqp();
     final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(isRunSpeclibgen, wd);
     if (cmdSpecLibGen.isRun()) {
-      if (!cmdSpecLibGen.configure(msfgf, usePhi, jarFragpipe,
+      if (!cmdSpecLibGen.configure(parent, usePhi, jarPath,
           mapGroupsToProtxml, fastaFile, isRunProteinProphet, useEasypqp)) {
         return false;
       }
@@ -912,7 +920,7 @@ public class FragpipeRun {
           }
         }
       } catch (IOException e) {
-        JOptionPane.showMessageDialog(msfgf,
+        JOptionPane.showMessageDialog(parent,
             "Not all directories could be created:\n" + e.getMessage());
         return false;
       }

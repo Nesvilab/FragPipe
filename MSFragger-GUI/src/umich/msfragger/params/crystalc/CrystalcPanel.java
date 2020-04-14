@@ -49,11 +49,6 @@ public class CrystalcPanel extends JPanelBase {
   private UiSpinnerDouble uiSpinnerPrecIsol;
   public static final String PREFIX = "crystalc.";
 
-  public CrystalcPanel() {
-    init();
-    initMore();
-  }
-
   @Override
   protected ItemSelectable getRunCheckbox() {
     return checkRun;

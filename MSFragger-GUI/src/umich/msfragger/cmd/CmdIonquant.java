@@ -101,15 +101,15 @@ public class CmdIonquant extends CmdBase {
     cmd.add("--threads");
     cmd.add(String.valueOf(nThreads));
     cmd.add("--mztol");
-    cmd.add(getOrThrow(uiCompsRepresentation, "ui.ionquant.mz-tol"));
+    cmd.add(getOrThrow(uiCompsRepresentation, "ionquant.mz-tol"));
     cmd.add("--imtol");
-    cmd.add(getOrThrow(uiCompsRepresentation, "ui.ionquant.im-tol"));
+    cmd.add(getOrThrow(uiCompsRepresentation, "ionquant.im-tol"));
     cmd.add("--rttol");
-    cmd.add(getOrThrow(uiCompsRepresentation, "ui.ionquant.rt-tol"));
+    cmd.add(getOrThrow(uiCompsRepresentation, "ionquant.rt-tol"));
     cmd.add("--minfreq");
-    cmd.add(getOrThrow(uiCompsRepresentation, "ui.ionquant.min-freq"));
+    cmd.add(getOrThrow(uiCompsRepresentation, "ionquant.min-freq"));
     cmd.add("--plot");
-    cmd.add(getOrThrow(uiCompsRepresentation, "ui.ionquant.is-plot").contentEquals("true") ? "1" : "0");
+    cmd.add(getOrThrow(uiCompsRepresentation, "ionquant.is-plot").contentEquals("true") ? "1" : "0");
 
     for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
       LcmsFileGroup group = e.getKey();

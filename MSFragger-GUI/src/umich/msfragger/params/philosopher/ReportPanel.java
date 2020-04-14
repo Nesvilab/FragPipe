@@ -51,12 +51,6 @@ public class ReportPanel extends JPanelBase {
   private UiCheck uiCheckPrintDecoys;
   private UiCheck uiCheckDontUseProtProphFile;
 
-
-  public ReportPanel() {
-    init();
-    initMore();
-  }
-
   @Override
   protected ItemSelectable getRunCheckbox() {
     return checkRun;

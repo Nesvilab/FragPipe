@@ -3,6 +3,7 @@ package com.dmtavt.fragpipe.tools.protproph;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
+import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.UiCheck;
@@ -31,6 +32,15 @@ public class ProtProphPanel extends JPanelBase {
 
   public boolean isProcessGroupsSeparately() {
     return uiCheckSeparateProtxml.isSelected();
+  }
+
+
+  public boolean isRun() {
+    return SwingUtils.isEnabledAndChecked(checkRun);
+  }
+
+  public String getCmdOpts() {
+    return uiTextCmdOpts.getNonGhostText().trim();
   }
 
   @Override

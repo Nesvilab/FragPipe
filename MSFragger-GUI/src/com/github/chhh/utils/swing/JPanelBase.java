@@ -35,10 +35,21 @@ public abstract class JPanelBase extends JPanelWithEnablement {
       SwingUtils.setEnablementUpdater(this, getEnablementToggleComponent(), getRunCheckbox());
     }
 
-    log.debug("Trying to register quietly on the bus: {}", this.getClass().getCanonicalName());
+    log.debug("Trying to register quietly on the bus: {}. (Caller: {})", this.getClass().getCanonicalName(), tryGetCallerForLog());
     Bus.registerQuietly(this);
     if (doPostSelfAsSticky()) {
       Bus.postSticky(this);
     }
+  }
+
+  public static String tryGetCallerForLog() {
+    StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+    if (trace != null && trace.length > 2) {
+      StackTraceElement t = trace[2];
+      return String
+          .join(", ", "Class: " + t.getClassName(), "Method: " + t.getMethodName(),
+              "Line: " + t.getLineNumber());
+    }
+    return "N/A";
   }
 }

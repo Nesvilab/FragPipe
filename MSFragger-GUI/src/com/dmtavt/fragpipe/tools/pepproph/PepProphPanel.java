@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.tools.pepproph;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
+import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
@@ -33,9 +34,16 @@ public class PepProphPanel extends JPanelBase {
   private JPanel pContent;
   public static final String PREFIX = "peptide-prophet.";
 
-  public PepProphPanel() {
-    init();
-    initMore();
+  public boolean isRun() {
+    return SwingUtils.isEnabledAndChecked(checkRun);
+  }
+
+  public String getCmdOpts() {
+    return uiTextCmdOpts.getNonGhostText().trim();
+  }
+
+  public boolean isCombinePepxml() {
+    return uiCheckCombinePepxml.isSelected();
   }
 
   @Override

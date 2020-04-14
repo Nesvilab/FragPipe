@@ -127,13 +127,9 @@ public class LogUtils {
     public static final void print(final Color c, final TextConsole out, boolean doOnEDT,
             final String toPrint, final boolean appendNewLine) {
         Runnable runnable = () -> {
-            try {
-                out.append(c, toPrint);
-                if (appendNewLine) {
-                    out.append("\n");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            out.append(c, toPrint);
+            if (appendNewLine) {
+                out.append("\n");
             }
         };
 
@@ -148,13 +144,9 @@ public class LogUtils {
     public static final void printWithAnsiColorCodes(final TextConsole out, boolean doOnEDT,
         final String toPrint, final boolean appendNewLine) {
         Runnable runnable = () -> {
-            try {
-                out.append(toPrint);
-                if (appendNewLine) {
-                    out.append("\n");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            out.append(toPrint);
+            if (appendNewLine) {
+                out.append("\n");
             }
         };
 
