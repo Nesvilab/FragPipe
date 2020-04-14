@@ -23,9 +23,13 @@ import static umich.msfragger.params.umpire.UmpireParams.PROP_Thread;
 import static umich.msfragger.params.umpire.UmpireParams.PROP_WindowSize;
 import static umich.msfragger.params.umpire.UmpireParams.PROP_WindowType;
 
+import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
+import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.UiText;
 import java.awt.Component;
 import java.awt.Container;
@@ -59,13 +63,9 @@ import javax.swing.text.NumberFormatter;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import org.greenrobot.eventbus.EventBus;
 import rx.swing.sources.DocumentEventSource;
 import umich.msfragger.cmd.ToolingUtils;
-import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import umich.msfragger.params.ThisAppProps;
-import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.swing.FormEntry;
 
 public class UmpirePanel extends JPanel {
   public JCheckBox checkRunUmpireSe;
@@ -105,8 +105,13 @@ public class UmpirePanel extends JPanel {
       PROP_WindowSize);
 
   public UmpirePanel() {
-    //EventBus.getDefault().register(this);
     initMore();
+    Bus.registerQuietly(this);
+    Bus.postSticky(this);
+  }
+
+  public boolean isRunUmpire() {
+    return SwingUtils.isEnabledAndChecked(checkRunUmpireSe);
   }
 
   private void initMore() {
@@ -323,12 +328,12 @@ public class UmpirePanel extends JPanel {
     enablePanels(checkRunUmpireSe.isSelected());
     checkRunUmpireSe.addChangeListener(e -> {
       final boolean isRun = checkRunUmpireSe.isSelected();
-      MessageIsUmpireRun m = EventBus.getDefault().getStickyEvent(MessageIsUmpireRun.class);
+      MessageIsUmpireRun m = Bus.getStickyEvent(MessageIsUmpireRun.class);
       if (m != null && m.isEnabled == isRun) {
         return; // no change since we last observed it
       }
       enablePanels(isRun);
-      EventBus.getDefault().postSticky(new MessageIsUmpireRun(isRun));
+      Bus.postSticky(new MessageIsUmpireRun(isRun));
     });
 
     reloadUmpireParams();

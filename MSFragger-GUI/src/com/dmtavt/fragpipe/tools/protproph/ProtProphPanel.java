@@ -29,6 +29,10 @@ public class ProtProphPanel extends JPanelBase {
   private JPanel pTop;
   private JPanel pContent;
 
+  public boolean isProcessGroupsSeparately() {
+    return uiCheckSeparateProtxml.isSelected();
+  }
+
   @Override
   protected ItemSelectable getRunCheckbox() {
     return checkRun;
@@ -62,6 +66,15 @@ public class ProtProphPanel extends JPanelBase {
     FormEntry feCmdOpts = mu.feb("cmd-opts", uiTextCmdOpts).label("Cmd line opts:").create();
     uiCheckSeparateProtxml = UiUtils
         .createUiCheck("Separate Protein Prophet prot.xml file per experiment / group", false);
+    uiCheckSeparateProtxml.setToolTipText(
+        "<html><b>Uncheck</b> if you want a report comparing protein abundances across<br/>\n" +
+            "experiments or just want a single protein identification result from all<br/>\n" +
+            "the runs.<br/>\n" +
+            "<b>Only check</b> if you want peptide/protein ID results<br/>\n" +
+            "for each experiment separately. E.g. this might be useful if you have<br/>\n" +
+            "100 files on hand and use the \"assign to experiments\" feature to quickly<br/>\n" +
+            "run MSFragger + downstream processing on each of those and get a pepxml<br/>\n" +
+            "and/or protxml files.");
 
     mu.layout(this, mu.lcFillXNoInsetsTopBottom());
     mu.border(this, "ProteinProphet");

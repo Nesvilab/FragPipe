@@ -538,16 +538,23 @@ public class Fragpipe extends JFrame {
     throw new IllegalStateException("Runtime properties should always at least be initialized to empty Properties object");
   }
 
+  public static void propsVarSet(String name, String value) {
+    propsVar().setProperty(name, value);
+  }
+  public static String propsVarGet(String name) {
+    return propsVar().getProperty(name);
+  }
+  public static String propsVarGet(String name, String defaultVal) {
+    String v = propsVar().getProperty(name);
+    return v == null ? defaultVal : v;
+  }
+
   public static PropsFile propsUi() {
     NoteFragpipeCache p = Bus.getStickyEvent(NoteFragpipeCache.class);
     if (p != null && p.propsUiState != null) {
       return p.propsUiState;
     }
     throw new IllegalStateException("UI State properties should always at least be initialized to empty Properties object");
-  }
-
-  public static void propsVarSet(String name, String value) {
-    propsVar().setProperty(name, value);
   }
 
   public static <T> T getStickyStrict(Class<T> clazz) {

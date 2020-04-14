@@ -1,6 +1,7 @@
 package com.dmtavt.fragpipe.tabs;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeRun;
 import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
@@ -92,6 +93,11 @@ public class TabRun extends JPanelWithEnablement {
     if (m.addNewline) {
       console.append("");
     }
+  }
+
+  @Subscribe(threadMode = ThreadMode.ASYNC)
+  public void on(MessageRun m) {
+    FragpipeRun.run(m);
   }
 
   private JPanel createPanelTop(TextConsole console) {
