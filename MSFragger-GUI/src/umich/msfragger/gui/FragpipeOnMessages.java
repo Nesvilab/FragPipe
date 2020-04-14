@@ -206,6 +206,8 @@ public class FragpipeOnMessages {
       }
     }
 
+
+    // check input LCMS files
     List<InputLcmsFile> lcmsExpEmptyRepNonNull = msfgf.getLcmsFileGroups().values().stream()
         .flatMap(g -> g.lcmsFiles.stream())
         .filter(lcms -> StringUtils.isNullOrWhitespace(lcms.getExperiment())
@@ -227,7 +229,6 @@ public class FragpipeOnMessages {
     final List<InputLcmsFile> lcmsFilesAll = lcmsFileGroups.values().stream()
         .flatMap(group -> group.lcmsFiles.stream()).collect(Collectors.toCollection(ArrayList::new));
 
-    // check input LCMS files
     if (lcmsFilesAll.isEmpty()) {
       JOptionPane.showMessageDialog(msfgf, "No LC/MS data files selected.\n"
           + "Check 'Select Raw Files' tab.", "Error", JOptionPane.WARNING_MESSAGE);
@@ -268,8 +269,8 @@ public class FragpipeOnMessages {
       }
     }
 
-    DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-    String dateString = df.format(new Date());
+//    DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+//    String dateString = df.format(new Date());
 
     URI jarFragpipeUri = null;
     Path jarFragpipePath = null;

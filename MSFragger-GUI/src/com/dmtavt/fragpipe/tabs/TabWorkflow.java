@@ -29,8 +29,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -54,6 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.cmd.CmdMsfragger;
 import umich.msfragger.gui.InputLcmsFile;
+import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.gui.LcmsInputFileTable;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils.LcmsFileAddition;
@@ -91,6 +95,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private void initMore() {
     tableRawFilesFileDrop = makeFileDrop(); // file drop is registered after all components are created
     Bus.register(this);
+    Bus.postSticky(this);
   }
 
   private void init() {
@@ -449,5 +454,22 @@ public class TabWorkflow extends JPanelWithEnablement {
       InputLcmsFile f = m.dataGet(i);
       m.dataSet(i, new InputLcmsFile(f.getPath(), "exp", i + 1));
     }
+  }
+
+  public Map<String, LcmsFileGroup> getLcmsFileGroups() {
+    List<InputLcmsFile> lcmsInputs = tableModelRawFiles.dataCopy();
+    Map<String, List<InputLcmsFile>> mapGroup2Files = lcmsInputs.stream()
+        .collect(Collectors.groupingBy(InputLcmsFile::getGroup));
+
+    Map<String, LcmsFileGroup> result = new TreeMap<>();
+    for (Entry<String, List<InputLcmsFile>> e : mapGroup2Files.entrySet()) {
+      result.put(e.getKey(), new LcmsFileGroup(e.getKey(), e.getValue()));
+    }
+
+    return result;
+  }
+
+  public List<InputLcmsFile> getLcmsFiles() {
+    return tableModelRawFiles.dataCopy();
   }
 }
