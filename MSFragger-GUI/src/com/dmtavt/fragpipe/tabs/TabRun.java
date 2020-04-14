@@ -88,7 +88,10 @@ public class TabRun extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessagePrintToConsole m) {
-    console.
+    console.append(m.color, m.text);
+    if (m.addNewline) {
+      console.append("");
+    }
   }
 
   private JPanel createPanelTop(TextConsole console) {

@@ -80,7 +80,7 @@ public class TextConsole extends JTextPane implements Appendable {
     }
 
     @Override
-    public Appendable append(CharSequence csq) throws IOException {
+    public Appendable append(CharSequence csq) {
         //append(csq.toString()); // too simple
         
         // old non-colored implementation
@@ -97,7 +97,7 @@ public class TextConsole extends JTextPane implements Appendable {
     }
 
     @Override
-    public Appendable append(CharSequence csq, int start, int end) throws IOException {
+    public Appendable append(CharSequence csq, int start, int end) {
         //append(csq.subSequence(start, end).toString()); // too simple
         
         // old non-colored implementation
@@ -114,7 +114,7 @@ public class TextConsole extends JTextPane implements Appendable {
     }
 
     @Override
-    public Appendable append(char c) throws IOException {
+    public Appendable append(char c) {
         //append(Character.toString(c));
         StyledDocument doc = getStyledDocument();
         try {

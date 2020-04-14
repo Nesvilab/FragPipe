@@ -5,6 +5,7 @@ import static com.dmtavt.fragpipe.Version.PROP_LAST_RELEASE_VER;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.Notifications;
+import com.dmtavt.fragpipe.api.PropsFile;
 import com.dmtavt.fragpipe.api.UiTab;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
@@ -97,6 +98,11 @@ public class Fragpipe extends JFrame {
   public static final Color COLOR_RED_DARKER = new Color(166, 56, 68);
   public static final Color COLOR_RED_DARKEST = new Color(155, 35, 29);
   public static final Color COLOR_BLACK = new Color(0, 0, 0);
+
+  public static final Color COLOR_TOOL = new Color(140, 3, 89);
+  public static final Color COLOR_WORKDIR = new Color(6, 2, 140);
+  public static final Color COLOR_CMDLINE = new Color(0, 107, 109);
+
   private static final String TAB_NAME_LCMS = "Workflow";
   private static final String TAB_NAME_UMPIRE = "DIA-Umpire SE";
   public static final String PREFIX_FRAGPIPE = "fragpipe.";
@@ -146,6 +152,7 @@ public class Fragpipe extends JFrame {
     NoteFragpipeCache cache = Bus.getStickyEvent(NoteFragpipeCache.class);
     if (cache == null)
       throw new IllegalStateException("cache NoteFragpipeCache can't be null");
+    new PropsFile()
     Properties tabsAsProps = FragpipeCacheUtils.tabsSave(tabs);
     PropertiesUtils.merge(cache.propsUiState, Collections.singletonList(tabsAsProps));
     log.debug("Saving ui cache: collected {} properties from UI. Size after merging with cached object: {}.",
@@ -496,7 +503,7 @@ public class Fragpipe extends JFrame {
     return Collections.singletonList(Paths.get(conf.path));
   }
 
-  public static void getPropAndSetVal(String prop, Component comp) {
+  public static void getPropsFixAndSetVal(String prop, Component comp) {
     String v = propsFix().getProperty(prop);
     if (v == null) {
       log.warn("No property in bundle: {}", prop);
@@ -529,6 +536,14 @@ public class Fragpipe extends JFrame {
       return p.propsRuntime;
     }
     throw new IllegalStateException("Runtime properties should always at least be initialized to empty Properties object");
+  }
+
+  public static Properties propsUi() {
+    NoteFragpipeCache p = Bus.getStickyEvent(NoteFragpipeCache.class);
+    if (p != null && p.propsUiState != null) {
+      return p.propsUiState;
+    }
+    throw new IllegalStateException("UI State properties should always at least be initialized to empty Properties object");
   }
 
   public static void propsVarSet(String name, String value) {

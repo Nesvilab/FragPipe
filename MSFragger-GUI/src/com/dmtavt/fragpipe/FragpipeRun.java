@@ -1,9 +1,10 @@
 package com.dmtavt.fragpipe;
 
+import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
+
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageAppendToConsole;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
-import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
 import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
 import com.dmtavt.fragpipe.messages.MessageSaveCache;
@@ -146,16 +147,8 @@ public class FragpipeRun {
       toConsole("");
       toConsole("Version info:\n" + createVersionsString());
       toConsole("");
-
-      LogUtils.println(msfgf.console, "LCMS files:");
-      for (Entry<String, LcmsFileGroup> e : lcmsFileGroups.entrySet()) {
-        LogUtils.println(msfgf.console,
-            String.format(Locale.ROOT, "  Experiment/Group: %s", e.getValue().name));
-        for (InputLcmsFile f : e.getValue().lcmsFiles) {
-          LogUtils.println(msfgf.console, String.format(Locale.ROOT, "  - %s", f.getPath().toString()));
-        }
-      }
-      LogUtils.println(msfgf.console, "");
+      toConsole("LCMS files:\n" + createLcmsFilesString(lcmsFileGroups));
+      toConsole("");
 
       // Converting process builders descriptors to process builder infos
       final List<ProcessBuilderInfo> pbis = pbDescsToFill.stream()
@@ -171,39 +164,26 @@ public class FragpipeRun {
           }))
           .collect(Collectors.toList());
 
-      LogUtils.println(msfgf.console, String.format(Locale.ROOT, "%d commands to execute:", pbis.size()));
-
+      toConsole(String.format(Locale.ROOT, "%d commands to execute:", pbis.size()));
       for (final ProcessBuilderInfo pbi : pbis) {
-        MsfraggerGuiFrameUtils
-            .printProcessDescription(msfgf.COLOR_CMDLINE, msfgf.COLOR_TOOL, msfgf.COLOR_WORKDIR,
-                msfgf.console, pbi);
-
+        printProcessDescription(pbi);
       }
-      LogUtils.println(msfgf.console, "~~~~~~~~~~~~~~~~~~~~~~");
-      LogUtils.println(msfgf.console, "");
-      LogUtils.println(msfgf.console, "");
+      toConsole("~~~~~~~~~~~~~~~~~~~~~~");
+      toConsole("");
+      toConsole("");
 
       if (isDryRun) {
-        LogUtils.println(msfgf.console, "It's a dry-run, not running the commands.");
-        msfgf.resetRunButtons(true);
+        toConsole("It's a dry-run, not running the commands.");
         return;
       }
 
       // save all the options
-      LocalDateTime time = LocalDateTime.now();
-      String timestamp = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
-      Path path = wdPath.resolve("fragpipe" + "_" + timestamp + ".config");
-      try {
-        Files.deleteIfExists(path);
-      } catch (IOException e) {
-        log.error("Could not delete old fragpipe.config at: {}", path.toString());
-      }
-      EventBus.getDefault().post(new MessageSaveUiState(path));
-
+      saveRuntimeConfig(wd);
 
       // print all the options
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       try {
+        Fragpipe.propsUi()
         msfgf.formWrite(baos);
         LogUtils.println(msfgf.console, "~~~~~~~~~ fragpipe.config ~~~~~~~~~");
         LogUtils.println(msfgf.console, baos.toString(Charsets.UTF_8.name()));
@@ -258,6 +238,18 @@ public class FragpipeRun {
         Bus.post(new MessageRunButtonEnabled(true));
       }
     }
+  }
+
+  private static void saveRuntimeConfig(Path wd) {
+    LocalDateTime time = LocalDateTime.now();
+    String timestamp = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+    Path path = wd.resolve("fragpipe" + "_" + timestamp + ".config");
+    try {
+      Files.deleteIfExists(path);
+    } catch (IOException e) {
+      log.error("Could not delete old fragpipe.config at: {}", path.toString());
+    }
+    Bus.post(new MessageSaveUiState(path));
   }
 
   private static Path validateWd(JComponent parent, String workingDir) {
@@ -433,7 +425,26 @@ public class FragpipeRun {
     return sbVer.toString();
   }
 
-  private static void toConsole(String s) {
-    Bus.post(new MessagePrintToConsole(s, true));
+  private static String createLcmsFilesString(Map<String, LcmsFileGroup> lcmsFileGroups) {
+    StringBuilder sb = new StringBuilder();
+    for (Entry<String, LcmsFileGroup> e : lcmsFileGroups.entrySet()) {
+      sb.append(String.format(Locale.ROOT, "  Experiment/Group: %s", e.getValue().name)).append("\n");
+      for (InputLcmsFile f : e.getValue().lcmsFiles) {
+        sb.append(String.format(Locale.ROOT, "  - %s", f.getPath().toString())).append("\n");
+      }
+    }
+    return sb.toString();
+  }
+
+  public static void printProcessDescription(ProcessBuilderInfo pbi) {
+    if (!StringUtils.isNullOrWhitespace(pbi.name)) {
+      toConsole(Fragpipe.COLOR_TOOL, pbi.name, false);
+    }
+    if (pbi.pb.directory() != null) {
+      toConsole(Fragpipe.COLOR_WORKDIR, " [Work dir: " + pbi.pb.directory() + "]", false);
+    }
+    toConsole("");
+    final String cmd = org.apache.commons.lang3.StringUtils.join(pbi.pb.command(), " ");
+    toConsole(Fragpipe.COLOR_CMDLINE, cmd, true);
   }
 }

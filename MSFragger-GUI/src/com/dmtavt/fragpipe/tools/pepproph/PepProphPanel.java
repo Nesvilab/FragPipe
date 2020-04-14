@@ -1,12 +1,9 @@
 package com.dmtavt.fragpipe.tools.pepproph;
 
 import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
-import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
-import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
@@ -91,8 +88,8 @@ public class PepProphPanel extends JPanelBase {
     JButton btnLoadDefaults = UiUtils
         .createButton("Load", "Load peptide prophet settings for given search type", e -> {
           SearchTypeProp st = defaults.get((String) uiComboDefaults.getSelectedItem());
-          Fragpipe.getPropAndSetVal("peptideprophet.cmd.line.opts." + st.name(), uiTextCmdOpts);
-          Fragpipe.getPropAndSetVal("peptideprophet.combine.pepxml." + st.name(), uiCheckCombinePepxml);
+          Fragpipe.getPropsFixAndSetVal("peptideprophet.cmd.line.opts." + st.name(), uiTextCmdOpts);
+          Fragpipe.getPropsFixAndSetVal("peptideprophet.combine.pepxml." + st.name(), uiCheckCombinePepxml);
         });
 
     mu.layout(this).fillX();
