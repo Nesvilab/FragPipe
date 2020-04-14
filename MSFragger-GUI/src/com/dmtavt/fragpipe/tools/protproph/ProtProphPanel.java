@@ -1,6 +1,7 @@
 package com.dmtavt.fragpipe.tools.protproph;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -85,8 +86,9 @@ public class ProtProphPanel extends JPanelBase {
 
   @Override
   public void initMore() {
-    super.initMore();
     updateEnabledStatus(this, false); // will get enabled when Philosopher is selected
+    super.initMore();
+    Bus.postSticky(this);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)

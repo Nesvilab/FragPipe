@@ -5,12 +5,15 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
+import java.awt.Component;
+import java.awt.ItemSelectable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import javax.swing.JButton;
@@ -23,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.api.SearchTypeProp;
 
-public class PepProphPanel extends JPanelWithEnablement {
+public class PepProphPanel extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(PepProphPanel.class);
   private static MigUtils mu = MigUtils.get();
   private UiCheck checkRun;
@@ -38,11 +41,26 @@ public class PepProphPanel extends JPanelWithEnablement {
     initMore();
   }
 
-  private void initMore() {
-    SwingUtils.renameDeep(this, false, PREFIX, null);
-    SwingUtils.setEnablementUpdater(this, pContent, checkRun);
+  @Override
+  protected ItemSelectable getRunCheckbox() {
+    return checkRun;
+  }
+
+  @Override
+  protected Component getEnablementToggleComponent() {
+    return pContent;
+  }
+
+  @Override
+  protected String getComponentNamePrefix() {
+    return PREFIX;
+  }
+
+  @Override
+  protected void initMore() {
     updateEnabledStatus(this, false);
-    Bus.registerQuietly(this);
+    super.initMore();
+    Bus.postSticky(this);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
@@ -50,7 +68,8 @@ public class PepProphPanel extends JPanelWithEnablement {
     updateEnabledStatus(this, m.isValid());
   }
 
-  private void init() {
+  @Override
+  protected void init() {
     checkRun = UiUtils.createUiCheck("Run PeptideProphet", true);
     checkRun.setName("run-peptide-prophet");
     JLabel labelDefaults = new JLabel("Defaults for:");

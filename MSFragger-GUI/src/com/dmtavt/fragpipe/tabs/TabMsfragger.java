@@ -287,6 +287,7 @@ public class TabMsfragger extends JPanelWithEnablement {
 
     // register on the bus only after all the components have been created to avoid NPEs
     Bus.register(this);
+    Bus.postSticky(this);
   }
 
   private void init() {
