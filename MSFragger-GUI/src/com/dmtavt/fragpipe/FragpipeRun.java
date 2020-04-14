@@ -1,36 +1,62 @@
 package com.dmtavt.fragpipe;
 
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.messages.MessageAppendToConsole;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
+import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
 import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
 import com.dmtavt.fragpipe.messages.MessageSaveCache;
+import com.dmtavt.fragpipe.messages.MessageSaveLog;
+import com.dmtavt.fragpipe.messages.MessageSaveUiState;
+import com.dmtavt.fragpipe.messages.MessageStartProcesses;
+import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
+import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
+import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.tabs.TabRun;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
+import com.github.chhh.utils.LogUtils;
+import com.github.chhh.utils.OsUtils;
+import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import org.apache.commons.codec.Charsets;
+import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.msfragger.cmd.PbiBuilder;
+import umich.msfragger.cmd.ProcessBuilderInfo;
+import umich.msfragger.cmd.ProcessBuildersDescriptor;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
+import umich.msfragger.gui.MsfraggerGuiFrame;
+import umich.msfragger.gui.MsfraggerGuiFrameUtils;
+import umich.msfragger.gui.ProcessDescription;
+import umich.msfragger.gui.ProcessDescription.Builder;
+import umich.msfragger.gui.RunnableDescription;
 import umich.msfragger.params.ThisAppProps;
 
 public class FragpipeRun {
@@ -84,12 +110,147 @@ public class FragpipeRun {
         return;
       }
 
-      Path jarPath = FragpipeLocations.get().getJarPath();
+      final Path jarPath = FragpipeLocations.get().getJarPath();
       if (jarPath == null) {
         JOptionPane.showMessageDialog(tabRun, "Could not get the URI of the currently running jar",
             "Errors", JOptionPane.ERROR_MESSAGE);
         return;
       }
+
+      // check fasta file
+      NoteConfigDatabase configDb = Bus.getStickyEvent(NoteConfigDatabase.class);
+      final String fastaPath = checkFasta(tabRun, configDb);
+      if (fastaPath == null) {
+        log.debug("checkFasta() failed");
+        return;
+      }
+
+      NoteConfigPhilosopher configPhi = Bus.getStickyEvent(NoteConfigPhilosopher.class);
+      if (!configPhi.isValid()) {
+        SwingUtils.showErrorDialog(tabRun, "Philosopher configuraiton invalid, check Config tab", "Config Error");
+        return;
+      }
+      final String binPhi = configPhi.path;
+
+      final List<ProcessBuildersDescriptor> pbDescsToFill = new ArrayList<>();
+      // main call to generate all the process builders
+      if (!createProcessBuilders(tabRun, wd, jarPath, binPhi, isDryRun, pbDescsToFill)) {
+        log.debug("createProcessBuilders() failed");
+        return;
+      }
+
+
+      // =========================================================================================================
+
+      toConsole(OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo() + "\n");
+      toConsole("");
+      toConsole("Version info:\n" + createVersionsString());
+      toConsole("");
+
+      LogUtils.println(msfgf.console, "LCMS files:");
+      for (Entry<String, LcmsFileGroup> e : lcmsFileGroups.entrySet()) {
+        LogUtils.println(msfgf.console,
+            String.format(Locale.ROOT, "  Experiment/Group: %s", e.getValue().name));
+        for (InputLcmsFile f : e.getValue().lcmsFiles) {
+          LogUtils.println(msfgf.console, String.format(Locale.ROOT, "  - %s", f.getPath().toString()));
+        }
+      }
+      LogUtils.println(msfgf.console, "");
+
+      // Converting process builders descriptors to process builder infos
+      final List<ProcessBuilderInfo> pbis = pbDescsToFill.stream()
+          .flatMap(pbd -> pbd.pbis.stream().map(pbi ->
+          {
+            PbiBuilder b = new PbiBuilder();
+            b.setPb(pbi.pb);
+            b.setName(pbi.name != null ? pbi.name : pbd.name);
+            b.setFnStdOut(pbi.fnStdout != null ? pbi.fnStdout : pbd.fnStdout);
+            b.setFnStdErr(pbi.fnStderr != null ? pbi.fnStderr : pbd.fnStderr);
+            b.setParallelGroup(pbi.parallelGroup != null ? pbi.parallelGroup : pbd.getParallelGroup());
+            return b.create();
+          }))
+          .collect(Collectors.toList());
+
+      LogUtils.println(msfgf.console, String.format(Locale.ROOT, "%d commands to execute:", pbis.size()));
+
+      for (final ProcessBuilderInfo pbi : pbis) {
+        MsfraggerGuiFrameUtils
+            .printProcessDescription(msfgf.COLOR_CMDLINE, msfgf.COLOR_TOOL, msfgf.COLOR_WORKDIR,
+                msfgf.console, pbi);
+
+      }
+      LogUtils.println(msfgf.console, "~~~~~~~~~~~~~~~~~~~~~~");
+      LogUtils.println(msfgf.console, "");
+      LogUtils.println(msfgf.console, "");
+
+      if (isDryRun) {
+        LogUtils.println(msfgf.console, "It's a dry-run, not running the commands.");
+        msfgf.resetRunButtons(true);
+        return;
+      }
+
+      // save all the options
+      LocalDateTime time = LocalDateTime.now();
+      String timestamp = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+      Path path = wdPath.resolve("fragpipe" + "_" + timestamp + ".config");
+      try {
+        Files.deleteIfExists(path);
+      } catch (IOException e) {
+        log.error("Could not delete old fragpipe.config at: {}", path.toString());
+      }
+      EventBus.getDefault().post(new MessageSaveUiState(path));
+
+
+      // print all the options
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      try {
+        msfgf.formWrite(baos);
+        LogUtils.println(msfgf.console, "~~~~~~~~~ fragpipe.config ~~~~~~~~~");
+        LogUtils.println(msfgf.console, baos.toString(Charsets.UTF_8.name()));
+        LogUtils.println(msfgf.console, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+      } catch (IOException e) {
+        log.error("Could not collect form text representation for printing to console");
+      }
+
+      // run everything
+      List<RunnableDescription> toRun = new ArrayList<>();
+      for (final ProcessBuilderInfo pbi : pbis) {
+        Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, wdPath, pbi1 -> MsfraggerGuiFrameUtils
+            .printProcessDescription(msfgf.COLOR_CMDLINE, msfgf.COLOR_TOOL, msfgf.COLOR_WORKDIR,
+                msfgf.console, pbi1));
+        ProcessDescription.Builder b = new ProcessDescription.Builder().setName(pbi.name);
+        if (pbi.pb.directory() != null) {
+          b.setWorkDir(pbi.pb.directory().toString());
+        }
+        if (pbi.pb.command() != null && !pbi.pb.command().isEmpty()) {
+          b.setCommand(String.join(" ", pbi.pb.command()));
+        }
+        toRun.add(new RunnableDescription(b.create(), runnable, pbi.parallelGroup));
+      }
+
+      // add finalizer process
+      final JButton btnStartPtr = msfgf.getBtnRun();
+      final JButton btnStopPtr = msfgf.getBtnStop();
+      Runnable finalizerRun = () -> {
+        btnStartPtr.setEnabled(true);
+        btnStopPtr.setEnabled(false);
+        String msg =
+            "=========================\n" +
+                "===\n" +
+                "===      Done\n" +
+                "===\n" +
+                "=========================\n";
+        EventBus.getDefault()
+            .post(new MessageAppendToConsole(msg, MsfraggerGuiFrame.COLOR_RED_DARKEST));
+        EventBus.getDefault().post(new MessageSaveLog(wdPath));
+      };
+      String finalizerDesc = "Finalizer task";
+      toRun.add(new RunnableDescription(new Builder().setName("Finalizer Task").create(), finalizerRun));
+      EventBus.getDefault().post(new MessageStartProcesses(toRun));
+
+
+
+      // =========================================================================================================
 
       runConfigurationDone = true;
     } finally {
@@ -245,5 +406,34 @@ public class FragpipeRun {
       }
     }
     return lcmsFilesAll;
+  }
+
+  private static String checkFasta(JComponent parent, NoteConfigDatabase configDb) {
+    String fastaPathText = configDb.path.toString();
+    if (StringUtils.isNullOrWhitespace(fastaPathText)) {
+      JOptionPane.showMessageDialog(parent, "Fasta file path (Database tab) can't be empty",
+          "Warning", JOptionPane.WARNING_MESSAGE);
+      return null;
+    }
+    final Path existing = PathUtils.existing(fastaPathText);
+    if (existing == null) {
+      JOptionPane.showMessageDialog(parent,
+          String.format("Could not find fasta file (Database) at:\n%s", fastaPathText),
+          "Errors", JOptionPane.ERROR_MESSAGE);
+      return null;
+    }
+    return existing.toString();
+  }
+
+  private static String createVersionsString() {
+    StringBuilder sbVer = new StringBuilder();
+    sbVer.append(Version.PROGRAM_TITLE).append(" version ").append(Version.version()).append("\n");
+    sbVer.append("MSFragger version ").append(Fragpipe.getStickyStrict(NoteConfigMsfragger.class).version).append("\n");
+    sbVer.append("Philosopher version ").append(Fragpipe.getStickyStrict(NoteConfigPhilosopher.class).version).append("\n");
+    return sbVer.toString();
+  }
+
+  private static void toConsole(String s) {
+    Bus.post(new MessagePrintToConsole(s, true));
   }
 }

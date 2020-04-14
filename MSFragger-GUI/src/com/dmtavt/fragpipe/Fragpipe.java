@@ -534,4 +534,12 @@ public class Fragpipe extends JFrame {
   public static void propsVarSet(String name, String value) {
     propsVar().setProperty(name, value);
   }
+
+  public static <T> T getStickyStrict(Class<T> clazz) {
+    T sticky = Bus.getStickyEvent(clazz);
+    if (sticky == null) {
+      throw new IllegalStateException("Sticky note not on the bus: " + clazz.getCanonicalName());
+    }
+    return sticky;
+  }
 }
