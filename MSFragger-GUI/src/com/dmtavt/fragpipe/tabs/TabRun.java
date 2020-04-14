@@ -3,10 +3,13 @@ package com.dmtavt.fragpipe.tabs;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.messages.MessageClearCache;
+import com.dmtavt.fragpipe.messages.MessageClearConsole;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
 import com.dmtavt.fragpipe.messages.MessageKillAll;
 import com.dmtavt.fragpipe.messages.MessageKillAll.REASON;
 import com.dmtavt.fragpipe.messages.MessageRun;
+import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
 import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.github.chhh.utils.OsUtils;
@@ -47,6 +50,8 @@ import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.TextConsole;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.tools.jconsole.Tab;
@@ -74,6 +79,24 @@ public class TabRun extends JPanelWithEnablement {
 
   private void initMore() {
     Bus.registerQuietly(this);
+  }
+
+  private void clearConsole() {
+    console.setText("");
+  }
+
+  public String getWorkdirText() {
+    return uiTextWorkdir.getNonGhostText();
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageClearConsole m) {
+    clearConsole();
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageRunButtonEnabled m) {
+    btnRun.setEnabled(m.isEnabled);
   }
 
   private JPanel createPanelTop(TextConsole console) {
@@ -132,7 +155,7 @@ public class TabRun extends JPanelWithEnablement {
         SwingUtils.showErrorDialogWithStacktrace(ex, TabRun.this);
       }
     });
-    JButton btnClearConsole = UiUtils.createButton("Clear Console", e -> this.console.setText(""));
+    JButton btnClearConsole = UiUtils.createButton("Clear Console", e -> clearConsole() );
     uiCheckWordWrap = UiUtils
         .createUiCheck("Word wrap", console.getScrollableTracksViewportWidth(), e -> {
           console.setScrollableTracksViewportWidth(uiCheckWordWrap.isSelected());

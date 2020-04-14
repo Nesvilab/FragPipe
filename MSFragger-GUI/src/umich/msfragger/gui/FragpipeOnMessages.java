@@ -117,7 +117,6 @@ public class FragpipeOnMessages {
       }
     }
 
-    final TextConsole textConsole = msfgf.console;
     final String workingDir = msfgf.getTxtWorkingDir().getText();
     if (workingDir.isEmpty()) {
       JOptionPane.showMessageDialog(msfgf, "Output directory can't be left empty.\n"

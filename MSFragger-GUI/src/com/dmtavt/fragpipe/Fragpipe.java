@@ -8,6 +8,7 @@ import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.UiTab;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
+import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiInitDone;
@@ -373,6 +374,11 @@ public class Fragpipe extends JFrame {
     }
   }
 
+  @Subscribe(threadMode = ThreadMode.ASYNC)
+  public void on(MessageSaveCache m) {
+    saveCache();
+  }
+
   @Subscribe
   public void on(MessageSaveUiState m) {
     log.debug("Writing ui state cache to: {}", m.path.toString());
@@ -523,5 +529,9 @@ public class Fragpipe extends JFrame {
       return p.propsRuntime;
     }
     throw new IllegalStateException("Runtime properties should always at least be initialized to empty Properties object");
+  }
+
+  public static void propsVarSet(String name, String value) {
+    propsVar().setProperty(name, value);
   }
 }
