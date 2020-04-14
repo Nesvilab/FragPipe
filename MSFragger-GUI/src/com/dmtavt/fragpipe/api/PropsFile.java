@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.api;
 
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.PropertiesUtils;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -57,6 +58,18 @@ public class PropsFile extends Properties {
       os.flush();
     } catch (IOException ex) {
       log.error("Could not save properties to: " + path.toString(), ex);
+      throw(ex);
+    }
+  }
+
+  public void save(OutputStream os) throws IOException {
+    log.debug("Writing properties to stream");
+    try (BufferedOutputStream bos = new BufferedOutputStream(os)) {
+      //store(os, cacheComments());
+      PropertiesUtils.storeSorted(this, os, comments, true);
+      os.flush();
+    } catch (IOException ex) {
+      log.error("Error writing properties to stream", ex);
       throw(ex);
     }
   }

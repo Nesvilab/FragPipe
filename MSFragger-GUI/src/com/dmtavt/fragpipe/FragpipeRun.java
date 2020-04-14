@@ -177,27 +177,24 @@ public class FragpipeRun {
         return;
       }
 
-      // save all the options
+      // save all the options to output dir
       saveRuntimeConfig(wd);
 
-      // print all the options
+      // print all the options to the screen as well
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       try {
-        Fragpipe.propsUi()
-        msfgf.formWrite(baos);
-        LogUtils.println(msfgf.console, "~~~~~~~~~ fragpipe.config ~~~~~~~~~");
-        LogUtils.println(msfgf.console, baos.toString(Charsets.UTF_8.name()));
-        LogUtils.println(msfgf.console, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        Fragpipe.propsUi().save(baos);
+        toConsole("~~~~~~~~~ fragpipe.config ~~~~~~~~~");
+        toConsole(baos.toString(Charsets.UTF_8.name()));
+        toConsole("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
       } catch (IOException e) {
         log.error("Could not collect form text representation for printing to console");
       }
 
       // run everything
-      List<RunnableDescription> toRun = new ArrayList<>();
+      final List<RunnableDescription> toRun = new ArrayList<>();
       for (final ProcessBuilderInfo pbi : pbis) {
-        Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, wdPath, pbi1 -> MsfraggerGuiFrameUtils
-            .printProcessDescription(msfgf.COLOR_CMDLINE, msfgf.COLOR_TOOL, msfgf.COLOR_WORKDIR,
-                msfgf.console, pbi1));
+        Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, wd, FragpipeRun::printProcessDescription);
         ProcessDescription.Builder b = new ProcessDescription.Builder().setName(pbi.name);
         if (pbi.pb.directory() != null) {
           b.setWorkDir(pbi.pb.directory().toString());
@@ -209,26 +206,20 @@ public class FragpipeRun {
       }
 
       // add finalizer process
-      final JButton btnStartPtr = msfgf.getBtnRun();
-      final JButton btnStopPtr = msfgf.getBtnStop();
-      Runnable finalizerRun = () -> {
-        btnStartPtr.setEnabled(true);
-        btnStopPtr.setEnabled(false);
+      final Runnable finalizerRun = () -> {
+        Bus.post(new MessageRunButtonEnabled(true));
         String msg =
             "=========================\n" +
-                "===\n" +
-                "===      Done\n" +
-                "===\n" +
-                "=========================\n";
-        EventBus.getDefault()
-            .post(new MessageAppendToConsole(msg, MsfraggerGuiFrame.COLOR_RED_DARKEST));
-        EventBus.getDefault().post(new MessageSaveLog(wdPath));
+            "===\n" +
+            "===      Done\n" +
+            "===\n" +
+            "=========================\n";
+        toConsole(Fragpipe.COLOR_RED_DARKEST, msg, true);
+        Bus.post(new MessageSaveLog(wd));
       };
-      String finalizerDesc = "Finalizer task";
       toRun.add(new RunnableDescription(new Builder().setName("Finalizer Task").create(), finalizerRun));
-      EventBus.getDefault().post(new MessageStartProcesses(toRun));
 
-
+      Bus.post(new MessageStartProcesses(toRun));
 
       // =========================================================================================================
 

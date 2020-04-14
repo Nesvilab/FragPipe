@@ -6,6 +6,7 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.PropsFile;
+import com.dmtavt.fragpipe.api.PropsStore;
 import com.dmtavt.fragpipe.api.UiTab;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
@@ -152,7 +153,6 @@ public class Fragpipe extends JFrame {
     NoteFragpipeCache cache = Bus.getStickyEvent(NoteFragpipeCache.class);
     if (cache == null)
       throw new IllegalStateException("cache NoteFragpipeCache can't be null");
-    new PropsFile()
     Properties tabsAsProps = FragpipeCacheUtils.tabsSave(tabs);
     PropertiesUtils.merge(cache.propsUiState, Collections.singletonList(tabsAsProps));
     log.debug("Saving ui cache: collected {} properties from UI. Size after merging with cached object: {}.",
@@ -530,7 +530,7 @@ public class Fragpipe extends JFrame {
     return ThisAppProps.getLocalProperties();
   }
 
-  public static Properties propsVar() {
+  public static PropsFile propsVar() {
     NoteFragpipeCache p = Bus.getStickyEvent(NoteFragpipeCache.class);
     if (p != null && p.propsRuntime != null) {
       return p.propsRuntime;
@@ -538,7 +538,7 @@ public class Fragpipe extends JFrame {
     throw new IllegalStateException("Runtime properties should always at least be initialized to empty Properties object");
   }
 
-  public static Properties propsUi() {
+  public static PropsFile propsUi() {
     NoteFragpipeCache p = Bus.getStickyEvent(NoteFragpipeCache.class);
     if (p != null && p.propsUiState != null) {
       return p.propsUiState;
