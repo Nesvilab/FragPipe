@@ -20,6 +20,11 @@ public abstract class JPanelBase extends JPanelWithEnablement {
   protected abstract ItemSelectable getRunCheckbox();
   protected abstract Component getEnablementToggleComponent();
   protected abstract String getComponentNamePrefix();
+  /** Override if the component itself doesn't need to be
+   * published to the bus by initMore() method. */
+  protected boolean doPostSelfAsSticky() {
+    return true;
+  }
 
   protected abstract void init();
   protected void initMore() {
@@ -32,5 +37,8 @@ public abstract class JPanelBase extends JPanelWithEnablement {
 
     log.debug("Trying to register quietly on the bus: {}", this.getClass().getCanonicalName());
     Bus.registerQuietly(this);
+    if (doPostSelfAsSticky()) {
+      Bus.postSticky(this);
+    }
   }
 }

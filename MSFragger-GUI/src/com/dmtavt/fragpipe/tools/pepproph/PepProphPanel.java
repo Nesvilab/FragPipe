@@ -60,7 +60,6 @@ public class PepProphPanel extends JPanelBase {
   protected void initMore() {
     updateEnabledStatus(this, false);
     super.initMore();
-    Bus.postSticky(this);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)

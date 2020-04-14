@@ -8,6 +8,7 @@ import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.ItemSelectable;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,7 @@ import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 
-public class CrystalcPanel extends JPanelWithEnablement {
+public class CrystalcPanel extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(CrystalcPanel.class);
   private static final MigUtils mu = MigUtils.get();
   public JCheckBox checkRun;
@@ -53,7 +54,23 @@ public class CrystalcPanel extends JPanelWithEnablement {
     initMore();
   }
 
-  private void init() {
+  @Override
+  protected ItemSelectable getRunCheckbox() {
+    return checkRun;
+  }
+
+  @Override
+  protected Component getEnablementToggleComponent() {
+    return pParams;
+  }
+
+  @Override
+  protected String getComponentNamePrefix() {
+    return null;
+  }
+
+  @Override
+  protected void init() {
     pTop = createPanelTop();
     pParams = createPanelParams();
 
@@ -63,23 +80,10 @@ public class CrystalcPanel extends JPanelWithEnablement {
     mu.add(this, pParams).growX().wrap();
   }
 
-  private void initMore() {
+  @Override
+  protected void initMore() {
     updateEnabledStatus(pParams, SwingUtils.isEnabledAndChecked(checkRun));
-    SwingUtils.renameDeep(this, false, PREFIX, null);
-
-    this.addPropertyChangeListener("enabled", evt -> {
-      log.debug("Crystalc pContent panel property '{}' changed from '{}' to '{}'", evt.getPropertyName(),
-          evt.getOldValue(), evt.getNewValue());
-      boolean newValue = (Boolean)evt.getNewValue();
-      boolean isSwitchToEnabled = (Boolean) evt.getNewValue() && !(Boolean) evt.getOldValue();
-      boolean pContentIsEnabled = newValue && checkRun.isSelected();
-      log.debug("Crystalc pContent panel is switching to enabled? : {}, !checkRun.isSelected() : {}, final state should be: {}",
-          isSwitchToEnabled, !checkRun.isSelected(), pContentIsEnabled);
-      enablementMapping.put(pParams, pContentIsEnabled);
-      updateEnabledStatus(pParams, pContentIsEnabled);
-    });
-
-    Bus.register(this);
+    super.initMore();
   }
 
   private void loadDefaults() {

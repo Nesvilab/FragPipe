@@ -166,7 +166,6 @@ public class TmtiPanel extends JPanelBase {
   @Override
   protected void initMore() {
     super.initMore();
-
     Bus.post(new MessageLcmsFilesList(MessageType.REQUEST, null));
   }
 

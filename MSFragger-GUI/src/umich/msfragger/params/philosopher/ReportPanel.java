@@ -4,11 +4,14 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils.UiTextBuilder;
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.ItemSelectable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JCheckBox;
@@ -31,7 +34,7 @@ import umich.msfragger.params.ThisAppProps;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 
-public class ReportPanel extends JPanelWithEnablement {
+public class ReportPanel extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(ReportPanel.class);
   private static final MigUtils mu = MigUtils.get();
 
@@ -54,7 +57,23 @@ public class ReportPanel extends JPanelWithEnablement {
     initMore();
   }
 
-  private void init() {
+  @Override
+  protected ItemSelectable getRunCheckbox() {
+    return checkRun;
+  }
+
+  @Override
+  protected Component getEnablementToggleComponent() {
+    return pOptions;
+  }
+
+  @Override
+  protected String getComponentNamePrefix() {
+    return PREFIX;
+  }
+
+  @Override
+  protected void init() {
     mu.layout(this, mu.lcFillXNoInsetsTopBottom());
     mu.border(this, "Report");
 
@@ -65,23 +84,10 @@ public class ReportPanel extends JPanelWithEnablement {
     mu.add(this, pOptions).wrap();
   }
 
-  private void initMore() {
-    SwingUtils.renameDeep(this, false, PREFIX, null);
-    this.addPropertyChangeListener("enabled", evt -> {
-      log.debug("Report panel property '{}' changed from '{}' to '{}'", evt.getPropertyName(),
-          evt.getOldValue(), evt.getNewValue());
-      boolean isSwitchToEnabled = (Boolean) evt.getNewValue() && !(Boolean) evt.getOldValue();
-      log.debug("Report panel is switching to enabled? : {}, !checkRun.isSelected() : {}",
-          isSwitchToEnabled, !checkRun.isSelected());
-      if (isSwitchToEnabled && !checkRun.isSelected()) {
-        enablementMapping.put(pOptions, false);
-        updateEnabledStatus(pOptions, false);
-      }
-    });
-    updateEnabledStatus(pOptions, SwingUtils.isEnabledAndChecked(checkRun));
+  @Override
+  protected void initMore() {
     updateEnabledStatus(this, false);
-
-    Bus.register(this);
+    super.initMore();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
