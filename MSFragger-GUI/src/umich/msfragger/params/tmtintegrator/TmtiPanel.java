@@ -190,7 +190,7 @@ public class TmtiPanel extends JPanelBase {
     JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     mu.borderEmpty(p);
 
-    checkRun = new UiCheck("Run TMT-Integrator", null, true);
+    checkRun = new UiCheck("Run TMT-Integrator", null, false);
     checkRun.setName("run-tmtintegrator");
     JButton btnLoadDefaults = UiUtils.createButton("Load TMT-Integrator defaults",
         (e) -> Bus.post(new MessageLoadTmtIntegratorDefaults(true)));

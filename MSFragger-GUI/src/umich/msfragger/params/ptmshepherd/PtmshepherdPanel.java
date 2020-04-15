@@ -139,7 +139,7 @@ public class PtmshepherdPanel extends JPanelBase {
     JPanel p = mu.newPanel(new LC());
     mu.borderEmpty(p);
 
-    checkRun = new UiCheck("Run PTM-Shepherd", null, true);
+    checkRun = new UiCheck("Run PTM-Shepherd", null, false);
     checkRun.setName("run-shepherd");
     checkRun.addActionListener(e -> {
       final boolean isSelected = checkRun.isSelected();
