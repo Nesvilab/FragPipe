@@ -211,8 +211,6 @@ public class TabMsfragger extends JPanelWithEnablement {
   private JPanel pContent;
   private ModsTable tableVarMods;
   private ModsTable tableFixMods;
-  private UiSpinnerInt uiSpinnerRam;
-  private UiSpinnerInt uiSpinnerThreads;
   private UiCombo uiComboMassCalibrate;
   private UiCombo uiComboOutputType;
   private UiCombo uiComboMassMode;
@@ -326,17 +324,6 @@ public class TabMsfragger extends JPanelWithEnablement {
     save.addActionListener(this::actionConfigSave);
     JButton load = new JButton("Load Config");
     load.addActionListener(this::actionConfigLoad);
-
-    uiSpinnerRam = new UiSpinnerInt(0, 0, 1024, 1, 3);
-    FormEntry feRam = fe(PROP_misc_ram, uiSpinnerRam).label("RAM (GB)").create();
-    uiSpinnerThreads = new UiSpinnerInt(Runtime.getRuntime().availableProcessors() - 1, 0, 128, 1);
-    FormEntry feThreads = fe(MsfraggerParams.PROP_num_threads,
-        uiSpinnerThreads).label("Threads").create();
-
-    mu.add(pTop, feRam.label()).split();//.split(4);
-    mu.add(pTop, feRam.comp);
-    mu.add(pTop, feThreads.label());
-    mu.add(pTop, feThreads.comp);
     mu.add(pTop, save);//.split();
     mu.add(pTop, load);//.wrap();
     mu.add(pTop, new JLabel("Default config for:"));//.alignX("right");
@@ -1108,6 +1095,11 @@ public class TabMsfragger extends JPanelWithEnablement {
 
   private MsfraggerParams formCollect() {
     Map<String, String> map = formToMap();
+
+    // ram and threads parameters have been moved to Workflow tab, need to re-inject them when saving fragger params
+    TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
+    map.put(MsfraggerParams.PROP_num_threads, Integer.toString(tabWorkflow.getThreads()));
+
     MsfraggerParams params = paramsFrom(map);
 
     // before collecting mods, make sure that no table cell editor is open
@@ -1118,6 +1110,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     params.setVariableMods(modsVar);
     List<Mod> modsFix = formToMap(tableFixMods.model);
     params.setAdditionalMods(modsFix);
+
     return params;
   }
 
@@ -1302,14 +1295,6 @@ public class TabMsfragger extends JPanelWithEnablement {
   @Subscribe
   public void on(MessageSearchType m) {
     loadDefaults(m.type);
-  }
-
-  public int getRamGb() {
-    return (Integer) uiSpinnerRam.getValue();
-  }
-
-  public int getThreads() {
-    return (Integer) uiSpinnerThreads.getValue();
   }
 
   public boolean isRun() {

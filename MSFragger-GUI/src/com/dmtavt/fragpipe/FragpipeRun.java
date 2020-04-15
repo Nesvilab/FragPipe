@@ -517,10 +517,9 @@ public class FragpipeRun {
     }
 
     final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
-    final int ramGb = tabMsf.getRamGb();
+    final int ramGb = tabWorkflow.getRamGb();
     final int ramGbNonzero = ramGb > 0 ? ramGb : OsUtils.getDefaultXmx();
-    final int threads = tabMsf.getThreads();
-
+    final int threads = tabWorkflow.getThreads();
 
     // run MSAdjuster
     final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(tabMsf.isRun() && tabMsf.isMsadjuster(), wd);

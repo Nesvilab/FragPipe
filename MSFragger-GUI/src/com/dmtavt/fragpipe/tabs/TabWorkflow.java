@@ -21,6 +21,7 @@ import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCombo;
+import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Dimension;
 import java.io.File;
@@ -86,6 +87,8 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JPanel pWorkflows;
   private JPanel pLcmsFiles;
   private JPanel pContent;
+  private UiSpinnerInt uiSpinnerRam;
+  private UiSpinnerInt uiSpinnerThreads;
 
   public TabWorkflow() {
     init();
@@ -101,8 +104,9 @@ public class TabWorkflow extends JPanelWithEnablement {
   private void init() {
     this.setLayout(new MigLayout(new LC().fillX()));
 
-    add(createPanalWorkflows(), mu.ccGx().wrap());
-    add(createPanalLcmsFiles(), mu.ccGx().wrap());
+    add(createPanelWorkflows(), mu.ccGx().wrap());
+    add(createPanelOptions(), mu.ccGx().wrap());
+    add(createPanelLcmsFiles(), mu.ccGx().wrap());
   }
 
   private String genSentence() {
@@ -128,7 +132,31 @@ public class TabWorkflow extends JPanelWithEnablement {
     return Fragpipe.fe(comp, name, TAB_PREFIX);
   }
 
-  private JPanel createPanalWorkflows() {
+  private JPanel createPanelOptions() {
+    JPanel p = mu.newPanel("Global settings", true);
+
+    uiSpinnerRam = new UiSpinnerInt(0, 0, 1024, 1, 3);
+    FormEntry feRam = fe(uiSpinnerRam, "ram").label("RAM (GB)").create();
+    uiSpinnerThreads = new UiSpinnerInt(Runtime.getRuntime().availableProcessors() - 1, 0, 128, 1);
+    FormEntry feThreads = fe(uiSpinnerThreads, "threads").label("Threads").create();
+
+    mu.add(p, feRam.label()).split();
+    mu.add(p, feRam.comp);
+    mu.add(p, feThreads.label());
+    mu.add(p, feThreads.comp).pushX().wrap();
+
+    return p;
+  }
+
+  public int getRamGb() {
+    return uiSpinnerRam.getActualValue();
+  }
+
+  public int getThreads() {
+    return uiSpinnerThreads.getActualValue();
+  }
+
+  private JPanel createPanelWorkflows() {
     JPanel p = mu.newPanel("Workflows", true);
 
     epWorkflowsInfo = SwingUtils.createClickableHtml(true,
@@ -285,7 +313,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     Bus.post(new MessageLcmsFilesList(MessageType.UPDATE, data));
   }
 
-  private JPanel createPanalLcmsFiles() {
+  private JPanel createPanelLcmsFiles() {
     JPanel p = mu.newPanel("Input LC/MS Files", true);
 
     JButton btnFilesAddFiles = button("Add files", MessageLcmsAddFiles::new);
