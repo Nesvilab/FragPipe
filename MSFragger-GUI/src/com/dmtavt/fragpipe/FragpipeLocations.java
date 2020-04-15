@@ -1,11 +1,13 @@
 package com.dmtavt.fragpipe;
 
 import com.dmtavt.fragpipe.api.PropsFile;
+import com.dmtavt.fragpipe.messages.MissingAssetsException;
 import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
 import com.github.chhh.utils.CacheUtils;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.SwingUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,6 +18,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -182,4 +186,50 @@ public class FragpipeLocations {
     return isGlobal ? CacheUtils.getTempFile(FN_CACHE_UI) : get().cache.resolve(FN_CACHE_UI);
   }
 
+
+  public static List<Path> createToolsPaths(Stream<String> assets)
+      throws MissingAssetsException {
+    List<Path> paths = assets.map(asset -> FragpipeLocations.get().getDirTools().resolve(asset))
+        .collect(Collectors.toList());
+    List<Path> notExisting = Seq.seq(paths).filter(Files::notExists).toList();
+    if (!notExisting.isEmpty()) {
+      throw new MissingAssetsException(notExisting);
+    }
+    return paths;
+  }
+
+  /**
+   * Checks if any assets are missing and shows an error dialog saying which are, returns NULL
+   * in this case. Otherwise fills the array with locations of actual assets.
+   *
+   * @param assets          Locations relative to tools/ subdir.
+   * @return null in case of errors or missing files.
+   */
+  public static List<Path> checkToolsMissing(Stream<String> assets) {
+    try {
+      return createToolsPaths(assets);
+    } catch (MissingAssetsException e) {
+      String fileList = Seq.seq(e.getNotExisting()).map(Path::toString).toString("\n");
+      log.error("Missing assets: {}", fileList);
+      SwingUtils.showErrorDialog(null, "Missing assets:\n"+ fileList, "Missing assets");
+    }
+    return null;
+  }
+
+  /**
+   * Checks if an asset is missing and shows an error dialog saying which are. Otherwise shows UI
+   * with error and returns false.
+   *
+   * @param asset           Location relative to tools/ subdir.
+   * @return null if asset is missing and error message was show.
+   */
+  public static Path checkToolMissing(String asset) {
+    try {
+      return createToolsPaths(Stream.of(asset)).get(0);
+    } catch (MissingAssetsException e) {
+      String fileList = Seq.seq(e.getNotExisting()).map(Path::toString).toString("\n");
+      SwingUtils.showErrorDialog(null, "Missing assets:\n"+ fileList, "Missing assets");
+    }
+    return null;
+  }
 }

@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
@@ -27,7 +28,7 @@ public class CmdTmtIntegrator extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdTmtIntegrator.class);
 
   public static final String NAME = "TmtIntegrator";
-  public static final String JAR_NAME = "tmt-integrator-1.1.4.jazz";
+  public static final String JAR_NAME = "tmt-integrator-1.1.4.jar";
   public static final String JAR_MAIN = "TMTIntegrator";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML");
   public static final String CONFIG_FN = "tmt-integrator-conf.yml";
@@ -61,13 +62,10 @@ public class CmdTmtIntegrator extends CmdBase {
       Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
     isConfigured = false;
 
-    // unpack
-    List<String> jars = Stream.of(JAR_NAME).collect(Collectors.toList());
-    final List<Path> unpacked = new ArrayList<>();
-    if (!unpackJars(jars, unpacked, NAME)) {
+    List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(JAR_NAME));
+    if (classpathJars == null) {
       return false;
     }
-    Path jarTmti = unpacked.get(0);
 
 //    // check Thermo compatibility
 //    final List<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
@@ -97,7 +95,7 @@ public class CmdTmtIntegrator extends CmdBase {
         log.debug(NAME + " config required presence of output work dir, creating: {}", pathConf.getParent());
         Files.createDirectories(pathConf.getParent());
       }
-      Map<String, String> conf = panel.formToConfig(ramGb, jarTmti.toString(), pathFasta, outDir.toString());
+      Map<String, String> conf = panel.formToConfig(ramGb, classpathJars.get(0).toString(), pathFasta, outDir.toString());
 
       // check that there is a reference channel set in each annotation file
       String refTag = conf.get("ref_tag");
@@ -131,7 +129,7 @@ public class CmdTmtIntegrator extends CmdBase {
       List<String> cmdCheck = new ArrayList<>();
       cmdCheck.add("java");
       cmdCheck.add("-cp");
-      cmdCheck.add(constructClasspathString(unpacked));
+      cmdCheck.add(constructClasspathString(classpathJars));
       cmdCheck.add(JAR_MAIN);
       cmdCheck.add(pathConf.toString());
       cmdCheck.add("--ValParam");
@@ -162,7 +160,7 @@ public class CmdTmtIntegrator extends CmdBase {
       cmd.add("-Xmx" + ramGb + "G");
     }
     cmd.add("-cp");
-    cmd.add(constructClasspathString(unpacked));
+    cmd.add(constructClasspathString(classpathJars));
     cmd.add(JAR_MAIN);
     cmd.add(pathConf.toString());
     mapGroupsToProtxml.keySet().forEach(g -> {

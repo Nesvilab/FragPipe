@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
@@ -11,13 +12,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.jooq.lambda.Seq;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 
 public class CmdMsAdjuster extends CmdBase {
 
   public static final String NAME = "MsAdjuster";
-  public static final String JAR_MSADJUSTER_NAME = "original-msadjuster-1.0.3.jazz";
+  public static final String JAR_MSADJUSTER_NAME = "original-msadjuster-1.0.3.jar";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_MSADJUSTER_MAIN_CLASS = "Main";
   private int priority;
@@ -38,10 +40,8 @@ public class CmdMsAdjuster extends CmdBase {
     pbis.clear();
     isCleanup = doCleanup;
 
-    List<String> jars = Stream.concat(Arrays.stream(JAR_DEPS), Stream.of(JAR_MSADJUSTER_NAME))
-        .collect(Collectors.toList());
-    final List<Path> unpacked = new ArrayList<>();
-    if (!unpackJars(jars, unpacked, NAME)) { // TODO: no more unpacking
+    final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MSADJUSTER_NAME).concat(JAR_DEPS));
+    if (classpathJars == null) {
       return false;
     }
 
@@ -57,7 +57,7 @@ public class CmdMsAdjuster extends CmdBase {
           cmd.add("-Xmx" + ramGb + "G");
         }
         cmd.add("-cp");
-        cmd.add(constructClasspathString(unpacked));
+        cmd.add(constructClasspathString(classpathJars));
         cmd.add(JAR_MSADJUSTER_MAIN_CLASS);
         cmd.add("20");
         cmd.add(f.getPath().toString());

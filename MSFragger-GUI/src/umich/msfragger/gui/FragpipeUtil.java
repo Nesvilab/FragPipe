@@ -4,7 +4,9 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.messages.MissingAssetsException;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import java.awt.BorderLayout;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.*;
 
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.cmd.*;
@@ -34,7 +37,6 @@ import com.github.chhh.utils.UsageTrigger;
 public class FragpipeUtil {
   private static final Logger log = LoggerFactory.getLogger(FragpipeUtil.class);
   private FragpipeUtil() {}
-
 
   /**
    * Call from EDT only.
@@ -101,6 +103,8 @@ public class FragpipeUtil {
         Path pathIrt = null;
         if (isAddIrt) {
           String pathInJar = "/fasta/irtfusion.fasta";
+
+
           pathIrt = JarUtils.unpackFromJar(ToolingUtils.class, pathInJar, // TODO: no more unpacking
                   ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
           if (!Files.exists(pathIrt)) {

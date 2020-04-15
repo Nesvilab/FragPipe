@@ -1,6 +1,7 @@
 package umich.msfragger.cmd;
 
 
+import com.dmtavt.fragpipe.FragpipeLocations;
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.*;
 
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.LcmsFileGroup;
@@ -30,11 +32,11 @@ public class CmdPtmshepherd extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdPtmshepherd.class);
   public static final String NAME = "PTMShepherd";
   public static final String CONFIG_FN = "shepherd.config";
-  public static final String JAR_SHEPHERD_NAME = "ptmshepherd-0.2.16.jazz";
-//  public static final String JAR_SHEPHERD_NAME = "PTMShepherd-20180820_2.jazz";
+  public static final String JAR_SHEPHERD_NAME = "ptmshepherd-0.2.16.jar";
+//  public static final String JAR_SHEPHERD_NAME = "PTMShepherd-20180820_2.jar";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_SHEPHERD_MAIN_CLASS = "edu.umich.andykong.ptmshepherd.PTMShepherd";
-  public static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAZZ, "commons-math3-3.6.1.jazz"};
+  public static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR, "commons-math3-3.6.1.jar"};
   public static final String FN_CAPTURE_STDOUT = "ptm-shepherd.log";
   public static final String FN_CAPTURE_STDERR = "ptm-shepherd.log";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
@@ -106,10 +108,8 @@ public class CmdPtmshepherd extends CmdBase {
       }
     }
 
-    List<String> jars = Stream.concat(Arrays.stream(JAR_DEPS), Stream.of(JAR_SHEPHERD_NAME))
-        .collect(Collectors.toList());
-    final List<Path> unpacked = new ArrayList<>();
-    if (!unpackJars(jars, unpacked, NAME)) { // TODO: no more unpacking
+    final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_SHEPHERD_NAME).concat(JAR_DEPS));
+    if (classpathJars == null) {
       return false;
     }
 
@@ -163,7 +163,7 @@ public class CmdPtmshepherd extends CmdBase {
       cmd.add("-Xmx" + ramGb + "G");
     }
     cmd.add("-cp");
-    cmd.add(constructClasspathString(unpacked));
+    cmd.add(constructClasspathString(classpathJars));
     cmd.add(JAR_SHEPHERD_MAIN_CLASS);
     cmd.add(PathUtils.quotePath(pathConfig.toString(), false));
     ProcessBuilder pb = new ProcessBuilder(cmd);

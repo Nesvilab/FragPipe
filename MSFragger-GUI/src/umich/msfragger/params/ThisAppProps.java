@@ -100,6 +100,7 @@ public class ThisAppProps extends Properties {
 
   public static final String PROP_MGF_WARNING = "warn.mgf";
 
+  @Deprecated
   public static final String JAR_FILE_AS_RESOURCE_EXT = ".jazz";
   public static final Path UNPACK_TEMP_SUBDIR = Paths.get("fragpipe");
   public static final String DEFAULT_LCMS_EXP_NAME = "";

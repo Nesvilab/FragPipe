@@ -1,11 +1,15 @@
 package umich.msfragger.cmd;
 
+import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.messages.MissingAssetsException;
+import com.github.chhh.utils.SwingUtils;
+import java.nio.file.Files;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,9 +18,9 @@ import java.util.stream.Stream;
 public class CmdBrukerLibLoadTest extends CmdBase {
     private static final Logger log = LoggerFactory.getLogger(CmdBrukerLibLoadTest.class);
 
-    public static final String JAR_NAME = "batmass-io-consumer.jazz";
+    public static final String JAR_NAME = "batmass-io-consumer.jar";
     public static final String JAR_MAIN_CLASS = "com.dmtavt.batmass.io.consumer.App";
-    private static String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAZZ, "ionquant-1.0.0.jazz"};
+    private static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR, "ionquant-1.0.0.jar"};
 
     public CmdBrukerLibLoadTest(boolean isRun, Path workDir, String fileCaptureStdout, String fileCaptureStderr) {
         super(isRun, workDir, fileCaptureStdout, fileCaptureStderr);
@@ -28,11 +32,11 @@ public class CmdBrukerLibLoadTest extends CmdBase {
 
     public boolean configure(Path binFragger) {
         final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.getParent()));
-        List<String> jars = Stream.concat(Arrays.stream(JAR_DEPS), Stream.of(JAR_NAME)).collect(Collectors.toList());
-        final List<Path> unpacked = new ArrayList<>();
-        if (!unpackJars(jars, unpacked, getCmdName())) { // TODO: no more unpacking
+        final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_NAME).concat(JAR_DEPS));
+        if (classpathJars == null) {
             return false;
         }
+
         List<String> cmd = new ArrayList<>();
         cmd.add("java");
         if (extLibsBruker != null) {
@@ -41,7 +45,7 @@ public class CmdBrukerLibLoadTest extends CmdBase {
             log.warn("extLibsBruker was null");
         }
         cmd.add("-cp");
-        cmd.add(constructClasspathString(unpacked));
+        cmd.add(constructClasspathString(classpathJars));
         cmd.add(JAR_MAIN_CLASS);
         log.info("Constructed cmd: {}", cmd);
 

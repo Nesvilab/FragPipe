@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.FileNotFoundException;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.exceptions.FileWritingException;
@@ -92,16 +94,8 @@ public class CmdUmpireSe extends CmdBase {
       return false;
     }
 
-    // unpack Umpire jar
-    Path jarUmpireSe;
-    try {
-      jarUmpireSe = JarUtils.unpackFromJar(ToolingUtils.class,"/" + UmpireParams.JAR_UMPIRESE_NAME, // TODO: no more unpacking
-          ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
-
-    } catch (IOException | NullPointerException ex) {
-      JOptionPane.showMessageDialog(errMsgParent,
-          "Could not unpack UmpireSE jar to a temporary directory.\n",
-          "Can't unpack", JOptionPane.ERROR_MESSAGE);
+    Path jarUmpireSe = FragpipeLocations.checkToolMissing(UmpireParams.JAR_UMPIRESE_NAME);
+    if (jarUmpireSe == null) {
       return false;
     }
 
@@ -126,7 +120,7 @@ public class CmdUmpireSe extends CmdBase {
 
     // run umpire for each file
     int ramGb = (Integer)umpirePanel.spinnerRam.getValue();
-    int ram = ramGb > 0 ? ramGb : 0;
+    int ram = Math.max(ramGb, 0);
 
     for (InputLcmsFile f: lcmsFiles) {
       Path inputFn = f.getPath().getFileName();

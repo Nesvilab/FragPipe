@@ -1,7 +1,11 @@
 package umich.msfragger.cmd;
 
+import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.messages.MissingAssetsException;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.SwingUtils;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,7 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.JOptionPane;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
@@ -95,7 +101,7 @@ public abstract class CmdBase {
    * Unpacks jar files from the final FragPipe jar (next to ToolingUtils.class).
    * @param jars The names of files to unpack. Here we name them `.jazz` files.
    */
-  protected static boolean unpackJars(List<String> jars, final List<Path> unpackedPaths, String nameForErrorMsgs) { // TODO: no more unpacking
+  protected static boolean unpackJars1(List<String> jars, final List<Path> unpackedPaths, String nameForErrorMsgs) {
     try {
       for (String jarDep : jars) {
         Path unpacked = JarUtils

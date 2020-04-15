@@ -32,7 +32,7 @@ public class DbSlice {
 
   private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
   private static final String SCRIPT_SPEC_LIB_GEN = "/speclib/gen_con_spec_lib.py";
-  private static final String SCRIPT_SPLITTER = "/" + MsfraggerProps.DBSPLIT_SCRIPT_NAME;
+  private static final String SCRIPT_SPLITTER = "/" + DbSplit2.DBSPLIT_SCRIPT_NAME;
   public static final String[] RESOURCE_LOCATIONS = {SCRIPT_SPLITTER};
   public static final PythonModule[] REQUIRED_MODULES = {
       new PythonModule("numpy", "numpy"),

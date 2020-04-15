@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.IOException;
@@ -16,24 +17,23 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JOptionPane;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
-import umich.msfragger.gui.MsfraggerGuiFrame;
 import umich.msfragger.params.crystalc.CrystalcPanel;
 import umich.msfragger.params.crystalc.CrystalcParams;
-import umich.msfragger.params.fragger.FraggerMigPanel;
 
 public class CmdCrystalc extends CmdBase {
 
-  public static final String JAR_CRYSTALC_NAME = "original-crystalc-1.1.0.jazz";
+  public static final String JAR_CRYSTALC_NAME = "original-crystalc-1.1.0.jar";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_CRYSTALC_MAIN_CLASS = "crystalc.Run";
   private static final Logger log = LoggerFactory.getLogger(CmdCrystalc.class);
 
   public static final String NAME = "Crystal-C";
-  public static final String JAR_GRPPR_NAME = "grppr-0.3.23.jazz";
-  public static final String JAR_MSFTBX_NAME = ToolingUtils.BATMASS_IO_JAZZ;
+  public static final String JAR_GRPPR_NAME = "grppr-0.3.23.jar";
+  public static final String JAR_MSFTBX_NAME = ToolingUtils.BATMASS_IO_JAR;
   private static String[] JAR_DEPS = {JAR_MSFTBX_NAME, JAR_GRPPR_NAME};
   private static final String THERMO_RAW_EXT = "RAW";
   private static final String BRUKER_RAW_EXT = "d";
@@ -125,10 +125,8 @@ public class CmdCrystalc extends CmdBase {
       return false;
     }
 
-    List<String> jars = Stream.concat(Arrays.stream(JAR_DEPS), Stream.of(JAR_CRYSTALC_NAME))
-        .collect(Collectors.toList());
-    final List<Path> unpacked = new ArrayList<>();
-    if (!unpackJars(jars, unpacked, NAME)) { // TODO: no more unpacking
+    final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_CRYSTALC_NAME).concat(JAR_DEPS));
+    if (classpathJars == null) {
       return false;
     }
 
@@ -182,7 +180,7 @@ public class CmdCrystalc extends CmdBase {
           cmd.add("-Xmx" + ramGb + "G");
         }
         cmd.add("-cp");
-        cmd.add(constructClasspathString(unpacked));
+        cmd.add(constructClasspathString(classpathJars));
         cmd.add(JAR_CRYSTALC_MAIN_CLASS);
         cmd.add(ccParamsPath.toString());
         cmd.add(pepxml.toString());

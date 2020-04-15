@@ -73,8 +73,9 @@ public class JarUtils {
    * in temp. That will be on top of {@code locationInTemp}.
    * @param scheduleForDeletion The file will be scheduled for deletion before JVM stops.
    * @return Path to unpacked file.
-   * @throws IOException
+   * @deprecated Put stuff in 'tools/' subdir instead of packing it into jar
    */
+  @Deprecated
   public static Path unpackFromJar(Class<?> clazz, String resourceLocation, Path locationInTemp,
       boolean maintainRelLoc, boolean scheduleForDeletion) throws IOException {
 
@@ -120,6 +121,7 @@ public class JarUtils {
     return s.startsWith("/") ? s.substring(1) : s;
   }
 
+  @Deprecated
   private static String computeFinalResourceName(String resourceLocation) {
     final String resourceNameOrig = StringUtils.afterLastChar(resourceLocation, '/', false);
     return resourceNameOrig.toLowerCase().endsWith(JAR_FILE_AS_RESOURCE_EXT)

@@ -35,7 +35,6 @@ import com.github.chhh.utils.PropertiesUtils;
 public class MsfraggerProps {
     private static final Logger log = LoggerFactory.getLogger(MsfraggerProps.class);
     public static final String PROGRAM_NAME = "MSFragger";
-    public static final String DBSPLIT_SCRIPT_NAME = "msfragger_pep_split.py";
 
 //    private static class Holder {
 //        private static final Properties properties = PropertiesUtils.initProperties(PROPERTIES_URLS, PROPERTIES_FILE_NAME, MsfraggerProps.class);

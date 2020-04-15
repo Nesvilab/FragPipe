@@ -118,6 +118,9 @@ launch4j {
 //}
 
 dependencies {
+    implementation 'one.util:streamex:0.7.2'
+    implementation 'org.jooq:jool-java-8:0.9.14'
+
     implementation 'org.jgrapht:jgrapht-core:1.4.0'
     implementation 'org.apache.httpcomponents:httpcore:4.4.11'
     implementation(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7')

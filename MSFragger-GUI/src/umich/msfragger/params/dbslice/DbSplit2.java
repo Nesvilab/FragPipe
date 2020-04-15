@@ -1,8 +1,10 @@
 package umich.msfragger.params.dbslice;
 
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
+import com.dmtavt.fragpipe.messages.MissingAssetsException;
 import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
@@ -18,9 +20,11 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.params.fragger.MsfraggerProps;
@@ -35,9 +39,9 @@ public class DbSplit2 {
       + "needed for DB Splitting functionality.";
 
   private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
-  private static final String SCRIPT_SPEC_LIB_GEN = "/speclib/gen_con_spec_lib.py";
-  private static final String SCRIPT_SPLITTER = "/" + MsfraggerProps.DBSPLIT_SCRIPT_NAME;
-  public static final String[] RESOURCE_LOCATIONS = {SCRIPT_SPLITTER};
+  private static final String SCRIPT_SPEC_LIB_GEN = "speclib/gen_con_spec_lib.py";
+  public static final String DBSPLIT_SCRIPT_NAME = "msfragger_pep_split.py";
+  public static final String[] RESOURCE_LOCATIONS = {DBSPLIT_SCRIPT_NAME};
   public static final List<PythonModule> REQUIRED_MODULES = Arrays.asList(PythonModule.NUMPY, PythonModule.PANDAS);
 
   private PyInfo pi;
@@ -104,7 +108,7 @@ public class DbSplit2 {
 
       checkPython(python);
       checkFragger(fragger);
-      unpack();
+      validateAssets();
 
       isInitialized = true;
       log.debug("{} init complete",DbSplit2.class.getSimpleName());
@@ -144,18 +148,23 @@ public class DbSplit2 {
     }
   }
 
-  private void unpack() throws ValidationException {
-    for (String rl : RESOURCE_LOCATIONS) {
-      Path subDir = Paths.get(UNPACK_SUBDIR_IN_TEMP);
-      Path path = null;
-      try {
-        path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, true); // TODO: no more unpacking
-      } catch (IOException e) {
-        throw new ValidationException("Could not unpack DbSlice", e);
+  private void validateAssets() throws ValidationException {
+    try {
+      List<Path> paths = FragpipeLocations.createToolsPaths(Seq.of(RESOURCE_LOCATIONS)
+          .map(loc -> loc.startsWith("/") ? loc.substring(1) : loc));
+      Optional<Path> splitScript = paths.stream()
+          .filter(p -> p.getFileName().toString().toLowerCase().equals(DBSPLIT_SCRIPT_NAME.toLowerCase()))
+          .findFirst();
+      if (!splitScript.isPresent()) {
+        throw new ValidationException("Could not determine location of DbSplit python script " + DBSPLIT_SCRIPT_NAME);
       }
-      // record the location of the main script that we'll be running
-      if (SCRIPT_SPLITTER.equals(rl))
-        scriptDbslicingPath = path;
+      scriptDbslicingPath = splitScript.get();
+    } catch (MissingAssetsException e) {
+      log.error("DbSplit is missing assets in tools folder:\n{}", Seq.seq(e.getNotExisting()).toString("\n"));
+      String missingRelativePaths = Seq.seq(e.getNotExisting())
+          .map(p -> FragpipeLocations.get().getDirTools().relativize(p))
+          .map(Path::toString).toString("; ");
+      throw new ValidationException("Missing assets in tools/ folder:\n" + missingRelativePaths, e);
     }
   }
 

@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.dmtavt.fragpipe.FragpipeLocations;
 import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -8,9 +9,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.swing.JOptionPane;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
@@ -20,8 +20,8 @@ public class CmdIonquant extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdIonquant.class);
 
   public static final String NAME = "IonQuant";
-  public static final String JAR_IONQUANT_NAME = "ionquant-1.0.0.jazz";
-  public static final String JAR_MSFTBX_NAME = ToolingUtils.BATMASS_IO_JAZZ;
+  public static final String JAR_IONQUANT_NAME = "ionquant-1.0.0.jar";
+  public static final String JAR_MSFTBX_NAME = ToolingUtils.BATMASS_IO_JAR;
   public static final String JAR_IONQUANT_MAIN_CLASS = "ionquant.IonQuant";
   private static String[] JAR_DEPS = {JAR_MSFTBX_NAME};
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
@@ -67,10 +67,8 @@ public class CmdIonquant extends CmdBase {
       return false;
     }
 
-    List<String> jars = Stream.concat(Arrays.stream(JAR_DEPS), Stream.of(JAR_IONQUANT_NAME))
-        .collect(Collectors.toList());
-    final List<Path> unpacked = new ArrayList<>();
-    if (!unpackJars(jars, unpacked, NAME)) { // TODO: no more unpacking
+    final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_IONQUANT_NAME).concat(JAR_DEPS));
+    if (classpathJars == null) {
       return false;
     }
 
@@ -96,7 +94,7 @@ public class CmdIonquant extends CmdBase {
     }
 
     cmd.add("-cp");
-    cmd.add(constructClasspathString(unpacked));
+    cmd.add(constructClasspathString(classpathJars));
     cmd.add(JAR_IONQUANT_MAIN_CLASS);
     cmd.add("--threads");
     cmd.add(String.valueOf(nThreads));
