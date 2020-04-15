@@ -8,7 +8,11 @@ import org.slf4j.LoggerFactory;
 
 public class Bus {
   private static final Logger log = LoggerFactory.getLogger(Bus.class);
-  private static final EventBus b = EventBus.getDefault();
+  private static final EventBus b;
+
+  static {
+    b = EventBus.getDefault();
+  }
 
   public static void clearCaches() {
     EventBus.clearCaches();

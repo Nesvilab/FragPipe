@@ -101,6 +101,9 @@ public class FragpipeRun {
   private FragpipeRun() {}
 
   public static void run(MessageRun m) {
+    log.debug("Started main FragpipeRun.run() method");
+    Thread.setDefaultUncaughtExceptionHandler(Fragpipe.uncaughtExceptionHandler());
+
     Bus.post(new MessageSaveCache());
     Bus.post(new MessageClearConsole());
     Bus.post(new MessageRunButtonEnabled(false));
@@ -382,7 +385,7 @@ public class FragpipeRun {
 
     if (lcmsFilesAll.isEmpty()) {
       JOptionPane.showMessageDialog(parent, "No LC/MS data files selected.\n"
-          + "Check 'Select Raw Files' tab.", "Error", JOptionPane.WARNING_MESSAGE);
+          + "Check 'Workflow' tab, 'Input LC/MS Files' section.", "Error", JOptionPane.WARNING_MESSAGE);
       return null;
     } else {
       // check that all input LCMS files have unique filenames

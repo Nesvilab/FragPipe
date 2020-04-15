@@ -67,6 +67,7 @@ public class TabRun extends JPanelWithEnablement {
 
   private void initMore() {
     Bus.registerQuietly(this);
+    Bus.postSticky(this);
   }
 
   private void clearConsole() {

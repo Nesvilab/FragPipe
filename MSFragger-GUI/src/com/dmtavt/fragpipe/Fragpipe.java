@@ -54,6 +54,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -78,6 +79,7 @@ import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.NoSubscriberEvent;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,12 +142,20 @@ public class Fragpipe extends JFrame {
       }
     });
 
-    Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-      String stacktrace = LogUtils.stacktrace(e);
-      log.error("Something unexpected happened!", e);
-      SwingUtils.userShowError(this, stacktrace);
-    });
+    Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler());
+
     log.debug("Done init()");
+  }
+
+  public static UncaughtExceptionHandler uncaughtExceptionHandler() {
+    return new UncaughtExceptionHandler() {
+      @Override
+      public void uncaughtException(Thread t, Throwable e) {
+        String stacktrace = LogUtils.stacktrace(e);
+        log.error("Something unexpected happened!", e);
+        SwingUtils.userShowError(null, stacktrace);
+      }
+    };
   }
 
   private void saveCache() {
@@ -442,6 +452,12 @@ public class Fragpipe extends JFrame {
     }
 
     // TODO: display custom messages from remote properties
+  }
+
+  @Subscribe
+  public void on(SubscriberExceptionEvent m) {
+    log.error("Error delivering events through the bus", m.throwable);
+    SwingUtils.showErrorDialogWithStacktrace(m.throwable, Fragpipe.this);
   }
 
   @Subscribe
