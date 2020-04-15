@@ -1,5 +1,7 @@
 package umich.msfragger.params.speclib;
 
+import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
@@ -9,6 +11,7 @@ import com.github.chhh.utils.Installed;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.PythonModule;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -165,16 +168,29 @@ public class SpecLibGen2 {
 
   private void unpack() throws ValidationException {
     for (String rl : RESOURCE_LOCATIONS) {
-      Path subDir = Paths.get(UNPACK_SUBDIR_IN_TEMP);
-      Path path = null;
-      try {
-        path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, true);
-      } catch (IOException e) {
-        throw new ValidationException("Error unpacking resources", e);
+      if (rl.startsWith("/")) {
+        rl = rl.substring(1);
+      }
+      Path path = FragpipeLocations.get().getDirTools().resolve(rl);
+      if (!Files.exists(path)) {
+        log.debug("Validating speclibgen resource [{}]: {}", "NOT EXISTS", path);
+        throw new ValidationException("Missing SpecLibGen resource/tool: " + path.normalize().toAbsolutePath().toString());
+      } else {
+        log.debug("Validating speclibgen resource [{}]: {}", "EXISTS", path);
       }
       if (SCRIPT_SPEC_LIB_GEN.equals(rl)) {
         scriptSpecLibGenPath = path;
       }
+//      Path subDir = Paths.get(UNPACK_SUBDIR_IN_TEMP);
+//      Path path = null;
+//      try {
+//        path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, true);
+//      } catch (IOException e) {
+//        throw new ValidationException("Error unpacking resources", e);
+//      }
+//      if (SCRIPT_SPEC_LIB_GEN.equals(rl)) {
+//        scriptSpecLibGenPath = path;
+//      }
     }
   }
 }

@@ -50,7 +50,21 @@ public class FragpipeLocations {
       Path jarPath = Paths.get(fragpipeJar);
       Path dir = Files.isDirectory(jarPath) ? jarPath : jarPath.getParent();
       Path cache = dir.resolve(Paths.get("../cache"));
-      Path tools = dir.resolve(Paths.get("../tools"));
+      Path tools;
+      final String debugClassLoc = "build/classes/java/main";
+      final String debugParentDirName = "MSFragger-GUI";
+      if (dir.toString().toLowerCase().replaceAll("\\\\", "/").contains(debugClassLoc)) {
+        Path debugDir = dir;
+        while (!debugDir.getFileName().toString().equals(debugParentDirName) && debugDir.getParent() != null) {
+          debugDir = debugDir.getParent();
+        }
+        if (!debugDir.getFileName().toString().equals(debugParentDirName)) {
+          throw new IllegalStateException("Could not set up tools location for debug session");
+        }
+        tools = debugDir.resolve(Paths.get("tools"));
+      } else {
+        tools = dir.resolve(Paths.get("../tools"));
+      }
       Path lib = dir.resolve(Paths.get("../lib"));
       List<Path> paths = Arrays.asList(jarPath, dir, cache, tools, lib);
       log.debug("Fragpipe locations:\n\t{}",
@@ -65,6 +79,18 @@ public class FragpipeLocations {
       }
       locations = new FragpipeLocations(jarPath, cache, tools, lib);
     }
+  }
+
+  public Path getDirCache() {
+    return cache;
+  }
+
+  public Path getDirTools() {
+    return tools;
+  }
+
+  public Path getDirApp() {
+    return getJarPath().getParent();
   }
 
   public List<Path> getCachePaths() {
