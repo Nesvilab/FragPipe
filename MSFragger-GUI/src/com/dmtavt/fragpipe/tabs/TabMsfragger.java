@@ -267,6 +267,8 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
   private void initMore() {
+    SwingUtils.renameDeep(this, true, TAB_PREFIX, null);
+
     // pre-load default values, they will be overwritten if there are user params from previous sessions
     MsfraggerParams params = MsfraggerParams.getDefault(SearchTypeProp.closed);
     formFrom(params);

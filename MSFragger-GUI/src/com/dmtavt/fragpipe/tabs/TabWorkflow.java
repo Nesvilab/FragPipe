@@ -1,7 +1,9 @@
 package com.dmtavt.fragpipe.tabs;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFiles;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFolder;
 import com.dmtavt.fragpipe.messages.MessageLcmsClearFiles;
@@ -10,9 +12,11 @@ import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
 import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction;
 import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction.Type;
 import com.dmtavt.fragpipe.messages.MessageLcmsRemoveSelected;
+import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageType;
 import com.github.chhh.utils.FileDrop;
 import com.github.chhh.utils.PathUtils;
+import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
@@ -32,6 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
@@ -48,12 +53,14 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.RandomUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.cmd.CmdMsfragger;
@@ -303,6 +310,52 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (m.type == MessageType.REQUEST) {
       Bus.post(new MessageLcmsFilesList(MessageType.RESPONSE, tableModelRawFiles.dataCopy()));
     }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageSaveAsWorkflow m) {
+    Fragpipe fp = Fragpipe.getStickyStrict(Fragpipe.class);
+    Properties uiProps = FragpipeCacheUtils.tabsSave(fp.tabs);
+    Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps)).filter(kv -> {
+      String k = kv.v1().toLowerCase();
+      if (k.startsWith(TabConfig.TAB_PREFIX))
+        return false;
+      return !k.contains("workdir") && !k.contains("db-path");
+    }).toMap(kv -> kv.v1, kv -> kv.v2);
+
+    MigUtils mu = MigUtils.get();
+    final JPanel p = mu.newPanel("File name", true);
+    JTextField tf = new JTextField(20);
+    tf.setName("file-name");
+    mu.add(p, tf).growX().wrap();
+
+    int answer = SwingUtils
+        .showConfirmDialog(fp, p, "Assign workflow name");
+    if (JOptionPane.OK_OPTION != answer) {
+      return;
+    }
+    String text = tf.getText().trim();
+    if (StringUtils.isBlank(text)) {
+      SwingUtils.showErrorDialog(fp, "Workflow name can't be left empty", "Error saving workflow");
+      return;
+    }
+    Path saveDir = FragpipeLocations.get().getDirWorkflows();
+    Path savePath;
+    try {
+      savePath = saveDir.resolve(text).normalize().toAbsolutePath();
+    } catch (Exception e) {
+      SwingUtils.showErrorDialog(fp, "Not a valid path", "Error saving workflow");
+      return;
+    }
+    if (PathUtils.existing(savePath.toString()) != null) {
+      int ans = SwingUtils.showConfirmDialog(fp, new JLabel(SwingUtils.makeHtml("Overwrite existing file?\n" + savePath.toString())), "Overwrite?");
+      if (JOptionPane.OK_OPTION != ans) {
+        log.debug("user chose not to overwrite file");
+        return;
+      }
+    }
+    FragpipeCacheUtils.saveToFileSorted(PropertiesUtils.from(vetted), savePath, "Workflow: " + text);
+    SwingUtils.showInfoDialog(fp, "Saved to: " + savePath, "Error saving workflow");
   }
 
   private void postFileListUpdate() {

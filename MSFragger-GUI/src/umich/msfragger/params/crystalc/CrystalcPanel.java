@@ -61,7 +61,7 @@ public class CrystalcPanel extends JPanelBase {
 
   @Override
   protected String getComponentNamePrefix() {
-    return null;
+    return PREFIX;
   }
 
   @Override

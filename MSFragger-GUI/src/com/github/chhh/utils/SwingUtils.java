@@ -90,6 +90,7 @@ import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.security.krb5.internal.KDCOptions;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 
 /**
@@ -934,6 +935,11 @@ public class SwingUtils {
   public static int showConfirmDialog(Component parent, final Component component) {
     makeDialogResizable(component);
     return JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component));
+  }
+
+  public static int showConfirmDialog(Component parent, final Component component, String title) {
+    makeDialogResizable(component);
+    return JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component), title, JOptionPane.OK_CANCEL_OPTION);
   }
 
   public static int showChoiceDialog(Component parent, Object message, String[] options,

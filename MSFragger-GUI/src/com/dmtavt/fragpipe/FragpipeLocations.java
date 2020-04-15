@@ -78,7 +78,7 @@ public class FragpipeLocations {
       Path workflows = dir.resolve("../workflows");
 
       // create locations if they don't yet exist
-      List<Path> paths = Arrays.asList(jarPath, dir, cache, tools, lib);
+      List<Path> paths = Arrays.asList(jarPath, dir, cache, tools, lib, workflows);
       log.debug("Fragpipe locations:\n\t{}",
           paths.stream().map(Path::toString).collect(Collectors.joining("\n\t")));
       for (Path path : paths) {
@@ -89,8 +89,6 @@ public class FragpipeLocations {
           throw new IllegalStateException("Error initializing fragpipe locations", e);
         }
       }
-
-
 
       locations = new FragpipeLocations(jarPath, cache, tools, lib, workflows);
     }
@@ -106,6 +104,10 @@ public class FragpipeLocations {
 
   public Path getDirApp() {
     return getJarPath().getParent();
+  }
+
+  public Path getDirWorkflows() {
+    return workflows;
   }
 
   public List<Path> getCachePaths() {

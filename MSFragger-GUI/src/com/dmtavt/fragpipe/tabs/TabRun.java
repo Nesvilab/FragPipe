@@ -54,7 +54,7 @@ import umich.msfragger.cmd.CmdMsfragger;
 public class TabRun extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(TabRun.class);
   public static final MigUtils mu = MigUtils.get();
-  private static final String TAB_PREFIX = "tab-run.";
+  public static final String TAB_PREFIX = "tab-run.";
   private static final String LAST_WORK_DIR = "workdir.last-path";
   final TextConsole console;
   Color defTextColor;
@@ -72,6 +72,7 @@ public class TabRun extends JPanelWithEnablement {
   }
 
   private void initMore() {
+    //SwingUtils.renameDeep(this, false, TAB_PREFIX, null);
     Bus.registerQuietly(this);
     Bus.postSticky(this);
   }

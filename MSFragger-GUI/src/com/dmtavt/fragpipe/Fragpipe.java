@@ -121,9 +121,9 @@ public class Fragpipe extends JFrame {
     return name.contains(PROP_NOCACHE) ? name : name + "." + PROP_NOCACHE;
   };
 
-  JTabbedPane tabs;
-  TextConsole console;
-  JLabel defFont;
+  public JTabbedPane tabs;
+  public TextConsole console;
+  public JLabel defFont;
   private TabUmpire tabUmpire;
   private boolean dontSaveCacheOnExit;
 
@@ -366,6 +366,7 @@ public class Fragpipe extends JFrame {
     Bus.register(tips);
     Bus.postSticky(new NoteConfigTips(tips));
     Bus.post(new MessageUiInitDone());
+    Bus.postSticky(this);
 
     // initialize singletons (mainly to subscribe them to the bus)
     DbSplit2.initClass();
