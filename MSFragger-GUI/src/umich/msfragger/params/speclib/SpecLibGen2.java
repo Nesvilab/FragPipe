@@ -5,6 +5,7 @@ import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
+import com.dmtavt.fragpipe.messages.MissingAssetsException;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.github.chhh.utils.Installed;
@@ -19,10 +20,12 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,16 +41,16 @@ public class SpecLibGen2 {
   public static final List<PythonModule> REQUIRED_FOR_EASYPQP = Arrays.asList(
       new PythonModule("easypqp", "easypqp"));
   private static final Logger log = LoggerFactory.getLogger(SpecLibGen2.class);
-  private static final String SCRIPT_SPEC_LIB_GEN = "/speclib/gen_con_spec_lib.py";
+  private static final String SCRIPT_SPEC_LIB_GEN = "speclib/gen_con_spec_lib.py";
   public static final String[] RESOURCE_LOCATIONS = {
-      "/speclib/common_funcs.py",
-      "/speclib/detect_decoy_prefix.py",
+      "speclib/common_funcs.py",
+      "speclib/detect_decoy_prefix.py",
       SCRIPT_SPEC_LIB_GEN,
-      "/speclib/hela_irtkit.tsv",
-      "/speclib/linux/spectrast",
-      "/speclib/win/spectrast.exe",
-      "/speclib/spectrast_gen_pepidx.py",
-      "/speclib/unite_runs.py",
+      "speclib/hela_irtkit.tsv",
+      "speclib/linux/spectrast",
+      "speclib/win/spectrast.exe",
+      "speclib/spectrast_gen_pepidx.py",
+      "speclib/unite_runs.py",
   };
   private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
   private static SpecLibGen2 INSTANCE = new SpecLibGen2();
@@ -113,7 +116,7 @@ public class SpecLibGen2 {
       isInitialized = false;
 
       checkPython(python);
-      unpack();
+      validateAssets();
       try {
         checkPythonEasypqp(python.pi);
       } catch (ValidationException e) { // easypqp is optional, don't fail whole validation if it's missing
@@ -166,31 +169,25 @@ public class SpecLibGen2 {
     isEasypqpOk = true;
   }
 
-  private void unpack() throws ValidationException {
-    for (String rl : RESOURCE_LOCATIONS) {
-      if (rl.startsWith("/")) {
-        rl = rl.substring(1);
+  private void validateAssets() throws ValidationException {
+    try {
+      List<Path> paths = FragpipeLocations.createToolsPaths(Seq.of(RESOURCE_LOCATIONS)
+          .map(loc -> loc.startsWith("/") ? loc.substring(1) : loc)); // just in case, for old style paths used in this class
+      final String scriptSpeclibgenFn = Paths.get(SCRIPT_SPEC_LIB_GEN).getFileName().toString();
+      Optional<Path> mainScript = paths.stream()
+          .filter(p -> p.getFileName().toString().equalsIgnoreCase(scriptSpeclibgenFn))
+          .findFirst();
+      if (!mainScript.isPresent()) {
+        throw new ValidationException("Could not determine location of SpecLibGen python script " + SCRIPT_SPEC_LIB_GEN);
       }
-      Path path = FragpipeLocations.get().getDirTools().resolve(rl);
-      if (!Files.exists(path)) {
-        log.debug("Validating speclibgen resource [{}]: {}", "NOT EXISTS", path);
-        throw new ValidationException("Missing SpecLibGen resource/tool: " + path.normalize().toAbsolutePath().toString());
-      } else {
-        log.debug("Validating speclibgen resource [{}]: {}", "EXISTS", path);
-      }
-      if (SCRIPT_SPEC_LIB_GEN.equals(rl)) {
-        scriptSpecLibGenPath = path;
-      }
-//      Path subDir = Paths.get(UNPACK_SUBDIR_IN_TEMP);
-//      Path path = null;
-//      try {
-//        path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, true);
-//      } catch (IOException e) {
-//        throw new ValidationException("Error unpacking resources", e);
-//      }
-//      if (SCRIPT_SPEC_LIB_GEN.equals(rl)) {
-//        scriptSpecLibGenPath = path;
-//      }
+      scriptSpecLibGenPath = mainScript.get();
+
+    } catch (MissingAssetsException e) {
+      log.error("DbSplit is missing assets in tools folder:\n{}", Seq.seq(e.getNotExisting()).toString("\n"));
+      String missingRelativePaths = Seq.seq(e.getNotExisting())
+          .map(p -> FragpipeLocations.get().getDirTools().relativize(p))
+          .map(Path::toString).toString("; ");
+      throw new ValidationException("Missing assets in tools/ folder:\n" + missingRelativePaths, e);
     }
   }
 }

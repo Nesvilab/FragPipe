@@ -152,13 +152,14 @@ public class DbSplit2 {
     try {
       List<Path> paths = FragpipeLocations.createToolsPaths(Seq.of(RESOURCE_LOCATIONS)
           .map(loc -> loc.startsWith("/") ? loc.substring(1) : loc));
-      Optional<Path> splitScript = paths.stream()
-          .filter(p -> p.getFileName().toString().toLowerCase().equals(DBSPLIT_SCRIPT_NAME.toLowerCase()))
+      final String scriptDbsplitFn = Paths.get(DBSPLIT_SCRIPT_NAME).getFileName().toString();
+      Optional<Path> mainScript = paths.stream()
+          .filter(p -> p.getFileName().toString().equalsIgnoreCase(scriptDbsplitFn))
           .findFirst();
-      if (!splitScript.isPresent()) {
+      if (!mainScript.isPresent()) {
         throw new ValidationException("Could not determine location of DbSplit python script " + DBSPLIT_SCRIPT_NAME);
       }
-      scriptDbslicingPath = splitScript.get();
+      scriptDbslicingPath = mainScript.get();
     } catch (MissingAssetsException e) {
       log.error("DbSplit is missing assets in tools folder:\n{}", Seq.seq(e.getNotExisting()).toString("\n"));
       String missingRelativePaths = Seq.seq(e.getNotExisting())
