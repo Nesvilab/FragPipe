@@ -60,6 +60,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -563,7 +564,12 @@ public class Fragpipe extends JFrame {
   }
 
   public static void propsVarSet(String name, String value) {
-    propsVar().setProperty(name, value);
+    Objects.requireNonNull(name);
+    if (value == null) {
+      propsVar().remove(name);
+    } else {
+      propsVar().setProperty(name, value);
+    }
   }
   public static String propsVarGet(String name) {
     return propsVar().getProperty(name);

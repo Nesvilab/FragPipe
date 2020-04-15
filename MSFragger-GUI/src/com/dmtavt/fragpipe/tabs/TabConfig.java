@@ -3,6 +3,7 @@ package com.dmtavt.fragpipe.tabs;
 import static com.dmtavt.fragpipe.Fragpipe.fe;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.PyInfo;
@@ -30,6 +31,7 @@ import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher.UpdateInfo;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.OsUtils;
+import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.FileChooserUtils;
@@ -294,8 +296,8 @@ public class TabConfig extends JPanelWithEnablement {
         new FileNameExtensionFilter("JAR files", "jar"));
     FileChooserUtils.setPath(fc, Stream.of(
         uiTextBinFragger.getNonGhostText(),
-        ThisAppProps.load(ThisAppProps.PROP_BINARIES_IN),
-        JarUtils.getCurrentJarPath()));
+        Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN),
+        FragpipeLocations.get().getDirApp().toString()));
     return fc;
   }
 
@@ -318,6 +320,11 @@ public class TabConfig extends JPanelWithEnablement {
   public void on(NoteConfigPhilosopher m) {
     log.debug("Got {}", m);
     uiTextBinPhi.setText(m.path);
+
+    Path existing = PathUtils.existing(m.path);
+    if (existing != null) {
+      Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
+    }
 
     if (m.ex != null) {
       SwingUtils.setJEditorPaneContent(epPhiVer, "Philosopher version: N/A");
@@ -368,6 +375,11 @@ public class TabConfig extends JPanelWithEnablement {
   public void on(NoteConfigMsfragger m) {
     log.debug("Got {}", m);
     uiTextBinFragger.setText(m.path);
+
+    Path existing = PathUtils.existing(m.path);
+    if (existing != null) {
+      Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
+    }
 
     if (m.ex != null) {
       SwingUtils.setJEditorPaneContent(epFraggerVer, "MSFragger version: N/A");
@@ -671,7 +683,7 @@ public class TabConfig extends JPanelWithEnablement {
     }
     FileChooserUtils.setPath(fc, Stream.of(
         uiTextBinPhi.getNonGhostText(),
-        ThisAppProps.load(ThisAppProps.PROP_BINARIES_IN),
+        Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN),
         JarUtils.getCurrentJarPath()));
     return fc;
   }

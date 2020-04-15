@@ -189,7 +189,9 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, epWorkflowsInfo).growX().spanX().wrap();
     mu.add(p, feComboWorkflow.label()).split();
     mu.add(p, feComboWorkflow.comp);
-    mu.add(p, btnWorkflowLoad).wrap();
+    mu.add(p, btnWorkflowLoad);
+    mu.add(p, new JLabel("or save current settings as workflow")).gapLeft("15px");
+    mu.add(p, UiUtils.createButton("Save", e -> Bus.post(new MessageSaveAsWorkflow()))).wrap();
 
     mu.add(p, epWorkflowsDesc).growX().spanX().wrap();
 
