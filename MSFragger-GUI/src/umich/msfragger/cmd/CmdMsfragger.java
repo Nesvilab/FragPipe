@@ -272,11 +272,11 @@ public class CmdMsfragger extends CmdBase {
   }
 
   public boolean configure(Component comp, boolean isDryRun,
-      FraggerMigPanel fp, Path jarFragpipe, UsageTrigger binFragger, String pathFasta,
+       Path jarFragpipe, UsageTrigger binFragger, String pathFasta,
+       MsfraggerParams params, int numSlices, int ramGb,
       List<InputLcmsFile> lcmsFiles, final String decoyTag) {
 
     pbis.clear();
-    final int numSlices = fp.getNumDbSlices();
     final boolean isSlicing = numSlices > 1;
     if (isSlicing) {
       // slicing requested
@@ -326,7 +326,6 @@ public class CmdMsfragger extends CmdBase {
     }
 
     // Search parameter file
-    MsfraggerParams params = fp.getParams();
     params.setDatabaseName(pathFasta);
     params.setDecoyPrefix(decoyTag);
     Path savedParamsPath = wd.resolve(MsfraggerParams.CACHE_FILE);
@@ -342,8 +341,6 @@ public class CmdMsfragger extends CmdBase {
         return false;
       }
     }
-
-    final int ramGb = fp.getRamGb() > 0 ? fp.getRamGb() : OsUtils.getDefaultXmx();
 
     // 32k symbols splitting for regular command.
     // But for slicing it's all up to the python script.
@@ -368,7 +365,7 @@ public class CmdMsfragger extends CmdBase {
     int fileIndex = 0;
     StringBuilder sb = new StringBuilder();
 
-    final String ext = fp.getOutputFileExt();
+    final String ext = params.getOutputFileExtension();
     Map<InputLcmsFile, List<Path>> mapLcmsToPepxml = outputs(lcmsFiles, ext, wd);
     Map<InputLcmsFile, List<Path>> mapLcmsToTsv = outputs(lcmsFiles, "tsv", wd);
     Map<InputLcmsFile, List<Path>> mapLcmsToPin = outputs(lcmsFiles, "pin", wd);
@@ -451,7 +448,7 @@ public class CmdMsfragger extends CmdBase {
             pbis.addAll(PbiBuilder.from(pbsMove));
           }
         }
-        if (fp.getParams().getPrecursorMassUnits().valueInParamsFile() > 1) {
+        if (params.getPrecursorMassUnits().valueInParamsFile() > 1) {
           List<Path> pinWhereItShouldBeList = mapLcmsToPin.get(f);
           for (Path pinWhereItShouldBe : pinWhereItShouldBeList) {
             String pinFn = pinWhereItShouldBe.getFileName().toString();

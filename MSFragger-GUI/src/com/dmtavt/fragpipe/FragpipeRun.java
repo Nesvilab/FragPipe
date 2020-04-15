@@ -14,6 +14,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
+import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tabs.TabQuantitaion;
 import com.dmtavt.fragpipe.tabs.TabRun;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
@@ -87,6 +88,7 @@ import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcPanel;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.fragger.FraggerMigPanel;
+import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.ionquant.QuantPanelLabelfree;
 import umich.msfragger.params.philosopher.ReportPanel;
 import umich.msfragger.params.ptmshepherd.PtmshepherdPanel;
@@ -514,16 +516,16 @@ public class FragpipeRun {
       lcmsFiles = cmdUmpire.outputs(lcmsFiles);
     }
 
-    final FraggerMigPanel fp = Fragpipe.getStickyStrict(FraggerMigPanel.class);
-    final int ramGb = fp.getRamGb();
+    final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
+    final int ramGb = tabMsf.getRamGb();
     final int ramGbNonzero = ramGb > 0 ? ramGb : OsUtils.getDefaultXmx();
-    final int threads = fp.getThreads();
+    final int threads = tabMsf.getThreads();
 
 
     // run MSAdjuster
-    final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(fp.isRun() && fp.isMsadjuster(), wd);
+    final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(tabMsf.isRun() && tabMsf.isMsadjuster(), wd);
     if (cmdMsAdjuster.isRun()) {
-      if (!cmdMsAdjuster.configure(parent, jarPath, fp, lcmsFiles, false, 49)) {
+      if (!cmdMsAdjuster.configure(parent, jarPath, ramGbNonzero, lcmsFiles, false, 49)) {
         return false;
       }
       pbDescs.add(cmdMsAdjuster.getBuilderDescriptor());
@@ -536,10 +538,13 @@ public class FragpipeRun {
     final UsageTrigger binMsfragger = new UsageTrigger(configMsfragger.path, "MsFragger");
     TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
     final String decoyTag = tabDatabase.getDecoyTag();
+    final MsfraggerParams msfParams = tabMsf.getParams();
 
-    final CmdMsfragger cmdMsfragger = new CmdMsfragger(fp.isRun(), wd, fp.getParams().getPrecursorMassUnits(), fp.getParams().getOutputReportTopN());
+    final CmdMsfragger cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, msfParams.getPrecursorMassUnits(), msfParams.getOutputReportTopN());
     if (cmdMsfragger.isRun()) {
-      if (!cmdMsfragger.configure(parent, isDryRun, fp, jarPath, binMsfragger, fastaFile, lcmsFiles, decoyTag)) {
+      if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile,
+          msfParams, tabMsf.getNumDbSlices(), ramGbNonzero,
+          lcmsFiles, decoyTag)) {
         return false;
       }
       pbDescs.add(cmdMsfragger.getBuilderDescriptor());
@@ -564,13 +569,13 @@ public class FragpipeRun {
       }
     }
     Map<InputLcmsFile, List<Path>> pepxmlFiles = cmdMsfragger.outputs(
-        lcmsFiles, fp.getOutputFileExt(), wd);
+        lcmsFiles, tabMsf.getOutputFileExt(), wd);
     final Map<InputLcmsFile, List<Path>> pepxmlFilesFromMsfragger = new HashMap<>(pepxmlFiles);
 
 
     // run MsAdjuster Cleanup
     if (cmdMsAdjuster.isRun()) {
-      if (!cmdMsAdjuster.configure(parent, jarPath, fp, lcmsFiles, true, 51)) {
+      if (!cmdMsAdjuster.configure(parent, jarPath, ramGbNonzero, lcmsFiles, true, 51)) {
         return false;
       }
       pbDescs.add(cmdMsAdjuster.getBuilderDescriptor());
@@ -585,11 +590,13 @@ public class FragpipeRun {
       if (threads > 0) {
         ccParams.setThread(threads);
       }
-      if (!cmdCrystalc.configure(parent, fp, isDryRun, Paths.get(binMsfragger.getBin()), ccParams, fastaFile, pepxmlFiles)) {
+      if (!cmdCrystalc.configure(parent, isDryRun, Paths.get(binMsfragger.getBin()),
+          msfParams.getOutputFileExtension(), ramGbNonzero,
+          ccParams, fastaFile, pepxmlFiles)) {
         return false;
       }
       pbDescs.add(cmdCrystalc.getBuilderDescriptor());
-      pepxmlFiles = cmdCrystalc.outputs(pepxmlFiles, fp.getOutputFileExt());
+      pepxmlFiles = cmdCrystalc.outputs(pepxmlFiles, tabMsf.getOutputFileExt());
     }
 
     // run Peptide Prophet
@@ -600,14 +607,14 @@ public class FragpipeRun {
     CmdPeptideProphet cmdPeptideProphet = new CmdPeptideProphet(isRunPeptideProphet, wd);
     if (cmdPeptideProphet.isRun()) {
       final String pepProphCmd = pepProphPanel.getCmdOpts();
-      final String enzymeName = fp.getEnzymeName();
+      final String enzymeName = tabMsf.getEnzymeName();
       if (!cmdPeptideProphet.configure(parent, usePhi, jarPath, isDryRun,
           fastaFile, decoyTag, pepProphCmd, isCombinedPepxml, enzymeName, pepxmlFiles)) {
         return false;
       }
       pbDescs.add(cmdPeptideProphet.getBuilderDescriptor());
     }
-    pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, fp.getOutputFileExt(), isCombinedPepxml);
+    pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, tabMsf.getOutputFileExt(), isCombinedPepxml);
 
     // run Protein Prophet
 
@@ -871,11 +878,11 @@ public class FragpipeRun {
       if (threads > 0) {
         additionalShepherdParams.put("threads", Integer.toString(threads));
       }
-      String massOffsets = fp.getMassOffsets();
+      String massOffsets = tabMsf.getMassOffsets();
       if (!StringUtils.isNullOrWhitespace(massOffsets)) {
         additionalShepherdParams.put("mass_offsets", massOffsets);
       }
-      Optional.ofNullable(fp.getUiTextIsoErr().getNonGhostText())
+      Optional.ofNullable(tabMsf.getUiTextIsoErr().getNonGhostText())
           .filter(StringUtils::isNotBlank).ifPresent(v -> additionalShepherdParams.put("isotope_error", v));
       if (!cmdPtmshepherd.configure(parent, isDryRun, Paths.get(binMsfragger.getBin()),
           ramGb, fastaPath, mapGroupsToProtxml, additionalShepherdParams)) {

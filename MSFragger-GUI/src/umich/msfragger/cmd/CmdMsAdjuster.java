@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.nio.file.Path;
@@ -32,7 +33,7 @@ public class CmdMsAdjuster extends CmdBase {
     return !isCleanup ? NAME : NAME + " (Cleanup)";
   }
 
-  public boolean configure(Component comp, Path jarFragpipe, FraggerMigPanel fp,
+  public boolean configure(Component comp, Path jarFragpipe, int ramGb,
       List<InputLcmsFile> lcmsFiles, boolean doCleanup, int priority) {
     pbis.clear();
     isCleanup = doCleanup;
@@ -45,7 +46,6 @@ public class CmdMsAdjuster extends CmdBase {
     }
 
     this.priority = priority;
-    int ramGb = fp.getRamGb();
 
     for (InputLcmsFile f : lcmsFiles) {
 

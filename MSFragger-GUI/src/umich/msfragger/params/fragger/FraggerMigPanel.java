@@ -279,7 +279,7 @@ public class FraggerMigPanel extends JPanel {
   }
 
   private void initMore() {
-    ForkJoinPool.commonPool().execute(this::cacheLoad);
+    //ForkJoinPool.commonPool().execute(this::cacheLoad);
 
     // TODO: ACHTUNG: temporary fix, disabling "Define custom ion series field"
     // Remove when custom ion series work properly in msfragger
@@ -288,6 +288,7 @@ public class FraggerMigPanel extends JPanel {
 
     // register on the bus only after all the components have been created to avoid NPEs
     Bus.register(this);
+    Bus.postSticky(this);
   }
 
   private void init() {

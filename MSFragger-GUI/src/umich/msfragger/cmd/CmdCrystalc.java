@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.MsfraggerGuiFrame;
+import umich.msfragger.params.crystalc.CrystalcPanel;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.fragger.FraggerMigPanel;
 
@@ -98,10 +99,10 @@ public class CmdCrystalc extends CmdBase {
   }
 
   /**
-   * @param ccParams Get these by calling {@link MsfraggerGuiFrame#crystalcFormToParams()}.
+   * @param ccParams Get these by calling {@link CrystalcPanel#toParams()}.
    */
-  public boolean configure(Component comp,
-      FraggerMigPanel fp, boolean isDryRun, Path binFragger,
+  public boolean configure(Component comp, boolean isDryRun, Path binFragger,
+      String msfraggerOutputExt, int ramGb,
       CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
     pbis.clear();
 
@@ -131,8 +132,7 @@ public class CmdCrystalc extends CmdBase {
       return false;
     }
 
-    final String pepxmlExt = fp.getOutputFileExt();
-    if (!"pepxml".equals(pepxmlExt.toLowerCase())) {
+    if (!"pepxml".equals(msfraggerOutputExt.toLowerCase())) {
       JOptionPane.showMessageDialog(comp,
           "Crystal-C only accepts pepXML file extension.\n"
               + "Switch to pepXML in MSFragger options or disable Crystal-C :\\",
@@ -140,7 +140,6 @@ public class CmdCrystalc extends CmdBase {
       return false;
     }
 
-    final int ramGb = fp.getRamGb();
     final String ccParamsFilePrefix = "crystalc";
     final String ccParamsFileSuffix = ".params";
 
