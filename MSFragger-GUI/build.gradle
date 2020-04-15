@@ -36,7 +36,7 @@ tasks.withType(JavaCompile) {
 }
 
 // Define the main class for the application
-def startClass = 'umich.msfragger.gui.MsFraggerGui'
+def startClass = 'com.dmtavt.fragpipe.Fragpipe'
 mainClassName = "${startClass}"
 application {
     mainClassName = "${startClass}"
