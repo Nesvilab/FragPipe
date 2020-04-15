@@ -21,7 +21,6 @@ import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
-import com.github.chhh.utils.swing.StringRepresentable;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
@@ -30,7 +29,6 @@ import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
@@ -62,7 +60,6 @@ import java.util.stream.Stream;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
@@ -1023,7 +1020,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     log.warn("Old cache save fragger tab method called");
     // saving form data, except modification tables
     {
-      Map<String, String> map = formTo();
+      Map<String, String> map = formToMap();
       Properties mapAsProps = PropertiesUtils.from(map);
       Path tempFileForm = CacheUtils.getTempFile(CACHE_FORM);
       log.debug("Saving cache cacheSave() to: {}", tempFileForm.toString());
@@ -1110,16 +1107,16 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
   private MsfraggerParams formCollect() {
-    Map<String, String> map = formTo();
+    Map<String, String> map = formToMap();
     MsfraggerParams params = paramsFrom(map);
 
     // before collecting mods, make sure that no table cell editor is open
     stopJTableEditing(tableFixMods);
     stopJTableEditing(tableVarMods);
 
-    List<Mod> modsVar = formTo(tableVarMods.model);
+    List<Mod> modsVar = formToMap(tableVarMods.model);
     params.setVariableMods(modsVar);
-    List<Mod> modsFix = formTo(tableFixMods.model);
+    List<Mod> modsFix = formToMap(tableFixMods.model);
     params.setAdditionalMods(modsFix);
     return params;
   }
@@ -1134,49 +1131,15 @@ public class TabMsfragger extends JPanelWithEnablement {
     return editor.stopCellEditing();
   }
 
-  private List<Mod> formTo(ModificationsTableModel model) {
+  private List<Mod> formToMap(ModificationsTableModel model) {
     return model.getModifications();
   }
 
   private void formFrom(Map<String, String> map) {
-    SwingUtilities.invokeLater(() -> valuesFromMap(this, map));
+    SwingUtilities.invokeLater(() -> SwingUtils.valuesFromMap(this, map));
   }
 
-  public void valuesFromMap(Container origin, Map<String, String> map) {
-    // TODO: switch to SwingUtils vesrion of this mehtod
-    Map<String, Component> comps = SwingUtils.mapComponentsByName(origin, true);
-    for (Entry<String, String> kv : map.entrySet()) {
-      final String name = kv.getKey();
-      Component component = comps.get(name);
-      if (component != null) {
-        if (!(component instanceof StringRepresentable)) {
-          log.trace(String
-              .format("SwingUtils.valuesFromMap() Found component of type [%s] by name [%s] which does not implement [%s]",
-                  component.getClass().getSimpleName(), name,
-                  StringRepresentable.class.getSimpleName()));
-          continue;
-        }
-        try {
-          ((StringRepresentable) component).fromString(kv.getValue());
-        } catch (IllegalArgumentException ex) {
-          if (component.equals(uiComboMassMode)) {
-            log.error("When loading fragger-mass-mode option, the given value ({}) is no longer an option in MSfragger/FragPipe. "
-                + "Not changing value, please select manually", kv.getValue());
-          } else if (component instanceof JComboBox) {
-            log.warn(
-                "Tried to load a value in combo-box that is not in combo-box's model. Component name={}, input value={}",
-                name, kv.getValue());
-          } else {
-            log.warn(
-                "Illegal input when filling UI form. Name={}, input value={}", name, kv.getValue());
-          }
-        }
-
-      }
-    }
-  }
-
-  private Map<String, String> formTo() {
+  private Map<String, String> formToMap() {
     Map<String, String> map = SwingUtils.valuesToMap(this);
     HashMap<String, String> m = new HashMap<>();
     map.forEach((k, v) -> m.put(StringUtils.stripLeading(k, TAB_PREFIX), v));
