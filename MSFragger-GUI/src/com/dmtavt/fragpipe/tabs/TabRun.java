@@ -17,7 +17,6 @@ import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
 import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
-import com.github.chhh.utils.LogUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -141,7 +140,7 @@ public class TabRun extends JPanelWithEnablement {
 
   private JPanel createPanelTop(TextConsole console) {
     JButton btnSaveAsWorkflow = UiUtils.createButton("Save current config as Workflow",
-            e -> Bus.post(new MessageSaveAsWorkflow()));
+            e -> Bus.post(new MessageSaveAsWorkflow(true)));
     JButton btnAbout = UiUtils.createButton("About", e -> Bus.post(new MessageShowAboutDialog()));
     uiTextWorkdir = UiUtils.uiTextBuilder().cols(30).create();
     FormEntry feWorkdir = mu.feb("workdir", uiTextWorkdir).label("Output dir:")

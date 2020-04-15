@@ -191,7 +191,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, feComboWorkflow.comp);
     mu.add(p, btnWorkflowLoad);
     mu.add(p, new JLabel("or save current settings as workflow")).gapLeft("15px");
-    mu.add(p, UiUtils.createButton("Save", e -> Bus.post(new MessageSaveAsWorkflow()))).wrap();
+    mu.add(p, UiUtils.createButton("Save", e -> Bus.post(new MessageSaveAsWorkflow(false)))).wrap();
 
     mu.add(p, epWorkflowsDesc).growX().spanX().wrap();
 
@@ -325,12 +325,31 @@ public class TabWorkflow extends JPanelWithEnablement {
       return !k.contains("workdir") && !k.contains("db-path");
     }).toMap(kv -> kv.v1, kv -> kv.v2);
 
+
+    Path saveDir;
+    if (!m.toCustomDir) {
+      saveDir = FragpipeLocations.get().getDirWorkflows();
+    } else {
+      // save to custom dir
+      final String propWorkflowDir = "workflow.last-save-dir";
+      JFileChooser fc = FileChooserUtils
+          .builder("Select folder to save workflow file to")
+          .multi(false).mode(FcMode.DIRS_ONLY).acceptAll(true).approveButton("Select folder")
+          .paths(Stream.of(Fragpipe.propsVarGet(propWorkflowDir),
+              FragpipeLocations.get().getDirWorkflows().toString()))
+          .create();
+      if (fc.showOpenDialog(fp) != JFileChooser.APPROVE_OPTION) {
+        log.debug("User cancelled dir selection");
+        return;
+      }
+      saveDir = fc.getSelectedFile().toPath();
+    }
+
     MigUtils mu = MigUtils.get();
-    final JPanel p = mu.newPanel("File name", true);
+    final JPanel p = mu.newPanel("Workflow name", true);
     JTextField tf = new JTextField(20);
     tf.setName("file-name");
     mu.add(p, tf).growX().wrap();
-
     int answer = SwingUtils
         .showConfirmDialog(fp, p, "Assign workflow name");
     if (JOptionPane.OK_OPTION != answer) {
@@ -338,10 +357,11 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
     String text = tf.getText().trim();
     if (StringUtils.isBlank(text)) {
-      SwingUtils.showErrorDialog(fp, "Workflow name can't be left empty", "Error saving workflow");
+      SwingUtils
+          .showErrorDialog(fp, "Workflow name can't be left empty", "Error saving workflow");
       return;
     }
-    Path saveDir = FragpipeLocations.get().getDirWorkflows();
+    text = StringUtils.appendOnce(text, ".workflow");
     Path savePath;
     try {
       savePath = saveDir.resolve(text).normalize().toAbsolutePath();
@@ -350,13 +370,16 @@ public class TabWorkflow extends JPanelWithEnablement {
       return;
     }
     if (PathUtils.existing(savePath.toString()) != null) {
-      int ans = SwingUtils.showConfirmDialog(fp, new JLabel(SwingUtils.makeHtml("Overwrite existing file?\n" + savePath.toString())), "Overwrite?");
+      int ans = SwingUtils.showConfirmDialog(fp,
+          new JLabel(SwingUtils.makeHtml("Overwrite existing file?\n" + savePath.toString())),
+          "Overwrite?");
       if (JOptionPane.OK_OPTION != ans) {
         log.debug("user chose not to overwrite file");
         return;
       }
     }
-    FragpipeCacheUtils.saveToFileSorted(PropertiesUtils.from(vetted), savePath, "Workflow: " + text);
+    FragpipeCacheUtils.saveToFileSorted(PropertiesUtils.from(vetted), savePath,
+        "Workflow: " + StringUtils.upToLastDot(savePath.getFileName().toString()));
     SwingUtils.showInfoDialog(fp, "Saved to: " + savePath, "Error saving workflow");
   }
 
