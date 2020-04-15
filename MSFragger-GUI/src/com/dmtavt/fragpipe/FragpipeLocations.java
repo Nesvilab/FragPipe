@@ -33,12 +33,14 @@ public class FragpipeLocations {
   public final Path cache;
   public final Path tools;
   public final Path lib;
+  public final Path workflows;
 
-  private FragpipeLocations(Path jarPath, Path cache, Path tools, Path lib) {
+  private FragpipeLocations(Path jarPath, Path cache, Path tools, Path lib, Path workflows) {
     this.jarPath = jarPath;
     this.cache = cache;
     this.tools = tools;
     this.lib = lib;
+    this.workflows = workflows;
   }
 
   private static class Holder {
@@ -53,7 +55,9 @@ public class FragpipeLocations {
       }
       Path jarPath = Paths.get(fragpipeJar);
       Path dir = Files.isDirectory(jarPath) ? jarPath : jarPath.getParent();
+
       Path cache = dir.resolve(Paths.get("../cache"));
+
       Path tools;
       final String debugClassLoc = "build/classes/java/main";
       final String debugParentDirName = "MSFragger-GUI";
@@ -69,7 +73,11 @@ public class FragpipeLocations {
       } else {
         tools = dir.resolve(Paths.get("../tools"));
       }
+
       Path lib = dir.resolve(Paths.get("../lib"));
+      Path workflows = dir.resolve("../workflows");
+
+      // create locations if they don't yet exist
       List<Path> paths = Arrays.asList(jarPath, dir, cache, tools, lib);
       log.debug("Fragpipe locations:\n\t{}",
           paths.stream().map(Path::toString).collect(Collectors.joining("\n\t")));
@@ -81,7 +89,10 @@ public class FragpipeLocations {
           throw new IllegalStateException("Error initializing fragpipe locations", e);
         }
       }
-      locations = new FragpipeLocations(jarPath, cache, tools, lib);
+
+
+
+      locations = new FragpipeLocations(jarPath, cache, tools, lib, workflows);
     }
   }
 

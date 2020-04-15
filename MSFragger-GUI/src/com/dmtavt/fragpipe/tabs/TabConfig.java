@@ -29,9 +29,7 @@ import com.dmtavt.fragpipe.tools.msfragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher.UpdateInfo;
 import com.github.chhh.utils.JarUtils;
-import com.github.chhh.utils.LogUtils;
 import com.github.chhh.utils.OsUtils;
-import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.FileChooserUtils;
@@ -73,7 +71,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.Scheduler;
 import rx.schedulers.Schedulers;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils;
 import umich.msfragger.params.ThisAppProps;
@@ -158,7 +155,7 @@ public class TabConfig extends JPanelWithEnablement {
     JPanel p = newMigPanel();
     btnAbout = UiUtils.createButton("About", e -> Bus.post(new MessageShowAboutDialog()));
     p.add(btnAbout, ccL().split().spanX());
-    p.add(UiUtils.createButton("Clear Cache", e -> Bus.post(new MessageClearCache())), ccL());
+    p.add(UiUtils.createButton("Clear Cache and Close", e -> Bus.post(new MessageClearCache(true))), ccL());
     UiCheck uiCheckUmpire = UiUtils.createUiCheck("Enable DIA-Umpire", false,
         e -> Bus.post(new MessageUmpireEnabled(((JCheckBox) e.getSource()).isSelected())));
     p.add(uiCheckUmpire, ccL());

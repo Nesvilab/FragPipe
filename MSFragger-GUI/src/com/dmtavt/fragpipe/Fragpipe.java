@@ -125,6 +125,7 @@ public class Fragpipe extends JFrame {
   TextConsole console;
   JLabel defFont;
   private TabUmpire tabUmpire;
+  private boolean dontSaveCacheOnExit;
 
   public Fragpipe() throws HeadlessException {
     init();
@@ -137,7 +138,9 @@ public class Fragpipe extends JFrame {
     addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
-        saveCache();
+        if (!dontSaveCacheOnExit) {
+          saveCache();
+        }
       }
     });
 
@@ -427,6 +430,11 @@ public class Fragpipe extends JFrame {
         log.error("Error deleting cache files", e);
         SwingUtils.showErrorDialogWithStacktrace(e, this);
       }
+    }
+
+    if (m.doClose) {
+      dontSaveCacheOnExit = true;
+      System.exit(0);
     }
   }
 
