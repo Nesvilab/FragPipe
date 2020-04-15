@@ -63,7 +63,7 @@ sourceSets {
             srcDirs = ['src']
         }
         resources {
-            srcDirs = ['resources', 'tools', 'src']
+            srcDirs = ['resources', 'src']
             excludes = ['*.java']
             //excludes = ['*.java', '*.jar']
         }
@@ -80,6 +80,19 @@ shadowJar {
     archiveClassifier = ""
     minimize()
 }
+
+distributions {
+    main {
+        //distributionBaseName = 'FragPipe'
+        contents {
+            from('/') {
+                include 'tools/**'
+            }
+        }
+    }
+}
+
+
 
 launch4j {
     mainClassName = "${startClass}"
