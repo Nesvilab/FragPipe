@@ -1,7 +1,21 @@
 package umich.msfragger.gui;
 
+import com.dmtavt.fragpipe.Version;
+import com.dmtavt.fragpipe.messages.MessageAppendToConsole;
+import com.dmtavt.fragpipe.messages.MessageLastRunWorkDir;
+import com.dmtavt.fragpipe.messages.MessageRun;
+import com.dmtavt.fragpipe.messages.MessageSaveLog;
+import com.dmtavt.fragpipe.messages.MessageSaveUiState;
+import com.dmtavt.fragpipe.messages.MessageStartProcesses;
+import com.github.chhh.utils.FastaUtils;
+import com.github.chhh.utils.FastaUtils.FastaContent;
 import com.github.chhh.utils.JarUtils;
+import com.github.chhh.utils.LogUtils;
+import com.github.chhh.utils.OsUtils;
+import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.UsageTrigger;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -9,15 +23,12 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,23 +48,22 @@ import org.apache.commons.codec.Charsets;
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.Version;
 import umich.msfragger.cmd.CmdCrystalc;
+import umich.msfragger.cmd.CmdFreequant;
 import umich.msfragger.cmd.CmdIonquant;
 import umich.msfragger.cmd.CmdIprophet;
 import umich.msfragger.cmd.CmdLabelquant;
 import umich.msfragger.cmd.CmdMsAdjuster;
 import umich.msfragger.cmd.CmdMsfragger;
 import umich.msfragger.cmd.CmdPeptideProphet;
+import umich.msfragger.cmd.CmdPhilosopherAbacus;
+import umich.msfragger.cmd.CmdPhilosopherDbAnnotate;
+import umich.msfragger.cmd.CmdPhilosopherFilter;
+import umich.msfragger.cmd.CmdPhilosopherReport;
 import umich.msfragger.cmd.CmdPhilosopherWorkspaceClean;
 import umich.msfragger.cmd.CmdPhilosopherWorkspaceCleanInit;
 import umich.msfragger.cmd.CmdProteinProphet;
 import umich.msfragger.cmd.CmdPtmshepherd;
-import umich.msfragger.cmd.CmdPhilosopherAbacus;
-import umich.msfragger.cmd.CmdPhilosopherDbAnnotate;
-import umich.msfragger.cmd.CmdPhilosopherFilter;
-import umich.msfragger.cmd.CmdFreequant;
-import umich.msfragger.cmd.CmdPhilosopherReport;
 import umich.msfragger.cmd.CmdSpecLibGen;
 import umich.msfragger.cmd.CmdTmtIntegrator;
 import umich.msfragger.cmd.CmdUmpireSe;
@@ -61,26 +71,13 @@ import umich.msfragger.cmd.PbiBuilder;
 import umich.msfragger.cmd.ProcessBuilderInfo;
 import umich.msfragger.cmd.ProcessBuildersDescriptor;
 import umich.msfragger.gui.ProcessDescription.Builder;
-import com.dmtavt.fragpipe.messages.MessageAppendToConsole;
-import com.dmtavt.fragpipe.messages.MessageLastRunWorkDir;
-import com.dmtavt.fragpipe.messages.MessageRun;
-import com.dmtavt.fragpipe.messages.MessageSaveUiState;
-import com.dmtavt.fragpipe.messages.MessageSaveLog;
-import com.dmtavt.fragpipe.messages.MessageStartProcesses;
 import umich.msfragger.params.ThisAppProps;
 import umich.msfragger.params.crystalc.CrystalcParams;
 import umich.msfragger.params.enums.FraggerOutputType;
 import umich.msfragger.params.fragger.FraggerMigPanel;
+import umich.msfragger.params.fragger.MsfraggerParams;
 import umich.msfragger.params.tmtintegrator.QuantLabel;
 import umich.msfragger.params.tmtintegrator.TmtiPanel;
-import com.github.chhh.utils.FastaUtils;
-import com.github.chhh.utils.FastaUtils.FastaContent;
-import com.github.chhh.utils.LogUtils;
-import com.github.chhh.utils.OsUtils;
-import com.github.chhh.utils.PathUtils;
-import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.UsageTrigger;
-import com.github.chhh.utils.swing.TextConsole;
 
 public class FragpipeOnMessages {
   private static final Logger log = LoggerFactory.getLogger(FragpipeOnMessages.class);
@@ -477,9 +474,11 @@ public class FragpipeOnMessages {
 
     // run MSAdjuster
     final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(fp.isRun() && fp.isMsadjuster(), wd);
+    final int ramGb = fp.getRamGb();
+    final int ramGbNonzero = ramGb > 0 ? ramGb : OsUtils.getDefaultXmx();
     if (cmdMsAdjuster.isRun()) {
       if (!cmdMsAdjuster.configure(msfgf,
-          jarFragpipe, fp, lcmsFiles, false, 49)) {
+          jarFragpipe, ramGb, lcmsFiles, false, 49)) {
         return false;
       }
       pbDescs.add(cmdMsAdjuster.getBuilderDescriptor());
@@ -492,11 +491,14 @@ public class FragpipeOnMessages {
     final String fastaFile = msfgf.getFastaPath();
     final UsageTrigger binMsfragger = new UsageTrigger(
         msfgf.getTextBinMsfragger().getText().trim(), "MsFragger");
-    final CmdMsfragger cmdMsfragger = new CmdMsfragger(fp.isRun(), wd, fp.getParams().getPrecursorMassUnits(), fp.getParams().getOutputReportTopN());
+    final MsfraggerParams msfParams = fp.getParams();
+    final CmdMsfragger cmdMsfragger = new CmdMsfragger(fp.isRun(), wd, msfParams.getPrecursorMassUnits(), msfParams.getOutputReportTopN());
+
     if (cmdMsfragger.isRun()) {
       final String decoyTag = msfgf.getTextDecoyTagSeqDb().getText().trim();
-      if (!cmdMsfragger.configure(msfgf,
-          isDryRun, fp, jarFragpipe, binMsfragger, fastaFile, lcmsFiles, decoyTag)) {
+      if (!cmdMsfragger.configure(msfgf, isDryRun, jarFragpipe, binMsfragger, fastaFile,
+          msfParams, fp.getNumDbSlices(), ramGbNonzero,
+          lcmsFiles, decoyTag)) {
         return false;
       }
       pbDescs.add(cmdMsfragger.getBuilderDescriptor());
@@ -529,7 +531,7 @@ public class FragpipeOnMessages {
     // run MsAdjuster Cleanup
     if (cmdMsAdjuster.isRun()) {
       if (!cmdMsAdjuster.configure(msfgf,
-          jarFragpipe, fp, lcmsFiles, true, 51)) {
+          jarFragpipe, ramGbNonzero, lcmsFiles, true, 51)) {
         return false;
       }
       pbDescs.add(cmdMsAdjuster.getBuilderDescriptor());
@@ -544,8 +546,9 @@ public class FragpipeOnMessages {
       if (fraggerThreads > 0) {
         ccParams.setThread(fraggerThreads);
       }
-      if (!cmdCrystalc.configure(msfgf,
-          fp, isDryRun, Paths.get(binMsfragger.getBin()), ccParams, fastaFile, pepxmlFiles)) {
+      if (!cmdCrystalc.configure(msfgf, isDryRun, Paths.get(binMsfragger.getBin()),
+          msfParams.getOutputFileExtension(), ramGbNonzero,
+          ccParams, fastaFile, pepxmlFiles)) {
         return false;
       }
       pbDescs.add(cmdCrystalc.getBuilderDescriptor());
@@ -710,9 +713,8 @@ public class FragpipeOnMessages {
       final boolean isIonquant = msfgf.getPanelQuant().isIonquant();
       final CmdIonquant cmdIonquant = new CmdIonquant(isIonquant, wd);
       if (cmdIonquant.isRun()) {
-        final int ramGb = fp.getRamGb() > 0 ? fp.getRamGb() : OsUtils.getDefaultXmx();
         if (!cmdIonquant.configure(
-            msfgf, Paths.get(binMsfragger.getBin()), ramGb, msfgf.getPanelQuant().toMap(),
+            msfgf, Paths.get(binMsfragger.getBin()), ramGbNonzero, msfgf.getPanelQuant().toMap(),
             pepxmlFilesFromMsfragger, mapGroupsToProtxml, nThreads)) {
           return false;
         }
@@ -826,7 +828,6 @@ public class FragpipeOnMessages {
         return false;
       }
       Path fastaPath = Paths.get(fastaFile);
-      int ramGb = fp.getRamGb();
       int threads = fp.getThreads();
       Map<String, String> additionalShepherdParams = msfgf.getPtmshepherdPanel().toMap();
       if (threads > 0) {

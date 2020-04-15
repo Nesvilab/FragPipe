@@ -11,8 +11,10 @@ public class MessagePrintToConsole {
 
   public MessagePrintToConsole(String text) {
     this(Color.BLACK, text, true);
+  }
 
-
+  public MessagePrintToConsole(String text, boolean addNewline) {
+    this(Color.BLACK, text, addNewline);
   }
 
   public MessagePrintToConsole(Color color, String text, boolean addNewline) {
@@ -24,6 +26,11 @@ public class MessagePrintToConsole {
   public static void toConsole(String s) {
     Bus.post(new MessagePrintToConsole(s));
   }
+
+  public static void toConsole(String text, boolean addNewline) {
+    Bus.post(new MessagePrintToConsole(text, addNewline));
+  }
+
   public static void toConsole(Color color, String text, boolean addNewline) {
     Bus.post(new MessagePrintToConsole(color,text, addNewline));
   }

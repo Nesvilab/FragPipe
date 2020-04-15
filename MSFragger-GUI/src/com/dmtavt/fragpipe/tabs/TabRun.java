@@ -1,11 +1,15 @@
 package com.dmtavt.fragpipe.tabs;
 
+import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.*;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeRun;
 import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.messages.MessageAppendToConsole;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
+import com.dmtavt.fragpipe.messages.MessageExternalProcessOutput;
 import com.dmtavt.fragpipe.messages.MessageKillAll;
 import com.dmtavt.fragpipe.messages.MessageKillAll.REASON;
 import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
@@ -13,6 +17,7 @@ import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
 import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
+import com.github.chhh.utils.LogUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -44,6 +49,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.msfragger.cmd.CmdMsfragger;
 
 public class TabRun extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(TabRun.class);
@@ -92,8 +98,39 @@ public class TabRun extends JPanelWithEnablement {
   public void on(MessagePrintToConsole m) {
     console.append(m.color, m.text);
     if (m.addNewline) {
-      console.append("");
+      console.append("\n");
     }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageExternalProcessOutput m) {
+    if (m.output == null) {
+      log.warn("MessageExternalProcessOutput with null text, this is a bug, report to devs");
+      return;
+    }
+
+    // special case, colorize output from MSFragger
+    if (CmdMsfragger.NAME.equals(m.procName)) {
+      if (m.isError) {
+        toConsole(Fragpipe.COLOR_RED_DARKEST, m.output, false);
+      } else {
+        toConsole(m.output, false);
+      }
+      return;
+    }
+
+    toConsole(null, m.output, false); // print with ANSI colors
+  }
+
+  /**
+   * @deprecated All console communication needs to be done through the new
+   * {@link MessagePrintToConsole} type instead.
+   */
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  @Deprecated
+  public void on(MessageAppendToConsole m) { // TODO: once old ui is deleted, change all usages of MessageAppendToConsole to MessagePrintToConsole
+    console.append(m.color, m.text);
+    //console.append("\n");
   }
 
   @Subscribe(threadMode = ThreadMode.ASYNC)

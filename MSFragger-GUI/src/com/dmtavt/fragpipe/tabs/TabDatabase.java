@@ -70,6 +70,7 @@ public class TabDatabase extends JPanelWithEnablement {
     setTooltipBtnDownload(false);
 
     Bus.register(this);
+    Bus.postSticky(this);
   }
 
   private void init() {

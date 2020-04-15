@@ -73,24 +73,30 @@ public class ProcessManager {
       cf.cancel(true);
       cf = CompletableFuture.completedFuture(null);
 
-      if (execSingle != null) {
-        try {
+      try {
+        if (execSingle != null) {
           execSingle.shutdownNow();
-          execSingle.awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException ex) {
-          log.error("Interrupted while waiting for sequential excutor shutdown", ex);
+          execSingle.awaitTermination(20, TimeUnit.SECONDS);
         }
+      } catch (InterruptedException ex) {
+        log.warn("Timed out waiting for sequential executor shutdown. This does not affect processing results.");
+        log.debug("Timed out waiting for sequential executor shutdown. This does not affect processing results.", ex);
+      } finally {
+        execSingle = newSingleExecutor();
       }
-      if (execMulti != null) {
-        try {
+
+      try {
+        if (execMulti != null) {
           execMulti.shutdownNow();
-          execMulti.awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException ex) {
-          log.error("Interrupted while waiting for parallel excutor shutdown", ex);
+          execMulti.awaitTermination(20, TimeUnit.SECONDS);
         }
+      } catch (InterruptedException ex) {
+        log.warn("Timed out waiting for parallel executor shutdown. This does not affect processing results.");
+        log.debug("Timed out waiting for parallel executor shutdown. This does not affect processing results.", ex);
+      } finally {
+        execMulti = newMultiExecutor();
       }
-      execSingle = newSingleExecutor();
-      execMulti = newMultiExecutor();
+
     }
   }
 
