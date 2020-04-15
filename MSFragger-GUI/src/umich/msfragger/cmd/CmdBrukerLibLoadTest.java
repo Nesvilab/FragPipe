@@ -30,7 +30,7 @@ public class CmdBrukerLibLoadTest extends CmdBase {
         final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.getParent()));
         List<String> jars = Stream.concat(Arrays.stream(JAR_DEPS), Stream.of(JAR_NAME)).collect(Collectors.toList());
         final List<Path> unpacked = new ArrayList<>();
-        if (!unpackJars(jars, unpacked, getCmdName())) {
+        if (!unpackJars(jars, unpacked, getCmdName())) { // TODO: no more unpacking
             return false;
         }
         List<String> cmd = new ArrayList<>();

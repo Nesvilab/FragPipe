@@ -149,7 +149,7 @@ public class DbSplit2 {
       Path subDir = Paths.get(UNPACK_SUBDIR_IN_TEMP);
       Path path = null;
       try {
-        path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, true);
+        path = JarUtils.unpackFromJar(SpecLibGen.class, rl, subDir, true, true); // TODO: no more unpacking
       } catch (IOException e) {
         throw new ValidationException("Could not unpack DbSlice", e);
       }

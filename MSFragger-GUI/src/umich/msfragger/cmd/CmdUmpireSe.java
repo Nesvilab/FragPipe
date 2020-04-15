@@ -95,7 +95,7 @@ public class CmdUmpireSe extends CmdBase {
     // unpack Umpire jar
     Path jarUmpireSe;
     try {
-      jarUmpireSe = JarUtils.unpackFromJar(ToolingUtils.class,"/" + UmpireParams.JAR_UMPIRESE_NAME,
+      jarUmpireSe = JarUtils.unpackFromJar(ToolingUtils.class,"/" + UmpireParams.JAR_UMPIRESE_NAME, // TODO: no more unpacking
           ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
 
     } catch (IOException | NullPointerException ex) {

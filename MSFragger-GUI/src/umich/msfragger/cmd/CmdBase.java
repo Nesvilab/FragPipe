@@ -95,7 +95,7 @@ public abstract class CmdBase {
    * Unpacks jar files from the final FragPipe jar (next to ToolingUtils.class).
    * @param jars The names of files to unpack. Here we name them `.jazz` files.
    */
-  protected static boolean unpackJars(List<String> jars, final List<Path> unpackedPaths, String nameForErrorMsgs) {
+  protected static boolean unpackJars(List<String> jars, final List<Path> unpackedPaths, String nameForErrorMsgs) { // TODO: no more unpacking
     try {
       for (String jarDep : jars) {
         Path unpacked = JarUtils

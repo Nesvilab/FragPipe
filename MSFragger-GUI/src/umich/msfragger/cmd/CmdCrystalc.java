@@ -128,7 +128,7 @@ public class CmdCrystalc extends CmdBase {
     List<String> jars = Stream.concat(Arrays.stream(JAR_DEPS), Stream.of(JAR_CRYSTALC_NAME))
         .collect(Collectors.toList());
     final List<Path> unpacked = new ArrayList<>();
-    if (!unpackJars(jars, unpacked, NAME)) {
+    if (!unpackJars(jars, unpacked, NAME)) { // TODO: no more unpacking
       return false;
     }
 

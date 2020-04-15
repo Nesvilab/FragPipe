@@ -101,7 +101,7 @@ public class FragpipeUtil {
         Path pathIrt = null;
         if (isAddIrt) {
           String pathInJar = "/fasta/irtfusion.fasta";
-          pathIrt = JarUtils.unpackFromJar(ToolingUtils.class, pathInJar,
+          pathIrt = JarUtils.unpackFromJar(ToolingUtils.class, pathInJar, // TODO: no more unpacking
                   ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
           if (!Files.exists(pathIrt)) {
             log.error("Could not unpack " + pathInJar);
