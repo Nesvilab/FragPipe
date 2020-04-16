@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
@@ -131,7 +132,7 @@ public class CmdUmpireSe extends CmdBase {
       // java -jar -Xmx8G DIA_Umpire_SE.jar mzMXL_file diaumpire_se.params
       {
         List<String> cmd = new ArrayList<>();
-        cmd.add("java");
+        cmd.add(Fragpipe.getBinJava());
         //commands.add("-d64");
         cmd.add("-jar");
         if (ram > 0 && ram < 256)

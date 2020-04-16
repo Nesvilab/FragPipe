@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
@@ -172,7 +173,7 @@ public class CmdCrystalc extends CmdBase {
         }
 
         List<String> cmd = new ArrayList<>();
-        cmd.add("java");
+        cmd.add(Fragpipe.getBinJava());
         if (extLibsThermo != null) {
           cmd.add("-Dbatmass.io.libs.thermo.dir=\"" + extLibsThermo.toString() + "\"");
         }

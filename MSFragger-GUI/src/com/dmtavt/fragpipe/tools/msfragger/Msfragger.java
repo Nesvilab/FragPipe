@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe.tools.msfragger;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
@@ -93,7 +94,7 @@ public class Msfragger {
     String verStr = null;
     boolean isVersionParsed = false;
     try {
-      ProcessBuilder pb = new ProcessBuilder("java", "-jar", jarPath);
+      ProcessBuilder pb = new ProcessBuilder(Fragpipe.getBinJava(), "-jar", jarPath);
       List<Pattern> regexs = Arrays.asList(MsfraggerVerCmp.regexOldScheme1,
           MsfraggerVerCmp.regexNewScheme1);
       pb.redirectErrorStream(true);

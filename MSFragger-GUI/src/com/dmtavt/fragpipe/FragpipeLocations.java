@@ -113,7 +113,7 @@ public class FragpipeLocations {
   }
 
   public Path getDirApp() {
-    return getJarPath().getParent();
+    return getJarPath().getParent().getParent();
   }
 
   public Path getDirWorkflows() {

@@ -32,6 +32,8 @@ import com.dmtavt.fragpipe.tabs.TabUmpire;
 import com.dmtavt.fragpipe.tabs.TabValidation;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.github.chhh.utils.LogUtils;
+import com.github.chhh.utils.OsUtils;
+import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.ScreenUtils;
 import com.github.chhh.utils.StringUtils;
@@ -160,6 +162,21 @@ public class Fragpipe extends JFrame {
         SwingUtils.userShowError(null, stacktrace);
       }
     };
+  }
+
+  public static String getBinJava() {
+    if (OsUtils.isWindows()) {
+      Path dirApp = FragpipeLocations.get().getDirApp();
+      Path p = dirApp.resolve("jre/bin/java.exe");
+      log.debug("Getting java binary, dirApp [{}], resolved path: {}", dirApp, p);
+      Path java = PathUtils.existing(p.toString());
+      if (java != null) {
+        log.debug("Embedded java binary found: {}", java);
+        return java.toString();
+      }
+      log.debug("Embedded java binary NOT found");
+    }
+    return "java";
   }
 
   private void saveCache() {

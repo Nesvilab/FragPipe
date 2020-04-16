@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import java.awt.Component;
 import java.nio.file.Path;
@@ -73,7 +74,7 @@ public class CmdIonquant extends CmdBase {
     }
 
     List<String> cmd = new ArrayList<>();
-    cmd.add("java");
+    cmd.add(Fragpipe.getBinJava());
     if (ramGb > 0) {
       cmd.add("-Xmx" + ramGb + "G");
     }

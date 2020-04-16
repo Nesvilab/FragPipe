@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.messages.MissingAssetsException;
 import com.github.chhh.utils.SwingUtils;
@@ -38,7 +39,7 @@ public class CmdBrukerLibLoadTest extends CmdBase {
         }
 
         List<String> cmd = new ArrayList<>();
-        cmd.add("java");
+        cmd.add(Fragpipe.getBinJava());
         if (extLibsBruker != null) {
             cmd.add(createJavaDParamString("bruker.lib.path", extLibsBruker.toString()));
         } else {

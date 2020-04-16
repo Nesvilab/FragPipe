@@ -2,6 +2,7 @@ package umich.msfragger.cmd;
 
 import static com.github.chhh.utils.PathUtils.testFilePath;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.File;
@@ -370,7 +371,8 @@ public class CmdMsfragger extends CmdBase {
     Map<InputLcmsFile, List<Path>> mapLcmsToTsv = outputs(lcmsFiles, "tsv", wd);
     Map<InputLcmsFile, List<Path>> mapLcmsToPin = outputs(lcmsFiles, "pin", wd);
 
-    final List<String> javaCmd = Arrays.asList("java", "-jar", "-Dfile.encoding=UTF-8", "-Xmx" + ramGb + "G");
+    final List<String> javaCmd = Arrays.asList(
+        Fragpipe.getBinJava(), "-jar", "-Dfile.encoding=UTF-8", "-Xmx" + ramGb + "G");
     final List<String> slicingCmd = isSlicing ?
         Arrays.asList(
             PythonInfo.get().getCommand(),

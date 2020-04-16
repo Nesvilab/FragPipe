@@ -1,5 +1,6 @@
 package umich.msfragger.cmd;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.github.chhh.utils.StringUtils;
@@ -52,7 +53,7 @@ public class CmdMsAdjuster extends CmdBase {
       if (!doCleanup) {
         // run MsAdjuster
         ArrayList<String> cmd = new ArrayList<>();
-        cmd.add("java");
+        cmd.add(Fragpipe.getBinJava());
         if (ramGb > 0) {
           cmd.add("-Xmx" + ramGb + "G");
         }

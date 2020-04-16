@@ -2,6 +2,7 @@ package umich.msfragger.cmd;
 
 import static com.github.chhh.utils.PathUtils.testBinaryPath;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
@@ -119,7 +120,7 @@ public class ToolingUtils {
         continue;
       }
       List<String> cmd = new ArrayList<>();
-      cmd.add("java");
+      cmd.add(Fragpipe.getBinJava());
       cmd.add("-cp");
       cmd.add(jarFragpipe.toAbsolutePath().toString());
       switch (operation) {
