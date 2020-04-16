@@ -99,8 +99,8 @@ launch4j {
     icon = "${projectDir}/../logo/msfragger-icon-set_win_16-512.ico"
     outputDir = 'launch4j/bin'
     libraryDir = '../lib'
-    dontWrapJar = false
-    downloadUrl = 'https://google.com/'
+    dontWrapJar = true
+    downloadUrl = 'https://adoptopenjdk.net/'
     bundledJre64Bit = true
     //bundledJreAsFallback = false
     jreRuntimeBits = 64
