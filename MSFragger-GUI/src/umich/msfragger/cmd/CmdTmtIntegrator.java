@@ -29,7 +29,7 @@ public class CmdTmtIntegrator extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdTmtIntegrator.class);
 
   public static final String NAME = "TmtIntegrator";
-  public static final String JAR_NAME = "tmt-integrator-1.1.4.jar";
+  public static final String JAR_NAME = "tmt-integrator-1.1.5.jar";
   public static final String JAR_MAIN = "TMTIntegrator";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML");
   public static final String CONFIG_FN = "tmt-integrator-conf.yml";
@@ -119,7 +119,10 @@ public class CmdTmtIntegrator extends CmdBase {
         SwingUtils.showWarningDialog(panel, "Found annotation files without reference channel\n"
             + "specified:\n" + files
             + "\n\nOne sample name in each annotation file must start with\n"
-            + "the reference tag you set. Currently it is: '" + refTag + "'", NAME + " Config");
+            + "the reference tag you set. Currently it is set to: '" + refTag + "'.\n"
+                + "You can change that in Quant tab, [Ref Sample Tag] text field.",
+
+            NAME + " Config");
         return false;
       }
 
