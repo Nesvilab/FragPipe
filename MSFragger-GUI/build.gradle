@@ -88,6 +88,12 @@ distributions {
             from('/') {
                 include 'tools/**'
             }
+            from('/') {
+                include 'workflows/**'
+            }
+//            if (tasks.findByName('copyLaunch4jExe') != null) {
+//
+//            }
             from('../jre/OpenJDK8U-jre_x64_windows_hotspot_8u242b08') {
                 include 'jre/**'
             }
@@ -182,68 +188,6 @@ task showImplDeps(type: DependencyReportTask, group: 'chhh-help',
     configurations = [project.configurations.implementation] as Set
 }
 
-task releaseShadowJar(type: Copy, group: 'chhh-release') {
-    dependsOn 'shadowJar'
-    from "$buildDir/libs/FragPipe-${project.version}.jar"
-    into file("$buildDir/github-release")
-}
-
-task copyShadowScripts(type: Copy, group: 'chhh-release') {
-    dependsOn 'startShadowScripts'
-    from "$buildDir/scriptsShadow"
-    into file("$buildDir/pre-zip-release/bin")
-}
-
-task copyShadowJar(type: Copy, group: 'chhh-release') {
-    dependsOn 'shadowJar'
-    from "$buildDir/libs/FragPipe-${project.version}.jar"
-    into file("$buildDir/pre-zip-release/lib")
-}
-
-//task releaseZipOld(type: Zip) {
-//    dependsOn 'shadowDistZip'
-//    archiveFileName = "FragPipe-${project.version}.zip"
-//    destinationDirectory = file("$buildDir/github-release")
-//    from "$buildDir/scriptsShadow"
-//    from "$buildDir/libs/FragPipe-${project.version}.jar"
-//}
-
-task releaseZip(type: Zip, group: 'chhh-release') {
-    dependsOn 'copyShadowJar'
-    dependsOn 'copyShadowScripts'
-    //dependsOn 'createStartScripts'
-    archiveFileName = "FragPipe-${project.version}.zip"
-    destinationDirectory = file("$buildDir/github-release")
-    from "$buildDir/pre-zip-release"
-}
-
-task releaseWinExe(type: Copy, group: 'chhh-release') {
-    dependsOn 'createExe'
-    from "$buildDir/libs/FragPipe.exe"
-    into file("$buildDir/github-release")
-}
-
-task releaseWinExeNamedWithVer(type: Copy, group: 'chhh-release') {
-    dependsOn 'createExe'
-    from "$buildDir/libs/FragPipe.exe"
-    into file("$buildDir/github-release")
-    rename '(.+)(//.exe)', '$1' + "-${project.version}" + '$2'
-}
-
-task prepareReleaseNoExe(group: 'chhh-release') {
-    dependsOn 'clean'
-    dependsOn 'releaseShadowJar'
-    dependsOn 'releaseZip'
-    tasks.findByName('releaseShadowJar').mustRunAfter 'clean'
-    tasks.findByName('releaseZip').mustRunAfter 'releaseShadowJar'
-}
-
-task prepareReleaseWithExe(group: 'chhh-release') {
-    dependsOn 'prepareReleaseNoExe'
-    dependsOn 'releaseWinExe'
-    tasks.findByName('releaseWinExe').mustRunAfter 'prepareReleaseNoExe'
-}
-
 task copyLaunch4jExe(type: Copy, group: 'chhh-release') {
     dependsOn 'createExe'
     from "$buildDir/launch4j/bin"
@@ -257,11 +201,6 @@ task makeZipReleaseWithExe(group: 'chhh-release') {
     tasks.findByName('copyLaunch4jExe').mustRunAfter 'clean'
     tasks.findByName('distZip').mustRunAfter 'copyLaunch4jExe'
 }
-task prepareReleaseWithExeNamedWithVer(group: 'chhh-release') {
-    dependsOn 'prepareReleaseNoExe'
-    dependsOn 'releaseWinExeNamedWithVer'
-    tasks.findByName('releaseWinExeNamedWithVer').mustRunAfter 'prepareReleaseNoExe'
-}
 
 task createStartScripts(type: CreateStartScripts, group: "chhh-release") {
     outputDir = file('build/pre-zip-release')
@@ -269,3 +208,73 @@ task createStartScripts(type: CreateStartScripts, group: "chhh-release") {
     applicationName = 'FragPipe'
     classpath = files("FragPipe-${project.version}.jar")
 }
+
+
+//task releaseShadowJar(type: Copy, group: 'chhh-release') {
+//    dependsOn 'shadowJar'
+//    from "$buildDir/libs/FragPipe-${project.version}.jar"
+//    into file("$buildDir/github-release")
+//}
+//
+//task copyShadowScripts(type: Copy, group: 'chhh-release') {
+//    dependsOn 'startShadowScripts'
+//    from "$buildDir/scriptsShadow"
+//    into file("$buildDir/pre-zip-release/bin")
+//}
+//
+//task copyShadowJar(type: Copy, group: 'chhh-release') {
+//    dependsOn 'shadowJar'
+//    from "$buildDir/libs/FragPipe-${project.version}.jar"
+//    into file("$buildDir/pre-zip-release/lib")
+//}
+
+//task releaseZipOld(type: Zip) {
+//    dependsOn 'shadowDistZip'
+//    archiveFileName = "FragPipe-${project.version}.zip"
+//    destinationDirectory = file("$buildDir/github-release")
+//    from "$buildDir/scriptsShadow"
+//    from "$buildDir/libs/FragPipe-${project.version}.jar"
+//}
+//
+//task releaseZip(type: Zip, group: 'chhh-release') {
+//    dependsOn 'copyShadowJar'
+//    dependsOn 'copyShadowScripts'
+//    //dependsOn 'createStartScripts'
+//    archiveFileName = "FragPipe-${project.version}.zip"
+//    destinationDirectory = file("$buildDir/github-release")
+//    from "$buildDir/pre-zip-release"
+//}
+//
+//task releaseWinExe(type: Copy, group: 'chhh-release') {
+//    dependsOn 'createExe'
+//    from "$buildDir/libs/FragPipe.exe"
+//    into file("$buildDir/github-release")
+//}
+//
+//task releaseWinExeNamedWithVer(type: Copy, group: 'chhh-release') {
+//    dependsOn 'createExe'
+//    from "$buildDir/libs/FragPipe.exe"
+//    into file("$buildDir/github-release")
+//    rename '(.+)(//.exe)', '$1' + "-${project.version}" + '$2'
+//}
+
+//task prepareReleaseNoExe(group: 'chhh-release') {
+//    dependsOn 'clean'
+//    dependsOn 'releaseShadowJar'
+//    dependsOn 'releaseZip'
+//    tasks.findByName('releaseShadowJar').mustRunAfter 'clean'
+//    tasks.findByName('releaseZip').mustRunAfter 'releaseShadowJar'
+//}
+//
+//task prepareReleaseWithExe(group: 'chhh-release') {
+//    dependsOn 'prepareReleaseNoExe'
+//    dependsOn 'releaseWinExe'
+//    tasks.findByName('releaseWinExe').mustRunAfter 'prepareReleaseNoExe'
+//}
+//
+//task prepareReleaseWithExeNamedWithVer(group: 'chhh-release') {
+//    dependsOn 'prepareReleaseNoExe'
+//    dependsOn 'releaseWinExeNamedWithVer'
+//    tasks.findByName('releaseWinExeNamedWithVer').mustRunAfter 'prepareReleaseNoExe'
+//}
+
