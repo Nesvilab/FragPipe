@@ -106,7 +106,7 @@ public class UmpirePanel extends JPanel {
 
   public UmpirePanel() {
     initMore();
-    Bus.registerQuietly(this);
+    //Bus.registerQuietly(this);
     Bus.postSticky(this);
   }
 

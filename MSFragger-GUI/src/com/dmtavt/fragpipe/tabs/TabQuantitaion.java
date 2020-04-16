@@ -18,7 +18,7 @@ public class TabQuantitaion extends JPanelWithEnablement {
   }
 
   private void initMore() {
-    Bus.registerQuietly(this);
+    //Bus.registerQuietly(this);
   }
 
   private void init() {
