@@ -4,6 +4,7 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
+import com.dmtavt.fragpipe.api.PropsFile;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFiles;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFolder;
 import com.dmtavt.fragpipe.messages.MessageLcmsClearFiles;
@@ -12,9 +13,12 @@ import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
 import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction;
 import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction.Type;
 import com.dmtavt.fragpipe.messages.MessageLcmsRemoveSelected;
+import com.dmtavt.fragpipe.messages.MessageLoadUi;
 import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageType;
+import com.dmtavt.fragpipe.messages.MessageUpdateWorkflows;
 import com.github.chhh.utils.FileDrop;
+import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
@@ -26,16 +30,22 @@ import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerInt;
+import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Dimension;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
@@ -45,6 +55,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
@@ -53,7 +64,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.RandomUtils;
@@ -61,6 +71,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
+import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.cmd.CmdMsfragger;
@@ -75,6 +86,7 @@ import umich.msfragger.gui.dialogs.ExperimentNameDialog;
 import umich.msfragger.params.ThisAppProps;
 
 public class TabWorkflow extends JPanelWithEnablement {
+
   private static final Logger log = LoggerFactory.getLogger(TabWorkflow.class);
   private final MigUtils mu = MigUtils.get();
   private JButton btnFilesRemove;
@@ -91,11 +103,11 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnGroupsAssignToSelected;
   private JButton btnGroupsClear;
   private JEditorPane epWorkflowsInfo;
-  private JPanel pWorkflows;
-  private JPanel pLcmsFiles;
-  private JPanel pContent;
   private UiSpinnerInt uiSpinnerRam;
   private UiSpinnerInt uiSpinnerThreads;
+  private Map<String, PropsFile> workflows;
+  private UiCombo uiComboWorkflows;
+  public static final String PROP_WORKFLOW_DESC = "workflow.description";
 
   public TabWorkflow() {
     init();
@@ -120,7 +132,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     int numWords = RandomUtils.nextInt(10, 120);
     return IntStream.range(0, numWords)
         .mapToObj(i -> genWord())
-        .collect(StringBuilder::new, (s1, s2) -> s1.append(" ").append(s2), (s1, s2) -> s1.append(" ").append(s2))
+        .collect(StringBuilder::new, (s1, s2) -> s1.append(" ").append(s2),
+            (s1, s2) -> s1.append(" ").append(s2))
         .toString();
   }
 
@@ -163,24 +176,72 @@ public class TabWorkflow extends JPanelWithEnablement {
     return uiSpinnerThreads.getActualValue();
   }
 
+  private Map<String, PropsFile> loadWorkflowFiles() {
+    Path dir = FragpipeLocations.get().getDirWorkflows();
+    try {
+      final Map<String, PropsFile> files = new HashMap<>();
+      Files.walk(dir).filter(Files::isRegularFile)
+          .filter(p -> "workflow"
+              .equalsIgnoreCase(StringUtils.afterLastDot(p.getFileName().toString())))
+          .forEach(Unchecked.consumer(path -> {
+            PropsFile f = new PropsFile(path, "Loaded from: " + path.toString());
+            f.load();
+            if (f.size() > 0) {
+              String s = f.getPath().getFileName().toString();
+              String name = StringUtils.upToLastDot(s);
+              files.put(StringUtils.isBlank(name) ? s : name, f);
+            }
+          }, throwable -> {
+            log.error("Error while reading alleged workflow file", throwable);
+          }));
+      return files;
+    } catch (IOException e) {
+      SwingUtils.showErrorDialogWithStacktrace(e, this);
+      return Collections.emptyMap();
+    }
+  }
+
   private JPanel createPanelWorkflows() {
     JPanel p = mu.newPanel("Workflows", true);
 
     epWorkflowsInfo = SwingUtils.createClickableHtml(true,
         "FragPipe and its collection of tools support multiple proteomic workflows.\n"
-        + "Select an option in the dropdown menu below to configure "
-        + "all the tools. You can tweak the options yourself after loading.\n"
-        + "Also, <a href=\"https://google.com\">see the tutorial</a>");
-    final UiCombo uiCombo = UiUtils.createUiCombo(Arrays
-        .asList("Open Search", "Closed Search", "Non-specific Search", "Speclib generation", "TMT-10 Quant"));
-    final JEditorPane epWorkflowsDesc = SwingUtils.createClickableHtml(SwingUtils.makeHtml(genSentence()));
+            + "Select an option in the dropdown menu below to configure "
+            + "all the tools. You can tweak the options yourself after loading.\n"
+            + "Also, <a href=\"https://google.com\">see the tutorial</a>");
+
+    workflows = loadWorkflowFiles();
+    List<String> names = Seq.seq(workflows.keySet()).sorted().toList();
+    uiComboWorkflows = UiUtils.createUiCombo(names);
+    final JEditorPane epWorkflowsDesc = SwingUtils.createClickableHtml(SwingUtils.makeHtml(""));
     epWorkflowsDesc.setPreferredSize(new Dimension(400, 50));
-    uiCombo.addItemListener(e -> SwingUtils.setJEditorPaneContent(epWorkflowsDesc, genSentence()));
-    JButton btnWorkflowLoad = UiUtils.createButton("Load", e -> {
-      log.debug("Load workflow button clicked");
-      SwingUtils.showInfoDialog(this, "User clicked " + (String)uiCombo.getSelectedItem(), "Loading");
+    uiComboWorkflows.addItemListener(e -> {
+      String name = (String) e.getItem();
+      PropsFile propsFile = workflows.get(name);
+      if (propsFile == null) {
+        throw new IllegalStateException("Workflows map is not synchronized with the dropdown");
+      }
+      SwingUtils.setJEditorPaneContent(epWorkflowsDesc, propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
     });
-    FormEntry feComboWorkflow = fe(uiCombo, "workflow-option")
+    JButton btnWorkflowLoad = UiUtils.createButton("Load", e -> {
+      String workflow = (String) uiComboWorkflows.getSelectedItem();
+      log.debug("Load workflow button clicked: {}", workflow);
+      int confirmation = SwingUtils
+          .showConfirmDialog(this, new JLabel("Do you want to load workflow: " + workflow + "?"),
+              "Confirmation");
+      if (JOptionPane.OK_OPTION == confirmation) {
+        log.debug("Loading workflow/ui state: {}", workflow);
+        PropsFile propsFile = workflows.get(workflow);
+        if (propsFile == null) {
+          throw new IllegalStateException("Workflows map is not synchronized with the dropdown");
+        }
+        if (propsFile.containsKey("workflow.workflow-option")) {
+          propsFile.setProperty("workflow.workflow-option", workflow);
+        }
+        Bus.post(new MessageLoadUi(propsFile));
+      }
+    });
+    FormEntry feComboWorkflow = fe(uiComboWorkflows, "workflow-option")
         .label("Select an option to load config for:")
         .tooltip("This is purely for convenience of loading appropriate defaults\n"
             + "for various standard workflows.\n"
@@ -216,8 +277,9 @@ public class TabWorkflow extends JPanelWithEnablement {
     FileChooserUtils.setPath(fc, Stream.of(ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN)));
 
     int result = fc.showDialog(this, "Select");
-    if (JFileChooser.APPROVE_OPTION != result)
+    if (JFileChooser.APPROVE_OPTION != result) {
       return;
+    }
     final List<Path> paths = Arrays.stream(fc.getSelectedFiles())
         .filter(supportedFilePredicate)
         .map(File::toPath).collect(Collectors.toList());
@@ -233,7 +295,8 @@ public class TabWorkflow extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageLcmsFilesAdded m) {
     // save locations
-    String savePath = m.recursiveAdditionRoot != null ? m.recursiveAdditionRoot.toString() : m.paths.get(0).toString();
+    String savePath = m.recursiveAdditionRoot != null ? m.recursiveAdditionRoot.toString()
+        : m.paths.get(0).toString();
     ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, savePath);
 
     LcmsFileAddition lfa = new LcmsFileAddition(m.paths, new ArrayList<>(m.paths));
@@ -253,9 +316,11 @@ public class TabWorkflow extends JPanelWithEnablement {
   public void on(MessageLcmsAddFolder m) {
     logObjectType(m);
 
-    final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(Fragpipe.getExtBinSearchPaths());
-    JFileChooser fc = FileChooserUtils.create("Select a folder with LC/MS files (searched recursively)", "Select",
-        true, FcMode.ANY, true);
+    final javax.swing.filechooser.FileFilter ff = CmdMsfragger
+        .getFileChooserFilter(Fragpipe.getExtBinSearchPaths());
+    JFileChooser fc = FileChooserUtils
+        .create("Select a folder with LC/MS files (searched recursively)", "Select",
+            true, FcMode.ANY, true);
     FileChooserUtils.setPath(fc, Stream.of(ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN)));
 
     String lastPath = ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN);
@@ -263,15 +328,18 @@ public class TabWorkflow extends JPanelWithEnablement {
       try {
         Path p = Paths.get(lastPath);
         fc.setSelectedFile(p.toFile());
-      } catch (Exception ignore) {}
+      } catch (Exception ignore) {
+      }
     }
 
     int confirmation = fc.showOpenDialog(this);
 
-    if (confirmation != JFileChooser.APPROVE_OPTION)
+    if (confirmation != JFileChooser.APPROVE_OPTION) {
       return;
+    }
 
-    final Predicate<File> pred = CmdMsfragger.getSupportedFilePredicate(Fragpipe.getExtBinSearchPaths());
+    final Predicate<File> pred = CmdMsfragger
+        .getSupportedFilePredicate(Fragpipe.getExtBinSearchPaths());
     File[] selectedFiles = fc.getSelectedFiles();
     List<Path> paths = new ArrayList<>();
     for (File f : selectedFiles) {
@@ -320,11 +388,11 @@ public class TabWorkflow extends JPanelWithEnablement {
     Properties uiProps = FragpipeCacheUtils.tabsSave(fp.tabs);
     Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps)).filter(kv -> {
       String k = kv.v1().toLowerCase();
-      if (k.startsWith(TabConfig.TAB_PREFIX))
+      if (k.startsWith(TabConfig.TAB_PREFIX)) {
         return false;
+      }
       return !k.contains("workdir") && !k.contains("db-path");
     }).toMap(kv -> kv.v1, kv -> kv.v2);
-
 
     Path saveDir;
     if (!m.toCustomDir) {
@@ -345,17 +413,25 @@ public class TabWorkflow extends JPanelWithEnablement {
       saveDir = fc.getSelectedFile().toPath();
     }
 
+    // ask about name and description
     MigUtils mu = MigUtils.get();
-    final JPanel p = mu.newPanel("Workflow name", true);
-    JTextField tf = new JTextField(20);
-    tf.setName("file-name");
-    mu.add(p, tf).growX().wrap();
+    final JPanel p = mu.newPanel(null, true);
+    UiText uiTextName = UiUtils.uiTextBuilder().cols(20).ghost("Name is required").create();
+    uiTextName.setName("file-name");
+    final JEditorPane ep = new JEditorPane("text/html", SwingUtils.wrapInStyledHtml(""));
+    ep.setPreferredSize(new Dimension(320, 240));
+    ep.setName("file-desc");
+    mu.add(p, new JLabel("Name")).split();
+    mu.add(p, uiTextName).growX().wrap();
+    mu.add(p, new JLabel("Description (optional)")).wrap();
+    mu.add(p, ep).spanX().wrap();
+
     int answer = SwingUtils
         .showConfirmDialog(fp, p, "Assign workflow name");
     if (JOptionPane.OK_OPTION != answer) {
       return;
     }
-    String text = tf.getText().trim();
+    String text = uiTextName.getNonGhostText().trim();
     if (StringUtils.isBlank(text)) {
       SwingUtils
           .showErrorDialog(fp, "Workflow name can't be left empty", "Error saving workflow");
@@ -378,9 +454,41 @@ public class TabWorkflow extends JPanelWithEnablement {
         return;
       }
     }
+    String desc = SwingUtils.tryExtractHtmlBody(ep.getText());
+    if (StringUtils.isNotBlank(desc)) {
+      vetted.put(PROP_WORKFLOW_DESC, desc);
+    }
+
+    // save
     FragpipeCacheUtils.saveToFileSorted(PropertiesUtils.from(vetted), savePath,
         "Workflow: " + StringUtils.upToLastDot(savePath.getFileName().toString()));
     SwingUtils.showInfoDialog(fp, "Saved to: " + savePath, "Error saving workflow");
+
+    if (FragpipeLocations.get().getDirWorkflows().equals(saveDir)) {
+      Bus.post(new MessageUpdateWorkflows());
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageUpdateWorkflows m) {
+    String previouslySelected = (String) uiComboWorkflows.getSelectedItem();
+    List<String> previousOptions = new ArrayList<>();
+    for (int i = 0; i < uiComboWorkflows.getModel().getSize(); i++) {
+      previousOptions.add(uiComboWorkflows.getModel().getElementAt(i));
+    }
+    log.debug("Previously selected: {}, Previous options: {}", previouslySelected, previousOptions);
+
+    workflows = loadWorkflowFiles();
+    List<String> names = Seq.seq(workflows.keySet()).sorted().toList();
+    uiComboWorkflows.setModel(new DefaultComboBoxModel<>(names.toArray(new String[0])));
+    Optional<String> newName = names.stream().filter(name -> !previousOptions.contains(name))
+        .findFirst();
+    if (newName.isPresent()) {
+      log.debug("Figured that '{}' workflow was added", newName.get());
+      uiComboWorkflows.setSelectedItem(newName.get());
+    } else {
+      log.debug("Cant figure which workflow name was added");
+    }
   }
 
   private void postFileListUpdate() {
@@ -401,10 +509,14 @@ public class TabWorkflow extends JPanelWithEnablement {
     btnFilesClear = button("Clear files", MessageLcmsClearFiles::new);
     btnFilesClear.setEnabled(false);
 
-    btnGroupsConsecutive = button("Consecutive", () -> new MessageLcmsGroupAction(Type.CONSECUTIVE));
-    btnGroupsByParentDir = button("By parent directory", () -> new MessageLcmsGroupAction(Type.BY_PARENT_DIR));
-    btnGroupsByFilename = button("By file name", () -> new MessageLcmsGroupAction(Type.BY_FILE_NAME));
-    btnGroupsAssignToSelected = button("Set experiment/replicate", () -> new MessageLcmsGroupAction(Type.SET_EXP));
+    btnGroupsConsecutive = button("Consecutive",
+        () -> new MessageLcmsGroupAction(Type.CONSECUTIVE));
+    btnGroupsByParentDir = button("By parent directory",
+        () -> new MessageLcmsGroupAction(Type.BY_PARENT_DIR));
+    btnGroupsByFilename = button("By file name",
+        () -> new MessageLcmsGroupAction(Type.BY_FILE_NAME));
+    btnGroupsAssignToSelected = button("Set experiment/replicate",
+        () -> new MessageLcmsGroupAction(Type.SET_EXP));
     btnGroupsClear = button("Clear groups", () -> new MessageLcmsGroupAction(Type.CLEAR_GROUPS));
 
     createFileTable();
@@ -413,7 +525,9 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnFilesAddFolder);
     mu.add(p, btnFilesRemove);
     mu.add(p, btnFilesClear).wrap();
-    mu.add(p, new JLabel("Assign files to Experiments/Groups (select rows to activate action buttons):")).spanX().wrap();
+    mu.add(p,
+        new JLabel("Assign files to Experiments/Groups (select rows to activate action buttons):"))
+        .spanX().wrap();
     mu.add(p, btnGroupsConsecutive).split();
     mu.add(p, btnGroupsByParentDir);
     mu.add(p, btnGroupsByFilename);
@@ -452,7 +566,8 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   private FileDrop makeFileDrop() {
     return new FileDrop(this, true, files -> {
-      Predicate<File> pred = CmdMsfragger.getSupportedFilePredicate(Fragpipe.getExtBinSearchPaths());
+      Predicate<File> pred = CmdMsfragger
+          .getSupportedFilePredicate(Fragpipe.getExtBinSearchPaths());
       List<Path> accepted = new ArrayList<>(files.length);
       for (File f : files) {
         PathUtils.traverseDirectoriesAcceptingFiles(f, pred, accepted, false);
@@ -511,15 +626,18 @@ public class TabWorkflow extends JPanelWithEnablement {
         .collect(Collectors.toList());
 
     final Set<String> exps = selectedRows.stream()
-        .flatMap(i -> data.get(i).getExperiment() == null ? Stream.empty() : Stream.of(data.get(i).getExperiment()))
+        .flatMap(i -> data.get(i).getExperiment() == null ? Stream.empty()
+            : Stream.of(data.get(i).getExperiment()))
         .collect(Collectors.toSet());
     final Set<Integer> reps = selectedRows.stream()
-        .flatMap(i -> data.get(i).getReplicate() == null ? Stream.empty() : Stream.of(data.get(i).getReplicate()))
+        .flatMap(i -> data.get(i).getReplicate() == null ? Stream.empty()
+            : Stream.of(data.get(i).getReplicate()))
         .collect(Collectors.toSet());
     final String defaultExp = exps.size() == 1 ? exps.iterator().next() : null;
     final Integer defaultRep = reps.size() == 1 ? reps.iterator().next() : null;
 
-    ExperimentNameDialog d = new ExperimentNameDialog(SwingUtils.findParentFrame(this), true, paths, defaultExp, defaultRep);
+    ExperimentNameDialog d = new ExperimentNameDialog(SwingUtils.findParentFrame(this), true, paths,
+        defaultExp, defaultRep);
     d.setVisible(true);
     if (d.isOk()) {
       for (int selectedRow : selectedRows) {

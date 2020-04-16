@@ -88,6 +88,7 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.security.krb5.internal.KDCOptions;
@@ -286,14 +287,17 @@ public class SwingUtils {
       final ChangeListener changeListener) {
     return new DocumentListener() {
       private int lastChange = 0, lastNotifiedChange = 0;
+
       @Override
       public void insertUpdate(DocumentEvent e) {
         changedUpdate(e);
       }
+
       @Override
       public void removeUpdate(DocumentEvent e) {
         changedUpdate(e);
       }
+
       @Override
       public void changedUpdate(DocumentEvent e) {
         lastChange++;
@@ -321,7 +325,8 @@ public class SwingUtils {
    *                              Taken from http://stackoverflow.com/questions/3953208/value-change-listener-to-jtextfield
    * @author Boann
    */
-  public static void addChangeListener(final JTextComponent textComp, final ChangeListener changeListener) {
+  public static void addChangeListener(final JTextComponent textComp,
+      final ChangeListener changeListener) {
     Objects.requireNonNull(textComp, "text component");
     Objects.requireNonNull(changeListener, "change listener");
 
@@ -351,11 +356,12 @@ public class SwingUtils {
    * @param triggerOnInit  If true, will call the appropriate action based on the initial state of
    *                       the checkbox, before adding the listener.
    */
-  public static void addSelectedStateChangeListener(ItemSelectable itemSelectable, boolean triggerOnInit,
+  public static void addSelectedStateChangeListener(ItemSelectable itemSelectable,
+      boolean triggerOnInit,
       Runnable onSelected, Runnable onDeselected) {
     final boolean initState = itemSelectable.getSelectedObjects() != null;
     if (triggerOnInit) {
-      if(initState) {
+      if (initState) {
         onSelected.run();
       } else {
         onDeselected.run();
@@ -375,7 +381,8 @@ public class SwingUtils {
     });
   }
 
-  public static void setEnablementUpdater(JPanelWithEnablement p, Component toToggle, ItemSelectable check) {
+  public static void setEnablementUpdater(JPanelWithEnablement p, Component toToggle,
+      ItemSelectable check) {
     addSelectedStateChangeListener(check, true,
         () -> p.updateEnabledStatus(toToggle, true),
         () -> p.updateEnabledStatus(toToggle, false));
@@ -448,6 +455,17 @@ public class SwingUtils {
     return s;
   }
 
+  /**
+   * If given text is HTML, will return the body as text, otherwise will just return the text. This
+   * is used for Editor Panes which have text/html content and are styled using css, which in the
+   * end gets in the way of saving the contents of said Editor Pane.
+   */
+  public static String tryExtractHtmlBody(String text) {
+    if (!text.contains("<html")) {
+      return text;
+    }
+    return Jsoup.parse(text).body().text();
+  }
 
   public static String createCssStyle() {
     return createCssStyle(null);
@@ -793,10 +811,13 @@ public class SwingUtils {
   /**
    * @param comp Must implement {@link StringRepresentable}
    */
-  public static void addOnFocusLostAndContentChanged(Component comp, BiConsumer<String, String> onContentChanged) {
-    if (!(comp instanceof StringRepresentable))
+  public static void addOnFocusLostAndContentChanged(Component comp,
+      BiConsumer<String, String> onContentChanged) {
+    if (!(comp instanceof StringRepresentable)) {
       throw new IllegalArgumentException("component not StringRepresentable");
-    comp.addFocusListener(new ContentChangedFocusAdapter((StringRepresentable) comp, onContentChanged));
+    }
+    comp.addFocusListener(
+        new ContentChangedFocusAdapter((StringRepresentable) comp, onContentChanged));
   }
 
   public static void setValue(Component comp, String s) {
@@ -820,7 +841,8 @@ public class SwingUtils {
 //              comp.getClass().getSimpleName(), comp.getName(),
 //              StringRepresentable.class.getSimpleName(), JCheckBox
 //                  .class.getSimpleName(), JTextComponent.class.getSimpleName()));
-      throw new IllegalArgumentException("Component not StringRepresentable, JCheckBox or JTextComponent. Can't set.");
+      throw new IllegalArgumentException(
+          "Component not StringRepresentable, JCheckBox or JTextComponent. Can't set.");
     }
   }
 
@@ -939,7 +961,8 @@ public class SwingUtils {
 
   public static int showConfirmDialog(Component parent, final Component component, String title) {
     makeDialogResizable(component);
-    return JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component), title, JOptionPane.OK_CANCEL_OPTION);
+    return JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component), title,
+        JOptionPane.OK_CANCEL_OPTION);
   }
 
   public static int showChoiceDialog(Component parent, Object message, String[] options,

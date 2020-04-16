@@ -493,7 +493,9 @@ public class TabConfig extends JPanelWithEnablement {
     log.debug("Got NoteDbsplitConfig without exceptions");
 
     epDbsplitErrParent = epDbsplitErr.getParent();
-    epDbsplitErrParent.remove(epDbsplitErr);
+    if (epDbsplitErrParent != null) {
+      epDbsplitErrParent.remove(epDbsplitErr);
+    }
     SwingUtils.setJEditorPaneContent(epDbsplitText, true, textDbsplitEnabled(true));
     this.revalidate();
   }
@@ -526,7 +528,9 @@ public class TabConfig extends JPanelWithEnablement {
 
     if (m.instance.isEasypqpOk()) {
       epSpeclibgenErrParent = epSpeclibgenErr.getParent();
-      epSpeclibgenErrParent.remove(epSpeclibgenErr);
+      if (epSpeclibgenErrParent != null) {
+        epSpeclibgenErrParent.remove(epSpeclibgenErr);
+      }
     } else {
       SwingUtils.setJEditorPaneContent(epSpeclibgenErr, "Python package EasyPQP not found");
     }

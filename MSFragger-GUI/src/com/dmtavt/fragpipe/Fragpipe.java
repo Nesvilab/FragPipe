@@ -9,6 +9,7 @@ import com.dmtavt.fragpipe.api.PropsFile;
 import com.dmtavt.fragpipe.api.UiTab;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
+import com.dmtavt.fragpipe.messages.MessageLoadUi;
 import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
@@ -443,7 +444,16 @@ public class Fragpipe extends JFrame {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteFragpipeCache m) {
     log.debug("Got NotePreviousUiState, updating UI");
-    FragpipeCacheUtils.tabsLoad(m.propsUiState, tabs);
+    loadUi(m.propsUiState);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageLoadUi m) {
+    loadUi(m.props);
+  }
+
+  private void loadUi(PropsFile propsFile) {
+    FragpipeCacheUtils.tabsLoad(propsFile, tabs);
     Bus.post(new MessageUiRevalidate());
   }
 
