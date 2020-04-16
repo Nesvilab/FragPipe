@@ -1,5 +1,5 @@
 language: java
-script: "./gradlew makeReleaseZipNoJre"
+script: "./gradlew makeReleaseZips"
 before_install: cd MSFragger-GUI
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock

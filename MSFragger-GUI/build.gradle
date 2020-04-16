@@ -185,6 +185,16 @@ task copyJre(type: Copy, group: 'chhh-release', description: 'Copies JRE to buil
     into file("$buildDir/install/${project.name}")
 }
 
+void createTaskCopyToInstallRelToBuild(String taskNameSuffix, String pathRelToBuild) {
+    String taskName = "copy" + taskNameSuffix;
+    task (taskName, type: Copy, group: 'chhh-release', description: "Copies from [$buildDir/$pathRelToBuild] to [$buildDir/install/${project.name}]") {
+        from "$buildDir/$pathRelToBuild"
+        into file("$buildDir/install/${project.name}")
+    }
+}
+
+//createTaskCopyToInstallRelToBuild('Tools', "")
+
 void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startClass) {
     String taskName = "makeReleaseZip" + (withJre ? "WithJre" : "NoJre");
 
@@ -194,7 +204,7 @@ void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startCl
         dependsOn 'installDist'
 
         tasks.findByName('makeExeAndCopyToScripts').mustRunAfter 'clean'
-        tasks.findByName('installDist').mustRunAfter 'installDist'
+        tasks.findByName('installDist').mustRunAfter 'makeExeAndCopyToScripts'
 
         if (!withJre) {
             launch4j { // no bundled jre

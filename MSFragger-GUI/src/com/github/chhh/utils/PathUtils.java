@@ -43,7 +43,6 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.filechooser.FileFilter;
-import org.jsoup.helper.StringUtil;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 
