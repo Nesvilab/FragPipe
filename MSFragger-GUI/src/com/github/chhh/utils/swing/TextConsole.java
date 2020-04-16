@@ -80,7 +80,7 @@ public class TextConsole extends JTextPane implements Appendable {
     }
 
     @Override
-    public Appendable append(CharSequence csq) {
+    public synchronized Appendable append(CharSequence csq) {
         //append(csq.toString()); // too simple
         
         // old non-colored implementation
@@ -97,7 +97,7 @@ public class TextConsole extends JTextPane implements Appendable {
     }
 
     @Override
-    public Appendable append(CharSequence csq, int start, int end) {
+    public synchronized Appendable append(CharSequence csq, int start, int end) {
         //append(csq.subSequence(start, end).toString()); // too simple
         
         // old non-colored implementation
@@ -114,7 +114,7 @@ public class TextConsole extends JTextPane implements Appendable {
     }
 
     @Override
-    public Appendable append(char c) {
+    public synchronized Appendable append(char c) {
         //append(Character.toString(c));
         StyledDocument doc = getStyledDocument();
         try {
@@ -125,24 +125,26 @@ public class TextConsole extends JTextPane implements Appendable {
         return this;
     }
     
-    public void append(Color c, String s) {
-        if (c == null) {
-            appendANSI(s);
-            return;
-        }
-        StyleContext sc = StyleContext.getDefaultStyleContext();
-        AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
-        int len = getDocument().getLength(); // same value as getText().length();
-        setCaretPosition(len);  // place caret at the end (with no selection)
-        setCharacterAttributes(aset, false);
-        // In JTextPane, only "\n" is recognized as a newline, so replace "\r\n" with "\n"
-        // https://download.java.net/java/early_access/jdk14/docs/api/java.desktop/javax/swing/text/DefaultEditorKit.html
-        // “But while the document is in memory, the "\n" character is used to define a newline, regardless of how the newline is defined when the document is on disk.”
-        // JTextPane doesn't print "\r", so replace it with "\n"
-        replaceSelection(s.replace("\r\n", "\n").replace("\r", "\u200B\n")); // there is no selection, so inserts at caret
+    public synchronized void append(Color c, String s) {
+            if (c == null) {
+                appendANSI(s);
+                return;
+            }
+            StyleContext sc = StyleContext.getDefaultStyleContext();
+            AttributeSet aset = sc
+                .addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
+            int len = getDocument().getLength(); // same value as getText().length();
+            setCaretPosition(len);  // place caret at the end (with no selection)
+            setCharacterAttributes(aset, false);
+            // In JTextPane, only "\n" is recognized as a newline, so replace "\r\n" with "\n"
+            // https://download.java.net/java/early_access/jdk14/docs/api/java.desktop/javax/swing/text/DefaultEditorKit.html
+            // “But while the document is in memory, the "\n" character is used to define a newline, regardless of how the newline is defined when the document is on disk.”
+            // JTextPane doesn't print "\r", so replace it with "\n"
+            replaceSelection(s.replace("\r\n", "\n")
+                .replace("\r", "\u200B\n")); // there is no selection, so inserts at caret
     }
     
-    public void appendANSI(String s) { // convert ANSI color codes first
+    public synchronized void appendANSI(String s) { // convert ANSI color codes first
         int aPos = 0;   // current char position in addString
         int aIndex = 0; // index of next Escape sequence
         int mIndex = 0; // index of "m" terminating Escape sequence
