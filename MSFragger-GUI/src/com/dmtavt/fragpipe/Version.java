@@ -22,6 +22,7 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.github.chhh.utils.StringUtils;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -63,6 +64,10 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("13.0", Arrays.asList(
+        "Brand new fragpipe, rebuilt almost from ground up",
+        "TMT-Integrator included"
+    ));
     CHANGELOG.put("12.2", Arrays.asList(
         "Check FASTA file for presence of decoys before running PeptideProphet or Report",
         "Fix some Philosopher workspace related bugs",
