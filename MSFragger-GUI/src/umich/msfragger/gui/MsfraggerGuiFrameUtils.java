@@ -1269,7 +1269,7 @@ public class MsfraggerGuiFrameUtils {
     }
     Path p = Paths.get(path).toAbsolutePath();
     final boolean[] found = {false};
-    try (FileSystem fs = FileSystems.newFileSystem(p, null)) {
+    try (FileSystem fs = FileSystems.newFileSystem(p, ClassLoader.getSystemClassLoader())) {
       for (Path root : fs.getRootDirectories()) {
         Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
           Pattern regex = Pattern.compile("msfragger.*\\.jar", Pattern.CASE_INSENSITIVE);

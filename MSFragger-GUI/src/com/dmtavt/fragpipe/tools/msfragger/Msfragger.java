@@ -20,6 +20,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -145,7 +146,7 @@ public class Msfragger {
 
   private static boolean validateMsfraggerJarContents(Path p) {
     final boolean[] found = {false};
-    try (FileSystem fs = FileSystems.newFileSystem(p, null)) {
+    try (FileSystem fs = FileSystems.newFileSystem(p, ClassLoader.getSystemClassLoader())) {
       for (Path root : fs.getRootDirectories()) {
         Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
           final Pattern regex = Pattern.compile("msfragger.*\\.jar", Pattern.CASE_INSENSITIVE);
