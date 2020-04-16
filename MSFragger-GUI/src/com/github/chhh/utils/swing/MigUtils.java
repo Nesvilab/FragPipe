@@ -93,6 +93,10 @@ public class MigUtils {
     return lcFillX().insets("0px", null, "0px", null);
   }
 
+  public LC lcNoInsetsTopBottom() {
+    return new LC().insets("0px", null, "0px", null);
+  }
+
   public CC add(JComponent host, JComponent child) {
     CC cc = ccL();
     host.add(child, cc);

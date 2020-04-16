@@ -31,6 +31,7 @@ import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Color;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -44,6 +45,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
@@ -100,6 +102,7 @@ public class TabRun extends JPanelWithEnablement {
     if (m.addNewline) {
       console.append("\n");
     }
+    console.getParent().getParent().revalidate();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
@@ -232,21 +235,25 @@ public class TabRun extends JPanelWithEnablement {
     }
 
     pTop = createPanelTop(console);
-
-    //pTop.setMinimumSize(new Dimension(300, 50));
+    pTop.setPreferredSize(new Dimension(400, 50));
     initConsole(console);
     pConsole = createPanelConsole(console);
 
-    mu.layout(this, mu.lcFillXNoInsetsTopBottom());
-    mu.add(this, pTop).growX().growY().wrap();
-    mu.add(this, pConsole).growX().wrap();
+    mu.layout(this, mu.lcNoInsetsTopBottom().fillX());
+    mu.add(this, pTop).growX().alignY("top").wrap();
+    mu.add(this, pConsole).grow().push().alignY("top").wrap();
   }
 
   private JPanel createPanelConsole(TextConsole tc) {
-    JPanel p = mu.newPanel("Console", mu.lcFillXNoInsetsTopBottom());
-    JScrollPane scroll = new JScrollPane(tc);
+    JPanel p = mu.newPanel("Console", mu.lcNoInsetsTopBottom());
 
-    mu.add(p, scroll).growX().wrap();
+    JScrollPane scroll = SwingUtils.scroll(tc);
+    scroll.setMinimumSize(new Dimension(400, 50));
+    // the editor does not originally occupy the whole width of the viewport
+    // so we mask it off with the same color as the console
+    scroll.getViewport().setBackground(tc.getBackground());
+
+    mu.add(p, scroll).grow().push().wrap();
     return p;
   }
 
