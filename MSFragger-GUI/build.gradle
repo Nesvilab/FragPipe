@@ -20,7 +20,7 @@ plugins {
 }
 
 group = 'com.github.chhh'
-version = '12.3-build9'
+version = '13.0-build01'
 
 description = """FragPipe - run complete proteomics analyses from the GUI"""
 
@@ -41,6 +41,8 @@ mainClassName = "${startClass}"
 application {
     mainClassName = "${startClass}"
 }
+def releaseDir = 'github-release'
+
 //
 //task createStartScripts(type: CreateStartScripts, group: 'release') {
 //    outputDir = file('build/github-release')
@@ -91,33 +93,8 @@ distributions {
             from('/') {
                 include 'workflows/**'
             }
-//            if (tasks.findByName('copyLaunch4jExe') != null) {
-//
-//            }
-            from('../jre/OpenJDK8U-jre_x64_windows_hotspot_8u242b08') {
-                include 'jre/**'
-            }
         }
     }
-}
-
-
-
-launch4j {
-    mainClassName = "${startClass}"
-    icon = "${projectDir}/../logo/msfragger-icon-set_win_16-512.ico"
-    outputDir = "launch4j/bin"
-    libraryDir = '../lib'
-    dontWrapJar = true
-    downloadUrl = 'https://adoptopenjdk.net/'
-    bundledJre64Bit = true
-    //bundledJreAsFallback = false
-    jreRuntimeBits = 64
-    bundledJrePath = "../jre"
-    // messagesStartupError = "Startup error"
-    // messagesLauncherError = "Launcher error"
-    // messagesBundledJreError = "Error with bundled JRE"
-    // messagesJreVersionError = "Java Runtime version error"
 }
 
 // replacing old transitive dependencies with newer ones
@@ -188,93 +165,77 @@ task showImplDeps(type: DependencyReportTask, group: 'chhh-help',
     configurations = [project.configurations.implementation] as Set
 }
 
-task copyLaunch4jExe(type: Copy, group: 'chhh-release') {
+task createStartScripts(type: CreateStartScripts, group: "chhh-release") {
+    outputDir = file('build/pre-zip-release')
+    mainClassName = "${startClass}"
+    applicationName = 'FragPipe'
+    classpath = files("fragpipe-${project.version}.jar")
+}
+
+task makeExeAndCopyToScripts(type: Copy, group: 'chhh-release', description: 'The .exe file ' +
+        'created requires to be placed in ./bin/ sub-direcotry of the final distribution and ' +
+        'having fragpipe-x.x.x.jar in ./lib/ sub-directory') {
     dependsOn 'createExe'
     from "$buildDir/launch4j/bin"
     into file("$buildDir/scripts")
 }
 
-task makeZipReleaseWithExe(group: 'chhh-release') {
-    dependsOn 'clean'
-    dependsOn 'copyLaunch4jExe'
-    dependsOn 'distZip'
-    tasks.findByName('copyLaunch4jExe').mustRunAfter 'clean'
-    tasks.findByName('distZip').mustRunAfter 'copyLaunch4jExe'
+task copyJre(type: Copy, group: 'chhh-release', description: 'Copies JRE to build/install/fragpipe') {
+    from "$buildDir/../../jre/OpenJDK8U-jre_x64_windows_hotspot_8u242b08"
+    into file("$buildDir/install/${project.name}")
 }
 
-task createStartScripts(type: CreateStartScripts, group: "chhh-release") {
-    outputDir = file('build/pre-zip-release')
-    mainClassName = "${startClass}"
-    applicationName = 'FragPipe'
-    classpath = files("FragPipe-${project.version}.jar")
+void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startClass) {
+    String taskName = "makeReleaseZip" + (withJre ? "WithJre" : "NoJre");
+
+    task (taskName, type: Zip, group: 'chhh-release') {
+        //dependsOn 'clean'
+        dependsOn 'makeExeAndCopyToScripts'
+        dependsOn 'installDist'
+
+        if (!withJre) {
+            launch4j { // no bundled jre
+                mainClassName = "${startClass}"
+                icon = "${projectDir}/../logo/msfragger-icon-set_win_16-512.ico"
+                outputDir = "launch4j/bin"
+                libraryDir = '../lib'
+                dontWrapJar = true
+                downloadUrl = 'https://adoptopenjdk.net/'
+                jreMinVersion = '9'
+            }
+        } else {
+            dependsOn 'copyJre'
+            tasks.findByName('copyJre').mustRunAfter 'installDist'
+            launch4j {
+                mainClassName = "${startClass}"
+                icon = "${projectDir}/../logo/msfragger-icon-set_win_16-512.ico"
+                outputDir = "launch4j/bin"
+                libraryDir = '../lib'
+                dontWrapJar = true
+                downloadUrl = 'https://adoptopenjdk.net/'
+                bundledJrePath = "../jre"
+                bundledJre64Bit = true
+                bundledJreAsFallback = false
+            }
+        }
+
+        tasks.findByName('makeExeAndCopyToScripts').mustRunAfter 'clean'
+        tasks.findByName('installDist').mustRunAfter 'makeExeAndCopyToScripts'
+
+        archiveFileName = (withJre ? "FragPipe-jre-${project.version}.zip" : "FragPipe-${project.version}.zip")
+        destinationDirectory = file("$buildDir/$releaseDir")
+        from "$buildDir/install"
+    }
 }
 
+createTaskMakeReleaseZip(true, releaseDir, startClass)
+createTaskMakeReleaseZip(false, releaseDir, startClass)
 
-//task releaseShadowJar(type: Copy, group: 'chhh-release') {
-//    dependsOn 'shadowJar'
-//    from "$buildDir/libs/FragPipe-${project.version}.jar"
-//    into file("$buildDir/github-release")
-//}
-//
-//task copyShadowScripts(type: Copy, group: 'chhh-release') {
-//    dependsOn 'startShadowScripts'
-//    from "$buildDir/scriptsShadow"
-//    into file("$buildDir/pre-zip-release/bin")
-//}
-//
-//task copyShadowJar(type: Copy, group: 'chhh-release') {
-//    dependsOn 'shadowJar'
-//    from "$buildDir/libs/FragPipe-${project.version}.jar"
-//    into file("$buildDir/pre-zip-release/lib")
-//}
+task makeReleaseZips(group: 'chhh-release') {
+    dependsOn('clean')
+    dependsOn('makeReleaseZipNoJre')
+    dependsOn('makeReleaseZipWithJre')
 
-//task releaseZipOld(type: Zip) {
-//    dependsOn 'shadowDistZip'
-//    archiveFileName = "FragPipe-${project.version}.zip"
-//    destinationDirectory = file("$buildDir/github-release")
-//    from "$buildDir/scriptsShadow"
-//    from "$buildDir/libs/FragPipe-${project.version}.jar"
-//}
-//
-//task releaseZip(type: Zip, group: 'chhh-release') {
-//    dependsOn 'copyShadowJar'
-//    dependsOn 'copyShadowScripts'
-//    //dependsOn 'createStartScripts'
-//    archiveFileName = "FragPipe-${project.version}.zip"
-//    destinationDirectory = file("$buildDir/github-release")
-//    from "$buildDir/pre-zip-release"
-//}
-//
-//task releaseWinExe(type: Copy, group: 'chhh-release') {
-//    dependsOn 'createExe'
-//    from "$buildDir/libs/FragPipe.exe"
-//    into file("$buildDir/github-release")
-//}
-//
-//task releaseWinExeNamedWithVer(type: Copy, group: 'chhh-release') {
-//    dependsOn 'createExe'
-//    from "$buildDir/libs/FragPipe.exe"
-//    into file("$buildDir/github-release")
-//    rename '(.+)(//.exe)', '$1' + "-${project.version}" + '$2'
-//}
-
-//task prepareReleaseNoExe(group: 'chhh-release') {
-//    dependsOn 'clean'
-//    dependsOn 'releaseShadowJar'
-//    dependsOn 'releaseZip'
-//    tasks.findByName('releaseShadowJar').mustRunAfter 'clean'
-//    tasks.findByName('releaseZip').mustRunAfter 'releaseShadowJar'
-//}
-//
-//task prepareReleaseWithExe(group: 'chhh-release') {
-//    dependsOn 'prepareReleaseNoExe'
-//    dependsOn 'releaseWinExe'
-//    tasks.findByName('releaseWinExe').mustRunAfter 'prepareReleaseNoExe'
-//}
-//
-//task prepareReleaseWithExeNamedWithVer(group: 'chhh-release') {
-//    dependsOn 'prepareReleaseNoExe'
-//    dependsOn 'releaseWinExeNamedWithVer'
-//    tasks.findByName('releaseWinExeNamedWithVer').mustRunAfter 'prepareReleaseNoExe'
-//}
-
+    tasks.findByName('makeReleaseZipNoJre').mustRunAfter 'clean'
+    tasks.findByName('makeReleaseZipWithJre').mustRunAfter 'makeReleaseZipNoJre'
+}
