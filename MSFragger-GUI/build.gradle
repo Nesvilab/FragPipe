@@ -88,6 +88,9 @@ distributions {
             from('/') {
                 include 'tools/**'
             }
+            from('../jre/jdk8u242-b08-jre') {
+                include 'jre/**'
+            }
         }
     }
 }
@@ -97,7 +100,7 @@ distributions {
 launch4j {
     mainClassName = "${startClass}"
     icon = "${projectDir}/../logo/msfragger-icon-set_win_16-512.ico"
-    outputDir = 'launch4j/bin'
+    outputDir = "launch4j/bin"
     libraryDir = '../lib'
     dontWrapJar = true
     downloadUrl = 'https://adoptopenjdk.net/'
@@ -241,6 +244,19 @@ task prepareReleaseWithExe(group: 'chhh-release') {
     tasks.findByName('releaseWinExe').mustRunAfter 'prepareReleaseNoExe'
 }
 
+task copyLaunch4jExe(type: Copy, group: 'chhh-release') {
+    dependsOn 'createExe'
+    from "$buildDir/launch4j/bin"
+    into file("$buildDir/scripts")
+}
+
+task makeZipReleaseWithExe(group: 'chhh-release') {
+    dependsOn 'clean'
+    dependsOn 'copyLaunch4jExe'
+    dependsOn 'distZip'
+    tasks.findByName('copyLaunch4jExe').mustRunAfter 'clean'
+    tasks.findByName('distZip').mustRunAfter 'copyLaunch4jExe'
+}
 task prepareReleaseWithExeNamedWithVer(group: 'chhh-release') {
     dependsOn 'prepareReleaseNoExe'
     dependsOn 'releaseWinExeNamedWithVer'
