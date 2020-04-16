@@ -88,7 +88,7 @@ distributions {
             from('/') {
                 include 'tools/**'
             }
-            from('../jre/jdk8u242-b08-jre') {
+            from('../jre/OpenJDK8U-jre_x64_windows_hotspot_8u242b08') {
                 include 'jre/**'
             }
         }
