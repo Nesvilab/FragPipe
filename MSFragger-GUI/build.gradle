@@ -201,7 +201,7 @@ void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startCl
                 libraryDir = '../lib'
                 dontWrapJar = true
                 downloadUrl = 'https://adoptopenjdk.net/'
-                jreMinVersion = '9'
+                jreMinVersion = '1.8'
             }
         } else {
             dependsOn 'copyJre'
