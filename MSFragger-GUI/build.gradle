@@ -20,7 +20,7 @@ plugins {
 }
 
 group = 'com.github.chhh'
-version = '13.0-build02'
+version = '13.0-build03'
 
 description = """FragPipe - run complete proteomics analyses from the GUI"""
 
@@ -185,15 +185,16 @@ task copyJre(type: Copy, group: 'chhh-release', description: 'Copies JRE to buil
     into file("$buildDir/install/${project.name}")
 }
 
-void createTaskCopyToInstallRelToBuild(String taskNameSuffix, String pathRelToBuild) {
+void createTaskCopyToInstallRelToBuild(String taskNameSuffix, String fromRelToBuild, String toRelToInstallProjname) {
     String taskName = "copy" + taskNameSuffix;
-    task (taskName, type: Copy, group: 'chhh-release', description: "Copies from [$buildDir/$pathRelToBuild] to [$buildDir/install/${project.name}]") {
-        from "$buildDir/$pathRelToBuild"
-        into file("$buildDir/install/${project.name}")
+    task (taskName, type: Copy, group: 'chhh-release', description: "Copies from [$buildDir/$fromRelToBuild] to [$buildDir/install/${project.name}]") {
+        from "$buildDir/$fromRelToBuild"
+        into file("$buildDir/install/${project.name}/$toRelToInstallProjname")
     }
 }
 
-//createTaskCopyToInstallRelToBuild('Tools', "")
+createTaskCopyToInstallRelToBuild('Tools', "../tools", "tools")
+createTaskCopyToInstallRelToBuild('Workflows', "../workflows/", "workflows")
 
 void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startClass) {
     String taskName = "makeReleaseZip" + (withJre ? "WithJre" : "NoJre");
@@ -202,9 +203,13 @@ void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startCl
         dependsOn 'clean'
         dependsOn 'makeExeAndCopyToScripts'
         dependsOn 'installDist'
+        dependsOn 'copyTools'
+        dependsOn 'copyWorkflows'
 
         tasks.findByName('makeExeAndCopyToScripts').mustRunAfter 'clean'
         tasks.findByName('installDist').mustRunAfter 'makeExeAndCopyToScripts'
+        tasks.findByName('copyTools').mustRunAfter 'installDist'
+        tasks.findByName('copyWorkflows').mustRunAfter 'copyTools'
 
         if (!withJre) {
             launch4j { // no bundled jre
