@@ -97,9 +97,14 @@ distributions {
 launch4j {
     mainClassName = "${startClass}"
     icon = "${projectDir}/../logo/msfragger-icon-set_win_16-512.ico"
-    outputDir = 'libs'
+    outputDir = 'launch4j/bin'
+    libraryDir = '../lib'
     dontWrapJar = false
-    downloadUrl = 'https://adoptopenjdk.net/'
+    downloadUrl = 'https://google.com/'
+    bundledJre64Bit = true
+    //bundledJreAsFallback = false
+    jreRuntimeBits = 64
+    bundledJrePath = "../jre"
     // messagesStartupError = "Startup error"
     // messagesLauncherError = "Launcher error"
     // messagesBundledJreError = "Error with bundled JRE"
@@ -219,7 +224,7 @@ task releaseWinExeNamedWithVer(type: Copy, group: 'chhh-release') {
     dependsOn 'createExe'
     from "$buildDir/libs/FragPipe.exe"
     into file("$buildDir/github-release")
-    rename '(.+)(\\.exe)', '$1' + "-${project.version}" + '$2'
+    rename '(.+)(//.exe)', '$1' + "-${project.version}" + '$2'
 }
 
 task prepareReleaseNoExe(group: 'chhh-release') {
