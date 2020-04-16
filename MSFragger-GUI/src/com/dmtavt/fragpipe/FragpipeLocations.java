@@ -18,9 +18,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jooq.lambda.Seq;
+import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -212,13 +215,58 @@ public class FragpipeLocations {
 
   public static List<Path> createToolsPaths(Stream<String> assets)
       throws MissingAssetsException {
-    List<Path> paths = assets.map(asset -> FragpipeLocations.get().getDirTools().resolve(asset))
-        .collect(Collectors.toList());
-    List<Path> notExisting = Seq.seq(paths).filter(Files::notExists).toList();
-    if (!notExisting.isEmpty()) {
-      throw new MissingAssetsException(notExisting);
+    final Path dirTools = FragpipeLocations.get().getDirTools();
+    List<Path> toCheck = assets.map(dirTools::resolve).collect(Collectors.toList());
+    List<Path> existing = new ArrayList<>();
+    List<Path> notExisting = new ArrayList<>();
+    for (Path path : toCheck) {
+      if (Files.exists(path)) {
+        existing.add(path);
+      } else {
+        notExisting.add(path);
+      }
     }
-    return paths;
+    List<Path> missing = new ArrayList<>();
+    if (!notExisting.isEmpty()) {
+      // check if we have an asset with a different version maybe?
+      for (Path pathNotExisting : notExisting) {
+        String fn = pathNotExisting.getFileName().toString();
+        String lessExt = StringUtils.upToLastDot(fn);
+        Pattern re = Pattern.compile("(.+)[\\d.]+$");
+        Matcher m = re.matcher(lessExt);
+        if (m.matches()) {
+          // this asset has something that looks like a version number at the end
+          // try finding a matching one
+          final String fnBase = m.group(1).toLowerCase();
+          try {
+            List<Path> matching = Files.walk(dirTools)
+                .filter(f -> f.getFileName().toString().toLowerCase().startsWith(fnBase) && Files
+                    .isRegularFile(f))
+                .collect(Collectors.toList());
+            if (matching.size() == 1) {
+              existing.add(matching.get(0));
+              log.warn("Found substitute for a missing asset [{}]: {}", pathNotExisting, matching.get(0));
+            } else {
+              missing.add(pathNotExisting);
+              if (matching.size() > 1) {
+                log.error("Multiple assets match the naming of a missing one [{}]: {}",
+                    pathNotExisting, Seq.seq(matching).map(Path::toString).toString(", "));
+              } else if (matching.isEmpty()) {
+                log.error("No matching assets found for a missing one [{}]", pathNotExisting);
+              }
+            }
+          } catch (IOException e) {
+            log.warn("Something happened while searching for tool replacements with different version", e);
+          }
+        }
+      }
+    }
+
+
+    if (!missing.isEmpty()) {
+      throw new MissingAssetsException(missing);
+    }
+    return existing;
   }
 
   /**
