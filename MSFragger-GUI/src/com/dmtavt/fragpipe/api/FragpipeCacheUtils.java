@@ -1,9 +1,10 @@
 package com.dmtavt.fragpipe.api;
 
 import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
+import com.dmtavt.fragpipe.exceptions.NoSuchElementInModelException;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.UiCombo;
 import java.awt.Component;
 import java.awt.Container;
 import java.io.BufferedInputStream;
@@ -48,7 +49,16 @@ public class FragpipeCacheUtils {
     for (int i = 0; i < tabs.getTabCount(); i++) {
       Component compAt = tabs.getComponentAt(i);
       if (compAt instanceof Container) {
-        SwingUtils.valuesFromMap((Container)compAt, map);
+        try {
+          SwingUtils.valuesFromMap((Container) compAt, map);
+        } catch (NoSuchElementInModelException e) {
+          if (UiCombo.class.equals(e.clazz)) {
+            // some combo does not have such an element anymore
+            log.warn("UiCombo {} does not have an option {} at this time", e.uiElemName, e.missingElement);
+          } else {
+            throw e;
+          }
+        }
       }
     }
   }

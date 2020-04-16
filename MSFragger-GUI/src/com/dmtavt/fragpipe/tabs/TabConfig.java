@@ -37,6 +37,7 @@ import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
@@ -45,6 +46,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -84,6 +86,7 @@ public class TabConfig extends JPanelWithEnablement {
 
   private static final Logger log = LoggerFactory.getLogger(TabConfig.class);
 
+  private static final MigUtils mu = MigUtils.get();
   private UiText uiTextBinFragger;
   private JEditorPane epFraggerVer;
   private UiText uiTextBinPhi;
@@ -638,8 +641,8 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private JPanel createPanelDbsplit() {
-    JPanel p = newMigPanel();
-    p.setBorder(new TitledBorder("DB Splitting"));
+    JPanel p = mu.newPanel("DB Splitting", true);
+
     StringBuilder tip = new StringBuilder()
         .append("Used for searching very large databases by splitting into smaller chunks.<br/>")
         .append("Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>")
@@ -651,30 +654,39 @@ public class TabConfig extends JPanelWithEnablement {
         .append("</ul>");
     String tipHtml = SwingUtils.makeHtml(tip.toString());
     p.setToolTipText(tipHtml);
+
+    Dimension dim = new Dimension(400, 25);
     epDbsplitText = SwingUtils.createClickableHtml(SwingUtils.makeHtml(textDbsplitEnabled(false)));
+    epDbsplitText.setToolTipText(tipHtml);
+    epDbsplitText.setPreferredSize(dim);
     epDbsplitErr = SwingUtils.createClickableHtml(
         SwingUtils.makeHtml("Requires Python 3 with modules Numpy and Pandas."));
-    epDbsplitText.setToolTipText(tipHtml);
-    p.add(epDbsplitText, ccL().wrap());
-    p.add(epDbsplitErr, ccL().wrap());
+    epDbsplitErr.setPreferredSize(dim);
+
+    mu.add(p, epDbsplitText).growX().pushX().wrap();
+    mu.add(p, epDbsplitErr).growX().pushX().wrap();
 
     return p;
   }
 
   private JPanel createPanelSpeclibgen() {
-    JPanel p = newMigPanel();
-    p.setBorder(new TitledBorder("Spectral Library Generation"));
+    JPanel p = mu.newPanel("Spectral Library Generation", true);
+
     StringBuilder tip = new StringBuilder()
         .append("Requires <b>Python 3</b> with packages <b>Cython, Matplotlib, msproteomicstools</b>\n")
         .append("Optionally requires python module EasyPQP to enable EasyPQP functinoality.");
     String tipHtml = SwingUtils.makeHtml(tip.toString());
     p.setToolTipText(tipHtml);
+    Dimension dim = new Dimension(200, 25);
     epSpeclibgenText = SwingUtils.createClickableHtml(SwingUtils.makeHtml(textDbsplitEnabled(false)));
+    epSpeclibgenText.setToolTipText(tipHtml);
+    epSpeclibgenText.setPreferredSize(dim);
     epSpeclibgenErr = SwingUtils.createClickableHtml(
         SwingUtils.makeHtml("Requires Python 3 with modules Cython, Matplotlib, msproteomicstools."));
-    epSpeclibgenText.setToolTipText(tipHtml);
-    p.add(epSpeclibgenText, ccL().wrap());
-    p.add(epSpeclibgenErr, ccL().wrap());
+    epSpeclibgenErr.setPreferredSize(dim);
+
+    mu.add(p, epSpeclibgenText).growX().wrap();
+    mu.add(p, epSpeclibgenErr).growX().wrap();
 
     return p;
   }

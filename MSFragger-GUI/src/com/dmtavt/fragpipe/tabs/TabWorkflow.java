@@ -18,7 +18,6 @@ import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageType;
 import com.dmtavt.fragpipe.messages.MessageUpdateWorkflows;
 import com.github.chhh.utils.FileDrop;
-import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
@@ -108,6 +107,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private Map<String, PropsFile> workflows;
   private UiCombo uiComboWorkflows;
   public static final String PROP_WORKFLOW_DESC = "workflow.description";
+  private static final String DEFAULT_WORKFLOW = "Defaults";
 
   public TabWorkflow() {
     init();
@@ -211,7 +211,7 @@ public class TabWorkflow extends JPanelWithEnablement {
             + "Also, <a href=\"https://google.com\">see the tutorial</a>");
 
     workflows = loadWorkflowFiles();
-    List<String> names = Seq.seq(workflows.keySet()).sorted().toList();
+    List<String> names = createNamesForWorkflowsCombo(workflows);
     uiComboWorkflows = UiUtils.createUiCombo(names);
     final JEditorPane epWorkflowsDesc = SwingUtils.createClickableHtml(SwingUtils.makeHtml(""));
     epWorkflowsDesc.setPreferredSize(new Dimension(400, 50));
@@ -233,7 +233,11 @@ public class TabWorkflow extends JPanelWithEnablement {
         log.debug("Loading workflow/ui state: {}", workflow);
         PropsFile propsFile = workflows.get(workflow);
         if (propsFile == null) {
-          throw new IllegalStateException("Workflows map is not synchronized with the dropdown");
+          if (!DEFAULT_WORKFLOW.equalsIgnoreCase(workflow)) {
+            throw new IllegalStateException("Workflows map is not synchronized with the dropdown");
+          } else {
+            throw new UnsupportedOperationException("Not implemented loading defaults from jar without having the defaults file in workflows/ folder");
+          }
         }
         if (propsFile.containsKey("workflow.workflow-option")) {
           propsFile.setProperty("workflow.workflow-option", workflow);
@@ -469,6 +473,11 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
   }
 
+  private List<String> createNamesForWorkflowsCombo(Map<String, PropsFile> fileMap) {
+    return Seq.seq(fileMap.keySet()).filter(s -> !DEFAULT_WORKFLOW.equalsIgnoreCase(s)).sorted().prepend(
+        DEFAULT_WORKFLOW).toList();
+  }
+
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageUpdateWorkflows m) {
     String previouslySelected = (String) uiComboWorkflows.getSelectedItem();
@@ -479,7 +488,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     log.debug("Previously selected: {}, Previous options: {}", previouslySelected, previousOptions);
 
     workflows = loadWorkflowFiles();
-    List<String> names = Seq.seq(workflows.keySet()).sorted().toList();
+    List<String> names = createNamesForWorkflowsCombo(workflows);
     uiComboWorkflows.setModel(new DefaultComboBoxModel<>(names.toArray(new String[0])));
     Optional<String> newName = names.stream().filter(name -> !previousOptions.contains(name))
         .findFirst();

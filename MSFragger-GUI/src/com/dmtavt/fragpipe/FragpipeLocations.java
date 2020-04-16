@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,11 +30,11 @@ public class FragpipeLocations {
   public static final String FN_CACHE_UI = "fragpipe-ui.cache";
   public static final String FN_CACHE_RUNTIME = "fragpipe-runtime.cache";
 
-  public final Path jarPath;
-  public final Path cache;
-  public final Path tools;
-  public final Path lib;
-  public final Path workflows;
+  private final Path jarPath;
+  private final Path cache;
+  private final Path tools;
+  private final Path lib;
+  private final Path workflows;
 
   private FragpipeLocations(Path jarPath, Path cache, Path tools, Path lib, Path workflows) {
     this.jarPath = jarPath;
@@ -43,10 +44,14 @@ public class FragpipeLocations {
     this.workflows = workflows;
   }
 
-  private static class Holder {
+  public static class Holder {
     public static String fragpipeJar;
     public static FragpipeLocations locations;
+    private static void printDebug(AtomicInteger a) {
+      System.err.printf("============================ %03d\n", a.incrementAndGet());
+    }
     static {
+      //AtomicInteger a = new AtomicInteger(0);
       fragpipeJar = JarUtils.getCurrentJarPath();
       log.debug("Caching class determined fargpipe jar file is at: {}", Holder.fragpipeJar);
       if (StringUtils.isBlank(fragpipeJar)) {
@@ -54,7 +59,9 @@ public class FragpipeLocations {
         throw new IllegalStateException("Could not figure fragpipe jar location at runtime");
       }
       Path jarPath = Paths.get(fragpipeJar);
+      log.debug("Jar path: {}", jarPath);
       Path dir = Files.isDirectory(jarPath) ? jarPath : jarPath.getParent();
+      log.debug("Jar dir: {}", dir);
 
       Path cache = dir.resolve(Paths.get("../cache"));
 
@@ -78,15 +85,18 @@ public class FragpipeLocations {
       Path workflows = dir.resolve("../workflows");
 
       // create locations if they don't yet exist
-      List<Path> paths = Arrays.asList(jarPath, dir, cache, tools, lib, workflows);
+      List<Path> paths = Arrays.asList(dir, cache, tools, lib, workflows);
       log.debug("Fragpipe locations:\n\t{}",
           paths.stream().map(Path::toString).collect(Collectors.joining("\n\t")));
       for (Path path : paths) {
         try {
+          if (Files.exists(path)) {
+            continue;
+          }
           PathUtils.createDirs(path);
-        } catch (IOException e) {
-          log.error("Error initializing fragpipe locations",e );
-          throw new IllegalStateException("Error initializing fragpipe locations", e);
+        } catch (Exception e) {
+          log.error("Error initializing fragpipe locations", e);
+          //throw new IllegalStateException("Error initializing fragpipe locations", e);
         }
       }
 
