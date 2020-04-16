@@ -32,6 +32,7 @@ import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -115,6 +116,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private void initMore() {
+    SwingUtils.renameDeep(this, false, TAB_PREFIX, null);
     tableRawFilesFileDrop = makeFileDrop(); // file drop is registered after all components are created
     Bus.register(this);
     Bus.postSticky(this);
@@ -216,35 +218,22 @@ public class TabWorkflow extends JPanelWithEnablement {
     final JEditorPane epWorkflowsDesc = SwingUtils.createClickableHtml(SwingUtils.makeHtml(""));
     epWorkflowsDesc.setPreferredSize(new Dimension(400, 50));
     uiComboWorkflows.addItemListener(e -> {
-      String name = (String) e.getItem();
+      String name = (String) uiComboWorkflows.getSelectedItem();
       PropsFile propsFile = workflows.get(name);
       if (propsFile == null) {
-        throw new IllegalStateException("Workflows map is not synchronized with the dropdown");
-      }
-      SwingUtils.setJEditorPaneContent(epWorkflowsDesc, propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
-    });
-    JButton btnWorkflowLoad = UiUtils.createButton("Load", e -> {
-      String workflow = (String) uiComboWorkflows.getSelectedItem();
-      log.debug("Load workflow button clicked: {}", workflow);
-      int confirmation = SwingUtils
-          .showConfirmDialog(this, new JLabel("Do you want to load workflow: " + workflow + "?"),
-              "Confirmation");
-      if (JOptionPane.OK_OPTION == confirmation) {
-        log.debug("Loading workflow/ui state: {}", workflow);
-        PropsFile propsFile = workflows.get(workflow);
-        if (propsFile == null) {
-          if (!DEFAULT_WORKFLOW.equalsIgnoreCase(workflow)) {
-            throw new IllegalStateException("Workflows map is not synchronized with the dropdown");
-          } else {
-            throw new UnsupportedOperationException("Not implemented loading defaults from jar without having the defaults file in workflows/ folder");
-          }
+        if (!DEFAULT_WORKFLOW.equalsIgnoreCase(name)) {
+          throw new IllegalStateException("Workflows map is not synchronized with the dropdown");
         }
-        if (propsFile.containsKey("workflow.workflow-option")) {
-          propsFile.setProperty("workflow.workflow-option", workflow);
-        }
-        Bus.post(new MessageLoadUi(propsFile));
+        log.debug("Default workflow was selected, we don't have a file for it in the workflows/ folder");
+        SwingUtils.setJEditorPaneContent(epWorkflowsDesc,
+            "Defaults file is not present yet.\n"
+                + "That message will be gone when we fill workflows/ folder.");
+      } else {
+        SwingUtils.setJEditorPaneContent(epWorkflowsDesc,
+            propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
       }
     });
+    JButton btnWorkflowLoad = UiUtils.createButton("Load", this::actionLoadSelectedWorkflow);
     FormEntry feComboWorkflow = fe(uiComboWorkflows, "workflow-option")
         .label("Select an option to load config for:")
         .tooltip("This is purely for convenience of loading appropriate defaults\n"
@@ -392,10 +381,11 @@ public class TabWorkflow extends JPanelWithEnablement {
     Properties uiProps = FragpipeCacheUtils.tabsSave(fp.tabs);
     Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps)).filter(kv -> {
       String k = kv.v1().toLowerCase();
-      if (k.startsWith(TabConfig.TAB_PREFIX)) {
+      if (k.startsWith(TabConfig.TAB_PREFIX)) { // nothing from tab config goes into a workflow
         return false;
       }
-      return !k.contains("workdir") && !k.contains("db-path");
+      return !k.contains("workdir") && !k.contains("db-path") // no workdir or fasta file
+      && !k.endsWith(".ram") && !k.endsWith(".threads"); // no ram and threads from Wrokflow tab
     }).toMap(kv -> kv.v1, kv -> kv.v2);
 
     Path saveDir;
@@ -704,5 +694,29 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   public List<InputLcmsFile> getLcmsFiles() {
     return tableModelRawFiles.dataCopy();
+  }
+
+  private void actionLoadSelectedWorkflow(ActionEvent e) {
+    String workflow = (String) uiComboWorkflows.getSelectedItem();
+    log.debug("Load workflow button clicked: {}", workflow);
+    int confirmation = SwingUtils
+        .showConfirmDialog(this, new JLabel("Do you want to load workflow: " + workflow + "?"),
+            "Confirmation");
+    if (JOptionPane.OK_OPTION == confirmation) {
+      log.debug("Loading workflow/ui state: {}", workflow);
+      PropsFile propsFile = workflows.get(workflow);
+      if (propsFile == null) {
+        if (!DEFAULT_WORKFLOW.equalsIgnoreCase(workflow)) {
+          throw new IllegalStateException("Workflows map is not synchronized with the dropdown");
+        } else {
+          throw new UnsupportedOperationException(
+              "Not implemented loading defaults from jar without having the defaults file in workflows/ folder");
+        }
+      }
+      if (propsFile.containsKey("workflow.workflow-option")) {
+        propsFile.setProperty("workflow.workflow-option", workflow);
+      }
+      Bus.post(new MessageLoadUi(propsFile));
+    }
   }
 }

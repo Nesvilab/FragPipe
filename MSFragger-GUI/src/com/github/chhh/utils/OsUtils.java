@@ -19,6 +19,8 @@ package com.github.chhh.utils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Arrays;
+import java.util.stream.Collectors;
+import org.jsoup.helper.StringUtil;
 
 /**
  *
@@ -38,23 +40,17 @@ public class OsUtils {
     }
 
     public static String JavaInfo() {
-        List<String> propNames = Arrays.asList(
-                "java.version",
-                "java.vm.name",
-                "java.vm.vendor"
+        List<List<String>> propNames = Arrays.asList(
+            Arrays.asList("java.version", "java.vm.version", "java.runtime.version", "java.specification.version", "java.vm.specification.version"),
+            Arrays.asList("java.vm.name"),
+            Arrays.asList("java.vendor", "java.vm.vendor")
         );
         StringBuilder sb = new StringBuilder("Java Info: ");
-        for (int i = 0; i < propNames.size(); i++) {
-            String p = propNames.get(i);
-            String val = System.getProperty(p);
-            if (!StringUtils.isNullOrWhitespace(val)) {
-                sb.append(val);
-            }
-            if (i < propNames.size() - 1) {
-                sb.append(", ");
-            }
-        }
-
+        String info = propNames.stream()
+            .map(variants -> variants.stream().map(System::getProperty).filter(StringUtils::isNotBlank).findFirst().orElse(""))
+            .filter(StringUtils::isNotBlank)
+            .collect(Collectors.joining(", "));
+        sb.append(StringUtils.isBlank(info) ? "Could not collect info" : info);
         return sb.toString();
     }
 
