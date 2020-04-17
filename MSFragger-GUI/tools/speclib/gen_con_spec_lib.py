@@ -111,7 +111,8 @@ fasta = str_to_path(sys.argv[1]).resolve(strict=True)
 # msproteomicstools_bin_path = str_to_path(sys.argv[3]).resolve(strict=True)
 # msproteomicstools_bin_path = str_to_path(pathlib.Path(sys.executable).parent).resolve(strict=True)
 iproph_RT_aligned = str_to_path(sys.argv[2]).resolve(strict=True)
-prot_xml_file = str_to_path(sys.argv[3]).resolve(strict=use_spectrast)
+prot_xml_file = str_to_path(sys.argv[3]).resolve(strict=True) \
+	if use_spectrast else pathlib.Path()
 output_directory = str_to_path(sys.argv[4])
 overwrite = False
 if len(sys.argv) >= 6:
