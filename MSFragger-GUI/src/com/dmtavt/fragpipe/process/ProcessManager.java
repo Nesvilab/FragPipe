@@ -1,6 +1,8 @@
 package com.dmtavt.fragpipe.process;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
 import java.io.IOException;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
@@ -46,7 +48,7 @@ public class ProcessManager {
 
   private ProcessManager() {
     init0();
-    EventBus.getDefault().register(this);
+    Bus.register(this);
   }
 
   public static ProcessManager get() {
@@ -102,7 +104,7 @@ public class ProcessManager {
   }
 
   private void deleteTempFiles() {
-    MessageDeletePaths m = EventBus.getDefault().getStickyEvent(MessageDeletePaths.class);
+    MessageDeletePaths m = Bus.getStickyEvent(MessageDeletePaths.class);
     if (m != null && !m.toDelete.isEmpty()) {
       for (Path path : m.toDelete) {
         try {
@@ -131,7 +133,7 @@ public class ProcessManager {
           log.warn("Error while deleting temporary files", e); // log, but otherwise ignore
         }
       }
-      EventBus.getDefault().postSticky(new MessageDeletePaths(Collections.emptySet()));
+      Bus.postSticky(new MessageDeletePaths(Collections.emptySet()));
     }
   }
 
@@ -149,7 +151,7 @@ public class ProcessManager {
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
-  public void onStartProcess(MessageStartProcesses m) {
+  public void on(MessageStartProcesses m) {
     synchronized (lock) {
       if (m.runDescs.isEmpty()) {
         return;
@@ -244,19 +246,18 @@ public class ProcessManager {
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
-  public void onMessageKillAll(MessageKillAll m) {
+  public void on(MessageKillAll m) {
     long notStarted = taskGroups.stream().mapToInt(List::size).sum();
     String msg = String.format(
         "\n~~~~~~~~~~~~~~~~~~~~\nCancelling %d remaining tasks", notStarted);
-    EventBus.getDefault()
-        .post(new MessageAppendToConsole(msg, Fragpipe.COLOR_RED_DARKEST));
+    Bus.post(new MessagePrintToConsole(Fragpipe.COLOR_RED_DARKEST, msg, true));
     stop();
     // try deleting old temp files
     deleteTempFiles();
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
-  public void onMessageDeletePaths(MessageDeletePaths m) {
+  public void on(MessageDeletePaths m) {
     log.debug("Delete Paths Message updated: {}", m.toDelete.isEmpty() ? "empty set" : m.toDelete);
   }
 
@@ -264,9 +265,9 @@ public class ProcessManager {
     if (toDelete == null || toDelete.isEmpty()) {
       return;
     }
-    MessageDeletePaths m = EventBus.getDefault().getStickyEvent(MessageDeletePaths.class);
+    MessageDeletePaths m = Bus.getStickyEvent(MessageDeletePaths.class);
     HashSet<Path> s = m != null ? new HashSet<>(m.toDelete) : new HashSet<>();
     s.addAll(toDelete);
-    EventBus.getDefault().postSticky(new MessageDeletePaths(s));
+    Bus.postSticky(new MessageDeletePaths(s));
   }
 }

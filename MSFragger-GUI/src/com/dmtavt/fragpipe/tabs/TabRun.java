@@ -1,12 +1,13 @@
 package com.dmtavt.fragpipe.tabs;
 
-import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.*;
+import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
 import static com.dmtavt.fragpipe.params.fragger.FraggerMigPanel.PROP_FILECHOOSER_LAST_PATH;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeRun;
 import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.cmd.CmdMsfragger;
 import com.dmtavt.fragpipe.messages.MessageAppendToConsole;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
@@ -19,7 +20,6 @@ import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
 import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
-import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -63,7 +63,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.cmd.CmdMsfragger;
 
 public class TabRun extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(TabRun.class);
@@ -197,7 +196,13 @@ public class TabRun extends JPanelWithEnablement {
         .createButton("<html><b>RUN", e -> Bus.post(new MessageRun(isDryRun())));
 
     JButton btnStop = UiUtils
-        .createButton("Stop", e -> Bus.post(new MessageKillAll(REASON.USER_ACTION)));
+        .createButton("Stop", e -> {
+          Bus.post(new MessageKillAll(REASON.USER_ACTION));
+          Path existing = PathUtils.existing(getWorkdirText());
+          if (existing != null) {
+            Bus.post(MessageSaveLog.saveInDir(existing));
+          }
+        });
     JButton btnPrintCommands = UiUtils
         .createButton("Print Commands", e -> Bus.post(new MessageRun(true)));
     JButton btnExport = UiUtils.createButton("Export Log", e -> Bus.post(new MessageExportLog()));
@@ -299,7 +304,13 @@ public class TabRun extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageSaveLog m) {
     log.debug("Got MessageSaveLog, trying to save log");
-    exportLogToFile(console, m.workDir.toString());
+    saveLogToFile(console, m.workDir);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageExportLog m) {
+    log.debug("Got MessageExportLog, trying to save log");
+    exportLogToFile(console, uiTextWorkdir.getNonGhostText());
   }
 
   private void exportLogToFile(TextConsole console, String savePathHint) {

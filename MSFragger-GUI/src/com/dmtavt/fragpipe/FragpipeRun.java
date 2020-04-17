@@ -248,7 +248,7 @@ public class FragpipeRun {
             "===\n" +
             "=========================\n";
         toConsole(Fragpipe.COLOR_RED_DARKEST, msg, true);
-        Bus.post(new MessageSaveLog(wd));
+        Bus.post(MessageSaveLog.saveInDir(wd));
       };
       toRun.add(new RunnableDescription(new Builder().setName("Finalizer Task").create(), finalizerRun));
 
@@ -263,6 +263,8 @@ public class FragpipeRun {
       }
     }
   }
+
+
 
   private static void saveRuntimeConfig(Path wd) {
     LocalDateTime time = LocalDateTime.now();
