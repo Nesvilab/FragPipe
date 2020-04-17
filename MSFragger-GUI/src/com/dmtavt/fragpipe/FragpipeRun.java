@@ -13,6 +13,8 @@ import com.dmtavt.fragpipe.messages.MessageStartProcesses;
 import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
+import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
+import com.dmtavt.fragpipe.params.speclib.SpecLibGen2;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tabs.TabRun;
@@ -895,7 +897,16 @@ public class FragpipeRun {
     final boolean useEasypqp = speclibPanel.useEasypqp();
     final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(isRunSpeclibgen, wd);
     if (cmdSpecLibGen.isRun()) {
-      if (!cmdSpecLibGen.configure(parent, usePhi, jarPath,
+
+      NoteConfigSpeclibgen conf = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
+      if (!conf.isValid()) { JOptionPane.showMessageDialog(parent,
+            "Spectral Library Generation scripts did not initialize correctly.",
+            "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
+        return false;
+      }
+      final SpecLibGen2 slg = conf.instance;
+
+      if (!cmdSpecLibGen.configure(parent, usePhi, jarPath, slg,
           mapGroupsToProtxml, fastaFile, isRunProteinProphet, useEasypqp)) {
         return false;
       }

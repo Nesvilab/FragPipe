@@ -1,6 +1,8 @@
 package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
+import com.dmtavt.fragpipe.params.speclib.SpecLibGen2;
 import com.dmtavt.fragpipe.params.speclib.SpeclibPanel;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import java.awt.Component;
@@ -19,8 +21,6 @@ import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
-//import umich.msfragger.gui.MsfraggerGuiFrame;
-import com.dmtavt.fragpipe.params.speclib.SpecLibGen;
 import com.github.chhh.utils.PythonInfo;
 import com.github.chhh.utils.UsageTrigger;
 
@@ -37,17 +37,10 @@ public class CmdSpecLibGen extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, UsageTrigger usePhilosopher, Path jarFragpipe,
+  public boolean configure(Component comp, UsageTrigger usePhi, Path jarFragpipe, SpecLibGen2 slg,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, boolean useEasypqp) {
 
     pbis.clear();
-    final SpecLibGen slg = SpecLibGen.get();
-    if (!slg.isInitialized()) {
-      JOptionPane.showMessageDialog(comp,
-          "Spectral Library Generation scripts did not initialize correctly.",
-          "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
-      return false;
-    }
 
     final String[] compatibleExts = useEasypqp ? new String[]{".d", ".mzml", ".mzxml"} : new String[]{".mzml", ".mzxml"};
     final Predicate<String> isFileCompatible = fn -> Arrays.stream(compatibleExts).anyMatch(ext -> fn.toLowerCase().endsWith(ext));
@@ -125,7 +118,7 @@ public class CmdSpecLibGen extends CmdBase {
       }
 
       List<String> cmd = new ArrayList<>();
-      cmd.add(slg.getPi().getCommand());
+      cmd.add(slg.getPython().getCommand());
       cmd.add("-u"); // PYTHONUNBUFFERED: when mixing subprocess output with Python output, use this to keep the outputs in order
       cmd.add(slg.getScriptSpecLibGenPath().toString());
       if (useEasypqp) {
@@ -160,7 +153,7 @@ public class CmdSpecLibGen extends CmdBase {
         cmd.add(protxml.toString()); // protxml file
         cmd.add(groupWd.toString()); // output directory
         cmd.add("True"); // overwrite (true/false), optional arg
-        cmd.add(usePhilosopher.useBin()); // philosopher binary path (optional)
+        cmd.add(usePhi.useBin()); // philosopher binary path (optional)
       }
       ProcessBuilder pb = new ProcessBuilder(cmd);
       PythonInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
