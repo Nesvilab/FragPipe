@@ -32,8 +32,7 @@ public class SpecLibGen2 {
   public static final List<PythonModule> REQUIRED_MODULES = Arrays.asList(
       PythonModule.CYTHON,
       PythonModule.MATPLOTLIB);
-  public static final List<PythonModule> REQUIRED_FOR_EASYPQP = Arrays.asList(
-      new PythonModule("easypqp", "easypqp"));
+  public static final List<PythonModule> REQUIRED_FOR_EASYPQP = Arrays.asList(PythonModule.EASYPQP);
   private static final List<PythonModule> REQUIRED_FOR_SPECTRAST = Arrays.asList(PythonModule.MSPROTEOMICSTOOLS);
   private static final Logger log = LoggerFactory.getLogger(SpecLibGen2.class);
   private static final String SCRIPT_SPEC_LIB_GEN = "speclib/gen_con_spec_lib.py";
@@ -52,6 +51,9 @@ public class SpecLibGen2 {
   private final Object initLock = new Object();
   private PyInfo pi;
   private Path scriptSpecLibGenPath;
+  public List<PythonModule> missingModulesEasyPqp;
+  public List<PythonModule> missingModulesSpectrast;
+  public List<PythonModule> missingModulesSpeclibgen;
   private boolean isEasypqpOk;
   private boolean isSpectrastOk;
   private boolean isInitialized;
@@ -62,6 +64,9 @@ public class SpecLibGen2 {
     isSpectrastOk = false;
     scriptSpecLibGenPath = null;
     isInitialized = false;
+    missingModulesSpeclibgen = new ArrayList<>();
+    missingModulesEasyPqp = new ArrayList<>();
+    missingModulesSpectrast = new ArrayList<>();
   }
 
   public static SpecLibGen2 get() {
@@ -76,11 +81,15 @@ public class SpecLibGen2 {
   }
 
   public boolean isEasypqpOk() {
-    return isEasypqpOk;
+    synchronized (initLock) {
+      return isInitialized && isEasypqpOk;
+    }
   }
 
   public boolean isSpectrastOk() {
-    return isSpectrastOk;
+    synchronized (initLock) {
+      return isInitialized && isSpectrastOk;
+    }
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
@@ -112,39 +121,29 @@ public class SpecLibGen2 {
     }
   }
 
+  public boolean isSomeSpeclibgenAvailable() {
+    return isInitialized() && (isSpectrastOk() || isEasypqpOk());
+  }
+
   public void init(NoteConfigPython python) throws ValidationException {
     synchronized (initLock) {
       isInitialized = false;
 
       checkPython(python);
       validateAssets();
-      try {
-        checkPythonEasypqp(python.pi);
-        isEasypqpOk = true;
-      } catch (ValidationException e) { // easypqp is optional, don't fail whole validation if it's missing
-        log.debug("EasyPQP init error", e);
-        isEasypqpOk = false;
-      }
 
-      try {
-        checkPythonSpectrast(python.pi);
-        isSpectrastOk = true;
-      } catch (ValidationException e) { // easypqp is optional, don't fail whole validation if it's missing
-        log.debug("Spectrast init error", e);
-        isSpectrastOk = false;
-      }
+      missingModulesSpectrast = checkPythonSpectrast(python.pi);
+      isSpectrastOk = missingModulesSpectrast.isEmpty();
+      missingModulesEasyPqp = checkPythonEasypqp(python.pi);
+      isEasypqpOk = missingModulesEasyPqp.isEmpty();
 
       isInitialized = true;
       log.debug("{} init complete", SpecLibGen2.class.getSimpleName());
     }
   }
 
-  private void checkPythonSpectrast(PyInfo pi) throws ValidationException {
-    Map<Installed, List<PythonModule>> modules = pi.modulesByStatus(REQUIRED_FOR_SPECTRAST);
-    if (modules.keySet().stream().anyMatch(installed -> Installed.YES != installed)) {
-      throw new ValidationException("Missing Python Spectrast modules");
-    }
-    isSpectrastOk = true;
+  private List<PythonModule> checkPythonSpectrast(PyInfo pi) {
+    return checkForMissingModules(pi, REQUIRED_FOR_SPECTRAST);
   }
 
   private void checkPython(NoteConfigPython m) throws ValidationException {
@@ -159,32 +158,22 @@ public class SpecLibGen2 {
     }
   }
 
-  private void checkPythonSpeclibgen(PyInfo pi) throws ValidationException {
-    Map<Installed, List<PythonModule>> modules = pi.modulesByStatus(REQUIRED_MODULES);
-    final Map<Installed, String> bad = new LinkedHashMap<>();
-    bad.put(Installed.NO, "Missing");
-    bad.put(Installed.INSTALLED_WITH_IMPORTERROR, "Error loading module");
-    bad.put(Installed.UNKNOWN, "N/A");
+  private List<PythonModule> checkForMissingModules(PyInfo pi, List<PythonModule> toCheck) {
+    Map<Installed, List<PythonModule>> modules = pi.modulesByStatus(toCheck);
+    return Seq.seq(modules).filter(kv -> Installed.YES != kv.v1)
+        .flatMap(kv -> kv.v2.stream()).distinct().toList();
+  }
 
-    if (modules.keySet().stream().anyMatch(bad::containsKey)) {
-      final List<String> byStatus = new ArrayList<>();
-      for (Installed status : bad.keySet()) {
-        List<PythonModule> list = modules.get(status);
-        if (list != null) {
-          byStatus.add(bad.get(status) + " - " + list.stream().map(pm -> pm.installName)
-              .collect(Collectors.joining(", ")));
-        }
-      }
-      throw new ValidationException("Python modules: \n" + String.join("\n", byStatus));
+  private void checkPythonSpeclibgen(PyInfo pi) throws ValidationException {
+    missingModulesSpeclibgen = checkForMissingModules(pi, REQUIRED_MODULES);
+    if (!missingModulesSpeclibgen.isEmpty()) {
+      throw new ValidationException("Python modules missing:\n" + Seq.seq(missingModulesSpeclibgen).map(pm -> pm.installName).toString("\n"));
     }
   }
 
-  private void checkPythonEasypqp(PyInfo pi) throws ValidationException {
-    Map<Installed, List<PythonModule>> modules = pi.modulesByStatus(REQUIRED_FOR_EASYPQP);
-    if (modules.keySet().stream().anyMatch(installed -> Installed.YES != installed)) {
-      throw new ValidationException("Missing Python EasyPQP module");
-    }
-    isEasypqpOk = true;
+  /** @return List of missing modules. */
+  private List<PythonModule> checkPythonEasypqp(PyInfo pi) {
+    return checkForMissingModules(pi, REQUIRED_FOR_EASYPQP);
   }
 
   private void validateAssets() throws ValidationException {

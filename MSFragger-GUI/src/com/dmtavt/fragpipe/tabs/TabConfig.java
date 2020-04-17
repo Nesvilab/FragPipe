@@ -56,6 +56,8 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.stream.Stream;
 import javax.swing.JButton;
@@ -72,6 +74,7 @@ import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -528,21 +531,33 @@ public class TabConfig extends JPanelWithEnablement {
       this.revalidate();
       return;
     }
+
     if (m.instance == null) {
       throw new IllegalStateException("If no exception is reported from Speclibgen init, instance should not be null");
     }
-    log.debug("Got NoteConfigSpeclibgen without exceptions");
 
-    if (m.instance.isEasypqpOk()) {
+    log.debug("Got NoteConfigSpeclibgen without exceptions");
+    List<String> errMsgLines = new ArrayList<>();
+    if (!m.instance.missingModulesSpeclibgen.isEmpty()) {
+      errMsgLines.add("Missing python modules: " + Seq.seq(m.instance.missingModulesSpeclibgen).map(pm -> pm.installName).toString(", "));
+    }
+    if (!m.instance.missingModulesSpectrast.isEmpty()) {
+      errMsgLines.add("Missing python modules for SpectraST: " + Seq.seq(m.instance.missingModulesSpectrast).map(pm -> pm.installName).toString(", "));
+    }
+    if (!m.instance.missingModulesEasyPqp.isEmpty()) {
+      errMsgLines.add("Missing python modules for EasyPQP: " + Seq.seq(m.instance.missingModulesEasyPqp).map(pm -> pm.installName).toString(", "));
+    }
+
+    if (errMsgLines.isEmpty()) {
       epSpeclibgenErrParent = epSpeclibgenErr.getParent();
       if (epSpeclibgenErrParent != null) {
         epSpeclibgenErrParent.remove(epSpeclibgenErr);
       }
     } else {
-      SwingUtils.setJEditorPaneContent(epSpeclibgenErr, "Python package EasyPQP not found");
+      SwingUtils.setJEditorPaneContent(epSpeclibgenErr, true, String.join("\n", errMsgLines));
     }
 
-    SwingUtils.setJEditorPaneContent(epSpeclibgenText, true, textSpeclibgenEnabled(true));
+    SwingUtils.setJEditorPaneContent(epSpeclibgenText, true, textSpeclibgenEnabled(m.instance.isSomeSpeclibgenAvailable()));
     this.revalidate();
   }
 

@@ -65,14 +65,17 @@ public class SpeclibPanel extends JPanelBase {
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigSpeclibgen m) {
-    log.debug("SpeclibPanel got NoteConfigSpeclibgen");
-    boolean okEasypqp = m.isValid() && m.instance.isInitialized() && m.instance.isEasypqpOk();
-    boolean okSpectrast = m.isValid() && m.instance.isInitialized() && m.instance.isSpectrastOk();
+    log.debug("SpeclibPanel got NoteConfigSpeclibgen, instance not null? - {}", m.instance != null);
+    if (m.instance == null || !m.isValid()) {
+      updateEnabledStatus(this, false);
+      return;
+    }
 
-    updateEnabledStatus(panelEasypqp, okEasypqp);
-    updateEnabledStatus(uiRadioUseSpectrast, okSpectrast);
-    uiRadioUseEasypqp.setToolTipText(okEasypqp ? "" : "Toolchain not initialized");
-    uiRadioUseSpectrast.setToolTipText(okSpectrast ? "" : "Toolchain not initialized");
+    updateEnabledStatus(this, true);
+    updateEnabledStatus(panelEasypqp, m.instance.isEasypqpOk());
+    updateEnabledStatus(uiRadioUseSpectrast, m.instance.isSpectrastOk());
+    uiRadioUseEasypqp.setToolTipText(m.instance.isEasypqpOk() ? "" : "Toolchain not initialized");
+    uiRadioUseSpectrast.setToolTipText(m.instance.isSpectrastOk() ? "" : "Toolchain not initialized");
   }
 
   @Override
