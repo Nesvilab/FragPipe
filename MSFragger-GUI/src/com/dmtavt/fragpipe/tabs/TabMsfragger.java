@@ -81,11 +81,11 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.gui.ModificationsTableModel;
-import umich.msfragger.gui.api.SearchTypeProp;
-import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
-import umich.msfragger.gui.renderers.TableCellIntRenderer;
-import umich.msfragger.gui.renderers.TableCellIntSpinnerEditor;
+import com.dmtavt.fragpipe.api.ModsTableModel;
+import com.dmtavt.fragpipe.api.SearchTypeProp;
+import com.github.chhh.utils.swing.renderers.TableCellDoubleRenderer;
+import com.github.chhh.utils.swing.renderers.TableCellIntRenderer;
+import com.github.chhh.utils.swing.renderers.TableCellIntSpinnerEditor;
 import com.dmtavt.fragpipe.params.Props.Prop;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.params.dbslice.DbSlice;
@@ -586,7 +586,7 @@ public class TabMsfragger extends JPanelWithEnablement {
 
   private ModsTable createTableVarMods() {
     Object[][] data = convertModsToVarModsData(Collections.emptyList());
-    ModificationsTableModel m = new ModificationsTableModel(
+    ModsTableModel m = new ModsTableModel(
         TABLE_VAR_MODS_COL_NAMES,
         new Class<?>[]{Boolean.class, String.class, Double.class, Integer.class},
         new boolean[]{true, true, true, true},
@@ -651,7 +651,7 @@ public class TabMsfragger extends JPanelWithEnablement {
   private ModsTable createTableFixMods() {
     Object[][] data = convertModsToFixTableData(Collections.emptyList());
 
-    ModificationsTableModel m = new ModificationsTableModel(
+    ModsTableModel m = new ModsTableModel(
         TABLE_FIX_MODS_COL_NAMES,
         new Class<?>[]{Boolean.class, String.class, Double.class},
         new boolean[]{true, false, true},
@@ -1126,7 +1126,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     return editor.stopCellEditing();
   }
 
-  private List<Mod> formToMap(ModificationsTableModel model) {
+  private List<Mod> formToMap(ModsTableModel model) {
     return model.getModifications();
   }
 

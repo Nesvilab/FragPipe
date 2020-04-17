@@ -1,8 +1,7 @@
 package com.dmtavt.fragpipe.messages;
 
-import java.util.ArrayList;
 import java.util.List;
-import umich.msfragger.gui.InputLcmsFile;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
 
 public class MessageLcmsFilesTableUpdated {
   public final List<InputLcmsFile> files;

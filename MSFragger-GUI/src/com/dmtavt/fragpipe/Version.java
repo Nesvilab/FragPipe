@@ -37,7 +37,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.gui.MsfraggerGuiFrame;
 import com.dmtavt.fragpipe.messages.MessageFragpipeUpdate;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.PropertiesUtils;

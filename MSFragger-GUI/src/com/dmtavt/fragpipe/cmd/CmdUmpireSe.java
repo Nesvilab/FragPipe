@@ -18,7 +18,7 @@ import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.exceptions.FileWritingException;
-import umich.msfragger.gui.InputLcmsFile;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.params.umpire.UmpirePanel;
 import com.dmtavt.fragpipe.params.umpire.UmpireParams;
 import com.dmtavt.fragpipe.params.umpire.UmpireSeGarbageFiles;

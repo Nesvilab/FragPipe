@@ -1,5 +1,8 @@
 package com.dmtavt.fragpipe.cmd;
 
+import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.params.speclib.SpeclibPanel;
+import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import java.awt.Component;
 import java.io.File;
 import java.nio.file.Files;
@@ -14,9 +17,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
-import umich.msfragger.gui.InputLcmsFile;
-import umich.msfragger.gui.LcmsFileGroup;
-import umich.msfragger.gui.MsfraggerGuiFrame;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
+//import umich.msfragger.gui.MsfraggerGuiFrame;
 import com.dmtavt.fragpipe.params.speclib.SpecLibGen;
 import com.github.chhh.utils.PythonInfo;
 import com.github.chhh.utils.UsageTrigger;
@@ -140,12 +143,17 @@ public class CmdSpecLibGen extends CmdBase {
         cmd.add("True"); // overwrite (true/false), optional arg
         cmd.add("usePhilosopher.useBin()"); // philosopher binary path (not needed for easyPQP)
         cmd.add("use_easypqp"); // philosopher binary path (not needed for easyPQP)
-        final MsfraggerGuiFrame msgf = (MsfraggerGuiFrame) comp;
-        final String cal = msgf.getSpeclibPanel1().getEasypqpCalOption();
-        final Path calTsvPath = msgf.getSpeclibPanel1().getEasypqpCalFilePath();
+
+        TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
+        SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
+
+        final String cal = speclibPanel.getEasypqpCalOption();
+        final Path calTsvPath = speclibPanel.getEasypqpCalFilePath();
         cmd.add(cal.equals("a tsv file") ? calTsvPath.toString() : cal); // retention time alignment options
-        cmd.add(String.valueOf(msgf.fraggerMigPanel.getThreads()));
-        msgf.getSpeclibPanel1().getEasypqpFileType();
+        cmd.add(String.valueOf(tabWorkflow.getThreads()));
+
+        speclibPanel.getEasypqpFileType(); // TODO: GUOCI - this statement was dangling alone here without any assignment or method call
+
       } else {
         cmd.add(fastaPath);
         cmd.add(groupWd.toString()); // this is "Pep xml directory"

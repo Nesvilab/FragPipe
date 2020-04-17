@@ -8,6 +8,9 @@ import com.github.chhh.utils.ProcessUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.VersionComparator;
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -20,19 +23,13 @@ public class Philosopher {
 
   private static final Logger log = LoggerFactory.getLogger(Philosopher.class);
 
-  public static class Version {
-
-    public final String version;
-    public final String build;
-    public final boolean isNewVersionFound;
-    public final String downloadUrl;
-
-    public Version(String version, String build, boolean isNewVersionFound,
-        String downloadUrl) {
-      this.version = version;
-      this.build = build;
-      this.isNewVersionFound = isNewVersionFound;
-      this.downloadUrl = downloadUrl;
+  public static void downloadPhilosopher() {
+    try {
+      Desktop.getDesktop()
+          .browse(URI.create("https://github.com/Nesvilab/philosopher/releases/latest"));
+    } catch (IOException ex) {
+      log.error("Error opening browser to download philosopher", ex);
+      SwingUtils.showErrorDialogWithStacktrace(ex, null);
     }
   }
 
@@ -50,8 +47,10 @@ public class Philosopher {
     pb.redirectErrorStream(true);
 
     // get the vesrion reported by the current executable
-    final Pattern reVer = Pattern.compile(".*version[^=]*?=\\s*v?\\.?([^\\s,;]+).*", Pattern.CASE_INSENSITIVE);
-    final Pattern reBuild = Pattern.compile(".*build[^=]*?=\\s*([^\\s,;]+).*", Pattern.CASE_INSENSITIVE);
+    final Pattern reVer = Pattern
+        .compile(".*version[^=]*?=\\s*v?\\.?([^\\s,;]+).*", Pattern.CASE_INSENSITIVE);
+    final Pattern reBuild = Pattern
+        .compile(".*build[^=]*?=\\s*([^\\s,;]+).*", Pattern.CASE_INSENSITIVE);
     final StringBuilder sbVer = new StringBuilder();
     final StringBuilder sbBuild = new StringBuilder();
     ProcessUtils.consumeLines(pb, line -> {
@@ -69,23 +68,27 @@ public class Philosopher {
     });
 
     if (sbVer.length() == 0) {
-      throw new ValidationException("Version string not found in output of: " + String.join(" ", pb.command()));
+      throw new ValidationException(
+          "Version string not found in output of: " + String.join(" ", pb.command()));
     }
 
     final String fragpipeVerMajor = com.dmtavt.fragpipe.Version.version().split("[-_]+")[0];
     final Properties p = Fragpipe.propsFix();
-    log.debug("Validating philosopher version compatibility with FragPipe major version: {}", fragpipeVerMajor);
+    log.debug("Validating philosopher version compatibility with FragPipe major version: {}",
+        fragpipeVerMajor);
     String minPhiVer = p.stringPropertyNames().stream()
-        .filter(name -> name.startsWith(PhilosopherProps.PROP_LOWEST_COMPATIBLE_VERSION + "." + fragpipeVerMajor))
+        .filter(name -> name
+            .startsWith(PhilosopherProps.PROP_LOWEST_COMPATIBLE_VERSION + "." + fragpipeVerMajor))
         .findFirst().map(p::getProperty).orElse(null);
     String maxPhiVer = p.stringPropertyNames().stream()
-        .filter(name -> name.startsWith(PhilosopherProps.PROP_LATEST_COMPATIBLE_VERSION + "." + fragpipeVerMajor))
+        .filter(name -> name
+            .startsWith(PhilosopherProps.PROP_LATEST_COMPATIBLE_VERSION + "." + fragpipeVerMajor))
         .findFirst().map(p::getProperty).orElse(null);
-    log.debug("Figured fragpipe {} requires philosopher versions in range [{}, {}]", fragpipeVerMajor, minPhiVer, maxPhiVer);
+    log.debug("Figured fragpipe {} requires philosopher versions in range [{}, {}]",
+        fragpipeVerMajor, minPhiVer, maxPhiVer);
 
     String link = p.getProperty(PhilosopherProps.PROP_DOWNLOAD_URL,
         "https://github.com/Nesvilab/philosopher/releases");
-
 
     final String version = sbVer.toString();
     final String build = sbBuild.toString();
@@ -109,8 +112,8 @@ public class Philosopher {
     return new Version(version, StringUtils.isBlank(build) ? "" : build, false, link);
   }
 
-
-  public static UpdateInfo checkUpdates(String path) throws ValidationException, UnexpectedException {
+  public static UpdateInfo checkUpdates(String path)
+      throws ValidationException, UnexpectedException {
     String binPath = PathUtils.testBinaryPath(path);
     if (binPath == null) {
       throw new ValidationException("Does not appear to be an executable file");
@@ -141,7 +144,24 @@ public class Philosopher {
     }
   }
 
+  public static class Version {
+
+    public final String version;
+    public final String build;
+    public final boolean isNewVersionFound;
+    public final String downloadUrl;
+
+    public Version(String version, String build, boolean isNewVersionFound,
+        String downloadUrl) {
+      this.version = version;
+      this.build = build;
+      this.isNewVersionFound = isNewVersionFound;
+      this.downloadUrl = downloadUrl;
+    }
+  }
+
   public static class UpdateInfo {
+
     public final boolean isUpdateAvailable;
     public final String downloadUrl;
 

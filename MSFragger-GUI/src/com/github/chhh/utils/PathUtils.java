@@ -16,15 +16,9 @@
  */
 package com.github.chhh.utils;
 
-import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.JarURLConnection;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -44,7 +38,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.filechooser.FileFilter;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.gui.MsfraggerGuiFrame;
 
 /**
  *
@@ -408,7 +401,7 @@ public class PathUtils {
                 }
             }
         } catch (IOException ex) {
-            Logger.getLogger(MsfraggerGuiFrame.class.getName()).log(Level.SEVERE, null, ex);
+            log.error("Error traversing directories", ex);
         }
     }
 

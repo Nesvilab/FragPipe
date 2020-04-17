@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.jooq.lambda.Seq;
-import umich.msfragger.gui.InputLcmsFile;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
 
 public class CmdMsAdjuster extends CmdBase {
 

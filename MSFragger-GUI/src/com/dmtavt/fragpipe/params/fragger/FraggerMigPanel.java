@@ -95,11 +95,11 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.gui.ModificationsTableModel;
-import umich.msfragger.gui.api.SearchTypeProp;
-import umich.msfragger.gui.renderers.TableCellDoubleRenderer;
-import umich.msfragger.gui.renderers.TableCellIntRenderer;
-import umich.msfragger.gui.renderers.TableCellIntSpinnerEditor;
+import com.dmtavt.fragpipe.api.ModsTableModel;
+import com.dmtavt.fragpipe.api.SearchTypeProp;
+import com.github.chhh.utils.swing.renderers.TableCellDoubleRenderer;
+import com.github.chhh.utils.swing.renderers.TableCellIntRenderer;
+import com.github.chhh.utils.swing.renderers.TableCellIntSpinnerEditor;
 import com.dmtavt.fragpipe.params.Props.Prop;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.params.dbslice.DbSlice;
@@ -205,9 +205,9 @@ public class FraggerMigPanel extends JPanel {
   private UiCheck checkRun;
   private JScrollPane scroll;
   private JPanel pContent;
-  private ModificationsTableModel tableModelVarMods;
+  private ModsTableModel tableModelVarMods;
   private javax.swing.JTable tableVarMods;
-  private ModificationsTableModel tableModelFixMods;
+  private ModsTableModel tableModelFixMods;
   private javax.swing.JTable tableFixMods;
   private UiSpinnerInt uiSpinnerRam;
   private UiSpinnerInt uiSpinnerThreads;
@@ -1124,7 +1124,7 @@ public class FraggerMigPanel extends JPanel {
       data[i][3] = null;
     }
 
-    tableModelVarMods = new ModificationsTableModel(
+    tableModelVarMods = new ModsTableModel(
         TABLE_VAR_MODS_COL_NAMES,
         new Class<?>[]{Boolean.class, String.class, Double.class, Integer.class},
         new boolean[]{true, true, true, true},
@@ -1144,7 +1144,7 @@ public class FraggerMigPanel extends JPanel {
       data[i][2] = 0.0;
     }
 
-    tableModelFixMods = new ModificationsTableModel(
+    tableModelFixMods = new ModsTableModel(
         TABLE_FIX_MODS_COL_NAMES,
         new Class<?>[]{Boolean.class, String.class, Double.class},
         new boolean[]{true, false, true},
@@ -1203,17 +1203,17 @@ public class FraggerMigPanel extends JPanel {
     return editor.stopCellEditing();
   }
 
-  private void formFromVarMods(ModificationsTableModel model, Object[] colNames, List<Mod> mods) {
+  private void formFromVarMods(ModsTableModel model, Object[] colNames, List<Mod> mods) {
     Object[][] data = modListToVarTableData(mods);
     model.setDataVector(data, colNames);
   }
 
-  private void formFromFixMods(ModificationsTableModel model, Object[] colNames, List<Mod> mods) {
+  private void formFromFixMods(ModsTableModel model, Object[] colNames, List<Mod> mods) {
     Object[][] data = modListToFixTableData(mods);
     model.setDataVector(data, colNames);
   }
 
-  private List<Mod> formTo(ModificationsTableModel model) {
+  private List<Mod> formTo(ModsTableModel model) {
     return model.getModifications();
   }
 

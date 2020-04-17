@@ -9,17 +9,16 @@ import java.util.stream.Collectors;
 import javax.swing.JTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.gui.ModificationsTableModel;
 import com.dmtavt.fragpipe.params.fragger.Mod;
 
 public class ModsTable extends JTable implements StringRepresentable {
   private static final Logger log = LoggerFactory.getLogger(ModsTable.class);
   public static final String MOD_STRING_DELIMITER = "; ";
-  public final ModificationsTableModel model;
+  public final ModsTableModel model;
   public final Object[] colNames;
   public final Function<List<Mod>, Object[][]> modsToData;
 
-  public ModsTable(ModificationsTableModel model, Object[] colNames, Function<List<Mod>, Object[][]> modsToData) {
+  public ModsTable(ModsTableModel model, Object[] colNames, Function<List<Mod>, Object[][]> modsToData) {
     super(model);
     this.model = model;
     this.colNames = colNames;

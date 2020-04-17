@@ -15,7 +15,7 @@
  */
 package com.dmtavt.fragpipe.messages;
 
-import umich.msfragger.gui.api.SearchTypeProp;
+import com.dmtavt.fragpipe.api.SearchTypeProp;
 
 /**
  *

@@ -1,7 +1,7 @@
 package com.dmtavt.fragpipe.messages;
 
 import java.util.List;
-import umich.msfragger.gui.RunnableDescription;
+import com.dmtavt.fragpipe.process.RunnableDescription;
 
 public class MessageStartProcesses {
   public final List<RunnableDescription> runDescs;

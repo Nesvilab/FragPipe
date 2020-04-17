@@ -79,7 +79,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.schedulers.Schedulers;
-import umich.msfragger.gui.MsfraggerGuiFrameUtils;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
@@ -763,6 +762,6 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private void actionPhilosopherDownload(ActionEvent e) {
-    MsfraggerGuiFrameUtils.downloadPhilosopher();
+    Philosopher.downloadPhilosopher();
   }
 }

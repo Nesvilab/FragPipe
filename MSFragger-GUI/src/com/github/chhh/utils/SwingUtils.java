@@ -91,8 +91,6 @@ import javax.swing.text.JTextComponent;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.security.krb5.internal.KDCOptions;
-import umich.msfragger.gui.MsfraggerGuiFrame;
 
 /**
  * @author dmitriya

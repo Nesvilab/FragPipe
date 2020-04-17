@@ -2,7 +2,7 @@ package com.dmtavt.fragpipe.messages;
 
 import java.util.List;
 import java.util.StringJoiner;
-import umich.msfragger.gui.InputLcmsFile;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
 
 public class MessageLcmsFilesList {
   public final MessageType type;

@@ -22,7 +22,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.gui.api.SearchTypeProp;
+import com.dmtavt.fragpipe.api.SearchTypeProp;
 
 public class PepProphPanel extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(PepProphPanel.class);

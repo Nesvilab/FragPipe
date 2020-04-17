@@ -40,8 +40,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.gui.FragpipeUtil;
-import umich.msfragger.gui.MsfraggerGuiFrameUtils;
+import com.dmtavt.fragpipe.api.DownloadDbHelper;
+import com.dmtavt.fragpipe.api.OldUtilMethods;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 
 public class TabDatabase extends JPanelWithEnablement {
@@ -129,7 +129,7 @@ public class TabDatabase extends JPanelWithEnablement {
   private JPanel createPanelInfo() {
     JPanel p = mu.newPanel("Quick start with protein sequence databases", true);
     JEditorPane epInfo = SwingUtils
-        .createClickableHtml(MsfraggerGuiFrameUtils.createSeqDbExplanationContent());
+        .createClickableHtml(OldUtilMethods.createSeqDbExplanationContent());
     epInfo.setPreferredSize(new Dimension(400, 100));
     mu.add(p, epInfo).growX().wrap();
 
@@ -237,7 +237,7 @@ public class TabDatabase extends JPanelWithEnablement {
       return;
     }
     try {
-      FragpipeUtil.downloadDb(this, conf.path, getFastaPath());
+      DownloadDbHelper.downloadDb(this, conf.path, getFastaPath());
     } catch (Exception ex) {
       Notifications.showException(TIP_DB_DOWNLOAD, btnDownload, ex, true);
     }

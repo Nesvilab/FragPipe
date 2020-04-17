@@ -14,8 +14,8 @@ import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.gui.InputLcmsFile;
-import umich.msfragger.gui.LcmsFileGroup;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
 
 public class CmdIonquant extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdIonquant.class);

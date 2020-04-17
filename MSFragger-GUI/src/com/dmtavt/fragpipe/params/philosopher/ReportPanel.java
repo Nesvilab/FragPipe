@@ -25,7 +25,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
-import umich.msfragger.gui.InputLcmsFile;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.swing.FormEntry;
 

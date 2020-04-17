@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
-import umich.msfragger.gui.LcmsFileGroup;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.params.philosopher.PhilosopherProps;
 import com.github.chhh.utils.UsageTrigger;
 

@@ -9,10 +9,10 @@ import java.util.Set;
 import javax.swing.table.JTableHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.gui.InputLcmsFile;
-import umich.msfragger.gui.api.SimpleETable;
-import umich.msfragger.gui.api.SimpleUniqueTableModel;
-import umich.msfragger.gui.api.TableModelColumn;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.SimpleETable;
+import com.dmtavt.fragpipe.api.SimpleUniqueTableModel;
+import com.dmtavt.fragpipe.api.TableModelColumn;
 
 public class TmtAnnotationTable extends SimpleETable {
   private static final Logger log = LoggerFactory.getLogger(TmtAnnotationTable.class);

@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import umich.msfragger.gui.InputLcmsFile;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.params.philosopher.PhilosopherProps;
 import com.github.chhh.utils.UsageTrigger;
 

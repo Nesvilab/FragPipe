@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.gui.api.SearchTypeProp;
+import com.dmtavt.fragpipe.api.SearchTypeProp;
 import com.dmtavt.fragpipe.params.AbstractParams;
 import com.dmtavt.fragpipe.params.Props;
 import com.dmtavt.fragpipe.params.Props.Prop;

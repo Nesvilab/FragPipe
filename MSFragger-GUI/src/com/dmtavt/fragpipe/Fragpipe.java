@@ -87,7 +87,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.cmd.ToolingUtils;
-import umich.msfragger.gui.api.LogbackJTextPaneAppender;
+import com.github.chhh.utils.swing.LogbackJTextPaneAppender;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.params.dbslice.DbSplit2;
 import com.dmtavt.fragpipe.params.speclib.SpecLibGen2;

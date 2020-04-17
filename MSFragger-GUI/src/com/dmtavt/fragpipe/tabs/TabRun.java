@@ -1,6 +1,7 @@
 package com.dmtavt.fragpipe.tabs;
 
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.*;
+import static com.dmtavt.fragpipe.params.fragger.FraggerMigPanel.PROP_FILECHOOSER_LAST_PATH;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeRun;
@@ -16,7 +17,9 @@ import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
 import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
 import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
+import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -30,23 +33,34 @@ import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.stream.Stream;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.cmd.CmdMsfragger;
@@ -280,5 +294,52 @@ public class TabRun extends JPanelWithEnablement {
         menu.show(e.getComponent(), e.getX(), e.getY());
       }
     });
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageSaveLog m) {
+    log.debug("Got MessageSaveLog, trying to save log");
+    exportLogToFile(console, m.workDir.toString());
+  }
+
+  private void exportLogToFile(TextConsole console, String savePathHint) {
+    JFileChooser fc = FileChooserUtils.builder("Export log to").approveButton("Save")
+        .acceptAll(true).mode(FcMode.FILES_ONLY).multi(false)
+        .paths(Seq.of(savePathHint, Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH))).create();
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+    Date now = new Date();
+    fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(now))));
+
+    final Component parent = SwingUtils.findParentFrameForDialog(this);
+    if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(parent)) {
+      File selectedFile = fc.getSelectedFile();
+      Path path = Paths.get(selectedFile.getAbsolutePath());
+      // if exists, overwrite
+      if (Files.exists(path)) {
+        int overwrite = JOptionPane
+            .showConfirmDialog(parent, "<html>File exists, overwrtie?<br/><br/>" + path.toString(), "Overwrite",
+                JOptionPane.OK_CANCEL_OPTION);
+        if (JOptionPane.OK_OPTION == overwrite) {
+          try {
+            Files.delete(path);
+          } catch (IOException ex) {
+            JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite",
+                JOptionPane.ERROR_MESSAGE);
+            return;
+          }
+        }
+      }
+      saveLogToFile(console, path);
+    }
+  }
+
+  public static void saveLogToFile(TextConsole console, Path path) {
+    final String text = console.getText().replaceAll("[^\n]+\u200B" + System.getProperty("line.separator"), "");
+    byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+    try {
+      Files.write(path, bytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    } catch (IOException e) {
+      log.error("Error writing log to file", e);
+    }
   }
 }

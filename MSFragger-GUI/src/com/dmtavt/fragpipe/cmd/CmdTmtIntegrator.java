@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.gui.LcmsFileGroup;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.params.tmtintegrator.QuantLabelAnnotation;
 import com.dmtavt.fragpipe.params.tmtintegrator.TmtiPanel;
 import com.github.chhh.utils.FileDelete;

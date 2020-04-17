@@ -16,7 +16,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.gui.LcmsFileGroup;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.UsageTrigger;
 

@@ -18,7 +18,7 @@ package com.dmtavt.fragpipe.params.fragger;
 
 import java.nio.file.Path;
 import java.util.Properties;
-import umich.msfragger.gui.api.VersionFetcher;
+import com.dmtavt.fragpipe.api.VersionFetcher;
 import com.github.chhh.utils.PropertiesUtils;
 
 /**

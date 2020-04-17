@@ -19,7 +19,7 @@ import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.gui.InputLcmsFile;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.params.crystalc.CrystalcPanel;
 import com.dmtavt.fragpipe.params.crystalc.CrystalcParams;
 

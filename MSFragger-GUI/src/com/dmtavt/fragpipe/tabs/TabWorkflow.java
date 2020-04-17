@@ -4,6 +4,7 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
+import com.dmtavt.fragpipe.api.IPathsProvider;
 import com.dmtavt.fragpipe.api.PropsFile;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFiles;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFolder;
@@ -31,6 +32,8 @@ import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -42,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,11 +54,14 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -64,6 +71,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.RandomUtils;
@@ -75,14 +84,13 @@ import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.cmd.CmdMsfragger;
-import umich.msfragger.gui.InputLcmsFile;
-import umich.msfragger.gui.LcmsFileGroup;
-import umich.msfragger.gui.LcmsInputFileTable;
-import umich.msfragger.gui.MsfraggerGuiFrameUtils;
-import umich.msfragger.gui.MsfraggerGuiFrameUtils.LcmsFileAddition;
-import umich.msfragger.gui.api.SimpleETable;
-import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
-import umich.msfragger.gui.dialogs.ExperimentNameDialog;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.api.LcmsInputFileTable;
+import com.dmtavt.fragpipe.api.SimpleETable;
+import com.dmtavt.fragpipe.api.TableModelColumn;
+import com.dmtavt.fragpipe.api.UniqueLcmsFilesTableModel;
+import com.dmtavt.fragpipe.dialogs.ExperimentNameDialog;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 
 public class TabWorkflow extends JPanelWithEnablement {
@@ -113,6 +121,189 @@ public class TabWorkflow extends JPanelWithEnablement {
   public TabWorkflow() {
     init();
     initMore();
+  }
+
+  public static UniqueLcmsFilesTableModel createTableModelRawFiles() {
+    List<TableModelColumn<InputLcmsFile, ?>> cols = new ArrayList<>();
+
+    TableModelColumn<InputLcmsFile, String> colPath = new TableModelColumn<>(
+        "Path (can drag & drop from Explorer)",
+        String.class, false, data -> data.getPath().toString());
+    TableModelColumn<InputLcmsFile, String> colExp = new TableModelColumn<>(
+        "Experiment (can be empty)", String.class, true, InputLcmsFile::getExperiment);
+    TableModelColumn<InputLcmsFile, Integer> colRep = new TableModelColumn<>(
+        "Replicate (can be empty)", Integer.class, true, InputLcmsFile::getReplicate);
+    cols.add(colPath);
+    cols.add(colExp);
+    cols.add(colRep);
+
+    UniqueLcmsFilesTableModel m = new UniqueLcmsFilesTableModel(cols, 0);
+
+    return m;
+  }
+
+  public static void processAddedLcmsPaths(LcmsFileAddition files, Component parent, IPathsProvider extBinSearchPaths) {
+    // vet/check input LCMS files for bad naming
+    final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(extBinSearchPaths.get());
+    final HashMap<Path, Set<String>> reasonsDir = new HashMap<>();
+    final HashMap<Path, Set<String>> reasonsFn = new HashMap<>();
+    //final HashMap<String, List<Path>> reasonsRev = new HashMap<>();
+    final String allowedChars = "[A-Za-z0-9-_+.\\[\\]()]";
+    Pattern re = Pattern.compile(allowedChars + "+");
+    final String REASON_NON_ASCII = "Non-ASCII chars";
+    final String REASON_PATH_SPACES = "Path contains spaces";
+    final String REASON_FN_DOTS = "Filename contains dots";
+    final String REASON_UNSUPPORTED = "Not supported";
+    final String REASON_DISALLOWED_CHARS = "Contains characters other than: " + allowedChars;
+
+    for (Path path : files.paths) {
+      Set<String> why = InputLcmsFile.validatePath(path.getParent().toString());
+      if (!why.isEmpty()) {
+        reasonsDir.put(path, why);
+      }
+    }
+
+    for (Path path : files.paths) {
+      Set<String> why = InputLcmsFile.validateFilename(path.getFileName().toString());
+      if (!why.isEmpty()) {
+        reasonsFn.put(path, why);
+      }
+    }
+
+    // in case there were suspicious paths
+    if (!reasonsDir.isEmpty() || !reasonsFn.isEmpty()) {
+      HashMap<Path, String> path2reasons = new HashMap<>();
+      for (Entry<Path, Set<String>> kv : reasonsDir.entrySet()) {
+        for (String reason : kv.getValue()) {
+          path2reasons.compute(kv.getKey(), (path, s) -> s == null ? "Direcotry " + reason : s.concat(", Direcotry " + reason));
+        }
+      }
+      for (Entry<Path, Set<String>> kv : reasonsFn.entrySet()) {
+        for (String reason : kv.getValue()) {
+          path2reasons.compute(kv.getKey(), (path, s) -> s == null ? "File name " + reason : s.concat(", File name " + reason));
+        }
+      }
+      String[] columns = {"Reasons", "Path"};
+      String[][] data = new String[path2reasons.size()][2];
+      int index = -1;
+      for (Entry<Path, String> kv : path2reasons.entrySet()) {
+        data[++index][0] = kv.getValue();
+        data[index][1] = kv.getKey().toString();
+      }
+
+      DefaultTableModel model = new DefaultTableModel(data, columns);
+      JTable table = new JTable(model);
+      table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+      JPanel panel = new JPanel(new BorderLayout());
+      panel.add(new JLabel("<html>Found problems with some files (" + path2reasons.size() + " of " + files.paths.size() + ").<br/>"
+          + "This <b>will likely cause trouble</b> with some of processing tools.<br/><br/>"
+          + "What do you want to do with these files?<br/>"), BorderLayout.NORTH);
+      panel.add(Box.createVerticalStrut(100), BorderLayout.CENTER);
+      panel.add(new JScrollPane(table), BorderLayout.CENTER);
+      SwingUtils.makeDialogResizable(panel);
+
+      String[] options;
+      if (!reasonsFn.isEmpty()) {
+        options = new String[]{"Cancel", "Add anyway", "Only add well-behaved files", "Try rename files"};
+      } else {
+        options = new String[]{"Cancel", "Add anyway", "Only add well-behaved files"};
+      }
+
+      int confirmation = JOptionPane
+          .showOptionDialog(parent, panel, "Add these files?",
+              JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+
+      switch (confirmation) {
+        case 0:
+          return;
+        case 1:
+          break;
+        case 2:
+          files.toAdd = files.toAdd.stream().filter(path -> !path2reasons.containsKey(path)).collect(Collectors.toList());
+          break;
+        case 3: // rename files
+          int confirm1 = SwingUtils.showConfirmDialog(parent, new JLabel(
+              "<html>Attempt to rename files without moving them.<br/>\n" +
+                  "This is a non-reversible operation.<br/><br/>\n" +
+                  "We'll show you a preview before proceeding with actual renaming.<br/>\n" +
+                  "Do you want to continue?"));
+          if (JOptionPane.YES_OPTION != confirm1) {
+            return;
+          }
+          final Map<Path, Path> toRename = reasonsFn.keySet().stream()
+              .collect(Collectors.toMap(Function.identity(), InputLcmsFile::renameBadFile));
+          Set<Path> uniqueRenamed = new HashSet<>(toRename.values());
+          if (uniqueRenamed.size() != reasonsFn.size()) {
+            SwingUtils.showDialog(parent, new JLabel(
+                    "<html>Renaming given files according to our scheme would result<br/>\n" +
+                        "in clashing file paths. Renaming cancelled. Consider renaming manually.<br/>\n" +
+                        "It is preferable to not have spaces in file names, not have more than one dot<br/>\n" +
+                        "and to not use non-latin characters."),
+                "Not safe to rename files", JOptionPane.WARNING_MESSAGE);
+            return;
+          }
+
+          final Map<Path, Path> existingRenames = new HashMap<>();
+          for (Entry<Path, Path> kv : toRename.entrySet()) {
+            if (Files.exists(kv.getValue())) {
+              existingRenames.put(kv.getKey(), kv.getValue());
+            }
+          }
+          if (!existingRenames.isEmpty()) {
+            JPanel pane = new JPanel(new BorderLayout());
+            pane.add(new JLabel("<html>Renaming given files according to our scheme would result<br/>\n" +
+                "in file paths that already exist on your computer.<br/>\n" +
+                "Renaming cancelled."), BorderLayout.NORTH);
+
+            pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(existingRenames)));
+            SwingUtils.showDialog(parent, pane,
+                "Not safe to rename files", JOptionPane.WARNING_MESSAGE);
+            return;
+          }
+
+        {
+          JPanel pane = new JPanel(new BorderLayout());
+          pane.add(new JLabel("<html>Proposed renaming scheme, do you agree?<br/>\n"));
+          pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(toRename)));
+          int confirm2 = SwingUtils.showConfirmDialog(parent, pane);
+          if (JOptionPane.YES_OPTION != confirm2) {
+            return;
+          }
+        }
+
+        final Map<Path, Path> couldNotRename = new HashMap<>();
+        final Map<Path, Path> renamedOk = new HashMap<>();
+        Runnable runnable = () -> {
+          for (Entry<Path, Path> kv : toRename.entrySet()) {
+            try {
+              Files.move(kv.getKey(), kv.getValue());
+              renamedOk.put(kv.getKey(), kv.getValue());
+            } catch (Exception e) {
+              log.error(String.format("From '%s' to '%s' at '%s'",
+                  kv.getKey().getFileName(), kv.getValue().getFileName(), kv.getKey().getParent()));
+              couldNotRename.put(kv.getKey(), kv.getValue());
+            }
+          }
+        };
+
+        SwingUtils.DialogAndThread dat = SwingUtils.runThreadWithProgressBar("Renaming files", parent, runnable);
+        dat.thread.start();
+        dat.dialog.setVisible(true);
+
+        if (!couldNotRename.isEmpty()) {
+          JPanel pane = new JPanel(new BorderLayout());
+          pane.add(new JLabel("<html>Unfortunately could not rename some of the files:<br/>"), BorderLayout.NORTH);
+          pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(couldNotRename)), BorderLayout.CENTER);
+          SwingUtils.showDialog(parent, pane, "Renaming failed", JOptionPane.WARNING_MESSAGE);
+          return;
+        }
+
+        // renaming succeeded, change paths to renamed ones
+        files.toAdd = files.toAdd.stream().map(path -> renamedOk.getOrDefault(path, path)).collect(Collectors.toList());
+
+        break;
+      }
+    }
   }
 
   private void initMore() {
@@ -293,7 +484,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, savePath);
 
     LcmsFileAddition lfa = new LcmsFileAddition(m.paths, new ArrayList<>(m.paths));
-    MsfraggerGuiFrameUtils.processAddedLcmsPaths(lfa, this, Fragpipe::getExtBinSearchPaths);
+    processAddedLcmsPaths(lfa, this, Fragpipe::getExtBinSearchPaths);
 
     // add the files
     List<InputLcmsFile> toAdd = lfa.toAdd.stream()
@@ -543,7 +734,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private void createFileTable() {
-    tableModelRawFiles = MsfraggerGuiFrameUtils.createTableModelRawFiles();
+    tableModelRawFiles = createTableModelRawFiles();
     tableModelRawFiles.addTableModelListener(e -> {
       List<InputLcmsFile> files = tableModelRawFiles.dataCopy();
       EventBus.getDefault().post(new MessageLcmsFilesList(MessageType.UPDATE, files));
@@ -717,6 +908,16 @@ public class TabWorkflow extends JPanelWithEnablement {
         propsFile.setProperty("workflow.workflow-option", workflow);
       }
       Bus.post(new MessageLoadUi(propsFile));
+    }
+  }
+
+  public static class LcmsFileAddition {
+    public List<Path> paths;
+    public List<Path> toAdd;
+
+    public LcmsFileAddition(List<Path> paths, List<Path> toAdd) {
+      this.paths = paths;
+      this.toAdd = toAdd;
     }
   }
 }
