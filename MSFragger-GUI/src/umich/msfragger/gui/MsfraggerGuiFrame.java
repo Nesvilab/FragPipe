@@ -97,8 +97,8 @@ import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.Version;
-import umich.msfragger.cmd.CmdMsfragger;
-import umich.msfragger.cmd.ToolingUtils;
+import com.dmtavt.fragpipe.cmd.CmdMsfragger;
+import com.dmtavt.fragpipe.cmd.ToolingUtils;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils.LcmsFileAddition;
 import umich.msfragger.gui.api.LogbackJTextPaneAppender;
 import umich.msfragger.gui.api.SearchTypeProp;
@@ -126,19 +126,19 @@ import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageFragpipeUpdate;
 import com.dmtavt.fragpipe.messages.MessageType;
-import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.params.crystalc.CrystalcPanel;
-import umich.msfragger.params.crystalc.CrystalcParams;
-import umich.msfragger.params.dbslice.DbSlice;
-import umich.msfragger.params.fragger.FraggerMigPanel;
-import umich.msfragger.params.fragger.MsfraggerParams;
-import umich.msfragger.params.fragger.MsfraggerProps;
-import umich.msfragger.params.ionquant.QuantPanelLabelfree;
-import umich.msfragger.params.philosopher.ReportPanel;
-import umich.msfragger.params.ptmshepherd.PtmshepherdPanel;
-import umich.msfragger.params.speclib.SpecLibGen;
-import umich.msfragger.params.tmtintegrator.TmtiPanel;
-import umich.msfragger.params.umpire.UmpirePanel;
+import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.dmtavt.fragpipe.params.crystalc.CrystalcPanel;
+import com.dmtavt.fragpipe.params.crystalc.CrystalcParams;
+import com.dmtavt.fragpipe.params.dbslice.DbSlice;
+import com.dmtavt.fragpipe.params.fragger.FraggerMigPanel;
+import com.dmtavt.fragpipe.params.fragger.MsfraggerParams;
+import com.dmtavt.fragpipe.params.fragger.MsfraggerProps;
+import com.dmtavt.fragpipe.params.ionquant.QuantPanelLabelfree;
+import com.dmtavt.fragpipe.params.philosopher.ReportPanel;
+import com.dmtavt.fragpipe.params.ptmshepherd.PtmshepherdPanel;
+import com.dmtavt.fragpipe.params.speclib.SpecLibGen;
+import com.dmtavt.fragpipe.params.tmtintegrator.TmtiPanel;
+import com.dmtavt.fragpipe.params.umpire.UmpirePanel;
 import com.github.chhh.utils.FastaUtils.FastaDecoyPrefixSearchResult;
 import com.github.chhh.utils.FileDrop;
 import com.github.chhh.utils.GhostText;
@@ -300,7 +300,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     return ptmshepherdPanel;
   }
 
-  public umich.msfragger.params.speclib.SpeclibPanel getSpeclibPanel1() {
+  public com.dmtavt.fragpipe.params.speclib.SpeclibPanel getSpeclibPanel1() {
     return speclibPanel1;
   }
 
@@ -811,13 +811,13 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
         jScrollPane4 = new javax.swing.JScrollPane();
         txtProteinProphetCmdLineOpts = new javax.swing.JTextArea();
         jLabel40 = new javax.swing.JLabel();
-        panelCrystalc = new umich.msfragger.params.crystalc.CrystalcPanel();
+        panelCrystalc = new com.dmtavt.fragpipe.params.crystalc.CrystalcPanel();
         tmtiPanel1 = new TmtiPanel();
         panelReport = new javax.swing.JPanel();
         ptmshepherdPanel = new PtmshepherdPanel();
         panelQuant = new QuantPanelLabelfree();
-        panelReportOptions = new umich.msfragger.params.philosopher.ReportPanel();
-        speclibPanel1 = new umich.msfragger.params.speclib.SpeclibPanel();
+        panelReportOptions = new com.dmtavt.fragpipe.params.philosopher.ReportPanel();
+        speclibPanel1 = new com.dmtavt.fragpipe.params.speclib.SpeclibPanel();
         panelRun = new javax.swing.JPanel();
         btnStop = new javax.swing.JButton();
         btnClearConsole = new javax.swing.JButton();
@@ -2987,7 +2987,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JLabel lblSpeclibInfo1;
     private javax.swing.JPanel panelBottomHints;
     private javax.swing.JPanel panelConfig;
-    private umich.msfragger.params.crystalc.CrystalcPanel panelCrystalc;
+    private com.dmtavt.fragpipe.params.crystalc.CrystalcPanel panelCrystalc;
     private javax.swing.JPanel panelDbInfo;
     private javax.swing.JPanel panelDownstream;
     private javax.swing.JPanel panelMsfraggerConfig;
@@ -2998,7 +2998,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelProteinProphetOptions;
     private QuantPanelLabelfree panelQuant;
     private javax.swing.JPanel panelReport;
-    private umich.msfragger.params.philosopher.ReportPanel panelReportOptions;
+    private com.dmtavt.fragpipe.params.philosopher.ReportPanel panelReportOptions;
     private javax.swing.JPanel panelRun;
     private javax.swing.JPanel panelSelectFiles;
     private javax.swing.JPanel panelSelectedFiles;
@@ -3008,7 +3008,7 @@ public class MsfraggerGuiFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane scrollDownstream;
     private javax.swing.JScrollPane scrollEpSpeclibInfo2;
     private javax.swing.JScrollPane scrollPaneRawFiles;
-    private umich.msfragger.params.speclib.SpeclibPanel speclibPanel1;
+    private com.dmtavt.fragpipe.params.speclib.SpeclibPanel speclibPanel1;
     private javax.swing.JTabbedPane tabPane;
     private javax.swing.JTextField textBinMsfragger;
     private javax.swing.JTextField textBinPhilosopher;

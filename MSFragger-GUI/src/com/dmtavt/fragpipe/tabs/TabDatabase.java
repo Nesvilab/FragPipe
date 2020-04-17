@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.FragpipeUtil;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils;
-import umich.msfragger.params.ThisAppProps;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 
 public class TabDatabase extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(TabDatabase.class);

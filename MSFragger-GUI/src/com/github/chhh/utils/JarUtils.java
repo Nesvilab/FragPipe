@@ -1,6 +1,6 @@
 package com.github.chhh.utils;
 
-import static umich.msfragger.params.ThisAppProps.JAR_FILE_AS_RESOURCE_EXT;
+import static com.dmtavt.fragpipe.params.ThisAppProps.JAR_FILE_AS_RESOURCE_EXT;
 
 import java.io.IOException;
 import java.io.InputStream;

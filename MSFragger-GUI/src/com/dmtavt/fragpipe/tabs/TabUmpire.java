@@ -7,7 +7,7 @@ import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import umich.msfragger.params.umpire.UmpirePanel;
+import com.dmtavt.fragpipe.params.umpire.UmpirePanel;
 
 public class TabUmpire extends JPanelWithEnablement {
 

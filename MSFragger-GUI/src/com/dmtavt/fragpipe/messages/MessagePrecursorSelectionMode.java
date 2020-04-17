@@ -1,6 +1,6 @@
 package com.dmtavt.fragpipe.messages;
 
-import umich.msfragger.params.enums.FraggerPrecursorMassMode;
+import com.dmtavt.fragpipe.params.enums.FraggerPrecursorMassMode;
 
 public class MessagePrecursorSelectionMode {
   public final FraggerPrecursorMassMode mode;

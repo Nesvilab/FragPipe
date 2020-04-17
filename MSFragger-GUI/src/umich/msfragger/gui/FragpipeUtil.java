@@ -4,9 +4,7 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
-import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
-import com.dmtavt.fragpipe.messages.MissingAssetsException;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import java.awt.BorderLayout;
@@ -22,13 +20,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.*;
 
-import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.cmd.*;
+import com.dmtavt.fragpipe.cmd.*;
 import umich.msfragger.gui.dialogs.DbUniprotIdPanel;
 import com.dmtavt.fragpipe.messages.MessageDbNewPath;
-import umich.msfragger.params.ThisAppProps;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.SwingUtils;

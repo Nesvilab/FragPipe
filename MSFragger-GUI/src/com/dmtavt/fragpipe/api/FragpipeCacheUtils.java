@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import javax.swing.JTabbedPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.params.ThisAppProps;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 
 public class FragpipeCacheUtils {
   private static final Logger log = LoggerFactory.getLogger(FragpipeCacheUtils.class);

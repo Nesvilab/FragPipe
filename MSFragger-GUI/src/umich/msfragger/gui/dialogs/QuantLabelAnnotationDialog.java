@@ -27,13 +27,13 @@ import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.cmd.ToolingUtils;
+import com.dmtavt.fragpipe.cmd.ToolingUtils;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.SimpleTableModel;
 import umich.msfragger.gui.api.TableModelColumn;
-import umich.msfragger.params.tmtintegrator.QuantLabel;
-import umich.msfragger.params.tmtintegrator.QuantLabelAnnotation;
-import umich.msfragger.params.tmtintegrator.TmtAnnotationTable.ExpNameToAnnotationFile;
+import com.dmtavt.fragpipe.params.tmtintegrator.QuantLabel;
+import com.dmtavt.fragpipe.params.tmtintegrator.QuantLabelAnnotation;
+import com.dmtavt.fragpipe.params.tmtintegrator.TmtAnnotationTable.ExpNameToAnnotationFile;
 
 public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
   private static final Logger log = LoggerFactory.getLogger(QuantLabelAnnotationDialog.class);

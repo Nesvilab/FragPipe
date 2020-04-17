@@ -1,12 +1,11 @@
 package com.dmtavt.fragpipe.tabs;
 
-import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
 import com.dmtavt.fragpipe.tools.protproph.ProtProphPanel;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
-import umich.msfragger.params.crystalc.CrystalcPanel;
-import umich.msfragger.params.philosopher.ReportPanel;
+import com.dmtavt.fragpipe.params.crystalc.CrystalcPanel;
+import com.dmtavt.fragpipe.params.philosopher.ReportPanel;
 
 public class TabValidation extends JPanelWithEnablement {
   private static MigUtils mu = MigUtils.get();

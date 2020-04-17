@@ -86,11 +86,11 @@ import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.cmd.ToolingUtils;
+import com.dmtavt.fragpipe.cmd.ToolingUtils;
 import umich.msfragger.gui.api.LogbackJTextPaneAppender;
-import umich.msfragger.params.ThisAppProps;
-import umich.msfragger.params.dbslice.DbSplit2;
-import umich.msfragger.params.speclib.SpecLibGen2;
+import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.dmtavt.fragpipe.params.dbslice.DbSplit2;
+import com.dmtavt.fragpipe.params.speclib.SpecLibGen2;
 
 public class Fragpipe extends JFrame {
 

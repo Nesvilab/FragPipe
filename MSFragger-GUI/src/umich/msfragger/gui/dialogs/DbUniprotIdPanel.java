@@ -17,7 +17,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
-import umich.msfragger.params.ThisAppProps;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 
 public class DbUniprotIdPanel extends JPanel {
 

@@ -45,12 +45,11 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
-import javax.swing.border.TitledBorder;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.cmd.CmdMsfragger;
+import com.dmtavt.fragpipe.cmd.CmdMsfragger;
 
 public class TabRun extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(TabRun.class);

@@ -1436,9 +1436,9 @@
                     </Container>
                   </SubComponents>
                 </Container>
-                <Component class="umich.msfragger.params.crystalc.CrystalcPanel" name="panelCrystalc">
+                <Component class="com.dmtavt.fragpipe.params.crystalc.CrystalcPanel" name="panelCrystalc">
                 </Component>
-                <Component class="umich.msfragger.params.tmtintegrator.TmtiPanel" name="tmtIntegratorPanel1">
+                <Component class="com.dmtavt.fragpipe.params.tmtintegrator.TmtiPanel" name="tmtIntegratorPanel1">
                 </Component>
               </SubComponents>
             </Container>
@@ -1486,7 +1486,7 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="umich.msfragger.params.ptmshepherd.PtmshepherdPanel" name="ptmshepherdPanel">
+            <Component class="com.dmtavt.fragpipe.params.ptmshepherd.PtmshepherdPanel" name="ptmshepherdPanel">
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
@@ -1495,7 +1495,7 @@
                 </Property>
               </Properties>
             </Component>
-            <Component class="umich.msfragger.params.ionquant.QuantPanelLabelfree" name="panelQuant">
+            <Component class="com.dmtavt.fragpipe.params.ionquant.QuantPanelLabelfree" name="panelQuant">
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
@@ -1504,9 +1504,9 @@
                 </Property>
               </Properties>
             </Component>
-            <Component class="umich.msfragger.params.philosopher.ReportPanel" name="panelReportOptions">
+            <Component class="com.dmtavt.fragpipe.params.philosopher.ReportPanel" name="panelReportOptions">
             </Component>
-            <Component class="umich.msfragger.params.speclib.SpeclibPanel" name="speclibPanel1">
+            <Component class="com.dmtavt.fragpipe.params.speclib.SpeclibPanel" name="speclibPanel1">
             </Component>
           </SubComponents>
         </Container>

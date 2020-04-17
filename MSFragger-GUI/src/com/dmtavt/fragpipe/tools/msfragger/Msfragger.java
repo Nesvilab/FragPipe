@@ -20,7 +20,6 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,9 +28,9 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.api.VersionFetcher;
-import umich.msfragger.params.fragger.MsfraggerVersionFetcherGithub;
-import umich.msfragger.params.fragger.MsfraggerVersionFetcherLocal;
-import umich.msfragger.params.fragger.MsfraggerVersionFetcherServer;
+import com.dmtavt.fragpipe.params.fragger.MsfraggerVersionFetcherGithub;
+import com.dmtavt.fragpipe.params.fragger.MsfraggerVersionFetcherLocal;
+import com.dmtavt.fragpipe.params.fragger.MsfraggerVersionFetcherServer;
 
 public class Msfragger {
 

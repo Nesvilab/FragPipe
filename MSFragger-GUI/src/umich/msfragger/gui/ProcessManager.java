@@ -24,7 +24,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.cmd.ProcessBuilderInfo;
+import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
 import com.dmtavt.fragpipe.messages.MessageAppendToConsole;
 import com.dmtavt.fragpipe.messages.MessageDeletePaths;
 import com.dmtavt.fragpipe.messages.MessageKillAll;

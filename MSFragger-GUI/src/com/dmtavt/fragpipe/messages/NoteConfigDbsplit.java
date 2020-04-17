@@ -1,6 +1,6 @@
 package com.dmtavt.fragpipe.messages;
 
-import umich.msfragger.params.dbslice.DbSplit2;
+import com.dmtavt.fragpipe.params.dbslice.DbSplit2;
 
 public class NoteConfigDbsplit implements INoteConfig {
 

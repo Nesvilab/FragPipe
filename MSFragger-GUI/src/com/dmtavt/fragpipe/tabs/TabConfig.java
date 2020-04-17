@@ -80,10 +80,10 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 import umich.msfragger.gui.MsfraggerGuiFrameUtils;
-import umich.msfragger.params.ThisAppProps;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
-import umich.msfragger.params.fragger.MsfraggerProps;
+import com.dmtavt.fragpipe.params.fragger.MsfraggerProps;
 
 public class TabConfig extends JPanelWithEnablement {
 

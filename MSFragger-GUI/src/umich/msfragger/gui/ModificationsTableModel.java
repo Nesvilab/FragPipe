@@ -24,7 +24,7 @@ import javax.swing.table.DefaultTableModel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.params.fragger.Mod;
+import com.dmtavt.fragpipe.params.fragger.Mod;
 
 /**
  *

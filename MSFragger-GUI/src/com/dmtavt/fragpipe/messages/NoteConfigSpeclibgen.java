@@ -1,6 +1,6 @@
 package com.dmtavt.fragpipe.messages;
 
-import umich.msfragger.params.speclib.SpecLibGen2;
+import com.dmtavt.fragpipe.params.speclib.SpecLibGen2;
 
 public class NoteConfigSpeclibgen implements INoteConfig {
   public final SpecLibGen2 instance;

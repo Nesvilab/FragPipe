@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscription;
 import rx.schedulers.Schedulers;
-import umich.msfragger.params.ThisAppProps;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 
 public class FragpipeLoader {
 

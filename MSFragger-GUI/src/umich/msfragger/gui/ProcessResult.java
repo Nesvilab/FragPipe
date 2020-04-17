@@ -25,7 +25,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import umich.msfragger.cmd.ProcessBuilderInfo;
+import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
 
 public class ProcessResult implements AutoCloseable {
 

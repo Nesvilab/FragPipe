@@ -38,8 +38,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -48,11 +46,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.exceptions.FileWritingException;
 import rx.Observable;
-import rx.Scheduler;
-import rx.Subscription;
 import rx.schedulers.Schedulers;
-import umich.msfragger.params.PropLine;
-import umich.msfragger.params.PropertyFileContent;
+import com.dmtavt.fragpipe.params.PropLine;
+import com.dmtavt.fragpipe.params.PropertyFileContent;
 
 /**
  *

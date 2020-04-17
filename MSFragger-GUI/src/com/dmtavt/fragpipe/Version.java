@@ -16,13 +16,12 @@
  */
 package com.dmtavt.fragpipe;
 
-import static umich.msfragger.params.ThisAppProps.PATH_BUNDLE;
+import static com.dmtavt.fragpipe.params.ThisAppProps.PATH_BUNDLE;
 
 import com.dmtavt.fragpipe.api.Bus;
 import com.github.chhh.utils.StringUtils;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.MsfraggerGuiFrame;
 import com.dmtavt.fragpipe.messages.MessageFragpipeUpdate;
-import umich.msfragger.params.ThisAppProps;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.VersionComparator;
 

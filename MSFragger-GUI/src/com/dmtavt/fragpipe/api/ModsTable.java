@@ -10,7 +10,7 @@ import javax.swing.JTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import umich.msfragger.gui.ModificationsTableModel;
-import umich.msfragger.params.fragger.Mod;
+import com.dmtavt.fragpipe.params.fragger.Mod;
 
 public class ModsTable extends JTable implements StringRepresentable {
   private static final Logger log = LoggerFactory.getLogger(ModsTable.class);

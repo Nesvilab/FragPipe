@@ -74,7 +74,7 @@ import org.jooq.lambda.Seq;
 import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.msfragger.cmd.CmdMsfragger;
+import com.dmtavt.fragpipe.cmd.CmdMsfragger;
 import umich.msfragger.gui.InputLcmsFile;
 import umich.msfragger.gui.LcmsFileGroup;
 import umich.msfragger.gui.LcmsInputFileTable;
@@ -83,7 +83,7 @@ import umich.msfragger.gui.MsfraggerGuiFrameUtils.LcmsFileAddition;
 import umich.msfragger.gui.api.SimpleETable;
 import umich.msfragger.gui.api.UniqueLcmsFilesTableModel;
 import umich.msfragger.gui.dialogs.ExperimentNameDialog;
-import umich.msfragger.params.ThisAppProps;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 
 public class TabWorkflow extends JPanelWithEnablement {
 
