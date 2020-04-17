@@ -114,6 +114,9 @@ public class FileChooserUtils {
         .map(Path::toFile)
         .findFirst().orElse(null);
     fc.setCurrentDirectory(f);
+    if (f != null && f.isFile()) {
+      fc.setSelectedFile(f);
+    }
   }
 
   /**
