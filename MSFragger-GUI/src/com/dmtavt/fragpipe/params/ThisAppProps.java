@@ -52,6 +52,7 @@ public class ThisAppProps extends Properties {
   public static final String PROP_FRAGPIPE_SITE_URL = "msfragger.gui.site.url";
   public static final String PROP_SETUP_TUTORIAL_URL = "fragpipe.setup-tutorial.url";
   public static final String PROP_PYTHON_DOWNLOAD_URL = "python.url.download";
+  public static final String LAST_RECURSIVE_FOLDER_ADDED = "path.recursive-add-folder.last";
 
   private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
   //private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);

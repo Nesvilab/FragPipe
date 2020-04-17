@@ -527,6 +527,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       log.warn("No input paths were given");
       return;
     }
+    Fragpipe.propsVarSet(ThisAppProps.LAST_RECURSIVE_FOLDER_ADDED, inputPaths.get(0).toString());
 
     for (Path p : inputPaths) {
       final Predicate<File> pred = CmdMsfragger.getSupportedFilePredicate(Fragpipe.getExtBinSearchPaths());
@@ -722,13 +723,21 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (!addDebugBtn) {
       mu.add(p, btnFilesClear).wrap();
     } else {
-      JButton btnDebugFolderAdd = UiUtils.createButton("Add debug folder", e -> {
-        String add = "D:\\ms-data\\TMTIntegrator_v1.1.4\\TMT-I-Test\\tmti-test-data_5-min-cuts";
-        Bus.post(new MessageLcmsAddFolder(Seq.of(Paths.get(add)).toList()));
+      final UiText uiTextLast = UiUtils.uiTextBuilder().cols(20)
+          .text(Fragpipe.propsVarGet(ThisAppProps.LAST_RECURSIVE_FOLDER_ADDED, "")).create();
+      JButton btnDebugFolderAdd = UiUtils.createButton("Add recent", e -> {
+        //String add = "D:\\ms-data\\TMTIntegrator_v1.1.4\\TMT-I-Test\\tmti-test-data_5-min-cuts";
+        Path existing = PathUtils.existing(uiTextLast.getNonGhostText());
+        if (existing == null) {
+          SwingUtils.showInfoDialog(this, "Path not exists:\n" + uiTextLast.getNonGhostText(), "Warning");
+        } else {
+          Bus.post(new MessageLcmsAddFolder(Seq.of(existing).toList()));
+        }
       });
       btnDebugFolderAdd.setBackground(Color.PINK);
       mu.add(p, btnFilesClear);
-      mu.add(p, btnDebugFolderAdd).wrap();
+      mu.add(p, btnDebugFolderAdd).gapLeft("20px");
+      mu.add(p, uiTextLast).growX().pushX().wrap();
     }
 
     mu.add(p,
