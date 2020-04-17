@@ -1,6 +1,5 @@
 package umich.msfragger.params.speclib;
 
-import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.PyInfo;
@@ -9,10 +8,7 @@ import com.dmtavt.fragpipe.messages.MissingAssetsException;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.github.chhh.utils.Installed;
-import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.PythonModule;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -22,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
@@ -36,10 +31,10 @@ public class SpecLibGen2 {
           + "needed for Spectral Library Generation functionality.";
   public static final List<PythonModule> REQUIRED_MODULES = Arrays.asList(
       PythonModule.CYTHON,
-      PythonModule.MSPROTEOMICSTOOLS,
       PythonModule.MATPLOTLIB);
   public static final List<PythonModule> REQUIRED_FOR_EASYPQP = Arrays.asList(
       new PythonModule("easypqp", "easypqp"));
+  private static final List<PythonModule> REQUIRED_FOR_SPECTRAST = Arrays.asList(PythonModule.MSPROTEOMICSTOOLS);
   private static final Logger log = LoggerFactory.getLogger(SpecLibGen2.class);
   private static final String SCRIPT_SPEC_LIB_GEN = "speclib/gen_con_spec_lib.py";
   public static final String[] RESOURCE_LOCATIONS = {
@@ -58,11 +53,13 @@ public class SpecLibGen2 {
   private PyInfo pi;
   private Path scriptSpecLibGenPath;
   private boolean isEasypqpOk;
+  private boolean isSpectrastOk;
   private boolean isInitialized;
 
   private SpecLibGen2() {
     pi = null;
     isEasypqpOk = false;
+    isSpectrastOk = false;
     scriptSpecLibGenPath = null;
     isInitialized = false;
   }
@@ -82,8 +79,12 @@ public class SpecLibGen2 {
     return isEasypqpOk;
   }
 
+  public boolean isSpectrastOk() {
+    return isSpectrastOk;
+  }
+
   @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
-  public void onNoteConfigPython(NoteConfigPython m) {
+  public void on(NoteConfigPython m) {
     if (!m.isValid()) {
       Bus.postSticky(
           new NoteConfigSpeclibgen(null, new ValidationException("Python binary not valid")));
@@ -119,9 +120,18 @@ public class SpecLibGen2 {
       validateAssets();
       try {
         checkPythonEasypqp(python.pi);
+        isEasypqpOk = true;
       } catch (ValidationException e) { // easypqp is optional, don't fail whole validation if it's missing
         log.debug("EasyPQP init error", e);
         isEasypqpOk = false;
+      }
+
+      try {
+        checkPythonSpectrast(python.pi);
+        isSpectrastOk = true;
+      } catch (ValidationException e) { // easypqp is optional, don't fail whole validation if it's missing
+        log.debug("Spectrast init error", e);
+        isSpectrastOk = false;
       }
 
       isInitialized = true;
@@ -129,9 +139,17 @@ public class SpecLibGen2 {
     }
   }
 
+  private void checkPythonSpectrast(PyInfo pi) throws ValidationException {
+    Map<Installed, List<PythonModule>> modules = pi.modulesByStatus(REQUIRED_FOR_SPECTRAST);
+    if (modules.keySet().stream().anyMatch(installed -> Installed.YES != installed)) {
+      throw new ValidationException("Missing Python Spectrast modules");
+    }
+    isSpectrastOk = true;
+  }
+
   private void checkPython(NoteConfigPython m) throws ValidationException {
     checkPythonVer(m);
-    checkPythonModules(m.pi);
+    checkPythonSpeclibgen(m.pi);
     this.pi = m.pi;
   }
 
@@ -141,7 +159,7 @@ public class SpecLibGen2 {
     }
   }
 
-  private void checkPythonModules(PyInfo pi) throws ValidationException {
+  private void checkPythonSpeclibgen(PyInfo pi) throws ValidationException {
     Map<Installed, List<PythonModule>> modules = pi.modulesByStatus(REQUIRED_MODULES);
     final Map<Installed, String> bad = new LinkedHashMap<>();
     bad.put(Installed.NO, "Missing");

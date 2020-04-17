@@ -67,20 +67,12 @@ public class SpeclibPanel extends JPanelBase {
   public void on(NoteConfigSpeclibgen m) {
     log.debug("SpeclibPanel got NoteConfigSpeclibgen");
     boolean okEasypqp = m.isValid() && m.instance.isInitialized() && m.instance.isEasypqpOk();
-    boolean okSpectrast = m.isValid() && m.instance.isInitialized();
+    boolean okSpectrast = m.isValid() && m.instance.isInitialized() && m.instance.isSpectrastOk();
 
     updateEnabledStatus(panelEasypqp, okEasypqp);
-    if (okEasypqp) {
-      uiRadioUseEasypqp.setToolTipText("");
-    }
     updateEnabledStatus(uiRadioUseSpectrast, okSpectrast);
-
-    if (!okEasypqp) {
-      uiRadioUseEasypqp.setToolTipText("Toolchain not initialized");
-    }
-    if (!okSpectrast) {
-      uiRadioUseSpectrast.setToolTipText("Toolchain not initialized");
-    }
+    uiRadioUseEasypqp.setToolTipText(okEasypqp ? "" : "Toolchain not initialized");
+    uiRadioUseSpectrast.setToolTipText(okSpectrast ? "" : "Toolchain not initialized");
   }
 
   @Override
