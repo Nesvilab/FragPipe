@@ -16,6 +16,7 @@
  */
 package com.github.chhh.utils;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.GhostedTextComponent;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
@@ -190,19 +191,20 @@ public class SwingUtils {
         }
       }
     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {
-      java.util.logging.Logger.getLogger(MsfraggerGuiFrame.class.getName())
+      java.util.logging.Logger.getLogger(Fragpipe.class.getName())
           .log(java.util.logging.Level.SEVERE, null, e1);
+      log.error("Error setting LAF", e1);
       try {
-        for (UIManager.LookAndFeelInfo info : UIManager
-            .getInstalledLookAndFeels()) {
+        for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
           if ("Nimbus".equals(info.getName())) {
             UIManager.setLookAndFeel(info.getClassName());
             break;
           }
         }
       } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e2) {
-        java.util.logging.Logger.getLogger(MsfraggerGuiFrame.class.getName())
+        java.util.logging.Logger.getLogger(Fragpipe.class.getName())
             .log(java.util.logging.Level.SEVERE, null, e2);
+        log.error("Error setting LAF", e2);
       }
     }
     //</editor-fold>

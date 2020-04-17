@@ -16,6 +16,7 @@
  */
 package com.dmtavt.fragpipe.params;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import java.io.File;
@@ -101,7 +102,7 @@ public class ThisAppProps extends Properties {
   public static final Path UNPACK_TEMP_SUBDIR = Paths.get("fragpipe");
   public static final String DEFAULT_LCMS_EXP_NAME = "";
 
-  public static final String PATH_BUNDLE = "umich/msfragger/gui/Bundle";
+  public static final String PATH_BUNDLE = "com/dmtavt/fragpipe/Bundle";
   public static final List<String> PROPERTIES_URLS = Arrays.asList(
       "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/" + PATH_BUNDLE
           + ".properties",
@@ -123,7 +124,7 @@ public class ThisAppProps extends Properties {
   private static class HolderLocal {
 
     private static final Properties propsLocal = PropertiesUtils
-        .initProperties("Bundle.properties", MsfraggerGuiFrame.class);
+        .initProperties("Bundle.properties", Fragpipe.class);
 
     public static Properties getLocalProperties() {
       return propsLocal;

@@ -178,7 +178,7 @@ public class ToolingUtils {
     final String ext = ".png";
     for (int size : sizes) {
       String location = path + baseName + size + ext;
-      Image icon = Toolkit.getDefaultToolkit().getImage(MsfraggerGuiFrame.class.getResource(location));
+      Image icon = Toolkit.getDefaultToolkit().getImage(Fragpipe.class.getResource(location));
       images.add(icon);
     }
     return images;

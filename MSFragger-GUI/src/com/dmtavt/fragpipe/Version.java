@@ -397,7 +397,7 @@ public class Version {
   }
 
   public static Properties loadPropertiesFromBundle() {
-    try (InputStream is = MsfraggerGuiFrame.class.getResourceAsStream("Bundle.properties")) {
+    try (InputStream is = Fragpipe.class.getResourceAsStream("Bundle.properties")) {
       if (is == null) {
         throw new IllegalStateException("Could not read Bundle.properties from the classpath");
       }

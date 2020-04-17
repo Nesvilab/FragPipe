@@ -344,15 +344,21 @@ public class Fragpipe extends JFrame {
     TabRun tabRun = new TabRun(console);
     tabUmpire = new TabUmpire();
 
-    addTab.accept(new UiTab("Config", tabConfig, "/umich/msfragger/gui/icons/150-cogs.png", null));
-    addTabNoScroll.accept(new UiTab(TAB_NAME_LCMS, tabWorkflow, "/umich/msfragger/gui/icons/icon-workflow-16.png", null));
-    addTab.accept(new UiTab("Database", tabDatabase, "/umich/msfragger/gui/icons/icon-dna-helix-16.png", null));
-    addTab.accept(new UiTab("MSFragger", tabMsfragger, "/umich/msfragger/gui/icons/bolt-outlined-16.png", null));
-    addTab.accept(new UiTab("Validation", tabValidation, "/umich/msfragger/gui/icons/icon-filtration-16.png", null));
-    addTab.accept(new UiTab("Quant", tabQuantitaion, "/umich/msfragger/gui/icons/icon-scales-balance-16.png", null));
-    addTab.accept(new UiTab("PTMs", tabPtms, "/umich/msfragger/gui/icons/icon-edit-16.png", null));
-    addTab.accept(new UiTab("Spec Lib", tabSpecLib, "/umich/msfragger/gui/icons/icon-library-16.png", null));
-    addTabNoScroll.accept(new UiTab("Run", tabRun, "/umich/msfragger/gui/icons/video-play-16.png", null));
+    addTab.accept(new UiTab("Config", tabConfig, "/com/dmtavt/fragpipe/icons/150-cogs.png", null));
+    addTabNoScroll.accept(new UiTab(TAB_NAME_LCMS, tabWorkflow,
+        "/com/dmtavt/fragpipe/icons/icon-workflow-16.png", null));
+    addTab.accept(new UiTab("Database", tabDatabase,
+        "/com/dmtavt/fragpipe/icons/icon-dna-helix-16.png", null));
+    addTab.accept(new UiTab("MSFragger", tabMsfragger,
+        "/com/dmtavt/fragpipe/icons/bolt-outlined-16.png", null));
+    addTab.accept(new UiTab("Validation", tabValidation,
+        "/com/dmtavt/fragpipe/icons/icon-filtration-16.png", null));
+    addTab.accept(new UiTab("Quant", tabQuantitaion,
+        "/com/dmtavt/fragpipe/icons/icon-scales-balance-16.png", null));
+    addTab.accept(new UiTab("PTMs", tabPtms, "/com/dmtavt/fragpipe/icons/icon-edit-16.png", null));
+    addTab.accept(new UiTab("Spec Lib", tabSpecLib,
+        "/com/dmtavt/fragpipe/icons/icon-library-16.png", null));
+    addTabNoScroll.accept(new UiTab("Run", tabRun, "/com/dmtavt/fragpipe/icons/video-play-16.png", null));
 
     log.debug("Done createTabs()");
     return t;
@@ -401,7 +407,8 @@ public class Fragpipe extends JFrame {
         if (prevTabIndex < 0) {
           throw new IllegalStateException("Could not find tab named " + prevTabName);
         }
-        final ImageIcon icon = UiUtils.loadIcon(Fragpipe.class, "/umich/msfragger/gui/icons/dia-umpire-16x16.png");
+        final ImageIcon icon = UiUtils.loadIcon(Fragpipe.class,
+            "/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png");
         tabs.insertTab(TAB_NAME_UMPIRE, icon, SwingUtils.scroll(tabUmpire), "", prevTabIndex + 1);
 
       } else {

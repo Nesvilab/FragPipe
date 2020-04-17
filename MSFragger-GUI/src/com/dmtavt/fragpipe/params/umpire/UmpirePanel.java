@@ -116,7 +116,7 @@ public class UmpirePanel extends JPanel {
 
   private void initMore() {
     icon = new ImageIcon(
-        getClass().getResource("/umich/msfragger/gui/icons/dia-umpire-16x16.png"));
+        getClass().getResource("/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png"));
 
     this.setLayout(new MigLayout(new LC().flowY().fillX()));
 
