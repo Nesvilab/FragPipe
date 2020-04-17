@@ -33,6 +33,7 @@ import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -499,39 +500,41 @@ public class TabWorkflow extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageLcmsAddFolder m) {
     logObjectType(m);
+    List<Path> accepted = new ArrayList<>();
+    List<Path> inputPaths;
 
-    final javax.swing.filechooser.FileFilter ff = CmdMsfragger
-        .getFileChooserFilter(Fragpipe.getExtBinSearchPaths());
-    JFileChooser fc = FileChooserUtils
-        .create("Select a folder with LC/MS files (searched recursively)", "Select",
-            true, FcMode.ANY, true);
-    FileChooserUtils.setPath(fc, Stream.of(ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN)));
+    if (!m.dirs.isEmpty()) {
+      inputPaths = m.dirs;
+    }
+    else {
+      final javax.swing.filechooser.FileFilter ff = CmdMsfragger
+          .getFileChooserFilter(Fragpipe.getExtBinSearchPaths());
+      JFileChooser fc = FileChooserUtils
+          .builder("Select a folder with LC/MS files (searched recursively)")
+          .approveButton("Select").mode(FcMode.ANY).multi(true)
+          .acceptAll(true).filters(Seq.of(ff).toList())
+          .paths(Stream.of(Fragpipe.propsVarGet(ThisAppProps.PROP_LCMS_FILES_IN)))
+          .create();
 
-    String lastPath = ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN);
-    if (!StringUtils.isNullOrWhitespace(lastPath)) {
-      try {
-        Path p = Paths.get(lastPath);
-        fc.setSelectedFile(p.toFile());
-      } catch (Exception ignore) {
+      if (JFileChooser.APPROVE_OPTION != fc.showOpenDialog(this)) {
+        return;
       }
+      File[] selectedFiles = fc.getSelectedFiles();
+      inputPaths = Seq.of(selectedFiles).map(File::toPath).toList();
     }
 
-    int confirmation = fc.showOpenDialog(this);
-
-    if (confirmation != JFileChooser.APPROVE_OPTION) {
+    if (inputPaths.isEmpty()) {
+      log.warn("No input paths were given");
       return;
     }
 
-    final Predicate<File> pred = CmdMsfragger
-        .getSupportedFilePredicate(Fragpipe.getExtBinSearchPaths());
-    File[] selectedFiles = fc.getSelectedFiles();
-    List<Path> paths = new ArrayList<>();
-    for (File f : selectedFiles) {
-      PathUtils.traverseDirectoriesAcceptingFiles(f, pred, paths, false);
+    for (Path p : inputPaths) {
+      final Predicate<File> pred = CmdMsfragger.getSupportedFilePredicate(Fragpipe.getExtBinSearchPaths());
+      PathUtils.traverseDirectoriesAcceptingFiles(p.toFile(), pred, accepted, false);
     }
 
-    if (selectedFiles.length > 0 && !paths.isEmpty()) {
-      EventBus.getDefault().post(new MessageLcmsFilesAdded(paths, selectedFiles[0].toPath()));
+    if (!accepted.isEmpty()) {
+      Bus.post(new MessageLcmsFilesAdded(accepted, inputPaths.get(0)));
     }
   }
 
@@ -714,7 +717,20 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnFilesAddFiles).split();
     mu.add(p, btnFilesAddFolder);
     mu.add(p, btnFilesRemove);
-    mu.add(p, btnFilesClear).wrap();
+
+    final boolean addDebugBtn = true;
+    if (!addDebugBtn) {
+      mu.add(p, btnFilesClear).wrap();
+    } else {
+      JButton btnDebugFolderAdd = UiUtils.createButton("Add debug folder", e -> {
+        String add = "D:\\ms-data\\TMTIntegrator_v1.1.4\\TMT-I-Test\\tmti-test-data_5-min-cuts";
+        Bus.post(new MessageLcmsAddFolder(Seq.of(Paths.get(add)).toList()));
+      });
+      btnDebugFolderAdd.setBackground(Color.PINK);
+      mu.add(p, btnFilesClear);
+      mu.add(p, btnDebugFolderAdd).wrap();
+    }
+
     mu.add(p,
         new JLabel("Assign files to Experiments/Groups (select rows to activate action buttons):"))
         .spanX().wrap();
