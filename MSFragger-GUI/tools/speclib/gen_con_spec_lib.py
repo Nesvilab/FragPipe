@@ -823,7 +823,8 @@ def easypqp_lib_export(lib_type: str):
 		print((easypqp_lib['ModifiedPeptideSequence'].str.find('.(UniMod:') >= 0).mean())
 	if lib_type == 'Spectronaut':
 		easypqp_lib['ModifiedPeptideSequence'] = easypqp_lib['ModifiedPeptideSequence'].str.replace('.(UniMod:', '(UniMod:', regex=False)
-	pd.concat([easypqp_lib, frag_df], axis=1).to_csv(f'easypqp_lib_{lib_type}.tsv', sep='\t', index=False)
+	# pd.concat([easypqp_lib, frag_df], axis=1).to_csv(f'easypqp_lib_{lib_type}.tsv', sep='\t', index=False)
+	pd.concat([easypqp_lib, frag_df], axis=1).to_csv(f'library.tsv', sep='\t', index=False)
 
 
 if use_easypqp:
