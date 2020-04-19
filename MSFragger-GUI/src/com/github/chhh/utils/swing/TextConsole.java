@@ -136,10 +136,12 @@ public class TextConsole extends JTextPane implements Appendable {
             int len = getDocument().getLength(); // same value as getText().length();
             setCaretPosition(len);  // place caret at the end (with no selection)
             setCharacterAttributes(aset, false);
-            // In JTextPane, only "\n" is recognized as a newline, so replace "\r\n" with "\n"
-            // https://download.java.net/java/early_access/jdk14/docs/api/java.desktop/javax/swing/text/DefaultEditorKit.html
-            // “But while the document is in memory, the "\n" character is used to define a newline, regardless of how the newline is defined when the document is on disk.”
-            // JTextPane doesn't print "\r", so replace it with "\n"
+            /**
+             In JTextPane, only "\n" is recognized as a newline, so replace "\r\n" with "\n"
+             see {@link javax.swing.text.DefaultEditorKit} for information on newlines
+             “But while the document is in memory, the "\n" character is used to define a newline, regardless of how the newline is defined when the document is on disk.”
+             JTextPane doesn't print "\r", so replace it with "\n"
+             */
             replaceSelection(s.replace("\r\n", "\n")
                 .replace("\r", "\u200B\n")); // there is no selection, so inserts at caret
     }
