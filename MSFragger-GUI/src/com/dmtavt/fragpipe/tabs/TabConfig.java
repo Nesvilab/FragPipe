@@ -161,16 +161,20 @@ public class TabConfig extends JPanelWithEnablement {
   private JPanel createPanelTopButtons() {
     JPanel p = newMigPanel();
     btnAbout = UiUtils.createButton("About", e -> Bus.post(new MessageShowAboutDialog()));
-    p.add(btnAbout, ccL().split().spanX());
-    p.add(UiUtils.createButton("Clear Cache and Close", e -> Bus.post(new MessageClearCache(true))), ccL());
+    JButton btnOpenCacheInExplorer = SwingUtils
+        .createButtonOpenInFileManager(this, "Open cache location",
+            () -> FragpipeLocations.get().getPathLongTermStorage());
+    mu.add(p, btnAbout).split().spanX();
+    mu.add(p, btnOpenCacheInExplorer);
+    mu.add(p, UiUtils.createButton("Clear Cache and Close", e -> Bus.post(new MessageClearCache(true))));
     UiCheck uiCheckUmpire = UiUtils.createUiCheck("Enable DIA-Umpire", false,
         e -> Bus.post(new MessageUmpireEnabled(((JCheckBox) e.getSource()).isSelected())));
     p.add(uiCheckUmpire, ccL());
     JLabel sysInfo = new JLabel(SwingUtils.makeHtml(
         OsUtils.OsInfo() + "\n"
             + OsUtils.JavaInfo()
-            + "\nFragPipe: v" + com.dmtavt.fragpipe.Version.version(false) + ", "
-            + FragpipeLocations.get().getJarPath().toString()));
+            + "\nFragPipe: v" + com.dmtavt.fragpipe.Version.version(false)));
+            //+ FragpipeLocations.get().getJarPath().toString()));
     sysInfo.setVerticalAlignment(JLabel.TOP);
     p.add(sysInfo, ccR().wrap());
     //p.add(UiUtils.createButton("Find tools", e -> post(new MessageFindTools())), ccL.get().split().spanX());

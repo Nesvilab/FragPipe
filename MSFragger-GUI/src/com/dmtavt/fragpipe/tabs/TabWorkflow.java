@@ -36,6 +36,7 @@ import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -472,13 +473,17 @@ public class TabWorkflow extends JPanelWithEnablement {
         .tooltip("This is purely for convenience of loading appropriate defaults\n"
             + "for various standard workflows.\n"
             + "You can totally just set up all the options yourself.").create();
+    JButton btnOpenInExplorer = SwingUtils
+        .createButtonOpenInFileManager(this, "Open in File Manager",
+            () -> FragpipeLocations.get().getDirWorkflows());
 
     mu.add(p, epWorkflowsInfo).growX().spanX().wrap();
     mu.add(p, feComboWorkflow.label()).split();
     mu.add(p, feComboWorkflow.comp);
     mu.add(p, btnWorkflowLoad);
     mu.add(p, new JLabel("or save current settings as workflow")).gapLeft("15px");
-    mu.add(p, UiUtils.createButton("Save", e -> Bus.post(new MessageSaveAsWorkflow(false)))).wrap();
+    mu.add(p, UiUtils.createButton("Save", e -> Bus.post(new MessageSaveAsWorkflow(false))));
+    mu.add(p, btnOpenInExplorer).wrap();
 
     mu.add(p, epWorkflowsDesc).growX().spanX().wrap();
 

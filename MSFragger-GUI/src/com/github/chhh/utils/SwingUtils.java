@@ -17,10 +17,13 @@
 package com.github.chhh.utils;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.GhostedTextComponent;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.StringRepresentable;
+import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -55,10 +58,12 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -957,6 +962,23 @@ public class SwingUtils {
   public static int showConfirmDialog(Component parent, final Component component) {
     makeDialogResizable(component);
     return JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component));
+  }
+
+  public static JButton createButtonOpenInFileManager(Component parent, String text, Supplier<Path> pathProvider) {
+    JButton b = UiUtils.createButton(text, e -> {
+      try {
+        Path path = pathProvider.get();
+        if (path == null) {
+          log.warn("Path provider returned null path");
+          return;
+        }
+        Desktop.getDesktop().open(path.toFile());
+      } catch (IOException ex) {
+        SwingUtils
+            .showErrorDialog(parent, "Could not open path in system file browser.", "Error");
+      }
+    });
+    return b;
   }
 
   /** Use to display a short confirmation message, like "Sure you want to delete stuff?". */
