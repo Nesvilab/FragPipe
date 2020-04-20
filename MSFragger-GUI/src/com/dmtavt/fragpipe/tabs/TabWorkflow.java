@@ -929,6 +929,15 @@ public class TabWorkflow extends JPanelWithEnablement {
               "Not implemented loading defaults from jar without having the defaults file in workflows/ folder");
         }
       }
+
+      log.debug("Reloading file from disk, in case it has changed: {}", propsFile.getPath());
+      try {
+        propsFile.load();
+      } catch (IOException ex) {
+        SwingUtils.showErrorDialogWithStacktrace(ex, this, true);
+        log.error("Error re-loading workflow file", ex);
+      }
+
       if (propsFile.containsKey("workflow.workflow-option")) {
         propsFile.setProperty("workflow.workflow-option", workflow);
       }
