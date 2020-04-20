@@ -1,7 +1,6 @@
 package com.dmtavt.fragpipe.tabs;
 
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
-import static com.dmtavt.fragpipe.params.fragger.FraggerMigPanel.PROP_FILECHOOSER_LAST_PATH;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeRun;
@@ -69,6 +68,7 @@ public class TabRun extends JPanelWithEnablement {
   public static final MigUtils mu = MigUtils.get();
   public static final String TAB_PREFIX = "tab-run.";
   private static final String LAST_WORK_DIR = "workdir.last-path";
+  private static final String PROP_FILECHOOSER_LAST_PATH = TAB_PREFIX + "filechooser.last-path";
   final TextConsole console;
   Color defTextColor;
   private UiText uiTextWorkdir;
@@ -316,7 +316,7 @@ public class TabRun extends JPanelWithEnablement {
   private void exportLogToFile(TextConsole console, String savePathHint) {
     JFileChooser fc = FileChooserUtils.builder("Export log to").approveButton("Save")
         .acceptAll(true).mode(FcMode.FILES_ONLY).multi(false)
-        .paths(Seq.of(savePathHint, Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH))).create();
+        .paths(Seq.of(savePathHint, Fragpipe.propsVarGet(TabRun.PROP_FILECHOOSER_LAST_PATH))).create();
     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
     Date now = new Date();
     fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(now))));
@@ -325,6 +325,8 @@ public class TabRun extends JPanelWithEnablement {
     if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(parent)) {
       File selectedFile = fc.getSelectedFile();
       Path path = Paths.get(selectedFile.getAbsolutePath());
+      Fragpipe.propsVarSet(TabRun.PROP_FILECHOOSER_LAST_PATH, path.toString());
+
       // if exists, overwrite
       if (Files.exists(path)) {
         int overwrite = JOptionPane

@@ -1,6 +1,6 @@
 package com.dmtavt.fragpipe.api;
 
-import static com.dmtavt.fragpipe.params.fragger.FraggerMigPanel.PROP_FILECHOOSER_LAST_PATH;
+import static com.dmtavt.fragpipe.tabs.TabMsfragger.PROP_FILECHOOSER_LAST_PATH;
 
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.SwingUtils;

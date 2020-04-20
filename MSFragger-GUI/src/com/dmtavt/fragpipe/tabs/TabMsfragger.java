@@ -408,6 +408,13 @@ public class TabMsfragger extends JPanelWithEnablement {
             + "Regular ion series will still be used.\n"
             + "This option is </b>incompatible</b> with database splitting.").create();
 
+    uiTextIsoErr = UiUtils.uiTextBuilder().cols(10).filter("[^\\d/-]+").text("-1/0/1/2").create();
+    FormEntry feIsotopeError = fe(MsfraggerParams.PROP_isotope_error, uiTextIsoErr)
+        .label("Isotope error")
+        .tooltip("<html>String of the form -1/0/1/2 indicating which isotopic\n"
+            + "peak selection errors MSFragger will try to correct.")
+        .create();
+
     mu.add(p, fePrecTolUnits.label(), mu.ccR());
     mu.add(p, fePrecTolUnits.comp).split(4);
     mu.add(p, fePrecTolLo.comp);
@@ -418,7 +425,10 @@ public class TabMsfragger extends JPanelWithEnablement {
     mu.add(p, feFragTol.comp).wrap();
     mu.add(p, feCalibrate.label(), mu.ccR());
     mu.add(p, feCalibrate.comp).wrap();
-    mu.add(p, feLocalizeDeltaMass.comp).skip(1).wrap();
+    mu.add(p, feLocalizeDeltaMass.comp).skip(1);
+
+    mu.add(p, feIsotopeError.label(), mu.ccR());
+    mu.add(p, feIsotopeError.comp).spanX().wrap();
 
     return p;
   }
@@ -894,21 +904,12 @@ public class TabMsfragger extends JPanelWithEnablement {
         .label("Deisotope")
         .tooltip("<html>0 = deisotoping off<br/>\n1 = deisotoping on").create();
 
-    uiTextIsoErr = UiUtils.uiTextBuilder().text("-1/0/1/2").cols(10).filter("[^\\d/-]+").create();
-    FormEntry feIsotopeError = fe(MsfraggerParams.PROP_isotope_error, uiTextIsoErr)
-        .label("Isotope error")
-        .tooltip("<html>String of the form -1/0/1/2 indicating which isotopic\n"
-            + "peak selection errors MSFragger will try to correct.")
-        .create();
-
     mu.add(p, feMinFragsModeling.label(), mu.ccR());
     mu.add(p, feMinFragsModeling.comp);
     mu.add(p, feMinMatchedFrags.label(), mu.ccR());
     mu.add(p, feMinMatchedFrags.comp).wrap();
     mu.add(p, feDeisotope.label(), mu.ccR());
     mu.add(p, feDeisotope.comp);
-    mu.add(p, feIsotopeError.label(), mu.ccR());
-    mu.add(p, feIsotopeError.comp).spanX().wrap();
     mu.add(p, feIonSeries.label(), mu.ccR());
     mu.add(p, feIonSeries.comp).growX();
     mu.add(p, labelCustomIonSeries).split(2).spanX();
