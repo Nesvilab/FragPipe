@@ -370,7 +370,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     return uiSpinnerThreads.getActualValue();
   }
 
-  private Map<String, PropsFile> findPropsFiles(Path startDir, Predicate<Path> filter) throws IOException {
+  private Map<String, PropsFile> findPropsFiles(Path startDir) throws IOException {
     final Map<String, PropsFile> files = new HashMap<>();
     final Predicate<Path> filter = p -> "workflow".equalsIgnoreCase(StringUtils.afterLastDot(p.getFileName().toString()));
     Files.walk(startDir).filter(Files::isRegularFile)
@@ -392,30 +392,38 @@ public class TabWorkflow extends JPanelWithEnablement {
   private Map<String, PropsFile> loadWorkflowFiles() {
     try {
       Map<String, PropsFile> files;
-      
-      Map<String, PropsFile> filesLocal = findPropsFiles(FragpipeLocations.get().getDirWorkflows(), filter);
-      Map<String, PropsFile> filesStored = findPropsFiles(FragpipeLocations.get().getPathLongTermStorage(), filter);
+      Map<String, PropsFile> filesLocal = findPropsFiles(FragpipeLocations.get().getDirWorkflows());
+      Map<String, PropsFile> filesStored = findPropsFiles(FragpipeLocations.get().getPathLongTermStorage());
       files = filesLocal;
-      List<String> diff = MapUtils.keysDiffRight(filesLocal, filesStored)
-          .collect(Collectors.toList());
-      if (!diff.isEmpty()) {
+      List<String> diffNames = MapUtils.keysDiffRight(filesLocal, filesStored).collect(Collectors.toList());
+      List<PropsFile> diffPropFiles = Seq.seq(filesStored).filter(kv -> diffNames.contains(kv.v1))
+          .map(kv -> kv.v2).toList();
+
+      if (!diffNames.isEmpty()) {
         JLabel message = new JLabel(
-            SwingUtils.makeHtml("Found workflows from previous FragPipe sessions:\n - "+Seq.seq(diff).toString("\n - ")));
-        String[] choices = {"Copy", "Ignore", "Delete"};
+            SwingUtils.makeHtml("Found workflows from previous FragPipe sessions:\n - "+Seq.seq(diffNames).toString("\n - ")));
+        final String[] choices = {"Copy", "Ignore", "Delete"};
         int choice = SwingUtils
             .showChoiceDialog(this, "Load workflows?", message, choices, 0);
         switch (choice) {
           case 0:
-            List<PropsFile> toCopy = Seq.seq(filesStored).filter(kv -> diff.contains(kv.v1))
-                .map(kv -> kv.v2).toList();
-            Path dir = FragpipeLocations.get().getDirWorkflows();
-            for (PropsFile propsFile : toCopy) {
-              
+
+            Path dirWorkflows = FragpipeLocations.get().getDirWorkflows();
+            for (PropsFile propsFile : diffPropFiles) {
+              Path p = dirWorkflows.resolve(propsFile.getPath().getFileName());
+              propsFile.setPath(p);
+              propsFile.save();
             }
+            files = findPropsFiles(FragpipeLocations.get().getDirWorkflows());
             break;
           case 1:
             break; // do nothing
           case 2:
+            if (SwingUtils.showConfirmDialogShort(this, "Sure you want to delete stored workflows?")) {
+              for (PropsFile diffPropFile : diffPropFiles) {
+                Files.deleteIfExists(diffPropFile.getPath());
+              }
+            }
             break;
           default:
             throw new IllegalStateException("Unknown option, probably forgot to add code branch for a newly added option");

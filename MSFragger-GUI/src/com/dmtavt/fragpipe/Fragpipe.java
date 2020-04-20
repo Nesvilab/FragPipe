@@ -31,6 +31,7 @@ import com.dmtavt.fragpipe.tabs.TabSpecLib;
 import com.dmtavt.fragpipe.tabs.TabUmpire;
 import com.dmtavt.fragpipe.tabs.TabValidation;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
+import com.github.chhh.utils.FileCopy;
 import com.github.chhh.utils.LogUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
@@ -57,9 +58,12 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -80,6 +84,7 @@ import javax.swing.JTabbedPane;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.io.FileUtils;
 import org.greenrobot.eventbus.NoSubscriberEvent;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.SubscriberExceptionEvent;
@@ -203,6 +208,17 @@ public class Fragpipe extends JFrame {
       cache.propsRuntime.save();
     } catch (IOException ex) {
       log.error("Error saving runtime cache", ex);
+    }
+
+    // saving workflows
+    Path dirWorkflows = FragpipeLocations.get().getDirWorkflows();
+    Path lts = FragpipeLocations.get().getPathLongTermStorage().resolve(dirWorkflows.getFileName());
+    log.debug("Trying to save workflows between sessions. From: {}, To: {}", dirWorkflows, lts);
+    try {
+      FileUtils.copyDirectory(dirWorkflows.toFile(), lts.toFile());
+    } catch (IOException e) {
+      log.error("Error saving workflows between sessions", e);
+      throw new IllegalStateException(e);
     }
   }
 

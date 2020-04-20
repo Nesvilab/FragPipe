@@ -959,6 +959,12 @@ public class SwingUtils {
     return JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component));
   }
 
+  /** Use to display a short confirmation message, like "Sure you want to delete stuff?". */
+  public static boolean showConfirmDialogShort(Component parent, String text) {
+    int confirmation = JOptionPane.showConfirmDialog(parent, new JLabel(SwingUtils.makeHtml(text)));
+    return JOptionPane.OK_OPTION == confirmation;
+  }
+
   public static int showConfirmDialog(Component parent, final Component component, String title) {
     makeDialogResizable(component);
     return JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component), title,
