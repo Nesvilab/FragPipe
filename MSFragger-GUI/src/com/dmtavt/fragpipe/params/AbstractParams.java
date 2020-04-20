@@ -83,20 +83,6 @@ public abstract class AbstractParams {
         this.props.clearProps();
     }
 
-    public void clearCache() {
-        String tempFn = tempFileName().toString();
-        List<Path> paths = CacheUtils.locateTempFiles(tempFn);
-        for (Path path : paths) {
-            if (Files.exists(path)) {
-                try {
-                    Files.delete(path);
-                } catch (IOException ex) {
-                    log.debug("Could not delete cache file: {}", path.toString());
-                }
-            }
-        }
-    }
-
     /**
      * Saves the current properties contents to a default temp file.
      * @throws IOException

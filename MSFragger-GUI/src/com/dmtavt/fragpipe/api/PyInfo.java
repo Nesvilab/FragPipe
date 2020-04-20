@@ -124,8 +124,6 @@ public class PyInfo {
   }
 
   public static PyInfo findSystemPython(Integer minMajorVersion) throws UnexpectedException {
-    String[] commands = {"python", "python3"};
-
     // try to query the registry on Windows
     if (OsUtils.isWindows()) {
       return findPythonWindows(minMajorVersion);
@@ -191,7 +189,9 @@ public class PyInfo {
         }
       }
     }
-    return null;
+
+    // as a backup try just running the commands
+    return findPythonOtherOs(minMajorVersion);
   }
 
   /**

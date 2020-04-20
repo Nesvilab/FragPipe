@@ -22,10 +22,6 @@ public class CacheUtils {
     return getSystemTempDir().resolve(ThisAppProps.APP_TEMP_DIR);
   }
 
-  public static Path getTempDirOld() {
-    return Paths.get(SYS_TEMP_DIR);
-  }
-
   private static Path locateTempFile(Path tempDir, String fn) throws FileNotFoundException {
     Path file = tempDir.resolve(fn);
     if (!Files.exists(file))
@@ -39,28 +35,7 @@ public class CacheUtils {
    * Search for an existing file in known (new and old) locations.
    */
   public static Path locateTempFile(String fn) throws FileNotFoundException {
-    try {
-      return locateTempFile(getTempDir(), fn);
-    } catch (FileNotFoundException ex) {
-      return locateTempFile(getTempDirOld(), fn);
-    }
-  }
-
-  /**
-   * Search for all existing files in known (new and old) locations.
-   */
-  public static List<Path> locateTempFiles(String fn) {
-    final List<Path> paths = new ArrayList<>();
-    final List<Path> dirs = Arrays.asList(getTempDir(), getTempDirOld());
-    for (Path dir : dirs) {
-      try {
-        Path path = locateTempFile(fn);
-        if (path != null) {
-          paths.add(path);
-        }
-      } catch (Exception ignored) {}
-    }
-    return paths;
+    return locateTempFile(getTempDir(), fn);
   }
 
   /**
