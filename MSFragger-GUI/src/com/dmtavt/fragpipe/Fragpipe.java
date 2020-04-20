@@ -142,6 +142,14 @@ public class Fragpipe extends JFrame {
     initMore();
   }
 
+  private Fragpipe(boolean isDummy) throws HeadlessException {
+    initUi();
+  }
+
+  public static Fragpipe createDummy() {
+    return new Fragpipe(true);
+  }
+
   private void init() {
     log.debug("Start init()");
     addWindowListener(new WindowAdapter() {
@@ -492,8 +500,8 @@ public class Fragpipe extends JFrame {
     loadUi(m.props);
   }
 
-  private void loadUi(PropsFile propsFile) {
-    FragpipeCacheUtils.tabsLoad(propsFile, tabs);
+  private void loadUi(Properties props) {
+    FragpipeCacheUtils.tabsLoad(props, tabs);
     Bus.post(new MessageUiRevalidate());
   }
 

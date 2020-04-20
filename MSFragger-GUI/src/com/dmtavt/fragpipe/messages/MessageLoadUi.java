@@ -2,11 +2,12 @@ package com.dmtavt.fragpipe.messages;
 
 import com.dmtavt.fragpipe.api.PropsFile;
 import java.util.Objects;
+import java.util.Properties;
 
 public class MessageLoadUi {
-  public final PropsFile props;
+  public final Properties props;
 
-  public MessageLoadUi(PropsFile props) {
+  public MessageLoadUi(Properties props) {
     Objects.requireNonNull(props);
     this.props = props;
   }

@@ -119,6 +119,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private UiCombo uiComboWorkflows;
   public static final String PROP_WORKFLOW_DESC = "workflow.description";
   private static final String DEFAULT_WORKFLOW = "Defaults";
+  private JEditorPane epWorkflowsDesc;
 
   public TabWorkflow() {
     init();
@@ -449,7 +450,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     workflows = loadWorkflowFiles();
     List<String> names = createNamesForWorkflowsCombo(workflows);
     uiComboWorkflows = UiUtils.createUiCombo(names);
-    final JEditorPane epWorkflowsDesc = SwingUtils.createClickableHtml(SwingUtils.makeHtml(""));
+    epWorkflowsDesc = SwingUtils.createClickableHtml(SwingUtils.makeHtml(""));
     epWorkflowsDesc.setPreferredSize(new Dimension(400, 50));
     uiComboWorkflows.addItemListener(e -> {
       String name = (String) uiComboWorkflows.getSelectedItem();
@@ -649,11 +650,15 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
 
     // ask about name and description
+
+    String curName = (String)uiComboWorkflows.getSelectedItem();
+    String curDesc = epWorkflowsDesc.getText();
+
     MigUtils mu = MigUtils.get();
     final JPanel p = mu.newPanel(null, true);
-    UiText uiTextName = UiUtils.uiTextBuilder().cols(20).ghost("Name is required").create();
+    UiText uiTextName = UiUtils.uiTextBuilder().cols(20).ghost("Name is required").text(curName).create();
     uiTextName.setName("file-name");
-    final JEditorPane ep = new JEditorPane("text/html", SwingUtils.wrapInStyledHtml(""));
+    final JEditorPane ep = new JEditorPane("text/html", SwingUtils.wrapInStyledHtml(SwingUtils.tryExtractHtmlBody(curDesc)));
     ep.setPreferredSize(new Dimension(320, 240));
     ep.setName("file-desc");
     mu.add(p, new JLabel("Name")).split();
@@ -971,8 +976,13 @@ public class TabWorkflow extends JPanelWithEnablement {
         if (!DEFAULT_WORKFLOW.equalsIgnoreCase(workflow)) {
           throw new IllegalStateException("Workflows map is not synchronized with the dropdown");
         } else {
-          throw new UnsupportedOperationException(
-              "Not implemented loading defaults from jar without having the defaults file in workflows/ folder");
+          Fragpipe fp = Fragpipe.createDummy();
+          Properties defaults = FragpipeCacheUtils.tabsSave(fp.tabs);
+          fp.dispose();
+          Bus.post(new MessageLoadUi(defaults));
+          return;
+//          throw new UnsupportedOperationException(
+//              "Not implemented loading defaults from jar without having the defaults file in workflows/ folder");
         }
       }
 

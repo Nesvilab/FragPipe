@@ -521,7 +521,12 @@ public class SwingUtils {
     if (!"text/html".equalsIgnoreCase(ep.getContentType())) {
       ep.setText(text); // it's not styled with css in html
     } else {
-      ep.setText(wrapInStyledHtml(text));
+      try {
+        ep.setText(wrapInStyledHtml(text));
+      } catch (RuntimeException e) {
+        log.error("EditorPane with name [{}] is not set to content type \"text/html\", but has content that is possibly html? ", ep.getName());
+        log.warn("EditorPane contents: {}", ep.getText());
+      }
     }
   }
 
