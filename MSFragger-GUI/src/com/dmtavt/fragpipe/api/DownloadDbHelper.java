@@ -211,7 +211,7 @@ public class DownloadDbHelper {
                       if (ext.startsWith(".fa") || ext.startsWith("fa")) {
                         // most likely a fasta file
                         final Path fullDbPath = dir.resolve(path);
-                        log.info("Sending new MessageDbUpdate: " + fullDbPath.toString());
+                        log.debug("Sending new MessageDbUpdate: " + fullDbPath.toString());
                         JOptionPane.showMessageDialog(parent,
                             "<html>Downloaded new file:<br/>" + fullDbPath.toString(),
                             "Download complete", JOptionPane.INFORMATION_MESSAGE);

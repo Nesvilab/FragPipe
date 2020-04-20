@@ -8,6 +8,7 @@ import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.GhostText;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
@@ -65,6 +66,10 @@ public class PtmshepherdPanel extends JPanelBase {
   private JPanel pTop;
   private UiText uiTextVarMods;
 
+  public PtmshepherdPanel() {
+    super();
+  }
+
   @Override
   protected ItemSelectable getRunCheckbox() {
     return checkRun;
@@ -96,10 +101,10 @@ public class PtmshepherdPanel extends JPanelBase {
   private void loadDefaults() {
     try {
       Map<String, Component> comps = SwingUtils.mapComponentsByName(this, true);
-      Properties props = PropertiesUtils
+      Properties defaultProps = PropertiesUtils
           .loadPropertiesLocal(PtmshepherdParams.class, PtmshepherdParams.DEFAULT_PROPERTIES_FN);
-      Map<String, String> asMap = PropertiesUtils.toMap(props);
-      Map<String, String> remapKeys = PropertiesUtils
+      Map<String, String> asMap = PropertiesUtils.toMap(defaultProps);
+      asMap = PropertiesUtils
           .remapKeys(asMap, k -> StringUtils.prependOnce(k, PREFIX));
 
       List<String> intersect = MapUtils.keysIntersection(asMap, comps).collect(Collectors.toList());
@@ -112,7 +117,7 @@ public class PtmshepherdPanel extends JPanelBase {
       } else {
         log.debug("PTMS panel loading defaults, key intersection: {}", intersect);
       }
-      SwingUtils.valuesFromMap(this, remapKeys);
+      SwingUtils.valuesFromMap(this, asMap);
     } catch (Exception e) {
       log.error("Error loading shepherd defaults", e);
       SwingUtils.showErrorDialogWithStacktrace(e, this);
@@ -187,9 +192,10 @@ public class PtmshepherdPanel extends JPanelBase {
     p.add(feWidth.comp, new CC().alignX("left"));
     p.add(feExtendedOut.comp, new CC().alignX("left").pushX().wrap());
 
-
-    uiTextVarMods = new UiTextBuilder().create();
-    uiTextVarMods.setGhostText("Phospho:79.9663, Something-else:-20.123");
+    final String ghost = "Phospho:79.9663, Something-else:-20.123";
+    uiTextVarMods = new UiTextBuilder().text("Failed_Carbamidomethylation:-57.021464")
+        .ghost(ghost).create();
+    GhostText.register(uiTextVarMods, ghost, GhostText.LIGHT_GREY);
     uiTextVarMods.addFocusListener(new FocusAdapter() {
       @Override
       public void focusLost(FocusEvent e) {
@@ -279,13 +285,13 @@ public class PtmshepherdPanel extends JPanelBase {
 
     this.add(pTop, BorderLayout.NORTH);
     this.add(pContent, BorderLayout.CENTER);
-
-    loadDefaults(); // pre-populate
   }
 
   @Override
   protected void initMore() {
     super.initMore();
+
+    loadDefaults(); // pre-populate, but only after renaming has happened in super.initMore()
   }
 
   public boolean isRunShepherd() {

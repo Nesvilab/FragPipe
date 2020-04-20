@@ -115,12 +115,11 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
   }
 
   private boolean isEmpty() {
-    return StringUtils.isNullOrWhitespace(textfield.getText()) || ghostText
-        .equals(textfield.getText());
+    return StringUtils.isBlank(textfield.getText()) || (ghostText!=null && ghostText.equals(textfield.getText()));
   }
 
   private boolean isShowingGhostText() {
-    return ghostText.equalsIgnoreCase(textfield.getText());
+    return ghostText != null && ghostText.equalsIgnoreCase(textfield.getText());
   }
 
   private void updateText(String text, Color color) {

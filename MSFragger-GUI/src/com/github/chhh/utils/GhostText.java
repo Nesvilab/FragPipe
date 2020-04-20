@@ -16,6 +16,7 @@
  */
 package com.github.chhh.utils;
 
+import com.github.chhh.utils.swing.GhostedTextComponent;
 import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -24,6 +25,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.JTextComponent;
 
 
 /**
@@ -31,14 +33,14 @@ import javax.swing.event.DocumentListener;
  */
 public class GhostText implements FocusListener, DocumentListener, PropertyChangeListener {
 
-  private final JTextField textfield;
+  private final JTextComponent textfield;
   private Color ghostTextColor;
   private Color normalTextColor;
   private final String ghostText;
 
   public static final Color LIGHT_GREY = Color.LIGHT_GRAY;
 
-  public GhostText(final JTextField textfield, String ghostText, Color ghostTextColor) {
+  public GhostText(final JTextComponent textfield, String ghostText, Color ghostTextColor) {
     this.textfield = textfield;
     this.ghostText = ghostText;
     this.ghostTextColor = ghostTextColor;
@@ -49,9 +51,13 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
     if (!this.textfield.hasFocus()) {
       focusLost(null);
     }
+    if (textfield instanceof GhostedTextComponent) {
+      GhostedTextComponent ghosted = (GhostedTextComponent) textfield;
+      ghosted.setGhostText(ghostText);
+    }
   }
 
-  public static void register(JTextField textfield, String ghostText, Color ghostTextColor) {
+  public static void register(JTextComponent textfield, String ghostText, Color ghostTextColor) {
     new GhostText(textfield, ghostText, ghostTextColor);
   }
 
