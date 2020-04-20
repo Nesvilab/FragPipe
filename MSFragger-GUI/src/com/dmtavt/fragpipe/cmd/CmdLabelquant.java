@@ -45,8 +45,6 @@ public class CmdLabelquant extends CmdBase {
       return false;
     }
 
-
-
     for (Map.Entry<LcmsFileGroup, Path> e : annotations.entrySet()) {
       final LcmsFileGroup group = e.getKey();
       final Path annotationFile = e.getValue();

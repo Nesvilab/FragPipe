@@ -965,10 +965,10 @@ public class SwingUtils {
         JOptionPane.OK_CANCEL_OPTION);
   }
 
-  public static int showChoiceDialog(Component parent, Object message, String[] options,
+  public static int showChoiceDialog(Component parent, String title, Object message, String[] options,
       int startingOption) {
     return JOptionPane
-        .showOptionDialog(parent, message, "Delete the files?",
+        .showOptionDialog(parent, message, title,
             JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
             options[startingOption]);
   }

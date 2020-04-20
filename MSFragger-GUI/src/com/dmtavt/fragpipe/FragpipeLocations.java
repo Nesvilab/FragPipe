@@ -37,13 +37,16 @@ public class FragpipeLocations {
   private final Path tools;
   private final Path lib;
   private final Path workflows;
+  private final Path longTermStorage;
 
-  private FragpipeLocations(Path jarPath, Path cache, Path tools, Path lib, Path workflows) {
+  private FragpipeLocations(Path jarPath, Path cache, Path tools, Path lib, Path workflows,
+      Path longTermStorage) {
     this.jarPath = jarPath;
     this.cache = cache;
     this.tools = tools;
     this.lib = lib;
     this.workflows = workflows;
+    this.longTermStorage = longTermStorage;
   }
 
   public static class Holder {
@@ -85,9 +88,10 @@ public class FragpipeLocations {
 
       Path lib = dir.resolve(Paths.get("../lib"));
       Path workflows = dir.resolve("../workflows");
+      Path longTermStorage = CacheUtils.getTempDir();
 
       // create locations if they don't yet exist
-      List<Path> paths = Arrays.asList(dir, cache, tools, lib, workflows);
+      List<Path> paths = Arrays.asList(dir, cache, tools, lib, workflows, longTermStorage);
       log.debug("Fragpipe locations:\n\t{}",
           paths.stream().map(Path::toString).collect(Collectors.joining("\n\t")));
       for (Path path : paths) {
@@ -102,7 +106,7 @@ public class FragpipeLocations {
         }
       }
 
-      locations = new FragpipeLocations(jarPath, cache, tools, lib, workflows);
+      locations = new FragpipeLocations(jarPath, cache, tools, lib, workflows, longTermStorage);
     }
   }
 
@@ -201,6 +205,10 @@ public class FragpipeLocations {
 
   public Path getPathRuntimeCache(boolean isGlobal) {
     return isGlobal ? CacheUtils.getTempFile(FN_CACHE_RUNTIME) : get().cache.resolve(FN_CACHE_RUNTIME);
+  }
+
+  public Path getPathLongTermStorage() {
+    return longTermStorage;
   }
 
   public Path getPathUiCache() {

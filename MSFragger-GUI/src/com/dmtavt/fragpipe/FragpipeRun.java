@@ -492,11 +492,12 @@ public class FragpipeRun {
     final boolean isProcessGroupsSeparately = protProphPanel.isProcessGroupsSeparately();
     if (!isProcessGroupsSeparately && lcmsFileGroups.size() > 1 && !reportPanel.isMultiExpReport()) {
       String[] options = {"Turn on and continue", "Continue as-is", "Cancel"};
-      int choice = SwingUtils.showChoiceDialog(parent, new JLabel(
+      JLabel message = new JLabel(
           "<html>LCMS files are grouped into more than one experiment.<br/>\n" +
               "However, multi-experiment report was turned off.<br/>\n" +
               "<br/>\n" +
-              "<b>What would you like to do with multi-experiment report?</b>\n"), options, 0);
+              "<b>What would you like to do with multi-experiment report?</b>\n");
+      int choice = SwingUtils.showChoiceDialog(parent, "Multiple experiments", message, options, 0);
       if (choice == 0) {
         reportPanel.setMultiExpReport(true);
       } else if (choice != 1) {

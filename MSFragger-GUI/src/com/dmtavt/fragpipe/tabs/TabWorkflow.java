@@ -19,6 +19,7 @@ import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageType;
 import com.dmtavt.fragpipe.messages.MessageUpdateWorkflows;
 import com.github.chhh.utils.FileDrop;
+import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
@@ -41,7 +42,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -370,24 +370,57 @@ public class TabWorkflow extends JPanelWithEnablement {
     return uiSpinnerThreads.getActualValue();
   }
 
+  private Map<String, PropsFile> findPropsFiles(Path startDir, Predicate<Path> filter) throws IOException {
+    final Map<String, PropsFile> files = new HashMap<>();
+    final Predicate<Path> filter = p -> "workflow".equalsIgnoreCase(StringUtils.afterLastDot(p.getFileName().toString()));
+    Files.walk(startDir).filter(Files::isRegularFile)
+        .filter(filter)
+        .forEach(Unchecked.consumer(path -> {
+          PropsFile f = new PropsFile(path, "Loaded from: " + path.toString());
+          f.load();
+          if (f.size() > 0) {
+            String s = f.getPath().getFileName().toString();
+            String name = StringUtils.upToLastDot(s);
+            files.put(StringUtils.isBlank(name) ? s : name, f);
+          }
+        }, throwable -> {
+          log.error("Error while reading alleged workflow file", throwable);
+        }));
+    return files;
+  }
+
   private Map<String, PropsFile> loadWorkflowFiles() {
-    Path dir = FragpipeLocations.get().getDirWorkflows();
     try {
-      final Map<String, PropsFile> files = new HashMap<>();
-      Files.walk(dir).filter(Files::isRegularFile)
-          .filter(p -> "workflow"
-              .equalsIgnoreCase(StringUtils.afterLastDot(p.getFileName().toString())))
-          .forEach(Unchecked.consumer(path -> {
-            PropsFile f = new PropsFile(path, "Loaded from: " + path.toString());
-            f.load();
-            if (f.size() > 0) {
-              String s = f.getPath().getFileName().toString();
-              String name = StringUtils.upToLastDot(s);
-              files.put(StringUtils.isBlank(name) ? s : name, f);
+      Map<String, PropsFile> files;
+      
+      Map<String, PropsFile> filesLocal = findPropsFiles(FragpipeLocations.get().getDirWorkflows(), filter);
+      Map<String, PropsFile> filesStored = findPropsFiles(FragpipeLocations.get().getPathLongTermStorage(), filter);
+      files = filesLocal;
+      List<String> diff = MapUtils.keysDiffRight(filesLocal, filesStored)
+          .collect(Collectors.toList());
+      if (!diff.isEmpty()) {
+        JLabel message = new JLabel(
+            SwingUtils.makeHtml("Found workflows from previous FragPipe sessions:\n - "+Seq.seq(diff).toString("\n - ")));
+        String[] choices = {"Copy", "Ignore", "Delete"};
+        int choice = SwingUtils
+            .showChoiceDialog(this, "Load workflows?", message, choices, 0);
+        switch (choice) {
+          case 0:
+            List<PropsFile> toCopy = Seq.seq(filesStored).filter(kv -> diff.contains(kv.v1))
+                .map(kv -> kv.v2).toList();
+            Path dir = FragpipeLocations.get().getDirWorkflows();
+            for (PropsFile propsFile : toCopy) {
+              
             }
-          }, throwable -> {
-            log.error("Error while reading alleged workflow file", throwable);
-          }));
+            break;
+          case 1:
+            break; // do nothing
+          case 2:
+            break;
+          default:
+            throw new IllegalStateException("Unknown option, probably forgot to add code branch for a newly added option");
+        }
+      }
       return files;
     } catch (IOException e) {
       SwingUtils.showErrorDialogWithStacktrace(e, this);
