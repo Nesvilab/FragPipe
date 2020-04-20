@@ -95,10 +95,10 @@ public class PtmshepherdPanel extends JPanelBase {
         return;
       }
     }
-    loadDefaults();
+    loadDefaults(2);
   }
 
-  private void loadDefaults() {
+  private void loadDefaults(int debugInvocationId) {
     try {
       Map<String, Component> comps = SwingUtils.mapComponentsByName(this, true);
       Properties defaultProps = PropertiesUtils
@@ -109,11 +109,11 @@ public class PtmshepherdPanel extends JPanelBase {
 
       List<String> intersect = MapUtils.keysIntersection(asMap, comps).collect(Collectors.toList());
       if (intersect.isEmpty()) {
-        log.error("PTMS panel loading defaults - empty keyset intersection between panel and loaded properties.\n"
+        log.error("PTMS panel loadDefaults({}) - empty keyset intersection between panel and loaded properties.\n"
                 + "Keys in panel: {}\n"
-                + "Keys in loaded props: {}",
-            MapUtils.keysDiffLeft(asMap, comps).collect(Collectors.toList()),
-            MapUtils.keysDiffRight(asMap, comps).collect(Collectors.toList()));
+                + "Keys in loaded props: {}", debugInvocationId,
+            MapUtils.keysDiffRight(asMap, comps).collect(Collectors.toList()),
+            MapUtils.keysDiffLeft(asMap, comps).collect(Collectors.toList()));
       } else {
         log.debug("PTMS panel loading defaults, key intersection: {}", intersect);
       }
@@ -291,7 +291,7 @@ public class PtmshepherdPanel extends JPanelBase {
   protected void initMore() {
     super.initMore();
 
-    loadDefaults(); // pre-populate, but only after renaming has happened in super.initMore()
+    loadDefaults(1); // pre-populate, but only after renaming has happened in super.initMore()
   }
 
   public boolean isRunShepherd() {
