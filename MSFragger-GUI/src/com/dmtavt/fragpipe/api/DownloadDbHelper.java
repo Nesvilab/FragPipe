@@ -4,6 +4,7 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import java.awt.BorderLayout;
@@ -105,13 +106,10 @@ public class DownloadDbHelper {
         // unpack iRT fasta
         Path pathIrt = null;
         if (isAddIrt) {
-          String pathInJar = "/fasta/irtfusion.fasta";
-
-          pathIrt = JarUtils.unpackFromJar(ToolingUtils.class, pathInJar, // TODO: no more unpacking
-              ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
+          pathIrt = FragpipeLocations.get().getDirTools().resolve("fasta/irtfusion.fasta");
           if (!Files.exists(pathIrt)) {
-            log.error("Could not unpack " + pathInJar);
-            SwingUtils.showDialog(p, new JLabel("<html>Could not unpack iRT fasta file."),
+            log.error("File not found: " + pathIrt.toString());
+            SwingUtils.showDialog(p, new JLabel("<html>Could not find iRT fasta file:<br/>" + pathIrt.toString()),
                 "Error preparing for DB download", JOptionPane.ERROR_MESSAGE);
             return;
           }

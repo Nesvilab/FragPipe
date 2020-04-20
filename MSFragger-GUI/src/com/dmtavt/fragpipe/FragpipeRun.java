@@ -378,7 +378,7 @@ public class FragpipeRun {
         log.debug("User chose not to auto-rename experiment");
         return null;
       }
-      throw new UnsupportedOperationException("Renaming not implemented"); // TODO: implement renaming
+      throw new UnsupportedOperationException("Renaming not yet implemented"); // TODO: implement renaming
     }
     return lcmsFileGroups;
   }

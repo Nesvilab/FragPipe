@@ -91,29 +91,6 @@ public abstract class CmdBase {
     return StringUtils.splitCommandLine(cmdString);
   }
 
-  /**
-   * Unpacks jar files from the final FragPipe jar (next to ToolingUtils.class).
-   * @param jars The names of files to unpack. Here we name them `.jazz` files.
-   */
-  protected static boolean unpackJars1(List<String> jars, final List<Path> unpackedPaths, String nameForErrorMsgs) {
-    try {
-      for (String jarDep : jars) {
-        Path unpacked = JarUtils
-            .unpackFromJar(ToolingUtils.class, "/" + jarDep,
-                ThisAppProps.UNPACK_TEMP_SUBDIR, true, true);
-        unpackedPaths.add(unpacked);
-      }
-    } catch (IOException e) {
-      String msg = String.format("Could not unpack %s to temp dir", nameForErrorMsgs);
-      log.error(msg, e);
-      JOptionPane.showMessageDialog(null,
-          "Could not unpack tools to a temporary directory.\n"
-              + "Try disabling " + nameForErrorMsgs + ".", "Can't unpack", JOptionPane.ERROR_MESSAGE);
-      return false;
-    }
-    return true;
-  }
-
   public boolean isRun() {
     return isRun;
   }
