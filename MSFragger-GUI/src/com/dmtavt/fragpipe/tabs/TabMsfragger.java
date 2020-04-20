@@ -88,7 +88,6 @@ import com.github.chhh.utils.swing.renderers.TableCellIntRenderer;
 import com.github.chhh.utils.swing.renderers.TableCellIntSpinnerEditor;
 import com.dmtavt.fragpipe.params.Props.Prop;
 import com.dmtavt.fragpipe.params.ThisAppProps;
-import com.dmtavt.fragpipe.params.dbslice.DbSlice;
 import com.dmtavt.fragpipe.params.enums.CleavageType;
 import com.dmtavt.fragpipe.params.enums.FraggerOutputType;
 import com.dmtavt.fragpipe.params.enums.FraggerPrecursorMassMode;
@@ -1479,12 +1478,6 @@ public class TabMsfragger extends JPanelWithEnablement {
     }
     Bus.post(new MessageSearchType(type));
     return true;
-  }
-
-  @Subscribe
-  public void on(DbSlice.MessageInitDone m) {
-    enablementMapping.put(uiSpinnerDbslice, m.isSuccess);
-    updateEnabledStatus(uiSpinnerDbslice, m.isSuccess);
   }
 
   @Subscribe

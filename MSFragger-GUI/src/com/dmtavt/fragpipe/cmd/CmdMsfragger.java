@@ -3,6 +3,7 @@ package com.dmtavt.fragpipe.cmd;
 import static com.github.chhh.utils.PathUtils.testFilePath;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.params.dbslice.DbSplit2;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.File;
@@ -28,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.process.ProcessManager;
-import com.dmtavt.fragpipe.params.dbslice.DbSlice;
 import com.dmtavt.fragpipe.params.enums.PrecursorMassTolUnits;
 import com.dmtavt.fragpipe.params.fragger.MsfraggerParams;
 import com.github.chhh.utils.OsUtils;
@@ -280,7 +280,7 @@ public class CmdMsfragger extends CmdBase {
     final boolean isSlicing = numSlices > 1;
     if (isSlicing) {
       // slicing requested
-      if (!DbSlice.get().isInitialized()) {
+      if (!DbSplit2.get().isInitialized()) {
         JOptionPane.showMessageDialog(comp,
             "MSFragger: database splitting in more than 1 chunk.\n"
                 + "However not all preconditions for enabling slicing were met.\n"
@@ -375,7 +375,7 @@ public class CmdMsfragger extends CmdBase {
     final List<String> slicingCmd = isSlicing ?
         Arrays.asList(
             PythonInfo.get().getCommand(),
-            DbSlice.get().getScriptDbslicingPath().toAbsolutePath().normalize().toString(),
+            DbSplit2.get().getScriptDbslicingPath().toAbsolutePath().normalize().toString(),
             Integer.toString(numSlices),
             OsUtils.isWindows() ?
                 "\"" + String.join(" ", javaCmd) + "\"" :
