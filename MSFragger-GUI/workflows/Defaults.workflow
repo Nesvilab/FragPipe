@@ -120,6 +120,6 @@ tmtintegrator.psm_norm=false
 tmtintegrator.ref_tag=Bridge
 tmtintegrator.run-tmtintegrator=false
 tmtintegrator.top3_pep=true
-tmtintegrator.unique_gene=Leave all PSMs
+tmtintegrator.unique_gene=Keep all PSMs
 tmtintegrator.unique_pep=false
 workflow.workflow-option=Defaults

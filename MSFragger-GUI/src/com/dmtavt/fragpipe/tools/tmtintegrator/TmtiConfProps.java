@@ -83,9 +83,9 @@ public class TmtiConfProps {
   );
 
   public static List<ComboValue> COMBO_UNIQUE_GENE = Arrays.asList(
-      new ComboValue("0", "Leave all PSMs", "allow all PSMs"),
-      new ComboValue("1", "No PSMs mapping to multiple genes in dataset", "remove PSMs mapping to more than one GENE with evidence of expression in the dataset"),
-      new ComboValue("2", "No PSMs mapping to multiple genes in FASTA", "remove all PSMs mapping to more than one GENE in the fasta file")
+      new ComboValue("0", "Keep all PSMs", "Allow all PSMs"),
+      new ComboValue("1", "No PSMs mapping to multiple genes in dataset", "Remove PSMs mapping to more than one GENE with evidence of expression in the dataset"),
+      new ComboValue("2", "No PSMs mapping to multiple genes in FASTA", "Remove all PSMs mapping to more than one GENE in the fasta file")
   );
 
   public static List<ComboValue> COMBO_ADD_REF = Arrays.asList(
