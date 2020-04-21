@@ -129,11 +129,14 @@ public class PtmshepherdPanel extends JPanelBase {
     return PropertiesUtils.loadPropertiesLocal(PtmshepherdParams.class, PtmshepherdParams.DEFAULT_PROPERTIES_FN);
   }
 
-  @Override
-  public Map<String, String> toMap() {
-    Map<String, String> map = super.toMap();
-    map = MapUtils.remapValues(map, (k, v) -> CONV_TO_FILE.getOrDefault(k, Function.identity()).apply(v));
-    return map;
+  public Map<String, String> toPtmsParamsMap() {
+    Map<String, String> map0 = super.toMap();
+    Map<String, String> map1 = MapUtils.remapKeys(map0, s -> StringUtils.stripLeading(s, PREFIX));
+    Map<String, String> map2 = MapUtils.remapValues(map1, (k, v) -> CONV_TO_FILE.getOrDefault(k, Function.identity()).apply(v));
+//    map = MapUtils.remap(map,
+//        (k,v) -> StringUtils.stripLeading(k, PREFIX),
+//        (k,v) -> CONV_TO_FILE.getOrDefault(k, Function.identity()).apply(v));
+    return map2;
   }
 
   private void loadDefaults(int debugInvocationId, SearchTypeProp type) {

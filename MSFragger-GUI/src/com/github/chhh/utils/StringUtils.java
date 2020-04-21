@@ -22,6 +22,7 @@ public final class StringUtils {
     throw new AssertionError("This class can not be instantiated");
   }
 
+  /** Removes prefix if present. */
   public static String stripLeading(String text, String prefix) {
     if (text.startsWith(prefix))
       return text.substring(prefix.length());

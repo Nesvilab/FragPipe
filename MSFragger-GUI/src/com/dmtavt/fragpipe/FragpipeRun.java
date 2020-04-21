@@ -876,7 +876,7 @@ public class FragpipeRun {
         return false;
       }
       Path fastaPath = Paths.get(fastaFile);
-      Map<String, String> additionalShepherdParams = ptmsPanel.toMap();
+      Map<String, String> additionalShepherdParams = ptmsPanel.toPtmsParamsMap();
       if (threads > 0) {
         additionalShepherdParams.put("threads", Integer.toString(threads));
       }
