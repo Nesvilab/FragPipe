@@ -185,14 +185,14 @@ public class TabMsfragger extends JPanelWithEnablement {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_report_alternative_proteins, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_ion_series, ionStr -> ionStr.trim().replaceAll("[\\s,;]+",","));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_ion_series_definitions, defStr -> defStr.trim().replaceAll("\\s*[,;]+\\s*",", "));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets, defStr -> {
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets, s -> {
       String content;
-      if (!defStr.contains("<html")) {
-        content = defStr;
+      if (!s.contains("<html")) {
+        content = s;
       } else {
-        content = Jsoup.parse(defStr).body().text();
+        content = Jsoup.parse(s).body().text();
       }
-      return content.replaceAll("[\n\r]+", " ");
+      return content.replaceAll("[\\s]+", "/");
     });
 
 
@@ -211,7 +211,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_override_charge, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.fromValueInParamsFile(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Boolean.toString(Integer.parseInt(s) > 0));
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_offsets, SwingUtils::wrapInStyledHtml);
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_offsets, text -> SwingUtils.wrapInStyledHtml(String.join(" ", text.split("/"))));
 
     //{"Closed Search", "Open Search", "Non-specific Search", "Mass Offset Search"}
     SEARCH_TYPE_NAME_MAPPING.put("Closed Search", SearchTypeProp.closed);
