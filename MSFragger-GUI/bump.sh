@@ -46,5 +46,8 @@ bundleDir="src/com/dmtavt/fragpipe"
 bundleFn="Bundle.properties"
 bundleFn2="Bundle2.properties"
 
-sed -r "s/^(version[[:blank:]]*=[[:blank:]]*)'(.+?)'/\1'$ver'/g" build.gradle > build.gradle2
-sed -r "s/^msfragger\.gui\.version=(.+?)/\1'$ver'/g" $bundleDir/$bundleFn > $bundleDir/$bundleFn2
+#sed -r -i "s/^(version[[:blank:]]*=[[:blank:]]*)'(.+?)'/\1'$ver'/g" build.gradle > build.gradle2
+#sed -r -i "s/^msfragger\.gui\.version=(.+?)/\1'$ver'/g" $bundleDir/$bundleFn > $bundleDir/$bundleFn2
+
+sed -r -i "s/^(version[[:blank:]]*=[[:blank:]]*)'(.+?)'/\1'$ver'/g" build.gradle
+sed -r -i "s/^msfragger\.gui\.version=(.+?)/\1'$ver'/g" $bundleDir/$bundleFn
