@@ -1,6 +1,8 @@
 package com.dmtavt.fragpipe.tools.protproph;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.api.SearchTypeProp;
+import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
@@ -57,19 +59,25 @@ public class ProtProphPanel extends JPanelBase {
     return PREFIX;
   }
 
+  private void loadDefaults(String type) {
+    String v = Fragpipe.getPropFix(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, type);
+    if (v == null) {
+      throw new IllegalStateException("No property found for key: " + ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET + "." + type);
+    }
+    uiTextCmdOpts.setText(v);
+  }
+
   @Override
   public void init() {
     checkRun = UiUtils.createUiCheck("Run Protein Prophet", true);
     checkRun.setName("run-protein-prophet");
     btnAllowMassShifted = UiUtils.createButton("Allow mass shifted peptides", e -> {
       log.debug("Clicked button " + btnAllowMassShifted.getText());
-      String v = Fragpipe.getPropFix(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, "open");
-      uiTextCmdOpts.setText(v);
+      loadDefaults("open");
     });
     btnDisallowMassShifted = UiUtils.createButton("Do NOT allow mass shifted peptides", e -> {
       log.debug("Clicked button " + btnDisallowMassShifted.getText());
-      String v = Fragpipe.getPropFix(ThisAppProps.PROP_TEXT_CMD_PROTEIN_PROPHET, "tight");
-      uiTextCmdOpts.setText(v);
+      loadDefaults("tight");
     });
     uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).text(defaultCmdOpt()).create();
     FormEntry feCmdOpts = mu.feb("cmd-opts", uiTextCmdOpts).label("Cmd line opts:").create();
@@ -110,6 +118,11 @@ public class ProtProphPanel extends JPanelBase {
   public void initMore() {
     updateEnabledStatus(this, false); // will get enabled when Philosopher is selected
     super.initMore();
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageSearchType m) {
+    loadDefaults(m.type.name());
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)

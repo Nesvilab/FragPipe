@@ -10,8 +10,8 @@
   <logger name="com.dmtavt.fragpipe.tools.ionquant" level="info" />
   <logger name="com.dmtavt.fragpipe.params.speclib" level="info" />
 
-  <root level="info">
-<!--  <root level="debug">-->
+<!--  <root level="info">-->
+  <root level="debug">
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>
