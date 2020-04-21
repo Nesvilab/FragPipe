@@ -72,6 +72,9 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_remove_precursor_range = "remove_precursor_range";
     public static final String PROP_intensity_transform = "intensity_transform";
 
+    public static final String PROP_write_calibrated_mgf = "write_calibrated_mgf";
+    public static final String PROP_mass_diff_to_variable_mod = "mass_diff_to_variable_mod";
+
     public static final String PROP_calibrate_mass = "calibrate_mass";
     public static final String PROP_isotope_error = "isotope_error";
     public static final String PROP_deisotope = "deisotope";
@@ -144,6 +147,8 @@ public class MsfraggerParams extends AbstractParams {
         PROP_remove_precursor_peak,
         PROP_remove_precursor_range,
         PROP_intensity_transform,
+        PROP_write_calibrated_mgf,
+        PROP_mass_diff_to_variable_mod,
         PROP_calibrate_mass,
         PROP_isotope_error,
         PROP_deisotope,
@@ -277,6 +282,8 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_calibrate_mass, "0=Off, 1=On, 2=On and find optimal parameters");
         c.put(PROP_isotope_error, "0=off, -1/0/1/2/3 (standard C13 error)");
         c.put(PROP_mass_offsets, "allow for additional precursor mass window shifts. Multiplexed with isotope_error. mass_offsets = 0/79.966 can be used as a restricted ‘open’ search that looks for unmodified and phosphorylated peptides (on any residue)");
+        c.put(PROP_write_calibrated_mgf, "Write calibrated MS2 scan to a MGF file (0 for No, 1 for Yes).");
+        c.put(PROP_mass_diff_to_variable_mod, "Put mass diff as a variable modification. 0 for no; 1 for yes and change the original mass diff and the calculated mass accordingly; 2 for yes but not change the original mass diff and the calculated mass.");
         c.put(PROP_num_enzyme_termini, "2 for enzymatic, 1 for semi-enzymatic, 0 for nonspecific digestion");
         c.put(PROP_allowed_missed_cleavage, "maximum value is 5");
         c.put(PROP_precursor_charge, "precursor charge range to analyze; does not override any existing charge; 0 as 1st entry ignores parameter");
@@ -367,6 +374,22 @@ public class MsfraggerParams extends AbstractParams {
     
     
     // =======================================================================
+    public int getWriteCalibratedMgf() {
+        return getInt(PROP_write_calibrated_mgf, "0");
+    }
+
+    public void setWriteCalibratedMgf(int v) {
+        setInt(PROP_write_calibrated_mgf, v);
+    }
+
+    public int getMassDiffToVariableMod() {
+        return getInt(PROP_mass_diff_to_variable_mod, "0");
+    }
+
+    public void setMassDiffToVariableMod(int v) {
+        setInt(PROP_mass_diff_to_variable_mod, v);
+    }
+
     public int getRemovePrecursorPeak() {
         return getInt(PROP_remove_precursor_peak, "0");
     }
@@ -393,7 +416,7 @@ public class MsfraggerParams extends AbstractParams {
     public PrecursorMassTolUnits getPrecursorMassUnits() {
         return PrecursorMassTolUnits.fromParamsFileRepresentation(props.getProp(PROP_precursor_mass_units, "1").value);
     }
-    
+
     public void setPrecursorMassUnits(PrecursorMassTolUnits u) {
         props.setProp(PROP_precursor_mass_units, Integer.toString(u.valueInParamsFile()));
     }

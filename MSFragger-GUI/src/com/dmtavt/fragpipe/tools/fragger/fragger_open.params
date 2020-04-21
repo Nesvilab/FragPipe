@@ -20,6 +20,9 @@ remove_precursor_peak = 0           # 0 = not remove, 1 = only remove the peak w
 remove_precursor_range = -1.5,1.5   # Unit: Da. Default: -1.5,1.5
 intensity_transform = 0             # 0 = none, 1 = sqrt root. Default: 0
 
+write_calibrated_mgf = 0          # Write calibrated MS2 scan to a MGF file (0 for No, 1 for Yes).
+mass_diff_to_variable_mod = 0     # Put mass diff as a variable modification. 0 for no; 1 for yes and change the original mass diff and the calculated mass accordingly; 2 for yes but not change the original mass diff and the calculated mass.
+
 localize_delta_mass = 1
 delta_mass_exclude_ranges = (-1.5,3.5)
 fragment_ion_series=b,y
