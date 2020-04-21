@@ -50,4 +50,4 @@ bundleFn2="Bundle2.properties"
 #sed -r -i "s/^msfragger\.gui\.version=(.+?)/\1'$ver'/g" $bundleDir/$bundleFn > $bundleDir/$bundleFn2
 
 sed -r -i "s/^(version[[:blank:]]*=[[:blank:]]*)'(.+?)'/\1'$ver'/g" build.gradle
-sed -r -i "s/^msfragger\.gui\.version=(.+?)/\1'$ver'/g" $bundleDir/$bundleFn
+sed -r -i "s/^(msfragger\.gui\.version=)(.+?)/\1$ver/g" $bundleDir/$bundleFn
