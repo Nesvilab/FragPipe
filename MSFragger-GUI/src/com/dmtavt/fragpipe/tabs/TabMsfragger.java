@@ -281,6 +281,7 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
   private void initMore() {
+    postInitAddActionListeners();
     SwingUtils.renameDeep(this, true, TAB_PREFIX, null);
 
     // pre-load default values, they will be overwritten if there are user params from previous sessions
@@ -355,7 +356,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     return pContent;
   }
 
-  private JPanel createPanelPeakMatchBasic() {
+  private JPanel createPanelBasicPeakMatch() {
     JPanel p = mu.newPanel("Peak Matching", true);
 
     // precursor mass tolerance
@@ -412,15 +413,6 @@ public class TabMsfragger extends JPanelWithEnablement {
         .label("<html>Calibration and Optimization")
         .tooltip(String.format("<html>Requires MSFragger %s+.", minFraggerVer)).create();
 
-    uiCheckLocalizeDeltaMass = new UiCheck("<html>Localize delta mass", null, false);
-    FormEntry feLocalizeDeltaMass = fe(MsfraggerParams.PROP_localize_delta_mass,
-        uiCheckLocalizeDeltaMass)
-        .tooltip("<html>Use additional shifted ion series when matching fragments.\n"
-            + "Shifted ion series are the same as regular b/y ions,\n"
-            + "but with the addition of the mass shift of the precursor.\n"
-            + "Regular ion series will still be used.\n"
-            + "This option is </b>incompatible</b> with database splitting.").create();
-
     uiTextIsoErr = UiUtils.uiTextBuilder().cols(10).filter("[^\\d/-]+").text("-1/0/1/2").create();
     FormEntry feIsotopeError = fe(MsfraggerParams.PROP_isotope_error, uiTextIsoErr)
         .label("Isotope error")
@@ -437,9 +429,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     mu.add(p, feFragTolUnits.comp).split(2);
     mu.add(p, feFragTol.comp).wrap();
     mu.add(p, feCalibrate.label(), mu.ccR());
-    mu.add(p, feCalibrate.comp).split().spanX().wrap();
-    mu.add(p, feLocalizeDeltaMass.comp).skip(1);
-
+    mu.add(p, feCalibrate.comp);
     mu.add(p, feIsotopeError.label(), mu.ccR());
     mu.add(p, feIsotopeError.comp).spanX().wrap();
 
@@ -580,7 +570,7 @@ public class TabMsfragger extends JPanelWithEnablement {
   /** Panel with all the basic options. */
   private JPanel createPanelBasicOptions() {
       JPanel pBase = mu.newPanel("Common Options (Advanced Options are at the end of the page)", true);
-      mu.add(pBase, createPanelPeakMatchBasic()).pushX().wrap();
+      mu.add(pBase, createPanelBasicPeakMatch()).pushX().wrap();
       mu.add(pBase, createPanelDigest()).pushX().wrap();
 
       return pBase;
@@ -774,14 +764,14 @@ public class TabMsfragger extends JPanelWithEnablement {
   private JPanel createPanelAdvancedOptions() {
     JPanel p = mu.newPanel("Advanced Options", new LC());
 
-    mu.add(p, createPanelSpectral()).pushX().wrap();
-    mu.add(p, createPanelPeakMatchAdvanced()).pushX().wrap();
-    mu.add(p, createPanelOpenSearch()).pushX().wrap();
+    mu.add(p, createPanelAdvancedSpectral()).pushX().wrap();
+    mu.add(p, createPanelAdvancedPeakMatch()).pushX().wrap();
+    mu.add(p, createPanelAdvancedOpenSearch()).pushX().wrap();
 
     return p;
   }
 
-  private JPanel createPanelSpectral() {
+  private JPanel createPanelAdvancedSpectral() {
     JPanel p = mu.newPanel("Spectral Processing", true);
 
     FormEntry feMinPeaks = fe(MsfraggerParams.PROP_minimum_peaks, new UiSpinnerInt(15, 0, 1000, 1, 4))
@@ -845,7 +835,7 @@ public class TabMsfragger extends JPanelWithEnablement {
 
 
   /** Advanced peak matching panel */
-  private JPanel createPanelPeakMatchAdvanced() {
+  private JPanel createPanelAdvancedPeakMatch() {
     JPanel p = mu.newPanel("Peak Matching and Output Advanced Options", true);
 
     FormEntry feMinFragsModeling = fe(MsfraggerParams.PROP_min_fragments_modelling, new UiSpinnerInt(2, 0, 1000, 1, 4)).label("Min frags modeling").create();
@@ -951,8 +941,7 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
 
-  private JPanel createPanelOpenSearch()
-  {
+  private JPanel createPanelAdvancedOpenSearch() {
     JPanel p = new JPanel(new MigLayout(new LC()));
     p.setBorder(new TitledBorder("Open Search Options"));
     FormEntry feTrackZeroTopN = fe(MsfraggerParams.PROP_track_zero_topN,
@@ -992,9 +981,24 @@ public class TabMsfragger extends JPanelWithEnablement {
         MsfraggerParams.PROP_delta_mass_exclude_ranges, uiTextShiftedIonsExclusion).label("Delta mass exclude ranges")
         .tooltip("<html>Ranges expressed like: (-1.5,3.5)").create();
 
-    p.add(feShiftedIonsExclusion.label(), new CC().split(2).spanX().gapLeft("25px"));
-    p.add(feShiftedIonsExclusion.comp, new CC().growX());
+    mu.add(p, feShiftedIonsExclusion.label(), mu.ccR());
+    mu.add(p, feShiftedIonsExclusion.comp).growX().pushX().spanX().wrap();
 
+
+    uiCheckLocalizeDeltaMass = new UiCheck("<html>Localize mass shift", null, false);
+    FormEntry feLocalizeDeltaMass = fe(MsfraggerParams.PROP_localize_delta_mass,
+        uiCheckLocalizeDeltaMass)
+        .tooltip("<html>Use additional shifted ion series when matching fragments.\n"
+            + "Shifted ion series are the same as regular b/y ions,\n"
+            + "but with the addition of the mass shift of the precursor.\n"
+            + "Regular ion series will still be used.\n"
+            + "This option is </b>incompatible</b> with database splitting.").create();
+    mu.add(p, feLocalizeDeltaMass.comp).skip(1).wrap();
+
+    return p;
+  }
+
+  private void postInitAddActionListeners() {
     uiCheckLocalizeDeltaMass.addActionListener(e -> {
       final boolean selected = uiCheckLocalizeDeltaMass.isSelected();
       final int dbSlicing = uiSpinnerDbslice.getActualValue();
@@ -1017,9 +1021,7 @@ public class TabMsfragger extends JPanelWithEnablement {
             "Incompatible options", JOptionPane.WARNING_MESSAGE);
       }
     });
-    return p;
   }
-
 
   private FormEntry.Builder fe(JComponent comp, String name) {
     return Fragpipe.fe(comp, name, TAB_PREFIX);
