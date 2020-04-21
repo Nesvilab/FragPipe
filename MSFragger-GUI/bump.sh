@@ -51,3 +51,21 @@ bundleFn2="Bundle2.properties"
 
 sed -r -i "s/^(version[[:blank:]]*=[[:blank:]]*)'(.+?)'/\1'$ver'/g" build.gradle
 sed -r -i "s/^(msfragger\.gui\.version=)(.+?)/\1$ver/g" $bundleDir/$bundleFn
+
+echo "Committing version bump to git"
+git aacm "Bump to $ver"
+
+echo "============================="
+echo ""
+read -p "Tag and push the build for travis release? (Y/y for yes, anything else to cancel) " -n 1 -r
+echo    # (optional) move to a new line
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Not tagging/pushing, exiting"
+    exit 1
+fi
+
+echo "Provide a short description message for 'git tag -m'"
+read desc
+
+git tag $ver -m "$ver $desc"
+git push origin $ver
