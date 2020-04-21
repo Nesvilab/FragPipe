@@ -57,7 +57,10 @@ public class PtmshepherdPanel extends JPanelBase {
   public static final String PROP_peakpicking_mass_units = "peakpicking_mass_units";
   public static final String PROP_peakpicking_background = "peakpicking_background";
   public static final String PROP_peakpicking_topN = "peakpicking_topN";
+
+  public static final String PROP_precursor_mass_units = "precursor_mass_units";
   public static final String PROP_precursor_tol = "precursor_tol";
+
   public static final String PROP_spectra_ppmtol = "spectra_ppmtol";
   public static final String PROP_spectra_condPeaks = "spectra_condPeaks";
   public static final String PROP_spectra_condRatio = "spectra_condRatio";
@@ -80,7 +83,10 @@ public class PtmshepherdPanel extends JPanelBase {
 
   static {
     CONV_TO_GUI.put(PROP_peakpicking_mass_units, s -> MassTolUnits.fromFileToUi(s).name());
+    CONV_TO_GUI.put(PROP_precursor_mass_units, s -> MassTolUnits.fromFileToUi(s).name());
+
     CONV_TO_FILE.put(PROP_peakpicking_mass_units, s -> itos(MassTolUnits.valueOf(s).valueInParamsFile()));
+    CONV_TO_FILE.put(PROP_precursor_mass_units, s -> itos(MassTolUnits.valueOf(s).valueInParamsFile()));
   }
 
   public PtmshepherdPanel() {
@@ -220,6 +226,18 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p, fePeakPickingUnits.comp);
     mu.add(p, feExtendedOut.comp).pushX().wrap();
 
+
+    UiSpinnerDouble uiSpinnerPrecTol = UiSpinnerDouble.builder(0.01, 0.001, 1e6, 0.01)
+        .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
+    uiSpinnerPrecTol.setColumns(5);
+    FormEntry fePrecTol = new FormEntry(PROP_precursor_tol, "Precursor tolerance", uiSpinnerPrecTol);
+    FormEntry fePrecUnits = mu.fe(PROP_precursor_mass_units, UiUtils.createUiCombo(MassTolUnits.values()));
+
+    mu.add(p, fePrecTol.label(), mu.ccR());
+    mu.add(p, fePrecTol.comp).split().spanX();
+    mu.add(p, fePrecUnits.comp).wrap();
+
+
     final String ghost = "Phospho:79.9663, Something-else:-20.123";
     uiTextVarMods = new UiTextBuilder().text("Failed_Carbamidomethylation:-57.021464")
         .ghost(ghost).create();
@@ -267,10 +285,6 @@ public class PtmshepherdPanel extends JPanelBase {
 //      p.add(feTopN.label(), new CC().alignX("right"));
 //      p.add(feTopN.comp, new CC().wrap());
 
-//      UiSpinnerDouble uiSpinnerPrecTol = UiSpinnerDouble.builder(0.01, 0.001, 1e6, 0.01)
-//          .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
-//      uiSpinnerPrecTol.setColumns(5);
-//      FormEntry fePrecTol = new FormEntry(PROP_precursor_tol, "Precursor tolerance", uiSpinnerPrecTol);
 //
 //      UiSpinnerDouble uiSpinnerPrecTolPpm = UiSpinnerDouble.builder(20.0, 0.001, 1e6, 1.0)
 //          .setFormat(new DecimalFormat("0.#")).setNumCols(5).create();
