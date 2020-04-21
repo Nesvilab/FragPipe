@@ -14,8 +14,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.params.philosopher.PhilosopherProps;
-import com.dmtavt.fragpipe.params.tmtintegrator.QuantLabel;
+import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
+import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.UsageTrigger;
 

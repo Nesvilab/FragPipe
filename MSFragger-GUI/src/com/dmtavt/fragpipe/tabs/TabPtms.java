@@ -2,7 +2,7 @@ package com.dmtavt.fragpipe.tabs;
 
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
-import com.dmtavt.fragpipe.params.ptmshepherd.PtmshepherdPanel;
+import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdPanel;
 
 public class TabPtms extends JPanelWithEnablement {
   private static MigUtils mu = MigUtils.get();

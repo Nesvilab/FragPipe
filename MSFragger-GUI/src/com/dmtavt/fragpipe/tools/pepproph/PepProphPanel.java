@@ -1,6 +1,7 @@
 package com.dmtavt.fragpipe.tools.pepproph;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
@@ -72,6 +73,12 @@ public class PepProphPanel extends JPanelBase {
     updateEnabledStatus(this, m.isValid());
   }
 
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageSearchType m) {
+    log.debug("Got MessageSearchType of type [{}], loading defaults for it", m.type.toString());
+    loadDefaults(m.type);
+  }
+
   @Override
   protected void init() {
     checkRun = UiUtils.createUiCheck("Run PeptideProphet", true);
@@ -95,9 +102,8 @@ public class PepProphPanel extends JPanelBase {
     uiCheckCombinePepxml.setName("combine-pepxml");
     JButton btnLoadDefaults = UiUtils
         .createButton("Load", "Load peptide prophet settings for given search type", e -> {
-          SearchTypeProp st = defaults.get((String) uiComboDefaults.getSelectedItem());
-          Fragpipe.getPropsFixAndSetVal("peptideprophet.cmd.line.opts." + st.name(), uiTextCmdOpts);
-          Fragpipe.getPropsFixAndSetVal("peptideprophet.combine.pepxml." + st.name(), uiCheckCombinePepxml);
+          SearchTypeProp type = defaults.get((String) uiComboDefaults.getSelectedItem());
+          loadDefaults(type);
         });
 
     mu.layout(this).fillX();
@@ -116,6 +122,11 @@ public class PepProphPanel extends JPanelBase {
 
     mu.add(this, pTop).growX().wrap();
     mu.add(this, pContent).growX().wrap();
+  }
+
+  private void loadDefaults(SearchTypeProp type) {
+    Fragpipe.getPropsFixAndSetVal("peptideprophet.cmd.line.opts." + type.name(), uiTextCmdOpts);
+    Fragpipe.getPropsFixAndSetVal("peptideprophet.combine.pepxml." + type.name(), uiCheckCombinePepxml);
   }
 
   private String defaultCmdOpts() {

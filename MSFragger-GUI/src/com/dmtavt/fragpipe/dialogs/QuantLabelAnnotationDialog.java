@@ -31,9 +31,9 @@ import com.dmtavt.fragpipe.cmd.ToolingUtils;
 import com.dmtavt.fragpipe.api.SimpleETable;
 import com.dmtavt.fragpipe.api.SimpleTableModel;
 import com.dmtavt.fragpipe.api.TableModelColumn;
-import com.dmtavt.fragpipe.params.tmtintegrator.QuantLabel;
-import com.dmtavt.fragpipe.params.tmtintegrator.QuantLabelAnnotation;
-import com.dmtavt.fragpipe.params.tmtintegrator.TmtAnnotationTable.ExpNameToAnnotationFile;
+import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
+import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabelAnnotation;
+import com.dmtavt.fragpipe.tools.tmtintegrator.TmtAnnotationTable.ExpNameToAnnotationFile;
 
 public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
   private static final Logger log = LoggerFactory.getLogger(QuantLabelAnnotationDialog.class);

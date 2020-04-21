@@ -2,8 +2,8 @@ package com.dmtavt.fragpipe.tabs;
 
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
-import com.dmtavt.fragpipe.params.ionquant.QuantPanelLabelfree;
-import com.dmtavt.fragpipe.params.tmtintegrator.TmtiPanel;
+import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
+import com.dmtavt.fragpipe.tools.tmtintegrator.TmtiPanel;
 
 public class TabQuantitaion extends JPanelWithEnablement {
   private static MigUtils mu = MigUtils.get();

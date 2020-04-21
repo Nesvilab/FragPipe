@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 import javax.swing.JOptionPane;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.params.philosopher.PhilosopherProps;
+import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
 import com.github.chhh.utils.UsageTrigger;
 
 public class CmdPhilosopherDbAnnotate extends CmdBase {

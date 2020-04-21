@@ -2,7 +2,7 @@ package com.dmtavt.fragpipe.tabs;
 
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
-import com.dmtavt.fragpipe.params.speclib.SpeclibPanel;
+import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 
 public class TabSpecLib extends JPanelWithEnablement {
   private static MigUtils mu = MigUtils.get();

@@ -32,7 +32,6 @@ import com.dmtavt.fragpipe.tabs.TabSpecLib;
 import com.dmtavt.fragpipe.tabs.TabUmpire;
 import com.dmtavt.fragpipe.tabs.TabValidation;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
-import com.github.chhh.utils.FileCopy;
 import com.github.chhh.utils.LogUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
@@ -59,12 +58,9 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -95,8 +91,8 @@ import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.cmd.ToolingUtils;
 import com.github.chhh.utils.swing.LogbackJTextPaneAppender;
 import com.dmtavt.fragpipe.params.ThisAppProps;
-import com.dmtavt.fragpipe.params.dbslice.DbSplit2;
-import com.dmtavt.fragpipe.params.speclib.SpecLibGen2;
+import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
+import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 
 public class Fragpipe extends JFrame {
 

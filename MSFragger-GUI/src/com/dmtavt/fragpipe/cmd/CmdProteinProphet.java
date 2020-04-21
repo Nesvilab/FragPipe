@@ -28,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.params.philosopher.PhilosopherProps;
-import com.dmtavt.fragpipe.params.protproph.ProteinProphetParams;
+import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
+import com.dmtavt.fragpipe.tools.protproph.ProteinProphetParams;
 import com.github.chhh.utils.FileListing;
 import com.github.chhh.utils.UsageTrigger;
 

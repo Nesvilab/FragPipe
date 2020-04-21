@@ -1,9 +1,8 @@
 package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
-import com.dmtavt.fragpipe.params.speclib.SpecLibGen2;
-import com.dmtavt.fragpipe.params.speclib.SpeclibPanel;
+import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
+import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import java.awt.Component;
 import java.io.File;

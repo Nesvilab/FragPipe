@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.params.philosopher.PhilosopherProps;
+import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
 import com.github.chhh.utils.UsageTrigger;
 
 public class CmdIprophet extends CmdBase {

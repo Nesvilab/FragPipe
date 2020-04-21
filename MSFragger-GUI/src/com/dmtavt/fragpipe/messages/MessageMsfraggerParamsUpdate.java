@@ -1,6 +1,6 @@
 package com.dmtavt.fragpipe.messages;
 
-import com.dmtavt.fragpipe.params.fragger.MsfraggerParams;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 
 public class MessageMsfraggerParamsUpdate {
   public final MsfraggerParams params;

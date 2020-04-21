@@ -7,7 +7,7 @@
     </encoder>
   </appender>
 
-  <logger name="com.dmtavt.fragpipe.params.ionquant" level="info" />
+  <logger name="com.dmtavt.fragpipe.tools.ionquant" level="info" />
 
   <root level="debug">
     <appender-ref ref="STDOUT" />

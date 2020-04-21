@@ -16,6 +16,7 @@
 package com.dmtavt.fragpipe.messages;
 
 import com.dmtavt.fragpipe.api.SearchTypeProp;
+import java.util.StringJoiner;
 
 /**
  *
@@ -26,5 +27,12 @@ public class MessageSearchType {
 
   public MessageSearchType(SearchTypeProp type) {
     this.type = type;
+  }
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", MessageSearchType.class.getSimpleName() + "[", "]")
+        .add("type=" + type)
+        .toString();
   }
 }

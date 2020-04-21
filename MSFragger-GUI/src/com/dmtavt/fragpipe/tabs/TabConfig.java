@@ -82,7 +82,7 @@ import rx.schedulers.Schedulers;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
-import com.dmtavt.fragpipe.params.fragger.MsfraggerProps;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
 
 public class TabConfig extends JPanelWithEnablement {
 

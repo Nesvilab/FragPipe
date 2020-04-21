@@ -4,7 +4,7 @@ import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import com.dmtavt.fragpipe.params.philosopher.PhilosopherProps;
+import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
 import com.github.chhh.utils.UsageTrigger;
 
 public class CmdDatabaseDownload extends CmdBase {

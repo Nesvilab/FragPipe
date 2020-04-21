@@ -23,7 +23,7 @@ import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.params.ptmshepherd.PtmshepherdParams;
+import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdParams;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.SwingUtils;
 

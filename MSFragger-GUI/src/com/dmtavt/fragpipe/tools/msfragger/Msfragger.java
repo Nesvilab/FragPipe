@@ -28,9 +28,9 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.api.VersionFetcher;
-import com.dmtavt.fragpipe.params.fragger.MsfraggerVersionFetcherGithub;
-import com.dmtavt.fragpipe.params.fragger.MsfraggerVersionFetcherLocal;
-import com.dmtavt.fragpipe.params.fragger.MsfraggerVersionFetcherServer;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerVersionFetcherGithub;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerVersionFetcherLocal;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerVersionFetcherServer;
 
 public class Msfragger {
 
