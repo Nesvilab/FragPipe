@@ -131,8 +131,8 @@ public class TabMsfragger extends JPanelWithEnablement {
   private static final Set<String> PROPS_MISC_NAMES;
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
-  private static final String CALIBRATE_VALUE_OFF = "Off";
-  private static final String[] CALIBRATE_LABELS = {CALIBRATE_VALUE_OFF, "On", "On and find optimal parameters"};
+  private static final String CALIBRATE_VALUE_OFF = "None";
+  private static final String[] CALIBRATE_LABELS = {CALIBRATE_VALUE_OFF, "Mass calibration", "Mass calibration, parameter optimization"};
   private static final String[] MASS_DIFF_TO_VARIABLE_MOD = {"No", "Yes, and change the original mass diff and the calculated mass accordingly", "Yes, but don't change the original mass diff and the calculated mass"};
   private static final List<MsfraggerEnzyme> ENZYMES = new EnzymeProvider().get();
   //public static FileNameExtensionFilter fnExtFilter = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf/raw/d)", "mzml", "mzxml", "mgf", "raw", "d");
@@ -402,7 +402,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     uiComboMassCalibrate = UiUtils.createUiCombo(CALIBRATE_LABELS);
     String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE, "201904");
     FormEntry feCalibrate = fe(MsfraggerParams.PROP_calibrate_mass, uiComboMassCalibrate)
-        .label("<html>Calibrate masses")
+        .label("<html>Calibration and Optimization")
         .tooltip(String.format("<html>Requires MSFragger %s+.", minFraggerVer)).create();
     uiCheckWriteCalibratedMgf = UiUtils.createUiCheck("Write calibrated MGF", false);
     FormEntry feCheckWriteCalibratedMgf = fe(MsfraggerParams.PROP_write_calibrated_mgf, uiCheckWriteCalibratedMgf).create();
