@@ -172,7 +172,9 @@ public class PtmshepherdPanel extends JPanelBase {
     switch (m.type) {
       case open:
       case offset:
+      case glyco:
         checkRun.setSelected(true);
+        loadDefaults(3, m.type);
         break;
       case closed:
       case nonspecific:
