@@ -3,6 +3,7 @@ package com.dmtavt.fragpipe.tools.ptmshepherd;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageLoadShepherdDefaults;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
+import com.dmtavt.fragpipe.tools.enums.MassTolUnits;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
@@ -14,6 +15,7 @@ import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
+import com.github.chhh.utils.swing.UiUtils;
 import com.github.chhh.utils.swing.UiUtils.UiTextBuilder;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -22,9 +24,11 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.JButton;
@@ -50,6 +54,7 @@ public class PtmshepherdPanel extends JPanelBase {
   public static final String PROP_histo_smoothbins = "histo_smoothbins";
   public static final String PROP_peakpicking_promRatio = "peakpicking_promRatio";
   public static final String PROP_peakpicking_width = "peakpicking_width";
+  public static final String PROP_peakpicking_mass_units = "peakpicking_mass_units";
   public static final String PROP_peakpicking_background = "peakpicking_background";
   public static final String PROP_peakpicking_topN = "peakpicking_topN";
   public static final String PROP_precursor_tol = "precursor_tol";
@@ -65,6 +70,18 @@ public class PtmshepherdPanel extends JPanelBase {
   private JPanel pContent;
   private JPanel pTop;
   private UiText uiTextVarMods;
+
+  private static Map<String, Function<String, String>> CONV_TO_GUI = new HashMap<>();
+  private static Map<String, Function<String, String>> CONV_TO_FILE = new HashMap<>();
+
+  private static String itos(int i) {
+    return Integer.toString(i);
+  }
+
+  static {
+    CONV_TO_GUI.put(PROP_peakpicking_mass_units, s -> MassTolUnits.fromFileToUi(s).name());
+    CONV_TO_FILE.put(PROP_peakpicking_mass_units, s -> itos(MassTolUnits.valueOf(s).valueInParamsFile()));
+  }
 
   public PtmshepherdPanel() {
     super();
@@ -104,8 +121,8 @@ public class PtmshepherdPanel extends JPanelBase {
       Properties defaultProps = PropertiesUtils
           .loadPropertiesLocal(PtmshepherdParams.class, PtmshepherdParams.DEFAULT_PROPERTIES_FN);
       Map<String, String> asMap = PropertiesUtils.toMap(defaultProps);
-      asMap = PropertiesUtils
-          .remapKeys(asMap, k -> StringUtils.prependOnce(k, PREFIX));
+      asMap = PropertiesUtils.remapValues(asMap, (k,v) -> CONV_TO_GUI.getOrDefault(k, Function.identity()).apply(v));
+      asMap = PropertiesUtils.remapKeys(asMap, k -> StringUtils.prependOnce(k, PREFIX));
 
       List<String> intersect = MapUtils.keysIntersection(asMap, comps).collect(Collectors.toList());
       if (intersect.isEmpty()) {
@@ -181,16 +198,20 @@ public class PtmshepherdPanel extends JPanelBase {
 
     UiSpinnerDouble uiSpinnerWidth = UiSpinnerDouble.builder(0.002, 0.0, 0.5, 0.001)
         .setFormat(new DecimalFormat("0.####")).setNumCols(5).create();
-    FormEntry feWidth = new FormEntry(PROP_peakpicking_width, "Peak picking width (Da)", uiSpinnerWidth);
+    FormEntry feWidth = new FormEntry(PROP_peakpicking_width, "Peak picking width", uiSpinnerWidth);
+
+    FormEntry fePeakPickingUnits = mu.fe(PROP_peakpicking_mass_units, UiUtils.createUiCombo(MassTolUnits.values()));
+
     FormEntry feExtendedOut = new FormEntry(PROP_output_extended, "not-shown",
         new UiCheck("Extended output", null, false),
         "<html>Write additional files with more detailed information.");
 
-    p.add(fePromRatio.label(), new CC().alignX("right"));
-    p.add(fePromRatio.comp, new CC().alignX("left"));
-    p.add(feWidth.label(), new CC().alignX("right"));
-    p.add(feWidth.comp, new CC().alignX("left"));
-    p.add(feExtendedOut.comp, new CC().alignX("left").pushX().wrap());
+    mu.add(p, fePromRatio.label(), mu.ccR());
+    mu.add(p, fePromRatio.comp);
+    mu.add(p, feWidth.label(), mu.ccR());
+    mu.add(p, feWidth.comp);
+    mu.add(p, fePeakPickingUnits.comp);
+    mu.add(p, feExtendedOut.comp).pushX().wrap();
 
     final String ghost = "Phospho:79.9663, Something-else:-20.123";
     uiTextVarMods = new UiTextBuilder().text("Failed_Carbamidomethylation:-57.021464")

@@ -22,13 +22,13 @@ import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.PROP_fragment_ma
  *
  * @author Dmitry Avtonomov
  */
-public enum FragmentMassTolUnits {
+public enum MassTolUnits {
   PPM (1),
   Da(0);
 
   private final int val;
 
-  private FragmentMassTolUnits(int val) {
+  private MassTolUnits(int val) {
     this.val = val;
   }
 
@@ -36,10 +36,10 @@ public enum FragmentMassTolUnits {
     return val;
   }
 
-  public static PrecursorMassTolUnits fromParamsFileRepresentation(String fileRepresentation) {
+  public static MassTolUnits fromFileToUi(String fileRepresentation) {
     int v = Integer.parseInt(fileRepresentation);
-    for (int i = 0; i < PrecursorMassTolUnits.values().length; i++) {
-      PrecursorMassTolUnits u = PrecursorMassTolUnits.values()[i];
+    for (int i = 0; i < MassTolUnits.values().length; i++) {
+      MassTolUnits u = MassTolUnits.values()[i];
       if (u.valueInParamsFile() == v)
         return u;
     }

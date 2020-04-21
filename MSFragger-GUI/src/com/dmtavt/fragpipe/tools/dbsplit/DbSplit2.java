@@ -8,7 +8,7 @@ import com.dmtavt.fragpipe.messages.MissingAssetsException;
 import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
-import com.dmtavt.fragpipe.tools.msfragger.MsfraggerVerCmp;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerVerCmp;
 import com.github.chhh.utils.Installed;
 import com.github.chhh.utils.PythonModule;
 import java.nio.file.Path;

@@ -39,6 +39,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
@@ -68,6 +69,11 @@ public final class PropertiesUtils {
     public static<K,V,R> Map<K,R> remapValues(Map<K, V> map, Function<V,R> valMapper) {
         return map.entrySet().stream()
             .collect(Collectors.toMap(Entry::getKey, kv -> valMapper.apply(kv.getValue())));
+    }
+
+    public static<K,V,R> Map<K,R> remapValues(Map<K, V> map, BiFunction<K,V,R> valMapper) {
+        return map.entrySet().stream()
+            .collect(Collectors.toMap(Entry::getKey, kv -> valMapper.apply(kv.getKey(), kv.getValue())));
     }
 
     public static<K,V,RK, RV> Map<RK,RV> remap(Map<K, V> map, Function<K,RK> keyMapper, Function<V,RV> valMapper) {

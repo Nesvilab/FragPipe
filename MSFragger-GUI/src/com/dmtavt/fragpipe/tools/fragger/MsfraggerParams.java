@@ -41,7 +41,7 @@ import com.dmtavt.fragpipe.params.Props.Prop;
 import com.dmtavt.fragpipe.tools.enums.CleavageType;
 import com.dmtavt.fragpipe.tools.enums.FraggerOutputType;
 import com.dmtavt.fragpipe.tools.enums.FraggerPrecursorMassMode;
-import com.dmtavt.fragpipe.tools.enums.FragmentMassTolUnits;
+import com.dmtavt.fragpipe.tools.enums.MassTolUnits;
 import com.dmtavt.fragpipe.tools.enums.PrecursorMassTolUnits;
 import com.github.chhh.utils.SwingUtils;
 
@@ -440,10 +440,10 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     // =======================================================================
-    public FragmentMassTolUnits getPrecursorTrueUnits() {
+    public MassTolUnits getPrecursorTrueUnits() {
         int v = Integer.parseInt(props.getProp(PROP_precursor_true_units, "1").value);
-        for (int i = 0; i < FragmentMassTolUnits.values().length; i++) {
-            FragmentMassTolUnits u = FragmentMassTolUnits.values()[i];
+        for (int i = 0; i < MassTolUnits.values().length; i++) {
+            MassTolUnits u = MassTolUnits.values()[i];
             if (u.valueInParamsFile() == v)
                 return u;
         }
@@ -451,7 +451,7 @@ public class MsfraggerParams extends AbstractParams {
                 " does not correspond to enum values of MassTolUnits.");
     }
     
-    public void setPrecursorTrueUnits(FragmentMassTolUnits u) {
+    public void setPrecursorTrueUnits(MassTolUnits u) {
         props.setProp(PROP_precursor_true_units, Integer.toString(u.valueInParamsFile()));
     }
     
@@ -465,10 +465,10 @@ public class MsfraggerParams extends AbstractParams {
     
     
     // =======================================================================
-    public FragmentMassTolUnits getFragmentMassUnits() {
+    public MassTolUnits getFragmentMassUnits() {
         int v = Integer.parseInt(props.getProp(PROP_fragment_mass_units, "1").value);
-        for (int i = 0; i < FragmentMassTolUnits.values().length; i++) {
-            FragmentMassTolUnits u = FragmentMassTolUnits.values()[i];
+        for (int i = 0; i < MassTolUnits.values().length; i++) {
+            MassTolUnits u = MassTolUnits.values()[i];
             if (u.valueInParamsFile() == v)
                 return u;
         }
@@ -476,7 +476,7 @@ public class MsfraggerParams extends AbstractParams {
                 " does not correspond to enum values of MassTolUnits.");
     }
     
-    public void setFragmentMassUnits(FragmentMassTolUnits u) {
+    public void setFragmentMassUnits(MassTolUnits u) {
         props.setProp(PROP_fragment_mass_units, Integer.toString(u.valueInParamsFile()));
     }
     

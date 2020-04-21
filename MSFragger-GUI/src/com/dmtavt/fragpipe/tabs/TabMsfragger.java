@@ -92,7 +92,7 @@ import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tools.enums.CleavageType;
 import com.dmtavt.fragpipe.tools.enums.FraggerOutputType;
 import com.dmtavt.fragpipe.tools.enums.FraggerPrecursorMassMode;
-import com.dmtavt.fragpipe.tools.enums.FragmentMassTolUnits;
+import com.dmtavt.fragpipe.tools.enums.MassTolUnits;
 import com.dmtavt.fragpipe.tools.enums.IntensityTransform;
 import com.dmtavt.fragpipe.tools.enums.PrecursorMassTolUnits;
 import com.dmtavt.fragpipe.tools.enums.RemovePrecursorPeak;
@@ -168,8 +168,9 @@ public class TabMsfragger extends JPanelWithEnablement {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s -> itos(
         MASS_DIFF_TO_VAR_MOD_MAP[ArrayUtils.indexOf(MASS_DIFF_TO_VAR_MOD, s)]));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_mass_units, s -> itos(PrecursorMassTolUnits.valueOf(s).valueInParamsFile()));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_mass_units, s -> itos(FragmentMassTolUnits.valueOf(s).valueInParamsFile()));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_true_units, s -> itos(FragmentMassTolUnits.valueOf(s).valueInParamsFile()));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_mass_units, s -> itos(MassTolUnits.valueOf(s).valueInParamsFile()));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_true_units, s -> itos(
+        MassTolUnits.valueOf(s).valueInParamsFile()));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_calibrate_mass, s -> itos(Arrays.asList(CALIBRATE_LABELS).indexOf(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_num_enzyme_termini, s -> itos(
         CleavageType.valueOf(s).valueInParamsFile()));
@@ -199,8 +200,8 @@ public class TabMsfragger extends JPanelWithEnablement {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_calibrated_mgf, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s-> MASS_DIFF_TO_VAR_MOD[Integer.parseInt(s)]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> PrecursorMassTolUnits.fromParamsFileRepresentation(s).name());
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> FragmentMassTolUnits.fromParamsFileRepresentation(s).name());
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_true_units, s -> FragmentMassTolUnits.fromParamsFileRepresentation(s).name());
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> MassTolUnits.fromFileToUi(s).name());
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_true_units, s -> MassTolUnits.fromFileToUi(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_calibrate_mass, s -> CALIBRATE_LABELS[Integer.parseInt(s)]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_num_enzyme_termini, s -> CleavageType.fromValueInParamsFile(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_remove_precursor_peak, s -> RemovePrecursorPeak.get(Integer.parseInt(s)));
@@ -398,7 +399,8 @@ public class TabMsfragger extends JPanelWithEnablement {
     });
 
     // fragment mass tolerance
-    FormEntry feFragTolUnits = fe(MsfraggerParams.PROP_fragment_mass_units, UiUtils.createUiCombo(FragmentMassTolUnits.values()))
+    FormEntry feFragTolUnits = fe(MsfraggerParams.PROP_fragment_mass_units, UiUtils.createUiCombo(
+        MassTolUnits.values()))
         .label("Fragment mass tolerance").create();
     UiSpinnerDouble uiSpinnerFragTol = new UiSpinnerDouble(10, 0, 10000, 1,
         new DecimalFormat("0.###"));
@@ -863,7 +865,8 @@ public class TabMsfragger extends JPanelWithEnablement {
         .label("Define custom ion series").tooltip(tooltipCustomIonSeriesDisabled).create();
     labelCustomIonSeries = feCustomSeries.label();
 
-    FormEntry feTrueTolUnits = fe(MsfraggerParams.PROP_precursor_true_units, UiUtils.createUiCombo(FragmentMassTolUnits.values())).label("Precursor true tolerance").create();
+    FormEntry feTrueTolUnits = fe(MsfraggerParams.PROP_precursor_true_units, UiUtils.createUiCombo(
+        MassTolUnits.values())).label("Precursor true tolerance").create();
     UiSpinnerDouble uiSpinnerTrueTol = new UiSpinnerDouble(10, 0, 100000, 5,
         new DecimalFormat("0.#"));
     uiSpinnerTrueTol.setColumns(4);

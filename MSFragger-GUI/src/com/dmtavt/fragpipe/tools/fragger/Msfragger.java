@@ -1,4 +1,4 @@
-package com.dmtavt.fragpipe.tools.msfragger;
+package com.dmtavt.fragpipe.tools.fragger;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
@@ -28,9 +28,6 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.api.VersionFetcher;
-import com.dmtavt.fragpipe.tools.fragger.MsfraggerVersionFetcherGithub;
-import com.dmtavt.fragpipe.tools.fragger.MsfraggerVersionFetcherLocal;
-import com.dmtavt.fragpipe.tools.fragger.MsfraggerVersionFetcherServer;
 
 public class Msfragger {
 

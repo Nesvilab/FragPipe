@@ -1,4 +1,4 @@
-package com.dmtavt.fragpipe.tools.msfragger;
+package com.dmtavt.fragpipe.tools.fragger;
 
 import java.util.Comparator;
 import java.util.regex.Pattern;
