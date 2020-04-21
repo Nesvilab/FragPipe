@@ -227,7 +227,7 @@ public class TabMsfragger extends JPanelWithEnablement {
   private UiCombo uiComboMassCalibrate;
   private UiCombo uiComboOutputType;
   private UiCombo uiComboMassMode;
-  private UiSpinnerInt uiSpinnerDbslice;
+  private UiSpinnerInt uiSpinnerDbsplit;
   private UiCheck uiCheckLocalizeDeltaMass;
   private UiText uiTextCustomIonSeries;
   private JLabel labelCustomIonSeries;
@@ -290,7 +290,7 @@ public class TabMsfragger extends JPanelWithEnablement {
 
     SwingUtils.setEnablementUpdater(this, pContent, checkRun);
     updateEnabledStatus(this, false);
-    updateEnabledStatus(uiSpinnerDbslice, false); // only gets enabled when DbSlice2 is initialized
+    updateEnabledStatus(uiSpinnerDbsplit, false); // only gets enabled when DbSlice2 is initialized
 
     // TODO: ACHTUNG: temporary fix, disabling "Define custom ion series field"
     // Remove when custom ion series work properly in msfragger
@@ -524,11 +524,12 @@ public class TabMsfragger extends JPanelWithEnablement {
     FormEntry feMissedCleavages = fe(MsfraggerParams.PROP_allowed_missed_cleavage, uiSpinnerMissedCleavages).label("Missed cleavages").create();
     FormEntry feClipM = fe(MsfraggerParams.PROP_clip_nTerm_M, new UiCheck("Clip N-term M", null))
         .tooltip("Trim protein N-terminal Methionine as a variable modification").create();
-    p.add(feCleavageType.label(), new CC().alignX("right"));
-    p.add(feCleavageType.comp, new CC().minWidth("120px").growX());
-    p.add(feMissedCleavages.label(), new CC().alignX("right"));
-    p.add(feMissedCleavages.comp, new CC());
-    p.add(feClipM.comp, new CC().gapLeft("5px").wrap());
+
+    mu.add(p, feCleavageType.label(), mu.ccR());
+    mu.add(p, feCleavageType.comp).minWidth("120px").growX();
+    mu.add(p, feMissedCleavages.label(), mu.ccR());
+    mu.add(p, feMissedCleavages.comp).split(2).spanX();
+    mu.add(p, feClipM.comp).gapLeft("5px").wrap();
 
     FormEntry fePepLenMin = fe(MsfraggerParams.PROP_digest_min_length, new UiSpinnerInt(7, 0, 1000, 1, 3))
         .label("Peptide length").create();
@@ -542,27 +543,23 @@ public class TabMsfragger extends JPanelWithEnablement {
         new DecimalFormat("0.#"));
     uiSpinnerDigestMassHi.setColumns(6);
     FormEntry fePepMassHi = fe(PROP_misc_fragger_digest_mass_hi, uiSpinnerDigestMassHi).create();
-    p.add(fePepLenMin.label(), new CC().alignX("right"));
-    p.add(fePepLenMin.comp, new CC().split(3).growX());
-    p.add(new JLabel("-"));
-    p.add(fePepLenMax.comp, new CC());
-    p.add(fePepMassLo.label(), new CC().alignX("right"));
-    p.add(fePepMassLo.comp, new CC().split(3).spanX());
-    p.add(new JLabel("-"));
-    p.add(fePepMassHi.comp, new CC().wrap());
 
-    FormEntry feMaxFragCharge = fe(MsfraggerParams.PROP_max_fragment_charge, new UiSpinnerInt(2, 0, 20, 1, 2))
-        .label("Max fragment charge").create();
-    uiSpinnerDbslice = new UiSpinnerInt(1, 1, 99, 1, 2);
-    FormEntry feSliceDb = fe(PROP_misc_slice_db, uiSpinnerDbslice).label("<html>Split database")
+    uiSpinnerDbsplit = new UiSpinnerInt(1, 1, 99, 1, 2);
+    FormEntry feDbsplit = fe(PROP_misc_slice_db, uiSpinnerDbsplit).label("<html>Split database")
         .tooltip("<html>Split database into smaller chunks.\n"
             + "Only use for very large databases (200MB+) or<br/>non-specific digestion.").create();
 
+    mu.add(p, fePepLenMin.label(), mu.ccR());
+    mu.add(p, fePepLenMin.comp).split(3).growX();
+    mu.add(p, new JLabel("-"));
+    mu.add(p, fePepLenMax.comp);
+    mu.add(p, fePepMassLo.label(), mu.ccR());
+    mu.add(p, fePepMassLo.comp).split(3);
+    mu.add(p, new JLabel("-"));
+    mu.add(p, fePepMassHi.comp);
 
-    p.add(feMaxFragCharge.label(), new CC().split(2).span(2).alignX("right"));
-    p.add(feMaxFragCharge.comp);
-    p.add(feSliceDb.label(), new CC().alignX("right"));
-    p.add(feSliceDb.comp, new CC().spanX().wrap());
+    mu.add(p, feDbsplit.label()).gapLeft("10px").split(2).spanX();
+    mu.add(p, feDbsplit.comp).wrap();
 
     return p;
   }
@@ -765,8 +762,9 @@ public class TabMsfragger extends JPanelWithEnablement {
     JPanel p = mu.newPanel("Advanced Options", new LC());
 
     mu.add(p, createPanelAdvancedSpectral()).pushX().wrap();
-    mu.add(p, createPanelAdvancedPeakMatch()).pushX().wrap();
     mu.add(p, createPanelAdvancedOpenSearch()).pushX().wrap();
+    mu.add(p, createPanelAdvancedOutput()).pushX().wrap();
+    mu.add(p, createPanelAdvancedPeakMatch()).pushX().wrap();
 
     return p;
   }
@@ -836,7 +834,7 @@ public class TabMsfragger extends JPanelWithEnablement {
 
   /** Advanced peak matching panel */
   private JPanel createPanelAdvancedPeakMatch() {
-    JPanel p = mu.newPanel("Peak Matching and Output Advanced Options", true);
+    JPanel p = mu.newPanel("Advanced Peak Matching Options", true);
 
     FormEntry feMinFragsModeling = fe(MsfraggerParams.PROP_min_fragments_modelling, new UiSpinnerInt(2, 0, 1000, 1, 4)).label("Min frags modeling").create();
     FormEntry feMinMatchedFrags = fe(MsfraggerParams.PROP_min_matched_fragments, new UiSpinnerInt(4, 0, 1000, 1, 4)).label("Min matched frags").create();
@@ -874,15 +872,6 @@ public class TabMsfragger extends JPanelWithEnablement {
             + "precursor mass accuracy(window is +/- this value).  This value is used\n"
             + "for tie breaking of results and boosting of unmodified peptides in open\n"
             + "search.").create();
-    FormEntry feReportTopN = fe(MsfraggerParams.PROP_output_report_topN,
-        new UiSpinnerInt(1, 1, 10000, 1, 4)).label("Report top N")
-        .tooltip("Report top N PSMs per input spectrum.").create();
-    UiSpinnerDouble uiSpinnerOutputMaxExpect = new UiSpinnerDouble(50, 0, Double.MAX_VALUE, 1,
-        new DecimalFormat("0.#"));
-    uiSpinnerOutputMaxExpect.setColumns(4);
-    FormEntry feOutputMaxExpect = fe(MsfraggerParams.PROP_output_max_expect, uiSpinnerOutputMaxExpect).label("Output max expect")
-        .tooltip("Suppresses reporting of PSM if top hit has<br> expectation greater than this threshold").create();
-
 
     uiComboOutputType = UiUtils.createUiCombo(FraggerOutputType.values());
     FormEntry feOutputType = fe(MsfraggerParams.PROP_output_format, uiComboOutputType).label("Output format")
@@ -902,19 +891,18 @@ public class TabMsfragger extends JPanelWithEnablement {
     FormEntry feOverrideCharge = fe(MsfraggerParams.PROP_override_charge, new UiCheck("Override charge with precursor charge", null))
         .tooltip("Ignores precursor charge and uses charge state\n" +
             "specified in precursor_charge range.").create();
-    FormEntry feReportAltProts = fe(MsfraggerParams.PROP_report_alternative_proteins, new UiCheck("Report alternative proteins", null, false)).create();
-
     FormEntry feDeisotope = fe(MsfraggerParams.PROP_deisotope, new UiSpinnerInt(1, 0, 2, 1, 4))
         .label("Deisotope")
         .tooltip("<html>0 = deisotoping off<br/>\n1 = deisotoping on").create();
-
-    uiCheckWriteCalibratedMgf = UiUtils.createUiCheck("Write calibrated MGF", false);
-    FormEntry feCheckWriteCalibratedMgf = fe(MsfraggerParams.PROP_write_calibrated_mgf, uiCheckWriteCalibratedMgf).create();
+    FormEntry feMaxFragCharge = fe(MsfraggerParams.PROP_max_fragment_charge, new UiSpinnerInt(2, 0, 20, 1, 2))
+        .label("Max fragment charge").create();
 
     mu.add(p, feMinFragsModeling.label(), mu.ccR());
     mu.add(p, feMinFragsModeling.comp);
     mu.add(p, feMinMatchedFrags.label(), mu.ccR());
-    mu.add(p, feMinMatchedFrags.comp).wrap();
+    mu.add(p, feMinMatchedFrags.comp);
+    mu.add(p, feMaxFragCharge.label(), mu.ccR());
+    mu.add(p, feMaxFragCharge.comp).wrap();
     mu.add(p, feDeisotope.label(), mu.ccR());
     mu.add(p, feDeisotope.comp);
     mu.add(p, feIonSeries.label(), mu.ccR());
@@ -928,6 +916,36 @@ public class TabMsfragger extends JPanelWithEnablement {
     mu.add(p, fePrecursorChargeLo.comp);
     mu.add(p, new JLabel("-"));
     mu.add(p, fePrecursorChargeHi.comp).wrap();
+
+    return p;
+  }
+
+  private JPanel createPanelAdvancedOutput() {
+    JPanel p = mu.newPanel("Advanced Output Options", true);
+
+
+    FormEntry feReportTopN = fe(MsfraggerParams.PROP_output_report_topN,
+        new UiSpinnerInt(1, 1, 10000, 1, 4)).label("Report top N")
+        .tooltip("Report top N PSMs per input spectrum.").create();
+    UiSpinnerDouble uiSpinnerOutputMaxExpect = new UiSpinnerDouble(50, 0, Double.MAX_VALUE, 1,
+        new DecimalFormat("0.#"));
+    uiSpinnerOutputMaxExpect.setColumns(4);
+    FormEntry feOutputMaxExpect = fe(MsfraggerParams.PROP_output_max_expect, uiSpinnerOutputMaxExpect).label("Output max expect")
+        .tooltip("Suppresses reporting of PSM if top hit has<br> expectation greater than this threshold").create();
+
+
+    uiComboOutputType = UiUtils.createUiCombo(FraggerOutputType.values());
+    FormEntry feOutputType = fe(MsfraggerParams.PROP_output_format, uiComboOutputType).label("Output format")
+        .tooltip("How the search results are to be reported.\n" +
+            "Downstream tools only support PepXML format.\n\n" +
+            "Only use TSV (tab delimited file) if you want to process \n" +
+            "search resutls yourself for easier import into other software.").create();
+
+    FormEntry feReportAltProts = fe(MsfraggerParams.PROP_report_alternative_proteins, new UiCheck("Report alternative proteins", null, false)).create();
+
+    uiCheckWriteCalibratedMgf = UiUtils.createUiCheck("Write calibrated MGF", false);
+    FormEntry feCheckWriteCalibratedMgf = fe(MsfraggerParams.PROP_write_calibrated_mgf, uiCheckWriteCalibratedMgf).create();
+
     mu.add(p, feReportTopN.label(), mu.ccR());
     mu.add(p, feReportTopN.comp).growX();
     mu.add(p, feReportAltProts.comp);
@@ -939,7 +957,6 @@ public class TabMsfragger extends JPanelWithEnablement {
 
     return p;
   }
-
 
   private JPanel createPanelAdvancedOpenSearch() {
     JPanel p = new JPanel(new MigLayout(new LC()));
@@ -1001,7 +1018,7 @@ public class TabMsfragger extends JPanelWithEnablement {
   private void postInitAddActionListeners() {
     uiCheckLocalizeDeltaMass.addActionListener(e -> {
       final boolean selected = uiCheckLocalizeDeltaMass.isSelected();
-      final int dbSlicing = uiSpinnerDbslice.getActualValue();
+      final int dbSlicing = uiSpinnerDbsplit.getActualValue();
       if (selected && dbSlicing > 1) {
         JOptionPane.showMessageDialog(this,
             "<html>This option is incompatible with DB Splitting.<br/>"
@@ -1010,9 +1027,9 @@ public class TabMsfragger extends JPanelWithEnablement {
       }
     });
 
-    uiSpinnerDbslice.addChangeListener(e -> {
+    uiSpinnerDbsplit.addChangeListener(e -> {
       final boolean selected = uiCheckLocalizeDeltaMass.isSelected();
-      final int dbSlicing = uiSpinnerDbslice.getActualValue();
+      final int dbSlicing = uiSpinnerDbsplit.getActualValue();
       if (selected && dbSlicing > 1) {
         JOptionPane.showMessageDialog(this,
             "<html><code>DB Slicing<code> is incompatible with <code>Localize delta mass</code> option.<br/>"
@@ -1300,7 +1317,7 @@ public class TabMsfragger extends JPanelWithEnablement {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigDbsplit m) {
     log.debug("Got NoteConfigDbsplit. Setting MSFragger tab DB Split option to enabled={}", m.isValid());
-    updateEnabledStatus(uiSpinnerDbslice, m.isValid());
+    updateEnabledStatus(uiSpinnerDbsplit, m.isValid());
   }
 
   @Subscribe
@@ -1339,7 +1356,7 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
   public int getNumDbSlices() {
-    return uiSpinnerDbslice.getActualValue();
+    return uiSpinnerDbsplit.getActualValue();
   }
 
   public String getMassOffsets() {
@@ -1456,7 +1473,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     formFrom(params);
 
     // reset some fields that are not part of Fragger config file
-    uiSpinnerDbslice.setValue(1);
+    uiSpinnerDbsplit.setValue(1);
   }
 
   /**
