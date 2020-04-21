@@ -12,6 +12,7 @@ import com.dmtavt.fragpipe.messages.MessageValidityMassCalibration;
 import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.github.chhh.utils.CacheUtils;
+import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -1132,7 +1133,7 @@ public class TabMsfragger extends JPanelWithEnablement {
 
   private void formFrom(MsfraggerParams params) {
     Map<String, String> map = paramsTo(params);
-    map = PropertiesUtils.remapKeys(map, k -> StringUtils.prependOnce(k, TAB_PREFIX));
+    map = MapUtils.remapKeys(map, k -> StringUtils.prependOnce(k, TAB_PREFIX));
     formFrom(map);
     tableVarMods.setData(params.getVariableMods());
     tableFixMods.setData(params.getAdditionalMods());

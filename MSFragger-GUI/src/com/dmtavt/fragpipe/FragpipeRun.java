@@ -864,9 +864,9 @@ public class FragpipeRun {
     }
 
     // run PTMShepherd
-    PtmshepherdPanel ptmshepherdPanel = Fragpipe.getStickyStrict(PtmshepherdPanel.class);
-    final boolean isRunShepherd = ptmshepherdPanel.isRunShepherd();
-    final boolean isPtmsFormValid = ptmshepherdPanel.validateForm();
+    PtmshepherdPanel ptmsPanel = Fragpipe.getStickyStrict(PtmshepherdPanel.class);
+    final boolean isRunShepherd = ptmsPanel.isRunShepherd();
+    final boolean isPtmsFormValid = ptmsPanel.validateForm();
     final CmdPtmshepherd cmdPtmshepherd = new CmdPtmshepherd(isRunShepherd, wd);
     if (cmdPtmshepherd.isRun()) {
       if (!isPtmsFormValid) {
@@ -876,7 +876,7 @@ public class FragpipeRun {
         return false;
       }
       Path fastaPath = Paths.get(fastaFile);
-      Map<String, String> additionalShepherdParams = ptmshepherdPanel.toMap();
+      Map<String, String> additionalShepherdParams = ptmsPanel.toMap();
       if (threads > 0) {
         additionalShepherdParams.put("threads", Integer.toString(threads));
       }

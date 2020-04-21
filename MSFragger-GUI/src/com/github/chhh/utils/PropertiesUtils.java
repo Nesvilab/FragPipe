@@ -61,26 +61,6 @@ public final class PropertiesUtils {
     private PropertiesUtils() {
     }
 
-    public static<K,V,R> Map<R,V> remapKeys(Map<K, V> map, Function<K,R> keyMapper) {
-        return map.entrySet().stream()
-            .collect(Collectors.toMap(kv -> keyMapper.apply(kv.getKey()), Entry::getValue));
-    }
-
-    public static<K,V,R> Map<K,R> remapValues(Map<K, V> map, Function<V,R> valMapper) {
-        return map.entrySet().stream()
-            .collect(Collectors.toMap(Entry::getKey, kv -> valMapper.apply(kv.getValue())));
-    }
-
-    public static<K,V,R> Map<K,R> remapValues(Map<K, V> map, BiFunction<K,V,R> valMapper) {
-        return map.entrySet().stream()
-            .collect(Collectors.toMap(Entry::getKey, kv -> valMapper.apply(kv.getKey(), kv.getValue())));
-    }
-
-    public static<K,V,RK, RV> Map<RK,RV> remap(Map<K, V> map, Function<K,RK> keyMapper, Function<V,RV> valMapper) {
-        return map.entrySet().stream()
-            .collect(Collectors.toMap(kv -> keyMapper.apply(kv.getKey()), kv -> valMapper.apply(kv.getValue())));
-    }
-
     /**
      * Replacement for standard Properties writer, which does not maintain the order of entries
      * anymore.

@@ -115,14 +115,21 @@ public class PtmshepherdPanel extends JPanelBase {
     loadDefaults(2);
   }
 
+  @Override
+  public Map<String, String> toMap() {
+    Map<String, String> map = super.toMap();
+    map = MapUtils.remapValues(map, (k, v) -> CONV_TO_FILE.getOrDefault(k, Function.identity()).apply(v));
+    return map;
+  }
+
   private void loadDefaults(int debugInvocationId) {
     try {
       Map<String, Component> comps = SwingUtils.mapComponentsByName(this, true);
       Properties defaultProps = PropertiesUtils
           .loadPropertiesLocal(PtmshepherdParams.class, PtmshepherdParams.DEFAULT_PROPERTIES_FN);
       Map<String, String> asMap = PropertiesUtils.toMap(defaultProps);
-      asMap = PropertiesUtils.remapValues(asMap, (k,v) -> CONV_TO_GUI.getOrDefault(k, Function.identity()).apply(v));
-      asMap = PropertiesUtils.remapKeys(asMap, k -> StringUtils.prependOnce(k, PREFIX));
+      asMap = MapUtils.remapValues(asMap, (k,v) -> CONV_TO_GUI.getOrDefault(k, Function.identity()).apply(v));
+      asMap = MapUtils.remapKeys(asMap, k -> StringUtils.prependOnce(k, PREFIX));
 
       List<String> intersect = MapUtils.keysIntersection(asMap, comps).collect(Collectors.toList());
       if (intersect.isEmpty()) {
