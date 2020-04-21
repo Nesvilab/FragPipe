@@ -21,6 +21,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigTips;
 import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
 import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
 import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
+import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.tabs.TabConfig;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
@@ -418,6 +419,7 @@ public class Fragpipe extends JFrame {
     Bus.postSticky(this);
 
     // initialize singletons (mainly to subscribe them to the bus)
+    ProcessManager.get().init();
     DbSplit2.initClass();
     SpecLibGen2.initClass();
   }

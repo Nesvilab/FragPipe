@@ -47,6 +47,7 @@ public class ProcessManager {
   private ExecutorService execMulti;
 
   private ProcessManager() {
+    log.debug("Process manager private constructor called");
     init0();
     Bus.register(this);
   }
