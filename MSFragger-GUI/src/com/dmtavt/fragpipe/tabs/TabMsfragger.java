@@ -19,7 +19,6 @@ import com.github.chhh.utils.swing.DocumentFilters;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
-import com.github.chhh.utils.swing.FormEntry.Builder;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
@@ -133,7 +132,8 @@ public class TabMsfragger extends JPanelWithEnablement {
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
   private static final String CALIBRATE_VALUE_OFF = "None";
   private static final String[] CALIBRATE_LABELS = {CALIBRATE_VALUE_OFF, "Mass calibration", "Mass calibration, parameter optimization"};
-  private static final String[] MASS_DIFF_TO_VARIABLE_MOD = {"No", "Yes, and change the original mass diff and the calculated mass accordingly", "Yes, but don't change the original mass diff and the calculated mass"};
+  private static final String[] MASS_DIFF_TO_VAR_MOD = {"No", "Yes", "Yes, and adjust peptide mass"};
+  private static final int[] MASS_DIFF_TO_VAR_MOD_MAP = {0, 2, 1};
   private static final List<MsfraggerEnzyme> ENZYMES = new EnzymeProvider().get();
   //public static FileNameExtensionFilter fnExtFilter = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf/raw/d)", "mzml", "mzxml", "mgf", "raw", "d");
   private static String[] PROPS_MISC = {
@@ -150,32 +150,39 @@ public class TabMsfragger extends JPanelWithEnablement {
       PROP_misc_fragger_precursor_charge_hi,
   };
 
+  private static String itos(int i) {
+    return Integer.toString(i);
+  }
+
+  private static String stobtoitos(String s) {
+    return itos(Boolean.parseBoolean(s) ? 1 : 0);
+  }
+
   static {
     PROPS_MISC_NAMES = new HashSet<>(Arrays.asList(PROPS_MISC));
     CONVERT_TO_FILE = new HashMap<>();
     CONVERT_TO_GUI = new HashMap<>();
     SEARCH_TYPE_NAME_MAPPING = new HashMap<>();
 
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_write_calibrated_mgf, s -> Integer.toString(Boolean.parseBoolean(s) ? 1 : 0));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s -> Integer.toString(ArrayUtils.indexOf(MASS_DIFF_TO_VARIABLE_MOD, s)));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_mass_units, s -> Integer.toString(
-        PrecursorMassTolUnits.valueOf(s).valueInParamsFile()));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_mass_units, s -> Integer.toString(
-        FragmentMassTolUnits.valueOf(s).valueInParamsFile()));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_true_units, s -> Integer.toString(FragmentMassTolUnits.valueOf(s).valueInParamsFile()));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_calibrate_mass, s -> Integer.toString(Arrays.asList(CALIBRATE_LABELS).indexOf(s)));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_num_enzyme_termini, s -> Integer.toString(
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_write_calibrated_mgf, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s -> itos(
+        MASS_DIFF_TO_VAR_MOD_MAP[ArrayUtils.indexOf(MASS_DIFF_TO_VAR_MOD, s)]));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_mass_units, s -> itos(PrecursorMassTolUnits.valueOf(s).valueInParamsFile()));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_mass_units, s -> itos(FragmentMassTolUnits.valueOf(s).valueInParamsFile()));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_true_units, s -> itos(FragmentMassTolUnits.valueOf(s).valueInParamsFile()));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_calibrate_mass, s -> itos(Arrays.asList(CALIBRATE_LABELS).indexOf(s)));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_num_enzyme_termini, s -> itos(
         CleavageType.valueOf(s).valueInParamsFile()));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_remove_precursor_peak, s -> Integer.toString(
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_remove_precursor_peak, s -> itos(
         RemovePrecursorPeak.get(s)));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_intensity_transform, s -> Integer.toString(
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_intensity_transform, s -> itos(
         IntensityTransform.get(s)));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_localize_delta_mass, s -> Integer.toString(Boolean.parseBoolean(s) ? 1 : 0));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Integer.toString(Boolean.parseBoolean(s) ? 1 : 0));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> Integer.toString(Boolean.parseBoolean(s) ? 1 : 0));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_override_charge, s -> Integer.toString(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_localize_delta_mass, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_clip_nTerm_M, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_override_charge, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.valueOf(s).valueInParamsFile());
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Integer.toString(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_report_alternative_proteins, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_ion_series, ionStr -> ionStr.trim().replaceAll("[\\s,;]+",","));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_ion_series_definitions, defStr -> defStr.trim().replaceAll("\\s*[,;]+\\s*",", "));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets, defStr -> {
@@ -190,7 +197,7 @@ public class TabMsfragger extends JPanelWithEnablement {
 
 
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_calibrated_mgf, s -> Boolean.toString(Integer.parseInt(s) > 0));
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s-> MASS_DIFF_TO_VARIABLE_MOD[Integer.parseInt(s)]);
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s-> MASS_DIFF_TO_VAR_MOD[Integer.parseInt(s)]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> PrecursorMassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> FragmentMassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_true_units, s -> FragmentMassTolUnits.fromParamsFileRepresentation(s).name());
@@ -404,9 +411,6 @@ public class TabMsfragger extends JPanelWithEnablement {
     FormEntry feCalibrate = fe(MsfraggerParams.PROP_calibrate_mass, uiComboMassCalibrate)
         .label("<html>Calibration and Optimization")
         .tooltip(String.format("<html>Requires MSFragger %s+.", minFraggerVer)).create();
-    uiCheckWriteCalibratedMgf = UiUtils.createUiCheck("Write calibrated MGF", false);
-    FormEntry feCheckWriteCalibratedMgf = fe(MsfraggerParams.PROP_write_calibrated_mgf, uiCheckWriteCalibratedMgf).create();
-
 
     uiCheckLocalizeDeltaMass = new UiCheck("<html>Localize delta mass", null, false);
     FormEntry feLocalizeDeltaMass = fe(MsfraggerParams.PROP_localize_delta_mass,
@@ -433,8 +437,7 @@ public class TabMsfragger extends JPanelWithEnablement {
     mu.add(p, feFragTolUnits.comp).split(2);
     mu.add(p, feFragTol.comp).wrap();
     mu.add(p, feCalibrate.label(), mu.ccR());
-    mu.add(p, feCalibrate.comp).split().spanX();
-    mu.add(p, feCheckWriteCalibratedMgf.comp).wrap();
+    mu.add(p, feCalibrate.comp).split().spanX().wrap();
     mu.add(p, feLocalizeDeltaMass.comp).skip(1);
 
     mu.add(p, feIsotopeError.label(), mu.ccR());
@@ -813,9 +816,7 @@ public class TabMsfragger extends JPanelWithEnablement {
         UiSpinnerDouble.builder(+1.5, -1000.0, 1000.0, 0.1).setNumCols(5).setFormat(df1).create())
         .create();
     FormEntry feIntensityTransform = fe(MsfraggerParams.PROP_intensity_transform, UiUtils.createUiCombo(IntensityTransform.getNames())).label("Intensity transform").create();
-    UiCombo uiComboMassDiffToVariableMod = UiUtils.createUiCombo(MASS_DIFF_TO_VARIABLE_MOD);
-    FormEntry feComboMassDiffToVariableMod = fe(MsfraggerParams.PROP_mass_diff_to_variable_mod, uiComboMassDiffToVariableMod)
-        .label("Use mass diff as a variable modification").create();
+
 
 
     mu.add(p, fePrecursorMassMode.label(), mu.ccR());
@@ -838,16 +839,13 @@ public class TabMsfragger extends JPanelWithEnablement {
     mu.add(p, fePrecRemoveRangeHi.comp).wrap();
     mu.add(p, feIntensityTransform.label(), mu.ccR());
     mu.add(p, feIntensityTransform.comp).wrap();
-    mu.add(p, feComboMassDiffToVariableMod.label()).split().spanX();
-    mu.add(p, feComboMassDiffToVariableMod.comp).wrap();
 
     return p;
   }
 
 
   /** Advanced peak matching panel */
-  private JPanel createPanelPeakMatchAdvanced()
-  {
+  private JPanel createPanelPeakMatchAdvanced() {
     JPanel p = mu.newPanel("Peak Matching and Output Advanced Options", true);
 
     FormEntry feMinFragsModeling = fe(MsfraggerParams.PROP_min_fragments_modelling, new UiSpinnerInt(2, 0, 1000, 1, 4)).label("Min frags modeling").create();
@@ -920,6 +918,9 @@ public class TabMsfragger extends JPanelWithEnablement {
         .label("Deisotope")
         .tooltip("<html>0 = deisotoping off<br/>\n1 = deisotoping on").create();
 
+    uiCheckWriteCalibratedMgf = UiUtils.createUiCheck("Write calibrated MGF", false);
+    FormEntry feCheckWriteCalibratedMgf = fe(MsfraggerParams.PROP_write_calibrated_mgf, uiCheckWriteCalibratedMgf).create();
+
     mu.add(p, feMinFragsModeling.label(), mu.ccR());
     mu.add(p, feMinFragsModeling.comp);
     mu.add(p, feMinMatchedFrags.label(), mu.ccR());
@@ -939,11 +940,12 @@ public class TabMsfragger extends JPanelWithEnablement {
     mu.add(p, fePrecursorChargeHi.comp).wrap();
     mu.add(p, feReportTopN.label(), mu.ccR());
     mu.add(p, feReportTopN.comp).growX();
-    mu.add(p, feReportAltProts.comp).spanX().wrap();
+    mu.add(p, feReportAltProts.comp);
+    mu.add(p, feOutputMaxExpect.label()).split().spanX().gapLeft("10px");
+    mu.add(p, feOutputMaxExpect.comp).wrap();
     mu.add(p, feOutputType.label(), mu.ccR());
     mu.add(p, feOutputType.comp);
-    mu.add(p, feOutputMaxExpect.label(), mu.ccR());
-    mu.add(p, feOutputMaxExpect.comp).wrap();
+    mu.add(p, feCheckWriteCalibratedMgf.comp).wrap();
 
     return p;
   }
@@ -966,7 +968,12 @@ public class TabMsfragger extends JPanelWithEnablement {
         new DecimalFormat("0.00"));
     spinnerZeroBinMultExpect.setColumns(3);
     FormEntry feZeroBinMultExpect = fe(MsfraggerParams.PROP_zero_bin_mult_expect, spinnerZeroBinMultExpect).label("Zero bin multiply expect").create();
+    UiCombo uiComboMassDiffToVariableMod = UiUtils.createUiCombo(MASS_DIFF_TO_VAR_MOD);
+    FormEntry feComboMassDiffToVariableMod = fe(MsfraggerParams.PROP_mass_diff_to_variable_mod, uiComboMassDiffToVariableMod)
+        .label("Report mass shift as a variable mod").create();
 
+    mu.add(p, feComboMassDiffToVariableMod.label(), mu.ccR());
+    mu.add(p, feComboMassDiffToVariableMod.comp).split().spanX().wrap();
 
     mu.add(p, feTrackZeroTopN.label(), mu.ccR());
     mu.add(p, feTrackZeroTopN.comp);
@@ -1118,7 +1125,7 @@ public class TabMsfragger extends JPanelWithEnablement {
 
     // ram and threads parameters have been moved to Workflow tab, need to re-inject them when saving fragger params
     TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
-    map.put(MsfraggerParams.PROP_num_threads, Integer.toString(tabWorkflow.getThreads()));
+    map.put(MsfraggerParams.PROP_num_threads, itos(tabWorkflow.getThreads()));
 
     MsfraggerParams params = paramsFrom(map);
 
