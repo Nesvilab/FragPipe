@@ -90,6 +90,11 @@ public class PepProphPanel extends JPanelBase {
     defaults.put("Non-Specific Search", SearchTypeProp.nonspecific);
     defaults.put("Offset Search", SearchTypeProp.offset);
     final UiCombo uiComboDefaults = UiUtils.createUiCombo(new ArrayList<>(defaults.keySet()));
+    JButton btnLoadDefaults = UiUtils
+        .createButton("Load", "Load peptide prophet settings for given search type", e -> {
+          SearchTypeProp type = defaults.get((String) uiComboDefaults.getSelectedItem());
+          loadDefaults(type);
+        });
     uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).text(defaultCmdOpts()).create();
     FormEntry feCmdOpts = fe(uiTextCmdOpts, "cmd-opts")
         .label("Cmd line opts:")
@@ -100,11 +105,7 @@ public class PepProphPanel extends JPanelBase {
     uiCheckCombinePepxml = UiUtils
         .createUiCheck("<html>Single <b>combined</b> pepxml file per experiment / group", false);
     uiCheckCombinePepxml.setName("combine-pepxml");
-    JButton btnLoadDefaults = UiUtils
-        .createButton("Load", "Load peptide prophet settings for given search type", e -> {
-          SearchTypeProp type = defaults.get((String) uiComboDefaults.getSelectedItem());
-          loadDefaults(type);
-        });
+
 
     mu.layout(this).fillX();
     mu.border(this, "PeptideProphet");

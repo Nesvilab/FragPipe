@@ -236,6 +236,27 @@ public final class PropertiesUtils {
             throw new IllegalStateException("Error reading properties from the classpath");
         }
     }
+
+    /**
+     * Loads properties from a properties file that sits next to a given class on the classpath.
+     * @param clazz Class relative to which to look for.
+     * @param propertiesFile Properties file name.
+     * @return Properties loaded from the file or null if the file was not found
+     */
+    public static Properties loadPropertiesLocal(Class<?> clazz, String propertiesFile, boolean fake) {
+        try (InputStream is = clazz.getResourceAsStream(propertiesFile)) {
+            if (is == null) {
+                log.debug("properties file was not found");
+                return null;
+            }
+            Properties p = new Properties();
+            p.load(is);
+            return p;
+        } catch (IOException e) {
+            log.debug("exception reading properties file", e);
+            return null;
+        }
+    }
     
     /**
      * Downloads a properties file from a remote URL.

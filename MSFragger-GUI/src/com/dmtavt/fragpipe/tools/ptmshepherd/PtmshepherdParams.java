@@ -17,6 +17,8 @@ import com.github.chhh.utils.PropertiesUtils;
 public class PtmshepherdParams {
   private static final Logger log = LoggerFactory.getLogger(PtmshepherdParams.class);
   public static final String DEFAULT_PROPERTIES_FN = "shepherd_default_open.config";
+  public static final String DEFAULT_PROPERTIES_FN_BASE = "shepherd_default_";
+  public static final String DEFAULT_PROPERTIES_FN_EXT = ".config";
   public static final String PROP_DATABASE = "database";
   /**
    * Dataset string format is `dataset = (set-name) (path-to-psm.tsv) (path-to-mzml-folder)`
@@ -41,6 +43,10 @@ public class PtmshepherdParams {
         .loadPropertiesLocal(PtmshepherdParams.class, DEFAULT_PROPERTIES_FN);
     props = new HashMap<>(PropertiesUtils.toMap(defaults));
     props.putAll(additionalProperties);
+  }
+
+  public static String configFn(String searchTypeSuffix) {
+    return DEFAULT_PROPERTIES_FN_BASE + searchTypeSuffix + DEFAULT_PROPERTIES_FN_EXT;
   }
 
   public String createConfig() {

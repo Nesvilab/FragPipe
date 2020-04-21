@@ -1,6 +1,7 @@
 package com.dmtavt.fragpipe.tools.ptmshepherd;
 
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.api.SearchTypeProp;
 import com.dmtavt.fragpipe.messages.MessageLoadShepherdDefaults;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.tools.enums.MassTolUnits;
@@ -12,6 +13,7 @@ import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.GhostText;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.UiCheck;
+import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
@@ -25,6 +27,7 @@ import java.awt.event.FocusEvent;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -60,6 +63,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
   public static final String PROP_precursor_mass_units = "precursor_mass_units";
   public static final String PROP_precursor_tol = "precursor_tol";
+  public static final String PROP_annotation_tol = "annotation_tol";
 
   public static final String PROP_spectra_ppmtol = "spectra_ppmtol";
   public static final String PROP_spectra_condPeaks = "spectra_condPeaks";
@@ -110,15 +114,19 @@ public class PtmshepherdPanel extends JPanelBase {
 
   @Subscribe
   public void on(MessageLoadShepherdDefaults m) {
-    log.debug("Got MessageLoadShepherdDefaults");
+    log.debug("Got MessageLoadShepherdDefaults: {}", m);
     if (m.doAskUser) {
-      int answer = SwingUtils.showConfirmDialog(this, new JLabel("<html>Load PTMShepherd defaults?"));
+      int answer = SwingUtils.showConfirmDialog(this, new JLabel(String.format("<html>Load PTMShepherd defaults for %s?", m.type.name())));
       if (JOptionPane.OK_OPTION != answer) {
         log.debug("User cancelled Loading Shepherd defaults");
         return;
       }
     }
-    loadDefaults(2);
+    loadDefaults(2, m.type);
+  }
+
+  private Properties loadBaseDefaults() {
+    return PropertiesUtils.loadPropertiesLocal(PtmshepherdParams.class, PtmshepherdParams.DEFAULT_PROPERTIES_FN);
   }
 
   @Override
@@ -128,12 +136,17 @@ public class PtmshepherdPanel extends JPanelBase {
     return map;
   }
 
-  private void loadDefaults(int debugInvocationId) {
+  private void loadDefaults(int debugInvocationId, SearchTypeProp type) {
     try {
       Map<String, Component> comps = SwingUtils.mapComponentsByName(this, true);
-      Properties defaultProps = PropertiesUtils
-          .loadPropertiesLocal(PtmshepherdParams.class, PtmshepherdParams.DEFAULT_PROPERTIES_FN);
-      Map<String, String> asMap = PropertiesUtils.toMap(defaultProps);
+
+      Properties props = PropertiesUtils
+          .loadPropertiesLocal(PtmshepherdParams.class, PtmshepherdParams.configFn(type.name()));
+      if (props == null) {
+        log.warn("No PTMShepherd default config file for type [{}]", type.name());
+        return;
+      }
+      Map<String, String> asMap = PropertiesUtils.toMap(props);
       asMap = MapUtils.remapValues(asMap, (k,v) -> CONV_TO_GUI.getOrDefault(k, Function.identity()).apply(v));
       asMap = MapUtils.remapKeys(asMap, k -> StringUtils.prependOnce(k, PREFIX));
 
@@ -182,9 +195,22 @@ public class PtmshepherdPanel extends JPanelBase {
       updateEnabledStatus(pContent, isSelected);
     });
     p.add(checkRun, new CC().alignX("left"));
-    JButton btnLoadDefaults = new JButton("Load PTMShepherd defaults");
-    btnLoadDefaults.addActionListener((e) -> Bus.post(new MessageLoadShepherdDefaults(true)));
-    p.add(btnLoadDefaults, new CC().alignX("left"));
+
+    JLabel labelDefaults = new JLabel("Defaults for:");
+    final LinkedHashMap<String, SearchTypeProp> defaults = new LinkedHashMap<>();
+    defaults.put("Open Search", SearchTypeProp.open);
+    defaults.put("Offset Search", SearchTypeProp.offset);
+    defaults.put("Glyco Search", SearchTypeProp.glyco);
+    final UiCombo uiComboDefaults = UiUtils.createUiCombo(new ArrayList<>(defaults.keySet()));
+    JButton btnLoadDefaults = UiUtils
+        .createButton("Load", "Load PTM-Shepherd settings for given search type", e -> {
+          SearchTypeProp type = defaults.get((String) uiComboDefaults.getSelectedItem());
+          Bus.post(new MessageLoadShepherdDefaults(true, type));
+        });
+
+    mu.add(p, labelDefaults).split().spanX();
+    mu.add(p, uiComboDefaults);
+    mu.add(p, btnLoadDefaults).wrap();
 
     return p;
   }
@@ -211,9 +237,11 @@ public class PtmshepherdPanel extends JPanelBase {
 
     UiSpinnerDouble uiSpinnerWidth = UiSpinnerDouble.builder(0.002, 0.0, 0.5, 0.001)
         .setFormat(new DecimalFormat("0.####")).setNumCols(5).create();
-    FormEntry feWidth = new FormEntry(PROP_peakpicking_width, "Peak picking width", uiSpinnerWidth);
-
-    FormEntry fePeakPickingUnits = mu.fe(PROP_peakpicking_mass_units, UiUtils.createUiCombo(MassTolUnits.values()));
+    FormEntry feWidth = mu.feb(PROP_peakpicking_width, uiSpinnerWidth)
+        .label("Peak picking width").tooltip("+/- signal width during peakpicking").create();
+    FormEntry fePeakPickingUnits = mu.feb(PROP_peakpicking_mass_units, UiUtils.createUiCombo(MassTolUnits.values()))
+        .tooltip("+/- signal width during peakpicking")
+        .create();
 
     FormEntry feExtendedOut = new FormEntry(PROP_output_extended, "not-shown",
         new UiCheck("Extended output", null, false),
@@ -232,10 +260,16 @@ public class PtmshepherdPanel extends JPanelBase {
     uiSpinnerPrecTol.setColumns(5);
     FormEntry fePrecTol = new FormEntry(PROP_precursor_tol, "Precursor tolerance", uiSpinnerPrecTol);
     FormEntry fePrecUnits = mu.fe(PROP_precursor_mass_units, UiUtils.createUiCombo(MassTolUnits.values()));
+    UiSpinnerDouble uiSpinnerAnnotTol = UiSpinnerDouble.builder(0.01, 0.001, 0.999, 0.01)
+        .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
+    FormEntry feAnnotTol = mu.feb(PROP_annotation_tol, uiSpinnerAnnotTol)
+        .label("Annotation tolerance (Da)").tooltip("+/- distance from peak to annotated mass").create();
 
     mu.add(p, fePrecTol.label(), mu.ccR());
-    mu.add(p, fePrecTol.comp).split().spanX();
-    mu.add(p, fePrecUnits.comp).wrap();
+    mu.add(p, fePrecTol.comp).split(2);
+    mu.add(p, fePrecUnits.comp);
+    mu.add(p, feAnnotTol.label(), mu.ccR());
+    mu.add(p, feAnnotTol.comp).wrap();
 
 
     final String ghost = "Phospho:79.9663, Something-else:-20.123";
@@ -333,7 +367,7 @@ public class PtmshepherdPanel extends JPanelBase {
   protected void initMore() {
     super.initMore();
 
-    loadDefaults(1); // pre-populate, but only after renaming has happened in super.initMore()
+    loadDefaults(1, SearchTypeProp.open); // pre-populate, but only after renaming has happened in super.initMore()
   }
 
   public boolean isRunShepherd() {
