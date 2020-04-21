@@ -1,6 +1,7 @@
 package com.dmtavt.fragpipe.tools.tmtintegrator;
 
 import com.dmtavt.fragpipe.api.Bus;
+import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -51,6 +52,7 @@ import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
@@ -580,6 +582,19 @@ public class TmtiPanel extends JPanelBase {
       ExpNameToAnnotationFile oldRow = oldRows.get(expName);
       if (oldRow != null) {
         newRow.setPath(oldRow.getPath());
+      } else {
+        // maybe there already is annotations.txt file?
+        List<Path> fileDirs = Seq.seq(e.getValue())
+            .map(lcms -> lcms.getPath().getParent()).distinct().toList();
+        if (fileDirs.size() == 1) {
+          // only if all files are in the same directory, we'll try to auto-detect annotations file
+          List<Path> annotations = PathUtils.findFilesQuietly(fileDirs.get(0),
+              p -> p.getFileName().toString().equalsIgnoreCase("annotation.txt"))
+              .collect(Collectors.toList());
+          if (annotations.size() == 1) {// this is in case the predicate is changed such that it can match multiple files
+            newRow.setPath(annotations.get(0).toString());
+          }
+        }
       }
       newRows.add(newRow);
     }

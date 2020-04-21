@@ -16,6 +16,7 @@
  */
 package com.github.chhh.utils;
 
+import com.dmtavt.fragpipe.api.PropsFile;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import java.io.File;
 import java.io.IOException;
@@ -26,17 +27,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.filechooser.FileFilter;
+import org.jooq.lambda.Unchecked;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -45,6 +50,15 @@ import org.slf4j.LoggerFactory;
  */
 public class PathUtils {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(PathUtils.class);
+
+    public static Stream<Path> findFilesQuietly(Path startDir, Predicate<Path> toAccept) {
+        try {
+            return Files.walk(startDir).filter(toAccept);
+        } catch (IOException e) {
+            log.error("Error traversing files", e);
+            return Stream.empty();
+        }
+    }
 
     public static List<String> getClasspaths() {
         String nameCp = "java.class.path";
