@@ -429,16 +429,8 @@ public class TmtiPanel extends JPanelBase {
 
 //    mu.add(p, fe);
 
-
-//    addRowLabelCompComp(p, feUniqueGene, feUniquePep);
-//    addRowLabelCompComp(p, feMinPsmProb, feBestPsm);
-//    addRowLabelCompComp(p, feMinPurity, fePsmNorm);
-//    addRowLabelCompComp(p, feMinPercent, feOutlierRemoval);
-//    addRowLabelCompComp(p, null, feAllowOverlabel);
-//    addRowLabelCompComp(p, feProtExclude, feAllowUnlabeled);
-//    addRowLabelCompComp(p, feMaxPepProb, feMs1Int);
-//    addRowLabelCompComp(p, null,feTop3);
-//    addRowLabelCompComp(p, null,fePrintRefInt);
+    mu.add(p, feProtExclude.label(), mu.ccR());
+    mu.add(p, feProtExclude.comp).growX().spanX().wrap();
     mu.add(p, feFreequant.label(), mu.ccR());
     mu.add(p, feFreequant.comp).growX().spanX().wrap();
     mu.add(p, feLabelquant.label(), mu.ccR());
