@@ -168,7 +168,7 @@ public class TmtiPanel extends JPanelBase {
   @Override
   protected void init() {
     this.setLayout(new BorderLayout());
-    mu.border(this, "TMT Qunatitation");
+    mu.border(this, "Isobaric Labeling-Based Quantification");
 
     pTop = createPanelTop();
     pContent = createPanelContent();
@@ -223,7 +223,7 @@ public class TmtiPanel extends JPanelBase {
     colBrowse = new ButtonColumn(tmtAnnotationTable, actionBrowse, 2);
     colCreate = new ButtonColumn(tmtAnnotationTable, actionCreate, 3);
 
-    p.add(new JLabel("TMT Annotations (rows will be filled when you assign LCMS files to experiments)"), BorderLayout.NORTH);
+    p.add(new JLabel("Sample/Channel Annotation (rows will be filled when you assign LCMS files to experiments)"), BorderLayout.NORTH);
     tmtAnnotationTable.fireInitialization();
     tmtAnnotationTable.setFillsViewportHeight(false);
     scrollPaneTmtTable = new JScrollPane();
