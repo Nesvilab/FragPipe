@@ -3,6 +3,7 @@ package com.dmtavt.fragpipe.process;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
+import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
 import java.io.IOException;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
@@ -246,15 +247,20 @@ public class ProcessManager {
     group.clear();
   }
 
-  @Subscribe(threadMode = ThreadMode.BACKGROUND)
+  @Subscribe(threadMode = ThreadMode.ASYNC)
   public void on(MessageKillAll m) {
     long notStarted = taskGroups.stream().mapToInt(List::size).sum();
     String msg = String.format(
         "\n~~~~~~~~~~~~~~~~~~~~\nCancelling %d remaining tasks", notStarted);
     Bus.post(new MessagePrintToConsole(Fragpipe.COLOR_RED_DARKEST, msg, true));
-    stop();
-    // try deleting old temp files
-    deleteTempFiles();
+
+    try {
+      stop();
+      deleteTempFiles(); // try deleting old temp files
+    } finally {
+      // after attempting to stop all previous tasks, re-enable run button
+      Bus.post(new MessageRunButtonEnabled(true));
+    }
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
