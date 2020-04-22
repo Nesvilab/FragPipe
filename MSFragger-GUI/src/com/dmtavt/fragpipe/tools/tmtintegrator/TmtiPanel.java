@@ -336,11 +336,11 @@ public class TmtiPanel extends JPanelBase {
         "exclude proteins with specified tags at the beginning of the accession <br/>\n"
             + "number (e.g. none: no exclusion; sp|,tr| : exclude protein with sp| or tr|)");
 
-    uiTextFreequant = new UiText("--ptw 0.4 --tol 10 --isolated");
+    uiTextFreequant = new UiText("--ptw 0.4 --tol 20 --isolated");
     FormEntry feFreequant = fe("freequant", "Freequant opts", uiTextFreequant,
         "Command line options for Philosopher Freequant command");
 
-    uiTextLabelquant = new UiText("--purity 0.5 --tol 10 --level 2");
+    uiTextLabelquant = new UiText("--tol 20 --level 2");
     FormEntry feLabelquant = fe("labelquant", "Labelquant opts", uiTextLabelquant,
         "Command line options for Philosopher Labelquant command");
 
