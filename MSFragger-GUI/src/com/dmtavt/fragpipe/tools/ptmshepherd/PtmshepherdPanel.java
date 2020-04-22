@@ -230,11 +230,6 @@ public class PtmshepherdPanel extends JPanelBase {
     FormEntry feLocBackground = new FormEntry(PROP_localization_background, "Localization background",
         new UiSpinnerInt(4, 1, 4, 1, 5));
 
-    p.add(feHistoSmoothBins.label(), new CC().alignX("right"));
-    p.add(feHistoSmoothBins.comp, new CC().alignX("left"));
-    p.add(feLocBackground.label(), new CC().alignX("right"));
-    p.add(feLocBackground.comp, new CC().alignX("left").wrap());
-
     UiSpinnerDouble uiSpinnerPromRatio = UiSpinnerDouble.builder(0.3,0.0,1.0, 0.1)
         .setFormat(new DecimalFormat("0.#")).setNumCols(5).create();
     FormEntry fePromRatio = new FormEntry(PROP_peakpicking_promRatio, "Prominence ratio", uiSpinnerPromRatio,
@@ -252,14 +247,6 @@ public class PtmshepherdPanel extends JPanelBase {
         new UiCheck("Extended output", null, false),
         "<html>Write additional files with more detailed information.");
 
-    mu.add(p, fePromRatio.label(), mu.ccR());
-    mu.add(p, fePromRatio.comp);
-    mu.add(p, feWidth.label(), mu.ccR());
-    mu.add(p, feWidth.comp);
-    mu.add(p, fePeakPickingUnits.comp);
-    mu.add(p, feExtendedOut.comp).pushX().wrap();
-
-
     UiSpinnerDouble uiSpinnerPrecTol = UiSpinnerDouble.builder(0.01, 0.001, 1e6, 0.01)
         .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
     uiSpinnerPrecTol.setColumns(5);
@@ -270,9 +257,21 @@ public class PtmshepherdPanel extends JPanelBase {
     FormEntry feAnnotTol = mu.feb(PROP_annotation_tol, uiSpinnerAnnotTol)
         .label("Annotation tolerance (Da)").tooltip("+/- distance from peak to annotated mass").create();
 
+    mu.add(p, feHistoSmoothBins.label(), mu.ccR());
+    mu.add(p, feHistoSmoothBins.comp);
     mu.add(p, fePrecTol.label(), mu.ccR());
     mu.add(p, fePrecTol.comp).split(2);
-    mu.add(p, fePrecUnits.comp);
+    mu.add(p, fePrecUnits.comp).wrap();
+
+    mu.add(p, fePromRatio.label(), mu.ccR());
+    mu.add(p, fePromRatio.comp);
+    mu.add(p, feWidth.label(), mu.ccR());
+    mu.add(p, feWidth.comp).split(2);
+    mu.add(p, fePeakPickingUnits.comp);
+    mu.add(p, feExtendedOut.comp).pushX().wrap();
+
+    mu.add(p, feLocBackground.label(), mu.ccR());
+    mu.add(p, feLocBackground.comp);
     mu.add(p, feAnnotTol.label(), mu.ccR());
     mu.add(p, feAnnotTol.comp).wrap();
 
