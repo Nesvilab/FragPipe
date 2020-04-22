@@ -8,6 +8,7 @@ import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
+import java.awt.Component;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -224,6 +225,7 @@ public class FragpipeLocations {
       throws MissingAssetsException {
     final Path dirTools = FragpipeLocations.get().getDirTools();
     List<Path> toCheck = assets.map(dirTools::resolve).collect(Collectors.toList());
+    log.debug("Checking if the following assets exist:\n\t{}", String.join("\n\t", Seq.seq(toCheck).map(Path::toString).toList()));
     List<Path> existing = new ArrayList<>();
     List<Path> notExisting = new ArrayList<>();
     for (Path path : toCheck) {
@@ -235,16 +237,19 @@ public class FragpipeLocations {
     }
     List<Path> missing = new ArrayList<>();
     if (!notExisting.isEmpty()) {
+      log.warn("Missing assets: {}", notExisting.stream().map(p -> dirTools.relativize(p).toString()).collect(Collectors.joining(", ")));
       // check if we have an asset with a different version maybe?
       for (Path pathNotExisting : notExisting) {
+        log.warn("Looking for substitutes for: {}", pathNotExisting);
         String fn = pathNotExisting.getFileName().toString();
         String lessExt = StringUtils.upToLastDot(fn);
-        Pattern re = Pattern.compile("(.+)[\\d.]+$");
+        Pattern re = Pattern.compile("(.+?)[\\d.]+$");
         Matcher m = re.matcher(lessExt);
         if (m.matches()) {
           // this asset has something that looks like a version number at the end
           // try finding a matching one
           final String fnBase = m.group(1).toLowerCase();
+          log.warn("Looking for files named: {}*", fnBase);
           try {
             List<Path> matching = Files.walk(dirTools)
                 .filter(f -> f.getFileName().toString().toLowerCase().startsWith(fnBase) && Files
@@ -252,12 +257,12 @@ public class FragpipeLocations {
                 .collect(Collectors.toList());
             if (matching.size() == 1) {
               existing.add(matching.get(0));
-              log.warn("Found substitute for a missing asset [{}]: {}", pathNotExisting, matching.get(0));
+              log.warn("Found substitute for a missing asset [{}]:\n\t{}", pathNotExisting, matching.get(0));
             } else {
               missing.add(pathNotExisting);
               if (matching.size() > 1) {
-                log.error("Multiple assets match the naming of a missing one [{}]: {}",
-                    pathNotExisting, Seq.seq(matching).map(Path::toString).toString(", "));
+                log.error("Multiple assets match the naming of a missing one [{}]:\n\t{}",
+                    pathNotExisting, Seq.seq(matching).map(Path::toString).toString("\n\t"));
               } else if (matching.isEmpty()) {
                 log.error("No matching assets found for a missing one [{}]", pathNotExisting);
               }
