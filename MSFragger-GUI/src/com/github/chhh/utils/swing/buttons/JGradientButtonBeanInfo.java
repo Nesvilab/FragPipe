@@ -6,6 +6,7 @@ import java.beans.*;
  *
  * @author dmitriya
  */
+@SuppressWarnings( "deprecation" )
 public class JGradientButtonBeanInfo extends SimpleBeanInfo {
 
     // Bean descriptor//GEN-FIRST:BeanDescriptor
