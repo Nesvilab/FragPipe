@@ -740,6 +740,13 @@ public class SwingUtils {
       String value;
       if (comp instanceof StringRepresentable) {
         value = ((StringRepresentable) comp).asString();
+      } else if (comp instanceof JEditorPane) {
+        JEditorPane ep = (JEditorPane)comp;
+        if ("text/html".equalsIgnoreCase(ep.getContentType())) {
+          value = Jsoup.parse(ep.getText()).body().html();
+        } else {
+          value = ep.getText();
+        }
       } else if (comp instanceof JCheckBox) {
         value = Boolean.toString(((JCheckBox) comp).isSelected());
       } else if (comp instanceof JTextComponent) {
@@ -802,14 +809,11 @@ public class SwingUtils {
   public static void valueSet(Component comp, String s) {
     if (comp instanceof StringRepresentable) {
       ((StringRepresentable) comp).fromString(s);
-    }
-//        else if (comp instanceof JEditorPane) {
-//          JEditorPane ep = (JEditorPane)comp;
-//          if ("text/html".equals(ep.getContentType())) {
-//            ep.setText(SwingUtils.wrapInStyledHtml(s));
-//          }
-//        }
-    else if (comp instanceof JCheckBox) {
+    } else if (comp instanceof JEditorPane) {
+      JEditorPane ep = (JEditorPane) comp;
+      ep.setContentType("text/html");
+      ep.setText(SwingUtils.wrapInStyledHtml(s));
+    } else if (comp instanceof JCheckBox) {
       ((JCheckBox) comp).setSelected(Boolean.parseBoolean(s));
     } else if (comp instanceof JTextComponent) {
       ((JTextComponent) comp).setText(s);
