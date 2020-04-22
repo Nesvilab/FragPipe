@@ -488,25 +488,9 @@ public class FragpipeRun {
     // confirm with user that multi-experiment report is not needed
     final ProtProphPanel protProphPanel = Fragpipe.getStickyStrict(ProtProphPanel.class);
     ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
-    final boolean isProcessGroupsSeparately = protProphPanel.isProcessGroupsSeparately();
-    if (!isProcessGroupsSeparately && lcmsFileGroups.size() > 1 && !reportPanel.isMultiExpReport()) {
-      String[] options = {"Turn on and continue", "Continue as-is", "Cancel"};
-      JLabel message = new JLabel(
-          "<html>LCMS files are grouped into more than one experiment.<br/>\n" +
-              "However, multi-experiment report was turned off.<br/>\n" +
-              "<br/>\n" +
-              "<b>What would you like to do with multi-experiment report?</b>\n");
-      int choice = SwingUtils.showChoiceDialog(parent, "Multiple experiments", message, options, 0);
-      if (choice == 0) {
-        reportPanel.setMultiExpReport(true);
-      } else if (choice != 1) {
-        return false; // either Window Closed, or Cancel option
-      }
-    }
 
     NoteConfigPhilosopher configPhi = Fragpipe.getStickyStrict(NoteConfigPhilosopher.class);
     final UsageTrigger usePhi = new UsageTrigger(configPhi.path, "Philosopher");
-    final boolean isMuiltiExperimentReport = reportPanel.isMultiExpReport();
 
     // run DIA-Umpire SE
     final UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
@@ -618,6 +602,8 @@ public class FragpipeRun {
     pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, tabMsf.getOutputFileExt(), isCombinedPepxml);
 
     // run Protein Prophet
+    final boolean isMuiltiExperimentReport = lcmsFileGroups.size() > 1;
+    final boolean isProcessGroupsSeparately = Fragpipe.getStickyStrict(TabWorkflow.class).isProcessEachExpSeparately();
 
     final boolean isRunProteinProphet = protProphPanel.isRun();
     final CmdProteinProphet cmdProteinProphet = new CmdProteinProphet(isRunProteinProphet, wd);

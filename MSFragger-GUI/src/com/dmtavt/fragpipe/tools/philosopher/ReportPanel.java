@@ -40,7 +40,6 @@ public class ReportPanel extends JPanelBase {
   private JPanel pTop;
   private JPanel pOptions;
   private UiText uiTextFilter;
-  private UiCheck uiCheckMultiexp;
   private UiCheck uiCheckPepSummary;
   private UiCheck uiCheckWriteMzid;
   private UiCheck uiCheckPrintDecoys;
@@ -84,14 +83,6 @@ public class ReportPanel extends JPanelBase {
     if (m.files == null)
       return;
     long countExps = m.files.stream().map(InputLcmsFile::getExperiment).distinct().count();
-    if (countExps > 1 && !uiCheckMultiexp.isSelected()) {
-      log.info("Auto-flipping 'Validation - Report - Multi-Experiment report' checkbox to Enabled as more than one Experiment is set up");
-      uiCheckMultiexp.setSelected(true);
-    }
-    if (countExps <= 1 && uiCheckMultiexp.isSelected()) {
-      log.info("Auto-flipping 'Validation - Report - Multi-Experiment report' checkbox to Disabled as there is no more than 1 Experiment");
-      uiCheckMultiexp.setSelected(false);
-    }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
@@ -149,10 +140,6 @@ public class ReportPanel extends JPanelBase {
             "</ul>");
 
 
-
-    uiCheckMultiexp = new UiCheck("Multi-experiment Report", null, false);
-    FormEntry feCheckMultiexp = new FormEntry("multi-exp-report", "not-shown",
-        uiCheckMultiexp);
     uiCheckPepSummary = new UiCheck("Generate peptide level summary", null, false);
     FormEntry feCheckPepSummary = new FormEntry("pep-level-summary", "not-shown",
         uiCheckPepSummary,
@@ -171,7 +158,6 @@ public class ReportPanel extends JPanelBase {
 
     mu.add(p, feFilter.label()).spanX().split();
     mu.add(p, feFilter.comp).growX().pushX().wrap();
-    mu.add(p, feCheckMultiexp.comp).spanX().split();
     mu.add(p, feCheckPepSummary.comp).wrap();
     mu.add(p, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
     mu.add(p, feCheckWriteMzid.comp);
@@ -200,14 +186,6 @@ public class ReportPanel extends JPanelBase {
 
   public boolean isGenerateReport() {
     return checkRun.isEnabled() && checkRun.isSelected();
-  }
-
-  public boolean isMultiExpReport() {
-    return uiCheckMultiexp.isSelected();
-  }
-
-  public void setMultiExpReport(boolean value) {
-    uiCheckMultiexp.setSelected(value);
   }
 
   public boolean isPepSummary() {

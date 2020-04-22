@@ -1,9 +1,9 @@
 package com.dmtavt.fragpipe.tools.protproph;
 
 import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.api.SearchTypeProp;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -18,7 +18,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.params.ThisAppProps;
 
 public class ProtProphPanel extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(ProtProphPanel.class);
@@ -27,14 +26,8 @@ public class ProtProphPanel extends JPanelBase {
   private JButton btnAllowMassShifted;
   private JButton btnDisallowMassShifted;
   private UiText uiTextCmdOpts;
-  private UiCheck uiCheckSeparateProtxml;
   private JPanel pTop;
   private JPanel pContent;
-
-  public boolean isProcessGroupsSeparately() {
-    return uiCheckSeparateProtxml.isSelected();
-  }
-
 
   public boolean isRun() {
     return SwingUtils.isEnabledAndChecked(checkRun);
@@ -81,17 +74,6 @@ public class ProtProphPanel extends JPanelBase {
     });
     uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).text(defaultCmdOpt()).create();
     FormEntry feCmdOpts = mu.feb("cmd-opts", uiTextCmdOpts).label("Cmd line opts:").create();
-    uiCheckSeparateProtxml = UiUtils
-        .createUiCheck("Separate Protein Prophet prot.xml file per experiment / group", false);
-    uiCheckSeparateProtxml.setToolTipText(
-        "<html><b>Uncheck</b> if you want a report comparing protein abundances across<br/>\n" +
-            "experiments or just want a single protein identification result from all<br/>\n" +
-            "the runs.<br/>\n" +
-            "<b>Only check</b> if you want peptide/protein ID results<br/>\n" +
-            "for each experiment separately. E.g. this might be useful if you have<br/>\n" +
-            "100 files on hand and use the \"assign to experiments\" feature to quickly<br/>\n" +
-            "run MSFragger + downstream processing on each of those and get a pepxml<br/>\n" +
-            "and/or protxml files.");
 
     mu.layout(this, mu.lcFillXNoInsetsTopBottom());
     mu.border(this, "ProteinProphet");
@@ -104,7 +86,6 @@ public class ProtProphPanel extends JPanelBase {
     pContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.add(pContent, feCmdOpts.label()).alignX("right");
     mu.add(pContent, feCmdOpts.comp).growX().pushX().wrap();
-    mu.add(pContent, uiCheckSeparateProtxml).skip(1).wrap();
 
     mu.add(this, pTop).growX().wrap();
     mu.add(this, pContent).growX().wrap();

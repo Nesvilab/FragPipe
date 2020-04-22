@@ -29,6 +29,7 @@ import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
+import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
@@ -120,6 +121,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   public static final String PROP_WORKFLOW_DESC = "workflow.description";
   private static final String DEFAULT_WORKFLOW = "Defaults";
   private JEditorPane epWorkflowsDesc;
+  private UiCheck uiCheckProcessEachExperimentSeparately;
 
   public TabWorkflow() {
     init();
@@ -766,6 +768,12 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     createFileTable();
 
+    uiCheckProcessEachExperimentSeparately = UiUtils
+        .createUiCheck("Process each experiment separately", false);
+    FormEntry feProcExpSep = mu.feb(uiCheckProcessEachExperimentSeparately)
+        .name("process-exps-separately")
+        .tooltip("Process each experiment in isolation. Don't make combined protxml files.\n").create();
+
     mu.add(p, btnFilesAddFiles).split();
     mu.add(p, btnFilesAddFolder);
     mu.add(p, btnFilesRemove);
@@ -798,11 +806,16 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnGroupsByParentDir);
     mu.add(p, btnGroupsByFilename);
     mu.add(p, btnGroupsAssignToSelected);
-    mu.add(p, btnGroupsClear).wrap();
+    mu.add(p, btnGroupsClear);
+    mu.add(p, feProcExpSep.comp).wrap();
 
     p.add(scrollPaneRawFiles, mu.ccGx().wrap());
 
     return p;
+  }
+
+  public boolean isProcessEachExpSeparately() {
+    return uiCheckProcessEachExperimentSeparately.isSelected();
   }
 
   private JButton button(String text, Supplier<Object> message) {
