@@ -20,6 +20,7 @@ import com.github.chhh.utils.swing.DocumentFilters;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
@@ -31,6 +32,7 @@ import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.ItemSelectable;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -104,7 +106,7 @@ import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
 
-public class TabMsfragger extends JPanelWithEnablement {
+public class TabMsfragger extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
   private final static MigUtils mu = MigUtils.get();
   public static final String PROP_FILECHOOSER_LAST_PATH = "msfragger.filechooser.path";
@@ -255,9 +257,19 @@ public class TabMsfragger extends JPanelWithEnablement {
   private UiCheck uiCheckWriteCalibratedMgf;
 
 
-  public TabMsfragger() {
-    init();
-    initMore();
+  @Override
+  protected ItemSelectable getRunCheckbox() {
+    return checkRun;
+  }
+
+  @Override
+  protected Component getEnablementToggleComponent() {
+    return pContent;
+  }
+
+  @Override
+  protected String getComponentNamePrefix() {
+    return TAB_PREFIX;
   }
 
   public UiText getUiTextIsoErr() {
@@ -283,16 +295,10 @@ public class TabMsfragger extends JPanelWithEnablement {
     }
   }
 
-  private void initMore() {
+  @Override
+  protected void initMore() {
     postInitAddActionListeners();
-    SwingUtils.renameDeep(this, true, TAB_PREFIX, null);
 
-    // pre-load default values, they will be overwritten if there are user params from previous sessions
-    MsfraggerParams params = MsfraggerParams.getDefault(SearchTypeProp.closed);
-    formFrom(params);
-
-    SwingUtils.setEnablementUpdater(this, pContent, checkRun);
-    updateEnabledStatus(this, false);
     updateEnabledStatus(uiSpinnerDbsplit, false); // only gets enabled when DbSlice2 is initialized
 
     // TODO: ACHTUNG: temporary fix, disabling "Define custom ion series field"
@@ -300,12 +306,14 @@ public class TabMsfragger extends JPanelWithEnablement {
     updateEnabledStatus(uiTextCustomIonSeries, false);
     updateEnabledStatus(labelCustomIonSeries, false);
 
-    // register on the bus only after all the components have been created to avoid NPEs
-    Bus.register(this);
-    Bus.postSticky(this);
+    // init fields with default values
+    loadDefaults(SearchTypeProp.closed, false);
+
+    super.initMore();
   }
 
-  private void init() {
+  @Override
+  protected void init() {
     this.setLayout(new MigLayout(new LC().fillX()));
 
     pTop = createPanelTop();
@@ -313,8 +321,6 @@ public class TabMsfragger extends JPanelWithEnablement {
     pBasic = createPanelBasicOptions();
     pMods = createPanelMods();
     pAdvanced = createPanelAdvancedOptions();
-    // init fields with default values
-    loadDefaults(SearchTypeProp.closed, false);
 
     mu.add(this, pTop).growX().wrap();
     mu.add(this, pContent).growX().wrap();
@@ -1053,65 +1059,65 @@ public class TabMsfragger extends JPanelWithEnablement {
     return fe(comp, name);
   }
 
-  private void cacheSave() {
-    log.warn("Old cache save fragger tab method called");
-    // saving form data, except modification tables
-    {
-      Map<String, String> map = formToMap();
-      Properties mapAsProps = PropertiesUtils.from(map);
-      Path tempFileForm = CacheUtils.getTempFile(CACHE_FORM);
-      log.debug("Saving cache cacheSave() to: {}", tempFileForm.toString());
-      try {
-        mapAsProps.store(Files.newBufferedWriter(tempFileForm), ThisAppProps.cacheComments());
-      } catch (IOException e) {
-        log.warn("Could not store {} cache as map to: {}", this.getClass().getSimpleName(), tempFileForm.toString());
-      }
-      log.debug("Done saving cache cacheSave() to: {}", tempFileForm.toString());
-    }
+//  private void cacheSave() {
+//    log.warn("Old cache save fragger tab method called");
+//    // saving form data, except modification tables
+//    {
+//      Map<String, String> map = formToMap();
+//      Properties mapAsProps = PropertiesUtils.from(map);
+//      Path tempFileForm = CacheUtils.getTempFile(CACHE_FORM);
+//      log.debug("Saving cache cacheSave() to: {}", tempFileForm.toString());
+//      try {
+//        mapAsProps.store(Files.newBufferedWriter(tempFileForm), ThisAppProps.cacheComments());
+//      } catch (IOException e) {
+//        log.warn("Could not store {} cache as map to: {}", this.getClass().getSimpleName(), tempFileForm.toString());
+//      }
+//      log.debug("Done saving cache cacheSave() to: {}", tempFileForm.toString());
+//    }
+//
+//    // storing form properties that can't be just represented in the map
+//    {
+//      MsfraggerParams msfraggerParams = formCollect();
+//      Path tempFileProps = CacheUtils.getTempFile(CACHE_PROPS);
+//      try {
+//        msfraggerParams.save(Files.newOutputStream(tempFileProps));
+//      } catch (IOException e) {
+//        log.warn("Could not store {} cache as msfragger props to: {}", this.getClass().getSimpleName(), tempFileProps.toString());
+//      }
+//    }
+//  }
 
-    // storing form properties that can't be just represented in the map
-    {
-      MsfraggerParams msfraggerParams = formCollect();
-      Path tempFileProps = CacheUtils.getTempFile(CACHE_PROPS);
-      try {
-        msfraggerParams.save(Files.newOutputStream(tempFileProps));
-      } catch (IOException e) {
-        log.warn("Could not store {} cache as msfragger props to: {}", this.getClass().getSimpleName(), tempFileProps.toString());
-      }
-    }
-  }
-
-  private void cacheLoad() {
-    log.warn("Old cache load fragger tab method called");
-    // load form as map first
-    {
-      try {
-        Path path = CacheUtils.locateTempFile(CACHE_FORM);
-        Properties propsFromFile = PropertiesUtils.from(path);
-        Map<String, String> map = PropertiesUtils.toMap(propsFromFile);
-        formFrom(map);
-      } catch (FileNotFoundException ignored) {
-        // no form cache yet
-      } catch (IOException e) {
-        log.warn("Could not load properties as map from cache file: {}", e.getMessage());
-      }
-    }
-
-    // then load specific msfragger non-properties-representable params
-    {
-      try {
-        Path path = CacheUtils.locateTempFile(CACHE_PROPS);
-        MsfraggerParams params = new MsfraggerParams();
-        params.load(Files.newInputStream(path), false);
-        formFrom(params);
-      } catch (FileNotFoundException ignored) {
-        // no form cache yet
-      } catch (IOException e) {
-        log.warn("Could not load properties as map from cache file: {}", e.getMessage());
-      }
-
-    }
-  }
+//  private void cacheLoad() {
+//    log.warn("Old cache load fragger tab method called");
+//    // load form as map first
+//    {
+//      try {
+//        Path path = CacheUtils.locateTempFile(CACHE_FORM);
+//        Properties propsFromFile = PropertiesUtils.from(path);
+//        Map<String, String> map = PropertiesUtils.toMap(propsFromFile);
+//        formFrom(map);
+//      } catch (FileNotFoundException ignored) {
+//        // no form cache yet
+//      } catch (IOException e) {
+//        log.warn("Could not load properties as map from cache file: {}", e.getMessage());
+//      }
+//    }
+//
+//    // then load specific msfragger non-properties-representable params
+//    {
+//      try {
+//        Path path = CacheUtils.locateTempFile(CACHE_PROPS);
+//        MsfraggerParams params = new MsfraggerParams();
+//        params.load(Files.newInputStream(path), false);
+//        formFrom(params);
+//      } catch (FileNotFoundException ignored) {
+//        // no form cache yet
+//      } catch (IOException e) {
+//        log.warn("Could not load properties as map from cache file: {}", e.getMessage());
+//      }
+//
+//    }
+//  }
 
   private void setJTableColSize(JTable table, int colIndex, int minW, int maxW, int prefW) {
     table.getColumnModel().getColumn(colIndex).setMinWidth(minW);
@@ -1340,7 +1346,6 @@ public class TabMsfragger extends JPanelWithEnablement {
   @Subscribe
   public void on(MessageMsfraggerParamsUpdate m) {
     formFrom(m.params);
-    cacheSave();
   }
 
   @Subscribe
@@ -1378,8 +1383,6 @@ public class TabMsfragger extends JPanelWithEnablement {
   }
 
   private void actionConfigSave(ActionEvent e) {
-    cacheSave();
-
     // now save the actual user's choice
     JFileChooser fc = FileChooserUtils.builder("Choose where params file should be saved")
         .approveButton("Save")
@@ -1524,16 +1527,6 @@ public class TabMsfragger extends JPanelWithEnablement {
     }
     Bus.post(new MessageSearchType(type));
     return true;
-  }
-
-  @Subscribe
-  public void on(MessageRun msg) {
-    cacheSave();
-  }
-
-  @Subscribe
-  public void on(MessageSaveCache msg) {
-    cacheSave();
   }
 
   public String getEnzymeName() {
