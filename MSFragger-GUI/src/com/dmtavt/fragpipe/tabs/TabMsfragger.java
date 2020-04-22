@@ -427,7 +427,8 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, fePrecTolHi.comp);
     mu.add(p, feFragTolUnits.label(), mu.ccR()).gapLeft("10px");
     mu.add(p, feFragTolUnits.comp).split(2);
-    mu.add(p, feFragTol.comp).wrap();
+    mu.add(p, feFragTol.comp).pushX().wrap();
+
     mu.add(p, feCalibrate.label(), mu.ccR());
     mu.add(p, feCalibrate.comp);
     mu.add(p, feIsotopeError.label(), mu.ccR());
@@ -506,14 +507,7 @@ public class TabMsfragger extends JPanelBase {
     uiTextNocuts.addFocusListener(enzymeSpecFocusListener);
     FormEntry feNocuts = fe(MsfraggerParams.PROP_search_enzyme_butnotafter, uiTextNocuts).label("But not before")
         .tooltip("Amino acids before which the enzyme won't cut.").create();
-    p.add(feEnzymeList.label(), new CC().span(2).split(2).alignX("right"));
-    p.add(feEnzymeList.comp, new CC());
-    p.add(feEnzymeName.label(), new CC().alignX("right"));
-    p.add(feEnzymeName.comp, new CC().minWidth("120px").split().spanX());
-    p.add(feCuts.label(), new CC().gapLeft("5px"));
-    p.add(feCuts.comp);//, new CC().minWidth("45px"));
-    p.add(feNocuts.label());//, new CC().split(2).spanX().gapLeft("5px"));
-    p.add(feNocuts.comp, new CC().wrap());
+
 
     List<String> cleavageTypeNames = Arrays.stream(CleavageType.values()).map(Enum::name)
         .collect(Collectors.toList());
@@ -525,11 +519,7 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feClipM = fe(MsfraggerParams.PROP_clip_nTerm_M, new UiCheck("Clip N-term M", null))
         .tooltip("Trim protein N-terminal Methionine as a variable modification").create();
 
-    mu.add(p, feCleavageType.label(), mu.ccR());
-    mu.add(p, feCleavageType.comp).minWidth("120px").growX();
-    mu.add(p, feMissedCleavages.label(), mu.ccR());
-    mu.add(p, feMissedCleavages.comp).split(2).spanX();
-    mu.add(p, feClipM.comp).gapLeft("5px").wrap();
+
 
     FormEntry fePepLenMin = fe(MsfraggerParams.PROP_digest_min_length, new UiSpinnerInt(7, 0, 1000, 1, 3))
         .label("Peptide length").create();
@@ -549,6 +539,21 @@ public class TabMsfragger extends JPanelBase {
         .tooltip("<html>Split database into smaller chunks.\n"
             + "Only use for very large databases (200MB+) or<br/>non-specific digestion.").create();
 
+    mu.add(p, feEnzymeList.label(), mu.ccR()).span(2).split(2);
+    mu.add(p, feEnzymeList.comp);
+    mu.add(p, feEnzymeName.label(), mu.ccR());
+    mu.add(p, feEnzymeName.comp).minWidth("120px").split().spanX();
+    mu.add(p, feCuts.label()).gapLeft("5px");
+    mu.add(p, feCuts.comp);
+    mu.add(p, feNocuts.label());
+    mu.add(p, feNocuts.comp).wrap();
+
+    mu.add(p, feCleavageType.label(), mu.ccR());
+    mu.add(p, feCleavageType.comp).minWidth("120px").growX();
+    mu.add(p, feMissedCleavages.label(), mu.ccR());
+    mu.add(p, feMissedCleavages.comp).split(2).spanX();
+    mu.add(p, feClipM.comp).gapLeft("5px").wrap();
+
     mu.add(p, fePepLenMin.label(), mu.ccR());
     mu.add(p, fePepLenMin.comp).split(3).growX();
     mu.add(p, new JLabel("-"));
@@ -558,8 +563,8 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, new JLabel("-"));
     mu.add(p, fePepMassHi.comp);
 
-    mu.add(p, feDbsplit.label()).gapLeft("10px").split(2).spanX();
-    mu.add(p, feDbsplit.comp).wrap();
+    mu.add(p, feDbsplit.label()).gapLeft("10px").split(2);
+    mu.add(p, feDbsplit.comp).pushX().wrap();
 
     return p;
   }
@@ -567,8 +572,8 @@ public class TabMsfragger extends JPanelBase {
   /** Panel with all the basic options. */
   private JPanel createPanelBasicOptions() {
       JPanel pBase = mu.newPanel("Common Options (Advanced Options are at the end of the page)", true);
-      mu.add(pBase, createPanelBasicPeakMatch()).pushX().wrap();
-      mu.add(pBase, createPanelDigest()).pushX().wrap();
+      mu.add(pBase, createPanelBasicPeakMatch()).growX().wrap();
+      mu.add(pBase, createPanelDigest()).growX().wrap();
 
       return pBase;
   }
