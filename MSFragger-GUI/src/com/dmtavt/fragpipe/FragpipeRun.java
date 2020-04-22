@@ -427,16 +427,15 @@ public class FragpipeRun {
   }
 
   private static String checkFasta(JComponent parent, NoteConfigDatabase configDb) {
-    String fastaPathText = configDb.path.toString();
-    if (StringUtils.isNullOrWhitespace(fastaPathText)) {
+    if (configDb == null || configDb.path == null || StringUtils.isBlank(configDb.path.toString())) {
       JOptionPane.showMessageDialog(parent, "Fasta file path (Database tab) can't be empty",
           "Warning", JOptionPane.WARNING_MESSAGE);
       return null;
     }
-    final Path existing = PathUtils.existing(fastaPathText);
+    final Path existing = PathUtils.existing(configDb.path.toString());
     if (existing == null) {
       JOptionPane.showMessageDialog(parent,
-          String.format("Could not find fasta file (Database) at:\n%s", fastaPathText),
+          String.format("Could not find fasta file (Database) at:\n%s", configDb.path.toString()),
           "Errors", JOptionPane.ERROR_MESSAGE);
       return null;
     }
