@@ -285,6 +285,8 @@ public class MsfraggerParams extends AbstractParams {
 
     private Map<String, String> createComments() {
         Map<String, String> c= new HashMap<>();
+        c.put(PROP_glyco_search_mode, "options: \"NGlycan\", \"OGlycan\", \"specific\", or \"none\" (default: none)");
+        c.put(PROP_oxonium_intensity_filter, "possible values are 0 <= x <= 1");
         c.put(PROP_num_threads, "0=poll CPU to set num threads; else specify num threads directly (max 64)");
         c.put(PROP_precursor_mass_units, "0=Daltons, 1=ppm, 3=DIA, 2=DIA_MS1");
         c.put(PROP_precursor_true_units, "0=Daltons, 1=ppm");
