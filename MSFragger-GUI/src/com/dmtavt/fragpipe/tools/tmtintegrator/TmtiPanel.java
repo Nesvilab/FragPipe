@@ -128,6 +128,7 @@ public class TmtiPanel extends JPanelBase {
   private UiText uiTextLabelquant;
   private UiText uiTextFreequant;
   private JPanel pOptsAdvanced;
+  private UiCombo uiComboAddRef;
 
   private static Supplier<? extends RuntimeException> supplyRunEx(String message) {
     return () -> new RuntimeException(message);
@@ -267,11 +268,18 @@ public class TmtiPanel extends JPanelBase {
         "<html>Normalization (0: None; 1: MD (median centering); 2: GN (median centering + <br/>\n"
             + "variance scaling); -1: generate reports with all normalization options)");
 
-    UiCombo uiComboAddRef = UiUtils.createUiCombo(TmtiConfProps.COMBO_ADD_REF.stream()
+    uiComboAddRef = UiUtils.createUiCombo(TmtiConfProps.COMBO_ADD_REF.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feAddRef = fe(TmtiConfProps.PROP_add_Ref,
         "Define reference", uiComboAddRef,
         "<html>add an artificial reference channel if there is no reference channel");
+    uiComboAddRef.addItemListener(e -> {
+      final String selected = (String) uiComboAddRef.getSelectedItem();
+      boolean enabled = TmtiConfProps.COMBO_ADD_REF_CHANNEL.equalsIgnoreCase(selected);
+      updateEnabledStatus(uiTextRefTag, enabled);
+    });
+    uiComboAddRef.setSelectedItem(null);
+    uiComboAddRef.setSelectedItem(TmtiConfProps.COMBO_ADD_REF_CHANNEL);
 
     addRowLabelComp(p, feLabelType);
     addRowLabelComp(p, feAddRef);
@@ -280,6 +288,10 @@ public class TmtiPanel extends JPanelBase {
     addRowLabelComp(p, feProtNorm);
 
     return p;
+  }
+
+  public String getDefineReference() {
+    return (String)uiComboAddRef.getSelectedItem();
   }
 
   private JPanel createPanelOptsAdvanced() {

@@ -89,6 +89,8 @@ public class TmtiConfProps {
       new ComboValue("2", "No PSMs mapping to multiple genes in FASTA", "Remove all PSMs mapping to more than one GENE in the fasta file")
   );
 
+
+  public static String COMBO_ADD_REF_CHANNEL = "Reference sample";
   public static List<ComboValue> COMBO_ADD_REF = Arrays.asList(
       new ComboValue("-1","Reference sample", ""),
 //      new ComboValue("0", "Sum", ""),

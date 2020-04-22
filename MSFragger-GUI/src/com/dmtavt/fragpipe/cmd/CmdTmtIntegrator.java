@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.tools.tmtintegrator.TmtiConfProps;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
@@ -106,11 +107,14 @@ public class CmdTmtIntegrator extends CmdBase {
       }
 
       List<Path> filesWithoutRefChannel = new ArrayList<>();
-      for (Path path : panel.getAnnotations().values()) {
-        List<QuantLabelAnnotation> annotations = TmtiPanel
-            .parseTmtAnnotationFile(path.toFile());
-        if (annotations.stream().noneMatch(a -> a.getSample().startsWith(refTag))) {
-          filesWithoutRefChannel.add(path);
+      // only check for presence of reference channels if "Define Reference is set to "Reference Sample"
+      if (TmtiConfProps.COMBO_ADD_REF_CHANNEL.equalsIgnoreCase(panel.getDefineReference())) {
+        for (Path path : panel.getAnnotations().values()) {
+          List<QuantLabelAnnotation> annotations = TmtiPanel
+              .parseTmtAnnotationFile(path.toFile());
+          if (annotations.stream().noneMatch(a -> a.getSample().startsWith(refTag))) {
+            filesWithoutRefChannel.add(path);
+          }
         }
       }
       if (!filesWithoutRefChannel.isEmpty()) {
