@@ -76,7 +76,7 @@ public class TmtiConfProps {
       new ComboValue("-1", "All", "generate reports at all levels")
       );
 
-  public static List<ComboValue> COMBO_PROT_NORM = Arrays.asList(
+  public static List<ComboValue> COMBO_NORM = Arrays.asList(
       new ComboValue("0", "None", ""),
       new ComboValue("1", "MD (median centering)", ""),
       new ComboValue("2", "GN (median centering + variance scaling)", ""),

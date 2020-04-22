@@ -101,7 +101,7 @@ public class TmtiPanel extends JPanelBase {
     });
     CONVERT_TO_FILE.put(TmtiConfProps.PROP_groupby, s -> findOrThrow(false, TmtiConfProps.COMBO_GROUP_BY,
         s,supplyRunEx("No matching groupby value")).getValInConfig());
-    CONVERT_TO_FILE.put(TmtiConfProps.PROP_prot_norm, s -> findOrThrow(false, TmtiConfProps.COMBO_PROT_NORM,
+    CONVERT_TO_FILE.put(TmtiConfProps.PROP_prot_norm, s -> findOrThrow(false, TmtiConfProps.COMBO_NORM,
         s,supplyRunEx("No matching prot_norm value")).getValInConfig());
     CONVERT_TO_FILE.put(TmtiConfProps.PROP_unique_gene, s -> findOrThrow(false, TmtiConfProps.COMBO_UNIQUE_GENE,
         s,supplyRunEx("No matching unique_gene value")).getValInConfig());
@@ -117,7 +117,7 @@ public class TmtiPanel extends JPanelBase {
     });
     CONVERT_TO_GUI.put(TmtiConfProps.PROP_groupby, s -> findOrThrow(true, TmtiConfProps.COMBO_GROUP_BY,
         s,supplyRunEx("No matching groupby value")).getValInUi());
-    CONVERT_TO_GUI.put(TmtiConfProps.PROP_prot_norm, s -> findOrThrow(true, TmtiConfProps.COMBO_PROT_NORM,
+    CONVERT_TO_GUI.put(TmtiConfProps.PROP_prot_norm, s -> findOrThrow(true, TmtiConfProps.COMBO_NORM,
         s,supplyRunEx("No matching prot_norm value")).getValInUi());
     CONVERT_TO_GUI.put(TmtiConfProps.PROP_unique_gene, s -> findOrThrow(true, TmtiConfProps.COMBO_UNIQUE_GENE,
         s,supplyRunEx("No matching unique_gene value")).getValInUi());
@@ -260,10 +260,10 @@ public class TmtiPanel extends JPanelBase {
             + "2: peptide sequence; 3: multiple PTM sites; 4: single PTM site; <br/>\n"
             + "-1: generate reports at all levels)");
 
-    UiCombo uiComboProtNorm = UiUtils.createUiCombo(TmtiConfProps.COMBO_PROT_NORM.stream()
+    UiCombo uiComboNormalization = UiUtils.createUiCombo(TmtiConfProps.COMBO_NORM.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feProtNorm = fe(TmtiConfProps.PROP_prot_norm,
-        "Prot norm", uiComboProtNorm,
+        "Normalization", uiComboNormalization,
         "<html>Normalization (0: None; 1: MD (median centering); 2: GN (median centering + <br/>\n"
             + "variance scaling); -1: generate reports with all normalization options)");
 
@@ -274,10 +274,10 @@ public class TmtiPanel extends JPanelBase {
         "<html>add an artificial reference channel if there is no reference channel");
 
     addRowLabelComp(p, feLabelType);
+    addRowLabelComp(p, feAddRef);
     addRowLabelComp(p, feRefTag);
     addRowLabelComp(p, feGroupBy);
     addRowLabelComp(p, feProtNorm);
-    addRowLabelComp(p, feAddRef);
 
     return p;
   }
@@ -430,6 +430,7 @@ public class TmtiPanel extends JPanelBase {
 //    mu.add(p, fe);
 
     mu.add(p, feProtExclude.label(), mu.ccR());
+    mu.add(p, feProtExclude.comp).growX().spanX().wrap();
     mu.add(p, feProtExclude.comp).growX().spanX().wrap();
     mu.add(p, feFreequant.label(), mu.ccR());
     mu.add(p, feFreequant.comp).growX().spanX().wrap();
