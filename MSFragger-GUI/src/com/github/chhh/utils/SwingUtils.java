@@ -464,11 +464,15 @@ public class SwingUtils {
    * is used for Editor Panes which have text/html content and are styled using css, which in the
    * end gets in the way of saving the contents of said Editor Pane.
    */
-  public static String tryExtractHtmlBody(String text) {
-    if (!text.contains("<html")) {
-      return text;
+  public static String tryExtractHtmlBody(String t) {
+    String body;
+    if (t.contains("<html")) {
+      org.jsoup.nodes.Document d = Jsoup.parse(t);
+      body = d.body() != null ? d.body().html() : d.html();
+    } else {
+      body = t;
     }
-    return Jsoup.parse(text).body().text();
+    return body;
   }
 
   public static String createCssStyle() {
@@ -493,14 +497,10 @@ public class SwingUtils {
   }
 
   public static String wrapInStyledHtml(String text, Font font) {
-//    if (text.contains("<html")) {
-//      log.debug("Trimming old html, that was given to wrapInStyledHtml():\n{}", text);
-//      text = Jsoup.parse(text).body().text();
-//    }
-
+    String body = SwingUtils.tryExtractHtmlBody(text);
     StringBuilder sb = new StringBuilder();
     sb.append("<html><body style=\"").append(createCssStyle(font)).append("\">")
-        .append(text)
+        .append(body)
         .append("</body></html>");
     return sb.toString();
   }
