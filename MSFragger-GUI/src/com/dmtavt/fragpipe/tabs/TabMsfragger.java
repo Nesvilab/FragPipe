@@ -581,24 +581,42 @@ public class TabMsfragger extends JPanelBase {
   private JPanel createPanelGlyco() {
     JPanel p = mu.newPanel("Glyco", mu.lcFillXNoInsetsTopBottom());
 
-    UiCombo uiComboGlyco = UiUtils.createUiCombo(MsfraggerParams.GLYCO_OPTIONS);
+    final UiCombo uiComboGlyco = UiUtils.createUiCombo(MsfraggerParams.GLYCO_OPTIONS);
     FormEntry feGlycoSearchMode = mu.feb(uiComboGlyco)
         .name(MsfraggerParams.PROP_glyco_search_mode)
         .label("Glyco Search Mode").create();
 
-
-    FormEntry feOxoniumIonMinimumIntensity = mu
-        .feb(UiSpinnerDouble.builder(0, 0, 1, 0.1).setFormat("#.##").setNumCols(5).create())
+    final UiSpinnerDouble uiSpinnerMinInt = UiSpinnerDouble.builder(0, 0, 1, 0.1).setFormat("#.##")
+        .setNumCols(5).create();
+    FormEntry feOxoniumIonMinimumIntensity = mu.feb(uiSpinnerMinInt)
         .name(MsfraggerParams.PROP_oxonium_intensity_filter)
         .label("Oxonium Ion Minimum Intensity").create();
 
-    HtmlStyledJEditorPane ep1 = new HtmlStyledJEditorPane();
+    final HtmlStyledJEditorPane ep1 = new HtmlStyledJEditorPane();
+    mu.border(ep1, new LineBorder(Color.LIGHT_GRAY, 1));
     FormEntry feYIonMasses = mu.feb(ep1).name(MsfraggerParams.PROP_Y_type_masses)
         .label("Y Ion Masses").create();
 
-    HtmlStyledJEditorPane ep2 = new HtmlStyledJEditorPane();
+    final HtmlStyledJEditorPane ep2 = new HtmlStyledJEditorPane();
+    mu.border(ep2, new LineBorder(Color.LIGHT_GRAY, 1));
     FormEntry feOxoniumIons = mu.feb(ep2).name(MsfraggerParams.PROP_oxonium_ions)
         .label("Oxonium Ion Masses").create();
+
+
+    uiComboGlyco.addItemListener(e -> {
+      // needs to be done after components to be turned on/off have been created
+      final String selected = (String)uiComboGlyco.getSelectedItem();
+      final boolean enabled = !MsfraggerParams.GLYCO_OPTION_OFF.equalsIgnoreCase(selected);
+      updateEnabledStatus(uiSpinnerMinInt, enabled);
+      updateEnabledStatus(ep1, enabled);
+      updateEnabledStatus(ep2, enabled);
+    });
+    // trigger the item listener on startup
+    // (done with indexes so that it breaks if the list and OFF option are changed)
+    int indexGlycoOff = MsfraggerParams.GLYCO_OPTIONS.indexOf(MsfraggerParams.GLYCO_OPTION_OFF);
+    uiComboGlyco.setSelectedItem(null);
+    uiComboGlyco.setSelectedItem(MsfraggerParams.GLYCO_OPTIONS.get(indexGlycoOff));
+
 
     mu.add(p, feGlycoSearchMode.label(), mu.ccR());
     mu.add(p, feGlycoSearchMode.comp);

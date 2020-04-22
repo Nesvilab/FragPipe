@@ -223,7 +223,9 @@ public class MsfraggerParams extends AbstractParams {
     
     public static final String ENZYME_NONSPECIFIC_NAME = "nonspecific";
     public static final String ENZYME_TRYPSIN_NAME = "trypsin";
-    public static final List<String> GLYCO_OPTIONS = Arrays.asList("none", "NGlycan", "OGlycan", "specific");
+
+    public static final String GLYCO_OPTION_OFF = "none";
+    public static final List<String> GLYCO_OPTIONS = Arrays.asList(GLYCO_OPTION_OFF, "NGlycan", "OGlycan", "specific");
 
     public static final Map<String, String> ADDON_MAP_NAME2HUMAN = new HashMap<>(ADDON_NAMES.length);
     public static final Map<String, String> ADDON_MAP_HUMAN2NAME = new HashMap<>(ADDON_NAMES.length);
