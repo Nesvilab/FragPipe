@@ -19,6 +19,7 @@ package com.github.chhh.utils.swing;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.swing.JTextPane;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -52,11 +53,15 @@ public class TextConsole extends JTextPane implements Appendable {
     
     static final Color cReset = Color.getHSBColor(0.000f, 0.000f, 0.000f);
     static Color colorCurrent = cReset;
+
+    private Object lock = new Object();
+    private ReentrantLock reentrantLock = new ReentrantLock(true);
     
     protected String remaining = "";
     private boolean forceWordWrapInsteadOfScroll;
     
     public TextConsole(boolean forceWordWrapInsteadOfScroll) {
+
         this.forceWordWrapInsteadOfScroll = forceWordWrapInsteadOfScroll;
     }
 
@@ -80,7 +85,7 @@ public class TextConsole extends JTextPane implements Appendable {
     }
 
     @Override
-    public synchronized Appendable append(CharSequence csq) {
+    public Appendable append(CharSequence csq) {
         //append(csq.toString()); // too simple
         
         // old non-colored implementation
@@ -91,13 +96,14 @@ public class TextConsole extends JTextPane implements Appendable {
 //            e.printStackTrace();
 //        }
 
-        appendANSI(csq.toString());
-
+        synchronized (lock) {
+            appendANSI(csq.toString());
+        }
         return this;
     }
 
     @Override
-    public synchronized Appendable append(CharSequence csq, int start, int end) {
+    public Appendable append(CharSequence csq, int start, int end) {
         //append(csq.subSequence(start, end).toString()); // too simple
         
         // old non-colored implementation
@@ -108,24 +114,28 @@ public class TextConsole extends JTextPane implements Appendable {
 //            e.printStackTrace();
 //        }
 
-        appendANSI(csq.subSequence(start, end).toString());
-
+        synchronized (lock) {
+            appendANSI(csq.subSequence(start, end).toString());
+        }
         return this;
     }
 
     @Override
-    public synchronized Appendable append(char c) {
-        //append(Character.toString(c));
-        StyledDocument doc = getStyledDocument();
-        try {
-            doc.insertString(doc.getLength(), String.valueOf(c), null);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
+    public Appendable append(char c) {
+        synchronized (lock) {
+            //append(Character.toString(c));
+            StyledDocument doc = getStyledDocument();
+            try {
+                doc.insertString(doc.getLength(), String.valueOf(c), null);
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
         }
         return this;
     }
     
-    public synchronized void append(Color c, String s) {
+    public void append(Color c, String s) {
+        synchronized (lock) {
             if (c == null) {
                 appendANSI(s);
                 return;
@@ -144,61 +154,66 @@ public class TextConsole extends JTextPane implements Appendable {
              */
             replaceSelection(s.replace("\r\n", "\n")
                 .replace("\r", "\u200B\n")); // there is no selection, so inserts at caret
+        }
     }
     
-    public synchronized void appendANSI(String s) { // convert ANSI color codes first
-        int aPos = 0;   // current char position in addString
-        int aIndex = 0; // index of next Escape sequence
-        int mIndex = 0; // index of "m" terminating Escape sequence
-        String tmpString = "";
-        boolean stillSearching = true; // true until no more Escape sequences
-        String addString = remaining + s;
-        remaining = "";
+    public void appendANSI(String s) { // convert ANSI color codes first
+        synchronized (lock) {
+            int aPos = 0;   // current char position in addString
+            int aIndex = 0; // index of next Escape sequence
+            int mIndex = 0; // index of "m" terminating Escape sequence
+            String tmpString = "";
+            boolean stillSearching = true; // true until no more Escape sequences
+            String addString = remaining + s;
+            remaining = "";
 
-        if (addString.length() > 0) {
-            aIndex = addString.indexOf("\u001B"); // find first escape
-            if (aIndex == -1) { // no escape/color change in this string, so just send it with current color
-                append(colorCurrent, addString);
-                return;
-            }
-            // otherwise There is an escape character in the string, so we must process it
-
-            if (aIndex > 0) { // Escape is not first char, so send text up to first escape
-                tmpString = addString.substring(0, aIndex);
-                append(colorCurrent, tmpString);
-                aPos = aIndex;
-            }
-            // aPos is now at the beginning of the first escape sequence
-
-            stillSearching = true;
-            while (stillSearching) {
-                mIndex = addString.indexOf("m", aPos); // find the end of the escape sequence
-                if (mIndex < 0) { // the buffer ends halfway through the ansi string!
-                    remaining = addString.substring(aPos, addString.length());
-                    stillSearching = false;
-                    continue;
-                } else {
-                    tmpString = addString.substring(aPos, mIndex + 1);
-                    colorCurrent = getANSIColor(tmpString);
+            if (addString.length() > 0) {
+                aIndex = addString.indexOf("\u001B"); // find first escape
+                if (aIndex
+                    == -1) { // no escape/color change in this string, so just send it with current color
+                    append(colorCurrent, addString);
+                    return;
                 }
-                aPos = mIndex + 1;
-                // now we have the color, send text that is in that color (up to next escape)
+                // otherwise There is an escape character in the string, so we must process it
 
-                aIndex = addString.indexOf("\u001B", aPos);
-
-                if (aIndex == -1) { // if that was the last sequence of the input, send remaining text
-                    tmpString = addString.substring(aPos, addString.length());
+                if (aIndex > 0) { // Escape is not first char, so send text up to first escape
+                    tmpString = addString.substring(0, aIndex);
                     append(colorCurrent, tmpString);
-                    stillSearching = false;
-                    continue; // jump out of loop early, as the whole string has been sent now
+                    aPos = aIndex;
                 }
+                // aPos is now at the beginning of the first escape sequence
 
-                // there is another escape sequence, so send part of the string and prepare for the next
-                tmpString = addString.substring(aPos, aIndex);
-                aPos = aIndex;
-                append(colorCurrent, tmpString);
+                stillSearching = true;
+                while (stillSearching) {
+                    mIndex = addString.indexOf("m", aPos); // find the end of the escape sequence
+                    if (mIndex < 0) { // the buffer ends halfway through the ansi string!
+                        remaining = addString.substring(aPos, addString.length());
+                        stillSearching = false;
+                        continue;
+                    } else {
+                        tmpString = addString.substring(aPos, mIndex + 1);
+                        colorCurrent = getANSIColor(tmpString);
+                    }
+                    aPos = mIndex + 1;
+                    // now we have the color, send text that is in that color (up to next escape)
 
-            } // while there's text in the input buffer
+                    aIndex = addString.indexOf("\u001B", aPos);
+
+                    if (aIndex
+                        == -1) { // if that was the last sequence of the input, send remaining text
+                        tmpString = addString.substring(aPos, addString.length());
+                        append(colorCurrent, tmpString);
+                        stillSearching = false;
+                        continue; // jump out of loop early, as the whole string has been sent now
+                    }
+
+                    // there is another escape sequence, so send part of the string and prepare for the next
+                    tmpString = addString.substring(aPos, aIndex);
+                    aPos = aIndex;
+                    append(colorCurrent, tmpString);
+
+                } // while there's text in the input buffer
+            }
         }
     }
     
