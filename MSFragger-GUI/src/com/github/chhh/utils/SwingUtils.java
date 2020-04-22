@@ -17,6 +17,7 @@
 package com.github.chhh.utils;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.GhostedTextComponent;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
@@ -690,19 +691,6 @@ public class SwingUtils {
     return valuesGet(origin, null);
   }
 
-//  public static List<Component> allDescendants(Component comp, boolean includeOrigin) {
-//    List<Component> childs = new ArrayList<>();
-//    if (includeOrigin)
-//    synchronized (comp.getTreeLock()) {
-//      if (comp instanceof Container) {
-//        Container c = (Container)comp;
-//        c.
-//      } else {
-//        return Stream.of(comp);
-//      }
-//    }
-//  }
-
   public static void traverse(Component origin, boolean includeOrigin,
       Consumer<Component> callback) {
     synchronized (origin.getTreeLock()) {
@@ -788,31 +776,14 @@ public class SwingUtils {
     for (Entry<String, String> kv : map.entrySet()) {
       final String name = kv.getKey();
       Component comp = comps.get(name);
-      if (comp != null) {
-        String s = kv.getValue();
-        if (comp instanceof StringRepresentable) {
-          ((StringRepresentable) comp).fromString(s);
-        }
-//        else if (comp instanceof JEditorPane) {
-//          JEditorPane ep = (JEditorPane)comp;
-//          if ("text/html".equals(ep.getContentType())) {
-//            ep.setText(SwingUtils.wrapInStyledHtml(s));
-//          }
-//        }
-        else if (comp instanceof JCheckBox) {
-          ((JCheckBox) comp).setSelected(Boolean.parseBoolean(s));
-        } else if (comp instanceof JTextComponent) {
-          ((JTextComponent) comp).setText(s);
-        } else {
-          log.debug(String
-              .format("SwingUtils.valuesFromMap() found component of type [%s] by name [%s] which "
-                      + "does not implement [%s] and is not [%s, %s]",
-                  comp.getClass().getSimpleName(), comp.getName(),
-                  StringRepresentable.class.getSimpleName(), JCheckBox
-                      .class.getSimpleName(), JTextComponent.class.getSimpleName()));
-          continue;
-        }
+      if (comp == null) {
+        //log.trace("No component with name [{}]", name);
+        continue;
       }
+//      if (kv.getKey().contains(MsfraggerParams.PROP_search_enzyme_butnotafter) || kv.getKey().contains("search_enzyme_")) {
+//        log.trace("Calling valueSet(comp, kv.getValue()) for [key={}], [val={}]", kv.getKey(), kv.getValue());
+//      }
+      valueSet(comp, kv.getValue());
     }
   }
 

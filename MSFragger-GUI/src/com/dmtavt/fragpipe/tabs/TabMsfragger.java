@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -193,7 +194,6 @@ public class TabMsfragger extends JPanelBase {
       return content.replaceAll("[\\s]+", "/");
     });
 
-
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_calibrated_mgf, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s-> MASS_DIFF_TO_VAR_MOD[Integer.parseInt(s)]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> PrecursorMassTolUnits.fromParamsFileRepresentation(s).name());
@@ -211,7 +211,6 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_offsets, text -> SwingUtils.wrapInStyledHtml(String.join(" ", text.split("/"))));
 
-    //{"Closed Search", "Open Search", "Non-specific Search", "Mass Offset Search"}
     SEARCH_TYPE_NAME_MAPPING.put("Closed Search", SearchTypeProp.closed);
     SEARCH_TYPE_NAME_MAPPING.put("Open Search", SearchTypeProp.open);
     SEARCH_TYPE_NAME_MAPPING.put("Non-specific Search", SearchTypeProp.nonspecific);
@@ -300,6 +299,7 @@ public class TabMsfragger extends JPanelBase {
     updateEnabledStatus(labelCustomIonSeries, false);
 
     // init fields with default values
+    log.debug("Calling TabMsfragger loadDefaults(SearchTypeProp.closed, false) in initMore()");
     loadDefaults(SearchTypeProp.closed, false);
 
     super.initMore();
@@ -1179,7 +1179,8 @@ public class TabMsfragger extends JPanelBase {
   }
 
   private void formFrom(Map<String, String> map) {
-    SwingUtilities.invokeLater(() -> SwingUtils.valuesSet(this, map));
+    log.debug("SwingUtils.valuesSet(this, map) is being called from formFrom(Map<String, String> map)");
+    SwingUtils.valuesSet(this, map);
   }
 
   private Map<String, String> formToMap() {
@@ -1338,6 +1339,7 @@ public class TabMsfragger extends JPanelBase {
 
   @Subscribe
   public void on(MessageMsfraggerParamsUpdate m) {
+    log.debug("Got MessageMsfraggerParamsUpdate, updating TabMsfragger via formFrom(m.params)");
     formFrom(m.params);
   }
 
@@ -1466,6 +1468,7 @@ public class TabMsfragger extends JPanelBase {
   }
 
   private void loadDefaults(SearchTypeProp type) {
+    log.debug("TabMsfragger loadDefaults() called for SearchTypeProp type={}", type.name());
     MsfraggerParams params = new MsfraggerParams();
     params.loadDefaults(type);
     formFrom(params);

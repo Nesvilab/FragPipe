@@ -13,7 +13,6 @@ import com.dmtavt.fragpipe.messages.MessageLoadUi;
 import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
-import com.dmtavt.fragpipe.messages.MessageUiInitDone;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
@@ -111,8 +110,9 @@ public class Fragpipe extends JFrame {
   public static final Color COLOR_WORKDIR = new Color(6, 2, 140);
   public static final Color COLOR_CMDLINE = new Color(0, 107, 109);
 
-  private static final String TAB_NAME_LCMS = "Workflow";
-  private static final String TAB_NAME_UMPIRE = "DIA-Umpire SE";
+  public static final String TAB_NAME_LCMS = "Workflow";
+  public static final String TAB_NAME_MSFRAGGER = "MSFragger";
+  public static final String TAB_NAME_UMPIRE = "DIA-Umpire SE";
   public static final String PREFIX_FRAGPIPE = "fragpipe.";
   public static final String PROP_NOCACHE = "do-not-cache";
 
@@ -370,7 +370,7 @@ public class Fragpipe extends JFrame {
         "/com/dmtavt/fragpipe/icons/icon-workflow-16.png", null));
     addTab.accept(new UiTab("Database", tabDatabase,
         "/com/dmtavt/fragpipe/icons/icon-dna-helix-16.png", null));
-    addTab.accept(new UiTab("MSFragger", tabMsfragger,
+    addTab.accept(new UiTab(TAB_NAME_MSFRAGGER, tabMsfragger,
         "/com/dmtavt/fragpipe/icons/bolt-outlined-16.png", null));
     addTab.accept(new UiTab("Validation", tabValidation,
         "/com/dmtavt/fragpipe/icons/icon-filtration-16.png", null));
@@ -411,7 +411,6 @@ public class Fragpipe extends JFrame {
     Bus.register(this);
     Bus.register(tips);
     Bus.postSticky(new NoteConfigTips(tips));
-    Bus.post(new MessageUiInitDone());
     Bus.postSticky(this);
 
     // initialize singletons (mainly to subscribe them to the bus)
@@ -499,6 +498,7 @@ public class Fragpipe extends JFrame {
   }
 
   private void loadUi(Properties props) {
+    log.debug("loadUi() called");
     FragpipeCacheUtils.tabsLoad(props, tabs);
     Bus.post(new MessageUiRevalidate());
   }

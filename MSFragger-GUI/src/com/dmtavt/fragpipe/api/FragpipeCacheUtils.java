@@ -48,8 +48,11 @@ public class FragpipeCacheUtils {
   public static void tabPaneFromMap(JTabbedPane tabs, Map<String, String> map) {
     for (int i = 0; i < tabs.getTabCount(); i++) {
       Component compAt = tabs.getComponentAt(i);
+      String tabTitle = tabs.getTitleAt(i);
+      log.debug("Loading tab pane {} from map", tabTitle);
       if (compAt instanceof Container) {
         try {
+          log.trace("Calling SwingUtils.valuesSet((Container) compAt, map) from tabPaneFromMap");
           SwingUtils.valuesSet((Container) compAt, map);
         } catch (NoSuchElementInModelException e) {
           if (UiCombo.class.equals(e.clazz)) {
