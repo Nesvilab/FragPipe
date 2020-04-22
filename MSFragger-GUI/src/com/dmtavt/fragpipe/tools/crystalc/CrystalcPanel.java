@@ -84,7 +84,7 @@ public class CrystalcPanel extends JPanelBase {
         newVals.put(PREFIX + key, props.getProps().getProp(key).value);
       });
       newVals.put(PREFIX + "max-charge", Integer.toString(props.getMaxZ()));
-      Map<String, String> oldVals = SwingUtils.valuesToMap(this);
+      Map<String, String> oldVals = SwingUtils.valuesGet(this);
       log.debug("Loading defaults for crystalc, iterating keys in newly loaded defaults");
       for (String k : newVals.keySet()) {
         String newVal = newVals.get(k);
@@ -96,7 +96,7 @@ public class CrystalcPanel extends JPanelBase {
       if (!oldKeysNotInNewDefaults.isEmpty()) {
         log.debug("Found old keys without new defaults: {}", oldKeysNotInNewDefaults);
       }
-      SwingUtils.valuesFromMap(this, newVals);
+      SwingUtils.valuesSet(this, newVals);
     } catch (Exception e) {
       log.error("Error loading Crystal-C defaults", e);
       SwingUtils.showErrorDialogWithStacktrace(e, this);

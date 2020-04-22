@@ -589,7 +589,7 @@ public class Fragpipe extends JFrame {
     if (v == null) {
       log.warn("No property in bundle: {}", prop);
     } else {
-      SwingUtils.setValue(comp, v);
+      SwingUtils.valueSet(comp, v);
     }
   }
 

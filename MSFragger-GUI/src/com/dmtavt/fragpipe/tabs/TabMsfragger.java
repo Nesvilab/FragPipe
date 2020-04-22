@@ -5,15 +5,11 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.ModsTable;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerParamsUpdate;
 import com.dmtavt.fragpipe.messages.MessagePrecursorSelectionMode;
-import com.dmtavt.fragpipe.messages.MessageRun;
-import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.MessageValidityMassCalibration;
 import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
-import com.github.chhh.utils.CacheUtils;
 import com.github.chhh.utils.MapUtils;
-import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.DocumentFilters;
@@ -21,7 +17,6 @@ import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
-import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
@@ -39,7 +34,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -55,7 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -1186,11 +1179,11 @@ public class TabMsfragger extends JPanelBase {
   }
 
   private void formFrom(Map<String, String> map) {
-    SwingUtilities.invokeLater(() -> SwingUtils.valuesFromMap(this, map));
+    SwingUtilities.invokeLater(() -> SwingUtils.valuesSet(this, map));
   }
 
   private Map<String, String> formToMap() {
-    Map<String, String> map = SwingUtils.valuesToMap(this);
+    Map<String, String> map = SwingUtils.valuesGet(this);
     HashMap<String, String> m = new HashMap<>();
     map.forEach((k, v) -> m.put(StringUtils.stripLeading(k, TAB_PREFIX), v));
     return m;

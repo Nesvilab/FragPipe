@@ -50,7 +50,7 @@ public class FragpipeCacheUtils {
       Component compAt = tabs.getComponentAt(i);
       if (compAt instanceof Container) {
         try {
-          SwingUtils.valuesFromMap((Container) compAt, map);
+          SwingUtils.valuesSet((Container) compAt, map);
         } catch (NoSuchElementInModelException e) {
           if (UiCombo.class.equals(e.clazz)) {
             // some combo does not have such an element anymore
@@ -80,7 +80,7 @@ public class FragpipeCacheUtils {
       }
       Container awtContainer = (Container)awtComponent;
       Predicate<String> filter = name -> !name.toLowerCase().contains(Fragpipe.PROP_NOCACHE.toLowerCase()) && !name.contains("Spinner.formattedTextField");
-      return SwingUtils.valuesToMap(awtContainer, filter);
+      return SwingUtils.valuesGet(awtContainer, filter);
     };
 
     Map<String, String> whole = new HashMap<>();

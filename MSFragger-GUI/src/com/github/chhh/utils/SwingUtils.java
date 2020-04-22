@@ -17,8 +17,6 @@
 package com.github.chhh.utils;
 
 import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.FragpipeLocations;
-import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.GhostedTextComponent;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
@@ -688,8 +686,8 @@ public class SwingUtils {
     return toggle.isEnabled() && toggle.isSelected();
   }
 
-  public static Map<String, String> valuesToMap(Container origin) {
-    return valuesToMap(origin, null);
+  public static Map<String, String> valuesGet(Container origin) {
+    return valuesGet(origin, null);
   }
 
 //  public static List<Component> allDescendants(Component comp, boolean includeOrigin) {
@@ -735,7 +733,7 @@ public class SwingUtils {
    *
    * @param compNameFilter Can be null, will accept all Component names then.
    */
-  public static Map<String, String> valuesToMap(Container origin,
+  public static Map<String, String> valuesGet(Container origin,
       Predicate<String> compNameFilter) {
     Map<String, Component> comps = SwingUtils.mapComponentsByName(origin, true);
     Map<String, String> map = new HashMap<>(comps.size());
@@ -785,7 +783,7 @@ public class SwingUtils {
    * Sets values for components in a {@link Container}. Components must 1) have their name set, 2)
    * be either {@link StringRepresentable} or 3) {@link JCheckBox}, {@link JTextComponent}.
    */
-  public static void valuesFromMap(Container origin, Map<String, String> map) {
+  public static void valuesSet(Container origin, Map<String, String> map) {
     Map<String, Component> comps = SwingUtils.mapComponentsByName(origin, true);
     for (Entry<String, String> kv : map.entrySet()) {
       final String name = kv.getKey();
@@ -830,7 +828,7 @@ public class SwingUtils {
         new ContentChangedFocusAdapter((StringRepresentable) comp, onContentChanged));
   }
 
-  public static void setValue(Component comp, String s) {
+  public static void valueSet(Component comp, String s) {
     if (comp instanceof StringRepresentable) {
       ((StringRepresentable) comp).fromString(s);
     }
@@ -845,12 +843,6 @@ public class SwingUtils {
     } else if (comp instanceof JTextComponent) {
       ((JTextComponent) comp).setText(s);
     } else {
-//      log.debug(String
-//          .format("SwingUtils.setValue() found component of type [%s] by name [%s] which "
-//                  + "does not implement [%s] and is not [%s, %s]",
-//              comp.getClass().getSimpleName(), comp.getName(),
-//              StringRepresentable.class.getSimpleName(), JCheckBox
-//                  .class.getSimpleName(), JTextComponent.class.getSimpleName()));
       throw new IllegalArgumentException(
           "Component not StringRepresentable, JCheckBox or JTextComponent. Can't set.");
     }

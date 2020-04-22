@@ -89,7 +89,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     }
     try {
       Properties props = PropertiesUtils.loadPropertiesLocal(QuantParams.class, QuantParams.DEFAULT_PROPERTIES_FN);
-      SwingUtils.valuesFromMap(this, PropertiesUtils.toMap(props));
+      SwingUtils.valuesSet(this, PropertiesUtils.toMap(props));
     } catch (Exception e) {
       log.error("Error loading quant defaults", e);
       SwingUtils.showErrorDialogWithStacktrace(e, this);
@@ -97,7 +97,7 @@ public class QuantPanelLabelfree extends JPanelBase {
   }
 
   public Map<String, String> toMap() {
-    return SwingUtils.valuesToMap(this, (name) -> !name.startsWith("Spinner.formattedTextField"));
+    return SwingUtils.valuesGet(this, (name) -> !name.startsWith("Spinner.formattedTextField"));
   }
 
   public String getFreequantOptsAsText() {

@@ -163,7 +163,7 @@ public class PtmshepherdPanel extends JPanelBase {
       } else {
         log.debug("PTMS panel loading defaults, key intersection: {}", intersect);
       }
-      SwingUtils.valuesFromMap(this, asMap);
+      SwingUtils.valuesSet(this, asMap);
     } catch (Exception e) {
       log.error("Error loading shepherd defaults", e);
       SwingUtils.showErrorDialogWithStacktrace(e, this);

@@ -560,7 +560,7 @@ public class TmtiPanel extends JPanelBase {
       String vConvertedToUi = CONVERT_TO_GUI.getOrDefault(k, Function.identity()).apply(v);
       prefixed.put(StringUtils.prependOnce(k, PREFIX), vConvertedToUi);
     });
-    SwingUtils.valuesFromMap(this, prefixed);
+    SwingUtils.valuesSet(this, prefixed);
   }
 
   @Subscribe(threadMode =  ThreadMode.MAIN_ORDERED)
@@ -838,7 +838,7 @@ public class TmtiPanel extends JPanelBase {
   }
 
   public Map<String, String> formToConfig(int ramGb, String pathTmtiJar, String pathFasta, String pathOutput) {
-    Map<String, String> map = SwingUtils.valuesToMap(this);
+    Map<String, String> map = SwingUtils.valuesGet(this);
     final Map<String, String> mapConv = new HashMap<>();
     map.forEach((k, v) ->
     {
