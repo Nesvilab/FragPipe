@@ -410,6 +410,14 @@ public class TmtiPanel extends JPanelBase {
     p.add(feMinSiteProb.label(), new CC().alignX("right"));
     p.add(feMinSiteProb.comp, new CC().alignX("left").spanX().wrap());
 
+    UiSpinnerDouble uiSpinnerMaxPepProb = UiSpinnerDouble
+        .builder(0, 0, 1.0, 0.1).setFormat(df2).setNumCols(5).create();
+    FormEntry feMaxPepProb = mu
+        .feb(TmtiConfProps.PROP_max_pep_prob_thres, uiSpinnerMaxPepProb)
+        .label("Max pep probability").create();
+    mu.add(p, feMaxPepProb.label(), mu.ccR());
+    mu.add(p, feMaxPepProb.comp).spanX().wrap();
+
     UiText uiTextProtExclude = UiUtils.uiTextBuilder().cols(10).text("none").create();
     FormEntry feProtExclude = fe(TmtiConfProps.PROP_prot_exclude,
         "Exclude proteins", uiTextProtExclude,
