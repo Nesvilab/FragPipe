@@ -409,6 +409,8 @@ public class TmtiPanel extends JPanelBase {
     mu.add(p, feBestPsm.comp).wrap();
     mu.add(p, feMinPsmProb.label(), mu.ccR());
     mu.add(p, feMinPsmProb.comp);
+    mu.add(p, feMaxPepProb.label(), mu.ccR());
+    mu.add(p, feMaxPepProb.comp);
     mu.add(p, feMinPurity.label(), mu.ccR());
     mu.add(p, feMinPurity.comp);
     mu.add(p, feMinPercent.label(), mu.ccR());
