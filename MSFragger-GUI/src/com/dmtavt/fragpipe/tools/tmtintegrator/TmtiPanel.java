@@ -425,19 +425,19 @@ public class TmtiPanel extends JPanelBase {
             + "none: for Global data<br/>\n"
             + "S[167],T[181],Y[243]: for Phospho<br/>\n"
             + "K[170]: for K-Acetyl");
-    p.add(feModTag.label(), new CC().alignX("right"));
-    p.add(feModTag.comp, new CC().alignX("left").spanX().wrap());
+    mu.add(p, feModTag.label(), mu.ccR());
+    mu.add(p, feModTag.comp).spanX().wrap();
 
     uiTextFreequant = new UiText("--ptw 0.4 --tol 10 --isolated");
     FormEntry feFreequant = fe("freequant", "Freequant opts", uiTextFreequant,
         "Command line options for Philosopher Freequant command");
-    uiTextLabelquant = new UiText("--purity 0.5 --tol 10");
+    uiTextLabelquant = new UiText("--purity 0.5 --tol 10 --level 2");
     FormEntry feLabelquant = fe("labelquant", "Labelquant opts", uiTextLabelquant,
         "Command line options for Philosopher Labelquant command");
-    p.add(feLabelquant.label(), new CC().alignX("right"));
-    p.add(feLabelquant.comp, new CC().alignX("left").spanX().growX().wrap());
-    p.add(feFreequant.label(), new CC().alignX("right"));
-    p.add(feFreequant.comp, new CC().alignX("left").spanX().growX().wrap());
+    mu.add(p, feLabelquant.label(), mu.ccR());
+    mu.add(p, feLabelquant.comp).spanX().growX().wrap();
+    mu.add(p, feFreequant.label(), mu.ccR());
+    mu.add(p, feFreequant.comp).spanX().growX().wrap();
 
     return p;
   }
