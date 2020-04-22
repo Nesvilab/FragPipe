@@ -185,12 +185,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_ion_series, ionStr -> ionStr.trim().replaceAll("[\\s,;]+",","));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_ion_series_definitions, defStr -> defStr.trim().replaceAll("\\s*[,;]+\\s*",", "));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets, s -> {
-      String content;
-      if (!s.contains("<html")) {
-        content = s;
-      } else {
-        content = Jsoup.parse(s).body().text();
-      }
+      String content = s.contains("<html") ? Jsoup.parse(s).body().text() : s;
       return content.replaceAll("[\\s]+", "/");
     });
 

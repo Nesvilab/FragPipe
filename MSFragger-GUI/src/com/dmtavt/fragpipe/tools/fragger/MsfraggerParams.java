@@ -56,6 +56,11 @@ public class MsfraggerParams extends AbstractParams {
 
     public static final Pattern reShiftedIonsExclusionRange = Pattern.compile("\\(\\s*(?<v1>-?\\d+(?:\\.\\d+)?)\\s*,\\s*(?<v2>-?\\d+(?:\\.\\d+)?)\\s*\\)");
 
+    public static final String PROP_glyco_search_mode = "glyco_search_mode";
+    public static final String PROP_oxonium_intensity_filter = "oxonium_intensity_filter";
+    public static final String PROP_Y_type_masses = "Y_type_masses";
+    public static final String PROP_oxonium_ions = "oxonium_ions";
+
     public static final String PROP_database_name = "database_name";
     public static final String PROP_decoy_prefix = "decoy_prefix";
     public static final String PROP_fragpipe_ram = "fragpipe_ram";
@@ -133,6 +138,10 @@ public class MsfraggerParams extends AbstractParams {
     //public static final String PROP_ = "";
 
     public static final String[] PROP_NAMES = {
+        PROP_glyco_search_mode,
+        PROP_oxonium_intensity_filter,
+        PROP_Y_type_masses,
+        PROP_oxonium_ions,
         PROP_database_name,
         PROP_decoy_prefix,
         PROP_fragpipe_ram,
@@ -214,6 +223,7 @@ public class MsfraggerParams extends AbstractParams {
     
     public static final String ENZYME_NONSPECIFIC_NAME = "nonspecific";
     public static final String ENZYME_TRYPSIN_NAME = "trypsin";
+    public static final List<String> GLYCO_OPTIONS = Arrays.asList("none", "NGlycan", "OGlycan", "specific");
 
     public static final Map<String, String> ADDON_MAP_NAME2HUMAN = new HashMap<>(ADDON_NAMES.length);
     public static final Map<String, String> ADDON_MAP_HUMAN2NAME = new HashMap<>(ADDON_NAMES.length);
@@ -339,7 +349,35 @@ public class MsfraggerParams extends AbstractParams {
             throw new IllegalStateException("Could not load MSFragger defaults for " + type.name() + " from the jar itself.", e);
         }
     }
-    
+
+    public String getGlycoSearchMode() {
+        return props.getProp(PROP_glyco_search_mode, "none").value;
+    }
+    public String getOxoniumIntensityFilter() {
+        return props.getProp(PROP_oxonium_intensity_filter, "0").value;
+    }
+    public String getYTypeMasses() {
+        return props.getProp(PROP_Y_type_masses, "0/203.07937/406.15874/568.21156/730.26438/892.3172/349.137279").value;
+    }
+    public String getOxoniumIons() {
+        return props.getProp(PROP_oxonium_ions, "204.086646/186.076086/168.065526/366.139466/144.0656/138.055/126.055/163.060096/512.197375/292.1026925/274.0921325/657.2349/243.026426/405.079246/485.045576/308.09761").value;
+    }
+
+
+    public void setGlycoSearchMode(String v) {
+        props.setProp(PROP_glyco_search_mode, v);
+    }
+    public void setOxoniumIntensityFilter(String v) {
+        props.setProp(PROP_oxonium_intensity_filter, v);
+    }
+    public void setYTypeMasses(String v) {
+        props.setProp(PROP_Y_type_masses, v);
+    }
+    public void setOxoniumIons(String v) {
+        props.setProp(PROP_oxonium_ions, v);
+    }
+
+
     public String getDatabaseName() {
         return props.getProp(PROP_database_name, "").value;
     }
