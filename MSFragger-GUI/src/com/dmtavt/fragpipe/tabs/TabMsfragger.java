@@ -185,10 +185,10 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_report_alternative_proteins, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_ion_series, ionStr -> ionStr.trim().replaceAll("[\\s,;]+",","));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_ion_series_definitions, defStr -> defStr.trim().replaceAll("\\s*[,;]+\\s*",", "));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets, s -> {
-      String content = s.contains("<html") ? Jsoup.parse(s).body().text() : s;
-      return content.replaceAll("[\\s]+", "/");
-    });
+
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets, s -> s.replaceAll("[\\s]+", "/"));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_Y_type_masses, s -> s.replaceAll("[\\s]+", "/"));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_oxonium_ions, s -> s.replaceAll("[\\s]+", "/"));
 
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_calibrated_mgf, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s-> MASS_DIFF_TO_VAR_MOD[Integer.parseInt(s)]);
@@ -205,7 +205,10 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_override_charge, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.fromValueInParamsFile(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Boolean.toString(Integer.parseInt(s) > 0));
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_offsets, text -> SwingUtils.wrapInStyledHtml(String.join(" ", text.split("/"))));
+
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_offsets, text -> String.join(" ", text.split("/")));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_Y_type_masses, text -> String.join(" ", text.split("/")));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_oxonium_ions, text -> String.join(" ", text.split("/")));
 
     SEARCH_TYPE_NAME_MAPPING.put("Closed Search", SearchTypeProp.closed);
     SEARCH_TYPE_NAME_MAPPING.put("Open Search", SearchTypeProp.open);
@@ -593,11 +596,14 @@ public class TabMsfragger extends JPanelBase {
         .label("Oxonium Ion Minimum Intensity").create();
 
     final HtmlStyledJEditorPane ep1 = new HtmlStyledJEditorPane();
+    ep1.setPreferredSize(new Dimension(100, 25));
     mu.border(ep1, new LineBorder(Color.LIGHT_GRAY, 1));
     FormEntry feYIonMasses = mu.feb(ep1).name(MsfraggerParams.PROP_Y_type_masses)
         .label("Y Ion Masses").create();
 
     final HtmlStyledJEditorPane ep2 = new HtmlStyledJEditorPane();
+    ep2.setText("sample init text");
+    ep2.setPreferredSize(new Dimension(100, 25));
     mu.border(ep2, new LineBorder(Color.LIGHT_GRAY, 1));
     FormEntry feOxoniumIons = mu.feb(ep2).name(MsfraggerParams.PROP_oxonium_ions)
         .label("Oxonium Ion Masses").create();
@@ -794,12 +800,12 @@ public class TabMsfragger extends JPanelBase {
         + "with this example will create search windows around<br>\n"
         + "(0,1,2,79.966, 80.966, 81.966).";
 
-    epMassOffsets = SwingUtils.createClickableHtml(SwingUtils.wrapInStyledHtml(""), false,
-        false, null, true);
+    ;
+    epMassOffsets = new HtmlStyledJEditorPane();
     epMassOffsets.setPreferredSize(new Dimension(100, 25));
     //epMassOffsets.setMaximumSize(new Dimension(200, 25));
     epMassOffsets.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
-    epMassOffsets.setFont(new JLabel().getFont());
+    //epMassOffsets.setFont(new JLabel().getFont());
 
     uiTextMassOffsets = UiUtils.uiTextBuilder().filter("[^-\\(\\)\\./,\\d ]").text("0").create();
 

@@ -20,6 +20,7 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.GhostedTextComponent;
+import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.StringRepresentable;
 import com.github.chhh.utils.swing.UiUtils;
@@ -589,12 +590,6 @@ public class SwingUtils {
 
     String html1 = wrapInStyledHtml(text);
     StringBuilder sb = new StringBuilder();
-    String html = sb.append("<html><body style=\"").append(createCssStyle()).append("\">")
-        .append(text)
-        .append("</body></html>").toString();
-    if (!html.equals(html1)) {
-      int a = 1;
-    }
     JEditorPane ep = new JEditorPane("text/html", html1);
     ep.setEditable(editable);
 
@@ -809,6 +804,9 @@ public class SwingUtils {
   public static void valueSet(Component comp, String s) {
     if (comp instanceof StringRepresentable) {
       ((StringRepresentable) comp).fromString(s);
+    } else if (comp instanceof HtmlStyledJEditorPane) {
+      HtmlStyledJEditorPane ep = (HtmlStyledJEditorPane) comp;
+      ep.setText(s); // HtmlStyledJEditorPane automatically does html wrapping/unwrapping
     } else if (comp instanceof JEditorPane) {
       JEditorPane ep = (JEditorPane) comp;
       ep.setContentType("text/html");
