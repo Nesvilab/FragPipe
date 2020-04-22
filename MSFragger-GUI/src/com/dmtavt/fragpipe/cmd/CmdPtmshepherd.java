@@ -101,7 +101,7 @@ public class CmdPtmshepherd extends CmdBase {
           .distinct().collect(Collectors.toList());
       if (lcmsPathsForGroup.size() != 1) {
         String msg = "PTM Shepherd requires all LCMS files in a group/experiment to be in one directory.\n<br/><br/>"
-            + "<b>Check 'Select LC/MS Files' tab.</b>";
+            + "<b>Check 'Workflows' tab, 'Input LCMS files' section.</b>";
         SwingUtils.showDialog(comp, SwingUtils.createClickableHtml(msg), NAME + " configuration error", JOptionPane.WARNING_MESSAGE);
         log.error(msg);
         return false;
