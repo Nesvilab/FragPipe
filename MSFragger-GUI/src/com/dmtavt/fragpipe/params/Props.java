@@ -32,12 +32,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.github.chhh.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Dmitry Avtonomov
  */
 public class Props {
+    private static final Logger log = LoggerFactory.getLogger(Props.class);
     public static final String COMMENT_SYMBOL = "#";
     public static final String BLANK_LINE_MARKER = COMMENT_SYMBOL + " blank line ";
     private static final Pattern DISABLED_PROP = Pattern.compile("^#\\s*([^\\s]+)\\s*=([^#]+)(?:\\s*#\\s*(.+))?.*");
@@ -226,7 +229,8 @@ public class Props {
                 continue;
             }
             Prop prop = map.get(name);
-            if (StringUtils.isNullOrWhitespace(prop.value)) {
+            if (prop.value == null) {
+                log.warn("Property with null value encountered: {}", prop.name);
                 continue;
             }
             if (!prop.isEnabled)

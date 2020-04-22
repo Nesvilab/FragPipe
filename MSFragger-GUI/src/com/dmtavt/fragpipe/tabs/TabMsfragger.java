@@ -80,6 +80,7 @@ import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.ArrayUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jooq.lambda.Seq;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1380,22 +1381,20 @@ public class TabMsfragger extends JPanelWithEnablement {
     cacheSave();
 
     // now save the actual user's choice
-    JFileChooser fc = new JFileChooser();
-    fc.setApproveButtonText("Save");
-    fc.setApproveButtonToolTipText("Save to a file");
-    fc.setDialogTitle("Choose where params file should be saved");
-    fc.setMultiSelectionEnabled(false);
-
-    final String propName = ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN;
-    ThisAppProps.load(propName, fc);
+    JFileChooser fc = FileChooserUtils.builder("Choose where params file should be saved")
+        .approveButton("Save")
+        .multi(false).acceptAll(true).mode(FcMode.FILES_ONLY)
+        .paths(Seq.of(
+            Fragpipe.propsVarGet(ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN),
+            Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH))).create();
 
     fc.setSelectedFile(new File(MsfraggerParams.CACHE_FILE));
-    Component parent = SwingUtils.findParentFrameForDialog(this);
-    int saveResult = fc.showSaveDialog(parent);
-    if (JFileChooser.APPROVE_OPTION == saveResult) {
+    final Component parent = SwingUtils.findParentFrameForDialog(this);
+    if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(parent)) {
       File selectedFile = fc.getSelectedFile();
       Path path = Paths.get(selectedFile.getAbsolutePath());
-      ThisAppProps.save(propName, path.toString());
+      Fragpipe.propsVarSet(ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN, path.toString());
+      Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, path.toString());
 
       // if exists, overwrite
       if (Files.exists(path)) {
@@ -1411,14 +1410,13 @@ public class TabMsfragger extends JPanelWithEnablement {
         }
       }
       try {
-        ThisAppProps.save(PROP_FILECHOOSER_LAST_PATH, path.toAbsolutePath().toString());
         MsfraggerParams params = formCollect();
-
         params.save(new FileOutputStream(path.toFile()));
         params.save();
 
       } catch (IOException ex) {
-        JOptionPane.showMessageDialog(parent, "<html>Could not save file: <br/>" + path.toString() +
+        JOptionPane.showMessageDialog(
+            parent, "<html>Could not save file: <br/>" + path.toString() +
             "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         return;
       }
