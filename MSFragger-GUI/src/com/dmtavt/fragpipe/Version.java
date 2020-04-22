@@ -52,6 +52,7 @@ public class Version {
   public static final String PROP_LAST_RELEASE_VER = "fragpipe.last.release.version";
   public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
   public static final String PROP_ISSUE_TRACKER_URL = "msfragger.gui.issue-tracker";
+  public static final String PROP_ISSUE_TRACKER_URL_DEV = "msfragger.gui.issue-tracker-dev";
   public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
   public static final String PROP_IMPORTANT_UPDATES = "msfragger.gui.important-updates";
   public static final String PROP_CRITICAL_UPDATES = "msfragger.gui.critical-updates";
@@ -267,6 +268,10 @@ public class Version {
       }
     }
     return res;
+  }
+
+  public static boolean isDevBuild() {
+    return version().toLowerCase().contains("build");
   }
 
   public static String version() {
