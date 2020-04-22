@@ -16,6 +16,7 @@ import com.github.chhh.utils.swing.DocumentFilters;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
@@ -572,6 +573,40 @@ public class TabMsfragger extends JPanelBase {
       return pBase;
   }
 
+  private JPanel createPanelGlyco() {
+    JPanel p = mu.newPanel("Glyco", mu.lcFillXNoInsetsTopBottom());
+
+    UiCombo uiComboGlyco = UiUtils.createUiCombo(MsfraggerParams.GLYCO_OPTIONS);
+    FormEntry feGlycoSearchMode = mu.feb(uiComboGlyco)
+        .name(MsfraggerParams.PROP_glyco_search_mode)
+        .label("Glyco Search Mode").create();
+
+
+    FormEntry feOxoniumIonMinimumIntensity = mu
+        .feb(UiSpinnerDouble.builder(0, 0, 1, 0.1).setFormat("#.##").setNumCols(5).create())
+        .name(MsfraggerParams.PROP_oxonium_intensity_filter)
+        .label("Oxonium Ion Minimum Intensity").create();
+
+    HtmlStyledJEditorPane ep1 = new HtmlStyledJEditorPane();
+    FormEntry feYIonMasses = mu.feb(ep1).name(MsfraggerParams.PROP_Y_type_masses)
+        .label("Y Ion Masses").create();
+
+    HtmlStyledJEditorPane ep2 = new HtmlStyledJEditorPane();
+    FormEntry feOxoniumIons = mu.feb(ep2).name(MsfraggerParams.PROP_oxonium_ions)
+        .label("Oxonium Ion Masses").create();
+
+    mu.add(p, feGlycoSearchMode.label(), mu.ccR());
+    mu.add(p, feGlycoSearchMode.comp);
+    mu.add(p, feOxoniumIonMinimumIntensity.label(), mu.ccR());
+    mu.add(p, feOxoniumIonMinimumIntensity.comp).pushX().wrap();
+    mu.add(p, feYIonMasses.label(), mu.ccR());
+    mu.add(p, feYIonMasses.comp).spanX().growX().wrap();
+    mu.add(p, feOxoniumIons.label(), mu.ccR());
+    mu.add(p, feOxoniumIons.comp).spanX().growX().wrap();
+
+    return p;
+  }
+
   private static Object[][] convertModsToVarModsData(List<Mod> mods) {
     Object[][] data = new Object[MsfraggerParams.VAR_MOD_COUNT_MAX][TABLE_VAR_MODS_COL_NAMES.length];
     for (int i = 0; i < data.length; i++) {
@@ -760,10 +795,11 @@ public class TabMsfragger extends JPanelBase {
   private JPanel createPanelAdvancedOptions() {
     JPanel p = mu.newPanel("Advanced Options", new LC());
 
-    mu.add(p, createPanelAdvancedSpectral()).pushX().wrap();
-    mu.add(p, createPanelAdvancedOpenSearch()).pushX().wrap();
-    mu.add(p, createPanelAdvancedOutput()).pushX().wrap();
-    mu.add(p, createPanelAdvancedPeakMatch()).pushX().wrap();
+    mu.add(p, createPanelAdvancedSpectral()).growX().wrap();
+    mu.add(p, createPanelAdvancedOpenSearch()).growX().wrap();
+    mu.add(p, createPanelGlyco()).growX().wrap();
+    mu.add(p, createPanelAdvancedOutput()).growX().wrap();
+    mu.add(p, createPanelAdvancedPeakMatch()).growX().wrap();
 
     return p;
   }
@@ -808,22 +844,26 @@ public class TabMsfragger extends JPanelBase {
 
     mu.add(p, fePrecursorMassMode.label(), mu.ccR());
     mu.add(p, fePrecursorMassMode.comp).wrap();
+
     mu.add(p, feMinPeaks.label(), mu.ccR());
     mu.add(p, feMinPeaks.comp).split(5).spanX();
     mu.add(p, feUseTopN.label()).gapBefore("20px");
     mu.add(p, feUseTopN.comp);
     mu.add(p, feMinRatio.label()).gapBefore("20px");
     mu.add(p, feMinRatio.comp).wrap();
+
     mu.add(p, feClearRangeMzLo.label(), mu.ccR());
     mu.add(p, feClearRangeMzLo.comp).split(3).spanX();
     mu.add(p, new JLabel("-"));
     mu.add(p, feClearRangeMzHi.comp).wrap();
+
     mu.add(p, feRemovePrecPeak.label(), mu.ccR());
     mu.add(p, feRemovePrecPeak.comp).split(5).spanX();
     mu.add(p, fePrecRemoveRangeLo.label());
     mu.add(p, fePrecRemoveRangeLo.comp);
     mu.add(p, new JLabel("-"));
-    mu.add(p, fePrecRemoveRangeHi.comp).wrap();
+    mu.add(p, fePrecRemoveRangeHi.comp).pushX().wrap();
+
     mu.add(p, feIntensityTransform.label(), mu.ccR());
     mu.add(p, feIntensityTransform.comp).wrap();
 
@@ -902,12 +942,12 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feMinMatchedFrags.label(), mu.ccR());
     mu.add(p, feMinMatchedFrags.comp);
     mu.add(p, feMaxFragCharge.label(), mu.ccR());
-    mu.add(p, feMaxFragCharge.comp).wrap();
+    mu.add(p, feMaxFragCharge.comp).pushX().wrap();
     mu.add(p, feDeisotope.label(), mu.ccR());
     mu.add(p, feDeisotope.comp);
     mu.add(p, feIonSeries.label(), mu.ccR());
     mu.add(p, feIonSeries.comp).growX();
-    mu.add(p, labelCustomIonSeries).split(2).spanX();
+    mu.add(p, labelCustomIonSeries, mu.ccR());
     mu.add(p, feCustomSeries.comp).growX().wrap();
     mu.add(p, feTrueTolUnits.label(), mu.ccR());
     mu.add(p, feTrueTolUnits.comp).split(2);
@@ -950,7 +990,7 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feReportTopN.comp).growX();
     mu.add(p, feReportAltProts.comp);
     mu.add(p, feOutputMaxExpect.label()).split().spanX().gapLeft("10px");
-    mu.add(p, feOutputMaxExpect.comp).wrap();
+    mu.add(p, feOutputMaxExpect.comp).pushX().wrap();
     mu.add(p, feOutputType.label(), mu.ccR());
     mu.add(p, feOutputType.comp);
     mu.add(p, feCheckWriteCalibratedMgf.comp).wrap();
@@ -978,29 +1018,12 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feComboMassDiffToVariableMod = fe(MsfraggerParams.PROP_mass_diff_to_variable_mod, uiComboMassDiffToVariableMod)
         .label("Report mass shift as a variable mod").create();
 
-    mu.add(p, feComboMassDiffToVariableMod.label(), mu.ccR());
-    mu.add(p, feComboMassDiffToVariableMod.comp).split().spanX().wrap();
-
-    mu.add(p, feTrackZeroTopN.label(), mu.ccR());
-    mu.add(p, feTrackZeroTopN.comp);
-    mu.add(p, feAddTopNComplementary.label(), mu.ccR());
-    mu.add(p, feAddTopNComplementary.comp).wrap();
-    mu.add(p, feZeroBinAcceptExpect.label(), mu.ccR());
-    mu.add(p, feZeroBinAcceptExpect.comp);
-    mu.add(p, feZeroBinMultExpect.label(), mu.ccR());
-    mu.add(p, feZeroBinMultExpect.comp).wrap();
-
-
     UiText uiTextShiftedIonsExclusion = new UiText();
     uiTextShiftedIonsExclusion.setDocument(DocumentFilters.getFilter("[A-Za-z]"));
     uiTextShiftedIonsExclusion.setText("(-1.5,3.5)");
     FormEntry feShiftedIonsExclusion = fe(
         MsfraggerParams.PROP_delta_mass_exclude_ranges, uiTextShiftedIonsExclusion).label("Delta mass exclude ranges")
         .tooltip("<html>Ranges expressed like: (-1.5,3.5)").create();
-
-    mu.add(p, feShiftedIonsExclusion.label(), mu.ccR());
-    mu.add(p, feShiftedIonsExclusion.comp).growX().pushX().spanX().wrap();
-
 
     uiCheckLocalizeDeltaMass = new UiCheck("<html>Localize mass shift", null, false);
     FormEntry feLocalizeDeltaMass = fe(MsfraggerParams.PROP_localize_delta_mass,
@@ -1010,6 +1033,23 @@ public class TabMsfragger extends JPanelBase {
             + "but with the addition of the mass shift of the precursor.\n"
             + "Regular ion series will still be used.\n"
             + "This option is </b>incompatible</b> with database splitting.").create();
+
+    mu.add(p, feComboMassDiffToVariableMod.label(), mu.ccR());
+    mu.add(p, feComboMassDiffToVariableMod.comp).split().spanX().wrap();
+
+    mu.add(p, feTrackZeroTopN.label(), mu.ccR());
+    mu.add(p, feTrackZeroTopN.comp);
+    mu.add(p, feAddTopNComplementary.label(), mu.ccR());
+    mu.add(p, feAddTopNComplementary.comp).pushX().wrap();
+
+    mu.add(p, feZeroBinAcceptExpect.label(), mu.ccR());
+    mu.add(p, feZeroBinAcceptExpect.comp);
+    mu.add(p, feZeroBinMultExpect.label(), mu.ccR());
+    mu.add(p, feZeroBinMultExpect.comp).wrap();
+
+    mu.add(p, feShiftedIonsExclusion.label(), mu.ccR());
+    mu.add(p, feShiftedIonsExclusion.comp).growX().spanX().wrap();
+
     mu.add(p, feLocalizeDeltaMass.comp).skip(1).wrap();
 
     return p;

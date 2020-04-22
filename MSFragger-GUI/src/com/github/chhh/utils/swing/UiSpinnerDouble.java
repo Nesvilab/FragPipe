@@ -93,6 +93,11 @@ public class UiSpinnerDouble extends JSpinner implements StringRepresentable {
       return this;
     }
 
+    public UiSpinnerDoubleBuilder setFormat(String decimalFormatSpec) {
+      this.format = new DecimalFormat(decimalFormatSpec);
+      return this;
+    }
+
     public UiSpinnerDoubleBuilder setNumCols(int numDecimalDigits) {
       this.numDecimalDigits = numDecimalDigits;
       return this;
