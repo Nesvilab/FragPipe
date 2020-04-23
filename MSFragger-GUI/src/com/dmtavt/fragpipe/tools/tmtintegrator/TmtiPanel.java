@@ -885,7 +885,7 @@ public class TmtiPanel extends JPanelBase {
   }
 
   public Map<String, String> formToConfig(int ramGb, String pathTmtiJar, String pathFasta, String pathOutput) {
-    Map<String, String> map = SwingUtils.valuesGet(this);
+    Map<String, String> map = SwingUtils.valuesGet(this, null);
     final Map<String, String> mapConv = new HashMap<>();
     map.forEach((k, v) ->
     {

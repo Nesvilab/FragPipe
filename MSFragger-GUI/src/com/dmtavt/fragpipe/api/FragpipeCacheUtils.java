@@ -70,28 +70,28 @@ public class FragpipeCacheUtils {
    * Collects all tabs' components that have names with values from the map.
    * @param tabs
    */
-  public static Map<String, String> tabPaneToMap(JTabbedPane tabs) {
+  public static Map<String, String> tabPaneToMap(JTabbedPane tabs, boolean saveFieldTypes) {
     // getting tab names
     Map<Integer, String> mapTabNameToIdx = new HashMap<>();
     for (int i = 0, tabCount = tabs.getTabCount(); i < tabCount; i++) {
       mapTabNameToIdx.put(i, tabs.getTitleAt(i));
     }
 
-    final Function<Component, Map<String, String>> compToMap = awtComponent -> {
+    final Function<Component, Map<String, String>> compToMap = (awtComponent) -> {
       if (!(awtComponent instanceof Container)) {
         return Collections.emptyMap();
       }
       Container awtContainer = (Container)awtComponent;
       Predicate<String> filter = name -> !name.toLowerCase().contains(Fragpipe.PROP_NOCACHE.toLowerCase()) && !name.contains("Spinner.formattedTextField");
-      return SwingUtils.valuesGet(awtContainer, filter);
+      return SwingUtils.valuesGet(awtContainer, filter); // TODO: Continue here
     };
 
     Map<String, String> whole = new HashMap<>();
     for (int i = 0; i < tabs.getTabCount(); i++) {
-      Component compAt = tabs.getComponentAt(i);
+      Component tab = tabs.getComponentAt(i);
       final String tabname = mapTabNameToIdx.getOrDefault(i, "?");
 
-      Map<String, String> map = compToMap.apply(compAt).entrySet().stream()
+      Map<String, String> map = compToMap.apply(tab).entrySet().stream()
 //          .filter(kv -> {
 //            boolean b1 = !kv.getKey().equalsIgnoreCase("Spinner.formattedTextField");
 //            boolean b2 = !kv.getKey().toLowerCase().contains(Fragpipe.PROP_NOCACHE.toLowerCase());
@@ -116,13 +116,31 @@ public class FragpipeCacheUtils {
   }
 
   public static Properties tabsSave(JTabbedPane tabs) {
-    Map<String, String> map = tabPaneToMap(tabs);
+    return tabsSave(tabs, false);
+  }
+
+  public static Properties tabsSave(JTabbedPane tabs, boolean saveFieldTypes) {
+    Map<String, String> map = tabPaneToMap(tabs, saveFieldTypes);
     Properties props = PropertiesUtils.from(map);
     return props;
   }
 
-  public static void tabsSave(OutputStream os, JTabbedPane tabs) throws IOException {
-    Properties props = tabsSave(tabs);
+  /**
+ * @param os
+ * @param tabs
+   */
+  public static void tabsSave(OutputStream os, JTabbedPane tabs)
+      throws IOException {
+    tabsSave(os, tabs, false);
+  }
+
+  /**
+   * @param saveWithFieldTypes only used for development purposes to save properties with names
+   *                           prepended with field types.
+   */
+  public static void tabsSave(OutputStream os, JTabbedPane tabs, boolean saveWithFieldTypes)
+      throws IOException {
+    Properties props = tabsSave(tabs, saveWithFieldTypes);
     try (BufferedOutputStream bos = new BufferedOutputStream(os)) {
       //props.store(bos, ThisAppProps.cacheComments()); // This is from Java's Properties - the order or things looks to be random
       PropertiesUtils.storeSorted(props, bos, ThisAppProps.cacheComments(), true);

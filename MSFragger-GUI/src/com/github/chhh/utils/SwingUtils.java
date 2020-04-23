@@ -56,7 +56,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -682,10 +684,6 @@ public class SwingUtils {
     return toggle.isEnabled() && toggle.isSelected();
   }
 
-  public static Map<String, String> valuesGet(Container origin) {
-    return valuesGet(origin, null);
-  }
-
   public static void traverse(Component origin, boolean includeOrigin,
       Consumer<Component> callback) {
     synchronized (origin.getTreeLock()) {
@@ -714,10 +712,22 @@ public class SwingUtils {
    * {@link StringRepresentable} and returns the mapping.<br/> Useful for persisting values from
    * Swing windows.
    *
+ * @param origin
+ * @param compNameFilter Can be null, will accept all Component names then.
+   */
+  public static Map<String, String> valuesGet(Container origin, Predicate<String> compNameFilter) {
+    return valuesGet(origin, compNameFilter, (comp, name) -> name);
+  }
+
+  /**
+   * Drills down a {@link Container}, mapping all components that 1) have their name set, 2) are
+   * {@link StringRepresentable} and returns the mapping.<br/> Useful for persisting values from
+   * Swing windows.
+   *
    * @param compNameFilter Can be null, will accept all Component names then.
    */
-  public static Map<String, String> valuesGet(Container origin,
-      Predicate<String> compNameFilter) {
+  public static Map<String, String> valuesGet(Container origin, Predicate<String> compNameFilter,
+      BiFunction<JComponent, String, String> nameMapper) {
     Map<String, Component> comps = SwingUtils.mapComponentsByName(origin, true);
     Map<String, String> map = new HashMap<>(comps.size());
     compNameFilter = compNameFilter == null ? s -> true : compNameFilter;

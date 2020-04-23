@@ -84,7 +84,7 @@ public class CrystalcPanel extends JPanelBase {
         newVals.put(PREFIX + key, props.getProps().getProp(key).value);
       });
       newVals.put(PREFIX + "max-charge", Integer.toString(props.getMaxZ()));
-      Map<String, String> oldVals = SwingUtils.valuesGet(this);
+      Map<String, String> oldVals = SwingUtils.valuesGet(this, null);
       log.debug("Loading defaults for crystalc, iterating keys in newly loaded defaults");
       for (String k : newVals.keySet()) {
         String newVal = newVals.get(k);

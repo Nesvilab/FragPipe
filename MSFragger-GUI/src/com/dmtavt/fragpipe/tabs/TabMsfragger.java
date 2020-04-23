@@ -1180,7 +1180,7 @@ public class TabMsfragger extends JPanelBase {
   }
 
   private Map<String, String> formToMap() {
-    Map<String, String> map = SwingUtils.valuesGet(this);
+    Map<String, String> map = SwingUtils.valuesGet(this, null);
     HashMap<String, String> m = new HashMap<>();
     map.forEach((k, v) -> m.put(StringUtils.stripLeading(k, TAB_PREFIX), v));
     return m;

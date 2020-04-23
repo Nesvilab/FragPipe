@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.tabs;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.IPathsProvider;
@@ -487,6 +488,9 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnWorkflowLoad);
     mu.add(p, new JLabel("or save current settings as workflow")).gapLeft("15px");
     mu.add(p, UiUtils.createButton("Save", e -> Bus.post(new MessageSaveAsWorkflow(false))));
+    if (Version.isDevBuild()) {
+      mu.add(p, UiUtils.createButton("Save Dev", e -> Bus.post(new MessageSaveAsWorkflow(false, true))));
+    }
     mu.add(p, btnOpenInExplorer).wrap();
 
     mu.add(p, epWorkflowsDesc).growX().spanX().wrap();
@@ -652,7 +656,11 @@ public class TabWorkflow extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageSaveAsWorkflow m) {
     Fragpipe fp = Fragpipe.getStickyStrict(Fragpipe.class);
-    Properties uiProps = FragpipeCacheUtils.tabsSave(fp.tabs);
+
+
+    Properties uiProps = FragpipeCacheUtils.tabsSave(fp.tabs, m.saveWithFieldTypes);
+
+
     Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps)).filter(kv -> {
       String k = kv.v1().toLowerCase();
       if (k.startsWith(TabConfig.TAB_PREFIX)) { // nothing from tab config goes into a workflow
