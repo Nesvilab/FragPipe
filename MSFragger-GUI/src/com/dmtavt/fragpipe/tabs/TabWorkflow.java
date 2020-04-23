@@ -122,6 +122,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private static final String DEFAULT_WORKFLOW = "Defaults";
   private JEditorPane epWorkflowsDesc;
   private UiCheck uiCheckProcessEachExperimentSeparately;
+  private UiText uiTextLastAddedLcmsDir;
 
   public TabWorkflow() {
     init();
@@ -529,9 +530,18 @@ public class TabWorkflow extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageLcmsFilesAdded m) {
     // save locations
-    String savePath = m.recursiveAdditionRoot != null ? m.recursiveAdditionRoot.toString()
-        : m.paths.get(0).toString();
-    ThisAppProps.save(ThisAppProps.PROP_LCMS_FILES_IN, savePath);
+    String saveDir = null;
+    if (m.recursiveAdditionRoot != null) {
+      saveDir = m.recursiveAdditionRoot.toString();
+    } else if (!m.paths.isEmpty()) {
+      saveDir = m.paths.get(0).getParent().toString();
+    }
+    if (saveDir != null) {
+      Fragpipe.propsVarSet(ThisAppProps.PROP_LCMS_FILES_IN, saveDir);
+      if (uiTextLastAddedLcmsDir != null) {
+        uiTextLastAddedLcmsDir.setText(saveDir);
+      }
+    }
 
     LcmsFileAddition lfa = new LcmsFileAddition(m.paths, new ArrayList<>(m.paths));
     processAddedLcmsPaths(lfa, this, Fragpipe::getExtBinSearchPaths);
@@ -583,8 +593,28 @@ public class TabWorkflow extends JPanelWithEnablement {
       PathUtils.traverseDirectoriesAcceptingFiles(p.toFile(), pred, accepted, false);
     }
 
+    List<Path> lessGenerated = Seq.seq(accepted)
+        .filter(p -> {
+          final String end = "_calibrated.mgf";
+          final String fnLo = p.getFileName().toString().toLowerCase();
+          if (!fnLo.endsWith(end)) {
+            return true;
+          }
+
+          final String fnBaseLo = StringUtils.upToLastSubstr(fnLo, end, false);
+          final Path dir = p.getParent();
+          long count = Seq.seq(accepted).filter(p2 -> dir.equals(p2.getParent()))
+              .map(p2 -> p2.getFileName().toString().toLowerCase())
+              .filter(fnLo2 -> fnLo2.startsWith(fnBaseLo))
+              .count();
+          if (count == 1) {
+            log.warn("Not filtering out LCMS file ending with '_calibrated.mgf' as no possible parent file found:\n\t{}", p);
+          }
+          return count == 1; // _calibrated.mgf is the only file with that base-name, add it
+        }).toList();
+
     if (!accepted.isEmpty()) {
-      Bus.post(new MessageLcmsFilesAdded(accepted, inputPaths.get(0)));
+      Bus.post(new MessageLcmsFilesAdded(lessGenerated, inputPaths.get(0)));
     }
   }
 
@@ -782,13 +812,13 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (!addDebugBtn) {
       mu.add(p, btnFilesClear).wrap();
     } else {
-      final UiText uiTextLast = UiUtils.uiTextBuilder().cols(20)
+      uiTextLastAddedLcmsDir = UiUtils.uiTextBuilder().cols(20)
           .text(Fragpipe.propsVarGet(ThisAppProps.LAST_RECURSIVE_FOLDER_ADDED, "")).create();
       JButton btnDebugFolderAdd = UiUtils.createButton("Add recent", e -> {
         //String add = "D:\\ms-data\\TMTIntegrator_v1.1.4\\TMT-I-Test\\tmti-test-data_5-min-cuts";
-        Path existing = PathUtils.existing(uiTextLast.getNonGhostText());
+        Path existing = PathUtils.existing(uiTextLastAddedLcmsDir.getNonGhostText());
         if (existing == null) {
-          SwingUtils.showInfoDialog(this, "Path not exists:\n" + uiTextLast.getNonGhostText(), "Warning");
+          SwingUtils.showInfoDialog(this, "Path not exists:\n" + uiTextLastAddedLcmsDir.getNonGhostText(), "Warning");
         } else {
           Bus.post(new MessageLcmsAddFolder(Seq.of(existing).toList()));
         }
@@ -796,7 +826,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       btnDebugFolderAdd.setBackground(Color.PINK);
       mu.add(p, btnFilesClear);
       mu.add(p, btnDebugFolderAdd).gapLeft("20px");
-      mu.add(p, uiTextLast).growX().pushX().wrap();
+      mu.add(p, uiTextLastAddedLcmsDir).growX().pushX().wrap();
     }
 
     mu.add(p,

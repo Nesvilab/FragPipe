@@ -107,6 +107,13 @@ public final class StringUtils {
     return s.substring(0, last);
   }
 
+  public static String upToLastSubstr(String s, String substr, boolean emptyIfNoSubstr) {
+    int last = s.lastIndexOf(substr);
+    if (last < 0)
+      return emptyIfNoSubstr ? "" : s;
+    return s.substring(0, last);
+  }
+
   public static String afterLastChar(String s, char ch, boolean emptyIfNoChar) {
     int last = s.lastIndexOf(ch);
     if (last < 0)
