@@ -98,17 +98,17 @@ public class TabRun extends JPanelWithEnablement {
     return uiTextWorkdir.getNonGhostText();
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void on(MessageClearConsole m) {
     clearConsole();
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  @Subscribe(threadMode = ThreadMode.ASYNC)
   public void on(MessageRunButtonEnabled m) {
     btnRun.setEnabled(m.isEnabled);
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void on(MessagePrintToConsole m) {
     console.append(m.color, m.text);
     if (m.addNewline) {
@@ -117,7 +117,7 @@ public class TabRun extends JPanelWithEnablement {
     console.getParent().getParent().revalidate();
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void on(MessageExternalProcessOutput m) {
     if (m.output == null) {
       log.warn("MessageExternalProcessOutput with null text, this is a bug, report to devs");
@@ -141,7 +141,7 @@ public class TabRun extends JPanelWithEnablement {
    * @deprecated All console communication needs to be done through the new
    * {@link MessagePrintToConsole} type instead.
    */
-  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  @Subscribe(threadMode = ThreadMode.BACKGROUND)
   @Deprecated
   public void on(MessageAppendToConsole m) { // TODO: once old ui is deleted, change all usages of MessageAppendToConsole to MessagePrintToConsole
     console.append(m.color, m.text);

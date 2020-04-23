@@ -175,7 +175,6 @@ public class FragpipeRun {
 
 
       // =========================================================================================================
-
       toConsole(OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo() + "\n");
       toConsole("");
       toConsole("Version info:\n" + createVersionsString());
@@ -443,11 +442,11 @@ public class FragpipeRun {
   }
 
   private static String createVersionsString() {
-    StringBuilder sbVer = new StringBuilder();
-    sbVer.append(Version.PROGRAM_TITLE).append(" version ").append(Version.version()).append("\n");
-    sbVer.append("MSFragger version ").append(Fragpipe.getStickyStrict(NoteConfigMsfragger.class).version).append("\n");
-    sbVer.append("Philosopher version ").append(Fragpipe.getStickyStrict(NoteConfigPhilosopher.class).version).append("\n");
-    return sbVer.toString();
+    StringBuilder sb = new StringBuilder();
+    sb.append(Version.PROGRAM_TITLE).append(" version ").append(Version.version()).append("\n");
+    sb.append("MSFragger version ").append(Fragpipe.getStickyStrict(NoteConfigMsfragger.class).version).append("\n");
+    sb.append("Philosopher version ").append(Fragpipe.getStickyStrict(NoteConfigPhilosopher.class).version).append("\n");
+    return sb.toString();
   }
 
   private static String createLcmsFilesString(Map<String, LcmsFileGroup> lcmsFileGroups) {

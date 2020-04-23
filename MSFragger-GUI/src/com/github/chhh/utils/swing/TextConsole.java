@@ -54,7 +54,7 @@ public class TextConsole extends JTextPane implements Appendable {
     static final Color cReset = Color.getHSBColor(0.000f, 0.000f, 0.000f);
     static Color colorCurrent = cReset;
 
-    private Object lock = new Object();
+    private final Object lock = new Object();
     private ReentrantLock reentrantLock = new ReentrantLock(true);
     
     protected String remaining = "";
@@ -82,6 +82,29 @@ public class TextConsole extends JTextPane implements Appendable {
 
     public void setScrollableTracksViewportWidth(boolean preferWordWrap) {
         forceWordWrapInsteadOfScroll = preferWordWrap;
+    }
+
+    /**
+     * Returns the text contained in this <code>TextComponent</code> in terms of the content type of
+     * this editor.  If an exception is thrown while attempting to retrieve the text,
+     * <code>null</code> will be returned. This is implemented to call <code>JTextComponent.write</code>
+     * with a <code>StringWriter</code>.
+     *
+     * @return the text
+     * @see #setText
+     */
+    @Override
+    public String getText() {
+        synchronized (lock) {
+            return super.getText();
+        }
+    }
+
+    @Override
+    public void setText(String t) {
+        synchronized (lock) {
+            super.setText(t);
+        }
     }
 
     @Override
