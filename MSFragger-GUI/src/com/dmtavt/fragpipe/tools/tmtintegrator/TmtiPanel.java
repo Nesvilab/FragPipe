@@ -401,18 +401,16 @@ public class TmtiPanel extends JPanelBase {
         "<html>use top 3 most intense peptide ions as part of the reference <br/>\n"
             + "sample abundance estimation");
 
-    UiCheck uiCheckPrintRef = UiCheck.of("Print ref int", false);
+    UiCheck uiCheckPrintRef = UiCheck.of("Print Ref Int", false);
     FormEntry fePrintRefInt = fe(TmtiConfProps.PROP_print_RefInt,
         "not-shown", uiCheckPrintRef,
-        "<html>print individual reference sample abundance estimates for each <br/>\n"
-            + "multiplex in the final reports (in addition to the combined reference <br/>\n"
-            + "sample abundance estimate)");
+        "<html>Print individual reference sample intensities");
 
-    UiSpinnerDouble uiSpinnerMaxPepProb = UiSpinnerDouble
+    UiSpinnerDouble uiSpinnerMinBestPepProb = UiSpinnerDouble
         .builder(0, 0, 1.0, 0.1).setFormat(df2).setNumCols(5).create();
     FormEntry feMaxPepProb = mu
-        .feb(TmtiConfProps.PROP_max_pep_prob_thres, uiSpinnerMaxPepProb)
-        .label("Max pep probability").create();
+        .feb(TmtiConfProps.PROP_max_pep_prob_thres, uiSpinnerMinBestPepProb)
+        .label("Min best peptide probability").create();
 
 
     mu.add(p, feUniqueGene.label(), mu.ccR());
