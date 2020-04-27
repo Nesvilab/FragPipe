@@ -16,6 +16,7 @@ import com.dmtavt.fragpipe.messages.MessageMsfraggerNewBin;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
 import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
+import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
@@ -57,6 +58,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Stream;
@@ -167,6 +169,16 @@ public class TabConfig extends JPanelWithEnablement {
     mu.add(p, btnAbout).split().spanX();
     mu.add(p, btnOpenCacheInExplorer);
     mu.add(p, UiUtils.createButton("Clear Cache and Close", e -> Bus.post(new MessageClearCache(true))));
+
+    if (com.dmtavt.fragpipe.Version.isDevBuild()) {
+      mu.add(p, UiUtils.createButton("Debug button", e -> {
+        log.debug("Debugging python environment vars");
+        NoteConfigPython configPython = Fragpipe.getStickyStrict(NoteConfigPython.class);
+        PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(configPython.pi.getCommand(), new HashMap<>());
+
+      }));
+    }
+
     UiCheck uiCheckUmpire = UiUtils.createUiCheck("Enable DIA-Umpire", false,
         e -> Bus.post(new MessageUmpireEnabled(((JCheckBox) e.getSource()).isSelected())));
     p.add(uiCheckUmpire, ccL());

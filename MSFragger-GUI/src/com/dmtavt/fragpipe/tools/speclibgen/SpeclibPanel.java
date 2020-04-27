@@ -1,8 +1,10 @@
 package com.dmtavt.fragpipe.tools.speclibgen;
 
+import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
+import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
-import com.github.chhh.utils.PythonInfo;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
@@ -231,7 +233,13 @@ public class SpeclibPanel extends JPanelBase {
   }
 
   private void validateCalFile(Path path) throws ValidationException {
-    final String s = PythonInfo.get().validateCalFile(path);
+    NoteConfigPython configPython;
+    try {
+      configPython = Fragpipe.getSticky(NoteConfigPython.class);
+    } catch (NoStickyException e) {
+      throw new ValidationException(e);
+    }
+    final String s = configPython.pi.validateCalFile(path);
     if (s.trim().endsWith("ok"))
       return;
     throw new ValidationException(s);

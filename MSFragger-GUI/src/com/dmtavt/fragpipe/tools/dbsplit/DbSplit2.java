@@ -63,12 +63,12 @@ public class DbSplit2 {
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
-  public void onNoteConfigPython(NoteConfigPython m) {
+  public void on(NoteConfigPython m) {
     onPythonOrFraggerChange(m, Bus.getStickyEvent(NoteConfigMsfragger.class));
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
-  public void onNoteConfigMsfragger(NoteConfigMsfragger m) {
+  public void on(NoteConfigMsfragger m) {
     onPythonOrFraggerChange(Bus.getStickyEvent(NoteConfigPython.class), m);
   }
 

@@ -5,14 +5,18 @@ import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.github.chhh.utils.Installed;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.ProcessUtils;
-import com.github.chhh.utils.PythonInfo;
 import com.github.chhh.utils.PythonModule;
 import com.github.chhh.utils.RegQuery;
+import com.github.chhh.utils.StringUtils;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -24,6 +28,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.jooq.lambda.Seq;
 import org.slf4j.LoggerFactory;
 
 public class PyInfo {
@@ -194,26 +199,92 @@ public class PyInfo {
     return findPythonOtherOs(minMajorVersion);
   }
 
-  /**
-   * modify environment variables for Anaconda Python on Windows
-   */
+
   public static void modifyEnvironmentVariablesForPythonSubprocesses(final ProcessBuilder pb) {
     final String command = pb.command().get(0);
-    if (Paths.get(command).isAbsolute() && OsUtils.isWindows()) {
-      final String root = Paths.get(command).getParent().toString();
-      final Map<String, String> env = pb.environment();
-      env.put("Path", String.join(";",
-          root,
-          // for Anaconda Python
-          Paths.get(root, "Library\\mingw-w64\\bin").toString(),
-          Paths.get(root, "Library\\usr\\bin").toString(),
-          Paths.get(root, "Library\\bin").toString(),
-          Paths.get(root, "Scripts").toString(),
-          Paths.get(root, "bin").toString(),
-          // for Python programs invoking Java programs
-          Paths.get(System.getProperty("java.home"), "bin").toString(),
-          env.get("Path")));
+    final Map<String, String> env = pb.environment();
+    modifyEnvironmentVariablesForPythonSubprocesses(command, env);
+  }
+
+  /** Modify environment variables for Anaconda Python on Windows. */
+  public static void modifyEnvironmentVariablesForPythonSubprocesses(final String command, final Map<String, String> env) {
+    Path p;
+    try {
+      p = Paths.get(command);
+    } catch (Exception e) {
+      throw new IllegalStateException("Could not parse python command as path");
     }
+
+    if (OsUtils.isWindows()) {
+
+      if (!p.isAbsolute()) {
+        // Windows + Not absolute python bin path. Try to get the first location reported by "WHERE <cmd>"
+        List<String> cmdWhere = Arrays.asList("where", p.toString());
+        List<String> lines;
+        try {
+          lines = ProcessUtils.captureOutputLines(new ProcessBuilder(cmdWhere));
+          log.debug("Searching for actual python bin path using WHERE on Windows yielded:\n\t{}", lines);
+          if (lines.isEmpty() || lines.stream().anyMatch(line -> line.toLowerCase().contains("could not find"))) {
+            throw new IllegalStateException("Windows' WHERE command could not find any python binary matching: " + p.toString());
+          }
+          p = Paths.get(lines.get(0)); // update p
+          log.debug("Using WHERE output, determined python bin full path: {}", p);
+        } catch (UnexpectedException e) {
+          throw new IllegalStateException("Error running WHERE command to search for actual python location: " + String.join(" ", cmdWhere));
+        }
+      } else {
+        log.debug("Python bin path is already absolute, should be ok: {}", p.toString());
+      }
+
+      final Path root = p.getParent();
+      if (root == null) {
+        throw new IllegalStateException("Could not get parent path for python command");
+      }
+
+      final String[] pathVarNames = {"path", "PATH", "Path"};
+      for (String pathVarName : pathVarNames) {
+        log.debug("Env map contains variable named [{}]: {}", pathVarName, env.containsKey(pathVarName));
+      }
+
+      Seq<String> envPath = Seq
+          .of(root.toString()) // main python dir
+          .append( // for Anaconda Python
+              Seq.of("Library\\mingw-w64\\bin", "Library\\usr\\bin", "Library\\bin", "Scripts", "bin")
+                  .map(rel -> root.resolve(rel).toString()))
+          .append( // for Python programs invoking Java programs
+              Seq.of(System.getProperty("java.home")).filter(StringUtils::isNotBlank)
+              .map(Paths::get).map(javaHomePath -> javaHomePath.resolve("bin").toString()))
+          .append( // append old existing entries in PATH (split by platform-dependent separator)
+              Seq.of("path", "PATH", "Path").map(env::get).filter(StringUtils::isNotBlank)
+              .flatMap(oldPath -> Arrays.stream(oldPath.split(File.pathSeparator)))
+              .map(String::trim).filter(StringUtils::isNotBlank));
+
+      env.put("PATH", envPath.toString(File.pathSeparator));
+
+      log.debug("python env map: {}", env);
+    }
+  }
+
+  public String validateCalFile(final Path path) {
+    ProcessBuilder pb = new ProcessBuilder(command, "-c", "import pandas as pd; import sys\n" +
+        "rt_referencefile = sys.argv[1]\n" +
+        "rt_reference_run = pd.read_csv(rt_referencefile, index_col=False, sep='\\t')\n" +
+        "if not {'modified_peptide', 'precursor_charge', 'irt'}.issubset(rt_reference_run.columns):\n" +
+        "\tprint(\"Reference iRT file has wrong format. Requires columns 'modified_peptide', 'precursor_charge' and 'irt'.\")\n" +
+        "\tsys.exit(1)\n" +
+        "print(\"ok\")",
+        path.toString());
+    PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
+    pb.environment().put("PYTHONIOENCODING", "utf-8");
+    final String s;
+    try {
+      Process proc = pb.redirectErrorStream(true).start();
+      java.io.InputStream inputStream = proc.getInputStream();
+      s = new java.util.Scanner(inputStream).useDelimiter("\\A").next();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    return s;
   }
 
   /**
@@ -248,8 +319,7 @@ public class PyInfo {
     try {
       pr = pb.start();
     } catch (IOException ex) {
-      Logger.getLogger(PythonInfo.class.getName()).log(Level.SEVERE,
-          "Could not start python " + module.installName + " check process", ex);
+      log.error("Could not start python " + module.installName + " check process", ex);
     }
     if (pr != null) {
       try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
@@ -263,14 +333,12 @@ public class PyInfo {
             installed = Installed.INSTALLED_WITH_IMPORTERROR;
         }
       } catch (IOException ex) {
-        Logger.getLogger(PythonInfo.class.getName()).log(Level.SEVERE,
-            "Could not read python " + module.installName + " check output", ex);
+        log.error("Could not read python " + module.installName + " check output", ex);
       }
       try {
         pr.waitFor();
       } catch (InterruptedException ex) {
-        Logger.getLogger(PythonInfo.class.getName()).log(Level.SEVERE,
-            "Error while waiting for python " + module.installName + " check process to finish", ex);
+        log.error("Error while waiting for python " + module.installName + " check process to finish", ex);
       }
     }
 

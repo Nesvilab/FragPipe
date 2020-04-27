@@ -3,6 +3,9 @@ package com.dmtavt.fragpipe.cmd;
 import static com.github.chhh.utils.PathUtils.testFilePath;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.api.PyInfo;
+import com.dmtavt.fragpipe.exceptions.NoStickyException;
+import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
@@ -32,7 +35,6 @@ import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.tools.enums.PrecursorMassTolUnits;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.github.chhh.utils.OsUtils;
-import com.github.chhh.utils.PythonInfo;
 import com.github.chhh.utils.UsageTrigger;
 
 public class CmdMsfragger extends CmdBase {
@@ -372,16 +374,29 @@ public class CmdMsfragger extends CmdBase {
 
     final List<String> javaCmd = Arrays.asList(
         Fragpipe.getBinJava(), "-jar", "-Dfile.encoding=UTF-8", "-Xmx" + ramGb + "G");
-    final List<String> slicingCmd = isSlicing ?
-        Arrays.asList(
-            PythonInfo.get().getCommand(),
+    final List<String> slicingCmd;
+
+    if (!isSlicing) {
+      slicingCmd = null;
+    } else {
+      try {
+        NoteConfigPython configPython = Fragpipe.getSticky(NoteConfigPython.class);
+        slicingCmd = Arrays.asList(
+            configPython.pi.getCommand(),
             DbSplit2.get().getScriptDbslicingPath().toAbsolutePath().normalize().toString(),
             Integer.toString(numSlices),
             OsUtils.isWindows() ?
                 "\"" + String.join(" ", javaCmd) + "\"" :
                 String.join(" ", javaCmd)
-        )
-        : null;
+        );
+      } catch (NoStickyException e) {
+        JOptionPane.showMessageDialog(comp,
+            "DbSplit was enabled, but Python was not configured.",
+            "Error", JOptionPane.ERROR_MESSAGE);
+        return false;
+      }
+    }
+
     while (fileIndex < lcmsFiles.size()) {
       List<String> cmd = new ArrayList<>();
       if (isSlicing) {
@@ -416,9 +431,14 @@ public class CmdMsfragger extends CmdBase {
       }
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
-      PythonInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
+
+      if (isSlicing) {
+        PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
+        pb.environment().put("PYTHONIOENCODING", "utf-8");
+      }
+
       pb.directory(wd.toFile());
-      pb.environment().put("PYTHONIOENCODING", "utf-8");
+
       pbis.add(PbiBuilder.from(pb));
       sb.setLength(0);
 

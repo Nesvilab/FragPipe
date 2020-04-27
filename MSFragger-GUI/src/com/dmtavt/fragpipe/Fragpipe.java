@@ -7,6 +7,7 @@ import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.PropsFile;
 import com.dmtavt.fragpipe.api.UiTab;
+import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
 import com.dmtavt.fragpipe.messages.MessageLoadUi;
@@ -63,6 +64,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -643,10 +645,21 @@ public class Fragpipe extends JFrame {
     throw new IllegalStateException("UI State properties should always at least be initialized to empty Properties object");
   }
 
+  /**
+   * @throws NoSuchElementException in case a sticky of given class is not on the Bus.
+   */
   public static <T> T getStickyStrict(Class<T> clazz) {
     T sticky = Bus.getStickyEvent(clazz);
     if (sticky == null) {
-      throw new IllegalStateException("Sticky note not on the bus: " + clazz.getCanonicalName());
+      throw new NoSuchElementException("Sticky note not on the bus: " + clazz.getCanonicalName());
+    }
+    return sticky;
+  }
+
+  public static <T> T getSticky(Class<T> clazz) throws NoStickyException {
+    T sticky = Bus.getStickyEvent(clazz);
+    if (sticky == null) {
+      throw new NoStickyException("Sticky note not on the bus: " + clazz.getCanonicalName());
     }
     return sticky;
   }

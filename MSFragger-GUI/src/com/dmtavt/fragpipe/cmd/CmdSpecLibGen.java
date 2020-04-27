@@ -1,6 +1,7 @@
 package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
@@ -20,7 +21,6 @@ import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.github.chhh.utils.PythonInfo;
 import com.github.chhh.utils.UsageTrigger;
 
 public class CmdSpecLibGen extends CmdBase {
@@ -155,7 +155,7 @@ public class CmdSpecLibGen extends CmdBase {
         cmd.add(usePhi.useBin()); // philosopher binary path (optional)
       }
       ProcessBuilder pb = new ProcessBuilder(cmd);
-      PythonInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
+      PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
       pb.directory(groupWd.toFile());
       pb.environment().put("PYTHONIOENCODING", "utf-8");
 
