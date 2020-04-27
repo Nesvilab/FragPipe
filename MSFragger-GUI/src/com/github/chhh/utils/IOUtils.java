@@ -26,6 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -47,7 +48,7 @@ public class IOUtils {
      * @throws java.io.IOException 
      */
     public static List<String> readAllLines(InputStream is) throws IOException {
-        return readAllLines(is, Charset.forName("UTF-8"));
+        return readAllLines(is, StandardCharsets.UTF_8);
     }
     
     /**
