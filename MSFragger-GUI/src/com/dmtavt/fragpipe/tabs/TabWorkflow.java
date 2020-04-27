@@ -38,7 +38,6 @@ import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -658,7 +657,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     Fragpipe fp = Fragpipe.getStickyStrict(Fragpipe.class);
 
 
-    Properties uiProps = FragpipeCacheUtils.tabsSave(fp.tabs, m.saveWithFieldTypes);
+    Properties uiProps = FragpipeCacheUtils.tabsSave0(fp.tabs, m.saveWithFieldTypes);
 
 
     Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps)).filter(kv -> {

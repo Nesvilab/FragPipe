@@ -25,10 +25,12 @@ msfragger.output_format :: TSV_AND_PEPXML <=> tsv_pepXML
 msfragger.precursor_mass_mode :: selected <=> selected
 msfragger.precursor_mass_mode :: isolated <=> isolated
 msfragger.precursor_mass_mode :: recalculated <=> recalculated
+
 msfragger.precursor_mass_units :: PPM <=> 1
 msfragger.precursor_mass_units :: Da <=> 0
-msfragger.precursor_mass_units :: DIA <=> 2
-msfragger.precursor_mass_units :: DIA_MS1 <=> 1
+msfragger.precursor_mass_units :: DIA <=> 3
+msfragger.precursor_mass_units :: DIA_MS1 <=> 2
+
 msfragger.precursor_true_units :: PPM <=> 1
 msfragger.precursor_true_units :: Da <=> 0
 msfragger.remove_precursor_peak :: Do not remove <=> 0
@@ -40,12 +42,12 @@ ptmshepherd.peakpicking_mass_units :: Da <=> 0
 ptmshepherd.precursor_mass_units :: PPM <=> 1
 ptmshepherd.precursor_mass_units :: Da <=> 0
 
-speclibgen.easypqp.data-type :: timsTOF <=>
-speclibgen.easypqp.data-type :: non-timsTOF <=>
-speclibgen.easypqp.rt-cal :: Automatic selection of a run as reference RT <=>
-speclibgen.easypqp.rt-cal :: iRT <=>
-speclibgen.easypqp.rt-cal :: ciRT <=>
-speclibgen.easypqp.rt-cal :: User provided RT calibration file <=>
+# speclibgen.easypqp.data-type :: timsTOF <=>
+# speclibgen.easypqp.data-type :: non-timsTOF <=>
+# speclibgen.easypqp.rt-cal :: Automatic selection of a run as reference RT <=>
+# speclibgen.easypqp.rt-cal :: iRT <=>
+# speclibgen.easypqp.rt-cal :: ciRT <=>
+# speclibgen.easypqp.rt-cal :: User provided RT calibration file <=>
 
 tmtintegrator.add_Ref :: Reference sample <=>  -1
 tmtintegrator.add_Ref :: Virtual - Average <=> 1

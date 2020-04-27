@@ -1,7 +1,9 @@
 package com.dmtavt.fragpipe.api;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.WorkflowTranslator;
 import com.dmtavt.fragpipe.exceptions.NoSuchElementInModelException;
+import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -16,12 +18,9 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.swing.JComboBox;
 import javax.swing.JTabbedPane;
 import org.jooq.lambda.Seq;
@@ -159,19 +158,56 @@ public class FragpipeCacheUtils {
   }
 
   public static Properties tabsSave(JTabbedPane tabs) {
-    return tabsSave(tabs, false);
+    return tabsSave0(tabs, false);
   }
 
-  public static Properties tabsSave(JTabbedPane tabs, boolean saveFieldTypes) {
+  /** Main implementation of the method, all other variants refer to this one. */
+  public static Properties tabsSave0(JTabbedPane tabs, boolean saveFieldTypes) {
     Map<String, String> map = tabPaneToMap(tabs, saveFieldTypes);
-    Properties props = PropertiesUtils.from(map);
+    Properties props = PropertiesUtils.from(translateValuesOnSave(map));
     return props;
   }
 
-  /**
- * @param os
- * @param tabs
-   */
+  private static Map<String, String> translateValuesOnSave(Map<String, String> uiMapping) {
+    final Map<String, List<UiTranslation>> translations = WorkflowTranslator.readTranslations();
+    Map<String, String> remapped = MapUtils.remapValues(uiMapping, (k, v) -> {
+      List<UiTranslation> ts = translations.get(k);
+      if (ts == null)
+        return v;
+      List<UiTranslation> matchingTs = Seq.seq(ts).filter(t -> t.inUi.equalsIgnoreCase(v)).toList();
+      if (matchingTs.isEmpty()) {
+        throw new IllegalStateException(String.format("Found no ui.translation for UI element key [%s] with value [%s]", k, v));
+      }
+      if (matchingTs.size() > 1) {
+        log.debug(String.format("Found multiple ui.translations for UI element key [%s] with value [%s]", k, v));
+      }
+      UiTranslation t = matchingTs.get(0);
+      log.debug("Found translation for key [{}]. Value mapping [{}] -> [{}]", k, v, t.inConf);
+      return t.inConf;
+    });
+    return remapped;
+  }
+
+  private static Map<String, String> translateValuesOnLoad(Map<String, String> loadedMap) {
+    final Map<String, List<UiTranslation>> translations = WorkflowTranslator.readTranslations();
+    Map<String, String> remapped = MapUtils.remapValues(loadedMap, (k, v) -> {
+      List<UiTranslation> ts = translations.get(k);
+      if (ts == null)
+        return v;
+      List<UiTranslation> matchingTs = Seq.seq(ts).filter(t -> t.inConf.equalsIgnoreCase(v)).toList();
+      if (matchingTs.isEmpty()) {
+        throw new IllegalStateException(String.format("Found no ui.translation for loaded element key [%s] with value [%s]", k, v));
+      }
+      if (matchingTs.size() > 1) {
+        log.debug(String.format("Found multiple ui.translations for loaded element key [%s] with value [%s]", k, v));
+      }
+      UiTranslation t = matchingTs.get(0);
+      log.debug("Found translation for key [{}]. Value mapping [{}] -> [{}]", k, v, t.inUi);
+      return t.inUi;
+    });
+    return remapped;
+  }
+
   public static void tabsSave(OutputStream os, JTabbedPane tabs)
       throws IOException {
     tabsSave(os, tabs, false);
@@ -183,29 +219,17 @@ public class FragpipeCacheUtils {
    */
   public static void tabsSave(OutputStream os, JTabbedPane tabs, boolean saveWithFieldTypes)
       throws IOException {
-    Properties props = tabsSave(tabs, saveWithFieldTypes);
+    Properties props = tabsSave0(tabs, saveWithFieldTypes);
     try (BufferedOutputStream bos = new BufferedOutputStream(os)) {
       //props.store(bos, ThisAppProps.cacheComments()); // This is from Java's Properties - the order or things looks to be random
       PropertiesUtils.storeSorted(props, bos, ThisAppProps.cacheComments(), true);
     }
   }
 
-  public static Properties loadAsProperties(InputStream is) throws IOException {
-    Properties props = new Properties();
-    try (BufferedInputStream bis = new BufferedInputStream(is)) {
-      props.load(bis);
-    }
-    return props;
-  }
-
-  public static void tabsLoad(InputStream is, JTabbedPane tabs) throws IOException {
-    Map<String, String> map = PropertiesUtils.toMap(loadAsProperties(is));
-    tabPaneFromMap(tabs, map);
-  }
-
   public static void tabsLoad(Properties props, JTabbedPane tabs) {
     Map<String, String> map = PropertiesUtils.toMap(props);
-    tabPaneFromMap(tabs, map);
+    Map<String, String> remapped = translateValuesOnLoad(map);
+    tabPaneFromMap(tabs, remapped);
   }
 
 }
