@@ -152,14 +152,14 @@ public class SpeclibPanel extends JPanelBase {
     pqpType = Arrays.asList("timsTOF", "non-timsTOF");
 
     uiComboPqpCal = UiUtils.createUiCombo(pqpCal);
-    FormEntry fePqpCal = new FormEntry("ui.name.report.speclibgen.easypqp.rt-cal",
+    FormEntry fePqpCal = new FormEntry("easypqp.rt-cal",
         "RT Calibration", uiComboPqpCal);
     uiTextPqpCalFile = UiUtils.uiTextBuilder().create();
     FormEntry fePqpCalFile = new FormEntry(
-        "ui.name.report.speclibgen.easypqp.select-file.text",
+        "easypqp.select-file.text",
         "Calibration file", uiTextPqpCalFile);
     JLabel labelPqpCalFile = fePqpCalFile.label();
-    labelPqpCalFile.setName("ui.name.report.speclibgen.easypqp.select-file.label");
+    labelPqpCalFile.setName("easypqp.select-file.label");
     final JButton btnPqpCalFile = fePqpCalFile.browseButton("Browse",
         "Select calibration file", () -> {
           JFileChooser fc = FileChooserUtils
@@ -180,10 +180,10 @@ public class SpeclibPanel extends JPanelBase {
           // validation went without exceptions
           uiTextPqpCalFile.setText(path.toString());
         });
-    btnPqpCalFile.setName("ui.name.report.speclibgen.easypqp.select-file.button");
+    btnPqpCalFile.setName("easypqp.select-file.button");
 
     uiComboPqpType = UiUtils.createUiCombo(pqpType);
-    FormEntry feDataType = new FormEntry("ui.name.report.speclibgen.easypqp.data-type",
+    FormEntry feDataType = new FormEntry("easypqp.data-type",
         "Data type", uiComboPqpType);
 
     mu.add(p, feRadioUseEasypqp.comp).wrap();
@@ -201,7 +201,7 @@ public class SpeclibPanel extends JPanelBase {
       final AtomicBoolean visibilityChanged = new AtomicBoolean(false);
       SwingUtils.traverse(p, false, c -> {
         String name = c.getName();
-        if (name != null && name.contains("ui.name.report.speclibgen.easypqp.select-file.")) {
+        if (name != null && name.contains("easypqp.select-file.")) {
           log.debug("Traversing easyPQP options panel, found matching component: {}", name);
           if (c.isVisible() != show) {
             visibilityChanged.set(show);
