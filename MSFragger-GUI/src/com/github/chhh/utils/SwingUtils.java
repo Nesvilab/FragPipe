@@ -742,21 +742,9 @@ public class SwingUtils {
       }
 
       final Component comp = e.getValue();
-      String value;
-      if (comp instanceof StringRepresentable) {
-        value = ((StringRepresentable) comp).asString();
-      } else if (comp instanceof JEditorPane) {
-        JEditorPane ep = (JEditorPane)comp;
-        if ("text/html".equalsIgnoreCase(ep.getContentType())) {
-          value = Jsoup.parse(ep.getText()).body().html();
-        } else {
-          value = ep.getText();
-        }
-      } else if (comp instanceof JCheckBox) {
-        value = Boolean.toString(((JCheckBox) comp).isSelected());
-      } else if (comp instanceof JTextComponent) {
-        value = ((JTextComponent) comp).getText();
-      } else {
+      String value = valueGet(comp);
+
+      if (value == null) {
         log.debug(String
             .format("SwingUtils.valuesToMap() found component of type [%s] by name [%s] which "
                     + "does not implement [%s] and is not [%s, %s]",
@@ -766,17 +754,37 @@ public class SwingUtils {
         continue;
       }
 
-      if (value != null) {
-        if (comp instanceof GhostedTextComponent && value
-            .equals(((GhostedTextComponent) comp).getGhostText())) {
-          log.debug("Skipping serializing ghost text component to map: '{}' has ghost value: '{}'",
-              name, value);
-        } else {
-          map.put(name, value);
-        }
-      }
+//      if (comp instanceof GhostedTextComponent && value
+//          .equals(((GhostedTextComponent) comp).getGhostText())) {
+//        log.debug("Skipping serializing ghost text component to map: '{}' has ghost value: '{}'",
+//            name, value);
+//      }
+
+      map.put(name, value);
+
     }
     return map;
+  }
+
+  public static String valueGet(Component comp) {
+    String value = null;
+    if (comp instanceof StringRepresentable) {
+      value = ((StringRepresentable) comp).asString();
+    } else if (comp instanceof GhostedTextComponent) {
+      value = ((GhostedTextComponent)comp).getNonGhostText();
+    } else if (comp instanceof JEditorPane) {
+      JEditorPane ep = (JEditorPane)comp;
+      if ("text/html".equalsIgnoreCase(ep.getContentType())) {
+        value = Jsoup.parse(ep.getText()).body().html();
+      } else {
+        value = ep.getText();
+      }
+    } else if (comp instanceof JCheckBox) {
+      value = Boolean.toString(((JCheckBox) comp).isSelected());
+    } else if (comp instanceof JTextComponent) {
+      value = ((JTextComponent) comp).getText();
+    }
+    return value;
   }
 
   /**

@@ -473,7 +473,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       }
     });
     JButton btnWorkflowLoad = UiUtils.createButton("Load", this::actionLoadSelectedWorkflow);
-    FormEntry feComboWorkflow = fe(uiComboWorkflows, "workflow-option")
+    FormEntry feComboWorkflow = fe(uiComboWorkflows, "workflow-option" )
         .label("Select an option to load config for:")
         .tooltip("This is purely for convenience of loading appropriate defaults\n"
             + "for various standard workflows.\n"
