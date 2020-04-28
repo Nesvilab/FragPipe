@@ -508,30 +508,6 @@ public class SwingUtils {
     return sb.toString();
   }
 
-  public static void setJEditorPaneContent(JEditorPane ep, String text) {
-    if (!"text/html".equalsIgnoreCase(ep.getContentType())) {
-      ep.setText(text); // it's not styled with css in html
-    } else {
-      ep.setText(wrapInStyledHtml(text));
-    }
-  }
-
-  public static void setJEditorPaneContent(JEditorPane ep, boolean applyMakeHtml, String text) {
-    if (applyMakeHtml) {
-      text = makeHtml(text);
-    }
-    if (!"text/html".equalsIgnoreCase(ep.getContentType())) {
-      ep.setText(text); // it's not styled with css in html
-    } else {
-      try {
-        ep.setText(wrapInStyledHtml(text));
-      } catch (RuntimeException e) {
-        log.error("EditorPane with name [{}] is not set to content type \"text/html\", but has content that is possibly html? ", ep.getName());
-        log.warn("EditorPane contents: {}", ep.getText());
-      }
-    }
-  }
-
 //  /**
 //   * Creates a non-editable JEditorPane that has the same styling as default JLabels and with
 //   * hyperlinks clickable. They will be opened in the system default browser.
@@ -553,7 +529,7 @@ public class SwingUtils {
    *                HTML tags. To include links use the regular A tags.
    * @param bgColor if {@code useJlabelBackground} is false, force this color. Can be null
    */
-  public static JEditorPane createClickableHtml(String text,
+  public static HtmlStyledJEditorPane createClickableHtml(String text,
       Color bgColor) {
     return createClickableHtml(text, true, false, bgColor);
   }
@@ -569,7 +545,7 @@ public class SwingUtils {
    * @param bgColor             if {@code useJlabelBackground} is false, force this color. Can be
    *                            null
    */
-  public static JEditorPane createClickableHtml(String text, boolean handleHyperlinks,
+  public static HtmlStyledJEditorPane createClickableHtml(String text, boolean handleHyperlinks,
       boolean useJlabelBackground, Color bgColor) {
     return createClickableHtml(text, handleHyperlinks, useJlabelBackground, bgColor,
         false);
@@ -587,27 +563,13 @@ public class SwingUtils {
    *                            null
    * @param editable            If the editor pane should be editable.
    */
-  public static JEditorPane createClickableHtml(String text, boolean handleHyperlinks,
+  public static HtmlStyledJEditorPane createClickableHtml(String text, boolean handleHyperlinks,
       boolean useJlabelBackground, Color bgColor, boolean editable) {
 
     String html1 = wrapInStyledHtml(text);
-    StringBuilder sb = new StringBuilder();
-    JEditorPane ep = new JEditorPane("text/html", html1);
+    HtmlStyledJEditorPane ep = new HtmlStyledJEditorPane(handleHyperlinks);
+    ep.setText(html1);
     ep.setEditable(editable);
-
-    // handle link events
-    if (handleHyperlinks) {
-      ep.addHyperlinkListener(e -> {
-        if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
-          try {
-            openBrowserOrThrow(e.getURL().toURI());
-          } catch (URISyntaxException ex) {
-            throw new IllegalStateException("Incorrect url/uri", ex);
-          }
-
-        }
-      });
-    }
 
     if (useJlabelBackground) {
       ep.setBackground(new JLabel().getBackground());

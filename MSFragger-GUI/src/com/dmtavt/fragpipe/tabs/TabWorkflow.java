@@ -6,7 +6,15 @@ import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.IPathsProvider;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.api.LcmsInputFileTable;
 import com.dmtavt.fragpipe.api.PropsFile;
+import com.dmtavt.fragpipe.api.SimpleETable;
+import com.dmtavt.fragpipe.api.TableModelColumn;
+import com.dmtavt.fragpipe.api.UniqueLcmsFilesTableModel;
+import com.dmtavt.fragpipe.cmd.CmdMsfragger;
+import com.dmtavt.fragpipe.dialogs.ExperimentNameDialog;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFiles;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFolder;
 import com.dmtavt.fragpipe.messages.MessageLcmsClearFiles;
@@ -20,6 +28,7 @@ import com.dmtavt.fragpipe.messages.MessageOpenInExplorer;
 import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageType;
 import com.dmtavt.fragpipe.messages.MessageUpdateWorkflows;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.FileDrop;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.PathUtils;
@@ -29,6 +38,7 @@ import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
@@ -80,7 +90,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
@@ -96,15 +105,6 @@ import org.jooq.lambda.Seq;
 import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.cmd.CmdMsfragger;
-import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.api.LcmsInputFileTable;
-import com.dmtavt.fragpipe.api.SimpleETable;
-import com.dmtavt.fragpipe.api.TableModelColumn;
-import com.dmtavt.fragpipe.api.UniqueLcmsFilesTableModel;
-import com.dmtavt.fragpipe.dialogs.ExperimentNameDialog;
-import com.dmtavt.fragpipe.params.ThisAppProps;
 
 public class TabWorkflow extends JPanelWithEnablement {
 
@@ -130,7 +130,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private UiCombo uiComboWorkflows;
   public static final String PROP_WORKFLOW_DESC = "workflow.description";
   private static final String DEFAULT_WORKFLOW = "Defaults";
-  private JEditorPane epWorkflowsDesc;
+  private HtmlStyledJEditorPane epWorkflowsDesc;
   private UiCheck uiCheckProcessEachExperimentSeparately;
   private UiText uiTextLastAddedLcmsDir;
 
@@ -463,7 +463,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     workflows = loadWorkflowFiles();
     List<String> names = createNamesForWorkflowsCombo(workflows);
     uiComboWorkflows = UiUtils.createUiCombo(names);
-    epWorkflowsDesc = SwingUtils.createClickableHtml(SwingUtils.makeHtml(""));
+    epWorkflowsDesc = new HtmlStyledJEditorPane();
     epWorkflowsDesc.setPreferredSize(new Dimension(400, 50));
     uiComboWorkflows.addItemListener(e -> {
       String name = (String) uiComboWorkflows.getSelectedItem();
@@ -473,12 +473,10 @@ public class TabWorkflow extends JPanelWithEnablement {
           throw new IllegalStateException("Workflows map is not synchronized with the dropdown");
         }
         log.debug("Default workflow was selected, we don't have a file for it in the workflows/ folder");
-        SwingUtils.setJEditorPaneContent(epWorkflowsDesc,
-            "Defaults file is not present yet.\n"
-                + "That message will be gone when we fill workflows/ folder.");
+        epWorkflowsDesc.setText("Defaults file is not present yet.\n"
+            + "That message will be gone when we fill workflows/ folder.");
       } else {
-        SwingUtils.setJEditorPaneContent(epWorkflowsDesc,
-            propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
+        epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
       }
     });
     JButton btnWorkflowLoad = UiUtils.createButton("Load", this::actionLoadSelectedWorkflow);
@@ -707,7 +705,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     final JPanel p = mu.newPanel(null, true);
     UiText uiTextName = UiUtils.uiTextBuilder().cols(20).ghost("Name is required").text(curName).create();
     uiTextName.setName("file-name");
-    final JEditorPane ep = new JEditorPane("text/html", SwingUtils.wrapInStyledHtml(SwingUtils.tryExtractHtmlBody(curDesc)));
+    final HtmlStyledJEditorPane ep = new HtmlStyledJEditorPane();
+    ep.setText(curDesc);
     ep.setPreferredSize(new Dimension(320, 240));
     ep.setName("file-desc");
     mu.add(p, new JLabel("Name")).split();

@@ -14,8 +14,8 @@
 <!--  <logger name="com.dmtavt.fragpipe.tabs.TabMsfragger" level="debug" />-->
 <!--  <logger name="com.github.chhh.utils.SwingUtils" level="trace" />-->
 
-<!--  <root level="info">-->
-  <root level="debug">
+  <root level="info">
+<!--  <root level="debug">-->
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>

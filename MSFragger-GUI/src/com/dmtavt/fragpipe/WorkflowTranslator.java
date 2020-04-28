@@ -24,6 +24,7 @@ public class WorkflowTranslator {
       }
       List<String> mappings = Seq.seq(IOUtils.readAllLines(is))
           .filter(StringUtils::isNotBlank)
+          .map(String::trim)
           .filter(Pattern.compile("^[a-zA-Z]").asPredicate())
           .toList();
 

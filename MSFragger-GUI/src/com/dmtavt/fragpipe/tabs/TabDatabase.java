@@ -200,10 +200,9 @@ public class TabDatabase extends JPanelWithEnablement {
   public void on(NoteConfigDatabase m) {
     if (m.isValid) {
       uiTextDbPath.setText(m.path.toString());
-      SwingUtils.setJEditorPaneContent(epDbInfo, true,
-          String.format("File contains <b>%d entries (%d decoys: %.1f%%)", m.numEntries, m.decoysCnt, ((double)m.decoysCnt)/m.numEntries * 100.0));
+      epDbInfo.setText(String.format("File contains <b>%d entries (%d decoys: %.1f%%)", m.numEntries, m.decoysCnt, ((double)m.decoysCnt)/m.numEntries * 100.0));
     } else {
-      SwingUtils.setJEditorPaneContent(epDbInfo, true, "");
+      epDbInfo.setText("");
     }
 
   }

@@ -39,6 +39,7 @@ import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
@@ -93,16 +94,16 @@ public class TabConfig extends JPanelWithEnablement {
 
   private static final MigUtils mu = MigUtils.get();
   private UiText uiTextBinFragger;
-  private JEditorPane epFraggerVer;
+  private HtmlStyledJEditorPane epFraggerVer;
   private UiText uiTextBinPhi;
-  private JEditorPane epPhiVer;
+  private HtmlStyledJEditorPane epPhiVer;
   private UiText uiTextBinPython;
-  private JEditorPane epPythonVer;
-  private JEditorPane epDbsplitText;
-  private JEditorPane epDbsplitErr;
+  private HtmlStyledJEditorPane epPythonVer;
+  private HtmlStyledJEditorPane epDbsplitText;
+  private HtmlStyledJEditorPane epDbsplitErr;
   private Container epDbsplitErrParent;
-  private JEditorPane epSpeclibgenText;
-  private JEditorPane epSpeclibgenErr;
+  private HtmlStyledJEditorPane epSpeclibgenText;
+  private HtmlStyledJEditorPane epSpeclibgenErr;
   private Container epSpeclibgenErrParent;
   private JButton btnAbout;
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
@@ -227,11 +228,10 @@ public class TabConfig extends JPanelWithEnablement {
         "original copy from the <b>download</b> website once."));
     p.add(btnUpdate, ccL());
     p.add(btnDownload, ccL().wrap());
-    epFraggerVer = SwingUtils.createClickableHtml("MSFragger version: N/A");
+    epFraggerVer = new HtmlStyledJEditorPane("MSFragger version: N/A");
     p.add(Fragpipe.renameNoCache(epFraggerVer, "msfragger.version-info", TAB_PREFIX),
         ccL().spanX().growX().wrap());
-    p.add(SwingUtils.createClickableHtml(createFraggerCitationBody()),
-        ccL().spanX().growX().wrap());
+    p.add(new HtmlStyledJEditorPane(createFraggerCitationBody()), ccL().spanX().growX().wrap());
     return p;
   }
 
@@ -356,10 +356,10 @@ public class TabConfig extends JPanelWithEnablement {
     }
 
     if (m.ex != null) {
-      SwingUtils.setJEditorPaneContent(epPhiVer, "Philosopher version: N/A");
+      epPhiVer.setText("Philosopher version: N/A");
       showConfigError(m.ex, TIP_PHILOSOPHER_BIN, uiTextBinPhi);
     } else {
-      SwingUtils.setJEditorPaneContent(epPhiVer, "Philosopher version: " + m.version);
+      epPhiVer.setText("Philosopher version: " + m.version);
       Notifications.tryClose(TIP_PHILOSOPHER_BIN);
       checkPhilosopherUpdateAsync(m.path);
     }
@@ -411,16 +411,15 @@ public class TabConfig extends JPanelWithEnablement {
     }
 
     if (m.ex != null) {
-      SwingUtils.setJEditorPaneContent(epFraggerVer, "MSFragger version: N/A");
+      epFraggerVer.setText("MSFragger version: N/A");
       showConfigError(m.ex, TIP_MSFRAGGER_BIN, uiTextBinFragger);
     } else if (m.isTooOld) {
-      SwingUtils
-          .setJEditorPaneContent(epFraggerVer, "MSFragger version: too old, not supported anymore");
+      epFraggerVer.setText("MSFragger version: too old, not supported anymore");
       Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger,
           "This version is not supported anymore.\n"
               + "Download a newer one."));
     } else {
-      SwingUtils.setJEditorPaneContent(epFraggerVer, "MSFragger version: " + m.version);
+      epFraggerVer.setText("MSFragger version: " + m.version);
       Notifications.tryClose(TIP_MSFRAGGER_BIN);
     }
     if (m.isValid()) {
@@ -491,8 +490,7 @@ public class TabConfig extends JPanelWithEnablement {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigPython m) {
     uiTextBinPython.setText(m.command);
-    SwingUtils.setJEditorPaneContent(epPythonVer,
-        StringUtils.isBlank(m.version) ? "Python version: N/A" : "Python version: " + m.version);
+    epPythonVer.setText(StringUtils.isBlank(m.version) ? "Python version: N/A" : "Python version: " + m.version);
     if (m.ex != null) {
       showConfigError(m.ex, TIP_PYTHON_BIN, uiTextBinPython);
     }
@@ -511,9 +509,9 @@ public class TabConfig extends JPanelWithEnablement {
         epDbsplitErrParent.add(epDbsplitErr, new CC().wrap());
         epDbsplitErr.setVisible(true);
       }
-      SwingUtils.setJEditorPaneContent(epDbsplitText, true, textDbsplitEnabled(false));
+      epDbsplitText.setText(textDbsplitEnabled(false));
       if (m.ex instanceof ValidationException) {
-        SwingUtils.setJEditorPaneContent(epDbsplitErr, m.ex.getMessage());
+        epDbsplitErr.setText(m.ex.getMessage());
       } else {
         showConfigError(m.ex, TIP_DBSPLIT, epDbsplitText);
       }
@@ -529,7 +527,7 @@ public class TabConfig extends JPanelWithEnablement {
     if (epDbsplitErrParent != null) {
       epDbsplitErrParent.remove(epDbsplitErr);
     }
-    SwingUtils.setJEditorPaneContent(epDbsplitText, true, textDbsplitEnabled(true));
+    epDbsplitText.setText(textDbsplitEnabled(true));
     this.revalidate();
   }
 
@@ -545,9 +543,9 @@ public class TabConfig extends JPanelWithEnablement {
         epSpeclibgenErrParent.add(epSpeclibgenErr, new CC().wrap());
         epSpeclibgenErr.setVisible(true);
       }
-      SwingUtils.setJEditorPaneContent(epSpeclibgenText, true, textSpeclibgenEnabled(false));
+      epSpeclibgenText.setText(textSpeclibgenEnabled(false));
       if (m.ex instanceof ValidationException) {
-        SwingUtils.setJEditorPaneContent(epSpeclibgenErr, m.ex.getMessage());
+        epSpeclibgenErr.setText(m.ex.getMessage());
       } else {
         showConfigError(m.ex, TIP_SPECLIBGEN, epSpeclibgenText);
       }
@@ -577,10 +575,10 @@ public class TabConfig extends JPanelWithEnablement {
         epSpeclibgenErrParent.remove(epSpeclibgenErr);
       }
     } else {
-      SwingUtils.setJEditorPaneContent(epSpeclibgenErr, true, String.join("\n", errMsgLines));
+      epSpeclibgenErr.setText(String.join("\n", errMsgLines));
     }
 
-    SwingUtils.setJEditorPaneContent(epSpeclibgenText, true, textSpeclibgenEnabled(m.instance.isSomeSpeclibgenAvailable()));
+    epSpeclibgenText.setText(textSpeclibgenEnabled(m.instance.isSomeSpeclibgenAvailable()));
     this.revalidate();
   }
 
@@ -646,7 +644,7 @@ public class TabConfig extends JPanelWithEnablement {
     p.add(btnUpdate, ccL());
     p.add(btnDownload, ccL().wrap());
 
-    epPhiVer = SwingUtils.createClickableHtml("Philosopher version: N/A");
+    epPhiVer = new HtmlStyledJEditorPane("Philosopher version: N/A");
     p.add(Fragpipe.rename(epPhiVer, "philosopher.version-info", TAB_PREFIX, true),
         ccL().spanX().growX().wrap());
     p.add(SwingUtils.createClickableHtml(createPhilosopherCitationBody()),
@@ -676,7 +674,7 @@ public class TabConfig extends JPanelWithEnablement {
           .createButton("Download", e -> SwingUtils.openBrowserOrThrow(url));
       p.add(btnDonwload, ccL().wrap());
     }
-    epPythonVer = SwingUtils.createClickableHtml("Python version: N/A");
+    epPythonVer = new HtmlStyledJEditorPane("Python version: N/A");
     p.add(epPythonVer, ccL().wrap());
 
     return p;
@@ -698,11 +696,10 @@ public class TabConfig extends JPanelWithEnablement {
     p.setToolTipText(tipHtml);
 
     Dimension dim = new Dimension(400, 25);
-    epDbsplitText = SwingUtils.createClickableHtml(SwingUtils.makeHtml(textDbsplitEnabled(false)));
+    epDbsplitText = new HtmlStyledJEditorPane(textDbsplitEnabled(false));
     epDbsplitText.setToolTipText(tipHtml);
     epDbsplitText.setPreferredSize(dim);
-    epDbsplitErr = SwingUtils.createClickableHtml(
-        SwingUtils.makeHtml("Requires Python 3 with modules Numpy and Pandas."));
+    epDbsplitErr = new HtmlStyledJEditorPane("Requires Python 3 with modules Numpy and Pandas.");
     epDbsplitErr.setPreferredSize(dim);
 
     mu.add(p, epDbsplitText).growX().pushX().wrap();
@@ -720,11 +717,10 @@ public class TabConfig extends JPanelWithEnablement {
     String tipHtml = SwingUtils.makeHtml(tip.toString());
     p.setToolTipText(tipHtml);
     Dimension dim = new Dimension(200, 25);
-    epSpeclibgenText = SwingUtils.createClickableHtml(SwingUtils.makeHtml(textDbsplitEnabled(false)));
+    epSpeclibgenText = new HtmlStyledJEditorPane(textDbsplitEnabled(false));
     epSpeclibgenText.setToolTipText(tipHtml);
     epSpeclibgenText.setPreferredSize(dim);
-    epSpeclibgenErr = SwingUtils.createClickableHtml(
-        SwingUtils.makeHtml("Requires Python 3 with modules Cython, Matplotlib, msproteomicstools."));
+    epSpeclibgenErr = new HtmlStyledJEditorPane("Requires Python 3 with modules Cython, Matplotlib, msproteomicstools.");
     epSpeclibgenErr.setPreferredSize(dim);
 
     mu.add(p, epSpeclibgenText).growX().wrap();
