@@ -16,7 +16,6 @@ import com.dmtavt.fragpipe.messages.MessageMsfraggerNewBin;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
 import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
-import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
@@ -782,6 +781,17 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private void actionPhilosopherDownload(ActionEvent e) {
-    Philosopher.downloadPhilosopher();
+    int choice = SwingUtils.showChoiceDialog(TabConfig.this, "Choose download type",
+        "Do you want to attemp automatic download?\n"
+            + "If you choose \"Manually\", you will be redirected to the download website.",
+        new String[]{"Automatically", "Manually", "Cancel"}, 0);
+    switch (choice) {
+      case 0:
+        Philosopher.downloadPhilosopherAutomatically();
+        break;
+      case 1:
+        Philosopher.downloadPhilosopherManually();
+        break;
+    }
   }
 }

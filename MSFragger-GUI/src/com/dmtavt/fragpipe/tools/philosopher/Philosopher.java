@@ -21,11 +21,12 @@ import org.slf4j.LoggerFactory;
 public class Philosopher {
 
   private static final Logger log = LoggerFactory.getLogger(Philosopher.class);
+  public static final String DOWNLOAD_GITHUB_PAGE_URL = "https://github.com/Nesvilab/philosopher/releases/latest";
 
-  public static void downloadPhilosopher() {
+  public static void downloadPhilosopherManually() {
     try {
       Desktop.getDesktop()
-          .browse(URI.create("https://github.com/Nesvilab/philosopher/releases/latest"));
+          .browse(URI.create(DOWNLOAD_GITHUB_PAGE_URL));
     } catch (IOException ex) {
       log.error("Error opening browser to download philosopher", ex);
       SwingUtils.showErrorDialogWithStacktrace(ex, null);
@@ -141,6 +142,10 @@ public class Philosopher {
     } catch (Exception e) {
       throw new UnexpectedException(e);
     }
+  }
+
+  public static void downloadPhilosopherAutomatically() {
+
   }
 
   public static class Version {
