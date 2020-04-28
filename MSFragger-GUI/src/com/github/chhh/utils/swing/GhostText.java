@@ -29,7 +29,7 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
     this.normalTextColor = textfield.getForeground();
     textfield.addFocusListener(this);
     registerListeners();
-    updateColor();
+    updateColorToNormal();
     if (!this.textfield.hasFocus()) {
       focusLost(null);
     }
@@ -96,12 +96,12 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
 
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
-    updateColor();
+    updateColorToNormal();
   }
 
   @Override
   public void changedUpdate(DocumentEvent e) {
-    updateColor();
+    updateColorToNormal();
   }
 
   @Override
@@ -123,12 +123,18 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
   }
 
   private void updateText(String text, Color color) {
-    textfield.setText(text);
-    textfield.setForeground(color);
+    if (text != null && !text.equals(textfield.getText())) {
+      textfield.setText(text);
+    }
+    if (color != null && !color.equals(textfield.getForeground())) {
+      textfield.setForeground(color);
+    }
   }
 
-  private void updateColor() {
-    textfield.setForeground(normalTextColor);
+  private void updateColorToNormal() {
+    if (!normalTextColor.equals(textfield.getForeground())) {
+      textfield.setForeground(normalTextColor);
+    }
   }
 }
 
