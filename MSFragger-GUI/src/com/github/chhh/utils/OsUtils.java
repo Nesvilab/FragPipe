@@ -54,11 +54,17 @@ public class OsUtils {
     }
 
     public static boolean isWindows() {
-        String osName = System.getProperty("os.name");
-        if (osName == null) {
-            return true; // just the default
-        }
-        return osName.toLowerCase().startsWith("win");
+        return getOsName().toLowerCase().contains("win");
+    }
+
+    public static boolean isMac() {
+        return getOsName().toLowerCase().contains("mac");
+    }
+
+    public static boolean isUnix() {
+        final String os = getOsName().toLowerCase();
+        return (os.contains("nix") || os.contains("nux") || os.contains("aix"));
+
     }
 
     /**
@@ -67,8 +73,7 @@ public class OsUtils {
      * @return
      */
     public static String getOsName() {
-        String osName = System.getProperty("os.name");
-        return osName;
+        return System.getProperty("os.name", "unknown");
     }
 
     /**

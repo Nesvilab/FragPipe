@@ -3,6 +3,7 @@ package com.dmtavt.fragpipe.tools.philosopher;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
+import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.ProcessUtils;
 import com.github.chhh.utils.StringUtils;
@@ -15,6 +16,11 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import org.jsoup.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,6 +151,42 @@ public class Philosopher {
   }
 
   public static void downloadPhilosopherAutomatically() {
+    final Pattern re;
+    if (OsUtils.isWindows()) {
+      re = Pattern.compile("(/Nesvilab/philosopher/releases/download/v[\\d.]+/philosopher_v[\\d.]+_windows_amd64.zip)");
+    } else if (OsUtils.isUnix()) {
+      re = Pattern.compile("(/Nesvilab/philosopher/releases/download/v[\\d.]+/philosopher_v[\\d.]+_linux_amd64.zip)");
+    } else {
+      SwingUtils.showInfoDialog(null, "Automatic downloads for Mac not supported", "Error");
+      return;
+    }
+
+    OkHttpClient client = new OkHttpClient();
+    Request request = new Request.Builder().url(DOWNLOAD_GITHUB_PAGE_URL).build();
+    String html;
+    try {
+      try (Response response = client.newCall(request).execute()) {
+        ResponseBody body = response.body();
+        if (body == null) {
+          throw new IllegalStateException("Response body was null");
+        }
+        html = body.string();
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Automatic download failed", e);
+    }
+
+    Matcher m = re.matcher(html);
+    if (!m.find()) {
+      throw new IllegalStateException("Did not find supported download links on the page");
+    }
+    String link = m.group(1);
+    log.debug("Found download link: {}", link);
+    if (!link.toLowerCase().startsWith("https://github.com")) {
+      link = StringUtils.prependOnce(link, "/");
+      link = StringUtils.prependOnce(link, "https://github.com");
+      log.debug("Assuming full download link is: {}", link);
+    }
 
   }
 

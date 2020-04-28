@@ -129,6 +129,7 @@ dependencies {
 
     implementation 'org.greenrobot:eventbus:3.2.0'
     implementation 'org.jsoup:jsoup:1.13.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.5.0'
 
     // logging
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
