@@ -6,60 +6,47 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * From: http://stackoverflow.com/questions/10506789/how-to-display-faint-gray-ghost-text-in-a-jtextfield
  */
 public class GhostText implements FocusListener, DocumentListener, PropertyChangeListener {
+  private static final Logger log = LoggerFactory.getLogger(GhostText.class);
 
   private final JTextField textfield;
-  private Color ghostTextColor;
+  public static final Color LIGHT_GREY = Color.LIGHT_GRAY;
+  private Color ghostTextColor = LIGHT_GREY;
   private Color normalTextColor;
   private final String ghostText;
   private final Object lock = new Object();
+  private AtomicBoolean isInsideCall = new AtomicBoolean(false);
 
-  public static final Color LIGHT_GREY = Color.LIGHT_GRAY;
 
-  public GhostText(final JTextField textfield, String ghostText, Color ghostTextColor) {
+  public GhostText(final JTextField textfield, String ghostText) {
     this.textfield = textfield;
     this.ghostText = ghostText;
-    this.ghostTextColor = ghostTextColor;
     this.normalTextColor = textfield.getForeground();
+    updateColor();
     textfield.addFocusListener(this);
     registerListeners();
-    updateColorToNormal();
     if (!this.textfield.hasFocus()) {
       focusLost(null);
     }
   }
 
-//  public GhostText(final UiText textfield, Color ghostTextColor) {
-//    this.textfield = textfield;
-//    this.ghostText = textfield.getGhostText();
-//    this.ghostTextColor = ghostTextColor;
-//    this.normalTextColor = textfield.getForeground();
-//    textfield.addFocusListener(this);
-//    registerListeners();
-//    updateColor();
-//    if (!this.textfield.hasFocus()) {
-//      focusLost(null);
-//    }
-//  }
-
-  public static void register(JTextField textfield, String ghostText, Color ghostTextColor) {
-    new GhostText(textfield, ghostText, ghostTextColor);
+  public static void register(JTextField textfield, String ghostText) {
+    SwingUtilities.invokeLater(() -> new GhostText(textfield, ghostText));
   }
 
   public static void register(UiText uiText) {
-    register(uiText, Color.LIGHT_GRAY);
-  }
-
-  public static void register(UiText uiText, Color ghostTextColor) {
-    new GhostText(uiText, uiText.getGhostText(), ghostTextColor);
+    SwingUtilities.invokeLater(() -> new GhostText(uiText, uiText.getGhostText()));
   }
 
   public void delete() {
@@ -84,12 +71,11 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
       updateText("", normalTextColor);
       registerListeners();
     }
-
   }
 
   @Override
   public void focusLost(FocusEvent e) {
-    if (isEmpty() || isShowingGhostText()) {
+    if (isEmpty()) {
       unregisterListeners();
       updateText(ghostText, ghostTextColor);
       registerListeners();
@@ -98,15 +84,16 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
 
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
-    //!"foreground".equalsIgnoreCase(evt.getPropertyName())
-//    if (!Objects.equals(evt.getNewValue(), evt.getOldValue())) {
-//      updateColorToNormal();
-//    }
+    synchronized (lock) {
+      if (!isInsideCall.get()) {
+        updateColor();
+      }
+    }
   }
 
   @Override
   public void changedUpdate(DocumentEvent e) {
-    updateColorToNormal();
+    updateColor();
   }
 
   @Override
@@ -120,7 +107,8 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
   }
 
   private boolean isEmpty() {
-    return StringUtils.isBlank(textfield.getText()) || (ghostText!=null && ghostText.equals(textfield.getText()));
+    String t = textfield.getText();
+    return StringUtils.isBlank(t) || t.equals(ghostText);
   }
 
   private boolean isShowingGhostText() {
@@ -128,19 +116,23 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
   }
 
   private void updateText(String text, Color color) {
-    if (text != null && !text.equals(textfield.getText())) {
-      textfield.setText(text);
-    }
-    if (color != null && !color.equals(textfield.getForeground())) {
+    synchronized (lock) {
+      isInsideCall.set(true);
       textfield.setForeground(color);
+      textfield.setText(text);
+      isInsideCall.set(false);
     }
   }
 
-  private void updateColorToNormal() {
+  private void updateColor() {
     synchronized (lock) {
-      if (!normalTextColor.equals(textfield.getForeground())) {
-        textfield.setForeground(normalTextColor);
+      isInsideCall.set(true);
+      Color cCur = textfield.getForeground();
+      Color cNew = isShowingGhostText() ? ghostTextColor : normalTextColor;
+      if (!cNew.equals(cCur)) {
+        textfield.setForeground(cNew);
       }
+      isInsideCall.set(false);
     }
   }
 }

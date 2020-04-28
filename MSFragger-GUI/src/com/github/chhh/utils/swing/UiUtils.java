@@ -94,7 +94,7 @@ public class UiUtils {
 
     public UiText create() {
       if (StringUtils.isNotBlank(uiText.getGhostText())) {
-        GhostText.register(uiText, GhostText.LIGHT_GREY);
+        GhostText.register(uiText);
       }
       return uiText;
     }

@@ -70,7 +70,7 @@ public class FormEntry {
       if (tf instanceof GhostedTextComponent) {
         ((GhostedTextComponent) tf).setGhostText(ghostText);
       }
-      GhostText.register(tf, ghostText, GhostText.LIGHT_GREY);
+      GhostText.register(tf, ghostText);
     }
   }
 
@@ -106,7 +106,7 @@ public class FormEntry {
       if (tf instanceof GhostedTextComponent) {
         ((GhostedTextComponent) tf).setGhostText(ghostText);
       }
-      GhostText.register(tf, ghostText, GhostText.LIGHT_GREY);
+      GhostText.register(tf, ghostText);
     }
 
     final JButton btn = new JButton(buttonText);

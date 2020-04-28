@@ -279,7 +279,7 @@ public class PtmshepherdPanel extends JPanelBase {
     final String ghost = "Phospho:79.9663, Something-else:-20.123";
     uiTextVarMods = new UiTextBuilder().text("Failed_Carbamidomethylation:-57.021464")
         .ghost(ghost).create();
-    GhostText.register(uiTextVarMods, ghost, GhostText.LIGHT_GREY);
+    GhostText.register(uiTextVarMods, ghost);
     uiTextVarMods.addFocusListener(new FocusAdapter() {
       @Override
       public void focusLost(FocusEvent e) {
