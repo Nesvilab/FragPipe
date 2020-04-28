@@ -55,7 +55,7 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
   }
 
   public static void register(UiText uiText) {
-    register(uiText, null);
+    register(uiText, Color.LIGHT_GRAY);
   }
 
   public static void register(UiText uiText, Color ghostTextColor) {

@@ -2,18 +2,16 @@ package com.dmtavt.fragpipe.api;
 
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageBalloon;
-import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageShowException;
 import com.dmtavt.fragpipe.messages.NoteConfigTips;
 import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JComponent;
-import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import net.java.balloontip.BalloonTip;
@@ -74,10 +72,12 @@ public class Notifications {
             new RoundedBalloonStyle(5, 5, BG_COLOR, Color.BLACK), true);
 
       } else if (m.parent != null && m.html != null) {
-        JEditorPane ep = SwingUtils.createClickableHtml(m.html, BG_COLOR);
-        JPanel p = new JPanel(new BorderLayout());
-        p.setBackground(ep.getBackground());
-        p.add(ep, BorderLayout.CENTER);
+        HtmlStyledJEditorPane ep = SwingUtils.createClickableHtml(m.html, BG_COLOR);
+        ep.setPreferredSize(new Dimension(200, 25));
+        ep.setMinimumSize(new Dimension(50, 25));
+//        JPanel p = new JPanel(new BorderLayout());
+//        p.setBackground(ep.getBackground());
+//        p.add(ep, BorderLayout.CENTER);
 
 //        JPanel pBtns = new JPanel();
 //        pBtns.setBackground(ep.getBackground());
@@ -85,7 +85,7 @@ public class Notifications {
 //        pBtns.add(btnClose);
 //        p.add(pBtns, BorderLayout.SOUTH);
 
-        tip = new BalloonTip(m.parent, p, STYLE, true);
+        tip = new BalloonTip(m.parent, ep, STYLE, true);
 
       } else {
         remove(m.topic);

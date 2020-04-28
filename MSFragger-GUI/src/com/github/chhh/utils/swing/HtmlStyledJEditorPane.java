@@ -1,5 +1,6 @@
 package com.github.chhh.utils.swing;
 
+import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import java.net.URISyntaxException;
 import javax.swing.JEditorPane;
@@ -12,31 +13,23 @@ import org.slf4j.LoggerFactory;
 
 public class HtmlStyledJEditorPane extends JEditorPane {
   private static final Logger log = LoggerFactory.getLogger(HtmlStyledJEditorPane.class);
-  final boolean handleHyperlinks;
   private final Object lock = new Object();
 
   public HtmlStyledJEditorPane() {
-    super();
-    handleHyperlinks = true;
-    init();
+    this(true, "");
   }
 
   public HtmlStyledJEditorPane(boolean handleHyperlinks) {
-    super();
-    this.handleHyperlinks = handleHyperlinks;
-    init();
+    this(handleHyperlinks, null);
   }
 
   public HtmlStyledJEditorPane(String text) {
-    super();
-    this.handleHyperlinks = true;
-    init();
-    setText(text);
+    this(true, text);
   }
 
-  private void init() {
-    setContentType("text/html");
-    setBackground(new JLabel().getBackground());
+  public HtmlStyledJEditorPane(boolean handleHyperlinks, String text) {
+    super();
+    init();
 
     if (handleHyperlinks) {
       addHyperlinkListener(e -> {
@@ -46,13 +39,25 @@ public class HtmlStyledJEditorPane extends JEditorPane {
           } catch (URISyntaxException ex) {
             throw new IllegalStateException("Incorrect url/uri", ex);
           }
-
         }
       });
     }
-    setText(SwingUtils.wrapInStyledHtml(""));
+
+    if (StringUtils.isNotBlank(text)) {
+      this.setText(text);
+    }
   }
 
+  private void init() {
+    setContentTextHtml();
+    setBackground(new JLabel().getBackground());
+  }
+
+  private void setContentTextHtml() {
+    if (!"text/html".equalsIgnoreCase(getContentType())) {
+      setContentType("text/html");
+    }
+  }
 
   @Override
   public void setText(String t) {
@@ -74,6 +79,7 @@ public class HtmlStyledJEditorPane extends JEditorPane {
 
       try {
         super.setText(null);
+        setContentTextHtml();
         super.setText(wrap);
       } catch (NullPointerException e) {
         log.error("NPE happened when setting wrapped text");

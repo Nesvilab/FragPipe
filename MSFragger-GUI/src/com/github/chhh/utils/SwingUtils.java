@@ -444,7 +444,7 @@ public class SwingUtils {
    * @param text          Your text to be displayed in HTML context. Don't add the opening and
    *                      closing HTML tags. To include links use the regular A tags.
    */
-  public static JEditorPane createClickableHtml(boolean applyMakeHtml, String text) {
+  public static HtmlStyledJEditorPane createClickableHtml(boolean applyMakeHtml, String text) {
     return createClickableHtml(applyMakeHtml ? makeHtml(text) : text, true, true, null);
   }
 

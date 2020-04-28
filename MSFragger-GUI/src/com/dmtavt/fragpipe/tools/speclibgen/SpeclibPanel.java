@@ -159,7 +159,7 @@ public class SpeclibPanel extends JPanelBase {
         "easypqp.select-file.text",
         "Calibration file", uiTextPqpCalFile);
     JLabel labelPqpCalFile = fePqpCalFile.label();
-    labelPqpCalFile.setName("easypqp.select-file.label");
+    //labelPqpCalFile.setName("easypqp.select-file.label");
     final JButton btnPqpCalFile = fePqpCalFile.browseButton("Browse",
         "Select calibration file", () -> {
           JFileChooser fc = FileChooserUtils
@@ -180,7 +180,7 @@ public class SpeclibPanel extends JPanelBase {
           // validation went without exceptions
           uiTextPqpCalFile.setText(path.toString());
         });
-    btnPqpCalFile.setName("easypqp.select-file.button");
+    //btnPqpCalFile.setName("easypqp.select-file.button");
 
     uiComboPqpType = UiUtils.createUiCombo(pqpType);
     FormEntry feDataType = new FormEntry("easypqp.data-type",

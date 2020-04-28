@@ -124,7 +124,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnGroupsByFilename;
   private JButton btnGroupsAssignToSelected;
   private JButton btnGroupsClear;
-  private JEditorPane epWorkflowsInfo;
+  private HtmlStyledJEditorPane epWorkflowsInfo;
   private UiSpinnerInt uiSpinnerRam;
   private UiSpinnerInt uiSpinnerThreads;
   private Map<String, PropsFile> workflows;
@@ -703,7 +703,8 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     MigUtils mu = MigUtils.get();
     final JPanel p = mu.newPanel(null, true);
-    UiText uiTextName = UiUtils.uiTextBuilder().cols(20).ghost("Name is required").text(curName + "-").create();
+    String newName = DEFAULT_WORKFLOW.equals(curName) ? curName + "-" : curName;
+    UiText uiTextName = UiUtils.uiTextBuilder().cols(20).ghost("Name is required").text(newName).create();
     uiTextName.setName("file-name");
     final HtmlStyledJEditorPane ep = new HtmlStyledJEditorPane();
     ep.setBackground(Color.WHITE);
