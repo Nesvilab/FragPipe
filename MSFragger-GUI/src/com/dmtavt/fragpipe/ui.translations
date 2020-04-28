@@ -1,3 +1,7 @@
+# Format: "ui element name" :: "ui element value allowed in current ver of FP" <=> ""
+# left hand side values can repeat, right hand side values must be unique per "element name"
+# order matters, in case of multiple matches, the first one is taken
+
 msfragger.calibrate_mass :: None <=> 0
 msfragger.calibrate_mass :: Off <=> 0
 msfragger.calibrate_mass :: Mass calibration <=> 1
@@ -42,12 +46,12 @@ ptmshepherd.peakpicking_mass_units :: Da <=> 0
 ptmshepherd.precursor_mass_units :: PPM <=> 1
 ptmshepherd.precursor_mass_units :: Da <=> 0
 
-# speclibgen.easypqp.data-type :: timsTOF <=>
-# speclibgen.easypqp.data-type :: non-timsTOF <=>
-# speclibgen.easypqp.rt-cal :: Automatic selection of a run as reference RT <=>
-# speclibgen.easypqp.rt-cal :: iRT <=>
-# speclibgen.easypqp.rt-cal :: ciRT <=>
-# speclibgen.easypqp.rt-cal :: User provided RT calibration file <=>
+speclibgen.easypqp.data-type :: timsTOF <=> timsTOF
+speclibgen.easypqp.data-type :: non-timsTOF <=> non-timsTOF
+speclibgen.easypqp.rt-cal :: Automatic selection of a run as reference RT <=> noiRT
+speclibgen.easypqp.rt-cal :: iRT <=> iRT
+speclibgen.easypqp.rt-cal :: ciRT <=> ciRT
+speclibgen.easypqp.rt-cal :: User provided RT calibration file <=> a tsv file
 
 tmtintegrator.add_Ref :: Reference sample <=>  -1
 tmtintegrator.add_Ref :: Virtual - Average <=> 1
