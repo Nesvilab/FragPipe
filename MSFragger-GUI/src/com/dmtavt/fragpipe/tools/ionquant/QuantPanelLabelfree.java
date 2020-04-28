@@ -251,15 +251,14 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMbrRtTol = mu.feb(uiSpinnerMbrRtTol).name("ionquant.mbrrttol").label("MBR RT Window (minutes)").create();
     FormEntry feMbrImTol = mu.feb(uiSpinnerMbrImTol).name("ionquant.mbrimtol").label("MBR IM Window (1/k0)").create();
 
-    FormEntry feMbrIonFdr = mu.feb(uiSpinnerMbrIonFdr).name("ionfdr").label("MBR ion FDR").create();
-    FormEntry feMbrPepFdr = mu.feb(uiSpinnerMbrPepFdr).name("peptidefdr").label("MBR peptide FDR").create();
-    FormEntry feMbrProtFdr = mu.feb(uiSpinnerMbrProtFdr).name("proteinfdr").label("MBR protein FDR").create();
+    FormEntry feMbrIonFdr = mu.feb(uiSpinnerMbrIonFdr).name("ionquant.ionfdr").label("MBR ion FDR").create();
+    FormEntry feMbrPepFdr = mu.feb(uiSpinnerMbrPepFdr).name("ionquant.peptidefdr").label("MBR peptide FDR").create();
+    FormEntry feMbrProtFdr = mu.feb(uiSpinnerMbrProtFdr).name("ionquant.proteinfdr").label("MBR protein FDR").create();
 
-    FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("mbrtoprun").label("MBR top runs").create();
-    FormEntry feLabel = mu.feb(uiTextLabels).name("label").label("Label").create();
+    FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("ionquant.mbrtoprun").label("MBR top runs").create();
+    FormEntry feLabel = mu.feb(uiTextLabels).name("ionquant.label").label("Label").create();
 
-    UiCheck uiCheckIonquantPlot = new UiCheck("Plot (for debug)", null, false);
-    FormEntry fePlot = new FormEntry("ionquant.is-plot", "Not shown", uiCheckIonquantPlot);
+    FormEntry fePlot = mu.feb(UiUtils.createUiCheck("Plot (for debug)", false)).name("ionquant.is-plot").create();
 
     mu.add(p, feRadioIonquant.comp).split().spanX();
     mu.add(p, feDataType.label()).gapLeft("10px");
