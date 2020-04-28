@@ -6,6 +6,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Objects;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -96,7 +97,9 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
 
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
-    updateColorToNormal();
+    if (Objects.equals(evt.getNewValue(), evt.getOldValue())) {
+      updateColorToNormal();
+    }
   }
 
   @Override
