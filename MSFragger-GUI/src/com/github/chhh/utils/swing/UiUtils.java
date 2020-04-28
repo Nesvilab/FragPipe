@@ -1,5 +1,6 @@
 package com.github.chhh.utils.swing;
 
+import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -83,6 +84,9 @@ public class UiUtils {
     }
 
     public UiText create() {
+      if (StringUtils.isNotBlank(uiText.getGhostText())) {
+        GhostText.register(uiText);
+      }
       return uiText;
     }
   }

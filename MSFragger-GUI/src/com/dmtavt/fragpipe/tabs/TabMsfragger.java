@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,7 +57,6 @@ import java.util.stream.Stream;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -78,7 +76,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
-import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.api.ModsTableModel;
@@ -589,6 +586,12 @@ public class TabMsfragger extends JPanelBase {
         .name(MsfraggerParams.PROP_glyco_search_mode)
         .label("Glyco Search Mode").create();
 
+    UiText uiTextGlycoModeSites = UiUtils.uiTextBuilder().ghost("Allowed mod sites").filter("[^A-Z]")
+        .cols(20).create();
+    FormEntry feGlycoModeSites = mu.feb(uiTextGlycoModeSites).name(MsfraggerParams.PROP_glyco_mode_sites)
+        .tooltip("Allowed mod sites in Glyco mode").label("Mod sites")
+        .create();
+
     final UiSpinnerDouble uiSpinnerMinInt = UiSpinnerDouble.builder(0, 0, 1, 0.1).setFormat("#.##")
         .setNumCols(5).create();
     FormEntry feOxoniumIonMinimumIntensity = mu.feb(uiSpinnerMinInt)
@@ -612,7 +615,10 @@ public class TabMsfragger extends JPanelBase {
       // needs to be done after components to be turned on/off have been created
       final String selected = (String)uiComboGlyco.getSelectedItem();
       final boolean enabled = !MsfraggerParams.GLYCO_OPTION_OFF.equalsIgnoreCase(selected);
+      final boolean sitesEnabled = enabled &&
+          (MsfraggerParams.GLYCO_OPTION_OGLYCAN.equalsIgnoreCase(selected) || MsfraggerParams.GLYCO_OPTION_SPECIFIC.equalsIgnoreCase(selected));
       updateEnabledStatus(uiSpinnerMinInt, enabled);
+      updateEnabledStatus(uiTextGlycoModeSites, sitesEnabled);
       updateEnabledStatus(ep1, enabled);
       updateEnabledStatus(ep2, enabled);
     });
@@ -625,6 +631,8 @@ public class TabMsfragger extends JPanelBase {
 
     mu.add(p, feGlycoSearchMode.label(), mu.ccR());
     mu.add(p, feGlycoSearchMode.comp);
+    mu.add(p, feGlycoModeSites.label(), mu.ccR());
+    mu.add(p, feGlycoModeSites.comp);
     mu.add(p, feOxoniumIonMinimumIntensity.label(), mu.ccR());
     mu.add(p, feOxoniumIonMinimumIntensity.comp).pushX().wrap();
     mu.add(p, feYIonMasses.label(), mu.ccR());
@@ -1128,7 +1136,7 @@ public class TabMsfragger extends JPanelBase {
   }
 
   private void formFrom(MsfraggerParams params) {
-    Map<String, String> map = paramsTo(params);
+    Map<String, String> map = confToUiMap(params);
     map = MapUtils.remapKeys(map, k -> StringUtils.prependOnce(k, TAB_PREFIX));
     formFrom(map);
     tableVarMods.setData(params.getVariableMods());
@@ -1267,7 +1275,7 @@ public class TabMsfragger extends JPanelBase {
     return p;
   }
 
-  private Map<String, String> paramsTo(MsfraggerParams params) {
+  private Map<String, String> confToUiMap(MsfraggerParams params) {
     HashMap<String, String> map = new HashMap<>();
     for (Entry<String, Prop> e : params.getProps().getMap().entrySet()) {
       if (e.getValue().isEnabled) {
