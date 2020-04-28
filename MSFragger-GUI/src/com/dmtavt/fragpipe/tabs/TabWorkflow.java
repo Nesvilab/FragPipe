@@ -16,6 +16,7 @@ import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction;
 import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction.Type;
 import com.dmtavt.fragpipe.messages.MessageLcmsRemoveSelected;
 import com.dmtavt.fragpipe.messages.MessageLoadUi;
+import com.dmtavt.fragpipe.messages.MessageOpenInExplorer;
 import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageType;
 import com.dmtavt.fragpipe.messages.MessageUpdateWorkflows;
@@ -39,7 +40,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -57,6 +60,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -71,10 +75,16 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.table.DefaultTableModel;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -876,8 +886,71 @@ public class TabWorkflow extends JPanelWithEnablement {
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnGroupsAssignToSelected);
     tableRawFiles.fireInitialization();
     tableRawFiles.setFillsViewportHeight(true);
+    tableRawFiles.setComponentPopupMenu(createLcmsTablePopup(tableRawFiles, tableModelRawFiles));
     scrollPaneRawFiles = new JScrollPane();
     scrollPaneRawFiles.setViewportView(tableRawFiles);
+  }
+
+  private JPopupMenu createLcmsTablePopup(final JTable table, UniqueLcmsFilesTableModel tableModelRawFiles) {
+    BiFunction<String, ActionListener, JMenuItem> make = (s, l) -> {
+      JMenuItem item = new JMenuItem(s);
+      item.addActionListener(l);
+      return item;
+    };
+
+    final JPopupMenu pop = new JPopupMenu();
+    pop.add(make.apply("Remove Selected", e -> Bus.post(new MessageLcmsRemoveSelected())));
+    pop.add(make.apply("Remove All", e -> Bus.post(new MessageLcmsClearFiles())));
+    pop.add(make.apply("Add folder", e -> Bus.post(new MessageLcmsAddFolder())));
+    pop.add(make.apply("Add files", e -> Bus.post(new MessageLcmsAddFiles())));
+    pop.add(make.apply("Open in file manager", e -> {
+      SwingUtilities.invokeLater(() -> {
+        Point pointRel = SwingUtilities.convertPoint(pop, new Point(0, 0), table);
+        log.debug("Attempt to get point rel: {}", pointRel);
+        log.debug("Attempt to get point rel row: {}", table.rowAtPoint(pointRel));
+
+        int indexTable = table.getSelectedRow();
+        int indexModel = table.convertRowIndexToModel(indexTable);
+        Path path = tableModelRawFiles.dataGet(indexModel).getPath();
+        log.debug("User clicked on row #{} in table, #{} in mode,, mapping to file: {}", indexTable, indexModel, path);
+
+        Path openLoc = path;
+        while (openLoc != null && !Files.isDirectory(openLoc)) {
+          openLoc = openLoc.getParent();
+        }
+        if (openLoc == null) {
+          SwingUtils.showInfoDialog(TabWorkflow.this, "Could not locate parent directory to open", "Error opening in file manager");
+          return;
+        }
+        log.debug("Trying to open location in explorer: {}", openLoc);
+
+        Bus.post(new MessageOpenInExplorer(openLoc));
+      });
+    }));
+
+    final PopupMenuListener popListener = new PopupMenuListener() {
+      @Override
+      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+        SwingUtilities.invokeLater(() -> {
+          Point pointRel = SwingUtilities.convertPoint(pop, new Point(0, 0), table);
+          int rowAtPoint = table.rowAtPoint(pointRel);
+          if (rowAtPoint > -1) {
+            table.addRowSelectionInterval(rowAtPoint, rowAtPoint);
+          }
+        });
+      }
+
+      @Override
+      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+      }
+
+      @Override
+      public void popupMenuCanceled(PopupMenuEvent e) {
+      }
+    };
+    pop.addPopupMenuListener(popListener);
+
+    return pop;
   }
 
   private FileDrop makeFileDrop() {

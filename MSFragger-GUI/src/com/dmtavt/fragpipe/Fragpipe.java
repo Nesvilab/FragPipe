@@ -11,6 +11,7 @@ import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
 import com.dmtavt.fragpipe.messages.MessageLoadUi;
+import com.dmtavt.fragpipe.messages.MessageOpenInExplorer;
 import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
@@ -664,5 +665,10 @@ public class Fragpipe extends JFrame {
       throw new NoStickyException("Sticky note not on the bus: " + clazz.getCanonicalName());
     }
     return sticky;
+  }
+
+  @Subscribe(threadMode = ThreadMode.ASYNC)
+  public void on(MessageOpenInExplorer m) {
+    FragpipeUtils.openInExplorer(this, m.path.toString());
   }
 }

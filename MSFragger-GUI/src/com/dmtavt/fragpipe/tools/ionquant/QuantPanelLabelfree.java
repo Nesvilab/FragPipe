@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.tools.ionquant;
 
 import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.dmtavt.fragpipe.messages.MessageLoadQuantDefaults;
 import com.github.chhh.utils.PropertiesUtils;
@@ -104,7 +105,10 @@ public class QuantPanelLabelfree extends JPanelBase {
   }
 
   public Map<String, String> toMap() {
-    return SwingUtils.valuesGet(this, (name) -> !name.startsWith("Spinner.formattedTextField"));
+    Map<String, String> map = SwingUtils
+        .valuesGet(this, (name) -> !name.startsWith("Spinner.formattedTextField"));
+    Map<String, String> remapped = FragpipeCacheUtils.translateValuesFromUi(map);
+    return remapped;
   }
 
   public String getFreequantOptsAsText() {
