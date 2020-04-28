@@ -92,6 +92,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.border.LineBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.DefaultTableModel;
@@ -467,17 +468,20 @@ public class TabWorkflow extends JPanelWithEnablement {
     epWorkflowsDesc.setPreferredSize(new Dimension(400, 50));
     uiComboWorkflows.addItemListener(e -> {
       String name = (String) uiComboWorkflows.getSelectedItem();
+      if (DEFAULT_WORKFLOW.equalsIgnoreCase(name)) {
+        // special case, loading defaults
+        epWorkflowsDesc.setText("Load defaults as in a new installation of FragPipe");
+      }
+
       PropsFile propsFile = workflows.get(name);
-      if (propsFile == null) {
+      if (propsFile != null) {
+        epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
+      } else {
         if (!DEFAULT_WORKFLOW.equalsIgnoreCase(name)) {
           throw new IllegalStateException("Workflows map is not synchronized with the dropdown");
         }
-        log.debug("Default workflow was selected, we don't have a file for it in the workflows/ folder");
-        epWorkflowsDesc.setText("Defaults file is not present yet.\n"
-            + "That message will be gone when we fill workflows/ folder.");
-      } else {
-        epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
       }
+
     });
     JButton btnWorkflowLoad = UiUtils.createButton("Load", this::actionLoadSelectedWorkflow);
     FormEntry feComboWorkflow = fe(uiComboWorkflows, "workflow-option" )
@@ -663,11 +667,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageSaveAsWorkflow m) {
     Fragpipe fp = Fragpipe.getStickyStrict(Fragpipe.class);
-
-
     Properties uiProps = FragpipeCacheUtils.tabsSave0(fp.tabs, m.saveWithFieldTypes);
-
-
     Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps)).filter(kv -> {
       String k = kv.v1().toLowerCase();
       if (k.startsWith(TabConfig.TAB_PREFIX)) { // nothing from tab config goes into a workflow
@@ -703,9 +703,11 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     MigUtils mu = MigUtils.get();
     final JPanel p = mu.newPanel(null, true);
-    UiText uiTextName = UiUtils.uiTextBuilder().cols(20).ghost("Name is required").text(curName).create();
+    UiText uiTextName = UiUtils.uiTextBuilder().cols(20).ghost("Name is required").text(curName + "-").create();
     uiTextName.setName("file-name");
     final HtmlStyledJEditorPane ep = new HtmlStyledJEditorPane();
+    ep.setBackground(Color.WHITE);
+    ep.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
     ep.setText(curDesc);
     ep.setPreferredSize(new Dimension(320, 240));
     ep.setName("file-desc");
@@ -723,6 +725,11 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (StringUtils.isBlank(text)) {
       SwingUtils
           .showErrorDialog(fp, "Workflow name can't be left empty", "Error saving workflow");
+      return;
+    }
+    if (DEFAULT_WORKFLOW.equalsIgnoreCase(text)) {
+      SwingUtils
+          .showErrorDialog(fp, DEFAULT_WORKFLOW + " is a reserved name, not allowed", "Error saving workflow");
       return;
     }
     text = StringUtils.appendOnce(text, ".workflow");

@@ -4,11 +4,16 @@ import com.github.chhh.utils.SwingUtils;
 import java.net.URISyntaxException;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
 import org.jsoup.Jsoup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HtmlStyledJEditorPane extends JEditorPane {
+  private static final Logger log = LoggerFactory.getLogger(HtmlStyledJEditorPane.class);
   final boolean handleHyperlinks;
+  private final Object lock = new Object();
 
   public HtmlStyledJEditorPane() {
     super();
@@ -51,14 +56,44 @@ public class HtmlStyledJEditorPane extends JEditorPane {
 
   @Override
   public void setText(String t) {
-    String body = SwingUtils.tryExtractHtmlBody(t);
-    super.setText(SwingUtils.wrapInStyledHtml(body));
+    SwingUtilities.invokeLater(() -> {
+      if (t == null) {
+        log.error("Called setText with null");
+        super.setText(null);
+        return;
+      }
+      String body = SwingUtils.tryExtractHtmlBody(t);
+      if (body == null) {
+        log.error("Body was computed to null");
+      }
+
+      String wrap = SwingUtils.wrapInStyledHtml(body);
+      if (wrap == null) {
+        log.error("Wrapped text evaluated to null");
+      }
+
+      try {
+        super.setText(null);
+        super.setText(wrap);
+      } catch (NullPointerException e) {
+        log.error("NPE happened when setting wrapped text");
+      } catch (RuntimeException re) {
+        if (re.getMessage().contains("insert new content into body")) {
+          log.error("{}\n{}", re.getMessage(), wrap);
+          log.error("Trying to use the 'body': {}", body);
+          super.setText(body);
+        } else {
+          throw re;
+        }
+      }
+    });
+
   }
 
   /** Text less main HTML (html, head, body) but with inner HTML tags like div or p. */
   @Override
   public String getText() {
-    return SwingUtils.tryExtractHtmlBody(super.getText());
+    return super.getText();
   }
 
   /** Text less all HTML tags (html, head, body, div, p, etc). */

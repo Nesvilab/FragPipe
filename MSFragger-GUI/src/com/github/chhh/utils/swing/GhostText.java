@@ -20,6 +20,7 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
   private Color ghostTextColor;
   private Color normalTextColor;
   private final String ghostText;
+  private final Object lock = new Object();
 
   public static final Color LIGHT_GREY = Color.LIGHT_GRAY;
 
@@ -97,9 +98,10 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
 
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
-    if (Objects.equals(evt.getNewValue(), evt.getOldValue())) {
-      updateColorToNormal();
-    }
+    //!"foreground".equalsIgnoreCase(evt.getPropertyName())
+//    if (!Objects.equals(evt.getNewValue(), evt.getOldValue())) {
+//      updateColorToNormal();
+//    }
   }
 
   @Override
@@ -135,8 +137,10 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
   }
 
   private void updateColorToNormal() {
-    if (!normalTextColor.equals(textfield.getForeground())) {
-      textfield.setForeground(normalTextColor);
+    synchronized (lock) {
+      if (!normalTextColor.equals(textfield.getForeground())) {
+        textfield.setForeground(normalTextColor);
+      }
     }
   }
 }
