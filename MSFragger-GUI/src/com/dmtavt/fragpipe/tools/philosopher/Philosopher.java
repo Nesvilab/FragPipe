@@ -222,7 +222,7 @@ public class Philosopher {
         });
 
         try (BufferedSink sink = Okio.buffer(Okio.sink(dlLocation))) {
-          AtomicLong received = new AtomicLong(0);
+          final AtomicLong received = new AtomicLong(0);
           Source fwd = new ForwardingSource(body.source()) {
             @Override
             public long read(@NotNull Buffer sink, long byteCount) throws IOException {
