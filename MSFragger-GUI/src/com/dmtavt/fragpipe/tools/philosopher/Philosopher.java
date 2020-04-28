@@ -1,8 +1,13 @@
 package com.dmtavt.fragpipe.tools.philosopher;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
+import com.dmtavt.fragpipe.messages.MessagePhiDlProgress;
+import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
+import com.github.chhh.utils.Holder;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.ProcessUtils;
@@ -12,15 +17,25 @@ import com.github.chhh.utils.VersionComparator;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.SwingUtilities;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.jsoup.internal.StringUtil;
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.ForwardingSource;
+import okio.Okio;
+import okio.Segment;
+import okio.Source;
+import org.jetbrains.annotations.NotNull;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,7 +165,7 @@ public class Philosopher {
     }
   }
 
-  public static void downloadPhilosopherAutomatically() {
+  public static void downloadPhilosopherAutomatically() throws IOException {
     final Pattern re;
     if (OsUtils.isWindows()) {
       re = Pattern.compile("(/Nesvilab/philosopher/releases/download/v[\\d.]+/philosopher_v[\\d.]+_windows_amd64.zip)");
@@ -162,18 +177,14 @@ public class Philosopher {
     }
 
     OkHttpClient client = new OkHttpClient();
-    Request request = new Request.Builder().url(DOWNLOAD_GITHUB_PAGE_URL).build();
     String html;
-    try {
-      try (Response response = client.newCall(request).execute()) {
-        ResponseBody body = response.body();
-        if (body == null) {
-          throw new IllegalStateException("Response body was null");
-        }
-        html = body.string();
+    Request request = new Request.Builder().url(DOWNLOAD_GITHUB_PAGE_URL).build();
+    try (Response response = client.newCall(request).execute()) {
+      ResponseBody body = response.body();
+      if (body == null) {
+        throw new IllegalStateException("Response body was null");
       }
-    } catch (IOException e) {
-      throw new IllegalStateException("Automatic download failed", e);
+      html = body.string();
     }
 
     Matcher m = re.matcher(html);
@@ -188,6 +199,63 @@ public class Philosopher {
       log.debug("Assuming full download link is: {}", link);
     }
 
+    Path dirCache = FragpipeLocations.get().getDirCache();
+    String fn = Seq.of(link.split("/")).findLast().orElseThrow(
+        () -> new IllegalStateException("Could not get the last part of download URL"));
+    Path dlLocation = dirCache.resolve(fn);
+    log.debug("Downloading to file: {}", dlLocation);
+
+    try (Response response = client.newCall(new Request.Builder().url(link).build()).execute()) {
+      if (!response.isSuccessful())
+        throw new IllegalStateException("Request unsuccessful");
+      try (ResponseBody body = response.body()) {
+        if (body == null) {
+          throw new IllegalStateException("Null response body during download");
+        }
+        final long totalDlSize = body.contentLength();
+        log.debug("Got response, code: {}", response.code());
+
+        final Holder<PhiDownloadProgress> dlProgress = new Holder<>();
+        SwingUtilities.invokeLater(() -> {
+          dlProgress.obj = new PhiDownloadProgress();
+          Bus.registerQuietly(dlProgress.obj);
+        });
+
+        try (BufferedSink sink = Okio.buffer(Okio.sink(dlLocation))) {
+          AtomicLong received = new AtomicLong(0);
+          Source fwd = new ForwardingSource(body.source()) {
+            @Override
+            public long read(@NotNull Buffer sink, long byteCount) throws IOException {
+              long read = super.read(sink, byteCount);
+              long totalRead = received.addAndGet(read);
+              Bus.post(new MessagePhiDlProgress(totalRead, totalDlSize));
+              //log.debug("read {}", FileUtils.fileSize(totalRead));
+              return read;
+            }
+          };
+          log.debug("Start writing to file: {}", dlLocation);
+
+          long read = 0;
+          while (read >= 0) {
+            read = fwd.read(sink.getBuffer(), 8192);
+            if (dlProgress.obj != null && dlProgress.obj.isCancel) {
+              log.debug("Download cancelled");
+              return;
+            }
+          }
+          //sink.writeAll(fwd);
+
+          log.debug("Completed saving philosopher download to file: {}", dlLocation);
+          Bus.post(new MessagePhilosopherNewBin(dlLocation.toString()));
+        } finally {
+          log.debug("Download process finished");
+          if (dlProgress.obj != null) {
+            Bus.unregister(dlProgress.obj);
+            dlProgress.obj.close();
+          }
+        }
+      }
+    }
   }
 
   public static class Version {

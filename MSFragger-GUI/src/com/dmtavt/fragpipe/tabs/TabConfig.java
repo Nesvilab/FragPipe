@@ -14,6 +14,7 @@ import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageFindSystemPython;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerNewBin;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
+import com.dmtavt.fragpipe.messages.MessagePhiDlProgress;
 import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
 import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
@@ -27,6 +28,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger.Version;
+import com.dmtavt.fragpipe.tools.philosopher.PhiDownloadProgress;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher.UpdateInfo;
 import com.github.chhh.utils.JarUtils;
@@ -171,9 +173,12 @@ public class TabConfig extends JPanelWithEnablement {
 
     if (com.dmtavt.fragpipe.Version.isDevBuild()) {
       mu.add(p, UiUtils.createButton("Debug button", e -> {
-        log.debug("Debugging python environment vars");
-        NoteConfigPython configPython = Fragpipe.getStickyStrict(NoteConfigPython.class);
-        PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(configPython.pi.getCommand(), new HashMap<>());
+
+//        log.debug("Debugging python environment vars");
+//        NoteConfigPython configPython = Fragpipe.getStickyStrict(NoteConfigPython.class);
+//        PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(configPython.pi.getCommand(), new HashMap<>());
+
+
 
       }));
     }
@@ -787,7 +792,14 @@ public class TabConfig extends JPanelWithEnablement {
         new String[]{"Automatically", "Manually", "Cancel"}, 0);
     switch (choice) {
       case 0:
-        Philosopher.downloadPhilosopherAutomatically();
+        new Thread(() -> {
+          try {
+            SwingUtils.setUncaughtExceptionHandlerMessageDialog(TabConfig.this);
+            Philosopher.downloadPhilosopherAutomatically();
+          } catch (IOException ex) {
+            throw new IllegalStateException("Error downloading Philosopher automatically", ex);
+          }
+        }).start();
         break;
       case 1:
         Philosopher.downloadPhilosopherManually();
