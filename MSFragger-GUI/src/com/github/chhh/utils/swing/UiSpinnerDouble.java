@@ -25,8 +25,8 @@ public class UiSpinnerDouble extends JSpinner implements StringRepresentable {
     }
   }
 
-  public static UiSpinnerDoubleBuilder builder(double initVal, double minVal, double maxVal, double step) {
-    UiSpinnerDoubleBuilder b = new UiSpinnerDoubleBuilder();
+  public static Builder builder(double initVal, double minVal, double maxVal, double step) {
+    Builder b = new Builder();
     b.setInitVal(initVal);
     b.setMinVal(minVal);
     b.setMaxVal(maxVal);
@@ -59,7 +59,7 @@ public class UiSpinnerDouble extends JSpinner implements StringRepresentable {
     setCols(cols);
   }
 
-  public static class UiSpinnerDoubleBuilder {
+  public static class Builder {
 
     private double initVal;
     private double minVal;
@@ -68,37 +68,37 @@ public class UiSpinnerDouble extends JSpinner implements StringRepresentable {
     private DecimalFormat format;
     private int numDecimalDigits;
 
-    public UiSpinnerDoubleBuilder setInitVal(double initVal) {
+    public Builder setInitVal(double initVal) {
       this.initVal = initVal;
       return this;
     }
 
-    public UiSpinnerDoubleBuilder setMinVal(double minVal) {
+    public Builder setMinVal(double minVal) {
       this.minVal = minVal;
       return this;
     }
 
-    public UiSpinnerDoubleBuilder setMaxVal(double maxVal) {
+    public Builder setMaxVal(double maxVal) {
       this.maxVal = maxVal;
       return this;
     }
 
-    public UiSpinnerDoubleBuilder setStep(double step) {
+    public Builder setStep(double step) {
       this.step = step;
       return this;
     }
 
-    public UiSpinnerDoubleBuilder setFormat(DecimalFormat format) {
+    public Builder setFormat(DecimalFormat format) {
       this.format = format;
       return this;
     }
 
-    public UiSpinnerDoubleBuilder setFormat(String decimalFormatSpec) {
+    public Builder setFormat(String decimalFormatSpec) {
       this.format = new DecimalFormat(decimalFormatSpec);
       return this;
     }
 
-    public UiSpinnerDoubleBuilder setNumCols(int numDecimalDigits) {
+    public Builder setCols(int numDecimalDigits) {
       this.numDecimalDigits = numDecimalDigits;
       return this;
     }

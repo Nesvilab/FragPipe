@@ -1,6 +1,7 @@
 package com.github.chhh.utils.swing;
 
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.swing.UiSpinnerDouble.Builder;
 import java.awt.Component;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -8,7 +9,6 @@ import java.util.stream.Stream;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 
 public class UiUtils {
   private UiUtils() {}
@@ -22,6 +22,15 @@ public class UiUtils {
    */
   public static ImageIcon loadIcon(Class<?> clazz, String resourcePath) {
     return new ImageIcon(clazz.getResource(resourcePath));
+  }
+
+  public static UiSpinnerDouble.Builder spinnerDouble(double initVal, double min, double max, double step) {
+    return new Builder().setInitVal(initVal).setMinVal(min).setMaxVal(max)
+        .setStep(step);
+  }
+
+  public static UiSpinnerInt.Builder spinnerInt(int init, int min, int max, int step) {
+    return new UiSpinnerInt.Builder().setInit(init).setMin(min).setMax(max).setStep(step);
   }
 
   public static UiCheck createUiCheck(String label, boolean selected, ActionListener listener) {
@@ -85,7 +94,7 @@ public class UiUtils {
 
     public UiText create() {
       if (StringUtils.isNotBlank(uiText.getGhostText())) {
-        GhostText.register(uiText);
+        GhostText.register(uiText, GhostText.LIGHT_GREY);
       }
       return uiText;
     }
