@@ -17,7 +17,7 @@ lysc-p : cut(K) sense(C)
 
 
 
-nonspecific : cut() sense(C)
+nonspecific : cut(-) sense(C)
 
 
 trypsin/chymotrypsin : cut(FYWLKR) nocuts(P) sense(C)

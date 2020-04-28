@@ -502,11 +502,11 @@ public class TabMsfragger extends JPanelBase {
 
     uiTextEnzymeName = new UiText();
     FormEntry feEnzymeName = mu.feb(MsfraggerParams.PROP_search_enzyme_name, uiTextEnzymeName).label("Enzyme name").create();
-    uiTextCuts = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z]").text("KR").create();
+    uiTextCuts = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z-]").text("KR").create();
     uiTextCuts.addFocusListener(enzymeSpecFocusListener);
     FormEntry feCuts = mu.feb(MsfraggerParams.PROP_search_enzyme_cutafter, uiTextCuts).label("Cut after")
         .tooltip("Capital letters for amino acids after which the enzyme cuts.").create();
-    uiTextNocuts = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z]").text("P").create();
+    uiTextNocuts = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z-]").text("P").create();
     uiTextNocuts.addFocusListener(enzymeSpecFocusListener);
     FormEntry feNocuts = mu.feb(MsfraggerParams.PROP_search_enzyme_butnotafter, uiTextNocuts).label("But not before")
         .tooltip("Amino acids before which the enzyme won't cut.").create();
