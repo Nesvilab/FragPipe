@@ -89,6 +89,7 @@ public class CmdSpecLibGen extends CmdBase {
         return false;
       }
 
+      final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
       // for current implementation of speclibgen scripts mzml files need to be
       // located next to pepxml files
       final List<ProcessBuilder> pbsDeleteLcmsFiles = new ArrayList<>();
@@ -96,7 +97,8 @@ public class CmdSpecLibGen extends CmdBase {
         final String fn_sans_extension = useEasypqp ?
                 FilenameUtils.removeExtension(lcms.getPath().getFileName().toString()) : null;
         final String fn = lcms.getPath().getFileName().toString();
-        final boolean isTimsTOF = !(fn.toLowerCase().endsWith(".mzml") || fn.toLowerCase().endsWith(".mzxml"));
+        final boolean isTimsTOF = speclibPanel.getEasypqpFileType().equals("timsTOF") || fn.toLowerCase().endsWith(".d");
+        final boolean isTimsTOF1 = !(fn.toLowerCase().endsWith(".mzml") || fn.toLowerCase().endsWith(".mzxml"));
         final Path lcms_path = useEasypqp && isTimsTOF ?
                 lcms.getPath().getParent().resolve(fn_sans_extension + "_calibrated.mgf") :
                 lcms.getPath();
@@ -137,14 +139,12 @@ public class CmdSpecLibGen extends CmdBase {
         cmd.add("use_easypqp"); // philosopher binary path (not needed for easyPQP)
 
         TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
-        SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
 
         final String cal = speclibPanel.getEasypqpCalOption();
         final Path calTsvPath = speclibPanel.getEasypqpCalFilePath();
         cmd.add(cal.equals("a tsv file") ? calTsvPath.toString() : cal); // retention time alignment options
         cmd.add(String.valueOf(tabWorkflow.getThreads()));
 
-        speclibPanel.getEasypqpFileType(); // TODO: GUOCI - this statement was dangling alone here without any assignment or method call
 
       } else {
         cmd.add(fastaPath);

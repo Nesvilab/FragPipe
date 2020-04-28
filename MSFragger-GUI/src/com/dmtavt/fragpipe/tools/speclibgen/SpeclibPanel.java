@@ -270,7 +270,7 @@ public class SpeclibPanel extends JPanelBase {
   }
 
   public String getEasypqpFileType() {
-    return (String)uiComboPqpType.getSelectedItem();
+    return (String) uiComboPqpType.getSelectedItem();
   }
 
   public boolean useSpectrast() {
