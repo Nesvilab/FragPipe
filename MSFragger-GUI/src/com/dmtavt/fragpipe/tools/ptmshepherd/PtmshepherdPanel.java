@@ -231,12 +231,12 @@ public class PtmshepherdPanel extends JPanelBase {
         new UiSpinnerInt(4, 1, 4, 1, 5));
 
     UiSpinnerDouble uiSpinnerPromRatio = UiSpinnerDouble.builder(0.3,0.0,1.0, 0.1)
-        .setFormat(new DecimalFormat("0.#")).setNumCols(5).create();
+        .setFormat(new DecimalFormat("0.#")).setCols(5).create();
     FormEntry fePromRatio = new FormEntry(PROP_peakpicking_promRatio, "Prominence ratio", uiSpinnerPromRatio,
         "Ratio of peak prominence to total peak height.");
 
     UiSpinnerDouble uiSpinnerWidth = UiSpinnerDouble.builder(0.002, 0.0, 0.5, 0.001)
-        .setFormat(new DecimalFormat("0.####")).setNumCols(5).create();
+        .setFormat(new DecimalFormat("0.####")).setCols(5).create();
     FormEntry feWidth = mu.feb(PROP_peakpicking_width, uiSpinnerWidth)
         .label("Peak picking width").tooltip("+/- signal width during peakpicking").create();
     FormEntry fePeakPickingUnits = mu.feb(PROP_peakpicking_mass_units, UiUtils.createUiCombo(MassTolUnits.values()))
@@ -248,12 +248,12 @@ public class PtmshepherdPanel extends JPanelBase {
         "<html>Write additional files with more detailed information.");
 
     UiSpinnerDouble uiSpinnerPrecTol = UiSpinnerDouble.builder(0.01, 0.001, 1e6, 0.01)
-        .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
+        .setFormat(new DecimalFormat("0.###")).setCols(5).create();
     uiSpinnerPrecTol.setColumns(5);
     FormEntry fePrecTol = new FormEntry(PROP_precursor_tol, "Precursor tolerance", uiSpinnerPrecTol);
     FormEntry fePrecUnits = mu.fe(PROP_precursor_mass_units, UiUtils.createUiCombo(MassTolUnits.values()));
     UiSpinnerDouble uiSpinnerAnnotTol = UiSpinnerDouble.builder(0.01, 0.001, 0.999, 0.01)
-        .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
+        .setFormat(new DecimalFormat("0.###")).setCols(5).create();
     FormEntry feAnnotTol = mu.feb(PROP_annotation_tol, uiSpinnerAnnotTol)
         .label("Annotation tolerance (Da)").tooltip("+/- distance from peak to annotated mass").create();
 

@@ -192,7 +192,7 @@ public class CrystalcPanel extends JPanelBase {
     FormEntry feMassTolPpm = new FormEntry(CrystalcParams.PROP_precursor_mass , "Mass tolerance (ppm)",
         uiSpinnerIntMassTolPpm);
     uiSpinnerPrecIsol = UiSpinnerDouble.builder(0.7,0.0,1000.0, 0.1)
-        .setFormat(new DecimalFormat("0.#")).setNumCols(5).create();
+        .setFormat(new DecimalFormat("0.#")).setCols(5).create();
     FormEntry fePrecIsol = new FormEntry(CrystalcParams.PROP_precursor_isolation_window, "Precursor isolation window",
         uiSpinnerPrecIsol);
     uiCheckCorrectIsoErr = new UiCheck("Correct isotope error", null, false);

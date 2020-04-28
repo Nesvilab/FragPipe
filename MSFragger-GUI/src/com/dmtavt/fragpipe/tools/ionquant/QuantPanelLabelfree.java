@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe.tools.ionquant;
 
+import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.dmtavt.fragpipe.messages.MessageLoadQuantDefaults;
@@ -8,12 +9,18 @@ import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.UiCheck;
+import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiRadio;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
+import com.github.chhh.utils.swing.UiSpinnerInt;
+import com.github.chhh.utils.swing.UiText;
+import com.github.chhh.utils.swing.UiUtils;
+import com.github.chhh.utils.swing.UiUtils.UiTextBuilder;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 import javax.swing.ButtonGroup;
@@ -166,11 +173,11 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feRadioFreequant = new FormEntry("freequant.run-freequant", "Not shown",
         uiRadioUseFreequant);
     UiSpinnerDouble uiSpinnerRtTol = UiSpinnerDouble.builder(0.4, 0.05, 1000.0, 0.1)
-        .setFormat(new DecimalFormat("0.0#")).setNumCols(5).create();
+        .setFormat(new DecimalFormat("0.0#")).setCols(5).create();
     FormEntry feRtTol = new FormEntry("freequant.rt-tol", "RT Window (Minutes)",
         uiSpinnerRtTol);
     UiSpinnerDouble uiSpinnerMzTol = UiSpinnerDouble.builder(10.0, 0.1, 10000.0, 1)
-        .setFormat(new DecimalFormat("0.#")).setNumCols(5).create();
+        .setFormat(new DecimalFormat("0.#")).setCols(5).create();
     FormEntry feMzTol = new FormEntry("freequant.mz-tol", "M/z Window (ppm)",
         uiSpinnerMzTol);
 
@@ -186,38 +193,112 @@ public class QuantPanelLabelfree extends JPanelBase {
   private JPanel createPanelIonquant(ButtonGroup buttonGroup) {
     JPanel p = mu.newPanel(null, true);
 
-    uiRadioUseIonquant = new UiRadio("IonQuant (for timsTOF ion mobility data)", null, false);
+    uiRadioUseIonquant = new UiRadio("IonQuant", null, false);
     buttonGroup.add(uiRadioUseIonquant);
     FormEntry feRadioIonquant = new FormEntry("ionquant.run-ionquant", "Not shown",
         uiRadioUseIonquant);
-    UiSpinnerDouble uiSpinnerImTol = UiSpinnerDouble.builder(0.05, 0.01, 1.0, 0.01)
-        .setFormat(new DecimalFormat("0.00")).setNumCols(5).create();
-    FormEntry feImTol = new FormEntry("ionquant.im-tol", "IM Window (1/k0)", uiSpinnerImTol);
-    UiSpinnerDouble uiSpinnerMzTol = UiSpinnerDouble.builder(10.0, 1.0, 1000.0, 1.0)
-        .setFormat(new DecimalFormat("0.#")).setNumCols(5).create();
-    FormEntry feMzTol = new FormEntry("ionquant.mz-tol", "M/Z Window (ppm)", uiSpinnerMzTol);
+
+    UiCombo uiComboTimsTOF = UiUtils.createUiCombo(Arrays.asList("timsTOF", "Non-timsTOF"));
+    UiCombo uiComboMbr = UiUtils.createUiCombo(Arrays.asList("No", "Yes"));
+    UiCombo uiComboRequant = UiUtils.createUiCombo(Arrays.asList("Yes", "No"));
+
+    UiSpinnerDouble uiSpinnerMzTol = UiUtils.spinnerDouble(10.0, 1.0, 1000.0, 1.0)
+        .setFormat("0.#").setCols(5).create();
+    UiSpinnerDouble uiSpinnerRtTol = UiUtils.spinnerDouble(0.4, 0.01, 100.0, 0.1)
+        .setFormat("0.0").setCols(5).create();
+    UiSpinnerDouble uiSpinnerImTol = UiUtils.spinnerDouble(0.05, 0.001, 0.5, 0.01)
+        .setFormat("0.00").setCols(5).create();
+
+
+//    ionquant.mbrmincorr :: MBR min correlation <=> 0.5 (0 - 1, step: 0.1)
+//    ionquant.mbrrttol:: MBR RT window (minutes) <=> 1.0  (0.01 - 100, step: 0.1)
+//    ionquant.mbrimtol :: MBR IM window (1/k0) <=> 0.05 (0.001 - 0.5, step: 0.001)
+
+//    ionquant.mbrtoprun :: MBR top runs <=> 3 (1 - a very large number, step: 1)
+
+//    ionquant.ionfdr :: MBR ion FDR <=> 0.01 (0.001 - 1, step: 0.01)
+//    ionquant.peptidefdr :: MBR peptide FDR <=> 0.01 (0.001 - 1, step: 0.01)
+//    ionquant.proteinfdr :: MBR protein FDR <=> 0.01 (0.001 - 1, step: 0.01)
+//
+//    ionquant.label :: Labels <=> <string>
+
+    UiSpinnerDouble uiSpinnerMbrMinCorr = UiUtils.spinnerDouble(0.5, 0, 1, 0.1)
+        .setCols(5).setFormat("#.##").create();
+    UiSpinnerDouble uiSpinnerMbrRtTol = UiUtils.spinnerDouble(1.0, 0.01, 100, 0.1)
+        .setCols(5).setFormat("#.##").create();
+    UiSpinnerDouble uiSpinnerMbrImTol = UiUtils.spinnerDouble(0.05, 0.001, 0.5, 0.001)
+        .setCols(5).setFormat("#.###").create();
+
+    UiSpinnerDouble uiSpinnerMbrIonFdr = UiUtils.spinnerDouble(0.01, 0.001, 1, 0.01)
+        .setCols(5).setFormat("#.###").create();
+    UiSpinnerDouble uiSpinnerMbrPepFdr = UiUtils.spinnerDouble(0.01, 0.001, 1, 0.01)
+        .setCols(5).setFormat("#.###").create();
+    UiSpinnerDouble uiSpinnerMbrProtFdr = UiUtils.spinnerDouble(0.01, 0.001, 1, 0.01)
+        .setCols(5).setFormat("#.###").create();
+
+    UiSpinnerInt uiSpinnerMbrTopRuns = UiUtils.spinnerInt(3, 1, Integer.MAX_VALUE, 1).setCols(5).create();
+    UiText uiTextLabels = UiUtils.uiTextBuilder().cols(30).ghost("Labels example").create();
+
+    FormEntry feDataType = mu.feb(uiComboTimsTOF).name("ionquant.noim").label("Data type").create();
+    FormEntry feMbr = mu.feb(uiComboMbr).name("ionquant.mbr").label("Match between runs").create();
+    FormEntry feRequant = mu.feb(uiComboRequant).name("ionquant.requantify").label("Re-quantify").create();
+
+    FormEntry feMzTol = mu.feb(uiSpinnerMzTol).name("ionquant.mz-tol").label("M/Z Window (ppm)").create();
+    FormEntry feRtTol = mu.feb(uiSpinnerRtTol).name("ionquant.rt-tol").label("RT Window (minutes)").create();
+    FormEntry feImTol = mu.feb(uiSpinnerImTol).name("ionquant.im-tol").label("IM Window (1/k0)").create();
+
+    FormEntry feMbrMinCorr = mu.feb(uiSpinnerMbrMinCorr).name("ionquant.mbrmincorr").label("MBR min correlation").create();
+    FormEntry feMbrRtTol = mu.feb(uiSpinnerMbrRtTol).name("ionquant.mbrrttol").label("MBR RT Window (minutes)").create();
+    FormEntry feMbrImTol = mu.feb(uiSpinnerMbrImTol).name("ionquant.mbrimtol").label("MBR IM Window (1/k0)").create();
+
+    FormEntry feMbrIonFdr = mu.feb(uiSpinnerMbrIonFdr).name("ionfdr").label("MBR ion FDR").create();
+    FormEntry feMbrPepFdr = mu.feb(uiSpinnerMbrPepFdr).name("peptidefdr").label("MBR peptide FDR").create();
+    FormEntry feMbrProtFdr = mu.feb(uiSpinnerMbrProtFdr).name("proteinfdr").label("MBR protein FDR").create();
+
+    FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("mbrtoprun").label("MBR top runs").create();
+    FormEntry feLabel = mu.feb(uiTextLabels).name("label").label("Label").create();
+
     UiCheck uiCheckIonquantPlot = new UiCheck("Plot (for debug)", null, false);
     FormEntry fePlot = new FormEntry("ionquant.is-plot", "Not shown", uiCheckIonquantPlot);
 
-    UiSpinnerDouble uiSpinnerRtTol = UiSpinnerDouble.builder(0.4, 0.0, 10.0, 0.1)
-        .setFormat(new DecimalFormat("0.0")).setNumCols(5).create();
-    FormEntry feRtTol = new FormEntry("ionquant.rt-tol", "RT Window (minutes)", uiSpinnerRtTol);
-    UiSpinnerDouble uiSpinnerMinFreq = UiSpinnerDouble.builder(0.5, 0.0, 1.0, 0.1)
-        .setFormat(new DecimalFormat("0.00")).setNumCols(5).create();
-    FormEntry feMinFreq = new FormEntry("ionquant.min-freq", "MinFreq", uiSpinnerMinFreq);
+    mu.add(p, feRadioIonquant.comp).split().spanX();
+    mu.add(p, feDataType.label()).gapLeft("10px");
+    mu.add(p, feDataType.comp).wrap();
 
-    mu.add(p, feRadioIonquant.comp);
-    mu.add(p, feImTol.label(), mu.ccR());
-    mu.add(p, feImTol.comp);
     mu.add(p, feMzTol.label(), mu.ccR());
     mu.add(p, feMzTol.comp);
-    mu.add(p, fePlot.comp).wrap();
-    mu.add(p, feRtTol.label(), mu.ccR()).span(2);
+    mu.add(p, feRtTol.label(), mu.ccR());
     mu.add(p, feRtTol.comp);
-    mu.add(p, feMinFreq.label(), mu.ccR());
-    mu.add(p, feMinFreq.comp);
+    mu.add(p, feImTol.label(), mu.ccR());
+    mu.add(p, feImTol.comp).spanX().wrap();
 
-    fePlot.comp.setVisible(false);
+    mu.add(p, feMbr.label()).split().spanX();
+    mu.add(p, feMbr.comp);
+    mu.add(p, feRequant.label()).gapLeft("10px");
+    mu.add(p, feRequant.comp).wrap();
+
+    mu.add(p, feMbrMinCorr.label(), mu.ccR());
+    mu.add(p, feMbrMinCorr.comp);
+    mu.add(p, feMbrRtTol.label(), mu.ccR());
+    mu.add(p, feMbrRtTol.comp);
+    mu.add(p, feMbrImTol.label(), mu.ccR());
+    mu.add(p, feMbrImTol.comp).spanX().wrap();
+
+    mu.add(p, feMbrIonFdr.label(), mu.ccR());
+    mu.add(p, feMbrIonFdr.comp);
+    mu.add(p, feMbrPepFdr.label(), mu.ccR());
+    mu.add(p, feMbrPepFdr.comp);
+    mu.add(p, feMbrProtFdr.label(), mu.ccR());
+    mu.add(p, feMbrProtFdr.comp).spanX().wrap();
+
+    mu.add(p, feMbrTopRuns.label(), mu.ccR());
+    mu.add(p, feMbrTopRuns.comp);
+    mu.add(p, feLabel.label(), mu.ccR());
+    mu.add(p, feLabel.comp).spanX().growX().wrap();
+
+    if (Version.isDevBuild()) {
+      mu.add(p, fePlot.comp).spanX().wrap();
+    }
 
     return p;
   }

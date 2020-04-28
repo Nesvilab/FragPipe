@@ -76,24 +76,25 @@ tmtintegrator.unique_gene :: No PSMs mapping to multiple genes in FASTA <=> 2
 
 ionquant.noim :: timsTOF <=> 0
 ionquant.noim :: Non-timsTOF <=> 1
+ionquant.mbr :: No <=> 0
+ionquant.mbr :: Yes <=> 1
+ionquant.requantify::Yes <=> 1
+ionquant.requantify::No <=> 0
 
-========================================================================
-# ionquant.mbr :: No <=> 0
-# ionquant.mbr :: Yes <=> 1
-# ionquant.requantify::Yes <=> 1
-# ionquant.requantify::No <=> 0
-
+# ionquant.mztol :: M/Z window (ppm) <=> 10 (1 - 1000, step: 1)
+# ionquant.imtol :: IM window (1/k0) <=> 0.05 (0.001 - 0.5, step: 0.001)
+# ionquant.rttol :: RT window (minutes) <=> 0.4 (0.01 - 100, step: 0.1)
+#
 # ionquant.threads:: <take from the Threads>
-# ionquant.mztol :: M/Z window (ppm) <=> 10
-# ionquant.imtol :: IM window (1/k0) <=> 0.05
-# ionquant.rttol :: RT window (minutes) <=> 0.4
 # ionquant.psm :: <take from Philosopher’s psm.tsv. Check implementation in the old FragPipe>
 # ionquant.multidir :: <take from multiple experimental settings. Check implementation in the old sFragPipe>
-# ionquant.mbrrttol:: MBR RT window (minutes) <=> 1.0
-# ionquant.mbrimtol :: MBR IM window (1/k0) <=> 0.05
-# ionquant.mbrtoprun :: MBR top runs <=> 3
-# ionquant.mbrmincorr :: MBR min correlation <=> 0.5
-# ionquant.ionfdr :: MBR ion FDR <=> 0.01
-# ionquant.peptidefdr :: MBR peptide FDR <=> 0.01
-# ionquant.proteinfdr :: MBR protein FDR <=> 0.01
+#
+# ionquant.mbrrttol:: MBR RT window (minutes) <=> 1.0  (0.01 - 100, step: 0.1)
+# ionquant.mbrimtol :: MBR IM window (1/k0) <=> 0.05 (0.001 - 0.5, step: 0.001)
+# ionquant.mbrtoprun :: MBR top runs <=> 3 (1 - a very large number, step: 1)
+# ionquant.mbrmincorr :: MBR min correlation <=> 0.5 (0 - 1, step: 0.1)
+# ionquant.ionfdr :: MBR ion FDR <=> 0.01 (0.001 - 1, step: 0.01)
+# ionquant.peptidefdr :: MBR peptide FDR <=> 0.01 (0.001 - 1, step: 0.01)
+# ionquant.proteinfdr :: MBR protein FDR <=> 0.01 (0.001 - 1, step: 0.01)
+#
 # ionquant.label :: Labels <=> <string>

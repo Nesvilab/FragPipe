@@ -10,10 +10,8 @@ import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.UiCombo;
 import java.awt.Component;
 import java.awt.Container;
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -164,11 +162,11 @@ public class FragpipeCacheUtils {
   /** Main implementation of the method, all other variants refer to this one. */
   public static Properties tabsSave0(JTabbedPane tabs, boolean saveFieldTypes) {
     Map<String, String> map = tabPaneToMap(tabs, saveFieldTypes);
-    Properties props = PropertiesUtils.from(translateValuesOnSave(map));
+    Properties props = PropertiesUtils.from(translateValuesFromUi(map));
     return props;
   }
 
-  private static Map<String, String> translateValuesOnSave(Map<String, String> uiMapping) {
+  public static Map<String, String> translateValuesFromUi(Map<String, String> uiMapping) {
     final Map<String, List<UiTranslation>> translations = WorkflowTranslator.readTranslations();
     Map<String, String> remapped = MapUtils.remapValues(uiMapping, (k, v) -> {
       List<UiTranslation> ts = translations.get(k);
@@ -188,7 +186,7 @@ public class FragpipeCacheUtils {
     return remapped;
   }
 
-  private static Map<String, String> translateValuesOnLoad(Map<String, String> loadedMap) {
+  public static Map<String, String> translateValuesToUi(Map<String, String> loadedMap) {
     final Map<String, List<UiTranslation>> translations = WorkflowTranslator.readTranslations();
     Map<String, String> remapped = MapUtils.remapValues(loadedMap, (k, v) -> {
       List<UiTranslation> ts = translations.get(k);
@@ -228,7 +226,7 @@ public class FragpipeCacheUtils {
 
   public static void tabsLoad(Properties props, JTabbedPane tabs) {
     Map<String, String> map = PropertiesUtils.toMap(props);
-    Map<String, String> remapped = translateValuesOnLoad(map);
+    Map<String, String> remapped = translateValuesToUi(map);
     tabPaneFromMap(tabs, remapped);
   }
 

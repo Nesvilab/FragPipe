@@ -593,7 +593,7 @@ public class TabMsfragger extends JPanelBase {
         .create();
 
     final UiSpinnerDouble uiSpinnerMinInt = UiSpinnerDouble.builder(0, 0, 1, 0.1).setFormat("#.##")
-        .setNumCols(5).create();
+        .setCols(5).create();
     FormEntry feOxoniumIonMinimumIntensity = mu.feb(uiSpinnerMinInt)
         .name(MsfraggerParams.PROP_oxonium_intensity_filter)
         .label("Oxonium Ion Minimum Intensity").create();
@@ -869,10 +869,10 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feRemovePrecPeak = mu.feb(MsfraggerParams.PROP_remove_precursor_peak, UiUtils.createUiCombo(RemovePrecursorPeak.getNames())).label("Remove precursor peak").create();
     DecimalFormat df1 = new DecimalFormat("0.#");
     FormEntry fePrecRemoveRangeLo = mu.feb(PROP_misc_fragger_remove_precursor_range_lo,
-        UiSpinnerDouble.builder(-1.5, -1000.0, 1000.0, 0.1).setNumCols(5).setFormat(df1).create())
+        UiSpinnerDouble.builder(-1.5, -1000.0, 1000.0, 0.1).setCols(5).setFormat(df1).create())
         .label("removal m/z range").create();
     FormEntry fePrecRemoveRangeHi = mu.feb(PROP_misc_fragger_remove_precursor_range_hi,
-        UiSpinnerDouble.builder(+1.5, -1000.0, 1000.0, 0.1).setNumCols(5).setFormat(df1).create())
+        UiSpinnerDouble.builder(+1.5, -1000.0, 1000.0, 0.1).setCols(5).setFormat(df1).create())
         .create();
     FormEntry feIntensityTransform = mu.feb(MsfraggerParams.PROP_intensity_transform, UiUtils.createUiCombo(IntensityTransform.getNames())).label("Intensity transform").create();
 

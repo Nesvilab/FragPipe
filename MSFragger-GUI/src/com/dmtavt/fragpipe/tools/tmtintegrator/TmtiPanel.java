@@ -322,20 +322,20 @@ public class TmtiPanel extends JPanelBase {
     DecimalFormat df2 = new DecimalFormat("#.##");
 
     UiSpinnerDouble uiSpinnerMinPsmProb = UiSpinnerDouble
-        .builder(0.9, 0.0, 1.0, 0.05).setFormat(df2).setNumCols(5).create();
+        .builder(0.9, 0.0, 1.0, 0.05).setFormat(df2).setCols(5).create();
     FormEntry feMinPsmProb = fe(TmtiConfProps.PROP_min_pep_prob,
         "Min PSM probability", uiSpinnerMinPsmProb,
         "<html>minimum PSM probability threshold (in addition to FDR-based <br/>\n"
             + "filtering by Philosopher)");
 
     UiSpinnerDouble uiSpinnerMinPurity = UiSpinnerDouble
-        .builder(0.5, 0.0, 1.0, 0.05).setFormat(df2).setNumCols(5).create();
+        .builder(0.5, 0.0, 1.0, 0.05).setFormat(df2).setCols(5).create();
     FormEntry feMinPurity = fe(TmtiConfProps.PROP_min_purity,
         "Min purity", uiSpinnerMinPurity,
         "<html>ion purity score threshold");
 
     UiSpinnerDouble uiSpinnerMinPercent = UiSpinnerDouble
-        .builder(0.5, 0.0, 1.0, 0.05).setFormat(df2).setNumCols(5).create();
+        .builder(0.5, 0.0, 1.0, 0.05).setFormat(df2).setCols(5).create();
     FormEntry feMinPercent = fe(TmtiConfProps.PROP_min_percent,
         "Min Intensity (percent)", uiSpinnerMinPercent,
         "<html>Remove low intensity PSMs (e.g. value of 0.05 indicates removal <br/>\n"
@@ -407,7 +407,7 @@ public class TmtiPanel extends JPanelBase {
         "<html>Print individual reference sample intensities");
 
     UiSpinnerDouble uiSpinnerMinBestPepProb = UiSpinnerDouble
-        .builder(0, 0, 1.0, 0.1).setFormat(df2).setNumCols(5).create();
+        .builder(0, 0, 1.0, 0.1).setFormat(df2).setCols(5).create();
     FormEntry feMaxPepProb = mu
         .feb(TmtiConfProps.PROP_max_pep_prob_thres, uiSpinnerMinBestPepProb)
         .label("Min best peptide probability").create();
@@ -457,7 +457,7 @@ public class TmtiPanel extends JPanelBase {
     DecimalFormat df2 = new DecimalFormat("#.##");
 
     UiSpinnerDouble uiSpinnerMinSiteProb = UiSpinnerDouble
-        .builder(-1, -1, 1.0, 0.1).setFormat(df2).setNumCols(5).create();
+        .builder(-1, -1, 1.0, 0.1).setFormat(df2).setCols(5).create();
     FormEntry feMinSiteProb = fe(TmtiConfProps.PROP_min_site_prob,
         "Min site probability", uiSpinnerMinSiteProb,
         "<html>site localization confidence threshold (-1: for Global; <br/>\n"
