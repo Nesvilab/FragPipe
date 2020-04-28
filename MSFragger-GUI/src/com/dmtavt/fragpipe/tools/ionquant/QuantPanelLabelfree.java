@@ -240,7 +240,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiText uiTextLabels = UiUtils.uiTextBuilder().cols(30).ghost("Labels example").create();
 
     FormEntry feDataType = mu.feb(uiComboTimsTOF).name("ionquant.noim").label("Data type").create();
-    FormEntry feMbr = mu.feb(uiComboMbr).name("ionquant.mbr").label("Match between runs").create();
+    FormEntry feMbr = mu.feb(uiComboMbr).name("ionquant.mbr").label("Match between runs (MBR)").create();
     FormEntry feRequant = mu.feb(uiComboRequant).name("ionquant.requantify").label("Re-quantify").create();
 
     FormEntry feMzTol = mu.feb(uiSpinnerMzTol).name("ionquant.mz-tol").label("M/Z Window (ppm)").create();
@@ -271,10 +271,10 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.add(p, feImTol.label(), mu.ccR());
     mu.add(p, feImTol.comp).spanX().wrap();
 
-    mu.add(p, feMbr.label()).split().spanX();
-    mu.add(p, feMbr.comp);
-    mu.add(p, feRequant.label()).gapLeft("10px");
-    mu.add(p, feRequant.comp).wrap();
+    mu.add(p, feMbr.label(), mu.ccR());
+    mu.add(p, feMbr.comp).growX();
+    mu.add(p, feRequant.label(), mu.ccR());
+    mu.add(p, feRequant.comp).growX().wrap();
 
     mu.add(p, feMbrMinCorr.label(), mu.ccR());
     mu.add(p, feMbrMinCorr.comp);
