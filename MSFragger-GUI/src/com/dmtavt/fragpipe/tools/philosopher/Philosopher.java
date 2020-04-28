@@ -7,6 +7,7 @@ import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessagePhiDlProgress;
 import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
+import com.github.chhh.utils.FileListing;
 import com.github.chhh.utils.Holder;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
@@ -14,15 +15,19 @@ import com.github.chhh.utils.ProcessUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.VersionComparator;
+import com.github.chhh.utils.ZipUtils;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.swing.SwingUtilities;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -32,7 +37,6 @@ import okio.Buffer;
 import okio.BufferedSink;
 import okio.ForwardingSource;
 import okio.Okio;
-import okio.Segment;
 import okio.Source;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.lambda.Seq;
@@ -168,9 +172,11 @@ public class Philosopher {
   public static void downloadPhilosopherAutomatically() throws IOException {
     final Pattern re;
     if (OsUtils.isWindows()) {
-      re = Pattern.compile("(/Nesvilab/philosopher/releases/download/v[\\d.]+/philosopher_v[\\d.]+_windows_amd64.zip)");
+      re = Pattern.compile(
+          "(/Nesvilab/philosopher/releases/download/v[\\d.]+/philosopher_v[\\d.]+_windows_amd64.zip)");
     } else if (OsUtils.isUnix()) {
-      re = Pattern.compile("(/Nesvilab/philosopher/releases/download/v[\\d.]+/philosopher_v[\\d.]+_linux_amd64.zip)");
+      re = Pattern.compile(
+          "(/Nesvilab/philosopher/releases/download/v[\\d.]+/philosopher_v[\\d.]+_linux_amd64.zip)");
     } else {
       SwingUtils.showInfoDialog(null, "Automatic downloads for Mac not supported", "Error");
       return;
@@ -205,9 +211,11 @@ public class Philosopher {
     Path dlLocation = dirCache.resolve(fn);
     log.debug("Downloading to file: {}", dlLocation);
 
+    boolean isDlSuccess = false;
     try (Response response = client.newCall(new Request.Builder().url(link).build()).execute()) {
-      if (!response.isSuccessful())
+      if (!response.isSuccessful()) {
         throw new IllegalStateException("Request unsuccessful");
+      }
       try (ResponseBody body = response.body()) {
         if (body == null) {
           throw new IllegalStateException("Null response body during download");
@@ -220,7 +228,6 @@ public class Philosopher {
           dlProgress.obj = new PhiDownloadProgress();
           Bus.registerQuietly(dlProgress.obj);
         });
-
         try (BufferedSink sink = Okio.buffer(Okio.sink(dlLocation))) {
           final AtomicLong received = new AtomicLong(0);
           Source fwd = new ForwardingSource(body.source()) {
@@ -244,9 +251,8 @@ public class Philosopher {
             }
           }
           //sink.writeAll(fwd);
+          isDlSuccess = true;
 
-          log.debug("Completed saving philosopher download to file: {}", dlLocation);
-          Bus.post(new MessagePhilosopherNewBin(dlLocation.toString()));
         } finally {
           log.debug("Download process finished");
           if (dlProgress.obj != null) {
@@ -254,6 +260,26 @@ public class Philosopher {
             dlProgress.obj.close();
           }
         }
+      }
+    }
+
+    // unzip after downloading
+    if (isDlSuccess) {
+      log.debug("Download complete: {}", dlLocation);
+      Path unzipTo = PathUtils
+          .createDirs(FragpipeLocations.get().getDirTools().resolve("philosopher"));
+      ZipUtils.unzip(dlLocation, unzipTo);
+      final String bin = OsUtils.isWindows() ? "philosopher.exe" : "philosopher";
+      List<Path> possibleBins = PathUtils
+          .findFilesQuietly(unzipTo, p -> p.getFileName().toString().equalsIgnoreCase(bin))
+          .collect(Collectors.toList());
+
+      if (possibleBins.size() != 1) {
+        throw new IllegalStateException(String
+            .format("Found %d candidates for philosopher binary after unpacking zip",
+                possibleBins.size()));
+      } else {
+        Bus.post(new MessagePhilosopherNewBin(possibleBins.get(0).toString()));
       }
     }
   }
