@@ -270,9 +270,11 @@ public class PyInfo {
         "rt_referencefile = sys.argv[1]\n" +
         "rt_reference_run = pd.read_csv(rt_referencefile, index_col=False, sep='\\t')\n" +
         "if not {'modified_peptide', 'precursor_charge', 'irt'}.issubset(rt_reference_run.columns):\n" +
-        "\tprint(\"Reference iRT file has wrong format. Requires columns 'modified_peptide', 'precursor_charge' and 'irt'.\")\n" +
-        "\tsys.exit(1)\n" +
-        "print(\"ok\")",
+        "  print('Reference iRT file has wrong format. Requires columns modified_peptide, precursor_charge and irt.')\n" +
+        "  print(f'{rt_reference_run.columns}')\n" +
+        "  print(f'{rt_reference_run}')\n" +
+        "  sys.exit(1)\n" +
+        "print('ok')",
         path.toString());
     PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
     pb.environment().put("PYTHONIOENCODING", "utf-8");
