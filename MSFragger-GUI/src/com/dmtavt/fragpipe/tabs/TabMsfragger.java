@@ -310,9 +310,10 @@ public class TabMsfragger extends JPanelBase {
     addHierarchyListener(new HierarchyListener() {
       @Override
       public void hierarchyChanged(HierarchyEvent e) {
-        log.warn("tab msfragger hierarchy changed: {}", e.paramString());
+
         final Component c = e.getComponent();
         final long f = e.getChangeFlags();
+//        log.debug("tab msfragger hierarchy changed: {}", e.paramString());
 //        if ((f & HierarchyEvent.DISPLAYABILITY_CHANGED) != 0) {
 //          if (c.isDisplayable()) {
 //            log.debug("tab fragger is now displayable={}, scrolling up", c.isDisplayable());
@@ -322,7 +323,7 @@ public class TabMsfragger extends JPanelBase {
         if ((f & HierarchyEvent.SHOWING_CHANGED) != 0) {
           if (!hasBeenShown.get() && c.isShowing()) {
             hasBeenShown.set(true);
-            log.warn("tab fragger showing for the first time, scrolling");
+            log.debug("tab fragger showing for the first time, scrolling");
             SwingUtils.scrollTo((JComponent) c, SwingUtils.LEFT, SwingUtils.TOP);
 
           }
