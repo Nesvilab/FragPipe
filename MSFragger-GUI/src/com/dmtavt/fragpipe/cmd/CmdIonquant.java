@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
+import org.jsoup.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
@@ -99,14 +101,27 @@ public class CmdIonquant extends CmdBase {
     cmd.add(JAR_IONQUANT_MAIN_CLASS);
     cmd.add("--threads");
     cmd.add(String.valueOf(nThreads));
-    cmd.add("--mztol");
-    cmd.add(getOrThrow(uiCompsRepresentation, "ionquant.mz-tol"));
-    cmd.add("--imtol");
-    cmd.add(getOrThrow(uiCompsRepresentation, "ionquant.im-tol"));
-    cmd.add("--rttol");
-    cmd.add(getOrThrow(uiCompsRepresentation, "ionquant.rt-tol"));
-    cmd.add("--minfreq");
-    cmd.add(getOrThrow(uiCompsRepresentation, "ionquant.min-freq"));
+
+    // add all other parameters
+    List<String> dynamicParams = Arrays.asList("noim",
+        "mbr",
+        "requantify",
+        "mztol",
+        "imtol",
+        "rttol",
+        "mbrmincorr",
+        "mbrrttol",
+        "mbrimtol",
+        "mbrtoprun",
+        "ionfdr",
+        "proteinfdr",
+        "peptidefdr");
+
+    for (String dynamicParam : dynamicParams) {
+      cmd.add("--" + dynamicParam);
+      cmd.add(getOrThrow(uiCompsRepresentation, StringUtils.prependOnce(dynamicParam, "ionquant.")));
+    }
+
     cmd.add("--plot");
     cmd.add(getOrThrow(uiCompsRepresentation, "ionquant.is-plot").contentEquals("true") ? "1" : "0");
 

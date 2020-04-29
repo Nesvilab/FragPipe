@@ -247,9 +247,9 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMbr = mu.feb(uiComboMbr).name("ionquant.mbr").label("Match between runs (MBR)").create();
     FormEntry feRequant = mu.feb(uiComboRequant).name("ionquant.requantify").label("Re-quantify").create();
 
-    FormEntry feMzTol = mu.feb(uiSpinnerMzTol).name("ionquant.mz-tol").label("M/Z Window (ppm)").create();
-    FormEntry feRtTol = mu.feb(uiSpinnerRtTol).name("ionquant.rt-tol").label("RT Window (minutes)").create();
-    FormEntry feImTol = mu.feb(uiSpinnerImTol).name("ionquant.im-tol").label("IM Window (1/k0)").create();
+    FormEntry feMzTol = mu.feb(uiSpinnerMzTol).name("ionquant.mztol").label("M/Z Window (ppm)").create();
+    FormEntry feRtTol = mu.feb(uiSpinnerRtTol).name("ionquant.rttol").label("RT Window (minutes)").create();
+    FormEntry feImTol = mu.feb(uiSpinnerImTol).name("ionquant.imtol").label("IM Window (1/k0)").create();
 
     FormEntry feMbrMinCorr = mu.feb(uiSpinnerMbrMinCorr).name("ionquant.mbrmincorr").label("MBR min correlation").create();
     FormEntry feMbrRtTol = mu.feb(uiSpinnerMbrRtTol).name("ionquant.mbrrttol").label("MBR RT Window (minutes)").create();
