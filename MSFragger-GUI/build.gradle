@@ -155,6 +155,19 @@ configurations {
 //  }
 //}
 
+test {
+    testLogging {
+        events "skipped", "failed" // "passed", "standardOut", "standardError"
+
+        showExceptions true
+        exceptionFormat "full"
+        showCauses true
+        showStackTraces true
+
+        showStandardStreams = false
+    }
+}
+
 task listJars(group: 'chhh-help') {
     doLast {
         configurations.runtimeClasspath.each { File file -> println file.name }
@@ -202,12 +215,14 @@ void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startCl
 
     task (taskName, type: Zip, group: 'chhh-release') {
         dependsOn 'clean'
+        dependsOn 'test'
         dependsOn 'makeExeAndCopyToScripts'
         dependsOn 'installDist'
         dependsOn 'copyTools'
         dependsOn 'copyWorkflows'
 
-        tasks.findByName('makeExeAndCopyToScripts').mustRunAfter 'clean'
+        tasks.findByName('test').mustRunAfter 'clean'
+        tasks.findByName('makeExeAndCopyToScripts').mustRunAfter 'test'
         tasks.findByName('installDist').mustRunAfter 'makeExeAndCopyToScripts'
         tasks.findByName('copyTools').mustRunAfter 'installDist'
         tasks.findByName('copyWorkflows').mustRunAfter 'copyTools'
