@@ -3,6 +3,7 @@ package com.dmtavt.fragpipe;
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
 
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
 import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
@@ -518,8 +519,16 @@ public class FragpipeRun {
     }
 
     // run MsFragger
-    final NoteConfigMsfragger configMsfragger = Fragpipe.getStickyStrict(NoteConfigMsfragger.class);
+
+    final NoteConfigMsfragger configMsfragger;
+    try {
+      configMsfragger = Fragpipe.getSticky(NoteConfigMsfragger.class);
+    } catch (NoStickyException e) {
+      SwingUtils.showErrorDialog(parent, "Looks like fragger was not configured.\nFragger is currently required.", "No MSFragger");
+      return false;
+    }
     final UsageTrigger binMsfragger = new UsageTrigger(configMsfragger.path, "MsFragger");
+
     TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
     final String decoyTag = tabDatabase.getDecoyTag();
     final MsfraggerParams msfParams = tabMsf.getParams();
