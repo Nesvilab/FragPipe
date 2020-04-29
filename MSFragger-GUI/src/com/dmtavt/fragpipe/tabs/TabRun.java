@@ -266,7 +266,7 @@ public class TabRun extends JPanelWithEnablement {
   private JPanel createPanelConsole(TextConsole tc) {
     JPanel p = mu.newPanel("Console", mu.lcNoInsetsTopBottom());
 
-    JScrollPane scroll = SwingUtils.scroll(tc);
+    JScrollPane scroll = SwingUtils.wrapInScroll(tc);
     scroll.setMinimumSize(new Dimension(400, 50));
     // the editor does not originally occupy the whole width of the viewport
     // so we mask it off with the same color as the console

@@ -79,6 +79,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -356,7 +357,7 @@ public class Fragpipe extends JFrame {
     log.debug("Start createTabs()");
     final JTabbedPane t = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 
-    Consumer<UiTab> addTab = tab -> t.addTab(tab.getTitle(), tab.getIcon(), SwingUtils.scroll(tab.getComponent()), tab.getTooltip());
+    Consumer<UiTab> addTab = tab -> t.addTab(tab.getTitle(), tab.getIcon(), SwingUtils.wrapInScroll(tab.getComponent()), tab.getTooltip());
     Consumer<UiTab> addTabNoScroll = tab -> t.addTab(tab.getTitle(), tab.getIcon(), tab.getComponent(), tab.getTooltip());
 
     TabConfig tabConfig = new TabConfig();
@@ -435,7 +436,7 @@ public class Fragpipe extends JFrame {
         }
         final ImageIcon icon = UiUtils.loadIcon(Fragpipe.class,
             "/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png");
-        tabs.insertTab(TAB_NAME_UMPIRE, icon, SwingUtils.scroll(tabUmpire), "", prevTabIndex + 1);
+        tabs.insertTab(TAB_NAME_UMPIRE, icon, SwingUtils.wrapInScroll(tabUmpire), "", prevTabIndex + 1);
 
       } else {
         int index = tabs.indexOfTab(TAB_NAME_UMPIRE);
