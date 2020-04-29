@@ -17,7 +17,6 @@
 package com.github.chhh.utils;
 
 import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.GhostedTextComponent;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
@@ -35,6 +34,7 @@ import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.ItemSelectable;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ItemEvent;
@@ -58,7 +58,6 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -92,7 +91,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
@@ -141,7 +139,7 @@ public class SwingUtils {
   /**
    * Wraps a component in JScrollPane and sets scroll-bar speed to a reasonable value.
    */
-  public static JScrollPane scroll(Component comp) {
+  public static JScrollPane wrapInScroll(Component comp) {
     JScrollPane s = new JScrollPane(comp);
     s.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     s.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -434,6 +432,53 @@ public class SwingUtils {
    */
   public static JEditorPane createClickableHtml(String text) {
     return createClickableHtml(text, true, true, null);
+  }
+
+  public static final int NONE = 0, TOP = 1, VCENTER = 2, BOTTOM = 4, LEFT = 8, HCENTER = 16, RIGHT = 32;
+  private static final int OFFSET = 100; // Required for hack (see below).
+  /**
+   * Scroll to specified location.  e.g. <tt>scroll(component, BOTTOM);</tt>.
+   *
+   * @param c JComponent to scroll.
+   * @param part Location to scroll to.  Should be a bit-wise OR of one or more of the values:
+   * {@link SwingUtils#NONE}, {@link SwingUtils#TOP}, {@link SwingUtils#VCENTER},
+   * {@link SwingUtils#BOTTOM}, {@link SwingUtils#LEFT}, {@link SwingUtils#HCENTER}, {@link SwingUtils#RIGHT}.
+   */
+  public static void scrollTo(JComponent c, int part) {
+    scrollTo(c, part & (LEFT|HCENTER|RIGHT), part & (TOP|VCENTER|BOTTOM));
+  }
+
+  /**
+   * Scroll to specified location.  e.g. <tt>scroll(component, LEFT, BOTTOM);</tt>.
+   *
+   * @param c JComponent to scroll.
+   * @param horizontal Horizontal location.  Should take the value: LEFT, HCENTER or RIGHT.
+   * @param vertical Vertical location.  Should take the value: TOP, VCENTER or BOTTOM.
+   */
+  public static void scrollTo(JComponent c, int horizontal, int vertical) {
+    Rectangle visible = c.getVisibleRect();
+    Rectangle bounds = c.getBounds();
+
+    switch (vertical) {
+      case TOP:     visible.y = 0; break;
+      case VCENTER: visible.y = (bounds.height - visible.height) / 2; break;
+      case BOTTOM:  visible.y = bounds.height - visible.height + OFFSET; break;
+    }
+
+    switch (horizontal) {
+      case LEFT:    visible.x = 0; break;
+      case HCENTER: visible.x = (bounds.width - visible.width) / 2; break;
+      case RIGHT:   visible.x = bounds.width - visible.width + OFFSET; break;
+    }
+
+    // When scrolling to bottom or right of viewport, add an OFFSET value.
+    // This is because without this certain components (e.g. JTable) would
+    // not scroll right to the bottom (presumably the bounds calculation
+    // doesn't take the table header into account.  It doesn't matter if
+    // OFFSET is a huge value (e.g. 10000) - the scrollRectToVisible method
+    // still works correctly.
+
+    c.scrollRectToVisible(visible);
   }
 
   /**
