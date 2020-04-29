@@ -48,6 +48,7 @@ import com.github.chhh.utils.VersionComparator;
 public class Version {
   private static final Logger log = LoggerFactory.getLogger(Version.class);
   public static final String PROGRAM_TITLE = "FragPipe";
+  public static final String PROP_ANNOUNCE = "fragpipe.announcements";
   public static final String PROP_VER = "msfragger.gui.version";
   public static final String PROP_LAST_RELEASE_VER = "fragpipe.last.release.version";
   public static final String PROP_DOWNLOAD_URL = "msfragger.gui.download-url";
@@ -56,8 +57,6 @@ public class Version {
   public static final String PROP_DOWNLOAD_MESSAGE = "msfragger.gui.download-message";
   public static final String PROP_IMPORTANT_UPDATES = "msfragger.gui.important-updates";
   public static final String PROP_CRITICAL_UPDATES = "msfragger.gui.critical-updates";
-
-
 
   private static final TreeMap<String, List<String>> CHANGELOG = new TreeMap<>(
       new VersionComparator());

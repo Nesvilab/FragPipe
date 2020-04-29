@@ -89,6 +89,7 @@ import org.greenrobot.eventbus.NoSubscriberEvent;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jsoup.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.cmd.ToolingUtils;
@@ -515,14 +516,13 @@ public class Fragpipe extends JFrame {
       log.debug("Got NoteFragpipeProperties with null props");
       return;
     }
-    String releaseVer = m.propsFix.getProperty(PROP_LAST_RELEASE_VER);
-    int cmp = VersionComparator.cmp(Version.version(), releaseVer);
-    log.debug("Got NoteFragpipeProperties, property {}={}. Current version: {}, their comparison = {}", PROP_LAST_RELEASE_VER, releaseVer, Version.version(), cmp);
-    if (cmp < 0) {
-      Bus.postSticky(new NoteFragpipeUpdate(releaseVer, m.propsFix.getProperty("fragpipe.download-url")));
+    String remoteVer = m.propsFix.getProperty(PROP_LAST_RELEASE_VER);
+    int cmp = VersionComparator.cmp(Version.version(), remoteVer);
+    log.debug("Got NoteFragpipeProperties, property {}={}. Current version: {}, their comparison = {}", PROP_LAST_RELEASE_VER, remoteVer, Version.version(), cmp);
+    String announcement = m.propsFix.getProperty(Version.PROP_ANNOUNCE);
+    if (cmp < 0 || StringUtils.isNotBlank(announcement)) {
+      Bus.postSticky(new NoteFragpipeUpdate(remoteVer, m.propsFix.getProperty("fragpipe.download-url"), announcement));
     }
-
-    // TODO: display custom messages from remote properties
   }
 
   @Subscribe

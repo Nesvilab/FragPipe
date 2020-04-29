@@ -79,6 +79,7 @@ import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
+import org.jsoup.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -239,13 +240,24 @@ public class TabConfig extends JPanelWithEnablement {
   public void on(NoteFragpipeUpdate m) {
     log.debug("Got NoteFragpipeUpdate: {}", m.toString());
     StringBuilder sb = new StringBuilder();
-    sb.append(String.format("FragPipe update available, new version %s\n", m.releaseVer));
-    if (StringUtils.isNotBlank(m.downloadUrl)) {
-      sb.append(String.format("<a href=\"%s\">Click here to download</a>", m.downloadUrl));
+    if (StringUtils.isNotBlank(m.releaseVer)) {
+      sb.append(String.format("FragPipe update available, new version %s\n", m.releaseVer));
     }
-    JEditorPane ep = SwingUtils.createClickableHtml(true, sb.toString());
-    ep.setBackground(Color.white);
-    Bus.postSticky(new MessageBalloon(TIP_FRAGPIPE_UPDATE, btnAbout, ep));
+    if (StringUtils.isNotBlank(m.downloadUrl)) {
+      sb.append(String.format("<a href=\"%s\">Click here to download</a>\n", m.downloadUrl));
+    }
+    if (StringUtils.isNotBlank(m.announcement)) {
+      if (sb.length() != 0)
+        sb.append("\n");
+      sb.append(m.announcement).append("n");
+    }
+    if (sb.length() == 0) {
+      log.warn("Received NoteFragpipeUpdate message, but did not compose any user notification out of it.");
+    } else {
+      HtmlStyledJEditorPane ep = SwingUtils.createClickableHtml(true, sb.toString());
+      ep.setBackground(Color.white);
+      Bus.postSticky(new MessageBalloon(TIP_FRAGPIPE_UPDATE, btnAbout, ep));
+    }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
