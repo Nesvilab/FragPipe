@@ -50,7 +50,7 @@ public class GraphTests {
     // add edges to create a circuit
     g.addEdge(v1, v2);
     //g.addEdge(v2, v3);
-    g.addEdge(v3, v4);
+//    g.addEdge(v3, v4);
     //g.addEdge(v4, v1);
 
     return g;
