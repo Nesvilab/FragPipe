@@ -32,6 +32,8 @@ import java.awt.ItemSelectable;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,12 +53,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -101,6 +105,7 @@ import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
 public class TabMsfragger extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
   private final static MigUtils mu = MigUtils.get();
+  private AtomicBoolean hasBeenShown = new AtomicBoolean(false);
   public static final String PROP_FILECHOOSER_LAST_PATH = "msfragger.filechooser.path";
   public static final String CACHE_FORM = "msfragger-form" + ThisAppProps.TEMP_FILE_EXT;
   public static final String CACHE_PROPS = "msfragger-props" + ThisAppProps.TEMP_FILE_EXT;
@@ -300,6 +305,30 @@ public class TabMsfragger extends JPanelBase {
     // init fields with default values, called after initMore() which causes field renaming to happen
     log.debug("Calling TabMsfragger loadDefaults(SearchTypeProp.closed, false) in initMore()");
     loadDefaults(SearchTypeProp.closed, false);
+
+    // try scrolling up
+    addHierarchyListener(new HierarchyListener() {
+      @Override
+      public void hierarchyChanged(HierarchyEvent e) {
+        log.warn("tab msfragger hierarchy changed: {}", e.paramString());
+        final Component c = e.getComponent();
+        final long f = e.getChangeFlags();
+//        if ((f & HierarchyEvent.DISPLAYABILITY_CHANGED) != 0) {
+//          if (c.isDisplayable()) {
+//            log.debug("tab fragger is now displayable={}, scrolling up", c.isDisplayable());
+//            SwingUtils.scrollTo((JComponent) c, SwingUtils.LEFT, SwingUtils.TOP);
+//          }
+//        }
+        if ((f & HierarchyEvent.SHOWING_CHANGED) != 0) {
+          if (!hasBeenShown.get() && c.isShowing()) {
+            hasBeenShown.set(true);
+            log.warn("tab fragger showing for the first time, scrolling");
+            SwingUtils.scrollTo((JComponent) c, SwingUtils.LEFT, SwingUtils.TOP);
+
+          }
+        }
+      }
+    });
   }
 
   @Override
