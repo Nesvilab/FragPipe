@@ -6,6 +6,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -27,6 +29,7 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
   private final String ghostText;
   private final Object lock = new Object();
   private AtomicBoolean isInsideCall = new AtomicBoolean(false);
+  private List<String> propsToListen = Arrays.asList("foreground", "text");
 
 
   public GhostText(final JTextField textfield, String ghostText) {
@@ -55,30 +58,42 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
   }
 
   private void registerListeners() {
-    textfield.getDocument().addDocumentListener(this);
-    textfield.addPropertyChangeListener("foreground", this);
+    synchronized (lock) {
+      textfield.getDocument().addDocumentListener(this);
+      for (String prop : propsToListen) {
+        textfield.addPropertyChangeListener(prop, this);
+      }
+    }
   }
 
   private void unregisterListeners() {
-    textfield.getDocument().removeDocumentListener(this);
-    textfield.removePropertyChangeListener("foreground", this);
+    synchronized (lock) {
+      textfield.getDocument().removeDocumentListener(this);
+      for (String prop : propsToListen) {
+        textfield.removePropertyChangeListener(prop, this);
+      }
+    }
   }
 
   @Override
   public void focusGained(FocusEvent e) {
-    if (isEmpty()) {
-      unregisterListeners();
-      updateText("", normalTextColor);
-      registerListeners();
+    synchronized (lock) {
+      if (isEmpty()) {
+        unregisterListeners();
+        updateText("", normalTextColor);
+        registerListeners();
+      }
     }
   }
 
   @Override
   public void focusLost(FocusEvent e) {
-    if (isEmpty()) {
-      unregisterListeners();
-      updateText(ghostText, ghostTextColor);
-      registerListeners();
+    synchronized (lock) {
+      if (isEmpty()) {
+        unregisterListeners();
+        updateText(ghostText, ghostTextColor);
+        registerListeners();
+      }
     }
   }
 
@@ -107,12 +122,16 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
   }
 
   private boolean isEmpty() {
-    String t = textfield.getText();
-    return StringUtils.isBlank(t) || t.equals(ghostText);
+    synchronized (lock) {
+      String t = textfield.getText();
+      return StringUtils.isBlank(t) || t.equals(ghostText);
+    }
   }
 
   private boolean isShowingGhostText() {
-    return ghostText != null && ghostText.equalsIgnoreCase(textfield.getText());
+    synchronized (lock) {
+      return ghostText != null && ghostText.equalsIgnoreCase(textfield.getText());
+    }
   }
 
   private void updateText(String text, Color color) {
