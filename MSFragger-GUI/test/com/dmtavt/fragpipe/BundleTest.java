@@ -8,7 +8,7 @@ import org.junit.Test;
 public class BundleTest {
 
   @Test
-  public void TestAnnouncementIsEmptyForRelease() {
+  public void checkAnnouncementIsEmptyForRelease() {
     if (!Version.isDevBuild()) {
       String announce = ThisAppProps.getLocalProperties().getProperty(Version.PROP_ANNOUNCE);
       Assert.assertTrue(
