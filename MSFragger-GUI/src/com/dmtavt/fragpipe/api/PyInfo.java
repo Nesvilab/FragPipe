@@ -259,7 +259,7 @@ public class PyInfo {
               .flatMap(oldPath -> Arrays.stream(oldPath.split(File.pathSeparator)))
               .map(String::trim).filter(StringUtils::isNotBlank));
 
-      env.put("PATH", envPath.toString(File.pathSeparator));
+      env.put("Path", envPath.toString(File.pathSeparator));
 
       log.debug("python env map: {}", env);
     }
