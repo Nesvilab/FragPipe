@@ -448,7 +448,7 @@ if use_easypqp:
 			(pep_xmls, spectras)
 
 		def longest_filename_match(a: pathlib.Path, b: pathlib.Path):
-			a, b = a.name, b.name
+			a, b = a.name.casefold(), b.name.casefold()
 			return difflib.SequenceMatcher(isjunk=None, a=a, b=b, autojunk=False).find_longest_match(0, len(a), 0, len(b)).size
 
 		shortlist1 = [max(shortlist, key=lambda x: longest_filename_match(fn, x)) for fn in longlist]
