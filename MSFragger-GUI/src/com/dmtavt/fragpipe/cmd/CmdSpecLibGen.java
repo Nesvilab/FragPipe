@@ -94,14 +94,7 @@ public class CmdSpecLibGen extends CmdBase {
       // located next to pepxml files
       final List<ProcessBuilder> pbsDeleteLcmsFiles = new ArrayList<>();
       for (InputLcmsFile lcms : group.lcmsFiles) {
-        final String fn_sans_extension = useEasypqp ?
-                FilenameUtils.removeExtension(lcms.getPath().getFileName().toString()) : null;
-        final String fn = lcms.getPath().getFileName().toString();
-        final boolean isTimsTOF = speclibPanel.getEasypqpFileType().equals("timsTOF") || fn.toLowerCase().endsWith(".d");
-        final boolean isTimsTOF1 = !(fn.toLowerCase().endsWith(".mzml") || fn.toLowerCase().endsWith(".mzxml"));
-        final Path lcms_path = useEasypqp && isTimsTOF ?
-                lcms.getPath().getParent().resolve(fn_sans_extension + "_calibrated.mgf") :
-                lcms.getPath();
+        final Path lcms_path = lcms.getPath();
         if (!useEasypqp)
           if (!groupWd.equals(lcms_path.getParent())) {
             final Path copy = groupWd.resolve(lcms_path.getFileName());
@@ -132,7 +125,17 @@ public class CmdSpecLibGen extends CmdBase {
          * */
         cmd.add(fastaPath);
         cmd.add(groupWd.toString()); // this is "Pep xml directory"
-        cmd.add(group.lcmsFiles.stream().map(InputLcmsFile::getPath).map(Path::toString).collect(Collectors.joining(File.pathSeparator))); // lcms files
+        cmd.add(group.lcmsFiles.stream()
+                .map(lcms -> {
+                  final String fn_sans_extension = FilenameUtils.removeExtension(lcms.getPath().getFileName().toString());
+                  final String fn = lcms.getPath().getFileName().toString();
+                  final boolean isTimsTOF = speclibPanel.getEasypqpFileType().equals("timsTOF") || fn.toLowerCase().endsWith(".d");
+                  final Path lcms_path = isTimsTOF ?
+                          lcms.getPath().getParent().resolve(fn_sans_extension + "_calibrated.mgf") :
+                          lcms.getPath();
+                  return lcms_path.toString();
+                })
+                .collect(Collectors.joining(File.pathSeparator))); // lcms files
         cmd.add(groupWd.toString()); // output directory
         cmd.add("True"); // overwrite (true/false), optional arg
         cmd.add("usePhilosopher.useBin()"); // philosopher binary path (not needed for easyPQP)
