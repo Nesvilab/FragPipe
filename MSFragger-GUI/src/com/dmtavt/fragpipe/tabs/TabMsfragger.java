@@ -835,7 +835,8 @@ public class TabMsfragger extends JPanelBase {
         + "and phosphorylated peptides (on any residue).<br><br>\n\n"
         + "Setting isotope_error to 0/1/2 in combination<br>\n"
         + "with this example will create search windows around<br>\n"
-        + "(0,1,2,79.966, 80.966, 81.966).";
+        + "(0,1,2,79.966, 80.966, 81.966). Masses can be separated\n"
+        + " with \"/\" or space.";
 
     ;
     epMassOffsets = new HtmlStyledJEditorPane();
