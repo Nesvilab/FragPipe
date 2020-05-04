@@ -241,7 +241,7 @@ public class QuantPanelLabelfree extends JPanelBase {
         .setCols(5).setFormat("#.###").create();
 
     UiSpinnerInt uiSpinnerMbrTopRuns = UiUtils.spinnerInt(3, 1, Integer.MAX_VALUE, 1).setCols(5).create();
-    UiText uiTextLabels = UiUtils.uiTextBuilder().cols(30).ghost("Labels example").create();
+    UiText uiTextLabels = UiUtils.uiTextBuilder().cols(30).ghost("<light mod>;<heavy mod>").create();
 
     FormEntry feDataType = mu.feb(uiComboTimsTOF).name("ionquant.noim").label("Data type").create();
     FormEntry feMbr = mu.feb(uiComboMbr).name("ionquant.mbr").label("Match between runs (MBR)").create();
@@ -262,8 +262,6 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("ionquant.mbrtoprun").label("MBR top runs").create();
     FormEntry feLabel = mu.feb(uiTextLabels).name("ionquant.label").label("Label").create();
 
-    FormEntry fePlot = mu.feb(UiUtils.createUiCheck("Plot (for debug)", false)).name("ionquant.is-plot").create();
-
     mu.add(p, feRadioIonquant.comp).split().spanX();
     mu.add(p, feDataType.label()).gapLeft("10px");
     mu.add(p, feDataType.comp).wrap();
@@ -277,15 +275,20 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     mu.add(p, feMbr.label(), mu.ccR());
     mu.add(p, feMbr.comp).growX();
-    mu.add(p, feRequant.label(), mu.ccR());
-    mu.add(p, feRequant.comp).growX().wrap();
-
-    mu.add(p, feMbrMinCorr.label(), mu.ccR());
-    mu.add(p, feMbrMinCorr.comp);
     mu.add(p, feMbrRtTol.label(), mu.ccR());
     mu.add(p, feMbrRtTol.comp);
     mu.add(p, feMbrImTol.label(), mu.ccR());
     mu.add(p, feMbrImTol.comp).spanX().wrap();
+
+    mu.add(p, feRequant.label(), mu.ccR());
+    mu.add(p, feRequant.comp);
+    mu.add(p, feLabel.label(), mu.ccR());
+    mu.add(p, feLabel.comp).spanX().growX().wrap();
+
+    mu.add(p, feMbrMinCorr.label(), mu.ccR());
+    mu.add(p, feMbrMinCorr.comp);
+    mu.add(p, feMbrTopRuns.label(), mu.ccR());
+    mu.add(p, feMbrTopRuns.comp).spanX().wrap();
 
     mu.add(p, feMbrIonFdr.label(), mu.ccR());
     mu.add(p, feMbrIonFdr.comp);
@@ -293,12 +296,6 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.add(p, feMbrPepFdr.comp);
     mu.add(p, feMbrProtFdr.label(), mu.ccR());
     mu.add(p, feMbrProtFdr.comp).spanX().wrap();
-
-    mu.add(p, feMbrTopRuns.label(), mu.ccR());
-    mu.add(p, feMbrTopRuns.comp);
-    mu.add(p, feLabel.label(), mu.ccR());
-    mu.add(p, feLabel.comp).spanX().growX().wrap();
-
 
     return p;
   }
