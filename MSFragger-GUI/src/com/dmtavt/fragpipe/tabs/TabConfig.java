@@ -207,7 +207,7 @@ public class TabConfig extends JPanelWithEnablement {
     p.setBorder(new TitledBorder("MSFragger"));
 
     final String binMsfraggerTip = "Select path to MSFragger.jar";
-    uiTextBinFragger = UiUtils.uiTextBuilder().ghost(binMsfraggerTip).create();
+    uiTextBinFragger = UiUtils.uiTextBuilder().create();
     uiTextBinFragger.addFocusListener(new ContentChangedFocusAdapter(uiTextBinFragger, (s, s2) -> {
       Bus.post(new MessageMsfraggerNewBin(s2));
     }));
@@ -638,7 +638,7 @@ public class TabConfig extends JPanelWithEnablement {
     p.setBorder(new TitledBorder("Philosopher"));
 
     final String tip = "Select path to Philosopher binary";
-    uiTextBinPhi = UiUtils.uiTextBuilder().ghost(tip).create();
+    uiTextBinPhi = UiUtils.uiTextBuilder().create();
     uiTextBinPhi.addFocusListener(new ContentChangedFocusAdapter(uiTextBinPhi, (s, s2) -> {
       Bus.post(new MessagePhilosopherNewBin(s2));
     }));
