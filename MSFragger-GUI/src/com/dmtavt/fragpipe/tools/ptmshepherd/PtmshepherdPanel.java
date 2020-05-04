@@ -235,7 +235,7 @@ public class PtmshepherdPanel extends JPanelBase {
     FormEntry fePromRatio = new FormEntry(PROP_peakpicking_promRatio, "Prominence ratio", uiSpinnerPromRatio,
         "Ratio of peak prominence to total peak height.");
 
-    UiSpinnerDouble uiSpinnerWidth = UiSpinnerDouble.builder(0.002, 0.0, 0.5, 0.001)
+    UiSpinnerDouble uiSpinnerWidth = UiSpinnerDouble.builder(0.002, 0.0, 500, 0.001)
         .setFormat(new DecimalFormat("0.####")).setCols(5).create();
     FormEntry feWidth = mu.feb(PROP_peakpicking_width, uiSpinnerWidth)
         .label("Peak picking width").tooltip("+/- signal width during peakpicking").create();
