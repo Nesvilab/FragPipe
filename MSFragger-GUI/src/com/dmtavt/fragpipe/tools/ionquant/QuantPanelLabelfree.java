@@ -299,9 +299,6 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.add(p, feLabel.label(), mu.ccR());
     mu.add(p, feLabel.comp).spanX().growX().wrap();
 
-    if (Version.isDevBuild()) {
-      mu.add(p, fePlot.comp).spanX().wrap();
-    }
 
     return p;
   }

@@ -122,9 +122,6 @@ public class CmdIonquant extends CmdBase {
       cmd.add(getOrThrow(uiCompsRepresentation, StringUtils.prependOnce(dynamicParam, "ionquant.")));
     }
 
-    cmd.add("--plot");
-    cmd.add(getOrThrow(uiCompsRepresentation, "ionquant.is-plot").contentEquals("true") ? "1" : "0");
-
     for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
       LcmsFileGroup group = e.getKey();
       Path psmTsv = group.outputDir(wd).resolve("psm.tsv");
