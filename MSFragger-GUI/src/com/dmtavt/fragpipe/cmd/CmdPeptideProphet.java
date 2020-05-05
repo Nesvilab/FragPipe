@@ -8,6 +8,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -83,15 +84,7 @@ public class CmdPeptideProphet extends CmdBase {
           // --combine option for peptide prophet means there's a single interact.pep.xml for each experiment/group
           interactXml = cleanDir.resolve(Paths.get("interact.pep.xml"));
         }
-
-        List<Path> t = m.get(lcms);
-        if (t == null) {
-          t = new ArrayList<>(e.getValue().size());
-          t.add(interactXml);
-          m.put(lcms, t);
-        } else {
-          t.add(interactXml);
-        }
+        m.computeIfAbsent(lcms, (k) -> new ArrayList<>()).add(interactXml);
       }
     }
     return m;

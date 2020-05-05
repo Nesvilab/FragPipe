@@ -56,7 +56,7 @@ public class CmdDatabaseDownload extends CmdBase {
 
   @Override
   public int getPriority() {
-    return 90;
+    return 10;
   }
 
 

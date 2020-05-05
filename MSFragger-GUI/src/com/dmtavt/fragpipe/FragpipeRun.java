@@ -15,6 +15,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
+import com.dmtavt.fragpipe.tools.pepproph.FixPepProphLcmsPath;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
@@ -57,6 +58,8 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.apache.commons.codec.Charsets;
+import org.jooq.lambda.Seq;
+import org.jooq.lambda.tuple.Tuple2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.cmd.CmdCrystalc;
@@ -608,6 +611,17 @@ public class FragpipeRun {
       pbDescs.add(cmdPeptideProphet.getBuilderDescriptor());
     }
     pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, tabMsf.getOutputFileExt(), isCombinedPepxml);
+
+    if (cmdPeptideProphet.isRun()) {
+      // peptide prophet is run, so we run adjustments of the pepxml files.
+      List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml = Seq.seq(pepxmlFiles)
+          .flatMap(t2 -> Seq.seq(t2.v2).map(pepxml -> new Tuple2<>(t2.v1, pepxml)))
+          .distinct(t2 -> t2.v2)
+          .toList();
+      for (Tuple2<InputLcmsFile, Path> kv : lcmsToPepxml) {
+        // TODO: process builder to to call: FixPepProphLcmsPath.fixPathInplace(kv.v2, kv.v1, wd);
+      }
+    }
 
     // run Protein Prophet
     final boolean isMuiltiExperimentReport = lcmsFileGroups.size() > 1;
