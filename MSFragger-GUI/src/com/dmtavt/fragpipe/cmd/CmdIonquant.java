@@ -115,7 +115,10 @@ public class CmdIonquant extends CmdBase {
         "mbrtoprun",
         "ionfdr",
         "proteinfdr",
-        "peptidefdr");
+        "peptidefdr",
+        "normalization",
+        "requireisotopes",
+        "label");
 
     for (String dynamicParam : dynamicParams) {
       cmd.add("--" + dynamicParam);
