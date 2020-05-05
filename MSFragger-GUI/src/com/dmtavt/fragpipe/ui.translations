@@ -81,7 +81,7 @@ ionquant.mbr :: Yes <=> 1
 ionquant.requantify::No <=> 0
 ionquant.requantify::Yes <=> 1
 ionquant.normalization::None <=> 0
-ionquant.normalization::Median <=> 1
+ionquant.normalization::Yes <=> 1
 ionquant.requireisotopes::Any <=> 0
 ionquant.requireisotopes::Min 2 isotopes <=> 1
 
