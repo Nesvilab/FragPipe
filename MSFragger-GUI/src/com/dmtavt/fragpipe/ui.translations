@@ -78,15 +78,19 @@ ionquant.noim :: timsTOF <=> 0
 ionquant.noim :: Non-timsTOF <=> 1
 ionquant.mbr :: No <=> 0
 ionquant.mbr :: Yes <=> 1
-ionquant.requantify::Yes <=> 1
 ionquant.requantify::No <=> 0
+ionquant.requantify::Yes <=> 1
+ionquant.normalization::None <=> 0
+ionquant.normalization::Median <=> 1
+ionquant.requireisotopes::Any <=> 0
+ionquant.requireisotopes::Min 2 isotopes <=> 1
 
 # ionquant.mztol :: M/Z window (ppm) <=> 10 (1 - 1000, step: 1)
 # ionquant.imtol :: IM window (1/k0) <=> 0.05 (0.001 - 0.5, step: 0.001)
 # ionquant.rttol :: RT window (minutes) <=> 0.4 (0.01 - 100, step: 0.1)
 #
 # ionquant.threads:: <take from the Threads>
-# ionquant.psm :: <take from Philosopher’s psm.tsv. Check implementation in the old FragPipe>
+# ionquant.psm :: <take from Philosopher's psm.tsv. Check implementation in the old FragPipe>
 # ionquant.multidir :: <take from multiple experimental settings. Check implementation in the old sFragPipe>
 #
 # ionquant.mbrrttol:: MBR RT window (minutes) <=> 1.0  (0.01 - 100, step: 0.1)

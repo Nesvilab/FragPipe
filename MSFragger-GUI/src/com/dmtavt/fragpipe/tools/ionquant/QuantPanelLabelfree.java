@@ -5,6 +5,7 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.dmtavt.fragpipe.messages.MessageLoadQuantDefaults;
+import com.github.chhh.utils.ProcessUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
@@ -97,7 +98,8 @@ public class QuantPanelLabelfree extends JPanelBase {
     }
     try {
       Properties props = PropertiesUtils.loadPropertiesLocal(QuantParams.class, QuantParams.DEFAULT_PROPERTIES_FN);
-      SwingUtils.valuesSet(this, PropertiesUtils.toMap(props));
+      Map<String, String> remapped = FragpipeCacheUtils.translateValuesToUi(PropertiesUtils.toMap(props));
+      SwingUtils.valuesSet(this, remapped);
     } catch (Exception e) {
       log.error("Error loading quant defaults", e);
       SwingUtils.showErrorDialogWithStacktrace(e, this);
@@ -206,6 +208,9 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiCombo uiComboMbr = UiUtils.createUiCombo(Arrays.asList("No", "Yes"));
     UiCombo uiComboRequant = UiUtils.createUiCombo(Arrays.asList("Yes", "No"));
 
+    UiCombo uiComboNormalize = UiUtils.createUiCombo(Arrays.asList("None", "Median"));
+    UiCombo uiComboRequireIsotopes = UiUtils.createUiCombo(Arrays.asList("Min 2 isotopes", "Any"));
+
     UiSpinnerDouble uiSpinnerMzTol = UiUtils.spinnerDouble(10.0, 1.0, 1000.0, 1.0)
         .setFormat("0.#").setCols(5).create();
     UiSpinnerDouble uiSpinnerRtTol = UiUtils.spinnerDouble(0.4, 0.01, 100.0, 0.1)
@@ -251,6 +256,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feRtTol = mu.feb(uiSpinnerRtTol).name("ionquant.rttol").label("RT Window (minutes)").create();
     FormEntry feImTol = mu.feb(uiSpinnerImTol).name("ionquant.imtol").label("IM Window (1/k0)").create();
 
+
     FormEntry feMbrMinCorr = mu.feb(uiSpinnerMbrMinCorr).name("ionquant.mbrmincorr").label("MBR min correlation").create();
     FormEntry feMbrRtTol = mu.feb(uiSpinnerMbrRtTol).name("ionquant.mbrrttol").label("MBR RT Window (minutes)").create();
     FormEntry feMbrImTol = mu.feb(uiSpinnerMbrImTol).name("ionquant.mbrimtol").label("MBR IM Window (1/k0)").create();
@@ -261,6 +267,12 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("ionquant.mbrtoprun").label("MBR top runs").create();
     FormEntry feLabel = mu.feb(uiTextLabels).name("ionquant.label").label("Label").create();
+
+    FormEntry feNormalize = mu.feb(uiComboNormalize).name("ionquant.normalization").label("Normalize").create();
+    FormEntry feRequireIsotopes = mu.feb(uiComboRequireIsotopes).name("ionquant.requireisotopes").label("Require isotopes")
+        .tooltip("Min number of isotopes for tracing.").create();
+
+
 
     mu.add(p, feRadioIonquant.comp).split().spanX();
     mu.add(p, feDataType.label()).gapLeft("10px");
@@ -285,17 +297,26 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.add(p, feLabel.label(), mu.ccR());
     mu.add(p, feLabel.comp).spanX().growX().wrap();
 
-    mu.add(p, feMbrMinCorr.label(), mu.ccR());
-    mu.add(p, feMbrMinCorr.comp);
-    mu.add(p, feMbrTopRuns.label(), mu.ccR());
-    mu.add(p, feMbrTopRuns.comp).spanX().wrap();
+    JPanel pa = mu.newPanel("Advanced options", mu.lcFillXNoInsetsTopBottom());
 
-    mu.add(p, feMbrIonFdr.label(), mu.ccR());
-    mu.add(p, feMbrIonFdr.comp);
-    mu.add(p, feMbrPepFdr.label(), mu.ccR());
-    mu.add(p, feMbrPepFdr.comp);
-    mu.add(p, feMbrProtFdr.label(), mu.ccR());
-    mu.add(p, feMbrProtFdr.comp).spanX().wrap();
+    mu.add(pa, feMbrMinCorr.label(), mu.ccR());
+    mu.add(pa, feMbrMinCorr.comp);
+    mu.add(pa, feMbrTopRuns.label(), mu.ccR());
+    mu.add(pa, feMbrTopRuns.comp).spanX().wrap();
+
+    mu.add(pa, feMbrIonFdr.label(), mu.ccR());
+    mu.add(pa, feMbrIonFdr.comp);
+    mu.add(pa, feMbrPepFdr.label(), mu.ccR());
+    mu.add(pa, feMbrPepFdr.comp);
+    mu.add(pa, feMbrProtFdr.label(), mu.ccR());
+    mu.add(pa, feMbrProtFdr.comp).spanX().wrap();
+
+    mu.add(pa, feNormalize.label(), mu.ccR());
+    mu.add(pa, feNormalize.comp);
+    mu.add(pa, feRequireIsotopes.label(), mu.ccR());
+    mu.add(pa, feRequireIsotopes.comp).spanX().wrap();
+
+    mu.add(p, pa).spanX().growX().wrap();
 
     return p;
   }
