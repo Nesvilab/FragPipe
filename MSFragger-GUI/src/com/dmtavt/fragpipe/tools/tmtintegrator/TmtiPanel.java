@@ -48,6 +48,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
@@ -129,6 +131,7 @@ public class TmtiPanel extends JPanelBase {
   private UiText uiTextFreequant;
   private JPanel pOptsAdvanced;
   private UiCombo uiComboAddRef;
+  private UiCheck uiCheckDontRunFqLq;
 
   private static Supplier<? extends RuntimeException> supplyRunEx(String message) {
     return () -> new RuntimeException(message);
@@ -412,6 +415,17 @@ public class TmtiPanel extends JPanelBase {
         .feb(TmtiConfProps.PROP_max_pep_prob_thres, uiSpinnerMinBestPepProb)
         .label("Min best peptide probability").create();
 
+    uiCheckDontRunFqLq = UiUtils.createUiCheck("Don't run FreeQuant and LabelQuant", false);
+    FormEntry feDontRunFqLq = mu.feb(uiCheckDontRunFqLq).name("dont-run-fq-lq")
+        .tooltip("Only use in rare situations when you need to re-run TMT-Integrator separately.")
+        .create();
+    ChangeListener cl = e -> {
+      final boolean disabled = uiCheckDontRunFqLq.isSelected();
+      TmtiPanel.this.updateEnabledStatus(uiTextFreequant, !disabled);
+      TmtiPanel.this.updateEnabledStatus(uiTextLabelquant, !disabled);
+    };
+    uiCheckDontRunFqLq.addChangeListener(cl);
+    cl.stateChanged(new ChangeEvent(uiCheckAllowOverlabel));
 
     mu.add(p, feUniqueGene.label(), mu.ccR());
     mu.add(p, feUniqueGene.comp).split().spanX();
@@ -441,7 +455,7 @@ public class TmtiPanel extends JPanelBase {
 
     mu.add(p, feProtExclude.label(), mu.ccR());
     mu.add(p, feProtExclude.comp).growX().spanX().wrap();
-    mu.add(p, feProtExclude.comp).growX().spanX().wrap();
+    mu.add(p, feDontRunFqLq.comp).spanX().wrap();
     mu.add(p, feFreequant.label(), mu.ccR());
     mu.add(p, feFreequant.comp).growX().spanX().wrap();
     mu.add(p, feLabelquant.label(), mu.ccR());
@@ -594,7 +608,11 @@ public class TmtiPanel extends JPanelBase {
   }
 
   public boolean isRun() {
-    return checkRun.isEnabled() && checkRun.isSelected();
+    return SwingUtils.isEnabledAndChecked(checkRun);
+  }
+
+  public boolean isRunFqLq() {
+    return isRun() && !uiCheckDontRunFqLq.isSelected();
   }
 
   @Subscribe

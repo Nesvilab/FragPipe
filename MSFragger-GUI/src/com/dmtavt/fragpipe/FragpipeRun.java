@@ -807,6 +807,7 @@ public class FragpipeRun {
 
     final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
     final boolean isTmt = tmtiPanel.isRun();
+    final boolean isTmtLqFq = tmtiPanel.isRunFqLq();
     final CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(isTmt, wd);
     if (isTmt) {
       // check file compatibility separately, as single tools will report errors
@@ -819,7 +820,7 @@ public class FragpipeRun {
       }
 
       // run FreeQuant - as part of TMT-I
-      if (isFreequant) {
+      if (isFreequant && isTmtLqFq) {
         String msg = "<html>FreeQuant needs to be run uant needs to be run as part of TMT analysis.\n"
             + "You have chosen to run FreeQuant separately as weel.\n"
             + "This will interfere with FreeQuant files generated as part of TMT\n"
@@ -830,7 +831,7 @@ public class FragpipeRun {
       }
 
       // run freequant
-      CmdFreequant cmdTmtFreequant = new CmdFreequant(true, wd);
+      CmdFreequant cmdTmtFreequant = new CmdFreequant(isTmtLqFq, wd);
       addToDepGraph(g, cmdTmtFreequant, cmdIonquant);
       String optsFq = tmtiPanel.getFreequantOptsAsText();
       if (!cmdTmtFreequant.configure(parent, usePhi, optsFq, mapGroupsToProtxml)) {
@@ -839,7 +840,7 @@ public class FragpipeRun {
 
       // run LabelQuant - as part of TMT-I
       List<String> forbiddenOpts = Arrays.asList("--plex", "--annot", "--dir");
-      final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(true, wd);
+      final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(isTmtLqFq, wd);
       addToDepGraph(g, cmdTmtLabelQuant, cmdTmtFreequant);
       String optsLq = tmtiPanel.getLabelquantOptsAsText();
       QuantLabel label = tmtiPanel.getSelectedLabel();
