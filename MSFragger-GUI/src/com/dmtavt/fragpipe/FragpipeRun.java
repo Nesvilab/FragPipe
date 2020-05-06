@@ -176,11 +176,9 @@ public class FragpipeRun {
         return;
       }
 
-      final List<ProcessBuildersDescriptor> pbDescsToFill = new ArrayList<>();
       final Graph<? super CmdBase, DefaultEdge> dag = new DirectedAcyclicGraph<>(DefaultEdge.class);
       // main call to generate all the process builders
-
-      if (!createProcessBuilders(tabRun, wd, jarPath, isDryRun, fastaPath, pbDescsToFill, dag)) {
+      if (!createProcessBuilders(tabRun, wd, jarPath, isDryRun, fastaPath, dag)) {
         log.debug("createProcessBuilders() failed");
         return;
       }
@@ -192,8 +190,14 @@ public class FragpipeRun {
             .map(cmd -> String.format("Cmd: [%s], IsRun: [%s] Prority: [%d]", cmd.getCmdName(),
                 cmd.isRun(), cmd.getPriority()))
             .toString("\n");
-        log.debug("Topo sorted tasks:\n{}", s);
+        log.debug("Ordered tasks:\n{}", s);
       }
+
+      TopologicalOrderIterator<? super CmdBase, DefaultEdge> it =
+          new TopologicalOrderIterator<>(dag);
+      final List<ProcessBuildersDescriptor> pbDescsBuilderDescs = Seq.seq(it).map(o -> (CmdBase) o)
+          .filter(CmdBase::isRun)
+          .map(CmdBase::getBuilderDescriptor).toList();
 
 
       // =========================================================================================================
@@ -205,7 +209,7 @@ public class FragpipeRun {
       toConsole("");
 
       // Converting process builders descriptors to process builder infos
-      final List<ProcessBuilderInfo> pbis = pbDescsToFill.stream()
+      final List<ProcessBuilderInfo> pbis = pbDescsBuilderDescs.stream()
           .flatMap(pbd -> pbd.pbis.stream().map(pbi ->
           {
             PbiBuilder b = new PbiBuilder();
@@ -502,10 +506,7 @@ public class FragpipeRun {
   }
 
   private static boolean createProcessBuilders(JComponent parent, Path wd, Path jarPath,
-      boolean isDryRun, String fastaFile, List<ProcessBuildersDescriptor> pbDescsToFill,
-      final Graph<? super CmdBase, DefaultEdge> g) {
-
-    final List<ProcessBuildersDescriptor> pbDescs = new ArrayList<>();
+      boolean isDryRun, String fastaFile, final Graph<? super CmdBase, DefaultEdge> g) {
 
     // Collect input LCMS files
     TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
@@ -532,7 +533,6 @@ public class FragpipeRun {
     if (cmdUmpire.isRun()) {
       if (!cmdUmpire.configure(parent, isDryRun, jarPath, usePhi, umpirePanel, lcmsFiles))
         return false;
-      pbDescs.add(cmdUmpire.getBuilderDescriptor());
       lcmsFiles = cmdUmpire.outputs(lcmsFiles);
     }
 
@@ -548,7 +548,6 @@ public class FragpipeRun {
       if (!cmdMsAdjuster.configure(parent, jarPath, ramGbNonzero, lcmsFiles, false, 49)) {
         return false;
       }
-      pbDescs.add(cmdMsAdjuster.getBuilderDescriptor());
       // MsAdjuster only makes files that are discovered by MsFragger
       // automatically, so no file-list changes are needed
     }
@@ -575,7 +574,6 @@ public class FragpipeRun {
           lcmsFiles, decoyTag)) {
         return false;
       }
-      pbDescs.add(cmdMsfragger.getBuilderDescriptor());
 
       String warn = Fragpipe.propsVarGet(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
       if (Boolean.parseBoolean(warn)) {
@@ -606,7 +604,7 @@ public class FragpipeRun {
       if (!cmdMsAdjuster.configure(parent, jarPath, ramGbNonzero, lcmsFiles, true, 51)) {
         return false;
       }
-      pbDescs.add(cmdMsAdjuster.getBuilderDescriptor());
+
     }
 
 
@@ -624,7 +622,6 @@ public class FragpipeRun {
           ccParams, fastaFile, pepxmlFiles)) {
         return false;
       }
-      pbDescs.add(cmdCrystalc.getBuilderDescriptor());
       pepxmlFiles = cmdCrystalc.outputs(pepxmlFiles, tabMsf.getOutputFileExt());
     }
 
@@ -642,7 +639,6 @@ public class FragpipeRun {
           fastaFile, decoyTag, pepProphCmd, isCombinedPepxml, enzymeName, pepxmlFiles)) {
         return false;
       }
-      pbDescs.add(cmdPeptideProphet.getBuilderDescriptor());
     }
     pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, tabMsf.getOutputFileExt(), isCombinedPepxml);
 
@@ -671,7 +667,6 @@ public class FragpipeRun {
           isProcessGroupsSeparately, pepxmlFiles)) {
         return false;
       }
-      pbDescs.add(cmdProteinProphet.getBuilderDescriptor());
     }
     Map<LcmsFileGroup, Path> mapGroupsToProtxml = cmdProteinProphet.outputs(pepxmlFiles, isProcessGroupsSeparately, isMuiltiExperimentReport);
 
@@ -703,7 +698,6 @@ public class FragpipeRun {
           .configure(parent, usePhi, fastaFile, decoyTag, pepxmlFiles, mapGroupsToProtxml)) {
         return false;
       }
-      pbDescs.add(cmdPhilosopherDbAnnotate.getBuilderDescriptor());
     }
 
     // run Report - Filter
@@ -753,7 +747,6 @@ public class FragpipeRun {
           decoyTag, reportPanel.getFilterCmdText(), dontUseProtxmlInFilter, mapGroupsToProtxml)) {
         return false;
       }
-      pbDescs.add(cmdPhilosopherFilter.getBuilderDescriptor());
     }
 
     // run Report - Report command itself
@@ -766,7 +759,6 @@ public class FragpipeRun {
       if (!cmdPhilosopherReport.configure(parent, usePhi, doPrintDecoys, doMzid, mapGroupsToProtxml)) {
         return false;
       }
-      pbDescs.add(cmdPhilosopherReport.getBuilderDescriptor());
     }
 
     // run Report - Multi-Experiment report
@@ -783,7 +775,6 @@ public class FragpipeRun {
         if (!cmdIprophet.configure(parent, usePhi, decoyTag, threads, pepxmlFiles)) {
           return false;
         }
-        pbDescs.add(cmdIprophet.getBuilderDescriptor());
       }
 
       // run Abacus
@@ -791,7 +782,6 @@ public class FragpipeRun {
           isMultiexpPepLevelSummary, decoyTag, mapGroupsToProtxml)) {
         return false;
       }
-      pbDescs.add(cmdPhilosopherAbacus.getBuilderDescriptor());
     }
 
     // run Report - Freequant (Labelfree)
@@ -801,7 +791,6 @@ public class FragpipeRun {
       if (!cmdFreequant.configure(parent, usePhi, quantPanelLabelfree.getFreequantOptsAsText(), mapGroupsToProtxml)) {
         return false;
       }
-      pbDescs.add(cmdFreequant.getBuilderDescriptor());
     }
 
     // run Report - IonQuant (Labelfree)
@@ -814,7 +803,6 @@ public class FragpipeRun {
           pepxmlFilesFromMsfragger, mapGroupsToProtxml, threads)) {
         return false;
       }
-      pbDescs.add(cmdIonquant.getBuilderDescriptor());
     }
 
     final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
@@ -848,7 +836,6 @@ public class FragpipeRun {
       if (!cmdTmtFreequant.configure(parent, usePhi, optsFq, mapGroupsToProtxml)) {
         return false;
       }
-      pbDescs.add(cmdTmtFreequant.getBuilderDescriptor());
 
       // run LabelQuant - as part of TMT-I
       List<String> forbiddenOpts = Arrays.asList("--plex", "--annot", "--dir");
@@ -860,7 +847,6 @@ public class FragpipeRun {
       if (!cmdTmtLabelQuant.configure(parent, isDryRun, usePhi, optsLq, label, forbiddenOpts, annotations, mapGroupsToProtxml)) {
         return false;
       }
-      pbDescs.add(cmdTmtLabelQuant.getBuilderDescriptor());
 
 
       // run TMT-Integrator
@@ -869,7 +855,6 @@ public class FragpipeRun {
           ramGb, fastaFile, mapGroupsToProtxml)) {
         return false;
       }
-      pbDescs.add(cmdTmt.getBuilderDescriptor());
     }
 
     // check fasta file for presence of decoys
@@ -942,7 +927,6 @@ public class FragpipeRun {
           ramGb, fastaPath, mapGroupsToProtxml, additionalShepherdParams)) {
         return false;
       }
-      pbDescs.add(cmdPtmshepherd.getBuilderDescriptor());
     }
 
 
@@ -966,7 +950,6 @@ public class FragpipeRun {
           mapGroupsToProtxml, fastaFile, isRunProteinProphet, useEasypqp)) {
         return false;
       }
-      pbDescs.add(cmdSpecLibGen.getBuilderDescriptor());
     }
 
 
@@ -979,12 +962,10 @@ public class FragpipeRun {
 
 
       cmdPhiCleanInit.configure(usePhi);
-      pbDescs.add(cmdPhiCleanInit.getBuilderDescriptor());
       CmdPhilosopherWorkspaceClean cmdPhiClean = new CmdPhilosopherWorkspaceClean(
           true, pathPhiIsRunIn);
       addToDepGraph(g, cmdPhiClean, cmdSpecLibGen);
       cmdPhiClean.configure(usePhi);
-      pbDescs.add(cmdPhiClean.getBuilderDescriptor());
     }
 
     // make sure that all subfolders are created for groups/experiments
@@ -1005,23 +986,10 @@ public class FragpipeRun {
       }
     }
 
-    final StringBuilder sb = new StringBuilder();
-    pbDescs.forEach(pbd -> sb.append(String.format("%03d", pbd.priority)).append(" : ").append(pbd.name).append("\n"));
-    log.debug("Descriptors before sorting:\n{}", sb.toString());
-
-    pbDescs.sort(Comparator.comparing(pbDesc -> pbDesc.priority, Integer::compare));
-    sb.setLength(0);
-    pbDescs.forEach(pbd -> sb.append(String.format("%03d", pbd.priority)).append(" : ").append(pbd.name).append("\n"));
-    log.debug("Descriptors after sorting:\n{}", sb.toString());
-
-    pbDescsToFill.addAll(pbDescs);
-
-
     if (!configPhi.isValid()) {
       SwingUtils.showErrorDialog(parent, "Philosopher configuraiton invalid, check Config tab", "Config Error");
       return false;
     }
-
 
     return true;
   }
