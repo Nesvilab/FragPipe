@@ -809,18 +809,25 @@ public class FragpipeRun {
     final boolean isTmt = tmtiPanel.isRun();
     final boolean isTmtLqFq = tmtiPanel.isRunFqLq();
     final CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(isTmt, wd);
+
     if (isTmt) {
       // check file compatibility separately, as single tools will report errors
       // that look like they are unrelated to TMT
-      if (lcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml"))) {
+      if (lcmsFiles.stream()
+          .anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml"))) {
         SwingUtils.showWarningDialog(parent,
             CmdTmtIntegrator.NAME + " only supports mzML files.\n"
-                + "Please remove other files from the input list.", CmdTmtIntegrator.NAME + "error");
+                + "Please remove other files from the input list.",
+            CmdTmtIntegrator.NAME + "error");
         return false;
       }
+    }
 
-      // run FreeQuant - as part of TMT-I
-      if (isFreequant && isTmtLqFq) {
+    // run FreeQuant - as part of TMT-I
+    final CmdFreequant cmdTmtFreequant = new CmdFreequant(isTmtLqFq, wd);
+    addToDepGraph(g, cmdTmtFreequant, cmdIonquant);
+    if (isTmtLqFq) {
+      if (isFreequant) {
         String msg = "<html>FreeQuant needs to be run uant needs to be run as part of TMT analysis.\n"
             + "You have chosen to run FreeQuant separately as weel.\n"
             + "This will interfere with FreeQuant files generated as part of TMT\n"
@@ -829,34 +836,35 @@ public class FragpipeRun {
         JOptionPane.showMessageDialog(parent, msg, "Warning", JOptionPane.WARNING_MESSAGE);
         return false;
       }
-
-      // run freequant
-      CmdFreequant cmdTmtFreequant = new CmdFreequant(isTmtLqFq, wd);
-      addToDepGraph(g, cmdTmtFreequant, cmdIonquant);
       String optsFq = tmtiPanel.getFreequantOptsAsText();
       if (!cmdTmtFreequant.configure(parent, usePhi, optsFq, mapGroupsToProtxml)) {
         return false;
       }
+    }
 
-      // run LabelQuant - as part of TMT-I
+    // run LabelQuant - as part of TMT-I
+    final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(isTmtLqFq, wd);
+    addToDepGraph(g, cmdTmtLabelQuant, cmdTmtFreequant);
+    if (isTmtLqFq) {
       List<String> forbiddenOpts = Arrays.asList("--plex", "--annot", "--dir");
-      final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(isTmtLqFq, wd);
-      addToDepGraph(g, cmdTmtLabelQuant, cmdTmtFreequant);
       String optsLq = tmtiPanel.getLabelquantOptsAsText();
       QuantLabel label = tmtiPanel.getSelectedLabel();
       Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
-      if (!cmdTmtLabelQuant.configure(parent, isDryRun, usePhi, optsLq, label, forbiddenOpts, annotations, mapGroupsToProtxml)) {
-        return false;
-      }
-
-
-      // run TMT-Integrator
-      addToDepGraph(g, cmdTmt, cmdPhilosopherAbacus, cmdTmtFreequant, cmdTmtLabelQuant);
-      if (!cmdTmt.configure(tmtiPanel, isDryRun,
-          ramGb, fastaFile, mapGroupsToProtxml)) {
+      if (!cmdTmtLabelQuant
+          .configure(parent, isDryRun, usePhi, optsLq, label, forbiddenOpts, annotations,
+              mapGroupsToProtxml)) {
         return false;
       }
     }
+
+    // run TMT-Integrator
+    addToDepGraph(g, cmdTmt, cmdPhilosopherAbacus, cmdTmtFreequant, cmdTmtLabelQuant);
+    if (isTmt) {
+      if (!cmdTmt.configure(tmtiPanel, isDryRun, ramGb, fastaFile, mapGroupsToProtxml)) {
+        return false;
+      }
+    }
+
 
     // check fasta file for presence of decoys
     if (isRunPeptideProphet || isReport) {
