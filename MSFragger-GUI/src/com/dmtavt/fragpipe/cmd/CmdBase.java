@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
@@ -29,22 +31,16 @@ public abstract class CmdBase {
   final String fileCaptureStderr;
   boolean isConfigured;
 
-  public CmdBase(
-      boolean isRun, Path workDir, String fileCaptureStdout, String fileCaptureStderr) {
+  public CmdBase(boolean isRun, Path workDir, String fileCaptureStdout, String fileCaptureStderr) {
     this.isRun = isRun;
     this.wd = workDir;
+    this.pbis = new LinkedList<>();
     this.fileCaptureStdout = fileCaptureStdout;
     this.fileCaptureStderr = fileCaptureStderr;
-    this.pbis = new LinkedList<>();
   }
 
-  public CmdBase(
-      boolean isRun, Path workDir) {
-    this.isRun = isRun;
-    this.wd = workDir;
-    this.fileCaptureStdout = "";
-    this.fileCaptureStderr = "";
-    this.pbis = new LinkedList<>();
+  public CmdBase(boolean isRun, Path workDir) {
+    this(isRun, workDir, "", "");
   }
 
   public static String constructClasspathString(List<Path> jarDepsPaths, Path ... additionalJars) {
@@ -104,6 +100,22 @@ public abstract class CmdBase {
    */
   public int getPriority() {
     return 100;
+  }
+
+  /**
+   * @param graph Graph to which a node should be added and wired to other nodes.
+   * @param startNode The start-of-processing graph node name.
+   */
+  public void configureDependencies(Graph<String, DefaultEdge> graph, String startNode) {
+    configureDependencies0(graph, startNode);
+  }
+
+  /**
+   * Convenience method, almost all commands should call that first in their impl of {@link #configureDependencies}.
+   */
+  protected void configureDependencies0(Graph<String, DefaultEdge> graph, String startNode) {
+    graph.addVertex(getCmdName());
+    graph.addEdge(startNode, getCmdName());
   }
 
   public abstract String getCmdName();

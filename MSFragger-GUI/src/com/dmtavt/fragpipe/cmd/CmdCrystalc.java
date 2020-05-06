@@ -2,6 +2,9 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
+import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.IOException;
@@ -19,9 +22,6 @@ import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
-import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
 
 public class CmdCrystalc extends CmdBase {
 

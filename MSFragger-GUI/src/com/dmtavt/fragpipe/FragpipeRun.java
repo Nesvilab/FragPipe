@@ -3,6 +3,8 @@ package com.dmtavt.fragpipe;
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
 
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.cmd.CmdBase;
+import com.dmtavt.fragpipe.cmd.CmdStart;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
 import com.dmtavt.fragpipe.messages.MessageRun;
@@ -58,6 +60,10 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.apache.commons.codec.Charsets;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DirectedAcyclicGraph;
+import org.jgrapht.traverse.TopologicalOrderIterator;
 import org.jooq.lambda.Seq;
 import org.jooq.lambda.tuple.Tuple2;
 import org.slf4j.Logger;
@@ -171,10 +177,22 @@ public class FragpipeRun {
       }
 
       final List<ProcessBuildersDescriptor> pbDescsToFill = new ArrayList<>();
+      final Graph<? super CmdBase, DefaultEdge> dag = new DirectedAcyclicGraph<>(DefaultEdge.class);
       // main call to generate all the process builders
-      if (!createProcessBuilders(tabRun, wd, jarPath, isDryRun, fastaPath, pbDescsToFill)) {
+
+      if (!createProcessBuilders(tabRun, wd, jarPath, isDryRun, fastaPath, pbDescsToFill, dag)) {
         log.debug("createProcessBuilders() failed");
         return;
+      }
+
+      if (log.isDebugEnabled()) {
+        TopologicalOrderIterator<? super CmdBase, DefaultEdge> it =
+            new TopologicalOrderIterator<>(dag);
+        String s = Seq.seq(it).map(o -> (CmdBase) o)
+            .map(cmd -> String.format("Cmd: [%s], IsRun: [%s] Prority: [%d]", cmd.getCmdName(),
+                cmd.isRun(), cmd.getPriority()))
+            .toString("\n");
+        log.debug("Topo sorted tasks:\n{}", s);
       }
 
 
@@ -476,8 +494,16 @@ public class FragpipeRun {
     toConsole(Fragpipe.COLOR_CMDLINE, cmd, true);
   }
 
+  private static void addToDepGraph(Graph<? super CmdBase, DefaultEdge> graph, CmdBase node, CmdBase... deps) {
+    graph.addVertex(node);
+    for (CmdBase dep : deps) {
+      graph.addEdge(dep, node);
+    }
+  }
+
   private static boolean createProcessBuilders(JComponent parent, Path wd, Path jarPath,
-      boolean isDryRun, String fastaFile, List<ProcessBuildersDescriptor> pbDescsToFill) {
+      boolean isDryRun, String fastaFile, List<ProcessBuildersDescriptor> pbDescsToFill,
+      final Graph<? super CmdBase, DefaultEdge> g) {
 
     final List<ProcessBuildersDescriptor> pbDescs = new ArrayList<>();
 
@@ -485,7 +511,7 @@ public class FragpipeRun {
     TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
     final Map<String, LcmsFileGroup> lcmsFileGroups = tabWorkflow.getLcmsFileGroups();
     List<InputLcmsFile> lcmsFiles = lcmsFileGroups.values().stream()
-        .flatMap(g -> g.lcmsFiles.stream())
+        .flatMap(group -> group.lcmsFiles.stream())
         .collect(Collectors.toList());
 
     // confirm with user that multi-experiment report is not needed
@@ -495,9 +521,14 @@ public class FragpipeRun {
     NoteConfigPhilosopher configPhi = Fragpipe.getStickyStrict(NoteConfigPhilosopher.class);
     final UsageTrigger usePhi = new UsageTrigger(configPhi.path, "Philosopher");
 
+    final CmdStart cmdStart = new CmdStart(true, wd);
+    addToDepGraph(g, cmdStart);
+
     // run DIA-Umpire SE
     final UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
     final CmdUmpireSe cmdUmpire = new CmdUmpireSe(umpirePanel.isRunUmpire(), wd);
+    addToDepGraph(g, cmdUmpire, cmdStart);
+
     if (cmdUmpire.isRun()) {
       if (!cmdUmpire.configure(parent, isDryRun, jarPath, usePhi, umpirePanel, lcmsFiles))
         return false;
@@ -512,6 +543,7 @@ public class FragpipeRun {
 
     // run MSAdjuster
     final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(tabMsf.isRun() && tabMsf.isMsadjuster(), wd);
+    addToDepGraph(g, cmdMsAdjuster,  cmdStart, cmdUmpire);
     if (cmdMsAdjuster.isRun()) {
       if (!cmdMsAdjuster.configure(parent, jarPath, ramGbNonzero, lcmsFiles, false, 49)) {
         return false;
@@ -522,7 +554,6 @@ public class FragpipeRun {
     }
 
     // run MsFragger
-
     final NoteConfigMsfragger configMsfragger;
     try {
       configMsfragger = Fragpipe.getSticky(NoteConfigMsfragger.class);
@@ -537,6 +568,7 @@ public class FragpipeRun {
     final MsfraggerParams msfParams = tabMsf.getParams();
 
     final CmdMsfragger cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, msfParams.getPrecursorMassUnits(), msfParams.getOutputReportTopN());
+    addToDepGraph(g, cmdMsfragger, cmdStart, cmdUmpire, cmdMsAdjuster);
     if (cmdMsfragger.isRun()) {
       if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile,
           msfParams, tabMsf.getNumDbSlices(), ramGbNonzero,
@@ -581,6 +613,7 @@ public class FragpipeRun {
     // run Crystalc
     CrystalcPanel crystalcPanel = Fragpipe.getStickyStrict(CrystalcPanel.class);
     final CmdCrystalc cmdCrystalc = new CmdCrystalc(crystalcPanel.isRun(), wd);
+    addToDepGraph(g, cmdCrystalc, cmdMsfragger);
     if (cmdCrystalc.isRun()) {
       CrystalcParams ccParams = crystalcPanel.toParams();
       if (threads > 0) {
@@ -601,6 +634,7 @@ public class FragpipeRun {
     final boolean isCombinedPepxml = pepProphPanel.isCombinePepxml();
 
     CmdPeptideProphet cmdPeptideProphet = new CmdPeptideProphet(isRunPeptideProphet, wd);
+    addToDepGraph(g, cmdPeptideProphet, cmdMsfragger, cmdCrystalc);
     if (cmdPeptideProphet.isRun()) {
       final String pepProphCmd = pepProphPanel.getCmdOpts();
       final String enzymeName = tabMsf.getEnzymeName();
@@ -629,6 +663,7 @@ public class FragpipeRun {
 
     final boolean isRunProteinProphet = protProphPanel.isRun();
     final CmdProteinProphet cmdProteinProphet = new CmdProteinProphet(isRunProteinProphet, wd);
+    addToDepGraph(g, cmdProteinProphet, cmdPeptideProphet);
     if (cmdProteinProphet.isRun()) {
       final String protProphCmdStr = protProphPanel.getCmdOpts();
       if (!cmdProteinProphet.configure(parent,
@@ -659,126 +694,132 @@ public class FragpipeRun {
     final boolean isReport = reportPanel.isGenerateReport();
     QuantPanelLabelfree quantPanelLabelfree = Fragpipe.getStickyStrict(QuantPanelLabelfree.class);
     final boolean isFreequant = quantPanelLabelfree.isFreequant();
-    if (isReport) {
-      // run Report - DbAnnotate
-      final boolean isDbAnnotate = true;
-      final CmdPhilosopherDbAnnotate cmdPhilosopherDbAnnotate = new CmdPhilosopherDbAnnotate(isDbAnnotate, wd);
-      if (cmdPhilosopherDbAnnotate.isRun()) {
-        if (!cmdPhilosopherDbAnnotate
-            .configure(parent, usePhi, fastaFile, decoyTag, pepxmlFiles, mapGroupsToProtxml)) {
-          return false;
-        }
-        pbDescs.add(cmdPhilosopherDbAnnotate.getBuilderDescriptor());
+    // run Report - DbAnnotate
+    final boolean isDbAnnotate = isReport;
+    final CmdPhilosopherDbAnnotate cmdPhilosopherDbAnnotate = new CmdPhilosopherDbAnnotate(isDbAnnotate, wd);
+    addToDepGraph(g, cmdPhilosopherDbAnnotate, cmdProteinProphet);
+    if (cmdPhilosopherDbAnnotate.isRun()) {
+      if (!cmdPhilosopherDbAnnotate
+          .configure(parent, usePhi, fastaFile, decoyTag, pepxmlFiles, mapGroupsToProtxml)) {
+        return false;
       }
+      pbDescs.add(cmdPhilosopherDbAnnotate.getBuilderDescriptor());
+    }
 
-      // run Report - Filter
-      final CmdPhilosopherFilter cmdPhilosopherFilter = new CmdPhilosopherFilter(isReport, wd);
-      if (cmdPhilosopherFilter.isRun()) {
-        final boolean isCheckFilterNoProtxml = reportPanel.isNoProtXml();
+    // run Report - Filter
+    final CmdPhilosopherFilter cmdPhilosopherFilter = new CmdPhilosopherFilter(isReport, wd);
+    addToDepGraph(g, cmdPhilosopherFilter, cmdPhilosopherDbAnnotate);
+    if (cmdPhilosopherFilter.isRun()) {
+      final boolean isCheckFilterNoProtxml = reportPanel.isNoProtXml();
 
-        // if ProtProph is not run but protxml is there - query the user
-        boolean dontUseProtxmlInFilter;
-        if (!isRunProteinProphet) {
-          dontUseProtxmlInFilter = true; // default, but we will ask the user if the files are already there
-          boolean allProtxmlsExist = true;
-          String paths = mapGroupsToProtxml.values().stream().map(path -> "- " + path.toString()).collect(Collectors.joining("\n"));
-          log.debug("Checking for existence of all protxml files:\n{}\n", paths);
-          for (Entry<LcmsFileGroup, Path> kv : mapGroupsToProtxml.entrySet()) {
-            Path protxml = kv.getValue();
-            try {
-              if (protxml == null || !Files.exists(protxml)) {
-                allProtxmlsExist = false;
-                break;
-              }
-            } catch (Exception e) {
+      // if ProtProph is not run but protxml is there - query the user
+      boolean dontUseProtxmlInFilter;
+      if (!isRunProteinProphet) {
+        dontUseProtxmlInFilter = true; // default, but we will ask the user if the files are already there
+        boolean allProtxmlsExist = true;
+        String paths = mapGroupsToProtxml.values().stream().map(path -> "- " + path.toString()).collect(Collectors.joining("\n"));
+        log.debug("Checking for existence of all protxml files:\n{}\n", paths);
+        for (Entry<LcmsFileGroup, Path> kv : mapGroupsToProtxml.entrySet()) {
+          Path protxml = kv.getValue();
+          try {
+            if (protxml == null || !Files.exists(protxml)) {
               allProtxmlsExist = false;
               break;
             }
+          } catch (Exception e) {
+            allProtxmlsExist = false;
+            break;
           }
-          if (allProtxmlsExist) {
-            // ProtProph is not run, but all protxmls are there
-            int confirm = JOptionPane.showConfirmDialog(parent,
-                "Protein Prophet is not run, but prot.xml files for all groups\n"
-                    + "do already exist:\n\n"
-                    + paths
-                    + "\n\n"
-                    + "Do you want to use them for the Filter command?\n",
-                "Use previously existing prot.xml files?\n", JOptionPane.YES_NO_OPTION);
-            if (JOptionPane.YES_OPTION == confirm) {
-              dontUseProtxmlInFilter = false;
-            }
+        }
+        if (allProtxmlsExist) {
+          // ProtProph is not run, but all protxmls are there
+          int confirm = JOptionPane.showConfirmDialog(parent,
+              "Protein Prophet is not run, but prot.xml files for all groups\n"
+                  + "do already exist:\n\n"
+                  + paths
+                  + "\n\n"
+                  + "Do you want to use them for the Filter command?\n",
+              "Use previously existing prot.xml files?\n", JOptionPane.YES_NO_OPTION);
+          if (JOptionPane.YES_OPTION == confirm) {
+            dontUseProtxmlInFilter = false;
           }
-        } else { // if (!isRunProteinProphet) {
-          // protein prophet is run, respenct the checkFilterNoProtxml checkbox
-          dontUseProtxmlInFilter = isCheckFilterNoProtxml;
         }
-
-        if (!cmdPhilosopherFilter.configure(parent, usePhi,
-            decoyTag, reportPanel.getFilterCmdText(), dontUseProtxmlInFilter, mapGroupsToProtxml)) {
-          return false;
-        }
-        pbDescs.add(cmdPhilosopherFilter.getBuilderDescriptor());
+      } else { // if (!isRunProteinProphet) {
+        // protein prophet is run, respenct the checkFilterNoProtxml checkbox
+        dontUseProtxmlInFilter = isCheckFilterNoProtxml;
       }
 
-      // run Report - Report command itself
-      final CmdPhilosopherReport cmdPhilosopherReport = new CmdPhilosopherReport(isReport, wd);
-      final boolean doPrintDecoys = reportPanel.isPrintDecoys();
-//      final boolean doMzid = comboReportOutputFormat.getSelectedItem().toString().toLowerCase().contains("mzid");
-      final boolean doMzid = reportPanel.isWriteMzid();
-      if (cmdPhilosopherReport.isRun()) {
-        if (!cmdPhilosopherReport.configure(parent, usePhi, doPrintDecoys, doMzid, mapGroupsToProtxml)) {
-          return false;
-        }
-        pbDescs.add(cmdPhilosopherReport.getBuilderDescriptor());
+      if (!cmdPhilosopherFilter.configure(parent, usePhi,
+          decoyTag, reportPanel.getFilterCmdText(), dontUseProtxmlInFilter, mapGroupsToProtxml)) {
+        return false;
       }
-
-      // run Report - Multi-Experiment report
-      final CmdPhilosopherAbacus cmdPhilosopherAbacus = new CmdPhilosopherAbacus(isMuiltiExperimentReport, wd);
-      final boolean isMultiexpPepLevelSummary = reportPanel.isPepSummary();
-      if (cmdPhilosopherAbacus.isRun()) {
-
-        // run iProphet, will run right after Peptide Prophet because of priority setting
-        if (isMultiexpPepLevelSummary) { // iProphet is not needed if we don't generate peptide level summry
-          final CmdIprophet cmdIprophet = new CmdIprophet(cmdPhilosopherAbacus.isRun(), wd);
-          if (!cmdIprophet.configure(parent, usePhi, decoyTag, threads, pepxmlFiles)) {
-            return false;
-          }
-          pbDescs.add(cmdIprophet.getBuilderDescriptor());
-        }
-
-        // run Abacus
-        if (!cmdPhilosopherAbacus.configure(parent, usePhi, reportPanel.getFilterCmdText(),
-            isMultiexpPepLevelSummary, decoyTag, mapGroupsToProtxml)) {
-          return false;
-        }
-        pbDescs.add(cmdPhilosopherAbacus.getBuilderDescriptor());
-      }
-
-      // run Report - Freequant (Labelfree)
-      final CmdFreequant cmdFreequant = new CmdFreequant(isFreequant, wd);
-      if (cmdFreequant.isRun()) {
-        if (!cmdFreequant.configure(parent, usePhi, quantPanelLabelfree.getFreequantOptsAsText(), mapGroupsToProtxml)) {
-          return false;
-        }
-        pbDescs.add(cmdFreequant.getBuilderDescriptor());
-      }
-
-      // run Report - IonQuant (Labelfree)
-      final boolean isIonquant = quantPanelLabelfree.isIonquant();
-      final CmdIonquant cmdIonquant = new CmdIonquant(isIonquant, wd);
-      if (cmdIonquant.isRun()) {
-        if (!cmdIonquant.configure(
-            parent, Paths.get(binMsfragger.getBin()), ramGbNonzero, quantPanelLabelfree.toMap(),
-            pepxmlFilesFromMsfragger, mapGroupsToProtxml, threads)) {
-          return false;
-        }
-        pbDescs.add(cmdIonquant.getBuilderDescriptor());
-      }
+      pbDescs.add(cmdPhilosopherFilter.getBuilderDescriptor());
     }
 
+    // run Report - Report command itself
+    final CmdPhilosopherReport cmdPhilosopherReport = new CmdPhilosopherReport(isReport, wd);
+    addToDepGraph(g, cmdPhilosopherReport, cmdPhilosopherFilter);
+    final boolean doPrintDecoys = reportPanel.isPrintDecoys();
+//      final boolean doMzid = comboReportOutputFormat.getSelectedItem().toString().toLowerCase().contains("mzid");
+    final boolean doMzid = reportPanel.isWriteMzid();
+    if (cmdPhilosopherReport.isRun()) {
+      if (!cmdPhilosopherReport.configure(parent, usePhi, doPrintDecoys, doMzid, mapGroupsToProtxml)) {
+        return false;
+      }
+      pbDescs.add(cmdPhilosopherReport.getBuilderDescriptor());
+    }
+
+    // run Report - Multi-Experiment report
+    final boolean isMultiexpPepLevelSummary = reportPanel.isPepSummary();
+    final CmdPhilosopherAbacus cmdPhilosopherAbacus = new CmdPhilosopherAbacus(isReport && isMuiltiExperimentReport, wd);
+    final boolean isRunIProphet = cmdPhilosopherAbacus.isRun() && isMultiexpPepLevelSummary; // iProphet is not needed if we don't generate peptide level summry
+    final CmdIprophet cmdIprophet = new CmdIprophet(isRunIProphet, wd);
+    addToDepGraph(g, cmdIprophet, cmdPhilosopherReport, cmdPeptideProphet);
+    addToDepGraph(g, cmdPhilosopherAbacus, cmdPhilosopherReport, cmdIprophet, cmdProteinProphet);
+
+    if (cmdPhilosopherAbacus.isRun()) {
+      // run iProphet, will run right after Peptide Prophet because of priority setting
+      if (cmdIprophet.isRun()) {
+        if (!cmdIprophet.configure(parent, usePhi, decoyTag, threads, pepxmlFiles)) {
+          return false;
+        }
+        pbDescs.add(cmdIprophet.getBuilderDescriptor());
+      }
+
+      // run Abacus
+      if (!cmdPhilosopherAbacus.configure(parent, usePhi, reportPanel.getFilterCmdText(),
+          isMultiexpPepLevelSummary, decoyTag, mapGroupsToProtxml)) {
+        return false;
+      }
+      pbDescs.add(cmdPhilosopherAbacus.getBuilderDescriptor());
+    }
+
+    // run Report - Freequant (Labelfree)
+    final CmdFreequant cmdFreequant = new CmdFreequant(isReport && isFreequant, wd);
+    addToDepGraph(g, cmdFreequant, cmdPhilosopherAbacus);
+    if (cmdFreequant.isRun()) {
+      if (!cmdFreequant.configure(parent, usePhi, quantPanelLabelfree.getFreequantOptsAsText(), mapGroupsToProtxml)) {
+        return false;
+      }
+      pbDescs.add(cmdFreequant.getBuilderDescriptor());
+    }
+
+    // run Report - IonQuant (Labelfree)
+    final boolean isIonquant = quantPanelLabelfree.isIonquant();
+    final CmdIonquant cmdIonquant = new CmdIonquant(isReport && isIonquant, wd);
+    addToDepGraph(g, cmdIonquant, cmdFreequant);
+    if (cmdIonquant.isRun()) {
+      if (!cmdIonquant.configure(
+          parent, Paths.get(binMsfragger.getBin()), ramGbNonzero, quantPanelLabelfree.toMap(),
+          pepxmlFilesFromMsfragger, mapGroupsToProtxml, threads)) {
+        return false;
+      }
+      pbDescs.add(cmdIonquant.getBuilderDescriptor());
+    }
 
     final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
     final boolean isTmt = tmtiPanel.isRun();
+    final CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(isTmt, wd);
     if (isTmt) {
       // check file compatibility separately, as single tools will report errors
       // that look like they are unrelated to TMT
@@ -791,36 +832,39 @@ public class FragpipeRun {
 
       // run FreeQuant - as part of TMT-I
       if (isFreequant) {
-        String msg = "<html>FreeQuant needs to be run as part of TMT analysis.<br/>\n"
-            + "You have chosen to run FreeQuant separately as weel.<br/>\n"
-            + "This will interfere with FreeQuant files generated as part of TMT<br/>\n"
-            + "processing.<br/>\n"
-            + "Please turn off standalone FreeQuant.<br/>\n";
+        String msg = "<html>FreeQuant needs to be run uant needs to be run as part of TMT analysis.\n"
+            + "You have chosen to run FreeQuant separately as weel.\n"
+            + "This will interfere with FreeQuant files generated as part of TMT\n"
+            + "processing."
+            + "Please turn off standalone FreeQuant.\n";
         JOptionPane.showMessageDialog(parent, msg, "Warning", JOptionPane.WARNING_MESSAGE);
         return false;
       }
-      { // run freequant
-        CmdFreequant fq = new CmdFreequant(true, wd);
-        String opts = tmtiPanel.getFreequantOptsAsText();
-        if (!fq.configure(parent, usePhi, opts, mapGroupsToProtxml)) {
-          return false;
-        }
-        pbDescs.add(fq.getBuilderDescriptor());
+
+      // run freequant
+      CmdFreequant cmdTmtFreequant = new CmdFreequant(true, wd);
+      addToDepGraph(g, cmdTmtFreequant, cmdIonquant);
+      String optsFq = tmtiPanel.getFreequantOptsAsText();
+      if (!cmdTmtFreequant.configure(parent, usePhi, optsFq, mapGroupsToProtxml)) {
+        return false;
       }
-      {
-        // run LabelQuant - as part of TMT-I
-        List<String> forbiddenOpts = Arrays.asList("--plex", "--annot", "--dir");
-        CmdLabelquant lq = new CmdLabelquant(true, wd);
-        String opts = tmtiPanel.getLabelquantOptsAsText();
-        QuantLabel label = tmtiPanel.getSelectedLabel();
-        Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
-        if (!lq.configure(parent, isDryRun, usePhi, opts, label, forbiddenOpts, annotations, mapGroupsToProtxml)) {
-          return false;
-        }
-        pbDescs.add(lq.getBuilderDescriptor());
+      pbDescs.add(cmdTmtFreequant.getBuilderDescriptor());
+
+      // run LabelQuant - as part of TMT-I
+      List<String> forbiddenOpts = Arrays.asList("--plex", "--annot", "--dir");
+      final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(true, wd);
+      addToDepGraph(g, cmdTmtLabelQuant, cmdTmtFreequant);
+      String optsLq = tmtiPanel.getLabelquantOptsAsText();
+      QuantLabel label = tmtiPanel.getSelectedLabel();
+      Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
+      if (!cmdTmtLabelQuant.configure(parent, isDryRun, usePhi, optsLq, label, forbiddenOpts, annotations, mapGroupsToProtxml)) {
+        return false;
       }
+      pbDescs.add(cmdTmtLabelQuant.getBuilderDescriptor());
+
+
       // run TMT-Integrator
-      CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(isTmt, wd);
+      addToDepGraph(g, cmdTmt, cmdPhilosopherAbacus, cmdTmtFreequant, cmdTmtLabelQuant);
       if (!cmdTmt.configure(tmtiPanel, isDryRun,
           ramGb, fastaFile, mapGroupsToProtxml)) {
         return false;
@@ -875,6 +919,7 @@ public class FragpipeRun {
     final boolean isRunShepherd = ptmsPanel.isRunShepherd();
     final boolean isPtmsFormValid = ptmsPanel.validateForm();
     final CmdPtmshepherd cmdPtmshepherd = new CmdPtmshepherd(isRunShepherd, wd);
+    addToDepGraph(g, cmdPtmshepherd, cmdTmt);
     if (cmdPtmshepherd.isRun()) {
       if (!isPtmsFormValid) {
         JOptionPane.showMessageDialog(parent,
@@ -906,6 +951,7 @@ public class FragpipeRun {
     final boolean isRunSpeclibgen = speclibPanel.isRunSpeclibgen();
     final boolean useEasypqp = speclibPanel.useEasypqp();
     final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(isRunSpeclibgen, wd);
+    addToDepGraph(g, cmdSpecLibGen, cmdPtmshepherd);
     if (cmdSpecLibGen.isRun()) {
 
       NoteConfigSpeclibgen conf = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
@@ -928,10 +974,15 @@ public class FragpipeRun {
     for (Path pathPhiIsRunIn : usePhi.getWorkDirs()) {
       CmdPhilosopherWorkspaceCleanInit cmdPhiCleanInit = new CmdPhilosopherWorkspaceCleanInit(
           true, pathPhiIsRunIn);
+      addToDepGraph(g, cmdPhiCleanInit); // needs to run at the start
+      g.addEdge(cmdPhiCleanInit, cmdPeptideProphet); // and before the first command that uses Phi
+
+
       cmdPhiCleanInit.configure(usePhi);
       pbDescs.add(cmdPhiCleanInit.getBuilderDescriptor());
       CmdPhilosopherWorkspaceClean cmdPhiClean = new CmdPhilosopherWorkspaceClean(
           true, pathPhiIsRunIn);
+      addToDepGraph(g, cmdPhiClean, cmdSpecLibGen);
       cmdPhiClean.configure(usePhi);
       pbDescs.add(cmdPhiClean.getBuilderDescriptor());
     }

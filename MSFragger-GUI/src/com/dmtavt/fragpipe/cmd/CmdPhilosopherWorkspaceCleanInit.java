@@ -7,7 +7,7 @@ import com.github.chhh.utils.UsageTrigger;
 
 public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
 
-  public static final String NAME = "Workspace";
+  public static final String NAME = "WorkspaceCleanInit";
   private int priority = 10;
 
   public CmdPhilosopherWorkspaceCleanInit(boolean isRun, Path workDir) {

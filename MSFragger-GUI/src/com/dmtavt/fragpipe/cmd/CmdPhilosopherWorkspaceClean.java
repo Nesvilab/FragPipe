@@ -6,7 +6,7 @@ import java.util.List;
 import com.github.chhh.utils.UsageTrigger;
 
 public class CmdPhilosopherWorkspaceClean extends CmdBase {
-  public static final String NAME = "Workspace";
+  public static final String NAME = "WorkspaceClean";
 
   public CmdPhilosopherWorkspaceClean(boolean isRun, Path workDir) {
     super(isRun, workDir);
