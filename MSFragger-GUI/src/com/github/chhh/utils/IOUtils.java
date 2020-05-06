@@ -19,6 +19,8 @@ package com.github.chhh.utils;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -28,9 +30,14 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import okio.BufferedSource;
+import okio.ByteString;
+import okio.Okio;
+import okio.Source;
 
 /**
  *
@@ -90,5 +97,16 @@ public class IOUtils {
         oos.writeObject( o );
         oos.close();
         return Base64.getEncoder().encodeToString(baos.toByteArray());
+    }
+
+    public static void tokenize(Path path, String start) throws IOException {
+        if (!Files.exists(path))
+            throw new FileNotFoundException(path.toString());
+
+        ByteString bs = new ByteString(start.getBytes());
+
+        try (Source src = Okio.source(path); BufferedSource buf = Okio.buffer(src)) {
+            buf.readUtf8CodePoint()
+        }
     }
 }
