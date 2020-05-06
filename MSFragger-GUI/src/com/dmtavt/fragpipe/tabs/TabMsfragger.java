@@ -1,6 +1,7 @@
 package com.dmtavt.fragpipe.tabs;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.ModsTable;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerParamsUpdate;
@@ -389,7 +390,11 @@ public class TabMsfragger extends JPanelBase {
     JPanel p = mu.newPanel("Peak Matching", true);
 
     // precursor mass tolerance
-    uiComboPrecursorTolUnits = UiUtils.createUiCombo(PrecursorMassTolUnits.values());
+    List<String> unitsDev = Seq.of(PrecursorMassTolUnits.values()).map(PrecursorMassTolUnits::name).toList();
+    List<String> unitsRel = Seq.of(PrecursorMassTolUnits.values())
+        .filter(pmtu -> !(pmtu.equals(PrecursorMassTolUnits.DIA) || pmtu.equals(PrecursorMassTolUnits.DIA_MS1)))
+        .map(PrecursorMassTolUnits::name).toList();
+    uiComboPrecursorTolUnits = UiUtils.createUiCombo(Version.isDevBuild() ? unitsDev : unitsRel);
     FormEntry fePrecTolUnits = mu.feb(MsfraggerParams.PROP_precursor_mass_units, uiComboPrecursorTolUnits).label("Precursor mass tolerance").create();
     uiSpinnerPrecTolLo = new UiSpinnerDouble(-10, -10000, 10000, 1,
         new DecimalFormat("0.#"));
