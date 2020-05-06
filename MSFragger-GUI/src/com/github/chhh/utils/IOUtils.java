@@ -106,7 +106,7 @@ public class IOUtils {
         ByteString bs = new ByteString(start.getBytes());
 
         try (Source src = Okio.source(path); BufferedSource buf = Okio.buffer(src)) {
-            buf.readUtf8CodePoint()
+
         }
     }
 }
