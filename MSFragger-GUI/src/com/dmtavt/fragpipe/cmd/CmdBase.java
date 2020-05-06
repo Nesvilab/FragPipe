@@ -97,7 +97,9 @@ public abstract class CmdBase {
 
   /**
    * Extending classes can override this to modify the priority level.
+   * @deprecated Not used anymore.
    */
+  @Deprecated
   public int getPriority() {
     return 100;
   }
