@@ -415,7 +415,7 @@ public class TmtiPanel extends JPanelBase {
         .feb(TmtiConfProps.PROP_max_pep_prob_thres, uiSpinnerMinBestPepProb)
         .label("Min best peptide probability").create();
 
-    uiCheckDontRunFqLq = UiUtils.createUiCheck("Don't run FreeQuant and LabelQuant", false);
+    uiCheckDontRunFqLq = UiUtils.createUiCheck("Skip FreeQuant and LabelQuant", false);
     FormEntry feDontRunFqLq = mu.feb(uiCheckDontRunFqLq).name("dont-run-fq-lq")
         .tooltip("Only use in rare situations when you need to re-run TMT-Integrator separately.")
         .create();
