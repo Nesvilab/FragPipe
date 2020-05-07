@@ -195,19 +195,43 @@ public class IOUtils {
 
   public static void tokenize(InputStream is, String start, String end) throws IOException {
     Buffer b = new Buffer();
-    ByteBuffer bb = ByteBuffer.allocate(16);
-    ByteString lo = new ByteString(start.getBytes(StandardCharsets.UTF_8));
+    ByteString needle = new ByteString(start.getBytes(StandardCharsets.UTF_8));
+    int size = 16;
+    ByteBuffer bb = ByteBuffer.allocate(size);
     try (Source src = Okio.source(is); BufferedSource buf = Okio.buffer(src)) {
-      //int code = buf.readUtf8CodePoint();
-      //long read = buf.read(b, 16);
-      long index;
-      
-      long l1 = buf.indexOf(lo);
-      long l2 = buf.indexOfElement(lo);
-//      while ((index = buf.indexOf(lo)) > 0) {
-//        System.out.println(start + " @ " + Long.toString(index));
-//      }
-      log.debug("{}, {}", l1, l2);
+      long read, total = 0, totalPrev = -1;
+      read = buf.read(bb);
+      bb.flip();
+      while ((read = buf.read(b, size)) > 0) {
+        totalPrev = total;
+        total += read;
+        log.debug("Read {}/{} (={}) bytes. b.completeSegmentByteCount()={}", read, size, total, b.completeSegmentByteCount());
+        long from = -1;
+        long pos;
+        while ((pos = b.indexOf(needle, ++from)) >= 0) {
+          log.debug("{} @ {}", start, totalPrev + pos);
+        }
+
+      }
     }
   }
+
+//  public static void findOffsets(InputStream is, String target) throws IOException {
+//    Buffer b = new Buffer();
+//    ByteString needle = new ByteString(target.getBytes(StandardCharsets.UTF_8));
+//    try (Source src = Okio.source(is); BufferedSource buf = Okio.buffer(src)) {
+//      long read, total = 0;
+//      while ((read = buf.read(b, size)) > 0) {
+//        totalPrev = total;
+//        total += read;
+//        log.debug("Read {}/{} (={}) bytes. b.completeSegmentByteCount()={}", read, size, total, b.completeSegmentByteCount());
+//        long from = -1;
+//        long pos;
+//        while ((pos = b.indexOf(needle, ++from)) >= 0) {
+//          log.debug("{} @ {}", start, totalPrev + pos);
+//        }
+//
+//      }
+//    }
+//  }
 }

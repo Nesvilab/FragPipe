@@ -24,7 +24,7 @@ import com.github.chhh.utils.OsUtils;
 public abstract class CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdBase.class);
 
-  final boolean isRun;
+  protected boolean isRun;
   final Path wd;
   final LinkedList<ProcessBuilderInfo> pbis;
   final String fileCaptureStdout;
@@ -89,6 +89,10 @@ public abstract class CmdBase {
 
   public boolean isRun() {
     return isRun;
+  }
+
+  public void isRun(boolean doRun) {
+    isRun = doRun;
   }
 
   public Path getWd() {

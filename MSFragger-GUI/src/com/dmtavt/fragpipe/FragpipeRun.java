@@ -862,6 +862,8 @@ public class FragpipeRun {
       }
     }
 
+    cmdPhilosopherReport.
+
     // run LabelQuant - as part of TMT-I
     final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(isTmtLqFq, wd);
     if (isTmtLqFq) {
