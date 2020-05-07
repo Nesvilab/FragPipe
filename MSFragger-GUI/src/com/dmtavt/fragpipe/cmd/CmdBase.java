@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
@@ -41,6 +42,15 @@ public abstract class CmdBase {
 
   public CmdBase(boolean isRun, Path workDir) {
     this(isRun, workDir, "", "");
+  }
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", CmdBase.class.getSimpleName() + "[", "]")
+        .add("name=" + getCmdName())
+        .add("isRun=" + isRun)
+        .add("wd=" + wd)
+        .toString();
   }
 
   public static String constructClasspathString(List<Path> jarDepsPaths, Path ... additionalJars) {

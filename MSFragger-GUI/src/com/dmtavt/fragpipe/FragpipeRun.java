@@ -3,11 +3,11 @@ package com.dmtavt.fragpipe;
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
 
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.api.IConfig;
 import com.dmtavt.fragpipe.cmd.CmdBase;
 import com.dmtavt.fragpipe.cmd.CmdStart;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
-import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
 import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
 import com.dmtavt.fragpipe.messages.MessageSaveCache;
@@ -18,7 +18,6 @@ import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
-import com.dmtavt.fragpipe.tools.pepproph.FixPepProphLcmsPath;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
@@ -28,6 +27,7 @@ import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
 import com.dmtavt.fragpipe.tools.protproph.ProtProphPanel;
 import com.github.chhh.utils.FastaUtils;
 import com.github.chhh.utils.FastaUtils.FastaContent;
+import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
@@ -44,8 +44,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -179,7 +180,7 @@ public class FragpipeRun {
 
       final Graph<? super CmdBase, DefaultEdge> dag = new DirectedAcyclicGraph<>(DefaultEdge.class);
       // main call to generate all the process builders
-      if (!createProcessBuilders(tabRun, wd, jarPath, isDryRun, fastaPath, dag)) {
+      if (!configureTaskGraph(tabRun, wd, jarPath, isDryRun, fastaPath, dag)) {
         log.debug("createProcessBuilders() failed");
         return;
       }
@@ -527,34 +528,62 @@ public class FragpipeRun {
     }
   }
 
-  private static boolean createProcessBuilders(JComponent parent, Path wd, Path jarPath,
-      boolean isDryRun, String fastaFile, final Graph<? super CmdBase, DefaultEdge> g) {
+  private static boolean configureTaskGraph(JComponent parent, Path wd, Path jarPath,
+      boolean isDryRun, String fastaFile, final Graph<? super CmdBase, DefaultEdge> graph) {
 
     // Collect input LCMS files
-    TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
-    final Map<String, LcmsFileGroup> lcmsFileGroups = tabWorkflow.getLcmsFileGroups();
-    List<InputLcmsFile> lcmsFiles = lcmsFileGroups.values().stream()
-        .flatMap(group -> group.lcmsFiles.stream())
-        .collect(Collectors.toList());
+    final TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
 
     // confirm with user that multi-experiment report is not needed
     final ProtProphPanel protProphPanel = Fragpipe.getStickyStrict(ProtProphPanel.class);
-    ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
+    final ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
 
-    NoteConfigPhilosopher configPhi = Fragpipe.getStickyStrict(NoteConfigPhilosopher.class);
+    final NoteConfigPhilosopher configPhi = Fragpipe.getStickyStrict(NoteConfigPhilosopher.class);
     final UsageTrigger usePhi = new UsageTrigger(configPhi.path, "Philosopher");
 
+    // all the configurations are aggregated before being executed
+    // because some commands might require others to run
+    // (even though those commands might be turned off)
+    final List<IConfig> configs = new ArrayList<>();
+    final List<CmdBase> commands = new ArrayList<>();
+    final BiConsumer<CmdBase, IConfig> conf = (cmdBase, iConfig) -> {
+      commands.add(cmdBase);
+      if (iConfig != null)
+        configs.add(iConfig);
+    };
+
+    final Map<String, LcmsFileGroup> sharedLcmsFileGroups = new LinkedHashMap<>();
+    final List<InputLcmsFile> sharedLcmsFiles = new ArrayList<>();
+
     final CmdStart cmdStart = new CmdStart(true, wd);
+    conf.accept(cmdStart, () -> {
+      MapUtils.refill(sharedLcmsFileGroups, tabWorkflow.getLcmsFileGroups());
+      sharedLcmsFiles.clear();
+      sharedLcmsFiles.addAll(Seq.seq(sharedLcmsFileGroups.values())
+          .flatMap(group -> group.lcmsFiles.stream())
+          .toList());
+      if (sharedLcmsFiles.isEmpty()) {
+        SwingUtils.showErrorDialog(parent,
+            "No LCMS files provided.", "Add LCMS files");
+        return false;
+      }
+      return true;
+    });
 
     // run DIA-Umpire SE
     final UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
     final CmdUmpireSe cmdUmpire = new CmdUmpireSe(umpirePanel.isRunUmpire(), wd);
 
-    if (cmdUmpire.isRun()) {
-      if (!cmdUmpire.configure(parent, isDryRun, jarPath, usePhi, umpirePanel, lcmsFiles))
-        return false;
-      lcmsFiles = cmdUmpire.outputs(lcmsFiles);
-    }
+    conf.accept(cmdUmpire, () -> {
+      if (cmdUmpire.isRun()) {
+        if (!cmdUmpire.configure(parent, isDryRun, jarPath, usePhi, umpirePanel, sharedLcmsFiles))
+          return false;
+        List<InputLcmsFile> outputs = cmdUmpire.outputs(sharedLcmsFiles);
+        sharedLcmsFiles.clear();
+        sharedLcmsFiles.addAll(outputs);
+      }
+      return true;
+    });
 
     final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
     final int ramGb = tabWorkflow.getRamGb();
@@ -562,82 +591,105 @@ public class FragpipeRun {
     final int threads = tabWorkflow.getThreads();
 
     // run MSAdjuster
-    final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(tabMsf.isRun() && tabMsf.isMsadjuster(), wd);
-    if (cmdMsAdjuster.isRun()) {
-      if (!cmdMsAdjuster.configure(parent, jarPath, ramGbNonzero, lcmsFiles, false, 49)) {
-        return false;
+    final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(tabMsf.isRun() && tabMsf.isMsadjuster(),
+        wd);
+
+    conf.accept(cmdMsAdjuster, () -> {
+      if (cmdMsAdjuster.isRun()) {
+        if (!cmdMsAdjuster.configure(parent, jarPath, ramGbNonzero, sharedLcmsFiles, false, 49)) {
+          return false;
+        }
+        // MsAdjuster only makes files that are discovered by MsFragger
+        // automatically, so no file-list changes are needed
       }
-      // MsAdjuster only makes files that are discovered by MsFragger
-      // automatically, so no file-list changes are needed
-    }
+      return true;
+    });
+
+    // run MsAdjuster Cleanup
+    final CmdMsAdjuster cmdMsAdjusterCleanup = new CmdMsAdjuster(cmdMsAdjuster.isRun(), wd);
+
+    conf.accept(cmdMsAdjusterCleanup, () -> {
+      if (cmdMsAdjusterCleanup.isRun()) {
+        if (!cmdMsAdjusterCleanup.configure(parent, jarPath, ramGbNonzero, sharedLcmsFiles, true, 51)) {
+          return false;
+        }
+      }
+      return true;
+    });
 
     // run MsFragger
     final NoteConfigMsfragger configMsfragger;
     try {
       configMsfragger = Fragpipe.getSticky(NoteConfigMsfragger.class);
     } catch (NoStickyException e) {
-      SwingUtils.showErrorDialog(parent, "Looks like fragger was not configured.\nFragger is currently required.", "No MSFragger");
+      SwingUtils.showErrorDialog(parent,
+          "Looks like fragger was not configured.\nFragger is currently required.", "No MSFragger");
       return false;
     }
     final UsageTrigger binMsfragger = new UsageTrigger(configMsfragger.path, "MsFragger");
 
-    TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
+    final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
     final String decoyTag = tabDatabase.getDecoyTag();
 
     // check that Write Calibrated MGF is On in Fragger for easyPQP + timsTOF
-    final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
-    if (SpeclibPanel.EASYPQP_TIMSTOF.equals(speclibPanel.getEasypqpDataType())) {
-      if (!SwingUtils.showConfirmDialogShort(parent,
-          "Spectral library generation via EasyPQP requires that MSFragger\n"
-              + "writes a calibrated MGF file. There is a checkbox on MSFragger tab.\n\n"
-              + "Do you want to turn writing MGF on and continue?")) {
-        log.debug("User chose not to continue with auto-enabled MGF writing");
-        return false;
-      }
-      tabMsf.setWriteCalMgf(true);
+
+
+    final CmdMsfragger cmdMsfragger;
+    {
+      MsfraggerParams p = tabMsf.getParams();
+      cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd,
+          p.getPrecursorMassUnits(), p.getOutputReportTopN());
     }
+    final Map<InputLcmsFile, List<Path>> sharedPepxmlFilesFromMsfragger = new HashMap<>();
+    final Map<InputLcmsFile, List<Path>> sharedPepxmlFiles = new HashMap<>();
 
-    final MsfraggerParams msfParams = tabMsf.getParams();
-    final CmdMsfragger cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, msfParams.getPrecursorMassUnits(), msfParams.getOutputReportTopN());
-    if (cmdMsfragger.isRun()) {
-      if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile,
-          msfParams, tabMsf.getNumDbSlices(), ramGbNonzero,
-          lcmsFiles, decoyTag)) {
-        return false;
+    conf.accept(cmdMsfragger, () -> {
+      SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
+      if (SpeclibPanel.EASYPQP_TIMSTOF.equals(speclibPanel.getEasypqpDataType())) {
+        if (!SwingUtils.showConfirmDialogShort(parent,
+            "Spectral library generation via EasyPQP requires that MSFragger\n"
+                + "writes a calibrated MGF file. There is a checkbox on MSFragger tab.\n\n"
+                + "Do you want to turn writing MGF on and continue?")) {
+          log.debug("User chose not to continue with auto-enabled MGF writing");
+          return false;
+        }
+        tabMsf.setWriteCalMgf(true);
       }
 
-      String warn = Fragpipe.propsVarGet(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
-      if (Boolean.parseBoolean(warn)) {
-        for (InputLcmsFile f : lcmsFiles) {
-          if (f.getPath().toString().toLowerCase().endsWith(".mgf")) {
-            JCheckBox checkbox = new JCheckBox("Do not show this message again.");
-            String msg = "The list of input files contains MGF entries.\n"
-                + "MSFragger has limited MGF support (ProteoWizard output is OK).\n"
-                + "The search might fail unexpectedly with errors.\n"
-                + "Please consider converting files to mzML/mzXML with ProteoWizard.";
-            Object[] params = {msg, checkbox};
-            JOptionPane.showMessageDialog(parent, params, "Warning", JOptionPane.WARNING_MESSAGE);
-            if (checkbox.isSelected()) {
-              Fragpipe.propsVarSet(ThisAppProps.PROP_MGF_WARNING, Boolean.FALSE.toString());
+      if (cmdMsfragger.isRun()) {
+        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile,
+            tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGbNonzero,
+            sharedLcmsFiles, decoyTag)) {
+          return false;
+        }
+
+        String warn = Fragpipe.propsVarGet(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
+        if (Boolean.parseBoolean(warn)) {
+          for (InputLcmsFile f : sharedLcmsFiles) {
+            if (f.getPath().toString().toLowerCase().endsWith(".mgf")) {
+              JCheckBox checkbox = new JCheckBox("Do not show this message again.");
+              String msg = "The list of input files contains MGF entries.\n"
+                  + "MSFragger has limited MGF support (ProteoWizard output is OK).\n"
+                  + "The search might fail unexpectedly with errors.\n"
+                  + "Please consider converting files to mzML/mzXML with ProteoWizard.";
+              Object[] params = {msg, checkbox};
+              JOptionPane.showMessageDialog(parent, params, "Warning", JOptionPane.WARNING_MESSAGE);
+              if (checkbox.isSelected()) {
+                Fragpipe.propsVarSet(ThisAppProps.PROP_MGF_WARNING, Boolean.FALSE.toString());
+              }
+              break;
             }
-            break;
           }
         }
       }
-    }
-    Map<InputLcmsFile, List<Path>> pepxmlFiles = cmdMsfragger.outputs(
-        lcmsFiles, tabMsf.getOutputFileExt(), wd);
-    final Map<InputLcmsFile, List<Path>> pepxmlFilesFromMsfragger = new HashMap<>(pepxmlFiles);
 
+      Map<InputLcmsFile, List<Path>> outputs = cmdMsfragger.outputs(
+          sharedLcmsFiles, tabMsf.getOutputFileExt(), wd);
+      MapUtils.refill(sharedPepxmlFilesFromMsfragger, outputs);
+      MapUtils.refill(sharedPepxmlFiles, outputs);
 
-    // run MsAdjuster Cleanup
-    if (cmdMsAdjuster.isRun()) {
-      if (!cmdMsAdjuster.configure(parent, jarPath, ramGbNonzero, lcmsFiles, true, 51)) {
-        return false;
-      }
-
-    }
-
+      return true;
+    });
 
     // run Crystalc
     CrystalcPanel crystalcPanel = Fragpipe.getStickyStrict(CrystalcPanel.class);
@@ -648,11 +700,14 @@ public class FragpipeRun {
         ccParams.setThread(threads);
       }
       if (!cmdCrystalc.configure(parent, isDryRun, Paths.get(binMsfragger.getBin()),
-          msfParams.getOutputFileExtension(), ramGbNonzero,
-          ccParams, fastaFile, pepxmlFiles)) {
+          tabMsf.getParams().getOutputFileExtension(), ramGbNonzero,
+          ccParams, fastaFile, sharedPepxmlFiles)) {
         return false;
       }
-      pepxmlFiles = cmdCrystalc.outputs(pepxmlFiles, tabMsf.getOutputFileExt());
+      Map<InputLcmsFile, List<Path>> outputs = cmdCrystalc
+          .outputs(sharedPepxmlFiles, tabMsf.getOutputFileExt());
+      sharedPepxmlFiles.clear();
+      sharedPepxmlFiles.putAll(outputs);
     }
 
     // run Peptide Prophet
@@ -665,15 +720,18 @@ public class FragpipeRun {
       final String pepProphCmd = pepProphPanel.getCmdOpts();
       final String enzymeName = tabMsf.getEnzymeName();
       if (!cmdPeptideProphet.configure(parent, usePhi, jarPath, isDryRun,
-          fastaFile, decoyTag, pepProphCmd, isCombinedPepxml, enzymeName, pepxmlFiles)) {
+          fastaFile, decoyTag, pepProphCmd, isCombinedPepxml, enzymeName, sharedPepxmlFiles)) {
         return false;
       }
     }
-    pepxmlFiles = cmdPeptideProphet.outputs(pepxmlFiles, tabMsf.getOutputFileExt(), isCombinedPepxml);
+    Map<InputLcmsFile, List<Path>> pepProphOutputs = cmdPeptideProphet
+        .outputs(sharedPepxmlFiles, tabMsf.getOutputFileExt(), isCombinedPepxml);
+    sharedPepxmlFiles.clear();
+    sharedPepxmlFiles.putAll(pepProphOutputs);
 
     if (cmdPeptideProphet.isRun()) {
       // peptide prophet is run, so we run adjustments of the pepxml files.
-      List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml = Seq.seq(pepxmlFiles)
+      List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml = Seq.seq(sharedPepxmlFiles)
           .flatMap(t2 -> Seq.seq(t2.v2).map(pepxml -> new Tuple2<>(t2.v1, pepxml)))
           .distinct(t2 -> t2.v2)
           .toList();
@@ -683,7 +741,7 @@ public class FragpipeRun {
     }
 
     // run Protein Prophet
-    final boolean isMuiltiExperimentReport = lcmsFileGroups.size() > 1;
+    final boolean isMuiltiExperimentReport = sharedLcmsFileGroups.size() > 1;
     final boolean isProcessGroupsSeparately = Fragpipe.getStickyStrict(TabWorkflow.class).isProcessEachExpSeparately();
 
     final boolean isRunProteinProphet = protProphPanel.isRun();
@@ -692,11 +750,11 @@ public class FragpipeRun {
       final String protProphCmdStr = protProphPanel.getCmdOpts();
       if (!cmdProteinProphet.configure(parent,
           usePhi, protProphCmdStr, isMuiltiExperimentReport,
-          isProcessGroupsSeparately, pepxmlFiles)) {
+          isProcessGroupsSeparately, sharedPepxmlFiles)) {
         return false;
       }
     }
-    Map<LcmsFileGroup, Path> mapGroupsToProtxml = cmdProteinProphet.outputs(pepxmlFiles, isProcessGroupsSeparately, isMuiltiExperimentReport);
+    final Map<LcmsFileGroup, Path> mapGroupsToProtxml = cmdProteinProphet.outputs(sharedPepxmlFiles, isProcessGroupsSeparately, isMuiltiExperimentReport);
 
     // Check Decoy tags if any of the downstream tools are requested
     if (cmdPeptideProphet.isRun() || cmdProteinProphet.isRun()) {
@@ -722,7 +780,7 @@ public class FragpipeRun {
     final CmdPhilosopherDbAnnotate cmdPhilosopherDbAnnotate = new CmdPhilosopherDbAnnotate(isDbAnnotate, wd);
     if (cmdPhilosopherDbAnnotate.isRun()) {
       if (!cmdPhilosopherDbAnnotate
-          .configure(parent, usePhi, fastaFile, decoyTag, pepxmlFiles, mapGroupsToProtxml)) {
+          .configure(parent, usePhi, fastaFile, decoyTag, sharedPepxmlFiles, mapGroupsToProtxml)) {
         return false;
       }
     }
@@ -795,7 +853,7 @@ public class FragpipeRun {
     if (cmdPhilosopherAbacus.isRun()) {
       // run iProphet, will run right after Peptide Prophet because of priority setting
       if (cmdIprophet.isRun()) {
-        if (!cmdIprophet.configure(parent, usePhi, decoyTag, threads, pepxmlFiles)) {
+        if (!cmdIprophet.configure(parent, usePhi, decoyTag, threads, sharedPepxmlFiles)) {
           return false;
         }
       }
@@ -821,7 +879,7 @@ public class FragpipeRun {
     if (cmdIonquant.isRun()) {
       if (!cmdIonquant.configure(
           parent, Paths.get(binMsfragger.getBin()), ramGbNonzero, quantPanelLabelfree.toMap(),
-          pepxmlFilesFromMsfragger, mapGroupsToProtxml, threads)) {
+          sharedPepxmlFilesFromMsfragger, mapGroupsToProtxml, threads)) {
         return false;
       }
     }
@@ -834,7 +892,7 @@ public class FragpipeRun {
     if (isTmt) {
       // check file compatibility separately, as single tools will report errors
       // that look like they are unrelated to TMT
-      if (lcmsFiles.stream()
+      if (sharedLcmsFiles.stream()
           .anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml"))) {
         SwingUtils.showWarningDialog(parent,
             CmdTmtIntegrator.NAME + " only supports mzML files.\n"
@@ -861,8 +919,6 @@ public class FragpipeRun {
         return false;
       }
     }
-
-    cmdPhilosopherReport.
 
     // run LabelQuant - as part of TMT-I
     final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(isTmtLqFq, wd);
@@ -959,18 +1015,19 @@ public class FragpipeRun {
 
 
     // run Spectral library generation
+    final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
     final boolean isRunSpeclibgen = speclibPanel.isRunSpeclibgen();
     final boolean useEasypqp = speclibPanel.useEasypqp();
     final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(isRunSpeclibgen, wd);
     if (cmdSpecLibGen.isRun()) {
 
-      NoteConfigSpeclibgen conf = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
-      if (!conf.isValid()) { JOptionPane.showMessageDialog(parent,
+      NoteConfigSpeclibgen speclibConf = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
+      if (!speclibConf.isValid()) { JOptionPane.showMessageDialog(parent,
             "Spectral Library Generation scripts did not initialize correctly.",
             "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
         return false;
       }
-      final SpecLibGen2 slg = conf.instance;
+      final SpecLibGen2 slg = speclibConf.instance;
 
       if (!cmdSpecLibGen.configure(parent, usePhi, jarPath, slg,
           mapGroupsToProtxml, fastaFile, isRunProteinProphet, useEasypqp)) {
@@ -978,66 +1035,52 @@ public class FragpipeRun {
       }
     }
 
+    for (CmdBase command : commands) {
+      log.debug("Adding command to graph: {}", command);
+      addToDepGraph(graph, command);
+    }
 
-    addToDepGraph(g, cmdStart);
-    addToDepGraph(g, cmdUmpire);
-    addToDepGraph(g, cmdMsAdjuster);
-    addToDepGraph(g, cmdMsfragger);
-    addToDepGraph(g, cmdCrystalc);
-    addToDepGraph(g, cmdPeptideProphet);
-    addToDepGraph(g, cmdProteinProphet);
-    addToDepGraph(g, cmdPhilosopherDbAnnotate);
-    addToDepGraph(g, cmdPhilosopherFilter);
-    addToDepGraph(g, cmdFreequant);
-    addToDepGraph(g, cmdIprophet);
-    addToDepGraph(g, cmdPhilosopherAbacus);
-    addToDepGraph(g, cmdIonquant);
-    addToDepGraph(g, cmdTmtFreequant);
-    addToDepGraph(g, cmdTmtLabelQuant);
-    addToDepGraph(g, cmdPhilosopherReport);
-    addToDepGraph(g, cmdTmt);
-    addToDepGraph(g, cmdPtmshepherd);
-    addToDepGraph(g, cmdSpecLibGen);
+    addToDepGraph(graph, cmdUmpire, cmdStart);
+    addToDepGraph(graph, cmdMsAdjuster,  cmdStart, cmdUmpire);
+    addToDepGraph(graph, cmdMsfragger, cmdStart, cmdUmpire, cmdMsAdjuster);
 
-    addToDepGraph(g, cmdUmpire, cmdStart);
-    addToDepGraph(g, cmdMsAdjuster,  cmdStart, cmdUmpire);
-    addToDepGraph(g, cmdMsfragger, cmdStart, cmdUmpire, cmdMsAdjuster);
-    addToDepGraph(g, cmdCrystalc, cmdMsfragger);
-    addToDepGraph(g, cmdPeptideProphet, cmdMsfragger, cmdCrystalc);
-    addToDepGraph(g, cmdProteinProphet, cmdPeptideProphet);
-    addToDepGraph(g, cmdPhilosopherDbAnnotate, cmdProteinProphet);
-    addToDepGraph(g, cmdPhilosopherFilter, cmdPhilosopherDbAnnotate);
-    addToDepGraph(g, cmdFreequant, cmdPhilosopherFilter);
-    addToDepGraph(g, cmdIprophet, cmdPhilosopherReport, cmdPeptideProphet);
-    addToDepGraph(g, cmdPhilosopherAbacus, cmdPhilosopherReport, cmdIprophet, cmdProteinProphet);
-    addToDepGraph(g, cmdIonquant, cmdFreequant);
-    addToDepGraph(g, cmdTmtFreequant, cmdPhilosopherFilter, cmdIonquant);
-    addToDepGraph(g, cmdTmtLabelQuant, cmdPhilosopherFilter, cmdTmtFreequant);
-    addToDepGraph(g, cmdPhilosopherReport, cmdPhilosopherFilter, cmdFreequant, cmdTmtFreequant, cmdTmtLabelQuant);
-    addToDepGraph(g, cmdTmt, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherReport, cmdPhilosopherAbacus);
-    addToDepGraph(g, cmdPtmshepherd, cmdTmt);
-    addToDepGraph(g, cmdSpecLibGen, cmdPtmshepherd);
+    addToDepGraph(graph, cmdMsAdjusterCleanup, cmdMsAdjuster);
+    addToDepGraph(graph, cmdCrystalc, cmdMsfragger);
+    addToDepGraph(graph, cmdPeptideProphet, cmdMsfragger, cmdCrystalc);
+    addToDepGraph(graph, cmdProteinProphet, cmdPeptideProphet);
+    addToDepGraph(graph, cmdPhilosopherDbAnnotate, cmdProteinProphet);
+    addToDepGraph(graph, cmdPhilosopherFilter, cmdPhilosopherDbAnnotate);
+    addToDepGraph(graph, cmdFreequant, cmdPhilosopherFilter);
+    addToDepGraph(graph, cmdIprophet, cmdPhilosopherReport, cmdPeptideProphet);
+    addToDepGraph(graph, cmdPhilosopherAbacus, cmdPhilosopherReport, cmdIprophet, cmdProteinProphet);
+    addToDepGraph(graph, cmdIonquant, cmdFreequant);
+    addToDepGraph(graph, cmdTmtFreequant, cmdPhilosopherFilter, cmdIonquant);
+    addToDepGraph(graph, cmdTmtLabelQuant, cmdPhilosopherFilter, cmdTmtFreequant);
+    addToDepGraph(graph, cmdPhilosopherReport, cmdPhilosopherFilter, cmdFreequant, cmdTmtFreequant, cmdTmtLabelQuant);
+    addToDepGraph(graph, cmdTmt, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherReport, cmdPhilosopherAbacus);
+    addToDepGraph(graph, cmdPtmshepherd, cmdTmt);
+    addToDepGraph(graph, cmdSpecLibGen, cmdPtmshepherd);
 
 
     // run Philosopher clean/init in all directories where Philosopher will be invoked
     for (Path pathPhiIsRunIn : usePhi.getWorkDirs()) {
       CmdPhilosopherWorkspaceCleanInit cmdPhiCleanInit = new CmdPhilosopherWorkspaceCleanInit(
           true, pathPhiIsRunIn);
-      addToDepGraph(g, cmdPhiCleanInit); // needs to run at the start
-      g.addEdge(cmdPhiCleanInit, cmdPeptideProphet); // and before the first command that uses Phi
+      addToDepGraph(graph, cmdPhiCleanInit); // needs to run at the start
+      graph.addEdge(cmdPhiCleanInit, cmdPeptideProphet); // and before the first command that uses Phi
 
 
       cmdPhiCleanInit.configure(usePhi);
       CmdPhilosopherWorkspaceClean cmdPhiClean = new CmdPhilosopherWorkspaceClean(
           true, pathPhiIsRunIn);
-      addToDepGraph(g, cmdPhiClean, cmdSpecLibGen); // runs after last command
+      addToDepGraph(graph, cmdPhiClean, cmdSpecLibGen); // runs after last command
       cmdPhiClean.configure(usePhi);
     }
 
     // make sure that all subfolders are created for groups/experiments
     if (!isDryRun) {
       List<Path> paths = Stream
-          .concat(pepxmlFiles.values().stream().flatMap(List::stream), mapGroupsToProtxml.values().stream())
+          .concat(sharedPepxmlFiles.values().stream().flatMap(List::stream), mapGroupsToProtxml.values().stream())
           .map(Path::getParent).collect(Collectors.toList());
       try {
         for (Path path : paths) {

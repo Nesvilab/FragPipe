@@ -46,4 +46,9 @@ public class MapUtils {
       return map.entrySet().stream()
           .collect(Collectors.toMap(kv -> keyMapper.apply(kv.getKey(), kv.getValue()), kv -> valMapper.apply(kv.getKey(), kv.getValue())));
   }
+
+  public static<K,V> void refill(Map<K,V> target, Map<K,V> source) {
+    target.clear();
+    target.putAll(source);
+  }
 }
