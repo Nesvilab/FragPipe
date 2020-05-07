@@ -66,7 +66,7 @@ public class CmdSpecLibGen extends CmdBase {
               + "<b>Select Yes</b> to continue.<br/><br/>"
               + "<b>Select No</b> if you want a single spectral library generated<br/>"
               + "from ALL input files.<br/>"
-              + "Change Experiment/Group configuration on LCMS files tab.<br/>"
+              + "Change Experiment/Group configuration on Workflow tab, LCMS files section.<br/>"
               + "E.g. press the <i>Clear Experiments</i> button there.",
           "SpecLibGen config warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
       if (JOptionPane.YES_OPTION != res) {
