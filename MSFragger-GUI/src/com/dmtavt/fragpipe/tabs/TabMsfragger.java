@@ -1400,6 +1400,14 @@ public class TabMsfragger extends JPanelBase {
     return false;
   }
 
+  public boolean isWriteCalMgf() {
+    return uiCheckWriteCalibratedMgf.isSelected();
+  }
+
+  public void setWriteCalMgf(boolean selected) {
+    uiCheckWriteCalibratedMgf.setSelected(selected);
+  }
+
   public int getNumDbSlices() {
     return uiSpinnerDbsplit.getActualValue();
   }

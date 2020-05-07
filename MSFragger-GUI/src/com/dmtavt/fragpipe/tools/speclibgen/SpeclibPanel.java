@@ -59,6 +59,7 @@ public class SpeclibPanel extends JPanelBase {
   private UiCombo uiComboPqpCal;
   private JPanel panelEasypqp;
   private JPanel panelSpectrast;
+  public static final String EASYPQP_TIMSTOF = "timsTOF";
 
   @Override
   protected void initMore() {
@@ -149,7 +150,7 @@ public class SpeclibPanel extends JPanelBase {
     final String optionAuto = "Automatic selection of a run as reference RT";
     final String optionManual = "User provided RT calibration file";
     pqpCal = Arrays.asList(optionAuto, "iRT", "ciRT", optionManual);
-    pqpType = Arrays.asList("timsTOF", "non-timsTOF");
+    pqpType = Arrays.asList(EASYPQP_TIMSTOF, "non-timsTOF");
 
     uiComboPqpCal = UiUtils.createUiCombo(pqpCal);
     FormEntry fePqpCal = new FormEntry("easypqp.rt-cal",
@@ -259,6 +260,10 @@ public class SpeclibPanel extends JPanelBase {
 
   public boolean useEasypqp() {
     return SwingUtils.isEnabledAndChecked(uiRadioUseEasypqp);
+  }
+
+  public String getEasypqpDataType() {
+    return (String)uiComboPqpType.getSelectedItem();
   }
 
   public String getEasypqpCalOption() {

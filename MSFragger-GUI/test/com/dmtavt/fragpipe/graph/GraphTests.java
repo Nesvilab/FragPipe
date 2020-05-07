@@ -1,12 +1,23 @@
 package com.dmtavt.fragpipe.graph;
 
+import com.github.chhh.utils.IOUtils;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.graph.SimpleGraph;
 import org.jgrapht.traverse.DepthFirstIterator;
 import org.jgrapht.traverse.TopologicalOrderIterator;
+import org.jooq.lambda.Seq;
+import org.jooq.lambda.tuple.Tuple2;
 import org.junit.Test;
 
 public class GraphTests {
@@ -87,5 +98,83 @@ public class GraphTests {
     g.addEdge("v4", "v6");
 
     return g;
+  }
+
+  @Test
+  public void forYed() throws IOException {
+    List<String> lines = IOUtils.readAllLines(new ByteArrayInputStream(fpTaskGraph().getBytes()));
+
+    final Pattern re = Pattern.compile("(cmd[a-zA-Z0-9]+)");
+
+    List<String> nodes = Seq.seq(lines).flatMap(s -> {
+      Matcher m = re.matcher(s);
+      List<String> names = new ArrayList<>();
+      while (m.find()) {
+        names.add(m.group(1));
+      }
+      return Seq.seq(names);
+    }).distinct().toList();
+
+//    List<Tuple2<String, String>> edges = Seq.seq(lines).flatMap(s -> {
+//      Matcher m = re.matcher(s);
+//      List<String> names = new ArrayList<>();
+//      while (m.find()) {
+//        names.add(m.group(1));
+//      }
+//      List<Tuple2<String,String>> pairs = new ArrayList<>();
+//      for (int i = 1; i < names.size(); i++) {
+//        pairs.add(new Tuple2<>(names.get(0), names.get(i)));
+//      }
+//      return Seq.seq(pairs);
+//    }).toList();
+
+    List<Tuple2<String, String>> edges = Seq.seq(lines).map(line -> {
+      Matcher m = re.matcher(line);
+      List<String> found = new ArrayList<>();
+      while (m.find())
+        found.add(m.group(1));
+      return found;
+    })
+        .filter(list -> list.size() > 1)
+        .flatMap(strings -> {
+          Seq<Tuple2<String, String>> s = Seq.empty();
+          for (int i = 1; i < strings.size(); i++)
+            s = s.append(new Tuple2<>(strings.get(0), strings.get(i)));
+          return s;
+        })
+        .toList();
+
+    System.out.println("Cmd");
+    System.out.println(Seq.seq(nodes).toString("\n"));
+    System.out.println();
+    System.out.println();
+    System.out.println();
+    System.out.println();
+    System.out.println("Source\tTarget");
+    System.out.println(Seq.seq(edges).map(tuple -> tuple.v2 + "\t" + tuple.v1).toString("\n"));
+  }
+
+  private String fpTaskGraph() {
+    return "addToDepGraph(g, cmdStart);\n"
+        + "    addToDepGraph(g, cmdUmpire, cmdStart);\n"
+        + "    addToDepGraph(g, cmdMsAdjuster,  cmdStart, cmdUmpire);\n"
+        + "    addToDepGraph(g, cmdMsfragger, cmdStart, cmdUmpire, cmdMsAdjuster);\n"
+        + "    addToDepGraph(g, cmdCrystalc, cmdMsfragger);\n"
+        + "    addToDepGraph(g, cmdPeptideProphet, cmdMsfragger, cmdCrystalc);\n"
+        + "    addToDepGraph(g, cmdProteinProphet, cmdPeptideProphet);\n"
+        + "    addToDepGraph(g, cmdPhilosopherDbAnnotate, cmdProteinProphet);\n"
+        + "    addToDepGraph(g, cmdPhilosopherFilter, cmdPhilosopherDbAnnotate);\n"
+        + "    addToDepGraph(g, cmdFreequant, cmdPhilosopherFilter);\n"
+        + "    addToDepGraph(g, cmdIprophet, cmdPhilosopherReport, cmdPeptideProphet);\n"
+        + "    addToDepGraph(g, cmdPhilosopherAbacus, cmdPhilosopherReport, cmdIprophet, cmdProteinProphet);\n"
+        + "    addToDepGraph(g, cmdIonquant, cmdFreequant);\n"
+        + "    addToDepGraph(g, cmdTmtFreequant, cmdPhilosopherFilter, cmdIonquant);\n"
+        + "    addToDepGraph(g, cmdTmtLabelQuant, cmdPhilosopherFilter, cmdTmtFreequant);\n"
+        + "    addToDepGraph(g, cmdPhilosopherReport, cmdPhilosopherFilter, cmdFreequant, cmdTmtFreequant, cmdTmtLabelQuant);\n"
+        + "    addToDepGraph(g, cmdTmt, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherReport, cmdPhilosopherAbacus);\n"
+        + "    addToDepGraph(g, cmdPtmshepherd, cmdTmt);\n"
+        + "    addToDepGraph(g, cmdSpecLibGen, cmdPtmshepherd);\n"
+        + "    addToDepGraph(g, cmdPhiCleanInit, cmdStart);\n"
+        + "    addToDepGraph(g, cmdPhiClean, cmdStart, cmdSpecLibGen);\n";
   }
 }

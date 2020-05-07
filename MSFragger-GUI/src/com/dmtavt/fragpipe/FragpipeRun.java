@@ -517,9 +517,13 @@ public class FragpipeRun {
   }
 
   private static void addToDepGraph(Graph<? super CmdBase, DefaultEdge> graph, CmdBase node, CmdBase... deps) {
-    graph.addVertex(node);
+    if (!graph.containsVertex(node)) {
+      graph.addVertex(node);
+    }
     for (CmdBase dep : deps) {
-      graph.addEdge(dep, node);
+      if (!graph.containsEdge(dep, node)) {
+        graph.addEdge(dep, node);
+      }
     }
   }
 
@@ -580,6 +584,18 @@ public class FragpipeRun {
     TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
     final String decoyTag = tabDatabase.getDecoyTag();
     final MsfraggerParams msfParams = tabMsf.getParams();
+    // check that Write Calibrated MGF is On in Fragger
+    final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
+    if (SpeclibPanel.EASYPQP_TIMSTOF.equals(speclibPanel.getEasypqpDataType())) {
+      if (!SwingUtils.showConfirmDialogShort(parent,
+          "Spectral library generation via EasyPQP requires that MSFragger\n"
+              + "writes a calibrated MGF file. There is a checkbox on MSFragger tab.\n\n"
+              + "Do you want to turn writing MGF on anc contine?")) {
+        log.debug("User chose not to continue with auto-enabled MGF writing");
+        return false;
+      }
+      tabMsf.setWriteCalMgf(true);
+    }
 
     final CmdMsfragger cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, msfParams.getPrecursorMassUnits(), msfParams.getOutputReportTopN());
     if (cmdMsfragger.isRun()) {
@@ -940,7 +956,6 @@ public class FragpipeRun {
 
 
     // run Spectral library generation
-    SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
     final boolean isRunSpeclibgen = speclibPanel.isRunSpeclibgen();
     final boolean useEasypqp = speclibPanel.useEasypqp();
     final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(isRunSpeclibgen, wd);
@@ -962,6 +977,25 @@ public class FragpipeRun {
 
 
     addToDepGraph(g, cmdStart);
+    addToDepGraph(g, cmdUmpire);
+    addToDepGraph(g, cmdMsAdjuster);
+    addToDepGraph(g, cmdMsfragger);
+    addToDepGraph(g, cmdCrystalc);
+    addToDepGraph(g, cmdPeptideProphet);
+    addToDepGraph(g, cmdProteinProphet);
+    addToDepGraph(g, cmdPhilosopherDbAnnotate);
+    addToDepGraph(g, cmdPhilosopherFilter);
+    addToDepGraph(g, cmdFreequant);
+    addToDepGraph(g, cmdIprophet);
+    addToDepGraph(g, cmdPhilosopherAbacus);
+    addToDepGraph(g, cmdIonquant);
+    addToDepGraph(g, cmdTmtFreequant);
+    addToDepGraph(g, cmdTmtLabelQuant);
+    addToDepGraph(g, cmdPhilosopherReport);
+    addToDepGraph(g, cmdTmt);
+    addToDepGraph(g, cmdPtmshepherd);
+    addToDepGraph(g, cmdSpecLibGen);
+
     addToDepGraph(g, cmdUmpire, cmdStart);
     addToDepGraph(g, cmdMsAdjuster,  cmdStart, cmdUmpire);
     addToDepGraph(g, cmdMsfragger, cmdStart, cmdUmpire, cmdMsAdjuster);
