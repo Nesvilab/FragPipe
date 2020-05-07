@@ -26,6 +26,8 @@ public class CmdBrukerLibLoadTest extends CmdBase {
     }
 
     public boolean configure(Path binFragger) {
+        initPreConfig();
+
         final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.getParent()));
         final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_NAME).concat(JAR_DEPS));
         if (classpathJars == null) {

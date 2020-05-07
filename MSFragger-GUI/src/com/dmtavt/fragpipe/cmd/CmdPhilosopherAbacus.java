@@ -86,7 +86,7 @@ public class CmdPhilosopherAbacus extends CmdBase {
     final List<String> flagsAbacus = Arrays.asList("--picked", "--razor", "--reprint", "--uniqueonly");
     final List<String> flagsFilter = Arrays.asList("--picked", "--razor", "--mapmods", "--sequential", "--models");
 
-    pbis.clear();
+    initPreConfig();
 
     final long numGroups = mapGroupsToProtxml.keySet().stream()
         .map(group -> group.name).distinct().count();
@@ -166,5 +166,10 @@ public class CmdPhilosopherAbacus extends CmdBase {
 
   private String getCombinedPepFileName() {
     return "combined.pep.xml";
+  }
+
+  @Override
+  public boolean usesPhi() {
+    return true;
   }
 }

@@ -32,7 +32,8 @@ public class CmdPhilosopherReport extends CmdBase {
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       boolean doPrintDecoys, boolean doMzId, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
-    pbis.clear();
+    initPreConfig();
+
     Set<Path> groupWds = mapGroupsToProtxml.keySet().stream().map(g -> g.outputDir(wd))
         .collect(Collectors.toSet());
     for (Path groupWd : groupWds) {
@@ -51,6 +52,11 @@ public class CmdPhilosopherReport extends CmdBase {
     }
 
     isConfigured = true;
+    return true;
+  }
+
+  @Override
+  public boolean usesPhi() {
     return true;
   }
 }

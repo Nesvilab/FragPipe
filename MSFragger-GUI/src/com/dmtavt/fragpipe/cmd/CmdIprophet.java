@@ -25,7 +25,7 @@ public class CmdIprophet extends CmdBase {
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       String decoyTag, int nThreads, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
 
-    pbis.clear();
+    initPreConfig();
 
     final List<String> cmd = new ArrayList<>();
     cmd.add(usePhilosopher.useBin());
@@ -56,5 +56,10 @@ public class CmdIprophet extends CmdBase {
   @Override
   public int getPriority() {
     return 94;
+  }
+
+  @Override
+  public boolean usesPhi() {
+    return true;
   }
 }

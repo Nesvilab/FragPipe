@@ -30,7 +30,8 @@ public class CmdPhilosopherFilter extends CmdBase {
       String decoyTag, String textReportFilter, boolean dontUseFilterProtxml,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
-    pbis.clear();
+    initPreConfig();
+
     for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
       final LcmsFileGroup group = e.getKey();
       final Path protxml = e.getValue();
@@ -74,5 +75,10 @@ public class CmdPhilosopherFilter extends CmdBase {
   @Override
   public int getPriority() {
     return 97;
+  }
+
+  @Override
+  public boolean usesPhi() {
+    return true;
   }
 }

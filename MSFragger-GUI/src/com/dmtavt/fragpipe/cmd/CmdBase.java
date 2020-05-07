@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe.cmd;
 
+import com.dmtavt.fragpipe.api.IConfig;
 import com.github.chhh.utils.StringUtils;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,6 +31,10 @@ public abstract class CmdBase {
   final LinkedList<ProcessBuilderInfo> pbis;
   final String fileCaptureStdout;
   final String fileCaptureStderr;
+  IConfig config = () -> {
+    log.warn("No config set for command [{}]", getCmdName());
+    return true;
+  };
   boolean isConfigured;
 
   public CmdBase(boolean isRun, Path workDir, String fileCaptureStdout, String fileCaptureStderr) {
@@ -44,6 +49,11 @@ public abstract class CmdBase {
     this(isRun, workDir, "", "");
   }
 
+  protected void initPreConfig() {
+    pbis.clear();
+    isConfigured = false;
+  }
+
   @Override
   public String toString() {
     return new StringJoiner(", ", CmdBase.class.getSimpleName() + "[", "]")
@@ -51,6 +61,18 @@ public abstract class CmdBase {
         .add("isRun=" + isRun)
         .add("wd=" + wd)
         .toString();
+  }
+
+  public IConfig getConfig() {
+    return config;
+  }
+
+  public void setConfig(IConfig config) {
+    this.config = config;
+  }
+
+  public boolean usesPhi() {
+    return false;
   }
 
   public static String constructClasspathString(List<Path> jarDepsPaths, Path ... additionalJars) {

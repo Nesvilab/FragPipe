@@ -103,7 +103,7 @@ public class CmdCrystalc extends CmdBase {
   public boolean configure(Component comp, boolean isDryRun, Path binFragger,
       String msfraggerOutputExt, int ramGb,
       CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
-    pbis.clear();
+    initPreConfig();
 
     final List<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
     final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));

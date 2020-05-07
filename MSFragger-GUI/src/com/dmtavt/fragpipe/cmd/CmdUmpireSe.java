@@ -62,7 +62,7 @@ public class CmdUmpireSe extends CmdBase {
       Path jarFragpipe, UsageTrigger philo, UmpirePanel umpirePanel,
       List<InputLcmsFile> lcmsFiles) {
 
-    pbis.clear();
+    initPreConfig();
 
     // msconvert
     // now all the generated garbage is in the working directory

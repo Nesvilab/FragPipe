@@ -65,7 +65,9 @@ public class CmdPtmshepherd extends CmdBase {
 
   public boolean configure(Component comp, boolean isDryRun, Path binFragger, int ramGb,
       Path db, Map<LcmsFileGroup, Path> mapGroupsToProtxml, Map<String, String> additionalProps) {
-    isConfigured = false;
+
+    initPreConfig();
+
     final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
     ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
     if (extLibsThermo != null) {

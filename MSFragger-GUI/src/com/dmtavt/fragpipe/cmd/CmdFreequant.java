@@ -44,7 +44,8 @@ public class CmdFreequant extends CmdBase {
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       String textReportLabelfree, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
-    pbis.clear();
+    initPreConfig();
+
     if (!checkCompatibleFormats(comp, mapGroupsToProtxml)) {
       return false;
     }
@@ -87,5 +88,10 @@ public class CmdFreequant extends CmdBase {
   @Override
   public int getPriority() {
     return 98;
+  }
+
+  @Override
+  public boolean usesPhi() {
+    return true;
   }
 }

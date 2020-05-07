@@ -17,7 +17,7 @@ public class CmdPtmProphet extends CmdBase {
 
   public boolean configure() {
 
-    isConfigured = false;
+    initPreConfig();
 
     if (!isConfigured) {
       throw new NotImplementedException();
@@ -30,5 +30,10 @@ public class CmdPtmProphet extends CmdBase {
   @Override
   public int getPriority() {
     return 93; // after peptide prophet
+  }
+
+  @Override
+  public boolean usesPhi() {
+    return true;
   }
 }

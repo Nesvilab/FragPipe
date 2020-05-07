@@ -31,7 +31,8 @@ public class CmdPhilosopherDbAnnotate extends CmdBase {
       String dbPath, String decoyTag,
       Map<InputLcmsFile, List<Path>> pepxmlFiles, Map<LcmsFileGroup, Path> protxmlFiles) {
 
-    pbis.clear();
+    initPreConfig();
+
     if (dbPath == null) {
       JOptionPane.showMessageDialog(comp, "Fasta file path can't be empty (Report)",
           "Warning", JOptionPane.WARNING_MESSAGE);
@@ -63,5 +64,10 @@ public class CmdPhilosopherDbAnnotate extends CmdBase {
   @Override
   public int getPriority() {
     return 90;
+  }
+
+  @Override
+  public boolean usesPhi() {
+    return true;
   }
 }

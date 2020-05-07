@@ -278,7 +278,8 @@ public class CmdMsfragger extends CmdBase {
        MsfraggerParams params, int numSlices, int ramGb,
       List<InputLcmsFile> lcmsFiles, final String decoyTag) {
 
-    pbis.clear();
+    initPreConfig();
+
     final boolean isSlicing = numSlices > 1;
     if (isSlicing) {
       // slicing requested

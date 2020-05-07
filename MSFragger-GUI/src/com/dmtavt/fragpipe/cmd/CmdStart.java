@@ -12,7 +12,7 @@ public class CmdStart extends CmdBase {
   public CmdStart(boolean isRun, Path workDir) {
     super(isRun, workDir);
     isConfigured = true;
-    isRun = false;
+    isRun = true;
   }
 
   @Override

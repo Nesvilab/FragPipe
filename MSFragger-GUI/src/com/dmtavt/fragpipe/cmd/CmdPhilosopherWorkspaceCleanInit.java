@@ -24,7 +24,8 @@ public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
   }
 
   public boolean configure(UsageTrigger usePhilosopher, boolean doClean) {
-    pbis.clear();
+    initPreConfig();
+
     if (doClean) {
       List<String> cmd = new ArrayList<>();
       cmd.add(usePhilosopher.useBin(wd));
@@ -54,5 +55,10 @@ public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
 
   public void setPriority(int priority) {
     this.priority = priority;
+  }
+
+  @Override
+  public boolean usesPhi() {
+    return true;
   }
 }

@@ -160,7 +160,7 @@ public class CmdProteinProphet extends CmdBase {
       String txtProteinProphetCmdLineOpts, boolean isMultiExperiment,
       boolean isProcessGroupsSeparately, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
 
-    pbis.clear();
+    initPreConfig();
 
     // check for existence of old files
     final Map<LcmsFileGroup, Path> outputs = outputs(pepxmlFiles, isProcessGroupsSeparately, isMultiExperiment);
@@ -293,5 +293,10 @@ public class CmdProteinProphet extends CmdBase {
   @Override
   public int getPriority() {
     return 96;
+  }
+
+  @Override
+  public boolean usesPhi() {
+    return true;
   }
 }

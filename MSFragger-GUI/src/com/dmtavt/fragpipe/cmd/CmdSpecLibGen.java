@@ -39,7 +39,7 @@ public class CmdSpecLibGen extends CmdBase {
   public boolean configure(Component comp, UsageTrigger usePhi, Path jarFragpipe, SpecLibGen2 slg,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, boolean useEasypqp) {
 
-    pbis.clear();
+    initPreConfig();
 
     final String[] compatibleExts = useEasypqp ? new String[]{".d", ".mzml", ".mzxml"} : new String[]{".mzml", ".mzxml"};
     final Predicate<String> isFileCompatible = fn -> Arrays.stream(compatibleExts).anyMatch(ext -> fn.toLowerCase().endsWith(ext));

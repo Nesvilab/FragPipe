@@ -24,7 +24,8 @@ public class CmdDatabaseDownload extends CmdBase {
       boolean isReviewed, boolean isAddContaminants, boolean isAddIsoforms, boolean isAddDecoys,
                            Path addFastaPath) {
 
-    pbis.clear();
+    initPreConfig();
+
     List<String> cmd = new ArrayList<>();
     cmd.add(binPhilosopher.useBin(this.wd));
     cmd.add(PhilosopherProps.CMD_DATABASE);
@@ -59,5 +60,8 @@ public class CmdDatabaseDownload extends CmdBase {
     return 10;
   }
 
-
+  @Override
+  public boolean usesPhi() {
+    return true;
+  }
 }

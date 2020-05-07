@@ -33,9 +33,10 @@ public class CmdMsAdjuster extends CmdBase {
 
   public boolean configure(Component comp, Path jarFragpipe, int ramGb,
       List<InputLcmsFile> lcmsFiles, boolean doCleanup, int priority) {
-    pbis.clear();
-    isCleanup = doCleanup;
 
+    initPreConfig();
+
+    isCleanup = doCleanup;
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MSADJUSTER_NAME).concat(JAR_DEPS));
     if (classpathJars == null) {
       return false;

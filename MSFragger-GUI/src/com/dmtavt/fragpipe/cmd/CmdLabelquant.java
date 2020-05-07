@@ -40,7 +40,9 @@ public class CmdLabelquant extends CmdBase {
   public boolean configure(Component comp, boolean isDryRun, UsageTrigger phi,
       String textLabelquantOpts, QuantLabel label, final List<String> forbiddenOpts,
       Map<LcmsFileGroup, Path> annotations, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
-    pbis.clear();
+
+    initPreConfig();
+
     if (!checkCompatibleFormats(comp, mapGroupsToProtxml)) {
       return false;
     }
@@ -138,4 +140,8 @@ public class CmdLabelquant extends CmdBase {
     return true;
   }
 
+  @Override
+  public boolean usesPhi() {
+    return true;
+  }
 }

@@ -166,8 +166,7 @@ public class CmdPeptideProphet extends CmdBase {
       String fastaPath, String decoyTag, String textPepProphCmd, boolean combine, String enzymeName,
       Map<InputLcmsFile, List<Path>> pepxmlFiles) {
 
-    isConfigured = false;
-    pbis.clear();
+    initPreConfig();
 
     final boolean cmdLineContainsCombine = textPepProphCmd.toLowerCase().contains("--combine");
     if (cmdLineContainsCombine && !combine) {
@@ -368,5 +367,10 @@ public class CmdPeptideProphet extends CmdBase {
     ProcessBuildersDescriptor b = super.getBuilderDescriptor();
     b.setParallelGroup(getCmdName());
     return b;
+  }
+
+  @Override
+  public boolean usesPhi() {
+    return true;
   }
 }

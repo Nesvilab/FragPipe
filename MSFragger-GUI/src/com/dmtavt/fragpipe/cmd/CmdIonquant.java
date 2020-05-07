@@ -59,7 +59,7 @@ public class CmdIonquant extends CmdBase {
 //        --plot 0/1             # Plot traced features or not. Default: 0
 //        --psm <string>         # Path to Philosopher's psm.tsv. Optional.
 //        --multidir <string>    # Output dir for the multi experimental result. Optional.
-
+    initPreConfig();
 
     final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.getParent()));
     List<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
