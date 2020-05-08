@@ -31,6 +31,8 @@ import com.dmtavt.fragpipe.cmd.PbiBuilder;
 import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
 import com.dmtavt.fragpipe.cmd.ProcessBuildersDescriptor;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
+import com.dmtavt.fragpipe.internal.CmdBaseNode;
+import com.dmtavt.fragpipe.internal.DefEdge;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
 import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
@@ -69,6 +71,15 @@ import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.UsageTrigger;
+import com.github.chhh.utils.swing.UiUtils;
+import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.swing.util.mxMorphing;
+import com.mxgraph.util.mxEvent;
+import com.mxgraph.view.mxGraph;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -94,10 +105,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.apache.commons.codec.Charsets;
 import org.jgrapht.Graph;
+import org.jgrapht.ext.JGraphXAdapter;
+import org.jgrapht.ext.JGraphXAdapter2;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.ClosestFirstIterator;
@@ -181,7 +195,7 @@ public class FragpipeRun {
         return;
       }
 
-      final Graph<CmdBase, DefaultEdge> dag = new DirectedAcyclicGraph<>(DefaultEdge.class);
+      final Graph<CmdBase, DefEdge> dag = new DirectedAcyclicGraph<>(DefEdge.class);
       // main call to generate all the process builders
       if (!configureTaskGraph(tabRun, wd, jarPath, isDryRun, fastaPath, dag)) {
         log.debug("createProcessBuilders() failed");
@@ -189,7 +203,7 @@ public class FragpipeRun {
       }
 
       if (log.isDebugEnabled()) {
-        TopologicalOrderIterator<CmdBase, DefaultEdge> it =
+        TopologicalOrderIterator<CmdBase, DefEdge> it =
             new TopologicalOrderIterator<>(dag);
         String s = Seq.seq(it).map(o -> (CmdBase) o)
             .map(cmd -> String.format("Cmd: [%s], IsRun: [%s] Prority: [%d]", cmd.getCmdName(),
@@ -534,7 +548,7 @@ public class FragpipeRun {
 
   private static enum DIRECTION {IN, OUT, BOTH}
 
-  private static void addToGraph(Graph<? super CmdBase, DefaultEdge> graph, CmdBase node, DIRECTION direction,
+  private static void addToGraph(Graph<? super CmdBase, DefEdge> graph, CmdBase node, DIRECTION direction,
       CmdBase... deps) {
     if (!graph.containsVertex(node)) {
       graph.addVertex(node);
@@ -574,7 +588,7 @@ public class FragpipeRun {
   }
 
   private static boolean configureTaskGraph(JComponent parent, Path wd, Path jarPath,
-      boolean isDryRun, String fastaFile, final Graph<CmdBase, DefaultEdge> graphOrder) {
+      boolean isDryRun, String fastaFile, final Graph<CmdBase, DefEdge> graphOrder) {
 
     // Collect input LCMS files
     final TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
@@ -1116,7 +1130,7 @@ public class FragpipeRun {
     }
 
     // turn on all required dependencies
-    final Graph<CmdBase, DefaultEdge> graphDeps = new DirectedAcyclicGraph<>(DefaultEdge.class);
+    final Graph<CmdBase, DefEdge> graphDeps = new DirectedAcyclicGraph<>(DefEdge.class);
     addToGraph(graphDeps, cmdPhilosopherAbacus, DIRECTION.OUT, cmdIprophet);
     addToGraph(graphDeps, cmdMsAdjuster, DIRECTION.OUT, cmdMsAdjusterCleanup);
     addToGraph(graphDeps, cmdPhilosopherFilter, DIRECTION.OUT, cmdPhilosopherDbAnnotate);
@@ -1132,7 +1146,7 @@ public class FragpipeRun {
 
     for (CmdBase origin : origins) {
       log.debug("Traversing from starting point: [{}]", origin);
-      ClosestFirstIterator<CmdBase, DefaultEdge> it = new ClosestFirstIterator<>(graphDeps, origin);
+      ClosestFirstIterator<CmdBase, DefEdge> it = new ClosestFirstIterator<>(graphDeps, origin);
       while (it.hasNext()) {
         CmdBase next = it.next();
         log.debug("Next traversal node: [{}]", next);
@@ -1159,30 +1173,39 @@ public class FragpipeRun {
 
     // special treatment of phi workspace
     // run Philosopher clean/init in all directories where Philosopher will be invoked
+
+    CmdBase firstPhiDependentCmd = null;
+    CmdBase lastPhiDependentCmd = null;
+    for (TopologicalOrderIterator<CmdBase, DefEdge> it = new TopologicalOrderIterator<>(
+        graphOrder); it.hasNext(); ) {
+      CmdBase cmd = it.next();
+      if (cmd.usesPhi()) {
+        if (firstPhiDependentCmd == null) {
+          firstPhiDependentCmd = cmd;
+        }
+        lastPhiDependentCmd = cmd;
+      }
+    }
+
     for (Path pathPhiIsRunIn : usePhi.getWorkDirs()) {
 
       CmdPhilosopherWorkspaceCleanInit cmdPhiCleanInit = new CmdPhilosopherWorkspaceCleanInit(
           usePhi.isUsed(), pathPhiIsRunIn);
       cmdPhiCleanInit.configure(usePhi);
       addToGraph(graphOrder, cmdPhiCleanInit, DIRECTION.IN, cmdStart); // needs to run at start
-      for (CmdBase cmd : commands) {                            // and before any command that uses phi
-        if (cmd.usesPhi()) {
-          graphOrder.addEdge(cmdPhiCleanInit, cmd);
-        }
+      if (firstPhiDependentCmd != null) {
+        addToGraph(graphOrder, firstPhiDependentCmd, DIRECTION.IN, cmdPhiCleanInit); // and before first command that uses phi
       }
+//      for (CmdBase cmd : commands) {
+//        if (cmd.usesPhi()) {
+//          graphOrder.addEdge(cmdPhiCleanInit, cmd);
+//        }
+//      }
 
       CmdPhilosopherWorkspaceClean cmdPhiClean = new CmdPhilosopherWorkspaceClean(
           usePhi.isUsed(), pathPhiIsRunIn);
       cmdPhiClean.configure(usePhi);
 
-      CmdBase lastPhiDependentCmd = null;
-      for (TopologicalOrderIterator<CmdBase, DefaultEdge> it = new TopologicalOrderIterator<>(
-          graphOrder); it.hasNext(); ) {
-        CmdBase cmd = it.next();
-        if (cmd.usesPhi()) {
-          lastPhiDependentCmd = cmd;
-        }
-      }
       if (lastPhiDependentCmd != null) {
         // clean runs after last command that uses Phi
         log.debug("Determined that the last command in graph to use Phi is: [{}]",
@@ -1192,6 +1215,51 @@ public class FragpipeRun {
         log.warn("No command was found to use Philosopher.");
       }
     }
+
+
+    // all graphs are constructed
+    if (Version.isDevBuild()) {
+      // org.jgrapht.nio.graphml.GraphMLExporter
+
+      final JGraphXAdapter2<CmdBase, DefEdge> adapter = new JGraphXAdapter2<>(graphOrder);
+
+      // Overrides method to create the editing value
+      final mxGraphComponent graphComponent = new mxGraphComponent(adapter) {
+
+      };
+
+//      ActionListener actionLayout = e -> {
+//        mxHierarchicalLayout layout = new mxHierarchicalLayout(adapter);
+//        Object cell = adapter.getSelectionCell();
+//        if (cell == null || adapter.getModel().getChildCount(cell) == 0) {
+//          cell = adapter.getDefaultParent();
+//        }
+//        adapter.getModel().beginUpdate();
+//        try {
+//          long t0 = System.currentTimeMillis();
+//          layout.execute(cell);
+//        } finally {
+//          mxMorphing morph = new mxMorphing(graphComponent, 20, 1.2, 20);
+//          morph.addListener(mxEvent.DONE, (sender, evt) -> adapter.getModel().endUpdate());
+//          morph.startAnimation();
+//        }
+//      };
+
+      JFrame graphFrame = new JFrame("Graph");
+      Fragpipe.decorateFrame(graphFrame);
+      graphFrame.setLayout(new BorderLayout());
+
+      mxHierarchicalLayout layout = new mxHierarchicalLayout(adapter);
+      layout.execute(adapter.getDefaultParent());
+
+      //graphFrame.add(UiUtils.createButton("Layout", actionLayout), BorderLayout.NORTH);
+      graphFrame.add(graphComponent, BorderLayout.CENTER);
+
+      graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+      graphFrame.pack();
+      graphFrame.setVisible(true);
+    }
+
 
     // make sure that all subfolders are created for groups/experiments
     if (!isDryRun) {

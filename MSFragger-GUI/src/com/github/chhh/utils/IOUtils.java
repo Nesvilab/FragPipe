@@ -16,11 +16,10 @@
  */
 package com.github.chhh.utils;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,19 +30,16 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.OptionalInt;
 import okio.Buffer;
-import okio.Buffer.UnsafeCursor;
 import okio.BufferedSource;
 import okio.ByteString;
 import okio.Okio;
 import okio.Source;
-import org.apache.commons.lang3.ArrayUtils;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -213,6 +209,77 @@ public class IOUtils {
         }
 
       }
+    }
+  }
+
+  public static void tokenize1(InputStream is, String start, String end) throws IOException {
+    ByteString needle = new ByteString(start.getBytes(StandardCharsets.UTF_8));
+    byte[] bytes = needle.toByteArray();
+    int size = 8192;
+    ByteBuffer bb = ByteBuffer.allocate(size);
+    try (Source src = Okio.source(is); BufferedSource buf = Okio.buffer(src)) {
+      long read, total = 0;
+      long lo = -1, hi = -1;
+      int ptr = 0;
+      ArrayList<Long> locs = new ArrayList<>();
+      while ((read = buf.read(bb)) > 0) {
+        bb.flip();
+        while (bb.position() < bb.limit()) {
+          byte b = bb.get();
+          if (b == bytes[ptr]) {
+            //log.debug("Found '{}' @ {}", needle.utf8(), total + bb.position() - 1);
+            if (ptr == bytes.length - 1) {
+              // found match
+            }
+
+            long pos = total + bb.position() - 1;
+            locs.add(pos);
+            if (locs.size() % 20 == 0) {
+              //log.debug("{} @ {}", needle.utf8(), locs);
+              //System.out.printf("'%s' @ %s\n", needle.utf8(), locs.toString());
+              locs.clear();
+            }
+          }
+        }
+        total += read;
+        bb.flip();
+      }
+      System.out.println("Done");
+    }
+  }
+
+
+  public static void tokenize2(InputStream is, String start, String end) throws IOException {
+    ByteString needle = new ByteString(start.getBytes(StandardCharsets.UTF_8));
+    byte[] bytes = needle.toByteArray();
+    int size = 8192;
+    byte[] buf = new byte[size];
+    try (BufferedInputStream bis = new BufferedInputStream(is)) {
+      long read, total = 0;
+      long lo = -1, hi = -1;
+      int ptr = 0;
+      ArrayList<Long> locs = new ArrayList<>();
+      while ((read = bis.read(buf)) > 0) {
+        for (int i = 0; i < read; i++) {
+          byte b = buf[i];
+          if (b == bytes[ptr]) {
+            //log.debug("Found '{}' @ {}", needle.utf8(), total + bb.position() - 1);
+            if (ptr == bytes.length - 1) {
+              // found match
+            }
+
+            long pos = total + i;
+            locs.add(pos);
+            if (locs.size() % 20 == 0) {
+              //log.debug("{} @ {}", needle.utf8(), locs);
+              //System.out.printf("'%s' @ %s\n", needle.utf8(), locs.toString());
+              locs.clear();
+            }
+          }
+        }
+        total += read;
+      }
+      System.out.println("Done");
     }
   }
 

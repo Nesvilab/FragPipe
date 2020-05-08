@@ -56,11 +56,12 @@ public abstract class CmdBase {
 
   @Override
   public String toString() {
-    return new StringJoiner(", ", CmdBase.class.getSimpleName() + "[", "]")
-        .add("name=" + getCmdName())
-        .add("isRun=" + isRun)
-        .add("wd=" + wd)
-        .toString();
+    return getCmdName();
+//    return new StringJoiner(", ", CmdBase.class.getSimpleName() + "[", "]")
+//        .add("name=" + getCmdName())
+//        .add("isRun=" + isRun)
+//        .add("wd=" + wd)
+//        .toString();
   }
 
   public IConfig getConfig() {

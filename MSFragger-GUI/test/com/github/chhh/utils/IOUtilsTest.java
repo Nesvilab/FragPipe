@@ -2,8 +2,11 @@ package com.github.chhh.utils;
 
 import static org.junit.Assert.*;
 
+import com.github.chhh.utils.FileUtils.FileSize;
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,8 +32,21 @@ public class IOUtilsTest {
 
   @Test
   public void tokenizeTest() throws IOException {
-    ByteArrayInputStream bais = new ByteArrayInputStream(pepxmlSample().getBytes());
-    IOUtils.tokenize(bais, "<", ">");
+    //InputStream is = new ByteArrayInputStream(pepxmlSample().getBytes());
+
+    Path path = PathUtils.existing("D:\\ms-data\\TMTIntegrator_v1.1.4\\TMT-I-Test\\03CPTAC_CCRCC_W_JHU_20171022\\03CPTAC_CCRCC_W_JHU_20171022_LUMOS_f03.mzML");
+    FileSize fileSize = FileUtils.fileSize(path);
+    log.debug("File ({}): {}", fileSize, path);
+
+//    log.debug("tokienize 1 test started");
+//    InputStream is = new FileInputStream(path.toFile());
+//    IOUtils.tokenize1(is, "<", ">");
+//    log.debug("tokienize 1 test done");
+
+    log.debug("tokienize 2 test started");
+    InputStream is = new FileInputStream(path.toFile());
+    IOUtils.tokenize2(is, "<", ">");
+    log.debug("tokienize 2 test done");
   }
 
   @Test
