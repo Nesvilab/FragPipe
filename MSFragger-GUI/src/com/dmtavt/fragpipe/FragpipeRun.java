@@ -73,6 +73,7 @@ import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.UsageTrigger;
 import com.github.chhh.utils.swing.UiUtils;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
+import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.util.mxMorphing;
 import com.mxgraph.util.mxEvent;
@@ -1003,6 +1004,7 @@ public class FragpipeRun {
 
     // run FreeQuant - as part of TMT-I
     final CmdFreequant cmdTmtFreequant = new CmdFreequant(isTmtLqFq, wd);
+    cmdTmtFreequant.setTitle(CmdFreequant.NAME + " (TMT)");
 
     addCheck.accept(() -> {
       if (isTmtLqFq && isFreequant) {
@@ -1027,6 +1029,7 @@ public class FragpipeRun {
 
     // run LabelQuant - as part of TMT-I
     final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(isTmtLqFq, wd);
+    cmdTmtLabelQuant.setTitle(CmdLabelquant.NAME + " (TMT)");
 
     addConfig.accept(cmdTmtLabelQuant, () -> {
       if (cmdTmtLabelQuant.isRun()) {
@@ -1190,7 +1193,7 @@ public class FragpipeRun {
     for (Path pathPhiIsRunIn : usePhi.getWorkDirs()) {
 
       CmdPhilosopherWorkspaceCleanInit cmdPhiCleanInit = new CmdPhilosopherWorkspaceCleanInit(
-          usePhi.isUsed(), pathPhiIsRunIn);
+          usePhi.isUsed(), "Phi wrk clean, init", pathPhiIsRunIn);
       cmdPhiCleanInit.configure(usePhi);
       addToGraph(graphOrder, cmdPhiCleanInit, DIRECTION.IN, cmdStart); // needs to run at start
       if (firstPhiDependentCmd != null) {
@@ -1203,7 +1206,7 @@ public class FragpipeRun {
 //      }
 
       CmdPhilosopherWorkspaceClean cmdPhiClean = new CmdPhilosopherWorkspaceClean(
-          usePhi.isUsed(), pathPhiIsRunIn);
+          usePhi.isUsed(), "Phi wrk clean", pathPhiIsRunIn);
       cmdPhiClean.configure(usePhi);
 
       if (lastPhiDependentCmd != null) {
@@ -1223,27 +1226,47 @@ public class FragpipeRun {
 
       final JGraphXAdapter2<CmdBase, DefEdge> adapter = new JGraphXAdapter2<>(graphOrder);
 
+      mxGraph mxGraph = new mxGraph(adapter.getModel()) {
+        @Override public String convertValueToString(Object cell) {
+//          log.info("convertValueToString called for type: {}", cell.getClass().getCanonicalName());
+          if (cell instanceof mxCell) {
+            Object value = ((mxCell) cell).getValue();
+            if (value instanceof CmdBase) {
+              CmdBase cmd = (CmdBase) value;
+              String relWd = wd.relativize(cmd.getWd()).toString();
+              //return StringUtils.isBlank(relWd) ? String.format("%s", value.toString()) : String.format("%s\n[%s]", value.toString(), relWd);
+              return String.format("%s", cmd.getTitle());
+            }
+//            log.info("Object cell mxCell getValue is type: {}", value.getClass().getCanonicalName());
+          }
+
+          return super.convertValueToString(cell);
+        }
+      };
+      mxGraph.setAutoSizeCells(true);
+
+
       // Overrides method to create the editing value
-      final mxGraphComponent graphComponent = new mxGraphComponent(adapter) {
+      final mxGraphComponent graphComponent = new mxGraphComponent(mxGraph) {
 
       };
 
-//      ActionListener actionLayout = e -> {
-//        mxHierarchicalLayout layout = new mxHierarchicalLayout(adapter);
-//        Object cell = adapter.getSelectionCell();
-//        if (cell == null || adapter.getModel().getChildCount(cell) == 0) {
-//          cell = adapter.getDefaultParent();
-//        }
-//        adapter.getModel().beginUpdate();
-//        try {
-//          long t0 = System.currentTimeMillis();
-//          layout.execute(cell);
-//        } finally {
-//          mxMorphing morph = new mxMorphing(graphComponent, 20, 1.2, 20);
-//          morph.addListener(mxEvent.DONE, (sender, evt) -> adapter.getModel().endUpdate());
-//          morph.startAnimation();
-//        }
-//      };
+      ActionListener actionLayout = e -> {
+        mxHierarchicalLayout layout = new mxHierarchicalLayout(adapter);
+        Object cell = adapter.getSelectionCell();
+        if (cell == null || adapter.getModel().getChildCount(cell) == 0) {
+          cell = adapter.getDefaultParent();
+        }
+        adapter.getModel().beginUpdate();
+        try {
+          long t0 = System.currentTimeMillis();
+          layout.execute(cell);
+        } finally {
+          mxMorphing morph = new mxMorphing(graphComponent, 20, 1.2, 20);
+          morph.addListener(mxEvent.DONE, (sender, evt) -> adapter.getModel().endUpdate());
+          morph.startAnimation();
+        }
+      };
 
       JFrame graphFrame = new JFrame("Graph");
       Fragpipe.decorateFrame(graphFrame);
@@ -1252,7 +1275,7 @@ public class FragpipeRun {
       mxHierarchicalLayout layout = new mxHierarchicalLayout(adapter);
       layout.execute(adapter.getDefaultParent());
 
-      //graphFrame.add(UiUtils.createButton("Layout", actionLayout), BorderLayout.NORTH);
+      graphFrame.add(UiUtils.createButton("Layout", actionLayout), BorderLayout.NORTH);
       graphFrame.add(graphComponent, BorderLayout.CENTER);
 
       graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

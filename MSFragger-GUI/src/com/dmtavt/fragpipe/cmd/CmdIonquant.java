@@ -31,11 +31,6 @@ public class CmdIonquant extends CmdBase {
 
   private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
 
-  public CmdIonquant(boolean isRun, Path workDir, String fileCaptureStdout,
-      String fileCaptureStderr) {
-    super(isRun, workDir, fileCaptureStdout, fileCaptureStderr);
-  }
-
   public CmdIonquant(boolean isRun, Path workDir) {
     super(isRun, workDir);
   }

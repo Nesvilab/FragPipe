@@ -42,7 +42,7 @@ public class CmdPtmshepherd extends CmdBase {
   private static final String THERMO_RAW_EXT = "RAW";
 
   public CmdPtmshepherd(boolean isRun, Path workDir) {
-    super(isRun, workDir, FN_CAPTURE_STDOUT, FN_CAPTURE_STDERR);
+    super(isRun, workDir);
   }
 
   @Override

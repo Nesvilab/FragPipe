@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
+import org.jsoup.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
@@ -27,6 +28,7 @@ public abstract class CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdBase.class);
 
   protected boolean isRun;
+  protected String title = null;
   final Path wd;
   final LinkedList<ProcessBuilderInfo> pbis;
   final String fileCaptureStdout;
@@ -37,8 +39,9 @@ public abstract class CmdBase {
   };
   boolean isConfigured;
 
-  public CmdBase(boolean isRun, Path workDir, String fileCaptureStdout, String fileCaptureStderr) {
+  public CmdBase(boolean isRun, String title, Path workDir, String fileCaptureStdout, String fileCaptureStderr) {
     this.isRun = isRun;
+    this.title = title;
     this.wd = workDir;
     this.pbis = new LinkedList<>();
     this.fileCaptureStdout = fileCaptureStdout;
@@ -46,12 +49,24 @@ public abstract class CmdBase {
   }
 
   public CmdBase(boolean isRun, Path workDir) {
-    this(isRun, workDir, "", "");
+    this(isRun, null, workDir, "", "");
+  }
+
+  public CmdBase(boolean isRun, String title, Path workDir) {
+    this(isRun, title, workDir, "", "");
   }
 
   protected void initPreConfig() {
     pbis.clear();
     isConfigured = false;
+  }
+
+  public String getTitle() {
+    return StringUtils.isBlank(title) ? getCmdName() : title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
   }
 
   @Override

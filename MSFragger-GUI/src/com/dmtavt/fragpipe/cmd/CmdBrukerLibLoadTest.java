@@ -17,8 +17,9 @@ public class CmdBrukerLibLoadTest extends CmdBase {
     public static final String JAR_MAIN_CLASS = "com.dmtavt.batmass.io.consumer.App";
     private static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR, "ionquant-1.0.0.jar"};
 
-    public CmdBrukerLibLoadTest(boolean isRun, Path workDir, String fileCaptureStdout, String fileCaptureStderr) {
-        super(isRun, workDir, fileCaptureStdout, fileCaptureStderr);
+    public CmdBrukerLibLoadTest(boolean isRun, String title, Path workDir,
+        String fileCaptureStdout, String fileCaptureStderr) {
+        super(isRun, title, workDir, fileCaptureStdout, fileCaptureStderr);
     }
 
     public CmdBrukerLibLoadTest(boolean isRun, Path workDir) {

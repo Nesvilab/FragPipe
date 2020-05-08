@@ -12,6 +12,10 @@ public class CmdPhilosopherWorkspaceClean extends CmdBase {
     super(isRun, workDir);
   }
 
+  public CmdPhilosopherWorkspaceClean(boolean isRun, String title, Path workDir) {
+    super(isRun, title, workDir);
+  }
+
   @Override
   public String getCmdName() {
     return NAME;
