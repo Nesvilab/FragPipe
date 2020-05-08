@@ -79,6 +79,7 @@ import com.mxgraph.swing.util.mxMorphing;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.view.mxGraph;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ByteArrayOutputStream;
@@ -1241,6 +1242,31 @@ public class FragpipeRun {
           }
 
           return super.convertValueToString(cell);
+        }
+
+        /**
+         * Returns an array of key, value pairs representing the cell style for the
+         * given cell. If no string is defined in the model that specifies the style,
+         * then the default style for the cell is returned or <EMPTY_ARRAY>, if not
+         * style can be found.
+         *
+         * @param cell Cell whose style should be returned.
+         * @return Returns the style of the cell.
+         */
+        @Override
+        public Map<String, Object> getCellStyle(Object cell) {
+          Map<String, Object> cellStyle = super.getCellStyle(cell);
+          if (cell instanceof mxCell) {
+            Object value = ((mxCell) cell).getValue();
+            if (value instanceof CmdBase) {
+              CmdBase cmd = (CmdBase) value;
+              // example: fillColor=green
+              cellStyle = new HashMap<>(cellStyle);
+              String color = cmd.isRun() ? "#d5f7de" : "#f5e7d5";
+              cellStyle.put("fillColor", color);
+            }
+          }
+          return cellStyle;
         }
       };
       mxGraph.setAutoSizeCells(true);
