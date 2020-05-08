@@ -63,8 +63,6 @@ import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
 import com.dmtavt.fragpipe.tools.tmtintegrator.TmtiPanel;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
-import com.github.chhh.utils.FastaUtils;
-import com.github.chhh.utils.FastaUtils.FastaContent;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
@@ -105,7 +103,8 @@ import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.ClosestFirstIterator;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 import org.jooq.lambda.Seq;
-import org.jooq.lambda.function.Consumer3;
+import org.jooq.lambda.function.Consumer1;
+import org.jooq.lambda.function.Consumer2;
 import org.jooq.lambda.tuple.Tuple2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -533,7 +532,9 @@ public class FragpipeRun {
     toConsole(Fragpipe.COLOR_CMDLINE, cmd, true);
   }
 
-  private static void addToDepGraph(Graph<? super CmdBase, DefaultEdge> graph, CmdBase node,
+  private static enum DIRECTION {IN, OUT, BOTH}
+
+  private static void addToGraph(Graph<? super CmdBase, DefaultEdge> graph, CmdBase node, DIRECTION direction,
       CmdBase... deps) {
     if (!graph.containsVertex(node)) {
       graph.addVertex(node);
@@ -544,7 +545,17 @@ public class FragpipeRun {
         graph.addVertex(dep);
       }
       if (!graph.containsEdge(dep, node)) {
-        graph.addEdge(dep, node);
+        switch (direction) {
+          case IN:
+            graph.addEdge(dep, node);
+            break;
+          case OUT:
+            graph.addEdge(node, dep);
+            break;
+          case BOTH:
+          default:
+            throw new IllegalArgumentException("Direction both not allowed in this code");
+        }
       }
     }
   }
@@ -578,16 +589,17 @@ public class FragpipeRun {
     // all the configurations are aggregated before being executed
     // because some commands might require others to run
     // (even though those commands might be turned off)
-    final List<IConfig> preConfigs = new ArrayList<>();
-    final List<CmdBase> cmds = new ArrayList<>();
-    final Consumer3<CmdBase, IConfig, IConfig> conf = (cmd, preConfig, config) -> {
+    final List<IConfig> checks = new ArrayList<>();
+    final List<CmdBase> commands = new ArrayList<>();
+    final Consumer1<IConfig> addCheck = (check) -> {
+      if (check != null)
+        checks.add(check);
+    };
+    final Consumer2<CmdBase, IConfig> addConfig = (cmd, config) -> {
       //new TaskGraphNode(cmd, config);
-      cmds.add(cmd);
+      commands.add(cmd);
       if (config != null) {
         cmd.setConfig(config);
-      }
-      if (preConfig != null) {
-        preConfigs.add(preConfig);
       }
     };
 
@@ -596,7 +608,7 @@ public class FragpipeRun {
 
     // Add LCMS files
     final CmdStart cmdStart = new CmdStart(true, wd);
-    conf.accept(cmdStart, null, () -> {
+    addConfig.accept(cmdStart, () -> {
       MapUtils.refill(sharedLcmsFileGroups, tabWorkflow.getLcmsFileGroups());
       sharedLcmsFiles.clear();
       sharedLcmsFiles.addAll(Seq.seq(sharedLcmsFileGroups.values())
@@ -613,7 +625,7 @@ public class FragpipeRun {
     // run DIA-Umpire SE
     final UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
     final CmdUmpireSe cmdUmpire = new CmdUmpireSe(umpirePanel.isRunUmpire(), wd);
-    conf.accept(cmdUmpire, null, () -> {
+    addConfig.accept(cmdUmpire, () -> {
       if (cmdUmpire.isRun()) {
         if (!cmdUmpire.configure(parent, isDryRun, jarPath, usePhi, umpirePanel, sharedLcmsFiles)) {
           return false;
@@ -634,7 +646,7 @@ public class FragpipeRun {
     final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(tabMsf.isRun() && tabMsf.isMsadjuster(),
         wd);
 
-    conf.accept(cmdMsAdjuster, null, () -> {
+    addConfig.accept(cmdMsAdjuster, () -> {
       if (cmdMsAdjuster.isRun()) {
         return cmdMsAdjuster.configure(parent, jarPath, ramGbNonzero, sharedLcmsFiles, false, 49);
       }
@@ -644,7 +656,7 @@ public class FragpipeRun {
     // run MsAdjuster Cleanup
     final CmdMsAdjuster cmdMsAdjusterCleanup = new CmdMsAdjuster(cmdMsAdjuster.isRun(), wd);
 
-    conf.accept(cmdMsAdjusterCleanup, null, () -> {
+    addConfig.accept(cmdMsAdjusterCleanup, () -> {
       if (cmdMsAdjusterCleanup.isRun()) {
         return cmdMsAdjusterCleanup
             .configure(parent, jarPath, ramGbNonzero, sharedLcmsFiles, true, 51);
@@ -676,9 +688,7 @@ public class FragpipeRun {
     final Map<InputLcmsFile, List<Path>> sharedPepxmlFiles = new HashMap<>();
 
 
-
-    conf.accept(cmdMsfragger, () -> {
-
+    addCheck.accept(() -> {
       SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
       boolean isRunSpeclibgen = speclibPanel.isRunSpeclibgen();
       boolean useEasypqp = speclibPanel.useEasypqp();
@@ -696,7 +706,9 @@ public class FragpipeRun {
         tabMsf.setWriteCalMgf(true);
       }
       return true;
-    }, () -> {
+    });
+
+    addConfig.accept(cmdMsfragger, () -> {
       if (cmdMsfragger.isRun()) {
         if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile,
             tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGbNonzero,
@@ -736,7 +748,7 @@ public class FragpipeRun {
     CrystalcPanel crystalcPanel = Fragpipe.getStickyStrict(CrystalcPanel.class);
     final CmdCrystalc cmdCrystalc = new CmdCrystalc(crystalcPanel.isRun(), wd);
 
-    conf.accept(cmdCrystalc, null, () -> {
+    addConfig.accept(cmdCrystalc, () -> {
       if (cmdCrystalc.isRun()) {
         CrystalcParams ccParams = crystalcPanel.toParams();
         if (threads > 0) {
@@ -762,13 +774,13 @@ public class FragpipeRun {
 
     CmdPeptideProphet cmdPeptideProphet = new CmdPeptideProphet(isRunPeptideProphet, wd);
 
-    conf.accept(cmdPeptideProphet, () -> {
+    addCheck.accept(() -> {
       if (cmdPeptideProphet.isRun()) {
         return checkDbConfig(parent);
       }
       return true;
-
-    }, () -> {
+    });
+    addConfig.accept(cmdPeptideProphet, () -> {
       if (cmdPeptideProphet.isRun()) {
         final String pepProphCmd = pepProphPanel.getCmdOpts();
         final String enzymeName = tabMsf.getEnzymeName();
@@ -805,12 +817,13 @@ public class FragpipeRun {
 
     final CmdProteinProphet cmdProteinProphet = new CmdProteinProphet(isRunProteinProphet, wd);
 
-    conf.accept(cmdProteinProphet, () -> {
+    addCheck.accept(() -> {
       if (cmdProteinProphet.isRun()) {
         return checkDbConfig(parent);
       }
       return true;
-    }, () -> {
+    });
+    addConfig.accept(cmdProteinProphet, () -> {
       if (cmdProteinProphet.isRun()) {
         final String protProphCmdStr = protProphPanel.getCmdOpts();
         if (!cmdProteinProphet.configure(parent,
@@ -836,7 +849,7 @@ public class FragpipeRun {
     final CmdPhilosopherDbAnnotate cmdPhilosopherDbAnnotate = new CmdPhilosopherDbAnnotate(
         isDbAnnotate, wd);
 
-    conf.accept(cmdPhilosopherDbAnnotate, null, () -> {
+    addConfig.accept(cmdPhilosopherDbAnnotate, () -> {
       if (cmdPhilosopherDbAnnotate.isRun()) {
         return cmdPhilosopherDbAnnotate
             .configure(parent, usePhi, fastaFile, decoyTag, sharedPepxmlFiles,
@@ -848,7 +861,7 @@ public class FragpipeRun {
     // run Report - Filter
     final CmdPhilosopherFilter cmdPhilosopherFilter = new CmdPhilosopherFilter(isReport, wd);
 
-    conf.accept(cmdPhilosopherFilter, null, () -> {
+    addConfig.accept(cmdPhilosopherFilter, () -> {
       if (cmdPhilosopherFilter.isRun()) {
         final boolean isCheckFilterNoProtxml = reportPanel.isNoProtXml();
 
@@ -875,8 +888,7 @@ public class FragpipeRun {
           if (allProtxmlsExist) {
             // ProtProph is not run, but all protxmls are there
             int confirm = JOptionPane.showConfirmDialog(parent,
-                "Protein Prophet is not run, but prot.xml files for all groups\n"
-                    + "do already exist:\n\n"
+                "Protein Prophet is not run, but prot.xml files for all groups do already exist:\n\n"
                     + paths
                     + "\n\n"
                     + "Do you want to use them for the Filter command?\n",
@@ -902,7 +914,7 @@ public class FragpipeRun {
     final boolean doPrintDecoys = reportPanel.isPrintDecoys();
     final boolean doMzid = reportPanel.isWriteMzid();
 
-    conf.accept(cmdPhilosopherReport, null, () -> {
+    addConfig.accept(cmdPhilosopherReport, () -> {
       if (cmdPhilosopherReport.isRun()) {
         return cmdPhilosopherReport
             .configure(parent, usePhi, doPrintDecoys, doMzid, sharedMapGroupsToProtxml);
@@ -915,7 +927,7 @@ public class FragpipeRun {
     final CmdPhilosopherAbacus cmdPhilosopherAbacus = new CmdPhilosopherAbacus(
         isReport && isMuiltiExperimentReport, wd);
 
-    conf.accept(cmdPhilosopherAbacus, null, () -> {
+    addConfig.accept(cmdPhilosopherAbacus, () -> {
       if (cmdPhilosopherAbacus.isRun()) {
         return cmdPhilosopherAbacus.configure(parent, usePhi, reportPanel.getFilterCmdText(),
             isMultiexpPepLevelSummary, decoyTag, sharedMapGroupsToProtxml);
@@ -924,7 +936,7 @@ public class FragpipeRun {
     });
 
     final CmdIprophet cmdIprophet = new CmdIprophet(cmdPhilosopherAbacus.isRun(), wd);
-    conf.accept(cmdIprophet, null, () -> {
+    addConfig.accept(cmdIprophet, () -> {
       if (cmdIprophet.isRun()) {
         return cmdIprophet.configure(parent, usePhi, decoyTag, threads, sharedPepxmlFiles);
       }
@@ -933,7 +945,7 @@ public class FragpipeRun {
 
     // run Report - Freequant (Labelfree)
     final CmdFreequant cmdFreequant = new CmdFreequant(isReport && isFreequant, wd);
-    conf.accept(cmdFreequant, null, () -> {
+    addConfig.accept(cmdFreequant, () -> {
       if (cmdFreequant.isRun()) {
         return cmdFreequant.configure(parent, usePhi, quantPanelLabelfree.getFreequantOptsAsText(),
             sharedMapGroupsToProtxml);
@@ -945,7 +957,7 @@ public class FragpipeRun {
     final boolean isIonquant = quantPanelLabelfree.isIonquant();
     final CmdIonquant cmdIonquant = new CmdIonquant(isReport && isIonquant, wd);
 
-    conf.accept(cmdIonquant, null, () -> {
+    addConfig.accept(cmdIonquant,  () -> {
       if (cmdIonquant.isRun()) {
         return cmdIonquant.configure(
             parent, Paths.get(binMsfragger.getBin()), ramGbNonzero, quantPanelLabelfree.toMap(),
@@ -959,7 +971,7 @@ public class FragpipeRun {
     final boolean isTmtLqFq = tmtiPanel.isRunFqLq();
     final CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(isTmt, wd);
 
-    conf.accept(cmdTmt, null, () -> {
+    addConfig.accept(cmdTmt, () -> {
       // run TMT-Integrator
       if (isTmt) {
         if (sharedLcmsFiles.stream()
@@ -978,19 +990,19 @@ public class FragpipeRun {
     // run FreeQuant - as part of TMT-I
     final CmdFreequant cmdTmtFreequant = new CmdFreequant(isTmtLqFq, wd);
 
-    conf.accept(cmdTmtFreequant, () -> {
+    addCheck.accept(() -> {
       if (isTmtLqFq && isFreequant) {
         String msg =
-            "<html>FreeQuant needs to be run needs to be run as part of TMT analysis.\n"
-                + "You have chosen to run FreeQuant separately as weel.\n"
-                + "This will interfere with FreeQuant files generated as part of TMT\n"
-                + "processing."
+            "<html>FreeQuant needs to be run as part of TMT analysis.\n"
+                + "You have chosen to run FreeQuant separately as well.\n"
+                + "This will cause generated files to interfere .\n"
                 + "Please turn off standalone FreeQuant.\n";
         JOptionPane.showMessageDialog(parent, msg, "Warning", JOptionPane.WARNING_MESSAGE);
         return false;
       }
       return true;
-    }, () -> {
+    });
+    addConfig.accept(cmdTmtFreequant, () -> {
       if (cmdTmtFreequant.isRun()) {
         String optsFq = tmtiPanel.getFreequantOptsAsText();
         return cmdTmtFreequant.configure(parent, usePhi, optsFq, sharedMapGroupsToProtxml);
@@ -1002,7 +1014,7 @@ public class FragpipeRun {
     // run LabelQuant - as part of TMT-I
     final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(isTmtLqFq, wd);
 
-    conf.accept(cmdTmtLabelQuant, null, () -> {
+    addConfig.accept(cmdTmtLabelQuant, () -> {
       if (cmdTmtLabelQuant.isRun()) {
         List<String> forbiddenOpts = Arrays.asList("--plex", "--annot", "--dir");
         String optsLq = tmtiPanel.getLabelquantOptsAsText();
@@ -1020,7 +1032,7 @@ public class FragpipeRun {
     final boolean isRunShepherd = ptmsPanel.isRunShepherd();
     final CmdPtmshepherd cmdPtmshepherd = new CmdPtmshepherd(isRunShepherd, wd);
 
-    conf.accept(cmdPtmshepherd, () -> {
+    addCheck.accept(() -> {
       if (!ptmsPanel.validateForm()) {
         JOptionPane.showMessageDialog(parent,
             "There are errors in PTM-Shepherd configuraiton panel on Report tab.",
@@ -1028,7 +1040,8 @@ public class FragpipeRun {
         return false;
       }
       return true;
-    }, () -> {
+    });
+    addConfig.accept(cmdPtmshepherd, () -> {
       if (cmdPtmshepherd.isRun()) {
         Path fastaPath = Paths.get(fastaFile);
         Map<String, String> additionalShepherdParams = ptmsPanel.toPtmsParamsMap();
@@ -1053,7 +1066,7 @@ public class FragpipeRun {
     final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
     final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(speclibPanel.isRunSpeclibgen(), wd);
 
-    conf.accept(cmdSpecLibGen, null, () -> {
+    addConfig.accept(cmdSpecLibGen, () -> {
       if (cmdSpecLibGen.isRun()) {
         NoteConfigSpeclibgen speclibConf = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
         if (!speclibConf.isValid()) {
@@ -1071,30 +1084,32 @@ public class FragpipeRun {
     });
 
 
-    addToDepGraph(graphOrder, cmdStart);
-    addToDepGraph(graphOrder, cmdUmpire, cmdStart);
-    addToDepGraph(graphOrder, cmdMsAdjuster, cmdStart, cmdUmpire);
-    addToDepGraph(graphOrder, cmdMsfragger, cmdStart, cmdUmpire, cmdMsAdjuster);
+    addToGraph(graphOrder, cmdStart, DIRECTION.IN);
+    addToGraph(graphOrder, cmdUmpire, DIRECTION.IN, cmdStart);
+    addToGraph(graphOrder, cmdMsAdjuster, DIRECTION.IN, cmdStart, cmdUmpire);
+    addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdStart, cmdUmpire, cmdMsAdjuster);
 
-    addToDepGraph(graphOrder, cmdMsAdjusterCleanup, cmdMsAdjuster);
-    addToDepGraph(graphOrder, cmdCrystalc, cmdMsfragger);
-    addToDepGraph(graphOrder, cmdPeptideProphet, cmdMsfragger, cmdCrystalc);
-    addToDepGraph(graphOrder, cmdProteinProphet, cmdPeptideProphet);
-    //addToDepGraph(graphOrder, cmdPhilosopherDbAnnotate, cmdProteinProphet); // TODO: try removing that, it needs to be before Filter, but that's it no relation to Protein Prophet
-    addToDepGraph(graphOrder, cmdPhilosopherFilter, cmdPhilosopherDbAnnotate);
-    addToDepGraph(graphOrder, cmdFreequant, cmdPhilosopherFilter);
-    addToDepGraph(graphOrder, cmdIprophet, cmdPhilosopherReport, cmdPeptideProphet);
-    addToDepGraph(graphOrder, cmdPhilosopherAbacus, cmdPhilosopherReport, cmdIprophet, cmdProteinProphet);
-    addToDepGraph(graphOrder, cmdIonquant, cmdFreequant);
-    addToDepGraph(graphOrder, cmdTmtFreequant, cmdPhilosopherFilter, cmdIonquant);
-    addToDepGraph(graphOrder, cmdTmtLabelQuant, cmdPhilosopherFilter, cmdTmtFreequant);
-    addToDepGraph(graphOrder, cmdPhilosopherReport, cmdPhilosopherFilter, cmdFreequant, cmdTmtFreequant, cmdTmtLabelQuant);
-    addToDepGraph(graphOrder, cmdTmt, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus);
-    addToDepGraph(graphOrder, cmdPtmshepherd, cmdPhilosopherReport, cmdTmt);
-    addToDepGraph(graphOrder, cmdSpecLibGen, cmdPhilosopherReport, cmdPtmshepherd);
+    addToGraph(graphOrder, cmdMsAdjusterCleanup, DIRECTION.IN, cmdMsAdjuster);
+    addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger);
+    addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdCrystalc);
+    addToGraph(graphOrder, cmdProteinProphet, DIRECTION.IN, cmdPeptideProphet);
+    addToGraph(graphOrder, cmdPhilosopherDbAnnotate, DIRECTION.IN, cmdProteinProphet);
+    addToGraph(graphOrder, cmdPhilosopherFilter, DIRECTION.IN, cmdPhilosopherDbAnnotate, cmdProteinProphet);
+    addToGraph(graphOrder, cmdFreequant, DIRECTION.IN, cmdPhilosopherFilter);
+    addToGraph(graphOrder, cmdIprophet, DIRECTION.IN, cmdPhilosopherReport, cmdPeptideProphet);
+    addToGraph(graphOrder, cmdPhilosopherAbacus, DIRECTION.IN, cmdPhilosopherReport, cmdIprophet, cmdProteinProphet);
+    addToGraph(graphOrder, cmdIonquant, DIRECTION.IN, cmdFreequant);
+    addToGraph(graphOrder, cmdTmtFreequant, DIRECTION.IN, cmdPhilosopherFilter, cmdIonquant);
+    addToGraph(graphOrder, cmdTmtLabelQuant, DIRECTION.IN, cmdPhilosopherFilter, cmdTmtFreequant);
+    addToGraph(graphOrder, cmdPhilosopherReport, DIRECTION.IN, cmdPhilosopherFilter, cmdFreequant, cmdTmtFreequant, cmdTmtLabelQuant);
+    addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus);
+    addToGraph(graphOrder, cmdPtmshepherd, DIRECTION.IN, cmdPhilosopherReport, cmdTmt);
+    addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport, cmdPtmshepherd);
+
+
 
     // run pre-checks
-    for (IConfig preConfig : preConfigs) {
+    for (IConfig preConfig : checks) {
       if (!preConfig.config()) {
         return false;
       }
@@ -1102,34 +1117,39 @@ public class FragpipeRun {
 
     // turn on all required dependencies
     final Graph<CmdBase, DefaultEdge> graphDeps = new DirectedAcyclicGraph<>(DefaultEdge.class);
-    addToDepGraph(graphDeps, cmdPhilosopherAbacus, cmdIprophet);
-    addToDepGraph(graphDeps, cmdMsAdjuster, cmdMsAdjusterCleanup);
-    addToDepGraph(graphDeps, cmdPhilosopherFilter, cmdPhilosopherDbAnnotate);
-    addToDepGraph(graphDeps, cmdTmtFreequant, cmdPhilosopherFilter, cmdPhilosopherReport);
-    addToDepGraph(graphDeps, cmdTmtLabelQuant, cmdPhilosopherFilter, cmdPhilosopherReport);
-    addToDepGraph(graphDeps, cmdTmt, cmdPhilosopherFilter);
+    addToGraph(graphDeps, cmdPhilosopherAbacus, DIRECTION.OUT, cmdIprophet);
+    addToGraph(graphDeps, cmdMsAdjuster, DIRECTION.OUT, cmdMsAdjusterCleanup);
+    addToGraph(graphDeps, cmdPhilosopherFilter, DIRECTION.OUT, cmdPhilosopherDbAnnotate);
+    addToGraph(graphDeps, cmdTmtFreequant, DIRECTION.OUT, cmdPhilosopherFilter, cmdPhilosopherReport);
+    addToGraph(graphDeps, cmdTmtLabelQuant, DIRECTION.OUT, cmdPhilosopherFilter, cmdPhilosopherReport);
+    //addToGraph(graphDeps, cmdTmt, DIRECTION.OUT, cmdPhilosopherFilter);
 
-    List<CmdBase> startingPoints = Seq.seq(graphDeps.vertexSet())
+    List<CmdBase> origins = Seq.seq(graphDeps.vertexSet())
         .filter(CmdBase::isRun) // those that are run
-        .filter(cmd -> graphDeps.inDegreeOf(cmd) > 0) // and are dependent on something
+        .filter(cmd -> graphDeps.outDegreeOf(cmd) > 0) // and are dependent on something
         .toList();
-    for (CmdBase startingPoint : startingPoints) {
-      for (ClosestFirstIterator<CmdBase, DefaultEdge> it = new ClosestFirstIterator<>(graphDeps,
-          startingPoint); it.hasNext(); ) {
-        CmdBase cmdDependency = it.next();
-        if (!cmdDependency.isRun()) {
+    log.debug("Starting points:\n\t{}", Seq.seq(origins).toString("\n\t"));
+
+    for (CmdBase origin : origins) {
+      log.debug("Traversing from starting point: [{}]", origin);
+      ClosestFirstIterator<CmdBase, DefaultEdge> it = new ClosestFirstIterator<>(graphDeps, origin);
+      while (it.hasNext()) {
+        CmdBase next = it.next();
+        log.debug("Next traversal node: [{}]", next);
+        if (!next.isRun()) {
           log.warn(
               "Command [{}] is a required dependency of [{}]. Will be run despite being switched off.",
-              cmdDependency.getCmdName(), startingPoint);
-          cmdDependency.isRun(true);
+              next.getCmdName(), origin.getCmdName());
+          next.isRun(true);
         }
       }
     }
 
     // run all configs, this will determine which commadns use Phi and in which directories
-    for (CmdBase cmd : cmds) {
+    for (CmdBase cmd : commands) {
       IConfig config = cmd.getConfig();
-      if (config != null && cmd.isRun()) {
+//      if (config != null && cmd.isRun()) {
+      if (config != null) { // each config action takes care by itself about checking if isRun is true
         if (!config.config()) {
           return false;
         }
@@ -1144,8 +1164,8 @@ public class FragpipeRun {
       CmdPhilosopherWorkspaceCleanInit cmdPhiCleanInit = new CmdPhilosopherWorkspaceCleanInit(
           usePhi.isUsed(), pathPhiIsRunIn);
       cmdPhiCleanInit.configure(usePhi);
-      addToDepGraph(graphOrder, cmdPhiCleanInit, cmdStart); // needs to run at start
-      for (CmdBase cmd : cmds) {                            // and before any command that uses phi
+      addToGraph(graphOrder, cmdPhiCleanInit, DIRECTION.IN, cmdStart); // needs to run at start
+      for (CmdBase cmd : commands) {                            // and before any command that uses phi
         if (cmd.usesPhi()) {
           graphOrder.addEdge(cmdPhiCleanInit, cmd);
         }
@@ -1167,7 +1187,7 @@ public class FragpipeRun {
         // clean runs after last command that uses Phi
         log.debug("Determined that the last command in graph to use Phi is: [{}]",
             lastPhiDependentCmd.getCmdName());
-        addToDepGraph(graphOrder, cmdPhiClean, lastPhiDependentCmd);
+        addToGraph(graphOrder, cmdPhiClean, DIRECTION.IN, lastPhiDependentCmd);
       } else {
         log.warn("No command was found to use Philosopher.");
       }
@@ -1210,7 +1230,10 @@ public class FragpipeRun {
       return false;
     }
 
-    String s = checkFasta(parent, n);
+    String fastaPath = checkFasta(parent, n);
+    if (fastaPath == null) {
+      return false;
+    }
 
     if (n.numEntries == 0) {
       SwingUtils.showErrorDialog(parent, "Database looks to be empty", "Database config error");
