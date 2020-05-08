@@ -1,6 +1,5 @@
-package github.chhh.utils;
+package com.github.chhh.utils;
 
-import com.github.chhh.utils.SwingUtils;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;

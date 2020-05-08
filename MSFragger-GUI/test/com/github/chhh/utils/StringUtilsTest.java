@@ -1,4 +1,4 @@
-package github.chhh.utils;
+package com.github.chhh.utils;
 
 import com.github.chhh.utils.StringUtils;
 import java.util.List;
