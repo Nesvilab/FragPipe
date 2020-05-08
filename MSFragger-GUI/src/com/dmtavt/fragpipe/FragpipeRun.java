@@ -539,6 +539,10 @@ public class FragpipeRun {
       graph.addVertex(node);
     }
     for (CmdBase dep : deps) {
+      if (!graph.containsVertex(dep)) {
+        log.debug("Source node was not present when adding ordering edge, addint it: [{}]", dep);
+        graph.addVertex(dep);
+      }
       if (!graph.containsEdge(dep, node)) {
         graph.addEdge(dep, node);
       }
@@ -574,7 +578,6 @@ public class FragpipeRun {
     // all the configurations are aggregated before being executed
     // because some commands might require others to run
     // (even though those commands might be turned off)
-    final Graph<CmdBase, DefaultEdge> graphDeps = new DirectedAcyclicGraph<>(DefaultEdge.class);
     final List<IConfig> preConfigs = new ArrayList<>();
     final List<CmdBase> cmds = new ArrayList<>();
     final Consumer3<CmdBase, IConfig, IConfig> conf = (cmd, preConfig, config) -> {
@@ -633,11 +636,7 @@ public class FragpipeRun {
 
     conf.accept(cmdMsAdjuster, null, () -> {
       if (cmdMsAdjuster.isRun()) {
-        if (!cmdMsAdjuster.configure(parent, jarPath, ramGbNonzero, sharedLcmsFiles, false, 49)) {
-          return false;
-        }
-        // MsAdjuster only makes files that are discovered by MsFragger
-        // automatically, so no file-list changes are needed
+        return cmdMsAdjuster.configure(parent, jarPath, ramGbNonzero, sharedLcmsFiles, false, 49);
       }
       return true;
     });
@@ -647,10 +646,8 @@ public class FragpipeRun {
 
     conf.accept(cmdMsAdjusterCleanup, null, () -> {
       if (cmdMsAdjusterCleanup.isRun()) {
-        if (!cmdMsAdjusterCleanup
-            .configure(parent, jarPath, ramGbNonzero, sharedLcmsFiles, true, 51)) {
-          return false;
-        }
+        return cmdMsAdjusterCleanup
+            .configure(parent, jarPath, ramGbNonzero, sharedLcmsFiles, true, 51);
       }
       return true;
     });
@@ -678,10 +675,17 @@ public class FragpipeRun {
     final Map<InputLcmsFile, List<Path>> sharedPepxmlFilesFromMsfragger = new HashMap<>();
     final Map<InputLcmsFile, List<Path>> sharedPepxmlFiles = new HashMap<>();
 
+
+
     conf.accept(cmdMsfragger, () -> {
+
       SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
+      boolean isRunSpeclibgen = speclibPanel.isRunSpeclibgen();
+      boolean useEasypqp = speclibPanel.useEasypqp();
+
       // check that Write Calibrated MGF is On in Fragger for easyPQP + timsTOF
-      if (SpeclibPanel.EASYPQP_TIMSTOF.equals(speclibPanel.getEasypqpDataType())) {
+
+      if (isRunSpeclibgen && useEasypqp && SpeclibPanel.EASYPQP_TIMSTOF.equals(speclibPanel.getEasypqpDataType())) {
         if (!SwingUtils.showConfirmDialogShort(parent,
             "Spectral library generation via EasyPQP requires that MSFragger\n"
                 + "writes a calibrated MGF file. There is a checkbox on MSFragger tab.\n\n"
@@ -1004,11 +1008,9 @@ public class FragpipeRun {
         String optsLq = tmtiPanel.getLabelquantOptsAsText();
         QuantLabel label = tmtiPanel.getSelectedLabel();
         Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
-        if (!cmdTmtLabelQuant
+        return cmdTmtLabelQuant
             .configure(parent, isDryRun, usePhi, optsLq, label, forbiddenOpts, annotations,
-                sharedMapGroupsToProtxml)) {
-          return false;
-        }
+                sharedMapGroupsToProtxml);
       }
       return true;
     });
@@ -1016,7 +1018,6 @@ public class FragpipeRun {
     // run PTMShepherd
     PtmshepherdPanel ptmsPanel = Fragpipe.getStickyStrict(PtmshepherdPanel.class);
     final boolean isRunShepherd = ptmsPanel.isRunShepherd();
-    final boolean isPtmsFormValid = ;
     final CmdPtmshepherd cmdPtmshepherd = new CmdPtmshepherd(isRunShepherd, wd);
 
     conf.accept(cmdPtmshepherd, () -> {
@@ -1041,10 +1042,8 @@ public class FragpipeRun {
         Optional.ofNullable(tabMsf.getUiTextIsoErr().getNonGhostText())
             .filter(StringUtils::isNotBlank)
             .ifPresent(v -> additionalShepherdParams.put("isotope_error", v));
-        if (!cmdPtmshepherd.configure(parent, isDryRun, Paths.get(binMsfragger.getBin()),
-            ramGb, fastaPath, sharedMapGroupsToProtxml, additionalShepherdParams)) {
-          return false;
-        }
+        return cmdPtmshepherd.configure(parent, isDryRun, Paths.get(binMsfragger.getBin()),
+            ramGb, fastaPath, sharedMapGroupsToProtxml, additionalShepherdParams);
       }
       return true;
     });
@@ -1052,25 +1051,25 @@ public class FragpipeRun {
 
     // run Spectral library generation
     final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
-    final boolean isRunSpeclibgen = speclibPanel.isRunSpeclibgen();
-    final boolean useEasypqp = speclibPanel.useEasypqp();
-    final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(isRunSpeclibgen, wd);
-    if (cmdSpecLibGen.isRun()) {
+    final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(speclibPanel.isRunSpeclibgen(), wd);
 
-      NoteConfigSpeclibgen speclibConf = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
-      if (!speclibConf.isValid()) {
-        JOptionPane.showMessageDialog(parent,
-            "Spectral Library Generation scripts did not initialize correctly.",
-            "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
-        return false;
-      }
-      final SpecLibGen2 slg = speclibConf.instance;
+    conf.accept(cmdSpecLibGen, null, () -> {
+      if (cmdSpecLibGen.isRun()) {
+        NoteConfigSpeclibgen speclibConf = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
+        if (!speclibConf.isValid()) {
+          JOptionPane.showMessageDialog(parent,
+              "Spectral Library Generation scripts did not initialize correctly.",
+              "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
+          return false;
+        }
+        final SpecLibGen2 slg = speclibConf.instance;
 
-      if (!cmdSpecLibGen.configure(parent, usePhi, jarPath, slg,
-          sharedMapGroupsToProtxml, fastaFile, isRunProteinProphet, useEasypqp)) {
-        return false;
+        return cmdSpecLibGen.configure(parent, usePhi, jarPath, slg,
+            sharedMapGroupsToProtxml, fastaFile, isRunProteinProphet, speclibPanel.useEasypqp());
       }
-    }
+      return true;
+    });
+
 
     addToDepGraph(graphOrder, cmdStart);
     addToDepGraph(graphOrder, cmdUmpire, cmdStart);
@@ -1085,15 +1084,12 @@ public class FragpipeRun {
     addToDepGraph(graphOrder, cmdPhilosopherFilter, cmdPhilosopherDbAnnotate);
     addToDepGraph(graphOrder, cmdFreequant, cmdPhilosopherFilter);
     addToDepGraph(graphOrder, cmdIprophet, cmdPhilosopherReport, cmdPeptideProphet);
-    addToDepGraph(graphOrder, cmdPhilosopherAbacus, cmdPhilosopherReport, cmdIprophet,
-        cmdProteinProphet);
+    addToDepGraph(graphOrder, cmdPhilosopherAbacus, cmdPhilosopherReport, cmdIprophet, cmdProteinProphet);
     addToDepGraph(graphOrder, cmdIonquant, cmdFreequant);
     addToDepGraph(graphOrder, cmdTmtFreequant, cmdPhilosopherFilter, cmdIonquant);
     addToDepGraph(graphOrder, cmdTmtLabelQuant, cmdPhilosopherFilter, cmdTmtFreequant);
-    addToDepGraph(graphOrder, cmdPhilosopherReport, cmdPhilosopherFilter, cmdFreequant,
-        cmdTmtFreequant, cmdTmtLabelQuant);
-    addToDepGraph(graphOrder, cmdTmt, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant,
-        cmdPhilosopherAbacus);
+    addToDepGraph(graphOrder, cmdPhilosopherReport, cmdPhilosopherFilter, cmdFreequant, cmdTmtFreequant, cmdTmtLabelQuant);
+    addToDepGraph(graphOrder, cmdTmt, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus);
     addToDepGraph(graphOrder, cmdPtmshepherd, cmdPhilosopherReport, cmdTmt);
     addToDepGraph(graphOrder, cmdSpecLibGen, cmdPhilosopherReport, cmdPtmshepherd);
 
@@ -1105,6 +1101,7 @@ public class FragpipeRun {
     }
 
     // turn on all required dependencies
+    final Graph<CmdBase, DefaultEdge> graphDeps = new DirectedAcyclicGraph<>(DefaultEdge.class);
     addToDepGraph(graphDeps, cmdPhilosopherAbacus, cmdIprophet);
     addToDepGraph(graphDeps, cmdMsAdjuster, cmdMsAdjusterCleanup);
     addToDepGraph(graphDeps, cmdPhilosopherFilter, cmdPhilosopherDbAnnotate);
