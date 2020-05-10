@@ -130,10 +130,16 @@ public class CmdSpecLibGen extends CmdBase {
                   final String fn_sans_extension = FilenameUtils.removeExtension(lcms.getPath().getFileName().toString());
                   final String fn = lcms.getPath().getFileName().toString();
                   final boolean isTimsTOF = speclibPanel.getEasypqpFileType().equals("timsTOF") || fn.toLowerCase().endsWith(".d");
-                  final Path lcms_path = isTimsTOF ?
-                          lcms.getPath().getParent().resolve(fn_sans_extension + "_calibrated.mgf") :
-                          lcms.getPath();
-                  return lcms_path.toString();
+//                  final Path lcms_path = isTimsTOF ?
+//                          lcms.getPath().getParent().resolve(fn_sans_extension + "_calibrated.mgf") :
+//                          lcms.getPath();
+//                  return lcms_path.toString();
+                  final String sans_suffix = lcms.getPath().getParent().resolve(fn_sans_extension).toString();
+                  final String lcms_path = isTimsTOF ?
+                          sans_suffix + "_calibrated.mgf" + File.pathSeparator + sans_suffix + "_uncalibrated.mgf"
+                          :
+                          lcms.getPath().toString();
+                  return lcms_path;
                 })
                 .collect(Collectors.joining(File.pathSeparator))); // lcms files
         cmd.add(groupWd.toString()); // output directory
