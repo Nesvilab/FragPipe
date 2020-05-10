@@ -503,6 +503,7 @@ def filter_proteins(fasta, decoy_prefix):
 	# print("irt_prots_with_decoys",irt_prots_with_decoys)
 	# print("irt_prots",irt_prots)
 	if use_peptide_tsv:
+		print(f'using {peptide_tsv_path} to filter the library')
 		philosopher_peptide_tsv = pd.read_csv(peptide_tsv_path, sep='\t')
 		proteins_fas = frozenset(philosopher_peptide_tsv['Protein'])
 	else:
