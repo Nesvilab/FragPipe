@@ -209,7 +209,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiCombo uiComboRequant = UiUtils.createUiCombo(Arrays.asList("Yes", "No"));
 
     UiCombo uiComboNormalize = UiUtils.createUiCombo(Arrays.asList("None", "Yes"));
-    UiCombo uiComboRequireIsotopes = UiUtils.createUiCombo(Arrays.asList("Min 2 isotopes", "Any"));
+    UiCombo uiComboMinIsotopes = UiUtils.createUiCombo(Arrays.asList("1", "2", "3"));
 
     UiSpinnerDouble uiSpinnerMzTol = UiUtils.spinnerDouble(10.0, 1.0, 1000.0, 1.0)
         .setFormat("0.#").setCols(5).create();
@@ -269,7 +269,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feLabel = mu.feb(uiTextLabels).name("ionquant.label").label("Label").create();
 
     FormEntry feNormalize = mu.feb(uiComboNormalize).name("ionquant.normalization").label("Normalize").create();
-    FormEntry feRequireIsotopes = mu.feb(uiComboRequireIsotopes).name("ionquant.requireisotopes").label("Require isotopes")
+    FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes")
         .tooltip("Min number of isotopes for tracing.").create();
 
 
@@ -313,8 +313,8 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     mu.add(pa, feNormalize.label(), mu.ccR());
     mu.add(pa, feNormalize.comp);
-    mu.add(pa, feRequireIsotopes.label(), mu.ccR());
-    mu.add(pa, feRequireIsotopes.comp).spanX().wrap();
+    mu.add(pa, feMinIsotopes.label(), mu.ccR());
+    mu.add(pa, feMinIsotopes.comp).spanX().wrap();
 
     mu.add(p, pa).spanX().growX().wrap();
 

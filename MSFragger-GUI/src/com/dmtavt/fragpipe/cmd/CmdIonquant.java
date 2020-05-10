@@ -117,7 +117,7 @@ public class CmdIonquant extends CmdBase {
         "proteinfdr",
         "peptidefdr",
         "normalization",
-        "requireisotopes",
+        "minisotopes",
         "label");
 
     for (String dynamicParam : dynamicParams) {
