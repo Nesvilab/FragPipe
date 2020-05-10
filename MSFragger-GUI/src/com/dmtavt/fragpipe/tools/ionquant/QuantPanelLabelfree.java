@@ -208,7 +208,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiCombo uiComboMbr = UiUtils.createUiCombo(Arrays.asList("No", "Yes"));
     UiCombo uiComboRequant = UiUtils.createUiCombo(Arrays.asList("Yes", "No"));
 
-    UiCombo uiComboNormalize = UiUtils.createUiCombo(Arrays.asList("None", "Yes"));
+    UiCombo uiComboNormalize = UiUtils.createUiCombo(Arrays.asList("Yes", "No"));
     UiCombo uiComboMinIsotopes = UiUtils.createUiCombo(Arrays.asList("1", "2", "3"));
 
     UiSpinnerDouble uiSpinnerMzTol = UiUtils.spinnerDouble(10.0, 1.0, 1000.0, 1.0)
