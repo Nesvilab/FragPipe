@@ -405,7 +405,7 @@ if use_spectrast:
 
 	spectrast_first = '## Run spectrast to build spectral library\n' + ' '.join(spectrast_cmd('?'))
 if use_easypqp:
-	if len(spectra_files0) < 1 or not spectra_files0[0].exists():
+	if len(spectra_files0) == 1 and not spectra_files0[0].exists():
 		mzXMLs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mzXML'))
 		mzMLs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mzML'))
 		mgfs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mgf'))
@@ -416,7 +416,9 @@ if use_easypqp:
 		else:
 			spectra_files = mgfs
 	else:
-		spectra_files = [e.resolve(strict=True) for e in spectra_files0]
+		spectra_files = [e.resolve(strict=True) for e in spectra_files0 if e.exists()]
+		if len(spectra_files) == 0:
+			raise RuntimeError(spectra_files)
 	psm_tsv_file = iproph_RT_aligned / 'psm.tsv'
 	peptide_tsv_file = iproph_RT_aligned / 'peptide.tsv'
 	'easypqp convert --pepxml interact.pep.xml --spectra 1.mgf --unimod unimod.xml --exclude-range -1.5,3.5'
@@ -441,35 +443,29 @@ if use_easypqp:
 	from typing import List
 
 
-	def pairing_pepxml_spectra(pep_xmls: List[pathlib.PurePath], spectras: List[pathlib.PurePath]):
-		import difflib, pathlib, os
-		shortlist, longlist = (spectras, pep_xmls) \
-			if len(spectras) < len(pep_xmls) else \
-			(pep_xmls, spectras)
+	def pairing_pepxml_spectra_new(spectras: List[pathlib.PurePath], pep_xmls: List[pathlib.PurePath]):
+		rec = re.compile('(.+?)(?:_(?:un)?calibrated)?')
+		spectra_files_basename = [rec.fullmatch(e.stem)[1] for e in spectras]
+		assert len(set(spectra_files_basename)) == len(spectras)
+		if len(pep_xmls) == 1:
+			return list(zip(spectra_files_basename, [''] * len(spectras), spectras, [pep_xmls] * len(spectras)))
+		l = [[p for p in pep_xmls if e.casefold() in p.name.casefold()] for e in spectra_files_basename]
 
-		def longest_filename_match(a: pathlib.Path, b: pathlib.Path):
-			a, b = a.name.casefold(), b.name.casefold()
-			return difflib.SequenceMatcher(isjunk=None, a=a, b=b, autojunk=False).find_longest_match(0, len(a), 0, len(b)).size
+		def get_rank(name):
+			mo = re.compile('_rank[0-9]+?').search(name)
+			return '' if mo is None else mo[0]
 
-		shortlist1 = [max(shortlist, key=lambda x: longest_filename_match(fn, x)) for fn in longlist]
-		return (longlist, shortlist1) if \
-			len(spectras) < len(pep_xmls) else \
-			(shortlist1, longlist)
+		l2 = [(basename, get_rank(p.name), s, p) for basename, s, ps in zip(spectra_files_basename, spectras, l) for p in ps]
+		return l2
 
-	iproph_pep_xmls, spectra_files = pairing_pepxml_spectra(iproph_pep_xmls, spectra_files)
-	assert len(iproph_pep_xmls) == len(spectra_files)
-
-	rank_mos = (re.compile('_rank[0-9]+?').search(pep_xml.name) for pep_xml in iproph_pep_xmls)
-	ranks = ['' if mo is None else mo[0] for mo in rank_mos]
-	spectra_files_basename = [e.stem[:-len('_calibrated')]
-							  if e.stem.endswith('_calibrated') else e.stem
-							  for e in spectra_files]
-	convert_outs = [f'{spectra}{rank}' for spectra, rank in zip(spectra_files_basename, ranks)]
+	runname_rank_spectra_pepxml = pairing_pepxml_spectra_new(spectra_files, iproph_pep_xmls)
+	convert_outs = [f'{basename}{rank}' for basename, rank, _, _ in runname_rank_spectra_pepxml]
 	easypqp_convert_cmds = [[os.fspath(easypqp), 'convert', '--pepxml', os.fspath(pep_xml), '--spectra', os.fspath(spectra), '--exclude-range', '-1.5,3.5',
 							 '--psms', f'{outfiles}.psmpkl', '--peaks', f'{outfiles}.peakpkl']
-							for pep_xml, spectra, outfiles in zip(iproph_pep_xmls, spectra_files, convert_outs)]
+							for (_, _, spectra, pep_xml), outfiles in zip(runname_rank_spectra_pepxml, convert_outs)]
 	easypqp_library_infiles = [output_directory / (e + '.psmpkl') for e in convert_outs] + \
 							  [output_directory / (e + '.peakpkl') for e in convert_outs]
+
 	use_iRT = irt_choice is not Irt_choice.no_iRT
 	def easypqp_library_cmd(use_irt: bool):
 	# def easypqp_library_cmd(pep_fdr: float = None, prot_fdr: float = None):
