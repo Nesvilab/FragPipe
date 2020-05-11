@@ -30,7 +30,7 @@ public class IOUtilsTest {
   private static final String fnUtf16Be = "bom-utf16be.txt";
   private static final String fnUtf16Le = "bom-utf16le.txt";
 
-  @Test
+  //@Test
   public void tokenizeTest() throws IOException {
     //InputStream is = new ByteArrayInputStream(pepxmlSample().getBytes());
 
@@ -49,7 +49,7 @@ public class IOUtilsTest {
     log.debug("tokienize 2 test done");
   }
 
-  @Test
+  //@Test
   public void detectBomTest() throws Exception {
     Map<String, BOM> map = new LinkedHashMap<>();
     map.put(fnNoBom, BOM.NONE);
