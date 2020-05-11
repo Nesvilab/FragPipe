@@ -655,9 +655,11 @@ Commands to execute:
 	for p in procs:
 		p.wait()
 	assert all(p.returncode==0 for p in procs)
-	subprocess.run(easypqp_library_cmd(use_iRT), cwd=os_fspath(output_directory), check=True)
-
-
+	try:
+		subprocess.run(easypqp_library_cmd(use_iRT), cwd=os_fspath(output_directory), check=True)
+	except subprocess.CalledProcessError:
+		print('Library not generated, not enough peptides could be found for alignment.')
+		sys.exit(1)
 
 
 ##### multiple protein assignment to peptide reduced to single protein
