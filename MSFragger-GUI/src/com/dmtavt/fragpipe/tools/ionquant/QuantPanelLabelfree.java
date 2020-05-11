@@ -264,7 +264,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feImTol = mu.feb(uiSpinnerImTol).name("ionquant.imtol").label("IM Window (1/k0)").create();
 
     FormEntry feMinIons = mu.feb(uiSpinnerMinIons).name("ionquant.minions").label("Min ions").create();
-    FormEntry feTopIons = mu.feb(uiSpinnerTopIons).name("ionquant.tp").label("Top ions").create();
+    FormEntry feTopIons = mu.feb(uiSpinnerTopIons).name("ionquant.tp").label("Top N ions").create();
     FormEntry feMinFreq = mu.feb(uiSpinnerMinFreq).name("ionquant.minfreq").label("Min freq").create();
 
     FormEntry feMbrMinCorr = mu.feb(uiSpinnerMbrMinCorr).name("ionquant.mbrmincorr").label("MBR min correlation").create();
