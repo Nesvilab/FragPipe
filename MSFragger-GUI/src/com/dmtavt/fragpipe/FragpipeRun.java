@@ -825,7 +825,6 @@ public class FragpipeRun {
     });
 
     // run Protein Prophet
-    final boolean isMuiltiExperimentReport = sharedLcmsFileGroups.size() > 1;
     final boolean isProcessGroupsSeparately = Fragpipe.getStickyStrict(TabWorkflow.class)
         .isProcessEachExpSeparately();
     final boolean isRunProteinProphet = protProphPanel.isRun();
@@ -840,6 +839,7 @@ public class FragpipeRun {
       return true;
     });
     addConfig.accept(cmdProteinProphet, () -> {
+      final boolean isMuiltiExperimentReport = sharedLcmsFileGroups.size() > 1;
       if (cmdProteinProphet.isRun()) {
         final String protProphCmdStr = protProphPanel.getCmdOpts();
         if (!cmdProteinProphet.configure(parent,
@@ -940,10 +940,14 @@ public class FragpipeRun {
 
     // run Report - Multi-Experiment report
     final boolean isMultiexpPepLevelSummary = reportPanel.isPepSummary();
-    final CmdPhilosopherAbacus cmdPhilosopherAbacus = new CmdPhilosopherAbacus(
-        isReport && isMuiltiExperimentReport, wd);
+    final CmdPhilosopherAbacus cmdPhilosopherAbacus = new CmdPhilosopherAbacus(false, wd);
 
     addConfig.accept(cmdPhilosopherAbacus, () -> {
+      final boolean doReport = reportPanel.isGenerateReport();
+      final boolean isMultiExpReport = sharedLcmsFileGroups.size() > 1;
+      final boolean doRunAbacus = doReport && isMultiExpReport;
+      cmdPhilosopherAbacus.isRun(doRunAbacus);
+
       if (cmdPhilosopherAbacus.isRun()) {
         return cmdPhilosopherAbacus.configure(parent, usePhi, reportPanel.getFilterCmdText(),
             isMultiexpPepLevelSummary, decoyTag, sharedMapGroupsToProtxml);
@@ -953,6 +957,7 @@ public class FragpipeRun {
 
     final CmdIprophet cmdIprophet = new CmdIprophet(cmdPhilosopherAbacus.isRun(), wd);
     addConfig.accept(cmdIprophet, () -> {
+      cmdIprophet.isRun(cmdPhilosopherAbacus.isRun());
       if (cmdIprophet.isRun()) {
         return cmdIprophet.configure(parent, usePhi, decoyTag, threads, sharedPepxmlFiles);
       }
