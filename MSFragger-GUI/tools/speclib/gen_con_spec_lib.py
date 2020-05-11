@@ -659,7 +659,7 @@ Commands to execute:
 		subprocess.run(easypqp_library_cmd(use_iRT), cwd=os_fspath(output_directory), check=True)
 	except subprocess.CalledProcessError:
 		print('Library not generated, not enough peptides could be found for alignment.')
-		sys.exit(1)
+		sys.exit()
 
 
 ##### multiple protein assignment to peptide reduced to single protein
