@@ -658,7 +658,8 @@ Commands to execute:
 	try:
 		subprocess.run(easypqp_library_cmd(use_iRT), cwd=os_fspath(output_directory), check=True)
 	except subprocess.CalledProcessError:
-		print('Library not generated, not enough peptides could be found for alignment.')
+		print('''Library not generated, not enough peptides could be found for alignment.
+Please try using other options for alignment (e.g. ciRT if used other options)''')
 		sys.exit()
 
 
