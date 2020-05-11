@@ -975,9 +975,7 @@ public class FragpipeRun {
     });
 
     // run Report - IonQuant (Labelfree)
-    final boolean isIonquant = quantPanelLabelfree.isIonquant();
-    final CmdIonquant cmdIonquant = new CmdIonquant(isReport && isIonquant, wd);
-
+    final CmdIonquant cmdIonquant = new CmdIonquant(quantPanelLabelfree.isIonquant(), wd);
     addConfig.accept(cmdIonquant,  () -> {
       if (cmdIonquant.isRun()) {
         return cmdIonquant.configure(

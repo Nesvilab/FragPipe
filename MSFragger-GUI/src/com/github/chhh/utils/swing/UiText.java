@@ -33,7 +33,7 @@ public class UiText extends JTextField implements StringRepresentable, GhostedTe
 
   @Override
   public String asString() {
-    return getText().trim();
+    return getNonGhostText().trim();
   }
 
   @Override

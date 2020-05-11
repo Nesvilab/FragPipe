@@ -113,11 +113,19 @@ public class CmdIonquant extends CmdBase {
         "peptidefdr",
         "normalization",
         "minisotopes",
-        "label");
+        "label",
+        "tp",
+        "minfreq",
+        "minions"
+        );
 
     for (String dynamicParam : dynamicParams) {
-      cmd.add("--" + dynamicParam);
-      cmd.add(getOrThrow(uiCompsRepresentation, StringUtils.prependOnce(dynamicParam, "ionquant.")));
+      String v = getOrThrow(uiCompsRepresentation,
+          StringUtils.prependOnce(dynamicParam, "ionquant."));
+      if (StringUtils.isNotBlank(v)) {
+        cmd.add("--" + dynamicParam);
+        cmd.add(v);
+      }
     }
 
     for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {

@@ -15,6 +15,7 @@ import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiRadio;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
+import com.github.chhh.utils.swing.UiSpinnerInt.Builder;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import com.github.chhh.utils.swing.UiUtils.UiTextBuilder;
@@ -165,9 +166,9 @@ public class QuantPanelLabelfree extends JPanelBase {
     pFreequant = createPanelFreequant(buttonGroup);
     pIonquant = createPanelIonquant(buttonGroup);
 
-    mu.add(p, pFreequant).wrap();
-    mu.add(p, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
     mu.add(p, pIonquant).wrap();
+    mu.add(p, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
+    mu.add(p, pFreequant).wrap();
 
     return p;
   }
@@ -238,6 +239,12 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiSpinnerDouble uiSpinnerMbrImTol = UiUtils.spinnerDouble(0.05, 0.001, 0.5, 0.001)
         .setCols(5).setFormat("#.###").create();
 
+
+    UiSpinnerDouble uiSpinnerMinFreq = UiUtils.spinnerDouble(0.5, 0, 1, 0.1)
+        .setCols(5).setFormat("#.##").create();
+    UiSpinnerInt uiSpinnerTopIons = UiUtils.spinnerInt(3, 0, 10, 1).setCols(5).create();
+    UiSpinnerInt uiSpinnerMinIons = UiUtils.spinnerInt(1, 0, 10, 1).setCols(5).create();
+
     UiSpinnerDouble uiSpinnerMbrIonFdr = UiUtils.spinnerDouble(0.01, 0.001, 1, 0.01)
         .setCols(5).setFormat("#.###").create();
     UiSpinnerDouble uiSpinnerMbrPepFdr = UiUtils.spinnerDouble(0.01, 0.001, 1, 0.01)
@@ -256,6 +263,9 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feRtTol = mu.feb(uiSpinnerRtTol).name("ionquant.rttol").label("RT Window (minutes)").create();
     FormEntry feImTol = mu.feb(uiSpinnerImTol).name("ionquant.imtol").label("IM Window (1/k0)").create();
 
+    FormEntry feMinIons = mu.feb(uiSpinnerMinIons).name("ionquant.minions").label("Min ions").create();
+    FormEntry feTopIons = mu.feb(uiSpinnerTopIons).name("ionquant.tp").label("Top ions").create();
+    FormEntry feMinFreq = mu.feb(uiSpinnerMinFreq).name("ionquant.minfreq").label("Min freq").create();
 
     FormEntry feMbrMinCorr = mu.feb(uiSpinnerMbrMinCorr).name("ionquant.mbrmincorr").label("MBR min correlation").create();
     FormEntry feMbrRtTol = mu.feb(uiSpinnerMbrRtTol).name("ionquant.mbrrttol").label("MBR RT Window (minutes)").create();
@@ -283,7 +293,9 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.add(p, feRtTol.label(), mu.ccR());
     mu.add(p, feRtTol.comp);
     mu.add(p, feImTol.label(), mu.ccR());
-    mu.add(p, feImTol.comp).spanX().wrap();
+    mu.add(p, feImTol.comp);
+    mu.add(p, feMinIons.label(), mu.ccR());
+    mu.add(p, feMinIons.comp).spanX().wrap();
 
     mu.add(p, feMbr.label(), mu.ccR());
     mu.add(p, feMbr.comp).growX();
@@ -298,6 +310,11 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.add(p, feLabel.comp).spanX().growX().wrap();
 
     JPanel pa = mu.newPanel("Advanced options", mu.lcFillXNoInsetsTopBottom());
+
+    mu.add(pa, feTopIons.label(), mu.ccR());
+    mu.add(pa, feTopIons.comp);
+    mu.add(pa, feMinFreq.label(), mu.ccR());
+    mu.add(pa, feMinFreq.comp).spanX().wrap();
 
     mu.add(pa, feMbrMinCorr.label(), mu.ccR());
     mu.add(pa, feMbrMinCorr.comp);
