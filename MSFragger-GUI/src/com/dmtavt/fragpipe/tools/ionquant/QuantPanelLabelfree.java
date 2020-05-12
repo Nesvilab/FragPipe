@@ -253,7 +253,7 @@ public class QuantPanelLabelfree extends JPanelBase {
         .setCols(5).setFormat("#.###").create();
 
     UiSpinnerInt uiSpinnerMbrTopRuns = UiUtils.spinnerInt(3, 1, Integer.MAX_VALUE, 1).setCols(5).create();
-    UiText uiTextLabels = UiUtils.uiTextBuilder().cols(30).ghost("<light mod>;<heavy mod>").create();
+    UiText uiTextLabels = UiUtils.uiTextBuilder().cols(30).ghost("").create();
 
     FormEntry feDataType = mu.feb(uiComboTimsTOF).name("ionquant.noim").label("Data type").create();
     FormEntry feMbr = mu.feb(uiComboMbr).name("ionquant.mbr").label("Match between runs (MBR)").create();
