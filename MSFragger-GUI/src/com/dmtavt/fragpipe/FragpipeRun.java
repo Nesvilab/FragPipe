@@ -939,25 +939,26 @@ public class FragpipeRun {
     });
 
     // run Report - Multi-Experiment report
-    final boolean isMultiexpPepLevelSummary = reportPanel.isPepSummary();
     final CmdPhilosopherAbacus cmdPhilosopherAbacus = new CmdPhilosopherAbacus(false, wd);
 
     addConfig.accept(cmdPhilosopherAbacus, () -> {
-      final boolean doReport = reportPanel.isGenerateReport();
       final boolean isMultiExpReport = sharedLcmsFileGroups.size() > 1;
-      final boolean doRunAbacus = doReport && isMultiExpReport;
+      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && isMultiExpReport;
+      final boolean isPepLevelSummary = reportPanel.isPepSummary();
       cmdPhilosopherAbacus.isRun(doRunAbacus);
 
       if (cmdPhilosopherAbacus.isRun()) {
         return cmdPhilosopherAbacus.configure(parent, usePhi, reportPanel.getFilterCmdText(),
-            isMultiexpPepLevelSummary, decoyTag, sharedMapGroupsToProtxml);
+            isPepLevelSummary, decoyTag, sharedMapGroupsToProtxml);
       }
       return true;
     });
 
-    final CmdIprophet cmdIprophet = new CmdIprophet(cmdPhilosopherAbacus.isRun(), wd);
+
+    final CmdIprophet cmdIprophet = new CmdIprophet(reportPanel.isPepSummary(), wd);
     addConfig.accept(cmdIprophet, () -> {
-      cmdIprophet.isRun(cmdPhilosopherAbacus.isRun());
+      final boolean isPepLevelSummary = reportPanel.isPepSummary();
+      cmdIprophet.isRun(cmdPhilosopherAbacus.isRun() && isPepLevelSummary);
       if (cmdIprophet.isRun()) {
         return cmdIprophet.configure(parent, usePhi, decoyTag, threads, sharedPepxmlFiles);
       }
@@ -1138,7 +1139,6 @@ public class FragpipeRun {
 
     // turn on all required dependencies
     final Graph<CmdBase, DefEdge> graphDeps = new DirectedAcyclicGraph<>(DefEdge.class);
-    addToGraph(graphDeps, cmdPhilosopherAbacus, DIRECTION.OUT, cmdIprophet);
     addToGraph(graphDeps, cmdMsAdjuster, DIRECTION.OUT, cmdMsAdjusterCleanup);
     addToGraph(graphDeps, cmdPhilosopherFilter, DIRECTION.OUT, cmdPhilosopherDbAnnotate);
     addToGraph(graphDeps, cmdTmtFreequant, DIRECTION.OUT, cmdPhilosopherFilter, cmdPhilosopherReport);
