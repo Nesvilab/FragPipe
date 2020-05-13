@@ -8,7 +8,6 @@ import com.github.chhh.utils.UsageTrigger;
 public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
 
   public static final String NAME = "WorkspaceCleanInit";
-  private int priority = 10;
 
   public CmdPhilosopherWorkspaceCleanInit(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -50,15 +49,6 @@ public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
 
     isConfigured = true;
     return true;
-  }
-
-  @Override
-  public int getPriority() {
-    return priority;
-  }
-
-  public void setPriority(int priority) {
-    this.priority = priority;
   }
 
   @Override

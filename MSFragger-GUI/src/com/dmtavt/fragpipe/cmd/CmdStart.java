@@ -19,12 +19,4 @@ public class CmdStart extends CmdBase {
   public String getCmdName() {
     return NAME;
   }
-
-  /**
-   * Extending classes can override this to modify the priority level.
-   */
-  @Override
-  public int getPriority() {
-    return Integer.MIN_VALUE;
-  }
 }

@@ -38,11 +38,6 @@ public class CmdPhilosopherWorkspaceClean extends CmdBase {
   }
 
   @Override
-  public int getPriority() {
-    return Integer.MAX_VALUE - 100;
-  }
-
-  @Override
   public boolean usesPhi() {
     return true;
   }

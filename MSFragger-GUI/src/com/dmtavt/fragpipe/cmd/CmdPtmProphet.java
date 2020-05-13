@@ -28,11 +28,6 @@ public class CmdPtmProphet extends CmdBase {
   }
 
   @Override
-  public int getPriority() {
-    return 93; // after peptide prophet
-  }
-
-  @Override
   public boolean usesPhi() {
     return true;
   }

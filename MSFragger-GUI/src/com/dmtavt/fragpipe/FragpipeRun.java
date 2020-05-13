@@ -207,9 +207,8 @@ public class FragpipeRun {
       if (log.isDebugEnabled()) {
         TopologicalOrderIterator<CmdBase, DefEdge> it =
             new TopologicalOrderIterator<>(dag);
-        String s = Seq.seq(it).map(o -> (CmdBase) o)
-            .map(cmd -> String.format("Cmd: [%s], IsRun: [%s] Prority: [%d]", cmd.getCmdName(),
-                cmd.isRun(), cmd.getPriority()))
+        String s = Seq.seq(it)
+            .map(cmd -> String.format("Cmd: [%s], IsRun: [%s]", cmd.getCmdName(), cmd.isRun()))
             .toString("\n");
         log.debug("Ordered tasks:\n{}", s);
       }

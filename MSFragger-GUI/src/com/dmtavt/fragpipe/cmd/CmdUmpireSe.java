@@ -209,9 +209,4 @@ public class CmdUmpireSe extends CmdBase {
         .map(mgf -> StringUtils.upToLastDot(mgf) + "." + OUTPUT_EXT.toString())
         .collect(Collectors.toList());
   }
-
-  @Override
-  public int getPriority() {
-    return 30;
-  }
 }

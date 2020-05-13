@@ -148,15 +148,6 @@ public abstract class CmdBase {
   }
 
   /**
-   * Extending classes can override this to modify the priority level.
-   * @deprecated Not used anymore.
-   */
-  @Deprecated
-  public int getPriority() {
-    return 100;
-  }
-
-  /**
    * @param graph Graph to which a node should be added and wired to other nodes.
    * @param startNode The start-of-processing graph node name.
    */
@@ -177,7 +168,7 @@ public abstract class CmdBase {
   public ProcessBuildersDescriptor getBuilderDescriptor() {
     if (!isConfigured)
       throw new IllegalStateException("Call to #getBuilderDescriptor() before calling #configure()");
-    return new ProcessBuildersDescriptor(getCmdName(), getPriority(), fileCaptureStdout,
+    return new ProcessBuildersDescriptor(getCmdName(), fileCaptureStdout,
         fileCaptureStderr).addAll(pbis);
   }
 

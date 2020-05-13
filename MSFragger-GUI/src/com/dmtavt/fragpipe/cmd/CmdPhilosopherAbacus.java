@@ -37,11 +37,6 @@ public class CmdPhilosopherAbacus extends CmdBase {
     return NAME;
   }
 
-  @Override
-  public int getPriority() {
-    return 120;
-  }
-
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       String textReportFilterCmdOpts, boolean isPepLevelSummary, String decoyTag, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 

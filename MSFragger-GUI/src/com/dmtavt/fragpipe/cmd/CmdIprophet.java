@@ -54,11 +54,6 @@ public class CmdIprophet extends CmdBase {
   }
 
   @Override
-  public int getPriority() {
-    return 94;
-  }
-
-  @Override
   public boolean usesPhi() {
     return true;
   }

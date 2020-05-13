@@ -9,13 +9,10 @@ public class ProcessBuildersDescriptor {
   public final String name;
   public final String fnStdout;
   public final String fnStderr;
-  public final int priority;
   private String parallelGroup = null;
 
-  public ProcessBuildersDescriptor(String name, int priority,
-      String fnStdout, String fnStderr) {
+  public ProcessBuildersDescriptor(String name, String fnStdout, String fnStderr) {
     this.name = name;
-    this.priority = priority;
     this.pbis = new ArrayList<>();
     this.fnStdout = fnStdout;
     this.fnStderr = fnStderr;

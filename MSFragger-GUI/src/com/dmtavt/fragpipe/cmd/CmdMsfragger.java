@@ -490,11 +490,6 @@ public class CmdMsfragger extends CmdBase {
     return true;
   }
 
-  @Override
-  public int getPriority() {
-    return 50;
-  }
-
   private static class GetSupportedExts {
 
     private List<Path> searchPaths;

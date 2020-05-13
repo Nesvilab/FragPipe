@@ -24,11 +24,6 @@ public class CmdPhilosopherReport extends CmdBase {
     return NAME;
   }
 
-  @Override
-  public int getPriority() {
-    return 110;
-  }
-
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       boolean doPrintDecoys, boolean doMzId, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 

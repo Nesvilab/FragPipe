@@ -32,11 +32,6 @@ public class CmdLabelquant extends CmdBase {
     return NAME;
   }
 
-  @Override
-  public int getPriority() {
-    return 99;
-  }
-
   public boolean configure(Component comp, boolean isDryRun, UsageTrigger phi,
       String textLabelquantOpts, QuantLabel label, final List<String> forbiddenOpts,
       Map<LcmsFileGroup, Path> annotations, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {

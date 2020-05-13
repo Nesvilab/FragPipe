@@ -62,11 +62,6 @@ public class CmdPhilosopherDbAnnotate extends CmdBase {
   }
 
   @Override
-  public int getPriority() {
-    return 90;
-  }
-
-  @Override
   public boolean usesPhi() {
     return true;
   }

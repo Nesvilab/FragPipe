@@ -291,11 +291,6 @@ public class CmdProteinProphet extends CmdBase {
   }
 
   @Override
-  public int getPriority() {
-    return 96;
-  }
-
-  @Override
   public boolean usesPhi() {
     return true;
   }

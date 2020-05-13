@@ -80,9 +80,4 @@ public class CmdMsAdjuster extends CmdBase {
     isConfigured = true;
     return true;
   }
-
-  @Override
-  public int getPriority() {
-    return priority;
-  }
 }

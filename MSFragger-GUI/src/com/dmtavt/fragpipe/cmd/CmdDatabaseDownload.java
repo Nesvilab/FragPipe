@@ -56,11 +56,6 @@ public class CmdDatabaseDownload extends CmdBase {
   }
 
   @Override
-  public int getPriority() {
-    return 10;
-  }
-
-  @Override
   public boolean usesPhi() {
     return true;
   }

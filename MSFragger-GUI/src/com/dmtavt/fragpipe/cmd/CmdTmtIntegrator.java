@@ -182,9 +182,4 @@ public class CmdTmtIntegrator extends CmdBase {
     isConfigured = true;
     return true;
   }
-
-  @Override
-  public int getPriority() {
-    return 200;
-  }
 }

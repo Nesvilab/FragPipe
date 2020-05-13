@@ -198,7 +198,7 @@ public class QuantPanelLabelfree extends JPanelBase {
   }
 
   private JPanel createPanelIonquant(ButtonGroup buttonGroup) {
-    JPanel p = mu.newPanel(null, true);
+    JPanel p = mu.newPanel("Ion-Quant", true);
 
     uiRadioUseIonquant = new UiRadio("IonQuant", null, false);
     buttonGroup.add(uiRadioUseIonquant);

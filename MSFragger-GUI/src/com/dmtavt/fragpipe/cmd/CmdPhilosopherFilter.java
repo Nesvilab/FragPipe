@@ -18,7 +18,7 @@ public class CmdPhilosopherFilter extends CmdBase {
   public static final String FN_CAPTURE_STDERR = "filter.log";
 
   public CmdPhilosopherFilter(boolean isRun, Path workDir) {
-    super(isRun, workDir);
+    super(isRun, NAME, workDir, FN_CAPTURE_STDOUT, FN_CAPTURE_STDERR);
   }
 
   @Override
@@ -70,11 +70,6 @@ public class CmdPhilosopherFilter extends CmdBase {
 
     isConfigured = true;
     return true;
-  }
-
-  @Override
-  public int getPriority() {
-    return 97;
   }
 
   @Override
