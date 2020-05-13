@@ -145,6 +145,7 @@ def run_msfragger(infiles_name):
 			for i, param_part_path in zip(range(num_parts), param_part_paths)]
 	for i, (cmd, cwd) in enumerate(zip(cmds, tempdir_parts), start=1):
 		print(f'STARTED: slice {i} of {len(cmds)}', flush=True)
+		print(f'{cmd}', flush=True)
 		subprocess.run(list(map(os.fspath, cmd)), cwd=cwd, check=True)
 		print(f'DONE: slice {i} of {len(cmds)}', flush=True)
 
@@ -336,6 +337,7 @@ def calibrate(fasta_path_sample, calibrate_mass: int):
 			'precursor_mass_mode = selected', params_txt_new)
 	params_path_calibrate.write_text(recomp_fasta.sub(f'database_name = {fasta_path_sample.relative_to(tempdir)}', params_txt_new))
 	calibrate_cmd = msfragger_cmd + [params_path_calibrate.resolve(), '--split1', *infiles_name]
+	print(f'{calibrate_cmd}', flush=True)
 	p = subprocess.Popen(list(map(os.fspath, calibrate_cmd)), cwd=tempdir, stdout=subprocess.PIPE)
 	out = b''
 	with p.stdout as f:
@@ -459,6 +461,7 @@ def main():
 	run_msfragger(calibrate_mzBIN if calibrate_mass in [1, 2] else infiles_name)
 
 	write_combined_scores_histo()
+	print(f'{calibrate_cmd}')
 	subprocess.run(list(map(os.fspath, generate_expect_cmd)), cwd=tempdir, check=True)
 
 	combine_results()
