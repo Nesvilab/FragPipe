@@ -162,11 +162,10 @@ public class QuantPanelLabelfree extends JPanelBase {
   private JPanel createPanelContent(ButtonGroup buttonGroup) {
     JPanel p = mu.newPanel(null, mu.lcFillX());
     mu.borderEmpty(p);
-
     pFreequant = createPanelFreequant(buttonGroup);
     pIonquant = createPanelIonquant(buttonGroup);
 
-    mu.add(p, pIonquant).wrap();
+    mu.add(p, pIonquant).spanX().wrap();
     mu.add(p, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
     mu.add(p, pFreequant).wrap();
 
@@ -198,7 +197,7 @@ public class QuantPanelLabelfree extends JPanelBase {
   }
 
   private JPanel createPanelIonquant(ButtonGroup buttonGroup) {
-    JPanel p = mu.newPanel("Ion-Quant", true);
+    JPanel p = mu.newPanel(null, true);
 
     uiRadioUseIonquant = new UiRadio("IonQuant", null, false);
     buttonGroup.add(uiRadioUseIonquant);
@@ -286,47 +285,56 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     mu.add(p, feRadioIonquant.comp).split().spanX();
     mu.add(p, feDataType.label()).gapLeft("10px");
-    mu.add(p, feDataType.comp).wrap();
-
-    mu.add(p, feMzTol.label(), mu.ccR());
-    mu.add(p, feMzTol.comp);
-    mu.add(p, feRtTol.label(), mu.ccR());
-    mu.add(p, feRtTol.comp);
-    mu.add(p, feImTol.label(), mu.ccR());
-    mu.add(p, feImTol.comp);
+    mu.add(p, feDataType.comp);
+    mu.add(p, feMbr.label(), mu.ccR());
+    mu.add(p, feMbr.comp);
     mu.add(p, feMinIons.label(), mu.ccR());
     mu.add(p, feMinIons.comp).spanX().wrap();
 
-    mu.add(p, feMbr.label(), mu.ccR());
-    mu.add(p, feMbr.comp).growX();
-    mu.add(p, feMbrRtTol.label(), mu.ccR());
-    mu.add(p, feMbrRtTol.comp);
-    mu.add(p, feMbrImTol.label(), mu.ccR());
-    mu.add(p, feMbrImTol.comp).spanX().wrap();
+    JPanel pDetection = mu.newPanel("Feature detection", mu.lcFillXNoInsetsTopBottom());
 
-    mu.add(p, feRequant.label(), mu.ccR());
-    mu.add(p, feRequant.comp);
-    mu.add(p, feLabel.label(), mu.ccR());
-    mu.add(p, feLabel.comp).spanX().growX().wrap();
+    mu.add(pDetection, feMzTol.label(), mu.ccR());
+    mu.add(pDetection, feMzTol.comp);
+    mu.add(pDetection, feRtTol.label(), mu.ccR());
+    mu.add(pDetection, feRtTol.comp);
+    mu.add(pDetection, feImTol.label(), mu.ccR());
+    mu.add(pDetection, feImTol.comp).wrap();
+
+    mu.add(p, pDetection).spanX().growX().wrap();
+
+    JPanel pMbr = mu.newPanel("Match between runs", mu.lcFillXNoInsetsTopBottom());
+
+    mu.add(pMbr, feMbrRtTol.label(), mu.ccR());
+    mu.add(pMbr, feMbrRtTol.comp);
+    mu.add(pMbr, feMbrImTol.label(), mu.ccR());
+    mu.add(pMbr, feMbrImTol.comp).spanX().wrap();
+
+    mu.add(pMbr, feMbrMinCorr.label(), mu.ccR());
+    mu.add(pMbr, feMbrMinCorr.comp);
+    mu.add(pMbr, feMbrTopRuns.label(), mu.ccR());
+    mu.add(pMbr, feMbrTopRuns.comp).spanX().wrap();
+    mu.add(pMbr, feMbrIonFdr.label(), mu.ccR());
+    mu.add(pMbr, feMbrIonFdr.comp);
+    mu.add(pMbr, feMbrPepFdr.label(), mu.ccR());
+    mu.add(pMbr, feMbrPepFdr.comp);
+    mu.add(pMbr, feMbrProtFdr.label(), mu.ccR());
+    mu.add(pMbr, feMbrProtFdr.comp).spanX().wrap();
+
+    mu.add(p, pMbr).spanX().growX().wrap();
 
     JPanel pa = mu.newPanel("Advanced options", mu.lcFillXNoInsetsTopBottom());
+
+    mu.add(pa, feRequant.label(), mu.ccR());
+    mu.add(pa, feRequant.comp);
+    mu.add(pa, feLabel.label(), mu.ccR());
+    mu.add(pa, feLabel.comp).spanX().growX().wrap();
 
     mu.add(pa, feTopIons.label(), mu.ccR());
     mu.add(pa, feTopIons.comp);
     mu.add(pa, feMinFreq.label(), mu.ccR());
     mu.add(pa, feMinFreq.comp).spanX().wrap();
 
-    mu.add(pa, feMbrMinCorr.label(), mu.ccR());
-    mu.add(pa, feMbrMinCorr.comp);
-    mu.add(pa, feMbrTopRuns.label(), mu.ccR());
-    mu.add(pa, feMbrTopRuns.comp).spanX().wrap();
 
-    mu.add(pa, feMbrIonFdr.label(), mu.ccR());
-    mu.add(pa, feMbrIonFdr.comp);
-    mu.add(pa, feMbrPepFdr.label(), mu.ccR());
-    mu.add(pa, feMbrPepFdr.comp);
-    mu.add(pa, feMbrProtFdr.label(), mu.ccR());
-    mu.add(pa, feMbrProtFdr.comp).spanX().wrap();
 
     mu.add(pa, feNormalize.label(), mu.ccR());
     mu.add(pa, feNormalize.comp);
