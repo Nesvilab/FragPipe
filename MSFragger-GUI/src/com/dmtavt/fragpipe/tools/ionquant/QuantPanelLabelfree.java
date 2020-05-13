@@ -134,7 +134,7 @@ public class QuantPanelLabelfree extends JPanelBase {
   @Override
   protected void init() {
     this.setLayout(new BorderLayout());
-    this.setBorder(new TitledBorder("Label-free Quantitation"));
+    this.setBorder(new TitledBorder("Label-Free Quantification"));
 
     radioGroupQuant = new ButtonGroup();
     pTop = createPanelTop();

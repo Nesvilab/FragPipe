@@ -663,18 +663,19 @@ public class FragpipeRun {
 
     addConfig.accept(cmdMsAdjuster, () -> {
       if (cmdMsAdjuster.isRun()) {
-        return cmdMsAdjuster.configure(parent, jarPath, ramGbNonzero, sharedLcmsFiles, false, 49);
+        return cmdMsAdjuster.configure(parent, jarPath, ramGbNonzero, sharedLcmsFiles, false);
       }
       return true;
     });
 
     // run MsAdjuster Cleanup
-    final CmdMsAdjuster cmdMsAdjusterCleanup = new CmdMsAdjuster(cmdMsAdjuster.isRun(), wd);
+    String cmdMsadjusterCleanupTitle = StringUtils.appendOnce(cmdMsAdjuster.getTitle(), CmdMsAdjuster.suffixCleanup);
+    final CmdMsAdjuster cmdMsAdjusterCleanup = new CmdMsAdjuster(cmdMsAdjuster.isRun(), cmdMsadjusterCleanupTitle, wd);
 
     addConfig.accept(cmdMsAdjusterCleanup, () -> {
       if (cmdMsAdjusterCleanup.isRun()) {
         return cmdMsAdjusterCleanup
-            .configure(parent, jarPath, ramGbNonzero, sharedLcmsFiles, true, 51);
+            .configure(parent, jarPath, ramGbNonzero, sharedLcmsFiles, true);
       }
       return true;
     });

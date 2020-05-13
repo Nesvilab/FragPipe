@@ -27,7 +27,8 @@ import com.dmtavt.fragpipe.tabs.TabConfig;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tabs.TabPtms;
-import com.dmtavt.fragpipe.tabs.TabQuantitaion;
+import com.dmtavt.fragpipe.tabs.TabQuantitaionLabeling;
+import com.dmtavt.fragpipe.tabs.TabQuantitaionLfq;
 import com.dmtavt.fragpipe.tabs.TabRun;
 import com.dmtavt.fragpipe.tabs.TabSpecLib;
 import com.dmtavt.fragpipe.tabs.TabUmpire;
@@ -79,7 +80,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -89,7 +89,6 @@ import org.greenrobot.eventbus.NoSubscriberEvent;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jsoup.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.cmd.ToolingUtils;
@@ -366,7 +365,8 @@ public class Fragpipe extends JFrame {
     TabDatabase tabDatabase = new TabDatabase();
     TabMsfragger tabMsfragger = new TabMsfragger();
     TabValidation tabValidation = new TabValidation();
-    TabQuantitaion tabQuantitaion = new TabQuantitaion();
+    TabQuantitaionLfq tabQuantitaionLfq = new TabQuantitaionLfq();
+    TabQuantitaionLabeling tabQuantitaionLabeling = new TabQuantitaionLabeling();
     TabPtms tabPtms = new TabPtms();
     TabSpecLib tabSpecLib = new TabSpecLib();
     TabRun tabRun = new TabRun(console);
@@ -381,8 +381,10 @@ public class Fragpipe extends JFrame {
         "/com/dmtavt/fragpipe/icons/bolt-outlined-16.png", null));
     addTab.accept(new UiTab("Validation", tabValidation,
         "/com/dmtavt/fragpipe/icons/icon-filtration-16.png", null));
-    addTab.accept(new UiTab("Quant", tabQuantitaion,
+    addTab.accept(new UiTab("Quant (LFQ)", tabQuantitaionLfq,
         "/com/dmtavt/fragpipe/icons/icon-scales-balance-16.png", null));
+    addTab.accept(new UiTab("Quant (Labeling)", tabQuantitaionLabeling,
+        "/com/dmtavt/fragpipe/icons/icon-scales-balance-color-2-16.png", null));
     addTab.accept(new UiTab("PTMs", tabPtms, "/com/dmtavt/fragpipe/icons/icon-edit-16.png", null));
     addTab.accept(new UiTab("Spec Lib", tabSpecLib,
         "/com/dmtavt/fragpipe/icons/icon-library-16.png", null));

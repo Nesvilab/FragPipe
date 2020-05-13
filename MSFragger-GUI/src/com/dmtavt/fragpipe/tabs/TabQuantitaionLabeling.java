@@ -1,17 +1,15 @@
 package com.dmtavt.fragpipe.tabs;
 
+import com.dmtavt.fragpipe.tools.tmtintegrator.TmtiPanel;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
-import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
-import com.dmtavt.fragpipe.tools.tmtintegrator.TmtiPanel;
 
-public class TabQuantitaion extends JPanelWithEnablement {
+public class TabQuantitaionLabeling extends JPanelWithEnablement {
   private static MigUtils mu = MigUtils.get();
-  public static final String TAB_PREFIX = "quantitation.";
-  private QuantPanelLabelfree panelLabelfree;
+  public static final String TAB_PREFIX = "quant-labeling.";
   private TmtiPanel panelTmti;
 
-  public TabQuantitaion() {
+  public TabQuantitaionLabeling() {
     init();
     initMore();
   }
@@ -23,12 +21,9 @@ public class TabQuantitaion extends JPanelWithEnablement {
   private void init() {
     mu.layout(this).fillX();
 
-    panelLabelfree = new QuantPanelLabelfree();
     panelTmti = new TmtiPanel();
 
-    mu.add(this, panelLabelfree).growX().wrap();
     mu.add(this, panelTmti).growX().wrap();
   }
-
 
 }

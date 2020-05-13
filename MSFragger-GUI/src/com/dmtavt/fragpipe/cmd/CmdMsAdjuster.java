@@ -18,21 +18,30 @@ public class CmdMsAdjuster extends CmdBase {
   public static final String JAR_MSADJUSTER_NAME = "original-msadjuster-1.0.3.jar";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_MSADJUSTER_MAIN_CLASS = "Main";
-  private int priority;
   private boolean isCleanup;
   private static String[] JAR_DEPS = {CmdCrystalc.JAR_MSFTBX_NAME, CmdCrystalc.JAR_GRPPR_NAME};
+  public static final String suffixCleanup = " (Cleanup)";
 
   public CmdMsAdjuster(boolean isRun, Path workDir) {
     super(isRun, workDir);
   }
 
+  public CmdMsAdjuster(boolean isRun, String title, Path workDir) {
+    super(isRun, title, workDir);
+  }
+
+  @Override
+  public String getTitle() {
+    return !isCleanup ? super.getTitle() : StringUtils.appendOnce(super.getTitle(), suffixCleanup);
+  }
+
   @Override
   public String getCmdName() {
-    return !isCleanup ? NAME : NAME + " (Cleanup)";
+    return !isCleanup ? NAME : StringUtils.appendOnce(NAME, suffixCleanup);
   }
 
   public boolean configure(Component comp, Path jarFragpipe, int ramGb,
-      List<InputLcmsFile> lcmsFiles, boolean doCleanup, int priority) {
+      List<InputLcmsFile> lcmsFiles, boolean doCleanup) {
 
     initPreConfig();
 
@@ -41,8 +50,6 @@ public class CmdMsAdjuster extends CmdBase {
     if (classpathJars == null) {
       return false;
     }
-
-    this.priority = priority;
 
     for (InputLcmsFile f : lcmsFiles) {
 
