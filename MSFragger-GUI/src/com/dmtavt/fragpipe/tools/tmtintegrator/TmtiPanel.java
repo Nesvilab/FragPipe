@@ -9,6 +9,7 @@ import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
+import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
@@ -345,6 +346,10 @@ public class TmtiPanel extends JPanelBase {
             + "of PSMs with the summed TMT reporter ions intensity in the lowest 5% of <br/>\n"
             + "all PSMs)");
 
+    UiSpinnerInt uiSpinnerMinNtt = UiUtils.spinnerInt(0, 0, 1000, 1).setCols(5).create();
+    FormEntry feMinNtt = mu.feb(uiSpinnerMinNtt).name(TmtiConfProps.PROP_min_ntt).label("Min NTT")
+        .tooltip("Minimum allowed number of enzymatic termini").create();
+
     UiText uiTextProtExclude = UiUtils.uiTextBuilder().cols(10).text("none").create();
     FormEntry feProtExclude = fe(TmtiConfProps.PROP_prot_exclude,
         "Exclude proteins", uiTextProtExclude,
@@ -438,7 +443,9 @@ public class TmtiPanel extends JPanelBase {
     mu.add(p, feMinPurity.label(), mu.ccR());
     mu.add(p, feMinPurity.comp);
     mu.add(p, feMinPercent.label(), mu.ccR());
-    mu.add(p, feMinPercent.comp).wrap();
+    mu.add(p, feMinPercent.comp);
+    mu.add(p, feMinNtt.label(), mu.ccR());
+    mu.add(p, feMinNtt.comp).spanX().wrap();
 
     JPanel pChecks = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     mu.add(pChecks, fePsmNorm.comp);
