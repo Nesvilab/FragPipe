@@ -1,0 +1,28 @@
+tmtintegrator:
+  path: D:\test\TMTIntegrator.jar                 # path to TMT-Integrator jar
+  memory: 30                                      # memory allocation, in Gb
+  protein_database: D:\test\test.fasta            # protein fasta file
+  output: D:\test\reports                         # the location of output files
+  channel_num: 10                                 # number of channels in the multiplex (e.g. 10, 11)
+  ref_tag: pool                                   # unique tag for identifying the reference channel (Bridge sample added to each multiplex)
+  groupby: -1                                     # level of data summarization(0: PSM aggregation to the gene level; 1: protein; 2: peptide sequence; 3: multiple PTM sites; 4: single PTM site; -1: generate reports at all levels)
+  psm_norm: false                                 # perform additional retention time-based normalization at the PSM level
+  outlier_removal: true                           # perform outlier removal
+  prot_norm: -1                                   # normalization (0: None; 1: MD (median centering); 2: GN (median centering + variance scaling); -1: generate reports with all normalization options)
+  min_pep_prob: 0.9                               # minimum PSM probability threshold (in addition to FDR-based filtering by Philosopher)
+  min_purity: 0.5                                 # ion purity score threshold
+  min_percent: 0.05                               # remove low intensity PSMs (e.g. value of 0.05 indicates removal of PSMs with the summed TMT reporter ions intensity in the lowest 5% of all PSMs)
+  unique_pep: false                               # allow PSMs with unique peptides only (if true) or unique plus razor peptides (if false), as classified by Philosopher and defined in PSM.tsv files
+  unique_gene: 0                                  # additional, gene-level uniqueness filter (0: allow all PSMs; 1: remove PSMs mapping to more than one GENE with evidence of expression in the dataset; 2:remove all PSMs mapping to more than one GENE in the fasta file)
+  best_psm: true                                  # keep the best PSM only (highest summed TMT intensity) among all redundant PSMs within the same LC-MS run
+  prot_exclude: none                              # exclude proteins with specified tags at the beginning of the accession number (e.g. none: no exclusion; sp|,tr| : exclude protein with sp| or tr|)
+  allow_overlabel: true                           # allow PSMs with TMT on S (when overlabeling on S was allowed in the database search)
+  allow_unlabeled: false                          # allow PSMs without TMT tag or acetylation on the peptide n-terminus 
+  mod_tag: none                                   # PTM info for generation of PTM-specific reports (none: for Global data; S[167],T[181],Y[243]: for Phospho; K[170]: for K-Acetyl)
+  min_site_prob: -1                               # site localization confidence threshold (-1: for Global; 0: as determined by the search engine; above 0 (e.g. 0.75): PTMProphet probability, to be used with phosphorylation only)
+  ms1_int: true                                   # use MS1 precursor ion intensity (if true) or MS2 reference intensity (if false) as part of the reference sample abundance estimation 
+  top3_pep: true                                  # use top 3 most intense peptide ions as part of the reference sample abundance estimation
+  print_RefInt: false                             # print individual reference sample abundance estimates for each multiplex in the final reports (in addition to the combined reference sample abundance estimate)
+  add_Ref: -1                                     # add an artificial reference channel if there is no reference channel or export raw abundance (-1: don't add the reference; 0: use summation as the reference; 1: use average as the reference; 2: use median as the reference; 3: export raw abundance)
+  max_pep_prob_thres: 0                           # the threshold for maximum peptide probability
+  min_ntt: 0                                      # minimum allowed number of enzymatic termini

@@ -1,8 +1,8 @@
 tmtintegrator:
-  path: D:\test\TMTIntegrator.jar                 # path to TMT-Integrator jar
-  memory: 30                                      # memory allocation, in Gb
-  protein_database: D:\test\test.fasta            # protein fasta file
-  output: D:\test\reports                         # the location of output files
+  path: D:\test\TMTIntegrator.jar              # path to TMT-Integrator jar
+  memory: 30                                   # memory allocation, in Gb
+  protein_database: D:\test\test.fasta         # protein fasta file
+  output: D:\test\reports                      # the location of output files
   channel_num: 10                              # number of channels in the multiplex (e.g. 10, 11)
   ref_tag: pool                                # unique tag for identifying the reference channel (Bridge sample added to each multiplex)
   groupby: -1                                  # level of data summarization(0: PSM aggregation to the gene level; 1: protein; 2: peptide sequence; 3: multiple PTM sites; 4: single PTM site; -1: generate reports at all levels)
@@ -23,8 +23,9 @@ tmtintegrator:
   ms1_int: true                                # use MS1 precursor ion intensity (if true) or MS2 reference intensity (if false) as part of the reference sample abundance estimation
   top3_pep: true                               # use top 3 most intense peptide ions as part of the reference sample abundance estimation
   print_RefInt: false                          # print individual reference sample abundance estimates for each multiplex in the final reports (in addition to the combined reference sample abundance estimate)
-  add_Ref: -1                                  # add an artificial reference channel if there is no reference channel (-1: don't add the reference; 0: use summation as the reference; 1: use average as the reference; 2: use median as the reference)
+  add_Ref: -1                                  # add an artificial reference channel if there is no reference channel or export raw abundance (-1: don't add the reference; 0: use summation as the reference; 1: use average as the reference; 2: use median as the reference; 3: export raw abundance)
   max_pep_prob_thres: 0                        # the threshold for maximum peptide probability
+  min_ntt: 0                                   # minimum allowed number of enzymatic termini
 
 
   freequant: --ptw 0.4 --tol 10 --isolated     # added for fragpipe
