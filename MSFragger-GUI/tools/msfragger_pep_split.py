@@ -461,7 +461,7 @@ def main():
 	run_msfragger(calibrate_mzBIN if calibrate_mass in [1, 2] else infiles_name)
 
 	write_combined_scores_histo()
-	print(f'{calibrate_cmd}')
+	print(f'{generate_expect_cmd}')
 	subprocess.run(list(map(os.fspath, generate_expect_cmd)), cwd=tempdir, check=True)
 
 	combine_results()
