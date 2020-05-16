@@ -37,7 +37,7 @@ if len(argv) == 0:
 
 num_parts_str, jvm_cmd_str, msfragger_jar_path_str, param_path_str, *infiles_str = argv
 
-jvm_cmd = shlex.split(jvm_cmd_str)
+jvm_cmd = shlex.split(jvm_cmd_str, posix=False)
 msfragger_jar_path = pathlib.Path(msfragger_jar_path_str).resolve()
 param_path = pathlib.Path(param_path_str)
 infiles = [pathlib.Path(e) for e in infiles_str]
