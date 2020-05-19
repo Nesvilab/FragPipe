@@ -110,10 +110,10 @@ public class CmdCrystalc extends CmdBase {
     if (extLibsThermo != null) {
       sup.add(THERMO_RAW_EXT);
     }
-    final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.getParent()));
-    if (extLibsBruker != null) {
-      sup.add(BRUKER_RAW_EXT);
-    }
+//    final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.getParent()));
+//    if (extLibsBruker != null) {
+//      sup.add(BRUKER_RAW_EXT);
+//    }
     if (!checkCompatibleFormats(comp, pepxmlFiles, sup)) {
       return false;
     }
