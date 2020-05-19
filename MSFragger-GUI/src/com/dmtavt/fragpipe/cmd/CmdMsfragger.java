@@ -436,6 +436,7 @@ public class CmdMsfragger extends CmdBase {
       if (isSlicing) {
         PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
         pb.environment().put("PYTHONIOENCODING", "utf-8");
+        pb.environment().put("PYTHONUNBUFFERED", "true");
       }
 
       pb.directory(wd.toFile());
