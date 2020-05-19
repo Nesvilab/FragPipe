@@ -63,12 +63,12 @@ public class CmdSpecLibGen extends CmdBase {
           "<html>You have more than 1 experiment/group and spectral<br/>"
               + "library generation is turned on. In that case a separate<br/>"
               + "spectral library is created for each group.<br/><br/>"
-              + "<b>Select Yes</b> to continue.<br/><br/>"
-              + "<b>Select No</b> if you want a single spectral library generated<br/>"
-              + "from ALL input files.<br/>"
-              + "Change Experiment/Group configuration on Workflow tab, LCMS files section.<br/>"
+              + "<b>Select Yes</b> to continue as-is.<br/><br/>"
+              + "<b>Otherwise</b>, if you want a single spectral library generated<br/>"
+              + "from ALL input files:<br/>"
+              + "On Workflow tab, LCMS files section change Experiment/Group configuration.<br/>"
               + "E.g. press the <i>Clear Experiments</i> button there.",
-          "SpecLibGen config warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+          "SpecLibGen config warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
       if (JOptionPane.YES_OPTION != res) {
         return false;
       }

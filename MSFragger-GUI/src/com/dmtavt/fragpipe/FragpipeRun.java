@@ -711,7 +711,9 @@ public class FragpipeRun {
 
       // check that Write Calibrated MGF is On in Fragger for easyPQP + timsTOF
 
-      if (isRunSpeclibgen && useEasypqp && SpeclibPanel.EASYPQP_TIMSTOF.equals(speclibPanel.getEasypqpDataType())) {
+      if (isRunSpeclibgen && useEasypqp
+          && !tabMsf.isWriteCalMgf()
+          && SpeclibPanel.EASYPQP_TIMSTOF.equals(speclibPanel.getEasypqpDataType())) {
         if (!SwingUtils.showConfirmDialogShort(parent,
             "Spectral library generation via EasyPQP requires that MSFragger\n"
                 + "writes a calibrated MGF file. There is a checkbox on MSFragger tab.\n\n"
