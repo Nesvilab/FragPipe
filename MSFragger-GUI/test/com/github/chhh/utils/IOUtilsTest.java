@@ -19,6 +19,7 @@ import okio.BufferedSource;
 import okio.Okio;
 import org.jooq.lambda.Seq;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ public class IOUtilsTest {
   private static final String fnUtf16Be = "bom-utf16be.txt";
   private static final String fnUtf16Le = "bom-utf16le.txt";
 
-  @Test
+  @Test @Ignore
   public void tokenizeTest() throws IOException {
     //InputStream is = new ByteArrayInputStream(pepxmlSample().getBytes());
 
