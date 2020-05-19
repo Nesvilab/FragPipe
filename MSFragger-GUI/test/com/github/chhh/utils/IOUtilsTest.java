@@ -31,7 +31,7 @@ public class IOUtilsTest {
   private static final String fnUtf16Be = "bom-utf16be.txt";
   private static final String fnUtf16Le = "bom-utf16le.txt";
 
-  @Test @Ignore
+  @Test @Ignore("It's a dev/debug driver")
   public void tokenizeTest() throws IOException {
     //InputStream is = new ByteArrayInputStream(pepxmlSample().getBytes());
 
