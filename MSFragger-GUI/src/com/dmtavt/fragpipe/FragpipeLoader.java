@@ -75,7 +75,7 @@ public class FragpipeLoader {
     Locale.setDefault(Locale.ROOT);
 
     final ExecutorService exec = Executors.newWorkStealingPool();
-    final Duration timeoutMax = Duration.ofSeconds(5000000);
+    final Duration timeoutMax = Duration.ofSeconds(5);
 
     exec.submit(loadCache());
     exec.submit(loadRemoteProps(Math.min(timeoutMax.getSeconds(), 3)));
@@ -129,13 +129,13 @@ public class FragpipeLoader {
 
   private static Runnable loadRemoteProps(final long timeoutSeconds) {
     return () -> {
-      log.debug("Trying to fetch remote properties, {} seconds timeout", timeoutSeconds);
+      log.info("Trying to fetch remote properties, {} seconds timeout", timeoutSeconds);
       Bus.post(new MessageLoaderUpdate("Trying to load remote configuration"));
 
       Observable<Properties> obs = Observable
           .fromCallable(ThisAppProps::getRemotePropertiesWithLocalDefaults)
           .timeout(timeoutSeconds, TimeUnit.SECONDS)
-          .subscribeOn(Schedulers.immediate());
+          .subscribeOn(Schedulers.io());
 
       Subscription sub = obs.subscribe(
           props -> {

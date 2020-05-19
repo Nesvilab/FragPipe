@@ -1,10 +1,12 @@
 package com.github.chhh.utils.swing;
 
 import com.github.chhh.utils.swing.FormEntry.Builder;
+import java.awt.Color;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -52,6 +54,12 @@ public class MigUtils {
     comp.setBorder(border);
     return comp;
   }
+
+  public JComponent border(JComponent comp, int thickness) {
+    comp.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
+    return comp;
+  }
+
 
   public JComponent borderEmpty(JComponent comp) {
     comp.setBorder(new EmptyBorder(0, 0, 0, 0));

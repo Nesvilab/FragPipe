@@ -16,6 +16,7 @@ import com.github.chhh.utils.swing.UiRadio;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import java.nio.file.Path;
@@ -31,6 +32,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -127,7 +129,8 @@ public class SpeclibPanel extends JPanelBase {
   }
 
   private JPanel createPanelSpectrast(ButtonGroup radioGroupTools) {
-    JPanel p = mu.newPanel("SpectraST", mu.lcFillXNoInsetsTopBottom());
+    JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
+    mu.border(p, 1);
 
     uiRadioUseSpectrast = new UiRadio("Use SpectraST (for non-ion mobility data)", null, true);
     radioGroupTools.add(uiRadioUseSpectrast);
@@ -141,7 +144,8 @@ public class SpeclibPanel extends JPanelBase {
   }
 
   private JPanel createPanelEasypqp(ButtonGroup buttonGroup) {
-    final JPanel p = mu.newPanel("EasyPQP", mu.lcFillXNoInsetsTopBottom());
+    final JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
+    mu.border(p, 1);
 
     uiRadioUseEasypqp = new UiRadio("Use EasyPQP", null, false);
     uiRadioUseEasypqp.setToolTipText("Enablement depends on proper python configuration");
@@ -156,11 +160,10 @@ public class SpeclibPanel extends JPanelBase {
     FormEntry fePqpCal = new FormEntry("easypqp.rt-cal",
         "RT Calibration", uiComboPqpCal);
     uiTextPqpCalFile = UiUtils.uiTextBuilder().create();
-    FormEntry fePqpCalFile = new FormEntry(
-        "easypqp.select-file.text",
-        "Calibration file", uiTextPqpCalFile);
+    FormEntry fePqpCalFile = mu.feb(uiTextPqpCalFile)
+        .name("easypqp.select-file.text").label("Calibration file").create();
     JLabel labelPqpCalFile = fePqpCalFile.label();
-    //labelPqpCalFile.setName("easypqp.select-file.label");
+    labelPqpCalFile.setName("easypqp.select-file.label");
     final JButton btnPqpCalFile = fePqpCalFile.browseButton("Browse",
         "Select calibration file", () -> {
           JFileChooser fc = FileChooserUtils
@@ -181,20 +184,20 @@ public class SpeclibPanel extends JPanelBase {
           // validation went without exceptions
           uiTextPqpCalFile.setText(path.toString());
         });
-    //btnPqpCalFile.setName("easypqp.select-file.button");
+    btnPqpCalFile.setName("easypqp.select-file.button");
 
     uiComboPqpType = UiUtils.createUiCombo(pqpType);
     FormEntry feDataType = new FormEntry("easypqp.data-type",
         "Data type", uiComboPqpType);
 
     mu.add(p, feRadioUseEasypqp.comp).wrap();
-    p.add(fePqpCal.label(), ccR());
-    p.add(fePqpCal.comp, ccL().split());
-    p.add(labelPqpCalFile, ccL());
-    p.add(fePqpCalFile.comp, ccL().pushX().growX());
-    p.add(btnPqpCalFile, ccL().wrap());
-    p.add(feDataType.label(), ccR());
-    p.add(feDataType.comp, ccL().wrap());
+    mu.add(p, fePqpCal.label(), ccR());
+    mu.add(p, fePqpCal.comp).split();
+    mu.add(p, labelPqpCalFile);
+    mu.add(p, btnPqpCalFile);
+    mu.add(p, fePqpCalFile.comp).pushX().growX().wrap();
+    mu.add(p, feDataType.label(), ccR());
+    mu.add(p, feDataType.comp, ccL().wrap());
 
     uiComboPqpCal.addItemListener(e -> {
       String selected = (String) e.getItem();
