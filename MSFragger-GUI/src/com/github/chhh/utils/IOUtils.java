@@ -16,10 +16,11 @@
  */
 package com.github.chhh.utils;
 
-import java.io.BufferedInputStream;
+import com.github.chhh.utils.okio.SourceMarker;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,41 +45,42 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * @author Dmitry Avtonomov
  */
 public class IOUtils {
+
   private static final Logger log = LoggerFactory.getLogger(IOUtils.class);
-  private IOUtils() {}
+
+  private IOUtils() {
+  }
 
   /**
-   * Like {@link Files#readAllLines(java.nio.file.Path, java.nio.charset.Charset) } method,
-   * but works with streams.
-   * @param is  The stream is closed after reading. It's up to the user to make
-   * sure it's not an endless stream.
-   * @return
-   * @throws java.io.IOException
+   * Like {@link Files#readAllLines(java.nio.file.Path, java.nio.charset.Charset) } method, but
+   * works with streams.
+   *
+   * @param is The stream is closed after reading. It's up to the user to make sure it's not an
+   *           endless stream.
    */
   public static List<String> readAllLines(InputStream is) throws IOException {
     return readAllLines(is, StandardCharsets.UTF_8);
   }
 
   /**
-   * Like {@link Files#readAllLines(java.nio.file.Path, java.nio.charset.Charset) } method,
-   * but works with streams.
-   * @param is  The stream is closed after reading. It's up to the user to make
-   * sure it's not an endless stream.
-   * @param cs  Charset for decoder.
-   * @return
-   * @throws java.io.IOException
+   * Like {@link Files#readAllLines(java.nio.file.Path, java.nio.charset.Charset) } method, but
+   * works with streams.
+   *
+   * @param is The stream is closed after reading. It's up to the user to make sure it's not an
+   *           endless stream.
+   * @param cs Charset for decoder.
    */
   public static List<String> readAllLines(InputStream is, Charset cs) throws IOException {
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, cs))) {
       List<String> result = new ArrayList<>();
-      for (;;) {
+      for (; ; ) {
         String line = reader.readLine();
-        if (line == null)
+        if (line == null) {
           break;
+        }
         result.add(line);
       }
       return result;
@@ -86,20 +88,20 @@ public class IOUtils {
   }
 
   /** Read the object from Base64 string. */
-  private static Object fromString( String s ) throws IOException , ClassNotFoundException {
-    byte [] data = Base64.getDecoder().decode( s );
+  private static Object fromString(String s) throws IOException, ClassNotFoundException {
+    byte[] data = Base64.getDecoder().decode(s);
     ObjectInputStream ois = new ObjectInputStream(
-        new ByteArrayInputStream(  data ) );
-    Object o  = ois.readObject();
+        new ByteArrayInputStream(data));
+    Object o = ois.readObject();
     ois.close();
     return o;
   }
 
   /** Write the object to a Base64 string. */
-  private static String toString( Serializable o ) throws IOException {
+  private static String toString(Serializable o) throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    ObjectOutputStream oos = new ObjectOutputStream( baos );
-    oos.writeObject( o );
+    ObjectOutputStream oos = new ObjectOutputStream(baos);
+    oos.writeObject(o);
     oos.close();
     return Base64.getEncoder().encodeToString(baos.toByteArray());
   }
@@ -128,8 +130,9 @@ public class IOUtils {
       read = peek.read(readBuf);
     }
     for (BOM ref : BOM.values()) {
-      if (ref == BOM.NONE || ref.bytes.length > read)
+      if (ref == BOM.NONE || ref.bytes.length > read) {
         continue;
+      }
       boolean match = true;
       for (int i = 0; i < ref.bytes.length; i++) {
         if (ref.bytes[i] != readBuf[i]) {
@@ -177,15 +180,21 @@ public class IOUtils {
   }
 
   public static int codePointSizeBytes(int codePoint) {
-    log.debug("Code point dec[{}], oct[{}], hex[{}], bin[{}]", codePoint, Integer.toOctalString(codePoint), Integer.toHexString(codePoint), Integer.toBinaryString(codePoint));
-    if (codePoint >= 0 && codePoint <= 0x007F)
+    log.debug("Code point dec[{}], oct[{}], hex[{}], bin[{}]", codePoint,
+        Integer.toOctalString(codePoint), Integer.toHexString(codePoint),
+        Integer.toBinaryString(codePoint));
+    if (codePoint >= 0 && codePoint <= 0x007F) {
       return 1;
-    if (codePoint <= 0x07FF)
+    }
+    if (codePoint <= 0x07FF) {
       return 2;
-    if (codePoint <= 0xFFFF)
+    }
+    if (codePoint <= 0xFFFF) {
       return 3;
-    if (codePoint <= 0x10FFFF)
+    }
+    if (codePoint <= 0x10FFFF) {
       return 4;
+    }
     throw new UnsupportedOperationException("Code point out of range");
   }
 
@@ -201,7 +210,8 @@ public class IOUtils {
       while ((read = buf.read(b, size)) > 0) {
         totalPrev = total;
         total += read;
-        log.debug("Read {}/{} (={}) bytes. b.completeSegmentByteCount()={}", read, size, total, b.completeSegmentByteCount());
+        log.debug("Read {}/{} (={}) bytes. b.completeSegmentByteCount()={}", read, size, total,
+            b.completeSegmentByteCount());
         long from = -1;
         long pos;
         while ((pos = b.indexOf(needle, ++from)) >= 0) {
@@ -248,39 +258,112 @@ public class IOUtils {
     }
   }
 
+  public static class Tracker {
 
-  public static void tokenize2(InputStream is, String start, String end) throws IOException {
-    ByteString needle = new ByteString(start.getBytes(StandardCharsets.UTF_8));
-    byte[] bytes = needle.toByteArray();
-    int size = 8192;
-    byte[] buf = new byte[size];
-    try (BufferedInputStream bis = new BufferedInputStream(is)) {
-      long read, total = 0;
-      long lo = -1, hi = -1;
-      int ptr = 0;
-      ArrayList<Long> locs = new ArrayList<>();
-      while ((read = bis.read(buf)) > 0) {
-        for (int i = 0; i < read; i++) {
-          byte b = buf[i];
-          if (b == bytes[ptr]) {
-            //log.debug("Found '{}' @ {}", needle.utf8(), total + bb.position() - 1);
-            if (ptr == bytes.length - 1) {
-              // found match
-            }
+    public byte[] seqLo;
+    public byte[] seqMi;
+    public byte[] seqHi;
+    public int posLo = -1;
+    public int posMi = -1;
+    public int posHi = -1;
 
-            long pos = total + i;
-            locs.add(pos);
-            if (locs.size() % 20 == 0) {
-              //log.debug("{} @ {}", needle.utf8(), locs);
-              //System.out.printf("'%s' @ %s\n", needle.utf8(), locs.toString());
-              locs.clear();
-            }
-          }
-        }
-        total += read;
-      }
-      System.out.println("Done");
+    public void reset() {
+      posLo = 0;
+      posMi = 0;
+      posHi = 0;
     }
+  }
+
+  public static class Needle {
+    public final byte[] bytes;
+    public int pos = 0;
+
+    public Needle(byte[] bytes) {
+      this.bytes = bytes;
+    }
+    boolean extendMatch(byte b) {
+      if (b == bytes[pos]) {
+        pos += 1;
+        if (pos == bytes.length) {
+          pos = 0;
+          return true;
+        }
+      } else {
+        pos = 0;
+      }
+      return false;
+    }
+  }
+
+  private static long find(BufferedSource source, byte[] seq) throws IOException {
+    int pos = 0;
+    long read = 0;
+    while (true) {
+      byte b = source.readByte();
+      read += 1;
+      if (b == seq[pos]) {
+        pos += 1;
+        if (pos == seq.length) { // found
+          return read - seq.length;
+        }
+      } else {
+        pos = 0;
+      }
+    }
+  }
+
+  public static void tokenize2(InputStream is, java.lang.String start, java.lang.String end)
+      throws IOException {
+    Tracker t = new Tracker();
+    t.seqLo = "<spectrum".getBytes(StandardCharsets.UTF_8);
+    t.seqHi = "</spectrum".getBytes(StandardCharsets.UTF_8);
+
+    SourceMarker marker = new SourceMarker(Okio.source(is));
+    BufferedSource source = marker.source();
+
+    Buffer buf = new Buffer();
+
+    long total = 0;
+    byte b;
+    byte[] bb = new byte[1];
+    ArrayList<Long> locs = new ArrayList<>();
+    Needle needleLo1 = new Needle(t.seqLo);
+    Needle needleLo2 = new Needle(t.seqLo);
+    Needle needleHi = new Needle(t.seqHi);
+    while (true) {
+      try {
+        b = source.readByte();
+      } catch (EOFException e) {
+        break;
+      }
+      total += 1;
+      if (!needleLo1.extendMatch(b)) {
+        continue;
+      }
+      locs.add(total - needleLo1.bytes.length);
+      buf.write(needleLo1.bytes);
+      while (true) {
+        try {
+          b = source.readByte();
+          bb[0] = b;
+          buf.write(bb);
+        } catch (EOFException e) {
+          break;
+        }
+        total += 1;
+        if (needleHi.extendMatch(b)) {
+          locs.add(total - needleLo2.bytes.length);
+          buf.write(needleLo2.bytes);
+          break;
+        }
+      }
+    }
+
+    for (int i = 0; i < locs.size(); i += 2) {
+      System.out.printf("loc: %d - %d\n", locs.get(i), locs.get(i+1));
+    }
+
+    log.debug("Done reading");
   }
 
 //  public static void findOffsets(InputStream is, String target) throws IOException {
