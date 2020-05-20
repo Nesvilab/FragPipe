@@ -57,7 +57,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final Pattern reShiftedIonsExclusionRange = Pattern.compile("\\(\\s*(?<v1>-?\\d+(?:\\.\\d+)?)\\s*,\\s*(?<v2>-?\\d+(?:\\.\\d+)?)\\s*\\)");
 
     public static final String PROP_search_mode = "search_mode";
-    public static final String PROP_glyco_mode_sites = "glyco_mode_sites";
+    public static final String PROP_deltamass_allowed_residues = "deltamass_allowed_residues";
     public static final String PROP_oxonium_intensity_filter = "oxonium_intensity_filter";
     public static final String PROP_Y_type_masses = "Y_type_masses";
     public static final String PROP_oxonium_ions = "oxonium_ions";
@@ -140,7 +140,7 @@ public class MsfraggerParams extends AbstractParams {
 
     public static final String[] PROP_NAMES = {
         PROP_search_mode,
-        PROP_glyco_mode_sites,
+        PROP_deltamass_allowed_residues,
         PROP_oxonium_intensity_filter,
         PROP_Y_type_masses,
         PROP_oxonium_ions,
@@ -294,7 +294,7 @@ public class MsfraggerParams extends AbstractParams {
     private Map<String, String> createComments() {
         Map<String, String> c= new HashMap<>();
         c.put(PROP_search_mode, "options: \"standard\", \"nglycan\", \"labile\" (default: standard)");
-        c.put(PROP_glyco_mode_sites, "aminoacids that are allowed to be modified in Glyco mode. E.g. \"ST\"");
+        c.put(PROP_deltamass_allowed_residues, "aminoacids that are allowed to be modified in Glyco mode. E.g. \"ST\"");
         c.put(PROP_oxonium_intensity_filter, "possible values are 0 <= x <= 1");
         c.put(PROP_num_threads, "0=poll CPU to set num threads; else specify num threads directly (max 64)");
         c.put(PROP_precursor_mass_units, "0=Daltons, 1=ppm, 3=DIA, 2=DIA_MS1");
@@ -364,8 +364,8 @@ public class MsfraggerParams extends AbstractParams {
     public String getSearchMode() {
         return props.getProp(PROP_search_mode, "none").value;
     }
-    public String getGlycoModeSites() {
-        return props.getProp(PROP_glyco_mode_sites, "none").value;
+    public String getDeltamassAllowedResidues() {
+        return props.getProp(PROP_deltamass_allowed_residues, "none").value;
     }
     public String getOxoniumIntensityFilter() {
         return props.getProp(PROP_oxonium_intensity_filter, "0").value;
@@ -381,8 +381,8 @@ public class MsfraggerParams extends AbstractParams {
     public void setSearchMode(String v) {
         props.setProp(PROP_search_mode, v);
     }
-    public void setGlycoModeSites(String v) {
-        props.setProp(PROP_glyco_mode_sites, v);
+    public void setDeltamassAllowedResidues(String v) {
+        props.setProp(PROP_deltamass_allowed_residues, v);
     }
     public void setOxoniumIntensityFilter(String v) {
         props.setProp(PROP_oxonium_intensity_filter, v);

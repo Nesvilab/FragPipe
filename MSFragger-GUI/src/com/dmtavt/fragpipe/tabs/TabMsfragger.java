@@ -624,8 +624,8 @@ public class TabMsfragger extends JPanelBase {
 
     UiText uiTextGlycoModeSites = UiUtils.uiTextBuilder().ghost("Allowed mod sites").filter("[^A-Z]")
         .cols(20).create();
-    FormEntry feGlycoModeSites = mu.feb(uiTextGlycoModeSites).name(MsfraggerParams.PROP_glyco_mode_sites)
-        .tooltip("Allowed mod sites in Glyco mode").label("Mod sites")
+    FormEntry feGlycoModeSites = mu.feb(uiTextGlycoModeSites).name(MsfraggerParams.PROP_deltamass_allowed_residues)
+        .tooltip("Allowed mod sites in Glyco mode").label("Allowed Residues")
         .create();
 
     final UiSpinnerDouble uiSpinnerMinInt = UiSpinnerDouble.builder(0, 0, 1, 0.1).setFormat("#.##")
