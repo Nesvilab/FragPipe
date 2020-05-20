@@ -631,8 +631,8 @@ public class TabMsfragger extends JPanelBase {
     final UiSpinnerDouble uiSpinnerMinInt = UiSpinnerDouble.builder(0, 0, 1, 0.1).setFormat("#.##")
         .setCols(5).create();
     FormEntry feOxoniumIonMinimumIntensity = mu.feb(uiSpinnerMinInt)
-        .name(MsfraggerParams.PROP_oxonium_intensity_filter)
-        .label("Oxonium Ion Minimum Intensity").create();
+        .name(MsfraggerParams.PROP_diagnostic_intensity_filter)
+        .label("Diagnostic Ion Minimum Intensity").create();
 
     final HtmlStyledJEditorPane ep1 = new HtmlStyledJEditorPane();
     ep1.setPreferredSize(new Dimension(100, 25));

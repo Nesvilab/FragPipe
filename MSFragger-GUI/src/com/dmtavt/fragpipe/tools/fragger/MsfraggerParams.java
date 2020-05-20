@@ -58,7 +58,7 @@ public class MsfraggerParams extends AbstractParams {
 
     public static final String PROP_search_mode = "search_mode";
     public static final String PROP_deltamass_allowed_residues = "deltamass_allowed_residues";
-    public static final String PROP_oxonium_intensity_filter = "oxonium_intensity_filter";
+    public static final String PROP_diagnostic_intensity_filter = "diagnostic_intensity_filter";
     public static final String PROP_Y_type_masses = "Y_type_masses";
     public static final String PROP_diagnostic_fragments = "diagnostic_fragments";
 
@@ -141,7 +141,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String[] PROP_NAMES = {
         PROP_search_mode,
         PROP_deltamass_allowed_residues,
-        PROP_oxonium_intensity_filter,
+        PROP_diagnostic_intensity_filter,
         PROP_Y_type_masses,
         PROP_diagnostic_fragments,
         PROP_database_name,
@@ -295,7 +295,7 @@ public class MsfraggerParams extends AbstractParams {
         Map<String, String> c= new HashMap<>();
         c.put(PROP_search_mode, "options: \"standard\", \"nglycan\", \"labile\" (default: standard)");
         c.put(PROP_deltamass_allowed_residues, "aminoacids that are allowed to be modified in Glyco mode. E.g. \"ST\"");
-        c.put(PROP_oxonium_intensity_filter, "possible values are 0 <= x <= 1");
+        c.put(PROP_diagnostic_intensity_filter, "possible values are 0 <= x <= 1");
         c.put(PROP_num_threads, "0=poll CPU to set num threads; else specify num threads directly (max 64)");
         c.put(PROP_precursor_mass_units, "0=Daltons, 1=ppm, 3=DIA, 2=DIA_MS1");
         c.put(PROP_precursor_true_units, "0=Daltons, 1=ppm");
@@ -367,8 +367,8 @@ public class MsfraggerParams extends AbstractParams {
     public String getDeltamassAllowedResidues() {
         return props.getProp(PROP_deltamass_allowed_residues, "none").value;
     }
-    public String getOxoniumIntensityFilter() {
-        return props.getProp(PROP_oxonium_intensity_filter, "0").value;
+    public String getDiagnosticIntensityFilter() {
+        return props.getProp(PROP_diagnostic_intensity_filter, "0").value;
     }
     public String getYTypeMasses() {
         return props.getProp(PROP_Y_type_masses, "0/203.07937/406.15874/568.21156/730.26438/892.3172/349.137279").value;
@@ -384,8 +384,8 @@ public class MsfraggerParams extends AbstractParams {
     public void setDeltamassAllowedResidues(String v) {
         props.setProp(PROP_deltamass_allowed_residues, v);
     }
-    public void setOxoniumIntensityFilter(String v) {
-        props.setProp(PROP_oxonium_intensity_filter, v);
+    public void setDiagnosticIntensityFilter(String v) {
+        props.setProp(PROP_diagnostic_intensity_filter, v);
     }
     public void setYTypeMasses(String v) {
         props.setProp(PROP_Y_type_masses, v);
