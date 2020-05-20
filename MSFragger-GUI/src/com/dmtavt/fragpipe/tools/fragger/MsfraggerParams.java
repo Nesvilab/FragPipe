@@ -60,7 +60,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_deltamass_allowed_residues = "deltamass_allowed_residues";
     public static final String PROP_oxonium_intensity_filter = "oxonium_intensity_filter";
     public static final String PROP_Y_type_masses = "Y_type_masses";
-    public static final String PROP_oxonium_ions = "oxonium_ions";
+    public static final String PROP_diagnostic_fragments = "diagnostic_fragments";
 
     public static final String PROP_database_name = "database_name";
     public static final String PROP_decoy_prefix = "decoy_prefix";
@@ -143,7 +143,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_deltamass_allowed_residues,
         PROP_oxonium_intensity_filter,
         PROP_Y_type_masses,
-        PROP_oxonium_ions,
+        PROP_diagnostic_fragments,
         PROP_database_name,
         PROP_decoy_prefix,
         PROP_fragpipe_ram,
@@ -373,8 +373,8 @@ public class MsfraggerParams extends AbstractParams {
     public String getYTypeMasses() {
         return props.getProp(PROP_Y_type_masses, "0/203.07937/406.15874/568.21156/730.26438/892.3172/349.137279").value;
     }
-    public String getOxoniumIons() {
-        return props.getProp(PROP_oxonium_ions, "204.086646/186.076086/168.065526/366.139466/144.0656/138.055/126.055/163.060096/512.197375/292.1026925/274.0921325/657.2349/243.026426/405.079246/485.045576/308.09761").value;
+    public String getDiagnosticFragments() {
+        return props.getProp(PROP_diagnostic_fragments, "204.086646/186.076086/168.065526/366.139466/144.0656/138.055/126.055/163.060096/512.197375/292.1026925/274.0921325/657.2349/243.026426/405.079246/485.045576/308.09761").value;
     }
 
 
@@ -390,8 +390,8 @@ public class MsfraggerParams extends AbstractParams {
     public void setYTypeMasses(String v) {
         props.setProp(PROP_Y_type_masses, v);
     }
-    public void setOxoniumIons(String v) {
-        props.setProp(PROP_oxonium_ions, v);
+    public void setDiagnosticFragments(String v) {
+        props.setProp(PROP_diagnostic_fragments, v);
     }
 
 

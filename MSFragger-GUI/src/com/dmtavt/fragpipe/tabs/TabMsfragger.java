@@ -192,7 +192,7 @@ public class TabMsfragger extends JPanelBase {
 
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets, s -> s.replaceAll("[\\s]+", "/"));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_Y_type_masses, s -> s.replaceAll("[\\s]+", "/"));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_oxonium_ions, s -> s.replaceAll("[\\s]+", "/"));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_diagnostic_fragments, s -> s.replaceAll("[\\s]+", "/"));
 
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_calibrated_mgf, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s-> MASS_DIFF_TO_VAR_MOD[Integer.parseInt(s)]);
@@ -212,7 +212,7 @@ public class TabMsfragger extends JPanelBase {
 
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_offsets, text -> String.join(" ", text.split("/")));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_Y_type_masses, text -> String.join(" ", text.split("/")));
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_oxonium_ions, text -> String.join(" ", text.split("/")));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_diagnostic_fragments, text -> String.join(" ", text.split("/")));
 
     SEARCH_TYPE_NAME_MAPPING.put("Closed Search", SearchTypeProp.closed);
     SEARCH_TYPE_NAME_MAPPING.put("Open Search", SearchTypeProp.open);
@@ -643,8 +643,8 @@ public class TabMsfragger extends JPanelBase {
     final HtmlStyledJEditorPane ep2 = new HtmlStyledJEditorPane();
     ep2.setPreferredSize(new Dimension(100, 25));
     mu.border(ep2, new LineBorder(Color.LIGHT_GRAY, 1));
-    FormEntry feOxoniumIons = mu.feb(ep2).name(MsfraggerParams.PROP_oxonium_ions)
-        .label("Oxonium Ion Masses").create();
+    FormEntry feOxoniumIons = mu.feb(ep2).name(MsfraggerParams.PROP_diagnostic_fragments)
+        .label("Diagnostic Fragment Masses").create();
 
 
     uiComboGlyco.addItemListener(e -> {
