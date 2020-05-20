@@ -56,7 +56,7 @@ public class MsfraggerParams extends AbstractParams {
 
     public static final Pattern reShiftedIonsExclusionRange = Pattern.compile("\\(\\s*(?<v1>-?\\d+(?:\\.\\d+)?)\\s*,\\s*(?<v2>-?\\d+(?:\\.\\d+)?)\\s*\\)");
 
-    public static final String PROP_glyco_search_mode = "glyco_search_mode";
+    public static final String PROP_search_mode = "search_mode";
     public static final String PROP_glyco_mode_sites = "glyco_mode_sites";
     public static final String PROP_oxonium_intensity_filter = "oxonium_intensity_filter";
     public static final String PROP_Y_type_masses = "Y_type_masses";
@@ -139,7 +139,7 @@ public class MsfraggerParams extends AbstractParams {
     //public static final String PROP_ = "";
 
     public static final String[] PROP_NAMES = {
-        PROP_glyco_search_mode,
+        PROP_search_mode,
         PROP_glyco_mode_sites,
         PROP_oxonium_intensity_filter,
         PROP_Y_type_masses,
@@ -226,13 +226,12 @@ public class MsfraggerParams extends AbstractParams {
     public static final String ENZYME_NONSPECIFIC_NAME = "nonspecific";
     public static final String ENZYME_TRYPSIN_NAME = "trypsin";
 
-    public static final String GLYCO_OPTION_OFF = "none";
-    public static final String GLYCO_OPTION_NGLYCAN = "NGlycan";
-    public static final String GLYCO_OPTION_OGLYCAN = "OGlycan";
-    public static final String GLYCO_OPTION_SPECIFIC = "specific";
+
+    public static final String GLYCO_OPTION_standard = "off";
+    public static final String GLYCO_OPTION_nglycan = "nglycan";
+    public static final String GLYCO_OPTION_labile = "labile";
     public static final List<String> GLYCO_OPTIONS = Arrays
-        .asList(GLYCO_OPTION_OFF, GLYCO_OPTION_NGLYCAN, GLYCO_OPTION_OGLYCAN,
-            GLYCO_OPTION_SPECIFIC);
+        .asList(GLYCO_OPTION_standard, GLYCO_OPTION_nglycan, GLYCO_OPTION_labile);
 
     public static final Map<String, String> ADDON_MAP_NAME2HUMAN = new HashMap<>(ADDON_NAMES.length);
     public static final Map<String, String> ADDON_MAP_HUMAN2NAME = new HashMap<>(ADDON_NAMES.length);
@@ -294,7 +293,7 @@ public class MsfraggerParams extends AbstractParams {
 
     private Map<String, String> createComments() {
         Map<String, String> c= new HashMap<>();
-        c.put(PROP_glyco_search_mode, "options: \"NGlycan\", \"OGlycan\", \"specific\", or \"none\" (default: none)");
+        c.put(PROP_search_mode, "options: \"standard\", \"nglycan\", \"labile\" (default: standard)");
         c.put(PROP_glyco_mode_sites, "aminoacids that are allowed to be modified in Glyco mode. E.g. \"ST\"");
         c.put(PROP_oxonium_intensity_filter, "possible values are 0 <= x <= 1");
         c.put(PROP_num_threads, "0=poll CPU to set num threads; else specify num threads directly (max 64)");
@@ -362,8 +361,8 @@ public class MsfraggerParams extends AbstractParams {
         }
     }
 
-    public String getGlycoSearchMode() {
-        return props.getProp(PROP_glyco_search_mode, "none").value;
+    public String getSearchMode() {
+        return props.getProp(PROP_search_mode, "none").value;
     }
     public String getGlycoModeSites() {
         return props.getProp(PROP_glyco_mode_sites, "none").value;
@@ -379,8 +378,8 @@ public class MsfraggerParams extends AbstractParams {
     }
 
 
-    public void setGlycoSearchMode(String v) {
-        props.setProp(PROP_glyco_search_mode, v);
+    public void setSearchMode(String v) {
+        props.setProp(PROP_search_mode, v);
     }
     public void setGlycoModeSites(String v) {
         props.setProp(PROP_glyco_mode_sites, v);

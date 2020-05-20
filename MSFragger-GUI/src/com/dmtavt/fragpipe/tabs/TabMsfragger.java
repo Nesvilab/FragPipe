@@ -619,8 +619,8 @@ public class TabMsfragger extends JPanelBase {
 
     final UiCombo uiComboGlyco = UiUtils.createUiCombo(MsfraggerParams.GLYCO_OPTIONS);
     FormEntry feGlycoSearchMode = mu.feb(uiComboGlyco)
-        .name(MsfraggerParams.PROP_glyco_search_mode)
-        .label("Glyco Search Mode").create();
+        .name(MsfraggerParams.PROP_search_mode)
+        .label("Search Mode").create();
 
     UiText uiTextGlycoModeSites = UiUtils.uiTextBuilder().ghost("Allowed mod sites").filter("[^A-Z]")
         .cols(20).create();
@@ -650,9 +650,8 @@ public class TabMsfragger extends JPanelBase {
     uiComboGlyco.addItemListener(e -> {
       // needs to be done after components to be turned on/off have been created
       final String selected = (String)uiComboGlyco.getSelectedItem();
-      final boolean enabled = !MsfraggerParams.GLYCO_OPTION_OFF.equalsIgnoreCase(selected);
-      final boolean sitesEnabled = enabled &&
-          (MsfraggerParams.GLYCO_OPTION_OGLYCAN.equalsIgnoreCase(selected) || MsfraggerParams.GLYCO_OPTION_SPECIFIC.equalsIgnoreCase(selected));
+      final boolean enabled = !MsfraggerParams.GLYCO_OPTION_standard.equalsIgnoreCase(selected);
+      final boolean sitesEnabled = enabled && (MsfraggerParams.GLYCO_OPTION_labile.equalsIgnoreCase(selected));
       updateEnabledStatus(uiSpinnerMinInt, enabled);
       updateEnabledStatus(uiTextGlycoModeSites, sitesEnabled);
       updateEnabledStatus(ep1, enabled);
@@ -660,7 +659,7 @@ public class TabMsfragger extends JPanelBase {
     });
     // trigger the item listener on startup
     // (done with indexes so that it breaks if the list and OFF option are changed)
-    int indexGlycoOff = MsfraggerParams.GLYCO_OPTIONS.indexOf(MsfraggerParams.GLYCO_OPTION_OFF);
+    int indexGlycoOff = MsfraggerParams.GLYCO_OPTIONS.indexOf(MsfraggerParams.GLYCO_OPTION_standard);
     uiComboGlyco.setSelectedItem(null);
     uiComboGlyco.setSelectedItem(MsfraggerParams.GLYCO_OPTIONS.get(indexGlycoOff));
 
