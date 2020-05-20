@@ -2,8 +2,11 @@ package com.dmtavt.fragpipe.tabs;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.Version;
+import com.dmtavt.fragpipe.WorkflowTranslator;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.ModsTable;
+import com.dmtavt.fragpipe.api.UiTranslation;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerParamsUpdate;
 import com.dmtavt.fragpipe.messages.MessagePrecursorSelectionMode;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
@@ -19,7 +22,6 @@ import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.JPanelBase;
-import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
@@ -650,7 +652,7 @@ public class TabMsfragger extends JPanelBase {
     uiComboGlyco.addItemListener(e -> {
       // needs to be done after components to be turned on/off have been created
       final String selected = (String)uiComboGlyco.getSelectedItem();
-      final boolean enabled = !MsfraggerParams.GLYCO_OPTION_standard.equalsIgnoreCase(selected);
+      final boolean enabled = !MsfraggerParams.GLYCO_OPTION_off.equalsIgnoreCase(selected);
       final boolean sitesEnabled = enabled && (MsfraggerParams.GLYCO_OPTION_labile.equalsIgnoreCase(selected));
       updateEnabledStatus(uiSpinnerMinInt, enabled);
       updateEnabledStatus(uiTextGlycoModeSites, sitesEnabled);
@@ -659,7 +661,7 @@ public class TabMsfragger extends JPanelBase {
     });
     // trigger the item listener on startup
     // (done with indexes so that it breaks if the list and OFF option are changed)
-    int indexGlycoOff = MsfraggerParams.GLYCO_OPTIONS.indexOf(MsfraggerParams.GLYCO_OPTION_standard);
+    int indexGlycoOff = MsfraggerParams.GLYCO_OPTIONS.indexOf(MsfraggerParams.GLYCO_OPTION_off);
     uiComboGlyco.setSelectedItem(null);
     uiComboGlyco.setSelectedItem(MsfraggerParams.GLYCO_OPTIONS.get(indexGlycoOff));
 
@@ -1179,8 +1181,9 @@ public class TabMsfragger extends JPanelBase {
 
   private void formFrom(MsfraggerParams params) {
     Map<String, String> map = confToUiMap(params);
-    map = MapUtils.remapKeys(map, k -> StringUtils.prependOnce(k, TAB_PREFIX));
-    formFrom(map);
+    Map<String, String> prependedMap = MapUtils.remapKeys(map, k -> StringUtils.prependOnce(k, TAB_PREFIX));
+    Map<String, String> translatedMap = FragpipeCacheUtils.translateValuesToUi(prependedMap);
+    formFrom(translatedMap);
     tableVarMods.setData(params.getVariableMods());
     tableFixMods.setData(params.getAdditionalMods());
     updateRowHeights(tableVarMods);
@@ -1321,18 +1324,13 @@ public class TabMsfragger extends JPanelBase {
     HashMap<String, String> map = new HashMap<>();
     for (Entry<String, Prop> e : params.getProps().getMap().entrySet()) {
       if (e.getValue().isEnabled) {
-        final Function<String, String> converter = CONVERT_TO_GUI.get(e.getKey());
-        final String converted;
-        if (converter != null) {
-          try {
-            converted = converter.apply(e.getValue().value);
-            map.put(e.getKey(), converted);
-          } catch (Exception ex) {
-            log.error("Error converting parameter [{}={}]", e.getKey(), e.getValue().value);
-          }
-        } else {
-          converted = e.getValue().value;
+        final Function<String, String> converter = CONVERT_TO_GUI.getOrDefault(e.getKey(), Function.identity());
+        try {
+          String converted = converter.apply(e.getValue().value);
           map.put(e.getKey(), converted);
+        } catch (Exception ex) {
+          //throw new IllegalStateException(ex);
+          log.error("Error converting parameter [{}={}]", e.getKey(), e.getValue().value);
         }
       }
     }

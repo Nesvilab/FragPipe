@@ -190,8 +190,15 @@ public class FragpipeCacheUtils {
     final Map<String, List<UiTranslation>> translations = WorkflowTranslator.readTranslations();
     Map<String, String> remapped = MapUtils.remapValues(loadedMap, (k, v) -> {
       List<UiTranslation> ts = translations.get(k);
+
       if (ts == null)
         return v;
+      List<UiTranslation> matchingCurrentUiOptions = Seq.seq(ts).filter(t -> t.inUi.equalsIgnoreCase(v)).toList();
+      if (!matchingCurrentUiOptions.isEmpty()) {
+        // value is already among the currently supported ones
+        log.debug("No translation needed, currently supported value: {}, {}", k, v);
+        return v;
+      }
       List<UiTranslation> matchingTs = Seq.seq(ts).filter(t -> t.inConf.equalsIgnoreCase(v)).toList();
       if (matchingTs.isEmpty()) {
         throw new IllegalStateException(String.format("Found no ui.translation for loaded element key [%s] with value [%s]", k, v));
