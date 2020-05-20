@@ -19,6 +19,7 @@ import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.JPanelBase;
+import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
@@ -614,7 +615,7 @@ public class TabMsfragger extends JPanelBase {
   }
 
   private JPanel createPanelGlyco() {
-    JPanel p = mu.newPanel("Glyco", mu.lcFillXNoInsetsTopBottom());
+    JPanel p = mu.newPanel("Glyco/Labile mods", mu.lcFillXNoInsetsTopBottom());
 
     final UiCombo uiComboGlyco = UiUtils.createUiCombo(MsfraggerParams.GLYCO_OPTIONS);
     FormEntry feGlycoSearchMode = mu.feb(uiComboGlyco)
@@ -831,6 +832,28 @@ public class TabMsfragger extends JPanelBase {
     pMods.add(pVarmods, new CC().wrap().growX());
     pMods.add(pFixmods, new CC().wrap().growX());
 
+    pContent.add(pMods, new CC().wrap().growX());
+
+    return pMods;
+  }
+
+  /** Panel with all the advanced options. */
+  private JPanel createPanelAdvancedOptions() {
+    JPanel p = mu.newPanel("Advanced Options", new LC());
+
+    mu.add(p, createPanelMassOffsets()).growX().wrap();
+    mu.add(p, createPanelGlyco()).growX().wrap();
+    mu.add(p, createPanelAdvancedSpectral()).growX().wrap();
+    mu.add(p, createPanelAdvancedOpenSearch()).growX().wrap();
+    mu.add(p, createPanelAdvancedOutput()).growX().wrap();
+    mu.add(p, createPanelAdvancedPeakMatch()).growX().wrap();
+
+    return p;
+  }
+
+  private JPanel createPanelMassOffsets() {
+    JPanel p = mu.newPanel("Mass Offsets", true);
+
     // mass offsets text field separately
     String tooltipMassOffsets = "<html>Creates multiple precursor tolerance windows with<br>\n"
         + "specified mass offsets. These values are multiplexed<br>\n"
@@ -843,7 +866,6 @@ public class TabMsfragger extends JPanelBase {
         + "(0,1,2,79.966, 80.966, 81.966). Masses can be separated\n"
         + " with \"/\" or space.";
 
-    ;
     epMassOffsets = new HtmlStyledJEditorPane();
     epMassOffsets.setPreferredSize(new Dimension(100, 25));
     //epMassOffsets.setMaximumSize(new Dimension(200, 25));
@@ -853,25 +875,10 @@ public class TabMsfragger extends JPanelBase {
     uiTextMassOffsets = UiUtils.uiTextBuilder().filter("[^-\\(\\)\\./,\\d ]").text("0").create();
 
     FormEntry feMassOffsets = mu.feb(MsfraggerParams.PROP_mass_offsets, epMassOffsets)
-        .label("User defined variable mass shifts (on any aminoacid)")
+        .label("Mass Offsets")
         .tooltip(tooltipMassOffsets).create();
-    MigUtils.get().add(pMods, feMassOffsets.label()).wrap();
-    MigUtils.get().add(pMods, feMassOffsets.comp).growX().wrap();
-
-    pContent.add(pMods, new CC().wrap().growX());
-
-    return pMods;
-  }
-
-  /** Panel with all the advanced options. */
-  private JPanel createPanelAdvancedOptions() {
-    JPanel p = mu.newPanel("Advanced Options", new LC());
-
-    mu.add(p, createPanelAdvancedSpectral()).growX().wrap();
-    mu.add(p, createPanelAdvancedOpenSearch()).growX().wrap();
-    mu.add(p, createPanelGlyco()).growX().wrap();
-    mu.add(p, createPanelAdvancedOutput()).growX().wrap();
-    mu.add(p, createPanelAdvancedPeakMatch()).growX().wrap();
+    //mu.add(p, feMassOffsets.label()).wrap();
+    mu.add(p, feMassOffsets.comp).growX().wrap();
 
     return p;
   }
