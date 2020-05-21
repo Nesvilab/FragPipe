@@ -2,8 +2,13 @@ package com.dmtavt.fragpipe.process;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
+import com.dmtavt.fragpipe.messages.MessageDeletePaths;
+import com.dmtavt.fragpipe.messages.MessageKillAll;
 import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
+import com.dmtavt.fragpipe.messages.MessageStartProcesses;
+import com.github.chhh.utils.FileDelete;
 import java.io.IOException;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
@@ -23,17 +28,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
-import com.dmtavt.fragpipe.messages.MessageAppendToConsole;
-import com.dmtavt.fragpipe.messages.MessageDeletePaths;
-import com.dmtavt.fragpipe.messages.MessageKillAll;
-import com.dmtavt.fragpipe.messages.MessageStartProcesses;
-import com.github.chhh.utils.FileDelete;
 
 public class ProcessManager {
   private static final Logger log = LoggerFactory.getLogger(ProcessManager.class);

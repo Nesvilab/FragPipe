@@ -106,10 +106,6 @@ public class SpeclibPanel extends JPanelBase {
     checkRun = new UiCheck("Generate Spectral Library from search results", null, false);
     checkRun.setName("run-speclibgen");
 
-//      JButton btnLoadDefaults = new JButton("Load SpeclibGen defaults");
-//      btnLoadDefaults.addActionListener((e) -> EventBus.getDefault().post(new MessageLoadShepherdDefaults(true)));
-//      pTop.add(btnLoadDefaults, new CC().alignX("left"));
-
     mu.add(p, checkRun);
     return p;
   }

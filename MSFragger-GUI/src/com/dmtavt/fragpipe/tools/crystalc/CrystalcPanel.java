@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe.tools.crystalc;
 
+import com.dmtavt.fragpipe.api.Bus;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
@@ -20,7 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import net.miginfocom.layout.CC;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
@@ -165,8 +165,7 @@ public class CrystalcPanel extends JPanelBase {
 
     pTop.add(checkRun, new CC().alignX("left"));
     JButton btnLoadDefaults = new JButton("Load Crystal-C defaults");
-    btnLoadDefaults.addActionListener((e) -> EventBus
-        .getDefault().post(new MessageLoadCrystalcDefaults(true)));
+    btnLoadDefaults.addActionListener((e) -> Bus.post(new MessageLoadCrystalcDefaults(true)));
     pTop.add(btnLoadDefaults, new CC().alignX("left"));
     final String htmlTooltip = "<html>Crystal-C performs additional search results cleanup<br/>\n"
         + "Recommended for Open Searches only";

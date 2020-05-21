@@ -32,7 +32,7 @@ public class HtmlStyledJEditorPane extends JEditorPane {
     init();
 
     if (handleHyperlinks) {
-      addHyperlinkListener(e -> {
+      this.addHyperlinkListener(e -> {
         if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
           try {
             SwingUtils.openBrowserOrThrow(e.getURL().toURI());

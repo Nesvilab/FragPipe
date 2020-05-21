@@ -78,14 +78,14 @@ public class FragpipeLoader {
     final Duration timeoutMax = Duration.ofSeconds(5);
 
     exec.submit(loadCache());
-    exec.submit(loadRemoteProps(Math.min(timeoutMax.getSeconds(), 3)));
+    exec.submit(loadRemoteProps(timeoutMax.getSeconds()));
 
     try {
       exec.shutdown();
       exec.awaitTermination(timeoutMax.getSeconds(), TimeUnit.SECONDS);
       NoteFragpipeProperties props = Bus.getStickyEvent(NoteFragpipeProperties.class);
       NoteFragpipeCache cache = Bus.getStickyEvent(NoteFragpipeCache.class);
-      Stream.of(props, cache).filter(Objects::isNull).forEach(o -> log.error("All startup objects must be not null"));
+      //Stream.of(props, cache).filter(Objects::isNull).forEach(o -> log.warn("All startup objects must be not null"));
       Bus.postSticky(new NoteStartupComplete(props, cache));
     } catch (InterruptedException e) {
       log.error("Error waiting for executor service shutdown in FragpipeLoader.initApplication()");

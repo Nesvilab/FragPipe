@@ -44,6 +44,8 @@ import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.VersionComparator;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.FormEntry.Builder;
+import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
+import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Color;
@@ -79,6 +81,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import net.miginfocom.layout.CC;
@@ -572,9 +575,11 @@ public class Fragpipe extends JFrame {
   }
 
   public void showAboutDialog(Component parent) {
-    JEditorPane ep = SwingUtils
-        .createClickableHtml(SwingUtils.wrapInStyledHtml(createAboutBody()));
-    SwingUtils.showDialog(this, ep);
+    log.debug("Showing about dialog");
+//    HtmlStyledJEditorPane ep = new HtmlStyledJEditorPane(true, createAboutBody());
+    HtmlStyledJEditorPane ep = SwingUtils.createClickableHtml(createAboutBody());
+    ep.setPreferredSize(new Dimension(300, 400));
+    SwingUtils.showDialog(parent, ep, "About FragPipe", JOptionPane.INFORMATION_MESSAGE);
   }
 
   @Subscribe

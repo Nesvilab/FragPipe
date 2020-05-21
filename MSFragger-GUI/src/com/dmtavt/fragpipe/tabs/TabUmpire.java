@@ -1,11 +1,11 @@
 package com.dmtavt.fragpipe.tabs;
 
+import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
 
@@ -19,7 +19,7 @@ public class TabUmpire extends JPanelWithEnablement {
   }
 
   private void initMore() {
-    EventBus.getDefault().register(this);
+    Bus.register(this);
   }
 
   private void init() {

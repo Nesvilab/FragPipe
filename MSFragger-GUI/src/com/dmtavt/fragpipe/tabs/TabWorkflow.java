@@ -99,7 +99,6 @@ import javax.swing.table.DefaultTableModel;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.RandomUtils;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
@@ -880,7 +879,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     tableModelRawFiles = createTableModelRawFiles();
     tableModelRawFiles.addTableModelListener(e -> {
       List<InputLcmsFile> files = tableModelRawFiles.dataCopy();
-      EventBus.getDefault().post(new MessageLcmsFilesList(MessageType.UPDATE, files));
+      Bus.post(new MessageLcmsFilesList(MessageType.UPDATE, files));
     });
     tableRawFiles = new LcmsInputFileTable(tableModelRawFiles);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnFilesClear);

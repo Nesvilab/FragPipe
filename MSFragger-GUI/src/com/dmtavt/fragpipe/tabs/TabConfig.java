@@ -232,7 +232,8 @@ public class TabConfig extends JPanelWithEnablement {
     epFraggerVer = new HtmlStyledJEditorPane("MSFragger version: N/A");
     p.add(Fragpipe.renameNoCache(epFraggerVer, "msfragger.version-info", TAB_PREFIX),
         ccL().spanX().growX().wrap());
-    p.add(new HtmlStyledJEditorPane(createFraggerCitationBody()), ccL().spanX().growX().wrap());
+    JEditorPane ep = SwingUtils.createClickableHtml(createFraggerCitationBody());
+    p.add(ep, ccL().spanX().growX().wrap());
     return p;
   }
 
@@ -627,6 +628,7 @@ public class TabConfig extends JPanelWithEnablement {
     sb.append("</p>");
 
     sb.append("<p style=\"margin-top: 10\">");
+
     sb.append("More info and docs: <a href=\"").append(linkMsfragger)
         .append("\">MSFragger website</a>")
         .append(", <a href=\"").append(linkFragpipe).append("\">FragPipe GitHub page</a>");

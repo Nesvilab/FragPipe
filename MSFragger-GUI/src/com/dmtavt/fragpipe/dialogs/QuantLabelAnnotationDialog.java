@@ -69,7 +69,6 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
   @Override
   public void dispose() {
     super.dispose();
-//    EventBus.getDefault().unregister(this);
   }
 
   private void postInit() {

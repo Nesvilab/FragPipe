@@ -13,6 +13,7 @@
 <!--  <logger name="com.dmtavt.fragpipe.api.FragpipeCacheUtils" level="debug" />-->
 <!--  <logger name="com.dmtavt.fragpipe.tabs.TabMsfragger" level="debug" />-->
 <!--  <logger name="com.github.chhh.utils.SwingUtils" level="trace" />-->
+  <logger name="com.dmtavt.fragpipe.FragpipeLoader" level="info" />
 
   <logger name="com.dmtavt.fragpipe.api.Bus" level="info" />
 
