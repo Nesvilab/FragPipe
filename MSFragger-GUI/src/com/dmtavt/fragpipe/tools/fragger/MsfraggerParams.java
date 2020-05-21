@@ -56,7 +56,7 @@ public class MsfraggerParams extends AbstractParams {
 
     public static final Pattern reShiftedIonsExclusionRange = Pattern.compile("\\(\\s*(?<v1>-?\\d+(?:\\.\\d+)?)\\s*,\\s*(?<v2>-?\\d+(?:\\.\\d+)?)\\s*\\)");
 
-    public static final String PROP_search_mode = "search_mode";
+    public static final String PROP_labile_search_mode = "labile_search_mode";
     public static final String PROP_deltamass_allowed_residues = "deltamass_allowed_residues";
     public static final String PROP_diagnostic_intensity_filter = "diagnostic_intensity_filter";
     public static final String PROP_Y_type_masses = "Y_type_masses";
@@ -139,7 +139,7 @@ public class MsfraggerParams extends AbstractParams {
     //public static final String PROP_ = "";
 
     public static final String[] PROP_NAMES = {
-        PROP_search_mode,
+        PROP_labile_search_mode,
         PROP_deltamass_allowed_residues,
         PROP_diagnostic_intensity_filter,
         PROP_Y_type_masses,
@@ -227,11 +227,11 @@ public class MsfraggerParams extends AbstractParams {
     public static final String ENZYME_TRYPSIN_NAME = "trypsin";
 
 
-    public static final String GLYCO_OPTION_standard = "standard";
+    public static final String GLYCO_OPTION_off = "off";
     public static final String GLYCO_OPTION_nglycan = "nglycan";
     public static final String GLYCO_OPTION_labile = "labile";
     public static final List<String> GLYCO_OPTIONS = Arrays
-        .asList(GLYCO_OPTION_standard, GLYCO_OPTION_nglycan, GLYCO_OPTION_labile);
+        .asList(GLYCO_OPTION_off, GLYCO_OPTION_nglycan, GLYCO_OPTION_labile);
 
     public static final Map<String, String> ADDON_MAP_NAME2HUMAN = new HashMap<>(ADDON_NAMES.length);
     public static final Map<String, String> ADDON_MAP_HUMAN2NAME = new HashMap<>(ADDON_NAMES.length);
@@ -293,7 +293,7 @@ public class MsfraggerParams extends AbstractParams {
 
     private Map<String, String> createComments() {
         Map<String, String> c= new HashMap<>();
-        c.put(PROP_search_mode, "options: \"standard\", \"nglycan\", \"labile\" (default: standard)");
+        c.put(PROP_labile_search_mode, "options: \"off\", \"nglycan\", \"labile\" (default: off)");
         c.put(PROP_deltamass_allowed_residues, "aminoacids that are allowed to be modified in Glyco mode. E.g. \"ST\"");
         c.put(PROP_diagnostic_intensity_filter, "possible values are 0 <= x <= 1");
         c.put(PROP_num_threads, "0=poll CPU to set num threads; else specify num threads directly (max 64)");
@@ -361,8 +361,8 @@ public class MsfraggerParams extends AbstractParams {
         }
     }
 
-    public String getSearchMode() {
-        return props.getProp(PROP_search_mode, "none").value;
+    public String getLabileSearchMode() {
+        return props.getProp(PROP_labile_search_mode, "none").value;
     }
     public String getDeltamassAllowedResidues() {
         return props.getProp(PROP_deltamass_allowed_residues, "none").value;
@@ -378,8 +378,8 @@ public class MsfraggerParams extends AbstractParams {
     }
 
 
-    public void setSearchMode(String v) {
-        props.setProp(PROP_search_mode, v);
+    public void setLabileSearchMode(String v) {
+        props.setProp(PROP_labile_search_mode, v);
     }
     public void setDeltamassAllowedResidues(String v) {
         props.setProp(PROP_deltamass_allowed_residues, v);

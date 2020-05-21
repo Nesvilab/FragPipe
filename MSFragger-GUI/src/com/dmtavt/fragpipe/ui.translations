@@ -10,15 +10,10 @@ msfragger.fragment_mass_units :: PPM <=> 1
 msfragger.fragment_mass_units :: Da <=> 0
 
 # new glycan option values (2020-05-20)
-msfragger.search_mode :: off <=> standard
-msfragger.search_mode :: nglycan <=> nglycan
-msfragger.search_mode :: labile <=> labile
-
-# old glycan option values before renaming (2020-05-20)
-msfragger.glyco_search_mode :: off <=> none
-msfragger.glyco_search_mode :: nglycan <=> NGlycan
-msfragger.glyco_search_mode :: labile <=> OGlycan
-msfragger.glyco_search_mode :: off <=> Specific
+msfragger.labile_search_mode :: off <=> off
+msfragger.labile_search_mode :: off <=> standard
+msfragger.labile_search_mode :: nglycan <=> nglycan
+msfragger.labile_search_mode :: labile <=> labile
 
 msfragger.intensity_transform :: None <=> 0
 msfragger.intensity_transform :: Square root <=> 1
