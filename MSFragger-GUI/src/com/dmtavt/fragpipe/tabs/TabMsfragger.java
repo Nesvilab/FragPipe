@@ -1,12 +1,14 @@
 package com.dmtavt.fragpipe.tabs;
 
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTIONS;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_labile;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_nglycan;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.Version;
-import com.dmtavt.fragpipe.WorkflowTranslator;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.ModsTable;
-import com.dmtavt.fragpipe.api.UiTranslation;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerParamsUpdate;
 import com.dmtavt.fragpipe.messages.MessagePrecursorSelectionMode;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
@@ -139,6 +141,9 @@ public class TabMsfragger extends JPanelBase {
   private static final String[] CALIBRATE_LABELS = {CALIBRATE_VALUE_OFF, "Mass calibration", "Mass calibration, parameter optimization"};
   private static final String[] MASS_DIFF_TO_VAR_MOD = {"No", "Yes", "Yes, and adjust peptide mass"};
   private static final int[] MASS_DIFF_TO_VAR_MOD_MAP = {0, 2, 1};
+  private static final List<String> GLYCO_OPTIONS_UI = Arrays
+      .asList("off", GLYCO_OPTION_nglycan, GLYCO_OPTION_labile);
+
   private static final List<MsfraggerEnzyme> ENZYMES = new EnzymeProvider().get();
   //public static FileNameExtensionFilter fnExtFilter = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf/raw/d)", "mzml", "mzxml", "mgf", "raw", "d");
   private static String[] PROPS_MISC = {
@@ -192,6 +197,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_ion_series, ionStr -> ionStr.trim().replaceAll("[\\s,;]+",","));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_ion_series_definitions, defStr -> defStr.trim().replaceAll("\\s*[,;]+\\s*",", "));
 
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_search_mode, s -> GLYCO_OPTIONS.get(GLYCO_OPTIONS_UI.indexOf(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets, s -> s.replaceAll("[\\s]+", "/"));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_Y_type_masses, s -> s.replaceAll("[\\s]+", "/"));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_diagnostic_fragments, s -> s.replaceAll("[\\s]+", "/"));
@@ -212,6 +218,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.fromValueInParamsFile(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Boolean.toString(Integer.parseInt(s) > 0));
 
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_search_mode, s -> GLYCO_OPTIONS_UI.get(GLYCO_OPTIONS.indexOf(s)));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_offsets, text -> String.join(" ", text.split("/")));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_Y_type_masses, text -> String.join(" ", text.split("/")));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_diagnostic_fragments, text -> String.join(" ", text.split("/")));
@@ -619,7 +626,7 @@ public class TabMsfragger extends JPanelBase {
   private JPanel createPanelGlyco() {
     JPanel p = mu.newPanel("Glyco/Labile mods", mu.lcFillXNoInsetsTopBottom());
 
-    final UiCombo uiComboGlyco = UiUtils.createUiCombo(MsfraggerParams.GLYCO_OPTIONS);
+    final UiCombo uiComboGlyco = UiUtils.createUiCombo(GLYCO_OPTIONS_UI);
     FormEntry feGlycoSearchMode = mu.feb(uiComboGlyco)
         .name(MsfraggerParams.PROP_search_mode)
         .label("Search Mode").create();
@@ -652,8 +659,8 @@ public class TabMsfragger extends JPanelBase {
     uiComboGlyco.addItemListener(e -> {
       // needs to be done after components to be turned on/off have been created
       final String selected = (String)uiComboGlyco.getSelectedItem();
-      final boolean enabled = !MsfraggerParams.GLYCO_OPTION_off.equalsIgnoreCase(selected);
-      final boolean sitesEnabled = enabled && (MsfraggerParams.GLYCO_OPTION_labile.equalsIgnoreCase(selected));
+      final boolean enabled = !MsfraggerParams.GLYCO_OPTION_standard.equalsIgnoreCase(selected);
+      final boolean sitesEnabled = enabled && (GLYCO_OPTION_labile.equalsIgnoreCase(selected));
       updateEnabledStatus(uiSpinnerMinInt, enabled);
       updateEnabledStatus(uiTextGlycoModeSites, sitesEnabled);
       updateEnabledStatus(ep1, enabled);
@@ -661,7 +668,7 @@ public class TabMsfragger extends JPanelBase {
     });
     // trigger the item listener on startup
     // (done with indexes so that it breaks if the list and OFF option are changed)
-    int indexGlycoOff = MsfraggerParams.GLYCO_OPTIONS.indexOf(MsfraggerParams.GLYCO_OPTION_off);
+    int indexGlycoOff = MsfraggerParams.GLYCO_OPTIONS.indexOf(MsfraggerParams.GLYCO_OPTION_standard);
     uiComboGlyco.setSelectedItem(null);
     uiComboGlyco.setSelectedItem(MsfraggerParams.GLYCO_OPTIONS.get(indexGlycoOff));
 
@@ -1199,7 +1206,7 @@ public class TabMsfragger extends JPanelBase {
     TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
     map.put(MsfraggerParams.PROP_num_threads, itos(tabWorkflow.getThreads()));
 
-    MsfraggerParams params = paramsFrom(map);
+    MsfraggerParams params = paramsFromMap(map);
 
     // before collecting mods, make sure that no table cell editor is open
     stopJTableEditing(tableFixMods);
@@ -1246,7 +1253,7 @@ public class TabMsfragger extends JPanelBase {
   /**
    * Converts textual representations of all fields in the form to stadard {@link MsfraggerParams}.
    */
-  private MsfraggerParams paramsFrom(Map<String, String> map) {
+  private MsfraggerParams paramsFromMap(Map<String, String> map) {
     MsfraggerParams p = new MsfraggerParams();
     final double[] precursorRemoveRange = new double[2];
     final double[] clearMzRange = new double[2];

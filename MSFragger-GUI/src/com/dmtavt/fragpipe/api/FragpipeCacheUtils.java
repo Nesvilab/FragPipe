@@ -108,51 +108,6 @@ public class FragpipeCacheUtils {
       m.put(k, v);
     });
     return m;
-
-    ////////////////////////////////////////////////////////////
-
-
-//
-//
-//    final Function<Component, Map<String, String>> compToMap = (awtComponent) -> {
-//      if (!(awtComponent instanceof Container)) {
-//        return Collections.emptyMap();
-//      }
-//      Container awtContainer = (Container)awtComponent;
-//      Predicate<String> filter = name -> !name.toLowerCase().contains(Fragpipe.PROP_NOCACHE.toLowerCase()) && !name.contains("Spinner.formattedTextField");
-//      return SwingUtils.valuesGet(awtContainer, filter);
-//    };
-//
-//    Map<String, String> whole = new HashMap<>();
-//    for (int i = 0; i < tabs.getTabCount(); i++) {
-//      Component tab = tabs.getComponentAt(i);
-//      final String tabname = mapTabNameToIdx.getOrDefault(i, "?");
-//
-//      Map<String, String> map = compToMap.apply(tab).entrySet().stream()
-////          .filter(kv -> {
-////            boolean b1 = !kv.getKey().equalsIgnoreCase("Spinner.formattedTextField");
-////            boolean b2 = !kv.getKey().toLowerCase().contains(Fragpipe.PROP_NOCACHE.toLowerCase());
-////            return b1 && b2;
-////          })
-//          .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-//
-//      if (map.isEmpty()) {
-//        log.debug("No mapping for Tab #{} [{}]", i, tabname);
-//      } else {
-//
-//        log.debug("Got mapping for Tab #{} [{}]: {}", i, tabname, map);
-//        for (Entry<String, String> e : map.entrySet()) {
-//          whole.merge(e.getKey(), e.getValue(), (s1, s2) -> {
-//            String msg = String.format("Duplicate ui-element key '%s' in tab [%s]", e.getKey(), tabname);
-//            throw new IllegalStateException(msg);
-//          });
-//        }
-//      }
-//    }
-//    return whole;
-
-
-    ////////////////////////////////////////////////////////////
   }
 
   public static Properties tabsSave(JTabbedPane tabs) {
@@ -164,6 +119,23 @@ public class FragpipeCacheUtils {
     Map<String, String> map = tabPaneToMap(tabs, saveFieldTypes);
     Properties props = PropertiesUtils.from(translateValuesFromUi(map));
     return props;
+  }
+
+  public static String translateValueFromUi(String k, String v) {
+    final Map<String, List<UiTranslation>> translations = WorkflowTranslator.readTranslations();
+    List<UiTranslation> ts = translations.get(k);
+    if (ts == null)
+      return v;
+    List<UiTranslation> matchingTs = Seq.seq(ts).filter(t -> t.inUi.equalsIgnoreCase(v)).toList();
+    if (matchingTs.isEmpty()) {
+      throw new IllegalStateException(String.format("Found no ui.translation for UI element key [%s] with value [%s]", k, v));
+    }
+    if (matchingTs.size() > 1) {
+      log.debug(String.format("Found multiple ui.translations for UI element key [%s] with value [%s]", k, v));
+    }
+    UiTranslation t = matchingTs.get(0);
+    log.debug("Found translation for key [{}]. Value mapping [{}] -> [{}]", k, v, t.inConf);
+    return t.inConf;
   }
 
   public static Map<String, String> translateValuesFromUi(Map<String, String> uiMapping) {
@@ -190,7 +162,6 @@ public class FragpipeCacheUtils {
     final Map<String, List<UiTranslation>> translations = WorkflowTranslator.readTranslations();
     Map<String, String> remapped = MapUtils.remapValues(loadedMap, (k, v) -> {
       List<UiTranslation> ts = translations.get(k);
-
       if (ts == null)
         return v;
       List<UiTranslation> matchingCurrentUiOptions = Seq.seq(ts).filter(t -> t.inUi.equalsIgnoreCase(v)).toList();
