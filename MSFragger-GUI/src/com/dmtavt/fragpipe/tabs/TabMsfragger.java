@@ -55,6 +55,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -108,6 +109,7 @@ import com.dmtavt.fragpipe.tools.fragger.Mod;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
+import sun.awt.image.ImageWatched.Link;
 
 public class TabMsfragger extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
@@ -116,8 +118,7 @@ public class TabMsfragger extends JPanelBase {
   public static final String PROP_FILECHOOSER_LAST_PATH = "msfragger.filechooser.path";
   public static final String CACHE_FORM = "msfragger-form" + ThisAppProps.TEMP_FILE_EXT;
   public static final String CACHE_PROPS = "msfragger-props" + ThisAppProps.TEMP_FILE_EXT;
-  public static final String[] SEARCH_TYPE_DROPDOWN_NAMES = {"Closed Search", "Open Search", "Non-specific Search", "Mass Offset Search"};
-  public static final Map<String, SearchTypeProp> SEARCH_TYPE_NAME_MAPPING;
+  public static final LinkedHashMap<String, SearchTypeProp> SEARCH_TYPE_NAME_MAPPING;
   private static final String[] TABLE_VAR_MODS_COL_NAMES = {"Enabled", "Site (editable)",
       "Mass Delta (editable)", "Max occurrences (editable)"};
   private static final String[] TABLE_FIX_MODS_COL_NAMES = {"Enabled", "Site",
@@ -144,6 +145,7 @@ public class TabMsfragger extends JPanelBase {
   private static final int[] MASS_DIFF_TO_VAR_MOD_MAP = {0, 2, 1};
   private static final List<String> GLYCO_OPTIONS_UI = Arrays
       .asList(GLYCO_OPTION_off, GLYCO_OPTION_nglycan, GLYCO_OPTION_labile);
+  private static final String LOAD_CUSTOM_CONFIG_OPTION = "Custom MSFragger parameter file from disk";
 
   private static final List<MsfraggerEnzyme> ENZYMES = new EnzymeProvider().get();
   //public static FileNameExtensionFilter fnExtFilter = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf/raw/d)", "mzml", "mzxml", "mgf", "raw", "d");
@@ -173,7 +175,6 @@ public class TabMsfragger extends JPanelBase {
     PROPS_MISC_NAMES = new HashSet<>(Arrays.asList(PROPS_MISC));
     CONVERT_TO_FILE = new HashMap<>();
     CONVERT_TO_GUI = new HashMap<>();
-    SEARCH_TYPE_NAME_MAPPING = new HashMap<>();
 
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_write_calibrated_mgf, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s -> itos(
@@ -224,10 +225,11 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_Y_type_masses, text -> String.join(" ", text.split("/")));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_diagnostic_fragments, text -> String.join(" ", text.split("/")));
 
-    SEARCH_TYPE_NAME_MAPPING.put("Closed Search", SearchTypeProp.closed);
-    SEARCH_TYPE_NAME_MAPPING.put("Open Search", SearchTypeProp.open);
-    SEARCH_TYPE_NAME_MAPPING.put("Non-specific Search", SearchTypeProp.nonspecific);
-    SEARCH_TYPE_NAME_MAPPING.put("Mass Offset Search", SearchTypeProp.offset);
+    SEARCH_TYPE_NAME_MAPPING = new LinkedHashMap<>();
+    SEARCH_TYPE_NAME_MAPPING.put("Closed Search default config", SearchTypeProp.closed);
+    SEARCH_TYPE_NAME_MAPPING.put("Open Search default config", SearchTypeProp.open);
+    SEARCH_TYPE_NAME_MAPPING.put("Non-specific Search default config", SearchTypeProp.nonspecific);
+    SEARCH_TYPE_NAME_MAPPING.put("Mass Offset Search default config", SearchTypeProp.offset);
   }
 
   private UiCheck checkRun;
@@ -372,21 +374,21 @@ public class TabMsfragger extends JPanelBase {
       updateEnabledStatus(pContent, isSelected);
     });
 
-    uiComboLoadDefaultsNames = UiUtils.createUiCombo(SEARCH_TYPE_DROPDOWN_NAMES);
-    JButton btnLoadDefaults = new JButton("Load");
-    btnLoadDefaults.addActionListener(this::actionConfigLoadDefaults);
+    JButton btnSave = new JButton("Save Config");
+    btnSave.setToolTipText("<html>Save MSFragger compatible config file \n</br>"
+        + "which can be used with MSFragger from command line");
+    btnSave.addActionListener(this::actionBtnConfigSave);
+
+    List<String> loadOptions = Seq.of(LOAD_CUSTOM_CONFIG_OPTION).append(Seq.seq(SEARCH_TYPE_NAME_MAPPING.keySet())).toList();
+    uiComboLoadDefaultsNames = UiUtils.createUiCombo(loadOptions);
+    JButton btnLoad = new JButton("Load");
+    btnLoad.addActionListener(this::actionBtnConfigLoad);
 
     mu.add(pTop, checkRun).wrap();
-
-    JButton save = new JButton("Save Config");
-    save.addActionListener(this::actionConfigSave);
-    JButton load = new JButton("Load Config");
-    load.addActionListener(this::actionConfigLoad);
-    mu.add(pTop, save);//.split();
-    mu.add(pTop, load);//.wrap();
-    mu.add(pTop, new JLabel("Default config for:"));//.alignX("right");
-    mu.add(pTop, uiComboLoadDefaultsNames);//.split();
-    mu.add(pTop, btnLoadDefaults).wrap();
+    mu.add(pTop, btnSave).split().spanX();
+    mu.add(pTop, btnLoad);
+    mu.add(pTop, new JLabel(":")).gapLeft("3px").gapRight("3px");
+    mu.add(pTop, uiComboLoadDefaultsNames).wrap();
 
     return pTop;
   }
@@ -1443,7 +1445,7 @@ public class TabMsfragger extends JPanelBase {
     return FraggerOutputType.valueOf(val);
   }
 
-  private void actionConfigSave(ActionEvent e) {
+  private void actionBtnConfigSave(ActionEvent e) {
     // now save the actual user's choice
     JFileChooser fc = FileChooserUtils.builder("Choose where params file should be saved")
         .approveButton("Save")
@@ -1487,7 +1489,7 @@ public class TabMsfragger extends JPanelBase {
     }
   }
 
-  private void actionConfigLoad(ActionEvent e) {
+  private void actionConfigLoadUserSelected(ActionEvent e) {
     FileNameExtensionFilter filter = new FileNameExtensionFilter("Properties/Params",
         "properties", "params", "para", "conf", "txt");
     JFileChooser fc = FileChooserUtils.create("Select saved file", "Load", false, FcMode.FILES_ONLY, true, filter);
@@ -1522,11 +1524,17 @@ public class TabMsfragger extends JPanelBase {
     }
   }
 
-  private void actionConfigLoadDefaults(ActionEvent actionEvent) {
-    String s = (String)uiComboLoadDefaultsNames.getSelectedItem();
-    SearchTypeProp type = SEARCH_TYPE_NAME_MAPPING.get(s);
+  private void actionBtnConfigLoad(ActionEvent actionEvent) {
+    String option = (String)uiComboLoadDefaultsNames.getSelectedItem();
+
+    if (LOAD_CUSTOM_CONFIG_OPTION.equals(option)) {
+      actionConfigLoadUserSelected(actionEvent);
+      return;
+    }
+
+    SearchTypeProp type = SEARCH_TYPE_NAME_MAPPING.get(option);
     if (type == null) {
-      throw new IllegalStateException(String.format("No mapping for search type string '%s'", s));
+      throw new IllegalStateException(String.format("No mapping for search type string '%s'", option));
     }
     if (loadDefaults(type, true)) {
       postSearchTypeUpdate(type, true);
