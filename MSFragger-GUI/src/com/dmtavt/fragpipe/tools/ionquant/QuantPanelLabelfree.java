@@ -174,7 +174,7 @@ public class QuantPanelLabelfree extends JPanelBase {
 
   private JPanel createPanelFreequant(ButtonGroup buttonGroup) {
     JPanel p = mu.newPanel(null, true);
-    uiRadioUseFreequant = new UiRadio("FreeQuant (for non ion mobility data)", null, true);
+    uiRadioUseFreequant = new UiRadio("FreeQuant (alternative tool)", null, true);
     buttonGroup.add(uiRadioUseFreequant);
     FormEntry feRadioFreequant = new FormEntry("freequant.run-freequant", "Not shown",
         uiRadioUseFreequant);

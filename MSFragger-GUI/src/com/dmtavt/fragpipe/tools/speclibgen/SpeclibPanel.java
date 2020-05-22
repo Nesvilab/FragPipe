@@ -115,8 +115,8 @@ public class SpeclibPanel extends JPanelBase {
     mu.borderEmpty(p);
 
     radioGroupTools = new ButtonGroup();
-    panelSpectrast = createPanelSpectrast(radioGroupTools);
     panelEasypqp = createPanelEasypqp(radioGroupTools);
+    panelSpectrast = createPanelSpectrast(radioGroupTools);
 
     mu.add(p, panelSpectrast).spanX().growX().wrap();
     mu.add(p, panelEasypqp).spanX().growX().wrap();
@@ -128,7 +128,7 @@ public class SpeclibPanel extends JPanelBase {
     JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     mu.border(p, 1);
 
-    uiRadioUseSpectrast = new UiRadio("Use SpectraST (for non-ion mobility data)", null, true);
+    uiRadioUseSpectrast = new UiRadio("Use SpectraST (non-ion mobility data only)", null, true);
     radioGroupTools.add(uiRadioUseSpectrast);
     updateEnabledStatus(uiRadioUseSpectrast, false);
     FormEntry feRadioUseSpectrast = new FormEntry("use-spectrast", "Not shown",
