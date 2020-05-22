@@ -1041,6 +1041,9 @@ public class FragpipeRun {
 
     addCheck.accept(() -> {
       // check annotations files exist
+      if (!tmtiPanel.isRun()) {
+        return true;
+      }
       Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
       boolean hasMissing = Seq.seq(annotations.values()).map(PathUtils::existing).anyMatch(Objects::isNull);
       if (hasMissing) {
