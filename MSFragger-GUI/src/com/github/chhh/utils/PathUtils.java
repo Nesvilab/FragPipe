@@ -139,6 +139,10 @@ public class PathUtils {
         return null;
     }
 
+    public static Path existing(Path path) {
+        return existing(path.toString());
+    }
+
     /**
      * Existing Path or null if path is invalid or does not exist.
      * @param doThrow If false will swallow exceptions instead of throwing.

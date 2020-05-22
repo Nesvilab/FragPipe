@@ -100,6 +100,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -1037,6 +1038,19 @@ public class FragpipeRun {
     // run LabelQuant - as part of TMT-I
     final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(isTmtLqFq, wd);
     cmdTmtLabelQuant.setTitle(CmdLabelquant.NAME + " (TMT)");
+
+    addCheck.accept(() -> {
+      // check annotations files exist
+      Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
+      boolean hasMissing = Seq.seq(annotations.values()).map(PathUtils::existing).anyMatch(Objects::isNull);
+      if (hasMissing) {
+        SwingUtils.showErrorDialog(parent,
+            "Not all TMT groups have annotation files set.\n"
+                + "Check <b>Quant (Labeling)</b> tab, <b>TMT-Integrator config</b>.", "TMT-Integrator config error");
+        return false;
+      }
+      return true;
+    });
 
     addConfig.accept(cmdTmtLabelQuant, () -> {
       if (cmdTmtLabelQuant.isRun()) {
