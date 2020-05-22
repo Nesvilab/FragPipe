@@ -831,8 +831,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnFilesAddFolder);
     mu.add(p, btnFilesRemove);
 
-    final boolean addDebugBtn = true;
-    if (!addDebugBtn) {
+    final boolean addRecentButton = true;
+    if (!addRecentButton) {
       mu.add(p, btnFilesClear).wrap();
     } else {
       uiTextLastAddedLcmsDir = UiUtils.uiTextBuilder().cols(20)
@@ -846,7 +846,7 @@ public class TabWorkflow extends JPanelWithEnablement {
           Bus.post(new MessageLcmsAddFolder(Seq.of(existing).toList()));
         }
       });
-      btnDebugFolderAdd.setBackground(Color.PINK);
+      //btnDebugFolderAdd.setBackground(Color.PINK);
       mu.add(p, btnFilesClear);
       mu.add(p, btnDebugFolderAdd).gapLeft("20px");
       mu.add(p, uiTextLastAddedLcmsDir).growX().pushX().wrap();
