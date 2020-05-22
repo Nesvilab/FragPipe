@@ -902,8 +902,14 @@ public class TabMsfragger extends JPanelBase {
         new DecimalFormat("0.00"));
     spinnerMinRatio.setColumns(4);
     FormEntry feMinRatio = mu.feb(MsfraggerParams.PROP_minimum_ratio, spinnerMinRatio).label("Min ratio").create();
-    FormEntry feClearRangeMzLo = mu.feb(PROP_misc_fragger_clear_mz_lo, new UiSpinnerInt(0, 0, 100000, 10, 4)).label("Clear m/z range").create();
-    FormEntry feClearRangeMzHi = mu.feb(PROP_misc_fragger_clear_mz_hi, new UiSpinnerInt(0, 0, 100000, 10, 4)).create();
+    UiSpinnerDouble uiSpinnerClearRangeMzLo = UiUtils.spinnerDouble(0, 0, 100000, 10)
+        .setCols(5).setFormat("#.###").create();
+    FormEntry feClearRangeMzLo = mu.feb(PROP_misc_fragger_clear_mz_lo, uiSpinnerClearRangeMzLo)
+        .label("Clear m/z range").create();
+    UiSpinnerDouble uiSpinnerClearRangeMzHi = UiUtils.spinnerDouble(0, 0, 100000, 10)
+        .setCols(5).setFormat("#.###").create();
+    FormEntry feClearRangeMzHi = mu.feb(PROP_misc_fragger_clear_mz_hi, uiSpinnerClearRangeMzHi)
+        .create();
 
     uiComboMassMode = new UiCombo(); // UiUtils.createUiCombo(FraggerPrecursorMassMode.values());
     uiComboMassMode.setModel(new DefaultComboBoxModel<>(new String[] {
