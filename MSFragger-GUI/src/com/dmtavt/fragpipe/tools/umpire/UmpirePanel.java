@@ -232,7 +232,7 @@ public class UmpirePanel extends JPanel {
     // Threads spinner
     int availableThreads = Runtime.getRuntime().availableProcessors();
     JSpinner spinnerThreads = new JSpinner(new SpinnerNumberModel(0, 0, availableThreads * 2, 1));
-    FormEntry feThreads = new FormEntry(PROP_Thread, "Threads", spinnerThreads);
+    FormEntry feThreads = new FormEntry(PROP_Thread, "Parallelism", spinnerThreads);
     panelSpinners.add(feThreads.label(),  new CC().alignX("right").gapBefore("5px"));
     panelSpinners.add(feThreads.comp, new CC().width("30:50:70px").wrap());
 
