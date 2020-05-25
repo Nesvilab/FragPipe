@@ -718,7 +718,8 @@ public class FragpipeRun {
           && SpeclibPanel.EASYPQP_TIMSTOF.equals(speclibPanel.getEasypqpDataType())) {
         if (!SwingUtils.showConfirmDialogShort(parent,
             "Spectral library generation via EasyPQP requires that MSFragger\n"
-                + "writes a calibrated MGF file. There is a checkbox on MSFragger tab.\n\n"
+                + "writes a calibrated MGF file. There is a checkbox on MSFragger tab\n"
+                + "in Advanced Output Options section at the bottom of the page.\n\n"
                 + "Do you want to turn writing MGF on and continue?")) {
           log.debug("User chose not to continue with auto-enabled MGF writing");
           return false;
@@ -1126,6 +1127,29 @@ public class FragpipeRun {
     });
 
 
+    // check if any incompatible tools are requested
+    addCheck.accept(() -> {
+      if (InputDataType.ImMsTimsTof == tabWorkflow.getInputDataType()) {
+        // timsTOF data compatibility check
+        List<CmdBase> incompatible = Seq.seq(graphOrder.vertexSet())
+            .filter(CmdBase::isRun)
+            .filter(cmd -> (cmd instanceof CmdCrystalc) || (cmd instanceof CmdFreequant) || (cmd instanceof CmdLabelquant)
+                || (cmd instanceof CmdTmtIntegrator)).toList();
+        if (!incompatible.isEmpty()) {
+          String s = Seq.seq(incompatible).map(CmdBase::getCmdName).distinct().toString(", ");
+          int confirmation = SwingUtils.showConfirmDialog(parent, new JLabel(SwingUtils.makeHtml(
+              "timTOF data is currently not compatible with some of tools to be run:\n"
+                  + s + "\nTurn them off and continue?")));
+          if (JOptionPane.YES_OPTION != confirmation) {
+            return false;
+          }
+          incompatible.forEach(cmd -> cmd.isRun(false));
+        }
+      }
+      return true;
+    });
+
+
     addToGraph(graphOrder, cmdStart, DIRECTION.IN);
     addToGraph(graphOrder, cmdUmpire, DIRECTION.IN, cmdStart);
     addToGraph(graphOrder, cmdMsAdjuster, DIRECTION.IN, cmdStart, cmdUmpire);
@@ -1149,15 +1173,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport, cmdPtmshepherd);
 
 
-
-    // run pre-checks
-    for (IConfig preConfig : checks) {
-      if (!preConfig.config()) {
-        return false;
-      }
-    }
-
-    // turn on all required dependencies
+    // compose graph of required dependencies
     final Graph<CmdBase, DefEdge> graphDeps = new DirectedAcyclicGraph<>(DefEdge.class);
     addToGraph(graphDeps, cmdMsAdjuster, DIRECTION.OUT, cmdMsAdjusterCleanup);
     addToGraph(graphDeps, cmdPhilosopherFilter, DIRECTION.OUT, cmdPhilosopherDbAnnotate);
@@ -1165,6 +1181,15 @@ public class FragpipeRun {
     addToGraph(graphDeps, cmdTmtLabelQuant, DIRECTION.OUT, cmdPhilosopherFilter, cmdPhilosopherReport);
     //addToGraph(graphDeps, cmdTmt, DIRECTION.OUT, cmdPhilosopherFilter);
 
+
+    // run pre-checks (after both graphs are built
+    for (IConfig preConfig : checks) {
+      if (!preConfig.config()) {
+        return false;
+      }
+    }
+
+    // turn on all required dependencies
     List<CmdBase> origins = Seq.seq(graphDeps.vertexSet())
         .filter(CmdBase::isRun) // those that are run
         .filter(cmd -> graphDeps.outDegreeOf(cmd) > 0) // and are dependent on something
