@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.PyInfo;
+import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
@@ -37,7 +38,7 @@ public class CmdSpecLibGen extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhi, Path jarFragpipe, SpecLibGen2 slg,
-      Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, boolean useEasypqp) {
+      Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, boolean useEasypqp, InputDataType dataType) {
 
     initPreConfig();
 
@@ -129,11 +130,7 @@ public class CmdSpecLibGen extends CmdBase {
                 .map(lcms -> {
                   final String fn_sans_extension = FilenameUtils.removeExtension(lcms.getPath().getFileName().toString());
                   final String fn = lcms.getPath().getFileName().toString();
-                  final boolean isTimsTOF = speclibPanel.getEasypqpFileType().equals("timsTOF") || fn.toLowerCase().endsWith(".d");
-//                  final Path lcms_path = isTimsTOF ?
-//                          lcms.getPath().getParent().resolve(fn_sans_extension + "_calibrated.mgf") :
-//                          lcms.getPath();
-//                  return lcms_path.toString();
+                  final boolean isTimsTOF = dataType == InputDataType.ImMsTimsTof;
                   final String sans_suffix = lcms.getPath().getParent().resolve(fn_sans_extension).toString();
                   final String lcms_path = isTimsTOF ?
                           sans_suffix + "_calibrated.mgf" + File.pathSeparator + sans_suffix + "_uncalibrated.mgf"

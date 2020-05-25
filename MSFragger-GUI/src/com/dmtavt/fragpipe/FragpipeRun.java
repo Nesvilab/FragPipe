@@ -52,6 +52,7 @@ import com.dmtavt.fragpipe.tabs.TabDatabase;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tabs.TabRun;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
+import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
@@ -983,7 +984,7 @@ public class FragpipeRun {
     addConfig.accept(cmdIonquant,  () -> {
       if (cmdIonquant.isRun()) {
         return cmdIonquant.configure(
-            parent, Paths.get(binMsfragger.getBin()), ramGbNonzero, quantPanelLabelfree.toMap(),
+            parent, Paths.get(binMsfragger.getBin()), ramGbNonzero, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(),
             sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads);
       }
       return true;
@@ -1119,7 +1120,7 @@ public class FragpipeRun {
         final SpecLibGen2 slg = speclibConf.instance;
 
         return cmdSpecLibGen.configure(parent, usePhi, jarPath, slg,
-            sharedMapGroupsToProtxml, fastaFile, isRunProteinProphet, speclibPanel.useEasypqp());
+            sharedMapGroupsToProtxml, fastaFile, isRunProteinProphet, speclibPanel.useEasypqp(), tabWorkflow.getInputDataType());
       }
       return true;
     });

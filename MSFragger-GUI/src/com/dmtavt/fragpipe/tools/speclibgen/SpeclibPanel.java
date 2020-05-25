@@ -183,8 +183,7 @@ public class SpeclibPanel extends JPanelBase {
     btnPqpCalFile.setName("easypqp.select-file.button." + Fragpipe.PROP_NOCACHE);
 
     uiComboPqpType = UiUtils.createUiCombo(pqpType);
-    FormEntry feDataType = new FormEntry("easypqp.data-type",
-        "Data type", uiComboPqpType);
+//    FormEntry feDataType = new FormEntry("easypqp.data-type","Data type", uiComboPqpType);
 
     mu.add(p, feRadioUseEasypqp.comp).wrap();
     mu.add(p, fePqpCal.label(), ccR());
@@ -192,8 +191,8 @@ public class SpeclibPanel extends JPanelBase {
     mu.add(p, labelPqpCalFile);
     mu.add(p, btnPqpCalFile);
     mu.add(p, fePqpCalFile.comp).pushX().growX().wrap();
-    mu.add(p, feDataType.label(), ccR());
-    mu.add(p, feDataType.comp, ccL().wrap());
+//    mu.add(p, feDataType.label(), ccR());
+//    mu.add(p, feDataType.comp, ccL().wrap());
 
     uiComboPqpCal.addItemListener(e -> {
       String selected = (String) e.getItem();

@@ -84,7 +84,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -137,6 +136,8 @@ public class TabWorkflow extends JPanelWithEnablement {
   private UiCheck uiCheckProcessEachExperimentSeparately;
   private UiText uiTextLastAddedLcmsDir;
   private ButtonGroup btnGroupMsType;
+  private JRadioButton btnTypeRegularMs;
+  private JRadioButton btnTypeIms;
 
   public TabWorkflow() {
     init();
@@ -387,6 +388,13 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   public int getThreads() {
     return uiSpinnerThreads.getActualValue();
+  }
+
+  public enum InputDataType {RegularMs, ImMsTimsTof}
+
+  public InputDataType getInputDataType() {
+    if (btnTypeIms.isSelected()) return InputDataType.ImMsTimsTof;
+    return InputDataType.RegularMs;
   }
 
   private Map<String, PropsFile> findPropsFiles(Path startDir) throws IOException {
@@ -807,10 +815,10 @@ public class TabWorkflow extends JPanelWithEnablement {
     JPanel p = mu.newPanel("Input LC/MS Files", true);
 
     btnGroupMsType = new ButtonGroup();
-    JRadioButton btnTypeRegularMs = new JRadioButton("Regular MS");
+    btnTypeRegularMs = new JRadioButton("Regular MS");
     btnTypeRegularMs.setName("input.data-type.regular-ms");
     btnTypeRegularMs.setSelected(true);
-    JRadioButton btnTypeIms = new JRadioButton("IM-MS (ion mobility, timsTOF only)");
+    btnTypeIms = new JRadioButton("IM-MS (ion mobility, timsTOF only)");
     btnTypeIms.setName("input.data-type.im-ms");
     btnTypeIms.setSelected(false);
     btnGroupMsType.add(btnTypeRegularMs);

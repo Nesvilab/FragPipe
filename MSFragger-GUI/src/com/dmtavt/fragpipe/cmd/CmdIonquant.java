@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.nio.file.Path;
@@ -13,7 +14,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
-import org.jsoup.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
@@ -43,6 +43,7 @@ public class CmdIonquant extends CmdBase {
 
   public boolean configure(Component comp, Path binFragger, int ramGb,
       Map<String, String> uiCompsRepresentation,
+      InputDataType dataType,
       Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads) {
 
@@ -97,8 +98,11 @@ public class CmdIonquant extends CmdBase {
     cmd.add("--threads");
     cmd.add(String.valueOf(nThreads));
 
+    cmd.add("--ionmobility");
+    cmd.add(dataType == InputDataType.ImMsTimsTof ? "timsTOF" : "Non-timsTOF");
+
     // add all other parameters
-    List<String> dynamicParams = Arrays.asList("ionmobility",
+    List<String> dynamicParams = Arrays.asList(
         "mbr",
         "requantify",
         "mztol",
