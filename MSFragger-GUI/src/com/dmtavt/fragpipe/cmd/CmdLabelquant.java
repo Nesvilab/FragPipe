@@ -103,9 +103,6 @@ public class CmdLabelquant extends CmdBase {
       }
 
       cmd.add("--brand");
-      if (!"tmt".equalsIgnoreCase(label.getType())) {
-        throw new IllegalStateException("Only tmt is supported");
-      }
       cmd.add(label.getType().toLowerCase());
 
       // we have checked that all lcms files are in the same folder, so
