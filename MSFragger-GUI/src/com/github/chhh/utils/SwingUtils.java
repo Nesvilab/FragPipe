@@ -719,25 +719,12 @@ public class SwingUtils {
    * {@link StringRepresentable} and returns the mapping.<br/> Useful for persisting values from
    * Swing windows.
    *
- * @param origin
- * @param compNameFilter Can be null, will accept all Component names then.
-   */
-  public static Map<String, String> valuesGet(Container origin, Predicate<String> compNameFilter) {
-    return valuesGet(origin, compNameFilter, (comp, name) -> name);
-  }
-
-  /**
-   * Drills down a {@link Container}, mapping all components that 1) have their name set, 2) are
-   * {@link StringRepresentable} and returns the mapping.<br/> Useful for persisting values from
-   * Swing windows.
-   *
    * @param compNameFilter Can be null, will accept all Component names then.
    */
-  public static Map<String, String> valuesGet(Container origin, Predicate<String> compNameFilter,
-      BiFunction<JComponent, String, String> nameMapper) {
+  public static Map<String, String> valuesGet(Container origin, Predicate<String> compNameFilter) {
+    compNameFilter = compNameFilter == null ? s -> true : compNameFilter;
     Map<String, Component> comps = SwingUtils.mapComponentsByName(origin, true);
     Map<String, String> map = new HashMap<>(comps.size());
-    compNameFilter = compNameFilter == null ? s -> true : compNameFilter;
     for (Entry<String, Component> e : comps.entrySet()) {
       final String name = e.getKey();
       if (name == null || name.isEmpty()) {
@@ -786,12 +773,32 @@ public class SwingUtils {
       } else {
         value = ep.getText();
       }
-    } else if (comp instanceof JCheckBox) {
-      value = Boolean.toString(((JCheckBox) comp).isSelected());
+    } else if (comp instanceof JToggleButton) {
+      value = Boolean.toString(((JToggleButton)comp).isSelected());
     } else if (comp instanceof JTextComponent) {
       value = ((JTextComponent) comp).getText();
     }
     return value;
+  }
+
+  public static void valueSet(Component comp, String s) {
+    if (comp instanceof StringRepresentable) {
+      ((StringRepresentable) comp).fromString(s);
+    } else if (comp instanceof HtmlStyledJEditorPane) {
+      HtmlStyledJEditorPane ep = (HtmlStyledJEditorPane) comp;
+      ep.setText(s); // HtmlStyledJEditorPane automatically does html wrapping/unwrapping
+    } else if (comp instanceof JEditorPane) {
+      JEditorPane ep = (JEditorPane) comp;
+      ep.setContentType("text/html");
+      ep.setText(SwingUtils.wrapInStyledHtml(s));
+    } else if (comp instanceof JToggleButton) {
+      ((JToggleButton) comp).setSelected(Boolean.parseBoolean(s));
+    } else if (comp instanceof JTextComponent) {
+      ((JTextComponent) comp).setText(s);
+    } else {
+      throw new IllegalArgumentException(
+          "Component not StringRepresentable, JCheckBox or JTextComponent. Can't set.");
+    }
   }
 
   /**
@@ -824,26 +831,6 @@ public class SwingUtils {
     }
     comp.addFocusListener(
         new ContentChangedFocusAdapter((StringRepresentable) comp, onContentChanged));
-  }
-
-  public static void valueSet(Component comp, String s) {
-    if (comp instanceof StringRepresentable) {
-      ((StringRepresentable) comp).fromString(s);
-    } else if (comp instanceof HtmlStyledJEditorPane) {
-      HtmlStyledJEditorPane ep = (HtmlStyledJEditorPane) comp;
-      ep.setText(s); // HtmlStyledJEditorPane automatically does html wrapping/unwrapping
-    } else if (comp instanceof JEditorPane) {
-      JEditorPane ep = (JEditorPane) comp;
-      ep.setContentType("text/html");
-      ep.setText(SwingUtils.wrapInStyledHtml(s));
-    } else if (comp instanceof JCheckBox) {
-      ((JCheckBox) comp).setSelected(Boolean.parseBoolean(s));
-    } else if (comp instanceof JTextComponent) {
-      ((JTextComponent) comp).setText(s);
-    } else {
-      throw new IllegalArgumentException(
-          "Component not StringRepresentable, JCheckBox or JTextComponent. Can't set.");
-    }
   }
 
   /**

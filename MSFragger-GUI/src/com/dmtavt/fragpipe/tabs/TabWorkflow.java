@@ -50,6 +50,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -79,6 +80,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.swing.Box;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -89,6 +91,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
@@ -133,6 +136,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private HtmlStyledJEditorPane epWorkflowsDesc;
   private UiCheck uiCheckProcessEachExperimentSeparately;
   private UiText uiTextLastAddedLcmsDir;
+  private ButtonGroup btnGroupMsType;
 
   public TabWorkflow() {
     init();
@@ -802,12 +806,33 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JPanel createPanelLcmsFiles() {
     JPanel p = mu.newPanel("Input LC/MS Files", true);
 
+    btnGroupMsType = new ButtonGroup();
+    JRadioButton btnTypeRegularMs = new JRadioButton("Regular MS");
+    btnTypeRegularMs.setName("input.data-type.regular-ms");
+    btnTypeRegularMs.setSelected(true);
+    JRadioButton btnTypeIms = new JRadioButton("IM-MS (ion mobility, timsTOF only)");
+    btnTypeIms.setName("input.data-type.im-ms");
+    btnTypeIms.setSelected(false);
+    btnGroupMsType.add(btnTypeRegularMs);
+    btnGroupMsType.add(btnTypeIms);
+
     JButton btnFilesAddFiles = button("Add files", MessageLcmsAddFiles::new);
     JButton btnFilesAddFolder = button("Add folder recursively", MessageLcmsAddFolder::new);
     btnFilesRemove = button("Remove selected files", MessageLcmsRemoveSelected::new);
     btnFilesRemove.setEnabled(false);
     btnFilesClear = button("Clear files", MessageLcmsClearFiles::new);
     btnFilesClear.setEnabled(false);
+    JLabel labelDataType = new JLabel("MS data type");
+
+    Font font = labelDataType.getFont();
+    Font fontBigger = font.deriveFont(font.getSize2D() * 1.2f);
+    labelDataType.setFont(fontBigger);
+    btnTypeRegularMs.setFont(fontBigger.deriveFont(Font.BOLD));
+    btnTypeIms.setFont(fontBigger.deriveFont(Font.BOLD));
+
+    mu.add(p, labelDataType).split().spanX();
+    mu.add(p, btnTypeRegularMs);
+    mu.add(p, btnTypeIms).wrap();
 
     btnGroupsConsecutive = button("Consecutive",
         () -> new MessageLcmsGroupAction(Type.CONSECUTIVE));
