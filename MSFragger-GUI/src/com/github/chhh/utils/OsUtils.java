@@ -135,4 +135,11 @@ public class OsUtils {
             return availMem - 3; // Leave a few GB to make sure that the value for -Xmx is always smaller than the available memory.
         }
     }
+
+    /**
+     * Make a string as a single argument, in Windows an argument with spaces need to be quoted
+     */
+    public static String asSingleArgument(final String s) {
+        return isWindows() ? "\"" + s + "\"" : s;
+    }
 }

@@ -98,7 +98,7 @@ public abstract class CmdBase {
     toJoin.addAll(Arrays.stream(additionalJars).map(pathMapping).collect(Collectors.toList()));
     final String sep = System.getProperties().getProperty("path.separator");
     final String classpath = org.apache.commons.lang3.StringUtils.join(toJoin, sep);
-    return OsUtils.isWindows() ? "\"" + classpath + "\"" : classpath;
+    return OsUtils.asSingleArgument(classpath);
   }
 
   public static List<String> getNotSupportedExts(Map<LcmsFileGroup, Path> mapGroupsToProtxml, List<String> supportedExts) {
@@ -173,8 +173,6 @@ public abstract class CmdBase {
   }
 
   public static String createJavaDParamString(String name, String value) {
-    return OsUtils.isWindows()
-            ? "-D" + name + "=\"" + value + "\""
-            : "-D" + name + "=" + value;
+    return "-D" + name + "=" + OsUtils.asSingleArgument(value);
   }
 }

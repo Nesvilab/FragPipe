@@ -386,9 +386,7 @@ public class CmdMsfragger extends CmdBase {
             configPython.pi.getCommand(),
             DbSplit2.get().getScriptDbslicingPath().toAbsolutePath().normalize().toString(),
             Integer.toString(numSlices),
-            OsUtils.isWindows() ?
-                "\"" + String.join(" ", javaCmd) + "\"" :
-                String.join(" ", javaCmd)
+            OsUtils.asSingleArgument(String.join(" ", javaCmd))
         );
       } catch (NoStickyException e) {
         JOptionPane.showMessageDialog(comp,
