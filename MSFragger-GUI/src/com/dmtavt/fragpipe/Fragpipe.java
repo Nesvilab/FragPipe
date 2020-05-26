@@ -351,6 +351,14 @@ public class Fragpipe extends JFrame {
     return rename(comp, name, true);
   }
 
+  public static Component renameNoCache(Component comp) {
+    String name = comp.getName();
+    if (StringUtils.isBlank(name))
+      return comp;
+    comp.setName(APPEND_NO_CACHE.apply(name));
+    return comp;
+  }
+
   /** Same as calling {@link #rename(Component, String, boolean)} with True as last arg. */
   public static Component renameNoCache(Component comp, String name, String prefix) {
     return rename(comp, name, prefix, true);

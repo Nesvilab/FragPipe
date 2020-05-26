@@ -13,6 +13,8 @@ import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiRadio;
+import com.github.chhh.utils.swing.UiSpinnerDouble;
+import com.github.chhh.utils.swing.UiSpinnerDouble.Builder;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
@@ -23,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,6 +65,7 @@ public class SpeclibPanel extends JPanelBase {
   private JPanel panelEasypqp;
   private JPanel panelSpectrast;
   public static final String EASYPQP_TIMSTOF = "timsTOF";
+  public static final String EASYPQP_EXTRAS_PREFIX = "easypqp.extras.";
 
   @Override
   protected void initMore() {
@@ -159,7 +163,7 @@ public class SpeclibPanel extends JPanelBase {
     FormEntry fePqpCalFile = mu.feb(uiTextPqpCalFile)
         .name("easypqp.select-file.text").label("Calibration file").create();
     JLabel labelPqpCalFile = fePqpCalFile.label();
-    labelPqpCalFile.setName("easypqp.select-file.label." + Fragpipe.PROP_NOCACHE);
+    Fragpipe.renameNoCache(labelPqpCalFile, "easypqp.select-file.label");
     final JButton btnPqpCalFile = fePqpCalFile.browseButton("Browse",
         "Select calibration file", () -> {
           JFileChooser fc = FileChooserUtils
@@ -184,6 +188,11 @@ public class SpeclibPanel extends JPanelBase {
 
     uiComboPqpType = UiUtils.createUiCombo(pqpType);
 //    FormEntry feDataType = new FormEntry("easypqp.data-type","Data type", uiComboPqpType);
+    UiSpinnerDouble uiSpinnerLowess = UiUtils.spinnerDouble(0.05, 0.0, 1.0, 0.05)
+        .setCols(5).setFormat("#.##").create();
+    FormEntry feLowess = mu.feb(uiSpinnerLowess).name("easypqp.extras.rt_lowess_fraction")
+        .label("RT LOWESS Fraction")
+        .tooltip("RT Lowess fraction").create();
 
     mu.add(p, feRadioUseEasypqp.comp).wrap();
     mu.add(p, fePqpCal.label(), ccR());
@@ -191,6 +200,8 @@ public class SpeclibPanel extends JPanelBase {
     mu.add(p, labelPqpCalFile);
     mu.add(p, btnPqpCalFile);
     mu.add(p, fePqpCalFile.comp).pushX().growX().wrap();
+    mu.add(p, feLowess.label(), mu.ccR());
+    mu.add(p, feLowess.comp).wrap();
 //    mu.add(p, feDataType.label(), ccR());
 //    mu.add(p, feDataType.comp, ccL().wrap());
 
@@ -217,6 +228,11 @@ public class SpeclibPanel extends JPanelBase {
 
     updateEnabledStatus(p, false);
     return p;
+  }
+
+  /* Additional parameters for easypqp configuration that don't each need separate getters. */
+  public Map<String, String> getMapArgsExtras() {
+    return SwingUtils.valuesGet(this, name -> name.contains(EASYPQP_EXTRAS_PREFIX));
   }
 
   @Override
@@ -258,10 +274,6 @@ public class SpeclibPanel extends JPanelBase {
 
   public boolean useEasypqp() {
     return SwingUtils.isEnabledAndChecked(uiRadioUseEasypqp);
-  }
-
-  public double getEasypqpLibraryLowessFraction() {
-    return 0.05; // TODO: implement GUI
   }
 
   public String getEasypqpDataType() {

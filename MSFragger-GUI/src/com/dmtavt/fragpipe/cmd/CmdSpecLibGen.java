@@ -6,6 +6,7 @@ import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
+import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.File;
 import java.nio.file.Files;
@@ -41,7 +42,7 @@ public class CmdSpecLibGen extends CmdBase {
 
   public boolean configure(Component comp, UsageTrigger usePhi, Path jarFragpipe, SpecLibGen2 slg,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, boolean useEasypqp, InputDataType dataType,
-      final String easypqpLibraryExtraArguments) {
+      final Map<String, String> easypqpLibraryExtraArguments) {
 
     initPreConfig();
 
@@ -144,8 +145,9 @@ public class CmdSpecLibGen extends CmdBase {
                 .collect(Collectors.joining(File.pathSeparator))); // lcms files
         cmd.add(groupWd.toString()); // output directory
         cmd.add("True"); // overwrite (true/false), optional arg
-        cmd.add("usePhilosopher.useBin()"); // philosopher binary path (not needed for easyPQP)
-        cmd.add("use_easypqp"); // philosopher binary path (not needed for easyPQP)
+        // TODO: GuoCi, these two don't look right
+        cmd.add("usePhilosopher.useBin()"); // philosopher binary path (not needed for easyPQP) // TODO: GuoCi, maybe cmd.add(usePhi.getBin()) ?
+        cmd.add("use_easypqp"); // philosopher binary path (not needed for easyPQP) // TODO: GuoCi, was this supposed to be a bool parameter?
 
         TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
 
@@ -153,7 +155,12 @@ public class CmdSpecLibGen extends CmdBase {
         final Path calTsvPath = speclibPanel.getEasypqpCalFilePath();
         cmd.add(cal.equals("a tsv file") ? calTsvPath.toString() : cal); // retention time alignment options
         cmd.add(String.valueOf(tabWorkflow.getThreads()));
-        cmd.add(OsUtils.asSingleArgument(easypqpLibraryExtraArguments)); // extra arguments for EasyPQP library command
+        // extra arguments for EasyPQP library command
+        for (Entry<String, String> kv : easypqpLibraryExtraArguments.entrySet()) {
+          String k = StringUtils.afterLastDot(kv.getKey());
+          cmd.add(StringUtils.prependOnce(k, "--"));
+          cmd.add(kv.getValue());
+        }
 
       } else {
         cmd.add(fastaPath);
