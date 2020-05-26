@@ -4,6 +4,7 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -87,7 +88,7 @@ public class CmdIonquant extends CmdBase {
                 + "Native libraries come with MSFragger zip download, contained in <i>ext</i><br/>\n"
                 + "sub-directory. If you don't have an <i>ext</i> directory next to MSfragger.jar<br/>\n"
                 + "please go to Config tab and Update MSFragger.",
-                NAME + "error", JOptionPane.WARNING_MESSAGE);
+                NAME + " error", JOptionPane.WARNING_MESSAGE);
         return false;
       }
     }
@@ -126,6 +127,17 @@ public class CmdIonquant extends CmdBase {
     for (String dynamicParam : dynamicParams) {
       String v = getOrThrow(uiCompsRepresentation,
           StringUtils.prependOnce(dynamicParam, "ionquant."));
+      if ("mbr".equalsIgnoreCase(dynamicParam) && "1".equals(v)) {
+        // it's mbr
+        if (mapGroupsToProtxml.keySet().stream().map(group -> group.name).distinct().count() < 2) {
+          // it's not multi exp
+          JOptionPane.showMessageDialog(comp, SwingUtils.makeHtml(
+              "IonQuant with MBR on (match between runs) requires designating  LCMS runs to experiments.\n"
+                  + "See Workflow tab."),
+              NAME + " error", JOptionPane.WARNING_MESSAGE);
+          return false;
+        }
+      }
       if (StringUtils.isNotBlank(v)) {
         cmd.add("--" + dynamicParam);
         cmd.add(v);

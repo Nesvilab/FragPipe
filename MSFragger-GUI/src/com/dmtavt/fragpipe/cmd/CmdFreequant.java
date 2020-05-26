@@ -35,7 +35,7 @@ public class CmdFreequant extends CmdBase {
           "<html>%s doesn't support '.%s' files.<br/>"
               + "Either remove them from input or disable %s<br/>"
               + "You can convert files using <i>msconvert</i> from ProteoWizard.", NAME, String.join(", ", notSupportedExts), NAME),
-          NAME + "error", JOptionPane.WARNING_MESSAGE);
+          NAME + " error", JOptionPane.WARNING_MESSAGE);
       return false;
     }
     return true;
