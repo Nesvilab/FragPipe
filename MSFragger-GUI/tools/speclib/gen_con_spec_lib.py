@@ -35,6 +35,7 @@ class Irt_choice(enum.Enum):
 	userRT = enum.auto()
 
 if use_easypqp:
+	easypqp_library_extra_args = shlex.split(sys.argv[10]) if len(sys.argv) >= 11 else []
 	nproc = int(sys.argv[9]) if len(sys.argv) >= 10 else len(os.sched_getaffinity(0))
 	no_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'noirt'
 	is_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'irt'
@@ -473,7 +474,7 @@ if use_easypqp:
 				# '--peptide_fdr_threshold', str(pep_fdr), '--protein_fdr_threshold', str(prot_fdr),
 				'--psmtsv', os.fspath(psm_tsv_file), '--peptidetsv', os.fspath(peptide_tsv_file), ] + \
 			   (['--rt_reference', os.fspath(irt_file)] if use_irt else []) + \
-			   ['--out', 'easypqp_lib_openswath.tsv'] + list(map(os.fspath, easypqp_library_infiles))
+			   ['--out', 'easypqp_lib_openswath.tsv'] + easypqp_library_extra_args + list(map(os.fspath, easypqp_library_infiles))
 
 
 	easypqp_cmds = '\n'.join(' '.join(map(shlex.quote, e)) for e in easypqp_convert_cmds) + '\n' + \

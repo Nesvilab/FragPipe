@@ -1121,7 +1121,8 @@ public class FragpipeRun {
         final SpecLibGen2 slg = speclibConf.instance;
 
         return cmdSpecLibGen.configure(parent, usePhi, jarPath, slg,
-            sharedMapGroupsToProtxml, fastaFile, isRunProteinProphet, speclibPanel.useEasypqp(), tabWorkflow.getInputDataType());
+            sharedMapGroupsToProtxml, fastaFile, isRunProteinProphet, speclibPanel.useEasypqp(), tabWorkflow.getInputDataType(),
+            "--rt_lowess_fraction " + speclibPanel.getEasypqpLibraryLowessFraction());
       }
       return true;
     });

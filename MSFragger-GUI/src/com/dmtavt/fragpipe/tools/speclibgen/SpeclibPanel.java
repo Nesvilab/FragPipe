@@ -260,6 +260,10 @@ public class SpeclibPanel extends JPanelBase {
     return SwingUtils.isEnabledAndChecked(uiRadioUseEasypqp);
   }
 
+  public double getEasypqpLibraryLowessFraction() {
+    return 0.05; // TODO: implement GUI
+  }
+
   public String getEasypqpDataType() {
     return (String)uiComboPqpType.getSelectedItem();
   }

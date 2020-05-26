@@ -19,6 +19,8 @@ import java.util.Map.Entry;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+
+import com.github.chhh.utils.OsUtils;
 import org.apache.commons.io.FilenameUtils;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
@@ -38,7 +40,8 @@ public class CmdSpecLibGen extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhi, Path jarFragpipe, SpecLibGen2 slg,
-      Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, boolean useEasypqp, InputDataType dataType) {
+      Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, boolean useEasypqp, InputDataType dataType,
+      final String easypqpLibraryExtraArguments) {
 
     initPreConfig();
 
@@ -150,7 +153,7 @@ public class CmdSpecLibGen extends CmdBase {
         final Path calTsvPath = speclibPanel.getEasypqpCalFilePath();
         cmd.add(cal.equals("a tsv file") ? calTsvPath.toString() : cal); // retention time alignment options
         cmd.add(String.valueOf(tabWorkflow.getThreads()));
-
+        cmd.add(OsUtils.asSingleArgument(easypqpLibraryExtraArguments)); // extra arguments for EasyPQP library command
 
       } else {
         cmd.add(fastaPath);
