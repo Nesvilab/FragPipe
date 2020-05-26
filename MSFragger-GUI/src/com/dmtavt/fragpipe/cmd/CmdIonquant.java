@@ -99,7 +99,7 @@ public class CmdIonquant extends CmdBase {
     cmd.add(String.valueOf(nThreads));
 
     cmd.add("--ionmobility");
-    cmd.add(dataType == InputDataType.ImMsTimsTof ? "timsTOF" : "Non-timsTOF");
+    cmd.add(dataType == InputDataType.ImMsTimsTof ? "1" : "0");
 
     // add all other parameters
     List<String> dynamicParams = Arrays.asList(
