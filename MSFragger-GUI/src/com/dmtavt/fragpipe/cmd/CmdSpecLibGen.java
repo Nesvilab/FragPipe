@@ -145,9 +145,8 @@ public class CmdSpecLibGen extends CmdBase {
                 .collect(Collectors.joining(File.pathSeparator))); // lcms files
         cmd.add(groupWd.toString()); // output directory
         cmd.add("True"); // overwrite (true/false), optional arg
-        // TODO: GuoCi, these two don't look right
-        cmd.add("usePhilosopher.useBin()"); // philosopher binary path (not needed for easyPQP) // TODO: GuoCi, maybe cmd.add(usePhi.getBin()) ?
-        cmd.add("use_easypqp"); // philosopher binary path (not needed for easyPQP) // TODO: GuoCi, was this supposed to be a bool parameter?
+        cmd.add("unused"); // philosopher binary path (not needed for easyPQP)
+        cmd.add("use_easypqp"); // philosopher binary path (not needed for easyPQP)
 
         TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
 
