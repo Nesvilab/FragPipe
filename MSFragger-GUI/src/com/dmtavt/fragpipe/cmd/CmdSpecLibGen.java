@@ -157,8 +157,7 @@ public class CmdSpecLibGen extends CmdBase {
         // extra arguments for EasyPQP library command
         for (Entry<String, String> kv : easypqpLibraryExtraArguments.entrySet()) {
           String k = StringUtils.afterLastDot(kv.getKey());
-          cmd.add(StringUtils.prependOnce(k, "--"));
-          cmd.add(kv.getValue());
+          cmd.add(OsUtils.asSingleArgument(StringUtils.prependOnce(k, "--") + " " + kv.getValue()));
         }
 
       } else {
