@@ -188,7 +188,7 @@ public class SpeclibPanel extends JPanelBase {
 
     uiComboPqpType = UiUtils.createUiCombo(pqpType);
 //    FormEntry feDataType = new FormEntry("easypqp.data-type","Data type", uiComboPqpType);
-    UiSpinnerDouble uiSpinnerLowess = UiUtils.spinnerDouble(0.05, 0.0, 1.0, 0.05)
+    UiSpinnerDouble uiSpinnerLowess = UiUtils.spinnerDouble(0.05, 0.0, 1.0, 0.01)
         .setCols(5).setFormat("#.##").create();
     FormEntry feLowess = mu.feb(uiSpinnerLowess).name("easypqp.extras.rt_lowess_fraction")
         .label("RT Lowess Fraction")
