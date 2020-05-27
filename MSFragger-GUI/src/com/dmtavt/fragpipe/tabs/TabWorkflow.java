@@ -835,8 +835,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     Font font = labelDataType.getFont();
     Font fontBigger = font.deriveFont(font.getSize2D() * 1.2f);
     labelDataType.setFont(fontBigger);
-    btnTypeRegularMs.setFont(fontBigger.deriveFont(Font.BOLD));
-    btnTypeIms.setFont(fontBigger.deriveFont(Font.BOLD));
+    btnTypeRegularMs.setFont(fontBigger);
+    btnTypeIms.setFont(fontBigger);
 
     mu.add(p, labelDataType).split().spanX();
     mu.add(p, btnTypeRegularMs);
