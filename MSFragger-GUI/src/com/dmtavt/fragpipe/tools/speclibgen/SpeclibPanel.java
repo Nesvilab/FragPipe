@@ -191,7 +191,7 @@ public class SpeclibPanel extends JPanelBase {
     UiSpinnerDouble uiSpinnerLowess = UiUtils.spinnerDouble(0.05, 0.0, 1.0, 0.05)
         .setCols(5).setFormat("#.##").create();
     FormEntry feLowess = mu.feb(uiSpinnerLowess).name("easypqp.extras.rt_lowess_fraction")
-        .label("RT LOWESS Fraction")
+        .label("RT Lowess Fraction")
         .tooltip("RT Lowess fraction").create();
 
     mu.add(p, feRadioUseEasypqp.comp).wrap();
