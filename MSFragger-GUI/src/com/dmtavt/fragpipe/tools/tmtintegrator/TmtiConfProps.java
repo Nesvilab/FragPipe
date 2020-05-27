@@ -95,8 +95,8 @@ public class TmtiConfProps {
   public static List<ComboValue> COMBO_ADD_REF = Arrays.asList(
       new ComboValue("-1","Reference sample", ""),
 //      new ComboValue("0", "Sum", ""),
-      new ComboValue("1", "Virtual - Average", ""),
-      new ComboValue("2", "Virtual - Median", "")
+      new ComboValue("1", "Virtual", "")
+      //new ComboValue("2", "Virtual - Median", "")
   );
 
 }
