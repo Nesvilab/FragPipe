@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
+import org.jooq.lambda.function.Function3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
@@ -83,7 +84,7 @@ public class CmdIonquant extends CmdBase {
     }
 
     if (extLibsBruker != null) {
-      cmd.add(createJavaDParamString("bruker.lib.path", extLibsBruker.toString()));
+      cmd.add(createJavaDParamString("libs.bruker.dir", extLibsBruker.toString()));
     } else {
       if (lcmsToFraggerPepxml.keySet().stream().anyMatch(f ->
               f.getPath().getFileName().toString().toLowerCase().endsWith(".d"))) {
@@ -93,6 +94,21 @@ public class CmdIonquant extends CmdBase {
                 + "sub-directory. If you don't have an <i>ext</i> directory next to MSfragger.jar<br/>\n"
                 + "please go to Config tab and Update MSFragger.",
                 NAME + " error", JOptionPane.WARNING_MESSAGE);
+        return false;
+      }
+    }
+
+    if (extLibsThermo != null) {
+      cmd.add(createJavaDParamString("libs.thermo.dir", extLibsThermo.toString()));
+    } else {
+      if (lcmsToFraggerPepxml.keySet().stream().anyMatch(f ->
+          f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
+        JOptionPane.showMessageDialog(comp,
+            "<html>When processing .RAW files IonQuant requires native Thermo libraries.<br/>\n"
+                + "Native libraries come with MSFragger zip download, contained in <i>ext</i><br/>\n"
+                + "sub-directory. If you don't have an <i>ext</i> directory next to MSfragger.jar<br/>\n"
+                + "please go to Config tab and Update MSFragger.",
+            NAME + " error", JOptionPane.WARNING_MESSAGE);
         return false;
       }
     }

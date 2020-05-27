@@ -1139,7 +1139,7 @@ public class FragpipeRun {
         if (!incompatible.isEmpty()) {
           String s = Seq.seq(incompatible).map(CmdBase::getCmdName).distinct().toString(", ");
           int confirmation = SwingUtils.showConfirmDialog(parent, new JLabel(SwingUtils.makeHtml(
-              "timTOF data is currently not compatible with some of tools to be run:\n"
+              "timsTOF data is currently not compatible with some of tools to be run:\n"
                   + s + "\nTurn them off and continue?")));
           if (JOptionPane.YES_OPTION != confirmation) {
             return false;
