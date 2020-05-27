@@ -58,10 +58,14 @@ public class CmdIonquant extends CmdBase {
 //        --multidir <string>    # Output dir for the multi experimental result. Optional.
     initPreConfig();
 
-    final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.getParent()));
     List<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
+    final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.getParent()));
     if (extLibsBruker != null) {
       sup.add("d");
+    }
+    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
+    if (extLibsThermo != null) {
+      sup.add("raw");
     }
     if (!checkCompatibleFormats(comp, lcmsToFraggerPepxml, sup)) {
       return false;
