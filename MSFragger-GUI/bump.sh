@@ -5,7 +5,7 @@
 if [ $# -eq 0 ]; then
     echo "No arguments supplied, auto-detecting version"
 
-    oldver=`grep -oP "(version\s+=\s+'\K[^']+)" build.gradle`
+    oldver=`grep -oP "(version\s+=\s+'\K[^'\"]+)" build.gradle`
     echo "Found version in build.gradle file: $oldver"
     if [[ $oldver =~ ^[0-9]+\.[0-9]+.*$ ]]; then
         echo "[$oldver] looks like a version number - OK"
