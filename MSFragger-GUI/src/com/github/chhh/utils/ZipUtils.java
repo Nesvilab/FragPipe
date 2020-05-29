@@ -56,35 +56,34 @@ public class ZipUtils {
   }
 
   public static void unzipWithSubfolders(Path zipPath, Path destDir) throws IOException {
-    ZipFile zip = new ZipFile(zipPath.toFile());
-    FileSystem fileSystem = FileSystems.getDefault();
-    Enumeration<? extends ZipEntry> entries = zip.entries();
-    byte[] buffer = new byte[8192];
-    ZipInputStream zis = new ZipInputStream(new FileInputStream(zipPath.toFile()));
+    try (ZipFile zip = new ZipFile(zipPath.toFile())) {
 
-    //Iterate over entries
-    while (entries.hasMoreElements())
-    {
-      ZipEntry zipEntry = entries.nextElement();
+      Enumeration<? extends ZipEntry> entries = zip.entries();
+      byte[] buffer = new byte[8192];
 
-      if (zipEntry.isDirectory()) {
-        // If directory then create a new directory in uncompressed folder
-        Path unzippedDir = destDir.resolve(zipEntry.getName());
-        if (!unzippedDir.normalize().startsWith(destDir)) {
-          throw new IOException("Entry is outside of target dir: " + zipEntry.getName());
-        }
-        log.debug("Possibly creating unzipped direcotry: {}", unzippedDir);
-        PathUtils.createDirs(unzippedDir);
+      //Iterate over entries
+      while (entries.hasMoreElements()) {
+        ZipEntry zipEntry = entries.nextElement();
 
-      } else {
-        // Else create the file
-        File newFile = newFile(destDir.toFile(), zipEntry);
-        log.debug("Writing unzipped file: {}", newFile);
-        try (FileOutputStream fos = new FileOutputStream(newFile)) {
-          try (BufferedInputStream bis = new BufferedInputStream(zip.getInputStream(zipEntry))) {
-            int read;
-            while ((read = bis.read(buffer)) > 0) {
-              fos.write(buffer, 0, read);
+        if (zipEntry.isDirectory()) {
+          // If directory then create a new directory in uncompressed folder
+          Path unzippedDir = destDir.resolve(zipEntry.getName());
+          if (!unzippedDir.normalize().startsWith(destDir)) {
+            throw new IOException("Entry is outside of target dir: " + zipEntry.getName());
+          }
+          log.debug("Possibly creating unzipped direcotry: {}", unzippedDir);
+          PathUtils.createDirs(unzippedDir);
+
+        } else {
+          // Else create the file and copy contents
+          File newFile = newFile(destDir.toFile(), zipEntry);
+          log.debug("Writing unzipped file: {}", newFile);
+          try (FileOutputStream fos = new FileOutputStream(newFile)) {
+            try (BufferedInputStream bis = new BufferedInputStream(zip.getInputStream(zipEntry))) {
+              int read;
+              while ((read = bis.read(buffer)) > 0) {
+                fos.write(buffer, 0, read);
+              }
             }
           }
         }

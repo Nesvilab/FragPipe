@@ -7,7 +7,6 @@ import com.dmtavt.fragpipe.messages.MessageDlProgress;
 import com.dmtavt.fragpipe.messages.MessageUpdatePackagesDownload;
 import com.dmtavt.fragpipe.messages.MessageUpdateWorkflows;
 import com.github.chhh.utils.Holder;
-import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -236,7 +235,7 @@ public class FragpipeUpdater {
     }
 
     String text = "FragPipe update packages available, do you want to download and install?\n" +
-        "A restart of FragPipe will be required.\n\nUpdates:\n - " +
+        "A restart of FragPipe might be required for all changes to take effect.\n\nUpdates:\n - " +
         Seq.seq(updates).map(UpdatePackage::getDescriptionOrName).toString("\n - ");
     MigUtils mu = MigUtils.get();
     JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
