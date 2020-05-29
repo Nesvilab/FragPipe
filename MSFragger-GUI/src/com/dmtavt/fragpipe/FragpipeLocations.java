@@ -120,12 +120,16 @@ public class FragpipeLocations {
     return tools;
   }
 
-  public Path getDirApp() {
-    return getJarPath().getParent().getParent();
+  public Path getDirFragpipeRoot() {
+    return getJarPath().getParent();
   }
 
-  public Path getOrMakeInAppDir(String dir) {
-    Path path = getDirApp().resolve(dir);
+  public Path getDirApp() {
+    return getDirFragpipeRoot().getParent();
+  }
+
+  public Path getOrMakeDirInRoot(String dir) {
+    Path path = getDirFragpipeRoot().resolve(dir);
     try {
       return PathUtils.createDirs(path);
     } catch (IOException e) {

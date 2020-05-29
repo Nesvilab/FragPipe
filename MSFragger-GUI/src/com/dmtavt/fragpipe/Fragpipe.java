@@ -18,7 +18,6 @@ import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
-import com.dmtavt.fragpipe.messages.MessageUpdatePackagesAvailable;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigTips;
 import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
@@ -47,7 +46,6 @@ import com.github.chhh.utils.VersionComparator;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.FormEntry.Builder;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
-import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Color;
@@ -67,20 +65,14 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -89,10 +81,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
-import kotlin.io.FileTreeWalk;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -101,7 +91,6 @@ import org.greenrobot.eventbus.NoSubscriberEvent;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.cmd.ToolingUtils;
@@ -556,14 +545,7 @@ public class Fragpipe extends JFrame {
 
     // check for potential new update packages
     List<UpdatePackage> updates = FragpipeUpdater.checkNewUpdatePackages(m.propsFix);
-    if (!updates.isEmpty()) {
-      String text = "Update packages available, do you want to download and install?\n"
-          + "A restart of FragPipe will be required.\n\nUpdates:\n - " +
-          Seq.seq(updates).map(UpdatePackage::getDescriptionOrName).toString("\n - ");
-      if (SwingUtils.showConfirmDialogShort(this, text)) {
-        Bus.post(new MessageUpdatePackagesAvailable(updates));
-      }
-    }
+    FragpipeUpdater.askToDownloadUpdates(this, updates);
   }
 
 

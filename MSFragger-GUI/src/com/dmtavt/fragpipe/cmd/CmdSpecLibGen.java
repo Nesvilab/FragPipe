@@ -54,9 +54,10 @@ public class CmdSpecLibGen extends CmdBase {
         .anyMatch(lcms -> isFileCompatible.negate().test(lcms.getPath().getFileName().toString()));
     if (isIncompatibleInputs) {
       JOptionPane.showMessageDialog(comp, String.format(
-          "<html>Spectral library generation with %s is currently only<br/>\n"
-              + "compatible with %s input files.<br/>\n"
-              + "You can convert your data using Msconvert program from ProteoWizard.",
+          "Spectral library generation with %s is currently only\n"
+              + "compatible with %s input files.\n"
+              + "You can convert your data using Msconvert program from ProteoWizard\n"
+              + "or select 'Use EasyPQP' on Spectral Library Genration tab.",
           useEasypqp ? "EasyPQP" : "SpectraST", String.join(", ", compatibleExts)),
           "Incompatible input data", JOptionPane.WARNING_MESSAGE);
       return false;

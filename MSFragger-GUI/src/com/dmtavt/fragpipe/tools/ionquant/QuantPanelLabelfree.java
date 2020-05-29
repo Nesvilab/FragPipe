@@ -302,7 +302,7 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     mu.add(p, pDetection).spanX().growX().wrap();
 
-    JPanel pMbr = mu.newPanel("Match between runs", mu.lcFillXNoInsetsTopBottom());
+    JPanel pMbr = mu.newPanel("Match between runs (MBR)", mu.lcFillXNoInsetsTopBottom());
 
     mu.add(pMbr, feMbrRtTol.label(), mu.ccR());
     mu.add(pMbr, feMbrRtTol.comp);
