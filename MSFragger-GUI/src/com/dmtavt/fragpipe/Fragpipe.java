@@ -555,62 +555,18 @@ public class Fragpipe extends JFrame {
     }
 
     // check for potential new update packages
-    List<UpdatePackage> toDownload = checkNewUpdatePackages(m.propsFix);
-    if (!toDownload.isEmpty()) {
-      SwingUtils.showConfirmDialogShort("Update packages available")
-      Bus.post(new MessageUpdatePackagesAvailable(toDownload));
+    List<UpdatePackage> updates = FragpipeUpdater.checkNewUpdatePackages(m.propsFix);
+    if (!updates.isEmpty()) {
+      String text = "Update packages available, do you want to download and install?\n"
+          + "A restart of FragPipe will be required.\n\nUpdates:\n - " +
+          Seq.seq(updates).map(UpdatePackage::getDescriptionOrName).toString("\n - ");
+      if (SwingUtils.showConfirmDialogShort(this, text)) {
+        Bus.post(new MessageUpdatePackagesAvailable(updates));
+      }
     }
   }
 
-  private List<UpdatePackage> checkNewUpdatePackages(Properties props) {
-    Map<String, String> updates = Seq.seq(props.stringPropertyNames())
-        .filter(prop -> prop.startsWith("update-package."))
-        .toMap(s -> s, s -> props.getProperty(s));
 
-    List<UpdatePackage> toDownload = new ArrayList<>();
-    for (Entry<String, String> kv : updates.entrySet()) {
-      String propName = kv.getKey();
-      String url = kv.getValue();
-      String[] split = url.split("/");
-      if (split.length < 2) {
-        log.warn("Likely error in remote updates file: " + propName);
-        continue;
-      }
-      String fn = split[split.length - 1];
-      Path dest = FragpipeLocations.get().getDirApp().resolve("updates");
-      Optional<Path> ours = PathUtils
-          .findFilesQuietly(dest, path -> path.getFileName().toString().equals(fn)).findAny();
-      if (ours.isPresent()) {
-        log.debug("We already have file from remote: {}", dest.relativize(ours.get()));
-      } else {
-        String desc = props.getProperty(propName + ".desc", "");
-        Pattern re = Pattern.compile("ver\\[([^,]]+?),([^]]*?)\\]");
-        String minVer = "";
-        String maxVer = "";
-        Matcher m = re.matcher(propName);
-        boolean isWithinRange = true;
-        if (m.find()) {
-          minVer = m.group(1);
-          maxVer = m.group(2);
-          // check if current version is within range
-          VersionComparator vc = new VersionComparator();
-          isWithinRange = isWithinRange && (StringUtils.isBlank(minVer) || vc.compare(Version.version(), minVer) >= 0);
-          isWithinRange = isWithinRange && (StringUtils.isBlank(maxVer) || vc.compare(Version.version(), maxVer) <= 0);
-        }
-        if (isWithinRange) {
-          toDownload.add(new UpdatePackage(kv.getValue(), propName, desc, minVer, maxVer));
-        } else {
-          log.debug("Update package '{}' is out of version range, cur ver '{}'", propName, Version.version());
-        }
-      }
-    }
-    if (toDownload.isEmpty()) {
-      log.debug("No update packages to download");
-    } else {
-      log.debug("Need to download update packages:\n\t{}", Seq.seq(toDownload).toString("\n\t"));
-    }
-    return toDownload;
-  }
 
   @Subscribe
   public void on(SubscriberExceptionEvent m) {

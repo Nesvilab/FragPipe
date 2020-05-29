@@ -1,12 +1,13 @@
 package com.dmtavt.fragpipe.messages;
 
+import com.dmtavt.fragpipe.api.UpdatePackage;
 import java.util.List;
 
 public class MessageUpdatePackagesAvailable {
 
-  final List<String> toDownload;
+  final List<UpdatePackage> updates;
 
-  public MessageUpdatePackagesAvailable(List<String> toDownload) {
-    this.toDownload = toDownload;
+  public MessageUpdatePackagesAvailable(List<UpdatePackage> updates) {
+    this.updates = updates;
   }
 }

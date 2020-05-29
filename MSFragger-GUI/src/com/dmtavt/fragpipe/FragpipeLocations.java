@@ -124,6 +124,15 @@ public class FragpipeLocations {
     return getJarPath().getParent().getParent();
   }
 
+  public Path getOrMakeInAppDir(String dir) {
+    Path path = getDirApp().resolve(dir);
+    try {
+      return PathUtils.createDirs(path);
+    } catch (IOException e) {
+      throw new IllegalStateException("Couldn't create sub directory " + dir + " inside FragPipe folder.");
+    }
+  }
+
   public Path getDirWorkflows() {
     return workflows;
   }
