@@ -286,9 +286,9 @@ public final class PropertiesUtils {
         final StringBuilder sb = new StringBuilder();
         final AtomicBoolean isSuccess = new AtomicBoolean(false);
         obs.subscribe(remoteText -> {
+            isSuccess.set(true);
             log.debug("Got remote text from URI before timeout: {}", uri.toASCIIString());
             sb.append(remoteText);
-            isSuccess.set(true);
         }, throwable -> {
             log.debug("Got exception while fetching URI: " + uri.toASCIIString(), throwable);
         });
@@ -304,7 +304,7 @@ public final class PropertiesUtils {
             log.debug("Error creating properties from remote response", ex);
             return null;
         }
-
+        
     }
     
     public static Properties loadPropertiesRemoteOrLocal(List<URI> uris, Class<?> clazz, String propertiesFile) {
