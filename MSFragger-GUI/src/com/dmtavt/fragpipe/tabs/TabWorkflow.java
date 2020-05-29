@@ -419,8 +419,10 @@ public class TabWorkflow extends JPanelWithEnablement {
   private Map<String, PropsFile> loadWorkflowFiles() {
     try {
       Map<String, PropsFile> files;
-      Map<String, PropsFile> filesLocal = findPropsFiles(FragpipeLocations.get().getDirWorkflows());
-      Map<String, PropsFile> filesStored = findPropsFiles(FragpipeLocations.get().getPathLongTermStorage());
+      Path dirWorkflows = FragpipeLocations.get().getDirWorkflows();
+      Path dirLongTermStorage = FragpipeLocations.get().getPathLongTermStorage();
+      Map<String, PropsFile> filesLocal = findPropsFiles(dirWorkflows);
+      Map<String, PropsFile> filesStored = findPropsFiles(dirLongTermStorage);
       files = filesLocal;
       List<String> diffNames = MapUtils.keysDiffRight(filesLocal, filesStored).collect(Collectors.toList());
       List<PropsFile> diffPropFiles = Seq.seq(filesStored).filter(kv -> diffNames.contains(kv.v1))
@@ -435,7 +437,6 @@ public class TabWorkflow extends JPanelWithEnablement {
         switch (choice) {
           case 0:
 
-            Path dirWorkflows = FragpipeLocations.get().getDirWorkflows();
             for (PropsFile propsFile : diffPropFiles) {
               Path p = dirWorkflows.resolve(propsFile.getPath().getFileName());
               propsFile.setPath(p);

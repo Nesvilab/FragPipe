@@ -416,7 +416,7 @@ public class Fragpipe extends JFrame {
   }
 
   private synchronized void initUi() {
-    log.debug("Start initUi()");
+    log.debug("Start Fragpipe.initUi()");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setTitle(Version.PROGRAM_TITLE + " (v" + Version.version() + ")");
     setLocale(Locale.ROOT);
