@@ -7,6 +7,7 @@ import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.PropsFile;
 import com.dmtavt.fragpipe.api.UiTab;
+import com.dmtavt.fragpipe.api.UpdatePackage;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
@@ -17,6 +18,7 @@ import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
+import com.dmtavt.fragpipe.messages.MessageUpdatePackagesAvailable;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigTips;
 import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
@@ -65,14 +67,20 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -84,6 +92,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
+import kotlin.io.FileTreeWalk;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -92,6 +101,7 @@ import org.greenrobot.eventbus.NoSubscriberEvent;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.cmd.ToolingUtils;
@@ -104,7 +114,6 @@ public class Fragpipe extends JFrame {
 
   public static final String UI_STATE_CACHE_FN = "fragpipe-ui.cache";
   private static final Logger log = LoggerFactory.getLogger(Fragpipe.class);
-  public final Notifications tips = new Notifications();
   public static final Color COLOR_GREEN = new Color(105, 193, 38);
   public static final Color COLOR_GREEN_DARKER = new Color(104, 184, 55);
   public static final Color COLOR_GREEN_DARKEST = new Color(82, 140, 26);
@@ -134,11 +143,19 @@ public class Fragpipe extends JFrame {
     return name.contains(PROP_NOCACHE) ? name : name + "." + PROP_NOCACHE;
   };
 
+  public final Notifications tips = new Notifications();
+  private static final FragpipeUpdater updater;
+
   public JTabbedPane tabs;
   public TextConsole console;
   public JLabel defFont;
   private TabUmpire tabUmpire;
   private boolean dontSaveCacheOnExit;
+
+  static {
+    updater = new FragpipeUpdater();
+    Bus.registerQuietly(updater);
+  }
 
   public Fragpipe() throws HeadlessException {
     init();
@@ -536,6 +553,63 @@ public class Fragpipe extends JFrame {
     if (cmp < 0 || StringUtils.isNotBlank(announcement)) {
       Bus.postSticky(new NoteFragpipeUpdate(remoteVer, m.propsFix.getProperty("fragpipe.download-url"), announcement));
     }
+
+    // check for potential new update packages
+    List<UpdatePackage> toDownload = checkNewUpdatePackages(m.propsFix);
+    if (!toDownload.isEmpty()) {
+      SwingUtils.showConfirmDialogShort("Update packages available")
+      Bus.post(new MessageUpdatePackagesAvailable(toDownload));
+    }
+  }
+
+  private List<UpdatePackage> checkNewUpdatePackages(Properties props) {
+    Map<String, String> updates = Seq.seq(props.stringPropertyNames())
+        .filter(prop -> prop.startsWith("update-package."))
+        .toMap(s -> s, s -> props.getProperty(s));
+
+    List<UpdatePackage> toDownload = new ArrayList<>();
+    for (Entry<String, String> kv : updates.entrySet()) {
+      String propName = kv.getKey();
+      String url = kv.getValue();
+      String[] split = url.split("/");
+      if (split.length < 2) {
+        log.warn("Likely error in remote updates file: " + propName);
+        continue;
+      }
+      String fn = split[split.length - 1];
+      Path dest = FragpipeLocations.get().getDirApp().resolve("updates");
+      Optional<Path> ours = PathUtils
+          .findFilesQuietly(dest, path -> path.getFileName().toString().equals(fn)).findAny();
+      if (ours.isPresent()) {
+        log.debug("We already have file from remote: {}", dest.relativize(ours.get()));
+      } else {
+        String desc = props.getProperty(propName + ".desc", "");
+        Pattern re = Pattern.compile("ver\\[([^,]]+?),([^]]*?)\\]");
+        String minVer = "";
+        String maxVer = "";
+        Matcher m = re.matcher(propName);
+        boolean isWithinRange = true;
+        if (m.find()) {
+          minVer = m.group(1);
+          maxVer = m.group(2);
+          // check if current version is within range
+          VersionComparator vc = new VersionComparator();
+          isWithinRange = isWithinRange && (StringUtils.isBlank(minVer) || vc.compare(Version.version(), minVer) >= 0);
+          isWithinRange = isWithinRange && (StringUtils.isBlank(maxVer) || vc.compare(Version.version(), maxVer) <= 0);
+        }
+        if (isWithinRange) {
+          toDownload.add(new UpdatePackage(kv.getValue(), propName, desc, minVer, maxVer));
+        } else {
+          log.debug("Update package '{}' is out of version range, cur ver '{}'", propName, Version.version());
+        }
+      }
+    }
+    if (toDownload.isEmpty()) {
+      log.debug("No update packages to download");
+    } else {
+      log.debug("Need to download update packages:\n\t{}", Seq.seq(toDownload).toString("\n\t"));
+    }
+    return toDownload;
   }
 
   @Subscribe
