@@ -1,4 +1,4 @@
-# Loaded from: C:\Users\dpolasky\AppData\Local\Temp\fragpipe\workflows\Defaults-NGlyco-Hybrid.workflow
+# Workflow: glyco-N-Hybrid
 
 crystalc.correct_isotope_error=false
 crystalc.isotope_number=3
@@ -12,7 +12,6 @@ freequant.rt-tol=0.4
 freequant.run-freequant=true
 ionquant.imtol=0.05
 ionquant.ionfdr=0.01
-ionquant.ionmobility=0
 ionquant.label=
 ionquant.mbr=0
 ionquant.mbrimtol=0.05
@@ -117,7 +116,7 @@ ptmshepherd.precursor_tol=0.01
 ptmshepherd.run-shepherd=false
 ptmshepherd.varmod_masses=Failed_Carbamidomethylation\:-57.021464
 quantitation.run-label-free-quant=false
-speclibgen.easypqp.data-type=timsTOF
+speclibgen.easypqp.extras.rt_lowess_fraction=0.05
 speclibgen.easypqp.rt-cal=noiRT
 speclibgen.easypqp.select-file.text=
 speclibgen.run-speclibgen=false
@@ -151,5 +150,7 @@ tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 workflow.description=<p style\="margin-top\: 0"> For hybrid activation (EThcD, etc) search of enriched N-glycopeptides </p>
+workflow.input.data-type.im-ms=false
+workflow.input.data-type.regular-ms=true
 workflow.process-exps-separately=false
-workflow.workflow-option=Defaults-NGlyco-HCD
+workflow.workflow-option=glyco-N-Hybrid

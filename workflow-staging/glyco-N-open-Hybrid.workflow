@@ -1,4 +1,4 @@
-# Workflow: glyco-open-Hybrid
+# Workflow: glyco-N-open-Hybrid
 
 crystalc.correct_isotope_error=false
 crystalc.isotope_number=3
@@ -51,7 +51,7 @@ msfragger.isotope_error=0
 msfragger.labile_search_mode=nglycan
 msfragger.localize_delta_mass=true
 msfragger.mass_diff_to_variable_mod=0
-msfragger.mass_offsets=
+msfragger.mass_offsets=0
 msfragger.max_fragment_charge=2
 msfragger.max_variable_mods_combinations=5000
 msfragger.max_variable_mods_per_peptide=3
@@ -116,6 +116,7 @@ ptmshepherd.precursor_tol=0.01
 ptmshepherd.run-shepherd=true
 ptmshepherd.varmod_masses=Failed_Carbamidomethylation\:-57.021464
 quantitation.run-label-free-quant=false
+speclibgen.easypqp.extras.rt_lowess_fraction=0.05
 speclibgen.easypqp.rt-cal=noiRT
 speclibgen.easypqp.select-file.text=
 speclibgen.run-speclibgen=false
@@ -152,4 +153,4 @@ workflow.description=<p style\="margin-top\: 0"> For hybrid activation open sear
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.process-exps-separately=false
-workflow.workflow-option=glyco-open-HCD
+workflow.workflow-option=glyco-N-open-Hybrid
