@@ -176,7 +176,7 @@ public class SpecLibGen2 {
 
   private void validateAssets() throws ValidationException {
     try {
-      List<Path> paths = FragpipeLocations.createToolsPaths(Seq.of(RESOURCE_LOCATIONS)
+      List<Path> paths = FragpipeLocations.tryLocateTools(Seq.of(RESOURCE_LOCATIONS)
           .map(loc -> loc.startsWith("/") ? loc.substring(1) : loc)); // just in case, for old style paths used in this class
       final String scriptSpeclibgenFn = Paths.get(SCRIPT_SPEC_LIB_GEN).getFileName().toString();
       Optional<Path> mainScript = paths.stream()

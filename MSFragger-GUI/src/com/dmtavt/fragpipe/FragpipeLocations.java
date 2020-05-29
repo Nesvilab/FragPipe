@@ -8,13 +8,14 @@ import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
-import java.awt.Component;
+import com.github.chhh.utils.VersionComparator;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -220,65 +221,56 @@ public class FragpipeLocations {
     return isGlobal ? CacheUtils.getTempFile(FN_CACHE_UI) : get().cache.resolve(FN_CACHE_UI);
   }
 
+  private static Path tryLocateAsset(Path path) {
+    return PathUtils.existing(path);
+  }
 
-  public static List<Path> createToolsPaths(Stream<String> assets)
+  private static Path tryLocateBestAlternative(Path path) {
+    String fn = path.getFileName().toString();
+    String lessExt = StringUtils.upToLastDot(fn);
+    Pattern re = Pattern.compile("(.+?)(\\d+[.\\d-]*)$");
+    Matcher m = re.matcher(lessExt);
+    if (!m.matches()) {
+      // this doesn't look like a versioned file name
+      return null;
+    }
+    final String fnBaseLo = m.group(1).toLowerCase();
+    try {
+      final Path dirTools = FragpipeLocations.get().getDirTools();
+      List<Path> matching = Files.walk(dirTools)
+          .filter(f -> f.getFileName().toString().toLowerCase().startsWith(fnBaseLo)
+              && Files.isRegularFile(f))
+          .collect(Collectors.toList());
+      if (matching.isEmpty())
+        return null;
+      final VersionComparator vc = new VersionComparator();
+      matching.sort((o2, o1) -> vc.compare(o1.getFileName().toString(), o2.getFileName().toString()));
+      return matching.get(0);
+    } catch (IOException e) {
+      log.warn("Something happened while searching for tool replacements with different version", e);
+      return null;
+    }
+  }
+
+  public static List<Path> tryLocateTools(Stream<String> assets)
       throws MissingAssetsException {
     final Path dirTools = FragpipeLocations.get().getDirTools();
     List<Path> toCheck = assets.map(dirTools::resolve).collect(Collectors.toList());
-    log.debug("Checking if the following assets exist:\n\t{}", String.join("\n\t", Seq.seq(toCheck).map(Path::toString).toList()));
-    List<Path> existing = new ArrayList<>();
-    List<Path> notExisting = new ArrayList<>();
+    List<Path> found = new ArrayList<>();
+
     for (Path path : toCheck) {
-      if (Files.exists(path)) {
-        existing.add(path);
+      Path located = tryLocateBestAlternative(path);
+      if (located == null) {
+        located = tryLocateAsset(path);
       } else {
-        notExisting.add(path);
+        log.debug("Located better alternative: {} -> {}", path, located);
       }
-    }
-    List<Path> missing = new ArrayList<>();
-    if (!notExisting.isEmpty()) {
-      log.warn("Missing assets: {}", notExisting.stream().map(p -> dirTools.relativize(p).toString()).collect(Collectors.joining(", ")));
-      // check if we have an asset with a different version maybe?
-      for (Path pathNotExisting : notExisting) {
-        log.warn("Looking for substitutes for: {}", pathNotExisting);
-        String fn = pathNotExisting.getFileName().toString();
-        String lessExt = StringUtils.upToLastDot(fn);
-        Pattern re = Pattern.compile("(.+?)[\\d.]+$");
-        Matcher m = re.matcher(lessExt);
-        if (m.matches()) {
-          // this asset has something that looks like a version number at the end
-          // try finding a matching one
-          final String fnBase = m.group(1).toLowerCase();
-          log.warn("Looking for files named: {}*", fnBase);
-          try {
-            List<Path> matching = Files.walk(dirTools)
-                .filter(f -> f.getFileName().toString().toLowerCase().startsWith(fnBase) && Files
-                    .isRegularFile(f))
-                .collect(Collectors.toList());
-            if (matching.size() == 1) {
-              existing.add(matching.get(0));
-              log.warn("Found substitute for a missing asset [{}]:\n\t{}", pathNotExisting, matching.get(0));
-            } else {
-              missing.add(pathNotExisting);
-              if (matching.size() > 1) {
-                log.error("Multiple assets match the naming of a missing one [{}]:\n\t{}",
-                    pathNotExisting, Seq.seq(matching).map(Path::toString).toString("\n\t"));
-              } else if (matching.isEmpty()) {
-                log.error("No matching assets found for a missing one [{}]", pathNotExisting);
-              }
-            }
-          } catch (IOException e) {
-            log.warn("Something happened while searching for tool replacements with different version", e);
-          }
-        }
+      if (located == null) {
+        throw new MissingAssetsException(Collections.singletonList(path));
       }
+      found.add(located);
     }
-
-
-    if (!missing.isEmpty()) {
-      throw new MissingAssetsException(missing);
-    }
-    return existing;
+    return found;
   }
 
   /**
@@ -290,27 +282,10 @@ public class FragpipeLocations {
    */
   public static List<Path> checkToolsMissing(Stream<String> assets) {
     try {
-      return createToolsPaths(assets);
+      return tryLocateTools(assets);
     } catch (MissingAssetsException e) {
       String fileList = Seq.seq(e.getNotExisting()).map(Path::toString).toString("\n");
       log.error("Missing assets: {}", fileList);
-      SwingUtils.showErrorDialog(null, "Missing assets:\n"+ fileList, "Missing assets");
-    }
-    return null;
-  }
-
-  /**
-   * Checks if an asset is missing and shows an error dialog saying which are. Otherwise shows UI
-   * with error and returns false.
-   *
-   * @param asset           Location relative to tools/ subdir.
-   * @return null if asset is missing and error message was show.
-   */
-  public static Path checkToolMissing(String asset) {
-    try {
-      return createToolsPaths(Stream.of(asset)).get(0);
-    } catch (MissingAssetsException e) {
-      String fileList = Seq.seq(e.getNotExisting()).map(Path::toString).toString("\n");
       SwingUtils.showErrorDialog(null, "Missing assets:\n"+ fileList, "Missing assets");
     }
     return null;

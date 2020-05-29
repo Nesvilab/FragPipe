@@ -147,7 +147,7 @@ public class DbSplit2 {
 
   private void validateAssets() throws ValidationException {
     try {
-      List<Path> paths = FragpipeLocations.createToolsPaths(Seq.of(RESOURCE_LOCATIONS)
+      List<Path> paths = FragpipeLocations.tryLocateTools(Seq.of(RESOURCE_LOCATIONS)
           .map(loc -> loc.startsWith("/") ? loc.substring(1) : loc));
       final String scriptDbsplitFn = Paths.get(DBSPLIT_SCRIPT_NAME).getFileName().toString();
       Optional<Path> mainScript = paths.stream()

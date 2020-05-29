@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
@@ -91,10 +92,12 @@ public class CmdUmpireSe extends CmdBase {
       return false;
     }
 
-    Path jarUmpireSe = FragpipeLocations.checkToolMissing(UmpireParams.JAR_UMPIRESE_NAME);
-    if (jarUmpireSe == null) {
+    List<Path> paths = FragpipeLocations
+        .checkToolsMissing(Stream.of(UmpireParams.JAR_UMPIRESE_NAME));
+    if (paths == null || paths.isEmpty()) {
       return false;
     }
+    Path jarUmpireSe = paths.get(0);
 
     // write umpire params file
     final DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
