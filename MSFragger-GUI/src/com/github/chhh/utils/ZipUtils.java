@@ -1,12 +1,18 @@
 package com.github.chhh.utils;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,5 +53,42 @@ public class ZipUtils {
     }
 
     return destFile;
+  }
+
+  public static void unzipWithSubfolders(Path zipPath, Path destDir) throws IOException {
+    ZipFile zip = new ZipFile(zipPath.toFile());
+    FileSystem fileSystem = FileSystems.getDefault();
+    Enumeration<? extends ZipEntry> entries = zip.entries();
+    byte[] buffer = new byte[8192];
+    ZipInputStream zis = new ZipInputStream(new FileInputStream(zipPath.toFile()));
+
+    //Iterate over entries
+    while (entries.hasMoreElements())
+    {
+      ZipEntry zipEntry = entries.nextElement();
+
+      if (zipEntry.isDirectory()) {
+        // If directory then create a new directory in uncompressed folder
+        Path unzippedDir = destDir.resolve(zipEntry.getName());
+        if (!unzippedDir.normalize().startsWith(destDir)) {
+          throw new IOException("Entry is outside of target dir: " + zipEntry.getName());
+        }
+        log.debug("Possibly creating unzipped direcotry: {}", unzippedDir);
+        PathUtils.createDirs(unzippedDir);
+
+      } else {
+        // Else create the file
+        File newFile = newFile(destDir.toFile(), zipEntry);
+        log.debug("Writing unzipped file: {}", newFile);
+        try (FileOutputStream fos = new FileOutputStream(newFile)) {
+          try (BufferedInputStream bis = new BufferedInputStream(zip.getInputStream(zipEntry))) {
+            int read;
+            while ((read = bis.read(buffer)) > 0) {
+              fos.write(buffer, 0, read);
+            }
+          }
+        }
+      }
+    }
   }
 }

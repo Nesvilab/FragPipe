@@ -82,7 +82,7 @@ public class FragpipeUpdater {
 
   public static void unzipToRootDir(Path zip) throws IOException {
     Path unzipTo = FragpipeLocations.get().getDirFragpipeRoot();
-    ZipUtils.unzip(zip, unzipTo);
+    ZipUtils.unzipWithSubfolders(zip, unzipTo);
   }
 
   /**
