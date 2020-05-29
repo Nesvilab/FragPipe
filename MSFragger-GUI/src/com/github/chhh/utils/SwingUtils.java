@@ -29,6 +29,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Dialog;
+import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
@@ -994,10 +995,18 @@ public class SwingUtils {
     // make the dialog resizable
     component.addHierarchyListener(e -> {
       Window window = SwingUtilities.getWindowAncestor(component);
-      if (window instanceof java.awt.Dialog) {
-        Dialog dialog = (Dialog) window;
-        if (!dialog.isResizable()) {
-          dialog.setResizable(true);
+      if (window != null) {
+        Fragpipe.decorateFrame(window);
+        window.setAlwaysOnTop(true);
+        if (window instanceof java.awt.Dialog) {
+          Dialog dialog = (Dialog) window;
+          if (!dialog.isResizable()) {
+            dialog.setResizable(true);
+          }
+          if (!dialog.isModal()) {
+            dialog.setModal(true);
+            dialog.setModalityType(ModalityType.APPLICATION_MODAL);
+          }
         }
       }
     });
