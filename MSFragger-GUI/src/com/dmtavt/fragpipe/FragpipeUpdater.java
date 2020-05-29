@@ -5,11 +5,14 @@ import com.dmtavt.fragpipe.api.DownloadProgress;
 import com.dmtavt.fragpipe.api.UpdatePackage;
 import com.dmtavt.fragpipe.messages.MessageDlProgress;
 import com.dmtavt.fragpipe.messages.MessageUpdatePackagesDownload;
+import com.dmtavt.fragpipe.messages.MessageUpdateWorkflows;
 import com.github.chhh.utils.Holder;
+import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.VersionComparator;
+import com.github.chhh.utils.ZipUtils;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiUtils;
@@ -53,20 +56,39 @@ public class FragpipeUpdater {
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
   public void on(MessageUpdatePackagesDownload m) {
-    for (UpdatePackage update : m.updates) {
-      try {
-        Path path = downloadToUpdates(update.downloadUrl);
-        log.debug("Download complete to: {}", path);
-      } catch (IOException e) {
-        log.warn("Something happened with download: {}", update.downloadUrl);
+    try {
+      for (UpdatePackage update : m.updates) {
+        try {
+          Path download = downloadToUpdatesDir(update.downloadUrl);
+          if (download == null) {
+            log.warn("Download did not complete: {}", update.downloadUrl);
+            return;
+          }
+          log.debug("Download complete to: {}", download);
+
+          if (download.getFileName().toString().toLowerCase().endsWith(".zip")) {
+            log.debug("Update is zipped, unpacking: {}", download);
+            unzipToRootDir(download);
+          }
+
+        } catch (IOException e) {
+          log.warn("Something happened with download: {}", update.downloadUrl);
+        }
       }
+    } finally {
+      Bus.post(new MessageUpdateWorkflows()); // in case any workflows were overwritten or new ones created
     }
+  }
+
+  public static void unzipToRootDir(Path zip) throws IOException {
+    Path unzipTo = FragpipeLocations.get().getDirFragpipeRoot();
+    ZipUtils.unzip(zip, unzipTo);
   }
 
   /**
    * @return Path of the downloaded file
    */
-  private static Path downloadToUpdates(String link) throws IOException {
+  private static Path downloadToUpdatesDir(String link) throws IOException {
     Path dlDir = FragpipeLocations.get().getOrMakeDirInRoot("updates");
     String fn = Seq.of(link.split("/")).findLast().orElseThrow(
         () -> new IllegalStateException("Could not get the last part of download URL"));
