@@ -579,9 +579,11 @@ public class Fragpipe extends JFrame {
         + "Components and Downstream tools:"
         + "<ul>"
         + "<li><a href='https://philosopher.nesvilab.org/'>Philosopher</a>: Felipe Leprevost</li>"
-        + "<li>PTM-Shepherd: Andy Kong</li>"
+        + "<li>PTM-Shepherd: Andy Kong, Daniel Geiszler</li>"
         + "<li>Crystal-C: Hui-Yin Chang</li>"
         + "<li>Spectral library generation: Guo-Ci Teo</li>"
+        + "<li>Websites and tutorials: Sarah Haynes</li>"
+        + "<li>MSFragger Glyco extension: Daniel Polasky</li>"
         + "<li><a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou</li>"
         + "</ul>";
   }
