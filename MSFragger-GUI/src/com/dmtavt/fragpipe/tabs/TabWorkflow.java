@@ -743,15 +743,20 @@ public class TabWorkflow extends JPanelWithEnablement {
       }
     }
 
-    Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps)).filter(kv -> {
-      String k = kv.v1().toLowerCase();
-      if (k.startsWith(TabConfig.TAB_PREFIX)) { // nothing from tab config goes into a workflow
-        return false;
-      }
-      return !k.contains("workdir") && !k.contains("db-path") // no workdir or fasta file
-          && !k.endsWith(".ram") && !k.endsWith(".threads")   // no ram and threads from Wrokflow tab
-          && !k.contains(Fragpipe.PROP_NOCACHE);
-    }).toMap(kv -> kv.v1, kv -> kv.v2);
+    Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps))
+        .filter(kv -> {
+          String k = kv.v1().toLowerCase();
+          if (k.startsWith(TabConfig.TAB_PREFIX)) { // nothing from tab config goes into a workflow
+            return false;
+          }
+          if (k.contains("workflow-option")) {
+            return true;
+          }
+          return !k.contains("workdir") && !k.contains("db-path") // no workdir or fasta file
+              && !k.endsWith(".ram") && !k.endsWith(".threads") // no ram and threads from Wrokflow tab
+              && !k.contains(Fragpipe.PROP_NOCACHE);
+
+        }).toMap(kv -> kv.v1, kv -> kv.v2);
 
     String desc = SwingUtils.tryExtractHtmlBody(ep.getText());
     if (StringUtils.isNotBlank(desc)) {

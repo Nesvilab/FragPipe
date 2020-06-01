@@ -153,3 +153,4 @@ workflow.description=<p style\="margin-top\: 0"> Factory settings for FragPipe 1
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.process-exps-separately=false
+workflow.saved-with-ver=13.0-RC7
