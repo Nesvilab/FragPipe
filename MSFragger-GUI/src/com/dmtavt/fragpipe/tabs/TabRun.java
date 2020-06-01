@@ -154,7 +154,7 @@ public class TabRun extends JPanelWithEnablement {
   }
 
   private JPanel createPanelTop(TextConsole console) {
-    JButton btnSaveAsWorkflow = UiUtils.createButton("Save current settings as Workflow",
+    JButton btnSaveAsWorkflow = UiUtils.createButton("Save current settings as a workflow",
             e -> Bus.post(new MessageSaveAsWorkflow(true)));
     JButton btnAbout = UiUtils.createButton("About", e -> Bus.post(new MessageShowAboutDialog()));
     uiTextWorkdir = UiUtils.uiTextBuilder().cols(30).create();
@@ -224,7 +224,7 @@ public class TabRun extends JPanelWithEnablement {
           console.setVisible(true);
         });
 
-    JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
+    JPanel p = mu.newPanel(null, true);
     mu.add(p, btnSaveAsWorkflow).split().spanX();
     mu.add(p, btnAbout).wrap();
     mu.add(p, feWorkdir.label(), false).split().spanX();

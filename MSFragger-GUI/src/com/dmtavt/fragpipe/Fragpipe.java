@@ -152,14 +152,6 @@ public class Fragpipe extends JFrame {
     initMore();
   }
 
-  private Fragpipe(boolean isDummy) throws HeadlessException {
-    initUi();
-  }
-
-  public static Fragpipe createDummy() {
-    return new Fragpipe(true);
-  }
-
   private void init() {
     log.debug("Start init()");
     addWindowListener(new WindowAdapter() {

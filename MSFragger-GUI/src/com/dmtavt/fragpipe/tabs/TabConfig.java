@@ -11,7 +11,9 @@ import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageBalloon;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
+import com.dmtavt.fragpipe.messages.MessageDbNewPath;
 import com.dmtavt.fragpipe.messages.MessageFindSystemPython;
+import com.dmtavt.fragpipe.messages.MessageLcmsAddFolder;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerNewBin;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessagePhiDlProgress;
@@ -173,9 +175,12 @@ public class TabConfig extends JPanelWithEnablement {
     mu.add(p, btnOpenCacheInExplorer);
     mu.add(p, UiUtils.createButton("Clear Cache and Close", e -> Bus.post(new MessageClearCache(true))));
 
-    if (com.dmtavt.fragpipe.Version.isDevBuild()) {
+    if (com.dmtavt.fragpipe.Version.isDevBuild() || log.isDebugEnabled()) {
       mu.add(p, UiUtils.createButton("Debug button", e -> {
-
+        Bus.post(new MessageMsfraggerNewBin("C:\\Users\\chhh\\lib\\msfragger\\MSFragger-2.4\\MSFragger-2.4.jar"));
+        Bus.post(new MessagePhilosopherNewBin("C:\\Users\\chhh\\lib\\philosopher\\philosopher_v3.2.3_windows_amd64\\philosopher.exe"));
+        Bus.post(new MessageDbNewPath("D:\\ms-data\\fasta\\2019-09-26-td-RefSeq.20180629_Human_ucsc_hg38_cpdbnr_mito_264contams.fasta"));
+        Bus.post(new MessageLcmsAddFolder(Seq.of("D:\\ms-data\\TMTIntegrator_v1.1.4\\TMT-I-Test\\tmti-test-data_5-min-cuts").map(Paths::get).toList()));
 //        log.debug("Debugging python environment vars");
 //        NoteConfigPython configPython = Fragpipe.getStickyStrict(NoteConfigPython.class);
 //        PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(configPython.pi.getCommand(), new HashMap<>());

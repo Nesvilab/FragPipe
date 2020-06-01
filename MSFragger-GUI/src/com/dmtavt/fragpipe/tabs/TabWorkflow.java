@@ -131,7 +131,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private Map<String, PropsFile> workflows;
   private UiCombo uiComboWorkflows;
   public static final String PROP_WORKFLOW_DESC = "workflow.description";
-  private static final String DEFAULT_WORKFLOW = "Defaults";
+  public static final String PROP_WORKFLOW_SAVED_WITH_VER = "workflow.saved-with-ver";
   private HtmlStyledJEditorPane epWorkflowsDesc;
   private UiCheck uiCheckProcessEachExperimentSeparately;
   private UiText uiTextLastAddedLcmsDir;
@@ -430,13 +430,12 @@ public class TabWorkflow extends JPanelWithEnablement {
 
       if (!diffNames.isEmpty()) {
         JLabel message = new JLabel(
-            SwingUtils.makeHtml("Found workflows from previous FragPipe sessions:\n - "+Seq.seq(diffNames).toString("\n - ")));
+            SwingUtils.makeHtml("Found workflows from previous FragPipe sessions:\n - "+Seq.seq(diffNames).sorted().toString("\n - ")));
         final String[] choices = {"Copy", "Ignore", "Delete"};
         int choice = SwingUtils
             .showChoiceDialog(this, "Load workflows?", message, choices, 0);
         switch (choice) {
           case 0:
-
             for (PropsFile propsFile : diffPropFiles) {
               Path p = dirWorkflows.resolve(propsFile.getPath().getFileName());
               propsFile.setPath(p);
@@ -444,8 +443,11 @@ public class TabWorkflow extends JPanelWithEnablement {
             }
             files = findPropsFiles(FragpipeLocations.get().getDirWorkflows());
             break;
+
           case 1:
+          case -1:
             break; // do nothing
+
           case 2:
             if (SwingUtils.showConfirmDialogShort(this, "Sure you want to delete stored workflows?")) {
               for (PropsFile diffPropFile : diffPropFiles) {
@@ -454,7 +456,7 @@ public class TabWorkflow extends JPanelWithEnablement {
             }
             break;
           default:
-            throw new IllegalStateException("Unknown option, probably forgot to add code branch for a newly added option");
+            throw new IllegalStateException("Unknown option [" + choice + "], probably forgot to add code branch for a newly added option");
         }
       }
       return files;
@@ -467,11 +469,12 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JPanel createPanelWorkflows() {
     JPanel p = mu.newPanel("Workflows", true);
 
+    final String link = Fragpipe.propsFix().getProperty("fragpipe.workflow-tutorial.url", "https://msfragger.nesvilab.org/tutorial_fragpipe.html");
     epWorkflowsInfo = SwingUtils.createClickableHtml(true,
-        "FragPipe and its collection of tools support multiple proteomic workflows.\n"
+        String.format("FragPipe and its collection of tools support multiple proteomic workflows.\n"
             + "Select an option in the dropdown menu below to configure "
             + "all the tools. You can tweak the options yourself after loading.\n"
-            + "Also, <a href=\"https://google.com\">see the tutorial</a>");
+            + "Also, <a href=\"%s\">see the tutorial</a>", link));
 
     workflows = loadWorkflowFiles();
     List<String> names = createNamesForWorkflowsCombo(workflows);
@@ -480,23 +483,15 @@ public class TabWorkflow extends JPanelWithEnablement {
     epWorkflowsDesc.setPreferredSize(new Dimension(400, 50));
     uiComboWorkflows.addItemListener(e -> {
       String name = (String) uiComboWorkflows.getSelectedItem();
-      if (DEFAULT_WORKFLOW.equalsIgnoreCase(name)) {
-        // special case, loading defaults
-        epWorkflowsDesc.setText("Load defaults as in a new installation of FragPipe");
-      }
-
       PropsFile propsFile = workflows.get(name);
       if (propsFile != null) {
         epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
       } else {
-        if (!DEFAULT_WORKFLOW.equalsIgnoreCase(name)) {
-          throw new IllegalStateException("Workflows map is not synchronized with the dropdown");
-        }
+        SwingUtils.showErrorDialog(this, "Couldn't find file: " + name, "No workflow file");
       }
-
     });
     JButton btnWorkflowLoad = UiUtils.createButton("Load", this::actionLoadSelectedWorkflow);
-    FormEntry feComboWorkflow = fe(uiComboWorkflows, "workflow-option" )
+    FormEntry feComboWorkflow = Fragpipe.feNoCache(uiComboWorkflows, "workflow-option")
         .label("Select an option to load config for:")
         .tooltip("This is purely for convenience of loading appropriate defaults\n"
             + "for various standard workflows.\n"
@@ -680,14 +675,6 @@ public class TabWorkflow extends JPanelWithEnablement {
   public void on(MessageSaveAsWorkflow m) {
     Fragpipe fp = Fragpipe.getStickyStrict(Fragpipe.class);
     Properties uiProps = FragpipeCacheUtils.tabsSave0(fp.tabs, m.saveWithFieldTypes);
-    Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps)).filter(kv -> {
-      String k = kv.v1().toLowerCase();
-      if (k.startsWith(TabConfig.TAB_PREFIX)) { // nothing from tab config goes into a workflow
-        return false;
-      }
-      return !k.contains("workdir") && !k.contains("db-path") // no workdir or fasta file
-      && !k.endsWith(".ram") && !k.endsWith(".threads"); // no ram and threads from Wrokflow tab
-    }).toMap(kv -> kv.v1, kv -> kv.v2);
 
     Path saveDir;
     if (!m.toCustomDir) {
@@ -715,8 +702,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     MigUtils mu = MigUtils.get();
     final JPanel p = mu.newPanel(null, true);
-    String newName = DEFAULT_WORKFLOW.equals(curName) ? curName + "-" : curName;
-    UiText uiTextName = UiUtils.uiTextBuilder().cols(20).ghost("Name is required").text(newName).create();
+    UiText uiTextName = UiUtils.uiTextBuilder().cols(20).ghost("Name is required").text(curName).create();
     uiTextName.setName("file-name");
     final HtmlStyledJEditorPane ep = new HtmlStyledJEditorPane();
     ep.setBackground(Color.WHITE);
@@ -729,22 +715,16 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, new JLabel("Description (optional)")).wrap();
     mu.add(p, ep).spanX().wrap();
 
-    int answer = SwingUtils
-        .showConfirmDialog(fp, p, "Assign workflow name");
+    int answer = SwingUtils.showConfirmDialog(fp, p, "Assign workflow name");
     if (JOptionPane.OK_OPTION != answer) {
       return;
     }
     String text = uiTextName.getNonGhostText().trim();
     if (StringUtils.isBlank(text)) {
-      SwingUtils
-          .showErrorDialog(fp, "Workflow name can't be left empty", "Error saving workflow");
+      SwingUtils.showErrorDialog(fp, "Workflow name can't be left empty", "Error saving workflow");
       return;
     }
-    if (DEFAULT_WORKFLOW.equalsIgnoreCase(text)) {
-      SwingUtils
-          .showErrorDialog(fp, DEFAULT_WORKFLOW + " is a reserved name, not allowed", "Error saving workflow");
-      return;
-    }
+
     text = StringUtils.appendOnce(text, ".workflow");
     Path savePath;
     try {
@@ -762,10 +742,22 @@ public class TabWorkflow extends JPanelWithEnablement {
         return;
       }
     }
+
+    Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps)).filter(kv -> {
+      String k = kv.v1().toLowerCase();
+      if (k.startsWith(TabConfig.TAB_PREFIX)) { // nothing from tab config goes into a workflow
+        return false;
+      }
+      return !k.contains("workdir") && !k.contains("db-path") // no workdir or fasta file
+          && !k.endsWith(".ram") && !k.endsWith(".threads")   // no ram and threads from Wrokflow tab
+          && !k.contains(Fragpipe.PROP_NOCACHE);
+    }).toMap(kv -> kv.v1, kv -> kv.v2);
+
     String desc = SwingUtils.tryExtractHtmlBody(ep.getText());
     if (StringUtils.isNotBlank(desc)) {
       vetted.put(PROP_WORKFLOW_DESC, desc);
     }
+    vetted.put(PROP_WORKFLOW_SAVED_WITH_VER, Version.version());
 
     // save
     FragpipeCacheUtils.saveToFileSorted(PropertiesUtils.from(vetted), savePath,
@@ -778,8 +770,9 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private List<String> createNamesForWorkflowsCombo(Map<String, PropsFile> fileMap) {
-    return Seq.seq(fileMap.keySet()).filter(s -> !DEFAULT_WORKFLOW.equalsIgnoreCase(s)).sorted().prepend(
-        DEFAULT_WORKFLOW).toList();
+    return Seq.seq(fileMap.keySet()).filter(s -> s.toLowerCase().startsWith("default")).sorted()
+        .append(Seq.seq(fileMap.keySet()).filter(s -> !s.toLowerCase().startsWith("default")).sorted())
+    .toList();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
@@ -1136,17 +1129,8 @@ public class TabWorkflow extends JPanelWithEnablement {
       log.debug("Loading workflow/ui state: {}", workflow);
       PropsFile propsFile = workflows.get(workflow);
       if (propsFile == null) {
-        if (!DEFAULT_WORKFLOW.equalsIgnoreCase(workflow)) {
-          throw new IllegalStateException("Workflows map is not synchronized with the dropdown");
-        } else {
-          Fragpipe fp = Fragpipe.createDummy();
-          Properties defaults = FragpipeCacheUtils.tabsSave(fp.tabs);
-          fp.dispose();
-          Bus.post(new MessageLoadUi(defaults));
-          return;
-//          throw new UnsupportedOperationException(
-//              "Not implemented loading defaults from jar without having the defaults file in workflows/ folder");
-        }
+        SwingUtils.showErrorDialog(this, "Couldn't load workflow file: " + workflow, "Workflow loading error");
+        return;
       }
 
       log.debug("Reloading file from disk, in case it has changed: {}", propsFile.getPath());
