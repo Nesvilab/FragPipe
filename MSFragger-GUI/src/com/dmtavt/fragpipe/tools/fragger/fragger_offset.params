@@ -28,7 +28,7 @@ delta_mass_exclude_ranges = (-1.5,3.5)
 fragment_ion_series = b,y
 ion_series_definitions=               # Example: "b* N -17.026548; b0 N -18.010565"
 
-labile_search_mode = standard             # options: "standard", "nglycan", "labile"(default: standard)
+labile_search_mode = off             # options: "off", "nglycan", "labile"(default: standard)
 deltamass_allowed_residues = ST
 diagnostic_intensity_filter = 0.0       # possible values are 0 <= x <= 1
 Y_type_masses = 0/203.07937/406.15874/568.21156/730.26438/892.3172/349.137279
