@@ -9,18 +9,18 @@
 - [Philosopher](https://philosopher.nesvilab.org/)
 - [Crystal-C](https://www.nesvilab.org/Crystal-C/)
 - [PTM-Shepherd](https://github.com/Nesvilab/PTM-Shepherd)
+- [TMT-Integrator](http://tmt-integrator.nesvilab.org/)
+- [IonQuant](http://ionquant.nesvilab.org/)
 
-FragPipe is a Java Graphical User Interface (GUI) for a suite of computational tools enabling comprehensive analysis of mass spectrometry-based proteomics data. It is powered by [MSFragger](https://msfragger.nesvilab.org/) - an ultrafast proteomic search engine suitable for both conventional and "open" (wide precursor mass tolerance) peptide identification. FragPipe also includes the [Philosopher](https://nesvilab.github.io/philosopher/) toolkit for downstream post-processing of MSFragger search results (PeptideProphet, iProphet, ProteinProphet), FDR filtering, label-free quantification, and multi-experiment summary report generation. [Crystal-C](https://www.nesvilab.org/Crystal-C/) and [PTM-Shepherd](https://github.com/Nesvilab/PTM-Shepherd) are included to aid interpretation of open search results. Also included in FragPipe binary are SpectraST-based spectral library building module, and DIA-Umpire SE module for direct analysis of data independent acquisition (DIA) data. 
+FragPipe is a Java Graphical User Interface (GUI) for a suite of computational tools enabling comprehensive analysis of mass spectrometry-based proteomics data. It is powered by [MSFragger](https://msfragger.nesvilab.org/) - an ultrafast proteomic search engine suitable for both conventional and "open" (wide precursor mass tolerance) peptide identification. FragPipe also includes the [Philosopher](https://nesvilab.github.io/philosopher/) toolkit for downstream post-processing of MSFragger search results (PeptideProphet, iProphet, ProteinProphet), FDR filtering, label-based quantification, and multi-experiment summary report generation. [Crystal-C](https://www.nesvilab.org/Crystal-C/) and [PTM-Shepherd](https://github.com/Nesvilab/PTM-Shepherd) are included to aid interpretation of open search results. Also included in FragPipe binary are [TMT-Integrator](http://tmt-integrator.nesvilab.org/), [IonQuant](http://ionquant.nesvilab.org/), SpectraST-based spectral library building module, and DIA-Umpire SE module for direct analysis of data independent acquisition (DIA) data. 
 
 
-### Download
-Find the latest release [here](https://github.com/Nesvilab/FragPipe/releases) & see the tutorials below.
-
+### [Download](https://github.com/Nesvilab/FragPipe/releases)
 
 ### Tutorials
 - [FragPipe setup](https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html)
-- [Basic FragPipe use](https://msfragger.nesvilab.org/tutorial_fragpipe.html)
-- [Using TIMS-TOF PASEF data with FragPipe](https://msfragger.nesvilab.org/tutorial_fragpipe_pasef.html)
+- [Using FragPipe](https://msfragger.nesvilab.org/tutorial_fragpipe.html)
+- [Analyzing glycoproteomics data](https://msfragger.nesvilab.org/tutorial_glyco-fragger.html)
 - [Converting LC/MS data files to mzML](https://msfragger.nesvilab.org/tutorial_convert.html)
 - [Running MSstats on TIMS-TOF data](https://msfragger.nesvilab.org/tutorial_msstats.html)
 - [Importing results from TIMS-TOF data to Skyline](https://msfragger.nesvilab.org/tutorial_pasef_skyline.html)
@@ -40,9 +40,9 @@ and [Philosopher issue tracker](https://github.com/Nesvilab/philosopher/issues).
 For other tools developed by Nesvizhskii lab, visit our website 
 [nesvilab.org](http://www.nesvilab.org)
 
-### Running
+### How to Run
 - **Windows**:
-  - Run the Windows executable (*.exe*)
+  - Run the Windows executable (*.exe*) from the "bin" folder
   - Or start the `FragPipe.bat` from the *.zip* distribution  
   or execute one of the following commands:
   - `start javaw -jar FragPipe-x.x.jar`
@@ -52,8 +52,7 @@ For other tools developed by Nesvizhskii lab, visit our website
   or execute the following command:
   - Or execute `java -jar FragPipe-x.x.jar`
 
-### Citing the work
-Please refer to the following paper:  
+### Cite
 [Andy Kong, Felipe Leprevost, Dmitry Avtonomov, Dattatreya Mellacheruvu, Alexey Nesvizhskii. "MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry-based proteomics". Nat Meth, May 2017. DOI: 10.1038/nmeth.4256](http://dx.doi.org/10.1038/nmeth.4256)
 
 ### Building from scratch
