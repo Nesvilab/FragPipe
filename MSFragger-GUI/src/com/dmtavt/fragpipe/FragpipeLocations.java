@@ -242,6 +242,11 @@ public class FragpipeLocations {
     String fn = path.getFileName().toString();
     String lessExt = StringUtils.upToLastDot(fn);
     Pattern re = Pattern.compile("(.+?)(\\d+[.\\d-]*)$");
+
+    if (path.getFileName().toString().toLowerCase().contains("batmass")) {
+      int a= 1;
+    }
+
     Matcher m = re.matcher(lessExt);
     if (!m.matches()) {
       // this doesn't look like a versioned file name
@@ -251,8 +256,13 @@ public class FragpipeLocations {
     try {
       final Path dirTools = FragpipeLocations.get().getDirTools();
       List<Path> matching = Files.walk(dirTools)
-          .filter(f -> f.getFileName().toString().toLowerCase().startsWith(fnBaseLo)
-              && Files.isRegularFile(f))
+          .filter(f -> {
+            String fnLessExt = StringUtils.upToLastDot(f.getFileName().toString());
+            Matcher ma = re.matcher(fnLessExt);
+            return f.getFileName().toString().toLowerCase().startsWith(fnBaseLo)
+                && ma.matches()
+                && Files.isRegularFile(f);
+          })
           .collect(Collectors.toList());
       if (matching.isEmpty())
         return null;

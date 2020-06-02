@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 public class CmdBrukerLibLoadTest extends CmdBase {
     private static final Logger log = LoggerFactory.getLogger(CmdBrukerLibLoadTest.class);
 
-    public static final String JAR_NAME = "batmass-io-consumer.jar";
+    public static final String JAR_NAME = "batmass-consumer.jar";
     public static final String JAR_MAIN_CLASS = "com.dmtavt.batmass.io.consumer.App";
     private static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR, "ionquant-1.2.0.jar"};
 
