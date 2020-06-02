@@ -181,7 +181,7 @@ public class Fragpipe extends JFrame {
 
   public static String getBinJava() {
     if (OsUtils.isWindows()) {
-      Path dirApp = FragpipeLocations.get().getDirApp();
+      Path dirApp = FragpipeLocations.get().getDirFragpipeRoot();
       Path p = dirApp.resolve("jre/bin/java.exe");
       log.debug("Getting java binary, dirApp [{}], resolved path: {}", dirApp, p);
       Path java = PathUtils.existing(p.toString());

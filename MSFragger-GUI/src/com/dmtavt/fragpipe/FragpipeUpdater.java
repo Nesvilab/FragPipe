@@ -58,6 +58,7 @@ public class FragpipeUpdater {
     try {
       for (UpdatePackage update : m.updates) {
         try {
+          log.debug("Trying to download: {}", update.downloadUrl);
           Path download = downloadToUpdatesDir(update.downloadUrl);
           if (download == null) {
             log.warn("Download did not complete: {}", update.downloadUrl);
@@ -219,7 +220,7 @@ public class FragpipeUpdater {
     if (toDownload.isEmpty()) {
       log.debug("No update packages to download");
     } else {
-      log.debug("Need to download update packages:\n\t{}", Seq.seq(toDownload).toString("\n\t"));
+      log.debug("Need to download update packages:\n\t{}", Seq.seq(toDownload).sorted(u -> u.propertyName).toString("\n\t"));
     }
     return toDownload;
   }

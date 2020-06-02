@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.api;
 
 import com.github.chhh.utils.StringUtils;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 public class UpdatePackage {
   public final String downloadUrl;
@@ -23,5 +24,16 @@ public class UpdatePackage {
 
   public String getDescriptionOrName() {
     return StringUtils.isBlank(description) ? propertyName : description;
+  }
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", UpdatePackage.class.getSimpleName() + "[", "]")
+        .add("propertyName='" + propertyName + "'")
+        .add("downloadUrl='" + downloadUrl + "'")
+        .add("description='" + description + "'")
+        .add("minVersion='" + minVersion + "'")
+        .add("maxVersion='" + maxVersion + "'")
+        .toString();
   }
 }

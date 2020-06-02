@@ -121,11 +121,7 @@ public class FragpipeLocations {
   }
 
   public Path getDirFragpipeRoot() {
-    return getJarPath().getParent();
-  }
-
-  public Path getDirApp() {
-    return getDirFragpipeRoot().getParent();
+    return getJarPath().getParent().getParent();
   }
 
   public Path getOrMakeDirInRoot(String dir) {

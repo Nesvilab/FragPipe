@@ -344,7 +344,7 @@ public class TabConfig extends JPanelWithEnablement {
     FileChooserUtils.setPath(fc, Stream.of(
         uiTextBinFragger.getNonGhostText(),
         Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN),
-        FragpipeLocations.get().getDirApp().toString()));
+        FragpipeLocations.get().getDirFragpipeRoot().toString()));
     return fc;
   }
 
