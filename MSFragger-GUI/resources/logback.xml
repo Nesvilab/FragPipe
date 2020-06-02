@@ -16,6 +16,7 @@
   <logger name="com.dmtavt.fragpipe.FragpipeLoader" level="info" />
 
   <logger name="com.dmtavt.fragpipe.api.Bus" level="info" />
+  <logger name="com.dmtavt.fragpipe.FragpipeUpdater" level="info" />
 
   <root level="info">
 <!--  <root level="debug">-->
