@@ -153,4 +153,4 @@ workflow.description=<p style\="margin-top\: 0"> For hybrid activation (EThcD, e
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.process-exps-separately=false
-workflow.workflow-option=glyco-O-Hybrid
+workflow.saved-with-ver=13.0-RC8

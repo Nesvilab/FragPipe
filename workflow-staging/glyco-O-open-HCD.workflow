@@ -153,4 +153,4 @@ workflow.description=<p style\="margin-top\: 0"> For CID/HCD open search of O-gl
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.process-exps-separately=false
-workflow.workflow-option=glyco-O-open-HCD
+workflow.saved-with-ver=13.0-RC8
