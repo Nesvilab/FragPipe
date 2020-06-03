@@ -7,6 +7,7 @@ import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.dmtavt.fragpipe.messages.MessageLoadQuantDefaults;
 import com.github.chhh.utils.ProcessUtils;
 import com.github.chhh.utils.PropertiesUtils;
+import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -207,6 +208,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     //UiCombo uiComboTimsTOF = UiUtils.createUiCombo(Arrays.asList("Non-timsTOF", "timsTOF"));
     UiCombo uiComboMbr = UiUtils.createUiCombo(Arrays.asList("No", "Yes"));
     UiCombo uiComboRequant = UiUtils.createUiCombo(Arrays.asList("Yes", "No"));
+    UiCombo uiComboProtQuant = UiUtils.createUiCombo(Arrays.asList("Top-N", "MaxLFQ"));
 
     UiCombo uiComboNormalize = UiUtils.createUiCombo(Arrays.asList("Yes", "No"));
     UiCombo uiComboMinIsotopes = UiUtils.createUiCombo(Arrays.asList("1", "2", "3"));
@@ -256,6 +258,7 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     //FormEntry feDataType = mu.feb(uiComboTimsTOF).name("ionquant.ionmobility").label("Data type").create();
     FormEntry feMbr = mu.feb(uiComboMbr).name("ionquant.mbr").label("Match between runs (MBR)").create();
+    FormEntry feProtQuant = mu.feb(uiComboProtQuant).name("ionquant.proteinquant").label("Protein quant").create();
     FormEntry feRequant = mu.feb(uiComboRequant).name("ionquant.requantify").label("Re-quantify").create();
 
     FormEntry feMzTol = mu.feb(uiSpinnerMzTol).name("ionquant.mztol").label("M/Z Window (ppm)").create();
@@ -281,6 +284,19 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes")
         .tooltip("Min number of isotopes for tracing.").create();
 
+    SwingUtils.addItemSelectedListener(uiComboProtQuant, true, itemEvent -> {
+      Object o = itemEvent.getItem();
+      if (o == null)
+        return;
+      if (!(o instanceof String)) {
+        log.warn(
+            "Not a string received in item selection listener of 'ionquant.proteinquant' combo");
+        return;
+      }
+      final boolean enabled = !"MaxLFQ".equalsIgnoreCase((String) itemEvent.getItem());
+      updateEnabledStatus(uiSpinnerTopIons, enabled);
+      updateEnabledStatus(uiSpinnerMinFreq, enabled);
+    });
 
 
     mu.add(p, feRadioIonquant.comp).split().spanX();
@@ -288,6 +304,8 @@ public class QuantPanelLabelfree extends JPanelBase {
 //    mu.add(p, feDataType.comp);
     mu.add(p, feMbr.label(), mu.ccR());
     mu.add(p, feMbr.comp);
+    mu.add(p, feProtQuant.label(), mu.ccR());
+    mu.add(p, feProtQuant.comp);
     mu.add(p, feMinIons.label(), mu.ccR());
     mu.add(p, feMinIons.comp).spanX().wrap();
 

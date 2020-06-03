@@ -88,6 +88,8 @@ ionquant.normalization::Yes <=> 1
 ionquant.minisotopes::1 <=> 1
 ionquant.minisotopes::2 <=> 2
 ionquant.minisotopes::3 <=> 3
+ionquant.proteinquant::Top-N <=> 1
+ionquant.proteinquant::MaxLFQ <=> 2
 
 # ionquant.mztol :: M/Z window (ppm) <=> 10 (1 - 1000, step: 1)
 # ionquant.imtol :: IM window (1/k0) <=> 0.05 (0.001 - 0.5, step: 0.001)

@@ -50,6 +50,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -383,6 +384,17 @@ public class SwingUtils {
           break;
         default:
           throw new IllegalStateException("Unknown state change event: " + e.getStateChange());
+      }
+    });
+  }
+
+  public static void addItemSelectedListener(ItemSelectable selectable, boolean triggerOnInit, Consumer<ItemEvent> handler) {
+    if (triggerOnInit && selectable.getSelectedObjects() != null) {
+      handler.accept(new ItemEvent(selectable, ItemEvent.ITEM_STATE_CHANGED, selectable.getSelectedObjects()[0], ItemEvent.SELECTED));
+    }
+    selectable.addItemListener(e -> {
+      if (ItemEvent.SELECTED == e.getStateChange()) {
+        handler.accept(e);
       }
     });
   }
