@@ -656,7 +656,7 @@ public class TmtiPanel extends JPanelBase {
       if (oldRow != null) {
         newRow.setPath(oldRow.getPath());
       } else {
-        // maybe there already is annotations.txt file?
+        // maybe there already is annotation.txt file?
         List<Path> fileDirs = Seq.seq(e.getValue())
             .map(lcms -> lcms.getPath().getParent()).distinct().toList();
         if (fileDirs.size() == 1) {
@@ -700,8 +700,7 @@ public class TmtiPanel extends JPanelBase {
     return saveDir;
   }
 
-  public void actionBrowse(ActionEvent e)
-  {
+  public void actionBrowse(ActionEvent e) {
     int modelRow = Integer.parseInt( e.getActionCommand() );
     log.debug("Browse action running in TMT, model row number: {}", modelRow);
     final ExpNameToAnnotationFile row = tmtAnnotationTable.fetchModel().dataGet(modelRow);
@@ -731,6 +730,24 @@ public class TmtiPanel extends JPanelBase {
         .findFirst();
 
     exisitngFile.ifPresent(path -> fc.setCurrentDirectory(path.toFile()));
+    if (exisitngFile.isPresent() && Files.isRegularFile(exisitngFile.get())) {
+      fc.setSelectedFile(exisitngFile.get().toFile());
+    }
+
+    // because philosopher only understands one file name
+    // despite having a freaking option to provide path
+    fc.setFileFilter(new javax.swing.filechooser.FileFilter() {
+      @Override
+      public boolean accept(File f) {
+        return Files.isDirectory(f.toPath()) || f.toPath().getFileName().toString().equals("annotation.txt");
+      }
+
+      @Override
+      public String getDescription() {
+        return "Only annotation.txt files are allowed";
+      }
+    });
+
     final int answer = fc.showDialog(TmtiPanel.this.scrollPaneTmtTable, "Select");
     if (JOptionPane.OK_OPTION == answer) {
       File selectedFile = fc.getSelectedFile();
@@ -791,6 +808,7 @@ public class TmtiPanel extends JPanelBase {
 
     Path saveDir = computePlexDir(row.getExpName(), row.lcmsFiles);
     if (saveDir == null) {
+      log.error("computePlexDir returned null");
       return;
     }
 
@@ -824,61 +842,89 @@ public class TmtiPanel extends JPanelBase {
     // select path to save file to
     Path selectedPath = null;
     Path savePath = null;
-    while (selectedPath == null) {
-      JFileChooser fc = new JFileChooser();
-      fc.setDialogTitle("Specify a file to save");
-      String suggestedPath = Stream
-          .of(existingPath != null ? saveDir.resolve(existingPath.getFileName()).toString() : saveDir.toString(),
-              ThisAppProps.load(TmtiPanel.PROP_LAST_ANNOTATION_PATH),
-              ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN))
-          .filter(Objects::nonNull).findFirst().orElse(null);
-      FileChooserUtils.setPath(fc, suggestedPath);
-      fc.setCurrentDirectory(Paths.get(suggestedPath).toFile());
-      int userSelection = fc.showSaveDialog(parent);
-      if (JFileChooser.APPROVE_OPTION == userSelection) {
-        selectedPath = fc.getSelectedFile().toPath();
-//        if (!selectedPath.getParent().equals(saveDir)) {
-//          String msg = "<html>Current implementation requires annotation files to be saved<br/>\n"
-//              + "in the same directory as LCMS files for that plex. Please save the<br/>\n"
-//              + "file in:<br/>\n<br/>\n" + saveDir.toString();
-//          String htmlMsg = SwingUtils.makeHtml(msg);
+
+
+    // hardcoded file
+    selectedPath = saveDir.resolve("annotation.txt");
+
+
+
+    // ask about overwriting
+    if (Files.exists(selectedPath)) {
+      int answer = SwingUtils.showConfirmDialog(parent, new JLabel("<html>Overwrite existing file?<br/><br/>\n"
+          + selectedPath.toString()));
+      if (JOptionPane.OK_OPTION == answer) {
+        try {
+          Files.deleteIfExists(selectedPath);
+          savePath = selectedPath;
+        } catch (IOException ex) {
+          SwingUtils.showErrorDialogWithStacktrace(ex, parent);
+          log.error("Something happened while deleting file", ex);
+        }
+      }
+    } else {
+      savePath = selectedPath;
+      SwingUtils.showInfoDialog(this, "Annotations will be saved to: \n\n" + savePath.toString(), "Saving annotation file");
+    }
+
+
+//    // ask user
 //
-//          SwingUtils.showWarningDialog(this,
-//              htmlMsg,
-//              "Select different location");
-//          selectedPath = null;
+//    while (selectedPath == null) {
+//      JFileChooser fc = new JFileChooser();
+//      fc.setDialogTitle("Specify a file to save");
+//      String suggestedPath = Stream
+//          .of(existingPath != null ? saveDir.resolve(existingPath.getFileName()).toString() : saveDir.toString(),
+//              ThisAppProps.load(TmtiPanel.PROP_LAST_ANNOTATION_PATH),
+//              ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN))
+//          .filter(Objects::nonNull).findFirst().orElse(null);
+//      FileChooserUtils.setPath(fc, suggestedPath);
+//      fc.setCurrentDirectory(Paths.get(suggestedPath).toFile());
+//      int userSelection = fc.showSaveDialog(parent);
+//      if (JFileChooser.APPROVE_OPTION == userSelection) {
+//        selectedPath = fc.getSelectedFile().toPath();
+////        if (!selectedPath.getParent().equals(saveDir)) {
+////          String msg = "<html>Current implementation requires annotation files to be saved<br/>\n"
+////              + "in the same directory as LCMS files for that plex. Please save the<br/>\n"
+////              + "file in:<br/>\n<br/>\n" + saveDir.toString();
+////          String htmlMsg = SwingUtils.makeHtml(msg);
+////
+////          SwingUtils.showWarningDialog(this,
+////              htmlMsg,
+////              "Select different location");
+////          selectedPath = null;
+////          continue;
+////        }
+//        log.debug("User selected to save annotattion in file: {}", selectedPath.toString());
+//      } else {
+//        log.debug("User selected NOT to save annotattion in file");
+//        return; // user chose not to save file
+//      }
+//
+//      // ask about overwriting
+//      if (Files.exists(selectedPath)) {
+//        int answer = SwingUtils.showConfirmDialog(parent, new JLabel("<html>Overwrite existing file?<br/>\n"
+//            + selectedPath.toString()));
+//        if (JOptionPane.NO_OPTION == answer) {
 //          continue;
 //        }
-        log.debug("User selected to save annotattion in file: {}", selectedPath.toString());
-      } else {
-        log.debug("User selected NOT to save annotattion in file");
-        return; // user chose not to save file
-      }
-
-      // ask about overwriting
-      if (Files.exists(selectedPath)) {
-        int answer = SwingUtils.showConfirmDialog(parent, new JLabel("<html>Overwrite existing file?<br/>\n"
-            + selectedPath.toString()));
-        if (JOptionPane.NO_OPTION == answer) {
-          continue;
-        }
-        if (JOptionPane.CANCEL_OPTION == answer) {
-          break;
-        }
-        if (JOptionPane.OK_OPTION == answer) {
-          try {
-            Files.deleteIfExists(selectedPath);
-            savePath = selectedPath;
-          } catch (IOException ex) {
-            SwingUtils.showErrorDialogWithStacktrace(ex, parent);
-            log.warn("Something happened while deleting file", ex);
-          }
-
-        }
-      } else {
-        savePath = selectedPath;
-      }
-    }
+//        if (JOptionPane.CANCEL_OPTION == answer) {
+//          break;
+//        }
+//        if (JOptionPane.OK_OPTION == answer) {
+//          try {
+//            Files.deleteIfExists(selectedPath);
+//            savePath = selectedPath;
+//          } catch (IOException ex) {
+//            SwingUtils.showErrorDialogWithStacktrace(ex, parent);
+//            log.warn("Something happened while deleting file", ex);
+//          }
+//
+//        }
+//      } else {
+//        savePath = selectedPath;
+//      }
+//    }
 
     if (savePath == null) {
       log.debug("User chose not to select or not to overwrite annotation file");

@@ -87,7 +87,7 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
         ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     this.setContentPane(scroll);
 
-    buttonOK = new JButton("OK");
+    buttonOK = new JButton("Save");
     buttonCancel = new JButton("Cancel");
     createTable();
     model.dataClear();
