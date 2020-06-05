@@ -299,7 +299,7 @@ public class Version {
 
   /**
    * To print changelog using just the jar file use:<br/>
-   * <code>java -cp ".\build\libs\FragPipe.jar" com.dmtavt.fragpipe.Version true 2</code>
+   * <code>java -cp ./build/install/fragpipe/lib/* com.dmtavt.fragpipe.Version true 2</code>
    *
    * @param args The 1st param is a boolean whether to print GitHub release info preamble or not.
    *             Use true, to indicate "yes", any other string for "no". The 2nd parameter is an
@@ -346,9 +346,10 @@ public class Version {
           + "- The zip (<a href='" + zipUrl + "'>" + zipFn
           + "</a>) is the same, but doesn't contain Java, you will need Java 1.8+ to run.\n\n"
           + "- The other zip with `jre` in its name (<a href='" + zipUrlWithJre + "'>"
-          + zipFnWithJre + "</a>) contains a Java runtime **for Windows** only**.\n"
+          + zipFnWithJre + "</a>) contains a Java runtime **for Windows only**.\n"
           + "## Running\n"
-          + "Unzip the file, you will find `shell script for Linux`, `bat file for Windows` and an `exe file for Windows` in `/bin` subdirectory.\n"
+          + "- Unzip the file\n"
+          + "- In `/bin` subdirectory you will find a `shell script for Linux`, `bat file for Windows` and an `exe file for Windows`"
           + "### Note to Windows users\n"
           + "Windows 10 might show a UAC prompt, saying that this\n"
           + "is not a trusted program, it's up to you whether to run it or not.\n";
