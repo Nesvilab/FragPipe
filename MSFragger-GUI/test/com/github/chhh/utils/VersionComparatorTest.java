@@ -14,6 +14,13 @@ public class VersionComparatorTest {
   }
 
   @Test
+  public void versionIsGreaterRc() {
+    int compare = vc.compare("13.0-RC11", "13.0-RC2");
+    Assert.assertTrue(compare > 0);
+  }
+
+
+  @Test
   public void versionIsGreater() {
     int compare = vc.compare("9.0", "9.0-RC1");
     Assert.assertTrue(compare > 0);
