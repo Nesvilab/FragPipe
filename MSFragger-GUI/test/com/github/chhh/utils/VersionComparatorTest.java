@@ -14,9 +14,16 @@ public class VersionComparatorTest {
     vc = new VersionComparator();
   }
 
-  @Test @Ignore
-  public void versionIsGreaterRc() {
+
+  @Test
+  public void versionRcTests() {
     int compare = vc.compare("13.0-RC11", "13.0-RC2");
+    Assert.assertTrue(compare > 0);
+
+    compare = vc.compare("13.0-RC11", "13.0.0-RC11");
+    Assert.assertTrue(compare == 0);
+
+    compare = vc.compare("13.0-RC11", "13.0.0-RC2");
     Assert.assertTrue(compare > 0);
   }
 
@@ -35,16 +42,19 @@ public class VersionComparatorTest {
 
   @Test
   public void versionIsSmaller() {
-    int compare = vc.compare("9.0", "9.0.RC1");
+    int compare = vc.compare("8.9", "9.0.RC1");
     Assert.assertTrue(compare < 0);
 
-    compare = vc.compare("9.0", "9.0.b01");
+    compare = vc.compare("8.9.1", "9.0.b01");
     Assert.assertTrue(compare < 0);
   }
 
   @Test
   public void versionsEqual() {
     int compare = vc.compare("9.0", "9.0.0");
+    Assert.assertTrue(compare == 0);
+
+    compare = vc.compare("9.0", "9.0.0.0.0.0.0.0");
     Assert.assertTrue(compare == 0);
   }
 }
