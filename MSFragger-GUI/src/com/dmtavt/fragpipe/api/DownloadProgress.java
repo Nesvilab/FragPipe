@@ -93,7 +93,7 @@ public class DownloadProgress {
 
     //sub = obs.subscribe(m -> {
     sub = obs.sample(100, TimeUnit.MILLISECONDS).subscribe(m -> {
-      log.warn("Finally got message: {}", m);
+      log.debug("Finally got message: {}", m);
       SwingUtilities.invokeLater(() -> {
         if (m.totalSize > 0) {
           String progeressText = String
