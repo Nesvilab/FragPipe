@@ -198,22 +198,23 @@ public class FragpipeUpdater {
         String maxVer = "";
         Matcher m = re.matcher(propName);
         boolean isWithinRange = true;
+        final String curVer = Version.version();
         if (m.find()) {
           minVer = m.group(1);
           maxVer = m.group(2);
           // check if current version is within range
           VersionComparator vc = new VersionComparator();
           if (isWithinRange && !StringUtils.isBlank(minVer)) {
-            isWithinRange = vc.compare(Version.version(), minVer) >= 0;
+            isWithinRange = vc.compare(curVer, minVer) >= 0;
           }
           if (isWithinRange && !StringUtils.isBlank(maxVer)) {
-            isWithinRange = vc.compare(Version.version(), maxVer) <= 0;
+            isWithinRange = vc.compare(curVer, maxVer) <= 0;
           }
         }
         if (isWithinRange) {
           toDownload.add(new UpdatePackage(kv.getValue(), propName, desc, minVer, maxVer));
         } else {
-          log.debug("Update package '{}' is out of version range, cur ver '{}'", propName, Version.version());
+          log.debug("Update package '{}' is out of version range, cur ver '{}'", propName, curVer);
         }
       }
     }
