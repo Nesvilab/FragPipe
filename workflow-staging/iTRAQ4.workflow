@@ -1,4 +1,4 @@
-# Workflow: ITRAQ4
+# Workflow: iTRAQ4
 
 crystalc.correct_isotope_error=false
 crystalc.isotope_number=3
@@ -96,7 +96,7 @@ msfragger.zero_bin_accept_expect=0.00
 msfragger.zero_bin_mult_expect=1.00
 peptide-prophet.cmd-opts=--decoyprobs --ppm --accmass --nonparam --expectscore
 peptide-prophet.combine-pepxml=false
-peptide-prophet.run-peptide-prophet=false
+peptide-prophet.run-peptide-prophet=true
 phi-report.dont-use-prot-proph-file=false
 phi-report.filter=--sequential --razor --picked --prot 0.01
 phi-report.pep-level-summary=false
