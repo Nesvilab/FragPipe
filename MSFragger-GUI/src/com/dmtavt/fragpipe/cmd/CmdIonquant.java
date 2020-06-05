@@ -145,16 +145,22 @@ public class CmdIonquant extends CmdBase {
         "minions"
         );
 
+    final long namedExpCount = mapGroupsToProtxml.keySet().stream().map(group -> group.name)
+        .filter(StringUtils::isNotBlank).distinct().count();
+    final boolean isMultidir = namedExpCount > 0;
+
+
     for (String dynamicParam : dynamicParams) {
       String v = getOrThrow(uiCompsRepresentation,
           StringUtils.prependOnce(dynamicParam, "ionquant."));
       if ("mbr".equalsIgnoreCase(dynamicParam) && "1".equals(v)) {
         // it's mbr
-        if (mapGroupsToProtxml.keySet().stream().map(group -> group.name).distinct().count() < 2) {
+        if (!isMultidir) {
           // it's not multi exp
           JOptionPane.showMessageDialog(comp, SwingUtils.makeHtml(
               "IonQuant with MBR on (match between runs) requires designating  LCMS runs to experiments.\n"
-                  + "See Workflow tab."),
+                  + "See Workflow tab.\n"
+                  + "If in doubt how to resolve this error, just assign all LCMS runs to the same experiment name."),
               NAME + " error", JOptionPane.WARNING_MESSAGE);
           return false;
         }
@@ -172,7 +178,7 @@ public class CmdIonquant extends CmdBase {
       cmd.add(psmTsv.toString());
     }
 
-    if (mapGroupsToProtxml.size() > 1) {
+    if (isMultidir) {
       cmd.add("--multidir");
       cmd.add(wd.toString());
     }
