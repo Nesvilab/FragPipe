@@ -46,6 +46,7 @@ import com.github.chhh.utils.VersionComparator;
  * @author Dmitry Avtonomov
  */
 public class Version {
+
   private static final Logger log = LoggerFactory.getLogger(Version.class);
   public static final String PROGRAM_TITLE = "FragPipe";
   public static final String PROP_ANNOUNCE = "fragpipe.announcements";
@@ -75,7 +76,7 @@ public class Version {
         "IMQuant is now IonQuant"
     ));
     CHANGELOG.put("12.1", Arrays.asList(
-            "IMQuant fixes after initial release."
+        "IMQuant fixes after initial release."
     ));
     CHANGELOG.put("12.0", Arrays.asList(
         "Add IMQuant - quantitation for timsTOF.",
@@ -97,9 +98,10 @@ public class Version {
             + "if the user didn't leave the editing field.",
         "Saving all the FragPipe options before run + buttons to Save/Load configurations.",
         "Fix iProphet command threads and how it's invoked when multi-experiment is enabled."
-        ));
+    ));
 
-    CHANGELOG.put("9.4", Arrays.asList("Fixes to MSFragger Split program for very large databases."));
+    CHANGELOG
+        .put("9.4", Arrays.asList("Fixes to MSFragger Split program for very large databases."));
 
     CHANGELOG.put("9.3", Arrays.asList(
         "Calibrate masses option in MSFragger",
@@ -210,36 +212,36 @@ public class Version {
     CHANGELOG.put("4.7", Arrays.asList(
         "Support new packaging of MSFragger jar with onejar."));
 
-    CHANGELOG.put("4.6",  Arrays.asList(
+    CHANGELOG.put("4.6", Arrays.asList(
         "Fix mixed up order of philosopher calls."
     ));
 
-    CHANGELOG.put("4.5",  Arrays.asList(
+    CHANGELOG.put("4.5", Arrays.asList(
         "Show parsed versions of tools in the UI.",
         "Print detected versions of tools to console before each run."
     ));
 
-    CHANGELOG.put("4.4",  Arrays.asList(
+    CHANGELOG.put("4.4", Arrays.asList(
         "Only run Philosopher workspace --clean/--init once per analysis."
     ));
 
-    CHANGELOG.put("4.3",  Arrays.asList(
+    CHANGELOG.put("4.3", Arrays.asList(
         "Locale dependency fix for MSfragger parameters panel.",
         "Philosopher checks version comparing to GitHub at startup."
     ));
 
-    CHANGELOG.put("4.2",  Arrays.asList(
+    CHANGELOG.put("4.2", Arrays.asList(
         "Fix the issue that Fragger panel constructor could cause IOException and prevent the whole app from loading."
     ));
 
-    CHANGELOG.put("4.1",  Arrays.asList(
+    CHANGELOG.put("4.1", Arrays.asList(
         "Variable mod site definition warning text if cached from older versions.",
         "Java 9 warning for Fragger.",
         "Non-symmetric precursor mass tolerance and detection of \"[*\" for var mods.",
         "Cache fragger params after a dry-run or a real run."
     ));
 
-    CHANGELOG.put("4.0",  Arrays.asList(
+    CHANGELOG.put("4.0", Arrays.asList(
         "Added version check for MSFragger-GUI itself, comparing to GitHub.",
         "Two way sync of decoy/tag prefix used by Peptide Prophet and Philosopher Report.",
         "Fix how msfragger jar is auto-found.",
@@ -300,8 +302,8 @@ public class Version {
    * <code>java -cp ".\build\libs\FragPipe.jar" com.dmtavt.fragpipe.Version true 2</code>
    *
    * @param args The 1st param is a boolean whether to print GitHub release info preamble or not.
-   * Use true, to indicate "yes", any other string for "no". The 2nd parameter is an integer how
-   * many versions back worth of changelog to print.
+   *             Use true, to indicate "yes", any other string for "no". The 2nd parameter is an
+   *             integer how many versions back worth of changelog to print.
    */
   public static void main(String[] args) {
     int maxVersionsToPrint = 0;
@@ -335,31 +337,22 @@ public class Version {
 
     final String version = version();
     if (printGihubPreamble) {
-      final String exeFn = String.format("%s.exe", PROGRAM_TITLE);
-      final String exeUrl = String.format("%s/download/%s/%s", url, version, exeFn);
-      final String jarFn = String.format("%s-%s.jar", PROGRAM_TITLE, version);
-      final String jarUrl = String.format("%s/download/%s/%s", url, version, jarFn);
       final String zipFn = String.format("%s-%s.zip", PROGRAM_TITLE, version);
       final String zipUrl = String.format("%s/download/%s/%s", url, version, zipFn);
+      final String zipFnWithJre = String.format("%s-jre-%s.zip", PROGRAM_TITLE, version);
+      final String zipUrlWithJre = String.format("%s/download/%s/%s", url, version, zipFnWithJre);
       String githubReleaseMessage = "FragPipe v" + version + "\n\n"
-          + "## Windows users\n" +
-          "- Download [" + exeFn + "](" + exeUrl + ") and just run that. Windows 10 might "
-          + "show a UAC prompt, saying that this is not a trusted program, it's up to you whether "
-          + "to run it or not.\n"
-          + "  - If you don't have a compatible Java version, you will be redirected to a website "
-          + "where you can download one.\n"
-          + "- Or download [" + zipFn + "](" + zipUrl + ").\n"
-          + "  - Zip contains `FragPipe.bat` file, which can be started by either clicking or "
-          + "running it from the command line.\n"
-          + "- Or download the [" + jarFn + "](" + jarUrl + ").\n"
-          + "  - You can start the `jar` file with `java -jar " + jarFn + "` or `start javaw -jar "
-          + jarFn + "` if you prefer to not have the console window open.\n"
-          + "If Java is configured to auto-run `.jar` files, double clicking might also work.\n\n\n"
-          + "## Linux/MacOS users\n"
-          + "- Either download [" + zipFn + "](" + zipUrl + "), which contains *FragPipe* shell "
-          + "script to start the program\n"
-          + "- Or download the [" + jarFn + "](" + jarUrl + ") and run "
-          + "with `java -jar " + jarFn + "`.";
+          + "## Downloading\n"
+          + "- The zip (<a href='" + zipUrl + "'>" + zipFn
+          + "</a>) is the same, but doesn't contain Java, you will need Java 1.8+ to run.\n\n"
+          + "- The other zip with `jre` in its name (<a href='" + zipUrlWithJre + "'>"
+          + zipFnWithJre + "</a>) contains a Java runtime **for Windows** only**.\n"
+          + "## Running\n"
+          + "Unzip the file, you will find `shell script for Linux`, `bat file for Windows` and an `exe file for Windows` in `/bin` subdirectory.\n"
+          + "### Note to Windows users\n"
+          + "Windows 10 might show a UAC prompt, saying that this\n"
+          + "is not a trusted program, it's up to you whether to run it or not.\n";
+
       System.out.println(githubReleaseMessage);
       System.out.println();
       System.out.println();
@@ -449,7 +442,8 @@ public class Version {
     String lastVerKey = PROP_LAST_RELEASE_VER;
     if (!props.stringPropertyNames().contains(lastVerKey)) {
       List<String> urls = Arrays.asList(
-          "https://raw.githubusercontent.com/Nesvilab/FragPipe/last-release/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties");
+          "https://raw.githubusercontent.com/Nesvilab/FragPipe/last-release/MSFragger-GUI/src/"
+              + PATH_BUNDLE + ".properties");
       props = PropertiesUtils.initProperties(urls);
       if (props == null) {
         log.debug("Didn't get dev update info");
