@@ -149,7 +149,7 @@ tmtintegrator.run-tmtintegrator=false
 tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
-workflow.description=<p style\="margin-top\: 0"> Factory settings for FragPipe 13.0 </p>
+workflow.description=<p style\="margin-top\: 0"> FrapPipe 13.0 defaults. Closed search, no quantification. </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.process-exps-separately=false
