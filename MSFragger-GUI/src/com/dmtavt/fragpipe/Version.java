@@ -344,8 +344,8 @@ public class Version {
       String githubReleaseMessage = "FragPipe v" + version + "\n\n"
           + "## Downloading\n"
           + "- The zip (<a href='" + zipUrl + "'>" + zipFn
-          + "</a>) is the same, but doesn't contain Java, you will need Java 1.8+ to run.\n\n"
-          + "- The other zip with `jre` in its name (<a href='" + zipUrlWithJre + "'>"
+          + "</a>) doesn't contain Java, you will need Java 1.8+ to run.\n\n"
+          + "- The other zip with `-jre-` in its name (<a href='" + zipUrlWithJre + "'>"
           + zipFnWithJre + "</a>) contains a Java runtime **for Windows only**.\n"
           + "## Running\n"
           + "- Unzip the file\n"
