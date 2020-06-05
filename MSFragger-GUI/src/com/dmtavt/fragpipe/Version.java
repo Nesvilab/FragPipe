@@ -64,7 +64,9 @@ public class Version {
   static {
     CHANGELOG.put("13.0", Arrays.asList(
         "Brand new fragpipe, rebuilt almost from ground up",
-        "TMT-Integrator included"
+        "TMT-Integrator, PTM-Shepherd, IonQuant included",
+        "Spectral library generation with EasyPQP",
+        "Workflows for easier quick-start and sharing"
     ));
     CHANGELOG.put("12.2", Arrays.asList(
         "Check FASTA file for presence of decoys before running PeptideProphet or Report",
