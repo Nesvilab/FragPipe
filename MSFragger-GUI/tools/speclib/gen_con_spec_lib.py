@@ -449,7 +449,7 @@ if use_easypqp:
 		spectra_files_basename = [rec.fullmatch(e.stem)[1] for e in spectras]
 		assert len(set(spectra_files_basename)) == len(spectras), [sorted(set(spectra_files_basename)), sorted(spectras)]
 		if len(pep_xmls) == 1:
-			return list(zip(spectra_files_basename, [''] * len(spectras), spectras, [pep_xmls] * len(spectras)))
+			return list(zip(spectra_files_basename, [''] * len(spectras), spectras, pep_xmls * len(spectras)))
 		l = [[p for p in pep_xmls if e.casefold() in p.name.casefold()] for e in spectra_files_basename]
 
 		def get_rank(name):
