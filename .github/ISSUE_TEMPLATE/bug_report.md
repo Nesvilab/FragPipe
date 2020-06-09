@@ -6,6 +6,7 @@ labels: ''
 assignees: ''
 
 ---
+# Please read the [FAQ](https://github.com/Nesvilab/MSFragger/wiki/Frequently-Asked-Questions) before sutmitting anything.
 
 **Describe the bug**
 A clear and concise description of what the bug is.
