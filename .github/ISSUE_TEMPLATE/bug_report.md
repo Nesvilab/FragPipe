@@ -1,12 +1,11 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Create a report to help us improve. Please read the FAQ (https://github.com/Nesvilab/MSFragger/wiki/Frequently-Asked-Questions) before sutmitting anything.
 title: ''
 labels: ''
 assignees: ''
 
 ---
-# Please read the [FAQ](https://github.com/Nesvilab/MSFragger/wiki/Frequently-Asked-Questions) before sutmitting anything.
 
 **Describe the bug**
 A clear and concise description of what the bug is.
