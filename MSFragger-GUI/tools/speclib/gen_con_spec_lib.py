@@ -660,7 +660,15 @@ Commands to execute:
 
 	for p in procs:
 		p.wait()
-	assert all(p.returncode==0 for p in procs)
+	for i, p in enumerate(procs):
+		if p.returncode != 0:
+			print("EasyPQP convert error BEGIN")
+			try:
+				print(open(output_directory / f'easypqp_convert_{i}.log').read(), end="")
+			except OSError as e:
+				print(e)
+			print("EasyPQP convert error END")
+	assert all(p.returncode == 0 for p in procs)
 	try:
 		subprocess.run(easypqp_library_cmd(use_iRT), cwd=os_fspath(output_directory), check=True)
 	except subprocess.CalledProcessError:
