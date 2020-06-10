@@ -646,6 +646,7 @@ Commands to execute:
 {allcmds}
 {'~' * 69}''', flush=True)
 	(output_directory / "cmds.txt").write_text(allcmds)
+	subprocess.run([os.fspath(easypqp), '--version'], check=True)
 	procs = []
 	for i, e in enumerate(easypqp_convert_cmds):
 		while sum(p.poll() is None for p in procs) >= nproc:
