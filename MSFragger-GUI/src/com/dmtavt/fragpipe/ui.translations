@@ -29,7 +29,7 @@ msfragger.output_format :: TSV <=> tsv
 msfragger.output_format :: TSV_AND_PEPXML <=> tsv_pepXML
 msfragger.precursor_mass_mode :: selected <=> selected
 msfragger.precursor_mass_mode :: isolated <=> isolated
-msfragger.precursor_mass_mode :: recalculated <=> recalculated
+msfragger.precursor_mass_mode :: corrected <=> corrected
 
 msfragger.precursor_mass_units :: PPM <=> 1
 msfragger.precursor_mass_units :: Da <=> 0

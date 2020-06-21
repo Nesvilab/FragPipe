@@ -916,14 +916,13 @@ public class TabMsfragger extends JPanelBase {
     uiComboMassMode.setModel(new DefaultComboBoxModel<>(new String[] {
         FraggerPrecursorMassMode.selected.name(),
         FraggerPrecursorMassMode.isolated.name(),
-        FraggerPrecursorMassMode.recalculated.name(),
+        FraggerPrecursorMassMode.corrected.name(),
     }));
     uiComboMassMode.addItemListener(TabMsfragger::actionChangeMassMode);
     FormEntry fePrecursorMassMode = mu.feb(MsfraggerParams.PROP_precursor_mass_mode, uiComboMassMode).label("Precursor mass mode")
         .tooltip("<html>Determines which entry from mzML files will be\n"
             + "used as the precursor's mass - 'Selected' or 'Isolated' ion.\n"
-            + "'Recalculated' option runs a separate MSAdjuster tool to\n"
-            + "perform mono-isotopic mass correction").create();
+            + "'Corrected' performs mono-isotopic mass correction").create();
 
     FormEntry feRemovePrecPeak = mu.feb(MsfraggerParams.PROP_remove_precursor_peak, UiUtils.createUiCombo(RemovePrecursorPeak.getNames())).label("Remove precursor peak").create();
     DecimalFormat df1 = new DecimalFormat("0.#");
