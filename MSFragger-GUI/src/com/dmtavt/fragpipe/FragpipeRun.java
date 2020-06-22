@@ -6,32 +6,8 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.IConfig;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.cmd.CmdBase;
-import com.dmtavt.fragpipe.cmd.CmdCrystalc;
-import com.dmtavt.fragpipe.cmd.CmdFreequant;
-import com.dmtavt.fragpipe.cmd.CmdIonquant;
-import com.dmtavt.fragpipe.cmd.CmdIprophet;
-import com.dmtavt.fragpipe.cmd.CmdLabelquant;
-import com.dmtavt.fragpipe.cmd.CmdMsAdjuster;
-import com.dmtavt.fragpipe.cmd.CmdMsfragger;
-import com.dmtavt.fragpipe.cmd.CmdPeptideProphet;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherAbacus;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherDbAnnotate;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherFilter;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherReport;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherWorkspaceClean;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherWorkspaceCleanInit;
-import com.dmtavt.fragpipe.cmd.CmdProteinProphet;
-import com.dmtavt.fragpipe.cmd.CmdPtmshepherd;
-import com.dmtavt.fragpipe.cmd.CmdSpecLibGen;
-import com.dmtavt.fragpipe.cmd.CmdStart;
-import com.dmtavt.fragpipe.cmd.CmdTmtIntegrator;
-import com.dmtavt.fragpipe.cmd.CmdUmpireSe;
-import com.dmtavt.fragpipe.cmd.PbiBuilder;
-import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
-import com.dmtavt.fragpipe.cmd.ProcessBuildersDescriptor;
+import com.dmtavt.fragpipe.cmd.*;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
-import com.dmtavt.fragpipe.internal.CmdBaseNode;
 import com.dmtavt.fragpipe.internal.DefEdge;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
 import com.dmtavt.fragpipe.messages.MessageRun;
@@ -80,8 +56,6 @@ import com.mxgraph.swing.util.mxMorphing;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.view.mxGraph;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -114,9 +88,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.apache.commons.codec.Charsets;
 import org.jgrapht.Graph;
-import org.jgrapht.ext.JGraphXAdapter;
 import org.jgrapht.ext.JGraphXAdapter2;
-import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.ClosestFirstIterator;
 import org.jgrapht.traverse.TopologicalOrderIterator;
@@ -659,29 +631,6 @@ public class FragpipeRun {
     final int ramGbNonzero = ramGb > 0 ? ramGb : OsUtils.getDefaultXmx();
     final int threads = tabWorkflow.getThreads();
 
-    // run MSAdjuster
-    final CmdMsAdjuster cmdMsAdjuster = new CmdMsAdjuster(tabMsf.isRun() && tabMsf.isMsadjuster(),
-        wd);
-
-    addConfig.accept(cmdMsAdjuster, () -> {
-      if (cmdMsAdjuster.isRun()) {
-        return cmdMsAdjuster.configure(parent, jarPath, ramGbNonzero, sharedLcmsFiles, false);
-      }
-      return true;
-    });
-
-    // run MsAdjuster Cleanup
-    String cmdMsadjusterCleanupTitle = StringUtils.appendOnce(cmdMsAdjuster.getTitle(), CmdMsAdjuster.suffixCleanup);
-    final CmdMsAdjuster cmdMsAdjusterCleanup = new CmdMsAdjuster(cmdMsAdjuster.isRun(), cmdMsadjusterCleanupTitle, wd);
-
-    addConfig.accept(cmdMsAdjusterCleanup, () -> {
-      if (cmdMsAdjusterCleanup.isRun()) {
-        return cmdMsAdjusterCleanup
-            .configure(parent, jarPath, ramGbNonzero, sharedLcmsFiles, true);
-      }
-      return true;
-    });
-
     // run MsFragger
     final NoteConfigMsfragger configMsfragger;
     try {
@@ -1153,10 +1102,8 @@ public class FragpipeRun {
 
     addToGraph(graphOrder, cmdStart, DIRECTION.IN);
     addToGraph(graphOrder, cmdUmpire, DIRECTION.IN, cmdStart);
-    addToGraph(graphOrder, cmdMsAdjuster, DIRECTION.IN, cmdStart, cmdUmpire);
-    addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdStart, cmdUmpire, cmdMsAdjuster);
+    addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdStart, cmdUmpire);
 
-    addToGraph(graphOrder, cmdMsAdjusterCleanup, DIRECTION.IN, cmdMsAdjuster);
     addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger);
     addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdCrystalc);
     addToGraph(graphOrder, cmdProteinProphet, DIRECTION.IN, cmdPeptideProphet);
@@ -1176,7 +1123,6 @@ public class FragpipeRun {
 
     // compose graph of required dependencies
     final Graph<CmdBase, DefEdge> graphDeps = new DirectedAcyclicGraph<>(DefEdge.class);
-    addToGraph(graphDeps, cmdMsAdjuster, DIRECTION.OUT, cmdMsAdjusterCleanup);
     addToGraph(graphDeps, cmdPhilosopherFilter, DIRECTION.OUT, cmdPhilosopherDbAnnotate);
     addToGraph(graphDeps, cmdTmtFreequant, DIRECTION.OUT, cmdPhilosopherFilter, cmdPhilosopherReport);
     addToGraph(graphDeps, cmdTmtLabelQuant, DIRECTION.OUT, cmdPhilosopherFilter, cmdPhilosopherReport);

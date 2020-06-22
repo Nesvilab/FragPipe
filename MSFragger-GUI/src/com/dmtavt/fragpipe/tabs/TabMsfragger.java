@@ -1410,14 +1410,6 @@ public class TabMsfragger extends JPanelBase {
     return SwingUtils.isEnabledAndChecked(checkRun);
   }
 
-  public boolean isMsadjuster() {
-    FraggerPrecursorMassMode mode = FraggerPrecursorMassMode.valueOf((String) uiComboMassMode.getSelectedItem());
-    if (FraggerPrecursorMassMode.recalculated.equals(mode)) {
-      return true;
-    }
-    return false;
-  }
-
   public boolean isWriteCalMgf() {
     return uiCheckWriteCalibratedMgf.isSelected();
   }

@@ -157,8 +157,7 @@ public class GraphTests {
   private String fpTaskGraph() {
     return "addToDepGraph(g, cmdStart);\n"
         + "    addToDepGraph(g, cmdUmpire, cmdStart);\n"
-        + "    addToDepGraph(g, cmdMsAdjuster,  cmdStart, cmdUmpire);\n"
-        + "    addToDepGraph(g, cmdMsfragger, cmdStart, cmdUmpire, cmdMsAdjuster);\n"
+        + "    addToDepGraph(g, cmdMsfragger, cmdStart, cmdUmpire);\n"
         + "    addToDepGraph(g, cmdCrystalc, cmdMsfragger);\n"
         + "    addToDepGraph(g, cmdPeptideProphet, cmdMsfragger, cmdCrystalc);\n"
         + "    addToDepGraph(g, cmdProteinProphet, cmdPeptideProphet);\n"
