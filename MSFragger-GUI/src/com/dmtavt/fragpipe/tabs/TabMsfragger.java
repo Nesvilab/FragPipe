@@ -1099,13 +1099,13 @@ public class TabMsfragger extends JPanelBase {
         new UiSpinnerInt(0, 0, 1000, 5, 5)).label("Track zero top N").create();
     FormEntry feAddTopNComplementary = mu.feb(MsfraggerParams.PROP_add_topN_complementary,
         new UiSpinnerInt(0, 0, 1000, 2, 5)).label("Add top N complementary").create();
-    UiSpinnerDouble spinnerZeroBinAcceptExpect = new UiSpinnerDouble(0, 0, Double.MAX_VALUE, 0.1, 1,
-        new DecimalFormat("0.#####"));
+    UiSpinnerDouble spinnerZeroBinAcceptExpect = new UiSpinnerDouble(0, 0, Double.MAX_VALUE, 0.1, 5,
+        new DecimalFormat("0.##########"));
     spinnerZeroBinAcceptExpect.setColumns(5);
     FormEntry feZeroBinAcceptExpect = mu.feb(MsfraggerParams.PROP_zero_bin_accept_expect, spinnerZeroBinAcceptExpect)
         .label("Zero bin accept expect").create();
     UiSpinnerDouble spinnerZeroBinMultExpect = new UiSpinnerDouble(1, 0, 1, 0.05, 5,
-        new DecimalFormat("0.#####"));
+        new DecimalFormat("0.##########"));
     spinnerZeroBinMultExpect.setColumns(5);
     FormEntry feZeroBinMultExpect = mu.feb(MsfraggerParams.PROP_zero_bin_mult_expect, spinnerZeroBinMultExpect)
         .label("Zero bin multiply expect").create();
