@@ -1096,18 +1096,19 @@ public class TabMsfragger extends JPanelBase {
     JPanel p = new JPanel(new MigLayout(new LC()));
     p.setBorder(new TitledBorder("Open Search Options"));
     FormEntry feTrackZeroTopN = mu.feb(MsfraggerParams.PROP_track_zero_topN,
-        new UiSpinnerInt(0, 0, 1000, 5, 3)).label("Track zero top N").create();
+        new UiSpinnerInt(0, 0, 1000, 5, 5)).label("Track zero top N").create();
     FormEntry feAddTopNComplementary = mu.feb(MsfraggerParams.PROP_add_topN_complementary,
-        new UiSpinnerInt(0, 0, 1000, 2, 3)).label("Add top N complementary").create();
-    UiSpinnerDouble spinnerZeroBinAcceptExpect = new UiSpinnerDouble(0, 0, Double.MAX_VALUE,
-        0.1, 1,
-        new DecimalFormat("0.00"));
-    spinnerZeroBinAcceptExpect.setColumns(3);
-    FormEntry feZeroBinAcceptExpect = mu.feb(MsfraggerParams.PROP_zero_bin_accept_expect, spinnerZeroBinAcceptExpect).label("Zero bin accept expect").create();
-    UiSpinnerDouble spinnerZeroBinMultExpect = new UiSpinnerDouble(1, 0, 1, 0.05, 2,
-        new DecimalFormat("0.00"));
-    spinnerZeroBinMultExpect.setColumns(3);
-    FormEntry feZeroBinMultExpect = mu.feb(MsfraggerParams.PROP_zero_bin_mult_expect, spinnerZeroBinMultExpect).label("Zero bin multiply expect").create();
+        new UiSpinnerInt(0, 0, 1000, 2, 5)).label("Add top N complementary").create();
+    UiSpinnerDouble spinnerZeroBinAcceptExpect = new UiSpinnerDouble(0, 0, Double.MAX_VALUE, 0.1, 1,
+        new DecimalFormat("0.#####"));
+    spinnerZeroBinAcceptExpect.setColumns(5);
+    FormEntry feZeroBinAcceptExpect = mu.feb(MsfraggerParams.PROP_zero_bin_accept_expect, spinnerZeroBinAcceptExpect)
+        .label("Zero bin accept expect").create();
+    UiSpinnerDouble spinnerZeroBinMultExpect = new UiSpinnerDouble(1, 0, 1, 0.05, 5,
+        new DecimalFormat("0.#####"));
+    spinnerZeroBinMultExpect.setColumns(5);
+    FormEntry feZeroBinMultExpect = mu.feb(MsfraggerParams.PROP_zero_bin_mult_expect, spinnerZeroBinMultExpect)
+        .label("Zero bin multiply expect").create();
     UiCombo uiComboMassDiffToVariableMod = UiUtils.createUiCombo(MASS_DIFF_TO_VAR_MOD);
     FormEntry feComboMassDiffToVariableMod = mu.feb(MsfraggerParams.PROP_mass_diff_to_variable_mod, uiComboMassDiffToVariableMod)
         .label("Report mass shift as a variable mod").create();
