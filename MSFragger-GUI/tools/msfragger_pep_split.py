@@ -333,8 +333,6 @@ def combine_results():
 def calibrate(fasta_path_sample, calibrate_mass: int):
 	params_path_calibrate = tempdir / param_path.name
 	params_txt_new = params_txt
-	params_txt_new = re.compile(r'^precursor_mass_mode\s*=\s*CORRECTED', re.MULTILINE | re.IGNORECASE).sub(
-			'precursor_mass_mode = selected', params_txt_new)
 	params_path_calibrate.write_text(recomp_fasta.sub(f'database_name = {fasta_path_sample.relative_to(tempdir)}', params_txt_new))
 	calibrate_cmd = msfragger_cmd + [params_path_calibrate.resolve(), '--split1', *infiles_name]
 	print(f'{calibrate_cmd}', flush=True)
