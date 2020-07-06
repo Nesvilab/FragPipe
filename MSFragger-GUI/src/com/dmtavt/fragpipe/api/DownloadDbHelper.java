@@ -109,7 +109,8 @@ public class DownloadDbHelper {
           pathIrt = FragpipeLocations.get().getDirTools().resolve("fasta/irtfusion.fasta");
           if (!Files.exists(pathIrt)) {
             log.error("File not found: " + pathIrt.toString());
-            SwingUtils.showDialog(p, new JLabel("<html>Could not find iRT fasta file:<br/>" + pathIrt.toString()),
+            SwingUtils.showDialog(p,
+                new JLabel("<html>Could not find iRT fasta file:<br/>" + pathIrt.toString()),
                 "Error preparing for DB download", JOptionPane.ERROR_MESSAGE);
             return;
           }
@@ -236,6 +237,168 @@ public class DownloadDbHelper {
         }
       }
     }
+  }
+
+  public static String findPhiBinStrict(String binPhi) {
+    Set<String> searchPaths = new LinkedHashSet<>();
+    searchPaths.add(".");
+    searchPaths.addAll(PathUtils.getClasspathDirs());
+    String jarPath = JarUtils.getCurrentJarPath();
+    if (jarPath != null) {
+      searchPaths.add(jarPath);
+    }
+    String[] paths = searchPaths.toArray(new String[0]);
+    String phi = PathUtils.testBinaryPath(binPhi, paths);
+    if (phi == null) {
+      throw new IllegalStateException("Philosopher binary not found");
+    }
+    return phi;
+  }
+
+  public static void updateDb(Component parent, String binPhi, Path fasta, boolean isAddContam)
+      throws Exception {
+//    if (!SwingUtils.showConfirmDialogShort(parent,
+//        "This will update the fasta file in-place. Continue?")) {
+//      return;
+//    }
+    String phi = findPhiBinStrict(binPhi);
+    UsageTrigger usePhi = new UsageTrigger(binPhi, "philosopher binary");
+    Path dir = fasta.getParent();
+    CmdPhilosopherWorkspaceCleanInit cmdCleanInit = new CmdPhilosopherWorkspaceCleanInit(true, dir);
+
+    CmdDatabaseUpdate cmdDbUpdate = new CmdDatabaseUpdate(true, dir);
+
+    CmdPhilosopherWorkspaceClean cmdClean = new CmdPhilosopherWorkspaceClean(true, dir);
+    cmdClean.configure(usePhi);
+
+    if (!cmdCleanInit.configure(usePhi, false)) {
+      log.error("configuration of philosopher clean/init not successful");
+      return;
+    }
+    if (!cmdDbUpdate.configure(parent, usePhi, fasta, isAddContam)) {
+      log.error("configuration of phi db update failed");
+      return;
+    }
+    if (!cmdClean.configure(usePhi)) {
+      log.error("configuration of phi clean failed");
+      return;
+    }
+
+    List<ProcessBuilder> pbs = Stream.of(cmdCleanInit, cmdDbUpdate, cmdClean)
+        .flatMap(cmdBase -> cmdBase.getBuilderDescriptor().pbis.stream().map(pbi -> pbi.pb))
+        .collect(Collectors.toList());
+
+    WatchService watch = FileSystems.getDefault().newWatchService();
+    if (watch != null) {
+      dir.register(watch, ENTRY_CREATE, ENTRY_MODIFY);
+    }
+
+    try {
+      JFrame frame = SwingUtils.findParentFrame(parent);
+      final JDialog dlg = new JDialog(frame, "Updating database", true);
+      JProgressBar bar = new JProgressBar(0, 100);
+      bar.setIndeterminate(true);
+      Dimension d = new Dimension(300, 75);
+      bar.setMinimumSize(d);
+      bar.setSize(d);
+      dlg.add(bar, BorderLayout.CENTER);
+      dlg.setSize(d);
+      dlg.setLocationRelativeTo(parent);
+
+      Thread updateThread = new Thread(() -> {
+        try {
+          for (ProcessBuilder pb : pbs) {
+            final String cmd = String.join(" ", pb.command());
+            log.info("Executing: " + cmd);
+
+            ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb)
+                .setName(pb.toString()).setFnStdOut(null).setFnStdErr(null)
+                .setParallelGroup(null).create();
+            ProcessResult pr = new ProcessResult(pbi);
+            pr.start().waitFor(1, TimeUnit.MINUTES);
+            log.info("Process output: {}", pr.getOutput().toString());
+            final int exitValue = pr.getProcess().exitValue();
+            if (!cmd.toLowerCase().contains("workspace") && exitValue != 0) {
+              throw new IllegalStateException("Process returned non zero value");
+            }
+          }
+
+        } catch (Exception ex) {
+          log.error("Something happened during database update", ex);
+          throw new IllegalStateException("Something happened during database update", ex);
+        } finally {
+          dlg.setVisible(false);
+          dlg.dispose();
+        }
+
+      });
+      updateThread.start();
+
+      // show the dialog, this blocks until dlg.setVisible(false) is called
+      // so this call is made in the finally block
+      dlg.setVisible(true);
+
+    } catch (Exception e) {
+      log.error("Error while trying to download database", e);
+    } finally {
+
+      if (watch != null) {
+        for (; ; ) {
+          // retrieve key
+          WatchKey key;
+          try {
+            key = watch.poll();
+          } catch (Exception e) {
+            log.warn("Something happened while waiting for WatcherSerice.poll().", e);
+            break;
+          }
+          if (key == null) {
+            log.info("No more file events when updating database");
+            break;
+          }
+
+          // process events
+          for (WatchEvent<?> event : key.pollEvents()) {
+            Kind<?> kind = event.kind();
+            if (OVERFLOW.equals(kind)) {
+              continue;
+            } else if (ENTRY_CREATE.equals(kind) || ENTRY_MODIFY.equals(kind)) {
+              Object context = event.context();
+              if (context != null) {
+                if (context instanceof Path) {
+                  Path path = (Path) event.context();
+                  log.info("Detected new or changed file: " + path.toString());
+                  final String fn = path.getFileName().toString();
+                  int lastIndexOf = fn.lastIndexOf('.');
+                  String ext = lastIndexOf < 0 ? fn : fn.substring(lastIndexOf + 1);
+                  if (ext.startsWith(".fa") || ext.startsWith("fa")) {
+                    // most likely a fasta file
+                    final Path fullDbPath = dir.resolve(path);
+                    log.debug("Sending new MessageDbUpdate: " + fullDbPath.toString());
+                    JOptionPane.showMessageDialog(parent,
+                        "<html>Updated database, new file:<br/>" + fullDbPath.toString(),
+                        "Update complete", JOptionPane.INFORMATION_MESSAGE);
+                    Bus.post(new MessageDbNewPath(fullDbPath.toString()));
+                    break;
+                  }
+                }
+              }
+            } else {
+              log.error("DB Update: Unknown event kind: " + kind.toString());
+            }
+          }
+
+          // reset the key
+          boolean valid = key.reset();
+          if (!valid) {
+            // object no longer registered
+          }
+        }
+        watch.close();
+      }
+    }
+
+
   }
 
 }

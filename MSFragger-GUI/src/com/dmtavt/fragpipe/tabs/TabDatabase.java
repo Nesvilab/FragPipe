@@ -14,6 +14,7 @@ import com.github.chhh.utils.FastaUtils.FastaContent;
 import com.github.chhh.utils.FastaUtils.FastaDecoyPrefixSearchResult;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
+import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.FileChooserUtils;
@@ -29,6 +30,7 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.BitSet;
 import java.util.stream.Stream;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -53,10 +55,12 @@ public class TabDatabase extends JPanelWithEnablement {
   public static final String TAB_PREFIX = "database.";
   public static final String TIP_DB_PATH = "tip.db.path";
   private static final String TIP_DB_DOWNLOAD = "tip.db.download";
+  private static final String TIP_DB_UPDATE = "tip.db.update";
   private UiText uiTextDbPath;
   private UiText uiTextDecoyTag;
   private JEditorPane epDbInfo;
   private JButton btnDownload;
+  private JButton btnUpdate;
 
   public TabDatabase() {
     init();
@@ -99,6 +103,7 @@ public class TabDatabase extends JPanelWithEnablement {
         () -> createFilechooserFasta(uiTextDbPath),
         paths -> Bus.post(new MessageDbNewPath(paths.get(0).toString())));
     btnDownload = UiUtils.createButton("Download", this::actionDbDownload);
+    btnUpdate = UiUtils.createButton("Add decoys", this::actionDbAddDecoys);
 
     String defaultTag = Fragpipe.propsFix().getProperty(ThisAppProps.PROP_TEXTFIELD_DECOY_TAG);
     uiTextDecoyTag = UiUtils.uiTextBuilder().cols(12).text(defaultTag).create();
@@ -117,7 +122,8 @@ public class TabDatabase extends JPanelWithEnablement {
     mu.add(p, feDbPath.label()).split();
     mu.add(p, feDbPath.comp).growX();
     mu.add(p, btnBrowse);
-    mu.add(p, btnDownload).wrap();
+    mu.add(p, btnDownload);
+    mu.add(p, btnUpdate).wrap();
 
     mu.add(p, feDecoyTag.label()).split();
     mu.add(p, feDecoyTag.comp);
@@ -127,6 +133,38 @@ public class TabDatabase extends JPanelWithEnablement {
     mu.add(p, btnDecoyDetect);
     mu.add(p, epDbInfo);
     return p;
+  }
+
+  private void actionDbAddDecoys(ActionEvent event) {
+    NoteConfigPhilosopher conf = Bus.getStickyEvent(NoteConfigPhilosopher.class);
+    if (conf == null || !conf.isValid()) {
+      Notifications.showException(TIP_DB_UPDATE, btnUpdate, new ValidationException("Philosopher not configured"), false);
+      return;
+    }
+
+    String fasta = getFastaPath();
+    if (StringUtils.isBlank(fasta)) {
+      SwingUtils.showInfoDialog(this, "Select a fasta file first.", "Select fasta file");
+      return;
+    }
+    Path fastaPath = PathUtils.existing(fasta);
+    if (fastaPath == null) {
+      SwingUtils.showInfoDialog(this, "Fasta file does not exist.", "Select fasta file");
+      return;
+    }
+    String[] opts = new String[]{"Add decoys", "Add decoys and contaminants", "Cancel"};
+    int choice = SwingUtils.showChoiceDialog(this, "Update fasta file",
+        "What would you like to do?", opts, 2);
+    if (choice < 0 || choice > opts.length - 1) {
+      log.debug("User cancelled db update action");
+      return;
+    }
+    try {
+      DownloadDbHelper.updateDb(this, conf.path, fastaPath, choice == 1);
+    } catch (Exception e) {
+      log.error("Database update command error", e);
+    }
+
   }
 
   private JPanel createPanelInfo() {
@@ -208,7 +246,7 @@ public class TabDatabase extends JPanelWithEnablement {
   }
 
   private void actionDetectDecoys(ActionEvent e) {
-    Path path = PathUtils.existing(uiTextDbPath.getNonGhostText());
+    Path path = PathUtils.existing(getFastaPath());
     if (path == null) {
       SwingUtils.showInfoDialog(this, "Select a valid fasta file first", "Fasta file missing");
       return;
