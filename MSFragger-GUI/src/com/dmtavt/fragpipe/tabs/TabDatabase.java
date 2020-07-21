@@ -155,7 +155,7 @@ public class TabDatabase extends JPanelWithEnablement {
     String[] opts = new String[]{"Add decoys", "Add decoys and contaminants", "Cancel"};
     int choice = SwingUtils.showChoiceDialog(this, "Update fasta file",
         "What would you like to do?", opts, 2);
-    if (choice < 0 || choice > opts.length - 1) {
+    if (choice < 0 || choice >= opts.length - 1) {
       log.debug("User cancelled db update action");
       return;
     }
