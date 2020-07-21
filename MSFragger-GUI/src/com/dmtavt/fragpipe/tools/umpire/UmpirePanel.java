@@ -410,7 +410,8 @@ public class UmpirePanel extends JPanel {
         // special treatment for some params
         if (PROP_Thread.equals(paramName)) {
           try {
-            strVal = String.format("%.0f", Double.parseDouble(strVal));
+            final double numThreads = Double.parseDouble(strVal);
+            strVal = String.format("%.0f", numThreads == 0 ? Runtime.getRuntime().availableProcessors() : numThreads);
           } catch (Exception ignored) {
             continue;
           }
