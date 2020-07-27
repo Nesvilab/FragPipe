@@ -65,7 +65,11 @@ def get_bin_path(dist, bin_stem):
 	import pathlib
 	try:
 		dist, = list(pip._internal.commands.show.search_packages_info([dist]))
-		rel_loc, = [e for e in dist.get('files') if pathlib.Path(e).stem == bin_stem]
+		if dist.get('files') is None and sys.platform == "win32":
+			script_path = (pathlib.Path(sys.executable).resolve().parent / "Scripts").resolve()
+			return (pathlib.Path(script_path) / (bin_stem + ".py")).resolve()
+		else:
+			rel_loc, = [e for e in dist.get('files') if pathlib.Path(e).stem == bin_stem]
 	except ValueError:
 		return
 	return (pathlib.Path(dist.get('location')) / rel_loc).resolve()
