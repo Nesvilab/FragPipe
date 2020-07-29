@@ -254,9 +254,9 @@ public class QuantPanelLabelfree extends JPanelBase {
         .setCols(5).setFormat("#.###").create();
 
     UiSpinnerInt uiSpinnerMbrTopRuns = UiUtils.spinnerInt(3, 1, Integer.MAX_VALUE, 1).setCols(5).create();
-    UiText uiTextLight = UiUtils.uiTextBuilder().cols(10).create();
-    UiText uiTextMedium = UiUtils.uiTextBuilder().cols(10).create();
-    UiText uiTextHeavy = UiUtils.uiTextBuilder().cols(10).create();
+    UiText uiTextLight = UiUtils.uiTextBuilder().cols(15).create();
+    UiText uiTextMedium = UiUtils.uiTextBuilder().cols(15).create();
+    UiText uiTextHeavy = UiUtils.uiTextBuilder().cols(15).create();
 
     //FormEntry feDataType = mu.feb(uiComboTimsTOF).name("ionquant.ionmobility").label("Data type").create();
     FormEntry feMbr = mu.feb(uiComboMbr).name("ionquant.mbr").label("Match between runs (MBR)").create();
@@ -279,7 +279,6 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMbrPepFdr = mu.feb(uiSpinnerMbrPepFdr).name("ionquant.peptidefdr").label("MBR peptide FDR").create();
     FormEntry feMbrProtFdr = mu.feb(uiSpinnerMbrProtFdr).name("ionquant.proteinfdr").label("MBR protein FDR").create();
 
-    String labelTip = "String like \"K8.123\" or \"K4.02511;R6.02013\"";
     FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("ionquant.mbrtoprun").label("MBR top runs").create();
     FormEntry feLight = mu.feb(uiTextLight).name("ionquant.light").label("Light")
         .tooltip("String description of mass deltas. E.g. for SILAC: K0;R0").create();
