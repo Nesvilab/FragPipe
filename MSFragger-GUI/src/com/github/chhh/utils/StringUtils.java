@@ -76,6 +76,10 @@ public final class StringUtils {
     return base.endsWith(suffix) ? base : base + suffix;
   }
 
+  public static String appendPrependOnce(String base, String quotes) {
+    return prependOnce(appendOnce(base, quotes), quotes);
+  }
+
   /**
    * Shorthand for {@link #isNullOrWhitespace(String)}.
    */

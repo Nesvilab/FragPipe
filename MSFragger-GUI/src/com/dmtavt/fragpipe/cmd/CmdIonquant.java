@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
 import org.jooq.lambda.function.Function3;
@@ -185,10 +186,18 @@ public class CmdIonquant extends CmdBase {
       cmd.add(wd.toString());
     }
 
+    // compute unique lcms file directories
+    Set<Path> lcmsDirsUnique = Seq.seq(lcmsToFraggerPepxml.keySet()).map(lcms -> lcms.getPath().getParent())
+        .toSet();
+    for (Path path : lcmsDirsUnique) {
+      cmd.add("--spectraldir");
+      cmd.add(StringUtils.appendPrependOnce(path.toString(), "\""));
+    }
+
     for (Entry<InputLcmsFile, List<Path>> e : lcmsToFraggerPepxml.entrySet()) {
       InputLcmsFile lcms = e.getKey();
       for (Path pepxml : e.getValue()) {
-        cmd.add(lcms.getPath().toString());
+        //cmd.add(lcms.getPath().toString()); // lcms files are not needed anymore, auto-searched in --spectraldirs
         cmd.add(wd.relativize(pepxml).toString());
       }
     }
