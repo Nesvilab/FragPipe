@@ -648,28 +648,35 @@ public class TmtiPanel extends JPanelBase {
     Map<String, List<InputLcmsFile>> filesByExp = m.files.stream()
         .collect(Collectors.groupingBy(InputLcmsFile::getExperiment));
     List<ExpNameToAnnotationFile> newRows = new ArrayList<>();
-    for (Entry<String, List<InputLcmsFile>> e : filesByExp.entrySet()) {
-      String expName = e.getKey();
-      List<InputLcmsFile> files = e.getValue();
-      ExpNameToAnnotationFile newRow = new ExpNameToAnnotationFile(expName, files, STRING_NO_PATH_SET);
-      ExpNameToAnnotationFile oldRow = oldRows.get(expName);
-      if (oldRow != null) {
-        newRow.setPath(oldRow.getPath());
-      } else {
-        // maybe there already is annotation.txt file?
-        List<Path> fileDirs = Seq.seq(e.getValue())
-            .map(lcms -> lcms.getPath().getParent()).distinct().toList();
-        if (fileDirs.size() == 1) {
-          // only if all files are in the same directory, we'll try to auto-detect annotations file
-          List<Path> annotations = PathUtils.findFilesQuietly(fileDirs.get(0),
-              p -> p.getFileName().toString().equalsIgnoreCase("annotation.txt"))
-              .collect(Collectors.toList());
-          if (annotations.size() == 1) {// this is in case the predicate is changed such that it can match multiple files
-            newRow.setPath(annotations.get(0).toString());
+
+    try {
+      for (Entry<String, List<InputLcmsFile>> e : filesByExp.entrySet()) {
+        String expName = e.getKey();
+        List<InputLcmsFile> files = e.getValue();
+        ExpNameToAnnotationFile newRow = new ExpNameToAnnotationFile(expName, files,
+            STRING_NO_PATH_SET);
+        ExpNameToAnnotationFile oldRow = oldRows.get(expName);
+        if (oldRow != null) {
+          newRow.setPath(oldRow.getPath());
+        } else {
+          // maybe there already is annotation.txt file?
+          List<Path> fileDirs = Seq.seq(e.getValue())
+              .map(lcms -> lcms.getPath().getParent()).distinct().toList();
+          if (fileDirs.size() == 1) {
+            // only if all files are in the same directory, we'll try to auto-detect annotations file
+            List<Path> annotations = PathUtils.findFilesQuietly(fileDirs.get(0),
+                p -> p.getFileName().toString().equalsIgnoreCase("annotation.txt"))
+                .collect(Collectors.toList());
+            if (annotations.size()
+                == 1) {// this is in case the predicate is changed such that it can match multiple files
+              newRow.setPath(annotations.get(0).toString());
+            }
           }
         }
+        newRows.add(newRow);
       }
-      newRows.add(newRow);
+    } catch (Exception e) {
+      log.debug("Something happened while processing LCMS files events in TMTi", e);
     }
 
     tmtAnnotationTable.fetchModel().dataClear();

@@ -53,6 +53,7 @@ public class ThisAppProps extends Properties {
   public static final String PROP_SETUP_TUTORIAL_URL = "fragpipe.setup-tutorial.url";
   public static final String PROP_PYTHON_DOWNLOAD_URL = "python.url.download";
   public static final String LAST_RECURSIVE_FOLDER_ADDED = "path.recursive-add-folder.last";
+  public static final String CONFIG_SAVE_LOCATION = "path.store.configs";
 
   private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
   //private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);

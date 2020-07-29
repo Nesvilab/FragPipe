@@ -15,6 +15,7 @@ import com.dmtavt.fragpipe.api.TableModelColumn;
 import com.dmtavt.fragpipe.api.UniqueLcmsFilesTableModel;
 import com.dmtavt.fragpipe.cmd.CmdMsfragger;
 import com.dmtavt.fragpipe.dialogs.ExperimentNameDialog;
+import com.dmtavt.fragpipe.messages.MessageManifestLoad;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFiles;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFolder;
 import com.dmtavt.fragpipe.messages.MessageLcmsClearFiles;
@@ -22,6 +23,7 @@ import com.dmtavt.fragpipe.messages.MessageLcmsFilesAdded;
 import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
 import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction;
 import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction.Type;
+import com.dmtavt.fragpipe.messages.MessageManifestSave;
 import com.dmtavt.fragpipe.messages.MessageLcmsRemoveSelected;
 import com.dmtavt.fragpipe.messages.MessageLoadUi;
 import com.dmtavt.fragpipe.messages.MessageOpenInExplorer;
@@ -37,6 +39,7 @@ import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
+import com.github.chhh.utils.swing.FileNameEndingFilter;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
@@ -56,8 +59,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,11 +71,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -100,6 +107,7 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.table.DefaultTableModel;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -125,6 +133,8 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnGroupsByFilename;
   private JButton btnGroupsAssignToSelected;
   private JButton btnGroupsClear;
+  private JButton btnManifestSave;
+  private JButton btnManifestLoad;
   private HtmlStyledJEditorPane epWorkflowsInfo;
   private UiSpinnerInt uiSpinnerRam;
   private UiSpinnerInt uiSpinnerThreads;
@@ -851,6 +861,9 @@ public class TabWorkflow extends JPanelWithEnablement {
         () -> new MessageLcmsGroupAction(Type.SET_EXP));
     btnGroupsClear = button("Clear groups", () -> new MessageLcmsGroupAction(Type.CLEAR_GROUPS));
 
+    btnManifestSave = button("Save as manifest", () -> new MessageManifestSave());
+    btnManifestLoad = button("Load manifest", () -> new MessageManifestLoad());
+
     createFileTable();
 
     uiCheckProcessEachExperimentSeparately = UiUtils
@@ -883,6 +896,9 @@ public class TabWorkflow extends JPanelWithEnablement {
       mu.add(p, btnDebugFolderAdd).gapLeft("20px");
       mu.add(p, uiTextLastAddedLcmsDir).growX().pushX().wrap();
     }
+
+    mu.add(p, btnManifestSave).split();
+    mu.add(p, btnManifestLoad).wrap();
 
     mu.add(p,
         new JLabel("Assign files to Experiments/Groups (select rows to activate action buttons):"))
@@ -1003,6 +1019,176 @@ public class TabWorkflow extends JPanelWithEnablement {
         Bus.post(new MessageLcmsFilesAdded(accepted));
       }
     });
+  }
+
+  private void manifestSave(Path path) throws IOException {
+    ArrayList<InputLcmsFile> files = tableModelRawFiles.dataCopy();
+    String manifest = files.stream().map(f -> String.format("%s\t%s\t%s",
+        f.getPath().toAbsolutePath().normalize().toString(),
+        (f.getExperiment() != null ? f.getExperiment() : ""),
+        (f.getReplicate() != null ? f.getReplicate().toString() : "")))
+    .collect(Collectors.joining("\n"));
+    FileUtils.write(path.toFile(), manifest, StandardCharsets.UTF_8, false);
+  }
+
+  private void manifestLoad(Path manifestPath) throws IOException {
+    ArrayList<InputLcmsFile> inTable = tableModelRawFiles.dataCopy();
+    List<String> lines = Files.readAllLines(manifestPath, StandardCharsets.UTF_8);
+    ConcurrentLinkedDeque<String> badLines = new ConcurrentLinkedDeque<>();
+    List<InputLcmsFile> loaded = lines.stream()
+        .filter(StringUtils::isNotBlank)
+        .filter(line -> !line.startsWith("//") && !line.startsWith("#"))
+        .map(line -> {
+          String[] split = line.split("\t");
+          Path p = null;
+          String exp = null;
+          Integer replicate = null;
+          try {
+            if (split.length >= 1) {
+              p = Paths.get(split[0]);
+            }
+            if (split.length >= 2) {
+              exp = split[1];
+            }
+            if (split.length >= 3) {
+              replicate = Integer.parseInt(split[2]);
+            }
+          } catch (Exception e) {
+            badLines.add(line);
+            return null;
+          }
+          return new InputLcmsFile(p, exp, replicate);
+        }).filter(Objects::nonNull)
+        .collect(Collectors.toList());
+
+    if (!badLines.isEmpty()) {
+      SwingUtils.showWarningDialog(this,
+          "Manifest file contained some badly formatted lines\n\n" +
+          Seq.seq(badLines).toString("\n"), "Malformed manifest");
+    }
+
+    List<Path> notExist = loaded.stream().map(f -> f.getPath()).filter(Files::notExists)
+        .collect(Collectors.toList());
+    Set<Path> inTablePaths = inTable.stream().map(f -> f.getPath()).collect(Collectors.toSet());
+    if (inTable.isEmpty()) {
+      showSkippedFiles(notExist);
+      tableModelRawFiles.dataAddAll(loaded);
+    } else {
+      Set<Path> addedPaths = loaded.stream().map(f -> f.getPath().getFileName()).collect(Collectors.toSet());
+      boolean hasMatchingPaths = inTable.stream().map(f -> f.getPath().getFileName()).anyMatch(addedPaths::contains);
+      if (hasMatchingPaths) {
+        String[] choices = {"Keep only from file", "Append new from file", "Keep current, but update exp/replicates"};
+        String message = "Looks like the manifest you're adding contains\n"
+            + "file names matching files already in the list.\n\n"
+            + "What would you like to do with entries from the manifest?";
+        int choice = SwingUtils.showChoiceDialog(this, "Action choice", message, choices, 0);
+        if (choice == 0) {
+          tableModelRawFiles.dataClear();
+          showSkippedFiles(notExist);
+          tableModelRawFiles.dataAddAll(Seq.seq(loaded).filter(f -> !notExist.contains(f.getPath())).toList());
+        } else if (choice == 1) {
+          showSkippedFiles(notExist);
+          tableModelRawFiles.dataAddAll(Seq.seq(loaded)
+              .filter(f -> !notExist.contains(f.getPath()))
+              .filter(f -> !inTablePaths.contains(f.getPath()))
+              .toList());
+        } else {
+          tableModelRawFiles.dataClear();
+          List<InputLcmsFile> updated = new ArrayList<>();
+          for (InputLcmsFile existing : inTable) {
+            InputLcmsFile toCopyFrom = loaded.stream()
+                .filter(f -> f.getPath().getFileName().equals(existing.getPath().getFileName()))
+                .findFirst().orElse(existing);
+            updated.add(new InputLcmsFile(existing.getPath(), toCopyFrom.getExperiment(), toCopyFrom.getReplicate()));
+          }
+          tableModelRawFiles.dataAddAll(updated);
+        }
+      }
+    }
+  }
+
+  private void showSkippedFiles(List<Path> skipped) {
+    if (skipped.isEmpty())
+      return;
+    MigUtils mu = MigUtils.get();
+    JPanel panel = mu.newPanel(new LC().fill());
+    List<List<Path>> data = skipped.stream().map(Collections::singletonList)
+        .collect(Collectors.toList());
+    JLabel label = SwingUtils.htmlLabel("Some loaded files don't exist. Will be skipped.");
+    JScrollPane scroll = SwingUtils
+        .wrapInScroll(SwingUtils.tableFromData(Arrays.asList("Paths not exist"), data));
+
+    mu.add(panel, label).growX().wrap();
+    mu.add(panel, scroll).growX().wrap();
+    SwingUtils.showDialog(this, panel);
+  }
+
+  @Subscribe(threadMode = ThreadMode.BACKGROUND)
+  public void on(MessageManifestSave m) {
+    String loc = Fragpipe.propsVarGet(ThisAppProps.CONFIG_SAVE_LOCATION);
+    JFileChooser fc = FileChooserUtils.builder("Path to save manifest")
+        .paths(Stream.of(loc)).mode(FcMode.ANY).approveButton("Save").multi(false)
+        .acceptAll(true)
+        .filters(Arrays.asList(new FileNameEndingFilter("Fragpipe manifest",".fp-manifest")))
+        .create();
+    if (loc == null) {
+      fc.setSelectedFile(new File("lcms-files.fp-manifest"));
+    }
+    if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(this)) {
+      Path path = fc.getSelectedFile().toPath();
+      Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.toString());
+      if (!deleteQuietlyWithConfirmation(path, this)) {
+        return;
+      }
+      try {
+        manifestSave(path);
+      } catch (IOException e) {
+        SwingUtils.showErrorDialogWithStacktrace(e, this);
+        return;
+      }
+    }
+  }
+
+  public static boolean deleteQuietlyWithConfirmation(Path path, Component parent) {
+    if (Files.exists(path)) {
+      if (!SwingUtils.showConfirmDialogShort(parent, "File exists, overwrite?\n\n" + path.toString())) {
+        return false;
+      } else {
+        try {
+          Files.deleteIfExists(path);
+        } catch (IOException e) {
+          SwingUtils.showErrorDialogWithStacktrace(e, parent);
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  @Subscribe(threadMode = ThreadMode.BACKGROUND)
+  public void on(MessageManifestLoad m) {
+    String loc = Fragpipe.propsVarGet(ThisAppProps.CONFIG_SAVE_LOCATION);
+    JFileChooser fc = FileChooserUtils.builder("Load manifest")
+        .paths(Stream.of(loc)).mode(FcMode.ANY).approveButton("Load").multi(false)
+        .acceptAll(true)
+        .filters(Arrays.asList(new FileNameEndingFilter("Fragpipe manifest",".fp-manifest")))
+        .create();
+    if (loc != null) {
+      try {
+        Path path = Paths.get(loc);
+        fc.setSelectedFile(path.toFile());
+      } catch (Exception ignore) {}
+    }
+    if (JFileChooser.APPROVE_OPTION == fc.showOpenDialog(this)) {
+      File f = fc.getSelectedFile();
+      if (f == null)
+        return;
+      try {
+        manifestLoad(f.toPath());
+      } catch (IOException e) {
+        SwingUtils.showErrorDialogWithStacktrace(e, this);
+      }
+    }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)

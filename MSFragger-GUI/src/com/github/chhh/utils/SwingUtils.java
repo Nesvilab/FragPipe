@@ -113,6 +113,11 @@ public class SwingUtils {
   private SwingUtils() {
   }
 
+  public static JLabel htmlLabel(String text) {
+    String s = SwingUtils.makeHtml(text);
+    return new JLabel(s);
+  }
+
   /**
    * Drills down component hierarchy renaming every component that has non-empty {@link
    * JComponent#getName()} with a prefix and suffix.
@@ -226,6 +231,29 @@ public class SwingUtils {
       this.dialog = dialog;
       this.thread = thread;
     }
+  }
+
+  public static JTable tableFromData(List<String> headers, List<? extends List<?>> rows) {
+    boolean badData = rows.stream().anyMatch(row -> row.size() != headers.size());
+    if (badData) {
+      throw new IllegalArgumentException("Some data rows were not the same size as table header");
+    }
+    String[] columns = headers.toArray(new String[0]);
+    String[][] data = new String[rows.size()][headers.size()];
+    int index = -1;
+    for (List<?> row: rows) {
+      index += 1;
+      for (int i = 0; i < headers.size(); i++) {
+        Object o = row.get(i);
+        data[index][i] = o != null ? o.toString() : "";
+      }
+    }
+
+    DefaultTableModel model = new DefaultTableModel(data, columns);
+    JTable table = new JTable(model);
+    table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+    return table;
   }
 
   public static JTable tableFromTwoSiblingFiles(Map<Path, Path> paths) {

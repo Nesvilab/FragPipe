@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe.api;
 
+import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.StringUtils;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -28,7 +29,7 @@ public class InputLcmsFile {
 
     public InputLcmsFile(Path path, String experiment, Integer replicate) {
         this.path = path;
-        this.experiment = experiment;
+        this.experiment = experiment != null ? experiment : ThisAppProps.DEFAULT_LCMS_EXP_NAME;
         this.replicate = replicate;
     }
 
