@@ -254,7 +254,9 @@ public class QuantPanelLabelfree extends JPanelBase {
         .setCols(5).setFormat("#.###").create();
 
     UiSpinnerInt uiSpinnerMbrTopRuns = UiUtils.spinnerInt(3, 1, Integer.MAX_VALUE, 1).setCols(5).create();
-    UiText uiTextLabels = UiUtils.uiTextBuilder().cols(30).ghost("<light mod>;<heavy mod>").create();
+    UiText uiTextLight = UiUtils.uiTextBuilder().cols(10).create();
+    UiText uiTextMedium = UiUtils.uiTextBuilder().cols(10).create();
+    UiText uiTextHeavy = UiUtils.uiTextBuilder().cols(10).create();
 
     //FormEntry feDataType = mu.feb(uiComboTimsTOF).name("ionquant.ionmobility").label("Data type").create();
     FormEntry feMbr = mu.feb(uiComboMbr).name("ionquant.mbr").label("Match between runs (MBR)").create();
@@ -277,8 +279,14 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMbrPepFdr = mu.feb(uiSpinnerMbrPepFdr).name("ionquant.peptidefdr").label("MBR peptide FDR").create();
     FormEntry feMbrProtFdr = mu.feb(uiSpinnerMbrProtFdr).name("ionquant.proteinfdr").label("MBR protein FDR").create();
 
+    String labelTip = "String like \"K8.123\" or \"K4.02511;R6.02013\"";
     FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("ionquant.mbrtoprun").label("MBR top runs").create();
-    FormEntry feLabel = mu.feb(uiTextLabels).name("ionquant.label").label("Label").create();
+    FormEntry feLight = mu.feb(uiTextLight).name("ionquant.light").label("Light")
+        .tooltip("String description of mass deltas. E.g. for SILAC: K0;R0").create();
+    FormEntry feMedium = mu.feb(uiTextMedium).name("ionquant.medium").label("Medium")
+        .tooltip("String description of mass deltas. E.g. for SILAC: K4.02511;R6.02013").create();
+    FormEntry feHeavy = mu.feb(uiTextHeavy).name("ionquant.heavy").label("Heavy")
+        .tooltip("String description of mass deltas. E.g. for SILAC: K8.01420;R10.00827").create();
 
     FormEntry feNormalize = mu.feb(uiComboNormalize).name("ionquant.normalization").label("Normalize").create();
     FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes")
@@ -342,22 +350,25 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     JPanel pa = mu.newPanel("Advanced options", mu.lcFillXNoInsetsTopBottom());
 
+    mu.add(pa, new JLabel("Labels:"), mu.ccR());
+    mu.add(pa, feLight.label(), mu.ccL()).split().spanX();
+    mu.add(pa, feLight.comp);
+    mu.add(pa, feMedium.label());
+    mu.add(pa, feMedium.comp);
+    mu.add(pa, feHeavy.label());
+    mu.add(pa, feHeavy.comp).wrap();
+
     mu.add(pa, feRequant.label(), mu.ccR());
     mu.add(pa, feRequant.comp);
-    mu.add(pa, feLabel.label(), mu.ccR());
-    mu.add(pa, feLabel.comp).spanX().growX().wrap();
+    mu.add(pa, feNormalize.label(), mu.ccR());
+    mu.add(pa, feNormalize.comp).spanX().wrap();
 
     mu.add(pa, feTopIons.label(), mu.ccR());
     mu.add(pa, feTopIons.comp);
-    mu.add(pa, feMinFreq.label(), mu.ccR());
-    mu.add(pa, feMinFreq.comp).spanX().wrap();
-
-
-
-    mu.add(pa, feNormalize.label(), mu.ccR());
-    mu.add(pa, feNormalize.comp);
     mu.add(pa, feMinIsotopes.label(), mu.ccR());
-    mu.add(pa, feMinIsotopes.comp).spanX().wrap();
+    mu.add(pa, feMinIsotopes.comp);
+    mu.add(pa, feMinFreq.label(), mu.ccR());
+    mu.add(pa, feMinFreq.comp).wrap();
 
     mu.add(p, pa).spanX().growX().wrap();
 
