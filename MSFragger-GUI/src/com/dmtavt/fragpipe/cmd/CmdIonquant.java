@@ -190,14 +190,14 @@ public class CmdIonquant extends CmdBase {
     Set<Path> lcmsDirsUnique = Seq.seq(lcmsToFraggerPepxml.keySet()).map(lcms -> lcms.getPath().getParent())
         .toSet();
     for (Path path : lcmsDirsUnique) {
-      cmd.add("--spectraldir");
+      cmd.add("--specdir");
       cmd.add(StringUtils.appendPrependOnce(path.toString(), "\""));
     }
 
     for (Entry<InputLcmsFile, List<Path>> e : lcmsToFraggerPepxml.entrySet()) {
       InputLcmsFile lcms = e.getKey();
       for (Path pepxml : e.getValue()) {
-        //cmd.add(lcms.getPath().toString()); // lcms files are not needed anymore, auto-searched in --spectraldirs
+        //cmd.add(lcms.getPath().toString()); // lcms files are not needed anymore, auto-searched in --specdir
         cmd.add(wd.relativize(pepxml).toString());
       }
     }
