@@ -5,14 +5,14 @@
 </div>
 
 ## FragPipe
-FragPipe is a Java Graphical User Interface (GUI) for a suite of computational tools enabling comprehensive analysis of mass spectrometry-based proteomics data. It is powered by [MSFragger](https://msfragger.nesvilab.org/) - an ultrafast proteomic search engine suitable for both conventional and "open" (wide precursor mass tolerance) peptide identification. FragPipe includes the [Philosopher](https://nesvilab.github.io/philosopher/) toolkit for downstream post-processing of MSFragger search results (PeptideProphet, iProphet, ProteinProphet), FDR filtering, label-based quantification, and multi-experiment summary report generation. [Crystal-C](https://www.nesvilab.org/Crystal-C/) and [PTM-Shepherd](https://github.com/Nesvilab/PTM-Shepherd) are included to aid interpretation of open search results. Also included in FragPipe binary are [TMT-Integrator](http://tmt-integrator.nesvilab.org/), [IonQuant](http://ionquant.nesvilab.org/), SpectraST-based spectral library building module, and DIA-Umpire SE module for direct analysis of data independent acquisition (DIA) data. 
+FragPipe is a Java Graphical User Interface (GUI) for a suite of computational tools enabling comprehensive analysis of mass spectrometry-based proteomics data. It is powered by [MSFragger](https://msfragger.nesvilab.org/) - an ultrafast proteomic search engine suitable for both conventional and "open" (wide precursor mass tolerance) peptide identification. FragPipe includes the [Philosopher](https://nesvilab.github.io/philosopher/) toolkit for downstream post-processing of MSFragger search results (PeptideProphet, iProphet, ProteinProphet), FDR filtering, label-based quantification, and multi-experiment summary report generation. [Crystal-C](https://www.nesvilab.org/Crystal-C/) and [PTM-Shepherd](https://github.com/Nesvilab/PTM-Shepherd) are included to aid interpretation of open search results. Also included in FragPipe binary are [TMT-Integrator](http://tmt-integrator.nesvilab.org/) for TMT/iTRAQ isobaric labeling-based quantification, [IonQuant](http://ionquant.nesvilab.org/) for label-free quantification with match-between-run (MBR) functionality, SpectraST and EasyPQP spectral library building modules, and DIA-Umpire SE module for direct analysis of data independent acquisition (DIA) data. 
 
 
 ### [Download](https://github.com/Nesvilab/FragPipe/releases)
 
 ### Tutorials
 - [FragPipe setup](https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html)
-- [Using FragPipe](https://msfragger.nesvilab.org/tutorial_fragpipe.html)
+- [Using FragPipe](https://msfragger.nesvilab.org/tutorial_fragpipe.html). This is the most comprehensive tutorial covering all FragPipe modules.
 - [Analyzing glycoproteomics data](https://msfragger.nesvilab.org/tutorial_glyco-fragger.html)
 - [Converting LC/MS data files to mzML](https://msfragger.nesvilab.org/tutorial_convert.html)
 - [Running MSstats on TIMS-TOF data](https://msfragger.nesvilab.org/tutorial_msstats.html)
@@ -26,8 +26,9 @@ For documentation on the Philosopher toolkit see the [Philosopher wiki](https://
 See the MSFragger [wiki](https://github.com/Nesvilab/MSFragger/wiki) and [FAQ](https://github.com/Nesvilab/MSFragger/wiki/Frequently-Asked-Questions). View previous questions/bug reports in the
 [FragPipe issue tracker](https://github.com/Nesvilab/FragPipe/issues). Please post any new questions/bug reports regarding FragPipe itself here as well.
 For questions specific to individual components of FragPipe you can also
-use [MSFragger issue tracker](https://github.com/Nesvilab/MSFragger/issues)
-and [Philosopher issue tracker](https://github.com/Nesvilab/philosopher/issues).
+use [MSFragger issue tracker](https://github.com/Nesvilab/MSFragger/issues),
+[Philosopher issue tracker](https://github.com/Nesvilab/philosopher/issues), [IonQuant issue tracker] (https://github.com/Nesvilab/IonQuant/issues).
+
 
 
 For other tools developed by Nesvizhskii lab, visit our website 
