@@ -27,8 +27,8 @@ See the MSFragger [wiki](https://github.com/Nesvilab/MSFragger/wiki) and [FAQ](h
 [FragPipe issue tracker](https://github.com/Nesvilab/FragPipe/issues). Please post any new questions/bug reports regarding FragPipe itself here as well.
 For questions specific to individual components of FragPipe you can also
 use [MSFragger issue tracker](https://github.com/Nesvilab/MSFragger/issues),
-[Philosopher issue tracker](https://github.com/Nesvilab/philosopher/issues), [IonQuant issue tracker] (https://github.com/Nesvilab/IonQuant/issues).
-
+[Philosopher issue tracker](https://github.com/Nesvilab/philosopher/issues),
+[IonQuant issue tracker](https://github.com/Nesvilab/IonQuant/issues).
 
 
 For other tools developed by Nesvizhskii lab, visit our website 
