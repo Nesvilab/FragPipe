@@ -144,9 +144,9 @@ public class ReportPanel extends JPanelBase {
     FormEntry feCheckPepSummary = new FormEntry("pep-level-summary", "not-shown",
         uiCheckPepSummary,
         "<html>Optional generation of combined.pep.xml files for multi-experiment setup.");
-    uiCheckWriteMzid = new UiCheck("Write mzID output (experimental)", null, false);
-    FormEntry feCheckWriteMzid = new FormEntry("write-mzid", "not-shown",
-        uiCheckWriteMzid);
+//    uiCheckWriteMzid = new UiCheck("Write mzID output (experimental)", null, false);
+//    FormEntry feCheckWriteMzid = new FormEntry("write-mzid", "not-shown",
+//        uiCheckWriteMzid);
     uiCheckPrintDecoys = new UiCheck("Print decoys", null, false);
     FormEntry feCheckPrintDecoys = new FormEntry("print-decoys", "not-shown",
         uiCheckPrintDecoys);
@@ -160,7 +160,7 @@ public class ReportPanel extends JPanelBase {
     mu.add(p, feFilter.comp).growX().pushX().wrap();
     mu.add(p, feCheckPepSummary.comp).wrap();
     mu.add(p, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
-    mu.add(p, feCheckWriteMzid.comp);
+//    mu.add(p, feCheckWriteMzid.comp);
     mu.add(p, feCheckPrintDecoys.comp);
     mu.add(p, feCheckDontUseProtProphFile.comp).wrap();
 
