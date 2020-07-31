@@ -365,12 +365,12 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.add(pa, feRequant.label(), mu.ccR());
     mu.add(pa, feRequant.comp);
     mu.add(pa, feNormalize.label(), mu.ccR());
-    mu.add(pa, feNormalize.comp).spanX().wrap();
+    mu.add(pa, feNormalize.comp);
+    mu.add(pa, feMinIsotopes.label(), mu.ccR());
+    mu.add(pa, feMinIsotopes.comp).spanX().wrap();
 
     mu.add(pa, feTopIons.label(), mu.ccR());
     mu.add(pa, feTopIons.comp);
-    mu.add(pa, feMinIsotopes.label(), mu.ccR());
-    mu.add(pa, feMinIsotopes.comp);
     mu.add(pa, feMinFreq.label(), mu.ccR());
     mu.add(pa, feMinFreq.comp);
     mu.add(pa, feMinExps.label(), mu.ccR());
