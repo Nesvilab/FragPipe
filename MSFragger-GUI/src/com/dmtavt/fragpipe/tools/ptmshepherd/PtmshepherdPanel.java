@@ -266,8 +266,8 @@ public class PtmshepherdPanel extends JPanelBase {
         .label("Annotation tolerance (Da)").tooltip("+/- distance from peak to annotated mass").create();
 
     String tooltipAnnotationFile = "Custom mass shift annotation file. Will not map to UniMod if provided.";
-    UiText uiAnnotationFile = UiUtils.uiTextBuilder().ghost(tooltipAnnotationFile).create();
-    FormEntry feAnnotationFile = mu.feb(PROP_custom_modlist, uiAnnotationFile)
+    final UiText uiTextAnnotationFile = UiUtils.uiTextBuilder().create();
+    FormEntry feAnnotationFile = mu.feb(PROP_custom_modlist, uiTextAnnotationFile)
         .label("Custom mass shift annotation file").tooltip(tooltipAnnotationFile).create();
     JButton btnBrosweAnnotationFile = feAnnotationFile.browseButton("Browse", tooltipAnnotationFile,
         () -> FileChooserUtils.builder("Select custom mass shift annotation file")
@@ -275,7 +275,9 @@ public class PtmshepherdPanel extends JPanelBase {
             .paths(Stream.of(Fragpipe.propsVarGet(PROP_custom_modlist_loc))).create(),
         paths -> {
           if (paths != null && !paths.isEmpty()) {
-            Fragpipe.propsVarSet(PROP_custom_modlist_loc, paths.get(0).toString());
+            String path = paths.get(0).toString();
+            Fragpipe.propsVarSet(PROP_custom_modlist_loc, path);
+            uiTextAnnotationFile.setText(path);
           }
         });
 
