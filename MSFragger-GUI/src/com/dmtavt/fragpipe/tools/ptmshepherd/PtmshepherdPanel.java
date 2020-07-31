@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe.tools.ptmshepherd;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.SearchTypeProp;
 import com.dmtavt.fragpipe.messages.MessageLoadShepherdDefaults;
@@ -9,6 +10,8 @@ import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FileChooserUtils;
+import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.GhostText;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -34,8 +37,10 @@ import java.util.Properties;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -71,6 +76,9 @@ public class PtmshepherdPanel extends JPanelBase {
   public static final String PROP_localization_background = "localization_background";
   public static final String PROP_output_extended = "output_extended";
   private static final String PROP_varmod_masses = "varmod_masses";
+  private static final String PROP_custom_modlist = "custom_modlist";
+
+  private static final String PROP_custom_modlist_loc = "ptmshepherd.path.modlist";
 
   private final List<BalloonTip> balloonTips = new ArrayList<>();
   private JCheckBox checkRun;
@@ -257,6 +265,20 @@ public class PtmshepherdPanel extends JPanelBase {
     FormEntry feAnnotTol = mu.feb(PROP_annotation_tol, uiSpinnerAnnotTol)
         .label("Annotation tolerance (Da)").tooltip("+/- distance from peak to annotated mass").create();
 
+    String tooltipAnnotationFile = "Custom mass shift annotation file. Will not map to UniMod if provided.";
+    UiText uiAnnotationFile = UiUtils.uiTextBuilder().ghost(tooltipAnnotationFile).create();
+    FormEntry feAnnotationFile = mu.feb(PROP_custom_modlist, uiAnnotationFile)
+        .label("Custom mass shift annotation file").tooltip(tooltipAnnotationFile).create();
+    JButton btnBrosweAnnotationFile = feAnnotationFile.browseButton("Browse", tooltipAnnotationFile,
+        () -> FileChooserUtils.builder("Select custom mass shift annotation file")
+            .approveButton("Select").mode(FcMode.FILES_ONLY).acceptAll(true).multi(false)
+            .paths(Stream.of(Fragpipe.propsVarGet(PROP_custom_modlist_loc))).create(),
+        paths -> {
+          if (paths != null && !paths.isEmpty()) {
+            Fragpipe.propsVarSet(PROP_custom_modlist_loc, paths.get(0).toString());
+          }
+        });
+
     mu.add(p, feHistoSmoothBins.label(), mu.ccR());
     mu.add(p, feHistoSmoothBins.comp);
     mu.add(p, fePrecTol.label(), mu.ccR());
@@ -274,7 +296,6 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p, feLocBackground.comp);
     mu.add(p, feAnnotTol.label(), mu.ccR());
     mu.add(p, feAnnotTol.comp).wrap();
-
 
     final String ghost = "Phospho:79.9663, Something-else:-20.123";
     uiTextVarMods = new UiTextBuilder().text("Failed_Carbamidomethylation:-57.021464")
@@ -299,8 +320,12 @@ public class PtmshepherdPanel extends JPanelBase {
             + "Comma separated entries of form \"&lt;name&gt;:&lt;mass&gt;\"<br/>\n"
             + "Example:<br/>\n"
             + "&nbsp;&nbsp;&nbsp;&nbsp;Phospho:79.9663,Something-else:-20.123");
-    p.add(feVarMods.label(), new CC().alignX("right"));
-    p.add(feVarMods.comp, new CC().alignX("left").spanX().growX());
+    mu.add(p, feVarMods.label(), mu.ccR());
+    mu.add(p, feVarMods.comp).spanX().growX();
+
+    mu.add(p, feAnnotationFile.label(), mu.ccR());
+    mu.add(p, feAnnotationFile.comp).split().spanX().growX();
+    mu.add(p, btnBrosweAnnotationFile).wrap();
 
     // these are valid shepherd parameters, but not displayed in the UI anymore
 
