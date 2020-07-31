@@ -245,6 +245,7 @@ public class QuantPanelLabelfree extends JPanelBase {
         .setCols(5).setFormat("#.##").create();
     UiSpinnerInt uiSpinnerTopIons = UiUtils.spinnerInt(3, 0, 10, 1).setCols(5).create();
     UiSpinnerInt uiSpinnerMinIons = UiUtils.spinnerInt(1, 0, 10, 1).setCols(5).create();
+    UiSpinnerInt uiSpinnerMinExps = UiUtils.spinnerInt(1, 1, 10000, 1).setCols(5).create();
 
     UiSpinnerDouble uiSpinnerMbrIonFdr = UiUtils.spinnerDouble(0.01, 0.001, 1, 0.01)
         .setCols(5).setFormat("#.###").create();
@@ -257,6 +258,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiText uiTextLight = UiUtils.uiTextBuilder().cols(15).create();
     UiText uiTextMedium = UiUtils.uiTextBuilder().cols(15).create();
     UiText uiTextHeavy = UiUtils.uiTextBuilder().cols(15).create();
+    UiText uiTextExcludemods = UiUtils.uiTextBuilder().cols(45).create();
 
     //FormEntry feDataType = mu.feb(uiComboTimsTOF).name("ionquant.ionmobility").label("Data type").create();
     FormEntry feMbr = mu.feb(uiComboMbr).name("ionquant.mbr").label("Match between runs (MBR)").create();
@@ -270,6 +272,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMinIons = mu.feb(uiSpinnerMinIons).name("ionquant.minions").label("Min ions").create();
     FormEntry feTopIons = mu.feb(uiSpinnerTopIons).name("ionquant.tp").label("Top N ions").create();
     FormEntry feMinFreq = mu.feb(uiSpinnerMinFreq).name("ionquant.minfreq").label("Min freq").create();
+    FormEntry feMinExps = mu.feb(uiSpinnerMinExps).name("ionquant.minExps").label("Min exps").create();
 
     FormEntry feMbrMinCorr = mu.feb(uiSpinnerMbrMinCorr).name("ionquant.mbrmincorr").label("MBR min correlation").create();
     FormEntry feMbrRtTol = mu.feb(uiSpinnerMbrRtTol).name("ionquant.mbrrttol").label("MBR RT Window (minutes)").create();
@@ -290,6 +293,8 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feNormalize = mu.feb(uiComboNormalize).name("ionquant.normalization").label("Normalize").create();
     FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes")
         .tooltip("Min number of isotopes for tracing.").create();
+
+    FormEntry feExcludemods = mu.feb(uiTextExcludemods).name("ionquant.excludemods").label("Excluded Mods").create();
 
     SwingUtils.addItemSelectedListener(uiComboProtQuant, true, itemEvent -> {
       Object o = itemEvent.getItem();
@@ -367,7 +372,12 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.add(pa, feMinIsotopes.label(), mu.ccR());
     mu.add(pa, feMinIsotopes.comp);
     mu.add(pa, feMinFreq.label(), mu.ccR());
-    mu.add(pa, feMinFreq.comp).wrap();
+    mu.add(pa, feMinFreq.comp);
+    mu.add(pa, feMinExps.label(), mu.ccR());
+    mu.add(pa, feMinExps.comp).wrap();
+
+    mu.add(pa, feExcludemods.label(), mu.ccR());
+    mu.add(pa, feExcludemods.comp).growX().spanX().wrap();
 
     mu.add(p, pa).spanX().growX().wrap();
 

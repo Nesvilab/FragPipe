@@ -145,7 +145,9 @@ public class CmdIonquant extends CmdBase {
         "heavy",
         "tp",
         "minfreq",
-        "minions"
+        "minions",
+        "excludemods",
+        "minExps"
         );
 
     final long namedExpCount = mapGroupsToProtxml.keySet().stream().map(group -> group.name)
