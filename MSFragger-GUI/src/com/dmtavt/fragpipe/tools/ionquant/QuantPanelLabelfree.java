@@ -308,6 +308,7 @@ public class QuantPanelLabelfree extends JPanelBase {
       final boolean enabled = !"MaxLFQ".equalsIgnoreCase((String) itemEvent.getItem());
       updateEnabledStatus(uiSpinnerTopIons, enabled);
       updateEnabledStatus(uiSpinnerMinFreq, enabled);
+      updateEnabledStatus(uiSpinnerMinExps, enabled);
     });
 
 
