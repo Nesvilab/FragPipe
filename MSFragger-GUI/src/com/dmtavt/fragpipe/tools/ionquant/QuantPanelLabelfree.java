@@ -233,7 +233,7 @@ public class QuantPanelLabelfree extends JPanelBase {
 //
 //    ionquant.label :: Labels <=> <string>
 
-    UiSpinnerDouble uiSpinnerMbrMinCorr = UiUtils.spinnerDouble(0.5, 0, 1, 0.1)
+    UiSpinnerDouble uiSpinnerMbrMinCorr = UiUtils.spinnerDouble(0.0, 0, 1, 0.1)
         .setCols(5).setFormat("#.##").create();
     UiSpinnerDouble uiSpinnerMbrRtTol = UiUtils.spinnerDouble(1.0, 0.01, 100, 0.1)
         .setCols(5).setFormat("#.##").create();
