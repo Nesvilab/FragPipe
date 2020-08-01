@@ -41,7 +41,7 @@ public class ReportPanel extends JPanelBase {
   private JPanel pOptions;
   private UiText uiTextFilter;
   private UiCheck uiCheckPepSummary;
-  private UiCheck uiCheckWriteMzid;
+//  private UiCheck uiCheckWriteMzid;
   private UiCheck uiCheckPrintDecoys;
   private UiCheck uiCheckDontUseProtProphFile;
 
@@ -204,9 +204,9 @@ public class ReportPanel extends JPanelBase {
     return uiCheckPrintDecoys.isSelected();
   }
 
-  public boolean isWriteMzid() {
-    return uiCheckWriteMzid.isSelected();
-  }
+//  public boolean isWriteMzid() {
+//    return uiCheckWriteMzid.isSelected();
+//  }
 
   private void clearBalloonTips() {
     for (BalloonTip balloonTip : balloonTips) {

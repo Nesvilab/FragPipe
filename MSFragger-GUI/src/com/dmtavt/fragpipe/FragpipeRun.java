@@ -882,12 +882,12 @@ public class FragpipeRun {
     // run Report - Report command itself
     final CmdPhilosopherReport cmdPhilosopherReport = new CmdPhilosopherReport(isReport, wd);
     final boolean doPrintDecoys = reportPanel.isPrintDecoys();
-    final boolean doMzid = reportPanel.isWriteMzid();
+//    final boolean doMzid = reportPanel.isWriteMzid();
 
     addConfig.accept(cmdPhilosopherReport, () -> {
       if (cmdPhilosopherReport.isRun()) {
         return cmdPhilosopherReport
-            .configure(parent, usePhi, doPrintDecoys, doMzid, sharedMapGroupsToProtxml);
+            .configure(parent, usePhi, doPrintDecoys, sharedMapGroupsToProtxml);
       }
       return true;
     });
