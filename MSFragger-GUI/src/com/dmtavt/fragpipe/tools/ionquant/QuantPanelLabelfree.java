@@ -272,7 +272,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMinIons = mu.feb(uiSpinnerMinIons).name("ionquant.minions").label("Min ions").tooltip("Minimum ions required in quantifying a protein.").create();
     FormEntry feTopIons = mu.feb(uiSpinnerTopIons).name("ionquant.tp").label("Top N ions").tooltip("Only activate when Protein quant is Top-N.").create();
     FormEntry feMinFreq = mu.feb(uiSpinnerMinFreq).name("ionquant.minfreq").label("Min freq").tooltip("Only activate when Protein quant is Top-N.").create();
-    FormEntry feMinExps = mu.feb(uiSpinnerMinExps).name("ionquant.minExps").label("Min exps").tooltip("Only activate when Protein quant is Top-N.").create();
+    FormEntry feMinExps = mu.feb(uiSpinnerMinExps).name("ionquant.minexps").label("Min exps").tooltip("Only activate when Protein quant is Top-N.").create();
 
     FormEntry feMbrMinCorr = mu.feb(uiSpinnerMbrMinCorr).name("ionquant.mbrmincorr").label("MBR min correlation").create();
     FormEntry feMbrRtTol = mu.feb(uiSpinnerMbrRtTol).name("ionquant.mbrrttol").label("MBR RT Window (minutes)").create();
