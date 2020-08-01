@@ -32,6 +32,7 @@ import com.dmtavt.fragpipe.messages.MessageType;
 import com.dmtavt.fragpipe.messages.MessageUpdateWorkflows;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.FileDrop;
+import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.PropertiesUtils;
@@ -59,6 +60,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -682,13 +684,14 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(MessageSaveAsWorkflow m) {
+  public void on(MessageSaveAsWorkflow m) throws IOException {
     Fragpipe fp = Fragpipe.getStickyStrict(Fragpipe.class);
     Properties uiProps = FragpipeCacheUtils.tabsSave0(fp.tabs, m.saveWithFieldTypes);
 
     Path saveDir;
+    Path fpWorkflowsDir = FragpipeLocations.get().getDirWorkflows();
     if (!m.toCustomDir) {
-      saveDir = FragpipeLocations.get().getDirWorkflows();
+      saveDir = fpWorkflowsDir;
     } else {
       // save to custom dir
       final String propWorkflowDir = "workflow.last-save-dir";
@@ -725,24 +728,38 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, new JLabel("Description (optional)")).wrap();
     mu.add(p, ep).spanX().wrap();
 
-    int answer = SwingUtils.showConfirmDialog(fp, p, "Assign workflow name");
-    if (JOptionPane.OK_OPTION != answer) {
-      return;
-    }
-    String text = uiTextName.getNonGhostText().trim();
-    if (StringUtils.isBlank(text)) {
-      SwingUtils.showErrorDialog(fp, "Workflow name can't be left empty", "Error saving workflow");
-      return;
+    final List<Path> defaultWorkflows = new ArrayList<>();
+    JarUtils.walkResources("/workflows", defaultWorkflows::add);
+    log.debug("Found default workflows in jar: {}", defaultWorkflows);
+
+    Path savePath = null;
+    while (true) {
+      int answer = SwingUtils.showConfirmDialog(fp, p, "Assign workflow name");
+      if (JOptionPane.OK_OPTION != answer) {
+        return;
+      }
+      String text = uiTextName.getNonGhostText().trim();
+      if (StringUtils.isBlank(text)) {
+        SwingUtils.showErrorDialog(fp, "Workflow name can't be left empty", "Error saving workflow");
+        return;
+      }
+      final String fn = StringUtils.appendOnce(text, ".workflow");
+      if (saveDir.equals(fpWorkflowsDir) && defaultWorkflows.stream()
+          .anyMatch(path -> path.getFileName().toString().equalsIgnoreCase(fn))) {
+        SwingUtils.showInfoDialog(this,
+            "Name can't be the same as one of default ones",
+            "Please choose another file name");
+        continue;
+      }
+      try {
+        savePath = saveDir.resolve(fn).normalize().toAbsolutePath();
+      } catch (Exception e) {
+        SwingUtils.showErrorDialog(fp, "Not a valid path", "Error saving workflow");
+        continue;
+      }
+      break;
     }
 
-    text = StringUtils.appendOnce(text, ".workflow");
-    Path savePath;
-    try {
-      savePath = saveDir.resolve(text).normalize().toAbsolutePath();
-    } catch (Exception e) {
-      SwingUtils.showErrorDialog(fp, "Not a valid path", "Error saving workflow");
-      return;
-    }
     if (PathUtils.existing(savePath.toString()) != null) {
       int ans = SwingUtils.showConfirmDialog(fp,
           new JLabel(SwingUtils.makeHtml("Overwrite existing file?\n" + savePath.toString())),

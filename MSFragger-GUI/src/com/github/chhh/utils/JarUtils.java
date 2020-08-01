@@ -9,6 +9,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,15 +18,40 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.security.CodeSource;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.Set;
 
+import java.util.function.Consumer;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JarUtils {
   private static final Logger log = LoggerFactory.getLogger(JarUtils.class);
   private JarUtils() {}
+
+  public static void walkResources(String resourcesDir, Consumer<Path> callback) throws IOException {
+    URI uri = null;
+    try {
+      uri = JarUtils.class.getResource(resourcesDir).toURI();
+    } catch (URISyntaxException e) {
+      throw new IllegalArgumentException("Not a valid URI", e);
+    }
+    Path myPath;
+    if (uri.getScheme().equals("jar")) {
+      FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap());
+      myPath = fileSystem.getPath(resourcesDir);
+    } else {
+      myPath = Paths.get(uri);
+    }
+    Stream<Path> walk = Files.walk(myPath, 1);
+    for (Iterator<Path> it = walk.iterator(); it.hasNext();){
+      Path next = it.next();
+      callback.accept(next);
+    }
+  }
 
   /**
    * Unpack and possibly rename a file from this jar to a temp dir.
