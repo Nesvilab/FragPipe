@@ -1144,7 +1144,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   public void on(MessageManifestSave m) {
     String loc = Fragpipe.propsVarGet(ThisAppProps.CONFIG_SAVE_LOCATION);
     JFileChooser fc = FileChooserUtils.builder("Path to save manifest")
-        .paths(Stream.of(loc)).mode(FcMode.ANY).approveButton("Save").multi(false)
+        .paths(Stream.of(loc)).mode(FcMode.FILES_ONLY).approveButton("Save").multi(false)
         .acceptAll(true)
         .filters(Arrays.asList(new FileNameEndingFilter("Fragpipe manifest",".fp-manifest")))
         .create();
