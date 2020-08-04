@@ -180,12 +180,12 @@ public class CmdIonquant extends CmdBase {
       LcmsFileGroup group = e.getKey();
       Path psmTsv = group.outputDir(wd).resolve("psm.tsv");
       cmd.add("--psm");
-      cmd.add(psmTsv.toString());
+      cmd.add(wd.relativize(psmTsv).toString());
     }
 
     if (isMultidir) {
       cmd.add("--multidir");
-      cmd.add(wd.toString());
+      cmd.add(".");
     }
 
     // compute unique lcms file directories
