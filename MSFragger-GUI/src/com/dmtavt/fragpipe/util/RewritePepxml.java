@@ -7,23 +7,38 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import okio.Buffer;
 import okio.BufferedSource;
 import okio.Okio;
 import okio.Sink;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RewritePepxml {
   private static final Logger log = LoggerFactory.getLogger(RewritePepxml.class);
 
-  public static void main(String[] args) {
-
+  public static void main(String[] args) throws IOException {
+    Optional<Path> notExists = Arrays.stream(args).map(Paths::get).filter(Files::notExists).findFirst();
+    if (notExists.isPresent()) {
+      System.err.printf("Not all given paths exist: %s\n", notExists.toString());
+      System.exit(1);
+    }
+    Path pepxml = Paths.get(args[0]);
+    String[] replacements = new String[Math.max(0, args.length-1)];
+    for (int i = 1; i < args.length; i++) {
+      replacements[i-1] = args[i];
+    }
+    System.out.printf("Fixing pepxml: %s\n", pepxml);
+    rewriteRawPath(pepxml, replacements);
   }
 
-  public static void rewriteRawPath(Path pepxml, String replacement) throws IOException {
+  public static void rewriteRawPath(Path pepxml, String... replacement) throws IOException {
     log.debug("Rewriting pepxml: {}", pepxml);
     Path dir = pepxml.getParent();
     Path fn = pepxml.getFileName();
@@ -59,9 +74,9 @@ public class RewritePepxml {
             sink.write(buf, buf.size());
           } else { // found
             ++foundCount;
-            if (foundCount > 1) {
-              throw new IllegalStateException("More than one element to be replaced found. Don't know how to handle this situation.");
-            }
+//            if (foundCount > 1) {
+//              throw new IllegalStateException("More than one element to be replaced found. Don't know how to handle this situation.");
+//            }
             long offset = fr.bytesRead - bytesLo.length;
             if (!find(peek, overlap, bytesHi, fr)) {
               throw new IllegalStateException("Didn't find closing tag bracket with the search limit");
@@ -74,26 +89,34 @@ public class RewritePepxml {
             String originalMsmsRunSummary = buf.readUtf8();
             log.debug("Original msms_run_summary in the file was: {}", originalMsmsRunSummary);
 
+            Matcher m = re.matcher(originalMsmsRunSummary);
+            if (!m.find()) {
+              throw new IllegalStateException("Didn't find base_name attribute inside msms_run_summary");
+            }
+            String origPath = m.group(1);
+            Path origPathFn = Paths.get(origPath).getFileName();
+
             String rewrite;
-            if (replacement != null) {
-              String ext = StringUtils.afterLastDot(replacement);
+            if (replacement != null && replacement.length > 0) {
+              // try to match to what we have
+              Map<String, Path> mapFnLessExtToFull = Seq.of(replacement).map(Paths::get)
+                  .toMap(path -> StringUtils.upToLastDot(path.getFileName().toString()), path -> path);
+              Path correctRaw = mapFnLessExtToFull.get(origPathFn.toString());
+              if (correctRaw == null) {
+                System.err.printf("Didn't find correct mapping for raw file path in pepxml: %s", origPath);
+                System.exit(1);
+              }
+              String ext = StringUtils.afterLastDot(correctRaw.getFileName().toString());
               rewrite = String.format(
                   "<msms_run_summary base_name=\"%s\" raw_data_type=\"%s\" raw_data=\"%s\">",
-                  replacement, ext, ext);
+                  StringUtils.upToLastDot(correctRaw.toString()), ext, ext);
+
             } else {
-              Matcher m = re.matcher(originalMsmsRunSummary);
-              if (!m.find()) {
-                throw new IllegalStateException("Didn't find base_name attribute inside msms_run_summary");
-              }
-              String origPath = m.group(1);
-              Path fileName = Paths.get(origPath).getFileName();
-              rewrite = re.matcher(originalMsmsRunSummary).replaceFirst(String.format("base_name=\"%s\"", fileName));
+              rewrite = re.matcher(originalMsmsRunSummary).replaceFirst(String.format("base_name=\"%s\"", origPathFn));
             }
             log.debug("Rewritten tag: {}", rewrite);
             buf.write(rewrite.getBytes(StandardCharsets.UTF_8));
             sink.write(buf, buf.size());
-            //break;
-            //throw new IllegalStateException("hehehe");
           }
         }
       } catch (EOFException eof) {
@@ -106,6 +129,13 @@ public class RewritePepxml {
         sink.close();
       }
     }
+
+    // rewriting done
+    // delete original, rename temp file
+    log.debug("Deleting file: {}", pepxml);
+    Files.deleteIfExists(pepxml);
+    log.debug("Moving file: [{}] -> [{}]", temp, pepxml);
+    Files.move(temp, pepxml);
 
   }
 

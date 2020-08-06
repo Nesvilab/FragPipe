@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe.tabs;
 
+import com.dmtavt.fragpipe.tools.ptmprophet.PtmProphetPanel;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdPanel;
