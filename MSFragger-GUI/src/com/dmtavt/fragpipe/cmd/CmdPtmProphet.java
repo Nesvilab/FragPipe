@@ -4,19 +4,21 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.util.RewritePepxml;
-import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.UsageTrigger;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.jooq.lambda.Seq;
 import org.jooq.lambda.tuple.Tuple2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CmdPtmProphet extends CmdBase {
+  private static final Logger log = LoggerFactory.getLogger(CmdPtmProphet.class);
   public static String NAME = "PtmProphet";
 
   public CmdPtmProphet(boolean isRun, Path workDir) {
@@ -79,10 +81,10 @@ public class CmdPtmProphet extends CmdBase {
     cmd.add("-cp");
     Path root = FragpipeLocations.get().getDirFragpipeRoot();
     String libsDir = root.resolve("lib").toString() + "/*";
-//    if (!jarFragpipe.getFileName().toString().endsWith(".jar")) {
-//      //"\\fragpipe\\MSFragger-GUI\\build\\install\\fragpipe\\lib";
-//      libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib").toString() + "/*";
-//    }
+    if (Files.isDirectory(jarFragpipe)) {
+      libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib").toString() + "/*";
+      log.warn("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
+    }
     cmd.add(libsDir);
     cmd.add(RewritePepxml.class.getCanonicalName());
     cmd.add(pepxml.toAbsolutePath().normalize().toString());

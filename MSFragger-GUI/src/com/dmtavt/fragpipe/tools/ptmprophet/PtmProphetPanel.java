@@ -64,7 +64,7 @@ public class PtmProphetPanel extends JPanelBase {
   }
 
   private JPanel createPanelContent() {
-    JPanel p = mu.newPanel(new LC().fillX().debug());
+    JPanel p = mu.newPanel(new LC().fillX());
     //mu.border(p, "PTM prophet options");
     mu.borderEmpty(p);
 
@@ -84,9 +84,8 @@ public class PtmProphetPanel extends JPanelBase {
     final String prop = "ptmprophet.cmdline.default";
     String val = Fragpipe.getPropFix(prop);
     if (val == null) {
-      log.warn("Property [{}] not found in Bundle.properties", prop);
-    } else {
-      val = "--static --em 1 --nions b --mods STY:79.966331,M:15.9949,n:229.162932,n:42.0106 --minprob 0.5";
+      val = "--keepold --static --em 1 --nions b --mods STY:79.966331,M:15.9949 --minprob 0.5";
+      log.warn("Property [{}] not found in Bundle.properties, default to hardcoded value: {}", prop, val);
     }
     return val;
   }

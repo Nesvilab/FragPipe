@@ -35,10 +35,10 @@ public class RewritePepxml {
       replacements[i-1] = args[i];
     }
     System.out.printf("Fixing pepxml: %s\n", pepxml);
-    rewriteRawPath(pepxml, replacements);
+    rewriteRawPath(pepxml, true, replacements);
   }
 
-  public static void rewriteRawPath(Path pepxml, String... replacement) throws IOException {
+  public static Path rewriteRawPath(Path pepxml, boolean replaceOriginal, String... replacement) throws IOException {
     log.debug("Rewriting pepxml: {}", pepxml);
     Path dir = pepxml.getParent();
     Path fn = pepxml.getFileName();
@@ -66,12 +66,7 @@ public class RewritePepxml {
         while (true) {
           BufferedSource peek = bs.peek();
           if (!find(peek, bufsz, bytesLo, fr)) {
-            long toDump = fr.bytesRead - overlap;
-            if (toDump <= 0) {
-              throw new IllegalStateException("Weird situation, is it the end of the file? Why was it found? Shouldn't happen, I think.");
-            }
-            buf.write(bs, toDump);
-            sink.write(buf, buf.size());
+            dumpWhenNotFound(overlap, sink, buf, bs, fr);
           } else { // found
             ++foundCount;
 //            if (foundCount > 1) {
@@ -122,6 +117,7 @@ public class RewritePepxml {
       } catch (EOFException eof) {
         log.debug("Got to end of file");
         buf.writeAll(bs);
+        sink.write(buf, buf.size());
       }
     } finally {
       if (sink != null) {
@@ -132,11 +128,26 @@ public class RewritePepxml {
 
     // rewriting done
     // delete original, rename temp file
+    if (!replaceOriginal) {
+      log.debug("Done rewriting, modified file: {}", temp);
+      return temp;
+    }
     log.debug("Deleting file: {}", pepxml);
     Files.deleteIfExists(pepxml);
     log.debug("Moving file: [{}] -> [{}]", temp, pepxml);
     Files.move(temp, pepxml);
+    log.debug("Done rewriting, modified file: {}", pepxml);
+    return pepxml;
+  }
 
+  private static void dumpWhenNotFound(int overlap, Sink sink, Buffer buf, BufferedSource bs,
+      FindResult fr) throws IOException {
+    long toDump = fr.bytesRead - overlap;
+    if (toDump <= 0) {
+      throw new IllegalStateException("Weird situation, is it the end of the file? Why was it found? Shouldn't happen, I think.");
+    }
+    buf.write(bs, toDump);
+    sink.write(buf, buf.size());
   }
 
   private static class FindResult {
@@ -151,7 +162,7 @@ public class RewritePepxml {
     }
   }
 
-  private static boolean find(BufferedSource source, int limit, byte[] seq, final FindResult result) throws IOException {
+  private static boolean find(BufferedSource peek, int limit, byte[] seq, final FindResult result) throws IOException {
     int pos = 0;
     long read = 0;
     while (true) {
@@ -161,7 +172,8 @@ public class RewritePepxml {
         return false;
       }
 
-      byte b = source.readByte();
+      byte b;
+      b = peek.readByte();
       read += 1;
       if (b == seq[pos]) {
         pos += 1;
