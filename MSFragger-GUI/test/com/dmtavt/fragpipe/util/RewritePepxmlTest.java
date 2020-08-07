@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class RewritePepxmlTest {
 
-  @Test //@Ignore
+  @Test @Ignore
   public void testPepxmlRewrite() throws IOException {
     Path dir = Paths.get("D:\\ms-data\\full-runs\\ids");
     String fn = "interact-20171007_LUMOS_f01-copy.pep.xml";
