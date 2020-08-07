@@ -1,12 +1,15 @@
 package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.util.RewritePepxml;
+import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.UsageTrigger;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -74,7 +77,13 @@ public class CmdPtmProphet extends CmdBase {
     List<String> cmd = new ArrayList<>();
     cmd.add(Fragpipe.getBinJava());
     cmd.add("-cp");
-    cmd.add(jarFragpipe.toAbsolutePath().toString());
+    Path root = FragpipeLocations.get().getDirFragpipeRoot();
+    String libsDir = root.resolve("lib").toString() + "/*";
+//    if (!jarFragpipe.getFileName().toString().endsWith(".jar")) {
+//      //"\\fragpipe\\MSFragger-GUI\\build\\install\\fragpipe\\lib";
+//      libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib").toString() + "/*";
+//    }
+    cmd.add(libsDir);
     cmd.add(RewritePepxml.class.getCanonicalName());
     cmd.add(pepxml.toAbsolutePath().normalize().toString());
     for (Path lcms : lcmsPaths) {
