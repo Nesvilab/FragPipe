@@ -24,9 +24,13 @@ import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
  */
 public enum FraggerOutputType {
     
-    PEP_XML("pepXML", "pepXML"),
+    PEPXML("pepXML", "pepXML"),
     TSV("tsv", "tsv"),
-    TSV_AND_PEPXML("pepXML", "tsv_pepXML");
+    TSV_PEPXML("pepXML", "tsv_pepXML"),
+    PIN("pin", "pin"),
+    TSV_PIN("tsv", "tsv_pin"),
+    PEPXML_PIN("pepXML", "pepXML_pin"),
+    TSV_PEPXML_PIN("pepXML", "tsv_pepXML_pin");
 
     
     String extension;

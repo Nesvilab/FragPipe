@@ -1010,9 +1010,10 @@ public class TabMsfragger extends JPanelBase {
     uiComboOutputType = UiUtils.createUiCombo(FraggerOutputType.values());
     FormEntry feOutputType = mu.feb(MsfraggerParams.PROP_output_format, uiComboOutputType).label("Output format")
         .tooltip("How the search results are to be reported.\n" +
-            "Downstream tools only support PepXML format.\n\n" +
-            "Only use TSV (tab delimited file) if you want to process \n" +
-            "search resutls yourself for easier import into other software.").create();
+            "Downstream tools only support pepXML format.\n\n" +
+            "Use PIN if you want to process the result results with Percolator by yourself.\n" +
+            "Use TSV (tab delimited file) if you want to process \n" +
+            "search results yourself for easier import into other software.").create();
 
     String tooltipPrecursorCHarge =
         "Assume range of potential precursor charge states.\n" +
@@ -1071,9 +1072,10 @@ public class TabMsfragger extends JPanelBase {
     uiComboOutputType = UiUtils.createUiCombo(FraggerOutputType.values());
     FormEntry feOutputType = mu.feb(MsfraggerParams.PROP_output_format, uiComboOutputType).label("Output format")
         .tooltip("How the search results are to be reported.\n" +
-            "Downstream tools only support PepXML format.\n\n" +
-            "Only use TSV (tab delimited file) if you want to process \n" +
-            "search resutls yourself for easier import into other software.").create();
+            "Downstream tools only support pepXML format.\n\n" +
+            "Use PIN if you want to process the result results with Percolator by yourself.\n" +
+            "Use TSV (tab delimited file) if you want to process \n" +
+            "search results yourself for easier import into other software.").create();
 
     FormEntry feReportAltProts = mu.feb(MsfraggerParams.PROP_report_alternative_proteins, new UiCheck("Report alternative proteins", null, false)).create();
 
