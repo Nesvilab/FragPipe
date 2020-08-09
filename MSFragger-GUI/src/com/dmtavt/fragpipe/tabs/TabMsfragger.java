@@ -633,7 +633,7 @@ public class TabMsfragger extends JPanelBase {
         .name(MsfraggerParams.PROP_labile_search_mode)
         .label("Labile Modifications Search mode").create();
 
-    UiText uiTextGlycoModeSites = UiUtils.uiTextBuilder().ghost("Allowed mod sites").filter("[^A-Z]")
+    UiText uiTextGlycoModeSites = UiUtils.uiTextBuilder().ghost("Allowed mod sites").filter("[^A-Zall]")
         .cols(20).create();
     FormEntry feGlycoModeSites = mu.feb(uiTextGlycoModeSites).name(MsfraggerParams.PROP_deltamass_allowed_residues)
         .tooltip("Allowed mod sites in Glyco mode").label("Allowed Residues")
