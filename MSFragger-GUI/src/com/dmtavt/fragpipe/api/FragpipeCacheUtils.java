@@ -164,7 +164,7 @@ public class FragpipeCacheUtils {
       List<UiTranslation> ts = translations.get(k);
       if (ts == null)
         return v;
-      List<UiTranslation> matchingCurrentUiOptions = Seq.seq(ts).filter(t -> t.inUi.equalsIgnoreCase(v)).toList();
+      List<UiTranslation> matchingCurrentUiOptions = Seq.seq(ts).filter(t -> t.inUi.contentEquals(v)).toList();
       if (!matchingCurrentUiOptions.isEmpty()) {
         // value is already among the currently supported ones
         log.debug("No translation needed, currently supported value: {}, {}", k, v);
