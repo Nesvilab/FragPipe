@@ -365,7 +365,7 @@ public class MsfraggerParams extends AbstractParams {
         return props.getProp(PROP_labile_search_mode, "none").value;
     }
     public String getDeltamassAllowedResidues() {
-        return props.getProp(PROP_deltamass_allowed_residues, "none").value;
+        return props.getProp(PROP_deltamass_allowed_residues, "all").value;
     }
     public String getDiagnosticIntensityFilter() {
         return props.getProp(PROP_diagnostic_intensity_filter, "0").value;
