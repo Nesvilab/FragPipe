@@ -33,17 +33,20 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
 import net.java.balloontip.BalloonTip;
 import net.miginfocom.layout.CC;
@@ -76,7 +79,7 @@ public class PtmshepherdPanel extends JPanelBase {
   public static final String PROP_localization_background = "localization_background";
   public static final String PROP_output_extended = "output_extended";
   private static final String PROP_varmod_masses = "varmod_masses";
-  private static final String PROP_custom_modlist = "custom_modlist";
+  private static final String PROP_annotation_file = "annotation_file";
 
   private static final String PROP_custom_modlist_loc = "ptmshepherd.path.modlist";
 
@@ -88,6 +91,11 @@ public class PtmshepherdPanel extends JPanelBase {
 
   private static Map<String, Function<String, String>> CONV_TO_GUI = new HashMap<>();
   private static Map<String, Function<String, String>> CONV_TO_FILE = new HashMap<>();
+  private ButtonGroup btnGroupAnnotations;
+  private JRadioButton btnAnnUnimod;
+  private JRadioButton btnAnnCommon;
+  private JRadioButton btnAnnCustom;
+  private UiText uiTextAnnotationFile;
 
   private static String itos(int i) {
     return Integer.toString(i);
@@ -140,11 +148,30 @@ public class PtmshepherdPanel extends JPanelBase {
   public Map<String, String> toPtmsParamsMap() {
     Map<String, String> map0 = super.toMap();
     Map<String, String> map1 = MapUtils.remapKeys(map0, s -> StringUtils.stripLeading(s, PREFIX));
-    Map<String, String> map2 = MapUtils.remapValues(map1, (k, v) -> CONV_TO_FILE.getOrDefault(k, Function.identity()).apply(v));
+
+    //"annotation-unimod", "annotation-common", "annotation-custom"
+    Map<String, String> map2 = new HashMap<>();
+    for (Entry<String, String> kv : map1.entrySet()) {
+
+      if (kv.getKey().startsWith(PROP_annotation_file)) { // special treatment of radio buttons for annotations
+        continue;
+      } else if (kv.getKey().startsWith("annotation-unimod") && kv.getValue().equalsIgnoreCase("true")) {
+        map2.put(PROP_annotation_file, "unimod");
+      } else if (kv.getKey().startsWith("annotation-common") && kv.getValue().equalsIgnoreCase("true")) {
+        map2.put(PROP_annotation_file, "common");
+      } else if (kv.getKey().startsWith("annotation-custom") && kv.getValue().equalsIgnoreCase("true")) {
+        map2.put(PROP_annotation_file, map1.get(PROP_annotation_file));
+      } else {  // copy everything else
+        map2.put(kv.getKey(), kv.getValue());
+      }
+    }
+
+    // remap remaining values
+    Map<String, String> map3 = MapUtils.remapValues(map2, (k, v) -> CONV_TO_FILE.getOrDefault(k, Function.identity()).apply(v));
 //    map = MapUtils.remap(map,
 //        (k,v) -> StringUtils.stripLeading(k, PREFIX),
 //        (k,v) -> CONV_TO_FILE.getOrDefault(k, Function.identity()).apply(v));
-    return map2;
+    return map3;
   }
 
   private void loadDefaults(int debugInvocationId, SearchTypeProp type) {
@@ -158,6 +185,25 @@ public class PtmshepherdPanel extends JPanelBase {
         return;
       }
       Map<String, String> asMap = PropertiesUtils.toMap(props);
+
+
+      // special treatment of annotations
+      btnGroupAnnotations.clearSelection();
+      String annotations = asMap.get(PROP_annotation_file);
+      if (annotations == null) {
+        btnAnnUnimod.setSelected(true);
+      } else if (annotations.equalsIgnoreCase("unimod")) {
+        btnAnnUnimod.setSelected(true);
+        asMap.put(PROP_annotation_file, "");
+      } else if (annotations.equalsIgnoreCase("common")) {
+        btnAnnCommon.setSelected(true);
+        asMap.put(PROP_annotation_file, "");
+      } else if (StringUtils.isNotBlank(annotations)) {
+        btnAnnCustom.setSelected(true);
+        uiTextAnnotationFile.setText(annotations);
+      }
+
+
       asMap = MapUtils.remapValues(asMap, (k,v) -> CONV_TO_GUI.getOrDefault(k, Function.identity()).apply(v));
       asMap = MapUtils.remapKeys(asMap, k -> StringUtils.prependOnce(k, PREFIX));
 
@@ -171,7 +217,9 @@ public class PtmshepherdPanel extends JPanelBase {
       } else {
         log.debug("PTMS panel loading defaults, key intersection: {}", intersect);
       }
+
       SwingUtils.valuesSet(this, asMap);
+
     } catch (Exception e) {
       log.error("Error loading shepherd defaults", e);
       SwingUtils.showErrorDialogWithStacktrace(e, this);
@@ -265,9 +313,21 @@ public class PtmshepherdPanel extends JPanelBase {
     FormEntry feAnnotTol = mu.feb(PROP_annotation_tol, uiSpinnerAnnotTol)
         .label("Annotation tolerance (Da)").tooltip("+/- distance from peak to annotated mass").create();
 
+    btnGroupAnnotations = new ButtonGroup();
+    btnAnnUnimod = new JRadioButton("Unimod", true);
+    btnAnnUnimod.setName("annotation-unimod");
+    btnAnnCommon = new JRadioButton("Common mass shifts", false);
+    btnAnnCommon.setName("annotation-common");
+    btnAnnCustom = new JRadioButton("Custom annotation file", false);
+    btnAnnCustom.setName("annotation-custom");
+    btnGroupAnnotations.add(btnAnnUnimod);
+    btnGroupAnnotations.add(btnAnnCommon);
+    btnGroupAnnotations.add(btnAnnCustom);
+
+
     String tooltipAnnotationFile = "Custom mass shift annotation file. Will not map to UniMod if provided.";
-    final UiText uiTextAnnotationFile = UiUtils.uiTextBuilder().create();
-    FormEntry feAnnotationFile = mu.feb(PROP_custom_modlist, uiTextAnnotationFile)
+    uiTextAnnotationFile = UiUtils.uiTextBuilder().create();
+    FormEntry feAnnotationFile = mu.feb(PROP_annotation_file, uiTextAnnotationFile)
         .label("Custom mass shift annotation file").tooltip(tooltipAnnotationFile).create();
     JButton btnBrosweAnnotationFile = feAnnotationFile.browseButton("Browse", tooltipAnnotationFile,
         () -> FileChooserUtils.builder("Select custom mass shift annotation file")
@@ -278,6 +338,7 @@ public class PtmshepherdPanel extends JPanelBase {
             String path = paths.get(0).toString();
             Fragpipe.propsVarSet(PROP_custom_modlist_loc, path);
             uiTextAnnotationFile.setText(path);
+            btnAnnCustom.setSelected(true);
           }
         });
 
@@ -317,67 +378,24 @@ public class PtmshepherdPanel extends JPanelBase {
       }
     });
 
+
     FormEntry feVarMods = new FormEntry(PROP_varmod_masses, "Custom mass shifts", uiTextVarMods,
         "<html>Variable modification masses.<br/>\n"
             + "Comma separated entries of form \"&lt;name&gt;:&lt;mass&gt;\"<br/>\n"
             + "Example:<br/>\n"
             + "&nbsp;&nbsp;&nbsp;&nbsp;Phospho:79.9663,Something-else:-20.123");
     mu.add(p, feVarMods.label(), mu.ccR());
-    mu.add(p, feVarMods.comp).spanX().growX();
+    mu.add(p, feVarMods.comp).spanX().growX().wrap();
 
-    mu.add(p, feAnnotationFile.label(), mu.ccR());
+    mu.add(p, new JLabel("Annotation source: ")).split().spanX();
+    mu.add(p, btnAnnUnimod);
+    mu.add(p, btnAnnCommon).wrap();
+
+    mu.add(p, btnAnnCustom, mu.ccR());
     mu.add(p, feAnnotationFile.comp).split().spanX().growX();
     mu.add(p, btnBrosweAnnotationFile).wrap();
 
-    // these are valid shepherd parameters, but not displayed in the UI anymore
 
-//      FormEntry feHistoBinDivs = new FormEntry(PROP_histo_bindivs, "Histogram bins",
-//          new UiSpinnerInt(5000, 10, 1000000, 100, 5));
-//
-//      p.add(feHistoBinDivs.label(), new CC().alignX("right"));
-//      p.add(feHistoBinDivs.comp, new CC());
-//
-//      UiSpinnerDouble uiSpinnerBackground = UiSpinnerDouble.builder(0.005, 0.0, 1e6, 0.001)
-//          .setFormat(new DecimalFormat("0.####")).setNumCols(5).create();
-//      FormEntry feBackground = new FormEntry(PROP_peakpicking_background, "Peak-picking background", uiSpinnerBackground);
-//
-//      UiSpinnerInt uiSpinnerTopN = new UiSpinnerInt(500, 1, 1000000, 50);
-//      uiSpinnerTopN.setColumns(5);
-//      FormEntry feTopN = new FormEntry(PROP_peakpicking_topN, "Peak-picking Top-N", uiSpinnerTopN);
-
-//      p.add(feBackground.label(), new CC().alignX("right"));
-//      p.add(feBackground.comp, new CC());
-//      p.add(feTopN.label(), new CC().alignX("right"));
-//      p.add(feTopN.comp, new CC().wrap());
-
-//
-//      UiSpinnerDouble uiSpinnerPrecTolPpm = UiSpinnerDouble.builder(20.0, 0.001, 1e6, 1.0)
-//          .setFormat(new DecimalFormat("0.#")).setNumCols(5).create();
-//      FormEntry fePrecTolPpm = new FormEntry(PROP_precursor_tol_ppm, "Precursor tolerance ppm", uiSpinnerPrecTolPpm);
-//
-//      p.add(fePrecTol.label(), new CC().alignX("right"));
-//      p.add(fePrecTol.comp, new CC());
-//      p.add(fePrecTolPpm.label(), new CC().alignX("right"));
-//      p.add(fePrecTolPpm.comp, new CC().wrap());
-//
-//      UiSpinnerDouble uiSpinnerSpecPpmTol = UiSpinnerDouble.builder(20.0, 0.001, 1e6, 1.0)
-//          .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
-//      FormEntry feSpecPpmTol = new FormEntry(PROP_spectra_ppmtol, "Spectrum ppm tolerance", uiSpinnerSpecPpmTol);
-//
-//      UiSpinnerInt uiSpinnerSpecCondPeaks = new UiSpinnerInt(100, 0, 1000000, 20);
-//      uiSpinnerSpecCondPeaks.setColumns(5);
-//      FormEntry feSpecCondPeaks = new FormEntry(PROP_spectra_condPeaks, "spectra_condPeaks", uiSpinnerSpecCondPeaks);
-//
-//      UiSpinnerDouble uiSpinnerSpecCondRatio = UiSpinnerDouble.builder(0.01, 0.001, 1e6, 0.01)
-//          .setFormat(new DecimalFormat("0.###")).setNumCols(5).create();
-//      FormEntry feSpecCondRatio = new FormEntry(PROP_spectra_condRatio, "spectra_condRatio", uiSpinnerSpecCondRatio);
-//
-//      p.add(feSpecPpmTol.label(), new CC().alignX("right"));
-//      p.add(feSpecPpmTol.comp, new CC());
-//      p.add(feSpecCondPeaks.label(), new CC().alignX("right"));
-//      p.add(feSpecCondPeaks.comp, new CC().wrap());
-//      p.add(feSpecCondRatio.label(), new CC().alignX("right"));
-//      p.add(feSpecCondRatio.comp, new CC().wrap());
 
     return p;
   }

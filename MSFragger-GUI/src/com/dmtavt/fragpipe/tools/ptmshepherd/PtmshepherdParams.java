@@ -42,6 +42,7 @@ public class PtmshepherdParams {
     Properties defaults = PropertiesUtils
         .loadPropertiesLocal(PtmshepherdParams.class, DEFAULT_PROPERTIES_FN);
     props = new HashMap<>(PropertiesUtils.toMap(defaults));
+
     props.putAll(additionalProperties);
   }
 

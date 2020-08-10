@@ -73,21 +73,6 @@ public class CmdPtmshepherd extends CmdBase {
     if (extLibsThermo != null) {
       sup.add(THERMO_RAW_EXT);
     }
-//    if (!checkCompatibleFormats(comp, mapGroupsToProtxml, sup)) {
-//      return false;
-//    }
-//    boolean inputHasThermoRaw = mapGroupsToProtxml.keySet().stream().anyMatch(group ->
-//            group.lcmsFiles.stream().anyMatch(lcms -> lcms.getPath().getFileName().toString().toLowerCase().endsWith(".raw")));
-//    if (inputHasThermoRaw) {
-//      int confirmation = SwingUtils.showConfirmDialog(comp, new JLabel("<html>Input LCMS files contain Thermo RAW.<br/>\n" +
-//              "PTMShepherd does not yet work stably with these files.<br/>\n" +
-//              "It is advised to convert those files to mzML.<br/>\n" +
-//              "<br/>\n" +
-//              "<b>Click Yes to continue at your own risk, otherwise Cancel.</b>"));
-//      if (JOptionPane.YES_OPTION != confirmation) {
-//        return false;
-//      }
-//    }
 
     final long numGroups = mapGroupsToProtxml.keySet().stream()
         .map(group -> group.name).distinct().count();

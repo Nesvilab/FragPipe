@@ -39,6 +39,7 @@ public class MapUtils {
 
   public static<K,V,R> Map<K,R> remapValues(Map<K, V> map, BiFunction<K,V,R> valMapper) {
       return map.entrySet().stream()
+          .filter(kv -> valMapper.apply(kv.getKey(), kv.getValue()) != null)
           .collect(Collectors.toMap(Entry::getKey, kv -> valMapper.apply(kv.getKey(), kv.getValue())));
   }
 
