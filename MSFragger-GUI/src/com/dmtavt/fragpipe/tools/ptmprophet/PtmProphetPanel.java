@@ -53,20 +53,19 @@ public class PtmProphetPanel extends JPanelBase {
 
   @Override
   protected void init() {
-    this.setLayout(new BorderLayout());
-    this.setBorder(new TitledBorder("PTM Prophet"));
+    mu.layout(this, mu.lcFillXNoInsetsTopBottom());
+    mu.border(this, "PTM Prophet");
 
     pTop = createPanelTop();
     pContent = createPanelContent();
 
-    this.add(pTop, BorderLayout.NORTH);
-    this.add(pContent, BorderLayout.CENTER);
+    mu.add(this, pTop).growX().wrap();
+    mu.add(this, pContent).growX().wrap();
   }
 
   private JPanel createPanelContent() {
-    JPanel p = mu.newPanel(new LC().fillX());
+    JPanel p = mu.newPanel(null, mu.lcNoInsetsTopBottom());
     //mu.border(p, "PTM prophet options");
-    mu.borderEmpty(p);
 
     //mu.add(p, new JLabel("Some dummy property")).wrap();
 
@@ -90,19 +89,21 @@ public class PtmProphetPanel extends JPanelBase {
     return val;
   }
 
-  public JPanel createPanelTop() {
-    JPanel p = mu.newPanel(new LC());
-    mu.borderEmpty(p);
+  private JPanel createPanelTop() {
+
+    JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
     checkRun = new UiCheck("Run PTM Prophet", null, false);
     checkRun.setName("run-ptmprophet");
-
     JButton btnDefaults = UiUtils.createButton("Load defaults", e -> {
       uiTextCmd.setText(getDefaults());
     });
+    JLabel info = new JLabel(
+        "<html>Recommended for standard phosphopeptide searches only.<br/>Not for open searches.");
 
-    mu.add(p, checkRun);
-    mu.add(p, btnDefaults).gapLeft("20px").wrap();
+    mu.add(p, checkRun).split();
+    mu.add(p, btnDefaults).gapLeft("20px");
+    mu.add(p, info).gapLeft("80px").wrap();
     return p;
   }
 
