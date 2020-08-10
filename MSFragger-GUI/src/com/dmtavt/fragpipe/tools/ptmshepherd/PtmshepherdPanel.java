@@ -80,6 +80,12 @@ public class PtmshepherdPanel extends JPanelBase {
   public static final String PROP_output_extended = "output_extended";
   private static final String PROP_varmod_masses = "varmod_masses";
   private static final String PROP_annotation_file = "annotation_file";
+  private static final String PROP_iontype_a = "iontype_a";
+  private static final String PROP_iontype_x = "iontype_x";
+  private static final String PROP_iontype_b = "iontype_b";
+  private static final String PROP_iontype_y = "iontype_y";
+  private static final String PROP_iontype_c = "iontype_c";
+  private static final String PROP_iontype_z = "iontype_z";
 
   private static final String PROP_custom_modlist_loc = "ptmshepherd.path.modlist";
 
@@ -104,9 +110,21 @@ public class PtmshepherdPanel extends JPanelBase {
   static {
     CONV_TO_GUI.put(PROP_peakpicking_mass_units, s -> MassTolUnits.fromFileToUi(s).name());
     CONV_TO_GUI.put(PROP_precursor_mass_units, s -> MassTolUnits.fromFileToUi(s).name());
+    CONV_TO_GUI.put(PROP_iontype_a, s -> s.equalsIgnoreCase("1") ? "true" : "false");
+    CONV_TO_GUI.put(PROP_iontype_x, s -> s.equalsIgnoreCase("1") ? "true" : "false");
+    CONV_TO_GUI.put(PROP_iontype_b, s -> s.equalsIgnoreCase("1") ? "true" : "false");
+    CONV_TO_GUI.put(PROP_iontype_y, s -> s.equalsIgnoreCase("1") ? "true" : "false");
+    CONV_TO_GUI.put(PROP_iontype_c, s -> s.equalsIgnoreCase("1") ? "true" : "false");
+    CONV_TO_GUI.put(PROP_iontype_z, s -> s.equalsIgnoreCase("1") ? "true" : "false");
 
     CONV_TO_FILE.put(PROP_peakpicking_mass_units, s -> itos(MassTolUnits.valueOf(s).valueInParamsFile()));
     CONV_TO_FILE.put(PROP_precursor_mass_units, s -> itos(MassTolUnits.valueOf(s).valueInParamsFile()));
+    CONV_TO_FILE.put(PROP_iontype_a, s -> s.equalsIgnoreCase("true") ? "1" : "0");
+    CONV_TO_FILE.put(PROP_iontype_x, s -> s.equalsIgnoreCase("true") ? "1" : "0");
+    CONV_TO_FILE.put(PROP_iontype_b, s -> s.equalsIgnoreCase("true") ? "1" : "0");
+    CONV_TO_FILE.put(PROP_iontype_y, s -> s.equalsIgnoreCase("true") ? "1" : "0");
+    CONV_TO_FILE.put(PROP_iontype_c, s -> s.equalsIgnoreCase("true") ? "1" : "0");
+    CONV_TO_FILE.put(PROP_iontype_z, s -> s.equalsIgnoreCase("true") ? "1" : "0");
   }
 
   public PtmshepherdPanel() {
@@ -395,6 +413,20 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p, feAnnotationFile.comp).split().spanX().growX();
     mu.add(p, btnBrosweAnnotationFile).wrap();
 
+    FormEntry feIonA = mu.feb(PROP_iontype_a, UiUtils.createUiCheck("a", false)).create();
+    FormEntry feIonX = mu.feb(PROP_iontype_x, UiUtils.createUiCheck("x", false)).create();
+    FormEntry feIonB = mu.feb(PROP_iontype_b, UiUtils.createUiCheck("b", true)).create();
+    FormEntry feIonY = mu.feb(PROP_iontype_y, UiUtils.createUiCheck("y", true)).create();
+    FormEntry feIonC = mu.feb(PROP_iontype_c, UiUtils.createUiCheck("c", false)).create();
+    FormEntry feIonZ = mu.feb(PROP_iontype_z, UiUtils.createUiCheck("z", false)).create();
+
+    mu.add(p, new JLabel("Ion types:")).spanX().wrap();
+    mu.add(p, feIonA.comp).spanX().split();
+    mu.add(p, feIonX.comp);
+    mu.add(p, feIonB.comp);
+    mu.add(p, feIonY.comp);
+    mu.add(p, feIonC.comp);
+    mu.add(p, feIonZ.comp).wrap();
 
 
     return p;
