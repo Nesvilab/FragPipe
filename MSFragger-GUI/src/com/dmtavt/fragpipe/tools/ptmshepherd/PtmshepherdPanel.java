@@ -106,6 +106,7 @@ public class PtmshepherdPanel extends JPanelBase {
   private JRadioButton btnAnnCustom;
   private UiText uiTextAnnotationFile;
   private UiCheck uiCheckGlyco;
+  private JPanel pGlycoContent;
 
   private static String itos(int i) {
     return Integer.toString(i);
@@ -300,6 +301,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
   private JPanel createpanelGlyco() {
     JPanel p = mu.newPanel("Glyco options", mu.lcFillXNoInsetsTopBottom());
+    pGlycoContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
     uiCheckGlyco = UiUtils.createUiCheck("Enable Glyco Mode", false);
     uiCheckGlyco.setName("glyco_mode");
@@ -317,14 +319,15 @@ public class PtmshepherdPanel extends JPanelBase {
         .tooltip("Partial glycan masses localized to the peptide sequence. "
             + "Space, comma, or slash separated values accepted.").create();
 
-    mu.add(p, uiCheckGlyco).spanX().wrap();
-    mu.add(p, feYIonMasses.label(), mu.ccR());
-    mu.add(p, feYIonMasses.comp).spanX().growX().pushX().wrap();
-    mu.add(p, feDiagnosticFragmentMasses.label(), mu.ccR());
-    mu.add(p, feDiagnosticFragmentMasses.comp).spanX().growX().pushX().wrap();
-    mu.add(p, feRemainderMasses.label(), mu.ccR());
-    mu.add(p, feRemainderMasses.comp).spanX().growX().pushX().wrap();
+    mu.add(pGlycoContent, feYIonMasses.label(), mu.ccR());
+    mu.add(pGlycoContent, feYIonMasses.comp).spanX().growX().pushX().wrap();
+    mu.add(pGlycoContent, feDiagnosticFragmentMasses.label(), mu.ccR());
+    mu.add(pGlycoContent, feDiagnosticFragmentMasses.comp).spanX().growX().pushX().wrap();
+    mu.add(pGlycoContent, feRemainderMasses.label(), mu.ccR());
+    mu.add(pGlycoContent, feRemainderMasses.comp).spanX().growX().pushX().wrap();
 
+    mu.add(p, uiCheckGlyco).spanX().wrap();
+    mu.add(p, pGlycoContent).growX().wrap();
     return p;
   }
 
@@ -484,6 +487,7 @@ public class PtmshepherdPanel extends JPanelBase {
   protected void initMore() {
     super.initMore();
 
+    SwingUtils.setEnablementUpdater(this, pGlycoContent, uiCheckGlyco);
     loadDefaults(1, SearchTypeProp.open); // pre-populate, but only after renaming has happened in super.initMore()
   }
 

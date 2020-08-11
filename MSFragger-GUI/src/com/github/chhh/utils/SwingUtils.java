@@ -427,7 +427,7 @@ public class SwingUtils {
     });
   }
 
-  public static void setEnablementUpdater(JPanelWithEnablement p, Component toToggle,
+  public static void setEnablementUpdater(JPanelWithEnablement p, final Component toToggle,
       ItemSelectable check) {
     addSelectedStateChangeListener(check, true,
         () -> p.updateEnabledStatus(toToggle, true),
