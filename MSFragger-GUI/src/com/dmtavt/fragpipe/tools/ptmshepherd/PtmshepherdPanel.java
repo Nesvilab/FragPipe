@@ -86,6 +86,10 @@ public class PtmshepherdPanel extends JPanelBase {
   private static final String PROP_iontype_y = "iontype_y";
   private static final String PROP_iontype_c = "iontype_c";
   private static final String PROP_iontype_z = "iontype_z";
+  private static final String PROP_glyco_mode = "glyco_mode";
+  private static final String PROP_cap_y_ions = "cap_y_ions";
+  private static final String PROP_diag_ions = "diag_ions";
+  private static final String PROP_remainder_masses = "remainder_masses";
 
   private static final String PROP_custom_modlist_loc = "ptmshepherd.path.modlist";
 
@@ -294,6 +298,32 @@ public class PtmshepherdPanel extends JPanelBase {
     return p;
   }
 
+  private JPanel createpanelGlyco() {
+    JPanel p = mu.newPanel("Glyco options", mu.lcFillXNoInsetsTopBottom());
+
+    FormEntry feYIonMasses = mu.feb(PROP_cap_y_ions, UiUtils.uiTextBuilder().create())
+        .label("Y Ion Masses")
+        .tooltip("Added to peptide precursor and searched for in MS2 spectrum. "
+            + "Space, comma, or slash separated values accepted.").create();
+    FormEntry feDiagnosticFragmentMasses = mu.feb(PROP_diag_ions, UiUtils.uiTextBuilder().create())
+        .label("Diagnostic Fragment Masses")
+        .tooltip("Checked for directly in the MS2 spectrum. Assumed to have a +1 charge state. "
+            + "Space, comma, or slash separated values accepted.").create();
+    FormEntry feRemainderMasses = mu.feb(PROP_remainder_masses, UiUtils.uiTextBuilder().create())
+        .label("Remainder Masses")
+        .tooltip("Partial glycan masses localized to the peptide sequence. "
+            + "Space, comma, or slash separated values accepted.").create();
+
+    mu.add(p, feYIonMasses.label(), mu.ccR());
+    mu.add(p, feYIonMasses.comp).spanX().growX().pushX().wrap();
+    mu.add(p, feDiagnosticFragmentMasses.label(), mu.ccR());
+    mu.add(p, feDiagnosticFragmentMasses.comp).spanX().growX().pushX().wrap();
+    mu.add(p, feRemainderMasses.label(), mu.ccR());
+    mu.add(p, feRemainderMasses.comp).spanX().growX().pushX().wrap();
+
+    return p;
+  }
+
   private JPanel createPanelContent() {
     JPanel p = new JPanel(new MigLayout(new LC().fillX()));
     mu.borderEmpty(p);
@@ -405,7 +435,7 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p, feVarMods.label(), mu.ccR());
     mu.add(p, feVarMods.comp).spanX().growX().wrap();
 
-    mu.add(p, new JLabel("Annotation source: ")).split().spanX();
+    mu.add(p, new JLabel("Annotation source: ")).spanX().split();
     mu.add(p, btnAnnUnimod);
     mu.add(p, btnAnnCommon).wrap();
 
@@ -428,6 +458,8 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p, feIonC.comp);
     mu.add(p, feIonZ.comp).wrap();
 
+    JPanel pGlyco = createpanelGlyco();
+    mu.add(p, pGlyco).spanX().growX().wrap();
 
     return p;
   }
