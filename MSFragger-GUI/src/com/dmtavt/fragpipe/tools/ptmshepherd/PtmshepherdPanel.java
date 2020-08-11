@@ -19,6 +19,7 @@ import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
+import com.github.chhh.utils.swing.UiSpinnerInt.Builder;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import com.github.chhh.utils.swing.UiUtils.UiTextBuilder;
@@ -89,6 +90,7 @@ public class PtmshepherdPanel extends JPanelBase {
   private static final String PROP_cap_y_ions = "cap_y_ions";
   private static final String PROP_diag_ions = "diag_ions";
   private static final String PROP_remainder_masses = "remainder_masses";
+  private static final String PROP_spectra_maxfragcharge = "spectra_maxfragcharge";
 
   private static final String PROP_custom_modlist_loc = "ptmshepherd.path.modlist";
 
@@ -456,6 +458,12 @@ public class PtmshepherdPanel extends JPanelBase {
     FormEntry feIonY = mu.feb(PROP_iontype_y, UiUtils.createUiCheck("y", true)).create();
     FormEntry feIonC = mu.feb(PROP_iontype_c, UiUtils.createUiCheck("c", false)).create();
     FormEntry feIonZ = mu.feb(PROP_iontype_z, UiUtils.createUiCheck("z", false)).create();
+    FormEntry feMaxFragCharge = mu
+        .feb(PROP_spectra_maxfragcharge,
+            UiUtils.spinnerInt(2, 1, 100, 1).setCols(4).create())
+        .label("Max fragment charge")
+        .tooltip("max fragment charge for localization")
+        .create();
 
     mu.add(p, new JLabel("Ion Types for Localization:")).spanX().wrap();
     mu.add(p, feIonA.comp).spanX().split();
@@ -463,7 +471,9 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p, feIonB.comp);
     mu.add(p, feIonY.comp);
     mu.add(p, feIonC.comp);
-    mu.add(p, feIonZ.comp).wrap();
+    mu.add(p, feIonZ.comp);
+    mu.add(p, feMaxFragCharge.label());
+    mu.add(p, feMaxFragCharge.comp).wrap();
 
     JPanel pGlyco = createpanelGlyco();
     mu.add(p, pGlyco).spanX().growX().wrap();
