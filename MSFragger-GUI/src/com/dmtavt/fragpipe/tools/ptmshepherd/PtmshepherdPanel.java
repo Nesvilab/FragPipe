@@ -454,7 +454,7 @@ public class PtmshepherdPanel extends JPanelBase {
     FormEntry feIonC = mu.feb(PROP_iontype_c, UiUtils.createUiCheck("c", false)).create();
     FormEntry feIonZ = mu.feb(PROP_iontype_z, UiUtils.createUiCheck("z", false)).create();
 
-    mu.add(p, new JLabel("Ion types:")).spanX().wrap();
+    mu.add(p, new JLabel("Ion Types for Localization:")).spanX().wrap();
     mu.add(p, feIonA.comp).spanX().split();
     mu.add(p, feIonX.comp);
     mu.add(p, feIonB.comp);
