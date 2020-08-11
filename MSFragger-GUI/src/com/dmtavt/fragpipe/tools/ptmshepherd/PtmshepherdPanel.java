@@ -42,7 +42,6 @@ import java.util.stream.Stream;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -106,6 +105,7 @@ public class PtmshepherdPanel extends JPanelBase {
   private JRadioButton btnAnnCommon;
   private JRadioButton btnAnnCustom;
   private UiText uiTextAnnotationFile;
+  private UiCheck uiCheckGlyco;
 
   private static String itos(int i) {
     return Integer.toString(i);
@@ -301,6 +301,9 @@ public class PtmshepherdPanel extends JPanelBase {
   private JPanel createpanelGlyco() {
     JPanel p = mu.newPanel("Glyco options", mu.lcFillXNoInsetsTopBottom());
 
+    uiCheckGlyco = UiUtils.createUiCheck("Enable Glyco Mode", false);
+    uiCheckGlyco.setName("glyco_mode");
+
     FormEntry feYIonMasses = mu.feb(PROP_cap_y_ions, UiUtils.uiTextBuilder().create())
         .label("Y Ion Masses")
         .tooltip("Added to peptide precursor and searched for in MS2 spectrum. "
@@ -314,6 +317,7 @@ public class PtmshepherdPanel extends JPanelBase {
         .tooltip("Partial glycan masses localized to the peptide sequence. "
             + "Space, comma, or slash separated values accepted.").create();
 
+    mu.add(p, uiCheckGlyco).spanX().wrap();
     mu.add(p, feYIonMasses.label(), mu.ccR());
     mu.add(p, feYIonMasses.comp).spanX().growX().pushX().wrap();
     mu.add(p, feDiagnosticFragmentMasses.label(), mu.ccR());
