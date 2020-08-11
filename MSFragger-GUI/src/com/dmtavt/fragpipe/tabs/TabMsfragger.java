@@ -633,12 +633,6 @@ public class TabMsfragger extends JPanelBase {
         .name(MsfraggerParams.PROP_labile_search_mode)
         .label("Labile Modifications Search mode").create();
 
-    UiText uiTextGlycoModeSites = UiUtils.uiTextBuilder().ghost("Allowed mod sites").filter("[^A-Zall]")
-        .cols(20).create();
-    FormEntry feGlycoModeSites = mu.feb(uiTextGlycoModeSites).name(MsfraggerParams.PROP_deltamass_allowed_residues)
-        .tooltip("Allowed mod sites in Glyco mode").label("Allowed Residues")
-        .create();
-
     final UiSpinnerDouble uiSpinnerMinInt = UiSpinnerDouble.builder(0, 0, 1, 0.1).setFormat("#.##")
         .setCols(5).create();
     FormEntry feOxoniumIonMinimumIntensity = mu.feb(uiSpinnerMinInt)
@@ -664,7 +658,6 @@ public class TabMsfragger extends JPanelBase {
       final boolean enabled = !MsfraggerParams.GLYCO_OPTION_off.equalsIgnoreCase(selected);
       final boolean sitesEnabled = enabled && (GLYCO_OPTION_labile.equalsIgnoreCase(selected));
       updateEnabledStatus(uiSpinnerMinInt, enabled);
-      updateEnabledStatus(uiTextGlycoModeSites, sitesEnabled);
       updateEnabledStatus(ep1, enabled);
       updateEnabledStatus(ep2, enabled);
     });
@@ -677,8 +670,6 @@ public class TabMsfragger extends JPanelBase {
 
     mu.add(p, feGlycoSearchMode.label(), mu.ccR());
     mu.add(p, feGlycoSearchMode.comp);
-    mu.add(p, feGlycoModeSites.label(), mu.ccR());
-    mu.add(p, feGlycoModeSites.comp);
     mu.add(p, feOxoniumIonMinimumIntensity.label(), mu.ccR());
     mu.add(p, feOxoniumIonMinimumIntensity.comp).pushX().wrap();
     mu.add(p, feYIonMasses.label(), mu.ccR());
@@ -864,6 +855,12 @@ public class TabMsfragger extends JPanelBase {
   private JPanel createPanelMassOffsets() {
     JPanel p = mu.newPanel("Mass Offsets", true);
 
+    UiText uiTextAllowedResidues = UiUtils.uiTextBuilder().ghost("Allowed mod sites").filter("[^A-Zall]")
+        .cols(20).create();
+    FormEntry feAllowedResidues = mu.feb(uiTextAllowedResidues).name(MsfraggerParams.PROP_deltamass_allowed_residues)
+        .tooltip("Allowed mod sites in Open Search / Mass Offset Search /Glyco mode").label("Allowed Residues")
+        .create();
+
     // mass offsets text field separately
     String tooltipMassOffsets = "<html>Creates multiple precursor tolerance windows with<br>\n"
         + "specified mass offsets. These values are multiplexed<br>\n"
@@ -888,7 +885,10 @@ public class TabMsfragger extends JPanelBase {
         .label("Mass Offsets")
         .tooltip(tooltipMassOffsets).create();
     //mu.add(p, feMassOffsets.label()).wrap();
-    mu.add(p, feMassOffsets.comp).growX().wrap();
+
+    mu.add(p, feMassOffsets.comp).growX().spanX().wrap();
+    mu.add(p, feAllowedResidues.label(), mu.ccR());
+    mu.add(p, feAllowedResidues.comp).spanX().pushX().growX().wrap();
 
     return p;
   }
