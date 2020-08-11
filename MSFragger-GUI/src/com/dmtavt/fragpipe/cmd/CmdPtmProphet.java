@@ -42,11 +42,6 @@ public class CmdPtmProphet extends CmdBase {
       List<Path> lcmsPaths = Seq.seq(kv.getValue()).map(tuple -> tuple.v1().getPath()).toList();
       Path workDir = kv.getValue().get(0).v1.outputDir(wd);
 
-      // we never know if pepxml is rewritten or not, so always rewrite
-      ProcessBuilder pbRewrite = pbRewritePepxml(jarFragpipe, pepxml, lcmsPaths);
-      pbRewrite.directory(workDir.toFile());
-      pbis.add(new PbiBuilder().setName("Rewrite pepxml").setPb(pbRewrite).create());
-
       // PTM Prophet itself
       List<String> cmd = new ArrayList<>();
       cmd.add(usePhi.useBin(workDir));
@@ -70,27 +65,5 @@ public class CmdPtmProphet extends CmdBase {
   @Override
   public boolean usesPhi() {
     return true;
-  }
-
-  private static ProcessBuilder pbRewritePepxml(Path jarFragpipe, Path pepxml, List<Path> lcmsPaths) {
-    if (jarFragpipe == null) {
-      throw new IllegalArgumentException("jar can't be null");
-    }
-    List<String> cmd = new ArrayList<>();
-    cmd.add(Fragpipe.getBinJava());
-    cmd.add("-cp");
-    Path root = FragpipeLocations.get().getDirFragpipeRoot();
-    String libsDir = root.resolve("lib").toString() + "/*";
-    if (Files.isDirectory(jarFragpipe)) {
-      libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib").toString() + "/*";
-      log.warn("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
-    }
-    cmd.add(libsDir);
-    cmd.add(RewritePepxml.class.getCanonicalName());
-    cmd.add(pepxml.toAbsolutePath().normalize().toString());
-    for (Path lcms : lcmsPaths) {
-      cmd.add(lcms.toString());
-    }
-    return new ProcessBuilder(cmd);
   }
 }

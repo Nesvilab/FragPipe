@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.print.attribute.standard.MediaSize.NA;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import org.apache.commons.io.FileUtils;
@@ -455,7 +456,7 @@ public class CmdMsfragger extends CmdBase {
             List<ProcessBuilder> pbsMove = ToolingUtils
                 .pbsMoveFiles(jarFragpipe, pepxmlWhereItShouldBe.getParent(),
                     Collections.singletonList(pepxmlAsCreatedByFragger));
-            pbis.addAll(PbiBuilder.from(pbsMove));
+            pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move pepxml"));
           }
         }
         List<Path> tsvWhereItShouldBeList = mapLcmsToTsv.get(f);
@@ -466,7 +467,7 @@ public class CmdMsfragger extends CmdBase {
             List<ProcessBuilder> pbsMove = ToolingUtils
                 .pbsMoveFiles(jarFragpipe, tsvWhereItShouldBe.getParent(), true,
                     Collections.singletonList(tsvAsCreatedByFragger));
-            pbis.addAll(PbiBuilder.from(pbsMove));
+            pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move tsv"));
           }
         }
         if (params.getPrecursorMassUnits().valueInParamsFile() > 1) {

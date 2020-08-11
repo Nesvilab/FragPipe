@@ -40,8 +40,18 @@ public class PbiBuilder {
     return new ProcessBuilderInfo(pb, name, fnStdOut, fnStdErr, parallelGroup);
   }
 
-  public static List<ProcessBuilderInfo> from (List<ProcessBuilder> pbs) {
-    return pbs.stream().map(pb -> new PbiBuilder().setPb(pb).create()).collect(Collectors.toList());
+  public static List<ProcessBuilderInfo> from(List<ProcessBuilder> pbs) {
+    return from(pbs, null);
+  }
+
+  public static List<ProcessBuilderInfo> from (List<ProcessBuilder> pbs, String processDisplayName) {
+    return pbs.stream().map(pb -> {
+      PbiBuilder b = new PbiBuilder().setPb(pb);
+      if (processDisplayName != null) {
+        b.setName(processDisplayName);
+      }
+      return b.create();
+    }).collect(Collectors.toList());
   }
 
   public static ProcessBuilderInfo from (ProcessBuilder pb) {
