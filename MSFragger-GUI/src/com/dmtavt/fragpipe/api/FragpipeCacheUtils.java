@@ -99,7 +99,7 @@ public class FragpipeCacheUtils {
       //String k = saveFieldTypes ? name + "." + comp.getClass().getSimpleName() : name;
       String k = saveFieldTypes ? String.format("%s.%s",comp.getClass().getSimpleName(), name) : name;
       if (v == null) {
-        log.warn("Found named component [{}] with no String value extraceted", k);
+        //log.warn("Found named component [{}] with no String value extraceted", k);
         return;
       }
       if (m.containsKey(k)) {
