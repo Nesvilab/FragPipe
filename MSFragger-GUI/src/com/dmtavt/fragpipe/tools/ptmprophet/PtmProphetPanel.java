@@ -70,7 +70,7 @@ public class PtmProphetPanel extends JPanelBase {
     //mu.add(p, new JLabel("Some dummy property")).wrap();
 
     uiTextCmd = UiUtils.uiTextBuilder().text(getDefaults()).create();
-    FormEntry feCmdLineOpts = mu.feb("cmdline", uiTextCmd).label("Command line opts")
+    FormEntry feCmdLineOpts = mu.feb("cmdline", uiTextCmd).label("Cmd line opts")
         .tooltip("Command line options for PTM Prophet").create();
 
     mu.add(p, feCmdLineOpts.label(), mu.ccR());
