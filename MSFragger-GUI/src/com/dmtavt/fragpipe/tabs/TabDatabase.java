@@ -113,7 +113,7 @@ public class TabDatabase extends JPanelWithEnablement {
             + "in their protein ID. If you're unsure what tag is used in your protein\n"
             + "database, use the Try auto-detect button to get a statistic about\n"
             + "the usage of prefixes in the give file.").create();
-    JButton btnDecoyDetect = feDecoyTag.button("Try atuo-detect tag", "Input decoy tag",
+    JButton btnDecoyDetect = feDecoyTag.button("Try auto-detect tag", "Input decoy tag",
         this::actionDetectDecoys);
 
     epDbInfo = SwingUtils.createClickableHtml(true, "");
