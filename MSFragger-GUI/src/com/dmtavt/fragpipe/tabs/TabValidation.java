@@ -29,17 +29,17 @@ public class TabValidation extends JPanelWithEnablement {
   private void init() {
     mu.layout(this).fillX();
 
+    panelCrystalc = new CrystalcPanel();
     panelPepProph = new PepProphPanel();
     panelPtmProphet = new PtmProphetPanel();
     panelProtProph = new ProtProphPanel();
-    panelCrystalc = new CrystalcPanel();
     panelReport = new ReportPanel();
 
 
+    mu.add(this, panelCrystalc).growX().wrap();
     mu.add(this, panelPepProph).growX().wrap();
     mu.add(this, panelPtmProphet).growX().wrap();
     mu.add(this, panelProtProph).growX().wrap();
-    mu.add(this, panelCrystalc).growX().wrap();
     mu.add(this, panelReport).growX().wrap();
   }
 

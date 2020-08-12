@@ -66,7 +66,7 @@ public class CrystalcPanel extends JPanelBase {
     mu.layout(this);
     mu.border(this, "Crystal-C");
     mu.add(this, pTop).growX().wrap();
-    mu.add(this, pParams).growX().wrap();
+    //mu.add(this, pParams).growX().wrap();
   }
 
   @Override
