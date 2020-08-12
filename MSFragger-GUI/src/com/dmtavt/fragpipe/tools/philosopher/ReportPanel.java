@@ -158,11 +158,11 @@ public class ReportPanel extends JPanelBase {
 
     mu.add(p, feFilter.label()).spanX().split();
     mu.add(p, feFilter.comp).growX().pushX().wrap();
-    mu.add(p, feCheckPepSummary.comp).wrap();
+    mu.add(p, feCheckDontUseProtProphFile.comp).wrap();
     mu.add(p, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
 //    mu.add(p, feCheckWriteMzid.comp);
     mu.add(p, feCheckPrintDecoys.comp);
-    mu.add(p, feCheckDontUseProtProphFile.comp).wrap();
+    mu.add(p, feCheckPepSummary.comp).wrap();
 
     return p;
   }
