@@ -35,7 +35,7 @@ public class CrystalcPanel extends JPanelBase {
   private static final MigUtils mu = MigUtils.get();
   public JCheckBox checkRun;
   private JPanel pTop;
-  private JPanel pParams;
+  //private JPanel pParams;
   private UiSpinnerInt uiSpinnerIntMaxCharge;
   private UiSpinnerInt uiSpinnerIntNumIsotopes;
   private UiSpinnerInt uiSpinnerIntMassTolPpm;
@@ -50,7 +50,7 @@ public class CrystalcPanel extends JPanelBase {
 
   @Override
   protected Component getEnablementToggleComponent() {
-    return pParams;
+    return null;
   }
 
   @Override
@@ -61,7 +61,7 @@ public class CrystalcPanel extends JPanelBase {
   @Override
   protected void init() {
     pTop = createPanelTop();
-    pParams = createPanelParams();
+    //pParams = createPanelParams();
 
     mu.layout(this);
     mu.border(this, "Crystal-C");
@@ -71,7 +71,7 @@ public class CrystalcPanel extends JPanelBase {
 
   @Override
   protected void initMore() {
-    updateEnabledStatus(pParams, SwingUtils.isEnabledAndChecked(checkRun));
+    //updateEnabledStatus(pParams, SwingUtils.isEnabledAndChecked(checkRun));
     super.initMore();
   }
 
@@ -151,22 +151,22 @@ public class CrystalcPanel extends JPanelBase {
 
     checkRun = new UiCheck("Run Crystal-C", null, false);
     checkRun.setName("run-crystalc");
-    checkRun.addActionListener(e -> {
-      final boolean isSelected = checkRun.isSelected();
-      enablementMapping.put(pParams, isSelected);
-      updateEnabledStatus(pParams, isSelected);
-    });
-    checkRun.addChangeListener(e -> {
-      final boolean isSelected = checkRun.isSelected();
-      enablementMapping.put(pParams, isSelected);
-      updateEnabledStatus(pParams, isSelected);
-    });
+//    checkRun.addActionListener(e -> {
+//      final boolean isSelected = checkRun.isSelected();
+//      enablementMapping.put(pParams, isSelected);
+//      updateEnabledStatus(pParams, isSelected);
+//    });
+//    checkRun.addChangeListener(e -> {
+//      final boolean isSelected = checkRun.isSelected();
+//      enablementMapping.put(pParams, isSelected);
+//      updateEnabledStatus(pParams, isSelected);
+//    });
 
 
     pTop.add(checkRun, new CC().alignX("left"));
-    JButton btnLoadDefaults = new JButton("Load Crystal-C defaults");
-    btnLoadDefaults.addActionListener((e) -> Bus.post(new MessageLoadCrystalcDefaults(true)));
-    pTop.add(btnLoadDefaults, new CC().alignX("left"));
+//    JButton btnLoadDefaults = new JButton("Load Crystal-C defaults");
+//    btnLoadDefaults.addActionListener((e) -> Bus.post(new MessageLoadCrystalcDefaults(true)));
+//    pTop.add(btnLoadDefaults, new CC().alignX("left"));
     final String htmlTooltip = "<html>Crystal-C performs additional search results cleanup<br/>\n"
         + "Recommended for Open Searches only";
     JLabel info = new JLabel(htmlTooltip);
