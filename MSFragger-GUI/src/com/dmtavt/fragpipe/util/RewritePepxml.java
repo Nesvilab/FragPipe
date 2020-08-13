@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -38,13 +39,13 @@ public class RewritePepxml {
     rewriteRawPath(pepxml, true, replacements);
   }
 
-  public static Path rewriteRawPath(Path pepxml, boolean replaceOriginal, String... replacement) throws IOException {
-    log.debug("Rewriting pepxml: {}", pepxml);
-    Path dir = pepxml.getParent();
-    Path fn = pepxml.getFileName();
-    Path temp = Files.createTempFile(dir, fn.toString(), ".temp-rewrite");
-    log.debug("Temp file chosen to rewrite pepxml: {}", temp);
-    System.out.printf("Writing output to: %s\n", temp.toString());
+  public static Path rewriteRawPath(Path origPepxml, boolean replaceOriginal, String... replacement) throws IOException {
+    log.debug("Rewriting pepxml: {}", origPepxml);
+    Path dir = origPepxml.getParent();
+    Path fn = origPepxml.getFileName();
+    Path rewritten = Files.createTempFile(dir, fn.toString(), ".temp-rewrite");
+    log.debug("Temp file chosen to rewrite pepxml: {}", rewritten);
+    System.out.printf("Writing output to: %s\n", rewritten.toString());
 
     // look for:
     // <msms_run_summary base_name="D:\data\20171007_LUMOS_f01"aw_data_type="mzML" raw_data="mzML">
@@ -57,10 +58,10 @@ public class RewritePepxml {
 //    final int overlap = 256;
 //    final int bufsz = 512;
 
-    Sink sink = Okio.sink(temp.toFile(), false);
+    Sink sink = Okio.sink(rewritten.toFile(), false);
     Buffer buf = new Buffer();
     int foundCount = 0;
-    try (BufferedSource bs = Okio.buffer(Okio.source(pepxml))) {
+    try (BufferedSource bs = Okio.buffer(Okio.source(origPepxml))) {
       try {
         FindResult fr = new FindResult();
         Pattern re = Pattern.compile("base_name=\"([^\"]+)\"");
@@ -130,18 +131,29 @@ public class RewritePepxml {
     // rewriting done
     // delete original, rename temp file
     if (!replaceOriginal) {
-      log.debug("Done rewriting, modified file: {}", temp);
-      return temp;
+      log.debug("Done rewriting, modified file: {}", rewritten);
+      return rewritten;
     }
-    log.debug("Deleting file: {}", pepxml);
-    System.out.printf("Deleting file: %s\n", pepxml);
-    Files.deleteIfExists(pepxml);
 
-    log.debug("Moving file: [{}] -> [{}]", temp, pepxml);
-    System.out.printf("Moving file: [%s] -> [%s]\n", temp, pepxml);
-    Files.move(temp, pepxml);
-    log.debug("Done rewriting, modified file: {}", pepxml);
-    return pepxml;
+    // replace original
+    Path notRewritten = origPepxml.getParent().resolve("not-rewritten_" + origPepxml.getFileName().toString());
+    String m1 = String.format("Saving a copy of the original: [%s] -> [%s]\n", origPepxml, notRewritten);
+    log.debug(m1);
+    System.out.println(m1);
+    Files.move(origPepxml, notRewritten, StandardCopyOption.REPLACE_EXISTING);
+
+    String m2 = String.format("Deleting file: %s", origPepxml);
+    log.debug(m2);
+    System.out.println(m2);
+    Files.deleteIfExists(origPepxml);
+
+    String m3 = String.format("Moving rewritten file to original location: [%s] -> [%s]", rewritten, origPepxml);
+    log.debug(m3);
+    System.out.println(m3);
+    Files.move(rewritten, origPepxml);
+
+    log.debug("Done rewriting, modified file: {}", origPepxml);
+    return origPepxml;
   }
 
   private static void dumpWhenNotFound(int overlap, Sink sink, Buffer buf, BufferedSource bs,
