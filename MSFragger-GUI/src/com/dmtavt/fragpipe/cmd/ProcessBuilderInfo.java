@@ -6,9 +6,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import org.apache.commons.lang3.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.process.ProcessResult;
@@ -39,15 +37,6 @@ public class ProcessBuilderInfo {
   public static Runnable toRunnable(final ProcessBuilderInfo pbi, final Path wdPath,
       Consumer<ProcessBuilderInfo> pbiPrinter) {
     return () -> {
-      if (pbi.name.contains(CmdPtmProphet.NAME)) {
-        log.debug("Introducing 2s delay before PTM Prophet");
-        try {
-          Thread.sleep(TimeUnit.SECONDS.toMillis(2));
-        } catch (InterruptedException e) {
-          log.error("Error while delaying execution: " + pbi.name + ", stopping", e);
-          Bus.post(new MessageKillAll(REASON.CANT_START_PROCESS));
-        }
-      }
 
       final ProcessResult pr = new ProcessResult(pbi);
       Process started;
