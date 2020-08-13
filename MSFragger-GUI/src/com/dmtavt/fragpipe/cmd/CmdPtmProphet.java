@@ -2,10 +2,14 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.util.DoNothing;
+import com.github.chhh.utils.CacheUtils;
+import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.UsageTrigger;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -30,7 +34,7 @@ public class CmdPtmProphet extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Path jarFragpipe, UsageTrigger usePhi, int threads, String cmdLineOpts,
+  public boolean configure(Path jarFragpipe, UsageTrigger usePhi, boolean isDryRun, int threads, String cmdLineOpts,
       List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml) {
     initPreConfig();
 
@@ -42,8 +46,18 @@ public class CmdPtmProphet extends CmdBase {
 
     for (Entry<Path, List<Tuple2<InputLcmsFile, Path>>> kv : groupByPepxml.entrySet()) {
       Path pepxml = kv.getKey();
-      List<Path> lcmsPaths = Seq.seq(kv.getValue()).map(tuple -> tuple.v1().getPath()).toList();
       Path workDir = kv.getValue().get(0).v1.outputDir(wd);
+
+      Path ptmpTemp = workDir.resolve("temp-ptmp");
+      if (!isDryRun) {
+        try {
+          ptmpTemp = PathUtils.createDirs(ptmpTemp);
+          ptmpTemp.toFile().deleteOnExit();
+        } catch (IOException e) {
+          log.error("Error creating PTM-P temp dir");
+          return false;
+        }
+      }
 
       // PTM Prophet itself
       List<String> cmd = new ArrayList<>();
@@ -58,6 +72,7 @@ public class CmdPtmProphet extends CmdBase {
       final ProcessBuilder pb = new ProcessBuilder(cmd);
       //pb.directory(lcms.getPath().getParent().toFile()); // PTM Prophet is run from the directory where the RAW is
       pb.directory(workDir.toFile());
+      pb.environment().put("WEBSERVER_TMP", ptmpTemp.toString());
       pbis.add(new PbiBuilder().setPb(pb).create());
     }
 

@@ -336,10 +336,11 @@ public class CmdPeptideProphet extends CmdBase {
     return true;
   }
 
-  private void setupEnv(Path workdir, ProcessBuilder pb) {
+  private ProcessBuilder setupEnv(Path workdir, ProcessBuilder pb) {
     // set environment
     pb.directory(workdir.toFile());
     pb.environment().putIfAbsent("WEBSERVER_ROOT", "fake-WEBSERVER_ROOT-value");
+    return pb;
   }
 
   private void addFreeCommandLineParams(PeptideProphetParams peptideProphetParams,
