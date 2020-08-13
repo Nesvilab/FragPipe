@@ -314,13 +314,17 @@ public class CmdPeptideProphet extends CmdBase {
 
     // always rewrite pepxml
     Map<InputLcmsFile, List<Path>> pepProphOutputs = outputs(pepxmlFiles, "pepxml", combine);
-    final List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml = Seq.seq(pepProphOutputs.entrySet())
-        .flatMap(kv -> kv.getValue().stream().map(pepxml -> new Tuple2<>(kv.getKey(), pepxml)))
-        .toList();
-    List<Path> lcmsPaths = Seq.seq(pepxmlFiles.keySet()).map(InputLcmsFile::getPath).distinct().toList();
-    for (Tuple2<InputLcmsFile, Path> t : lcmsToPepxml) {
-      ProcessBuilder pbRewrite = pbRewritePepxml(jarFragpipe, t.item2, lcmsPaths);
-      pbRewrite.directory(t.item1.outputDir(wd).toFile());
+    HashMap<Path, List<InputLcmsFile>> pepxmlToLcms = new HashMap<>();
+    for (Entry<InputLcmsFile, List<Path>> kv : pepProphOutputs.entrySet()) {
+      for (Path pepxml : kv.getValue()) {
+        pepxmlToLcms.computeIfAbsent(pepxml, path -> new ArrayList<>()).add(kv.getKey());
+      }
+    }
+
+    for (Entry<Path, List<InputLcmsFile>> kv : pepxmlToLcms.entrySet()) {
+      List<Path> lcmsPaths = Seq.seq(kv.getValue()).map(InputLcmsFile::getPath).distinct().toList();
+      ProcessBuilder pbRewrite = pbRewritePepxml(jarFragpipe, kv.getKey(), lcmsPaths);
+      pbRewrite.directory(kv.getValue().get(0).outputDir(wd).toFile());
       pbis.add(new PbiBuilder().setName("Rewrite pepxml")
           .setPb(pbRewrite).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
     }
