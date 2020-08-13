@@ -138,7 +138,7 @@ public class RewritePepxml {
     Files.deleteIfExists(pepxml);
 
     log.debug("Moving file: [{}] -> [{}]", temp, pepxml);
-    System.out.printf("Moving file: [%s] -> [%s]", temp, pepxml);
+    System.out.printf("Moving file: [%s] -> [%s]\n", temp, pepxml);
     Files.move(temp, pepxml);
     log.debug("Done rewriting, modified file: {}", pepxml);
     return pepxml;
