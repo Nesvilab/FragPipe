@@ -3,7 +3,7 @@ package com.dmtavt.fragpipe.cmd;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.util.RewritePepxml;
+import com.dmtavt.fragpipe.util.DoNothing;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.UsageTrigger;
 import java.nio.file.Files;
@@ -37,6 +37,9 @@ public class CmdPtmProphet extends CmdBase {
     Map<Path, List<Tuple2<InputLcmsFile, Path>>> groupByPepxml = Seq.seq(lcmsToPepxml)
         .groupBy(Tuple2::v2);
 
+    // slight delay before PTM-P
+    pbis.add(new PbiBuilder().setPb(pbDelay(jarFragpipe, 1000)).setName("Delay").create());
+
     for (Entry<Path, List<Tuple2<InputLcmsFile, Path>>> kv : groupByPepxml.entrySet()) {
       Path pepxml = kv.getKey();
       List<Path> lcmsPaths = Seq.seq(kv.getValue()).map(tuple -> tuple.v1().getPath()).toList();
@@ -65,5 +68,26 @@ public class CmdPtmProphet extends CmdBase {
   @Override
   public boolean usesPhi() {
     return true;
+  }
+
+  private static ProcessBuilder pbDelay(Path jarFragpipe, long millis) {
+    if (jarFragpipe == null) {
+      throw new IllegalArgumentException("jar can't be null");
+    }
+    List<String> cmd = new ArrayList<>();
+    cmd.add(Fragpipe.getBinJava());
+    cmd.add("-cp");
+    Path root = FragpipeLocations.get().getDirFragpipeRoot();
+    String libsDir = root.resolve("lib").toString() + "/*";
+    if (Files.isDirectory(jarFragpipe)) {
+      libsDir = jarFragpipe.getParent().getParent().getParent().getParent()
+          .resolve("build/install/fragpipe/lib").toString() + "/*";
+      log.warn("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}",
+          libsDir);
+    }
+    cmd.add(libsDir);
+    cmd.add(DoNothing.class.getCanonicalName());
+    cmd.add(Long.toString(millis));
+    return new ProcessBuilder(cmd);
   }
 }
