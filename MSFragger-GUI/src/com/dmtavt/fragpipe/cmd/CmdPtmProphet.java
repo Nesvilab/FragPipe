@@ -63,11 +63,15 @@ public class CmdPtmProphet extends CmdBase {
       List<String> cmd = new ArrayList<>();
       cmd.add(usePhi.useBin(workDir));
       cmd.add("ptmprophet");
-      cmd.add("--maxthreads");
-      cmd.add(Integer.toString(Math.max(1, threads)));
-      Seq.of(cmdLineOpts.split(" "))
-          .map(String::trim).filter(StringUtils::isNotBlank).forEach(cmd::add);
+      List<String> cmdOpts = Seq.of(cmdLineOpts.split(" "))
+          .map(String::trim).filter(StringUtils::isNotBlank).toList();
+      if (!cmdOpts.contains("--maxthreads")) {
+        cmdOpts.add("--maxthreads");
+        cmdOpts.add(Integer.toString(Math.max(1, threads)));
+      }
+      cmd.addAll(cmdOpts);
       cmd.add(pepxml.getFileName().toString());
+
 
       final ProcessBuilder pb = new ProcessBuilder(cmd);
       //pb.directory(lcms.getPath().getParent().toFile()); // PTM Prophet is run from the directory where the RAW is
