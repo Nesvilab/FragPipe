@@ -209,16 +209,16 @@ public class DownloadDbHelper {
                       final String fn = path.getFileName().toString();
                       int lastIndexOf = fn.lastIndexOf('.');
                       String ext = lastIndexOf < 0 ? fn : fn.substring(lastIndexOf + 1);
-                      if (ext.startsWith(".fa") || ext.startsWith("fa")) {
-                        // most likely a fasta file
-                        final Path fullDbPath = dir.resolve(path);
-                        log.debug("Sending new MessageDbUpdate: " + fullDbPath.toString());
-                        JOptionPane.showMessageDialog(parent,
-                            "<html>Downloaded new file:<br/>" + fullDbPath.toString(),
-                            "Download complete", JOptionPane.INFORMATION_MESSAGE);
-                        Bus.post(new MessageDbNewPath(fullDbPath.toString()));
-                        break;
-                      }
+//                      if (ext.startsWith(".fa") || ext.startsWith("fa")) { // remove extension check, philosopher broke it
+//                        // most likely a fasta file
+//                      }
+                      final Path fullDbPath = dir.resolve(path);
+                      log.debug("Sending new MessageDbUpdate: " + fullDbPath.toString());
+                      JOptionPane.showMessageDialog(parent,
+                          "<html>Downloaded new file:<br/>" + fullDbPath.toString(),
+                          "Download complete", JOptionPane.INFORMATION_MESSAGE);
+                      Bus.post(new MessageDbNewPath(fullDbPath.toString()));
+                      break;
                     }
                   }
                 } else {
