@@ -106,11 +106,11 @@ public class CrystalcPanel extends JPanelBase {
   public CrystalcParams toParams() {
     CrystalcParams p = new CrystalcParams();
     p.loadDefault();
-    p.setMaxZ(uiSpinnerIntMaxCharge.getActualValue());
-    p.setIsoNum(uiSpinnerIntNumIsotopes.getActualValue());
-    p.setPrecursorMassTol(uiSpinnerIntMassTolPpm.getActualValue());
-    p.setPrecursorIsolationWindow((Double)uiSpinnerPrecIsol.getValue());
-    p.setCorrectIsotopeError(uiCheckCorrectIsoErr.isSelected());
+//    p.setMaxZ(uiSpinnerIntMaxCharge.getActualValue());
+//    p.setIsoNum(uiSpinnerIntNumIsotopes.getActualValue());
+//    p.setPrecursorMassTol(uiSpinnerIntMassTolPpm.getActualValue());
+//    p.setPrecursorIsolationWindow((Double)uiSpinnerPrecIsol.getValue());
+//    p.setCorrectIsotopeError(uiCheckCorrectIsoErr.isSelected());
     return p;
   }
 
