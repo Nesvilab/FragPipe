@@ -399,23 +399,28 @@ public class PtmshepherdPanel extends JPanelBase {
           }
         });
 
-    mu.add(p, feHistoSmoothBins.label(), mu.ccR());
-    mu.add(p, feHistoSmoothBins.comp);
-    mu.add(p, fePrecTol.label(), mu.ccR());
-    mu.add(p, fePrecTol.comp).split(2);
-    mu.add(p, fePrecUnits.comp).wrap();
+    JPanel p1 = mu.newPanel(null, true);
+    mu.border(p1, 1);
 
-    mu.add(p, fePromRatio.label(), mu.ccR());
-    mu.add(p, fePromRatio.comp);
-    mu.add(p, feWidth.label(), mu.ccR());
-    mu.add(p, feWidth.comp).split(2);
-    mu.add(p, fePeakPickingUnits.comp);
-    mu.add(p, feExtendedOut.comp).pushX().wrap();
+    mu.add(p1, feHistoSmoothBins.label(), mu.ccR());
+    mu.add(p1, feHistoSmoothBins.comp);
+    mu.add(p1, fePrecTol.label(), mu.ccR());
+    mu.add(p1, fePrecTol.comp).split(2);
+    mu.add(p1, fePrecUnits.comp).wrap();
 
-    mu.add(p, feLocBackground.label(), mu.ccR());
-    mu.add(p, feLocBackground.comp);
-    mu.add(p, feAnnotTol.label(), mu.ccR());
-    mu.add(p, feAnnotTol.comp).wrap();
+    mu.add(p1, fePromRatio.label(), mu.ccR());
+    mu.add(p1, fePromRatio.comp);
+    mu.add(p1, feWidth.label(), mu.ccR());
+    mu.add(p1, feWidth.comp).split(2);
+    mu.add(p1, fePeakPickingUnits.comp);
+    mu.add(p1, feExtendedOut.comp).pushX().wrap();
+
+    mu.add(p1, feLocBackground.label(), mu.ccR());
+    mu.add(p1, feLocBackground.comp);
+    mu.add(p1, feAnnotTol.label(), mu.ccR());
+    mu.add(p1, feAnnotTol.comp).wrap();
+
+    mu.add(p, p1).spanX().growX().wrap();
 
     final String ghost = "Phospho:79.9663, Something-else:-20.123";
     uiTextVarMods = new UiTextBuilder().text("Failed_Carbamidomethylation:-57.021464")
@@ -441,16 +446,23 @@ public class PtmshepherdPanel extends JPanelBase {
             + "Comma separated entries of form \"&lt;name&gt;:&lt;mass&gt;\"<br/>\n"
             + "Example:<br/>\n"
             + "&nbsp;&nbsp;&nbsp;&nbsp;Phospho:79.9663,Something-else:-20.123");
-    mu.add(p, feVarMods.label(), mu.ccR());
-    mu.add(p, feVarMods.comp).spanX().growX().wrap();
 
-    mu.add(p, new JLabel("Annotation source: ")).spanX().split();
-    mu.add(p, btnAnnUnimod);
-    mu.add(p, btnAnnCommon).wrap();
+    JPanel p2 = mu.newPanel(null, true);
+    mu.border(p2, 1);
 
-    mu.add(p, btnAnnCustom, mu.ccR());
-    mu.add(p, feAnnotationFile.comp).split().spanX().growX();
-    mu.add(p, btnBrosweAnnotationFile).wrap();
+    mu.add(p2, feVarMods.label(), mu.ccR());
+    mu.add(p2, feVarMods.comp).spanX().growX().pushX().wrap();
+
+    mu.add(p2, new JLabel("Annotation source: ")).spanX().split();
+    mu.add(p2, btnAnnUnimod);
+    mu.add(p2, btnAnnCommon).wrap();
+
+    mu.add(p2, btnAnnCustom, mu.ccR());
+    mu.add(p2, feAnnotationFile.comp).split().spanX().growX().pushX();
+    mu.add(p2, btnBrosweAnnotationFile).wrap();
+
+    mu.add(p, p2).spanX().growX().wrap();
+
 
     FormEntry feIonA = mu.feb(PROP_iontype_a, UiUtils.createUiCheck("a", false)).create();
     FormEntry feIonX = mu.feb(PROP_iontype_x, UiUtils.createUiCheck("x", false)).create();
@@ -465,15 +477,20 @@ public class PtmshepherdPanel extends JPanelBase {
         .tooltip("max fragment charge for localization")
         .create();
 
-    mu.add(p, new JLabel("Ion Types for Localization:")).spanX().wrap();
-    mu.add(p, feIonA.comp).spanX().split();
-    mu.add(p, feIonX.comp);
-    mu.add(p, feIonB.comp);
-    mu.add(p, feIonY.comp);
-    mu.add(p, feIonC.comp);
-    mu.add(p, feIonZ.comp);
-    mu.add(p, feMaxFragCharge.label());
-    mu.add(p, feMaxFragCharge.comp).wrap();
+    JPanel p3 = mu.newPanel("Ion Types for Localization:", true);
+    //mu.border(p3, 1);
+
+    //mu.add(p3, new JLabel("Ion Types for Localization:")).spanX().wrap();
+    mu.add(p3, feIonA.comp).spanX().split();
+    mu.add(p3, feIonX.comp);
+    mu.add(p3, feIonB.comp);
+    mu.add(p3, feIonY.comp);
+    mu.add(p3, feIonC.comp);
+    mu.add(p3, feIonZ.comp);
+    mu.add(p3, feMaxFragCharge.label());
+    mu.add(p3, feMaxFragCharge.comp).wrap();
+
+    mu.add(p, p3).spanX().growX().wrap();
 
     JPanel pGlyco = createpanelGlyco();
     mu.add(p, pGlyco).spanX().growX().wrap();
