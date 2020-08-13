@@ -44,6 +44,7 @@ public class RewritePepxml {
     Path fn = pepxml.getFileName();
     Path temp = Files.createTempFile(dir, fn.toString(), ".temp-rewrite");
     log.debug("Temp file chosen to rewrite pepxml: {}", temp);
+    System.out.printf("Writing output to: %s\n", temp.toString());
 
     // look for:
     // <msms_run_summary base_name="D:\data\20171007_LUMOS_f01"aw_data_type="mzML" raw_data="mzML">
@@ -133,8 +134,11 @@ public class RewritePepxml {
       return temp;
     }
     log.debug("Deleting file: {}", pepxml);
+    System.out.printf("Deleting file: %s\n", pepxml);
     Files.deleteIfExists(pepxml);
+
     log.debug("Moving file: [{}] -> [{}]", temp, pepxml);
+    System.out.printf("Moving file: [%s] -> [%s]", temp, pepxml);
     Files.move(temp, pepxml);
     log.debug("Done rewriting, modified file: {}", pepxml);
     return pepxml;
