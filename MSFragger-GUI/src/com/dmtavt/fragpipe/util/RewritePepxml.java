@@ -136,11 +136,11 @@ public class RewritePepxml {
     }
 
     // replace original
-    Path notRewritten = origPepxml.getParent().resolve("not-rewritten_" + origPepxml.getFileName().toString());
-    String m1 = String.format("Saving a copy of the original: [%s] -> [%s]\n", origPepxml, notRewritten);
-    log.debug(m1);
-    System.out.println(m1);
-    Files.move(origPepxml, notRewritten, StandardCopyOption.REPLACE_EXISTING);
+    // Path notRewritten = origPepxml.getParent().resolve("not-rewritten_" + origPepxml.getFileName().toString());
+    // String m1 = String.format("Saving a copy of the original: [%s] -> [%s]\n", origPepxml, notRewritten);
+    // log.debug(m1);
+    // System.out.println(m1);
+    // Files.move(origPepxml, notRewritten, StandardCopyOption.REPLACE_EXISTING);
 
     String m2 = String.format("Deleting file: %s", origPepxml);
     log.debug(m2);
