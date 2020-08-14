@@ -55,19 +55,17 @@ public class IOUtilsTest {
   @Test
   public void pathDbDownload() {
     Path path = Paths.get("D:\\ms-data\\fasta\\2020-08-13-decoys-reviewed-contam-UP000005640");
-    boolean isRegularFile = Files.isRegularFile(path);
+    //boolean isRegularFile = Files.isRegularFile(path);
     boolean isNotInMeta = Arrays
         .stream(path.toAbsolutePath().normalize().toString().split("[\\\\/]"))
         .noneMatch(".meta"::equalsIgnoreCase);
-    Assert.assertTrue(isRegularFile);
+    //Assert.assertTrue(isRegularFile);
     Assert.assertTrue(isNotInMeta);
 
     path = Paths.get("D:\\ms-data\\fasta\\.meta\\2020-08-13-decoys-reviewed-contam-UP000005640");
-    //isRegularFile = Files.isRegularFile(path);
     isNotInMeta = Arrays
         .stream(path.toAbsolutePath().normalize().toString().split("[\\\\/]"))
         .noneMatch(".meta"::equalsIgnoreCase);
-    //Assert.assertTrue(isRegularFile);
     Assert.assertFalse(isNotInMeta);
   }
 
