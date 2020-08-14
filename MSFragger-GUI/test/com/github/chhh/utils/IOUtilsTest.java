@@ -8,8 +8,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -48,6 +50,25 @@ public class IOUtilsTest {
     InputStream is = new FileInputStream(path.toFile());
     IOUtils.tokenize2(is, "<", ">");
     log.debug("tokienize 2 test done");
+  }
+
+  @Test
+  public void pathDbDownload() {
+    Path path = Paths.get("D:\\ms-data\\fasta\\2020-08-13-decoys-reviewed-contam-UP000005640");
+    boolean isRegularFile = Files.isRegularFile(path);
+    boolean isNotInMeta = Arrays
+        .stream(path.toAbsolutePath().normalize().toString().split("[\\\\/]"))
+        .noneMatch(".meta"::equalsIgnoreCase);
+    Assert.assertTrue(isRegularFile);
+    Assert.assertTrue(isNotInMeta);
+
+    path = Paths.get("D:\\ms-data\\fasta\\.meta\\2020-08-13-decoys-reviewed-contam-UP000005640");
+    //isRegularFile = Files.isRegularFile(path);
+    isNotInMeta = Arrays
+        .stream(path.toAbsolutePath().normalize().toString().split("[\\\\/]"))
+        .noneMatch(".meta"::equalsIgnoreCase);
+    //Assert.assertTrue(isRegularFile);
+    Assert.assertFalse(isNotInMeta);
   }
 
   //@Test

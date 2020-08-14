@@ -5,13 +5,16 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.WatchEvent.Kind;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -123,12 +126,19 @@ public class DownloadDbHelper {
         CmdPhilosopherWorkspaceClean cmdClean = new CmdPhilosopherWorkspaceClean(true, dir);
         cmdClean.configure(usePhi);
 
-        List<ProcessBuilder> pbs = Stream.of(cmdCleanInit, cmdDownload, cmdClean)
+        List<ProcessBuilder> pbInit = Stream.of(cmdCleanInit)
+            .flatMap(cmdBase -> cmdBase.getBuilderDescriptor().pbis.stream().map(pbi -> pbi.pb))
+            .collect(Collectors.toList());
+        runProcesses(pbInit, 1);
+
+        List<ProcessBuilder> pbs = Stream.of(cmdDownload, cmdClean)
             .flatMap(cmdBase -> cmdBase.getBuilderDescriptor().pbis.stream().map(pbi -> pbi.pb))
             .collect(Collectors.toList());
 
+
         WatchService watch = FileSystems.getDefault().newWatchService();
         if (watch != null) {
+          log.info("Monitoring directory for file changes: {}", dir);
           dir.register(watch, ENTRY_CREATE, ENTRY_MODIFY);
         }
 
@@ -146,21 +156,7 @@ public class DownloadDbHelper {
 
           Thread updateThread = new Thread(() -> {
             try {
-              for (ProcessBuilder pb : pbs) {
-                final String cmd = String.join(" ", pb.command());
-                log.info("Executing: " + cmd);
-
-                ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb)
-                    .setName(pb.toString()).setFnStdOut(null).setFnStdErr(null)
-                    .setParallelGroup(null).create();
-                ProcessResult pr = new ProcessResult(pbi);
-                pr.start().waitFor(5, TimeUnit.MINUTES);
-                log.info("Process output: {}", pr.getOutput().toString());
-                final int exitValue = pr.getProcess().exitValue();
-                if (!cmd.toLowerCase().contains("workspace") && exitValue != 0) {
-                  throw new IllegalStateException("Process returned non zero value");
-                }
-              }
+              runProcesses(pbs, 5);
 
             } catch (Exception ex) {
               throw new IllegalStateException("Something happened during database download", ex);
@@ -206,18 +202,28 @@ public class DownloadDbHelper {
                     if (context instanceof Path) {
                       Path path = (Path) event.context();
                       log.info("Detected new or changed file: " + path.toString());
-                      final String fn = path.getFileName().toString();
-                      int lastIndexOf = fn.lastIndexOf('.');
-                      String ext = lastIndexOf < 0 ? fn : fn.substring(lastIndexOf + 1);
-//                      if (ext.startsWith(".fa") || ext.startsWith("fa")) { // remove extension check, philosopher broke it
-//                        // most likely a fasta file
-//                      }
-                      final Path fullDbPath = dir.resolve(path);
-                      log.debug("Sending new MessageDbUpdate: " + fullDbPath.toString());
-                      JOptionPane.showMessageDialog(parent,
-                          "<html>Downloaded new file:<br/>" + fullDbPath.toString(),
-                          "Download complete", JOptionPane.INFORMATION_MESSAGE);
-                      Bus.post(new MessageDbNewPath(fullDbPath.toString()));
+                      String ext = StringUtils.afterLastDot(path.getFileName().toString()).toLowerCase();
+                      log.info("Extension: [{}]", ext);
+
+                      boolean isFile = !Files.isDirectory(path);
+                      boolean isNotInsideMeta = Arrays
+                          .stream(path.toAbsolutePath().normalize().toString().split("[\\\\/]"))
+                          .noneMatch(".meta"::equalsIgnoreCase);
+                      boolean isExtFa = ext.startsWith("fa");
+                      log.info("Is regular file: {}; Is not inside .meta folder: {}; Extension starts with .fa: {}",
+                          isFile, isNotInsideMeta, isExtFa);
+
+                      // remove extension check? philosopher broke it
+                      if (isFile && (isNotInsideMeta || isExtFa)) {
+                        // most likely a fasta file
+                        final Path fullDbPath = dir.resolve(path);
+                        log.debug("Sending new MessageDbUpdate: " + fullDbPath.toString());
+                        JOptionPane.showMessageDialog(parent,
+                            "<html>Downloaded new file:<br/>" + fullDbPath.toString(),
+                            "Download complete", JOptionPane.INFORMATION_MESSAGE);
+                        Bus.post(new MessageDbNewPath(fullDbPath.toString()));
+                      }
+
                       break;
                     }
                   }
@@ -235,6 +241,25 @@ public class DownloadDbHelper {
             watch.close();
           }
         }
+      }
+    }
+  }
+
+  private static void runProcesses(List<ProcessBuilder> pbInit, int timeoutMinutes)
+      throws InterruptedException, IOException {
+    for (ProcessBuilder pb : pbInit) {
+      final String cmd = String.join(" ", pb.command());
+      log.info("Executing: " + cmd);
+
+      ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb)
+          .setName(pb.toString()).setFnStdOut(null).setFnStdErr(null)
+          .setParallelGroup(null).create();
+      ProcessResult pr = new ProcessResult(pbi);
+      pr.start().waitFor(timeoutMinutes, TimeUnit.MINUTES);
+      log.info("Process output: {}", pr.getOutput().toString());
+      final int exitValue = pr.getProcess().exitValue();
+      if (!cmd.toLowerCase().contains("workspace") && exitValue != 0) {
+        throw new IllegalStateException("Process returned non zero value");
       }
     }
   }
@@ -307,21 +332,7 @@ public class DownloadDbHelper {
 
       Thread updateThread = new Thread(() -> {
         try {
-          for (ProcessBuilder pb : pbs) {
-            final String cmd = String.join(" ", pb.command());
-            log.info("Executing: " + cmd);
-
-            ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb)
-                .setName(pb.toString()).setFnStdOut(null).setFnStdErr(null)
-                .setParallelGroup(null).create();
-            ProcessResult pr = new ProcessResult(pbi);
-            pr.start().waitFor(1, TimeUnit.MINUTES);
-            log.info("Process output: {}", pr.getOutput().toString());
-            final int exitValue = pr.getProcess().exitValue();
-            if (!cmd.toLowerCase().contains("workspace") && exitValue != 0) {
-              throw new IllegalStateException("Process returned non zero value");
-            }
-          }
+          runProcesses(pbs, 1);
 
         } catch (Exception ex) {
           log.error("Something happened during database update", ex);
@@ -368,10 +379,16 @@ public class DownloadDbHelper {
                 if (context instanceof Path) {
                   Path path = (Path) event.context();
                   log.info("Detected new or changed file: " + path.toString());
-                  final String fn = path.getFileName().toString();
-                  int lastIndexOf = fn.lastIndexOf('.');
-                  String ext = lastIndexOf < 0 ? fn : fn.substring(lastIndexOf + 1);
-                  if (ext.startsWith(".fa") || ext.startsWith("fa")) {
+                  String ext = StringUtils.afterLastDot(path.getFileName().toString()).toLowerCase();
+
+                  boolean isFile = !Files.isDirectory(path);
+                  boolean isNotInsideMeta = Arrays
+                      .stream(path.toAbsolutePath().normalize().toString().split("[\\\\/]"))
+                      .noneMatch(".meta"::equalsIgnoreCase);
+                  boolean isStartsWithFa = ext.startsWith("fa");
+
+                  // remove extension check? philosopher broke it
+                  if (isFile && (isNotInsideMeta || isStartsWithFa)) {
                     // most likely a fasta file
                     final Path fullDbPath = dir.resolve(path);
                     log.debug("Sending new MessageDbUpdate: " + fullDbPath.toString());
