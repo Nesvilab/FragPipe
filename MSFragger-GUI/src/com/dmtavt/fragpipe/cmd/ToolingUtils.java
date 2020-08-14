@@ -43,7 +43,7 @@ public class ToolingUtils {
   private static final Logger log = LoggerFactory.getLogger(ToolingUtils.class);
   private ToolingUtils() {}
 
-  public static final String BATMASS_IO_JAR = "batmass-io-1.17.4.jar";
+  public static final String BATMASS_IO_JAR = "batmass-io-1.19.0.jar";
 
   /**
    * @return Full absolute normalized path to the output combined protein file.
