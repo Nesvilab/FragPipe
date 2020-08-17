@@ -771,15 +771,17 @@ public class FragpipeRun {
     final PtmProphetPanel panelPtmProphet = Fragpipe.getStickyStrict(PtmProphetPanel.class);
     final CmdPtmProphet cmdPtmProphet = new CmdPtmProphet(panelPtmProphet.isRun(), wd);
     addCheck.accept(() -> {
-      List<InputLcmsFile> inputFiles = tabWorkflow.getLcmsFileGroups().values().stream()
-          .flatMap(g -> g.lcmsFiles.stream()).collect(
-              Collectors.toList());
-      boolean allMzml = inputFiles.stream()
-          .map(lcms -> lcms.getPath().getFileName().toString().toLowerCase())
-          .allMatch(fn -> fn.endsWith(".mzml"));
-      if (!allMzml) {
-        SwingUtils.showWarningDialog(parent, "PTM-Prophet only supports mzML as input LCMS files.", "Unsupported input file type");
-        return false;
+      if (panelPtmProphet.isRun()) {
+        List<InputLcmsFile> inputFiles = tabWorkflow.getLcmsFileGroups().values().stream()
+            .flatMap(g -> g.lcmsFiles.stream()).collect(
+                Collectors.toList());
+        boolean allMzml = inputFiles.stream()
+            .map(lcms -> lcms.getPath().getFileName().toString().toLowerCase())
+            .allMatch(fn -> fn.endsWith(".mzml"));
+        if (!allMzml) {
+          SwingUtils.showWarningDialog(parent, "PTM-Prophet only supports mzML as input LCMS files.", "Unsupported input file type");
+          return false;
+        }
       }
       return true;
     });
