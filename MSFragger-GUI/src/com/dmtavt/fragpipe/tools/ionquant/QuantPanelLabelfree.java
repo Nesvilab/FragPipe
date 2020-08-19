@@ -228,8 +228,8 @@ public class QuantPanelLabelfree extends JPanelBase {
 //    ionquant.mbrtoprun :: MBR top runs <=> 3 (1 - a very large number, step: 1)
 
 //    ionquant.ionfdr :: MBR ion FDR <=> 0.01 (0.001 - 1, step: 0.01)
-//    ionquant.peptidefdr :: MBR peptide FDR <=> 0.01 (0.001 - 1, step: 0.01)
-//    ionquant.proteinfdr :: MBR protein FDR <=> 0.01 (0.001 - 1, step: 0.01)
+//    ionquant.peptidefdr :: MBR peptide FDR <=> 1 (0.001 - 1, step: 0.01)
+//    ionquant.proteinfdr :: MBR protein FDR <=> 1 (0.001 - 1, step: 0.01)
 //
 //    ionquant.label :: Labels <=> <string>
 
@@ -249,9 +249,9 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     UiSpinnerDouble uiSpinnerMbrIonFdr = UiUtils.spinnerDouble(0.01, 0.001, 1, 0.01)
         .setCols(5).setFormat("#.###").create();
-    UiSpinnerDouble uiSpinnerMbrPepFdr = UiUtils.spinnerDouble(0.01, 0.001, 1, 0.01)
+    UiSpinnerDouble uiSpinnerMbrPepFdr = UiUtils.spinnerDouble(1, 0.001, 1, 0.01)
         .setCols(5).setFormat("#.###").create();
-    UiSpinnerDouble uiSpinnerMbrProtFdr = UiUtils.spinnerDouble(0.01, 0.001, 1, 0.01)
+    UiSpinnerDouble uiSpinnerMbrProtFdr = UiUtils.spinnerDouble(1, 0.001, 1, 0.01)
         .setCols(5).setFormat("#.###").create();
 
     UiSpinnerInt uiSpinnerMbrTopRuns = UiUtils.spinnerInt(3, 1, Integer.MAX_VALUE, 1).setCols(5).create();

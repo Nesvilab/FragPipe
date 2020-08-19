@@ -108,7 +108,7 @@ ionquant.proteinquant::MaxLFQ <=> 2
 # ionquant.mbrtoprun :: MBR top runs <=> 3 (1 - a very large number, step: 1)
 # ionquant.mbrmincorr :: MBR min correlation <=> 0.5 (0 - 1, step: 0.1)
 # ionquant.ionfdr :: MBR ion FDR <=> 0.01 (0.001 - 1, step: 0.01)
-# ionquant.peptidefdr :: MBR peptide FDR <=> 0.01 (0.001 - 1, step: 0.01)
-# ionquant.proteinfdr :: MBR protein FDR <=> 0.01 (0.001 - 1, step: 0.01)
+# ionquant.peptidefdr :: MBR peptide FDR <=> 1 (0.001 - 1, step: 0.01)
+# ionquant.proteinfdr :: MBR protein FDR <=> 1 (0.001 - 1, step: 0.01)
 #
 # ionquant.label :: Labels <=> <string>
