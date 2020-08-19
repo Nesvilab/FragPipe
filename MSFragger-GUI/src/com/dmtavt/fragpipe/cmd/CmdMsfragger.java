@@ -47,6 +47,7 @@ public class CmdMsfragger extends CmdBase {
   private static final Path PATH_NONE = Paths.get("");
   private static volatile Path pathThermo = PATH_NONE;
   private static volatile Path pathBruker = PATH_NONE;
+  private static final List<String> timsdataPattern = Arrays.asList("^timsdata-2-8-7\\.dll", "^libtimsdata-2-8-7\\.so");
 
   private final PrecursorMassTolUnits precursorMassUnits;
   private final int outputReportTopN;
@@ -131,23 +132,18 @@ public class CmdMsfragger extends CmdBase {
   }
 
   public static Predicate<File> getSupportedFilePredicate(List<Path> searchPaths) {
-    Predicate<File> local = supportedFilePredicate;
-    if (local == null) {
-      synchronized (CmdMsfragger.class) {
-        local = supportedFilePredicate;
-        if (local == null) {
-          final GetSupportedExts exts = new GetSupportedExts(searchPaths).invoke();
-          supportedFilePredicate = local = file -> {
-            String fnLoCase = file.getName().toLowerCase();
-            for (String ext : exts.exts) {
-              if (fnLoCase.endsWith(ext)) {
-                return true;
-              }
-            }
-            return false;
-          };
+    Predicate<File> local;
+    synchronized (CmdMsfragger.class) {
+      final GetSupportedExts exts = new GetSupportedExts(searchPaths).invoke();
+      supportedFilePredicate = local = file -> {
+        String fnLoCase = file.getName().toLowerCase();
+        for (String ext : exts.exts) {
+          if (fnLoCase.endsWith(ext)) {
+            return true;
+          }
         }
-      }
+        return false;
+      };
     }
     return local;
   }
@@ -213,23 +209,14 @@ public class CmdMsfragger extends CmdBase {
   }
 
   public static Path searchExtLibsBruker(List<Path> searchLocations) {
-    Path local = pathBruker;
-    if (PATH_NONE.equals(local)) {
-      synchronized (CmdMsfragger.class) {
-        local = pathBruker;
-        if (PATH_NONE.equals(local)) {
-          Path rel = Paths.get("ext/bruker");
-          List<String> filenamePatterns = Arrays.asList(
-              "^timsdata.*?\\.dll",
-              "^libtimsdata.*?\\.so"
-          );
-          List<Path> dirs = searchLocations.stream()
-              .map(path -> Files.isDirectory(path) ? path : path.getParent()).distinct().collect(
-                  Collectors.toList());
-          List<Path> locs = createRelSearchPaths(dirs, rel);
-          pathBruker = local = searchExtLibsByPattern(locs, filenamePatterns.stream().map(Pattern::compile).collect(Collectors.toList()));
-        }
-      }
+    Path local;
+    synchronized (CmdMsfragger.class) {
+      Path rel = Paths.get("ext/bruker");
+      List<Path> dirs = searchLocations.stream()
+          .map(path -> Files.isDirectory(path) ? path : path.getParent()).distinct().collect(
+              Collectors.toList());
+      List<Path> locs = createRelSearchPaths(dirs, rel);
+      pathBruker = local = searchExtLibsByPattern(locs, timsdataPattern.stream().map(Pattern::compile).collect(Collectors.toList()));
     }
     return local;
   }

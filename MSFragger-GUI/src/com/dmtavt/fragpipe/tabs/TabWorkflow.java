@@ -554,7 +554,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         .map(File::toPath).collect(Collectors.toList());
     if (paths.isEmpty()) {
       JOptionPane.showMessageDialog(this,
-          "None of selected files/folders are supported", "Warning", JOptionPane.WARNING_MESSAGE);
+          "None of selected files/folders are supported.\nIf you are analyzing timsTOF (.d) data, please make sure that you have the latest MSFragger with ext folder exist.", "Warning", JOptionPane.WARNING_MESSAGE);
       return;
     } else {
       Bus.post(new MessageLcmsFilesAdded(paths));
