@@ -140,6 +140,7 @@ public class CmdIonquant extends CmdBase {
         "peptidefdr",
         "normalization",
         "minisotopes",
+        "writeindex",
         "light",
         "medium",
         "heavy",

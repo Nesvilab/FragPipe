@@ -293,6 +293,8 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feNormalize = mu.feb(uiComboNormalize).name("ionquant.normalization").label("Normalize").tooltip("Normalizing ion intensities among experiments.").create();
     FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes")
         .tooltip("Min number of isotopes for tracing.").create();
+    UiCheck uiCheckWriteIndex = UiUtils.createUiCheck("Keep index on disk", true);
+    uiCheckWriteIndex.setName("ionquant.writeindex");
 
     FormEntry feExcludemods = mu.feb(uiTextExcludemods).name("ionquant.excludemods").label("Excluded Mods").tooltip("String specifying excluded modifications in peptide and protein quantification. E.g. M15.9949;STY79.96633").create();
 
@@ -379,6 +381,7 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     mu.add(pa, feExcludemods.label(), mu.ccR());
     mu.add(pa, feExcludemods.comp).growX().spanX().wrap();
+    mu.add(pa, uiCheckWriteIndex).wrap();
 
     mu.add(p, pa).spanX().growX().wrap();
 

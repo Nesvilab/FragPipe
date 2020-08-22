@@ -92,6 +92,8 @@ ionquant.normalization::Yes <=> 1
 ionquant.minisotopes::1 <=> 1
 ionquant.minisotopes::2 <=> 2
 ionquant.minisotopes::3 <=> 3
+ionquant.writeindex::false <=> 0
+ionquant.writeindex::true <=> 1
 ionquant.proteinquant::Top-N <=> 1
 ionquant.proteinquant::MaxLFQ <=> 2
 

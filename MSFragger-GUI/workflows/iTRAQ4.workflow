@@ -21,6 +21,7 @@ ionquant.mbrtoprun=3
 ionquant.minfreq=0.5
 ionquant.minions=2
 ionquant.minisotopes=2
+ionquant.writeindex=0
 ionquant.mztol=10
 ionquant.normalization=1
 ionquant.peptidefdr=1
