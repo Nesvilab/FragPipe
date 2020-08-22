@@ -205,12 +205,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feRadioIonquant = new FormEntry("ionquant.run-ionquant", "Not shown",
         uiRadioUseIonquant);
 
-    //UiCombo uiComboTimsTOF = UiUtils.createUiCombo(Arrays.asList("Non-timsTOF", "timsTOF"));
-    UiCombo uiComboMbr = UiUtils.createUiCombo(Arrays.asList("No", "Yes"));
-    UiCombo uiComboRequant = UiUtils.createUiCombo(Arrays.asList("Yes", "No"));
     UiCombo uiComboProtQuant = UiUtils.createUiCombo(Arrays.asList("Top-N", "MaxLFQ"));
-
-    UiCombo uiComboNormalize = UiUtils.createUiCombo(Arrays.asList("Yes", "No"));
     UiCombo uiComboMinIsotopes = UiUtils.createUiCombo(Arrays.asList("1", "2", "3"));
 
     UiSpinnerDouble uiSpinnerMzTol = UiUtils.spinnerDouble(10.0, 1.0, 1000.0, 1.0)
@@ -261,9 +256,12 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiText uiTextExcludemods = UiUtils.uiTextBuilder().cols(45).create();
 
     //FormEntry feDataType = mu.feb(uiComboTimsTOF).name("ionquant.ionmobility").label("Data type").create();
-    FormEntry feMbr = mu.feb(uiComboMbr).name("ionquant.mbr").label("Match between runs (MBR)").create();
+    UiCheck uiCheckMbr = UiUtils.createUiCheck("Match between runs (MBR)", false);
+    uiCheckMbr.setName("ionquant.mbr");
     FormEntry feProtQuant = mu.feb(uiComboProtQuant).name("ionquant.proteinquant").label("Protein quant").tooltip("The algorithm used in calculating protein intensity.").create();
-    FormEntry feRequant = mu.feb(uiComboRequant).name("ionquant.requantify").tooltip("Re-quantifying unidentified ions in labelling quantification").label("Re-quantify").create();
+    UiCheck uiCheckRequant = UiUtils.createUiCheck("Re-quantify", false);
+    uiCheckRequant.setName("ionquant.requantify");
+    uiCheckRequant.createToolTip().setTipText("Re-quantifying unidentified ions in labelling quantification");
 
     FormEntry feMzTol = mu.feb(uiSpinnerMzTol).name("ionquant.mztol").label("M/Z Window (ppm)").create();
     FormEntry feRtTol = mu.feb(uiSpinnerRtTol).name("ionquant.rttol").label("RT Window (minutes)").create();
@@ -290,7 +288,9 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feHeavy = mu.feb(uiTextHeavy).name("ionquant.heavy").label("Heavy")
         .tooltip("String description of mass deltas. E.g. for SILAC: K8.01420;R10.00827").create();
 
-    FormEntry feNormalize = mu.feb(uiComboNormalize).name("ionquant.normalization").label("Normalize").tooltip("Normalizing ion intensities among experiments.").create();
+    UiCheck uiCheckNormalize = UiUtils.createUiCheck("Normalize", true);
+    uiCheckNormalize.createToolTip().setTipText("Normalizing ion intensities among experiments.");
+    uiCheckNormalize.setName("ionquant.normalization");
     FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes")
         .tooltip("Min number of isotopes for tracing.").create();
     UiCheck uiCheckWriteIndex = UiUtils.createUiCheck("Keep index on disk", true);
@@ -315,10 +315,7 @@ public class QuantPanelLabelfree extends JPanelBase {
 
 
     mu.add(p, feRadioIonquant.comp).split().spanX();
-//    mu.add(p, feDataType.label()).gapLeft("10px");
-//    mu.add(p, feDataType.comp);
-    mu.add(p, feMbr.label(), mu.ccR());
-    mu.add(p, feMbr.comp);
+    mu.add(p, uiCheckMbr);
     mu.add(p, feProtQuant.label(), mu.ccR());
     mu.add(p, feProtQuant.comp);
     mu.add(p, feMinIons.label(), mu.ccR());
@@ -365,22 +362,21 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.add(pa, feHeavy.label());
     mu.add(pa, feHeavy.comp).wrap();
 
-    mu.add(pa, feRequant.label(), mu.ccR());
-    mu.add(pa, feRequant.comp);
-    mu.add(pa, feNormalize.label(), mu.ccR());
-    mu.add(pa, feNormalize.comp);
-    mu.add(pa, feMinIsotopes.label(), mu.ccR());
-    mu.add(pa, feMinIsotopes.comp).spanX().wrap();
+    mu.add(pa, feExcludemods.label(), mu.ccR());
+    mu.add(pa, feExcludemods.comp).growX().spanX().wrap();
 
     mu.add(pa, feTopIons.label(), mu.ccR());
     mu.add(pa, feTopIons.comp);
+    mu.add(pa, uiCheckRequant);
+    mu.add(pa, feMinIsotopes.label(), mu.ccR());
+    mu.add(pa, feMinIsotopes.comp).wrap();
+
     mu.add(pa, feMinFreq.label(), mu.ccR());
     mu.add(pa, feMinFreq.comp);
-    mu.add(pa, feMinExps.label(), mu.ccR());
-    mu.add(pa, feMinExps.comp).wrap();
+    mu.add(pa, uiCheckNormalize).wrap();
 
-    mu.add(pa, feExcludemods.label(), mu.ccR());
-    mu.add(pa, feExcludemods.comp).growX().spanX().wrap();
+    mu.add(pa, feMinExps.label(), mu.ccR());
+    mu.add(pa, feMinExps.comp);
     mu.add(pa, uiCheckWriteIndex).wrap();
 
     mu.add(p, pa).spanX().growX().wrap();
