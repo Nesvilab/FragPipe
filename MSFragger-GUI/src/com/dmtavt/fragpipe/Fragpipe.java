@@ -390,9 +390,9 @@ public class Fragpipe extends JFrame {
         "/com/dmtavt/fragpipe/icons/bolt-outlined-16.png", null));
     addTab.accept(new UiTab("Validation", tabValidation,
         "/com/dmtavt/fragpipe/icons/icon-filtration-16.png", null));
-    addTab.accept(new UiTab("Quant (LFQ)", tabQuantitaionLfq,
+    addTab.accept(new UiTab("Quant (MS1)", tabQuantitaionLfq,
         "/com/dmtavt/fragpipe/icons/icon-scales-balance-16.png", null));
-    addTab.accept(new UiTab("Quant (Labeling)", tabQuantitaionLabeling,
+    addTab.accept(new UiTab("Quant (Isobaric)", tabQuantitaionLabeling,
         "/com/dmtavt/fragpipe/icons/icon-scales-balance-color-2-16.png", null));
     addTab.accept(new UiTab("PTMs", tabPtms, "/com/dmtavt/fragpipe/icons/icon-edit-16.png", null));
     addTab.accept(new UiTab("Spec Lib", tabSpecLib,
