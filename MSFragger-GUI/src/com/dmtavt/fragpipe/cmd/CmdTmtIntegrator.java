@@ -112,7 +112,7 @@ public class CmdTmtIntegrator extends CmdBase {
         for (Path path : panel.getAnnotations().values()) {
           List<QuantLabelAnnotation> annotations = TmtiPanel
               .parseTmtAnnotationFile(path.toFile());
-          if (annotations.stream().noneMatch(a -> a.getSample().startsWith(refTag))) {
+          if (annotations.stream().noneMatch(a -> a.getSample().contains(refTag))) {
             filesWithoutRefChannel.add(path);
           }
         }
