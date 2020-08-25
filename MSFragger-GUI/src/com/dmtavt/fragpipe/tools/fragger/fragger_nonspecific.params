@@ -31,8 +31,8 @@ ion_series_definitions=               # Example: "b* N -17.026548; b0 N -18.0105
 labile_search_mode = off             # options: "off", "nglycan", "labile"(default: standard)
 deltamass_allowed_residues = all
 diagnostic_intensity_filter = 0.0       # possible values are 0 <= x <= 1
-Y_type_masses = 0/203.07937/406.15874/568.21156/730.26438/892.3172/349.137279
-diagnostic_fragments = 204.086646/186.076086/168.065526/366.139466/144.0656/138.055/126.055/163.060096/512.197375/292.1026925/274.0921325/657.2349/243.026426/405.079246/485.045576/308.09761
+Y_type_masses =
+diagnostic_fragments =
 
 search_enzyme_name = nonspecific
 search_enzyme_cutafter =

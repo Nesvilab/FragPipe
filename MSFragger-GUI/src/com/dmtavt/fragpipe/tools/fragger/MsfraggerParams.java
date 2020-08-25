@@ -371,10 +371,10 @@ public class MsfraggerParams extends AbstractParams {
         return props.getProp(PROP_diagnostic_intensity_filter, "0").value;
     }
     public String getYTypeMasses() {
-        return props.getProp(PROP_Y_type_masses, "0/203.07937/406.15874/568.21156/730.26438/892.3172/349.137279").value;
+        return props.getProp(PROP_Y_type_masses, "").value;
     }
     public String getDiagnosticFragments() {
-        return props.getProp(PROP_diagnostic_fragments, "204.086646/186.076086/168.065526/366.139466/144.0656/138.055/126.055/163.060096/512.197375/292.1026925/274.0921325/657.2349/243.026426/405.079246/485.045576/308.09761").value;
+        return props.getProp(PROP_diagnostic_fragments, "").value;
     }
 
 
