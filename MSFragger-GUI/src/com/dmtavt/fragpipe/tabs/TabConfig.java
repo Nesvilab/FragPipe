@@ -635,20 +635,16 @@ public class TabConfig extends JPanelWithEnablement {
         "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
     final StringBuilder sb = new StringBuilder();
 
-    sb.append("<p style=\"margin-top: 0\">");
-    sb.append("<b>Please cite: </b>");
-    sb.append(
-        "<a href=\"").append(linkManuscript).append(
-        "\">MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics</a>");
-    sb.append("<br/>");
-    sb.append("<b>DOI: </b>").append(doi);
-    sb.append("</p>");
-
     sb.append("<p style=\"margin-top: 10\">");
 
     sb.append("More info and docs: <a href=\"").append(linkMsfragger)
-        .append("\">MSFragger website</a>")
-        .append(", <a href=\"").append(linkFragpipe).append("\">FragPipe GitHub page</a>");
+        .append("\">MSFragger</a>")
+        .append(", <a href=\"").append(linkFragpipe).append("\">FragPipe</a>")
+        .append(", <a href=\"").append("https://philosopher.nesvilab.org/").append("\">Philosopher</a>")
+        .append(", <a href=\"").append("https://www.nesvilab.org/Crystal-C/").append("\">Crystal-C</a>")
+        .append(", <a href=\"").append("https://ionquant.nesvilab.org/").append("\">IonQuant</a>")
+        .append(", <a href=\"").append("https://tmt-integrator.nesvilab.org/").append("\">TMT-Integrator</a>")
+        .append(", <a href=\"").append("https://ptmshepherd.nesvilab.org/").append("\">PTM-Shepherd</a>");
     return sb.toString();
   }
 
