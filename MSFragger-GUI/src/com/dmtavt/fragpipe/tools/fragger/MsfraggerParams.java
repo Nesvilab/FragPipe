@@ -465,7 +465,7 @@ public class MsfraggerParams extends AbstractParams {
     public void setRemovePrecursorRange(double[] v) {
         if (v.length != 2)
             throw new IllegalArgumentException(PROP_remove_precursor_range + " array must have length 2");
-        setString(PROP_remove_precursor_range, String.format("%.2f,%.2f", v[0], v[1]));
+        setString(PROP_remove_precursor_range, String.format("%f,%f", v[0], v[1]));
     }
 
     public PrecursorMassTolUnits getPrecursorMassUnits() {
@@ -1021,7 +1021,7 @@ public class MsfraggerParams extends AbstractParams {
                 log.warn("Var mod max occurences was {}, 5 is max allowed, limiting to 5 for sites: {}, dm: {}",
                         vm.maxOccurrences, vm.sites, vm.massDelta);
             }
-            String value = String.format(Locale.ROOT, "%.5f %s %d", vm.massDelta, vm.sites, vm.maxOccurrences);
+            String value = String.format(Locale.ROOT, "%f %s %d", vm.massDelta, vm.sites, vm.maxOccurrences);
             props.setProp(name, value, vm.isEnabled);
         }
     }
@@ -1051,7 +1051,7 @@ public class MsfraggerParams extends AbstractParams {
             if (siteName == null)
                 throw new IllegalStateException("Could not map human readable addon modification name to name in properties.");
             String name = String.format(Locale.ROOT, "%s_%s", PROP_add, siteName);
-            String value = String.format(Locale.ROOT, "%.6f", vm.massDelta);
+            String value = String.format(Locale.ROOT, "%f", vm.massDelta);
             props.setProp(name, value, vm.isEnabled);
         }
     }

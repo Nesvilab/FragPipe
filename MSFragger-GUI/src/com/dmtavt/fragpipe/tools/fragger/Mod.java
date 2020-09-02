@@ -36,7 +36,7 @@ public class Mod {
   }
 
   public static String asString(Mod m) {
-    return String.format("%.5f,%s,%s,%d", m.massDelta, m.sites, m.isEnabled, m.maxOccurrences);
+    return String.format("%f,%s,%s,%d", m.massDelta, m.sites, m.isEnabled, m.maxOccurrences);
   }
 
   public static Mod fromString(String s) throws ValidationException {
