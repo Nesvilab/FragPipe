@@ -44,7 +44,7 @@ infiles = [pathlib.Path(e) for e in infiles_str]
 jvm_cmd, msfragger_jar_path, param_path, infiles
 msfragger_cmd = jvm_cmd + [msfragger_jar_path]
 tempdir = pathlib.Path('./split_peptide_index_tempdir')
-params_txt = param_path.read_text()
+params_txt = param_path.read_bytes().decode()
 output_file_extension = re.compile(r'^output_file_extension *= *(\S+)', re.MULTILINE).search(params_txt).group(1)
 output_report_topN = int(re.compile(r'^output_report_topN *= *(\d+)', re.MULTILINE).search(params_txt).group(1))
 output_max_expect_mo = re.compile(r'^output_max_expect *= *(\S+)', re.MULTILINE).search(params_txt)
