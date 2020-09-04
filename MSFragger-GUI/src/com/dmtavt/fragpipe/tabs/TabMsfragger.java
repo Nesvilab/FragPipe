@@ -310,8 +310,8 @@ public class TabMsfragger extends JPanelBase {
 
     // TODO: ACHTUNG: temporary fix, disabling "Define custom ion series field"
     // Remove when custom ion series work properly in msfragger
-    updateEnabledStatus(uiTextCustomIonSeries, false);
-    updateEnabledStatus(labelCustomIonSeries, false);
+    updateEnabledStatus(uiTextCustomIonSeries, true);
+    updateEnabledStatus(labelCustomIonSeries, true);
 
     super.initMore();
 
@@ -988,12 +988,12 @@ public class TabMsfragger extends JPanelBase {
         + "for N- and C-terminal ions. Separate multiple definitions by commas or semicolons.\n"
         + "<b>Format:</b> name terminus mass-delta\n"
         + "Example definition string:\n"
-        + "b* N -17.026548; b0 N -18.010565\n"
+        + "b* N -17.026548;b0 N -18.010565\n"
         + "This would define two new ion types named <i>b*</i> and <i>b0</i>,\n"
         + "you can name them whatever you fancy. <i>b*</i> is the equivalent of an\n"
         + "N terminal b-ion with ammonia loss, <i>b0</i> is the same with water loss.\n";
     FormEntry feCustomSeries = mu.feb(MsfraggerParams.PROP_ion_series_definitions, uiTextCustomIonSeries)
-        .label("Define custom ion series").tooltip(tooltipCustomIonSeriesDisabled).create();
+        .label("Define custom ion series").tooltip(tooltipCustomIonSeriesOriginal).create();
     labelCustomIonSeries = feCustomSeries.label();
 
     FormEntry feTrueTolUnits = mu.feb(MsfraggerParams.PROP_precursor_true_units, UiUtils.createUiCombo(
