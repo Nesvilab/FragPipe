@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,7 +42,13 @@ public class JarUtils {
     }
     Path myPath;
     if (uri.getScheme().equals("jar")) {
-      FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap());
+      FileSystem fileSystem;
+      try {
+        fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+      } catch (FileSystemAlreadyExistsException ex) {
+        fileSystem = FileSystems.getFileSystem(uri);
+        System.err.println("File system " + uri + " already exist. Using the existing one.");
+      }
       myPath = fileSystem.getPath(resourcesDir);
     } else {
       myPath = Paths.get(uri);
