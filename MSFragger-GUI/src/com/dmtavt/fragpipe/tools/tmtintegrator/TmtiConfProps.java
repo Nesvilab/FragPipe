@@ -26,7 +26,7 @@ public class TmtiConfProps {
   outlier_removal: true                        # perform outlier removal
   best_psm: true                               # keep the best PSM only (highest summed TMT intensity) among all redundant PSMs within the same LC-MS run
   allow_overlabel: true                        # allow PSMs with TMT on S (when overlabeling on S was allowed in the database search)
-  allow_unlabeled: true                        # allow PSMs without TMT tag or acetylation on the peptide n-terminus
+  allow_unlabeled: true                        # allow peptides with unlabeled n-term (i.e. no TMT/iTRAQ label and no Acetyl at n-terminus)
   ms1_int: true                                # use MS1 precursor ion intensity (if true) or MS2 summed TMT reporter ion intensity (if false) as part of the reference sample abundance estimation
   top3_pep: true                               # use top 3 most intense peptide ions as part of the reference sample abundance estimation
   print_RefInt: false                          # print individual reference sample abundance estimates for each multiplex in the final reports (in addition to the combined reference sample abundance estimate)

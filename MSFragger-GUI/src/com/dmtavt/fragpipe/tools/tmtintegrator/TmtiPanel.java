@@ -3,7 +3,6 @@ package com.dmtavt.fragpipe.tools.tmtintegrator;
 import com.dmtavt.fragpipe.api.Bus;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
-import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
@@ -254,14 +253,13 @@ public class TmtiPanel extends JPanelBase {
     UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).text("Bridge").create();
     FormEntry feRefTag = fe(TmtiConfProps.PROP_ref_tag,
         "Ref sample tag", uiTextRefTag,
-        "<html>Unique tag for identifying the reference channel (Bridge sample added to <br/>\n"
-            + "each multiplex)");
+        "<html>unique tag for identifying the reference channel (Bridge sample added to each multiplex)");
 
     UiCombo uiComboGroupBy = UiUtils.createUiCombo(TmtiConfProps.COMBO_GROUP_BY.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feGroupBy = fe(TmtiConfProps.PROP_groupby,
         "Group by", uiComboGroupBy,
-        "<html>Level of data summarization(0: PSM aggregation to the gene level; 1: protein; <br/>\n"
+        "<html>level of data summarization(0: PSM aggregation to the gene level; 1: protein; <br/>\n"
             + "2: peptide sequence; 3: multiple PTM sites; 4: single PTM site; <br/>\n"
             + "-1: generate reports at all levels)");
 
@@ -269,7 +267,7 @@ public class TmtiPanel extends JPanelBase {
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feProtNorm = fe(TmtiConfProps.PROP_prot_norm,
         "Normalization", uiComboNormalization,
-        "<html>Normalization (0: None; 1: MD (median centering); 2: GN (median centering + <br/>\n"
+        "<html>normalization (0: None; 1: MD (median centering); 2: GN (median centering + <br/>\n"
             + "variance scaling); -1: generate reports with all normalization options)");
 
     uiComboAddRef = UiUtils.createUiCombo(TmtiConfProps.COMBO_ADD_REF.stream()
@@ -343,7 +341,7 @@ public class TmtiPanel extends JPanelBase {
         .builder(0.05, 0.0, 1.0, 0.05).setFormat(df3).setCols(5).create();
     FormEntry feMinPercent = fe(TmtiConfProps.PROP_min_percent,
         "Min Intensity (percent)", uiSpinnerMinPercent,
-        "<html>Remove low intensity PSMs (e.g. value of 0.05 indicates removal <br/>\n"
+        "<html>remove low intensity PSMs (e.g. value of 0.05 indicates removal <br/>\n"
             + "of PSMs with the summed TMT reporter ions intensity in the lowest 5% of <br/>\n"
             + "all PSMs)");
 
@@ -368,13 +366,13 @@ public class TmtiPanel extends JPanelBase {
     UiCheck uiCheckUniquePep = new UiCheck("Unique pep", null, false);
     FormEntry feUniquePep = fe(TmtiConfProps.PROP_unique_pep,
         "not-shown", uiCheckUniquePep,
-        "<html>Allow PSMs with unique peptides only (if true) or unique plus <br/>\n"
+        "<html>allow PSMs with unique peptides only (if true) or unique plus <br/>\n"
             + "razor peptides (if false), as classified by Philosopher and defined in PSM.tsv files");
 
     UiCheck uiCheckBestPsm = new UiCheck("Best PSM", null, true);
     FormEntry feBestPsm = fe(TmtiConfProps.PROP_best_psm,
         "not-shown", uiCheckBestPsm,
-        "<html>Keep the best PSM only (highest summed TMT intensity) among all redundant PSMs <br/>\n"
+        "<html>keep the best PSM only (highest summed TMT intensity) among all redundant PSMs <br/>\n"
             + "within the same LC-MS run");
 
     UiCheck uiCheckPsmNorm = new UiCheck("PSM norm", null, false);
@@ -384,7 +382,7 @@ public class TmtiPanel extends JPanelBase {
     UiCheck uiCheckOutlierRemoval = UiCheck.of("Outlier removal", true);
     FormEntry feOutlierRemoval = fe(TmtiConfProps.PROP_outlier_removal,
         "not-shown", uiCheckOutlierRemoval,
-        "<html>Perform additional retention time-based normalization at the PSM level");
+        "<html>perform additional retention time-based normalization at the PSM level");
 
     UiCheck uiCheckAllowOverlabel = UiCheck.of("Allow overlabel", true);
     FormEntry feAllowOverlabel = fe(TmtiConfProps.PROP_allow_overlabel,
@@ -394,8 +392,7 @@ public class TmtiPanel extends JPanelBase {
     UiCheck uiCheckAllowUnlabeled = UiCheck.of("Allow unlabeled", true);
     FormEntry feAllowUnlabeled = fe(TmtiConfProps.PROP_allow_unlabeled,
         "not-shown", uiCheckAllowUnlabeled,
-        "<html>allow PSMs with TMT on S (when overlabeling on S was allowed <br/>\n"
-            + "in the database search)");
+        "<html>allow peptides with unlabeled n-term (i.e. no TMT/iTRAQ label and no Acetyl at n-terminus)");
 
     UiCheck uiCheckMs1Int = UiCheck.of("Use MS1 intensity", true);
     FormEntry feMs1Int = fe(TmtiConfProps.PROP_ms1_int,
@@ -413,7 +410,7 @@ public class TmtiPanel extends JPanelBase {
     UiCheck uiCheckPrintRef = UiCheck.of("Print Ref Int", false);
     FormEntry fePrintRefInt = fe(TmtiConfProps.PROP_print_RefInt,
         "not-shown", uiCheckPrintRef,
-        "<html>Print individual reference sample intensities");
+        "<html>print individual reference sample intensities");
 
     UiSpinnerDouble uiSpinnerMinBestPepProb = UiSpinnerDouble
         .builder(0, 0, 1.0, 0.1).setFormat(df2).setCols(5).create();
