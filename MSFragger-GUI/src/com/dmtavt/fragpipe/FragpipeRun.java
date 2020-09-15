@@ -239,11 +239,10 @@ public class FragpipeRun {
 
       toConsole("");
       toConsole("~~~~~~~~~~~~~~~~~~~~~~");
-      toConsole("");
-      toConsole("");
 
       if (isDryRun) {
-        toConsole("It's a dry-run, not running the commands.");
+        toConsole(Fragpipe.COLOR_RED_DARKEST, "\nIt's a dry-run, not running the commands.\n", true);
+        printReference();
         return;
       }
 
@@ -279,13 +278,8 @@ public class FragpipeRun {
       // add finalizer process
       final Runnable finalizerRun = () -> {
         Bus.post(new MessageRunButtonEnabled(true));
-        String msg =
-            "=========================\n" +
-                "===\n" +
-                "===      Done\n" +
-                "===\n" +
-                "=========================\n";
-        toConsole(Fragpipe.COLOR_RED_DARKEST, msg, true);
+        printReference();
+        toConsole(Fragpipe.COLOR_RED_DARKEST, "\n==================================================================================DONE============================================================", true);
         Bus.post(MessageSaveLog.saveInDir(wd));
       };
       toRun.add(
@@ -301,6 +295,28 @@ public class FragpipeRun {
         Bus.post(new MessageRunButtonEnabled(true));
       }
     }
+  }
+
+  private static void printReference() {
+    toConsole(Fragpipe.COLOR_RED_DARKEST, "\nPlease cite:", true);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Regular searches) ", false);
+    toConsole(Fragpipe.COLOR_BLACK, "MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics. Nat Methods 14:513 (2017)", true);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false);
+    toConsole(Fragpipe.COLOR_BLACK, "Identification of modified peptides using localization-aware open search. Nat Commun. 11:4065 (2020)", true);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false);
+    toConsole(Fragpipe.COLOR_BLACK, "Crystal-C: A Computational Tool for Refinement of Open Search Results. J. Proteome Res. 19.6:2511 (2020)", true);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false);
+    toConsole(Fragpipe.COLOR_BLACK, "PTM-Shepherd: analysis and summarization of post-translational and chemical modifications from open search results. bioRxiv. DOI: 10.1101/2020.07.08.192583 (2020)", true);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Glyco/labile search) ", false);
+    toConsole(Fragpipe.COLOR_BLACK, "Fast and comprehensive N- and O-glycoproteomics analysis with MSFragger-Glyco. Nat Methods DOI: 10.1101/2020.05.18.10266 (2020)", true);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(timsTOF PASEF) ", false);
+    toConsole(Fragpipe.COLOR_BLACK, "Fast quantitative analysis of timsTOF PASEF data with MSFragger and IonQuant. Mol Cell Proteomics 19: 1575 (2020)", true);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(PeptideProphet/ProteinProphet/PTMProphet/Filtering) ", false);
+    toConsole(Fragpipe.COLOR_BLACK, "Philosopher: a versatile toolkit for shotgun proteomics data analysis. Nat Methods 17:869 (2020)", true);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(TMT-Integrator) ", false);
+    toConsole(Fragpipe.COLOR_BLACK, "Quantitative proteomic landscape of metaplastic breast carcinoma pathological subtypes and their relationship to triple-negative tumors. Nat Commun. 11:1723 (2020)", true);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(DIA-Umpire) ", false);
+    toConsole(Fragpipe.COLOR_BLACK, "DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics. Nat Methods 12:258 (2015)", true);
   }
 
 
