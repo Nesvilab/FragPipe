@@ -316,7 +316,7 @@ public class TmtiPanel extends JPanelBase {
     UiCombo uiComboUniqueGene = UiUtils.createUiCombo(TmtiConfProps.COMBO_UNIQUE_GENE.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feUniqueGene = fe(TmtiConfProps.PROP_unique_gene,
-        "Unique gene", uiComboUniqueGene,
+        "Peptide-Gene uniqueness", uiComboUniqueGene,
         "<html>0: allow all PSMs; 1: remove PSMs mapping to more than one GENE with evidence <br/>\n"
             + "of expression in the dataset; 2:remove all PSMs mapping to more than one GENE <br/>\n"
             + "in the fasta file");
@@ -363,7 +363,7 @@ public class TmtiPanel extends JPanelBase {
     FormEntry feLabelquant = fe("labelquant", "Labelquant opts", uiTextLabelquant,
         "Command line options for Philosopher Labelquant command");
 
-    UiCheck uiCheckUniquePep = new UiCheck("Unique pep", null, false);
+    UiCheck uiCheckUniquePep = new UiCheck("Peptide-Protein uniqueness", null, false);
     FormEntry feUniquePep = fe(TmtiConfProps.PROP_unique_pep,
         "not-shown", uiCheckUniquePep,
         "<html>allow PSMs with unique peptides only (if true) or unique plus <br/>\n"
