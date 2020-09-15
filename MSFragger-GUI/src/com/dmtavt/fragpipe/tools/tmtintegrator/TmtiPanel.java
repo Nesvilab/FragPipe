@@ -123,6 +123,8 @@ public class TmtiPanel extends JPanelBase {
         s,supplyRunEx("No matching prot_norm value")).getValInUi());
     CONVERT_TO_GUI.put(TmtiConfProps.PROP_unique_gene, s -> findOrThrow(true, TmtiConfProps.COMBO_UNIQUE_GENE,
         s,supplyRunEx("No matching unique_gene value")).getValInUi());
+    CONVERT_TO_GUI.put(TmtiConfProps.PROP_unique_pep, s -> findOrThrow(true, TmtiConfProps.COMBO_PEPTIDE_PROTEIN_UNIQUENESS,
+        s,supplyRunEx("No matching unique_gene value")).getValInUi());
     CONVERT_TO_GUI.put(TmtiConfProps.PROP_add_Ref, s -> findOrThrow(true, TmtiConfProps.COMBO_ADD_REF,
         s,supplyRunEx("No matching add_Ref value")).getValInUi());
   }
@@ -365,16 +367,17 @@ public class TmtiPanel extends JPanelBase {
     FormEntry feLabelquant = fe("labelquant", "Labelquant opts", uiTextLabelquant,
         "Command line options for Philosopher Labelquant command");
 
-    UiCheck uiCheckUniquePep = new UiCheck("Peptide-Protein uniqueness", null, false);
+    UiCombo uiComboUniquePep = UiUtils.createUiCombo(TmtiConfProps.COMBO_PEPTIDE_PROTEIN_UNIQUENESS.stream()
+        .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feUniquePep = fe(TmtiConfProps.PROP_unique_pep,
-        "not-shown", uiCheckUniquePep,
-        "<html>If this box is checked, only use peptides that are unique or confidently <br/>\n"
+        "Peptide-Protein uniqueness", uiComboUniquePep,
+        "<html>If Unique only is selected, only use peptides that are unique or confidently <br/>\n"
             + "assigned to a single protein (or a single indistinguishable protein group), <br/>\n"
             + "as inferred by ProteinProphet (i.e. peptide-protein weight is equal or greater <br/>\n"
             + "than the threshold specified in the Philosopher Filter command, 1 by default). <br/>\n"
-            + "If unchecked, use 'unique plus razor' approach, with each shared peptide <br/>\n"
-            + "assigned as razor to one protein (as classified by Philosopher and defined <br/>\n"
-            + "in PSM.tsv file). <br/>\n");
+            + "If Unique+Razor is selected, use 'unique plus razor' approach, with each shared <br/>\n"
+            + "peptide assigned as razor to one protein (as classified by Philosopher and <br/>\n"
+            + "defined in PSM.tsv file). <br/>\n");
 
     UiCheck uiCheckBestPsm = new UiCheck("Best PSM", null, true);
     FormEntry feBestPsm = fe(TmtiConfProps.PROP_best_psm,
