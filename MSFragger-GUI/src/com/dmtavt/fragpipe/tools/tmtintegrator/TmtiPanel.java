@@ -267,8 +267,10 @@ public class TmtiPanel extends JPanelBase {
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feProtNorm = fe(TmtiConfProps.PROP_prot_norm,
         "Normalization", uiComboNormalization,
-        "<html>normalization (0: None; 1: MD (median centering); 2: GN (median centering + <br/>\n"
-            + "variance scaling); -1: generate reports with all normalization options)");
+        "<html>normalization (0: None; <br/>\n"
+            + "1: MD (median centering); <br/>\n"
+            + "2: GN (median centering variance scaling); <br/>\n"
+            + "-1: generate reports with all normalization options)");
 
     uiComboAddRef = UiUtils.createUiCombo(TmtiConfProps.COMBO_ADD_REF.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
@@ -317,9 +319,9 @@ public class TmtiPanel extends JPanelBase {
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feUniqueGene = fe(TmtiConfProps.PROP_unique_gene,
         "Peptide-Gene uniqueness", uiComboUniqueGene,
-        "<html>0: allow all PSMs; 1: remove PSMs mapping to more than one GENE with evidence <br/>\n"
-            + "of expression in the dataset; 2:remove all PSMs mapping to more than one GENE <br/>\n"
-            + "in the fasta file");
+        "<html>0: allow all PSMs; <br/>"
+            + "1: remove PSMs mapping to more than one GENE with evidence of expression in the dataset; <br/>\n"
+            + "2:remove all PSMs mapping to more than one GENE in the fasta file\n");
 
     DecimalFormat df2 = new DecimalFormat("#.##");
     DecimalFormat df3 = new DecimalFormat("#.###");
@@ -366,8 +368,13 @@ public class TmtiPanel extends JPanelBase {
     UiCheck uiCheckUniquePep = new UiCheck("Peptide-Protein uniqueness", null, false);
     FormEntry feUniquePep = fe(TmtiConfProps.PROP_unique_pep,
         "not-shown", uiCheckUniquePep,
-        "<html>allow PSMs with unique peptides only (if true) or unique plus <br/>\n"
-            + "razor peptides (if false), as classified by Philosopher and defined in PSM.tsv files");
+        "<html>If this box is checked, only use peptides that are unique or confidently <br/>\n"
+            + "assigned to a single protein (or a single indistinguishable protein group), <br/>\n"
+            + "as inferred by ProteinProphet (i.e. peptide-protein weight is equal or greater <br/>\n"
+            + "than the threshold specified in the Philosopher Filter command, 1 by default). <br/>\n"
+            + "If unchecked, use 'unique plus razor' approach, with each shared peptide <br/>\n"
+            + "assigned as razor to one protein (as classified by Philosopher and defined <br/>\n"
+            + "in PSM.tsv file). <br/>\n");
 
     UiCheck uiCheckBestPsm = new UiCheck("Best PSM", null, true);
     FormEntry feBestPsm = fe(TmtiConfProps.PROP_best_psm,
