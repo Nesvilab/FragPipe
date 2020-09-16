@@ -1,36 +1,36 @@
 database_name =
-num_threads = 0			# 0=poll CPU to set num threads; else specify num threads directly (max 64)
+num_threads = 0
 
 precursor_mass_lower = -20
 precursor_mass_upper = 20
-precursor_mass_units = 1			# 0=Daltons, 1=ppm
+precursor_mass_units = 1
 precursor_true_tolerance = 20
-precursor_true_units = 1			# 0=Daltons, 1=ppm
+precursor_true_units = 1
 fragment_mass_tolerance = 20
-fragment_mass_units = 1			# 0=Daltons, 1=ppm
-calibrate_mass = 2			# 0=Off, 1=On, 2=On and find optimal parameters
+fragment_mass_units = 1
+calibrate_mass = 2
 decoy_prefix = rev_
 
 deisotope = 1
-isotope_error = 0/1/2			# 0=off, -1/0/1/2/3 (standard C13 error)
-mass_offsets = 0/-105.0248/-89.0299/-33.9877/-32.0085/-30.0106/-18.0106/-17.0265/-2.0157/-0.984/0.984/3.9949/12.0/13.9793/14.0157/15.9949/19.9898/21.9819/26.0157/27.9949/28.0313/29.9742/31.9898/37.9469/42.0106/42.047/43.0058/43.9898/47.9847/52.9115/53.9193/57.0215/58.0055/61.9135/71.0371/79.9568/79.9663/100.016/128.095/146.0579/156.1011/162.0528/173.051/176.0321/178.0477/189.046/203.0794/204.1878/210.1984/228.111/238.2297/340.1006/349.1373/365.1322/406.1587/672.2225/730.2644/876.3223/947.323/963.3179/1038.3751/1054.37/1216.4229/1378.4757			# allow for additional precursor mass window shifts. Multiplexed with isotope_error. mass_offsets = 0/79.966 can be used as a restricted ‘open’ search that looks for unmodified and phosphorylated peptides (on any residue)
+isotope_error = 0/1/2
+mass_offsets = 0/-105.0248/-89.0299/-33.9877/-32.0085/-30.0106/-18.0106/-17.0265/-2.0157/-0.984/0.984/3.9949/12.0/13.9793/14.0157/15.9949/19.9898/21.9819/26.0157/27.9949/28.0313/29.9742/31.9898/37.9469/42.0106/42.047/43.0058/43.9898/47.9847/52.9115/53.9193/57.0215/58.0055/61.9135/71.0371/79.9568/79.9663/100.016/128.095/146.0579/156.1011/162.0528/173.051/176.0321/178.0477/189.046/203.0794/204.1878/210.1984/228.111/238.2297/340.1006/349.1373/365.1322/406.1587/672.2225/730.2644/876.3223/947.323/963.3179/1038.3751/1054.37/1216.4229/1378.4757
 precursor_mass_mode = selected
 
-remove_precursor_peak = 0			# 0 = not remove, 1 = only remove the peak with the precursor charge, 2 = remove all peaks with all charge states. Default: 0
-remove_precursor_range = -1.50,1.50			# Unit: Da. Default: -1.5,1.5
-intensity_transform = 0			# 0 = none, 1 = sqrt root. Default: 0
+remove_precursor_peak = 0
+remove_precursor_range = -1.50,1.50
+intensity_transform = 0
 
-write_calibrated_mgf = 0          # Write calibrated MS2 scan to a MGF file (0 for No, 1 for Yes).
-mass_diff_to_variable_mod = 0     # Put mass diff as a variable modification. 0 for no; 1 for yes and change the original mass diff and the calculated mass accordingly; 2 for yes but not change the original mass diff.
+write_calibrated_mgf = 0
+mass_diff_to_variable_mod = 0
 
 localize_delta_mass = 1
 delta_mass_exclude_ranges = (-1.5,3.5)
 fragment_ion_series = b,y
-ion_series_definitions=               # Example: "b* N -17.026548; b0 N -18.010565"
+ion_series_definitions=
 
-labile_search_mode = off             # options: "off", "nglycan", "labile"(default: standard)
+labile_search_mode = off
 deltamass_allowed_residues = all
-diagnostic_intensity_filter = 0.0       # possible values are 0 <= x <= 1
+diagnostic_intensity_filter = 0.0
 Y_type_masses =
 diagnostic_fragments =
 
@@ -38,12 +38,12 @@ search_enzyme_name = trypsin
 search_enzyme_cutafter = KR
 search_enzyme_butnotafter = P
 
-num_enzyme_termini = 2			# 2 for enzymatic, 1 for semi-enzymatic, 0 for nonspecific digestion
-allowed_missed_cleavage = 1			# maximum value is 5
+num_enzyme_termini = 2
+allowed_missed_cleavage = 1
 
 clip_nTerm_M = 1
 
-#maximum of 7 mods - amino acid codes, * for any amino acid, [ and ] specifies protein termini, n and c specifies peptide termini
+# maximum of 16 mods - amino acid codes, * for any amino acid, [ and ] specifies protein termini, n and c specifies peptide termini
 variable_mod_01 = 15.99490 M 3
 variable_mod_02 = 42.01060 [^ 1
 # variable_mod_03 = 79.96633 STY 3
@@ -61,41 +61,36 @@ variable_mod_02 = 42.01060 [^ 1
 # variable_mod_15 = 0.00000 site_15 1
 # variable_mod_16 = 0.00000 site_16 1
 
-allow_multiple_variable_mods_on_residue = 0			# static mods are not considered
-max_variable_mods_per_mod = 3
-max_variable_mods_per_peptide = 3			# maximum 5
-max_variable_mods_combinations = 5000			# maximum 65534, limits number of modified peptides generated from sequence
+allow_multiple_variable_mods_on_residue = 0
+max_variable_mods_per_peptide = 3
+max_variable_mods_combinations = 5000
 
 output_file_extension = pepXML
 output_format = pepXML
 output_report_topN = 1
 output_max_expect = 50
-report_alternative_proteins = 0			# 0=no, 1=yes
+report_alternative_proteins = 0
 
-precursor_charge = 1 4			# precursor charge range to analyze; does not override any existing charge; 0 as 1st entry ignores parameter
-override_charge = 0			# 0=no, 1=yes to override existing precursor charge states with precursor_charge parameter
+precursor_charge = 1 4
+override_charge = 0
 
 digest_min_length = 7
 digest_max_length = 50
-digest_mass_range = 500.0 5000.0			# MH+ peptide mass range to analyze
-max_fragment_charge = 1			# set maximum fragment charge state to analyze (allowed max 5)
+digest_mass_range = 500.0 5000.0
+max_fragment_charge = 1
 
 #open search parameters
-track_zero_topN = 0			# in addition to topN results, keep track of top results in zero bin
-zero_bin_accept_expect = 0.00			# boost top zero bin entry to top if it has expect under 0.01 - set to 0 to disable
-zero_bin_mult_expect = 1.00			# disabled if above passes - multiply expect of zero bin for ordering purposes (does not affect reported expect)
+track_zero_topN = 0
+zero_bin_accept_expect = 0.00
+zero_bin_mult_expect = 1.00
 add_topN_complementary = 0
 
-# spectral processing
-
-minimum_peaks = 15			# required minimum number of peaks in spectrum to search (default 10)
+minimum_peaks = 15
 use_topN_peaks = 150
 min_fragments_modelling = 2
 min_matched_fragments = 4
-minimum_ratio = 0.01			# filter peaks below this fraction of strongest peak
-clear_mz_range = 0.0 0.0			# for iTRAQ/TMT type data; will clear out all peaks in the specified m/z range
-
-# additional modifications
+minimum_ratio = 0.01
+clear_mz_range = 0.0 0.0
 
 add_Cterm_peptide = 0.000000
 add_Nterm_peptide = 0.000000
