@@ -4,8 +4,8 @@ import static com.dmtavt.fragpipe.Fragpipe.fe;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
-import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
@@ -16,7 +16,6 @@ import com.dmtavt.fragpipe.messages.MessageFindSystemPython;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFolder;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerNewBin;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
-import com.dmtavt.fragpipe.messages.MessagePhiDlProgress;
 import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
 import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
@@ -28,20 +27,23 @@ import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger.Version;
-import com.dmtavt.fragpipe.tools.philosopher.PhiDownloadProgress;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher.UpdateInfo;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
+import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
@@ -62,7 +64,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Stream;
@@ -81,19 +82,15 @@ import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
-import org.jsoup.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.schedulers.Schedulers;
-import com.dmtavt.fragpipe.params.ThisAppProps;
-import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.swing.JPanelWithEnablement;
-import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
 
 public class TabConfig extends JPanelWithEnablement {
 
   private static final Logger log = LoggerFactory.getLogger(TabConfig.class);
+  private static final String msfraggerMinVersion = "3.1";
 
   private static final MigUtils mu = MigUtils.get();
   private UiText uiTextBinFragger;
@@ -415,9 +412,13 @@ public class TabConfig extends JPanelWithEnablement {
       Msfragger.validateJar(m.binPath);
       v = Msfragger.version(Paths.get(m.binPath));
       if (v.isVersionParsed) {
-        Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version));
+        if (v.version.compareTo(msfraggerMinVersion) >= 0) {
+          Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version));
+        } else {
+          Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version, true, null));
+        }
       } else {
-        Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version, true, null));
+        Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", null));
       }
     } catch (ValidationException | UnexpectedException e) {
       Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", e));
@@ -446,13 +447,12 @@ public class TabConfig extends JPanelWithEnablement {
     } else if (m.isTooOld) {
       epFraggerVer.setText("MSFragger version: too old, not supported anymore");
       Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger,
-          "This version is not supported anymore.\n"
-              + "Download a newer one."));
+          "MSFragger " + msfraggerMinVersion + " is required."));
     } else {
       epFraggerVer.setText("MSFragger version: " + m.version);
       Notifications.tryClose(TIP_MSFRAGGER_BIN);
     }
-    if (m.isValid()) {
+    if (m.isValid() && !m.isTooOld) {
       Msfragger.checkUpdates(m);
     }
   }
