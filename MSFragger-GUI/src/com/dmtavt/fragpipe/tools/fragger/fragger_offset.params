@@ -29,7 +29,7 @@ fragment_ion_series = b,y
 ion_series_definitions=
 
 labile_search_mode = off
-deltamass_allowed_residues = all
+restrict_deltamass_to = all
 diagnostic_intensity_filter = 0.0
 Y_type_masses =
 diagnostic_fragments =

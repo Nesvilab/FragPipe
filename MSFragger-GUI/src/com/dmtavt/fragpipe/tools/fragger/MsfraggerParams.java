@@ -57,7 +57,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final Pattern reShiftedIonsExclusionRange = Pattern.compile("\\(\\s*(?<v1>-?\\d+(?:\\.\\d+)?)\\s*,\\s*(?<v2>-?\\d+(?:\\.\\d+)?)\\s*\\)");
 
     public static final String PROP_labile_search_mode = "labile_search_mode";
-    public static final String PROP_deltamass_allowed_residues = "deltamass_allowed_residues";
+    public static final String PROP_restrict_deltamass_to = "restrict_deltamass_to";
     public static final String PROP_diagnostic_intensity_filter = "diagnostic_intensity_filter";
     public static final String PROP_Y_type_masses = "Y_type_masses";
     public static final String PROP_diagnostic_fragments = "diagnostic_fragments";
@@ -140,7 +140,7 @@ public class MsfraggerParams extends AbstractParams {
 
     public static final String[] PROP_NAMES = {
         PROP_labile_search_mode,
-        PROP_deltamass_allowed_residues,
+        PROP_restrict_deltamass_to,
         PROP_diagnostic_intensity_filter,
         PROP_Y_type_masses,
         PROP_diagnostic_fragments,
@@ -307,7 +307,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_decoy_prefix, "Prefix of the decoy protein entries. Used for parameter optimization only.");
         c.put(PROP_isotope_error, "Also search for MS/MS events triggered on specified isotopic peaks.");
         c.put(PROP_mass_offsets, "Creates multiple precursor tolerance windows with specified mass offsets.");
-        c.put(PROP_deltamass_allowed_residues, "Specify amino acids on which delta masses (mass offsets or search modifications) can occur. Allowed values are single letter codes (e.g. ACD), must be capitalized. Use 'all' to allow any amino acid.");
+        c.put(PROP_restrict_deltamass_to, "Specify amino acids on which delta masses (mass offsets or search modifications) can occur. Allowed values are single letter codes (e.g. ACD), must be capitalized. Use 'all' to allow any amino acid.");
         c.put(PROP_labile_search_mode, "type of search (nglycan, labile, or off). Off means non-labile/typical search.");
         c.put(PROP_precursor_mass_mode, "One of isolated/selected/corrected.");
         c.put(PROP_localize_delta_mass, "Include fragment ions mass-shifted by unknown modifications (recommended for open and mass offset searches) (0 for OFF, 1 for ON).");
@@ -392,7 +392,7 @@ public class MsfraggerParams extends AbstractParams {
         return props.getProp(PROP_labile_search_mode, "none").value;
     }
     public String getDeltamassAllowedResidues() {
-        return props.getProp(PROP_deltamass_allowed_residues, "all").value;
+        return props.getProp(PROP_restrict_deltamass_to, "all").value;
     }
     public String getDiagnosticIntensityFilter() {
         return props.getProp(PROP_diagnostic_intensity_filter, "0").value;
@@ -409,7 +409,7 @@ public class MsfraggerParams extends AbstractParams {
         props.setProp(PROP_labile_search_mode, v);
     }
     public void setDeltamassAllowedResidues(String v) {
-        props.setProp(PROP_deltamass_allowed_residues, v);
+        props.setProp(PROP_restrict_deltamass_to, v);
     }
     public void setDiagnosticIntensityFilter(String v) {
         props.setProp(PROP_diagnostic_intensity_filter, v);
