@@ -181,10 +181,16 @@ public class TmtiPanel extends JPanelBase {
     pContent = createPanelContent();
     pTable = createPanelTable();
     pOptsBasic = createPanelOptsBasic();
+    JPanel pOptsAdvancedPtm = createPanelOptsAdvancedPtm();
     pOptsAdvanced = createPanelOptsAdvanced();
 
     mu.add(pContent, pTable).growX();
-    mu.add(pContent, pOptsBasic).alignY("top").gapTop("7px").growX().growY().wrap();
+
+    JPanel p = new JPanel(new MigLayout(new LC()));
+    mu.add(p, pOptsBasic).alignY("top").growX().growY().wrap();
+    mu.add(p, pOptsAdvancedPtm).alignY("top").growX().growY().wrap();
+
+    mu.add(pContent, p).alignY("top").gapTop("7px").growX().growY().wrap();
     mu.add(pContent, pOptsAdvanced).spanX().growX().wrap();
 
     this.add(pTop, BorderLayout.NORTH);
@@ -304,19 +310,16 @@ public class TmtiPanel extends JPanelBase {
     JPanel p = mu.newPanel(new LC().fillX());
     mu.border(p, "Advanced Options");
 
-    JPanel pOptsAdvancedGeneral = createPanelOptsAdvancedGeneral();
-    JPanel pOptsAdvancedPtm = createPanelOptsAdvancedPtm();
+    JPanel[] t = createPanelOptsAdvancedGeneral();
 
-    mu.add(p, pOptsAdvancedGeneral).growX().pushX().wrap();
-    mu.add(p, pOptsAdvancedPtm).growX().pushX().wrap();
+    mu.add(p, t[0]).growX().pushX().wrap();
+    mu.add(p, t[1]).growX().pushX().wrap();
+    mu.add(p, t[2]).growX().pushX().wrap();
 
     return p;
   }
 
-  private JPanel createPanelOptsAdvancedGeneral() {
-    JPanel p = mu.newPanel(mu.lcNoInsetsTopBottom());
-    mu.border(p, "General");
-
+  private JPanel[] createPanelOptsAdvancedGeneral() {
     UiCombo uiComboUniqueGene = UiUtils.createUiCombo(TmtiConfProps.COMBO_UNIQUE_GENE.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feUniqueGene = fe(TmtiConfProps.PROP_unique_gene,
@@ -428,7 +431,7 @@ public class TmtiPanel extends JPanelBase {
         .feb(TmtiConfProps.PROP_max_pep_prob_thres, uiSpinnerMinBestPepProb)
         .label("Min best peptide probability").create();
 
-    uiCheckDontRunFqLq = UiUtils.createUiCheck("Skip FreeQuant and LabelQuant", false);
+    uiCheckDontRunFqLq = UiUtils.createUiCheck("Skip Freequant and Labelquant", false);
     FormEntry feDontRunFqLq = mu.feb(uiCheckDontRunFqLq).name("dont-run-fq-lq")
         .tooltip("Only use in rare situations when you need to re-run TMT-Integrator separately.")
         .create();
@@ -440,43 +443,51 @@ public class TmtiPanel extends JPanelBase {
     uiCheckDontRunFqLq.addChangeListener(cl);
     cl.stateChanged(new ChangeEvent(uiCheckAllowOverlabel));
 
+    JPanel p = mu.newPanel(mu.lcNoInsetsTopBottom());
+    mu.border(p, "Filters and normalization");
+
     mu.add(p, feUniqueGene.label(), mu.ccR());
     mu.add(p, feUniqueGene.comp).split().spanX();
-    mu.add(p, feUniquePep.comp);
-    mu.add(p, feBestPsm.comp).wrap();
+    mu.add(p, feUniquePep.label(), mu.ccR());
+    mu.add(p, feUniquePep.comp).wrap();
     mu.add(p, feMinPsmProb.label(), mu.ccR());
     mu.add(p, feMinPsmProb.comp);
-    mu.add(p, feMaxPepProb.label(), mu.ccR());
-    mu.add(p, feMaxPepProb.comp);
     mu.add(p, feMinPurity.label(), mu.ccR());
     mu.add(p, feMinPurity.comp);
     mu.add(p, feMinPercent.label(), mu.ccR());
-    mu.add(p, feMinPercent.comp);
+    mu.add(p, feMinPercent.comp).wrap();
+    mu.add(p, feMaxPepProb.label(), mu.ccR());
+    mu.add(p, feMaxPepProb.comp);
     mu.add(p, feMinNtt.label(), mu.ccR());
     mu.add(p, feMinNtt.comp).spanX().wrap();
 
-    JPanel pChecks = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
+    JPanel pChecks = mu.newPanel(mu.lcNoInsetsTopBottom());
+    mu.add(pChecks, feBestPsm.comp);
     mu.add(pChecks, fePsmNorm.comp);
     mu.add(pChecks, feAllowOverlabel.comp);
-    mu.add(pChecks, feMs1Int.comp).wrap();
-    mu.add(pChecks, feOutlierRemoval.comp);
     mu.add(pChecks, feAllowUnlabeled.comp);
-    mu.add(pChecks, feTop3.comp).wrap();
-    mu.add(pChecks, fePrintRefInt.comp).skip(2).spanX().wrap();
+    mu.add(pChecks, feOutlierRemoval.comp).wrap();
 
-    mu.add(p, pChecks).split().spanX().wrap();
-
-//    mu.add(p, fe);
+    mu.add(p, pChecks).spanX().wrap();
 
     mu.add(p, feProtExclude.label(), mu.ccR());
-    mu.add(p, feProtExclude.comp).growX().spanX().wrap();
-    mu.add(p, feDontRunFqLq.comp).spanX().wrap();
-    mu.add(p, feFreequant.label(), mu.ccR());
-    mu.add(p, feFreequant.comp).growX().spanX().wrap();
-    mu.add(p, feLabelquant.label(), mu.ccR());
-    mu.add(p, feLabelquant.comp).growX().spanX().wrap();
+    mu.add(p, feProtExclude.comp).spanX().growX().wrap();
 
-    return p;
+    JPanel p2 = mu.newPanel(mu.lcNoInsetsTopBottom());
+    mu.border(p2, "Ratio to Abundance conversion");
+    mu.add(p2, feMs1Int.comp);
+    mu.add(p2, feTop3.comp);
+    mu.add(p2, fePrintRefInt.comp).spanX().wrap();
+
+    JPanel p3 = mu.newPanel(mu.lcNoInsetsTopBottom());
+    mu.border(p3, "Quantification");
+    mu.add(p3, feDontRunFqLq.comp).spanX().wrap();
+    mu.add(p3, feFreequant.label(), mu.ccL());
+    mu.add(p3, feFreequant.comp, mu.ccL()).pushX().growX().wrap();
+    mu.add(p3, feLabelquant.label(), mu.ccL());
+    mu.add(p3, feLabelquant.comp, mu.ccL()).growX().wrap();
+
+    return new JPanel[]{p, p2, p3};
   }
 
   private JPanel createPanelOptsAdvancedPtm() {
@@ -501,10 +512,10 @@ public class TmtiPanel extends JPanelBase {
             + "S[167],T[181],Y[243]: for Phospho<br/>\n"
             + "K[170]: for K-Acetyl");
 
-    mu.add(p, feMinSiteProb.label(), mu.ccR());
-    mu.add(p, feMinSiteProb.comp);
     mu.add(p, feModTag.label());
     mu.add(p, feModTag.comp).pushX().spanX().wrap();
+    mu.add(p, feMinSiteProb.label(), mu.ccR());
+    mu.add(p, feMinSiteProb.comp).pushX().spanX().wrap();
 
     return p;
   }
