@@ -1037,7 +1037,7 @@ public class FragpipeRun {
       if (hasMissing) {
         SwingUtils.showErrorDialog(parent,
             "Not all TMT groups have annotation files set.\n"
-                + "Check <b>Quant (Labeling)</b> tab, <b>TMT-Integrator config</b>.", "TMT-Integrator config error");
+                + "Check <b>Quant (Isobaric)</b> tab, <b>TMT-Integrator config</b>.", "TMT-Integrator config error");
         return false;
       }
       return true;
