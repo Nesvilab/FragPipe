@@ -1064,7 +1064,7 @@ public class MsfraggerParams extends AbstractParams {
             double dm = Double.parseDouble(p.value);
             String sites = ADDON_MAP_NAME2HUMAN.get(siteName);
             if (sites == null)
-                throw new IllegalStateException("Could not map addon modificaiton site name to a human readable name.");
+                throw new IllegalStateException("Could not map addon modification site name to a human readable name.");
             mods.add(new Mod(dm, sites, p.isEnabled, 1));
         }
         
