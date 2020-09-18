@@ -60,7 +60,7 @@ num_parts = int(num_parts_str)
 tempdir_parts = [tempdir / str(i) for i in range(num_parts)]
 
 
-recomp_fasta = re.compile(r'^database_name\s*=\s*(.+?)$', re.MULTILINE)
+recomp_fasta = re.compile(r'^database_name\s*=\s*(.+?)(?:\s*#.+)?$', re.MULTILINE)
 [fasta_path_str] = recomp_fasta.findall(params_txt)
 fasta_path = pathlib.Path(fasta_path_str)
 if 0:
