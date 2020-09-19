@@ -79,7 +79,6 @@ digest_max_length = 50
 digest_mass_range = 500.0 5000.0
 max_fragment_charge = 2
 
-#open search parameters
 track_zero_topN = 0
 zero_bin_accept_expect = 0
 zero_bin_mult_expect = 1
