@@ -855,7 +855,7 @@ public class TabMsfragger extends JPanelBase {
   private JPanel createPanelMassOffsets() {
     JPanel p = mu.newPanel("Mass Offsets", true);
 
-    UiText uiTextRestrictDeltamassTo = UiUtils.uiTextBuilder().ghost("Restrict delta mass to certain amino acids").filter("[^A-Zall]")
+    UiText uiTextRestrictDeltamassTo = UiUtils.uiTextBuilder().ghost("Restrict delta mass to certain amino acids").filter("[^A-Zall-]")
         .cols(20).create();
     FormEntry feRestrictDeltamassTo = mu.feb(uiTextRestrictDeltamassTo).name(MsfraggerParams.PROP_restrict_deltamass_to)
         .tooltip("Allowed mod sites in Open Search / Mass Offset Search /Glyco mode").label("Restrict delta mass to")

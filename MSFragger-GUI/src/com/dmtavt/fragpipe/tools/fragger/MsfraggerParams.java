@@ -307,7 +307,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_decoy_prefix, "Prefix of the decoy protein entries. Used for parameter optimization only.");
         c.put(PROP_isotope_error, "Also search for MS/MS events triggered on specified isotopic peaks.");
         c.put(PROP_mass_offsets, "Creates multiple precursor tolerance windows with specified mass offsets.");
-        c.put(PROP_restrict_deltamass_to, "Specify amino acids on which delta masses (mass offsets or search modifications) can occur. Allowed values are single letter codes (e.g. ACD), must be capitalized. Use 'all' to allow any amino acid.");
+        c.put(PROP_restrict_deltamass_to, "Specify amino acids on which delta masses (mass offsets or search modifications) can occur. Allowed values are single letter codes (e.g. ACD) and '-', must be capitalized. Use 'all' to allow any amino acid.");
         c.put(PROP_labile_search_mode, "type of search (nglycan, labile, or off). Off means non-labile/typical search.");
         c.put(PROP_precursor_mass_mode, "One of isolated/selected/corrected.");
         c.put(PROP_localize_delta_mass, "Include fragment ions mass-shifted by unknown modifications (recommended for open and mass offset searches) (0 for OFF, 1 for ON).");
