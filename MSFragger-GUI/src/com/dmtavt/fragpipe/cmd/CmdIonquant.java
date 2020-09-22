@@ -2,6 +2,8 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -16,11 +18,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
-import org.jooq.lambda.function.Function3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.api.LcmsFileGroup;
 
 public class CmdIonquant extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdIonquant.class);
@@ -194,7 +193,7 @@ public class CmdIonquant extends CmdBase {
         .toSet();
     for (Path path : lcmsDirsUnique) {
       cmd.add("--specdir");
-      cmd.add(StringUtils.appendPrependOnce(path.toString(), "\""));
+      cmd.add(StringUtils.appendPrependOnce(path.toString(), null));
     }
 
     for (Entry<InputLcmsFile, List<Path>> e : lcmsToFraggerPepxml.entrySet()) {
