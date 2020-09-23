@@ -222,9 +222,8 @@ public class DownloadDbHelper {
                             "<html>Downloaded new file:<br/>" + fullDbPath.toString(),
                             "Download complete", JOptionPane.INFORMATION_MESSAGE);
                         Bus.post(new MessageDbNewPath(fullDbPath.toString()));
+                        break;
                       }
-
-                      break;
                     }
                   }
                 } else {
