@@ -6,16 +6,31 @@ import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_ngl
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_off;
 
 import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.ModsTable;
+import com.dmtavt.fragpipe.api.ModsTableModel;
+import com.dmtavt.fragpipe.api.SearchTypeProp;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerParamsUpdate;
 import com.dmtavt.fragpipe.messages.MessagePrecursorSelectionMode;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.MessageValidityMassCalibration;
 import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
+import com.dmtavt.fragpipe.params.Props.Prop;
+import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.dmtavt.fragpipe.tools.enums.CleavageType;
+import com.dmtavt.fragpipe.tools.enums.FraggerOutputType;
+import com.dmtavt.fragpipe.tools.enums.FraggerPrecursorMassMode;
+import com.dmtavt.fragpipe.tools.enums.IntensityTransform;
+import com.dmtavt.fragpipe.tools.enums.MassTolUnits;
+import com.dmtavt.fragpipe.tools.enums.PrecursorMassTolUnits;
+import com.dmtavt.fragpipe.tools.enums.RemovePrecursorPeak;
+import com.dmtavt.fragpipe.tools.fragger.EnzymeProvider;
+import com.dmtavt.fragpipe.tools.fragger.Mod;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -32,6 +47,9 @@ import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
+import com.github.chhh.utils.swing.renderers.TableCellDoubleRenderer;
+import com.github.chhh.utils.swing.renderers.TableCellIntRenderer;
+import com.github.chhh.utils.swing.renderers.TableCellIntSpinnerEditor;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -90,25 +108,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.api.ModsTableModel;
-import com.dmtavt.fragpipe.api.SearchTypeProp;
-import com.github.chhh.utils.swing.renderers.TableCellDoubleRenderer;
-import com.github.chhh.utils.swing.renderers.TableCellIntRenderer;
-import com.github.chhh.utils.swing.renderers.TableCellIntSpinnerEditor;
-import com.dmtavt.fragpipe.params.Props.Prop;
-import com.dmtavt.fragpipe.params.ThisAppProps;
-import com.dmtavt.fragpipe.tools.enums.CleavageType;
-import com.dmtavt.fragpipe.tools.enums.FraggerOutputType;
-import com.dmtavt.fragpipe.tools.enums.FraggerPrecursorMassMode;
-import com.dmtavt.fragpipe.tools.enums.MassTolUnits;
-import com.dmtavt.fragpipe.tools.enums.IntensityTransform;
-import com.dmtavt.fragpipe.tools.enums.PrecursorMassTolUnits;
-import com.dmtavt.fragpipe.tools.enums.RemovePrecursorPeak;
-import com.dmtavt.fragpipe.tools.fragger.EnzymeProvider;
-import com.dmtavt.fragpipe.tools.fragger.Mod;
-import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
-import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
-import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
 
 public class TabMsfragger extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
@@ -402,11 +401,8 @@ public class TabMsfragger extends JPanelBase {
     JPanel p = mu.newPanel("Peak Matching", true);
 
     // precursor mass tolerance
-    List<String> unitsDev = Seq.of(PrecursorMassTolUnits.values()).map(PrecursorMassTolUnits::name).toList();
-    List<String> unitsRel = Seq.of(PrecursorMassTolUnits.values())
-        .filter(pmtu -> !(pmtu.equals(PrecursorMassTolUnits.DIA) || pmtu.equals(PrecursorMassTolUnits.DIA_MS1)))
-        .map(PrecursorMassTolUnits::name).toList();
-    uiComboPrecursorTolUnits = UiUtils.createUiCombo(Version.isDevBuild() ? unitsDev : unitsRel);
+    List<String> units = Seq.of(PrecursorMassTolUnits.values()).map(PrecursorMassTolUnits::name).toList();
+    uiComboPrecursorTolUnits = UiUtils.createUiCombo(units);
     FormEntry fePrecTolUnits = mu.feb(MsfraggerParams.PROP_precursor_mass_units, uiComboPrecursorTolUnits).label("Precursor mass tolerance").create();
     uiSpinnerPrecTolLo = new UiSpinnerDouble(-10, -10000, 10000, 1,
         new DecimalFormat("0.#"));
