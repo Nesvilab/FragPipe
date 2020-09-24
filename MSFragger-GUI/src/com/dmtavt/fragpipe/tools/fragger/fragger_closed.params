@@ -34,9 +34,9 @@ diagnostic_intensity_filter = 0.0
 Y_type_masses =
 diagnostic_fragments =
 
-search_enzyme_name = trypsin
+search_enzyme_name = stricttrypsin
 search_enzyme_cutafter = KR
-search_enzyme_butnotafter = P
+search_enzyme_butnotafter =
 
 num_enzyme_termini = 2
 allowed_missed_cleavage = 1

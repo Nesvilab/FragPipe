@@ -623,7 +623,7 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     public String getSearchEnzymeButNotAfter() {
-        return props.getProp(PROP_search_enzyme_butnotafter, "P").value;
+        return props.getProp(PROP_search_enzyme_butnotafter, "").value;
     }
     
     public void setSearchEnzymeButNotAfter(String v) {
