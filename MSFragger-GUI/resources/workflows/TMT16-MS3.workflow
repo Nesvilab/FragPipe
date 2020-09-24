@@ -1,4 +1,4 @@
-# Workflow: TMT10-MS3
+# Workflow: TMT16-MS3
 
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
@@ -59,7 +59,7 @@ msfragger.min_fragments_modelling=2
 msfragger.min_matched_fragments=4
 msfragger.minimum_peaks=15
 msfragger.minimum_ratio=0.01
-msfragger.misc.fragger.clear-mz-hi=131.5
+msfragger.misc.fragger.clear-mz-hi=134.5
 msfragger.misc.fragger.clear-mz-lo=125.5
 msfragger.misc.fragger.digest-mass-hi=5000
 msfragger.misc.fragger.digest-mass-lo=200
@@ -87,8 +87,8 @@ msfragger.run-msfragger=true
 msfragger.search_enzyme_butnotafter=
 msfragger.search_enzyme_cutafter=KR
 msfragger.search_enzyme_name=stricttrypsin
-msfragger.table.fix-mods=0.000000,C-Term Peptide,true,-1; 0.000000,N-Term Peptide,true,-1; 0.000000,C-Term Protein,true,-1; 0.000000,N-Term Protein,true,-1; 0.000000,G (glycine),true,-1; 0.000000,A (alanine),true,-1; 0.000000,S (serine),true,-1; 0.000000,P (proline),true,-1; 0.000000,V (valine),true,-1; 0.000000,T (threonine),true,-1; 57.021460,C (cysteine),true,-1; 0.000000,L (leucine),true,-1; 0.000000,I (isoleucine),true,-1; 0.000000,N (asparagine),true,-1; 0.000000,D (aspartic acid),true,-1; 0.000000,Q (glutamine),true,-1; 229.162930,K (lysine),true,-1; 0.000000,E (glutamic acid),true,-1; 0.000000,M (methionine),true,-1; 0.000000,H (histidine),true,-1; 0.000000,F (phenylalanine),true,-1; 0.000000,R (arginine),true,-1; 0.000000,Y (tyrosine),true,-1; 0.000000,W (tryptophan),true,-1; 0.000000,B ,true,-1; 0.000000,J,true,-1; 0.000000,O,true,-1; 0.000000,U,true,-1; 0.000000,X,true,-1; 0.000000,Z,true,-1
-msfragger.table.var-mods=15.994900,M,true,3; 42.010600,[^,true,1; 79.966330,STY,false,3; -17.026500,nQnC,false,1; -18.010600,nE,false,1; 229.162930,n^,true,1; 229.162930,S,false,1; 0.000000,site_08,false,1; 0.000000,site_09,false,1; 0.000000,site_10,false,1; 0.000000,site_11,false,1; 0.000000,site_12,false,1; 0.000000,site_13,false,1; 0.000000,site_14,false,1; 0.000000,site_15,false,1; 0.000000,site_16,false,1
+msfragger.table.fix-mods=0.000000,C-Term Peptide,true,-1; 0.000000,N-Term Peptide,true,-1; 0.000000,C-Term Protein,true,-1; 0.000000,N-Term Protein,true,-1; 0.000000,G (glycine),true,-1; 0.000000,A (alanine),true,-1; 0.000000,S (serine),true,-1; 0.000000,P (proline),true,-1; 0.000000,V (valine),true,-1; 0.000000,T (threonine),true,-1; 57.021460,C (cysteine),true,-1; 0.000000,L (leucine),true,-1; 0.000000,I (isoleucine),true,-1; 0.000000,N (asparagine),true,-1; 0.000000,D (aspartic acid),true,-1; 0.000000,Q (glutamine),true,-1; 304.207146,K (lysine),true,-1; 0.000000,E (glutamic acid),true,-1; 0.000000,M (methionine),true,-1; 0.000000,H (histidine),true,-1; 0.000000,F (phenylalanine),true,-1; 0.000000,R (arginine),true,-1; 0.000000,Y (tyrosine),true,-1; 0.000000,W (tryptophan),true,-1; 0.000000,B ,true,-1; 0.000000,J,true,-1; 0.000000,O,true,-1; 0.000000,U,true,-1; 0.000000,X,true,-1; 0.000000,Z,true,-1
+msfragger.table.var-mods=15.994900,M,true,3; 42.010600,[^,true,1; 79.966330,STY,false,3; -17.026500,nQnC,false,1; -18.010600,nE,false,1; 304.207146,n^,true,1; 229.162930,S,false,1; 0.000000,site_08,false,1; 0.000000,site_09,false,1; 0.000000,site_10,false,1; 0.000000,site_11,false,1; 0.000000,site_12,false,1; 0.000000,site_13,false,1; 0.000000,site_14,false,1; 0.000000,site_15,false,1; 0.000000,site_16,false,1
 msfragger.track_zero_topN=0
 msfragger.use_topN_peaks=150
 msfragger.write_calibrated_mgf=false
@@ -143,7 +143,7 @@ tmtintegrator.add_Ref=1
 tmtintegrator.allow_overlabel=true
 tmtintegrator.allow_unlabeled=false
 tmtintegrator.best_psm=true
-tmtintegrator.channel_num=10
+tmtintegrator.channel_num=16
 tmtintegrator.dont-run-fq-lq=false
 tmtintegrator.freequant=--ptw 0.4 --tol 10 --isolated
 tmtintegrator.groupby=0
@@ -166,7 +166,7 @@ tmtintegrator.run-tmtintegrator=true
 tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
-workflow.description=<p style\="margin-top\: 0"> TMT 10-plex workflow, with quantification from MS3 and identification from low mass accuracy MS2. Met oxidation, protein N-term Acetyl, and n-term TMT are specified as variable modifications. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at the gene level. If a reference/bridge sample is available, specify the corresponding channel/sample name tag in the annotation file(s) and in TMT-Integrator tab. </p>
+workflow.description=<p style\="margin-top\: 0"> Basic TMT 16-plex workflow, with quantification from MS3 and identification form low mass accuracy MS2 (ion trap). </p> \n<p style\="margin-top\: 0"> Met oxidation, protein N-term Acetyl, n-term TMT are specified as variable modifications. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at the gene level. If a reference/bridge sample is available, specify the corresponding channel/sample name tag in the annotation file(s) and in TMT-Integrator tab. </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.process-exps-separately=false
