@@ -556,7 +556,7 @@ public class TabMsfragger extends JPanelBase {
         .collect(Collectors.toList());
     uiComboCleavage = UiUtils.createUiCombo(cleavageTypeNames);
     FormEntry feCleavageType = mu.feb(MsfraggerParams.PROP_num_enzyme_termini, uiComboCleavage).label("Cleavage").create();
-    UiSpinnerInt uiSpinnerMissedCleavages = new UiSpinnerInt(1, 0, 1000, 1);
+    UiSpinnerInt uiSpinnerMissedCleavages = new UiSpinnerInt(2, 0, 1000, 1);
     uiSpinnerMissedCleavages.setColumns(6);
     FormEntry feMissedCleavages = mu.feb(MsfraggerParams.PROP_allowed_missed_cleavage, uiSpinnerMissedCleavages).label("Missed cleavages").create();
     FormEntry feClipM = mu.feb(MsfraggerParams.PROP_clip_nTerm_M, new UiCheck("Clip N-term M", null))

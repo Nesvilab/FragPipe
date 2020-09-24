@@ -39,7 +39,7 @@ search_enzyme_cutafter = KR
 search_enzyme_butnotafter =
 
 num_enzyme_termini = 2
-allowed_missed_cleavage = 1
+allowed_missed_cleavage = 2
 
 clip_nTerm_M = 1 
 
