@@ -1,13 +1,10 @@
 package com.dmtavt.fragpipe.tools.ionquant;
 
-import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.dmtavt.fragpipe.messages.MessageLoadQuantDefaults;
-import com.github.chhh.utils.ProcessUtils;
 import com.github.chhh.utils.PropertiesUtils;
-import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -16,15 +13,12 @@ import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiRadio;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
-import com.github.chhh.utils.swing.UiSpinnerInt.Builder;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
-import com.github.chhh.utils.swing.UiUtils.UiTextBuilder;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import java.text.DecimalFormat;
-import java.text.Normalizer.Form;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
@@ -250,7 +244,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiSpinnerDouble uiSpinnerMbrProtFdr = UiUtils.spinnerDouble(1, 0.001, 1, 0.01)
         .setCols(5).setFormat("#.###").create();
 
-    UiSpinnerInt uiSpinnerMbrTopRuns = UiUtils.spinnerInt(3, 1, Integer.MAX_VALUE, 1).setCols(5).create();
+    UiSpinnerInt uiSpinnerMbrTopRuns = UiUtils.spinnerInt(10, 1, Integer.MAX_VALUE, 1).setCols(5).create();
     UiText uiTextLight = UiUtils.uiTextBuilder().cols(15).create();
     UiText uiTextMedium = UiUtils.uiTextBuilder().cols(15).create();
     UiText uiTextHeavy = UiUtils.uiTextBuilder().cols(15).create();
