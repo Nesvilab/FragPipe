@@ -109,6 +109,8 @@ public class TmtiPanel extends JPanelBase {
         s,supplyRunEx("No matching unique_gene value")).getValInConfig());
     CONVERT_TO_FILE.put(TmtiConfProps.PROP_add_Ref, s -> findOrThrow(false, TmtiConfProps.COMBO_ADD_REF,
         s,supplyRunEx("No matching add_Ref value")).getValInConfig());
+    CONVERT_TO_FILE.put(TmtiConfProps.PROP_unique_pep, s -> findOrThrow(false, TmtiConfProps.COMBO_PEPTIDE_PROTEIN_UNIQUENESS,
+        s,supplyRunEx("No matching prot_norm value")).getValInConfig());
 
     CONVERT_TO_GUI.put(TmtiConfProps.PROP_channel_num, s -> {
       int numChannels = Integer.parseInt(s);
