@@ -153,7 +153,7 @@ public class CmdUmpireSe extends CmdBase {
       if (!inputDir.equals(destDir)) {
         // destination dir is different from mzXML file location
         // need to move output and cleanup
-        List<Path> garbage = UmpireSeGarbageFiles.getGarbageFiles(f.getPath());
+        List<Path> garbage = UmpireSeGarbageFiles.getGarbageFiles(f.getPath(), true);
         List<ProcessBuilder> pbsMove = ToolingUtils.pbsMoveFiles(jarFragpipe, destDir, garbage);
         pbis.addAll(PbiBuilder.from(pbsMove));
       }
@@ -191,6 +191,10 @@ public class CmdUmpireSe extends CmdBase {
         pbMsConvert.environment().putIfAbsent("LC_ALL", "C");
         pbis.add(PbiBuilder.from(pbMsConvert));
       }
+      // delete garbage files
+      final List<Path> garbage = UmpireSeGarbageFiles.getGarbageFiles(destDir.resolve(f.getPath().getFileName()), false);
+      final List<ProcessBuilder> pbsDeleteFiles = ToolingUtils.pbsDeleteFiles(jarFragpipe, garbage);
+      pbis.addAll(PbiBuilder.from(pbsDeleteFiles));
     }
 
     isConfigured = true;
