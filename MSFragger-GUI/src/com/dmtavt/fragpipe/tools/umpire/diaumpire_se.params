@@ -9,8 +9,8 @@ Thread = 7
 #Precursor-fragments grouping parameters
 RPmax = 25
 RFmax = 500
-CorrThreshold = 0.2
-DeltaApex = 0.6
+CorrThreshold = 0
+DeltaApex = 0.3
 RTOverlap = 0.3
 
 #Fragment intensity adjustments
@@ -40,7 +40,7 @@ SE.MinMSMSIntensity = 1
 
 #Signal extraction: peak curve detection and isotope grouping
 # for older Q Exactive data, or when too many MS1 features are extracted, set SE.NoMissedScan to 1
-SE.NoMissedScan = 2
+SE.NoMissedScan = 1
 SE.MaxCurveRTRange = 2
 SE.RemoveGroupedPeaks = true
 SE.RemoveGroupedPeaksRTOverlap = 0.3
@@ -51,7 +51,7 @@ SE.MaxNoPeakCluster = 4
 #Signal extraction: filtering of MS1 features
 # if interested in modified peptides, increase MassDefectOffset parameter, or set SE.MassDefectFilter to false
 SE.IsoPattern = 0.3
-SE.MassDefectFilter = true
+SE.MassDefectFilter = false
 SE.MassDefectOffset = 0.1
 
 #Signal extraction: other
