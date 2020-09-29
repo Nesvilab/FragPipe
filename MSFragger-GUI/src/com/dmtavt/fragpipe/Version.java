@@ -63,6 +63,19 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("14.0", Arrays.asList(
+        "Add PTMProphet.",
+        "Upgrade Crystal-C to 1.3.2.",
+        "Upgrade IonQuant to 1.4.4.",
+        "Upgrade TMT-Integrator to 2.1.4.",
+        "Upgrade PTM-Shepherd to 0.4.0.",
+        "Require MSFragger 3.1+.",
+        "Retire MsAdjuster. Using MSFragger's built-in isotope error correction module.",
+        "New button to add contaminants and decoys to a fasta.",
+        "Correct the path in interact-*.pep.xml file.",
+        "Print related references after the job."
+    ));
+
     CHANGELOG.put("13.0", Arrays.asList(
         "Brand new fragpipe, rebuilt almost from ground up",
         "TMT-Integrator, PTM-Shepherd, IonQuant included",
