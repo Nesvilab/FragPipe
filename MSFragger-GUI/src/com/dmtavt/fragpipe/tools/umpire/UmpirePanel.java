@@ -144,9 +144,8 @@ public class UmpirePanel extends JPanel {
     FormEntry feCorrThresh = new FormEntry(PROP_CorrThreshold, "Corr Threshold", new JFormattedTextField(decimal));
     FormEntry feDeltaApex = new FormEntry(PROP_DeltaApex, "Delta Apex", new JFormattedTextField(decimal));
     FormEntry feRtOverlap = new FormEntry(PROP_RTOverlap, "RT Overlap", new JFormattedTextField(decimal));
-    //FormEntry fe = new FormEntry(UmpireParams.PROP_, "", );
-    JCheckBox checkBoostComplimentaryIons = new JCheckBox("Boost complimentary ions");
-    JCheckBox checkAdjustFragIntensity = new JCheckBox("Adjust fragment intensity");
+    FormEntry feCheckBoostComplimentaryIons = new FormEntry(PROP_BoostComplementaryIon, "Boost complimentary ions", new JCheckBox());
+    FormEntry feCheckAdjustFragIntensitys = new FormEntry(PROP_AdjustFragIntensity, "Adjust fragment intensity", new JCheckBox());
 
     CC ccComp = new CC().width("30:50:70px");
     CC ccFmtWrap = new CC().width("30:50:70px").wrap();
@@ -161,8 +160,10 @@ public class UmpirePanel extends JPanel {
     pFrag.add(feDeltaApex.comp, ccComp);
     pFrag.add(feRtOverlap.label(), ccLbl);
     pFrag.add(feRtOverlap.comp, ccFmtWrap);
-    pFrag.add(checkBoostComplimentaryIons, "span, split 2");
-    pFrag.add(checkAdjustFragIntensity);
+    pFrag.add(feCheckBoostComplimentaryIons.label(), ccLbl);
+    pFrag.add(feCheckBoostComplimentaryIons.comp, ccComp);
+    pFrag.add(feCheckAdjustFragIntensitys.label(), ccLbl);
+    pFrag.add(feCheckAdjustFragIntensitys.comp, ccFmtWrap);
 
 
     // Panel - Signal Extraction Parameters
