@@ -484,9 +484,9 @@ public class TabWorkflow extends JPanelWithEnablement {
     final String link = Fragpipe.propsFix().getProperty("fragpipe.workflow-tutorial.url", "https://msfragger.nesvilab.org/tutorial_fragpipe.html");
     epWorkflowsInfo = SwingUtils.createClickableHtml(true,
         String.format("FragPipe and its collection of tools support multiple proteomic workflows.\n"
-            + "Select an option in the dropdown menu below to configure "
-            + "all the tools. You can tweak the options yourself after loading.\n"
-            + "Also, <a href=\"%s\">see the tutorial</a>", link));
+            + "Select and load an option from the dropdown menu below to configure"
+            + "all the tools. Workflows can be customized and saved.\n"
+            + "Also <a href=\"%s\">see the tutorial</a>.", link));
 
     workflows = loadWorkflowFiles();
     List<String> names = createNamesForWorkflowsCombo(workflows);
@@ -505,9 +505,9 @@ public class TabWorkflow extends JPanelWithEnablement {
     JButton btnWorkflowLoad = UiUtils.createButton("Load", this::actionLoadSelectedWorkflow);
     FormEntry feComboWorkflow = Fragpipe.feNoCache(uiComboWorkflows, "workflow-option")
         .label("Select an option to load config for:")
-        .tooltip("This is purely for convenience of loading appropriate defaults\n"
+        .tooltip("Conveniently loads appropriate defaults\n"
             + "for various standard workflows.\n"
-            + "You can totally just set up all the options yourself.").create();
+            + "Alternatively, all options can be manually set.").create();
     JButton btnOpenInExplorer = SwingUtils
         .createButtonOpenInFileManager(this, "Open in File Manager",
             () -> FragpipeLocations.get().getDirWorkflows());

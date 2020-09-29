@@ -98,8 +98,8 @@ public class TabDatabase extends JPanelWithEnablement {
     uiTextDbPath.addFocusListener(new ContentChangedFocusAdapter(uiTextDbPath, (s, s2) -> {
       Bus.post(new MessageDbNewPath(s2));
     }));
-    FormEntry feDbPath = fe(uiTextDbPath, "db-path").label("Fasta file path").create();
-    JButton btnBrowse = feDbPath.browseButton("Browse", "Select fasta file",
+    FormEntry feDbPath = fe(uiTextDbPath, "db-path").label("FASTA file path").create();
+    JButton btnBrowse = feDbPath.browseButton("Browse", "Select FASTA file",
         () -> createFilechooserFasta(uiTextDbPath),
         paths -> Bus.post(new MessageDbNewPath(paths.get(0).toString())));
     btnDownload = UiUtils.createButton("Download", this::actionDbDownload);
@@ -144,16 +144,16 @@ public class TabDatabase extends JPanelWithEnablement {
 
     String fasta = getFastaPath();
     if (StringUtils.isBlank(fasta)) {
-      SwingUtils.showInfoDialog(this, "Select a fasta file first.", "Select fasta file");
+      SwingUtils.showInfoDialog(this, "Select a FASTA file first.", "Select FASTA file");
       return;
     }
     Path fastaPath = PathUtils.existing(fasta);
     if (fastaPath == null) {
-      SwingUtils.showInfoDialog(this, "Fasta file does not exist.", "Select fasta file");
+      SwingUtils.showInfoDialog(this, "FASTA file does not exist.", "Select FASTA file");
       return;
     }
     String[] opts = new String[]{"Add decoys", "Add decoys and contaminants", "Cancel"};
-    int choice = SwingUtils.showChoiceDialog(this, "Update fasta file",
+    int choice = SwingUtils.showChoiceDialog(this, "Update FASTA file",
         "What would you like to do?", opts, 2);
     if (choice < 0 || choice >= opts.length - 1) {
       log.debug("User cancelled db update action");
@@ -190,7 +190,7 @@ public class TabDatabase extends JPanelWithEnablement {
   private JFileChooser createFilechooserFasta(UiText uiTextDbPath) {
     FileNameExtensionFilter exts = new FileNameExtensionFilter("FASTA", "fa", "fas", "fasta");
     JFileChooser fc = FileChooserUtils
-        .create("Select fasta file", false, FcMode.FILES_ONLY, exts);
+        .create("Select FASTA file", false, FcMode.FILES_ONLY, exts);
     FileChooserUtils.setPath(fc, Stream.of(uiTextDbPath.getNonGhostText(), ThisAppProps.load(ThisAppProps.PROP_DB_FILE_IN)));
     return fc;
   }
@@ -229,7 +229,7 @@ public class TabDatabase extends JPanelWithEnablement {
       int protsTotal = FastaUtils.getProtsTotal(fasta.ordered.get(0));
       Bus.postSticky(new NoteConfigDatabase(Paths.get(path), protsTotal, decoysCnt, true));
     } catch (Exception e) {
-      log.debug("Got bad fasta path: {}", path);
+      log.debug("Got bad FASTA path: {}", path);
       Bus.postSticky(new NoteConfigDatabase());
     }
   }
@@ -248,7 +248,7 @@ public class TabDatabase extends JPanelWithEnablement {
   private void actionDetectDecoys(ActionEvent e) {
     Path path = PathUtils.existing(getFastaPath());
     if (path == null) {
-      SwingUtils.showInfoDialog(this, "Select a valid fasta file first", "Fasta file missing");
+      SwingUtils.showInfoDialog(this, "Select a valid FASTA file first", "FASTA file missing");
       return;
     }
 
@@ -295,10 +295,10 @@ public class TabDatabase extends JPanelWithEnablement {
     final String bin = OsUtils.isWindows() ? "philosopher.exe" : "philosopher";
     String content = ""
         + "FragPipe requires a standard FASTA formatted protein database to perform the search.<br/>"
-        + "Decoy sequence IDs (used for false discovery rate estimation) must be prepended with "
+        + "Decoy sequences (used for false discovery rate estimation) must be prepended with "
         + "the \"Decoy protein prefix\" (see text field above).<br/><br/>"
         + "If unsure, a good place to start is to go to <a href=\"http://www.uniprot.org/proteomes/\">UniProt website</a>. "
-        + "However, if you just download a fasta file from UniProt, it will not contain decoys.<br/><br/>"
+        + "However, if you just download a FASTA file from UniProt, it will not contain decoys.<br/><br/>"
         + "<b>There are two simple ways to get a database complete with decoys added:</b><br/><br/>"
         + "1) Simply click 'Download' button next to the text field above.<br/><br/>"
         + "or<br/><br/>"

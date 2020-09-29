@@ -1118,7 +1118,7 @@ public class TabMsfragger extends JPanelBase {
         uiTextShiftedIonsExclusion).label("Delta mass exclude ranges")
         .tooltip("<html>Ranges expressed like: (-1.5,3.5)").create();
 
-    uiCheckLocalizeDeltaMass = new UiCheck("<html>Localize mass shift", null, false);
+    uiCheckLocalizeDeltaMass = new UiCheck("<html>Localize mass shift (LOS)", null, false);
     FormEntry feLocalizeDeltaMass = mu.feb(MsfraggerParams.PROP_localize_delta_mass,
         uiCheckLocalizeDeltaMass)
         .tooltip("<html>Use additional shifted ion series when matching fragments.\n"

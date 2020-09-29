@@ -299,7 +299,7 @@ public class UmpirePanel extends JPanel {
 
     {
       FormEntry feBinMsconvert = new FormEntry(ThisAppProps.PROP_BIN_PATH_MSCONVERT,
-          "MsConvert binary", textBinMsconvert, "mconvert program is a part of "
+          "MSConvert binary", textBinMsconvert, "msconvert program is a part of the"
           + " ProteoWizard suite. It is no longer included in Philosopher. Download at: http://proteowizard.sourceforge.net/");
       pOther.add(feBinMsconvert.label(), ccLbl);
       pOther.add(feBinMsconvert.comp, new CC().growX().pushX());
