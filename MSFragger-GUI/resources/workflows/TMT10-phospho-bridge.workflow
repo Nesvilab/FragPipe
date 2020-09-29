@@ -1,4 +1,4 @@
-# Workflow: TMT10-phospho
+# Workflow: TMT10-phospho-bridge
 
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
@@ -95,7 +95,7 @@ msfragger.write_calibrated_mgf=false
 msfragger.zero_bin_accept_expect=0
 msfragger.zero_bin_mult_expect=1
 peptide-prophet.cmd-opts=--decoyprobs --ppm --accmass --nonparam --expectscore
-peptide-prophet.combine-pepxml=false
+peptide-prophet.combine-pepxml=true
 peptide-prophet.run-peptide-prophet=true
 phi-report.dont-use-prot-proph-file=false
 phi-report.filter=--sequential --razor --picked --prot 0.01 --mapmods
@@ -139,7 +139,7 @@ speclibgen.easypqp.select-file.text=
 speclibgen.run-speclibgen=false
 speclibgen.use-easypqp=false
 speclibgen.use-spectrast=true
-tmtintegrator.add_Ref=1
+tmtintegrator.add_Ref=-1
 tmtintegrator.allow_overlabel=true
 tmtintegrator.allow_unlabeled=false
 tmtintegrator.best_psm=true
@@ -166,7 +166,7 @@ tmtintegrator.run-tmtintegrator=true
 tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
-workflow.description=<p style\="margin-top\: 0"> TMT 10-plex workflow for phosphopeptide enriched data, with quantification from MS2. PTMProphet for site localization. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at the gene/protein/peptide/site levels. If a reference/bridge sample is available, specify the corresponding channel/sample name tag in the annotation file(s) and in TMT-Integrator tab. </p>
+workflow.description=<p style\="margin-top\: 0"> TMT 10-plex workflow for phosphopeptide enriched data, with quantification from MS2. PTMProphet for site localization. TMT-Integrator with Bridge channel (labeled as 'pool' in the annotation files), median-centering normalization, data summarization at the gene/protein/peptide/site levels. </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.process-exps-separately=false

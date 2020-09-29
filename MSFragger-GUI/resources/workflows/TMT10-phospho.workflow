@@ -98,7 +98,7 @@ peptide-prophet.cmd-opts=--decoyprobs --ppm --accmass --nonparam --expectscore
 peptide-prophet.combine-pepxml=false
 peptide-prophet.run-peptide-prophet=true
 phi-report.dont-use-prot-proph-file=false
-phi-report.filter=--sequential --razor --prot 0.01 --mapmods
+phi-report.filter=--sequential --razor --picked --prot 0.01 --mapmods
 phi-report.pep-level-summary=false
 phi-report.print-decoys=false
 phi-report.run-report=true
@@ -170,4 +170,4 @@ workflow.description=<p style\="margin-top\: 0"> TMT 10-plex workflow for phosph
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.process-exps-separately=false
-workflow.saved-with-ver=14.0-rc2
+workflow.saved-with-ver=14.0-rc5
