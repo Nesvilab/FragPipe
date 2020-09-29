@@ -15,7 +15,7 @@ RTOverlap = 0.3
 
 #Fragment intensity adjustments
 # change BoostComplementaryIon if later using database search results to build libraries for Skyline/OpenSWATH
-AdjustFragIntensity = false
+AdjustFragIntensity = true
 BoostComplementaryIon = false
 
 #Export detected MS1 features (output feature file can be loaded and mapped to RAW data in BatMass)
@@ -34,7 +34,7 @@ SE.MS2SN = 1.1
 #Signal extraction: minimum signal intensity filter
 # for Thermo data, filtering is usually not necessary. Set SE.EstimateBG to false and SE.MinMSIntensity and SE.MinMSMSIntensity to a low value, e.g. 1
 # for older Q Exactive data, or when too many MS1 features are extracted, set SE.EstimateBG to yes (or apply SE.MinMSIntensity and SE.MinMSMSIntensity values based on BatMass visualization)
-SE.EstimateBG = true
+SE.EstimateBG = false
 SE.MinMSIntensity = 1
 SE.MinMSMSIntensity = 1
 

@@ -1,7 +1,7 @@
 # Workflow: DIA-MSFragger_SpecLib
 
-CorrThreshold=0.2
-DeltaApex=0.6
+CorrThreshold=0
+DeltaApex=0.3
 RFmax=500
 RPmax=25
 RTOverlap=0.3
@@ -15,7 +15,7 @@ SE.MinFrag=10
 SE.MinMSIntensity=1
 SE.MinMSMSIntensity=1
 SE.MinNoPeakCluster=2
-SE.NoMissedScan=2
+SE.NoMissedScan=1
 SE.SN=1.1
 WindowSize=10
 crystalc.run-crystalc=false
