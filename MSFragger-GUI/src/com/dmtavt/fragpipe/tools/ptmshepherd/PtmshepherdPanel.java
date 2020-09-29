@@ -19,7 +19,6 @@ import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
-import com.github.chhh.utils.swing.UiSpinnerInt.Builder;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import com.github.chhh.utils.swing.UiUtils.UiTextBuilder;
@@ -341,7 +340,7 @@ public class PtmshepherdPanel extends JPanelBase {
         new UiSpinnerInt(2, 0, 5, 1, 5),
         "<html>Histogram smoothing. 0 = No smoothing, 1 = smooth using +/-1 bin, etc.");
     FormEntry feLocBackground = new FormEntry(PROP_localization_background, "Localization background",
-        new UiSpinnerInt(4, 1, 4, 1, 5));
+        new UiSpinnerInt(4, 1, 4, 1, 5), "<html>Residue background probabilities: 1 = bin-wise peptides, 2 = bin-wise PSMs, 3 = all pepides, 4 = all PSMs");
 
     UiSpinnerDouble uiSpinnerPromRatio = UiSpinnerDouble.builder(0.3,0.0,1.0, 0.1)
         .setFormat(new DecimalFormat("0.#")).setCols(5).create();
