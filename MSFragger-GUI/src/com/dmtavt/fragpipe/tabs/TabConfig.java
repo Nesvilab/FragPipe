@@ -170,7 +170,7 @@ public class TabConfig extends JPanelWithEnablement {
             () -> FragpipeLocations.get().getPathLongTermStorage());
     mu.add(p, btnAbout).split().spanX();
     mu.add(p, btnOpenCacheInExplorer);
-    mu.add(p, UiUtils.createButton("Clear Cache and Close", e -> Bus.post(new MessageClearCache(true))));
+    mu.add(p, UiUtils.createButton("Clear cache and close", e -> Bus.post(new MessageClearCache(true))));
 
     if (com.dmtavt.fragpipe.Version.isDevBuild() || log.isDebugEnabled()) {
       mu.add(p, UiUtils.createButton("Debug button", e -> {
@@ -500,7 +500,7 @@ public class TabConfig extends JPanelWithEnablement {
       Path path = Paths.get(m.command);
       final boolean fileExists = Files.exists(path) || (OsUtils.isWindows() && Files.exists(Paths.get(path.toString() + ".exe")));
       if (path.isAbsolute() && !fileExists) {
-        throw new ValidationException("File not exists");
+        throw new ValidationException("File does not exist");
       }
 
       // if paths.get didn't throw, we can try the binary, it might be on PATH

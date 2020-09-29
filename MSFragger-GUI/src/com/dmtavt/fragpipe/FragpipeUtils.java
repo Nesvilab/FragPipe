@@ -12,7 +12,7 @@ public class FragpipeUtils {
 
   public static void openInExplorer(Component parent, String path) {
     if (StringUtils.isBlank(path)) {
-      SwingUtils.showInfoDialog(parent, "Empty path", "Not exists");
+      SwingUtils.showInfoDialog(parent, "Empty path", "Does not exist");
       return;
     }
     Path existing = PathUtils.existing(path);
