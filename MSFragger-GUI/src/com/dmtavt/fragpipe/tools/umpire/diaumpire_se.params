@@ -15,11 +15,11 @@ RTOverlap = 0.3
 
 #Fragment intensity adjustments
 # change BoostComplementaryIon if later using database search results to build libraries for Skyline/OpenSWATH
-AdjustFragIntensity = true
+AdjustFragIntensity = false
 BoostComplementaryIon = false
 
 #Export detected MS1 features (output feature file can be loaded and mapped to RAW data in BatMass)
-ExportPrecursorPeak = true
+ExportPrecursorPeak = false
 
 #Signal extraction: mass accuracy and resolution
 # resolution parameter matters only for data generated in profile mode
@@ -34,7 +34,7 @@ SE.MS2SN = 1.1
 #Signal extraction: minimum signal intensity filter
 # for Thermo data, filtering is usually not necessary. Set SE.EstimateBG to false and SE.MinMSIntensity and SE.MinMSMSIntensity to a low value, e.g. 1
 # for older Q Exactive data, or when too many MS1 features are extracted, set SE.EstimateBG to yes (or apply SE.MinMSIntensity and SE.MinMSMSIntensity values based on BatMass visualization)
-SE.EstimateBG = false
+SE.EstimateBG = true
 SE.MinMSIntensity = 1
 SE.MinMSMSIntensity = 1
 
@@ -51,7 +51,7 @@ SE.MaxNoPeakCluster = 4
 #Signal extraction: filtering of MS1 features
 # if interested in modified peptides, increase MassDefectOffset parameter, or set SE.MassDefectFilter to false
 SE.IsoPattern = 0.3
-SE.MassDefectFilter = false
+SE.MassDefectFilter = true
 SE.MassDefectOffset = 0.1
 
 #Signal extraction: other
