@@ -3,11 +3,17 @@ package com.dmtavt.fragpipe.cmd;
 import static com.github.chhh.utils.PathUtils.testFilePath;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
+import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
+import com.dmtavt.fragpipe.tools.enums.PrecursorMassTolUnits;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
+import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,18 +31,11 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.print.attribute.standard.MediaSize.NA;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.process.ProcessManager;
-import com.dmtavt.fragpipe.tools.enums.PrecursorMassTolUnits;
-import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
-import com.github.chhh.utils.OsUtils;
-import com.github.chhh.utils.UsageTrigger;
 
 public class CmdMsfragger extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdMsfragger.class);
@@ -47,7 +46,7 @@ public class CmdMsfragger extends CmdBase {
   private static final Path PATH_NONE = Paths.get("");
   private static volatile Path pathThermo = PATH_NONE;
   private static volatile Path pathBruker = PATH_NONE;
-  private static final List<String> timsdataPattern = Arrays.asList("^timsdata-2-8-7\\.dll", "^libtimsdata-2-8-7\\.so");
+  private static final List<String> timsdataPattern = Arrays.asList("^timsdata.*\\.dll", "^libtimsdata.*\\.so");
 
   private final PrecursorMassTolUnits precursorMassUnits;
   private final int outputReportTopN;
