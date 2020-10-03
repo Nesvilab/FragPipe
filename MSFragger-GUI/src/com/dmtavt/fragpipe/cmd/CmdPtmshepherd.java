@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.*;
 
+import com.github.chhh.utils.OsUtils;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,7 +144,7 @@ public class CmdPtmshepherd extends CmdBase {
       cmd.add("-Xmx" + ramGb + "G");
     }
     if (extLibsThermo != null) {
-      cmd.add("-Dbatmass.io.libs.thermo.dir=\"" + extLibsThermo.toString() + "\"" );
+      cmd.add("-Dbatmass.io.libs.thermo.dir=" + OsUtils.asSingleArgument(extLibsThermo.toString()));
     }
     if (ramGb > 0) {
       cmd.add("-Xmx" + ramGb + "G");
