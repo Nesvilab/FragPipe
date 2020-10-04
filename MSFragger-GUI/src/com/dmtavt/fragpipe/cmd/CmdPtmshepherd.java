@@ -3,6 +3,11 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.exceptions.ValidationException;
+import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdParams;
+import com.github.chhh.utils.PathUtils;
+import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -17,16 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.swing.*;
-
-import com.github.chhh.utils.OsUtils;
+import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdParams;
-import com.github.chhh.utils.PathUtils;
-import com.github.chhh.utils.SwingUtils;
 
 
 public class CmdPtmshepherd extends CmdBase {
@@ -144,7 +143,7 @@ public class CmdPtmshepherd extends CmdBase {
       cmd.add("-Xmx" + ramGb + "G");
     }
     if (extLibsThermo != null) {
-      cmd.add("-Dbatmass.io.libs.thermo.dir=" + OsUtils.asSingleArgument(extLibsThermo.toString()));
+      cmd.add(createJavaDParamString("batmass.io.libs.thermo.dir", extLibsThermo.toString()));
     }
     if (ramGb > 0) {
       cmd.add("-Xmx" + ramGb + "G");

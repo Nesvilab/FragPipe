@@ -5,7 +5,6 @@ import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
-import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.IOException;
@@ -174,7 +173,7 @@ public class CmdCrystalc extends CmdBase {
         List<String> cmd = new ArrayList<>();
         cmd.add(Fragpipe.getBinJava());
         if (extLibsThermo != null) {
-          cmd.add("-Dbatmass.io.libs.thermo.dir=" + OsUtils.asSingleArgument(extLibsThermo.toString()));
+          cmd.add(createJavaDParamString("batmass.io.libs.thermo.dir", extLibsThermo.toString()));
         }
         if (ramGb > 0) {
           cmd.add("-Xmx" + ramGb + "G");

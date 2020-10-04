@@ -1,28 +1,22 @@
 package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.api.IConfig;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.swing.JOptionPane;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
-import org.jsoup.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.params.ThisAppProps;
-import com.github.chhh.utils.JarUtils;
-import com.github.chhh.utils.OsUtils;
 
 public abstract class CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdBase.class);
