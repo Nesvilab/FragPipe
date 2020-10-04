@@ -7,7 +7,6 @@ import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessagePhiDlProgress;
 import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
-import com.github.chhh.utils.FileListing;
 import com.github.chhh.utils.Holder;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
@@ -20,7 +19,6 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -63,6 +61,9 @@ public class Philosopher {
     String binPath = PathUtils.testBinaryPath(path);
     if (binPath == null) {
       throw new ValidationException("Does not appear to be an executable file");
+    }
+    if (binPath.contains(" ")) {
+      throw new ValidationException("There are spaces in the path");
     }
     // get the vesrion reported by the current executable
     // if we couldn't download remote properties, try using local ones

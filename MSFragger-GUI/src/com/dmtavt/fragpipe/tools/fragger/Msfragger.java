@@ -126,6 +126,9 @@ public class Msfragger {
       if (!Files.exists(p)) {
         throw new ValidationException("Path not exists");
       }
+      if (path.contains(" ")) {
+        throw new ValidationException("There are spaces in the path"); // Quoting the path with space won't solve the crash if the path is in JVM arguments.
+      }
       if (!path.toLowerCase().endsWith(".jar")) {
         throw new ValidationException("Path not a jar file");
       }

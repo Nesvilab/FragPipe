@@ -370,7 +370,6 @@ public class TabConfig extends JPanelWithEnablement {
       Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
       if (existing.toString().contains(" ")) {
         SwingUtils.showWarningDialog(this, "There are spaces in Philosopher path.\n"
-            + "It is <b>HIGHLY</b> recommended to use a path without spaces.\n"
             + "Depending on your OS/Java/Input files some tools that FragPipe\n"
             + "runs might crash.", "Spaces in path");
       }
@@ -435,7 +434,6 @@ public class TabConfig extends JPanelWithEnablement {
       Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
       if (existing.toString().contains(" ")) {
         SwingUtils.showWarningDialog(this, "There are spaces in MSFragger path.\n"
-            + "It is <b>HIGHLY</b> recommended to use a path without spaces.\n"
             + "Depending on your OS/Java/Input files some tools that FragPipe\n"
             + "runs might crash.", "Spaces in path");
       }
