@@ -233,8 +233,8 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     UiSpinnerDouble uiSpinnerMinFreq = UiUtils.spinnerDouble(0.5, 0, 1, 0.1)
         .setCols(5).setFormat("#.##").create();
-    UiSpinnerInt uiSpinnerTopIons = UiUtils.spinnerInt(3, 0, 10, 1).setCols(5).create();
-    UiSpinnerInt uiSpinnerMinIons = UiUtils.spinnerInt(1, 0, 10, 1).setCols(5).create();
+    UiSpinnerInt uiSpinnerTopIons = UiUtils.spinnerInt(3, 0, 10000, 1).setCols(5).create();
+    UiSpinnerInt uiSpinnerMinIons = UiUtils.spinnerInt(1, 0, 10000, 1).setCols(5).create();
     UiSpinnerInt uiSpinnerMinExps = UiUtils.spinnerInt(1, 1, 10000, 1).setCols(5).create();
 
     UiSpinnerDouble uiSpinnerMbrIonFdr = UiUtils.spinnerDouble(0.01, 0.001, 1, 0.01)
