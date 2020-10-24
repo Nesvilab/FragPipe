@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 public class CmdMsfragger extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdMsfragger.class);
-  public static final String NAME = "MsFragger";
+  public static final String NAME = "MSFragger";
 
   private static volatile FileFilter ff = null;
   private static volatile Predicate<File> supportedFilePredicate = null;

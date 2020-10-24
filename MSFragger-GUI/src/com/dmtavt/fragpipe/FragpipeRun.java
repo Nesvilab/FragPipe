@@ -657,7 +657,7 @@ public class FragpipeRun {
           "Looks like fragger was not configured.\nFragger is currently required.", "No MSFragger");
       return false;
     }
-    final UsageTrigger binMsfragger = new UsageTrigger(configMsfragger.path, "MsFragger");
+    final UsageTrigger binMsfragger = new UsageTrigger(configMsfragger.path, "MSFragger");
 
     final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
     final String decoyTag = tabDatabase.getDecoyTag();
