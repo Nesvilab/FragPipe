@@ -109,7 +109,7 @@ distributions {
 //}
 
 dependencies {
-    implementation 'one.util:streamex:0.7.2'
+    implementation 'one.util:streamex:0.7.3'
     implementation 'org.jooq:jool-java-8:0.9.14'
 
     implementation 'org.jgrapht:jgrapht-core:1.4.0'
@@ -121,8 +121,8 @@ dependencies {
     implementation(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.12')
     implementation 'commons-logging:commons-logging-api:1.1'
 
-    implementation 'org.apache.httpcomponents:httpmime:4.5.12'
-    implementation 'org.apache.commons:commons-lang3:3.10'
+    implementation 'org.apache.httpcomponents:httpmime:4.5.13'
+    implementation 'org.apache.commons:commons-lang3:3.11'
     //compile group: 'commons-io', name: 'commons-io', version: '2.6'
     implementation 'com.miglayout:miglayout-swing:5.2'
 
@@ -133,19 +133,19 @@ dependencies {
 
     implementation 'org.greenrobot:eventbus:3.2.0'
     implementation 'org.jsoup:jsoup:1.13.1'
-    implementation 'com.squareup.okio:okio:2.6.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.6.0'
+    implementation 'com.squareup.okio:okio:2.9.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
 
     // logging
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
 
     // downloaded / precompiled jars
     implementation fileTree(dir: 'libs', include: '*.jar')
-    implementation 'org.yaml:snakeyaml:1.26' // TMT-Integrator config parsing
+    implementation 'org.yaml:snakeyaml:1.27' // TMT-Integrator config parsing
 
     // Use JUnit test framework
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.1'
 }
 
 configurations {
