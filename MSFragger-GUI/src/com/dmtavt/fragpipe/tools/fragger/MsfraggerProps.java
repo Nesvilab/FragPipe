@@ -41,13 +41,9 @@ public class MsfraggerProps {
     // This URL wil be checked to compare versions of MSFragger.
     // This way the user will get notifications about new versions of
     // MSFragger when we only update the online repository.
-    /** Github master branch location of "umich/msfragger/params/fragger/msfragger.properties". */
     public static final List<String> PROPERTIES_URLS = Arrays.asList(
-        "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties"
-        //"https://raw.githubusercontent.com/chhh/FragPipe/updates/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties"
-        //"https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties"
+        "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/com/dmtavt/fragpipe/tools/fragger/msfragger.properties"
     );
-    //public static final String PROPERTIES_URL = "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/umich/msfragger/params/fragger/msfragger.properties";
     public static final String PROPERTIES_FILE_NAME = "msfragger.properties";
         
     public static final String PROP_LATEST_VERSION = "msfragger.version.latest-known";
