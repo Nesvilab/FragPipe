@@ -30,7 +30,7 @@ import com.github.chhh.utils.UsageTrigger;
 public class CmdUmpireSe extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdUmpireSe.class);
   public static final String NAME = "UmpireSe";
-  private static final EXTENSION OUTPUT_EXT = EXTENSION.mzXML;
+  private static final EXTENSION OUTPUT_EXT = EXTENSION.mzML;
   public enum EXTENSION {mzXML, mzML}
 
   public CmdUmpireSe(boolean isRun, Path workDir) {
