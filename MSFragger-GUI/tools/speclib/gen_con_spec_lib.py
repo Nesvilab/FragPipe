@@ -218,7 +218,9 @@ def get_window_setup(p: pathlib.Path):
 # print(txt)
 
 
-iproph_pep_xmls = sorted(e.resolve() for e in iproph_RT_aligned.glob("*.pep.xml"))
+iproph_pep_xmls0 = sorted(e.resolve() for e in iproph_RT_aligned.glob("*.pep.xml"))
+iproph_pep_mod_xmls = sorted(e.resolve() for e in iproph_RT_aligned.glob("*.mod.pep.xml"))
+iproph_pep_xmls = iproph_pep_mod_xmls if iproph_pep_mod_xmls else iproph_pep_xmls0
 assert len(iproph_pep_xmls) > 0, iproph_RT_aligned
 
 def pred_DIA_Umpire_output():
