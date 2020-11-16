@@ -1013,8 +1013,8 @@ public class TabMsfragger extends JPanelBase {
 
     String tooltipPrecursorCHarge =
         "Assume range of potential precursor charge states.\n" +
-            "Only relevant when override_charge is set to 1.\n" +
-            "Specified as space separated range of integers.";
+            "Only relevant when override_charge is set to 1 or \n" +
+            "there is no charge information in scans.";
     FormEntry fePrecursorChargeLo = mu.feb(PROP_misc_fragger_precursor_charge_lo, new UiSpinnerInt(1, 0, 30, 1, 2))
         .tooltip(tooltipPrecursorCHarge).create();
     FormEntry fePrecursorChargeHi = mu.feb(PROP_misc_fragger_precursor_charge_hi, new UiSpinnerInt(4, 0, 30, 1, 2))
