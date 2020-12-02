@@ -8,6 +8,7 @@ import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.PropsFile;
 import com.dmtavt.fragpipe.api.UiTab;
 import com.dmtavt.fragpipe.api.UpdatePackage;
+import com.dmtavt.fragpipe.cmd.ToolingUtils;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
@@ -19,10 +20,12 @@ import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
+import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigTips;
 import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
 import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
 import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.tabs.TabConfig;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
@@ -35,6 +38,8 @@ import com.dmtavt.fragpipe.tabs.TabSpecLib;
 import com.dmtavt.fragpipe.tabs.TabUmpire;
 import com.dmtavt.fragpipe.tabs.TabValidation;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
+import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
+import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.github.chhh.utils.LogUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
@@ -46,6 +51,7 @@ import com.github.chhh.utils.VersionComparator;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.FormEntry.Builder;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
+import com.github.chhh.utils.swing.LogbackJTextPaneAppender;
 import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Color;
@@ -93,11 +99,6 @@ import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.cmd.ToolingUtils;
-import com.github.chhh.utils.swing.LogbackJTextPaneAppender;
-import com.dmtavt.fragpipe.params.ThisAppProps;
-import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
-import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 
 public class Fragpipe extends JFrame {
 
@@ -678,7 +679,12 @@ public class Fragpipe extends JFrame {
   public static <T> T getStickyStrict(Class<T> clazz) {
     T sticky = Bus.getStickyEvent(clazz);
     if (sticky == null) {
-      throw new NoSuchElementException("Sticky note not on the bus: " + clazz.getCanonicalName());
+      if (clazz.getName().contentEquals("com.dmtavt.fragpipe.messages.NoteConfigPhilosopher")) {
+        Bus.postSticky(new NoteConfigPhilosopher(null, "N/A"));
+        sticky = Bus.getStickyEvent(clazz);
+      } else {
+        throw new NoSuchElementException("Sticky note not on the bus: " + clazz.getCanonicalName());
+      }
     }
     return sticky;
   }

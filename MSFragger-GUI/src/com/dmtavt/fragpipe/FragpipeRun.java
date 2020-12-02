@@ -590,7 +590,12 @@ public class FragpipeRun {
     final ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
 
     final NoteConfigPhilosopher configPhi = Fragpipe.getStickyStrict(NoteConfigPhilosopher.class);
-    final UsageTrigger usePhi = new UsageTrigger(configPhi.path, "Philosopher");
+    final UsageTrigger usePhi;
+    if (configPhi.isValid()) {
+      usePhi = new UsageTrigger(configPhi.path, "Philosopher");
+    } else {
+      usePhi = null;
+    }
 
     // all the configurations are aggregated before being executed
     // because some commands might require others to run
@@ -1224,32 +1229,34 @@ public class FragpipeRun {
       }
     }
 
-    for (Path pathPhiIsRunIn : usePhi.getWorkDirs()) {
+    if (usePhi != null && usePhi.isUsed()) {
+      for (Path pathPhiIsRunIn : usePhi.getWorkDirs()) {
 
-      CmdPhilosopherWorkspaceCleanInit cmdPhiCleanInit = new CmdPhilosopherWorkspaceCleanInit(
-          usePhi.isUsed(), "Phi wrk clean, init", pathPhiIsRunIn);
-      cmdPhiCleanInit.configure(usePhi);
-      addToGraph(graphOrder, cmdPhiCleanInit, DIRECTION.IN, cmdStart); // needs to run at start
-      if (firstPhiDependentCmd != null) {
-        addToGraph(graphOrder, firstPhiDependentCmd, DIRECTION.IN, cmdPhiCleanInit); // and before first command that uses phi
-      }
+        CmdPhilosopherWorkspaceCleanInit cmdPhiCleanInit = new CmdPhilosopherWorkspaceCleanInit(
+            usePhi.isUsed(), "Phi wrk clean, init", pathPhiIsRunIn);
+        cmdPhiCleanInit.configure(usePhi);
+        addToGraph(graphOrder, cmdPhiCleanInit, DIRECTION.IN, cmdStart); // needs to run at start
+        if (firstPhiDependentCmd != null) {
+          addToGraph(graphOrder, firstPhiDependentCmd, DIRECTION.IN, cmdPhiCleanInit); // and before first command that uses phi
+        }
 //      for (CmdBase cmd : commands) {
 //        if (cmd.usesPhi()) {
 //          graphOrder.addEdge(cmdPhiCleanInit, cmd);
 //        }
 //      }
 
-      CmdPhilosopherWorkspaceClean cmdPhiClean = new CmdPhilosopherWorkspaceClean(
-          usePhi.isUsed(), "Phi wrk clean", pathPhiIsRunIn);
-      cmdPhiClean.configure(usePhi);
+        CmdPhilosopherWorkspaceClean cmdPhiClean = new CmdPhilosopherWorkspaceClean(
+            usePhi.isUsed(), "Phi wrk clean", pathPhiIsRunIn);
+        cmdPhiClean.configure(usePhi);
 
-      if (lastPhiDependentCmd != null) {
-        // clean runs after last command that uses Phi
-        log.debug("Determined that the last command in graph to use Phi is: [{}]",
-            lastPhiDependentCmd.getCmdName());
-        addToGraph(graphOrder, cmdPhiClean, DIRECTION.IN, lastPhiDependentCmd);
-      } else {
-        log.warn("No command was found to use Philosopher.");
+        if (lastPhiDependentCmd != null) {
+          // clean runs after last command that uses Phi
+          log.debug("Determined that the last command in graph to use Phi is: [{}]",
+              lastPhiDependentCmd.getCmdName());
+          addToGraph(graphOrder, cmdPhiClean, DIRECTION.IN, lastPhiDependentCmd);
+        } else {
+          log.warn("No command was found to use Philosopher.");
+        }
       }
     }
 
@@ -1360,12 +1367,6 @@ public class FragpipeRun {
             "Not all directories could be created:\n" + e.getMessage());
         return false;
       }
-    }
-
-    if (!configPhi.isValid()) {
-      SwingUtils.showErrorDialog(parent, "Philosopher configuraiton invalid, check Config tab",
-          "Config Error");
-      return false;
     }
 
     return true;
