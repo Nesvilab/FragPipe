@@ -2,7 +2,14 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.exceptions.FileWritingException;
+import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
+import com.dmtavt.fragpipe.tools.umpire.UmpireParams;
+import com.dmtavt.fragpipe.tools.umpire.UmpireSeGarbageFiles;
+import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -18,14 +25,6 @@ import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.exceptions.FileWritingException;
-import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
-import com.dmtavt.fragpipe.tools.umpire.UmpireParams;
-import com.dmtavt.fragpipe.tools.umpire.UmpireSeGarbageFiles;
-import com.github.chhh.utils.PropertiesUtils;
-import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.UsageTrigger;
 
 public class CmdUmpireSe extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdUmpireSe.class);
@@ -60,7 +59,7 @@ public class CmdUmpireSe extends CmdBase {
   }
 
   public boolean configure(Component errMsgParent, boolean isDryRun,
-      Path jarFragpipe, UsageTrigger philo, UmpirePanel umpirePanel,
+      Path jarFragpipe, UmpirePanel umpirePanel,
       List<InputLcmsFile> lcmsFiles) {
 
     initPreConfig();

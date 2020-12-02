@@ -633,7 +633,7 @@ public class FragpipeRun {
     final CmdUmpireSe cmdUmpire = new CmdUmpireSe(umpirePanel.isRunUmpire(), wd);
     addConfig.accept(cmdUmpire, () -> {
       if (cmdUmpire.isRun()) {
-        if (!cmdUmpire.configure(parent, isDryRun, jarPath, usePhi, umpirePanel, sharedLcmsFiles)) {
+        if (!cmdUmpire.configure(parent, isDryRun, jarPath, umpirePanel, sharedLcmsFiles)) {
           return false;
         }
         List<InputLcmsFile> outputs = cmdUmpire.outputs(sharedLcmsFiles);
