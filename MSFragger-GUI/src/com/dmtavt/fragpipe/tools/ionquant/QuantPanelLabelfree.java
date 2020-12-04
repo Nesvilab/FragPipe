@@ -202,6 +202,7 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     UiCombo uiComboProtQuant = UiUtils.createUiCombo(Arrays.asList("Top-N", "MaxLFQ"));
     UiCombo uiComboMinIsotopes = UiUtils.createUiCombo(Arrays.asList("1", "2", "3"));
+    UiSpinnerInt uiSpinnerMinScans = UiUtils.spinnerInt(3, 0, 10000, 1).setCols(5).create();
 
     UiSpinnerDouble uiSpinnerMzTol = UiUtils.spinnerDouble(10.0, 1.0, 1000.0, 1.0)
         .setFormat("0.#").setCols(5).create();
@@ -284,6 +285,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feNormalize = mu.feb("ionquant.normalization", UiUtils.createUiCheck("Normalize", true)).tooltip("Normalizing ion intensities among experiments.").create();
     FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes")
         .tooltip("Min number of isotopes for tracing.").create();
+    FormEntry feMinScans = mu.feb(uiSpinnerMinScans).name("ionquant.minscans").label("Min scans").tooltip("Minimum scans required in feature detection.").create();
     FormEntry feWriteIndex = mu.feb("ionquant.writeindex", UiUtils.createUiCheck("Keep index on disk", false)).tooltip("Keep built index on disk for further usage.").create();
 
     FormEntry feExcludemods = mu.feb(uiTextExcludemods).name("ionquant.excludemods").label("Excluded Mods").tooltip("String specifying excluded modifications in peptide and protein quantification. E.g. M15.9949;STY79.96633").create();
@@ -367,6 +369,8 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.add(pa, feMinExps.label(), mu.ccR());
     mu.add(pa, feMinExps.comp).spanX().wrap();
 
+    mu.add(pa, feMinScans.label(), mu.ccR());
+    mu.add(pa, feMinScans.comp);
     mu.add(pa, feMinIsotopes.label(), mu.ccR());
     mu.add(pa, feMinIsotopes.comp);
     mu.add(pa, feNormalize.comp);

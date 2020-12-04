@@ -20,6 +20,7 @@ ionquant.minexps=1
 ionquant.minfreq=0.5
 ionquant.minions=1
 ionquant.minisotopes=1
+ionquant.minscans=3
 ionquant.mztol=10
 ionquant.normalization=1
 ionquant.peptidefdr=1
