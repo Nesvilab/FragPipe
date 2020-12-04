@@ -69,5 +69,3 @@ You don't need to have Gradle installed. Gradle wrapper included in this reposit
     ```bash
     ./gradlew prepareReleaseWithExe
     ```
-
-[![Analytics](https://ga-beacon-nocache.appspot.com/UA-5572974-15/github/chhh/msfragger-gui/landing-page?flat&useReferer)](https://github.com/igrigorik/ga-beacon)
