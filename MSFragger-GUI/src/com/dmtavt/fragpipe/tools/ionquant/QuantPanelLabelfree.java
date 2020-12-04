@@ -266,7 +266,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMinFreq = mu.feb(uiSpinnerMinFreq).name("ionquant.minfreq").label("Min freq").tooltip("Only activate when Protein quant is Top-N.").create();
     FormEntry feMinExps = mu.feb(uiSpinnerMinExps).name("ionquant.minexps").label("Min exps").tooltip("Only activate when Protein quant is Top-N.").create();
 
-    FormEntry feMbrMinCorr = mu.feb(uiSpinnerMbrMinCorr).name("ionquant.mbrmincorr").label("MBR min correlation").create();
+    FormEntry feMbrMinCorr = mu.feb(uiSpinnerMbrMinCorr).name("ionquant.mbrmincorr").label("MBR min correlation").tooltip("Min correlation between two runs.").create();
     FormEntry feMbrRtTol = mu.feb(uiSpinnerMbrRtTol).name("ionquant.mbrrttol").label("MBR RT Window (minutes)").create();
     FormEntry feMbrImTol = mu.feb(uiSpinnerMbrImTol).name("ionquant.mbrimtol").label("MBR IM Window (1/k0)").create();
 
@@ -274,17 +274,13 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMbrPepFdr = mu.feb(uiSpinnerMbrPepFdr).name("ionquant.peptidefdr").label("MBR peptide FDR").create();
     FormEntry feMbrProtFdr = mu.feb(uiSpinnerMbrProtFdr).name("ionquant.proteinfdr").label("MBR protein FDR").create();
 
-    FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("ionquant.mbrtoprun").label("MBR top runs").create();
-    FormEntry feLight = mu.feb(uiTextLight).name("ionquant.light").label("Light")
-        .tooltip("String description of mass deltas. E.g. for SILAC: K0;R0").create();
-    FormEntry feMedium = mu.feb(uiTextMedium).name("ionquant.medium").label("Medium")
-        .tooltip("String description of mass deltas. E.g. for SILAC: K4.02511;R6.02013").create();
-    FormEntry feHeavy = mu.feb(uiTextHeavy).name("ionquant.heavy").label("Heavy")
-        .tooltip("String description of mass deltas. E.g. for SILAC: K8.01420;R10.00827").create();
+    FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("ionquant.mbrtoprun").label("MBR top runs").tooltip("Maximum number of donor runs used for an acceptor run.").create();
+    FormEntry feLight = mu.feb(uiTextLight).name("ionquant.light").label("Light").tooltip("String description of mass deltas. E.g. for SILAC: K0;R0").create();
+    FormEntry feMedium = mu.feb(uiTextMedium).name("ionquant.medium").label("Medium").tooltip("String description of mass deltas. E.g. for SILAC: K4.02511;R6.02013").create();
+    FormEntry feHeavy = mu.feb(uiTextHeavy).name("ionquant.heavy").label("Heavy").tooltip("String description of mass deltas. E.g. for SILAC: K8.01420;R10.00827").create();
 
     FormEntry feNormalize = mu.feb("ionquant.normalization", UiUtils.createUiCheck("Normalize", true)).tooltip("Normalizing ion intensities among experiments.").create();
-    FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes")
-        .tooltip("Min number of isotopes for tracing.").create();
+    FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes").tooltip("Min number of isotopes for feature detection.").create();
     FormEntry feMinScans = mu.feb(uiSpinnerMinScans).name("ionquant.minscans").label("Min scans").tooltip("Minimum scans required in feature detection.").create();
     FormEntry feWriteIndex = mu.feb("ionquant.writeindex", UiUtils.createUiCheck("Keep index on disk", false)).tooltip("Keep built index on disk for further usage.").create();
 
