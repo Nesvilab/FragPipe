@@ -294,9 +294,14 @@ def new_spec(expect_func, spectrum_query_parts):
 re_pepxml_header = re.compile(b'''(.+?)^</search_summary>''', re.DOTALL|re.MULTILINE)
 def get_pepxml_header(p: pathlib.Path):
 	with p.open('rb') as f:
-		mmap_length = min(10_000, os.path.getsize(p))
+		mmap_length = min(20_000, os.path.getsize(p))
 		mm= mmap.mmap(f.fileno(), mmap_length, access=mmap.ACCESS_READ)
-		ret = re_pepxml_header.match(mm).group()
+		try:
+			ret = re_pepxml_header.match(mm).group()
+		except AttributeError:
+			print(p)
+			print(mm.read())
+			raise
 		ret0 = re.compile(b'date="(.+?)"').sub(b'date="%b"', ret)
 		return re.compile(b'summary_xml="(.+?)"').sub(b'summary_xml="%b"', ret0)
 
