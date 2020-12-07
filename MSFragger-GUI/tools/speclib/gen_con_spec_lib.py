@@ -833,11 +833,11 @@ def easypqp_lib_export(lib_type: str):
 
 	easypqp_lib = pd.read_csv('easypqp_lib_openswath.tsv', sep='\t')
 
-	frag_df = easypqp_lib['Annotation'].str.extract('\\A(.+?)(\\d){1,2}(?:-(.*?))?\\^(.+)\\Z')
+	frag_df = easypqp_lib['Annotation'].str.extract('\\A(.+?)(\\d{1,2})(?:-(.*?))?\\^(.+)\\Z')
 	frag_df.columns = 'FragmentType', 'FragmentSeriesNumber', 'loss_type', 'FragmentCharge'
 	frag_df = frag_df.reindex(columns=['FragmentType', 'FragmentCharge', 'FragmentSeriesNumber', 'FragmentLossType'], copy=False)
 	if 0:
-		frag_df = easypqp_lib['Annotation'].str.extract('\\A(.+?)(\\d){1,2}\\^(.+)\\Z')
+		frag_df = easypqp_lib['Annotation'].str.extract('\\A(.+?)(\\d{1,2})\\^(.+)\\Z')
 		frag_df.columns = 'FragmentType', 'FragmentSeriesNumber', 'FragmentCharge'
 		frag_df.reindex(columns=['FragmentType', 'FragmentCharge', 'FragmentSeriesNumber'])
 		print((easypqp_lib['ModifiedPeptideSequence'].str.find('.(UniMod:') >= 0).mean())
