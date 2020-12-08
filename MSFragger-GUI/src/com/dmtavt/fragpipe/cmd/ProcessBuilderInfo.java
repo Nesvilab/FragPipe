@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import java.awt.Color;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -89,6 +90,7 @@ public class ProcessBuilderInfo {
               Bus.post(new MessageAppendToConsole(
                   "Process returned non-zero exit code, stopping", Fragpipe.COLOR_RED));
               Bus.post(new MessageKillAll(REASON.NON_ZERO_RETURN_FROM_PROCESS));
+              Bus.post(MessageSaveLog.saveInDir(wdPath));
             }
 
           } catch (IllegalThreadStateException ex) {
