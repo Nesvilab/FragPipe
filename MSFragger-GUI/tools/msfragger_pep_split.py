@@ -435,7 +435,12 @@ def calibrate(fasta_path_sample, calibrate_mass: int):
 		if iscali:
 			shutil.move(mzBIN0, dest)
 		else:
-			shutil.copy(orig, dest)
+			def copy_file_or_dir(src, dst):
+				try:
+					shutil.copytree(src, dst)
+				except NotADirectoryError:
+					shutil.copy(src, dst)
+			copy_file_or_dir(orig, dest)
 	return [e.resolve(strict=True) for e in dests], params_txt_new
 
 
