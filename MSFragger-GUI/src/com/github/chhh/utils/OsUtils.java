@@ -117,22 +117,25 @@ public class OsUtils {
      * @return recommended size in Gb for JVM's -Xmx option
      */
     public static int getDefaultXmx() {
-        final com.sun.management.OperatingSystemMXBean operatingSystemMXBean = ((com.sun.management.OperatingSystemMXBean) java.lang.management.ManagementFactory
-                .getOperatingSystemMXBean());
+        double freeMem;
+        final com.sun.management.OperatingSystemMXBean operatingSystemMXBean = ((com.sun.management.OperatingSystemMXBean) java.lang.management.ManagementFactory.getOperatingSystemMXBean());
         if (isWindows()) {
             // for Windows, this will get available memory
-            return (int) (operatingSystemMXBean.getFreePhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0);
+            freeMem = operatingSystemMXBean.getFreePhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0;
         } else {
             // for linux, getFreePhysicalMemorySize, returns system free memory.
-            final int availMem;
             try (final java.io.InputStream inputStream = new ProcessBuilder("free", "-wg").start().getInputStream()) {
                 final String s = new java.util.Scanner(inputStream).useDelimiter("\\A").next();
-                availMem = Integer.parseInt(s.split("\n")[1].split(" +")[7]);
+                freeMem = Integer.parseInt(s.split("\n")[1].split(" +")[7]);
             } catch (IOException | NumberFormatException ex) {
                 // return system free memory if we can't get available memory
-                return (int) (operatingSystemMXBean.getFreePhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0);
+                freeMem = operatingSystemMXBean.getFreePhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0;
             }
-            return availMem - 3; // Leave a few GB to make sure that the value for -Xmx is always smaller than the available memory.
+        }
+        if (freeMem > 120) {
+           return (int) (freeMem * 0.9);
+        } else {
+            return (int) freeMem - 2;
         }
     }
 
