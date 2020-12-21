@@ -80,17 +80,6 @@ public class CmdUmpireSe extends CmdBase {
       return false;
     }
 
-    // check if there are only mzXML input files
-    boolean hasNonMzxml = lcmsFiles.stream().map(f -> f.getPath().getFileName().toString().toLowerCase())
-        .anyMatch(p -> !p.endsWith(".mzxml"));
-    if (hasNonMzxml) {
-      JOptionPane.showMessageDialog(errMsgParent,
-          "Not all input files are mzXML.\n"
-              + "DIA-Umpire only supports mzXML inputs.",
-          "DIA Umpire SE: Error", JOptionPane.ERROR_MESSAGE);
-      return false;
-    }
-
     List<Path> paths = FragpipeLocations
         .checkToolsMissing(Stream.of(UmpireParams.JAR_UMPIRESE_NAME));
     if (paths == null || paths.isEmpty()) {

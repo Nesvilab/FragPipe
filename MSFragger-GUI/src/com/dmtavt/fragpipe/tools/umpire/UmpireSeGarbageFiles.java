@@ -22,9 +22,6 @@ public class UmpireSeGarbageFiles {
   private UmpireSeGarbageFiles() {}
 
   public static List<Path> getGarbageFiles(Path lcmsFilePath, final boolean withLog) {
-    if (!lcmsFilePath.getFileName().toString().toLowerCase().endsWith(".mzxml"))
-      throw new IllegalArgumentException("Can only accept file paths ending with .mzxml");
-
     List<Path> toMove = new ArrayList<>();
     String fnLessExt = StringUtils.upToLastDot(lcmsFilePath.getFileName().toString());
     Path filePath = lcmsFilePath.getParent();
