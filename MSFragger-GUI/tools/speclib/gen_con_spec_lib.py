@@ -471,7 +471,7 @@ if use_easypqp:
 
 	runname_rank_spectra_pepxml = pairing_pepxml_spectra_new(spectra_files, iproph_pep_xmls)
 	convert_outs = [f'{basename}{rank}' for basename, rank, _, _ in runname_rank_spectra_pepxml]
-	easypqp_convert_cmds = [[os.fspath(easypqp), 'convert', '--pepxml', os.fspath(pep_xml), '--spectra', os.fspath(spectra), '--exclude-range', '-1.5,3.5',
+	easypqp_convert_cmds = [[os.fspath(easypqp), 'convert', '--enable_unannotated', '--pepxml', os.fspath(pep_xml), '--spectra', os.fspath(spectra), '--exclude-range', '-1.5,3.5',
 							 '--psms', f'{outfiles}.psmpkl', '--peaks', f'{outfiles}.peakpkl']
 							for (_, _, spectra, pep_xml), outfiles in zip(runname_rank_spectra_pepxml, convert_outs)]
 	easypqp_library_infiles = [output_directory / (e + '.psmpkl') for e in convert_outs] + \
