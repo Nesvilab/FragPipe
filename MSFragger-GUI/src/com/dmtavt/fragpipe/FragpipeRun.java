@@ -633,12 +633,23 @@ public class FragpipeRun {
       return true;
     });
 
+    // run MsFragger
+    final NoteConfigMsfragger configMsfragger;
+    try {
+      configMsfragger = Fragpipe.getSticky(NoteConfigMsfragger.class);
+    } catch (NoStickyException e) {
+      SwingUtils.showErrorDialog(parent,
+              "Looks like fragger was not configured.\nFragger is currently required.", "No MSFragger");
+      return false;
+    }
+    final UsageTrigger binMsfragger = new UsageTrigger(configMsfragger.path, "MSFragger");
+
     // run DIA-Umpire SE
     final UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
     final CmdUmpireSe cmdUmpire = new CmdUmpireSe(umpirePanel.isRunUmpire(), wd);
     addConfig.accept(cmdUmpire, () -> {
       if (cmdUmpire.isRun()) {
-        if (!cmdUmpire.configure(parent, isDryRun, jarPath, umpirePanel, sharedLcmsFiles)) {
+        if (!cmdUmpire.configure(parent, isDryRun, jarPath, Paths.get(binMsfragger.getBin()), umpirePanel, sharedLcmsFiles)) {
           return false;
         }
         List<InputLcmsFile> outputs = cmdUmpire.outputs(sharedLcmsFiles);
@@ -652,17 +663,6 @@ public class FragpipeRun {
     final int ramGb = tabWorkflow.getRamGb();
     final int ramGbNonzero = ramGb > 0 ? ramGb : OsUtils.getDefaultXmx();
     final int threads = tabWorkflow.getThreads();
-
-    // run MsFragger
-    final NoteConfigMsfragger configMsfragger;
-    try {
-      configMsfragger = Fragpipe.getSticky(NoteConfigMsfragger.class);
-    } catch (NoStickyException e) {
-      SwingUtils.showErrorDialog(parent,
-          "Looks like fragger was not configured.\nFragger is currently required.", "No MSFragger");
-      return false;
-    }
-    final UsageTrigger binMsfragger = new UsageTrigger(configMsfragger.path, "MSFragger");
 
     final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
     final String decoyTag = tabDatabase.getDecoyTag();

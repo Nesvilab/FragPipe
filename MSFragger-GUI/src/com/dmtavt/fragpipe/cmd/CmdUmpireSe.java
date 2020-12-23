@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,7 +60,7 @@ public class CmdUmpireSe extends CmdBase {
   }
 
   public boolean configure(Component errMsgParent, boolean isDryRun,
-      Path jarFragpipe, UmpirePanel umpirePanel,
+      Path jarFragpipe, final Path binFragger, UmpirePanel umpirePanel,
       List<InputLcmsFile> lcmsFiles) {
 
     initPreConfig();
@@ -109,6 +110,9 @@ public class CmdUmpireSe extends CmdBase {
     // run umpire for each file
     int ramGb = (Integer)umpirePanel.spinnerRam.getValue();
     int ram = Math.max(ramGb, 0);
+    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
+    final String javaDParmsStringLibsThermoDir = extLibsThermo == null ? null :
+            createJavaDParamString("libs.thermo.dir", extLibsThermo.toString());
 
     for (InputLcmsFile f: lcmsFiles) {
       Path inputFn = f.getPath().getFileName();
@@ -124,6 +128,8 @@ public class CmdUmpireSe extends CmdBase {
         cmd.add("-jar");
         if (ram > 0 && ram < 256)
           cmd.add("-Xmx" + ram + "G");
+        if (javaDParmsStringLibsThermoDir != null)
+          cmd.add(javaDParmsStringLibsThermoDir);
         cmd.add(jarUmpireSe.toString()); // unpacked UmpireSE jar
         cmd.add(f.getPath().toString());
         cmd.add(umpireParamsFilePath.toString());
