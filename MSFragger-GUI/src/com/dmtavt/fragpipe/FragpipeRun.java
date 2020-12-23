@@ -190,7 +190,7 @@ public class FragpipeRun {
 
       final List<ProcessBuildersDescriptor> pbDescsBuilderDescs = Seq
           .seq(new TopologicalOrderIterator<>(dag))
-          .map(o -> (CmdBase) o).filter(CmdBase::isRun)
+          .filter(CmdBase::isRun)
           .map(CmdBase::getBuilderDescriptor).toList();
 
       // =========================================================================================================
@@ -229,7 +229,7 @@ public class FragpipeRun {
 //          .map(cmd -> String.format("Cmd: [%s], WorkDir: [%s]", cmd.getCmdName(), cmd.getWd()))
 //          .toString("\n    ");
       toConsole("Execution order:\n");
-      Seq.seq(new TopologicalOrderIterator<>(dag)).map(o -> (CmdBase) o)
+      Seq.seq(new TopologicalOrderIterator<>(dag))
           .filter(CmdBase::isRun)
           .forEach(cmd -> {
             toConsole(Fragpipe.COLOR_TOOL, String.format("    Cmd: [%s], ", cmd.getCmdName()),
