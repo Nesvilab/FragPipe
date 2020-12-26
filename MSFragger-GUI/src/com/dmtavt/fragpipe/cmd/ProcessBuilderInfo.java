@@ -60,8 +60,11 @@ public class ProcessBuilderInfo {
 
           Thread.sleep(200L);
           final byte[] pollErr = pr.pollStdErr();
-          final String errStr = pr.appendErr(pollErr);
+          String errStr = pr.appendErr(pollErr);
           if (errStr != null) {
+            if (pbi.name.toLowerCase().contentEquals("peptideprophet")) {
+              errStr = errStr.replaceAll("WARNING: CANNOT correct data file[^\r\n]+[\r\n]+", "").replaceAll("WARNING: cannot open data file[^\r\n]+[\r\n]+", "");
+            }
             Bus.post(new MessageExternalProcessOutput(true, errStr,
                 pbi.name));
           }
