@@ -276,8 +276,8 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("ionquant.mbrtoprun").label("MBR top runs").tooltip("Maximum number of donor runs used for an acceptor run.").create();
     FormEntry feLight = mu.feb(uiTextLight).name("ionquant.light").label("Light").tooltip("String description of mass deltas. E.g. for SILAC: K0;R0").create();
-    FormEntry feMedium = mu.feb(uiTextMedium).name("ionquant.medium").label("Medium").tooltip("String description of mass deltas. E.g. for SILAC: K4.02511;R6.02013").create();
-    FormEntry feHeavy = mu.feb(uiTextHeavy).name("ionquant.heavy").label("Heavy").tooltip("String description of mass deltas. E.g. for SILAC: K8.01420;R10.00827").create();
+    FormEntry feMedium = mu.feb(uiTextMedium).name("ionquant.medium").label("Medium").tooltip("String description of mass deltas. E.g. for SILAC: K4.025107;R6.020129").create();
+    FormEntry feHeavy = mu.feb(uiTextHeavy).name("ionquant.heavy").label("Heavy").tooltip("String description of mass deltas. E.g. for SILAC: K8.014199;R10.008269").create();
 
     FormEntry feNormalize = mu.feb("ionquant.normalization", UiUtils.createUiCheck("Normalize", true)).tooltip("Normalizing ion intensities among experiments.").create();
     FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes").tooltip("Min number of isotopes for feature detection.").create();
