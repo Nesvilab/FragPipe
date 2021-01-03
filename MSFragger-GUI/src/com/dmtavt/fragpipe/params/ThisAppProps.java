@@ -69,7 +69,6 @@ public class ThisAppProps extends Properties {
   public static final String LOG_FILE_NAME = "log-fragpipe-run-at";
   public static final String LOG_FILE_EXT = ".log";
 
-  public static final String PROP_BIN_PATH_MSCONVERT = "path.textfield.msconvert";
   public static final String PROP_BIN_PATH_MSFRAGGER = "path.textfield.msfragger";
   public static final String PROP_BIN_PATH_PHILOSOPHER = "path.textfield.peptide-prophet";
   public static final String PROP_BIN_PATH_PYTHON = "path.bin.python";

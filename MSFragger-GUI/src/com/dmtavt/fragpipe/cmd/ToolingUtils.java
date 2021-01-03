@@ -3,22 +3,20 @@ package com.dmtavt.fragpipe.cmd;
 import static com.github.chhh.utils.PathUtils.testBinaryPath;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.github.chhh.utils.FileCopy;
+import com.github.chhh.utils.FileDelete;
+import com.github.chhh.utils.FileMove;
 import com.github.chhh.utils.JarUtils;
+import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,13 +29,6 @@ import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.params.ThisAppProps;
-import com.github.chhh.utils.FileCopy;
-import com.github.chhh.utils.FileDelete;
-import com.github.chhh.utils.FileMove;
-import com.github.chhh.utils.Holder;
-import com.github.chhh.utils.OsUtils;
 
 public class ToolingUtils {
   private static final Logger log = LoggerFactory.getLogger(ToolingUtils.class);
@@ -221,87 +212,6 @@ public class ToolingUtils {
     Pattern isPhilosopherRegex = Pattern.compile("philosopher", Pattern.CASE_INSENSITIVE);
     Matcher matcher = isPhilosopherRegex.matcher(binPathToCheck);
     return matcher.find();
-  }
-
-  public static String getBinMsconvert() {
-    String value = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_MSCONVERT);
-    if (value != null) {
-      return value;
-    }
-
-    String binaryName;
-    ResourceBundle bundle = ThisAppProps.getLocalBundle();
-    binaryName = OsUtils.isWindows() ? bundle.getString("default.msconvert.win")
-        : bundle.getString("default.msconvert.nix");
-    String testedBinaryPath = testBinaryPath(binaryName);
-    if (!StringUtils.isNullOrWhitespace(testedBinaryPath)) {
-      return testedBinaryPath;
-    }
-
-    if (OsUtils.isWindows()) {
-      try {
-        // on Windows try to find MSConvert in a few predefined locations
-        final List<String> searchPaths = Arrays.asList("program files (x64)", "program files", "programs");
-        final List<String> folderNames = Arrays.asList("proteowizard", "pwiz");
-        final String toSearch = "msconvert.exe";
-
-        final Holder<Path> foundPathHolder = new Holder<>();
-
-        FileVisitor<Path> fileVisitor = new FileVisitor<Path>() {
-          @Override
-          public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-            return FileVisitResult.CONTINUE;
-          }
-
-          @Override
-          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-            if (file.getFileName().toString().toLowerCase().equals(toSearch)) {
-              foundPathHolder.obj = file;
-              return FileVisitResult.TERMINATE;
-            }
-            return FileVisitResult.CONTINUE;
-          }
-
-          @Override
-          public FileVisitResult visitFileFailed(Path file, IOException exc) {
-            return FileVisitResult.CONTINUE;
-          }
-
-          @Override
-          public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-            return FileVisitResult.CONTINUE;
-          }
-        };
-
-        Iterable<Path> rootDirs = FileSystems.getDefault().getRootDirectories();
-        for (Path rootDir : rootDirs) {
-          try {
-            DirectoryStream<Path> dirStream = Files.newDirectoryStream(rootDir);
-            for (Path file : dirStream) {
-              for (String path : searchPaths) {
-                if (file.getFileName().toString().toLowerCase().startsWith(path)) {
-                  // search for proteowizard
-                  DirectoryStream<Path> dirStream2 = Files.newDirectoryStream(file);
-                  for (Path file2 : dirStream2) {
-                    String toLowerCase = file2.getFileName().toString().toLowerCase();
-                    for (String folder : folderNames) {
-                      if (toLowerCase.startsWith(folder)) {
-                        // this might be a proteo wizard folder, recursively search it
-                        Files.walkFileTree(file2, fileVisitor);
-                        if (foundPathHolder.obj != null) {
-                          return foundPathHolder.obj.toAbsolutePath().toString();
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          } catch (IOException ignore) {}
-        }
-      } catch (Exception ignore) {}
-    }
-    return "";
   }
 
 }

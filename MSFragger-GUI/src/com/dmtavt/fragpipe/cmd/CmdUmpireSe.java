@@ -9,7 +9,6 @@ import com.dmtavt.fragpipe.tools.umpire.UmpireParams;
 import com.dmtavt.fragpipe.tools.umpire.UmpireSeGarbageFiles;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
-import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -22,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,22 +62,6 @@ public class CmdUmpireSe extends CmdBase {
       List<InputLcmsFile> lcmsFiles) {
 
     initPreConfig();
-
-    // msconvert
-    // now all the generated garbage is in the working directory
-    //final boolean isWin = OsUtils.isWindows();
-    final String binMsconvert = umpirePanel.getBinMsconvert();
-    log.debug("Got bin msconvert: {}", binMsconvert);
-    if (StringUtils.isNullOrWhitespace(binMsconvert)) {
-      JEditorPane message = SwingUtils.createClickableHtml(
-          "Specifying path to msconvert binary is required.<br/>\n"
-          + "It can be downloaded as part of ProteoWizard:<br/>\n"
-          + "<a href='http://proteowizard.sourceforge.net/index.html'>http://proteowizard.sourceforge.net/index.html</a>");
-      SwingUtils.makeDialogResizable(message);
-      JOptionPane.showMessageDialog(errMsgParent, SwingUtils.wrapInScrollForDialog(message),
-          "DIA Umpire SE: Error", JOptionPane.ERROR_MESSAGE);
-      return false;
-    }
 
     List<Path> paths = FragpipeLocations
         .checkToolsMissing(Stream.of(UmpireParams.JAR_UMPIRESE_NAME));

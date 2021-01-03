@@ -116,7 +116,6 @@ msfragger.use_topN_peaks=200
 msfragger.write_calibrated_mgf=true
 msfragger.zero_bin_accept_expect=0
 msfragger.zero_bin_mult_expect=1
-path.textfield.msconvert=
 peptide-prophet.cmd-opts=--decoyprobs --ppm --accmass --nonparam --expectscore
 peptide-prophet.combine-pepxml=false
 peptide-prophet.run-peptide-prophet=true

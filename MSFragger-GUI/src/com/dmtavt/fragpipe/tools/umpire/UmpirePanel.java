@@ -25,6 +25,7 @@ import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_WindowType;
 
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
@@ -64,14 +65,10 @@ import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import rx.swing.sources.DocumentEventSource;
-import com.dmtavt.fragpipe.cmd.ToolingUtils;
-import com.dmtavt.fragpipe.params.ThisAppProps;
 
 public class UmpirePanel extends JPanel {
   public JCheckBox checkRunUmpireSe;
   public JSpinner spinnerRam;
-  private UiText textBinMsconvert;
-  private final String ghostTextBinMsconvert = "Path to msconvert binary (part of ProteoWizard) - Required";
   private UiText textConfigFile;
   private final String ghostTextConfigFile = "Path to a config file with defaults - Optional";
   private JPanel pFrag;
@@ -282,43 +279,6 @@ public class UmpirePanel extends JPanel {
           new CC().minWidth("button").wrap());
     }
 
-    // msconvert binary
-    String binMsconvert = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_MSCONVERT);
-    if (binMsconvert == null)
-      binMsconvert = ToolingUtils.getBinMsconvert();
-    textBinMsconvert = new UiText(binMsconvert, ghostTextBinMsconvert);
-    // save the text once there are no change events for 3 seconds
-    DocumentEventSource.fromDocumentEventsOf(textBinMsconvert.getDocument())
-        .debounce(3, TimeUnit.SECONDS)
-        .subscribe(documentEvent -> {
-          try {
-            final String val = textBinMsconvert.getText();
-            final String toSave = textBinMsconvert.getGhostText().equals(val) ? null : val;
-            ThisAppProps.save(ThisAppProps.PROP_BIN_PATH_MSCONVERT, toSave);
-          } catch (Exception ignore) {}
-        });
-
-    {
-      FormEntry feBinMsconvert = new FormEntry(ThisAppProps.PROP_BIN_PATH_MSCONVERT,
-          "MSConvert binary", textBinMsconvert, "msconvert program is a part of the"
-          + " ProteoWizard suite. It is no longer included in Philosopher. Download at: http://proteowizard.sourceforge.net/");
-      pOther.add(feBinMsconvert.label(), ccLbl);
-      pOther.add(feBinMsconvert.comp, new CC().growX().pushX());
-
-      Supplier<JFileChooser> fcSupplier = () -> {
-        JFileChooser fc = FileChooserUtils
-            .create("MSConvert binary", false, FcMode.FILES_ONLY);
-        FileChooserUtils.setPath(fc, Stream.of(textBinMsconvert.getNonGhostText()));
-        return fc;
-      };
-
-      pOther.add(feBinMsconvert.browseButton("Browse", ghostTextBinMsconvert, fcSupplier,
-          paths -> textBinMsconvert.setText(paths.stream()
-              .map(Path::toString)
-              .collect(Collectors.joining(FileChooserUtils.MULTI_FILE_DELIMITER)))),
-          new CC().minWidth("button").wrap());
-    }
-
     CC ccGrowX = new CC().growX();
     this.add(pTop, ccGrowX);
     this.add(pFrag, ccGrowX);
@@ -349,11 +309,6 @@ public class UmpirePanel extends JPanel {
 
   public String getDefaultConfigFile() {
     String text = textConfigFile.getNonGhostText();
-    return StringUtils.isNullOrWhitespace(text) ? null : text;
-  }
-
-  public String getBinMsconvert() {
-    String text = textBinMsconvert.getNonGhostText();
     return StringUtils.isNullOrWhitespace(text) ? null : text;
   }
 
