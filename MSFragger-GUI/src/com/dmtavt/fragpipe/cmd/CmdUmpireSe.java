@@ -152,40 +152,6 @@ public class CmdUmpireSe extends CmdBase {
         pbis.addAll(PbiBuilder.from(pbsMove));
       }
 
-      List<String> mgfs = getGeneratedMgfFnsForMzxml(inputFn.toString());
-      if(false)
-      for (String mgf : mgfs) {
-        List<String> cmdMsConvert = new ArrayList<>();
-
-        cmdMsConvert.add(binMsconvert);
-        cmdMsConvert.add("--verbose");
-        cmdMsConvert.add("--32");
-        cmdMsConvert.add("--zlib");
-        cmdMsConvert.add("--" + OUTPUT_EXT.toString());
-        cmdMsConvert.add("--outdir");
-        cmdMsConvert.add(f.outputDir(wd).toString());
-
-//        if (isWin) { // since philosopher 1.5.0 msconvert is not included
-//        } else {
-//          // on Linux philosopher includes msconvert
-//          cmdMsConvert.add(philo.useBin(f.outputDir(wd)));
-//          cmdMsConvert.add("msconvert");
-//          cmdMsConvert.add("--format");
-//          cmdMsConvert.add(OUTPUT_EXT.toString());
-//          cmdMsConvert.add("--intencoding");
-//          cmdMsConvert.add("32");
-//          cmdMsConvert.add("--mzencoding");
-//          cmdMsConvert.add("32");
-//          cmdMsConvert.add("--zlib");
-//        }
-
-        Path mgfPath = f.outputDir(wd).resolve(mgf);
-        cmdMsConvert.add(mgfPath.toString());
-        ProcessBuilder pbMsConvert = new ProcessBuilder(cmdMsConvert);
-        pbMsConvert.directory(mgfPath.getParent().toFile());
-        pbMsConvert.environment().putIfAbsent("LC_ALL", "C");
-        pbis.add(PbiBuilder.from(pbMsConvert));
-      }
       // delete garbage files
       final List<Path> garbage = UmpireSeGarbageFiles.getGarbageFiles(destDir.resolve(f.getPath().getFileName()), false, false);
       final List<ProcessBuilder> pbsDeleteFiles = ToolingUtils.pbsDeleteFiles(jarFragpipe, garbage);
