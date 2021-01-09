@@ -138,7 +138,7 @@ public class CmdSpecLibGen extends CmdBase {
                   final boolean isTimsTOF = dataType == InputDataType.ImMsTimsTof;
                   final String sans_suffix = lcms.getPath().getParent().resolve(fn_sans_extension).toString();
                   final String lcms_path = isTimsTOF ?
-                          sans_suffix + "_uncalibrated.mgf"
+                          sans_suffix + ".mgf"
                           :
                           lcms.getPath().toString();
                   return lcms_path;
