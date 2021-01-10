@@ -1026,13 +1026,12 @@ public class FragpipeRun {
 
     addConfig.accept(cmdTmtLabelQuant, () -> {
       if (cmdTmtLabelQuant.isRun()) {
-        List<String> forbiddenOpts = Arrays.asList("--plex", "--annot", "--dir");
+        List<String> forbiddenOpts = Arrays.asList("--plex", "--annot", "--dir", "--level");
         String optsLq = tmtiPanel.getLabelquantOptsAsText();
         QuantLabel label = tmtiPanel.getSelectedLabel();
+        String quantLevel = tmtiPanel.getQuantLevel();
         Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
-        return cmdTmtLabelQuant
-            .configure(parent, isDryRun, usePhi, optsLq, label, forbiddenOpts, annotations,
-                sharedMapGroupsToProtxml);
+        return cmdTmtLabelQuant.configure(parent, isDryRun, usePhi, optsLq, quantLevel, label, forbiddenOpts, annotations, sharedMapGroupsToProtxml);
       }
       return true;
     });

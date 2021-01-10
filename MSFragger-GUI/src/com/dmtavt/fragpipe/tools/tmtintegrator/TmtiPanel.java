@@ -85,6 +85,7 @@ public class TmtiPanel extends JPanelBase {
   private Action actionCreate;
   private ButtonColumn colBrowse;
   private ButtonColumn colCreate;
+  private UiCombo uiComboQuantLevel;
   private UiCombo uiComboLabelNames;
   public static final String PREFIX = "tmtintegrator.";
   public static final String PROP_LAST_ANNOTATION_PATH = "fragpipe.tmt.last-annotation-path";
@@ -260,6 +261,9 @@ public class TmtiPanel extends JPanelBase {
     FormEntry feLabelType = fe(TmtiConfProps.PROP_channel_num,
         "Label type", uiComboLabelNames, null);
 
+    uiComboQuantLevel = UiUtils.createUiCombo(new String[]{"2", "3"});
+    FormEntry feQuantLevel = fe("quant_level", "Quant level", uiComboQuantLevel, "level of isobaric (2: MS2; 3: MS3)");
+
     UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).text("Bridge").create();
     FormEntry feRefTag = fe(TmtiConfProps.PROP_ref_tag,
         "Ref sample tag", uiTextRefTag,
@@ -296,6 +300,7 @@ public class TmtiPanel extends JPanelBase {
     uiComboAddRef.setSelectedItem(TmtiConfProps.COMBO_ADD_REF_CHANNEL);
 
     addRowLabelComp(p, feLabelType);
+    addRowLabelComp(p, feQuantLevel);
     addRowLabelComp(p, feAddRef);
     addRowLabelComp(p, feRefTag);
     addRowLabelComp(p, feGroupBy);
@@ -368,7 +373,7 @@ public class TmtiPanel extends JPanelBase {
     FormEntry feFreequant = fe("freequant", "Freequant opts", uiTextFreequant,
         "Command line options for Philosopher Freequant command");
 
-    uiTextLabelquant = new UiText("--tol 20 --level 2");
+    uiTextLabelquant = new UiText("--tol 20");
     FormEntry feLabelquant = fe("labelquant", "Labelquant opts", uiTextLabelquant,
         "Command line options for Philosopher Labelquant command");
 
@@ -572,6 +577,10 @@ public class TmtiPanel extends JPanelBase {
 
   public String getLabelquantOptsAsText() {
     return uiTextLabelquant.getNonGhostText();
+  }
+
+  public String getQuantLevel() {
+    return uiComboQuantLevel.asString();
   }
 
   public String getFreequantOptsAsText() {

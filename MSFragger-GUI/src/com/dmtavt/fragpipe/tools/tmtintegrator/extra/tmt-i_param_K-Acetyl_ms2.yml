@@ -27,4 +27,4 @@ tmtintegrator:
 
 
   freequant: --ptw 0.4 --tol 10 --isolated     # added for fragpipe
-  labelquant: --tol 20 --level 2           # added for fragpipe
+  labelquant: --tol 20                         # added for fragpipe

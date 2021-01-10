@@ -33,7 +33,7 @@ public class CmdLabelquant extends CmdBase {
   }
 
   public boolean configure(Component comp, boolean isDryRun, UsageTrigger phi,
-      String textLabelquantOpts, QuantLabel label, final List<String> forbiddenOpts,
+      String optsLq, String quantLevel, QuantLabel label, final List<String> forbiddenOpts,
       Map<LcmsFileGroup, Path> annotations, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
     initPreConfig();
@@ -68,7 +68,7 @@ public class CmdLabelquant extends CmdBase {
       List<String> cmd = new ArrayList<>();
       cmd.add(phi.useBin(groupWd));
       cmd.add(PhilosopherProps.CMD_LABELQUANT);
-      List<String> opts = StringUtils.splitCommandLine(textLabelquantOpts);
+      List<String> opts = StringUtils.splitCommandLine(optsLq);
       List<String> badGiven = opts.stream().map(String::toLowerCase).filter(forbiddenOpts::contains)
           .collect(Collectors.toList());
       if (!badGiven.isEmpty()) {
@@ -79,6 +79,8 @@ public class CmdLabelquant extends CmdBase {
       }
       cmd.addAll(opts);
 
+      cmd.add("--level");
+      cmd.add(quantLevel);
       cmd.add("--plex");
       cmd.add(Integer.toString(label.getReagentNames().size()));
       cmd.add("--annot");
