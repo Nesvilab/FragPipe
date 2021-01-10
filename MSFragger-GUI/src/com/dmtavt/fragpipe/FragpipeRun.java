@@ -172,6 +172,12 @@ public class FragpipeRun {
         return;
       }
 
+      final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
+      if (tabMsf.getNumDbSlices() > configDb.numEntries) {
+        JOptionPane.showMessageDialog(tabRun, "Number of split database is larger than total proteins.", "Errors", JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+
       final Graph<CmdBase, DefEdge> dag = new DirectedAcyclicGraph<>(DefEdge.class);
       // main call to generate all the process builders
       if (!configureTaskGraph(tabRun, wd, jarPath, isDryRun, fastaPath, dag)) {
