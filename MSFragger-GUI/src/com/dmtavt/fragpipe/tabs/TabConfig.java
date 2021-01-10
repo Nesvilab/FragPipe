@@ -90,7 +90,7 @@ import rx.schedulers.Schedulers;
 public class TabConfig extends JPanelWithEnablement {
 
   private static final Logger log = LoggerFactory.getLogger(TabConfig.class);
-  private static final String msfraggerMinVersion = "3.1";
+  private static final String msfraggerMinVersion = "3.2";
 
   private static final MigUtils mu = MigUtils.get();
   private UiText uiTextBinFragger;
