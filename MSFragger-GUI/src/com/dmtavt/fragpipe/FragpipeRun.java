@@ -676,30 +676,6 @@ public class FragpipeRun {
     final Map<InputLcmsFile, List<Path>> sharedPepxmlFilesFromMsfragger = new HashMap<>();
     final Map<InputLcmsFile, List<Path>> sharedPepxmlFiles = new HashMap<>();
 
-
-    addCheck.accept(() -> {
-      SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
-      boolean isRunSpeclibgen = speclibPanel.isRunSpeclibgen();
-      boolean useEasypqp = speclibPanel.useEasypqp();
-
-      // check that Write Calibrated MGF is On in Fragger for easyPQP + timsTOF
-
-      if (isRunSpeclibgen && useEasypqp
-          && !tabMsf.isWriteCalMgf()
-          && SpeclibPanel.EASYPQP_TIMSTOF.equals(speclibPanel.getEasypqpDataType())) {
-        if (!SwingUtils.showConfirmDialogShort(parent,
-            "Spectral library generation via EasyPQP requires that MSFragger\n"
-                + "writes a calibrated MGF file. There is a checkbox on MSFragger tab\n"
-                + "in Advanced Output Options section at the bottom of the page.\n\n"
-                + "Do you want to turn writing MGF on and continue?")) {
-          log.debug("User chose not to continue with auto-enabled MGF writing");
-          return false;
-        }
-        tabMsf.setWriteCalMgf(true);
-      }
-      return true;
-    });
-
     addConfig.accept(cmdMsfragger, () -> {
       if (cmdMsfragger.isRun()) {
         if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile,
