@@ -20,7 +20,7 @@ import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.UsageTrigger;
 
 public class CmdLabelquant extends CmdBase {
-  public static final String NAME = "LabelQuant";
+  public static final String NAME = "Quant (Isobaric)";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML");
 
   public CmdLabelquant(boolean isRun, Path workDir) {
@@ -72,7 +72,7 @@ public class CmdLabelquant extends CmdBase {
       List<String> badGiven = opts.stream().map(String::toLowerCase).filter(forbiddenOpts::contains)
           .collect(Collectors.toList());
       if (!badGiven.isEmpty()) {
-        String msg = String.format("<html>Please don't include [%s] in Labelquant options string",
+        String msg = String.format("<html>Please don't include [%s] in Labelquant opts string",
             String.join(", ", badGiven));
         JOptionPane.showMessageDialog(comp, msg, NAME + " Error", JOptionPane.WARNING_MESSAGE);
         return false;
@@ -84,9 +84,8 @@ public class CmdLabelquant extends CmdBase {
       cmd.add("--plex");
       cmd.add(Integer.toString(label.getReagentNames().size()));
       cmd.add("--annot");
-      if (annotationFile == null || StringUtils.isNullOrWhitespace(annotationFile.toString())) {
-        String msg = String.format("Need to specify TMT file annotations in TMT-Integrator\n"
-            + "configuration.\n");
+      if (StringUtils.isNullOrWhitespace(annotationFile.toString())) {
+        String msg = "Need to specify TMT file annotations in TMT-Integrator configuration.\n";
         SwingUtils.showWarningDialog(comp, msg, NAME + " Error");
         return false;
       }
