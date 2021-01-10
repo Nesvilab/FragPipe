@@ -18,7 +18,7 @@ public class UiUtils {
   }
   /**
    * Loads icon from current
-   * @param resourcePath E.g. "/umich/msfragger/gui/icons/dia-umpire-16x16.png"
+   * @param resourcePath E.g. "/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png"
    */
   public static ImageIcon loadIcon(Class<?> clazz, String resourcePath) {
     return new ImageIcon(clazz.getResource(resourcePath));

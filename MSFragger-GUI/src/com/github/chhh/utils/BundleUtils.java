@@ -27,7 +27,7 @@ public class BundleUtils {
     /**
      * It's here just so not to forget how to get bundles
      * @param path Relative to the root source folder. E.g. 
-     * "umich/msfragger/gui/Bundle". As you can see, it has the word "Bundle"
+     * "com/dmtavt/fragpipe/Bundle". As you can see, it has the word "Bundle"
      * but it's not followed by ".properties".
      * @return 
      */

@@ -105,8 +105,6 @@ public class ThisAppProps extends Properties {
   public static final List<String> PROPERTIES_URLS = Arrays.asList(
       "https://raw.githubusercontent.com/Nesvilab/FragPipe/updates/MSFragger-GUI/src/" + PATH_BUNDLE
           + ".properties"
-//      "https://raw.githubusercontent.com/chhh/FragPipe/updates/MSFragger-GUI/src/" + PATH_BUNDLE
-//          + ".properties"
   );
 
   private static class HolderRemote {
