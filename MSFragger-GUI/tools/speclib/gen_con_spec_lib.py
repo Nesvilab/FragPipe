@@ -426,8 +426,6 @@ if use_easypqp:
 		spectra_files = [e.resolve(strict=True) for e in spectra_files0 if e.exists()]
 		if all([os.fspath(e).endswith('calibrated.mgf') for e in spectra_files0]):
 			print('Using (un)calibrated.mgfs.')
-			if len(spectra_files) * 2 != len(spectra_files0):
-				raise RuntimeError('missing spectra files')
 		if len(spectra_files) == 0:
 			raise RuntimeError(spectra_files)
 	psm_tsv_file = iproph_RT_aligned / 'psm.tsv'
