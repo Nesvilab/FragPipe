@@ -22,12 +22,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JOptionPane;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CmdUmpireSe extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdUmpireSe.class);
   public static final String NAME = "UmpireSe";
+  public static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR};
+  public static final String JAR_DIA_UMPIRE_SE_MAIN_CLASS = "dia_umpire_se.DIA_Umpire_SE";
   private static final EXTENSION OUTPUT_EXT = EXTENSION.mzML;
   public enum EXTENSION {mzXML, mzML}
 
@@ -95,6 +98,7 @@ public class CmdUmpireSe extends CmdBase {
     final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
     final String javaDParmsStringLibsThermoDir = extLibsThermo == null ? null :
             createJavaDParamString("libs.thermo.dir", extLibsThermo.toString());
+    final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(UmpireParams.JAR_UMPIRESE_NAME).concat(JAR_DEPS));
 
     for (InputLcmsFile f: lcmsFiles) {
       Path inputFn = f.getPath().getFileName();
@@ -103,6 +107,7 @@ public class CmdUmpireSe extends CmdBase {
 
       // Umpire-SE
       // java -jar -Xmx8G DIA_Umpire_SE.jar mzMXL_file diaumpire_se.params
+      if(false) // for standalone jar
       {
         List<String> cmd = new ArrayList<>();
         cmd.add(Fragpipe.getBinJava());
@@ -113,6 +118,27 @@ public class CmdUmpireSe extends CmdBase {
         if (javaDParmsStringLibsThermoDir != null)
           cmd.add(javaDParmsStringLibsThermoDir);
         cmd.add(jarUmpireSe.toString()); // unpacked UmpireSE jar
+        cmd.add(f.getPath().toString());
+        cmd.add(umpireParamsFilePath.toString());
+
+        ProcessBuilder pbUmpireSe = new ProcessBuilder(cmd);
+        pbis.add(PbiBuilder.from(pbUmpireSe));
+      }
+
+      // Umpire-SE
+      //java -Dbatmass.io.libs.thermo.dir=ext/thermo/ -cp batmass-io-1.22.1.jar:DIA_Umpire_SE.jar dia_umpire_se.DIA_Umpire_SE  (.raw|.mzML|.mzXML) DIA-U_params
+      {
+        List<String> cmd = new ArrayList<>();
+        cmd.add(Fragpipe.getBinJava());
+        if (ram > 0 && ram < 256)
+          cmd.add("-Xmx" + ram + "G");
+        if (javaDParmsStringLibsThermoDir != null)
+          cmd.add(javaDParmsStringLibsThermoDir);
+
+        cmd.add("-cp");
+        cmd.add(constructClasspathString(classpathJars));
+        cmd.add(JAR_DIA_UMPIRE_SE_MAIN_CLASS);
+
         cmd.add(f.getPath().toString());
         cmd.add(umpireParamsFilePath.toString());
 
