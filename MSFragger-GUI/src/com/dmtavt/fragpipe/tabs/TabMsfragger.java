@@ -627,25 +627,43 @@ public class TabMsfragger extends JPanelBase {
     final UiCombo uiComboGlyco = UiUtils.createUiCombo(GLYCO_OPTIONS_UI);
     FormEntry feGlycoSearchMode = mu.feb(uiComboGlyco)
         .name(MsfraggerParams.PROP_labile_search_mode)
-        .label("Labile Modifications Search mode").create();
+        .label("Labile Modifications Search mode")
+            .tooltip("labile mode assumes delta mass will dissociate from peptide\n" +
+                    "during MS2. Uses restrict delta mass parameter to determine allowed sites.\n" +
+                    "Allows diagnostic and Y ions\n" +
+                    "nglycan mode overrides allowed sites to be the N-X-S/T sequon and\n" +
+                    "enables all other labile mode settings.")
+            .create();
 
     final UiSpinnerDouble uiSpinnerMinInt = UiSpinnerDouble.builder(0, 0, 1, 0.1).setFormat("#.##")
         .setCols(5).create();
     FormEntry feOxoniumIonMinimumIntensity = mu.feb(uiSpinnerMinInt)
         .name(MsfraggerParams.PROP_diagnostic_intensity_filter)
-        .label("Diagnostic Ion Minimum Intensity").create();
+        .label("Diagnostic Ion Minimum Intensity")
+            .tooltip("Minimum diagnostic ion intensity to search for mass offsets/open search.\n" +
+                    "Summed intensity of all diagnostic fragment masses (below) from a spectrum.\n" +
+                    "Set to 0 to disable (all spectra will be searched for mass offsets/open search)")
+            .create();
 
     final HtmlStyledJEditorPane ep1 = new HtmlStyledJEditorPane();
     ep1.setPreferredSize(new Dimension(100, 25));
     mu.border(ep1, new LineBorder(Color.LIGHT_GRAY, 1));
     FormEntry feYIonMasses = mu.feb(ep1).name(MsfraggerParams.PROP_Y_type_masses)
-        .label("Y Ion Masses").create();
+        .label("Y Ion Masses")
+            .tooltip("List of possible Y ion (intact peptide + partially fragmented modification) masses\n" +
+                    "Should include 0 in most cases. Space or / separated\n" +
+                    "example: '0 203.0794 365.1322'")
+            .create();
 
     final HtmlStyledJEditorPane ep2 = new HtmlStyledJEditorPane();
     ep2.setPreferredSize(new Dimension(100, 25));
     mu.border(ep2, new LineBorder(Color.LIGHT_GRAY, 1));
     FormEntry feOxoniumIons = mu.feb(ep2).name(MsfraggerParams.PROP_diagnostic_fragments)
-        .label("Diagnostic Fragment Masses").create();
+        .label("Diagnostic Fragment Masses")
+            .tooltip("List of possible diagnostic fragment ions to consider.\n" +
+                    "Not used if Diagnostic Ion Minimum Intensity is 0\n" +
+                    "Space or / separated")
+            .create();
 
 
     uiComboGlyco.addItemListener(e -> {
@@ -920,7 +938,10 @@ public class TabMsfragger extends JPanelBase {
             + "used as the precursor's mass - 'Selected' or 'Isolated' ion.\n"
             + "'Corrected' performs mono-isotopic mass correction").create();
 
-    FormEntry feRemovePrecPeak = mu.feb(MsfraggerParams.PROP_remove_precursor_peak, UiUtils.createUiCombo(RemovePrecursorPeak.getNames())).label("Remove precursor peak").create();
+    FormEntry feRemovePrecPeak = mu.feb(MsfraggerParams.PROP_remove_precursor_peak, UiUtils.createUiCombo(RemovePrecursorPeak.getNames())).
+            label("Remove precursor peak")
+            .tooltip("Remove with all charge states is for ETD/ECD data and removes M+e peaks in addition to precursor peak")
+            .create();
     DecimalFormat df1 = new DecimalFormat("0.#");
     FormEntry fePrecRemoveRangeLo = mu.feb(PROP_misc_fragger_remove_precursor_range_lo,
         UiSpinnerDouble.builder(-1.5, -1000.0, 1000.0, 0.1).setCols(5).setFormat(df1).create())
@@ -975,7 +996,8 @@ public class TabMsfragger extends JPanelBase {
                 + "This mostly depends on fragmentation method.\n"
                 + "Typically \"b,y\" are used for CID and \"c,z\" for ECD.\n"
                 + "MSFragger can generate \"a,b,c,x,y,z\" ion series by default,\n"
-                + "but <b>you can define your own in 'Define custom ion series' field</b>.\n"
+                + "b~/y~ refer to b/y + HexNAc ions for glyco mode. Y refers to capital Y ions for glyco mode\n"
+                + "<b>you can define your own in 'Define custom ion series' field</b>.\n"
                 + "If you define custom series, you will need to include the name you\n"
                 + "gave it here.").create();
     uiTextCustomIonSeries = new UiText(10);
