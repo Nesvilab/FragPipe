@@ -30,7 +30,7 @@ public class CmdTmtIntegrator extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdTmtIntegrator.class);
 
   public static final String NAME = "TmtIntegrator";
-  public static final String JAR_NAME = "tmt-integrator-2.1.5.jar";
+  public static final String JAR_NAME = "tmt-integrator-2.2.jar";
   public static final String JAR_MAIN = "TMTIntegrator";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML");
   public static final String CONFIG_FN = "tmt-integrator-conf.yml";
