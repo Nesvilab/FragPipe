@@ -82,6 +82,8 @@ tmtintegrator.unique_gene :: No PSMs mapping to multiple genes in dataset <=> 1
 tmtintegrator.unique_gene :: No PSMs mapping to multiple genes in FASTA <=> 2
 tmtintegrator.unique_pep :: Unique+Razor <=> false
 tmtintegrator.unique_pep :: Unique only <=> true
+tmtintegrator.aggregation_method :: Median <=> 0
+tmtintegrator.aggregation_method :: Weighted <=> 1
 
 ionquant.ionmobility::timsTOF <=> 1
 ionquant.ionmobility::Non-timsTOF <=> 0

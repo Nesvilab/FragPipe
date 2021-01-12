@@ -112,6 +112,8 @@ public class TmtiPanel extends JPanelBase {
         s,supplyRunEx("No matching add_Ref value")).getValInConfig());
     CONVERT_TO_FILE.put(TmtiConfProps.PROP_unique_pep, s -> findOrThrow(false, TmtiConfProps.COMBO_PEPTIDE_PROTEIN_UNIQUENESS,
         s,supplyRunEx("No matching prot_norm value")).getValInConfig());
+    CONVERT_TO_FILE.put(TmtiConfProps.PROP_aggregation_method, s -> findOrThrow(false, TmtiConfProps.COMBO_AGGREGATION_METHOD,
+        s,supplyRunEx("No matching prot_norm value")).getValInConfig());
 
     CONVERT_TO_GUI.put(TmtiConfProps.PROP_channel_num, s -> {
       int numChannels = Integer.parseInt(s);
@@ -129,6 +131,8 @@ public class TmtiPanel extends JPanelBase {
     CONVERT_TO_GUI.put(TmtiConfProps.PROP_unique_pep, s -> findOrThrow(true, TmtiConfProps.COMBO_PEPTIDE_PROTEIN_UNIQUENESS,
         s,supplyRunEx("No matching unique_gene value")).getValInUi());
     CONVERT_TO_GUI.put(TmtiConfProps.PROP_add_Ref, s -> findOrThrow(true, TmtiConfProps.COMBO_ADD_REF,
+        s,supplyRunEx("No matching add_Ref value")).getValInUi());
+    CONVERT_TO_GUI.put(TmtiConfProps.PROP_aggregation_method, s -> findOrThrow(true, TmtiConfProps.COMBO_AGGREGATION_METHOD,
         s,supplyRunEx("No matching add_Ref value")).getValInUi());
   }
 
@@ -389,6 +393,9 @@ public class TmtiPanel extends JPanelBase {
             + "peptide assigned as razor to one protein (as classified by Philosopher and <br/>\n"
             + "defined in PSM.tsv file). <br/>\n");
 
+    UiCombo uiComboAggregationMethod = UiUtils.createUiCombo(TmtiConfProps.COMBO_AGGREGATION_METHOD.stream().map(ComboValue::getValInUi).collect(Collectors.toList()));
+    FormEntry feAggregationMethod = fe(TmtiConfProps.PROP_aggregation_method, "Aggregation method", uiComboAggregationMethod, "");
+
     UiCheck uiCheckBestPsm = new UiCheck("Best PSM", null, true);
     FormEntry feBestPsm = fe(TmtiConfProps.PROP_best_psm,
         "not-shown", uiCheckBestPsm,
@@ -466,7 +473,9 @@ public class TmtiPanel extends JPanelBase {
     mu.add(p, feMaxPepProb.label(), mu.ccR());
     mu.add(p, feMaxPepProb.comp);
     mu.add(p, feMinNtt.label(), mu.ccR());
-    mu.add(p, feMinNtt.comp).spanX().wrap();
+    mu.add(p, feMinNtt.comp);
+    mu.add(p, feAggregationMethod.label(), mu.ccR());
+    mu.add(p, feAggregationMethod.comp).spanX().wrap();
 
     JPanel pChecks = mu.newPanel(mu.lcNoInsetsTopBottom());
     mu.add(pChecks, feBestPsm.comp);

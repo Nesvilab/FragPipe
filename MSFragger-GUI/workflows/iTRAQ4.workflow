@@ -152,6 +152,7 @@ tmtintegrator.labelquant=--tol 20
 tmtintegrator.quant_level=2
 tmtintegrator.max_pep_prob_thres=0.9
 tmtintegrator.min_ntt=0
+tmtintegrator.aggregation_method=0
 tmtintegrator.min_pep_prob=0.9
 tmtintegrator.min_percent=0.05
 tmtintegrator.min_purity=0.5
