@@ -139,8 +139,8 @@ public class TabMsfragger extends JPanelBase {
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
   private static final String CALIBRATE_VALUE_OFF = "None";
   private static final String[] CALIBRATE_LABELS = {CALIBRATE_VALUE_OFF, "Mass calibration", "Mass calibration, parameter optimization"};
-  private static final String[] MASS_DIFF_TO_VAR_MOD = {"No", "Yes", "Yes, and adjust peptide mass"};
-  private static final int[] MASS_DIFF_TO_VAR_MOD_MAP = {0, 2, 1};
+  private static final String[] MASS_DIFF_TO_VAR_MOD = {"No", "Yes", "Yes, and adjust peptide mass", "Yes, and prepare for PTMProphet"};
+  private static final int[] MASS_DIFF_TO_VAR_MOD_MAP = {0, 2, 1, 3};
   private static final List<String> GLYCO_OPTIONS_UI = Arrays
       .asList(GLYCO_OPTION_off, GLYCO_OPTION_nglycan, GLYCO_OPTION_labile);
   private static final String LOAD_CUSTOM_CONFIG_OPTION = "Custom MSFragger parameter file from disk";
@@ -1109,7 +1109,22 @@ public class TabMsfragger extends JPanelBase {
         .label("Zero bin multiply expect").create();
     UiCombo uiComboMassDiffToVariableMod = UiUtils.createUiCombo(MASS_DIFF_TO_VAR_MOD);
     FormEntry feComboMassDiffToVariableMod = mu.feb(MsfraggerParams.PROP_mass_diff_to_variable_mod, uiComboMassDiffToVariableMod)
-        .label("Report mass shift as a variable mod").create();
+        .label("Report mass shift as a variable mod")
+            .tooltip("Places/replaces delta mass with an assigned (variable) mod.\n" +
+                    "*No*: off (default)\n" +
+                    "*Yes*: Adds a variable modification, but does NOT change the delta mass\n" +
+                    "Allows differential modeling of delta masses in PeptideProphet (used for glyco quant)\n" +
+                    "Does NOT work with PTM-Shepherd\n" +
+                    "MSFragger param value 2\n" +
+                    "*Yes, and adjust delta mass*: Adds variable mod and changes delta mass to near 0\n" +
+                    "PeptideProphet accmass modeling only (no modeling by delta mass)\n" +
+                    "Does NOT work with PTM-Shepherd\n" +
+                    "MSFragger param value 1\n" +
+                    "*Yes, and prepare for PTMProphet*: Always place and adjust, even if mass not localized\n" +
+                    "PeptideProphet accmass modeling only\n" +
+                    "Does NOT work with PTM-Shepherd\n" +
+                    "MSFragger param value 3")
+            .create();
 
     UiText uiTextShiftedIonsExclusion = new UiText();
     uiTextShiftedIonsExclusion.setDocument(DocumentFilters.getFilter("[A-Za-z]"));
