@@ -202,8 +202,8 @@ public class UmpirePanel extends JPanel {
 
     JComboBox<String> comboWindowType = new JComboBox<>();
     comboWindowType.setModel(new DefaultComboBoxModel<>(new String[]{"SWATH"}));
-    FormEntry feWinType = new FormEntry(PROP_WindowType, "Window type", comboWindowType);
-    FormEntry feWinSize = new FormEntry(PROP_WindowSize, "Window size", new JFormattedTextField(decimal));
+    FormEntry feWinType = new FormEntry(PROP_WindowType, "Window type", comboWindowType, "For Thermo data, this will be determined from raw data automatically.");
+    FormEntry feWinSize = new FormEntry(PROP_WindowSize, "Window size", new JFormattedTextField(decimal), "For Thermo data, this will be determined from raw data automatically.");
 
     pSwath.add(feWinType.label(), ccLbl);
     pSwath.add(feWinType.comp, new CC().width("70:80:120px"));
