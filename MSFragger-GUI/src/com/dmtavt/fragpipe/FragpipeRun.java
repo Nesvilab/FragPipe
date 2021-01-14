@@ -307,6 +307,8 @@ public class FragpipeRun {
     toConsole(Fragpipe.COLOR_RED_DARKEST, "\nPlease cite:", true);
     toConsole(Fragpipe.COLOR_CMDLINE, "(Regular searches) ", false);
     toConsole(Fragpipe.COLOR_BLACK, "MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics. Nat Methods 14:513 (2017)", true);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Any searches) ", false);
+    toConsole(Fragpipe.COLOR_BLACK, "Fast deisotoping algorithm and its implementation in the MSFragger search engine. J. Proteome Res. 20:498 (2021)", true);
     toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false);
     toConsole(Fragpipe.COLOR_BLACK, "Identification of modified peptides using localization-aware open search. Nat Commun. 11:4065 (2020)", true);
     toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false);
