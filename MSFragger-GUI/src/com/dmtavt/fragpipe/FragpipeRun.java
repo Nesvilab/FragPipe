@@ -805,8 +805,6 @@ public class FragpipeRun {
     });
 
     // run Protein Prophet
-    final boolean isProcessGroupsSeparately = Fragpipe.getStickyStrict(TabWorkflow.class)
-        .isProcessEachExpSeparately();
     final boolean isRunProteinProphet = protProphPanel.isRun();
     final Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml = new LinkedHashMap<>();
 
@@ -822,15 +820,11 @@ public class FragpipeRun {
       final boolean isMuiltiExperimentReport = sharedLcmsFileGroups.size() > 1;
       if (cmdProteinProphet.isRun()) {
         final String protProphCmdStr = protProphPanel.getCmdOpts();
-        if (!cmdProteinProphet.configure(parent,
-            usePhi, protProphCmdStr, isMuiltiExperimentReport,
-            isProcessGroupsSeparately, sharedPepxmlFiles)) {
+        if (!cmdProteinProphet.configure(parent, usePhi, protProphCmdStr, isMuiltiExperimentReport, sharedPepxmlFiles)) {
           return false;
         }
       }
-      Map<LcmsFileGroup, Path> outputs = cmdProteinProphet
-          .outputs(sharedPepxmlFiles, isProcessGroupsSeparately,
-              isMuiltiExperimentReport);
+      Map<LcmsFileGroup, Path> outputs = cmdProteinProphet.outputs(sharedPepxmlFiles, isMuiltiExperimentReport);
       MapUtils.refill(sharedMapGroupsToProtxml, outputs);
       return true;
     });

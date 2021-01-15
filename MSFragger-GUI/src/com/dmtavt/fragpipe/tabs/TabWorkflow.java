@@ -15,7 +15,6 @@ import com.dmtavt.fragpipe.api.TableModelColumn;
 import com.dmtavt.fragpipe.api.UniqueLcmsFilesTableModel;
 import com.dmtavt.fragpipe.cmd.CmdMsfragger;
 import com.dmtavt.fragpipe.dialogs.ExperimentNameDialog;
-import com.dmtavt.fragpipe.messages.MessageManifestLoad;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFiles;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFolder;
 import com.dmtavt.fragpipe.messages.MessageLcmsClearFiles;
@@ -23,9 +22,10 @@ import com.dmtavt.fragpipe.messages.MessageLcmsFilesAdded;
 import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
 import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction;
 import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction.Type;
-import com.dmtavt.fragpipe.messages.MessageManifestSave;
 import com.dmtavt.fragpipe.messages.MessageLcmsRemoveSelected;
 import com.dmtavt.fragpipe.messages.MessageLoadUi;
+import com.dmtavt.fragpipe.messages.MessageManifestLoad;
+import com.dmtavt.fragpipe.messages.MessageManifestSave;
 import com.dmtavt.fragpipe.messages.MessageOpenInExplorer;
 import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageType;
@@ -45,7 +45,6 @@ import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
-import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
@@ -60,7 +59,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -145,7 +143,6 @@ public class TabWorkflow extends JPanelWithEnablement {
   public static final String PROP_WORKFLOW_DESC = "workflow.description";
   public static final String PROP_WORKFLOW_SAVED_WITH_VER = "workflow.saved-with-ver";
   private HtmlStyledJEditorPane epWorkflowsDesc;
-  private UiCheck uiCheckProcessEachExperimentSeparately;
   private UiText uiTextLastAddedLcmsDir;
   private ButtonGroup btnGroupMsType;
   private JRadioButton btnTypeRegularMs;
@@ -883,12 +880,6 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     createFileTable();
 
-    uiCheckProcessEachExperimentSeparately = UiUtils
-        .createUiCheck("Process each experiment separately", false);
-    FormEntry feProcExpSep = mu.feb(uiCheckProcessEachExperimentSeparately)
-        .name("process-exps-separately")
-        .tooltip("Process each experiment in isolation. Don't make combined protxml files.\n").create();
-
     mu.add(p, btnFilesAddFiles).split();
     mu.add(p, btnFilesAddFolder);
     mu.add(p, btnFilesRemove);
@@ -924,16 +915,11 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnGroupsByParentDir);
     mu.add(p, btnGroupsByFilename);
     mu.add(p, btnGroupsAssignToSelected);
-    mu.add(p, btnGroupsClear);
-    mu.add(p, feProcExpSep.comp).wrap();
+    mu.add(p, btnGroupsClear).wrap();
 
     p.add(scrollPaneRawFiles, mu.ccGx().wrap());
 
     return p;
-  }
-
-  public boolean isProcessEachExpSeparately() {
-    return uiCheckProcessEachExperimentSeparately.isSelected();
   }
 
   private JButton button(String text, Supplier<Object> message) {

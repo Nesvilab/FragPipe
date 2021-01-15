@@ -54,8 +54,7 @@ public class CmdProteinProphet extends CmdBase {
    * @return Mapping from Experiment/Group name to interact.prot.xml file location.
    * 'interact' has been renamed to 'combined'.
    */
-  public Map<LcmsFileGroup, Path> outputs(Map<InputLcmsFile, List<Path>> pepxmlFiles,
-      boolean isProcessGroupsSeparately, boolean isMultiExperimentReport) {
+  public Map<LcmsFileGroup, Path> outputs(Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean isMultiExperimentReport) {
 
     Map<String, List<InputLcmsFile>> lcmsByExp = pepxmlFiles.keySet().stream()
         .collect(Collectors.groupingBy(f -> f.getGroup()));
@@ -70,21 +69,15 @@ public class CmdProteinProphet extends CmdBase {
             + "developers.");
       }
       LcmsFileGroup group = new LcmsFileGroup(groupName, lcmsFiles);
-      if (isProcessGroupsSeparately) {
-        m.put(group, lcmsFiles.get(0).outputDir(wd).resolve(INTERACT_FN));
-      } else {
-        String fn = isMultiExperimentReport ? COMBINED_FN : INTERACT_FN;
-        m.put(group, wd.resolve(fn));
-      }
+      String fn = isMultiExperimentReport ? COMBINED_FN : INTERACT_FN;
+      m.put(group, wd.resolve(fn));
     }
 
-    if (!isProcessGroupsSeparately) {
-      Set<Path> interactProtXmls = new HashSet<>(m.values());
-      if (interactProtXmls.size() > 1) {
-        throw new IllegalStateException("During combined processing of Experiments/Groups "
-            + "only one interact.prot.xml file should be produced. This is probably a bug, report "
-            + "to developers.");
-      }
+    Set<Path> interactProtXmls = new HashSet<>(m.values());
+    if (interactProtXmls.size() > 1) {
+      throw new IllegalStateException("During combined processing of Experiments/Groups "
+          + "only one interact.prot.xml file should be produced. This is probably a bug, report "
+          + "to developers.");
     }
 
     return m;
@@ -157,13 +150,12 @@ public class CmdProteinProphet extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      String txtProteinProphetCmdLineOpts, boolean isMultiExperiment,
-      boolean isProcessGroupsSeparately, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
+      String txtProteinProphetCmdLineOpts, boolean isMultiExperiment, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
 
     initPreConfig();
 
     // check for existence of old files
-    final Map<LcmsFileGroup, Path> outputs = outputs(pepxmlFiles, isProcessGroupsSeparately, isMultiExperiment);
+    final Map<LcmsFileGroup, Path> outputs = outputs(pepxmlFiles, isMultiExperiment);
     final List<Path> oldFilesForDeletion = findOldFilesForDeletion(new ArrayList<>(outputs.values()));
     if (!deleteFiles(comp, oldFilesForDeletion)) {
       return false;
@@ -172,27 +164,9 @@ public class CmdProteinProphet extends CmdBase {
     ProteinProphetParams proteinProphetParams = new ProteinProphetParams();
     proteinProphetParams.setCmdLineParams(txtProteinProphetCmdLineOpts);
 
-    Map<LcmsFileGroup, Path> groupToProtxml = outputs(pepxmlFiles, isProcessGroupsSeparately, isMultiExperiment);
+    Map<LcmsFileGroup, Path> groupToProtxml = outputs(pepxmlFiles, isMultiExperiment);
 
-    if (isProcessGroupsSeparately) {
-      for (Entry<LcmsFileGroup, Path> e : groupToProtxml.entrySet()) {
-        LcmsFileGroup group = e.getKey();
-        Path protxml = e.getValue();
-        List<String> pepxmlFns = pepxmlFiles.entrySet().stream()
-            .filter(pepxml -> pepxml.getKey().getGroup().equals(group.name))
-            .flatMap(pepxml -> pepxml.getValue().stream()).map(Path::getFileName).map(Path::toString)
-            .distinct()
-            .collect(Collectors.toList());
-        List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
-        cmd.addAll(pepxmlFns);
-        ProcessBuilder pb = new ProcessBuilder(cmd);
-        pb.directory(protxml.getParent().toFile());
-        pbis.add(PbiBuilder.from(pb));
-      }
-
-      // END: isProcessGroupsSeparately
-    } else {
-
+    {
       Set<Path> interactProtXmls = new HashSet<>(groupToProtxml.values());
       if (interactProtXmls.size() > 1) {
         JOptionPane.showMessageDialog(comp, "[Protein Prophet]\n"
@@ -213,8 +187,6 @@ public class CmdProteinProphet extends CmdBase {
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(protxml.getParent().toFile());
       pbis.add(PbiBuilder.from(pb));
-
-      // END: !isProcessGroupsSeparately
     }
 
 
