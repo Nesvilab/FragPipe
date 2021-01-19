@@ -12,7 +12,7 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 ### Tutorials
 - [FragPipe setup](https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html)
 - [Using FragPipe](https://msfragger.nesvilab.org/tutorial_fragpipe.html) (most comprehensive tutorial covering all FragPipe modules)
-- [Using FragPipe for SILAC (or other chemical) labelled data](https://msfragger.nesvilab.org/tutorial_silac.html)
+- [Using FragPipe for SILAC (or other MS1-labeled) data](https://msfragger.nesvilab.org/tutorial_silac.html)
 - [FragPipe workflows](https://msfragger.nesvilab.org/tutorial_fragpipe_workflows.html)
 - [Analyzing glycoproteomics data](https://msfragger.nesvilab.org/tutorial_glyco-fragger.html)
 - [Converting LC/MS data files to mzML](https://msfragger.nesvilab.org/tutorial_convert.html)
