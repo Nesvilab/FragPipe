@@ -20,6 +20,7 @@ msfragger.intensity_transform :: Square root <=> 1
 msfragger.mass_diff_to_variable_mod :: No <=> 0
 msfragger.mass_diff_to_variable_mod :: Yes <=> 2
 msfragger.mass_diff_to_variable_mod :: Yes, and adjust peptide mass <=> 1
+msfragger.mass_diff_to_variable_mod :: Yes, and prepare for PTMProphet <=> 3
 
 msfragger.num_enzyme_termini :: ENZYMATIC <=> 2
 msfragger.num_enzyme_termini :: SEMI <=> 1
