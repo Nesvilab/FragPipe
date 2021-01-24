@@ -402,7 +402,7 @@ public class TabConfig extends JPanelWithEnablement {
       log.debug("Got philosopher update info with updateAvailable={}", info.isUpdateAvailable);
       if (info.isUpdateAvailable) {
         MessageBalloon tip = new MessageBalloon(TIP_PHILOSOPHER_BIN, uiTextBinPhi,
-            SwingUtils.makeHtml(String.format("Philosopher update available.\n<a href=\"%s\">Click here</a> to download.", info.downloadUrl)));
+            SwingUtils.makeHtml("Philosopher update available."));
         Notifications.tryOpen(tip);
       }
     }, throwable -> {
