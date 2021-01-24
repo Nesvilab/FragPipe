@@ -18,9 +18,11 @@ import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_Thread;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_WindowSize;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_WindowType;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
@@ -52,7 +54,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
@@ -63,7 +64,6 @@ import rx.swing.sources.DocumentEventSource;
 
 public class UmpirePanel extends JPanel {
   public JCheckBox checkRunUmpireSe;
-  public JSpinner spinnerRam;
   private UiText textConfigFile;
   private final String ghostTextConfigFile = "Path to a config file with defaults - Optional";
   private JPanel pFrag;
@@ -73,7 +73,6 @@ public class UmpirePanel extends JPanel {
   private ImageIcon icon;
 
   private final List<String> paramNames = Arrays.asList(
-      PROP_Thread,
       PROP_RPmax,
       PROP_RFmax,
       PROP_CorrThreshold,
@@ -201,27 +200,6 @@ public class UmpirePanel extends JPanel {
     pOther = new JPanel(new MigLayout(lc));
     pOther.setBorder(new TitledBorder("Other options"));
 
-    JPanel panelSpinners = new JPanel(new MigLayout(lc));
-
-    // RAM spinner
-    spinnerRam = new JSpinner(new SpinnerNumberModel(0, 0, 64, 1));
-    String ram = ThisAppProps.load(UmpireParams.ETC_PARAM_RAM);
-    if (ram != null)
-      spinnerRam.setValue(Integer.valueOf(ram));
-    spinnerRam.addChangeListener(e -> ThisAppProps.save(UmpireParams.ETC_PARAM_RAM, ((Integer)spinnerRam.getValue()).toString()));
-    FormEntry feRam = new FormEntry(UmpireParams.ETC_PARAM_RAM, "Max RAM (GB)", spinnerRam);
-    panelSpinners.add(feRam.label(), new CC().alignX("right"));
-    panelSpinners.add(feRam.comp, new CC().width("30:50:70px"));
-
-    // Threads spinner
-    int availableThreads = Runtime.getRuntime().availableProcessors();
-    JSpinner spinnerThreads = new JSpinner(new SpinnerNumberModel(0, 0, availableThreads * 2, 1));
-    FormEntry feThreads = new FormEntry(PROP_Thread, "Parallelism", spinnerThreads);
-    panelSpinners.add(feThreads.label(),  new CC().alignX("right").gapBefore("5px"));
-    panelSpinners.add(feThreads.comp, new CC().width("30:50:70px").wrap());
-
-    pOther.add(panelSpinners, "span");
-
     // default config file
     String pathConfigFile = ThisAppProps.load(UmpireParams.CACHE_FILE);
     textConfigFile = new UiText(pathConfigFile, ghostTextConfigFile);
@@ -348,19 +326,12 @@ public class UmpirePanel extends JPanel {
       Component component = map.get(paramName);
       if (component != null) {
         String strVal = SwingUtils.getStrVal(component);
-
-        // special treatment for some params
-        if (PROP_Thread.equals(paramName)) {
-          try {
-            final double numThreads = Double.parseDouble(strVal);
-            strVal = String.format("%.0f", numThreads == 0 ? Runtime.getRuntime().availableProcessors() : numThreads);
-          } catch (Exception ignored) {
-            continue;
-          }
-        }
         params.getProps().setProperty(paramName, strVal);
       }
     }
+
+    TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
+    params.getProps().setProperty(PROP_Thread, String.valueOf(tabWorkflow.getThreads()));
 
     return params;
   }

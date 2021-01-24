@@ -4,9 +4,11 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.exceptions.FileWritingException;
+import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
 import com.dmtavt.fragpipe.tools.umpire.UmpireParams;
 import com.dmtavt.fragpipe.tools.umpire.UmpireSeGarbageFiles;
+import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
@@ -93,8 +95,9 @@ public class CmdUmpireSe extends CmdBase {
     }
 
     // run umpire for each file
-    int ramGb = (Integer)umpirePanel.spinnerRam.getValue();
-    int ram = Math.max(ramGb, 0);
+    TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
+    int ramGb = tabWorkflow.getRamGb();
+    int ram = ramGb > 0 ? ramGb : OsUtils.getDefaultXmx();
     final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
     final String javaDParmsStringLibsThermoDir = extLibsThermo == null ? null :
             createJavaDParamString("libs.thermo.dir", extLibsThermo.toString());
