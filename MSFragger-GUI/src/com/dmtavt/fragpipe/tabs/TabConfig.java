@@ -559,8 +559,8 @@ public class TabConfig extends JPanelWithEnablement {
     this.revalidate();
   }
 
-  private String textSpeclibgenEnabled(boolean isEnabled) {
-    return "Spec lib generation: <b>" + (isEnabled ? "Enabled" : "Disabled") + "</b>";
+  private String textSpeclibgenEnabled(boolean isEnabled, String easypapVersion) {
+    return "Spec lib generation: <b>" + (isEnabled ? "Enabled" : "Disabled") + "</b><br>EasyPQP " + easypapVersion;
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
@@ -571,7 +571,7 @@ public class TabConfig extends JPanelWithEnablement {
         epSpeclibgenErrParent.add(epSpeclibgenErr, new CC().wrap());
         epSpeclibgenErr.setVisible(true);
       }
-      epSpeclibgenText.setText(textSpeclibgenEnabled(false));
+      epSpeclibgenText.setText(textSpeclibgenEnabled(false, "N/A"));
       if (m.ex instanceof ValidationException) {
         epSpeclibgenErr.setText(m.ex.getMessage());
       } else {
@@ -606,7 +606,18 @@ public class TabConfig extends JPanelWithEnablement {
       epSpeclibgenErr.setText(String.join("\n", errMsgLines));
     }
 
-    epSpeclibgenText.setText(textSpeclibgenEnabled(m.instance.isSomeSpeclibgenAvailable()));
+    // get EasyPQP local version
+    String easypqpVersion = "N/A";
+    try {
+      if (m.instance.isSomeSpeclibgenAvailable()) {
+        PyInfo easypqp = PyInfo.fromCommand("easypqp");
+        easypqpVersion = easypqp.getVersion();
+      }
+    } catch (Exception ex) {
+      easypqpVersion = "N/A";
+    }
+
+    epSpeclibgenText.setText(textSpeclibgenEnabled(true, easypqpVersion));
     this.revalidate();
   }
 
