@@ -36,6 +36,7 @@ import com.dmtavt.fragpipe.tools.philosopher.Philosopher.UpdateInfo;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
+import com.github.chhh.utils.ProcessUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
@@ -559,8 +560,8 @@ public class TabConfig extends JPanelWithEnablement {
     this.revalidate();
   }
 
-  private String textSpeclibgenEnabled(boolean isEnabled, String easypapVersion) {
-    return "Spec lib generation: <b>" + (isEnabled ? "Enabled" : "Disabled") + "</b><br>EasyPQP " + easypapVersion;
+  private String textSpeclibgenEnabled(boolean isEnabled, String easypqpVersion) {
+    return "Spec lib generation: <b>" + (isEnabled ? "Enabled" : "Disabled") + "</b><br>EasyPQP " + easypqpVersion;
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
@@ -610,11 +611,13 @@ public class TabConfig extends JPanelWithEnablement {
     String easypqpVersion = "N/A";
     try {
       if (m.instance.isSomeSpeclibgenAvailable()) {
-        PyInfo easypqp = PyInfo.fromCommand("easypqp");
-        easypqpVersion = easypqp.getVersion();
+        final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-c",
+                "import pip._internal.commands.show\n" +
+                        "dist, = pip._internal.commands.show.search_packages_info(['easypqp'])\n" +
+                        "print(dist['version'])");
+        easypqpVersion = ProcessUtils.captureOutput(pb);
       }
     } catch (Exception ex) {
-      easypqpVersion = "N/A";
     }
 
     epSpeclibgenText.setText(textSpeclibgenEnabled(true, easypqpVersion));
