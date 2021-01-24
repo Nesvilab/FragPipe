@@ -710,9 +710,7 @@ public class TabConfig extends JPanelWithEnablement {
             paths -> paths.stream().findFirst()
                 .ifPresent(bin -> Bus.post(new MessagePhilosopherNewBin(bin.toString()))));
     p.add(btnBrowse, ccL());
-    JButton btnUpdate = UiUtils.createButton("Update", this::actionPhilosopherDownload);
-    JButton btnDownload = UiUtils.createButton("Download", this::actionPhilosopherDownload);
-    p.add(btnUpdate, ccL());
+    JButton btnDownload = UiUtils.createButton("Download / Update", this::actionPhilosopherDownload);
     p.add(btnDownload, ccL().wrap());
 
     epPhiVer = new HtmlStyledJEditorPane("Philosopher version: N/A");
