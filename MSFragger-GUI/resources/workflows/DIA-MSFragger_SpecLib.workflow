@@ -1,26 +1,7 @@
 # Workflow: DIA-MSFragger_SpecLib
 
-CorrThreshold=0
-DeltaApex=0.3
-RFmax=500
-RPmax=25
-RTOverlap=0.3
-SE.EstimateBG=false
-SE.MS1PPM=15
-SE.MS2PPM=25
-SE.MS2SN=1.1
-SE.MaxCurveRTRange=2
-SE.MaxNoPeakCluster=4
-SE.MinFrag=10
-SE.MinMSIntensity=1
-SE.MinMSMSIntensity=1
-SE.MinNoPeakCluster=2
-SE.NoMissedScan=1
-SE.SN=1.1
-WindowSize=10
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
-diaumpire_se.params=C\:\\Users\\nesvi\\Desktop\\FragPipe\\FragPipe-14.0-rc2-v2\\fragpipe\\tools\\umpire-se_default.params
 freequant.mz-tol=10
 freequant.rt-tol=0.4
 freequant.run-freequant=false
@@ -114,7 +95,6 @@ msfragger.use_topN_peaks=500
 msfragger.write_calibrated_mgf=false
 msfragger.zero_bin_accept_expect=0
 msfragger.zero_bin_mult_expect=1
-path.textfield.msconvert=C\:\\Users\\nesvi\\AppData\\Local\\Apps\\ProteoWizard 3.0.20255.0b0ffcfd5 64-bit\\msconvert.exe
 peptide-prophet.cmd-opts=--decoyprobs --ppm --accmass --nonparam --expectscore
 peptide-prophet.combine-pepxml=false
 peptide-prophet.run-peptide-prophet=true
