@@ -534,7 +534,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private String textDbsplitEnabled(boolean isEnabled) {
-    return "DB Splitting: <b>" + (isEnabled ? "Enabled" : "Disabled") + "</b>\n"
+    return "DB Splitting: <b>" + (isEnabled ? "Enabled" : "Disabled") + "</b>.<br>\n"
         + "Used for searching very large databases by splitting into smaller chunks.";
   }
 
@@ -611,6 +611,7 @@ public class TabConfig extends JPanelWithEnablement {
       errMsgLines.add("Missing python modules: " + Seq.seq(m.instance.missingModulesSpeclibgen).map(pm -> pm.installName).toString(", "));
     }
     if (!m.instance.missingModulesSpectrast.isEmpty()) {
+      errMsgLines.add("SpectraST: <b>Disabled</b>.<br>");
       errMsgLines.add("Missing python modules for SpectraST: " + Seq.seq(m.instance.missingModulesSpectrast).map(pm -> pm.installName).toString(", "));
     }
     if (!m.instance.missingModulesEasyPqp.isEmpty()) {
