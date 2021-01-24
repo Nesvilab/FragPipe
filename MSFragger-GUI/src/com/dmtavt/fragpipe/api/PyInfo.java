@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -61,13 +59,18 @@ public class PyInfo {
   private void trySetPythonCommand(String command) throws ValidationException, UnexpectedException {
     this.command = command;
     this.version = tryGetVersion(command);
-    Matcher m = Pattern.compile("python\\s+([0-9]+)", Pattern.CASE_INSENSITIVE)
-        .matcher(this.version);
+    Matcher m = Pattern.compile("python\\s+([0-9]+)", Pattern.CASE_INSENSITIVE).matcher(this.version);
     if (m.find()) {
       final String majorVer = m.group(1);
       this.majorVersion = Integer.parseInt(majorVer);
     } else {
-      throw new ValidationException("Could not detect python major version");
+      m = Pattern.compile("version\\s+([0-9]+)", Pattern.CASE_INSENSITIVE).matcher(this.version);
+      if (m.find()) {
+        final String majorVer = m.group(1);
+        this.majorVersion = Integer.parseInt(majorVer);
+      } else {
+        throw new ValidationException("Could not detect major version");
+      }
     }
   }
 
@@ -106,8 +109,15 @@ public class PyInfo {
       log.debug("Found python version string in output: {}", version);
       return version;
     } else {
-      log.debug("Did not find python version string in output");
-      throw new ValidationException("Could not detect python version");
+      m = Pattern.compile("(version\\s+[0-9.]+)", Pattern.CASE_INSENSITIVE).matcher(printed);
+      if (m.find()) {
+        String version = m.group(1);
+        log.debug("Found python version string in output: {}", version);
+        return version;
+      } else {
+        log.debug("Did not find python version string in output");
+        throw new ValidationException("Could not detect the version.");
+      }
     }
   }
 
