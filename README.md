@@ -10,8 +10,8 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 ### [Download](https://github.com/Nesvilab/FragPipe/releases)
 
 ### Tutorials
-- [FragPipe setup](https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html)
-- [Running FragPipe on remote Linux server (with X forwarding)](https://msfragger.nesvilab.org/tutorial_setup_x_forwarding.html)
+- [FragPipe setup on Windows](https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html)
+- [Setting up FragPipe on remote Linux server (with X forwarding)](https://msfragger.nesvilab.org/tutorial_setup_x_forwarding.html)
 - [Using FragPipe](https://msfragger.nesvilab.org/tutorial_fragpipe.html) (most comprehensive tutorial covering all FragPipe modules)
 - [Using FragPipe for SILAC (or other MS1-labeled) data](https://msfragger.nesvilab.org/tutorial_silac.html)
 - [FragPipe workflows](https://msfragger.nesvilab.org/tutorial_fragpipe_workflows.html)
