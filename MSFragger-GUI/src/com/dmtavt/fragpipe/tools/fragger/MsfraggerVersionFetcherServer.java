@@ -16,11 +16,12 @@
  */
 package com.dmtavt.fragpipe.tools.fragger;
 
+import com.dmtavt.fragpipe.api.VersionFetcher;
 import com.github.chhh.utils.StringUtils;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.regex.Matcher;
@@ -42,7 +43,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.api.VersionFetcher;
 
 /**
  *
@@ -99,8 +99,7 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
                 .getProperty(MsfraggerProps.PROP_UPDATESERVER_VERSION_URL);
             throwIfNull(serviceUrl,
                 "Property " + MsfraggerProps.PROP_UPDATESERVER_VERSION_URL + " not found");
-            String response = org.apache.commons.io.IOUtils
-                .toString(new URL(serviceUrl), Charset.forName("UTF-8"));
+            String response = org.apache.commons.io.IOUtils.toString(new URL(serviceUrl), StandardCharsets.UTF_8);
             if (StringUtils.isNullOrWhitespace(response))
                 throw new IllegalStateException(
                     "Update server returned empty string for the latest available version.");

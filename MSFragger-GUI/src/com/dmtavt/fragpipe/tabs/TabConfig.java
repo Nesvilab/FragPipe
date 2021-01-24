@@ -33,12 +33,14 @@ import com.dmtavt.fragpipe.tools.fragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher.UpdateInfo;
+import com.dmtavt.fragpipe.util.GitHubJson;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.ProcessUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.VersionComparator;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
@@ -49,6 +51,9 @@ import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -61,10 +66,13 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Stream;
@@ -560,8 +568,19 @@ public class TabConfig extends JPanelWithEnablement {
     this.revalidate();
   }
 
-  private String textSpeclibgenEnabled(boolean isEnabled, String easypqpVersion) {
-    return "Spec lib generation: <b>" + (isEnabled ? "Enabled" : "Disabled") + "</b><br>EasyPQP " + easypqpVersion;
+  private String textEasypqpEnabled(boolean isEnabled, String easypqpLocalVersion, String easypqpLatestVersion) {
+    if (isEnabled && !easypqpLocalVersion.contentEquals("N/A")) {
+      if (!easypqpLatestVersion.contentEquals("N/A") && VersionComparator.cmp(easypqpLocalVersion, easypqpLatestVersion) < 0) {
+        return "EasyPQP " + easypqpLocalVersion + "<br>"
+            + "There is a new version. Please upgrade it with<br>"
+            + "pip uninstall --yes easypqp<br>"
+            + "pip install git+https://github.com/grosenberger/easypqp.git@master";
+      } else {
+        return "EasyPQP " + easypqpLocalVersion;
+      }
+    } else {
+      return "EasyPQP: <b>Disabled</b>";
+    }
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
@@ -572,7 +591,7 @@ public class TabConfig extends JPanelWithEnablement {
         epSpeclibgenErrParent.add(epSpeclibgenErr, new CC().wrap());
         epSpeclibgenErr.setVisible(true);
       }
-      epSpeclibgenText.setText(textSpeclibgenEnabled(false, "N/A"));
+      epSpeclibgenText.setText(textEasypqpEnabled(false, "N/A", "N/A"));
       if (m.ex instanceof ValidationException) {
         epSpeclibgenErr.setText(m.ex.getMessage());
       } else {
@@ -608,19 +627,32 @@ public class TabConfig extends JPanelWithEnablement {
     }
 
     // get EasyPQP local version
-    String easypqpVersion = "N/A";
+    String easypqpLocalVersion = "N/A";
     try {
       if (m.instance.isSomeSpeclibgenAvailable()) {
         final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-c",
-                "import pip._internal.commands.show\n" +
-                        "dist, = pip._internal.commands.show.search_packages_info(['easypqp'])\n" +
-                        "print(dist['version'])");
-        easypqpVersion = ProcessUtils.captureOutput(pb);
+            "import pip._internal.commands.show\n" +
+                "dist, = pip._internal.commands.show.search_packages_info(['easypqp'])\n" +
+                "print(dist['version'])");
+        easypqpLocalVersion = ProcessUtils.captureOutput(pb);
       }
     } catch (Exception ex) {
+      easypqpLocalVersion = "N/A";
     }
 
-    epSpeclibgenText.setText(textSpeclibgenEnabled(true, easypqpVersion));
+    // get EasyPQP latest version
+    String easypqpLatestVersion;
+    try {
+      String response = org.apache.commons.io.IOUtils.toString(new URL("https://api.github.com/repos/grosenberger/easypqp/tags"), StandardCharsets.UTF_8);
+      Gson gson = new GsonBuilder().create();
+      List<GitHubJson> gitHubJsons = gson.fromJson(response, new TypeToken<List<GitHubJson>>() {}.getType());
+      gitHubJsons.sort(Comparator.reverseOrder());
+      easypqpLatestVersion = gitHubJsons.get(0).getName();
+    } catch (Exception ex) {
+      easypqpLatestVersion = "N/A";
+    }
+
+    epSpeclibgenText.setText(textEasypqpEnabled(true, easypqpLocalVersion, easypqpLatestVersion));
     this.revalidate();
   }
 

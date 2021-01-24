@@ -109,6 +109,7 @@ distributions {
 //}
 
 dependencies {
+    implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'one.util:streamex:0.7.3'
     implementation 'org.jooq:jool-java-8:0.9.14'
 
