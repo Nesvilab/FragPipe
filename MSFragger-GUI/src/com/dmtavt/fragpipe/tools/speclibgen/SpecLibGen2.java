@@ -119,10 +119,6 @@ public class SpecLibGen2 {
     }
   }
 
-  public boolean isSomeSpeclibgenAvailable() {
-    return isInitialized() && (isSpectrastOk() || isEasypqpOk());
-  }
-
   public void init(NoteConfigPython python) throws ValidationException {
     synchronized (initLock) {
       isInitialized = false;

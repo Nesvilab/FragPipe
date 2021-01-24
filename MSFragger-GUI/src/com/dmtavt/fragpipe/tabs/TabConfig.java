@@ -629,7 +629,7 @@ public class TabConfig extends JPanelWithEnablement {
     // get EasyPQP local version
     String easypqpLocalVersion = "N/A";
     try {
-      if (m.instance.isSomeSpeclibgenAvailable()) {
+      if (m.instance.isEasypqpOk()) {
         final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-c",
             "import pip._internal.commands.show\n" +
                 "dist, = pip._internal.commands.show.search_packages_info(['easypqp'])\n" +
