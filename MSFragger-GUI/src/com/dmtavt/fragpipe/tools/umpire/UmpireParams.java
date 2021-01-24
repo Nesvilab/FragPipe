@@ -55,17 +55,11 @@ public class UmpireParams implements PropertyFileContent {
     
     public static final String PROP_MS1PPM = "SE.MS1PPM";
     public static final String PROP_MS2PPM = "SE.MS2PPM";
-    public static final String PROP_SN = "SE.SN";
-    public static final String PROP_MS2SN = "SE.MS2SN";
     public static final String PROP_MinMSIntensity = "SE.MinMSIntensity";
     public static final String PROP_MinMSMSIntensity = "SE.MinMSMSIntensity";
-    public static final String PROP_MaxCurveRTRange = "SE.MaxCurveRTRange";
     public static final String PROP_NoMissedScan = "SE.NoMissedScan";
-    public static final String PROP_MinFrag = "SE.MinFrag";
     public static final String PROP_EstimateBG = "SE.EstimateBG";
-    public static final String PROP_MinNoPeakCluster = "SE.MinNoPeakCluster";
-    public static final String PROP_MaxNoPeakCluster = "SE.MaxNoPeakCluster";
-    
+
     public static final String PROP_WindowType = "WindowType";
     public static final String PROP_WindowSize = "WindowSize";
 

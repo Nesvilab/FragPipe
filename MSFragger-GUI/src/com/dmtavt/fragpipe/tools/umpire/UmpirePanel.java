@@ -7,18 +7,12 @@ import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_DeltaApex;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_EstimateBG;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MS1PPM;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MS2PPM;
-import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MS2SN;
-import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MaxCurveRTRange;
-import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MaxNoPeakCluster;
-import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MinFrag;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MinMSIntensity;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MinMSMSIntensity;
-import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MinNoPeakCluster;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_NoMissedScan;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_RFmax;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_RPmax;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_RTOverlap;
-import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_SN;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_Thread;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_WindowSize;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_WindowType;
@@ -88,16 +82,10 @@ public class UmpirePanel extends JPanel {
       PROP_BoostComplementaryIon,
       PROP_MS1PPM,
       PROP_MS2PPM,
-      PROP_SN,
-      PROP_MS2SN,
       PROP_MinMSIntensity,
       PROP_MinMSMSIntensity,
-      PROP_MaxCurveRTRange,
       PROP_NoMissedScan,
-      PROP_MinFrag,
       PROP_EstimateBG,
-      PROP_MinNoPeakCluster,
-      PROP_MaxNoPeakCluster,
       PROP_WindowType,
       PROP_WindowSize);
 
@@ -170,18 +158,12 @@ public class UmpirePanel extends JPanel {
     //entries.add(new FormEntry(UmpireParams.PROP_, "", new JFormattedTextField()));
     feSe.add(new FormEntry(UmpireParams.PROP_MS1PPM, "MS1 PPM", new JFormattedTextField(decimalAsInt)));
     feSe.add(new FormEntry(UmpireParams.PROP_MS2PPM, "MS2 PPM", new JFormattedTextField(decimalAsInt)));
-    feSe.add(new FormEntry(UmpireParams.PROP_MaxCurveRTRange, "Max Curve RT Range", new JFormattedTextField(decimal)));
+
+    feSe.add(new FormEntry(UmpireParams.PROP_EstimateBG, "Estimate Background", new JCheckBox()));
 
     feSe.add(new FormEntry(UmpireParams.PROP_MinMSIntensity, "Min MS1 Intensity", new JFormattedTextField(decimal)));
     feSe.add(new FormEntry(UmpireParams.PROP_MinMSMSIntensity, "Min MS2 Intensity", new JFormattedTextField(decimal)));
-    feSe.add(new FormEntry(UmpireParams.PROP_MinFrag, "Min Fragments", new JFormattedTextField(decimalAsInt)));
 
-    feSe.add(new FormEntry(UmpireParams.PROP_SN, "MS1 S/N", new JFormattedTextField(decimalAsInt)));
-    feSe.add(new FormEntry(UmpireParams.PROP_MS2SN, "MS2 S/N", new JFormattedTextField(decimalAsInt)));
-    feSe.add(new FormEntry(UmpireParams.PROP_EstimateBG, "Estimate Background", new JCheckBox()));
-
-    feSe.add(new FormEntry(UmpireParams.PROP_MinNoPeakCluster, "Min N Peaks/Cluster", new JFormattedTextField(decimalAsInt)));
-    feSe.add(new FormEntry(PROP_MaxNoPeakCluster, "Max N Peaks/Cluster", new JFormattedTextField(decimalAsInt)));
     feSe.add(new FormEntry(UmpireParams.PROP_NoMissedScan, "Max Missed Scans", new JFormattedTextField(decimalAsInt)));
     //entries.add(new FormEntry(UmpireParams.PROP_, "", new JFormattedTextField()));
 
