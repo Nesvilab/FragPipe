@@ -7,6 +7,7 @@ import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_DeltaApex;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_EstimateBG;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MS1PPM;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MS2PPM;
+import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MassDefectFilter;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MinMSIntensity;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MinMSMSIntensity;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_NoMissedScan;
@@ -86,6 +87,7 @@ public class UmpirePanel extends JPanel {
       PROP_MinMSMSIntensity,
       PROP_NoMissedScan,
       PROP_EstimateBG,
+      PROP_MassDefectFilter,
       PROP_WindowType,
       PROP_WindowSize);
 
@@ -163,6 +165,8 @@ public class UmpirePanel extends JPanel {
 
     feSe.add(new FormEntry(UmpireParams.PROP_MinMSIntensity, "Min MS1 Intensity", new JFormattedTextField(decimal)));
     feSe.add(new FormEntry(UmpireParams.PROP_MinMSMSIntensity, "Min MS2 Intensity", new JFormattedTextField(decimal)));
+
+    feSe.add(new FormEntry(PROP_MassDefectFilter, "Mass Defect Filter", new JCheckBox()));
 
     feSe.add(new FormEntry(UmpireParams.PROP_NoMissedScan, "Max Missed Scans", new JFormattedTextField(decimalAsInt)));
     //entries.add(new FormEntry(UmpireParams.PROP_, "", new JFormattedTextField()));

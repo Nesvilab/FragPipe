@@ -10,6 +10,7 @@ RTOverlap=0.3
 SE.EstimateBG=false
 SE.MS1PPM=10
 SE.MS2PPM=20
+SE.MassDefectFilter=true
 SE.MinMSIntensity=1
 SE.MinMSMSIntensity=1
 SE.NoMissedScan=1
