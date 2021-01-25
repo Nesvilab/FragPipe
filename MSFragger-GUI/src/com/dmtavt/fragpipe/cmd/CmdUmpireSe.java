@@ -15,11 +15,8 @@ import java.awt.Component;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.file.Path;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -76,11 +73,9 @@ public class CmdUmpireSe extends CmdBase {
     Path jarUmpireSe = paths.get(0);
 
     // write umpire params file
-    final DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-    final String dateStr = df.format(new Date());
     final UmpireParams collectedUmpireParams = umpirePanel.collect();
     final String umpireParamsFileName =
-        UmpireParams.FILE_BASE_NAME + "_" + dateStr + "." + UmpireParams.FILE_BASE_EXT;
+        UmpireParams.FILE_BASE_NAME + "." + UmpireParams.FILE_BASE_EXT;
     final Path umpireParamsFilePath = wd.resolve(umpireParamsFileName);
     if (!isDryRun) {
       try {
