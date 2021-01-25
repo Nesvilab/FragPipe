@@ -5,6 +5,7 @@
  * For more details take a look at the Java Quickstart chapter in the Gradle
  * user guide available at https://docs.gradle.org/4.10.2/userguide/tutorial_java_projects.html
  */
+import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
     // Apply the java plugin to add support for Java
@@ -220,6 +221,8 @@ void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startCl
     String taskName = "makeReleaseZip" + (withJre ? "WithJre" : "NoJre");
 
     task (taskName, type: Zip, group: 'chhh-release') {
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) // for build on Windows, zip with execute bit
+            fileMode = 0755
         dependsOn 'clean'
         dependsOn 'test'
         dependsOn 'makeExeAndCopyToScripts'
