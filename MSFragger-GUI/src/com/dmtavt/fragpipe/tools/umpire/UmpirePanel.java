@@ -23,14 +23,16 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
-import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
-import com.github.chhh.utils.swing.UiText;
+import com.github.chhh.utils.swing.UiCombo;
+import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -42,35 +44,32 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import rx.swing.sources.DocumentEventSource;
 
 public class UmpirePanel extends JPanel {
   public JCheckBox checkRunUmpireSe;
-  private UiText textConfigFile;
-  private final String ghostTextConfigFile = "Path to a config file with defaults - Optional";
   private JPanel pFrag;
   private JPanel pSe;
   private JPanel pSwath;
-  private JPanel pOther;
   private ImageIcon icon;
+  private UiCombo uiComboLoadDefaultsNames;
 
   private final List<String> paramNames = Arrays.asList(
       PROP_RPmax,
@@ -92,7 +91,6 @@ public class UmpirePanel extends JPanel {
 
   public UmpirePanel() {
     initMore();
-    //Bus.registerQuietly(this);
     Bus.postSticky(this);
   }
 
@@ -110,11 +108,20 @@ public class UmpirePanel extends JPanel {
 
     // Panel - top
     JPanel pTop = new JPanel(new MigLayout(lc));
-    //pTop.setBorder(new TitledBorder("General options"));
 
     checkRunUmpireSe = new JCheckBox("Run DIA-Umpire SE (Signal Extraction)");
-    pTop.add(checkRunUmpireSe);
+    pTop.add(checkRunUmpireSe, new CC().spanX().wrap());
 
+    List<String> loadOptions = new ArrayList<>(2);
+    loadOptions.add("Default DIA-Umpire parameter file");
+    loadOptions.add("Custom DIA-Umpire parameter file from disk");
+    uiComboLoadDefaultsNames = UiUtils.createUiCombo(loadOptions);
+    JButton btnLoad = new JButton("Load");
+    btnLoad.addActionListener(this::actionBtnConfigLoad);
+
+    pTop.add(btnLoad);
+    pTop.add(new JLabel(":"));
+    pTop.add(uiComboLoadDefaultsNames);
 
     // Panel - fragment grouping options
     pFrag = new JPanel(new MigLayout(lc));
@@ -168,7 +175,6 @@ public class UmpirePanel extends JPanel {
     feSe.add(new FormEntry(PROP_MassDefectFilter, "Mass Defect Filter", new JCheckBox()));
 
     feSe.add(new FormEntry(UmpireParams.PROP_NoMissedScan, "Max Missed Scans", new JFormattedTextField(decimalAsInt)));
-    //entries.add(new FormEntry(UmpireParams.PROP_, "", new JFormattedTextField()));
 
     for (int i = 0; i < feSe.size(); i++) {
       CC ccLabel = new CC().alignX("right").gapBefore("5px");
@@ -195,60 +201,11 @@ public class UmpirePanel extends JPanel {
     pSwath.add(feWinSize.label(), ccLbl);
     pSwath.add(feWinSize.comp, ccComp);
 
-
-    // Panel - Other options
-    pOther = new JPanel(new MigLayout(lc));
-    pOther.setBorder(new TitledBorder("Other options"));
-
-    // default config file
-    String pathConfigFile = ThisAppProps.load(UmpireParams.CACHE_FILE);
-    textConfigFile = new UiText(pathConfigFile, ghostTextConfigFile);
-    DocumentEventSource.fromDocumentEventsOf(textConfigFile.getDocument())
-        .debounce(3, TimeUnit.SECONDS)
-        .subscribe(documentEvent -> {
-          try {
-            final String toSave = textConfigFile.getNonGhostText();
-            ThisAppProps.save(UmpireParams.CACHE_FILE, toSave);
-
-            if (!StringUtils.isNullOrWhitespace(toSave)) {
-              Path path = Paths.get(toSave);
-              if (Files.exists(path)) {
-                UmpireParams params = new UmpireParams();
-                try (InputStream is = Files.newInputStream(path, StandardOpenOption.READ)) {
-                  params.load(is);
-                  UmpirePanel.this.fillFrom(params);
-                }
-              }
-            }
-
-          } catch (Exception ignore) {}
-        });
-    {
-      FormEntry feConfigFile = new FormEntry(UmpireParams.CACHE_FILE, "Default config file",
-          textConfigFile);
-      pOther.add(feConfigFile.label(), ccLbl);
-      pOther.add(feConfigFile.comp, new CC().growX().pushX());
-
-      Supplier<JFileChooser> fcProvider = () -> {
-        JFileChooser fc = FileChooserUtils.create("Config file", "Select", false,
-            FcMode.FILES_ONLY, true);
-        FileChooserUtils.setPath(fc, Stream.of(textConfigFile.getNonGhostText()));
-        return fc;
-      };
-
-      pOther.add(feConfigFile.browseButton("Browse", ghostTextConfigFile, fcProvider,
-          paths -> textConfigFile.setText(paths.stream()
-              .map(Path::toString)
-              .collect(Collectors.joining(FileChooserUtils.MULTI_FILE_DELIMITER)))),
-          new CC().minWidth("button").wrap());
-    }
-
     CC ccGrowX = new CC().growX();
     this.add(pTop, ccGrowX);
     this.add(pFrag, ccGrowX);
     this.add(pSe, ccGrowX);
     this.add(pSwath, ccGrowX);
-    this.add(pOther, ccGrowX);
 
     enablePanels(checkRunUmpireSe.isSelected());
     checkRunUmpireSe.addChangeListener(e -> {
@@ -264,16 +221,48 @@ public class UmpirePanel extends JPanel {
     reloadUmpireParams();
   }
 
-  private void enablePanels(boolean enabled) {
-    List<Container> comps = Arrays.asList(pFrag, pSe, pSwath, pOther);
-    for (Container c : comps) {
-      SwingUtils.enableComponents(c, enabled);
+  private void actionBtnConfigLoad(ActionEvent actionEvent) {
+    String option = (String) uiComboLoadDefaultsNames.getSelectedItem();
+
+    if (option == null || option.contentEquals("Default DIA-Umpire parameter file")) {
+      try {
+        UmpireParams params = new UmpireParams();
+        params.loadDefault();
+        fillFrom(params);
+      } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "<html>Could not load the default parameter file: <br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+      }
+    } else {
+      FileNameExtensionFilter filter = new FileNameExtensionFilter("Properties/Params", "params");
+      JFileChooser fc = FileChooserUtils.create("Select saved file", "Load", false, FcMode.FILES_ONLY, true, filter);
+      fc.setFileFilter(filter);
+      FileChooserUtils.setPath(fc, Stream.of(ThisAppProps.load(ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN)));
+      Component parent = SwingUtils.findParentFrameForDialog(this);
+      int saveResult = fc.showOpenDialog(parent);
+      if (JFileChooser.APPROVE_OPTION == saveResult) {
+        File f = fc.getSelectedFile();
+        Path p = Paths.get(f.getAbsolutePath());
+        ThisAppProps.save(ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN, p.toString());
+        if (Files.exists(p)) {
+          UmpireParams params = new UmpireParams();
+          try (InputStream is = Files.newInputStream(p, StandardOpenOption.READ)) {
+            params.load(is);
+            UmpirePanel.this.fillFrom(params);
+          } catch (Exception ex) {
+            JOptionPane.showMessageDialog(parent, "<html>Could not load the saved file: <br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+          }
+        } else {
+          JOptionPane.showMessageDialog(parent, "<html>This is strange,<br/> but the file you chose to load doesn't exist anymore.", "Strange", JOptionPane.ERROR_MESSAGE);
+        }
+      }
     }
   }
 
-  public String getDefaultConfigFile() {
-    String text = textConfigFile.getNonGhostText();
-    return StringUtils.isNullOrWhitespace(text) ? null : text;
+  private void enablePanels(boolean enabled) {
+    List<Container> comps = Arrays.asList(pFrag, pSe, pSwath);
+    for (Container c : comps) {
+      SwingUtils.enableComponents(c, enabled);
+    }
   }
 
   public void reloadUmpireParams() {
@@ -282,19 +271,10 @@ public class UmpirePanel extends JPanel {
       try {
         // load original defaults
         params.loadDefault();
-        // load user specified defaults
-        final String newDefaultsPath = getDefaultConfigFile();
-        if (!StringUtils.isNullOrWhitespace(newDefaultsPath)) {
-          Path path = Paths.get(newDefaultsPath);
-          try (InputStream is = Files.newInputStream(path)) {
-            params.load(is);
-          }
-        }
         // load cached
         params.loadCache();
 
         fillFrom(params);
-
       } catch (IOException ignore) {}
     }).run();
   }
@@ -306,15 +286,7 @@ public class UmpirePanel extends JPanel {
 
     // load defaults either from user specified config file
     try {
-      final String confFile = getDefaultConfigFile();
-      if (!StringUtils.isNullOrWhitespace(confFile)) {
-        try (InputStream is = Files.newInputStream(Paths.get(confFile))) {
-          params.load(is);
-        }
-      } else {
-        // OR load defaults either from the defaults in the jar
-        params.loadDefault();
-      }
+      params.loadDefault();
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
@@ -346,9 +318,5 @@ public class UmpirePanel extends JPanel {
       }
     }
 
-  }
-
-  public ImageIcon getIcon() {
-    return icon;
   }
 }
