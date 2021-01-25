@@ -632,9 +632,8 @@ public class TabConfig extends JPanelWithEnablement {
     try {
       if (m.instance.isEasypqpOk()) {
         final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-c",
-            "import pip._internal.commands.show\n" +
-                "dist, = pip._internal.commands.show.search_packages_info(['easypqp'])\n" +
-                "print(dist['version'])");
+                "import pkg_resources\n" +
+                        "print(pkg_resources.get_distribution('easypqp').version)");
         easypqpLocalVersion = ProcessUtils.captureOutput(pb);
       }
     } catch (Exception ex) {
