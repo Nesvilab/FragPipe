@@ -544,8 +544,12 @@ public class Fragpipe extends JFrame {
     int cmp = VersionComparator.cmp(Version.version(), remoteVer);
     log.debug("Got NoteFragpipeProperties, property {}={}. Current version: {}, their comparison = {}", PROP_LAST_RELEASE_VER, remoteVer, Version.version(), cmp);
     String announcement = m.propsFix.getProperty(Version.PROP_ANNOUNCE);
-    if (cmp < 0 || StringUtils.isNotBlank(announcement)) {
+    if (cmp < 0) {
       Bus.postSticky(new NoteFragpipeUpdate(remoteVer, m.propsFix.getProperty("fragpipe.download-url"), announcement));
+    }
+
+    if (StringUtils.isNotBlank(announcement) && cmp >= 0) {
+      Bus.postSticky(new NoteFragpipeUpdate("", "", announcement));
     }
 
     // check for potential new update packages

@@ -261,7 +261,7 @@ public class TabConfig extends JPanelWithEnablement {
     if (StringUtils.isNotBlank(m.announcement)) {
       if (sb.length() != 0)
         sb.append("\n");
-      sb.append(m.announcement).append("n");
+      sb.append(m.announcement).append("\n");
     }
     if (sb.length() == 0) {
       log.warn("Received NoteFragpipeUpdate message, but did not compose any user notification out of it.");
