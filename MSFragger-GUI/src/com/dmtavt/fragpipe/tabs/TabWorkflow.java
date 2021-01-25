@@ -875,8 +875,8 @@ public class TabWorkflow extends JPanelWithEnablement {
         () -> new MessageLcmsGroupAction(Type.SET_EXP));
     btnGroupsClear = button("Clear groups", () -> new MessageLcmsGroupAction(Type.CLEAR_GROUPS));
 
-    btnManifestSave = button("Save as manifest", () -> new MessageManifestSave());
-    btnManifestLoad = button("Load manifest", () -> new MessageManifestLoad());
+    btnManifestSave = button("Save as manifest", MessageManifestSave::new);
+    btnManifestLoad = button("Load manifest", MessageManifestLoad::new);
 
     createFileTable();
 
@@ -1070,9 +1070,9 @@ public class TabWorkflow extends JPanelWithEnablement {
           Seq.seq(badLines).toString("\n"), "Malformed manifest");
     }
 
-    List<Path> notExist = loaded.stream().map(f -> f.getPath()).filter(Files::notExists)
+    List<Path> notExist = loaded.stream().map(InputLcmsFile::getPath).filter(Files::notExists)
         .collect(Collectors.toList());
-    Set<Path> inTablePaths = inTable.stream().map(f -> f.getPath()).collect(Collectors.toSet());
+    Set<Path> inTablePaths = inTable.stream().map(InputLcmsFile::getPath).collect(Collectors.toSet());
     if (inTable.isEmpty()) {
       showSkippedFiles(notExist);
       tableModelRawFiles.dataAddAll(loaded);

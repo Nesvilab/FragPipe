@@ -16,12 +16,15 @@
  */
 package com.dmtavt.fragpipe.tools.umpire;
 
+import com.dmtavt.fragpipe.params.PropLine;
+import com.dmtavt.fragpipe.params.PropertyFileContent;
+import com.github.chhh.utils.CacheUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,9 +38,6 @@ import java.util.Properties;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.dmtavt.fragpipe.params.PropLine;
-import com.dmtavt.fragpipe.params.PropertyFileContent;
-import com.github.chhh.utils.CacheUtils;
 
 /**
  *
@@ -172,7 +172,7 @@ public class UmpireParams implements PropertyFileContent {
     public void load(InputStream is) throws IOException {
 
         Pattern propRegex = Pattern.compile("^\\s*([^=]+?)\\s*=\\s*(.+?)\\s*", Pattern.CASE_INSENSITIVE);
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             int lineNum = 0;
             String line;
             while ((line = br.readLine()) != null) {
