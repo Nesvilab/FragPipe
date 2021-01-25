@@ -20,6 +20,7 @@ public class InputLcmsFile {
     public static final String REASON_UNSUPPORTED = "not supported";
     public static final String allowedChars = "[A-Za-z0-9-_+.\\[\\]()]";
     public static final String disallowedChars = "[^A-Za-z0-9-_ +.\\[\\]()]";
+    public static final Pattern disallowedExperimentPattern = Pattern.compile("[^A-Za-z0-9-_]");
     public static final String REASON_DISALLOWED_CHARS = "has characters other than: " + allowedChars;
 
 
@@ -29,7 +30,8 @@ public class InputLcmsFile {
 
     public InputLcmsFile(Path path, String experiment, Integer replicate) {
         this.path = path;
-        this.experiment = experiment != null ? experiment : ThisAppProps.DEFAULT_LCMS_EXP_NAME;
+        experiment = experiment != null ? experiment.trim() : ThisAppProps.DEFAULT_LCMS_EXP_NAME;
+        this.experiment = disallowedExperimentPattern.matcher(experiment).replaceAll("_");
         this.replicate = replicate;
     }
 

@@ -160,9 +160,9 @@ public class TabWorkflow extends JPanelWithEnablement {
         "Path (can drag & drop from Explorer)",
         String.class, false, data -> data.getPath().toString());
     TableModelColumn<InputLcmsFile, String> colExp = new TableModelColumn<>(
-        "Experiment (can be empty)", String.class, true, InputLcmsFile::getExperiment);
+        "Experiment (can be empty, alphanumeric, and _)", String.class, true, InputLcmsFile::getExperiment);
     TableModelColumn<InputLcmsFile, Integer> colRep = new TableModelColumn<>(
-        "Replicate (can be empty)", Integer.class, true, InputLcmsFile::getReplicate);
+        "Replicate (can be empty and integer)", Integer.class, true, InputLcmsFile::getReplicate);
     cols.add(colPath);
     cols.add(colExp);
     cols.add(colRep);
