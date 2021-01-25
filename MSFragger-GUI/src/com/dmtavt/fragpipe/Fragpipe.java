@@ -268,6 +268,18 @@ public class Fragpipe extends JFrame {
       fp.pack();
       decorateFrame(fp);
       log.debug("Showing Fragpipe frame");
+
+      fp.addWindowListener(new WindowAdapter() {
+        public void windowClosing(WindowEvent we) {
+          int result = JOptionPane.showConfirmDialog(fp, "Do you want to exit now?", "FragPipe", JOptionPane.YES_NO_OPTION);
+          if (result == JOptionPane.YES_OPTION) {
+            fp.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+          } else if (result == JOptionPane.NO_OPTION) {
+            fp.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+          }
+        }
+      });
+
       fp.setVisible(true);
 
       Rectangle screen = ScreenUtils.getScreenTotalArea(fp);

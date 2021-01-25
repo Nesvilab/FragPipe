@@ -1,22 +1,21 @@
 package com.dmtavt.fragpipe;
 
-import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.messages.MessageLoaderUpdate;
 import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
 import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
 import com.dmtavt.fragpipe.messages.NoteStartupComplete;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.time.Duration;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -32,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscription;
 import rx.schedulers.Schedulers;
-import com.dmtavt.fragpipe.params.ThisAppProps;
 
 public class FragpipeLoader {
 
