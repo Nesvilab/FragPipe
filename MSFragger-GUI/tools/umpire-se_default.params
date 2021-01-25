@@ -10,7 +10,7 @@ Thread = 7
 RPmax = 25
 RFmax = 500
 CorrThreshold = 0
-DeltaApex = 0.3
+DeltaApex = 0.1
 RTOverlap = 0.3
 
 #Fragment intensity adjustments
