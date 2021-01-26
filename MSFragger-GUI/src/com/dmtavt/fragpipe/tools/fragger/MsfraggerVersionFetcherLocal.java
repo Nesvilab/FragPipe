@@ -45,7 +45,7 @@ public class MsfraggerVersionFetcherLocal implements VersionFetcher {
     @Override
     public String getDownloadUrl() {
         Properties props = getProperties();
-        String url = props.getProperty(MsfraggerProps.PROP_DOWNLOAD_URL);
+        String url = props.getProperty(MsfraggerProps.PROP_UPDATESERVER_WEBSITE_URL);
         if (url == null) {
             throw new IllegalStateException("Download URL should not be null in the local version fetcher");
         }

@@ -45,10 +45,10 @@ public class MsfraggerVersionFetcherGithub implements VersionFetcher {
             log.debug(String.format("Msfragger property '%s' was not found", MsfraggerProps.PROP_LATEST_VERSION));
             return null;
         }
-        downloadUrl = props.getProperty(MsfraggerProps.PROP_DOWNLOAD_URL);
+        downloadUrl = props.getProperty(MsfraggerProps.PROP_UPDATESERVER_WEBSITE_URL);
         if (downloadUrl == null)
             throw new IllegalStateException(String.format("Msfragger property '%s' was not found",
-                    MsfraggerProps.PROP_DOWNLOAD_URL));
+                    MsfraggerProps.PROP_UPDATESERVER_WEBSITE_URL));
         
         return latestKnownVer;
     }
