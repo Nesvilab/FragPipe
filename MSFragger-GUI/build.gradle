@@ -119,8 +119,6 @@ dependencies {
     implementation 'org.jgrapht:jgrapht-ext:1.4.0'
     implementation 'com.github.vlsi.mxgraph:jgraphx:4.1.0'
 
-    implementation 'org.apache.httpcomponents:httpcore:4.4.13'
-    implementation(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.12')
     implementation 'commons-logging:commons-logging-api:1.1'
 
     implementation 'org.apache.httpcomponents:httpmime:4.5.13'

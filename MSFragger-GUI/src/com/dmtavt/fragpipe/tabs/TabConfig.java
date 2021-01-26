@@ -7,6 +7,7 @@ import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.PyInfo;
+import com.dmtavt.fragpipe.dialogs.DownloadMSFraggerPanel;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageBalloon;
@@ -31,6 +32,7 @@ import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerVersionFetcherServer;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher.UpdateInfo;
 import com.dmtavt.fragpipe.util.GitHubJson;
@@ -58,7 +60,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -75,6 +76,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -82,6 +84,7 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -100,8 +103,9 @@ public class TabConfig extends JPanelWithEnablement {
 
   private static final Logger log = LoggerFactory.getLogger(TabConfig.class);
   private static final String msfraggerMinVersion = "3.2";
-
   private static final MigUtils mu = MigUtils.get();
+  private static final Pattern emailPattern = Pattern.compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
+
   private UiText uiTextBinFragger;
   private HtmlStyledJEditorPane epFraggerVer;
   private UiText uiTextBinPhi;
@@ -317,17 +321,48 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private JPanel newMigPanel() {
-    //return new JPanel(new MigLayout(new LC().fillX().insetsAll("0px")));
     return new JPanel(new MigLayout(new LC().fillX()));
   }
 
   private void actionMsfraggerUpdate(ActionEvent evt) {
     try {
-      String url = MsfraggerProps.getProperties()
-          .getProperty(MsfraggerProps.PROP_UPDATESERVER_WEBSITE_URL);
-      Desktop.getDesktop().browse(URI.create(url));
-    } catch (IOException ex) {
-      throw new IllegalStateException("Could not open MSFragger update link in browser.", ex);
+      DownloadMSFraggerPanel p = new DownloadMSFraggerPanel();
+      int confirmation = JOptionPane.showConfirmDialog(this, p, "Please agree to the terms of the licenses.", JOptionPane.YES_NO_CANCEL_OPTION);
+      if (JOptionPane.OK_OPTION == confirmation) {
+        if (p.getName() == null || p.getName().isEmpty()) {
+          JOptionPane.showMessageDialog(this, "Please fill in your name.", "Error", JOptionPane.ERROR_MESSAGE);
+          return;
+        }
+        if (p.getEmail() == null || p.getEmail().isEmpty() || !emailPattern.matcher(p.getEmail()).matches()) {
+          JOptionPane.showMessageDialog(this, "Please fill in an valid email.", "Error", JOptionPane.ERROR_MESSAGE);
+          return;
+        }
+        if (p.getInstitution() == null || p.getInstitution().isEmpty()) {
+          JOptionPane.showMessageDialog(this, "Please fill in your institution.", "Error", JOptionPane.ERROR_MESSAGE);
+          return;
+        }
+        if (!p.licensesChecked()) {
+          JOptionPane.showMessageDialog(this, "Please read and check all of the licenses.", "Error", JOptionPane.ERROR_MESSAGE);
+          return;
+        }
+
+        Path toolsPath = PathUtils.createDirs(FragpipeLocations.get().getDirTools());
+        MsfraggerVersionFetcherServer msfraggerVersionFetcherServer = new MsfraggerVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution());
+        new Thread(() -> {
+          try {
+            Path msfraggerPath = msfraggerVersionFetcherServer.autoUpdate(toolsPath);
+            if (msfraggerPath != null) {
+              Bus.post(new MessageMsfraggerNewBin(msfraggerPath.toAbsolutePath().toString()));
+            } else {
+              Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", null));
+            }
+          } catch (Exception ex) {
+            Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", ex));
+          }
+        }).start();
+      }
+    } catch (Exception ex) {
+      Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", ex));
     }
   }
 

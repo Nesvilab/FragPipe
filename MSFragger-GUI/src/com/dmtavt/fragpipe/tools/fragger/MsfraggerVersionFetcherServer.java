@@ -16,31 +16,38 @@
  */
 package com.dmtavt.fragpipe.tools.fragger;
 
+import static com.github.chhh.utils.ZipUtils.unzipWithSubfolders;
+
+import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.VersionFetcher;
+import com.dmtavt.fragpipe.messages.MessagePhiDlProgress;
+import com.dmtavt.fragpipe.tools.philosopher.PhiDownloadProgress;
+import com.github.chhh.utils.Holder;
+import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.FormBodyPart;
-import org.apache.http.entity.mime.FormBodyPartBuilder;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import java.util.stream.Collectors;
+import javax.swing.SwingUtilities;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.ForwardingSource;
+import okio.Okio;
+import okio.Source;
+import org.jetbrains.annotations.NotNull;
 
 /**
  *
@@ -50,8 +57,23 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
 
     private final Pattern re = Pattern.compile("([\\d.]+)");
     private String latestVerResponse = null;
+    private String lastVersionStr = null;
     private static final Object lock = new Object();
-    
+
+    private final String name;
+    private final String email;
+    private final String institution;
+
+    public MsfraggerVersionFetcherServer() {
+        this(null, null, null);
+    }
+
+    public MsfraggerVersionFetcherServer(String name, String email, String institution) {
+        this.name = name;
+        this.email = email;
+        this.institution = institution;
+    }
+
     @Override
     public String fetchVersion() throws IOException {
         synchronized (lock) {
@@ -94,12 +116,16 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
             return response.trim();
         }
     }
+
     @Override
-    public Path autoUpdate(Path p) throws IOException {
-        if (p == null || !Files.exists(p) || Files.isDirectory(p))
+    public Path autoUpdate(Path toolsPath) throws IOException {
+        if (toolsPath == null || !Files.exists(toolsPath)) {
             throw new IllegalArgumentException("The path to file to be updated must be non-null, must exist and not point to a directory.");
-        
-        String lastVersionStr = fetchVersion();
+        }
+
+        if (StringUtils.isNullOrWhitespace(lastVersionStr)) {
+            lastVersionStr = fetchVersion();
+        }
         
         String updateSvcUrl = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_UPDATESERVER_UPDATE_URL);
         if (updateSvcUrl == null) {
@@ -110,61 +136,80 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
             latestVerResponse = fetchVersionResponse();
         }
 
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost post = new HttpPost(updateSvcUrl);
+        Path zipPath = toolsPath.resolve("MSFragger-" + lastVersionStr + ".zip");
 
-        final FormBodyPart formPartDownload = FormBodyPartBuilder.create()
-                .setName("download")
-                .setBody(new StringBody(latestVerResponse + "$jar", ContentType.TEXT_PLAIN))
-                .build();
-        final FormBodyPart formPartTradeinFile = FormBodyPartBuilder.create()
-                .setName("jarkey")
-                .setBody(new FileBody(p.toFile()))
-                .build();
+        RequestBody requestBody = new MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("transfer", "academic")
+            .addFormDataPart("agreement2", "true")
+            .addFormDataPart("agreement3", "true")
+            .addFormDataPart("name", name)
+            .addFormDataPart("email", email)
+            .addFormDataPart("organization", institution)
+            .addFormDataPart("download", latestVerResponse + "$zip")
+            .build();
 
-        HttpEntity req = MultipartEntityBuilder.create()
-                .addPart(formPartDownload)
-                .addPart(formPartTradeinFile)
-                .build();
-        post.setEntity(req);
+        OkHttpClient client2 = new OkHttpClient();
+        Request request = new Request.Builder().url(updateSvcUrl).post(requestBody).build();
 
-        try (final CloseableHttpResponse response = client.execute(post)) {
-            final HttpEntity entity = response.getEntity();
-            final long contentLength = entity.getContentLength();
-            final Header[] headers = response.getAllHeaders();
-            String file = null;
-            outerLoop:
-            for (Header h : headers) {
-                for (HeaderElement he : h.getElements()) {
-                    if ("attachment".equalsIgnoreCase(he.getName())) {
-                        NameValuePair nvp = he.getParameterByName("filename");
-                        if (nvp == null)
-                            continue;
-                        file = nvp.getValue();
-                        break outerLoop;
+        try {
+            Response response = client2.newCall(request).execute();
+            if (!response.isSuccessful()) {
+                throw new IllegalStateException("Request unsuccessful");
+            }
+
+            ResponseBody body = response.body();
+            if (body == null) {
+                throw new IllegalStateException("Null response body during download");
+            }
+
+            long contentLength = body.contentLength();
+
+            final Holder<PhiDownloadProgress> dlProgress = new Holder<>();
+            SwingUtilities.invokeLater(() -> {
+                dlProgress.obj = new PhiDownloadProgress();
+                Bus.registerQuietly(dlProgress.obj);
+            });
+
+            try (BufferedSink sink = Okio.buffer(Okio.sink(zipPath))) {
+                final AtomicLong received = new AtomicLong(0);
+                Source fwd = new ForwardingSource(body.source()) {
+                    @Override
+                    public long read(@NotNull Buffer sink, long byteCount) throws IOException {
+                        long read = super.read(sink, byteCount);
+                        long totalRead = received.addAndGet(read);
+                        Bus.post(new MessagePhiDlProgress(totalRead, contentLength));
+                        return read;
+                    }
+                };
+
+                long read = 0;
+                while (read >= 0) {
+                    read = fwd.read(sink.getBuffer(), 8192);
+                    if (dlProgress.obj != null && dlProgress.obj.isCancel) {
+                        return null;
                     }
                 }
+            } finally {
+                if (dlProgress.obj != null) {
+                    Bus.unregister(dlProgress.obj);
+                    dlProgress.obj.close();
+                }
             }
-            
-            boolean gotName = !StringUtils.isNullOrWhitespace(file);
-            int dot = file != null ? file.lastIndexOf('.') : -1;
-                
-            final String nameBase = gotName && dot > 0 ? file.substring(0, dot) : "MSFragger-" + lastVersionStr;
-            final String nameExt = gotName && dot > 0 ? file.substring(dot) : ".jar";
-            Path pathOut = p.resolveSibling(nameBase + nameExt);
-            if (Files.exists(pathOut)) {
-                // find another suitable name
-                pathOut = Files.createTempFile(p.getParent(), nameBase + "_dup_", nameExt);
-            }
-            final byte[] upgradedFragger = EntityUtils.toByteArray(entity);
-            
-            try (BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(pathOut))) {
-                bos.write(upgradedFragger);
-            }
-            EntityUtils.consumeQuietly(entity);
-            
-            return pathOut;
+            body.close();
+            response.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+
+        unzipWithSubfolders(zipPath, toolsPath);
+
+        List<Path> possibleBins = PathUtils.findFilesQuietly(toolsPath, path -> path.getFileName().toString().matches("^MSFragger-.+\\.jar$")).collect(Collectors.toList());
+
+        if (possibleBins.size() != 1) {
+            throw new IllegalStateException(String.format("Found %d candidates for MSFragger.jar after unpacking zip", possibleBins.size()));
+        }
+        return possibleBins.get(0);
     }
     
 }

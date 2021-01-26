@@ -18,16 +18,9 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Emitter;
 import rx.Emitter.BackpressureMode;
 import rx.Observable;
-import rx.Observable.OnSubscribe;
-import rx.Scheduler;
-import rx.Subscriber;
 import rx.Subscription;
-import rx.functions.Cancellable;
-import rx.observables.SyncOnSubscribe;
-import rx.schedulers.Schedulers;
 
 public class PhiDownloadProgress {
   private static final Logger log = LoggerFactory.getLogger(PhiDownloadProgress.class);
@@ -42,7 +35,7 @@ public class PhiDownloadProgress {
     init();
     frame = new JFrame();
     Fragpipe.decorateFrame(frame);
-    frame.setTitle("Downloading Philosopher");
+    frame.setTitle("Downloading");
     frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     frame.addWindowListener(new java.awt.event.WindowAdapter() {
       @Override
