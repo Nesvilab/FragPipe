@@ -5,9 +5,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.params.ThisAppProps;
@@ -15,6 +14,25 @@ import com.dmtavt.fragpipe.params.ThisAppProps;
 public class CacheUtils {
   private static final Logger log = LoggerFactory.getLogger(CacheUtils.class);
   public static final String SYS_TEMP_DIR = System.getProperty("java.io.tmpdir");
+
+  public static final String XDG_CONFIG_HOME = ((Supplier<String>) () -> {
+    if (OsUtils.isUnix()) {
+      if (System.getenv("XDG_CONFIG_HOME") == null || System.getenv("XDG_CONFIG_HOME").isEmpty())
+        return System.getProperty("user.home") + "/.config";
+      else
+        return System.getenv("XDG_CONFIG_HOME");
+    }
+    return null;
+  }).get();
+  public static final String XDG_CACHE_HOME = ((Supplier<String>) () -> {
+    if (OsUtils.isUnix()) {
+      if (System.getenv("XDG_CACHE_HOME") == null || System.getenv("XDG_CACHE_HOME").isEmpty())
+        return System.getProperty("user.home") + "/.cache";
+      else
+        return System.getenv("XDG_CACHE_HOME");
+    }
+    return null;
+  }).get();
 
   private CacheUtils() {}
 
@@ -58,9 +76,10 @@ public class CacheUtils {
    * @return
    */
   public static Path getSystemTempDir() {
-    if (SYS_TEMP_DIR == null || SYS_TEMP_DIR.isEmpty())
+    final String dir = OsUtils.isUnix() ? XDG_CONFIG_HOME + "/FrapPipe" : SYS_TEMP_DIR;
+    if (dir == null || dir.isEmpty())
       throw new IllegalStateException("Could not locate system-wide temporary directory");
-    return Paths.get(SYS_TEMP_DIR);
+    return Paths.get(dir);
   }
 
 }

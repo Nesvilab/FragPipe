@@ -5,6 +5,7 @@ import com.dmtavt.fragpipe.messages.MissingAssetsException;
 import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
 import com.github.chhh.utils.CacheUtils;
 import com.github.chhh.utils.JarUtils;
+import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -37,16 +38,14 @@ public class FragpipeLocations {
   private final Path jarPath;
   private final Path cache;
   private final Path tools;
-  private final Path lib;
   private final Path workflows;
   private final Path longTermStorage;
 
-  private FragpipeLocations(Path jarPath, Path cache, Path tools, Path lib, Path workflows,
+  private FragpipeLocations(Path jarPath, Path cache, Path tools, Path workflows,
       Path longTermStorage) {
     this.jarPath = jarPath;
     this.cache = cache;
     this.tools = tools;
-    this.lib = lib;
     this.workflows = workflows;
     this.longTermStorage = longTermStorage;
   }
@@ -67,8 +66,9 @@ public class FragpipeLocations {
       }
       Path jarPath = Paths.get(fragpipeJar);
       log.debug("Jar path: {}", jarPath);
-      Path dir = Files.isDirectory(jarPath) ? jarPath : jarPath.getParent();
-      log.debug("Jar dir: {}", dir);
+      final Path jarDir = Files.isDirectory(jarPath) ? jarPath : jarPath.getParent();
+      log.debug("Jar dir: {}", jarDir);
+      final Path dir = OsUtils.isWindows() ? jarDir : Paths.get(CacheUtils.XDG_CACHE_HOME, "FragPipe", "bin");
 
       Path cache = dir.resolve(Paths.get("../cache"));
 
@@ -88,12 +88,11 @@ public class FragpipeLocations {
         tools = dir.resolve(Paths.get("../tools"));
       }
 
-      Path lib = dir.resolve(Paths.get("../lib"));
       Path workflows = dir.resolve("../workflows");
       Path longTermStorage = CacheUtils.getTempDir();
 
       // create locations if they don't yet exist
-      List<Path> paths = Arrays.asList(dir, cache, tools, lib, workflows, longTermStorage);
+      List<Path> paths = Arrays.asList(dir, cache, tools, workflows, longTermStorage);
       log.debug("Fragpipe locations:\n\t{}",
           paths.stream().map(Path::toString).collect(Collectors.joining("\n\t")));
       for (Path path : paths) {
@@ -108,7 +107,7 @@ public class FragpipeLocations {
         }
       }
 
-      locations = new FragpipeLocations(jarPath, cache, tools, lib, workflows, longTermStorage);
+      locations = new FragpipeLocations(jarPath, cache, tools, workflows, longTermStorage);
     }
   }
 
