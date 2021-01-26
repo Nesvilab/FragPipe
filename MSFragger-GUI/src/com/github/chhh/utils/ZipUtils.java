@@ -5,9 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Enumeration;
@@ -23,6 +20,14 @@ public class ZipUtils {
   public static void unzip(Path fileZip, Path destDir) throws IOException {
     if (!Files.isDirectory(destDir)) {
       throw new IOException("Destination not a directory");
+    }
+    if (OsUtils.isUnix()){
+      final ProcessBuilder unzip = new ProcessBuilder("unzip", "-o", fileZip.toString(), "-d", destDir.toString());
+      try {
+        unzip.start().waitFor();
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
     }
     byte[] buffer = new byte[8192];
     ZipInputStream zis = new ZipInputStream(new FileInputStream(fileZip.toFile()));

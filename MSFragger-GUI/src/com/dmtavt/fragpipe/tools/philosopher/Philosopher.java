@@ -18,6 +18,7 @@ import com.github.chhh.utils.ZipUtils;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
@@ -272,15 +273,15 @@ public class Philosopher {
       ZipUtils.unzip(dlLocation, unzipTo);
       final String bin = OsUtils.isWindows() ? "philosopher.exe" : "philosopher";
       List<Path> possibleBins = PathUtils
-          .findFilesQuietly(unzipTo, p -> p.getFileName().toString().equalsIgnoreCase(bin))
+          .findFilesQuietly(unzipTo, p -> Files.isRegularFile(p) && p.getFileName().toString().equalsIgnoreCase(bin))
           .collect(Collectors.toList());
 
       if (possibleBins.size() != 1) {
         throw new IllegalStateException(String
-            .format("Found %d candidates for philosopher binary after unpacking zip",
-                possibleBins.size()));
+            .format("Found %d candidates for philosopher binary after unpacking zip, %s",
+                possibleBins.size(), possibleBins));
       } else {
-        Bus.post(new MessagePhilosopherNewBin(possibleBins.get(0).toString()));
+        Bus.post(new MessagePhilosopherNewBin(possibleBins.get(0).toRealPath().toString()));
       }
     }
   }
