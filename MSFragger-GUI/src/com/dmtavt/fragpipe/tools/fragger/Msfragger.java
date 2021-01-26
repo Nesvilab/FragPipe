@@ -56,8 +56,6 @@ public class Msfragger {
 
       MsfraggerVersionFetcherServer vfServer = new MsfraggerVersionFetcherServer();
       MsfraggerVersionFetcherGithub vfGithub = new MsfraggerVersionFetcherGithub();
-//      MsfraggerVersionFetcherServer vfServer = null;
-//      MsfraggerVersionFetcherGithub vfGithub = null;
       MsfraggerVersionFetcherLocal vfLocal = new MsfraggerVersionFetcherLocal();
       List<VersionFetcher> verFetchers = Arrays.asList(vfServer, vfGithub, vfLocal);
       for (final VersionFetcher vf : verFetchers) {

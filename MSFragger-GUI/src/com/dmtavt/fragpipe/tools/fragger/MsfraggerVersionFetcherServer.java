@@ -41,19 +41,15 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Dmitry Avtonomov
  */
 public class MsfraggerVersionFetcherServer implements VersionFetcher {
-    private static final Logger log = LoggerFactory.getLogger(MsfraggerVersionFetcherServer.class);
 
     private final Pattern re = Pattern.compile("([\\d.]+)");
     private String latestVerResponse = null;
-    private String latestVerParsed = null;
     private static final Object lock = new Object();
     
     @Override
@@ -63,15 +59,13 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
             Matcher m = re.matcher(verSvcResponse);
             if (m.find()) {
                 latestVerResponse = verSvcResponse;
-                latestVerParsed = m.group(1);
                 return m.group(1);
             }
 
-            throw new IllegalStateException(
-                "Version string retrieved from the remote service was not recoginsed: '"
-                    + verSvcResponse + "'");
+            throw new IllegalStateException("Version string retrieved from the remote service was not recoginsed: '" + verSvcResponse + "'");
         }
     }
+
     @Override
     public String getDownloadUrl() {
         return MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_UPDATESERVER_WEBSITE_URL, "");
@@ -87,26 +81,19 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
         return false;
     }
 
-    private void throwIfNull(Object val, String message) {
-        if (val == null) {
-            throw new IllegalStateException(message);
-        }
-    }
-
     private String fetchVersionResponse() throws IOException {
         synchronized (lock) {
-            String serviceUrl = MsfraggerProps.getProperties()
-                .getProperty(MsfraggerProps.PROP_UPDATESERVER_VERSION_URL);
-            throwIfNull(serviceUrl,
-                "Property " + MsfraggerProps.PROP_UPDATESERVER_VERSION_URL + " not found");
+            String serviceUrl = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_UPDATESERVER_VERSION_URL);
+            if (serviceUrl == null) {
+                throw new IllegalStateException("Property " + MsfraggerProps.PROP_UPDATESERVER_VERSION_URL + " not found");
+            }
             String response = org.apache.commons.io.IOUtils.toString(new URL(serviceUrl), StandardCharsets.UTF_8);
-            if (StringUtils.isNullOrWhitespace(response))
-                throw new IllegalStateException(
-                    "Update server returned empty string for the latest available version.");
+            if (StringUtils.isNullOrWhitespace(response)) {
+                throw new IllegalStateException("Update server returned empty string for the latest available version.");
+            }
             return response.trim();
         }
     }
-    
     @Override
     public Path autoUpdate(Path p) throws IOException {
         if (p == null || !Files.exists(p) || Files.isDirectory(p))
@@ -115,8 +102,9 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
         String lastVersionStr = fetchVersion();
         
         String updateSvcUrl = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_UPDATESERVER_UPDATE_URL);
-        if (updateSvcUrl == null)
+        if (updateSvcUrl == null) {
             throw new IllegalStateException("Obtained properties file didn't contain a URL for the updater service.");
+        }
         
         if (StringUtils.isNullOrWhitespace(latestVerResponse)) {
             latestVerResponse = fetchVersionResponse();
