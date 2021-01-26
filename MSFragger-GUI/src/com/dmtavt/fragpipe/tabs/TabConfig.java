@@ -331,16 +331,6 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  private void actionMsfraggerDownload(ActionEvent e) {
-    try {
-      final String downloadUrl = MsfraggerProps.getProperties()
-          .getProperty(MsfraggerProps.PROP_DOWNLOAD_URL, "");
-      Desktop.getDesktop().browse(URI.create(downloadUrl));
-    } catch (IOException ex) {
-      throw new IllegalStateException("Could not open MSFragger download link in browser.", ex);
-    }
-  }
-
   private JFileChooser createFraggerFilechooser() {
     JFileChooser fc = FileChooserUtils.create("Select MSFragger jar", "Select",
         false, FcMode.FILES_ONLY, true,
