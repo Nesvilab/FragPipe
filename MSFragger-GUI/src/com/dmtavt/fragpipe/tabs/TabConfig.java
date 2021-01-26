@@ -232,15 +232,13 @@ public class TabConfig extends JPanelWithEnablement {
               .ifPresent(jar -> Bus.post(new MessageMsfraggerNewBin(jar.toString())));
         });
     p.add(btnBrowse, ccL());
-    JButton btnUpdate = UiUtils.createButton("Update", this::actionMsfraggerUpdate);
-    JButton btnDownload = UiUtils.createButton("Download", this::actionMsfraggerDownload);
+    JButton btnUpdate = UiUtils.createButton("Download / Update", this::actionMsfraggerUpdate);
 
     btnUpdate.setToolTipText(SwingUtils.makeHtml("Open MSFragger upgrader tool in browser.\n" +
         "In order to update you <b>must</b> download an\n" +
         "original copy from the <b>download</b> website once."));
-    p.add(btnUpdate, ccL());
-    p.add(btnDownload, ccL().wrap());
     epFraggerVer = new HtmlStyledJEditorPane("MSFragger version: N/A");
+    p.add(btnUpdate, ccL().wrap());
     p.add(Fragpipe.renameNoCache(epFraggerVer, "msfragger.version-info", TAB_PREFIX),
         ccL().spanX().growX().wrap());
     JEditorPane ep = SwingUtils.createClickableHtml(createFraggerCitationBody());
