@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -142,12 +143,22 @@ public class FragpipeLocations {
     paths.add(getPathRuntimeCache(true));
     paths.add(getPathUiCache(false));
     paths.add(getPathUiCache(true));
+    paths.add(getWorkflowsCache(false));
+    paths.add(getWorkflowsCache(true));
     return paths;
   }
 
   public void delete(List<Path> paths) throws IOException {
     for (Path path : paths) {
-      Files.deleteIfExists(path);
+      if (Files.isDirectory(path)) {
+        try (Stream<Path> walk = Files.walk(path)) {
+          for (Path p : walk.sorted(Comparator.reverseOrder()).collect(Collectors.toList())) {
+            Files.deleteIfExists(p);
+          }
+        }
+      } else {
+        Files.deleteIfExists(path);
+      }
     }
   }
 
@@ -221,12 +232,12 @@ public class FragpipeLocations {
     return longTermStorage;
   }
 
-  public Path getPathUiCache() {
-    return getPathUiCache(false);
-  }
-
   public Path getPathUiCache(boolean isGlobal) {
     return isGlobal ? CacheUtils.getTempFile(FN_CACHE_UI) : get().cache.resolve(FN_CACHE_UI);
+  }
+
+  public Path getWorkflowsCache(boolean isGlobal) {
+    return isGlobal ? CacheUtils.getTempFile(FN_CACHE_UI).resolveSibling("workflows") : get().cache.resolve(FN_CACHE_UI).resolveSibling("workflows");
   }
 
   private static Path tryLocateAsset(Path path) {
