@@ -31,7 +31,6 @@ import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger.Version;
-import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerVersionFetcherServer;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher.UpdateInfo;
@@ -214,6 +213,9 @@ public class TabConfig extends JPanelWithEnablement {
     JLabel label = new JLabel("Main tools configuration");
     label.setFont(new Font(label.getFont().getName(), Font.BOLD, label.getFont().getSize() + 3));
     p.add(label, ccL().wrap());
+
+    JEditorPane ep = SwingUtils.createClickableHtml(createOthersCitationBody());
+    p.add(ep, ccL().spanX().growX().wrap());
     return p;
   }
 
@@ -245,6 +247,7 @@ public class TabConfig extends JPanelWithEnablement {
     p.add(btnUpdate, ccL().wrap());
     p.add(Fragpipe.renameNoCache(epFraggerVer, "msfragger.version-info", TAB_PREFIX),
         ccL().spanX().growX().wrap());
+    
     JEditorPane ep = SwingUtils.createClickableHtml(createFraggerCitationBody());
     p.add(ep, ccL().spanX().growX().wrap());
     return p;
@@ -700,31 +703,21 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  public static String createFraggerCitationHtml(Font font) {
-    return SwingUtils.wrapInStyledHtml(createFraggerCitationBody(), font);
-  }
-
-  private static String createFraggerCitationBody() {
-    final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
-    final String linkMsfragger = p
-        .getProperty(MsfraggerProps.PROP_FRAGGER_SITE_URL, "https://nesvilab.github.io/MSFragger/");
-    final String linkFragpipe = p
-        .getProperty(ThisAppProps.PROP_FRAGPIPE_SITE_URL, "https://github.com/Nesvilab/FragPipe");
-    final String doi = p.getProperty(ThisAppProps.PROP_MANUSCRIPT_DOI, "10.1038/nmeth.4256");
-    final String linkManuscript = p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL,
-        "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
+  private static String createOthersCitationBody() {
     final StringBuilder sb = new StringBuilder();
 
-    sb.append("<p style=\"margin-top: 10\">");
-
-    sb.append("More info and docs: <a href=\"").append(linkMsfragger)
-        .append("\">MSFragger</a>")
-        .append(", <a href=\"").append(linkFragpipe).append("\">FragPipe</a>")
-        .append(", <a href=\"").append("https://philosopher.nesvilab.org/").append("\">Philosopher</a>")
-        .append(", <a href=\"").append("https://www.nesvilab.org/Crystal-C/").append("\">Crystal-C</a>")
+    sb.append("<p style=\"margin-top: 0\">")
+        .append("More info and docs: <a href=\"").append("https://www.nesvilab.org/Crystal-C/").append("\">Crystal-C</a>")
         .append(", <a href=\"").append("https://ionquant.nesvilab.org/").append("\">IonQuant</a>")
         .append(", <a href=\"").append("https://tmt-integrator.nesvilab.org/").append("\">TMT-Integrator</a>")
         .append(", <a href=\"").append("https://ptmshepherd.nesvilab.org/").append("\">PTM-Shepherd</a>");
+    return sb.toString();
+  }
+
+  private static String createFraggerCitationBody() {
+    final StringBuilder sb = new StringBuilder();
+    sb.append("<p style=\"margin-top: 0\">");
+    sb.append("More info and docs: <a href=\"").append("https://msfragger.nesvilab.org/").append("\">MSFragger</a>");
     return sb.toString();
   }
 
@@ -880,7 +873,7 @@ public class TabConfig extends JPanelWithEnablement {
     StringBuilder sb = new StringBuilder();
     sb.append("<p style=\"margin-top: 0\">");
     sb.append(
-        "More info: <a href=\"https://nesvilab.github.io/philosopher/\">Philosopher GitHub page</a>");
+        "More info and docs: <a href=\"https://philosopher.nesvilab.org/\">Philosopher</a>");
     sb.append("<br/>");
     sb.append("</p>");
     return sb.toString();
