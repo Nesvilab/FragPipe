@@ -1,8 +1,18 @@
 package com.dmtavt.fragpipe.tools.tmtintegrator;
 
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.dialogs.QuantLabelAnnotationDialog;
+import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
+import com.dmtavt.fragpipe.messages.MessageLoadTmtIntegratorDefaults;
+import com.dmtavt.fragpipe.messages.MessageType;
+import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.dmtavt.fragpipe.tools.tmtintegrator.TmtAnnotationTable.ExpNameToAnnotationFile;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
@@ -11,6 +21,7 @@ import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
+import com.github.chhh.utils.swing.renderers.ButtonColumn;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -48,8 +59,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
@@ -57,17 +66,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.dialogs.QuantLabelAnnotationDialog;
-import com.github.chhh.utils.swing.renderers.ButtonColumn;
-import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
-import com.dmtavt.fragpipe.messages.MessageLoadTmtIntegratorDefaults;
-import com.dmtavt.fragpipe.messages.MessageType;
-import com.dmtavt.fragpipe.params.ThisAppProps;
-import com.dmtavt.fragpipe.tools.tmtintegrator.TmtAnnotationTable.ExpNameToAnnotationFile;
-import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.swing.FormEntry;
 
 public class TmtiPanel extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(TmtiPanel.class);
@@ -136,8 +134,6 @@ public class TmtiPanel extends JPanelBase {
         s,supplyRunEx("No matching add_Ref value")).getValInUi());
   }
 
-  private UiText uiTextLabelquant;
-  private UiText uiTextFreequant;
   private JPanel pOptsAdvanced;
   private UiCombo uiComboAddRef;
   private UiCheck uiCheckDontRunFqLq;
@@ -213,8 +209,14 @@ public class TmtiPanel extends JPanelBase {
     JButton btnLoadDefaults = UiUtils.createButton("Load TMT-Integrator defaults",
         (e) -> Bus.post(new MessageLoadTmtIntegratorDefaults(true)));
 
+    uiCheckDontRunFqLq = UiUtils.createUiCheck("Skip PSM quantification (rerun TMT-Integrator only)", false);
+    FormEntry feDontRunFqLq = mu.feb(uiCheckDontRunFqLq).name("dont-run-fq-lq")
+        .tooltip("Only use in rare situations when you need to re-run TMT-Integrator separately.")
+        .create();
+
     mu.add(p, checkRun);
     mu.add(p, btnLoadDefaults).pushX().wrap();
+    mu.add(p, feDontRunFqLq.comp).spanX().growX().wrap();
 
     return p;
   }
@@ -325,7 +327,6 @@ public class TmtiPanel extends JPanelBase {
 
     mu.add(p, t[0]).growX().pushX().wrap();
     mu.add(p, t[1]).growX().pushX().wrap();
-    mu.add(p, t[2]).growX().pushX().wrap();
 
     return p;
   }
@@ -372,14 +373,6 @@ public class TmtiPanel extends JPanelBase {
         "Exclude proteins", uiTextProtExclude,
         "exclude proteins with specified tags at the beginning of the accession <br/>\n"
             + "number (e.g. none: no exclusion; sp|,tr| : exclude protein with sp| or tr|)");
-
-    uiTextFreequant = new UiText("--ptw 0.4 --tol 10 --isolated");
-    FormEntry feFreequant = fe("freequant", "Freequant opts", uiTextFreequant,
-        "Command line options for Philosopher Freequant command");
-
-    uiTextLabelquant = new UiText("--tol 20");
-    FormEntry feLabelquant = fe("labelquant", "Labelquant opts", uiTextLabelquant,
-        "Command line options for Philosopher Labelquant command");
 
     UiCombo uiComboUniquePep = UiUtils.createUiCombo(TmtiConfProps.COMBO_PEPTIDE_PROTEIN_UNIQUENESS.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
@@ -445,18 +438,6 @@ public class TmtiPanel extends JPanelBase {
         .feb(TmtiConfProps.PROP_max_pep_prob_thres, uiSpinnerMinBestPepProb)
         .label("Min best peptide probability").create();
 
-    uiCheckDontRunFqLq = UiUtils.createUiCheck("Skip Freequant and Labelquant", false);
-    FormEntry feDontRunFqLq = mu.feb(uiCheckDontRunFqLq).name("dont-run-fq-lq")
-        .tooltip("Only use in rare situations when you need to re-run TMT-Integrator separately.")
-        .create();
-    ChangeListener cl = e -> {
-      final boolean disabled = uiCheckDontRunFqLq.isSelected();
-      TmtiPanel.this.updateEnabledStatus(uiTextFreequant, !disabled);
-      TmtiPanel.this.updateEnabledStatus(uiTextLabelquant, !disabled);
-    };
-    uiCheckDontRunFqLq.addChangeListener(cl);
-    cl.stateChanged(new ChangeEvent(uiCheckAllowOverlabel));
-
     JPanel p = mu.newPanel(mu.lcNoInsetsTopBottom());
     mu.border(p, "Filters and normalization");
 
@@ -495,15 +476,7 @@ public class TmtiPanel extends JPanelBase {
     mu.add(p2, feTop3.comp);
     mu.add(p2, fePrintRefInt.comp).spanX().wrap();
 
-    JPanel p3 = mu.newPanel(mu.lcNoInsetsTopBottom());
-    mu.border(p3, "Quantification");
-    mu.add(p3, feDontRunFqLq.comp).spanX().wrap();
-    mu.add(p3, feFreequant.label(), mu.ccL());
-    mu.add(p3, feFreequant.comp, mu.ccL()).pushX().growX().wrap();
-    mu.add(p3, feLabelquant.label(), mu.ccL());
-    mu.add(p3, feLabelquant.comp, mu.ccL()).growX().wrap();
-
-    return new JPanel[]{p, p2, p3};
+    return new JPanel[]{p, p2};
   }
 
   private JPanel createPanelOptsAdvancedPtm() {
@@ -584,16 +557,8 @@ public class TmtiPanel extends JPanelBase {
     return map;
   }
 
-  public String getLabelquantOptsAsText() {
-    return uiTextLabelquant.getNonGhostText();
-  }
-
   public String getQuantLevel() {
     return uiComboQuantLevel.asString();
-  }
-
-  public String getFreequantOptsAsText() {
-    return uiTextFreequant.getNonGhostText();
   }
 
   public static class TmtAnnotationValidationException extends Exception {

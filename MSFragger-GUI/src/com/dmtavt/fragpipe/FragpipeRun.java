@@ -999,7 +999,7 @@ public class FragpipeRun {
     });
     addConfig.accept(cmdTmtFreequant, () -> {
       if (cmdTmtFreequant.isRun()) {
-        String optsFq = tmtiPanel.getFreequantOptsAsText();
+        String optsFq = "--ptw 0.4 --tol 10 --isolated";
         return cmdTmtFreequant.configure(parent, usePhi, optsFq, sharedMapGroupsToProtxml);
       }
       return true;
@@ -1029,7 +1029,7 @@ public class FragpipeRun {
     addConfig.accept(cmdTmtLabelQuant, () -> {
       if (cmdTmtLabelQuant.isRun()) {
         List<String> forbiddenOpts = Arrays.asList("--plex", "--annot", "--dir", "--level");
-        String optsLq = tmtiPanel.getLabelquantOptsAsText();
+        String optsLq = "--tol 20";
         QuantLabel label = tmtiPanel.getSelectedLabel();
         String quantLevel = tmtiPanel.getQuantLevel();
         Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
