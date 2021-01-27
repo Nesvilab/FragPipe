@@ -591,19 +591,27 @@ public class TabConfig extends JPanelWithEnablement {
     this.revalidate();
   }
 
-  private String textEasypqpEnabled(boolean isEnabled, String easypqpLocalVersion, String easypqpLatestVersion) {
-    if (isEnabled && !easypqpLocalVersion.contentEquals("N/A")) {
+  private String textSpeclibEnabled(String easypqpLocalVersion, String easypqpLatestVersion, boolean enableSpectrast, boolean enableEasypqp) {
+    StringBuilder sb = new StringBuilder();
+    if (enableEasypqp && !easypqpLocalVersion.contentEquals("N/A")) {
       if (!easypqpLatestVersion.contentEquals("N/A") && VersionComparator.cmp(easypqpLocalVersion, easypqpLatestVersion) < 0) {
-        return "EasyPQP: <b>Enabled</b>. Version: " + easypqpLocalVersion + "<br>"
+        sb.append("EasyPQP: <b>Enabled</b>. Version: " + easypqpLocalVersion + "<br>"
             + "There is a new version. Please upgrade it with<br>"
             + "pip uninstall --yes easypqp<br>"
-            + "pip install git+https://github.com/grosenberger/easypqp.git@master";
+            + "pip install git+https://github.com/grosenberger/easypqp.git@master<br>");
       } else {
-        return "EasyPQP: <b>Enabled</b>. Version: " + easypqpLocalVersion;
+        sb.append("EasyPQP: <b>Enabled</b>. Version: " + easypqpLocalVersion + "<br>");
       }
     } else {
-      return "EasyPQP: <b>Disabled</b>";
+      sb.append("EasyPQP: <b>Disabled</b><br>");
     }
+
+    if (enableSpectrast) {
+      sb.append("SpectraST: <b>Enabled</b>");
+    } else {
+      sb.append("SpectraST: <b>Disabled</b>");
+    }
+    return sb.toString();
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
@@ -614,7 +622,7 @@ public class TabConfig extends JPanelWithEnablement {
         epSpeclibgenErrParent.add(epSpeclibgenErr, new CC().wrap());
         epSpeclibgenErr.setVisible(true);
       }
-      epSpeclibgenText.setText(textEasypqpEnabled(false, "N/A", "N/A"));
+      epSpeclibgenText.setText(textSpeclibEnabled("N/A", "N/A", false, false));
       if (m.ex instanceof ValidationException) {
         epSpeclibgenErr.setText(m.ex.getMessage());
       } else {
@@ -629,16 +637,21 @@ public class TabConfig extends JPanelWithEnablement {
     }
 
     log.debug("Got NoteConfigSpeclibgen without exceptions");
+    boolean enableSpectrast = true;
+    boolean enableEasypqp = true;
     List<String> errMsgLines = new ArrayList<>();
     if (!m.instance.missingModulesSpeclibgen.isEmpty()) {
       errMsgLines.add("Missing python modules: " + Seq.seq(m.instance.missingModulesSpeclibgen).map(pm -> pm.installName).toString(", "));
+      enableSpectrast = false;
+      enableEasypqp = false;
     }
     if (!m.instance.missingModulesSpectrast.isEmpty()) {
-      errMsgLines.add("SpectraST: <b>Disabled</b>.<br>");
       errMsgLines.add("Missing python modules for SpectraST: " + Seq.seq(m.instance.missingModulesSpectrast).map(pm -> pm.installName).toString(", "));
+      enableSpectrast = false;
     }
     if (!m.instance.missingModulesEasyPqp.isEmpty()) {
       errMsgLines.add("Missing python modules for EasyPQP: " + Seq.seq(m.instance.missingModulesEasyPqp).map(pm -> pm.installName).toString(", "));
+      enableEasypqp = false;
     }
 
     if (errMsgLines.isEmpty()) {
@@ -675,7 +688,7 @@ public class TabConfig extends JPanelWithEnablement {
       easypqpLatestVersion = "N/A";
     }
 
-    epSpeclibgenText.setText(textEasypqpEnabled(true, easypqpLocalVersion, easypqpLatestVersion));
+    epSpeclibgenText.setText(textSpeclibEnabled(easypqpLocalVersion, easypqpLatestVersion, enableSpectrast, enableEasypqp));
     this.revalidate();
   }
 
