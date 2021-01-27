@@ -572,46 +572,32 @@ public class Fragpipe extends JFrame {
 
   private String createAboutBody() {
     final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
-    String linkDl = p.getProperty(Version.PROP_DOWNLOAD_URL, "");
     String linkSite = p.getProperty(ThisAppProps.PROP_LAB_SITE_URL, "http://nesvilab.org");
-    String linkToPaper = p.getProperty(ThisAppProps.PROP_MANUSCRIPT_URL, "http://www.nature.com/nmeth/journal/v14/n5/full/nmeth.4256.html");
 
-    return "MSFragger - Ultrafast Proteomics Search Engine<br/>"
-        + "FragPipe (v" + Version.version() + ")<br/>"
-        + "Dmitry Avtonomov<br/>"
-        + "University of Michigan, 2017<br/><br/>"
-        + "<a href=\"" + linkDl
-        + "\">Click here to download</a> the latest version<br/><br/>"
-        + "<a href=\"" + linkSite + "\">Alexey Nesvizhskii lab</a><br/>&nbsp;<br/>&nbsp;"
-        + "MSFragger authors and contributors:<br/>"
-        + "<ul>"
-        + "<li>Andy Kong</li>"
-        + "<li>Dmitry Avtonomov</li>"
-        + "<li>Guo-Ci Teo</li>"
-        + "<li>Fengchao Yu</li>"
-        + "<li>Alexey Nesvizhskii</li>"
-        + "</ul>"
-        + "<a href=\"" + linkToPaper + "\">Link to the research manuscript</a><br/>"
-        + "Reference: <b>doi:10.1038/nmeth.4256</b><br/><br/>"
-        + "Components and Downstream tools:"
-        + "<ul>"
-        + "<li><a href='https://philosopher.nesvilab.org/'>Philosopher</a>: Felipe Leprevost</li>"
-        + "<li>PTM-Shepherd: Andy Kong, Daniel Geiszler</li>"
-        + "<li>Crystal-C: Hui-Yin Chang</li>"
-        + "<li>Spectral library generation: Guo-Ci Teo</li>"
-        + "<li>IonQuant: Fengchao Yu</li>"
-        + "<li>TMT-Integrator: Hui-Yin Chang</li>"
-        + "<li>Websites and tutorials: Sarah Haynes</li>"
-        + "<li>MSFragger Glyco extension: Daniel Polasky</li>"
-        + "<li><a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou</li>"
-        + "</ul>";
+    return "FragPipe (v" + Version.version() + ")<br>"
+        + "Dmitry Avtonomov<br>"
+        + "Fengchao Yu<br>"
+        + "Guo-Ci Teo<br>"
+        + "University of Michigan, 2017-2021<br><br>"
+        + "<a href=\"" + linkSite + "\">Alexey Nesvizhskii lab</a><br/>&nbsp;<br/>"
+        + "Components:<br>"
+        + "<a href='https://msfragger.nesvilab.org/'>MSFragger</a>: Andy Kong, Dmitry Avtonomov, Guo-Ci Teo, Fengchao Yu<br>"
+        + "<a href='https://philosopher.nesvilab.org/'>Philosopher</a>: Felipe Leprevost<br>"
+        + "<a href='https://ptmshepherd.nesvilab.org/'>PTM-Shepherd</a>: Andy Kong, Daniel Geiszler<br>"
+        + "<a href='https://www.nesvilab.org/Crystal-C/'>Crystal-C</a>: Hui-Yin Chang<br>"
+        + "Spectral library generation: Guo-Ci Teo<br>"
+        + "<a href='https://ionquant.nesvilab.org/'>IonQuant</a>: Fengchao Yu<br>"
+        + "<a href='https://tmt-integrator.nesvilab.org/'>TMT-Integrator</a>: Hui-Yin Chang<br>"
+        + "Websites and tutorials: Sarah Haynes<br>"
+        + "MSFragger Glyco mode: Daniel Polasky, Fengchao Yu, Guo-Ci Teo<br>"
+        + "<a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou<br>";
   }
 
   public void showAboutDialog(Component parent) {
     log.debug("Showing about dialog");
 //    HtmlStyledJEditorPane ep = new HtmlStyledJEditorPane(true, createAboutBody());
     HtmlStyledJEditorPane ep = SwingUtils.createClickableHtml(createAboutBody());
-    ep.setPreferredSize(new Dimension(300, 400));
+    ep.setPreferredSize(new Dimension(350, 300));
     SwingUtils.showDialog(parent, ep, "About FragPipe", JOptionPane.INFORMATION_MESSAGE);
   }
 

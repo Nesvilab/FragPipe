@@ -594,12 +594,12 @@ public class TabConfig extends JPanelWithEnablement {
   private String textEasypqpEnabled(boolean isEnabled, String easypqpLocalVersion, String easypqpLatestVersion) {
     if (isEnabled && !easypqpLocalVersion.contentEquals("N/A")) {
       if (!easypqpLatestVersion.contentEquals("N/A") && VersionComparator.cmp(easypqpLocalVersion, easypqpLatestVersion) < 0) {
-        return "EasyPQP " + easypqpLocalVersion + "<br>"
+        return "EasyPQP: <b>Enabled</b>. Version: " + easypqpLocalVersion + "<br>"
             + "There is a new version. Please upgrade it with<br>"
             + "pip uninstall --yes easypqp<br>"
             + "pip install git+https://github.com/grosenberger/easypqp.git@master";
       } else {
-        return "EasyPQP " + easypqpLocalVersion;
+        return "EasyPQP: <b>Enabled</b>. Version: " + easypqpLocalVersion;
       }
     } else {
       return "EasyPQP: <b>Disabled</b>";

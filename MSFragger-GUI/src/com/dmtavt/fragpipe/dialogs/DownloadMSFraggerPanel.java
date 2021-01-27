@@ -8,6 +8,7 @@ import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Dimension;
 import javax.swing.JCheckBox;
 import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 
@@ -36,13 +37,13 @@ public class DownloadMSFraggerPanel extends JPanel {
 
     panelTextboxes.setLayout(new MigLayout(mu.lcFillXNoInsetsTopBottom()));
 
-    JEditorPane t0 = SwingUtils.createClickableHtml("I understand that MSFragger is available freely for academic research and educational purposes only. For any uses other than academic research, non-commercial or educational purposes, please obtain a commercial license from the <a href=\"https://umich.flintbox.com/?embed=true#technologies/a8dd00a2-c057-4125-823b-adffac748490\" target=\"blank_\">University of Michigan Office of Tech Transfer</a>. For questions, and to obtain the latest version of MSFragger for a 60-day evaluation period, please contact Alexey Nesvizhskii (nesvi at med.umich.edu).<br><br>");
+    JEditorPane t0 = SwingUtils.createClickableHtml("MSFragger is available freely for academic research, non-commercial or educational purposes under academic license. Other uses require a commercial license from the <a href=\"https://umich.flintbox.com/?embed=true#technologies/a8dd00a2-c057-4125-823b-adffac748490\" target=\"blank_\">University of Michigan Office of Tech Transfer</a>. For questions, please contact Alexey Nesvizhskii (nesvi at med.umich.edu).<br><br>");
 
     feName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Name:").create();
     feEmail = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Email:").create();
     feInstitution = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Institution").create();
 
-    JEditorPane t1 = SwingUtils.createClickableHtml("I agree to the terms of <b>ACADEMIC</b> <a href=\"https://msfragger.arsci.com/upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">license</a> for MSFragger software.");
+    JEditorPane t1 = SwingUtils.createClickableHtml("I have read the <b>academic</b> <a href=\"https://msfragger.arsci.com/upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">license</a>. I understand that this license provides with a non-exclusive, non-transferable right to use MSFragger solely for academic research, non-commercial or educational purposes within the licensee’s department.");
     license1 = new JCheckBox();
 
     JEditorPane t2 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger.arsci.com/upgrader/RawFileRdr_License_Agreement_RevA.pdf\" target=\"blank_\">Thermo (c) Raw File Reader License Agreement</a>.");
@@ -50,18 +51,6 @@ public class DownloadMSFraggerPanel extends JPanel {
 
     JEditorPane t3 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger.arsci.com/upgrader/redist.txt\" target=\"blank_\">Bruker SDK library distribution conditions</a>.");
     license3 = new JCheckBox();
-
-    JPanel licensePanel1 = new JPanel();
-    licensePanel1.add(license1);
-    licensePanel1.add(t1);
-
-    JPanel licensePanel2 = new JPanel();
-    licensePanel2.add(license2);
-    licensePanel2.add(t2);
-
-    JPanel licensePanel3 = new JPanel();
-    licensePanel3.add(license3);
-    licensePanel3.add(t3);
 
     mu.add(panelTextboxes, t0).spanX().wrap();
 
@@ -74,9 +63,16 @@ public class DownloadMSFraggerPanel extends JPanel {
     mu.add(panelTextboxes, feInstitution.label(), mu.ccR());
     mu.add(panelTextboxes, feInstitution.comp).spanX().wrap();
 
-    mu.add(panelTextboxes, licensePanel1).spanX().wrap();
-    mu.add(panelTextboxes, licensePanel2).spanX().wrap();
-    mu.add(panelTextboxes, licensePanel3).spanX().wrap();
+    mu.add(panelTextboxes, new JLabel()).wrap();
+
+    mu.add(panelTextboxes, license1, mu.ccR());
+    mu.add(panelTextboxes, t1).spanX().wrap();
+
+    mu.add(panelTextboxes, license2, mu.ccR());
+    mu.add(panelTextboxes, t2).spanX().wrap();
+
+    mu.add(panelTextboxes, license3, mu.ccR());
+    mu.add(panelTextboxes, t3).spanX().wrap();
 
     this.add(panelTextboxes);
   }
