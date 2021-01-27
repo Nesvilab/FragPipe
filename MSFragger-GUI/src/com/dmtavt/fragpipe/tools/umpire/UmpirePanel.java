@@ -27,6 +27,7 @@ import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
@@ -108,7 +109,8 @@ public class UmpirePanel extends JPanel {
     // Panel - top
     JPanel pTop = new JPanel(new MigLayout(lc));
 
-    checkRunUmpireSe = new JCheckBox("Run DIA-Umpire SE (Signal Extraction)");
+    checkRunUmpireSe = new UiCheck("Run DIA-Umpire SE (Signal Extraction)", null, false);
+    checkRunUmpireSe.setName("run-diaumpire");
     pTop.add(checkRunUmpireSe, new CC().spanX().wrap());
 
     List<String> loadOptions = new ArrayList<>(2);

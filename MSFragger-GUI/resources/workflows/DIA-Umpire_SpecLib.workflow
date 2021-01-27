@@ -15,6 +15,7 @@ SE.MinMSIntensity=1
 SE.MinMSMSIntensity=1
 SE.NoMissedScan=1
 WindowSize=10
+run-diaumpire=true
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 freequant.mz-tol=10

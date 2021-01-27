@@ -1,5 +1,21 @@
 # Workflow: TMT10-bridge
 
+AdjustFragIntensity=true
+BoostComplementaryIon=false
+CorrThreshold=0
+DeltaApex=0.1
+RFmax=500
+RPmax=25
+RTOverlap=0.3
+SE.EstimateBG=false
+SE.MS1PPM=15
+SE.MS2PPM=25
+SE.MassDefectFilter=true
+SE.MinMSIntensity=1
+SE.MinMSMSIntensity=1
+SE.NoMissedScan=1
+WindowSize=10
+run-diaumpire=false
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 freequant.mz-tol=10

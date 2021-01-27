@@ -21,7 +21,6 @@ import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
 import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
-import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
@@ -49,7 +48,6 @@ import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
-import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import com.google.gson.Gson;
@@ -78,7 +76,6 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
@@ -198,10 +195,7 @@ public class TabConfig extends JPanelWithEnablement {
 
       }));
     }
-
-    UiCheck uiCheckUmpire = UiUtils.createUiCheck("Enable DIA-Umpire", false,
-        e -> Bus.post(new MessageUmpireEnabled(((JCheckBox) e.getSource()).isSelected())));
-    p.add(uiCheckUmpire, ccL());
+    
     JLabel sysInfo = new JLabel(SwingUtils.makeHtml(
         OsUtils.OsInfo() + "\n"
             + OsUtils.JavaInfo()

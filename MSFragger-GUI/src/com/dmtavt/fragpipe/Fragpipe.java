@@ -18,7 +18,6 @@ import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
-import com.dmtavt.fragpipe.messages.MessageUmpireEnabled;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigTips;
@@ -53,7 +52,6 @@ import com.github.chhh.utils.swing.FormEntry.Builder;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.LogbackJTextPaneAppender;
 import com.github.chhh.utils.swing.TextConsole;
-import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -80,7 +78,6 @@ import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
@@ -118,7 +115,7 @@ public class Fragpipe extends JFrame {
 
   public static final String TAB_NAME_LCMS = "Workflow";
   public static final String TAB_NAME_MSFRAGGER = "MSFragger";
-  public static final String TAB_NAME_UMPIRE = "DIA-Umpire SE";
+  public static final String TAB_NAME_UMPIRE = "DIA-Umpire";
   public static final String PREFIX_FRAGPIPE = "fragpipe.";
   public static final String PROP_NOCACHE = "do-not-cache";
 
@@ -139,7 +136,6 @@ public class Fragpipe extends JFrame {
   public JTabbedPane tabs;
   public TextConsole console;
   public JLabel defFont;
-  private TabUmpire tabUmpire;
   private boolean dontSaveCacheOnExit;
 
   static {
@@ -384,6 +380,7 @@ public class Fragpipe extends JFrame {
 
     TabConfig tabConfig = new TabConfig();
     TabWorkflow tabWorkflow = new TabWorkflow();
+    TabUmpire tabUmpire = new TabUmpire();
     TabDatabase tabDatabase = new TabDatabase();
     TabMsfragger tabMsfragger = new TabMsfragger();
     TabValidation tabValidation = new TabValidation();
@@ -392,11 +389,12 @@ public class Fragpipe extends JFrame {
     TabPtms tabPtms = new TabPtms();
     TabSpecLib tabSpecLib = new TabSpecLib();
     TabRun tabRun = new TabRun(console);
-    tabUmpire = new TabUmpire();
 
     addTab.accept(new UiTab("Config", tabConfig, "/com/dmtavt/fragpipe/icons/150-cogs.png", null));
     addTabNoScroll.accept(new UiTab(TAB_NAME_LCMS, tabWorkflow,
         "/com/dmtavt/fragpipe/icons/icon-workflow-16.png", null));
+    addTab.accept(new UiTab("Umpire", tabUmpire,
+        "/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png", null));
     addTab.accept(new UiTab("Database", tabDatabase,
         "/com/dmtavt/fragpipe/icons/icon-dna-helix-16.png", null));
     addTab.accept(new UiTab(TAB_NAME_MSFRAGGER, tabMsfragger,
@@ -448,28 +446,6 @@ public class Fragpipe extends JFrame {
     ProcessManager.get().init();
     DbSplit2.initClass();
     SpecLibGen2.initClass();
-  }
-
-  @Subscribe
-  public void on(MessageUmpireEnabled m) {
-    synchronized (this) {
-      if (m.enabled) {
-        final String prevTabName = TAB_NAME_LCMS;
-        int prevTabIndex = tabs.indexOfTab(prevTabName);
-        if (prevTabIndex < 0) {
-          throw new IllegalStateException("Could not find tab named " + prevTabName);
-        }
-        final ImageIcon icon = UiUtils.loadIcon(Fragpipe.class,
-            "/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png");
-        tabs.insertTab(TAB_NAME_UMPIRE, icon, SwingUtils.wrapInScroll(tabUmpire), "", prevTabIndex + 1);
-
-      } else {
-        int index = tabs.indexOfTab(TAB_NAME_UMPIRE);
-        if (index >= 0) {
-          tabs.removeTabAt(index);
-        }
-      }
-    }
   }
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
