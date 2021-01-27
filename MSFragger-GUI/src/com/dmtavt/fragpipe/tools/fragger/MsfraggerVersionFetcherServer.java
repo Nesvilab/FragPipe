@@ -209,7 +209,7 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
         if (possibleBins.size() != 1) {
             throw new IllegalStateException(String.format("Found %d candidates for MSFragger.jar after unpacking zip", possibleBins.size()));
         }
-        return possibleBins.get(0);
+        return possibleBins.get(0).normalize();
     }
     
 }
