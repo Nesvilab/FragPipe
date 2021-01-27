@@ -73,8 +73,8 @@ public class ZipUtils {
         if (zipEntry.isDirectory()) {
           // If directory then create a new directory in uncompressed folder
           Path unzippedDir = destDir.resolve(zipEntry.getName());
-          if (!unzippedDir.normalize().startsWith(destDir)) {
-            throw new IOException("Entry is outside of target dir: " + zipEntry.getName());
+          if (!unzippedDir.normalize().startsWith(destDir.normalize())) {
+            throw new IOException("Entry is outside of target dir: " + zipEntry.getName() + "; unzipped dir: " + unzippedDir.normalize().toString() + "; dest dir: " + destDir.normalize().toString());
           }
           log.debug("Possibly creating unzipped direcotry: {}", unzippedDir);
           PathUtils.createDirs(unzippedDir);
