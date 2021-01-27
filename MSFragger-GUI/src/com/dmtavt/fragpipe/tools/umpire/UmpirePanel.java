@@ -67,7 +67,6 @@ public class UmpirePanel extends JPanel {
   public JCheckBox checkRunUmpireSe;
   private JPanel pFrag;
   private JPanel pSe;
-  private JPanel pSwath;
   private ImageIcon icon;
   private UiCombo uiComboLoadDefaultsNames;
 
@@ -186,26 +185,15 @@ public class UmpirePanel extends JPanel {
       pSe.add(fe.comp, cc);
     }
 
-
-    // Panel - SWATH window parameters
-    pSwath = new JPanel(new MigLayout(lc));
-    pSwath.setBorder(new TitledBorder("SWATH window parameters"));
-
     JComboBox<String> comboWindowType = new JComboBox<>();
     comboWindowType.setModel(new DefaultComboBoxModel<>(new String[]{"SWATH"}));
     FormEntry feWinType = new FormEntry(PROP_WindowType, "Window type", comboWindowType, "For Thermo data, this will be determined from raw data automatically.");
     FormEntry feWinSize = new FormEntry(PROP_WindowSize, "Window size", new JFormattedTextField(decimal), "For Thermo data, this will be determined from raw data automatically.");
 
-    pSwath.add(feWinType.label(), ccLbl);
-    pSwath.add(feWinType.comp, new CC().width("70:80:120px"));
-    pSwath.add(feWinSize.label(), ccLbl);
-    pSwath.add(feWinSize.comp, ccComp);
-
     CC ccGrowX = new CC().growX();
     this.add(pTop, ccGrowX);
     this.add(pFrag, ccGrowX);
     this.add(pSe, ccGrowX);
-    this.add(pSwath, ccGrowX);
 
     enablePanels(checkRunUmpireSe.isSelected());
     checkRunUmpireSe.addChangeListener(e -> {
@@ -259,7 +247,7 @@ public class UmpirePanel extends JPanel {
   }
 
   private void enablePanels(boolean enabled) {
-    List<Container> comps = Arrays.asList(pFrag, pSe, pSwath);
+    List<Container> comps = Arrays.asList(pFrag, pSe);
     for (Container c : comps) {
       SwingUtils.enableComponents(c, enabled);
     }
