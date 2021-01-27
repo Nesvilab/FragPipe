@@ -495,7 +495,11 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feEnzymeList = mu.feb(PROP_misc_fragger_enzyme_dropdown, uiComboEnzymes)
         .label("Load rules")
         .tooltip("<html>Load one of default definitions of enzyme cleavage rules.\n"
-            + "You can still edit the name and rules manually after loading.").create();
+            + "You can still edit the name and rules manually after loading.\n"
+            + "<b>Note about custom enzymes:</b> To use an enzyme not listed in\n"
+            + "the digestion rules drop-down menu, enter the custom cleavage rules\n"
+            + "but be sure to set the ‘Enzyme name’ field to ‘nonspecific’.\n"
+            + "Select ‘ENZYMATIC’ from the ‘Cleavage’ drop-down menu.").create();
     uiComboEnzymes.addItemListener(event -> {
       if (event.getStateChange() == ItemEvent.SELECTED) {
         Object item = event.getItem();
