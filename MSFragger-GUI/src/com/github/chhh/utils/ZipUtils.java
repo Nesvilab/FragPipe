@@ -28,6 +28,7 @@ public class ZipUtils {
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
+      return;
     }
     byte[] buffer = new byte[8192];
     ZipInputStream zis = new ZipInputStream(new FileInputStream(fileZip.toFile()));
