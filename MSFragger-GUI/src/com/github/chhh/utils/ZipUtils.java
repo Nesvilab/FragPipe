@@ -7,7 +7,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.Enumeration;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -21,25 +24,29 @@ public class ZipUtils {
     if (!Files.isDirectory(destDir)) {
       throw new IOException("Destination not a directory");
     }
-    if (OsUtils.isUnix()){
-      final ProcessBuilder unzip = new ProcessBuilder("unzip", "-o", fileZip.toString(), "-d", destDir.toString());
-      try {
-        unzip.start().waitFor();
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
-      }
-      return;
-    }
     byte[] buffer = new byte[8192];
     ZipInputStream zis = new ZipInputStream(new FileInputStream(fileZip.toFile()));
     ZipEntry zipEntry = zis.getNextEntry();
     while (zipEntry != null) {
       File newFile = newFile(destDir.toFile(), zipEntry);
+      boolean isELF = false;
       try (FileOutputStream fos = new FileOutputStream(newFile)) {
         int len;
+        boolean first = true;
         while ((len = zis.read(buffer)) > 0) {
+          if (first) {
+            isELF = new String(buffer, 0, 4).equals("\u007fELF");
+            first = false;
+          }
           fos.write(buffer, 0, len);
         }
+      }
+      if (isELF) {
+        final Set<PosixFilePermission> permissions = Files.readAttributes(newFile.toPath(), PosixFileAttributes.class).permissions();
+        permissions.add(PosixFilePermission.OWNER_EXECUTE);
+        permissions.add(PosixFilePermission.GROUP_EXECUTE);
+        permissions.add(PosixFilePermission.OTHERS_EXECUTE);
+        Files.setPosixFilePermissions(newFile.toPath(), permissions);
       }
       zipEntry = zis.getNextEntry();
     }
