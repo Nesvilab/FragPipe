@@ -140,7 +140,7 @@ public class JarUtils {
         permissions.add(PosixFilePermission.OWNER_EXECUTE);
         permissions.add(PosixFilePermission.GROUP_EXECUTE);
         permissions.add(PosixFilePermission.OTHERS_EXECUTE);
-        Files.setAttribute(tempFile, "posix:permissions", permissions);
+        Files.setPosixFilePermissions(tempFile, permissions);
       }
       if (scheduleForDeletion) {
         tempFile.toFile().deleteOnExit();
