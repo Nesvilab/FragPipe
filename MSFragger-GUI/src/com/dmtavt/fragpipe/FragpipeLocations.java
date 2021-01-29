@@ -5,7 +5,6 @@ import com.dmtavt.fragpipe.messages.MissingAssetsException;
 import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
 import com.github.chhh.utils.CacheUtils;
 import com.github.chhh.utils.JarUtils;
-import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -176,11 +175,11 @@ public class FragpipeLocations {
     Function<Boolean, String> f = (b) -> b ? "global" : "local";
 
     PropsFile pfRuntime = null, pfUi = null;
-    for (boolean isGlobal : order) {
-      Path p = getPathUiCache(isGlobal);
-      log.debug("Trying to load {} ui state file: {}", f.apply(isGlobal), p);
+    for (boolean isSystemCache : order) {
+      Path p = getPathUiCache(isSystemCache);
+      log.debug("Trying to load {} ui state file: {}", f.apply(isSystemCache), p);
       if (!Files.exists(p)) {
-        log.debug("{} ui state file not exists, skipping: {}", f.apply(isGlobal), p);
+        log.debug("{} ui state file not exists, skipping: {}", f.apply(isSystemCache), p);
         continue;
       }
       pfUi = tryLoadSilently(p, createCacheComment("ui state"));
@@ -189,11 +188,11 @@ public class FragpipeLocations {
       pfUi = new PropsFile(getPathUiCache(false), createCacheComment("ui state"));
     }
 
-    for (boolean isGlobal : order) {
-      Path p = getPathRuntimeCache(isGlobal);
-      log.debug("Trying to load {} runtime file: {}", f.apply(isGlobal), p);
+    for (boolean isSystemCache : order) {
+      Path p = getPathRuntimeCache(isSystemCache);
+      log.debug("Trying to load {} runtime file: {}", f.apply(isSystemCache), p);
       if (!Files.exists(p)) {
-        log.debug("{} runtime file not exists, skipping: {}", f.apply(isGlobal), p);
+        log.debug("{} runtime file not exists, skipping: {}", f.apply(isSystemCache), p);
         continue;
       }
       pfRuntime = tryLoadSilently(p, createCacheComment("ui state"));
@@ -225,20 +224,20 @@ public class FragpipeLocations {
     return getPathRuntimeCache(false);
   }
 
-  public Path getPathRuntimeCache(boolean isGlobal) {
-    return isGlobal ? CacheUtils.getTempFile(FN_CACHE_RUNTIME) : get().cache.resolve(FN_CACHE_RUNTIME);
+  public Path getPathRuntimeCache(boolean isSystemCache) {
+    return isSystemCache ? CacheUtils.getTempFile(FN_CACHE_RUNTIME) : get().cache.resolve(FN_CACHE_RUNTIME);
   }
 
   public Path getPathLongTermStorage() {
     return longTermStorage;
   }
 
-  public Path getPathUiCache(boolean isGlobal) {
-    return isGlobal ? CacheUtils.getTempFile(FN_CACHE_UI) : get().cache.resolve(FN_CACHE_UI);
+  public Path getPathUiCache(boolean isSystemCache) {
+    return isSystemCache ? CacheUtils.getTempFile(FN_CACHE_UI) : get().cache.resolve(FN_CACHE_UI);
   }
 
-  public Path getWorkflowsCache(boolean isGlobal) {
-    return isGlobal ? CacheUtils.getTempFile(FN_CACHE_UI).resolveSibling("workflows") : get().cache.resolve(FN_CACHE_UI).resolveSibling("workflows");
+  public Path getWorkflowsCache(boolean isSystemCache) {
+    return isSystemCache ? CacheUtils.getTempFile(FN_CACHE_UI).resolveSibling("workflows") : get().cache.resolve(FN_CACHE_UI).resolveSibling("workflows");
   }
 
   private static Path tryLocateAsset(Path path) {
