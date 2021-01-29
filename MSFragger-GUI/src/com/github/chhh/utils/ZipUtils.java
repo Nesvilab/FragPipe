@@ -41,7 +41,9 @@ public class ZipUtils {
           fos.write(buffer, 0, len);
         }
       }
-      if (isELF) {
+      // if unzipping ELF files on Unix, add execute bit
+      // shell scripts need execute bit too, but is currently omitted
+      if (OsUtils.isUnix() && isELF) {
         final Set<PosixFilePermission> permissions = Files.readAttributes(newFile.toPath(), PosixFileAttributes.class).permissions();
         permissions.add(PosixFilePermission.OWNER_EXECUTE);
         permissions.add(PosixFilePermission.GROUP_EXECUTE);
