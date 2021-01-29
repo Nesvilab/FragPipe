@@ -219,7 +219,11 @@ void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startCl
     String taskName = "makeReleaseZip" + (withJre ? "WithJre" : "NoJre");
 
     task (taskName, type: Zip, group: 'chhh-release') {
-        if (Os.isFamily(Os.FAMILY_WINDOWS)) // for build on Windows, zip with execute bit
+        // for build on Windows, zip with execute bit
+        // for a gradle Windows build, files requiring execute bit set (ELF and Unix shell scipts)
+        // are zipped without execute bit. The default file mode is 0644
+        // https://github.com/gradle/gradle/blob/54b385133a1edde78243105e9aaf0db5990b3507/subprojects/native/src/main/java/org/gradle/internal/nativeintegration/filesystem/services/FileSystemServices.java#L75
+        if (Os.isFamily(Os.FAMILY_WINDOWS))
             fileMode = 0755
         dependsOn 'clean'
         dependsOn 'test'
