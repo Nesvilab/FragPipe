@@ -600,7 +600,10 @@ public class TabConfig extends JPanelWithEnablement {
         sb.append("EasyPQP: <b>Enabled</b>. Version: " + easypqpLocalVersion + "<br>");
       }
     } else {
-      sb.append("EasyPQP: <b>Disabled</b><br>");
+      sb.append("EasyPQP: <b>Disabled</b><br>"
+          + "There is a new version. Please upgrade it with<br>"
+          + "pip uninstall --yes easypqp<br>"
+          + "pip install git+https://github.com/grosenberger/easypqp.git@master<br>");
     }
 
     if (enableSpectrast) {
