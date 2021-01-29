@@ -69,7 +69,8 @@ public class FragpipeLocations {
       log.debug("Jar path: {}", jarPath);
       final Path jarDir = Files.isDirectory(jarPath) ? jarPath : jarPath.getParent();
       log.debug("Jar dir: {}", jarDir);
-      final Path dir = OsUtils.isWindows() ? jarDir : Paths.get(CacheUtils.XDG_CACHE_HOME, "FragPipe", "bin");
+//      final Path dir = OsUtils.isWindows() ? jarDir : Paths.get(CacheUtils.XDG_CACHE_HOME, "FragPipe", "bin");
+      final Path dir = jarDir;
 
       Path cache = dir.resolve(Paths.get("../cache"));
 
