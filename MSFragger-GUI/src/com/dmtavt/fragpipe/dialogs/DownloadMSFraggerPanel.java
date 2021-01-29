@@ -78,18 +78,34 @@ public class DownloadMSFraggerPanel extends JPanel {
   }
 
   public String getName() {
-    return ((UiText) feName.comp).getText().trim();
+    if (feName == null || feName.comp == null || ((UiText) feName.comp).getText() == null) {
+      return null;
+    } else {
+      return ((UiText) feName.comp).getText().trim();
+    }
   }
 
   public String getEmail() {
-    return ((UiText) feEmail.comp).getText().trim();
+    if (feEmail == null || feEmail.comp == null || ((UiText) feEmail.comp).getText() == null) {
+      return null;
+    } else {
+      return ((UiText) feEmail.comp).getText().trim();
+    }
   }
 
   public String getInstitution() {
-    return ((UiText) feInstitution.comp).getText().trim();
+    if (feInstitution == null || feInstitution.comp == null || ((UiText) feInstitution.comp).getText() == null) {
+      return null;
+    } else {
+      return ((UiText) feInstitution.comp).getText().trim();
+    }
   }
 
   public boolean licensesChecked() {
-    return license1.isSelected() && license2.isSelected() && license3.isSelected();
+    if (license1 == null || license2 == null || license3 == null) {
+      return false;
+    } else {
+      return license1.isSelected() && license2.isSelected() && license3.isSelected();
+    }
   }
 }
