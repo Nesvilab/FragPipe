@@ -31,7 +31,7 @@ public class DownloadMSFraggerPanel extends JPanel {
     JPanel panelTextboxes = new JPanel() {
       @Override
       public Dimension getPreferredSize() {
-        return new Dimension(400, 330);
+        return new Dimension(400, 500);
       }
     };
 
