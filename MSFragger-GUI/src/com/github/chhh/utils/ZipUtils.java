@@ -7,20 +7,26 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ZipUtils {
   private static final Logger log = LoggerFactory.getLogger(ZipUtils.class);
 
-  public static void unzip(Path fileZip, Path destDir) throws IOException {
+  @Deprecated
+  public static void unzip_deprecated(Path fileZip, Path destDir) throws IOException {
     if (!Files.isDirectory(destDir)) {
       throw new IOException("Destination not a directory");
     }
@@ -54,6 +60,25 @@ public class ZipUtils {
     }
     zis.closeEntry();
     zis.close();
+  }
+
+  public static void unzip(Path fileZip, Path destDir) throws IOException {
+    if (!Files.isDirectory(destDir)) {
+      throw new IOException("Destination not a directory");
+    }
+    try(final org.apache.commons.compress.archivers.zip.ZipFile zipFile = new org.apache.commons.compress.archivers.zip.ZipFile(fileZip.toFile())) {
+      for (final ZipArchiveEntry zipEntry : Collections.list(zipFile.getEntries())) {
+        final File newFile = newFile(destDir.toFile(), zipEntry);
+        try (final FileOutputStream fos = new FileOutputStream(newFile)) {
+          IOUtils.copy(zipFile.getInputStream(zipEntry), fos);
+        }
+        // unzip with Posix file permissions when possible
+        try {
+          Files.setPosixFilePermissions(newFile.toPath(), com.github.chhh.utils.PosixFileAttributes.permissions(zipEntry.getUnixMode()));
+        } catch (UnsupportedOperationException ignored) {
+        }
+      }
+    }
   }
 
   public static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
