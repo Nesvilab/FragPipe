@@ -62,11 +62,13 @@ public class PtmshepherdPanel extends JPanelBase {
   public static final String PROP_threads = "threads";
   public static final String PROP_histo_bindivs = "histo_bindivs";
   public static final String PROP_histo_smoothbins = "histo_smoothbins";
+  public static final String PROP_histo_normalizeTo = "histo_normalizeTo";
   public static final String PROP_peakpicking_promRatio = "peakpicking_promRatio";
   public static final String PROP_peakpicking_width = "peakpicking_width";
   public static final String PROP_peakpicking_mass_units = "peakpicking_mass_units";
   public static final String PROP_peakpicking_background = "peakpicking_background";
   public static final String PROP_peakpicking_topN = "peakpicking_topN";
+  public static final String PROP_peakpicking_minPsm = "peakpicking_minPsm";
 
   public static final String PROP_precursor_mass_units = "precursor_mass_units";
   public static final String PROP_precursor_tol = "precursor_tol";
@@ -90,6 +92,7 @@ public class PtmshepherdPanel extends JPanelBase {
   private static final String PROP_diag_ions = "diag_ions";
   private static final String PROP_remainder_masses = "remainder_masses";
   private static final String PROP_spectra_maxfragcharge = "spectra_maxfragcharge";
+  private static final String PROP_restrict_loc = "localization_allowed_res";
 
   private static final String PROP_custom_modlist_loc = "ptmshepherd.path.modlist";
 
@@ -101,11 +104,16 @@ public class PtmshepherdPanel extends JPanelBase {
 
   private static Map<String, Function<String, String>> CONV_TO_GUI = new HashMap<>();
   private static Map<String, Function<String, String>> CONV_TO_FILE = new HashMap<>();
+  private ButtonGroup btnGroupNormalizations;
+  private JRadioButton btnNormPsm;
+  private JRadioButton btnNormScan;
   private ButtonGroup btnGroupAnnotations;
   private JRadioButton btnAnnUnimod;
   private JRadioButton btnAnnCommon;
   private JRadioButton btnAnnCustom;
+  private JRadioButton btnAnnGlyco;
   private UiText uiTextAnnotationFile;
+  private UiText uiTextLocalizationAAs;
   private UiCheck uiCheckGlyco;
   private JPanel pGlycoContent;
 
@@ -183,10 +191,18 @@ public class PtmshepherdPanel extends JPanelBase {
         map2.put(PROP_annotation_file, "unimod");
       } else if (kv.getKey().startsWith("annotation-common") && kv.getValue().equalsIgnoreCase("true")) {
         map2.put(PROP_annotation_file, "common");
+      } else if (kv.getKey().startsWith("annotation-glyco") && kv.getValue().equalsIgnoreCase("true")) {
+        map2.put(PROP_annotation_file, map1.get(PROP_annotation_file));
       } else if (kv.getKey().startsWith("annotation-custom") && kv.getValue().equalsIgnoreCase("true")) {
         map2.put(PROP_annotation_file, map1.get(PROP_annotation_file));
       } else {  // copy everything else
         map2.put(kv.getKey(), kv.getValue());
+      }
+
+      if (kv.getKey().startsWith("normalization-scans") && kv.getValue().equalsIgnoreCase("true")) {
+        map2.put(PROP_histo_normalizeTo, "scans");
+      } else if (kv.getKey().startsWith("normalization-psms") && kv.getValue().equalsIgnoreCase("true")) {
+        map2.put(PROP_histo_normalizeTo, "psms");
       }
     }
 
@@ -221,6 +237,9 @@ public class PtmshepherdPanel extends JPanelBase {
         asMap.put(PROP_annotation_file, "");
       } else if (annotations.equalsIgnoreCase("common")) {
         btnAnnCommon.setSelected(true);
+        asMap.put(PROP_annotation_file, "");
+      } else if (annotations.equalsIgnoreCase("glyco")) {
+        btnAnnGlyco.setSelected(true);
         asMap.put(PROP_annotation_file, "");
       } else if (StringUtils.isNotBlank(annotations)) {
         btnAnnCustom.setSelected(true);
@@ -369,19 +388,34 @@ public class PtmshepherdPanel extends JPanelBase {
     FormEntry feAnnotTol = mu.feb(PROP_annotation_tol, uiSpinnerAnnotTol)
         .label("Annotation tolerance (Da)").tooltip("+/- distance from peak to annotated mass").create();
 
+
+    FormEntry feMinPsms = new FormEntry(PROP_peakpicking_minPsm, "Peak minimum PSMs",
+            new UiSpinnerInt(10, 0, 1000, 1, 5),
+            "<html>Filters out mass shift peaks below the minimum threshold");
+
+    btnGroupNormalizations = new ButtonGroup();
+    btnNormPsm = new JRadioButton("PSMs", true);
+    btnNormPsm.setName("normalization-psms");
+    btnNormScan = new JRadioButton("MS2 scans", false);
+    btnNormScan.setName("normalization-scans");
+    btnGroupNormalizations.add(btnNormPsm);
+    btnGroupNormalizations.add(btnNormScan);
+
     btnGroupAnnotations = new ButtonGroup();
     btnAnnUnimod = new JRadioButton("Unimod", true);
     btnAnnUnimod.setName("annotation-unimod");
     btnAnnCommon = new JRadioButton("Common mass shifts", false);
     btnAnnCommon.setName("annotation-common");
+    btnAnnGlyco = new JRadioButton("Glyco mass shifts", false);
+    btnAnnGlyco.setName("annotation-glyco");
     btnAnnCustom = new JRadioButton("Custom annotation file", false);
     btnAnnCustom.setName("annotation-custom");
     btnGroupAnnotations.add(btnAnnUnimod);
     btnGroupAnnotations.add(btnAnnCommon);
+    btnGroupAnnotations.add(btnAnnGlyco);
     btnGroupAnnotations.add(btnAnnCustom);
 
-
-    String tooltipAnnotationFile = "Custom mass shift annotation file. Will not map to UniMod if provided.";
+    String tooltipAnnotationFile = "Custom mass shift annotation file. Will not map to Unimod if provided.";
     uiTextAnnotationFile = UiUtils.uiTextBuilder().create();
     FormEntry feAnnotationFile = mu.feb(PROP_annotation_file, uiTextAnnotationFile)
         .label("Custom mass shift annotation file").tooltip(tooltipAnnotationFile).create();
@@ -414,10 +448,17 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p1, fePeakPickingUnits.comp);
     mu.add(p1, feExtendedOut.comp).pushX().wrap();
 
-    mu.add(p1, feLocBackground.label(), mu.ccR());
-    mu.add(p1, feLocBackground.comp);
+    //mu.add(p1, feLocBackground.label(), mu.ccR());
+    //mu.add(p1, feLocBackground.comp);
     mu.add(p1, feAnnotTol.label(), mu.ccR());
-    mu.add(p1, feAnnotTol.comp).wrap();
+    mu.add(p1, feAnnotTol.comp);
+    mu.add(p1, feMinPsms.label(), mu.ccR());
+    mu.add(p1, feMinPsms.comp).wrap();
+
+
+    mu.add(p1, new JLabel("Normalize data to: ")).spanX().split();
+    mu.add(p1, btnNormPsm);
+    mu.add(p1, btnNormScan).wrap();
 
     mu.add(p, p1).spanX().growX().wrap();
 
@@ -441,7 +482,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
 
     FormEntry feVarMods = new FormEntry(PROP_varmod_masses, "Custom mass shifts", uiTextVarMods,
-        "<html>Variable modification masses.<br/>\n"
+        "<html>Mass shifts to be prioritized during annotation.<br/>\n"
             + "Comma separated entries of form \"&lt;name&gt;:&lt;mass&gt;\"<br/>\n"
             + "Example:<br/>\n"
             + "&nbsp;&nbsp;&nbsp;&nbsp;Phospho:79.9663,Something-else:-20.123");
@@ -454,7 +495,8 @@ public class PtmshepherdPanel extends JPanelBase {
 
     mu.add(p2, new JLabel("Annotation source: ")).spanX().split();
     mu.add(p2, btnAnnUnimod);
-    mu.add(p2, btnAnnCommon).wrap();
+    mu.add(p2, btnAnnCommon);
+    mu.add(p2, btnAnnGlyco).wrap();
 
     mu.add(p2, btnAnnCustom, mu.ccR());
     mu.add(p2, feAnnotationFile.comp).split().spanX().growX().pushX();
@@ -476,6 +518,10 @@ public class PtmshepherdPanel extends JPanelBase {
         .tooltip("max fragment charge for localization")
         .create();
 
+    uiTextLocalizationAAs = UiUtils.uiTextBuilder().create();
+    FormEntry feRestrictLoc = new FormEntry(PROP_restrict_loc, "Restrict localization to", uiTextLocalizationAAs,
+            "<html>Restricts localization to specified residues. Example: STYNP");
+
     JPanel p3 = mu.newPanel("Ion Types for Localization:", true);
     //mu.border(p3, 1);
 
@@ -488,6 +534,10 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p3, feIonZ.comp);
     mu.add(p3, feMaxFragCharge.label());
     mu.add(p3, feMaxFragCharge.comp).wrap();
+    mu.add(p3, feLocBackground.label()).spanX().split();
+    mu.add(p3, feLocBackground.comp).wrap();
+    mu.add(p3, feRestrictLoc.label(), mu.ccR());
+    mu.add(p3, feRestrictLoc.comp).spanX().growX().pushX().wrap();
 
     mu.add(p, p3).spanX().growX().wrap();
 
