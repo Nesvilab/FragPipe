@@ -459,8 +459,8 @@ public class PtmshepherdPanel extends JPanelBase {
 
     mu.add(p, p1).spanX().growX().wrap();
 
-    final String ghost = "Phospho:79.9663, Something-else:-20.123";
-    uiTextVarMods = new UiTextBuilder().text("Failed_Carbamidomethylation:-57.021464")
+    final String ghost = "Phospho:79.9663, Failed_Carbamidomethylation:-57.021464";
+    uiTextVarMods = new UiTextBuilder().text("")
         .ghost(ghost).create();
     GhostText.register(uiTextVarMods, ghost);
     uiTextVarMods.addFocusListener(new FocusAdapter() {
