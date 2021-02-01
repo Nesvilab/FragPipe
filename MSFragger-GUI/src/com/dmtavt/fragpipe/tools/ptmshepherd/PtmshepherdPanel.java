@@ -208,9 +208,6 @@ public class PtmshepherdPanel extends JPanelBase {
 
     // remap remaining values
     Map<String, String> map3 = MapUtils.remapValues(map2, (k, v) -> CONV_TO_FILE.getOrDefault(k, Function.identity()).apply(v));
-//    map = MapUtils.remap(map,
-//        (k,v) -> StringUtils.stripLeading(k, PREFIX),
-//        (k,v) -> CONV_TO_FILE.getOrDefault(k, Function.identity()).apply(v));
     return map3;
   }
 
