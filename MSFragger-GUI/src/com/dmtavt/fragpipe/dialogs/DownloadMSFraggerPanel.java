@@ -5,11 +5,13 @@ import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import javax.swing.JCheckBox;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import net.miginfocom.swing.MigLayout;
 
 public class DownloadMSFraggerPanel extends JPanel {
@@ -27,29 +29,30 @@ public class DownloadMSFraggerPanel extends JPanel {
     initMore();
   }
 
+  @Override
+  public Dimension getPreferredSize() {
+    return new Dimension(400, 400);
+  }
+
   private void initMore() {
-    JPanel panelTextboxes = new JPanel() {
-      @Override
-      public Dimension getPreferredSize() {
-        return new Dimension(400, 500);
-      }
-    };
+    JPanel panelTextboxes = new JPanel();
 
     panelTextboxes.setLayout(new MigLayout(mu.lcFillXNoInsetsTopBottom()));
 
-    JEditorPane t0 = SwingUtils.createClickableHtml("MSFragger is available freely for academic research, non-commercial or educational purposes under academic license. Other uses require a commercial license from the <a href=\"https://umich.flintbox.com/?embed=true#technologies/a8dd00a2-c057-4125-823b-adffac748490\" target=\"blank_\">University of Michigan Office of Tech Transfer</a>. For questions, please contact Alexey Nesvizhskii (nesvi at med.umich.edu).<br><br>");
+    JEditorPane t0 = SwingUtils.createClickableHtml(
+        "<br>MSFragger is available freely for academic research, non-commercial or <br>educational purposes under academic license. Other uses require a <br>commercial license from the <a href=\"https://umich.flintbox.com/?embed=true#technologies/a8dd00a2-c057-4125-823b-adffac748490\" target=\"blank_\">University of Michigan Office of Tech Transfer</a>. <br>For questions, please contact Alexey Nesvizhskii (nesvi at med.umich.edu).<br><br>");
 
-    feName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Name:").create();
-    feEmail = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Email:").create();
-    feInstitution = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Institution").create();
+    feName = mu.feb(UiUtils.uiTextBuilder().cols(30).create()).label("Name:").create();
+    feEmail = mu.feb(UiUtils.uiTextBuilder().cols(30).create()).label("Email:").create();
+    feInstitution = mu.feb(UiUtils.uiTextBuilder().cols(30).create()).label("Institution").create();
 
-    JEditorPane t1 = SwingUtils.createClickableHtml("I have read the <b>academic</b> <a href=\"https://msfragger.arsci.com/upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">license</a>. I understand that this license provides with a non-exclusive, non-transferable right to use MSFragger solely for academic research, non-commercial or educational purposes within the licensee’s department.");
+    JEditorPane t1 = SwingUtils.createClickableHtml("I have read the <b>academic</b> <a href=\"https://msfragger.arsci.com/upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">license</a>. I understand that this <br>license provides with a non-exclusive, non-transferable right <br>to use MSFragger solely for academic research, non-commercial <br>or educational purposes within the licensee’s department.");
     license1 = new JCheckBox();
 
-    JEditorPane t2 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger.arsci.com/upgrader/RawFileRdr_License_Agreement_RevA.pdf\" target=\"blank_\">Thermo (c) Raw File Reader License Agreement</a>.");
+    JEditorPane t2 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger.arsci.com/upgrader/RawFileRdr_License_Agreement_RevA.pdf\" target=\"blank_\">Thermo (c) Raw File Reader License <br>Agreement</a>.");
     license2 = new JCheckBox();
 
-    JEditorPane t3 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger.arsci.com/upgrader/redist.txt\" target=\"blank_\">Bruker SDK library distribution conditions</a>.");
+    JEditorPane t3 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger.arsci.com/upgrader/redist.txt\" target=\"blank_\">Bruker SDK library distribution <br>conditions</a>.");
     license3 = new JCheckBox();
 
     mu.add(panelTextboxes, t0).spanX().wrap();
@@ -74,7 +77,10 @@ public class DownloadMSFraggerPanel extends JPanel {
     mu.add(panelTextboxes, license3, mu.ccR());
     mu.add(panelTextboxes, t3).spanX().wrap();
 
-    this.add(panelTextboxes);
+    JScrollPane scroll = new JScrollPane(panelTextboxes, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+    this.setLayout(new BorderLayout());
+    this.add(scroll, BorderLayout.CENTER);
   }
 
   public String getName() {
