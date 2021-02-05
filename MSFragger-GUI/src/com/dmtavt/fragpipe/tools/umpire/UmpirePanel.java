@@ -23,6 +23,7 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
+import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
@@ -70,6 +71,7 @@ public class UmpirePanel extends JPanel {
   private JPanel pSe;
   private ImageIcon icon;
   private UiCombo uiComboLoadDefaultsNames;
+  private String customParamsPath = null;
 
   private final List<String> paramNames = Arrays.asList(
       PROP_RPmax,
@@ -231,7 +233,8 @@ public class UmpirePanel extends JPanel {
       int saveResult = fc.showOpenDialog(parent);
       if (JFileChooser.APPROVE_OPTION == saveResult) {
         File f = fc.getSelectedFile();
-        Path p = Paths.get(f.getAbsolutePath());
+        Path p = f.toPath();
+        customParamsPath = p.toAbsolutePath().toString();
         ThisAppProps.save(ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN, p.toString());
         if (Files.exists(p)) {
           UmpireParams params = new UmpireParams();
@@ -261,6 +264,13 @@ public class UmpirePanel extends JPanel {
       try {
         // load original defaults
         params.loadDefault();
+        // load user specified defaults
+        if (!StringUtils.isNullOrWhitespace(customParamsPath)) {
+          Path path = Paths.get(customParamsPath);
+          try (InputStream is = Files.newInputStream(path)) {
+            params.load(is);
+          }
+        }
         // load cached
         params.loadCache();
 
@@ -276,7 +286,14 @@ public class UmpirePanel extends JPanel {
 
     // load defaults either from user specified config file
     try {
-      params.loadDefault();
+      if (!StringUtils.isNullOrWhitespace(customParamsPath)) {
+        try (InputStream is = Files.newInputStream(Paths.get(customParamsPath))) {
+          params.load(is);
+        }
+      } else {
+        // OR load defaults either from the defaults in the jar
+        params.loadDefault();
+      }
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
