@@ -60,6 +60,8 @@ public class UmpireParams implements PropertyFileContent {
     public static final String PROP_NoMissedScan = "SE.NoMissedScan";
     public static final String PROP_EstimateBG = "SE.EstimateBG";
     public static final String PROP_MassDefectFilter = "SE.MassDefectFilter";
+    public static final String PROP_ExportPrecursorPeak = "ExportPrecursorPeak";
+
 
     public static final String PROP_WindowType = "WindowType";
     public static final String PROP_WindowSize = "WindowSize";

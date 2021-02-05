@@ -5,6 +5,7 @@ import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_BoostComplement
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_CorrThreshold;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_DeltaApex;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_EstimateBG;
+import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_ExportPrecursorPeak;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MS1PPM;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MS2PPM;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MassDefectFilter;
@@ -88,6 +89,7 @@ public class UmpirePanel extends JPanel {
       PROP_NoMissedScan,
       PROP_EstimateBG,
       PROP_MassDefectFilter,
+      PROP_ExportPrecursorPeak,
       PROP_WindowType,
       PROP_WindowSize);
 
@@ -178,6 +180,7 @@ public class UmpirePanel extends JPanel {
     feSe.add(new FormEntry(PROP_MassDefectFilter, "Mass Defect Filter", new JCheckBox()));
 
     feSe.add(new FormEntry(UmpireParams.PROP_NoMissedScan, "Max Missed Scans", new JFormattedTextField(decimalAsInt)));
+    feSe.add(new FormEntry(PROP_ExportPrecursorPeak, "Export Precursor Peak", new JCheckBox()));
 
     for (int i = 0; i < feSe.size(); i++) {
       CC ccLabel = new CC().alignX("right").gapBefore("5px");
