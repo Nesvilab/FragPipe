@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.tabs;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.api.DownloadDbHelper;
 import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageDbNewPath;
@@ -9,6 +10,7 @@ import com.dmtavt.fragpipe.messages.MessageDecoyTag;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
+import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.FastaUtils;
 import com.github.chhh.utils.FastaUtils.FastaContent;
 import com.github.chhh.utils.FastaUtils.FastaDecoyPrefixSearchResult;
@@ -30,7 +32,6 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.BitSet;
 import java.util.stream.Stream;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -45,9 +46,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.api.DownloadDbHelper;
-import com.dmtavt.fragpipe.api.OldUtilMethods;
-import com.dmtavt.fragpipe.params.ThisAppProps;
 
 public class TabDatabase extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(TabDatabase.class);
@@ -301,6 +299,8 @@ public class TabDatabase extends JPanelWithEnablement {
         + "However, if you just download a FASTA file from UniProt, it will not contain decoys.<br/><br/>"
         + "<b>There are two simple ways to get a database complete with decoys added:</b><br/><br/>"
         + "1) Simply click 'Download' button next to the text field above.<br/><br/>"
+        + "To download a database containing two or more organisms, list all UniProt proteome IDs separated by comma.<br/>"
+        + "E.g. UP000005640,UP0000464024 to get a combined human + COVID-19 database.<br><br>"
         + "or<br/><br/>"
         + "2) Run Philosopher from the command line to download protein sequences from UniProt.<br/>"
         + "Execute the following two commands (see <a href=\"https://github.com/Nesvilab/philosopher/wiki/Database\">here</a> for detailed instructions): <br/>"
@@ -316,9 +316,6 @@ public class TabDatabase extends JPanelWithEnablement {
         + "To include isoforms, add " + codeTag + "--isoform</code> tag.<br/>"
         + "<br/>"
         + "For mouse use UP000000589, to find the proteome ID for other organisms visit <a href=\"http://www.uniprot.org/proteomes/\">UniProt website</a>.<br/>"
-        + "<br/>"
-        + "To download a database containing two or more organisms, list all UniProt proteome IDs separated by comma.<br/>"
-        + "E.g. UP000005640,UP0000464024 to get a combined human + COVID-19 database."
         + "<br/>"
         + "<br/>"
         + "<b>If you have your own custom database:</b><br/><br/>"
