@@ -47,6 +47,7 @@ ionquant.rttol=0.4
 ionquant.run-ionquant=true
 ionquant.tp=3
 ionquant.writeindex=0
+msfragger.dia=1
 msfragger.Y_type_masses=
 msfragger.add_topN_complementary=0
 msfragger.allow_multiple_variable_mods_on_residue=false

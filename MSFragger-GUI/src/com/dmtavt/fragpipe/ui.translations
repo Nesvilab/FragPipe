@@ -41,6 +41,8 @@ msfragger.precursor_mass_units :: Da <=> 0
 msfragger.precursor_mass_units :: DIA <=> 3
 msfragger.precursor_mass_units :: DIA_MS1 <=> 2
 
+msfragger.dia :: false <=> 0
+msfragger.dia :: true <=> 1
 msfragger.precursor_true_units :: PPM <=> 1
 msfragger.precursor_true_units :: Da <=> 0
 msfragger.remove_precursor_peak :: Do not remove <=> 0

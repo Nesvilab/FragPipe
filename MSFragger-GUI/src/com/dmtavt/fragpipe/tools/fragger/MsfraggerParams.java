@@ -73,6 +73,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_precursor_true_units = "precursor_true_units";
     public static final String PROP_fragment_mass_tolerance = "fragment_mass_tolerance";
     public static final String PROP_fragment_mass_units = "fragment_mass_units";
+    public static final String PROP_dia = "dia";
 
     public static final String PROP_remove_precursor_peak = "remove_precursor_peak";
     public static final String PROP_remove_precursor_range = "remove_precursor_range";
@@ -155,6 +156,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_precursor_true_units,
         PROP_fragment_mass_tolerance,
         PROP_fragment_mass_units,
+        PROP_dia,
         PROP_remove_precursor_peak,
         PROP_remove_precursor_range,
         PROP_intensity_transform,
@@ -302,6 +304,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_precursor_true_units, "True precursor mass tolerance units (0 for Da, 1 for ppm).");
         c.put(PROP_fragment_mass_tolerance, "Fragment mass tolerance (window is +/- this value).");
         c.put(PROP_fragment_mass_units, "Fragment mass tolerance units (0 for Da, 1 for ppm).");
+        c.put(PROP_dia, "Search in DIA mode (0 for no, 1 for yes).");
         c.put(PROP_calibrate_mass, "Perform mass calibration (0 for OFF, 1 for ON, 2 for ON and find optimal parameters).");
         c.put(PROP_write_calibrated_mgf, "Write calibrated MS2 scan to a MGF file (0 for No, 1 for Yes).");
         c.put(PROP_decoy_prefix, "Prefix of the decoy protein entries. Used for parameter optimization only.");

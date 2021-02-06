@@ -190,6 +190,7 @@ public class TabMsfragger extends JPanelBase {
         IntensityTransform.get(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_localize_delta_mass, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_clip_nTerm_M, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_dia, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_override_charge, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.valueOf(s).valueInParamsFile());
@@ -213,6 +214,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_intensity_transform, s -> IntensityTransform.get(Integer.parseInt(s)));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_localize_delta_mass, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Boolean.toString(Integer.parseInt(s) > 0));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_dia, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_override_charge, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.fromValueInParamsFile(s).name());
@@ -463,6 +465,8 @@ public class TabMsfragger extends JPanelBase {
             + "peak selection errors MSFragger will try to correct.")
         .create();
 
+    FormEntry feDia = mu.feb(MsfraggerParams.PROP_dia, new UiCheck("DIA", null)).tooltip("Searching in DIA mode").create();
+
     mu.add(p, fePrecTolUnits.label(), mu.ccR());
     mu.add(p, fePrecTolUnits.comp).split(4);
     mu.add(p, fePrecTolLo.comp);
@@ -475,7 +479,8 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feCalibrate.label(), mu.ccR());
     mu.add(p, feCalibrate.comp);
     mu.add(p, feIsotopeError.label(), mu.ccR());
-    mu.add(p, feIsotopeError.comp).spanX().wrap();
+    mu.add(p, feIsotopeError.comp).split();
+    mu.add(p, feDia.comp).spanX().wrap();
 
     return p;
   }
