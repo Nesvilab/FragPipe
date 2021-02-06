@@ -24,9 +24,7 @@ import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.PROP_precursor_m
  */
 public enum PrecursorMassTolUnits {
     PPM (1),
-    Da(0),
-    DIA (3),
-    DIA_MS1 (2);
+    Da(0);
     
     private final int val;
 
