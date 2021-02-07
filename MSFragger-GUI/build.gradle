@@ -123,10 +123,10 @@ dependencies {
 
     implementation 'org.apache.httpcomponents:httpmime:4.5.13'
 
-    compile group: 'org.apache.commons', name: 'commons-compress', version: '1.20'
+    implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.20'
 
     implementation 'org.apache.commons:commons-lang3:3.11'
-    //compile group: 'commons-io', name: 'commons-io', version: '2.6'
+//    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
     implementation 'com.miglayout:miglayout-swing:5.2'
 
     implementation ('io.reactivex:rxswing:0.27.0'){
