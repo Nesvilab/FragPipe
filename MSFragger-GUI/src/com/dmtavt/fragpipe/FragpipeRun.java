@@ -34,6 +34,7 @@ import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
 import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
+import com.dmtavt.fragpipe.util.PercolatorPanel;
 import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
 import com.dmtavt.fragpipe.tools.protproph.ProtProphPanel;
 import com.dmtavt.fragpipe.tools.ptmprophet.PtmProphetPanel;
@@ -755,6 +756,8 @@ public class FragpipeRun {
       }
       return true;
     });
+
+    final Map<InputLcmsFile, List<Path>> sharedPepxmlFilesBeforePeptideValidation = new HashMap<>();
     addConfig.accept(cmdPeptideProphet, () -> {
       if (cmdPeptideProphet.isRun()) {
         final String pepProphCmd = pepProphPanel.getCmdOpts();
@@ -766,9 +769,40 @@ public class FragpipeRun {
       }
       Map<InputLcmsFile, List<Path>> pepProphOutputs = cmdPeptideProphet
           .outputs(sharedPepxmlFiles, tabMsf.getOutputFileExt(), isCombinedPepxml);
+      sharedPepxmlFilesBeforePeptideValidation.putAll(sharedPepxmlFiles);
       sharedPepxmlFiles.clear();
       sharedPepxmlFiles.putAll(pepProphOutputs);
 
+      return true;
+    });
+
+    // run Percolator
+    final PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);
+    final boolean isRunPercolator = percolatorPanel.isRun();
+    final boolean isCombinedPepxml_percolator = percolatorPanel.isCombinePepxml();
+
+    final CmdPercolator cmdPercolator = new CmdPercolator(isRunPercolator, wd);
+
+    addCheck.accept(() -> {
+      if (cmdPercolator.isRun()) {
+        return checkDbConfig(parent);
+      }
+      return true;
+    });
+    addConfig.accept(cmdPercolator, () -> {
+      if (cmdPercolator.isRun()) {
+        final String percolatorCmd = percolatorPanel.getCmdOpts();
+        final String enzymeName = tabMsf.getEnzymeName();
+        if (!cmdPercolator.configure(parent, usePhi, jarPath, isDryRun,
+            fastaFile, decoyTag, percolatorCmd, isCombinedPepxml_percolator, enzymeName, sharedPepxmlFilesBeforePeptideValidation)) {
+          return false;
+        }
+      }
+      Map<InputLcmsFile, List<Path>> percolatorOutputs = cmdPercolator
+          .outputs(sharedPepxmlFilesBeforePeptideValidation, tabMsf.getOutputFileExt(), isCombinedPepxml_percolator);
+      sharedPepxmlFilesBeforePeptideValidation.putAll(sharedPepxmlFiles);
+      sharedPepxmlFiles.clear();
+      sharedPepxmlFiles.putAll(percolatorOutputs);
       return true;
     });
 
@@ -1123,12 +1157,16 @@ public class FragpipeRun {
 
     addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger);
     addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdCrystalc);
-    addToGraph(graphOrder, cmdPtmProphet, DIRECTION.IN, cmdPeptideProphet);
-    addToGraph(graphOrder, cmdProteinProphet, DIRECTION.IN, cmdPeptideProphet, cmdPtmProphet);
+    addToGraph(graphOrder, cmdPercolator, DIRECTION.IN, cmdMsfragger, cmdCrystalc);
+    for (final CmdBase cmdPeptideValidation : new CmdBase[]{cmdPeptideProphet, cmdPercolator}) {
+      addToGraph(graphOrder, cmdPtmProphet, DIRECTION.IN, cmdPeptideValidation);
+      addToGraph(graphOrder, cmdProteinProphet, DIRECTION.IN, cmdPeptideValidation, cmdPtmProphet);
+    }
     addToGraph(graphOrder, cmdPhilosopherDbAnnotate, DIRECTION.IN, cmdProteinProphet);
     addToGraph(graphOrder, cmdPhilosopherFilter, DIRECTION.IN, cmdPhilosopherDbAnnotate, cmdProteinProphet);
     addToGraph(graphOrder, cmdFreequant, DIRECTION.IN, cmdPhilosopherFilter);
-    addToGraph(graphOrder, cmdIprophet, DIRECTION.IN, cmdPhilosopherReport, cmdPeptideProphet);
+    for (final CmdBase cmdPeptideValidation : new CmdBase[]{cmdPeptideProphet, cmdPercolator})
+      addToGraph(graphOrder, cmdIprophet, DIRECTION.IN, cmdPhilosopherReport, cmdPeptideValidation);
     addToGraph(graphOrder, cmdPhilosopherAbacus, DIRECTION.IN, cmdPhilosopherReport, cmdIprophet, cmdProteinProphet);
     addToGraph(graphOrder, cmdTmtFreequant, DIRECTION.IN, cmdPhilosopherFilter);
     addToGraph(graphOrder, cmdTmtLabelQuant, DIRECTION.IN, cmdPhilosopherFilter, cmdTmtFreequant);
