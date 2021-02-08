@@ -6,15 +6,19 @@ import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_CorrThreshold;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_DeltaApex;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_EstimateBG;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_ExportPrecursorPeak;
+import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_IsoPattern;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MS1PPM;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MS2PPM;
+import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MS2SN;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MassDefectFilter;
+import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MassDefectOffset;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MinMSIntensity;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MinMSMSIntensity;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_NoMissedScan;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_RFmax;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_RPmax;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_RTOverlap;
+import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_SN;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_Thread;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_WindowSize;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_WindowType;
@@ -88,10 +92,14 @@ public class UmpirePanel extends JPanel {
       PROP_MinMSMSIntensity,
       PROP_NoMissedScan,
       PROP_EstimateBG,
+      PROP_IsoPattern,
+      PROP_MassDefectOffset,
       PROP_MassDefectFilter,
       PROP_ExportPrecursorPeak,
       PROP_WindowType,
-      PROP_WindowSize);
+      PROP_WindowSize,
+      PROP_SN,
+      PROP_MS2SN);
 
   public UmpirePanel() {
     initMore();
@@ -130,7 +138,7 @@ public class UmpirePanel extends JPanel {
 
     // Panel - fragment grouping options
     pFrag = new JPanel(new MigLayout(lc));
-    pFrag.setBorder(new TitledBorder("Fragment grouping options"));
+    pFrag.setBorder(new TitledBorder("Key options"));
 
     DefaultFormatterFactory decimalAsInt = new DefaultFormatterFactory(
         new NumberFormatter(new DecimalFormat("#0")));
@@ -145,42 +153,47 @@ public class UmpirePanel extends JPanel {
     FormEntry feCheckBoostComplimentaryIons = new FormEntry(PROP_BoostComplementaryIon, "Boost complimentary ions", new JCheckBox());
     FormEntry feCheckAdjustFragIntensitys = new FormEntry(PROP_AdjustFragIntensity, "Adjust fragment intensity", new JCheckBox());
 
+    FormEntry feMs1Ppm = new FormEntry(UmpireParams.PROP_MS1PPM, "MS1 PPM", new JFormattedTextField(decimalAsInt));
+    FormEntry feMs2Ppm = new FormEntry(UmpireParams.PROP_MS2PPM, "MS2 PPM", new JFormattedTextField(decimalAsInt));
+    FormEntry feNoMissedScans = new FormEntry(UmpireParams.PROP_NoMissedScan, "Max Missed Scans", new JFormattedTextField(decimalAsInt));
+    FormEntry feEstimateBG = new FormEntry(UmpireParams.PROP_EstimateBG, "Estimate Background", new JCheckBox());
+    FormEntry feIsoPattern = new FormEntry(PROP_IsoPattern, "Isotope Pattern", new JFormattedTextField(decimalAsInt));
+    FormEntry feMassDefectFilter = new FormEntry(PROP_MassDefectFilter, "Mass Defect Filter", new JCheckBox());
+    FormEntry feMassDefectOffset = new FormEntry(PROP_MassDefectOffset, "Mass Defect Offset", new JFormattedTextField(decimalAsInt));
+    FormEntry feExportPrecursorPeak = new FormEntry(PROP_ExportPrecursorPeak, "Export Precursor Peak", new JCheckBox());
+    FormEntry feSN = new FormEntry(PROP_SN, "MS1 SN", new JFormattedTextField(decimalAsInt));
+    FormEntry feMS2SN = new FormEntry(PROP_MS2SN, "MS2 SN", new JFormattedTextField(decimalAsInt));
+
     CC ccComp = new CC().width("30:50:70px");
     CC ccFmtWrap = new CC().width("30:50:70px").wrap();
     CC ccLbl = new CC().alignX("right").gapBefore("5px");
-    pFrag.add(feRpMax.label(), ccLbl);
-    pFrag.add(feRpMax.comp, ccComp);
-    pFrag.add(feRfMax.label(), ccLbl);
-    pFrag.add(feRfMax.comp, ccFmtWrap);
-    pFrag.add(feCorrThresh.label(), ccLbl);
-    pFrag.add(feCorrThresh.comp, ccComp);
-    pFrag.add(feDeltaApex.label(), ccLbl);
-    pFrag.add(feDeltaApex.comp, ccComp);
-    pFrag.add(feRtOverlap.label(), ccLbl);
-    pFrag.add(feRtOverlap.comp, ccFmtWrap);
-    pFrag.add(feCheckBoostComplimentaryIons.label(), ccLbl);
-    pFrag.add(feCheckBoostComplimentaryIons.comp, ccComp);
-    pFrag.add(feCheckAdjustFragIntensitys.label(), ccLbl);
-    pFrag.add(feCheckAdjustFragIntensitys.comp, ccFmtWrap);
+    pFrag.add(feMs1Ppm.label(), ccLbl);
+    pFrag.add(feMs1Ppm.comp, ccComp);
+    pFrag.add(feMs2Ppm.label(), ccLbl);
+    pFrag.add(feMs2Ppm.comp, ccFmtWrap);
+    pFrag.add(feNoMissedScans.label(), ccLbl);
+    pFrag.add(feNoMissedScans.comp, ccComp);
+    pFrag.add(feEstimateBG.label(), ccLbl);
+    pFrag.add(feEstimateBG.comp, ccFmtWrap);
 
 
     // Panel - Signal Extraction Parameters
     pSe = new JPanel(new MigLayout(lc));
-    pSe.setBorder(new TitledBorder("Signal Extraction Parameters"));
+    pSe.setBorder(new TitledBorder("Advanced options"));
     List<FormEntry> feSe = new ArrayList<>();
-    //entries.add(new FormEntry(UmpireParams.PROP_, "", new JFormattedTextField()));
-    feSe.add(new FormEntry(UmpireParams.PROP_MS1PPM, "MS1 PPM", new JFormattedTextField(decimalAsInt)));
-    feSe.add(new FormEntry(UmpireParams.PROP_MS2PPM, "MS2 PPM", new JFormattedTextField(decimalAsInt)));
-
-    feSe.add(new FormEntry(UmpireParams.PROP_EstimateBG, "Estimate Background", new JCheckBox()));
-
-    feSe.add(new FormEntry(UmpireParams.PROP_MinMSIntensity, "Min MS1 Intensity", new JFormattedTextField(decimal)));
-    feSe.add(new FormEntry(UmpireParams.PROP_MinMSMSIntensity, "Min MS2 Intensity", new JFormattedTextField(decimal)));
-
-    feSe.add(new FormEntry(PROP_MassDefectFilter, "Mass Defect Filter", new JCheckBox()));
-
-    feSe.add(new FormEntry(UmpireParams.PROP_NoMissedScan, "Max Missed Scans", new JFormattedTextField(decimalAsInt)));
-    feSe.add(new FormEntry(PROP_ExportPrecursorPeak, "Export Precursor Peak", new JCheckBox()));
+    feSe.add(feRpMax);
+    feSe.add(feRfMax);
+    feSe.add(feCorrThresh);
+    feSe.add(feDeltaApex);
+    feSe.add(feRtOverlap);
+    feSe.add(feIsoPattern);
+    feSe.add(feMassDefectFilter);
+    feSe.add(feMassDefectOffset);
+    feSe.add(feSN);
+    feSe.add(feCheckBoostComplimentaryIons);
+    feSe.add(feCheckAdjustFragIntensitys);
+    feSe.add(feMS2SN);
+    feSe.add(feExportPrecursorPeak);
 
     for (int i = 0; i < feSe.size(); i++) {
       CC ccLabel = new CC().alignX("right").gapBefore("5px");

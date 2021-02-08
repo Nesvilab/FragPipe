@@ -10,7 +10,7 @@ Thread = 7
 RPmax = 25
 RFmax = 500
 CorrThreshold = 0
-DeltaApex = 0.1
+DeltaApex = 0.2
 RTOverlap = 0.3
 
 #Fragment intensity adjustments
@@ -23,8 +23,8 @@ ExportPrecursorPeak = false
 
 #Signal extraction: mass accuracy and resolution
 # resolution parameter matters only for data generated in profile mode
-SE.MS1PPM = 15
-SE.MS2PPM = 25
+SE.MS1PPM = 10
+SE.MS2PPM = 20
 SE.Resolution = 60000
 
 #Signal extraction: signal to noise filter

@@ -59,10 +59,12 @@ public class UmpireParams implements PropertyFileContent {
     public static final String PROP_MinMSMSIntensity = "SE.MinMSMSIntensity";
     public static final String PROP_NoMissedScan = "SE.NoMissedScan";
     public static final String PROP_EstimateBG = "SE.EstimateBG";
+    public static final String PROP_IsoPattern = "SE.IsoPattern";
     public static final String PROP_MassDefectFilter = "SE.MassDefectFilter";
+    public static final String PROP_MassDefectOffset = "SE.MassDefectOffset";
     public static final String PROP_ExportPrecursorPeak = "ExportPrecursorPeak";
-
-
+    public static final String PROP_SN = "SE.SN";
+    public static final String PROP_MS2SN = "SE.MS2SN";
     public static final String PROP_WindowType = "WindowType";
     public static final String PROP_WindowSize = "WindowSize";
 
