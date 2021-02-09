@@ -687,6 +687,10 @@ public class MsfraggerParams extends AbstractParams {
     public int getOutputReportTopN() {
         return Integer.parseInt(props.getProp(PROP_output_report_topN, "3").value);
     }
+
+    public boolean getIsDia() {
+        return props.getProp(PROP_dia, "0").value.contentEquals("1");
+    }
     
     public void setOutputReportTopN(int v) {
         props.setProp(PROP_output_report_topN, Integer.toString(v));

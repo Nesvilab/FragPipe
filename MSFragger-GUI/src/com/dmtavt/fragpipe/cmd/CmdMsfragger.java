@@ -50,11 +50,13 @@ public class CmdMsfragger extends CmdBase {
 
   private final PrecursorMassTolUnits precursorMassUnits;
   private final int outputReportTopN;
+  private final boolean isDia;
 
-  public CmdMsfragger(boolean isRun, Path workDir, PrecursorMassTolUnits precursorMassUnits, int outputReportTopN) {
+  public CmdMsfragger(boolean isRun, Path workDir, PrecursorMassTolUnits precursorMassUnits, int outputReportTopN, boolean isDia) {
     super(isRun, workDir);
     this.precursorMassUnits = precursorMassUnits;
     this.outputReportTopN = outputReportTopN;
+    this.isDia = isDia;
   }
 
   @Override
@@ -73,7 +75,7 @@ public class CmdMsfragger extends CmdBase {
   public Map<InputLcmsFile, List<Path>> outputs(List<InputLcmsFile> inputs, String ext, Path workDir) {
     Map<InputLcmsFile, List<Path>> m = new HashMap<>();
     for (InputLcmsFile f : inputs) {
-      if (precursorMassUnits.valueInParamsFile() > 1 && outputReportTopN > 1 && !ext.contentEquals("tsv") && !ext.contentEquals("pin")) {
+      if (isDia && !ext.contentEquals("tsv") && !ext.contentEquals("pin")) {
         for (int rank = 1; rank <= outputReportTopN; ++rank) {
           String pepxmlFn = getPepxmlFn(f, ext, rank);
           List<Path> t = m.get(f);
