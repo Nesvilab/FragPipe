@@ -9,6 +9,7 @@ import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
+import com.dmtavt.fragpipe.tools.enums.FraggerOutputType;
 import com.dmtavt.fragpipe.tools.enums.PrecursorMassTolUnits;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.github.chhh.utils.OsUtils;
@@ -51,12 +52,14 @@ public class CmdMsfragger extends CmdBase {
   private final PrecursorMassTolUnits precursorMassUnits;
   private final int outputReportTopN;
   private final boolean isDia;
+  private final FraggerOutputType fraggerOutputType;
 
-  public CmdMsfragger(boolean isRun, Path workDir, PrecursorMassTolUnits precursorMassUnits, int outputReportTopN, boolean isDia) {
+  public CmdMsfragger(boolean isRun, Path workDir, PrecursorMassTolUnits precursorMassUnits, int outputReportTopN, boolean isDia, FraggerOutputType fraggerOutputType) {
     super(isRun, workDir);
     this.precursorMassUnits = precursorMassUnits;
     this.outputReportTopN = outputReportTopN;
     this.isDia = isDia;
+    this.fraggerOutputType = fraggerOutputType;
   }
 
   @Override
@@ -434,31 +437,37 @@ public class CmdMsfragger extends CmdBase {
       // move the pepxml files if the output directory is not the same as where
       // the lcms files were
       for (InputLcmsFile f : addedLcmsFiles) {
-        List<Path> pepxmlWhereItShouldBeList = mapLcmsToPepxml.get(f);
-        if (pepxmlWhereItShouldBeList == null || pepxmlWhereItShouldBeList.isEmpty())
-          throw new IllegalStateException("LCMS file mapped to no pepxml file");
-        for (Path pepxmlWhereItShouldBe : pepxmlWhereItShouldBeList) {
-          String pepxmlFn = pepxmlWhereItShouldBe.getFileName().toString();
-          Path pepxmlAsCreatedByFragger = f.getPath().getParent().resolve(pepxmlFn);
-          if (!pepxmlAsCreatedByFragger.equals(pepxmlWhereItShouldBe)) {
-            List<ProcessBuilder> pbsMove = ToolingUtils
-                .pbsMoveFiles(jarFragpipe, pepxmlWhereItShouldBe.getParent(),
-                    Collections.singletonList(pepxmlAsCreatedByFragger));
-            pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move pepxml"));
+        if (fraggerOutputType.valueInParamsFile().contains("pepXML")) {
+          List<Path> pepxmlWhereItShouldBeList = mapLcmsToPepxml.get(f);
+          if (pepxmlWhereItShouldBeList == null || pepxmlWhereItShouldBeList.isEmpty())
+            throw new IllegalStateException("LCMS file mapped to no pepxml file");
+          for (Path pepxmlWhereItShouldBe : pepxmlWhereItShouldBeList) {
+            String pepxmlFn = pepxmlWhereItShouldBe.getFileName().toString();
+            Path pepxmlAsCreatedByFragger = f.getPath().getParent().resolve(pepxmlFn);
+            if (!pepxmlAsCreatedByFragger.equals(pepxmlWhereItShouldBe)) {
+              List<ProcessBuilder> pbsMove = ToolingUtils
+                  .pbsMoveFiles(jarFragpipe, pepxmlWhereItShouldBe.getParent(),
+                      Collections.singletonList(pepxmlAsCreatedByFragger));
+              pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move pepxml"));
+            }
           }
         }
-        List<Path> tsvWhereItShouldBeList = mapLcmsToTsv.get(f);
-        for (Path tsvWhereItShouldBe : tsvWhereItShouldBeList) {
-          String tsvFn = tsvWhereItShouldBe.getFileName().toString();
-          Path tsvAsCreatedByFragger = f.getPath().getParent().resolve(tsvFn);
-          if (!tsvAsCreatedByFragger.equals(tsvWhereItShouldBe) && params.getShiftedIons()) {
-            List<ProcessBuilder> pbsMove = ToolingUtils
-                .pbsMoveFiles(jarFragpipe, tsvWhereItShouldBe.getParent(), true,
-                    Collections.singletonList(tsvAsCreatedByFragger));
-            pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move tsv"));
+
+        if (params.getShiftedIons() || fraggerOutputType.valueInParamsFile().contains("tsv")) {
+          List<Path> tsvWhereItShouldBeList = mapLcmsToTsv.get(f);
+          for (Path tsvWhereItShouldBe : tsvWhereItShouldBeList) {
+            String tsvFn = tsvWhereItShouldBe.getFileName().toString();
+            Path tsvAsCreatedByFragger = f.getPath().getParent().resolve(tsvFn);
+            if (!tsvAsCreatedByFragger.equals(tsvWhereItShouldBe)) {
+              List<ProcessBuilder> pbsMove = ToolingUtils
+                  .pbsMoveFiles(jarFragpipe, tsvWhereItShouldBe.getParent(), true,
+                      Collections.singletonList(tsvAsCreatedByFragger));
+              pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move tsv"));
+            }
           }
         }
-        if (params.getPrecursorMassUnits().valueInParamsFile() > 1) {
+
+        if (params.getIsDia() || fraggerOutputType.valueInParamsFile().contains("pin")) {
           List<Path> pinWhereItShouldBeList = mapLcmsToPin.get(f);
           for (Path pinWhereItShouldBe : pinWhereItShouldBeList) {
             String pinFn = pinWhereItShouldBe.getFileName().toString();
@@ -467,7 +476,7 @@ public class CmdMsfragger extends CmdBase {
               List<ProcessBuilder> pbsMove = ToolingUtils
                   .pbsMoveFiles(jarFragpipe, pinWhereItShouldBe.getParent(), true,
                       Collections.singletonList(pinAsCreatedByFragger));
-              pbis.addAll(PbiBuilder.from(pbsMove));
+              pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move pin"));
             }
           }
         }
