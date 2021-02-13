@@ -166,13 +166,10 @@ public class Fragpipe extends JFrame {
   }
 
   public static UncaughtExceptionHandler uncaughtExceptionHandler() {
-    return new UncaughtExceptionHandler() {
-      @Override
-      public void uncaughtException(Thread t, Throwable e) {
-        String stacktrace = LogUtils.stacktrace(e);
-        log.error("Something unexpected happened!", e);
-        SwingUtils.userShowError(null, stacktrace);
-      }
+    return (t, e) -> {
+      String stacktrace = LogUtils.stacktrace(e);
+      log.error("Something unexpected happened!", e);
+      SwingUtils.userShowError(null, stacktrace);
     };
   }
 
