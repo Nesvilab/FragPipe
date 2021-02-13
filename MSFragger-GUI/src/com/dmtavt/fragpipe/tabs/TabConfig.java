@@ -807,8 +807,8 @@ public class TabConfig extends JPanelWithEnablement {
     JPanel p = mu.newPanel("Spectral Library Generation", true);
 
     StringBuilder tip = new StringBuilder()
-        .append("Requires <b>Python 3</b> with packages <b>Cython, Matplotlib, msproteomicstools</b>\n")
-        .append("Optionally requires python module EasyPQP to enable EasyPQP functinoality.");
+        .append("SpectraST: Requires <b>Python 3</b> with packages <b>Cython, Matplotlib, msproteomicstools</b>\n")
+        .append("EasyPQP: Requires <b>Python 3</b> with package <b>EasyPQP</b>");
     String tipHtml = SwingUtils.makeHtml(tip.toString());
     p.setToolTipText(tipHtml);
     Dimension dim = new Dimension(200, 25);
