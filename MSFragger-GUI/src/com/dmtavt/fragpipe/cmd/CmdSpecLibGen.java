@@ -46,7 +46,7 @@ public class CmdSpecLibGen extends CmdBase {
 
     initPreConfig();
 
-    final String[] compatibleExts = useEasypqp ? new String[]{".d", ".mzml", ".mzxml"} : new String[]{".mzml", ".mzxml"};
+    final String[] compatibleExts = useEasypqp ? new String[]{".d", ".mzml", ".mzxml", ".raw"} : new String[]{".mzml", ".mzxml"};
     final Predicate<String> isFileCompatible = fn -> Arrays.stream(compatibleExts).anyMatch(ext -> fn.toLowerCase().endsWith(ext));
 
     boolean isIncompatibleInputs = mapGroupsToProtxml.keySet().stream()
@@ -133,11 +133,12 @@ public class CmdSpecLibGen extends CmdBase {
         cmd.add(groupWd.toString()); // this is "Pep xml directory"
         cmd.add(group.lcmsFiles.stream()
                 .map(lcms -> {
-                  final String fn_sans_extension = FilenameUtils.removeExtension(lcms.getPath().getFileName().toString());
                   final String fn = lcms.getPath().getFileName().toString();
+                  final String fn_sans_extension = FilenameUtils.removeExtension(fn);
                   final boolean isTimsTOF = dataType == InputDataType.ImMsTimsTof;
+                  final boolean isRaw = fn.toLowerCase().endsWith(".raw");
                   final String sans_suffix = lcms.getPath().getParent().resolve(fn_sans_extension).toString();
-                  final String lcms_path = isTimsTOF ?
+                  final String lcms_path = (isTimsTOF || isRaw) ?
                           sans_suffix + "_uncalibrated.mgf"
                           :
                           lcms.getPath().toString();
