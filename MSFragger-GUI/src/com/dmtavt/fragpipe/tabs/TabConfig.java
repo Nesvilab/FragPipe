@@ -780,7 +780,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     StringBuilder tip = new StringBuilder()
         .append("Used for searching very large databases by splitting into smaller chunks.<br/>")
-        .append("Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>")
+        .append("Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>.\n")
         .append("Ways to get everything set up:").append("<ul>")
         .append("<li>Install Python 3 if you don't yet have it.</li>")
         .append(
