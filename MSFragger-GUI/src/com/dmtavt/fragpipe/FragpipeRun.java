@@ -305,7 +305,7 @@ public class FragpipeRun {
 
   private static void printReference() {
     toConsole(Fragpipe.COLOR_RED_DARKEST, "\nPlease cite:", true);
-    toConsole(Fragpipe.COLOR_CMDLINE, "(Regular searches) ", false);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Any searches) ", false);
     toConsole(Fragpipe.COLOR_BLACK, "MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics. Nat Methods 14:513 (2017)", true);
     toConsole(Fragpipe.COLOR_CMDLINE, "(Any searches) ", false);
     toConsole(Fragpipe.COLOR_BLACK, "Fast deisotoping algorithm and its implementation in the MSFragger search engine. J. Proteome Res. 20:498 (2021)", true);
@@ -314,11 +314,11 @@ public class FragpipeRun {
     toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false);
     toConsole(Fragpipe.COLOR_BLACK, "Crystal-C: A Computational Tool for Refinement of Open Search Results. J. Proteome Res. 19.6:2511 (2020)", true);
     toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "PTM-Shepherd: analysis and summarization of post-translational and chemical modifications from open search results. bioRxiv. DOI: 10.1101/2020.07.08.192583 (2020)", true);
+    toConsole(Fragpipe.COLOR_BLACK, "PTM-Shepherd: analysis and summarization of post-translational and chemical modifications from open search results. Mol Cell Proteomics 20:100018 (2020)", true);
     toConsole(Fragpipe.COLOR_CMDLINE, "(Glyco/labile search) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "Fast and comprehensive N- and O-glycoproteomics analysis with MSFragger-Glyco. Nat Methods DOI: 10.1101/2020.05.18.10266 (2020)", true);
+    toConsole(Fragpipe.COLOR_BLACK, "Fast and comprehensive N- and O-glycoproteomics analysis with MSFragger-Glyco. Nat Methods 17:1125 (2020)", true);
     toConsole(Fragpipe.COLOR_CMDLINE, "(timsTOF PASEF) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "Fast quantitative analysis of timsTOF PASEF data with MSFragger and IonQuant. Mol Cell Proteomics 19: 1575 (2020)", true);
+    toConsole(Fragpipe.COLOR_BLACK, "Fast quantitative analysis of timsTOF PASEF data with MSFragger and IonQuant. Mol Cell Proteomics 19:1575 (2020)", true);
     toConsole(Fragpipe.COLOR_CMDLINE, "(PeptideProphet/ProteinProphet/PTMProphet/Filtering) ", false);
     toConsole(Fragpipe.COLOR_BLACK, "Philosopher: a versatile toolkit for shotgun proteomics data analysis. Nat Methods 17:869 (2020)", true);
     toConsole(Fragpipe.COLOR_CMDLINE, "(TMT-Integrator) ", false);
