@@ -155,7 +155,11 @@ public class Fragpipe extends JFrame {
       @Override
       public void windowClosing(WindowEvent e) {
         if (!dontSaveCacheOnExit) {
-          saveCache();
+          try {
+            saveCache();
+          } catch (IllegalStateException ex) {
+            log.error("Error while trying to save cache on exit", ex);
+          }
         }
       }
     });
