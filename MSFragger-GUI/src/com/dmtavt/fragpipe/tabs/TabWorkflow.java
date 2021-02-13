@@ -402,8 +402,23 @@ public class TabWorkflow extends JPanelWithEnablement {
   public enum InputDataType {RegularMs, ImMsTimsTof}
 
   public InputDataType getInputDataType() {
-    if (btnTypeIms.isSelected()) return InputDataType.ImMsTimsTof;
-    return InputDataType.RegularMs;
+    for (int i = 0; i < tableModelRawFiles.getRowCount(); ++i) {
+      if (tableModelRawFiles.getValueAt(i, 0).toString().toLowerCase().endsWith(".d")) {
+        return InputDataType.ImMsTimsTof;
+      }
+    }
+
+    for (int i = 0; i < tableModelRawFiles.getRowCount(); ++i) {
+      if (tableModelRawFiles.getValueAt(i, 0).toString().toLowerCase().endsWith(".raw")) {
+        return InputDataType.RegularMs;
+      }
+    }
+
+    if (btnTypeIms.isSelected()) {
+      return InputDataType.ImMsTimsTof;
+    } else {
+      return InputDataType.RegularMs;
+    }
   }
 
   private Map<String, PropsFile> findPropsFiles(Path startDir) throws IOException {
