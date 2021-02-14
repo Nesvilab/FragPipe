@@ -79,8 +79,8 @@ sourceSets {
 }
 
 shadowJar {
-    archiveBaseName = "${project.name}"
-    archiveClassifier = ""
+    archiveBaseName.set("${project.name}")
+    archiveClassifier.set('')
     minimize()
 }
 
@@ -208,7 +208,7 @@ task copyJre(type: Copy, group: 'chhh-release', description: 'Copies JRE to buil
 }
 
 void createTaskCopyToInstallRelToBuild(String taskNameSuffix, String fromRelToBuild, String toRelToInstallProjname) {
-    String taskName = "copy" + taskNameSuffix;
+    String taskName = "copy" + taskNameSuffix
     task (taskName, type: Copy, group: 'chhh-release', description: "Copies from [$buildDir/$fromRelToBuild] to [$buildDir/install/${project.name}]") {
         from "$buildDir/$fromRelToBuild"
         into file("$buildDir/install/${project.name}/$toRelToInstallProjname")
@@ -219,11 +219,11 @@ createTaskCopyToInstallRelToBuild('Tools', "../tools", "tools")
 createTaskCopyToInstallRelToBuild('Workflows', "../workflows/", "workflows")
 
 void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startClass) {
-    String taskName = "makeReleaseZip" + (withJre ? "WithJre" : "NoJre");
+    String taskName = "makeReleaseZip" + (withJre ? "WithJre" : "NoJre")
 
     task (taskName, type: Zip, group: 'chhh-release') {
         // for build on Windows, zip with execute bit
-        // for a gradle Windows build, files requiring execute bit set (ELF and Unix shell scipts)
+        // for a gradle Windows build, files requiring execute bit set (ELF and Unix shell scripts)
         // are zipped without execute bit. The default file mode is 0644
         // https://github.com/gradle/gradle/blob/54b385133a1edde78243105e9aaf0db5990b3507/subprojects/native/src/main/java/org/gradle/internal/nativeintegration/filesystem/services/FileSystemServices.java#L75
         if (Os.isFamily(Os.FAMILY_WINDOWS))
