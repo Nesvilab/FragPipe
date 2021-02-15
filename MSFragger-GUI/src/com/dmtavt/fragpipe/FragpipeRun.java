@@ -678,7 +678,7 @@ public class FragpipeRun {
     final CmdMsfragger cmdMsfragger;
     {
       MsfraggerParams p = tabMsf.getParams();
-      cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputReportTopN(), p.getIsDia(), p.getOutputFormat());
+      cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputReportTopN(), p.getDataType(), p.getOutputFormat());
     }
     final Map<InputLcmsFile, List<Path>> sharedPepxmlFilesFromMsfragger = new HashMap<>();
     final Map<InputLcmsFile, List<Path>> sharedPepxmlFiles = new HashMap<>();

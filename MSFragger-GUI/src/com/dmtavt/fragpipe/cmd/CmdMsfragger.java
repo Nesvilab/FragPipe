@@ -10,7 +10,6 @@ import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
 import com.dmtavt.fragpipe.tools.enums.FraggerOutputType;
-import com.dmtavt.fragpipe.tools.enums.PrecursorMassTolUnits;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
@@ -50,13 +49,13 @@ public class CmdMsfragger extends CmdBase {
   private static final List<String> timsdataPattern = Arrays.asList("^timsdata.*\\.dll", "^libtimsdata.*\\.so");
 
   private final int outputReportTopN;
-  private final boolean isDia;
+  private final int dataType;
   private final FraggerOutputType fraggerOutputType;
 
-  public CmdMsfragger(boolean isRun, Path workDir, int outputReportTopN, boolean isDia, FraggerOutputType fraggerOutputType) {
+  public CmdMsfragger(boolean isRun, Path workDir, int outputReportTopN, int dataType, FraggerOutputType fraggerOutputType) {
     super(isRun, workDir);
     this.outputReportTopN = outputReportTopN;
-    this.isDia = isDia;
+    this.dataType = dataType;
     this.fraggerOutputType = fraggerOutputType;
   }
 
@@ -76,7 +75,7 @@ public class CmdMsfragger extends CmdBase {
   public Map<InputLcmsFile, List<Path>> outputs(List<InputLcmsFile> inputs, String ext, Path workDir) {
     Map<InputLcmsFile, List<Path>> m = new HashMap<>();
     for (InputLcmsFile f : inputs) {
-      if (isDia && !ext.contentEquals("tsv") && !ext.contentEquals("pin")) {
+      if (dataType > 0 && !ext.contentEquals("tsv") && !ext.contentEquals("pin")) {
         for (int rank = 1; rank <= outputReportTopN; ++rank) {
           String pepxmlFn = getPepxmlFn(f, ext, rank);
           List<Path> t = m.get(f);
@@ -465,7 +464,7 @@ public class CmdMsfragger extends CmdBase {
           }
         }
 
-        if (params.getIsDia() || fraggerOutputType.valueInParamsFile().contains("pin")) {
+        if (params.getDataType() > 0 || fraggerOutputType.valueInParamsFile().contains("pin")) {
           List<Path> pinWhereItShouldBeList = mapLcmsToPin.get(f);
           for (Path pinWhereItShouldBe : pinWhereItShouldBeList) {
             String pinFn = pinWhereItShouldBe.getFileName().toString();
