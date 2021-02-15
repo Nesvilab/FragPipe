@@ -174,10 +174,13 @@ public class SwingUtils {
         throw new IllegalStateException("Something happened while running behind a progress bar",
             ex);
       } finally {
-        dialog.setVisible(false);
+        while (!dialog.isVisible())
+          try {
+            Thread.sleep(1000);
+          } catch (InterruptedException ignored) {
+          }
         dialog.dispose();
       }
-
     });
     return new DialogAndThread(dialog, thread);
   }

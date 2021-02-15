@@ -319,7 +319,11 @@ public class TabWorkflow extends JPanelWithEnablement {
         SwingUtils.DialogAndThread dat = SwingUtils.runThreadWithProgressBar("Renaming files", parent, runnable);
         dat.thread.start();
         dat.dialog.setVisible(true);
-
+        try {
+          dat.thread.join();
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
         if (!couldNotRename.isEmpty()) {
           JPanel pane = new JPanel(new BorderLayout());
           pane.add(new JLabel("<html>Unfortunately could not rename some of the files:<br/>"), BorderLayout.NORTH);
