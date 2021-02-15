@@ -52,6 +52,8 @@ import com.github.chhh.utils.swing.FormEntry.Builder;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.LogbackJTextPaneAppender;
 import com.github.chhh.utils.swing.TextConsole;
+
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -78,14 +80,19 @@ import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -432,6 +439,22 @@ public class Fragpipe extends JFrame {
     tabs = createTabs(console);
 
     add(tabs, new CC().grow());
+    if (OsUtils.isMac()) {
+      final String notes = "FrapPipe is not supported on Mac";
+
+      JPanel panel = new JPanel();
+      panel.setLayout(new BorderLayout());
+      panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+      panel.add(new JLabel("Unsupported OS"), BorderLayout.PAGE_START);
+      JTextArea notesArea = new JTextArea();
+      notesArea.setText(notes);
+      JScrollPane notesScroller = new JScrollPane();
+      notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
+      notesScroller.setViewportView(notesArea);
+      panel.add(notesScroller, BorderLayout.CENTER);
+
+      SwingUtils.showDialog(this, panel);
+    }
 
     log.debug("Done Fragpipe.initUi()");
   }
