@@ -138,11 +138,11 @@ public class CmdSpecLibGen extends CmdBase {
                   final boolean isTimsTOF = dataType == InputDataType.ImMsTimsTof;
                   final boolean isRaw = fn.toLowerCase().endsWith(".raw");
                   final String sans_suffix = lcms.getPath().getParent().resolve(fn_sans_extension).toString();
-                  final String lcms_path = (isTimsTOF || isRaw) ?
-                          sans_suffix + "_uncalibrated.mgf"
-                          :
-                          lcms.getPath().toString();
-                  return lcms_path;
+                  if ((isTimsTOF && fn.toLowerCase().endsWith(".d")) || isRaw) {
+                    return sans_suffix + "_uncalibrated.mgf";
+                  } else {
+                    return lcms.getPath().toString();
+                  }
                 })
                 .collect(Collectors.joining(File.pathSeparator))); // lcms files
         cmd.add(groupWd.toString()); // output directory
