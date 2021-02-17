@@ -38,6 +38,7 @@ import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -52,11 +53,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -72,8 +72,9 @@ import net.miginfocom.swing.MigLayout;
 
 public class UmpirePanel extends JPanel {
   public JCheckBox checkRunUmpireSe;
-  private JPanel pFrag;
+  private JPanel keyPanel;
   private JPanel pSe;
+  private JPanel textPanel;
   private ImageIcon icon;
   private UiCombo uiComboLoadDefaultsNames;
   private String customParamsPath = null;
@@ -136,10 +137,6 @@ public class UmpirePanel extends JPanel {
     pTop.add(new JLabel(":"));
     pTop.add(uiComboLoadDefaultsNames);
 
-    // Panel - fragment grouping options
-    pFrag = new JPanel(new MigLayout(lc));
-    pFrag.setBorder(new TitledBorder("Key options"));
-
     DefaultFormatterFactory decimalAsInt = new DefaultFormatterFactory(
         new NumberFormatter(new DecimalFormat("#0")));
     DefaultFormatterFactory decimal = new javax.swing.text.DefaultFormatterFactory(
@@ -167,53 +164,74 @@ public class UmpirePanel extends JPanel {
     CC ccComp = new CC().width("30:50:70px");
     CC ccFmtWrap = new CC().width("30:50:70px").wrap();
     CC ccLbl = new CC().alignX("right").gapBefore("5px");
-    pFrag.add(feMs1Ppm.label(), ccLbl);
-    pFrag.add(feMs1Ppm.comp, ccComp);
-    pFrag.add(feMs2Ppm.label(), ccLbl);
-    pFrag.add(feMs2Ppm.comp, ccFmtWrap);
-    pFrag.add(feNoMissedScans.label(), ccLbl);
-    pFrag.add(feNoMissedScans.comp, ccComp);
-    pFrag.add(feEstimateBG.label(), ccLbl);
-    pFrag.add(feEstimateBG.comp, ccFmtWrap);
 
+    // Key options
+    keyPanel = new JPanel(new MigLayout(lc));
+    keyPanel.setBorder(new TitledBorder("Main options"));
+    keyPanel.add(feMs1Ppm.label(), ccLbl);
+    keyPanel.add(feMs1Ppm.comp, ccComp);
+    keyPanel.add(feMs2Ppm.label(), ccLbl);
+    keyPanel.add(feMs2Ppm.comp, ccFmtWrap);
+
+    keyPanel.add(feNoMissedScans.label(), ccLbl);
+    keyPanel.add(feNoMissedScans.comp, ccFmtWrap);
+
+    keyPanel.add(feEstimateBG.label(), ccLbl);
+    keyPanel.add(feEstimateBG.comp, ccFmtWrap);
+
+    keyPanel.add(feMassDefectFilter.label(), ccLbl);
+    keyPanel.add(feMassDefectFilter.comp, ccFmtWrap);
 
     // Panel - Signal Extraction Parameters
     pSe = new JPanel(new MigLayout(lc));
     pSe.setBorder(new TitledBorder("Advanced options"));
-    List<FormEntry> feSe = new ArrayList<>();
-    feSe.add(feRpMax);
-    feSe.add(feRfMax);
-    feSe.add(feCorrThresh);
-    feSe.add(feDeltaApex);
-    feSe.add(feRtOverlap);
-    feSe.add(feIsoPattern);
-    feSe.add(feMassDefectFilter);
-    feSe.add(feMassDefectOffset);
-    feSe.add(feSN);
-    feSe.add(feCheckBoostComplimentaryIons);
-    feSe.add(feCheckAdjustFragIntensitys);
-    feSe.add(feMS2SN);
-    feSe.add(feExportPrecursorPeak);
+    pSe.add(feRpMax.label(), ccLbl);
+    pSe.add(feRpMax.comp, ccComp);
+    pSe.add(feRfMax.label(), ccLbl);
+    pSe.add(feRfMax.comp, ccFmtWrap);
 
-    for (int i = 0; i < feSe.size(); i++) {
-      CC ccLabel = new CC().alignX("right").gapBefore("5px");
-      CC cc = (i+1) % 3 != 0
-          ? new CC().width("30:50:70px")
-          : new CC().width("30:50:70px").wrap();
-      FormEntry fe = feSe.get(i);
-      pSe.add(fe.label(), ccLabel);
-      pSe.add(fe.comp, cc);
-    }
+    pSe.add(feCorrThresh.label(), ccLbl);
+    pSe.add(feCorrThresh.comp, ccComp);
+    pSe.add(feDeltaApex.label(), ccLbl);
+    pSe.add(feDeltaApex.comp, ccComp);
+    pSe.add(feRtOverlap.label(), ccLbl);
+    pSe.add(feRtOverlap.comp, ccFmtWrap);
 
-    JComboBox<String> comboWindowType = new JComboBox<>();
-    comboWindowType.setModel(new DefaultComboBoxModel<>(new String[]{"SWATH"}));
-    FormEntry feWinType = new FormEntry(PROP_WindowType, "Window type", comboWindowType, "For Thermo data, this will be determined from raw data automatically.");
-    FormEntry feWinSize = new FormEntry(PROP_WindowSize, "Window size", new JFormattedTextField(decimal), "For Thermo data, this will be determined from raw data automatically.");
+    pSe.add(feMassDefectOffset.label(), ccLbl);
+    pSe.add(feMassDefectOffset.comp, ccComp);
+    pSe.add(feIsoPattern.label(), ccLbl);
+    pSe.add(feIsoPattern.comp, ccFmtWrap);
+
+    pSe.add(feSN.label(), ccLbl);
+    pSe.add(feSN.comp, ccComp);
+    pSe.add(feMS2SN.label(), ccLbl);
+    pSe.add(feMS2SN.comp, ccFmtWrap);
+
+    pSe.add(feCheckBoostComplimentaryIons.label(), ccLbl);
+    pSe.add(feCheckBoostComplimentaryIons.comp, ccComp);
+    pSe.add(feCheckAdjustFragIntensitys.label(), ccLbl);
+    pSe.add(feCheckAdjustFragIntensitys.comp, ccComp);
+    pSe.add(feExportPrecursorPeak.label(), ccLbl);
+    pSe.add(feExportPrecursorPeak.comp, ccFmtWrap);
+
+    textPanel = new JPanel(new MigLayout(lc));
+    textPanel.setBorder(new TitledBorder("Notes"));
+    JEditorPane epInfo = SwingUtils.createClickableHtml("<b>Sciex 5600/6600 data:</b><br>"
+        + "Change MS1/MS2 PPM tolerances to 30/40 and Estimate background ON<br><br>"
+        + "<b>PTM searches:</b><br>"
+        + "Change Mass Defect Filter to OFF<br><br>"
+        + "<b>Sensitivity vs. Runtime:</b><br>"
+        + "Highest sensitivity: set Max Missed Scans to 2<br>"
+        + "Default: set Max Missed Scans to 1<br>"
+        + "Fastest runtime (large-scale datasets): set Max Missed Scans to 1 and Estimate Background: ON<br><br>");
+    epInfo.setPreferredSize(new Dimension(500, 100));
+    textPanel.add(epInfo);
 
     CC ccGrowX = new CC().growX();
     this.add(pTop, ccGrowX);
-    this.add(pFrag, ccGrowX);
+    this.add(keyPanel, ccGrowX);
     this.add(pSe, ccGrowX);
+    this.add(textPanel, ccGrowX);
 
     enablePanels(checkRunUmpireSe.isSelected());
     checkRunUmpireSe.addChangeListener(e -> {
@@ -268,7 +286,7 @@ public class UmpirePanel extends JPanel {
   }
 
   private void enablePanels(boolean enabled) {
-    List<Container> comps = Arrays.asList(pFrag, pSe);
+    List<Container> comps = Arrays.asList(keyPanel, pSe);
     for (Container c : comps) {
       SwingUtils.enableComponents(c, enabled);
     }
