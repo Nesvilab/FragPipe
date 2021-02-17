@@ -14,11 +14,9 @@ import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiRadio;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
-import com.github.chhh.utils.swing.UiSpinnerDouble.Builder;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import java.nio.file.Path;
@@ -35,7 +33,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -122,8 +119,8 @@ public class SpeclibPanel extends JPanelBase {
     panelEasypqp = createPanelEasypqp(radioGroupTools);
     panelSpectrast = createPanelSpectrast(radioGroupTools);
 
-    mu.add(p, panelSpectrast).spanX().growX().wrap();
     mu.add(p, panelEasypqp).spanX().growX().wrap();
+    mu.add(p, panelSpectrast).spanX().growX().wrap();
 
     return p;
   }
