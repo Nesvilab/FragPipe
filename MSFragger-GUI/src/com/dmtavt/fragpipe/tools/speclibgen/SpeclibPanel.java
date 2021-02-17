@@ -129,7 +129,7 @@ public class SpeclibPanel extends JPanelBase {
     JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     mu.border(p, 1);
 
-    uiRadioUseSpectrast = new UiRadio("Use SpectraST (non-ion mobility data only)", null, true);
+    uiRadioUseSpectrast = new UiRadio("Use SpectraST (non-ion mobility data only)", null, false);
     radioGroupTools.add(uiRadioUseSpectrast);
     updateEnabledStatus(uiRadioUseSpectrast, false);
     FormEntry feRadioUseSpectrast = new FormEntry("use-spectrast", "Not shown",
@@ -144,7 +144,7 @@ public class SpeclibPanel extends JPanelBase {
     final JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     mu.border(p, 1);
 
-    uiRadioUseEasypqp = new UiRadio("Use EasyPQP", null, false);
+    uiRadioUseEasypqp = new UiRadio("Use EasyPQP", null, true);
     uiRadioUseEasypqp.setToolTipText("Enablement depends on proper python configuration");
     buttonGroup.add(uiRadioUseEasypqp);
     FormEntry feRadioUseEasypqp = new FormEntry("use-easypqp", "not-shown", uiRadioUseEasypqp);
