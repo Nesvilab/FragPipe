@@ -153,7 +153,7 @@ public class UmpirePanel extends JPanel {
     FormEntry feMs1Ppm = new FormEntry(UmpireParams.PROP_MS1PPM, "MS1 PPM", new JFormattedTextField(decimalAsInt));
     FormEntry feMs2Ppm = new FormEntry(UmpireParams.PROP_MS2PPM, "MS2 PPM", new JFormattedTextField(decimalAsInt));
     FormEntry feNoMissedScans = new FormEntry(UmpireParams.PROP_NoMissedScan, "Max Missed Scans", new JFormattedTextField(decimalAsInt));
-    FormEntry feEstimateBG = new FormEntry(UmpireParams.PROP_EstimateBG, "Estimate Background", new JCheckBox());
+    FormEntry feEstimateBG = new FormEntry(UmpireParams.PROP_EstimateBG, "Remove Background", new JCheckBox());
     FormEntry feIsoPattern = new FormEntry(PROP_IsoPattern, "Isotope Pattern", new JFormattedTextField(decimalAsInt));
     FormEntry feMassDefectFilter = new FormEntry(PROP_MassDefectFilter, "Mass Defect Filter", new JCheckBox());
     FormEntry feMassDefectOffset = new FormEntry(PROP_MassDefectOffset, "Mass Defect Offset", new JFormattedTextField(decimalAsInt));
@@ -217,13 +217,13 @@ public class UmpirePanel extends JPanel {
     textPanel = new JPanel(new MigLayout(lc));
     textPanel.setBorder(new TitledBorder("Notes"));
     JEditorPane epInfo = SwingUtils.createClickableHtml("<b>Sciex 5600/6600 data:</b><br>"
-        + "Change MS1/MS2 PPM tolerances to 30/40 and Estimate background ON<br><br>"
+        + "Change MS1/MS2 PPM tolerances to 30/40 and Remove Background ON<br><br>"
         + "<b>PTM searches:</b><br>"
         + "Change Mass Defect Filter to OFF<br><br>"
         + "<b>Sensitivity vs. Runtime:</b><br>"
         + "Highest sensitivity: set Max Missed Scans to 2<br>"
         + "Default: set Max Missed Scans to 1<br>"
-        + "Fastest runtime (large-scale datasets): set Max Missed Scans to 1 and Estimate Background: ON<br><br>");
+        + "Fastest runtime (large-scale datasets): set Max Missed Scans to 1 and Remove Background: ON<br><br>");
     epInfo.setPreferredSize(new Dimension(500, 100));
     textPanel.add(epInfo);
 
