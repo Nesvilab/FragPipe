@@ -216,14 +216,14 @@ public class UmpirePanel extends JPanel {
 
     textPanel = new JPanel(new MigLayout(lc));
     textPanel.setBorder(new TitledBorder("Notes"));
-    JEditorPane epInfo = SwingUtils.createClickableHtml("<b>Sciex 5600/6600 data:</b><br>"
-        + "Change MS1/MS2 PPM tolerances to 30/40 and Remove Background ON<br><br>"
-        + "<b>PTM searches:</b><br>"
-        + "Change Mass Defect Filter to OFF<br><br>"
-        + "<b>Sensitivity vs. Runtime:</b><br>"
+    JEditorPane epInfo = SwingUtils.createClickableHtml("<b>Sensitivity vs. Runtime:</b><br>"
         + "Highest sensitivity: set Max Missed Scans to 2<br>"
         + "Default: set Max Missed Scans to 1<br>"
-        + "Fastest runtime (large-scale datasets): set Max Missed Scans to 1 and Remove Background: ON<br><br>");
+        + "Fastest runtime (large-scale datasets): set Max Missed Scans to 1 and Remove Background: ON<br><br>"
+        + "<b>PTM searches:</b><br>"
+        + "Change Mass Defect Filter to OFF<br><br>"
+        + "<b>Sciex 5600/6600 data:</b><br>"
+        + "Set Remove Background ON<br><br>");
     epInfo.setPreferredSize(new Dimension(500, 100));
     textPanel.add(epInfo);
 
