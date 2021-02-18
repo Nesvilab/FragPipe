@@ -142,7 +142,7 @@ public class UmpirePanel extends JPanel {
     DefaultFormatterFactory decimal = new javax.swing.text.DefaultFormatterFactory(
         new javax.swing.text.NumberFormatter());
 
-    FormEntry feRpMax = new FormEntry(PROP_RPmax, "RP max", new JFormattedTextField(decimalAsInt));
+    FormEntry feRpMax = new FormEntry(PROP_RPmax, "RP max", new JFormattedTextField(decimal));
     FormEntry feRfMax = new FormEntry(PROP_RFmax, "RF max", new JFormattedTextField(decimal));
     FormEntry feCorrThresh = new FormEntry(PROP_CorrThreshold, "Corr Threshold", new JFormattedTextField(decimal));
     FormEntry feDeltaApex = new FormEntry(PROP_DeltaApex, "Delta Apex", new JFormattedTextField(decimal));
@@ -154,12 +154,12 @@ public class UmpirePanel extends JPanel {
     FormEntry feMs2Ppm = new FormEntry(UmpireParams.PROP_MS2PPM, "MS2 PPM", new JFormattedTextField(decimalAsInt));
     FormEntry feNoMissedScans = new FormEntry(UmpireParams.PROP_NoMissedScan, "Max Missed Scans", new JFormattedTextField(decimalAsInt));
     FormEntry feEstimateBG = new FormEntry(UmpireParams.PROP_EstimateBG, "Remove Background", new JCheckBox());
-    FormEntry feIsoPattern = new FormEntry(PROP_IsoPattern, "Isotope Pattern", new JFormattedTextField(decimalAsInt));
+    FormEntry feIsoPattern = new FormEntry(PROP_IsoPattern, "Isotope Pattern", new JFormattedTextField(decimal));
     FormEntry feMassDefectFilter = new FormEntry(PROP_MassDefectFilter, "Mass Defect Filter", new JCheckBox());
-    FormEntry feMassDefectOffset = new FormEntry(PROP_MassDefectOffset, "Mass Defect Offset", new JFormattedTextField(decimalAsInt));
+    FormEntry feMassDefectOffset = new FormEntry(PROP_MassDefectOffset, "Mass Defect Offset", new JFormattedTextField(decimal));
     FormEntry feExportPrecursorPeak = new FormEntry(PROP_ExportPrecursorPeak, "Export Precursor Peak", new JCheckBox());
-    FormEntry feSN = new FormEntry(PROP_SN, "MS1 SN", new JFormattedTextField(decimalAsInt));
-    FormEntry feMS2SN = new FormEntry(PROP_MS2SN, "MS2 SN", new JFormattedTextField(decimalAsInt));
+    FormEntry feSN = new FormEntry(PROP_SN, "MS1 SN", new JFormattedTextField(decimal));
+    FormEntry feMS2SN = new FormEntry(PROP_MS2SN, "MS2 SN", new JFormattedTextField(decimal));
 
     CC ccComp = new CC().width("30:50:70px");
     CC ccFmtWrap = new CC().width("30:50:70px").wrap();
