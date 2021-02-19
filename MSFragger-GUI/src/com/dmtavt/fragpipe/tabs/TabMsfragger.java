@@ -143,7 +143,7 @@ public class TabMsfragger extends JPanelBase {
   private static final int[] MASS_DIFF_TO_VAR_MOD_MAP = {0, 2, 1};
   private static final List<String> GLYCO_OPTIONS_UI = Arrays
       .asList(GLYCO_OPTION_off, GLYCO_OPTION_nglycan, GLYCO_OPTION_labile);
-  private static final String[] DATA_TYPES = {"DDA", "DIA", "DIA-fast"};
+  private static final String[] DATA_TYPES = {"DDA", "DIA", "DIA-narrow-window"};
   private static final String LOAD_CUSTOM_CONFIG_OPTION = "Custom MSFragger parameter file from disk";
 
   private static final List<MsfraggerEnzyme> ENZYMES = new EnzymeProvider().get();
