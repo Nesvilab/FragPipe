@@ -326,7 +326,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_allow_multiple_variable_mods_on_residue, "Allow each residue to be modified by multiple variable modifications (0 or 1).");
         c.put(PROP_max_variable_mods_per_peptide, "Maximum total number of variable modifications per peptide.");
         c.put(PROP_max_variable_mods_combinations, "Maximum number of modified forms allowed for each peptide (up to 65534).");
-        c.put(PROP_mass_diff_to_variable_mod, "Put mass diff as a variable modification. 0 for no; 1 for yes and change the original mass diff and the calculated mass accordingly; 2 for yes but do not change the original mass diff.");
+        c.put(PROP_mass_diff_to_variable_mod, "Put mass diff as a variable modification. 0 for no; 1 for yes and remove delta mass; 2 for yes and keep delta mass.");
         c.put(PROP_output_file_extension, "File extension of pepxml files.");
         c.put(PROP_output_format, "File format of output files (tsv, pin, pepxml, tsv_pin, tsv_pepxml, pepxml_pin, or tsv_pepxml_pin).");
         c.put(PROP_output_report_topN, "Reports top N PSMs per input spectrum.");
