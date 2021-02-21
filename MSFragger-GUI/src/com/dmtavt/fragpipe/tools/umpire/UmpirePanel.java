@@ -217,13 +217,27 @@ public class UmpirePanel extends JPanel {
     textPanel = new JPanel(new MigLayout(lc));
     textPanel.setBorder(new TitledBorder("Notes"));
     JEditorPane epInfo = SwingUtils.createClickableHtml("<b>Sensitivity vs. Runtime:</b><br>"
-        + "Highest sensitivity: set Max Missed Scans to 2<br>"
-        + "Default: set Max Missed Scans to 1<br>"
-        + "Fastest runtime (large-scale datasets): set Max Missed Scans to 1 and Remove Background: ON<br><br>"
+        + "<table>\n"
+        + "<tbody>\n"
+        + "  <tr>\n"
+        + "    <td class=\"tg-zv4m\">Highest sensitivity</td>\n"
+        + "    <td class=\"tg-zv4m\">Max Missed Scans: 2; Remove Background: OFF</td>\n"
+        + "  </tr>\n"
+        + "  <tr>\n"
+        + "    <td class=\"tg-zv4m\">Default</td>\n"
+        + "    <td class=\"tg-zv4m\">Max Missed Scans: 1; Remove Background: OFF</td>\n"
+        + "  </tr>\n"
+        + "  <tr>\n"
+        + "    <td class=\"tg-zv4m\">Fastest runtime</td>\n"
+        + "    <td class=\"tg-zv4m\">Max Missed Scans: 1; Remove Background: ON</td>\n"
+        + "  </tr>\n"
+        + "</tbody>\n"
+        + "</table>\n"
+        + "<br>"
         + "<b>PTM searches:</b><br>"
         + "Change Mass Defect Filter to OFF<br><br>"
         + "<b>Sciex 5600/6600 data:</b><br>"
-        + "Set Remove Background ON<br><br>");
+        + "Max Missed Scans: 1; Remove Background: ON;  MS1 SN: 2; MS2 SN: 2<br><br>");
     epInfo.setPreferredSize(new Dimension(500, 100));
     textPanel.add(epInfo);
 
