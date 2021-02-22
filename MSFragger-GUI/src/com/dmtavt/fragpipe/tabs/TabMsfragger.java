@@ -205,7 +205,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_diagnostic_fragments, s -> s.replaceAll("[\\s]+", "/"));
 
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_calibrated_mgf, s -> Boolean.toString(Integer.parseInt(s) > 0));
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s-> MASS_DIFF_TO_VAR_MOD[Integer.parseInt(s)]);
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s-> MASS_DIFF_TO_VAR_MOD[MASS_DIFF_TO_VAR_MOD_MAP[Integer.parseInt(s)]]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> PrecursorMassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> MassTolUnits.fromFileToUi(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_true_units, s -> MassTolUnits.fromFileToUi(s).name());
