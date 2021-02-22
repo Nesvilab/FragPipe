@@ -112,4 +112,9 @@ public class UiSpinnerDouble extends JSpinner implements StringRepresentable {
       return ui;
     }
   }
+
+  public double getActualValue() {
+    return (double) getValue();
+  }
+
 }
