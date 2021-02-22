@@ -853,7 +853,7 @@ if use_easypqp:
 		easypqp_lib_export('skyline')
 	cwd = pathlib.Path()
 	if delete_temp_files:
-		for f in itertools.chain(cwd.glob('*.psmpkl'), cwd.glob('*.peakpkl'), cwd.glob("*_run_peaks.tsv"), cwd.glob("easypqp_convert_*.log")):
+		for f in itertools.chain(cwd.glob('*.psmpkl'), cwd.glob('*.peakpkl')):
 			f.unlink()
 	os.chdir(CWD)
 
