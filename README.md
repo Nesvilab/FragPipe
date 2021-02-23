@@ -18,7 +18,7 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 - [Setting up FragPipe on remote Linux server (with X forwarding)](https://msfragger.nesvilab.org/tutorial_setup_x_forwarding.html)
 - [Using FragPipe for SILAC (or other MS1-labeled) data](https://msfragger.nesvilab.org/tutorial_silac.html)
 - [Running MSstats on TIMS-TOF data](https://msfragger.nesvilab.org/tutorial_msstats.html)
-- [Importing results from TIMS-TOF data to Skyline](https://msfragger.nesvilab.org/tutorial_pasef_skyline.html)
+- [Importing results to Skyline](https://msfragger.nesvilab.org/tutorial_skyline.html)
 
 ### Documentation
 Complete MSFragger documentation can be found on the [MSFragger wiki](https://github.com/Nesvilab/MSFragger/wiki).
