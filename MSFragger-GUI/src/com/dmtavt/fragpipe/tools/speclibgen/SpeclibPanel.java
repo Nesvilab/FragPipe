@@ -59,6 +59,9 @@ public class SpeclibPanel extends JPanelBase {
   private UiText uiTextPqpCalFile;
   private UiCombo uiComboPqpType;
   private UiCombo uiComboPqpCal;
+  private UiSpinnerDouble uiSpinnerLowess;
+  private UiSpinnerDouble uiSpinner_max_delta_unimod;
+  private UiSpinnerDouble uiSpinner_max_delta_ppm;
   private JPanel panelEasypqp;
   private JPanel panelSpectrast;
   public static final String EASYPQP_TIMSTOF = "timsTOF";
@@ -185,11 +188,23 @@ public class SpeclibPanel extends JPanelBase {
 
     uiComboPqpType = UiUtils.createUiCombo(pqpType);
 //    FormEntry feDataType = new FormEntry("easypqp.data-type","Data type", uiComboPqpType);
-    UiSpinnerDouble uiSpinnerLowess = UiUtils.spinnerDouble(0.01, 0.0, 1.0, 0.01)
+    uiSpinnerLowess = UiUtils.spinnerDouble(0.01, 0.0, 1.0, 0.01)
         .setCols(5).setFormat("#.##").create();
     FormEntry feLowess = mu.feb(uiSpinnerLowess).name("easypqp.extras.rt_lowess_fraction")
         .label("RT Lowess Fraction")
         .tooltip("RT Lowess fraction").create();
+
+    uiSpinner_max_delta_unimod = UiUtils.spinnerDouble(0.02, 0.0, 1.0, 0.01)
+            .setCols(5).setFormat("#.##").create();
+    FormEntry fe_max_delta_unimod = mu.feb(uiSpinner_max_delta_unimod).name("easypqp.extras.max_delta_unimod")
+        .label("--max_delta_unimod")
+        .tooltip("Maximum delta mass (Dalton) for UniMod annotation.  [default: 0.02]").create();
+
+    uiSpinner_max_delta_ppm = UiUtils.spinnerDouble(15, 0.0, 100, 0.01)
+            .setCols(5).setFormat("#.##").create();
+    FormEntry fe_max_delta_ppm = mu.feb(uiSpinner_max_delta_ppm).name("easypqp.extras.max_delta_ppm")
+        .label("--max_delta_ppm")
+        .tooltip("Maximum delta mass (PPM) for annotation. [default: 15]").create();
 
     mu.add(p, feRadioUseEasypqp.comp).wrap();
     mu.add(p, fePqpCal.label(), ccR());
@@ -199,6 +214,10 @@ public class SpeclibPanel extends JPanelBase {
     mu.add(p, fePqpCalFile.comp).pushX().growX().wrap();
     mu.add(p, feLowess.label(), mu.ccR());
     mu.add(p, feLowess.comp).wrap();
+    mu.add(p, fe_max_delta_unimod.label(), mu.ccR());
+    mu.add(p, fe_max_delta_unimod.comp).wrap();
+    mu.add(p, fe_max_delta_ppm.label(), mu.ccR());
+    mu.add(p, fe_max_delta_ppm.comp).wrap();
 //    mu.add(p, feDataType.label(), ccR());
 //    mu.add(p, feDataType.comp, ccL().wrap());
 
@@ -287,6 +306,18 @@ public class SpeclibPanel extends JPanelBase {
 
   public String getEasypqpFileType() {
     return (String) uiComboPqpType.getSelectedItem();
+  }
+
+  public double getEasypqpRTLowessFraction() {
+    return uiSpinnerLowess.getActualValue();
+  }
+
+  public double getEasypqp_max_delta_unimod() {
+    return uiSpinner_max_delta_unimod.getActualValue();
+  }
+
+  public double getEasypqp_max_delta_ppm() {
+    return uiSpinner_max_delta_ppm.getActualValue();
   }
 
   public boolean useSpectrast() {

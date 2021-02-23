@@ -170,6 +170,10 @@ public class CmdSpecLibGen extends CmdBase {
         cmd.add("True"); // overwrite (true/false), optional arg
         cmd.add(usePhi.useBin()); // philosopher binary path (optional)
       }
+      final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction();
+      final double max_delta_unimod = speclibPanel.getEasypqp_max_delta_unimod();
+      final double max_delta_ppm = speclibPanel.getEasypqp_max_delta_unimod();
+
       ProcessBuilder pb = new ProcessBuilder(cmd);
       PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
       pb.directory(groupWd.toFile());
