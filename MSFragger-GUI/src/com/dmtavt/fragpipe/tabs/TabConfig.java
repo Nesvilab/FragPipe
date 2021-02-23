@@ -682,7 +682,7 @@ public class TabConfig extends JPanelWithEnablement {
       String response = org.apache.commons.io.IOUtils.toString(new URL("https://api.github.com/repos/grosenberger/easypqp/tags"), StandardCharsets.UTF_8);
       Gson gson = new GsonBuilder().create();
       List<GitHubJson> gitHubJsons = gson.fromJson(response, new TypeToken<List<GitHubJson>>() {}.getType());
-      gitHubJsons.sort(Comparator.reverseOrder());
+      gitHubJsons.sort((e1, e2) -> VersionComparator.cmp(e2.getName(), e1.getName()));
       easypqpLatestVersion = gitHubJsons.get(0).getName();
     } catch (Exception ex) {
       easypqpLatestVersion = "N/A";
