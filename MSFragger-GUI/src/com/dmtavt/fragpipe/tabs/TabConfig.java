@@ -593,7 +593,7 @@ public class TabConfig extends JPanelWithEnablement {
     if (enableEasypqp && !easypqpLocalVersion.contentEquals("N/A")) {
       if (!easypqpLatestVersion.contentEquals("N/A") && VersionComparator.cmp(easypqpLocalVersion, easypqpLatestVersion) < 0) {
         sb.append("EasyPQP: <b>Enabled</b>. Version: " + easypqpLocalVersion + "<br>"
-            + "There is a new version. Please upgrade it with<br>"
+            + "There is a new version ("+easypqpLatestVersion+"). Please upgrade it with<br>"
             + "pip uninstall --yes easypqp<br>"
             + "pip install git+https://github.com/grosenberger/easypqp.git@master<br>");
       } else {
@@ -601,8 +601,7 @@ public class TabConfig extends JPanelWithEnablement {
       }
     } else {
       sb.append("EasyPQP: <b>Disabled</b><br>"
-          + "There is a new version. Please upgrade it with<br>"
-          + "pip uninstall --yes easypqp<br>"
+          + "Please install with<br>"
           + "pip install git+https://github.com/grosenberger/easypqp.git@master<br>");
     }
 
