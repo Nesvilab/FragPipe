@@ -13,7 +13,6 @@ import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
-import com.github.chhh.utils.swing.GhostText;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
@@ -459,10 +458,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
     mu.add(p, p1).spanX().growX().wrap();
 
-    final String ghost = "Phospho:79.9663, Failed_Carbamidomethylation:-57.021464";
-    uiTextVarMods = new UiTextBuilder().text("")
-        .ghost(ghost).create();
-    GhostText.register(uiTextVarMods, ghost);
+    uiTextVarMods = new UiTextBuilder().text("Phospho:79.9663, Failed_Carbamidomethylation:-57.021464").create();
     uiTextVarMods.addFocusListener(new FocusAdapter() {
       @Override
       public void focusLost(FocusEvent e) {
