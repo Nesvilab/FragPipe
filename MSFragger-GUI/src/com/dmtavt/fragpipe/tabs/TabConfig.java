@@ -70,7 +70,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -593,7 +592,7 @@ public class TabConfig extends JPanelWithEnablement {
     if (enableEasypqp && !easypqpLocalVersion.contentEquals("N/A")) {
       if (!easypqpLatestVersion.contentEquals("N/A") && VersionComparator.cmp(easypqpLocalVersion, easypqpLatestVersion) < 0) {
         sb.append("EasyPQP: <b>Enabled</b>. Version: " + easypqpLocalVersion + "<br>"
-            + "There is a new version ("+easypqpLatestVersion+"). Please upgrade it with<br>"
+            + "<p style=\"color:red\">There is a new version (" + easypqpLatestVersion + "). Please upgrade it with</p>"
             + "pip uninstall --yes easypqp<br>"
             + "pip install git+https://github.com/grosenberger/easypqp.git@master<br>");
       } else {
@@ -606,9 +605,9 @@ public class TabConfig extends JPanelWithEnablement {
     }
 
     if (enableSpectrast) {
-      sb.append("SpectraST: <b>Enabled</b>");
+      sb.append("<br>SpectraST: <b>Enabled</b>");
     } else {
-      sb.append("SpectraST: <b>Disabled</b>");
+      sb.append("<br>SpectraST: <b>Disabled</b>");
     }
     return sb.toString();
   }
