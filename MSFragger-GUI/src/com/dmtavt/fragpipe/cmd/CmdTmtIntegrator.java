@@ -103,7 +103,7 @@ public class CmdTmtIntegrator extends CmdBase {
       String refTag = conf.get("ref_tag");
       if (StringUtils.isNullOrWhitespace(refTag)) {
         SwingUtils.showWarningDialog(panel, "Reference channel tag can't be left empty\n"
-            + "in " + NAME + " config.", NAME + " Config");
+            + "in " + NAME + " config, unless selecting Virtual reference option", NAME + " Config");
       }
 
       List<Path> filesWithoutRefChannel = new ArrayList<>();
