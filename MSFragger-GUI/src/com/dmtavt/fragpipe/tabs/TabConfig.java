@@ -745,6 +745,8 @@ public class TabConfig extends JPanelWithEnablement {
     return p;
   }
 
+  private String pythonPipOutput = "";
+
   private JPanel createPanelPython() {
     JPanel p = newMigPanel();
     p.setBorder(new TitledBorder("Python"));
@@ -769,6 +771,27 @@ public class TabConfig extends JPanelWithEnablement {
     }
     epPythonVer = new HtmlStyledJEditorPane("Python version: N/A");
     p.add(epPythonVer, ccL().wrap());
+
+
+    final javax.swing.Timer timer = new javax.swing.Timer(5000, e -> {
+      final String binPython = uiTextBinPython.getNonGhostText();
+      if (StringUtils.isNotBlank(binPython)) {
+        final ProcessBuilder pb = new ProcessBuilder(binPython,
+                "-m", "pip", "list");
+        String pythonPipOutputNew;
+        try {
+          pythonPipOutputNew = ProcessUtils.captureOutput(pb);
+        } catch (UnexpectedException ex) {
+          pythonPipOutputNew = null;
+        }
+        if (pythonPipOutputNew != null && !pythonPipOutput.equals(pythonPipOutputNew)) {
+          pythonPipOutput = pythonPipOutputNew;
+          Bus.post(new MessageUiRevalidate());
+        }
+      }
+    });
+    timer.setInitialDelay(0);
+    timer.start();
 
     return p;
   }
