@@ -197,13 +197,13 @@ public class SpeclibPanel extends JPanelBase {
     uiSpinner_max_delta_unimod = UiUtils.spinnerDouble(0.02, 0.0, 1.0, 0.01)
             .setCols(5).setFormat("#.##").create();
     FormEntry fe_max_delta_unimod = mu.feb(uiSpinner_max_delta_unimod).name("easypqp.extras.max_delta_unimod")
-        .label("--max_delta_unimod")
+        .label("UniMod annotation tol (Da)")
         .tooltip("Maximum delta mass (Dalton) for UniMod annotation.  [default: 0.02]").create();
 
     uiSpinner_max_delta_ppm = UiUtils.spinnerDouble(15, 0.0, 100, 0.01)
             .setCols(5).setFormat("#.##").create();
     FormEntry fe_max_delta_ppm = mu.feb(uiSpinner_max_delta_ppm).name("easypqp.extras.max_delta_ppm")
-        .label("--max_delta_ppm")
+        .label("Fragment annotation tol (ppm)")
         .tooltip("Maximum delta mass (PPM) for annotation. [default: 15]").create();
 
     mu.add(p, feRadioUseEasypqp.comp).wrap();
