@@ -40,7 +40,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -350,11 +349,9 @@ public class TabRun extends JPanelWithEnablement {
   }
 
   public static void saveLogToFile(TextConsole console, Path path) {
-    final String text = console.getText().replaceAll("[^\n]+\u200B" + System.getProperty("line.separator"), "");
-    try {
-      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(path.toFile()));
+    final String text = console.getText().replaceAll("[^\n]+\u200B" + System.lineSeparator(), "");
+    try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path)) {
       bufferedWriter.write(text);
-      bufferedWriter.close();
     } catch (IOException e) {
       log.error("Error writing log to file", e);
     }
