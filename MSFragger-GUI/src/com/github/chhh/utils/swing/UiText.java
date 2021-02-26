@@ -2,6 +2,7 @@ package com.github.chhh.utils.swing;
 
 import javax.swing.JTextField;
 import javax.swing.text.Document;
+import java.util.Objects;
 
 public class UiText extends JTextField implements StringRepresentable, GhostedTextComponent {
   private String ghostText = null;
@@ -54,9 +55,6 @@ public class UiText extends JTextField implements StringRepresentable, GhostedTe
   @Override
   public String getNonGhostText() {
     final String t = getText();
-    if (ghostText == null) {
-      return t;
-    }
-    return ghostText.equals(t) ? "" : t;
+    return Objects.equals(ghostText, t) ? "" : t;
   }
 }
