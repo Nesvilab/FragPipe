@@ -590,14 +590,15 @@ public class Fragpipe extends JFrame {
         + "<a href='https://tmt-integrator.nesvilab.org/'>TMT-Integrator</a>: Hui-Yin Chang<br>"
         + "Websites and tutorials: Sarah Haynes<br>"
         + "MSFragger Glyco mode: Daniel Polasky, Fengchao Yu, Guo-Ci Teo<br>"
-        + "<a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou<br>";
+        + "<a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou<br>"
+        + "<br>RawFileReader reading tool: Copyright © 2016 by Thermo Fisher Scientific, Inc. All rights reserved.<br>";
   }
 
   public void showAboutDialog(Component parent) {
     log.debug("Showing about dialog");
 //    HtmlStyledJEditorPane ep = new HtmlStyledJEditorPane(true, createAboutBody());
     HtmlStyledJEditorPane ep = SwingUtils.createClickableHtml(createAboutBody());
-    ep.setPreferredSize(new Dimension(350, 300));
+    ep.setPreferredSize(new Dimension(350, 350));
     SwingUtils.showDialog(parent, ep, "About FragPipe", JOptionPane.INFORMATION_MESSAGE);
   }
 
