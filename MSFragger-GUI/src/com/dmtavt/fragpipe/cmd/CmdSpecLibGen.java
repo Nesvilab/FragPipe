@@ -172,7 +172,7 @@ public class CmdSpecLibGen extends CmdBase {
       }
       final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction();
       final double max_delta_unimod = speclibPanel.getEasypqp_max_delta_unimod();
-      final double max_delta_ppm = speclibPanel.getEasypqp_max_delta_unimod();
+      final double max_delta_ppm = speclibPanel.getEasypqp_max_delta_ppm();
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
       PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
