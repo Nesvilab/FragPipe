@@ -35,7 +35,10 @@ class Irt_choice(enum.Enum):
 	userRT = enum.auto()
 
 if use_easypqp:
-	easypqp_library_extra_args = shlex.split(sys.argv[10]) if len(sys.argv) >= 11 else []
+
+	# easypqp_library_extra_args = shlex.split(sys.argv[10]) if len(sys.argv) >= 11 else []
+	easypqp_library_extra_args = []
+
 	nproc = int(sys.argv[9]) if len(sys.argv) >= 10 else len(os.sched_getaffinity(0))
 	no_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'noirt'
 	is_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'irt'
@@ -50,6 +53,8 @@ if use_easypqp:
 	if irt_choice is None:
 		raise RuntimeError('invalid iRT')
 	spectra_files0 = sorted(pathlib.Path(e) for e in sys.argv[3].split(os.pathsep))
+	if spectra_files0 == ['unused'] and len(sys.argv) >= 11:
+		spectra_files0 = sys.argv[11:]
 
 assert use_spectrast ^ use_easypqp
 

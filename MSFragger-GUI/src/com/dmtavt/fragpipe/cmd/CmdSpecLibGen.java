@@ -131,20 +131,7 @@ public class CmdSpecLibGen extends CmdBase {
          * */
         cmd.add(fastaPath);
         cmd.add(groupWd.toString()); // this is "Pep xml directory"
-        cmd.add(group.lcmsFiles.stream()
-                .map(lcms -> {
-                  final String fn = lcms.getPath().getFileName().toString();
-                  final String fn_sans_extension = FilenameUtils.removeExtension(fn);
-                  final boolean isTimsTOF = dataType == InputDataType.ImMsTimsTof;
-                  final boolean isRaw = fn.toLowerCase().endsWith(".raw");
-                  final String sans_suffix = lcms.getPath().getParent().resolve(fn_sans_extension).toString();
-                  if ((isTimsTOF && fn.toLowerCase().endsWith(".d")) || isRaw) {
-                    return sans_suffix + "_uncalibrated.mgf";
-                  } else {
-                    return lcms.getPath().toString();
-                  }
-                })
-                .collect(Collectors.joining(File.pathSeparator))); // lcms files
+        cmd.add("unused");  // lcms files, `File.pathSeparator` separated
         cmd.add(groupWd.toString()); // output directory
         cmd.add("True"); // overwrite (true/false), optional arg
         cmd.add("unused"); // philosopher binary path (not needed for easyPQP)
@@ -156,7 +143,20 @@ public class CmdSpecLibGen extends CmdBase {
         final Path calTsvPath = speclibPanel.getEasypqpCalFilePath();
         cmd.add(cal.equals("a tsv file") ? calTsvPath.toString() : cal); // retention time alignment options
         cmd.add(String.valueOf(tabWorkflow.getThreads()));
-        if(!true)
+        cmd.addAll(group.lcmsFiles.stream() // lcms files
+                .map(lcms -> {
+                  final String fn = lcms.getPath().getFileName().toString();
+                  final String fn_sans_extension = FilenameUtils.removeExtension(fn);
+                  final boolean isTimsTOF = dataType == InputDataType.ImMsTimsTof;
+                  final boolean isRaw = fn.toLowerCase().endsWith(".raw");
+                  final String sans_suffix = lcms.getPath().getParent().resolve(fn_sans_extension).toString();
+                  if ((isTimsTOF && fn.toLowerCase().endsWith(".d")) || isRaw) {
+                    return sans_suffix + "_uncalibrated.mgf";
+                  } else {
+                    return lcms.getPath().toString();
+                  }
+                }).collect(Collectors.toList()));
+        if(!true) // FIXME
         // extra arguments for EasyPQP library command
         for (Entry<String, String> kv : easypqpLibraryExtraArguments.entrySet()) {
           String k = StringUtils.afterLastDot(kv.getKey());
