@@ -156,6 +156,7 @@ public class CmdSpecLibGen extends CmdBase {
         final Path calTsvPath = speclibPanel.getEasypqpCalFilePath();
         cmd.add(cal.equals("a tsv file") ? calTsvPath.toString() : cal); // retention time alignment options
         cmd.add(String.valueOf(tabWorkflow.getThreads()));
+        if(!true)
         // extra arguments for EasyPQP library command
         for (Entry<String, String> kv : easypqpLibraryExtraArguments.entrySet()) {
           String k = StringUtils.afterLastDot(kv.getKey());
