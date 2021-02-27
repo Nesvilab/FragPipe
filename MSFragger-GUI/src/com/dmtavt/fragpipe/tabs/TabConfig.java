@@ -14,6 +14,7 @@ import com.dmtavt.fragpipe.messages.MessageBalloon;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageDbNewPath;
 import com.dmtavt.fragpipe.messages.MessageFindSystemPython;
+import com.dmtavt.fragpipe.messages.MessageInstallEasyPQP;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFolder;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerNewBin;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
@@ -800,6 +801,30 @@ public class TabConfig extends JPanelWithEnablement {
     return p;
   }
 
+  @Subscribe
+  public void on(MessageInstallEasyPQP m) {
+    final String binPython = uiTextBinPython.getNonGhostText();
+    if (StringUtils.isNotBlank(binPython)) {
+      final ProcessBuilder pb = new ProcessBuilder(binPython, "-m",
+              "pip", "uninstall", "--yes", "easypqp");
+      String pythonPipOutputNew;
+      try {
+        pythonPipOutputNew = ProcessUtils.captureOutput(pb);
+      } catch (UnexpectedException ex) {
+        pythonPipOutputNew = ex.toString();
+      }
+      final ProcessBuilder pb2 = new ProcessBuilder(binPython, "-m",
+              "pip", "install", "git+https://github.com/grosenberger/easypqp.git@master");
+      try {
+        pythonPipOutputNew += ProcessUtils.captureOutput(pb2);
+      } catch (UnexpectedException ex) {
+        pythonPipOutputNew += ex.toString();
+      }
+      System.out.println("pythonPipOutputNew = " + pythonPipOutputNew);
+      Bus.post(new MessageUiRevalidate());
+    }
+  }
+
   private JPanel createPanelDbsplit() {
     JPanel p = mu.newPanel("DB Splitting", true);
 
@@ -845,6 +870,9 @@ public class TabConfig extends JPanelWithEnablement {
 
     mu.add(p, epSpeclibgenText).growX().wrap();
     mu.add(p, epSpeclibgenErr).growX().wrap();
+
+    final JButton btnInstallEasyPQP = UiUtils.createButton("Install/upgrade EasyPQP", e -> Bus.post(new MessageInstallEasyPQP()));
+    mu.add(p, btnInstallEasyPQP).split().spanX();
 
     return p;
   }
