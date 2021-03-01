@@ -24,7 +24,7 @@ public class PtmshepherdParams {
    * Dataset string format is `dataset = (set-name) (path-to-psm.tsv) (path-to-mzml-folder)`
    */
   public static final String PROP_DATASET = "dataset";
-  public static final String DEFAULT_DATASET_NAME = "default-ptmshepherd-dataset";
+  public static final String DEFAULT_DATASET_NAME = "dataset01";
 
   private Path workDir;
   private Path db;
