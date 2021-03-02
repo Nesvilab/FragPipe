@@ -82,6 +82,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.CC;
@@ -781,18 +782,23 @@ public class TabConfig extends JPanelWithEnablement {
     final javax.swing.Timer timer = new javax.swing.Timer(5000, e -> {
       final String binPython = uiTextBinPython.getNonGhostText();
       if (StringUtils.isNotBlank(binPython)) {
-        final ProcessBuilder pb = new ProcessBuilder(binPython,
-                "-m", "pip", "list");
-        String pythonPipOutputNew;
-        try {
-          pythonPipOutputNew = ProcessUtils.captureOutput(pb);
-        } catch (UnexpectedException ex) {
-          pythonPipOutputNew = null;
-        }
-        if (pythonPipOutputNew != null && !pythonPipOutput.equals(pythonPipOutputNew)) {
-          pythonPipOutput = pythonPipOutputNew;
-          Bus.post(new MessageUiRevalidate());
-        }
+        new SwingWorker<Void, Void>() {
+          @Override
+          public Void doInBackground() {
+            final ProcessBuilder pb = new ProcessBuilder(binPython, "-m", "pip", "list");
+            String pythonPipOutputNew;
+            try {
+              pythonPipOutputNew = ProcessUtils.captureOutput(pb);
+            } catch (UnexpectedException ex) {
+              pythonPipOutputNew = null;
+            }
+            if (pythonPipOutputNew != null && !pythonPipOutput.equals(pythonPipOutputNew)) {
+              pythonPipOutput = pythonPipOutputNew;
+              Bus.post(new MessageUiRevalidate());
+            }
+            return null;
+          }
+        }.execute();
       }
     });
     timer.setInitialDelay(0);
