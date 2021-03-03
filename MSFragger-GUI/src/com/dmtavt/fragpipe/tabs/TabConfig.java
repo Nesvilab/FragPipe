@@ -527,7 +527,7 @@ public class TabConfig extends JPanelWithEnablement {
       // first check if the path is absolute, then it must exist
       Path path = Paths.get(m.command);
       final boolean fileExists = Files.exists(path) || (OsUtils.isWindows() && Files.exists(Paths.get(path.toString() + ".exe")));
-      if (path.isAbsolute() && !fileExists) {
+      if ((path.isAbsolute() && !fileExists) || StringUtils.isBlank(path.toString())) {
         throw new ValidationException("File does not exist");
       }
 
