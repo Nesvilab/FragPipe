@@ -324,7 +324,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
     FormEntry feYIonMasses = mu.feb(PROP_cap_y_ions, UiUtils.uiTextBuilder().create())
         .label("Y Ion Masses")
-        .tooltip("Added to peptide precursor and searched for in MS2 spectrum. "
+        .tooltip("Added to peptide mass and searched for in MS2 spectrum. "
             + "Space, comma, or slash separated values accepted.").create();
     FormEntry feDiagnosticFragmentMasses = mu.feb(PROP_diag_ions, UiUtils.uiTextBuilder().create())
         .label("Diagnostic Fragment Masses")
@@ -353,14 +353,18 @@ public class PtmshepherdPanel extends JPanelBase {
 
     FormEntry feHistoSmoothBins = new FormEntry(PROP_histo_smoothbins, "Smoothing factor",
         new UiSpinnerInt(2, 0, 5, 1, 5),
-        "<html>Histogram smoothing. 0 = No smoothing, 1 = smooth using +/-1 bin, etc.");
+        "<html>Increase to make peakpicking less sensitive by distributing weight to adjacent histogram bins.\n" +
+                "Histogram smoothing: 0 = No smoothing, 1 = smooth using +/-1 bin, etc.");
     FormEntry feLocBackground = new FormEntry(PROP_localization_background, "Localization background",
-        new UiSpinnerInt(4, 1, 4, 1, 5), "<html>Residue background probabilities: 1 = bin-wise peptides, 2 = bin-wise PSMs, 3 = all pepides, 4 = all PSMs");
+        new UiSpinnerInt(4, 1, 4, 1, 5),
+            "<html>Defines background residue counts for calculating localization enrichment scores.\n" +
+            "Residue background probabilities: 1 = bin-wise peptides, 2 = bin-wise PSMs, 3 = all pepides, 4 = all PSMs");
 
     UiSpinnerDouble uiSpinnerPromRatio = UiSpinnerDouble.builder(0.3,0.0,1.0, 0.1)
         .setFormat(new DecimalFormat("0.#")).setCols(5).create();
     FormEntry fePromRatio = new FormEntry(PROP_peakpicking_promRatio, "Prominence ratio", uiSpinnerPromRatio,
-        "Ratio of peak prominence to total peak height.");
+        "Used to filter what is considered a peak for downstream analyses.\n" +
+                "Ratio of peak shoulder to peak height.");
 
     UiSpinnerDouble uiSpinnerWidth = UiSpinnerDouble.builder(0.002, 0.0, 500, 0.001)
         .setFormat(new DecimalFormat("0.####")).setCols(5).create();
@@ -388,6 +392,10 @@ public class PtmshepherdPanel extends JPanelBase {
     FormEntry feMinPsms = new FormEntry(PROP_peakpicking_minPsm, "Peak minimum PSMs",
             new UiSpinnerInt(10, 0, 1000, 1, 5),
             "<html>Filters out mass shift peaks below the minimum threshold");
+    UiSpinnerDouble uiSpinnerSpectraTol = UiSpinnerDouble.builder(20.0, 1.0, 1000.0, 1)
+            .setFormat(new DecimalFormat("0.#")).setCols(5).create();
+    FormEntry feSpectraTol = new FormEntry(PROP_spectra_ppmtol, "Fragment mass tolerance (PPM)",
+            uiSpinnerSpectraTol);
 
     btnGroupNormalizations = new ButtonGroup();
     btnNormPsm = new JRadioButton("PSMs", true);
@@ -450,6 +458,8 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p1, feAnnotTol.comp);
     mu.add(p1, feMinPsms.label(), mu.ccR());
     mu.add(p1, feMinPsms.comp).wrap();
+    mu.add(p1, feSpectraTol.label(), mu.ccR());
+    mu.add(p1, feSpectraTol.comp).wrap();
 
 
     mu.add(p1, new JLabel("Normalize data to: ")).spanX().split();
@@ -475,10 +485,11 @@ public class PtmshepherdPanel extends JPanelBase {
 
 
     FormEntry feVarMods = new FormEntry(PROP_varmod_masses, "Custom mass shifts", uiTextVarMods,
-        "<html>Mass shifts to be prioritized during annotation.<br/>\n"
+        "<html>Mass shifts to be added and prioritized during annotation,\n" +
+                "used if modifications will be found overwhelming as variable mods e.g. phospho-enriched data .<br/>\n"
             + "Comma separated entries of form \"&lt;name&gt;:&lt;mass&gt;\"<br/>\n"
             + "Example:<br/>\n"
-            + "&nbsp;&nbsp;&nbsp;&nbsp;Phospho:79.9663,Something-else:-20.123");
+            + "&nbsp;&nbsp;&nbsp;&nbsp;Phospho:79.9663, Failed_Carbamidomethylation:-57.021464");
 
     JPanel p2 = mu.newPanel(null, true);
     mu.border(p2, 1);
@@ -513,7 +524,8 @@ public class PtmshepherdPanel extends JPanelBase {
 
     uiTextLocalizationAAs = UiUtils.uiTextBuilder().create();
     FormEntry feRestrictLoc = new FormEntry(PROP_restrict_loc, "Restrict localization to", uiTextLocalizationAAs,
-            "<html>Restricts localization to specified residues. Example: STYNP");
+            "<html>Restricts localization to specified residues.\n" +
+                    "Includes glyco mode localization of remainder masses. Example: STYNP");
 
     JPanel p3 = mu.newPanel("Ion Types for Localization:", true);
     //mu.border(p3, 1);
