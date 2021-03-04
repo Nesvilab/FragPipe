@@ -53,8 +53,8 @@ if use_easypqp:
 	if irt_choice is None:
 		raise RuntimeError('invalid iRT')
 	spectra_files0 = sorted(pathlib.Path(e) for e in sys.argv[3].split(os.pathsep))
-	if spectra_files0 == ['unused'] and len(sys.argv) >= 11:
-		spectra_files0 = sys.argv[10:]
+	if spectra_files0 == [pathlib.Path('unused')] and len(sys.argv) >= 11:
+		spectra_files0 = [pathlib.Path(e) for e in sys.argv[10:]]
 
 assert use_spectrast ^ use_easypqp
 
