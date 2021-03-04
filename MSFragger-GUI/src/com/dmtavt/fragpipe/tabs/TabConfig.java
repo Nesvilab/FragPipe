@@ -608,9 +608,9 @@ public class TabConfig extends JPanelWithEnablement {
   private String textSpectraSTEnabled(boolean enableSpectrast) {
     StringBuilder sb = new StringBuilder();
     if (enableSpectrast) {
-      sb.append("<br>SpectraST: <b>Enabled</b>");
+      sb.append("SpectraST: <b>Enabled</b>");
     } else {
-      sb.append("<br>SpectraST: <b>Disabled</b>");
+      sb.append("SpectraST: <b>Disabled</b>");
     }
     return sb.toString();
   }
