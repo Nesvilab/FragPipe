@@ -468,7 +468,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
     mu.add(p, p1).spanX().growX().wrap();
 
-    uiTextVarMods = new UiTextBuilder().text("Phospho:79.9663, Failed_Carbamidomethylation:-57.021464").create();
+    uiTextVarMods = new UiTextBuilder().text("Failed_Carbamidomethylation:-57.021464").create();
     uiTextVarMods.addFocusListener(new FocusAdapter() {
       @Override
       public void focusLost(FocusEvent e) {
