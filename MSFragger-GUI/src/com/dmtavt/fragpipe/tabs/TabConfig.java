@@ -82,7 +82,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.CC;
@@ -751,7 +750,7 @@ public class TabConfig extends JPanelWithEnablement {
     return p;
   }
 
-  private String pythonPipOutput = "";
+//  private String pythonPipOutput = "";
 
   private JPanel createPanelPython() {
     JPanel p = newMigPanel();
@@ -779,30 +778,30 @@ public class TabConfig extends JPanelWithEnablement {
     p.add(epPythonVer, ccL().wrap());
 
 
-    final javax.swing.Timer timer = new javax.swing.Timer(5000, e -> {
-      final String binPython = uiTextBinPython.getNonGhostText();
-      if (StringUtils.isNotBlank(binPython)) {
-        new SwingWorker<Void, Void>() {
-          @Override
-          public Void doInBackground() {
-            final ProcessBuilder pb = new ProcessBuilder(binPython, "-m", "pip", "list");
-            String pythonPipOutputNew;
-            try {
-              pythonPipOutputNew = ProcessUtils.captureOutput(pb);
-            } catch (UnexpectedException ex) {
-              pythonPipOutputNew = null;
-            }
-            if (pythonPipOutputNew != null && !pythonPipOutput.equals(pythonPipOutputNew)) {
-              pythonPipOutput = pythonPipOutputNew;
-              Bus.post(new MessageUiRevalidate());
-            }
-            return null;
-          }
-        }.execute();
-      }
-    });
-    timer.setInitialDelay(0);
-    timer.start();
+//    final javax.swing.Timer timer = new javax.swing.Timer(5000, e -> {
+//      final String binPython = uiTextBinPython.getNonGhostText();
+//      if (StringUtils.isNotBlank(binPython)) {
+//        new SwingWorker<Void, Void>() {
+//          @Override
+//          public Void doInBackground() {
+//            final ProcessBuilder pb = new ProcessBuilder(binPython, "-m", "pip", "list");
+//            String pythonPipOutputNew;
+//            try {
+//              pythonPipOutputNew = ProcessUtils.captureOutput(pb);
+//            } catch (UnexpectedException ex) {
+//              pythonPipOutputNew = null;
+//            }
+//            if (pythonPipOutputNew != null && !pythonPipOutput.equals(pythonPipOutputNew)) {
+//              pythonPipOutput = pythonPipOutputNew;
+//              Bus.post(new MessageUiRevalidate());
+//            }
+//            return null;
+//          }
+//        }.execute();
+//      }
+//    });
+//    timer.setInitialDelay(0);
+//    timer.start();
 
     return p;
   }
