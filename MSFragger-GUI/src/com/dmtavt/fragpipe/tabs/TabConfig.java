@@ -62,6 +62,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -75,6 +76,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
@@ -203,8 +206,18 @@ public class TabConfig extends JPanelWithEnablement {
             + "\nFragPipe: v" + com.dmtavt.fragpipe.Version.version(false)));
             //+ FragpipeLocations.get().getJarPath().toString()));
     sysInfo.setVerticalAlignment(JLabel.TOP);
-    p.add(sysInfo, ccR().wrap());
     //p.add(UiUtils.createButton("Find tools", e -> post(new MessageFindTools())), ccL.get().split().spanX());
+
+    try {
+      BufferedImage image = ImageIO.read(getClass().getResource("/com/dmtavt/fragpipe/icons/fragpipe-128.png"));
+      JLabel imageLabel = new JLabel(new ImageIcon(image));
+      p.add(sysInfo, ccR().growX());
+      p.add(imageLabel, ccL().wrap());
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      p.add(sysInfo, ccR().wrap());
+    }
+
     JLabel label = new JLabel("Main tools configuration");
     label.setFont(new Font(label.getFont().getName(), Font.BOLD, label.getFont().getSize() + 3));
     p.add(label, ccL().wrap());
