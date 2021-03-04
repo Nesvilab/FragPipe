@@ -111,7 +111,8 @@ public class TabConfig extends JPanelWithEnablement {
   private HtmlStyledJEditorPane epDbsplitText;
   private HtmlStyledJEditorPane epDbsplitErr;
   private Container epDbsplitErrParent;
-  private HtmlStyledJEditorPane epSpeclibgenText;
+  private HtmlStyledJEditorPane epEasyPQPText;
+  private HtmlStyledJEditorPane epSpectraSTText;
   private HtmlStyledJEditorPane epSpeclibgenErr;
   private Container epSpeclibgenErrParent;
   private JButton btnAbout;
@@ -588,23 +589,24 @@ public class TabConfig extends JPanelWithEnablement {
     this.revalidate();
   }
 
-  private String textSpeclibEnabled(String easypqpLocalVersion, String easypqpLatestVersion, boolean enableSpectrast, boolean enableEasypqp) {
+  private String textEasyPQPEnabled(String easypqpLocalVersion, String easypqpLatestVersion, boolean enableEasypqp) {
     StringBuilder sb = new StringBuilder();
     if (enableEasypqp && !easypqpLocalVersion.contentEquals("N/A")) {
       if (!easypqpLatestVersion.contentEquals("N/A") && VersionComparator.cmp(easypqpLocalVersion, easypqpLatestVersion) < 0) {
         sb.append("EasyPQP: <b>Enabled</b>. Version: " + easypqpLocalVersion + "<br>"
-            + "<p style=\"color:red\">There is a new version (" + easypqpLatestVersion + "). Please upgrade it with</p>"
-            + "pip uninstall --yes easypqp<br>"
-            + "pip install git+https://github.com/grosenberger/easypqp.git@master<br>");
+            + "<p style=\"color:red\">There is a new version (" + easypqpLatestVersion + "). Please upgrade it by clicking the bellow button.<br>");
       } else {
         sb.append("EasyPQP: <b>Enabled</b>. Version: " + easypqpLocalVersion + "<br>");
       }
     } else {
       sb.append("EasyPQP: <b>Disabled</b><br>"
-          + "Please install with<br>"
-          + "pip install git+https://github.com/grosenberger/easypqp.git@master<br>");
+          + "Please make sure that python is installed, and then click the bellow button.<br>");
     }
+    return sb.toString();
+  }
 
+  private String textSpectraSTEnabled(boolean enableSpectrast) {
+    StringBuilder sb = new StringBuilder();
     if (enableSpectrast) {
       sb.append("<br>SpectraST: <b>Enabled</b>");
     } else {
@@ -621,11 +623,12 @@ public class TabConfig extends JPanelWithEnablement {
         epSpeclibgenErrParent.add(epSpeclibgenErr, new CC().wrap());
         epSpeclibgenErr.setVisible(true);
       }
-      epSpeclibgenText.setText(textSpeclibEnabled("N/A", "N/A", false, false));
+      epEasyPQPText.setText(textEasyPQPEnabled("N/A", "N/A", false));
+      epSpectraSTText.setText(textSpectraSTEnabled(false));
       if (m.ex instanceof ValidationException) {
         epSpeclibgenErr.setText(m.ex.getMessage());
       } else {
-        showConfigError(m.ex, TIP_SPECLIBGEN, epSpeclibgenText);
+        showConfigError(m.ex, TIP_SPECLIBGEN, epSpeclibgenErr);
       }
       this.revalidate();
       return;
@@ -691,7 +694,9 @@ public class TabConfig extends JPanelWithEnablement {
       easypqpLatestVersion = "N/A";
     }
 
-    epSpeclibgenText.setText(textSpeclibEnabled(easypqpLocalVersion, easypqpLatestVersion, enableSpectrast, enableEasypqp));
+    epEasyPQPText.setText(textEasyPQPEnabled(easypqpLocalVersion, easypqpLatestVersion, enableEasypqp));
+    epSpectraSTText.setText(textSpectraSTEnabled(enableSpectrast));
+
     this.revalidate();
   }
 
@@ -861,23 +866,26 @@ public class TabConfig extends JPanelWithEnablement {
   private JPanel createPanelSpeclibgen() {
     JPanel p = mu.newPanel("Spectral Library Generation", true);
 
-    StringBuilder tip = new StringBuilder()
-        .append("SpectraST: Requires <b>Python 3</b> with packages <b>Cython, Matplotlib, msproteomicstools</b>\n")
-        .append("EasyPQP: Requires <b>Python 3</b> with package <b>EasyPQP</b>");
-    String tipHtml = SwingUtils.makeHtml(tip.toString());
-    p.setToolTipText(tipHtml);
+    p.setToolTipText(SwingUtils.makeHtml("SpectraST: Requires <b>Python 3</b> with packages <b>Cython, Matplotlib, msproteomicstools</b>\nEasyPQP: Requires <b>Python 3</b> with package <b>EasyPQP</b>"));
     Dimension dim = new Dimension(200, 25);
-    epSpeclibgenText = new HtmlStyledJEditorPane(textDbsplitEnabled(false));
-    epSpeclibgenText.setToolTipText(tipHtml);
-    epSpeclibgenText.setPreferredSize(dim);
+
+    epEasyPQPText = new HtmlStyledJEditorPane("Configuring EasyPQP.");
+    epEasyPQPText.setToolTipText(SwingUtils.makeHtml("EasyPQP: Requires <b>Python 3</b> with package <b>EasyPQP</b>"));
+    epEasyPQPText.setPreferredSize(dim);
+
+    epSpectraSTText = new HtmlStyledJEditorPane("Configuring SpectraST.");
+    epSpectraSTText.setToolTipText(SwingUtils.makeHtml("SpectraST: Requires <b>Python 3</b> with packages <b>Cython, Matplotlib, msproteomicstools</b>"));
+    epSpectraSTText.setPreferredSize(dim);
+
     epSpeclibgenErr = new HtmlStyledJEditorPane("Requires Python 3 with modules Cython, Matplotlib, msproteomicstools.");
     epSpeclibgenErr.setPreferredSize(dim);
 
-    mu.add(p, epSpeclibgenText).growX().wrap();
-    mu.add(p, epSpeclibgenErr).growX().wrap();
+    final JButton btnInstallEasyPQP = UiUtils.createButton("Install/Upgrade EasyPQP", e -> Bus.post(new MessageInstallEasyPQP()));
 
-    final JButton btnInstallEasyPQP = UiUtils.createButton("Install/upgrade EasyPQP", e -> Bus.post(new MessageInstallEasyPQP()));
-    mu.add(p, btnInstallEasyPQP).split().spanX();
+    mu.add(p, epEasyPQPText).growX().wrap();
+    mu.add(p, btnInstallEasyPQP).split().wrap();
+    mu.add(p, epSpectraSTText).growX().wrap();
+    mu.add(p, epSpeclibgenErr).growX().wrap();
 
     return p;
   }
