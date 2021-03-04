@@ -85,6 +85,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_calibrate_mass = "calibrate_mass";
     public static final String PROP_isotope_error = "isotope_error";
     public static final String PROP_deisotope = "deisotope";
+    public static final String PROP_deneutralloss = "deneutralloss";
     public static final String PROP_mass_offsets = "mass_offsets";
     public static final String PROP_precursor_mass_mode = "precursor_mass_mode";
     public static final String PROP_search_enzyme_name = "search_enzyme_name";
@@ -165,6 +166,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_calibrate_mass,
         PROP_isotope_error,
         PROP_deisotope,
+        PROP_deneutralloss,
         PROP_mass_offsets,
         PROP_precursor_mass_mode,
         PROP_search_enzyme_name,
@@ -345,6 +347,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_minimum_peaks, "Minimum number of peaks in experimental spectrum for matching.");
         c.put(PROP_use_topN_peaks, "Pre-process experimental spectrum to only use top N peaks.");
         c.put(PROP_deisotope, "Perform deisotoping or not (0=no, 1=yes and assume singleton peaks single charged, 2=yes and assume singleton peaks single or double charged).");
+        c.put(PROP_deneutralloss, "Perform deneutrallossing or not (0=no, 1=yes).");
         c.put(PROP_min_fragments_modelling, "Minimum number of matched peaks in PSM for inclusion in statistical modeling.");
         c.put(PROP_min_matched_fragments, "Minimum number of matched peaks for PSM to be reported.");
         c.put(PROP_minimum_ratio, "Filters out all peaks in experimental spectrum less intense than this multiple of the base peak intensity.");

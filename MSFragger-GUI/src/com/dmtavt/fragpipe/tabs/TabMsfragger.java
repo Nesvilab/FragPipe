@@ -203,6 +203,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets, s -> s.replaceAll("[\\s]+", "/"));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_Y_type_masses, s -> s.replaceAll("[\\s]+", "/"));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_diagnostic_fragments, s -> s.replaceAll("[\\s]+", "/"));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_deneutralloss, s -> s.toLowerCase().contentEquals("yes") ? "1" : "0");
 
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_calibrated_mgf, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s-> MASS_DIFF_TO_VAR_MOD[MASS_DIFF_TO_VAR_MOD_MAP[Integer.parseInt(s)]]);
@@ -225,6 +226,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_offsets, text -> String.join(" ", text.split("/")));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_Y_type_masses, text -> String.join(" ", text.split("/")));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_diagnostic_fragments, text -> String.join(" ", text.split("/")));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_deneutralloss, s -> Integer.parseInt(s) == 1 ? "Yes" : "No");
 
     SEARCH_TYPE_NAME_MAPPING = new LinkedHashMap<>();
     SEARCH_TYPE_NAME_MAPPING.put("Closed Search default config", SearchTypeProp.closed);
@@ -1038,12 +1040,6 @@ public class TabMsfragger extends JPanelBase {
             + "search.").create();
 
     uiComboOutputType = UiUtils.createUiCombo(FraggerOutputType.values());
-    FormEntry feOutputType = mu.feb(MsfraggerParams.PROP_output_format, uiComboOutputType).label("Output format")
-        .tooltip("How the search results are to be reported.\n" +
-            "Downstream tools only support pepXML format.\n\n" +
-            "Use PIN if you want to process the result results with Percolator by yourself.\n" +
-            "Use TSV (tab delimited file) if you want to process \n" +
-            "search results yourself for easier import into other software.").create();
 
     String tooltipPrecursorCHarge =
         "Assume range of potential precursor charge states.\n" +
@@ -1059,6 +1055,11 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feDeisotope = mu.feb(MsfraggerParams.PROP_deisotope, new UiSpinnerInt(1, 0, 2, 1, 4))
         .label("Deisotope")
         .tooltip("<html>0 = deisotoping off<br/>\n1 = deisotoping on").create();
+
+    UiCombo uiComboDeneutralloss = UiUtils.createUiCombo(new String[]{"Yes", "No"});
+    FormEntry feComboDeneutralloss = mu.feb(MsfraggerParams.PROP_deneutralloss, uiComboDeneutralloss)
+        .label("Deneutralloss").create();
+
     FormEntry feMaxFragCharge = mu.feb(MsfraggerParams.PROP_max_fragment_charge, new UiSpinnerInt(2, 0, 20, 1, 2))
         .label("Max fragment charge").create();
 
@@ -1074,6 +1075,8 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feIonSeries.comp).growX();
     mu.add(p, labelCustomIonSeries, mu.ccR());
     mu.add(p, feCustomSeries.comp).growX().wrap();
+    mu.add(p, feComboDeneutralloss.label(), mu.ccR());
+    mu.add(p, feComboDeneutralloss.comp);
     mu.add(p, feTrueTolUnits.label(), mu.ccR());
     mu.add(p, feTrueTolUnits.comp).split(2);
     mu.add(p, feTrueTol.comp).growX();

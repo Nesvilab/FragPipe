@@ -13,6 +13,7 @@ calibrate_mass = 2
 decoy_prefix = rev_
 
 deisotope = 1
+deneutralloss = 1
 isotope_error = 0/1/2
 mass_offsets = 0
 precursor_mass_mode = selected

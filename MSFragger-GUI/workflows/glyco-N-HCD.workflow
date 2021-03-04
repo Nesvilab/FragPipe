@@ -60,6 +60,7 @@ msfragger.allowed_missed_cleavage=2
 msfragger.calibrate_mass=2
 msfragger.clip_nTerm_M=true
 msfragger.deisotope=1
+msfragger.deneutralloss=1
 msfragger.delta_mass_exclude_ranges=(-1.5,3.5)
 msfragger.diagnostic_fragments=204.086646 186.076086 168.065526 366.139466 144.0656 138.055 512.197375 292.1026925 274.0921325 657.2349 243.026426 405.079246 485.045576 308.09761
 msfragger.diagnostic_intensity_filter=0.1
