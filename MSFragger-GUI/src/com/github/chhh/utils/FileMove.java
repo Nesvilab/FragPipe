@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 
 /**
  * Usage: <code>java -cp path-to-jar com.github.chhh.utils.FileMove path-from path-to</code>.<br/>
@@ -49,7 +48,7 @@ public class FileMove {
         Path origin = Paths.get(args[ptr++]);
         Path destination = Paths.get(args[ptr++]);
         if (!noErrors && !Files.exists(origin)) {
-            System.err.printf("File does not exist: %s", origin.toString());
+            System.err.printf("File does not exist: %s", origin);
             System.exit(1);
         }
         try {
