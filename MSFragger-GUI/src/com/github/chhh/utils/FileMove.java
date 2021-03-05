@@ -16,6 +16,8 @@
  */
 package com.github.chhh.utils;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,7 +54,10 @@ public class FileMove {
             System.exit(1);
         }
         try {
-            Files.move(origin, destination, StandardCopyOption.REPLACE_EXISTING);
+            if (Files.isDirectory(origin))
+                FileUtils.moveDirectory(origin.toFile(), destination.toFile());
+            else
+                Files.move(origin, destination, StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
             if (!noErrors)
                 throw e;
