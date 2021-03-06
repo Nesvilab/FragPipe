@@ -143,6 +143,14 @@ public class CmdSpecLibGen extends CmdBase {
         final Path calTsvPath = speclibPanel.getEasypqpCalFilePath();
         cmd.add(cal.equals("a tsv file") ? calTsvPath.toString() : cal); // retention time alignment options
         cmd.add(String.valueOf(tabWorkflow.getThreads()));
+
+        final double max_delta_unimod = speclibPanel.getEasypqp_max_delta_unimod(); // EasyPQP convert
+        final double max_delta_ppm = speclibPanel.getEasypqp_max_delta_ppm(); // EasyPQP convert
+        final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction(); // EasyPQP library
+
+        cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod {} --max_delta_ppm {}", max_delta_unimod, max_delta_ppm))); // EasyPQP convert args
+        cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction {}", rt_lowess_fraction))); // EasyPQP library args
+
         cmd.addAll(group.lcmsFiles.stream() // lcms files
                 .map(lcms -> {
                   final String fn = lcms.getPath().getFileName().toString();
@@ -171,9 +179,6 @@ public class CmdSpecLibGen extends CmdBase {
         cmd.add("True"); // overwrite (true/false), optional arg
         cmd.add(usePhi.useBin()); // philosopher binary path (optional)
       }
-      final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction();
-      final double max_delta_unimod = speclibPanel.getEasypqp_max_delta_unimod();
-      final double max_delta_ppm = speclibPanel.getEasypqp_max_delta_ppm();
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
       PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);

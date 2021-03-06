@@ -35,10 +35,6 @@ class Irt_choice(enum.Enum):
 	userRT = enum.auto()
 
 if use_easypqp:
-
-	# easypqp_library_extra_args = shlex.split(sys.argv[10]) if len(sys.argv) >= 11 else []
-	easypqp_library_extra_args = []
-
 	nproc = int(sys.argv[9]) if len(sys.argv) >= 10 else len(os.sched_getaffinity(0))
 	no_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'noirt'
 	is_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'irt'
@@ -52,9 +48,12 @@ if use_easypqp:
 					None
 	if irt_choice is None:
 		raise RuntimeError('invalid iRT')
+	easypqp_convert_extra_args = shlex.split(sys.argv[10]) if len(sys.argv) >= 11 else []
+	easypqp_library_extra_args = shlex.split(sys.argv[11]) if len(sys.argv) >= 12 else []
 	spectra_files0 = sorted(pathlib.Path(e) for e in sys.argv[3].split(os.pathsep))
-	if spectra_files0 == [pathlib.Path('unused')] and len(sys.argv) >= 11:
-		spectra_files0 = [pathlib.Path(e) for e in sys.argv[10:]]
+	if spectra_files0 == [pathlib.Path('unused')] and len(sys.argv) >= 13:
+		spectra_files0 = [pathlib.Path(e) for e in sys.argv[12:]]
+
 
 assert use_spectrast ^ use_easypqp
 
@@ -474,7 +473,7 @@ if use_easypqp:
 
 	runname_rank_spectra_pepxml = pairing_pepxml_spectra_new(spectra_files, iproph_pep_xmls)
 	convert_outs = [f'{basename}{rank}' for basename, rank, _, _ in runname_rank_spectra_pepxml]
-	easypqp_convert_cmds = [[os.fspath(easypqp), 'convert', '--enable_unannotated', '--pepxml', os.fspath(pep_xml), '--spectra', os.fspath(spectra), '--exclude-range', '-1.5,3.5',
+	easypqp_convert_cmds = [[os.fspath(easypqp), 'convert', *easypqp_convert_extra_args,'--enable_unannotated', '--pepxml', os.fspath(pep_xml), '--spectra', os.fspath(spectra), '--exclude-range', '-1.5,3.5',
 							 '--psms', f'{outfiles}.psmpkl', '--peaks', f'{outfiles}.peakpkl']
 							for (_, _, spectra, pep_xml), outfiles in zip(runname_rank_spectra_pepxml, convert_outs)]
 	easypqp_library_infiles = [output_directory / (e + '.psmpkl') for e in convert_outs] + \
