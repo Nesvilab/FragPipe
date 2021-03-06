@@ -148,6 +148,42 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JRadioButton btnTypeRegularMs;
   private JRadioButton btnTypeIms;
 
+  private static final Set<String> builtInWorkflows = new HashSet<>(); // this list also include renamed and deleted ones.
+
+  static {
+    builtInWorkflows.add("common-mass-offsets");
+    builtInWorkflows.add("glyco-N-open-Hybrid");
+    builtInWorkflows.add("Labile_phospho");
+    builtInWorkflows.add("TMT10-MS3");
+    builtInWorkflows.add("Default");
+    builtInWorkflows.add("glyco-N-TMT");
+    builtInWorkflows.add("LFQ");
+    builtInWorkflows.add("TMT10-MS3-phospho");
+    builtInWorkflows.add("DIA-MSFragger_SpecLib");
+    builtInWorkflows.add("glyco-O-HCD");
+    builtInWorkflows.add("LFQ-MBR");
+    builtInWorkflows.add("TMT10-phospho");
+    builtInWorkflows.add("DIA-Umpire_SpecLib");
+    builtInWorkflows.add("glyco-O-Hybrid");
+    builtInWorkflows.add("Nonspecific-HLA");
+    builtInWorkflows.add("TMT10-phospho-bridge");
+    builtInWorkflows.add("glyco-N-HCD");
+    builtInWorkflows.add("glyco-O-open-HCD");
+    builtInWorkflows.add("Nonspecific-peptidome");
+    builtInWorkflows.add("TMT16");
+    builtInWorkflows.add("glyco-N-Hybrid");
+    builtInWorkflows.add("glyco-O-open-Hybrid");
+    builtInWorkflows.add("Open");
+    builtInWorkflows.add("TMT16-MS3");
+    builtInWorkflows.add("glyco-N-LFQ");
+    builtInWorkflows.add("iTRAQ4");
+    builtInWorkflows.add("TMT10");
+    builtInWorkflows.add("glyco-N-open-HCD");
+    builtInWorkflows.add("Labile_ADP-ribosylation");
+    builtInWorkflows.add("TMT10-bridge");
+    builtInWorkflows.add("glyco-N-quant-HCD");
+  }
+
   public TabWorkflow() {
     init();
     initMore();
@@ -451,6 +487,11 @@ public class TabWorkflow extends JPanelWithEnablement {
       Path dirLongTermStorage = FragpipeLocations.get().getPathLongTermStorage();
       Map<String, PropsFile> filesLocal = findPropsFiles(dirWorkflows);
       Map<String, PropsFile> filesStored = findPropsFiles(dirLongTermStorage);
+
+      for (String builtInWorkflow : builtInWorkflows) {
+        filesStored.remove(builtInWorkflow);
+      }
+
       files = filesLocal;
       List<String> diffNames = MapUtils.keysDiffRight(filesLocal, filesStored).collect(Collectors.toList());
       List<PropsFile> diffPropFiles = Seq.seq(filesStored).filter(kv -> diffNames.contains(kv.v1))
