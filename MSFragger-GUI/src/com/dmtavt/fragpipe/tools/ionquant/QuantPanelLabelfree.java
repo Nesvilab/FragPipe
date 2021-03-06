@@ -299,6 +299,7 @@ public class QuantPanelLabelfree extends JPanelBase {
       updateEnabledStatus(uiSpinnerTopIons, enabled);
       updateEnabledStatus(uiSpinnerMinFreq, enabled);
       updateEnabledStatus(uiSpinnerMinExps, enabled);
+      updateEnabledStatus(uiSpinnerMinIons, !enabled);
     });
 
 
@@ -340,6 +341,17 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     mu.add(p, pMbr).spanX().growX().wrap();
 
+    JPanel pTopN = mu.newPanel("Top-N options", mu.lcFillXNoInsetsTopBottom());
+
+    mu.add(pTopN, feTopIons.label(), mu.ccR());
+    mu.add(pTopN, feTopIons.comp);
+    mu.add(pTopN, feMinFreq.label(), mu.ccR());
+    mu.add(pTopN, feMinFreq.comp);
+    mu.add(pTopN, feMinExps.label(), mu.ccR());
+    mu.add(pTopN, feMinExps.comp).spanX().wrap();
+
+    mu.add(p, pTopN).spanX().growX().wrap();
+
     JPanel pLabel = mu.newPanel("Labelling-based quant", mu.lcFillXNoInsetsTopBottom());
 
     mu.add(pLabel, new JLabel("Labels:"), mu.ccR());
@@ -357,13 +369,6 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     mu.add(pa, feExcludemods.label(), mu.ccR());
     mu.add(pa, feExcludemods.comp).growX().spanX().wrap();
-
-    mu.add(pa, feTopIons.label(), mu.ccR());
-    mu.add(pa, feTopIons.comp);
-    mu.add(pa, feMinFreq.label(), mu.ccR());
-    mu.add(pa, feMinFreq.comp);
-    mu.add(pa, feMinExps.label(), mu.ccR());
-    mu.add(pa, feMinExps.comp).spanX().wrap();
 
     mu.add(pa, feMinScans.label(), mu.ccR());
     mu.add(pa, feMinScans.comp);
