@@ -300,6 +300,11 @@ public class QuantPanelLabelfree extends JPanelBase {
       updateEnabledStatus(uiSpinnerMinFreq, enabled);
       updateEnabledStatus(uiSpinnerMinExps, enabled);
       updateEnabledStatus(uiSpinnerMinIons, !enabled);
+      if (enabled) {
+        uiSpinnerMinIons.setValue(1);
+      } else {
+        uiSpinnerMinIons.setValue(2);
+      }
     });
 
 
