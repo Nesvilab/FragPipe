@@ -148,8 +148,8 @@ public class CmdSpecLibGen extends CmdBase {
         final double max_delta_ppm = speclibPanel.getEasypqp_max_delta_ppm(); // EasyPQP convert
         final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction(); // EasyPQP library
 
-        cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod {} --max_delta_ppm {}", max_delta_unimod, max_delta_ppm))); // EasyPQP convert args
-        cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction {}", rt_lowess_fraction))); // EasyPQP library args
+        cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod %f --max_delta_ppm %f", max_delta_unimod, max_delta_ppm))); // EasyPQP convert args
+        cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %f", rt_lowess_fraction))); // EasyPQP library args
 
         cmd.addAll(group.lcmsFiles.stream() // lcms files
                 .map(lcms -> {
