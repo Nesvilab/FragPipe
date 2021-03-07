@@ -728,7 +728,8 @@ public class TabConfig extends JPanelWithEnablement {
         .append("More info and docs: <a href=\"").append("https://www.nesvilab.org/Crystal-C/").append("\">Crystal-C</a>")
         .append(", <a href=\"").append("https://ionquant.nesvilab.org/").append("\">IonQuant</a>")
         .append(", <a href=\"").append("https://tmt-integrator.nesvilab.org/").append("\">TMT-Integrator</a>")
-        .append(", <a href=\"").append("https://ptmshepherd.nesvilab.org/").append("\">PTM-Shepherd</a>");
+        .append(", <a href=\"").append("https://ptmshepherd.nesvilab.org/").append("\">PTM-Shepherd</a>")
+        .append(", <a href=\"").append("https://github.com/grosenberger/easypqp").append("\">EasyPQP</a>");
     return sb.toString();
   }
 
