@@ -795,27 +795,26 @@ public class TabConfig extends JPanelWithEnablement {
     epPythonVer = new HtmlStyledJEditorPane("Python version: N/A");
     p.add(epPythonVer, ccL().wrap());
 
-    final Runnable pipList = () -> {
-      final ProcessBuilder pb = new ProcessBuilder(uiTextBinPython.getNonGhostText(), "-m", "pip", "freeze");
-      String pythonPipOutputNew;
-      try {
-        pythonPipOutputNew = ProcessUtils.captureOutput(pb);
-      } catch (UnexpectedException ex) {
-        pythonPipOutputNew = null;
-      }
-      if (pythonPipOutputNew != null && !pythonPipOutput.equals(pythonPipOutputNew)) {
-        pythonPipOutput = pythonPipOutputNew;
-        Bus.post(new MessageUiRevalidate());
-      }
-    };
-    final javax.swing.Timer timer = new javax.swing.Timer(5000, e -> {
-      final String binPython = uiTextBinPython.getNonGhostText();
-      if (StringUtils.isNotBlank(binPython))
-        javax.swing.SwingUtilities.invokeLater(pipList);
-    });
-    timer.setInitialDelay(0);
-    if (!true)
-      timer.start();
+//    final Runnable pipList = () -> {
+//      final ProcessBuilder pb = new ProcessBuilder(uiTextBinPython.getNonGhostText(), "-m", "pip", "freeze");
+//      String pythonPipOutputNew;
+//      try {
+//        pythonPipOutputNew = ProcessUtils.captureOutput(pb);
+//      } catch (UnexpectedException ex) {
+//        pythonPipOutputNew = null;
+//      }
+//      if (pythonPipOutputNew != null && !pythonPipOutput.equals(pythonPipOutputNew)) {
+//        pythonPipOutput = pythonPipOutputNew;
+//        Bus.post(new MessageUiRevalidate());
+//      }
+//    };
+//    final javax.swing.Timer timer = new javax.swing.Timer(5000, e -> {
+//      final String binPython = uiTextBinPython.getNonGhostText();
+//      if (StringUtils.isNotBlank(binPython))
+//        javax.swing.SwingUtilities.invokeLater(pipList);
+//    });
+//    timer.setInitialDelay(0);
+//    timer.start();
 
     return p;
   }
