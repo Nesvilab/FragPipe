@@ -308,12 +308,13 @@ public class QuantPanelLabelfree extends JPanelBase {
     });
 
 
-    mu.add(p, feRadioIonquant.comp).split().spanX();
-    mu.add(p, uiCheckMbr);
+    mu.add(p, feRadioIonquant.comp);
+    mu.add(p, uiCheckMbr).push();
     mu.add(p, feProtQuant.label(), mu.ccR());
-    mu.add(p, feProtQuant.comp);
+    mu.add(p, feProtQuant.comp).push();
     mu.add(p, feMinIons.label(), mu.ccR());
-    mu.add(p, feMinIons.comp).spanX().wrap();
+    mu.add(p, feMinIons.comp).push();
+    mu.add(p, feNormalize.comp).wrap();
 
     JPanel pDetection = mu.newPanel("Feature detection", mu.lcFillXNoInsetsTopBottom());
 
@@ -379,7 +380,6 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.add(pa, feMinScans.comp);
     mu.add(pa, feMinIsotopes.label(), mu.ccR());
     mu.add(pa, feMinIsotopes.comp);
-    mu.add(pa, feNormalize.comp);
     mu.add(pa, feWriteIndex.comp).spanX().wrap();
 
     mu.add(p, pa).spanX().growX().wrap();
