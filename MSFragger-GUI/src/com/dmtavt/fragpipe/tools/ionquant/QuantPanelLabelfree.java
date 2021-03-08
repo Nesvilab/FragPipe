@@ -358,7 +358,7 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     mu.add(p, pTopN).spanX().growX().wrap();
 
-    JPanel pLabel = mu.newPanel("Labelling-based quant", mu.lcFillXNoInsetsTopBottom());
+    JPanel pLabel = mu.newPanel("Labeling-based quant", mu.lcFillXNoInsetsTopBottom());
 
     mu.add(pLabel, new JLabel("Labels:"), mu.ccR());
     mu.add(pLabel, feLight.label(), mu.ccL()).split().spanX();

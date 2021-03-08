@@ -14,7 +14,6 @@ import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.FastaUtils;
 import com.github.chhh.utils.FastaUtils.FastaContent;
 import com.github.chhh.utils.FastaUtils.FastaDecoyPrefixSearchResult;
-import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -27,7 +26,6 @@ import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -166,7 +164,7 @@ public class TabDatabase extends JPanelWithEnablement {
   }
 
   private JPanel createPanelInfo() {
-    JPanel p = mu.newPanel("Quick start with protein sequence databases", true);
+    JPanel p = mu.newPanel("", true);
     JEditorPane epInfo = SwingUtils
         .createClickableHtml(createSeqDbExplanationContent());
     epInfo.setPreferredSize(new Dimension(400, 100));
@@ -288,40 +286,11 @@ public class TabDatabase extends JPanelWithEnablement {
 
   public static String createSeqDbExplanationContent() {
     JLabel label = new JLabel();
-    Font font = label.getFont();
-    final String codeTag = "<code style=\" font-size:" + font.getSize() + "; \">";
-    final String bin = OsUtils.isWindows() ? "philosopher.exe" : "philosopher";
     String content = ""
-        + "FragPipe requires a standard FASTA formatted protein database to perform the search.<br/>"
-        + "Decoy sequences (used for false discovery rate estimation) must be prepended with "
-        + "the \"Decoy protein prefix\" (see text field above).<br/><br/>"
-        + "If unsure, a good place to start is to go to <a href=\"http://www.uniprot.org/proteomes/\">UniProt website</a>. "
-        + "However, if you just download a FASTA file from UniProt, it will not contain decoys.<br/><br/>"
-        + "<b>There are two simple ways to get a database complete with decoys added:</b><br/><br/>"
-        + "1) Simply click 'Download' button next to the text field above.<br/><br/>"
-        + "To download a database containing two or more organisms, list all UniProt proteome IDs separated by comma.<br/>"
-        + "E.g. UP000005640,UP0000464024 to get a combined human + COVID-19 database.<br><br>"
-        + "or<br/><br/>"
-        + "2) Run Philosopher from the command line to download protein sequences from UniProt.<br/>"
-        + "Execute the following two commands (see <a href=\"https://github.com/Nesvilab/philosopher/wiki/Database\">here</a> for detailed instructions): <br/>"
-        + "<br/>"
-        + codeTag
-        + "&nbsp;&nbsp;&nbsp;&nbsp;" + bin + " workspace --init <br/>"
-        + "&nbsp;&nbsp;&nbsp;&nbsp;" + bin + " database --reviewed --contam --id UP000005640<br/>"
-        + "</code>"
-        + "<br/>"
-        + "This will generate a human UniProt (reviewed sequences only) database, with common contaminants and decoys (with a prefix rev_) added.<br/>"
-        + "<br/>"
-        + "For full UniProt, remove " + codeTag + "--reviewed</code> tag.<br/>"
-        + "To include isoforms, add " + codeTag + "--isoform</code> tag.<br/>"
-        + "<br/>"
-        + "For mouse use UP000000589, to find the proteome ID for other organisms visit <a href=\"http://www.uniprot.org/proteomes/\">UniProt website</a>.<br/>"
-        + "<br/>"
-        + "<br/>"
-        + "<b>If you have your own custom database:</b><br/><br/>"
-        + "The headers in the custom sequence database should follow a certain format. <br/>"
-        + "<br/>"
-        + "For detailed information on creating and formatting databases for FragPipe analysis, please see <a href=\"https://github.com/Nesvilab/philosopher/wiki/How-to-Prepare-a-Protein-Database\">https://github.com/Nesvilab/philosopher/wiki/How-to-Prepare-a-Protein-Database</a>.<br/>"
+        + "\"Browse\" to select a FASTA file from a previous FragPipe analysis, or \"Download\" to retrieve a new one from UniProt.<br/>"
+        + "Use \"Add decoys\" to append decoy sequences and/or add common <a href=\"https://www.thegpm.org/crap/\">contaminant sequences</a>.<br><br>"
+        + "IMPORTANT: Sequence headers must follow certain <a href=\"https://github.com/Nesvilab/philosopher/wiki/How-to-Prepare-a-Protein-Database#header-formatting\">format rules</a>.<br><br>"
+        + "To download a database containing two or more organisms during 'Download', list all UniProt proteome IDs separated by commas, e.g., UP000005640,UP0000464024 to get a combined human + COVID-19 database.<br>"
         + "<br/>"
         + "<br/>";
     return content;
