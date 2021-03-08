@@ -148,7 +148,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JRadioButton btnTypeRegularMs;
   private JRadioButton btnTypeIms;
 
-  private static final List<String> builtInWorkflows = new ArrayList<>(); // this list also include renamed and deleted ones.
+  private static final Set<String> builtInWorkflows = new HashSet<>(); // this list also include renamed and deleted ones.
 
   static {
     builtInWorkflows.add("common-mass-offsets");
@@ -860,13 +860,9 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private List<String> createNamesForWorkflowsCombo(Map<String, PropsFile> fileMap) {
-    final Set<String> userWorkflows = new HashSet<>(fileMap.keySet());
-    userWorkflows.removeAll(builtInWorkflows);
-    return Seq.seq(userWorkflows).filter(s -> s.toLowerCase().startsWith("default")).sorted()
-            .append(Seq.seq(userWorkflows).filter(s -> !s.toLowerCase().startsWith("default")).sorted())
-            .append(Seq.seq(builtInWorkflows).filter(s -> s.toLowerCase().startsWith("default")))
-            .append(Seq.seq(builtInWorkflows).filter(s -> !s.toLowerCase().startsWith("default")))
-            .toList();
+    return Seq.seq(fileMap.keySet()).filter(s -> s.toLowerCase().startsWith("default")).sorted()
+        .append(Seq.seq(fileMap.keySet()).filter(s -> !s.toLowerCase().startsWith("default")).sorted())
+    .toList();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
