@@ -98,7 +98,6 @@ public class MsfraggerParams extends AbstractParams {
     /** Followed by '_N' (underscore and a number), max 7 mods. */
     public static final String PROP_variable_mod = "variable_mod";
     public static final int VAR_MOD_COUNT_MAX = Short.BYTES * 8;
-    public static final String PROP_allow_multiple_variable_mods_on_residue = "allow_multiple_variable_mods_on_residue";
     public static final String PROP_max_variable_mods_per_peptide = "max_variable_mods_per_peptide";
     public static final String PROP_max_variable_mods_combinations = "max_variable_mods_combinations";
     public static final String PROP_output_format = "output_format";
@@ -173,7 +172,6 @@ public class MsfraggerParams extends AbstractParams {
         PROP_allowed_missed_cleavage,
         PROP_clip_nTerm_M,
         PROP_variable_mod,
-        PROP_allow_multiple_variable_mods_on_residue,
         PROP_max_variable_mods_per_peptide,
         PROP_max_variable_mods_combinations,
         PROP_output_format,
@@ -321,7 +319,6 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_num_enzyme_termini, "0 for non-enzymatic, 1 for semi-enzymatic, and 2 for fully-enzymatic.");
         c.put(PROP_allowed_missed_cleavage, "Allowed number of missed cleavages per peptide. Maximum value is 5.");
         c.put(PROP_clip_nTerm_M, "Specifies the trimming of a protein N-terminal methionine as a variable modification (0 or 1).");
-        c.put(PROP_allow_multiple_variable_mods_on_residue, "Allow each residue to be modified by multiple variable modifications (0 or 1).");
         c.put(PROP_max_variable_mods_per_peptide, "Maximum total number of variable modifications per peptide.");
         c.put(PROP_max_variable_mods_combinations, "Maximum number of modified forms allowed for each peptide (up to 65534).");
         c.put(PROP_mass_diff_to_variable_mod, "Put mass diff as a variable modification. 0 for no; 1 for yes and remove delta mass; 2 for yes and keep delta mass.");
@@ -939,16 +936,6 @@ public class MsfraggerParams extends AbstractParams {
     public void setShiftedIons(boolean v) {
         int vInt = v ? 1 : 0;
         props.setProp(PROP_localize_delta_mass, Integer.toString(vInt));
-    }
-    
-    public boolean getAllowMultipleVariableModsOnResidue() {
-        int v = Integer.parseInt(props.getProp(PROP_allow_multiple_variable_mods_on_residue, "1").value);
-        return v == 1;
-    }
-    
-    public void setAllowMultipleVariableModsOnResidue(boolean v) {
-        int vInt = v ? 1 : 0;
-        props.setProp(PROP_allow_multiple_variable_mods_on_residue, Integer.toString(vInt));
     }
     
     public int getMaxVariableModsPerPeptide() {

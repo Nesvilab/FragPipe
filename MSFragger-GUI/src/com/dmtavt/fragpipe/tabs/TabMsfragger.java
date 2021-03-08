@@ -192,7 +192,6 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_localize_delta_mass, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_clip_nTerm_M, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_data_type, s -> itos(ArrayUtils.indexOf(DATA_TYPES, s)));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_override_charge, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.valueOf(s).valueInParamsFile());
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_report_alternative_proteins, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
@@ -217,7 +216,6 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_localize_delta_mass, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_data_type, s -> DATA_TYPES[Integer.parseInt(s)]);
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_override_charge, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.fromValueInParamsFile(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Boolean.toString(Integer.parseInt(s) > 0));
@@ -828,8 +826,6 @@ public class TabMsfragger extends JPanelBase {
             "peptide sequence. This number does not include fixed modifications.").create();
     FormEntry feMaxCombos = mu.feb(MsfraggerParams.PROP_max_variable_mods_combinations, new UiSpinnerInt(5000, 0, 100000, 500, 4))
         .label("Max combinations").create();
-    FormEntry feMultipleVarModsOnResidue = mu.feb(MsfraggerParams.PROP_allow_multiple_variable_mods_on_residue, new UiCheck("Multiple mods on residue", null))
-        .tooltip("<html>Allow a single residue to carry multiple modifications.").create();
     tableVarMods = createTableVarMods();
     SwingUtilities.invokeLater(() -> {
       setJTableColSize(tableVarMods, 0, 20, 150, 50);
@@ -841,8 +837,7 @@ public class TabMsfragger extends JPanelBase {
     pVarmods.add(feMaxVarmodsPerMod.label(), new CC().alignX("right"));
     pVarmods.add(feMaxVarmodsPerMod.comp);
     pVarmods.add(feMaxCombos.label(), new CC().alignX("right"));
-    pVarmods.add(feMaxCombos.comp);
-    pVarmods.add(feMultipleVarModsOnResidue.comp, new CC().wrap());
+    pVarmods.add(feMaxCombos.comp, new CC().wrap());
     pVarmods
         .add(varModsScroll, new CC().minHeight("100px").maxHeight("150px").spanX().wrap());
 
