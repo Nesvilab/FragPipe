@@ -182,6 +182,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("Labile_ADP-ribosylation");
     builtInWorkflows.add("TMT10-bridge");
     builtInWorkflows.add("glyco-N-quant-HCD");
+    builtInWorkflows.add("SILAC");
   }
 
   public TabWorkflow() {
