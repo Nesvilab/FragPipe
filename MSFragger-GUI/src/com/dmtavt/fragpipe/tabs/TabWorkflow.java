@@ -152,6 +152,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   static {
     builtInWorkflows.add("common-mass-offsets");
+    builtInWorkflows.add("Common-mass-offsets");
     builtInWorkflows.add("glyco-N-open-Hybrid");
     builtInWorkflows.add("Labile_phospho");
     builtInWorkflows.add("TMT10-MS3");
@@ -182,7 +183,13 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("Labile_ADP-ribosylation");
     builtInWorkflows.add("TMT10-bridge");
     builtInWorkflows.add("glyco-N-quant-HCD");
-    builtInWorkflows.add("SILAC");
+    builtInWorkflows.add("DIA-Umpire");
+    builtInWorkflows.add("MSFragger-DIA-narrow-window-SpecLib");
+    builtInWorkflows.add("MSFragger-DIA-wide-window-SpecLib");
+    builtInWorkflows.add("SILAC3");
+    builtInWorkflows.add("SILAC3-phospho");
+    builtInWorkflows.add("SpecLib");
+    builtInWorkflows.add("TMT10-ubiquitin");
   }
 
   public TabWorkflow() {
