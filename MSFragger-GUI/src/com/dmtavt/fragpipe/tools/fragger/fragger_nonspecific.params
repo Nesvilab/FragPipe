@@ -67,7 +67,6 @@ allow_multiple_variable_mods_on_residue = 0
 max_variable_mods_per_peptide = 3
 max_variable_mods_combinations = 5000
 
-output_file_extension = pepXML
 output_format = pepXML
 output_report_topN = 1 
 output_max_expect = 50

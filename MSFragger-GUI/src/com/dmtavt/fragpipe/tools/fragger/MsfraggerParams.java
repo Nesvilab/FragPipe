@@ -99,11 +99,8 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_variable_mod = "variable_mod";
     public static final int VAR_MOD_COUNT_MAX = Short.BYTES * 8;
     public static final String PROP_allow_multiple_variable_mods_on_residue = "allow_multiple_variable_mods_on_residue";
-    //public static final String PROP_max_variable_mods_per_mod = "max_variable_mods_per_mod";
     public static final String PROP_max_variable_mods_per_peptide = "max_variable_mods_per_peptide";
     public static final String PROP_max_variable_mods_combinations = "max_variable_mods_combinations";
-    
-    public static final String PROP_output_file_extension = "output_file_extension";
     public static final String PROP_output_format = "output_format";
     public static final String PROP_output_report_topN = "output_report_topN";
     public static final String PROP_report_alternative_proteins = "report_alternative_proteins";
@@ -179,7 +176,6 @@ public class MsfraggerParams extends AbstractParams {
         PROP_allow_multiple_variable_mods_on_residue,
         PROP_max_variable_mods_per_peptide,
         PROP_max_variable_mods_combinations,
-        PROP_output_file_extension,
         PROP_output_format,
         PROP_output_report_topN,
         PROP_report_alternative_proteins,
@@ -329,7 +325,6 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_max_variable_mods_per_peptide, "Maximum total number of variable modifications per peptide.");
         c.put(PROP_max_variable_mods_combinations, "Maximum number of modified forms allowed for each peptide (up to 65534).");
         c.put(PROP_mass_diff_to_variable_mod, "Put mass diff as a variable modification. 0 for no; 1 for yes and remove delta mass; 2 for yes and keep delta mass.");
-        c.put(PROP_output_file_extension, "File extension of pepxml files.");
         c.put(PROP_output_format, "File format of output files (tsv, pin, pepxml, tsv_pin, tsv_pepxml, pepxml_pin, or tsv_pepxml_pin).");
         c.put(PROP_output_report_topN, "Reports top N PSMs per input spectrum.");
         c.put(PROP_output_max_expect, "Suppresses reporting of PSM if top hit has expectation value greater than this threshold.");
@@ -664,14 +659,6 @@ public class MsfraggerParams extends AbstractParams {
     public void setClipNTermM(boolean v) {
         int vInt = v ? 1 : 0;
         props.setProp(PROP_clip_nTerm_M, Integer.toString(vInt));
-    }
-    
-    public String getOutputFileExtension() {
-        return props.getProp(PROP_output_file_extension, "pepXML").value;
-    }
-    
-    public void setOutputFileExtension(String v) {
-        props.setProp(PROP_output_file_extension, v);
     }
     
     public FraggerOutputType getOutputFormat() {

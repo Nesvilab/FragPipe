@@ -1376,7 +1376,6 @@ public class TabMsfragger extends JPanelBase {
     if (outType == null) {
       throw new IllegalStateException("FraggerOutputType was not set by the point where we needed to provide the output extension.");
     }
-    p.setOutputFileExtension(outType.getExtension());
 
     return p;
   }

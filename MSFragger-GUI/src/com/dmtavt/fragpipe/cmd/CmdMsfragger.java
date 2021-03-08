@@ -357,8 +357,7 @@ public class CmdMsfragger extends CmdBase {
     int fileIndex = 0;
     StringBuilder sb = new StringBuilder();
 
-    final String ext = params.getOutputFileExtension();
-    Map<InputLcmsFile, List<Path>> mapLcmsToPepxml = outputs(lcmsFiles, ext, wd);
+    Map<InputLcmsFile, List<Path>> mapLcmsToPepxml = outputs(lcmsFiles, "pepXML", wd);
     Map<InputLcmsFile, List<Path>> mapLcmsToTsv = outputs(lcmsFiles, "tsv", wd);
     Map<InputLcmsFile, List<Path>> mapLcmsToPin = outputs(lcmsFiles, "pin", wd);
 

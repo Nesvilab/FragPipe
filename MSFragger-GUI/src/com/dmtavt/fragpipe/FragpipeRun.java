@@ -730,7 +730,7 @@ public class FragpipeRun {
           ccParams.setThread(threads);
         }
         if (!cmdCrystalc.configure(parent, isDryRun, Paths.get(binMsfragger.getBin()),
-            tabMsf.getParams().getOutputFileExtension(), ramGbNonzero,
+            "pepXML", ramGbNonzero,
             ccParams, fastaFile, sharedPepxmlFiles)) {
           return false;
         }
