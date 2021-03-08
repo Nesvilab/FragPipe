@@ -14,8 +14,8 @@ public class InputLcmsFile {
     private final Integer replicate;
 
     public static final String REASON_NON_ASCII = "has non-ASCII chars";
-    public static final String REASON_DOTS = "has dots";
-    public static final String REASON_MULTIPLE_DOTS = "has multiple dots";
+    public static final String REASON_DOTS = "has periods";
+    public static final String REASON_MULTIPLE_DOTS = "has multiple periods";
     public static final String REASON_SPACES = "has spaces";
     public static final String REASON_UNSUPPORTED = "not supported";
     public static final String allowedChars = "[A-Za-z0-9-_+.\\[\\]()]";

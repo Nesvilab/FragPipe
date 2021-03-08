@@ -11,12 +11,12 @@ public class LcmsInputFileTable extends SimpleETable {
   protected final String[] columnToolTips = {
       "<html>Path to LC/MS file.<br/>"
           + "Supports Drag & Drop from system file explorer.", // "Path" assumed obvious
-      "<html>Experiment or Group or Condition you name it.<br/>\n"
+      "<html>Experiment or Group or Condition.<br/>\n"
           + "<b>Can be left blank</b>, in which case all files are<br/>\n"
-          + "assumed to be a part of one experiment.",
+          + "assumed to be part of the same experiment.",
       "<html>Replicate number (biological, technical, etc).<br/>\n"
           + "<b>Values: only numbers.</b><br/>\n"
-          + "Used to enforce unform naming conventions, not used in processing.<br/>\n"
+          + "Used to enforce uniform naming conventions, not used in processing.<br/>\n"
           + "<b>Can be left blank</b>.<br/>\n"
           + "You can use just the Experiment column for free-style naming."};
 

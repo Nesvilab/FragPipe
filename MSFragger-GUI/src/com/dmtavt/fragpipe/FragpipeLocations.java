@@ -179,7 +179,7 @@ public class FragpipeLocations {
       Path p = getPathUiCache(isSystemCache);
       log.debug("Trying to load {} ui state file: {}", f.apply(isSystemCache), p);
       if (!Files.exists(p)) {
-        log.debug("{} ui state file not exists, skipping: {}", f.apply(isSystemCache), p);
+        log.debug("{} ui state file does not exist, skipping: {}", f.apply(isSystemCache), p);
         continue;
       }
       pfUi = tryLoadSilently(p, createCacheComment("ui state"));
@@ -192,7 +192,7 @@ public class FragpipeLocations {
       Path p = getPathRuntimeCache(isSystemCache);
       log.debug("Trying to load {} runtime file: {}", f.apply(isSystemCache), p);
       if (!Files.exists(p)) {
-        log.debug("{} runtime file not exists, skipping: {}", f.apply(isSystemCache), p);
+        log.debug("{} runtime file does not exist, skipping: {}", f.apply(isSystemCache), p);
         continue;
       }
       pfRuntime = tryLoadSilently(p, createCacheComment("ui state"));

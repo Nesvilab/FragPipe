@@ -36,7 +36,7 @@ public class PropsFile extends Properties {
   public void load() throws IOException {
     log.debug("Loading properties from: {}", path);
     if (!isBackingFileExists()) {
-      log.debug("Backing file not exists, not loading anything: {}", path.toString());
+      log.debug("Backing file does not exist, not loading anything: {}", path.toString());
     } else {
       try (BufferedReader br = Files.newBufferedReader(path)) {
         this.load(br);

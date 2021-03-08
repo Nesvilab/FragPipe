@@ -174,13 +174,13 @@ public class TabRun extends JPanelWithEnablement {
     JButton btnOpenInFileManager = UiUtils.createButton("Open in File Manager", e -> {
       String text = uiTextWorkdir.getNonGhostText();
       if (StringUtils.isBlank(text)) {
-        SwingUtils.showInfoDialog(TabRun.this, "Empty path", "Not exists");
+        SwingUtils.showInfoDialog(TabRun.this, "Empty path", "Does not exist");
         return;
       }
       Path existing = PathUtils.existing(text);
       if (existing == null) {
         SwingUtils
-            .showInfoDialog(TabRun.this, "Path:\n'" + text + "'\nDoes not exist", "Not exists");
+            .showInfoDialog(TabRun.this, "Path:\n'" + text + "'\nDoes not exist", "Does not exist");
         return;
       }
       try {

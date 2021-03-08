@@ -47,7 +47,7 @@ public class DbUniprotIdPanel extends JPanel {
     JPanel panelCheckboxes = new JPanel();
     panelCheckboxes.setLayout(new BoxLayout(panelCheckboxes, BoxLayout.Y_AXIS));
     panelCheckboxes.setBorder(new TitledBorder("Options"));
-    checkIsReviewed = new JCheckBox("Only reviewed sequences", true);
+    checkIsReviewed = new JCheckBox("Reviewed sequences only", true);
     checkAddDecoys = new JCheckBox("Add decoys", true);
     checkAddContaminants = new JCheckBox("Add common contaminants", true);
     checkAddIsoforms = new JCheckBox("Add isoforms", false);
@@ -64,7 +64,7 @@ public class DbUniprotIdPanel extends JPanel {
     // organism selection radio buttons
     JPanel panelRadios = new JPanel();
     panelRadios.setLayout(new BoxLayout(panelRadios, BoxLayout.Y_AXIS));
-    panelRadios.setBorder(new TitledBorder("Select organism / proteome ID"));
+    panelRadios.setBorder(new TitledBorder("Select organism / Input proteome ID"));
 
     radios = new ArrayList<>();
     btnGroupUniprotIds = new ButtonGroup();

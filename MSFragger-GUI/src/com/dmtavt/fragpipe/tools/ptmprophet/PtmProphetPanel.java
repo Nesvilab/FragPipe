@@ -54,7 +54,7 @@ public class PtmProphetPanel extends JPanelBase {
   @Override
   protected void init() {
     mu.layout(this, mu.lcFillXNoInsetsTopBottom());
-    mu.border(this, "PTM Prophet");
+    mu.border(this, "PTMProphet");
 
     pTop = createPanelTop();
     pContent = createPanelContent();
@@ -71,7 +71,7 @@ public class PtmProphetPanel extends JPanelBase {
 
     uiTextCmd = UiUtils.uiTextBuilder().text(getDefaults()).create();
     FormEntry feCmdLineOpts = mu.feb("cmdline", uiTextCmd).label("Cmd line opts")
-        .tooltip("Command line options for PTM Prophet").create();
+        .tooltip("Command line options for PTMProphet").create();
 
     mu.add(p, feCmdLineOpts.label(), mu.ccR());
     mu.add(p, feCmdLineOpts.comp).spanX().growX().pushX().wrap();
@@ -93,7 +93,7 @@ public class PtmProphetPanel extends JPanelBase {
 
     JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
-    checkRun = new UiCheck("Run PTM Prophet", null, false);
+    checkRun = new UiCheck("Run PTMProphet", null, false);
     checkRun.setName("run-ptmprophet");
     JButton btnDefaults = UiUtils.createButton("Load defaults", e -> {
       uiTextCmd.setText(getDefaults());

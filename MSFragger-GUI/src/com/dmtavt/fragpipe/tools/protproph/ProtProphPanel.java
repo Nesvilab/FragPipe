@@ -64,14 +64,14 @@ public class ProtProphPanel extends JPanelBase {
   public void init() {
     checkRun = UiUtils.createUiCheck("Run Protein Prophet", true);
     checkRun.setName("run-protein-prophet");
-    btnAllowMassShifted = UiUtils.createButton("Allow mass shifted peptides", e -> {
-      log.debug("Clicked button " + btnAllowMassShifted.getText());
-      loadDefaults("open");
-    });
-    btnDisallowMassShifted = UiUtils.createButton("Do NOT allow mass shifted peptides", e -> {
-      log.debug("Clicked button " + btnDisallowMassShifted.getText());
-      loadDefaults("tight");
-    });
+    // btnAllowMassShifted = UiUtils.createButton("Allow mass shifted peptides", e -> {
+    //   log.debug("Clicked button " + btnAllowMassShifted.getText());
+    //   loadDefaults("open");
+    // });
+    // btnDisallowMassShifted = UiUtils.createButton("Do NOT allow mass shifted peptides", e -> {
+    //   log.debug("Clicked button " + btnDisallowMassShifted.getText());
+    //   loadDefaults("tight");
+    // });
     uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).text(defaultCmdOpt()).create();
     FormEntry feCmdOpts = mu.feb("cmd-opts", uiTextCmdOpts).label("Cmd line opts:").create();
 
@@ -80,8 +80,8 @@ public class ProtProphPanel extends JPanelBase {
 
     pTop = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.add(pTop, checkRun).split();
-    mu.add(pTop, btnAllowMassShifted);
-    mu.add(pTop, btnDisallowMassShifted).wrap();
+    // mu.add(pTop, btnAllowMassShifted);
+    // mu.add(pTop, btnDisallowMassShifted).wrap();
 
     pContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.add(pContent, feCmdOpts.label()).alignX("right");

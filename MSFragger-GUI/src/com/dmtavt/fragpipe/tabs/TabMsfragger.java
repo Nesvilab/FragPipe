@@ -457,12 +457,12 @@ public class TabMsfragger extends JPanelBase {
     String minFraggerVer = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_MIN_VERSION_FRAGGER_MASS_CALIBRATE, "201904");
     FormEntry feCalibrate = mu.feb(MsfraggerParams.PROP_calibrate_mass, uiComboMassCalibrate)
         .label("<html>Calibration and Optimization")
-        .tooltip(String.format("<html>Requires MSFragger %s+.", minFraggerVer)).create();
+        .tooltip(String.format("<html>Requires MSFragger %s+. Not compatible with Database Splitting.", minFraggerVer)).create();
 
     uiTextIsoErr = UiUtils.uiTextBuilder().cols(10).filter("[^\\d/-]+").text("-1/0/1/2").create();
     FormEntry feIsotopeError = mu.feb(MsfraggerParams.PROP_isotope_error, uiTextIsoErr)
         .label("Isotope error")
-        .tooltip("<html>String of the form -1/0/1/2 indicating which isotopic\n"
+        .tooltip("<html>String of the form 0/1/2/3 indicating which isotopic\n"
             + "peak selection errors MSFragger will try to correct.")
         .create();
 

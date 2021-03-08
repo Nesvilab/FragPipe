@@ -23,7 +23,7 @@ import javax.swing.KeyStroke;
 
 public class DbIdDialog extends JDialog {
   private static final String PROP_UNIPROT_IDS = "database.uniprot.ids";
-  public static final Pattern RE_UNIPROT_ID = Pattern.compile("Uniprot ID:.*?\b(.+?)\b", Pattern.CASE_INSENSITIVE);
+  public static final Pattern RE_UNIPROT_ID = Pattern.compile("UniProt ID:.*?\b(.+?)\b", Pattern.CASE_INSENSITIVE);
 
   private JPanel contentPane;
   private JButton buttonOK;
@@ -37,7 +37,7 @@ public class DbIdDialog extends JDialog {
   public DbIdDialog() {
     setContentPane(contentPane);
     setModal(true);
-    setTitle("Select organism / UniProt ID");
+    setTitle("Select organism / Input proteome ID");
     getRootPane().setDefaultButton(buttonOK);
 
     buttonOK.addActionListener(e -> onOK());
@@ -69,10 +69,10 @@ public class DbIdDialog extends JDialog {
     if (!StringUtils.isNullOrWhitespace(ids)) {
       Arrays.stream(ids.split(";;")).map(String::trim).forEach(id -> radios.add(new JRadioButton(id)));
     } else {
-      radios.add(new JRadioButton("Human - Uniprot ID: UP000005640"));
-      radios.add(new JRadioButton("Mouse - Uniprot ID: UP000000589"));
+      radios.add(new JRadioButton("Human - UniProt ID: UP000005640"));
+      radios.add(new JRadioButton("Mouse - UniProt ID: UP000000589"));
     }
-    radioOther = new JRadioButton("Other:");
+    radioOther = new JRadioButton("Other (specify UniProt ID):");
     radios.add(radioOther);
     if (radios.isEmpty())
       throw new IllegalStateException("no radio buttons");
@@ -86,7 +86,7 @@ public class DbIdDialog extends JDialog {
       boxPanel.add(radio);
     }
     textOther = new JTextField();
-    textOther.setToolTipText("<html>Uniprot ID, similar to: UP000005640<br/>See http://www.uniprot.org/proteomes");
+    textOther.setToolTipText("<html>UniProt ID, similar to: UP000005640<br/>See http://www.uniprot.org/proteomes");
     boxPanel.add(textOther);
 
     JScrollPane scroll = new JScrollPane(boxPanel);

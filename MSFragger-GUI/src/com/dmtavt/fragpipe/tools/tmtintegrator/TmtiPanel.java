@@ -496,7 +496,7 @@ public class TmtiPanel extends JPanelBase {
     UiText uiTextModTag = UiUtils.uiTextBuilder().cols(10).text("none").create();
     FormEntry feModTag = fe(TmtiConfProps.PROP_mod_tag,
         "Mod tag", uiTextModTag,
-        "<html>TM info for generation of PTM-specific reports <br/>\n"
+        "<html>PTM info for generation of PTM-specific reports <br/>\n"
             + "none: for Global data<br/>\n"
             + "S[167],T[181],Y[243]: for Phospho<br/>\n"
             + "K[170]: for K-Acetyl");

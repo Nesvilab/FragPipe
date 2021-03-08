@@ -176,11 +176,11 @@ public class QuantPanelLabelfree extends JPanelBase {
         uiRadioUseFreequant);
     UiSpinnerDouble uiSpinnerRtTol = UiSpinnerDouble.builder(0.4, 0.05, 1000.0, 0.1)
         .setFormat(new DecimalFormat("0.0#")).setCols(5).create();
-    FormEntry feRtTol = new FormEntry("freequant.rt-tol", "RT Window (Minutes)",
+    FormEntry feRtTol = new FormEntry("freequant.rt-tol", "RT Window (minutes)",
         uiSpinnerRtTol);
     UiSpinnerDouble uiSpinnerMzTol = UiSpinnerDouble.builder(10.0, 0.1, 10000.0, 1)
         .setFormat(new DecimalFormat("0.#")).setCols(5).create();
-    FormEntry feMzTol = new FormEntry("freequant.mz-tol", "M/z Window (ppm)",
+    FormEntry feMzTol = new FormEntry("freequant.mz-tol", "m/z Window (ppm)",
         uiSpinnerMzTol);
 
     mu.add(p, feRadioFreequant.comp);
@@ -257,9 +257,9 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feProtQuant = mu.feb(uiComboProtQuant).name("ionquant.proteinquant").label("Protein quant").tooltip("The algorithm used in calculating protein intensity.").create();
     FormEntry feRequant = mu.feb("ionquant.requantify", UiUtils.createUiCheck("Re-quantify", true)).tooltip("Re-quantifying unidentified ions in labelling quantification").create();
 
-    FormEntry feMzTol = mu.feb(uiSpinnerMzTol).name("ionquant.mztol").label("M/Z Tolerance (ppm)").create();
-    FormEntry feRtTol = mu.feb(uiSpinnerRtTol).name("ionquant.rttol").label("RT Tolerance (minutes)").create();
-    FormEntry feImTol = mu.feb(uiSpinnerImTol).name("ionquant.imtol").label("IM Tolerance (1/k0)").create();
+    FormEntry feMzTol = mu.feb(uiSpinnerMzTol).name("ionquant.mztol").label("m/z tolerance (ppm)").create();
+    FormEntry feRtTol = mu.feb(uiSpinnerRtTol).name("ionquant.rttol").label("RT tolerance (minutes)").create();
+    FormEntry feImTol = mu.feb(uiSpinnerImTol).name("ionquant.imtol").label("IM tolerance (1/k0)").create();
 
     FormEntry feMinIons = mu.feb(uiSpinnerMinIons).name("ionquant.minions").label("Min ions").tooltip("Minimum ions required in quantifying a protein.").create();
     FormEntry feTopIons = mu.feb(uiSpinnerTopIons).name("ionquant.tp").label("Top N ions").tooltip("Only activate when Protein quant is Top-N.").create();
@@ -267,8 +267,8 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMinExps = mu.feb(uiSpinnerMinExps).name("ionquant.minexps").label("Min exps").tooltip("Only activate when Protein quant is Top-N.").create();
 
     FormEntry feMbrMinCorr = mu.feb(uiSpinnerMbrMinCorr).name("ionquant.mbrmincorr").label("MBR min correlation").tooltip("Min correlation between two runs.").create();
-    FormEntry feMbrRtTol = mu.feb(uiSpinnerMbrRtTol).name("ionquant.mbrrttol").label("MBR RT Tolerance (minutes)").create();
-    FormEntry feMbrImTol = mu.feb(uiSpinnerMbrImTol).name("ionquant.mbrimtol").label("MBR IM Tolerance (1/k0)").create();
+    FormEntry feMbrRtTol = mu.feb(uiSpinnerMbrRtTol).name("ionquant.mbrrttol").label("MBR RT tolerance (minutes)").create();
+    FormEntry feMbrImTol = mu.feb(uiSpinnerMbrImTol).name("ionquant.mbrimtol").label("MBR IM tolerance (1/k0)").create();
 
     FormEntry feMbrIonFdr = mu.feb(uiSpinnerMbrIonFdr).name("ionquant.ionfdr").label("MBR ion FDR").create();
     FormEntry feMbrPepFdr = mu.feb(uiSpinnerMbrPepFdr).name("ionquant.peptidefdr").label("MBR peptide FDR").create();

@@ -562,7 +562,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private String textDbsplitEnabled(boolean isEnabled) {
-    return "DB Splitting: <b>" + (isEnabled ? "Enabled" : "Disabled") + "</b>.<br>\n"
+    return "Database Splitting: <b>" + (isEnabled ? "Available" : "Not available") + "</b>.<br>\n"
         + "Used for searching very large databases by splitting into smaller chunks.";
   }
 
@@ -600,13 +600,13 @@ public class TabConfig extends JPanelWithEnablement {
     StringBuilder sb = new StringBuilder();
     if (enableEasypqp && !easypqpLocalVersion.contentEquals("N/A")) {
       if (!easypqpLatestVersion.contentEquals("N/A") && VersionComparator.cmp(easypqpLocalVersion, easypqpLatestVersion) < 0) {
-        sb.append("EasyPQP: <b>Enabled</b>. Version: " + easypqpLocalVersion + "<br>"
+        sb.append("EasyPQP: <b>Available</b>. Version: " + easypqpLocalVersion + "<br>"
             + "<p style=\"color:red\">There is a new version (" + easypqpLatestVersion + "). Please upgrade it by clicking the bellow button.<br>");
       } else {
-        sb.append("EasyPQP: <b>Enabled</b>. Version: " + easypqpLocalVersion + "<br>");
+        sb.append("EasyPQP: <b>Available</b>. Version: " + easypqpLocalVersion + "<br>");
       }
     } else {
-      sb.append("EasyPQP: <b>Disabled</b><br>"
+      sb.append("EasyPQP: <b>Not available</b><br>"
           + "Please make sure that python is installed, and then click the bellow button.<br>");
     }
     return sb.toString();
@@ -615,9 +615,9 @@ public class TabConfig extends JPanelWithEnablement {
   private String textSpectraSTEnabled(boolean enableSpectrast) {
     StringBuilder sb = new StringBuilder();
     if (enableSpectrast) {
-      sb.append("SpectraST: <b>Enabled</b>");
+      sb.append("SpectraST: <b>Available</b>");
     } else {
-      sb.append("SpectraST: <b>Disabled</b>");
+      sb.append("SpectraST: <b>Not available</b>");
     }
     return sb.toString();
   }
@@ -768,7 +768,7 @@ public class TabConfig extends JPanelWithEnablement {
   private JPanel createPanelPython() {
     JPanel p = newMigPanel();
     p.setBorder(new TitledBorder("Python"));
-    final String tip = "Python 3 is required for Spectral Library generation and DB splitting";
+    final String tip = "Python 3 is required for Spectral Library generation and Database Splitting";
     final String ghost = "Select Python 3 binary (Anaconda Python recommended)";
     uiTextBinPython = UiUtils.uiTextBuilder().ghost(ghost).create();
     SwingUtils.addOnFocusLostAndContentChanged(uiTextBinPython, (s, s2) -> {
@@ -839,7 +839,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private JPanel createPanelDbsplit() {
-    JPanel p = mu.newPanel("DB Splitting", true);
+    JPanel p = mu.newPanel("Database Splitting", true);
 
     StringBuilder tip = new StringBuilder()
         .append("Used for searching very large databases by splitting into smaller chunks.<br/>")

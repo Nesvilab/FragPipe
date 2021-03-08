@@ -282,7 +282,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
       JPanel panel = new JPanel(new BorderLayout());
       panel.add(new JLabel("<html>Found problems with some files (" + path2reasons.size() + " of " + files.paths.size() + ").<br/>"
-          + "This <b>will likely cause trouble</b> with some of processing tools.<br/><br/>"
+          + "This <b>will likely cause trouble</b> with some of the processing tools.<br/><br/>"
           + "What do you want to do with these files?<br/>"), BorderLayout.NORTH);
       panel.add(Box.createVerticalStrut(100), BorderLayout.CENTER);
       panel.add(new JScrollPane(table), BorderLayout.CENTER);
@@ -290,7 +290,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
       String[] options;
       if (!reasonsFn.isEmpty()) {
-        options = new String[]{"Cancel", "Add anyway", "Only add well-behaved files", "Try rename files"};
+        options = new String[]{"Cancel", "Add anyway", "Only add well-behaved files", "Try to rename files"};
       } else {
         options = new String[]{"Cancel", "Add anyway", "Only add well-behaved files"};
       }
@@ -311,7 +311,7 @@ public class TabWorkflow extends JPanelWithEnablement {
           int confirm1 = SwingUtils.showConfirmDialog(parent, new JLabel(
               "<html>Attempt to rename files without moving them.<br/>\n" +
                   "This is a non-reversible operation.<br/><br/>\n" +
-                  "We'll show you a preview before proceeding with actual renaming.<br/>\n" +
+                  "We'll show you a preview before proceeding with the renaming.<br/>\n" +
                   "Do you want to continue?"));
           if (JOptionPane.YES_OPTION != confirm1) {
             return;
@@ -349,7 +349,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
         {
           JPanel pane = new JPanel(new BorderLayout());
-          pane.add(new JLabel("<html>Proposed renaming scheme, do you agree?<br/>\n"));
+          pane.add(new JLabel("<html>Proposed renaming scheme, do you want to proceed?<br/>\n"));
           pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(toRename)));
           int confirm2 = SwingUtils.showConfirmDialog(parent, pane);
           if (JOptionPane.YES_OPTION != confirm2) {
@@ -382,7 +382,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         }
         if (!couldNotRename.isEmpty()) {
           JPanel pane = new JPanel(new BorderLayout());
-          pane.add(new JLabel("<html>Unfortunately could not rename some of the files:<br/>"), BorderLayout.NORTH);
+          pane.add(new JLabel("<html>Could not rename some of the files:<br/>"), BorderLayout.NORTH);
           pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(couldNotRename)), BorderLayout.CENTER);
           SwingUtils.showDialog(parent, pane, "Renaming failed", JOptionPane.WARNING_MESSAGE);
           return;
@@ -539,7 +539,7 @@ public class TabWorkflow extends JPanelWithEnablement {
             break; // do nothing
 
           case 2:
-            if (SwingUtils.showConfirmDialogShort(this, "Sure you want to delete stored workflows?")) {
+            if (SwingUtils.showConfirmDialogShort(this, "Are you sure you want to delete stored workflows?")) {
               for (PropsFile diffPropFile : diffPropFiles) {
                 Files.deleteIfExists(diffPropFile.getPath());
               }
@@ -561,10 +561,10 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     final String link = Fragpipe.propsFix().getProperty("fragpipe.workflow-tutorial.url", "https://msfragger.nesvilab.org/tutorial_fragpipe.html");
     epWorkflowsInfo = SwingUtils.createClickableHtml(true,
-        String.format("FragPipe and its collection of tools support multiple proteomic workflows.\n"
-            + "Select and load an option from the dropdown menu below to configure"
+        String.format("FragPipe supports multiple proteomic workflows.\n"
+            + "Select and load an option from the dropdown menu below to configure "
             + "all the tools. Workflows can be customized and saved.\n"
-            + "Also <a href=\"%s\">see the tutorial</a>.", link));
+            + "<a href=\"%s\">See the tutorial</a>.", link));
 
     workflows = loadWorkflowFiles();
     List<String> names = createNamesForWorkflowsCombo(workflows);
@@ -980,7 +980,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         //String add = "D:\\ms-data\\TMTIntegrator_v1.1.4\\TMT-I-Test\\tmti-test-data_5-min-cuts";
         Path existing = PathUtils.existing(uiTextLastAddedLcmsDir.getNonGhostText());
         if (existing == null) {
-          SwingUtils.showInfoDialog(this, "Path not exists:\n" + uiTextLastAddedLcmsDir.getNonGhostText(), "Warning");
+          SwingUtils.showInfoDialog(this, "Path does not exist:\n" + uiTextLastAddedLcmsDir.getNonGhostText(), "Warning");
         } else {
           Bus.post(new MessageLcmsAddFolder(Seq.of(existing).toList()));
         }
