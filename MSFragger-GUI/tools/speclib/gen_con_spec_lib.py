@@ -465,7 +465,7 @@ if use_easypqp:
 		pepxml_basename = [
 			max((ee for ee in spectra_files_basename if ee.casefold() in e.stem.casefold()), key=len) for e in
 			pep_xmls]
-		l = [[p for p, bn in zip(pep_xmls, pepxml_basename) if e.casefold() == bn] for e in spectra_files_basename]
+		l = [[p for p, bn in zip(pep_xmls, pepxml_basename) if e.casefold() == bn.casefold()] for e in spectra_files_basename]
 
 		def get_rank(name):
 			mo = re.compile('_rank[0-9]+?').search(name)
