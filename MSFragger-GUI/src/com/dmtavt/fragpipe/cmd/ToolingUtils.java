@@ -14,6 +14,7 @@ import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -112,7 +113,11 @@ public class ToolingUtils {
       List<String> cmd = new ArrayList<>();
       cmd.add(Fragpipe.getBinJava());
       cmd.add("-cp");
-      cmd.add(jarFragpipe.toAbsolutePath().toString());
+      final String commons_io_jar_path = org.apache.commons.io.FileUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+      cmd.add(jarFragpipe.toAbsolutePath() +
+              (operation == Op.MOVE ?
+                      File.pathSeparator + commons_io_jar_path :
+                      ""));
       switch (operation) {
         case COPY:
           cmd.add(FileCopy.class.getCanonicalName());
