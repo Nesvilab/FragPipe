@@ -1,4 +1,4 @@
-# Workflow: Common-mass-offsets
+# Workflow: Mass-Offset-CommonPTMs
 
 AdjustFragIntensity=true
 BoostComplementaryIon=false
