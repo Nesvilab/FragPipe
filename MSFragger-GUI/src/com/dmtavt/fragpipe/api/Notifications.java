@@ -6,13 +6,11 @@ import com.dmtavt.fragpipe.messages.MessageShowException;
 import com.dmtavt.fragpipe.messages.NoteConfigTips;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.BalloonTipStyle;
@@ -66,11 +64,6 @@ public class Notifications {
       BalloonTip tip = null;
       if (m.tip != null) {
         tip = m.tip;
-
-      } else if (m.parent != null && m.body != null) {
-        tip = new BalloonTip(m.parent, m.body,
-            new RoundedBalloonStyle(5, 5, BG_COLOR, Color.BLACK), true);
-
       } else if (m.parent != null && m.html != null) {
         HtmlStyledJEditorPane ep = SwingUtils.createClickableHtml(m.html, BG_COLOR);
         ep.setPreferredSize(new Dimension(200, 25));

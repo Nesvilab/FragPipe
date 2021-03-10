@@ -9,7 +9,6 @@ public class MessageBalloon {
   public final String topic;
   public final BalloonTip tip;
   public final JComponent parent;
-  public final JComponent body;
   public final String html;
 
   /** Closes balloons for a topic. */
@@ -19,7 +18,6 @@ public class MessageBalloon {
     this.tip = null;
     parent = null;
     html = null;
-    body = null;
   }
 
   public MessageBalloon(String topic, BalloonTip tip) {
@@ -29,18 +27,6 @@ public class MessageBalloon {
     this.tip = tip;
     html = null;
     parent = null;
-    body = null;
-  }
-
-  public MessageBalloon(String topic, JComponent parent, JComponent body) {
-    Objects.requireNonNull(topic);
-    Objects.requireNonNull(parent);
-    Objects.requireNonNull(body);
-    this.topic = topic;
-    this.parent = parent;
-    this.body = body;
-    tip = null;
-    html = null;
   }
 
   public MessageBalloon(String topic, JComponent parent, String html) {
@@ -51,7 +37,6 @@ public class MessageBalloon {
     this.parent = parent;
     this.html = html;
     tip = null;
-    body = null;
   }
 
   @Override
@@ -60,7 +45,6 @@ public class MessageBalloon {
         .add("topic='" + topic + "'")
         .add("tip=" + tip)
         .add("parent=" + parent)
-        .add("body=" + body)
         .add("html='" + html + "'")
         .toString();
   }
