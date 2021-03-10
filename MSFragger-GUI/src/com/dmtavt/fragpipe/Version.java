@@ -63,6 +63,21 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("15.0", Arrays.asList(
+        "Require MSFragger 3.2+.",
+        "Upgrade IonQuant to 1.5.5.",
+        "Upgrade TMT-Integrator to 2.4.0.",
+        "Upgrade PTMShepherd to 1.0.0.",
+        "Upgeade DIA-Umpire-SE to 2.2.1 (support mzML, mzXML, and raw formats natively)",
+        "Support download MSFragger automatically.",
+        "Add a button to install/upgrade EasyPQP.",
+        "Remove 'process each experiment separately' checkbox.",
+        "Don't allow space in the path of MSFragger and Philosopher.",
+        "Follow XDG specification for Unix.",
+        "Upgrade the bundled JRE to 11.",
+        "Automatically detect data types for .d and .raw."
+    ));
+
     CHANGELOG.put("14.0", Arrays.asList(
         "Add PTMProphet.",
         "Upgrade Crystal-C to 1.3.2.",
