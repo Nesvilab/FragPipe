@@ -190,6 +190,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("SILAC3-phospho");
     builtInWorkflows.add("SpecLib");
     builtInWorkflows.add("TMT10-ubiquitin");
+    builtInWorkflows.add("Mass-Offset-CommonPTMs");
   }
 
   public TabWorkflow() {
