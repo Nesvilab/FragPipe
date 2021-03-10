@@ -64,8 +64,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -301,13 +299,9 @@ public class TabConfig extends JPanelWithEnablement {
 
     if (!StringUtils.isNullOrWhitespace(m.manualDownloadUrl)) {
       JButton btnManualUpdate = new JButton("Download update");
-      btnManualUpdate.addActionListener(e -> {
-        try {
-          SwingUtils.openBrowserOrThrow(new URI(m.manualDownloadUrl));
-        } catch (URISyntaxException ex) {
-          throw new IllegalStateException("Incorrect url/uri", ex);
-        }
-      });
+      btnManualUpdate.addActionListener(
+        this::actionMsfraggerUpdate
+      );
       pBtns.add(btnManualUpdate);
     }
 
