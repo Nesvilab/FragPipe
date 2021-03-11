@@ -54,9 +54,12 @@ import com.github.chhh.utils.swing.UiUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
@@ -261,10 +264,10 @@ public class TabConfig extends JPanelWithEnablement {
     log.debug("Got NoteFragpipeUpdate: {}", m.toString());
     StringBuilder sb = new StringBuilder();
     if (StringUtils.isNotBlank(m.releaseVer)) {
-      sb.append(String.format("FragPipe %s available. ", m.releaseVer));
+      sb.append(String.format("FragPipe update available, new version %s\n", m.releaseVer));
     }
     if (StringUtils.isNotBlank(m.downloadUrl)) {
-      sb.append(String.format("<a href=\"%s\">Download</a>\n", m.downloadUrl));
+      sb.append(String.format("<a href=\"%s\">Click here to download</a>\n", m.downloadUrl));
     }
     if (StringUtils.isNotBlank(m.announcement)) {
       if (sb.length() != 0)
@@ -274,13 +277,44 @@ public class TabConfig extends JPanelWithEnablement {
     if (sb.length() == 0) {
       log.warn("Received NoteFragpipeUpdate message, but did not compose any user notification out of it.");
     } else {
-      Bus.postSticky(new MessageBalloon(TIP_FRAGPIPE_UPDATE, btnAbout, sb.toString()));
+      HtmlStyledJEditorPane ep = SwingUtils.createClickableHtml(true, sb.toString());
+      ep.setBackground(Color.white);
+      Bus.postSticky(new MessageBalloon(TIP_FRAGPIPE_UPDATE, btnAbout, ep));
     }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageMsfraggerUpdateAvailable m) {
-    Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, "MSFragger " + m.newVersion + " available."));
+    StringBuilder sb = new StringBuilder();
+    sb.append(
+        String.format("There is a newer version of MSFragger available [%s].<br>\n", m.newVersion));
+
+    JEditorPane ep = SwingUtils.createClickableHtml(sb.toString(), Notifications.BG_COLOR);
+    JPanel content = new JPanel(new BorderLayout());
+    content.setBackground(ep.getBackground());
+
+    JPanel pBtns = new JPanel();
+    pBtns.setBackground(ep.getBackground());
+    pBtns.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+
+    if (!StringUtils.isNullOrWhitespace(m.manualDownloadUrl)) {
+      JButton btnManualUpdate = new JButton("Download update");
+      btnManualUpdate.addActionListener(
+        this::actionMsfraggerUpdate
+      );
+      pBtns.add(btnManualUpdate);
+    }
+
+    JButton btnClose = new JButton("Close");
+    btnClose.addActionListener(e -> {
+      Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN));
+    });
+
+    content.add(ep, BorderLayout.CENTER);
+    pBtns.add(btnClose);
+    content.add(pBtns, BorderLayout.SOUTH);
+
+    Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, content));
   }
 
   private CC ccL() {
