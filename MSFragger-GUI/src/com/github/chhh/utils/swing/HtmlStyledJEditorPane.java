@@ -61,7 +61,6 @@ public class HtmlStyledJEditorPane extends JEditorPane {
 
   @Override
   public void setText(String t) {
-    SwingUtilities.invokeLater(() -> {
       if (t == null) {
         log.error("Called setText with null");
         super.setText(null);
@@ -92,8 +91,6 @@ public class HtmlStyledJEditorPane extends JEditorPane {
           throw re;
         }
       }
-    });
-
   }
 
   /** Text less main HTML (html, head, body) but with inner HTML tags like div or p. */

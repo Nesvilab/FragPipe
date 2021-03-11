@@ -73,8 +73,6 @@ public class Notifications {
 
       } else if (m.parent != null && m.html != null) {
         HtmlStyledJEditorPane ep = SwingUtils.createClickableHtml(m.html, BG_COLOR);
-        ep.setPreferredSize(new Dimension(200, 25));
-        ep.setMinimumSize(new Dimension(50, 25));
 //        JPanel p = new JPanel(new BorderLayout());
 //        p.setBackground(ep.getBackground());
 //        p.add(ep, BorderLayout.CENTER);
