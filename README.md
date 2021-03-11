@@ -10,8 +10,8 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 ### [Download](https://github.com/Nesvilab/FragPipe/releases)
 
 ### Tutorials
-- [FragPipe setup](https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html)
 - [Using FragPipe](https://msfragger.nesvilab.org/tutorial_fragpipe.html) (most comprehensive tutorial covering all FragPipe modules)
+- [FragPipe setup](https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html)
 - [Built-in workflows](https://msfragger.nesvilab.org/tutorial_fragpipe_workflows.html)
 - [Analyzing glycoproteomics data](https://msfragger.nesvilab.org/tutorial_glyco-fragger.html)
 - [Converting LC/MS data files to mzML](https://msfragger.nesvilab.org/tutorial_convert.html)
@@ -44,7 +44,7 @@ For other tools developed by Nesvizhskii lab, visit our website
   - `start javaw -jar FragPipe-x.x.jar`
   - `java -jar FragPipe-x.x.jar`
 - **Linux**:
-  - Either run the `FragPipe` shell script from *.zip* distribution  
+  - Run the `fragpipe` shell script (can double-click to run)  
   or execute the following command:
   - Or execute `java -jar FragPipe-x.x.jar`
 
