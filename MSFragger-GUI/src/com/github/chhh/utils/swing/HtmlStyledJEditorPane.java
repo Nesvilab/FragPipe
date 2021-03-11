@@ -61,36 +61,36 @@ public class HtmlStyledJEditorPane extends JEditorPane {
 
   @Override
   public void setText(String t) {
-      if (t == null) {
-        log.error("Called setText with null");
-        super.setText(null);
-        return;
-      }
-      String body = SwingUtils.tryExtractHtmlBody(t);
-      if (body == null) {
-        log.error("Body was computed to null");
-      }
+    if (t == null) {
+      log.error("Called setText with null");
+      super.setText(null);
+      return;
+    }
+    String body = SwingUtils.tryExtractHtmlBody(t);
+    if (body == null) {
+      log.error("Body was computed to null");
+    }
 
-      String wrap = SwingUtils.wrapInStyledHtml(body);
-      if (wrap == null) {
-        log.error("Wrapped text evaluated to null");
-      }
+    String wrap = SwingUtils.wrapInStyledHtml(body);
+    if (wrap == null) {
+      log.error("Wrapped text evaluated to null");
+    }
 
-      try {
-        super.setText(null);
-        setContentTextHtml();
-        super.setText(wrap);
-      } catch (NullPointerException e) {
-        log.error("NPE happened when setting wrapped text");
-      } catch (RuntimeException re) {
-        if (re.getMessage().contains("insert new content into body")) {
-          log.error("{}\n{}", re.getMessage(), wrap);
-          log.error("Trying to use the 'body': {}", body);
-          super.setText(body);
-        } else {
-          throw re;
-        }
+    try {
+      super.setText(null);
+      setContentTextHtml();
+      super.setText(wrap);
+    } catch (NullPointerException e) {
+      log.error("NPE happened when setting wrapped text");
+    } catch (RuntimeException re) {
+      if (re.getMessage().contains("insert new content into body")) {
+        log.error("{}\n{}", re.getMessage(), wrap);
+        log.error("Trying to use the 'body': {}", body);
+        super.setText(body);
+      } else {
+        throw re;
       }
+    }
   }
 
   /** Text less main HTML (html, head, body) but with inner HTML tags like div or p. */
