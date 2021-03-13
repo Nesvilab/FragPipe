@@ -35,7 +35,8 @@ class Irt_choice(enum.Enum):
 	userRT = enum.auto()
 
 if use_easypqp:
-	nproc = int(sys.argv[9]) if len(sys.argv) >= 10 else len(os.sched_getaffinity(0))
+	nproc0 = int(sys.argv[9]) if len(sys.argv) >= 10 else 0
+	nproc = max(len(os.sched_getaffinity(0)) - 1, 1) if nproc0 <= 0 else nproc0
 	no_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'noirt'
 	is_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'irt'
 	is_ciRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'cirt'
