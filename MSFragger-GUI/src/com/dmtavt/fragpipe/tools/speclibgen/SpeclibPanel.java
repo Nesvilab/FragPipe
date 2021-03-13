@@ -192,7 +192,7 @@ public class SpeclibPanel extends JPanelBase {
         .setCols(5).setFormat("#.##").create();
     FormEntry feLowess = mu.feb(uiSpinnerLowess).name("easypqp.extras.rt_lowess_fraction")
         .label("RT Lowess Fraction")
-        .tooltip("RT Lowess fraction").create();
+        .tooltip("Fraction of data points to use for RT lowess regression. If set to 0, cross validation is used.").create();
 
     uiSpinner_max_delta_unimod = UiUtils.spinnerDouble(0.02, 0.0, 1.0, 0.01)
             .setCols(5).setFormat("#.##").create();
