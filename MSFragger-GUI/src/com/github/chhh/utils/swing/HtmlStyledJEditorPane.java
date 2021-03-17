@@ -61,6 +61,14 @@ public class HtmlStyledJEditorPane extends JEditorPane {
 
   @Override
   public void setText(String t) {
+  /* Do not use SwingUtilities.invokeLater here, may cause deadlock.
+    #javax.swing.JEditorPane.setText calls #javax.swing.text.html.HTMLDocument.HTMLReader#adjustEndElement
+    which obtains a write lock to an instance of #javax.swing.text.html.HTMLDocument
+    followed by a lock on a static java.awt.Component$AWTTreeLock object
+
+    java.awt.Container.getPreferredSize locks on a static java.awt.Component$AWTTreeLock object
+    followed by a read lock to an instance of #javax.swing.text.html.HTMLDocument
+   */
     if (t == null) {
       log.error("Called setText with null");
       super.setText(null);
