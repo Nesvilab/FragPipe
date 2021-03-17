@@ -193,6 +193,17 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("Mass-Offset-CommonPTMs");
   }
 
+  // Ok, if we could keep some workflows pinned toward the top,  I would say Default, SpecLib, Open, Common-mass-offset, LFQ-MBR,  then the rest
+  private static final List<String> builtInWorkflowsPinned = ((Supplier<List<String>>) () -> {
+    final List<String> a = new ArrayList<>();
+    a.add("Default");
+    a.add("SpecLib");
+    a.add("Open");
+    a.add("Mass-Offset-CommonPTMs");
+    a.add("LFQ-MBR");
+    return a;
+  }).get();
+
   public TabWorkflow() {
     init();
     initMore();
@@ -869,9 +880,14 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private List<String> createNamesForWorkflowsCombo(Map<String, PropsFile> fileMap) {
-    return Seq.seq(fileMap.keySet()).filter(s -> s.toLowerCase().startsWith("default")).sorted()
-        .append(Seq.seq(fileMap.keySet()).filter(s -> !s.toLowerCase().startsWith("default")).sorted())
-    .toList();
+    final Set<String> builtInWorkflowsCurrent = new HashSet<>(fileMap.keySet());
+    builtInWorkflowsCurrent.retainAll(builtInWorkflows);
+    final Set<String> userWorkflows = new HashSet<>(fileMap.keySet());
+    userWorkflows.removeAll(builtInWorkflows);
+    return Seq.seq(userWorkflows).sorted()
+            .append(builtInWorkflowsPinned)
+            .append(Seq.seq(builtInWorkflowsCurrent).sorted())
+            .toList();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
