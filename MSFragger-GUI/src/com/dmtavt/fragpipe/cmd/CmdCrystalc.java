@@ -61,7 +61,7 @@ public class CmdCrystalc extends CmdBase {
   }
 
   /**
-   * @param inputs Pepxml files after search engine, but before Peptide Prophet.
+   * @param inputs Pepxml files after search engine, but before PeptideProphet.
    */
   public Map<InputLcmsFile, List<Path>> outputs(Map<InputLcmsFile, List<Path>> inputs, String pepxmlExtFragger) {
     Map<InputLcmsFile, List<Path>> m = new HashMap<>();

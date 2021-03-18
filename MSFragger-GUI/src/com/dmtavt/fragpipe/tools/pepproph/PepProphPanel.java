@@ -91,14 +91,14 @@ public class PepProphPanel extends JPanelBase {
     defaults.put("Offset Search", SearchTypeProp.offset);
     final UiCombo uiComboDefaults = UiUtils.createUiCombo(new ArrayList<>(defaults.keySet()));
     JButton btnLoadDefaults = UiUtils
-        .createButton("Load", "Load peptide prophet settings for given search type", e -> {
+        .createButton("Load", "Load PeptideProphet settings for given search type", e -> {
           SearchTypeProp type = defaults.get((String) uiComboDefaults.getSelectedItem());
           loadDefaults(type);
         });
     uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).text(defaultCmdOpts()).create();
     FormEntry feCmdOpts = fe(uiTextCmdOpts, "cmd-opts")
         .label("Cmd line opts:")
-        .tooltip("These options will be passed on to Peptide Prophet.\n"
+        .tooltip("These options will be passed on to PeptideProphet.\n"
             + "This set will be merged with some additional options\n"
             + "added as a requirement by other stages in the pipeline.\n"
             + "See output log (e.g. dry-run results) for the complete command.").create();
@@ -132,7 +132,7 @@ public class PepProphPanel extends JPanelBase {
 
   private String defaultCmdOpts() {
     String v = Fragpipe.getPropFix("peptideprophet.cmd.line.opts", "closed");
-    log.debug("Peptide prophet default value for Cmd Opts in ui fetched from properties: peptideprophet.cmd.line.opts.closed={}", v);
+    log.debug("PeptideProphet default value for Cmd Opts in ui fetched from properties: peptideprophet.cmd.line.opts.closed={}", v);
     return v;
   }
 

@@ -44,7 +44,7 @@ public class CmdPtmProphet extends CmdBase {
       Path pepxml = kv.getKey();
       Path workDir = kv.getValue().get(0).v1.outputDir(wd);
 
-      // PTM Prophet itself
+      // PTMProphet itself
       List<String> cmd = new ArrayList<>();
       cmd.add(usePhi.useBin(workDir));
       cmd.add("ptmprophet");
@@ -59,7 +59,7 @@ public class CmdPtmProphet extends CmdBase {
 
 
       final ProcessBuilder pb = new ProcessBuilder(cmd);
-      //pb.directory(lcms.getPath().getParent().toFile()); // PTM Prophet is run from the directory where the RAW is
+      //pb.directory(lcms.getPath().getParent().toFile()); // PTMProphet is run from the directory where the RAW is
       pb.directory(workDir.toFile());
       pbis.add(new PbiBuilder().setPb(pb).create());
     }

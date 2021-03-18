@@ -154,7 +154,7 @@ public class ReportPanel extends JPanelBase {
     FormEntry feCheckDontUseProtProphFile = new FormEntry(
         "dont-use-prot-proph-file", "not-shown", uiCheckDontUseProtProphFile,
         "<html>Only to be used in rare cases.<br/>\n" +
-            "Consider turning off Protein Prophet instead of using this checkbox.");
+            "Consider turning off ProteinProphet instead of using this checkbox.");
 
     mu.add(p, feFilter.label()).spanX().split();
     mu.add(p, feFilter.comp).growX().pushX().wrap();

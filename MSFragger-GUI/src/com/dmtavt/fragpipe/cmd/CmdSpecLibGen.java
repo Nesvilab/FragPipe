@@ -1,14 +1,17 @@
 package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.api.PyInfo;
+import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
-import com.dmtavt.fragpipe.tabs.TabWorkflow;
+import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -20,12 +23,7 @@ import java.util.Map.Entry;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
-
-import com.github.chhh.utils.OsUtils;
 import org.apache.commons.io.FilenameUtils;
-import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.github.chhh.utils.UsageTrigger;
 
 public class CmdSpecLibGen extends CmdBase {
 
@@ -87,10 +85,10 @@ public class CmdSpecLibGen extends CmdBase {
 
       if (!isRunProteinProphet && !Files.exists(protxml)) {
         JOptionPane.showMessageDialog(comp,
-            "Protein Prophet not selected and the output directory:\n"
+            "ProteinProphet not selected and the output directory:\n"
                 + "    " + groupWd.toString() + "\n"
                 + "does not contain a '" + protxml.getFileName().toString() + "' file.\n\n"
-                + "Either uncheck Spectral Library Generation checkbox or enable Protein Prophet.",
+                + "Either uncheck Spectral Library Generation checkbox or enable ProteinProphet.",
             "Spec Lib Gen configuration Error", JOptionPane.ERROR_MESSAGE);
         return false;
       }

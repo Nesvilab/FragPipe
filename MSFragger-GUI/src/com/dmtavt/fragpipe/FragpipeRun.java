@@ -742,7 +742,7 @@ public class FragpipeRun {
       return true;
     });
 
-    // run Peptide Prophet
+    // run PeptideProphet
     final PepProphPanel pepProphPanel = Fragpipe.getStickyStrict(PepProphPanel.class);
     final boolean isRunPeptideProphet = pepProphPanel.isRun();
     final boolean isCombinedPepxml = pepProphPanel.isCombinePepxml();
@@ -791,7 +791,7 @@ public class FragpipeRun {
     });
     addConfig.accept(cmdPtmProphet, () -> {
 
-      // peptide prophet is run, so we run adjustments of the pepxml files.
+      // PeptideProphet is run, so we run adjustments of the pepxml files.
       List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml = Seq.seq(sharedPepxmlFiles)
           .flatMap(tuple -> tuple.v2.stream().map(o -> new Tuple2<>(tuple.v1, o)))
           .toList();
@@ -803,7 +803,7 @@ public class FragpipeRun {
       return true;
     });
 
-    // run Protein Prophet
+    // run ProteinProphet
     final boolean isRunProteinProphet = protProphPanel.isRun();
     final Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml = new LinkedHashMap<>();
 
@@ -877,7 +877,7 @@ public class FragpipeRun {
           if (allProtxmlsExist) {
             // ProtProph is not run, but all protxmls are there
             int confirm = JOptionPane.showConfirmDialog(parent,
-                "Protein Prophet is not run, but prot.xml files for all groups do already exist:\n\n"
+                "ProteinProphet is not run, but prot.xml files for all groups do already exist:\n\n"
                     + paths
                     + "\n\n"
                     + "Do you want to use them for the Filter command?\n",
@@ -887,7 +887,7 @@ public class FragpipeRun {
             }
           }
         } else { // if (!isRunProteinProphet) {
-          // protein prophet is run, respenct the checkFilterNoProtxml checkbox
+          // ProteinProphet is run, respenct the checkFilterNoProtxml checkbox
           dontUseProtxmlInFilter = isCheckFilterNoProtxml;
         }
 

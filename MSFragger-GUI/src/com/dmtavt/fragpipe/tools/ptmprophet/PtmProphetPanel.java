@@ -9,15 +9,11 @@ import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import net.miginfocom.layout.LC;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
@@ -65,7 +61,7 @@ public class PtmProphetPanel extends JPanelBase {
 
   private JPanel createPanelContent() {
     JPanel p = mu.newPanel(null, mu.lcNoInsetsTopBottom());
-    //mu.border(p, "PTM prophet options");
+    //mu.border(p, "PTMProphet options");
 
     //mu.add(p, new JLabel("Some dummy property")).wrap();
 

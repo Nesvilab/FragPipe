@@ -7,7 +7,7 @@ import org.apache.commons.lang3.NotImplementedException;
 public class FixPepProphLcmsPath {
 
   /**
-   * @param pepxmlPath Path to pepxml file after peptide prophet.
+   * @param pepxmlPath Path to pepxml file after PeptideProphet.
    * @param lcmsFile The original LCMS file used for search.
    * @param workDir The 'output directory' specified in FragPipe Run tab.
    */

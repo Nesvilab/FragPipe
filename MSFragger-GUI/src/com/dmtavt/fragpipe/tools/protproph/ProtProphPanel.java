@@ -62,7 +62,7 @@ public class ProtProphPanel extends JPanelBase {
 
   @Override
   public void init() {
-    checkRun = UiUtils.createUiCheck("Run Protein Prophet", true);
+    checkRun = UiUtils.createUiCheck("Run ProteinProphet", true);
     checkRun.setName("run-protein-prophet");
     // btnAllowMassShifted = UiUtils.createButton("Allow mass shifted peptides", e -> {
     //   log.debug("Clicked button " + btnAllowMassShifted.getText());
@@ -79,7 +79,7 @@ public class ProtProphPanel extends JPanelBase {
     mu.border(this, "ProteinProphet");
 
     pTop = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
-    mu.add(pTop, checkRun).split();
+    mu.add(pTop, checkRun).wrap();
     // mu.add(pTop, btnAllowMassShifted);
     // mu.add(pTop, btnDisallowMassShifted).wrap();
 

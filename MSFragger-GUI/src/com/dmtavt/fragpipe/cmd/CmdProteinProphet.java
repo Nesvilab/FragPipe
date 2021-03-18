@@ -169,7 +169,7 @@ public class CmdProteinProphet extends CmdBase {
     {
       Set<Path> interactProtXmls = new HashSet<>(groupToProtxml.values());
       if (interactProtXmls.size() > 1) {
-        JOptionPane.showMessageDialog(comp, "[Protein Prophet]\n"
+        JOptionPane.showMessageDialog(comp, "[ProteinProphet]\n"
             + "Report to developers, more than one interact protxml file when\n"
             + "processing experimental groups together.");
         return false;

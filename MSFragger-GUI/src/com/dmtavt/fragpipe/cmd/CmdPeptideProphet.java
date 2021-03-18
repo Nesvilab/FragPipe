@@ -2,9 +2,15 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.process.ProcessManager;
+import com.dmtavt.fragpipe.tools.pepproph.PeptideProphetParams;
+import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
 import com.dmtavt.fragpipe.util.RewritePepxml;
+import com.github.chhh.utils.FileDelete;
+import com.github.chhh.utils.FileListing;
 import com.github.chhh.utils.StringUtils;
-import com.github.chhh.utils.Tuple2;
+import com.github.chhh.utils.UsageTrigger;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.IOException;
@@ -12,7 +18,6 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,13 +39,6 @@ import javax.swing.table.DefaultTableModel;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.process.ProcessManager;
-import com.dmtavt.fragpipe.tools.pepproph.PeptideProphetParams;
-import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
-import com.github.chhh.utils.FileDelete;
-import com.github.chhh.utils.FileListing;
-import com.github.chhh.utils.UsageTrigger;
 
 public class CmdPeptideProphet extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdPeptideProphet.class);
@@ -86,7 +84,7 @@ public class CmdPeptideProphet extends CmdBase {
           }
           interactXml = cleanDir.resolve("interact-" + nameWithoutExt + "pep.xml").toAbsolutePath();
         } else {
-          // --combine option for peptide prophet means there's a single interact.pep.xml for each experiment/group
+          // --combine option for PeptideProphet means there's a single interact.pep.xml for each experiment/group
           interactXml = cleanDir.resolve(Paths.get("interact.pep.xml"));
         }
         m.computeIfAbsent(lcms, (k) -> new ArrayList<>()).add(interactXml);
@@ -209,7 +207,7 @@ public class CmdPeptideProphet extends CmdBase {
           final String pepxmlFn = pepxmlPath.getFileName().toString();
 
 
-        // Needed for parallel Peptide Prophet
+        // Needed for parallel PeptideProphet
 
           // create temp dir to house philosopher's .meta directory, otherwise philosopher breaks
           Path temp = pepxmlDir.resolve("fragpipe-" + pepxmlFn + "-temp");
@@ -219,14 +217,14 @@ public class CmdPeptideProphet extends CmdBase {
                 FileDelete.deleteFileOrFolder(temp);
               }
             } catch (IOException ex) {
-              log.error("Could not delete old temporary directory for running peptide prophet in parallel", ex);
+              log.error("Could not delete old temporary directory for running PeptideProphet in parallel", ex);
             }
             try {
               temp = Files.createDirectories(temp);
             } catch (FileAlreadyExistsException ignored) {
               log.error("Temp dir already exists, but we should have tried deleting it first. This is not critical.");
             } catch (IOException ex) {
-              log.error("Could not create directory for parallel peptide prophet execution", ex);
+              log.error("Could not create directory for parallel PeptideProphet execution", ex);
               return false;
             }
           }
@@ -242,7 +240,7 @@ public class CmdPeptideProphet extends CmdBase {
               .setName(getCmdName() + ": Workspace init")
               .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
 
-          // peptide prophet itself
+          // PeptideProphet itself
           List<String> cmdPp = new ArrayList<>();
           cmdPp.add(phi.useBin());
           cmdPp.add(PhilosopherProps.CMD_PEPTIDE_PROPHET);

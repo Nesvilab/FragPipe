@@ -115,10 +115,10 @@ public class CmdPhilosopherAbacus extends CmdBase {
 
       if (outputDirsForProtxml.size() < 2) {
         String msg = "Multi-experiment report requires experiments processed together by "
-            + "Protein Prophet.<br/><br/>"
+            + "ProteinProphet.<br/><br/>"
             + "Encountered a prot-xml file mapped to only one experiment/group:<br/>"
             + "&nbsp;&nbsp;" + protxml.toString() + "<br/><br/>"
-            + "On <b>Downstream tab</b> in <b>Protein Prophet group</b> please uncheck "
+            + "On <b>Downstream tab</b> in <b>ProteinProphet group</b> please uncheck "
             + "the checkbox <i>Separate prot-xml per experiment/group</i>.";
         JEditorPane ep = SwingUtils.createClickableHtml(msg);
         SwingUtils.showDialog(comp, ep, "Multi-experiment report configuration error", JOptionPane.WARNING_MESSAGE);

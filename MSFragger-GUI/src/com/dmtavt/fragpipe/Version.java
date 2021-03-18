@@ -134,8 +134,8 @@ public class Version {
     CHANGELOG.put("9.3", Arrays.asList(
         "Calibrate masses option in MSFragger",
         "Custom ion series option in MSFragger",
-        "Turning off usage of protxml file in Filter command when Protein Prophet is not run",
-        "Query user if protxml files exist while Protein Prophet is not run",
+        "Turning off usage of protxml file in Filter command when ProteinProphet is not run",
+        "Query user if protxml files exist while ProteinProphet is not run",
         "'Print Decoys' option/checkbox for Report command",
         "Update CrystalC-1.0.5",
         "Checkbox for generating report in mzID format",
@@ -271,7 +271,7 @@ public class Version {
 
     CHANGELOG.put("4.0", Arrays.asList(
         "Added version check for MSFragger-GUI itself, comparing to GitHub.",
-        "Two way sync of decoy/tag prefix used by Peptide Prophet and Philosopher Report.",
+        "Two way sync of decoy/tag prefix used by PeptideProphet and Philosopher Report.",
         "Fix how msfragger jar is auto-found.",
         "Added version to msfragger properties.",
         "MSFragger version check."
