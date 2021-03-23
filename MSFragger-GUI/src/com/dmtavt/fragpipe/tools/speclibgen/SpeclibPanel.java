@@ -34,6 +34,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -166,8 +168,10 @@ public class SpeclibPanel extends JPanelBase {
     Fragpipe.renameNoCache(labelPqpCalFile, "easypqp.select-file.label");
     final JButton btnPqpCalFile = fePqpCalFile.browseButton("Browse",
         "Select calibration file", () -> {
+          final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("TSV files", "tsv", "txt");
           JFileChooser fc = FileChooserUtils
-              .create("Calibration file", false, FcMode.FILES_ONLY);
+              .create("Calibration file", "Select", false, FcMode.FILES_ONLY, true, fileNameExtensionFilter);
+          fc.setFileFilter(fileNameExtensionFilter);
           FileChooserUtils.setPath(fc, Stream.of(uiTextPqpCalFile.getNonGhostText()));
           return fc;
         },
