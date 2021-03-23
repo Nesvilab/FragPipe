@@ -620,6 +620,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     JFileChooser fc = FileChooserUtils
         .create("Choose raw data files", "Select", true, FcMode.ANY, true,
             ff);
+    fc.setFileFilter(ff);
     tableModelRawFiles.dataCopy();
     FileChooserUtils.setPath(fc, Stream.of(ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN)));
 
@@ -1212,14 +1213,16 @@ public class TabWorkflow extends JPanelWithEnablement {
     SwingUtils.showDialog(this, panel);
   }
 
+  static final FileNameEndingFilter fileNameEndingFilter = new FileNameEndingFilter("Fragpipe manifest", ".fp-manifest");
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void on(MessageManifestSave m) {
     String loc = Fragpipe.propsVarGet(ThisAppProps.CONFIG_SAVE_LOCATION);
     JFileChooser fc = FileChooserUtils.builder("Path to save manifest")
         .paths(Stream.of(loc)).mode(FcMode.FILES_ONLY).approveButton("Save").multi(false)
         .acceptAll(true)
-        .filters(Arrays.asList(new FileNameEndingFilter("Fragpipe manifest",".fp-manifest")))
+        .filters(Arrays.asList(fileNameEndingFilter))
         .create();
+    fc.setFileFilter(fileNameEndingFilter);
     if (loc == null) {
       fc.setSelectedFile(new File("lcms-files.fp-manifest"));
     }
@@ -1260,8 +1263,9 @@ public class TabWorkflow extends JPanelWithEnablement {
     JFileChooser fc = FileChooserUtils.builder("Load manifest")
         .paths(Stream.of(loc)).mode(FcMode.ANY).approveButton("Load").multi(false)
         .acceptAll(true)
-        .filters(Arrays.asList(new FileNameEndingFilter("Fragpipe manifest",".fp-manifest")))
+        .filters(Arrays.asList(fileNameEndingFilter))
         .create();
+    fc.setFileFilter(fileNameEndingFilter);
     if (loc != null) {
       try {
         Path path = Paths.get(loc);

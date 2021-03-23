@@ -372,9 +372,11 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private JFileChooser createFraggerFilechooser() {
+    final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("JAR files", "jar");
     JFileChooser fc = FileChooserUtils.create("Select MSFragger jar", "Select",
         false, FcMode.FILES_ONLY, true,
-        new FileNameExtensionFilter("JAR files", "jar"));
+        fileNameExtensionFilter);
+    fc.setFileFilter(fileNameExtensionFilter);
     FileChooserUtils.setPath(fc, Stream.of(
         uiTextBinFragger.getNonGhostText(),
         Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN),
