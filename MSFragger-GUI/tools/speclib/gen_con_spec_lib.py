@@ -456,26 +456,26 @@ if use_easypqp:
 	# http://www.unimod.org/xml/unimod.xml
 	from typing import List
 
-
-	def pairing_pepxml_spectra_new(spectras: List[pathlib.PurePath], pep_xmls: List[pathlib.PurePath]):
+	def pairing_pepxml_spectra_v3(spectras: List[pathlib.PurePath], pep_xmls: List[pathlib.PurePath]):
 		rec = re.compile('(.+?)(?:_(?:un)?calibrated)?')
 		spectra_files_basename = [rec.fullmatch(e.stem)[1] for e in spectras]
 		assert len(set(spectra_files_basename)) == len(spectras), [sorted(set(spectra_files_basename)), sorted(spectras)]
 		if len(pep_xmls) == 1:
 			return list(zip(spectra_files_basename, [''] * len(spectras), spectras, pep_xmls * len(spectras)))
+		rec2 = re.compile('(?:interact-)?(.+?)(?:_rank[0-9]+)?')
 		pepxml_basename = [
-			max((ee for ee in spectra_files_basename if ee.casefold() in e.stem.casefold()), key=len) for e in
+			rec2.fullmatch(name_no_ext(e))[1] for e in
 			pep_xmls]
 		l = [[p for p, bn in zip(pep_xmls, pepxml_basename) if e.casefold() == bn.casefold()] for e in spectra_files_basename]
 
 		def get_rank(name):
-			mo = re.compile('_rank[0-9]+?').search(name)
+			mo = re.compile('_rank[0-9]+$').search(name_no_ext(name))
 			return '' if mo is None else mo[0]
 
-		l2 = [(basename, get_rank(p.name), s, p) for basename, s, ps in zip(spectra_files_basename, spectras, l) for p in ps]
+		l2 = [(basename, get_rank(p), s, p) for basename, s, ps in zip(spectra_files_basename, spectras, l) for p in ps]
 		return l2
 
-	runname_rank_spectra_pepxml = pairing_pepxml_spectra_new(spectra_files, iproph_pep_xmls)
+	runname_rank_spectra_pepxml = pairing_pepxml_spectra_v3(spectra_files, iproph_pep_xmls)
 	convert_outs = [f'{basename}{rank}' for basename, rank, _, _ in runname_rank_spectra_pepxml]
 	easypqp_convert_cmds = [[os.fspath(easypqp), 'convert', *easypqp_convert_extra_args,'--enable_unannotated', '--pepxml', os.fspath(pep_xml), '--spectra', os.fspath(spectra), '--exclude-range', '-1.5,3.5',
 							 '--psms', f'{outfiles}.psmpkl', '--peaks', f'{outfiles}.peakpkl']
