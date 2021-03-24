@@ -21,6 +21,10 @@ BoostComplementaryIon = false
 #Export detected MS1 features (output feature file can be loaded and mapped to RAW data in BatMass)
 ExportPrecursorPeak = false
 
+Q1 = true
+Q2 = true
+Q3 = true
+
 #Signal extraction: mass accuracy and resolution
 # resolution parameter matters only for data generated in profile mode
 SE.MS1PPM = 10

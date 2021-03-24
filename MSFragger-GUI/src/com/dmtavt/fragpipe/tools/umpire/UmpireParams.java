@@ -63,6 +63,9 @@ public class UmpireParams implements PropertyFileContent {
     public static final String PROP_MassDefectFilter = "SE.MassDefectFilter";
     public static final String PROP_MassDefectOffset = "SE.MassDefectOffset";
     public static final String PROP_ExportPrecursorPeak = "ExportPrecursorPeak";
+    public static final String PROP_Q1 = "Q1";
+    public static final String PROP_Q2 = "Q2";
+    public static final String PROP_Q3 = "Q3";
     public static final String PROP_SN = "SE.SN";
     public static final String PROP_MS2SN = "SE.MS2SN";
     public static final String PROP_WindowType = "WindowType";

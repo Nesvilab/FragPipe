@@ -15,6 +15,9 @@ import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MassDefectOffse
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MinMSIntensity;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_MinMSMSIntensity;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_NoMissedScan;
+import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_Q1;
+import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_Q2;
+import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_Q3;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_RFmax;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_RPmax;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_RTOverlap;
@@ -158,6 +161,9 @@ public class UmpirePanel extends JPanel {
     FormEntry feMassDefectFilter = new FormEntry(PROP_MassDefectFilter, "Mass Defect Filter", new JCheckBox());
     FormEntry feMassDefectOffset = new FormEntry(PROP_MassDefectOffset, "Mass Defect Offset", new JFormattedTextField(decimal));
     FormEntry feExportPrecursorPeak = new FormEntry(PROP_ExportPrecursorPeak, "Export Precursor Peak", new JCheckBox());
+    FormEntry feQ1 = new FormEntry(PROP_Q1, "Q1", new JCheckBox());
+    FormEntry feQ2 = new FormEntry(PROP_Q2, "Q2", new JCheckBox());
+    FormEntry feQ3 = new FormEntry(PROP_Q3, "Q3", new JCheckBox());
     FormEntry feSN = new FormEntry(PROP_SN, "MS1 SN", new JFormattedTextField(decimal));
     FormEntry feMS2SN = new FormEntry(PROP_MS2SN, "MS2 SN", new JFormattedTextField(decimal));
 
@@ -213,6 +219,12 @@ public class UmpirePanel extends JPanel {
     pSe.add(feCheckAdjustFragIntensitys.comp, ccComp);
     pSe.add(feExportPrecursorPeak.label(), ccLbl);
     pSe.add(feExportPrecursorPeak.comp, ccFmtWrap);
+    pSe.add(feQ1.label(), ccLbl);
+    pSe.add(feQ1.comp, ccComp);
+    pSe.add(feQ2.label(), ccLbl);
+    pSe.add(feQ2.comp, ccComp);
+    pSe.add(feQ3.label(), ccComp);
+    pSe.add(feQ3.comp, ccFmtWrap);
 
     textPanel = new JPanel(new MigLayout(lc));
     textPanel.setBorder(new TitledBorder("Notes"));
