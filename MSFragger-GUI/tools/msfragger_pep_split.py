@@ -1,5 +1,6 @@
 import concurrent.futures
 import datetime
+import io
 import itertools
 import mmap
 import os
@@ -18,9 +19,14 @@ import pandas as pd
 
 import multiprocessing as mp
 
-sys.stdout.reconfigure(encoding='utf-8')
-sys.stderr.reconfigure(encoding='utf-8')
-
+if sys.version_info[:2] >= (3, 7):
+	sys.stdout.reconfigure(encoding='utf-8')
+	sys.stderr.reconfigure(encoding='utf-8')
+elif sys.version_info[:2] >= (3, 1):
+	sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', line_buffering=True)
+	sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', line_buffering=True)
+else:
+	raise Exception('Python 3.1 or above is required')
 
 def _warning(message, category=UserWarning, filename='', lineno=-1, file=None, line=None):
 	print(message)
