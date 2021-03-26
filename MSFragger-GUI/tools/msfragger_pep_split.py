@@ -83,30 +83,6 @@ def get_fasta_offsets(fasta_path):
 
 file_parts_offsets = get_fasta_offsets(fasta_path)
 
-if 0:
-	import pathlib, typing, mmap, re, numpy as np, shutil, os
-	num_parts = 5
-	fasta_path = pathlib.Path('/home/ci/fasta/Human_canon_iso_uniprot_Common_Contaminant_20140722_1_rev.fasta')
-	##############
-	pti = [mm[s] for s in file_parts_offsets]
-	fasta_prots: typing.List[bytes] = [e.rstrip() for e in fasta_path.read_bytes()[1:].split(b'\n>')]
-	pti2 = [b''.join(b'>' + fasta_part + b'\n')
-			for fasta_part in np.array_split(np.array(fasta_prots, object), num_parts)]
-	print(pti == pti2)
-
-	fasta_part_paths: typing.List[pathlib.Path] = [pathlib.Path(f'{fasta_path.name}_{i}') for i in range(num_parts)]
-	with fasta_path.open('rb') as fo:
-		for s, fasta_part_path in zip(file_parts_offsets, fasta_part_paths):
-			with pathlib.Path(fasta_part_path).open('wb') as f:
-				mm = mmap.mmap(fo.fileno(), 0 if s.stop is None else s.stop, access=mmap.ACCESS_READ)
-				mm.seek(s.start)
-				shutil.copyfileobj(mm, f)
-	with fasta_path.open('rb') as fo:
-		for s, fasta_part_path in zip(file_parts_offsets, fasta_part_paths):
-			with pathlib.Path(fasta_part_path).open('wb') as f:
-				os.sendfile(f.fileno(), fo.fileno(), s.start, s.stop - s.start)
-	pti == pti2 == [fasta_part_path.read_bytes() for fasta_part_path in fasta_part_paths]
-
 fasta_part_paths: typing.List[pathlib.Path] = [tempdir / str(i) / f'{fasta_path.name}' for i in range(num_parts)]
 param_part_paths: typing.List[pathlib.Path] = [tempdir / str(i) / param_path.name for i in range(num_parts)]
 infiles_name = [e.absolute() for e in infiles]
