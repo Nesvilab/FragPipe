@@ -369,13 +369,10 @@ public class CmdPeptideProphet extends CmdBase {
     }
   }
 
-  private boolean addToListIfNotThere(List<String> cmd, String opt) {
-    if (cmd.contains(opt)) {
+  static private boolean addToListIfNotThere(List<String> cmd, String opt) {
+    if (cmd.contains(opt))
       return false;
-    }
-    for (String s : opt.split("\\s+")) {
-      cmd.add(opt);
-    }
+    Collections.addAll(cmd, opt.split("\\s+"));
     return true;
   }
 
