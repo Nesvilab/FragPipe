@@ -30,6 +30,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,6 +65,7 @@ import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
+import org.mozilla.universalchardet.UniversalDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -578,11 +580,24 @@ public class TmtiPanel extends JPanelBase {
 
   public static List<QuantLabelAnnotation> parseTmtAnnotationFile(File file)
       throws IOException {
-    List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8).stream()
+    String encoding = UniversalDetector.detectCharset(file);
+    if (encoding == null) {
+      throw new IOException("Cannot detect the encoding of " + file.getAbsolutePath());
+    }
+
+    Charset charset;
+    try {
+      charset = Charset.forName(encoding);
+    } catch (Exception ex) {
+      throw new IOException("Do not support the encoding (" + encoding + ") of  " + file.getAbsolutePath());
+    }
+
+    List<String> lines = Files.readAllLines(file.toPath(), charset).stream()
         .filter(l -> !StringUtils.isNullOrWhitespace(l)).collect(Collectors.toList());
 
     List<QuantLabelAnnotation> annotations = new ArrayList<>();
     for (String line : lines) {
+      line = line.trim().replaceAll("[^a-zA-Z0-9\\s]", "");
       if (StringUtils.isNullOrWhitespace(line))
         continue;
       String[] split = line.split("[ ]+", 2);
