@@ -1,6 +1,10 @@
 package com.dmtavt.fragpipe.cmd;
 
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -10,14 +14,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
-import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
-import com.github.chhh.utils.UsageTrigger;
 
 public class CmdFreequant extends CmdBase {
 
   public static final String NAME = "FreeQuant";
-  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML");
+  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "raw");
 
   public CmdFreequant(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -52,7 +53,6 @@ public class CmdFreequant extends CmdBase {
 
     for (Map.Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
       final LcmsFileGroup group = e.getKey();
-      final Path protxml = e.getValue();
 
       final Set<Path> lcmsDirsForProtxml = group.lcmsFiles.stream()
           .map(f -> f.getPath().getParent())

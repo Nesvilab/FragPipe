@@ -32,7 +32,7 @@ public class CmdTmtIntegrator extends CmdBase {
   public static final String NAME = "TmtIntegrator";
   public static final String JAR_NAME = "tmt-integrator-2.4.0.jar";
   public static final String JAR_MAIN = "TMTIntegrator";
-  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML");
+  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "raw");
   public static final String CONFIG_FN = "tmt-integrator-conf.yml";
 
   public CmdTmtIntegrator(boolean isRun, Path workDir) {
@@ -44,15 +44,15 @@ public class CmdTmtIntegrator extends CmdBase {
     return NAME;
   }
 
-  private boolean checkCompatibleFormats(Component comp, Map<LcmsFileGroup, Path> mapGroupsToProtxml, List<String> supportedFormats) {
-    List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, supportedFormats);
+  private boolean checkCompatibleFormats(Component comp, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+    List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, SUPPORTED_FORMATS);
     if (!notSupportedExts.isEmpty()) {
       JOptionPane.showMessageDialog(comp, String.format(
           "<html>%s can't work with '.%s' files.<br/>"
               + "Compatible formats are: %s<br/>"
               + "Either remove files from input or disable %s<br/>"
               + "You can also convert files using <i>msconvert</i> from ProteoWizard.",
-          NAME, String.join(", ", notSupportedExts), String.join(", ", supportedFormats), NAME),
+          NAME, String.join(", ", notSupportedExts), String.join(", ", SUPPORTED_FORMATS), NAME),
           NAME + " error", JOptionPane.WARNING_MESSAGE);
       return false;
     }
@@ -77,7 +77,7 @@ public class CmdTmtIntegrator extends CmdBase {
 //    }
 
     // see if input files match compatibility table
-    if (!checkCompatibleFormats(panel, mapGroupsToProtxml, SUPPORTED_FORMATS)) {
+    if (!checkCompatibleFormats(panel, mapGroupsToProtxml)) {
       return false;
     }
 

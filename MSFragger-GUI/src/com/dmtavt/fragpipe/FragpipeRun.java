@@ -968,9 +968,9 @@ public class FragpipeRun {
       // run TMT-Integrator
       if (isTmt) {
         if (sharedLcmsFiles.stream()
-            .anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml"))) {
+            .anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
           SwingUtils.showWarningDialog(parent,
-              CmdTmtIntegrator.NAME + " only supports mzML files.\n"
+              CmdTmtIntegrator.NAME + " only supports mzML and raw files.\n"
                   + "Please remove other files from the input list.",
               CmdTmtIntegrator.NAME + " error");
           return false;

@@ -1,6 +1,12 @@
 package com.dmtavt.fragpipe.cmd;
 
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
+import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,15 +19,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
-import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
-import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
-import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.UsageTrigger;
 
 public class CmdLabelquant extends CmdBase {
   public static final String NAME = "Quant (Isobaric)";
-  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML");
+  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "raw");
 
   public CmdLabelquant(boolean isRun, Path workDir) {
     super(isRun, workDir);
