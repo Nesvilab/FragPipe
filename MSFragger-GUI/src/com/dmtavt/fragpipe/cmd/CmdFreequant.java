@@ -72,6 +72,13 @@ public class CmdFreequant extends CmdBase {
       cmd.add(PhilosopherProps.CMD_LABELFREE);
       cmd.addAll(StringUtils.splitCommandLine(textReportLabelfree));
 
+      for (InputLcmsFile p : group.lcmsFiles) {
+        if (p.getPath().toString().toLowerCase().endsWith(".raw")) {
+          cmd.add("--raw");
+          break;
+        }
+      }
+
       // we have checked that all lcms files are in the same folder, so
       cmd.add("--dir");
       cmd.add(lcmsDir.toString());

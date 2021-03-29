@@ -107,6 +107,13 @@ public class CmdLabelquant extends CmdBase {
       cmd.add("--brand");
       cmd.add(label.getType().toLowerCase());
 
+      for (InputLcmsFile p : group.lcmsFiles) {
+        if (p.getPath().toString().toLowerCase().endsWith(".raw")) {
+          cmd.add("--raw");
+          break;
+        }
+      }
+
       // we have checked that all lcms files are in the same folder, so
       cmd.add("--dir");
       cmd.add(lcmsDir.toString());
