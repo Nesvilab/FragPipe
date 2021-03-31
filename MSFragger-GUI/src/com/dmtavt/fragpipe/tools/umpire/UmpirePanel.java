@@ -219,12 +219,15 @@ public class UmpirePanel extends JPanel {
     pSe.add(feCheckAdjustFragIntensitys.comp, ccComp);
     pSe.add(feExportPrecursorPeak.label(), ccLbl);
     pSe.add(feExportPrecursorPeak.comp, ccFmtWrap);
-    pSe.add(feQ1.label(), ccLbl);
-    pSe.add(feQ1.comp, ccComp);
-    pSe.add(feQ2.label(), ccLbl);
-    pSe.add(feQ2.comp, ccComp);
-    pSe.add(feQ3.label(), ccComp);
-    pSe.add(feQ3.comp, ccFmtWrap);
+
+    final JPanel q123 = new JPanel(new MigLayout(lc));
+    q123.add(feQ1.label(), ccLbl);
+    q123.add(feQ1.comp, ccComp);
+    q123.add(feQ2.label(), ccLbl);
+    q123.add(feQ2.comp, ccComp);
+    q123.add(feQ3.label(), ccLbl);
+    q123.add(feQ3.comp, ccFmtWrap);
+    pSe.add(q123, new CC().alignX("right").gapBefore("5px").width("100:200:300px").wrap());
 
     textPanel = new JPanel(new MigLayout(lc));
     textPanel.setBorder(new TitledBorder("Notes"));
