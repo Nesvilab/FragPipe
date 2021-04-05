@@ -24,7 +24,7 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 ### Supported instruments and file formats  
 The table below shows the compatibility of FragPipe workflow components with different spectral file formats.
 
-_Please note TIMS-TOF data requires [Visual C++ Redistributable for Visual Studio 2017](https://aka.ms/vs/16/release/VC_redist.x64.exe) in Windows._ If you see an error saying cannot find Bruker native library, please try to install the Visual C++ redistibutable.
+_Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should be converted to .mzML. Please also note that timsTOF data requires [Visual C++ Redistributable for Visual Studio 2017](https://aka.ms/vs/16/release/VC_redist.x64.exe) in Windows._ If you see an error saying cannot find Bruker native library, please try to install the Visual C++ redistibutable.
 
 <img src="https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/workflow_support.png" width="500px" align="middle"/>
 
