@@ -312,7 +312,9 @@ def write_pepxml(infile):
 
 
 def combine_results():
-	with concurrent.futures.ProcessPoolExecutor(max_workers=min(len(infiles), mp.cpu_count())) as exe:
+	max_workers0 = min(len(infiles), len(os.sched_getaffinity(0)))
+	max_workers = min(max_workers0, 61) if sys.platform == 'win32' else max_workers0
+	with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as exe:
 		fs = [exe.submit(write_pepxml, infile) for infile in infiles]
 	for e in fs:
 		e.result()
