@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -27,14 +26,11 @@ public class RewritePepxml {
   public static void main(String[] args) throws IOException {
     Optional<Path> notExists = Arrays.stream(args).map(Paths::get).filter(Files::notExists).findFirst();
     if (notExists.isPresent()) {
-      System.err.printf("Not all given paths exist: %s\n", notExists.toString());
+      System.err.printf("Not all given paths exist: %s\n", notExists);
       System.exit(1);
     }
     Path pepxml = Paths.get(args[0]);
-    String[] replacements = new String[Math.max(0, args.length-1)];
-    for (int i = 1; i < args.length; i++) {
-      replacements[i-1] = args[i];
-    }
+    final String[] replacements = Arrays.copyOfRange(args, 1, args.length);
     System.out.printf("Fixing pepxml: %s\n", pepxml);
     rewriteRawPath(pepxml, true, replacements);
   }
