@@ -43,6 +43,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -348,12 +349,37 @@ public class TabRun extends JPanelWithEnablement {
     }
   }
 
-  public static void saveLogToFile(TextConsole console, Path path) {
+  @Deprecated
+  public static void saveLogToFileOld(TextConsole console, Path path) {
     final String text = console.getText().replaceAll("[^\n]+\u200B" + System.lineSeparator(), "");
     try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path)) {
       bufferedWriter.write(text);
     } catch (IOException e) {
       log.error("Error writing log to file", e);
+    }
+  }
+
+  private static void saveLogToFileCreateNew(final String text, final Path path) throws FileAlreadyExistsException {
+    try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, StandardOpenOption.CREATE_NEW)) {
+      bufferedWriter.write(text);
+    } catch (FileAlreadyExistsException e) {
+      throw e;
+    } catch (IOException e) {
+      log.error("Error writing log to file", e);
+    }
+  }
+
+  public static void saveLogToFile(final TextConsole console, final Path path) {
+    final String text = console.getText().replaceAll("[^\n]+\u200B" + System.lineSeparator(), "");
+    Path pathNew = path;
+    for (int i = 0; ; ++i) {
+      try {
+        saveLogToFileCreateNew(text, pathNew);
+      } catch (FileAlreadyExistsException e) {
+        pathNew = Paths.get(path.toString() + "__" + i);
+        continue;
+      }
+      break;
     }
   }
 }
