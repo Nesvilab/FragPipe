@@ -85,7 +85,7 @@ public class PercolatorOutputToPepXML {
                                             "<analysis_result analysis=\"peptideprophet\">\n" +
                                                     "<peptideprophet_result probability=\"%f\" all_ntt_prob=\"(%f,%f,%f)\">\n" +
                                                     "</peptideprophet_result>\n" +
-                                                    "</analysis_result>\n", one_minus_PEP, 0.3333, 0.3333, 0.3333));
+                                                    "</analysis_result>\n", one_minus_PEP, 0.33333333, 0.33333333, 0.33333333));
                         }
                         sb.append(line).append("\n");
                         if (line.trim().equals("</spectrum_query>")) {
