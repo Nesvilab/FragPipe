@@ -1,5 +1,4 @@
 package com.dmtavt.fragpipe.util;
-//package com.dmtavt.fragpipe.tools.percolator;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -16,13 +15,13 @@ import java.util.Map;
 public class PercolatorOutputToPepXML {
     public static void main(final String[] args) {
         if (args.length == 0)
-            convert_msfragger_pepXML_and_percolator_tsv_to_peptide_prophet_format(
+            percolatorToPepXML(
                     Paths.get("/home/ci/percolator_test/23aug2017_hela_serum_timecourse_4mz_narrow_1.pepXML"),
                     Paths.get("/home/ci/percolator_test/percolator_results_psms.tsv"),
                     Paths.get("/home/ci/percolator_test/percolator_decoy_results_psms.tsv"),
                     Paths.get("/home/ci/percolator_test/test.pep.xml"));
         else
-            convert_msfragger_pepXML_and_percolator_tsv_to_peptide_prophet_format(
+            percolatorToPepXML(
                     Paths.get(args[0]),
                     Paths.get(args[1]),
                     Paths.get(args[2]),
@@ -30,7 +29,7 @@ public class PercolatorOutputToPepXML {
             );
     }
 
-    static String get_spectrum(final String line) {
+    static String getSpectrum(final String line) {
         String spectrum = null;
         for (final String e : line.split("\\s"))
             if (e.startsWith("spectrum=")) {
@@ -40,10 +39,10 @@ public class PercolatorOutputToPepXML {
         return spectrum.substring(0, spectrum.length() - 2);
     }
 
-    public static void convert_msfragger_pepXML_and_percolator_tsv_to_peptide_prophet_format(
-            final Path pepxml, final Path percolator_results_psms, final Path percolator_decoy_restlts_psms, final Path output) {
+    public static void percolatorToPepXML(
+            final Path pepxml, final Path percolatorTargetPsms, final Path percolatorDecoyPsms, final Path output) {
         final Map<String, Double> percolator_dict = new HashMap<>();
-        for (final Path tsv : new Path[]{percolator_results_psms, percolator_decoy_restlts_psms})
+        for (final Path tsv : new Path[]{percolatorTargetPsms, percolatorDecoyPsms})
             try (final BufferedReader brtsv = Files.newBufferedReader(tsv)) {
                 final String percolator_header = brtsv.readLine();
                 final List<String> colnames = Arrays.asList(percolator_header.split("\t"));
@@ -75,7 +74,7 @@ public class PercolatorOutputToPepXML {
             while ((line = brpepxml.readLine()) != null) {
                 if (line.trim().startsWith("<spectrum_query")) {
                     sb.setLength(0);
-                    spectrum = get_spectrum(line);
+                    spectrum = getSpectrum(line);
                     final double one_minus_PEP = 1 - percolator_dict.get(spectrum);
                     ++num_psms;
                     sb.append(line).append('\n');
@@ -83,10 +82,10 @@ public class PercolatorOutputToPepXML {
                         if (line.trim().equals("</search_hit>")) {
                             sb.append(
                                     String.format(
-                                            "          <analysis_result analysis=\"peptideprophet\">\n" +
-                                                    "            <peptideprophet_result probability=\"%f\" all_ntt_prob=\"(%f,%f,%f)\">\n" +
-                                                    "            </peptideprophet_result>\n" +
-                                                    "          </analysis_result>\n", one_minus_PEP, one_minus_PEP, one_minus_PEP, one_minus_PEP));
+                                            "<analysis_result analysis=\"peptideprophet\">\n" +
+                                                    "<peptideprophet_result probability=\"%f\" all_ntt_prob=\"(%f,%f,%f)\">\n" +
+                                                    "</peptideprophet_result>\n" +
+                                                    "</analysis_result>\n", one_minus_PEP, 0.3333, 0.3333, 0.3333));
                         }
                         sb.append(line).append("\n");
                         if (line.trim().equals("</spectrum_query>")) {
@@ -98,7 +97,7 @@ public class PercolatorOutputToPepXML {
             }
             System.out.println("num_psms = " + num_psms);
             System.out.println("percolator_dict.size() = " + percolator_dict.size());
-            out.write("  </msms_run_summary>\n" +
+            out.write("</msms_run_summary>\n" +
                     "</msms_pipeline_analysis>");
         } catch (IOException e) {
             throw new UncheckedIOException(e);

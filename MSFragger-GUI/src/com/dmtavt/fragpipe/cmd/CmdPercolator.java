@@ -3,21 +3,22 @@ package com.dmtavt.fragpipe.cmd;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.tools.pepproph.PeptideProphetParams;
 import com.dmtavt.fragpipe.util.PercolatorOutputToPepXML;
-import com.github.chhh.utils.*;
-import org.jooq.lambda.Seq;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.awt.Component;
+import com.github.chhh.utils.OsUtils;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 import java.util.Map.Entry;
+import org.apache.commons.io.FilenameUtils;
+import org.jooq.lambda.Seq;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CmdPercolator extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdPercolator.class);
@@ -75,64 +76,46 @@ public class CmdPercolator extends CmdBase {
   /**
    * @param pepxmlFiles Either pepxml files after search or after Crystal-C.
    */
-  public boolean configure(Component comp, UsageTrigger phi, Path jarFragpipe, boolean isDryRun,
-      String fastaPath, String decoyTag, String textPepProphCmd, boolean combine, String enzymeName,
-      Map<InputLcmsFile, List<Path>> pepxmlFiles) {
+  public boolean configure(Path jarFragpipe, String percolatorCmd, boolean combine, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
+    PeptideProphetParams percolatorParams = new PeptideProphetParams();
+    percolatorParams.setCmdLineParams(percolatorCmd);
 
-    initPreConfig();
+    LinkedList<ProcessBuilderInfo> pbisParallel = new LinkedList<>();
+    LinkedList<ProcessBuilderInfo> pbisPostParallel = new LinkedList<>();
 
-    PeptideProphetParams peptideProphetParams = new PeptideProphetParams();
-    peptideProphetParams.setCmdLineParams(textPepProphCmd);
+    for (Entry<InputLcmsFile, List<Path>> e : pepxmlFiles.entrySet()) {
+      for (Path pepxmlPath : e.getValue()) {
+        final Path pepxmlDir = pepxmlPath.getParent();
+        final String nameWithoutExt = FilenameUtils.removeExtension(pepxmlPath.getFileName().toString());
 
-    Set<Path> workspacesToBeCleaned = new HashSet<>();
+        // Percolator
+        List<String> cmdPp = new ArrayList<>();
+        final String percolator_bin = OsUtils.isUnix() ? "percolator" :
+                OsUtils.isWindows() ? "percolator-v3-05.exe" : null;
+        cmdPp.add(FragpipeLocations.checkToolsMissing(Seq.of(percolator_bin)).get(0).toString());
 
-    /*if (!combine)*/ {
-      LinkedList<ProcessBuilderInfo> pbisPreParallel = new LinkedList<>();
-      LinkedList<ProcessBuilderInfo> pbisParallel = new LinkedList<>();
-      LinkedList<ProcessBuilderInfo> pbisPostParallel = new LinkedList<>();
+        addFreeCommandLineParams(percolatorParams, cmdPp);
+        cmdPp.add("--results-psms");
+        cmdPp.add(nameWithoutExt + "_percolator_target_psms.tsv");
+        cmdPp.add("--decoy-results-psms");
+        cmdPp.add(nameWithoutExt + "_percolator_decoy_psms.tsv");
+        cmdPp.add(Paths.get(nameWithoutExt + ".pin").toString());
 
-      for (Entry<InputLcmsFile, List<Path>> e : pepxmlFiles.entrySet()) {
-        for (Path pepxmlPath : e.getValue()) {
-          final Path pepxmlDir = pepxmlPath.getParent();
-          final String pepxmlFn = pepxmlPath.getFileName().toString();
+        ProcessBuilder pbPp = new ProcessBuilder(cmdPp);
+        setupEnv(pepxmlDir, pbPp);
+        pbisParallel.add(new PbiBuilder()
+            .setPb(pbPp)
+            .setParallelGroup(getCmdName()).create());
 
-          // Percolator
-          List<String> cmdPp = new ArrayList<>();
-          final String percolator_bin = OsUtils.isUnix() ? "percolator" :
-                  OsUtils.isWindows() ? "percolator-v3-05.exe" : null;
-          cmdPp.add(FragpipeLocations.checkToolsMissing(Seq.of(percolator_bin)).get(0).toString());
-
-          addFreeCommandLineParams(peptideProphetParams, cmdPp, enzymeName);
-          cmdPp.add("--results-psms");
-          cmdPp.add(pepxmlPath.getFileName().toString() + "_percolator_results_psms.tsv");
-          cmdPp.add("--decoy-results-psms");
-          cmdPp.add(pepxmlPath.getFileName().toString() + "_percolator_decoy_results_psms.tsv");
-          final String nameWithoutExt = pepxmlFn.substring(0, pepxmlFn.length() - ".pepXML".length());
-          cmdPp.add(Paths.get(nameWithoutExt + ".pin").toString());
-          ProcessBuilder pbPp = new ProcessBuilder(cmdPp);
-//          setupEnv(temp, pbPp);
-          setupEnv(pepxmlDir, pbPp);
-          pbisParallel.add(new PbiBuilder()
-              .setPb(pbPp)
-              .setParallelGroup(getCmdName()).create());
-
-          // convert the percolator output tsv to peptideprohept's pep.xml format
-          ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + nameWithoutExt + ".pep.xml", pepxmlPath);
-          pbRewrite.directory(pepxmlDir.toFile());
-          pbisPostParallel.add(new PbiBuilder().setName("Percolator: Convert to pepxml")
-                  .setPb(pbRewrite).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
-
-        }
+        // convert the percolator output tsv to PeptideProphet's pep.xml format
+        ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + nameWithoutExt + ".pep.xml", nameWithoutExt);
+        pbRewrite.directory(pepxmlPath.getParent().toFile());
+        pbisPostParallel.add(new PbiBuilder().setName("Percolator: Convert to pepxml")
+                .setPb(pbRewrite).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
       }
-      pbis.addAll(pbisPreParallel);
-      pbis.addAll(pbisParallel);
-      pbis.addAll(pbisPostParallel);
-
     }
-
-
-    // update global cleanup
-    ProcessManager.addFilesToDelete(workspacesToBeCleaned);
+    pbis.addAll(pbisParallel);
+    pbis.addAll(pbisPostParallel);
 
     isConfigured = true;
     return true;
@@ -141,28 +124,15 @@ public class CmdPercolator extends CmdBase {
   private void setupEnv(Path workdir, ProcessBuilder pb) {
     // set environment
     pb.directory(workdir.toFile());
-//    pb.environment().putIfAbsent("WEBSERVER_ROOT", "fake-WEBSERVER_ROOT-value");
     // return pb;
   }
 
   private void addFreeCommandLineParams(PeptideProphetParams peptideProphetParams,
-      List<String> cmd, String enzymeName) {
+      List<String> cmd) {
     if (!peptideProphetParams.getCmdLineParams().isEmpty()) {
       String cmdOpts = peptideProphetParams.getCmdLineParams();
       cmd.addAll(asParts(cmdOpts));
     }
-
-//    final String optNontt = "--nontt";
-//    final String optEnzyme = "--enzyme";
-//    final String nonspecific = "nonspecific";
-//    if (nonspecific.equals(enzymeName)) {
-//      addToListIfNotThere(cmd, optNontt);
-//    } else if ("custom".equals(enzymeName)) {
-//      addToListIfNotThere(cmd, optNontt);
-//      if (addToListIfNotThere(cmd, optEnzyme)) {
-//        cmd.add(nonspecific);
-//      }
-//    }
   }
 
   @Override
@@ -172,12 +142,7 @@ public class CmdPercolator extends CmdBase {
     return b;
   }
 
-  @Override
-  public boolean usesPhi() {
-    return false;
-  }
-
-  private static ProcessBuilder pbConvertToPepxml(Path jarFragpipe, String outPepxml, Path fraggerPepxml) {
+  private static ProcessBuilder pbConvertToPepxml(Path jarFragpipe, String outPepxml, String nameWithoutExt) {
     if (jarFragpipe == null) {
       throw new IllegalArgumentException("jar can't be null");
     }
@@ -192,9 +157,9 @@ public class CmdPercolator extends CmdBase {
     }
     cmd.add(libsDir);
     cmd.add(PercolatorOutputToPepXML.class.getCanonicalName());
-    cmd.add(fraggerPepxml.toString());
-    cmd.add(fraggerPepxml.toString() + "_percolator_results_psms.tsv");
-    cmd.add(fraggerPepxml.toString() + "_percolator_decoy_results_psms.tsv");
+    cmd.add(nameWithoutExt + ".pepXML");
+    cmd.add(nameWithoutExt + "_percolator_target_psms.tsv");
+    cmd.add(nameWithoutExt + "_percolator_decoy_psms.tsv");
     cmd.add(outPepxml);
     return new ProcessBuilder(cmd);
   }

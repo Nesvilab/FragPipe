@@ -783,18 +783,12 @@ public class FragpipeRun {
 
     final CmdPercolator cmdPercolator = new CmdPercolator(isRunPercolator, wd);
 
-    addCheck.accept(() -> {
-      if (cmdPercolator.isRun()) {
-        return checkDbConfig(parent);
-      }
-      return true;
-    });
+    addCheck.accept(() -> true);
     addConfig.accept(cmdPercolator, () -> {
       if (cmdPercolator.isRun()) {
         final String percolatorCmd = percolatorPanel.getCmdOpts();
-        final String enzymeName = tabMsf.getEnzymeName();
-        if (!cmdPercolator.configure(parent, usePhi, jarPath, isDryRun,
-            fastaFile, decoyTag, percolatorCmd, isCombinedPepxml_percolator, enzymeName, sharedPepxmlFilesBeforePeptideValidation)) {
+        if (!cmdPercolator.configure(jarPath, percolatorCmd, isCombinedPepxml_percolator,
+            sharedPepxmlFilesBeforePeptideValidation)) {
           return false;
         }
       }
