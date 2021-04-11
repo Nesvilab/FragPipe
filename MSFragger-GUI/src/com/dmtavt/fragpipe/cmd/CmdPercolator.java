@@ -3,6 +3,7 @@ package com.dmtavt.fragpipe.cmd;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tools.pepproph.PeptideProphetParams;
 import com.dmtavt.fragpipe.util.PercolatorOutputToPepXML;
 import com.github.chhh.utils.OsUtils;
@@ -95,6 +96,9 @@ public class CmdPercolator extends CmdBase {
         cmdPp.add(FragpipeLocations.checkToolsMissing(Seq.of(percolator_bin)).get(0).toString());
 
         addFreeCommandLineParams(percolatorParams, cmdPp);
+        TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
+        cmdPp.add("--num-threads");
+        cmdPp.add("" + tabWorkflow.getThreads());
         cmdPp.add("--results-psms");
         cmdPp.add(nameWithoutExt + "_percolator_target_psms.tsv");
         cmdPp.add("--decoy-results-psms");
@@ -105,7 +109,7 @@ public class CmdPercolator extends CmdBase {
         setupEnv(pepxmlDir, pbPp);
         pbisParallel.add(new PbiBuilder()
             .setPb(pbPp)
-            .setParallelGroup(getCmdName()).create());
+            .setParallelGroup(nameWithoutExt).create());
 
         // convert the percolator output tsv to PeptideProphet's pep.xml format
         ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + nameWithoutExt + ".pep.xml", nameWithoutExt);
