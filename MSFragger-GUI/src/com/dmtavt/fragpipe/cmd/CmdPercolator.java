@@ -161,6 +161,7 @@ public class CmdPercolator extends CmdBase {
     }
     cmd.add(libsDir);
     cmd.add(PercolatorOutputToPepXML.class.getCanonicalName());
+    cmd.add(nameWithoutExt + ".pin");
     cmd.add(nameWithoutExt + ".pepXML");
     cmd.add(nameWithoutExt + "_percolator_target_psms.tsv");
     cmd.add(nameWithoutExt + "_percolator_decoy_psms.tsv");
