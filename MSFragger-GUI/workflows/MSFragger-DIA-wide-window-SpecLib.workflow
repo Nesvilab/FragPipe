@@ -55,6 +55,7 @@ msfragger.Y_type_masses=
 msfragger.add_topN_complementary=0
 msfragger.allowed_missed_cleavage=2
 msfragger.calibrate_mass=1
+msfragger.use_all_mods_in_first_search=0
 msfragger.clip_nTerm_M=true
 msfragger.data_type=1
 msfragger.deisotope=1

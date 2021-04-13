@@ -183,6 +183,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_true_units, s -> itos(
         MassTolUnits.valueOf(s).valueInParamsFile()));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_calibrate_mass, s -> itos(Arrays.asList(CALIBRATE_LABELS).indexOf(s)));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_use_all_mods_in_first_search, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_num_enzyme_termini, s -> itos(
         CleavageType.valueOf(s).valueInParamsFile()));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_remove_precursor_peak, s -> itos(
@@ -210,6 +211,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> MassTolUnits.fromFileToUi(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_true_units, s -> MassTolUnits.fromFileToUi(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_calibrate_mass, s -> CALIBRATE_LABELS[Integer.parseInt(s)]);
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_use_all_mods_in_first_search, s -> Boolean.toString(Integer.parseInt(s) == 1));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_num_enzyme_termini, s -> CleavageType.fromValueInParamsFile(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_remove_precursor_peak, s -> RemovePrecursorPeak.get(Integer.parseInt(s)));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_intensity_transform, s -> IntensityTransform.get(Integer.parseInt(s)));
@@ -1058,18 +1060,21 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feMaxFragCharge = mu.feb(MsfraggerParams.PROP_max_fragment_charge, new UiSpinnerInt(2, 0, 20, 1, 2))
         .label("Max fragment charge").create();
 
+    FormEntry feUseAllModsInFirstSearch = mu.feb(MsfraggerParams.PROP_use_all_mods_in_first_search, new UiCheck("Use all mods in first search", null)).create();
+
     mu.add(p, feMinFragsModeling.label(), mu.ccR());
     mu.add(p, feMinFragsModeling.comp);
     mu.add(p, feMinMatchedFrags.label(), mu.ccR());
     mu.add(p, feMinMatchedFrags.comp);
     mu.add(p, feMaxFragCharge.label(), mu.ccR());
-    mu.add(p, feMaxFragCharge.comp).pushX().wrap();
+    mu.add(p, feMaxFragCharge.comp);
+    mu.add(p, feUseAllModsInFirstSearch.comp).pushX().wrap();
     mu.add(p, feDeisotope.label(), mu.ccR());
     mu.add(p, feDeisotope.comp);
     mu.add(p, feIonSeries.label(), mu.ccR());
     mu.add(p, feIonSeries.comp).growX();
     mu.add(p, labelCustomIonSeries, mu.ccR());
-    mu.add(p, feCustomSeries.comp).growX().wrap();
+    mu.add(p, feCustomSeries.comp).spanX().growX().wrap();
     mu.add(p, feComboDeneutralloss.label(), mu.ccR());
     mu.add(p, feComboDeneutralloss.comp);
     mu.add(p, feTrueTolUnits.label(), mu.ccR());

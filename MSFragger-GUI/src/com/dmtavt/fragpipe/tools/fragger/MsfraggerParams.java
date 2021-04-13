@@ -83,6 +83,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_mass_diff_to_variable_mod = "mass_diff_to_variable_mod";
 
     public static final String PROP_calibrate_mass = "calibrate_mass";
+    public static final String PROP_use_all_mods_in_first_search = "use_all_mods_in_first_search";
     public static final String PROP_isotope_error = "isotope_error";
     public static final String PROP_deisotope = "deisotope";
     public static final String PROP_deneutralloss = "deneutralloss";
@@ -160,6 +161,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_write_calibrated_mgf,
         PROP_mass_diff_to_variable_mod,
         PROP_calibrate_mass,
+        PROP_use_all_mods_in_first_search,
         PROP_isotope_error,
         PROP_deisotope,
         PROP_deneutralloss,
@@ -302,6 +304,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_fragment_mass_units, "Fragment mass tolerance units (0 for Da, 1 for ppm).");
         c.put(PROP_data_type, "Data type (0 for DDA, 1 for DIA, 2 for DIA-narrow-window).");
         c.put(PROP_calibrate_mass, "Perform mass calibration (0 for OFF, 1 for ON, 2 for ON and find optimal parameters).");
+        c.put(PROP_use_all_mods_in_first_search, "Use all variable modifications in first search (0 for No, 1 for Yes).");
         c.put(PROP_write_calibrated_mgf, "Write calibrated MS2 scan to a MGF file (0 for No, 1 for Yes).");
         c.put(PROP_decoy_prefix, "Prefix of the decoy protein entries. Used for parameter optimization only.");
         c.put(PROP_isotope_error, "Also search for MS/MS events triggered on specified isotopic peaks.");

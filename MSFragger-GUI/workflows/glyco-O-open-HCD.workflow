@@ -61,6 +61,7 @@ msfragger.add_topN_complementary=0
 msfragger.allow_multiple_variable_mods_on_residue=false
 msfragger.allowed_missed_cleavage=2
 msfragger.calibrate_mass=2
+msfragger.use_all_mods_in_first_search=0
 msfragger.clip_nTerm_M=true
 msfragger.deisotope=1
 msfragger.deneutralloss=1

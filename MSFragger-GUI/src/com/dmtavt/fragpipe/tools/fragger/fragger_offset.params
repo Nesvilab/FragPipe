@@ -10,6 +10,7 @@ precursor_true_units = 1
 fragment_mass_tolerance = 20
 fragment_mass_units = 1
 calibrate_mass = 2
+use_all_mods_in_first_search = 0
 decoy_prefix = rev_
 
 deisotope = 1
