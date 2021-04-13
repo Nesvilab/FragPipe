@@ -40,6 +40,20 @@ public class PercolatorOutputToPepXML {
             }
         return spectrum.substring(0, spectrum.length() - 2);
     }
+    static double getMassdiffPPM(final String line) {
+        double massdiff = Double.NaN;
+        double calc_neutral_pep_mass = Double.NaN;
+        for (final String e : line.split("\\s")) {
+            if (e.startsWith("massdiff=")) {
+                massdiff = Double.parseDouble(e.substring("massdiff=\"".length(), e.length() - 1));
+            }
+            if (e.startsWith("calc_neutral_pep_mass=")) {
+                calc_neutral_pep_mass = Double.parseDouble(e.substring("calc_neutral_pep_mass=\"".length(), e.length() - 1));
+                break;
+            }
+        }
+        return massdiff * 1e6 / calc_neutral_pep_mass;
+    }
 
     public static void percolatorToPepXML(final Path pin,
             final Path pepxml, final Path percolatorTargetPsms, final Path percolatorDecoyPsms, final Path output) {
@@ -99,6 +113,7 @@ public class PercolatorOutputToPepXML {
                     break;
             }
             String spectrum;
+            double massdiffPPM = Double.NaN;
             long num_psms = 0;
             final StringBuilder sb = new StringBuilder();
             while ((line = brpepxml.readLine()) != null) {
@@ -111,9 +126,13 @@ public class PercolatorOutputToPepXML {
                     final Object[] ntt_nmc_absmassdiff = pin_dict.get(spectrum);
                     final int ntt = (int) ntt_nmc_absmassdiff[0];
                     final int nmc = (int) ntt_nmc_absmassdiff[1];
-                    final double abs_mass_diff = (double) ntt_nmc_absmassdiff[2];
                     ++num_psms;
                     sb.append(line).append('\n');
+                    while ((line = brpepxml.readLine()) != null)
+                        if (line.trim().startsWith("<search_hit ")) {
+                            massdiffPPM = getMassdiffPPM(line);
+                            break;
+                        }
                     while ((line = brpepxml.readLine()) != null) {
                         if (line.trim().equals("</search_hit>")) {
                             sb.append(
@@ -130,7 +149,7 @@ public class PercolatorOutputToPepXML {
                                                     "</peptideprophet_result>\n" +
                                                     "</analysis_result>\n",
                                             one_minus_PEP, 0.3333, 0.3333, 0.3333,
-                                            score, ntt, nmc, abs_mass_diff, -1
+                                            score, ntt, nmc, massdiffPPM, -1
                                     ));
                         }
                         sb.append(line).append("\n");
