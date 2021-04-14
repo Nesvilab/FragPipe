@@ -40,25 +40,11 @@ public class PercolatorOutputToPepXML {
             }
         return spectrum.substring(0, spectrum.length() - 2);
     }
-    static double getMassdiffPPM(final String line) {
-        double massdiff = Double.NaN;
-        double calc_neutral_pep_mass = Double.NaN;
-        for (final String e : line.split("\\s")) {
-            if (e.startsWith("massdiff=")) {
-                massdiff = Double.parseDouble(e.substring("massdiff=\"".length(), e.length() - 1));
-            }
-            if (e.startsWith("calc_neutral_pep_mass=")) {
-                calc_neutral_pep_mass = Double.parseDouble(e.substring("calc_neutral_pep_mass=\"".length(), e.length() - 1));
-                break;
-            }
-        }
-        return massdiff * 1e6 / calc_neutral_pep_mass;
-    }
 
     public static void percolatorToPepXML(final Path pin,
             final Path pepxml, final Path percolatorTargetPsms, final Path percolatorDecoyPsms, final Path output) {
         final Map<String, double[]> percolator_dict = new HashMap<>();
-        for (final Path tsv : new Path[]{percolatorTargetPsms, percolatorDecoyPsms})
+        for (final Path tsv : new Path[]{percolatorTargetPsms, percolatorDecoyPsms}) {
             try (final BufferedReader brtsv = Files.newBufferedReader(tsv)) {
                 final String percolator_header = brtsv.readLine();
                 final List<String> colnames = Arrays.asList(percolator_header.split("\t"));
@@ -79,6 +65,8 @@ public class PercolatorOutputToPepXML {
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
+        }
+
         final Map<String, Object[]> pin_dict = new HashMap<>();
 
         try (final BufferedReader brtsv = Files.newBufferedReader(pin)) {
@@ -87,7 +75,6 @@ public class PercolatorOutputToPepXML {
             final int indexOf_SpecId = colnames.indexOf("SpecId");
             final int indexOf_ntt = colnames.indexOf("ntt");
             final int indexOf_nmc = colnames.indexOf("nmc");
-            final int indexOf_abs_mass_diff = colnames.indexOf("abs_mass_diff");
             String line;
             while ((line = brtsv.readLine()) != null) {
                 final String[] split = line.split("\t");
@@ -95,15 +82,15 @@ public class PercolatorOutputToPepXML {
                 final String SpecId = raw_SpecId.substring(0, raw_SpecId.lastIndexOf("."));
                 final int ntt = Integer.parseInt(split[indexOf_ntt]);
                 final int nmc = Integer.parseInt(split[indexOf_nmc]);
-                final double abs_mass_diff = Double.parseDouble(split[indexOf_abs_mass_diff]);
                 if (pin_dict.containsKey(SpecId))
                     throw new AssertionError();
-                pin_dict.put(SpecId, new Object[]{ntt, nmc, abs_mass_diff});
+                pin_dict.put(SpecId, new Object[]{ntt, nmc});
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
+        // fixme: cannot parse XML line-by-line because line break is allowed everywhere, including within an attribute, in a XML. Need to parse it using JDOM or JAXB
         try (final BufferedReader brpepxml = Files.newBufferedReader(pepxml);
              final BufferedWriter out = Files.newBufferedWriter(output)) {
             String line;
@@ -113,7 +100,8 @@ public class PercolatorOutputToPepXML {
                     break;
             }
             String spectrum;
-            double massdiffPPM = Double.NaN;
+            double massdiff = Double.NaN;
+            double calc_neutral_pep_mass = Double.NaN;
             long num_psms = 0;
             final StringBuilder sb = new StringBuilder();
             while ((line = brpepxml.readLine()) != null) {
@@ -123,16 +111,35 @@ public class PercolatorOutputToPepXML {
                     final double[] pep_score = percolator_dict.get(spectrum);
                     final double one_minus_PEP = 1 - pep_score[0];
                     final double score = pep_score[1];
-                    final Object[] ntt_nmc_absmassdiff = pin_dict.get(spectrum);
-                    final int ntt = (int) ntt_nmc_absmassdiff[0];
-                    final int nmc = (int) ntt_nmc_absmassdiff[1];
+                    final Object[] ntt_nmc = pin_dict.get(spectrum);
+                    final int ntt = (int) ntt_nmc[0];
+                    final int nmc = (int) ntt_nmc[1];
                     ++num_psms;
                     sb.append(line).append('\n');
-                    while ((line = brpepxml.readLine()) != null)
+                    while ((line = brpepxml.readLine()) != null) { // fixme: the code assumes that there are always <search_hit, massdiff=, and calc_neutral_pep_mass=, which makes it not robust
                         if (line.trim().startsWith("<search_hit ")) {
-                            massdiffPPM = getMassdiffPPM(line);
+                            for (final String e : line.split("\\s")) { // fixme: the code assumes that all attributes are in one line, which makes it not robust
+                                if (e.startsWith("massdiff=")) {
+                                    massdiff = Double.parseDouble(e.substring("massdiff=\"".length(), e.length() - 1));
+                                }
+                                if (e.startsWith("calc_neutral_pep_mass=")) {
+                                    calc_neutral_pep_mass = Double.parseDouble(e.substring("calc_neutral_pep_mass=\"".length(), e.length() - 1));
+                                    break;
+                                }
+                            }
                             break;
                         }
+                    }
+
+                    int isomassd = 0;
+                    double gap = Double.MAX_VALUE;
+                    for (int isotope = -6; isotope < 7; ++isotope) {
+                        if (Math.abs(massdiff - isotope * 1.0033548378) < gap) {
+                            gap = Math.abs(massdiff - isotope * 1.0033548378);
+                            isomassd = isotope;
+                        }
+                    }
+
                     while ((line = brpepxml.readLine()) != null) {
                         if (line.trim().equals("</search_hit>")) {
                             sb.append(
@@ -148,8 +155,8 @@ public class PercolatorOutputToPepXML {
                                                     "</search_score_summary>" +
                                                     "</peptideprophet_result>\n" +
                                                     "</analysis_result>\n",
-                                            one_minus_PEP, 0.3333, 0.3333, 0.3333,
-                                            score, ntt, nmc, massdiffPPM, -1
+                                            one_minus_PEP, 0.3333333, 0.3333333, 0.3333333,
+                                            score, ntt, nmc, (massdiff - isomassd * 1.0033548378) * 1e6 / calc_neutral_pep_mass, isomassd
                                     ));
                         }
                         sb.append(line).append("\n");
