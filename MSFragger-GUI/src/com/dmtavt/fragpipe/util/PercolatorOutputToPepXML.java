@@ -116,7 +116,8 @@ public class PercolatorOutputToPepXML {
                     final int nmc = (int) ntt_nmc[1];
                     ++num_psms;
                     sb.append(line).append('\n');
-                    while ((line = brpepxml.readLine()) != null) { // fixme: the code assumes that there are always <search_hit, massdiff=, and calc_neutral_pep_mass=, which makes it not robust
+                    int isomassd = 0;
+                    while ((line = brpepxml.readLine()) != null) {
                         if (line.trim().startsWith("<search_hit ")) {
                             for (final String e : line.split("\\s")) { // fixme: the code assumes that all attributes are in one line, which makes it not robust
                                 if (e.startsWith("massdiff=")) {
@@ -127,20 +128,14 @@ public class PercolatorOutputToPepXML {
                                     break;
                                 }
                             }
-                            break;
+                            double gap = Double.MAX_VALUE;
+                            for (int isotope = -6; isotope < 7; ++isotope) {
+                                if (Math.abs(massdiff - isotope * 1.0033548378) < gap) {
+                                    gap = Math.abs(massdiff - isotope * 1.0033548378);
+                                    isomassd = isotope;
+                                }
+                            }
                         }
-                    }
-
-                    int isomassd = 0;
-                    double gap = Double.MAX_VALUE;
-                    for (int isotope = -6; isotope < 7; ++isotope) {
-                        if (Math.abs(massdiff - isotope * 1.0033548378) < gap) {
-                            gap = Math.abs(massdiff - isotope * 1.0033548378);
-                            isomassd = isotope;
-                        }
-                    }
-
-                    while ((line = brpepxml.readLine()) != null) {
                         if (line.trim().equals("</search_hit>")) {
                             sb.append(
                                     String.format(
