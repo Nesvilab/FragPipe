@@ -117,7 +117,7 @@ public class PercolatorOutputToPepXML {
                     ++num_psms;
                     sb.append(line).append('\n');
                     int isomassd = 0;
-                    while ((line = brpepxml.readLine()) != null) {
+                    while ((line = brpepxml.readLine()) != null) { // fixme: the code assumes that there are always <search_hit, massdiff=, and calc_neutral_pep_mass=, which makes it not robust
                         if (line.trim().startsWith("<search_hit ")) {
                             for (final String e : line.split("\\s")) { // fixme: the code assumes that all attributes are in one line, which makes it not robust
                                 if (e.startsWith("massdiff=")) {
@@ -147,7 +147,7 @@ public class PercolatorOutputToPepXML {
                                                     "<parameter name=\"nmc\" value=\"%d\"/>\n" +
                                                     "<parameter name=\"massd\" value=\"%f\"/>\n" +
                                                     "<parameter name=\"isomassd\" value=\"%d\"/>\n" +
-                                                    "</search_score_summary>" +
+                                                    "</search_score_summary>\n" +
                                                     "</peptideprophet_result>\n" +
                                                     "</analysis_result>\n",
                                             one_minus_PEP, 0.3333333, 0.3333333, 0.3333333,
