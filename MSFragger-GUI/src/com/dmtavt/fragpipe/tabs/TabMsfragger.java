@@ -828,6 +828,9 @@ public class TabMsfragger extends JPanelBase {
             "peptide sequence. This number does not include fixed modifications.").create();
     FormEntry feMaxCombos = mu.feb(MsfraggerParams.PROP_max_variable_mods_combinations, new UiSpinnerInt(5000, 0, 100000, 500, 4))
         .label("Max combinations").create();
+
+    FormEntry feUseAllModsInFirstSearch = mu.feb(MsfraggerParams.PROP_use_all_mods_in_first_search, new UiCheck("Use all mods in first search", null)).create();
+
     tableVarMods = createTableVarMods();
     SwingUtilities.invokeLater(() -> {
       setJTableColSize(tableVarMods, 0, 20, 150, 50);
@@ -839,7 +842,8 @@ public class TabMsfragger extends JPanelBase {
     pVarmods.add(feMaxVarmodsPerMod.label(), new CC().alignX("right"));
     pVarmods.add(feMaxVarmodsPerMod.comp);
     pVarmods.add(feMaxCombos.label(), new CC().alignX("right"));
-    pVarmods.add(feMaxCombos.comp, new CC().wrap());
+    pVarmods.add(feMaxCombos.comp, new CC().alignX("right"));
+    pVarmods.add(feUseAllModsInFirstSearch.comp, new CC().wrap());
     pVarmods
         .add(varModsScroll, new CC().minHeight("100px").maxHeight("150px").spanX().wrap());
 
@@ -1060,15 +1064,12 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feMaxFragCharge = mu.feb(MsfraggerParams.PROP_max_fragment_charge, new UiSpinnerInt(2, 0, 20, 1, 2))
         .label("Max fragment charge").create();
 
-    FormEntry feUseAllModsInFirstSearch = mu.feb(MsfraggerParams.PROP_use_all_mods_in_first_search, new UiCheck("Use all mods in first search", null)).create();
-
     mu.add(p, feMinFragsModeling.label(), mu.ccR());
     mu.add(p, feMinFragsModeling.comp);
     mu.add(p, feMinMatchedFrags.label(), mu.ccR());
     mu.add(p, feMinMatchedFrags.comp);
     mu.add(p, feMaxFragCharge.label(), mu.ccR());
-    mu.add(p, feMaxFragCharge.comp);
-    mu.add(p, feUseAllModsInFirstSearch.comp).pushX().wrap();
+    mu.add(p, feMaxFragCharge.comp).pushX().wrap();
     mu.add(p, feDeisotope.label(), mu.ccR());
     mu.add(p, feDeisotope.comp);
     mu.add(p, feIonSeries.label(), mu.ccR());
