@@ -311,9 +311,14 @@ def write_pepxml(infile):
 				print(f'Writing: {infile.stem}\tspectrum: {i}')
 		f.write(b'</msms_run_summary>\n</msms_pipeline_analysis>\n')
 
+def cpu_count():
+	try:
+		return len(os.sched_getaffinity(0))
+	except AttributeError:
+		return os.cpu_count() if os.cpu_count() else 1
 
 def combine_results():
-	max_workers0 = min(len(infiles), len(os.sched_getaffinity(0)))
+	max_workers0 = min(len(infiles), cpu_count())
 	max_workers = min(max_workers0, 61) if sys.platform == 'win32' else max_workers0
 	with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as exe:
 		fs = [exe.submit(write_pepxml, infile) for infile in infiles]

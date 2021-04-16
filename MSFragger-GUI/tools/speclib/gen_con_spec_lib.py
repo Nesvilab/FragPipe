@@ -34,9 +34,15 @@ class Irt_choice(enum.Enum):
 	ciRT = enum.auto()
 	userRT = enum.auto()
 
+def cpu_count():
+	try:
+		return len(os.sched_getaffinity(0))
+	except AttributeError:
+		return os.cpu_count() if os.cpu_count() else 1
+
 if use_easypqp:
 	nproc0 = int(sys.argv[9]) if len(sys.argv) >= 10 else 0
-	nproc = max(len(os.sched_getaffinity(0)) - 1, 1) if nproc0 <= 0 else nproc0
+	nproc = max(cpu_count() - 1, 1) if nproc0 <= 0 else nproc0
 	no_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'noirt'
 	is_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'irt'
 	is_ciRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'cirt'
