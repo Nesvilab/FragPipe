@@ -883,6 +883,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private List<String> createNamesForWorkflowsCombo(Map<String, PropsFile> fileMap) {
     final Set<String> builtInWorkflowsCurrent = new HashSet<>(fileMap.keySet());
     builtInWorkflowsCurrent.retainAll(builtInWorkflows);
+    builtInWorkflowsCurrent.removeAll(builtInWorkflowsPinned);
     final Set<String> userWorkflows = new HashSet<>(fileMap.keySet());
     userWorkflows.removeAll(builtInWorkflows);
     return Seq.seq(userWorkflows).sorted()
