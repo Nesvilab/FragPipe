@@ -922,7 +922,7 @@ public class FragpipeRun {
 
       if (cmdPhilosopherAbacus.isRun()) {
         return cmdPhilosopherAbacus.configure(parent, usePhi, reportPanel.getFilterCmdText(),
-            isPepLevelSummary, decoyTag, sharedMapGroupsToProtxml);
+            reportPanel.isPepSummary(), isRunProteinProphet, reportPanel.isNoProtXml(), decoyTag, sharedMapGroupsToProtxml);
       }
       return true;
     });

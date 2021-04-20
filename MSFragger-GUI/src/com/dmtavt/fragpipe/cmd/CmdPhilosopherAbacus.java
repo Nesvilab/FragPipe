@@ -38,7 +38,7 @@ public class CmdPhilosopherAbacus extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      String textReportFilterCmdOpts, boolean isPepLevelSummary, String decoyTag, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+      String textReportFilterCmdOpts, boolean isPepLevelSummary, boolean isRunProteinProphet, boolean isCheckFilterNoProtxml, String decoyTag, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
 //    Usage:
 //    philosopher abacus [flags]
@@ -79,7 +79,6 @@ public class CmdPhilosopherAbacus extends CmdBase {
 
 
     final List<String> flagsAbacus = Arrays.asList("--picked", "--razor", "--reprint", "--uniqueonly");
-    final List<String> flagsFilter = Arrays.asList("--picked", "--razor", "--mapmods", "--sequential", "--models");
 
     initPreConfig();
 
@@ -131,7 +130,6 @@ public class CmdPhilosopherAbacus extends CmdBase {
           .filter(flagsAbacus::contains).collect(Collectors.toCollection(LinkedHashSet::new));
       cmdAddonParts.add("--reprint"); // Alexey wants to always use only `--reprint  --razor`
 
-      String pepxmlCombined = wd.resolve(getCombinedPepFileName()).toString();
       List<String> cmd = new ArrayList<>();
       final Path executeInDir = protxml.getParent();
       cmd.add(usePhilosopher.useBin(executeInDir));
@@ -139,11 +137,11 @@ public class CmdPhilosopherAbacus extends CmdBase {
       cmd.addAll(cmdAddonParts);
       cmd.add("--tag");
       cmd.add(decoyTag);
-      cmd.add("--protein");
-      //cmd.add(protxml.toString()); // Commented out as newer Philosopher won't work
+      if (isRunProteinProphet && !isCheckFilterNoProtxml) {
+        cmd.add("--protein");
+      }
       if (isPepLevelSummary) {
         cmd.add("--peptide");
-        //cmd.add(pepxmlCombined); // Commented out as newer Philosopher won't work
       }
       // list locations with pepxml files
       for (Path pepxmlDir : outputDirsForProtxml) {
@@ -157,10 +155,6 @@ public class CmdPhilosopherAbacus extends CmdBase {
 
     isConfigured = true;
     return true;
-  }
-
-  private String getCombinedPepFileName() {
-    return "combined.pep.xml";
   }
 
   @Override
