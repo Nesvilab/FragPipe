@@ -916,8 +916,7 @@ public class FragpipeRun {
 
     addConfig.accept(cmdPhilosopherAbacus, () -> {
       final boolean isMultiExpReport = sharedLcmsFileGroups.size() > 1;
-      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && isMultiExpReport;
-      final boolean isPepLevelSummary = reportPanel.isPepSummary();
+      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && isMultiExpReport && ((isRunProteinProphet && !reportPanel.isNoProtXml()) || reportPanel.isPepSummary());
       cmdPhilosopherAbacus.isRun(doRunAbacus);
 
       if (cmdPhilosopherAbacus.isRun()) {
