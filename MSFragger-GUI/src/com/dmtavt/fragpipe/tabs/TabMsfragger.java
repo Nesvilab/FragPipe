@@ -522,10 +522,10 @@ public class TabMsfragger extends JPanelBase {
             .filter(msfe -> msfe.name.equals(name)).findFirst()
             .orElseThrow(() -> new IllegalStateException(
                 "Enzymes list should have contained the name from dropdown"));
-        uiTextEnzymeName.setText(enzyme.name);
+        uiTextEnzymeName.setText(enzyme.name.equalsIgnoreCase("custom") ? "nonspecific" : enzyme.name);
         uiTextCuts.setText(enzyme.cut);
         uiTextNocuts.setText(enzyme.nocuts);
-        uiComboCleavage.setSelectedItem("nonspecific".equals(item) ? CleavageType.NON_SPECIFIC.name() : CleavageType.ENZYMATIC.name());
+        uiComboCleavage.setSelectedItem(("nonspecific".equals(item) || "custom".equals(item)) ? CleavageType.NON_SPECIFIC.name() : CleavageType.ENZYMATIC.name());
       }
     });
 
