@@ -112,7 +112,7 @@ public class CmdPercolator extends CmdBase {
             .setParallelGroup(nameWithoutExt).create());
 
         // convert the percolator output tsv to PeptideProphet's pep.xml format
-        ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + nameWithoutExt + ".pep.xml", nameWithoutExt);
+        ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + nameWithoutExt, ".pep.xml", nameWithoutExt);
         pbRewrite.directory(pepxmlPath.getParent().toFile());
         pbisPostParallel.add(new PbiBuilder().setName("Percolator: Convert to pepxml")
                 .setPb(pbRewrite).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
@@ -146,7 +146,7 @@ public class CmdPercolator extends CmdBase {
     return b;
   }
 
-  private static ProcessBuilder pbConvertToPepxml(Path jarFragpipe, String outPepxml, String nameWithoutExt) {
+  private static ProcessBuilder pbConvertToPepxml(Path jarFragpipe, String outPepxml, String outExt, String nameWithoutExt) {
     if (jarFragpipe == null) {
       throw new IllegalArgumentException("jar can't be null");
     }
@@ -162,10 +162,12 @@ public class CmdPercolator extends CmdBase {
     cmd.add(libsDir);
     cmd.add(PercolatorOutputToPepXML.class.getCanonicalName());
     cmd.add(nameWithoutExt + ".pin");
-    cmd.add(nameWithoutExt + ".pepXML");
+    cmd.add(nameWithoutExt);
+    cmd.add(".pepXML");
     cmd.add(nameWithoutExt + "_percolator_target_psms.tsv");
     cmd.add(nameWithoutExt + "_percolator_decoy_psms.tsv");
     cmd.add(outPepxml);
+    cmd.add(outExt);
     return new ProcessBuilder(cmd);
   }
 
