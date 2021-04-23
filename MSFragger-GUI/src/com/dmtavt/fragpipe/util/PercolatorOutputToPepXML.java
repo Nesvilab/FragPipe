@@ -7,6 +7,8 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -145,6 +147,18 @@ public class PercolatorOutputToPepXML {
                 String line;
                 while ((line = brpepxml.readLine()) != null) {
                     out.write(line + "\n");
+                    if (line.trim().startsWith("<msms_pipeline_analysis ")) {
+                        final String now = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss").format(LocalDateTime.now());
+                        final String tmp = String.format("<analysis_summary analysis=\"database_refresh\" time=\"%s\"/>\n" +
+                                        "<analysis_summary analysis=\"interact\" time=\"%s\">\n" +
+                                        "<interact_summary filename=\"%s\" directory=\"\">\n" +
+                                        "<inputfile name=\"%s\"/>\n" +
+                                        "</interact_summary>\n" +
+                                        "</analysis_summary>\n" +
+                                        "<dataset_derivation generation_no=\"0\"/>\n",
+                                now, now, output_rank.toAbsolutePath(), pepxml_rank.toAbsolutePath());
+                        out.write(tmp);
+                    }
                     if (line.trim().equals("</search_summary>"))
                         break;
                 }
