@@ -245,7 +245,7 @@ public class ProcessManager {
     group.clear();
   }
 
-  @Subscribe(threadMode = ThreadMode.ASYNC)
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageKillAll m) {
     long notStarted = taskGroups.stream().mapToInt(List::size).sum();
     String msg = String.format(
