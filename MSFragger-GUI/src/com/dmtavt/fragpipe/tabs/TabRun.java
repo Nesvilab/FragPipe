@@ -42,7 +42,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -145,9 +144,8 @@ public class TabRun extends JPanelWithEnablement {
    */
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
   @Deprecated
-  public void on(MessageAppendToConsole m) { // TODO: once old ui is deleted, change all usages of MessageAppendToConsole to MessagePrintToConsole
+  public void on(MessageAppendToConsole m) {
     console.append(m.color, m.text);
-    //console.append("\n");
   }
 
   @Subscribe(threadMode = ThreadMode.ASYNC)

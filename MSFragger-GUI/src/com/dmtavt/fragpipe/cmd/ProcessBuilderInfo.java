@@ -2,7 +2,12 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.messages.MessageExternalProcessOutput;
+import com.dmtavt.fragpipe.messages.MessageKillAll;
+import com.dmtavt.fragpipe.messages.MessageKillAll.REASON;
+import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
+import com.dmtavt.fragpipe.process.ProcessResult;
 import java.awt.Color;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -10,11 +15,6 @@ import java.util.Locale;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.process.ProcessResult;
-import com.dmtavt.fragpipe.messages.MessageAppendToConsole;
-import com.dmtavt.fragpipe.messages.MessageExternalProcessOutput;
-import com.dmtavt.fragpipe.messages.MessageKillAll;
-import com.dmtavt.fragpipe.messages.MessageKillAll.REASON;
 
 public class ProcessBuilderInfo {
 
@@ -87,11 +87,11 @@ public class ProcessBuilderInfo {
                 : Fragpipe.COLOR_RED;
             String msg = String.format(Locale.ROOT,
                 "Process '%s' finished, exit code: %d\n", pbi.name, exitValue);
-            Bus.post(new MessageAppendToConsole(msg, c));
+            Bus.post(new MessagePrintToConsole(c, msg, false));
             if (exitValue != 0) {
               log.debug("Exit value not zero, killing all processes");
-              Bus.post(new MessageAppendToConsole(
-                  "Process returned non-zero exit code, stopping", Fragpipe.COLOR_RED));
+              Bus.post(new MessagePrintToConsole(
+                  Fragpipe.COLOR_RED, "Process returned non-zero exit code, stopping", true));
               Bus.post(new MessageKillAll(REASON.NON_ZERO_RETURN_FROM_PROCESS));
               Bus.post(MessageSaveLog.saveInDir(wdPath));
             }
@@ -109,7 +109,7 @@ public class ProcessBuilderInfo {
         // graceful stop request
         String msg = "Processing interrupted, stopping " + pbi.name;
         log.debug(msg, e);
-        Bus.post(new MessageAppendToConsole(msg, Fragpipe.COLOR_RED_DARKEST));
+        Bus.post(new MessagePrintToConsole(Fragpipe.COLOR_RED_DARKEST, msg, true));
         // all the cleanup is done in the finally block
 
       } finally {
