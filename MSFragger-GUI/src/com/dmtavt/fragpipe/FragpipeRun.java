@@ -283,10 +283,10 @@ public class FragpipeRun {
 
       // add finalizer process
       final Runnable finalizerRun = () -> {
-        Bus.post(new MessageRunButtonEnabled(true));
         printReference();
         toConsole(Fragpipe.COLOR_RED_DARKEST, "\n==================================================================================DONE============================================================", true);
         Bus.post(MessageSaveLog.saveInDir(wd));
+        Bus.post(new MessageRunButtonEnabled(true));
       };
       toRun.add(
           new RunnableDescription(new Builder().setName("Finalizer Task").create(), finalizerRun));

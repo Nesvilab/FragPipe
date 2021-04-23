@@ -104,7 +104,7 @@ public class TabRun extends JPanelWithEnablement {
     clearConsole();
   }
 
-  @Subscribe(threadMode = ThreadMode.ASYNC)
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageRunButtonEnabled m) {
     btnRun.setEnabled(m.isEnabled);
   }
