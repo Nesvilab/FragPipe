@@ -214,7 +214,7 @@ public class PercolatorOutputToPepXML {
                                                         "</search_score_summary>\n" +
                                                         "</peptideprophet_result>\n" +
                                                         "</analysis_result>\n",
-                                                one_minus_PEP, 0.3333333, 0.3333333, 0.3333333,
+                                                one_minus_PEP, one_minus_PEP, one_minus_PEP, one_minus_PEP,
                                                 score, ntt, nmc, (massdiff - isomassd * 1.0033548378) * 1e6 / calc_neutral_pep_mass, isomassd
                                         ));
                             }
