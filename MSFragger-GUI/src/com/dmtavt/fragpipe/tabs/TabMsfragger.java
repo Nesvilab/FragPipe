@@ -591,7 +591,7 @@ public class TabMsfragger extends JPanelBase {
     uiSpinnerDigestMassHi.setColumns(6);
     FormEntry fePepMassHi = mu.feb(PROP_misc_fragger_digest_mass_hi, uiSpinnerDigestMassHi).create();
 
-    uiSpinnerDbsplit = new UiSpinnerInt(1, 1, 99, 1, 2);
+    uiSpinnerDbsplit = new UiSpinnerInt(1, 1, 9999, 1, 2);
     FormEntry feDbsplit = mu.feb(PROP_misc_slice_db, uiSpinnerDbsplit).label("<html>Split database")
         .tooltip("<html>Split database into smaller chunks.\n"
             + "Only use for very large databases (200MB+) or<br/>non-specific digestion.").create();
