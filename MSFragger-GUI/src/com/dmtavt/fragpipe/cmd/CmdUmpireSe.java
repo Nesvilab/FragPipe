@@ -124,7 +124,7 @@ public class CmdUmpireSe extends CmdBase {
       }
 
       // Umpire-SE
-      //java -Dbatmass.io.libs.thermo.dir=ext/thermo/ -cp batmass-io-1.22.1.jar:DIA_Umpire_SE.jar dia_umpire_se.DIA_Umpire_SE  (.raw|.mzML|.mzXML) DIA-U_params
+      //java -Dbatmass.io.libs.thermo.dir=ext/thermo/ -cp batmass-io-1.23.0.jar:DIA_Umpire_SE.jar dia_umpire_se.DIA_Umpire_SE  (.raw|.mzML|.mzXML) DIA-U_params
       {
         List<String> cmd = new ArrayList<>();
         cmd.add(Fragpipe.getBinJava());
