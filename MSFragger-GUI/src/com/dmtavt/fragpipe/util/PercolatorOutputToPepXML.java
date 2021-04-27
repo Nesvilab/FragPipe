@@ -20,21 +20,23 @@ public class PercolatorOutputToPepXML {
         if (args.length == 0)
             percolatorToPepXML(
                     Paths.get("/home/ci/percolator_test/23aug2017_hela_serum_timecourse_4mz_narrow_1.pin"),
-                    Paths.get("/home/ci/percolator_test/23aug2017_hela_serum_timecourse_4mz_narrow_1"),
+                    "/home/ci/percolator_test/23aug2017_hela_serum_timecourse_4mz_narrow_1",
                     ".pepXML",
                     Paths.get("/home/ci/percolator_test/percolator_results_psms.tsv"),
                     Paths.get("/home/ci/percolator_test/percolator_decoy_results_psms.tsv"),
                     Paths.get("/home/ci/percolator_test/test"),
-                    ".pep.xml");
+                    ".pep.xml",
+                    "DIA");
         else
             percolatorToPepXML(
                     Paths.get(args[0]),
-                    Paths.get(args[1]),
+                    args[1],
                     args[2],
                     Paths.get(args[3]),
                     Paths.get(args[4]),
                     Paths.get(args[5]),
-                    args[6]
+                    args[6],
+                    args[7]
             );
     }
 
@@ -65,8 +67,10 @@ public class PercolatorOutputToPepXML {
     }
 
     public static void percolatorToPepXML(final Path pin,
-            final Path pepxml, final String pepxmlExt, final Path percolatorTargetPsms, final Path percolatorDecoyPsms, final Path output,
-                                          final String output_ext) {
+                                          final String pepxml, final String pepxmlExt,
+                                          final Path percolatorTargetPsms, final Path percolatorDecoyPsms,
+                                          final Path output, final String output_ext,
+                                          final String DIA_DDA) {
 
         // get max rank from pin
         final int max_rank = ((Supplier<Integer>) () -> {
@@ -134,13 +138,12 @@ public class PercolatorOutputToPepXML {
                 throw new UncheckedIOException(e);
             }
         }
-
-
+        final boolean is_DIA = DIA_DDA.equals("DIA");
         for (int rank = 1; rank <= max_rank; ++rank) {
-            final Path output_rank = max_rank > 1 ? Paths.get(output.toString() + "_rank" + rank + output_ext) :
-                    Paths.get(output.toString() + output_ext);
-            final Path pepxml_rank = max_rank > 1 ? Paths.get(pepxml.toString() + "_rank" + rank + pepxmlExt) :
-                    Paths.get(pepxml.toString() + pepxmlExt);
+            final Path output_rank = is_DIA ? Paths.get(output + "_rank" + rank + output_ext) :
+                    Paths.get(output + output_ext);
+            final Path pepxml_rank = is_DIA ? Paths.get(pepxml + "_rank" + rank + pepxmlExt) :
+                    Paths.get(pepxml + pepxmlExt);
             // fixme: cannot parse XML line-by-line because line break is allowed everywhere, including within an attribute, in a XML. Need to parse it using JDOM or JAXB
             try (final BufferedReader brpepxml = Files.newBufferedReader(pepxml_rank);
                  final BufferedWriter out = Files.newBufferedWriter(output_rank)) {
@@ -173,6 +176,8 @@ public class PercolatorOutputToPepXML {
                         spectrum = getSpectrum(line);
                         final Object[][] tmp = pin_tsv_dict_r.get(spectrum);
                         final double[] pep_score = (double[]) tmp[rank - 1][1];
+                        if(pep_score==null)
+                            continue;
                         final double one_minus_PEP = 1 - pep_score[0];
                         final double score = pep_score[1];
                         final int[] ntt_nmc = (int[]) tmp[rank - 1][0];

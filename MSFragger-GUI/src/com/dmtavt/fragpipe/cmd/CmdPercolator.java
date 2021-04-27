@@ -3,6 +3,7 @@ package com.dmtavt.fragpipe.cmd;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tools.pepproph.PeptideProphetParams;
 import com.dmtavt.fragpipe.util.PercolatorOutputToPepXML;
@@ -12,10 +13,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.io.FilenameUtils;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
@@ -74,6 +80,14 @@ public class CmdPercolator extends CmdBase {
     return m;
   }
 
+  private static String remove_rank_suffix(final String s) {
+    final Pattern compile = Pattern.compile("(.+)_rank\\d+\\z");
+    final Matcher matcher = compile.matcher(s);
+    if (matcher.find())
+      return matcher.group(1);
+    return s;
+  }
+
   /**
    * @param pepxmlFiles Either pepxml files after search or after Crystal-C.
    */
@@ -84,11 +98,14 @@ public class CmdPercolator extends CmdBase {
     LinkedList<ProcessBuilderInfo> pbisParallel = new LinkedList<>();
     LinkedList<ProcessBuilderInfo> pbisPostParallel = new LinkedList<>();
 
+    final Set<String> basenames = new HashSet<>();
     for (Entry<InputLcmsFile, List<Path>> e : pepxmlFiles.entrySet()) {
       for (Path pepxmlPath : e.getValue()) {
         final Path pepxmlDir = pepxmlPath.getParent();
         final String nameWithoutExt = FilenameUtils.removeExtension(pepxmlPath.getFileName().toString());
-
+        final String basename = remove_rank_suffix(nameWithoutExt);
+        if(!basenames.add(basename))
+          continue;
         // Percolator
         List<String> cmdPp = new ArrayList<>();
         final String percolator_bin = OsUtils.isUnix() ? "percolator" :
@@ -100,19 +117,19 @@ public class CmdPercolator extends CmdBase {
         cmdPp.add("--num-threads");
         cmdPp.add("" + tabWorkflow.getThreads());
         cmdPp.add("--results-psms");
-        cmdPp.add(nameWithoutExt + "_percolator_target_psms.tsv");
+        cmdPp.add(basename + "_percolator_target_psms.tsv");
         cmdPp.add("--decoy-results-psms");
-        cmdPp.add(nameWithoutExt + "_percolator_decoy_psms.tsv");
-        cmdPp.add(Paths.get(nameWithoutExt + ".pin").toString());
+        cmdPp.add(basename + "_percolator_decoy_psms.tsv");
+        cmdPp.add(Paths.get(basename + ".pin").toString());
 
         ProcessBuilder pbPp = new ProcessBuilder(cmdPp);
         setupEnv(pepxmlDir, pbPp);
         pbisParallel.add(new PbiBuilder()
             .setPb(pbPp)
-            .setParallelGroup(nameWithoutExt).create());
+            .setParallelGroup(basename).create());
 
         // convert the percolator output tsv to PeptideProphet's pep.xml format
-        ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + nameWithoutExt, ".pep.xml", nameWithoutExt);
+        ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + basename, ".pep.xml", basename);
         pbRewrite.directory(pepxmlPath.getParent().toFile());
         pbisPostParallel.add(new PbiBuilder().setName("Percolator: Convert to pepxml")
                 .setPb(pbRewrite).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
@@ -146,7 +163,7 @@ public class CmdPercolator extends CmdBase {
     return b;
   }
 
-  private static ProcessBuilder pbConvertToPepxml(Path jarFragpipe, String outPepxml, String outExt, String nameWithoutExt) {
+  private static ProcessBuilder pbConvertToPepxml(Path jarFragpipe, String outPepxmlBasename, String outExt, String basename) {
     if (jarFragpipe == null) {
       throw new IllegalArgumentException("jar can't be null");
     }
@@ -161,13 +178,16 @@ public class CmdPercolator extends CmdBase {
     }
     cmd.add(libsDir);
     cmd.add(PercolatorOutputToPepXML.class.getCanonicalName());
-    cmd.add(nameWithoutExt + ".pin");
-    cmd.add(nameWithoutExt);
+    cmd.add(basename + ".pin");
+    cmd.add(basename);
     cmd.add(".pepXML");
-    cmd.add(nameWithoutExt + "_percolator_target_psms.tsv");
-    cmd.add(nameWithoutExt + "_percolator_decoy_psms.tsv");
-    cmd.add(outPepxml);
+    cmd.add(basename + "_percolator_target_psms.tsv");
+    cmd.add(basename + "_percolator_decoy_psms.tsv");
+    cmd.add(outPepxmlBasename);
     cmd.add(outExt);
+    final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
+    final boolean is_DDA = tabMsf.getParams().getDataType() == 0;
+    cmd.add(is_DDA ? "DDA" : "DIA");
     return new ProcessBuilder(cmd);
   }
 
