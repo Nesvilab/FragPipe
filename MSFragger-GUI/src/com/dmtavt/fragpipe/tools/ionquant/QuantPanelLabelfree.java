@@ -245,7 +245,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiSpinnerDouble uiSpinnerMbrProtFdr = UiUtils.spinnerDouble(1, 0.001, 1, 0.01)
         .setCols(5).setFormat("#.###").create();
 
-    UiSpinnerInt uiSpinnerMbrTopRuns = UiUtils.spinnerInt(10, 1, Integer.MAX_VALUE, 1).setCols(5).create();
+    UiSpinnerInt uiSpinnerMbrTopRuns = UiUtils.spinnerInt(100000, 1, Integer.MAX_VALUE, 1).setCols(5).create();
     UiText uiTextLight = UiUtils.uiTextBuilder().cols(15).create();
     UiText uiTextMedium = UiUtils.uiTextBuilder().cols(15).create();
     UiText uiTextHeavy = UiUtils.uiTextBuilder().cols(15).create();
