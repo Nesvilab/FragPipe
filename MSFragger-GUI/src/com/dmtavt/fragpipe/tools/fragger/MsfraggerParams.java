@@ -662,7 +662,7 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     public FraggerOutputType getOutputFormat() {
-        String val = props.getProp(PROP_output_format, "pepXML").value;
+        String val = props.getProp(PROP_output_format, "pepXML_pin").value;
         for (FraggerOutputType t : FraggerOutputType.values()) {
             if (t.valueInParamsFile().equalsIgnoreCase(val))
                 return t;
