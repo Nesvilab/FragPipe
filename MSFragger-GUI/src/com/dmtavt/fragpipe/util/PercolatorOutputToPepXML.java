@@ -231,8 +231,6 @@ public class PercolatorOutputToPepXML {
                         }
                     }
                 }
-                System.out.println("num_psms = " + num_psms);
-                System.out.println("pin_tsv_dict_r.size() = " + pin_tsv_dict_r.size());
                 out.write("</msms_run_summary>\n" +
                         "</msms_pipeline_analysis>");
             } catch (IOException e) {
