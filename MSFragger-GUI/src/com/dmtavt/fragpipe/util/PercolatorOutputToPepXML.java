@@ -204,6 +204,9 @@ public class PercolatorOutputToPepXML {
                                         isomassd = isotope;
                                     }
                                 }
+                                if (gap > 0.1) { // It may be from an open search.
+                                    isomassd = 0;
+                                }
                             }
                             if (line.trim().equals("</search_hit>")) {
                                 sb.append(
