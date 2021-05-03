@@ -6,7 +6,31 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.IConfig;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.cmd.*;
+import com.dmtavt.fragpipe.cmd.CmdBase;
+import com.dmtavt.fragpipe.cmd.CmdCrystalc;
+import com.dmtavt.fragpipe.cmd.CmdFreequant;
+import com.dmtavt.fragpipe.cmd.CmdIonquant;
+import com.dmtavt.fragpipe.cmd.CmdIprophet;
+import com.dmtavt.fragpipe.cmd.CmdLabelquant;
+import com.dmtavt.fragpipe.cmd.CmdMsfragger;
+import com.dmtavt.fragpipe.cmd.CmdPeptideProphet;
+import com.dmtavt.fragpipe.cmd.CmdPercolator;
+import com.dmtavt.fragpipe.cmd.CmdPhilosopherAbacus;
+import com.dmtavt.fragpipe.cmd.CmdPhilosopherDbAnnotate;
+import com.dmtavt.fragpipe.cmd.CmdPhilosopherFilter;
+import com.dmtavt.fragpipe.cmd.CmdPhilosopherReport;
+import com.dmtavt.fragpipe.cmd.CmdPhilosopherWorkspaceClean;
+import com.dmtavt.fragpipe.cmd.CmdPhilosopherWorkspaceCleanInit;
+import com.dmtavt.fragpipe.cmd.CmdProteinProphet;
+import com.dmtavt.fragpipe.cmd.CmdPtmProphet;
+import com.dmtavt.fragpipe.cmd.CmdPtmshepherd;
+import com.dmtavt.fragpipe.cmd.CmdSpecLibGen;
+import com.dmtavt.fragpipe.cmd.CmdStart;
+import com.dmtavt.fragpipe.cmd.CmdTmtIntegrator;
+import com.dmtavt.fragpipe.cmd.CmdUmpireSe;
+import com.dmtavt.fragpipe.cmd.PbiBuilder;
+import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
+import com.dmtavt.fragpipe.cmd.ProcessBuildersDescriptor;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.internal.DefEdge;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
@@ -34,7 +58,6 @@ import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
 import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
-import com.dmtavt.fragpipe.util.PercolatorPanel;
 import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
 import com.dmtavt.fragpipe.tools.protproph.ProtProphPanel;
 import com.dmtavt.fragpipe.tools.ptmprophet.PtmProphetPanel;
@@ -44,21 +67,13 @@ import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
 import com.dmtavt.fragpipe.tools.tmtintegrator.TmtiPanel;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
+import com.dmtavt.fragpipe.util.PercolatorPanel;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.UsageTrigger;
-import com.github.chhh.utils.swing.UiUtils;
-import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
-import com.mxgraph.model.mxCell;
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.swing.util.mxMorphing;
-import com.mxgraph.util.mxEvent;
-import com.mxgraph.view.mxGraph;
-import java.awt.BorderLayout;
-import java.awt.event.ActionListener;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -85,12 +100,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.apache.commons.codec.Charsets;
 import org.jgrapht.Graph;
-import org.jgrapht.ext.JGraphXAdapter2;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.ClosestFirstIterator;
 import org.jgrapht.traverse.TopologicalOrderIterator;
@@ -1269,92 +1282,92 @@ public class FragpipeRun {
 
 
     // all graphs are constructed
-    if (Version.isDevBuild()) {
-      // org.jgrapht.nio.graphml.GraphMLExporter
-
-      final JGraphXAdapter2<CmdBase, DefEdge> adapter = new JGraphXAdapter2<>(graphOrder);
-
-      mxGraph mxGraph = new mxGraph(adapter.getModel()) {
-        @Override public String convertValueToString(Object cell) {
-//          log.info("convertValueToString called for type: {}", cell.getClass().getCanonicalName());
-          if (cell instanceof mxCell) {
-            Object value = ((mxCell) cell).getValue();
-            if (value instanceof CmdBase) {
-              CmdBase cmd = (CmdBase) value;
-              String relWd = wd.relativize(cmd.getWd()).toString();
-              //return StringUtils.isBlank(relWd) ? String.format("%s", value.toString()) : String.format("%s\n[%s]", value.toString(), relWd);
-              return String.format("%s", cmd.getTitle());
-            }
-//            log.info("Object cell mxCell getValue is type: {}", value.getClass().getCanonicalName());
-          }
-
-          return super.convertValueToString(cell);
-        }
-
-        /**
-         * Returns an array of key, value pairs representing the cell style for the
-         * given cell. If no string is defined in the model that specifies the style,
-         * then the default style for the cell is returned or <EMPTY_ARRAY>, if not
-         * style can be found.
-         *
-         * @param cell Cell whose style should be returned.
-         * @return Returns the style of the cell.
-         */
-        @Override
-        public Map<String, Object> getCellStyle(Object cell) {
-          Map<String, Object> cellStyle = super.getCellStyle(cell);
-          if (cell instanceof mxCell) {
-            Object value = ((mxCell) cell).getValue();
-            if (value instanceof CmdBase) {
-              CmdBase cmd = (CmdBase) value;
-              // example: fillColor=green
-              cellStyle = new HashMap<>(cellStyle);
-              String color = cmd.isRun() ? "#d5f7de" : "#f5e7d5";
-              cellStyle.put("fillColor", color);
-            }
-          }
-          return cellStyle;
-        }
-      };
-      mxGraph.setAutoSizeCells(true);
-
-
-      // Overrides method to create the editing value
-      final mxGraphComponent graphComponent = new mxGraphComponent(mxGraph) {
-
-      };
-
-      ActionListener actionLayout = e -> {
-        mxHierarchicalLayout layout = new mxHierarchicalLayout(adapter);
-        Object cell = adapter.getSelectionCell();
-        if (cell == null || adapter.getModel().getChildCount(cell) == 0) {
-          cell = adapter.getDefaultParent();
-        }
-        adapter.getModel().beginUpdate();
-        try {
-          long t0 = System.currentTimeMillis();
-          layout.execute(cell);
-        } finally {
-          mxMorphing morph = new mxMorphing(graphComponent, 20, 1.2, 20);
-          morph.addListener(mxEvent.DONE, (sender, evt) -> adapter.getModel().endUpdate());
-          morph.startAnimation();
-        }
-      };
-
-      JFrame graphFrame = new JFrame("Graph");
-      Fragpipe.decorateFrame(graphFrame);
-      graphFrame.setLayout(new BorderLayout());
-
-      mxHierarchicalLayout layout = new mxHierarchicalLayout(adapter);
-      layout.execute(adapter.getDefaultParent());
-
-      graphFrame.add(UiUtils.createButton("Layout", actionLayout), BorderLayout.NORTH);
-      graphFrame.add(graphComponent, BorderLayout.CENTER);
-
-      graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-      graphFrame.pack();
-      graphFrame.setVisible(true);
-    }
+//    if (Version.isDevBuild()) {
+//      // org.jgrapht.nio.graphml.GraphMLExporter
+//
+//      final JGraphXAdapter2<CmdBase, DefEdge> adapter = new JGraphXAdapter2<>(graphOrder);
+//
+//      mxGraph mxGraph = new mxGraph(adapter.getModel()) {
+//        @Override public String convertValueToString(Object cell) {
+////          log.info("convertValueToString called for type: {}", cell.getClass().getCanonicalName());
+//          if (cell instanceof mxCell) {
+//            Object value = ((mxCell) cell).getValue();
+//            if (value instanceof CmdBase) {
+//              CmdBase cmd = (CmdBase) value;
+//              String relWd = wd.relativize(cmd.getWd()).toString();
+//              //return StringUtils.isBlank(relWd) ? String.format("%s", value.toString()) : String.format("%s\n[%s]", value.toString(), relWd);
+//              return String.format("%s", cmd.getTitle());
+//            }
+////            log.info("Object cell mxCell getValue is type: {}", value.getClass().getCanonicalName());
+//          }
+//
+//          return super.convertValueToString(cell);
+//        }
+//
+//        /**
+//         * Returns an array of key, value pairs representing the cell style for the
+//         * given cell. If no string is defined in the model that specifies the style,
+//         * then the default style for the cell is returned or <EMPTY_ARRAY>, if not
+//         * style can be found.
+//         *
+//         * @param cell Cell whose style should be returned.
+//         * @return Returns the style of the cell.
+//         */
+//        @Override
+//        public Map<String, Object> getCellStyle(Object cell) {
+//          Map<String, Object> cellStyle = super.getCellStyle(cell);
+//          if (cell instanceof mxCell) {
+//            Object value = ((mxCell) cell).getValue();
+//            if (value instanceof CmdBase) {
+//              CmdBase cmd = (CmdBase) value;
+//              // example: fillColor=green
+//              cellStyle = new HashMap<>(cellStyle);
+//              String color = cmd.isRun() ? "#d5f7de" : "#f5e7d5";
+//              cellStyle.put("fillColor", color);
+//            }
+//          }
+//          return cellStyle;
+//        }
+//      };
+//      mxGraph.setAutoSizeCells(true);
+//
+//
+//      // Overrides method to create the editing value
+//      final mxGraphComponent graphComponent = new mxGraphComponent(mxGraph) {
+//
+//      };
+//
+//      ActionListener actionLayout = e -> {
+//        mxHierarchicalLayout layout = new mxHierarchicalLayout(adapter);
+//        Object cell = adapter.getSelectionCell();
+//        if (cell == null || adapter.getModel().getChildCount(cell) == 0) {
+//          cell = adapter.getDefaultParent();
+//        }
+//        adapter.getModel().beginUpdate();
+//        try {
+//          long t0 = System.currentTimeMillis();
+//          layout.execute(cell);
+//        } finally {
+//          mxMorphing morph = new mxMorphing(graphComponent, 20, 1.2, 20);
+//          morph.addListener(mxEvent.DONE, (sender, evt) -> adapter.getModel().endUpdate());
+//          morph.startAnimation();
+//        }
+//      };
+//
+//      JFrame graphFrame = new JFrame("Graph");
+//      Fragpipe.decorateFrame(graphFrame);
+//      graphFrame.setLayout(new BorderLayout());
+//
+//      mxHierarchicalLayout layout = new mxHierarchicalLayout(adapter);
+//      layout.execute(adapter.getDefaultParent());
+//
+//      graphFrame.add(UiUtils.createButton("Layout", actionLayout), BorderLayout.NORTH);
+//      graphFrame.add(graphComponent, BorderLayout.CENTER);
+//
+//      graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+//      graphFrame.pack();
+//      graphFrame.setVisible(true);
+//    }
 
 
     // make sure that all subfolders are created for groups/experiments
