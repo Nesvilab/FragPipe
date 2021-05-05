@@ -84,7 +84,7 @@ You don't need to have Gradle installed. Gradle wrapper included in this reposit
 
     ```bash
     cd ./MSFragger-GUI
-    ./gradlew prepareReleaseNoExe
+    ./gradlew makeReleaseZipWithJre
     ```
 3. Inspect the output in `MSFragger-GUI/build/github-release` directory.
 4. If you want *.exe* file for Windows, then you have to build on Windows with [Launch4j](http://launch4j.sourceforge.net/) installed.
