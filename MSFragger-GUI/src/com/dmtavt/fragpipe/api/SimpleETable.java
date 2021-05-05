@@ -116,6 +116,8 @@ public class SimpleETable extends ETable {
     putClientProperty("terminateEditOnFocusLost", true);
     initModelListeners();
     initSelectionListeners();
+    setRowMargin(3);
+    setRowHeight(getRowHeight() + getRowMargin() * 2);
   }
 
   public void addComponentsEnabledOnNonEmptyData(JComponent component) {
