@@ -80,14 +80,16 @@ The version of the build is stored in 2 separate places:
     - File: `MSFragger-GUI/build.gradle`  
       Property: `version`
 2. Build:  
-You don't need to have Gradle installed. Gradle wrapper included in this repository will be used. From the root directory of the repository issue the following commands:
+You don't need to have Gradle installed, the Gradle wrapper included in this repository will be used. From the root directory of the repository issue the following commands:
 
+    ```bash
+    cd ./MSFragger-GUI
+    ./gradlew makeReleaseZipNoJre
+    ```
+    or use this version to build with Java Runtime (for Windows only):
+    
     ```bash
     cd ./MSFragger-GUI
     ./gradlew makeReleaseZipWithJre
     ```
-3. Inspect the output in `MSFragger-GUI/build/github-release` directory.
-4. If you want *.exe* file for Windows, then you have to build on Windows with [Launch4j](http://launch4j.sourceforge.net/) installed.
-    ```bash
-    ./gradlew prepareReleaseWithExe
-    ```
+3. The .zip output will be in `MSFragger-GUI/build/github-release`.
