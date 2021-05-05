@@ -40,7 +40,7 @@ public class PercolatorOutputToPepXML {
             );
     }
 
-    static String getSpectrum(final String line) {
+    private static String getSpectrum(final String line) {
         String spectrum = null;
         for (final String e : line.split("\\s"))
             if (e.startsWith("spectrum=")) {
@@ -168,7 +168,6 @@ public class PercolatorOutputToPepXML {
                 String spectrum;
                 double massdiff = Double.NaN;
                 double calc_neutral_pep_mass = Double.NaN;
-                long num_psms = 0;
                 final StringBuilder sb = new StringBuilder();
                 while ((line = brpepxml.readLine()) != null) {
                     if (line.trim().startsWith("<spectrum_query")) {
@@ -183,7 +182,6 @@ public class PercolatorOutputToPepXML {
                         final int[] ntt_nmc = (int[]) tmp[rank - 1][0];
                         final int ntt = ntt_nmc[0];
                         final int nmc = ntt_nmc[1];
-                        ++num_psms;
                         sb.append(line).append('\n');
                         int isomassd = 0;
                         while ((line = brpepxml.readLine()) != null) { // fixme: the code assumes that there are always <search_hit, massdiff=, and calc_neutral_pep_mass=, which makes it not robust
