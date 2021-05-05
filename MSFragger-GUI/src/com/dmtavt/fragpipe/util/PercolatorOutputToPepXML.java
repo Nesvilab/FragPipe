@@ -14,8 +14,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PercolatorOutputToPepXML {
+
+    private static final Pattern pattern = Pattern.compile("(.+spectrum=\".+\\.)([0-9]+)\\.([0-9]+)(\\.[0-9]+\".+)");
+
     public static void main(final String[] args) {
         if (args.length == 0)
             percolatorToPepXML(
@@ -48,6 +53,29 @@ public class PercolatorOutputToPepXML {
                 break;
             }
         return spectrum.substring(0, spectrum.length() - 2);
+    }
+
+    private static String paddingZeros(final String line) {
+        Matcher matcher = pattern.matcher(line);
+        if (matcher.matches()) {
+            if (matcher.group(2).contentEquals(matcher.group(3))) {
+                String scanNum = matcher.group(2);
+                if (scanNum.length() < 5) {
+                    StringBuilder sb = new StringBuilder(5);
+                    for (int i = 0; i < 5 - scanNum.length(); ++i) {
+                        sb.append("0");
+                    }
+                    sb.append(scanNum);
+                    return matcher.group(1) + sb + "." + sb + matcher.group(4);
+                } else {
+                    return line;
+                }
+            } else {
+                throw new RuntimeException("Cannot parse spectrum ID from  " + line);
+            }
+        } else {
+            throw new RuntimeException("Cannot parse line " + line);
+        }
     }
 
     private static class Spectrum_rank {
@@ -182,7 +210,7 @@ public class PercolatorOutputToPepXML {
                         final int[] ntt_nmc = (int[]) tmp[rank - 1][0];
                         final int ntt = ntt_nmc[0];
                         final int nmc = ntt_nmc[1];
-                        sb.append(line).append('\n');
+                        sb.append(paddingZeros(line)).append('\n');
                         int isomassd = 0;
                         while ((line = brpepxml.readLine()) != null) { // fixme: the code assumes that there are always <search_hit, massdiff=, and calc_neutral_pep_mass=, which makes it not robust
                             if (line.trim().startsWith("<search_hit ")) {
