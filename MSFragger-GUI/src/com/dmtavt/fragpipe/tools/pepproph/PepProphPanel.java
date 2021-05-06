@@ -1,6 +1,7 @@
 package com.dmtavt.fragpipe.tools.pepproph;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.api.SearchTypeProp;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.github.chhh.utils.SwingUtils;
@@ -9,12 +10,14 @@ import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
+import com.github.chhh.utils.swing.UiRadio;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -23,20 +26,25 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.api.SearchTypeProp;
 
 public class PepProphPanel extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(PepProphPanel.class);
   private static MigUtils mu = MigUtils.get();
-  private UiCheck checkRun;
+  private UiRadio checkRun;
   private UiText uiTextCmdOpts;
   private UiCheck uiCheckCombinePepxml;
   private JPanel pTop;
   private JPanel pContent;
+  private final boolean parentPanelEnabled;
   public static final String PREFIX = "peptide-prophet.";
 
+  public PepProphPanel(ButtonGroup radioGroup, boolean parentPanelEnabled) {
+    radioGroup.add(checkRun);
+    this.parentPanelEnabled = parentPanelEnabled;
+  }
+
   public boolean isRun() {
-    return SwingUtils.isEnabledAndChecked(checkRun);
+    return parentPanelEnabled && SwingUtils.isEnabledAndChecked(checkRun);
   }
 
   public String getCmdOpts() {
@@ -81,7 +89,7 @@ public class PepProphPanel extends JPanelBase {
 
   @Override
   protected void init() {
-    checkRun = UiUtils.createUiCheck("Run PeptideProphet", true);
+    checkRun = new UiRadio("Run PeptideProphet", null, true);
     checkRun.setName("run-peptide-prophet");
     JLabel labelDefaults = new JLabel("Defaults for:");
     final LinkedHashMap<String, SearchTypeProp> defaults = new LinkedHashMap<>();
@@ -108,7 +116,7 @@ public class PepProphPanel extends JPanelBase {
 
 
     mu.layout(this).fillX();
-    mu.border(this, "PeptideProphet");
+    mu.borderEmpty(this);
 
     pTop = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.add(pTop, checkRun).split();

@@ -118,6 +118,7 @@ msfragger.use_topN_peaks=300
 msfragger.write_calibrated_mgf=false
 msfragger.zero_bin_accept_expect=0
 msfragger.zero_bin_mult_expect=1
+run-psm-validation=true
 peptide-prophet.cmd-opts=--decoyprobs --ppm --accmass --nonparam --expectscore
 peptide-prophet.combine-pepxml=true
 peptide-prophet.run-peptide-prophet=true

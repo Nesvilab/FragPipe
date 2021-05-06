@@ -9,34 +9,41 @@ import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
+import com.github.chhh.utils.swing.UiRadio;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
+import java.awt.Component;
+import java.awt.ItemSelectable;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import java.awt.Component;
-import java.awt.ItemSelectable;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-
 public class PercolatorPanel extends JPanelBase {
     private static final Logger log = LoggerFactory.getLogger(PercolatorPanel.class);
     private static MigUtils mu = MigUtils.get();
-    private UiCheck checkRun;
+    private UiRadio checkRun;
     private UiText uiTextCmdOpts;
     private UiCheck uiCheckCombinePepxml;
     private JPanel pTop;
     private JPanel pContent;
+    private final boolean parentPanelEnabled;
     public static final String PREFIX = "percolator.";
 
+    public PercolatorPanel(ButtonGroup buttonGroup, boolean parentPanelEnabled) {
+        buttonGroup.add(checkRun);
+        this.parentPanelEnabled = parentPanelEnabled;
+    }
+
     public boolean isRun() {
-        return SwingUtils.isEnabledAndChecked(checkRun);
+        return parentPanelEnabled && SwingUtils.isEnabledAndChecked(checkRun);
     }
 
     public String getCmdOpts() {
@@ -81,7 +88,7 @@ public class PercolatorPanel extends JPanelBase {
 
     @Override
     protected void init() {
-        checkRun = UiUtils.createUiCheck("Run Percolator", true);
+        checkRun = new UiRadio("Run Percolator", null, true);
         checkRun.setName("run-percolator");
         JLabel labelDefaults = new JLabel("Defaults for:");
         final LinkedHashMap<String, SearchTypeProp> defaults = new LinkedHashMap<>();
@@ -108,7 +115,7 @@ public class PercolatorPanel extends JPanelBase {
 
 
         mu.layout(this).fillX();
-        mu.border(this, "Percolator");
+        mu.borderEmpty(this);
 
         pTop = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
         mu.add(pTop, checkRun).split();
