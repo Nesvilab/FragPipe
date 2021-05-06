@@ -82,7 +82,6 @@ public class ProcessManager {
           execSingle.awaitTermination(20, TimeUnit.SECONDS);
         }
       } catch (InterruptedException ex) {
-        log.warn("Timed out waiting for sequential executor shutdown. This does not affect processing results.");
         log.debug("Timed out waiting for sequential executor shutdown. This does not affect processing results.", ex);
       } finally {
         execSingle = newSingleExecutor();
@@ -94,7 +93,6 @@ public class ProcessManager {
           execMulti.awaitTermination(20, TimeUnit.SECONDS);
         }
       } catch (InterruptedException ex) {
-        log.warn("Timed out waiting for parallel executor shutdown. This does not affect processing results.");
         log.debug("Timed out waiting for parallel executor shutdown. This does not affect processing results.", ex);
       } finally {
         execMulti = newMultiExecutor();

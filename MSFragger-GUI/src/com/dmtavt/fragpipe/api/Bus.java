@@ -3,7 +3,6 @@ package com.dmtavt.fragpipe.api;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.EventBusBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,7 @@ public class Bus {
         }
       }
     }
-    log.warn("Message for developers. No @Subscribe annotations found on bus subscriber {}", subscriber.getClass().getCanonicalName());
+    log.debug("Message for developers. No @Subscribe annotations found on bus subscriber {}", subscriber.getClass().getCanonicalName());
   }
 
   public static boolean isRegistered(Object subscriber) {
