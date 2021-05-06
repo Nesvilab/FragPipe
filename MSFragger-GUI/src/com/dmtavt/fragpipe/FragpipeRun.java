@@ -801,7 +801,7 @@ public class FragpipeRun {
       if (cmdPercolator.isRun()) {
         final String percolatorCmd = percolatorPanel.getCmdOpts();
         if (!cmdPercolator.configure(jarPath, percolatorCmd, isCombinedPepxml_percolator,
-            sharedPepxmlFilesBeforePeptideValidation)) {
+            sharedPepxmlFilesBeforePeptideValidation, crystalcPanel.isRun())) {
           return false;
         }
       }

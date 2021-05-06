@@ -26,22 +26,18 @@ public class PercolatorOutputToPepXML {
             percolatorToPepXML(
                     Paths.get("/home/ci/percolator_test/23aug2017_hela_serum_timecourse_4mz_narrow_1.pin"),
                     "/home/ci/percolator_test/23aug2017_hela_serum_timecourse_4mz_narrow_1",
-                    ".pepXML",
                     Paths.get("/home/ci/percolator_test/percolator_results_psms.tsv"),
                     Paths.get("/home/ci/percolator_test/percolator_decoy_results_psms.tsv"),
                     Paths.get("/home/ci/percolator_test/test"),
-                    ".pep.xml",
                     "DIA");
         else
             percolatorToPepXML(
                     Paths.get(args[0]),
                     args[1],
-                    args[2],
+                    Paths.get(args[2]),
                     Paths.get(args[3]),
                     Paths.get(args[4]),
-                    Paths.get(args[5]),
-                    args[6],
-                    args[7]
+                    args[5]
             );
     }
 
@@ -95,9 +91,9 @@ public class PercolatorOutputToPepXML {
     }
 
     public static void percolatorToPepXML(final Path pin,
-                                          final String pepxml, final String pepxmlExt,
+                                          final String basename,
                                           final Path percolatorTargetPsms, final Path percolatorDecoyPsms,
-                                          final Path output, final String output_ext,
+                                          final Path outBasename,
                                           final String DIA_DDA) {
 
         // get max rank from pin
@@ -168,10 +164,10 @@ public class PercolatorOutputToPepXML {
         }
         final boolean is_DIA = DIA_DDA.equals("DIA");
         for (int rank = 1; rank <= max_rank; ++rank) {
-            final Path output_rank = is_DIA ? Paths.get(output + "_rank" + rank + output_ext) :
-                    Paths.get(output + output_ext);
-            final Path pepxml_rank = is_DIA ? Paths.get(pepxml + "_rank" + rank + pepxmlExt) :
-                    Paths.get(pepxml + pepxmlExt);
+            final Path output_rank = is_DIA ? Paths.get(outBasename + "_rank" + rank + ".pep.xml") :
+                    Paths.get(outBasename + ".pep.xml");
+            final Path pepxml_rank = is_DIA ? Paths.get(basename + "_rank" + rank + ".pepXML") :
+                    Paths.get(basename + ".pepXML");
             // fixme: cannot parse XML line-by-line because line break is allowed everywhere, including within an attribute, in a XML. Need to parse it using JDOM or JAXB
             try (final BufferedReader brpepxml = Files.newBufferedReader(pepxml_rank);
                  final BufferedWriter out = Files.newBufferedWriter(output_rank)) {

@@ -91,7 +91,7 @@ public class CmdPercolator extends CmdBase {
   /**
    * @param pepxmlFiles Either pepxml files after search or after Crystal-C.
    */
-  public boolean configure(Path jarFragpipe, String percolatorCmd, boolean combine, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
+  public boolean configure(Path jarFragpipe, String percolatorCmd, boolean combine, Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCrystalC) {
     PeptideProphetParams percolatorParams = new PeptideProphetParams();
     percolatorParams.setCmdLineParams(percolatorCmd);
 
@@ -112,15 +112,22 @@ public class CmdPercolator extends CmdBase {
                 OsUtils.isWindows() ? "percolator-v3-05.exe" : null;
         cmdPp.add(FragpipeLocations.checkToolsMissing(Seq.of(percolator_bin)).get(0).toString());
 
+        String strippedBaseName;
+        if (hasCrystalC) {
+          strippedBaseName = basename.replaceFirst("_c$", "");
+        } else {
+          strippedBaseName = basename;
+        }
+
         addFreeCommandLineParams(percolatorParams, cmdPp);
         TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
         cmdPp.add("--num-threads");
         cmdPp.add("" + tabWorkflow.getThreads());
         cmdPp.add("--results-psms");
-        cmdPp.add(basename + "_percolator_target_psms.tsv");
+        cmdPp.add(strippedBaseName + "_percolator_target_psms.tsv");
         cmdPp.add("--decoy-results-psms");
-        cmdPp.add(basename + "_percolator_decoy_psms.tsv");
-        cmdPp.add(Paths.get(basename + ".pin").toString());
+        cmdPp.add(strippedBaseName + "_percolator_decoy_psms.tsv");
+        cmdPp.add(Paths.get(strippedBaseName + ".pin").toString());
 
         ProcessBuilder pbPp = new ProcessBuilder(cmdPp);
         setupEnv(pepxmlDir, pbPp);
@@ -129,7 +136,7 @@ public class CmdPercolator extends CmdBase {
             .setParallelGroup(basename).create());
 
         // convert the percolator output tsv to PeptideProphet's pep.xml format
-        ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + basename, ".pep.xml", basename);
+        ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + basename, strippedBaseName, basename);
         pbRewrite.directory(pepxmlPath.getParent().toFile());
         pbisPostParallel.add(new PbiBuilder().setName("Percolator: Convert to pepxml")
                 .setPb(pbRewrite).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
@@ -163,7 +170,7 @@ public class CmdPercolator extends CmdBase {
     return b;
   }
 
-  private static ProcessBuilder pbConvertToPepxml(Path jarFragpipe, String outPepxmlBasename, String outExt, String basename) {
+  private static ProcessBuilder pbConvertToPepxml(Path jarFragpipe, String outBaseName, String stripedBasename, String basename) {
     if (jarFragpipe == null) {
       throw new IllegalArgumentException("jar can't be null");
     }
@@ -171,20 +178,18 @@ public class CmdPercolator extends CmdBase {
     cmd.add(Fragpipe.getBinJava());
     cmd.add("-cp");
     Path root = FragpipeLocations.get().getDirFragpipeRoot();
-    String libsDir = root.resolve("lib").toString() + "/*";
+    String libsDir = root.resolve("lib") + "/*";
     if (Files.isDirectory(jarFragpipe)) {
-      libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib").toString() + "/*";
+      libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib") + "/*";
       log.warn("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
     }
     cmd.add(libsDir);
     cmd.add(PercolatorOutputToPepXML.class.getCanonicalName());
-    cmd.add(basename + ".pin");
+    cmd.add(stripedBasename + ".pin");
     cmd.add(basename);
-    cmd.add(".pepXML");
-    cmd.add(basename + "_percolator_target_psms.tsv");
-    cmd.add(basename + "_percolator_decoy_psms.tsv");
-    cmd.add(outPepxmlBasename);
-    cmd.add(outExt);
+    cmd.add(stripedBasename + "_percolator_target_psms.tsv");
+    cmd.add(stripedBasename + "_percolator_decoy_psms.tsv");
+    cmd.add(outBaseName);
     final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
     final boolean is_DDA = tabMsf.getParams().getDataType() == 0;
     cmd.add(is_DDA ? "DDA" : "DIA");
