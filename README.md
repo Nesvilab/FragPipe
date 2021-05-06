@@ -74,11 +74,13 @@ For other tools developed by Nesvizhskii lab, visit our website
 ### Building from scratch
 
 1. Update build version:  
-The version of the build is stored in 2 separate places:  
+The version of the build is stored in 3 separate places:  
     - File: `MSFragger-GUI/src/umich/msfragger/gui/Bundle.properties`  
       Property: `msfragger.gui.version`
     - File: `MSFragger-GUI/build.gradle`  
       Property: `version`
+    - File: `MSFragger-GUI/src/umich/msfragger/gui/Bundle.properties `  
+      Property: `msfragger.gui.version`
 2. Build:  
 You don't need to have Gradle installed, the Gradle wrapper included in this repository will be used. From the root directory of the repository issue the following commands:
 
@@ -92,4 +94,5 @@ You don't need to have Gradle installed, the Gradle wrapper included in this rep
     cd ./MSFragger-GUI
     ./gradlew makeReleaseZipWithJre
     ```
+    
 3. The .zip output will be in `MSFragger-GUI/build/github-release`.
