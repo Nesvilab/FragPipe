@@ -41,7 +41,7 @@ public class ReportPanel extends JPanelBase {
   private JPanel pOptions;
   private UiText uiTextFilter;
   private UiCheck uiCheckPepSummary;
-//  private UiCheck uiCheckWriteMzid;
+  private UiCheck uiCheckMsstats;
   private UiCheck uiCheckPrintDecoys;
   private UiCheck uiCheckDontUseProtProphFile;
 
@@ -144,12 +144,16 @@ public class ReportPanel extends JPanelBase {
     FormEntry feCheckPepSummary = new FormEntry("pep-level-summary", "not-shown",
         uiCheckPepSummary,
         "<html>Optional generation of combined.pep.xml files for multi-experiment setup.");
-//    uiCheckWriteMzid = new UiCheck("Write mzID output (experimental)", null, false);
-//    FormEntry feCheckWriteMzid = new FormEntry("write-mzid", "not-shown",
-//        uiCheckWriteMzid);
+
+    uiCheckMsstats = new UiCheck("Generate MSstats files", null, false);
+    FormEntry feCheckMSstats = new FormEntry("philosoher-msstats", "not-shown",
+        uiCheckMsstats,
+        "<html>Optional letting Philosopher generate MSstats files.");
+
     uiCheckPrintDecoys = new UiCheck("Print decoys", null, false);
     FormEntry feCheckPrintDecoys = new FormEntry("print-decoys", "not-shown",
         uiCheckPrintDecoys);
+
     uiCheckDontUseProtProphFile = new UiCheck("Do not use ProteinProphet file", null, false);
     FormEntry feCheckDontUseProtProphFile = new FormEntry(
         "dont-use-prot-proph-file", "not-shown", uiCheckDontUseProtProphFile,
@@ -160,7 +164,7 @@ public class ReportPanel extends JPanelBase {
     mu.add(p, feFilter.comp).growX().pushX().wrap();
     mu.add(p, feCheckDontUseProtProphFile.comp).wrap();
     mu.add(p, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
-//    mu.add(p, feCheckWriteMzid.comp);
+    mu.add(p, feCheckMSstats.comp);
     mu.add(p, feCheckPrintDecoys.comp);
     mu.add(p, feCheckPepSummary.comp).wrap();
 
@@ -204,9 +208,9 @@ public class ReportPanel extends JPanelBase {
     return uiCheckPrintDecoys.isSelected();
   }
 
-//  public boolean isWriteMzid() {
-//    return uiCheckWriteMzid.isSelected();
-//  }
+  public boolean isMsstats() {
+    return uiCheckMsstats.isSelected();
+  }
 
   private void clearBalloonTips() {
     for (BalloonTip balloonTip : balloonTips) {
