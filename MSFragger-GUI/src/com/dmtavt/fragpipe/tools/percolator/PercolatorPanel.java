@@ -1,4 +1,4 @@
-package com.dmtavt.fragpipe.util;
+package com.dmtavt.fragpipe.tools.percolator;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.SearchTypeProp;

@@ -1,4 +1,4 @@
-package com.dmtavt.fragpipe.util;
+package com.dmtavt.fragpipe.tools.percolator;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

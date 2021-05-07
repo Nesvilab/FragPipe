@@ -67,7 +67,7 @@ import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
 import com.dmtavt.fragpipe.tools.tmtintegrator.TmtiPanel;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
-import com.dmtavt.fragpipe.util.PercolatorPanel;
+import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;

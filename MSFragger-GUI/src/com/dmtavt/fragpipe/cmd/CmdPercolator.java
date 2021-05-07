@@ -6,7 +6,7 @@ import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tools.pepproph.PeptideProphetParams;
-import com.dmtavt.fragpipe.util.PercolatorOutputToPepXML;
+import com.dmtavt.fragpipe.tools.percolator.PercolatorOutputToPepXML;
 import com.github.chhh.utils.OsUtils;
 import java.nio.file.Files;
 import java.nio.file.Path;

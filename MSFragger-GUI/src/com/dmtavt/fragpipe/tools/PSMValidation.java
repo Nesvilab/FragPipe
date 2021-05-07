@@ -1,7 +1,7 @@
 package com.dmtavt.fragpipe.tools;
 
 import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
-import com.dmtavt.fragpipe.util.PercolatorPanel;
+import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.UiCheck;
