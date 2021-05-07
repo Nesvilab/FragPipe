@@ -72,33 +72,35 @@ public class DownloadDbHelper {
       throw new IllegalStateException("Philosopher binary not found");
     }
 
-    JFileChooser fc = FileChooserUtils
-        .create("Download to directory", "Select directory", false, FcMode.DIRS_ONLY, true);
-    FileChooserUtils.setPath(fc,
-        Stream.of(hintSaveLocation, ThisAppProps.load(ThisAppProps.PROP_DB_SAVE_PATH)));
-    if (fc.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
-      Path dir = fc.getSelectedFile().toPath();
 
-      ThisAppProps
-          .save(ThisAppProps.PROP_DB_SAVE_PATH, dir.toAbsolutePath().normalize().toString());
+    // download db
+    //DbIdDialog dialog = new DbIdDialog();
+    //dialog.setVisible(true);
+    DbUniprotIdPanel p = new DbUniprotIdPanel();
+    int confirmation = SwingUtils.showConfirmDialog(parent, p);
+    if (JOptionPane.OK_OPTION == confirmation) {
+      final String uniprotId = p.getSelectedUniprotId();
+      log.info("Database for download ID: {}", uniprotId);
+      final boolean isReviewed = p.isReviewed();
+      final boolean isAddContaminants = p.isAddContaminants();
+      final boolean isAddIsoforms = p.isAddIsoforms();
+      final boolean isAddDecoys = p.isAddDecoys();
+      final boolean isAddIrt = p.isAddIrt();
 
-      // download db
-      //DbIdDialog dialog = new DbIdDialog();
-      //dialog.setVisible(true);
-      DbUniprotIdPanel p = new DbUniprotIdPanel();
-      int confirmation = SwingUtils.showConfirmDialog(parent, p);
-      if (JOptionPane.OK_OPTION == confirmation) {
-        final String uniprotId = p.getSelectedUniprotId();
-        log.info("Database for download ID: {}", uniprotId);
-        final boolean isReviewed = p.isReviewed();
-        final boolean isAddContaminants = p.isAddContaminants();
-        final boolean isAddIsoforms = p.isAddIsoforms();
-        final boolean isAddDecoys = p.isAddDecoys();
-        final boolean isAddIrt = p.isAddIrt();
+      // philosopher workspace --init
+      // philosopher database --reviewed --contam --id UP000005640
+      UsageTrigger usePhi = new UsageTrigger(binPhi, "philosopher binary");
 
-        // philosopher workspace --init
-        // philosopher database --reviewed --contam --id UP000005640
-        UsageTrigger usePhi = new UsageTrigger(binPhi, "philosopher binary");
+
+      JFileChooser fc = FileChooserUtils
+              .create("Download to directory", "Select directory", false, FcMode.DIRS_ONLY, true);
+      FileChooserUtils.setPath(fc,
+              Stream.of(hintSaveLocation, ThisAppProps.load(ThisAppProps.PROP_DB_SAVE_PATH)));
+      if (fc.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
+        Path dir = fc.getSelectedFile().toPath();
+        ThisAppProps
+                .save(ThisAppProps.PROP_DB_SAVE_PATH, dir.toAbsolutePath().normalize().toString());
+
         CmdPhilosopherWorkspaceCleanInit cmdCleanInit = new CmdPhilosopherWorkspaceCleanInit(
             true, dir);
         if (!cmdCleanInit.configure(usePhi, false)) {
