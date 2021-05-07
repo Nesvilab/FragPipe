@@ -31,6 +31,7 @@ import com.dmtavt.fragpipe.tools.fragger.Mod;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
+import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -1210,13 +1211,21 @@ public class TabMsfragger extends JPanelBase {
     });
 
     uiSpinnerDbsplit.addChangeListener(e -> {
-      final boolean selected = uiCheckLocalizeDeltaMass.isSelected();
-      final int dbSlicing = uiSpinnerDbsplit.getActualValue();
-      if (selected && dbSlicing > 1) {
+      if (uiCheckLocalizeDeltaMass.isSelected() && getNumDbSlices() > 1) {
         JOptionPane.showMessageDialog(this,
             "<html><code>DB Slicing<code> is incompatible with <code>Localize delta mass</code> option.<br/>"
                 + "Please either set <code>DB Slicing<code> to 1, or uncheck <code>Localize delta mass</code> checkbox<br/>"
                 + "at the end of this form.",
+            "Incompatible options", JOptionPane.WARNING_MESSAGE);
+      }
+    });
+
+    uiSpinnerDbsplit.addChangeListener(e -> {
+      final PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);
+      if (percolatorPanel.isRun() && getNumDbSlices() > 1) {
+        JOptionPane.showMessageDialog(this,
+            "<html><code>DB Slicing<code> is incompatible with <code>Run Percolator</code>.<br/>"
+                + "Please either set <code>DB Slicing<code> to 1, or uncheck <code>Run Percolator</code> in <code>Validation</code> tab",
             "Incompatible options", JOptionPane.WARNING_MESSAGE);
       }
     });
