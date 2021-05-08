@@ -7,43 +7,31 @@ import com.dmtavt.fragpipe.tools.protproph.ProteinProphetParams;
 import com.github.chhh.utils.FileListing;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.UsageTrigger;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.swing.Box;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CmdProteinProphet extends CmdBase {
-  private static final Logger log = LoggerFactory.getLogger(CmdProteinProphet.class);
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-  public static final String NAME = "ProteinProphet";
+public class CmdFPOPCombinePSMValidation extends CmdBase {
+  private static final Logger log = LoggerFactory.getLogger(CmdFPOPCombinePSMValidation.class);
 
-  private static final String INTERACT_FN = "combined.prot.xml";
-  private static final String COMBINED_FN = "combined.prot.xml";
+  public static final String NAME = "FPOP IProphet";
 
-  public CmdProteinProphet(boolean isRun, Path workDir) {
+  private static final String INTERACT_FN = "interact.iproph.pep.xml";
+  private static final String COMBINED_FN = "interact.iproph.pep.xml";
+
+  public CmdFPOPCombinePSMValidation(boolean isRun, Path workDir) {
     super(isRun, workDir);
   }
 
@@ -56,33 +44,50 @@ public class CmdProteinProphet extends CmdBase {
    * @return Mapping from Experiment/Group name to interact.prot.xml file location.
    * 'interact' has been renamed to 'combined'.
    */
-  public Map<LcmsFileGroup, Path> outputs(Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean isMultiExperimentReport) {
+//  public Map<LcmsFileGroup, Path> outputs(Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean isMultiExperimentReport) {
+  public Map<InputLcmsFile, List<Path>> outputs(Map<InputLcmsFile, List<Path>> inputs, boolean isMultiExperimentReport) {
+    Map<InputLcmsFile, List<Path>> m = new HashMap<>();
+    for (Entry<InputLcmsFile, List<Path>> e : inputs.entrySet()) {
+      InputLcmsFile lcms = e.getKey();
+      for (Path pepxml : e.getValue()) {
+        final String cleanFn = pepxml.getFileName().toString();
+        final Path cleanDir = pepxml.getParent();
 
-    Map<String, List<InputLcmsFile>> lcmsByExp = pepxmlFiles.keySet().stream()
-        .collect(Collectors.groupingBy(f -> f.getGroup()));
-
-    Map<LcmsFileGroup, Path> m = new TreeMap<>();
-
-    for (Entry<String, List<InputLcmsFile>> e : lcmsByExp.entrySet()) {
-      final String groupName = e.getKey();
-      final List<InputLcmsFile> lcmsFiles = e.getValue();
-      if (lcmsFiles.isEmpty()) {
-        throw new IllegalStateException("Empty LCMS file list. This is a bug. Report to "
-            + "developers.");
+        Path interactXml;
+{
+          // --combine option for PeptideProphet means there's a single interact.pep.xml for each experiment/group
+          interactXml = cleanDir.resolve(Paths.get("interact.iproph.pep.xml"));
+        }
+        m.computeIfAbsent(lcms, (k) -> new ArrayList<>()).add(interactXml);
       }
-      LcmsFileGroup group = new LcmsFileGroup(groupName, lcmsFiles);
-      String fn = isMultiExperimentReport ? COMBINED_FN : INTERACT_FN;
-      m.put(group, wd.resolve(fn));
     }
-
-    Set<Path> interactProtXmls = new HashSet<>(m.values());
-    if (interactProtXmls.size() > 1) {
-      throw new IllegalStateException("During combined processing of Experiments/Groups "
-          + "only one interact.prot.xml file should be produced. This is probably a bug, report "
-          + "to developers.");
-    }
-
     return m;
+
+//    Map<String, List<InputLcmsFile>> lcmsByExp = pepxmlFiles.keySet().stream()
+//        .collect(Collectors.groupingBy(f -> f.getGroup()));
+//
+//    Map<LcmsFileGroup, Path> m = new HashMap<>();
+//
+//    for (Entry<String, List<InputLcmsFile>> e : lcmsByExp.entrySet()) {
+//      final String groupName = e.getKey();
+//      final List<InputLcmsFile> lcmsFiles = e.getValue();
+//      if (lcmsFiles.isEmpty()) {
+//        throw new IllegalStateException("Empty LCMS file list. This is a bug. Report to "
+//            + "developers.");
+//      }
+//      LcmsFileGroup group = new LcmsFileGroup(groupName, lcmsFiles);
+//      String fn = isMultiExperimentReport ? COMBINED_FN : INTERACT_FN;
+//      m.put(group, wd.resolve(fn));
+//    }
+//
+//    Set<Path> interactProtXmls = new HashSet<>(m.values());
+//    if (interactProtXmls.size() > 1) {
+//      throw new IllegalStateException("During combined processing of Experiments/Groups "
+//          + "only one interact.prot.xml file should be produced. This is probably a bug, report "
+//          + "to developers.");
+//    }
+//    System.out.println("m = " + m);
+//    return m;
   }
 
   private List<Path> findOldFilesForDeletion(List<Path> outputs) {
@@ -152,59 +157,29 @@ public class CmdProteinProphet extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      String txtProteinProphetCmdLineOpts, boolean isMultiExperiment, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
+      String txtProteinProphetCmdLineOpts, boolean isMultiExperiment, Map<InputLcmsFile, List<Path>> pepxmlFiles,
+                           Path pepXmlFolder, List<Path> interactPepXMLFiles, int nThreads) {
 
     initPreConfig();
 
-    // check for existence of old files
-    final Map<LcmsFileGroup, Path> outputs = outputs(pepxmlFiles, isMultiExperiment);
-    final List<Path> oldFilesForDeletion = findOldFilesForDeletion(new ArrayList<>(outputs.values()));
-    if (!deleteFiles(comp, oldFilesForDeletion)) {
-      return false;
-    }
-
-    ProteinProphetParams proteinProphetParams = new ProteinProphetParams();
-    proteinProphetParams.setCmdLineParams(txtProteinProphetCmdLineOpts);
-
-    Map<LcmsFileGroup, Path> groupToProtxml = outputs(pepxmlFiles, isMultiExperiment);
 
     {
-      Set<Path> interactProtXmls = new HashSet<>(groupToProtxml.values());
-      if (interactProtXmls.size() > 1) {
-        JOptionPane.showMessageDialog(comp, "[ProteinProphet]\n"
-            + "Report to developers, more than one interact protxml file when\n"
-            + "processing experimental groups together.");
-        return false;
-      }
-      Path protxml = interactProtXmls.iterator().next();
-      if (!protxml.getParent().equals(wd)) {
-        throw new IllegalStateException("Protxml not in global output directory when groups processed together.");
-      }
       List<String> pepxmlsPaths = pepxmlFiles.entrySet().stream()
           .flatMap(pepxml -> pepxml.getValue().stream()).map(Path::toString)
           .distinct()
           .collect(Collectors.toList());
-      List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
-
-      final Path filelist = wd.resolve("filelist_proteinprophet.txt");
-
-      if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
-        try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
-          for (String f : pepxmlsPaths) {
-            bw.write(f);
-            bw.newLine();
-          }
-        } catch (IOException e) {
-          throw new UncheckedIOException(e);
-        }
-      }
-
-      if (pepxmlsPaths.get(0).endsWith(".iproph.pep.xml"))
-        cmd.add("--iprophet");
-      cmd.add(filelist.toString());
-
+//      List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
+      final List<String> cmd = new ArrayList<>();
+      cmd.add(usePhilosopher.useBin(wd));
+      cmd.add(PhilosopherProps.CMD_IPROPHET);
+      cmd.add("--nonsp");
+      cmd.add("--threads");
+      final int threads = nThreads == 0 ? Math.max(1, Runtime.getRuntime().availableProcessors() - 1) : nThreads;
+      cmd.add(String.valueOf(threads));
+      cmd.addAll(interactPepXMLFiles.stream().map(Path::toString).collect(Collectors.toList()));
+//      cmd.addAll(pepxmlsPaths);
       ProcessBuilder pb = new ProcessBuilder(cmd);
-      pb.directory(protxml.getParent().toFile());
+      pb.directory(wd.toFile());
       pbis.add(PbiBuilder.from(pb));
     }
 

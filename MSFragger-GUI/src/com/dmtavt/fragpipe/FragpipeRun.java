@@ -8,6 +8,7 @@ import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.cmd.CmdBase;
 import com.dmtavt.fragpipe.cmd.CmdCheckCentroid;
+import com.dmtavt.fragpipe.cmd.CmdFPOPCombinePSMValidation;
 import com.dmtavt.fragpipe.cmd.CmdCrystalc;
 import com.dmtavt.fragpipe.cmd.CmdFreequant;
 import com.dmtavt.fragpipe.cmd.CmdIonquant;
@@ -58,6 +59,7 @@ import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
+import com.dmtavt.fragpipe.tools.iproph.FPOPCombinePSMValidationPanel;
 import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
@@ -86,6 +88,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -160,6 +163,9 @@ public class FragpipeRun {
           return;
         }
       }
+
+      final FPOPCombinePSMValidationPanel combinePSMValidationPanel = Fragpipe.getStickyStrict(FPOPCombinePSMValidationPanel.class);
+
 
       // check input LCMS files
       final Map<String, LcmsFileGroup> lcmsFileGroups = checkInputLcmsFiles1(tabRun, tabWorkflow);
@@ -612,6 +618,7 @@ public class FragpipeRun {
     final TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
 
     // confirm with user that multi-experiment report is not needed
+    final FPOPCombinePSMValidationPanel fpopIProphPanel = Fragpipe.getStickyStrict(FPOPCombinePSMValidationPanel.class);
     final ProtProphPanel protProphPanel = Fragpipe.getStickyStrict(ProtProphPanel.class);
     final ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
 
@@ -651,6 +658,7 @@ public class FragpipeRun {
       sharedLcmsFiles.addAll(Seq.seq(sharedLcmsFileGroups.values())
           .flatMap(group -> group.lcmsFiles.stream())
           .toList());
+      final FPOPCombinePSMValidationPanel combinePSMValidationPanel = Fragpipe.getStickyStrict(FPOPCombinePSMValidationPanel.class);
       if (sharedLcmsFiles.isEmpty()) {
         SwingUtils.showErrorDialog(parent,
             "No LCMS files provided.", "Add LCMS files");
@@ -828,6 +836,30 @@ public class FragpipeRun {
       return true;
     });
 
+    // FPOP run IProphet to combine PSM validation
+    final FPOPCombinePSMValidationPanel combinePSMValidationPanel = Fragpipe.getStickyStrict(FPOPCombinePSMValidationPanel.class);
+    final boolean isRunCombinePSMValidationPanel = combinePSMValidationPanel.isRun();
+//    final Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml = new LinkedHashMap<>();
+
+    final CmdFPOPCombinePSMValidation cmdFPOPCombinePSMValidation = new CmdFPOPCombinePSMValidation(isRunCombinePSMValidationPanel, wd);
+    addConfig.accept(cmdFPOPCombinePSMValidation, () -> {
+      final boolean isMuiltiExperimentReport = sharedLcmsFileGroups.size() > 1;
+      if (cmdFPOPCombinePSMValidation.isRun()) {
+        final String protProphCmdStr = fpopIProphPanel.getCmdOpts();
+        final List<Path> interactPepXMLFiles = FPOPCombinePSMValidationPanel.getInteractPepXMLFiles(fpopIProphPanel.getPepXmlFolder());
+        if (!cmdFPOPCombinePSMValidation.configure(parent, usePhi, protProphCmdStr, isMuiltiExperimentReport, sharedPepxmlFiles, Paths.get(fpopIProphPanel.getPepXmlFolder()),interactPepXMLFiles, threads)) {
+
+          return false;
+        }
+      }
+      final Map<InputLcmsFile, List<Path>> outputs = cmdFPOPCombinePSMValidation.outputs(sharedPepxmlFiles, isMuiltiExperimentReport);
+      sharedPepxmlFiles.clear();
+      sharedPepxmlFiles.putAll(outputs);
+//      MapUtils.refill(sharedMapGroupsToProtxml, outputs);
+      return true;
+    });
+
+    // run PTM Prophet
     final PtmProphetPanel panelPtmProphet = Fragpipe.getStickyStrict(PtmProphetPanel.class);
     final CmdPtmProphet cmdPtmProphet = new CmdPtmProphet(panelPtmProphet.isRun(), wd);
     addCheck.accept(() -> {
@@ -1175,8 +1207,9 @@ public class FragpipeRun {
 
     addToGraph(graphOrder, cmdStart, DIRECTION.IN);
     addToGraph(graphOrder, cmdCheckCentroid, DIRECTION.IN, cmdStart);
-    addToGraph(graphOrder, cmdUmpire, DIRECTION.IN, cmdCheckCentroid);
-    addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdUmpire);
+    addToGraph(graphOrder, cmdFPOPCombinePSMValidation, DIRECTION.IN, cmdPeptideProphet);
+    addToGraph(graphOrder, cmdUmpire, DIRECTION.IN, cmdStart);
+    addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdStart, cmdUmpire);
 
     addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger);
     addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdCrystalc);

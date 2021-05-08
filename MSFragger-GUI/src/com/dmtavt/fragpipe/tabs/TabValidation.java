@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.tabs;
 
 import com.dmtavt.fragpipe.tools.PSMValidation;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
+import com.dmtavt.fragpipe.tools.iproph.FPOPCombinePSMValidationPanel;
 import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
 import com.dmtavt.fragpipe.tools.protproph.ProtProphPanel;
 import com.dmtavt.fragpipe.tools.ptmprophet.PtmProphetPanel;
@@ -24,6 +25,7 @@ public class TabValidation extends JPanelWithEnablement {
     mu.layout(this).fillX();
 
     PSMValidation psmValidation = new PSMValidation();
+    FPOPCombinePSMValidationPanel combinePSMValidationPanel = new FPOPCombinePSMValidationPanel();
     CrystalcPanel panelCrystalc = new CrystalcPanel();
     PtmProphetPanel panelPtmProphet = new PtmProphetPanel();
     ProtProphPanel panelProtProph = new ProtProphPanel();
@@ -31,6 +33,7 @@ public class TabValidation extends JPanelWithEnablement {
 
     mu.add(this, panelCrystalc).growX().wrap();
     mu.add(this, psmValidation).growX().wrap();
+    mu.add(this, combinePSMValidationPanel).growX().wrap();
     mu.add(this, panelPtmProphet).growX().wrap();
     mu.add(this, panelProtProph).growX().wrap();
     mu.add(this, panelReport).growX().wrap();

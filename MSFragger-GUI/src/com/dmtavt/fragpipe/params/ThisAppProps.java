@@ -90,6 +90,7 @@ public class ThisAppProps extends Properties {
 
   public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
   public static final String PROP_TEXT_CMD_PROTEIN_PROPHET = "proteinprophet.cmd.line.opts";
+  public static final String PROP_TEXT_CMD_IPROPHET = "iprophet.cmd.line.opts";
 
   public static final String PROP_CRYSTALC_USE = "crystalc.use";
   public static final String PROP_SPECLIBGEN_RUN = "speclibgen.run";
