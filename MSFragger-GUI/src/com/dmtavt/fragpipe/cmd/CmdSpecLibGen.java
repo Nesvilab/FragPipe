@@ -12,6 +12,9 @@ import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -149,7 +152,7 @@ public class CmdSpecLibGen extends CmdBase {
         cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod %f --max_delta_ppm %f", max_delta_unimod, max_delta_ppm))); // EasyPQP convert args
         cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %f", rt_lowess_fraction))); // EasyPQP library args
 
-        cmd.addAll(group.lcmsFiles.stream() // lcms files
+        final List<String> lcmsfiles = group.lcmsFiles.stream() // lcms files
                 .map(lcms -> {
                   final String fn = lcms.getPath().getFileName().toString();
                   final String fn_sans_extension = FilenameUtils.removeExtension(fn);
@@ -161,7 +164,21 @@ public class CmdSpecLibGen extends CmdBase {
                   } else {
                     return lcms.getPath().toString();
                   }
-                }).collect(Collectors.toList()));
+                }).collect(Collectors.toList());
+
+        final Path filelist = wd.resolve("filelist_SpecLibGen.txt");
+        try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
+          for (String f : lcmsfiles) {
+            bw.write(f);
+            bw.newLine();
+          }
+        } catch (IOException ex) {
+          throw new UncheckedIOException(ex);
+        }
+        if (lcmsfiles.size() > 16)
+          cmd.add(filelist.toString());
+        else
+          cmd.addAll(lcmsfiles);
         if(!true) // FIXME
         // extra arguments for EasyPQP library command
         for (Entry<String, String> kv : easypqpLibraryExtraArguments.entrySet()) {

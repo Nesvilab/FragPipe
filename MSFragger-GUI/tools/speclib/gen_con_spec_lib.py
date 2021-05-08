@@ -60,6 +60,12 @@ if use_easypqp:
 	spectra_files0 = sorted(pathlib.Path(e) for e in sys.argv[3].split(os.pathsep))
 	if spectra_files0 == [pathlib.Path('unused')] and len(sys.argv) >= 13:
 		spectra_files0 = [pathlib.Path(e) for e in sys.argv[12:]]
+		if len(spectra_files0) == 1: # check if file is a file list
+			filelist_str = pathlib.Path(spectra_files0[0]).read_text('utf-8').splitlines()
+			filelist = list(map(pathlib.Path, filelist_str))
+			if all(e.exists() for e in filelist):
+				print("File list provided")
+				spectra_files0 = filelist
 
 
 assert use_spectrast ^ use_easypqp
@@ -489,14 +495,20 @@ if use_easypqp:
 	easypqp_library_infiles = [output_directory / (e + '.psmpkl') for e in convert_outs] + \
 							  [output_directory / (e + '.peakpkl') for e in convert_outs]
 
+	filelist_easypqp_library = pathlib.Path('filelist_easypqp_library.txt')
+	filelist_easypqp_library.write_text(
+		os.linesep.join(map(os.fspath, easypqp_library_infiles)))
 	use_iRT = irt_choice is not Irt_choice.no_iRT
+	filelist_arg = [os.fspath(filelist_easypqp_library)] \
+		if len(easypqp_library_infiles) > 16 else \
+		list(map(os.fspath, easypqp_library_infiles))
 	def easypqp_library_cmd(use_irt: bool):
 	# def easypqp_library_cmd(pep_fdr: float = None, prot_fdr: float = None):
 		return [os.fspath(easypqp), 'library',
 				# '--peptide_fdr_threshold', str(pep_fdr), '--protein_fdr_threshold', str(prot_fdr),
 				'--psmtsv', os.fspath(psm_tsv_file), '--peptidetsv', os.fspath(peptide_tsv_file), ] + \
 			   (['--rt_reference', os.fspath(irt_file)] if use_irt else []) + \
-			   ['--out', 'easypqp_lib_openswath.tsv'] + easypqp_library_extra_args + list(map(os.fspath, easypqp_library_infiles))
+			   ['--out', 'easypqp_lib_openswath.tsv'] + easypqp_library_extra_args + filelist_arg
 
 
 	easypqp_cmds = '\n'.join(' '.join(map(shlex.quote, e)) for e in easypqp_convert_cmds) + '\n' + \
