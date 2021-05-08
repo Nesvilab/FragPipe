@@ -512,7 +512,7 @@ public class FragpipeRun {
   private static String checkFasta(JComponent parent, NoteConfigDatabase configDb) {
     if (configDb == null || configDb.path == null || StringUtils
         .isBlank(configDb.path.toString())) {
-      JOptionPane.showMessageDialog(parent, "Fasta file path (Database tab) can't be empty",
+      JOptionPane.showMessageDialog(parent, "FASTA file path is empty or the file is corrupted",
           "Warning", JOptionPane.WARNING_MESSAGE);
       return null;
     }
