@@ -104,7 +104,7 @@ public class TabRun extends JPanelWithEnablement {
     clearConsole();
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void on(MessageRunButtonEnabled m) {
     btnRun.setEnabled(m.isEnabled);
   }
@@ -302,7 +302,7 @@ public class TabRun extends JPanelWithEnablement {
     });
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void on(MessageSaveLog m) {
     log.debug("Got MessageSaveLog, trying to save log");
     saveLogToFile(console, m.workDir);
