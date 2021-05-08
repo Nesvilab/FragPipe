@@ -9,7 +9,6 @@ import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.github.chhh.utils.OsUtils;
-import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
 import java.io.BufferedWriter;
@@ -152,39 +151,40 @@ public class CmdSpecLibGen extends CmdBase {
         cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod %f --max_delta_ppm %f", max_delta_unimod, max_delta_ppm))); // EasyPQP convert args
         cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %f", rt_lowess_fraction))); // EasyPQP library args
 
-        final List<String> lcmsfiles = group.lcmsFiles.stream() // lcms files
-                .map(lcms -> {
-                  final String fn = lcms.getPath().getFileName().toString();
-                  final String fn_sans_extension = FilenameUtils.removeExtension(fn);
-                  final boolean isTimsTOF = dataType == InputDataType.ImMsTimsTof;
-                  final boolean isRaw = fn.toLowerCase().endsWith(".raw");
-                  final String sans_suffix = lcms.getPath().getParent().resolve(fn_sans_extension).toString();
-                  if ((isTimsTOF && fn.toLowerCase().endsWith(".d")) || isRaw) {
-                    return sans_suffix + "_uncalibrated.mgf";
-                  } else {
-                    return lcms.getPath().toString();
-                  }
-                }).collect(Collectors.toList());
+        final List<String> lcmsfiles = group.lcmsFiles.stream()
+            .map(lcms -> {
+              final String fn = lcms.getPath().getFileName().toString();
+              final String fn_sans_extension = FilenameUtils.removeExtension(fn);
+              final boolean isTimsTOF = dataType == InputDataType.ImMsTimsTof;
+              final boolean isRaw = fn.toLowerCase().endsWith(".raw");
+              final String sans_suffix = lcms.getPath().getParent().resolve(fn_sans_extension).toString();
+              if ((isTimsTOF && fn.toLowerCase().endsWith(".d")) || isRaw) {
+                return sans_suffix + "_uncalibrated.mgf";
+              } else {
+                return lcms.getPath().toString();
+              }
+            }).collect(Collectors.toList());
 
-        final Path filelist = wd.resolve("filelist_SpecLibGen.txt");
-        try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
-          for (String f : lcmsfiles) {
-            bw.write(f);
-            bw.newLine();
+        if (lcmsfiles.size() > 16) {
+          final Path filelist = wd.resolve("filelist_SpecLibGen.txt");
+          try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
+            for (String f : lcmsfiles) {
+              bw.write(f);
+              bw.newLine();
+            }
+          } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
           }
-        } catch (IOException ex) {
-          throw new UncheckedIOException(ex);
-        }
-        if (lcmsfiles.size() > 16)
           cmd.add(filelist.toString());
-        else
+        } else {
           cmd.addAll(lcmsfiles);
-        if(!true) // FIXME
-        // extra arguments for EasyPQP library command
-        for (Entry<String, String> kv : easypqpLibraryExtraArguments.entrySet()) {
-          String k = StringUtils.afterLastDot(kv.getKey());
-          cmd.add(OsUtils.asSingleArgument(StringUtils.prependOnce(k, "--") + " " + kv.getValue()));
         }
+
+//        // extra arguments for EasyPQP library command FIXME
+//        for (Entry<String, String> kv : easypqpLibraryExtraArguments.entrySet()) {
+//          String k = StringUtils.afterLastDot(kv.getKey());
+//          cmd.add(OsUtils.asSingleArgument(StringUtils.prependOnce(k, "--") + " " + kv.getValue()));
+//        }
 
       } else {
         cmd.add(fastaPath);

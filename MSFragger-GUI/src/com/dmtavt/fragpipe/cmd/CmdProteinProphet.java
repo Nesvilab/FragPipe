@@ -185,19 +185,22 @@ public class CmdProteinProphet extends CmdBase {
           .distinct()
           .collect(Collectors.toList());
       List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
-      final Path filelist = wd.resolve("filelist_ProteinProphet.txt");
-      try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
-        for (String f : pepxmlsPaths) {
-          bw.write(f);
-          bw.newLine();
+
+      if (pepxmlsPaths.size() > 16) {
+        final Path filelist = wd.resolve("filelist_ProteinProphet.txt");
+        try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
+          for (String f : pepxmlsPaths) {
+            bw.write(f);
+            bw.newLine();
+          }
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
         }
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
-      }
-      if (pepxmlsPaths.size() > 16)
         cmd.add(filelist.toString());
-      else
+      } else {
         cmd.addAll(pepxmlsPaths);
+      }
+
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(protxml.getParent().toFile());
       pbis.add(PbiBuilder.from(pb));
