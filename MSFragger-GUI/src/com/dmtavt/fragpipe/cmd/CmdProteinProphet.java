@@ -3,7 +3,9 @@ package com.dmtavt.fragpipe.cmd;
 import com.github.chhh.utils.StringUtils;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -183,7 +185,19 @@ public class CmdProteinProphet extends CmdBase {
           .distinct()
           .collect(Collectors.toList());
       List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
-      cmd.addAll(pepxmlsPaths);
+      final Path filelist = wd.resolve("filelist_ProteinProphet.txt");
+      try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
+        for (String f : pepxmlsPaths) {
+          bw.write(f);
+          bw.newLine();
+        }
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+      if (pepxmlsPaths.size() > 16)
+        cmd.add(filelist.toString());
+      else
+        cmd.addAll(pepxmlsPaths);
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(protxml.getParent().toFile());
       pbis.add(PbiBuilder.from(pb));
