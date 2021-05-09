@@ -8,6 +8,10 @@ import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +29,7 @@ public class CmdIonquant extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdIonquant.class);
 
   public static final String NAME = "IonQuant";
-  public static final String JAR_IONQUANT_NAME = "ionquant-1.7.0.jar";
+  public static final String JAR_IONQUANT_NAME = "ionquant-1.7.1.jar";
   public static final String JAR_MSFTBX_NAME = ToolingUtils.BATMASS_IO_JAR;
   public static final String JAR_IONQUANT_MAIN_CLASS = "ionquant.IonQuant";
   private static String[] JAR_DEPS = {JAR_MSFTBX_NAME};
@@ -49,14 +53,6 @@ public class CmdIonquant extends CmdBase {
       Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml,
       Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads) {
 
-//    Usage:
-//    java -jar IonQuant.jar <options> <.d/.mzML/.mzXML/.pepXML/_quant.csv files>
-//        Options:
-//        --mztol <float>        # MS1 tolerance in PPM. Default: 20.0
-//        --imtol <float>        # 1/K0 tolerance. Default: 0.1
-//        --plot 0/1             # Plot traced features or not. Default: 0
-//        --psm <string>         # Path to Philosopher's psm.tsv. Optional.
-//        --multidir <string>    # Output dir for the multi experimental result. Optional.
     initPreConfig();
 
     List<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
@@ -177,32 +173,50 @@ public class CmdIonquant extends CmdBase {
       }
     }
 
-    for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
-      LcmsFileGroup group = e.getKey();
-      Path psmTsv = group.outputDir(wd).resolve("psm.tsv");
-      cmd.add("--psm");
-      cmd.add(wd.relativize(psmTsv).toString());
-    }
+    try {
+      final Path filelist = wd.resolve("filelist_ionquant.txt");
+      BufferedWriter bufferedWriter = Files.newBufferedWriter(filelist);
+      bufferedWriter.write("flag\tvalue\n");
 
-    if (isMultidir) {
-      cmd.add("--multidir");
-      cmd.add(".");
-    }
-
-    // compute unique lcms file directories
-    Set<Path> lcmsDirsUnique = Seq.seq(lcmsToFraggerPepxml.keySet()).map(lcms -> lcms.getPath().getParent())
-        .toSet();
-    for (Path path : lcmsDirsUnique) {
-      cmd.add("--specdir");
-      cmd.add(StringUtils.appendPrependOnce(path.toString(), null));
-    }
-
-    for (Entry<InputLcmsFile, List<Path>> e : lcmsToFraggerPepxml.entrySet()) {
-      InputLcmsFile lcms = e.getKey();
-      for (Path pepxml : e.getValue()) {
-        //cmd.add(lcms.getPath().toString()); // lcms files are not needed anymore, auto-searched in --specdir
-        cmd.add(wd.relativize(pepxml).toString());
+      for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
+        LcmsFileGroup group = e.getKey();
+        Path psmTsv = group.outputDir(wd).resolve("psm.tsv");
+        bufferedWriter.write("--psm");
+        bufferedWriter.write("\t");
+        bufferedWriter.write(wd.relativize(psmTsv).toString());
+        bufferedWriter.write("\n");
       }
+
+      if (isMultidir) {
+        cmd.add("--multidir");
+        cmd.add(".");
+      }
+
+      // compute unique lcms file directories
+      Set<Path> lcmsDirsUnique = Seq.seq(lcmsToFraggerPepxml.keySet()).map(lcms -> lcms.getPath().getParent())
+          .toSet();
+      for (Path path : lcmsDirsUnique) {
+        bufferedWriter.write("--specdir");
+        bufferedWriter.write("\t");
+        bufferedWriter.write(StringUtils.appendPrependOnce(path.toString(), null));
+        bufferedWriter.write("\n");
+      }
+
+      for (Entry<InputLcmsFile, List<Path>> e : lcmsToFraggerPepxml.entrySet()) {
+        for (Path pepxml : e.getValue()) {
+          bufferedWriter.write("--pepxml");
+          bufferedWriter.write("\t");
+          bufferedWriter.write(wd.relativize(pepxml).toString());
+          bufferedWriter.write("\n");
+        }
+      }
+
+      bufferedWriter.close();
+
+      cmd.add("--filelist");
+      cmd.add(filelist.toAbsolutePath().toString());
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
     }
 
     ProcessBuilder pb = new ProcessBuilder(cmd);
