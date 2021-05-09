@@ -71,7 +71,7 @@ max_variable_mods_combinations = 5000
 output_format = pepXML_pin
 output_report_topN = 1 
 output_max_expect = 50
-report_alternative_proteins=0
+report_alternative_proteins=1
 
 precursor_charge = 1 4
 override_charge = 0

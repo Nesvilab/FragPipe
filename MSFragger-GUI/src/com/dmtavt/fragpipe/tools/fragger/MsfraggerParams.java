@@ -687,7 +687,7 @@ public class MsfraggerParams extends AbstractParams {
     }
 
     public boolean getReportAlternativeProteins() {
-        int v = Integer.parseInt(props.getProp(PROP_report_alternative_proteins, "0").value);
+        int v = Integer.parseInt(props.getProp(PROP_report_alternative_proteins, "1").value);
         return v == 1;
     }
 
