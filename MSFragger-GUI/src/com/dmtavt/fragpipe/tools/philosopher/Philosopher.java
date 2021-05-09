@@ -1,5 +1,7 @@
 package com.dmtavt.fragpipe.tools.philosopher;
 
+import static com.github.chhh.utils.OsUtils.isWindows;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
@@ -66,6 +68,13 @@ public class Philosopher {
     if (binPath.contains(" ")) {
       throw new ValidationException("There are spaces in the path");
     }
+    if (binPath.toLowerCase().endsWith(".exe") && !isWindows()) {
+      throw new ValidationException("The Philosopher binary file is a windows version");
+    }
+    if (!binPath.toLowerCase().endsWith(".exe") && isWindows()) {
+      throw new ValidationException("The Philosopher binary file is not a windows version");
+    }
+
     // get the vesrion reported by the current executable
     // if we couldn't download remote properties, try using local ones
     // if we have some philosopher properties (local or better remote)
@@ -173,7 +182,7 @@ public class Philosopher {
 
   public static void downloadPhilosopherAutomatically() throws IOException {
     final Pattern re;
-    if (OsUtils.isWindows()) {
+    if (isWindows()) {
       re = Pattern.compile(
           "(/Nesvilab/philosopher/releases/download/v[\\d.]+/philosopher_v[\\d.]+_windows_amd64.zip)");
     } else if (OsUtils.isUnix()) {
@@ -271,7 +280,7 @@ public class Philosopher {
       Path unzipTo = PathUtils
           .createDirs(FragpipeLocations.get().getDirTools().resolve("philosopher"));
       ZipUtils.unzip(dlLocation, unzipTo);
-      final String bin = OsUtils.isWindows() ? "philosopher.exe" : "philosopher";
+      final String bin = isWindows() ? "philosopher.exe" : "philosopher";
       List<Path> possibleBins = PathUtils
           .findFilesQuietly(unzipTo, p -> Files.isRegularFile(p) && p.getFileName().toString().equalsIgnoreCase(bin))
           .collect(Collectors.toList());
