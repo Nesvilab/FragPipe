@@ -165,20 +165,16 @@ public class CmdSpecLibGen extends CmdBase {
               }
             }).collect(Collectors.toList());
 
-        if (lcmsfiles.size() > 16) {
-          final Path filelist = wd.resolve("filelist_SpecLibGen.txt");
-          try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
-            for (String f : lcmsfiles) {
-              bw.write(f);
-              bw.newLine();
-            }
-          } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
+        final Path filelist = wd.resolve("filelist_SpecLibGen.txt");
+        try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
+          for (String f : lcmsfiles) {
+            bw.write(f);
+            bw.newLine();
           }
-          cmd.add(filelist.toString());
-        } else {
-          cmd.addAll(lcmsfiles);
+        } catch (IOException ex) {
+          throw new UncheckedIOException(ex);
         }
+        cmd.add(filelist.toString());
 
 //        // extra arguments for EasyPQP library command FIXME
 //        for (Entry<String, String> kv : easypqpLibraryExtraArguments.entrySet()) {
