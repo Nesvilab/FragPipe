@@ -53,9 +53,9 @@ public class PSMValidation extends JPanelBase {
     PepProphPanel panelPepProph = new PepProphPanel(radioGroup, isRun());
 
     p2 = mu.newPanel(null, mu.lcFillX());
-    mu.add(p2, panelPercolator).growX().wrap();
-    mu.add(p2, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
     mu.add(p2, panelPepProph).growX().wrap();
+    mu.add(p2, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
+    mu.add(p2, panelPercolator).growX().wrap();
 
     this.add(p, BorderLayout.NORTH);
     this.add(p2, BorderLayout.CENTER);
