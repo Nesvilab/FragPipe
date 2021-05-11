@@ -499,9 +499,7 @@ if use_easypqp:
 	filelist_easypqp_library.write_text(
 		os.linesep.join(map(os.fspath, easypqp_library_infiles)))
 	use_iRT = irt_choice is not Irt_choice.no_iRT
-	filelist_arg = [os.fspath(filelist_easypqp_library)] \
-		if len(easypqp_library_infiles) > 16 else \
-		list(map(os.fspath, easypqp_library_infiles))
+	filelist_arg = [os.fspath(filelist_easypqp_library)]
 	def easypqp_library_cmd(use_irt: bool):
 	# def easypqp_library_cmd(pep_fdr: float = None, prot_fdr: float = None):
 		return [os.fspath(easypqp), 'library',
