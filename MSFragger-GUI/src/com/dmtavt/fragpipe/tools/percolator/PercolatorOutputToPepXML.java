@@ -9,11 +9,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,9 +24,16 @@ public class PercolatorOutputToPepXML {
 
     public static void main(final String[] args) {
         if (args.length == 0)
+//            percolatorToPepXML(
+//                    Paths.get("/home/ci/percolator_test/23aug2017_hela_serum_timecourse_4mz_narrow_1.pin"),
+//                    "/home/ci/percolator_test/23aug2017_hela_serum_timecourse_4mz_narrow_1",
+//                    Paths.get("/home/ci/percolator_test/percolator_results_psms.tsv"),
+//                    Paths.get("/home/ci/percolator_test/percolator_decoy_results_psms.tsv"),
+//                    Paths.get("/home/ci/percolator_test/test"),
+//                    "DIA");
             percolatorToPepXML(
-                    Paths.get("/home/ci/percolator_test/23aug2017_hela_serum_timecourse_4mz_narrow_1.pin"),
-                    "/home/ci/percolator_test/23aug2017_hela_serum_timecourse_4mz_narrow_1",
+                    Paths.get("/home/ci/percolator_test/ranked/23aug2017_hela_serum_timecourse_4mz_narrow_1.pin"),
+                    "/home/ci/percolator_test/ranked/23aug2017_hela_serum_timecourse_4mz_narrow_1",
                     Paths.get("/home/ci/percolator_test/percolator_results_psms.tsv"),
                     Paths.get("/home/ci/percolator_test/percolator_decoy_results_psms.tsv"),
                     Paths.get("/home/ci/percolator_test/test"),
@@ -90,6 +98,95 @@ public class PercolatorOutputToPepXML {
         return new Spectrum_rank(s.substring(0, s.lastIndexOf(".")), rank);
     }
 
+    private static int get_max_rank(final Path pin){
+        int max_rank0 = -1;
+        try (final BufferedReader brtsv = Files.newBufferedReader(pin)) {
+            final String pin_header = brtsv.readLine();
+            final List<String> colnames = Arrays.asList(pin_header.split("\t"));
+            final int indexOf_SpecId = colnames.indexOf("SpecId");
+            String line;
+            while ((line = brtsv.readLine()) != null) {
+                final String[] split = line.split("\t");
+                final String raw_SpecId = split[indexOf_SpecId];
+                final Spectrum_rank spectrum_rank = get_spectrum_rank(raw_SpecId);
+                max_rank0 = Math.max(spectrum_rank.rank, max_rank0);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return max_rank0;
+    }
+
+    private static String handle_sqectrum_query(final List<String> sq,
+                                                final Map<String, Object[][]> pin_tsv_dict_r,
+                                                final int rank) {
+        final StringBuilder sb = new StringBuilder();
+        String spectrum;
+        double massdiff = Double.NaN;
+        double calc_neutral_pep_mass = Double.NaN;
+//        sb.setLength(0);
+        final Iterator<String> iterator = sq.iterator();
+        for (String line; iterator.hasNext(); ) {
+            line = iterator.next();
+                spectrum = getSpectrum(line);
+            final Object[][] tmp = pin_tsv_dict_r.get(spectrum);
+            final double[] pep_score = (double[]) tmp[rank - 1][1];
+            if (pep_score == null)
+                return "";
+            final double one_minus_PEP = 1 - pep_score[0];
+            final double score = pep_score[1];
+            final int[] ntt_nmc = (int[]) tmp[rank - 1][0];
+            final int ntt = ntt_nmc[0];
+            final int nmc = ntt_nmc[1];
+            sb.append(paddingZeros(line)).append('\n');
+            int isomassd = 0;
+            while (iterator.hasNext()) { // fixme: the code assumes that there are always <search_hit, massdiff=, and calc_neutral_pep_mass=, which makes it not robust
+                line = iterator.next();
+                if (line.trim().startsWith("<search_hit ")) {
+                    for (final String e : line.split("\\s")) { // fixme: the code assumes that all attributes are in one line, which makes it not robust
+                        if (e.startsWith("massdiff=")) {
+                            massdiff = Double.parseDouble(e.substring("massdiff=\"".length(), e.length() - 1));
+                        }
+                        if (e.startsWith("calc_neutral_pep_mass=")) {
+                            calc_neutral_pep_mass = Double.parseDouble(e.substring("calc_neutral_pep_mass=\"".length(), e.length() - 1));
+                            break;
+                        }
+                    }
+                    double gap = Double.MAX_VALUE;
+                    for (int isotope = -6; isotope < 7; ++isotope) {
+                        if (Math.abs(massdiff - isotope * 1.0033548378) < gap) {
+                            gap = Math.abs(massdiff - isotope * 1.0033548378);
+                            isomassd = isotope;
+                        }
+                    }
+                    if (gap > 0.1) { // It may be from an open search.
+                        isomassd = 0;
+                    }
+                }
+                if (line.trim().equals("</search_hit>")) {
+                    sb.append(
+                            String.format(
+                                    "<analysis_result analysis=\"peptideprophet\">\n" +
+                                            "<peptideprophet_result probability=\"%f\" all_ntt_prob=\"(%f,%f,%f)\">\n" +
+                                            "<search_score_summary>\n" +
+                                            "<parameter name=\"fval\" value=\"%f\"/>\n" +
+                                            "<parameter name=\"ntt\" value=\"%d\"/>\n" +
+                                            "<parameter name=\"nmc\" value=\"%d\"/>\n" +
+                                            "<parameter name=\"massd\" value=\"%f\"/>\n" +
+                                            "<parameter name=\"isomassd\" value=\"%d\"/>\n" +
+                                            "</search_score_summary>\n" +
+                                            "</peptideprophet_result>\n" +
+                                            "</analysis_result>\n",
+                                    one_minus_PEP, one_minus_PEP, one_minus_PEP, one_minus_PEP,
+                                    score, ntt, nmc, (massdiff - isomassd * 1.0033548378) * 1e6 / calc_neutral_pep_mass, isomassd
+                            ));
+                }
+                sb.append(line).append("\n");
+            }
+        }
+        return sb.toString();
+    }
+
     public static void percolatorToPepXML(final Path pin,
                                           final String basename,
                                           final Path percolatorTargetPsms, final Path percolatorDecoyPsms,
@@ -97,24 +194,7 @@ public class PercolatorOutputToPepXML {
                                           final String DIA_DDA) {
 
         // get max rank from pin
-        final int max_rank = ((Supplier<Integer>) () -> {
-            int max_rank0 = -1;
-            try (final BufferedReader brtsv = Files.newBufferedReader(pin)) {
-                final String pin_header = brtsv.readLine();
-                final List<String> colnames = Arrays.asList(pin_header.split("\t"));
-                final int indexOf_SpecId = colnames.indexOf("SpecId");
-                String line;
-                while ((line = brtsv.readLine()) != null) {
-                    final String[] split = line.split("\t");
-                    final String raw_SpecId = split[indexOf_SpecId];
-                    final Spectrum_rank spectrum_rank = get_spectrum_rank(raw_SpecId);
-                    max_rank0 = Math.max(spectrum_rank.rank, max_rank0);
-                }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-            return max_rank0;
-        }).get();
+        final int max_rank = get_max_rank(pin);
 
         final Map<String, Object[][]> pin_tsv_dict_r = new HashMap<>();
 
@@ -189,68 +269,15 @@ public class PercolatorOutputToPepXML {
                     if (line.trim().equals("</search_summary>"))
                         break;
                 }
-                String spectrum;
-                double massdiff = Double.NaN;
-                double calc_neutral_pep_mass = Double.NaN;
-                final StringBuilder sb = new StringBuilder();
+
                 while ((line = brpepxml.readLine()) != null) {
                     if (line.trim().startsWith("<spectrum_query")) {
-                        sb.setLength(0);
-                        spectrum = getSpectrum(line);
-                        final Object[][] tmp = pin_tsv_dict_r.get(spectrum);
-                        final double[] pep_score = (double[]) tmp[rank - 1][1];
-                        if(pep_score==null)
-                            continue;
-                        final double one_minus_PEP = 1 - pep_score[0];
-                        final double score = pep_score[1];
-                        final int[] ntt_nmc = (int[]) tmp[rank - 1][0];
-                        final int ntt = ntt_nmc[0];
-                        final int nmc = ntt_nmc[1];
-                        sb.append(paddingZeros(line)).append('\n');
-                        int isomassd = 0;
-                        while ((line = brpepxml.readLine()) != null) { // fixme: the code assumes that there are always <search_hit, massdiff=, and calc_neutral_pep_mass=, which makes it not robust
-                            if (line.trim().startsWith("<search_hit ")) {
-                                for (final String e : line.split("\\s")) { // fixme: the code assumes that all attributes are in one line, which makes it not robust
-                                    if (e.startsWith("massdiff=")) {
-                                        massdiff = Double.parseDouble(e.substring("massdiff=\"".length(), e.length() - 1));
-                                    }
-                                    if (e.startsWith("calc_neutral_pep_mass=")) {
-                                        calc_neutral_pep_mass = Double.parseDouble(e.substring("calc_neutral_pep_mass=\"".length(), e.length() - 1));
-                                        break;
-                                    }
-                                }
-                                double gap = Double.MAX_VALUE;
-                                for (int isotope = -6; isotope < 7; ++isotope) {
-                                    if (Math.abs(massdiff - isotope * 1.0033548378) < gap) {
-                                        gap = Math.abs(massdiff - isotope * 1.0033548378);
-                                        isomassd = isotope;
-                                    }
-                                }
-                                if (gap > 0.1) { // It may be from an open search.
-                                    isomassd = 0;
-                                }
-                            }
-                            if (line.trim().equals("</search_hit>")) {
-                                sb.append(
-                                        String.format(
-                                                "<analysis_result analysis=\"peptideprophet\">\n" +
-                                                        "<peptideprophet_result probability=\"%f\" all_ntt_prob=\"(%f,%f,%f)\">\n" +
-                                                        "<search_score_summary>\n" +
-                                                        "<parameter name=\"fval\" value=\"%f\"/>\n" +
-                                                        "<parameter name=\"ntt\" value=\"%d\"/>\n" +
-                                                        "<parameter name=\"nmc\" value=\"%d\"/>\n" +
-                                                        "<parameter name=\"massd\" value=\"%f\"/>\n" +
-                                                        "<parameter name=\"isomassd\" value=\"%d\"/>\n" +
-                                                        "</search_score_summary>\n" +
-                                                        "</peptideprophet_result>\n" +
-                                                        "</analysis_result>\n",
-                                                one_minus_PEP, one_minus_PEP, one_minus_PEP, one_minus_PEP,
-                                                score, ntt, nmc, (massdiff - isomassd * 1.0033548378) * 1e6 / calc_neutral_pep_mass, isomassd
-                                        ));
-                            }
-                            sb.append(line).append("\n");
+                        final List<String> sq = new ArrayList<>();
+                        sq.add(line);
+                        while ((line = brpepxml.readLine()) != null) {
+                            sq.add(line);
                             if (line.trim().equals("</spectrum_query>")) {
-                                out.write(sb.toString());
+                                out.write(handle_sqectrum_query(sq, pin_tsv_dict_r, rank));
                                 break;
                             }
                         }
