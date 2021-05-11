@@ -95,7 +95,7 @@ public class PtmProphetPanel extends JPanelBase {
       uiTextCmd.setText(getDefaults());
     });
     JLabel info = new JLabel(
-        "<html>Recommended for standard phosphopeptide searches only.<br/>Not for open searches.");
+        "<html>Recommended for standard phosphopeptide searches only. Not for open searches.");
 
     mu.add(p, checkRun).split();
     mu.add(p, btnDefaults).gapLeft("20px");

@@ -43,7 +43,7 @@ public class PSMValidation extends JPanelBase {
     this.setLayout(new BorderLayout());
     this.setBorder(new TitledBorder("PSM Validation"));
 
-    JPanel p = mu.newPanel(null, mu.lcFillX());
+    JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     checkRun = new UiCheck("Run PSM Validation", null, true);
     checkRun.setName("run-psm-validation");
     mu.add(p, checkRun).growX().wrap();
@@ -52,7 +52,7 @@ public class PSMValidation extends JPanelBase {
     PercolatorPanel panelPercolator = new PercolatorPanel(radioGroup, isRun());
     PepProphPanel panelPepProph = new PepProphPanel(radioGroup, isRun());
 
-    p2 = mu.newPanel(null, mu.lcFillX());
+    p2 = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.add(p2, panelPepProph).growX().wrap();
     mu.add(p2, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
     mu.add(p2, panelPercolator).growX().wrap();

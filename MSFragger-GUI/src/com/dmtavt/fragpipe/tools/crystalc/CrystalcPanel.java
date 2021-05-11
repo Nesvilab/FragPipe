@@ -1,6 +1,9 @@
 package com.dmtavt.fragpipe.tools.crystalc;
 
-import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.messages.MessageLoadCrystalcDefaults;
+import com.dmtavt.fragpipe.messages.MessageSearchType;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
@@ -13,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -25,10 +27,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.messages.MessageLoadCrystalcDefaults;
-import com.dmtavt.fragpipe.messages.MessageSearchType;
-import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.swing.FormEntry;
 
 public class CrystalcPanel extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(CrystalcPanel.class);
@@ -167,8 +165,7 @@ public class CrystalcPanel extends JPanelBase {
 //    JButton btnLoadDefaults = new JButton("Load Crystal-C defaults");
 //    btnLoadDefaults.addActionListener((e) -> Bus.post(new MessageLoadCrystalcDefaults(true)));
 //    pTop.add(btnLoadDefaults, new CC().alignX("left"));
-    final String htmlTooltip = "<html>Crystal-C performs additional search results cleanup<br/>\n"
-        + "Recommended for Open Searches only";
+    final String htmlTooltip = "<html>Crystal-C performs additional search results cleanup. Recommended for Open Searches only.";
     JLabel info = new JLabel(htmlTooltip);
     info.setHorizontalAlignment(SwingConstants.LEADING);
     info.setVerticalAlignment(SwingConstants.TOP);
