@@ -50,7 +50,7 @@ public class PtmProphetPanel extends JPanelBase {
   @Override
   protected void init() {
     mu.layout(this, mu.lcFillXNoInsetsTopBottom());
-    mu.border(this, "PTMProphet");
+    mu.border(this, "PTM Site Localization");
 
     pTop = createPanelTop();
     pContent = createPanelContent();

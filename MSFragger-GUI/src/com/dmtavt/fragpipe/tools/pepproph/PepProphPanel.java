@@ -122,12 +122,12 @@ public class PepProphPanel extends JPanelBase {
     mu.add(pTop, checkRun).split();
     mu.add(pTop, labelDefaults);
     mu.add(pTop, uiComboDefaults);
-    mu.add(pTop, btnLoadDefaults).wrap();
+    mu.add(pTop, btnLoadDefaults);
+    mu.add(pTop, uiCheckCombinePepxml).gapLeft("80px").wrap();
 
     pContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.add(pContent, feCmdOpts.label()).alignX("right");
     mu.add(pContent, feCmdOpts.comp).growX().pushX().wrap();
-    mu.add(pContent, uiCheckCombinePepxml).skip(1).wrap();
 
     mu.add(this, pTop).growX().wrap();
     mu.add(this, pContent).growX().wrap();
