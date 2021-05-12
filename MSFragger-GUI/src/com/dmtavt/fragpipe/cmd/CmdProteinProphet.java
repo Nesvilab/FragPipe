@@ -186,7 +186,7 @@ public class CmdProteinProphet extends CmdBase {
           .collect(Collectors.toList());
       List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
 
-      final Path filelist = wd.resolve("filelist_ProteinProphet.txt");
+      final Path filelist = wd.resolve("filelist_proteinprophet.txt");
       try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
         for (String f : pepxmlsPaths) {
           bw.write(f);

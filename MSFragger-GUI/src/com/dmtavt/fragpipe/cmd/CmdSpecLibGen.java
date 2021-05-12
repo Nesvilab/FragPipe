@@ -165,7 +165,7 @@ public class CmdSpecLibGen extends CmdBase {
               }
             }).collect(Collectors.toList());
 
-        final Path filelist = wd.resolve("filelist_SpecLibGen.txt");
+        final Path filelist = wd.resolve("filelist_speclibgen.txt");
         try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
           for (String f : lcmsfiles) {
             bw.write(f);
