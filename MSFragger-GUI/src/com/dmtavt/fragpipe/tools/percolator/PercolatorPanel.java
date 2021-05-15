@@ -3,6 +3,7 @@ package com.dmtavt.fragpipe.tools.percolator;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.SearchTypeProp;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
+import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -20,6 +21,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -71,6 +73,15 @@ public class PercolatorPanel extends JPanelBase {
 
     @Override
     protected void initMore() {
+        checkRun.addItemListener(e -> {
+            final TabMsfragger tabMsfragger = Fragpipe.getStickyStrict(TabMsfragger.class);
+            if (isRun() && tabMsfragger.isOpenMassOffsetSearch()) {
+                JOptionPane.showMessageDialog(this,
+                    "<html>Percolator is incompatible with open search. Please check <code>Run PeptideProphet</code>.",
+                    "Incompatible options", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
         updateEnabledStatus(this, true);
         super.initMore();
     }

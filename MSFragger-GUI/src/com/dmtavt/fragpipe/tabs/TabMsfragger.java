@@ -287,7 +287,14 @@ public class TabMsfragger extends JPanelBase {
     return uiTextIsoErr;
   }
 
+  public boolean isOpenMassOffsetSearch() {
+    Object selected = uiComboPrecursorTolUnits.getSelectedItem();
+    if (selected == null || StringUtils.isNullOrWhitespace((String) selected)) {
+      return false;
+    }
 
+    return (PrecursorMassTolUnits.valueOf((String) selected).valueInParamsFile() == 0 && uiSpinnerPrecTolLo.getActualValue() < -3 && uiSpinnerPrecTolHi.getActualValue() > 3) || !((HtmlStyledJEditorPane) epMassOffsets).getTextLessHtml().trim().contentEquals("0");
+  }
 
   private static void actionChangeMassMode(ItemEvent e) {
     if (e.getStateChange() == ItemEvent.SELECTED) {
