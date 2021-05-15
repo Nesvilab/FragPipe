@@ -83,6 +83,7 @@ public class PercolatorPanel extends JPanelBase {
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void on(MessageSearchType m) {
         log.debug("Got MessageSearchType of type [{}], loading defaults for it", m.type.toString());
+        checkRun.setSelected(false);
         loadDefaults(m.type);
     }
 

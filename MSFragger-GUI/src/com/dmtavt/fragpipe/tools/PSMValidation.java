@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe.tools;
 
+import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.github.chhh.utils.SwingUtils;
@@ -13,6 +14,8 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class PSMValidation extends JPanelBase {
 
@@ -36,6 +39,11 @@ public class PSMValidation extends JPanelBase {
 
   public boolean isRun() {
     return SwingUtils.isEnabledAndChecked(checkRun);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageSearchType m) {
+    checkRun.setSelected(true);
   }
 
   @Override

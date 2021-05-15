@@ -84,6 +84,7 @@ public class PepProphPanel extends JPanelBase {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageSearchType m) {
     log.debug("Got MessageSearchType of type [{}], loading defaults for it", m.type.toString());
+    checkRun.setSelected(true);
     loadDefaults(m.type);
   }
 
