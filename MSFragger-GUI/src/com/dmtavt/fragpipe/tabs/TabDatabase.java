@@ -187,6 +187,7 @@ public class TabDatabase extends JPanelWithEnablement {
     FileNameExtensionFilter exts = new FileNameExtensionFilter("FASTA", "fa", "fas", "fasta");
     JFileChooser fc = FileChooserUtils
         .create("Select FASTA file", false, FcMode.FILES_ONLY, exts);
+    fc.setFileFilter(exts);
     FileChooserUtils.setPath(fc, Stream.of(uiTextDbPath.getNonGhostText(), ThisAppProps.load(ThisAppProps.PROP_DB_FILE_IN)));
     return fc;
   }
