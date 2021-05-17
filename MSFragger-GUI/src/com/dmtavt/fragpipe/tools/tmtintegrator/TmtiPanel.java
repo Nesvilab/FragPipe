@@ -990,7 +990,16 @@ public class TmtiPanel extends JPanelBase {
       if (!TmtiConfProps.PROPS.contains(prop)) {
         return; // skip values that are not officially supported in config file
       }
-      mapConv.put(prop, CONVERT_TO_FILE.getOrDefault(prop, Function.identity()).apply(v));
+      if (prop.contentEquals("mod_tag")) {
+        String t = CONVERT_TO_FILE.getOrDefault(prop, Function.identity()).apply(v);
+        if (t.isEmpty()) {
+          mapConv.put(prop, "none");
+        } else {
+          mapConv.put(prop, t);
+        }
+      } else {
+        mapConv.put(prop, CONVERT_TO_FILE.getOrDefault(prop, Function.identity()).apply(v));
+      }
     });
 
     mapConv.put("path", pathTmtiJar);
