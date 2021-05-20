@@ -503,20 +503,17 @@ public class CmdMsfragger extends CmdBase {
 
     public GetSupportedExts invoke() {
       desc = new ArrayList<>(Arrays.asList("mzML", "mzXML", "mgf", "mzBIN"));
-      exts = new ArrayList<>(Arrays.asList(".mgf", ".mzml", ".mzxml", ".mzBIN"));
-      if (searchPaths != null && !searchPaths.isEmpty()) {
-        if (searchExtLibsThermo(searchPaths) != null) {
+      exts = new ArrayList<>(Arrays.asList(".mgf", ".mzml", ".mzxml", ".mzbin"));
+//      if (searchPaths != null && !searchPaths.isEmpty()) {
+//        if (searchExtLibsThermo(searchPaths) != null) {
           desc.add("Thermo RAW");
           exts.add(".raw");
-        }
-        if (searchExtLibsBruker(searchPaths) != null) {
+//        }
+//        if (searchExtLibsBruker(searchPaths) != null) {
           desc.add("Buker PASEF .d");
           exts.add(".d");
-        }
-        for (int i = 0; i < exts.size(); i++) {
-          exts.set(i, exts.get(i).toLowerCase());
-        }
-      }
+//        }
+//      }
       return this;
     }
   }
