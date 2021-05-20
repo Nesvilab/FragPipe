@@ -175,43 +175,46 @@ public class CmdIonquant extends CmdBase {
 
     try {
       final Path filelist = wd.resolve("filelist_ionquant.txt");
-      BufferedWriter bufferedWriter = Files.newBufferedWriter(filelist);
-      bufferedWriter.write("flag\tvalue\n");
 
-      for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
-        LcmsFileGroup group = e.getKey();
-        Path psmTsv = group.outputDir(wd).resolve("psm.tsv");
-        bufferedWriter.write("--psm");
-        bufferedWriter.write("\t");
-        bufferedWriter.write(wd.relativize(psmTsv).toString());
-        bufferedWriter.write("\n");
-      }
+      if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
+        BufferedWriter bufferedWriter = Files.newBufferedWriter(filelist);
+        bufferedWriter.write("flag\tvalue\n");
 
-      if (isMultidir) {
-        cmd.add("--multidir");
-        cmd.add(".");
-      }
-
-      // compute unique lcms file directories
-      Set<Path> lcmsDirsUnique = Seq.seq(lcmsToFraggerPepxml.keySet()).map(lcms -> lcms.getPath().getParent())
-          .toSet();
-      for (Path path : lcmsDirsUnique) {
-        bufferedWriter.write("--specdir");
-        bufferedWriter.write("\t");
-        bufferedWriter.write(StringUtils.appendPrependOnce(path.toString(), null));
-        bufferedWriter.write("\n");
-      }
-
-      for (Entry<InputLcmsFile, List<Path>> e : lcmsToFraggerPepxml.entrySet()) {
-        for (Path pepxml : e.getValue()) {
-          bufferedWriter.write("--pepxml");
+        for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
+          LcmsFileGroup group = e.getKey();
+          Path psmTsv = group.outputDir(wd).resolve("psm.tsv");
+          bufferedWriter.write("--psm");
           bufferedWriter.write("\t");
-          bufferedWriter.write(wd.relativize(pepxml).toString());
+          bufferedWriter.write(wd.relativize(psmTsv).toString());
           bufferedWriter.write("\n");
         }
-      }
 
-      bufferedWriter.close();
+        if (isMultidir) {
+          cmd.add("--multidir");
+          cmd.add(".");
+        }
+
+        // compute unique lcms file directories
+        Set<Path> lcmsDirsUnique = Seq.seq(lcmsToFraggerPepxml.keySet()).map(lcms -> lcms.getPath().getParent())
+            .toSet();
+        for (Path path : lcmsDirsUnique) {
+          bufferedWriter.write("--specdir");
+          bufferedWriter.write("\t");
+          bufferedWriter.write(StringUtils.appendPrependOnce(path.toString(), null));
+          bufferedWriter.write("\n");
+        }
+
+        for (Entry<InputLcmsFile, List<Path>> e : lcmsToFraggerPepxml.entrySet()) {
+          for (Path pepxml : e.getValue()) {
+            bufferedWriter.write("--pepxml");
+            bufferedWriter.write("\t");
+            bufferedWriter.write(wd.relativize(pepxml).toString());
+            bufferedWriter.write("\n");
+          }
+        }
+
+        bufferedWriter.close();
+      }
 
       cmd.add("--filelist");
       cmd.add(filelist.toAbsolutePath().toString());

@@ -166,14 +166,18 @@ public class CmdSpecLibGen extends CmdBase {
             }).collect(Collectors.toList());
 
         final Path filelist = wd.resolve("filelist_speclibgen.txt");
-        try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
-          for (String f : lcmsfiles) {
-            bw.write(f);
-            bw.newLine();
+
+        if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
+          try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
+            for (String f : lcmsfiles) {
+              bw.write(f);
+              bw.newLine();
+            }
+          } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
           }
-        } catch (IOException ex) {
-          throw new UncheckedIOException(ex);
         }
+
         cmd.add(filelist.toString());
 
 //        // extra arguments for EasyPQP library command FIXME

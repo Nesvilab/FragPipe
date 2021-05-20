@@ -187,14 +187,18 @@ public class CmdProteinProphet extends CmdBase {
       List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
 
       final Path filelist = wd.resolve("filelist_proteinprophet.txt");
-      try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
-        for (String f : pepxmlsPaths) {
-          bw.write(f);
-          bw.newLine();
+
+      if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
+        try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
+          for (String f : pepxmlsPaths) {
+            bw.write(f);
+            bw.newLine();
+          }
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
         }
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
       }
+
       cmd.add(filelist.toString());
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
