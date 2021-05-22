@@ -194,24 +194,30 @@ public class UmpirePanel extends JPanel {
     pSe.add(feRpMax.label(), ccLbl);
     pSe.add(feRpMax.comp, ccComp);
     pSe.add(feRfMax.label(), ccLbl);
-    pSe.add(feRfMax.comp, ccFmtWrap);
+    pSe.add(feRfMax.comp, ccComp);
+    pSe.add(feRtOverlap.label(), ccLbl);
+    pSe.add(feRtOverlap.comp, ccFmtWrap);
 
     pSe.add(feCorrThresh.label(), ccLbl);
     pSe.add(feCorrThresh.comp, ccComp);
     pSe.add(feDeltaApex.label(), ccLbl);
     pSe.add(feDeltaApex.comp, ccComp);
-    pSe.add(feRtOverlap.label(), ccLbl);
-    pSe.add(feRtOverlap.comp, ccFmtWrap);
+    pSe.add(feQ1.label(), ccLbl);
+    pSe.add(feQ1.comp, ccFmtWrap);
 
     pSe.add(feMassDefectOffset.label(), ccLbl);
     pSe.add(feMassDefectOffset.comp, ccComp);
     pSe.add(feIsoPattern.label(), ccLbl);
-    pSe.add(feIsoPattern.comp, ccFmtWrap);
+    pSe.add(feIsoPattern.comp, ccComp);
+    pSe.add(feQ2.label(), ccLbl);
+    pSe.add(feQ2.comp, ccFmtWrap);
 
     pSe.add(feSN.label(), ccLbl);
     pSe.add(feSN.comp, ccComp);
     pSe.add(feMS2SN.label(), ccLbl);
-    pSe.add(feMS2SN.comp, ccFmtWrap);
+    pSe.add(feMS2SN.comp, ccComp);
+    pSe.add(feQ3.label(), ccLbl);
+    pSe.add(feQ3.comp, ccFmtWrap);
 
     pSe.add(feCheckBoostComplimentaryIons.label(), ccLbl);
     pSe.add(feCheckBoostComplimentaryIons.comp, ccComp);
@@ -219,15 +225,6 @@ public class UmpirePanel extends JPanel {
     pSe.add(feCheckAdjustFragIntensitys.comp, ccComp);
     pSe.add(feExportPrecursorPeak.label(), ccLbl);
     pSe.add(feExportPrecursorPeak.comp, ccFmtWrap);
-
-    final JPanel q123 = new JPanel(new MigLayout(lc));
-    q123.add(feQ1.label(), ccLbl);
-    q123.add(feQ1.comp, ccComp);
-    q123.add(feQ2.label(), ccLbl);
-    q123.add(feQ2.comp, ccComp);
-    q123.add(feQ3.label(), ccLbl);
-    q123.add(feQ3.comp, ccFmtWrap);
-    pSe.add(q123, new CC().alignX("right").gapBefore("5px").width("100:200:300px").wrap());
 
     textPanel = new JPanel(new MigLayout(lc));
     textPanel.setBorder(new TitledBorder("Notes"));
