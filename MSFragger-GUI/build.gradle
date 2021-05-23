@@ -40,7 +40,7 @@ tasks.withType(JavaCompile) {
 def startClass = 'com.dmtavt.fragpipe.Fragpipe'
 mainClassName = "${startClass}"
 application {
-    mainClassName = "${startClass}"
+    mainClass = "${startClass}"
 }
 def releaseDir = 'github-release'
 
@@ -54,7 +54,6 @@ def releaseDir = 'github-release'
 //}
 
 repositories {
-    jcenter()
     mavenCentral()
     mavenLocal()
 }
