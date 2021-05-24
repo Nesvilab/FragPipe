@@ -804,12 +804,12 @@ public class FragpipeRun {
             sharedPepxmlFilesBeforePeptideValidation, crystalcPanel.isRun())) {
           return false;
         }
+        Map<InputLcmsFile, List<Path>> percolatorOutputs = cmdPercolator
+            .outputs(sharedPepxmlFilesBeforePeptideValidation, tabMsf.getOutputFileExt(), isCombinedPepxml_percolator);
+        sharedPepxmlFilesBeforePeptideValidation.putAll(sharedPepxmlFiles);
+        sharedPepxmlFiles.clear();
+        sharedPepxmlFiles.putAll(percolatorOutputs);
       }
-      Map<InputLcmsFile, List<Path>> percolatorOutputs = cmdPercolator
-          .outputs(sharedPepxmlFilesBeforePeptideValidation, tabMsf.getOutputFileExt(), isCombinedPepxml_percolator);
-      sharedPepxmlFilesBeforePeptideValidation.putAll(sharedPepxmlFiles);
-      sharedPepxmlFiles.clear();
-      sharedPepxmlFiles.putAll(percolatorOutputs);
       return true;
     });
 
