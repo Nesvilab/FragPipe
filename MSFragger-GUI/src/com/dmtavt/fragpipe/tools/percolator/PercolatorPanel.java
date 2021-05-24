@@ -48,6 +48,10 @@ public class PercolatorPanel extends JPanelBase {
         return parentPanelEnabled && SwingUtils.isEnabledAndChecked(checkRun);
     }
 
+    public boolean isSelected() {
+        return checkRun.isSelected();
+    }
+
     public String getCmdOpts() {
         return uiTextCmdOpts.getNonGhostText().trim();
     }

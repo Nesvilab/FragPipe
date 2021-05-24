@@ -772,6 +772,7 @@ public class FragpipeRun {
 
     final Map<InputLcmsFile, List<Path>> sharedPepxmlFilesBeforePeptideValidation = new HashMap<>();
     addConfig.accept(cmdPeptideProphet, () -> {
+      sharedPepxmlFilesBeforePeptideValidation.putAll(sharedPepxmlFiles);
       if (cmdPeptideProphet.isRun()) {
         final String pepProphCmd = pepProphPanel.getCmdOpts();
         final String enzymeName = tabMsf.getEnzymeName();
@@ -780,12 +781,12 @@ public class FragpipeRun {
           return false;
         }
       }
-      Map<InputLcmsFile, List<Path>> pepProphOutputs = cmdPeptideProphet
-          .outputs(sharedPepxmlFiles, tabMsf.getOutputFileExt(), isCombinedPepxml);
-      sharedPepxmlFilesBeforePeptideValidation.putAll(sharedPepxmlFiles);
-      sharedPepxmlFiles.clear();
-      sharedPepxmlFiles.putAll(pepProphOutputs);
-
+      if(pepProphPanel.isSelected()) {
+        Map<InputLcmsFile, List<Path>> pepProphOutputs = cmdPeptideProphet
+                .outputs(sharedPepxmlFiles, tabMsf.getOutputFileExt(), isCombinedPepxml);
+        sharedPepxmlFiles.clear();
+        sharedPepxmlFiles.putAll(pepProphOutputs);
+      }
       return true;
     });
 
@@ -804,6 +805,8 @@ public class FragpipeRun {
             sharedPepxmlFilesBeforePeptideValidation, crystalcPanel.isRun())) {
           return false;
         }
+      }
+      if (percolatorPanel.isSelected()) {
         Map<InputLcmsFile, List<Path>> percolatorOutputs = cmdPercolator
             .outputs(sharedPepxmlFilesBeforePeptideValidation, tabMsf.getOutputFileExt(), isCombinedPepxml_percolator);
         sharedPepxmlFilesBeforePeptideValidation.putAll(sharedPepxmlFiles);
