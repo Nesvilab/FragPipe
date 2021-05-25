@@ -415,6 +415,13 @@ def calibrate(fasta_path_sample, calibrate_mass: int):
 		if new_remove_precursor_peak is not None:
 			params_txt_new = re.compile(r'^remove_precursor_peak\s*=\s*[0-9]', re.MULTILINE).sub(
 				f'remove_precursor_peak = {new_remove_precursor_peak}', params_txt_new)
+
+	# disable check_spectral_files in split search
+	params_txt_new, n = re.compile(r'^check_spectral_files\s*=\s*[0-9]', re.MULTILINE).subn(
+		'check_spectral_files = 0', params_txt_new)
+	if n == 0:
+		params_txt_new += '\ncheck_spectral_files = 0'
+
 	mzBINs0 = [e.with_suffix('.mzBIN_calibrated') for e in infiles_name]
 	is_calibrated = [e.with_suffix('.mzBIN_calibrated').exists() for e in infiles_name]
 	dests = [(tempdir / mzBin.name).with_suffix('.mzBIN_calibrated')
