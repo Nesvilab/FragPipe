@@ -163,6 +163,8 @@ public class TabMsfragger extends JPanelBase {
       PROP_misc_fragger_precursor_charge_hi,
   };
 
+  UiCombo uiComboMassDiffToVariableMod;
+
   private static String itos(int i) {
     return Integer.toString(i);
   }
@@ -294,6 +296,10 @@ public class TabMsfragger extends JPanelBase {
     }
 
     return (PrecursorMassTolUnits.valueOf((String) selected).valueInParamsFile() == 0 && uiSpinnerPrecTolLo.getActualValue() < -3 && uiSpinnerPrecTolHi.getActualValue() > 3) || !((HtmlStyledJEditorPane) epMassOffsets).getTextLessHtml().trim().contentEquals("0");
+  }
+
+  public int getMassDiffToVariableMod() {
+    return MASS_DIFF_TO_VAR_MOD_MAP[uiComboMassDiffToVariableMod.getSelectedIndex()];
   }
 
   private static void actionChangeMassMode(ItemEvent e) {
@@ -1153,7 +1159,7 @@ public class TabMsfragger extends JPanelBase {
     spinnerZeroBinMultExpect.setColumns(5);
     FormEntry feZeroBinMultExpect = mu.feb(MsfraggerParams.PROP_zero_bin_mult_expect, spinnerZeroBinMultExpect)
         .label("Zero bin multiply expect").create();
-    UiCombo uiComboMassDiffToVariableMod = UiUtils.createUiCombo(MASS_DIFF_TO_VAR_MOD);
+    uiComboMassDiffToVariableMod = UiUtils.createUiCombo(MASS_DIFF_TO_VAR_MOD);
     FormEntry feComboMassDiffToVariableMod = mu.feb(MsfraggerParams.PROP_mass_diff_to_variable_mod, uiComboMassDiffToVariableMod)
         .label("Report mass shift as a variable mod")
             .tooltip("Places/replaces delta mass with an assigned (variable) mod.\n" +

@@ -1,7 +1,9 @@
 package com.dmtavt.fragpipe.tools.crystalc;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.messages.MessageLoadCrystalcDefaults;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
+import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -69,7 +71,14 @@ public class CrystalcPanel extends JPanelBase {
 
   @Override
   protected void initMore() {
-    //updateEnabledStatus(pParams, SwingUtils.isEnabledAndChecked(checkRun));
+    checkRun.addItemListener(e -> {
+      final TabMsfragger tabMsfragger = Fragpipe.getStickyStrict(TabMsfragger.class);
+      if (isRun() && tabMsfragger.getMassDiffToVariableMod() > 0) {
+        JOptionPane.showMessageDialog(this,
+            "<html>Crystal-C is incompatible with 'report mass shift as a variable mod != no'.",
+            "Incompatible options", JOptionPane.WARNING_MESSAGE);
+      }
+    });
     super.initMore();
   }
 
