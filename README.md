@@ -15,6 +15,7 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 - [Built-in workflows](https://msfragger.nesvilab.org/tutorial_fragpipe_workflows.html)
 - [Interpreting output files](https://msfragger.nesvilab.org/tutorial_fragpipe_outputs.html)
 - [Analyzing TMT data](https://msfragger.nesvilab.org/tutorial_tmt.html)
+- [Analyzing TMT data with multiple plexes](https://msfragger.nesvilab.org/tutorial_tmt-2plexes.html)
 - [Analyzing glycoproteomics data](https://msfragger.nesvilab.org/tutorial_glyco-fragger.html)
 - [Building spectral libraries (from DDA, direct DIA with DIA-Umpire, and combined) for DIA analysis](https://msfragger.nesvilab.org/tutorial_DIA.html)
 - [Converting LC/MS data files to mzML](https://msfragger.nesvilab.org/tutorial_convert.html)
