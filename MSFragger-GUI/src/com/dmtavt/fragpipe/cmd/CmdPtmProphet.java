@@ -37,9 +37,6 @@ public class CmdPtmProphet extends CmdBase {
     Map<Path, List<Tuple2<InputLcmsFile, Path>>> groupByPepxml = Seq.seq(lcmsToPepxml)
         .groupBy(Tuple2::v2);
 
-    // slight delay before PTM-P
-    pbis.add(new PbiBuilder().setPb(pbDelay(jarFragpipe, 1000)).setName("Delay").create());
-
     for (Entry<Path, List<Tuple2<InputLcmsFile, Path>>> kv : groupByPepxml.entrySet()) {
       Path pepxml = kv.getKey();
       Path workDir = kv.getValue().get(0).v1.outputDir(wd);
