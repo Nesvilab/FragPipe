@@ -1,6 +1,6 @@
 ---
 name: Submit an issue
-about: A template asking for log files
+about: ''
 title: ''
 labels: ''
 assignees: ''
