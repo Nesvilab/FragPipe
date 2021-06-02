@@ -1,6 +1,6 @@
 ---
 name: Submit an issue
-about: ''
+about: 'Submit an new issue.'
 title: ''
 labels: ''
 assignees: ''
