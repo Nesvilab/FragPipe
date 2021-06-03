@@ -9,22 +9,34 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 
 ### [Download](https://github.com/Nesvilab/FragPipe/releases)
 
-### Tutorials
-- [Using FragPipe](https://msfragger.nesvilab.org/tutorial_fragpipe.html) (most comprehensive tutorial covering all FragPipe modules)
-- [FragPipe setup](https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html)
-- [Built-in workflows](https://msfragger.nesvilab.org/tutorial_fragpipe_workflows.html)
-- [Interpreting output files](https://msfragger.nesvilab.org/tutorial_fragpipe_outputs.html)
-- [Analyzing TMT data](https://msfragger.nesvilab.org/tutorial_tmt.html)
-- [Analyzing TMT data with multiple plexes](https://msfragger.nesvilab.org/tutorial_tmt-2plexes.html)
-- [Analyzing glycoproteomics data](https://msfragger.nesvilab.org/tutorial_glyco-fragger.html)
-- [Building spectral libraries (from DDA, direct DIA with DIA-Umpire, and combined) for DIA analysis](https://msfragger.nesvilab.org/tutorial_DIA.html)
-- [Converting LC/MS data files to mzML](https://msfragger.nesvilab.org/tutorial_convert.html)
-- [Setting up FragPipe on remote Linux server (with X forwarding)](https://msfragger.nesvilab.org/tutorial_setup_x_forwarding.html)
-- [Using FragPipe for SILAC (or other MS1-labeled) data](https://msfragger.nesvilab.org/tutorial_silac.html)
-- [Running MSstats using MSstats.csv from IonQuant](https://msfragger.nesvilab.org/tutorial_msstats.html)
-- [Importing results to Skyline](https://msfragger.nesvilab.org/tutorial_skyline.html)
+#### FragPipe tutorials
+* [Using FragPipe](https://msfragger.nesvilab.org/tutorial_fragpipe.html) (general tutorial covering all FragPipe modules)
+* PTM discovery
+  * [Open search](https://msfragger.nesvilab.org/tutorial_open.html)
+  * [Mass offset search](https://msfragger.nesvilab.org/tutorial_offset.html)
+  * [Custom mass offset workflow (RNA crosslinking example)](https://msfragger.nesvilab.org/tutorial_custom_mass_offset.html) 
+* TMT/iTRAQ quantification
+  * [Single plex](https://msfragger.nesvilab.org/tutorial_tmt.html)
+  * [Multiple plexes with a pooled reference sample](https://msfragger.nesvilab.org/tutorial_tmt-2plexes.html)
+* [Label-free quantification](https://msfragger.nesvilab.org/tutorial_lfq.html)
+* [SILAC (or other MS1-labeled) data](https://msfragger.nesvilab.org/tutorial_silac.html)
+* [Analyzing glycoproteomics data](https://msfragger.nesvilab.org/tutorial_glyco-fragger.html)
+* [Building spectral libraries for DIA analysis (from DDA, direct DIA with DIA-Umpire, and combined)](https://msfragger.nesvilab.org/tutorial_DIA.html)
 
-### Supported instruments and file formats  
+#### Resources
+* [Interpreting output files](https://msfragger.nesvilab.org/tutorial_fragpipe_outputs.html)
+* [List of built-in workflows](https://msfragger.nesvilab.org/tutorial_fragpipe_workflows.html)
+* [FragPipe setup](https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html)
+* [Converting LC/MS data files to mzML](https://msfragger.nesvilab.org/tutorial_convert.html)
+* [Setting up FragPipe on remote Linux server (with X forwarding)](https://msfragger.nesvilab.org/tutorial_setup_x_forwarding.html)
+
+#### Using FragPipe with other tools
+* [Running MSstats with IonQuant results](https://msfragger.nesvilab.org/tutorial_msstats.html)
+* [Importing results into Skyline](https://msfragger.nesvilab.org/tutorial_skyline.html)
+
+
+
+#### Supported instruments and file formats  
 The table below shows the compatibility of FragPipe workflow components with different spectral file formats.
 
 _Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should be converted to .mzML. Please also note that timsTOF data requires [Visual C++ Redistributable for Visual Studio 2017](https://aka.ms/vs/16/release/VC_redist.x64.exe) in Windows._ If you see an error saying cannot find Bruker native library, please try to install the Visual C++ redistibutable.
@@ -34,11 +46,11 @@ _Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should b
 
 
 
-### Documentation
+#### Documentation
 Complete MSFragger documentation can be found on the [MSFragger wiki](https://github.com/Nesvilab/MSFragger/wiki).
 For documentation on the Philosopher toolkit see the [Philosopher wiki](https://github.com/Nesvilab/philosopher/wiki).
 
-### Questions and Technical Support
+#### Questions and Technical Support
 See the MSFragger [wiki](https://github.com/Nesvilab/MSFragger/wiki) and [FAQ](https://github.com/Nesvilab/MSFragger/wiki/Frequently-Asked-Questions). View previous questions/bug reports in the
 [FragPipe issue tracker](https://github.com/Nesvilab/FragPipe/issues). Please post any new questions/bug reports regarding FragPipe itself here as well.
 For questions specific to individual components of FragPipe you can also
@@ -50,7 +62,7 @@ use [MSFragger issue tracker](https://github.com/Nesvilab/MSFragger/issues),
 For other tools developed by Nesvizhskii lab, visit our website 
 [nesvilab.org](http://www.nesvilab.org)
 
-### How to Run
+#### How to Run
 - **Windows**:
   - Run the Windows executable (*.exe*) from the "bin" folder
   - Or start the `FragPipe.bat` from the *.zip* distribution  
@@ -62,7 +74,7 @@ For other tools developed by Nesvizhskii lab, visit our website
   or execute the following command:
   - Or execute `java -jar FragPipe-x.x.jar`
 
-### Cite
+#### Cite
 - Kong, A. T., Leprevost, F. V., Avtonomov, D. M., Mellacheruvu, D., & Nesvizhskii, A. I. (2017). MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics. Nature Methods, 14(5), 513-520.
 - Yu, F., Teo, G. C., Kong, A. T., Haynes, S. E., Avtonomov, D. M., Geiszler, D. J., & Nesvizhskii, A. I. (2020). Identification of modified peptides using localization-aware open search. Nature Communications, 11(1), 1-9.
 - Polasky, D. A., Yu, F., Teo, G. C., & Nesvizhskii, A. I. (2020). Fast and Comprehensive N-and O-glycoproteomics analysis with MSFragger-Glyco. Nature Methods, 17, 1125-1132.
@@ -73,7 +85,7 @@ For other tools developed by Nesvizhskii lab, visit our website
 - Teo, G. C., Polasky, D. A., Yu, F., Nesvizhskii, A. I. (2020). A fast deisotoping algorithm and its implementation in the MSFragger search engine. Journal of Proteome Research.
 - Tsou, C. C., Avtonomov, D., Larsen, B., Tucholska, M., Choi, H., Gingras, A. C., & Nesvizhskii, A. I. (2015). DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics. Nature methods, 12(3), 258-264.
 
-### Building from scratch
+##### Building from scratch
 
 1. Update build version:  
 The version of the build is stored in 3 separate places:  
