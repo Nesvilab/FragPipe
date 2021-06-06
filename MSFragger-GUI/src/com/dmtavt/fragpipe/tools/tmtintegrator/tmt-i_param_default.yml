@@ -5,7 +5,7 @@ tmtintegrator:
   output: D:\test\reports                         # the location of output files
   channel_num: 10                                 # number of channels in the multiplex (e.g. 10, 11)
   ref_tag: pool                                   # unique tag for identifying the reference channel (Bridge sample added to each multiplex)
-  groupby: -1                                     # level of data summarization(0: PSM aggregation to the gene level; 1: protein; 2: peptide sequence; 3: multiple PTM sites; 4: single PTM site; -1: generate reports at all levels)
+  groupby: -1                                     # level of data summarization(0: PSM aggregation to the gene level; 1: protein; 2: peptide sequence; 3: multiple PTM sites; 4: single PTM site; 5: multi-mass (for glycosylation); -1: generate reports at all levels)
   psm_norm: false                                 # perform additional retention time-based normalization at the PSM level
   outlier_removal: true                           # perform outlier removal
   prot_norm: -1                                   # normalization ( -1: generate reports with all normalization options; 0: None; 1: MC (median centering); 2: GN (median centering + variance scaling); 3: SL (sample loading); 4: IRS (internal reference scaling); 5: SL+IRS (sample loading and internal reference scaling))
@@ -17,8 +17,8 @@ tmtintegrator:
   best_psm: true                                  # keep the best PSM only (highest summed TMT intensity) among all redundant PSMs within the same LC-MS run
   prot_exclude: none                              # exclude proteins with specified tags at the beginning of the accession number (e.g. none: no exclusion; sp|,tr| : exclude protein with sp| or tr|)
   allow_overlabel: true                           # allow PSMs with TMT on S (when overlabeling on S was allowed in the database search)
-  allow_unlabeled: false                          # allow PSMs without TMT tag or acetylation on the peptide n-terminus 
-  mod_tag: none                                   # PTM info for generation of PTM-specific reports (none: for Global data; S[167],T[181],Y[243]: for Phospho; K[170]: for K-Acetyl)
+  allow_unlabeled: false                          # allow PSMs without TMT tag or acetylation on the peptide n-terminus
+  mod_tag: none                                   # PTM info for generation of PTM-specific reports (none: for Global data; S(79.9663),T(79.9663),Y(79.9663): for Phospho; K(42.0105): for K-Acetyl; M(15.9949): for M-Oxidation; N-glyco: for N-glycosylation; O-glyco: for O-glycosylation)
   min_site_prob: -1                               # site localization confidence threshold (-1: for Global; 0: as determined by the search engine; above 0 (e.g. 0.75): PTMProphet probability, to be used with phosphorylation only)
   ms1_int: true                                   # use MS1 precursor ion intensity (if true) or MS2 reference intensity (if false) as part of the reference sample abundance estimation 
   top3_pep: true                                  # use top 3 most intense peptide ions as part of the reference sample abundance estimation
