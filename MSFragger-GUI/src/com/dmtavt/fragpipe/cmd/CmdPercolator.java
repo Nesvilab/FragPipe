@@ -7,6 +7,7 @@ import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tools.pepproph.PeptideProphetParams;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorOutputToPepXML;
+import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.github.chhh.utils.OsUtils;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,6 +22,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.jooq.lambda.Seq;
@@ -140,6 +142,22 @@ public class CmdPercolator extends CmdBase {
         pbRewrite.directory(pepxmlPath.getParent().toFile());
         pbisPostParallel.add(new PbiBuilder().setName("Percolator: Convert to pepxml")
                 .setPb(pbRewrite).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
+
+        // delete intermediate files
+        PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);
+        if (!percolatorPanel.check_keep_TSV_files.isSelected()) {
+          final List<Path> temp = new ArrayList<>();
+          temp.add(pepxmlDir.resolve(strippedBaseName + "_percolator_target_psms.tsv"));
+          temp.add(pepxmlDir.resolve(strippedBaseName + "_percolator_decoy_psms.tsv"));
+          List<ProcessBuilder> pbsDeleteTemp = ToolingUtils
+                  .pbsDeleteFiles(jarFragpipe, temp);
+          pbisPostParallel.addAll(pbsDeleteTemp.stream()
+                  .map(pb -> new PbiBuilder()
+                          .setPb(pb)
+                          .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL)
+                          .setName(getCmdName() + ": Delete temp").create())
+                  .collect(Collectors.toList()));
+        }
       }
     }
     pbis.addAll(pbisParallel);
