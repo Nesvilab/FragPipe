@@ -145,7 +145,7 @@ public class CmdPercolator extends CmdBase {
 
         // delete intermediate files
         PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);
-        if (!percolatorPanel.check_keep_TSV_files.isSelected()) {
+        if (!percolatorPanel.checkKeepTsvFiles.isSelected()) {
           final List<Path> temp = new ArrayList<>();
           temp.add(pepxmlDir.resolve(strippedBaseName + "_percolator_target_psms.tsv"));
           temp.add(pepxmlDir.resolve(strippedBaseName + "_percolator_decoy_psms.tsv"));

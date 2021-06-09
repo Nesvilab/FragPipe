@@ -32,7 +32,7 @@ public class PercolatorPanel extends JPanelBase {
     private static final Logger log = LoggerFactory.getLogger(PercolatorPanel.class);
     private static MigUtils mu = MigUtils.get();
     private UiRadio checkRun;
-    public UiCheck check_keep_TSV_files;
+    public UiCheck checkKeepTsvFiles;
     private UiText uiTextCmdOpts;
     private UiCheck uiCheckCombinePepxml;
     private JPanel pTop;
@@ -107,8 +107,8 @@ public class PercolatorPanel extends JPanelBase {
     protected void init() {
         checkRun = new UiRadio("Run Percolator", null, true);
         checkRun.setName("run-percolator");
-        check_keep_TSV_files = new UiCheck("keep TSV files", null, false);
-        check_keep_TSV_files.setName("keep-TSV-files");
+        checkKeepTsvFiles = new UiCheck("keep TSV files", null, false);
+        checkKeepTsvFiles.setName("keep-tsv-files");
         JLabel labelDefaults = new JLabel("Defaults for:");
         final LinkedHashMap<String, SearchTypeProp> defaults = new LinkedHashMap<>();
         defaults.put("Closed Search", SearchTypeProp.closed);
@@ -138,7 +138,7 @@ public class PercolatorPanel extends JPanelBase {
 
         pTop = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
         mu.add(pTop, checkRun).split();
-        mu.add(pTop, check_keep_TSV_files).growX().wrap();
+        mu.add(pTop, checkKeepTsvFiles).growX().wrap();
 
 //        mu.add(pTop, labelDefaults);
 //        mu.add(pTop, uiComboDefaults);
