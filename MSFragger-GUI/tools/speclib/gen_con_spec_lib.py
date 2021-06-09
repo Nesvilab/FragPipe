@@ -3,7 +3,7 @@
 import time
 
 use_philosopher_fo: bool = not True
-delete_temp_files: bool = True
+delete_temp_files: bool = False
 
 from common_funcs import (raise_if, raise_if_not, str_to_path, unexpanduser_quote, list_as_shell_cmd, name_no_ext, strIII, os_fspath)
 from detect_decoy_prefix import detect_decoy_prefix
@@ -66,7 +66,8 @@ if use_easypqp:
 			if all(e.exists() for e in filelist):
 				print("File list provided")
 				spectra_files0 = filelist
-
+	if sys.argv[-1] == 'delete_intermediate_files':
+		delete_temp_files = True
 
 assert use_spectrast ^ use_easypqp
 
@@ -494,7 +495,9 @@ if use_easypqp:
 							for (_, _, spectra, pep_xml), outfiles in zip(runname_rank_spectra_pepxml, convert_outs)]
 	easypqp_library_infiles = [output_directory / (e + '.psmpkl') for e in convert_outs] + \
 							  [output_directory / (e + '.peakpkl') for e in convert_outs]
-
+	easyPQP_tempfiles = easypqp_library_infiles + \
+						[output_directory / (e + '_run_peaks.tsv') for e in convert_outs] + \
+						[output_directory / 'easypqp_lib_openswath.tsv']
 	filelist_easypqp_library = pathlib.Path('filelist_easypqp_library.txt')
 	filelist_easypqp_library.write_text(
 		os.linesep.join(map(os.fspath, easypqp_library_infiles)))
@@ -667,6 +670,8 @@ c|-0.02|AmidatedCorrected
 def main_easypqp():
 
 	output_directory.mkdir(exist_ok=overwrite)
+	logs_directory = output_directory / 'easypqp_logs'
+	logs_directory.mkdir(exist_ok=overwrite)
 	if irt_choice is Irt_choice.iRT:
 		irt_df.to_csv(irt_file, index=False, sep='\t', line_terminator='\n')
 	elif irt_choice is Irt_choice.ciRT:
@@ -677,13 +682,13 @@ def main_easypqp():
 Commands to execute:
 {allcmds}
 {'~' * 69}''', flush=True)
-	(output_directory / "cmds.txt").write_text(allcmds)
+	(logs_directory / 'cmds.txt').write_text(allcmds)
 	subprocess.run([os.fspath(easypqp), '--version'], check=True)
 	procs = []
 	for i, e in enumerate(easypqp_convert_cmds):
 		while sum(p.poll() is None for p in procs) >= nproc:
 			time.sleep(1)
-		procs.append(subprocess.Popen(e, cwd=os_fspath(output_directory), stdout=open(output_directory / f'easypqp_convert_{i}.log', 'w'), stderr=subprocess.STDOUT))
+		procs.append(subprocess.Popen(e, cwd=os_fspath(output_directory), stdout=open(logs_directory / f'easypqp_convert_{i}.log', 'w'), stderr=subprocess.STDOUT))
 		print(f'Executing {e}')
 
 	for p in procs:
@@ -692,7 +697,7 @@ Commands to execute:
 		if p.returncode != 0:
 			print("EasyPQP convert error BEGIN")
 			try:
-				print(open(output_directory / f'easypqp_convert_{i}.log').read(), end="")
+				print(open(logs_directory / f'easypqp_convert_{i}.log').read(), end="")
 			except OSError as e:
 				print(e)
 			print("EasyPQP convert error END")
@@ -877,7 +882,7 @@ if use_easypqp:
 		easypqp_lib_export('skyline')
 	cwd = pathlib.Path()
 	if delete_temp_files:
-		for f in itertools.chain(cwd.glob('*.psmpkl'), cwd.glob('*.peakpkl')):
+		for f in easyPQP_tempfiles:
 			f.unlink()
 	os.chdir(CWD)
 

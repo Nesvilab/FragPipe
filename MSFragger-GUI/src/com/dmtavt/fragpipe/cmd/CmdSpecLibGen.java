@@ -179,12 +179,8 @@ public class CmdSpecLibGen extends CmdBase {
         }
 
         cmd.add(filelist.toString());
-
-//        // extra arguments for EasyPQP library command FIXME
-//        for (Entry<String, String> kv : easypqpLibraryExtraArguments.entrySet()) {
-//          String k = StringUtils.afterLastDot(kv.getKey());
-//          cmd.add(OsUtils.asSingleArgument(StringUtils.prependOnce(k, "--") + " " + kv.getValue()));
-//        }
+        cmd.add(speclibPanel.checkKeepIntermediateFiles.isSelected() ?
+                "keep_intermediate_files" : "delete_intermediate_files");
 
       } else {
         cmd.add(fastaPath);

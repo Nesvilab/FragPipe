@@ -55,6 +55,7 @@ public class SpeclibPanel extends JPanelBase {
   private JPanel pTop;
   private UiRadio uiRadioUseSpectrast;
   private UiRadio uiRadioUseEasypqp;
+  public JCheckBox checkKeepIntermediateFiles;
   private ButtonGroup radioGroupTools;
   private List<String> pqpType;
   private List<String> pqpCal;
@@ -153,6 +154,9 @@ public class SpeclibPanel extends JPanelBase {
     uiRadioUseEasypqp.setToolTipText("Enablement depends on proper python configuration");
     buttonGroup.add(uiRadioUseEasypqp);
     FormEntry feRadioUseEasypqp = new FormEntry("use-easypqp", "not-shown", uiRadioUseEasypqp);
+    checkKeepIntermediateFiles = new UiCheck("keep intermediate files", null, false);
+    checkKeepIntermediateFiles.setName("keep-intermediate-files");
+
     final String optionAuto = "Automatic selection of a run as reference RT";
     final String optionManual = "User provided RT calibration file";
     pqpCal = Arrays.asList(optionAuto, "iRT", "ciRT", optionManual);
@@ -210,7 +214,8 @@ public class SpeclibPanel extends JPanelBase {
         .label("Fragment annotation tol (ppm)")
         .tooltip("Maximum delta mass (PPM) for annotation. [default: 15]").create();
 
-    mu.add(p, feRadioUseEasypqp.comp).wrap();
+    mu.add(p, feRadioUseEasypqp.comp);
+    mu.add(p, checkKeepIntermediateFiles).wrap();
     mu.add(p, fePqpCal.label(), ccR());
     mu.add(p, fePqpCal.comp).split();
     mu.add(p, labelPqpCalFile);
