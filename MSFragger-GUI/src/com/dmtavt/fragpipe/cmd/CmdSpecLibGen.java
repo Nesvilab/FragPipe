@@ -12,6 +12,7 @@ import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -140,8 +141,11 @@ public class CmdSpecLibGen extends CmdBase {
         TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
 
         final String cal = speclibPanel.getEasypqpCalOption();
+        final String im_cal = speclibPanel.getEasypqpIMCalOption();
         final Path calTsvPath = speclibPanel.getEasypqpCalFilePath();
-        cmd.add(cal.equals("a tsv file") ? calTsvPath.toString() : cal); // retention time alignment options
+        final Path imCalTsvPath = speclibPanel.getEasypqpIMCalFilePath();
+        cmd.add((cal.equals("a tsv file") ? calTsvPath.toString() : cal) + File.pathSeparator +
+                (im_cal.equals("a tsv file") ? imCalTsvPath.toString() : im_cal)); // alignment options
         cmd.add(String.valueOf(tabWorkflow.getThreads()));
 
         final double max_delta_unimod = speclibPanel.getEasypqp_max_delta_unimod(); // EasyPQP convert

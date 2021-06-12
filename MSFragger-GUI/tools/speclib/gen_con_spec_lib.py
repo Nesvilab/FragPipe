@@ -34,6 +34,10 @@ class Irt_choice(enum.Enum):
 	ciRT = enum.auto()
 	userRT = enum.auto()
 
+class Im_choice(enum.Enum):
+	no_im = enum.auto()
+	userIM = enum.auto()
+
 def cpu_count():
 	try:
 		return len(os.sched_getaffinity(0))
@@ -43,11 +47,21 @@ def cpu_count():
 if use_easypqp:
 	nproc0 = int(sys.argv[9]) if len(sys.argv) >= 10 else 0
 	nproc = max(cpu_count() - 1, 1) if nproc0 <= 0 else nproc0
-	no_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'noirt'
-	is_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'irt'
-	is_ciRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'cirt'
-	is_userRT = len(sys.argv) >= 9 and pathlib.Path(sys.argv[8]).exists()
-	userRT_file = pathlib.Path(sys.argv[8]).resolve(strict=True) if is_userRT else None
+	if len(sys.argv) >= 9:
+		rta, ima = sys.argv[8].spilt(os.pathsep)
+		no_iRT = rta.casefold() == 'noirt'
+		is_iRT = rta.casefold() == 'irt'
+		is_ciRT = rta.casefold() == 'cirt'
+		is_userRT = pathlib.Path(rta).exists()
+		userRT_file = pathlib.Path(rta).resolve(strict=True) if is_userRT else None
+		no_im = ima.casefold() == 'noim'
+		is_userIM = pathlib.Path(ima).exists()
+		userIM_file = pathlib.Path(ima).resolve(strict=True) if is_userIM else None
+	# no_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'noirt'
+	# is_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'irt'
+	# is_ciRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'cirt'
+	# is_userRT = len(sys.argv) >= 9 and pathlib.Path(sys.argv[8]).exists()
+	# userRT_file = pathlib.Path(sys.argv[8]).resolve(strict=True) if is_userRT else None
 	irt_choice = Irt_choice.no_iRT if no_iRT else \
 		Irt_choice.iRT if is_iRT else \
 			Irt_choice.ciRT if is_ciRT else \
@@ -55,6 +69,11 @@ if use_easypqp:
 					None
 	if irt_choice is None:
 		raise RuntimeError('invalid iRT')
+	im_choice = Im_choice.no_im if no_im else \
+		Im_choice.userIM if userIM_file else \
+			None
+	if im_choice is None:
+		raise RuntimeError('invalid IM')
 	easypqp_convert_extra_args = shlex.split(sys.argv[10]) if len(sys.argv) >= 11 else []
 	easypqp_library_extra_args = shlex.split(sys.argv[11]) if len(sys.argv) >= 12 else []
 	spectra_files0 = sorted(pathlib.Path(e) for e in sys.argv[3].split(os.pathsep))
@@ -460,6 +479,7 @@ if use_easypqp:
 		  for i in range(1, 8)]
 	irt_df = pd.concat(dd).reset_index(drop=True)
 	irt_file = output_directory / 'irt.tsv'
+	im_file = output_directory / 'im.tsv'
 	# irt_df.to_csv(irt_file, index=False, sep='\t', line_terminator='\n')
 	'''easypqp convert --pepxml 1.pep_xml --spectra 1.mgf --exclude-range -1.5,3.5
 	easypqp convert --pepxml 2.pep_xml --spectra 2.mgf --exclude-range -1.5,3.5'''
@@ -502,18 +522,20 @@ if use_easypqp:
 	filelist_easypqp_library.write_text(
 		os.linesep.join(map(os.fspath, easypqp_library_infiles)))
 	use_iRT = irt_choice is not Irt_choice.no_iRT
+	use_im = im_choice is not Im_choice.no_im
 	filelist_arg = [os.fspath(filelist_easypqp_library)]
-	def easypqp_library_cmd(use_irt: bool):
+	def easypqp_library_cmd(use_irt: bool, use_im: bool):
 	# def easypqp_library_cmd(pep_fdr: float = None, prot_fdr: float = None):
 		return [os.fspath(easypqp), 'library',
 				# '--peptide_fdr_threshold', str(pep_fdr), '--protein_fdr_threshold', str(prot_fdr),
 				'--psmtsv', os.fspath(psm_tsv_file), '--peptidetsv', os.fspath(peptide_tsv_file), ] + \
 			   (['--rt_reference', os.fspath(irt_file)] if use_irt else []) + \
+			   (['--im_reference', os.fspath(im_file)] if use_im else []) + \
 			   ['--out', 'easypqp_lib_openswath.tsv'] + easypqp_library_extra_args + filelist_arg
 
 
 	easypqp_cmds = '\n'.join(' '.join(map(shlex.quote, e)) for e in easypqp_convert_cmds) + '\n' + \
-				   ' '.join(map(lambda x: shlex.quote(os.fspath(x)), easypqp_library_cmd(use_iRT)))
+				   ' '.join(map(lambda x: shlex.quote(os.fspath(x)), easypqp_library_cmd(use_iRT, use_im)))
 
 allcmds = '\n\n'.join(e.strip() for e in
 					  ([] if (skip_philosopher_filter or use_easypqp) else [phi_cmd_part1, phi_cmd_part2]) +
@@ -678,6 +700,8 @@ def main_easypqp():
 		shutil.copyfile(script_dir / 'hela_irtkit.tsv', irt_file)
 	elif irt_choice is Irt_choice.userRT:
 		shutil.copyfile(userRT_file, irt_file)
+	if im_choice is Im_choice.userIM:
+		shutil.copyfile(userIM_file, im_file)
 	print(f'''Spectral library building
 Commands to execute:
 {allcmds}
@@ -703,7 +727,7 @@ Commands to execute:
 			print("EasyPQP convert error END")
 	assert all(p.returncode == 0 for p in procs)
 	try:
-		subprocess.run(easypqp_library_cmd(use_iRT), cwd=os_fspath(output_directory), check=True)
+		subprocess.run(easypqp_library_cmd(use_iRT, use_im), cwd=os_fspath(output_directory), check=True)
 	except subprocess.CalledProcessError:
 		print('''Library not generated, not enough peptides could be found for alignment.
 Please try using other options for alignment (e.g. ciRT if used other options)''')

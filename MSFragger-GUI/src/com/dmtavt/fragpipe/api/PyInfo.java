@@ -287,6 +287,30 @@ public class PyInfo {
     return s;
   }
 
+  public String validateIMCalFile(final Path path) {
+    ProcessBuilder pb = new ProcessBuilder(command, "-c", "import pandas as pd; import sys\n" +
+        "rt_referencefile = sys.argv[1]\n" +
+        "rt_reference_run = pd.read_csv(rt_referencefile, index_col=False, sep='\\t')\n" +
+        "if not {'modified_peptide', 'precursor_charge', 'im'}.issubset(rt_reference_run.columns):\n" +
+        "  print('Reference iRT file has wrong format. Requires columns modified_peptide, precursor_charge and im.')\n" +
+        "  print(f'{rt_reference_run.columns}')\n" +
+        "  print(f'{rt_reference_run}')\n" +
+        "  sys.exit(1)\n" +
+        "print('ok')",
+        path.toString());
+    PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
+    pb.environment().put("PYTHONIOENCODING", "utf-8");
+    final String s;
+    try {
+      Process proc = pb.redirectErrorStream(true).start();
+      java.io.InputStream inputStream = proc.getInputStream();
+      s = new java.util.Scanner(inputStream).useDelimiter("\\A").next();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    return s;
+  }
+
   /**
    * Check if a specific package is installed in a python environment.
    *

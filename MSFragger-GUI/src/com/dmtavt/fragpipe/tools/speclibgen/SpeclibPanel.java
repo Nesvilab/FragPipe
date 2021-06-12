@@ -60,8 +60,10 @@ public class SpeclibPanel extends JPanelBase {
   private List<String> pqpType;
   private List<String> pqpCal;
   private UiText uiTextPqpCalFile;
+  private UiText uiTextPqpIMCalFile;
   private UiCombo uiComboPqpType;
   private UiCombo uiComboPqpCal;
+  private UiCombo uiComboPqpIMCal;
   private UiSpinnerDouble uiSpinnerLowess;
   private UiSpinnerDouble uiSpinner_max_delta_unimod;
   private UiSpinnerDouble uiSpinner_max_delta_ppm;
@@ -165,11 +167,19 @@ public class SpeclibPanel extends JPanelBase {
     uiComboPqpCal = UiUtils.createUiCombo(pqpCal);
     FormEntry fePqpCal = new FormEntry("easypqp.rt-cal",
         "RT Calibration", uiComboPqpCal);
+    uiComboPqpIMCal = UiUtils.createUiCombo(Arrays.asList("Automatic selection of a run as reference IM", "User provided RT calibration file"));
+    FormEntry fePqpIMCal = new FormEntry("easypqp.im-cal",
+        "IM Calibration", uiComboPqpIMCal);
     uiTextPqpCalFile = UiUtils.uiTextBuilder().create();
+    uiTextPqpIMCalFile = UiUtils.uiTextBuilder().create();
     FormEntry fePqpCalFile = mu.feb(uiTextPqpCalFile)
         .name("easypqp.select-file.text").label("Calibration file").create();
     JLabel labelPqpCalFile = fePqpCalFile.label();
     Fragpipe.renameNoCache(labelPqpCalFile, "easypqp.select-file.label");
+    FormEntry fePqpIMCalFile = mu.feb(uiTextPqpIMCalFile)
+        .name("easypqp.select-im-file.text").label("Calibration file").create();
+    JLabel labelPqpIMCalFile = fePqpIMCalFile.label();
+    Fragpipe.renameNoCache(labelPqpIMCalFile, "easypqp.select-im-file.label");
     final JButton btnPqpCalFile = fePqpCalFile.browseButton("Browse",
         "Select calibration file", () -> {
           final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("TSV files", "tsv", "txt");
@@ -193,6 +203,29 @@ public class SpeclibPanel extends JPanelBase {
           uiTextPqpCalFile.setText(path.toString());
         });
     btnPqpCalFile.setName("easypqp.select-file.button." + Fragpipe.PROP_NOCACHE);
+    final JButton btnPqpIMCalFile = fePqpIMCalFile.browseButton("Browse",
+        "Select calibration file", () -> {
+          final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("TSV files", "tsv", "txt");
+          JFileChooser fc = FileChooserUtils
+              .create("Calibration file", "Select", false, FcMode.FILES_ONLY, true, fileNameExtensionFilter);
+          fc.setFileFilter(fileNameExtensionFilter);
+          FileChooserUtils.setPath(fc, Stream.of(uiTextPqpIMCalFile.getNonGhostText()));
+          return fc;
+        },
+        paths -> {
+          log.debug("User selected PQP file: {}",
+              paths.stream().map(Path::toString).collect(Collectors.joining(", ")));
+          Path path = paths.get(0); // we only allowed selection of a single file in the file chooser
+          try {
+            validateIMCalFile(path);
+          } catch (ValidationException e) {
+            SwingUtils.showErrorDialog(this, SwingUtils.makeHtml(e.getMessage()), "Cal file error");
+            return;
+          }
+          // validation went without exceptions
+          uiTextPqpIMCalFile.setText(path.toString());
+        });
+    btnPqpIMCalFile.setName("easypqp.select-im-file.button." + Fragpipe.PROP_NOCACHE);
 
     uiComboPqpType = UiUtils.createUiCombo(pqpType);
 //    FormEntry feDataType = new FormEntry("easypqp.data-type","Data type", uiComboPqpType);
@@ -221,6 +254,11 @@ public class SpeclibPanel extends JPanelBase {
     mu.add(p, labelPqpCalFile);
     mu.add(p, btnPqpCalFile);
     mu.add(p, fePqpCalFile.comp).pushX().growX().wrap();
+    mu.add(p, fePqpIMCal.label(), ccR());
+    mu.add(p, fePqpIMCal.comp).split();
+    mu.add(p, labelPqpIMCalFile);
+    mu.add(p, btnPqpIMCalFile);
+    mu.add(p, fePqpIMCalFile.comp).pushX().growX().wrap();
     mu.add(p, feLowess.label(), mu.ccR());
     mu.add(p, feLowess.comp).wrap();
     mu.add(p, fe_max_delta_unimod.label(), mu.ccR());
@@ -250,6 +288,27 @@ public class SpeclibPanel extends JPanelBase {
     });
     uiComboPqpCal.setSelectedIndex(1);
     uiComboPqpCal.setSelectedIndex(0);
+
+    uiComboPqpIMCal.addItemListener(e -> {
+      String selected = (String) e.getItem();
+      final boolean show = optionManual.equals(selected);
+      final AtomicBoolean visibilityChanged = new AtomicBoolean(false);
+      SwingUtils.traverse(p, false, c -> {
+        String name = c.getName();
+        if (name != null && name.contains("easypqp.select-im-file.")) {
+          log.debug("Traversing easyPQP options panel, found matching component: {}", name);
+          if (c.isVisible() != show) {
+            visibilityChanged.set(show);
+            c.setVisible(show);
+          }
+        }
+      });
+      if (visibilityChanged.get()) {
+        p.revalidate();
+      }
+    });
+    uiComboPqpIMCal.setSelectedIndex(1);
+    uiComboPqpIMCal.setSelectedIndex(0);
 
     updateEnabledStatus(p, false);
     return p;
@@ -285,6 +344,19 @@ public class SpeclibPanel extends JPanelBase {
     throw new ValidationException(s);
   }
 
+  private void validateIMCalFile(Path path) throws ValidationException {
+    NoteConfigPython configPython;
+    try {
+      configPython = Fragpipe.getSticky(NoteConfigPython.class);
+    } catch (NoStickyException e) {
+      throw new ValidationException(e);
+    }
+    final String s = configPython.pi.validateIMCalFile(path);
+    if (s.trim().endsWith("ok"))
+      return;
+    throw new ValidationException(s);
+  }
+
   private static CC ccL() {
     return new CC().alignX("left");
   }
@@ -308,9 +380,16 @@ public class SpeclibPanel extends JPanelBase {
   public String getEasypqpCalOption() {
     return new String[]{"noiRT", "iRT", "ciRT", "a tsv file"}[uiComboPqpCal.getSelectedIndex()];
   }
+  public String getEasypqpIMCalOption() {
+    return new String[]{"noIM", "a tsv file"}[uiComboPqpIMCal.getSelectedIndex()];
+  }
 
   public Path getEasypqpCalFilePath() {
     return Paths.get(uiTextPqpCalFile.getNonGhostText());
+  }
+
+  public Path getEasypqpIMCalFilePath() {
+    return Paths.get(uiTextPqpIMCalFile.getNonGhostText());
   }
 
   public String getEasypqpFileType() {
