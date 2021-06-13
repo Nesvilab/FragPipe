@@ -682,8 +682,7 @@ public class FragpipeRun {
     });
 
     final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
-    final int ramGb = tabWorkflow.getRamGb();
-    final int ramGbNonzero = ramGb > 0 ? ramGb : OsUtils.getDefaultXmx();
+    final int ramGb = tabWorkflow.getRamGb() > 0 ? tabWorkflow.getRamGb() : OsUtils.getDefaultXmx();
     final int threads = tabWorkflow.getThreads();
 
     final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
@@ -700,7 +699,7 @@ public class FragpipeRun {
     addConfig.accept(cmdMsfragger, () -> {
       if (cmdMsfragger.isRun()) {
         if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile,
-            tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGbNonzero,
+            tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb,
             sharedLcmsFiles, decoyTag)) {
           return false;
         }
@@ -744,7 +743,7 @@ public class FragpipeRun {
           ccParams.setThread(threads);
         }
         if (!cmdCrystalc.configure(parent, isDryRun, Paths.get(binMsfragger.getBin()),
-            "pepXML", ramGbNonzero,
+            "pepXML", ramGb,
             ccParams, fastaFile, sharedPepxmlFiles)) {
           return false;
         }
@@ -996,7 +995,7 @@ public class FragpipeRun {
     addConfig.accept(cmdIonquant,  () -> {
       if (cmdIonquant.isRun()) {
         return cmdIonquant.configure(
-            parent, Paths.get(binMsfragger.getBin()), ramGbNonzero, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(),
+            parent, Paths.get(binMsfragger.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(),
             sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads);
       }
       return true;
