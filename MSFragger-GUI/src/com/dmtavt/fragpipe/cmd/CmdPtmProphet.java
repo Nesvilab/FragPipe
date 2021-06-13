@@ -1,12 +1,8 @@
 package com.dmtavt.fragpipe.cmd;
 
-import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.util.DoNothing;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.UsageTrigger;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +26,7 @@ public class CmdPtmProphet extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Path jarFragpipe, UsageTrigger usePhi, int threads, String cmdLineOpts,
+  public boolean configure(UsageTrigger usePhi, int threads, String cmdLineOpts,
       List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml) {
     initPreConfig();
 
@@ -68,26 +64,5 @@ public class CmdPtmProphet extends CmdBase {
   @Override
   public boolean usesPhi() {
     return true;
-  }
-
-  private static ProcessBuilder pbDelay(Path jarFragpipe, long millis) {
-    if (jarFragpipe == null) {
-      throw new IllegalArgumentException("jar can't be null");
-    }
-    List<String> cmd = new ArrayList<>();
-    cmd.add(Fragpipe.getBinJava());
-    cmd.add("-cp");
-    Path root = FragpipeLocations.get().getDirFragpipeRoot();
-    String libsDir = root.resolve("lib").toString() + "/*";
-    if (Files.isDirectory(jarFragpipe)) {
-      libsDir = jarFragpipe.getParent().getParent().getParent().getParent()
-          .resolve("build/install/fragpipe/lib").toString() + "/*";
-      log.warn("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}",
-          libsDir);
-    }
-    cmd.add(libsDir);
-    cmd.add(DoNothing.class.getCanonicalName());
-    cmd.add(Long.toString(millis));
-    return new ProcessBuilder(cmd);
   }
 }
