@@ -7,6 +7,7 @@ import com.dmtavt.fragpipe.api.IConfig;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.cmd.CmdBase;
+import com.dmtavt.fragpipe.cmd.CmdCheckCentroid;
 import com.dmtavt.fragpipe.cmd.CmdCrystalc;
 import com.dmtavt.fragpipe.cmd.CmdFreequant;
 import com.dmtavt.fragpipe.cmd.CmdIonquant;
@@ -58,6 +59,7 @@ import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
 import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
+import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
 import com.dmtavt.fragpipe.tools.protproph.ProtProphPanel;
 import com.dmtavt.fragpipe.tools.ptmprophet.PtmProphetPanel;
@@ -67,7 +69,6 @@ import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
 import com.dmtavt.fragpipe.tools.tmtintegrator.TmtiPanel;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
-import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
@@ -655,6 +656,19 @@ public class FragpipeRun {
       return true;
     });
 
+    // Check if the scans are centroided.
+    final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
+    final int ramGb = tabWorkflow.getRamGb() > 0 ? tabWorkflow.getRamGb() : OsUtils.getDefaultXmx();
+    final int threads = tabWorkflow.getThreads();
+
+    CmdCheckCentroid cmdCheckCentroid = new CmdCheckCentroid(true, wd);
+    addConfig.accept(cmdCheckCentroid, () -> {
+      if (cmdCheckCentroid.isRun()) {
+        return cmdCheckCentroid.configure(jarPath, ramGb, threads, sharedLcmsFiles);
+      }
+      return true;
+    });
+
     // run MsFragger
     final NoteConfigMsfragger configMsfragger;
     try {
@@ -680,10 +694,6 @@ public class FragpipeRun {
       }
       return true;
     });
-
-    final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
-    final int ramGb = tabWorkflow.getRamGb() > 0 ? tabWorkflow.getRamGb() : OsUtils.getDefaultXmx();
-    final int threads = tabWorkflow.getThreads();
 
     final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
     final String decoyTag = tabDatabase.getDecoyTag();
@@ -1161,8 +1171,9 @@ public class FragpipeRun {
 
 
     addToGraph(graphOrder, cmdStart, DIRECTION.IN);
-    addToGraph(graphOrder, cmdUmpire, DIRECTION.IN, cmdStart);
-    addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdStart, cmdUmpire);
+    addToGraph(graphOrder, cmdCheckCentroid, DIRECTION.IN, cmdStart);
+    addToGraph(graphOrder, cmdUmpire, DIRECTION.IN, cmdCheckCentroid);
+    addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdUmpire);
 
     addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger);
     addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdCrystalc);
