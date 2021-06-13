@@ -59,8 +59,6 @@ public class CheckCentroid {
     scans.loadData(LCMSDataSubset.STRUCTURE_ONLY);
 
     TreeMap<Integer, IScan> num2scan = scans.getMapNum2scan();
-    boolean ms1Centroided = false;
-    boolean ms2Centroided = false;
     for (final Map.Entry<Integer, IScan> scanNum_iscan : num2scan.entrySet()) {
       final IScan scan = scanNum_iscan.getValue();
 
@@ -68,14 +66,6 @@ public class CheckCentroid {
         if (!scan.isCentroided()) {
           return false;
         } else {
-          if (scan.getMsLevel() == 1) {
-            ms1Centroided = true;
-          } else if (scan.getMsLevel() == 2) {
-            ms2Centroided = true;
-          }
-          if (ms1Centroided && ms2Centroided) {
-            return true;
-          }
           continue;
         }
       }
@@ -107,15 +97,6 @@ public class CheckCentroid {
 
       if (!isCentroid(mzArray)) {
         return false;
-      } else {
-        if (scan.getMsLevel() == 1) {
-          ms1Centroided = true;
-        } else if (scan.getMsLevel() == 2) {
-          ms2Centroided = true;
-        }
-        if (ms1Centroided && ms2Centroided) {
-          return true;
-        }
       }
     }
     scans.reset();

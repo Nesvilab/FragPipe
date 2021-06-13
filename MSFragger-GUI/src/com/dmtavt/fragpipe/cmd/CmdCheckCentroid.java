@@ -46,6 +46,7 @@ public class CmdCheckCentroid extends CmdBase {
       cmd.add(nThreads + "");
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pbis.add(PbiBuilder.from(pb));
+      break; // Only check one file to save some time.
     }
 
     isConfigured = true;
