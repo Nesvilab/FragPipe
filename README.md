@@ -10,29 +10,29 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 ### [Download](https://github.com/Nesvilab/FragPipe/releases)
 
 #### FragPipe tutorials
-* [Using FragPipe](https://msfragger.nesvilab.org/tutorial_fragpipe.html) (general tutorial covering all FragPipe modules)
+* [Using FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html) (general tutorial covering all FragPipe modules)
 * PTM discovery
-  * [Open search](https://msfragger.nesvilab.org/tutorial_open.html)
-  * [Mass offset search](https://msfragger.nesvilab.org/tutorial_offset.html)
-  * [Custom mass offset workflow (RNA crosslinking example)](https://msfragger.nesvilab.org/tutorial_custom_mass_offset.html) 
+  * [Open search](https://fragpipe.nesvilab.org/docs/tutorial_open.html)
+  * [Mass offset search](https://fragpipe.nesvilab.org/docs/tutorial_offset.html)
+  * [Custom mass offset workflow (RNA crosslinking example)](https://fragpipe.nesvilab.org/docs/tutorial_custom_mass_offset.html) 
 * TMT/iTRAQ quantification
-  * [Single plex](https://msfragger.nesvilab.org/tutorial_tmt.html)
-  * [Multiple plexes with a pooled reference sample](https://msfragger.nesvilab.org/tutorial_tmt-2plexes.html)
-* [Label-free quantification](https://msfragger.nesvilab.org/tutorial_lfq.html)
-* [SILAC (or other MS1-labeled) data](https://msfragger.nesvilab.org/tutorial_silac.html)
-* [Analyzing glycoproteomics data](https://msfragger.nesvilab.org/tutorial_glyco-fragger.html)
-* [Building spectral libraries for DIA analysis (from DDA, direct DIA with DIA-Umpire, and combined)](https://msfragger.nesvilab.org/tutorial_DIA.html)
+  * [Single plex](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html)
+  * [Multiple plexes with a pooled reference sample](https://fragpipe.nesvilab.org/docs/tutorial_tmt-2plexes.html)
+* [Label-free quantification](https://fragpipe.nesvilab.org/docs/tutorial_lfq.html)
+* [SILAC (or other MS1-labeled) data](https://fragpipe.nesvilab.org/docs/tutorial_silac.html)
+* [Analyzing glycoproteomics data](https://fragpipe.nesvilab.org/docs/tutorial_glyco-fragger.html)
+* [Building spectral libraries for DIA analysis (from DDA, direct DIA with DIA-Umpire, and combined)](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html)
 
 #### Resources
-* [Interpreting output files](https://msfragger.nesvilab.org/tutorial_fragpipe_outputs.html)
-* [List of built-in workflows](https://msfragger.nesvilab.org/tutorial_fragpipe_workflows.html)
-* [FragPipe setup](https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html)
-* [Converting LC/MS data files to mzML](https://msfragger.nesvilab.org/tutorial_convert.html)
-* [Setting up FragPipe on remote Linux server (with X forwarding)](https://msfragger.nesvilab.org/tutorial_setup_x_forwarding.html)
+* [Interpreting output files](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html)
+* [List of built-in workflows](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html)
+* [FragPipe setup](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html)
+* [Converting LC/MS data files to mzML](https://fragpipe.nesvilab.org/docs/tutorial_convert.html)
+* [Setting up FragPipe on remote Linux server (with X forwarding)](https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html)
 
 #### Using FragPipe with other tools
-* [Running MSstats with IonQuant results](https://msfragger.nesvilab.org/tutorial_msstats.html)
-* [Importing results into Skyline](https://msfragger.nesvilab.org/tutorial_skyline.html)
+* [Running MSstats with IonQuant results](https://fragpipe.nesvilab.org/docs/tutorial_msstats.html)
+* [Importing results into Skyline](https://fragpipe.nesvilab.org/docs/tutorial_skyline.html)
 
 
 
