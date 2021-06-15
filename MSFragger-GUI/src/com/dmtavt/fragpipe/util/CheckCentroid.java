@@ -54,7 +54,7 @@ public class CheckCentroid {
     }
 
     source.setExcludeEmptyScans(true);
-    source.setNumThreadsForParsing(nThreads);
+    source.setNumThreadsForParsing(nThreads > 0 ? nThreads : Runtime.getRuntime().availableProcessors());
     scans.setDataSource(source);
     scans.loadData(LCMSDataSubset.STRUCTURE_ONLY);
 
