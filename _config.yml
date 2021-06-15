@@ -1,4 +1,4 @@
-theme: jekyll-theme-slate
+theme: jekyll-theme-cayman
 title: FragPipe
 description: A complete proteomics pipeline with MSFragger search engine at heart.
 google_analytics: 
