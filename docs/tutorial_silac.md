@@ -6,34 +6,34 @@
 #### 1) Load the `Default` workflow
 Descriptions of built-in workflows can be found [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html)
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/silac_1.jpg)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_1.jpg)
 
 
 #### 2) Specify or download a FASTA file
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/silac_2.jpg)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_2.jpg)
 
 
 #### 3) Select the appropriate variable modifications
 This example specifies the medium and heavy SILAC labels (K4R6/K8R10) as variable modifications.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/silac_3.jpg)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_3.jpg)
 
 If you are using another kind of labeling, fill in the corresponding sites and modification masses. For example, to specify light and heavy dimethyl labels, variable modification should be specified as shown below:
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/silac_3_2.jpg)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_3_2.jpg)
 
 
 #### 4) Use IonQuant for MS1 quantification
 Check `Run MS1 quant` and load the default settings. Then fill in the labels' masses with the format `<site>mass`, with multiple site-mass pairs separated by `;`. Below is an example using SILAC light, medium, and heavy labeling.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/silac_4.jpg)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_4.jpg)
 
 If you are using light and heavy dimethyl labeling, change these fields to:
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/silac_4_2.jpg)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_4_2.jpg)
 
 #### 5) Specify output location and run
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/silac_5.jpg)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_5.jpg)
 
 
 ### Output

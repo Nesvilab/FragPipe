@@ -12,7 +12,7 @@ When FragPipe launches, the first tab in the window ('Config') will be used to c
 
 For more help, see the full [tutorial on FragPipe configuration](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html).
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_pasef_1.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_pasef_1.png)
  
  <br>
 
@@ -23,7 +23,7 @@ Specify the appropriate labels for the replicates/fractions in your experiment.
 
 **Note**: If you do not need to perform quantification, .mgf or \_calibrated.mgf files can be used instead of .d.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_pasef_2.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_pasef_2.png)
 
 #### Group input files
 In the 'Select LC/MS Files' tab, indicate how you'd like PSM/peptide/protein reports to be generated.
@@ -33,11 +33,11 @@ Leave the 'Experiment' and 'Replicate' fields blank, and ensure that the 'Multi-
 
 ##### For reports with results from different replicates shown in separate columns
 Indicate the 'Experiment' and 'Replicate' for each input file as shown below, where there are three replicates for two experimental conditions. On the 'Report' tab, check 'Multi-Experiment Report'. 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/specify_replicates_pasef.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/specify_replicates_pasef.png)
 
 ##### For reports with results from different fractionated replicates shown in separate columns
 Indicate the 'Experiment' and 'Replicate' for each input file as shown below, where each replicate (rep1, rep2) of two experimental conditions is composed of two fractions. Different fractions (1 & 2) from the same sample should have the same 'Experiment'/'Replicate' name. On the 'Report' tab, check 'Multi-Experiment Report'.
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/specify_fractions_pasef.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/specify_fractions_pasef.png)
 <br>
 
 **Note:** for compatibility with REPRINT ([Resource for Evaluation of Protein Interaction Networks](https://reprint-apms.org/)), 'Experiment' names should be written as `gene_condition`, e.g. `HDAC8_control`.
@@ -54,7 +54,7 @@ Use 'Browse' to select a FASTA file from a previous FragPipe/Philosopher analysi
 If you need to use a custom FASTA database, it must follow a certain format and contain decoy sequences. Click 'Browse' to navigate to your custom FASTA. If you select 'Try Auto-Detect', 50% of the entries should contain the decoy tag. For help adding decoys and database formatting, see the instructions on the 'Database' tab or [here](https://github.com/Nesvilab/philosopher/wiki/Database).
 
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_pasef_3.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_pasef_3.png)
 
 <br>
 
@@ -75,7 +75,7 @@ In the 'MSFragger' tab,
  
 
  
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_pasef_4.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_pasef_4.png)
  
  
  <br>
@@ -88,7 +88,7 @@ In the 'Downstream' tab,
 3. Select 'Run ProteinProphet' to validate your protein identifications. (More information about ProteinProphet [here](http://proteinprophet.sourceforge.net/)).
 
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_pasef_5.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_pasef_5.png)
 
 <br>
 
@@ -97,7 +97,7 @@ In the 'Report' tab,
 1. Select 'Generate report' to output tab-delimited tables of the search results.
 2. Select 'Run Quantification' to perform label-free quantification if desired. Make sure 'IonQuant' is selected. Boundaries for 3D LC-IM-MS feature detection can optionally be set here, we recommend using the defaults.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_pasef_6.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_pasef_6.png)
 
  <br>
  
@@ -109,5 +109,5 @@ In the 'Report' tab,
 For more information, see the MSFragger [wiki](https://github.com/Nesvilab/MSFragger/wiki) for technical documentation and the [FAQ](https://github.com/Nesvilab/MSFragger/wiki/Frequently-Asked-Questions).
 
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_pasef_7.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_pasef_7.png)
 

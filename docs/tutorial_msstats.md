@@ -3,11 +3,11 @@
 IonQuant can generate a [MSstats](https://bioconductor.org/packages/release/bioc/html/MSstats.html) compatible file `MSstats.csv`.  
 Given an experimental setup that looks like this in the 'Select LC/MS Files' tab of FragPipe:
 
-<img src="https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_LCMS_msstats.png" width="450"/>
+<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_LCMS_msstats.png" width="450"/>
 
 The `MSstats.csv` file output from IonQuant (via FragPipe) will look something like this:
 
-<img src="https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_table_to_msstats.png" width="700"/>
+<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_table_to_msstats.png" width="700"/>
 
 <!---
 | ProteinName | PeptideSequence             | PrecursorCharge | FragmentIon | ProductCharge | IsotopeLabelType | Condition | BioReplicate | Run                                                                        | Intensity |

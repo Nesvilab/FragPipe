@@ -6,7 +6,7 @@ Complete workflows are available for a variety of experiment types, we recommend
 
 Before you get started, make sure your LC-MS file format is compatible with the workflows you want to perform (for Thermo data with or without FAIMS, we recommend [converting .raw files to mzML](https://fragpipe.nesvilab.org/docs/tutorial_convert.html)) _Please note Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should be converted to .mzML._:
 
-<img src="https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/workflow_support.png" width="450px" align="middle"/>
+<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/workflow_support.png" width="450px" align="middle"/>
 
 FragPipe runs on Windows and Linux operating systems. While very simple analyses may only require 8 GB RAM, large-scale/complex analyses or timsTOF data will likely need 24 GB memory or more. Free disk space is needed to run FragPipe analyses and save reports, typically +20-50% of spectral file size for non-ion mobility data. Disk space requirements for quantification of timsTOF data are greater, +60% spectral file size if .d files are uncompressed, but up to +250% if Bruker's compression function has been used.
 
@@ -37,7 +37,7 @@ When FragPipe launches, the first tab in the window ('Config') will be used to c
 2. Connect FragPipe to a Philosopher program file. If you already have the latest Philosopher release, use 'Browse', otherwise use 'Download/Update'.
 3. Optional: Python is needed to perform database splitting (necessary in complex searches/low memory situations) and spectral library generation. If you already have Python 3 or greater plus a few additional packages installed (numpy, pandas, cython, and version 0.8.0 of msproteomicstools) use 'Browse' to locate your python.exe file. 'Download' will take you to install the Anaconda distribution of Python (comes with numpy, pandas, and cython). See [Python installation help](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html#optional-install-update-or-use-an-already-installed-version-of-python) for details.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_tutorial-config.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-config.png)
  
 
  <br>
@@ -50,7 +50,7 @@ In the 'Workflow' tab:
 
 2. Set the amount of memory & number of logical cores to use.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_tutorial-workflow.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-workflow.png)
 
 
 3. Select 'IM-MS' for Bruker timsTOF PASEF data or 'Regular MS' for all other data types. Drag & drop LC/MS files into the window or use 'Add files' or 'Add Folder Recursively' to add all files in a folder, including those in subfolders.
@@ -135,7 +135,7 @@ TMT/iTRAQ experiments typically consist of one or more "plexes" (multiplexed sam
 ### Run DIA-Umpire SE
 [DIA-Umpire](https://diaumpire.nesvilab.org/)'s signal extraction module can be used for .raw and .mzML files. See this [tutorial](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html) for more detail.
   
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_tutorial-diaumpire.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-diaumpire.png)
 
 
  <br>
@@ -146,7 +146,7 @@ Use 'Browse' to select a FASTA file from a previous FragPipe/Philosopher analysi
 If you need to use a custom FASTA database, use the 'Add decoys' button to add decoys (common contaminants can also be added). Then click 'Browse' to navigate to your updated custom FASTA file. If you 50% of the entries should contain the decoy tag. **Please note that protein sequence entries need to follow specific [formatting](https://github.com/Nesvilab/philosopher/wiki/How-to-prepare-a-protein-database#header-formatting).**
 
   
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_tutorial-database.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-database.png)
 
 
 
@@ -162,7 +162,7 @@ In the 'MSFragger' tab, you can check that the search parameters are suitable fo
 **Note about custom enzymes:** To use an enzyme not listed in the digestion rules drop-down menu, use `nonspecific` from the 'Load rules' drop-down menu, enter the custom cleavage rules, and select `ENZYMATIC` from the 'Cleavage' drop-down menu.
 
  
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_tutorial-msfragger.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-msfragger.png)
  
  
  <br>
@@ -174,7 +174,7 @@ For open search workflows, select [Crystal-C](https://www.nesvilab.org/Crystal-C
 
 [PTM-Prophet](http://www.tppms.org/tools/ptm/) can be used to provide localization probabilities from closed search results. Load the phosphorylation defaults or specify custom `--mods` using the format `residues1:modmass1,residues2:modmass2` to provide the amino acids and their respective variable modifications.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_tutorial-validation.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-validation.png)
 
 
  <br>
@@ -185,7 +185,7 @@ To perform label-free quantification, make sure 'Run MS1 quant' is selected (not
 
 [IonQuant](http://ionquant.nesvilab.org/) is the default LFQ tool in FragPipe. **Min ions** (default = 2) controls how many quantifiable ions are required for protein-level quantification. Select a **Protein quant** option (either top-N, e.g. summation of the top 3 most intense peptides, or MaxLFQ approach. The latter is recommended). Match-between-runs (**MBR**) is available for closed search workflows.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_tutorial-lfq.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-lfq.png)
 
 **Note:** IonQuant provides a lot of flexibility with how identifications are transfered between runs with MBR. Two of the key parameters controlling MBR are 'MBR min correlation' and 'MBR top runs'. The **MBR min correlation** parameter allows matching only between runs with an overlap-weighted correlation (Spearman correlation of [retention time, intensity, and ion mobility if applicable] * overlap in IDs) above the specified threshold (0.5 by default). In addition, **MBR top runs** is applied to allow transfer of ions only from the highest N (by default 3) correlated runs that are above the 'MBR min correlation'.
 
@@ -203,12 +203,12 @@ To perform isobaric labeling-based quantification (TMT/iTRAQ),
 1. Check that the correct 'Label type' is selected (e.g. TMT10, TMT6, iTRAQ4, etc). If you need to change it at this point, we recommend going to the 'Workflow' tab and loading the correct workflow since the label also needs to be specified properly in the MSFragger search.
 2. For each experiment set in the 'Workflow' tab, select 'Edit/Create' Sample/Channel Annotation to assign sample information to each TMT/iTRAQ channel, or 'Browse' to load an existing 'annotation.txt' file. (Each folder can have only one 'annotation.txt' file, so be sure that fractions/replicates of each plex are in their own uniquely-named folder that corresponds to the experiment name. FragPipe will automatically find the right annotation file if these are set correctly.)
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_tutorial-labelquant.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-labelquant.png)
 
 In the annotation pop-up window:
 1. Load the selected TMT/iTRAQ channels.
 2. Provide the experiment/replicate information for each channel.
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_tutorial-labelquant-annotate.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-labelquant-annotate.png)
 
 Annotation files will be named 'annotation.txt' and saved in each folder. Only one 'annotation.txt' is allowed per folder, so we recommend separate folders for each plex (see [TMT/iTRAQ data](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#tmtitraq-data) above).
 
@@ -221,7 +221,7 @@ Annotation files will be named 'annotation.txt' and saved in each folder. Only o
 ### PTMs
 For open search workflows, [PTM-Shepherd](https://github.com/Nesvilab/PTM-Shepherd/wiki/PTM-Shepherd) summarizes delta masses and provides reports on residue localization, retention time similarity, and more.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_tutorial-ptmshepherd.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-ptmshepherd.png)
 
  <br>
 
@@ -230,7 +230,7 @@ Spectral libraries can be generated within closed search-based workflows. A libr
 
 When building a library from fractionated data, using one of the fractions for reference retention time (RT) calibration is not recommended. Instead, select ciRT for human samples or iRT spike-in peptides for other organisms if possible.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_tutorial-speclib.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-speclib.png)
 
  <br>
 
@@ -239,7 +239,7 @@ When building a library from fractionated data, using one of the fractions for r
 2. Press 'RUN' to begin the analysis! A guide to output files can be found [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html). For more help, see the MSFragger [wiki](https://github.com/Nesvilab/MSFragger/wiki), [FAQ](https://github.com/Nesvilab/MSFragger/wiki/Frequently-Asked-Questions), or search issues on [Github](https://github.com/Nesvilab/FragPipe/issues?q=is%3Aissue).
 
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/fragpipe_tutorial-run.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-run.png)
   
 <br>
 

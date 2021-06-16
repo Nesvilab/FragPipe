@@ -22,7 +22,7 @@ Associated publication: [Clark, David J., et al. "Integrated proteogenomic chara
 ### Open FragPipe
 When you launch FragPipe, check that MSFragger and Philosopher are configured. (If you haven’t downloaded them yet, use their respective ‘Download / Update’ buttons. See [this page](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html) for more help, Python is not needed for the exercises in this tutorial.)
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/lfq-config.PNG)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-config.PNG)
 
 <br>
 
@@ -30,22 +30,22 @@ When you launch FragPipe, check that MSFragger and Philosopher are configured. (
 ### Load the data
 For this tutorial, we will download the ready-to-use dataset as a .zip file. Download the compressed folder ‘tmt-phospho-raw.zip’ from [Dropbox](https://www.dropbox.com/home/nesvilab_tutorials/TMT_2plexes) and unzip it. These files have been selected from the larger CPTAC dataset, converted to .mzML format (from .raw, [conversion tutorial here](https://fragpipe.nesvilab.org/docs/tutorial_convert.html)), and organized into subfolders by plex (two high-pH fractions per plex/folder) with corresponding TMT channel annotation files. The file organization is shown below, where 'TMT-P-01s' and 'TMT-P-02s' are the two plexes and ‘f01’ and ‘f02’ indicate two fractions of the same 10-plex. Different plexes must be organized into separate, uniquely-named folders as shown in this example.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-filesetup.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-filesetup.png)
 
 On the ‘Workflow’ tab, use the ‘Add folder recursively’ button to browse and select the ‘tmt-phospho-raw’ folder.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-loadfiles.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-loadfiles.png)
 
 Four .mzML spectral files should be loaded. Then use the ‘By parent directory’ button to assign experiment names to the files by the folder name. The result should look like this:
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-annotatefiles.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-annotatefiles.png)
 
 <br>
 
 ### Load the TMT phospho workflow
 On the ‘Workflow’ tab, select the ‘TMT10-phospho-bridge’ workflow from the dropdown menu, press ‘Load’, and confirm.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-loadworkflow.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-loadworkflow.png)
 
 This sets all the analysis steps for a closed database search with MSFragger (including the appropriate TMT-10 modification settings); validation, filtering, and isobaric quantification with [Philosopher](https://philosopher.nesvilab.org/); and TMT report generation with [TMT-Integrator](https://tmt-integrator.nesvilab.org/).
 
@@ -54,63 +54,63 @@ This sets all the analysis steps for a closed database search with MSFragger (in
 ### Fetch a sequence database
 If you haven’t already downloaded a FASTA sequence database with FragPipe, go to the ‘Database’ tab and use the ‘Download’ button to retrieve sequences from UniProt.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-database.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-database.png)
 
 
 You will need to select a download location first before proceeding to fetch the database with the default options (reviewed human sequences plus common contaminants). Alternatively, you can use the one included in the Dropbox folder (nesvilab_tutorials/2021-05-07-decoys-reviewed-contam-UP000005640.fas).
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/lfq-databaseoptions.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-databaseoptions.png)
 
 <br>
 
 ### Inspect the search and quantification settings
 On the ‘MSFragger’ tab, you can see the parameters that have been set by loading the TMT-10 phospho workflow. Phosphorylation is set as a variable modification, and TMT labeling of the peptide N-terminus and lysine are set as fixed modifications.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-search.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-search.png)
 
 
 To save time in the search (at the expense of slightly lower sensitivity), you can optionally set ‘Calibration and Optimization’ to ‘None’ in the ‘Peak Matching’ section.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-searchnocal.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-searchnocal.png)
 
 
 On the ‘Quant (Isobaric)’ tab, you should see that TMT quantification settings for 10-plex labeling have been set, and the TMT channel annotation files have been automatically loaded. Note that a reference sample is included in this dataset, with the sample tag ‘pool’.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-quant.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-quant.png)
 
 
 You can inspect the channel annotations by clicking ‘Edit/Create’ for one of the plexes. Note that the pool sample in the ‘TMT-P-02s’ plex is labeled ‘pool02’-- each pooled sample is given a unique name, but still needs to contain the tag ‘pool’.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-quantannotation.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-quantannotation.png)
 
 <br>
 
 ### Set output location and run
 On the ‘Run’ tab, use ‘Browse’ to make a new folder for the output files (e.g. ‘my-tmt-phospho-results’). Then click the ‘RUN’ button to start the analysis.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-run.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-run.png)
 
 
 When the run is finished, ‘DONE’ will be printed at the end of the text in the console.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-done.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-done.png)
 
 <br>
 
 ### Inspect the phospho results
 In the output location (‘my-tmt-phospho-results’ folder), you will find folders containing reports for each plex individually as well as the ‘tmt-report’ folder containing combined quantification reports.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-results.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-results.png)
 
 
 The contents of the ‘tmt-report’ folder are shown below. Reports at the gene, protein, peptide, and phosphosite levels have been generated. A more detailed guide to these output files can be found [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html).
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-resultstmt.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-resultstmt.png)
 
 
 Multi-site and single-site reports will be generated for the specified modification, in this case phosphorylation. In single-site reports, peptides identified with multiple phosphorylations are converted to single-site form. Single site reports contain only confidently localized sites.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-site-reports.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-site-reports.png)
 
 
 <br>
@@ -121,15 +121,15 @@ While you’re inspecting the results of the phosphorylation-enriched samples, y
 
 The files are organized similarly to the phospho data, so we can use the ‘Add folder recursively’ button again to load the data.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-prot-loadfiles.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-prot-loadfiles.png)
 
 
 We can then use the ‘By parent directory’ button to get experiment labels like we did before. Instead of using the ‘TMT10-phospho-bridge’ workflow, select and load the ‘TMT10-bridge’ workflow.
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-prot-annotatefiles.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-prot-annotatefiles.png)
 
 
 On the ‘Quant (Isobaric)’ tab, the annotation files should load automatically.
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-prot-quant.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-prot-quant.png)
 
 
 Lastly, on the ‘Run’ tab, set the output location to be a new folder (‘my-tmt-proteome-results’) and click ‘RUN’.

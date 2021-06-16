@@ -26,7 +26,7 @@ For this tutorial, we will use a publicly-available LC-MS spectral file from a s
 ### Start FragPipe
 Find the `fragpipe` folder and open the `fragpipe/bin` subfolder. Double-click the `fragpipe.exe` file on Windows (or the `fragpipe` file on Linux) to launch the FragPipe program. See [this page](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#configure-fragpipe) for help configuring FragPipe. Once MSFragger and Philosopher are configured, you are ready to start your analysis.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-config.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-config.png)
 
 <br>
 
@@ -37,21 +37,21 @@ Workflows for TMT-labeled phosphopeptides are also available. These workflows in
 
 If you have more than one multiplexed sample, each sample needs to be placed in a separate directory. E.g., if an experiment consists of three different TMT-10 samples (A, B, C) each with 12 high-pH RPLC fractions, there should be three folders ('A', 'B', 'C') with 12 mzML files in each.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-workflow.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-workflow.png)
 
 <br>
 
 ### Fetch database
 On the 'Database' tab, click 'Download', which will first prompt you to specify a download location, which you can set to be the 'TMT_tutorial' folder. After you 'Select directory', use the default settings to fetch a database from UniProt (reviewed human sequences plus decoys and common contaminants).
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-database.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-database.png)
 
 <br>
 
 ### MSFragger search settings
 For this tutorial, the parameters on the 'MSFragger' tab automatically loaded with the TMT10 workflow do not need to be modified. In other situations, variable modifications or other parameters could be adjusted here. Check that the TMT tag masses (+229.1629 for TMT-10 in this case) are set correctly for your experiment.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-msfragger.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-msfragger.png)
 
 <br>
 
@@ -64,7 +64,7 @@ To quantify localized phosphorylation sites (or other PTMs), PTM-Prophet is used
 
 where modification masses are specified with their respective modified residues.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-validation.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-validation.png)
 
 <br>
 
@@ -77,11 +77,11 @@ From the 'Group by' menu, choose the desired level for quantification reports, o
 
 Median centering normalization is recommend and set as the default.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-quant.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-quant.png)
 
 In the PTMs section (on the 'Quant' tab), 'Mod tag' needs to be set for the modification of interest (e.g., phosphorylation should be `S[167],T[181],Y[243]`, where the bracketed values are the total residue mass including the modification). To generate reports for modified sites regardless of whether they have been localized by PTM-Prophet (or if the PTM-Prophet step is not included in your analysis), set the 'Min site probability' to 0. See the phospho example below:
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-quant-phospho.PNG)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-quant-phospho.PNG)
 
 <br>
 
@@ -97,7 +97,7 @@ TMT-Integrator reports will be in a new folder, 'tmt-reports'. These reports con
 
 If PTM-specific quantification was performed, multi-site and single-site reports will be generated for the specified modification. In single-site reports, peptides identified with multiple specified modifications are converted to single-site form. When using PTM-Prophet for localization (supported for phosphopeptide-enriched workflows only for now), single site reports contain only confidently localized sites.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-site-reports.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-site-reports.png)
 
 <br>
 <br>

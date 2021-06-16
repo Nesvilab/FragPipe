@@ -31,53 +31,53 @@ _INFO[15:56:25] Converged to 1.00 % FDR with 57143 Ions       decoy=576 threshol
 
 Once you've set a cut-off score, press **'Next'**, prompting Skyline to build the spectral library from these peptide search results.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/Skyline_PASEF_4.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Skyline_PASEF_4.png)
 <br>
 
 #### Add spectral files
 When the spectral library is built, Skyline should automatically detect the spectral files. Press **'Next'**. If Skyline detects that the files in your experiment are named with a common prefix, you have the option to shorten the result names at this point for easier comparison later on.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/Skyline_PASEF_5.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Skyline_PASEF_5.png)
 <br>
 
 #### Add detected modifications
 Skyline should automatically detect variable modifications from your search results. Select the suggested modifications and press **'Next'**.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/Skyline_PASEF_6.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Skyline_PASEF_6.png)
 <br>
 
 #### Configure scan settings
 Precursor charge states greater than 2 can be added at this point. Press **'Next'**.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/Skyline_PASEF_7.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Skyline_PASEF_7.png)
 <br>
 
 #### Add FASTA file
 **'Browse'** for the sequence database, and select the number of missed cleavages that was used in the database search. Press **'Next'** to insert the 'protein.fas' file output by FragPipe/Philosopher, which contains the sequences of proteins filtered to 1% FDR.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/Skyline_PASEF_8.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Skyline_PASEF_8.png)
 <br>
 
 #### Filter targets
 When the FASTA file is finished importing, select the desired filters, and  press **'OK'** to start the import.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/Skyline_PASEF_9.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Skyline_PASEF_9.png)
 <br>
 
 #### Importing the results
 The import will take a few minutes per file.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/Skyline_PASEF_10.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Skyline_PASEF_10.png)
 <br>
 
 #### View results
 Once the import is finished, you are ready to perform your Skyline analyses, select a peptide from the list to view. Quantification can be compared between runs via _View > Peak Areas > Replicate Comparison_. 
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/Skyline_PASEF_12.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Skyline_PASEF_12.png)
 
 To see the two-dimensional ion mobility vs. m/z plot, click on the apex of the chromatogram.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/Skyline_PASEF_13.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Skyline_PASEF_13.png)
 
 <br>
 <br>

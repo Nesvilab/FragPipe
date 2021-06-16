@@ -28,7 +28,7 @@ When you launch FragPipe, check that
 2. Philosopher
 are both configured. If you haven’t downloaded them yet, use their respective ‘Download / Update’ buttons. See [this page](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html) for more help, Python is not needed for this exercise.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/open-config.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/open-config.png)
 <br>
 
 #### Add the data
@@ -37,13 +37,13 @@ are both configured. If you haven’t downloaded them yet, use their respective 
 #### Load the Open workflow
 4. Fragpipe includes built-in workflows for many common analyses. It is recommended to use the default workflows as a starting point for any custom analyses. Since we will be doing an open search, select the ‘Open’ workflow from the dropdown menu at the top of the page. Click ‘Load’ to configure FragPipe to run a complete open search workflow.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/open-workflow.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/open-workflow.png)
 <br>
 
 #### Fetch a sequence database
 5. Now we need to select a protein sequence database. You can choose to download a readymade human .fas file from [here](https://www.dropbox.com/s/v8tlkwu96f3txfj/2021-05-07-decoys-reviewed-contam-UP000005640.fas?dl=0), or you can download one using FragPipe. Downloading is easy, so we could also choose to download one at this point. On the Database tab, click the ‘Download’ button. Follow the prompts to use the default settings (reviewed human sequences with common contaminants).
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/lfq-databaseoptions.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-databaseoptions.png)
 
 Click ‘Yes’ to download the database. When it’s finished, you should see that the `FASTA file path` now points to the new database.
 <br>
@@ -51,18 +51,18 @@ Click ‘Yes’ to download the database. When it’s finished, you should see t
 #### Inspect the search settings
 6. On the MSFragger tab, have a look at the search parameters we will use. Note that a wide precursor mass tolerance is set, from -150 Da to +500 Da. In the Protein Digestion section, change the number of allowed missed cleavages from 2 to 1.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/open-search.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/open-search.png)
 <br>
 
 #### Set the output location and run
 7. By loading the workflow, all other tabs have already been configured for a basic open search analysis, so skip to the Run tab to set the output location (a new folder called ‘my_FFPE_results’), then click ‘RUN’ and wait for the results.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/open-run.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/open-run.png)
 
 
 When the run is finished, ‘DONE’ will be printed at the end of the text in the console.
 
-![](https://raw.githubusercontent.com/Nesvilab/MSFragger/master/images/tmt-2plexes-done.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-done.png)
 <br>
 
 #### Examine the results
