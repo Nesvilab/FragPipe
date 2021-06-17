@@ -2,7 +2,7 @@
 
 The open search strategy allows large mass differences between unmodified peptide sequences and experimentally observed precursors, enabling discovery of post-translational modifications (PTMs) directly from the data without the need to specify them in the analysis. One common use for open searches is finding experimental artifacts that can be included in subsequent closed searches to increase proteome coverage. Many sample preparation methods can modify peptides and reduce the likelihood of recovering them in a typical search. One such protocol is formalin-fixed paraffin-embedding (FFPE), a widely used tissue preservation method. There are a few different modification palettes that have been suggested in the literature (Metz et al., J. Biol. Chem., 2004; Hood et al., Mol. Cell. Proteom., 2005; Zhang et al., Proteomics, 2015) and we are interested in knowing which of these modifications, if any, are most relevant to our data.
 
-For this tutorial, we will use one spectral file (2014-03-14\_-\_NSN\_-\_38B\_-\_2.mzML) from an FFPE-preserved sample of amyloid deposits in eye tissues, acquired on a SCIEX TripleTOF, originally in .raw format that has been [converted to .mzML by ProteoWizard](https://fragpipe.nesvilab.org/docs/tutorial_convert.html). (Publication: Nielsen, Nadia Sukusu, et al. "Insight into the protein composition of immunoglobulin light chain deposits of eyelid, orbital and conjunctival amyloidosis." Journal of proteomics & bioinformatics (2014).)
+For this tutorial, we will use one spectral file ([2014-03-14\_-\_NSN\_-\_38B\_-\_2.mzML, download from Dropbox here](https://www.dropbox.com/s/fdjpdl07tn7tnk8/2014-03-14_-_NSN_-_38B_-_2.mzML?dl=0)) from an FFPE-preserved sample of amyloid deposits in eye tissues, acquired on a SCIEX TripleTOF, originally in .raw format that has been [converted to .mzML by ProteoWizard](https://fragpipe.nesvilab.org/docs/tutorial_convert.html). (Publication: Nielsen, Nadia Sukusu, et al. "Insight into the protein composition of immunoglobulin light chain deposits of eyelid, orbital and conjunctival amyloidosis." Journal of proteomics & bioinformatics (2014).)
 
 
 ##### Tutorial contents
@@ -15,13 +15,6 @@ For this tutorial, we will use one spectral file (2014-03-14\_-\_NSN\_-\_38B\_-\
 * [Examine the results](https://fragpipe.nesvilab.org/docs/tutorial_open.html#examine-the-results)
 
 
-We will use a dataset (PRIDE/ProteomeXchange identifier PXD020556) in which HCT116 cells were treated with aspirin (acetylsalicylic acid) to investigate metabolic changes. Extracts from willows and other plants rich in acetylsalicylic acid have been used medicinally since Mesopotamian times. This tutorial will use a subset of the data to quantify the proteomes of aspirin treated and untreated (control) cells. These data were acquired with a Q Exactive HF-X.
-
-Associated publication: Castoldi, Francesca, et al. "Autophagy-mediated metabolic effects of aspirin." Cell death discovery 6.1 (2020): 1-17.
-
-To get the input data, download the 'lfq-raw.zip' file from [Dropbox](https://www.dropbox.com/sh/azdbblag7whv9v7/AACk8t4-6LowMYobKyXxUMS8a?dl=0) and extract the files.
-
-
 #### Open FragPipe
 When you launch FragPipe, check that 
 1. MSFragger and 
@@ -32,7 +25,7 @@ are both configured. If you haven’t downloaded them yet, use their respective 
 <br>
 
 #### Add the data
-3. On the Workflow tab, drag and drop the file 2014-03-14\_-\_NSN\_-\_36B\_-\_2.mzML file from the FFPE folder. Since we are only analyzing a single file, we don’t need to provide experiment or replicate labels.
+3. On the Workflow tab, add the [2014-03-14\_-\_NSN\_-\_36B\_-\_2.mzML](https://www.dropbox.com/s/fdjpdl07tn7tnk8/2014-03-14_-_NSN_-_38B_-_2.mzML?dl=0) file by dragging and dropping into FragPipe. Since we are only analyzing a single file, we don’t need to provide experiment or replicate labels.
 
 #### Load the Open workflow
 4. Fragpipe includes built-in workflows for many common analyses. It is recommended to use the default workflows as a starting point for any custom analyses. Since we will be doing an open search, select the ‘Open’ workflow from the dropdown menu at the top of the page. Click ‘Load’ to configure FragPipe to run a complete open search workflow.
