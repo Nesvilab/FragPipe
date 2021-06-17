@@ -5,7 +5,7 @@ Traditional closed search requires that precursor masses match the identified pe
 
 Parthenolide is a protein-reactive compound frequently used by cytoskeleton researchers to inhibit tubulin detyrosinases, but it is suspected to hit more than just those enzymes. Labeled peptides should have a +248.14125 Da mass shift, and we want to allow modification of any amino acid so we can learn more about parthenolide's specificity. This is a case for mass offset search.
 
-The samples we will use for this tutorial are purified tubulin treated with either DMSO (control) or parthenolide. Citation: Hotta, Takashi, et al. "Parthenolide Destabilizes Microtubules by Covalently Modifying Tubulin." Current Biology 31.4 (2021): 900-907.
+The samples we will use for this tutorial are purified tubulin treated with either DMSO (control) or parthenolide, download the two spectral files from Dropbox [here](https://www.dropbox.com/sh/6yif51e8x3t9v7j/AADfqLPZ4qUe1XcPQ4UuI_Kea?dl=0). Citation: Hotta, Takashi, et al. "Parthenolide Destabilizes Microtubules by Covalently Modifying Tubulin." Current Biology 31.4 (2021): 900-907.
 
 
 
@@ -26,7 +26,7 @@ When you launch FragPipe, check that MSFragger and Philosopher are both configur
 <br>
 
 ### Add the data
-1. Load the files (drag and drop or browse) and specify experiments: “DMSO” for the file ending 70, “PTL” (short for parthenolide) for the one ending 69.
+1. Load the [files](https://www.dropbox.com/sh/6yif51e8x3t9v7j/AADfqLPZ4qUe1XcPQ4UuI_Kea?dl=0) (drag and drop or browse) and specify experiments: “DMSO” for the file ending 70, “PTL” (short for parthenolide) for the one ending 69.
 2. Select the 'Mass-Offset-CommonPTMs' workflow from the dropdown menu and click 'Load'.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offset-workflow.png)
