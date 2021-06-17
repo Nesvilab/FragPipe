@@ -7,7 +7,7 @@ This page has instructions for using MSConvert to generate mzML files from both 
 <br>
 
 ### Convert Thermo .raw files:
-In the MSConvert window:
+In the MSConvert GUI window:
 1. Browse for the raw files you want to convert.
 2. Add them to the input list.
 3. Select an output directory (where you want to mzML files to be generated).
@@ -15,7 +15,13 @@ In the MSConvert window:
 5. Select any additional filters you want to apply to the conversion. We recommend using the default filters shown here. "peakPicking" (centroiding) must be the first filter.
 6. Press 'Start' to begin converting your files.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/9.jpg)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/msconvert.png)
+
+<br>
+
+Example command line options:
+
+`msconvert.exe --mzML --64 --zlib --filter "pickPicking true 1-" *.raw`
 
 <br>
 
