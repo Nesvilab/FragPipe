@@ -16,7 +16,7 @@ Please note that only the first option (library building from DDA) currently wor
 <br>
 <br>
 
-The dataset used below for illustration was downloaded from [PXD011691](http://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD011691). It contains 10 samples analyzed using DIA (10 mouse brain tissue, with UPS proteins spiked in at varying concentration). It also contains 6 DDA runs (pool of the same 10 brain tissues, with peptides fractionated into 6 fractions) collected for building a spectrum library.     
+The dataset used below for illustration was downloaded from [PXD011691](http://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD011691). It includes 10 samples analyzed using DIA (10 mouse brain tissue, with UPS proteins spiked in at varying concentration). It also includes 6 DDA runs (pool of the same 10 brain tissues, with peptides fractionated into 6 fractions) collected for building a spectrum library. You can download a subset of the dataset (2 DIA files and 2 DDA files in mzML format) from Dropbox [here](https://www.dropbox.com/sh/tix2mbp95k0nxcs/AACoGPnptbjjKuLB2-yGPry4a?dl=0) to use for these demos.    
 
 ### Build a library from DDA data
 1. In Workflow tab of FragPipe, Select the 'SpecLib' workflow from the dropdown menu and 'Load'.
