@@ -1,7 +1,7 @@
-The selected mass shifts used by the 'Mass-Offset-CommonPTMs' workflow in FragPipe are listed below along with their annotation from [Unimod](https://www.unimod.org/modifications_list.php). 
+The selected mass shifts used by the 'Mass-Offset-CommonPTMs' workflow in FragPipe are listed below along with [Unimod](https://www.unimod.org/modifications_list.php) annotation. 
 
 
-Mass Shift | Annotation
+Mass Shift (Da)| Annotation
 --- | ---
 -105.0248 | Met loss + acetaldehyde
 -89.0299 | Met loss + Acetylation
