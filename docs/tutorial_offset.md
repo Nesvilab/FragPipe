@@ -49,7 +49,7 @@ Click ‘Yes’ to download the database. When it’s finished, you should see t
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offset-search.png)
 
 5. Then scroll down to set fixed Mass Delta to 0 for cysteine.
-6. When we loaded the 'Mass-Offset-CommonPTMs' workflow, the [default list of offsets](https://msfragger.nesvilab.org/common_mass_offsets.html) includes more than we need for this analysis since we want to focus on parthenolide. In the 'Mass Offsets' field, replace the offsets list with just 0/248.14125 for the parthenolide adduct.
+6. When we loaded the 'Mass-Offset-CommonPTMs' workflow, the [default list of offsets](https://fragpipe.nesvilab.org/docs/common_mass_offsets.html) includes more than we need for this analysis since we want to focus on parthenolide. In the 'Mass Offsets' field, replace the offsets list with just 0/248.14125 for the parthenolide adduct.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offset-database1.png)
 
