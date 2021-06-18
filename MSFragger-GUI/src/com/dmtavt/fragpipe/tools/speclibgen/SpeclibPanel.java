@@ -67,6 +67,12 @@ public class SpeclibPanel extends JPanelBase {
   private UiSpinnerDouble uiSpinnerLowess;
   private UiSpinnerDouble uiSpinner_max_delta_unimod;
   private UiSpinnerDouble uiSpinner_max_delta_ppm;
+  private JCheckBox check_fragment_type_a;
+  private JCheckBox check_fragment_type_b;
+  private JCheckBox check_fragment_type_c;
+  private JCheckBox check_fragment_type_x;
+  private JCheckBox check_fragment_type_y;
+  private JCheckBox check_fragment_type_z;
   private JPanel panelEasypqp;
   private JPanel panelSpectrast;
   public static final String EASYPQP_TIMSTOF = "timsTOF";
@@ -247,8 +253,24 @@ public class SpeclibPanel extends JPanelBase {
         .label("Fragment annotation tol (ppm)")
         .tooltip("Maximum delta mass (PPM) for annotation. [default: 15]").create();
 
+    check_fragment_type_a = new UiCheck("a", null, false);
+    check_fragment_type_b = new UiCheck("b", null, true);
+    check_fragment_type_c = new UiCheck("c", null, false);
+    check_fragment_type_x = new UiCheck("x", null, false);
+    check_fragment_type_y = new UiCheck("y", null, true);
+    check_fragment_type_z = new UiCheck("z", null, false);
+
     mu.add(p, feRadioUseEasypqp.comp);
     mu.add(p, checkKeepIntermediateFiles).wrap();
+    final JPanel p2 = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
+    mu.add(p, new JLabel("fragment types")).wrap();
+    mu.add(p, p2).wrap();
+    mu.add(p2, check_fragment_type_a);
+    mu.add(p2, check_fragment_type_b);
+    mu.add(p2, check_fragment_type_c).wrap();
+    mu.add(p2, check_fragment_type_x);
+    mu.add(p2, check_fragment_type_y);
+    mu.add(p2, check_fragment_type_z);
     mu.add(p, fePqpCal.label(), ccR());
     mu.add(p, fePqpCal.comp).split();
     mu.add(p, labelPqpCalFile);
@@ -406,6 +428,23 @@ public class SpeclibPanel extends JPanelBase {
 
   public double getEasypqp_max_delta_ppm() {
     return uiSpinner_max_delta_ppm.getActualValue();
+  }
+
+  public String getEasypqp_fragment_types() {
+    final boolean[] a = new boolean[]{
+            check_fragment_type_a.isSelected(),
+            check_fragment_type_b.isSelected(),
+            check_fragment_type_c.isSelected(),
+            check_fragment_type_x.isSelected(),
+            check_fragment_type_y.isSelected(),
+            check_fragment_type_z.isSelected(),
+    };
+    final String[] chars = new String[]{"a", "b", "c", "x", "y", "z"};
+    final StringBuilder ret = new StringBuilder("[");
+    for (int i = 0; i < chars.length; i++)
+      if (a[i])
+        ret.append("'").append(chars[i]).append("',");
+    return ret.append("]").toString();
   }
 
   public boolean useSpectrast() {
