@@ -276,20 +276,36 @@ public class SpeclibPanel extends JPanelBase {
     mu.add(p, feLowess.label(), mu.ccR());
     mu.add(p, feLowess.comp).split();
     final String ft = "Fragment types:";
-    mu.add(p, new JLabel(ft));
-    mu.add(p, check_fragment_type_a);
-    mu.add(p, check_fragment_type_x).wrap();
-    mu.add(p, fe_max_delta_unimod.label(), mu.ccR());
-    mu.add(p, fe_max_delta_unimod.comp).split();
+    final String sp = "          "; // spacing
+    {
+      final JLabel jLabelAlign = new JLabel(sp);
+      jLabelAlign.setVisible(false);
+      mu.add(p, jLabelAlign);
+    }
     {
       final JLabel jLabelAlign = new JLabel(ft);
       jLabelAlign.setVisible(false);
       mu.add(p, jLabelAlign);
     }
+    mu.add(p, check_fragment_type_a);
+    mu.add(p, check_fragment_type_x).wrap();
+    mu.add(p, fe_max_delta_unimod.label(), mu.ccR());
+    mu.add(p, fe_max_delta_unimod.comp).split();
+    {
+      final JLabel jLabelAlign = new JLabel(sp);
+      jLabelAlign.setVisible(false);
+      mu.add(p, jLabelAlign);
+    }
+    mu.add(p, new JLabel(ft));
     mu.add(p, check_fragment_type_b);
     mu.add(p, check_fragment_type_y).wrap();
     mu.add(p, fe_max_delta_ppm.label(), mu.ccR());
     mu.add(p, fe_max_delta_ppm.comp).split();
+    {
+      final JLabel jLabelAlign = new JLabel(sp);
+      jLabelAlign.setVisible(false);
+      mu.add(p, jLabelAlign);
+    }
     {
       final JLabel jLabelAlign = new JLabel(ft);
       jLabelAlign.setVisible(false);
