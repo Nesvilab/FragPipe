@@ -110,7 +110,7 @@ searches. We recommend using one of these workflows as a starting point, but par
 
 #### To load a workflow:
 
-![](./images/Fragpipe-glyco_1.PNG)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Fragpipe-glyco_1.PNG)
 
 Navigate to the workflow tab, select a glycoproteomics workflow from the dropdown menu, and press the "Load" button. All default glycoproteomics 
 workflows begin with "glyco-", followed by the type of glycan (N-linked or O-linked), and activation
@@ -131,10 +131,10 @@ The vast majority of differences between regular and glycoproteomics searches ca
 MSFragger tab. The key areas are highlighted here. Standard parameters are modified as in
 a typical search - see the main FragPipe tutorial for details about the parameters on this page.
 Open searches are performed by changing the precursor mass range and units here.      
-![](./images/Fragpipe-glyco_2.PNG)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Fragpipe-glyco_2.PNG)
 
 ##### Advanced parameters
-![](./images/Fragpipe-glyco_3.PNG)   
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Fragpipe-glyco_3.PNG)   
 Most of the glyco-search options can be found in the advanced section. 
 
 **(1)** For mass offset glyco searches,
@@ -266,5 +266,6 @@ ambiguous, for N-glycan mode searches, the delta mass will be placed on the firs
  containing multiple sequons, follow-up localization after the search is strongly recommended. For all other 
 searches, the modification will remain as a delta masses if not localized.
 
+<br>
 
-
+#### [Back to FragPipe homepage](https://fragpipe.nesvilab.org/)
