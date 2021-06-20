@@ -48,7 +48,7 @@ if use_easypqp:
 	nproc0 = int(sys.argv[9]) if len(sys.argv) >= 10 else 0
 	nproc = max(cpu_count() - 1, 1) if nproc0 <= 0 else nproc0
 	if len(sys.argv) >= 9:
-		rta, ima = sys.argv[8].spilt(os.pathsep)
+		rta, ima = sys.argv[8].split(os.pathsep)
 		no_iRT = rta.casefold() == 'noirt'
 		is_iRT = rta.casefold() == 'irt'
 		is_ciRT = rta.casefold() == 'cirt'
@@ -79,7 +79,7 @@ if use_easypqp:
 	spectra_files0 = sorted(pathlib.Path(e) for e in sys.argv[3].split(os.pathsep))
 	if spectra_files0 == [pathlib.Path('unused')] and len(sys.argv) >= 13:
 		spectra_files0 = [pathlib.Path(e) for e in sys.argv[12:]]
-		if len(spectra_files0) == 1: # check if file is a file list
+		if len(spectra_files0) >= 1 and spectra_files0[0].name.endswith('.txt'): # check if file is a file list
 			filelist_str = pathlib.Path(spectra_files0[0]).read_text('utf-8').splitlines()
 			filelist = list(map(pathlib.Path, filelist_str))
 			if all(e.exists() for e in filelist):
