@@ -29,7 +29,7 @@ public class CmdIonquant extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdIonquant.class);
 
   public static final String NAME = "IonQuant";
-  public static final String JAR_IONQUANT_NAME = "ionquant-1.7.2.jar";
+  public static final String JAR_IONQUANT_NAME = "ionquant-1.7.3.jar";
   public static final String JAR_MSFTBX_NAME = ToolingUtils.BATMASS_IO_JAR;
   public static final String JAR_IONQUANT_MAIN_CLASS = "ionquant.IonQuant";
   private static String[] JAR_DEPS = {JAR_MSFTBX_NAME};
