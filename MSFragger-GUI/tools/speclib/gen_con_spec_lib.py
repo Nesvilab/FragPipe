@@ -77,16 +77,16 @@ if use_easypqp:
 	easypqp_convert_extra_args = shlex.split(sys.argv[10]) if len(sys.argv) >= 11 else []
 	easypqp_library_extra_args = shlex.split(sys.argv[11]) if len(sys.argv) >= 12 else []
 	spectra_files0 = sorted(pathlib.Path(e) for e in sys.argv[3].split(os.pathsep))
-	if spectra_files0 == [pathlib.Path('unused')] and len(sys.argv) >= 13:
-		spectra_files0 = [pathlib.Path(e) for e in sys.argv[12:]]
+	if len(sys.argv) >= 13 and sys.argv[12] == 'delete_intermediate_files':
+		delete_temp_files = True
+	if spectra_files0 == [pathlib.Path('unused')] and len(sys.argv) >= 14:
+		spectra_files0 = [pathlib.Path(e) for e in sys.argv[13:]]
 		if len(spectra_files0) >= 1 and spectra_files0[0].name.endswith('.txt'): # check if file is a file list
 			filelist_str = pathlib.Path(spectra_files0[0]).read_text('utf-8').splitlines()
 			filelist = list(map(pathlib.Path, filelist_str))
 			if all(e.exists() for e in filelist):
 				print("File list provided")
 				spectra_files0 = filelist
-	if sys.argv[-1] == 'delete_intermediate_files':
-		delete_temp_files = True
 
 assert use_spectrast ^ use_easypqp
 

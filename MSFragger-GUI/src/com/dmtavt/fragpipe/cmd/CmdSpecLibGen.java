@@ -153,7 +153,7 @@ public class CmdSpecLibGen extends CmdBase {
         final String fragment_types = speclibPanel.getEasypqp_fragment_types(); // EasyPQP convert
         final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction(); // EasyPQP library
 
-        cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod %f --max_delta_ppm %f --fragment_types %s", max_delta_unimod, max_delta_ppm, fragment_types))); // EasyPQP convert args
+        cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod %f --max_delta_ppm %f --fragment_types %s", max_delta_unimod, max_delta_ppm, fragment_types.replace("'", "\\'")))); // EasyPQP convert args
         cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %f", rt_lowess_fraction))); // EasyPQP library args
 
         final List<String> lcmsfiles = group.lcmsFiles.stream()
@@ -170,6 +170,9 @@ public class CmdSpecLibGen extends CmdBase {
               }
             }).collect(Collectors.toList());
 
+        cmd.add(speclibPanel.checkKeepIntermediateFiles.isSelected() ?
+                "keep_intermediate_files" : "delete_intermediate_files");
+
         final Path filelist = wd.resolve("filelist_speclibgen.txt");
 
         if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
@@ -184,8 +187,6 @@ public class CmdSpecLibGen extends CmdBase {
         }
 
         cmd.add(filelist.toString());
-        cmd.add(speclibPanel.checkKeepIntermediateFiles.isSelected() ?
-                "keep_intermediate_files" : "delete_intermediate_files");
 
       } else {
         cmd.add(fastaPath);
