@@ -26,7 +26,7 @@ When you launch FragPipe, check that MSFragger and Philosopher are both configur
 <br>
 
 ### Add the data
-1. Load the [files](https://www.dropbox.com/sh/6yif51e8x3t9v7j/AADfqLPZ4qUe1XcPQ4UuI_Kea?dl=0) (drag and drop or browse) and specify experiments: “DMSO” for the file ending 70, “PTL” (short for parthenolide) for the one ending 69.
+1. Load the [files](https://www.dropbox.com/sh/6yif51e8x3t9v7j/AADfqLPZ4qUe1XcPQ4UuI_Kea?dl=0) (drag and drop or browse) and specify experiments: “DMSO” for the file ending 69, “PTL” (short for parthenolide) for the one ending 70.
 2. Select the 'Mass-Offset-CommonPTMs' workflow from the dropdown menu and click 'Load'.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offset-workflow.png)
