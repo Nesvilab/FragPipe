@@ -173,7 +173,8 @@ public class SpeclibPanel extends JPanelBase {
     uiComboPqpCal = UiUtils.createUiCombo(pqpCal);
     FormEntry fePqpCal = new FormEntry("easypqp.rt-cal",
         "RT Calibration", uiComboPqpCal);
-    uiComboPqpIMCal = UiUtils.createUiCombo(Arrays.asList("Automatic selection of a run as reference IM", "User provided RT calibration file"));
+    final String optionIMManual = "User provided IM calibration file";
+    uiComboPqpIMCal = UiUtils.createUiCombo(Arrays.asList("Automatic selection of a run as reference IM", optionIMManual));
     FormEntry fePqpIMCal = new FormEntry("easypqp.im-cal",
         "IM Calibration", uiComboPqpIMCal);
     uiTextPqpCalFile = UiUtils.uiTextBuilder().create();
@@ -339,7 +340,7 @@ public class SpeclibPanel extends JPanelBase {
 
     uiComboPqpIMCal.addItemListener(e -> {
       String selected = (String) e.getItem();
-      final boolean show = optionManual.equals(selected);
+      final boolean show = optionIMManual.equals(selected);
       final AtomicBoolean visibilityChanged = new AtomicBoolean(false);
       SwingUtils.traverse(p, false, c -> {
         String name = c.getName();
