@@ -118,7 +118,7 @@ public class SpeclibPanel extends JPanelBase {
     JPanel p = new JPanel(new MigLayout(new LC().insetsAll("0px")));
     mu.borderEmpty(p);
 
-    checkRun = new UiCheck("Generate Spectral Library from search results", null, false);
+    checkRun = new UiCheck("Generate spectral library from search results", null, false);
     checkRun.setName("run-speclibgen");
 
     mu.add(p, checkRun);
@@ -172,11 +172,11 @@ public class SpeclibPanel extends JPanelBase {
 
     uiComboPqpCal = UiUtils.createUiCombo(pqpCal);
     FormEntry fePqpCal = new FormEntry("easypqp.rt-cal",
-        "RT Calibration", uiComboPqpCal);
+        "RT calibration", uiComboPqpCal);
     final String optionIMManual = "User provided IM calibration file";
     uiComboPqpIMCal = UiUtils.createUiCombo(Arrays.asList("Automatic selection of a run as reference IM", optionIMManual));
     FormEntry fePqpIMCal = new FormEntry("easypqp.im-cal",
-        "IM Calibration", uiComboPqpIMCal);
+        "IM calibration", uiComboPqpIMCal);
     uiTextPqpCalFile = UiUtils.uiTextBuilder().create();
     uiTextPqpIMCalFile = UiUtils.uiTextBuilder().create();
     FormEntry fePqpCalFile = mu.feb(uiTextPqpCalFile)
@@ -239,7 +239,7 @@ public class SpeclibPanel extends JPanelBase {
     uiSpinnerLowess = UiUtils.spinnerDouble(0.01, 0.0, 1.0, 0.01)
         .setCols(5).setFormat("#.##").create();
     FormEntry feLowess = mu.feb(uiSpinnerLowess).name("easypqp.extras.rt_lowess_fraction")
-        .label("RT Lowess Fraction")
+        .label("RT Lowess fraction")
         .tooltip("Fraction of data points to use for RT lowess regression. If set to 0, cross validation is used.").create();
 
     uiSpinner_max_delta_unimod = UiUtils.spinnerDouble(0.02, 0.0, 1.0, 0.01)

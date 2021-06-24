@@ -63,7 +63,7 @@ public class ReportPanel extends JPanelBase {
   @Override
   protected void init() {
     mu.layout(this, mu.lcFillXNoInsetsTopBottom());
-    mu.border(this, "Filter and Report");
+    mu.border(this, "FDR Filter and Report");
 
     pTop = createPanelTop();
     pOptions = createPanelOptions();

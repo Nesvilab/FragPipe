@@ -340,8 +340,8 @@ public class TmtiPanel extends JPanelBase {
     FormEntry feUniqueGene = fe(TmtiConfProps.PROP_unique_gene,
         "Peptide-Gene uniqueness", uiComboUniqueGene,
         "<html>0: allow all PSMs; <br/>"
-            + "1: remove PSMs mapping to more than one GENE with evidence of expression in the dataset; <br/>\n"
-            + "2:remove all PSMs mapping to more than one GENE in the fasta file\n");
+            + "1: remove PSMs mapping to more than one gene with evidence of expression in the dataset; <br/>\n"
+            + "2: remove all PSMs mapping to more than one gene in the FASTA database\n");
 
     DecimalFormat df2 = new DecimalFormat("#.##");
     DecimalFormat df3 = new DecimalFormat("#.###");
@@ -430,7 +430,7 @@ public class TmtiPanel extends JPanelBase {
         "<html>use top 3 most intense peptide ions as part of the reference <br/>\n"
             + "sample abundance estimation");
 
-    UiCheck uiCheckPrintRef = UiCheck.of("Print Ref Int", false);
+    UiCheck uiCheckPrintRef = UiCheck.of("Print reference intensity", false);
     FormEntry fePrintRefInt = fe(TmtiConfProps.PROP_print_RefInt,
         "not-shown", uiCheckPrintRef,
         "<html>print individual reference sample intensities");
@@ -442,7 +442,7 @@ public class TmtiPanel extends JPanelBase {
         .label("Min best peptide probability").create();
 
     JPanel p = mu.newPanel(mu.lcNoInsetsTopBottom());
-    mu.border(p, "Filters and normalization");
+    mu.border(p, "Filtering and normalization");
 
     mu.add(p, feUniqueGene.label(), mu.ccR());
     mu.add(p, feUniqueGene.comp).split().spanX();
