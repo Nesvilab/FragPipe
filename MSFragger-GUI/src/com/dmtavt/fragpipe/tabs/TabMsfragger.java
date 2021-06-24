@@ -650,12 +650,12 @@ public class TabMsfragger extends JPanelBase {
   }
 
   private JPanel createPanelGlyco() {
-    JPanel p = mu.newPanel("Glyco/Labile mods", mu.lcFillXNoInsetsTopBottom());
+    JPanel p = mu.newPanel("Glyco/Labile Mods", mu.lcFillXNoInsetsTopBottom());
 
     final UiCombo uiComboGlyco = UiUtils.createUiCombo(GLYCO_OPTIONS_UI);
     FormEntry feGlycoSearchMode = mu.feb(uiComboGlyco)
         .name(MsfraggerParams.PROP_labile_search_mode)
-        .label("Labile Modifications Search mode")
+        .label("Labile modification search mode")
             .tooltip("labile mode assumes delta mass will dissociate from peptide\n" +
                     "during MS2. Uses restrict delta mass parameter to determine allowed sites.\n" +
                     "Allows diagnostic and Y ions\n" +
@@ -667,7 +667,7 @@ public class TabMsfragger extends JPanelBase {
         .setCols(5).create();
     FormEntry feOxoniumIonMinimumIntensity = mu.feb(uiSpinnerMinInt)
         .name(MsfraggerParams.PROP_diagnostic_intensity_filter)
-        .label("Diagnostic Ion Minimum Intensity")
+        .label("Diagnostic ion minimum intensity")
             .tooltip("Minimum diagnostic ion intensity to search for mass offsets/open search.\n" +
                     "Summed intensity of all diagnostic fragment masses (below) from a spectrum.\n" +
                     "Set to 0 to disable (all spectra will be searched for mass offsets/open search)")
@@ -677,7 +677,7 @@ public class TabMsfragger extends JPanelBase {
     ep1.setPreferredSize(new Dimension(100, 25));
     mu.border(ep1, new LineBorder(Color.LIGHT_GRAY, 1));
     FormEntry feYIonMasses = mu.feb(ep1).name(MsfraggerParams.PROP_Y_type_masses)
-        .label("Y Ion Masses")
+        .label("Y ion masses")
             .tooltip("List of possible Y ion (intact peptide + partially fragmented modification) masses\n" +
                     "Should include 0 in most cases. Space or / separated\n" +
                     "example: '0 203.0794 365.1322'")
@@ -687,7 +687,7 @@ public class TabMsfragger extends JPanelBase {
     ep2.setPreferredSize(new Dimension(100, 25));
     mu.border(ep2, new LineBorder(Color.LIGHT_GRAY, 1));
     FormEntry feOxoniumIons = mu.feb(ep2).name(MsfraggerParams.PROP_diagnostic_fragments)
-        .label("Diagnostic Fragment Masses")
+        .label("Diagnostic fragment masses")
             .tooltip("List of possible diagnostic fragment ions to consider.\n" +
                     "Not used if Diagnostic Ion Minimum Intensity is 0\n" +
                     "Space or / separated")

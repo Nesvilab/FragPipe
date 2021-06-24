@@ -152,8 +152,8 @@ public class TabConfig extends JPanelWithEnablement {
     c.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
     c.setAlignmentX(Component.CENTER_ALIGNMENT);
     c.setText(SwingUtils.makeHtml(
-        "Tabs on top represent processing steps and will be performed sequentially.\n"
-            + "Tabs will become enabled once the tools on this panel are configured."));
+        "Tabs at the top represent processing steps that will be performed sequentially if enabled.\n"
+            + "Load a workflow from the dropdown menu on the 'Workflow' tab to get started."));
     return c;
   }
 
@@ -603,13 +603,13 @@ public class TabConfig extends JPanelWithEnablement {
     if (enableEasypqp && !easypqpLocalVersion.contentEquals("N/A")) {
       if (!easypqpLatestVersion.contentEquals("N/A") && VersionComparator.cmp(easypqpLocalVersion, easypqpLatestVersion) < 0) {
         sb.append("EasyPQP: <b>Available</b>. Version: " + easypqpLocalVersion + "<br>"
-            + "<p style=\"color:red\">There is a new version (" + easypqpLatestVersion + "). Please upgrade it by clicking the bellow button.<br>");
+            + "<p style=\"color:red\">There is a new version (" + easypqpLatestVersion + "). Please upgrade it using the button below.<br>");
       } else {
         sb.append("EasyPQP: <b>Available</b>. Version: " + easypqpLocalVersion + "<br>");
       }
     } else {
       sb.append("EasyPQP: <b>Not available</b><br>"
-          + "Please make sure that python is installed, and then click the bellow button.<br>");
+          + "Please make sure that Python is installed, and then click the button below.<br>");
     }
     return sb.toString();
   }

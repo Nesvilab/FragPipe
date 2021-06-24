@@ -527,7 +527,7 @@ public class PtmshepherdPanel extends JPanelBase {
             "<html>Restricts localization to specified residues.\n" +
                     "Includes glyco mode localization of remainder masses. Example: STYNP");
 
-    JPanel p3 = mu.newPanel("Ion Types for Localization:", true);
+    JPanel p3 = mu.newPanel("Ion types for localization:", true);
     //mu.border(p3, 1);
 
     //mu.add(p3, new JLabel("Ion Types for Localization:")).spanX().wrap();

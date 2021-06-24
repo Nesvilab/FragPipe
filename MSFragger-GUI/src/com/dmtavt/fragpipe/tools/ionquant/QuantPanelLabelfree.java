@@ -254,19 +254,19 @@ public class QuantPanelLabelfree extends JPanelBase {
     //FormEntry feDataType = mu.feb(uiComboTimsTOF).name("ionquant.ionmobility").label("Data type").create();
     UiCheck uiCheckMbr = UiUtils.createUiCheck("Match between runs (MBR)", false);
     uiCheckMbr.setName("ionquant.mbr");
-    FormEntry feProtQuant = mu.feb(uiComboProtQuant).name("ionquant.proteinquant").label("Protein quant").tooltip("The algorithm used in calculating protein intensity.").create();
-    FormEntry feRequant = mu.feb("ionquant.requantify", UiUtils.createUiCheck("Re-quantify", true)).tooltip("Re-quantifying unidentified ions in labelling quantification").create();
+    FormEntry feProtQuant = mu.feb(uiComboProtQuant).name("ionquant.proteinquant").label("Protein quant").tooltip("The algorithm used in calculating protein intensity").create();
+    FormEntry feRequant = mu.feb("ionquant.requantify", UiUtils.createUiCheck("Re-quantify", true)).tooltip("Re-quantify unidentified ions in labelling quantification").create();
 
     FormEntry feMzTol = mu.feb(uiSpinnerMzTol).name("ionquant.mztol").label("m/z tolerance (ppm)").create();
     FormEntry feRtTol = mu.feb(uiSpinnerRtTol).name("ionquant.rttol").label("RT tolerance (minutes)").create();
     FormEntry feImTol = mu.feb(uiSpinnerImTol).name("ionquant.imtol").label("IM tolerance (1/k0)").create();
 
-    FormEntry feMinIons = mu.feb(uiSpinnerMinIons).name("ionquant.minions").label("Min ions").tooltip("Minimum ions required in quantifying a protein.").create();
-    FormEntry feTopIons = mu.feb(uiSpinnerTopIons).name("ionquant.tp").label("Top N ions").tooltip("Only activate when Protein quant is Top-N.").create();
-    FormEntry feMinFreq = mu.feb(uiSpinnerMinFreq).name("ionquant.minfreq").label("Min freq").tooltip("Only activate when Protein quant is Top-N.").create();
-    FormEntry feMinExps = mu.feb(uiSpinnerMinExps).name("ionquant.minexps").label("Min exps").tooltip("Only activate when Protein quant is Top-N.").create();
+    FormEntry feMinIons = mu.feb(uiSpinnerMinIons).name("ionquant.minions").label("Min ions").tooltip("Minimum ions required to quantify a protein").create();
+    FormEntry feTopIons = mu.feb(uiSpinnerTopIons).name("ionquant.tp").label("Top N ions").tooltip("Only activate when Protein quant is Top-N").create();
+    FormEntry feMinFreq = mu.feb(uiSpinnerMinFreq).name("ionquant.minfreq").label("Min freq").tooltip("Only activate when Protein quant is Top-N").create();
+    FormEntry feMinExps = mu.feb(uiSpinnerMinExps).name("ionquant.minexps").label("Min exps").tooltip("Only activate when Protein quant is Top-N").create();
 
-    FormEntry feMbrMinCorr = mu.feb(uiSpinnerMbrMinCorr).name("ionquant.mbrmincorr").label("MBR min correlation").tooltip("Min correlation between two runs.").create();
+    FormEntry feMbrMinCorr = mu.feb(uiSpinnerMbrMinCorr).name("ionquant.mbrmincorr").label("MBR min correlation").tooltip("Min correlation between two runs").create();
     FormEntry feMbrRtTol = mu.feb(uiSpinnerMbrRtTol).name("ionquant.mbrrttol").label("MBR RT tolerance (minutes)").create();
     FormEntry feMbrImTol = mu.feb(uiSpinnerMbrImTol).name("ionquant.mbrimtol").label("MBR IM tolerance (1/k0)").create();
 
@@ -274,17 +274,17 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMbrPepFdr = mu.feb(uiSpinnerMbrPepFdr).name("ionquant.peptidefdr").label("MBR peptide FDR").create();
     FormEntry feMbrProtFdr = mu.feb(uiSpinnerMbrProtFdr).name("ionquant.proteinfdr").label("MBR protein FDR").create();
 
-    FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("ionquant.mbrtoprun").label("MBR top runs").tooltip("Maximum number of donor runs used for an acceptor run.").create();
+    FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("ionquant.mbrtoprun").label("MBR top runs").tooltip("Maximum number of donor runs used for an acceptor run").create();
     FormEntry feLight = mu.feb(uiTextLight).name("ionquant.light").label("Light").tooltip("String description of mass deltas. E.g. for SILAC: K0;R0").create();
     FormEntry feMedium = mu.feb(uiTextMedium).name("ionquant.medium").label("Medium").tooltip("String description of mass deltas. E.g. for SILAC: K4.025107;R6.020129").create();
     FormEntry feHeavy = mu.feb(uiTextHeavy).name("ionquant.heavy").label("Heavy").tooltip("String description of mass deltas. E.g. for SILAC: K8.014199;R10.008269").create();
 
-    FormEntry feNormalize = mu.feb("ionquant.normalization", UiUtils.createUiCheck("Normalize", true)).tooltip("Normalizing ion intensities among experiments.").create();
-    FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes").tooltip("Min number of isotopes for feature detection.").create();
-    FormEntry feMinScans = mu.feb(uiSpinnerMinScans).name("ionquant.minscans").label("Min scans").tooltip("Minimum scans required in feature detection.").create();
-    FormEntry feWriteIndex = mu.feb("ionquant.writeindex", UiUtils.createUiCheck("Keep index on disk", false)).tooltip("Keep built index on disk for further usage.").create();
+    FormEntry feNormalize = mu.feb("ionquant.normalization", UiUtils.createUiCheck("Normalize", true)).tooltip("Normalize ion intensities among experiments").create();
+    FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes").tooltip("Minimum number of isotopic peaks required for feature detection").create();
+    FormEntry feMinScans = mu.feb(uiSpinnerMinScans).name("ionquant.minscans").label("Min scans").tooltip("Minimum scans required for feature detection").create();
+    FormEntry feWriteIndex = mu.feb("ionquant.writeindex", UiUtils.createUiCheck("Keep index on disk", false)).tooltip("Keep built index on disk for further usage").create();
 
-    FormEntry feExcludemods = mu.feb(uiTextExcludemods).name("ionquant.excludemods").label("Excluded Mods").tooltip("String specifying excluded modifications in peptide and protein quantification. E.g. M15.9949;STY79.96633").create();
+    FormEntry feExcludemods = mu.feb(uiTextExcludemods).name("ionquant.excludemods").label("Excluded mods").tooltip("String specifying excluded modifications in peptide and protein quantification. E.g. M15.9949;STY79.96633").create();
 
     SwingUtils.addItemSelectedListener(uiComboProtQuant, true, itemEvent -> {
       Object o = itemEvent.getItem();
