@@ -87,6 +87,17 @@ public class PercolatorPanel extends JPanelBase {
             }
         });
 
+        checkRun.addItemListener(e -> {
+            final TabMsfragger tabMsfragger = Fragpipe.getStickyStrict(TabMsfragger.class);
+            if (isRun() && tabMsfragger.getNumDbSlices() > 1) {
+                JOptionPane.showMessageDialog(this,
+                    "<html><code>Split database<code> is incompatible with <code>Run Percolator</code>.<br/>"
+                        + "Please either set <code>split database<code> to 1, or uncheck <code>Run Percolator</code> in <code>Validation</code> tab",
+                    "Incompatible options", JOptionPane.WARNING_MESSAGE);
+                checkRun.setSelected(false);
+            }
+        });
+
         updateEnabledStatus(this, true);
         super.initMore();
     }
