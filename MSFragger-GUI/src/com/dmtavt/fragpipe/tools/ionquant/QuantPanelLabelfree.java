@@ -111,12 +111,11 @@ public class QuantPanelLabelfree extends JPanelBase {
   }
 
   public String getFreequantOptsAsText() {
-    // report.labelfree.nonspecific=--ptw 0.4 --tol 10 --isolated
+    // report.labelfree.nonspecific=--ptw 0.4 --tol 10
     Map<String, String> m = toMap();
     StringBuilder sb = new StringBuilder();
     sb.append(" --ptw ").append(getOrThrow(m, "freequant.rt-tol"));
     sb.append(" --tol ").append(getOrThrow(m, "freequant.mz-tol"));
-    sb.append(" --isolated ");
     return sb.toString();
   }
 

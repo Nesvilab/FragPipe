@@ -29,5 +29,5 @@ tmtintegrator:
   aggregation_method: 0                           # the aggregation method from the PSM level to the specified level (0: median, 1: weighted-ratio) 
 
 
-  freequant: --ptw 0.4 --tol 10 --isolated        # added for fragpipe
+  freequant: --ptw 0.4 --tol 10        # added for fragpipe
   labelquant: --tol 20                            # added for fragpipe

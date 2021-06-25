@@ -1050,7 +1050,7 @@ public class FragpipeRun {
     });
     addConfig.accept(cmdTmtFreequant, () -> {
       if (cmdTmtFreequant.isRun()) {
-        String optsFq = "--ptw 0.4 --tol 10 --isolated";
+        String optsFq = "--ptw 0.4 --tol 10";
         return cmdTmtFreequant.configure(parent, usePhi, optsFq, sharedMapGroupsToProtxml);
       }
       return true;
