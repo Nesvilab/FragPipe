@@ -304,7 +304,7 @@ public class PtmshepherdPanel extends JPanelBase {
     final UiCombo uiComboDefaults = UiUtils.createUiCombo(new ArrayList<>(defaults.keySet()));
     JButton btnLoadDefaults = UiUtils
         .createButton("Load", "Load PTM-Shepherd settings for given search type", e -> {
-          SearchTypeProp type = defaults.get((String) uiComboDefaults.getSelectedItem());
+          SearchTypeProp type = defaults.get(uiComboDefaults.getSelectedItem());
           Bus.post(new MessageLoadShepherdDefaults(true, type));
         });
 
@@ -468,7 +468,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
     mu.add(p, p1).spanX().growX().wrap();
 
-    uiTextVarMods = new UiTextBuilder().text("Failed_Carbamidomethylation:-57.021464").create();
+    uiTextVarMods = new UiTextBuilder().text("").create();
     uiTextVarMods.addFocusListener(new FocusAdapter() {
       @Override
       public void focusLost(FocusEvent e) {
