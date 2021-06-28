@@ -79,6 +79,7 @@ public class DownloadDbHelper {
     DbUniprotIdPanel p = new DbUniprotIdPanel();
     int confirmation = SwingUtils.showConfirmDialog(parent, p);
     if (JOptionPane.OK_OPTION == confirmation) {
+      final Path addSpikeInFasta = p.addSpikeIn();
       final String uniprotId = p.getSelectedUniprotId();
       log.info("Database for download ID: {}", uniprotId);
       final boolean isReviewed = p.isReviewed();
@@ -86,11 +87,20 @@ public class DownloadDbHelper {
       final boolean isAddIsoforms = p.isAddIsoforms();
       final boolean isAddDecoys = p.isAddDecoys();
       final boolean isAddIrt = p.isAddIrt();
-
       // philosopher workspace --init
       // philosopher database --reviewed --contam --id UP000005640
       UsageTrigger usePhi = new UsageTrigger(binPhi, "philosopher binary");
 
+
+      if (addSpikeInFasta != null) {
+        if (!Files.exists(addSpikeInFasta)) {
+          log.error("File not found: " + addSpikeInFasta);
+          SwingUtils.showDialog(p,
+                  new JLabel("<html>Could not find spike in fasta file:<br/>" + addSpikeInFasta),
+                  "Error preparing for DB download", JOptionPane.ERROR_MESSAGE);
+          return;
+        }
+      }
 
       JFileChooser fc = FileChooserUtils
               .create("Download to directory", "Select directory", false, FcMode.DIRS_ONLY, true);
@@ -124,7 +134,7 @@ public class DownloadDbHelper {
         CmdDatabaseDownload cmdDownload = new CmdDatabaseDownload(true, dir);
         cmdDownload
             .configure(parent, usePhi, uniprotId, isReviewed, isAddContaminants, isAddIsoforms,
-                isAddDecoys, pathIrt);
+                isAddDecoys, pathIrt, addSpikeInFasta);
         CmdPhilosopherWorkspaceClean cmdClean = new CmdPhilosopherWorkspaceClean(true, dir);
         cmdClean.configure(usePhi);
 

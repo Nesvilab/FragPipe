@@ -183,7 +183,7 @@ public class TabDatabase extends JPanelWithEnablement {
     return fasta;
   }
 
-  private JFileChooser createFilechooserFasta(UiText uiTextDbPath) {
+  public static JFileChooser createFilechooserFasta(UiText uiTextDbPath) {
     FileNameExtensionFilter exts = new FileNameExtensionFilter("FASTA", "fa", "fas", "fasta");
     JFileChooser fc = FileChooserUtils
         .create("Select FASTA file", false, FcMode.FILES_ONLY, exts);

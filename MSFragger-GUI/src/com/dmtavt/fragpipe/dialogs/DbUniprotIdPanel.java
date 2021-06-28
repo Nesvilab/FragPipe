@@ -1,29 +1,31 @@
 package com.dmtavt.fragpipe.dialogs;
 
+import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.tabs.TabDatabase;
 import com.github.chhh.utils.StringUtils;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.MigUtils;
+import com.github.chhh.utils.swing.UiText;
 
 public class DbUniprotIdPanel extends JPanel {
 
   private ButtonGroup btnGroupUniprotIds;
   private List<JRadioButton> radios;
   private JRadioButton radioOther;
+  private UiText textSpikeInFASTA;
   private JTextField textOther;
   private JCheckBox checkIsReviewed;
   private JCheckBox checkAddContaminants;
@@ -42,6 +44,20 @@ public class DbUniprotIdPanel extends JPanel {
     JPanel container = new JPanel();
 //    container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
     container.setLayout(new GridBagLayout());
+
+    // add external spike-in sequences from an existing FASTA file
+    textSpikeInFASTA = new UiText();
+
+    FormEntry feDbPath = Fragpipe.fe(textSpikeInFASTA, "db-path").label("FASTA file path").create();
+    JButton btnBrowse = feDbPath.browseButton("Browse", "Select FASTA file",
+            () -> TabDatabase.createFilechooserFasta(textSpikeInFASTA),
+            paths -> textSpikeInFASTA.setText(paths.get(0).toString()));
+
+    final MigUtils mu = MigUtils.get();
+    JPanel panelAddSpikeIn = mu.newPanel("Spike-in sequences database", true);
+    mu.add(panelAddSpikeIn, feDbPath.label()).split();
+    mu.add(panelAddSpikeIn, feDbPath.comp).growX();
+    mu.add(panelAddSpikeIn, btnBrowse);
 
     // option checkboxes
     JPanel panelCheckboxes = new JPanel();
@@ -97,10 +113,14 @@ public class DbUniprotIdPanel extends JPanel {
     cc.gridx = 0;
     cc.gridy = 0;
     cc.fill = GridBagConstraints.HORIZONTAL;
+    container.add(panelAddSpikeIn, cc);
+    cc.gridx = 0;
+    cc.gridy = 1;
+    cc.fill = GridBagConstraints.HORIZONTAL;
     container.add(panelCheckboxes, cc);
     GridBagConstraints cr = new GridBagConstraints();
     cr.gridx = 0;
-    cr.gridy = 1;
+    cr.gridy = 2;
     cr.fill = GridBagConstraints.BOTH;
     container.add(panelRadios, cr);
 
@@ -149,5 +169,12 @@ public class DbUniprotIdPanel extends JPanel {
 
   public boolean isAddIrt() {
     return checkAddIrt.isSelected();
+  }
+
+  public Path addSpikeIn() {
+    final String text = textSpikeInFASTA.getText().trim();
+    if (StringUtils.isNullOrWhitespace(text))
+      return null;
+    return Paths.get(text);
   }
 }
