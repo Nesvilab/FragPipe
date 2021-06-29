@@ -172,7 +172,7 @@ public class DbUniprotIdPanel extends JPanel {
   }
 
   public Path addSpikeIn() {
-    final String text = textSpikeInFASTA.getText().trim();
+    final String text = textSpikeInFASTA.getNonGhostText().trim();
     if (StringUtils.isNullOrWhitespace(text))
       return null;
     return Paths.get(text);
