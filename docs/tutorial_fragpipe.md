@@ -148,8 +148,13 @@ If you need to use a custom FASTA database, use the 'Add decoys' button to add d
   
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-database.png)
 
-
-
+To combine two existing databases (e.g., custom protein sequence files A.fas and B.fas), follow the steps below:
+1) Locate the Philosopher executable file (path can be found on the 'Config' tab)
+2) Open a command line window and navigate to the folder that the two database files to be merged
+3) In this folder, run `philosopher.exe workspace --init`, where `philosopher` is the full path to the Philosopher executable file from step 1
+4) Next run `philolosopher.exe database --custom A.fas --add B.fas --contam`
+Note that A.fas and B.fas should not contain decoys or contaminants. The `--custom` tag will automatically add decoy (reversed) sequences, and the `--contam` tag adds common [contaminants](https://www.thegpm.org/crap/).
+5) Optionally, run `philosopher.exe workspace --clean` to delete intermediate files generated in these steps
  <br>
 
 ### Configure MSFragger search
