@@ -92,7 +92,7 @@ msfragger.misc.fragger.remove-precursor-range-hi=1.5
 msfragger.misc.fragger.remove-precursor-range-lo=-1.5
 msfragger.misc.slice-db=1
 msfragger.num_enzyme_termini=2
-msfragger.output_format=pepXML_pin
+msfragger.output_format=tsv_pepXML
 msfragger.output_max_expect=50
 msfragger.output_report_topN=1
 msfragger.override_charge=false
@@ -209,4 +209,4 @@ tmtintegrator.unique_pep=false
 workflow.description=<p style\="margin-top\: 0"> For CID/HCD open search of N-glycopeptides </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=15.1-build25
+workflow.saved-with-ver=15.1-build30

@@ -92,7 +92,7 @@ msfragger.misc.fragger.remove-precursor-range-hi=1.5
 msfragger.misc.fragger.remove-precursor-range-lo=-1.5
 msfragger.misc.slice-db=1
 msfragger.num_enzyme_termini=2
-msfragger.output_format=pepXML_pin
+msfragger.output_format=tsv_pepXML
 msfragger.output_max_expect=50
 msfragger.output_report_topN=1
 msfragger.override_charge=false
@@ -209,4 +209,4 @@ tmtintegrator.unique_pep=false
 workflow.description=<p style\="margin-top\: 0"> For search and TMT quantitation of enriched N-glycopeptides fragmented with CID/HCD. Settings are provided for TMT-10 with virtual reference channel - method can be adapated for other TMT settings by adjusting TMT-Integrator parameters. See other TMT workflows for examples. Method can be adapted for other fragmentation methods by comparing MSFragger settings to the glyco-N-hybrid workflow. </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=15.1-build25
+workflow.saved-with-ver=15.1-build30
