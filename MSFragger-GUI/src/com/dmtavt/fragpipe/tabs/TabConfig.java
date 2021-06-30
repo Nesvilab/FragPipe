@@ -251,8 +251,7 @@ public class TabConfig extends JPanelWithEnablement {
         "original copy from the <b>download</b> website once."));
     epFraggerVer = new HtmlStyledJEditorPane("MSFragger version: N/A");
     p.add(btnUpdate, ccL().wrap());
-    p.add(Fragpipe.renameNoCache(epFraggerVer, "msfragger.version-info", TAB_PREFIX),
-        ccL().spanX().growX().wrap());
+    p.add(Fragpipe.renameNoCache(epFraggerVer, "msfragger.version-info", TAB_PREFIX), ccL().split());
     
     JEditorPane ep = SwingUtils.createClickableHtml(createFraggerCitationBody());
     p.add(ep, ccL().spanX().growX().wrap());
@@ -564,7 +563,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private String textDbsplitEnabled(boolean isEnabled) {
-    return "Database Splitting: <b>" + (isEnabled ? "Available" : "Not available") + "</b>.<br>\n"
+    return "Database Splitting: <b>" + (isEnabled ? "Available" : "Not available") + "</b>.&emsp;"
         + "Used for searching very large databases by splitting into smaller chunks.";
   }
 
@@ -732,8 +731,7 @@ public class TabConfig extends JPanelWithEnablement {
 
   private static String createFraggerCitationBody() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("<p style=\"margin-top: 0\">");
-    sb.append("More info and docs: <a href=\"").append("https://msfragger.nesvilab.org/").append("\">MSFragger</a>");
+    sb.append("&emsp;More info and docs: <a href=\"").append("https://msfragger.nesvilab.org/").append("\">MSFragger</a>");
     return sb.toString();
   }
 
@@ -759,14 +757,10 @@ public class TabConfig extends JPanelWithEnablement {
     p.add(btnDownload, ccL().wrap());
 
     epPhiVer = new HtmlStyledJEditorPane("Philosopher version: N/A");
-    p.add(Fragpipe.rename(epPhiVer, "philosopher.version-info", TAB_PREFIX, true),
-        ccL().spanX().growX().wrap());
-    p.add(SwingUtils.createClickableHtml(createPhilosopherCitationBody()),
-        ccL().spanX().growX().wrap());
+    p.add(Fragpipe.rename(epPhiVer, "philosopher.version-info", TAB_PREFIX, true), ccL().split());
+    p.add(SwingUtils.createClickableHtml(createPhilosopherCitationBody()), ccL().spanX().growX().wrap());
     return p;
   }
-
-  private String pythonPipOutput = "";
 
   private JPanel createPanelPython() {
     JPanel p = newMigPanel();
@@ -890,7 +884,8 @@ public class TabConfig extends JPanelWithEnablement {
 
     mu.add(p, epEasyPQPText).growX().wrap();
     mu.add(p, btnInstallEasyPQP).split().wrap();
-    mu.add(p, epSpectraSTText).growX().wrap();
+    mu.add(p, new HtmlStyledJEditorPane("")).wrap();
+    mu.add(p, epSpectraSTText).split();
     mu.add(p, epSpeclibgenErr).growX().wrap();
 
     return p;
@@ -940,11 +935,7 @@ public class TabConfig extends JPanelWithEnablement {
 
   private String createPhilosopherCitationBody() {
     StringBuilder sb = new StringBuilder();
-    sb.append("<p style=\"margin-top: 0\">");
-    sb.append(
-        "More info and docs: <a href=\"https://philosopher.nesvilab.org/\">Philosopher</a>");
-    sb.append("<br/>");
-    sb.append("</p>");
+    sb.append("&emsp;More info and docs: <a href=\"https://philosopher.nesvilab.org/\">Philosopher</a>");
     return sb.toString();
   }
 
