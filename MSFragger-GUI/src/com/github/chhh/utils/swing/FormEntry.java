@@ -112,8 +112,7 @@ public class FormEntry {
     btn.addActionListener(e -> {
       JFileChooser fc = fcProvider.get();
 
-      Component parent = SwingUtils.findParentFrameForDialog(comp);
-      if (JFileChooser.APPROVE_OPTION == fc.showOpenDialog(parent)) {
+      if (JFileChooser.APPROVE_OPTION == fc.showOpenDialog(comp)) {
         File[] fs = fc.getSelectedFiles();
         if (fs != null && fs.length > 0) {
           onSuccess.accept(Arrays.stream(fs).map(File::toPath).collect(Collectors.toList()));
