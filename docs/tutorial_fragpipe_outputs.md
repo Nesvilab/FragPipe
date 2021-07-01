@@ -111,7 +111,7 @@ Isobaric labeling reports are found in the 'tmt-report' folder. Two sets of isob
 
 **Number of Missed Cleavages** number of potential enzymatic cleavage sites within the identified sequence
 
-**Intensity** relative abundance (peak intensity) of the precursor ion
+**Intensity** integrated precursor (MS1) abundance for each PSM/scan
 
 **Ion Mobility** TIMS transit time of the precursor ion (1/K<sub>0</sub>)
 
@@ -236,7 +236,7 @@ Isobaric labeling reports are found in the 'tmt-report' folder. Two sets of isob
 
 **Spectral Count** number of corresponding PSMs
 
-**Intensity** peptide ion abundance
+**Intensity** maximum intensity from all observed PSMs for the ion
 
 **Assigned Modifications** variable modifications (listed by modification mass in Da) with modified residue and location within the peptide
 
@@ -274,7 +274,7 @@ Isobaric labeling reports are found in the 'tmt-report' folder. Two sets of isob
 
 **Spectral Count** number of corresponding PSMs
 
-**Intensity** relative abundance (peak intensity) of the precursor ion
+**Intensity** summed intensity of the top 3 most abundant ions for the peptide
 
 **Assigned Modifications** variable modifications (listed by mass in Da) with modified residue and location within the peptide
 
@@ -342,15 +342,15 @@ Isobaric labeling reports are found in the 'tmt-report' folder. Two sets of isob
 
 **Razor Spectral Count** total number of PSMs in support of the protein identification
 
-**Total Intensity** sum of all (unique+razor) peptide abundances
+**Total Intensity** sum of the top 3 (unique+razor) peptide abundances
 
-**Unique Intensity** sum of peptide abundances (only those that do not map to another identified protein)
+**Unique Intensity** sum of the top 3 unique peptide abundances (only those that do not map to another identified protein)
 
-**Razor Intensity** sum of PSM abundances from razor peptides
+**Razor Intensity** sum of the top 3 peptide abundances from razor peptides
 
-**Razor Assigned Modifications** sum of PSM abundances from razor peptides containing variable modifications
+**Razor Assigned Modifications** sum of top 3 peptide abundances from razor peptides containing variable modifications
 
-**Razor Observed Modifications** sum of PSM abundances from razor peptides containing modifications from Delta Mass values
+**Razor Observed Modifications** sum of top 3 peptide abundances from razor peptides containing modifications from Delta Mass values
 
 **Indistinguishable Proteins** proteins that are equally supported by the evidence and cannot be distinguished from the identification in the 'Protein' column
 
@@ -380,7 +380,7 @@ Isobaric labeling reports are found in the 'tmt-report' folder. Two sets of isob
 
 **[experiment] Spectral Count** count of peptide-spectrum matches (PSMs) in the sample that support the peptide identification
 
-**[experiment] Intensity** summed precursor intensities of supporting PSMs
+**[experiment] Intensity** normalized peptide intensities
 <br>
 <br>
 <br>
@@ -428,11 +428,11 @@ Isobaric labeling reports are found in the 'tmt-report' folder. Two sets of isob
 
 **[experiment] Razor Spectral Count** number of PSMs in the sample where the selected protein is the razor assignment for that PSM
 
-**[experiment] Total Intensity** summed precursor intensities from all PSMs in the sample with sequences mapping to the selected protein (including shared PSMs)
+**[experiment] Total Intensity** normalized sum of the top 3 peptide intensities in the sample with sequences mapping to the selected protein (from either MaxLFQ or Top-N algorithm, depending on selection)
 
-**[experiment] Unique Intensity** summed precursor intensities from all PSMs in the sample with sequences mapping only to the selected protein
+**[experiment] Unique Intensity** normalized sum of the top 3 peptide intensities in the sample with sequences mapping only to the selected protein (from either MaxLFQ or Top-N algorithm, depending on selection)
 
-**[experiment] Razor Intensity** summed precursor intensities from all PSMs in the sample where the selected protein is the razor assignment for that PSM
+**[experiment] Razor Intensity** normalized sum of the top 3 peptide intensities in the sample where the selected protein is the razor assignment for the peptides (from either MaxLFQ or Top-N algorithm, depending on selection)
 
 **Indistinguishable Proteins** proteins that cannot be distinguished from the selected protein given all sequences/evidence identified in the experiment
 <br>
