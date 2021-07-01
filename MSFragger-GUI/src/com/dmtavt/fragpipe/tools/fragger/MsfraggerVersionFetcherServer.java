@@ -63,15 +63,17 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
     private final String name;
     private final String email;
     private final String institution;
+    private final boolean receiveEmail;
 
     public MsfraggerVersionFetcherServer() {
-        this(null, null, null);
+        this(null, null, null, false);
     }
 
-    public MsfraggerVersionFetcherServer(String name, String email, String institution) {
+    public MsfraggerVersionFetcherServer(String name, String email, String institution, boolean receiveEmail) {
         this.name = name;
         this.email = email;
         this.institution = institution;
+        this.receiveEmail = receiveEmail;
     }
 
     @Override
@@ -138,16 +140,31 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
 
         Path zipPath = toolsPath.resolve("MSFragger-" + lastVersionStr + ".zip");
 
-        RequestBody requestBody = new MultipartBody.Builder()
-            .setType(MultipartBody.FORM)
-            .addFormDataPart("transfer", "academic")
-            .addFormDataPart("agreement2", "true")
-            .addFormDataPart("agreement3", "true")
-            .addFormDataPart("name", name)
-            .addFormDataPart("email", email)
-            .addFormDataPart("organization", institution)
-            .addFormDataPart("download", latestVerResponse + "$zip")
-            .build();
+        RequestBody requestBody;
+        if (receiveEmail) {
+            requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("transfer", "academic")
+                .addFormDataPart("agreement2", "true")
+                .addFormDataPart("agreement3", "true")
+                .addFormDataPart("name", name)
+                .addFormDataPart("email", email)
+                .addFormDataPart("organization", institution)
+                .addFormDataPart("receive_email", "1")
+                .addFormDataPart("download", latestVerResponse + "$zip")
+                .build();
+        } else {
+            requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("transfer", "academic")
+                .addFormDataPart("agreement2", "true")
+                .addFormDataPart("agreement3", "true")
+                .addFormDataPart("name", name)
+                .addFormDataPart("email", email)
+                .addFormDataPart("organization", institution)
+                .addFormDataPart("download", latestVerResponse + "$zip")
+                .build();
+        }
 
         OkHttpClient client2 = new OkHttpClient();
         Request request = new Request.Builder().url(updateSvcUrl).post(requestBody).build();

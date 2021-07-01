@@ -24,6 +24,7 @@ public class DownloadMSFraggerPanel extends JPanel {
   private JCheckBox license2;
   private JCheckBox license3;
   private JCheckBox license1;
+  private JCheckBox receiveEmail;
 
   public DownloadMSFraggerPanel() {
     initMore();
@@ -55,6 +56,9 @@ public class DownloadMSFraggerPanel extends JPanel {
     JEditorPane t3 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger.arsci.com/upgrader/redist.txt\" target=\"blank_\">Bruker SDK library distribution <br>conditions</a>.");
     license3 = new JCheckBox();
 
+    JEditorPane t4 = SwingUtils.createClickableHtml("I would like to receive emails with updates in the future.");
+    receiveEmail = new JCheckBox();
+
     mu.add(panelTextboxes, t0).spanX().wrap();
 
     mu.add(panelTextboxes, feName.label(), mu.ccR());
@@ -76,6 +80,9 @@ public class DownloadMSFraggerPanel extends JPanel {
 
     mu.add(panelTextboxes, license3, mu.ccR());
     mu.add(panelTextboxes, t3).spanX().wrap();
+
+    mu.add(panelTextboxes, receiveEmail, mu.ccR());
+    mu.add(panelTextboxes, t4).spanX().wrap();
 
     JScrollPane scroll = new JScrollPane(panelTextboxes, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
@@ -112,6 +119,14 @@ public class DownloadMSFraggerPanel extends JPanel {
       return false;
     } else {
       return license1.isSelected() && license2.isSelected() && license3.isSelected();
+    }
+  }
+
+  public boolean wantReceiveEmail() {
+    if (receiveEmail == null) {
+      return false;
+    } else {
+      return receiveEmail.isSelected();
     }
   }
 }
