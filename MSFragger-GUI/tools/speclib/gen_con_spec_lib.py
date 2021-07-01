@@ -464,7 +464,7 @@ if use_easypqp:
 		if all([os.fspath(e).endswith('calibrated.mgf') for e in spectra_files0]):
 			print('Using (un)calibrated.mgfs.')
 		if len(spectra_files) == 0:
-			raise RuntimeError(spectra_files)
+			raise RuntimeError([os.fspath(e) for e in iproph_RT_aligned.iterdir()])
 	psm_tsv_file = iproph_RT_aligned / 'psm.tsv'
 	peptide_tsv_file = iproph_RT_aligned / 'peptide.tsv'
 	'easypqp convert --pepxml interact.pep.xml --spectra 1.mgf --unimod unimod.xml --exclude-range -1.5,3.5'
