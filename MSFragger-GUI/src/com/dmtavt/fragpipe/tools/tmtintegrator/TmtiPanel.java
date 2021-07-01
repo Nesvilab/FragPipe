@@ -196,7 +196,7 @@ public class TmtiPanel extends JPanelBase {
     mu.add(p, pOptsBasic).alignY("top").growX().growY().wrap();
     mu.add(p, pOptsAdvancedPtm).alignY("top").growX().growY().wrap();
 
-    mu.add(pContent, p).alignY("top").gapTop("7px").growX().growY().wrap();
+    mu.add(pContent, p).alignY("top").growX().growY().wrap();
     mu.add(pContent, pOptsAdvanced).spanX().growX().wrap();
 
     this.add(pTop, BorderLayout.NORTH);
@@ -231,7 +231,7 @@ public class TmtiPanel extends JPanelBase {
   }
 
   private JPanel createPanelTable() {
-    JPanel p = new JPanel(new BorderLayout());
+    JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.borderEmpty(p);
 
     tmtAnnotationTable = new TmtAnnotationTable();
@@ -255,7 +255,7 @@ public class TmtiPanel extends JPanelBase {
     tmtAnnotationTable.setFillsViewportHeight(false);
     scrollPaneTmtTable = new JScrollPane();
     scrollPaneTmtTable.setViewportView(tmtAnnotationTable);
-    scrollPaneTmtTable.setPreferredSize(new Dimension(640, 250));
+    scrollPaneTmtTable.setPreferredSize(new Dimension(640, 300));
     p.add(scrollPaneTmtTable, BorderLayout.CENTER);
 
     return p;
