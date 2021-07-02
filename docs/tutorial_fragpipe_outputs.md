@@ -428,11 +428,11 @@ Isobaric labeling reports are found in the 'tmt-report' folder. Two sets of isob
 
 **[experiment] Razor Spectral Count** number of PSMs in the sample where the selected protein is the razor assignment for that PSM
 
-**[experiment] Total Intensity** normalized sum of the top 3 peptide intensities in the sample with sequences mapping to the selected protein (from either MaxLFQ or Top-N algorithm, depending on selection)
+**[experiment] Total Intensity** normalized protein inteisity from all sequences mapping to the selected protein (calculated using either MaxLFQ or Top-N algorithm, depending on selection)
 
-**[experiment] Unique Intensity** normalized sum of the top 3 peptide intensities in the sample with sequences mapping only to the selected protein (from either MaxLFQ or Top-N algorithm, depending on selection)
+**[experiment] Unique Intensity** normalized protein intensity from the sequences mapping only to the selected protein (calculated using either MaxLFQ or Top-N algorithm, depending on selection)
 
-**[experiment] Razor Intensity** normalized sum of the top 3 peptide intensities in the sample where the selected protein is the razor assignment for the peptides (from either MaxLFQ or Top-N algorithm, depending on selection)
+**[experiment] Razor Intensity** normalized protein intensity using the sequences after razor assignment (calculated using either MaxLFQ or Top-N algorithm, depending on selection)
 
 **Indistinguishable Proteins** proteins that cannot be distinguished from the selected protein given all sequences/evidence identified in the experiment
 <br>
