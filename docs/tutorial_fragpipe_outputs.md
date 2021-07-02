@@ -348,9 +348,9 @@ Isobaric labeling reports are found in the 'tmt-report' folder. Two sets of isob
 
 **Razor Intensity** sum of the top 3 peptide abundances from razor peptides
 
-**Razor Assigned Modifications** sum of top 3 peptide abundances from razor peptides containing variable modifications
+**Razor Assigned Modifications** modifications from supporting razor peptides
 
-**Razor Observed Modifications** sum of top 3 peptide abundances from razor peptides containing modifications from Delta Mass values
+**Razor Observed Modifications** Delta Mass values from supporting razor peptides
 
 **Indistinguishable Proteins** proteins that are equally supported by the evidence and cannot be distinguished from the identification in the 'Protein' column
 
