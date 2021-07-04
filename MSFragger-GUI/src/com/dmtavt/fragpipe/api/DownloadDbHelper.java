@@ -189,6 +189,7 @@ public class DownloadDbHelper {
         } finally {
 
           if (watch != null) {
+            stopWatch:
             for (; ; ) {
               // retrieve key
               WatchKey key;
@@ -228,13 +229,19 @@ public class DownloadDbHelper {
                       // remove extension check? philosopher broke it
                       if (isFile && (isNotInsideMeta || isExtFa)) {
                         // most likely a fasta file
+                        if (addSpikeInFasta != null) {
+                          final String fastaFileName = path.getFileName().toString();
+                          final String newFastaFileName = fastaFileName.substring(0, fastaFileName.length() - ".fas".length()) + "-spikein.fas";
+                          Files.move(dir.resolve(path), dir.resolve(newFastaFileName));
+                          path = Paths.get(newFastaFileName);
+                        }
                         final Path fullDbPath = dir.resolve(path);
                         log.debug("Sending new MessageDbUpdate: " + fullDbPath.toString());
                         JOptionPane.showMessageDialog(parent,
                             "<html>Downloaded new file:<br/>" + fullDbPath.toString(),
                             "Download complete", JOptionPane.INFORMATION_MESSAGE);
                         Bus.post(new MessageDbNewPath(fullDbPath.toString()));
-                        break;
+                        break stopWatch;
                       }
                     }
                   }
