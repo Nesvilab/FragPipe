@@ -49,12 +49,12 @@ public class DbUniprotIdPanel extends JPanel {
     textSpikeInFASTA = new UiText();
 
     FormEntry feDbPath = Fragpipe.fe(textSpikeInFASTA, "db-path").label("FASTA file path").create();
-    JButton btnBrowse = feDbPath.browseButton("Browse", "Select FASTA file",
+    JButton btnBrowse = feDbPath.browseButton("Browse", "optional",
             () -> TabDatabase.createFilechooserFasta(textSpikeInFASTA),
             paths -> textSpikeInFASTA.setText(paths.get(0).toString()));
 
     final MigUtils mu = MigUtils.get();
-    JPanel panelAddSpikeIn = mu.newPanel("Spike-in sequences database", true);
+    JPanel panelAddSpikeIn = mu.newPanel("Spike-in sequences database (optional)", true);
     mu.add(panelAddSpikeIn, feDbPath.label()).split();
     mu.add(panelAddSpikeIn, feDbPath.comp).growX();
     mu.add(panelAddSpikeIn, btnBrowse);
@@ -113,7 +113,7 @@ public class DbUniprotIdPanel extends JPanel {
     cc.gridx = 0;
     cc.gridy = 0;
     cc.fill = GridBagConstraints.HORIZONTAL;
-    container.add(panelAddSpikeIn, cc);
+    container.add(panelRadios, cc);
     cc.gridx = 0;
     cc.gridy = 1;
     cc.fill = GridBagConstraints.HORIZONTAL;
@@ -122,7 +122,7 @@ public class DbUniprotIdPanel extends JPanel {
     cr.gridx = 0;
     cr.gridy = 2;
     cr.fill = GridBagConstraints.BOTH;
-    container.add(panelRadios, cr);
+    container.add(panelAddSpikeIn, cr);
 
     JScrollPane scroll = new JScrollPane(container);
     this.setLayout(new BorderLayout());

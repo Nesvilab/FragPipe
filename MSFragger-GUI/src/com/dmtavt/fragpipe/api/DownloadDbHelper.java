@@ -3,6 +3,7 @@ package com.dmtavt.fragpipe.api;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
+import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
 
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.github.chhh.utils.StringUtils;
@@ -77,7 +78,7 @@ public class DownloadDbHelper {
     //DbIdDialog dialog = new DbIdDialog();
     //dialog.setVisible(true);
     DbUniprotIdPanel p = new DbUniprotIdPanel();
-    int confirmation = SwingUtils.showConfirmDialog(parent, p);
+    final int confirmation = SwingUtils.showConfirmDialog2(parent, p, "Download options", OK_CANCEL_OPTION);
     if (JOptionPane.OK_OPTION == confirmation) {
       final Path addSpikeInFasta = p.addSpikeIn();
       final String uniprotId = p.getSelectedUniprotId();

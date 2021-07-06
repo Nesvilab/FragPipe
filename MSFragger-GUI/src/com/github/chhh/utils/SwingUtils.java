@@ -990,6 +990,11 @@ public class SwingUtils {
     return JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component));
   }
 
+  public static int showConfirmDialog2(Component parent, final Component component, final String title, final int optionType) {
+    makeDialogResizable(component);
+    return JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component), title, optionType);
+  }
+
   public static JButton createButtonOpenInFileManager(Component parent, String text, Supplier<Path> pathProvider) {
     JButton b = UiUtils.createButton(text, e -> {
       try {
