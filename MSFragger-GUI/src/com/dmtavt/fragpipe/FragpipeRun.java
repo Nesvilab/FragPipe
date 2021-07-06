@@ -947,7 +947,7 @@ public class FragpipeRun {
 
         return cmdPhilosopherFilter.configure(parent, usePhi,
             decoyTag, reportPanel.getFilterCmdText(), dontUseProtxmlInFilter,
-            sharedMapGroupsToProtxml);
+            sharedMapGroupsToProtxml, sharedPepxmlFiles.firstKey());
       }
       return true;
     });

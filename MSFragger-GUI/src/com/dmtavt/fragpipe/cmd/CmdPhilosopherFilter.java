@@ -1,15 +1,16 @@
 package com.dmtavt.fragpipe.cmd;
 
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
-import com.github.chhh.utils.UsageTrigger;
 
 public class CmdPhilosopherFilter extends CmdBase {
 
@@ -28,7 +29,7 @@ public class CmdPhilosopherFilter extends CmdBase {
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       String decoyTag, String textReportFilter, boolean dontUseFilterProtxml,
-      Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+      Map<LcmsFileGroup, Path> mapGroupsToProtxml, InputLcmsFile firstInputLcmsFile) {
 
     initPreConfig();
 
@@ -61,6 +62,8 @@ public class CmdPhilosopherFilter extends CmdBase {
       if (!dontUseFilterProtxml) {
         cmd.add("--protxml");
         cmd.add(protxml.toString());
+        cmd.add("--razorbin");
+        cmd.add(wd.resolve(firstInputLcmsFile.getGroup()).resolve(".meta").resolve("razor.bin").toAbsolutePath().toString());
       }
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
