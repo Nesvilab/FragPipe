@@ -1,6 +1,12 @@
 package com.dmtavt.fragpipe.cmd;
 
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
+import com.dmtavt.fragpipe.tools.protproph.ProteinProphetParams;
+import com.github.chhh.utils.FileListing;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.UsageTrigger;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.BufferedWriter;
@@ -11,12 +17,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.Box;
@@ -28,12 +34,6 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
-import com.dmtavt.fragpipe.tools.protproph.ProteinProphetParams;
-import com.github.chhh.utils.FileListing;
-import com.github.chhh.utils.UsageTrigger;
 
 public class CmdProteinProphet extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdProteinProphet.class);
@@ -61,7 +61,7 @@ public class CmdProteinProphet extends CmdBase {
     Map<String, List<InputLcmsFile>> lcmsByExp = pepxmlFiles.keySet().stream()
         .collect(Collectors.groupingBy(f -> f.getGroup()));
 
-    Map<LcmsFileGroup, Path> m = new HashMap<>();
+    Map<LcmsFileGroup, Path> m = new TreeMap<>();
 
     for (Entry<String, List<InputLcmsFile>> e : lcmsByExp.entrySet()) {
       final String groupName = e.getKey();

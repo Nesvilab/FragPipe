@@ -3,7 +3,7 @@ package com.dmtavt.fragpipe.api;
 import java.nio.file.Path;
 import java.util.List;
 
-public class LcmsFileGroup {
+public class LcmsFileGroup implements Comparable<LcmsFileGroup> {
     public final String name;
     public final List<InputLcmsFile> lcmsFiles;
 
@@ -14,5 +14,17 @@ public class LcmsFileGroup {
 
     public Path outputDir(Path workDir) {
         return workDir.resolve(name);
+    }
+
+    public boolean equals(Object other) {
+        if (other instanceof LcmsFileGroup) {
+            return ((LcmsFileGroup) other).name.contentEquals(name);
+        } else {
+            return false;
+        }
+    }
+
+    public int compareTo(LcmsFileGroup other) {
+        return name.compareTo(other.name);
     }
 }

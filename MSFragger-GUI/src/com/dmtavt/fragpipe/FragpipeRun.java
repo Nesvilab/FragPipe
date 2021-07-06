@@ -96,6 +96,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -703,8 +704,8 @@ public class FragpipeRun {
       MsfraggerParams p = tabMsf.getParams();
       cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputReportTopN(), p.getDataType(), p.getOutputFormat());
     }
-    final Map<InputLcmsFile, List<Path>> sharedPepxmlFilesFromMsfragger = new HashMap<>();
-    final Map<InputLcmsFile, List<Path>> sharedPepxmlFiles = new HashMap<>();
+    final Map<InputLcmsFile, List<Path>> sharedPepxmlFilesFromMsfragger = new TreeMap<>();
+    final TreeMap<InputLcmsFile, List<Path>> sharedPepxmlFiles = new TreeMap<>();
 
     addConfig.accept(cmdMsfragger, () -> {
       if (cmdMsfragger.isRun()) {
@@ -858,7 +859,7 @@ public class FragpipeRun {
 
     // run ProteinProphet
     final boolean isRunProteinProphet = protProphPanel.isRun();
-    final Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml = new LinkedHashMap<>();
+    final TreeMap<LcmsFileGroup, Path> sharedMapGroupsToProtxml = new TreeMap<>();
 
     final CmdProteinProphet cmdProteinProphet = new CmdProteinProphet(isRunProteinProphet, wd);
 

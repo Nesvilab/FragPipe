@@ -4,11 +4,13 @@ import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.StringUtils;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.jetbrains.annotations.NotNull;
 
-public class InputLcmsFile {
+public class InputLcmsFile implements Comparable<InputLcmsFile> {
     private final Path path;
     private final String experiment;
     private final Integer replicate;
@@ -22,7 +24,6 @@ public class InputLcmsFile {
     public static final String disallowedChars = "[^A-Za-z0-9-_ +.\\[\\]()]";
     public static final Pattern disallowedExperimentPattern = Pattern.compile("[^A-Za-z0-9-_]");
     public static final String REASON_DISALLOWED_CHARS = "has characters other than: " + allowedChars;
-
 
     public InputLcmsFile(Path path, String experiment) {
         this(path, experiment, null);
@@ -41,19 +42,16 @@ public class InputLcmsFile {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
+        if (o instanceof InputLcmsFile) {
+            return compareTo((InputLcmsFile) o) == 0;
+        } else {
             return false;
         }
+    }
 
-        InputLcmsFile that = (InputLcmsFile) o;
-
-        if (!getPath().equals(that.getPath())) {
-            return false;
-        }
-        return getGroup().equals(that.getGroup());
+    public int compareTo(@NotNull InputLcmsFile other) { // the sorting here must be consistent with the one in LcmsFileGroup
+        Comparator<InputLcmsFile> comparator = Comparator.comparing(InputLcmsFile::getGroup).thenComparing(p -> p.path.toAbsolutePath().toString());
+        return comparator.compare(this, other);
     }
 
     @Override

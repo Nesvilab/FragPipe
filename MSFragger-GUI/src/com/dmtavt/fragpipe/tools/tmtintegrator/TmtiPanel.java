@@ -47,6 +47,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -553,7 +554,7 @@ public class TmtiPanel extends JPanelBase {
   public Map<LcmsFileGroup, Path> getAnnotations() {
     ArrayList<ExpNameToAnnotationFile> annotations = tmtAnnotationTable.fetchModel()
         .dataCopy();
-    Map<LcmsFileGroup, Path> map = new HashMap<>();
+    Map<LcmsFileGroup, Path> map = new TreeMap<>();
     for (ExpNameToAnnotationFile row : annotations) {
       map.put(new LcmsFileGroup(row.expName, new ArrayList<>(row.lcmsFiles)), Paths.get(row.getPath()));
     }
