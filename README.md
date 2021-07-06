@@ -33,6 +33,7 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 #### Using FragPipe with other tools
 * [Running MSstats with IonQuant results](https://fragpipe.nesvilab.org/docs/tutorial_msstats.html)
 * [Importing results into Skyline](https://fragpipe.nesvilab.org/docs/tutorial_skyline.html)
+* [Importing results into Perseus](https://fragpipe.nesvilab.org/docs/tutorial_perseus.html)
 
 
 
