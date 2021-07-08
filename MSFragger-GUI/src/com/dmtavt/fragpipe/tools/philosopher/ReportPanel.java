@@ -99,6 +99,7 @@ public class ReportPanel extends JPanelBase {
     }
     uiTextFilter.setText(val);
     uiCheckPepSummary.setSelected(false);
+    checkRun.setSelected(true);
   }
 
   public void activate(boolean isActive) {

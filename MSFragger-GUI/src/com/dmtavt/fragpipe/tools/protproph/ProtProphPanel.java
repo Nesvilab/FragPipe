@@ -103,6 +103,7 @@ public class ProtProphPanel extends JPanelBase {
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageSearchType m) {
+    checkRun.setSelected(true);
     loadDefaults(m.type.name());
   }
 
