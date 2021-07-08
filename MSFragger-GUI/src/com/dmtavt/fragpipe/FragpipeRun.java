@@ -851,11 +851,11 @@ public class FragpipeRun {
 
           return false;
         }
-      }
-      final Map<InputLcmsFile, List<Path>> outputs = cmdFPOPCombinePSMValidation.outputs(sharedPepxmlFiles, isMuiltiExperimentReport);
-      sharedPepxmlFiles.clear();
-      sharedPepxmlFiles.putAll(outputs);
+        final Map<InputLcmsFile, List<Path>> outputs = cmdFPOPCombinePSMValidation.outputs(sharedPepxmlFiles, isMuiltiExperimentReport);
+        sharedPepxmlFiles.clear();
+        sharedPepxmlFiles.putAll(outputs);
 //      MapUtils.refill(sharedMapGroupsToProtxml, outputs);
+      }
       return true;
     });
 
