@@ -1178,8 +1178,8 @@ public class TabMsfragger extends JPanelBase {
     uiTextShiftedIonsExclusion.setDocument(DocumentFilters.getFilter("[A-Za-z]"));
     uiTextShiftedIonsExclusion.setText("(-1.5,3.5)");
     FormEntry feShiftedIonsExclusion = mu.feb(MsfraggerParams.PROP_delta_mass_exclude_ranges,
-        uiTextShiftedIonsExclusion).label("Delta mass exclude ranges")
-        .tooltip("<html>Ranges expressed like: (-1.5,3.5)").create();
+        uiTextShiftedIonsExclusion).label("Delta mass exclude range")
+        .tooltip("<html>Range expressed like: (-1.5,3.5)").create();
 
     uiCheckLocalizeDeltaMass = new UiCheck("<html>Localize mass shift (LOS)", null, false);
     FormEntry feLocalizeDeltaMass = mu.feb(MsfraggerParams.PROP_localize_delta_mass,

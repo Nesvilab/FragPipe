@@ -141,25 +141,26 @@ public class ReportPanel extends JPanelBase {
             "</ul>");
 
 
-    uiCheckPepSummary = new UiCheck("Generate peptide level summary", null, false);
+    uiCheckPepSummary = new UiCheck("Generate peptide-level summary", null, false);
     FormEntry feCheckPepSummary = new FormEntry("pep-level-summary", "not-shown",
         uiCheckPepSummary,
-        "<html>Optional generation of combined.pep.xml files for multi-experiment setup.");
+        "<html>Optional generation of combined.pep.xml files for multi-experiment setups.");
 
     uiCheckMsstats = new UiCheck("Generate MSstats files", null, false);
     FormEntry feCheckMSstats = new FormEntry("philosoher-msstats", "not-shown",
         uiCheckMsstats,
-        "<html>Optional letting Philosopher generate MSstats files.");
+        "<html>Option to generate an MSstats-compatible report with Philosopher.");
 
     uiCheckPrintDecoys = new UiCheck("Print decoys", null, false);
     FormEntry feCheckPrintDecoys = new FormEntry("print-decoys", "not-shown",
-        uiCheckPrintDecoys);
+        uiCheckPrintDecoys,
+        "<html>Option to show decoy entries in report tables.");
 
     uiCheckDontUseProtProphFile = new UiCheck("Do not use ProteinProphet file", null, false);
     FormEntry feCheckDontUseProtProphFile = new FormEntry(
         "dont-use-prot-proph-file", "not-shown", uiCheckDontUseProtProphFile,
         "<html>Only to be used in rare cases.<br/>\n" +
-            "Consider turning off ProteinProphet instead of using this checkbox.");
+            "Consider unchecking 'Run ProteinProphet' above instead of using this checkbox.");
 
     mu.add(p, feFilter.label()).spanX().split();
     mu.add(p, feFilter.comp).growX().pushX().wrap();
@@ -176,7 +177,7 @@ public class ReportPanel extends JPanelBase {
     // setting the insets allows the top panel to be shifted left of the options panel
     JPanel p = new JPanel(new MigLayout(new LC().insetsAll("0px")));
 
-    checkRun = new UiCheck("Generate Report", null, true);
+    checkRun = new UiCheck("Generate reports", null, true);
     checkRun.setName("run-report");
     checkRun.addActionListener(e -> {
       final boolean isSelected = checkRun.isSelected();

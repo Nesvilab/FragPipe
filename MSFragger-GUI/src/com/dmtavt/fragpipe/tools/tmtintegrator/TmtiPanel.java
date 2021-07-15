@@ -351,8 +351,8 @@ public class TmtiPanel extends JPanelBase {
         .builder(0.9, 0.0, 1.0, 0.05).setFormat(df3).setCols(5).create();
     FormEntry feMinPsmProb = fe(TmtiConfProps.PROP_min_pep_prob,
         "Min PSM probability", uiSpinnerMinPsmProb,
-        "<html>minimum PSM probability threshold (in addition to FDR-based <br/>\n"
-            + "filtering by Philosopher)");
+        "<html>minimum PSM probability threshold <br/>\n"
+            + "(on top of FDR filtering by Philosopher)");
 
     UiSpinnerDouble uiSpinnerMinPurity = UiSpinnerDouble
         .builder(0.5, 0.0, 1.0, 0.05).setFormat(df3).setCols(5).create();
@@ -382,13 +382,12 @@ public class TmtiPanel extends JPanelBase {
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feUniquePep = fe(TmtiConfProps.PROP_unique_pep,
         "Peptide-Protein uniqueness", uiComboUniquePep,
-        "<html>If Unique only is selected, only use peptides that are unique or confidently <br/>\n"
-            + "assigned to a single protein (or a single indistinguishable protein group), <br/>\n"
-            + "as inferred by ProteinProphet (i.e. peptide-protein weight is equal or greater <br/>\n"
-            + "than the threshold specified in the Philosopher Filter command, 1 by default). <br/>\n"
-            + "If Unique+Razor is selected, use 'unique plus razor' approach, with each shared <br/>\n"
-            + "peptide assigned as razor to one protein (as classified by Philosopher and <br/>\n"
-            + "defined in PSM.tsv file). <br/>\n");
+        "<html>Unique only: use peptides that are unique or confidently assigned to a<br/>\n"
+            + "single protein (or a single indistinguishable protein group), <br/>\n"
+            + "<br/>\n"
+            + "Unique+Razor: use 'unique plus razor' approach, with each shared <br/>\n"
+            + "peptide assigned as razor to one protein (as classified by Philosopher <br/>\n"
+            + "and defined in psm.tsv file). <br/>\n");
 
     UiCombo uiComboAggregationMethod = UiUtils.createUiCombo(TmtiConfProps.COMBO_AGGREGATION_METHOD.stream().map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feAggregationMethod = fe(TmtiConfProps.PROP_aggregation_method, "Aggregation method", uiComboAggregationMethod, "");
@@ -396,8 +395,8 @@ public class TmtiPanel extends JPanelBase {
     UiCheck uiCheckBestPsm = new UiCheck("Best PSM", null, true);
     FormEntry feBestPsm = fe(TmtiConfProps.PROP_best_psm,
         "not-shown", uiCheckBestPsm,
-        "<html>keep the best PSM only (highest summed TMT intensity) among all redundant PSMs <br/>\n"
-            + "within the same LC-MS run");
+        "<html>Keep the best PSM only (highest summed TMT intensity) among all <br/>\n"
+            + "redundant PSMs within the same LC-MS run");
 
     UiCheck uiCheckPsmNorm = new UiCheck("PSM norm", null, false);
     FormEntry fePsmNorm = fe(TmtiConfProps.PROP_psm_norm, "not-shown", uiCheckPsmNorm,
@@ -406,35 +405,35 @@ public class TmtiPanel extends JPanelBase {
     UiCheck uiCheckOutlierRemoval = UiCheck.of("Outlier removal", true);
     FormEntry feOutlierRemoval = fe(TmtiConfProps.PROP_outlier_removal,
         "not-shown", uiCheckOutlierRemoval,
-        "<html>perform additional retention time-based normalization at the PSM level");
+        "<html>Perform additional retention time-based normalization at the PSM level");
 
     UiCheck uiCheckAllowOverlabel = UiCheck.of("Allow overlabel", true);
     FormEntry feAllowOverlabel = fe(TmtiConfProps.PROP_allow_overlabel,
         "not-shown", uiCheckAllowOverlabel,
-        "<html>allow PSMs with TMT on S (when overlabeling on S was allowed in the database search)");
+        "<html>Allow PSMs with TMT on S (when overlabeling on S was allowed in the database search)");
 
     UiCheck uiCheckAllowUnlabeled = UiCheck.of("Allow unlabeled", true);
     FormEntry feAllowUnlabeled = fe(TmtiConfProps.PROP_allow_unlabeled,
         "not-shown", uiCheckAllowUnlabeled,
-        "<html>allow peptides with unlabeled n-term (i.e. no TMT/iTRAQ label and no Acetyl at n-terminus)");
+        "<html>Allow peptides with unlabeled n-term (i.e. no TMT/iTRAQ label and no Acetyl at n-terminus)");
 
     UiCheck uiCheckMs1Int = UiCheck.of("Use MS1 intensity", true);
     FormEntry feMs1Int = fe(TmtiConfProps.PROP_ms1_int,
         "not-shown", uiCheckMs1Int,
-        "<html>use MS1 precursor ion intensity (if true) or MS2 summed TMT <br/>\n"
+        "<html>Use MS1 precursor ion intensity (if true) or MS2 summed TMT <br/>\n"
             + "reporter ion intensity (if false) as part of the reference <br/>\n"
             + "sample abundance estimation");
 
     UiCheck uiCheckTop3 = UiCheck.of("Top 3 ions", true);
     FormEntry feTop3 = fe(TmtiConfProps.PROP_top3_pep,
         "not-shown", uiCheckTop3,
-        "<html>use top 3 most intense peptide ions as part of the reference <br/>\n"
+        "<html>Use top 3 most intense peptide ions as part of the reference <br/>\n"
             + "sample abundance estimation");
 
     UiCheck uiCheckPrintRef = UiCheck.of("Print reference intensity", false);
     FormEntry fePrintRefInt = fe(TmtiConfProps.PROP_print_RefInt,
         "not-shown", uiCheckPrintRef,
-        "<html>print individual reference sample intensities");
+        "<html>Print individual reference sample intensities");
 
     UiSpinnerDouble uiSpinnerMinBestPepProb = UiSpinnerDouble
         .builder(0, 0, 1.0, 0.1).setFormat(df2).setCols(5).create();
@@ -493,17 +492,18 @@ public class TmtiPanel extends JPanelBase {
         .builder(-1, -1, 1.0, 0.1).setFormat(df2).setCols(5).create();
     FormEntry feMinSiteProb = fe(TmtiConfProps.PROP_min_site_prob,
         "Min site probability", uiSpinnerMinSiteProb,
-        "<html>site localization confidence threshold (-1: for Global; <br/>\n"
-            + "0: as determined by the search engine; above 0 (e.g. 0.75): PTMProphet <br/>\n"
-            + "probability, to be used with phosphorylation only)");
+        "<html>site localization confidence threshold <br/>\n"
+            + "-1: global; <br/>\n"
+            + "0: as determined by the search engine; <br/>\n"
+            + "above 0 (e.g., 0.75): min PTMProphet site probability");
 
     UiText uiTextModTag = UiUtils.uiTextBuilder().cols(10).text("none").create();
     FormEntry feModTag = fe(TmtiConfProps.PROP_mod_tag,
         "Mod tag", uiTextModTag,
-        "<html>PTM info for generation of PTM-specific reports <br/>\n"
-            + "none: for Global data<br/>\n"
-            + "S[167],T[181],Y[243]: for Phospho<br/>\n"
-            + "K[170]: for K-Acetyl");
+        "<html>PTM tag for generating PTM-specific reports <br/>\n"
+            + "none: global data<br/>\n"
+            + "S(79.9663),T(79.9663),Y(79.9663): phospho<br/>\n"
+            + "K(42.0106): K-acetyl");
 
     mu.add(p, feModTag.label());
     mu.add(p, feModTag.comp).pushX().spanX().wrap();

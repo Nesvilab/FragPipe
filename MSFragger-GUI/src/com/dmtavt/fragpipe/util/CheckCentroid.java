@@ -20,7 +20,7 @@ public class CheckCentroid {
     long time = System.currentTimeMillis();
     try {
       if (!isCentroid(args[0].trim(), Integer.parseInt(args[1]))) {
-        System.err.println(args[0].trim() + " has non-centroid scans. Please re-convert it with peakPeaking (https://msfragger.nesvilab.org/tutorial_convert.html).");
+        System.err.println(args[0].trim() + " has non-centroid scans. Please re-convert it with peakPeaking (https://fragpipe.nesvilab.org/docs/tutorial_convert.html).");
         System.exit(1);
       }
     } catch (Exception e) {
