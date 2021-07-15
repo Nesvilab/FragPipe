@@ -161,7 +161,7 @@ public class TabConfig extends JPanelWithEnablement {
     Properties props = ThisAppProps.getRemotePropertiesWithLocalDefaults();
 //      Properties props = ThisAppProps.getLocalProperties(); // for testing
     String linkUrl = props.getProperty(ThisAppProps.PROP_SETUP_TUTORIAL_URL,
-        "https://msfragger.nesvilab.org/tutorial_setup_fragpipe.html");
+        "https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html");
 
     JEditorPane c = SwingUtils.createClickableHtml(
         "<a href='" + linkUrl + "'>Configuration Help</a>");

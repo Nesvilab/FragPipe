@@ -283,7 +283,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMinScans = mu.feb(uiSpinnerMinScans).name("ionquant.minscans").label("Min scans").tooltip("Minimum scans required for feature detection").create();
     FormEntry feWriteIndex = mu.feb("ionquant.writeindex", UiUtils.createUiCheck("Keep index on disk", false)).tooltip("Keep built index on disk for further usage").create();
 
-    FormEntry feExcludemods = mu.feb(uiTextExcludemods).name("ionquant.excludemods").label("Excluded mods").tooltip("String specifying excluded modifications in peptide and protein quantification. E.g. M15.9949;STY79.96633").create();
+    FormEntry feExcludemods = mu.feb(uiTextExcludemods).name("ionquant.excludemods").label("Excluded mods").tooltip("String specifying excluded modifications to be excluded from protein quantification, e.g. M15.9949;STY79.96633").create();
 
     SwingUtils.addItemSelectedListener(uiComboProtQuant, true, itemEvent -> {
       Object o = itemEvent.getItem();

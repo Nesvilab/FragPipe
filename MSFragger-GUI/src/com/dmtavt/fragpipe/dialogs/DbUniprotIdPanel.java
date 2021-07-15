@@ -54,7 +54,7 @@ public class DbUniprotIdPanel extends JPanel {
             paths -> textSpikeInFASTA.setText(paths.get(0).toString()));
 
     final MigUtils mu = MigUtils.get();
-    JPanel panelAddSpikeIn = mu.newPanel("Spike-in sequences database (optional)", true);
+    JPanel panelAddSpikeIn = mu.newPanel("Spike-in sequences (do not include decoys)", true);
     mu.add(panelAddSpikeIn, feDbPath.label()).split();
     mu.add(panelAddSpikeIn, feDbPath.comp).growX();
     mu.add(panelAddSpikeIn, btnBrowse);
@@ -69,7 +69,7 @@ public class DbUniprotIdPanel extends JPanel {
     checkAddIsoforms = new JCheckBox("Add isoforms", false);
     checkAddIrt = new JCheckBox("Add iRT sequences", false);
     checkAddDecoys.setToolTipText("<html>Decoy sequences will be generated based on the downloaded database.<br/>\n" +
-            "Decoys are required for FDR estimation using PeptideProphet.");
+            "Decoys are required for FDR estimation.");
     panelCheckboxes.add(checkIsReviewed);
     panelCheckboxes.add(checkAddDecoys);
     panelCheckboxes.add(checkAddContaminants);

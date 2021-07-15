@@ -559,11 +559,11 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JPanel createPanelWorkflows() {
     JPanel p = mu.newPanel("Workflows", true);
 
-    final String link = Fragpipe.propsFix().getProperty("fragpipe.workflow-tutorial.url", "https://msfragger.nesvilab.org/tutorial_fragpipe.html");
+    final String link = Fragpipe.propsFix().getProperty("fragpipe.workflow-tutorial.url", "https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html");
     epWorkflowsInfo = SwingUtils.createClickableHtml(true,
         String.format("FragPipe supports multiple proteomic workflows.\n"
             + "Select and load an option from the dropdown menu below to configure "
-            + "all the tools. Workflows can be customized and saved.\n"
+            + "all the tools. Workflows can be customized, saved, and shared.\n"
             + "<a href=\"%s\">See the tutorial</a>.", link));
 
     workflows = loadWorkflowFiles();
