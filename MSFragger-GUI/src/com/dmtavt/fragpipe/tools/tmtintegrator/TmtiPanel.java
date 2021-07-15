@@ -351,20 +351,20 @@ public class TmtiPanel extends JPanelBase {
         .builder(0.9, 0.0, 1.0, 0.05).setFormat(df3).setCols(5).create();
     FormEntry feMinPsmProb = fe(TmtiConfProps.PROP_min_pep_prob,
         "Min PSM probability", uiSpinnerMinPsmProb,
-        "<html>minimum PSM probability threshold <br/>\n"
+        "<html>Minimum PSM probability threshold <br/>\n"
             + "(on top of FDR filtering by Philosopher)");
 
     UiSpinnerDouble uiSpinnerMinPurity = UiSpinnerDouble
         .builder(0.5, 0.0, 1.0, 0.05).setFormat(df3).setCols(5).create();
     FormEntry feMinPurity = fe(TmtiConfProps.PROP_min_purity,
         "Min purity", uiSpinnerMinPurity,
-        "<html>ion purity score threshold");
+        "<html>Ion purity score threshold");
 
     UiSpinnerDouble uiSpinnerMinPercent = UiSpinnerDouble
         .builder(0.05, 0.0, 1.0, 0.05).setFormat(df3).setCols(5).create();
     FormEntry feMinPercent = fe(TmtiConfProps.PROP_min_percent,
         "Min Intensity (percent)", uiSpinnerMinPercent,
-        "<html>remove low intensity PSMs (e.g. value of 0.05 indicates removal <br/>\n"
+        "<html>Remove low intensity PSMs (e.g. value of 0.05 indicates removal <br/>\n"
             + "of PSMs with the summed TMT reporter ions intensity in the lowest 5% of <br/>\n"
             + "all PSMs)");
 
@@ -375,7 +375,7 @@ public class TmtiPanel extends JPanelBase {
     UiText uiTextProtExclude = UiUtils.uiTextBuilder().cols(10).text("none").create();
     FormEntry feProtExclude = fe(TmtiConfProps.PROP_prot_exclude,
         "Exclude proteins", uiTextProtExclude,
-        "exclude proteins with specified tags at the beginning of the accession <br/>\n"
+        "<html>Exclude proteins with the specified tag(s) at the beginning of the accession <br/>\n"
             + "number (e.g. none: no exclusion; sp|,tr| : exclude protein with sp| or tr|)");
 
     UiCombo uiComboUniquePep = UiUtils.createUiCombo(TmtiConfProps.COMBO_PEPTIDE_PROTEIN_UNIQUENESS.stream()
@@ -439,7 +439,7 @@ public class TmtiPanel extends JPanelBase {
         .builder(0, 0, 1.0, 0.1).setFormat(df2).setCols(5).create();
     FormEntry feMaxPepProb = mu
         .feb(TmtiConfProps.PROP_max_pep_prob_thres, uiSpinnerMinBestPepProb)
-        .label("Min best peptide probability").create();
+        .label("Minimum best peptide probability").create();
 
     JPanel p = mu.newPanel(mu.lcNoInsetsTopBottom());
     mu.border(p, "Filtering and normalization");
