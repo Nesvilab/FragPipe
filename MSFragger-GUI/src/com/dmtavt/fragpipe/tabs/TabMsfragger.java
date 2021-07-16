@@ -1188,7 +1188,7 @@ public class TabMsfragger extends JPanelBase {
             + "Shifted ion series are the same as regular b/y ions,\n"
             + "but with the addition of the mass shift of the precursor.\n"
             + "Regular ion series will still be used.\n"
-            + "This option is </b>incompatible</b> with database splitting.").create();
+            + "This option is <b>incompatible</b> with database splitting.").create();
 
     mu.add(p, feComboMassDiffToVariableMod.label(), mu.ccR());
     mu.add(p, feComboMassDiffToVariableMod.comp).split().spanX().wrap();
