@@ -486,8 +486,8 @@ public class PtmshepherdPanel extends JPanelBase {
 
     FormEntry feVarMods = new FormEntry(PROP_varmod_masses, "Custom mass shifts", uiTextVarMods,
         "<html>Mass shifts to be added and prioritized during annotation,\n" +
-                "used if modifications will be found overwhelming as variable mods e.g. phospho-enriched data .<br/>\n"
-            + "Comma separated entries of form \"&lt;name&gt;:&lt;mass&gt;\"<br/>\n"
+                "use if modifications will be found overwhelmingly as variable mods, e.g. phospho-enriched data.<br/>\n"
+            + "Comma-separated entries in the format \"&lt;name&gt;:&lt;mass&gt;\"<br/>\n"
             + "Example:<br/>\n"
             + "&nbsp;&nbsp;&nbsp;&nbsp;Phospho:79.9663, Failed_Carbamidomethylation:-57.021464");
 

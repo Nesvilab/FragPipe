@@ -215,7 +215,7 @@ public class TmtiPanel extends JPanelBase {
 
     uiCheckDontRunFqLq = UiUtils.createUiCheck("Skip PSM quantification (rerun TMT-Integrator only)", false);
     FormEntry feDontRunFqLq = mu.feb(uiCheckDontRunFqLq).name("dont-run-fq-lq")
-        .tooltip("Only use in rare situations when you need to re-run TMT-Integrator separately.")
+        .tooltip("Only use in rare situations when you need to re-run TMT-Integrator separately")
         .create();
 
     mu.add(p, checkRun);
@@ -251,7 +251,7 @@ public class TmtiPanel extends JPanelBase {
     colBrowse = new ButtonColumn(tmtAnnotationTable, actionBrowse, 2);
     colCreate = new ButtonColumn(tmtAnnotationTable, actionCreate, 3);
 
-    p.add(new JLabel("Sample/Channel Annotation (rows will be filled when you assign LCMS files to experiments)"), BorderLayout.NORTH);
+    p.add(new JLabel("Sample/Channel Annotation (rows will be filled when you assign LC-MS files to experiments)"), BorderLayout.NORTH);
     tmtAnnotationTable.fireInitialization();
     tmtAnnotationTable.setFillsViewportHeight(false);
     scrollPaneTmtTable = new JScrollPane();
@@ -272,35 +272,41 @@ public class TmtiPanel extends JPanelBase {
         "Label type", uiComboLabelNames, null);
 
     uiComboQuantLevel = UiUtils.createUiCombo(new String[]{"2", "3"});
-    FormEntry feQuantLevel = fe("quant_level", "Quant level", uiComboQuantLevel, "level of isobaric (2: MS2; 3: MS3)");
+    FormEntry feQuantLevel = fe("quant_level", "Quant level", uiComboQuantLevel, "MS level of quantification (2: MS2; 3: MS3)");
 
     UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).text("Bridge").create();
     FormEntry feRefTag = fe(TmtiConfProps.PROP_ref_tag,
         "Ref sample tag", uiTextRefTag,
-        "<html>unique tag for identifying the reference channel (Bridge sample added to each multiplex)");
+        "<html>Unique tag to identify reference (bridge) channels");
 
     UiCombo uiComboGroupBy = UiUtils.createUiCombo(TmtiConfProps.COMBO_GROUP_BY.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feGroupBy = fe(TmtiConfProps.PROP_groupby,
         "Group by", uiComboGroupBy,
-        "<html>level of data summarization(0: PSM aggregation to the gene level; 1: protein; <br/>\n"
-            + "2: peptide sequence; 3: multiple PTM sites; 4: single PTM site; <br/>\n"
-            + "-1: generate reports at all levels)");
+        "<html>Level of summarization <br/>\n"
+            + "0: PSM aggregation to the gene level <br/>\n"
+            + "1: protein <br/>\n"
+            + "2: peptide sequence <br/>\n"
+            + "3: multiple PTM sites <br/>\n"
+            + "4: single PTM sites <br/>\n"
+            + "-1: generate reports at all levels");
 
     UiCombo uiComboNormalization = UiUtils.createUiCombo(TmtiConfProps.COMBO_NORM.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feProtNorm = fe(TmtiConfProps.PROP_prot_norm,
         "Normalization", uiComboNormalization,
-        "<html>normalization (0: None; <br/>\n"
-            + "1: MD (median centering); <br/>\n"
-            + "2: GN (median centering variance scaling); <br/>\n"
+        "<html>Normalization <br/>\n"
+            + "0: None <br/>\n"
+            + "1: MD (median centering) <br/>\n"
+            + "2: GN (median centering variance scaling) <br/>\n"
             + "-1: generate reports with all normalization options)");
 
     uiComboAddRef = UiUtils.createUiCombo(TmtiConfProps.COMBO_ADD_REF.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feAddRef = fe(TmtiConfProps.PROP_add_Ref,
         "Define reference", uiComboAddRef,
-        "<html>add an artificial reference channel if there is no reference channel");
+        "<html>Add an artificial reference channel if<br/>\n"
+            + "there is no reference channel in the sample");
     uiComboAddRef.addItemListener(e -> {
       final String selected = (String) uiComboAddRef.getSelectedItem();
       boolean enabled = TmtiConfProps.COMBO_ADD_REF_CHANNEL.equalsIgnoreCase(selected);
@@ -340,8 +346,8 @@ public class TmtiPanel extends JPanelBase {
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feUniqueGene = fe(TmtiConfProps.PROP_unique_gene,
         "Peptide-Gene uniqueness", uiComboUniqueGene,
-        "<html>0: allow all PSMs; <br/>"
-            + "1: remove PSMs mapping to more than one gene with evidence of expression in the dataset; <br/>\n"
+        "<html>0: allow all PSMs <br/>"
+            + "1: remove PSMs mapping to more than one gene with evidence of expression in the dataset <br/>\n"
             + "2: remove all PSMs mapping to more than one gene in the FASTA database\n");
 
     DecimalFormat df2 = new DecimalFormat("#.##");
@@ -383,14 +389,18 @@ public class TmtiPanel extends JPanelBase {
     FormEntry feUniquePep = fe(TmtiConfProps.PROP_unique_pep,
         "Peptide-Protein uniqueness", uiComboUniquePep,
         "<html>Unique only: use peptides that are unique or confidently assigned to a<br/>\n"
-            + "single protein (or a single indistinguishable protein group), <br/>\n"
+            + "single protein (or a single indistinguishable protein group) <br/>\n"
             + "<br/>\n"
             + "Unique+Razor: use 'unique plus razor' approach, with each shared <br/>\n"
             + "peptide assigned as razor to one protein (as classified by Philosopher <br/>\n"
-            + "and defined in psm.tsv file). <br/>\n");
+            + "and defined in psm.tsv file) <br/>\n");
 
     UiCombo uiComboAggregationMethod = UiUtils.createUiCombo(TmtiConfProps.COMBO_AGGREGATION_METHOD.stream().map(ComboValue::getValInUi).collect(Collectors.toList()));
-    FormEntry feAggregationMethod = fe(TmtiConfProps.PROP_aggregation_method, "Aggregation method", uiComboAggregationMethod, "");
+    FormEntry feAggregationMethod = fe(TmtiConfProps.PROP_aggregation_method, 
+        "Aggregation method", uiComboAggregationMethod,
+        "<html>Method to aggregate PSM abundances<br/>\n"
+            + "Median: use median<br/>\n"
+            + "Weighted: use precursor intensity-weighted abundances <br/>\n");
 
     UiCheck uiCheckBestPsm = new UiCheck("Best PSM", null, true);
     FormEntry feBestPsm = fe(TmtiConfProps.PROP_best_psm,
@@ -439,7 +449,7 @@ public class TmtiPanel extends JPanelBase {
         .builder(0, 0, 1.0, 0.1).setFormat(df2).setCols(5).create();
     FormEntry feMaxPepProb = mu
         .feb(TmtiConfProps.PROP_max_pep_prob_thres, uiSpinnerMinBestPepProb)
-        .label("Minimum best peptide probability").create();
+        .label("Min best peptide probability").create();
 
     JPanel p = mu.newPanel(mu.lcNoInsetsTopBottom());
     mu.border(p, "Filtering and normalization");
@@ -493,8 +503,8 @@ public class TmtiPanel extends JPanelBase {
     FormEntry feMinSiteProb = fe(TmtiConfProps.PROP_min_site_prob,
         "Min site probability", uiSpinnerMinSiteProb,
         "<html>site localization confidence threshold <br/>\n"
-            + "-1: global; <br/>\n"
-            + "0: as determined by the search engine; <br/>\n"
+            + "-1: global <br/>\n"
+            + "0: as determined by the search engine <br/>\n"
             + "above 0 (e.g., 0.75): min PTMProphet site probability");
 
     UiText uiTextModTag = UiUtils.uiTextBuilder().cols(10).text("none").create();

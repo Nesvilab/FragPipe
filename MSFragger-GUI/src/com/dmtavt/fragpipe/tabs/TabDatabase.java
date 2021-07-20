@@ -107,8 +107,8 @@ public class TabDatabase extends JPanelWithEnablement {
         .tooltip( "Decoys are used for FDR estimation.\n"
             + "Decoy proteins in the database are identified by this prefix in\n"
             + "their headers. If you're unsure what tag is used in your protein\n"
-            + "database, use the Try auto-detect button to get a statistic about\n"
-            + "the usage of prefixes in the give file.").create();
+            + "database, use the Try auto-detect tag button to see what proportion\n"
+            + "of sequences in the given database contain a decoy tag.").create();
     JButton btnDecoyDetect = feDecoyTag.button("Try auto-detect tag", "Input decoy tag",
         this::actionDetectDecoys);
 

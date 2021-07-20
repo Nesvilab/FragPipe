@@ -440,7 +440,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     JPanel p = mu.newPanel("Global settings", true);
 
     uiSpinnerRam = new UiSpinnerInt(0, 0, 1024, 1, 3);
-    FormEntry feRam = fe(uiSpinnerRam, "ram").label("RAM (GB, 0=auto)").tooltip("Leave at zero to use a reasonable amount automatically").create();
+    FormEntry feRam = fe(uiSpinnerRam, "ram").label("RAM (GB, 0=auto)").tooltip("Leave at zero to automatically use a reasonable amount of memory").create();
     final int maxProcessors = 128;
     uiSpinnerThreads = new UiSpinnerInt(Math.max(1, Math.min(Runtime.getRuntime().availableProcessors() - 1, maxProcessors)), 0, maxProcessors, 1);
     FormEntry feThreads = fe(uiSpinnerThreads, "threads").label("Parallelism").create();
@@ -583,10 +583,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     });
     JButton btnWorkflowLoad = UiUtils.createButton("Load", this::actionLoadSelectedWorkflow);
     FormEntry feComboWorkflow = Fragpipe.feNoCache(uiComboWorkflows, "workflow-option")
-        .label("Select an option to load config for:")
-        .tooltip("Conveniently loads appropriate defaults\n"
-            + "for various standard workflows.\n"
-            + "Alternatively, all options can be manually set.").create();
+        .label("Select a workflow:")
+        .tooltip("Conveniently loads appropriate defaults for various standard workflows\n").create();
     JButton btnOpenInExplorer = SwingUtils
         .createButtonOpenInFileManager(this, "Open in File Manager",
             () -> FragpipeLocations.get().getDirWorkflows());
@@ -924,7 +922,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private JPanel createPanelLcmsFiles() {
-    JPanel p = mu.newPanel("Input LC/MS Files", true);
+    JPanel p = mu.newPanel("Input LC-MS Files", true);
 
     btnGroupMsType = new ButtonGroup();
     btnTypeRegularMs = new JRadioButton("Regular MS");
