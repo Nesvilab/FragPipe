@@ -36,6 +36,7 @@ def configure_logger(lg: logging.Logger) -> None:
 lg.setLevel(logging.DEBUG)
 configure_logger(lg)
 
+START = timeit.default_timer()
 if sys.version_info[:2] >= (3, 7):
 	sys.stdout.reconfigure(encoding='utf-8')
 	sys.stderr.reconfigure(encoding='utf-8')
@@ -929,5 +930,7 @@ if use_easypqp:
 	os.chdir(CWD)
 
 print('Done generating spectral library')
+lg.info(f'took {datetime.timedelta(seconds=timeit.default_timer() - START)}')
 # if __name__=='__main__':
 # 	main()
+
