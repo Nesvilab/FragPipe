@@ -44,32 +44,32 @@ import java.util.regex.Pattern;
  * @author dattam
  */
 public class UmpireParams implements PropertyFileContent {
-    public static final String PROP_Thread = "Thread";
-    public static final String PROP_RPmax = "RPmax";
-    public static final String PROP_RFmax = "RFmax";
-    public static final String PROP_CorrThreshold = "CorrThreshold";
-    public static final String PROP_DeltaApex = "DeltaApex";
-    public static final String PROP_RTOverlap = "RTOverlap";
-    public static final String PROP_AdjustFragIntensity = "AdjustFragIntensity";
-    public static final String PROP_BoostComplementaryIon = "BoostComplementaryIon";
+    public static final String PROP_Thread = "diaumpire.Thread";
+    public static final String PROP_RPmax = "diaumpire.RPmax";
+    public static final String PROP_RFmax = "diaumpire.RFmax";
+    public static final String PROP_CorrThreshold = "diaumpire.CorrThreshold";
+    public static final String PROP_DeltaApex = "diaumpire.DeltaApex";
+    public static final String PROP_RTOverlap = "diaumpire.RTOverlap";
+    public static final String PROP_AdjustFragIntensity = "diaumpire.AdjustFragIntensity";
+    public static final String PROP_BoostComplementaryIon = "diaumpire.BoostComplementaryIon";
     
-    public static final String PROP_MS1PPM = "SE.MS1PPM";
-    public static final String PROP_MS2PPM = "SE.MS2PPM";
-    public static final String PROP_MinMSIntensity = "SE.MinMSIntensity";
-    public static final String PROP_MinMSMSIntensity = "SE.MinMSMSIntensity";
-    public static final String PROP_NoMissedScan = "SE.NoMissedScan";
-    public static final String PROP_EstimateBG = "SE.EstimateBG";
-    public static final String PROP_IsoPattern = "SE.IsoPattern";
-    public static final String PROP_MassDefectFilter = "SE.MassDefectFilter";
-    public static final String PROP_MassDefectOffset = "SE.MassDefectOffset";
-    public static final String PROP_ExportPrecursorPeak = "ExportPrecursorPeak";
-    public static final String PROP_Q1 = "Q1";
-    public static final String PROP_Q2 = "Q2";
-    public static final String PROP_Q3 = "Q3";
-    public static final String PROP_SN = "SE.SN";
-    public static final String PROP_MS2SN = "SE.MS2SN";
-    public static final String PROP_WindowType = "WindowType";
-    public static final String PROP_WindowSize = "WindowSize";
+    public static final String PROP_MS1PPM = "diaumpire.SE.MS1PPM";
+    public static final String PROP_MS2PPM = "diaumpire.SE.MS2PPM";
+    public static final String PROP_MinMSIntensity = "diaumpire.SE.MinMSIntensity";
+    public static final String PROP_MinMSMSIntensity = "diaumpire.SE.MinMSMSIntensity";
+    public static final String PROP_NoMissedScan = "diaumpire.SE.NoMissedScan";
+    public static final String PROP_EstimateBG = "diaumpire.SE.EstimateBG";
+    public static final String PROP_IsoPattern = "diaumpire.SE.IsoPattern";
+    public static final String PROP_MassDefectFilter = "diaumpire.SE.MassDefectFilter";
+    public static final String PROP_MassDefectOffset = "diaumpire.SE.MassDefectOffset";
+    public static final String PROP_ExportPrecursorPeak = "diaumpire.ExportPrecursorPeak";
+    public static final String PROP_Q1 = "diaumpire.Q1";
+    public static final String PROP_Q2 = "diaumpire.Q2";
+    public static final String PROP_Q3 = "diaumpire.Q3";
+    public static final String PROP_SN = "diaumpire.SE.SN";
+    public static final String PROP_MS2SN = "diaumpire.SE.MS2SN";
+    public static final String PROP_WindowType = "diaumpire.WindowType";
+    public static final String PROP_WindowSize = "diaumpire.WindowSize";
 
     public static final String ETC_PARAM_RAM = "umpire-se.jvm.ram";
 

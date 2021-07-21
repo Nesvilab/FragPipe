@@ -126,7 +126,7 @@ public class UmpirePanel extends JPanel {
     JPanel pTop = new JPanel(new MigLayout(lc));
 
     checkRunUmpireSe = new UiCheck("Run DIA-Umpire SE (Signal Extraction)", null, false);
-    checkRunUmpireSe.setName("run-diaumpire");
+    checkRunUmpireSe.setName("diaumpire.run-diaumpire");
     pTop.add(checkRunUmpireSe, new CC().spanX().wrap());
 
     List<String> loadOptions = new ArrayList<>(2);
