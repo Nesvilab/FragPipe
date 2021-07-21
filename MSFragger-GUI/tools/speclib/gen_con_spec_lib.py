@@ -21,6 +21,21 @@ import shutil
 import numpy as np
 import pandas as pd
 
+import datetime, logging, sys, timeit
+
+lg = logging.getLogger(__name__)
+
+
+def configure_logger(lg: logging.Logger) -> None:
+	lg.handlers.clear()
+	ch = logging.StreamHandler(stream=sys.stdout)
+	ch.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(message)s'))
+	# ch.setLevel(logging.NOTSET)
+	lg.addHandler(ch)
+
+lg.setLevel(logging.DEBUG)
+configure_logger(lg)
+
 if sys.version_info[:2] >= (3, 7):
 	sys.stdout.reconfigure(encoding='utf-8')
 	sys.stderr.reconfigure(encoding='utf-8')
@@ -907,7 +922,10 @@ if use_easypqp:
 	cwd = pathlib.Path()
 	if delete_temp_files:
 		for f in easyPQP_tempfiles:
-			f.unlink()
+			try:
+				f.unlink()
+			except FileNotFoundError as e:
+				lg.exception(e)
 	os.chdir(CWD)
 
 print('Done generating spectral library')
