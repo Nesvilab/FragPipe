@@ -390,10 +390,9 @@ public class Version {
           + zipFnWithJre + "</a>) contains a Java runtime **for Windows only**.\n"
           + "## Running\n"
           + "- Unzip the file\n"
-          + "- In `/bin` subdirectory you will find a `shell script for Linux`, `bat file for Windows` and an `exe file for Windows`"
+          + "- In `/bin` subdirectory you will find a `shell script for Linux`, `bat file for Windows` and an `exe file for Windows`\n"
           + "### Note to Windows users\n"
-          + "Windows 10 might show a UAC prompt, saying that this\n"
-          + "is not a trusted program, it's up to you whether to run it or not.\n";
+          + "Windows 10 might show a UAC prompt, saying that this is not a trusted program, it's up to you whether to run it or not.\n";
 
       System.out.println(githubReleaseMessage);
       System.out.println();
