@@ -1,5 +1,8 @@
 package com.dmtavt.fragpipe.cmd;
 
+import static com.dmtavt.fragpipe.cmd.CmdPeptideProphet.deleteFiles;
+import static com.dmtavt.fragpipe.cmd.CmdPeptideProphet.findOldFilesForDeletion;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
@@ -9,6 +12,7 @@ import com.dmtavt.fragpipe.tools.pepproph.PeptideProphetParams;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorOutputToPepXML;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.github.chhh.utils.OsUtils;
+import java.awt.Component;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -93,9 +97,16 @@ public class CmdPercolator extends CmdBase {
   /**
    * @param pepxmlFiles Either pepxml files after search or after Crystal-C.
    */
-  public boolean configure(Path jarFragpipe, String percolatorCmd, boolean combine, Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCrystalC) {
+  public boolean configure(Component comp, Path jarFragpipe, String percolatorCmd, boolean combine, Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCrystalC) {
     PeptideProphetParams percolatorParams = new PeptideProphetParams();
     percolatorParams.setCmdLineParams(percolatorCmd);
+
+    // check for existing pepxml files and delete them
+    final Map<InputLcmsFile, List<Path>> outputs = outputs(pepxmlFiles, "pepxml", combine);
+    final List<Path> forDeletion = findOldFilesForDeletion(outputs);
+    if (!deleteFiles(comp, forDeletion)) {
+      return false;
+    }
 
     LinkedList<ProcessBuilderInfo> pbisParallel = new LinkedList<>();
     LinkedList<ProcessBuilderInfo> pbisPostParallel = new LinkedList<>();

@@ -813,7 +813,7 @@ public class FragpipeRun {
     addConfig.accept(cmdPercolator, () -> {
       if (cmdPercolator.isRun()) {
         final String percolatorCmd = percolatorPanel.getCmdOpts();
-        if (!cmdPercolator.configure(jarPath, percolatorCmd, isCombinedPepxml_percolator,
+        if (!cmdPercolator.configure(parent, jarPath, percolatorCmd, isCombinedPepxml_percolator,
             sharedPepxmlFilesBeforePeptideValidation, crystalcPanel.isRun())) {
           return false;
         }

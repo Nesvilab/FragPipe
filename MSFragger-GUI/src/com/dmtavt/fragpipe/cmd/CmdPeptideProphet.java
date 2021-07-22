@@ -93,7 +93,7 @@ public class CmdPeptideProphet extends CmdBase {
     return m;
   }
 
-  private List<Path> findOldFilesForDeletion(Map<InputLcmsFile, List<Path>> outputs) {
+  public static List<Path> findOldFilesForDeletion(Map<InputLcmsFile, List<Path>> outputs) {
 //    final Set<Path> outputPaths = pepxmlFiles.keySet().stream()
 //        .map(f -> f.outputDir(wd)).collect(Collectors.toSet());
     final Set<Path> outputPaths = outputs.values().stream().flatMap(List::stream)
@@ -113,7 +113,7 @@ public class CmdPeptideProphet extends CmdBase {
    * Asks user confirmation before deleting the files.
    * Shows all the file paths to be deleted.
    */
-  private boolean deleteFiles(Component comp, List<Path> forDeletion) {
+  public static boolean deleteFiles(Component comp, List<Path> forDeletion) {
     if (forDeletion == null || forDeletion.isEmpty())
       return true;
 
