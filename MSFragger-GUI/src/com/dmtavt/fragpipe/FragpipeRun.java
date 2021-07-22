@@ -335,6 +335,8 @@ public class FragpipeRun {
     toConsole(Fragpipe.COLOR_BLACK, "Fast and comprehensive N- and O-glycoproteomics analysis with MSFragger-Glyco. Nat Methods 17:1125 (2020)", true);
     toConsole(Fragpipe.COLOR_CMDLINE, "(timsTOF PASEF) ", false);
     toConsole(Fragpipe.COLOR_BLACK, "Fast quantitative analysis of timsTOF PASEF data with MSFragger and IonQuant. Mol Cell Proteomics 19:1575 (2020)", true);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(PSM validation with Percolator) ", false);
+    toConsole(Fragpipe.COLOR_BLACK, "Semi-supervised learning for peptide identification from shotgun proteomics datasets. Nat Methods 4:923 (2007)", true);
     toConsole(Fragpipe.COLOR_CMDLINE, "(Label-free quantification/SILAC) ", false);
     toConsole(Fragpipe.COLOR_BLACK, "IonQuant Enables Accurate and Sensitive Label-Free Quantification With FDR-Controlled Match-Between-Runs. Mol Cell Proteomics 20:100077 (2021)", true);
     toConsole(Fragpipe.COLOR_CMDLINE, "(PeptideProphet/ProteinProphet/PTMProphet/Filtering) ", false);
