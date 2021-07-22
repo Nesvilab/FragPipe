@@ -853,7 +853,7 @@ public class FragpipeRun {
           .toList();
 
       if (panelPtmProphet.isRun()) {
-        return cmdPtmProphet.configure(usePhi, threads, panelPtmProphet.getCmdLineOpts(),
+        return cmdPtmProphet.configure(parent, usePhi, threads, panelPtmProphet.getCmdLineOpts(),
             lcmsToPepxml);
       }
       return true;

@@ -1,13 +1,19 @@
 package com.dmtavt.fragpipe.cmd;
 
+import static com.dmtavt.fragpipe.cmd.CmdPeptideProphet.deleteFiles;
+
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.UsageTrigger;
+import java.awt.Component;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import org.jooq.lambda.Seq;
 import org.jooq.lambda.tuple.Tuple2;
 import org.slf4j.Logger;
@@ -26,12 +32,27 @@ public class CmdPtmProphet extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(UsageTrigger usePhi, int threads, String cmdLineOpts,
+  public boolean configure(Component comp, UsageTrigger usePhi, int threads, String cmdLineOpts,
       List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml) {
     initPreConfig();
 
     Map<Path, List<Tuple2<InputLcmsFile, Path>>> groupByPepxml = Seq.seq(lcmsToPepxml)
         .groupBy(Tuple2::v2);
+
+    // check for existing pepxml files and delete them
+    try {
+      final List<Path> forDeletion = new ArrayList<>();
+      for (Entry<Path, List<Tuple2<InputLcmsFile, Path>>> kv : groupByPepxml.entrySet()) {
+        Path workDir = kv.getValue().get(0).v1.outputDir(wd);
+        forDeletion.addAll(Files.list(workDir).filter(file -> file.toString().endsWith("mod.pep.xml")).collect(Collectors.toList()));
+      }
+      if (!deleteFiles(comp, forDeletion)) {
+        return false;
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+      return false;
+    }
 
     for (Entry<Path, List<Tuple2<InputLcmsFile, Path>>> kv : groupByPepxml.entrySet()) {
       Path pepxml = kv.getKey();
