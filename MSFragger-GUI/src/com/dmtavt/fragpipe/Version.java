@@ -63,6 +63,19 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("16.0", Arrays.asList(
+        "Require MSFragger 3.3+",
+        "Require Philosopher 4.0.0+",
+        "Upgrade Crystal-C to 1.4.2",
+        "Upgrade IonQuant to 1.7.5",
+        "Upgrade TMT-Integrator to 3.0.0",
+        "Upgrade PTMShepherd to 1.1.0",
+        "Upgrade batmass-io to 1.23.4",
+        "Add Percolator as an alternative to PeptideProphet",
+        "Change how files are passed to ProteinProphet, IonQuant, and EasyPQP to bypass the Windows command length limitation",
+        "Various minor bug fixes and improvements"
+    ));
+
     CHANGELOG.put("15.0", Arrays.asList(
         "Require MSFragger 3.2+.",
         "Upgrade IonQuant to 1.5.5.",
