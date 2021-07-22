@@ -130,7 +130,7 @@ phi-report.pep-level-summary=false
 phi-report.philosoher-msstats=false
 phi-report.print-decoys=false
 phi-report.run-report=true
-protein-prophet.cmd-opts=--maxppmdiff 2000000 --minprob 0.9
+protein-prophet.cmd-opts=--maxppmdiff 2000000 --minprob 0.7
 protein-prophet.run-protein-prophet=true
 ptmprophet.cmdline=
 ptmprophet.run-ptmprophet=false
@@ -170,7 +170,7 @@ quantitation.run-label-free-quant=false
 run-psm-validation=true
 speclibgen.easypqp.extras.max_delta_ppm=15
 speclibgen.easypqp.extras.max_delta_unimod=0.02
-speclibgen.easypqp.extras.rt_lowess_fraction=0.01
+speclibgen.easypqp.extras.rt_lowess_fraction=0
 speclibgen.easypqp.im-cal=Automatic selection of a run as reference IM
 speclibgen.easypqp.rt-cal=ciRT
 speclibgen.easypqp.select-file.text=
@@ -206,7 +206,7 @@ tmtintegrator.run-tmtintegrator=false
 tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
-workflow.description=<p style\="margin-top\: 0"> Workflow for building spectral libraries using DDA data, or using pseudo-MS/MS spectra extracted with DIA-Umpire (or using both data types if building a combined DIA+DDA library). Closed search with MSFragger, peptide/protein validation and protein inference with PeptideProphet/ProteinProphet via Philosopher. Building a consensus spectral library with EasyPQP. The library is filtered to 1% FDR at the protein and peptide levels. If using fractionated DDA data, in EasyPQP choose RT Calibration option\: "ciRT" (choose iRT if using organisms other than yeast or human). If using DDA data together with DIA-Umpire extracted mzML files, choose RT Calibration option\: "Automatic selection of a run as reference RT". Supports DDA RAW/.d files, mzML, and MGF files. Generated library.tsv file is directly compatible with DIA-NN and Spectronaut for targeted extraction of quantitative information. </p>
+workflow.description=<p style\="margin-top\: 0"> Workflow for building spectral libraries using DDA data, or using pseudo-MS/MS spectra extracted with DIA-Umpire (or using both data types if building a combined DIA+DDA library). Closed search with MSFragger, peptide validation with Percolator, and protein inference with ProteinProphet via Philosopher. Building a consensus spectral library with EasyPQP. The library is filtered to 1% FDR at the protein and peptide levels. If using fractionated DDA data, in EasyPQP choose RT Calibration option\: "ciRT" (choose iRT if using organisms other than yeast or human). If using DDA data together with DIA-Umpire extracted mzML files, choose RT Calibration option\: "Automatic selection of a run as reference RT". Supports DDA RAW/.d files, mzML, and MGF files. Generated library.tsv file is directly compatible with DIA-NN and Spectronaut for targeted extraction of quantitative information. </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.saved-with-ver=15.1-rc2
