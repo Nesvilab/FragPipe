@@ -513,7 +513,7 @@ public class TmtiPanel extends JPanelBase {
         "<html>PTM tag for generating PTM-specific reports <br/>\n"
             + "none: global data<br/>\n"
             + "S(79.9663),T(79.9663),Y(79.9663): phospho<br/>\n"
-            + "K(42.0106): K-acetyl");
+            + "K(114.0429),K(343.2059): ubiquitin");
 
     mu.add(p, feModTag.label());
     mu.add(p, feModTag.comp).pushX().spanX().wrap();
