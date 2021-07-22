@@ -206,7 +206,7 @@ tmtintegrator.run-tmtintegrator=false
 tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
-workflow.description=Perform closed search and MS1-based label quantification with chemical labelled cysteine. Details can be found from <a href="https://doi.org/10.33774/chemrxiv-2021-w7rss-v2">Profiling the proteome-wide selectivity of diverse electrophiles</a>
+workflow.description=Perform closed search and MS1-based label quantification with chemically labelled cysteines. Details can be found from <i>Profiling the proteome-wide selectivity of diverse electrophiles</i> (10.33774/chemrxiv-2021-w7rss-v2).
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.saved-with-ver=15.1-rc1
