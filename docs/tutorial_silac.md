@@ -1,43 +1,44 @@
 ## Analyzing SILAC samples (or other MS1-labeled samples) with FragPipe
 
-[MSFragger](https://msfragger.nesvilab.org/) can be used to identify labeled peptides, with [IonQuant](https://ionquant.nesvilab.org/) (inside FragPipe) to perform MS1 quantification of labeled samples. Below are step-by-step instructions to perform SILAC or other labeling-based MS1 quantification (such as dimethyl). See other FragPipe tutorials listed [here](https://fragpipe.nesvilab.org/).
+FragPipe can be used to identify and quantify MS1-labeled samples with [MSFragger](https://msfragger.nesvilab.org/) and [IonQuant](https://ionquant.nesvilab.org/). Below are step-by-step instructions to perform SILAC (Stable Isotope Labeling by Amino acids in Cell culture) or other labeling-based MS1 quantification (such as dimethyl). In this example, we will use the built-in workflow for Heavy/Medium/Light SILAC.
 
 
-#### 1) Load the `Default` workflow
-Descriptions of built-in workflows can be found [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html)
-
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_1.jpg)
+#### 1) Load the `SILAC3` workflow
+On the 'Workflow' tab, select 'SILAC3' from the dropdown menu and click 'Load'. Add spectral files by dragging and dropping or use the file browser.
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_1.PNG)
 
 
 #### 2) Specify or download a FASTA file
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_2.jpg)
+On the 'Database' tab, use 'Browse' to load an existing sequence database or 'Download' to fetch one from UniProt.
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_2.PNG)
 
 
 #### 3) Select the appropriate variable modifications
-This example specifies the medium and heavy SILAC labels (K4R6/K8R10) as variable modifications.
+On the 'MSFragger' tab, inspect the search parameters. The SILAC3 workflow specifies the medium and heavy SILAC labels (K4R6/K8R10) in the 'Variable modifications' box.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_3.jpg)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_3.PNG)
 
-If you are using another kind of labeling, fill in the corresponding sites and modification masses. For example, to specify light and heavy dimethyl labels, variable modification should be specified as shown below:
+To use a different kind of labeling, fill in the corresponding sites and modification masses. For example, to specify light and heavy dimethyl labels, variable modifications should be specified as shown below:
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_3_2.jpg)
 
 
 #### 4) Use IonQuant for MS1 quantification
-Check `Run MS1 quant` and load the default settings. Then fill in the labels' masses with the format `<site>mass`, with multiple site-mass pairs separated by `;`. Below is an example using SILAC light, medium, and heavy labeling.
+On the 'Quant (MS1)' tab, IonQuant has been set to run with SILAC light, medium, and heavy labels that match those specified in the MSFragger search.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_4.jpg)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_4.PNG)
 
 If you are using light and heavy dimethyl labeling, change these fields to:
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_4_2.jpg)
 
 #### 5) Specify output location and run
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_5.jpg)
+On the 'Run' tab, choose an output file location, then click 'RUN'.
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_5.PNG)
 
 
 ### Output
 For each experiment, the results folder will contain multiple files, including `psm.tsv`, `ion.tsv`, `peptide.tsv`, and `protein.tsv` reports. Entries in these files have been filtered with the user-defined FDR threshold, with the SILAC (or similar) modifications shown as variable modifications. For SILAC (and similar) samples, these reports do not provide ratio abundances (e.g. heavy/light) at each (ion/peptide/protein) level. Instead, as for label-free data, each PSM/ion/peptide is considered independently, and the protein file shows combined protein intensity based on all peptides, regardless of the label/sample status.   
 
-Thus, for SILAC (and related) data, IonQuant generates two additional files exclusively for MS1-labeled data: `ion_label_quant.tsv` and `peptide_label_quant.tsv`. Entries in these two files correspond to those in 'ion.tsv' and 'peptide.tsv' files, respectively, but are presented in a more useful ratio (e.g. medium/light, heavy/light, etc.) format. Currently, IonQuant does not generate a similar protein-level file (we are working to add this in a future release of IonQuant).
+Thus, IonQuant generates two additional files exclusively for MS1-labeled data: `ion_label_quant.tsv` and `peptide_label_quant.tsv`. Entries in these two files correspond to those in 'ion.tsv' and 'peptide.tsv' files, respectively, but are presented in a more useful ratio (e.g. medium/light, heavy/light, etc.) format. Currently, IonQuant does not generate a similar protein-level file (we are working to add this in a future release of IonQuant).
 
