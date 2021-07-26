@@ -824,7 +824,7 @@ public class TabConfig extends JPanelWithEnablement {
         pythonPipOutputNew = ex.toString();
       }
       final ProcessBuilder pb2 = new ProcessBuilder(binPython, "-m",
-              "pip", "install", "git+https://github.com/grosenberger/easypqp.git@master");
+              "pip", "install", "easypqp");
       try {
         pythonPipOutputNew += ProcessUtils.captureOutput(pb2);
       } catch (UnexpectedException ex) {
