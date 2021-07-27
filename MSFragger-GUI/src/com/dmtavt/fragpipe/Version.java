@@ -81,7 +81,7 @@ public class Version {
         "Upgrade IonQuant to 1.5.5.",
         "Upgrade TMT-Integrator to 2.4.0.",
         "Upgrade PTMShepherd to 1.0.0.",
-        "Upgeade DIA-Umpire-SE to 2.2.1 (support mzML, mzXML, and raw formats natively)",
+        "Upgrade DIA-Umpire-SE to 2.2.1 (support mzML, mzXML, and raw formats natively)",
         "Support download MSFragger automatically.",
         "Add a button to install/upgrade EasyPQP.",
         "Remove 'process each experiment separately' checkbox.",
