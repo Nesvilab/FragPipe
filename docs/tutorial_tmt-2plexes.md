@@ -108,9 +108,17 @@ The contents of the ‘tmt-report’ folder are shown below. Reports at the gene
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-resultstmt.png)
 
 
-Multi-site and single-site reports will be generated for the specified modification, in this case phosphorylation. In single-site reports, peptides identified with multiple phosphorylations are converted to single-site form. Single site reports contain only confidently localized sites.
+Multi-site and single-site reports will be generated for the specified modification, in this case phosphorylation. In single-site reports, peptides identified with multiple phosphorylations are converted to single-site form. Single site reports contain only confidently localized sites. The diagram below demonstrates aggregation of PSM-level TMT ratios to the multi-site and single-site level.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-site-reports.png)
+<div align="left">
+<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-multi-to-single-site.png" width="800px"/>
+</div>
+
+A key to the row indices in the resulting multi- and single-site reports is shown below.
+
+<div align="left">
+<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-site-reports.png" width="500px"/>
+</div>
 
 
 <br>
