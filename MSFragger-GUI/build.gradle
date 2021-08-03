@@ -242,6 +242,8 @@ void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startCl
         tasks.findByName('copyTools').mustRunAfter 'installDist'
         tasks.findByName('copyWorkflows').mustRunAfter 'copyTools'
 
+        // Launch4j find the java path from registry or bundledJrePath, rather than Path environment variable.
+        // OracleJDK writes path info to registry but OpenJDK does not, so need to let users install OracleJDK.
         if (!withJre) {
             launch4j { // no bundled jre
                 mainClassName = "${startClass}"
@@ -249,7 +251,7 @@ void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startCl
                 outputDir = "launch4j/bin"
                 libraryDir = '../lib'
                 dontWrapJar = true
-                downloadUrl = 'https://adoptopenjdk.net/'
+                downloadUrl = 'https://www.oracle.com/java/technologies/javase-downloads.html'
                 jreMinVersion = '1.8'
             }
         } else {
@@ -261,7 +263,7 @@ void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startCl
                 outputDir = "launch4j/bin"
                 libraryDir = '../lib'
                 dontWrapJar = true
-                downloadUrl = 'https://adoptopenjdk.net/'
+                downloadUrl = 'https://www.oracle.com/java/technologies/javase-downloads.html'
                 bundledJrePath = "../jre"
                 bundledJre64Bit = true
                 bundledJreAsFallback = false
