@@ -135,12 +135,10 @@ def run_msfragger(infiles_name):
 
 ##########
 def write_combined_scores_histo():
-	if False:
-		scores_histos = [sum(np.loadtxt(ee / (e.stem + '_scores_histogram.tsv'), dtype=np.uint, delimiter='\t', comments=None) for ee in tempdir_parts)
-						 for e in infiles]
-
-	scores_histos = [sum(pd.read_csv(ee / (e.stem + '_scores_histogram.tsv'), dtype=np.uint64, delimiter='\t', header=None, sep='\t').values for ee in tempdir_parts)
-					 for e in infiles]
+	scores_histos = [
+		sum(pd.read_csv(ee / (e.stem + '_scores_histogram.tsv'), dtype=np.uint64, header=None, sep='\t').values
+			for ee in tempdir_parts)
+		for e in infiles]
 	for f, scores_histo in zip(infiles, scores_histos):
 		np.savetxt(tempdir / (f.stem + '_scores_histogram.tsv'), scores_histo, delimiter='\t', fmt='%d')
 
