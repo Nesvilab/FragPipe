@@ -22,7 +22,7 @@ Associated publication: [Clark, David J., et al. "Integrated proteogenomic chara
 ### Open FragPipe
 When you launch FragPipe, check that MSFragger and Philosopher are configured. (If you haven’t downloaded them yet, use their respective ‘Download / Update’ buttons. See [this page](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html) for more help, Python is not needed for the exercises in this tutorial.)
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-config.PNG)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-config.png)
 
 <br>
 

@@ -81,7 +81,7 @@ Median centering normalization is recommend and set as the default.
 
 In the PTMs section (on the 'Quant' tab), 'Mod tag' needs to be set for the modification of interest. For example, the Mod tag for phosphorylation is `S(79.9663),T(79.9663),Y(79.9663)` (formerly `S[167],T[181],Y[243]`). To generate reports for modified sites regardless of whether they have been localized by PTM-Prophet (or if the PTM-Prophet step is not included in your analysis), set the 'Min site probability' to 0. See the phospho example below:
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-quant-phospho.PNG)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-quant-phospho.png)
 
 <br>
 

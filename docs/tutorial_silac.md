@@ -5,18 +5,18 @@ FragPipe can be used to identify and quantify MS1-labeled samples with [MSFragge
 
 #### 1) Load the `SILAC3` workflow
 On the 'Workflow' tab, select 'SILAC3' from the dropdown menu and click 'Load'. Add spectral files by dragging and dropping or use the file browser.
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_1.PNG)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_1.png)
 
 
 #### 2) Specify or download a FASTA file
 On the 'Database' tab, use 'Browse' to load an existing sequence database or 'Download' to fetch one from UniProt.
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_2.PNG)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_2.png)
 
 
 #### 3) Select the appropriate variable modifications
 On the 'MSFragger' tab, inspect the search parameters. The SILAC3 workflow specifies the medium and heavy SILAC labels (K4R6/K8R10) in the 'Variable modifications' box.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_3.PNG)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_3.png)
 
 To use a different kind of labeling, fill in the corresponding sites and modification masses. For example, to specify light and heavy dimethyl labels, variable modifications should be specified as shown below:
 
@@ -26,7 +26,7 @@ To use a different kind of labeling, fill in the corresponding sites and modific
 #### 4) Use IonQuant for MS1 quantification
 On the 'Quant (MS1)' tab, IonQuant has been set to run with SILAC light, medium, and heavy labels that match those specified in the MSFragger search.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_4.PNG)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_4.png)
 
 If you are using light and heavy dimethyl labeling, change these fields to:
 
@@ -34,7 +34,7 @@ If you are using light and heavy dimethyl labeling, change these fields to:
 
 #### 5) Specify output location and run
 On the 'Run' tab, choose an output file location, then click 'RUN'.
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_5.PNG)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_5.png)
 
 
 ### Output

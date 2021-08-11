@@ -183,7 +183,7 @@ For open search workflows, select [Crystal-C](https://www.nesvilab.org/Crystal-C
 
 [PTM-Prophet](http://www.tppms.org/tools/ptm/) can be used to provide localization probabilities from closed search results. Load the phosphorylation defaults or specify custom `--mods` using the format `residues1:modmass1,residues2:modmass2` to provide the amino acids and their respective variable modifications. Mod masses should match those provided to the MSFragger search.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-validation.PNG)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-validation.png)
 
 
  <br>

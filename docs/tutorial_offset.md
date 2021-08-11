@@ -21,7 +21,7 @@ The samples we will use for this tutorial are purified tubulin treated with eith
 ### Open FragPipe
 When you launch FragPipe, check that MSFragger and Philosopher are both configured. If you haven’t downloaded them yet, use their respective ‘Download / Update’ buttons. See [this page](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html) for more help, Python is not needed for this exercise.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-config.PNG)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-config.png)
 
 <br>
 

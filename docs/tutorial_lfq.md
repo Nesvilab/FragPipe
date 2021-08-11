@@ -23,7 +23,7 @@ To get the input data, download the 'lfq-raw.zip' file from [Dropbox](https://ww
 ### Open FragPipe
 When you launch FragPipe, check that MSFragger and Philosopher are configured. (If you haven’t downloaded them yet, use their respective ‘Download / Update’ buttons. See [this page](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html) for more help, Python is not needed for these exercises.)
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-config.PNG)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-config.png)
 
 <br>
 
@@ -100,7 +100,7 @@ In the output location (‘my-lfq-results’ folder), you will find combined rep
 
 Inside each individual folder, a separate set of reports is created for just that sample.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/sample_results2.PNG)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/sample_results2.png)
 
 A guide to output files, with descriptions of each column in the reports, can be found [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html).
 
