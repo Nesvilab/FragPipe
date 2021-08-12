@@ -74,7 +74,7 @@ To save time in the search (at the expense of slightly lower sensitivity), you c
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-searchnocal.png)
 
 
-On the ‘Quant (Isobaric)’ tab, you should see that TMT quantification settings for 10-plex labeling have been set, and the TMT channel annotation files have been automatically loaded. Note that a reference sample is included in this dataset, with the sample tag ‘pool’.
+On the ‘Quant (Isobaric)’ tab, you should see that TMT quantification settings for 10-plex labeling have been set, and the TMT channel annotation files have been automatically loaded (they are named 'annotation.txt' in this case, but any file ending in 'annotation.txt' will be automatically loaded from the same folder as the mzML files). Note that a reference sample is included in this dataset, with the sample tag ‘pool’. 
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-quant.png)
 
