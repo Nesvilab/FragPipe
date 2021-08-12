@@ -35,7 +35,7 @@ On the 'Workflow' tab in FragPipe, select the 'TMT10' workflow from the dropdown
 
 Workflows for TMT-labeled phosphopeptides are also available. These workflows include the variable +79.9663 STY in the MSFragger search, phospho localization settings for PTM-Prophet, and settings in TMT-Integrator that will generate phosphosite-specific quantification reports.
 
-If you have more than one multiplexed sample, each sample needs to be placed in a separate directory. E.g., if an experiment consists of three different TMT-10 samples (A, B, C) each with 12 high-pH RPLC fractions, there should be three folders ('A', 'B', 'C') with 12 mzML files in each.
+If you have more than one multiplexed sample, each sample needs to be placed in a separate directory. E.g., if an experiment consists of three different TMT-10 samples (A, B, C) each with 12 high-pH RPLC fractions, there should be three folders ('A', 'B', 'C') with 12 mzML files and one channel annotation file in each.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-workflow.png)
 
@@ -69,7 +69,7 @@ where modification masses are specified with their respective modified residues.
 <br>
 
 ### Quantification settings
-In the 'Quant (Isobaric)' tab, click the 'Edit/Create' button in the 'Sample/Channel Annotation' section. In the pop-up window, ensure 'TMT-10' is selected from the dropdown and click 'Load into table'. Sample names can now be edited, and will be automatically saved to an annotation.txt file in the sample folder.
+In the 'Quant (Isobaric)' tab, click the 'Edit/Create' button in the 'Sample/Channel Annotation' section. In the pop-up window, ensure 'TMT-10' is selected from the dropdown and click 'Load into table'. Sample names can now be edited, and will be automatically saved as an annotation.txt file in the sample folder. Instead of naming samples/channels in FragPipe using Edit/Create, you can make annotation files in advance (as long as the file names end in ‘annotation.txt’), which FragPipe will load automatically if it is in the same folder as the corresponding mzML files. When creating these files, make sure the value in first column (channel) and in the second column (sample name) are separated with a space.
 
 If a dataset is composed of more than one multiplexed sample, reference samples should be defined so quantification information from multiple plexes can be integrated. Choose 'Virtual' reference from the 'Define reference' dropdown if no reference sample has been included in the experiment. Real pooled samples or other reference channels should be labeled with 'pool' or a different tag specified in the 'Ref sample tag' box.
 
