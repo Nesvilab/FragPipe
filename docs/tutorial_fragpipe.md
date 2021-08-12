@@ -4,7 +4,7 @@
 
 Complete workflows are available for a variety of experiment types, we recommend starting your analysis with a built-in workflow, which can then be customized and saved for future use. For partial processing (e.g. to save time upon re-analysis), steps can be skipped by unchecking the corresponding boxes. This tutorial walks through each tab in some detail, but once FragPipe is configured, analysis can be as simple as choosing spectral files, a database, and a workflow to run. Find a guide to output files [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html).
 
-Before you get started, make sure your LC-MS file format is compatible with the workflows you want to perform (for Thermo data with or without FAIMS, we recommend [converting .raw files to mzML](https://fragpipe.nesvilab.org/docs/tutorial_convert.html)) _Please note Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should be converted to .mzML._:
+Before you get started, make sure your LC-MS file format is compatible with the workflows you want to perform (for Thermo data with or without FAIMS, we recommend [converting .raw files to mzML with peak picking](https://fragpipe.nesvilab.org/docs/tutorial_convert.html)) _Please note Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should be converted to .mzML._:
 
 <div align="center">
 <img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/workflow_support.png" width="500px"/>
@@ -120,7 +120,7 @@ Bait IPs: Use `[GENE]_[condition]` format to describe the experiments, where `[G
 <br>
 
 #### TMT/iTRAQ data
-For TMT/iTRAQ analysis, spectral files should be in mzML format (with centroiding/peak-picking, see the [conversion tutorial](https://fragpipe.nesvilab.org/docs/tutorial_convert.html)). Raw files are not currently supported.
+For TMT/iTRAQ analysis, spectral files should be in mzML format (with peak picking, see the [conversion tutorial](https://fragpipe.nesvilab.org/docs/tutorial_convert.html)). Raw files are not currently supported.
 
 TMT/iTRAQ experiments typically consist of one or more "plexes" (multiplexed samples), each composed of multiple spectral files (if samples were prefractionated). Use 'Experiment' to denote spectral files/fractions from the same plex while leaving the 'Replicate' column empty. Different plexes must be organized into separate, uniquely-named folders. E.g., if you have 2 TMT plexes, with 2 spectral files (peptide fractions) in each, you can create a folder (e.g. named 'MyData'), containing two subfolders (e.g. 'TMT1' and 'TMT2') each containing the corresponding mzML files. We recommend you load data by clicking 'Add folder recursively' and selecting 'MyData' folder, then assign files to Experiments/Groups 'By parent directory', resulting in the following spectral file annotation:   
 
@@ -210,7 +210,7 @@ MBR is [FDR-controlled](https://www.biorxiv.org/content/10.1101/2020.11.02.36543
 
 To perform isobaric labeling-based quantification (TMT/iTRAQ),
 1. Check that the correct 'Label type' is selected (e.g. TMT10, TMT6, iTRAQ4, etc). If you need to change it at this point, we recommend going to the 'Workflow' tab and loading the correct workflow since the label also needs to be specified properly in the MSFragger search.
-2. For each experiment set in the 'Workflow' tab, select 'Edit/Create' Sample/Channel Annotation to assign sample information to each TMT/iTRAQ channel, or 'Browse' to load an existing 'annotation.txt' file. (Each folder can have only one 'annotation.txt' file, so be sure that fractions/replicates of each plex are in their own uniquely-named folder that corresponds to the experiment name. FragPipe will automatically find the right annotation file if these are set correctly.)
+2. For each experiment set in the 'Workflow' tab, select 'Edit/Create' Sample/Channel Annotation to assign sample information to each TMT/iTRAQ channel, or 'Browse' to load an existing '\*annotation.txt' file. (Each folder can have only one '\*annotation.txt' file, so be sure that fractions/replicates of each plex are in their own uniquely-named folder that corresponds to the experiment name. FragPipe will automatically find the right annotation file if these are set correctly.)
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_tutorial-labelquant.png)
 
@@ -221,7 +221,7 @@ In the annotation pop-up window:
 
 Annotation files will be named 'annotation.txt' and saved in each folder. Only one 'annotation.txt' is allowed per folder, so we recommend separate folders for each plex (see [TMT/iTRAQ data](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#tmtitraq-data) above).
 
-**Note:** Instead of naming samples/channels in FragPipe using Edit/Create, you can make 'annotation.txt' files in advance, and FragPipe will load it automatically if it is in the same folder as the corresponding mzML files. When creating these files, make sure the value in first column (channel) and in the second column (sample) are separated with a space, not tab or any other character. 
+**Note:** Instead of naming samples/channels in FragPipe using Edit/Create, you can make annotation files in advance (as long as the file names end in 'annotation.txt'), and FragPipe will load it automatically if it is in the same folder as the corresponding mzML files. When creating these files, make sure the value in first column (channel) and in the second column (sample) are separated with a space, not tab or any other character. 
 
 **Note:** If you have multiples plexes and added a common reference sample to each plex for bridging purposes, label these common reference samples as commonprefix_plexnumber (e.g. pool1, pool2, etc). If you want to use this common reference as the basis for computing the TMT/iTRAQ ratios for each PSM (within TMT-Integrator), select `Reference sample` from 'Define reference', and enter the text keyword describing the common reference channel (e.g. 'pool') that matches your naming scheme. Alternatively, select `Virtual Reference` if you do not have a reference sample. With the virtual reference approach, individual channel intensities for each PSM will be converted to ratios by dividing each channel intensity by the average intensity across all channels in that PSM.     
 
