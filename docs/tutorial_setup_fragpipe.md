@@ -47,13 +47,9 @@ Database splitting (to reduce the size of the in-memory fragment ion index-- hel
 3) From the start menu, search for "Anaconda Prompt" and launch it.
 <img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/anaconda_prompt_search.png" width="700px" align="middle"/>
 
-4) In the Anaconda Prompt window that opens, type `pip install msproteomicstools==0.8.0` and hit enter to install the _msproteomicstools_ package. Repeat this for the remaining packages (`numpy`, `pandas`, `matplotlib`, `cython`).
+4)  To enable spectral library building with EasyPQP (which also works for timsTOF data), type `pip install easypqp` into the Anaconda prompt window and hit enter to install the _easypqp_ package. To enable spectral library building with SpectraST: type `pip install msproteomicstools==0.8.0` into the Anaconda prompt window and hit enter to install the _msproteomicstools_ package. Other packages required for these tools (_pandas_, _cython_, _matplotlib_, and _numpy_) are included in the Anaconda installation.
+
 <img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/pip_install.png" width="700px" align="middle"/>
-  To install `easypqp` for spectral library generation, you will need to 1) [install Git](https://github.com/git-guides/install-git) if you don't already have it, then 2) run these two commands:
-
-`pip uninstall --yes easypqp`
-
-`pip install git+https://github.com/grosenberger/easypqp.git@master`
 
 5) In FragPipe -> Config -> Python, use the 'Browse' button to navigate to the installation location and select **python.exe**. When FragPipe refreshes, DB Splitting and Spectral Library Generation should now be enabled.
 
