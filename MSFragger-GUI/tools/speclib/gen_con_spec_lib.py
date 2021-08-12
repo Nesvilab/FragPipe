@@ -537,8 +537,7 @@ if use_easypqp:
 						[output_directory / (e + '_run_peaks.tsv') for e in convert_outs] + \
 						[output_directory / 'easypqp_lib_openswath.tsv']
 	filelist_easypqp_library = pathlib.Path('filelist_easypqp_library.txt')
-	filelist_easypqp_library.write_text(
-		os.linesep.join(map(os.fspath, easypqp_library_infiles)))
+	filelist_easypqp_library.write_text('\n'.join(map(os.fspath, easypqp_library_infiles)))
 	use_iRT = irt_choice is not Irt_choice.no_iRT
 	use_im = im_choice is not Im_choice.no_im
 	filelist_arg = [os.fspath(filelist_easypqp_library)]
