@@ -515,7 +515,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **MaxPepProb** highest PeptideProphet probability of the PSMs mapping to the gene
 
-**ReferenceIntensity** real reference channel abundance if one has been provided, otherwise these values are virtual reference abundances from the average abundance across the channels, more information [here](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html#quantification-settings)
+**ReferenceIntensity** Real reference channel abundance is used if one has been provided, otherwise these values are virtual reference abundances from the average abundance across the channels in a plex, more usage information [here](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html#quantification-settings). If the experiment contains multiple plexes, average reference intensity across all plexes is used. Values are log2 scaled, with global minimum reference intensity used to impute missing values. 
 
 **[sample/channel name]** normalized and log2 transformed abundance/ratio for the given reporter ion channel from summarization to the gene level
 <br>
@@ -533,7 +533,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **MaxPepProb** highest PeptideProphet probability of the PSMs mapping to the protein that are used in quantification
 
-**ReferenceIntensity** real reference channel abundance if one has been provided, otherwise these values are virtual reference abundances from the average abundance across the channels, more information [here](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html#quantification-settings)
+**ReferenceIntensity** Real reference channel abundance is used if one has been provided, otherwise these values are virtual reference abundances from the average abundance across the channels in a plex, more usage information [here](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html#quantification-settings). If the experiment contains multiple plexes, average reference intensity across all plexes is used. Values are log2 scaled, with global minimum reference intensity used to impute missing values. 
 
 **[sample/channel name]** normalized and log2 transformed abundance/ratio for the given reporter ion channel from summarization to the protein level
 <br>
@@ -551,7 +551,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **MaxPepProb** highest PeptideProphet probability of the PSMs with the sequence that are used in quantification
 
-**ReferenceIntensity** real reference channel abundance if one has been provided, otherwise these values are virtual reference abundances from the average abundance across the channels, more information [here](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html#quantification-settings)
+**ReferenceIntensity** Real reference channel abundance is used if one has been provided, otherwise these values are virtual reference abundances from the average abundance across the channels in a plex, more usage information [here](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html#quantification-settings). If the experiment contains multiple plexes, average reference intensity across all plexes is used. Values are log2 scaled, with global minimum reference intensity used to impute missing values. 
 
 **[sample/channel name]** normalized and log2 transformed abundance/ratio for the given reporter ion channel from summarization to the stripped peptide sequence level
 <br>
@@ -569,7 +569,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **MaxPepProb** highest PeptideProphet probability of the PSMs with the sequence that are used in quantification
 
-**ReferenceIntensity** real reference channel abundance if one has been provided, otherwise these values are virtual reference abundances from the average abundance across the channels, more information [here](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html#quantification-settings)
+**ReferenceIntensity** Real reference channel abundance is used if one has been provided, otherwise these values are virtual reference abundances from the average abundance across the channels in a plex, more usage information [here](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html#quantification-settings). If the experiment contains multiple plexes, average reference intensity across all plexes is used. Values are log2 scaled, with global minimum reference intensity used to impute missing values. 
 
 **[sample/channel name]** normalized and log2 transformed abundance/ratio for the given reporter ion channel from summarization to the multiple-mod site level
 <br>
@@ -587,7 +587,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **MaxPepProb** highest PeptideProphet probability of the PSMs with the sequence that are used in quantification
 
-**ReferenceIntensity** real reference channel abundance if one has been provided, otherwise these values are virtual reference abundances from the average abundance across the channels, more information [here](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html#quantification-settings)
+**ReferenceIntensity** Real reference channel abundance is used if one has been provided, otherwise these values are virtual reference abundances from the average abundance across the channels in a plex, more usage information [here](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html#quantification-settings). If the experiment contains multiple plexes, average reference intensity across all plexes is used. Values are log2 scaled, with global minimum reference intensity used to impute missing values. 
 
 **[sample/channel name]** normalized and log2 transformed abundance/ratio for the given reporter ion channel from summarization to the single modification site level (sites are quantified from PSMs with only the site of interest if available, otherwise the median of all localized sites is used if the site is only found with additional sites)
 <br>
