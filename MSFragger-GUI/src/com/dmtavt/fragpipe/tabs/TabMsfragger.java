@@ -423,11 +423,11 @@ public class TabMsfragger extends JPanelBase {
     List<String> units = Seq.of(PrecursorMassTolUnits.values()).map(PrecursorMassTolUnits::name).toList();
     uiComboPrecursorTolUnits = UiUtils.createUiCombo(units);
     FormEntry fePrecTolUnits = mu.feb(MsfraggerParams.PROP_precursor_mass_units, uiComboPrecursorTolUnits).label("Precursor mass tolerance").create();
-    uiSpinnerPrecTolLo = new UiSpinnerDouble(-10, -10000, 10000, 1,
+    uiSpinnerPrecTolLo = new UiSpinnerDouble(-20, -10000, 10000, 1,
         new DecimalFormat("0.#"));
     uiSpinnerPrecTolLo.setColumns(4);
     FormEntry fePrecTolLo = mu.feb(MsfraggerParams.PROP_precursor_mass_lower, uiSpinnerPrecTolLo).create();
-    uiSpinnerPrecTolHi = new UiSpinnerDouble(+10, -10000, 10000, 1,
+    uiSpinnerPrecTolHi = new UiSpinnerDouble(+20, -10000, 10000, 1,
         new DecimalFormat("0.#"));
     uiSpinnerPrecTolHi.setColumns(4);
     FormEntry fePrecTolHi = mu.feb(MsfraggerParams.PROP_precursor_mass_upper, uiSpinnerPrecTolHi).create();

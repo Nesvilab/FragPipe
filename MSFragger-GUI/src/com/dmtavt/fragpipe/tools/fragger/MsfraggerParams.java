@@ -539,7 +539,7 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     public double getPrecursorTrueTolerance() {
-        return Double.parseDouble(props.getProp(PROP_precursor_true_tolerance, "50.0").value);
+        return Double.parseDouble(props.getProp(PROP_precursor_true_tolerance, "20.0").value);
     }
     
     public void setPrecursorTrueTolerance(double v) {
@@ -564,7 +564,7 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     public double getFragmentMassTolerance() {
-        return Double.parseDouble(props.getProp(PROP_fragment_mass_tolerance, "50.0").value);
+        return Double.parseDouble(props.getProp(PROP_fragment_mass_tolerance, "20.0").value);
     }
     
     public void setFragmentMassTolerance(double v) {
