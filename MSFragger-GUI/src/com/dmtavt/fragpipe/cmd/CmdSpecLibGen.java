@@ -173,7 +173,7 @@ public class CmdSpecLibGen extends CmdBase {
         cmd.add(speclibPanel.checkKeepIntermediateFiles.isSelected() ?
                 "keep_intermediate_files" : "delete_intermediate_files");
 
-        final Path filelist = wd.resolve("filelist_speclibgen.txt");
+        final Path filelist = groupWd.resolve("filelist_speclibgen.txt");
 
         if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
           try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
