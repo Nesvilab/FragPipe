@@ -336,8 +336,8 @@ public class CmdMsfragger extends CmdBase {
 
     // 32k symbols splitting for regular command.
     // But for slicing it's all up to the python script.
-    //final int commandLenLimit = isSlicing ? Integer.MAX_VALUE : 1 << 15;
-    final int commandLenLimit = 1 << 15;
+    // final int commandLenLimit = isSlicing ? Integer.MAX_VALUE : 32000;
+    final int commandLenLimit = 32000; // Make is a little bit smaller than 1 << 15 to make sure that it won't crash.
 
     if (isSlicing) {
       // schedule to always try to delete the temp dir when FragPipe finishes execution
@@ -408,7 +408,7 @@ public class CmdMsfragger extends CmdBase {
         InputLcmsFile f = lcmsFiles.get(fileIndex);
         // if adding this file to the command line will make the command length
         // longer than the allowed maximum, stop adding files
-        if (sb.length() + f.getPath().toString().length() + 1 > commandLenLimit) {
+        if (sb.length() + f.getPath().toString().length() > commandLenLimit) {
           break;
         }
         sb.append(f.getPath().toString()).append(" ");
