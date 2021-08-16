@@ -23,7 +23,7 @@ In the MSConvert GUI window:
 
 Example command line options:
 
-`msconvert.exe --mzML --64 --zlib --filter "peakPicking vendor msLevel=1-" *.raw`
+`msconvert.exe --mzML --64 --zlib --filter "peakPicking true 1-" *.raw`
 
 <br>
 
