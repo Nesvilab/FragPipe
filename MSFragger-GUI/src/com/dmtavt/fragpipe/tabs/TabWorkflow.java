@@ -442,7 +442,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     uiSpinnerRam = new UiSpinnerInt(0, 0, 1024, 1, 3);
     FormEntry feRam = fe(uiSpinnerRam, "ram").label("RAM (GB, 0=auto)").tooltip("Leave at zero to automatically use a reasonable amount of memory").create();
     final int maxProcessors = 128;
-    uiSpinnerThreads = new UiSpinnerInt(Math.max(1, Math.min(Runtime.getRuntime().availableProcessors() - 1, maxProcessors)), 0, maxProcessors, 1);
+    uiSpinnerThreads = new UiSpinnerInt(Math.max(1, Math.min(Runtime.getRuntime().availableProcessors() - 1, maxProcessors)), 1, maxProcessors, 1);
     FormEntry feThreads = fe(uiSpinnerThreads, "threads").label("Parallelism").create();
 
     mu.add(p, feRam.label()).split();
