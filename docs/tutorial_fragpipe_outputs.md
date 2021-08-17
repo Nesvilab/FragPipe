@@ -505,7 +505,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 <br>
 
 ### gene
-##### `Report_[abundance/ratio]_groupby=gene_protNorm=[MD]_gu=[0].tsv` contains isobaric quantification information summarized from the psm.tsv tables by [TMT-Integrator](https://tmt-integrator.nesvilab.org/) to the gene level. If 'Group by' is set to 'Gene level' (default for non-modification centric quantification workflows) in the 'Quant (Isobaric)' tab of FragPipe, only gene-level reports will be generated. Set 'Group by' to 'All' to also generate protein and peptide-level reports. (Ratios are channel abundance / reference channel abundance, so [channel] - ReferenceIntensity in the tables since values are log2-transformed.)
+##### `[abundance/ratio]_gene_[normalization].tsv` contains isobaric quantification information summarized from the psm.tsv tables by [TMT-Integrator](https://tmt-integrator.nesvilab.org/) to the gene level. If 'Group by' is set to 'Gene level' (default for non-modification centric quantification workflows) in the 'Quant (Isobaric)' tab of FragPipe, only gene-level reports will be generated. Set 'Group by' to 'All' to also generate protein and peptide-level reports. (Ratios are channel abundance / reference channel abundance, so [channel] - ReferenceIntensity in the tables since values are log2-transformed.)
 
 **Index** gene name (works best if the analyses were run with properly-formatted FASTA sequence databases, see [this page](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#specify-a-protein-sequence-database) for more information)
 
@@ -523,7 +523,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 <br>
 
 ### protein
-##### `Report_[abundance/ratio]_groupby=protein_protNorm=[MD]_gu=[0].tsv` contains isobaric quantification information summarized from the psm.tsv tables by [TMT-Integrator](https://tmt-integrator.nesvilab.org/) to the protein level. If 'Group by' is set to 'Protein' in the 'Quant (Isobaric)' tab of FragPipe, only protein-level reports will be generated. Set 'Group by' to 'All' to also generate gene and peptide-level reports. (Ratios are channel abundance / reference channel abundance, so [channel] - ReferenceIntensity in the tables since values are log2-transformed.)
+##### `[abundance/ratio]_protein_[normalization].tsv` contains isobaric quantification information summarized from the psm.tsv tables by [TMT-Integrator](https://tmt-integrator.nesvilab.org/) to the protein level. If 'Group by' is set to 'Protein' in the 'Quant (Isobaric)' tab of FragPipe, only protein-level reports will be generated. Set 'Group by' to 'All' to also generate gene and peptide-level reports. (Ratios are channel abundance / reference channel abundance, so [channel] - ReferenceIntensity in the tables since values are log2-transformed.)
 
 **Index** protein name (FASTA sequence header)
 
@@ -541,7 +541,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 <br>
 
 ### peptide
-##### `Report_[abundance/ratio]_groupby=peptide_protNorm=[MD]_gu=[0].tsv` contains isobaric quantification information summarized from the psm.tsv tables by [TMT-Integrator](https://tmt-integrator.nesvilab.org/) to the peptide level. If 'Group by' is set to 'Peptide sequence' in the 'Quant (Isobaric)' tab of FragPipe, only peptide-level reports will be generated. Set 'Group by' to 'All' to also generate gene and protein-level reports. (Ratios are channel abundance / reference channel abundance, so [channel] - ReferenceIntensity in the tables since values are log2-transformed.)
+##### `[abundance/ratio]_peptide_[normalization].tsv` contains isobaric quantification information summarized from the psm.tsv tables by [TMT-Integrator](https://tmt-integrator.nesvilab.org/) to the peptide level. If 'Group by' is set to 'Peptide sequence' in the 'Quant (Isobaric)' tab of FragPipe, only peptide-level reports will be generated. Set 'Group by' to 'All' to also generate gene and protein-level reports. (Ratios are channel abundance / reference channel abundance, so [channel] - ReferenceIntensity in the tables since values are log2-transformed.)
 
 **Index** protein name (FASTA sequence header) with the start and end positions of the peptide within the protein sequence
 
@@ -559,7 +559,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 <br>
 
 ### multi-site
-##### `Report_[abundance/ratio]_groupby=multi-site_protNorm=[MD]_gu=[0].tsv` contains isobaric quantification information summarized from the psm.tsv tables by [TMT-Integrator](https://tmt-integrator.nesvilab.org/) based on modification sites that have been observed and quantified together. If 'Group by' is set to 'Multiple PTM sites' in the 'Quant (Isobaric)' tab of FragPipe, only multi-site reports will be generated. Set 'Group by' to 'All' to generate reports at all levels. (Ratios are channel abundance / reference channel abundance, so [channel] - ReferenceIntensity in the tables since values are log2-transformed.)
+##### `[abundance/ratio]_multi-site_[normalization].tsv` contains isobaric quantification information summarized from the psm.tsv tables by [TMT-Integrator](https://tmt-integrator.nesvilab.org/) based on modification sites that have been observed and quantified together. If 'Group by' is set to 'Multiple PTM sites' in the 'Quant (Isobaric)' tab of FragPipe, only multi-site reports will be generated. Set 'Group by' to 'All' to generate reports at all levels. (Ratios are channel abundance / reference channel abundance, so [channel] - ReferenceIntensity in the tables since values are log2-transformed.)
 
 **Index** protein name (FASTA sequence header) with the start and end positions of the potential modification sites within the protein sequence, the count of the possible sites in that sequence window, the count of localized modifications, and the list of modified sites
 
@@ -577,7 +577,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 <br>
 
 ### single-site
-##### `Report_[abundance/ratio]_groupby=single-site_protNorm=[MD]_gu=[0].tsv` contains isobaric quantification information summarized from the psm.tsv tables by [TMT-Integrator](https://tmt-integrator.nesvilab.org/) to the level of single post-translationally modified sites. If 'Group by' is set to 'Single PTM site' in the 'Quant (Isobaric)' tab of FragPipe, only multi-site reports will be generated. Set 'Group by' to 'All' to generate reports at all levels. (Ratios are channel abundance / reference channel abundance, so [channel] - ReferenceIntensity in the tables since values are log2-transformed.)
+##### `[abundance/ratio]_single-site_[normalization].tsv` contains isobaric quantification information summarized from the psm.tsv tables by [TMT-Integrator](https://tmt-integrator.nesvilab.org/) to the level of single post-translationally modified sites. If 'Group by' is set to 'Single PTM site' in the 'Quant (Isobaric)' tab of FragPipe, only multi-site reports will be generated. Set 'Group by' to 'All' to generate reports at all levels. (Ratios are channel abundance / reference channel abundance, so [channel] - ReferenceIntensity in the tables since values are log2-transformed.)
 
 **Index** protein name (FASTA sequence header) with the modified site location within the protein sequence
 
