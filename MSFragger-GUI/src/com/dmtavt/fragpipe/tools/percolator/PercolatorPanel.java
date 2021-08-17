@@ -138,6 +138,7 @@ public class PercolatorPanel extends JPanelBase {
                 .tooltip("These options will be passed on to Percolator.\n"
                         + "This set will be merged with some additional options\n"
                         + "added as a requirement by other stages in the pipeline.\n"
+                        + "To set --num-threads, please adjust the Parallelism setting in the Workflow tab.\n"
                         + "See output log (e.g. dry-run results) for the complete command.").create();
         uiCheckCombinePepxml = UiUtils
                 .createUiCheck("<html>Single <b>combined</b> pepxml file per experiment / group", false);
