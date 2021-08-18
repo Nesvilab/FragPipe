@@ -95,6 +95,14 @@ public class PtmshepherdPanel extends JPanelBase {
 
   private static final String PROP_custom_modlist_loc = "ptmshepherd.path.modlist";
 
+  private static final String PROP_run_glycan_assignment = "assign_glycans";
+  private static final String PROP_glycan_fdr = "glyco_fdr";
+  private static final String PROP_glyco_mass_error_ppm = "glyco_ppm_tol";
+  private static final String PROP_glyco_isotope_error_low = "glyco_isotope_min";
+  private static final String PROP_glyco_isotope_error_high = "glyco_isotope_max";
+  private static final String PROP_adduct_names = "glyco_adducts";
+  private static final String PROP_max_adducts = "max_adducts";
+
   private final List<BalloonTip> balloonTips = new ArrayList<>();
   private JCheckBox checkRun;
   private JPanel pContent;
@@ -114,7 +122,9 @@ public class PtmshepherdPanel extends JPanelBase {
   private UiText uiTextAnnotationFile;
   private UiText uiTextLocalizationAAs;
   private UiCheck uiCheckGlyco;
+  private UiCheck uiCheckGlycoAssign;
   private JPanel pGlycoContent;
+  private JPanel pGlycoAssignContent;
 
   private static String itos(int i) {
     return Integer.toString(i);
@@ -316,12 +326,13 @@ public class PtmshepherdPanel extends JPanelBase {
   }
 
   private JPanel createpanelGlyco() {
-    JPanel p = mu.newPanel("Glyco options", mu.lcFillXNoInsetsTopBottom());
+    JPanel p = mu.newPanel("Glyco/labile options", mu.lcFillXNoInsetsTopBottom());
     pGlycoContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
-    uiCheckGlyco = UiUtils.createUiCheck("Enable Glyco Mode", false);
+    uiCheckGlyco = UiUtils.createUiCheck("Enable Glyco/labile Analysis Mode", false);
     uiCheckGlyco.setName("glyco_mode");
 
+    // labile/glyco main params
     FormEntry feYIonMasses = mu.feb(PROP_cap_y_ions, UiUtils.uiTextBuilder().create())
         .label("Y Ion Masses")
         .tooltip("Added to peptide mass and searched for in MS2 spectrum. "
@@ -335,6 +346,37 @@ public class PtmshepherdPanel extends JPanelBase {
         .tooltip("Partial glycan masses localized to the peptide sequence. "
             + "Space, comma, or slash separated values accepted.").create();
 
+    // glycan assignment params
+    pGlycoAssignContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+    uiCheckGlycoAssign = UiUtils.createUiCheck("Assign Glycans with FDR", true);
+    uiCheckGlycoAssign.setName("assign_glycans");
+
+    UiSpinnerDouble uiSpinnerGlycanFDR = UiSpinnerDouble.builder(1.0,0.0001,100.0, 1.0)
+            .setFormat(new DecimalFormat("0.#")).setCols(3).create();
+    FormEntry feGlycanFDR = new FormEntry(PROP_glycan_fdr, "Glycan FDR (%)", uiSpinnerGlycanFDR,
+            "Glycan assignment FDR (%). Default 1.0%.\n");
+
+    UiSpinnerDouble uiSpinnerGlycanMassErr = UiSpinnerDouble.builder(50.0,0.0,10000.0, 5.0)
+            .setFormat(new DecimalFormat("0.#")).setCols(5).create();
+    FormEntry feGlycanMassErr = new FormEntry(PROP_glyco_mass_error_ppm, "Glycan mass tolerance (ppm)", uiSpinnerGlycanMassErr,
+            "Mass tolerance for finding possible glycan candidates to consider in glycan assignment (ppm).\n");
+
+    FormEntry feGlycanIsotopesLow = new FormEntry(PROP_glyco_isotope_error_low, "Isotope Error Range Min:",
+            new UiSpinnerInt(-1, -5, 0, 1, 3),
+            "Lowest isotope error to consider. Allowed isotope errors will go from this value to Isotope Error Range Max (inclusive).");
+    FormEntry feGlycanIsotopesHigh = new FormEntry(PROP_glyco_isotope_error_high, "Max:",
+            new UiSpinnerInt(3, 0, 5, 1, 3),
+            "Highest isotope error to consider. Allowed isotope errors will go from Isotope Error Range Min to this value (inclusive).");
+
+    FormEntry feAdductNames = mu.feb(PROP_adduct_names, UiUtils.uiTextBuilder().create())
+            .label("Glycan Adducts")
+            .tooltip("Added to possible glycan compositions as noncovalent adducts. "
+                    + "Space, comma, or slash separated values accepted. " +
+                    "Possible values: NH3, Na, Fe3, Fe2, Al, Ca").create();
+    FormEntry feMaxAdducts = new FormEntry(PROP_max_adducts, "Max Adducts",
+            new UiSpinnerInt(0, 0, 5, 1, 1),
+            "Maximum number of each specified adduct to allow");
+
     mu.add(pGlycoContent, feYIonMasses.label(), mu.ccR());
     mu.add(pGlycoContent, feYIonMasses.comp).spanX().growX().pushX().wrap();
     mu.add(pGlycoContent, feDiagnosticFragmentMasses.label(), mu.ccR());
@@ -342,8 +384,25 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(pGlycoContent, feRemainderMasses.label(), mu.ccR());
     mu.add(pGlycoContent, feRemainderMasses.comp).spanX().growX().pushX().wrap();
 
+    mu.add(pGlycoAssignContent, feGlycanFDR.label(), mu.ccR());
+    mu.add(pGlycoAssignContent, feGlycanFDR.comp).wrap();
+    mu.add(pGlycoAssignContent, feGlycanMassErr.label(), mu.ccR());
+    mu.add(pGlycoAssignContent, feGlycanMassErr.comp).wrap();
+    mu.add(pGlycoAssignContent, feGlycanIsotopesLow.label(), mu.ccR());
+    mu.add(pGlycoAssignContent, feGlycanIsotopesLow.comp).split();
+    mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.label(), mu.ccR());
+    mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.comp).wrap();
+
+    mu.add(pGlycoAssignContent, feMaxAdducts.label(), mu.ccR());
+    mu.add(pGlycoAssignContent, feMaxAdducts.comp).split();
+    mu.add(pGlycoAssignContent, feAdductNames.label(), mu.ccR());
+    mu.add(pGlycoAssignContent, feAdductNames.comp).spanX().growX().pushX().wrap();
+
     mu.add(p, uiCheckGlyco).spanX().wrap();
+    mu.add(p, new JLabel("Labile/glyco mode masses: ")).spanX();
     mu.add(p, pGlycoContent).growX().wrap();
+    mu.add(p, uiCheckGlycoAssign).spanX().wrap();
+    mu.add(p, pGlycoAssignContent).growX().wrap();
     return p;
   }
 
@@ -570,6 +629,16 @@ public class PtmshepherdPanel extends JPanelBase {
 
     SwingUtils.setEnablementUpdater(this, pGlycoContent, uiCheckGlyco);
     loadDefaults(1, SearchTypeProp.open); // pre-populate, but only after renaming has happened in super.initMore()
+
+    // enable/disable Glycan Assignment areas when the overall glyco/labile box is changed
+    SwingUtils.setEnablementUpdater(this, pGlycoAssignContent, uiCheckGlyco);
+    loadDefaults(1, SearchTypeProp.open); // pre-populate, but only after renaming has happened in super.initMore()
+    SwingUtils.setEnablementUpdater(this, uiCheckGlycoAssign, uiCheckGlyco);
+    loadDefaults(1, SearchTypeProp.open); // pre-populate, but only after renaming has happened in super.initMore()
+
+    // enable/disable the Glycan Assignment sub-area specifically when the glycan assignment box is changed
+    SwingUtils.setEnablementUpdater(this, pGlycoAssignContent, uiCheckGlycoAssign);
+    loadDefaults(1, SearchTypeProp.glyco); // pre-populate, but only after renaming has happened in super.initMore()
   }
 
   public boolean isRunShepherd() {
