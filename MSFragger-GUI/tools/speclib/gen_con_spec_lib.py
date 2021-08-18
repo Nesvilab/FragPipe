@@ -748,7 +748,7 @@ Commands to execute:
 	except subprocess.CalledProcessError:
 		print('''Library not generated, not enough peptides could be found for alignment.
 Please try using other options for alignment (e.g. ciRT if used other options)''')
-		raise
+		sys.exit()
 
 
 ##### multiple protein assignment to peptide reduced to single protein
