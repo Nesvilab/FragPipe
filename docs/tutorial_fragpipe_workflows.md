@@ -1,8 +1,6 @@
 ## FragPipe workflows
 
-##### [FragPipe](https://fragpipe.nesvilab.org/) can be downloaded [here](https://github.com/Nesvilab/FragPipe/releases). Follow the instructions on that same Releases page to launch the program.
-
-Listed below are the analysis workflows provided with FragPipe. Any of these workflows can be customized and saved for later use, each customized workflow should be saved with a unique name.
+Listed below are the analysis workflows provided with FragPipe. Any of these workflows can be customized and saved (with a unique name) for later use. Visit [workflow sharing](https://github.com/Nesvilab/FragPipe/tree/gh-pages/docs/workflow-sharing) to browse additional workflowsor upload your own to share with other FragPipe users.
 
 
 ###### Closed (standard) database searches
@@ -29,6 +27,7 @@ Listed below are the analysis workflows provided with FragPipe. Any of these wor
 ###### MS1 label-based quantification
 * [SILAC3](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#silac3)
 * [SILAC3-phospho](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#silac3-phospho)
+* [isoDTB](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#isodtb)
 
 ###### Open (mass-tolerant) and mass offset
 * [Basic open search (Open)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#basic-open-search-open)
@@ -124,6 +123,13 @@ Triple-SILAC quantification workflow. Closed search with MSFragger, SILAC quanti
 ##### SILAC3-phospho
 Triple-SILAC, phosphopeptide-enriched workflow. Closed search with MSFragger, site localization with PTM-Prophet, SILAC quantification with IonQuant. PTM-Prophet (optional) requires mzML files as input.
 <br>
+
+##### isoDTB
+Closed search with MS1-based differential quantification from isotopically-labeled cysteines via desthiobiotin azide (isoDTB) tags. Method described in the preprint, [_Profiling the proteome-wide selectivity of diverse electrophiles_](https://chemrxiv.org/engage/chemrxiv/article-details/60e97c1eb95bdd5c9f60c0ee).
+<br>
+
+
+ 
 
 ##### Basic open search (Open)
 Open search workflow for PTM analysis. MSFragger localization-aware open search (LOS) algorithm, with deisotoping, mass calibration, parameter optimization, and monoisotope correction enabled. Mass range -150 to 500 Da, with Met oxidation and protein N-term Acetyl included as variable modifications. PeptideProphet with extended mass model. Crystal-C for artifact removal. PTM-Shepherd for mass shift summarization. 
