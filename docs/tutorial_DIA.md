@@ -23,7 +23,7 @@ The dataset used below for illustration was downloaded from [PXD011691](http://p
 2. Load DDA spectral files in mzML or raw format. (In the example below, 6 DDA files corresponding to 6 fractionated peptide samples were loaded. Two of these fractions are provided in the dataset for this tutorial.)
 3. In the 'Database' tab, download a new database or select an existing one e.g the file `2021-05-13-decoys-UPS-reviewed-contam-UP000000589.fas` downloaded from Dropbox. (In this case, a mouse database was downloaded with reviewed sequences, decoys, common contaminants, and iRT peptides. UPS protein sequences were also added manually.)
 
-**Note**: If you're working with a non-human dataset, change the 'RT calibration' option on the 'Spec Lib' tab to 'iRT' if these peptides have been spiked-in. EasyPQP will use the ciRT option (Biognosys common HeLa peptides) by default.
+**Note**: Change the 'RT calibration' option on the 'Spec Lib' tab to 'iRT' if these peptides have been spiked-in. EasyPQP will use the [ciRT](https://www.mcponline.org/article/S1535-9476(20)32633-5/fulltext) option by default.
 
 4. On the 'Run' tab, choose the location to output the results and click 'RUN'.
 
