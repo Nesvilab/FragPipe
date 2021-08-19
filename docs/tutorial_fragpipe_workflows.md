@@ -14,7 +14,7 @@ Listed below are the analysis workflows provided with FragPipe. Any of these wor
 * [Peptidome search (Nonspecific-peptidome)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#peptidome-search-nonspecific-peptidome)
 
 ###### Isobaric label-based quantification
-* [Phospho TMT-6 quantification (TMT6-phospho)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#phospho-tmt-6-quantification-tmt6-phospho)
+(For TMT6 quantification, use a TMT10 workflow, and on the 'Quant (Isobaric)' tab, set the 'Label type' to TMT6. Use the 'Edit/Create' button to change `131` to `131N` in the annotation files for each experiment.)  
 * [TMT-10 quantification (TMT10)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#tmt-10-quantification-tmt10)
 * [TMT-10 MS3 quantification (TMT10-MS3)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#tmt-10-ms3-quantification-tmt10-ms3)
 * [TMT-10 quantification with bridge/pooled sample (TMT10-bridge)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#tmt-10-quantification-with-bridgepooled-sample-tmt10-bridge)
@@ -74,10 +74,6 @@ Nonspecific search, with recommended settings for HLA peptides. Peptide length 7
 
 ##### Peptidome search (Nonspecific-peptidome)
 Nonspecific search, with recommended settings for peptidome data (plasma, CSF, etc.). Peptide length 7-65. MSFragger search assumes cysteines were alkylated. Met oxidation, C-term amidantion, and Pyro-Glu are specified as variable modifications. Protein FDR filter is not applied, so each output file (PSM, ion, peptide) is filtered to 1% FDR at that level.
-<br>
-
-##### Phospho TMT-6 quantification (TMT6-phospho)
-TMT 6-plex workflow with quantification from MS3. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization to all levels. If a reference/bridge sample is available, specify the corresponding channel/sample name tag in the annotation file(s) and in TMT-Integrator tab. 
 <br>
 
 ##### TMT-10 quantification (TMT10)
