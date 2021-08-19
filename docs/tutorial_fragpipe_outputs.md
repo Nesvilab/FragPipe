@@ -63,7 +63,6 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 
 ##### Intermediate files
-* .meta folder - directory containing files used to create the [Philosopher](https://philosopher.nesvilab.org/) workspace
 * [filename].pepXML - peptide-spectrum matches from the database search with [MSFragger](https://msfragger.nesvilab.org/)
 * [filename]\_c.pepXML - pepXML file after curation by [Crystal-C](https://www.nesvilab.org/Crystal-C/)
 * [filename].pin - peptide-spectrum matches from the database search with [MSFragger](https://msfragger.nesvilab.org/), formatted for  validation with [Percolator](https://github.com/percolator/percolator/wiki)
