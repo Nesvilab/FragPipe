@@ -4,7 +4,7 @@ FragPipe and MSFragger accept mzML files, which can be generated from your raw L
 
 This page has instructions for using MSConvert to generate mzML files from both Thermo Orbitrap and Bruker timsTOF data formats, though we recommend using the raw .d format for Bruker data.
 
-**Please note:** For TMT MS3 workflows, Philosopher is not compatible with mzML files generated using some older versions of MSConvert, and the Windows taskbar may open an earlier version of MSConvert even if a more recent one is installed. Start MSConvert by clicking on the Windows icon, scrolling down to the desired (latest) version of ProteoWizard, and launching  MSConvert program.
+**Please note: The latest version of MSConvert should be used for TMT MS3 workflows.** Philosopher is not compatible with mzML files generated using some older MSConvert versions, and the Windows taskbar may open an earlier version of MSConvert even if a more recent one is installed. Start MSConvert by clicking on the Windows icon, scrolling down to the desired (latest) version of ProteoWizard, and launching  MSConvert program.
 
 <br>
 
