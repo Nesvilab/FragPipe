@@ -50,9 +50,9 @@ The dataset used below for illustration was downloaded from [PXD011691](http://p
 ### Build a library from combined DDA and DIA data
 This workflow is composed of two steps:
 
-A) run just the DIA-Umpire step to extract pseudo-MS/MS spectra from DIA data, and
+A) run just the DIA-Umpire step (`DIA-Umpire` workflow) to extract pseudo-MS/MS spectra from DIA data, then
 
-B) build the library from the pseudo-MS/MS DDA files and additional DDA files**
+B) build the library from the pseudo-MS/MS DDA files and the DDA files
 
 
 1. For **part A**, load the 'DIA_Umpire' workflow, add DIA mzML files, and adjust the DIA-Umpire parameters as needed (see above). Select the output destination and 'RUN'. When DIA-Umpire is finished, the output folder will contain three pseudo-MS/MS (pseudo-DDA) files for each input mzML, with the suffixes `_Q1.mzML`, `_Q2.mzML`, `_Q3.mzML`.
