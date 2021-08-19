@@ -44,6 +44,7 @@ _Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should b
 
 <img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/workflow_support.png" width="500px" align="middle"/>
 
+_Please note_: TMT/iTRAQ quantification from Thermo .raw files will take longer than from .mzML files.
 
 
 
