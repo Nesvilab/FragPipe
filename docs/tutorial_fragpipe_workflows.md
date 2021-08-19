@@ -1,18 +1,18 @@
 ## FragPipe workflows
 
-Listed below are the analysis workflows provided with FragPipe. Any of these workflows can be customized and saved (with a unique name) for later use. Visit [workflow sharing](https://github.com/Nesvilab/FragPipe/tree/gh-pages/docs/workflow-sharing) to browse additional workflowsor upload your own to share with other FragPipe users.
+Listed below are the analysis workflows provided with FragPipe. Workflows can be customized and saved (with a unique name) for later use. Visit [workflow sharing](https://github.com/Nesvilab/FragPipe/tree/gh-pages/docs/workflow-sharing) to browse additional workflows or upload your own to share with other FragPipe users.
 
 
-###### Closed (standard) database searches
+#### Closed (standard) database searches
 * [Basic search (Default)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#basic-search-default)
 * [Basic search & quantification with match-between-runs (LFQ-MBR)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#basic-search--quantification-with-match-between-runs-lfq-mbr)
 
-###### Non-specific digestion
+#### Non-specific digestion
 * [HLA peptide search (Nonspecific-HLA)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#hla-peptide-search-nonspecific-hla)
 * [Peptidome search (Nonspecific-peptidome)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#peptidome-search-nonspecific-peptidome)
 
-###### Isobaric label-based quantification
-(For TMT6 quantification, use a TMT10 workflow, and on the 'Quant (Isobaric)' tab, set the 'Label type' to TMT6. Use the 'Edit/Create' button to change `131` to `131N` in the annotation files for each experiment.)  
+#### Isobaric label-based quantification
+##### (For TMT6 quantification, use a TMT10 workflow, and on the 'Quant (Isobaric)' tab, set the 'Label type' to TMT6. Use the 'Edit/Create' button to change `131` to `131N` in the annotation files for each experiment.)
 * [TMT-10 quantification (TMT10)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#tmt-10-quantification-tmt10)
 * [TMT-10 MS3 quantification (TMT10-MS3)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#tmt-10-ms3-quantification-tmt10-ms3)
 * [TMT-10 quantification with bridge/pooled sample (TMT10-bridge)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#tmt-10-quantification-with-bridgepooled-sample-tmt10-bridge)
@@ -24,20 +24,20 @@ Listed below are the analysis workflows provided with FragPipe. Any of these wor
 * [TMT-16 MS3 quantification (TMT16-MS3)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#tmt-16-ms3-quantification-tmt16-ms3)
 * [iTRAQ search and quantification (iTRAQ4)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#itraq-search-and-quantification-itraq4)
 
-###### MS1 label-based quantification
+#### MS1 label-based quantification
 * [SILAC3](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#silac3)
 * [SILAC3-phospho](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#silac3-phospho)
 * [isoDTB](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#isodtb)
 
-###### Open (mass-tolerant) and mass offset
+#### Open (mass-tolerant) and mass offset
 * [Basic open search (Open)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#basic-open-search-open)
 * [Mass shift search (Mass-Offset-CommonPTMs)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#mass-shift-search-mass-offset-commonptms)
 
-###### Labile PTM Searches
+#### Labile PTM Searches
 * [Labile_phospho](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#labile-phosphopeptide-search-labile_phospho)
 * [Labile_ADP-ribosylation](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#labile-mode-adp-ribosylation-search-labile_adp-ribosylation)
 
-###### Glyco
+#### Glyco
 * [N-glycopeptide search (glyco-N-HCD)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#n-glycopeptide-search-glyco-n-hcd)
 * [N-glycopeptide search, hybrid activation (glyco-N-Hybrid)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#n-glycopeptide-search-hybrid-activation-glyco-n-hybrid)
 * [N-glycopeptide search with quantification (glyco-N-LFQ)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#n-glycopeptide-search-with-quantification-glyco-n-lfq)
@@ -49,7 +49,7 @@ Listed below are the analysis workflows provided with FragPipe. Any of these wor
 * [O-glycopeptide open search (glyco-O-open-HCD)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#o-glycopeptide-open-search-glyco-o-open-hcd)
 * [O-glycopeptide open search, hybrid activation (glyco-O-open-Hybrid)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#o-glycopeptide-search-hybrid-activation-glyco-o-hybrid)
 
-###### DIA and spectral library building
+#### DIA and spectral library building
 * [DIA-Umpire signal extraction (DIA-Umpire)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#dia-umpire-signal-extraction-dia-umpire)
 * [DIA-Umpire spectral library building (DIA-Umpire_Speclib)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#dia-umpire-spectral-library-building-dia-umpire_speclib)
 * [MSFragger DIA narrow window SpecLib](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#msfragger-dia-narrow-window-speclib)
