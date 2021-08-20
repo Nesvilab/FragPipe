@@ -83,7 +83,7 @@ You can then use the 'By parent directory' button to assign the appropriate labe
 ### Fetch database
 On the 'Database' tab, click 'Download' and then 'OK' to use the default settings (reviewed human sequences plus decoys and common contaminants), then specify a download location, which you can set to the 'ABPP_raw' folder.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/abpp-database.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/abpp_database.png)
 
 <br>
 
