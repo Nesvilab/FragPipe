@@ -18,6 +18,7 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 * TMT/iTRAQ quantification
   * [Single plex](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html)
   * [Multiple plexes with a pooled reference sample](https://fragpipe.nesvilab.org/docs/tutorial_tmt-2plexes.html)
+  * [Streamlined activity-based protein profiling of reactive cysteines (SLC-ABPP)](https://fragpipe.nesvilab.org/docs/tutorial_abpp.html)
 * [Label-free quantification](https://fragpipe.nesvilab.org/docs/tutorial_lfq.html)
 * [SILAC (or other MS1-labeled) data](https://fragpipe.nesvilab.org/docs/tutorial_silac.html)
 * [Analyzing glycoproteomics data](https://fragpipe.nesvilab.org/docs/tutorial_glyco-fragger.html)
