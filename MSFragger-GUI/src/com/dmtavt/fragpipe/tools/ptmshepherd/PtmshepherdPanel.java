@@ -102,6 +102,8 @@ public class PtmshepherdPanel extends JPanelBase {
   private static final String PROP_glyco_isotope_error_high = "glyco_isotope_max";
   private static final String PROP_adduct_names = "glyco_adducts";
   private static final String PROP_max_adducts = "max_adducts";
+  private static final String PROP_glycan_to_assigned_mods = "put_glycans_to_assigned_mods";
+  private static final String PROP_nglyco_mode = "n_glyco";
 
   private final List<BalloonTip> balloonTips = new ArrayList<>();
   private JCheckBox checkRun;
@@ -369,13 +371,16 @@ public class PtmshepherdPanel extends JPanelBase {
             "Highest isotope error to consider. Allowed isotope errors will go from Isotope Error Range Min to this value (inclusive).");
 
     FormEntry feAdductNames = mu.feb(PROP_adduct_names, UiUtils.uiTextBuilder().create())
-            .label("Glycan Adducts")
+            .label("Adduct Type(s)")
             .tooltip("Added to possible glycan compositions as noncovalent adducts. "
                     + "Space, comma, or slash separated values accepted. " +
                     "Possible values: NH3, Na, Fe3, Fe2, Al, Ca").create();
     FormEntry feMaxAdducts = new FormEntry(PROP_max_adducts, "Max Adducts",
             new UiSpinnerInt(0, 0, 5, 1, 1),
             "Maximum number of each specified adduct to allow");
+
+    FormEntry feGlycanToAssignedMods = mu.feb(PROP_glycan_to_assigned_mods, UiUtils.createUiCheck("Write glycans to Assigned Modifications for Quant", false)).create();
+    FormEntry feNGlycanMode = mu.feb(PROP_nglyco_mode, UiUtils.createUiCheck("N-Glycan Mode", true)).create();
 
     mu.add(pGlycoContent, feYIonMasses.label(), mu.ccR());
     mu.add(pGlycoContent, feYIonMasses.comp).spanX().growX().pushX().wrap();
@@ -397,6 +402,8 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(pGlycoAssignContent, feMaxAdducts.comp).split();
     mu.add(pGlycoAssignContent, feAdductNames.label(), mu.ccR());
     mu.add(pGlycoAssignContent, feAdductNames.comp).spanX().growX().pushX().wrap();
+    mu.add(pGlycoAssignContent, feNGlycanMode.comp).spanX().split();
+    mu.add(pGlycoAssignContent, feGlycanToAssignedMods.comp).wrap();
 
     mu.add(p, uiCheckGlyco).spanX().wrap();
     mu.add(p, new JLabel("Labile/glyco mode masses: ")).spanX();
