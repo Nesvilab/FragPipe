@@ -121,7 +121,7 @@ When the analysis is finished, identification reports with raw quantification va
 
 TMT-Integrator reports will be in a separate folder, 'tmt-reports'. These reports contain normalized log2-transformed values, with separate files for both abundances (intensities) and ratios at each level (gene, protein, peptide, etc.). See the TMT/iTRAQ section on [this page](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html) for more details.
 
-The single-site reports can be used to identify patterns in cysteine reactivity, where Cys+239 sites with lower abundance were more reactive with the electrophile initially added to the cells.
+The single-site reports can be used to identify patterns in cysteine reactivity, where Cys+239 sites with lower abundance were more reactive with the electrophile initially added to the cells. Sample results can be downloaded from [here](https://www.dropbox.com/s/m4l5rlv8dq0hzap/ABPP_results.zip?dl=0).
 
 <br>
 <br>
