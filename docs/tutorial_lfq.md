@@ -1,5 +1,10 @@
 ### Label-free quantification with FragPipe
 
+This tutorial demonstrates label-free quantification with match-between-runs using a dataset (PRIDE/ProteomeXchange identifier PXD020556) in which HCT116 cells were treated with aspirin (acetylsalicylic acid) to investigate metabolic changes. Extracts from willows and other plants rich in acetylsalicylic acid have been used medicinally since Mesopotamian times. This tutorial will use a subset of the data to quantify the proteomes of aspirin treated and untreated (control) cells. These data were acquired with a Q Exactive HF-X.
+
+Associated publication: Castoldi, Francesca, et al. "Autophagy-mediated metabolic effects of aspirin." Cell death discovery 6.1 (2020): 1-17.
+
+To get the input data, download the 'lfq-raw.zip' file from [Dropbox](https://www.dropbox.com/sh/azdbblag7whv9v7/AACk8t4-6LowMYobKyXxUMS8a?dl=0) and extract the files.
 
 ##### Tutorial contents
 * [Open FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_lfq.html#open-fragpipe)
@@ -10,15 +15,7 @@
 * [Set the output location and run](https://fragpipe.nesvilab.org/docs/tutorial_lfq.html#set-the-output-location-and-run)
 * [Inspect the results](https://fragpipe.nesvilab.org/docs/tutorial_lfq.html#inspect-the-results)
 
-
 <br>
-
-We will use a dataset (PRIDE/ProteomeXchange identifier PXD020556) in which HCT116 cells were treated with aspirin (acetylsalicylic acid) to investigate metabolic changes. Extracts from willows and other plants rich in acetylsalicylic acid have been used medicinally since Mesopotamian times. This tutorial will use a subset of the data to quantify the proteomes of aspirin treated and untreated (control) cells. These data were acquired with a Q Exactive HF-X.
-
-Associated publication: Castoldi, Francesca, et al. "Autophagy-mediated metabolic effects of aspirin." Cell death discovery 6.1 (2020): 1-17.
-
-To get the input data, download the 'lfq-raw.zip' file from [Dropbox](https://www.dropbox.com/sh/azdbblag7whv9v7/AACk8t4-6LowMYobKyXxUMS8a?dl=0) and extract the files.
-
 
 ### Open FragPipe
 When you launch FragPipe, check that MSFragger and Philosopher are configured. (If you haven’t downloaded them yet, use their respective ‘Download / Update’ buttons. See [this page](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html) for more help, Python is not needed for these exercises.)
