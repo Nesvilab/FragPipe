@@ -106,8 +106,42 @@ if use_easypqp:
 
 assert use_spectrast ^ use_easypqp
 
+def get_bin_path_pip_main(dist, bin_stem):
+	'''
+	get binary path for a package with binary stem
+	:param dist: package name
+	:param bin_stem: name of binary without extension
+	:return: None if not found, binary path if found.
+	'''
+	import io, re, pathlib, contextlib, pip.__main__
+	with contextlib.redirect_stdout(io.StringIO()) as f:
+		pip.__main__._main(['show', '--files', dist])
+	stdout = f.getvalue()
+	location = pathlib.Path(re.compile('^Location: (.+)$', re.MULTILINE).search(stdout).group(1))
+	a = re.compile('''^Files:(?:
+  .+)+''', re.MULTILINE)
+	files = [location / e[2:] for e in a.search(stdout).group().splitlines()[1:]]
+	rel_loc, = [e for e in files if pathlib.Path(e).stem == bin_stem]
+	return (pathlib.Path(location) / rel_loc).resolve()
 
-def get_bin_path(dist, bin_stem):
+def get_bin_path_pip_CLI(dist, bin_stem):
+	'''
+	get binary path for a package with binary stem
+	:param dist: package name
+	:param bin_stem: name of binary without extension
+	:return: None if not found, binary path if found.
+	'''
+	import subprocess, sys, re, pathlib
+	stdout = subprocess.run([sys.executable, '-m', 'pip', 'show', '--files', dist], capture_output=True,
+							check=True).stdout
+	location = pathlib.Path(re.compile(b'^Location: (.+)$', re.MULTILINE).search(stdout).group(1).decode())
+	a = re.compile(b'''^Files:(?:
+  .+)+''', re.MULTILINE)
+	files = [location / e[2:].decode() for e in a.search(stdout).group().splitlines()[1:]]
+	rel_loc, = [e for e in files if pathlib.Path(e).stem == bin_stem]
+	return (pathlib.Path(location) / rel_loc).resolve()
+
+def get_bin_path_pip_private_API(dist, bin_stem):
 	'''
 	get binary path for a package with binary stem
 	:param dist: package name
@@ -129,6 +163,8 @@ def get_bin_path(dist, bin_stem):
 	except ValueError:
 		return
 	return (pathlib.Path(location) / rel_loc).resolve()
+
+get_bin_path = get_bin_path_pip_CLI
 
 def to_windows(cmd):
 	r"""convert linux sh scripts to windows
