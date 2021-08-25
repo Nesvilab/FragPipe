@@ -36,12 +36,14 @@ import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.ItemSelectable;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -73,7 +75,10 @@ import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 
-public class UmpirePanel extends JPanel {
+public class UmpirePanel extends JPanelBase {
+
+  public static final String PREFIX = "diaumpire.";
+
   public JCheckBox checkRunUmpireSe;
   private JPanel keyPanel;
   private JPanel pSe;
@@ -109,7 +114,6 @@ public class UmpirePanel extends JPanel {
       PROP_Q3);
 
   public UmpirePanel() {
-    initMore();
     Bus.postSticky(this);
   }
 
@@ -117,7 +121,7 @@ public class UmpirePanel extends JPanel {
     return SwingUtils.isEnabledAndChecked(checkRunUmpireSe);
   }
 
-  private void initMore() {
+  protected void init() {
     icon = new ImageIcon(
         getClass().getResource("/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png"));
 
@@ -148,27 +152,27 @@ public class UmpirePanel extends JPanel {
     DefaultFormatterFactory decimal = new javax.swing.text.DefaultFormatterFactory(
         new javax.swing.text.NumberFormatter());
 
-    FormEntry feRpMax = new FormEntry(PROP_RPmax, "RP max", new JFormattedTextField(decimal));
-    FormEntry feRfMax = new FormEntry(PROP_RFmax, "RF max", new JFormattedTextField(decimal));
-    FormEntry feCorrThresh = new FormEntry(PROP_CorrThreshold, "Corr Threshold", new JFormattedTextField(decimal));
-    FormEntry feDeltaApex = new FormEntry(PROP_DeltaApex, "Delta Apex", new JFormattedTextField(decimal));
-    FormEntry feRtOverlap = new FormEntry(PROP_RTOverlap, "RT Overlap", new JFormattedTextField(decimal));
-    FormEntry feCheckBoostComplimentaryIons = new FormEntry(PROP_BoostComplementaryIon, "Boost complimentary ions", new JCheckBox());
-    FormEntry feCheckAdjustFragIntensitys = new FormEntry(PROP_AdjustFragIntensity, "Adjust fragment intensity", new JCheckBox());
+    FormEntry feRpMax = new FormEntry(PROP_RPmax, "RP max", new JFormattedTextField(decimal), PREFIX);
+    FormEntry feRfMax = new FormEntry(PROP_RFmax, "RF max", new JFormattedTextField(decimal), PREFIX);
+    FormEntry feCorrThresh = new FormEntry(PROP_CorrThreshold, "Corr Threshold", new JFormattedTextField(decimal), PREFIX);
+    FormEntry feDeltaApex = new FormEntry(PROP_DeltaApex, "Delta Apex", new JFormattedTextField(decimal), PREFIX);
+    FormEntry feRtOverlap = new FormEntry(PROP_RTOverlap, "RT Overlap", new JFormattedTextField(decimal), PREFIX);
+    FormEntry feCheckBoostComplimentaryIons = new FormEntry(PROP_BoostComplementaryIon, "Boost complimentary ions", new JCheckBox(), PREFIX);
+    FormEntry feCheckAdjustFragIntensitys = new FormEntry(PROP_AdjustFragIntensity, "Adjust fragment intensity", new JCheckBox(), PREFIX);
 
-    FormEntry feMs1Ppm = new FormEntry(UmpireParams.PROP_MS1PPM, "MS1 PPM", new JFormattedTextField(decimalAsInt));
-    FormEntry feMs2Ppm = new FormEntry(UmpireParams.PROP_MS2PPM, "MS2 PPM", new JFormattedTextField(decimalAsInt));
-    FormEntry feNoMissedScans = new FormEntry(UmpireParams.PROP_NoMissedScan, "Max Missed Scans", new JFormattedTextField(decimalAsInt));
-    FormEntry feEstimateBG = new FormEntry(UmpireParams.PROP_EstimateBG, "Remove Background", new JCheckBox());
-    FormEntry feIsoPattern = new FormEntry(PROP_IsoPattern, "Isotope Pattern", new JFormattedTextField(decimal));
-    FormEntry feMassDefectFilter = new FormEntry(PROP_MassDefectFilter, "Mass Defect Filter", new JCheckBox());
-    FormEntry feMassDefectOffset = new FormEntry(PROP_MassDefectOffset, "Mass Defect Offset", new JFormattedTextField(decimal));
-    FormEntry feExportPrecursorPeak = new FormEntry(PROP_ExportPrecursorPeak, "Export Precursor Peak", new JCheckBox());
-    FormEntry feQ1 = new FormEntry(PROP_Q1, "Q1", new JCheckBox());
-    FormEntry feQ2 = new FormEntry(PROP_Q2, "Q2", new JCheckBox());
-    FormEntry feQ3 = new FormEntry(PROP_Q3, "Q3", new JCheckBox());
-    FormEntry feSN = new FormEntry(PROP_SN, "MS1 SN", new JFormattedTextField(decimal));
-    FormEntry feMS2SN = new FormEntry(PROP_MS2SN, "MS2 SN", new JFormattedTextField(decimal));
+    FormEntry feMs1Ppm = new FormEntry(UmpireParams.PROP_MS1PPM, "MS1 PPM", new JFormattedTextField(decimalAsInt), PREFIX);
+    FormEntry feMs2Ppm = new FormEntry(UmpireParams.PROP_MS2PPM, "MS2 PPM", new JFormattedTextField(decimalAsInt), PREFIX);
+    FormEntry feNoMissedScans = new FormEntry(UmpireParams.PROP_NoMissedScan, "Max Missed Scans", new JFormattedTextField(decimalAsInt), PREFIX);
+    FormEntry feEstimateBG = new FormEntry(UmpireParams.PROP_EstimateBG, "Remove Background", new JCheckBox(), PREFIX);
+    FormEntry feIsoPattern = new FormEntry(PROP_IsoPattern, "Isotope Pattern", new JFormattedTextField(decimal), PREFIX);
+    FormEntry feMassDefectFilter = new FormEntry(PROP_MassDefectFilter, "Mass Defect Filter", new JCheckBox(), PREFIX);
+    FormEntry feMassDefectOffset = new FormEntry(PROP_MassDefectOffset, "Mass Defect Offset", new JFormattedTextField(decimal), PREFIX);
+    FormEntry feExportPrecursorPeak = new FormEntry(PROP_ExportPrecursorPeak, "Export Precursor Peak", new JCheckBox(), PREFIX);
+    FormEntry feQ1 = new FormEntry(PROP_Q1, "Q1", new JCheckBox(), PREFIX);
+    FormEntry feQ2 = new FormEntry(PROP_Q2, "Q2", new JCheckBox(), PREFIX);
+    FormEntry feQ3 = new FormEntry(PROP_Q3, "Q3", new JCheckBox(), PREFIX);
+    FormEntry feSN = new FormEntry(PROP_SN, "MS1 SN", new JFormattedTextField(decimal), PREFIX);
+    FormEntry feMS2SN = new FormEntry(PROP_MS2SN, "MS2 SN", new JFormattedTextField(decimal), PREFIX);
 
     CC ccComp = new CC().width("30:50:70px");
     CC ccFmtWrap = new CC().width("30:50:70px").wrap();
@@ -365,7 +369,7 @@ public class UmpirePanel extends JPanel {
     Map<String, Component> map = SwingUtils.mapComponentsByName(this, true);
 
     for (String paramName : paramNames) {
-      Component component = map.get(paramName);
+      Component component = map.get(PREFIX + paramName);
       if (component != null) {
         String strVal = SwingUtils.getStrVal(component);
         params.getProps().setProperty(paramName, strVal);
@@ -381,12 +385,27 @@ public class UmpirePanel extends JPanel {
   public void fillFrom(UmpireParams params) {
     Map<String, Component> map = SwingUtils.mapComponentsByName(this, true);
     for (String name : params.getProps().stringPropertyNames()) {
-      Component component = map.get(name);
+      Component component = map.get(PREFIX + name);
       if (component != null) {
         String val = params.getProps().getProperty(name);
         SwingUtils.setStrVal(component, val);
       }
     }
 
+  }
+
+  @Override
+  protected ItemSelectable getRunCheckbox() {
+    return checkRunUmpireSe;
+  }
+
+  @Override
+  protected Component getEnablementToggleComponent() {
+    return keyPanel;
+  }
+
+  @Override
+  protected String getComponentNamePrefix() {
+    return PREFIX;
   }
 }
