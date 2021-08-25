@@ -103,7 +103,10 @@ public class UmpirePanel extends JPanel {
       PROP_WindowType,
       PROP_WindowSize,
       PROP_SN,
-      PROP_MS2SN);
+      PROP_MS2SN,
+      PROP_Q1,
+      PROP_Q2,
+      PROP_Q3);
 
   public UmpirePanel() {
     initMore();
