@@ -4,7 +4,7 @@
 
 Complete workflows are available for a variety of experiment types, we recommend starting your analysis with a built-in workflow, which can then be customized and saved for future use. For partial processing (e.g. to save time upon re-analysis), steps can be skipped by unchecking the corresponding boxes. This tutorial walks through each tab in some detail, but once FragPipe is configured, analysis can be as simple as choosing spectral files, a database, and a workflow to run. Find a guide to output files [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html).
 
-Before you get started, make sure your LC-MS file format is compatible with the workflows you want to perform (for Thermo data with or without FAIMS, we recommend [converting .raw files to mzML with peak picking](https://fragpipe.nesvilab.org/docs/tutorial_convert.html)) _Please note Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should be converted to .mzML._:
+Before you get started, make sure your LC-MS file format is compatible with the workflows you want to perform. For Thermo data (with or without FAIMS), we recommend [converting .raw files to mzML with peak picking](https://fragpipe.nesvilab.org/docs/tutorial_convert.html). Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should be converted to .mzML. Please also note that timsTOF data requires [Visual C++ Redistributable for Visual Studio 2017](https://aka.ms/vs/16/release/VC_redist.x64.exe) in Windows. If you see an error saying cannot find Bruker native library, please try to install the Visual C++ redistibutable.
 
 <div align="center">
 <img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/workflow_support.png" width="500px"/>
