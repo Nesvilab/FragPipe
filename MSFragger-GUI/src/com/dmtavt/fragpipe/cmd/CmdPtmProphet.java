@@ -44,7 +44,9 @@ public class CmdPtmProphet extends CmdBase {
       final List<Path> forDeletion = new ArrayList<>();
       for (Entry<Path, List<Tuple2<InputLcmsFile, Path>>> kv : groupByPepxml.entrySet()) {
         Path workDir = kv.getValue().get(0).v1.outputDir(wd);
-        forDeletion.addAll(Files.list(workDir).filter(file -> file.toString().endsWith("mod.pep.xml")).collect(Collectors.toList()));
+        if (Files.exists(workDir)) { // Dry-run does not create the folders.
+          forDeletion.addAll(Files.list(workDir).filter(file -> file.toString().endsWith("mod.pep.xml")).collect(Collectors.toList()));
+        }
       }
       if (!deleteFiles(comp, forDeletion)) {
         return false;
