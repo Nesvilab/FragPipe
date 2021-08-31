@@ -353,10 +353,10 @@ public class PtmshepherdPanel extends JPanelBase {
     uiCheckGlycoAssign = UiUtils.createUiCheck("Assign Glycans with FDR", true);
     uiCheckGlycoAssign.setName("assign_glycans");
 
-    UiSpinnerDouble uiSpinnerGlycanFDR = UiSpinnerDouble.builder(1.0,0.0001,100.0, 1.0)
-            .setFormat(new DecimalFormat("0.#")).setCols(3).create();
-    FormEntry feGlycanFDR = new FormEntry(PROP_glycan_fdr, "Glycan FDR (%)", uiSpinnerGlycanFDR,
-            "Glycan assignment FDR (%). Default 1.0%.\n");
+    UiSpinnerDouble uiSpinnerGlycanFDR = UiSpinnerDouble.builder(0.01,0,1.0, 0.01)
+            .setFormat(new DecimalFormat("0.00#")).setCols(3).create();
+    FormEntry feGlycanFDR = new FormEntry(PROP_glycan_fdr, "Glycan FDR", uiSpinnerGlycanFDR,
+            "Glycan assignment FDR. Default 0.01 (1%)\n");
 
     UiSpinnerDouble uiSpinnerGlycanMassErr = UiSpinnerDouble.builder(50.0,0.0,10000.0, 5.0)
             .setFormat(new DecimalFormat("0.#")).setCols(5).create();
