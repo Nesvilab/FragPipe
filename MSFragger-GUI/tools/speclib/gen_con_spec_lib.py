@@ -131,13 +131,13 @@ def get_bin_path_pip_CLI(dist, bin_stem):
 	:param bin_stem: name of binary without extension
 	:return: None if not found, binary path if found.
 	'''
-	import subprocess, sys, re, pathlib
+	import subprocess, sys, re, pathlib, io
 	stdout = subprocess.run([sys.executable, '-m', 'pip', 'show', '--files', dist], capture_output=True,
 							check=True).stdout
-	location = pathlib.Path(re.compile(b'^Location: (.+)$', re.MULTILINE).search(stdout).group(1).decode())
-	a = re.compile(b'''^Files:(?:
-  .+)+''', re.MULTILINE)
-	files = [location / e[2:].decode() for e in a.search(stdout).group().splitlines()[1:]]
+	stdout = io.TextIOWrapper(io.BytesIO(stdout), newline=None).read()
+	location = pathlib.Path(re.compile('^Location: (.+)$', re.MULTILINE).search(stdout).group(1))
+	a = re.compile('^Files:(?:\n  .+)+', re.MULTILINE)
+	files = [location / e[2:] for e in a.search(stdout).group().splitlines()[1:]]
 	rel_loc, = [e for e in files if pathlib.Path(e).stem == bin_stem]
 	return (pathlib.Path(location) / rel_loc).resolve()
 
