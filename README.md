@@ -14,6 +14,7 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 * PTM discovery
   * [Open search](https://fragpipe.nesvilab.org/docs/tutorial_open.html)
   * [Mass offset search](https://fragpipe.nesvilab.org/docs/tutorial_offset.html)
+  * [Glycoproteomics search](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html)
   * [Custom mass offset workflow (RNA crosslinking example)](https://fragpipe.nesvilab.org/docs/tutorial_custom_mass_offset.html) 
 * TMT/iTRAQ quantification
   * [Single plex](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html)
@@ -21,7 +22,6 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
   * [Streamlined activity-based protein profiling of reactive cysteines (SLC-ABPP)](https://fragpipe.nesvilab.org/docs/tutorial_abpp.html)
 * [Label-free quantification](https://fragpipe.nesvilab.org/docs/tutorial_lfq.html)
 * [SILAC (or other MS1-labeled) data](https://fragpipe.nesvilab.org/docs/tutorial_silac.html)
-* [Analyzing glycoproteomics data](https://fragpipe.nesvilab.org/docs/tutorial_glyco-fragger.html)
 * [Building spectral libraries for DIA analysis (from DDA, direct DIA with DIA-Umpire, and combined)](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html)
 
 #### Resources
