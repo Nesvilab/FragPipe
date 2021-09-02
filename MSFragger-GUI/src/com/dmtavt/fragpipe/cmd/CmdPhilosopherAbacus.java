@@ -39,46 +39,7 @@ public class CmdPhilosopherAbacus extends CmdBase {
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       String textReportFilterCmdOpts, boolean isPepLevelSummary, boolean isRunProteinProphet, boolean isCheckFilterNoProtxml, String decoyTag, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
-
-//    Usage:
-//    philosopher abacus [flags]
-//
-//    Flags:
-//    -h, --help             help for abacus
-//    --labels           indicates whether the data sets includes TMT labels or not
-//    --pepProb float    minimum peptide probability (default 0.5)
-//    --peptide string   combined peptide file
-//    --picked           apply the picked FDR algorithm before the protein scoring
-//    --protein string   combined protein file
-//    --prtProb float    minimum protein probability (default 0.9)
-//    --razor            use razor peptides for protein FDR scoring
-//    --reprint          create abacus reports using the Reprint format
-//    --tag string       decoy tag (default "rev_")
-//    --uniqueonly       report TMT quantification based on only unique peptides
-
-//    Usage:
-//    philosopher filter [flags]
-//
-//    Flags:
-//    -h, --help             help for filter
-//    --ion float        peptide ion FDR level (default 0.01)
-//    --mapmods          map modifications aquired by an open search
-//    --models           print model distribution
-//    --pep float        peptide FDR level (default 0.01)
-//    --pepProb float    top peptide probability treshold for the FDR filtering (default 0.7)
-//    --pepxml string    pepXML file or directory containing a set of pepXML files
-//    --picked           apply the picked FDR algorithm before the protein scoring
-//    --prot float       protein FDR level (default 0.01)
-//    --protProb float   protein probability treshold for the FDR filtering (not used with the razor algorithm) (default 0.5)
-//    --protxml string   protXML file path
-//    --psm float        psm FDR level (default 0.01)
-//    --razor            use razor peptides for protein FDR scoring
-//    --sequential       alternative algorithm that estimates FDR using both filtered PSM and Protein lists
-//    --tag string       decoy tag (default "rev_")
-//    --weight float     threshold for defining peptide uniqueness (default 1)
-
-
-    final List<String> flagsAbacus = Arrays.asList("--picked", "--razor", "--reprint", "--uniqueonly");
+    final List<String> flagsAbacus = Arrays.asList("--picked", "--uniqueonly");
 
     initPreConfig();
 
@@ -124,11 +85,14 @@ public class CmdPhilosopherAbacus extends CmdBase {
         return false;
       }
 
-      // we'll only take the flags from the command that Abacus recognizes
+      // we'll only take the flags from the command that Abacus recognizes, and other than --razor and --reprint
       final List<String> filterCmdLineParts = StringUtils.splitCommandLine(textReportFilterCmdOpts);
       final LinkedHashSet<String> cmdAddonParts = filterCmdLineParts.stream()
           .filter(flagsAbacus::contains).collect(Collectors.toCollection(LinkedHashSet::new));
-      cmdAddonParts.add("--reprint"); // Alexey wants to always use only `--reprint  --razor`
+
+      // Alexey wants to always use only `--reprint --razor`
+      cmdAddonParts.add("--razor");
+      cmdAddonParts.add("--reprint");
 
       List<String> cmd = new ArrayList<>();
       final Path executeInDir = protxml.getParent();

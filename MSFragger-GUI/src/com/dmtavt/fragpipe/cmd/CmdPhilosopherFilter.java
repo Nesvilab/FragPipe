@@ -47,10 +47,11 @@ public class CmdPhilosopherFilter extends CmdBase {
 
       // check for extra arguments
       if (!StringUtils.isNullOrWhitespace(textReportFilter)) {
+        // Always use --razor, so it is always appended later. Remove it here to avoid duplicated flags.
+        textReportFilter = textReportFilter.replaceAll("--razor", "");
         if (dontUseFilterProtxml) {
           // add everything except --sequential --razor --prot 0.01`
           textReportFilter = textReportFilter.replaceAll("--sequential", "");
-          textReportFilter = textReportFilter.replaceAll("--razor", "");
           textReportFilter = textReportFilter.replaceAll("--prot\\s+\\d+(?:\\.\\d+)?", "");
         }
         cmd.addAll(StringUtils.splitCommandLine(textReportFilter));

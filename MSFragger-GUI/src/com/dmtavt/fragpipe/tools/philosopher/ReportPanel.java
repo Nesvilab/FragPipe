@@ -110,7 +110,7 @@ public class ReportPanel extends JPanelBase {
     JPanel p = new JPanel(new MigLayout(new LC()));//.debug()));
     p.setBorder(new EmptyBorder(0, 0, 0, 0));
 
-    uiTextFilter = new UiTextBuilder().cols(5).text("--sequential --razor --prot 0.01").create();
+    uiTextFilter = new UiTextBuilder().cols(5).text("--sequential --prot 0.01").create();
     FormEntry feFilter = new FormEntry("filter", "Filter", uiTextFilter,
         "<html>A custom algorithm for MS/MS data filtering and multi-level false discovery rate estimation.<br/>\n"
             + "See: https://github.com/Nesvilab/philosopher/wiki/Filter<br/><br/>\n" +
@@ -132,7 +132,6 @@ public class ReportPanel extends JPanelBase {
             +
             "<li>--protxml string   protXML file path</li>\n" +
             "<li>--psm float        psm FDR level (default 0.01)</li>\n" +
-            "<li>--razor            use razor peptides for protein FDR scoring</li>\n" +
             "<li>--sequential       alternative algorithm that estimates FDR using both filtered PSM and Protein lists</li>\n"
             +
             "<li>--tag string       decoy tag (default \"rev_\")</li>\n" +
