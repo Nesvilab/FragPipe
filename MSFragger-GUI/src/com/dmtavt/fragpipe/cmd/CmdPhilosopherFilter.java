@@ -63,8 +63,12 @@ public class CmdPhilosopherFilter extends CmdBase {
       if (!dontUseFilterProtxml) {
         cmd.add("--protxml");
         cmd.add(protxml.toString());
-        cmd.add("--razorbin");
-        cmd.add(wd.resolve(firstInputLcmsFile.getGroup()).resolve(".meta").resolve("razor.bin").toAbsolutePath().toString());
+        if (group.name.contentEquals(firstInputLcmsFile.getGroup())) {
+          cmd.add("--razor");
+        } else {
+          cmd.add("--razorbin");
+          cmd.add(wd.resolve(firstInputLcmsFile.getGroup()).resolve(".meta").resolve("razor.bin").toAbsolutePath().toString());
+        }
       }
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
