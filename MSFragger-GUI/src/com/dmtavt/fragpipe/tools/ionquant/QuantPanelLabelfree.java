@@ -283,6 +283,9 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMinScans = mu.feb(uiSpinnerMinScans).name("ionquant.minscans").label("Min scans").tooltip("Minimum scans required for feature detection").create();
     FormEntry feWriteIndex = mu.feb("ionquant.writeindex", UiUtils.createUiCheck("Keep index on disk", false)).tooltip("Keep built index on disk for further usage").create();
 
+    UiSpinnerDouble uiSpinnerMinSiteProb = UiSpinnerDouble.builder(0.75, -1, 1.0, 0.01).setFormat(new DecimalFormat("#.##")).setCols(5).create();
+    FormEntry feMinSiteProb = mu.feb(uiSpinnerMinSiteProb).name("ionquant.locprob").label("Min site probability").tooltip("Site localization confidence threshold").create();
+
     FormEntry feExcludemods = mu.feb(uiTextExcludemods).name("ionquant.excludemods").label("Excluded mods").tooltip("String specifying modifications to be excluded from protein quantification, e.g. M15.9949;STY79.96633").create();
 
     SwingUtils.addItemSelectedListener(uiComboProtQuant, true, itemEvent -> {
@@ -379,7 +382,9 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.add(pa, feMinScans.comp);
     mu.add(pa, feMinIsotopes.label(), mu.ccR());
     mu.add(pa, feMinIsotopes.comp);
-    mu.add(pa, feWriteIndex.comp).spanX().wrap();
+    mu.add(pa, feWriteIndex.comp);
+    mu.add(pa, feMinSiteProb.label(), mu.ccR());
+    mu.add(pa, feMinSiteProb.comp).spanX().wrap();
 
     mu.add(p, pa).spanX().growX().wrap();
 
