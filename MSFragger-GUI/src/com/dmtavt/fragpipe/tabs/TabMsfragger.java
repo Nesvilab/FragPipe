@@ -141,6 +141,7 @@ public class TabMsfragger extends JPanelBase {
   private static final String CALIBRATE_VALUE_OFF = "None";
   private static final String[] CALIBRATE_LABELS = {CALIBRATE_VALUE_OFF, "Mass calibration", "Mass calibration, parameter optimization"};
   private static final String[] MASS_DIFF_TO_VAR_MOD = {"No", "Yes, keep delta mass", "Yes, remove delta mass"};
+  private static final String[] DEISOTOPE = {"No", "Yes", "Yes, use charge 1 and 2 for undeisotoped peaks"};
   private static final int[] MASS_DIFF_TO_VAR_MOD_MAP = {0, 2, 1};
   private static final List<String> GLYCO_OPTIONS_UI = Arrays
       .asList(GLYCO_OPTION_off, GLYCO_OPTION_nglycan, GLYCO_OPTION_labile);
@@ -181,6 +182,14 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_write_calibrated_mgf, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s -> itos(
         MASS_DIFF_TO_VAR_MOD_MAP[ArrayUtils.indexOf(MASS_DIFF_TO_VAR_MOD, s)]));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_deisotope, s -> {
+      for (int i = 0; i < DEISOTOPE.length; ++i) {
+        if (s.equalsIgnoreCase(DEISOTOPE[i])) {
+          return itos(i);
+        }
+      }
+      return "1";
+    });
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_mass_units, s -> itos(PrecursorMassTolUnits.valueOf(s).valueInParamsFile()));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_mass_units, s -> itos(MassTolUnits.valueOf(s).valueInParamsFile()));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_true_units, s -> itos(
@@ -210,6 +219,7 @@ public class TabMsfragger extends JPanelBase {
 
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_calibrated_mgf, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s-> MASS_DIFF_TO_VAR_MOD[MASS_DIFF_TO_VAR_MOD_MAP[Integer.parseInt(s)]]);
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_deisotope, s-> DEISOTOPE[Integer.parseInt(s)]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> PrecursorMassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> MassTolUnits.fromFileToUi(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_true_units, s -> MassTolUnits.fromFileToUi(s).name());
@@ -1067,9 +1077,10 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feOverrideCharge = mu.feb(MsfraggerParams.PROP_override_charge, new UiCheck("Override charge with precursor charge", null))
         .tooltip("Ignores precursor charge and uses charge state\n" +
             "specified in precursor_charge range.").create();
-    FormEntry feDeisotope = mu.feb(MsfraggerParams.PROP_deisotope, new UiSpinnerInt(1, 0, 2, 1, 4))
-        .label("Deisotope")
-        .tooltip("<html>0 = deisotoping off<br/>\n1 = deisotoping on").create();
+
+    UiCombo uiComboDeisotope = UiUtils.createUiCombo(DEISOTOPE);
+    FormEntry feDeisotope = mu.feb(MsfraggerParams.PROP_deisotope, uiComboDeisotope)
+        .label("Deisotope").create();
 
     UiCombo uiComboDeneutralloss = UiUtils.createUiCombo(new String[]{"Yes", "No"});
     FormEntry feComboDeneutralloss = mu.feb(MsfraggerParams.PROP_deneutralloss, uiComboDeneutralloss)

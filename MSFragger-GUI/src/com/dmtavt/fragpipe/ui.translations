@@ -20,6 +20,9 @@ msfragger.intensity_transform :: Square root <=> 1
 msfragger.mass_diff_to_variable_mod :: No <=> 0
 msfragger.mass_diff_to_variable_mod :: Yes, keep delta mass <=> 2
 msfragger.mass_diff_to_variable_mod :: Yes, remove delta mass <=> 1
+msfragger.deisotope :: No <=> 0
+msfragger.deisotope :: Yes <=> 1
+msfragger.deisotope :: Yes, use charge 1 and 2 for undeisotoped peaks <=> 2
 msfragger.deneutralloss :: Yes <=> 1
 msfragger.deneutralloss :: No <=> 0
 
