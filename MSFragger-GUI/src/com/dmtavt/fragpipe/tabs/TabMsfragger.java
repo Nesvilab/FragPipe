@@ -1086,8 +1086,23 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feComboDeneutralloss = mu.feb(MsfraggerParams.PROP_deneutralloss, uiComboDeneutralloss)
         .label("Deneutralloss").create();
 
-    FormEntry feMaxFragCharge = mu.feb(MsfraggerParams.PROP_max_fragment_charge, new UiSpinnerInt(2, 0, 20, 1, 2))
-        .label("Max fragment charge").create();
+    UiSpinnerInt uiSpinnerMaxFragCharge = new UiSpinnerInt(2, 1, 20, 1, 2);
+    FormEntry feMaxFragCharge = mu.feb(MsfraggerParams.PROP_max_fragment_charge, uiSpinnerMaxFragCharge)
+        .label("Max fragment charge").tooltip("Enabled only when Deisotope = 0.").create();
+
+    uiComboDeisotope.addItemListener(e -> {
+      if (uiComboDeisotope.getSelectedIndex() > 0) {
+        uiSpinnerMaxFragCharge.setValue(1);
+        updateEnabledStatus(uiSpinnerMaxFragCharge, false);
+        uiComboDeneutralloss.setSelectedIndex(0);
+        updateEnabledStatus(uiComboDeneutralloss, true);
+      } else {
+        uiSpinnerMaxFragCharge.setValue(2);
+        updateEnabledStatus(uiSpinnerMaxFragCharge, true);
+        uiComboDeneutralloss.setSelectedIndex(1);
+        updateEnabledStatus(uiComboDeneutralloss, false);
+      }
+    });
 
     mu.add(p, feMinFragsModeling.label(), mu.ccR());
     mu.add(p, feMinFragsModeling.comp);
