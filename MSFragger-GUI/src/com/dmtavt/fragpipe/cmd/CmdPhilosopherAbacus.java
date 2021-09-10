@@ -38,7 +38,7 @@ public class CmdPhilosopherAbacus extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      String textReportFilterCmdOpts, boolean isPepLevelSummary, boolean isRunProteinProphet, boolean isCheckFilterNoProtxml, String decoyTag, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+      String textReportFilterCmdOpts, boolean isPepLevelSummary, boolean isCheckFilterNoProtxml, String decoyTag, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
     final List<String> flagsAbacus = Arrays.asList("--picked", "--uniqueonly");
 
     initPreConfig();
@@ -101,7 +101,7 @@ public class CmdPhilosopherAbacus extends CmdBase {
       cmd.addAll(cmdAddonParts);
       cmd.add("--tag");
       cmd.add(decoyTag);
-      if (isRunProteinProphet && !isCheckFilterNoProtxml) {
+      if (!isCheckFilterNoProtxml) {
         cmd.add("--protein");
       }
       if (isPepLevelSummary) {
