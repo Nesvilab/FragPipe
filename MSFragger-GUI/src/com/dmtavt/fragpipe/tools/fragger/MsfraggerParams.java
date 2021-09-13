@@ -90,10 +90,15 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_mass_offsets = "mass_offsets";
     public static final String PROP_precursor_mass_mode = "precursor_mass_mode";
     public static final String PROP_search_enzyme_name = "search_enzyme_name";
-    public static final String PROP_search_enzyme_cutafter = "search_enzyme_cutafter";
-    public static final String PROP_search_enzyme_butnotafter = "search_enzyme_butnotafter";
+    public static final String PROP_search_enzyme_cut_1 = "search_enzyme_cut_1";
+    public static final String PROP_search_enzyme_nocut_1 = "search_enzyme_nocut_1";
+    public static final String PROP_search_enzyme_cut_2 = "search_enzyme_cut_2";
+    public static final String PROP_search_enzyme_nocut_2 = "search_enzyme_nocut_2";
     public static final String PROP_num_enzyme_termini = "num_enzyme_termini";
-    public static final String PROP_allowed_missed_cleavage = "allowed_missed_cleavage";
+    public static final String PROP_allowed_missed_cleavage_1 = "allowed_missed_cleavage_1";
+    public static final String PROP_search_enzyme_sense_1 = "search_enzyme_sense_1";
+    public static final String PROP_search_enzyme_sense_2 = "search_enzyme_sense_2";
+    public static final String PROP_allowed_missed_cleavage_2 = "allowed_missed_cleavage_2";
     public static final String PROP_clip_nTerm_M = "clip_nTerm_M";
     
     /** Followed by '_N' (underscore and a number), max 7 mods. */
@@ -168,10 +173,13 @@ public class MsfraggerParams extends AbstractParams {
         PROP_mass_offsets,
         PROP_precursor_mass_mode,
         PROP_search_enzyme_name,
-        PROP_search_enzyme_cutafter,
-        PROP_search_enzyme_butnotafter,
+        PROP_search_enzyme_cut_1,
+        PROP_search_enzyme_nocut_1,
+        PROP_search_enzyme_cut_2,
+        PROP_search_enzyme_nocut_2,
         PROP_num_enzyme_termini,
-        PROP_allowed_missed_cleavage,
+        PROP_allowed_missed_cleavage_1,
+        PROP_allowed_missed_cleavage_2,
         PROP_clip_nTerm_M,
         PROP_variable_mod,
         PROP_max_variable_mods_per_peptide,
@@ -317,10 +325,13 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_fragment_ion_series, "Ion series used in search, specify any of a,b,c,x,y,z,b~,y~,Y,b-18,y-18 (comma separated).");
         c.put(PROP_ion_series_definitions, "User defined ion series. Example: \"b* N -17.026548;b0 N -18.010565\".");
         c.put(PROP_search_enzyme_name, "Name of enzyme to be written to the pepXML file.");
-        c.put(PROP_search_enzyme_cutafter, "Residues after which the enzyme cuts.");
-        c.put(PROP_search_enzyme_butnotafter, "Residues that the enzyme will not cut before.");
+        c.put(PROP_search_enzyme_cut_1, "Residues after which enzyme 1 cuts.");
+        c.put(PROP_search_enzyme_nocut_1, "Residues that enzyme 1 will not cut before.");
+        c.put(PROP_search_enzyme_cut_2, "Residues after which enzyme 2 cuts.");
+        c.put(PROP_search_enzyme_nocut_2, "Residues that enzyme 2 will not cut before.");
         c.put(PROP_num_enzyme_termini, "0 for non-enzymatic, 1 for semi-enzymatic, and 2 for fully-enzymatic.");
-        c.put(PROP_allowed_missed_cleavage, "Allowed number of missed cleavages per peptide. Maximum value is 5.");
+        c.put(PROP_allowed_missed_cleavage_1, "Allowed number of missed cleavages per peptide. Maximum value is 5.");
+        c.put(PROP_allowed_missed_cleavage_2, "Allowed number of missed cleavages per peptide. Maximum value is 5.");
         c.put(PROP_clip_nTerm_M, "Specifies the trimming of a protein N-terminal methionine as a variable modification (0 or 1).");
         c.put(PROP_max_variable_mods_per_peptide, "Maximum total number of variable modifications per peptide.");
         c.put(PROP_max_variable_mods_combinations, "Maximum number of modified forms allowed for each peptide (up to 65534).");
@@ -616,19 +627,19 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     public String getSearchEnzymeCutAfter() {
-        return props.getProp(PROP_search_enzyme_cutafter, "KR").value;
+        return props.getProp(PROP_search_enzyme_cut_1, "KR").value;
     }
     
     public void setSearchEnzymeCutAfter(String v) {
-        props.setProp(PROP_search_enzyme_cutafter, v);
+        props.setProp(PROP_search_enzyme_cut_1, v);
     }
     
     public String getSearchEnzymeButNotAfter() {
-        return props.getProp(PROP_search_enzyme_butnotafter, "").value;
+        return props.getProp(PROP_search_enzyme_nocut_1, "").value;
     }
     
     public void setSearchEnzymeButNotAfter(String v) {
-        props.setProp(PROP_search_enzyme_butnotafter, v);
+        props.setProp(PROP_search_enzyme_nocut_1, v);
     }
     
     public CleavageType getNumEnzymeTermini() {
@@ -644,11 +655,11 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     public int getAllowedMissedCleavage() {
-        return Integer.parseInt(props.getProp(PROP_allowed_missed_cleavage, "1").value);
+        return Integer.parseInt(props.getProp(PROP_allowed_missed_cleavage_1, "1").value);
     }
     
     public void setAllowedMissedCleavage(int v) {
-        props.setProp(PROP_allowed_missed_cleavage, Integer.toString(v));
+        props.setProp(PROP_allowed_missed_cleavage_1, Integer.toString(v));
     }
     
     public boolean getClipNTermM() {

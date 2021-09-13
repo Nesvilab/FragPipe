@@ -20,6 +20,7 @@ package com.dmtavt.fragpipe.tools.enums;
  * @author Dmitry Avtonomov
  */
 public enum CleavageType {
+  SEMI_N_TERM(3),
   ENZYMATIC(2),
   SEMI(1),
   NON_SPECIFIC(0);
