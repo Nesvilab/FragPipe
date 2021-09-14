@@ -769,23 +769,23 @@ public class TabMsfragger extends JPanelBase {
             "Values:<br/>\n" +
             "<ul>\n" +
             "<li>A-Z amino acid codes</li>\n" +
-            "<li>*​ ​is​ ​used​ ​to​ ​represent​ ​any​ ​amino​ ​acid</li>\n" +
-            "<li>^​ ​is​ ​used​ ​to​ ​represent​ ​a​ ​terminus</li>\n" +
-            "<li>[​ ​is​ ​a​ ​modifier​ ​for​ ​protein​ ​N-terminal</li>\n" +
-            "<li>]​ ​is​ ​a​ ​modifier​ ​for​ ​protein​ ​C-terminal</li>\n" +
-            "<li>n​ ​is​ ​a​ ​modifier​ ​for​ ​peptide​ ​N-terminal</li>\n" +
-            "<li>c​ ​is​ ​a​ ​modifier​ ​for​ ​peptide​ ​C-terminal</li>\n" +
+            "<li>* is used to represent any amino acid</li>\n" +
+            "<li>^ is used to represent a terminus</li>\n" +
+            "<li>[ is a modifier for protein N-terminal</li>\n" +
+            "<li>] is a modifier for protein C-terminal</li>\n" +
+            "<li>n is a modifier for peptide N-terminal</li>\n" +
+            "<li>c is a modifier for peptide C-terminal</li>\n" +
             "</ul>\n" +
-            "Syntax​ ​Examples:\n" +
+            "Syntax Examples:\n" +
             "<ul>\n" +
-            "<li>15.9949​ ​M​ ​3(for​ ​oxidation​ ​on​ ​methionine)</li>\n" +
-            "<li>79.66331​ ​STY​ 1​(for​ ​phosphorylation)</li>\n" +
-            "<li>-17.0265​ ​nQnC​ ​1(for​ ​pyro-Glu​ ​or​ ​loss​ ​of​ ​ammonia​ ​at peptide​ ​N-terminal)</li>\n" +
+            "<li>15.9949 M 3(for oxidation on methionine)</li>\n" +
+            "<li>79.66331 STY 1(for phosphorylation)</li>\n" +
+            "<li>-17.0265 nQnC 1(for pyro-Glu or loss of ammonia at peptide N-terminal)</li>\n" +
             "</ul>\n" +
-            "Example​ ​(M​ ​oxidation​ ​and​ ​N-terminal​ ​acetylation):\n" +
+            "Example (M oxidation and N-terminal acetylation):\n" +
             "<ul>\n" +
-            "<li>variable_mod_01​ ​=​ ​15.9949​ ​M 3</li>\n" +
-            "<li>variable_mod_02​ ​=​ ​42.0106​ ​[^ 1</li>\n" +
+            "<li>variable_mod_01 = 15.9949 M 3</li>\n" +
+            "<li>variable_mod_02 = 42.0106 [^ 1</li>\n" +
             "</ul>");
     t.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
     t.setDefaultRenderer(Integer.class, new TableCellIntRenderer());
