@@ -180,6 +180,8 @@ public class MsfraggerParams extends AbstractParams {
         PROP_num_enzyme_termini,
         PROP_allowed_missed_cleavage_1,
         PROP_allowed_missed_cleavage_2,
+        PROP_search_enzyme_sense_1,
+        PROP_search_enzyme_sense_2,
         PROP_clip_nTerm_M,
         PROP_variable_mod,
         PROP_max_variable_mods_per_peptide,
@@ -332,6 +334,8 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_num_enzyme_termini, "0 for non-enzymatic, 1 for semi-enzymatic, and 2 for fully-enzymatic.");
         c.put(PROP_allowed_missed_cleavage_1, "First enzyme's allowed number of missed cleavages per peptide. Maximum value is 5.");
         c.put(PROP_allowed_missed_cleavage_2, "Second enzyme's allowed number of missed cleavages per peptide. Maximum value is 5.");
+        c.put(PROP_search_enzyme_sense_1, "First enzyme's cutting terminal.");
+        c.put(PROP_search_enzyme_sense_2, "Second enzyme's cutting terminal.");
         c.put(PROP_clip_nTerm_M, "Specifies the trimming of a protein N-terminal methionine as a variable modification (0 or 1).");
         c.put(PROP_max_variable_mods_per_peptide, "Maximum total number of variable modifications per peptide.");
         c.put(PROP_max_variable_mods_combinations, "Maximum number of modified forms allowed for each peptide (up to 65534).");
