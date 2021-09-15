@@ -133,7 +133,8 @@ public class TabMsfragger extends JPanelBase {
   private static final String PROP_misc_fragger_clear_mz_hi = "misc.fragger.clear-mz-hi";
   private static final String PROP_misc_fragger_precursor_charge_lo = "misc.fragger.precursor-charge-lo";
   private static final String PROP_misc_fragger_precursor_charge_hi = "misc.fragger.precursor-charge-hi";
-  private static final String PROP_misc_fragger_enzyme_dropdown = "misc.fragger.enzyme-dropdown";
+  private static final String PROP_misc_fragger_enzyme_dropdown_1 = "misc.fragger.enzyme-dropdown-1";
+  private static final String PROP_misc_fragger_enzyme_dropdown_2 = "misc.fragger.enzyme-dropdown-2";
   private static final String TAB_PREFIX = "msfragger.";
   private static final Set<String> PROPS_MISC_NAMES;
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
@@ -535,7 +536,7 @@ public class TabMsfragger extends JPanelBase {
         .filter(e -> e.name.toLowerCase().startsWith("trypsin"))
         .min(Comparator.comparing(o -> o.name));
     trypsin.ifPresent(msfraggerEnzyme -> uiComboEnzymes.setSelectedItem(msfraggerEnzyme.name));
-    FormEntry feEnzymeList = mu.feb(PROP_misc_fragger_enzyme_dropdown, uiComboEnzymes)
+    FormEntry feEnzymeList = mu.feb(PROP_misc_fragger_enzyme_dropdown_1, uiComboEnzymes)
         .label("Load rules")
         .tooltip("<html>Load one of default definitions of enzyme cleavage rules.\n"
             + "You can still edit the name and rules manually after loading.\n"
@@ -568,7 +569,7 @@ public class TabMsfragger extends JPanelBase {
                     //.filter(name -> !"custom".equals(name))
                     .collect(Collectors.toList()));
     trypsin.ifPresent(msfraggerEnzyme -> uiComboEnzymes2.setSelectedItem(msfraggerEnzyme.name));
-    FormEntry feEnzymeList2 = mu.feb(PROP_misc_fragger_enzyme_dropdown+"_2", uiComboEnzymes2)
+    FormEntry feEnzymeList2 = mu.feb(PROP_misc_fragger_enzyme_dropdown_2, uiComboEnzymes2)
         .label("Load rules")
         .tooltip("<html>Load one of default definitions of enzyme cleavage rules.\n"
             + "You can still edit the name and rules manually after loading.\n"
