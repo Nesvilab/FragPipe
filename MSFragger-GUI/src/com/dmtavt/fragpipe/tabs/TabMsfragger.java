@@ -623,13 +623,13 @@ public class TabMsfragger extends JPanelBase {
 
     uiTextEnzymeName = new UiText();
     FormEntry feEnzymeName = mu.feb(MsfraggerParams.PROP_search_enzyme_name, uiTextEnzymeName).label("Enzyme name").create();
-    uiTextCuts = UiUtils.uiTextBuilder().cols(3).filter("[^A-Z-]").text("KR").create();
+    uiTextCuts = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z-]").text("KR").create();
     uiTextCuts.addFocusListener(enzymeSpecFocusListener);
-    FormEntry feCuts = mu.feb(MsfraggerParams.PROP_search_enzyme_cut_1, uiTextCuts).label("Cuts")
+    FormEntry feCuts = mu.feb(MsfraggerParams.PROP_search_enzyme_cut_1, uiTextCuts).label("Cuts 1")
         .tooltip("Capital letters for amino acids after which the enzyme cuts.").create();
     uiTextNocuts = UiUtils.uiTextBuilder().cols(3).filter("[^A-Z-]").text("P").create();
     uiTextNocuts.addFocusListener(enzymeSpecFocusListener);
-    FormEntry feNocuts = mu.feb(MsfraggerParams.PROP_search_enzyme_nocut_1, uiTextNocuts).label("No cuts")
+    FormEntry feNocuts = mu.feb(MsfraggerParams.PROP_search_enzyme_nocut_1, uiTextNocuts).label("No cuts 1")
         .tooltip("Amino acids before which the enzyme won't cut.").create();
 
     List<String> cleavageTypeNames = Arrays.stream(CleavageType.values()).map(Enum::name)
@@ -638,13 +638,13 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feCleavageType = mu.feb(MsfraggerParams.PROP_num_enzyme_termini, uiComboCleavage).label("Cleavage").create();
     UiSpinnerInt uiSpinnerMissedCleavages = new UiSpinnerInt(2, 0, 1000, 1);
     uiSpinnerMissedCleavages.setColumns(2);
-    FormEntry feMissedCleavages = mu.feb(MsfraggerParams.PROP_allowed_missed_cleavage_1, uiSpinnerMissedCleavages).label("Missed cleavages").create();
+    FormEntry feMissedCleavages = mu.feb(MsfraggerParams.PROP_allowed_missed_cleavage_1, uiSpinnerMissedCleavages).label("Missed cleavages 1").create();
     uiComboSense = UiUtils.createUiCombo(new String[]{"N","C"});
     FormEntry feSense = mu.feb(MsfraggerParams.PROP_search_enzyme_sense_1, uiComboSense).label("Sense 1").create();
 
 //    uiTextEnzymeName2 = new UiText();
 //    FormEntry feEnzymeName2 = mu.feb(MsfraggerParams.PROP_search_enzyme_name, uiTextEnzymeName2).label("Enzyme name 2").create();
-    uiTextCuts2 = UiUtils.uiTextBuilder().cols(3).filter("[^A-Z-]").text("KR").create();
+    uiTextCuts2 = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z-]").text("KR").create();
     uiTextCuts2.addFocusListener(enzymeSpecFocusListener);
     FormEntry feCuts2 = mu.feb(MsfraggerParams.PROP_search_enzyme_cut_2, uiTextCuts2).label("Cuts 2")
         .tooltip("Capital letters for amino acids after which the enzyme cuts.").create();
@@ -684,9 +684,13 @@ public class TabMsfragger extends JPanelBase {
             + "Only use for very large databases (200MB+) or<br/>non-specific digestion.").create();
 
 
-    mu.add(p, feEnzymeName.label(), mu.ccL()).span(2).split(2);
-    mu.add(p, feEnzymeName.comp, mu.ccL()).minWidth("120px").wrap();
-//    mu.add(p, feEnzymeName.comp, mu.ccL()).minWidth("120px").split().spanX().wrap();
+    mu.add(p, feEnzymeName.label(), mu.ccL()).span(2).split(12);
+    mu.add(p, feEnzymeName.comp, mu.ccL()).minWidth("120px");
+    mu.add(p, feCleavageType.label(), mu.ccL());
+    mu.add(p, feCleavageType.comp).minWidth("100px");
+    mu.add(p, feClipM.comp).wrap();
+    mu.add(p, feClipM.comp).wrap();
+
     JPanel p2 = mu.newPanel(null, true);
     // BEGIN enzyme 1
     mu.add(p2, feEnzymeList.label(), mu.ccR()).span(2).split(2);
@@ -702,8 +706,6 @@ public class TabMsfragger extends JPanelBase {
 // BEGIN enzyme 2
     mu.add(p2, feEnzymeList2.label(), mu.ccR()).span(2).split(2);
     mu.add(p2, feEnzymeList2.comp);
-//    mu.add(p, feEnzymeName2.label(), mu.ccR());
-//    mu.add(p, feEnzymeName2.comp).minWidth("120px").split().spanX();
     mu.add(p2, feCuts2.label()).gapLeft("5px");
     mu.add(p2, feCuts2.comp);
     mu.add(p2, feNocuts2.label());
@@ -714,12 +716,8 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p2, feSense2.comp).split(2).spanX().wrap();
 // END enzyme 2
     mu.add(p,p2).wrap();
-    mu.add(p, feCleavageType.label(), mu.ccL()).split(12);
-    mu.add(p, feCleavageType.comp).minWidth("120px");
 
-    mu.add(p, feClipM.comp).gapLeft("5px");
-
-    mu.add(p, fePepLenMin.label(), mu.ccR());
+    mu.add(p, fePepLenMin.label(), mu.ccL()).split(12);
     mu.add(p, fePepLenMin.comp).split(3);
     mu.add(p, new JLabel("-"));
     mu.add(p, fePepLenMax.comp);
