@@ -22,8 +22,8 @@ package com.dmtavt.fragpipe.tools.enums;
 public enum CleavageType {
   ENZYMATIC(2),
   SEMI(1),
-  NON_SPECIFIC(0);
   SEMI_N_TERM(3),
+  NONSPECIFIC(0);
 
   private final int numEnzymeTermini;
 

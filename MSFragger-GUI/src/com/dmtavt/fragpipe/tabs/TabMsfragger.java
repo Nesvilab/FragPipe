@@ -559,7 +559,7 @@ public class TabMsfragger extends JPanelBase {
         uiTextCuts.setText(enzyme.cut);
         uiTextNocuts.setText(enzyme.nocuts);
         uiComboSense.setSelectedItem(enzyme.sense);
-        uiComboCleavage.setSelectedItem(("nonspecific".equals(item) || "custom".equals(item)) ? CleavageType.NON_SPECIFIC.name() : CleavageType.ENZYMATIC.name());
+        uiComboCleavage.setSelectedItem(("nonspecific".equals(item) || "custom".equals(item)) ? CleavageType.NONSPECIFIC.name() : CleavageType.ENZYMATIC.name());
       }
     });
 
