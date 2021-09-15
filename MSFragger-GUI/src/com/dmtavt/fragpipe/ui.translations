@@ -26,9 +26,10 @@ msfragger.deisotope :: Yes, use charge 1 and 2 for undeisotoped peaks <=> 2
 msfragger.deneutralloss :: Yes <=> 1
 msfragger.deneutralloss :: No <=> 0
 
+msfragger.num_enzyme_termini :: SEMI_N_TERM <=> 3
 msfragger.num_enzyme_termini :: ENZYMATIC <=> 2
 msfragger.num_enzyme_termini :: SEMI <=> 1
-msfragger.num_enzyme_termini :: NON_SPECIFIC <=> 0
+msfragger.num_enzyme_termini :: NONSPECIFIC <=> 0
 msfragger.output_format :: PEPXML <=> pepXML
 msfragger.output_format :: TSV <=> tsv
 msfragger.output_format :: TSV_PEPXML <=> tsv_pepXML
