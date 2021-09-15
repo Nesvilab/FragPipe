@@ -630,22 +630,6 @@ public class MsfraggerParams extends AbstractParams {
         props.setProp(PROP_search_enzyme_name, v);
     }
     
-    public String getSearchEnzymeCutAfter() {
-        return props.getProp(PROP_search_enzyme_cut_1, "KR").value;
-    }
-    
-    public void setSearchEnzymeCutAfter(String v) {
-        props.setProp(PROP_search_enzyme_cut_1, v);
-    }
-    
-    public String getSearchEnzymeButNotAfter() {
-        return props.getProp(PROP_search_enzyme_nocut_1, "").value;
-    }
-    
-    public void setSearchEnzymeButNotAfter(String v) {
-        props.setProp(PROP_search_enzyme_nocut_1, v);
-    }
-    
     public CleavageType getNumEnzymeTermini() {
         int v = Integer.parseInt(props.getProp(PROP_num_enzyme_termini, "2").value);
         for (CleavageType ct : CleavageType.values())
@@ -656,14 +640,6 @@ public class MsfraggerParams extends AbstractParams {
     
     public void setNumEnzymeTermini(CleavageType ct) {
         props.setProp(PROP_num_enzyme_termini, Integer.toString(ct.valueInParamsFile()));
-    }
-    
-    public int getAllowedMissedCleavage() {
-        return Integer.parseInt(props.getProp(PROP_allowed_missed_cleavage_1, "1").value);
-    }
-    
-    public void setAllowedMissedCleavage(int v) {
-        props.setProp(PROP_allowed_missed_cleavage_1, Integer.toString(v));
     }
     
     public boolean getClipNTermM() {
