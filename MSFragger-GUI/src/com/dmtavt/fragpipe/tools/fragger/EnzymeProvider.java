@@ -33,10 +33,8 @@ public class EnzymeProvider implements Supplier<List<MsfraggerEnzyme>> {
         nocuts = mNocuts.group(1).trim().toUpperCase();
       }
       Matcher mSense = reSense.matcher(val);
-      if (mSense.find() && "N".equals(mSense.group(1).trim().toUpperCase())) {
-        throw new IllegalStateException("Enzyme definition file contained Sense(N) enzyme");
-      }
-      return new MsfraggerEnzyme(name.trim(), cut, nocuts);
+      final String sense = mSense.find() ? mSense.group(1).trim().toUpperCase() : null;
+      return new MsfraggerEnzyme(name.trim(), cut, nocuts, sense);
 
     }).collect(Collectors.toList());
 

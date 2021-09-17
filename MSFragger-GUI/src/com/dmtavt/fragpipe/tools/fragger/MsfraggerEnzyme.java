@@ -6,12 +6,13 @@ public class MsfraggerEnzyme {
   public final String name;
   public final String cut;
   public final String nocuts;
-  public final String sense = "C";
+  public final String sense;
 
-  public MsfraggerEnzyme(String name, String cut, String nocuts) {
+  public MsfraggerEnzyme(String name, String cut, String nocuts, String sense) {
     this.name = name;
     this.cut = cut;
     this.nocuts = nocuts;
+    this.sense = sense;
   }
 
   @Override

@@ -606,7 +606,7 @@ public class TabMsfragger extends JPanelBase {
         final String nocuts = StringUtils.sortedChars(uiTextNocuts.getNonGhostText());
         List<MsfraggerEnzyme> enzymes = ENZYMES.stream()
             .map(e -> new MsfraggerEnzyme(e.name, StringUtils.sortedChars(e.cut),
-                StringUtils.sortedChars(e.nocuts)))
+                StringUtils.sortedChars(e.nocuts), e.sense))
             .collect(Collectors.toList());
         List<String> matching = enzymes.stream()
             .filter(e -> e.cut.equals(cuts) && e.nocuts.equals(nocuts))
