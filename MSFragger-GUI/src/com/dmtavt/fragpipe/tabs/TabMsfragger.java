@@ -560,7 +560,7 @@ public class TabMsfragger extends JPanelBase {
         uiTextCuts.setText(enzyme.cut);
         uiTextNocuts.setText(enzyme.nocuts);
         uiComboSense.setSelectedItem(enzyme.sense);
-        uiComboCleavage.setSelectedItem(("nonspecific".equals(item) || "custom".equals(item)) ? CleavageType.NONSPECIFIC.name() : CleavageType.ENZYMATIC.name());
+        uiComboCleavage.setSelectedItem("nonspecific".equals(item) ? CleavageType.NONSPECIFIC.name() : CleavageType.ENZYMATIC.name());
       }
     });
 
@@ -593,7 +593,7 @@ public class TabMsfragger extends JPanelBase {
         uiTextCuts2.setText(enzyme.cut);
         uiTextNocuts2.setText(enzyme.nocuts);
         uiComboSense2.setSelectedItem(enzyme.sense);
-        uiComboCleavage.setSelectedItem(("nonspecific".equals(item) || "custom".equals(item)) ? CleavageType.NONSPECIFIC.name() : CleavageType.ENZYMATIC.name());
+        uiComboCleavage.setSelectedItem("nonspecific".equals(item) ? CleavageType.NONSPECIFIC.name() : CleavageType.ENZYMATIC.name());
       }
     });
 
