@@ -62,7 +62,7 @@ To quantify localized phosphorylation sites (or other PTMs), PTM-Prophet is used
 
 `--keepold --static --fragppmtol 15 --em 1 --nions b --mods STY:79.966331,M:15.9949 --minprob 0.5`
 
-where modification masses are specified with their respective modified residues.
+where modification masses are specified with their respective modified residues. Modification masses specified here for PTM-Prophet should exactly match those set in the Variable modifications section of the MSFragger tab.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-validation.png)
 
@@ -79,9 +79,12 @@ Median centering normalization is recommend and set as the default.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-quant.png)
 
-In the PTMs section (on the 'Quant' tab), 'Mod tag' needs to be set for the modification of interest. For example, the Mod tag for phosphorylation is `S(79.9663),T(79.9663),Y(79.9663)` (formerly `S[167],T[181],Y[243]`). To generate reports for modified sites regardless of whether they have been localized by PTM-Prophet (or if the PTM-Prophet step is not included in your analysis), set the 'Min site probability' to 0. See the phospho example below:
+In the PTMs section (on the 'Quant' tab), 'Mod tag' needs to be set for the modification of interest. Mod tags consist of the modified residue plus the modification mass to four decimal places. For example, the Mod tag for phosphorylation is `S(79.9663),T(79.9663),Y(79.9663)` (formerly `S[167],T[181],Y[243]`). To use PTM-Prophet localization (Min site probability > 0), the PTMs listed in Mod tag must also be set in the Validation tab. See the phospho example below (and the corresponding PTM-Prophet/Validation settings above):
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-quant-phospho.png)
+
+To generate reports for modified sites found by the MSFragger search regardless of whether they have been localized by PTM-Prophet (or if the PTM-Prophet step is not included in your analysis), set the 'Min site probability' to 0. To generate global reports (peptide, protein, and gene; no PTM site-specific reports), set 'Min site probability' to -1. 
+
 
 <br>
 
