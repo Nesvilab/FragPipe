@@ -1770,5 +1770,8 @@ public class TabMsfragger extends JPanelBase {
   public String getEnzymeName() {
     return uiTextEnzymeName.getNonGhostText();
   }
+  public String getEnzymeCut2() {
+    return uiTextCuts2.getNonGhostText();
+  }
 
 }

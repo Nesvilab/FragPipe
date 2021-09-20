@@ -3,7 +3,10 @@ package com.dmtavt.fragpipe.cmd;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.exceptions.NoStickyException;
+import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.process.ProcessManager;
+import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tools.pepproph.PeptideProphetParams;
 import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
 import com.dmtavt.fragpipe.util.RewritePepxml;
@@ -352,14 +355,22 @@ public class CmdPeptideProphet extends CmdBase {
         }
       }
     }
-
+    final TabMsfragger tabMsfragger;
+    try {
+      tabMsfragger = Fragpipe.getSticky(TabMsfragger.class);
+    } catch (NoStickyException e) {
+      throw new RuntimeException(e);
+    }
     final String optNontt = "--nontt";
+    final String optNonmc = "--nonmc";
     final String optEnzyme = "--enzyme";
     final String nonspecific = "nonspecific";
-    if (nonspecific.equals(enzymeName)) {
+    if (nonspecific.equals(enzymeName) || !StringUtils.isNullOrWhitespace(tabMsfragger.getEnzymeCut2())) {
       addToListIfNotThere(cmd, optNontt);
+      addToListIfNotThere(cmd, optNonmc);
     } else if ("custom".equals(enzymeName)) {
       addToListIfNotThere(cmd, optNontt);
+      addToListIfNotThere(cmd, optNonmc);
       if (addToListIfNotThere(cmd, optEnzyme)) {
         cmd.add(nonspecific);
       }
