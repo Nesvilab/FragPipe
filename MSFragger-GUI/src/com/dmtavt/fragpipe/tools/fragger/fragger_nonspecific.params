@@ -38,8 +38,8 @@ Y_type_masses =
 diagnostic_fragments =
 
 search_enzyme_name = nonspecific
-search_enzyme_cutafter =
-search_enzyme_butnotafter =
+search_enzyme_cut_1 =
+search_enzyme_nocut_1 =
 
 num_enzyme_termini = 0
 allowed_missed_cleavage = 2

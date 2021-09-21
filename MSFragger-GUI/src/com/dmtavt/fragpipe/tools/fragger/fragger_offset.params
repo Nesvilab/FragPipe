@@ -38,8 +38,8 @@ Y_type_masses =
 diagnostic_fragments =
 
 search_enzyme_name = stricttrypsin
-search_enzyme_cutafter = KR
-search_enzyme_butnotafter =
+search_enzyme_cut_1 = KR
+search_enzyme_nocut_1 =
 
 num_enzyme_termini = 2
 allowed_missed_cleavage = 2
