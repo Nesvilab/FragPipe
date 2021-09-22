@@ -212,6 +212,10 @@ public class Props {
                 if (name.contentEquals("num_threads")) {
                     value = String.valueOf(Runtime.getRuntime().availableProcessors() -1);
                 }
+                if (name.contentEquals("search_enzyme_cutafter"))
+                    name = "search_enzyme_cut_1";
+                if (name.contentEquals("search_enzyme_butnotafter"))
+                    name = "search_enzyme_nocut_1";
                 Prop p = new Prop(name, value, true, m.group(3));
                 map.put(p.name, p);
                 propOrdering.add(p.name);
