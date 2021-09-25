@@ -562,7 +562,9 @@ public class FragpipeRun {
       toConsole(Fragpipe.COLOR_WORKDIR, " [Work dir: " + pbi.pb.directory() + "]", false);
     }
     toConsole("");
-    final String cmd = org.apache.commons.lang3.StringUtils.join(pbi.pb.command(), " ");
+    final String cmd = pbi.pb.command().stream()
+            .map(e -> OsUtils.isUnix() && Pattern.matches(".*\\s.*", e) ? "\"" + e + "\"" : e) // insert quotes for arguments with whitespace
+            .collect(Collectors.joining(" "));
     toConsole(Fragpipe.COLOR_CMDLINE, cmd, true);
   }
 
