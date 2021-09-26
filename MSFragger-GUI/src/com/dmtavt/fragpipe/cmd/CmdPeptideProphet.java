@@ -123,43 +123,40 @@ public class CmdPeptideProphet extends CmdBase {
       data[++index][0] = path.toString();
     }
 
-    if (!forDeletion.isEmpty()) {
-      DefaultTableModel model = new DefaultTableModel(data, new String[] {"To be deleted"});
-      JTable table = new JTable(model);
-      table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-      JPanel panel = new JPanel(new BorderLayout());
-      panel.add(new JLabel("<html>Found " + forDeletion.size() + " old pep-xml files.<br/>"
-          + "This might cause problems depending on the selected options.<br/>"
-          + "It's recommended to delete the files first.<br/><br/>"
-          + "<ul><li><b>Yes</b> - delete files now</li>"
-          + "<li><b>No</b> - continue without deleting files</li>"
-          + "<li><b>Cancel</b> - stop and don't run anything</li></ul>"
-          ), BorderLayout.NORTH);
-      panel.add(Box.createVerticalStrut(100), BorderLayout.CENTER);
-      panel.add(new JScrollPane(table), BorderLayout.CENTER);
+    DefaultTableModel model = new DefaultTableModel(data, new String[] {"To be deleted"});
+    JTable table = new JTable(model);
+    table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+    JPanel panel = new JPanel(new BorderLayout());
+    panel.add(new JLabel("<html>Found " + forDeletion.size() + " old pep.xml files.<br/>"
+        + "This might cause problems depending on the selected options.<br/>"
+        + "It's recommended to delete the files first.<br/><br/>"
+        + "<ul><li><b>Yes</b> - delete files now</li>"
+        + "<li><b>No</b> - continue without deleting files</li>"
+        + "<li><b>Cancel</b> - stop and don't run anything</li></ul>"
+        ), BorderLayout.NORTH);
+    panel.add(Box.createVerticalStrut(100), BorderLayout.CENTER);
+    panel.add(new JScrollPane(table), BorderLayout.CENTER);
 
-      String[] options = {"Yes - Delete now", "No - Continue as is", "Cancel"};
-      int confirmation = JOptionPane
-          .showOptionDialog(comp, panel, "Delete the files?",
-              JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
-      switch (confirmation) {
-        case 0:
-          for (Path path : forDeletion) {
-            try {
-              Files.deleteIfExists(path);
-            } catch (IOException e) {
-              log.error("Error while trying to delete old files: {}", e.getMessage());
-              throw new IllegalStateException(e);
-            }
+    String[] options = {"Yes - Delete now", "No - Continue as is", "Cancel"};
+    int confirmation = JOptionPane
+        .showOptionDialog(comp, panel, "Delete the files?",
+            JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+    switch (confirmation) {
+      case 0:
+        for (Path path : forDeletion) {
+          try {
+            Files.deleteIfExists(path);
+          } catch (IOException e) {
+            log.error("Error while trying to delete old files: {}", e.getMessage());
+            throw new IllegalStateException(e);
           }
-          return true;
-        case 1:
-          return true;
-        case 2:
-          return false;
-      }
+        }
+        return true;
+      case 1:
+        return true;
+      default:
+        return false;
     }
-    return false;
   }
 
   /**
