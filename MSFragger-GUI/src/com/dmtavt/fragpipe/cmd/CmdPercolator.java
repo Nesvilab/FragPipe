@@ -104,7 +104,7 @@ public class CmdPercolator extends CmdBase {
     // check for existing pepxml files and delete them
     final Map<InputLcmsFile, List<Path>> outputs = outputs(pepxmlFiles, "pepxml", combine);
     final List<Path> forDeletion = findOldFilesForDeletion(outputs);
-    if (!deleteFiles(comp, forDeletion)) {
+    if (!deleteFiles(comp, forDeletion, "pep.xml")) {
       return false;
     }
 

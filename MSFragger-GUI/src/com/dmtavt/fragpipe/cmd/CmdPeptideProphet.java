@@ -113,7 +113,7 @@ public class CmdPeptideProphet extends CmdBase {
    * Asks user confirmation before deleting the files.
    * Shows all the file paths to be deleted.
    */
-  public static boolean deleteFiles(Component comp, List<Path> forDeletion) {
+  public static boolean deleteFiles(Component comp, List<Path> forDeletion, String tool) {
     if (forDeletion == null || forDeletion.isEmpty())
       return true;
 
@@ -127,7 +127,7 @@ public class CmdPeptideProphet extends CmdBase {
     JTable table = new JTable(model);
     table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
     JPanel panel = new JPanel(new BorderLayout());
-    panel.add(new JLabel("<html>Found " + forDeletion.size() + " old pep.xml files.<br/>"
+    panel.add(new JLabel("<html>Found " + forDeletion.size() + " old " + tool + " files.<br/>"
         + "This might cause problems depending on the selected options.<br/>"
         + "It's recommended to delete the files first.<br/><br/>"
         + "<ul><li><b>Yes</b> - delete files now</li>"
@@ -184,7 +184,7 @@ public class CmdPeptideProphet extends CmdBase {
     // check for existing pepxml files and delete them
     final Map<InputLcmsFile, List<Path>> outputs = outputs(pepxmlFiles, "pepxml", combine);
     final List<Path> forDeletion = findOldFilesForDeletion(outputs);
-    if (!deleteFiles(comp, forDeletion)) {
+    if (!deleteFiles(comp, forDeletion, "pep.xml")) {
       return false;
     }
 

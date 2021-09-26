@@ -48,7 +48,7 @@ public class CmdPtmProphet extends CmdBase {
           forDeletion.addAll(Files.list(workDir).filter(file -> file.toString().endsWith("mod.pep.xml")).collect(Collectors.toList()));
         }
       }
-      if (!deleteFiles(comp, forDeletion)) {
+      if (!deleteFiles(comp, forDeletion, "pep.xml")) {
         return false;
       }
     } catch (IOException e) {

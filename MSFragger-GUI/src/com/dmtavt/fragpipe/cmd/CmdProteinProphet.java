@@ -1,5 +1,7 @@
 package com.dmtavt.fragpipe.cmd;
 
+import static com.dmtavt.fragpipe.cmd.CmdPeptideProphet.deleteFiles;
+
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
@@ -7,7 +9,6 @@ import com.dmtavt.fragpipe.tools.protproph.ProteinProphetParams;
 import com.github.chhh.utils.FileListing;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.UsageTrigger;
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -25,13 +26,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.swing.Box;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,56 +93,6 @@ public class CmdProteinProphet extends CmdBase {
     return toDelete;
   }
 
-  /**
-   * Asks user confirmation before deleting the files.
-   * Shows all the file paths to be deleted.
-   */
-  private boolean deleteFiles(Component comp, List<Path> forDeletion) {
-    if (forDeletion == null || forDeletion.isEmpty())
-      return true;
-
-    String[][] data = new String[forDeletion.size()][1];
-    int index = -1;
-    for (Path path : forDeletion) {
-      data[++index][0] = path.toString();
-    }
-
-    DefaultTableModel model = new DefaultTableModel(data, new String[] {"To be deleted"});
-    JTable table = new JTable(model);
-    table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-    JPanel panel = new JPanel(new BorderLayout());
-    panel.add(new JLabel("<html>Found " + forDeletion.size() + " old prot.xml files.<br/>"
-        + "This might cause problems depending on the selected options.<br/>"
-        + "It's recommended to delete the files first.<br/><br/>"
-        + "<ul><li><b>Yes</b> - delete files now</li>"
-        + "<li><b>No</b> - continue without deleting files</li>"
-        + "<li><b>Cancel</b> - stop and don't run anything</li></ul>"
-    ), BorderLayout.NORTH);
-    panel.add(Box.createVerticalStrut(100), BorderLayout.CENTER);
-    panel.add(new JScrollPane(table), BorderLayout.CENTER);
-
-    String[] options = {"Yes - Delete now", "No - Continue as is", "Cancel"};
-    int confirmation = JOptionPane
-        .showOptionDialog(comp, panel, "Delete the files?",
-            JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
-    switch (confirmation) {
-      case 0:
-        for (Path path : forDeletion) {
-          try {
-            Files.deleteIfExists(path);
-          } catch (IOException e) {
-            log.error("Error while trying to delete old files: {}", e.getMessage());
-            throw new IllegalStateException(e);
-          }
-        }
-        return true;
-      case 1:
-        return true;
-      default:
-        return false;
-    }
-  }
-
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
       String txtProteinProphetCmdLineOpts, boolean isMultiExperiment, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
 
@@ -156,7 +101,7 @@ public class CmdProteinProphet extends CmdBase {
     // check for existence of old files
     final Map<LcmsFileGroup, Path> outputs = outputs(pepxmlFiles, isMultiExperiment);
     final List<Path> oldFilesForDeletion = findOldFilesForDeletion(new ArrayList<>(outputs.values()));
-    if (!deleteFiles(comp, oldFilesForDeletion)) {
+    if (!deleteFiles(comp, oldFilesForDeletion, "prot.xml")) {
       return false;
     }
 
