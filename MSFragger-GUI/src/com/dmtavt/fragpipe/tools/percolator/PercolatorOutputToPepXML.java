@@ -100,23 +100,15 @@ public class PercolatorOutputToPepXML {
         return new Spectrum_rank(s.substring(0, s.lastIndexOf(".")), rank);
     }
 
-    private static int get_max_rank(final Path pin){
-        int max_rank0 = -1;
-        try (final BufferedReader brtsv = Files.newBufferedReader(pin)) {
-            final String pin_header = brtsv.readLine();
-            final List<String> colnames = Arrays.asList(pin_header.split("\t"));
-            final int indexOf_SpecId = colnames.indexOf("SpecId");
-            String line;
-            while ((line = brtsv.readLine()) != null) {
-                final String[] split = line.split("\t");
-                final String raw_SpecId = split[indexOf_SpecId];
-                final Spectrum_rank spectrum_rank = get_spectrum_rank(raw_SpecId);
-                max_rank0 = Math.max(spectrum_rank.rank, max_rank0);
+    private static int get_max_rank_DIA(final String basename) {
+        for (int i = 1; ; ++i) {
+            final Path path = Paths.get(basename + "_rank" + i + ".pepXML");
+            if (!Files.exists(path)) {
+                if (i == 1)
+                    throw new RuntimeException("No MsFragger ranked pepXML found");
+                return i - 1;
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
-        return max_rank0;
     }
 
     private static String handle_sqectrum_query(final List<String> sq,
@@ -196,7 +188,8 @@ public class PercolatorOutputToPepXML {
                                           final String DIA_DDA) {
 
         // get max rank from pin
-        final int max_rank = get_max_rank(pin);
+        final boolean is_DIA = DIA_DDA.equals("DIA");
+        final int max_rank = is_DIA ? get_max_rank_DIA(basename) : 1;
 
         final Map<String, Object[][]> pin_tsv_dict_r = new HashMap<>();
 
@@ -244,7 +237,7 @@ public class PercolatorOutputToPepXML {
                 throw new UncheckedIOException(e);
             }
         }
-        final boolean is_DIA = DIA_DDA.equals("DIA");
+
         for (int rank = 1; rank <= max_rank; ++rank) {
             final Path output_rank = is_DIA ? Paths.get(outBasename + "_rank" + rank + ".pep.xml") :
                     Paths.get(outBasename + ".pep.xml");
