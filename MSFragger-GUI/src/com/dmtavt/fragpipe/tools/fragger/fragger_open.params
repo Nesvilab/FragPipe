@@ -37,12 +37,19 @@ diagnostic_intensity_filter = 0.0
 Y_type_masses =
 diagnostic_fragments =
 
-search_enzyme_name = stricttrypsin
+search_enzyme_name_1 = stricttrypsin
 search_enzyme_cut_1 = KR
 search_enzyme_nocut_1 =
+search_enzyme_sense_1 = C
+allowed_missed_cleavage_1 = 2
+
+search_enzyme_name_2 = null
+search_enzyme_cut_2 =
+search_enzyme_nocut_2 =
+search_enzyme_sense_2 = C
+allowed_missed_cleavage_2 = 2
 
 num_enzyme_termini = 2
-allowed_missed_cleavage = 2
 
 clip_nTerm_M = 1 
 
