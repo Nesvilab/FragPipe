@@ -1,4 +1,5 @@
 custom : cut() nocuts() sense(C)
+null: cut() nocuts() sense(C)
 
 trypsin : cut(KR) nocuts(P) sense(C)
 stricttrypsin : cut(KR) sense(C)
