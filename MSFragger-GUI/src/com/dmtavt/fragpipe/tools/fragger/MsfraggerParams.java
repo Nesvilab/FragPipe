@@ -89,7 +89,8 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_deneutralloss = "deneutralloss";
     public static final String PROP_mass_offsets = "mass_offsets";
     public static final String PROP_precursor_mass_mode = "precursor_mass_mode";
-    public static final String PROP_search_enzyme_name = "search_enzyme_name";
+    public static final String PROP_search_enzyme_name_1 = "search_enzyme_name_1";
+    public static final String PROP_search_enzyme_name_2 = "search_enzyme_name_2";
     public static final String PROP_search_enzyme_cut_1 = "search_enzyme_cut_1";
     public static final String PROP_search_enzyme_nocut_1 = "search_enzyme_nocut_1";
     public static final String PROP_search_enzyme_cut_2 = "search_enzyme_cut_2";
@@ -172,7 +173,8 @@ public class MsfraggerParams extends AbstractParams {
         PROP_deneutralloss,
         PROP_mass_offsets,
         PROP_precursor_mass_mode,
-        PROP_search_enzyme_name,
+        PROP_search_enzyme_name_1,
+        PROP_search_enzyme_name_2,
         PROP_search_enzyme_cut_1,
         PROP_search_enzyme_nocut_1,
         PROP_search_enzyme_cut_2,
@@ -326,7 +328,8 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_delta_mass_exclude_ranges, "Exclude mass range for shifted ions searching.");
         c.put(PROP_fragment_ion_series, "Ion series used in search, specify any of a,b,c,x,y,z,b~,y~,Y,b-18,y-18 (comma separated).");
         c.put(PROP_ion_series_definitions, "User defined ion series. Example: \"b* N -17.026548;b0 N -18.010565\".");
-        c.put(PROP_search_enzyme_name, "Name of enzyme to be written to the pepXML file.");
+        c.put(PROP_search_enzyme_name_1, "Name of the first enzyme.");
+        c.put(PROP_search_enzyme_name_2, "Name of the second enzyme.");
         c.put(PROP_search_enzyme_cut_1, "First enzyme's cutting amino acid.");
         c.put(PROP_search_enzyme_nocut_1, "First enzyme's protecting amino acid.");
         c.put(PROP_search_enzyme_cut_2, "Second enzyme's cutting amino acid.");
@@ -620,14 +623,6 @@ public class MsfraggerParams extends AbstractParams {
         Prop v = props
             .getProp(PROP_precursor_mass_mode, FraggerPrecursorMassMode.isolated.name());
         return FraggerPrecursorMassMode.valueOf(v.value);
-    }
-
-    public String getSearchEnzymeName() {
-        return props.getProp(PROP_search_enzyme_name, "Trypsin").value;
-    }
-    
-    public void setSearchEnzymeName(String v) {
-        props.setProp(PROP_search_enzyme_name, v);
     }
     
     public CleavageType getNumEnzymeTermini() {

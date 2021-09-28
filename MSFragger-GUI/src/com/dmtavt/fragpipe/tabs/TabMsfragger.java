@@ -589,7 +589,7 @@ public class TabMsfragger extends JPanelBase {
             .filter(msfe -> msfe.name.equals(name)).findFirst()
             .orElseThrow(() -> new IllegalStateException(
                 "Enzymes list should have contained the name from dropdown"));
-        uiTextEnzymeName.setText(enzyme.name.equalsIgnoreCase("custom") ? "nonspecific" : enzyme.name);
+        uiTextEnzymeName2.setText(enzyme.name.equalsIgnoreCase("custom") ? "nonspecific" : enzyme.name);
         uiTextCuts2.setText(enzyme.cut);
         uiTextNocuts2.setText(enzyme.nocuts);
         uiComboSense2.setSelectedItem(enzyme.sense);
@@ -623,7 +623,7 @@ public class TabMsfragger extends JPanelBase {
     };
 
     uiTextEnzymeName = new UiText();
-    FormEntry feEnzymeName = mu.feb(MsfraggerParams.PROP_search_enzyme_name, uiTextEnzymeName).label("Enzyme name").create();
+    FormEntry feEnzymeName = mu.feb(MsfraggerParams.PROP_search_enzyme_name_1, uiTextEnzymeName).label("Enzyme name 1").create();
     uiTextCuts = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z-]").text("KR").create();
     uiTextCuts.addFocusListener(enzymeSpecFocusListener);
     FormEntry feCuts = mu.feb(MsfraggerParams.PROP_search_enzyme_cut_1, uiTextCuts).label("Cuts 1")
@@ -643,8 +643,8 @@ public class TabMsfragger extends JPanelBase {
     uiComboSense = UiUtils.createUiCombo(new String[]{"N","C"});
     FormEntry feSense = mu.feb(MsfraggerParams.PROP_search_enzyme_sense_1, uiComboSense).label("Sense 1").create();
 
-//    uiTextEnzymeName2 = new UiText();
-//    FormEntry feEnzymeName2 = mu.feb(MsfraggerParams.PROP_search_enzyme_name, uiTextEnzymeName2).label("Enzyme name 2").create();
+    uiTextEnzymeName2 = new UiText();
+    FormEntry feEnzymeName2 = mu.feb(MsfraggerParams.PROP_search_enzyme_name_2, uiTextEnzymeName2).label("Enzyme name 2").create();
     uiTextCuts2 = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z-]").text("KR").create();
     uiTextCuts2.addFocusListener(enzymeSpecFocusListener);
     FormEntry feCuts2 = mu.feb(MsfraggerParams.PROP_search_enzyme_cut_2, uiTextCuts2).label("Cuts 2")
@@ -685,16 +685,16 @@ public class TabMsfragger extends JPanelBase {
             + "Only use for very large databases (200MB+) or<br/>non-specific digestion.").create();
 
 
-    mu.add(p, feEnzymeName.label(), mu.ccL()).span(2).split(12);
-    mu.add(p, feEnzymeName.comp, mu.ccL()).minWidth("120px");
-    mu.add(p, feCleavageType.label(), mu.ccL());
+    mu.add(p, feCleavageType.label(), mu.ccL()).span(2).split(13);
     mu.add(p, feCleavageType.comp).minWidth("100px");
     mu.add(p, feClipM.comp).wrap();
     mu.add(p, feClipM.comp).wrap();
 
     JPanel p2 = mu.newPanel(null, true);
     // BEGIN enzyme 1
-    mu.add(p2, feEnzymeList.label(), mu.ccR()).span(2).split(2);
+    mu.add(p2, feEnzymeName.label(), mu.ccL()).span(2).split(2);
+    mu.add(p2, feEnzymeName.comp, mu.ccL()).minWidth("100px");
+    mu.add(p2, feEnzymeList.label(), mu.ccR());
     mu.add(p2, feEnzymeList.comp);
     mu.add(p2, feCuts.label()).gapLeft("5px");
     mu.add(p2, feCuts.comp);
@@ -704,8 +704,11 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p2, feMissedCleavages.comp).split(2);
     mu.add(p2, feSense.label(), mu.ccL());
     mu.add(p2, feSense.comp).split(2).spanX().wrap();
-// BEGIN enzyme 2
-    mu.add(p2, feEnzymeList2.label(), mu.ccR()).span(2).split(2);
+
+    // BEGIN enzyme 2
+    mu.add(p2, feEnzymeName2.label(), mu.ccL()).span(2).split(2);
+    mu.add(p2, feEnzymeName2.comp, mu.ccL()).minWidth("120px");
+    mu.add(p2, feEnzymeList2.label(), mu.ccR());
     mu.add(p2, feEnzymeList2.comp);
     mu.add(p2, feCuts2.label()).gapLeft("5px");
     mu.add(p2, feCuts2.comp);
