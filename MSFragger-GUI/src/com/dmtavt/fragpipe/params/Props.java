@@ -212,10 +212,24 @@ public class Props {
                 if (name.contentEquals("num_threads")) {
                     value = String.valueOf(Runtime.getRuntime().availableProcessors() -1);
                 }
-                if (name.contentEquals("search_enzyme_cutafter"))
+                if (name.contentEquals("search_enzyme_cutafter")) {
                     name = "search_enzyme_cut_1";
-                if (name.contentEquals("search_enzyme_butnotafter"))
+                    Prop p = new Prop("search_enzyme_cut_2", "", true, "");
+                    map.put(p.name, p);
+                    propOrdering.add(p.name);
+                }
+                if (name.contentEquals("search_enzyme_butnotafter")) {
                     name = "search_enzyme_nocut_1";
+                    Prop p = new Prop("search_enzyme_nocut_2", "", true, "");
+                    map.put(p.name, p);
+                    propOrdering.add(p.name);
+                }
+                if (name.contentEquals("search_enzyme_name")) {
+                    name = "search_enzyme_name_1";
+                    Prop p = new Prop("search_enzyme_name_2", "", true, "");
+                    map.put(p.name, p);
+                    propOrdering.add(p.name);
+                }
                 Prop p = new Prop(name, value, true, m.group(3));
                 map.put(p.name, p);
                 propOrdering.add(p.name);
