@@ -1,5 +1,7 @@
 package com.dmtavt.fragpipe.api;
 
+import com.dmtavt.fragpipe.tabs.TabMsfragger;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import java.io.BufferedOutputStream;
@@ -42,6 +44,12 @@ public class PropsFile extends Properties {
         this.load(br);
       }
     }
+    final String p1 = getProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_cut_1_deprecated);
+    if (p1 != null)
+      setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_cut_1, p1);
+    final String p2 = getProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_nocut_1_deprecated);
+    if (p2 != null)
+      setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_nocut_1, p2);
   }
 
   public void save() throws IOException {
