@@ -16,6 +16,7 @@
  */
 package com.dmtavt.fragpipe.params;
 
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.github.chhh.utils.StringUtils;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -213,20 +214,20 @@ public class Props {
                     value = String.valueOf(Runtime.getRuntime().availableProcessors() -1);
                 }
                 if (name.contentEquals("search_enzyme_cutafter")) {
-                    name = "search_enzyme_cut_1";
-                    Prop p = new Prop("search_enzyme_cut_2", "", true, "");
+                    name = MsfraggerParams.PROP_search_enzyme_cut_1;
+                    Prop p = new Prop(MsfraggerParams.PROP_search_enzyme_cut_2, "", true, "");
                     map.put(p.name, p);
                     propOrdering.add(p.name);
                 }
                 if (name.contentEquals("search_enzyme_butnotafter")) {
-                    name = "search_enzyme_nocut_1";
-                    Prop p = new Prop("search_enzyme_nocut_2", "", true, "");
+                    name = MsfraggerParams.PROP_search_enzyme_nocut_1;
+                    Prop p = new Prop(MsfraggerParams.PROP_search_enzyme_nocut_2, "", true, "");
                     map.put(p.name, p);
                     propOrdering.add(p.name);
                 }
                 if (name.contentEquals("search_enzyme_name")) {
-                    name = "search_enzyme_name_1";
-                    Prop p = new Prop("search_enzyme_name_2", "", true, "");
+                    name = MsfraggerParams.PROP_search_enzyme_name_1;
+                    Prop p = new Prop(MsfraggerParams.PROP_search_enzyme_name_2, "", true, "");
                     map.put(p.name, p);
                     propOrdering.add(p.name);
                 }
