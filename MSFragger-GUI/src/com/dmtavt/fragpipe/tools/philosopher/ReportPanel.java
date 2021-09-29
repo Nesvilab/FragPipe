@@ -143,7 +143,7 @@ public class ReportPanel extends JPanelBase {
     uiCheckPepSummary = new UiCheck("Generate peptide-level summary", null, false);
     FormEntry feCheckPepSummary = new FormEntry("pep-level-summary", "not-shown",
         uiCheckPepSummary,
-        "<html>Optional generation of combined.pep.xml files for multi-experiment setups.");
+        "<html>Optional generation of combined_peptide.tsv files for multi-experiment setups.");
 
     uiCheckMsstats = new UiCheck("Generate MSstats files", null, false);
     FormEntry feCheckMSstats = new FormEntry("philosoher-msstats", "not-shown",
