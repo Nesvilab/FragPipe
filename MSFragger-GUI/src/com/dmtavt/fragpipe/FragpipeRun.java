@@ -976,12 +976,11 @@ public class FragpipeRun {
 
     addConfig.accept(cmdPhilosopherAbacus, () -> {
       final boolean isMultiExpReport = sharedLcmsFileGroups.size() > 1;
-      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && isMultiExpReport && (!reportPanel.isNoProtXml() || reportPanel.isPepSummary());
+      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && isMultiExpReport && ((!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
       cmdPhilosopherAbacus.isRun(doRunAbacus);
 
       if (cmdPhilosopherAbacus.isRun()) {
-        return cmdPhilosopherAbacus.configure(parent, usePhi, reportPanel.getFilterCmdText(),
-            reportPanel.isPepSummary(), reportPanel.isNoProtXml(), decoyTag, sharedMapGroupsToProtxml);
+        return cmdPhilosopherAbacus.configure(parent, usePhi, reportPanel.getFilterCmdText(), reportPanel.isProtSummary(), reportPanel.isPepSummary(), reportPanel.isNoProtXml(), decoyTag, sharedMapGroupsToProtxml);
       }
       return true;
     });

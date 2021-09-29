@@ -41,6 +41,7 @@ public class ReportPanel extends JPanelBase {
   private JPanel pOptions;
   private UiText uiTextFilter;
   private UiCheck uiCheckPepSummary;
+  private UiCheck uiCheckProtSummary;
   private UiCheck uiCheckMsstats;
   private UiCheck uiCheckPrintDecoys;
   private UiCheck uiCheckDontUseProtProphFile;
@@ -99,6 +100,7 @@ public class ReportPanel extends JPanelBase {
     }
     uiTextFilter.setText(val);
     uiCheckPepSummary.setSelected(false);
+    uiCheckProtSummary.setSelected(true);
     checkRun.setSelected(true);
   }
 
@@ -145,6 +147,11 @@ public class ReportPanel extends JPanelBase {
         uiCheckPepSummary,
         "<html>Optional generation of combined_peptide.tsv files for multi-experiment setups.");
 
+    uiCheckProtSummary = new UiCheck("Generate protein-level summary", null, true);
+    FormEntry feCheckProtSummary = new FormEntry("prot-level-summary", "not-shown",
+        uiCheckProtSummary,
+        "<html>Generation of combined_protein.tsv files for multi-experiment setups.<br>Uncheck it if analyzing large dataset because Philosopher needs lots of memory to run.");
+
     uiCheckMsstats = new UiCheck("Generate MSstats files", null, false);
     FormEntry feCheckMSstats = new FormEntry("philosoher-msstats", "not-shown",
         uiCheckMsstats,
@@ -167,7 +174,8 @@ public class ReportPanel extends JPanelBase {
     mu.add(p, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
     mu.add(p, feCheckMSstats.comp);
     mu.add(p, feCheckPrintDecoys.comp);
-    mu.add(p, feCheckPepSummary.comp).wrap();
+    mu.add(p, feCheckPepSummary.comp);
+    mu.add(p, feCheckProtSummary.comp).wrap();
 
     return p;
   }
@@ -195,6 +203,10 @@ public class ReportPanel extends JPanelBase {
 
   public boolean isPepSummary() {
     return uiCheckPepSummary.isSelected();
+  }
+
+  public boolean isProtSummary() {
+    return uiCheckProtSummary.isSelected();
   }
 
   public boolean isNoProtXml() {

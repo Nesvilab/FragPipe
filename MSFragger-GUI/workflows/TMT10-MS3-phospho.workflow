@@ -137,6 +137,7 @@ phi-report.filter=--sequential --picked --prot 0.01
 phi-report.pep-level-summary=false
 phi-report.philosoher-msstats=false
 phi-report.print-decoys=false
+phi-report.prot-level-summary=false
 phi-report.run-report=true
 protein-prophet.cmd-opts=--maxppmdiff 2000000 --minprob 0.5
 protein-prophet.run-protein-prophet=true
