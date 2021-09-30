@@ -53,11 +53,14 @@ public class PropsFile extends Properties {
       remove(TabMsfragger.TAB_PREFIX + "allowed_missed_cleavage");
       setProperty(TabMsfragger.TAB_PREFIX + TabMsfragger.PROP_misc_fragger_enzyme_dropdown_1, getProperty(TabMsfragger.TAB_PREFIX + "misc.fragger.enzyme-dropdown"));
       remove(TabMsfragger.TAB_PREFIX + "misc.fragger.enzyme-dropdown");
+      setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_name_1, getProperty(TabMsfragger.TAB_PREFIX + "search_enzyme_name"));
+
       setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_cut_2, "");
       setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_nocut_2, "");
       setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_name_2, "null");
       setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_allowed_missed_cleavage_2, "2");
       setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_sense_2, "C");
+      setProperty(TabMsfragger.TAB_PREFIX + TabMsfragger.PROP_misc_fragger_enzyme_dropdown_2, "null");
     }
     final String p2 = getProperty(TabMsfragger.TAB_PREFIX + "search_enzyme_butnotafter");
     if (p2 != null) {
