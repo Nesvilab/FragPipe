@@ -608,7 +608,8 @@ public class TabConfig extends JPanelWithEnablement {
       }
     } else {
       sb.append("EasyPQP: <b>Not available</b><br>"
-          + "Please make sure that Python is installed, and then click the button below.<br>");
+          + "Please make sure that Python is installed, and then click the button below.<br>"
+          + "After installation <b>restart</b> FragPipe.<br>");
     }
     return sb.toString();
   }
