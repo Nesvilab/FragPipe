@@ -91,14 +91,11 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_precursor_mass_mode = "precursor_mass_mode";
     public static final String PROP_search_enzyme_name_1 = "search_enzyme_name_1";
     public static final String PROP_search_enzyme_name_2 = "search_enzyme_name_2";
-    public static final String PROP_search_enzyme_cut_1_deprecated = "search_enzyme_cutafter";
-    public static final String PROP_search_enzyme_nocut_1_deprecated = "search_enzyme_butnotafter";
     public static final String PROP_search_enzyme_cut_1 = "search_enzyme_cut_1";
     public static final String PROP_search_enzyme_nocut_1 = "search_enzyme_nocut_1";
     public static final String PROP_search_enzyme_cut_2 = "search_enzyme_cut_2";
     public static final String PROP_search_enzyme_nocut_2 = "search_enzyme_nocut_2";
     public static final String PROP_num_enzyme_termini = "num_enzyme_termini";
-    public static final String PROP_allowed_missed_cleavage_deprecated = "allowed_missed_cleavage";
     public static final String PROP_allowed_missed_cleavage_1 = "allowed_missed_cleavage_1";
     public static final String PROP_search_enzyme_sense_1 = "search_enzyme_sense_1";
     public static final String PROP_search_enzyme_sense_2 = "search_enzyme_sense_2";

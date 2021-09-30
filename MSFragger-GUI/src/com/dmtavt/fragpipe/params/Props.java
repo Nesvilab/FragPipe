@@ -213,13 +213,13 @@ public class Props {
                 if (name.contentEquals("num_threads")) {
                     value = String.valueOf(Runtime.getRuntime().availableProcessors() -1);
                 }
-                if (name.contentEquals(MsfraggerParams.PROP_search_enzyme_cut_1_deprecated)) {
+                if (name.contentEquals("search_enzyme_cutafter")) {
                     name = MsfraggerParams.PROP_search_enzyme_cut_1;
                     Prop p = new Prop(MsfraggerParams.PROP_search_enzyme_cut_2, "", true, "");
                     map.put(p.name, p);
                     propOrdering.add(p.name);
                 }
-                if (name.contentEquals(MsfraggerParams.PROP_search_enzyme_nocut_1_deprecated)) {
+                if (name.contentEquals("search_enzyme_butnotafter")) {
                     name = MsfraggerParams.PROP_search_enzyme_nocut_1;
                     Prop p = new Prop(MsfraggerParams.PROP_search_enzyme_nocut_2, "", true, "");
                     map.put(p.name, p);

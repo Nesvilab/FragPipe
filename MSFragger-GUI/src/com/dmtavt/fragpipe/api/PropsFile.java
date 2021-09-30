@@ -44,16 +44,14 @@ public class PropsFile extends Properties {
         this.load(br);
       }
     }
-    final String p1 = getProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_cut_1_deprecated);
+    final String p1 = getProperty(TabMsfragger.TAB_PREFIX + "search_enzyme_cutafter");
     if (p1 != null) {
       setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_cut_1, p1);
-      remove(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_cut_1_deprecated);
+      remove(TabMsfragger.TAB_PREFIX + "search_enzyme_cutafter");
       setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_sense_1, "C");
-      setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_allowed_missed_cleavage_1,
-              getProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_allowed_missed_cleavage_deprecated));
-      remove(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_allowed_missed_cleavage_deprecated);
-      setProperty(TabMsfragger.TAB_PREFIX + TabMsfragger.PROP_misc_fragger_enzyme_dropdown_1,
-              getProperty(TabMsfragger.TAB_PREFIX + "misc.fragger.enzyme-dropdown"));
+      setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_allowed_missed_cleavage_1, getProperty(TabMsfragger.TAB_PREFIX + "allowed_missed_cleavage"));
+      remove(TabMsfragger.TAB_PREFIX + "allowed_missed_cleavage");
+      setProperty(TabMsfragger.TAB_PREFIX + TabMsfragger.PROP_misc_fragger_enzyme_dropdown_1, getProperty(TabMsfragger.TAB_PREFIX + "misc.fragger.enzyme-dropdown"));
       remove(TabMsfragger.TAB_PREFIX + "misc.fragger.enzyme-dropdown");
       setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_name_2, "");
       setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_cut_2, "");
@@ -62,10 +60,10 @@ public class PropsFile extends Properties {
       setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_allowed_missed_cleavage_2, "");
       setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_sense_2, "C");
     }
-    final String p2 = getProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_nocut_1_deprecated);
+    final String p2 = getProperty(TabMsfragger.TAB_PREFIX + "search_enzyme_butnotafter");
     if (p2 != null) {
       setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_nocut_1, p2);
-      remove(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_nocut_1_deprecated);
+      remove(TabMsfragger.TAB_PREFIX + "search_enzyme_butnotafter");
     }
   }
 
