@@ -218,6 +218,14 @@ public class Props {
                     Prop p = new Prop(MsfraggerParams.PROP_search_enzyme_cut_2, "", true, "");
                     map.put(p.name, p);
                     propOrdering.add(p.name);
+
+                    Prop p2 = new Prop(MsfraggerParams.PROP_search_enzyme_sense_1, "C", true, "");
+                    map.put(p2.name, p2);
+                    propOrdering.add(p2.name);
+
+                    Prop p3 = new Prop(MsfraggerParams.PROP_search_enzyme_sense_2, "C", true, "");
+                    map.put(p3.name, p3);
+                    propOrdering.add(p3.name);
                 }
                 if (name.contentEquals("search_enzyme_butnotafter")) {
                     name = MsfraggerParams.PROP_search_enzyme_nocut_1;
@@ -228,6 +236,12 @@ public class Props {
                 if (name.contentEquals("search_enzyme_name")) {
                     name = MsfraggerParams.PROP_search_enzyme_name_1;
                     Prop p = new Prop(MsfraggerParams.PROP_search_enzyme_name_2, "", true, "");
+                    map.put(p.name, p);
+                    propOrdering.add(p.name);
+                }
+                if (name.contentEquals("allowed_missed_cleavage")) {
+                    name = MsfraggerParams.PROP_allowed_missed_cleavage_1;
+                    Prop p = new Prop(MsfraggerParams.PROP_allowed_missed_cleavage_2, "2", true, "");
                     map.put(p.name, p);
                     propOrdering.add(p.name);
                 }
