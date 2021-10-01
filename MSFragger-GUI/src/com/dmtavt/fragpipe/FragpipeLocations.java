@@ -249,10 +249,6 @@ public class FragpipeLocations {
     String lessExt = StringUtils.upToLastDot(fn);
     Pattern re = Pattern.compile("(.+?)(\\d+[.\\d-]*)$");
 
-    if (path.getFileName().toString().toLowerCase().contains("batmass")) {
-      int a= 1;
-    }
-
     Matcher m = re.matcher(lessExt);
     if (!m.matches()) {
       // this doesn't look like a versioned file name
