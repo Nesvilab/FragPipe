@@ -38,11 +38,11 @@ import org.slf4j.LoggerFactory;
 public class CmdIonquant extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdIonquant.class);
 
-  public static final String NAME = "IonQuant";
+  private static final String NAME = "IonQuant";
   public static final String JAR_IONQUANT_NAME = "ionquant-1.7.11.jar";
-  public static final String JAR_IONQUANT_MAIN_CLASS = "ionquant.IonQuant";
+  private static final String JAR_IONQUANT_MAIN_CLASS = "ionquant.IonQuant";
   private static final String[] JAR_DEPS = {SMILE_CORE_JAR, SMILE_MATH_JAR, JAVACPP_JAR, JAVACPP_WIN_JAR, JAVACPP_LINUX_JAR, OPENBLAS_JAR, OPENBLAS_WIN_JAR, OPENBLAS_LINUX_JAR, BATMASS_IO_JAR};
-  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
+  private static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
 
   public CmdIonquant(boolean isRun, Path workDir) {
     super(isRun, workDir);
