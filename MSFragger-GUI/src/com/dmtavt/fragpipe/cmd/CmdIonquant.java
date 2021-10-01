@@ -1,6 +1,15 @@
 package com.dmtavt.fragpipe.cmd;
 
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.JAVACPP_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.JAVACPP_LINUX_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.JAVACPP_WIN_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.OPENBLAS_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.OPENBLAS_LINUX_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.OPENBLAS_WIN_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.SMILE_CORE_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.SMILE_MATH_JAR;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
@@ -32,7 +41,7 @@ public class CmdIonquant extends CmdBase {
   public static final String NAME = "IonQuant";
   public static final String JAR_IONQUANT_NAME = "ionquant-1.7.10.jar";
   public static final String JAR_IONQUANT_MAIN_CLASS = "ionquant.IonQuant";
-  private static String[] JAR_DEPS = {JAR_MSFTBX_NAME};
+  private static final String[] JAR_DEPS = {SMILE_CORE_JAR, SMILE_MATH_JAR, JAVACPP_JAR, JAVACPP_WIN_JAR, JAVACPP_LINUX_JAR, OPENBLAS_JAR, OPENBLAS_WIN_JAR, OPENBLAS_LINUX_JAR, BATMASS_IO_JAR};
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
 
   public CmdIonquant(boolean isRun, Path workDir) {

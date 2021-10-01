@@ -36,6 +36,14 @@ public class ToolingUtils {
   private ToolingUtils() {}
 
   public static final String BATMASS_IO_JAR = "batmass-io-1.23.4.jar";
+  public static final String SMILE_CORE_JAR = "smile-core-2.6.0.jar";
+  public static final String SMILE_MATH_JAR = "smile-math-2.6.0.jar";
+  public static final String JAVACPP_JAR = "javacpp-presets-platform-1.5.6-bin/javacpp.jar";
+  public static final String JAVACPP_WIN_JAR = "javacpp-presets-platform-1.5.6-bin/javacpp-windows-x86_64.jar";
+  public static final String JAVACPP_LINUX_JAR = "javacpp-presets-platform-1.5.6-bin/javacpp-linux-x86_64.jar";
+  public static final String OPENBLAS_JAR = "javacpp-presets-platform-1.5.6-bin/openblas.jar";
+  public static final String OPENBLAS_WIN_JAR = "javacpp-presets-platform-1.5.6-bin/openblas-windows-x86_64.jar";
+  public static final String OPENBLAS_LINUX_JAR = "javacpp-presets-platform-1.5.6-bin/openblas-linux-x86_64.jar";
 
   /**
    * @return Full absolute normalized path to the output combined protein file.

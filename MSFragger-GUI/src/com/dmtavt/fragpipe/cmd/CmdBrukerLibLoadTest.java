@@ -1,5 +1,16 @@
 package com.dmtavt.fragpipe.cmd;
 
+import static com.dmtavt.fragpipe.cmd.CmdIonquant.JAR_IONQUANT_NAME;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.JAVACPP_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.JAVACPP_LINUX_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.JAVACPP_WIN_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.OPENBLAS_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.OPENBLAS_LINUX_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.OPENBLAS_WIN_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.SMILE_CORE_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.SMILE_MATH_JAR;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import java.nio.file.Path;
@@ -15,7 +26,7 @@ public class CmdBrukerLibLoadTest extends CmdBase {
 
     public static final String JAR_NAME = "batmass-consumer.jar";
     public static final String JAR_MAIN_CLASS = "com.dmtavt.batmass.io.consumer.App";
-    private static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR, "ionquant-1.7.10.jar"};
+    private static final String[] JAR_DEPS = {SMILE_CORE_JAR, SMILE_MATH_JAR, JAVACPP_JAR, JAVACPP_WIN_JAR, JAVACPP_LINUX_JAR, OPENBLAS_JAR, OPENBLAS_WIN_JAR, OPENBLAS_LINUX_JAR, BATMASS_IO_JAR, JAR_IONQUANT_NAME};
 
     public CmdBrukerLibLoadTest(boolean isRun, String title, Path workDir,
         String fileCaptureStdout, String fileCaptureStderr) {
