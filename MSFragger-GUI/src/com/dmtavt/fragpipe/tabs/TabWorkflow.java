@@ -123,6 +123,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnFilesRemove;
   private JButton btnFilesClear;
   public static final String TAB_PREFIX = "workflow.";
+  private static final String manifestExt = ".fp-manifest";
 
   private SimpleETable tableRawFiles;
   private UniqueLcmsFilesTableModel tableModelRawFiles;
@@ -1213,7 +1214,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     SwingUtils.showDialog(this, panel);
   }
 
-  static final FileNameEndingFilter fileNameEndingFilter = new FileNameEndingFilter("Fragpipe manifest", ".fp-manifest");
+  private static final FileNameEndingFilter fileNameEndingFilter = new FileNameEndingFilter("Fragpipe manifest", manifestExt);
+
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void on(MessageManifestSave m) {
     String loc = Fragpipe.propsVarGet(ThisAppProps.CONFIG_SAVE_LOCATION);
@@ -1224,10 +1226,14 @@ public class TabWorkflow extends JPanelWithEnablement {
         .create();
     fc.setFileFilter(fileNameEndingFilter);
     if (loc == null) {
-      fc.setSelectedFile(new File("lcms-files.fp-manifest"));
+      fc.setSelectedFile(new File("lcms-files" + manifestExt));
     }
     if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(this)) {
-      Path path = fc.getSelectedFile().toPath();
+      String s = fc.getSelectedFile().getAbsolutePath();
+      if (!s.endsWith(manifestExt)) {
+        s += manifestExt;
+      }
+      Path path = Paths.get(s);
       Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.toString());
       if (!deleteQuietlyWithConfirmation(path, this)) {
         return;
