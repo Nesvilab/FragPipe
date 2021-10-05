@@ -146,7 +146,6 @@ public class TabMsfragger extends JPanelBase {
   private static final int[] MASS_DIFF_TO_VAR_MOD_MAP = {0, 2, 1};
   private static final List<String> GLYCO_OPTIONS_UI = Arrays
       .asList(GLYCO_OPTION_off, GLYCO_OPTION_nglycan, GLYCO_OPTION_labile);
-  private static final String[] DATA_TYPES = {"DDA", "DIA", "DIA-narrow-window"};
   private static final String LOAD_CUSTOM_CONFIG_OPTION = "Custom MSFragger parameter file from disk";
 
   private static final List<MsfraggerEnzyme> ENZYMES = new EnzymeProvider().get();
@@ -205,7 +204,6 @@ public class TabMsfragger extends JPanelBase {
         IntensityTransform.get(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_localize_delta_mass, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_clip_nTerm_M, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_data_type, s -> itos(ArrayUtils.indexOf(DATA_TYPES, s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_override_charge, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.valueOf(s).valueInParamsFile());
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_report_alternative_proteins, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
@@ -231,7 +229,6 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_intensity_transform, s -> IntensityTransform.get(Integer.parseInt(s)));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_localize_delta_mass, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Boolean.toString(Integer.parseInt(s) > 0));
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_data_type, s -> DATA_TYPES[Integer.parseInt(s)]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_override_charge, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.fromValueInParamsFile(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Boolean.toString(Integer.parseInt(s) > 0));
@@ -502,9 +499,6 @@ public class TabMsfragger extends JPanelBase {
             + "peak selection errors MSFragger will try to correct.")
         .create();
 
-    UiCombo uiComboDataType = UiUtils.createUiCombo(DATA_TYPES);
-    FormEntry feComboDataType = mu.feb(MsfraggerParams.PROP_data_type, uiComboDataType).label("Data type").create();
-
     mu.add(p, fePrecTolUnits.label(), mu.ccR());
     mu.add(p, fePrecTolUnits.comp).split(4);
     mu.add(p, fePrecTolLo.comp);
@@ -517,9 +511,7 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feCalibrate.label(), mu.ccR());
     mu.add(p, feCalibrate.comp);
     mu.add(p, feIsotopeError.label(), mu.ccR());
-    mu.add(p, feIsotopeError.comp).split();
-    mu.add(p, feComboDataType.label(), mu.ccR());
-    mu.add(p, feComboDataType.comp).spanX().wrap();
+    mu.add(p, feIsotopeError.comp).spanX().wrap();
 
     return p;
   }

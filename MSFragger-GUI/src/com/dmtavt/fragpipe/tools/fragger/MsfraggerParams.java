@@ -255,9 +255,7 @@ public class MsfraggerParams extends AbstractParams {
             ADDON_MAP_HUMAN2NAME.put(humanReadable, name);
         }
     }
-    
-    public static final String FILE_BASE_NAME = "fragger";
-    public static final String FILE_BASE_EXT = "params";
+
     /** This file is in the jar, use getResourceAsStream() to get it.  */
     public static final String CACHE_FILE = "fragger.params";
     public static final String DEFAULT_FILE_OPENSEARCH = "fragger_open.params";
@@ -664,8 +662,8 @@ public class MsfraggerParams extends AbstractParams {
         return Integer.parseInt(props.getProp(PROP_output_report_topN, "3").value);
     }
 
-    public int getDataType() {
-        return Integer.parseInt(props.getProp(PROP_data_type, "0").value);
+    public void setDataType(int dataType) {
+        props.setProp(PROP_data_type, Integer.toString(dataType));
     }
     
     public void setOutputReportTopN(int v) {

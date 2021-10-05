@@ -11,11 +11,14 @@ public class LcmsInputFileTable extends SimpleETable {
   protected final String[] columnToolTips = {
       "<html>Path to LC-MS file.<br/>"
           + "Supports drag & drop from system file explorer.", // "Path" assumed obvious
-      "<html>Experiment, Group, or Condition.<br/>\n"
-          + "<b>Can be left blank</b>, in which case all files are<br/>\n"
+      "<html>Experiment, Group, or Condition.<br/>"
+          + "<b>Can be left blank</b>, in which case all files are<br/>"
           + "assumed to be part of the same experiment.",
-      "<html>Replicate number (biological, technical, etc).<br/>\n"
-          + "<b>Integers only. Can be left blank.</b><br/>\n"};
+      "<html>Replicate number (biological, technical, etc).<br/>"
+          + "<b>Integers only. Can be left blank.</b><br/>",
+      "<html>Data types (DDA, DIA, DIA-NW).<br/>"
+          + "<b>DIA</b> is for wide window DIA.<br/>"
+          + "<b>DIA-NW</b> is for narrow window DIA.<br/>"};
 
   public LcmsInputFileTable() {
     super();

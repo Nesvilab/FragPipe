@@ -133,6 +133,9 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnGroupsByParentDir;
   private JButton btnGroupsByFilename;
   private JButton btnGroupsAssignToSelected;
+  private JButton btnSetDda;
+  private JButton btnSetDia;
+  private JButton btnSetDiaNw;
   private JButton btnGroupsClear;
   private JButton btnManifestSave;
   private JButton btnManifestLoad;
@@ -221,9 +224,13 @@ public class TabWorkflow extends JPanelWithEnablement {
         "Experiment (can be empty, alphanumeric, and _)", String.class, true, InputLcmsFile::getExperiment);
     TableModelColumn<InputLcmsFile, Integer> colRep = new TableModelColumn<>(
         "Replicate (can be empty and integer)", Integer.class, true, InputLcmsFile::getReplicate);
+    TableModelColumn<InputLcmsFile, String> colDataType = new TableModelColumn<>(
+        "Data type (DDA, DIA, DIA-NW)", String.class, true, InputLcmsFile::getDataType);
+
     cols.add(colPath);
     cols.add(colExp);
     cols.add(colRep);
+    cols.add(colDataType);
 
     UniqueLcmsFilesTableModel m = new UniqueLcmsFilesTableModel(cols, 0);
 
@@ -661,7 +668,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     // add the files
     List<InputLcmsFile> toAdd = lfa.toAdd.stream()
-        .map(p -> new InputLcmsFile(p, ThisAppProps.DEFAULT_LCMS_EXP_NAME))
+        .map(p -> new InputLcmsFile(p, ThisAppProps.DEFAULT_LCMS_EXP_NAME, null, "DDA"))
         .collect(Collectors.toList());
     if (!toAdd.isEmpty()) {
       tableModelRawFiles.dataAddAll(toAdd);
@@ -961,6 +968,12 @@ public class TabWorkflow extends JPanelWithEnablement {
         () -> new MessageLcmsGroupAction(Type.BY_FILE_NAME));
     btnGroupsAssignToSelected = button("Set experiment/replicate",
         () -> new MessageLcmsGroupAction(Type.SET_EXP));
+    btnSetDda = button("Set DDA",
+        () -> new MessageLcmsGroupAction(Type.SET_DDA));
+    btnSetDia = button("Set DIA",
+        () -> new MessageLcmsGroupAction(Type.SET_DIA));
+    btnSetDiaNw = button("Set DIA-NW",
+        () -> new MessageLcmsGroupAction(Type.SET_DIA_NW));
     btnGroupsClear = button("Clear groups", () -> new MessageLcmsGroupAction(Type.CLEAR_GROUPS));
 
     btnManifestSave = button("Save as manifest", MessageManifestSave::new);
@@ -1003,7 +1016,10 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnGroupsByParentDir);
     mu.add(p, btnGroupsByFilename);
     mu.add(p, btnGroupsAssignToSelected);
-    mu.add(p, btnGroupsClear).wrap();
+    mu.add(p, btnGroupsClear);
+    mu.add(p, btnSetDda);
+    mu.add(p, btnSetDia);
+    mu.add(p, btnSetDiaNw).wrap();
 
     p.add(scrollPaneRawFiles, mu.ccGx().wrap());
 
@@ -1025,6 +1041,9 @@ public class TabWorkflow extends JPanelWithEnablement {
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsConsecutive);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsByParentDir);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsByFilename);
+    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDda);
+    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDia);
+    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDiaNw);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClear);
 
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnFilesRemove);
@@ -1114,10 +1133,11 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   private void manifestSave(Path path) throws IOException {
     ArrayList<InputLcmsFile> files = tableModelRawFiles.dataCopy();
-    String manifest = files.stream().map(f -> String.format("%s\t%s\t%s",
-        f.getPath().toAbsolutePath().normalize().toString(),
+    String manifest = files.stream().map(f -> String.format("%s\t%s\t%s\t%s",
+        f.getPath().toAbsolutePath().normalize(),
         (f.getExperiment() != null ? f.getExperiment() : ""),
-        (f.getReplicate() != null ? f.getReplicate().toString() : "")))
+        (f.getReplicate() != null ? f.getReplicate().toString() : ""),
+        (f.getDataType() != null ? f.getDataType() : "")))
     .collect(Collectors.joining("\n"));
     FileUtils.write(path.toFile(), manifest, StandardCharsets.UTF_8, false);
   }
@@ -1130,10 +1150,11 @@ public class TabWorkflow extends JPanelWithEnablement {
         .filter(StringUtils::isNotBlank)
         .filter(line -> !line.startsWith("//") && !line.startsWith("#"))
         .map(line -> {
-          String[] split = line.split("\t");
+          String[] split = line.trim().split("\t");
           Path p = null;
           String exp = null;
           Integer replicate = null;
+          String dataType = null;
           try {
             if (split.length >= 1) {
               p = Paths.get(split[0]);
@@ -1144,11 +1165,14 @@ public class TabWorkflow extends JPanelWithEnablement {
             if (split.length >= 3) {
               replicate = Integer.parseInt(split[2]);
             }
+            if (split.length >= 4) {
+              dataType = split[3];
+            }
           } catch (Exception e) {
             badLines.add(line);
             return null;
           }
-          return new InputLcmsFile(p, exp, replicate);
+          return new InputLcmsFile(p, exp, replicate, dataType);
         }).filter(Objects::nonNull)
         .collect(Collectors.toList());
 
@@ -1190,7 +1214,7 @@ public class TabWorkflow extends JPanelWithEnablement {
             InputLcmsFile toCopyFrom = loaded.stream()
                 .filter(f -> f.getPath().getFileName().equals(existing.getPath().getFileName()))
                 .findFirst().orElse(existing);
-            updated.add(new InputLcmsFile(existing.getPath(), toCopyFrom.getExperiment(), toCopyFrom.getReplicate()));
+            updated.add(new InputLcmsFile(existing.getPath(), toCopyFrom.getExperiment(), toCopyFrom.getReplicate(), toCopyFrom.getDataType()));
           }
           tableModelRawFiles.dataAddAll(updated);
         }
@@ -1308,6 +1332,15 @@ public class TabWorkflow extends JPanelWithEnablement {
       case SET_EXP:
         this.actionSetExt();
         break;
+      case SET_DDA:
+        this.actionSetDda();
+        break;
+      case SET_DIA:
+        this.actionSetDia();
+        break;
+      case SET_DIA_NW:
+        this.actionSetDiaNw();
+        break;
       case CLEAR_GROUPS:
         this.actionClearGroups();
         break;
@@ -1323,7 +1356,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      m.dataSet(i, new InputLcmsFile(f.getPath(), ThisAppProps.DEFAULT_LCMS_EXP_NAME));
+      m.dataSet(i, new InputLcmsFile(f.getPath(), ThisAppProps.DEFAULT_LCMS_EXP_NAME, null, f.getDataType()));
     }
   }
 
@@ -1355,7 +1388,58 @@ public class TabWorkflow extends JPanelWithEnablement {
       for (int selectedRow : selectedRows) {
         int i = tableRawFiles.convertRowIndexToModel(selectedRow);
         InputLcmsFile f = m.dataGet(i);
-        m.dataSet(i, new InputLcmsFile(f.getPath(), d.getExperimentName(), d.getReplicateNumber()));
+        m.dataSet(i, new InputLcmsFile(f.getPath(), d.getExperimentName(), d.getReplicateNumber(), f.getDataType()));
+      }
+    }
+  }
+
+  private void actionSetDda() {
+    final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+    List<Integer> selectedRows = Arrays.stream(this.tableRawFiles.getSelectedRows()).mapToObj(tableRawFiles::convertRowIndexToModel).collect(Collectors.toList());
+    if (selectedRows.isEmpty()) {
+      for (int i = 0; i < m.dataSize(); ++i) {
+        InputLcmsFile f = m.dataGet(i);
+        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DDA"));
+      }
+    } else {
+      for (int selectedRow : selectedRows) {
+        int i = tableRawFiles.convertRowIndexToModel(selectedRow);
+        InputLcmsFile f = m.dataGet(i);
+        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DDA"));
+      }
+    }
+  }
+
+  private void actionSetDia() {
+    final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+    List<Integer> selectedRows = Arrays.stream(this.tableRawFiles.getSelectedRows()).mapToObj(tableRawFiles::convertRowIndexToModel).collect(Collectors.toList());
+    if (selectedRows.isEmpty()) {
+      for (int i = 0; i < m.dataSize(); ++i) {
+        InputLcmsFile f = m.dataGet(i);
+        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DIA"));
+      }
+    } else {
+      for (int selectedRow : selectedRows) {
+        int i = tableRawFiles.convertRowIndexToModel(selectedRow);
+        InputLcmsFile f = m.dataGet(i);
+        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DIA"));
+      }
+    }
+  }
+
+  private void actionSetDiaNw() {
+    final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+    List<Integer> selectedRows = Arrays.stream(this.tableRawFiles.getSelectedRows()).mapToObj(tableRawFiles::convertRowIndexToModel).collect(Collectors.toList());
+    if (selectedRows.isEmpty()) {
+      for (int i = 0; i < m.dataSize(); ++i) {
+        InputLcmsFile f = m.dataGet(i);
+        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DIA-NW"));
+      }
+    } else {
+      for (int selectedRow : selectedRows) {
+        int i = tableRawFiles.convertRowIndexToModel(selectedRow);
+        InputLcmsFile f = m.dataGet(i);
+        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DIA-NW"));
       }
     }
   }
@@ -1366,7 +1450,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
       String group = StringUtils.upToLastDot(f.getPath().getFileName().toString());
-      m.dataSet(i, new InputLcmsFile(f.getPath(), group));
+      m.dataSet(i, new InputLcmsFile(f.getPath(), group, null, f.getDataType()));
     }
   }
 
@@ -1379,16 +1463,15 @@ public class TabWorkflow extends JPanelWithEnablement {
       String group = count - 2 >= 0
           ? f.getPath().getName(count - 2).toString()
           : f.getPath().getName(count - 1).toString();
-      m.dataSet(i, new InputLcmsFile(f.getPath(), group));
+      m.dataSet(i, new InputLcmsFile(f.getPath(), group, null, f.getDataType()));
     }
   }
 
   private void actionConsecutive() {
     UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
-    final int groupNumMaxLen = (int) Math.ceil(Math.log(m.dataSize()));
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      m.dataSet(i, new InputLcmsFile(f.getPath(), "exp", i + 1));
+      m.dataSet(i, new InputLcmsFile(f.getPath(), "exp", i + 1, f.getDataType()));
     }
   }
 
@@ -1407,6 +1490,33 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   public List<InputLcmsFile> getLcmsFiles() {
     return tableModelRawFiles.dataCopy();
+  }
+
+  public boolean hasDda() {
+    for (InputLcmsFile inputLcmsFile : tableModelRawFiles.dataCopy()) {
+      if (inputLcmsFile.getDataType().contentEquals("DDA")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public boolean hasDia() {
+    for (InputLcmsFile inputLcmsFile : tableModelRawFiles.dataCopy()) {
+      if (inputLcmsFile.getDataType().contentEquals("DIA")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public boolean hasDiaNw() {
+    for (InputLcmsFile inputLcmsFile : tableModelRawFiles.dataCopy()) {
+      if (inputLcmsFile.getDataType().contentEquals("DIA-NW")) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void actionLoadSelectedWorkflow(ActionEvent e) {

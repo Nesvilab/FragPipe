@@ -20,9 +20,10 @@ public class UniqueLcmsFilesTableModel extends SimpleUniqueTableModel<InputLcmsF
       log.error("The object was not found in table model");
       throw new IllegalStateException("The object was not found in table model");
     }
-    String exp = columnIndex == 1 ? (String)aValue : orig.getExperiment();
-    Integer rep = columnIndex == 2 ? (Integer)aValue : orig.getReplicate();
-    InputLcmsFile fnew = new InputLcmsFile(orig.getPath(), exp, rep);
+    String exp = columnIndex == 1 ? (String) aValue : orig.getExperiment();
+    Integer rep = columnIndex == 2 ? (Integer) aValue : orig.getReplicate();
+    String dataType = columnIndex == 3 ? (String) aValue : orig.getDataType();
+    InputLcmsFile fnew = new InputLcmsFile(orig.getPath(), exp, rep, dataType);
     dataSet(i, fnew);
   }
 }

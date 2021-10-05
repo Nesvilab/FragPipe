@@ -53,7 +53,7 @@ public class CmdUmpireSe extends CmdBase {
       List<String> mgfs = getGeneratedMgfFnsForMzxml(inputFn);
       List<String> lcmsFns = getGeneratedLcmsFns(mgfs);
       for (String lcmsFn : lcmsFns) {
-        out.add(new InputLcmsFile(outPath.resolve(lcmsFn), f.getGroup()));
+        out.add(new InputLcmsFile(outPath.resolve(lcmsFn), f.getGroup(), f.getReplicate(), f.getDataType()));
       }
     }
     return out;

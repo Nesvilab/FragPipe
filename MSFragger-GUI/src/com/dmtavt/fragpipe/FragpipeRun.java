@@ -708,16 +708,14 @@ public class FragpipeRun {
     final CmdMsfragger cmdMsfragger;
     {
       MsfraggerParams p = tabMsf.getParams();
-      cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputReportTopN(), p.getDataType(), p.getOutputFormat());
+      cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputReportTopN(), p.getOutputFormat());
     }
     final Map<InputLcmsFile, List<Path>> sharedPepxmlFilesFromMsfragger = new TreeMap<>();
     final TreeMap<InputLcmsFile, List<Path>> sharedPepxmlFiles = new TreeMap<>();
 
     addConfig.accept(cmdMsfragger, () -> {
       if (cmdMsfragger.isRun()) {
-        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile,
-            tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb,
-            sharedLcmsFiles, decoyTag)) {
+        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDda(), tabWorkflow.hasDia(), tabWorkflow.hasDiaNw())) {
           return false;
         }
 

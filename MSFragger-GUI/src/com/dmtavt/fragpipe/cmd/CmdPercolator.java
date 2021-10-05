@@ -149,7 +149,7 @@ public class CmdPercolator extends CmdBase {
             .setParallelGroup(basename).create());
 
         // convert the percolator output tsv to PeptideProphet's pep.xml format
-        ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + basename, strippedBaseName, basename);
+        ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + basename, strippedBaseName, basename, e.getKey().getDataType().contentEquals("DDA"));
         pbRewrite.directory(pepxmlPath.getParent().toFile());
         pbisPostParallel.add(new PbiBuilder().setName("Percolator: Convert to pepxml")
                 .setPb(pbRewrite).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
@@ -199,7 +199,7 @@ public class CmdPercolator extends CmdBase {
     return b;
   }
 
-  private static ProcessBuilder pbConvertToPepxml(Path jarFragpipe, String outBaseName, String stripedBasename, String basename) {
+  private static ProcessBuilder pbConvertToPepxml(Path jarFragpipe, String outBaseName, String stripedBasename, String basename, boolean isDDA) {
     if (jarFragpipe == null) {
       throw new IllegalArgumentException("jar can't be null");
     }
@@ -220,8 +220,7 @@ public class CmdPercolator extends CmdBase {
     cmd.add(stripedBasename + "_percolator_decoy_psms.tsv");
     cmd.add(outBaseName);
     final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
-    final boolean is_DDA = tabMsf.getParams().getDataType() == 0;
-    cmd.add(is_DDA ? "DDA" : "DIA");
+    cmd.add(isDDA ? "DDA" : "DIA");
     return new ProcessBuilder(cmd);
   }
 

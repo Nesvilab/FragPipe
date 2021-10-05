@@ -14,6 +14,7 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
     private final Path path;
     private final String experiment;
     private final Integer replicate;
+    private final String dataType;
 
     public static final String REASON_NON_ASCII = "has non-ASCII chars";
     public static final String REASON_DOTS = "has dots";
@@ -25,15 +26,26 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
     public static final Pattern disallowedExperimentPattern = Pattern.compile("[^A-Za-z0-9-_]");
     public static final String REASON_DISALLOWED_CHARS = "has characters other than: " + allowedChars;
 
-    public InputLcmsFile(Path path, String experiment) {
-        this(path, experiment, null);
-    }
-
-    public InputLcmsFile(Path path, String experiment, Integer replicate) {
+    public InputLcmsFile(Path path, String experiment, Integer replicate, String dataType) {
         this.path = path;
         experiment = experiment != null ? experiment.trim() : ThisAppProps.DEFAULT_LCMS_EXP_NAME;
         this.experiment = disallowedExperimentPattern.matcher(experiment).replaceAll("_");
         this.replicate = replicate;
+
+        if (dataType == null) {
+            this.dataType = "DDA";
+        } else {
+            switch (dataType.trim().toLowerCase()) {
+                case "dia":
+                    this.dataType = "DIA";
+                    break;
+                case "dia-nw":
+                    this.dataType = "DIA-NW";
+                    break;
+                default:
+                    this.dataType = "DDA";
+            }
+        }
     }
 
     public Path outputDir(Path workDir) {
@@ -50,20 +62,18 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
     }
 
     public int compareTo(@NotNull InputLcmsFile other) { // the sorting here must be consistent with the one in LcmsFileGroup
-        Comparator<InputLcmsFile> comparator = Comparator.comparing(InputLcmsFile::getGroup).thenComparing(p -> p.path.toAbsolutePath().toString());
+        Comparator<InputLcmsFile> comparator = Comparator.comparing(InputLcmsFile::getGroup).thenComparing(InputLcmsFile::getDataType).thenComparing(p -> p.path.toAbsolutePath().toString());
         return comparator.compare(this, other);
     }
 
     @Override
     public int hashCode() {
-        int result = getPath().hashCode();
-        result = 31 * result + getGroup().hashCode();
-        return result;
+        return (getPath().toAbsolutePath() + "-" + getGroup() + "-" + getDataType()).hashCode();
     }
 
     @Override
     public String toString() {
-        return String.format("InputLcmsFile{exp: '%s', path: '%s'}", getGroup(), getPath());
+        return String.format("InputLcmsFile{group: '%s', dataType: '%s', path: '%s'}", getGroup(), getDataType(), getPath());
     }
 
     public String getGroup() {
@@ -83,6 +93,10 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
 
     public Integer getReplicate() {
         return replicate;
+    }
+
+    public String getDataType() {
+        return dataType;
     }
 
     public Path getPath() {

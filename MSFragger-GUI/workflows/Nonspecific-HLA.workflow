@@ -59,7 +59,6 @@ msfragger.allowed_missed_cleavage_1=2
 msfragger.allowed_missed_cleavage_2=2
 msfragger.calibrate_mass=2
 msfragger.clip_nTerm_M=true
-msfragger.data_type=0
 msfragger.deisotope=1
 msfragger.delta_mass_exclude_ranges=(-1.5,3.5)
 msfragger.deneutralloss=1
