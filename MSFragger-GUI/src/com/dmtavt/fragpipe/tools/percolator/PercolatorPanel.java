@@ -80,15 +80,6 @@ public class PercolatorPanel extends JPanelBase {
     protected void initMore() {
         checkRun.addItemListener(e -> {
             final TabMsfragger tabMsfragger = Fragpipe.getStickyStrict(TabMsfragger.class);
-            if (isRun() && tabMsfragger.isOpenMassOffsetSearch()) {
-                JOptionPane.showMessageDialog(this,
-                    "<html>Percolator is incompatible with open search. Please check <code>Run PeptideProphet</code>.",
-                    "Incompatible options", JOptionPane.WARNING_MESSAGE);
-            }
-        });
-
-        checkRun.addItemListener(e -> {
-            final TabMsfragger tabMsfragger = Fragpipe.getStickyStrict(TabMsfragger.class);
             if (isRun() && tabMsfragger.getNumDbSlices() > 1) {
                 JOptionPane.showMessageDialog(this,
                     "<html><code>Split database</code> is incompatible with <code>Run Percolator</code>.<br/>"
