@@ -33,7 +33,7 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
         this.replicate = replicate;
 
         if (dataType == null) {
-            this.dataType = "DDA";
+            this.dataType = guessDataType(path);
         } else {
             switch (dataType.trim().toLowerCase()) {
                 case "dia":
@@ -46,6 +46,14 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
                     this.dataType = "DDA";
             }
         }
+    }
+
+    private String guessDataType(Path filePath) {
+        String fileName = filePath.getFileName().toString();
+        if (fileName.toLowerCase().contains("dia")) {
+            return "DIA";
+        }
+        return "DDA";
     }
 
     public Path outputDir(Path workDir) {

@@ -668,7 +668,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     // add the files
     List<InputLcmsFile> toAdd = lfa.toAdd.stream()
-        .map(p -> new InputLcmsFile(p, ThisAppProps.DEFAULT_LCMS_EXP_NAME, null, "DDA"))
+        .map(p -> new InputLcmsFile(p, ThisAppProps.DEFAULT_LCMS_EXP_NAME, null, null))
         .collect(Collectors.toList());
     if (!toAdd.isEmpty()) {
       tableModelRawFiles.dataAddAll(toAdd);
