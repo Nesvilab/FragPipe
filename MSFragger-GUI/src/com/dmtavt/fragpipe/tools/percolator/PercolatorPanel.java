@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class PercolatorPanel extends JPanelBase {
     private static final Logger log = LoggerFactory.getLogger(PercolatorPanel.class);
     private static MigUtils mu = MigUtils.get();
-    private UiRadio checkRun;
+    public UiRadio checkRun;
     public UiCheck checkKeepTsvFiles;
     private UiText uiTextCmdOpts;
     private UiCheck uiCheckCombinePepxml;

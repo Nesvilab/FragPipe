@@ -13,6 +13,7 @@ import com.dmtavt.fragpipe.cmd.CmdFreequant;
 import com.dmtavt.fragpipe.cmd.CmdIonquant;
 import com.dmtavt.fragpipe.cmd.CmdIprophet;
 import com.dmtavt.fragpipe.cmd.CmdLabelquant;
+import com.dmtavt.fragpipe.cmd.CmdMoreRescore;
 import com.dmtavt.fragpipe.cmd.CmdMsfragger;
 import com.dmtavt.fragpipe.cmd.CmdPeptideProphet;
 import com.dmtavt.fragpipe.cmd.CmdPercolator;
@@ -58,6 +59,7 @@ import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
+import com.dmtavt.fragpipe.tools.morerescore.MoreRescorePanel;
 import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
@@ -770,6 +772,16 @@ public class FragpipeRun {
       return true;
     });
 
+    // Run MoreRescore
+    final MoreRescorePanel moreRescorePanel = Fragpipe.getStickyStrict(MoreRescorePanel.class);
+    final CmdMoreRescore cmdMoreRescore = new CmdMoreRescore(moreRescorePanel.isRun(), wd);
+    addConfig.accept(cmdMoreRescore, () -> {
+      if (cmdMoreRescore.isRun()) {
+        return cmdMoreRescore.configure(parent, ramGb, threads, sharedPepxmlFilesFromMsfragger);
+      }
+      return true;
+    });
+
     // run PeptideProphet
     final PepProphPanel pepProphPanel = Fragpipe.getStickyStrict(PepProphPanel.class);
     final boolean isRunPeptideProphet = pepProphPanel.isRun();
@@ -830,6 +842,7 @@ public class FragpipeRun {
       return true;
     });
 
+    // Run PTM-Prophet.
     final PtmProphetPanel panelPtmProphet = Fragpipe.getStickyStrict(PtmProphetPanel.class);
     final CmdPtmProphet cmdPtmProphet = new CmdPtmProphet(panelPtmProphet.isRun(), wd);
     addCheck.accept(() -> {
@@ -1180,8 +1193,9 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdUmpire);
 
     addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger);
+    addToGraph(graphOrder, cmdMoreRescore, DIRECTION.IN, cmdMsfragger);
     addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdCrystalc);
-    addToGraph(graphOrder, cmdPercolator, DIRECTION.IN, cmdMsfragger, cmdCrystalc);
+    addToGraph(graphOrder, cmdPercolator, DIRECTION.IN, cmdMsfragger, cmdCrystalc, cmdMoreRescore);
     for (final CmdBase cmdPeptideValidation : new CmdBase[]{cmdPeptideProphet, cmdPercolator}) {
       addToGraph(graphOrder, cmdPtmProphet, DIRECTION.IN, cmdPeptideValidation);
       addToGraph(graphOrder, cmdProteinProphet, DIRECTION.IN, cmdPeptideValidation, cmdPtmProphet);

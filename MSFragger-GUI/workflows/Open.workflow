@@ -53,6 +53,7 @@ ionquant.rttol=0.4
 ionquant.run-ionquant=false
 ionquant.tp=3
 ionquant.writeindex=0
+morerescore.run-morerescore=false
 msfragger.Y_type_masses=
 msfragger.add_topN_complementary=0
 msfragger.allowed_missed_cleavage_1=2

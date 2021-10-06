@@ -251,7 +251,7 @@ public class TabMsfragger extends JPanelBase {
   private ModsTable tableVarMods;
   private ModsTable tableFixMods;
   private UiCombo uiComboMassCalibrate;
-  private UiCombo uiComboOutputType;
+  public UiCombo uiComboOutputType;
   private UiCombo uiComboMassMode;
   private UiSpinnerInt uiSpinnerDbsplit;
   private UiCheck uiCheckLocalizeDeltaMass;
@@ -1593,6 +1593,10 @@ public class TabMsfragger extends JPanelBase {
 
   public int getNumDbSlices() {
     return uiSpinnerDbsplit.getActualValue();
+  }
+
+  public void setNumDbSlices(int v) {
+    uiSpinnerDbsplit.setValue(v);
   }
 
   public String getMassOffsets() {
