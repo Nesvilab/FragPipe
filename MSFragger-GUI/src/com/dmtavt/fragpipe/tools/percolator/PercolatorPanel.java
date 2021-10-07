@@ -88,6 +88,7 @@ public class PercolatorPanel extends JPanelBase {
                         "Incompatible options", JOptionPane.WARNING_MESSAGE);
                     tabMsfragger.setNumDbSlices(1);
                 }
+                tabMsfragger.uiComboOutputType.setSelectedIndex(5);
             }
         });
 

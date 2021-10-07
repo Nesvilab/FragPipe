@@ -79,7 +79,6 @@ public class MoreRescorePanel extends JPanelBase {
         } else {
           final PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);
           percolatorPanel.checkRun.setSelected(true);
-          tabMsfragger.uiComboOutputType.setSelectedIndex(5);
         }
       }
     });
