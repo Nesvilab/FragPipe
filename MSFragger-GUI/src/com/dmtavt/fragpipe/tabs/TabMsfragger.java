@@ -1142,8 +1142,6 @@ public class TabMsfragger extends JPanelBase {
             + "for tie breaking of results and boosting of unmodified peptides in open\n"
             + "search.").create();
 
-    uiComboOutputType = UiUtils.createUiCombo(FraggerOutputType.values());
-
     String tooltipPrecursorCHarge =
         "Assume range of potential precursor charge states.\n" +
             "Only relevant when override_charge is set to 1 or \n" +
