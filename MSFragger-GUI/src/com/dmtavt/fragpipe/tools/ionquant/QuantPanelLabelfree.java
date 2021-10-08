@@ -18,6 +18,7 @@ import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.ItemSelectable;
+import java.awt.event.ItemEvent;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Map;
@@ -199,7 +200,6 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feRadioIonquant = new FormEntry("ionquant.run-ionquant", "Not shown",
         uiRadioUseIonquant);
 
-    UiCombo uiComboProtQuant = UiUtils.createUiCombo(Arrays.asList("Top-N", "MaxLFQ"));
     UiCombo uiComboMinIsotopes = UiUtils.createUiCombo(Arrays.asList("1", "2", "3"));
     UiSpinnerInt uiSpinnerMinScans = UiUtils.spinnerInt(3, 0, 10000, 1).setCols(5).create();
 
@@ -253,7 +253,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     //FormEntry feDataType = mu.feb(uiComboTimsTOF).name("ionquant.ionmobility").label("Data type").create();
     UiCheck uiCheckMbr = UiUtils.createUiCheck("Match between runs (MBR)", true);
     uiCheckMbr.setName("ionquant.mbr");
-    FormEntry feProtQuant = mu.feb(uiComboProtQuant).name("ionquant.proteinquant").label("Protein quant").tooltip("Algorithm used in calculating protein intensity").create();
+    FormEntry feMaxLfq = mu.feb("ionquant.maxlfq", UiUtils.createUiCheck("MaxLFQ", true)).tooltip("Calculate MaxLFQ intensity.").create();
     FormEntry feRequant = mu.feb("ionquant.requantify", UiUtils.createUiCheck("Re-quantify", true)).tooltip("Re-quantify unidentified ions in labeling quantification").create();
 
     FormEntry feMzTol = mu.feb(uiSpinnerMzTol).name("ionquant.mztol").label("m/z tolerance (ppm)").create();
@@ -288,32 +288,19 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     FormEntry feExcludemods = mu.feb(uiTextExcludemods).name("ionquant.excludemods").label("Excluded mods").tooltip("String specifying modifications to be excluded from protein quantification, e.g. M15.9949;STY79.96633").create();
 
-    SwingUtils.addItemSelectedListener(uiComboProtQuant, true, itemEvent -> {
-      Object o = itemEvent.getItem();
-      if (o == null)
-        return;
-      if (!(o instanceof String)) {
-        log.warn(
-            "Not a string received in item selection listener of 'ionquant.proteinquant' combo");
-        return;
-      }
-      final boolean enabled = !"MaxLFQ".equalsIgnoreCase((String) itemEvent.getItem());
-      updateEnabledStatus(uiSpinnerTopIons, enabled);
-      updateEnabledStatus(uiSpinnerMinFreq, enabled);
-      updateEnabledStatus(uiSpinnerMinExps, enabled);
-      updateEnabledStatus(uiSpinnerMinIons, !enabled);
-      if (enabled) {
-        uiSpinnerMinIons.setValue(1);
+    ((UiCheck) feMaxLfq.comp).addItemListener(e -> {
+      if (e.getStateChange() == ItemEvent.DESELECTED) {
+       uiSpinnerMinIons.setValue(1);
+        updateEnabledStatus(uiSpinnerMinIons, false);
       } else {
         uiSpinnerMinIons.setValue(2);
+        updateEnabledStatus(uiSpinnerMinIons, true);
       }
     });
 
-
     mu.add(p, feRadioIonquant.comp);
     mu.add(p, uiCheckMbr).push();
-    mu.add(p, feProtQuant.label(), mu.ccR());
-    mu.add(p, feProtQuant.comp).push();
+    mu.add(p, feMaxLfq.comp).push();
     mu.add(p, feMinIons.label(), mu.ccR());
     mu.add(p, feMinIons.comp).push();
     mu.add(p, feNormalize.comp).wrap();
