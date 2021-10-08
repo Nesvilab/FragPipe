@@ -51,7 +51,9 @@ Click ‘Yes’ to download the database. When it’s finished, you should see t
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offset-search.png)
 
 5) Then scroll down to set fixed Mass Delta to 0 for cysteine.
-6) When we loaded the 'Mass-Offset-CommonPTMs' workflow, the [default list of offsets](https://fragpipe.nesvilab.org/docs/common_mass_offsets.html) includes more than we need for this analysis since we want to focus on parthenolide. In the 'Mass Offsets' field, replace the offsets list with just 0/248.14125 for the parthenolide adduct.
+6) When we loaded the 'Mass-Offset-CommonPTMs' workflow, the [default list of offsets](https://fragpipe.nesvilab.org/docs/common_mass_offsets.html) includes more than we need for this analysis since we want to focus on parthenolide. In the 'Mass Offsets' field, replace the offsets list with just 0/248.14125 for the parthenolide adduct. The list of mass offsets can be `/` or space separated, and only the specified mass offsets will be allowed in the search (i.e. combinations of specified mass offsets will not be generated).
+
+Please note: Only peptides with the mass shifts specified in the list will be included in the search, so be sure to include 0 if unmodified peptides (or peptides modified only by variable modifications) are expected. Identification of mass-shifted peptides is not dependent on identification of a corresponding un-shifted peptide.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offset-database1.png)
 
