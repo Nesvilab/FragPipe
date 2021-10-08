@@ -57,7 +57,7 @@ public class MoreRescorePanel extends JPanelBase {
 
     checkRun = new UiCheck("Run MoreRescore", null, false);
     checkRun.setName("run-morerescore");
-    JLabel info = new JLabel("<html>Rescoring using deep learning prediction.");
+    JLabel info = new JLabel("<html>Rescoring using deep learning prediction. Require <b>Run Percolator</b> in PSM validation panel.");
 
     mu.add(p, checkRun).split();
     mu.add(p, info).gapLeft("80px").wrap();
