@@ -6,7 +6,6 @@ import static com.dmtavt.fragpipe.cmd.CmdPeptideProphet.findOldFilesForDeletion;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tools.pepproph.PeptideProphetParams;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorOutputToPepXML;
@@ -219,7 +218,6 @@ public class CmdPercolator extends CmdBase {
     cmd.add(stripedBasename + "_percolator_target_psms.tsv");
     cmd.add(stripedBasename + "_percolator_decoy_psms.tsv");
     cmd.add(outBaseName);
-    final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
     cmd.add(isDDA ? "DDA" : "DIA");
     return new ProcessBuilder(cmd);
   }
