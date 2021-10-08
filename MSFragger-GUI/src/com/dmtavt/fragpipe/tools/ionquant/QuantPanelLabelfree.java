@@ -251,7 +251,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiText uiTextExcludemods = UiUtils.uiTextBuilder().cols(45).create();
 
     //FormEntry feDataType = mu.feb(uiComboTimsTOF).name("ionquant.ionmobility").label("Data type").create();
-    UiCheck uiCheckMbr = UiUtils.createUiCheck("Match between runs (MBR)", false);
+    UiCheck uiCheckMbr = UiUtils.createUiCheck("Match between runs (MBR)", true);
     uiCheckMbr.setName("ionquant.mbr");
     FormEntry feProtQuant = mu.feb(uiComboProtQuant).name("ionquant.proteinquant").label("Protein quant").tooltip("Algorithm used in calculating protein intensity").create();
     FormEntry feRequant = mu.feb("ionquant.requantify", UiUtils.createUiCheck("Re-quantify", true)).tooltip("Re-quantify unidentified ions in labeling quantification").create();
