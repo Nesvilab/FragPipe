@@ -7,6 +7,7 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
+import com.dmtavt.fragpipe.tools.morerescore.MoreRescorePanel;
 import com.dmtavt.fragpipe.tools.pepproph.PeptideProphetParams;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorOutputToPepXML;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
@@ -26,7 +27,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.apache.commons.io.FilenameUtils;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
@@ -110,6 +110,8 @@ public class CmdPercolator extends CmdBase {
     LinkedList<ProcessBuilderInfo> pbisParallel = new LinkedList<>();
     LinkedList<ProcessBuilderInfo> pbisPostParallel = new LinkedList<>();
 
+    MoreRescorePanel moreRescorePanel = Fragpipe.getStickyStrict(MoreRescorePanel.class);
+
     final Set<String> basenames = new HashSet<>();
     for (Entry<InputLcmsFile, List<Path>> e : pepxmlFiles.entrySet()) {
       for (Path pepxmlPath : e.getValue()) {
@@ -139,7 +141,12 @@ public class CmdPercolator extends CmdBase {
         cmdPp.add(strippedBaseName + "_percolator_target_psms.tsv");
         cmdPp.add("--decoy-results-psms");
         cmdPp.add(strippedBaseName + "_percolator_decoy_psms.tsv");
-        cmdPp.add(Paths.get(strippedBaseName + ".pin").toString());
+
+        if (moreRescorePanel.isRun()) {
+          cmdPp.add(Paths.get("edited_" + strippedBaseName + ".pin").toString());
+        } else {
+          cmdPp.add(Paths.get(strippedBaseName + ".pin").toString());
+        }
 
         ProcessBuilder pbPp = new ProcessBuilder(cmdPp);
         setupEnv(pepxmlDir, pbPp);

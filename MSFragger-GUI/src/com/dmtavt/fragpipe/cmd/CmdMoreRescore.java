@@ -69,7 +69,7 @@ public class CmdMoreRescore extends CmdBase {
         bufferedWriter.write("useDetect = false\n");
         bufferedWriter.write("numThreads = " + threads + "\n");
         bufferedWriter.write("DiaNN = " + diannPath.get(0) + "\n");
-        bufferedWriter.write("renamePin = 0\n");
+        bufferedWriter.write("renamePin = 1\n");
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");
