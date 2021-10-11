@@ -181,7 +181,7 @@ public class PercolatorOutputToPepXML {
         return sb;
     }
 
-    private static String handle_sqectrum_query(final List<String> sq,
+    private static String handle_spectrum_query(final List<String> sq,
                                                 final Map<String, Object[][]> pin_tsv_dict_r,
                                                 final boolean is_DIA, final int DIA_rank) {
         final List<List<String>> search_hits = new ArrayList<>();
@@ -327,7 +327,7 @@ public class PercolatorOutputToPepXML {
                         while ((line = brpepxml.readLine()) != null) {
                             sq.add(line);
                             if (line.trim().equals("</spectrum_query>")) {
-                                out.write(handle_sqectrum_query(sq, pin_tsv_dict_r, is_DIA, rank));
+                                out.write(handle_spectrum_query(sq, pin_tsv_dict_r, is_DIA, rank));
                                 break;
                             }
                         }
