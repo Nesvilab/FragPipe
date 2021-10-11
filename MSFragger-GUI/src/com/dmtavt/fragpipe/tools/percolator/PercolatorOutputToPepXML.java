@@ -210,7 +210,7 @@ public class PercolatorOutputToPepXML {
                     } while (!line.contentEquals("</search_hit>"));
                     search_hits.add(search_hit);
                 } else if (line.trim().startsWith("</search_result>")) {
-                    if (is_DIA)
+                    if (is_DIA) // FixMe: it does not reorder the hits according to ranks updated by Percolator.
                         sb.append(handle_search_hit(search_hits.get(0), tmp[DIA_rank - 1], 1, 1));
                     else {
                         // write the search_hits ordered by Percolator
