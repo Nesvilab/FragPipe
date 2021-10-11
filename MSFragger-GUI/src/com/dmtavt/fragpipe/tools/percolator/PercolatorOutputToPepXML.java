@@ -112,14 +112,18 @@ public class PercolatorOutputToPepXML {
         try (final BufferedReader br = Files.newBufferedReader(path)) {
             String line;
             while ((line = br.readLine()) != null) {
-                final Matcher matcher = compile.matcher(line);
+                final Matcher matcher = compile.matcher(line.trim());
                 if (matcher.find())
                     return Integer.parseInt(matcher.group(1));
             }
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            System.err.println("Cannot find output_report_topN parameter from " + path.toAbsolutePath());
+            System.exit(1);
+            return -1;
         }
-        throw new IllegalStateException();
+        System.err.println("Cannot find output_report_topN parameter from " + path.toAbsolutePath());
+        System.exit(1);
+        return -1;
     }
 
     private static StringBuilder handle_search_hit(final List<String> sh, final Object[] tmp, final int search_rank, final int output_rank) {
@@ -189,13 +193,13 @@ public class PercolatorOutputToPepXML {
         String spectrum;
         final Iterator<String> iterator = sq.iterator();
         for (String line; iterator.hasNext(); ) {
-            line = iterator.next();
+            line = iterator.next().trim();
             spectrum = getSpectrum(line);
             final Object[][] tmp = pin_tsv_dict_r.get(spectrum);
             sb.append(paddingZeros(line)).append('\n');
             while (iterator.hasNext()) { // fixme: the code assumes that there are always <search_hit, massdiff=, and calc_neutral_pep_mass=, which makes it not robust
-                line = iterator.next();
-                if (line.trim().startsWith("<search_result>"))
+                line = iterator.next().trim();
+                if (line.startsWith("<search_result>"))
                     sb.append(line).append('\n');
                 else if (line.trim().startsWith("<search_hit ")) {
                     final ArrayList<String> search_hit = new ArrayList<>();
@@ -203,7 +207,7 @@ public class PercolatorOutputToPepXML {
                     do {
                         line = iterator.next();
                         search_hit.add(line);
-                    } while (!line.trim().contentEquals("</search_hit>"));
+                    } while (!line.contentEquals("</search_hit>"));
                     search_hits.add(search_hit);
                 } else if (line.trim().startsWith("</search_result>")) {
                     if (is_DIA)
@@ -245,7 +249,10 @@ public class PercolatorOutputToPepXML {
         // get max rank from pin
         final boolean is_DIA = DIA_DDA.equals("DIA");
         final int max_rank = get_max_rank(basename, is_DIA);
-        assert max_rank >= 1;
+        if (max_rank < 1) {
+            System.err.println("Cannot find output_report_topN parameter from " + basename + "'s pepXML file.");
+            System.exit(1);
+        }
         final Map<String, Object[][]> pin_tsv_dict_r = new HashMap<>();
 
         try (final BufferedReader brtsv = Files.newBufferedReader(pin)) {
