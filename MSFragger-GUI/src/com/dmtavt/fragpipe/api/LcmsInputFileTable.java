@@ -14,8 +14,9 @@ public class LcmsInputFileTable extends SimpleETable {
       "<html>Experiment, Group, or Condition.<br/>"
           + "<b>Can be left blank</b>, in which case all files are<br/>"
           + "assumed to be part of the same experiment.",
-      "<html>Replicate number (biological, technical, etc).<br/>"
-          + "<b>Integers only. Can be left blank.</b><br/>",
+      "<html>Replicate number. <b>Integers only. Can be left blank.</b><br/>"
+          + "If blank, files from the same experiment will be combined.<br/>"
+          + "Leave it blank if it is fractionated data.",
       "<html>Data types (DDA, DIA, DIA-NW).<br/>"
           + "<b>DIA</b> is for wide window DIA.<br/>"
           + "<b>DIA-NW</b> is for narrow window DIA.<br/>"};
