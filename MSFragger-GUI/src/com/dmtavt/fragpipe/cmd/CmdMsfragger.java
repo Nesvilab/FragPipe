@@ -316,7 +316,7 @@ public class CmdMsfragger extends CmdBase {
     // Search parameter file
     params.setDatabaseName(pathFasta);
     params.setDecoyPrefix(decoyTag);
-    Path savedDdaParamsPath = wd.resolve("fragger_dda.params");
+    Path savedDdaParamsPath = (hasDia || hasDiaNw) ? wd.resolve("fragger_dda.params") : wd.resolve("fragger.params");
     Path savedDiaParamsPath = wd.resolve("fragger_dia.params");
     Path savedDiaNwParamsPath = wd.resolve("fragger_dianw.params");
     if (!isDryRun) {
