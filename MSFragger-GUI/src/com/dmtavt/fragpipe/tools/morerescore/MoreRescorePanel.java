@@ -19,8 +19,11 @@ public class MoreRescorePanel extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(MoreRescorePanel.class);
   private static final String PREFIX = "morerescore.";
   private JPanel pTop;
+  private JPanel pContent;
   private static final MigUtils mu = MigUtils.get();
   private UiCheck checkRun;
+  private UiCheck uiCheckPredictRT;
+  private UiCheck uiCheckPredictSpectra;
 
   public MoreRescorePanel() {
     super();
@@ -33,7 +36,7 @@ public class MoreRescorePanel extends JPanelBase {
 
   @Override
   protected Component getEnablementToggleComponent() {
-    return null;
+    return pContent;
   }
 
   @Override
@@ -48,7 +51,18 @@ public class MoreRescorePanel extends JPanelBase {
 
     pTop = createPanelTop();
 
+    uiCheckPredictRT = new UiCheck("Predict RT", null, true);
+    uiCheckPredictRT.setName("predict-rt");
+
+    uiCheckPredictSpectra = new UiCheck("Predict spectra", null, true);
+    uiCheckPredictSpectra.setName("predict-spectra");
+
+    pContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+    mu.add(pContent, uiCheckPredictRT).split();
+    mu.add(pContent, uiCheckPredictSpectra);
+
     mu.add(this, pTop).growX().wrap();
+    mu.add(this, pContent).growX().wrap();
   }
 
   private JPanel createPanelTop() {
@@ -66,6 +80,14 @@ public class MoreRescorePanel extends JPanelBase {
 
   public boolean isRun() {
     return SwingUtils.isEnabledAndChecked(checkRun);
+  }
+
+  public boolean predictRt() {
+    return uiCheckPredictRT.isSelected();
+  }
+
+  public boolean predictSpectra() {
+    return uiCheckPredictSpectra.isSelected();
   }
 
   @Override

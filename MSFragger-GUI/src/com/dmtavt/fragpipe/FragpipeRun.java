@@ -777,7 +777,7 @@ public class FragpipeRun {
     final CmdMoreRescore cmdMoreRescore = new CmdMoreRescore(moreRescorePanel.isRun(), wd);
     addConfig.accept(cmdMoreRescore, () -> {
       if (cmdMoreRescore.isRun()) {
-        return cmdMoreRescore.configure(parent, ramGb, threads, sharedPepxmlFilesFromMsfragger);
+        return cmdMoreRescore.configure(parent, ramGb, threads, sharedPepxmlFilesFromMsfragger, moreRescorePanel.predictRt(), moreRescorePanel.predictSpectra());
       }
       return true;
     });

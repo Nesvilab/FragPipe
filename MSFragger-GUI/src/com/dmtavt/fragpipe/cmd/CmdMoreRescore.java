@@ -38,7 +38,7 @@ public class CmdMoreRescore extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml) {
+  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra) {
     initPreConfig();
 
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MORERESCORE_NAME).concat(JAR_DEPS));
@@ -70,6 +70,8 @@ public class CmdMoreRescore extends CmdBase {
         bufferedWriter.write("numThreads = " + threads + "\n");
         bufferedWriter.write("DiaNN = " + diannPath.get(0) + "\n");
         bufferedWriter.write("renamePin = 1\n");
+        bufferedWriter.write("useRT = " + (predictRT ? "true" : "false") + "\n");
+        bufferedWriter.write("useSpectra = " + (predictSpectra ? "true" : "false") + "\n");
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");
