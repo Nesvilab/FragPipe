@@ -550,7 +550,7 @@ public class FragpipeRun {
       sb.append(String.format(Locale.ROOT, "  Experiment/Group: %s", e.getValue().name))
           .append("\n");
       for (InputLcmsFile f : e.getValue().lcmsFiles) {
-        sb.append(String.format(Locale.ROOT, "  - %s", f.getPath().toString())).append("\n");
+        sb.append(String.format(Locale.ROOT, "  - %s\t%s", f.getPath().toString(), f.getDataType())).append("\n");
       }
     }
     return sb.toString();
