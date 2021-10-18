@@ -490,7 +490,7 @@ public class MsfraggerParams extends AbstractParams {
     }
 
     public int getRemovePrecursorPeak() {
-        return getInt(PROP_remove_precursor_peak, "0");
+        return getInt(PROP_remove_precursor_peak, "1");
     }
 
     public void setRemovePrecursorPeak(int v) {

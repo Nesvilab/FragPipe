@@ -19,7 +19,7 @@ isotope_error = 0/1
 mass_offsets = 0
 precursor_mass_mode = selected
 
-remove_precursor_peak = 0
+remove_precursor_peak = 1
 remove_precursor_range = -1.5,1.5
 intensity_transform = 0
 
