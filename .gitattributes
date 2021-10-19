@@ -1,1 +1,2 @@
 torch_cpu.dll filter=lfs diff=lfs merge=lfs -text
+libtorch_cpu.so filter=lfs diff=lfs merge=lfs -text

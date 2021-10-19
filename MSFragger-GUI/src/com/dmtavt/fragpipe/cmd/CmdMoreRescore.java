@@ -3,6 +3,8 @@ package com.dmtavt.fragpipe.cmd;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.SMILE_CORE_JAR;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.SMILE_MATH_JAR;
+import static com.github.chhh.utils.OsUtils.isUnix;
+import static com.github.chhh.utils.OsUtils.isWindows;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
@@ -30,7 +32,8 @@ public class CmdMoreRescore extends CmdBase {
   public static final String JAR_MORERESCORE_NAME = "morerescore-1.0.jar";
   public static final String JAR_MORERESCORE_MAIN_CLASS = "Features.MainClass";
   private static final String[] JAR_DEPS = {SMILE_CORE_JAR, SMILE_MATH_JAR, BATMASS_IO_JAR};
-  private static final String DIANN_EXE = "diann/win/DiaNN.exe";
+  private static final String DIANN_WIN = "diann/1.8/win/DiaNN.exe";
+  private static final String DIANN_LINUX = "diann/1.8/linux/diann-1.8";
   private static final Pattern pattern1 = Pattern.compile("\\.pepXML$");
   private static final Pattern pattern2 = Pattern.compile("_rank[0-9]+\\.pepXML$");
 
@@ -51,7 +54,16 @@ public class CmdMoreRescore extends CmdBase {
       return false;
     }
 
-    final List<Path> diannPath = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_EXE));
+    final List<Path> diannPath;
+    if (isWindows()) {
+      diannPath = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_WIN));
+    } else if (isUnix()) {
+      diannPath = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_LINUX));
+    } else {
+      System.err.println("DIA-NN only works in Windows and Linux.");
+      return false;
+    }
+
     if (diannPath == null || diannPath.isEmpty()) {
       System.err.println("Cannot find DIA-NN executable file.");
       return false;
