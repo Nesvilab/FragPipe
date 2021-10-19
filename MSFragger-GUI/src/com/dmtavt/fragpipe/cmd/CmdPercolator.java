@@ -143,7 +143,7 @@ public class CmdPercolator extends CmdBase {
         cmdPp.add(strippedBaseName + "_percolator_decoy_psms.tsv");
 
         if (moreRescorePanel.isRun()) {
-          cmdPp.add(Paths.get("edited_" + strippedBaseName + ".pin").toString());
+          cmdPp.add(Paths.get(strippedBaseName + "_edited.pin").toString());
         } else {
           cmdPp.add(Paths.get(strippedBaseName + ".pin").toString());
         }
