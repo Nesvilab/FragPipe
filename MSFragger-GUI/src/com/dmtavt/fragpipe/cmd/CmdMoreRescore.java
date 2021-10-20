@@ -47,7 +47,7 @@ public class CmdMoreRescore extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra) {
+  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean hasDda, boolean hasDia, boolean hasDiaNw) {
     initPreConfig();
 
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MORERESCORE_NAME).concat(JAR_DEPS));
@@ -103,6 +103,22 @@ public class CmdMoreRescore extends CmdBase {
       }
     }
 
+    String fraggerParams;
+    if (hasDda) {
+      if (hasDia || hasDiaNw) {
+        fraggerParams = wd.resolve("fragger_dda.params").toAbsolutePath().toString();
+      } else {
+        fraggerParams = wd.resolve("fragger.params").toAbsolutePath().toString();
+      }
+    } else if (hasDia) {
+      fraggerParams = wd.resolve("fragger_dia.params").toAbsolutePath().toString();
+    } else if (hasDiaNw) {
+      fraggerParams = wd.resolve("fragger_dianw.params").toAbsolutePath().toString();
+    } else {
+      System.err.println("There are not DDA, DIA, or DIA-NW.");
+      return false;
+    }
+
     final Path paramPath = wd.resolve("morerescore_params.txt");
 
     if (Files.exists(paramPath.getParent())) { // Dry run does not make directories, so does not write the file.
@@ -115,6 +131,7 @@ public class CmdMoreRescore extends CmdBase {
         bufferedWriter.write("renamePin = 1\n");
         bufferedWriter.write("useRT = " + (predictRT ? "true" : "false") + "\n");
         bufferedWriter.write("useSpectra = " + (predictSpectra ? "true" : "false") + "\n");
+        bufferedWriter.write("fragger = " + fraggerParams + "\n");
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");
