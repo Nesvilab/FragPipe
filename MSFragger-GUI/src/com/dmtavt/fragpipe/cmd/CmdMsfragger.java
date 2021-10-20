@@ -75,7 +75,7 @@ public class CmdMsfragger extends CmdBase {
     Map<InputLcmsFile, List<Path>> m = new HashMap<>();
     for (InputLcmsFile f : inputs) {
       if (!f.getDataType().contentEquals("DDA") && !ext.contentEquals("tsv") && !ext.contentEquals("pin")) {
-        for (int rank = 1; rank <= outputReportTopN; ++rank) {
+        for (int rank = 1; rank <= Math.max(5, outputReportTopN); ++rank) { // MSFragger-DIA generate top 3 or top 5 pepXML files by-default.
           String pepxmlFn = getPepxmlFn(f, ext, rank);
           List<Path> t = m.get(f);
           if (t == null) {
