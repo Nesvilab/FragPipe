@@ -1,4 +1,4 @@
-package com.dmtavt.fragpipe.tools.morerescore;
+package com.dmtavt.fragpipe.tools.msbooster;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
@@ -15,9 +15,9 @@ import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MoreRescorePanel extends JPanelBase {
-  private static final Logger log = LoggerFactory.getLogger(MoreRescorePanel.class);
-  private static final String PREFIX = "morerescore.";
+public class MSBoosterPanel extends JPanelBase {
+  private static final Logger log = LoggerFactory.getLogger(MSBoosterPanel.class);
+  private static final String PREFIX = "msbooster.";
   private JPanel pTop;
   private JPanel pContent;
   private static final MigUtils mu = MigUtils.get();
@@ -25,7 +25,7 @@ public class MoreRescorePanel extends JPanelBase {
   private UiCheck uiCheckPredictRT;
   private UiCheck uiCheckPredictSpectra;
 
-  public MoreRescorePanel() {
+  public MSBoosterPanel() {
     super();
   }
 
@@ -69,8 +69,8 @@ public class MoreRescorePanel extends JPanelBase {
 
     JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
-    checkRun = new UiCheck("Run MoreRescore", null, false);
-    checkRun.setName("run-morerescore");
+    checkRun = new UiCheck("Run MSBooster", null, false);
+    checkRun.setName("run-msbooster");
     JLabel info = new JLabel("<html>Rescoring using deep learning prediction. Require <b>Run Percolator</b> in PSM validation panel.");
 
     mu.add(p, checkRun).split();
@@ -96,7 +96,7 @@ public class MoreRescorePanel extends JPanelBase {
       if (isRun()) {
         final TabMsfragger tabMsfragger = Fragpipe.getStickyStrict(TabMsfragger.class);
         if (tabMsfragger.isOpenMassOffsetSearch()) {
-          JOptionPane.showMessageDialog(this, "<html>MoreRescore is incompatible with open search or mass offset search. Uncheck it.", "Incompatible options", JOptionPane.WARNING_MESSAGE);
+          JOptionPane.showMessageDialog(this, "<html>MSBooster is incompatible with open search or mass offset search. Uncheck it.", "Incompatible options", JOptionPane.WARNING_MESSAGE);
           checkRun.setSelected(false);
         } else {
           final PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);

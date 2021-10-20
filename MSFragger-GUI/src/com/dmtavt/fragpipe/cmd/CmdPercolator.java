@@ -7,7 +7,7 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
-import com.dmtavt.fragpipe.tools.morerescore.MoreRescorePanel;
+import com.dmtavt.fragpipe.tools.msbooster.MSBoosterPanel;
 import com.dmtavt.fragpipe.tools.pepproph.PeptideProphetParams;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorOutputToPepXML;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
@@ -110,7 +110,7 @@ public class CmdPercolator extends CmdBase {
     LinkedList<ProcessBuilderInfo> pbisParallel = new LinkedList<>();
     LinkedList<ProcessBuilderInfo> pbisPostParallel = new LinkedList<>();
 
-    MoreRescorePanel moreRescorePanel = Fragpipe.getStickyStrict(MoreRescorePanel.class);
+    MSBoosterPanel msboosterPanel = Fragpipe.getStickyStrict(MSBoosterPanel.class);
 
     final Set<String> basenames = new HashSet<>();
     for (Entry<InputLcmsFile, List<Path>> e : pepxmlFiles.entrySet()) {
@@ -142,7 +142,7 @@ public class CmdPercolator extends CmdBase {
         cmdPp.add("--decoy-results-psms");
         cmdPp.add(strippedBaseName + "_percolator_decoy_psms.tsv");
 
-        if (moreRescorePanel.isRun()) {
+        if (msboosterPanel.isRun()) {
           cmdPp.add(Paths.get(strippedBaseName + "_edited.pin").toString());
         } else {
           cmdPp.add(Paths.get(strippedBaseName + ".pin").toString());

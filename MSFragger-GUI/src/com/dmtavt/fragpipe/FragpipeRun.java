@@ -13,7 +13,7 @@ import com.dmtavt.fragpipe.cmd.CmdFreequant;
 import com.dmtavt.fragpipe.cmd.CmdIonquant;
 import com.dmtavt.fragpipe.cmd.CmdIprophet;
 import com.dmtavt.fragpipe.cmd.CmdLabelquant;
-import com.dmtavt.fragpipe.cmd.CmdMoreRescore;
+import com.dmtavt.fragpipe.cmd.CmdMSBooster;
 import com.dmtavt.fragpipe.cmd.CmdMsfragger;
 import com.dmtavt.fragpipe.cmd.CmdPeptideProphet;
 import com.dmtavt.fragpipe.cmd.CmdPercolator;
@@ -59,7 +59,7 @@ import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
-import com.dmtavt.fragpipe.tools.morerescore.MoreRescorePanel;
+import com.dmtavt.fragpipe.tools.msbooster.MSBoosterPanel;
 import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
@@ -772,12 +772,12 @@ public class FragpipeRun {
       return true;
     });
 
-    // Run MoreRescore
-    final MoreRescorePanel moreRescorePanel = Fragpipe.getStickyStrict(MoreRescorePanel.class);
-    final CmdMoreRescore cmdMoreRescore = new CmdMoreRescore(moreRescorePanel.isRun(), wd);
-    addConfig.accept(cmdMoreRescore, () -> {
-      if (cmdMoreRescore.isRun()) {
-        return cmdMoreRescore.configure(parent, ramGb, threads, sharedPepxmlFilesFromMsfragger, moreRescorePanel.predictRt(), moreRescorePanel.predictSpectra(), tabWorkflow.hasDda(), tabWorkflow.hasDia(), tabWorkflow.hasDiaNw());
+    // Run MSBooster
+    final MSBoosterPanel MSBoosterPanel = Fragpipe.getStickyStrict(MSBoosterPanel.class);
+    final CmdMSBooster cmdMSBooster = new CmdMSBooster(MSBoosterPanel.isRun(), wd);
+    addConfig.accept(cmdMSBooster, () -> {
+      if (cmdMSBooster.isRun()) {
+        return cmdMSBooster.configure(parent, ramGb, threads, sharedPepxmlFilesFromMsfragger, MSBoosterPanel.predictRt(), MSBoosterPanel.predictSpectra(), tabWorkflow.hasDda(), tabWorkflow.hasDia(), tabWorkflow.hasDiaNw());
       }
       return true;
     });
@@ -1193,9 +1193,9 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdUmpire);
 
     addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger);
-    addToGraph(graphOrder, cmdMoreRescore, DIRECTION.IN, cmdMsfragger);
+    addToGraph(graphOrder, cmdMSBooster, DIRECTION.IN, cmdMsfragger);
     addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdCrystalc);
-    addToGraph(graphOrder, cmdPercolator, DIRECTION.IN, cmdMsfragger, cmdCrystalc, cmdMoreRescore);
+    addToGraph(graphOrder, cmdPercolator, DIRECTION.IN, cmdMsfragger, cmdCrystalc, cmdMSBooster);
     for (final CmdBase cmdPeptideValidation : new CmdBase[]{cmdPeptideProphet, cmdPercolator}) {
       addToGraph(graphOrder, cmdPtmProphet, DIRECTION.IN, cmdPeptideValidation);
       addToGraph(graphOrder, cmdProteinProphet, DIRECTION.IN, cmdPeptideValidation, cmdPtmProphet);

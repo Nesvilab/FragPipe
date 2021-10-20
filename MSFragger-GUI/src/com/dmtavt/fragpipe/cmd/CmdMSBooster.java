@@ -26,11 +26,11 @@ import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CmdMoreRescore extends CmdBase {
-  private static final Logger log = LoggerFactory.getLogger(CmdMoreRescore.class);
-  public static String NAME = "MoreRescore";
-  public static final String JAR_MORERESCORE_NAME = "morerescore-1.0.jar";
-  public static final String JAR_MORERESCORE_MAIN_CLASS = "Features.MainClass";
+public class CmdMSBooster extends CmdBase {
+  private static final Logger log = LoggerFactory.getLogger(CmdMSBooster.class);
+  public static String NAME = "MSBooster";
+  public static final String JAR_MSBOOSTER_NAME = "msbooster-1.0.jar";
+  public static final String JAR_MSBOOSTER_MAIN_CLASS = "Features.MainClass";
   private static final String[] JAR_DEPS = {SMILE_CORE_JAR, SMILE_MATH_JAR, BATMASS_IO_JAR};
   private static final String[] DIANN_SO_DEPS = {"diann_so/libm.so.6", "diann_so/libstdc++.so.6"};
   private static final String DIANN_WIN = "diann/1.8/win/DiaNN.exe";
@@ -38,7 +38,7 @@ public class CmdMoreRescore extends CmdBase {
   private static final Pattern pattern1 = Pattern.compile("\\.pepXML$");
   private static final Pattern pattern2 = Pattern.compile("_rank[0-9]+\\.pepXML$");
 
-  public CmdMoreRescore(boolean isRun, Path workDir) {
+  public CmdMSBooster(boolean isRun, Path workDir) {
     super(isRun, workDir);
   }
 
@@ -50,7 +50,7 @@ public class CmdMoreRescore extends CmdBase {
   public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean hasDda, boolean hasDia, boolean hasDiaNw) {
     initPreConfig();
 
-    final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MORERESCORE_NAME).concat(JAR_DEPS));
+    final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MSBOOSTER_NAME).concat(JAR_DEPS));
     if (classpathJars == null) {
       return false;
     }
@@ -119,7 +119,7 @@ public class CmdMoreRescore extends CmdBase {
       return false;
     }
 
-    final Path paramPath = wd.resolve("morerescore_params.txt");
+    final Path paramPath = wd.resolve("msbooster_params.txt");
 
     if (Files.exists(paramPath.getParent())) { // Dry run does not make directories, so does not write the file.
       try {
@@ -170,7 +170,7 @@ public class CmdMoreRescore extends CmdBase {
 
     cmd.add("-cp");
     cmd.add(constructClasspathString(classpathJars));
-    cmd.add(JAR_MORERESCORE_MAIN_CLASS);
+    cmd.add(JAR_MSBOOSTER_MAIN_CLASS);
     cmd.add("--paramsList");
     cmd.add(paramPath.toAbsolutePath().toString());
 
