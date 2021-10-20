@@ -12,6 +12,7 @@ import com.dmtavt.fragpipe.api.InputLcmsFile;
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class CmdMoreRescore extends CmdBase {
   public static final String JAR_MORERESCORE_NAME = "morerescore-1.0.jar";
   public static final String JAR_MORERESCORE_MAIN_CLASS = "Features.MainClass";
   private static final String[] JAR_DEPS = {SMILE_CORE_JAR, SMILE_MATH_JAR, BATMASS_IO_JAR};
+  private static final String[] DIANN_SO_DEPS = {"diann_so/libm.so.6", "diann_so/libstdc++.so.6"};
   private static final String DIANN_WIN = "diann/1.8/win/DiaNN.exe";
   private static final String DIANN_LINUX = "diann/1.8/linux/diann-1.8";
   private static final Pattern pattern1 = Pattern.compile("\\.pepXML$");
@@ -77,6 +79,32 @@ public class CmdMoreRescore extends CmdBase {
       return false;
     }
 
+    final boolean ld_preload;
+    final String LD_PRELOAD_str;
+    if (isUnix()) {
+      final List<Path> diann_so_path = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_SO_DEPS));
+      if (diann_so_path == null || diann_so_path.size() != 2) {
+        System.err.print(".so files missing");
+        return false;
+      }
+      LD_PRELOAD_str = diann_so_path.get(0).toString() + ":" + diann_so_path.get(1).toString();
+      final ProcessBuilder pb = new ProcessBuilder("ldd", diannPath.get(0).toString());
+      final java.io.InputStream inputStream;
+      try {
+        final Process proc = pb.redirectErrorStream(true).start();
+        inputStream = proc.getInputStream();
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+      final String s = new java.util.Scanner(inputStream).useDelimiter("\\A").next();
+      ld_preload = s.contains("not found");
+    } else if (isWindows()) {
+      ld_preload = false;
+      LD_PRELOAD_str = null;
+    } else {
+      System.err.println("DIA-NN only works in Windows and Linux.");
+      return false;
+    }
     final Path paramPath = wd.resolve("morerescore_params.txt");
 
     if (Files.exists(paramPath.getParent())) { // Dry run does not make directories, so does not write the file.
@@ -133,6 +161,8 @@ public class CmdMoreRescore extends CmdBase {
 
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(wd.toFile());
+    if (ld_preload)
+      pb.environment().put("LD_PRELOAD", LD_PRELOAD_str);
     pbis.add(PbiBuilder.from(pb));
 
     isConfigured = true;
