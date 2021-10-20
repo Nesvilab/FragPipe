@@ -336,37 +336,52 @@ public class PtmshepherdPanel extends JPanelBase {
   }
 
   private JPanel createpanelGlyco() {
-    JPanel p = mu.newPanel("Glyco/labile options", mu.lcFillXNoInsetsTopBottom());
+    JPanel p = mu.newPanel("Diagnostic Ions", mu.lcFillXNoInsetsTopBottom());
     pGlycoContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
-    uiCheckGlyco = UiUtils.createUiCheck("Enable Glyco/labile Analysis Mode", false);
+    uiCheckGlyco = UiUtils.createUiCheck("Enable Diagnostic Ion Search", false);
     uiCheckGlyco.setName("glyco_mode");
 
     // labile/glyco main params
     FormEntry feYIonMasses = mu.feb(PROP_cap_y_ions, UiUtils.uiTextBuilder().create())
-        .label("Y Ion Masses")
-        .tooltip("Added to peptide mass and searched for in MS2 spectrum. "
-            + "Space, comma, or slash separated values accepted.").create();
+            .label("Y Ion Masses")
+            .tooltip("Partially fragmented modification mass added to peptide mass and searched for in MS2 spectrum. "
+                    + "Space, comma, or slash separated values accepted.").create();
     FormEntry feDiagnosticFragmentMasses = mu.feb(PROP_diag_ions, UiUtils.uiTextBuilder().create())
-        .label("Diagnostic Fragment Masses")
-        .tooltip("Checked for directly in the MS2 spectrum. Assumed to have a +1 charge state. "
-            + "Space, comma, or slash separated values accepted.").create();
+            .label("Diagnostic Fragment Masses")
+            .tooltip("Checked for directly in the MS2 spectrum. Assumed to have a +1 charge state. "
+                    + "Space, comma, or slash separated values accepted.").create();
     FormEntry feRemainderMasses = mu.feb(PROP_remainder_masses, UiUtils.uiTextBuilder().create())
-        .label("Remainder Masses")
-        .tooltip("Partial glycan masses localized to the peptide sequence. "
-            + "Space, comma, or slash separated values accepted.").create();
+            .label("Remainder Masses")
+            .tooltip("Partial modification masses localized to the peptide sequence. "
+                    + "Space, comma, or slash separated values accepted.").create();
+    mu.add(pGlycoContent, feYIonMasses.label(), mu.ccR());
+    mu.add(pGlycoContent, feYIonMasses.comp).spanX().growX().pushX().wrap();
+    mu.add(pGlycoContent, feDiagnosticFragmentMasses.label(), mu.ccR());
+    mu.add(pGlycoContent, feDiagnosticFragmentMasses.comp).spanX().growX().pushX().wrap();
+    mu.add(pGlycoContent, feRemainderMasses.label(), mu.ccR());
+    mu.add(pGlycoContent, feRemainderMasses.comp).spanX().growX().pushX().wrap();
+
+    mu.add(p, uiCheckGlyco).spanX().wrap();
+    mu.add(p, pGlycoContent).growX().wrap();
+    return p;
+  }
+
+  private JPanel createpanelGlycanAssignment() {
+    JPanel p = mu.newPanel("Glycan Assignment and FDR", mu.lcFillXNoInsetsTopBottom());
+    pGlycoContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
     // glycan assignment params
     pGlycoAssignContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     uiCheckGlycoAssign = UiUtils.createUiCheck("Assign Glycans with FDR", true);
     uiCheckGlycoAssign.setName("assign_glycans");
 
-    UiSpinnerDouble uiSpinnerGlycanFDR = UiSpinnerDouble.builder(0.01,0,1.0, 0.01)
+    UiSpinnerDouble uiSpinnerGlycanFDR = UiSpinnerDouble.builder(0.01, 0, 1.0, 0.01)
             .setFormat(new DecimalFormat("0.00#")).setCols(3).create();
     FormEntry feGlycanFDR = new FormEntry(PROP_glycan_fdr, "Glycan FDR", uiSpinnerGlycanFDR,
             "Glycan assignment FDR. Default 0.01 (1%)\n");
 
-    UiSpinnerDouble uiSpinnerGlycanMassErr = UiSpinnerDouble.builder(50.0,0.0,10000.0, 5.0)
+    UiSpinnerDouble uiSpinnerGlycanMassErr = UiSpinnerDouble.builder(50.0, 0.0, 10000.0, 5.0)
             .setFormat(new DecimalFormat("0.#")).setCols(5).create();
     FormEntry feGlycanMassErr = new FormEntry(PROP_glyco_mass_error_ppm, "Glycan mass tolerance (ppm)", uiSpinnerGlycanMassErr,
             "Mass tolerance for finding possible glycan candidates to consider in glycan assignment (ppm).\n");
@@ -390,13 +405,6 @@ public class PtmshepherdPanel extends JPanelBase {
     FormEntry feGlycanToAssignedMods = mu.feb(PROP_glycan_to_assigned_mods, UiUtils.createUiCheck("Write glycans to Assigned Modifications for Quant", false)).create();
     FormEntry feNGlycanMode = mu.feb(PROP_nglyco_mode, UiUtils.createUiCheck("N-Glycan Mode", true)).create();
 
-    mu.add(pGlycoContent, feYIonMasses.label(), mu.ccR());
-    mu.add(pGlycoContent, feYIonMasses.comp).spanX().growX().pushX().wrap();
-    mu.add(pGlycoContent, feDiagnosticFragmentMasses.label(), mu.ccR());
-    mu.add(pGlycoContent, feDiagnosticFragmentMasses.comp).spanX().growX().pushX().wrap();
-    mu.add(pGlycoContent, feRemainderMasses.label(), mu.ccR());
-    mu.add(pGlycoContent, feRemainderMasses.comp).spanX().growX().pushX().wrap();
-
     mu.add(pGlycoAssignContent, feGlycanFDR.label(), mu.ccR());
     mu.add(pGlycoAssignContent, feGlycanFDR.comp).wrap();
     mu.add(pGlycoAssignContent, feGlycanMassErr.label(), mu.ccR());
@@ -413,9 +421,6 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(pGlycoAssignContent, feNGlycanMode.comp).spanX().split();
     mu.add(pGlycoAssignContent, feGlycanToAssignedMods.comp).wrap();
 
-    mu.add(p, uiCheckGlyco).spanX().wrap();
-    mu.add(p, new JLabel("Labile/glyco mode masses: ")).spanX();
-    mu.add(p, pGlycoContent).growX().wrap();
     mu.add(p, uiCheckGlycoAssign).spanX().wrap();
     mu.add(p, pGlycoAssignContent).growX().wrap();
     return p;
@@ -622,6 +627,8 @@ public class PtmshepherdPanel extends JPanelBase {
 
     JPanel pGlyco = createpanelGlyco();
     mu.add(p, pGlyco).spanX().growX().wrap();
+    JPanel pGlycanAssignment = createpanelGlycanAssignment();
+    mu.add(p, pGlycanAssignment).spanX().growX().wrap();
 
     return p;
   }
