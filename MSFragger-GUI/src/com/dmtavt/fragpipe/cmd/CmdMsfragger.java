@@ -493,7 +493,7 @@ public class CmdMsfragger extends CmdBase {
               Path pepxmlAsCreatedByFragger = f.getPath().getParent().resolve(pepxmlFn);
               if (!pepxmlAsCreatedByFragger.equals(pepxmlWhereItShouldBe)) {
                 List<ProcessBuilder> pbsMove = ToolingUtils
-                    .pbsMoveFiles(jarFragpipe, pepxmlWhereItShouldBe.getParent(),
+                    .pbsMoveFiles(jarFragpipe, pepxmlWhereItShouldBe.getParent(), true,
                         Collections.singletonList(pepxmlAsCreatedByFragger));
                 pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move pepxml"));
               }

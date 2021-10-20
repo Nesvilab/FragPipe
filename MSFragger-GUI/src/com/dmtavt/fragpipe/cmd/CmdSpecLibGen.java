@@ -110,10 +110,10 @@ public class CmdSpecLibGen extends CmdBase {
               // and the file does not yet exist.
               // Copy over the file and schedule for deletion.
               List<ProcessBuilder> pbCopy = ToolingUtils
-                      .pbsCopyFiles(jarFragpipe, groupWd, Collections.singletonList(lcms_path));
+                      .pbsCopyFiles(jarFragpipe, groupWd, true, Collections.singletonList(lcms_path));
               pbis.addAll(PbiBuilder.from(pbCopy));
               pbsDeleteLcmsFiles.addAll(ToolingUtils
-                      .pbsDeleteFiles(jarFragpipe, Collections.singletonList(groupWd.resolve(lcms_path.getFileName()))));
+                      .pbsDeleteFiles(jarFragpipe, true, Collections.singletonList(groupWd.resolve(lcms_path.getFileName()))));
             }
           }
       }

@@ -154,13 +154,13 @@ public class CmdUmpireSe extends CmdBase {
         // destination dir is different from mzXML file location
         // need to move output and cleanup
         List<Path> garbage = UmpireSeGarbageFiles.getGarbageFiles(f.getPath(), true, true);
-        List<ProcessBuilder> pbsMove = ToolingUtils.pbsMoveFiles(jarFragpipe, destDir, garbage);
+        List<ProcessBuilder> pbsMove = ToolingUtils.pbsMoveFiles(jarFragpipe, destDir, true, garbage);
         pbis.addAll(PbiBuilder.from(pbsMove));
       }
 
       // delete garbage files
       final List<Path> garbage = UmpireSeGarbageFiles.getGarbageFiles(destDir.resolve(f.getPath().getFileName()), false, false);
-      final List<ProcessBuilder> pbsDeleteFiles = ToolingUtils.pbsDeleteFiles(jarFragpipe, garbage);
+      final List<ProcessBuilder> pbsDeleteFiles = ToolingUtils.pbsDeleteFiles(jarFragpipe, true, garbage);
       pbis.addAll(PbiBuilder.from(pbsDeleteFiles));
     }
 

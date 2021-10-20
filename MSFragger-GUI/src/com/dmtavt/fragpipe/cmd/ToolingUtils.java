@@ -70,13 +70,6 @@ public class ToolingUtils {
   /**
    * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
    */
-  public static List<ProcessBuilder> pbsCopyFiles(Path jarFragpipe, Path dest, List<Path> files) {
-    return pbsCopyMoveDeleteFiles(jarFragpipe, Op.COPY, dest, files);
-  }
-
-  /**
-   * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
-   */
   public static List<ProcessBuilder> pbsMoveFiles(Path jarFragpipe, Path dest,
       boolean ignoreMissingFiles, List<Path> files) {
     return pbsCopyMoveDeleteFiles(jarFragpipe, Op.MOVE, dest, ignoreMissingFiles, files);
@@ -85,23 +78,8 @@ public class ToolingUtils {
   /**
    * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
    */
-  public static List<ProcessBuilder> pbsMoveFiles(Path jarFragpipe, Path dest, List<Path> files) {
-    return pbsCopyMoveDeleteFiles(jarFragpipe, Op.MOVE, dest, files);
-  }
-
-  /**
-   * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
-   */
-  public static List<ProcessBuilder> pbsDeleteFiles(Path jarFragpipe, List<Path> files) {
-    return pbsCopyMoveDeleteFiles(jarFragpipe, Op.DELETE, null, files);
-  }
-
-  /**
-   * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
-   */
-  private static List<ProcessBuilder> pbsCopyMoveDeleteFiles(Path jarFragpipe, Op operation, Path dest,
-      List<Path> files) {
-    return pbsCopyMoveDeleteFiles(jarFragpipe, operation, dest, false, files);
+  public static List<ProcessBuilder> pbsDeleteFiles(Path jarFragpipe, boolean ignoreMissingFiles, List<Path> files) {
+    return pbsCopyMoveDeleteFiles(jarFragpipe, Op.DELETE, null, ignoreMissingFiles, files);
   }
 
   /**

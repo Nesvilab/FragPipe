@@ -4,7 +4,6 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
-import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tools.pepproph.PeptideProphetParams;
@@ -260,7 +259,7 @@ public class CmdPeptideProphet extends CmdBase {
           // delete temp dir
           workspacesToBeCleaned.add(temp);
           List<ProcessBuilder> pbsDeleteTemp = ToolingUtils
-              .pbsDeleteFiles(jarFragpipe, Collections.singletonList(temp));
+              .pbsDeleteFiles(jarFragpipe, true, Collections.singletonList(temp));
           pbisPostParallel.addAll(pbsDeleteTemp.stream()
               .map(pb -> new PbiBuilder()
                   .setPb(pb)
