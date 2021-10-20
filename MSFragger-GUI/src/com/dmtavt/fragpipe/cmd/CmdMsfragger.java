@@ -325,30 +325,15 @@ public class CmdMsfragger extends CmdBase {
           params.setDataType(0);
           params.save(new FileOutputStream(savedDdaParamsPath.toFile()));
         }
-        if (hasDia || hasDiaNw) {
-          // Adjust some parameters.
-          int oldCalibrateMass = params.getCalibrateMass();
-          String oldIsotopeError = params.getIsotopeError();
-          boolean oldReportAlternativeProteins = params.getReportAlternativeProteins();
-          params.setCalibrateMass(Math.min(1, oldCalibrateMass));
-          params.setIsotopeError("0");
-          params.setReportAlternativeProteins(true);
-
-          if (hasDia) {
-            params.setDataType(1);
-            params.save(new FileOutputStream(savedDiaParamsPath.toFile()));
-          }
-
-          if (hasDiaNw) {
-            params.setDataType(2);
-            params.save(new FileOutputStream(savedDiaNwParamsPath.toFile()));
-          }
-
-          // Change the adjusted parameters back.
-          params.setCalibrateMass(oldCalibrateMass);
-          params.setIsotopeError(oldIsotopeError);
-          params.setReportAlternativeProteins(oldReportAlternativeProteins);
+        if (hasDia) {
+          params.setDataType(1);
+          params.save(new FileOutputStream(savedDiaParamsPath.toFile()));
         }
+        if (hasDiaNw) {
+          params.setDataType(2);
+          params.save(new FileOutputStream(savedDiaNwParamsPath.toFile()));
+        }
+
         // cache the params
         params.save();
       } catch (IOException ex) {
