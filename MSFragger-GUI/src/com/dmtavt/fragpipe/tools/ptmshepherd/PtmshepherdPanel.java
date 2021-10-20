@@ -47,6 +47,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import net.java.balloontip.BalloonTip;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -104,6 +107,18 @@ public class PtmshepherdPanel extends JPanelBase {
   private static final String PROP_glyco_isotope_error_high = "glyco_isotope_max";
   private static final String PROP_adduct_names = "glyco_adducts";
   private static final String PROP_max_adducts = "max_adducts";
+  private static final String PROP_neuac_probs = "prob_neuacOx";
+  private static final String PROP_neugc_probs = "prob_neugcOx";
+  private static final String PROP_fucOx_probs = "prob_dhexOx";
+  private static final String PROP_phospho_probs = "prob_phosphoOx";
+  private static final String PROP_sulfo_probs = "prob_sulfoOx";
+  private static final String PROP_regY_probs = "prob_regY";
+  private static final String PROP_fucY_probs = "prob_dhexY";
+  private static final String PROP_decoy_type = "decoy_type";
+  private static final String PROP_glycan_database = "glycodatabase";
+  private static final String PROP_remove_glyco_deltamass = "remove_glycan_delta_mass";
+  private static final String PROP_print_decoys = "print_decoys";
+
   private static final String PROP_glycan_to_assigned_mods = "put_glycans_to_assigned_mods";
   private static final String PROP_nglyco_mode = "n_glyco";
 
@@ -125,10 +140,13 @@ public class PtmshepherdPanel extends JPanelBase {
   private JRadioButton btnAnnGlyco;
   private UiText uiTextAnnotationFile;
   private UiText uiTextLocalizationAAs;
+  private UiText uiTextGlycanDBFile;
   private UiCheck uiCheckGlyco;
   private UiCheck uiCheckGlycoAssign;
+  private UiCheck uiCheckGlycoAdvParams;
   private JPanel pGlycoContent;
   private JPanel pGlycoAssignContent;
+  private JPanel pGlycoAdvParams;
 
   private static String itos(int i) {
     return Integer.toString(i);
@@ -369,12 +387,15 @@ public class PtmshepherdPanel extends JPanelBase {
 
   private JPanel createpanelGlycanAssignment() {
     JPanel p = mu.newPanel("Glycan Assignment and FDR", mu.lcFillXNoInsetsTopBottom());
-    pGlycoContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
     // glycan assignment params
     pGlycoAssignContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+    pGlycoAdvParams = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+
     uiCheckGlycoAssign = UiUtils.createUiCheck("Assign Glycans with FDR", true);
     uiCheckGlycoAssign.setName("assign_glycans");
+    uiCheckGlycoAdvParams = UiUtils.createUiCheck("Edit Advanced Parameters", false);
+    uiCheckGlycoAdvParams.setName("adv_params");
 
     UiSpinnerDouble uiSpinnerGlycanFDR = UiSpinnerDouble.builder(0.01, 0, 1.0, 0.01)
             .setFormat(new DecimalFormat("0.00#")).setCols(3).create();
@@ -402,27 +423,111 @@ public class PtmshepherdPanel extends JPanelBase {
             new UiSpinnerInt(0, 0, 5, 1, 1),
             "Maximum number of each specified adduct to allow");
 
-    FormEntry feGlycanToAssignedMods = mu.feb(PROP_glycan_to_assigned_mods, UiUtils.createUiCheck("Write glycans to Assigned Modifications for Quant", false)).create();
+    String tooltipGlycanDBFile = "Custom glycan database file (.glyc). Will use internal default N-glycan list if not provided.";
+    uiTextGlycanDBFile = UiUtils.uiTextBuilder().create();
+    List<FileFilter> glycFilters = new ArrayList<>();
+    FileFilter filter = new FileNameExtensionFilter("Glycan Database file", "glyc", ".glyc");
+    glycFilters.add(filter);
+    FormEntry feGlycanDBFile = mu.feb(PROP_glycan_database, uiTextGlycanDBFile)
+            .label("Custom Glycan Database").tooltip(tooltipGlycanDBFile).create();
+    JButton btnBrosweGlycanDBFile = feGlycanDBFile.browseButton("Browse", tooltipGlycanDBFile,
+            () -> FileChooserUtils.builder("Select custom glycan database file")
+                    .approveButton("Select").mode(FcMode.FILES_ONLY).acceptAll(false).multi(false).filters(glycFilters)
+                    .paths(Stream.of(Fragpipe.propsVarGet(PROP_glycan_database))).create(),
+            paths -> {
+              if (paths != null && !paths.isEmpty()) {
+                String path = paths.get(0).toString();
+                Fragpipe.propsVarSet(PROP_glycan_database, path);
+                uiTextGlycanDBFile.setText(path);
+              }
+            });
+
+    FormEntry feNeuAcProbs = mu.feb(PROP_neuac_probs, UiUtils.uiTextBuilder().create())
+            .label("NeuAc Oxonium Ratios")
+            .tooltip("Likelihood ratios for NeuAc oxonium ions. Hit ratio, miss ratio, expected intensity, separated by commas. " +
+                    "Default 2,0.05,0.2").create();
+    FormEntry feNeuGcProbs = mu.feb(PROP_neugc_probs, UiUtils.uiTextBuilder().create())
+            .label("NeuGc Oxonium Ratios")
+            .tooltip("Likelihood ratios for NeuGc oxonium ions. Hit ratio, miss ratio, expected intensity, separated by commas. " +
+                    "Default 2,0.05,0.2").create();
+    FormEntry feFucOxProbs = mu.feb(PROP_fucOx_probs, UiUtils.uiTextBuilder().create())
+            .label("Fucose Oxonium Ratios")
+            .tooltip("Likelihood ratios for Fucose oxonium ions. Hit ratio, miss ratio, expected intensity, separated by commas. " +
+                    "Default 2,0.5,0.1").create();
+    FormEntry fePhosphoProbs = mu.feb(PROP_phospho_probs, UiUtils.uiTextBuilder().create())
+            .label("Phospho Oxonium Ratios")
+            .tooltip("Likelihood ratios for Phospho oxonium ions. Hit ratio, miss ratio, expected intensity, separated by commas. " +
+                    "Default 2,0.05,0.2").create();
+    FormEntry feSulfoProbs = mu.feb(PROP_sulfo_probs, UiUtils.uiTextBuilder().create())
+            .label("Sulfo Oxonium Ratios")
+            .tooltip("Likelihood ratios for Sulfo oxonium ions. Hit ratio, miss ratio, expected intensity, separated by commas. " +
+                    "Default 2,0.1,0.1").create();
+    FormEntry feRegYProbs = mu.feb(PROP_regY_probs, UiUtils.uiTextBuilder().create())
+            .label("Y-ion Ratios")
+            .tooltip("Likelihood ratios for Y-ions not containing Fucose. Hit ratio, miss ratio, separated by commas. " +
+                    "Default 5,0.5").create();
+    FormEntry feFucYProbs = mu.feb(PROP_fucY_probs, UiUtils.uiTextBuilder().create())
+            .label("Fucose Y-ion Ratios")
+            .tooltip("Likelihood ratios for for Y-ions containing Fucose. Hit ratio, miss ratio, separated by commas. " +
+                    "Default 2,0.5").create();
+    FormEntry feDecoyType = new FormEntry(PROP_decoy_type, "Decoy Type",
+            new UiSpinnerInt(1, 0, 3, 1, 1),
+            "How to generate decoy glycan intact mass.\n " +
+                    "0: Random mass shift within +/- 3 Da\n" +
+                    "1: Random mass shift within glycan mass error tolerance, random isotope error (DEFAULT)\n" +
+                    "2: Random mass shift within glycan mass error tolerance, no isotope error\n" +
+                    "3: exact same mass as target");
+
+    FormEntry fePrintGlycoDecoys = mu.feb(PROP_print_decoys, UiUtils.createUiCheck("Print Decoy Glycans", false)).create();
+    FormEntry feRemoveGlycoDeltaMass = mu.feb(PROP_remove_glyco_deltamass, UiUtils.createUiCheck("Remove Glycan Delta Mass", false)).create();
     FormEntry feNGlycanMode = mu.feb(PROP_nglyco_mode, UiUtils.createUiCheck("N-Glycan Mode", true)).create();
 
     mu.add(pGlycoAssignContent, feGlycanFDR.label(), mu.ccR());
-    mu.add(pGlycoAssignContent, feGlycanFDR.comp).wrap();
+    mu.add(pGlycoAssignContent, feGlycanFDR.comp).split();
+
     mu.add(pGlycoAssignContent, feGlycanMassErr.label(), mu.ccR());
-    mu.add(pGlycoAssignContent, feGlycanMassErr.comp).wrap();
+    mu.add(pGlycoAssignContent, feGlycanMassErr.comp).split();
     mu.add(pGlycoAssignContent, feGlycanIsotopesLow.label(), mu.ccR());
     mu.add(pGlycoAssignContent, feGlycanIsotopesLow.comp).split();
     mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.label(), mu.ccR());
-    mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.comp).wrap();
+    mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.comp).split();
+    mu.add(pGlycoAssignContent, feNGlycanMode.comp).split().spanX().pushX().wrap();
 
     mu.add(pGlycoAssignContent, feMaxAdducts.label(), mu.ccR());
     mu.add(pGlycoAssignContent, feMaxAdducts.comp).split();
     mu.add(pGlycoAssignContent, feAdductNames.label(), mu.ccR());
-    mu.add(pGlycoAssignContent, feAdductNames.comp).spanX().growX().pushX().wrap();
-    mu.add(pGlycoAssignContent, feNGlycanMode.comp).spanX().split();
-    mu.add(pGlycoAssignContent, feGlycanToAssignedMods.comp).wrap();
+    mu.add(pGlycoAssignContent, feAdductNames.comp).growX(200).split();
+    mu.add(pGlycoAssignContent, feGlycanDBFile.label(), mu.ccR());
+    mu.add(pGlycoAssignContent, btnBrosweGlycanDBFile, mu.ccR());
+    mu.add(pGlycoAssignContent, feGlycanDBFile.comp).split().growX().spanX().pushX().wrap();
 
     mu.add(p, uiCheckGlycoAssign).spanX().wrap();
     mu.add(p, pGlycoAssignContent).growX().wrap();
+
+    // advanced params panel
+    mu.add(pGlycoAdvParams, feNeuAcProbs.label(), mu.ccR());
+    mu.add(pGlycoAdvParams, feNeuAcProbs.comp).split();
+    mu.add(pGlycoAdvParams, feNeuGcProbs.label(), mu.ccR());
+    mu.add(pGlycoAdvParams, feNeuGcProbs.comp).split();
+    mu.add(pGlycoAdvParams, feFucOxProbs.label(), mu.ccR());
+    mu.add(pGlycoAdvParams, feFucOxProbs.comp).split();
+    mu.add(pGlycoAdvParams, fePhosphoProbs.label(), mu.ccR());
+    mu.add(pGlycoAdvParams, fePhosphoProbs.comp).split();
+    mu.add(pGlycoAdvParams, feSulfoProbs.label(), mu.ccR());
+    mu.add(pGlycoAdvParams, feSulfoProbs.comp).split().spanX().pushX().wrap();
+
+    mu.add(pGlycoAdvParams, feRegYProbs.label(), mu.ccR());
+    mu.add(pGlycoAdvParams, feRegYProbs.comp).split();
+    mu.add(pGlycoAdvParams, feFucYProbs.label(), mu.ccR());
+    mu.add(pGlycoAdvParams, feFucYProbs.comp).split();
+    mu.add(pGlycoAdvParams, feDecoyType.label(), mu.ccR());
+    mu.add(pGlycoAdvParams, feDecoyType.comp).split();
+    mu.add(pGlycoAdvParams, fePrintGlycoDecoys.comp).split();
+    mu.add(pGlycoAdvParams, feRemoveGlycoDeltaMass.comp).split().growX().spanX().pushX().wrap();
+
+    mu.add(p, uiCheckGlycoAdvParams).split().spanX().wrap();
+    mu.add(p, pGlycoAdvParams).growX().wrap();
+
     return p;
   }
 
@@ -660,6 +765,9 @@ public class PtmshepherdPanel extends JPanelBase {
 
     // enable/disable the Glycan Assignment sub-area specifically when the glycan assignment box is changed
     SwingUtils.setEnablementUpdater(this, pGlycoAssignContent, uiCheckGlycoAssign);
+    loadDefaults(1, SearchTypeProp.glyco); // pre-populate, but only after renaming has happened in super.initMore()
+
+    SwingUtils.setEnablementUpdater(this, pGlycoAdvParams, uiCheckGlycoAdvParams);
     loadDefaults(1, SearchTypeProp.glyco); // pre-populate, but only after renaming has happened in super.initMore()
   }
 
