@@ -293,7 +293,7 @@ public class FragpipeLocations {
       if (located == null) {
         throw new MissingAssetsException(Collections.singletonList(path));
       }
-      found.add(located);
+      found.add(located.normalize());
     }
     return found;
   }
