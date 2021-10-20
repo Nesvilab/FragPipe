@@ -126,6 +126,9 @@ public class PtmshepherdPanel extends JPanelBase {
   private JCheckBox checkRun;
   private JPanel pContent;
   private JPanel pTop;
+  private JPanel pRegularShepherd;
+  private JPanel pDiagnosticDiscovery;
+  private JPanel pGlycanAssignment;
   private UiText uiTextVarMods;
 
   private static Map<String, Function<String, String>> CONV_TO_GUI = new HashMap<>();
@@ -141,10 +144,10 @@ public class PtmshepherdPanel extends JPanelBase {
   private UiText uiTextAnnotationFile;
   private UiText uiTextLocalizationAAs;
   private UiText uiTextGlycanDBFile;
-  private UiCheck uiCheckGlyco;
+  private UiCheck uiCheckDiagnostic;
   private UiCheck uiCheckGlycoAssign;
   private UiCheck uiCheckGlycoAdvParams;
-  private JPanel pGlycoContent;
+  private JPanel pDiagnosticConent;
   private JPanel pGlycoAssignContent;
   private JPanel pGlycoAdvParams;
 
@@ -346,19 +349,24 @@ public class PtmshepherdPanel extends JPanelBase {
           Bus.post(new MessageLoadShepherdDefaults(true, type));
         });
 
+    FormEntry feExtendedOut = new FormEntry(PROP_output_extended, "not-shown",
+            new UiCheck("Extended output", null, false),
+            "<html>Write additional files with more detailed information.");
+
     mu.add(p, labelDefaults).split().spanX();
     mu.add(p, uiComboDefaults);
-    mu.add(p, btnLoadDefaults).wrap();
+    mu.add(p, btnLoadDefaults);
+    mu.add(p, feExtendedOut.comp).pushX().wrap();
 
     return p;
   }
 
-  private JPanel createpanelGlyco() {
-    JPanel p = mu.newPanel("Diagnostic Ions", mu.lcFillXNoInsetsTopBottom());
-    pGlycoContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+  private JPanel createPanelDiagnostic() {
+    JPanel p = mu.newPanel("Diagnostic Ion Discovery", mu.lcFillXNoInsetsTopBottom());
+    pDiagnosticConent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
-    uiCheckGlyco = UiUtils.createUiCheck("Enable Diagnostic Ion Search", false);
-    uiCheckGlyco.setName("glyco_mode");
+    uiCheckDiagnostic = UiUtils.createUiCheck("Enable Diagnostic Ion Search", false);
+    uiCheckDiagnostic.setName("glyco_mode");
 
     // labile/glyco main params
     FormEntry feYIonMasses = mu.feb(PROP_cap_y_ions, UiUtils.uiTextBuilder().create())
@@ -373,15 +381,15 @@ public class PtmshepherdPanel extends JPanelBase {
             .label("Remainder Masses")
             .tooltip("Partial modification masses localized to the peptide sequence. "
                     + "Space, comma, or slash separated values accepted.").create();
-    mu.add(pGlycoContent, feYIonMasses.label(), mu.ccR());
-    mu.add(pGlycoContent, feYIonMasses.comp).spanX().growX().pushX().wrap();
-    mu.add(pGlycoContent, feDiagnosticFragmentMasses.label(), mu.ccR());
-    mu.add(pGlycoContent, feDiagnosticFragmentMasses.comp).spanX().growX().pushX().wrap();
-    mu.add(pGlycoContent, feRemainderMasses.label(), mu.ccR());
-    mu.add(pGlycoContent, feRemainderMasses.comp).spanX().growX().pushX().wrap();
+    mu.add(pDiagnosticConent, feYIonMasses.label(), mu.ccR());
+    mu.add(pDiagnosticConent, feYIonMasses.comp).spanX().growX().pushX().wrap();
+    mu.add(pDiagnosticConent, feDiagnosticFragmentMasses.label(), mu.ccR());
+    mu.add(pDiagnosticConent, feDiagnosticFragmentMasses.comp).spanX().growX().pushX().wrap();
+    mu.add(pDiagnosticConent, feRemainderMasses.label(), mu.ccR());
+    mu.add(pDiagnosticConent, feRemainderMasses.comp).spanX().growX().pushX().wrap();
 
-    mu.add(p, uiCheckGlyco).spanX().wrap();
-    mu.add(p, pGlycoContent).growX().wrap();
+    mu.add(p, uiCheckDiagnostic).spanX().wrap();
+    mu.add(p, pDiagnosticConent).growX().wrap();
     return p;
   }
 
@@ -532,8 +540,8 @@ public class PtmshepherdPanel extends JPanelBase {
   }
 
   private JPanel createPanelContent() {
-    JPanel p = new JPanel(new MigLayout(new LC().fillX()));
-    mu.borderEmpty(p);
+    JPanel p =  mu.newPanel("PTM Profiling", mu.lcFillXNoInsetsTopBottom());
+//    mu.borderEmpty(p);
 
     FormEntry feHistoSmoothBins = new FormEntry(PROP_histo_smoothbins, "Smoothing factor",
         new UiSpinnerInt(2, 0, 5, 1, 5),
@@ -558,9 +566,6 @@ public class PtmshepherdPanel extends JPanelBase {
         .tooltip("+/- signal width during peakpicking")
         .create();
 
-    FormEntry feExtendedOut = new FormEntry(PROP_output_extended, "not-shown",
-        new UiCheck("Extended output", null, false),
-        "<html>Write additional files with more detailed information.");
 
     UiSpinnerDouble uiSpinnerPrecTol = UiSpinnerDouble.builder(0.01, 0.001, 1e6, 0.01)
         .setFormat(new DecimalFormat("0.###")).setCols(5).create();
@@ -634,7 +639,6 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p1, feWidth.label(), mu.ccR());
     mu.add(p1, feWidth.comp).split(2);
     mu.add(p1, fePeakPickingUnits.comp);
-    mu.add(p1, feExtendedOut.comp).pushX().wrap();
 
     //mu.add(p1, feLocBackground.label(), mu.ccR());
     //mu.add(p1, feLocBackground.comp);
@@ -729,46 +733,48 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p3, feRestrictLoc.comp).spanX().growX().pushX().wrap();
 
     mu.add(p, p3).spanX().growX().wrap();
-
-    JPanel pGlyco = createpanelGlyco();
-    mu.add(p, pGlyco).spanX().growX().wrap();
-    JPanel pGlycanAssignment = createpanelGlycanAssignment();
-    mu.add(p, pGlycanAssignment).spanX().growX().wrap();
-
     return p;
   }
 
   @Override
   protected void init() {
     this.setLayout(new BorderLayout());
-    this.setBorder(new TitledBorder("PTM-Shepherd"));
-
+    JPanel mainPanel = mu.newPanel("PTM-Shepherd", mu.lcFillXNoInsetsTopBottom());
     pTop = createPanelTop();
-    pContent = createPanelContent();
 
-    this.add(pTop, BorderLayout.NORTH);
-    this.add(pContent, BorderLayout.CENTER);
+    // 3 Sub-panels within main PTM-S panel: PTM-Profiling, Diagnostic Ion Discovery, and Glycan Assignment/FDR
+    pContent = createPanelContent();
+    pDiagnosticDiscovery = createPanelDiagnostic();
+    pGlycanAssignment = createpanelGlycanAssignment();
+
+    mu.add(mainPanel, pTop).spanX().growX().wrap();
+    mu.add(mainPanel, pContent).spanX().growX().wrap();
+    mu.add(mainPanel, pDiagnosticDiscovery).spanX().growX().wrap();
+    mu.add(mainPanel, pGlycanAssignment).spanX().growX().wrap();
+
+    this.add(mainPanel);
   }
 
   @Override
   protected void initMore() {
     super.initMore();
-
-    SwingUtils.setEnablementUpdater(this, pGlycoContent, uiCheckGlyco);
     loadDefaults(1, SearchTypeProp.open); // pre-populate, but only after renaming has happened in super.initMore()
 
-    // enable/disable Glycan Assignment areas when the overall glyco/labile box is changed
-    SwingUtils.setEnablementUpdater(this, pGlycoAssignContent, uiCheckGlyco);
-    loadDefaults(1, SearchTypeProp.open); // pre-populate, but only after renaming has happened in super.initMore()
-    SwingUtils.setEnablementUpdater(this, uiCheckGlycoAssign, uiCheckGlyco);
-    loadDefaults(1, SearchTypeProp.open); // pre-populate, but only after renaming has happened in super.initMore()
+    SwingUtils.setEnablementUpdater(this, pDiagnosticDiscovery, checkRun);
+    SwingUtils.setEnablementUpdater(this, pGlycanAssignment, checkRun);
+
+    // enable/disable Glycan Assignment areas when the overall diagnostic box is changed because glyco depends on diagnostic (for now)
+    SwingUtils.setEnablementUpdater(this, pDiagnosticConent, uiCheckDiagnostic);
+    SwingUtils.setEnablementUpdater(this, pGlycoAssignContent, uiCheckDiagnostic);
+    SwingUtils.setEnablementUpdater(this, uiCheckGlycoAssign, uiCheckDiagnostic);
+    SwingUtils.setEnablementUpdater(this, uiCheckGlycoAdvParams, uiCheckDiagnostic);
 
     // enable/disable the Glycan Assignment sub-area specifically when the glycan assignment box is changed
     SwingUtils.setEnablementUpdater(this, pGlycoAssignContent, uiCheckGlycoAssign);
-    loadDefaults(1, SearchTypeProp.glyco); // pre-populate, but only after renaming has happened in super.initMore()
+    SwingUtils.setEnablementUpdater(this, uiCheckGlycoAdvParams, uiCheckGlycoAssign);
 
+    // enable/disable advanced params for glycan assignment when the corresponding checkbox is changed
     SwingUtils.setEnablementUpdater(this, pGlycoAdvParams, uiCheckGlycoAdvParams);
-    loadDefaults(1, SearchTypeProp.glyco); // pre-populate, but only after renaming has happened in super.initMore()
   }
 
   public boolean isRunShepherd() {
