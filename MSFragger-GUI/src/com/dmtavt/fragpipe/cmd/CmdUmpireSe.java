@@ -160,7 +160,7 @@ public class CmdUmpireSe extends CmdBase {
 
       // delete garbage files
       final List<Path> garbage = UmpireSeGarbageFiles.getGarbageFiles(destDir.resolve(f.getPath().getFileName()), false, false);
-      final List<ProcessBuilder> pbsDeleteFiles = ToolingUtils.pbsDeleteFiles(jarFragpipe, true, garbage);
+      final List<ProcessBuilder> pbsDeleteFiles = ToolingUtils.pbsDeleteFiles(jarFragpipe, garbage);
       pbis.addAll(PbiBuilder.from(pbsDeleteFiles));
     }
 

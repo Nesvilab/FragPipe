@@ -259,7 +259,7 @@ public class CmdPeptideProphet extends CmdBase {
           // delete temp dir
           workspacesToBeCleaned.add(temp);
           List<ProcessBuilder> pbsDeleteTemp = ToolingUtils
-              .pbsDeleteFiles(jarFragpipe, true, Collections.singletonList(temp));
+              .pbsDeleteFiles(jarFragpipe, Collections.singletonList(temp));
           pbisPostParallel.addAll(pbsDeleteTemp.stream()
               .map(pb -> new PbiBuilder()
                   .setPb(pb)

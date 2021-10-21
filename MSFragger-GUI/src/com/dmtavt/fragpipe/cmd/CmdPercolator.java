@@ -167,7 +167,7 @@ public class CmdPercolator extends CmdBase {
           temp.add(pepxmlDir.resolve(strippedBaseName + "_percolator_target_psms.tsv"));
           temp.add(pepxmlDir.resolve(strippedBaseName + "_percolator_decoy_psms.tsv"));
           List<ProcessBuilder> pbsDeleteTemp = ToolingUtils
-                  .pbsDeleteFiles(jarFragpipe, true, temp);
+                  .pbsDeleteFiles(jarFragpipe, temp);
           pbisPostParallel.addAll(pbsDeleteTemp.stream()
                   .map(pb -> new PbiBuilder()
                           .setPb(pb)

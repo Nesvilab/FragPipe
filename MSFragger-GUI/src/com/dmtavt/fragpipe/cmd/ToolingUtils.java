@@ -62,9 +62,8 @@ public class ToolingUtils {
   /**
    * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
    */
-  public static List<ProcessBuilder> pbsCopyFiles(Path jarFragpipe, Path dest,
-      boolean ignoreMissingFiles, List<Path> files) {
-    return pbsCopyMoveDeleteFiles(jarFragpipe, Op.COPY, dest, ignoreMissingFiles, files);
+  public static List<ProcessBuilder> pbsCopyFiles(Path jarFragpipe, Path dest, List<Path> files) {
+    return pbsCopyMoveDeleteFiles(jarFragpipe, Op.COPY, dest, false, files);
   }
 
   /**
@@ -78,8 +77,8 @@ public class ToolingUtils {
   /**
    * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
    */
-  public static List<ProcessBuilder> pbsDeleteFiles(Path jarFragpipe, boolean ignoreMissingFiles, List<Path> files) {
-    return pbsCopyMoveDeleteFiles(jarFragpipe, Op.DELETE, null, ignoreMissingFiles, files);
+  public static List<ProcessBuilder> pbsDeleteFiles(Path jarFragpipe, List<Path> files) {
+    return pbsCopyMoveDeleteFiles(jarFragpipe, Op.DELETE, null, false, files);
   }
 
   /**
