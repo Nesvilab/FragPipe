@@ -12,7 +12,6 @@ import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
-import com.github.chhh.utils.swing.UiRadio;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
@@ -27,7 +26,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -35,7 +33,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -53,10 +50,7 @@ public class SpeclibPanel extends JPanelBase {
   private JCheckBox checkRun;
   private JPanel pContent;
   private JPanel pTop;
-  private UiRadio uiRadioUseSpectrast;
-  private UiRadio uiRadioUseEasypqp;
   public JCheckBox checkKeepIntermediateFiles;
-  private ButtonGroup radioGroupTools;
   private List<String> pqpType;
   private List<String> pqpCal;
   private UiText uiTextPqpCalFile;
@@ -74,7 +68,6 @@ public class SpeclibPanel extends JPanelBase {
   private JCheckBox check_fragment_type_y;
   private JCheckBox check_fragment_type_z;
   private JPanel panelEasypqp;
-  private JPanel panelSpectrast;
   public static final String EASYPQP_TIMSTOF = "timsTOF";
   public static final String EASYPQP_EXTRAS_PREFIX = "easypqp.extras.";
 
@@ -93,9 +86,6 @@ public class SpeclibPanel extends JPanelBase {
 
     updateEnabledStatus(this, true);
     updateEnabledStatus(panelEasypqp, m.instance.isEasypqpOk());
-    updateEnabledStatus(uiRadioUseSpectrast, m.instance.isSpectrastOk());
-    uiRadioUseEasypqp.setToolTipText(m.instance.isEasypqpOk() ? "" : "Toolchain not initialized");
-    uiRadioUseSpectrast.setToolTipText(m.instance.isSpectrastOk() ? "" : "Toolchain not initialized");
   }
 
   @Override
@@ -129,39 +119,17 @@ public class SpeclibPanel extends JPanelBase {
     JPanel p = new JPanel(new MigLayout(new LC().fillX()));
     mu.borderEmpty(p);
 
-    radioGroupTools = new ButtonGroup();
-    panelEasypqp = createPanelEasypqp(radioGroupTools);
-    panelSpectrast = createPanelSpectrast(radioGroupTools);
+    panelEasypqp = createPanelEasypqp();
 
     mu.add(p, panelEasypqp).spanX().growX().wrap();
-    mu.add(p, panelSpectrast).spanX().growX().wrap();
 
     return p;
   }
 
-  private JPanel createPanelSpectrast(ButtonGroup radioGroupTools) {
-    JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
-    mu.border(p, 1);
-
-    uiRadioUseSpectrast = new UiRadio("Use SpectraST (non-ion mobility data only)", null, false);
-    radioGroupTools.add(uiRadioUseSpectrast);
-    updateEnabledStatus(uiRadioUseSpectrast, false);
-    FormEntry feRadioUseSpectrast = new FormEntry("use-spectrast", "Not shown",
-        uiRadioUseSpectrast);
-
-    mu.add(p, feRadioUseSpectrast.comp).pushX().growX().wrap();
-
-    return p;
-  }
-
-  private JPanel createPanelEasypqp(ButtonGroup buttonGroup) {
+  private JPanel createPanelEasypqp() {
     final JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     mu.border(p, 1);
 
-    uiRadioUseEasypqp = new UiRadio("Use EasyPQP", null, true);
-    uiRadioUseEasypqp.setToolTipText("Enablement depends on proper python configuration");
-    buttonGroup.add(uiRadioUseEasypqp);
-    FormEntry feRadioUseEasypqp = new FormEntry("use-easypqp", "not-shown", uiRadioUseEasypqp);
     checkKeepIntermediateFiles = new UiCheck("keep intermediate files", null, false);
     checkKeepIntermediateFiles.setName("keep-intermediate-files");
 
@@ -261,7 +229,6 @@ public class SpeclibPanel extends JPanelBase {
     check_fragment_type_y = new UiCheck("y", null, true);
     check_fragment_type_z = new UiCheck("z", null, false);
 
-    mu.add(p, feRadioUseEasypqp.comp);
     mu.add(p, checkKeepIntermediateFiles).wrap();
     final JPanel p2 = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     mu.add(p, fePqpCal.label(), ccR());
@@ -415,11 +382,7 @@ public class SpeclibPanel extends JPanelBase {
   }
 
   public boolean isRunSpeclibgen() {
-    return SwingUtils.isEnabledAndChecked(checkRun) && (useEasypqp() || useSpectrast());
-  }
-
-  public boolean useEasypqp() {
-    return SwingUtils.isEnabledAndChecked(uiRadioUseEasypqp);
+    return SwingUtils.isEnabledAndChecked(checkRun);
   }
 
   public String getEasypqpDataType() {
@@ -473,9 +436,4 @@ public class SpeclibPanel extends JPanelBase {
         ret.append("'").append(chars[i]).append("',");
     return ret.append("]").toString();
   }
-
-  public boolean useSpectrast() {
-    return SwingUtils.isEnabledAndChecked(uiRadioUseSpectrast);
-  }
-
 }

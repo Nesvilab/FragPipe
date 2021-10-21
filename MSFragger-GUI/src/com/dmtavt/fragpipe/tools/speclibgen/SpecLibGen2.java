@@ -31,7 +31,6 @@ public class SpecLibGen2 {
       PythonModule.CYTHON,
       PythonModule.MATPLOTLIB);
   public static final List<PythonModule> REQUIRED_FOR_EASYPQP = Arrays.asList(PythonModule.EASYPQP);
-  private static final List<PythonModule> REQUIRED_FOR_SPECTRAST = Arrays.asList(PythonModule.MSPROTEOMICSTOOLS);
   private static final Logger log = LoggerFactory.getLogger(SpecLibGen2.class);
   private static final String SCRIPT_SPEC_LIB_GEN = "speclib/gen_con_spec_lib.py";
   public static final String[] RESOURCE_LOCATIONS = {
@@ -39,9 +38,6 @@ public class SpecLibGen2 {
       "speclib/detect_decoy_prefix.py",
       SCRIPT_SPEC_LIB_GEN,
       "speclib/hela_irtkit.tsv",
-      "speclib/linux/spectrast",
-      "speclib/win/spectrast.exe",
-      "speclib/spectrast_gen_pepidx.py",
       "speclib/unite_runs.py",
   };
   private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
@@ -50,21 +46,17 @@ public class SpecLibGen2 {
   private PyInfo pi;
   private Path scriptSpecLibGenPath;
   public List<PythonModule> missingModulesEasyPqp;
-  public List<PythonModule> missingModulesSpectrast;
   public List<PythonModule> missingModulesSpeclibgen;
   private boolean isEasypqpOk;
-  private boolean isSpectrastOk;
   private boolean isInitialized;
 
   private SpecLibGen2() {
     pi = null;
     isEasypqpOk = false;
-    isSpectrastOk = false;
     scriptSpecLibGenPath = null;
     isInitialized = false;
     missingModulesSpeclibgen = new ArrayList<>();
     missingModulesEasyPqp = new ArrayList<>();
-    missingModulesSpectrast = new ArrayList<>();
   }
 
   public static SpecLibGen2 get() {
@@ -81,12 +73,6 @@ public class SpecLibGen2 {
   public boolean isEasypqpOk() {
     synchronized (initLock) {
       return isInitialized && isEasypqpOk;
-    }
-  }
-
-  public boolean isSpectrastOk() {
-    synchronized (initLock) {
-      return isInitialized && isSpectrastOk;
     }
   }
 
@@ -126,18 +112,12 @@ public class SpecLibGen2 {
       checkPython(python);
       validateAssets();
 
-      missingModulesSpectrast = checkPythonSpectrast(python.pi);
-      isSpectrastOk = missingModulesSpectrast.isEmpty();
       missingModulesEasyPqp = checkPythonEasypqp(python.pi);
       isEasypqpOk = missingModulesEasyPqp.isEmpty();
 
       isInitialized = true;
       log.debug("{} init complete", SpecLibGen2.class.getSimpleName());
     }
-  }
-
-  private List<PythonModule> checkPythonSpectrast(PyInfo pi) {
-    return checkForMissingModules(pi, REQUIRED_FOR_SPECTRAST);
   }
 
   private void checkPython(NoteConfigPython m) throws ValidationException {

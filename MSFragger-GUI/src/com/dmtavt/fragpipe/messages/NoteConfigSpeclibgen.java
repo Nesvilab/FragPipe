@@ -13,6 +13,6 @@ public class NoteConfigSpeclibgen implements INoteConfig {
 
   @Override
   public boolean isValid() {
-    return instance != null && instance.isInitialized() && (instance.isEasypqpOk() || instance.isSpectrastOk());
+    return instance != null && instance.isInitialized() && instance.isEasypqpOk();
   }
 }

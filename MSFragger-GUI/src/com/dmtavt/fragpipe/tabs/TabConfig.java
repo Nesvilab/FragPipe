@@ -113,7 +113,6 @@ public class TabConfig extends JPanelWithEnablement {
   private HtmlStyledJEditorPane epDbsplitErr;
   private Container epDbsplitErrParent;
   private HtmlStyledJEditorPane epEasyPQPText;
-  private HtmlStyledJEditorPane epSpectraSTText;
   private HtmlStyledJEditorPane epSpeclibgenErr;
   private Container epSpeclibgenErrParent;
   private JButton btnAbout;
@@ -614,16 +613,6 @@ public class TabConfig extends JPanelWithEnablement {
     return sb.toString();
   }
 
-  private String textSpectraSTEnabled(boolean enableSpectrast) {
-    StringBuilder sb = new StringBuilder();
-    if (enableSpectrast) {
-      sb.append("SpectraST: <b>Available</b>");
-    } else {
-      sb.append("SpectraST: <b>Not available</b>");
-    }
-    return sb.toString();
-  }
-
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigSpeclibgen m) {
     if (m.ex != null) {
@@ -633,7 +622,6 @@ public class TabConfig extends JPanelWithEnablement {
         epSpeclibgenErr.setVisible(true);
       }
       epEasyPQPText.setText(textEasyPQPEnabled("N/A", "N/A", false));
-      epSpectraSTText.setText(textSpectraSTEnabled(false));
       if (m.ex instanceof ValidationException) {
         epSpeclibgenErr.setText(m.ex.getMessage());
       } else {
@@ -648,17 +636,11 @@ public class TabConfig extends JPanelWithEnablement {
     }
 
     log.debug("Got NoteConfigSpeclibgen without exceptions");
-    boolean enableSpectrast = true;
     boolean enableEasypqp = true;
     List<String> errMsgLines = new ArrayList<>();
     if (!m.instance.missingModulesSpeclibgen.isEmpty()) {
       errMsgLines.add("Missing python modules: " + Seq.seq(m.instance.missingModulesSpeclibgen).map(pm -> pm.installName).toString(", "));
-      enableSpectrast = false;
       enableEasypqp = false;
-    }
-    if (!m.instance.missingModulesSpectrast.isEmpty()) {
-      errMsgLines.add("Missing python modules for SpectraST: " + Seq.seq(m.instance.missingModulesSpectrast).map(pm -> pm.installName).toString(", "));
-      enableSpectrast = false;
     }
     if (!m.instance.missingModulesEasyPqp.isEmpty()) {
       errMsgLines.add("Missing python modules for EasyPQP: " + Seq.seq(m.instance.missingModulesEasyPqp).map(pm -> pm.installName).toString(", "));
@@ -704,7 +686,6 @@ public class TabConfig extends JPanelWithEnablement {
     }
 
     epEasyPQPText.setText(textEasyPQPEnabled(easypqpLocalVersion, easypqpLatestVersion, enableEasypqp));
-    epSpectraSTText.setText(textSpectraSTEnabled(enableSpectrast));
 
     this.revalidate();
   }
@@ -867,16 +848,12 @@ public class TabConfig extends JPanelWithEnablement {
   private JPanel createPanelSpeclibgen() {
     JPanel p = mu.newPanel("Spectral Library Generation", true);
 
-    p.setToolTipText(SwingUtils.makeHtml("SpectraST: Requires <b>Python 3</b> with packages <b>Cython, Matplotlib, msproteomicstools</b>\nEasyPQP: Requires <b>Python 3</b> with package <b>EasyPQP</b>"));
+    p.setToolTipText(SwingUtils.makeHtml("EasyPQP: Requires <b>Python 3</b> with package <b>EasyPQP</b>"));
     Dimension dim = new Dimension(200, 25);
 
     epEasyPQPText = new HtmlStyledJEditorPane("Configuring EasyPQP.");
     epEasyPQPText.setToolTipText(SwingUtils.makeHtml("EasyPQP: Requires <b>Python 3</b> with package <b>EasyPQP</b>"));
     epEasyPQPText.setPreferredSize(dim);
-
-    epSpectraSTText = new HtmlStyledJEditorPane("Configuring SpectraST.");
-    epSpectraSTText.setToolTipText(SwingUtils.makeHtml("SpectraST: Requires <b>Python 3</b> with packages <b>Cython, Matplotlib, msproteomicstools</b>"));
-    epSpectraSTText.setPreferredSize(dim);
 
     epSpeclibgenErr = new HtmlStyledJEditorPane("Requires Python 3 with modules Cython, Matplotlib, msproteomicstools.");
     epSpeclibgenErr.setPreferredSize(dim);
@@ -886,7 +863,6 @@ public class TabConfig extends JPanelWithEnablement {
     mu.add(p, epEasyPQPText).growX().wrap();
     mu.add(p, btnInstallEasyPQP).split().wrap();
     mu.add(p, new HtmlStyledJEditorPane("")).wrap();
-    mu.add(p, epSpectraSTText).split();
     mu.add(p, epSpeclibgenErr).growX().wrap();
 
     return p;

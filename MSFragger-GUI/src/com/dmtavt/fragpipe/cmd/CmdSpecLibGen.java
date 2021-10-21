@@ -1,7 +1,6 @@
 package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
@@ -19,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,12 +40,12 @@ public class CmdSpecLibGen extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhi, Path jarFragpipe, SpecLibGen2 slg,
-      Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, boolean useEasypqp, InputDataType dataType,
+      Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, InputDataType dataType,
       final Map<String, String> easypqpLibraryExtraArguments) {
 
     initPreConfig();
 
-    final String[] compatibleExts = useEasypqp ? new String[]{".d", ".mzml", ".mzxml", ".raw", ".mgf"} : new String[]{".mzml", ".mzxml"};
+    final String[] compatibleExts = new String[]{".d", ".mzml", ".mzxml", ".raw", ".mgf"};
     final Predicate<String> isFileCompatible = fn -> Arrays.stream(compatibleExts).anyMatch(ext -> fn.toLowerCase().endsWith(ext));
 
     boolean isIncompatibleInputs = mapGroupsToProtxml.keySet().stream()
@@ -57,9 +55,8 @@ public class CmdSpecLibGen extends CmdBase {
       JOptionPane.showMessageDialog(comp, String.format(
           "Spectral library generation with %s is currently only\n"
               + "compatible with %s input files.\n"
-              + "You can convert your data using Msconvert program from ProteoWizard\n"
-              + "or select 'Use EasyPQP' on Spectral Library Genration tab.",
-          useEasypqp ? "EasyPQP" : "SpectraST", String.join(", ", compatibleExts)),
+              + "You can convert your data using Msconvert program from ProteoWizard.",
+          "EasyPQP", String.join(", ", compatibleExts)),
           "Incompatible input data", JOptionPane.WARNING_MESSAGE);
       return false;
     }
@@ -100,102 +97,76 @@ public class CmdSpecLibGen extends CmdBase {
       // for current implementation of speclibgen scripts mzml files need to be
       // located next to pepxml files
       final List<ProcessBuilder> pbsDeleteLcmsFiles = new ArrayList<>();
-      for (InputLcmsFile lcms : group.lcmsFiles) {
-        final Path lcms_path = lcms.getPath();
-        if (!useEasypqp)
-          if (!groupWd.equals(lcms_path.getParent())) {
-            final Path copy = groupWd.resolve(lcms_path.getFileName());
-            if (!Files.exists(copy)) {
-              // Directory of LCMS file is different from pepxml file
-              // and the file does not yet exist.
-              // Copy over the file and schedule for deletion.
-              List<ProcessBuilder> pbCopy = ToolingUtils
-                      .pbsCopyFiles(jarFragpipe, groupWd, Collections.singletonList(lcms_path));
-              pbis.addAll(PbiBuilder.from(pbCopy));
-              pbsDeleteLcmsFiles.addAll(ToolingUtils
-                      .pbsDeleteFiles(jarFragpipe, Collections.singletonList(groupWd.resolve(lcms_path.getFileName()))));
-            }
-          }
-      }
 
       List<String> cmd = new ArrayList<>();
       cmd.add(slg.getPython().getCommand());
       cmd.add("-u"); // PYTHONUNBUFFERED: when mixing subprocess output with Python output, use this to keep the outputs in order
       cmd.add(slg.getScriptSpecLibGenPath().toString());
-      if (useEasypqp) {
-        /**
-         * See https://github.com/grosenberger/easypqp on how to install EasyPQP
-         * EasyPQP needs the following placed in the pep xml directory
-         * - MGFs or mzMLs
-         * - interact.pep.xml
-         * - peptide.tsv, psm.tsv from Philosopher
-         * */
-        cmd.add(fastaPath);
-        cmd.add(groupWd.toString()); // this is "Pep xml directory"
-        cmd.add("unused");  // lcms files, `File.pathSeparator` separated
-        cmd.add(groupWd.toString()); // output directory
-        cmd.add("True"); // overwrite (true/false), optional arg
-        cmd.add("unused"); // philosopher binary path (not needed for easyPQP)
-        cmd.add("use_easypqp"); // philosopher binary path (not needed for easyPQP)
 
-        TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
+      /**
+       * See https://github.com/grosenberger/easypqp on how to install EasyPQP
+       * EasyPQP needs the following placed in the pep xml directory
+       * - MGFs or mzMLs
+       * - interact.pep.xml
+       * - peptide.tsv, psm.tsv from Philosopher
+       * */
+      cmd.add(fastaPath);
+      cmd.add(groupWd.toString()); // this is "Pep xml directory"
+      cmd.add("unused");  // lcms files, `File.pathSeparator` separated
+      cmd.add(groupWd.toString()); // output directory
+      cmd.add("True"); // overwrite (true/false), optional arg
+      cmd.add("unused"); // philosopher binary path (not needed for easyPQP)
+      cmd.add("use_easypqp"); // philosopher binary path (not needed for easyPQP)
 
-        final String cal = speclibPanel.getEasypqpCalOption();
-        final String im_cal = speclibPanel.getEasypqpIMCalOption();
-        final Path calTsvPath = speclibPanel.getEasypqpCalFilePath();
-        final Path imCalTsvPath = speclibPanel.getEasypqpIMCalFilePath();
-        cmd.add((cal.equals("a tsv file") ? calTsvPath.toString() : cal) + File.pathSeparator +
-                (im_cal.equals("a tsv file") ? imCalTsvPath.toString() : im_cal)); // alignment options
-        cmd.add(String.valueOf(tabWorkflow.getThreads()));
+      TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
 
-        final double max_delta_unimod = speclibPanel.getEasypqp_max_delta_unimod(); // EasyPQP convert
-        final double max_delta_ppm = speclibPanel.getEasypqp_max_delta_ppm(); // EasyPQP convert
-        final String fragment_types = speclibPanel.getEasypqp_fragment_types(); // EasyPQP convert
-        final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction(); // EasyPQP library
+      final String cal = speclibPanel.getEasypqpCalOption();
+      final String im_cal = speclibPanel.getEasypqpIMCalOption();
+      final Path calTsvPath = speclibPanel.getEasypqpCalFilePath();
+      final Path imCalTsvPath = speclibPanel.getEasypqpIMCalFilePath();
+      cmd.add((cal.equals("a tsv file") ? calTsvPath.toString() : cal) + File.pathSeparator +
+              (im_cal.equals("a tsv file") ? imCalTsvPath.toString() : im_cal)); // alignment options
+      cmd.add(String.valueOf(tabWorkflow.getThreads()));
 
-        cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod %s --max_delta_ppm %s --fragment_types %s", max_delta_unimod, max_delta_ppm, fragment_types.replace("'", "\\'")))); // EasyPQP convert args
-        cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %s", rt_lowess_fraction))); // EasyPQP library args
+      final double max_delta_unimod = speclibPanel.getEasypqp_max_delta_unimod(); // EasyPQP convert
+      final double max_delta_ppm = speclibPanel.getEasypqp_max_delta_ppm(); // EasyPQP convert
+      final String fragment_types = speclibPanel.getEasypqp_fragment_types(); // EasyPQP convert
+      final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction(); // EasyPQP library
 
-        final List<String> lcmsfiles = group.lcmsFiles.stream()
-            .map(lcms -> {
-              final String fn = lcms.getPath().getFileName().toString();
-              final String fn_sans_extension = FilenameUtils.removeExtension(fn);
-              final boolean isTimsTOF = dataType == InputDataType.ImMsTimsTof;
-              final boolean isRaw = fn.toLowerCase().endsWith(".raw");
-              final String sans_suffix = lcms.getPath().getParent().resolve(fn_sans_extension).toString();
-              if ((isTimsTOF && fn.toLowerCase().endsWith(".d")) || isRaw) {
-                return sans_suffix + "_uncalibrated.mgf";
-              } else {
-                return lcms.getPath().toString();
-              }
-            }).collect(Collectors.toList());
+      cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod %s --max_delta_ppm %s --fragment_types %s", max_delta_unimod, max_delta_ppm, fragment_types.replace("'", "\\'")))); // EasyPQP convert args
+      cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %s", rt_lowess_fraction))); // EasyPQP library args
 
-        cmd.add(speclibPanel.checkKeepIntermediateFiles.isSelected() ?
-                "keep_intermediate_files" : "delete_intermediate_files");
-
-        final Path filelist = groupWd.resolve("filelist_speclibgen.txt");
-
-        if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
-          try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
-            for (String f : lcmsfiles) {
-              bw.write(f);
-              bw.newLine();
+      final List<String> lcmsfiles = group.lcmsFiles.stream()
+          .map(lcms -> {
+            final String fn = lcms.getPath().getFileName().toString();
+            final String fn_sans_extension = FilenameUtils.removeExtension(fn);
+            final boolean isTimsTOF = dataType == InputDataType.ImMsTimsTof;
+            final boolean isRaw = fn.toLowerCase().endsWith(".raw");
+            final String sans_suffix = lcms.getPath().getParent().resolve(fn_sans_extension).toString();
+            if ((isTimsTOF && fn.toLowerCase().endsWith(".d")) || isRaw) {
+              return sans_suffix + "_uncalibrated.mgf";
+            } else {
+              return lcms.getPath().toString();
             }
-          } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
+          }).collect(Collectors.toList());
+
+      cmd.add(speclibPanel.checkKeepIntermediateFiles.isSelected() ?
+              "keep_intermediate_files" : "delete_intermediate_files");
+
+      final Path filelist = groupWd.resolve("filelist_speclibgen.txt");
+
+      if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
+        try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
+          for (String f : lcmsfiles) {
+            bw.write(f);
+            bw.newLine();
           }
+        } catch (IOException ex) {
+          throw new UncheckedIOException(ex);
         }
-
-        cmd.add(filelist.toString());
-
-      } else {
-        cmd.add(fastaPath);
-        cmd.add(groupWd.toString()); // this is "Pep xml directory"
-        cmd.add(protxml.toString()); // protxml file
-        cmd.add(groupWd.toString()); // output directory
-        cmd.add("True"); // overwrite (true/false), optional arg
-        cmd.add(usePhi.useBin()); // philosopher binary path (optional)
       }
+
+      cmd.add(filelist.toString());
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
       PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
