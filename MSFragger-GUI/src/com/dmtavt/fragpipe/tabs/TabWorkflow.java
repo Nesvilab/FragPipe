@@ -1018,6 +1018,11 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnGroupsByFilename);
     mu.add(p, btnGroupsAssignToSelected);
     mu.add(p, btnGroupsClear);
+
+    UiText emptySpace = UiUtils.uiTextBuilder().cols(1).text("").create();
+    emptySpace.setVisible(false);
+    mu.add(p, emptySpace).growX().pushX();
+
     mu.add(p, btnSetDda);
     mu.add(p, btnSetDia);
     mu.add(p, btnSetDiaNw).wrap();
