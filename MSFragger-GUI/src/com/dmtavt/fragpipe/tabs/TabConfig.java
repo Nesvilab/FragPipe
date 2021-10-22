@@ -707,7 +707,8 @@ public class TabConfig extends JPanelWithEnablement {
         .append(", <a href=\"").append("https://tmt-integrator.nesvilab.org/").append("\">TMT-Integrator</a>")
         .append(", <a href=\"").append("https://ptmshepherd.nesvilab.org/").append("\">PTM-Shepherd</a>")
         .append(", <a href=\"").append("https://github.com/grosenberger/easypqp").append("\">EasyPQP</a>")
-        .append(", <a href=\"").append("http://percolator.ms/").append("\">Percolator</a>");
+        .append(", <a href=\"").append("http://percolator.ms/").append("\">Percolator</a>")
+        .append(", <a href=\"").append("https://github.com/vdemichev/DiaNN").append("\">DIA-NN</a>");
     return sb.toString();
   }
 

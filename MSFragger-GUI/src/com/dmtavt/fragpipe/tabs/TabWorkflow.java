@@ -30,6 +30,7 @@ import com.dmtavt.fragpipe.messages.MessageOpenInExplorer;
 import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageType;
 import com.dmtavt.fragpipe.messages.MessageUpdateWorkflows;
+import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.FileDrop;
 import com.github.chhh.utils.JarUtils;
@@ -1349,6 +1350,12 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
 
     postFileListUpdate();
+
+    if (hasDia() || hasDiaNw()) {
+      Bus.post(new NoteConfigDiann(true));
+    } else {
+      Bus.post(new NoteConfigDiann(false));
+    }
   }
 
   private void actionClearGroups() {

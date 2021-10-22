@@ -2,6 +2,11 @@
 # left hand side values can repeat, right hand side values must be unique per "element name"
 # order matters, in case of multiple matches, the first one is taken
 
+diann.quantification-strategy :: Any LC (high accuracy) <=> 0
+diann.quantification-strategy :: Any LC (high precision) <=> 1
+diann.quantification-strategy :: Robust LC (high accuracy) <=> 2
+diann.quantification-strategy :: Robust LC (high precision) <=> 3
+
 msfragger.calibrate_mass :: None <=> 0
 msfragger.calibrate_mass :: Off <=> 0
 msfragger.calibrate_mass :: Mass calibration <=> 1

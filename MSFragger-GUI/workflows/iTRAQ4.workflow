@@ -2,6 +2,9 @@
 
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
+diann.q-value=0.01
+diann.quantification-strategy=3
+diann.run-dia-nn=false
 diaumpire.AdjustFragIntensity=true
 diaumpire.BoostComplementaryIon=false
 diaumpire.CorrThreshold=0

@@ -9,6 +9,7 @@ import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.cmd.CmdBase;
 import com.dmtavt.fragpipe.cmd.CmdCheckCentroid;
 import com.dmtavt.fragpipe.cmd.CmdCrystalc;
+import com.dmtavt.fragpipe.cmd.CmdDiann;
 import com.dmtavt.fragpipe.cmd.CmdFreequant;
 import com.dmtavt.fragpipe.cmd.CmdIonquant;
 import com.dmtavt.fragpipe.cmd.CmdIprophet;
@@ -57,6 +58,7 @@ import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
+import com.dmtavt.fragpipe.tools.diann.DiannPanel;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
 import com.dmtavt.fragpipe.tools.msbooster.MSBoosterPanel;
@@ -1164,6 +1166,17 @@ public class FragpipeRun {
     });
 
 
+    // run DIA-NN
+    final DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
+    final CmdDiann cmdDiann = new CmdDiann(diannPanel.isRunDiann(), wd);
+    addConfig.accept(cmdDiann,  () -> {
+      if (cmdDiann.isRun()) {
+        return cmdDiann.configure(parent, sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, diannPanel.getDiannQuantificationStrategy(), diannPanel.getDiannQvalue(), diannPanel.getCmdOpts());
+      }
+      return true;
+    });
+
+
     // check if any incompatible tools are requested
     addCheck.accept(() -> {
       if (InputDataType.ImMsTimsTof == tabWorkflow.getInputDataType()) {
@@ -1213,7 +1226,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd);
     addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd);
     addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport);
-
+    addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen);
 
     // compose graph of required dependencies
     final Graph<CmdBase, DefEdge> graphDeps = new DirectedAcyclicGraph<>(DefEdge.class);

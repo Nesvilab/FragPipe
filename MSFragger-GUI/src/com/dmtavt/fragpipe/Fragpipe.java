@@ -28,6 +28,7 @@ import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.tabs.TabConfig;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
+import com.dmtavt.fragpipe.tabs.TabDiann;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tabs.TabPtms;
 import com.dmtavt.fragpipe.tabs.TabQuantitaionLabeling;
@@ -396,6 +397,7 @@ public class Fragpipe extends JFrame {
     TabQuantitaionLabeling tabQuantitaionLabeling = new TabQuantitaionLabeling();
     TabPtms tabPtms = new TabPtms();
     TabSpecLib tabSpecLib = new TabSpecLib();
+    TabDiann tabDiann = new TabDiann();
     TabRun tabRun = new TabRun(console);
 
     addTab.accept(new UiTab("Config", tabConfig, "/com/dmtavt/fragpipe/icons/150-cogs.png", null));
@@ -416,6 +418,8 @@ public class Fragpipe extends JFrame {
         "/com/dmtavt/fragpipe/icons/icon-scales-balance-color-2-16.png", null));
     addTab.accept(new UiTab("Spec Lib", tabSpecLib,
         "/com/dmtavt/fragpipe/icons/icon-library-16.png", null));
+    addTab.accept(new UiTab("Quant (DIA)", tabDiann,
+        "/com/dmtavt/fragpipe/icons/icon-diann-16.png", null));
     addTabNoScroll.accept(new UiTab("Run", tabRun, "/com/dmtavt/fragpipe/icons/video-play-16.png", null));
 
     log.debug("Done createTabs()");
