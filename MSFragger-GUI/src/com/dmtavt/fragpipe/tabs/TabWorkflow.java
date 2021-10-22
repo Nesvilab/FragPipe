@@ -1345,7 +1345,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         this.actionClearGroups();
         break;
       default:
-        throw new IllegalStateException("Unknown enum option: " + m.type.toString());
+        throw new IllegalStateException("Unknown enum option: " + m.type);
     }
 
     postFileListUpdate();

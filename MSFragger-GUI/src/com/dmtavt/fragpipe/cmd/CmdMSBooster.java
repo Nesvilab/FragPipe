@@ -69,6 +69,7 @@ public class CmdMSBooster extends CmdBase {
       System.err.println("Cannot find DIA-NN executable file.");
       return false;
     }
+
     if (diannPath.size() > 1) {
       System.err.print("There are more than one DIA-NN executable file: ");
       for (Path p : diannPath) {

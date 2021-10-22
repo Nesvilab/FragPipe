@@ -245,7 +245,7 @@ public class CmdIonquant extends CmdBase {
     return s;
   }
 
-  private boolean checkCompatibleFormats(Component comp,  Map<InputLcmsFile, List<Path>> lcmsToPepxml, List<String> supportedFormats) {
+  private boolean checkCompatibleFormats(Component comp, Map<InputLcmsFile, List<Path>> lcmsToPepxml, List<String> supportedFormats) {
     List<String> notSupportedExts = getNotSupportedExts1(lcmsToPepxml, supportedFormats);
     if (!notSupportedExts.isEmpty()) {
       StringBuilder sb = new StringBuilder();

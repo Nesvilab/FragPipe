@@ -230,7 +230,6 @@ public class SpeclibPanel extends JPanelBase {
     check_fragment_type_z = new UiCheck("z", null, false);
 
     mu.add(p, checkKeepIntermediateFiles).wrap();
-    final JPanel p2 = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     mu.add(p, fePqpCal.label(), ccR());
     mu.add(p, fePqpCal.comp).split();
     mu.add(p, labelPqpCalFile);
@@ -281,8 +280,6 @@ public class SpeclibPanel extends JPanelBase {
     }
     mu.add(p, check_fragment_type_c);
     mu.add(p, check_fragment_type_z).wrap();
-//    mu.add(p, feDataType.label(), ccR());
-//    mu.add(p, feDataType.comp, ccL().wrap());
 
     uiComboPqpCal.addItemListener(e -> {
       String selected = (String) e.getItem();

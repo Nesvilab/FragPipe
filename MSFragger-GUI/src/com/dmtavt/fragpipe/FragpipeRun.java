@@ -1028,13 +1028,13 @@ public class FragpipeRun {
       return true;
     });
 
+    // run TMT-Integrator
     final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
     final boolean isTmt = tmtiPanel.isRun();
     final boolean isTmtLqFq = tmtiPanel.isRunFqLq();
     final CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(isTmt, wd);
 
     addConfig.accept(cmdTmt, () -> {
-      // run TMT-Integrator
       if (isTmt) {
         if (sharedLcmsFiles.stream()
             .anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
