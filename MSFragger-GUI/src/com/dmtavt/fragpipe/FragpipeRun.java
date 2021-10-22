@@ -349,6 +349,8 @@ public class FragpipeRun {
     toConsole(Fragpipe.COLOR_BLACK, "Quantitative proteomic landscape of metaplastic breast carcinoma pathological subtypes and their relationship to triple-negative tumors. Nat Commun. 11:1723 (2020)", true);
     toConsole(Fragpipe.COLOR_CMDLINE, "(DIA-Umpire) ", false);
     toConsole(Fragpipe.COLOR_BLACK, "DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics. Nat Methods 12:258 (2015)", true);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(DIA-NN) ", false);
+    toConsole(Fragpipe.COLOR_BLACK, "DIA-NN: neural networks and interference correction enable deep proteome coverage in high throughput. Nat Methods 17:41 (2020)", true);
   }
 
 
