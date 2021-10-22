@@ -33,6 +33,7 @@ public class CmdMSBooster extends CmdBase {
   public static final String JAR_MSBOOSTER_MAIN_CLASS = "Features.MainClass";
   private static final String[] JAR_DEPS = {SMILE_CORE_JAR, SMILE_MATH_JAR, BATMASS_IO_JAR};
   private static final String[] DIANN_SO_DEPS = {"diann_so/libm.so.6", "diann_so/libstdc++.so.6"};
+  private static final String[] DIANN_SO_DEPS_libgomp = {"diann_so/libgomp.so.1.0.0"};
   private static final String DIANN_WIN = "diann/1.8/win/DiaNN.exe";
   private static final String DIANN_LINUX = "diann/1.8/linux/diann-1.8";
   private static final Pattern pattern1 = Pattern.compile("\\.pepXML$");
@@ -96,11 +97,30 @@ public class CmdMSBooster extends CmdBase {
 
       if (ld_preload) {
         final List<Path> diann_so_path = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_SO_DEPS));
-        if (diann_so_path == null || diann_so_path.size() != 2) {
+        if (diann_so_path == null || diann_so_path.size() != DIANN_SO_DEPS.length) {
           System.err.print(".so files missing");
           return false;
         }
         LD_PRELOAD_str = diann_so_path.get(0).toString() + ":" + diann_so_path.get(1).toString();
+        final ProcessBuilder ldd2 = new ProcessBuilder("ldd", diannPath.get(0).toString());
+        ldd2.environment().put("LD_PRELOAD", LD_PRELOAD_str);
+        final java.io.InputStream ldd2_inputStream;
+        try {
+          final Process proc = ldd2.redirectErrorStream(true).start();
+          ldd2_inputStream = proc.getInputStream();
+        } catch (IOException e) {
+          System.err.println("Failed in checking " + diannPath.get(0).toString());
+          return false;
+        }
+        final String ldd2_output = new java.util.Scanner(ldd2_inputStream).useDelimiter("\\A").next();
+        if (ldd2_output.contains("not found")) {
+          final List<Path> diann_so_path2 = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_SO_DEPS_libgomp));
+          if (diann_so_path2 == null || diann_so_path2.size() != DIANN_SO_DEPS_libgomp.length) {
+            System.err.print(".so files missing");
+            return false;
+          }
+          LD_PRELOAD_str += ":" + diann_so_path2.get(0).toString();
+        }
       }
     }
 
