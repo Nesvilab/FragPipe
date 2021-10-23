@@ -103,7 +103,6 @@ public class CmdMSBooster extends CmdBase {
     if (Files.exists(paramPath.getParent())) { // Dry run does not make directories, so does not write the file.
       try {
         BufferedWriter bufferedWriter = Files.newBufferedWriter(paramPath);
-        bufferedWriter.write("fragger = null\n");
         bufferedWriter.write("useDetect = false\n");
         bufferedWriter.write("numThreads = " + threads + "\n");
         bufferedWriter.write("DiaNN = " + diannPath.get(0) + "\n");
