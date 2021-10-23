@@ -9,6 +9,7 @@ import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
+import com.dmtavt.fragpipe.tools.enums.CleavageType;
 import com.dmtavt.fragpipe.tools.enums.FraggerOutputType;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.github.chhh.utils.OsUtils;
@@ -315,6 +316,12 @@ public class CmdMsfragger extends CmdBase {
     // Fasta file
     if (pathFasta == null) {
       JOptionPane.showMessageDialog(comp, "Fasta file path (Fragger) can't be empty",
+          "Error", JOptionPane.ERROR_MESSAGE);
+      return false;
+    }
+
+    if ((hasDia || hasDiaNw) && params.getNumEnzymeTermini() == CleavageType.NONSPECIFIC) {
+      JOptionPane.showMessageDialog(comp, "Nonspecific digestion is not compatible with DIA or DIA-NW data.",
           "Error", JOptionPane.ERROR_MESSAGE);
       return false;
     }
