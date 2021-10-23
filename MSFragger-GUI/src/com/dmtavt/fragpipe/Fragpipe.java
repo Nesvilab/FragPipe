@@ -585,24 +585,31 @@ public class Fragpipe extends JFrame {
         + "University of Michigan, 2017-2021<br><br>"
         + "<a href=\"" + linkSite + "\">Alexey Nesvizhskii lab</a><br/>&nbsp;<br/>"
         + "Components:<br>"
+        + "<a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou<br>"
         + "<a href='https://msfragger.nesvilab.org/'>MSFragger</a>: Andy Kong, Dmitry Avtonomov, Guo-Ci Teo, Fengchao Yu<br>"
-        + "<a href='https://philosopher.nesvilab.org/'>Philosopher</a>: Felipe Leprevost<br>"
-        + "<a href='https://ptmshepherd.nesvilab.org/'>PTM-Shepherd</a>: Andy Kong, Daniel Geiszler<br>"
+        + "MSFragger Glyco mode: Daniel Polasky, Fengchao Yu, Guo-Ci Teo<br>"
         + "<a href='https://www.nesvilab.org/Crystal-C/'>Crystal-C</a>: Hui-Yin Chang<br>"
-        + "Spectral library generation: Guo-Ci Teo<br>"
+        + "MSBooster: Kevin Yang<br>"
+        + "<a href='https://philosopher.nesvilab.org/'>Philosopher</a>: Felipe Leprevost<br>"
+        + "<a href='http://percolator.ms/'>Percolator</a>: Lukas Käll<br>"
+        + "<a href='http://www.tppms.org/tools/ptm/'>PTMProphet</a>: David Shteynberg<br>"
+        + "<a href='https://ptmshepherd.nesvilab.org/'>PTM-Shepherd</a>: Andy Kong, Daniel Geiszler<br>"
         + "<a href='https://ionquant.nesvilab.org/'>IonQuant</a>: Fengchao Yu<br>"
         + "<a href='https://tmt-integrator.nesvilab.org/'>TMT-Integrator</a>: Hui-Yin Chang<br>"
+        + "Spectral library generation: Guo-Ci Teo<br>"
+        + "<a href='https://github.com/grosenberger/easypqp'>EasyPQP</a>: George Rosenberger<br>"
+        + "<a href='https://github.com/vdemichev/DiaNN'>DIA-NN</a>: Vadim Demichev<br>"
         + "Websites and tutorials: Sarah Haynes<br>"
-        + "MSFragger Glyco mode: Daniel Polasky, Fengchao Yu, Guo-Ci Teo<br>"
-        + "<a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou<br>"
-        + "<br>RawFileReader reading tool: Copyright © 2016 by Thermo Fisher Scientific, Inc. All rights reserved.<br>";
+        + "Special thanks to our collaborators Lukas Käll (Percolator), George Rosenberger (EasyPQP), and Vadim Demichev (DIA-NN).<br><br>"
+        + "RawFileReader reading tool: Copyright © 2016 by Thermo Fisher Scientific, Inc. All rights reserved.<br>"
+        + "Bruker SDK library: Copyright by Bruker Daltonics. All rights reserved.<br>";
   }
 
   public void showAboutDialog(Component parent) {
     log.debug("Showing about dialog");
 //    HtmlStyledJEditorPane ep = new HtmlStyledJEditorPane(true, createAboutBody());
     HtmlStyledJEditorPane ep = SwingUtils.createClickableHtml(createAboutBody());
-    ep.setPreferredSize(new Dimension(350, 350));
+    ep.setPreferredSize(new Dimension(350, 450));
     SwingUtils.showDialog(parent, ep, "About FragPipe", JOptionPane.INFORMATION_MESSAGE);
   }
 
