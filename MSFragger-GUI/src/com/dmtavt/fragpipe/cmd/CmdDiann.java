@@ -41,7 +41,7 @@ public class CmdDiann extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, List<InputLcmsFile> inputLcmsFiles, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> flags, float qvalue, String additionalCmdOpts) {
+  public boolean configure(Component comp, List<InputLcmsFile> inputLcmsFiles, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, float qvalue, String libraryPath, String additionalCmdOpts) {
 
     initPreConfig();
 
@@ -97,7 +97,7 @@ public class CmdDiann extends CmdBase {
       List<String> cmd = new ArrayList<>();
       cmd.add(diannPath.get(0).toAbsolutePath().toString());
       cmd.add("--lib");
-      cmd.add("library.tsv");
+      cmd.add((libraryPath != null && !libraryPath.isEmpty()) ? libraryPath : "library.tsv");
       cmd.add("--threads");
       cmd.add(String.valueOf(nThreads));
       cmd.add("--verbose");
@@ -109,7 +109,7 @@ public class CmdDiann extends CmdBase {
       cmd.add("--matrices");
       cmd.add("--no-prot-inf");
       cmd.add("--smart-profiling");
-      cmd.addAll(flags);
+      cmd.addAll(quantificationStrategy);
       cmd.add(additionalCmdOpts);
 
       try {

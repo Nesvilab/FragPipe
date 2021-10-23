@@ -5,6 +5,8 @@ import static com.github.chhh.utils.SwingUtils.createClickableHtml;
 
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FileChooserUtils;
+import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -17,6 +19,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import java.awt.image.BufferedImage;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,10 +27,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
@@ -44,6 +50,7 @@ public class DiannPanel extends JPanelBase {
   private UiCombo uiComboQuantificationStrategy;
   private UiText uiTextCmdOpts;
   private UiSpinnerDouble uiSpinnerQvalue;
+  private UiText uiTextLibrary;
   private JPanel panelDiann;
 
   @Override
@@ -130,6 +137,19 @@ public class DiannPanel extends JPanelBase {
     FormEntry feQuantificationStrategy = new FormEntry("quantification-strategy", "Quantification strategy", uiComboQuantificationStrategy);
     uiComboQuantificationStrategy.setSelectedIndex(0);
 
+    uiTextLibrary = UiUtils.uiTextBuilder().create();
+    FormEntry feLibrary = new FormEntry("library", "Spectral library (optional)", uiTextLibrary, "Additional spectral library file.\nIf blank, using the library.tsv built from FragPipe.");
+    JButton jButtonLibrary = feLibrary.browseButton("Browse", "Select library file", () -> {
+      final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Library files", "csv", "tsv", "xls", "txt", "speclib", "sptxt", "msp");
+      JFileChooser fc = FileChooserUtils.create("Library file", "Select", false, FcMode.FILES_ONLY, true, fileNameExtensionFilter);
+      fc.setFileFilter(fileNameExtensionFilter);
+      FileChooserUtils.setPath(fc, Stream.of(uiTextLibrary.getNonGhostText()));
+      return fc;
+      }, paths -> {
+      Path path = paths.get(0); // we only allowed selection of a single file in the file chooser
+      uiTextLibrary.setText(path.toString());
+    });
+
     uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).text("").create();
     FormEntry feCmdOpts = fe(uiTextCmdOpts, "cmd-opts")
         .label("Cmd line opts:")
@@ -142,6 +162,9 @@ public class DiannPanel extends JPanelBase {
     mu.add(p, feQvalue.comp).wrap();
     mu.add(p, feQuantificationStrategy.label(), mu.ccL()).split();
     mu.add(p, feQuantificationStrategy.comp).wrap();
+    mu.add(p, feLibrary.label(), mu.ccL()).split();
+    mu.add(p, feLibrary.comp).pushX().growX();
+    mu.add(p, jButtonLibrary).wrap();
     mu.add(p, feCmdOpts.label(), mu.ccL()).split();
     mu.add(p, feCmdOpts.comp).growX().pushX().wrap();
 
@@ -167,6 +190,10 @@ public class DiannPanel extends JPanelBase {
 
   public float getDiannQvalue() {
     return (float) uiSpinnerQvalue.getActualValue();
+  }
+
+  public String getLibraryPath() {
+    return uiTextLibrary.getNonGhostText();
   }
 
   public String getCmdOpts() {

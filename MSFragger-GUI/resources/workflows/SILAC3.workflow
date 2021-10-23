@@ -2,6 +2,8 @@
 
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
+diann.fragpipe.cmd-opts=
+diann.library=
 diann.q-value=0.01
 diann.quantification-strategy=0
 diann.run-dia-nn=false
