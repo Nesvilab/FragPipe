@@ -696,18 +696,16 @@ public class FragpipeRun {
       return true;
     });
 
-    // run MsFragger
+    // run DIA-Umpire SE
     final NoteConfigMsfragger configMsfragger;
     try {
       configMsfragger = Fragpipe.getSticky(NoteConfigMsfragger.class);
     } catch (NoStickyException e) {
-      SwingUtils.showErrorDialog(parent,
-              "Looks like fragger was not configured.\nFragger is currently required.", "No MSFragger");
+      SwingUtils.showErrorDialog(parent, "Looks like fragger was not configured.\nFragger is currently required.", "No MSFragger");
       return false;
     }
     final UsageTrigger binMsfragger = new UsageTrigger(configMsfragger.path, "MSFragger");
 
-    // run DIA-Umpire SE
     final UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
     final CmdUmpireSe cmdUmpire = new CmdUmpireSe(umpirePanel.isRunUmpire(), wd);
     addConfig.accept(cmdUmpire, () -> {
@@ -722,14 +720,13 @@ public class FragpipeRun {
       return true;
     });
 
+
+    // run MsFragger
     final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
     final String decoyTag = tabDatabase.getDecoyTag();
+    MsfraggerParams p = tabMsf.getParams();
+    final CmdMsfragger cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputReportTopN(), p.getOutputFormat());
 
-    final CmdMsfragger cmdMsfragger;
-    {
-      MsfraggerParams p = tabMsf.getParams();
-      cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputReportTopN(), p.getOutputFormat());
-    }
     final Map<InputLcmsFile, List<Path>> sharedPepxmlFilesFromMsfragger = new TreeMap<>();
     final TreeMap<InputLcmsFile, List<Path>> sharedPepxmlFiles = new TreeMap<>();
 
