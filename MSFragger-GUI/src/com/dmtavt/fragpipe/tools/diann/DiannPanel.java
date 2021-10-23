@@ -124,7 +124,7 @@ public class DiannPanel extends JPanelBase {
     mu.border(p, 1);
 
     uiSpinnerQvalue = UiUtils.spinnerDouble(0.01, 0.0, 1.0, 0.01).setCols(5).setFormat("#.##").create();
-    FormEntry feQvalue = mu.feb(uiSpinnerQvalue).name("q-value").label("Precursor FDR              ").create();
+    FormEntry feQvalue = mu.feb(uiSpinnerQvalue).name("q-value").label("Precursor FDR").create();
 
     uiComboQuantificationStrategy = UiUtils.createUiCombo(Arrays.asList("Any LC (high accuracy)", "Any LC (high precision)", "Robust LC (high accuracy)", "Robust LC (high precision)"));
     FormEntry feQuantificationStrategy = new FormEntry("quantification-strategy", "Quantification strategy", uiComboQuantificationStrategy);
@@ -132,9 +132,9 @@ public class DiannPanel extends JPanelBase {
 
     uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).text("").create();
     FormEntry feCmdOpts = fe(uiTextCmdOpts, "cmd-opts")
-        .label("Cmd line opts:              ")
+        .label("Cmd line opts:")
         .tooltip("These options will be passed on to DIA-NN.\n"
-            + "This set will be merged with precursor FDR and quantification strategy\n"
+            + "This set will be merged with precursor FDR and quantification strategy.\n"
             + "To set --threads, please adjust the Parallelism setting in the Workflow tab.\n"
             + "See output log (e.g. dry-run results) for the complete command.").create();
 
