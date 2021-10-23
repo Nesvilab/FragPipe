@@ -680,6 +680,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (!toAdd.isEmpty()) {
       tableModelRawFiles.dataAddAll(toAdd);
       postFileListUpdate();
+      adjustToolsBasedOnDataTypes();
     }
   }
 
@@ -759,6 +760,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (!toRemove.isEmpty()) {
       tableModelRawFiles.dataRemoveAll(toRemove);
       postFileListUpdate();
+      adjustToolsBasedOnDataTypes();
     }
   }
 
@@ -767,6 +769,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     logObjectType(m);
     tableModelRawFiles.dataClear();
     postFileListUpdate();
+    adjustToolsBasedOnDataTypes();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
@@ -1361,7 +1364,10 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
 
     postFileListUpdate();
+    adjustToolsBasedOnDataTypes();
+  }
 
+  private void adjustToolsBasedOnDataTypes() {
     if (hasDia() || hasDiaNw()) {
       Bus.post(new NoteConfigCrystalC(false));
       Bus.post(new NoteConfigPeptideProphet(false));
