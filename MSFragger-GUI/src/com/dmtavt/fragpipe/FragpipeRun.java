@@ -652,20 +652,34 @@ public class FragpipeRun {
 
     final Map<String, LcmsFileGroup> sharedLcmsFileGroups = new LinkedHashMap<>();
     final List<InputLcmsFile> sharedLcmsFiles = new ArrayList<>();
+    final Map<String, LcmsFileGroup> sharedLcmsFileGroupsAll = new LinkedHashMap<>();
+    final List<InputLcmsFile> sharedLcmsFilesAll = new ArrayList<>();
 
     // Add LCMS files
     final CmdStart cmdStart = new CmdStart(true, wd);
     addConfig.accept(cmdStart, () -> {
-      MapUtils.refill(sharedLcmsFileGroups, tabWorkflow.getLcmsFileGroups());
-      sharedLcmsFiles.clear();
-      sharedLcmsFiles.addAll(Seq.seq(sharedLcmsFileGroups.values())
-          .flatMap(group -> group.lcmsFiles.stream())
-          .toList());
-      if (sharedLcmsFiles.isEmpty()) {
-        SwingUtils.showErrorDialog(parent,
-            "No LCMS files provided.", "Add LCMS files");
+      MapUtils.refill(sharedLcmsFileGroupsAll, tabWorkflow.getLcmsFileGroups());
+      sharedLcmsFilesAll.clear();
+      sharedLcmsFilesAll.addAll(Seq.seq(sharedLcmsFileGroupsAll.values()).flatMap(group -> group.lcmsFiles.stream()).toList());
+      if (sharedLcmsFilesAll.isEmpty()) {
+        SwingUtils.showErrorDialog(parent, "No LCMS files provided.", "Add LCMS files");
         return false;
       }
+
+      // Don't include diaPASEF
+      for (Map.Entry<String, LcmsFileGroup> e : tabWorkflow.getLcmsFileGroups().entrySet()) {
+        List<InputLcmsFile> noDiapasef = e.getValue().lcmsFiles.stream().filter(f -> f.getDataType().contentEquals("DDA") || !f.getPath().toString().endsWith(".d")).collect(Collectors.toList());
+        if (!noDiapasef.isEmpty()) {
+          sharedLcmsFileGroups.put(e.getKey(), new LcmsFileGroup(e.getValue().name, noDiapasef));
+        }
+      }
+      sharedLcmsFiles.clear();
+      sharedLcmsFiles.addAll(Seq.seq(sharedLcmsFileGroups.values()).flatMap(group -> group.lcmsFiles.stream()).toList());
+      if (sharedLcmsFiles.isEmpty()) {
+        SwingUtils.showErrorDialog(parent, "No LCMS files provided after excluding diaPASEF runs.", "Add LCMS files");
+        return false;
+      }
+
       return true;
     });
 
@@ -1173,7 +1187,7 @@ public class FragpipeRun {
     final CmdDiann cmdDiann = new CmdDiann(diannPanel.isRunDiann(), wd);
     addConfig.accept(cmdDiann,  () -> {
       if (cmdDiann.isRun()) {
-        return cmdDiann.configure(parent, sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, diannPanel.getDiannQuantificationStrategy(), diannPanel.getDiannQvalue(), diannPanel.getCmdOpts());
+        return cmdDiann.configure(parent, sharedLcmsFilesAll, sharedLcmsFileGroupsAll.values(), threads, diannPanel.getDiannQuantificationStrategy(), diannPanel.getDiannQvalue(), diannPanel.getCmdOpts());
       }
       return true;
     });

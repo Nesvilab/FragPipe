@@ -15,9 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
@@ -42,7 +41,7 @@ public class CmdDiann extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<String> flags, float qvalue, String additionalCmdOpts) {
+  public boolean configure(Component comp, List<InputLcmsFile> inputLcmsFiles, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> flags, float qvalue, String additionalCmdOpts) {
 
     initPreConfig();
 
@@ -56,7 +55,7 @@ public class CmdDiann extends CmdBase {
       return false;
     }
 
-    if (!checkCompatibleFormats(comp, lcmsToFraggerPepxml, sup)) {
+    if (!checkCompatibleFormats(comp, inputLcmsFiles, sup)) {
       return false;
     }
 
@@ -86,8 +85,7 @@ public class CmdDiann extends CmdBase {
 
     String LD_PRELOAD_str = getLDPRELOAD(diannPath);
 
-    for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
-      final LcmsFileGroup group = e.getKey();
+    for (LcmsFileGroup group : lcmsFileGroups) {
       final Path groupWd = group.outputDir(wd);
 
       Set<String> inputLcmsPaths = group.lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DDA")).map(f -> f.getPath().toAbsolutePath().toString()).collect(Collectors.toSet());
@@ -141,8 +139,8 @@ public class CmdDiann extends CmdBase {
     return true;
   }
 
-  private boolean checkCompatibleFormats(Component comp, Map<InputLcmsFile, List<Path>> lcmsToPepxml, List<String> supportedFormats) {
-    List<String> notSupportedExts = getNotSupportedExts1(lcmsToPepxml, supportedFormats);
+  private boolean checkCompatibleFormats(Component comp, List<InputLcmsFile> inputLcmsFiles, List<String> supportedFormats) {
+    List<String> notSupportedExts = getNotSupportedExts(inputLcmsFiles, supportedFormats);
     if (!notSupportedExts.isEmpty()) {
       StringBuilder sb = new StringBuilder();
       sb.append(String.format("<html>%s can't work with '.%s' files.<br/>", NAME, String.join(", ", notSupportedExts)));
