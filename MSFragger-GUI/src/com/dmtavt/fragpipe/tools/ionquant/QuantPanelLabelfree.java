@@ -4,6 +4,7 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.dmtavt.fragpipe.messages.MessageLoadQuantDefaults;
+import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
@@ -78,11 +79,16 @@ public class QuantPanelLabelfree extends JPanelBase {
     return isRun() && SwingUtils.isEnabledAndChecked(uiRadioUseFreequant);
   }
 
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigIonQuant m) {
+    updateEnabledStatus(this, m.isValid());
+    checkRun.setSelected(false);
+  }
+
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageIsUmpireRun m) {
-    if (m.isEnabled) {
-      checkRun.setSelected(false); // deselect when Umpire runs
-    }
+    updateEnabledStatus(this, !m.isEnabled);
+    checkRun.setSelected(false);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)

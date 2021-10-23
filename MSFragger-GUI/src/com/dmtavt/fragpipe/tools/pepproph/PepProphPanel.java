@@ -3,7 +3,9 @@ package com.dmtavt.fragpipe.tools.pepproph;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.SearchTypeProp;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
+import com.dmtavt.fragpipe.messages.NoteConfigPeptideProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
+import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -78,6 +80,15 @@ public class PepProphPanel extends JPanelBase {
   protected void initMore() {
     updateEnabledStatus(this, false);
     super.initMore();
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigPeptideProphet m) {
+    updateEnabledStatus(this, m.isValid());
+    if (!m.isValid()) {
+      PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);
+      percolatorPanel.checkRun.setSelected(true);
+    }
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)

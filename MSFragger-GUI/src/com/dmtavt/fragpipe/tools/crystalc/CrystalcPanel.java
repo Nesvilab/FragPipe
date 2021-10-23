@@ -3,6 +3,7 @@ package com.dmtavt.fragpipe.tools.crystalc;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.messages.MessageLoadCrystalcDefaults;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
+import com.dmtavt.fragpipe.messages.NoteConfigCrystalC;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
@@ -150,6 +151,12 @@ public class CrystalcPanel extends JPanelBase {
         checkRun.setSelected(false);
         break;
     }
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigCrystalC m) {
+    updateEnabledStatus(this, m.isValid());
+    checkRun.setSelected(false);
   }
 
   private JPanel createPanelTop() {

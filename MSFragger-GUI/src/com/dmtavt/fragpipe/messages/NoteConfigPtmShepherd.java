@@ -1,10 +1,10 @@
 package com.dmtavt.fragpipe.messages;
 
-public class NoteConfigDiann implements INoteConfig {
+public class NoteConfigPtmShepherd implements INoteConfig {
 
   private final boolean isValid;
 
-  public NoteConfigDiann(boolean isValid) {
+  public NoteConfigPtmShepherd(boolean isValid) {
     this.isValid = isValid;
   }
 

@@ -7,6 +7,7 @@ import com.dmtavt.fragpipe.dialogs.QuantLabelAnnotationDialog;
 import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
 import com.dmtavt.fragpipe.messages.MessageLoadTmtIntegratorDefaults;
 import com.dmtavt.fragpipe.messages.MessageType;
+import com.dmtavt.fragpipe.messages.NoteConfigTmtI;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tools.tmtintegrator.TmtAnnotationTable.ExpNameToAnnotationFile;
 import com.github.chhh.utils.PathUtils;
@@ -651,6 +652,12 @@ public class TmtiPanel extends JPanelBase {
 
   public boolean isRunFqLq() {
     return isRun() && !uiCheckDontRunFqLq.isSelected();
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigTmtI m) {
+    updateEnabledStatus(this, m.isValid());
+    checkRun.setSelected(false);
   }
 
   @Subscribe

@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.tools.ptmprophet;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
+import com.dmtavt.fragpipe.messages.NoteConfigPtmProphet;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -120,5 +121,11 @@ public class PtmProphetPanel extends JPanelBase {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigPhilosopher m) {
     updateEnabledStatus(this, m.isValid());
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigPtmProphet m) {
+    updateEnabledStatus(this, m.isValid());
+    checkRun.setSelected(false);
   }
 }
