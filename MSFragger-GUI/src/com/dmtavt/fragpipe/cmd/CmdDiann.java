@@ -106,7 +106,7 @@ public class CmdDiann extends CmdBase {
       cmd.add("diann-output.tsv");
       cmd.add("--qvalue");
       cmd.add(String.valueOf(qvalue));
-      cmd.add("--matrics");
+      cmd.add("--matrices");
       cmd.add("--no-prot-inf");
       cmd.add("--smart-profiling");
       cmd.addAll(flags);
