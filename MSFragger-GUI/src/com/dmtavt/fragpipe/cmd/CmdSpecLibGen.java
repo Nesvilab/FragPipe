@@ -8,7 +8,6 @@ import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.github.chhh.utils.OsUtils;
-import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -39,9 +38,7 @@ public class CmdSpecLibGen extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, UsageTrigger usePhi, Path jarFragpipe, SpecLibGen2 slg,
-      Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, InputDataType dataType,
-      final Map<String, String> easypqpLibraryExtraArguments) {
+  public boolean configure(Component comp, SpecLibGen2 slg, Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, InputDataType dataType) {
 
     initPreConfig();
 
