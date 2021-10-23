@@ -133,6 +133,18 @@ public class CmdDiann extends CmdBase {
         pb.environment().put("LD_PRELOAD", LD_PRELOAD_str);
       }
       pbis.add(PbiBuilder.from(pb));
+
+      if (isWindows()) {
+        // Plotting
+        List<String> cmd2 = new ArrayList<>();
+        cmd2.add(diannPath.get(0).toAbsolutePath().toString().replaceAll("DiaNN\\.exe$", "dia-nn-plotter.exe"));
+        cmd2.add("diann-output.stats.tsv");
+        cmd2.add("diann-output.tsv");
+        cmd2.add("diann-output.pdf");
+        ProcessBuilder pb2 = new ProcessBuilder(cmd2);
+        pb2.directory(groupWd.toFile());
+        pbis.add(PbiBuilder.from(pb2));
+      }
     }
 
     isConfigured = true;
