@@ -128,7 +128,7 @@ public class DiannPanel extends JPanelBase {
 
     uiComboQuantificationStrategy = UiUtils.createUiCombo(Arrays.asList("Any LC (high accuracy)", "Any LC (high precision)", "Robust LC (high accuracy)", "Robust LC (high precision)"));
     FormEntry feQuantificationStrategy = new FormEntry("quantification-strategy", "Quantification strategy", uiComboQuantificationStrategy);
-    uiComboQuantificationStrategy.setSelectedIndex(3);
+    uiComboQuantificationStrategy.setSelectedIndex(0);
 
     uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).text("").create();
     FormEntry feCmdOpts = fe(uiTextCmdOpts, "cmd-opts")
