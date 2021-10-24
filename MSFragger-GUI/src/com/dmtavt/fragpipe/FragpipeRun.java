@@ -732,7 +732,7 @@ public class FragpipeRun {
 
     addConfig.accept(cmdMsfragger, () -> {
       if (cmdMsfragger.isRun()) {
-        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDda(), tabWorkflow.hasDia(), tabWorkflow.hasDiaNw())) {
+        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDda(), tabWorkflow.hasDia(), tabWorkflow.hasGpfDia())) {
           return false;
         }
 
@@ -792,7 +792,7 @@ public class FragpipeRun {
     final CmdMSBooster cmdMSBooster = new CmdMSBooster(MSBoosterPanel.isRun(), wd);
     addConfig.accept(cmdMSBooster, () -> {
       if (cmdMSBooster.isRun()) {
-        return cmdMSBooster.configure(parent, ramGb, threads, sharedPepxmlFilesFromMsfragger, MSBoosterPanel.predictRt(), MSBoosterPanel.predictSpectra(), tabWorkflow.hasDda(), tabWorkflow.hasDia(), tabWorkflow.hasDiaNw());
+        return cmdMSBooster.configure(parent, ramGb, threads, sharedPepxmlFilesFromMsfragger, MSBoosterPanel.predictRt(), MSBoosterPanel.predictSpectra(), tabWorkflow.hasDda(), tabWorkflow.hasDia(), tabWorkflow.hasGpfDia());
       }
       return true;
     });

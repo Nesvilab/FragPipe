@@ -79,7 +79,7 @@ public class CmdMsfragger extends CmdBase {
         int maxRank = 1;
         if (f.getDataType().contentEquals("DIA")) { // MSFragger-DIA generate top 3 or top 5 pepXML files by-default.
           maxRank = Math.max(5, outputReportTopN);
-        } else if (f.getDataType().contentEquals("DIA-NW")) {
+        } else if (f.getDataType().contentEquals("GPF-DIA")) {
           maxRank = Math.max(3, outputReportTopN);
         }
         for (int rank = 1; rank <= maxRank; ++rank) {
@@ -268,7 +268,7 @@ public class CmdMsfragger extends CmdBase {
     return locs;
   }
 
-  public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasDiaNw) {
+  public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasGpfDia) {
 
     initPreConfig();
 
@@ -320,8 +320,8 @@ public class CmdMsfragger extends CmdBase {
       return false;
     }
 
-    if ((hasDia || hasDiaNw) && params.getNumEnzymeTermini() == CleavageType.NONSPECIFIC) {
-      JOptionPane.showMessageDialog(comp, "Nonspecific digestion is not compatible with DIA or DIA-NW data.",
+    if ((hasDia || hasGpfDia) && params.getNumEnzymeTermini() == CleavageType.NONSPECIFIC) {
+      JOptionPane.showMessageDialog(comp, "Nonspecific digestion is not compatible with DIA or GPF-DIA data.",
           "Error", JOptionPane.ERROR_MESSAGE);
       return false;
     }
@@ -329,9 +329,9 @@ public class CmdMsfragger extends CmdBase {
     // Search parameter file
     params.setDatabaseName(pathFasta);
     params.setDecoyPrefix(decoyTag);
-    Path savedDdaParamsPath = (hasDia || hasDiaNw) ? wd.resolve("fragger_dda.params") : wd.resolve("fragger.params");
+    Path savedDdaParamsPath = (hasDia || hasGpfDia) ? wd.resolve("fragger_dda.params") : wd.resolve("fragger.params");
     Path savedDiaParamsPath = wd.resolve("fragger_dia.params");
-    Path savedDiaNwParamsPath = wd.resolve("fragger_dianw.params");
+    Path savedGpfDiaParamsPath = wd.resolve("fragger_gpfdia.params");
     if (!isDryRun) {
       try {
         if (hasDda) {
@@ -342,9 +342,9 @@ public class CmdMsfragger extends CmdBase {
           params.setDataType(1);
           params.save(new FileOutputStream(savedDiaParamsPath.toFile()));
         }
-        if (hasDiaNw) {
+        if (hasGpfDia) {
           params.setDataType(2);
-          params.save(new FileOutputStream(savedDiaNwParamsPath.toFile()));
+          params.save(new FileOutputStream(savedGpfDiaParamsPath.toFile()));
         }
 
         // cache the params
@@ -427,12 +427,12 @@ public class CmdMsfragger extends CmdBase {
         } else {
           tt.add(inputLcmsFile);
         }
-      } else if (inputLcmsFile.getDataType().contentEquals("DIA-NW")) {
-        List<InputLcmsFile> tt = t.get("DIA-NW");
+      } else if (inputLcmsFile.getDataType().contentEquals("GPF-DIA")) {
+        List<InputLcmsFile> tt = t.get("GPF-DIA");
         if (tt == null) {
           tt = new ArrayList<>();
           tt.add(inputLcmsFile);
-          t.put("DIA-NW", tt);
+          t.put("GPF-DIA", tt);
         } else {
           tt.add(inputLcmsFile);
         }
@@ -454,8 +454,8 @@ public class CmdMsfragger extends CmdBase {
           cmd.add(savedDdaParamsPath.toString());
         } else if (e.getKey().contentEquals("DIA")) {
           cmd.add(savedDiaParamsPath.toString());
-        } else if (e.getKey().contentEquals("DIA-NW")) {
-          cmd.add(savedDiaNwParamsPath.toString());
+        } else if (e.getKey().contentEquals("GPF-DIA")) {
+          cmd.add(savedGpfDiaParamsPath.toString());
         }
 
         // check if the command length is ok so far

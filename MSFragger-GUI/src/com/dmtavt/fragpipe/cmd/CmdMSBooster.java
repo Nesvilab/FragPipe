@@ -48,7 +48,7 @@ public class CmdMSBooster extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean hasDda, boolean hasDia, boolean hasDiaNw) {
+  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean hasDda, boolean hasDia, boolean hasGpfDia) {
     initPreConfig();
 
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MSBOOSTER_NAME).concat(JAR_DEPS));
@@ -84,17 +84,17 @@ public class CmdMSBooster extends CmdBase {
 
     String fraggerParams;
     if (hasDda) {
-      if (hasDia || hasDiaNw) {
+      if (hasDia || hasGpfDia) {
         fraggerParams = wd.resolve("fragger_dda.params").toAbsolutePath().toString();
       } else {
         fraggerParams = wd.resolve("fragger.params").toAbsolutePath().toString();
       }
     } else if (hasDia) {
       fraggerParams = wd.resolve("fragger_dia.params").toAbsolutePath().toString();
-    } else if (hasDiaNw) {
-      fraggerParams = wd.resolve("fragger_dianw.params").toAbsolutePath().toString();
+    } else if (hasGpfDia) {
+      fraggerParams = wd.resolve("fragger_gpfdia.params").toAbsolutePath().toString();
     } else {
-      System.err.println("There are not DDA, DIA, or DIA-NW.");
+      System.err.println("There are not DDA, DIA, or GPF-DIA.");
       return false;
     }
 
