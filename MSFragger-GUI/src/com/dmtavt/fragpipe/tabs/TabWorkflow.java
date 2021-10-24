@@ -143,6 +143,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnSetDda;
   private JButton btnSetDia;
   private JButton btnSetGpfDia;
+  private JButton btnSetDiaQuant;
   private JButton btnGroupsClear;
   private JButton btnManifestSave;
   private JButton btnManifestLoad;
@@ -230,7 +231,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     TableModelColumn<InputLcmsFile, Integer> colRep = new TableModelColumn<>(
         "Bioreplicate (can be empty and integer)", Integer.class, true, InputLcmsFile::getReplicate);
     TableModelColumn<InputLcmsFile, String> colDataType = new TableModelColumn<>(
-        "Data type (DDA, DIA, GPF-DIA)", String.class, true, InputLcmsFile::getDataType);
+        "Data type (DDA, DIA, GPF-DIA, DIA-Quant)", String.class, true, InputLcmsFile::getDataType);
 
     cols.add(colPath);
     cols.add(colExp);
@@ -982,6 +983,8 @@ public class TabWorkflow extends JPanelWithEnablement {
         () -> new MessageLcmsGroupAction(Type.SET_DIA));
     btnSetGpfDia = button("Set GPF-DIA",
         () -> new MessageLcmsGroupAction(Type.SET_GPF_DIA));
+    btnSetDiaQuant = button("Set DIA-Quant",
+        () -> new MessageLcmsGroupAction(Type.SET_DIA_QUANT));
     btnGroupsClear = button("Clear groups", () -> new MessageLcmsGroupAction(Type.CLEAR_GROUPS));
 
     btnManifestSave = button("Save as manifest", MessageManifestSave::new);
@@ -1032,7 +1035,8 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     mu.add(p, btnSetDda);
     mu.add(p, btnSetDia);
-    mu.add(p, btnSetGpfDia).wrap();
+    mu.add(p, btnSetGpfDia);
+    mu.add(p, btnSetDiaQuant).wrap();
 
     p.add(scrollPaneRawFiles, mu.ccGx().wrap());
 
@@ -1057,6 +1061,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDda);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDia);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetGpfDia);
+    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDiaQuant);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClear);
 
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnFilesRemove);
@@ -1354,6 +1359,9 @@ public class TabWorkflow extends JPanelWithEnablement {
       case SET_GPF_DIA:
         this.actionSetGpfDia();
         break;
+      case SET_DIA_QUANT:
+        this.actionSetDiaQuant();
+        break;
       case CLEAR_GROUPS:
         this.actionClearGroups();
         break;
@@ -1373,7 +1381,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       Bus.post(new NoteConfigPtmShepherd(false));
       Bus.post(new NoteConfigIonQuant(false));
       Bus.post(new NoteConfigTmtI(false));
-      Bus.post(new NoteConfigDiann(true));
+      Bus.post(new NoteConfigDiann(true, false));
     } else {
       Bus.post(new NoteConfigCrystalC(true));
       Bus.post(new NoteConfigPeptideProphet(true));
@@ -1381,7 +1389,11 @@ public class TabWorkflow extends JPanelWithEnablement {
       Bus.post(new NoteConfigPtmShepherd(true));
       Bus.post(new NoteConfigIonQuant(true));
       Bus.post(new NoteConfigTmtI(true));
-      Bus.post(new NoteConfigDiann(false));
+      if (hasDiaQuant()) {
+        Bus.post(new NoteConfigDiann(true, true));
+      } else {
+        Bus.post(new NoteConfigDiann(false, false));
+      }
     }
   }
 
@@ -1478,6 +1490,23 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
   }
 
+  private void actionSetDiaQuant() {
+    final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+    List<Integer> selectedRows = Arrays.stream(this.tableRawFiles.getSelectedRows()).mapToObj(tableRawFiles::convertRowIndexToModel).collect(Collectors.toList());
+    if (selectedRows.isEmpty()) {
+      for (int i = 0; i < m.dataSize(); ++i) {
+        InputLcmsFile f = m.dataGet(i);
+        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DIA-Quant"));
+      }
+    } else {
+      for (int selectedRow : selectedRows) {
+        int i = tableRawFiles.convertRowIndexToModel(selectedRow);
+        InputLcmsFile f = m.dataGet(i);
+        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DIA-Quant"));
+      }
+    }
+  }
+
   private void actionByFileName() {
     UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
 
@@ -1547,6 +1576,15 @@ public class TabWorkflow extends JPanelWithEnablement {
   public boolean hasGpfDia() {
     for (InputLcmsFile inputLcmsFile : tableModelRawFiles.dataCopy()) {
       if (inputLcmsFile.getDataType().contentEquals("GPF-DIA")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public boolean hasDiaQuant() {
+    for (InputLcmsFile inputLcmsFile : tableModelRawFiles.dataCopy()) {
+      if (inputLcmsFile.getDataType().contentEquals("DIA-Quant")) {
         return true;
       }
     }

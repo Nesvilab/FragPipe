@@ -666,11 +666,11 @@ public class FragpipeRun {
         return false;
       }
 
-      // Don't include diaPASEF
+      // Don't include DIA-Quant and diaPASEF.
       for (Map.Entry<String, LcmsFileGroup> e : tabWorkflow.getLcmsFileGroups().entrySet()) {
-        List<InputLcmsFile> noDiapasef = e.getValue().lcmsFiles.stream().filter(f -> f.getDataType().contentEquals("DDA") || !f.getPath().toString().endsWith(".d")).collect(Collectors.toList());
-        if (!noDiapasef.isEmpty()) {
-          sharedLcmsFileGroups.put(e.getKey(), new LcmsFileGroup(e.getValue().name, noDiapasef));
+        List<InputLcmsFile> ttt = e.getValue().lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DIA-Quant") && (f.getDataType().contentEquals("DDA") || !f.getPath().toString().endsWith(".d"))).collect(Collectors.toList());
+        if (!ttt.isEmpty()) {
+          sharedLcmsFileGroups.put(e.getKey(), new LcmsFileGroup(e.getValue().name, ttt));
         }
       }
       sharedLcmsFiles.clear();
