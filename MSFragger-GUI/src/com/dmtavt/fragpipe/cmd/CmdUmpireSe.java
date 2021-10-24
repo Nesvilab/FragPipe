@@ -48,12 +48,16 @@ public class CmdUmpireSe extends CmdBase {
 
     List<InputLcmsFile> out = new ArrayList<>();
     for (InputLcmsFile f: inputs) {
-      final String inputFn = f.getPath().getFileName().toString();
-      final Path outPath = f.outputDir(wd);
-      List<String> mgfs = getGeneratedMgfFnsForMzxml(inputFn);
-      List<String> lcmsFns = getGeneratedLcmsFns(mgfs);
-      for (String lcmsFn : lcmsFns) {
-        out.add(new InputLcmsFile(outPath.resolve(lcmsFn), f.getGroup(), f.getReplicate(), f.getDataType()));
+      if (f.getDataType().contentEquals("DDA") || f.getDataType().contentEquals("DIA-Quant")) {
+        out.add(f);
+      } else {
+        final String inputFn = f.getPath().getFileName().toString();
+        final Path outPath = f.outputDir(wd);
+        List<String> mgfs = getGeneratedMgfFnsForMzxml(inputFn);
+        List<String> lcmsFns = getGeneratedLcmsFns(mgfs);
+        for (String lcmsFn : lcmsFns) {
+          out.add(new InputLcmsFile(outPath.resolve(lcmsFn), f.getGroup(), f.getReplicate(), "DDA"));
+        }
       }
     }
     return out;
@@ -98,8 +102,11 @@ public class CmdUmpireSe extends CmdBase {
             createJavaDParamString("libs.thermo.dir", extLibsThermo.toString());
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(UmpireParams.JAR_UMPIRESE_NAME).concat(JAR_DEPS));
 
-    for (InputLcmsFile f: lcmsFiles) {
-      Path inputFn = f.getPath().getFileName();
+    for (InputLcmsFile f : lcmsFiles) {
+      if (f.getDataType().contentEquals("DDA") || f.getDataType().contentEquals("DIA-Quant")) {
+        continue;
+      }
+
       Path inputDir = f.getPath().getParent();
       Path destDir = f.outputDir(wd);
 
