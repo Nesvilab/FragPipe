@@ -49,11 +49,14 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
     }
 
     private String guessDataType(Path filePath) {
-        String fileName = filePath.getFileName().toString();
-        if (fileName.toLowerCase().contains("dia")) {
+        String fileName = filePath.toAbsolutePath().toString();
+        if (fileName.toLowerCase().contains("dda")) { // DDA has higher priority.
+            return "DDA";
+        } else if (fileName.toLowerCase().contains("dia")) {
             return "DIA";
+        } else {
+            return "DDA";
         }
-        return "DDA";
     }
 
     public Path outputDir(Path workDir) {
