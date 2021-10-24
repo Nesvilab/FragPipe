@@ -663,7 +663,7 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     public int getOutputReportTopN() {
-        return Integer.parseInt(props.getProp(PROP_output_report_topN, "3").value);
+        return Integer.parseInt(props.getProp(PROP_output_report_topN, "1").value);
     }
 
     public void setDataType(int dataType) {

@@ -11,6 +11,8 @@ import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
 import com.dmtavt.fragpipe.tools.enums.CleavageType;
 import com.dmtavt.fragpipe.tools.enums.FraggerOutputType;
+import com.dmtavt.fragpipe.tools.enums.MassTolUnits;
+import com.dmtavt.fragpipe.tools.enums.PrecursorMassTolUnits;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
@@ -49,13 +51,13 @@ public class CmdMsfragger extends CmdBase {
   private static volatile Path pathThermo = PATH_NONE;
   private static volatile Path pathBruker = PATH_NONE;
   private static final List<String> timsdataPattern = Arrays.asList("^timsdata.*\\.dll", "^libtimsdata.*\\.so");
-
-  private final int outputReportTopN;
   private final FraggerOutputType fraggerOutputType;
+  private MsfraggerParams paramsDda;
+  private MsfraggerParams paramsDia;
+  private MsfraggerParams paramsGpfDia;
 
-  public CmdMsfragger(boolean isRun, Path workDir, int outputReportTopN, FraggerOutputType fraggerOutputType) {
+  public CmdMsfragger(boolean isRun, Path workDir, FraggerOutputType fraggerOutputType) {
     super(isRun, workDir);
-    this.outputReportTopN = outputReportTopN;
     this.fraggerOutputType = fraggerOutputType;
   }
 
@@ -76,17 +78,18 @@ public class CmdMsfragger extends CmdBase {
     Map<InputLcmsFile, List<Path>> m = new HashMap<>();
     for (InputLcmsFile f : inputs) {
       if (!f.getDataType().contentEquals("DDA") && !ext.contentEquals("tsv") && !ext.contentEquals("pin")) {
-        int maxRank = 1;
-        if (f.getDataType().contentEquals("DIA")) { // MSFragger-DIA generate top 3 or top 5 pepXML files by-default.
-          maxRank = Math.max(5, outputReportTopN);
+        int maxRank = 5;
+        if (f.getDataType().contentEquals("DIA")) {
+          maxRank = paramsDia.getOutputReportTopN();
         } else if (f.getDataType().contentEquals("GPF-DIA")) {
-          maxRank = Math.max(3, outputReportTopN);
+          maxRank = paramsGpfDia.getOutputReportTopN();
         }
+
         for (int rank = 1; rank <= maxRank; ++rank) {
           String pepxmlFn = getPepxmlFn(f, ext, rank);
           List<Path> t = m.get(f);
           if (t == null) {
-            t = new ArrayList<>(outputReportTopN);
+            t = new ArrayList<>();
             t.add(f.outputDir(workDir).resolve(pepxmlFn));
             m.put(f, t);
           } else {
@@ -332,19 +335,25 @@ public class CmdMsfragger extends CmdBase {
     Path savedDdaParamsPath = (hasDia || hasGpfDia) ? wd.resolve("fragger_dda.params") : wd.resolve("fragger.params");
     Path savedDiaParamsPath = wd.resolve("fragger_dia.params");
     Path savedGpfDiaParamsPath = wd.resolve("fragger_gpfdia.params");
+
+    paramsDda = new MsfraggerParams(params);
+    paramsDia = new MsfraggerParams(params);
+    paramsGpfDia = new MsfraggerParams(params);
+
+    paramsDda.setDataType(0);
+    adjustDiaParams(params, paramsDia, "DIA");
+    adjustDiaParams(params, paramsGpfDia, "GPF-DIA");
+
     if (!isDryRun) {
       try {
         if (hasDda) {
-          params.setDataType(0);
-          params.save(new FileOutputStream(savedDdaParamsPath.toFile()));
+          paramsDda.save(new FileOutputStream(savedDdaParamsPath.toFile()));
         }
         if (hasDia) {
-          params.setDataType(1);
-          params.save(new FileOutputStream(savedDiaParamsPath.toFile()));
+          paramsDia.save(new FileOutputStream(savedDiaParamsPath.toFile()));
         }
         if (hasGpfDia) {
-          params.setDataType(2);
-          params.save(new FileOutputStream(savedGpfDiaParamsPath.toFile()));
+          paramsGpfDia.save(new FileOutputStream(savedGpfDiaParamsPath.toFile()));
         }
 
         // cache the params
@@ -548,6 +557,42 @@ public class CmdMsfragger extends CmdBase {
     isConfigured = true;
     return true;
   }
+
+  private void adjustDiaParams(MsfraggerParams params, MsfraggerParams paramsNew, String dataType) {
+    paramsNew.setReportAlternativeProteins(true);
+    paramsNew.setShiftedIons(false);
+    paramsNew.setLabileSearchMode("off");
+    paramsNew.setDeltamassAllowedResidues("all");
+    paramsNew.setRemovePrecursorPeak(0);
+    if (paramsNew.getCalibrateMass() > 1) {
+      paramsNew.setCalibrateMass(1);
+    }
+    paramsNew.setMassDiffToVariableMod(0);
+    paramsNew.setIsotopeError("0");
+    paramsNew.setMassOffsets("0");
+    paramsNew.setUseTopNPeaks(300);
+    paramsNew.setMinimumRatio(0);
+    paramsNew.setIntensityTransform(1);
+
+    if (dataType.contentEquals("DIA")) {
+      paramsNew.setDataType(1);
+      paramsNew.setOutputReportTopN(Math.max(5, params.getOutputReportTopN()));
+      paramsNew.setPrecursorTrueUnits(MassTolUnits.PPM);
+      paramsNew.setPrecursorTrueTolerance(10);
+      if (params.getPrecursorMassUnits() == PrecursorMassTolUnits.PPM) {
+        paramsNew.setPrecursorMassLower(Math.max(-10, params.getPrecursorMassLower()));
+        paramsNew.setPrecursorMassUpper(Math.min(10, params.getPrecursorMassUpper()));
+      } else {
+        paramsNew.setPrecursorMassUnits(PrecursorMassTolUnits.PPM);
+        paramsNew.setPrecursorMassLower(-10.0);
+        paramsNew.setPrecursorMassUpper(10.0);
+      }
+    } else if (dataType.contentEquals("GPF-DIA")) {
+      paramsNew.setDataType(2);
+      paramsNew.setOutputReportTopN(Math.max(3, params.getOutputReportTopN()));
+    }
+  }
+
 
   private static class GetSupportedExts {
 
