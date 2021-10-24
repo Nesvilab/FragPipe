@@ -46,15 +46,21 @@ public class Props {
     public static final String BLANK_LINE_MARKER = COMMENT_SYMBOL + " blank line ";
     private static final Pattern DISABLED_PROP = Pattern.compile("^#\\s*([^\\s]+)\\s*=([^#]+)(?:\\s*#\\s*(.+))?.*");
     private static final Pattern ENABLED_PROP = Pattern.compile("^\\s*([^\\s]+)\\s*=([^#]*)(?:\\s*#\\s*(.+))?.*");
-    private LinkedHashMap<String, Prop> map = new LinkedHashMap<>();
-    private ArrayList<String> propOrdering = new ArrayList<>();
-    private LinkedHashMap<String, String> comments = new LinkedHashMap<>();
+    private final LinkedHashMap<String, Prop> map = new LinkedHashMap<>();
+    private final ArrayList<String> propOrdering = new ArrayList<>();
+    private final LinkedHashMap<String, String> comments = new LinkedHashMap<>();
 
     public Props() {
     }
     
     public Props(Map<String, String> comments) {
         this.comments.putAll(comments);
+    }
+
+    public Props(Props other) {
+        map.putAll(other.map);
+        propOrdering.addAll(other.propOrdering);
+        comments.putAll(other.comments);
     }
 
     public Map<String, Prop> getMap() {

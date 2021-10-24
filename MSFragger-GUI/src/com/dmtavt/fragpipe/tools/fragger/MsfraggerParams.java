@@ -289,6 +289,10 @@ public class MsfraggerParams extends AbstractParams {
         initFromResource(resource);
     }
 
+    public MsfraggerParams(MsfraggerParams other) {
+        super(other);
+    }
+
     private void initFromResource(String resource) {
         try {
             load(MsfraggerParams.class.getResourceAsStream(resource), true);

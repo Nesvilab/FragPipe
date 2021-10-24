@@ -15,6 +15,7 @@
  */
 package com.dmtavt.fragpipe.params;
 
+import com.github.chhh.utils.CacheUtils;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,10 +23,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.chhh.utils.CacheUtils;
 
 /**
  *
@@ -38,6 +37,10 @@ public abstract class AbstractParams {
 
     public AbstractParams() {
         props = new Props();
+    }
+
+    public AbstractParams(AbstractParams other) {
+        props = new Props(other.props);
     }
 
     public abstract Path tempFileName();
