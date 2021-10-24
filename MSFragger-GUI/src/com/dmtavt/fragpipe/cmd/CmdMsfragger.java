@@ -450,6 +450,7 @@ public class CmdMsfragger extends CmdBase {
         }
         cmd.add(binFragger.useBin());
 
+        // Execution order after sorting: DDA, DIA, GPF-DIA. MSFragger would stop if there were wide isolation windows in DDA mode, which makes it better to let DDA be executed first.
         if (e.getKey().contentEquals("DDA")) {
           cmd.add(savedDdaParamsPath.toString());
         } else if (e.getKey().contentEquals("DIA")) {
