@@ -1030,8 +1030,7 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feMinPeaks = mu.feb(MsfraggerParams.PROP_minimum_peaks, new UiSpinnerInt(15, 0, 1000, 1, 4))
         .label("Min peaks").create();
     FormEntry feUseTopN = mu.feb(MsfraggerParams.PROP_use_topN_peaks, new UiSpinnerInt(100, 0, 1000000, 10, 4)).label("Use top N peaks").create();
-    UiSpinnerDouble spinnerMinRatio = new UiSpinnerDouble(0.01, 0, Double.MAX_VALUE, 0.1, 2,
-        new DecimalFormat("0.00"));
+    UiSpinnerDouble spinnerMinRatio = new UiSpinnerDouble(0.01, 0, 1, 0.01, 2, new DecimalFormat("0.00"));
     spinnerMinRatio.setColumns(4);
     FormEntry feMinRatio = mu.feb(MsfraggerParams.PROP_minimum_ratio, spinnerMinRatio).label("Min ratio").create();
     UiSpinnerDouble uiSpinnerClearRangeMzLo = UiUtils.spinnerDouble(0, 0, 100000, 10)
