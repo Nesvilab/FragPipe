@@ -38,6 +38,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigPtmProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmShepherd;
 import com.dmtavt.fragpipe.messages.NoteConfigTmtI;
 import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
 import com.github.chhh.utils.FileDrop;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.MapUtils;
@@ -1375,10 +1376,18 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   private void adjustToolsBasedOnDataTypes() {
     if (hasDia() || hasGpfDia()) {
-      Bus.post(new NoteConfigCrystalC(false));
-      Bus.post(new NoteConfigPeptideProphet(false));
-      Bus.post(new NoteConfigPtmProphet(false));
-      Bus.post(new NoteConfigPtmShepherd(false));
+      UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
+      if (umpirePanel.isRunUmpire()) {
+        Bus.post(new NoteConfigCrystalC(true));
+        Bus.post(new NoteConfigPeptideProphet(true));
+        Bus.post(new NoteConfigPtmProphet(true));
+        Bus.post(new NoteConfigPtmShepherd(true));
+      } else {
+        Bus.post(new NoteConfigCrystalC(false));
+        Bus.post(new NoteConfigPeptideProphet(false));
+        Bus.post(new NoteConfigPtmProphet(false));
+        Bus.post(new NoteConfigPtmShepherd(false));
+      }
       Bus.post(new NoteConfigIonQuant(false));
       Bus.post(new NoteConfigTmtI(false));
       Bus.post(new NoteConfigDiann(true, false));

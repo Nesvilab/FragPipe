@@ -29,6 +29,10 @@ import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_WindowType;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
+import com.dmtavt.fragpipe.messages.NoteConfigCrystalC;
+import com.dmtavt.fragpipe.messages.NoteConfigPeptideProphet;
+import com.dmtavt.fragpipe.messages.NoteConfigPtmProphet;
+import com.dmtavt.fragpipe.messages.NoteConfigPtmShepherd;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.github.chhh.utils.StringUtils;
@@ -135,6 +139,23 @@ public class UmpirePanel extends JPanelBase {
     checkRunUmpireSe = new UiCheck("Run DIA-Umpire SE (Signal Extraction)", null, false);
     checkRunUmpireSe.setName("diaumpire.run-diaumpire");
     pTop.add(checkRunUmpireSe, new CC().spanX().wrap());
+
+    checkRunUmpireSe.addItemListener(e -> {
+      if (isRunUmpire()) {
+        Bus.post(new NoteConfigCrystalC(true));
+        Bus.post(new NoteConfigPeptideProphet(true));
+        Bus.post(new NoteConfigPtmProphet(true));
+        Bus.post(new NoteConfigPtmShepherd(true));
+      } else {
+        TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
+        if (tabWorkflow.hasDia() || tabWorkflow.hasGpfDia()) {
+          Bus.post(new NoteConfigCrystalC(false));
+          Bus.post(new NoteConfigPeptideProphet(false));
+          Bus.post(new NoteConfigPtmProphet(false));
+          Bus.post(new NoteConfigPtmShepherd(false));
+        }
+      }
+    });
 
     List<String> loadOptions = new ArrayList<>(2);
     loadOptions.add("Default DIA-Umpire parameter file");
