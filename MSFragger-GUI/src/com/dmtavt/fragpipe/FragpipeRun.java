@@ -287,6 +287,7 @@ public class FragpipeRun {
       }
 
       // run everything
+      long startTime = System.nanoTime();
       final List<RunnableDescription> toRun = new ArrayList<>();
       for (final ProcessBuilderInfo pbi : pbis) {
         Runnable runnable = ProcessBuilderInfo
@@ -304,7 +305,8 @@ public class FragpipeRun {
       // add finalizer process
       final Runnable finalizerRun = () -> {
         printReference();
-        toConsole(Fragpipe.COLOR_RED_DARKEST, "\n==================================================================================DONE============================================================", true);
+        String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
+        toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true);
         Bus.post(MessageSaveLog.saveInDir(wd));
         Bus.post(new MessageRunButtonEnabled(true));
       };
