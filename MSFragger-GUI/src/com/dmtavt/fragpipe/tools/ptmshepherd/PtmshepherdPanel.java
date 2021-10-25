@@ -503,7 +503,7 @@ public class PtmshepherdPanel extends JPanelBase {
                     "and O-glycan default database used.")
             .create();
 
-    mu.add(pGlycoAssignContent, feGlycanFDR.label(), mu.ccR());
+    mu.add(pGlycoAssignContent, feGlycanFDR.label(), mu.ccL()).split();
     mu.add(pGlycoAssignContent, feGlycanFDR.comp).split();
 
     mu.add(pGlycoAssignContent, feGlycanMassErr.label(), mu.ccR());
@@ -511,16 +511,17 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(pGlycoAssignContent, feGlycanIsotopesLow.label(), mu.ccR());
     mu.add(pGlycoAssignContent, feGlycanIsotopesLow.comp).split();
     mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.label(), mu.ccR());
-    mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.comp).split();
-    mu.add(pGlycoAssignContent, feNGlycanMode.comp).split();
-    mu.add(pGlycoAssignContent, feRemoveGlycoDeltaMass.comp).split().spanX().pushX().wrap();
+    mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.comp).split().spanX().pushX().wrap();
 
+    mu.add(pGlycoAssignContent, feNGlycanMode.comp).split();
+    mu.add(pGlycoAssignContent, feRemoveGlycoDeltaMass.comp).split();
     mu.add(pGlycoAssignContent, feMaxAdducts.label(), mu.ccR());
     mu.add(pGlycoAssignContent, feMaxAdducts.comp).split();
     mu.add(pGlycoAssignContent, feAdductNames.label(), mu.ccR());
-    mu.add(pGlycoAssignContent, feAdductNames.comp).growX(200).split();
-    mu.add(pGlycoAssignContent, feGlycanDBFile.label(), mu.ccR());
-    mu.add(pGlycoAssignContent, btnBrosweGlycanDBFile, mu.ccR());
+    mu.add(pGlycoAssignContent, feAdductNames.comp).split().growX(200).spanX().pushX().wrap();
+
+    mu.add(pGlycoAssignContent, feGlycanDBFile.label(), mu.ccR()).split();
+    mu.add(pGlycoAssignContent, btnBrosweGlycanDBFile, mu.ccR()).split();
     mu.add(pGlycoAssignContent, feGlycanDBFile.comp).split().growX().spanX().pushX().wrap();
 
     mu.add(p, uiCheckGlycoAssign).spanX().wrap();
@@ -534,10 +535,10 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(pGlycoAdvParams, feFucOxProbs.label(), mu.ccR());
     mu.add(pGlycoAdvParams, feFucOxProbs.comp).split();
     mu.add(pGlycoAdvParams, fePhosphoProbs.label(), mu.ccR());
-    mu.add(pGlycoAdvParams, fePhosphoProbs.comp).split();
-    mu.add(pGlycoAdvParams, feSulfoProbs.label(), mu.ccR());
-    mu.add(pGlycoAdvParams, feSulfoProbs.comp).split().spanX().pushX().wrap();
+    mu.add(pGlycoAdvParams, fePhosphoProbs.comp).split().spanX().pushX().wrap();
 
+    mu.add(pGlycoAdvParams, feSulfoProbs.label(), mu.ccR());
+    mu.add(pGlycoAdvParams, feSulfoProbs.comp).split();
     mu.add(pGlycoAdvParams, feRegYProbs.label(), mu.ccR());
     mu.add(pGlycoAdvParams, feRegYProbs.comp).split();
     mu.add(pGlycoAdvParams, feFucYProbs.label(), mu.ccR());
