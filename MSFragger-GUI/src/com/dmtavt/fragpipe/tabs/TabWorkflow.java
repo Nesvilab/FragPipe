@@ -14,7 +14,8 @@ import com.dmtavt.fragpipe.api.SimpleETable;
 import com.dmtavt.fragpipe.api.TableModelColumn;
 import com.dmtavt.fragpipe.api.UniqueLcmsFilesTableModel;
 import com.dmtavt.fragpipe.cmd.CmdMsfragger;
-import com.dmtavt.fragpipe.dialogs.ExperimentNameDialog;
+import com.dmtavt.fragpipe.dialogs.SetExpDialog;
+import com.dmtavt.fragpipe.dialogs.SetRepDialog;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFiles;
 import com.dmtavt.fragpipe.messages.MessageLcmsAddFolder;
 import com.dmtavt.fragpipe.messages.MessageLcmsClearFiles;
@@ -140,7 +141,8 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnGroupsConsecutive;
   private JButton btnGroupsByParentDir;
   private JButton btnGroupsByFilename;
-  private JButton btnGroupsAssignToSelected;
+  private JButton btnSetExp;
+  private JButton btnSetRep;
   private JButton btnSetDda;
   private JButton btnSetDia;
   private JButton btnSetGpfDia;
@@ -976,8 +978,10 @@ public class TabWorkflow extends JPanelWithEnablement {
         () -> new MessageLcmsGroupAction(Type.BY_PARENT_DIR));
     btnGroupsByFilename = button("By file name",
         () -> new MessageLcmsGroupAction(Type.BY_FILE_NAME));
-    btnGroupsAssignToSelected = button("Set experiment/replicate",
+    btnSetExp = button("Set experiment",
         () -> new MessageLcmsGroupAction(Type.SET_EXP));
+    btnSetRep = button("Set replicate",
+        () -> new MessageLcmsGroupAction(Type.SET_REP));
     btnSetDda = button("Set DDA",
         () -> new MessageLcmsGroupAction(Type.SET_DDA));
     btnSetDia = button("Set DIA",
@@ -1027,7 +1031,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnGroupsConsecutive).split();
     mu.add(p, btnGroupsByParentDir);
     mu.add(p, btnGroupsByFilename);
-    mu.add(p, btnGroupsAssignToSelected);
+    mu.add(p, btnSetExp);
+    mu.add(p, btnSetRep);
     mu.add(p, btnGroupsClear);
 
     UiText emptySpace = UiUtils.uiTextBuilder().cols(1).text("").create();
@@ -1066,7 +1071,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClear);
 
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnFilesRemove);
-    tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnGroupsAssignToSelected);
+    tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnSetExp);
+    tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnSetRep);
     tableRawFiles.fireInitialization();
     tableRawFiles.setFillsViewportHeight(true);
     tableRawFiles.setComponentPopupMenu(createLcmsTablePopup(tableRawFiles, tableModelRawFiles));
@@ -1351,6 +1357,9 @@ public class TabWorkflow extends JPanelWithEnablement {
       case SET_EXP:
         this.actionSetExt();
         break;
+      case SET_REP:
+        this.actionSetRep();
+        break;
       case SET_DDA:
         this.actionSetDda();
         break;
@@ -1417,33 +1426,32 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   private void actionSetExt() {
     final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
-    final ArrayList<InputLcmsFile> data = m.dataCopy();
     List<Integer> selectedRows = Arrays.stream(this.tableRawFiles.getSelectedRows())
         .mapToObj(tableRawFiles::convertRowIndexToModel).collect(Collectors.toList());
 
-    final List<String> paths = selectedRows.stream()
-        .map(i -> data.get(i).getPath().toString())
-        .collect(Collectors.toList());
-
-    final Set<String> exps = selectedRows.stream()
-        .flatMap(i -> data.get(i).getExperiment() == null ? Stream.empty()
-            : Stream.of(data.get(i).getExperiment()))
-        .collect(Collectors.toSet());
-    final Set<Integer> reps = selectedRows.stream()
-        .flatMap(i -> data.get(i).getReplicate() == null ? Stream.empty()
-            : Stream.of(data.get(i).getReplicate()))
-        .collect(Collectors.toSet());
-    final String defaultExp = exps.size() == 1 ? exps.iterator().next() : null;
-    final Integer defaultRep = reps.size() == 1 ? reps.iterator().next() : null;
-
-    ExperimentNameDialog d = new ExperimentNameDialog(SwingUtils.findParentFrame(this), true, paths,
-        defaultExp, defaultRep);
-    d.setVisible(true);
-    if (d.isOk()) {
+    SetExpDialog setExpDialog = new SetExpDialog(SwingUtils.findParentFrame(this));
+    setExpDialog.setVisible(true);
+    if (setExpDialog.isOk()) {
       for (int selectedRow : selectedRows) {
         int i = tableRawFiles.convertRowIndexToModel(selectedRow);
         InputLcmsFile f = m.dataGet(i);
-        m.dataSet(i, new InputLcmsFile(f.getPath(), d.getExperimentName(), d.getReplicateNumber(), f.getDataType()));
+        m.dataSet(i, new InputLcmsFile(f.getPath(), setExpDialog.getExperimentName(), f.getReplicate(), f.getDataType()));
+      }
+    }
+  }
+
+  private void actionSetRep() {
+    final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+    List<Integer> selectedRows = Arrays.stream(this.tableRawFiles.getSelectedRows())
+        .mapToObj(tableRawFiles::convertRowIndexToModel).collect(Collectors.toList());
+
+    SetRepDialog setRepDialog = new SetRepDialog(SwingUtils.findParentFrame(this));
+    setRepDialog.setVisible(true);
+    if (setRepDialog.isOk()) {
+      for (int selectedRow : selectedRows) {
+        int i = tableRawFiles.convertRowIndexToModel(selectedRow);
+        InputLcmsFile f = m.dataGet(i);
+        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), setRepDialog.getReplicate(), f.getDataType()));
       }
     }
   }
