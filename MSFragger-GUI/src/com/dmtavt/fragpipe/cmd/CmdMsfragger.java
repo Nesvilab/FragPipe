@@ -80,9 +80,17 @@ public class CmdMsfragger extends CmdBase {
       if (!f.getDataType().contentEquals("DDA") && !ext.contentEquals("tsv") && !ext.contentEquals("pin")) {
         int maxRank = 5;
         if (f.getDataType().contentEquals("DIA")) {
-          maxRank = paramsDia.getOutputReportTopN();
+          if (paramsDia == null) {
+            maxRank = 5; // The report_topN_rank is 5 by default for DIA data.
+          } else {
+            maxRank = paramsDia.getOutputReportTopN();
+          }
         } else if (f.getDataType().contentEquals("GPF-DIA")) {
-          maxRank = paramsGpfDia.getOutputReportTopN();
+          if (paramsGpfDia == null) {
+            maxRank = 3; // The report_topN_rank is 3 by default for GPF-DIA data.
+          } else {
+            maxRank = paramsGpfDia.getOutputReportTopN();
+          }
         }
 
         for (int rank = 1; rank <= maxRank; ++rank) {
