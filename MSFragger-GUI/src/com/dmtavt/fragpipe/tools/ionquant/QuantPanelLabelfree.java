@@ -256,7 +256,6 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiText uiTextHeavy = UiUtils.uiTextBuilder().cols(15).create();
     UiText uiTextExcludemods = UiUtils.uiTextBuilder().cols(45).create();
 
-    //FormEntry feDataType = mu.feb(uiComboTimsTOF).name("ionquant.ionmobility").label("Data type").create();
     UiCheck uiCheckMbr = UiUtils.createUiCheck("Match between runs (MBR)", true);
     uiCheckMbr.setName("ionquant.mbr");
     FormEntry feMaxLfq = mu.feb("ionquant.maxlfq", UiUtils.createUiCheck("MaxLFQ", true)).tooltip("Calculate MaxLFQ intensity.").create();

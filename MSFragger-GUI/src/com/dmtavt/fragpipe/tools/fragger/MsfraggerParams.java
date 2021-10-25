@@ -141,7 +141,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_clear_mz_range = "clear_mz_range";
     public static final String PROP_add = "add";
     public static final String PROP_add_enabled = "add_enabled";
-    //public static final String PROP_ = "";
+
 
     public static final String[] PROP_NAMES = {
         PROP_labile_search_mode,
@@ -234,9 +234,6 @@ public class MsfraggerParams extends AbstractParams {
         "I (isoleucine)", "N (asparagine)", "D (aspartic acid)", "Q (glutamine)", "K (lysine)", "E (glutamic acid)", "M (methionine)", 
         "H (histidine)", "F (phenylalanine)", "R (arginine)", "Y (tyrosine)", "W (tryptophan)", 
         "B ", "J", "O", "U", "X", "Z", };
-    
-    public static final String ENZYME_NONSPECIFIC_NAME = "nonspecific";
-    public static final String ENZYME_TRYPSIN_NAME = "trypsin";
 
 
     public static final String GLYCO_OPTION_off = "off";
@@ -262,10 +259,8 @@ public class MsfraggerParams extends AbstractParams {
     public static final String DEFAULT_FILE_CLOSEDSEARCH = "fragger_closed.params";
     public static final String DEFAULT_FILE_NONSPECIFICSEARCH = "fragger_nonspecific.params";
     public static final String DEFAULT_FILE_OFFSETSEARCH = "fragger_offset.params";
-    private static final long serialVersionUID = 1L;
 
     private static final DecimalFormat DF = new DecimalFormat("0.##########");
-    private Map<String, String> comments;
     
         
     public MsfraggerParams() {
@@ -424,7 +419,6 @@ public class MsfraggerParams extends AbstractParams {
     public String getDiagnosticFragments() {
         return props.getProp(PROP_diagnostic_fragments, "").value;
     }
-
 
     public void setLabileSearchMode(String v) {
         props.setProp(PROP_labile_search_mode, v);

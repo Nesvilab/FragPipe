@@ -74,7 +74,6 @@ public class CmdUmpireSe extends CmdBase {
     if (paths == null || paths.isEmpty()) {
       return false;
     }
-    Path jarUmpireSe = paths.get(0);
 
     // write umpire params file
     final UmpireParams collectedUmpireParams = umpirePanel.collect();
@@ -111,45 +110,23 @@ public class CmdUmpireSe extends CmdBase {
       Path destDir = f.outputDir(wd);
 
       // Umpire-SE
-      // java -jar -Xmx8G DIA_Umpire_SE.jar mzMXL_file diaumpire_se.params
-      if(false) // for standalone jar
-      {
-        List<String> cmd = new ArrayList<>();
-        cmd.add(Fragpipe.getBinJava());
-        //commands.add("-d64");
-        cmd.add("-jar");
-        if (ram > 0 && ram < 256)
-          cmd.add("-Xmx" + ram + "G");
-        if (javaDParmsStringLibsThermoDir != null)
-          cmd.add(javaDParmsStringLibsThermoDir);
-        cmd.add(jarUmpireSe.toString()); // unpacked UmpireSE jar
-        cmd.add(f.getPath().toString());
-        cmd.add(umpireParamsFilePath.toString());
-
-        ProcessBuilder pbUmpireSe = new ProcessBuilder(cmd);
-        pbis.add(PbiBuilder.from(pbUmpireSe));
-      }
-
-      // Umpire-SE
       //java -Dbatmass.io.libs.thermo.dir=ext/thermo/ -cp batmass-io-1.23.0.jar:DIA_Umpire_SE.jar dia_umpire_se.DIA_Umpire_SE  (.raw|.mzML|.mzXML) DIA-U_params
-      {
-        List<String> cmd = new ArrayList<>();
-        cmd.add(Fragpipe.getBinJava());
-        if (ram > 0 && ram < 256)
-          cmd.add("-Xmx" + ram + "G");
-        if (javaDParmsStringLibsThermoDir != null)
-          cmd.add(javaDParmsStringLibsThermoDir);
+      List<String> cmd = new ArrayList<>();
+      cmd.add(Fragpipe.getBinJava());
+      if (ram > 0 && ram < 256)
+        cmd.add("-Xmx" + ram + "G");
+      if (javaDParmsStringLibsThermoDir != null)
+        cmd.add(javaDParmsStringLibsThermoDir);
 
-        cmd.add("-cp");
-        cmd.add(constructClasspathString(classpathJars));
-        cmd.add(JAR_DIA_UMPIRE_SE_MAIN_CLASS);
+      cmd.add("-cp");
+      cmd.add(constructClasspathString(classpathJars));
+      cmd.add(JAR_DIA_UMPIRE_SE_MAIN_CLASS);
 
-        cmd.add(f.getPath().toString());
-        cmd.add(umpireParamsFilePath.toString());
+      cmd.add(f.getPath().toString());
+      cmd.add(umpireParamsFilePath.toString());
 
-        ProcessBuilder pbUmpireSe = new ProcessBuilder(cmd);
-        pbis.add(PbiBuilder.from(pbUmpireSe));
-      }
+      ProcessBuilder pbUmpireSe = new ProcessBuilder(cmd);
+      pbis.add(PbiBuilder.from(pbUmpireSe));
 
       // check if the working dir is the dir where the mzXML file was
       // if it is, then don't do anything, if it is not, then copy

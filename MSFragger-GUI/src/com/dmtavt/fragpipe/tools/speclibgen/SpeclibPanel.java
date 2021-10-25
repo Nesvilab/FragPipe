@@ -203,7 +203,6 @@ public class SpeclibPanel extends JPanelBase {
     btnPqpIMCalFile.setName("easypqp.select-im-file.button." + Fragpipe.PROP_NOCACHE);
 
     uiComboPqpType = UiUtils.createUiCombo(pqpType);
-//    FormEntry feDataType = new FormEntry("easypqp.data-type","Data type", uiComboPqpType);
     uiSpinnerLowess = UiUtils.spinnerDouble(0.01, 0.0, 1.0, 0.01)
         .setCols(5).setFormat("#.##").create();
     FormEntry feLowess = mu.feb(uiSpinnerLowess).name("easypqp.extras.rt_lowess_fraction")
