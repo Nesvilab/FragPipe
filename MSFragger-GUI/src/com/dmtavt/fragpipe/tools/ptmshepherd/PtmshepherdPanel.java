@@ -367,6 +367,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
     uiCheckDiagnostic = UiUtils.createUiCheck("Enable Diagnostic Ion Search", false);
     uiCheckDiagnostic.setName("glyco_mode");
+    uiCheckDiagnostic.setToolTipText("Look for the ions listed below in spectra. Note: required for glycan assignment");
 
     // labile/glyco main params
     FormEntry feYIonMasses = mu.feb(PROP_cap_y_ions, UiUtils.uiTextBuilder().create())
@@ -402,8 +403,10 @@ public class PtmshepherdPanel extends JPanelBase {
 
     uiCheckGlycoAssign = UiUtils.createUiCheck("Assign Glycans with FDR", true);
     uiCheckGlycoAssign.setName("assign_glycans");
+    uiCheckGlycoAssign.setToolTipText("Perform glycan assignment and glycan FDR on PSMs reported with a delta mass");
     uiCheckGlycoAdvParams = UiUtils.createUiCheck("Edit Advanced Parameters", false);
     uiCheckGlycoAdvParams.setName("adv_params");
+    uiCheckGlycoAdvParams.setToolTipText("Enable/disable the advanced parameter options below");
 
     UiSpinnerDouble uiSpinnerGlycanFDR = UiSpinnerDouble.builder(0.01, 0, 1.0, 0.01)
             .setFormat(new DecimalFormat("0.00#")).setCols(3).create();
@@ -486,9 +489,19 @@ public class PtmshepherdPanel extends JPanelBase {
                     "2: Random mass shift within glycan mass error tolerance, no isotope error\n" +
                     "3: exact same mass as target");
 
-    FormEntry fePrintGlycoDecoys = mu.feb(PROP_print_decoys, UiUtils.createUiCheck("Print Decoy Glycans", false)).create();
-    FormEntry feRemoveGlycoDeltaMass = mu.feb(PROP_remove_glyco_deltamass, UiUtils.createUiCheck("Remove Glycan Delta Mass", false)).create();
-    FormEntry feNGlycanMode = mu.feb(PROP_nglyco_mode, UiUtils.createUiCheck("N-Glycan Mode", true)).create();
+    FormEntry fePrintGlycoDecoys = mu.feb(PROP_print_decoys, UiUtils.createUiCheck("Print Decoy Glycans", false))
+            .tooltip("By default, the best target glycan is printed to the PSM table for PSMs assigned to a decoy glycan (with q-value = 1)\n" +
+                    "Check this box to instead print the decoy glycan (identified by 'Decoy_[glycan name])")
+            .create();
+    FormEntry feRemoveGlycoDeltaMass = mu.feb(PROP_remove_glyco_deltamass, UiUtils.createUiCheck("Prep for Quant", false))
+            .tooltip("Removes glycan mass from Delta Mass column in PSM table and writes glycans to assigned modification\n" +
+                    "even for PSMs not passing glycan FDR. Required for processing by IonQuant or TMT-Integrator.")
+            .create();
+    FormEntry feNGlycanMode = mu.feb(PROP_nglyco_mode, UiUtils.createUiCheck("N-Glycan Mode", true))
+            .tooltip("Sets localization to N-X-S/T sequon if enabled and uses default N-glycan database if custom glycan database is not provided\n. " +
+                    "If disabled, localization settings are taken from 'Restrict localization to' parameter above\n" +
+                    "and O-glycan default database used.")
+            .create();
 
     mu.add(pGlycoAssignContent, feGlycanFDR.label(), mu.ccR());
     mu.add(pGlycoAssignContent, feGlycanFDR.comp).split();
@@ -499,7 +512,8 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(pGlycoAssignContent, feGlycanIsotopesLow.comp).split();
     mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.label(), mu.ccR());
     mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.comp).split();
-    mu.add(pGlycoAssignContent, feNGlycanMode.comp).split().spanX().pushX().wrap();
+    mu.add(pGlycoAssignContent, feNGlycanMode.comp).split();
+    mu.add(pGlycoAssignContent, feRemoveGlycoDeltaMass.comp).split().spanX().pushX().wrap();
 
     mu.add(pGlycoAssignContent, feMaxAdducts.label(), mu.ccR());
     mu.add(pGlycoAssignContent, feMaxAdducts.comp).split();
@@ -530,8 +544,7 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(pGlycoAdvParams, feFucYProbs.comp).split();
     mu.add(pGlycoAdvParams, feDecoyType.label(), mu.ccR());
     mu.add(pGlycoAdvParams, feDecoyType.comp).split();
-    mu.add(pGlycoAdvParams, fePrintGlycoDecoys.comp).split();
-    mu.add(pGlycoAdvParams, feRemoveGlycoDeltaMass.comp).split().growX().spanX().pushX().wrap();
+    mu.add(pGlycoAdvParams, fePrintGlycoDecoys.comp).split().growX().spanX().pushX().wrap();
 
     mu.add(p, uiCheckGlycoAdvParams).split().spanX().wrap();
     mu.add(p, pGlycoAdvParams).growX().wrap();
