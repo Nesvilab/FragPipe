@@ -117,7 +117,7 @@ public class CmdDiann extends CmdBase {
         if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
           BufferedWriter bufferedWriter = Files.newBufferedWriter(filelist);
           for (String f : inputLcmsPaths) {
-            bufferedWriter.write("--f " + f + " ");
+            bufferedWriter.write("--f " + f + "\n");
           }
           bufferedWriter.close();
         }
