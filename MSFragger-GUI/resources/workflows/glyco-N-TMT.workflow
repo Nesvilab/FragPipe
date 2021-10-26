@@ -197,7 +197,7 @@ ptmshepherd.prob_phosphoOx=2,0.05,0.2
 ptmshepherd.prob_regY=5,0.5
 ptmshepherd.prob_sulfoOx=2,0.05,0.2
 ptmshepherd.remainder_masses=203.07937
-ptmshepherd.remove_glycan_delta_mass=true
+ptmshepherd.remove_glycan_delta_mass=false
 ptmshepherd.run-shepherd=true
 ptmshepherd.spectra_maxfragcharge=2
 ptmshepherd.spectra_ppmtol=20
@@ -243,4 +243,4 @@ tmtintegrator.unique_pep=false
 workflow.description=<p style\="margin-top\: 0"> For search and TMT quantitation of enriched N-glycopeptides fragmented with CID/HCD. Performs MSFragger glyco search, glycan FDR control in PTM-Shepherd, and TMT quant/summarization with TMT-Integrator. Settings are provided for TMT-10 with virtual reference channel - method can be adapated for other TMT settings by adjusting TMT-Integrator parameters. </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=16.1-build20
+workflow.saved-with-ver=16.1-build21

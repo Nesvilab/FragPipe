@@ -493,9 +493,9 @@ public class PtmshepherdPanel extends JPanelBase {
             .tooltip("By default, the best target glycan is printed to the PSM table for PSMs assigned to a decoy glycan (with q-value = 1)\n" +
                     "Check this box to instead print the decoy glycan (identified by 'Decoy_[glycan name])")
             .create();
-    FormEntry feRemoveGlycoDeltaMass = mu.feb(PROP_remove_glyco_deltamass, UiUtils.createUiCheck("Prep for Quant", false))
-            .tooltip("Removes glycan mass from Delta Mass column in PSM table and writes glycans to assigned modification\n" +
-                    "even for PSMs not passing glycan FDR. Required for processing by IonQuant or TMT-Integrator.")
+    FormEntry feRemoveGlycoDeltaMass = mu.feb(PROP_remove_glyco_deltamass, UiUtils.createUiCheck("Prep for IonQuant", false))
+            .tooltip("Removes glycan mass from Delta Mass column in PSM table, even for PSMs that do not pass glycan FDR.\n" +
+                    "Required for processing by IonQuant (but NOT needed for TMT-Integrator)")
             .create();
     FormEntry feNGlycanMode = mu.feb(PROP_nglyco_mode, UiUtils.createUiCheck("N-Glycan Mode", true))
             .tooltip("Sets localization to N-X-S/T sequon if enabled and uses default N-glycan database if custom glycan database is not provided\n. " +
