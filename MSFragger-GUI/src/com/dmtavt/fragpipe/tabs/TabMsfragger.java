@@ -1167,13 +1167,9 @@ public class TabMsfragger extends JPanelBase {
 
     uiComboDeisotope.addItemListener(e -> {
       if (uiComboDeisotope.getSelectedIndex() > 0) {
-        uiSpinnerMaxFragCharge.setValue(1);
-        updateEnabledStatus(uiSpinnerMaxFragCharge, false);
         uiComboDeneutralloss.setSelectedIndex(0);
         updateEnabledStatus(uiComboDeneutralloss, true);
       } else {
-        uiSpinnerMaxFragCharge.setValue(2);
-        updateEnabledStatus(uiSpinnerMaxFragCharge, true);
         uiComboDeneutralloss.setSelectedIndex(1);
         updateEnabledStatus(uiComboDeneutralloss, false);
       }
