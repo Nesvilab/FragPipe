@@ -41,7 +41,7 @@ public class CmdDiann extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, List<InputLcmsFile> inputLcmsFiles, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, float qvalue, String libraryPath, String additionalCmdOpts) {
+  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, float qvalue, String libraryPath, String additionalCmdOpts) {
 
     initPreConfig();
 
@@ -52,10 +52,6 @@ public class CmdDiann extends CmdBase {
       sup = SUPPORTED_FORMATS_LINUX;
     } else {
       System.err.println("DIA-NN only works in Windows and Linux.");
-      return false;
-    }
-
-    if (!checkCompatibleFormats(comp, inputLcmsFiles, sup)) {
       return false;
     }
 
@@ -92,6 +88,12 @@ public class CmdDiann extends CmdBase {
 
       if (inputLcmsPaths.isEmpty()) {
         continue;
+      }
+
+      List<InputLcmsFile> inputLcmsFiles = group.lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DDA")).collect(Collectors.toList());
+
+      if (!checkCompatibleFormats(comp, inputLcmsFiles, sup)) {
+        return false;
       }
 
       List<String> cmd = new ArrayList<>();
