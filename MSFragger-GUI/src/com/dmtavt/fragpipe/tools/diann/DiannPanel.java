@@ -1,6 +1,7 @@
 package com.dmtavt.fragpipe.tools.diann;
 
 import static com.dmtavt.fragpipe.Fragpipe.fe;
+import static com.dmtavt.fragpipe.cmd.CmdDiann.DIANN_VERSION;
 import static com.github.chhh.utils.SwingUtils.createClickableHtml;
 
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
@@ -94,7 +95,7 @@ public class DiannPanel extends JPanelBase {
     JPanel p = new JPanel(new MigLayout(new LC().insetsAll("0px")));
     mu.borderEmpty(p);
 
-    checkRun = new UiCheck("Quantifying using DIA-NN", null, false);
+    checkRun = new UiCheck("Quantifying using DIA-NN (version " + DIANN_VERSION + ")", null, false);
     checkRun.setName("run-dia-nn");
 
     String message = "For full DIA-NN functionality, including using the latest version, we recommend downloading and installing DIA-NN from <a href=\"https://github.com/vdemichev/DiaNN/releases\">DIA-NN GitHub repository</a>.<br/><br/>"
