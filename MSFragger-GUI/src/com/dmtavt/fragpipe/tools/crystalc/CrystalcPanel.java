@@ -156,7 +156,9 @@ public class CrystalcPanel extends JPanelBase {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigCrystalC m) {
     updateEnabledStatus(this, m.isValid());
-    checkRun.setSelected(false);
+    if (!m.isValid()) {
+      checkRun.setSelected(false);
+    }
   }
 
   private JPanel createPanelTop() {

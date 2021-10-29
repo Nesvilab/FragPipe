@@ -126,6 +126,8 @@ public class PtmProphetPanel extends JPanelBase {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigPtmProphet m) {
     updateEnabledStatus(this, m.isValid());
-    checkRun.setSelected(false);
+    if (!m.isValid()) {
+      checkRun.setSelected(false);
+    }
   }
 }

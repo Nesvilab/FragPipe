@@ -46,14 +46,11 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
 import net.java.balloontip.BalloonTip;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
-import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
@@ -210,7 +207,9 @@ public class PtmshepherdPanel extends JPanelBase {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigPtmShepherd m) {
     updateEnabledStatus(this, m.isValid());
-    checkRun.setSelected(false);
+    if (!m.isValid()) {
+      checkRun.setSelected(false);
+    }
   }
 
   private Properties loadBaseDefaults() {
