@@ -13,7 +13,7 @@ from raw data to validation and quantation of the results.
 * [Load the appropriate glyco workflow](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#load-a-glyco-workflow)
 * [Fetch a sequence database](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#fetch-a-sequence-database)
 * [Customize the search settings in MSFragger and Philosopher](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#customize-the-search-settings)
-* [Customize the glycan identification settings in PTM-Shepherd](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#glycan-identification-and-fdr-in-ptm-shepherd)
+* [Customize the glycan identification and FDR settings in PTM-Shepherd](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#glycan-identification-and-fdr-in-ptm-shepherd)
 * [Set the output location and run](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#set-the-output-location-and-run)
 * [Examine the results](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#examine-the-results)
 
@@ -50,7 +50,7 @@ Now we need to select a protein sequence database. You can choose to download a 
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-databaseoptions.png)
 
-Click ‘Yes’ to download the database. When it’s finished, you should see that the `FASTA file path` now points to the new database.
+Click ‘Yes’ to download the database. When it’s finished, you should see that the FASTA file path now points to the new database.
 
 
 <br>
@@ -66,7 +66,7 @@ Set the mass tolerances, enzyme digestion, and variable and fixed modifications 
    
 **Key Glyco Parameters**:
 
-1. **mass_offsets**: (value: 0/mass1/mass2/...) All glycan masses to consider in a search should be specified as mass offsets (separated by '/'). 
+1. **mass_offsets (list of glycan masses to search)**: (value: 0/mass1/mass2/...) All glycan masses to consider in a search should be specified as mass offsets (separated by '/'). 
 NOTE: the default list is for mouse N-glycans (182 masses). Depending on the type of data and search, the glycans considered can vary. The masses of all glycans of interest should be determined and converted to 
 a list separated by '/' (see example parameter file). An arbitrary number of mass offsets can be searched, but search speed decreases with the 
 number of masses used. If more than a few thousand masses are being considered, consider using an open search instead.
@@ -99,16 +99,45 @@ Key parameters that may change are below:
 ### Glycan Identification and FDR in PTM-Shepherd
 MSFragger and Philosopher together report glycopeptides as a peptide sequence and a mass shift, and ensure that
 all such peptide-mass shift combinations reported pass the specified FDR levels. However, converting a mass shift 
-to a specific glycan composition (or structure) is often not straightforward. In PTM-Shepherd, we have developed a 
+to a specific glycan composition (or structure) is not always straightforward. In PTM-Shepherd, we have developed a 
 glycan identification method that identifies the specific glycan composition in each glycopeptide-spectrum match and
-performs FDR filtering on the identified glycans.  
+performs FDR filtering on the identified glycans. 
 
-The glycan FDR, mass tolerance, allowed isotope errors, and non-covalent adducts to be considered can be adjusted
-in the specified boxes.  
+Results will be written to the PSM table with the assigned glycan in the Observed Modifications column, score in the Glycan Score column, and q-value (FDR) in the Glycan q-value column. 
+NOTE: PSMs that did not pass glycan FDR are still listed, and must be filtered by Glycan q-value less than the set FDR. Glycans are 
+also written to the Assigned Modification and Modified Peptide columns if the PSM passed glycan FDR. 
 
-For analyses performing quantitation (either LFQ with IonQuant or TMT with TMT-Integrator), the "Write glycans to Assigned Modifications for Quant"
-checkbox must be checked. PTM-Shepherd will write the identified glycans as assigned modifications in the PSM table to be read by the quant tools. 
+Default parameters for N-glycan analysis are shown below along with a description of each parameters. 
 
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/glyco_PTMS_params_fragpipe.png)
+
+1. Top bar. 
+- The Run PTM-Shepherd box must be checked to enable glycan analysis. 
+- Check the extended output box to save additional outputs, including the .rawglyco file that contains details of ions found and 
+decoy glycans. 
+2. Diagnostic Ion Discovery section. 
+- This must be enabled to perform glycan analysis, even though results of diagnostic ion discovery will NOT affect the glycan identification or FDR. 
+If diagnostic ion discovery is not needed, leave each of the three boxes blank to skip.
+- Y Ion Masses: specify potential masses of "Y"-type ions (i.e., intact peptide plus partially fragmented modification) to look for. PSMs with such ions found will be listed in the .rawglyco file in extended output (if extended output is specified)
+- Diagnostic Fragment Masses: specify potential masses of diagnostic ions (fragments of the modification found in the low m/z region, not attached to the peptide) to look for. PSMs with such ions found will be listed in the .rawglyco file in extended output (if extended output is specified)
+- Remainder masses: specify potential masses of remainder ions (partially fragmented modification found on peptide fragment (b/y) ions) to look for. PSMs with such ions found will be listed in the .rawglyco file in extended output (if extended output is specified)
+3. Glycan Assignment and FDR: basic parameters
+- Check the box to enable glycan assignment. NOTE: this is currently only supported for mass offset searches, not for fully open searches.
+- Glycan FDR: specify the desired glycan FDR. PSMs will have the resulting q-value written to the PSM table. *NOTE: PSMs that fail glycan FDR will NOT be removed from the PSM table, but can be filtered by looking for PSMs with "Glycan q-value" less than the FDR set here.* Glycan FDR filtering is performed after PSM/peptide/protein FDR (done in Philosopher). 
+- Glycan mass tolerance (ppm): Tolerance for matching between the mass of a candidate glycan and the observed delta mass (ppm)
+- Isotope Error Range: Precursor monoisotopic peak selection errors to consider when matching candidate glycans, ranging from min to max. Typically should be set wide (any possible error) as matches with unlikely errors are penalized in scoring and will not be chosen unless there is very strong evidence. 
+- N-glycan mode: Check for N-glycans. Sets allowed positions to be N-X-S/T sequon only and sets default glycan database to N-glycan internal list. If unchecked, allowed site(s) are taken from the "Restrict localization to" box in the main PTM-Shepherd settings above. 
+- Prep for IonQuant: If checked, removes the glycan delta mass from the PSM table report to allow IonQuant to trace peaks. Only needed if running IonQuant on the output. NOTE: delta mass removal means that the PSM table must be regenerated prior to re-running PTM-Shepherd.
+- Max Adducts: If considering non-covalent adducts (e.g., ammonium), set the max number of adducts allowed on a glycopeptide here. Set to 0 to disallow adducts.
+- Adduct Types: Allowed adduct types: NH3, Fe3, Fe2, Na, Ca, Al. Note that NH3 refers to ammonium adduct (NH4+). All adducts replace protons equivalent to their charge state (e.g., Fe3 replaces 3 protons as Fe 3+)
+- Custom Glycan Database: Provide a custom list of glycan candidates to match as a .glyc file. File format: one glycan per line, listed as "Residue1-Number_Residue2-Number..." where Residue is one of HexNAc, Hex, Fuc, NeuAc, NeuGc, Phospho, or Sulfo, and Number is the total count of that residue in the glycan. 
+4. Advanced Glycan Parameters:
+- Check the box to enable editing advanced parameters. These are the likelihood ratios used to compute glycan scores and may need to be changed for fragmentation other than HCD or for O-glycans. 
+- Oxonium ion ratios: For each category of oxonium ions (NeuAc, NeuGc, Fuc, Phospho, Sulfo), oxonium ions specific to glycans containing this residue increase the score by log of the first value if found, and decrease it (by adding the log) of the second value if not found. The first value thus should always be greater than 1 and the second value always less than 1 (but must be greater than 0). 
+The third value is the "expected" intensity (relative to the base peak of the spectrum) of such oxonium ions, used to decrease the effect of oxonium ions from co-fragmentation of another glycopeptide. Oxonium ions found at values less than the expected intensity will have their positive contribution to score decreased, while ions found above the expected intensity will have their positive contribution increased. 
+- Y ion ratios: Y-ions are divided into two categories: containing Fucose or not. Likelihood ratios are the same as for oxonium ions, but no expected intensity is used. 
+- Decoy Type: Several methods of decoy generation are available, but the default (1) should be used in most situations. 0 means generate decoys with intact mass within +/- 3 Da of the target glycan mass, resulting in less strict FDR filtering (generally not advisable). 1 means generate a decoy mass within the provided mass tolerance of the target glycan mass, allowing a randomly selected isotope error. 2 is the same as 1, but without isotope error. 3 means decoy glycan masses are exactly the same as targets and the mass error is not used in distinguishing between targets and decoys. 
+- Print Decoy Glycans: By default, if a PSM matches to a decoy glycan, the best target glycan is reported in the PSM table with a q-value of 1. To report the decoy glycan instead for diagnostics, check this box. 
 ### Set the output location and run
 On the Run tab, make a new folder for the output files (e.g. ‘glyco_results’), then click ‘RUN’ and wait for the analysis to finish.
 
