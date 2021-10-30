@@ -779,12 +779,17 @@ Commands to execute:
 				print(e)
 			print("EasyPQP convert error END")
 	assert all(p.returncode == 0 for p in procs)
-	try:
-		subprocess.run(easypqp_library_cmd(use_iRT, use_im), cwd=os_fspath(output_directory), check=True)
-	except subprocess.CalledProcessError:
+	p = subprocess.run(easypqp_library_cmd(use_iRT, use_im), cwd=os_fspath(output_directory), check=False)
+	if p.returncode != 0 and not use_iRT:
+		print('''Not enough peptides could be found for alignment.
+Using ciRT for alignment''')
+		shutil.copyfile(script_dir / 'hela_irtkit.tsv', irt_file)
+		p = subprocess.run(easypqp_library_cmd(True, use_im), cwd=os_fspath(output_directory), check=False)
+	if p.returncode != 0:
 		print('''Library not generated, not enough peptides could be found for alignment.
 Please try using other options for alignment (e.g. ciRT if used other options)''')
 		sys.exit()
+
 
 
 ##### multiple protein assignment to peptide reduced to single protein
