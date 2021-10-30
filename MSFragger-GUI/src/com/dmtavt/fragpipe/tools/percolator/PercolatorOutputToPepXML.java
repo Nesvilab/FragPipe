@@ -157,8 +157,9 @@ public class PercolatorOutputToPepXML {
             sb.append(line).append("\n");
         {
             final double[] pep_score = (double[]) tmp[1];
-            if (pep_score == null)
-                throw new IllegalStateException();
+            if (pep_score == null) {
+                return new StringBuilder();
+            }
             final double one_minus_PEP = 1 - pep_score[0];
             final double score = pep_score[1];
             final int[] ntt_nmc = (int[]) tmp[0];
