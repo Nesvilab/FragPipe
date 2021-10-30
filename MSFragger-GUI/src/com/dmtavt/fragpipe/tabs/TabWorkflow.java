@@ -1408,7 +1408,11 @@ public class TabWorkflow extends JPanelWithEnablement {
       }
       Bus.post(new NoteConfigIonQuant(false));
       Bus.post(new NoteConfigTmtI(false));
-      Bus.post(new NoteConfigDiann(true, false));
+      if (hasDia()) {
+        Bus.post(new NoteConfigDiann(true, false));
+      } else {
+        Bus.post(new NoteConfigDiann(false, false));
+      }
     } else {
       Bus.post(new NoteConfigCrystalC(true));
       Bus.post(new NoteConfigPeptideProphet(true));
@@ -1416,11 +1420,11 @@ public class TabWorkflow extends JPanelWithEnablement {
       Bus.post(new NoteConfigPtmShepherd(true));
       Bus.post(new NoteConfigIonQuant(true));
       Bus.post(new NoteConfigTmtI(true));
-      if (hasDiaQuant()) {
-        Bus.post(new NoteConfigDiann(true, true));
-      } else {
-        Bus.post(new NoteConfigDiann(false, false));
-      }
+      Bus.post(new NoteConfigDiann(false, false));
+    }
+
+    if (hasDiaQuant()) {
+      Bus.post(new NoteConfigDiann(true, true));
     }
   }
 
