@@ -279,7 +279,7 @@ public class CmdMsfragger extends CmdBase {
     return locs;
   }
 
-  public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasGpfDia) {
+  public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean isRunDiaU) {
 
     initPreConfig();
 
@@ -331,8 +331,8 @@ public class CmdMsfragger extends CmdBase {
       return false;
     }
 
-    if ((hasDia || hasGpfDia) && params.getNumEnzymeTermini() == CleavageType.NONSPECIFIC) {
-      JOptionPane.showMessageDialog(comp, "Nonspecific digestion is not compatible with DIA or GPF-DIA data.",
+    if ((hasDia || hasGpfDia) && !isRunDiaU && params.getNumEnzymeTermini() == CleavageType.NONSPECIFIC) {
+      JOptionPane.showMessageDialog(comp, "MSFragger cannot perform nonspecific search for DIA or GPF-DIA data.\nPlease enable DIA-Umpire instead.",
           "Error", JOptionPane.ERROR_MESSAGE);
       return false;
     }

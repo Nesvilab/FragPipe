@@ -734,7 +734,7 @@ public class FragpipeRun {
 
     addConfig.accept(cmdMsfragger, () -> {
       if (cmdMsfragger.isRun()) {
-        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDda(), tabWorkflow.hasDia(), tabWorkflow.hasGpfDia())) {
+        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDda(), tabWorkflow.hasDia(), tabWorkflow.hasGpfDia(), cmdUmpire.isRun())) {
           return false;
         }
 
