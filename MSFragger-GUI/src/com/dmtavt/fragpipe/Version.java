@@ -63,6 +63,21 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("17.0", Arrays.asList(
+        "Require MSFragger 3.4+",
+        "Require Philosopher 4.0.1+",
+        "Add MSBooster 1.0 for deep learning based rescoring (Validation)",
+        "Add glycan assignment with FDR control (PTM)",
+        "Add DIA quantification with DIA-NN 1.8 (DIA Quant tab)",
+        "Support two enzymes and N-terminal cutting enzyme (MSFragger tab)",
+        "Support DDA, DIA, GPF-DIA, and DIA-Quant data types",
+        "Upgrade PTM-Shepherd to 1.2.5",
+        "Upgrade DIA-Umpire to 2.2.3",
+        "Upgrade IonQuant to 1.7.16",
+        "Upgrade TMT-Integrator to 3.2.0",
+        "Various minor bug fixes and improvements"
+    ));
+
     CHANGELOG.put("16.0", Arrays.asList(
         "Require MSFragger 3.3+",
         "Require Philosopher 4.0.0+",
