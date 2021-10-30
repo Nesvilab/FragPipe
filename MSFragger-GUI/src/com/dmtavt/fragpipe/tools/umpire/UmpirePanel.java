@@ -30,9 +30,12 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.dmtavt.fragpipe.messages.NoteConfigCrystalC;
+import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigPeptideProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmShepherd;
+import com.dmtavt.fragpipe.messages.NoteConfigTmtI;
+import com.dmtavt.fragpipe.messages.NoteConfigUmpire;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.github.chhh.utils.StringUtils;
@@ -78,6 +81,8 @@ import javax.swing.text.NumberFormatter;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class UmpirePanel extends JPanelBase {
 
@@ -125,6 +130,14 @@ public class UmpirePanel extends JPanelBase {
     return SwingUtils.isEnabledAndChecked(checkRunUmpireSe);
   }
 
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigUmpire m) {
+    updateEnabledStatus(this, m.isValid());
+    if (!m.isValid()) {
+      checkRunUmpireSe.setSelected(false);
+    }
+  }
+
   protected void init() {
     icon = new ImageIcon(
         getClass().getResource("/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png"));
@@ -146,6 +159,8 @@ public class UmpirePanel extends JPanelBase {
         Bus.post(new NoteConfigPeptideProphet(true));
         Bus.post(new NoteConfigPtmProphet(true));
         Bus.post(new NoteConfigPtmShepherd(true));
+        Bus.post(new NoteConfigIonQuant(true));
+        Bus.post(new NoteConfigTmtI(true));
       } else {
         TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
         if (tabWorkflow.hasDia() || tabWorkflow.hasGpfDia()) {
@@ -153,6 +168,8 @@ public class UmpirePanel extends JPanelBase {
           Bus.post(new NoteConfigPeptideProphet(false));
           Bus.post(new NoteConfigPtmProphet(false));
           Bus.post(new NoteConfigPtmShepherd(false));
+          Bus.post(new NoteConfigIonQuant(false));
+          Bus.post(new NoteConfigTmtI(false));
         }
       }
     });

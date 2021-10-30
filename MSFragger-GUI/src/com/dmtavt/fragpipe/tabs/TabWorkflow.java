@@ -38,6 +38,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigPeptideProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmShepherd;
 import com.dmtavt.fragpipe.messages.NoteConfigTmtI;
+import com.dmtavt.fragpipe.messages.NoteConfigUmpire;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
 import com.github.chhh.utils.FileDrop;
@@ -1395,6 +1396,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   private void adjustToolsBasedOnDataTypes() {
     if (hasDia() || hasGpfDia()) {
+      Bus.post(new NoteConfigUmpire(true));
       UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
       if (umpirePanel.isRunUmpire()) {
         Bus.post(new NoteConfigCrystalC(true));
@@ -1415,6 +1417,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         Bus.post(new NoteConfigDiann(false, false));
       }
     } else {
+      Bus.post(new NoteConfigUmpire(false));
       Bus.post(new NoteConfigCrystalC(true));
       Bus.post(new NoteConfigPeptideProphet(true));
       Bus.post(new NoteConfigPtmProphet(true));
