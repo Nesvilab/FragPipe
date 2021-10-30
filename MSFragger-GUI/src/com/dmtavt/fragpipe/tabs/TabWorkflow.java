@@ -206,6 +206,14 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("Mass-Offset-CommonPTMs");
     builtInWorkflows.add("isoDTB");
     builtInWorkflows.add("isoDTB-ABPP");
+    builtInWorkflows.add("MSFragger-DIA-arrow-window-SpecLib");
+    builtInWorkflows.add("MSFragger-DIA-wide-window-SpecLib");
+    builtInWorkflows.add("DIA_DIA-Umpire_SpecLib_Quant");
+    builtInWorkflows.add("DIA_SpecLib_Quant");
+    builtInWorkflows.add("isoTOP-ABPP");
+    builtInWorkflows.add("SLC-ABPP");
+    builtInWorkflows.add("TMT10-acetyl");
+    builtInWorkflows.add("TMT16-acetyl");
   }
 
   // Ok, if we could keep some workflows pinned toward the top,  I would say Default, SpecLib, Open, Common-mass-offset, LFQ-MBR,  then the rest

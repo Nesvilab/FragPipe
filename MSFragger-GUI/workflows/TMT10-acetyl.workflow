@@ -1,4 +1,4 @@
-# Workflow: TMT10-ubiquitin
+# Workflow: TMT10-acetyl
 
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
@@ -63,7 +63,7 @@ msbooster.predict-spectra=true
 msbooster.run-msbooster=false
 msfragger.Y_type_masses=
 msfragger.add_topN_complementary=0
-msfragger.allowed_missed_cleavage_1=3
+msfragger.allowed_missed_cleavage_1=4
 msfragger.allowed_missed_cleavage_2=2
 msfragger.calibrate_mass=2
 msfragger.clip_nTerm_M=true
@@ -79,7 +79,7 @@ msfragger.fragment_mass_tolerance=20
 msfragger.fragment_mass_units=1
 msfragger.intensity_transform=0
 msfragger.ion_series_definitions=
-msfragger.isotope_error=0/1/2
+msfragger.isotope_error=0/1
 msfragger.labile_search_mode=off
 msfragger.localize_delta_mass=false
 msfragger.mass_diff_to_variable_mod=0
@@ -126,7 +126,7 @@ msfragger.search_enzyme_nocut_2=
 msfragger.search_enzyme_sense_1=C
 msfragger.search_enzyme_sense_2=C
 msfragger.table.fix-mods=0.000000,C-Term Peptide,true,-1; 229.162932,N-Term Peptide,true,-1; 0.000000,C-Term Protein,true,-1; 0.000000,N-Term Protein,true,-1; 0.000000,G (glycine),true,-1; 0.000000,A (alanine),true,-1; 0.000000,S (serine),true,-1; 0.000000,P (proline),true,-1; 0.000000,V (valine),true,-1; 0.000000,T (threonine),true,-1; 57.021464,C (cysteine),true,-1; 0.000000,L (leucine),true,-1; 0.000000,I (isoleucine),true,-1; 0.000000,N (asparagine),true,-1; 0.000000,D (aspartic acid),true,-1; 0.000000,Q (glutamine),true,-1; 229.162930,K (lysine),true,-1; 0.000000,E (glutamic acid),true,-1; 0.000000,M (methionine),true,-1; 0.000000,H (histidine),true,-1; 0.000000,F (phenylalanine),true,-1; 0.000000,R (arginine),true,-1; 0.000000,Y (tyrosine),true,-1; 0.000000,W (tryptophan),true,-1; 0.000000,B ,true,-1; 0.000000,J,true,-1; 0.000000,O,true,-1; 0.000000,U,true,-1; 0.000000,X,true,-1; 0.000000,Z,true,-1
-msfragger.table.var-mods=15.994900,M,true,2; 42.010600,[^,false,1; 79.966330,STY,false,3; -17.026500,nQnC,false,1; -18.010600,nE,false,1; 229.162930,n^,false,1; 114.042930,K,true,2; -115.120000,K,true,2; 229.162930,K,false,2; 0.000000,site_10,false,1; 0.000000,site_11,false,1; 0.000000,site_12,false,1; 0.000000,site_13,false,1; 0.000000,site_14,false,1; 0.000000,site_15,false,1; 0.000000,site_16,false,1
+msfragger.table.var-mods=15.994900,M,true,1; 42.010600,[^,false,1; 79.966330,STY,false,3; -17.026500,nQnC,false,1; -18.010600,nE,false,1; 229.162930,n^,false,1; -187.152367,K,true,2; -186.157118,K,true,2; 229.162930,K,false,2; 0.984016,N,true,1; 0.000000,site_11,false,1; 0.000000,site_12,false,1; 0.000000,site_13,false,1; 0.000000,site_14,false,1; 0.000000,site_15,false,1; 0.000000,site_16,false,1
 msfragger.track_zero_topN=0
 msfragger.use_all_mods_in_first_search=true
 msfragger.use_topN_peaks=150
@@ -227,7 +227,7 @@ tmtintegrator.min_pep_prob=0.5
 tmtintegrator.min_percent=0.025
 tmtintegrator.min_purity=0.5
 tmtintegrator.min_site_prob=0
-tmtintegrator.mod_tag=K(114.0429),K(-115.12)
+tmtintegrator.mod_tag=K(-187.1524)
 tmtintegrator.ms1_int=true
 tmtintegrator.outlier_removal=true
 tmtintegrator.print_RefInt=false
@@ -240,7 +240,7 @@ tmtintegrator.run-tmtintegrator=true
 tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
-workflow.description=<p style\="margin-top\: 0"> TMT 10-plex workflow for ubiquitin enriched data, with quantification from MS2. Site localization based on the MSFragger search engine assignment. TMT is specified as fixed on K and n-term. Oxidation is specified as variable modification. Ubiq is specified as two variable modifications\: +114 (Ubiq in addition to TMT on the same residue) and -115 (just Ubiq, without TMT on the same residue). Up to 3 missed cleavages and 4 variable modifications in total. PSM validation with Percolator, and protein inference with ProteinProphet. Data is filtered at 1% FDR at the PSM, ion, peptide, and protein levels. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at the gene/protein/peptide/site levels. If a reference/bridge sample is available, specify the corresponding channel/sample name tag in the annotation file(s) and in TMT-Integrator tab. </p>
+workflow.description=<p style\="margin-top\: 0"> TMT 10-plex workflow for acetylation enriched data, with quantification from MS2. Site localization based on the MSFragger search engine assignment. TMT is specified as fixed modification on n-term and K. Oxidation is specified as variable modifications. Acetyl is specified as -187 (mass of Acetyl minus TMT, as these two modifications are not expected at the same time on the same residue). Also allowed is Carbamyl, specified as -187 (mass of carbamyl minus TMT). Up to 4 missed cleavages and 4 variable modifications in total. PSM validation with Percolator, and protein inference with ProteinProphet. Data is filtered at 1% FDR at the PSM, ion, peptide, and protein levels. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at the gene/protein/peptide/site levels. If a reference/bridge sample is available, specify the corresponding channel/sample name tag in the annotation file(s) and in TMT-Integrator tab. </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.saved-with-ver=16.1-build22
