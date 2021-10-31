@@ -222,7 +222,6 @@ public class TabWorkflow extends JPanelWithEnablement {
   private static final List<String> builtInWorkflowsPinned = ((Supplier<List<String>>) () -> {
     final List<String> a = new ArrayList<>();
     a.add("Default");
-    a.add("SpecLib");
     a.add("Open");
     a.add("Mass-Offset-CommonPTMs");
     a.add("LFQ-MBR");
