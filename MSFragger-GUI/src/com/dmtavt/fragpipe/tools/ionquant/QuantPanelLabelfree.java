@@ -75,6 +75,7 @@ public class QuantPanelLabelfree extends JPanelBase {
   public boolean isIonquant() {
     return isRun() && SwingUtils.isEnabledAndChecked(uiRadioUseIonquant);
   }
+
   public boolean isFreequant() {
     return isRun() && SwingUtils.isEnabledAndChecked(uiRadioUseFreequant);
   }
@@ -82,15 +83,11 @@ public class QuantPanelLabelfree extends JPanelBase {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigIonQuant m) {
     updateEnabledStatus(this, m.isValid());
-    if (!m.isValid()) {
-      checkRun.setSelected(false);
-    }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageIsUmpireRun m) {
     updateEnabledStatus(this, !m.isEnabled);
-    checkRun.setSelected(false);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)

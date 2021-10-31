@@ -657,9 +657,6 @@ public class TmtiPanel extends JPanelBase {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigTmtI m) {
     updateEnabledStatus(this, m.isValid());
-    if (!m.isValid()) {
-      checkRun.setSelected(false);
-    }
   }
 
   @Subscribe

@@ -69,7 +69,6 @@ public class DiannPanel extends JPanelBase {
       }
     } else {
       updateEnabledStatus(this, false);
-      checkRun.setSelected(false);
     }
   }
 

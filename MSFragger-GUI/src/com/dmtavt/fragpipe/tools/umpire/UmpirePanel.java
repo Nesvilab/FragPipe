@@ -133,9 +133,6 @@ public class UmpirePanel extends JPanelBase {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigUmpire m) {
     updateEnabledStatus(this, m.isValid());
-    if (!m.isValid()) {
-      checkRunUmpireSe.setSelected(false);
-    }
   }
 
   protected void init() {

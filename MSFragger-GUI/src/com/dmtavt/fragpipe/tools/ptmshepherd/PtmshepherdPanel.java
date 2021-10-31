@@ -207,9 +207,6 @@ public class PtmshepherdPanel extends JPanelBase {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigPtmShepherd m) {
     updateEnabledStatus(this, m.isValid());
-    if (!m.isValid()) {
-      checkRun.setSelected(false);
-    }
   }
 
   private Properties loadBaseDefaults() {
