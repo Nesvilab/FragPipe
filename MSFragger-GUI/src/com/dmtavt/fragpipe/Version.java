@@ -65,7 +65,7 @@ public class Version {
   static {
     CHANGELOG.put("17.0", Arrays.asList(
         "Require MSFragger 3.4+",
-        "Require Philosopher 4.0.1+",
+        "Require Philosopher 4.1.0+",
         "Add MSBooster 1.0 for deep learning based rescoring (Validation)",
         "Add glycan assignment with FDR control (PTM)",
         "Add DIA quantification with DIA-NN 1.8 (DIA Quant tab)",
