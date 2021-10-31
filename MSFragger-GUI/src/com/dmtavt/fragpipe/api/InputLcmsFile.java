@@ -55,7 +55,7 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
         String fileName = filePath.toAbsolutePath().toString();
         if (fileName.toLowerCase().contains("dda")) { // DDA has higher priority.
             return "DDA";
-        } else if (fileName.toLowerCase().contains("dia")) {
+        } else if (fileName.contains("DIA")) { // DIA has to be upper case.
             return "DIA";
         } else {
             return "DDA";
