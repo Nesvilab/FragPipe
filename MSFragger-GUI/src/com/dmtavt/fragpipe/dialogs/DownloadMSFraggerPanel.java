@@ -41,7 +41,7 @@ public class DownloadMSFraggerPanel extends JPanel {
     panelTextboxes.setLayout(new MigLayout(mu.lcFillXNoInsetsTopBottom()));
 
     JEditorPane t0 = SwingUtils.createClickableHtml(
-        "<br>MSFragger is available freely for academic research, non-commercial or <br>educational purposes under academic license. Other uses require a <br>commercial license from the <a href=\"https://umich.flintbox.com/?embed=true#technologies/a8dd00a2-c057-4125-823b-adffac748490\" target=\"blank_\">University of Michigan Office of Tech Transfer</a>. <br>For questions, please contact Alexey Nesvizhskii (nesvi at med.umich.edu).<br><br>");
+        "<br>MSFragger is available freely for academic research, non-commercial or <br>educational purposes under academic license. Other uses require a commercial <br> license after the initial 60-day evaluation period that can be obtained by <br>contacting Drew Bennett (andbenne@umich.edu) at the University of Michigan<br> Office of Tech Transfer. For questions, please contact <br>Prof. Alexey Nesvizhskii (nesvi@med.umich.edu).<br><br>");
 
     feName = mu.feb(UiUtils.uiTextBuilder().cols(30).create()).label("Name:").create();
     feEmail = mu.feb(UiUtils.uiTextBuilder().cols(30).create()).label("Email:").create();
