@@ -127,10 +127,10 @@ def run_msfragger(infiles_name):
 	cmds = [msfragger_cmd + [param_part_path.name, *infiles_name, '--partial', f'{i}'] # + (['--split2', '1'] if calibrate_mass else [])
 			for i, param_part_path in zip(range(num_parts), param_part_paths)]
 	for i, (cmd, cwd) in enumerate(zip(cmds, tempdir_parts), start=1):
-		print(f'STARTED: slice {i} of {len(cmds)}', flush=True)
+		print(f'STARTED: DB split {i} of {len(cmds)}', flush=True)
 		print(f'{cmd}', flush=True)
 		subprocess.run(list(map(os.fspath, cmd)), cwd=cwd, check=True)
-		print(f'DONE: slice {i} of {len(cmds)}', flush=True)
+		print(f'DONE: DB split {i} of {len(cmds)}', flush=True)
 
 
 ##########
