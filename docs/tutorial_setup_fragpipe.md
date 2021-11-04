@@ -21,7 +21,7 @@ Linux users need to have [Mono](https://www.mono-project.com/download/stable/#do
 #### Install, update, or use an already downloaded version of MSFragger
 **Use an existing MSFragger .jar file:** If you already have the latest MSFragger release downloaded, use the 'Browse' button on the Config tab in FragPipe to select the .jar file.
 
-**Download MSFragger:** In FragPipe, use the 'Download/Update' button to get the latest version of MSFragger.
+**Download MSFragger:** In FragPipe, use the 'Download/Update' button to get the latest version of MSFragger. You will be prompted to fill out a short form before proceeding with the download.
 
 <br>
 #### Install, update, or use an already downloaded version of Philosopher
@@ -31,7 +31,7 @@ If you have already downloaded the latest Philosopher release, use the 'Browse' 
 #### Optional: install, update, or use an already installed version of Python
 Database splitting (to reduce the size of the in-memory fragment ion index-- helpful for workstations with limited memory or for complex searches) and/or spectral library generation will require Python 3 or above.
 
-**If you already have Python 3 or above**, make sure the following packages are installed: `numpy`, `pandas`, `matplotlib`, `cython`, and `msproteomicstools`. The `easypqp` package is also required to build spectral libraries from timsTOF data. Please note: if Python was installed through Anaconda, you will already have all of these packages except for `msproteomicstools` (version 0.8.0) and `easypqp`. In most cases, you can run `pip install [package name]` in the Anaconda prompt to install a missing package.
+**If you already have Python 3 or above**, make sure the following packages are installed: `numpy`,`scipy`,`scikit-learn`,`statsmodels`,`pandas>=1.1.0`,`biopython`,`pyopenms>=2.6.0`,`matplotlib`,`seaborn`. The `easypqp` package is also required to build spectral libraries. Please note: if Python was installed through Anaconda, you will already have all of these packages except for `pyopenms` (version 0.8.0) and `easypqp`. In most cases, you can run `pip install [package name]` in the Anaconda prompt to install a missing package. The 'Config' tab in FragPipe also has a button to download/upgrade the `easypqp` package.
 
 **If Python 3 is not already installed**:
 1) Click 'Download' in the Python section of the Config tab in FragPipe or [click here](https://www.anaconda.com/distribution/) to go to the Anaconda site, click 'Download', then select the latest Python version (3.7 or higher) and launch the installer.
@@ -43,7 +43,7 @@ Database splitting (to reduce the size of the in-memory fragment ion index-- hel
 3) From the start menu, search for "Anaconda Prompt" and launch it.
 <img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/anaconda_prompt_search.png" width="700px" align="middle"/>
 
-4)  To enable spectral library building with EasyPQP (which also works for timsTOF data), type `pip install easypqp` into the Anaconda prompt window and hit enter to install the _easypqp_ package. To enable spectral library building with SpectraST: type `pip install msproteomicstools==0.8.0` into the Anaconda prompt window and hit enter to install the _msproteomicstools_ package. Other packages required for these tools (_pandas_, _cython_, _matplotlib_, and _numpy_) are included in the Anaconda installation.
+4)  To enable spectral library building with EasyPQP (which also works for timsTOF data), type `pip install easypqp` into the Anaconda prompt window and hit enter to install the _easypqp_ package. You may also need to install the `pyopenms` package by typing `pip install pyopenms`.
 
 <img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/pip_install.png" width="700px" align="middle"/>
 
