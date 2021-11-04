@@ -38,6 +38,8 @@ public class SpecLibGen2 {
       "speclib/detect_decoy_prefix.py",
       SCRIPT_SPEC_LIB_GEN,
       "speclib/hela_irtkit.tsv",
+      "speclib/Pierce_iRT_unimod.tsv",
+      "speclib/Pierce_iRT-BJ.tsv",
       "speclib/unite_runs.py",
   };
   private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";

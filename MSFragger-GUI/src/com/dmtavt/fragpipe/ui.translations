@@ -67,6 +67,7 @@ speclibgen.easypqp.data-type :: non-timsTOF <=> non-timsTOF
 speclibgen.easypqp.rt-cal :: Automatic selection of a run as reference RT <=> noiRT
 speclibgen.easypqp.rt-cal :: iRT <=> iRT
 speclibgen.easypqp.rt-cal :: ciRT <=> ciRT
+speclibgen.easypqp.rt-cal :: Pierce_BJ <=> Pierce_BJ
 speclibgen.easypqp.rt-cal :: User provided RT calibration file <=> a tsv file
 
 tmtintegrator.add_Ref :: Reference sample <=>  -1
