@@ -166,7 +166,7 @@ public class SpecLibGen2 {
       scriptSpecLibGenPath = mainScript.get();
 
     } catch (MissingAssetsException e) {
-      log.error("DbSplit is missing assets in tools folder:\n{}", Seq.seq(e.getNotExisting()).toString("\n"));
+      log.error("SpecLib is missing assets in tools folder:\n{}", Seq.seq(e.getNotExisting()).toString("\n"));
       String missingRelativePaths = Seq.seq(e.getNotExisting())
           .map(p -> FragpipeLocations.get().getDirTools().relativize(p))
           .map(Path::toString).toString("; ");
