@@ -354,13 +354,13 @@ public class CmdMsfragger extends CmdBase {
 
     if (!isDryRun) {
       try {
-        if (hasDda) {
+        if (hasDda || isRunDiaU) {
           paramsDda.save(new FileOutputStream(savedDdaParamsPath.toFile()));
         }
-        if (hasDia) {
+        if (hasDia && !isRunDiaU) {
           paramsDia.save(new FileOutputStream(savedDiaParamsPath.toFile()));
         }
-        if (hasGpfDia) {
+        if (hasGpfDia && !isRunDiaU) {
           paramsGpfDia.save(new FileOutputStream(savedGpfDiaParamsPath.toFile()));
         }
 

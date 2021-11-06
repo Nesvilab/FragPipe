@@ -47,7 +47,7 @@ public class CmdMSBooster extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean hasDda, boolean hasDia, boolean hasGpfDia) {
+  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean isRunDiaU) {
     initPreConfig();
 
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MSBOOSTER_NAME).concat(JAR_DEPS));
@@ -82,7 +82,7 @@ public class CmdMSBooster extends CmdBase {
     String LD_PRELOAD_str = getLDPRELOAD(diannPath);
 
     String fraggerParams;
-    if (hasDda) {
+    if (hasDda || isRunDiaU) {
       if (hasDia || hasGpfDia) {
         fraggerParams = wd.resolve("fragger_dda.params").toAbsolutePath().toString();
       } else {
