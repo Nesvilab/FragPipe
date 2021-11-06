@@ -444,7 +444,7 @@ public class Fragpipe extends JFrame {
 
     add(tabs, new CC().grow());
     if (OsUtils.isMac()) {
-      final String notes = "FrapPipe is not supported on Mac. Some software used by FragPipe do not work on Mac.";
+      final String notes = "FragPipe is not supported on Mac. Some software used by FragPipe do not work on Mac.";
 
       JPanel panel = new JPanel();
       panel.setLayout(new BorderLayout());

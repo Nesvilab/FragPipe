@@ -76,7 +76,7 @@ public class CacheUtils {
    * @return
    */
   public static Path getSystemTempDir() {
-    final String dir = OsUtils.isUnix() ? XDG_CONFIG_HOME + "/FrapPipe" : SYS_TEMP_DIR;
+    final String dir = OsUtils.isUnix() ? XDG_CONFIG_HOME + "/FragPipe" : SYS_TEMP_DIR;
     if (dir == null || dir.isEmpty())
       throw new IllegalStateException("Could not locate system-wide temporary directory");
     return Paths.get(dir);
