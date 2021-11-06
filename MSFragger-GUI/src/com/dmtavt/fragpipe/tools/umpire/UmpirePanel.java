@@ -156,8 +156,6 @@ public class UmpirePanel extends JPanelBase {
         Bus.post(new NoteConfigPeptideProphet(true));
         Bus.post(new NoteConfigPtmProphet(true));
         Bus.post(new NoteConfigPtmShepherd(true));
-        Bus.post(new NoteConfigIonQuant(true));
-        Bus.post(new NoteConfigTmtI(true));
       } else {
         TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
         if (tabWorkflow.hasDia() || tabWorkflow.hasGpfDia()) {
