@@ -48,7 +48,7 @@ class Irt_choice(enum.Enum):
 	no_iRT = enum.auto()
 	iRT = enum.auto()
 	ciRT = enum.auto()
-	Pierce_BJ = enum.auto()
+	Pierce_iRT = enum.auto()
 	userRT = enum.auto()
 
 class Im_choice(enum.Enum):
@@ -69,7 +69,7 @@ if use_easypqp:
 		no_iRT = rta.casefold() == 'noirt'
 		is_iRT = rta.casefold() == 'irt'
 		is_ciRT = rta.casefold() == 'cirt'
-		is_Pierce_BJ = rta.casefold() == 'Pierce_BJ'.casefold()
+		is_Pierce_iRT = rta.casefold() == 'Pierce_iRT'.casefold()
 		is_userRT = pathlib.Path(rta).exists()
 		userRT_file = pathlib.Path(rta).resolve(strict=True) if is_userRT else None
 		no_im = ima.casefold() == 'noim'
@@ -83,7 +83,7 @@ if use_easypqp:
 	irt_choice = Irt_choice.no_iRT if no_iRT else \
 		Irt_choice.iRT if is_iRT else \
 			Irt_choice.ciRT if is_ciRT else \
-				Irt_choice.Pierce_BJ if is_Pierce_BJ else \
+				Irt_choice.Pierce_iRT if is_Pierce_iRT else \
 					Irt_choice.userRT if userRT_file else \
 						None
 	if irt_choice is None:
@@ -754,8 +754,8 @@ def main_easypqp():
 		irt_df.to_csv(irt_file, index=False, sep='\t', line_terminator='\n')
 	elif irt_choice is Irt_choice.ciRT:
 		shutil.copyfile(script_dir / 'hela_irtkit.tsv', irt_file)
-	elif irt_choice is Irt_choice.Pierce_BJ:
-		shutil.copyfile(script_dir / 'Pierce_iRT-BJ.tsv', irt_file)
+	elif irt_choice is Irt_choice.Pierce_iRT:
+		shutil.copyfile(script_dir / 'Pierce_iRT.tsv', irt_file)
 	elif irt_choice is Irt_choice.userRT:
 		shutil.copyfile(userRT_file, irt_file)
 	if im_choice is Im_choice.userIM:
