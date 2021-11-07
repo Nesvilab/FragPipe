@@ -129,7 +129,7 @@ public class FragpipeRun {
 
   public static void run(MessageRun m) {
     log.debug("Started main FragpipeRun.run() method");
-    Thread.setDefaultUncaughtExceptionHandler(Fragpipe.uncaughtExceptionHandler());
+    Thread.setDefaultUncaughtExceptionHandler(Fragpipe::uncaughtExceptionHandler);
 
     Bus.post(new MessageSaveCache());
     Bus.post(new MessageClearConsole());

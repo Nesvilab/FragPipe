@@ -172,17 +172,15 @@ public class Fragpipe extends JFrame {
       }
     });
 
-    Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler());
+    Thread.setDefaultUncaughtExceptionHandler(Fragpipe::uncaughtExceptionHandler);
 
     log.debug("Done init()");
   }
 
-  public static UncaughtExceptionHandler uncaughtExceptionHandler() {
-    return (t, e) -> {
-      String stacktrace = LogUtils.stacktrace(e);
-      log.error("Something unexpected happened!", e);
-      SwingUtils.userShowError(null, stacktrace);
-    };
+  public static void uncaughtExceptionHandler(Thread t, Throwable e) {
+    String stacktrace = LogUtils.stacktrace(e);
+    log.error("Something unexpected happened!", e);
+    SwingUtils.userShowError(null, stacktrace);
   }
 
   public static String getBinJava() {
