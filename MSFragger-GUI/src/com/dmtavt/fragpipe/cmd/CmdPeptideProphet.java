@@ -143,9 +143,11 @@ public class CmdPeptideProphet extends CmdBase {
     panel.add(new JScrollPane(table), BorderLayout.CENTER);
 
     String[] options = {"Yes - Delete now", "No - Continue as is", "Cancel"};
-    int confirmation = JOptionPane
-        .showOptionDialog(comp, panel, "Delete the files?",
-            JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+    if (Fragpipe.headless)
+      return true;
+    final int confirmation = JOptionPane
+            .showOptionDialog(comp, panel, "Delete the files?",
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
     switch (confirmation) {
       case 0:
         for (Path path : forDeletion) {

@@ -40,12 +40,14 @@ public class FragpipeLoader {
   private final JFrame frameLoading;
 
   public FragpipeLoader() {
-    frameLoading = new JFrame();
-    Fragpipe.decorateFrame(frameLoading);
-    frameLoading.setTitle("Starting FragPipe");
-    frameLoading.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-    frameLoading.setLayout(new BorderLayout());
-
+    if (!Fragpipe.headless) {
+      frameLoading = new JFrame();
+      Fragpipe.decorateFrame(frameLoading);
+      frameLoading.setTitle("Starting FragPipe");
+      frameLoading.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+      frameLoading.setLayout(new BorderLayout());
+    } else
+      frameLoading = null;
     JPanel content = new JPanel(new MigLayout(new LC().fillX()));
 
     JLabel label = new JLabel("Initializing FragPipe");
@@ -56,13 +58,13 @@ public class FragpipeLoader {
     progress.setStringPainted(true);
     progress.setString("Initialization");
     content.add(progress, new CC().spanX().growX().wrap());
-
-    frameLoading.add(content, BorderLayout.CENTER);
-    frameLoading.setMinimumSize(new Dimension(400, 50));
-    frameLoading.pack();
-    SwingUtils.centerFrame(frameLoading);
-    frameLoading.setVisible(true);
-
+    if(!Fragpipe.headless) {
+      frameLoading.add(content, BorderLayout.CENTER);
+      frameLoading.setMinimumSize(new Dimension(400, 50));
+      frameLoading.pack();
+      SwingUtils.centerFrame(frameLoading);
+      frameLoading.setVisible(true);
+    }
     initApplication();
   }
 
@@ -99,8 +101,10 @@ public class FragpipeLoader {
 
     log.debug("Closing loader frame");
     Bus.unregister(this);
-    frameLoading.setVisible(false);
-    frameLoading.dispose();
+    if (!Fragpipe.headless) {
+      frameLoading.setVisible(false);
+      frameLoading.dispose();
+    }
     Fragpipe.displayMainWindow();
   }
 

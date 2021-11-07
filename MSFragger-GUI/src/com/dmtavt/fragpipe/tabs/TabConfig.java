@@ -511,6 +511,7 @@ public class TabConfig extends JPanelWithEnablement {
       // python was not loaded, try finding system python
       Bus.post(new MessageFindSystemPython());
     }
+    Fragpipe.load_workflow_done.countDown();
   }
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
@@ -691,6 +692,14 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private void showConfigError(Throwable e, String balloonTopic, JComponent balloonParent) {
+    if(Fragpipe.headless){
+      if (e instanceof ValidationException) {
+        log.error(e.getMessage());
+      } else {
+        log.error(org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace(e));
+      }
+      System.exit(1);
+    }
     if (e instanceof ValidationException) {
       Bus.post(new MessageBalloon(balloonTopic, balloonParent, e.getMessage()));
     } else {

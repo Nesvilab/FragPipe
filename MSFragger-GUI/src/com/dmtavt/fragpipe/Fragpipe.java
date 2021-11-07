@@ -67,6 +67,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -104,7 +105,16 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Fragpipe extends JFrame {
+public class Fragpipe extends JFrameHeadless {
+//  static {System.setProperty("java.awt.headless", "true");}
+  public static boolean headless = java.awt.GraphicsEnvironment.isHeadless();
+  public static Path manifest_file;
+  public static java.util.concurrent.CountDownLatch init_done= new java.util.concurrent.CountDownLatch(1);
+  public static java.util.concurrent.CountDownLatch load_manifest_done = new java.util.concurrent.CountDownLatch(1);
+  public static java.util.concurrent.CountDownLatch load_workflow_done = new java.util.concurrent.CountDownLatch(1);
+  public static boolean dry_run = false;
+  public static StringBuilder cmds = new StringBuilder();
+  final public static PrintStream out = System.out;
 
   public static final String UI_STATE_CACHE_FN = "fragpipe-ui.cache";
   private static final Logger log = LoggerFactory.getLogger(Fragpipe.class);
@@ -151,6 +161,7 @@ public class Fragpipe extends JFrame {
   }
 
   public Fragpipe() throws HeadlessException {
+    super(headless);
     init();
     initUi();
     initMore();
@@ -255,17 +266,52 @@ public class Fragpipe extends JFrame {
 
 
   public static void main(String args[]) {
+    args = new String[]{"/home/ci/FragPipe/MSFragger-GUI/resources/workflows/Open.workflow", "/home/ci/tmp/lcms-files.fp-manifest", "--headless", "--dry-run"};
+    if (args.length > 2 && args[2].equals("--headless")) {
+      headless = true;
+      manifest_file = Paths.get(args[1]);
+    }
+    if (args.length > 3 && args[3].equals("--dry-run"))
+      dry_run = true;
     SwingUtils.setLaf();
     FragpipeLoader fragpipeLoader = new FragpipeLoader();
     Bus.register(fragpipeLoader);
+    if (headless)
+      headless(Paths.get(args[0]));
+  }
+
+  public static void headless(final Path workflow_file) {
+    System.out.println("b4 Bus.post(new MessageManifestLoad()), load workflow file");
+    try {
+      init_done.await();
+    } catch (InterruptedException ex) {
+      throw new RuntimeException(ex);
+    }
+    final FragpipeLocations fpl = FragpipeLocations.get();
+    Bus.post(new MessageLoadUi(fpl.tryLoadSilently(workflow_file, "user")));
+    Bus.post(new com.dmtavt.fragpipe.messages.MessageManifestLoad());
+    System.out.println("b4 Bus.post(new MessageRun(true));");
+    try {
+      load_workflow_done.await();
+      load_manifest_done.await();
+      Thread.sleep(500);
+    } catch (InterruptedException ex) {
+      throw new RuntimeException(ex);
+    }
+    Bus.post(new com.dmtavt.fragpipe.messages.MessageRun(dry_run));
   }
 
   static void displayMainWindow() {
     log.debug("Entered displayMainWindow");
     java.awt.EventQueue.invokeLater(() -> {
       log.debug("Creating Fragpipe instance");
-      final Fragpipe fp = new Fragpipe();
+      final Fragpipe fp0 = new Fragpipe();
       log.debug("Done creating Fragpipe instance");
+      if (headless) {
+        init_done.countDown();
+        return;
+      }
+      final JFrame fp = fp0.toJFrame();
 
       fp.pack();
       decorateFrame(fp);
@@ -429,17 +475,20 @@ public class Fragpipe extends JFrame {
 
   private synchronized void initUi() {
     log.debug("Start Fragpipe.initUi()");
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    setTitle(Version.PROGRAM_TITLE + " (v" + Version.version() + ")");
-    setLocale(Locale.ROOT);
-    setMinimumSize(new Dimension(640, 480));
-    this.setLayout(new MigLayout(new LC().fill()));
-
+    final JFrame fp = this.toJFrame();
+    if (!headless) {
+      fp.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      fp.setTitle(Version.PROGRAM_TITLE + " (v" + Version.version() + ")");
+      fp.setLocale(Locale.ROOT);
+      fp.setMinimumSize(new Dimension(640, 480));
+      fp.setLayout(new MigLayout(new LC().fill()));
+    }
     defFont = new JLabel("dummy label to get default font from");
     console = createConsole();
     tabs = createTabs(console);
-
-    add(tabs, new CC().grow());
+    if (!headless) {
+      fp.add(tabs, new CC().grow());
+    }
     if (OsUtils.isMac()) {
       final String notes = "FragPipe is not supported on Mac. Some software used by FragPipe do not work on Mac.";
 
@@ -453,8 +502,8 @@ public class Fragpipe extends JFrame {
       notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
       notesScroller.setViewportView(notesArea);
       panel.add(notesScroller, BorderLayout.CENTER);
-
-      SwingUtils.showDialog(this, panel);
+      if (!headless)
+        SwingUtils.showDialog(this.toJFrame(), panel);
     }
 
     log.debug("Done Fragpipe.initUi()");
@@ -498,7 +547,7 @@ public class Fragpipe extends JFrame {
         "Delete the following files?\n&nbsp;&nbsp;&nbsp;&nbsp;" + paths.stream().map(p -> p.toAbsolutePath().normalize().toString())
             .collect(Collectors.joining("\n&nbsp;&nbsp;&nbsp;&nbsp;")));
 
-    int answer = SwingUtils.showConfirmDialog(this, msg);
+    int answer = SwingUtils.showConfirmDialog(this.toJFrame(), msg);
     if (JOptionPane.OK_OPTION != answer) {
       log.debug("User cancelled cache cleaning");
     } else {
@@ -508,7 +557,7 @@ public class Fragpipe extends JFrame {
         FragpipeLocations.get().delete(paths);
       } catch (IOException e) {
         log.error("Error deleting cache files", e);
-        SwingUtils.showErrorDialogWithStacktrace(e, this);
+        SwingUtils.showErrorDialogWithStacktrace(e, this.toJFrame());
       }
     }
 
@@ -555,7 +604,7 @@ public class Fragpipe extends JFrame {
 
     // check for potential new update packages
     List<UpdatePackage> updates = FragpipeUpdater.checkNewUpdatePackages(m.propsFix);
-    FragpipeUpdater.askToDownloadUpdates(this, updates);
+    FragpipeUpdater.askToDownloadUpdates(this.toJFrame(), updates);
   }
 
 
@@ -563,12 +612,12 @@ public class Fragpipe extends JFrame {
   @Subscribe
   public void on(SubscriberExceptionEvent m) {
     log.error("Error delivering events through the bus", m.throwable);
-    SwingUtils.showErrorDialogWithStacktrace(m.throwable, Fragpipe.this);
+    SwingUtils.showErrorDialogWithStacktrace(m.throwable, this.toJFrame());
   }
 
   @Subscribe
   public void on(MessageShowAboutDialog m) {
-    showAboutDialog(this);
+    showAboutDialog(this.toJFrame());
   }
 
   private String createAboutBody() {
@@ -710,6 +759,7 @@ public class Fragpipe extends JFrame {
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
   public void on(MessageOpenInExplorer m) {
-    FragpipeUtils.openInExplorer(this, m.path.toString());
+    if (!headless)
+      FragpipeUtils.openInExplorer(this.toJFrame(), m.path.toString());
   }
 }

@@ -797,8 +797,10 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageSaveAsWorkflow m) throws IOException {
-    Fragpipe fp = Fragpipe.getStickyStrict(Fragpipe.class);
-    Properties uiProps = FragpipeCacheUtils.tabsSave0(fp.tabs, m.saveWithFieldTypes);
+    Fragpipe fp0 = Fragpipe.getStickyStrict(Fragpipe.class);
+    final javax.swing.JFrame fp = fp0.toJFrame();
+    if (Fragpipe.headless) return;
+    Properties uiProps = FragpipeCacheUtils.tabsSave0(fp0.tabs, m.saveWithFieldTypes);
 
     Path saveDir;
     Path fpWorkflowsDir = FragpipeLocations.get().getDirWorkflows();
@@ -1341,8 +1343,8 @@ public class TabWorkflow extends JPanelWithEnablement {
         fc.setSelectedFile(path.toFile());
       } catch (Exception ignore) {}
     }
-    if (JFileChooser.APPROVE_OPTION == fc.showOpenDialog(this)) {
-      File f = fc.getSelectedFile();
+    if (Fragpipe.headless || JFileChooser.APPROVE_OPTION == fc.showOpenDialog(this)) {
+      final File f = Fragpipe.headless ? Fragpipe.manifest_file.toFile() : fc.getSelectedFile();
       if (f == null)
         return;
       try {
@@ -1350,6 +1352,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       } catch (IOException e) {
         SwingUtils.showErrorDialogWithStacktrace(e, this);
       }
+      Fragpipe.load_manifest_done.countDown();
     }
   }
 

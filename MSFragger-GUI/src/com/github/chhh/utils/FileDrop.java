@@ -20,6 +20,8 @@ package com.github.chhh.utils;
  * Taken from Public Domain: http://www.iharder.net/current/java/filedrop.
  */
 
+import com.dmtavt.fragpipe.Fragpipe;
+
 import java.awt.datatransfer.DataFlavor;
 import java.io.BufferedReader;
 import java.io.File;
@@ -463,6 +465,7 @@ public class FileDrop {
 
   private void makeDropTarget(final java.io.PrintStream out, final java.awt.Component c,
       boolean recursive) {
+    if (Fragpipe.headless) return;
     // Make drop target
     final java.awt.dnd.DropTarget dt = new java.awt.dnd.DropTarget();
     try {

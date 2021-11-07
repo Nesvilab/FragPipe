@@ -1118,6 +1118,10 @@ public class SwingUtils {
 
   public static void showDialog(Component parent, String htmlMessage, String title,
       int messageType) {
+    if(Fragpipe.headless) {
+      System.out.println("htmlMessage = " + htmlMessage);
+      System.exit(1);
+    }
     JOptionPane.showMessageDialog(parent, new JLabel(makeHtml(htmlMessage)), title, messageType);
   }
 
