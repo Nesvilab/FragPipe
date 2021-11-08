@@ -1199,7 +1199,7 @@ public class TabWorkflow extends JPanelWithEnablement {
               exp = split[1];
             }
             if (split.length >= 3) {
-              replicate = Integer.parseInt(split[2]);
+              replicate = split[2].isEmpty() ? null : Integer.parseInt(split[2]);
             }
             if (split.length >= 4) {
               dataType = split[3];
