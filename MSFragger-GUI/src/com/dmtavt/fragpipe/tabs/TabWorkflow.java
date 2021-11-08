@@ -1196,13 +1196,13 @@ public class TabWorkflow extends JPanelWithEnablement {
               p = Paths.get(split[0]);
             }
             if (split.length >= 2) {
-              exp = split[1];
+              exp = (split[1] == null || split[1].trim().isEmpty()) ? null : split[1].trim();
             }
             if (split.length >= 3) {
-              replicate = split[2].isEmpty() ? null : Integer.parseInt(split[2]);
+              replicate = (split[2] == null || split[2].trim().isEmpty()) ? null : Integer.parseInt(split[2]);
             }
             if (split.length >= 4) {
-              dataType = split[3];
+              dataType = (split[3] == null || split[3].trim().isEmpty()) ? null : split[3].trim();
             }
           } catch (Exception e) {
             badLines.add(line);
