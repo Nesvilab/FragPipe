@@ -33,6 +33,7 @@ public class CmdDatabaseUpdate extends CmdBase {
 
     if (isAddContaminants) {
       cmd.add("--contam");
+      cmd.add("--contamprefix");
     }
 
     ProcessBuilder pb = new ProcessBuilder(cmd);

@@ -75,6 +75,7 @@ public class CmdDatabaseDownload extends CmdBase {
     }
     if (isAddContaminants) {
       cmd.add("--contam");
+      cmd.add("--contamprefix");
     }
     if (isAddIsoforms) {
       cmd.add("--isoform");
