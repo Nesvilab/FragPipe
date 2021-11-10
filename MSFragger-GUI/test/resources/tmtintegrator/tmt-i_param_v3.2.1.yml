@@ -17,13 +17,13 @@ tmtintegrator:
   best_psm: true                                  # keep the best PSM only (highest summed TMT intensity) among all redundant PSMs within the same LC-MS run
   prot_exclude: none                              # exclude proteins with specified tags at the beginning of the accession number (e.g. none: no exclusion; sp|,tr| : exclude protein with sp| or tr|)
   allow_overlabel: true                           # allow PSMs with TMT on S (when overlabeling on S was allowed in the database search)
-  allow_unlabeled: false                          # allow PSMs without TMT tag or acetylation on the peptide n-terminus
+  allow_unlabeled: false                          # allow PSMs without TMT tag or acetylation on the peptide n-terminus 
   mod_tag: none                                   # PTM info for generation of PTM-specific reports (none: for Global data; S(79.9663),T(79.9663),Y(79.9663): for Phospho; K(42.0106): for K-Acetyl; M(15.9949): for M-Oxidation; N-glyco: for N-glycosylation; O-glyco: for O-glycosylation)
   min_site_prob: -1                               # site localization confidence threshold (-1: for Global; 0: as determined by the search engine; above 0 (e.g. 0.75): PTMProphet probability, to be used with phosphorylation only)
-  ms1_int: true                                   # use MS1 precursor ion intensity (if true) or MS2 reference intensity (if false) as part of the reference sample abundance estimation
+  ms1_int: true                                   # use MS1 precursor ion intensity (if true) or MS2 reference intensity (if false) as part of the reference sample abundance estimation 
   top3_pep: true                                  # use top 3 most intense peptide ions as part of the reference sample abundance estimation
   print_RefInt: false                             # print individual reference sample abundance estimates for each multiplex in the final reports (in addition to the combined reference sample abundance estimate)
   add_Ref: -1                                     # add an artificial reference channel if there is no reference channel or export raw abundance (-2: export raw abundance; -1: don't add the reference; 0: use summation as the reference; 1: use average as the reference; 2: use median as the reference)
   max_pep_prob_thres: 0                           # the threshold for maximum peptide probability
   min_ntt: 0                                      # minimum allowed number of enzymatic termini
-  aggregation_method: 0                           # the aggregation method from the PSM level to the specified level (0: median, 1: weighted-ratio)
+  aggregation_method: 0                           # the aggregation method from the PSM level to the specified level (0: median, 1: weighted-ratio) 
