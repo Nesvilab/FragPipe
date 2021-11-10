@@ -16,7 +16,7 @@ public class TmtIntegratorTest {
 
   @Test
   public void configParse() throws IOException {
-    final String fn = "tmt-i_param_v1.1.2.yml";
+    final String fn = "tmt-i_param_v3.2.1.yml";
     final String resoucePath = "tmtintegrator/" + fn;
     try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(resoucePath)) {
       Yaml yaml = new Yaml(new Constructor(TmtiConfig.class));

@@ -29,6 +29,7 @@ public class TmtiConfig {
   }
 
   public static class Props {
+
     private String path;
     private int memory;
     private String protein_database;
@@ -54,6 +55,33 @@ public class TmtiConfig {
     private boolean ms1_int;
     private boolean top3_pep;
     private boolean print_RefInt;
+    private double max_pep_prob_thres;
+    private int min_ntt;
+    private int aggregation_method;
+
+    public double getMax_pep_prob_thres() {
+      return max_pep_prob_thres;
+    }
+
+    public int getMin_ntt() {
+      return min_ntt;
+    }
+
+    public int getAggregation_method() {
+      return aggregation_method;
+    }
+
+    public void setMax_pep_prob_thres(double max_pep_prob_thres) {
+      this.max_pep_prob_thres = max_pep_prob_thres;
+    }
+
+    public void setMin_ntt(int min_ntt) {
+      this.min_ntt = min_ntt;
+    }
+
+    public void setAggregation_method(int aggregation_method) {
+      this.aggregation_method = aggregation_method;
+    }
 
     public String getPath() {
       return path;
