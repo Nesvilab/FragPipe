@@ -6,13 +6,19 @@ import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class CmdPhilosopherFilter extends CmdBase {
+
+  private static final Pattern pattern = Pattern.compile("interact-.+\\.pep\\.xml\\.tmp\\..+");
 
   public static final String NAME = "PhilosopherFilter";
   public static final String FN_CAPTURE_STDOUT = "filter.log";
@@ -40,6 +46,14 @@ public class CmdPhilosopherFilter extends CmdBase {
         throw new IllegalStateException("CmdReportFilter - LCMS file group is empty. "
             + "This is a bug, report to developers.");
       Path groupWd = group.outputDir(wd);
+
+      try {
+        for (Path p : Files.list(groupWd).filter(Files::isRegularFile).filter(p -> pattern.matcher(p.getFileName().toString()).matches()).collect(Collectors.toList())) {
+          Files.deleteIfExists(p);
+        }
+      } catch (IOException ex) {
+        ex.printStackTrace();
+      }
 
       List<String> cmd = new ArrayList<>();
       cmd.add(usePhilosopher.useBin(wd));
