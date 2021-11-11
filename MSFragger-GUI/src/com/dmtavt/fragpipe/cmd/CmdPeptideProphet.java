@@ -10,7 +10,6 @@ import com.dmtavt.fragpipe.tools.pepproph.PeptideProphetParams;
 import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
 import com.dmtavt.fragpipe.util.RewritePepxml;
 import com.github.chhh.utils.FileDelete;
-import com.github.chhh.utils.FileListing;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.UsageTrigger;
 import java.awt.BorderLayout;
@@ -43,7 +42,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CmdPeptideProphet extends CmdBase {
+
   private static final Logger log = LoggerFactory.getLogger(CmdPeptideProphet.class);
+  private static final Pattern pattern = Pattern.compile("interact-.+\\.pep\\.xml.*");
 
   public static final String NAME = "PeptideProphet";
 
@@ -100,13 +101,13 @@ public class CmdPeptideProphet extends CmdBase {
 //        .map(f -> f.outputDir(wd)).collect(Collectors.toSet());
     final Set<Path> outputPaths = outputs.values().stream().flatMap(List::stream)
         .map(Path::getParent).collect(Collectors.toSet());
-    final Pattern pepxmlRegex = Pattern.compile(".+?\\.pep\\.xml$", Pattern.CASE_INSENSITIVE);
     final List<Path> pepxmlsToDelete = new ArrayList<>();
     for (Path outputPath : outputPaths) {
-      FileListing fl = new FileListing(outputPath, pepxmlRegex);
-      fl.setRecursive(false);
-      fl.setIncludeDirectories(false);
-      pepxmlsToDelete.addAll(fl.findFiles());
+      try {
+        pepxmlsToDelete.addAll(Files.list(outputPath).filter(Files::isRegularFile).filter(p -> pattern.matcher(p.getFileName().toString()).matches()).collect(Collectors.toList()));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
     return pepxmlsToDelete;
   }
