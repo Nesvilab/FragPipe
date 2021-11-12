@@ -44,6 +44,7 @@ The table below shows the compatibility of FragPipe workflow components with dif
 _Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should be converted to .mzML. Please also note that timsTOF data requires [Visual C++ Redistributable for Visual Studio 2017](https://aka.ms/vs/16/release/VC_redist.x64.exe) in Windows._ If you see an error saying cannot find Bruker native library, please try to install the Visual C++ redistibutable.
 
 <img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/workflow_support.png" width="500px" align="middle"/>
+
 _Quantification from Thermo .raw files with DIA-NN requires installation of Thermo MS File Reader, see the [DIA-NN documentation](https://github.com/vdemichev/DiaNN#raw-data-formats) for details._
 
 Please note TMT/iTRAQ quantification from Thermo .raw files will take longer than from .mzML files.
