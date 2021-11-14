@@ -613,6 +613,21 @@ public class TabWorkflow extends JPanelWithEnablement {
       }
     });
     JButton btnWorkflowLoad = UiUtils.createButton("Load", this::actionLoadSelectedWorkflow);
+    JButton btnWorkflowFileLoad = UiUtils.createButton("Load workflow file", (ActionEvent e)->{
+      final String propWorkflowDir = "workflow.last-save-dir";
+      JFileChooser fc = FileChooserUtils
+              .builder("Select folder to save workflow file to")
+              .multi(false).mode(FcMode.FILES_ONLY).acceptAll(true).approveButton("Select workflow")
+              .paths(Stream.of(Fragpipe.propsVarGet(propWorkflowDir),
+                      FragpipeLocations.get().getDirWorkflows().toString()))
+              .create();
+//      fc.setFileFilter(new FileNameExtensionFilter("workflow files", "workflow"));
+      if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+        log.debug("User cancelled dir selection");
+        return;
+      }
+      Bus.post(new MessageLoadUi(FragpipeLocations.get().tryLoadSilently(fc.getSelectedFile().toPath(), "user")));
+    });
     FormEntry feComboWorkflow = Fragpipe.feNoCache(uiComboWorkflows, "workflow-option")
         .label("Select a workflow:")
         .tooltip("Conveniently loads appropriate defaults for various standard workflows\n").create();
@@ -624,8 +639,10 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, feComboWorkflow.label()).split();
     mu.add(p, feComboWorkflow.comp);
     mu.add(p, btnWorkflowLoad);
+    mu.add(p, btnWorkflowFileLoad);
     mu.add(p, new JLabel("or save current settings as workflow")).gapLeft("15px");
-    mu.add(p, UiUtils.createButton("Save", e -> Bus.post(new MessageSaveAsWorkflow(false))));
+    mu.add(p, UiUtils.createButton("Save", e -> Bus.post(new MessageSaveAsWorkflow(true))));
+    mu.add(p, UiUtils.createButton("Save all settings", actionEvent -> Bus.post(new MessageSaveAsWorkflow(true, false, true))));
     if (Version.isDevBuild()) {
       mu.add(p, UiUtils.createButton("Save Dev", e -> Bus.post(new MessageSaveAsWorkflow(false, true))));
     }
@@ -886,6 +903,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps))
         .filter(kv -> {
+          if (m.saveAll) return true;
           String k = kv.v1().toLowerCase();
           if (k.startsWith(TabConfig.TAB_PREFIX)) { // nothing from tab config goes into a workflow
             return false;
