@@ -17,15 +17,12 @@
 package com.github.chhh.utils;
 
 import java.awt.Color;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.LogManager;
 import com.github.chhh.utils.swing.TextConsole;
-import org.apache.http.conn.util.PublicSuffixList;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -54,15 +51,6 @@ public class LogUtils {
                             + "LogHelper.class.getResourceAsStream(\"/logging.properties\")");
             java.util.logging.Logger.getAnonymousLogger().severe(e.getMessage());
         }
-    }
-
-    /**
-     * Top stack trace messages as string.
-     */
-    public static String stacktrace(Throwable e) {
-        StringWriter sw = new StringWriter();
-        e.printStackTrace(new PrintWriter(sw, true));
-        return sw.toString();
     }
 
     public static final void print(Appendable out, String toPrint) {

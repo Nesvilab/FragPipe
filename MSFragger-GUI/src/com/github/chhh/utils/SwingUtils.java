@@ -42,15 +42,12 @@ import java.awt.event.ItemEvent;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +55,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -96,6 +92,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1068,9 +1066,7 @@ public class SwingUtils {
    */
   public static void setUncaughtExceptionHandlerMessageDialog(Component parent) {
     Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-      StringWriter sw = new StringWriter();
-      e.printStackTrace(new PrintWriter(sw, true));
-      String notes = sw.toString();
+      final String notes = ExceptionUtils.getStackTrace(e);
 
       JPanel panel = new JPanel();
       panel.setLayout(new BorderLayout());
@@ -1088,15 +1084,6 @@ public class SwingUtils {
       makeDialogResizable(panel);
       showDialog(parent, panel);
     });
-  }
-
-  /**
-   * Prints the contents of the stacktrace to a string.
-   */
-  public static String stacktraceToString(Throwable t) {
-    StringWriter sw = new StringWriter();
-    t.printStackTrace(new PrintWriter(sw, true));
-    return sw.toString();
   }
 
   /**
@@ -1148,7 +1135,7 @@ public class SwingUtils {
     panel.add(content, BorderLayout.PAGE_START);
     JTextArea notesArea = new JTextArea(40, 80);
     if (doShowStacktrace) {
-      notesArea.setText(stacktraceToString(e));
+      notesArea.setText(ExceptionUtils.getStackTrace(e));
     } else {
       notesArea.setText(e.getMessage());
     }

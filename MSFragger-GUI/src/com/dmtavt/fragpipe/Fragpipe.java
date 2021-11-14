@@ -40,7 +40,6 @@ import com.dmtavt.fragpipe.tabs.TabValidation;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
-import com.github.chhh.utils.LogUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.PropertiesUtils;
@@ -97,6 +96,7 @@ import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.greenrobot.eventbus.NoSubscriberEvent;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.SubscriberExceptionEvent;
@@ -177,7 +177,7 @@ public class Fragpipe extends JFrame {
   }
 
   public static void uncaughtExceptionHandler(Thread t, Throwable e) {
-    String stacktrace = LogUtils.stacktrace(e);
+    final String stacktrace = ExceptionUtils.getStackTrace(e);
     log.error("Something unexpected happened!", e);
     SwingUtils.userShowError(null, stacktrace);
   }
