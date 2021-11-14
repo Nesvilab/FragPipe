@@ -1323,8 +1323,8 @@ public class TabMsfragger extends JPanelBase {
     uiSpinnerDbsplit.addChangeListener(e -> {
       if (uiCheckLocalizeDeltaMass.isSelected() && getNumDbSlices() > 1) {
         JOptionPane.showMessageDialog(this,
-            "<html><code>Split database<code> is incompatible with <code>Localize delta mass</code> option.<br/>"
-                + "Please either set <code>split database<code> to 1, or uncheck <code>Localize delta mass</code> checkbox<br/>"
+            "<html><code>Split database</code> is incompatible with <code>Localize delta mass</code> option.<br/>"
+                + "Please either set <code>split database</code> to 1, or uncheck <code>Localize delta mass</code> checkbox<br/>"
                 + "at the end of this form.",
             "Incompatible options", JOptionPane.WARNING_MESSAGE);
       }
@@ -1334,8 +1334,8 @@ public class TabMsfragger extends JPanelBase {
       final PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);
       if (percolatorPanel.isRun() && getNumDbSlices() > 1) {
         JOptionPane.showMessageDialog(this,
-            "<html><code>Split database<code> is incompatible with <code>Run Percolator</code>.<br/>"
-                + "Please either set <code>split database<code> to 1, or uncheck <code>Run Percolator</code> in <code>Validation</code> tab",
+            "<html><code>Split database</code> is incompatible with <code>Run Percolator</code>.<br/>"
+                + "Please either set <code>split database</code> to 1, or uncheck <code>Run Percolator</code> in <code>Validation</code> tab",
             "Incompatible options", JOptionPane.WARNING_MESSAGE);
       }
     });
