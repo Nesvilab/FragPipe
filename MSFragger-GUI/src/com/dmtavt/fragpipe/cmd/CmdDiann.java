@@ -15,8 +15,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
@@ -85,7 +87,7 @@ public class CmdDiann extends CmdBase {
     for (LcmsFileGroup group : lcmsFileGroups) {
       final Path groupWd = group.outputDir(wd);
 
-      Set<String> inputLcmsPaths = group.lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DDA") && !f.getDataType().contentEquals("GPF-DIA")).map(f -> f.getPath().toAbsolutePath().toString()).collect(Collectors.toSet());
+      Set<Path> inputLcmsPaths = group.lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DDA") && !f.getDataType().contentEquals("GPF-DIA")).map(InputLcmsFile::getPath).collect(Collectors.toSet());
 
       if (inputLcmsPaths.isEmpty()) {
         continue;
@@ -95,6 +97,34 @@ public class CmdDiann extends CmdBase {
 
       if (!checkCompatibleFormats(comp, inputLcmsFiles, sup)) {
         return false;
+      }
+
+      TreeMap<Long, List<Path>> sizeInputLcms = new TreeMap<>(Comparator.reverseOrder());
+      for (Path inputLcmsPath : inputLcmsPaths) {
+        long size = 0;
+        try {
+          if (Files.exists(inputLcmsPath) && Files.isReadable(inputLcmsPath)) {
+            if (Files.isDirectory(inputLcmsPath)) {
+              for (Path p : Files.walk(inputLcmsPath).collect(Collectors.toList())) {
+                if (Files.isReadable(p) && Files.isRegularFile(p)) {
+                  size += Files.size(p);
+                }
+              }
+            } else if (Files.isRegularFile(inputLcmsPath)) {
+              size = Files.size(inputLcmsPath);
+            }
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+        List<Path> t = sizeInputLcms.get(size);
+        if (t == null) {
+          t = new ArrayList<>(1);
+          t.add(inputLcmsPath);
+          sizeInputLcms.put(size, t);
+        } else {
+          sizeInputLcms.get(size).add(inputLcmsPath);
+        }
       }
 
       List<String> cmd = new ArrayList<>();
@@ -120,8 +150,8 @@ public class CmdDiann extends CmdBase {
         final Path filelist_fixdiann = isUnix() ? groupWd.resolve("filelist_diann.txt ") : filelist;
         if (Files.exists(filelist_fixdiann.getParent())) { // Dry run does not make directories, so does not write the file.
           BufferedWriter bufferedWriter = Files.newBufferedWriter(filelist_fixdiann);
-          for (String f : inputLcmsPaths) {
-            bufferedWriter.write("--f " + f + "\n");
+          for (Path p : sizeInputLcms.values().stream().flatMap(List::stream).collect(Collectors.toList())) {
+            bufferedWriter.write("--f " + p.toAbsolutePath() + "\n");
           }
           bufferedWriter.close();
         }
