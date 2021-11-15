@@ -973,7 +973,7 @@ if use_easypqp:
 			try:
 				f.unlink()
 			except FileNotFoundError as e:
-				lg.exception(e)
+				lg.info(f'{f} does not exist')
 	os.chdir(CWD)
 
 print('Done generating spectral library')
