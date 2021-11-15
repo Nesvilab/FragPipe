@@ -266,7 +266,7 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     FormEntry feMinIons = mu.feb(uiSpinnerMinIons).name("ionquant.minions").label("Min ions").tooltip("Minimum ions required to quantify a protein").create();
     FormEntry feTopIons = mu.feb(uiSpinnerTopIons).name("ionquant.tp").label("Top N ions").tooltip("Number of ions to use in quantifying proteins").create();
-    FormEntry feMinFreq = mu.feb(uiSpinnerMinFreq).name("ionquant.minfreq").label("Min freq").tooltip("Minimum proportion of runs in which an ion must be found").create();
+    FormEntry feMinFreq = mu.feb(uiSpinnerMinFreq).name("ionquant.minfreq").label("Min freq").tooltip("Minimum proportion of experiments in which an ion must be found").create();
     FormEntry feMinExps = mu.feb(uiSpinnerMinExps).name("ionquant.minexps").label("Min exps").tooltip("Minimum number of experiments in which an ion must be found").create();
 
     FormEntry feMbrMinCorr = mu.feb(uiSpinnerMbrMinCorr).name("ionquant.mbrmincorr").label("MBR min correlation").tooltip("Minimum correlation between two runs").create();
