@@ -202,10 +202,8 @@ public class FragpipeCacheUtils {
     }
   }
 
-  public static void tabsLoad(Properties props, JTabbedPane tabs) {
-    Map<String, String> map = PropertiesUtils.toMap(props);
-    Map<String, String> remapped = translateValuesToUi(map);
-    tabPaneFromMap(tabs, remapped);
+  public static void tabsLoad(final Map<String, String> props, JTabbedPane tabs) {
+    tabPaneFromMap(tabs, translateValuesToUi(props));
   }
 
 }

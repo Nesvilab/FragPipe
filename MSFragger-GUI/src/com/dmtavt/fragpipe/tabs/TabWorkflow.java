@@ -904,17 +904,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps))
         .filter(kv -> {
           if (m.saveAll) return true;
-          String k = kv.v1().toLowerCase();
-          if (k.startsWith(TabConfig.TAB_PREFIX)) { // nothing from tab config goes into a workflow
-            return false;
-          }
-          if (k.contains("workflow-option")) {
-            return true;
-          }
-          return !k.contains("workdir") && !k.contains("db-path") // no workdir or fasta file
-              && !k.endsWith(".ram") && !k.endsWith(".threads") // no ram and threads from Wrokflow tab
-              && !k.contains(Fragpipe.PROP_NOCACHE);
-
+          return filter_props(kv.v1());
         }).toMap(kv -> kv.v1, kv -> kv.v2);
 
     String desc = SwingUtils.tryExtractHtmlBody(ep.getText());
@@ -931,6 +921,19 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (FragpipeLocations.get().getDirWorkflows().equals(saveDir)) {
       Bus.post(new MessageUpdateWorkflows());
     }
+  }
+
+  public static boolean filter_props(final String k0) {
+    final String k = k0.toLowerCase();
+    if (k.startsWith(TabConfig.TAB_PREFIX)) { // nothing from tab config goes into a workflow
+      return false;
+    }
+    if (k.contains("workflow-option")) {
+      return true;
+    }
+    return !k.contains("workdir") && !k.contains("db-path") // no workdir or fasta file
+            && !k.endsWith(".ram") && !k.endsWith(".threads") // no ram and threads from Workflow tab
+            && !k.contains(Fragpipe.PROP_NOCACHE);
   }
 
   private List<String> createNamesForWorkflowsCombo(Map<String, PropsFile> fileMap) {
