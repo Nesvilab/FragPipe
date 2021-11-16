@@ -278,9 +278,9 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMbrProtFdr = mu.feb(uiSpinnerMbrProtFdr).name("ionquant.proteinfdr").label("MBR protein FDR").create();
 
     FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("ionquant.mbrtoprun").label("MBR top runs").tooltip("Maximum number of donor runs used for a given acceptor run").create();
-    FormEntry feLight = mu.feb(uiTextLight).name("ionquant.light").label("Light").tooltip("String description of mass deltas. E.g. for SILAC: K0;R0").create();
-    FormEntry feMedium = mu.feb(uiTextMedium).name("ionquant.medium").label("Medium").tooltip("String description of mass deltas. E.g. for SILAC: K4.025107;R6.020129").create();
-    FormEntry feHeavy = mu.feb(uiTextHeavy).name("ionquant.heavy").label("Heavy").tooltip("String description of mass deltas. E.g. for SILAC: K8.014199;R10.008269").create();
+    FormEntry feLight = mu.feb(uiTextLight).name("ionquant.light").label("Light").tooltip("String description of mass deltas. A-Z for amino acids, n for N-terminus, and c for C-terminus. E.g. for SILAC: K0;R0").create();
+    FormEntry feMedium = mu.feb(uiTextMedium).name("ionquant.medium").label("Medium").tooltip("String description of mass deltas. A-Z for amino acids, n for N-terminus, and c for C-terminus. E.g. for SILAC: K4.025107;R6.020129").create();
+    FormEntry feHeavy = mu.feb(uiTextHeavy).name("ionquant.heavy").label("Heavy").tooltip("String description of mass deltas. A-Z for amino acids, n for N-terminus, and c for C-terminus. E.g. for SILAC: K8.014199;R10.008269").create();
 
     FormEntry feNormalize = mu.feb("ionquant.normalization", UiUtils.createUiCheck("Normalize", true)).tooltip("Normalize ion intensities among experiments").create();
     FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes").tooltip("Minimum number of isotopic peaks required for feature detection").create();
