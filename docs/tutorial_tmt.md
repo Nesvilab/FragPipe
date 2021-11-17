@@ -102,6 +102,10 @@ If PTM-specific quantification was performed, multi-site and single-site reports
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-site-reports.png)
 
+Below is an illustration of the roll-up of PTM site information from PSM to multi-site to single-site reports.
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-multi-to-single-site.png)
+
 <br>
 <br>
 <br>
