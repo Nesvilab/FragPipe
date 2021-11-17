@@ -63,6 +63,19 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("17.1", Arrays.asList(
+        "Require MSFragger 3.4+",
+        "Require Philosopher 4.1.0+",
+        "Add Pierce iRT file",
+        "Add `contam_` prefix to contaminants in the downloaded database",
+        "Add more workflows",
+        "Upgrade PTM-Shepherd to 1.2.6",
+        "Upgrade IonQuant to 1.7.17",
+        "Upgrade TMT-Integrator to 3.2.1",
+        "Upgrade MSBooster",
+        "Various minor bug fixes and improvements"
+    ));
+
     CHANGELOG.put("17.0", Arrays.asList(
         "Require MSFragger 3.4+",
         "Require Philosopher 4.1.0+",
