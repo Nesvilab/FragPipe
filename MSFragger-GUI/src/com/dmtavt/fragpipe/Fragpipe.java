@@ -110,6 +110,7 @@ public class Fragpipe extends JFrameHeadless {
 //  static {System.setProperty("java.awt.headless", "true");}
 //  public static boolean headless = java.awt.GraphicsEnvironment.isHeadless();
   public static boolean headless = false;
+  public static boolean execute_in_fragpipe = false; // if true, run everything in FragPipe GUI mode, else set up files and directories only and write a list of commands
   public static Path manifest_file;
   public static java.util.concurrent.CountDownLatch init_done= new java.util.concurrent.CountDownLatch(1);
   public static java.util.concurrent.CountDownLatch load_manifest_done = new java.util.concurrent.CountDownLatch(1);
@@ -269,7 +270,7 @@ public class Fragpipe extends JFrameHeadless {
 
   public static void main(String args[]) {
 //    args = new String[]{"/home/ci/FragPipe/MSFragger-GUI/resources/workflows/Open.workflow", "/home/ci/tmp/lcms-files.fp-manifest", "--headless", "--dry-run"};
-    args = new String[]{"/home/ci/.config/FragPipe/fragpipe/fragpipe-ui.cache", "/home/ci/tmp/lcms-files.fp-manifest", "--headless", "--dry-run"};
+//    args = new String[]{"/home/ci/.config/FragPipe/fragpipe/fragpipe-ui.cache", "/home/ci/tmp/lcms-files.fp-manifest", "--headless", "--dry-run"};
     if (args.length > 2 && args[2].equals("--headless")) {
       headless = true;
       manifest_file = Paths.get(args[1]);

@@ -182,10 +182,46 @@ public class ProcessManager {
         log.error("No runnable groups found");
         return;
       }
-      submit();
+      if (Fragpipe.execute_in_fragpipe) {
+        submit();
+      } else {
+        print_commands(taskGroups);
+      }
 
     } // END: sync
 
+  }
+
+  private void print_commands(final ConcurrentLinkedQueue<List<RunnableDescription>> taskGroups) {
+    @SuppressWarnings("unchecked") final List<RunnableDescription>[] tg = taskGroups.stream().toArray(List[]::new);
+    final java.io.PrintStream out = Fragpipe.out;
+    for (List<RunnableDescription> a : tg) {
+      final String pg = a.get(0).parallelGroup;
+      if (pg != null && !pg.equals(ProcessBuilderInfo.GROUP_SEQUENTIAL))
+        out.println("----------parallel group start:\t" + pg);
+      for (RunnableDescription ee : a) {
+        final ProcessBuilderInfo pbi = ee.pbi;
+        if (pbi != null) {
+          out.println("name\t" + pbi.name);
+          out.println("parallelGroup\t" + pbi.parallelGroup);
+          out.println("env\t" + pbi.pb.environment());
+          out.println("working dir\t" + pbi.pb.directory());
+          out.println("command\t[" + pbi.pb.command().stream()
+                  .map(e -> "\"" + org.apache.commons.text.StringEscapeUtils.escapeJava(e) + "\"")
+                  .collect(Collectors.joining(", ")) + "]");
+          out.println("fnStdout\t" + pbi.fnStdout);
+          out.println("fnStderr\t" + pbi.fnStderr);
+          out.println();
+        }
+      }
+      if (pg != null && !pg.equals(ProcessBuilderInfo.GROUP_SEQUENTIAL))
+        out.println("----------parallel group end:\t" + pg);
+    }
+    final RunnableDescription finalizer_task = tg[tg.length - 1].get(0);
+    if (!finalizer_task.description.name.contentEquals("Finalizer Task"))
+      throw new IllegalStateException();
+    finalizer_task.runnable.run();
+    stop();
   }
 
 //  private CompletableFuture<Void> submit() {

@@ -299,7 +299,7 @@ public class FragpipeRun {
         if (pbi.pb.command() != null && !pbi.pb.command().isEmpty()) {
           b.setCommand(String.join(" ", pbi.pb.command()));
         }
-        toRun.add(new RunnableDescription(b.create(), runnable, pbi.parallelGroup));
+        toRun.add(new RunnableDescription(b.create(), runnable, pbi.parallelGroup, pbi));
       }
 
       // add finalizer process
