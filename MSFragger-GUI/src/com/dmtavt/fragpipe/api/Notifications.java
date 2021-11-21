@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe.api;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageBalloon;
 import com.dmtavt.fragpipe.messages.MessageShowException;
@@ -68,10 +69,16 @@ public class Notifications {
         tip = m.tip;
 
       } else if (m.parent != null && m.body != null) {
+        if (Fragpipe.headless) {
+          System.err.println(m.body);
+        }
         tip = new BalloonTip(m.parent, m.body,
             new RoundedBalloonStyle(5, 5, BG_COLOR, Color.BLACK), true);
 
       } else if (m.parent != null && m.html != null) {
+        if (Fragpipe.headless) {
+          System.err.println(m.html);
+        }
         HtmlStyledJEditorPane ep = SwingUtils.createClickableHtml(m.html, BG_COLOR);
 //        JPanel p = new JPanel(new BorderLayout());
 //        p.setBackground(ep.getBackground());
