@@ -42,6 +42,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import com.dmtavt.fragpipe.tabs.TabConfig;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,8 +77,20 @@ public final class PropertiesUtils {
                 bw.newLine();
             }
             bw.newLine();
-            List<String> names = props.stringPropertyNames().stream().sorted()
-                .collect(Collectors.toList());
+//move those properties to the top
+//workflow.ram
+//workflow.threads
+//database.db-path
+//fragpipe-config.bin-msfragger
+//fragpipe-config.bin-philosopher
+//fragpipe-config.bin-python
+//workdir
+            final Map<Boolean, List<String>> names_partition = props.stringPropertyNames().stream().sorted().collect(Collectors.partitioningBy(e -> {
+                String k = e.toLowerCase();
+                return !k.startsWith(TabConfig.TAB_PREFIX) && !k.contains("workdir") && !k.contains("db-path") // no workdir or fasta file
+                        && !k.endsWith(".ram") && !k.endsWith(".threads");
+            }));
+            final List<String> names = Stream.concat(names_partition.get(false).stream(), names_partition.get(true).stream()).collect(Collectors.toList());
             for (String name : names) {
                 name = saveConvert(name, true, escUnicode);
                 String val = props.getProperty(name, "");
