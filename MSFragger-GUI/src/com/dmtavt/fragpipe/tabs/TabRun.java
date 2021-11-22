@@ -111,12 +111,10 @@ public class TabRun extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void on(MessagePrintToConsole m) {
-    if(Fragpipe.headless) {
-      if (false && m.color.equals(Fragpipe.COLOR_CMDLINE) && !m.text.startsWith("("))
-        Fragpipe.cmds.append(m.text).append('\n');
+    if (Fragpipe.headless) {
       Fragpipe.out.println(m.text);
+      return;
     }
-    if (Fragpipe.headless) return;
     console.append(m.color, m.text);
     if (m.addNewline) {
       console.append("\n");
