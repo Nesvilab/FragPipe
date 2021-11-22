@@ -793,7 +793,7 @@ Using ciRT for alignment''')
 	if p.returncode != 0:
 		print('''Library not generated, not enough peptides could be found for alignment.
 Please try using other options for alignment (e.g. ciRT if used other options)''')
-		sys.exit()
+		sys.exit('Library not generated, not enough peptides could be found for alignment.')
 
 
 
