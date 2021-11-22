@@ -16,9 +16,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -204,7 +206,9 @@ public class ProcessManager {
         if (pbi != null) {
           out.println("name\t" + pbi.name);
           out.println("parallelGroup\t" + pbi.parallelGroup);
-          out.println("env\t" + pbi.pb.environment());
+          final Map<String,String> penv = new HashMap<>(pbi.pb.environment());
+          penv.entrySet().removeAll(System.getenv().entrySet());
+          out.println("env\t" + penv);
           out.println("working dir\t" + pbi.pb.directory());
           out.println("command\t[" + pbi.pb.command().stream()
                   .map(e -> "\"" + org.apache.commons.text.StringEscapeUtils.escapeJava(e) + "\"")
