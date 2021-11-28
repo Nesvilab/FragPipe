@@ -103,10 +103,12 @@ public class CmdPeptideProphet extends CmdBase {
         .map(Path::getParent).collect(Collectors.toSet());
     final List<Path> pepxmlsToDelete = new ArrayList<>();
     for (Path outputPath : outputPaths) {
-      try {
-        pepxmlsToDelete.addAll(Files.list(outputPath).filter(Files::isRegularFile).filter(p -> pattern.matcher(p.getFileName().toString()).matches()).collect(Collectors.toList()));
-      } catch (IOException e) {
-        e.printStackTrace();
+      if (Files.exists(outputPath) && Files.isDirectory(outputPath)) {
+        try {
+          pepxmlsToDelete.addAll(Files.list(outputPath).filter(Files::isRegularFile).filter(p -> pattern.matcher(p.getFileName().toString()).matches()).collect(Collectors.toList()));
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
       }
     }
     return pepxmlsToDelete;

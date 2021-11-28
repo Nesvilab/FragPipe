@@ -47,12 +47,14 @@ public class CmdPhilosopherFilter extends CmdBase {
             + "This is a bug, report to developers.");
       Path groupWd = group.outputDir(wd);
 
-      try {
-        for (Path p : Files.list(groupWd).filter(Files::isRegularFile).filter(p -> pattern.matcher(p.getFileName().toString()).matches()).collect(Collectors.toList())) {
-          Files.deleteIfExists(p);
+      if (Files.exists(groupWd) && Files.isDirectory(groupWd)) {
+        try {
+          for (Path p : Files.list(groupWd).filter(Files::isRegularFile).filter(p -> pattern.matcher(p.getFileName().toString()).matches()).collect(Collectors.toList())) {
+            Files.deleteIfExists(p);
+          }
+        } catch (IOException ex) {
+          ex.printStackTrace();
         }
-      } catch (IOException ex) {
-        ex.printStackTrace();
       }
 
       List<String> cmd = new ArrayList<>();
