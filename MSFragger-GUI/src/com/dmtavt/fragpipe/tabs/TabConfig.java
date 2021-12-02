@@ -19,6 +19,7 @@ import com.dmtavt.fragpipe.messages.MessageLcmsAddFolder;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerNewBin;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
+import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
 import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
@@ -607,8 +608,7 @@ public class TabConfig extends JPanelWithEnablement {
       }
     } else {
       sb.append("EasyPQP: <b>Not available</b><br>"
-          + "Please make sure that Python is installed, and then click the button below.<br>"
-          + "After installation <b>restart</b> FragPipe.<br>");
+          + "Please make sure that Python is installed, and then click the button below.<br>");
     }
     return sb.toString();
   }
@@ -813,7 +813,7 @@ public class TabConfig extends JPanelWithEnablement {
       } catch (UnexpectedException ex) {
         pythonPipOutputNew += ex.toString();
       }
-      System.out.println("pythonPipOutputNew = " + pythonPipOutputNew);
+      Bus.post(new MessagePrintToConsole(pythonPipOutputNew));
       Bus.post(new MessageUiRevalidate());
     }
   }
