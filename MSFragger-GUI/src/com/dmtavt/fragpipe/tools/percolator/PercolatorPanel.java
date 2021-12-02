@@ -32,7 +32,7 @@ public class PercolatorPanel extends JPanelBase {
     private static final Logger log = LoggerFactory.getLogger(PercolatorPanel.class);
     private static MigUtils mu = MigUtils.get();
     public UiRadio checkRun;
-    public UiCheck checkKeepTsvFiles;
+    private UiCheck checkKeepTsvFiles;
     private UiText uiTextCmdOpts;
     private UiCheck uiCheckCombinePepxml;
     private JPanel pTop;
@@ -43,6 +43,10 @@ public class PercolatorPanel extends JPanelBase {
     public PercolatorPanel(ButtonGroup buttonGroup, boolean parentPanelEnabled) {
         buttonGroup.add(checkRun);
         this.parentPanelEnabled = parentPanelEnabled;
+    }
+
+    public boolean isKeepTsvFiles() {
+        return checkKeepTsvFiles.isSelected();
     }
 
     public boolean isRun() {
