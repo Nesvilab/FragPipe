@@ -801,10 +801,12 @@ public class TabConfig extends JPanelWithEnablement {
       final ProcessBuilder pb = new ProcessBuilder(binPython, "-m",
               "pip", "uninstall", "--yes", "easypqp");
       String pythonPipOutputNew;
+      boolean ok = true;
       try {
         pythonPipOutputNew = ProcessUtils.captureOutput(pb);
       } catch (UnexpectedException ex) {
         pythonPipOutputNew = ex.toString();
+        ok = false;
       }
       final ProcessBuilder pb2 = new ProcessBuilder(binPython, "-m",
               "pip", "install", "easypqp");
@@ -812,7 +814,9 @@ public class TabConfig extends JPanelWithEnablement {
         pythonPipOutputNew += ProcessUtils.captureOutput(pb2);
       } catch (UnexpectedException ex) {
         pythonPipOutputNew += ex.toString();
+        ok = false;
       }
+      SwingUtils.showInfoDialog(this, pythonPipOutputNew, "EasyPQP install " + (ok ? "success" : "fail"));
       Bus.post(new MessagePrintToConsole(pythonPipOutputNew));
       Bus.post(new MessageUiRevalidate());
     }
