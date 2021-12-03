@@ -810,6 +810,7 @@ public class TabConfig extends JPanelWithEnablement {
       }
       final ProcessBuilder pb2 = new ProcessBuilder(binPython, "-m",
               "pip", "install", "easypqp");
+      PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb2); // without this, on Windows, will fail with an error related to TLS/SSL
       try {
         pythonPipOutputNew += ProcessUtils.captureOutput(pb2);
       } catch (UnexpectedException ex) {
