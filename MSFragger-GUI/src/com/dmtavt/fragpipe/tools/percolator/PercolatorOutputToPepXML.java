@@ -28,21 +28,14 @@ public class PercolatorOutputToPepXML {
     public static void main(final String[] args) {
         Locale.setDefault(Locale.US);
         if (args.length == 0)
-//            percolatorToPepXML(
-//                    Paths.get("/home/ci/percolator_test/23aug2017_hela_serum_timecourse_4mz_narrow_1.pin"),
-//                    "/home/ci/percolator_test/23aug2017_hela_serum_timecourse_4mz_narrow_1",
-//                    Paths.get("/home/ci/percolator_test/percolator_results_psms.tsv"),
-//                    Paths.get("/home/ci/percolator_test/percolator_decoy_results_psms.tsv"),
-//                    Paths.get("/home/ci/percolator_test/test"),
-//                    "DIA");
             percolatorToPepXML(
-                    Paths.get("/home/ci/percolator_test/ranked/23aug2017_hela_serum_timecourse_4mz_narrow_1.pin"),
-                    "/home/ci/percolator_test/ranked/23aug2017_hela_serum_timecourse_4mz_narrow_1",
-//                    "/home/ci/percolator_test/23aug2017_hela_serum_timecourse_4mz_narrow_1",
-                    Paths.get("/home/ci/percolator_test/percolator_results_psms.tsv"),
-                    Paths.get("/home/ci/percolator_test/percolator_decoy_results_psms.tsv"),
-                    Paths.get("/home/ci/percolator_test/test2"),
-                    "DIA");
+                    Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01.pin"),
+                    "F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01",
+                    Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01_percolator_target_psms.tsv"),
+                    Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01_percolator_decoy_psms.tsv"),
+                    Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\interact-20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01"),
+                    "DIA",
+                    0);
         else
             percolatorToPepXML(Paths.get(args[0]), args[1], Paths.get(args[2]), Paths.get(args[3]), Paths.get(args[4]), args[5], Double.parseDouble(args[6]));
     }
@@ -313,8 +306,7 @@ public class PercolatorOutputToPepXML {
                                         "<inputfile name=\"%s\"/>\n" +
                                         "</interact_summary>\n" +
                                         "</analysis_summary>\n" +
-                                        "<dataset_derivation generation_no=\"0\"/>\n",
-                                now, now, output_rank.toAbsolutePath(), pepxml_rank.toAbsolutePath());
+                                        "<dataset_derivation generation_no=\"0\"/>\n", now, now, output_rank.toAbsolutePath(), pepxml_rank.toAbsolutePath());
                         out.write(tmp);
                     }
                     if (line.trim().equals("</search_summary>"))

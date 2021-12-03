@@ -9,18 +9,14 @@ import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
-import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiRadio;
+import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
 import java.awt.ItemSelectable;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import org.greenrobot.eventbus.Subscribe;
@@ -105,11 +101,6 @@ public class PercolatorPanel extends JPanelBase {
         super.initMore();
     }
 
-//    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-//    public void on(NoteConfigPhilosopher m) {
-//        updateEnabledStatus(this, m.isValid());
-//    }
-
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void on(MessageSearchType m) {
         log.debug("Got MessageSearchType of type [{}], loading defaults for it", m.type.toString());
@@ -136,18 +127,7 @@ public class PercolatorPanel extends JPanelBase {
 
         checkKeepTsvFiles = new UiCheck("Keep temp files", null, false);
         checkKeepTsvFiles.setName("keep-tsv-files");
-        JLabel labelDefaults = new JLabel("Defaults for:");
-        final LinkedHashMap<String, SearchTypeProp> defaults = new LinkedHashMap<>();
-        defaults.put("Closed Search", SearchTypeProp.closed);
-        defaults.put("Open Search", SearchTypeProp.open);
-        defaults.put("Non-Specific Search", SearchTypeProp.nonspecific);
-        defaults.put("Offset Search", SearchTypeProp.offset);
-        final UiCombo uiComboDefaults = UiUtils.createUiCombo(new ArrayList<>(defaults.keySet()));
-        JButton btnLoadDefaults = UiUtils
-                .createButton("Load", "Load Percolator settings for given search type", e -> {
-                    SearchTypeProp type = defaults.get((String) uiComboDefaults.getSelectedItem());
-                    loadDefaults(type);
-                });
+
         spinMinProb = UiUtils.spinnerDouble(0.50, 0, 1, 0.01).setCols(4).setFormat("#.##").create();
         FormEntry feMinProb = mu.feb(spinMinProb).name("min-prob").label("Min probability").tooltip("Minimum probability threshold").create();
 
@@ -169,10 +149,6 @@ public class PercolatorPanel extends JPanelBase {
 
         pTop = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
         mu.add(pTop, checkRun).split();
-
-//        mu.add(pTop, labelDefaults);
-//        mu.add(pTop, uiComboDefaults);
-//        mu.add(pTop, btnLoadDefaults).wrap();
         mu.add(pTop, checkKeepTsvFiles);
         mu.add(pTop, feMinProb.label(), mu.ccR()).gapLeft("80px");
         mu.add(pTop, feMinProb.comp).pushX().wrap();
@@ -180,7 +156,6 @@ public class PercolatorPanel extends JPanelBase {
         pContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
         mu.add(pContent, feCmdOpts.label()).alignX("right");
         mu.add(pContent, feCmdOpts.comp).growX().pushX().wrap();
-//        mu.add(pContent, uiCheckCombinePepxml).skip(1).wrap();
 
         mu.add(this, pTop).growX().wrap();
         mu.add(this, pContent).growX().wrap();
