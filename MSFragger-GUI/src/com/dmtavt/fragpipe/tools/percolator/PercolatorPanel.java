@@ -133,7 +133,8 @@ public class PercolatorPanel extends JPanelBase {
     protected void init() {
         checkRun = new UiRadio("Run Percolator", null, true);
         checkRun.setName("run-percolator");
-        checkKeepTsvFiles = new UiCheck("keep TSV files", null, false);
+
+        checkKeepTsvFiles = new UiCheck("Keep temp files", null, false);
         checkKeepTsvFiles.setName("keep-tsv-files");
         JLabel labelDefaults = new JLabel("Defaults for:");
         final LinkedHashMap<String, SearchTypeProp> defaults = new LinkedHashMap<>();
