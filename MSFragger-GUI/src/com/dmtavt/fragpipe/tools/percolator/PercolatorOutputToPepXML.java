@@ -126,12 +126,16 @@ public class PercolatorOutputToPepXML {
         return -1;
     }
 
-    private static StringBuilder handle_search_hit(final List<String> sh, final Object[] tmp, final int search_rank, final int output_rank) {
+    private static StringBuilder handle_search_hit(final List<String> searchHit, final NttNmc nttNmc, final PepScore pepScore, final int oldRank, final int newRank) {
+        if (nttNmc == null || pepScore == null) {
+            return new StringBuilder();
+        }
+
         final StringBuilder sb = new StringBuilder();
         double calc_neutral_pep_mass = Double.NaN;
         double massdiff = Double.NaN;
         int isomassd = 0;
-        final Iterator<String> iterator = sh.iterator();
+        final Iterator<String> iterator = searchHit.iterator();
         final String search_hit_line = iterator.next();
         for (final String e : search_hit_line.split("\\s")) { // fixme: the code assumes that all attributes are in one line, which makes it not robust
             if (e.startsWith("massdiff="))
@@ -149,22 +153,11 @@ public class PercolatorOutputToPepXML {
         if (gap > 0.1) { // It may be from an open search.
             isomassd = 0;
         }
-        sb.append(search_rank == output_rank ? search_hit_line :
-                        search_hit_line.replace("hit_rank=\"" + search_rank + "\"", "hit_rank=\"" + output_rank + "\""))
-                .append("\n");
+        sb.append(oldRank == newRank ? search_hit_line : search_hit_line.replace("hit_rank=\"" + oldRank + "\"", "hit_rank=\"" + newRank + "\"")).append("\n");
         String line;
         while (!(line = iterator.next()).trim().contentEquals("</search_hit>"))
             sb.append(line).append("\n");
         {
-            final double[] pep_score = (double[]) tmp[1];
-            if (pep_score == null) {
-                return new StringBuilder();
-            }
-            final double one_minus_PEP = 1 - pep_score[0];
-            final double score = pep_score[1];
-            final int[] ntt_nmc = (int[]) tmp[0];
-            final int ntt = ntt_nmc[0];
-            final int nmc = ntt_nmc[1];
             sb.append(
                     String.format(
                             "<analysis_result analysis=\"peptideprophet\">\n" +
@@ -178,17 +171,15 @@ public class PercolatorOutputToPepXML {
                                     "</search_score_summary>\n" +
                                     "</peptideprophet_result>\n" +
                                     "</analysis_result>\n",
-                            one_minus_PEP, one_minus_PEP, one_minus_PEP, one_minus_PEP,
-                            score, ntt, nmc, (massdiff - isomassd * 1.0033548378) * 1e6 / calc_neutral_pep_mass, isomassd
+                            1 - pepScore.pep, 1 - pepScore.pep, 1 - pepScore.pep, 1 - pepScore.pep,
+                            pepScore.score, nttNmc.ntt, nttNmc.nmc, (massdiff - isomassd * 1.0033548378) * 1e6 / calc_neutral_pep_mass, isomassd
                     ));
         }
         sb.append("</search_hit>\n");
         return sb;
     }
 
-    private static String handle_spectrum_query(final List<String> sq,
-                                                final Map<String, Object[][]> pin_tsv_dict_r,
-                                                final boolean is_DIA, final int DIA_rank) {
+    private static String handle_spectrum_query(final List<String> sq, final Map<String, NttNmc[]> pinSpectrumRankNttNmc, final Map<String, PepScore[]> pinSpectrumRankPepScore, final boolean is_DIA, final int DIA_rank) {
         final List<List<String>> search_hits = new ArrayList<>();
         final StringBuilder sb = new StringBuilder();
         String spectrum;
@@ -196,7 +187,17 @@ public class PercolatorOutputToPepXML {
         for (String line; iterator.hasNext(); ) {
             line = iterator.next().trim();
             spectrum = getSpectrum(line);
-            final Object[][] tmp = pin_tsv_dict_r.get(spectrum);
+
+            final PepScore[] pepScoreArray = pinSpectrumRankPepScore.get(spectrum);
+            if (pepScoreArray == null) {
+                return "";
+            }
+
+            final NttNmc[] nttNmcArray = pinSpectrumRankNttNmc.get(spectrum);
+            if (nttNmcArray == null) {
+                return "";
+            }
+
             sb.append(paddingZeros(line)).append('\n');
             while (iterator.hasNext()) { // fixme: the code assumes that there are always <search_hit, massdiff=, and calc_neutral_pep_mass=, which makes it not robust
                 line = iterator.next().trim();
@@ -212,23 +213,21 @@ public class PercolatorOutputToPepXML {
                     search_hits.add(search_hit);
                 } else if (line.trim().startsWith("</search_result>")) {
                     if (is_DIA) // FixMe: it does not reorder the hits according to ranks updated by Percolator.
-                        sb.append(handle_search_hit(search_hits.get(0), tmp[DIA_rank - 1], 1, 1));
+                        sb.append(handle_search_hit(search_hits.get(0), nttNmcArray[DIA_rank - 1], pepScoreArray[DIA_rank - 1], 1, 1));
                     else {
                         // write the search_hits ordered by Percolator
-                        final TreeMap<Double, Integer> tm = new TreeMap<>(Collections.reverseOrder());
-                        for (int ranki = 0; ranki < tmp.length; ++ranki) {
-                            final Object[] tmp1 = tmp[ranki];
-                            if (tmp1 == null)
+                        final TreeMap<Double, Integer> scoreOldRankMinusOne = new TreeMap<>(Collections.reverseOrder());
+                        for (int oldRankMinusOne = 0; oldRankMinusOne < pepScoreArray.length; ++oldRankMinusOne) {
+                            final PepScore pepScore = pepScoreArray[oldRankMinusOne];
+                            if (pepScore == null) {
                                 continue;
-                            final double[] pep_score = (double[]) tmp1[1];
-                            if (pep_score == null)
-                                continue;
-                            tm.put(pep_score[1], ranki);
+                            }
+                            scoreOldRankMinusOne.put(pepScore.score, oldRankMinusOne);
                         }
-                        int output_rank = 1;
-                        for (final Map.Entry<Double, Integer> entry : tm.entrySet()) {
-                            final int ranki = entry.getValue();
-                            sb.append(handle_search_hit(search_hits.get(ranki), tmp[ranki], ranki + 1, output_rank++));
+                        int newRank = 0;
+                        for (final Map.Entry<Double, Integer> entry : scoreOldRankMinusOne.entrySet()) {
+                            final int oldRankMinusOne = entry.getValue();
+                            sb.append(handle_search_hit(search_hits.get(oldRankMinusOne), nttNmcArray[oldRankMinusOne], pepScoreArray[oldRankMinusOne], oldRankMinusOne + 1, ++newRank));
                         }
                     }
                     sb.append(line).append('\n');
@@ -254,7 +253,9 @@ public class PercolatorOutputToPepXML {
             System.err.println("Cannot find output_report_topN parameter from " + basename + "'s pepXML file.");
             System.exit(1);
         }
-        final Map<String, Object[][]> pin_tsv_dict_r = new HashMap<>();
+
+        final Map<String, NttNmc[]> pinSpectrumRankNttNmc = new HashMap<>();
+        final Map<String, PepScore[]> pinSpectrumRankPepScore = new HashMap<>();
 
         try (final BufferedReader brtsv = Files.newBufferedReader(pin)) {
             final String pin_header = brtsv.readLine();
@@ -267,12 +268,11 @@ public class PercolatorOutputToPepXML {
                 final String[] split = line.split("\t");
                 final String raw_SpecId = split[indexOf_SpecId];
                 final Spectrum_rank spectrum_rank = get_spectrum_rank(raw_SpecId);
-                final String SpecId = spectrum_rank.spectrum;
+                final String specId = spectrum_rank.spectrum;
                 final int rank = spectrum_rank.rank;
                 final int ntt = Integer.parseInt(split[indexOf_ntt]);
                 final int nmc = Integer.parseInt(split[indexOf_nmc]);
-                pin_tsv_dict_r.computeIfAbsent(SpecId, e -> new Object[max_rank][])
-                        [rank - 1] = new Object[]{new int[]{ntt, nmc}, null};
+                pinSpectrumRankNttNmc.computeIfAbsent(specId, e -> new NttNmc[max_rank])[rank - 1] = new NttNmc(ntt, nmc);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -290,11 +290,12 @@ public class PercolatorOutputToPepXML {
                     final String[] split = line.split("\t");
                     final String raw_psmid = split[indexOfPSMId];
                     final Spectrum_rank spectrum_rank = get_spectrum_rank(raw_psmid);
-                    final String psmid = spectrum_rank.spectrum;
+                    final String specId = spectrum_rank.spectrum;
                     final int rank = spectrum_rank.rank;
                     final double pep = Double.parseDouble(split[indexOfPEP]);
+
                     final double score = Double.parseDouble(split[indexOfScore]);
-                    pin_tsv_dict_r.get(psmid)[rank - 1][1] = new double[]{pep, score};
+                    pinSpectrumRankPepScore.computeIfAbsent(specId, e -> new PepScore[max_rank])[rank - 1] = new PepScore(pep, score);
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -335,7 +336,7 @@ public class PercolatorOutputToPepXML {
                         while ((line = brpepxml.readLine()) != null) {
                             sq.add(line);
                             if (line.trim().equals("</spectrum_query>")) {
-                                out.write(handle_spectrum_query(sq, pin_tsv_dict_r, is_DIA, rank));
+                                out.write(handle_spectrum_query(sq, pinSpectrumRankNttNmc, pinSpectrumRankPepScore, is_DIA, rank));
                                 break;
                             }
                         }
@@ -346,6 +347,30 @@ public class PercolatorOutputToPepXML {
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
+        }
+    }
+
+
+    static class NttNmc {
+
+        final int ntt;
+        final int nmc;
+
+        public NttNmc(int ntt, int nmc) {
+            this.ntt = ntt;
+            this.nmc = nmc;
+        }
+    }
+
+
+    static class PepScore {
+
+        final double pep;
+        final double score;
+
+        public PepScore(double pep, double score) {
+            this.pep = pep;
+            this.score = score;
         }
     }
 }
