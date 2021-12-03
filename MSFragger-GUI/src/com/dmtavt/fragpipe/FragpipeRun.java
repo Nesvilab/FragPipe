@@ -843,14 +843,12 @@ public class FragpipeRun {
     addConfig.accept(cmdPercolator, () -> {
       if (cmdPercolator.isRun()) {
         final String percolatorCmd = percolatorPanel.getCmdOpts();
-        if (!cmdPercolator.configure(parent, jarPath, percolatorCmd, isCombinedPepxml_percolator,
-            sharedPepxmlFilesBeforePeptideValidation, crystalcPanel.isRun())) {
+        if (!cmdPercolator.configure(parent, jarPath, percolatorCmd, isCombinedPepxml_percolator, sharedPepxmlFilesBeforePeptideValidation, crystalcPanel.isRun(), percolatorPanel.getMinProb())) {
           return false;
         }
       }
       if (percolatorPanel.isSelected()) {
-        Map<InputLcmsFile, List<Path>> percolatorOutputs = cmdPercolator
-            .outputs(sharedPepxmlFilesBeforePeptideValidation, tabMsf.getOutputFileExt(), isCombinedPepxml_percolator);
+        Map<InputLcmsFile, List<Path>> percolatorOutputs = cmdPercolator.outputs(sharedPepxmlFilesBeforePeptideValidation, tabMsf.getOutputFileExt(), isCombinedPepxml_percolator);
         sharedPepxmlFilesBeforePeptideValidation.putAll(sharedPepxmlFiles);
         sharedPepxmlFiles.clear();
         sharedPepxmlFiles.putAll(percolatorOutputs);

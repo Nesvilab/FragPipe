@@ -33,6 +33,7 @@ public class PercolatorPanel extends JPanelBase {
     private static MigUtils mu = MigUtils.get();
     public UiRadio checkRun;
     private UiCheck checkKeepTsvFiles;
+    private UiSpinnerDouble spinMinProb;
     private UiText uiTextCmdOpts;
     private UiCheck uiCheckCombinePepxml;
     private JPanel pTop;
@@ -59,6 +60,10 @@ public class PercolatorPanel extends JPanelBase {
 
     public String getCmdOpts() {
         return uiTextCmdOpts.getNonGhostText().trim();
+    }
+
+    public double getMinProb() {
+        return Double.parseDouble(spinMinProb.asString());
     }
 
     public boolean isCombinePepxml() {
@@ -142,6 +147,9 @@ public class PercolatorPanel extends JPanelBase {
                     SearchTypeProp type = defaults.get((String) uiComboDefaults.getSelectedItem());
                     loadDefaults(type);
                 });
+        spinMinProb = UiUtils.spinnerDouble(0.50, 0, 1, 0.01).setCols(4).setFormat("#.##").create();
+        FormEntry feMinProb = mu.feb(spinMinProb).name("min-prob").label("Min probability").tooltip("Minimum probability threshold").create();
+
         uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).text(defaultCmdOpts()).create();
         FormEntry feCmdOpts = fe(uiTextCmdOpts, "cmd-opts")
                 .label("Cmd line opts:")
@@ -160,11 +168,13 @@ public class PercolatorPanel extends JPanelBase {
 
         pTop = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
         mu.add(pTop, checkRun).split();
-        mu.add(pTop, checkKeepTsvFiles).growX().wrap();
 
 //        mu.add(pTop, labelDefaults);
 //        mu.add(pTop, uiComboDefaults);
 //        mu.add(pTop, btnLoadDefaults).wrap();
+        mu.add(pTop, checkKeepTsvFiles);
+        mu.add(pTop, feMinProb.label(), mu.ccR()).gapLeft("80px");
+        mu.add(pTop, feMinProb.comp).pushX().wrap();
 
         pContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
         mu.add(pContent, feCmdOpts.label()).alignX("right");

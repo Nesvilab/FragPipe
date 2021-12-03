@@ -44,14 +44,7 @@ public class PercolatorOutputToPepXML {
                     Paths.get("/home/ci/percolator_test/test2"),
                     "DIA");
         else
-            percolatorToPepXML(
-                    Paths.get(args[0]),
-                    args[1],
-                    Paths.get(args[2]),
-                    Paths.get(args[3]),
-                    Paths.get(args[4]),
-                    args[5]
-            );
+            percolatorToPepXML(Paths.get(args[0]), args[1], Paths.get(args[2]), Paths.get(args[3]), Paths.get(args[4]), args[5], Double.parseDouble(args[6]));
     }
 
     private static String getSpectrum(final String line) {
@@ -240,12 +233,7 @@ public class PercolatorOutputToPepXML {
         return sb.toString();
     }
 
-    public static void percolatorToPepXML(final Path pin,
-                                          final String basename,
-                                          final Path percolatorTargetPsms, final Path percolatorDecoyPsms,
-                                          final Path outBasename,
-                                          final String DIA_DDA) {
-
+    public static void percolatorToPepXML(final Path pin, final String basename, final Path percolatorTargetPsms, final Path percolatorDecoyPsms, final Path outBasename, final String DIA_DDA, final double minProb) {
         // get max rank from pin
         final boolean is_DIA = DIA_DDA.equals("DIA");
         final int max_rank = get_max_rank(basename, is_DIA);
@@ -293,6 +281,10 @@ public class PercolatorOutputToPepXML {
                     final String specId = spectrum_rank.spectrum;
                     final int rank = spectrum_rank.rank;
                     final double pep = Double.parseDouble(split[indexOfPEP]);
+
+                    if (1 - pep < minProb) {
+                        continue;
+                    }
 
                     final double score = Double.parseDouble(split[indexOfScore]);
                     pinSpectrumRankPepScore.computeIfAbsent(specId, e -> new PepScore[max_rank])[rank - 1] = new PepScore(pep, score);

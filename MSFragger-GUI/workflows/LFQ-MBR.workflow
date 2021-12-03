@@ -138,6 +138,7 @@ peptide-prophet.combine-pepxml=false
 peptide-prophet.run-peptide-prophet=false
 percolator.cmd-opts=--only-psms --no-terminate --post-processing-tdc
 percolator.keep-tsv-files=false
+percolator.min-prob=0.5
 percolator.run-percolator=true
 phi-report.dont-use-prot-proph-file=false
 phi-report.filter=--sequential --prot 0.01
