@@ -400,6 +400,7 @@ def write_pin(infile: pathlib.Path) -> None:
 	hyperscore_idx = header.index('hyperscore')
 	log10_evalue_idx = header.index('log10_evalue') if 'log10_evalue' in header else None
 	delta_hyperscore_idx = header.index('delta_hyperscore') if 'delta_hyperscore' in header else None
+	abs_ppm_idx = header.index('abs_ppm') if 'abs_ppm' in header else None
 
 	pins = [read_pin(tempdir_part / (infile.stem + '.pin')) for tempdir_part in tempdir_parts]
 	ranked, all_pepxmls = get_pepxmls(infile)
@@ -414,7 +415,8 @@ def write_pin(infile: pathlib.Path) -> None:
 		for k, v in pin.items():
 			d[k].extend(v)
 	d.default_factory = None
-	sorted_spectrums = sorted([(spec_to_index_map[k], sorted([(float(e[hyperscore_idx]), e) for e in v], reverse=True))
+	sorted_spectrums = sorted([(spec_to_index_map[k],
+								sorted([(float(e[hyperscore_idx]), None if abs_ppm_idx is None else -float(e[abs_ppm_idx]), e) for e in v], reverse=True))
 							   for k, v in d.items()])
 	del pins, d
 	expect_funcs = None if log10_evalue_idx is None else get_expect_functions(infile)
@@ -423,8 +425,8 @@ def write_pin(infile: pathlib.Path) -> None:
 		if delta_hyperscore_idx is not None:
 			for h1, h2 in zip(hits, hits[1:]):
 				delta_hyperscore = float(h1[0]) - float(h2[0])
-				h1[1][delta_hyperscore_idx] = str(delta_hyperscore)
-		for rank, (hyperscore, row) in enumerate(hits, 1):
+				h1[2][delta_hyperscore_idx] = str(delta_hyperscore)
+		for rank, (hyperscore, _,row) in enumerate(hits, 1):
 			if log10_evalue_idx is not None:
 				row[log10_evalue_idx] = str(np.log10(expect_funcs[index - 1](hyperscore)))
 			row[rank_idx] = str(rank)
@@ -432,7 +434,7 @@ def write_pin(infile: pathlib.Path) -> None:
 			pep_alt_prot[row[peptide_idx]] |= set(row[proteins_idx:])-{''}
 	pep_alt_prot.default_factory = None
 	for index, hits in sorted_spectrums: # edit alternative proteins
-		for rank, (hyperscore, row) in enumerate(hits, 1):
+		for rank, (hyperscore, _, row) in enumerate(hits, 1):
 			alt_prots = pep_alt_prot[row[peptide_idx]]
 			l1, l2 = len(set(row[proteins_idx:]) - {''}), len(alt_prots)
 			if l1 != l2:
@@ -442,7 +444,7 @@ def write_pin(infile: pathlib.Path) -> None:
 		f.write('\t'.join(header) + '\n')
 		for _, hits in sorted_spectrums:
 			for hit in hits[:output_report_topN]:
-				f.write('\t'.join(hit[1]) + '\n')
+				f.write('\t'.join(hit[2]) + '\n')
 
 
 def read_pin(p: pathlib.Path):
