@@ -125,7 +125,7 @@ public class PercolatorPanel extends JPanelBase {
         checkRun = new UiRadio("Run Percolator", null, true);
         checkRun.setName("run-percolator");
 
-        checkKeepTsvFiles = new UiCheck("Keep temp files", null, false);
+        checkKeepTsvFiles = new UiCheck("Keep intermediate files", null, false);
         checkKeepTsvFiles.setName("keep-tsv-files");
 
         spinMinProb = UiUtils.spinnerDouble(0.50, 0, 1, 0.01).setCols(4).setFormat("#.##").create();
