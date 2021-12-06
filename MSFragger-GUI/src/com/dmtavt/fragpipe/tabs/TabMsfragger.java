@@ -31,7 +31,6 @@ import com.dmtavt.fragpipe.tools.fragger.Mod;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
-import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -1325,6 +1324,14 @@ public class TabMsfragger extends JPanelBase {
             "<html>This option is incompatible with DB Splitting.<br/>"
                 + "Please either turn it off, or turn off DB Splitting by setting<br/>"
                 + "it to 1.", "Incompatible options", JOptionPane.WARNING_MESSAGE);
+      }
+    });
+
+    TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
+    uiSpinnerDbsplit.addChangeListener(e -> {
+      if (getNumDbSlices() > 1 && (tabWorkflow.hasDia() || tabWorkflow.hasGpfDia())) {
+        JOptionPane.showMessageDialog(this, "<html><code>Split database</code> is incompatible with DIA or GPF-DIA data types.<br/>Set <code>split database</code> to 1.<br/>", "Incompatible options", JOptionPane.WARNING_MESSAGE);
+        uiSpinnerDbsplit.setValue(1);
       }
     });
   }

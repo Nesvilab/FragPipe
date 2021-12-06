@@ -17,7 +17,6 @@ import java.awt.Component;
 import java.awt.ItemSelectable;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
