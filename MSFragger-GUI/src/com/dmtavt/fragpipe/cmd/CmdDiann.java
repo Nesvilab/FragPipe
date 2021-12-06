@@ -142,6 +142,7 @@ public class CmdDiann extends CmdBase {
       cmd.add("--matrices");
       cmd.add("--no-prot-inf");
       cmd.add("--smart-profiling");
+      cmd.add("--no-quant-files");
       cmd.addAll(quantificationStrategy);
       cmd.add(additionalCmdOpts);
 
