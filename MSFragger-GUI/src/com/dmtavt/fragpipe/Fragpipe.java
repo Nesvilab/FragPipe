@@ -110,7 +110,6 @@ public class Fragpipe extends JFrameHeadless {
 //  static {System.setProperty("java.awt.headless", "true");}
 //  public static boolean headless = java.awt.GraphicsEnvironment.isHeadless();
   public static boolean headless = false;
-  public static boolean execute_in_fragpipe = false; // if true, run everything in FragPipe GUI mode, else set up files and directories only and write a list of commands
   public static Path manifest_file;
   public static java.util.concurrent.CountDownLatch init_done= new java.util.concurrent.CountDownLatch(1);
   public static java.util.concurrent.CountDownLatch load_manifest_done = new java.util.concurrent.CountDownLatch(1);

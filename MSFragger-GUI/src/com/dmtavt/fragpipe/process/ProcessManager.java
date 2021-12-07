@@ -184,7 +184,7 @@ public class ProcessManager {
         log.error("No runnable groups found");
         return;
       }
-      if (Fragpipe.execute_in_fragpipe) {
+      if (Fragpipe.dry_run) {
         submit();
       } else {
         print_commands(taskGroups);
