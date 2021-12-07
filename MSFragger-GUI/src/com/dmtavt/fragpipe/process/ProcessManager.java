@@ -184,16 +184,18 @@ public class ProcessManager {
         log.error("No runnable groups found");
         return;
       }
-      if (Fragpipe.dry_run) {
-        submit();
-      } else {
+      submit();
+      if (Fragpipe.print_commands_in_detail)
         print_commands(taskGroups);
-      }
 
     } // END: sync
 
   }
 
+  /**
+   * this is for output of detailed information on commands
+   * @param taskGroups
+   */
   private void print_commands(final ConcurrentLinkedQueue<List<RunnableDescription>> taskGroups) {
     @SuppressWarnings("unchecked") final List<RunnableDescription>[] tg = taskGroups.stream().toArray(List[]::new);
     final java.io.PrintStream out = Fragpipe.out;
