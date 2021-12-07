@@ -641,8 +641,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnWorkflowLoad);
     mu.add(p, btnWorkflowFileLoad);
     mu.add(p, new JLabel("or save current settings as workflow")).gapLeft("15px");
-    mu.add(p, UiUtils.createButton("Save", e -> Bus.post(new MessageSaveAsWorkflow(true))));
-    mu.add(p, UiUtils.createButton("Save all settings", actionEvent -> Bus.post(new MessageSaveAsWorkflow(true, false, true))));
+    mu.add(p, UiUtils.createButton("Save", e -> Bus.post(new MessageSaveAsWorkflow(false))));
     if (Version.isDevBuild()) {
       mu.add(p, UiUtils.createButton("Save Dev", e -> Bus.post(new MessageSaveAsWorkflow(false, true))));
     }
@@ -902,10 +901,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
 
     Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps))
-        .filter(kv -> {
-          if (m.saveAll) return true;
-          return filter_props(kv.v1());
-        }).toMap(kv -> kv.v1, kv -> kv.v2);
+        .filter(kv -> filter_props(kv.v1())).toMap(kv -> kv.v1, kv -> kv.v2);
 
     String desc = SwingUtils.tryExtractHtmlBody(ep.getText());
     if (StringUtils.isNotBlank(desc)) {
