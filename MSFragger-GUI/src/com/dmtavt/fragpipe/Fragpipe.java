@@ -304,7 +304,6 @@ public class Fragpipe extends JFrameHeadless {
   }
 
   public static void headless(final Path workflowFile) {
-    System.out.println("b4 Bus.post(new MessageManifestLoad()), load workflow file");
     try {
       initDone.await();
     } catch (InterruptedException ex) {
@@ -313,7 +312,6 @@ public class Fragpipe extends JFrameHeadless {
     final FragpipeLocations fpl = FragpipeLocations.get();
     Bus.post(new MessageLoadUi(fpl.tryLoadSilently(workflowFile, "user")));
     Bus.post(new com.dmtavt.fragpipe.messages.MessageManifestLoad());
-    System.out.println("b4 Bus.post(new MessageRun(true));");
     try {
       loadWorkflowDone.await();
       loadManifestDone.await();
