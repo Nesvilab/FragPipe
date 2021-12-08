@@ -110,15 +110,13 @@ public class Fragpipe extends JFrameHeadless {
 //  static {System.setProperty("java.awt.headless", "true");}
 //  public static boolean headless = java.awt.GraphicsEnvironment.isHeadless();
   public static boolean headless = false;
-  /**
-   * if true, write a list of commands with details, such as working directory, environment variables, execution order
-    */
-  public static boolean print_commands_in_detail = false;
-  public static Path manifest_file;
-  public static java.util.concurrent.CountDownLatch init_done= new java.util.concurrent.CountDownLatch(1);
-  public static java.util.concurrent.CountDownLatch load_manifest_done = new java.util.concurrent.CountDownLatch(1);
-  public static java.util.concurrent.CountDownLatch load_workflow_done = new java.util.concurrent.CountDownLatch(1);
-  public static boolean dry_run = false;
+  public static boolean printCommandsInDetail = false;
+  public static Path manifestFile;
+  public static Path workflowFile;
+  public static java.util.concurrent.CountDownLatch initDone = new java.util.concurrent.CountDownLatch(1);
+  public static java.util.concurrent.CountDownLatch loadManifestDone = new java.util.concurrent.CountDownLatch(1);
+  public static java.util.concurrent.CountDownLatch loadWorkflowDone = new java.util.concurrent.CountDownLatch(1);
+  public static boolean dryRun = false;
   public static StringBuilder cmds = new StringBuilder();
   final public static PrintStream out = System.out;
 
@@ -271,15 +269,15 @@ public class Fragpipe extends JFrameHeadless {
   }
 
 
-  public static void main(String args[]) {
+  public static void main(String[] args) {
 //    args = new String[]{"/home/ci/FragPipe/MSFragger-GUI/resources/workflows/Open.workflow", "/home/ci/tmp/lcms-files.fp-manifest", "--headless", "--dry-run"};
 //    args = new String[]{"/home/ci/.config/FragPipe/fragpipe/fragpipe-ui.cache", "/home/ci/tmp/lcms-files.fp-manifest", "--headless", "--dry-run"};
     if (args.length > 2 && args[2].equals("--headless")) {
       headless = true;
-      manifest_file = Paths.get(args[1]);
+      manifestFile = Paths.get(args[1]);
     }
     if (args.length > 3 && args[3].equals("--dry-run"))
-      dry_run = true;
+      dryRun = true;
     SwingUtils.setLaf();
     FragpipeLoader fragpipeLoader = new FragpipeLoader();
     Bus.register(fragpipeLoader);
@@ -287,25 +285,25 @@ public class Fragpipe extends JFrameHeadless {
       headless(Paths.get(args[0]));
   }
 
-  public static void headless(final Path workflow_file) {
+  public static void headless(final Path workflowFile) {
     System.out.println("b4 Bus.post(new MessageManifestLoad()), load workflow file");
     try {
-      init_done.await();
+      initDone.await();
     } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
     final FragpipeLocations fpl = FragpipeLocations.get();
-    Bus.post(new MessageLoadUi(fpl.tryLoadSilently(workflow_file, "user")));
+    Bus.post(new MessageLoadUi(fpl.tryLoadSilently(workflowFile, "user")));
     Bus.post(new com.dmtavt.fragpipe.messages.MessageManifestLoad());
     System.out.println("b4 Bus.post(new MessageRun(true));");
     try {
-      load_workflow_done.await();
-      load_manifest_done.await();
+      loadWorkflowDone.await();
+      loadManifestDone.await();
       Thread.sleep(500);
     } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
-    Bus.post(new com.dmtavt.fragpipe.messages.MessageRun(dry_run));
+    Bus.post(new com.dmtavt.fragpipe.messages.MessageRun(dryRun));
   }
 
   static void displayMainWindow() {
@@ -315,7 +313,7 @@ public class Fragpipe extends JFrameHeadless {
       final Fragpipe fp0 = new Fragpipe();
       log.debug("Done creating Fragpipe instance");
       if (headless) {
-        init_done.countDown();
+        initDone.countDown();
         return;
       }
       final JFrame fp = fp0.toJFrame();

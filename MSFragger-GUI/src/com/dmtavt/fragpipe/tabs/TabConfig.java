@@ -511,7 +511,7 @@ public class TabConfig extends JPanelWithEnablement {
       // python was not loaded, try finding system python
       Bus.post(new MessageFindSystemPython());
     }
-    Fragpipe.load_workflow_done.countDown();
+    Fragpipe.loadWorkflowDone.countDown();
   }
 
   @Subscribe(threadMode = ThreadMode.ASYNC)

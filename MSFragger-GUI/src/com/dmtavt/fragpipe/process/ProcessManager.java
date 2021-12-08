@@ -185,8 +185,8 @@ public class ProcessManager {
         return;
       }
       submit();
-      if (Fragpipe.print_commands_in_detail)
-        print_commands(taskGroups);
+      if (Fragpipe.printCommandsInDetail)
+        printCommands(taskGroups);
 
     } // END: sync
 
@@ -196,7 +196,7 @@ public class ProcessManager {
    * this is for output of detailed information on commands
    * @param taskGroups
    */
-  private void print_commands(final ConcurrentLinkedQueue<List<RunnableDescription>> taskGroups) {
+  private void printCommands(final ConcurrentLinkedQueue<List<RunnableDescription>> taskGroups) {
     @SuppressWarnings("unchecked") final List<RunnableDescription>[] tg = taskGroups.stream().toArray(List[]::new);
     final java.io.PrintStream out = Fragpipe.out;
     for (List<RunnableDescription> a : tg) {

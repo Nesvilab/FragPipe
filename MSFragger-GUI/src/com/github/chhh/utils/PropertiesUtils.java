@@ -16,6 +16,10 @@
  */
 package com.github.chhh.utils;
 
+import com.dmtavt.fragpipe.exceptions.FileWritingException;
+import com.dmtavt.fragpipe.params.PropLine;
+import com.dmtavt.fragpipe.params.PropertyFileContent;
+import com.dmtavt.fragpipe.tabs.TabConfig;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -39,20 +43,13 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.dmtavt.fragpipe.tabs.TabConfig;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.exceptions.FileWritingException;
 import rx.Observable;
 import rx.schedulers.Schedulers;
-import com.dmtavt.fragpipe.params.PropLine;
-import com.dmtavt.fragpipe.params.PropertyFileContent;
 
 /**
  *
@@ -85,12 +82,12 @@ public final class PropertiesUtils {
 //fragpipe-config.bin-philosopher
 //fragpipe-config.bin-python
 //workdir
-            final Map<Boolean, List<String>> names_partition = props.stringPropertyNames().stream().sorted().collect(Collectors.partitioningBy(e -> {
+            final Map<Boolean, List<String>> namesPartition = props.stringPropertyNames().stream().sorted().collect(Collectors.partitioningBy(e -> {
                 String k = e.toLowerCase();
                 return !k.startsWith(TabConfig.TAB_PREFIX) && !k.contains("workdir") && !k.contains("db-path") // no workdir or fasta file
                         && !k.endsWith(".ram") && !k.endsWith(".threads");
             }));
-            final List<String> names = Stream.concat(names_partition.get(false).stream(), names_partition.get(true).stream()).collect(Collectors.toList());
+            final List<String> names = Stream.concat(namesPartition.get(false).stream(), namesPartition.get(true).stream()).collect(Collectors.toList());
             for (String name : names) {
                 name = saveConvert(name, true, escUnicode);
                 String val = props.getProperty(name, "");

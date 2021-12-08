@@ -1361,7 +1361,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       } catch (Exception ignore) {}
     }
     if (Fragpipe.headless || JFileChooser.APPROVE_OPTION == fc.showOpenDialog(this)) {
-      final File f = Fragpipe.headless ? Fragpipe.manifest_file.toFile() : fc.getSelectedFile();
+      final File f = Fragpipe.headless ? Fragpipe.manifestFile.toFile() : fc.getSelectedFile();
       if (f == null)
         return;
       try {
@@ -1369,7 +1369,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       } catch (IOException e) {
         SwingUtils.showErrorDialogWithStacktrace(e, this);
       }
-      Fragpipe.load_manifest_done.countDown();
+      Fragpipe.loadManifestDone.countDown();
     }
   }
 
