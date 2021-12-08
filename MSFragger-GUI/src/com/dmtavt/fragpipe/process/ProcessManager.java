@@ -198,7 +198,7 @@ public class ProcessManager {
    */
   private void printCommands(final ConcurrentLinkedQueue<List<RunnableDescription>> taskGroups) {
     @SuppressWarnings("unchecked") final List<RunnableDescription>[] tg = taskGroups.stream().toArray(List[]::new);
-    final java.io.PrintStream out = Fragpipe.out;
+    final java.io.PrintStream out = System.out;
     for (List<RunnableDescription> a : tg) {
       final String pg = a.get(0).parallelGroup;
       if (pg != null && !pg.equals(ProcessBuilderInfo.GROUP_SEQUENTIAL))

@@ -116,7 +116,6 @@ public class Fragpipe extends JFrameHeadless {
   public static java.util.concurrent.CountDownLatch loadWorkflowDone = new java.util.concurrent.CountDownLatch(1);
   public static boolean dryRun = false;
   public static StringBuilder cmds = new StringBuilder();
-  final public static PrintStream out = System.out;
 
   public static final String UI_STATE_CACHE_FN = "fragpipe-ui.cache";
   private static final Logger log = LoggerFactory.getLogger(Fragpipe.class);
