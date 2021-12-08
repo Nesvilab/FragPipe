@@ -2,82 +2,72 @@
 
 ##### [FragPipe](https://fragpipe.nesvilab.org) can be downloaded [here](https://github.com/Nesvilab/FragPipe/releases). Follow the instructions on that same Releases page to launch the program. See [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#configure-fragpipe) for help configuring FragPipe.
 
-FragPipe has several options for building spectral libraries for DIA data analysis:
+FragPipe currently offers two workflows for DIA data:
+1) [DIA_SpecLib_Quant](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html#dia_speclib_quant) - takes DIA data (plus optional DDA data) as input, builds a spectral library using MSFragger-DIA, then quantifies with DIA-NN
 
-* **[Build a library from DDA data](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html#build-a-library-from-dda-data)**
-* **[Build a library from DIA data (direct DIA using DIA-Umpire)](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html#build-a-library-directly-from-dia-data)**
-* **[Build a library from combined DDA and DIA data](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html#build-a-library-from-combined-dda-and-dia-data)**
+2) [DIA_DIA-Umpire_SpecLib_Quant](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html#dia_dia-umpire_speclib_quant) - takes DIA data (plus optional DDA data) as input, DIA-Umpire generates pseudo-MS/MS spectra from the DIA files (instead of direct search with MSFragger-DIA), then MSFragger in DDA mode is used to search, followed by quantification with DIA-NN
 
-FragPipe generated libraries can be used to [**quantify with DIA-NN**](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html#quantify-with-dia-nn).
+Please note:
 
-Skyline users may also choose to import interact-.pep.xml files into Skyline for spectral library building and further analysis of DIA experiments, see this [tutorial](https://fragpipe.nesvilab.org/docs/tutorial_skyline.html).
+* Any pseudo-MS/MS files from DIA-Umpire (`*\_Q1.mzML`, `*\_Q2.mzML`, `*\_Q3.mzML`) should be designated DDA data type on the Workflow tab.
+* If you already have a spectral library and want to quantify only, uncheck all steps except 'Quantify with DIA-NN' on the 'Quant (DIA)' tab, set the path to the spectral library, and run.
+* Multiple spectral libraries can be generated in a single FragPipe run if multiple experiments are specified on the Workflow tab. 
+* If iRT peptides were spiked-in to the samples, change the 'RT calibration' option on the 'Spec Lib' tab to 'iRT'. EasyPQP will use the [ciRT](https://www.mcponline.org/article/S1535-9476(20)32633-5/fulltext) option by default.
+* diaPASEF data is not supported at this time.
+* Skyline users may also choose to import interact-.pep.xml files into Skyline for spectral library building and further analysis of DIA experiments, see this [tutorial](https://fragpipe.nesvilab.org/docs/tutorial_skyline.html).
+ 
 
-Please note that only the first option (library building from DDA) currently works with timsTOF data. In this case, timsTOF DDA-PASEF raw files (.d) can be used directly for spectral library building, as well as .mgf files converted by Bruker DataAnalysis. To use .mgf, each .mgf file needs to copied out of its .d folder to a new joint folder (FragPipe cannot "see" .mgf files inside of .d folders for now).
-<br>
-<br>
-
-The dataset used below for illustration was downloaded from [PXD011691](http://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD011691). It includes 10 samples analyzed using DIA (10 mouse brain tissue, with UPS proteins spiked in at varying concentration). It also includes 6 DDA runs (pool of the same 10 brain tissues, with peptides fractionated into 6 fractions) collected for building a spectrum library. **Download a subset of the dataset ('speclib-raw.zip', containing 2 DIA and 2 DDA files in mzML format plus a sequence database) from Dropbox [here](https://www.dropbox.com/s/e3uqq42676kb39e/speclib-raw.zip?dl=0) to use for these demos.** Example results for each workflow can also be found in this [Dropbox folder](https://www.dropbox.com/sh/tix2mbp95k0nxcs/AACoGPnptbjjKuLB2-yGPry4a?dl=0).  
-
-### Build a library from DDA data
-1. In the Workflow tab of FragPipe, select the 'SpecLib' workflow from the dropdown menu and 'Load'.
-2. Load DDA spectral files in mzML or raw format. (In the example below, 6 DDA files corresponding to 6 fractionated peptide samples were loaded. Two of these fractions are provided in the dataset for this tutorial.)
-3. In the 'Database' tab, download a new database or select an existing one e.g the file `2021-05-13-decoys-UPS-reviewed-contam-UP000000589.fas` downloaded from Dropbox. (In this case, a mouse database was downloaded with reviewed sequences, decoys, common contaminants, and iRT peptides. UPS protein sequences were also added manually.)
-
-**Note**: Change the 'RT calibration' option on the 'Spec Lib' tab to 'iRT' if these peptides have been spiked-in. EasyPQP will use the [ciRT](https://www.mcponline.org/article/S1535-9476(20)32633-5/fulltext) option by default.
-
-4. On the 'Run' tab, choose the location to output the results and click 'RUN'.
-
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/DIA-tutorial_DDALibOnly.png)
 <br>
 
 
-### Build a library directly from DIA data
-1. Select the 'DIA-Umpire_SpecLib' workflow from the dropdown menu and 'Load'.
-2. Load DIA spectral files in .mzML or .raw format. (In the example below, 10 DIA runs were loaded, only 2 of these are provided for this tutorial.)
-3. On the 'Umpire' tab, choose the appropriate settings:
+The example dataset used here was downloaded from [PXD011691](http://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD011691). It includes 10 samples analyzed using DIA (10 mouse brain tissue, with UPS proteins spiked in at varying concentration). It also includes 6 DDA runs (pool of the same 10 brain tissues, with peptides fractionated into 6 fractions) collected for building a spectrum library. **Download a subset of the dataset ('speclib-raw.zip', containing 2 DIA and 2 DDA files in mzML format plus a sequence database) [from Dropbox](https://www.dropbox.com/s/e3uqq42676kb39e/speclib-raw.zip?dl=0) to use for these demos.**
+
+
+### Configure FragPipe
+Python (with EasyPQP installed) is needed for spectral library generation. On the Config tab, check that a valid Python path is provided (Python version will be shown) and that EasyPQP is 'Available'. If Python is installed but EasyPQP is missing, click the 'Install/Upgrade EasyPQP' button and wait a minute or so for installation. For help installing Python, see [this page](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html#optional-install-update-or-use-an-already-installed-version-of-python).
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/DIA-tutorial_setup.png)
+<br>
+
+
+### DIA_SpecLib_Quant
+1. In the Workflow tab, select the 'DIA_SpecLib_Quant' workflow from the dropdown menu and click 'Load'.
+2. Load DIA (and optionally additional DDA) spectral files in mzML or raw format. You can use the 'Add folder recursively' button to browse for the unzipped 'speclib-raw' folder, which will load 2 DIA files and 2 DDA files. The data type of each file should be automatically detected by FragPipe, check that these assignments are correct.
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/DIA-tutorial_SpecLib_Quant_workflow.png)
+
+
+3. On the Database tab, use 'Browse' to select the FASTA sequence database file `2021-05-13-decoys-UPS-reviewed-contam-UP000000589.fas` in the 'speclib-raw' folder. This is a mouse database with reviewed sequences, decoys, common contaminants, and iRT peptides. UPS protein sequences have been manually added.
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/DIA-tutorial_database.png)
+
+
+4. On the 'Quant (DIA)' tab, note that DIA-NN will be run unless unchecked. The spectral library generated by FragPipe will automatically be passed to DIA-NN for quantification of the DIA files provided.
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/DIA-tutorial_quant.png)
+
+
+5. On the 'Run' tab, set the output directory and click 'Run'. Example output from this workflow can be downloaded [here](https://www.dropbox.com/s/m3bccdccr5xmfo7/DIA_SpecLib_Quant-results.zip?dl=0).
+
+
+<br>
+
+### DIA_DIA-Umpire_SpecLib_Quant
+
+Follow the same steps as above to run the 'DIA_DIA-Umpire_SpecLib_Quant' workflow, which uses DIA-Umpire to generate pseudo-DDA spectra instead of MSFragger-DIA direct search of the DIA files. On the 'Umpire' tab, choose the appropriate settings:
  - Change 'Max Missed Scans' to 2 if building a library from DIA data only (slower run time but higher identification sensitivity).
  - Check 'Remove Background' if building a hybrid DDA+DIA library (see below) and if there are many DIA runs (fastest run time).
  - Uncheck 'Mass Defect Filter' if DIA data is generated on modification-enriched peptides (e.g. phospho), or if you're interested in extended PTM searches.
-4. In the 'Database' tab, download or select an existing sequence database.
-5. On the 'Run' tab, choose the location to output the results and click 'RUN'.
 
-**Note**: If DIA-Umpire fails or is interrupted, temporary files will cause issues if the process runs again. Make sure to delete any temporary files that are generated alongside the raw/mzML files before re-running FragPipe.
+ Please note that if DIA-Umpire fails or is interrupted, temporary files will cause issues if the process runs again. Make sure to delete any temporary files that are generated alongside the raw/mzML files before re-running FragPipe.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/DIA-tutorial_DIAUmpireLib.png)
+ ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/DIA-tutorial_umpire.png)
+
+Example output from this workflow can be downloaded [here](https://www.dropbox.com/s/xwa86a0nua6bx3s/DIA_DIA-Umpire_SpecLib_Quant-results.zip?dl=0).
+
+<br>
 <br>
 
-
-### Build a library from combined DDA and DIA data
-This workflow is composed of two steps:
-
-A) run just the DIA-Umpire step (`DIA-Umpire` workflow) to extract pseudo-MS/MS spectra from DIA data, then
-
-B) build the library from the pseudo-MS/MS DDA files and the DDA files
-
-
-1. For **part A**, load the 'DIA_Umpire' workflow, add DIA mzML files, and adjust the DIA-Umpire parameters as needed (see above). Select the output destination and 'RUN'. When DIA-Umpire is finished, the output folder will contain three pseudo-MS/MS (pseudo-DDA) files for each input mzML, with the suffixes `_Q1.mzML`, `_Q2.mzML`, `_Q3.mzML`.
- 
-2. For **part B** (shown below), first load the 'SpecLib' workflow.
-3. Clear the DIA files from part A.
-4. Load DDA mzML files and also all pseudo-MS/MS mzML files generated by part A.
-5. On the 'Run' tab, click 'RUN'.
-
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/DIA-tutorial_CombinedLib.png)
-<br>
-
-### Quantify with DIA-NN
-DIA-NN is available for download [here](https://github.com/vdemichev/DiaNN). 
-<br>
-
-1. Click 'Raw' and load mzML files (or RAW format if DIA-NN has been configured to read the RAW format).
-2. Select the spectral library generated using FragPipe ('library.tsv' file).
-3. Choose where to write the output and the file name (e.g. 'DIA-NN_DIALib.tsv').
-4. Specify the number of threads to use.
-5. Set 'Protein inference' to 'Off', and 'Quantification strategy' to 'Robust LC (high accuracy)' (recommended). In the FragPipe-generated spectral library, shared peptides are assigned to proteins with the most evidence (razor proteins).
-6. Click 'Run'.
-
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/DIA-tutorial_DIANN.png)
-<br>
 
 #### Key References
 Tsou CC, Avtonomov D, Larsen B, Tucholska M, Choi H, Gingras AC, Nesvizhskii AI. [DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics](https://doi.org/10.1021/acs.analchem.9b04418), Nature Methods 12:258-64 (2015).
