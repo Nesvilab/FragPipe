@@ -1,6 +1,7 @@
 package com.dmtavt.fragpipe;
 
 import static com.dmtavt.fragpipe.Version.PROP_LAST_RELEASE_VER;
+import static com.dmtavt.fragpipe.Version.version;
 
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
@@ -52,7 +53,6 @@ import com.github.chhh.utils.swing.FormEntry.Builder;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.LogbackJTextPaneAppender;
 import com.github.chhh.utils.swing.TextConsole;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -67,7 +67,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -93,7 +92,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -270,19 +268,40 @@ public class Fragpipe extends JFrameHeadless {
 
 
   public static void main(String[] args) {
-//    args = new String[]{"/home/ci/FragPipe/MSFragger-GUI/resources/workflows/Open.workflow", "/home/ci/tmp/lcms-files.fp-manifest", "--headless", "--dry-run"};
-//    args = new String[]{"/home/ci/.config/FragPipe/fragpipe/fragpipe-ui.cache", "/home/ci/tmp/lcms-files.fp-manifest", "--headless", "--dry-run"};
-    if (args.length > 2 && args[2].equals("--headless")) {
-      headless = true;
-      manifestFile = Paths.get(args[1]);
+    if (args.length == 1 && (args[0].equalsIgnoreCase("--help") || args[0].equalsIgnoreCase("-h"))) {
+      System.out.print(help());
+      System.exit(1);
+    } else if (args.length > 0) {
+      for (int i = 0; i < args.length; ++i) {
+        if (args[i].equalsIgnoreCase("--headless")) {
+          headless = true;
+        } else if (args[i].equalsIgnoreCase("--dry-run")) {
+          dryRun = true;
+        } else if (args[i].equalsIgnoreCase("--workflow")) {
+          workflowFile = Paths.get(args[++i]);
+        } else if (args[i].equalsIgnoreCase("--manifest")) {
+          manifestFile = Paths.get(args[++i]);
+        } else {
+          System.err.println("Cannot recognize the argument " + args[i]);
+          System.exit(1);
+        }
+      }
     }
-    if (args.length > 3 && args[3].equals("--dry-run"))
-      dryRun = true;
+
     SwingUtils.setLaf();
     FragpipeLoader fragpipeLoader = new FragpipeLoader();
     Bus.register(fragpipeLoader);
-    if (headless)
-      headless(Paths.get(args[0]));
+    if (headless) {
+      if (workflowFile == null || !Files.exists(workflowFile) || !Files.isReadable(workflowFile) || !Files.isRegularFile(workflowFile)) {
+        System.err.println("Please provide --workflow <path to workflow file> in the headless mode.");
+        System.exit(1);
+      } else if (manifestFile == null || !Files.exists(manifestFile) || !Files.isReadable(manifestFile) || !Files.isRegularFile(manifestFile)) {
+        System.err.println("Please provide --manifest <path to manifest file> in the headless mode.");
+        System.exit(1);
+      } else {
+        headless(workflowFile);
+      }
+    }
   }
 
   public static void headless(final Path workflowFile) {
@@ -770,5 +789,22 @@ public class Fragpipe extends JFrameHeadless {
   public void on(MessageOpenInExplorer m) {
     if (!headless)
       FragpipeUtils.openInExplorer(this.toJFrame(), m.path.toString());
+  }
+
+  private static String help() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("FragPipe v").append(version()).append("\n");
+    sb.append("(c) University of Michigan").append("\n");
+    sb.append(OsUtils.OsInfo()).append("\n");
+    sb.append(OsUtils.JavaInfo()).append("\n");
+    sb.append("Running without GUI. Usage:\n");
+    sb.append("\t\tWindows: fragpipe.exe --headless --workflow <path to workflow file> --manifest <path to manifest file>\n");
+    sb.append("\t\tLinux: fragpipe --headless --workflow <path to workflow file> --manifest <path to manifest file>\n");
+    sb.append("Options:\n");
+    sb.append("\t\t--headless                      # running in headless mode\n");
+    sb.append("\t\t--workflow <string>             # specify path to workflow file\n");
+    sb.append("\t\t--manifest <string>             # specify path to manifest file\n");
+    sb.append("\t\t--dry-run                       # dry run, not really run FragPipe\n");
+    return sb.toString();
   }
 }
