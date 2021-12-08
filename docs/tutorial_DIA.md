@@ -3,13 +3,14 @@
 ##### [FragPipe](https://fragpipe.nesvilab.org) can be downloaded [here](https://github.com/Nesvilab/FragPipe/releases). Follow the instructions on that same Releases page to launch the program. See [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#configure-fragpipe) for help configuring FragPipe.
 
 FragPipe currently offers two workflows for DIA data:
-1) [DIA_SpecLib_Quant](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html#dia_speclib_quant) - takes DIA data (plus optional DDA data) as input, builds a spectral library using MSFragger-DIA, then quantifies with DIA-NN
 
-2) [DIA_DIA-Umpire_SpecLib_Quant](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html#dia_dia-umpire_speclib_quant) - takes DIA data (plus optional DDA data) as input, DIA-Umpire generates pseudo-MS/MS spectra from the DIA files (instead of direct search with MSFragger-DIA), then MSFragger in DDA mode is used to search, followed by quantification with DIA-NN
+1) [**DIA_SpecLib_Quant**](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html#dia_speclib_quant) - takes DIA data (plus optional DDA data) as input, builds a spectral library using MSFragger-DIA, then quantifies with DIA-NN
+
+2) [**DIA_DIA-Umpire_SpecLib_Quant**](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html#dia_dia-umpire_speclib_quant) - takes DIA data (plus optional DDA data) as input, DIA-Umpire generates pseudo-MS/MS spectra from the DIA files (instead of direct search with MSFragger-DIA), then MSFragger in DDA mode is used to search, followed by quantification with DIA-NN
 
 Please note:
 
-* Any pseudo-MS/MS files from DIA-Umpire (`*\_Q1.mzML`, `*\_Q2.mzML`, `*\_Q3.mzML`) should be designated DDA data type on the Workflow tab.
+* Any pseudo-MS/MS files from DIA-Umpire (`*_Q1.mzML`, `*_Q2.mzML`, `*_Q3.mzML`) should be designated DDA data type on the Workflow tab.
 * If you already have a spectral library and want to quantify only, uncheck all steps except 'Quantify with DIA-NN' on the 'Quant (DIA)' tab, set the path to the spectral library, and run.
 * Multiple spectral libraries can be generated in a single FragPipe run if multiple experiments are specified on the Workflow tab. 
 * If iRT peptides were spiked-in to the samples, change the 'RT calibration' option on the 'Spec Lib' tab to 'iRT'. EasyPQP will use the [ciRT](https://www.mcponline.org/article/S1535-9476(20)32633-5/fulltext) option by default.
