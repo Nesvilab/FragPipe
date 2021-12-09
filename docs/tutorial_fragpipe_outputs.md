@@ -392,7 +392,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 <br>
 
 ### global.profile.tsv
-##### `global.profile.tsv` reports the most prominent features from [PTM-Shepherd](https://ptmshepherd.nesvilab.org/) analysis of mass shifts observed from FDR-filtered open search results. Each row corresponds to a different detected mass shift. Unless otherwise indicated, values are summed from all datasets in the analysis. Column contents are listed below.
+##### `global.profile.tsv` reports the most prominent features from [PTM-Shepherd](https://ptmshepherd.nesvilab.org/) analysis of mass shifts observed from FDR-filtered open search results. Each row corresponds to a different detected mass shift. Please note that mass shifts are annotated based on UniMod mapping, thus they are not definitive chemical identities and should be used as a starting point along with localization and amino acid enrichment information. Unless otherwise indicated, values are summed from all datasets in the analysis. Column contents are listed below.
 
 **peak_apex** apex of the detected delta mass peak (in Da)
 
@@ -439,7 +439,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 <br>
 
 ### global.modsummary.tsv
-##### `global.modsummary.tsv` is a modification-centric table generated from [PTM-Shepherd](https://ptmshepherd.nesvilab.org/) summarization of mass shifts observed in open search workflows. Contents of each column are listed below.
+##### `global.modsummary.tsv` is a modification-centric table generated from [PTM-Shepherd](https://ptmshepherd.nesvilab.org/) summarization of mass shifts observed in open search workflows. Please note that mass shifts are annotated based on UniMod mapping, thus they are not definitive chemical identities and should be used as a starting point along with localization and amino acid enrichment information. Contents of each column are listed below.
 
 **Modification** Name/annotation of the modification (as found in the global.profile.tsv file)
 
