@@ -198,7 +198,7 @@ For open search workflows, [PTM-Shepherd](https://github.com/Nesvilab/PTM-Shephe
  
 ### LFQ: Label-free Quantification
 
-To perform label-free quantification, make sure 'Run MS1 quant' is selected (note that analyses can be performed without any quantification, and spectral counts will be reported). 
+To perform label-free quantification or stable isotope-based quantification (e.g., SILAC, dimethyl), make sure 'Run MS1 quant' is selected. Analyses performed without any quantification method selected will report spectral counts by default. 
 
 [IonQuant](http://ionquant.nesvilab.org/) is the default LFQ tool in FragPipe. **Min ions** (default = 2) controls how many quantifiable ions are required for protein-level quantification. Select a **Protein quant** option (either top-N, e.g. summation of the top 3 most intense peptides, or MaxLFQ approach. The latter is recommended). Match-between-runs (**MBR**) is available for closed search workflows.
 
