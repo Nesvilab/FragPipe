@@ -21,7 +21,7 @@ Also see our [guide to using FragPipe](https://fragpipe.nesvilab.org/docs/tutori
 * [global.profile.tsv](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html#globalprofiletsv) (from PTM-Shepherd)
 * [global.modsummary.tsv](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html#globalmodsummarytsv) (from PTM-Shepherd)
 * [filename_quant.csv](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html#filename_quantcsv) (from IonQuant)
-
+* diann-output files (see [DIA-NN documentation](https://github.com/vdemichev/DiaNN#main-output-reference))
 
 
 #### TMT/iTRAQ reports
