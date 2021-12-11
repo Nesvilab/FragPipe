@@ -74,6 +74,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Properties;
@@ -105,8 +106,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Fragpipe extends JFrameHeadless {
-//  static {System.setProperty("java.awt.headless", "true");}
-//  public static boolean headless = java.awt.GraphicsEnvironment.isHeadless();
+
   public static boolean headless = false;
   public static boolean printCommandsInDetail = false;
   public static Path manifestFile;
@@ -590,8 +590,10 @@ public class Fragpipe extends JFrameHeadless {
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteFragpipeCache m) {
-    log.debug("Got NotePreviousUiState, updating UI");
-    loadUi(m.propsUiState);
+    if (!headless) { // Do not load cacha in headless mode.
+      log.debug("Got NotePreviousUiState, updating UI");
+      loadUi(m.propsUiState);
+    }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)

@@ -815,7 +815,6 @@ public class TabWorkflow extends JPanelWithEnablement {
   public void on(MessageSaveAsWorkflow m) throws IOException {
     Fragpipe fp0 = Fragpipe.getStickyStrict(Fragpipe.class);
     final javax.swing.JFrame fp = fp0.toJFrame();
-    if (Fragpipe.headless) return;
     Properties uiProps = FragpipeCacheUtils.tabsSave0(fp0.tabs, m.saveWithFieldTypes);
 
     Path saveDir;
