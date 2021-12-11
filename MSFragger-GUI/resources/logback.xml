@@ -3,23 +3,14 @@
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
     <encoder>
-      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+      <pattern>%d{HH:mm:ss} %-5level - %msg%n</pattern>
     </encoder>
   </appender>
 
-<!--  <logger name="com.dmtavt.fragpipe.tools.ionquant" level="info" />-->
-<!--  <logger name="com.dmtavt.fragpipe.params.speclib" level="info" />-->
-<!--  <logger name="com.dmtavt.fragpipe.Fragpipe" level="debug" />-->
-<!--  <logger name="com.dmtavt.fragpipe.api.FragpipeCacheUtils" level="debug" />-->
-<!--  <logger name="com.dmtavt.fragpipe.tabs.TabMsfragger" level="debug" />-->
-<!--  <logger name="com.github.chhh.utils.SwingUtils" level="trace" />-->
-  <logger name="com.dmtavt.fragpipe.FragpipeLoader" level="info" />
-
-  <logger name="com.dmtavt.fragpipe.api.Bus" level="info" />
-  <logger name="com.dmtavt.fragpipe.FragpipeUpdater" level="info" />
+  <logger name="com.dmtavt.fragpipe.FragpipeLoader" level="error" />
+  <logger name="com.dmtavt.fragpipe.api.Bus" level="error" />
 
   <root level="info">
-<!--  <root level="debug">-->
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>
