@@ -63,10 +63,10 @@ public class Philosopher {
 
     String binPath = PathUtils.testBinaryPath(path);
     if (binPath == null) {
-      throw new ValidationException("Does not appear to be an executable file");
+      throw new ValidationException("Does not appear to be an executable file: “" + path + "”");
     }
     if (binPath.contains(" ")) {
-      throw new ValidationException("There are spaces in the path");
+      throw new ValidationException("There are spaces in the path: “" + path + "”");
     }
     if (binPath.toLowerCase().endsWith(".exe") && !isWindows()) {
       throw new ValidationException("The Philosopher binary file is a windows version");

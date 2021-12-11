@@ -194,7 +194,11 @@ public class FragpipeRun {
 
       final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
       if (tabMsf.getNumDbSlices() > configDb.numEntries) {
-        JOptionPane.showMessageDialog(tabRun, "Number of split database is larger than total proteins.", "Errors", JOptionPane.ERROR_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("Number of split database is larger than total proteins.");
+        } else {
+          JOptionPane.showMessageDialog(tabRun, "Number of split database is larger than total proteins.", "Errors", JOptionPane.ERROR_MESSAGE);
+        }
         return;
       }
 
@@ -370,6 +374,11 @@ public class FragpipeRun {
 
   private static Path validateWd(JComponent parent, String workingDir) {
     if (StringUtils.isBlank(workingDir)) {
+      if (Fragpipe.headless){
+        log.error("Output directory can't be left empty.");
+        System.exit(1);
+      }
+
       JOptionPane.showMessageDialog(parent, "Output directory can't be left empty.\n"
               + "Please select an existing directory for the output.", "Bad output directory path",
           JOptionPane.WARNING_MESSAGE);
@@ -379,6 +388,11 @@ public class FragpipeRun {
     try {
       testWdPath = Paths.get(workingDir);
     } catch (InvalidPathException e) {
+      if (Fragpipe.headless){
+        log.error("Output directory path is not a valid path.");
+        System.exit(1);
+      }
+
       JOptionPane.showMessageDialog(parent, "Output directory path is not a valid path.\n"
               + "Please select a directory for the output.", "Bad output directory path",
           JOptionPane.WARNING_MESSAGE);
@@ -398,35 +412,52 @@ public class FragpipeRun {
 
   private static Path prepareWd(JComponent parent, Path wd, TabWorkflow tabWorkflow) {
     if (!Files.exists(wd)) {
-      int confirmCreation = JOptionPane.showConfirmDialog(parent,
-          "Output directory doesn't exist. Create?",
-          "Create output directory?", JOptionPane.OK_CANCEL_OPTION);
-      if (JOptionPane.OK_OPTION != confirmCreation) {
-        return null;
-      }
-      try {
-        Files.createDirectories(wd);
-      } catch (Exception e) {
-        // something went not right during creation of directory structure
-        JOptionPane.showMessageDialog(parent,
-            "Could not create directory structure.\n" + e.getMessage(), "Error",
-            JOptionPane.ERROR_MESSAGE);
-        return null;
-      }
+      if (Fragpipe.headless){
+        log.warn("Output directory doesn't exist. Creating it.");
+      } else {
+        int confirmCreation = JOptionPane.showConfirmDialog(parent,
+            "Output directory doesn't exist. Create?",
+            "Create output directory?", JOptionPane.OK_CANCEL_OPTION);
+        if (JOptionPane.OK_OPTION != confirmCreation) {
+          return null;
+        }
+        try {
+          Files.createDirectories(wd);
+        } catch (Exception e) {
+          // something went not right during creation of directory structure
+          if (Fragpipe.headless){
+            log.error("Could not create directory structure.\n" + e.getMessage());
+            System.exit(1);
+          }
 
+          JOptionPane.showMessageDialog(parent,
+              "Could not create directory structure.\n" + e.getMessage(), "Error",
+              JOptionPane.ERROR_MESSAGE);
+          return null;
+        }
+      }
     } else {
       try (Stream<Path> inWd = Files.list(wd)) {
         if (inWd.findAny().isPresent()) {
-          int confirm = JOptionPane.showConfirmDialog(parent,
-              "The output directory is not empty.\n\n"
-                  + "Some files might be overwritten in:\n"
-                  + " > " + wd.toString() + "\n\n"
-                  + "Do you want to proceed?", "Confirmation", JOptionPane.YES_NO_OPTION);
-          if (JOptionPane.YES_OPTION != confirm) {
-            return null;
+          if (Fragpipe.headless) {
+            log.warn("The output directory is not empty. Some files might be overwritten in: " + wd);
+          } else {
+            int confirm = JOptionPane.showConfirmDialog(parent,
+                "The output directory is not empty.\n\n"
+                    + "Some files might be overwritten in:\n"
+                    + " > " + wd.toString() + "\n\n"
+                    + "Do you want to proceed?", "Confirmation", JOptionPane.YES_NO_OPTION);
+            if (JOptionPane.YES_OPTION != confirm) {
+              return null;
+            }
           }
         }
       } catch (Exception e) {
+        if (Fragpipe.headless) {
+          log.error("Could not create directory structure.\n" + e.getMessage());
+          System.exit(1);
+        }
+
         JOptionPane.showMessageDialog(parent,
             "Could not create directory structure.\n" + e.getMessage(), "Error",
             JOptionPane.ERROR_MESSAGE);
@@ -524,17 +555,21 @@ public class FragpipeRun {
   }
 
   private static String checkFasta(JComponent parent, NoteConfigDatabase configDb) {
-    if (configDb == null || configDb.path == null || StringUtils
-        .isBlank(configDb.path.toString())) {
-      JOptionPane.showMessageDialog(parent, "FASTA file path is empty or the file is corrupted",
-          "Warning", JOptionPane.WARNING_MESSAGE);
+    if (configDb == null || configDb.path == null || StringUtils.isBlank(configDb.path.toString())) {
+      if (Fragpipe.headless) {
+        log.error("FASTA file path is empty or the file is corrupted");
+      } else {
+        JOptionPane.showMessageDialog(parent, "FASTA file path is empty or the file is corrupted", "Warning", JOptionPane.WARNING_MESSAGE);
+      }
       return null;
     }
     final Path existing = PathUtils.existing(configDb.path.toString());
     if (existing == null) {
-      JOptionPane.showMessageDialog(parent,
-          String.format("Could not find fasta file (Database) at:\n%s", configDb.path.toString()),
-          "Errors", JOptionPane.ERROR_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error(String.format("Could not find fasta file (Database) at: %s", configDb.path));
+      } else {
+        JOptionPane.showMessageDialog(parent, String.format("Could not find fasta file (Database) at:\n%s", configDb.path), "Errors", JOptionPane.ERROR_MESSAGE);
+      }
       return null;
     }
     return existing.toString();

@@ -7,13 +7,11 @@ import com.dmtavt.fragpipe.messages.MessageShowException;
 import com.dmtavt.fragpipe.messages.NoteConfigTips;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.BalloonTipStyle;
@@ -70,28 +68,21 @@ public class Notifications {
 
       } else if (m.parent != null && m.body != null) {
         if (Fragpipe.headless) {
-          System.err.println(m.body);
+          log.error(m.body.toString());
+          System.exit(1);
         }
+
         tip = new BalloonTip(m.parent, m.body,
             new RoundedBalloonStyle(5, 5, BG_COLOR, Color.BLACK), true);
 
       } else if (m.parent != null && m.html != null) {
-        if (Fragpipe.headless) {
-          System.err.println(m.html);
-        }
         HtmlStyledJEditorPane ep = SwingUtils.createClickableHtml(m.html, BG_COLOR);
-//        JPanel p = new JPanel(new BorderLayout());
-//        p.setBackground(ep.getBackground());
-//        p.add(ep, BorderLayout.CENTER);
-
-//        JPanel pBtns = new JPanel();
-//        pBtns.setBackground(ep.getBackground());
-//        pBtns.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
-//        pBtns.add(btnClose);
-//        p.add(pBtns, BorderLayout.SOUTH);
+        if (Fragpipe.headless) {
+          log.error(ep.getTextLessHtml());
+          System.exit(1);
+        }
 
         tip = new BalloonTip(m.parent, ep, STYLE, true);
-
       } else {
         remove(m.topic);
       }

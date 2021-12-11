@@ -113,13 +113,13 @@ public class TabRun extends JPanelWithEnablement {
   public void on(MessagePrintToConsole m) {
     if (Fragpipe.headless) {
       System.out.println(m.text);
-      return;
+    } else {
+      console.append(m.color, m.text);
+      if (m.addNewline) {
+        console.append("\n");
+      }
+      console.getParent().getParent().revalidate();
     }
-    console.append(m.color, m.text);
-    if (m.addNewline) {
-      console.append("\n");
-    }
-    console.getParent().getParent().revalidate();
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
