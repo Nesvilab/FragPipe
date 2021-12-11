@@ -927,9 +927,12 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (k.contains("workflow-option")) {
       return true;
     }
-    return !k.contains("workdir") && !k.contains("db-path") // no workdir or fasta file
-            && !k.endsWith(".ram") && !k.endsWith(".threads") // no ram and threads from Workflow tab
-            && !k.contains(Fragpipe.PROP_NOCACHE);
+
+    if (Fragpipe.headless) {
+      return !k.contains(Fragpipe.PROP_NOCACHE);
+    } else {
+      return !k.contains("workdir") && !k.contains("db-path") && !k.endsWith(".ram") && !k.endsWith(".threads") && !k.contains(Fragpipe.PROP_NOCACHE);
+    }
   }
 
   private List<String> createNamesForWorkflowsCombo(Map<String, PropsFile> fileMap) {
