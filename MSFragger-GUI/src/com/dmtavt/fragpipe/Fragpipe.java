@@ -114,8 +114,8 @@ public class Fragpipe extends JFrameHeadless {
   public static java.util.concurrent.CountDownLatch initDone = new java.util.concurrent.CountDownLatch(1);
   public static java.util.concurrent.CountDownLatch loadManifestDone = new java.util.concurrent.CountDownLatch(1);
   public static java.util.concurrent.CountDownLatch loadWorkflowDone = new java.util.concurrent.CountDownLatch(1);
+  public static java.util.concurrent.CountDownLatch runDone = new java.util.concurrent.CountDownLatch(1);
   public static boolean dryRun = false;
-  public static StringBuilder cmds = new StringBuilder();
 
   public static final String UI_STATE_CACHE_FN = "fragpipe-ui.cache";
   private static final Logger log = LoggerFactory.getLogger(Fragpipe.class);
@@ -320,6 +320,13 @@ public class Fragpipe extends JFrameHeadless {
       throw new RuntimeException(ex);
     }
     Bus.post(new com.dmtavt.fragpipe.messages.MessageRun(dryRun));
+    try {
+      runDone.await();
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+    System.exit(0);
   }
 
   static void displayMainWindow() {

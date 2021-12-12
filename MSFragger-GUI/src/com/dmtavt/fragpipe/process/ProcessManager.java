@@ -237,6 +237,8 @@ public class ProcessManager {
       if (rds == null) {
         log.debug("No more groups to process, stopping");
         stop();
+        if (Fragpipe.headless)
+          Fragpipe.runDone.countDown();
         return;
       }
 
