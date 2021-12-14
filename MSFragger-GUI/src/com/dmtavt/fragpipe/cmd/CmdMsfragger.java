@@ -379,6 +379,7 @@ public class CmdMsfragger extends CmdBase {
     // final int commandLenLimit = isSlicing ? Integer.MAX_VALUE : 32000;
     final int commandLenLimit = 32000; // Make is a little bit smaller than 1 << 15 to make sure that it won't crash.
 
+    /* disable deletion of temp dir when error occurs
     if (isSlicing) {
       // schedule to always try to delete the temp dir when FragPipe finishes execution
       final String tempDirName = "split_peptide_index_tempdir";
@@ -393,6 +394,7 @@ public class CmdMsfragger extends CmdBase {
         log.error("Could not delete leftover temporary directory from DB Splitting", e);
       }
     }
+    */
 
     StringBuilder sb = new StringBuilder();
 
