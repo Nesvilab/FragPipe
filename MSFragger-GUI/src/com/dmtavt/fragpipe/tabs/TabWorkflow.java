@@ -927,7 +927,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       return true;
     }
 
-    if (Fragpipe.headless) {
+    if (Fragpipe.headless) { // Load all settings from a workflow file in headless mode, else exclude hardware specific parameters
       return !k.contains(Fragpipe.PROP_NOCACHE);
     } else {
       return !k.contains("workdir") && !k.contains("db-path") && !k.endsWith(".ram") && !k.endsWith(".threads") && !k.contains(Fragpipe.PROP_NOCACHE);
