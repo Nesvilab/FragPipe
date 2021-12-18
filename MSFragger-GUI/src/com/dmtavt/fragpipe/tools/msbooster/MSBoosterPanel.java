@@ -96,6 +96,10 @@ public class MSBoosterPanel extends JPanelBase {
       if (isRun()) {
         final TabMsfragger tabMsfragger = Fragpipe.getStickyStrict(TabMsfragger.class);
         if (tabMsfragger.isOpenMassOffsetSearch()) {
+          if (Fragpipe.headless) {
+            log.error("MSBooster is incompatible with open search or mass offset search.");
+            System.exit(1);
+          }
           JOptionPane.showMessageDialog(this, "<html>MSBooster is incompatible with open search or mass offset search. Uncheck it.", "Incompatible options", JOptionPane.WARNING_MESSAGE);
           checkRun.setSelected(false);
         } else {

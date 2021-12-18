@@ -374,8 +374,7 @@ public class TabWorkflow extends JPanelWithEnablement {
                 "Renaming cancelled."), BorderLayout.NORTH);
 
             pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(existingRenames)));
-            SwingUtils.showDialog(parent, pane,
-                "Not safe to rename files", JOptionPane.WARNING_MESSAGE);
+            SwingUtils.showDialog(parent, pane, "Not safe to rename files", JOptionPane.WARNING_MESSAGE);
             return;
           }
 
@@ -554,8 +553,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         JLabel message = new JLabel(
             SwingUtils.makeHtml("Found workflows from previous FragPipe sessions:\n - "+Seq.seq(diffNames).sorted().toString("\n - ")));
         final String[] choices = {"Copy", "Ignore", "Delete"};
-        int choice = SwingUtils
-            .showChoiceDialog(this, "Load workflows?", message, choices, 0);
+        int choice = SwingUtils.showChoiceDialog(this, "Load workflows?", message, choices, 0);
         switch (choice) {
           case 0:
             for (PropsFile propsFile : diffPropFiles) {
@@ -663,9 +661,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     List<Path> searchPaths = Fragpipe.getExtBinSearchPaths();
     final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(searchPaths);
     Predicate<File> supportedFilePredicate = CmdMsfragger.getSupportedFilePredicate(searchPaths);
-    JFileChooser fc = FileChooserUtils
-        .create("Choose raw data files", "Select", true, FcMode.ANY, true,
-            ff);
+    JFileChooser fc = FileChooserUtils.create("Choose raw data files", "Select", true, FcMode.ANY, true, ff);
     fc.setFileFilter(ff);
     tableModelRawFiles.dataCopy();
     FileChooserUtils.setPath(fc, Stream.of(ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN)));
@@ -674,13 +670,9 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (JFileChooser.APPROVE_OPTION != result) {
       return;
     }
-    final List<Path> paths = Arrays.stream(fc.getSelectedFiles())
-        .filter(supportedFilePredicate)
-        .map(File::toPath).collect(Collectors.toList());
+    final List<Path> paths = Arrays.stream(fc.getSelectedFiles()).filter(supportedFilePredicate).map(File::toPath).collect(Collectors.toList());
     if (paths.isEmpty()) {
-      JOptionPane.showMessageDialog(this,
-          "None of selected files/folders are supported.\nIf you are analyzing timsTOF (.d) data, please make sure that you have the latest MSFragger with ext folder exist.", "Warning", JOptionPane.WARNING_MESSAGE);
-      return;
+      JOptionPane.showMessageDialog(this, "None of selected files/folders are supported.\nIf you are analyzing timsTOF (.d) data, please make sure that you have the latest MSFragger with ext folder exist.", "Warning", JOptionPane.WARNING_MESSAGE);
     } else {
       Bus.post(new MessageLcmsFilesAdded(paths));
     }
@@ -890,9 +882,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
 
     if (PathUtils.existing(savePath.toString()) != null) {
-      int ans = SwingUtils.showConfirmDialog(fp,
-          new JLabel(SwingUtils.makeHtml("Overwrite existing file?\n" + savePath.toString())),
-          "Overwrite?");
+      int ans = SwingUtils.showConfirmDialog(fp, new JLabel(SwingUtils.makeHtml("Overwrite existing file?\n" + savePath)), "Overwrite?");
       if (JOptionPane.OK_OPTION != ans) {
         log.debug("user chose not to overwrite file");
         return;
@@ -1333,7 +1323,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   public static boolean deleteQuietlyWithConfirmation(Path path, Component parent) {
     if (Files.exists(path)) {
-      if (!SwingUtils.showConfirmDialogShort(parent, "File exists, overwrite?\n\n" + path.toString())) {
+      if (!SwingUtils.showConfirmDialogShort(parent, "File exists, overwrite?\n\n" + path)) {
         return false;
       } else {
         try {
@@ -1653,9 +1643,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private void actionLoadSelectedWorkflow(ActionEvent e) {
     String workflow = (String) uiComboWorkflows.getSelectedItem();
     log.debug("Load workflow button clicked: {}", workflow);
-    int confirmation = SwingUtils
-        .showConfirmDialog(this, new JLabel("Do you want to load workflow: " + workflow + "?"),
-            "Confirmation");
+    int confirmation = SwingUtils.showConfirmDialog(this, new JLabel("Do you want to load workflow: " + workflow + "?"), "Confirmation");
     if (JOptionPane.OK_OPTION == confirmation) {
       log.debug("Loading workflow/ui state: {}", workflow);
       PropsFile propsFile = workflows.get(workflow);

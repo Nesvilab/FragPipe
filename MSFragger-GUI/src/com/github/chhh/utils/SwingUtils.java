@@ -107,6 +107,8 @@ public class SwingUtils {
   private static volatile String[] fontNames = null;
   private static volatile Font[] fonts = null;
   private static final Object fontLock = new Object();
+  private static final Pattern re = Pattern.compile("^\\s*<\\s*html\\s*>\\s*");
+  private static final Pattern reNewline = Pattern.compile("(?<!<br/>)(\n)");
 
   private SwingUtils() {
   }
@@ -971,8 +973,7 @@ public class SwingUtils {
    * @param parent    The parent for the dialog, null is ok.
    * @param component The component to be used as the message.
    */
-  public static void showDialog(Component parent, final Component component, String title,
-      int msgType) {
+  public static void showDialog(Component parent, final Component component, String title, int msgType) {
     makeDialogResizable(component);
     JOptionPane.showMessageDialog(parent, wrapInScrollForDialog(component), title, msgType);
   }
@@ -1018,16 +1019,11 @@ public class SwingUtils {
 
   public static int showConfirmDialog(Component parent, final Component component, String title) {
     makeDialogResizable(component);
-    return JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component), title,
-        JOptionPane.OK_CANCEL_OPTION);
+    return JOptionPane.showConfirmDialog(parent, wrapInScrollForDialog(component), title, JOptionPane.OK_CANCEL_OPTION);
   }
 
-  public static int showChoiceDialog(Component parent, String title, Object message, String[] options,
-      int startingOption) {
-    return JOptionPane
-        .showOptionDialog(parent, message, title,
-            JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-            options[startingOption]);
+  public static int showChoiceDialog(Component parent, String title, Object message, String[] options, int startingOption) {
+    return JOptionPane.showOptionDialog(parent, message, title, JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[startingOption]);
   }
 
   /**
@@ -1095,13 +1091,20 @@ public class SwingUtils {
 
   public static String makeHtml(String html) {
     if (html == null) {
-      return null;
+      return "";
+    } else {
+      Matcher m = reNewline.matcher(html);
+      String s = m.replaceAll("<br/>\n");
+      return re.matcher(s).find() ? s : "<html>" + s;
     }
-    Pattern re = Pattern.compile("^\\s*<\\s*html\\s*>\\s*");
-    Pattern reNewline = Pattern.compile("(?<!<br/>)(\n)");
-    Matcher m = reNewline.matcher(html);
-    String s = m.replaceAll("<br/>\n");
-    return re.matcher(s).find() ? s : "<html>" + s;
+  }
+  
+  public static String stripHtml(String html) {
+    if (html == null) {
+      return "";
+    } else {
+      return html.replaceAll("[\n\r]", " ");
+    }
   }
 
   public static void showInfoDialog(Component parent, String htmlMessage, String title) {
@@ -1116,50 +1119,57 @@ public class SwingUtils {
     showDialog(parent, htmlMessage, title, JOptionPane.ERROR_MESSAGE);
   }
 
-  public static void showDialog(Component parent, String htmlMessage, String title,
-      int messageType) {
-    if(Fragpipe.headless) {
-      System.out.println("htmlMessage = " + htmlMessage);
-      System.exit(1);
-    }
-    JOptionPane.showMessageDialog(parent, new JLabel(makeHtml(htmlMessage)), title, messageType);
-  }
-
-  /**
-   * @param parent Can be null.
-   */
-  public static void showErrorDialogWithStacktrace(Throwable e, Component parent,
-      JComponent content, boolean doShowStacktrace) {
-    JPanel panel = new JPanel();
-    panel.setLayout(new BorderLayout());
-    panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-    if (content == null) {
-      content = new JLabel("Something unexpected happened (" + e.getClass().getSimpleName() + ")");
-    }
-    panel.add(content, BorderLayout.PAGE_START);
-    JTextArea notesArea = new JTextArea(40, 80);
-    if (doShowStacktrace) {
-      notesArea.setText(ExceptionUtils.getStackTrace(e));
+  public static void showDialog(Component parent, String htmlMessage, String title, int messageType) {
+    if (Fragpipe.headless) {
+      if (messageType == JOptionPane.INFORMATION_MESSAGE) {
+        log.info(stripHtml(htmlMessage));
+      }
     } else {
-      notesArea.setText(e.getMessage());
+      JOptionPane.showMessageDialog(parent, new JLabel(makeHtml(htmlMessage)), title, messageType);
     }
-    JScrollPane notesScroller = new JScrollPane();
-    notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
-    notesScroller.setViewportView(notesArea);
-    panel.add(notesScroller, BorderLayout.CENTER);
+  }
 
-    //JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + notes, "Error", JOptionPane.ERROR_MESSAGE);
-    //JOptionPane.showMessageDialog(frame, panel, "Error", JOptionPane.ERROR_MESSAGE);
-    makeDialogResizable(panel);
-    showDialog(parent, panel);
+  /**
+   * @param parent Can be null.
+   */
+  public static void showErrorDialogWithStacktrace(Throwable e, Component parent, JComponent content, boolean doShowStacktrace) {
+    if (Fragpipe.headless) {
+      if (doShowStacktrace) {
+        log.error(ExceptionUtils.getStackTrace(e));
+      } else {
+        log.error(e.getMessage());
+      }
+    } else {
+      JPanel panel = new JPanel();
+      panel.setLayout(new BorderLayout());
+      panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+      if (content == null) {
+        content = new JLabel("Something unexpected happened (" + e.getClass().getSimpleName() + ")");
+      }
+      panel.add(content, BorderLayout.PAGE_START);
+      JTextArea notesArea = new JTextArea(40, 80);
+      if (doShowStacktrace) {
+        notesArea.setText(ExceptionUtils.getStackTrace(e));
+      } else {
+        notesArea.setText(e.getMessage());
+      }
+      JScrollPane notesScroller = new JScrollPane();
+      notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
+      notesScroller.setViewportView(notesArea);
+      panel.add(notesScroller, BorderLayout.CENTER);
+
+      //JOptionPane.showMessageDialog(frame, "Some error details:\n\n" + notes, "Error", JOptionPane.ERROR_MESSAGE);
+      //JOptionPane.showMessageDialog(frame, panel, "Error", JOptionPane.ERROR_MESSAGE);
+      makeDialogResizable(panel);
+      showDialog(parent, panel);
+    }
   }
 
 
   /**
    * @param parent Can be null.
    */
-  public static void showErrorDialogWithStacktrace(Throwable e, Component parent,
-      boolean doShowStacktrace) {
+  public static void showErrorDialogWithStacktrace(Throwable e, Component parent, boolean doShowStacktrace) {
     showErrorDialogWithStacktrace(e, parent, null, doShowStacktrace);
   }
 

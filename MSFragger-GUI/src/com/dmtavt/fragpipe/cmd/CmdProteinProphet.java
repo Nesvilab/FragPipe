@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe.cmd;
 
 import static com.dmtavt.fragpipe.cmd.CmdPeptideProphet.deleteFiles;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
@@ -113,9 +114,13 @@ public class CmdProteinProphet extends CmdBase {
     {
       Set<Path> interactProtXmls = new HashSet<>(groupToProtxml.values());
       if (interactProtXmls.size() > 1) {
-        JOptionPane.showMessageDialog(comp, "[ProteinProphet]\n"
-            + "Report to developers, more than one interact protxml file when\n"
-            + "processing experimental groups together.");
+        if (Fragpipe.headless) {
+          log.error("[ProteinProphet] Report to developers, more than one interact protxml file when processing experimental groups together.");
+        } else {
+          JOptionPane.showMessageDialog(comp, "[ProteinProphet]\n"
+              + "Report to developers, more than one interact protxml file when\n"
+              + "processing experimental groups together.");
+        }
         return false;
       }
       Path protxml = interactProtXmls.iterator().next();

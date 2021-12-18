@@ -112,14 +112,16 @@ public class TabRun extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void on(MessagePrintToConsole m) {
     if (Fragpipe.headless) {
-      System.out.println(m.text);
-    } else {
-      console.append(m.color, m.text);
+      System.out.print(m.text);
       if (m.addNewline) {
-        console.append("\n");
+        System.out.println();
       }
-      console.getParent().getParent().revalidate();
     }
+    console.append(m.color, m.text);
+    if (m.addNewline) {
+      console.append("\n");
+    }
+    console.getParent().getParent().revalidate();
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
@@ -334,15 +336,12 @@ public class TabRun extends JPanelWithEnablement {
 
       // if exists, overwrite
       if (Files.exists(path)) {
-        int overwrite = JOptionPane
-            .showConfirmDialog(parent, "<html>File exists, overwrtie?<br/><br/>" + path.toString(), "Overwrite",
-                JOptionPane.OK_CANCEL_OPTION);
+        int overwrite = JOptionPane.showConfirmDialog(parent, "<html>File exists, overwrtie?<br/><br/>" + path, "Overwrite", JOptionPane.OK_CANCEL_OPTION);
         if (JOptionPane.OK_OPTION == overwrite) {
           try {
             Files.delete(path);
           } catch (IOException ex) {
-            JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite",
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite", JOptionPane.ERROR_MESSAGE);
             return;
           }
         }

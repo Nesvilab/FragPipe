@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe.cmd;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
@@ -14,9 +15,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CmdFreequant extends CmdBase {
 
+  private static final Logger log = LoggerFactory.getLogger(CmdFreequant.class);
   public static final String NAME = "FreeQuant";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "raw");
 
@@ -32,11 +36,15 @@ public class CmdFreequant extends CmdBase {
   private boolean checkCompatibleFormats(Component comp, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
     List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, SUPPORTED_FORMATS);
     if (!notSupportedExts.isEmpty()) {
-      JOptionPane.showMessageDialog(comp, String.format(
-          "<html>%s doesn't support '.%s' files.<br/>"
-              + "Either remove them from input or disable %s<br/>"
-              + "You can convert files using <i>msconvert</i> from ProteoWizard.", NAME, String.join(", ", notSupportedExts), NAME),
-          NAME + " error", JOptionPane.WARNING_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error(String.format("%s doesn't support '.%s' files. You can convert files using msconvert from ProteoWizard.", NAME, String.join(", ", notSupportedExts)));
+      } else {
+        JOptionPane.showMessageDialog(comp, String.format(
+                "<html>%s doesn't support '.%s' files.<br/>"
+                    + "Either remove them from input or disable %s<br/>"
+                    + "You can convert files using <i>msconvert</i> from ProteoWizard.", NAME, String.join(", ", notSupportedExts), NAME),
+            NAME + " error", JOptionPane.WARNING_MESSAGE);
+      }
       return false;
     }
     return true;
@@ -58,9 +66,13 @@ public class CmdFreequant extends CmdBase {
           .map(f -> f.getPath().getParent())
           .collect(Collectors.toSet());
       if (lcmsDirsForProtxml.size() > 1) {
-        String msg = "All LCMS input files for an experiment/group must be\n"
-            + "located in the same directory for Freequant to work.";
-        JOptionPane.showMessageDialog(comp, msg, "Freequant Error", JOptionPane.WARNING_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("All LCMS input files for an experiment/group must be located in the same directory for Freequant to work.");
+        } else {
+          String msg = "All LCMS input files for an experiment/group must be\n"
+              + "located in the same directory for Freequant to work.";
+          JOptionPane.showMessageDialog(comp, msg, "Freequant Error", JOptionPane.WARNING_MESSAGE);
+        }
         return false;
       }
 

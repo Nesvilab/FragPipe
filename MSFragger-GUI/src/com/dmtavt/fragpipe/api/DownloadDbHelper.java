@@ -6,15 +6,35 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
 
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.cmd.CmdDatabaseDownload;
+import com.dmtavt.fragpipe.cmd.CmdDatabaseUpdate;
+import com.dmtavt.fragpipe.cmd.CmdPhilosopherWorkspaceClean;
+import com.dmtavt.fragpipe.cmd.CmdPhilosopherWorkspaceCleanInit;
+import com.dmtavt.fragpipe.cmd.PbiBuilder;
+import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
+import com.dmtavt.fragpipe.dialogs.DbUniprotIdPanel;
+import com.dmtavt.fragpipe.messages.MessageDbNewPath;
+import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.dmtavt.fragpipe.process.ProcessResult;
+import com.github.chhh.utils.JarUtils;
+import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.UsageTrigger;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -22,19 +42,14 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.swing.*;
-
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.cmd.*;
-import com.dmtavt.fragpipe.process.ProcessResult;
-import com.dmtavt.fragpipe.dialogs.DbUniprotIdPanel;
-import com.dmtavt.fragpipe.messages.MessageDbNewPath;
-import com.dmtavt.fragpipe.params.ThisAppProps;
-import com.github.chhh.utils.JarUtils;
-import com.github.chhh.utils.PathUtils;
-import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.UsageTrigger;
 
 public class DownloadDbHelper {
 
@@ -95,25 +110,18 @@ public class DownloadDbHelper {
 
       if (addSpikeInFasta != null) {
         if (!Files.exists(addSpikeInFasta)) {
-          log.error("File not found: " + addSpikeInFasta);
-          SwingUtils.showDialog(p,
-                  new JLabel("<html>Could not find spike in fasta file:<br/>" + addSpikeInFasta),
-                  "Error preparing for DB download", JOptionPane.ERROR_MESSAGE);
+          SwingUtils.showDialog(p, new JLabel("<html>Could not find spike in fasta file:<br/>" + addSpikeInFasta), "Error preparing for DB download", JOptionPane.ERROR_MESSAGE);
           return;
         }
       }
 
-      JFileChooser fc = FileChooserUtils
-              .create("Download to directory", "Select directory", false, FcMode.DIRS_ONLY, true);
-      FileChooserUtils.setPath(fc,
-              Stream.of(hintSaveLocation, ThisAppProps.load(ThisAppProps.PROP_DB_SAVE_PATH)));
+      JFileChooser fc = FileChooserUtils.create("Download to directory", "Select directory", false, FcMode.DIRS_ONLY, true);
+      FileChooserUtils.setPath(fc, Stream.of(hintSaveLocation, ThisAppProps.load(ThisAppProps.PROP_DB_SAVE_PATH)));
       if (fc.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
         Path dir = fc.getSelectedFile().toPath();
-        ThisAppProps
-                .save(ThisAppProps.PROP_DB_SAVE_PATH, dir.toAbsolutePath().normalize().toString());
+        ThisAppProps.save(ThisAppProps.PROP_DB_SAVE_PATH, dir.toAbsolutePath().normalize().toString());
 
-        CmdPhilosopherWorkspaceCleanInit cmdCleanInit = new CmdPhilosopherWorkspaceCleanInit(
-            true, dir);
+        CmdPhilosopherWorkspaceCleanInit cmdCleanInit = new CmdPhilosopherWorkspaceCleanInit(true, dir);
         if (!cmdCleanInit.configure(usePhi, false)) {
           log.error("configuration of philosopher clean/init not successful");
           return;
@@ -124,30 +132,20 @@ public class DownloadDbHelper {
         if (isAddIrt) {
           pathIrt = FragpipeLocations.get().getDirTools().resolve("fasta/irtfusion.fasta");
           if (!Files.exists(pathIrt)) {
-            log.error("File not found: " + pathIrt.toString());
-            SwingUtils.showDialog(p,
-                new JLabel("<html>Could not find iRT fasta file:<br/>" + pathIrt.toString()),
-                "Error preparing for DB download", JOptionPane.ERROR_MESSAGE);
+            SwingUtils.showDialog(p, new JLabel("<html>Could not find iRT fasta file:<br/>" + pathIrt), "Error preparing for DB download", JOptionPane.ERROR_MESSAGE);
             return;
           }
         }
 
         CmdDatabaseDownload cmdDownload = new CmdDatabaseDownload(true, dir);
-        cmdDownload
-            .configure(parent, usePhi, uniprotId, isReviewed, isAddContaminants, isAddIsoforms,
-                isAddDecoys, pathIrt, addSpikeInFasta);
+        cmdDownload.configure(parent, usePhi, uniprotId, isReviewed, isAddContaminants, isAddIsoforms, isAddDecoys, pathIrt, addSpikeInFasta);
         CmdPhilosopherWorkspaceClean cmdClean = new CmdPhilosopherWorkspaceClean(true, dir);
         cmdClean.configure(usePhi);
 
-        List<ProcessBuilder> pbInit = Stream.of(cmdCleanInit)
-            .flatMap(cmdBase -> cmdBase.getBuilderDescriptor().pbis.stream().map(pbi -> pbi.pb))
-            .collect(Collectors.toList());
+        List<ProcessBuilder> pbInit = Stream.of(cmdCleanInit).flatMap(cmdBase -> cmdBase.getBuilderDescriptor().pbis.stream().map(pbi -> pbi.pb)).collect(Collectors.toList());
         runProcesses(pbInit, 1);
 
-        List<ProcessBuilder> pbs = Stream.of(cmdDownload, cmdClean)
-            .flatMap(cmdBase -> cmdBase.getBuilderDescriptor().pbis.stream().map(pbi -> pbi.pb))
-            .collect(Collectors.toList());
-
+        List<ProcessBuilder> pbs = Stream.of(cmdDownload, cmdClean).flatMap(cmdBase -> cmdBase.getBuilderDescriptor().pbis.stream().map(pbi -> pbi.pb)).collect(Collectors.toList());
 
         WatchService watch = FileSystems.getDefault().newWatchService();
         if (watch != null) {

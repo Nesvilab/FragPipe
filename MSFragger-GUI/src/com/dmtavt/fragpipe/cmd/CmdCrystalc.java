@@ -85,13 +85,17 @@ public class CmdCrystalc extends CmdBase {
   private boolean checkCompatibleFormats(Component comp, Map<InputLcmsFile, List<Path>> pepxmlFiles, List<String> supportedFormats) {
     List<String> notSupportedExts = getNotSupportedExts1(pepxmlFiles, supportedFormats);
     if (!notSupportedExts.isEmpty()) {
-      JOptionPane.showMessageDialog(comp, String.format(
-          "<html>%s can't work with '.%s' files.<br/>"
-              + "Compatible formats are: %s<br/>"
-              + "Either remove files from input or disable %s<br/>"
-              + "You can also convert files using <i>msconvert</i> from ProteoWizard.",
-          NAME, String.join(", ", notSupportedExts), String.join(", ", supportedFormats), NAME),
-          NAME + " error", JOptionPane.WARNING_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error(String.format("%s can't work with '.%s' files. You can convert files using msconvert from ProteoWizard.", NAME, String.join(", ", notSupportedExts)));
+      } else {
+        JOptionPane.showMessageDialog(comp, String.format(
+                "<html>%s can't work with '.%s' files.<br/>"
+                    + "Compatible formats are: %s<br/>"
+                    + "Either remove files from input or disable %s<br/>"
+                    + "You can also convert files using <i>msconvert</i> from ProteoWizard.",
+                NAME, String.join(", ", notSupportedExts), String.join(", ", supportedFormats), NAME),
+            NAME + " error", JOptionPane.WARNING_MESSAGE);
+      }
       return false;
     }
     return true;
@@ -119,8 +123,11 @@ public class CmdCrystalc extends CmdBase {
     }
 
     if (StringUtils.isNullOrWhitespace(fastaPath)) {
-      JOptionPane.showMessageDialog(comp, "Fasta file [Crystal-C] path can't be empty.",
-          "Warning", JOptionPane.WARNING_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error("Fasta file [Crystal-C] path can't be empty.");
+      } else {
+        JOptionPane.showMessageDialog(comp, "Fasta file [Crystal-C] path can't be empty.", "Warning", JOptionPane.WARNING_MESSAGE);
+      }
       return false;
     }
 
@@ -129,11 +136,12 @@ public class CmdCrystalc extends CmdBase {
       return false;
     }
 
-    if (!"pepxml".equals(msfraggerOutputExt.toLowerCase())) {
-      JOptionPane.showMessageDialog(comp,
-          "Crystal-C only accepts pepXML file extension.\n"
-              + "Switch to pepXML in MSFragger options or disable Crystal-C :\\",
-          "Not supported by Crystal-C", JOptionPane.ERROR_MESSAGE);
+    if (!"pepxml".equalsIgnoreCase(msfraggerOutputExt)) {
+      if (Fragpipe.headless) {
+        log.error("Crystal-C only accepts pepXML file extension. Switch to pepXML in MSFragger options or disable Crystal-C.");
+      } else {
+        JOptionPane.showMessageDialog(comp, "Crystal-C only accepts pepXML file extension. Switch to pepXML in MSFragger options or disable Crystal-C.", "Not supported by Crystal-C", JOptionPane.ERROR_MESSAGE);
+      }
       return false;
     }
 
@@ -164,9 +172,11 @@ public class CmdCrystalc extends CmdBase {
             ccp.save(Files.newOutputStream(ccParamsPath, StandardOpenOption.CREATE));
           }
         } catch (IOException e) {
-          JOptionPane.showMessageDialog(comp,
-              "Could not create Crystal-C parameter file.\n" + e.getMessage(),
-              "Error", JOptionPane.ERROR_MESSAGE);
+          if (Fragpipe.headless) {
+            log.error("Could not create Crystal-C parameter file. " + e.getMessage());
+          } else {
+            JOptionPane.showMessageDialog(comp, "Could not create Crystal-C parameter file.\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+          }
           return false;
         }
 

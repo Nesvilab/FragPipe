@@ -179,8 +179,11 @@ public class FragpipeRun {
 
       final Path jarPath = FragpipeLocations.get().getJarPath();
       if (jarPath == null) {
-        JOptionPane.showMessageDialog(tabRun, "Could not get the URI of the currently running jar",
-            "Errors", JOptionPane.ERROR_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("Could not get the URI of the currently running jar");
+        } else {
+          JOptionPane.showMessageDialog(tabRun, "Could not get the URI of the currently running jar", "Errors", JOptionPane.ERROR_MESSAGE);
+        }
         return;
       }
 
@@ -262,8 +265,7 @@ public class FragpipeRun {
       Seq.seq(new TopologicalOrderIterator<>(dag))
           .filter(CmdBase::isRun)
           .forEach(cmd -> {
-            toConsole(Fragpipe.COLOR_TOOL, String.format("    Cmd: [%s], ", cmd.getCmdName()),
-                false);
+            toConsole(Fragpipe.COLOR_TOOL, String.format("    Cmd: [%s], ", cmd.getCmdName()), false);
             toConsole(Fragpipe.COLOR_WORKDIR, String.format("Work dir: [%s]", cmd.getWd()), true);
           });
 
@@ -376,12 +378,11 @@ public class FragpipeRun {
     if (StringUtils.isBlank(workingDir)) {
       if (Fragpipe.headless){
         log.error("Output directory can't be left empty.");
-        System.exit(1);
+      } else {
+        JOptionPane.showMessageDialog(parent, "Output directory can't be left empty.\n"
+                + "Please select an existing directory for the output.", "Bad output directory path",
+            JOptionPane.WARNING_MESSAGE);
       }
-
-      JOptionPane.showMessageDialog(parent, "Output directory can't be left empty.\n"
-              + "Please select an existing directory for the output.", "Bad output directory path",
-          JOptionPane.WARNING_MESSAGE);
       return null;
     }
     Path testWdPath;
@@ -390,21 +391,24 @@ public class FragpipeRun {
     } catch (InvalidPathException e) {
       if (Fragpipe.headless){
         log.error("Output directory path is not a valid path.");
-        System.exit(1);
+      } else {
+        JOptionPane.showMessageDialog(parent, "Output directory path is not a valid path.\n"
+                + "Please select a directory for the output.", "Bad output directory path",
+            JOptionPane.WARNING_MESSAGE);
       }
-
-      JOptionPane.showMessageDialog(parent, "Output directory path is not a valid path.\n"
-              + "Please select a directory for the output.", "Bad output directory path",
-          JOptionPane.WARNING_MESSAGE);
       return null;
     }
     Pattern reWhitespace = Pattern.compile("\\s");
     if (reWhitespace.matcher(testWdPath.toString()).find()) {
-      JOptionPane.showMessageDialog(parent,
-          "Output directory path contains whitespace characters.\n"
-              + "Some programs in the pipeline might not work properly in this case.\n\n"
-              + "Please change output directory to one without spaces.",
-          "Bad output directory path", JOptionPane.WARNING_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error("Output directory path contains whitespace characters. Some programs in the pipeline might not work properly in this case. Please change output directory to one without spaces.");
+      } else {
+        JOptionPane.showMessageDialog(parent,
+            "Output directory path contains whitespace characters.\n"
+                + "Some programs in the pipeline might not work properly in this case.\n\n"
+                + "Please change output directory to one without spaces.",
+            "Bad output directory path", JOptionPane.WARNING_MESSAGE);
+      }
       return null;
     }
     return testWdPath;
@@ -415,26 +419,22 @@ public class FragpipeRun {
       if (Fragpipe.headless){
         log.warn("Output directory doesn't exist. Creating it.");
       } else {
-        int confirmCreation = JOptionPane.showConfirmDialog(parent,
-            "Output directory doesn't exist. Create?",
-            "Create output directory?", JOptionPane.OK_CANCEL_OPTION);
+        int confirmCreation = JOptionPane.showConfirmDialog(parent, "Output directory doesn't exist. Create?", "Create output directory?", JOptionPane.OK_CANCEL_OPTION);
         if (JOptionPane.OK_OPTION != confirmCreation) {
           return null;
         }
-        try {
-          Files.createDirectories(wd);
-        } catch (Exception e) {
-          // something went not right during creation of directory structure
-          if (Fragpipe.headless){
-            log.error("Could not create directory structure.\n" + e.getMessage());
-            System.exit(1);
-          }
+      }
 
-          JOptionPane.showMessageDialog(parent,
-              "Could not create directory structure.\n" + e.getMessage(), "Error",
-              JOptionPane.ERROR_MESSAGE);
-          return null;
+      try {
+        Files.createDirectories(wd);
+      } catch (Exception e) {
+        // something went not right during creation of directory structure
+        if (Fragpipe.headless) {
+          log.error("Could not create directory structure. " + e.getMessage());
+        } else {
+          JOptionPane.showMessageDialog(parent, "Could not create directory structure.\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+        return null;
       }
     } else {
       try (Stream<Path> inWd = Files.list(wd)) {
@@ -442,11 +442,10 @@ public class FragpipeRun {
           if (Fragpipe.headless) {
             log.warn("The output directory is not empty. Some files might be overwritten in: " + wd);
           } else {
-            int confirm = JOptionPane.showConfirmDialog(parent,
-                "The output directory is not empty.\n\n"
-                    + "Some files might be overwritten in:\n"
-                    + " > " + wd.toString() + "\n\n"
-                    + "Do you want to proceed?", "Confirmation", JOptionPane.YES_NO_OPTION);
+            int confirm = JOptionPane.showConfirmDialog(parent, "The output directory is not empty.\n\n"
+                + "Some files might be overwritten in:\n"
+                + " > " + wd + "\n\n"
+                + "Do you want to proceed?", "Confirmation", JOptionPane.YES_NO_OPTION);
             if (JOptionPane.YES_OPTION != confirm) {
               return null;
             }
@@ -454,28 +453,26 @@ public class FragpipeRun {
         }
       } catch (Exception e) {
         if (Fragpipe.headless) {
-          log.error("Could not create directory structure.\n" + e.getMessage());
-          System.exit(1);
+          log.error(e.getMessage());
+        } else {
+          JOptionPane.showMessageDialog(parent, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        JOptionPane.showMessageDialog(parent,
-            "Could not create directory structure.\n" + e.getMessage(), "Error",
-            JOptionPane.ERROR_MESSAGE);
         return null;
       }
     }
 
     // make sure subdirs for experiments are created
-    Set<Path> subdirs = tabWorkflow.getLcmsFileGroups().values().stream().map(g -> g.outputDir(wd))
-        .collect(Collectors.toSet());
+    Set<Path> subdirs = tabWorkflow.getLcmsFileGroups().values().stream().map(g -> g.outputDir(wd)).collect(Collectors.toSet());
     for (Path subdir : subdirs) {
       if (!Files.exists(subdir)) {
         try {
           Files.createDirectories(subdir);
         } catch (IOException e) {
-          JOptionPane.showMessageDialog(parent,
-              "Could not create directory structure.\n" + e.getMessage(), "Error",
-              JOptionPane.ERROR_MESSAGE);
+          if (Fragpipe.headless) {
+            log.error("Could not create directory structure. " + e.getMessage());
+          } else {
+            JOptionPane.showMessageDialog(parent, "Could not create directory structure.\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+          }
           return null;
         }
       }
@@ -487,20 +484,20 @@ public class FragpipeRun {
   private static Map<String, LcmsFileGroup> checkInputLcmsFiles1(JComponent parent,
       TabWorkflow tabWorkflow) {
     final Map<String, LcmsFileGroup> lcmsFileGroups = tabWorkflow.getLcmsFileGroups();
-    List<InputLcmsFile> lcmsExpEmptyRepNonNull = lcmsFileGroups.values().stream()
-        .flatMap(g -> g.lcmsFiles.stream())
-        .filter(lcms -> StringUtils.isNullOrWhitespace(lcms.getExperiment())
-            && lcms.getReplicate() != null)
-        .collect(Collectors.toList());
+    List<InputLcmsFile> lcmsExpEmptyRepNonNull = lcmsFileGroups.values().stream().flatMap(g -> g.lcmsFiles.stream()).filter(lcms -> StringUtils.isNullOrWhitespace(lcms.getExperiment()) && lcms.getReplicate() != null).collect(Collectors.toList());
     if (!lcmsExpEmptyRepNonNull.isEmpty()) {
-      int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
-          "<html>For " + lcmsExpEmptyRepNonNull.size()
-              + " input files Experiment was left empty while Replicate was not.<br/><br/>\n"
-              + "<b>Yes</b> - if you want to auto-add 'exp_' prefix and continue as-is.<br/>\n"
-              + "<b>No, Cancel</b> - stop and change manually on Select LC/MS Files tab."));
-      if (confirm != JOptionPane.YES_OPTION) {
-        log.debug("User chose not to auto-rename experiment");
-        return null;
+      if (Fragpipe.headless) {
+        log.warn("For " + lcmsExpEmptyRepNonNull.size() + " input files Experiment was left empty while Replicate was not. auto-add 'exp_' prefix and continue as-is.");
+      } else {
+        int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
+            "<html>For " + lcmsExpEmptyRepNonNull.size()
+                + " input files Experiment was left empty while Replicate was not.<br/><br/>\n"
+                + "<b>Yes</b> - if you want to auto-add 'exp_' prefix and continue as-is.<br/>\n"
+                + "<b>No, Cancel</b> - stop and change manually on Select LC/MS Files tab."));
+        if (confirm != JOptionPane.YES_OPTION) {
+          log.debug("User chose not to auto-rename experiment");
+          return null;
+        }
       }
       throw new UnsupportedOperationException(
           "Renaming not yet implemented"); // TODO: implement renaming
@@ -515,9 +512,13 @@ public class FragpipeRun {
         .collect(Collectors.toCollection(ArrayList::new));
 
     if (lcmsFilesAll.isEmpty()) {
-      JOptionPane.showMessageDialog(parent, "No LC/MS data files selected.\n"
-              + "Check 'Workflow' tab, 'Input LC/MS Files' section.", "Error",
-          JOptionPane.WARNING_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error("No LC/MS data files selected.");
+      } else {
+        JOptionPane.showMessageDialog(parent, "No LC/MS data files selected.\n"
+                + "Check 'Workflow' tab, 'Input LC/MS Files' section.", "Error",
+            JOptionPane.WARNING_MESSAGE);
+      }
       return null;
     } else {
       // check that all input LCMS files have unique filenames
@@ -545,9 +546,12 @@ public class FragpipeRun {
         sb.append("\nFiles might get overwritten and results might be not what's expected.\n"
             + "Consider renaming input files.");
 
-        JOptionPane.showMessageDialog(parent,
-            sb.toString(),
-            "Input files with same names", JOptionPane.WARNING_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error(sb.toString());
+        } else {
+          JOptionPane.showMessageDialog(parent, sb.toString(), "Input files with same names", JOptionPane.WARNING_MESSAGE);
+        }
+
         return null;
       }
     }
@@ -566,7 +570,7 @@ public class FragpipeRun {
     final Path existing = PathUtils.existing(configDb.path.toString());
     if (existing == null) {
       if (Fragpipe.headless) {
-        log.error(String.format("Could not find fasta file (Database) at: %s", configDb.path));
+        log.error(String.format("Could not find fasta file at: %s", configDb.path));
       } else {
         JOptionPane.showMessageDialog(parent, String.format("Could not find fasta file (Database) at:\n%s", configDb.path), "Errors", JOptionPane.ERROR_MESSAGE);
       }
@@ -604,7 +608,6 @@ public class FragpipeRun {
     if (pbi.pb.directory() != null) {
       toConsole(Fragpipe.COLOR_WORKDIR, " [Work dir: " + pbi.pb.directory() + "]", false);
     }
-    toConsole("");
     final String cmd = pbi.pb.command().stream()
             .map(e -> OsUtils.isUnix() && Pattern.matches(".*\\s.*", e) ? "\"" + e + "\"" : e) // insert quotes for arguments with whitespace
             .collect(Collectors.joining(" "));
@@ -995,15 +998,20 @@ public class FragpipeRun {
             }
           }
           if (allProtxmlsExist) {
-            // ProtProph is not run, but all protxmls are there
-            int confirm = JOptionPane.showConfirmDialog(parent,
-                "ProteinProphet is not run, but prot.xml files for all groups do already exist:\n\n"
-                    + paths
-                    + "\n\n"
-                    + "Do you want to use them for the Filter command?\n",
-                "Use previously existing prot.xml files?\n", JOptionPane.YES_NO_OPTION);
-            if (JOptionPane.YES_OPTION == confirm) {
+            // ProteinProphet is not run, but all protxmls are there
+            if (Fragpipe.headless) {
+              log.warn("ProteinProphet is not run, but prot.xml files for all groups do already exist: " + paths);
               dontUseProtxmlInFilter = false;
+            } else {
+              int confirm = JOptionPane.showConfirmDialog(parent,
+                  "ProteinProphet is not run, but prot.xml files for all groups do already exist:\n\n"
+                      + paths
+                      + "\n\n"
+                      + "Do you want to use them for the Filter command?\n",
+                  "Use previously existing prot.xml files?\n", JOptionPane.YES_NO_OPTION);
+              if (JOptionPane.YES_OPTION == confirm) {
+                dontUseProtxmlInFilter = false;
+              }
             }
           }
         } else { // if (!isRunProteinProphet) {
@@ -1104,12 +1112,16 @@ public class FragpipeRun {
 
     addCheck.accept(() -> {
       if (isTmtLqFq && isFreequant) {
-        String msg =
-            "<html>FreeQuant needs to be run as part of TMT analysis.\n"
-                + "You have chosen to run FreeQuant separately as well.\n"
-                + "This will cause generated files to interfere .\n"
-                + "Please turn off standalone FreeQuant.\n";
-        JOptionPane.showMessageDialog(parent, msg, "Warning", JOptionPane.WARNING_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("FreeQuant needs to be run as part of TMT analysis.");
+        } else {
+          String msg =
+              "<html>FreeQuant needs to be run as part of TMT analysis.\n"
+                  + "You have chosen to run FreeQuant separately as well.\n"
+                  + "This will cause generated files to interfere .\n"
+                  + "Please turn off standalone FreeQuant.\n";
+          JOptionPane.showMessageDialog(parent, msg, "Warning", JOptionPane.WARNING_MESSAGE);
+        }
         return false;
       }
       return true;
@@ -1162,9 +1174,11 @@ public class FragpipeRun {
 
     addCheck.accept(() -> {
       if (!ptmsPanel.validateForm()) {
-        JOptionPane.showMessageDialog(parent,
-            "There are errors in PTM-Shepherd configuraiton panel on Report tab.",
-            "PTMShepherd Error", JOptionPane.ERROR_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("There are errors in PTM-Shepherd configuration panel on Report tab.");
+        } else {
+          JOptionPane.showMessageDialog(parent, "There are errors in PTM-Shepherd configuration panel on Report tab.", "PTMShepherd Error", JOptionPane.ERROR_MESSAGE);
+        }
         return false;
       }
       return true;
@@ -1198,9 +1212,11 @@ public class FragpipeRun {
       if (cmdSpecLibGen.isRun()) {
         NoteConfigSpeclibgen speclibConf = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
         if (!speclibConf.isValid()) {
-          JOptionPane.showMessageDialog(parent,
-              "Spectral Library Generation scripts did not initialize correctly.",
-              "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
+          if (Fragpipe.headless) {
+            log.error("Spectral Library Generation scripts did not initialize correctly.");
+          } else {
+            JOptionPane.showMessageDialog(parent, "Spectral Library Generation scripts did not initialize correctly.", "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
+          }
           return false;
         }
         final SpecLibGen2 slg = speclibConf.instance;
@@ -1232,11 +1248,16 @@ public class FragpipeRun {
                 || (cmd instanceof CmdTmtIntegrator)).toList();
         if (!incompatible.isEmpty()) {
           String s = Seq.seq(incompatible).map(CmdBase::getCmdName).distinct().toString(", ");
-          int confirmation = SwingUtils.showConfirmDialog(parent, new JLabel(SwingUtils.makeHtml(
-              "timsTOF data is currently not compatible with some of tools to be run:\n"
-                  + s + "\nTurn them off and continue?")));
-          if (JOptionPane.YES_OPTION != confirmation) {
+          if (Fragpipe.headless) {
+            log.error("timsTOF data is currently not compatible with some of tools to be run: " + s);
             return false;
+          } else {
+            int confirmation = SwingUtils.showConfirmDialog(parent, new JLabel(SwingUtils.makeHtml(
+                "timsTOF data is currently not compatible with some of tools to be run:\n"
+                    + s + "\nTurn them off and continue?")));
+            if (JOptionPane.YES_OPTION != confirmation) {
+              return false;
+            }
           }
           incompatible.forEach(cmd -> cmd.isRun(false));
         }
@@ -1472,8 +1493,11 @@ public class FragpipeRun {
           }
         }
       } catch (IOException e) {
-        JOptionPane.showMessageDialog(parent,
-            "Not all directories could be created:\n" + e.getMessage());
+        if (Fragpipe.headless) {
+          log.error("Not all directories could be created: " + e.getMessage());
+        } else {
+          JOptionPane.showMessageDialog(parent, "Not all directories could be created:\n" + e.getMessage());
+        }
         return false;
       }
     }
@@ -1502,33 +1526,42 @@ public class FragpipeRun {
 
     double decoysPercentage = (n.decoysCnt / (double) n.numEntries);
     if (decoysPercentage <= 0) {
-      int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
-          "<html>No decoys found in the FASTA file.<br/>\n" +
-              "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
-              "<br/>\n" +
-              "You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
-      if (JOptionPane.YES_OPTION != confirm) {
+      if (Fragpipe.headless) {
+        log.error("No decoys found in the FASTA file.");
         return false;
+      } else {
+        int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
+            "<html>No decoys found in the FASTA file.<br/>\n" +
+                "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
+                "<br/>\n" +
+                "You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
+        return JOptionPane.YES_OPTION == confirm;
       }
     } else if (decoysPercentage >= 1) {
-      int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
-          "<html>All FASTA entries seem to be decoys.<br/>\n" +
-              "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
-              "<br/>\n" +
-              "You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
-      if (JOptionPane.YES_OPTION != confirm) {
+      if (Fragpipe.headless) {
+        log.error("All FASTA entries seem to be decoys.");
         return false;
+      } else {
+        int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
+            "<html>All FASTA entries seem to be decoys.<br/>\n" +
+                "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
+                "<br/>\n" +
+                "You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
+        return JOptionPane.YES_OPTION == confirm;
       }
     } else if (decoysPercentage < 0.4 || decoysPercentage > 0.6) {
       DecimalFormat dfPct = new DecimalFormat("##.#'%'");
-      int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
-          "<html>FASTA file contains " + dfPct.format(decoysPercentage * 100) + ".<br/>\n" +
-              "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
-              "<br/>\n" +
-              "You can also continue as-is, if that's what you're expected.</br>\n"
-              + "Do you want to continue?"));
-      if (JOptionPane.YES_OPTION != confirm) {
+      if (Fragpipe.headless) {
+        log.error("FASTA file contains " + dfPct.format(decoysPercentage * 100) + " decoys. You have possibly set incorrect decoy tag. Check protein database tab.");
         return false;
+      } else {
+        int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
+            "<html>FASTA file contains " + dfPct.format(decoysPercentage * 100) + " decoys.<br/>\n" +
+                "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
+                "<br/>\n" +
+                "You can also continue as-is, if that's what you're expected.</br>\n"
+                + "Do you want to continue?"));
+        return JOptionPane.YES_OPTION == confirm;
       }
     }
 

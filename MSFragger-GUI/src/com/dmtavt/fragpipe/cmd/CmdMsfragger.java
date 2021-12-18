@@ -7,7 +7,6 @@ import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
-import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
 import com.dmtavt.fragpipe.tools.enums.CleavageType;
 import com.dmtavt.fragpipe.tools.enums.FraggerOutputType;
@@ -37,7 +36,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -287,26 +285,33 @@ public class CmdMsfragger extends CmdBase {
     if (isSlicing) {
       // slicing requested
       if (!DbSplit2.get().isInitialized()) {
-        JOptionPane.showMessageDialog(comp,
-            "MSFragger: database splitting in more than 1 chunk.\n"
-                + "However not all preconditions for enabling slicing were met.\n"
-                + "Check the bottom of \"Config\" tab for details.",
-            "Error", JOptionPane.ERROR_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("MSFragger: database splitting in more than 1 chunk. However not all preconditions for enabling slicing were met.");
+        } else {
+          JOptionPane.showMessageDialog(comp,
+              "MSFragger: database splitting in more than 1 chunk.\n"
+                  + "However not all preconditions for enabling slicing were met.\n"
+                  + "Check the bottom of 'Config' tab for details.",
+              "Error", JOptionPane.ERROR_MESSAGE);
+        }
         return false;
       }
     }
 
     if (StringUtils.isNullOrWhitespace(binFragger.getBin())) {
-      JOptionPane
-          .showMessageDialog(comp, "Binary for running Fragger can not be an empty string.\n",
-              "Error", JOptionPane.ERROR_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error("Binary for running Fragger can not be an empty string.");
+      } else {
+        JOptionPane.showMessageDialog(comp, "Binary for running Fragger can not be an empty string.\n", "Error", JOptionPane.ERROR_MESSAGE);
+      }
       return false;
     }
     if (testFilePath(binFragger.getBin(), "") == null) {
-      JOptionPane
-          .showMessageDialog(comp, "Binary for running Fragger not found or could not be run.\n"
-                  + "Neither on PATH, nor in the working directory",
-              "Error", JOptionPane.ERROR_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error("Binary for running Fragger not found or could not be run. Neither on PATH, nor in the working directory");
+      } else {
+        JOptionPane.showMessageDialog(comp, "Binary for running Fragger not found or could not be run.\nNeither on PATH, nor in the working directory", "Error", JOptionPane.ERROR_MESSAGE);
+      }
       return false;
     }
 
@@ -315,25 +320,34 @@ public class CmdMsfragger extends CmdBase {
       Path fraggerJarLoc = Paths.get(binFragger.getBin()).getParent();
       Path libs = searchExtLibsThermo(Collections.singletonList(fraggerJarLoc));
       if (libs == null) {
-        JOptionPane
-            .showMessageDialog(comp, "Thermo RAW files were used as input.\n"
-                    + "'ext/thermo' folder was not found next to MSFragger jar file.\n"
-                    + "You can obtain it by upgrading your MSFragger from the Config tab.\n",
-                "Libraries missing", JOptionPane.ERROR_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("Thermo RAW files were used as input. 'ext/thermo' folder was not found next to MSFragger jar file.");
+        } else {
+          JOptionPane.showMessageDialog(comp, "Thermo RAW files were used as input.\n"
+                  + "'ext/thermo' folder was not found next to MSFragger jar file.\n"
+                  + "You can obtain it by upgrading your MSFragger from the Config tab.\n",
+              "Libraries missing", JOptionPane.ERROR_MESSAGE);
+        }
         return false;
       }
     }
 
     // Fasta file
     if (pathFasta == null) {
-      JOptionPane.showMessageDialog(comp, "Fasta file path (Fragger) can't be empty",
-          "Error", JOptionPane.ERROR_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error("Fasta file path can't be empty");
+      } else {
+        JOptionPane.showMessageDialog(comp, "Fasta file path (Fragger) can't be empty", "Error", JOptionPane.ERROR_MESSAGE);
+      }
       return false;
     }
 
     if ((hasDia || hasGpfDia) && !isRunDiaU && params.getNumEnzymeTermini() == CleavageType.NONSPECIFIC) {
-      JOptionPane.showMessageDialog(comp, "MSFragger cannot perform nonspecific search for DIA or GPF-DIA data.\nPlease enable DIA-Umpire instead.",
-          "Error", JOptionPane.ERROR_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error("MSFragger cannot perform nonspecific search for DIA or GPF-DIA data. Please enable DIA-Umpire instead.");
+      } else {
+        JOptionPane.showMessageDialog(comp, "MSFragger cannot perform nonspecific search for DIA or GPF-DIA data.\nPlease enable DIA-Umpire instead.", "Error", JOptionPane.ERROR_MESSAGE);
+      }
       return false;
     }
 
@@ -367,9 +381,11 @@ public class CmdMsfragger extends CmdBase {
         // cache the params
         params.save();
       } catch (IOException ex) {
-        JOptionPane.showMessageDialog(comp,
-            "Could not save fragger_*.params file to working dir.\n",
-            "Error", JOptionPane.ERROR_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("Could not save fragger_*.params file to working dir.");
+        } else {
+          JOptionPane.showMessageDialog(comp, "Could not save fragger_*.params file to working dir.\n", "Error", JOptionPane.ERROR_MESSAGE);
+        }
         return false;
       }
     }
@@ -418,9 +434,11 @@ public class CmdMsfragger extends CmdBase {
             OsUtils.asSingleArgument(String.join(" ", javaCmd))
         );
       } catch (NoStickyException e) {
-        JOptionPane.showMessageDialog(comp,
-            "DbSplit was enabled, but Python was not configured.",
-            "Error", JOptionPane.ERROR_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("DbSplit was enabled, but Python was not configured.");
+        } else {
+          JOptionPane.showMessageDialog(comp, "DbSplit was enabled, but Python was not configured.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
         return false;
       }
     }
@@ -481,9 +499,11 @@ public class CmdMsfragger extends CmdBase {
         // check if the command length is ok so far
         sb.append(String.join(" ", cmd));
         if (sb.length() > commandLenLimit) {
-          JOptionPane.showMessageDialog(comp,
-              "MSFragger command line length too large even for a single file.",
-              "Error", JOptionPane.ERROR_MESSAGE);
+          if (Fragpipe.headless) {
+            log.error("MSFragger command line length too large even for a single file.");
+          } else {
+            JOptionPane.showMessageDialog(comp, "MSFragger command line length too large even for a single file.", "Error", JOptionPane.ERROR_MESSAGE);
+          }
           return false;
         }
 

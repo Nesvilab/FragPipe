@@ -92,8 +92,7 @@ public class TableCellIntSpinnerEditor extends DefaultCellEditor {
             editor.commitEdit();
             spinner.commitEdit();
         } catch (java.text.ParseException e) {
-            JOptionPane.showMessageDialog(null,
-                    "Invalid value, discarding.");
+            JOptionPane.showMessageDialog(null, "Invalid value, discarding.");
         }
         return super.stopCellEditing();
     }

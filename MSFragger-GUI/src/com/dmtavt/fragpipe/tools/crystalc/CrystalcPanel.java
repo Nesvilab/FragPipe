@@ -75,9 +75,13 @@ public class CrystalcPanel extends JPanelBase {
     checkRun.addItemListener(e -> {
       final TabMsfragger tabMsfragger = Fragpipe.getStickyStrict(TabMsfragger.class);
       if (isRun() && tabMsfragger.getMassDiffToVariableMod() > 0) {
-        JOptionPane.showMessageDialog(this,
-            "<html>Crystal-C is incompatible with 'report mass shift as a variable mod != no'.",
-            "Incompatible options", JOptionPane.WARNING_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("Crystal-C is incompatible with 'report mass shift as a variable mod != no'.");
+        } else {
+          JOptionPane.showMessageDialog(this,
+              "<html>Crystal-C is incompatible with 'report mass shift as a variable mod != no'.",
+              "Incompatible options", JOptionPane.WARNING_MESSAGE);
+        }
       }
     });
     super.initMore();

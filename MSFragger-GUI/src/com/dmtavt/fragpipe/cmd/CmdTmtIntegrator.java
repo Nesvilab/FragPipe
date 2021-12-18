@@ -47,13 +47,17 @@ public class CmdTmtIntegrator extends CmdBase {
   private boolean checkCompatibleFormats(Component comp, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
     List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, SUPPORTED_FORMATS);
     if (!notSupportedExts.isEmpty()) {
-      JOptionPane.showMessageDialog(comp, String.format(
-          "<html>%s can't work with '.%s' files.<br/>"
-              + "Compatible formats are: %s<br/>"
-              + "Either remove files from input or disable %s<br/>"
-              + "You can also convert files using <i>msconvert</i> from ProteoWizard.",
-          NAME, String.join(", ", notSupportedExts), String.join(", ", SUPPORTED_FORMATS), NAME),
-          NAME + " error", JOptionPane.WARNING_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error(String.format("%s can't work with '.%s' files. You can also convert files using msconvert from ProteoWizard.", NAME, String.join(", ", notSupportedExts)));
+      } else {
+        JOptionPane.showMessageDialog(comp, String.format(
+                "<html>%s can't work with '.%s' files.<br/>"
+                    + "Compatible formats are: %s<br/>"
+                    + "Either remove files from input or disable %s<br/>"
+                    + "You can also convert files using <i>msconvert</i> from ProteoWizard.",
+                NAME, String.join(", ", notSupportedExts), String.join(", ", SUPPORTED_FORMATS), NAME),
+            NAME + " error", JOptionPane.WARNING_MESSAGE);
+      }
       return false;
     }
     return true;
@@ -147,8 +151,11 @@ public class CmdTmtIntegrator extends CmdBase {
       Process p = pb.start();
       int checkExitCode = p.waitFor();
       if (checkExitCode != 0) {
-        JOptionPane.showMessageDialog(panel, "Invalid TMT Integrator config file, exit code " + checkExitCode,
-            "TMT Integrator configuration", JOptionPane.ERROR_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("Invalid TMT Integrator config file, exit code " + checkExitCode);
+        } else {
+          JOptionPane.showMessageDialog(panel, "Invalid TMT Integrator config file, exit code " + checkExitCode, "TMT Integrator configuration", JOptionPane.ERROR_MESSAGE);
+        }
         return false;
       }
     } catch (IOException e) {

@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe.cmd;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
@@ -19,8 +20,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CmdLabelquant extends CmdBase {
+
+  private static final Logger log = LoggerFactory.getLogger(CmdLabelquant.class);
   public static final String NAME = "Quant (Isobaric)";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "raw");
 
@@ -46,13 +51,15 @@ public class CmdLabelquant extends CmdBase {
     for (Map.Entry<LcmsFileGroup, Path> e : annotations.entrySet()) {
       final LcmsFileGroup group = e.getKey();
       final Path annotationFile = e.getValue();
-      final Set<Path> lcmsGroupParentDir = group.lcmsFiles.stream()
-          .map(f -> f.getPath().getParent())
-          .collect(Collectors.toSet());
+      final Set<Path> lcmsGroupParentDir = group.lcmsFiles.stream().map(f -> f.getPath().getParent()).collect(Collectors.toSet());
       if (lcmsGroupParentDir.size() > 1) {
-        String msg = "<html>All LCMS input files for an experiment/group must be<br/>\n"
-            + "located in the same directory for " + NAME + " to work.";
-        JOptionPane.showMessageDialog(comp, msg, NAME + " Error", JOptionPane.WARNING_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("All LCMS input files for an experiment/group must be located in the same directory for " + NAME + " to work.");
+        } else {
+          String msg = "<html>All LCMS input files for an experiment/group must be<br/>\n"
+              + "located in the same directory for " + NAME + " to work.";
+          JOptionPane.showMessageDialog(comp, msg, NAME + " Error", JOptionPane.WARNING_MESSAGE);
+        }
         return false;
       }
 
@@ -70,12 +77,14 @@ public class CmdLabelquant extends CmdBase {
       cmd.add(phi.useBin(groupWd));
       cmd.add(PhilosopherProps.CMD_LABELQUANT);
       List<String> opts = StringUtils.splitCommandLine(optsLq);
-      List<String> badGiven = opts.stream().map(String::toLowerCase).filter(forbiddenOpts::contains)
-          .collect(Collectors.toList());
+      List<String> badGiven = opts.stream().map(String::toLowerCase).filter(forbiddenOpts::contains).collect(Collectors.toList());
       if (!badGiven.isEmpty()) {
-        String msg = String.format("<html>Please don't include [%s] in Labelquant opts string",
-            String.join(", ", badGiven));
-        JOptionPane.showMessageDialog(comp, msg, NAME + " Error", JOptionPane.WARNING_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error(String.format("Please don't include [%s] in Labelquant opts string", String.join(", ", badGiven)));
+        } else {
+          String msg = String.format("<html>Please don't include [%s] in Labelquant opts string", String.join(", ", badGiven));
+          JOptionPane.showMessageDialog(comp, msg, NAME + " Error", JOptionPane.WARNING_MESSAGE);
+        }
         return false;
       }
       cmd.addAll(opts);
@@ -131,11 +140,15 @@ public class CmdLabelquant extends CmdBase {
   private boolean checkCompatibleFormats(Component comp, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
     List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, SUPPORTED_FORMATS);
     if (!notSupportedExts.isEmpty()) {
-      JOptionPane.showMessageDialog(comp, String.format(
-          "<html>%s doesn't support '.%s' files.<br/>"
-              + "Either remove them from input or disable %s<br/>"
-              + "You can convert files using <i>msconvert</i> from ProteoWizard.", NAME, String.join(", ", notSupportedExts), NAME),
-          NAME + " error", JOptionPane.WARNING_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error(String.format("%s doesn't support '.%s' files. You can convert files using msconvert from ProteoWizard.", NAME, String.join(", ", notSupportedExts)));
+      } else {
+        JOptionPane.showMessageDialog(comp, String.format(
+                "<html>%s doesn't support '.%s' files.<br/>"
+                    + "Either remove them from input or disable %s<br/>"
+                    + "You can convert files using <i>msconvert</i> from ProteoWizard.", NAME, String.join(", ", notSupportedExts), NAME),
+            NAME + " error", JOptionPane.WARNING_MESSAGE);
+      }
       return false;
     }
     return true;

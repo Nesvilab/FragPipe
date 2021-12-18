@@ -191,7 +191,9 @@ public class Fragpipe extends JFrameHeadless {
   public static void uncaughtExceptionHandler(Thread t, Throwable e) {
     final String stacktrace = ExceptionUtils.getStackTrace(e);
     log.error("Something unexpected happened!", e);
-    SwingUtils.userShowError(null, stacktrace);
+    if (!Fragpipe.headless) {
+      SwingUtils.userShowError(null, stacktrace);
+    }
   }
 
   public static String getBinJava() {
@@ -530,8 +532,9 @@ public class Fragpipe extends JFrameHeadless {
       notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
       notesScroller.setViewportView(notesArea);
       panel.add(notesScroller, BorderLayout.CENTER);
-      if (!headless)
+      if (!headless) {
         SwingUtils.showDialog(this.toJFrame(), panel);
+      }
     }
 
     log.debug("Done Fragpipe.initUi()");

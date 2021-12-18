@@ -3,6 +3,7 @@ package com.dmtavt.fragpipe.cmd;
 import static com.github.chhh.utils.OsUtils.isUnix;
 import static com.github.chhh.utils.OsUtils.isWindows;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
@@ -22,9 +23,12 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CmdDiann extends CmdBase {
 
+  private static final Logger log = LoggerFactory.getLogger(CmdDiann.class);
   private static final String NAME = "DIA-NN";
   private static final String[] DIANN_SO_DEPS = {"diann_so/libm.so.6", "diann_so/libstdc++.so.6"};
   private static final String[] DIANN_SO_DEPS_libgomp = {"diann_so/libgomp.so.1.0.0"};
@@ -189,19 +193,23 @@ public class CmdDiann extends CmdBase {
   private boolean checkCompatibleFormats(Component comp, List<InputLcmsFile> inputLcmsFiles, List<String> supportedFormats) {
     List<String> notSupportedExts = getNotSupportedExts(inputLcmsFiles, supportedFormats);
     if (!notSupportedExts.isEmpty()) {
-      StringBuilder sb = new StringBuilder();
-      sb.append(String.format("<html>%s can't work with '.%s' files.<br/>", NAME, String.join(", ", notSupportedExts)));
-      if (notSupportedExts.contains(".raw") || notSupportedExts.contains("raw")) {
-        sb.append("Support for raw files requires Windows and <a href=\"https://thermo.flexnetoperations.com/control/thmo/login?nextURL=%2Fcontrol%2Fthmo%2Fdownload%3Felement%3D6306677\">Thermo MS File Reader</a> to be installed.<br/>It is essential to use specifically the version by the link above (3.0 SP3).<br/>");
-      }
-      if (notSupportedExts.contains(".wiff") || notSupportedExts.contains("wiff")) {
-        sb.append("Support for wiff files requires Windows.<br>");
-      }
-      sb.append(String.format("Compatible formats are: %s<br/>", String.join(", ", supportedFormats)));
-      sb.append(String.format("Either remove files from input or disable %s<br/>", NAME));
-      sb.append("You can also convert files using <i>msconvert</i> from ProteoWizard.");
+      if (Fragpipe.headless) {
+        log.error(String.format("%s can't work with '.%s' files. You can convert files using msconvert from ProteoWizard.", NAME, String.join(", ", notSupportedExts)));
+      } else {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("<html>%s can't work with '.%s' files.<br/>", NAME, String.join(", ", notSupportedExts)));
+        if (notSupportedExts.contains(".raw") || notSupportedExts.contains("raw")) {
+          sb.append("Support for raw files requires Windows and <a href=\"https://thermo.flexnetoperations.com/control/thmo/login?nextURL=%2Fcontrol%2Fthmo%2Fdownload%3Felement%3D6306677\">Thermo MS File Reader</a> to be installed.<br/>It is essential to use specifically the version by the link above (3.0 SP3).<br/>");
+        }
+        if (notSupportedExts.contains(".wiff") || notSupportedExts.contains("wiff")) {
+          sb.append("Support for wiff files requires Windows.<br>");
+        }
+        sb.append(String.format("Compatible formats are: %s<br/>", String.join(", ", supportedFormats)));
+        sb.append(String.format("Either remove files from input or disable %s<br/>", NAME));
+        sb.append("You can also convert files using <i>msconvert</i> from ProteoWizard.");
 
-      JOptionPane.showMessageDialog(comp, sb.toString(), NAME + " error", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(comp, sb.toString(), NAME + " error", JOptionPane.WARNING_MESSAGE);
+      }
       return false;
     }
     return true;

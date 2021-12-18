@@ -85,9 +85,11 @@ public class CmdUmpireSe extends CmdBase {
         FileOutputStream fos = new FileOutputStream(umpireParamsFilePath.toFile());
         PropertiesUtils.writePropertiesContent(collectedUmpireParams, fos);
       } catch (FileNotFoundException | FileWritingException e) {
-        JOptionPane.showMessageDialog(errMsgParent,
-            "[DIA Umpire SE]\nCould not write property file, thus can't run DIA-Umpire",
-            "Error", JOptionPane.ERROR_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("Could not write property file, thus can't run DIA-Umpire.");
+        } else {
+          JOptionPane.showMessageDialog(errMsgParent, "[DIA Umpire SE]\nCould not write property file, thus can't run DIA-Umpire", "Error", JOptionPane.ERROR_MESSAGE);
+        }
         return false;
       }
     }

@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe.cmd;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.nio.file.Path;
@@ -42,14 +43,17 @@ public class CmdPhilosopherAbacus extends CmdBase {
 
     initPreConfig();
 
-    final long numGroups = mapGroupsToProtxml.keySet().stream()
-        .map(group -> group.name).distinct().count();
+    final long numGroups = mapGroupsToProtxml.keySet().stream().map(group -> group.name).distinct().count();
     if (numGroups < 2) {
-      String msg = "<code>Multi-experiment report</code> requires more than one experiment/group.<br/>\n"
-          + "You can assign experiment/group names to LCMS files on the LCMS file selection tab.<br/>\n"
-          + "Alternatively, you can turn off <code>Multi-experiment report<code> checkbox on Report tab.<br/>\n";
-      JEditorPane ep = SwingUtils.createClickableHtml(msg);
-      SwingUtils.showDialog(comp, ep, "Multi-experiment report configuration error", JOptionPane.WARNING_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error("Multi-experiment report requires more than one experiment/group.");
+      } else {
+        String msg = "<code>Multi-experiment report</code> requires more than one experiment/group.<br/>\n"
+            + "You can assign experiment/group names to LCMS files on the LCMS file selection tab.<br/>\n"
+            + "Alternatively, you can turn off <code>Multi-experiment report<code> checkbox on Report tab.<br/>\n";
+        JEditorPane ep = SwingUtils.createClickableHtml(msg);
+        SwingUtils.showDialog(comp, ep, "Multi-experiment report configuration error", JOptionPane.WARNING_MESSAGE);
+      }
       return false;
     }
 
@@ -67,20 +71,22 @@ public class CmdPhilosopherAbacus extends CmdBase {
       Path protxml = entry.getKey();
       List<LcmsFileGroup> groups = entry.getValue();
 
-      List<Path> outputDirsForProtxml = groups.stream().map(group -> group.outputDir(wd))
-          .distinct().collect(Collectors.toList());
-      log.debug("Protxml: {}, outputDirsForProtxml: {}", protxml.toString(),
-          outputDirsForProtxml.stream().map(Path::toString).collect(Collectors.joining(", ")));
+      List<Path> outputDirsForProtxml = groups.stream().map(group -> group.outputDir(wd)).distinct().collect(Collectors.toList());
+      log.debug("Protxml: {}, outputDirsForProtxml: {}", protxml.toString(), outputDirsForProtxml.stream().map(Path::toString).collect(Collectors.joining(", ")));
 
       if (outputDirsForProtxml.size() < 2) {
-        String msg = "Multi-experiment report requires experiments processed together by "
-            + "ProteinProphet.<br/><br/>"
-            + "Encountered a prot-xml file mapped to only one experiment/group:<br/>"
-            + "&nbsp;&nbsp;" + protxml.toString() + "<br/><br/>"
-            + "On <b>Downstream tab</b> in <b>ProteinProphet group</b> please uncheck "
-            + "the checkbox <i>Separate prot-xml per experiment/group</i>.";
-        JEditorPane ep = SwingUtils.createClickableHtml(msg);
-        SwingUtils.showDialog(comp, ep, "Multi-experiment report configuration error", JOptionPane.WARNING_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("Multi-experiment report requires experiments processed together by ProteinProphet.");
+        } else {
+          String msg = "Multi-experiment report requires experiments processed together by "
+              + "ProteinProphet.<br/><br/>"
+              + "Encountered a prot-xml file mapped to only one experiment/group:<br/>"
+              + "&nbsp;&nbsp;" + protxml + "<br/><br/>"
+              + "On <b>Downstream tab</b> in <b>ProteinProphet group</b> please uncheck "
+              + "the checkbox <i>Separate prot-xml per experiment/group</i>.";
+          JEditorPane ep = SwingUtils.createClickableHtml(msg);
+          SwingUtils.showDialog(comp, ep, "Multi-experiment report configuration error", JOptionPane.WARNING_MESSAGE);
+        }
         return false;
       }
 

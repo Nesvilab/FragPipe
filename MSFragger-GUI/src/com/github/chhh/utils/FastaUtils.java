@@ -1,5 +1,7 @@
 package com.github.chhh.utils;
 
+import com.github.chhh.utils.PrefixCounter.Mode;
+import com.github.chhh.utils.PrefixCounter.Node;
 import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,8 +16,6 @@ import java.util.Locale;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.chhh.utils.PrefixCounter.Mode;
-import com.github.chhh.utils.PrefixCounter.Node;
 
 public class FastaUtils {
   private static final Logger log = LoggerFactory.getLogger(FastaUtils.class);

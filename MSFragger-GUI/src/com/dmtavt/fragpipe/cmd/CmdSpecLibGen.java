@@ -24,9 +24,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CmdSpecLibGen extends CmdBase {
 
+  private static final Logger log = LoggerFactory.getLogger(CmdSpecLibGen.class);
   public static final String NAME = "SpecLibGen";
 
   public CmdSpecLibGen(boolean isRun, Path workDir) {
@@ -49,29 +52,32 @@ public class CmdSpecLibGen extends CmdBase {
         .flatMap(g -> g.lcmsFiles.stream())
         .anyMatch(lcms -> isFileCompatible.negate().test(lcms.getPath().getFileName().toString()));
     if (isIncompatibleInputs) {
-      JOptionPane.showMessageDialog(comp, String.format(
-          "Spectral library generation with %s is currently only\n"
-              + "compatible with %s input files.\n"
-              + "You can convert your data using Msconvert program from ProteoWizard.",
-          "EasyPQP", String.join(", ", compatibleExts)),
-          "Incompatible input data", JOptionPane.WARNING_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error(String.format("Spectral library generation with %s is currently only compatible with %s input files. You can convert your data using msconvert program from ProteoWizard.", "EasyPQP", String.join(", ", compatibleExts)));
+      } else {
+        JOptionPane.showMessageDialog(comp, String.format("Spectral library generation with %s is currently only\n"
+            + "compatible with %s input files.\n"
+            + "You can convert your data using msconvert program from ProteoWizard.", "EasyPQP", String.join(", ", compatibleExts)), "Incompatible input data", JOptionPane.WARNING_MESSAGE);
+      }
       return false;
     }
 
 
     if (mapGroupsToProtxml.size() > 1) {
-      int res = JOptionPane.showConfirmDialog(comp,
-          "<html>You have more than 1 experiment/group and spectral<br/>"
-              + "library generation is turned on. In that case a separate<br/>"
-              + "spectral library is created for each group.<br/><br/>"
-              + "<b>Select Yes</b> to continue as-is.<br/><br/>"
-              + "<b>Otherwise</b>, if you want a single spectral library generated<br/>"
-              + "from ALL input files:<br/>"
-              + "On Workflow tab, LCMS files section change Experiment/Group configuration.<br/>"
-              + "E.g. press the <i>Clear Experiments</i> button there.",
-          "SpecLibGen config warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-      if (JOptionPane.YES_OPTION != res) {
-        return false;
+      if (!Fragpipe.headless) {
+        int res = JOptionPane.showConfirmDialog(comp,
+            "<html>You have more than 1 experiment/group and spectral<br/>"
+                + "library generation is turned on. In that case a separate<br/>"
+                + "spectral library is created for each group.<br/><br/>"
+                + "<b>Select Yes</b> to continue as-is.<br/><br/>"
+                + "<b>Otherwise</b>, if you want a single spectral library generated<br/>"
+                + "from ALL input files:<br/>"
+                + "On Workflow tab, LCMS files section change Experiment/Group configuration.<br/>"
+                + "E.g. press the <i>Clear Experiments</i> button there.",
+            "SpecLibGen config warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (JOptionPane.YES_OPTION != res) {
+          return false;
+        }
       }
     }
 
@@ -81,12 +87,15 @@ public class CmdSpecLibGen extends CmdBase {
       final Path groupWd = group.outputDir(wd);
 
       if (!isRunProteinProphet && !Files.exists(protxml)) {
-        JOptionPane.showMessageDialog(comp,
-            "ProteinProphet not selected and the output directory:\n"
-                + "    " + groupWd.toString() + "\n"
-                + "does not contain a '" + protxml.getFileName().toString() + "' file.\n\n"
-                + "Either uncheck Spectral Library Generation checkbox or enable ProteinProphet.",
-            "Spec Lib Gen configuration Error", JOptionPane.ERROR_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("ProteinProphet not selected and the output directory: " + groupWd.toString() + " does not contain a '" + protxml.getFileName().toString() + "' file. Either uncheck Spectral Library Generation checkbox or enable ProteinProphet.");
+        } else {
+          JOptionPane.showMessageDialog(comp,
+              "ProteinProphet not selected and the output directory:\n"
+                  + "    " + groupWd.toString() + "\n"
+                  + "does not contain a '" + protxml.getFileName().toString() + "' file.\n\n"
+                  + "Either uncheck Spectral Library Generation checkbox or enable ProteinProphet.", "Spec Lib Gen configuration Error", JOptionPane.ERROR_MESSAGE);
+        }
         return false;
       }
 

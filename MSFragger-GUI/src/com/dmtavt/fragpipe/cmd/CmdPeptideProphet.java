@@ -179,12 +179,13 @@ public class CmdPeptideProphet extends CmdBase {
     if (cmdLineContainsCombine && !combine) {
       // command line contained '--combine', but the checkbox was not checked.
       combine = true;
-      String msg = String.format(
-          "<html>PeptideProphet command line options text field contained '--combine' flag,<br/>"
-          + "however the checkbox to combine pepxml files wasn't selected.<br/><br/>"
-          + "This is just an information message to bring that to your attention.<br/><br/>"
-          + "PeptideProphet will be launched as if the 'combine pepxmls' checkbox was selected.");
-      JOptionPane.showMessageDialog(comp, msg, "Inconsistent options for PeptideProphet", JOptionPane.INFORMATION_MESSAGE);
+      if (!Fragpipe.headless) {
+        String msg = "<html>PeptideProphet command line options text field contained '--combine' flag,<br/>"
+            + "however the checkbox to combine pepxml files wasn't selected.<br/><br/>"
+            + "This is just an information message to bring that to your attention.<br/><br/>"
+            + "PeptideProphet will be launched as if the 'combine pepxmls' checkbox was selected.";
+        JOptionPane.showMessageDialog(comp, msg, "Inconsistent options for PeptideProphet", JOptionPane.INFORMATION_MESSAGE);
+      }
     }
     combine = combine || cmdLineContainsCombine;
 
@@ -286,10 +287,12 @@ public class CmdPeptideProphet extends CmdBase {
         List<Path> pepxmlDirs = exp.stream().flatMap(e -> e.getValue().stream()).map(Path::getParent).distinct()
             .collect(Collectors.toList());
         if (pepxmlDirs.size() > 1) {
-          String msg = String.format("When 'combine'd PeptideProphet processing requested all files "
-              + "for each experiment must be located in the same folder. We found experiment: "
-              + "%s with files from %d folders.", exp.get(0).getKey().getGroup(), pepxmlDirs.size());
-          JOptionPane.showMessageDialog(comp, msg, "Experiment/Group files in different folders", JOptionPane.WARNING_MESSAGE);
+          String msg = String.format("When combined PeptideProphet processing requested all files for each experiment must be located in the same folder. We found experiment: %s with files from %d folders.", exp.get(0).getKey().getGroup(), pepxmlDirs.size());
+          if (Fragpipe.headless) {
+            log.error(msg);
+          } else {
+            JOptionPane.showMessageDialog(comp, msg, "Experiment/Group files in different folders", JOptionPane.WARNING_MESSAGE);
+          }
           return false;
         }
 

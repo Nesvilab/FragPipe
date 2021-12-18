@@ -1619,7 +1619,7 @@ public class TabMsfragger extends JPanelBase {
 
       // if exists, overwrite
       if (Files.exists(path)) {
-        int overwrite = JOptionPane.showConfirmDialog(parent, "<html>File exists, overwrtie?<br/><br/>" + path.toString(), "Overwrite", JOptionPane.OK_CANCEL_OPTION);
+        int overwrite = JOptionPane.showConfirmDialog(parent, "<html>File exists, overwrtie?<br/><br/>" + path, "Overwrite", JOptionPane.OK_CANCEL_OPTION);
         if (JOptionPane.OK_OPTION != overwrite) {
           return;
         }
@@ -1636,10 +1636,7 @@ public class TabMsfragger extends JPanelBase {
         params.save();
 
       } catch (IOException ex) {
-        JOptionPane.showMessageDialog(
-            parent, "<html>Could not save file: <br/>" + path.toString() +
-            "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        return;
+        JOptionPane.showMessageDialog(parent, "<html>Could not save file: <br/>" + path + "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
       }
     }
   }
@@ -1666,15 +1663,11 @@ public class TabMsfragger extends JPanelBase {
           params.save();
 
         } catch (Exception ex) {
-          JOptionPane
-              .showMessageDialog(parent,
-                  "<html>Could not load the saved file: <br/>" + ex.getMessage(), "Error",
-                  JOptionPane.ERROR_MESSAGE);
+          JOptionPane.showMessageDialog(parent, "<html>Could not load the saved file: <br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
       } else {
         JOptionPane.showMessageDialog(parent, "<html>This is strange,<br/> "
-                + "but the file you chose to load doesn't exist anymore.", "Strange",
-            JOptionPane.ERROR_MESSAGE);
+                + "but the file you chose to load doesn't exist anymore.", "Strange", JOptionPane.ERROR_MESSAGE);
       }
     }
   }
@@ -1712,8 +1705,7 @@ public class TabMsfragger extends JPanelBase {
    */
   private boolean loadDefaults(final SearchTypeProp type, boolean askConfirmation) {
     if (askConfirmation) {
-      int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
-          "Load " + type + " search default configuration?");
+      int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this), "Load " + type + " search default configuration?");
       if (JOptionPane.YES_OPTION != confirmation) {
         return false;
       }

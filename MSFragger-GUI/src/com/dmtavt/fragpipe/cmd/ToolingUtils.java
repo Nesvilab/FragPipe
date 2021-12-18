@@ -143,9 +143,14 @@ public class ToolingUtils {
         return binJava;
       }
     }
-    JOptionPane.showMessageDialog(errroDialogParent, "Java could not be found.\n"
-        + "please make sure you have it installed \n"
-        + "and that java.exe can be found on PATH", "Error", JOptionPane.ERROR_MESSAGE);
+    if (Fragpipe.headless) {
+      log.error("Java could not be found.");
+    } else {
+      JOptionPane.showMessageDialog(errroDialogParent, "Java could not be found.\n"
+          + "please make sure you have it installed \n"
+          + "and that java.exe can be found on PATH", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
     return null;
   }
 

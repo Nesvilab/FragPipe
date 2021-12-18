@@ -72,8 +72,7 @@ public class Notifications {
           System.exit(1);
         }
 
-        tip = new BalloonTip(m.parent, m.body,
-            new RoundedBalloonStyle(5, 5, BG_COLOR, Color.BLACK), true);
+        tip = new BalloonTip(m.parent, m.body, new RoundedBalloonStyle(5, 5, BG_COLOR, Color.BLACK), true);
 
       } else if (m.parent != null && m.html != null) {
         HtmlStyledJEditorPane ep = SwingUtils.createClickableHtml(m.html, BG_COLOR);

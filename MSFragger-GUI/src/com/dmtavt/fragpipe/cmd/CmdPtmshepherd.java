@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
@@ -62,14 +61,16 @@ public class CmdPtmshepherd extends CmdBase {
 
     // check that each group only has lcms files in one directory
     for (LcmsFileGroup g : mapGroupsToProtxml.keySet()) {
-      List<Path> lcmsPathsForGroup = g.lcmsFiles.stream().map(inputLcmsFile -> inputLcmsFile
-          .getPath().getParent())
-          .distinct().collect(Collectors.toList());
+      List<Path> lcmsPathsForGroup = g.lcmsFiles.stream().map(inputLcmsFile -> inputLcmsFile.getPath().getParent()).distinct().collect(Collectors.toList());
       if (lcmsPathsForGroup.size() != 1) {
-        String msg = "PTM Shepherd requires all LCMS files in a group/experiment to be in one directory.\n<br/><br/>"
-            + "<b>Check 'Workflows' tab, 'Input LCMS files' section.</b>";
-        SwingUtils.showDialog(comp, SwingUtils.createClickableHtml(msg), NAME + " configuration error", JOptionPane.WARNING_MESSAGE);
-        log.error(msg);
+        if (Fragpipe.headless) {
+          log.error("PTM Shepherd requires all LCMS files in a group/experiment to be in one directory.");
+        } else {
+          String msg = "PTM Shepherd requires all LCMS files in a group/experiment to be in one directory.\n<br/><br/>"
+              + "<b>Check 'Workflows' tab, 'Input LCMS files' section.</b>";
+          SwingUtils.showDialog(comp, SwingUtils.createClickableHtml(msg), NAME + " configuration error", JOptionPane.WARNING_MESSAGE);
+          log.error(msg);
+        }
         return false;
       }
     }
@@ -84,8 +85,12 @@ public class CmdPtmshepherd extends CmdBase {
     try {
       config = params.createConfig();
     } catch (Exception e) {
-      String msg = "Could not configure PTM Shepherd.\n<br/><br/>Error message:" + e.getMessage();
-      SwingUtils.showDialog(comp, SwingUtils.createClickableHtml(msg), NAME + " configuration error", JOptionPane.WARNING_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error("Could not configure PTM Shepherd. Error message:" + e.getMessage());
+      } else {
+        String msg = "Could not configure PTM Shepherd.\n<br/><br/>Error message:" + e.getMessage();
+        SwingUtils.showDialog(comp, SwingUtils.createClickableHtml(msg), NAME + " configuration error", JOptionPane.WARNING_MESSAGE);
+      }
       return false;
     }
 
@@ -93,25 +98,27 @@ public class CmdPtmshepherd extends CmdBase {
     Path pathConfig = wd.resolve(CONFIG_FN);
 
     if (!isDryRun) {
-      log.debug("Writing {} config to file: {}", NAME, pathConfig.toString());
+      log.debug("Writing {} config to file: {}", NAME, pathConfig);
       try {
         Files.deleteIfExists(pathConfig);
       } catch (IOException e) {
-        SwingUtils.showDialog(comp, SwingUtils.createClickableHtml("Could not delete existing config file:<br/>\n"
-                + pathConfig.toString()), NAME + " configuration error",
-                JOptionPane.WARNING_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("Could not delete existing config file: " + pathConfig);
+        } else {
+          SwingUtils.showDialog(comp, SwingUtils.createClickableHtml("Could not delete existing config file:<br/>\n" + pathConfig), NAME + " configuration error", JOptionPane.WARNING_MESSAGE);
+        }
         return false;
       }
       try (BufferedWriter bw = Files.newBufferedWriter(pathConfig, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW)) {
         bw.write(config);
         bw.flush();
       } catch (IOException e) {
-        log.error("Error writing Shepherd config to file", e);
-        String msg =
-            "Error writing Shepherd config to file.\n<br/><br/>Error message:" + e.getMessage();
-        SwingUtils
-            .showDialog(comp, SwingUtils.createClickableHtml(msg), NAME + " configuration error",
-                JOptionPane.WARNING_MESSAGE);
+        if (Fragpipe.headless) {
+          log.error("Error writing Shepherd config to file. Error message: " + e.getMessage());
+        } else {
+          String msg = "Error writing Shepherd config to file.\n<br/><br/>Error message: " + e.getMessage();
+          SwingUtils.showDialog(comp, SwingUtils.createClickableHtml(msg), NAME + " configuration error", JOptionPane.WARNING_MESSAGE);
+        }
         return false;
       }
     }

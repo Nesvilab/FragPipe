@@ -1,5 +1,10 @@
 package com.dmtavt.fragpipe.cmd;
 
+import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
+import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -9,13 +14,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JOptionPane;
-import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
-import com.github.chhh.utils.UsageTrigger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CmdPhilosopherDbAnnotate extends CmdBase {
 
+  private static final Logger log = LoggerFactory.getLogger(CmdPhilosopherDbAnnotate.class);
   public static final String NAME = "PhilosopherDbAnnotate";
 
   public CmdPhilosopherDbAnnotate(boolean isRun, Path workDir) {
@@ -34,8 +38,11 @@ public class CmdPhilosopherDbAnnotate extends CmdBase {
     initPreConfig();
 
     if (dbPath == null) {
-      JOptionPane.showMessageDialog(comp, "Fasta file path can't be empty (Report)",
-          "Warning", JOptionPane.WARNING_MESSAGE);
+      if (Fragpipe.headless) {
+        log.error("Fasta file path can't be empty");
+      } else {
+        JOptionPane.showMessageDialog(comp, "Fasta file path can't be empty (Report)", "Warning", JOptionPane.WARNING_MESSAGE);
+      }
       return false;
     }
 
