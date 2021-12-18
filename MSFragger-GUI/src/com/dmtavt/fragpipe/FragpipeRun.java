@@ -127,7 +127,7 @@ public class FragpipeRun {
   private FragpipeRun() {
   }
 
-  public static void run(MessageRun m) {
+  public static int run(MessageRun m) {
     log.debug("Started main FragpipeRun.run() method");
     Thread.setDefaultUncaughtExceptionHandler(Fragpipe::uncaughtExceptionHandler);
 
@@ -151,7 +151,7 @@ public class FragpipeRun {
       final Path wd = validateWd(tabRun, wdStr);
       if (wd == null) {
         log.debug("validateWd() failed");
-        return;
+        return 1;
       }
       final TabWorkflow tabWorkflow = Bus.getStickyEvent(TabWorkflow.class);
       if (tabWorkflow == null) {
@@ -161,7 +161,7 @@ public class FragpipeRun {
         Path preparedWd = prepareWd(tabRun, wd, tabWorkflow);
         if (preparedWd == null) {
           log.debug("prepareWd() failed");
-          return;
+          return 1;
         }
       }
 
@@ -169,12 +169,12 @@ public class FragpipeRun {
       final Map<String, LcmsFileGroup> lcmsFileGroups = checkInputLcmsFiles1(tabRun, tabWorkflow);
       if (lcmsFileGroups == null) {
         log.debug("checkInputLcmsFiles1() failed");
-        return;
+        return 1;
       }
       final List<InputLcmsFile> inputLcmsFiles = checkInputLcmsFiles2(tabRun, lcmsFileGroups);
       if (inputLcmsFiles == null) {
         log.debug("checkInputLcmsFiles2() failed");
-        return;
+        return 1;
       }
 
       final Path jarPath = FragpipeLocations.get().getJarPath();
@@ -184,7 +184,7 @@ public class FragpipeRun {
         } else {
           JOptionPane.showMessageDialog(tabRun, "Could not get the URI of the currently running jar", "Errors", JOptionPane.ERROR_MESSAGE);
         }
-        return;
+        return 1;
       }
 
       // check fasta file
@@ -192,7 +192,7 @@ public class FragpipeRun {
       final String fastaPath = checkFasta(tabRun, configDb);
       if (fastaPath == null) {
         log.debug("checkFasta() failed");
-        return;
+        return 1;
       }
 
       final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
@@ -202,14 +202,14 @@ public class FragpipeRun {
         } else {
           JOptionPane.showMessageDialog(tabRun, "Number of split database is larger than total proteins.", "Errors", JOptionPane.ERROR_MESSAGE);
         }
-        return;
+        return 1;
       }
 
       final Graph<CmdBase, DefEdge> dag = new DirectedAcyclicGraph<>(DefEdge.class);
       // main call to generate all the process builders
       if (!configureTaskGraph(tabRun, wd, jarPath, isDryRun, fastaPath, dag)) {
         log.debug("createProcessBuilders() failed");
-        return;
+        return 1;
       }
 
       if (log.isDebugEnabled()) {
@@ -275,7 +275,7 @@ public class FragpipeRun {
       if (isDryRun) {
         toConsole(Fragpipe.COLOR_RED_DARKEST, "\nIt's a dry-run, not running the commands.\n", true);
         printReference();
-        return;
+        return 0;
       }
 
       // save all the options to output dir
@@ -329,6 +329,7 @@ public class FragpipeRun {
         Bus.post(new MessageRunButtonEnabled(true));
       }
     }
+    return 0;
   }
 
   private static void printReference() {

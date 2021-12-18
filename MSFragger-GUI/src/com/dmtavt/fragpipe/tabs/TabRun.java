@@ -156,7 +156,10 @@ public class TabRun extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
   public void on(MessageRun m) {
-    FragpipeRun.run(m);
+    int returnCode = FragpipeRun.run(m);
+    if (returnCode != 0) {
+      System.exit(returnCode);
+    }
   }
 
   private JPanel createPanelTop(TextConsole console) {
