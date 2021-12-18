@@ -49,19 +49,6 @@ public class CmdPtmshepherd extends CmdBase {
     return NAME;
   }
 
-  private boolean checkCompatibleFormats(Component comp, Map<LcmsFileGroup, Path> mapGroupsToProtxml, List<String> supportedExts) {
-    List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, supportedExts);
-    if (!notSupportedExts.isEmpty()) {
-      JOptionPane.showMessageDialog(comp, String.format(
-          "<html>%s doesn't support '.%s' files.<br/>"
-              + "Either remove them from input or disable %s<br/>"
-              + "You can convert files using <i>msconvert</i> from ProteoWizard.", NAME, String.join(", ", notSupportedExts), NAME),
-          NAME + " error", JOptionPane.WARNING_MESSAGE);
-      return false;
-    }
-    return true;
-  }
-
   public boolean configure(Component comp, boolean isDryRun, Path binFragger, int ramGb,
       Path db, Map<LcmsFileGroup, Path> mapGroupsToProtxml, Map<String, String> additionalProps) {
 
@@ -72,12 +59,6 @@ public class CmdPtmshepherd extends CmdBase {
     if (extLibsThermo != null) {
       sup.add(THERMO_RAW_EXT);
     }
-
-    final long numGroups = mapGroupsToProtxml.keySet().stream()
-        .map(group -> group.name).distinct().count();
-    pbis.clear();
-    Set<Path> groupWds = mapGroupsToProtxml.keySet().stream().map(g -> g.outputDir(wd))
-        .collect(Collectors.toSet());
 
     // check that each group only has lcms files in one directory
     for (LcmsFileGroup g : mapGroupsToProtxml.keySet()) {
