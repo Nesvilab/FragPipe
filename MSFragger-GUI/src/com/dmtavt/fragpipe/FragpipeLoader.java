@@ -46,24 +46,24 @@ public class FragpipeLoader {
       frameLoading.setTitle("Starting FragPipe");
       frameLoading.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
       frameLoading.setLayout(new BorderLayout());
-    } else
-      frameLoading = null;
-    JPanel content = new JPanel(new MigLayout(new LC().fillX()));
+      JPanel content = new JPanel(new MigLayout(new LC().fillX()));
 
-    JLabel label = new JLabel("Initializing FragPipe");
-    content.add(label, new CC().alignX("center").spanX().wrap());
+      JLabel label = new JLabel("Initializing FragPipe");
+      content.add(label, new CC().alignX("center").spanX().wrap());
 
-    progress = new JProgressBar();
-    progress.setIndeterminate(true);
-    progress.setStringPainted(true);
-    progress.setString("Initialization");
-    content.add(progress, new CC().spanX().growX().wrap());
-    if(!Fragpipe.headless) {
+      progress = new JProgressBar();
+      progress.setIndeterminate(true);
+      progress.setStringPainted(true);
+      progress.setString("Initialization");
+      content.add(progress, new CC().spanX().growX().wrap());
       frameLoading.add(content, BorderLayout.CENTER);
       frameLoading.setMinimumSize(new Dimension(400, 50));
       frameLoading.pack();
       SwingUtils.centerFrame(frameLoading);
       frameLoading.setVisible(true);
+    } else {
+      frameLoading = null;
+      progress = null;
     }
     initApplication();
   }
@@ -110,8 +110,10 @@ public class FragpipeLoader {
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageLoaderUpdate m) {
-    log.debug("Updating loader progress: {}", m.text);
-    progress.setString(m.text);
+    if (!Fragpipe.headless) {
+      log.debug("Updating loader progress: {}", m.text);
+      progress.setString(m.text);
+    }
   }
 
   private static Runnable loadCache() {
