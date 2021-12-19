@@ -457,7 +457,7 @@ public class TabConfig extends JPanelWithEnablement {
       } else {
         Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", null));
       }
-    } catch (ValidationException | UnexpectedException e) {
+    } catch (Exception e) {
       Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", e));
     }
   }

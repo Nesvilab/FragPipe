@@ -33,7 +33,7 @@ public class Msfragger {
 
   private static final Logger log = LoggerFactory.getLogger(Msfragger.class);
 
-  public static Version version(Path jar) throws ValidationException {
+  public static Version version(Path jar) throws Exception {
     // only validate Fragger version if the current Java version is 1.8 or higher
     Version test;
     if (!SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8)) {
@@ -85,30 +85,25 @@ public class Msfragger {
     t.start();
   }
 
-  public static Version testJar(String jarPath) {
+  public static Version testJar(String jarPath) throws Exception {
     String verStr = null;
     boolean isVersionParsed = false;
-    try {
-      ProcessBuilder pb = new ProcessBuilder(Fragpipe.getBinJava(), "-jar", jarPath);
-      List<Pattern> regexs = Arrays.asList(MsfraggerVerCmp.regexOldScheme1,
-          MsfraggerVerCmp.regexNewScheme1);
-      pb.redirectErrorStream(true);
-      Process pr = pb.start();
-      try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
-        String line;
-        while ((line = in.readLine()) != null) {
-          for (Pattern re : regexs) {
-            Matcher m = re.matcher(line);
-            if (m.find()) {
-              isVersionParsed = true;
-              verStr = m.group(2);
-            }
+    ProcessBuilder pb = new ProcessBuilder(Fragpipe.getBinJava(), "-jar", jarPath);
+    List<Pattern> regexs = Arrays.asList(MsfraggerVerCmp.regexOldScheme1, MsfraggerVerCmp.regexNewScheme1);
+    pb.redirectErrorStream(true);
+    Process pr = pb.start();
+    try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
+      String line;
+      while ((line = in.readLine()) != null) {
+        for (Pattern re : regexs) {
+          Matcher m = re.matcher(line);
+          if (m.find()) {
+            isVersionParsed = true;
+            verStr = m.group(2);
           }
         }
-        pr.waitFor();
       }
-    } catch (IOException | InterruptedException e) {
-      throw new IllegalStateException("Error while creating a java process for MSFragger test.");
+      pr.waitFor();
     }
     return new Version(isVersionParsed, verStr);
   }
