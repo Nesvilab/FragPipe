@@ -1,5 +1,7 @@
 package com.dmtavt.fragpipe.tabs;
 
+import static com.dmtavt.fragpipe.Fragpipe.PROP_NOCACHE;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.Version;
@@ -134,6 +136,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnFilesClear;
   public static final String TAB_PREFIX = "workflow.";
   private static final String manifestExt = ".fp-manifest";
+  public static final int maxProcessors = 128;
 
   private SimpleETable tableRawFiles;
   private UniqueLcmsFilesTableModel tableModelRawFiles;
@@ -471,7 +474,6 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     uiSpinnerRam = new UiSpinnerInt(0, 0, 1024, 1, 3);
     FormEntry feRam = fe(uiSpinnerRam, "ram").label("RAM (GB, 0=auto)").tooltip("Leave at zero to automatically use a reasonable amount of memory").create();
-    final int maxProcessors = 128;
     uiSpinnerThreads = new UiSpinnerInt(Math.max(1, Math.min(Runtime.getRuntime().availableProcessors() - 1, maxProcessors)), 1, maxProcessors, 1);
     FormEntry feThreads = fe(uiSpinnerThreads, "threads").label("Parallelism").create();
 
@@ -908,20 +910,17 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
   }
 
-  public static boolean filter_props(final String k0) {
+  public static boolean filterPropsForWorkflow(final String k0) {
     final String k = k0.toLowerCase();
-    if (k.startsWith(TabConfig.TAB_PREFIX)) { // nothing from tab config goes into a workflow
-      return false;
-    }
+    return filterPropsForUi(k) && !k.startsWith(TabConfig.TAB_PREFIX);
+  }
+
+  public static boolean filterPropsForUi(final String k0) {
+    final String k = k0.toLowerCase();
     if (k.contains("workflow-option")) {
       return true;
     }
-
-    if (Fragpipe.headless) { // Load all settings from a workflow file in headless mode, else exclude hardware specific parameters
-      return !k.contains(Fragpipe.PROP_NOCACHE);
-    } else {
-      return !k.contains("workdir") && !k.contains("db-path") && !k.endsWith(".ram") && !k.endsWith(".threads") && !k.contains(Fragpipe.PROP_NOCACHE);
-    }
+    return !k.contentEquals("workdir") && !k.endsWith(".ram") && !k.endsWith(".threads") && !k.contains(PROP_NOCACHE); // Users need to set RAM and threads everytime, or using the default values.
   }
 
   private List<String> createNamesForWorkflowsCombo(Map<String, PropsFile> fileMap) {

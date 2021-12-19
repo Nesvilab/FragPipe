@@ -200,6 +200,10 @@ public class TabRun extends JPanelWithEnablement {
       }
     });
 
+    if (Fragpipe.headless) {
+      uiTextWorkdir.setText(Fragpipe.workdir);
+    }
+
     uiCheckDryRun = UiUtils.createUiCheck("Dry Run", false);
     btnRun = UiUtils
         .createButton("<html><b>RUN", e -> Bus.post(new MessageRun(isDryRun())));

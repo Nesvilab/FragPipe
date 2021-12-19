@@ -19,7 +19,6 @@ package com.github.chhh.utils;
 import com.dmtavt.fragpipe.exceptions.FileWritingException;
 import com.dmtavt.fragpipe.params.PropLine;
 import com.dmtavt.fragpipe.params.PropertyFileContent;
-import com.dmtavt.fragpipe.tabs.TabConfig;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -74,28 +73,36 @@ public final class PropertiesUtils {
                 bw.newLine();
             }
             bw.newLine();
-//move those properties to the top
-//workflow.ram
-//workflow.threads
-//database.db-path
-//fragpipe-config.bin-msfragger
-//fragpipe-config.bin-philosopher
-//fragpipe-config.bin-python
-//workdir
+
+            // Move database.db-path to the top. Other run specific parameters are provided through command line
             final Map<Boolean, List<String>> namesPartition = props.stringPropertyNames().stream().sorted().collect(Collectors.partitioningBy(e -> {
                 String k = e.toLowerCase();
-                return !k.startsWith(TabConfig.TAB_PREFIX) && !k.contains("workdir") && !k.contains("db-path") // no workdir or fasta file
-                        && !k.endsWith(".ram") && !k.endsWith(".threads");
+                return !k.contains("db-path");
             }));
+
             final List<String> names = Stream.concat(namesPartition.get(false).stream(), namesPartition.get(true).stream()).collect(Collectors.toList());
             for (String name : names) {
                 name = saveConvert(name, true, escUnicode);
                 String val = props.getProperty(name, "");
                 val = saveConvert(val, false, escUnicode);
-                bw.write(name);
-                bw.write("=");
-                bw.write(val);
-                bw.newLine();
+
+                if (name.contains("db-path")) {
+                    bw.newLine();
+                    bw.write("# Please edit the following path to point to the correct location.");
+                    bw.newLine();
+                    bw.write("# In Windows, please replace single '\\' with '\\\\'");
+                    bw.newLine();
+                    bw.write(name);
+                    bw.write("=");
+                    bw.write(val);
+                    bw.newLine();
+                    bw.newLine();
+                } else {
+                    bw.write(name);
+                    bw.write("=");
+                    bw.write(val);
+                    bw.newLine();
+                }
             }
         }
     }

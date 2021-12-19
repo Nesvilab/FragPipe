@@ -2,6 +2,7 @@ package com.dmtavt.fragpipe;
 
 import static com.dmtavt.fragpipe.Version.PROP_LAST_RELEASE_VER;
 import static com.dmtavt.fragpipe.Version.version;
+import static com.dmtavt.fragpipe.tabs.TabWorkflow.maxProcessors;
 
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
@@ -116,6 +117,9 @@ public class Fragpipe extends JFrameHeadless {
   public static java.util.concurrent.CountDownLatch loadWorkflowDone = new java.util.concurrent.CountDownLatch(1);
   public static java.util.concurrent.CountDownLatch runDone = new java.util.concurrent.CountDownLatch(1);
   public static boolean dryRun = false;
+  public static int ram = 0;
+  public static int threads = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors() - 1, maxProcessors));
+  public static String workdir = null;
 
   public static final String UI_STATE_CACHE_FN = "fragpipe-ui.cache";
   private static final Logger log = LoggerFactory.getLogger(Fragpipe.class);
@@ -282,6 +286,12 @@ public class Fragpipe extends JFrameHeadless {
           workflowFile = Paths.get(args[++i]);
         } else if (args[i].equalsIgnoreCase("--manifest")) {
           manifestFile = Paths.get(args[++i]);
+        } else if (args[i].equalsIgnoreCase("--ram")) {
+          ram = Integer.getInteger(args[++i]);
+        } else if (args[i].equalsIgnoreCase("--threads")) {
+          threads = Integer.getInteger(args[++i]);
+        } else if (args[i].equalsIgnoreCase("--workdir")) {
+          workdir = args[++i].trim();
         } else {
           System.err.println("Cannot recognize the argument " + args[i]);
           System.exit(1);
@@ -298,6 +308,15 @@ public class Fragpipe extends JFrameHeadless {
         System.exit(1);
       } else if (manifestFile == null || !Files.exists(manifestFile) || !Files.isReadable(manifestFile) || !Files.isRegularFile(manifestFile)) {
         System.err.println("Please provide --manifest <path to manifest file> in the headless mode.");
+        System.exit(1);
+      } else if (ram < 0) {
+        System.err.println("ram is smaller than 0.");
+        System.exit(1);
+      } else if (threads < 0) {
+        System.err.println("Number of threads is smaller than 0.");
+        System.exit(1);
+      } else if (workdir == null || workdir.isEmpty()) {
+        System.err.println("The path to workdir does not look right.");
         System.exit(1);
       } else {
         headless(workflowFile);
