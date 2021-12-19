@@ -92,6 +92,7 @@ public class Msfragger {
     List<Pattern> regexs = Arrays.asList(MsfraggerVerCmp.regexOldScheme1, MsfraggerVerCmp.regexNewScheme1);
     pb.redirectErrorStream(true);
     Process pr = pb.start();
+    pr.waitFor();
     try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
       String line;
       while ((line = in.readLine()) != null) {
@@ -103,7 +104,6 @@ public class Msfragger {
           }
         }
       }
-      pr.waitFor();
     }
     return new Version(isVersionParsed, verStr);
   }

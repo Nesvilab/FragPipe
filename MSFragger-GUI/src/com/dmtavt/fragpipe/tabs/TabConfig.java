@@ -383,7 +383,7 @@ public class TabConfig extends JPanelWithEnablement {
     return fc;
   }
 
-  @Subscribe(threadMode = ThreadMode.ASYNC)
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessagePhilosopherNewBin m) {
     if (StringUtils.isBlank(m.path)) {
       Bus.postSticky(new NoteConfigPhilosopher(null, "N/A"));
@@ -439,7 +439,7 @@ public class TabConfig extends JPanelWithEnablement {
     });
   }
 
-  @Subscribe(threadMode = ThreadMode.ASYNC)
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageMsfraggerNewBin m) {
     if (StringUtils.isBlank(m.binPath)) {
       return;
@@ -514,7 +514,7 @@ public class TabConfig extends JPanelWithEnablement {
     Fragpipe.loadWorkflowDone.countDown();
   }
 
-  @Subscribe(threadMode = ThreadMode.ASYNC)
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageFindSystemPython m) {
     try {
       PyInfo pi = PyInfo.findSystemPython(3);
@@ -529,7 +529,7 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  @Subscribe(threadMode = ThreadMode.ASYNC)
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessagePythonNewBin m) {
     PyInfo pi;
     try {
@@ -803,7 +803,7 @@ public class TabConfig extends JPanelWithEnablement {
     return p;
   }
 
-  @Subscribe
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageInstallEasyPQP m) {
     final String binPython = uiTextBinPython.getNonGhostText();
     if (StringUtils.isNotBlank(binPython)) {
