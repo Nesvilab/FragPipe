@@ -567,7 +567,7 @@ public class TabWorkflow extends JPanelWithEnablement {
             break;
 
           case 1:
-          case -1:
+          case JOptionPane.CLOSED_OPTION:
             break; // do nothing
 
           case 2:
