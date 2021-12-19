@@ -75,7 +75,7 @@ public class FragpipeLoader {
     Locale.setDefault(Locale.ROOT);
 
     final ExecutorService exec = Executors.newWorkStealingPool();
-    final Duration timeoutMax = Duration.ofSeconds(5);
+    final Duration timeoutMax = Duration.ofSeconds(1);
 
     exec.submit(loadCache());
     exec.submit(loadRemoteProps(timeoutMax.getSeconds()));
