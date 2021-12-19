@@ -197,7 +197,7 @@ public class ProcessManager {
    * @param taskGroups
    */
   private void printCommands(final ConcurrentLinkedQueue<List<RunnableDescription>> taskGroups) {
-    @SuppressWarnings("unchecked") final List<RunnableDescription>[] tg = taskGroups.stream().toArray(List[]::new);
+    @SuppressWarnings("unchecked") final List<RunnableDescription>[] tg = taskGroups.toArray(new List[0]);
     final java.io.PrintStream out = System.out;
     for (List<RunnableDescription> a : tg) {
       final String pg = a.get(0).parallelGroup;
@@ -212,9 +212,7 @@ public class ProcessManager {
           penv.entrySet().removeAll(System.getenv().entrySet());
           out.println("env\t" + penv);
           out.println("working dir\t" + pbi.pb.directory());
-          out.println("command\t[" + pbi.pb.command().stream()
-                  .map(e -> "\"" + org.apache.commons.text.StringEscapeUtils.escapeJava(e) + "\"")
-                  .collect(Collectors.joining(", ")) + "]");
+          out.println("command\t[" + pbi.pb.command().stream().map(e -> "\"" + org.apache.commons.text.StringEscapeUtils.escapeJava(e) + "\"").collect(Collectors.joining(", ")) + "]");
           out.println("fnStdout\t" + pbi.fnStdout);
           out.println("fnStderr\t" + pbi.fnStderr);
           out.println();

@@ -633,8 +633,8 @@ public class Fragpipe extends JFrameHeadless {
   @SuppressWarnings("unchecked")
   private void loadUi(Properties props) {
     log.debug("loadUi() called");
-    final Map<String, String> props_workflow_only = (Map) props.entrySet().stream().filter(e -> TabWorkflow.filter_props((String) e.getKey())).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-    FragpipeCacheUtils.tabsLoad(props_workflow_only, tabs);
+    final Map<String, String> propsWorkflowOnly = (Map) props.entrySet().stream().filter(e -> TabWorkflow.filterPropsForUi((String) e.getKey())).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+    FragpipeCacheUtils.tabsLoad(propsWorkflowOnly, tabs);
     Bus.post(new MessageUiRevalidate());
   }
 

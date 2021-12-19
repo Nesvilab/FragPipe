@@ -184,8 +184,7 @@ public class FragpipeCacheUtils {
     return remapped;
   }
 
-  public static void tabsSave(OutputStream os, JTabbedPane tabs)
-      throws IOException {
+  public static void tabsSave(OutputStream os, JTabbedPane tabs) throws IOException {
     tabsSave(os, tabs, false);
   }
 
@@ -193,11 +192,9 @@ public class FragpipeCacheUtils {
    * @param saveWithFieldTypes only used for development purposes to save properties with names
    *                           prepended with field types.
    */
-  public static void tabsSave(OutputStream os, JTabbedPane tabs, boolean saveWithFieldTypes)
-      throws IOException {
+  public static void tabsSave(OutputStream os, JTabbedPane tabs, boolean saveWithFieldTypes) throws IOException {
     Properties props = tabsSave0(tabs, saveWithFieldTypes);
     try (BufferedOutputStream bos = new BufferedOutputStream(os)) {
-      //props.store(bos, ThisAppProps.cacheComments()); // This is from Java's Properties - the order or things looks to be random
       PropertiesUtils.storeSorted(props, bos, ThisAppProps.cacheComments(), true);
     }
   }

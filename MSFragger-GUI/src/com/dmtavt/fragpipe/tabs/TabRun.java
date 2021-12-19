@@ -163,22 +163,13 @@ public class TabRun extends JPanelWithEnablement {
   }
 
   private JPanel createPanelTop(TextConsole console) {
-    JButton btnSaveAsWorkflow = UiUtils.createButton("Save current settings as a workflow",
-            e -> Bus.post(new MessageSaveAsWorkflow(true)));
+    JButton btnSaveAsWorkflow = UiUtils.createButton("Save current settings as a workflow", e -> Bus.post(new MessageSaveAsWorkflow(true)));
     JButton btnAbout = UiUtils.createButton("About", e -> Bus.post(new MessageShowAboutDialog()));
     uiTextWorkdir = UiUtils.uiTextBuilder().cols(30).create();
-    FormEntry feWorkdir = mu.feb("workdir", uiTextWorkdir).label("Output dir:")
-        .tooltip("Processing results will be stored in this directory").create();
-    JButton btnBrowse = feWorkdir
-        .browseButton(() -> FileChooserUtils.builder("Select output directory")
-                .mode(FcMode.DIRS_ONLY).multi(false)
-                .paths(Stream.of(uiTextWorkdir.getNonGhostText(),
-                    Fragpipe.propsVar().getProperty(LAST_WORK_DIR))).create(),
-            "Select output directory",
-            selected -> {
-              uiTextWorkdir.setText(selected.get(0).toString());
-            }
-        );
+    FormEntry feWorkdir = mu.feb("workdir", uiTextWorkdir).label("Output dir:").tooltip("Processing results will be stored in this directory").create();
+    JButton btnBrowse = feWorkdir.browseButton(() -> FileChooserUtils.builder("Select output directory").mode(FcMode.DIRS_ONLY).multi(false).paths(Stream.of(uiTextWorkdir.getNonGhostText(), Fragpipe.propsVar().getProperty(LAST_WORK_DIR))).create(), "Select output directory", selected -> {
+      uiTextWorkdir.setText(selected.get(0).toString());
+    });
     JButton btnOpenInFileManager = UiUtils.createButton("Open in File Manager", e -> {
       String text = uiTextWorkdir.getNonGhostText();
       if (StringUtils.isBlank(text)) {
@@ -187,15 +178,13 @@ public class TabRun extends JPanelWithEnablement {
       }
       Path existing = PathUtils.existing(text);
       if (existing == null) {
-        SwingUtils
-            .showInfoDialog(TabRun.this, "Path:\n'" + text + "'\nDoes not exist", "Does not exist");
+        SwingUtils.showInfoDialog(TabRun.this, "Path:\n'" + text + "'\nDoes not exist", "Does not exist");
         return;
       }
       try {
         Desktop.getDesktop().open(existing.toFile());
       } catch (IOException ex) {
-        SwingUtils
-            .showErrorDialog(TabRun.this, "Could not open path in system file browser.", "Error");
+        SwingUtils.showErrorDialog(TabRun.this, "Could not open path in system file browser.", "Error");
         return;
       }
     });
@@ -205,19 +194,16 @@ public class TabRun extends JPanelWithEnablement {
     }
 
     uiCheckDryRun = UiUtils.createUiCheck("Dry Run", false);
-    btnRun = UiUtils
-        .createButton("<html><b>RUN", e -> Bus.post(new MessageRun(isDryRun())));
+    btnRun = UiUtils.createButton("<html><b>RUN", e -> Bus.post(new MessageRun(isDryRun())));
 
-    JButton btnStop = UiUtils
-        .createButton("Stop", e -> {
-          Bus.post(new MessageKillAll(REASON.USER_ACTION));
-          Path existing = PathUtils.existing(getWorkdirText());
-          if (existing != null) {
-            Bus.post(MessageSaveLog.saveInDir(existing));
-          }
-        });
-    JButton btnPrintCommands = UiUtils
-        .createButton("Print Commands", e -> Bus.post(new MessageRun(true)));
+    JButton btnStop = UiUtils.createButton("Stop", e -> {
+      Bus.post(new MessageKillAll(REASON.USER_ACTION));
+      Path existing = PathUtils.existing(getWorkdirText());
+      if (existing != null) {
+        Bus.post(MessageSaveLog.saveInDir(existing));
+      }
+    });
+    JButton btnPrintCommands = UiUtils.createButton("Print Commands", e -> Bus.post(new MessageRun(true)));
     JButton btnExport = UiUtils.createButton("Export Log", e -> Bus.post(new MessageExportLog()));
     JButton btnReportErrors = UiUtils.createButton("Report Errors", e -> {
       final String prop = Version.isDevBuild() ? Version.PROP_ISSUE_TRACKER_URL_DEV : Version.PROP_ISSUE_TRACKER_URL;

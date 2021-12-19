@@ -818,12 +818,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     } else {
       // save to custom dir
       final String propWorkflowDir = "workflow.last-save-dir";
-      JFileChooser fc = FileChooserUtils
-          .builder("Select folder to save workflow file to")
-          .multi(false).mode(FcMode.DIRS_ONLY).acceptAll(true).approveButton("Select folder")
-          .paths(Stream.of(Fragpipe.propsVarGet(propWorkflowDir),
-              FragpipeLocations.get().getDirWorkflows().toString()))
-          .create();
+      JFileChooser fc = FileChooserUtils.builder("Select folder to save workflow file to").multi(false).mode(FcMode.DIRS_ONLY).acceptAll(true).approveButton("Select folder").paths(Stream.of(Fragpipe.propsVarGet(propWorkflowDir), FragpipeLocations.get().getDirWorkflows().toString())).create();
       if (fc.showOpenDialog(fp) != JFileChooser.APPROVE_OPTION) {
         log.debug("User cancelled dir selection");
         return;
@@ -867,8 +862,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         return;
       }
       final String fn = StringUtils.appendOnce(text, ".workflow");
-      if (saveDir.equals(fpWorkflowsDir) && defaultWorkflows.stream()
-          .anyMatch(path -> path.getFileName().toString().equalsIgnoreCase(fn))) {
+      if (saveDir.equals(fpWorkflowsDir) && defaultWorkflows.stream().anyMatch(path -> path.getFileName().toString().equalsIgnoreCase(fn))) {
         SwingUtils.showInfoDialog(this,
             "Name can't be the same as one of default ones",
             "Please choose another file name");
@@ -891,8 +885,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       }
     }
 
-    Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps))
-        .filter(kv -> filter_props(kv.v1())).toMap(kv -> kv.v1, kv -> kv.v2);
+    Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps)).filter(kv -> filterPropsForWorkflow(kv.v1())).toMap(kv -> kv.v1, kv -> kv.v2);
 
     String desc = SwingUtils.tryExtractHtmlBody(ep.getText());
     if (StringUtils.isNotBlank(desc)) {
@@ -901,8 +894,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     vetted.put(PROP_WORKFLOW_SAVED_WITH_VER, Version.version());
 
     // save
-    FragpipeCacheUtils.saveToFileSorted(PropertiesUtils.from(vetted), savePath,
-        "Workflow: " + StringUtils.upToLastDot(savePath.getFileName().toString()));
+    FragpipeCacheUtils.saveToFileSorted(PropertiesUtils.from(vetted), savePath, "Workflow: " + StringUtils.upToLastDot(savePath.getFileName().toString()));
     SwingUtils.showInfoDialog(fp, "Saved to: " + savePath, "Workflow saved");
 
     if (FragpipeLocations.get().getDirWorkflows().equals(saveDir)) {

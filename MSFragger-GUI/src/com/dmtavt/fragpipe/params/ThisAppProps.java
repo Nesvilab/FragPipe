@@ -162,12 +162,6 @@ public class ThisAppProps extends Properties {
     this.setProperty(Version.PROP_VER, Version.version());
   }
 
-  public static void clearCache() {
-    ThisAppProps thisAppProps = new ThisAppProps();
-    thisAppProps.save();
-  }
-
-
   /**
    * Tries to load previously saved properties.
    *
@@ -315,7 +309,6 @@ public class ThisAppProps extends Properties {
 
   public void save() {
     try (OutputStream os = Files.newOutputStream(getCacheFilePath())) {
-      //store(os, cacheComments());
       PropertiesUtils.storeSorted(this, os, cacheComments(), true);
       os.flush();
     } catch (IOException ex) {
