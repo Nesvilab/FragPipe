@@ -555,7 +555,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         JLabel message = new JLabel(
             SwingUtils.makeHtml("Found workflows from previous FragPipe sessions:\n - "+Seq.seq(diffNames).sorted().toString("\n - ")));
         final String[] choices = {"Copy", "Ignore", "Delete"};
-        int choice = SwingUtils.showChoiceDialog(this, "Load workflows?", message, choices, 0);
+        final int choice = Fragpipe.headless ? JOptionPane.CLOSED_OPTION : SwingUtils.showChoiceDialog(this, "Load workflows?", message, choices, 0);
         switch (choice) {
           case 0:
             for (PropsFile propsFile : diffPropFiles) {
