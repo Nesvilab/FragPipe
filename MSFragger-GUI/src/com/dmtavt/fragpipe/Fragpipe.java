@@ -15,7 +15,9 @@ import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
 import com.dmtavt.fragpipe.messages.MessageLoadUi;
+import com.dmtavt.fragpipe.messages.MessageManifestLoad;
 import com.dmtavt.fragpipe.messages.MessageOpenInExplorer;
+import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
@@ -120,6 +122,9 @@ public class Fragpipe extends JFrameHeadless {
   public static int ram = 0;
   public static int threads = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors() - 1, maxProcessors));
   public static String workdir = null;
+  public static String msfraggerBinPath = null;
+  public static String philosopherBinPath = null;
+  public static String pythonBinPath = null;
 
   public static final String UI_STATE_CACHE_FN = "fragpipe-ui.cache";
   private static final Logger log = LoggerFactory.getLogger(Fragpipe.class);
@@ -292,6 +297,12 @@ public class Fragpipe extends JFrameHeadless {
           threads = Integer.parseInt(args[++i]);
         } else if (args[i].equalsIgnoreCase("--workdir")) {
           workdir = args[++i].trim();
+        } else if (args[i].equalsIgnoreCase("--config-msfragger")) {
+          msfraggerBinPath = args[++i].trim();
+        } else if (args[i].equalsIgnoreCase("--config-philosopher")) {
+          philosopherBinPath = args[++i].trim();
+        } else if (args[i].equalsIgnoreCase("--config-python")) {
+          pythonBinPath = args[++i].trim();
         } else {
           System.err.println("Cannot recognize the argument " + args[i]);
           System.exit(1);
@@ -318,6 +329,15 @@ public class Fragpipe extends JFrameHeadless {
       } else if (workdir == null || workdir.isEmpty()) {
         System.err.println("The path to workdir does not look right.");
         System.exit(1);
+      } else if (msfraggerBinPath != null && (msfraggerBinPath.isEmpty() || !Files.exists(Paths.get(msfraggerBinPath)) || !Files.isReadable(Paths.get(msfraggerBinPath)) || !Files.isRegularFile(Paths.get(msfraggerBinPath)))) {
+        System.err.println("MSFragger jar file path " + msfraggerBinPath + " does not seem right.");
+        System.exit(1);
+      } else if (philosopherBinPath != null && (philosopherBinPath.isEmpty() || !Files.exists(Paths.get(philosopherBinPath)) || !Files.isReadable(Paths.get(philosopherBinPath)) || !Files.isRegularFile(Paths.get(philosopherBinPath)))) {
+        System.err.println("Philosopher binary file path " + philosopherBinPath + " does not seem right.");
+        System.exit(1);
+      } else if (pythonBinPath != null && (pythonBinPath.isEmpty() || !Files.exists(Paths.get(pythonBinPath)) || !Files.isReadable(Paths.get(pythonBinPath)))) {
+        System.err.println("Python path " + pythonBinPath + " does not seem right.");
+        System.exit(1);
       } else {
         headless(workflowFile);
       }
@@ -338,8 +358,20 @@ public class Fragpipe extends JFrameHeadless {
     propsFile.setProperty("workflow.threads", Fragpipe.threads + "");
     propsFile.setProperty("workdir", Fragpipe.workdir);
 
+    if (msfraggerBinPath != null) {
+      propsFile.setProperty("fragpipe-config.bin-msfragger", msfraggerBinPath);
+    }
+
+    if (philosopherBinPath != null) {
+      propsFile.setProperty("fragpipe-config.bin-philosopher", philosopherBinPath);
+    }
+
+    if (pythonBinPath != null) {
+      propsFile.setProperty("fragpipe-config.bin-python", pythonBinPath);
+    }
+
     Bus.post(new MessageLoadUi(propsFile));
-    Bus.post(new com.dmtavt.fragpipe.messages.MessageManifestLoad());
+    Bus.post(new MessageManifestLoad());
 
     try {
       loadWorkflowDone.await();
@@ -349,7 +381,7 @@ public class Fragpipe extends JFrameHeadless {
       throw new RuntimeException(ex);
     }
 
-    Bus.post(new com.dmtavt.fragpipe.messages.MessageRun(dryRun));
+    Bus.post(new MessageRun(dryRun));
 
     try {
       runDone.await();
