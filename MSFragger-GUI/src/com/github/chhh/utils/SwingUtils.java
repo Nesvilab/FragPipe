@@ -1123,6 +1123,8 @@ public class SwingUtils {
     if (Fragpipe.headless) {
       if (messageType == JOptionPane.INFORMATION_MESSAGE) {
         log.info(stripHtml(htmlMessage));
+      } else {
+        log.error(stripHtml(htmlMessage));
       }
     } else {
       JOptionPane.showMessageDialog(parent, new JLabel(makeHtml(htmlMessage)), title, messageType);
