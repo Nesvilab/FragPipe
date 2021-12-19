@@ -339,6 +339,16 @@ public class Fragpipe extends JFrameHeadless {
         System.err.println("Python path " + pythonBinPath + " does not seem right.");
         System.exit(1);
       } else {
+        workdir = Paths.get(workdir).toAbsolutePath().toString();
+        if (msfraggerBinPath != null) {
+          msfraggerBinPath = Paths.get(msfraggerBinPath).toAbsolutePath().toString();
+        }
+        if (philosopherBinPath != null) {
+          philosopherBinPath = Paths.get(philosopherBinPath).toAbsolutePath().toString();
+        }
+        if (pythonBinPath != null) {
+          pythonBinPath = Paths.get(pythonBinPath).toAbsolutePath().toString();
+        }
         headless(workflowFile);
       }
     }
