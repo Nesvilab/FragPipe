@@ -640,7 +640,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnWorkflowFileLoad);
     mu.add(p, new JLabel("or save current settings as workflow")).gapLeft("15px");
     mu.add(p, UiUtils.createButton("Save", e -> Bus.post(new MessageSaveAsWorkflow(false))));
-    if (Version.isDevBuild()) {
+    if (false && Version.isDevBuild()) {
       mu.add(p, UiUtils.createButton("Save Dev", e -> Bus.post(new MessageSaveAsWorkflow(false, true))));
     }
     mu.add(p, btnOpenInExplorer).wrap();
