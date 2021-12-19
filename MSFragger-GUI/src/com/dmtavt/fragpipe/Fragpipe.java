@@ -287,9 +287,9 @@ public class Fragpipe extends JFrameHeadless {
         } else if (args[i].equalsIgnoreCase("--manifest")) {
           manifestFile = Paths.get(args[++i]);
         } else if (args[i].equalsIgnoreCase("--ram")) {
-          ram = Integer.getInteger(args[++i]);
+          ram = Integer.parseInt(args[++i]);
         } else if (args[i].equalsIgnoreCase("--threads")) {
-          threads = Integer.getInteger(args[++i]);
+          threads = Integer.parseInt(args[++i]);
         } else if (args[i].equalsIgnoreCase("--workdir")) {
           workdir = args[++i].trim();
         } else {
@@ -330,9 +330,17 @@ public class Fragpipe extends JFrameHeadless {
     } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
+
     final FragpipeLocations fpl = FragpipeLocations.get();
-    Bus.post(new MessageLoadUi(fpl.tryLoadSilently(workflowFile, "user")));
+
+    PropsFile propsFile = fpl.tryLoadSilently(workflowFile, "user");
+    propsFile.setProperty("workflow.ram", Fragpipe.ram + "");
+    propsFile.setProperty("workflow.threads", Fragpipe.threads + "");
+    propsFile.setProperty("workdir", Fragpipe.workdir);
+
+    Bus.post(new MessageLoadUi(propsFile));
     Bus.post(new com.dmtavt.fragpipe.messages.MessageManifestLoad());
+
     try {
       loadWorkflowDone.await();
       loadManifestDone.await();
@@ -340,13 +348,16 @@ public class Fragpipe extends JFrameHeadless {
     } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
+
     Bus.post(new com.dmtavt.fragpipe.messages.MessageRun(dryRun));
+
     try {
       runDone.await();
       Thread.sleep(1000);
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
+
     System.exit(0);
   }
 

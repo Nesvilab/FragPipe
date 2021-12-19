@@ -904,7 +904,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   public static boolean filterPropsForWorkflow(final String k0) {
     final String k = k0.toLowerCase();
-    return filterPropsForUi(k) && !k.startsWith(TabConfig.TAB_PREFIX);
+    return filterPropsForUi(k) && !k.contentEquals("workdir") && !k.endsWith(".ram") && !k.endsWith(".threads") && !k.startsWith(TabConfig.TAB_PREFIX);
   }
 
   public static boolean filterPropsForUi(final String k0) {
@@ -912,7 +912,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (k.contains("workflow-option")) {
       return true;
     }
-    return !k.contentEquals("workdir") && !k.endsWith(".ram") && !k.endsWith(".threads") && !k.contains(PROP_NOCACHE); // Users need to set RAM and threads everytime, or using the default values.
+    return !k.contains(PROP_NOCACHE);
   }
 
   private List<String> createNamesForWorkflowsCombo(Map<String, PropsFile> fileMap) {
