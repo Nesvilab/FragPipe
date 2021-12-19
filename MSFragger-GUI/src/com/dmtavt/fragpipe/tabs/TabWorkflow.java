@@ -610,8 +610,8 @@ public class TabWorkflow extends JPanelWithEnablement {
         SwingUtils.showErrorDialog(this, "Couldn't find file: " + name, "No workflow file");
       }
     });
-    JButton btnWorkflowLoad = UiUtils.createButton("Load", this::actionLoadSelectedWorkflow);
-    JButton btnWorkflowFileLoad = UiUtils.createButton("Load workflow file", (ActionEvent e)->{
+    JButton btnWorkflowLoad = UiUtils.createButton("Load built-in workflow file", this::actionLoadSelectedWorkflow);
+    JButton btnWorkflowFileLoad = UiUtils.createButton("Load custom workflow file", (ActionEvent e)->{
       final String propWorkflowDir = "workflow.last-save-dir";
       JFileChooser fc = FileChooserUtils
               .builder("Select folder to save workflow file to")
