@@ -122,7 +122,7 @@ public class Msfragger {
         throw new ValidationException("Path is not well formed", e);
       }
       if (!Files.exists(p)) {
-        throw new ValidationException("Path does not exist: “" + p + "”");
+        throw new ValidationException("Path does not exist: \"" + p + "\"");
       }
       if (path.contains(" ")) {
         throw new ValidationException("There are spaces in the path"); // Quoting the path with space won't solve the crash if the path is in JVM arguments.
