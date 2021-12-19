@@ -33,6 +33,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -84,9 +85,9 @@ public final class PropertiesUtils {
             for (String name : names) {
                 name = saveConvert(name, true, escUnicode);
                 String val = props.getProperty(name, "");
-                val = saveConvert(val, false, escUnicode);
 
                 if (name.contains("db-path")) {
+                    val = saveConvert(Paths.get(val).toAbsolutePath().toString(), false, escUnicode); // save absolute path of the fasta file
                     bw.newLine();
                     bw.write("# Please edit the following path to point to the correct location.");
                     bw.newLine();
@@ -98,6 +99,7 @@ public final class PropertiesUtils {
                     bw.newLine();
                     bw.newLine();
                 } else {
+                    val = saveConvert(val, false, escUnicode);
                     bw.write(name);
                     bw.write("=");
                     bw.write(val);

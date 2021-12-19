@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Properties;
 import org.slf4j.Logger;
@@ -43,6 +44,7 @@ public class PropsFile extends Properties {
         this.load(br);
       }
     }
+
     final String p1 = getProperty(TabMsfragger.TAB_PREFIX + "search_enzyme_cutafter");
     if (p1 != null) {
       setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_cut_1, p1);
@@ -61,10 +63,16 @@ public class PropsFile extends Properties {
       setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_sense_2, "C");
       setProperty(TabMsfragger.TAB_PREFIX + TabMsfragger.PROP_misc_fragger_enzyme_dropdown_2, "null");
     }
+
     final String p2 = getProperty(TabMsfragger.TAB_PREFIX + "search_enzyme_butnotafter");
     if (p2 != null) {
       setProperty(TabMsfragger.TAB_PREFIX + MsfraggerParams.PROP_search_enzyme_nocut_1, p2);
       remove(TabMsfragger.TAB_PREFIX + "search_enzyme_butnotafter");
+    }
+
+    final String p3 = getProperty("database.db-path");
+    if (p3 != null) {
+      setProperty("database.db-path", Paths.get(p3).toAbsolutePath().toString());
     }
   }
 
