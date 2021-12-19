@@ -222,6 +222,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("LFQ-phospho");
     builtInWorkflows.add("TMT16-phospho");
     builtInWorkflows.add("ipIAA-ABPP");
+    builtInWorkflows.add("custom");
   }
 
   // Ok, if we could keep some workflows pinned toward the top,  I would say Default, SpecLib, Open, Common-mass-offset, LFQ-MBR,  then the rest
@@ -581,6 +582,7 @@ public class TabWorkflow extends JPanelWithEnablement {
             throw new IllegalStateException("Unknown option [" + choice + "], probably forgot to add code branch for a newly added option");
         }
       }
+      files.put("custom", null);
       return files;
     } catch (IOException e) {
       SwingUtils.showErrorDialogWithStacktrace(e, this);
@@ -609,37 +611,17 @@ public class TabWorkflow extends JPanelWithEnablement {
       if (propsFile != null) {
         epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
       } else {
-        SwingUtils.showErrorDialog(this, "Couldn't find file: " + name, "No workflow file");
+        epWorkflowsDesc.setText("");
       }
     });
-    JButton btnWorkflowLoad = UiUtils.createButton("Load built-in workflow file", this::actionLoadSelectedWorkflow);
-    JButton btnWorkflowFileLoad = UiUtils.createButton("Load custom workflow file", (ActionEvent e)->{
-      final String propWorkflowDir = "workflow.last-save-dir";
-      JFileChooser fc = FileChooserUtils
-              .builder("Select folder to save workflow file to")
-              .multi(false).mode(FcMode.FILES_ONLY).acceptAll(true).approveButton("Select workflow")
-              .paths(Stream.of(Fragpipe.propsVarGet(propWorkflowDir),
-                      FragpipeLocations.get().getDirWorkflows().toString()))
-              .create();
-//      fc.setFileFilter(new FileNameExtensionFilter("workflow files", "workflow"));
-      if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
-        log.debug("User cancelled dir selection");
-        return;
-      }
-      Bus.post(new MessageLoadUi(FragpipeLocations.get().tryLoadSilently(fc.getSelectedFile().toPath(), "user")));
-    });
-    FormEntry feComboWorkflow = Fragpipe.feNoCache(uiComboWorkflows, "workflow-option")
-        .label("Select a workflow:")
-        .tooltip("Conveniently loads appropriate defaults for various standard workflows\n").create();
-    JButton btnOpenInExplorer = SwingUtils
-        .createButtonOpenInFileManager(this, "Open in File Manager",
-            () -> FragpipeLocations.get().getDirWorkflows());
+    JButton btnWorkflowLoad = UiUtils.createButton("Load workflow", this::actionLoadSelectedWorkflow);
+    FormEntry feComboWorkflow = Fragpipe.feNoCache(uiComboWorkflows, "workflow-option").label("Select a workflow:").tooltip("Conveniently loads appropriate defaults for various standard workflows\n").create();
+    JButton btnOpenInExplorer = SwingUtils.createButtonOpenInFileManager(this, "Open in File Manager", () -> FragpipeLocations.get().getDirWorkflows());
 
     mu.add(p, epWorkflowsInfo).growX().spanX().wrap();
     mu.add(p, feComboWorkflow.label()).split();
     mu.add(p, feComboWorkflow.comp);
     mu.add(p, btnWorkflowLoad);
-    mu.add(p, btnWorkflowFileLoad);
     mu.add(p, new JLabel("or save current settings as workflow")).gapLeft("15px");
     mu.add(p, UiUtils.createButton("Save", e -> Bus.post(new MessageSaveAsWorkflow(false))));
     if (false && Version.isDevBuild()) {
@@ -1634,27 +1616,38 @@ public class TabWorkflow extends JPanelWithEnablement {
   private void actionLoadSelectedWorkflow(ActionEvent e) {
     String workflow = (String) uiComboWorkflows.getSelectedItem();
     log.debug("Load workflow button clicked: {}", workflow);
-    int confirmation = SwingUtils.showConfirmDialog(this, new JLabel("Do you want to load workflow: " + workflow + "?"), "Confirmation");
-    if (JOptionPane.OK_OPTION == confirmation) {
-      log.debug("Loading workflow/ui state: {}", workflow);
-      PropsFile propsFile = workflows.get(workflow);
-      if (propsFile == null) {
-        SwingUtils.showErrorDialog(this, "Couldn't load workflow file: " + workflow, "Workflow loading error");
+    if (workflow == null || workflow.equalsIgnoreCase("custom")) {
+      final String propWorkflowDir = "workflow.last-save-dir";
+      JFileChooser fc = FileChooserUtils.builder("Select folder to save workflow file to").multi(false).mode(FcMode.FILES_ONLY).acceptAll(true).approveButton("Select workflow").paths(Stream.of(Fragpipe.propsVarGet(propWorkflowDir), FragpipeLocations.get().getDirWorkflows().toString())).create();
+//      fc.setFileFilter(new FileNameExtensionFilter("workflow files", "workflow"));
+      if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+        log.debug("User cancelled dir selection");
         return;
       }
+      Bus.post(new MessageLoadUi(FragpipeLocations.get().tryLoadSilently(fc.getSelectedFile().toPath(), "user")));
+    } else {
+      int confirmation = SwingUtils.showConfirmDialog(this, new JLabel("Do you want to load workflow: " + workflow + "?"), "Confirmation");
+      if (JOptionPane.OK_OPTION == confirmation) {
+        log.debug("Loading workflow/ui state: {}", workflow);
+        PropsFile propsFile = workflows.get(workflow);
+        if (propsFile == null) {
+          SwingUtils.showErrorDialog(this, "Couldn't load workflow file: " + workflow, "Workflow loading error");
+          return;
+        }
 
-      log.debug("Reloading file from disk, in case it has changed: {}", propsFile.getPath());
-      try {
-        propsFile.load();
-      } catch (IOException ex) {
-        SwingUtils.showErrorDialogWithStacktrace(ex, this, true);
-        log.error("Error re-loading workflow file", ex);
-      }
+        log.debug("Reloading file from disk, in case it has changed: {}", propsFile.getPath());
+        try {
+          propsFile.load();
+        } catch (IOException ex) {
+          SwingUtils.showErrorDialogWithStacktrace(ex, this, true);
+          log.error("Error re-loading workflow file", ex);
+        }
 
-      if (propsFile.containsKey("workflow.workflow-option")) {
-        propsFile.setProperty("workflow.workflow-option", workflow);
+        if (propsFile.containsKey("workflow.workflow-option")) {
+          propsFile.setProperty("workflow.workflow-option", workflow);
+        }
+        Bus.post(new MessageLoadUi(propsFile));
       }
-      Bus.post(new MessageLoadUi(propsFile));
     }
   }
 
