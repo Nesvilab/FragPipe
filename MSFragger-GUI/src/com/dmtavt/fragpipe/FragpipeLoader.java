@@ -152,12 +152,11 @@ public class FragpipeLoader {
           },
           ex -> {
             Properties local = null;
-            Bus.post(new MessageLoaderUpdate("Failed to load remote configuration"));
             try {
-              log.error("Something happened while trying to get application properties at startup", ex);
               log.debug("Falling back to using local properties file");
               local = ThisAppProps.getLocalProperties();
               if (local == null) {
+                Bus.post(new MessageLoaderUpdate("Failed to load remote configuration"));
                 throw new IllegalStateException("Loading local properties file failed. Please report to developers.");
               }
             } finally {
