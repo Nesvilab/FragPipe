@@ -32,18 +32,20 @@ import com.dmtavt.fragpipe.api.VersionFetcher;
 public class Msfragger {
 
   private static final Logger log = LoggerFactory.getLogger(Msfragger.class);
+  private static final Pattern regex = Pattern.compile("msfragger.*\\.jar", Pattern.CASE_INSENSITIVE);
 
-  public static Version version(Path jar) throws Exception {
+  public static Version getVersion(Path jar) throws Exception {
     // only validate Fragger version if the current Java version is 1.8 or higher
     Version test;
     if (!SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8)) {
       // we can't test fragger binary verison when java version is less than 1.8
       throw new ValidationException("MSFragger requires Java 8+, can't check version without it.");
     }
-    // get the vesrion reported by the current executable
+
+    // get the version reported by the current executable
     test = testJar(jar.toString());
     if (!test.isVersionParsed) {
-      throw new ValidationException("Could not get version info with given jar: " + jar.toString());
+      throw new ValidationException("Could not get version info with given jar: " + jar);
     }
     return test;
   }
@@ -88,23 +90,40 @@ public class Msfragger {
   public static Version testJar(String jarPath) throws Exception {
     String verStr = null;
     boolean isVersionParsed = false;
-    ProcessBuilder pb = new ProcessBuilder(Fragpipe.getBinJava(), "-jar", jarPath);
-    List<Pattern> regexs = Arrays.asList(MsfraggerVerCmp.regexOldScheme1, MsfraggerVerCmp.regexNewScheme1);
-    pb.redirectErrorStream(true);
-    Process pr = pb.start();
-    pr.waitFor();
-    try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
-      String line;
-      while ((line = in.readLine()) != null) {
-        for (Pattern re : regexs) {
-          Matcher m = re.matcher(line);
-          if (m.find()) {
-            isVersionParsed = true;
-            verStr = m.group(2);
+    List<Pattern> regexs = Arrays.asList(MsfraggerVerCmp.regexNewScheme1, MsfraggerVerCmp.regexOldScheme1); // New scheme first because most people are using the new version.
+
+    for (Pattern re : regexs) {
+      Matcher m = re.matcher(jarPath);
+      if (m.find()) {
+        isVersionParsed = true;
+        verStr = m.group(2);
+        break;
+      }
+    }
+
+    if (!isVersionParsed) {
+      ProcessBuilder pb = new ProcessBuilder(Fragpipe.getBinJava(), "-jar", jarPath);
+      pb.redirectErrorStream(true);
+      Process pr = pb.start();
+      pr.waitFor();
+      try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
+        String line;
+        while ((line = in.readLine()) != null) {
+          for (Pattern re : regexs) {
+            Matcher m = re.matcher(line);
+            if (m.find()) {
+              isVersionParsed = true;
+              verStr = m.group(2);
+              break;
+            }
+          }
+          if (isVersionParsed) {
+            break;
           }
         }
       }
     }
+
     return new Version(isVersionParsed, verStr);
   }
 
@@ -141,8 +160,6 @@ public class Msfragger {
     try (FileSystem fs = FileSystems.newFileSystem(p, ClassLoader.getSystemClassLoader())) {
       for (Path root : fs.getRootDirectories()) {
         Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
-          final Pattern regex = Pattern.compile("msfragger.*\\.jar", Pattern.CASE_INSENSITIVE);
-
           @Override
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
             String fileName = file.getFileName().toString();
