@@ -349,6 +349,9 @@ public class Fragpipe extends JFrameHeadless {
         if (pythonBinPath != null) {
           pythonBinPath = Paths.get(pythonBinPath).toAbsolutePath().toString();
         }
+        if (threads == 0) {
+          threads = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors(), maxProcessors));
+        }
         headless(workflowFile);
       }
     }

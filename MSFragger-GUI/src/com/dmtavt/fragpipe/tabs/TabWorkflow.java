@@ -46,6 +46,7 @@ import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
 import com.github.chhh.utils.FileDrop;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.MapUtils;
+import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
@@ -487,11 +488,11 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   public int getRamGb() {
-    return uiSpinnerRam.getActualValue();
+    return uiSpinnerRam.getActualValue() > 0 ? uiSpinnerRam.getActualValue() : OsUtils.getDefaultXmx();
   }
 
   public int getThreads() {
-    return uiSpinnerThreads.getActualValue();
+    return uiSpinnerThreads.getActualValue() > 0 ? uiSpinnerThreads.getActualValue() : Math.max(1, Math.min(Runtime.getRuntime().availableProcessors(), maxProcessors));
   }
 
   public enum InputDataType {RegularMs, ImMsTimsTof}
