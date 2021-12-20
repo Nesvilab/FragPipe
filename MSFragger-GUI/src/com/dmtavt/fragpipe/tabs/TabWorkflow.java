@@ -223,7 +223,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("LFQ-phospho");
     builtInWorkflows.add("TMT16-phospho");
     builtInWorkflows.add("ipIAA-ABPP");
-    builtInWorkflows.add("custom");
+    builtInWorkflows.add("Custom");
   }
 
   // Ok, if we could keep some workflows pinned toward the top,  I would say Default, SpecLib, Open, Common-mass-offset, LFQ-MBR,  then the rest
@@ -234,6 +234,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     a.add("Mass-Offset-CommonPTMs");
     a.add("LFQ-MBR");
     a.add("DIA_SpecLib_Quant");
+    a.add("Custom");
     return a;
   }).get();
 
@@ -583,7 +584,7 @@ public class TabWorkflow extends JPanelWithEnablement {
             throw new IllegalStateException("Unknown option [" + choice + "], probably forgot to add code branch for a newly added option");
         }
       }
-      files.put("custom", null);
+      files.put("Custom", null);
       return files;
     } catch (IOException e) {
       SwingUtils.showErrorDialogWithStacktrace(e, this);
@@ -1617,7 +1618,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private void actionLoadSelectedWorkflow(ActionEvent e) {
     String workflow = (String) uiComboWorkflows.getSelectedItem();
     log.debug("Load workflow button clicked: {}", workflow);
-    if (workflow == null || workflow.equalsIgnoreCase("custom")) {
+    if (workflow == null || workflow.equalsIgnoreCase("Custom")) {
       final String propWorkflowDir = "workflow.last-save-dir";
       JFileChooser fc = FileChooserUtils.builder("Select folder to save workflow file to").multi(false).mode(FcMode.FILES_ONLY).acceptAll(true).approveButton("Select workflow").paths(Stream.of(Fragpipe.propsVarGet(propWorkflowDir), FragpipeLocations.get().getDirWorkflows().toString())).create();
 //      fc.setFileFilter(new FileNameExtensionFilter("workflow files", "workflow"));
