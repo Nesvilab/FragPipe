@@ -279,7 +279,7 @@ public class FragpipeRun {
       }
 
       // save all the options to output dir
-      saveRuntimeConfig(wd);
+      // saveRuntimeConfig(wd);
 
       // print all the options to the screen as well
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
