@@ -618,14 +618,15 @@ public class TabWorkflow extends JPanelWithEnablement {
     });
     JButton btnWorkflowLoad = UiUtils.createButton("Load workflow", this::actionLoadSelectedWorkflow);
     FormEntry feComboWorkflow = Fragpipe.feNoCache(uiComboWorkflows, "workflow-option").label("Select a workflow:").tooltip("Conveniently loads appropriate defaults for various standard workflows\n").create();
-    JButton btnOpenInExplorer = SwingUtils.createButtonOpenInFileManager(this, "Open in File Manager", () -> FragpipeLocations.get().getDirWorkflows());
+    JButton btnOpenInExplorer = SwingUtils.createButtonOpenInFileManager(this, "Open built-in folder", () -> FragpipeLocations.get().getDirWorkflows());
 
     mu.add(p, epWorkflowsInfo).growX().spanX().wrap();
     mu.add(p, feComboWorkflow.label()).split();
     mu.add(p, feComboWorkflow.comp);
     mu.add(p, btnWorkflowLoad);
     mu.add(p, new JLabel("or save current settings as workflow")).gapLeft("15px");
-    mu.add(p, UiUtils.createButton("Save", e -> Bus.post(new MessageSaveAsWorkflow(false))));
+    mu.add(p, UiUtils.createButton("Save to built-in folder", e -> Bus.post(new MessageSaveAsWorkflow(false))));
+    mu.add(p, UiUtils.createButton("Save to custom folder", e -> Bus.post(new MessageSaveAsWorkflow(true))));
     if (false && Version.isDevBuild()) {
       mu.add(p, UiUtils.createButton("Save Dev", e -> Bus.post(new MessageSaveAsWorkflow(false, true))));
     }

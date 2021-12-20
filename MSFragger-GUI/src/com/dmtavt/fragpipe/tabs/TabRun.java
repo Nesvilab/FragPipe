@@ -16,7 +16,6 @@ import com.dmtavt.fragpipe.messages.MessageKillAll.REASON;
 import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
 import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
-import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.github.chhh.utils.PathUtils;
@@ -163,7 +162,6 @@ public class TabRun extends JPanelWithEnablement {
   }
 
   private JPanel createPanelTop(TextConsole console) {
-    JButton btnSaveAsWorkflow = UiUtils.createButton("Save current settings as a workflow", e -> Bus.post(new MessageSaveAsWorkflow(true)));
     JButton btnAbout = UiUtils.createButton("About", e -> Bus.post(new MessageShowAboutDialog()));
     uiTextWorkdir = UiUtils.uiTextBuilder().cols(30).create();
     FormEntry feWorkdir = mu.feb("workdir", uiTextWorkdir).label("Output dir:").tooltip("Processing results will be stored in this directory").create();
@@ -224,7 +222,6 @@ public class TabRun extends JPanelWithEnablement {
         });
 
     JPanel p = mu.newPanel(null, true);
-    mu.add(p, btnSaveAsWorkflow).split().spanX();
     mu.add(p, btnAbout).wrap();
     mu.add(p, feWorkdir.label(), false).split().spanX();
     mu.add(p, feWorkdir.comp).growX();
