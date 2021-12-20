@@ -551,12 +551,10 @@ public class TabWorkflow extends JPanelWithEnablement {
 
       files = filesLocal;
       List<String> diffNames = MapUtils.keysDiffRight(filesLocal, filesStored).collect(Collectors.toList());
-      List<PropsFile> diffPropFiles = Seq.seq(filesStored).filter(kv -> diffNames.contains(kv.v1))
-          .map(kv -> kv.v2).toList();
+      List<PropsFile> diffPropFiles = Seq.seq(filesStored).filter(kv -> diffNames.contains(kv.v1)).map(kv -> kv.v2).toList();
 
       if (!diffNames.isEmpty()) {
-        JLabel message = new JLabel(
-            SwingUtils.makeHtml("Found workflows from previous FragPipe sessions:\n - "+Seq.seq(diffNames).sorted().toString("\n - ")));
+        JLabel message = new JLabel(SwingUtils.makeHtml("Found workflows from previous FragPipe sessions:\n - "+Seq.seq(diffNames).sorted().toString("\n - ")));
         final String[] choices = {"Copy", "Ignore", "Delete"};
         final int choice = Fragpipe.headless ? JOptionPane.CLOSED_OPTION : SwingUtils.showChoiceDialog(this, "Load workflows?", message, choices, 0);
         switch (choice) {

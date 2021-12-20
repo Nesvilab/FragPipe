@@ -519,13 +519,8 @@ public class TabMsfragger extends JPanelBase {
     // Digest panel
     JPanel p = mu.newPanel("Protein Digestion", true);
 
-    uiComboEnzymes = UiUtils
-        .createUiCombo(ENZYMES.stream().map(msfe -> msfe.name)
-            //.filter(name -> !"custom".equals(name))
-            .collect(Collectors.toList()));
-    Optional<MsfraggerEnzyme> trypsin = ENZYMES.stream()
-        .filter(e -> e.name.toLowerCase().startsWith("trypsin"))
-        .min(Comparator.comparing(o -> o.name));
+    uiComboEnzymes = UiUtils.createUiCombo(ENZYMES.stream().map(msfe -> msfe.name).collect(Collectors.toList()));
+    Optional<MsfraggerEnzyme> trypsin = ENZYMES.stream().filter(e -> e.name.toLowerCase().startsWith("trypsin")).min(Comparator.comparing(o -> o.name));
     trypsin.ifPresent(msfraggerEnzyme -> uiComboEnzymes.setSelectedItem(msfraggerEnzyme.name));
     FormEntry feEnzymeList = mu.feb(PROP_misc_fragger_enzyme_dropdown_1, uiComboEnzymes)
         .label("Load rules")
@@ -559,10 +554,7 @@ public class TabMsfragger extends JPanelBase {
       }
     });
 
-    uiComboEnzymes2 = UiUtils
-            .createUiCombo(ENZYMES.stream().map(msfe -> msfe.name)
-                    //.filter(name -> !"custom".equals(name))
-                    .collect(Collectors.toList()));
+    uiComboEnzymes2 = UiUtils.createUiCombo(ENZYMES.stream().map(msfe -> msfe.name).collect(Collectors.toList()));
     trypsin.ifPresent(msfraggerEnzyme -> uiComboEnzymes2.setSelectedItem(msfraggerEnzyme.name));
     FormEntry feEnzymeList2 = mu.feb(PROP_misc_fragger_enzyme_dropdown_2, uiComboEnzymes2)
         .label("Load rules")

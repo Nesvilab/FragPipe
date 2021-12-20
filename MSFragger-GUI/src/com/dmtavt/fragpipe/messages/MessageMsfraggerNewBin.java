@@ -11,8 +11,6 @@ public class MessageMsfraggerNewBin {
 
   @Override
   public String toString() {
-    return new StringJoiner(", ", MessageMsfraggerNewBin.class.getSimpleName() + "[", "]")
-        .add("binPath='" + binPath + "'")
-        .toString();
+    return new StringJoiner(", ", MessageMsfraggerNewBin.class.getSimpleName() + "[", "]").add("binPath='" + binPath + "'").toString();
   }
 }

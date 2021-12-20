@@ -288,8 +288,7 @@ public class ProcessManager {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageKillAll m) {
     long notStarted = taskGroups.stream().mapToInt(List::size).sum();
-    String msg = String.format(
-        "\n~~~~~~~~~~~~~~~~~~~~\nCancelling %d remaining tasks", notStarted);
+    String msg = String.format("\n~~~~~~~~~~~~~~~~~~~~\nCancelling %d remaining tasks", notStarted);
     Bus.post(new MessagePrintToConsole(Fragpipe.COLOR_RED_DARKEST, msg, true));
 
     try {

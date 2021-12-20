@@ -298,8 +298,7 @@ public class FragpipeRun {
       long startTime = System.nanoTime();
       final List<RunnableDescription> toRun = new ArrayList<>();
       for (final ProcessBuilderInfo pbi : pbis) {
-        Runnable runnable = ProcessBuilderInfo
-            .toRunnable(pbi, wd, FragpipeRun::printProcessDescription);
+        Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, wd, FragpipeRun::printProcessDescription);
         ProcessDescription.Builder b = new ProcessDescription.Builder().setName(pbi.name);
         if (pbi.pb.directory() != null) {
           b.setWorkDir(pbi.pb.directory().toString());

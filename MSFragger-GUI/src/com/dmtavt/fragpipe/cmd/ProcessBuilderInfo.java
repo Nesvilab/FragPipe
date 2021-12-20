@@ -35,10 +35,8 @@ public class ProcessBuilderInfo {
     this.parallelGroup = parallelGroup;
   }
 
-  public static Runnable toRunnable(final ProcessBuilderInfo pbi, final Path wdPath,
-      Consumer<ProcessBuilderInfo> pbiPrinter) {
+  public static Runnable toRunnable(final ProcessBuilderInfo pbi, final Path wdPath, Consumer<ProcessBuilderInfo> pbiPrinter) {
     return () -> {
-
       final ProcessResult pr = new ProcessResult(pbi);
       Process started;
       try {
@@ -57,7 +55,6 @@ public class ProcessBuilderInfo {
       // main loop reading process' output
       try {
         while (true) {
-
           Thread.sleep(200L);
           final byte[] pollErr = pr.pollStdErr();
           String errStr = pr.appendErr(pollErr);
@@ -65,14 +62,12 @@ public class ProcessBuilderInfo {
             if (pbi.name.toLowerCase().contentEquals("peptideprophet")) {
               errStr = errStr.replaceAll("WARNING: CANNOT correct data file[^\r\n]+[\r\n]+", "").replaceAll("WARNING: cannot open data file[^\r\n]+[\r\n]+", "");
             }
-            Bus.post(new MessageExternalProcessOutput(true, errStr,
-                pbi.name));
+            Bus.post(new MessageExternalProcessOutput(true, errStr, pbi.name));
           }
           final byte[] pollOut = pr.pollStdOut();
           final String outStr = pr.appendOut(pollOut);
           if (outStr != null) {
-            Bus.post(new MessageExternalProcessOutput(false, outStr,
-                pbi.name));
+            Bus.post(new MessageExternalProcessOutput(false, outStr, pbi.name));
           }
           if (started.isAlive()) {
             continue;
@@ -82,36 +77,28 @@ public class ProcessBuilderInfo {
             log.debug("Checking exit value: {}", pbi.name);
             final int exitValue = started.exitValue();
             log.debug("Exit value '{}': {}", exitValue, pbi.name);
-            Color c = exitValue == 0
-                ? Fragpipe.COLOR_GREEN_DARKER
-                : Fragpipe.COLOR_RED;
-            String msg = String.format(Locale.ROOT,
-                "Process '%s' finished, exit code: %d\n", pbi.name, exitValue);
+            Color c = exitValue == 0 ? Fragpipe.COLOR_GREEN_DARKER : Fragpipe.COLOR_RED;
+            String msg = String.format(Locale.ROOT, "Process '%s' finished, exit code: %d\n", pbi.name, exitValue);
             Bus.post(new MessagePrintToConsole(c, msg, false));
             if (exitValue != 0) {
               log.debug("Exit value not zero, killing all processes");
-              Bus.post(new MessagePrintToConsole(
-                  Fragpipe.COLOR_RED, "Process returned non-zero exit code, stopping", true));
+              Bus.post(new MessagePrintToConsole(Fragpipe.COLOR_RED, "Process returned non-zero exit code, stopping", true));
               Bus.post(new MessageKillAll(REASON.NON_ZERO_RETURN_FROM_PROCESS));
               Bus.post(MessageSaveLog.saveInDir(wdPath));
             }
-
           } catch (IllegalThreadStateException ex) {
             log.warn("Checking for exit value when subprocess was not alive threw exception.");
           }
           break;
         }
-
       } catch (IOException e) {
         log.error("Error while starting process " + pbi.name, e);
-
       } catch (InterruptedException e) {
         // graceful stop request
         String msg = "Processing interrupted, stopping " + pbi.name;
         log.debug(msg, e);
         Bus.post(new MessagePrintToConsole(Fragpipe.COLOR_RED_DARKEST, msg, true));
         // all the cleanup is done in the finally block
-
       } finally {
         // in the end whatever happens always try to kill the process
         if (started != null && started.isAlive()) {
