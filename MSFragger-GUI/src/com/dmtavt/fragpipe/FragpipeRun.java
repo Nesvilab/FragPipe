@@ -37,6 +37,7 @@ import com.dmtavt.fragpipe.cmd.ProcessBuildersDescriptor;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.internal.DefEdge;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
+import com.dmtavt.fragpipe.messages.MessageManifestSave;
 import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
 import com.dmtavt.fragpipe.messages.MessageSaveCache;
@@ -78,6 +79,7 @@ import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.TimeUtils;
 import com.github.chhh.utils.UsageTrigger;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -314,10 +316,16 @@ public class FragpipeRun {
         String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
         toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true);
         Bus.post(MessageSaveLog.saveInDir(wd));
+
+        // save manifest file in GUI mode
+        if (!Fragpipe.headless) {
+          Path path = wd.resolve("lcms-files_" + TimeUtils.dateTimeNoSpaces() + ".fp-manifest");
+          Bus.post(new MessageManifestSave(path));
+        }
+
         Bus.post(new MessageRunButtonEnabled(true));
       };
-      toRun.add(
-          new RunnableDescription(new Builder().setName("Finalizer Task").create(), finalizerRun));
+      toRun.add(new RunnableDescription(new Builder().setName("Finalizer Task").create(), finalizerRun));
 
       Bus.post(new MessageStartProcesses(toRun));
 

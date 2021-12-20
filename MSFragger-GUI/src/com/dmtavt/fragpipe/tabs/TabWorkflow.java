@@ -1267,23 +1267,22 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void on(MessageManifestSave m) {
-    String loc = Fragpipe.propsVarGet(ThisAppProps.CONFIG_SAVE_LOCATION);
-    JFileChooser fc = FileChooserUtils.builder("Path to save manifest")
-        .paths(Stream.of(loc)).mode(FcMode.FILES_ONLY).approveButton("Save").multi(false)
-        .acceptAll(true)
-        .filters(Arrays.asList(fileNameEndingFilter))
-        .create();
-    fc.setFileFilter(fileNameEndingFilter);
-    if (loc == null) {
-      fc.setSelectedFile(new File("lcms-files" + manifestExt));
-    }
-    if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(this)) {
-      String s = fc.getSelectedFile().getAbsolutePath();
-      if (!s.endsWith(manifestExt)) {
-        s += manifestExt;
+    Path path = m.path;
+    if (path == null) {
+      String loc = Fragpipe.propsVarGet(ThisAppProps.CONFIG_SAVE_LOCATION);
+      JFileChooser fc = FileChooserUtils.builder("Path to save manifest").paths(Stream.of(loc)).mode(FcMode.FILES_ONLY).approveButton("Save").multi(false).acceptAll(true).filters(Collections.singletonList(fileNameEndingFilter)).create();
+      fc.setFileFilter(fileNameEndingFilter);
+      if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(this)) {
+        String s = fc.getSelectedFile().getAbsolutePath();
+        if (!s.endsWith(manifestExt)) {
+          s += manifestExt;
+        }
+        path = Paths.get(s);
       }
-      Path path = Paths.get(s);
-      Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.toString());
+    }
+
+    if (path != null) {
+      Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.getParent().toString());
       if (!deleteQuietlyWithConfirmation(path, this)) {
         return;
       }
@@ -1291,7 +1290,6 @@ public class TabWorkflow extends JPanelWithEnablement {
         manifestSave(path);
       } catch (IOException e) {
         SwingUtils.showErrorDialogWithStacktrace(e, this);
-        return;
       }
     }
   }
@@ -1315,23 +1313,14 @@ public class TabWorkflow extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void on(MessageManifestLoad m) {
     String loc = Fragpipe.propsVarGet(ThisAppProps.CONFIG_SAVE_LOCATION);
-    JFileChooser fc = FileChooserUtils.builder("Load manifest")
-        .paths(Stream.of(loc)).mode(FcMode.ANY).approveButton("Load").multi(false)
-        .acceptAll(true)
-        .filters(Arrays.asList(fileNameEndingFilter))
-        .create();
+    JFileChooser fc = FileChooserUtils.builder("Load manifest").paths(Stream.of(loc)).mode(FcMode.ANY).approveButton("Load").multi(false).acceptAll(true).filters(Collections.singletonList(fileNameEndingFilter)).create();
     fc.setFileFilter(fileNameEndingFilter);
-    if (loc != null) {
-      try {
-        Path path = Paths.get(loc);
-        fc.setSelectedFile(path.toFile());
-      } catch (Exception ignore) {}
-    }
     if (Fragpipe.headless || JFileChooser.APPROVE_OPTION == fc.showOpenDialog(this)) {
       final File f = Fragpipe.headless ? Fragpipe.manifestFile.toFile() : fc.getSelectedFile();
       if (f == null)
         return;
       try {
+        Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, f.getParent());
         manifestLoad(f.toPath());
       } catch (IOException e) {
         SwingUtils.showErrorDialogWithStacktrace(e, this);
