@@ -633,6 +633,7 @@ public class FragpipeRun {
     if (pbi.pb.directory() != null) {
       toConsole(Fragpipe.COLOR_WORKDIR, " [Work dir: " + pbi.pb.directory() + "]", false);
     }
+    toConsole("", true);
     final String cmd = pbi.pb.command().stream()
             .map(e -> OsUtils.isUnix() && Pattern.matches(".*\\s.*", e) ? "\"" + e + "\"" : e) // insert quotes for arguments with whitespace
             .collect(Collectors.joining(" "));
