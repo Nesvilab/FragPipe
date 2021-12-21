@@ -85,6 +85,12 @@ public class ProcessBuilderInfo {
               Bus.post(new MessagePrintToConsole(Fragpipe.COLOR_RED, "Process returned non-zero exit code, stopping", true));
               Bus.post(new MessageKillAll(REASON.NON_ZERO_RETURN_FROM_PROCESS));
               Bus.post(MessageSaveLog.saveInDir(wdPath));
+
+              // save manifest file in GUI mode
+              if (!Fragpipe.headless) {
+                Path path = wdPath.resolve("lcms-files_" + TimeUtils.dateTimeNoSpaces() + ".fp-manifest");
+                Bus.post(new MessageManifestSave(path));
+              }
             }
           } catch (IllegalThreadStateException ex) {
             log.warn("Checking for exit value when subprocess was not alive threw exception.");
