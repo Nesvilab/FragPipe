@@ -1238,7 +1238,7 @@ public class FragpipeRun {
         NoteConfigSpeclibgen speclibConf = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
         if (!speclibConf.isValid()) {
           if (Fragpipe.headless) {
-            log.error("Spectral Library Generation scripts did not initialize correctly.");
+            log.error("Spectral Library Generation scripts did not initialize correctly. Please make sure that Python and EasyPQP are installed.");
           } else {
             JOptionPane.showMessageDialog(parent, "Spectral Library Generation scripts did not initialize correctly.", "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
           }
