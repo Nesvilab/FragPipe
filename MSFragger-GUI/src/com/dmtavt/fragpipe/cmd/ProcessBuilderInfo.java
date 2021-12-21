@@ -5,9 +5,11 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageExternalProcessOutput;
 import com.dmtavt.fragpipe.messages.MessageKillAll;
 import com.dmtavt.fragpipe.messages.MessageKillAll.REASON;
+import com.dmtavt.fragpipe.messages.MessageManifestSave;
 import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.process.ProcessResult;
+import com.github.chhh.utils.TimeUtils;
 import java.awt.Color;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -38,7 +40,7 @@ public class ProcessBuilderInfo {
   public static Runnable toRunnable(final ProcessBuilderInfo pbi, final Path wdPath, Consumer<ProcessBuilderInfo> pbiPrinter) {
     return () -> {
       final ProcessResult pr = new ProcessResult(pbi);
-      Process started;
+      Process started = null;
       try {
         log.debug("Starting: {}", pbi.name);
         if (pbiPrinter != null) {
@@ -49,7 +51,12 @@ public class ProcessBuilderInfo {
       } catch (IOException e) {
         log.error("Error while starting process: " + pbi.name + ", stopping", e);
         Bus.post(new MessageKillAll(REASON.CANT_START_PROCESS));
-        return;
+
+        if (Fragpipe.headless) {
+          System.exit(1);
+        } else {
+          return;
+        }
       }
 
       // main loop reading process' output
@@ -90,6 +97,12 @@ public class ProcessBuilderInfo {
               if (!Fragpipe.headless) {
                 Path path = wdPath.resolve("lcms-files_" + TimeUtils.dateTimeNoSpaces() + ".fp-manifest");
                 Bus.post(new MessageManifestSave(path));
+              }
+
+              if (Fragpipe.headless) {
+                System.exit(1);
+              } else {
+                break;
               }
             }
           } catch (IllegalThreadStateException ex) {
