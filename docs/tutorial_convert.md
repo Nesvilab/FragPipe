@@ -8,7 +8,7 @@ This page has instructions for using MSConvert to generate mzML files from both 
 
 <br>
 
-### Convert Thermo .raw files:
+### Convert Thermo .raw files (DDA or DIA data with non-overlapping windows):
 In the MSConvert GUI window:
 1. Browse for the raw files you want to convert.
 2. Add them to the input list.
@@ -26,6 +26,14 @@ Example command line options:
 `msconvert.exe --mzML --64 --zlib --filter "peakPicking true 1-" *.raw`
 
 <br>
+
+### Convert Thermo DIA .raw files with overlapping/staggered windows:
+Follow the steps above, with the addition of the "Demultiplex" filter in step 5.
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/msconvert_staggered_DIA.png)
+
+<br>
+
 
 ### Convert Bruker timsTOF .d files (NOT RECOMMENDED. MSFragger and IonQuant can load .d directly.):
 In the MSConvert window:
