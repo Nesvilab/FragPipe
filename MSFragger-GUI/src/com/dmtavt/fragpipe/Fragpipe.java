@@ -52,8 +52,8 @@ import com.dmtavt.fragpipe.tabs.TabDatabase;
 import com.dmtavt.fragpipe.tabs.TabDiann;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tabs.TabPtms;
-import com.dmtavt.fragpipe.tabs.TabQuantitaionLabeling;
-import com.dmtavt.fragpipe.tabs.TabQuantitaionLfq;
+import com.dmtavt.fragpipe.tabs.TabQuantificationLabeling;
+import com.dmtavt.fragpipe.tabs.TabQuantificationLfq;
 import com.dmtavt.fragpipe.tabs.TabRun;
 import com.dmtavt.fragpipe.tabs.TabSpecLib;
 import com.dmtavt.fragpipe.tabs.TabUmpire;
@@ -556,8 +556,8 @@ public class Fragpipe extends JFrameHeadless {
     TabDatabase tabDatabase = new TabDatabase();
     TabMsfragger tabMsfragger = new TabMsfragger();
     TabValidation tabValidation = new TabValidation();
-    TabQuantitaionLfq tabQuantitaionLfq = new TabQuantitaionLfq();
-    TabQuantitaionLabeling tabQuantitaionLabeling = new TabQuantitaionLabeling();
+    TabQuantificationLfq tabQuantificationLfq = new TabQuantificationLfq();
+    TabQuantificationLabeling tabQuantificationLabeling = new TabQuantificationLabeling();
     TabPtms tabPtms = new TabPtms();
     TabSpecLib tabSpecLib = new TabSpecLib();
     TabDiann tabDiann = new TabDiann();
@@ -575,9 +575,9 @@ public class Fragpipe extends JFrameHeadless {
     addTab.accept(new UiTab("Validation", tabValidation,
         "/com/dmtavt/fragpipe/icons/icon-filtration-16.png", null));
     addTab.accept(new UiTab("PTMs", tabPtms, "/com/dmtavt/fragpipe/icons/icon-edit-16.png", null));
-    addTab.accept(new UiTab("Quant (MS1)", tabQuantitaionLfq,
+    addTab.accept(new UiTab("Quant (MS1)", tabQuantificationLfq,
         "/com/dmtavt/fragpipe/icons/icon-scales-balance-16.png", null));
-    addTab.accept(new UiTab("Quant (Isobaric)", tabQuantitaionLabeling,
+    addTab.accept(new UiTab("Quant (Isobaric)", tabQuantificationLabeling,
         "/com/dmtavt/fragpipe/icons/icon-scales-balance-color-2-16.png", null));
     addTab.accept(new UiTab("Spec Lib", tabSpecLib,
         "/com/dmtavt/fragpipe/icons/icon-library-16.png", null));
