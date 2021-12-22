@@ -897,19 +897,21 @@ public class Fragpipe extends JFrameHeadless {
     sb.append(OsUtils.OsInfo()).append("\n");
     sb.append(OsUtils.JavaInfo()).append("\n");
     sb.append("Running without GUI. Usage:\n");
-    sb.append("\t\tWindows: fragpipe.bat --headless --workflow <path to workflow file> --manifest <path to manifest file> --workdir <path to result directory>\n");
-    sb.append("\t\tLinux: fragpipe --headless --workflow <path to workflow file> --manifest <path to manifest file> --workdir <path to result directory>\n");
+    sb.append("\tWindows: fragpipe.bat --headless --workflow <path to workflow file> --manifest <path to manifest file> --workdir <path to result directory>\n");
+    sb.append("\tLinux: fragpipe --headless --workflow <path to workflow file> --manifest <path to manifest file> --workdir <path to result directory>\n");
     sb.append("Options:\n");
-    sb.append("\t\t--headless                      # Running in headless mode.\n");
-    sb.append("\t\t--workflow <string>             # Specify path to workflow file.\n");
-    sb.append("\t\t--manifest <string>             # Specify path to manifest file.\n");
-    sb.append("\t\t--workdir <string>              # Specify the result directory.\n");
-    sb.append("\t\t--dry-run                       # (optional) Dry run, not really run FragPipe.\n");
-    sb.append("\t\t--ram <integer>                 # (optional) Specify the maximum allowed memory size. Set it to 0 to let FragPipe decide. Default = 0\n");
-    sb.append("\t\t--threads <integer>             # (optional) Specify the number of threads. Default = core number - 1\n");
-    sb.append("\t\t--config-msfragger <string>     # (optional) specify the location of MSFragger jar file. If not specified, using the one in the cache.\n");
-    sb.append("\t\t--config-philosopher <string>   # (optional) specify the location of Philosopher binary file. If not specified, using the one in the cache.\n");
-    sb.append("\t\t--config-python <string>        # (optional) specify the location of Python directory. If not specified, using the one in the cache.\n");
+    sb.append("\t-h\n");
+    sb.append("\t--help                          # Print this help message.\n");
+    sb.append("\t--headless                      # Running in headless mode.\n");
+    sb.append("\t--workflow <string>             # Specify path to workflow file.\n");
+    sb.append("\t--manifest <string>             # Specify path to manifest file.\n");
+    sb.append("\t--workdir <string>              # Specify the result directory.\n");
+    sb.append("\t--dry-run                       # (optional) Dry run, not really run FragPipe.\n");
+    sb.append("\t--ram <integer>                 # (optional) Specify the maximum allowed memory size. Set it to 0 to let FragPipe decide. Default = 0\n");
+    sb.append("\t--threads <integer>             # (optional) Specify the number of threads. Default = core number - 1\n");
+    sb.append("\t--config-msfragger <string>     # (optional) specify the location of the MSFragger jar file. If not specified, using the one in the cache.\n");
+    sb.append("\t--config-philosopher <string>   # (optional) specify the location of the Philosopher binary file. If not specified, using the one in the cache.\n");
+    sb.append("\t--config-python <string>        # (optional) specify the location of the Python directory. If not specified, using the one in the cache.\n");
     return sb.toString();
   }
 }
