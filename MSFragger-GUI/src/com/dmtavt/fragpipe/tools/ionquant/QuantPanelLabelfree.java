@@ -17,11 +17,13 @@
 
 package com.dmtavt.fragpipe.tools.ionquant;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.dmtavt.fragpipe.messages.MessageLoadQuantDefaults;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
+import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
@@ -168,6 +170,18 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     checkRun = new UiCheck("Run MS1 quant", null, false);
     checkRun.setName("quantitation.run-label-free-quant");
+
+    checkRun.addItemListener(e -> {
+      final ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
+      if (isIonquant()) {
+        updateEnabledStatus(reportPanel.uiCheckPepSummary, false);
+        updateEnabledStatus(reportPanel.uiCheckProtSummary, false);
+      } else {
+        updateEnabledStatus(reportPanel.uiCheckPepSummary, true);
+        updateEnabledStatus(reportPanel.uiCheckProtSummary, true);
+      }
+    });
+
     JButton btnLoadDefaults = new JButton("Load Quant defaults");
     btnLoadDefaults.addActionListener((e) -> Bus.post(new MessageLoadQuantDefaults(true)));
 
@@ -219,8 +233,18 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     uiRadioUseIonquant = new UiRadio("IonQuant", null, false);
     buttonGroup.add(uiRadioUseIonquant);
-    FormEntry feRadioIonquant = new FormEntry("ionquant.run-ionquant", "Not shown",
-        uiRadioUseIonquant);
+    FormEntry feRadioIonquant = new FormEntry("ionquant.run-ionquant", "Not shown", uiRadioUseIonquant);
+
+    uiRadioUseIonquant.addItemListener(e -> {
+      final ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
+      if (isIonquant()) {
+        updateEnabledStatus(reportPanel.uiCheckPepSummary, false);
+        updateEnabledStatus(reportPanel.uiCheckProtSummary, false);
+      } else {
+        updateEnabledStatus(reportPanel.uiCheckPepSummary, true);
+        updateEnabledStatus(reportPanel.uiCheckProtSummary, true);
+      }
+    });
 
     UiCombo uiComboMinIsotopes = UiUtils.createUiCombo(Arrays.asList("1", "2", "3"));
     UiSpinnerInt uiSpinnerMinScans = UiUtils.spinnerInt(3, 0, 10000, 1).setCols(5).create();

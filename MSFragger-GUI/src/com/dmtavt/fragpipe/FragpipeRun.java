@@ -1070,9 +1070,8 @@ public class FragpipeRun {
 
     addConfig.accept(cmdPhilosopherAbacus, () -> {
       final boolean isMultiExpReport = sharedLcmsFileGroups.size() > 1;
-      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && isMultiExpReport && ((!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
+      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && isMultiExpReport && !quantPanelLabelfree.isIonquant() && ((!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
       cmdPhilosopherAbacus.isRun(doRunAbacus);
-
       if (cmdPhilosopherAbacus.isRun()) {
         return cmdPhilosopherAbacus.configure(parent, usePhi, reportPanel.getFilterCmdText(), reportPanel.isProtSummary(), reportPanel.isPepSummary(), reportPanel.isNoProtXml(), decoyTag, sharedMapGroupsToProtxml);
       }
@@ -1080,10 +1079,9 @@ public class FragpipeRun {
     });
 
 
-    final CmdIprophet cmdIprophet = new CmdIprophet(reportPanel.isPepSummary(), wd);
+    final CmdIprophet cmdIprophet = new CmdIprophet(false, wd);
     addConfig.accept(cmdIprophet, () -> {
-      final boolean isPepLevelSummary = reportPanel.isPepSummary();
-      cmdIprophet.isRun(cmdPhilosopherAbacus.isRun() && isPepLevelSummary);
+      cmdIprophet.isRun(cmdPhilosopherAbacus.isRun() && !quantPanelLabelfree.isIonquant() && reportPanel.isPepSummary());
       if (cmdIprophet.isRun()) {
         return cmdIprophet.configure(parent, usePhi, decoyTag, threads, sharedPepxmlFiles);
       }
@@ -1094,8 +1092,7 @@ public class FragpipeRun {
     final CmdFreequant cmdFreequant = new CmdFreequant(isReport && isFreequant, wd);
     addConfig.accept(cmdFreequant, () -> {
       if (cmdFreequant.isRun()) {
-        return cmdFreequant.configure(parent, usePhi, quantPanelLabelfree.getFreequantOptsAsText(),
-            sharedMapGroupsToProtxml);
+        return cmdFreequant.configure(parent, usePhi, quantPanelLabelfree.getFreequantOptsAsText(), sharedMapGroupsToProtxml);
       }
       return true;
     });
@@ -1104,9 +1101,7 @@ public class FragpipeRun {
     final CmdIonquant cmdIonquant = new CmdIonquant(quantPanelLabelfree.isIonquant(), wd);
     addConfig.accept(cmdIonquant,  () -> {
       if (cmdIonquant.isRun()) {
-        return cmdIonquant.configure(
-            parent, Paths.get(binMsfragger.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(),
-            sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads);
+        return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads);
       }
       return true;
     });
@@ -1119,12 +1114,8 @@ public class FragpipeRun {
 
     addConfig.accept(cmdTmt, () -> {
       if (isTmt) {
-        if (sharedLcmsFiles.stream()
-            .anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
-          SwingUtils.showWarningDialog(parent,
-              CmdTmtIntegrator.NAME + " only supports mzML and raw files.\n"
-                  + "Please remove other files from the input list.",
-              CmdTmtIntegrator.NAME + " error");
+        if (sharedLcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
+          SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
         }
         return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, fastaFile, sharedMapGroupsToProtxml);

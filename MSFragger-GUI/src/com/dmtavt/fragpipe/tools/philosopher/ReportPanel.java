@@ -17,8 +17,12 @@
 
 package com.dmtavt.fragpipe.tools.philosopher;
 
+import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
+import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
+import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
@@ -41,10 +45,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.messages.MessageSearchType;
-import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.params.ThisAppProps;
-import com.github.chhh.utils.swing.FormEntry;
 
 public class ReportPanel extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(ReportPanel.class);
@@ -57,8 +57,8 @@ public class ReportPanel extends JPanelBase {
   private JPanel pTop;
   private JPanel pOptions;
   private UiText uiTextFilter;
-  private UiCheck uiCheckPepSummary;
-  private UiCheck uiCheckProtSummary;
+  public UiCheck uiCheckPepSummary;
+  public UiCheck uiCheckProtSummary;
   private UiCheck uiCheckMsstats;
   private UiCheck uiCheckPrintDecoys;
   private UiCheck uiCheckDontUseProtProphFile;

@@ -17,10 +17,9 @@
 
 package com.dmtavt.fragpipe.tabs;
 
+import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
-import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
-import com.dmtavt.fragpipe.tools.tmtintegrator.TmtiPanel;
 
 public class TabQuantitaionLfq extends JPanelWithEnablement {
   private static MigUtils mu = MigUtils.get();
