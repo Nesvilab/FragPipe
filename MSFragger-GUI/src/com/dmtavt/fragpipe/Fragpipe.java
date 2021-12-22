@@ -419,10 +419,6 @@ public class Fragpipe extends JFrameHeadless {
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
-
-    // methods with @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
-    // will create non daemon threads to prevent JVM shutdown, so System.exit is required here
-    System.exit(0);
   }
 
   static void displayMainWindow() {

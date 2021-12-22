@@ -19,16 +19,25 @@ package com.dmtavt.fragpipe.api;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Bus {
   private static final Logger log = LoggerFactory.getLogger(Bus.class);
+  private static final ExecutorService threadPool = Executors.newCachedThreadPool(r -> {
+    final Thread t = Executors.defaultThreadFactory().newThread(r);
+    t.setDaemon(true); // unused cached threads are only removed after 60s, non daemon threads will keep the JVM from shutting down
+    return t;
+  });
   private static final EventBus b;
 
   static {
     b = EventBus.builder()
+        .executorService(threadPool)
         .logNoSubscriberMessages(false)
         .build();
   }
