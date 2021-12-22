@@ -160,14 +160,10 @@ public class ReportPanel extends JPanelBase {
 
 
     uiCheckPepSummary = new UiCheck("Generate peptide-level summary", null, false);
-    FormEntry feCheckPepSummary = new FormEntry("pep-level-summary", "not-shown",
-        uiCheckPepSummary,
-        "<html>Optional generation of combined_peptide.tsv files for multi-experiment setups.");
+    FormEntry feCheckPepSummary = new FormEntry("pep-level-summary", "not-shown", uiCheckPepSummary, "<html>Let Philosopher generate combined_peptide.tsv file.<br><b>Uncheck</b> it if analyzing large dataset because Philosopher needs lots of memory to run.<br>It is <b>disabled</b> if IonQuant is enabled because IonQuant will generate the same file.");
 
     uiCheckProtSummary = new UiCheck("Generate protein-level summary", null, true);
-    FormEntry feCheckProtSummary = new FormEntry("prot-level-summary", "not-shown",
-        uiCheckProtSummary,
-        "<html>Generation of combined_protein.tsv files for multi-experiment setups.<br>Uncheck it if analyzing large dataset because Philosopher needs lots of memory to run.");
+    FormEntry feCheckProtSummary = new FormEntry("prot-level-summary", "not-shown", uiCheckProtSummary, "<html>Let Philosopher generate combined_protein.tsv file.<br><b>Uncheck</b> it if analyzing large dataset because Philosopher needs lots of memory to run.<br>It is <b>disabled</b> if IonQuant is enabled because IonQuant will generate the same file.");
 
     uiCheckMsstats = new UiCheck("Generate MSstats files", null, false);
     FormEntry feCheckMSstats = new FormEntry("philosoher-msstats", "not-shown",
