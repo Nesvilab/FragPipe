@@ -173,7 +173,7 @@ public class TabRun extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.ASYNC)
   public void on(MessageRun m) {
     int returnCode = FragpipeRun.run(m);
-    if (returnCode != 0) {
+    if (Fragpipe.headless && returnCode != 0) {
       System.exit(returnCode);
     }
   }
