@@ -630,8 +630,12 @@ public class TmtiPanel extends JPanelBase {
       line = line.trim().replaceAll("[^a-zA-Z0-9\\s]", "");
       if (StringUtils.isNullOrWhitespace(line))
         continue;
-      String[] split = line.split("[ ]+", 2);
-      annotations.add(new QuantLabelAnnotation(split[0].trim(), split[1].trim()));
+      String[] split = line.split("\\s+", 2);
+      if (split.length > 1) {
+        annotations.add(new QuantLabelAnnotation(split[0].trim(), split[1].trim()));
+      } else {
+        annotations.add(new QuantLabelAnnotation(split[0].trim(), ""));
+      }
     }
     return annotations;
   }
