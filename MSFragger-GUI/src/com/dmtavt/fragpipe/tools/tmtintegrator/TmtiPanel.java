@@ -949,7 +949,7 @@ public class TmtiPanel extends JPanelBase {
         return; // user chose not to save file
       }
 
-      if (!selectedPath.endsWith("annotation.txt")) {
+      if (!selectedPath.toString().endsWith("annotation.txt")) {
         selectedPath = Paths.get(selectedPath.toAbsolutePath() + "_annotation.txt");
       }
 
