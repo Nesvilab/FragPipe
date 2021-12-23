@@ -289,8 +289,8 @@ public class TmtiPanel extends JPanelBase {
     FormEntry feLabelType = fe(TmtiConfProps.PROP_channel_num,
         "Label type", uiComboLabelNames, null);
 
-    uiComboQuantLevel = UiUtils.createUiCombo(new String[]{"2", "3"});
-    FormEntry feQuantLevel = fe("quant_level", "Quant level", uiComboQuantLevel, "MS level of quantification (2: MS2; 3: MS3)");
+    uiComboQuantLevel = UiUtils.createUiCombo(new String[]{"2", "3", "2-lowres"});
+    FormEntry feQuantLevel = fe("quant_level", "Quant level", uiComboQuantLevel, "MS level of quantification (2: MS2; 3: MS3; 2-lowres: MS2 low-resolution)");
 
     UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).text("Bridge").create();
     FormEntry feRefTag = fe(TmtiConfProps.PROP_ref_tag,

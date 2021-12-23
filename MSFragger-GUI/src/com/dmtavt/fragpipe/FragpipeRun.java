@@ -108,7 +108,6 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -1174,12 +1173,10 @@ public class FragpipeRun {
 
     addConfig.accept(cmdTmtLabelQuant, () -> {
       if (cmdTmtLabelQuant.isRun()) {
-        List<String> forbiddenOpts = Arrays.asList("--plex", "--annot", "--dir", "--level");
-        String optsLq = "--tol 20";
         QuantLabel label = tmtiPanel.getSelectedLabel();
         String quantLevel = tmtiPanel.getQuantLevel();
         Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
-        return cmdTmtLabelQuant.configure(parent, isDryRun, usePhi, optsLq, quantLevel, label, forbiddenOpts, annotations, sharedMapGroupsToProtxml);
+        return cmdTmtLabelQuant.configure(parent, isDryRun, usePhi, quantLevel, label, annotations, sharedMapGroupsToProtxml);
       }
       return true;
     });

@@ -55,10 +55,7 @@ public class CmdLabelquant extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, boolean isDryRun, UsageTrigger phi,
-      String optsLq, String quantLevel, QuantLabel label, final List<String> forbiddenOpts,
-      Map<LcmsFileGroup, Path> annotations, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
-
+  public boolean configure(Component comp, boolean isDryRun, UsageTrigger phi, String quantLevel, QuantLabel label, Map<LcmsFileGroup, Path> annotations, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
     initPreConfig();
 
     if (!checkCompatibleFormats(comp, mapGroupsToProtxml)) {
@@ -93,21 +90,20 @@ public class CmdLabelquant extends CmdBase {
       List<String> cmd = new ArrayList<>();
       cmd.add(phi.useBin(groupWd));
       cmd.add(PhilosopherProps.CMD_LABELQUANT);
-      List<String> opts = StringUtils.splitCommandLine(optsLq);
-      List<String> badGiven = opts.stream().map(String::toLowerCase).filter(forbiddenOpts::contains).collect(Collectors.toList());
-      if (!badGiven.isEmpty()) {
-        if (Fragpipe.headless) {
-          log.error(String.format("Please don't include [%s] in Labelquant opts string", String.join(", ", badGiven)));
-        } else {
-          String msg = String.format("<html>Please don't include [%s] in Labelquant opts string", String.join(", ", badGiven));
-          JOptionPane.showMessageDialog(comp, msg, NAME + " Error", JOptionPane.WARNING_MESSAGE);
-        }
-        return false;
-      }
-      cmd.addAll(opts);
 
-      cmd.add("--level");
-      cmd.add(quantLevel);
+
+      if (quantLevel.contentEquals("2-lowres")) {
+        cmd.add("--tol");
+        cmd.add("300");
+        cmd.add("--level");
+        cmd.add("2");
+      } else {
+        cmd.add("--tol");
+        cmd.add("20");
+        cmd.add("--level");
+        cmd.add(quantLevel);
+      }
+
       cmd.add("--plex");
       cmd.add(Integer.toString(label.getReagentNames().size()));
       cmd.add("--annot");
