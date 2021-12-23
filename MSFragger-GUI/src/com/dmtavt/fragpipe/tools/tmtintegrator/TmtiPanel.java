@@ -634,7 +634,7 @@ public class TmtiPanel extends JPanelBase {
       if (split.length > 1) {
         annotations.add(new QuantLabelAnnotation(split[0].trim(), split[1].trim()));
       } else {
-        annotations.add(new QuantLabelAnnotation(split[0].trim(), ""));
+        annotations.add(new QuantLabelAnnotation(split[0].trim(), "NA"));
       }
     }
     return annotations;

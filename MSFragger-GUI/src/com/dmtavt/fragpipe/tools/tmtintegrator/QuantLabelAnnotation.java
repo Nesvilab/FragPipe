@@ -28,8 +28,8 @@ public class QuantLabelAnnotation {
   }
 
   public QuantLabelAnnotation(String label, String sample) {
-    this.label = label;
-    this.sample = sample;
+    this.label = label.trim();
+    this.sample = sample.trim();
   }
 
   public String getLabel() {
@@ -37,15 +37,15 @@ public class QuantLabelAnnotation {
   }
 
   public void setLabel(String label) {
-    this.label = label;
+    this.label = label.trim();
   }
 
   public String getSample() {
-    return sample;
+    return sample.isEmpty() ? "NA" : sample;
   }
 
   public void setSample(String sample) {
-    this.sample = sample;
+    this.sample = sample.trim();
   }
 
   @Override
