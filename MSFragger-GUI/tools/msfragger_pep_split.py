@@ -227,7 +227,7 @@ Prot = collections.namedtuple('Prot',
 							  ['protein_descr', 'protein', 'peptide_prev_aa', 'peptide_next_aa', 'num_tol_term'])
 
 
-def new_spec(expect_func, spectrum_query_parts, pep_to_prot: dict[bytes, Prot]):
+def new_spec(expect_func, spectrum_query_parts, pep_to_prot: typing.Mapping[bytes, Prot]):
 	if set(spectrum_query_parts) == {b''}:
 		return b''
 	spectrum_query_headers, search_hits = step1(spectrum_query_parts)
@@ -329,7 +329,7 @@ def get_prots_from_search_hit(sh: bytes) -> list:
 	assert len(set(map(len, l))) == 1
 	return list(map(Prot._make, zip(*l)))
 
-def get_pep_to_prot_mapping(infile: pathlib.Path) -> dict[bytes, Prot]:
+def get_pep_to_prot_mapping(infile: pathlib.Path) -> typing.Mapping[bytes, Prot]:
 	ranked, all_pepxmls = get_pepxmls(infile)
 	def make_dict_entry(sh):
 		key, = sh_peptide.findall(sh)
@@ -378,7 +378,7 @@ def write_pepxml(infile: pathlib.Path) -> None:
 								 all_pepxmls[0], expect_funcs, pep_to_prot)
 
 
-def write_pepxml_single_rank(outfile: pathlib.Path, pepxml_parts, expect_funcs, pep_to_prot: dict[bytes, Prot]):
+def write_pepxml_single_rank(outfile: pathlib.Path, pepxml_parts, expect_funcs, pep_to_prot: typing.Mapping[bytes, Prot]):
 	zip_spec_pos = zip(*(get_spectrum(e) for e in pepxml_parts))
 	pepxml_header, = set(get_pepxml_header(e) for e in pepxml_parts)
 	with pathlib.Path(outfile).open('wb') as f:
