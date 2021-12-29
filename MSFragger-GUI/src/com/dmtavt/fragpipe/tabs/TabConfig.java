@@ -799,13 +799,18 @@ public class TabConfig extends JPanelWithEnablement {
   public void on(MessageInstallEasyPQP m) {
     final String binPython = uiTextBinPython.getNonGhostText();
     if (StringUtils.isNotBlank(binPython)) {
-      final ProcessBuilder pb = new ProcessBuilder(binPython, "-m", "pip", "uninstall", "--yes", "easypqp");
-      String pythonPipOutputNew;
+      String pythonPipOutputNew = "";
       boolean ok = true;
       try {
-        pythonPipOutputNew = ProcessUtils.captureOutput(pb);
+        pythonPipOutputNew += ProcessUtils.captureOutput(new ProcessBuilder(binPython, "-m", "pip", "uninstall", "--yes", "easypqp"));
       } catch (UnexpectedException ex) {
-        pythonPipOutputNew = ex.toString();
+        pythonPipOutputNew += ex.toString();
+        ok = false;
+      }
+      try {
+        pythonPipOutputNew += ProcessUtils.captureOutput(new ProcessBuilder(binPython, "-m", "pip", "uninstall", "--yes", "pyopenms"));
+      } catch (UnexpectedException ex) {
+        pythonPipOutputNew += ex.toString();
         ok = false;
       }
       final ProcessBuilder pb2 = new ProcessBuilder(binPython, "-m", "pip", "install", "easypqp");
