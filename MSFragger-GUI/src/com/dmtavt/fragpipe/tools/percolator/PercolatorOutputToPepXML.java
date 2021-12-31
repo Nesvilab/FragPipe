@@ -317,13 +317,20 @@ public class PercolatorOutputToPepXML {
                     out.write(line + "\n");
                     if (line.trim().startsWith("<msms_pipeline_analysis ")) {
                         final String now = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss").format(LocalDateTime.now());
-                        final String tmp = String.format("<analysis_summary analysis=\"database_refresh\" time=\"%s\"/>\n" +
-                                        "<analysis_summary analysis=\"interact\" time=\"%s\">\n" +
-                                        "<interact_summary filename=\"%s\" directory=\"\">\n" +
-                                        "<inputfile name=\"%s\"/>\n" +
-                                        "</interact_summary>\n" +
-                                        "</analysis_summary>\n" +
-                                        "<dataset_derivation generation_no=\"0\"/>\n", now, now, output_rank.toAbsolutePath(), pepxml_rank.toAbsolutePath());
+                        final String tmp = String.format(
+                                "<analysis_summary analysis=\"Percolator\" time=\"%s\">\n" +
+                                "<peptideprophet_summary min_prob=\"%.2f\">\n" +
+                                "<inputfile name=\"%s\"/>\n" +
+                                "</peptideprophet_summary>\n" +
+                                "</analysis_summary>\n" +
+                                "<analysis_summary analysis=\"database_refresh\" time=\"%s\"/>\n" +
+                                "<analysis_summary analysis=\"interact\" time=\"%s\">\n" +
+                                "<interact_summary filename=\"%s\" directory=\"\">\n" +
+                                "<inputfile name=\"%s\"/>\n" +
+                                "</interact_summary>\n" +
+                                "</analysis_summary>\n" +
+                                "<dataset_derivation generation_no=\"0\"/>\n",
+                                now, minProb, pepxml_rank.toAbsolutePath(), now, now, output_rank.toAbsolutePath(), pepxml_rank.toAbsolutePath());
                         out.write(tmp);
                     }
                     if (line.trim().equals("</search_summary>"))
