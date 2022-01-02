@@ -294,7 +294,7 @@ public class Philosopher {
     if (isDlSuccess) {
       log.debug("Download complete: {}", dlLocation);
       Path unzipTo = PathUtils
-          .createDirs(FragpipeLocations.get().getDirTools().resolve("philosopher"));
+          .createDirs(FragpipeLocations.get().getDirTools().resolve(fn.substring(0, fn.lastIndexOf("."))));
       ZipUtils.unzip(dlLocation, unzipTo);
       final String bin = isWindows() ? "philosopher.exe" : "philosopher";
       List<Path> possibleBins = PathUtils
