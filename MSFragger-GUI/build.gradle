@@ -111,45 +111,44 @@ distributions {
 dependencies {
     implementation group: 'com.github.albfernandez', name: 'juniversalchardet', version: '2.4.0'
     compileOnly files('tools/batmass-io-1.23.6.jar')
-    implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'one.util:streamex:0.7.3'
+    implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'one.util:streamex:0.8.1'
     implementation 'org.jooq:jool-java-8:0.9.14'
 
     implementation 'org.jgrapht:jgrapht-core:1.4.0'
     implementation 'org.jgrapht:jgrapht-io:1.4.0'
     implementation 'org.jgrapht:jgrapht-ext:1.4.0'
-    implementation 'com.github.vlsi.mxgraph:jgraphx:4.1.0'
+    implementation 'com.github.vlsi.mxgraph:jgraphx:4.2.2'
 
     implementation 'commons-logging:commons-logging-api:1.1'
 
     implementation 'org.apache.httpcomponents:httpmime:4.5.13'
 
-    implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.20'
+    implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.21'
 
-    implementation 'org.apache.commons:commons-lang3:3.11'
-//    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
-    implementation 'com.miglayout:miglayout-swing:5.2'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'com.miglayout:miglayout-swing:5.3'
 
     implementation ('io.reactivex:rxswing:0.27.0'){
         exclude group: 'io.reactivex', module: 'rxjava'
     }
     implementation 'io.reactivex:rxjava:1.3.8'
 
-    implementation 'org.greenrobot:eventbus:3.2.0'
-    implementation 'org.jsoup:jsoup:1.13.1'
-    implementation 'com.squareup.okio:okio:2.9.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+    implementation 'org.greenrobot:eventbus-java:3.3.1'
+    implementation 'org.jsoup:jsoup:1.14.3'
+    implementation 'com.squareup.okio:okio:3.0.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
 
     // logging
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+    implementation 'ch.qos.logback:logback-classic:1.2.10'
+    implementation 'org.slf4j:slf4j-api:1.7.32'
 
     // downloaded / precompiled jars
     implementation fileTree(dir: 'libs', include: '*.jar')
-    implementation 'org.yaml:snakeyaml:1.27' // TMT-Integrator config parsing
+    implementation 'org.yaml:snakeyaml:1.30' // TMT-Integrator config parsing
 
     // Use JUnit test framework
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
 }
 
 configurations {
