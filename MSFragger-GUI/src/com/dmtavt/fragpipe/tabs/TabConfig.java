@@ -926,7 +926,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private void actionPhilosopherDownload(ActionEvent e) {
-    int choice = SwingUtils.showChoiceDialog(TabConfig.this, "Choose download type", "Do you want to attemp automatic download?\nIf you choose \"Manually\", you will be redirected to the download website.", new String[]{"Automatically", "Manually", "Cancel"}, 0);
+    int choice = SwingUtils.showChoiceDialog(TabConfig.this, "Choose download type", "Do you want to download automatically?\nIf you choose \"Manually\", you will be redirected to the download website.", new String[]{"Automatically", "Manually", "Cancel"}, 0);
     switch (choice) {
       case 0:
         new Thread(() -> {
