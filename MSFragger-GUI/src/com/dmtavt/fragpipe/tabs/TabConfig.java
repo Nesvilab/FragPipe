@@ -384,8 +384,7 @@ public class TabConfig extends JPanelWithEnablement {
     }
     try {
       Philosopher.Version v = Philosopher.validate(m.path);
-      String version = v.version + (StringUtils.isBlank(v.build) ? "" : " (build " + v.build + ")");
-      Bus.postSticky(new NoteConfigPhilosopher(m.path, version));
+      Bus.postSticky(new NoteConfigPhilosopher(m.path, v.version));
     } catch (ValidationException | UnexpectedException e) {
       Bus.postSticky(new NoteConfigPhilosopher(m.path, "N/A", e));
     }

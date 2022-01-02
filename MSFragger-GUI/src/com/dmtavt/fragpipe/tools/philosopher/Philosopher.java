@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -64,7 +65,9 @@ import org.slf4j.LoggerFactory;
 public class Philosopher {
 
   private static final Logger log = LoggerFactory.getLogger(Philosopher.class);
-  public static final String DOWNLOAD_GITHUB_PAGE_URL = "https://github.com/Nesvilab/philosopher/releases/latest";
+  private static final String DOWNLOAD_GITHUB_PAGE_URL = "https://github.com/Nesvilab/philosopher/releases/latest";
+  private static final Pattern reVer = Pattern.compile(".*version[^=]*?=\\s*v?\\.?([^\\s,;]+).*", Pattern.CASE_INSENSITIVE);
+  private static final Pattern reVer2 = Pattern.compile("philosopher[-_v]*(\\d+\\.\\d+\\.\\d+[^._]*).*", Pattern.CASE_INSENSITIVE);
 
   public static void downloadPhilosopherManually() {
     try {
@@ -92,37 +95,34 @@ public class Philosopher {
       throw new ValidationException("The Philosopher binary file is not a windows version");
     }
 
-    // get the vesrion reported by the current executable
-    // if we couldn't download remote properties, try using local ones
-    // if we have some philosopher properties (local or better remote)
-    // then check if this version is known to be compatible
-    ProcessBuilder pb = new ProcessBuilder(binPath, "version");
-    pb.redirectErrorStream(true);
+    StringBuilder sbVer = new StringBuilder();
 
-    // get the vesrion reported by the current executable
-    final Pattern reVer = Pattern
-        .compile(".*version[^=]*?=\\s*v?\\.?([^\\s,;]+).*", Pattern.CASE_INSENSITIVE);
-    final Pattern reBuild = Pattern
-        .compile(".*build[^=]*?=\\s*([^\\s,;]+).*", Pattern.CASE_INSENSITIVE);
-    final StringBuilder sbVer = new StringBuilder();
-    final StringBuilder sbBuild = new StringBuilder();
-    ProcessUtils.consumeLines(pb, line -> {
-      Matcher mVer = reVer.matcher(line);
-      if (mVer.matches()) {
-        log.debug("Detected philosopher version: {}", mVer.group(1));
-        sbVer.append(mVer.group(1));
+    // Try to get the version by file or folder name, which is faster
+    Path pp = Paths.get(binPath);
+    Matcher matcher = reVer2.matcher(pp.getFileName().toString());
+    if (matcher.find()) {
+      sbVer.append(matcher.group(1));
+    } else {
+      matcher = reVer2.matcher(pp.getName(pp.getNameCount() - 2).toString());
+      if (matcher.find()) {
+        sbVer.append(matcher.group(1));
+      } else {
+        // get the version reported by the current executable
+        ProcessBuilder pb = new ProcessBuilder(binPath, "version");
+        pb.redirectErrorStream(true);
+        ProcessUtils.consumeLines(pb, line -> {
+          Matcher mVer = reVer.matcher(line);
+          if (mVer.matches()) {
+            log.debug("Detected philosopher version: {}", mVer.group(1));
+            sbVer.append(mVer.group(1));
+          }
+          return sbVer.length() == 0;
+        });
       }
-      Matcher mBuild = reBuild.matcher(line);
-      if (mBuild.matches()) {
-        log.debug("Detected philosopher build: {}", mBuild.group(1));
-        sbBuild.append(mBuild.group(1));
-      }
-      return sbVer.length() == 0;
-    });
+    }
 
     if (sbVer.length() == 0) {
-      throw new ValidationException(
-          "Version string not found in output of: " + String.join(" ", pb.command()));
+      throw new ValidationException("Version string not found for Philosopher");
     }
 
     final String fragpipeVerMajor = com.dmtavt.fragpipe.Version.version().split("[-_]+")[0];
@@ -144,8 +144,7 @@ public class Philosopher {
         "https://github.com/Nesvilab/philosopher/releases");
 
     final String version = sbVer.toString();
-    final String build = sbBuild.toString();
-    log.debug("Phi validation, proceeding with Version: {}, Build: {}", version, build);
+    log.debug("Phi validation, proceeding with Version: {}", version);
 
     if (StringUtils.isNotBlank(version)) {
       StringBuilder sb = new StringBuilder();
@@ -162,7 +161,7 @@ public class Philosopher {
       }
     }
 
-    return new Version(version, StringUtils.isBlank(build) ? "" : build, false, link);
+    return new Version(version, false, link);
   }
 
   public static UpdateInfo checkUpdates(String path)
@@ -315,14 +314,12 @@ public class Philosopher {
   public static class Version {
 
     public final String version;
-    public final String build;
     public final boolean isNewVersionFound;
     public final String downloadUrl;
 
-    public Version(String version, String build, boolean isNewVersionFound,
+    public Version(String version, boolean isNewVersionFound,
         String downloadUrl) {
       this.version = version;
-      this.build = build;
       this.isNewVersionFound = isNewVersionFound;
       this.downloadUrl = downloadUrl;
     }

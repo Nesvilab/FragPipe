@@ -218,7 +218,7 @@ public class TabDatabase extends JPanelWithEnablement {
     }
   }
 
-  @Subscribe
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageDbNewPath m) {
     uiTextDbPath.setText(m.path);
     validateFasta(m.path);
@@ -237,7 +237,6 @@ public class TabDatabase extends JPanelWithEnablement {
       Path p = PathUtils.existing(path, true);
       FastaContent fasta = FastaUtils.readFasta(p);
       final String tag = getDecoyTag();
-      double decoysPct = FastaUtils.getDecoysPct(fasta.ordered.get(0), tag);
       int decoysCnt = (int)FastaUtils.getDecoysCnt(fasta.ordered.get(0), tag);
       int protsTotal = FastaUtils.getProtsTotal(fasta.ordered.get(0));
       Bus.postSticky(new NoteConfigDatabase(Paths.get(path), protsTotal, decoysCnt, true));
