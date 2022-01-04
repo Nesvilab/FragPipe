@@ -76,7 +76,7 @@ public class FastaUtils {
         }
       }
     } catch (IOException ex) {
-      log.error("Could not read fasta file", ex);
+      log.error("Could not read fasta file: \"" + p + "\"", ex);
       throw ex;
     }
     return new FastaContent(descriptors, ordered);
