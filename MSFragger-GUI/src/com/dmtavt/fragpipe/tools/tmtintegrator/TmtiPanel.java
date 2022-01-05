@@ -392,6 +392,13 @@ public class TmtiPanel extends JPanelBase {
             + "of PSMs with the summed TMT reporter ions intensity in the lowest 5% of <br/>\n"
             + "all PSMs)");
 
+    UiSpinnerDouble uiSpinnerGlycoFilter = UiSpinnerDouble
+            .builder(-1, -1, 1.0, 0.01).setFormat(df3).setCols(5).create();
+    FormEntry feGlycoFilter = fe(TmtiConfProps.PROP_glyco_qval,
+            "Glycan FDR filter", uiSpinnerGlycoFilter,
+            "<html>(optional) Remove PSMs not passing glycan FDR at specified level (q-value) <br/>\n"
+                    + "Set to -1 to ignore. <br/>\n");
+
     UiSpinnerInt uiSpinnerMinNtt = UiUtils.spinnerInt(0, 0, 1000, 1).setCols(5).create();
     FormEntry feMinNtt = mu.feb(uiSpinnerMinNtt).name(TmtiConfProps.PROP_min_ntt).label("Min NTT")
         .tooltip("Minimum allowed number of enzymatic termini").create();
@@ -481,7 +488,9 @@ public class TmtiPanel extends JPanelBase {
     mu.add(p, feMinPurity.label(), mu.ccR());
     mu.add(p, feMinPurity.comp);
     mu.add(p, feMinPercent.label(), mu.ccR());
-    mu.add(p, feMinPercent.comp).wrap();
+    mu.add(p, feMinPercent.comp);
+    mu.add(p, feGlycoFilter.label(), mu.ccR());
+    mu.add(p, feGlycoFilter.comp).wrap();
     mu.add(p, feMaxPepProb.label(), mu.ccR());
     mu.add(p, feMaxPepProb.comp);
     mu.add(p, feMinNtt.label(), mu.ccR());

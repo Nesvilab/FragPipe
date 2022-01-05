@@ -70,6 +70,7 @@ public class TmtiConfProps {
   public static final String PROP_unique_pep = "unique_pep";
   public static final String PROP_aggregation_method = "aggregation_method";
   public static final String PROP_outlier_removal = "outlier_removal";
+  public static final String PROP_glyco_qval = "glyco_qval";
   public static final String PROP_best_psm = "best_psm";
   public static final String PROP_allow_overlabel = "allow_overlabel";
   public static final String PROP_allow_unlabeled = "allow_unlabeled";
@@ -84,7 +85,7 @@ public class TmtiConfProps {
           PROP_unique_gene, PROP_prot_exclude, PROP_mod_tag, PROP_groupby, PROP_prot_norm,
           PROP_add_Ref, PROP_psm_norm, PROP_unique_pep, PROP_outlier_removal, PROP_best_psm,
           PROP_allow_overlabel, PROP_allow_unlabeled, PROP_ms1_int, PROP_top3_pep,
-          PROP_print_RefInt, PROP_max_pep_prob_thres, PROP_aggregation_method);
+          PROP_print_RefInt, PROP_max_pep_prob_thres, PROP_aggregation_method, PROP_glyco_qval);
 
   public static List<ComboValue> COMBO_GROUP_BY = Arrays.asList(
       new ComboValue("0", "Gene level", "PSM aggregation to the gene level"),
