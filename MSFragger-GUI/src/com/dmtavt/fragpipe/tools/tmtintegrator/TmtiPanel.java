@@ -397,7 +397,13 @@ public class TmtiPanel extends JPanelBase {
     FormEntry feGlycoFilter = fe(TmtiConfProps.PROP_glyco_qval,
             "Glycan FDR filter", uiSpinnerGlycoFilter,
             "<html>(optional) Remove PSMs not passing glycan FDR at specified level (q-value) <br/>\n"
-                    + "Set to -1 to ignore. <br/>\n");
+                    + "Set to -1 to ignore. Requires glycan assignment from PTM-Shepherd. <br/>\n");
+
+    UiCheck uiCheckGlycanComposition = new UiCheck("Index Glycan Composition", null, false);
+    FormEntry feGlycoComposition = fe(TmtiConfProps.PROP_use_glycan_composition,
+            "not-shown", uiCheckGlycanComposition,
+            "<html>For multi-mass report, index by glycan composition instead of mass <br/>\n"
+                    + "to separate isomeric glycan compositions. Requires glycan assignment from PTM-Shepherd. <br/>\n");
 
     UiSpinnerInt uiSpinnerMinNtt = UiUtils.spinnerInt(0, 0, 1000, 1).setCols(5).create();
     FormEntry feMinNtt = mu.feb(uiSpinnerMinNtt).name(TmtiConfProps.PROP_min_ntt).label("Min NTT")
@@ -503,7 +509,8 @@ public class TmtiPanel extends JPanelBase {
     mu.add(pChecks, fePsmNorm.comp);
     mu.add(pChecks, feAllowOverlabel.comp);
     mu.add(pChecks, feAllowUnlabeled.comp);
-    mu.add(pChecks, feOutlierRemoval.comp).wrap();
+    mu.add(pChecks, feOutlierRemoval.comp);
+    mu.add(pChecks, feGlycoComposition.comp).wrap();
 
     mu.add(p, pChecks).spanX().wrap();
 
