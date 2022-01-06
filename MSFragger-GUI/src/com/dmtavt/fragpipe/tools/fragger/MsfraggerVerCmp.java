@@ -25,9 +25,9 @@ import com.github.chhh.utils.VersionComparator;
 
 public class MsfraggerVerCmp implements Comparator<String> {
   private static final Logger log = LoggerFactory.getLogger(MsfraggerVerCmp.class);
-  public static Pattern regexOldScheme1 = Pattern.compile("(MSFragger-([\\d]{4,}[a-z0-9.-]*))", Pattern.CASE_INSENSITIVE);
+  public static Pattern regexOldScheme1 = Pattern.compile("(MSFragger-([\\d]{4,}[a-z0-9.-]*)).jar", Pattern.CASE_INSENSITIVE);
   public static Pattern regexOldScheme2 = Pattern.compile("([\\d]{4,}[a-z0-9.-]*)");
-  public static Pattern regexNewScheme1 = Pattern.compile("(MSFragger-(\\d+\\.\\d+[a-z0-9.-]*))", Pattern.CASE_INSENSITIVE);
+  public static Pattern regexNewScheme1 = Pattern.compile("(MSFragger-(\\d+\\.\\d+[a-z0-9.-]*)).jar", Pattern.CASE_INSENSITIVE);
   public static Pattern regexNewScheme2 = Pattern.compile("(\\d+\\.\\d+[a-z0-9.-]*)");
   static final VersionComparator VER_CMP = new VersionComparator();
   private static final MsfraggerVerCmp INSTANCE = new MsfraggerVerCmp();
