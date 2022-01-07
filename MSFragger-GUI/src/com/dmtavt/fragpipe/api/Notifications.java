@@ -85,7 +85,14 @@ public class Notifications {
 
       } else if (m.parent != null && m.body != null) {
         if (Fragpipe.headless) {
-          log.error(m.body.toString());
+          String s = null;
+          try {
+            s = ((HtmlStyledJEditorPane) m.body.getComponents()[0]).getTextLessHtml();
+          } catch (ClassCastException | ArrayIndexOutOfBoundsException ignored) {
+            log.error("Cannot get error message");
+            System.exit(1);
+          }
+          log.error(s);
           System.exit(1);
         }
 
