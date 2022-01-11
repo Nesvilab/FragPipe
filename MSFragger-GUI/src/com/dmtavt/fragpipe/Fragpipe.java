@@ -129,8 +129,8 @@ public class Fragpipe extends JFrameHeadless {
 
   public static boolean headless = false;
   public static boolean printCommandsInDetail = false;
-  public static Path manifestFile;
-  public static Path workflowFile;
+  public static Path manifestFile = null;
+  public static Path workflowFile = null;
   public static java.util.concurrent.CountDownLatch initDone = new java.util.concurrent.CountDownLatch(1);
   public static java.util.concurrent.CountDownLatch loadManifestDone = new java.util.concurrent.CountDownLatch(1);
   public static java.util.concurrent.CountDownLatch loadWorkflowDone = new java.util.concurrent.CountDownLatch(1);
@@ -325,6 +325,11 @@ public class Fragpipe extends JFrameHeadless {
           System.exit(1);
         }
       }
+    }
+
+    if (!headless && (workflowFile != null || manifestFile != null || workdir != null)) {
+      System.err.println("It looks like you want to run FragPipe in headless mode, but you did not add --headless flag. Please double check your command.");
+      System.exit(1);
     }
 
     SwingUtils.setLaf();
