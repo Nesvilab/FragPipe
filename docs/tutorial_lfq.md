@@ -79,7 +79,7 @@ On the ‘Quant (MS1)’ tab, you can see the settings that will be used for lab
 <br>
 
 ### Set the output location and run
-On the ‘Run’ tab, use ‘Browse’ to make a new folder for the output files (e.g. ‘my-lfq-results’). Then click the ‘RUN’ button to start the analysis.
+On the ‘Run’ tab, use ‘Browse’ to make a new folder for the output files. Then click the ‘RUN’ button to start the analysis.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-run.png)
 
@@ -91,13 +91,13 @@ When the run is finished, ‘DONE’ will be printed at the end of the text in t
 <br>
 
 ### Inspect the results
-In the output location (‘my-lfq-results’ folder), you will find combined reports (including the ‘MSstats.csv’ table, compatible with MSstats) as well as folders for each sample.
+Sample results can be found in the 'lfq-results.zip' file from [Dropbox](https://www.dropbox.com/sh/azdbblag7whv9v7/AACk8t4-6LowMYobKyXxUMS8a?dl=0). In the output location, you will find combined reports (including the ‘MSstats.csv’ table, compatible with MSstats) as well as folders for each sample.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-results1.png)
 
 Inside each individual folder, a separate set of reports is created for just that sample.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/sample_results2.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/sample-results2.png)
 
 A guide to output files, with descriptions of each column in the reports, can be found [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html).
 
