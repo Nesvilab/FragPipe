@@ -30,7 +30,7 @@ On the ‘Workflow’ tab, drag and drop the six .raw spectral files or use the 
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-rawfiles.png)
 
-Once you’ve added the files, you can annotate them by editing the ‘Experiment’ and ‘Replicate’ fields manually or in batches with the ‘Set experiment/replicate’ button (shown below).
+Once you’ve added the files, you can annotate them by editing the ‘Experiment’ and ‘Bioreplicate’ fields manually or in batches with the ‘Set experiment/replicate’ button. The data type should be automatically detected as DDA.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-annotatefiles.png)
 
@@ -71,7 +71,7 @@ To save time in the search (at the expense of slightly lower sensitivity), you c
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-searchvarmod.png)
 
-On the ‘Quant (MS1)’ tab, you can see the settings that will be used for label-free quantification. Note that IonQuant will be used and ‘Match between runs (MBR)’ is enabled.
+On the ‘Quant (MS1)’ tab, you can see the settings that will be used for label-free quantification. Note that IonQuant will be used and ‘Match between runs (MBR)’ is enabled. The 'MaxLFQ' quantification method is selected by default, and MaxLFQ values will be reported in addition to abundances calculated using the topN method.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-quant.png)
 
