@@ -179,6 +179,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private UiCombo uiComboWorkflows;
   public static final String PROP_WORKFLOW_DESC = "workflow.description";
   public static final String PROP_WORKFLOW_SAVED_WITH_VER = "workflow.saved-with-ver";
+  public static final String PROP_WORKFLOW_SAVEDIR = "workflow.last-save-dir";
   private HtmlStyledJEditorPane epWorkflowsDesc;
   private UiText uiTextLastAddedLcmsDir;
   private ButtonGroup btnGroupMsType;
@@ -824,6 +825,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         return;
       }
       saveDir = fc.getSelectedFile().toPath();
+      Fragpipe.propsVarSet(PROP_WORKFLOW_SAVEDIR, saveDir.toString());
     }
 
     // ask about name and description
