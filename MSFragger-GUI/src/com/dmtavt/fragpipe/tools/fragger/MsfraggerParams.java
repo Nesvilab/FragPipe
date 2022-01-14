@@ -61,6 +61,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_diagnostic_intensity_filter = "diagnostic_intensity_filter";
     public static final String PROP_Y_type_masses = "Y_type_masses";
     public static final String PROP_diagnostic_fragments = "diagnostic_fragments";
+    public static final String PROP_remainder_masses = "remainder_fragment_masses";
 
     public static final String PROP_database_name = "database_name";
     public static final String PROP_decoy_prefix = "decoy_prefix";
