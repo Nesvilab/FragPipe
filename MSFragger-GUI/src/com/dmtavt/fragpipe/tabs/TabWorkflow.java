@@ -1272,13 +1272,24 @@ public class TabWorkflow extends JPanelWithEnablement {
     JPanel panel = mu.newPanel(new LC().fill());
     List<List<Path>> data = skipped.stream().map(Collections::singletonList)
         .collect(Collectors.toList());
-    JLabel label = SwingUtils.htmlLabel("Some loaded files don't exist. Will be skipped.");
-    JScrollPane scroll = SwingUtils
-        .wrapInScroll(SwingUtils.tableFromData(Arrays.asList("Paths not exist"), data));
 
-    mu.add(panel, label).growX().wrap();
-    mu.add(panel, scroll).growX().wrap();
-    SwingUtils.showDialog(this, panel);
+    if (Fragpipe.headless) {
+      log.error("Some loaded files don't exist. Please double check.");
+      for (List<Path> paths : data) {
+        for (Path p : paths) {
+          log.error(p.toAbsolutePath().toString());
+        }
+      }
+      System.exit(1);
+    } else {
+      JLabel label = SwingUtils.htmlLabel("Some loaded files don't exist. Will be skipped.");
+      JScrollPane scroll = SwingUtils
+          .wrapInScroll(SwingUtils.tableFromData(Arrays.asList("Paths not exist"), data));
+
+      mu.add(panel, label).growX().wrap();
+      mu.add(panel, scroll).growX().wrap();
+      SwingUtils.showDialog(this, panel);
+    }
   }
 
   private static final FileNameEndingFilter fileNameEndingFilter = new FileNameEndingFilter("Fragpipe manifest", manifestExt);
