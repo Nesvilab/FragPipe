@@ -42,6 +42,8 @@ In the MSConvert window:
 3. Select an output directory (where you want to mzML files to be generated).
 4. Set the output file format to 'mzML', and check the box for '**Combine ion mobility scans**'. The boxes for 'Write index', 'TPP compatibility', and 'Use zlib compression' should also be checked.
 5. Add '**peakPicking**' and '**scanSumming**' filters.
-6. Press 'Start' to begin converting your files.
+7. Press 'Start' to begin converting your files.
+
+**Note:** with '**scanSumming**' enabled, there is no ion mobility array in the converted file. Thus, the file is not suitable for MS1-based quantification.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/10.jpg)
