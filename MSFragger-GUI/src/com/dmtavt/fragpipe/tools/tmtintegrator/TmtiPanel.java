@@ -392,19 +392,6 @@ public class TmtiPanel extends JPanelBase {
             + "of PSMs with the summed TMT reporter ions intensity in the lowest 5% of <br/>\n"
             + "all PSMs)");
 
-    UiSpinnerDouble uiSpinnerGlycoFilter = UiSpinnerDouble
-            .builder(-1, -1, 1.0, 0.01).setFormat(df3).setCols(5).create();
-    FormEntry feGlycoFilter = fe(TmtiConfProps.PROP_glyco_qval,
-            "Glycan FDR filter", uiSpinnerGlycoFilter,
-            "<html>(optional) Remove PSMs not passing glycan FDR at specified level (q-value) <br/>\n"
-                    + "Set to -1 to ignore. Requires glycan assignment from PTM-Shepherd. <br/>\n");
-
-    UiCheck uiCheckGlycanComposition = new UiCheck("Index Glycan Composition", null, false);
-    FormEntry feGlycoComposition = fe(TmtiConfProps.PROP_use_glycan_composition,
-            "not-shown", uiCheckGlycanComposition,
-            "<html>For multi-mass report, index by glycan composition instead of mass <br/>\n"
-                    + "to separate isomeric glycan compositions. Requires glycan assignment from PTM-Shepherd. <br/>\n");
-
     UiSpinnerInt uiSpinnerMinNtt = UiUtils.spinnerInt(0, 0, 1000, 1).setCols(5).create();
     FormEntry feMinNtt = mu.feb(uiSpinnerMinNtt).name(TmtiConfProps.PROP_min_ntt).label("Min NTT")
         .tooltip("Minimum allowed number of enzymatic termini").create();
@@ -494,9 +481,7 @@ public class TmtiPanel extends JPanelBase {
     mu.add(p, feMinPurity.label(), mu.ccR());
     mu.add(p, feMinPurity.comp);
     mu.add(p, feMinPercent.label(), mu.ccR());
-    mu.add(p, feMinPercent.comp);
-    mu.add(p, feGlycoFilter.label(), mu.ccR());
-    mu.add(p, feGlycoFilter.comp).wrap();
+    mu.add(p, feMinPercent.comp).wrap();
     mu.add(p, feMaxPepProb.label(), mu.ccR());
     mu.add(p, feMaxPepProb.comp);
     mu.add(p, feMinNtt.label(), mu.ccR());
@@ -509,8 +494,7 @@ public class TmtiPanel extends JPanelBase {
     mu.add(pChecks, fePsmNorm.comp);
     mu.add(pChecks, feAllowOverlabel.comp);
     mu.add(pChecks, feAllowUnlabeled.comp);
-    mu.add(pChecks, feOutlierRemoval.comp);
-    mu.add(pChecks, feGlycoComposition.comp).wrap();
+    mu.add(pChecks, feOutlierRemoval.comp).wrap();
 
     mu.add(p, pChecks).spanX().wrap();
 
@@ -549,10 +533,26 @@ public class TmtiPanel extends JPanelBase {
             + "S(79.9663),T(79.9663),Y(79.9663): phospho<br/>\n"
             + "K(114.0429),K(343.2059): ubiquitin");
 
+    UiSpinnerDouble uiSpinnerGlycoFilter = UiSpinnerDouble
+            .builder(-1, -1, 1.0, 0.01).setFormat(df2).setCols(5).create();
+    FormEntry feGlycoFilter = fe(TmtiConfProps.PROP_glyco_qval,
+            "Glycan FDR filter", uiSpinnerGlycoFilter,
+            "<html>(optional) Remove PSMs not passing glycan FDR at specified level (q-value) <br/>\n"
+                    + "Set to -1 to ignore. Requires glycan assignment from PTM-Shepherd. <br/>\n");
+
+    UiCheck uiCheckGlycanComposition = new UiCheck("Use Glycan Compositions", null, false);
+    FormEntry feGlycoComposition = fe(TmtiConfProps.PROP_use_glycan_composition,
+            "not-shown", uiCheckGlycanComposition,
+            "<html>For multi-mass report, index by glycan composition instead of mass to separate<br/>\n"
+                    + "isomeric glycan compositions. Requires glycan assignment from PTM-Shepherd. <br/>\n");
+
     mu.add(p, feModTag.label());
-    mu.add(p, feModTag.comp).pushX().spanX().wrap();
+    mu.add(p, feModTag.comp);
+    mu.add(p, feGlycoComposition.comp).pushX().spanX().wrap();
     mu.add(p, feMinSiteProb.label(), mu.ccR());
-    mu.add(p, feMinSiteProb.comp).pushX().spanX().wrap();
+    mu.add(p, feMinSiteProb.comp);
+    mu.add(p, feGlycoFilter.label());
+    mu.add(p, feGlycoFilter.comp).pushX().spanX().wrap();
 
     return p;
   }
