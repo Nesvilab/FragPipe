@@ -301,13 +301,13 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **Unique Spectral Count** total number of PSMs that do not map to other identified proteins
 
-**Razor Spectral Count** total number of PSMs in support of the protein identification
+**Razor Spectral Count** number of PSMs in support of the protein identification (unique + razor)
 
-**Total Intensity** sum of the top 3 (unique+razor) peptide abundances
+**Total Intensity** sum of the top 3 peptide abundances, including peptides that may map to another identified protein
 
 **Unique Intensity** sum of the top 3 unique peptide abundances (only those that do not map to another identified protein)
 
-**Razor Intensity** sum of the top 3 peptide abundances from razor peptides
+**Razor Intensity** sum of the top 3 peptide abundances (unique + razor)
 
 **Razor Assigned Modifications** modifications from supporting razor peptides
 
