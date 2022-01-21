@@ -142,8 +142,8 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **Best Score without Delta Mass** highest hyperscore observed without placing the Delta Mass on the theoretical spectrum (from open/offset search)
 
-**[modified residue]:[modification mass]** localization probabilities for each residue/mass pair provided to [PTMProphet](http://www.tppms.org/tools/ptm/), where localization probability of each site is denoted in parentheses following the site (e.g., `GS(0.101)DRT(0.899)PER` in the column 
-`STY:79.9663`, where phosphorylation probability is higher at T5 than S2)
+**[modified residue]:[modification mass]** localization probabilities for each residue/mass pair provided to [PTMProphet](http://www.tppms.org/tools/ptm/), where localization probability of each site (closer to 1 = more confident) is denoted in parentheses following the site (e.g., `GS(0.101)DRT(0.899)PER` in the column 
+`STY:79.9663`, where phosphorylation probability is higher at T5 than S2); probabilities will add up to the number of modified sites
 
 **[modified residue]:[modification mass] Best Localization** highest observed localization probability (from [PTMProphet](http://www.tppms.org/tools/ptm/) for this modification within the peptide
 
