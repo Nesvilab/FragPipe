@@ -163,7 +163,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **Mapped Genes** additional genes the identified peptide may originate from 
 
-**Mapped Proteins** additional proteins the identified peptide maps to
+**Mapped Proteins** additional proteins the identified peptide maps to (including any arising from I/L substitutions)
 
 (additional columns for TMT/iTRAQ channels if used, where each contains the relative reporter ion abundances for that PSM)
 <br>
@@ -211,9 +211,9 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **Protein Description** name of the selected protein
 
-**Mapped Genes** additional genes the identified peptide may originate from
+**Mapped Genes** additional genes the identified peptide may originate from (including any arising from I/L substitutions)
 
-**Mapped Proteins** additional proteins the identified peptide maps to
+**Mapped Proteins** additional proteins the identified peptide maps to (including any arising from I/L substitutions)
 
 (additional columns for TMT/iTRAQ channels if applicable, each contains relative reporter ion abundances)
 <br>
@@ -253,9 +253,9 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **Protein Description** name of the selected protein
 
-**Mapped Genes** additional genes the identified peptide may originate from 
+**Mapped Genes** additional genes the identified peptide may originate from (including any arising from I/L substitutions)
 
-**Mapped Proteins** additional proteins the identified peptide maps to
+**Mapped Proteins** additional proteins the identified peptide maps to (including any arising from I/L substitutions)
 
 (additional columns for TMT/iTRAQ channels if applicable, each contains relative reporter ion abundances)
 <br>
@@ -391,9 +391,9 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **Protein Description** name of the selected protein
 
-**Mapped Genes** additional genes the identified peptide may originate from
+**Mapped Genes** additional genes the identified peptide may originate from (including any arising from I/L substitutions)
 
-**Mapped Proteins** additional proteins the identified peptide maps to
+**Mapped Proteins** additional proteins the identified peptide maps to (including any arising from I/L substitutions)
 
 **[experiment] Spectral Count** count of peptide-spectrum matches (PSMs) in the sample that support the peptide identification
 
@@ -431,9 +431,9 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **Protein Description** name of the selected protein
 
-**Mapped Genes** additional genes the identified peptide may originate from
+**Mapped Genes** additional genes the identified peptide may originate from (including any arising from I/L substitutions)
 
-**Mapped Proteins** additional proteins the identified peptide maps to
+**Mapped Proteins** additional proteins the identified peptide maps to (including any arising from I/L substitutions)
 
 **[experiment] Spectral Count** count of peptide-spectrum matches (PSMs) in the sample that support the peptide identification
 
@@ -489,11 +489,11 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **[experiment] Total Intensity** normalized protein intensity from all sequences mapping to the selected protein (from Philosopher `freequant`; if IonQuant is used, this is calculated using the Top-N algorithm)
 
-**[experiment] MaxLFQ Intensity** normalized protein intensity using the sequences after razor assignment calculated using the MaxLFQ method
+**[experiment] MaxLFQ Intensity** normalized protein intensity using the unique+razor sequences after razor assignment calculated using the MaxLFQ method
 
 **[experiment] MaxLFQ Unique Intensity** normalized protein intensity from the sequences mapping only to the selected protein calculated using the MaxLFQ method
 
-**[experiment] MaxLFQ Total Intensity** normalized protein intensity from all sequences mapping to the selected protein calculated using the MaxLFQ method
+**[experiment] MaxLFQ Total Intensity** normalized protein intensity from all sequences (including shared peptides) mapping to the selected protein calculated using the MaxLFQ method
 
 
 **Indistinguishable Proteins** proteins that cannot be distinguished from the selected protein given all sequences/evidence identified in the experiment
@@ -760,9 +760,9 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **Protein Description** name of the mapped protein
 
-**Mapped Genes** additional genes the identified peptide may originate from
+**Mapped Genes** additional genes the identified peptide may originate from (including any arising from I/L substitutions)
 
-**Mapped Proteins** additional proteins the identified peptide maps to
+**Mapped Proteins** additional proteins the identified peptide maps to (including any arising from I/L substitutions)
 
 <br>
 <br>
@@ -808,9 +808,9 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **Protein Description** name of the mapped protein
 
-**Mapped Genes** additional genes the identified peptide may originate from
+**Mapped Genes** additional genes the identified peptide may originate from (including any arising from I/L substitutions)
 
-**Mapped Proteins** additional proteins the identified peptide maps to
+**Mapped Proteins** additional proteins the identified peptide maps to (including any arising from I/L substitutions)
 
 <br>
 <br>
@@ -830,9 +830,9 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **Protein Description** name of the protein
 
-**Mapped Genes** additional genes the supporting peptides map to 
+**Mapped Genes** additional genes the supporting peptides map to (including any arising from I/L substitutions)
 
-**Mapped Proteins** additional proteins the supporting peptides map to
+**Mapped Proteins** additional proteins the supporting peptides map to (including any arising from I/L substitutions)
 
 **Ratios ML** number of Medium / Light abundance ratios
 
