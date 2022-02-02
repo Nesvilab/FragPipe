@@ -719,7 +719,7 @@ public class TmtiPanel extends JPanelBase {
 
     // newly added files need to be added to corresponding rows
     Map<String, List<InputLcmsFile>> filesByExp = m.files.stream()
-        .collect(Collectors.groupingBy(InputLcmsFile::getExperiment));
+        .collect(Collectors.groupingBy(InputLcmsFile::getGroup));
     List<ExpNameToAnnotationFile> newRows = new ArrayList<>();
 
     try {
