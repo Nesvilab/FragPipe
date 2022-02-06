@@ -369,7 +369,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_intensity_transform, "Transform peaks intensities with sqrt root. 0 = not transform; 1 = transform using sqrt root.");
         c.put(PROP_Y_type_masses, " [nglycan/labile search_mode only]. Specify fragments of labile mods that are commonly retained on intact peptides (e.g. Y ions for glycans). Only used if 'Y' is included in fragment_ion_series.");
         c.put(PROP_diagnostic_fragments, "[nglycan/labile search_mode only]. Specify diagnostic fragments of labile mods that appear in the low m/z region. Only used if diagnostic_intensity_filter > 0.");
-        c.put(PROP_remainder_masses, "List of possible remainder fragment ions to consider. Remainder masses are partial modification masses left on b/y ions after fragmentation. NOTE: b~/y~ ion series must be included to use remainder masses!");
+        c.put(PROP_remainder_masses, "[labile search_mode only] List of possible remainder fragment ions to consider. Remainder masses are partial modification masses left on b/y ions after fragmentation. NOTE: b~/y~ ion series must be included to use remainder masses!");
         c.put(PROP_diagnostic_intensity_filter, "[nglycan/labile search_mode only]. Minimum relative intensity for SUM of all detected oxonium ions to achieve for spectrum to contain diagnostic fragment evidence. Calculated relative to spectrum base peak. 0 <= value.");
         return c;
     }
