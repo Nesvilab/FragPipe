@@ -159,6 +159,7 @@ public class PtmshepherdPanel extends JPanelBase {
   private UiText uiTextLocalizationAAs;
   private UiText uiTextGlycanDBFile;
   private UiCheck uiCheckDiagnostic;
+  private UiCheck uiCheckDiagnosticMining;
   private UiCheck uiCheckGlycoAssign;
   private UiCheck uiCheckGlycoAdvParams;
   private JPanel pDiagnosticConent;
@@ -378,7 +379,11 @@ public class PtmshepherdPanel extends JPanelBase {
     JPanel p = mu.newPanel("Diagnostic Ion Discovery", mu.lcFillXNoInsetsTopBottom());
     pDiagnosticConent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
-    uiCheckDiagnostic = UiUtils.createUiCheck("Enable Diagnostic Ion Search", false);
+    uiCheckDiagnosticMining = UiUtils.createUiCheck("Mine for diagnostic ions and fragments", false);
+    uiCheckDiagnosticMining.setName("diagmine_mode");
+    uiCheckDiagnosticMining.setToolTipText("Look for new diagnostic ions and fragments for each modification");
+
+    uiCheckDiagnostic = UiUtils.createUiCheck("Extract known diagnostic ions from spectra", false);
     uiCheckDiagnostic.setName("glyco_mode");
     uiCheckDiagnostic.setToolTipText("Look for the ions listed below in spectra. Note: required for glycan assignment");
 
@@ -402,6 +407,7 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(pDiagnosticConent, feRemainderMasses.label(), mu.ccR());
     mu.add(pDiagnosticConent, feRemainderMasses.comp).spanX().growX().pushX().wrap();
 
+    mu.add(p, uiCheckDiagnosticMining).spanX().wrap();
     mu.add(p, uiCheckDiagnostic).spanX().wrap();
     mu.add(p, pDiagnosticConent).growX().wrap();
     return p;
