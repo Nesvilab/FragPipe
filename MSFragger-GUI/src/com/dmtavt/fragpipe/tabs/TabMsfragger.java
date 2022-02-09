@@ -806,8 +806,7 @@ public class TabMsfragger extends JPanelBase {
             .label("Remainder fragment masses")
             .tooltip("List of possible remainder fragment ions to consider.\n" +
                     "Remainder masses are partial modification masses left on b/y ions\n" +
-                    "after fragmentation.\n " +
-                    "NOTE: b~/y~ ion series must be included to use remainder masses!")
+                    "after fragmentation.\n ")
             .create();
 
     uiComboGlyco.addItemListener(e -> {
@@ -1143,7 +1142,7 @@ public class TabMsfragger extends JPanelBase {
                 + "This mostly depends on fragmentation method.\n"
                 + "Typically \"b,y\" are used for CID and \"c,z\" for ECD.\n"
                 + "MSFragger can generate \"a,b,c,x,y,z\" ion series by default,\n"
-                + "b~/y~ refer to b/y + HexNAc ions for glyco mode. Y refers to capital Y ions for glyco mode\n"
+                + "Y refers to capital Y ions for glyco mode\n"
                 + "<b>you can define your own in 'Define custom ion series' field</b>.\n"
                 + "If you define custom series, you will need to include the name you\n"
                 + "gave it here.").create();
