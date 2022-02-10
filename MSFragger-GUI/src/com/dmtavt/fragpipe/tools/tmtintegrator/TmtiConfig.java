@@ -75,6 +75,16 @@ public class TmtiConfig {
     private double max_pep_prob_thres;
     private int min_ntt;
     private int aggregation_method;
+    private boolean use_glycan_composition;
+    private double glyco_qval;
+
+    public boolean getUse_glycan_composition() {return use_glycan_composition; }
+
+    public void setUse_glycan_composition(boolean use_glycan_composition) {this.use_glycan_composition = use_glycan_composition; }
+
+    public double getGlyco_qval() {return glyco_qval; }
+
+    public void setGlyco_qval(double glyco_qval) {this.glyco_qval = glyco_qval; }
 
     public double getMax_pep_prob_thres() {
       return max_pep_prob_thres;

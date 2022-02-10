@@ -26,4 +26,6 @@ tmtintegrator:
   add_Ref: -1                                     # add an artificial reference channel if there is no reference channel or export raw abundance (-2: export raw abundance; -1: don't add the reference; 0: use summation as the reference; 1: use average as the reference; 2: use median as the reference)
   max_pep_prob_thres: 0                           # the threshold for maximum peptide probability
   min_ntt: 0                                      # minimum allowed number of enzymatic termini
-  aggregation_method: 0                           # the aggregation method from the PSM level to the specified level (0: median, 1: weighted-ratio) 
+  aggregation_method: 0                           # the aggregation method from the PSM level to the specified level (0: median, 1: weighted-ratio)
+  use_glycan_composition: false                   # (optional) for multi-mass report, create index using glycan composition (from observed mod column) instead of mass
+  glyco_qval: -1                                  # (optional) filter modified PSMs to those with glycan q-value less than provided value. 0 <= value <= 1. Value of -1 or not specified ignores
