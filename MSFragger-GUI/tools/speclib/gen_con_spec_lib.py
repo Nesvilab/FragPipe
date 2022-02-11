@@ -955,8 +955,10 @@ def easypqp_lib_export(lib_type: str):
 		return scipy.interpolate.interp1d(t.iloc[:, 1], t.iloc[:, 0], bounds_error=False)
 
 	rt = easypqp_lib['NormalizedRetentionTime'].squeeze()
-	align_files = pathlib.Path().glob('easypqp_rt_alignment_*.alignment_pkl')
+	align_files = list(pathlib.Path().glob('easypqp_rt_alignment_*.alignment_pkl'))
 	avg_experimental_rt0 = np.nanmean([interp(pd.read_pickle(f))(rt) for f in align_files], axis=0)
+	for e in align_files:
+		e.unlink()
 	avg_experimental_rt = pd.Series(avg_experimental_rt0, name='AverageExperimentalRetentionTime')
 	if 0:
 		frag_df = easypqp_lib['Annotation'].str.extract('\\A(.+?)(\\d{1,2})\\^(.+)\\Z')
