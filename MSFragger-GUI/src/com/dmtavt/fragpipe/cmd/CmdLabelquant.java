@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,6 +164,9 @@ public class CmdLabelquant extends CmdBase {
             NAME + " error", JOptionPane.WARNING_MESSAGE);
       }
       return false;
+    } else if (mapGroupsToProtxml.keySet().stream().flatMap(g -> g.lcmsFiles.stream()).map(f -> StringUtils.afterLastDot(f.getPath().getFileName().toString().toLowerCase())).distinct().anyMatch(ext -> ext.endsWith("raw"))) {
+      int answer = SwingUtils.showConfirmDialog(comp, new JLabel("Philosopher labelquant does not work well with raw files. Continue?"));
+      return JOptionPane.OK_OPTION == answer;
     }
     return true;
   }
