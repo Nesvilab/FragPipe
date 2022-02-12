@@ -73,9 +73,11 @@ import com.github.chhh.utils.swing.FormEntry.Builder;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.LogbackJTextPaneAppender;
 import com.github.chhh.utils.swing.TextConsole;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.HeadlessException;
@@ -87,6 +89,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -113,6 +117,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.event.HyperlinkEvent;
+
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -291,6 +297,51 @@ public class Fragpipe extends JFrameHeadless {
 
   public static FormEntry.Builder feNoCache(JComponent comp, String compName, String prefix) {
     return FormEntry.builder(comp, StringUtils.prependOnce(StringUtils.appendOnce(compName, PROP_NOCACHE), prefix));
+  }
+
+  public static boolean checkMonoOnLinux() {
+    if (OsUtils.isUnix()) {
+      final ProcessBuilder pb = new ProcessBuilder("mono");
+      try {
+        pb.start();
+      } catch (IOException e) {
+        e.printStackTrace();
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public static boolean showMonoError(final Component comp){
+    JEditorPane ep = new JEditorPane("text/html", "<html>Thermo RAW files were used as input.<br/>"
+            + "Mono must be installed to read Thermo .raw files<br/>"
+            + "Install intructions from <a href=\"https://www.mono-project.com/download/stable/#download-lin\">Mono</a><br/>"
+            + "</html>");
+    ep.addHyperlinkListener(e -> {
+      if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
+        try {
+          Desktop.getDesktop().browse(e.getURL().toURI());
+        } catch (IOException ex) {
+          throw new UncheckedIOException(ex);
+        } catch (URISyntaxException ex) {
+          throw new RuntimeException(ex);
+        }
+      }
+    });
+    ep.setEditable(false);
+    JLabel label = new JLabel();
+    ep.setBackground(label.getBackground());
+    if (!checkMonoOnLinux()) {
+      if (Fragpipe.headless) {
+        log.error("Thermo RAW files were used as input.\n"+
+                "Mono must be installed to read Thermo .raw files\n+" +
+                "Install intructions from https://www.mono-project.com/download/stable/#download-lin");
+      } else {
+        JOptionPane.showMessageDialog(comp, ep, "Mono not installed", JOptionPane.ERROR_MESSAGE);
+      }
+      return true;
+    }
+    return false;
   }
 
 
