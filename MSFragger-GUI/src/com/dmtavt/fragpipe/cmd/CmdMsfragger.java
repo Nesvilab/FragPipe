@@ -347,8 +347,6 @@ public class CmdMsfragger extends CmdBase {
         }
         return false;
       }
-      if (Fragpipe.showMonoError(comp))
-        return false;
     }
 
     // Fasta file
