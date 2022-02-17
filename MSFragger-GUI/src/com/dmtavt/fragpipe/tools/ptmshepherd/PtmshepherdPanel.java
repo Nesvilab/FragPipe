@@ -114,6 +114,10 @@ public class PtmshepherdPanel extends JPanelBase {
 
   private static final String PROP_custom_modlist_loc = "ptmshepherd.path.modlist";
 
+  private static final String PROP_diagMine_minIonsPerSpec = "diagmine_minIonsPerSpec";
+  private static final String PROP_diagMine_minSpecPct = "diagmine_minSpecDiff";
+  private static final String PROP_diagMine_minIons = "diagmine_minIons";
+
   private static final String PROP_run_glycan_assignment = "assign_glycans";
   private static final String PROP_glycan_fdr = "glyco_fdr";
   private static final String PROP_glyco_mass_error_ppm = "glyco_ppm_tol";
@@ -141,7 +145,7 @@ public class PtmshepherdPanel extends JPanelBase {
   private JPanel pContent;
   private JPanel pTop;
   private JPanel pRegularShepherd;
-  private JPanel pDiagnosticDiscovery;
+  private JPanel pDiagnostic;
   private JPanel pGlycanAssignment;
   private UiText uiTextVarMods;
 
@@ -158,11 +162,12 @@ public class PtmshepherdPanel extends JPanelBase {
   private UiText uiTextAnnotationFile;
   private UiText uiTextLocalizationAAs;
   private UiText uiTextGlycanDBFile;
-  private UiCheck uiCheckDiagnostic;
+  private UiCheck uiCheckDiagnostic; //this is for KNOWN diagnostic ions and glyco mode
   private UiCheck uiCheckDiagnosticMining;
   private UiCheck uiCheckGlycoAssign;
   private UiCheck uiCheckGlycoAdvParams;
-  private JPanel pDiagnosticConent;
+  private JPanel pDiagnosticMiningContent;
+  private JPanel pDiagnosticKnownContent;
   private JPanel pGlycoAssignContent;
   private JPanel pGlycoAdvParams;
 
@@ -377,12 +382,41 @@ public class PtmshepherdPanel extends JPanelBase {
 
   private JPanel createPanelDiagnostic() {
     JPanel p = mu.newPanel("Diagnostic Ion Discovery", mu.lcFillXNoInsetsTopBottom());
-    pDiagnosticConent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+    pDiagnosticMiningContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+    pDiagnosticKnownContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
+    // label diagnostic ion mining params
     uiCheckDiagnosticMining = UiUtils.createUiCheck("Mine for diagnostic ions and fragments", false);
     uiCheckDiagnosticMining.setName("diagmine_mode");
     uiCheckDiagnosticMining.setToolTipText("Look for new diagnostic ions and fragments for each modification");
 
+    FormEntry feDiagMinIons = new FormEntry(PROP_diagMine_minIons, "Min. peptide ions",
+            new UiSpinnerInt(25, 1, 1000, 1, 5),
+            "<html>Number of peptide ions required for PTM to undergo diagnostic ion mining");
+
+    FormEntry feDiagMinIonsPerSpec = new FormEntry(PROP_diagMine_minIonsPerSpec, "Min. ions per spec",
+            new UiSpinnerInt(2, 1, 2, 1, 5),
+            "<html>Reduce to make make fragment ion detection more sensitive by reducing the number\n" +
+                    "of hits per spectrum required");
+    UiSpinnerDouble uiSpinnerDiagMinSpecPct = UiSpinnerDouble.builder(0.25, 0.0, 1.0, 0.01)
+            .setFormat(new DecimalFormat("0.0#")).setCols(5).create();
+    FormEntry feDiagMinSpecPct = new FormEntry(PROP_diagMine_minSpecPct, "Min. % of spectra with ion",
+            uiSpinnerDiagMinSpecPct,
+            "<html>Used to filter what is considered a peak for downstream analyses.\n" +
+                    "Ratio of peak shoulder to peak height.");
+
+    mu.add(pDiagnosticMiningContent, feDiagMinIons.label(), mu.ccR());
+    mu.add(pDiagnosticMiningContent, feDiagMinIons.comp).spanX().pushX().wrap();
+
+    mu.add(pDiagnosticMiningContent, feDiagMinIonsPerSpec.label(), mu.ccR());
+    mu.add(pDiagnosticMiningContent, feDiagMinIonsPerSpec.comp).split();
+    mu.add(pDiagnosticMiningContent, feDiagMinSpecPct.label(), mu.ccR());
+    mu.add(pDiagnosticMiningContent, feDiagMinSpecPct.comp).split().spanX().pushX().wrap();
+
+    mu.add(p, uiCheckDiagnosticMining).spanX().wrap();
+    mu.add(p, pDiagnosticMiningContent).growX().wrap();
+
+    // known diag ion params
     uiCheckDiagnostic = UiUtils.createUiCheck("Extract known diagnostic ions from spectra", false);
     uiCheckDiagnostic.setName("glyco_mode");
     uiCheckDiagnostic.setToolTipText("Look for the ions listed below in spectra. Note: required for glycan assignment");
@@ -400,16 +434,15 @@ public class PtmshepherdPanel extends JPanelBase {
             .label("Remainder Masses")
             .tooltip("Partial modification masses localized to the peptide sequence. "
                     + "Space, comma, or slash separated values accepted.").create();
-    mu.add(pDiagnosticConent, feYIonMasses.label(), mu.ccR());
-    mu.add(pDiagnosticConent, feYIonMasses.comp).spanX().growX().pushX().wrap();
-    mu.add(pDiagnosticConent, feDiagnosticFragmentMasses.label(), mu.ccR());
-    mu.add(pDiagnosticConent, feDiagnosticFragmentMasses.comp).spanX().growX().pushX().wrap();
-    mu.add(pDiagnosticConent, feRemainderMasses.label(), mu.ccR());
-    mu.add(pDiagnosticConent, feRemainderMasses.comp).spanX().growX().pushX().wrap();
+    mu.add(pDiagnosticKnownContent, feYIonMasses.label(), mu.ccR());
+    mu.add(pDiagnosticKnownContent, feYIonMasses.comp).spanX().growX().pushX().wrap();
+    mu.add(pDiagnosticKnownContent, feDiagnosticFragmentMasses.label(), mu.ccR());
+    mu.add(pDiagnosticKnownContent, feDiagnosticFragmentMasses.comp).spanX().growX().pushX().wrap();
+    mu.add(pDiagnosticKnownContent, feRemainderMasses.label(), mu.ccR());
+    mu.add(pDiagnosticKnownContent, feRemainderMasses.comp).spanX().growX().pushX().wrap();
 
-    mu.add(p, uiCheckDiagnosticMining).spanX().wrap();
     mu.add(p, uiCheckDiagnostic).spanX().wrap();
-    mu.add(p, pDiagnosticConent).growX().wrap();
+    mu.add(p, pDiagnosticKnownContent).growX().wrap();
     return p;
   }
 
@@ -777,12 +810,12 @@ public class PtmshepherdPanel extends JPanelBase {
 
     // 3 Sub-panels within main PTM-S panel: PTM-Profiling, Diagnostic Ion Discovery, and Glycan Assignment/FDR
     pContent = createPanelContent();
-    pDiagnosticDiscovery = createPanelDiagnostic();
+    pDiagnostic = createPanelDiagnostic();
     pGlycanAssignment = createpanelGlycanAssignment();
 
     mu.add(mainPanel, pTop).spanX().growX().wrap();
     mu.add(mainPanel, pContent).spanX().growX().wrap();
-    mu.add(mainPanel, pDiagnosticDiscovery).spanX().growX().wrap();
+    mu.add(mainPanel, pDiagnostic).spanX().growX().wrap();
     mu.add(mainPanel, pGlycanAssignment).spanX().growX().wrap();
 
     this.add(mainPanel);
@@ -793,11 +826,12 @@ public class PtmshepherdPanel extends JPanelBase {
     super.initMore();
     loadDefaults(1, SearchTypeProp.open); // pre-populate, but only after renaming has happened in super.initMore()
 
-    SwingUtils.setEnablementUpdater(this, pDiagnosticDiscovery, checkRun);
+    SwingUtils.setEnablementUpdater(this, pDiagnostic, checkRun);
     SwingUtils.setEnablementUpdater(this, pGlycanAssignment, checkRun);
 
     // enable/disable Glycan Assignment areas when the overall diagnostic box is changed because glyco depends on diagnostic (for now)
-    SwingUtils.setEnablementUpdater(this, pDiagnosticConent, uiCheckDiagnostic);
+    SwingUtils.setEnablementUpdater(this, pDiagnosticMiningContent, uiCheckDiagnosticMining);
+    SwingUtils.setEnablementUpdater(this, pDiagnosticKnownContent, uiCheckDiagnostic);
     SwingUtils.setEnablementUpdater(this, pGlycoAssignContent, uiCheckDiagnostic);
     SwingUtils.setEnablementUpdater(this, uiCheckGlycoAssign, uiCheckDiagnostic);
     SwingUtils.setEnablementUpdater(this, uiCheckGlycoAdvParams, uiCheckDiagnostic);
