@@ -92,13 +92,17 @@ public class CmdLabelquant extends CmdBase {
       cmd.add(phi.useBin(groupWd));
       cmd.add(PhilosopherProps.CMD_LABELQUANT);
 
-
       if (quantLevel.contentEquals("2-lowres")) {
         cmd.add("--tol");
         cmd.add("300");
         cmd.add("--level");
         cmd.add("2");
-      } else {
+      } else if (quantLevel.contentEquals("3-lowres")) {
+        cmd.add("--tol");
+        cmd.add("300");
+        cmd.add("--level");
+        cmd.add("3");
+      }else {
         cmd.add("--tol");
         cmd.add("20");
         cmd.add("--level");
