@@ -1352,8 +1352,8 @@ public class TabMsfragger extends JPanelBase {
 
     TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
     uiSpinnerDbsplit.addChangeListener(e -> {
-      if (getNumDbSlices() > 1 && (tabWorkflow.hasDia() || tabWorkflow.hasGpfDia())) {
-        JOptionPane.showMessageDialog(this, "<html><code>Split database</code> is incompatible with DIA or GPF-DIA data types.<br/>Set <code>split database</code> to 1.<br/>", "Incompatible options", JOptionPane.WARNING_MESSAGE);
+      if (getNumDbSlices() > 1 && (tabWorkflow.hasDia() || tabWorkflow.hasGpfDia() || tabWorkflow.hasDiaLib())) {
+        JOptionPane.showMessageDialog(this, "<html><code>Split database</code> is incompatible with DIA, GPF-DIA, or DIA-Lib data types.<br/>Set <code>split database</code> to 1.<br/>", "Incompatible options", JOptionPane.WARNING_MESSAGE);
         uiSpinnerDbsplit.setValue(1);
       }
     });

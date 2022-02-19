@@ -94,7 +94,7 @@ public class CmdMsfragger extends CmdBase {
     for (InputLcmsFile f : inputs) {
       if (!f.getDataType().contentEquals("DDA") && !ext.contentEquals("tsv") && !ext.contentEquals("pin")) {
         int maxRank = 5;
-        if (f.getDataType().contentEquals("DIA")) {
+        if (f.getDataType().contentEquals("DIA") || f.getDataType().contentEquals("DIA-Lib")) {
           if (paramsDia == null) {
             maxRank = 5; // The report_topN_rank is 5 by default for DIA data.
           } else {
@@ -294,7 +294,7 @@ public class CmdMsfragger extends CmdBase {
     return locs;
   }
 
-  public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean isRunDiaU) {
+  public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean isRunDiaU) {
 
     initPreConfig();
 
@@ -359,11 +359,11 @@ public class CmdMsfragger extends CmdBase {
       return false;
     }
 
-    if ((hasDia || hasGpfDia) && !isRunDiaU && params.getNumEnzymeTermini() == CleavageType.NONSPECIFIC) {
+    if ((hasDia || hasGpfDia || hasDiaLib) && !isRunDiaU && params.getNumEnzymeTermini() == CleavageType.NONSPECIFIC) {
       if (Fragpipe.headless) {
-        log.error("MSFragger cannot perform nonspecific search for DIA or GPF-DIA data. Please enable DIA-Umpire instead.");
+        log.error("MSFragger cannot perform nonspecific search for DIA, GPF-DIA, or DIA-Lib data. Please enable DIA-Umpire instead.");
       } else {
-        JOptionPane.showMessageDialog(comp, "MSFragger cannot perform nonspecific search for DIA or GPF-DIA data.\nPlease enable DIA-Umpire instead.", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(comp, "MSFragger cannot perform nonspecific search for DIA, GPF-DIA, or DIA-Lib data.\nPlease enable DIA-Umpire instead.", "Error", JOptionPane.ERROR_MESSAGE);
       }
       return false;
     }
@@ -371,7 +371,7 @@ public class CmdMsfragger extends CmdBase {
     // Search parameter file
     params.setDatabaseName(pathFasta);
     params.setDecoyPrefix(decoyTag);
-    Path savedDdaParamsPath = (hasDia || hasGpfDia) ? wd.resolve("fragger_dda.params") : wd.resolve("fragger.params");
+    Path savedDdaParamsPath = (hasDia || hasGpfDia || hasDiaLib) ? wd.resolve("fragger_dda.params") : wd.resolve("fragger.params");
     Path savedDiaParamsPath = wd.resolve("fragger_dia.params");
     Path savedGpfDiaParamsPath = wd.resolve("fragger_gpfdia.params");
 
@@ -388,7 +388,7 @@ public class CmdMsfragger extends CmdBase {
         if (hasDda || isRunDiaU) {
           paramsDda.save(new FileOutputStream(savedDdaParamsPath.toFile()));
         }
-        if (hasDia && !isRunDiaU) {
+        if ((hasDia || hasDiaLib) && !isRunDiaU) {
           paramsDia.save(new FileOutputStream(savedDiaParamsPath.toFile()));
         }
         if (hasGpfDia && !isRunDiaU) {
@@ -472,7 +472,7 @@ public class CmdMsfragger extends CmdBase {
         } else {
           tt.add(inputLcmsFile);
         }
-      } else if (inputLcmsFile.getDataType().contentEquals("DIA")) {
+      } else if (inputLcmsFile.getDataType().contentEquals("DIA") || inputLcmsFile.getDataType().contentEquals("DIA-Lib")) { // searching DIA and DIA-Lib together
         List<InputLcmsFile> tt = t.get("DIA");
         if (tt == null) {
           tt = new ArrayList<>();
@@ -504,7 +504,7 @@ public class CmdMsfragger extends CmdBase {
         }
         cmd.add(binFragger.useBin());
 
-        // Execution order after sorting: DDA, DIA, GPF-DIA. MSFragger would stop if there were wide isolation windows in DDA mode, which makes it better to let DDA be executed first.
+        // Execution order after sorting: DDA, DIA and DIA-Lib, GPF-DIA. MSFragger would stop if there were wide isolation windows in DDA mode, which makes it better to let DDA be executed first.
         if (e.getKey().contentEquals("DDA")) {
           cmd.add(savedDdaParamsPath.toString());
         } else if (e.getKey().contentEquals("DIA")) {

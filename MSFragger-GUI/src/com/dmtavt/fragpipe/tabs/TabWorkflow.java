@@ -169,6 +169,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnSetDia;
   private JButton btnSetGpfDia;
   private JButton btnSetDiaQuant;
+  private JButton btnSetDiaLib;
   private JButton btnGroupsClear;
   private JButton btnManifestSave;
   private JButton btnManifestLoad;
@@ -273,7 +274,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     TableModelColumn<InputLcmsFile, Integer> colRep = new TableModelColumn<>(
         "Bioreplicate (can be empty and integer)", Integer.class, true, InputLcmsFile::getReplicate);
     TableModelColumn<InputLcmsFile, String> colDataType = new TableModelColumn<>(
-        "Data type (DDA, DIA, GPF-DIA, DIA-Quant)", String.class, true, InputLcmsFile::getDataType);
+        "Data type (DDA, DIA, GPF-DIA, DIA-Quant, DIA-Lib)", String.class, true, InputLcmsFile::getDataType);
 
     cols.add(colPath);
     cols.add(colExp);
@@ -1009,6 +1010,8 @@ public class TabWorkflow extends JPanelWithEnablement {
         () -> new MessageLcmsGroupAction(Type.SET_GPF_DIA));
     btnSetDiaQuant = button("Set DIA-Quant",
         () -> new MessageLcmsGroupAction(Type.SET_DIA_QUANT));
+    btnSetDiaLib = button("Set DIA-Lib",
+        () -> new MessageLcmsGroupAction(Type.SET_DIA_LIB));
     btnGroupsClear = button("Clear groups", () -> new MessageLcmsGroupAction(Type.CLEAR_GROUPS));
 
     btnManifestSave = button("Save as manifest", MessageManifestSave::new);
@@ -1061,7 +1064,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnSetDda);
     mu.add(p, btnSetDia);
     mu.add(p, btnSetGpfDia);
-    mu.add(p, btnSetDiaQuant).wrap();
+    mu.add(p, btnSetDiaQuant);
+    mu.add(p, btnSetDiaLib).wrap();
 
     p.add(scrollPaneRawFiles, mu.ccGx().wrap());
 
@@ -1087,6 +1091,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDia);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetGpfDia);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDiaQuant);
+    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDiaLib);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClear);
 
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnFilesRemove);
@@ -1392,6 +1397,9 @@ public class TabWorkflow extends JPanelWithEnablement {
       case SET_DIA_QUANT:
         this.actionSetDiaQuant();
         break;
+      case SET_DIA_LIB:
+        this.actionSetDiaLib();
+        break;
       case CLEAR_GROUPS:
         this.actionClearGroups();
         break;
@@ -1404,7 +1412,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private void adjustToolsBasedOnDataTypes() {
-    if (hasDia() || hasGpfDia()) {
+    if (hasDia() || hasDiaLib() || hasGpfDia()) {
       Bus.post(new NoteConfigUmpire(true));
       UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
       if (umpirePanel.isRunUmpire()) {
@@ -1550,6 +1558,23 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
   }
 
+  private void actionSetDiaLib() {
+    final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+    List<Integer> selectedRows = Arrays.stream(this.tableRawFiles.getSelectedRows()).mapToObj(tableRawFiles::convertRowIndexToModel).collect(Collectors.toList());
+    if (selectedRows.isEmpty()) {
+      for (int i = 0; i < m.dataSize(); ++i) {
+        InputLcmsFile f = m.dataGet(i);
+        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DIA-Lib"));
+      }
+    } else {
+      for (int selectedRow : selectedRows) {
+        int i = tableRawFiles.convertRowIndexToModel(selectedRow);
+        InputLcmsFile f = m.dataGet(i);
+        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DIA-Lib"));
+      }
+    }
+  }
+
   private void actionByFileName() {
     UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
 
@@ -1628,6 +1653,15 @@ public class TabWorkflow extends JPanelWithEnablement {
   public boolean hasDiaQuant() {
     for (InputLcmsFile inputLcmsFile : tableModelRawFiles.dataCopy()) {
       if (inputLcmsFile.getDataType().contentEquals("DIA-Quant")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public boolean hasDiaLib() {
+    for (InputLcmsFile inputLcmsFile : tableModelRawFiles.dataCopy()) {
+      if (inputLcmsFile.getDataType().contentEquals("DIA-Lib")) {
         return true;
       }
     }

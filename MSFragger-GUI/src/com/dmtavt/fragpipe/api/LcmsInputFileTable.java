@@ -34,12 +34,14 @@ public class LcmsInputFileTable extends SimpleETable {
       "<html>Replicate number. <b>Integers only. Can be left blank.</b><br/>"
           + "If blank, files from the same experiment will be combined.<br/>"
           + "Leave it blank if it is fractionated data.",
-      "<html>Data types (DDA, DIA, GPF-DIA, DIA-Quant).<br/>"
+      "<html>Data types (DDA, DIA, GPF-DIA, DIA-Quant, DIA-Lib).<br/>"
           + "<b>DIA</b> is for wide window DIA.<br/>"
           + "<b>GPF-DIA</b> is for gas-phase fractionation DIA.<br/>"
           + "<b>DIA-Quant</b> is for quantification.<br/>"
+          + "<b>DIA-Lib</b> is for spectral library generation.<br/>"
           + "Runs with <b>DDA</b>, <b>DIA</b>, and <b>GPF-DIA</b> will be used from identification to quantification.<br/>"
-          + "Runs with <b>DIA-Quant</b> will only be used in quantification."};
+          + "Runs with <b>DIA-Quant</b> will only be used in quantification.<br/>"
+          + "Runs with <b>DIA-Lib</b> will only be used in spectral library generation."};
 
   public LcmsInputFileTable() {
     super();
