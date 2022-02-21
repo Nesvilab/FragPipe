@@ -105,7 +105,6 @@ public class PtmshepherdPanel extends JPanelBase {
   private static final String PROP_iontype_y = "iontype_y";
   private static final String PROP_iontype_c = "iontype_c";
   private static final String PROP_iontype_z = "iontype_z";
-  private static final String PROP_glyco_mode = "glyco_mode";
   private static final String PROP_cap_y_ions = "cap_y_ions";
   private static final String PROP_diag_ions = "diag_ions";
   private static final String PROP_remainder_masses = "remainder_masses";
@@ -117,8 +116,9 @@ public class PtmshepherdPanel extends JPanelBase {
   private static final String PROP_diagMine_minIonsPerSpec = "diagmine_minIonsPerSpec";
   private static final String PROP_diagMine_minSpecPct = "diagmine_minSpecDiff";
   private static final String PROP_diagMine_minIons = "diagmine_minIons";
+  private static final String PROP_diagExtract_mode = "diagextract_mode";
 
-  private static final String PROP_run_glycan_assignment = "assign_glycans";
+  private static final String PROP_glyco_mode = "glyco_mode";
   private static final String PROP_glycan_fdr = "glyco_fdr";
   private static final String PROP_glyco_mass_error_ppm = "glyco_ppm_tol";
   private static final String PROP_glyco_isotope_error_low = "glyco_isotope_min";
@@ -136,8 +136,6 @@ public class PtmshepherdPanel extends JPanelBase {
   private static final String PROP_glycan_database = "glycodatabase";
   private static final String PROP_remove_glyco_deltamass = "remove_glycan_delta_mass";
   private static final String PROP_print_decoys = "print_decoys";
-
-  private static final String PROP_glycan_to_assigned_mods = "put_glycans_to_assigned_mods";
   private static final String PROP_nglyco_mode = "n_glyco";
 
   private final List<BalloonTip> balloonTips = new ArrayList<>();
@@ -418,7 +416,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
     // known diag ion params
     uiCheckDiagnostic = UiUtils.createUiCheck("Extract known diagnostic ions from spectra", false);
-    uiCheckDiagnostic.setName("glyco_mode");
+    uiCheckDiagnostic.setName(PROP_diagExtract_mode);
     uiCheckDiagnostic.setToolTipText("Look for the ions listed below in spectra. Note: required for glycan assignment");
 
     // labile/glyco main params
@@ -454,7 +452,7 @@ public class PtmshepherdPanel extends JPanelBase {
     pGlycoAdvParams = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
     uiCheckGlycoAssign = UiUtils.createUiCheck("Assign Glycans with FDR", true);
-    uiCheckGlycoAssign.setName("assign_glycans");
+    uiCheckGlycoAssign.setName(PROP_glyco_mode);
     uiCheckGlycoAssign.setToolTipText("Perform glycan assignment and glycan FDR on PSMs reported with a delta mass");
     uiCheckGlycoAdvParams = UiUtils.createUiCheck("Edit Advanced Parameters", false);
     uiCheckGlycoAdvParams.setName("adv_params");
@@ -829,12 +827,9 @@ public class PtmshepherdPanel extends JPanelBase {
     SwingUtils.setEnablementUpdater(this, pDiagnostic, checkRun);
     SwingUtils.setEnablementUpdater(this, pGlycanAssignment, checkRun);
 
-    // enable/disable Glycan Assignment areas when the overall diagnostic box is changed because glyco depends on diagnostic (for now)
+    // enable/disable diagnostic mining/extraction areas when boxes are checked
     SwingUtils.setEnablementUpdater(this, pDiagnosticMiningContent, uiCheckDiagnosticMining);
     SwingUtils.setEnablementUpdater(this, pDiagnosticKnownContent, uiCheckDiagnostic);
-    SwingUtils.setEnablementUpdater(this, pGlycoAssignContent, uiCheckDiagnostic);
-    SwingUtils.setEnablementUpdater(this, uiCheckGlycoAssign, uiCheckDiagnostic);
-    SwingUtils.setEnablementUpdater(this, uiCheckGlycoAdvParams, uiCheckDiagnostic);
 
     // enable/disable the Glycan Assignment sub-area specifically when the glycan assignment box is changed
     SwingUtils.setEnablementUpdater(this, pGlycoAssignContent, uiCheckGlycoAssign);
