@@ -41,6 +41,7 @@ public class MSBoosterPanel extends JPanelBase {
   private UiCheck checkRun;
   private UiCheck uiCheckPredictRT;
   private UiCheck uiCheckPredictSpectra;
+  private UiCheck uiUseCorrelatedFeatures;
 
   public MSBoosterPanel() {
     super();
@@ -74,9 +75,13 @@ public class MSBoosterPanel extends JPanelBase {
     uiCheckPredictSpectra = new UiCheck("Predict spectra", null, true);
     uiCheckPredictSpectra.setName("predict-spectra");
 
+    uiUseCorrelatedFeatures = new UiCheck("Use correlated features", null, false);
+    uiUseCorrelatedFeatures.setName("use-correlated-features");
+
     pContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.add(pContent, uiCheckPredictRT).split();
     mu.add(pContent, uiCheckPredictSpectra);
+    mu.add(pContent, uiUseCorrelatedFeatures);
 
     mu.add(this, pTop).growX().wrap();
     mu.add(this, pContent).growX().wrap();
@@ -105,6 +110,10 @@ public class MSBoosterPanel extends JPanelBase {
 
   public boolean predictSpectra() {
     return uiCheckPredictSpectra.isSelected();
+  }
+
+  public boolean useCorrelatedFeatures() {
+    return uiUseCorrelatedFeatures.isSelected();
   }
 
   @Override
