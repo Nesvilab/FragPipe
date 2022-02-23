@@ -24,7 +24,6 @@ import com.dmtavt.fragpipe.FragpipeRun;
 import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.cmd.CmdMsfragger;
-import com.dmtavt.fragpipe.messages.MessageAppendToConsole;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
 import com.dmtavt.fragpipe.messages.MessageExternalProcessOutput;
@@ -158,16 +157,6 @@ public class TabRun extends JPanelWithEnablement {
     }
 
     toConsole(null, m.output, false); // print with ANSI colors
-  }
-
-  /**
-   * @deprecated All console communication needs to be done through the new
-   * {@link MessagePrintToConsole} type instead.
-   */
-  @Subscribe(threadMode = ThreadMode.BACKGROUND)
-  @Deprecated
-  public void on(MessageAppendToConsole m) {
-    console.append(m.color, m.text);
   }
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
