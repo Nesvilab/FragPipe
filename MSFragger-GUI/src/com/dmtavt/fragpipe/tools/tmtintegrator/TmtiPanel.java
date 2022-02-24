@@ -643,7 +643,7 @@ public class TmtiPanel extends JPanelBase {
 
     List<QuantLabelAnnotation> annotations = new ArrayList<>();
     for (String line : lines) {
-      line = line.trim().replaceAll("[^a-zA-Z0-9\\s]", "");
+      line = line.trim().replaceAll("[^a-zA-Z0-9\\s._-]", "");
       if (StringUtils.isNullOrWhitespace(line))
         continue;
       String[] split = line.split("\\s+", 2);
