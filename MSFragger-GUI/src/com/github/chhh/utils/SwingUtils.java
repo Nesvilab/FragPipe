@@ -1094,7 +1094,7 @@ public class SwingUtils {
       return "";
     } else {
       Matcher m = reNewline.matcher(html);
-      String s = m.replaceAll("<br/>\n");
+      String s = m.replaceAll("<br/>");
       return re.matcher(s).find() ? s : "<html>" + s;
     }
   }
