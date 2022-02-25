@@ -38,7 +38,7 @@ public class SwingUtilsTest {
         + " that have non breaking spaces <br/>\n ";
     String s1 = SwingUtils.makeHtml(s);
     Assert.assertTrue(s1.startsWith("<html>"));
-    Pattern reHtmlNewline = Pattern.compile("(.*?<br/>\\s*\n)");
+    Pattern reHtmlNewline = Pattern.compile("(.*?<br/>\\s*)");
     Matcher m = reHtmlNewline.matcher(s1);
     long count = 0;
     while (m.find()) {
