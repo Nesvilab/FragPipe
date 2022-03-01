@@ -117,7 +117,14 @@ public class CmdLabelquant extends CmdBase {
         SwingUtils.showWarningDialog(comp, msg, NAME + " Error");
         return false;
       }
-      cmd.add(annotationFile.toString());
+
+      try {
+        cmd.add(annotationFile.toFile().getCanonicalPath());
+      } catch (Exception ex) {
+        ex.printStackTrace();
+        return false;
+      }
+
       if (!isDryRun) {
         // copy annotation files to output directory for Report command to pick up
         Path annotationFileInGroupDir = groupWd.resolve(annotationFile.getFileName());
