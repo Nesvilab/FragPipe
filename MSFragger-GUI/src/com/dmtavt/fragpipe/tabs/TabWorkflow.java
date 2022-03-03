@@ -901,6 +901,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     FragpipeCacheUtils.saveToFileSorted(PropertiesUtils.from(vetted), savePath, "Workflow: " + StringUtils.upToLastDot(savePath.getFileName().toString()));
     SwingUtils.showInfoDialog(fp, "Saved to: " + savePath, "Workflow saved");
 
+    epWorkflowsDesc.setText(desc);
+
     if (FragpipeLocations.get().getDirWorkflows().equals(saveDir)) {
       Bus.post(new MessageUpdateWorkflows());
     }
