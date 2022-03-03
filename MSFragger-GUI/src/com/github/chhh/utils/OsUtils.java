@@ -134,8 +134,10 @@ public class OsUtils {
         }
         if (freeMem > 120) {
             return (int) (freeMem * 0.9);
+        } else if ((int) freeMem - 2 > 0) {
+            return (int) freeMem - 2;
         } else {
-            return ((int) freeMem - 2 > 0) ? ((int) freeMem - 2) : (int) Math.ceil(freeMem);
+            return Math.max(1, (int) Math.ceil(freeMem));
         }
     }
 
