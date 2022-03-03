@@ -1679,7 +1679,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       JFileChooser fc = FileChooserUtils.builder("Select the Workflow file to load").multi(false).mode(FcMode.FILES_ONLY).acceptAll(true).approveButton("Select workflow").paths(Stream.of(Fragpipe.propsVarGet(propWorkflowDir), FragpipeLocations.get().getDirWorkflows().toString())).create();
       fc.setFileFilter(new FileNameExtensionFilter("workflow files", "workflow"));
       if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
-        log.debug("User cancelled dir selection");
+        log.debug("User cancelled workflow loading");
         return;
       }
 
