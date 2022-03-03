@@ -134,6 +134,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -250,11 +251,11 @@ public class TabWorkflow extends JPanelWithEnablement {
   private static final List<String> builtInWorkflowsPinned = ((Supplier<List<String>>) () -> {
     final List<String> a = new ArrayList<>();
     a.add("Default");
+    a.add("Custom");
     a.add("Open");
     a.add("Mass-Offset-CommonPTMs");
     a.add("LFQ-MBR");
     a.add("DIA_SpecLib_Quant");
-    a.add("Custom");
     return a;
   }).get();
 
@@ -1675,8 +1676,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     log.debug("Load workflow button clicked: {}", workflow);
     if (workflow == null || workflow.equalsIgnoreCase("Custom")) {
       final String propWorkflowDir = "workflow.last-save-dir";
-      JFileChooser fc = FileChooserUtils.builder("Select folder to save workflow file to").multi(false).mode(FcMode.FILES_ONLY).acceptAll(true).approveButton("Select workflow").paths(Stream.of(Fragpipe.propsVarGet(propWorkflowDir), FragpipeLocations.get().getDirWorkflows().toString())).create();
-//      fc.setFileFilter(new FileNameExtensionFilter("workflow files", "workflow"));
+      JFileChooser fc = FileChooserUtils.builder("Select the Workflow file to load").multi(false).mode(FcMode.FILES_ONLY).acceptAll(true).approveButton("Select workflow").paths(Stream.of(Fragpipe.propsVarGet(propWorkflowDir), FragpipeLocations.get().getDirWorkflows().toString())).create();
+      fc.setFileFilter(new FileNameExtensionFilter("workflow files", "workflow"));
       if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
         log.debug("User cancelled dir selection");
         return;
