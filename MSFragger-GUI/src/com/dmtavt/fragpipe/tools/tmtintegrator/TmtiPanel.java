@@ -106,6 +106,7 @@ public class TmtiPanel extends JPanelBase {
   private ButtonColumn colBrowse;
   private ButtonColumn colCreate;
   private UiCombo uiComboQuantLevel;
+  private UiSpinnerInt uiSpinnerTolerance;
   private UiCombo uiComboLabelNames;
   public static final String PREFIX = "tmtintegrator.";
   public static final String PROP_LAST_ANNOTATION_PATH = "fragpipe.tmt.last-annotation-path";
@@ -289,8 +290,11 @@ public class TmtiPanel extends JPanelBase {
     FormEntry feLabelType = fe(TmtiConfProps.PROP_channel_num,
         "Label type", uiComboLabelNames, null);
 
-    uiComboQuantLevel = UiUtils.createUiCombo(new String[]{"2", "3", "2-lowres", "3-lowres"});
-    FormEntry feQuantLevel = fe("quant_level", "Quant level", uiComboQuantLevel, "MS level of quantification (2: MS2; 3: MS3; 2-lowres: MS2 low-resolution; 3-lowres: MS3 low-resolution)");
+    uiComboQuantLevel = UiUtils.createUiCombo(new String[]{"2", "3"});
+    FormEntry feQuantLevel = fe("quant_level", "Quant level", uiComboQuantLevel, "MS level of quantification (2: MS2; 3: MS3)");
+
+    uiSpinnerTolerance = UiUtils.spinnerInt(20, 1, 9999, 1).create();
+    FormEntry feTolerance = fe("tolerance", "Mass tolerance (ppm)", uiSpinnerTolerance, "Reporter ions mass tolerance in PPM");
 
     UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).text("Bridge").create();
     FormEntry feRefTag = fe(TmtiConfProps.PROP_ref_tag,
@@ -335,6 +339,7 @@ public class TmtiPanel extends JPanelBase {
 
     addRowLabelComp(p, feLabelType);
     addRowLabelComp(p, feQuantLevel);
+    addRowLabelComp(p, feTolerance);
     addRowLabelComp(p, feAddRef);
     addRowLabelComp(p, feRefTag);
     addRowLabelComp(p, feGroupBy);
@@ -607,6 +612,10 @@ public class TmtiPanel extends JPanelBase {
 
   public String getQuantLevel() {
     return uiComboQuantLevel.asString();
+  }
+
+  public int getTolerance() {
+    return uiSpinnerTolerance.getActualValue();
   }
 
   public static class TmtAnnotationValidationException extends Exception {
