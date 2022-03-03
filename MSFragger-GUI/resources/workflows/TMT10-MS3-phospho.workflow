@@ -228,6 +228,7 @@ tmtintegrator.psm_norm=false
 tmtintegrator.quant_level=3
 tmtintegrator.ref_tag=pool
 tmtintegrator.run-tmtintegrator=true
+tmtintegrator.tolerance=20
 tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
