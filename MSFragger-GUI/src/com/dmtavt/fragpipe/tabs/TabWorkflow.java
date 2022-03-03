@@ -1679,7 +1679,21 @@ public class TabWorkflow extends JPanelWithEnablement {
         log.debug("User cancelled dir selection");
         return;
       }
-      Bus.post(new MessageLoadUi(FragpipeLocations.get().tryLoadSilently(fc.getSelectedFile().toPath(), "user")));
+
+      log.debug("Loading workflow/ui state: {}", workflow);
+      PropsFile propsFile = FragpipeLocations.get().tryLoadSilently(fc.getSelectedFile().toPath(), "user");
+      if (propsFile == null) {
+        SwingUtils.showErrorDialog(this, "Couldn't load workflow file: " + workflow, "Workflow loading error");
+        return;
+      }
+
+      if (propsFile.containsKey("workflow.workflow-option")) {
+        propsFile.setProperty("workflow.workflow-option", workflow);
+      }
+
+      epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
+
+      Bus.post(new MessageLoadUi(propsFile));
     } else {
       int confirmation = SwingUtils.showConfirmDialog(this, new JLabel("Do you want to load workflow: " + workflow + "?"), "Confirmation");
       if (JOptionPane.OK_OPTION == confirmation) {
