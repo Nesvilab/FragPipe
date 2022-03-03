@@ -99,9 +99,7 @@ public class CmdIonquant extends CmdBase {
 
     List<String> cmd = new ArrayList<>();
     cmd.add(Fragpipe.getBinJava());
-    if (ramGb > 0) {
-      cmd.add("-Xmx" + ramGb + "G");
-    }
+    cmd.add("-Xmx" + ramGb + "G");
 
     if (extLibsBruker != null) {
       cmd.add(createJavaDParamString("libs.bruker.dir", extLibsBruker.toString()));

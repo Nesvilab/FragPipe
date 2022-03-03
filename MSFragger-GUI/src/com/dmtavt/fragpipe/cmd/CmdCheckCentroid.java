@@ -53,9 +53,7 @@ public class CmdCheckCentroid extends CmdBase {
     for (InputLcmsFile lcms : lcmsFiles) {
       List<String> cmd = new ArrayList<>();
       cmd.add(Fragpipe.getBinJava());
-      if (ramGb > 0) {
-        cmd.add("-Xmx" + ramGb + "G");
-      }
+      cmd.add("-Xmx" + ramGb + "G");
       cmd.add("-cp");
       cmd.add(constructClasspathString(classpathJars));
       cmd.add(CheckCentroid.class.getCanonicalName());

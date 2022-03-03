@@ -159,10 +159,7 @@ public class CmdMSBooster extends CmdBase {
 
     List<String> cmd = new ArrayList<>();
     cmd.add(Fragpipe.getBinJava());
-    if (ramGb > 0) {
-      cmd.add("-Xmx" + ramGb + "G");
-    }
-
+    cmd.add("-Xmx" + ramGb + "G");
     cmd.add("-cp");
     cmd.add(constructClasspathString(classpathJars));
     cmd.add(JAR_MSBOOSTER_MAIN_CLASS);

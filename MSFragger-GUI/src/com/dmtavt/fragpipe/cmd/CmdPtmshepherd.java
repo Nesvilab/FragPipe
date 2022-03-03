@@ -143,9 +143,7 @@ public class CmdPtmshepherd extends CmdBase {
     // builders
     List<String> cmd = new ArrayList<>();
     cmd.add(Fragpipe.getBinJava());
-    if (ramGb > 0) {
-      cmd.add("-Xmx" + ramGb + "G");
-    }
+    cmd.add("-Xmx" + ramGb + "G");
     if (extLibsThermo != null) {
       cmd.add(createJavaDParamString("batmass.io.libs.thermo.dir", extLibsThermo.toString()));
     }

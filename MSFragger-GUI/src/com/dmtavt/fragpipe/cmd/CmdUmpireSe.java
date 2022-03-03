@@ -21,11 +21,9 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.exceptions.FileWritingException;
-import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
 import com.dmtavt.fragpipe.tools.umpire.UmpireParams;
 import com.dmtavt.fragpipe.tools.umpire.UmpireSeGarbageFiles;
-import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
@@ -81,7 +79,7 @@ public class CmdUmpireSe extends CmdBase {
   }
 
   public boolean configure(Component errMsgParent, boolean isDryRun,
-      Path jarFragpipe, final Path binFragger, UmpirePanel umpirePanel,
+      Path jarFragpipe, int ramGb, final Path binFragger, UmpirePanel umpirePanel,
       List<InputLcmsFile> lcmsFiles) {
 
     initPreConfig();
@@ -112,9 +110,6 @@ public class CmdUmpireSe extends CmdBase {
     }
 
     // run umpire for each file
-    TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
-    int ramGb = tabWorkflow.getRamGb();
-    int ram = ramGb > 0 ? ramGb : OsUtils.getDefaultXmx();
     final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
     final String javaDParmsStringLibsThermoDir = extLibsThermo == null ? null :
             createJavaDParamString("libs.thermo.dir", extLibsThermo.toString());
@@ -132,8 +127,7 @@ public class CmdUmpireSe extends CmdBase {
       //java -Dbatmass.io.libs.thermo.dir=ext/thermo/ -cp batmass-io-1.23.0.jar:DIA_Umpire_SE.jar dia_umpire_se.DIA_Umpire_SE  (.raw|.mzML|.mzXML) DIA-U_params
       List<String> cmd = new ArrayList<>();
       cmd.add(Fragpipe.getBinJava());
-      if (ram > 0 && ram < 256)
-        cmd.add("-Xmx" + ram + "G");
+      cmd.add("-Xmx" + ramGb + "G");
       if (javaDParmsStringLibsThermoDir != null)
         cmd.add(javaDParmsStringLibsThermoDir);
 

@@ -188,9 +188,7 @@ public class CmdTmtIntegrator extends CmdBase {
 //    if (extLibsThermo != null) {
 //      cmd.add("-Dbatmass.io.libs.thermo.dir=\"" + extLibsThermo.toString() + "\"");
 //    }
-    if (ramGb > 0) {
-      cmd.add("-Xmx" + ramGb + "G");
-    }
+    cmd.add("-Xmx" + ramGb + "G");
     cmd.add("-cp");
     cmd.add(constructClasspathString(classpathJars));
     cmd.add(JAR_MAIN);
