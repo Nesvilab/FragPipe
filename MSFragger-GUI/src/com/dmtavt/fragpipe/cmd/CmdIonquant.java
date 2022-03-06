@@ -18,14 +18,7 @@
 package com.dmtavt.fragpipe.cmd;
 
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.JAVACPP_JAR;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.JAVACPP_LINUX_JAR;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.JAVACPP_WIN_JAR;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.OPENBLAS_JAR;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.OPENBLAS_LINUX_JAR;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.OPENBLAS_WIN_JAR;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.SMILE_CORE_JAR;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.SMILE_MATH_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.JFREECHART_JAR;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
@@ -56,9 +49,9 @@ public class CmdIonquant extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdIonquant.class);
 
   private static final String NAME = "IonQuant";
-  public static final String JAR_IONQUANT_NAME = "ionquant-1.7.22.jar";
+  public static final String JAR_IONQUANT_NAME = "ionquant-1.7.23.jar";
   private static final String JAR_IONQUANT_MAIN_CLASS = "ionquant.IonQuant";
-  private static final String[] JAR_DEPS = {SMILE_CORE_JAR, SMILE_MATH_JAR, JAVACPP_JAR, JAVACPP_WIN_JAR, JAVACPP_LINUX_JAR, OPENBLAS_JAR, OPENBLAS_WIN_JAR, OPENBLAS_LINUX_JAR, BATMASS_IO_JAR};
+  private static final String[] JAR_DEPS = {JFREECHART_JAR, BATMASS_IO_JAR};
   private static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
 
   public CmdIonquant(boolean isRun, Path workDir) {
@@ -235,15 +228,6 @@ public class CmdIonquant extends CmdBase {
           bufferedWriter.write("\t");
           bufferedWriter.write(StringUtils.appendPrependOnce(path.toString(), null));
           bufferedWriter.write("\n");
-        }
-
-        for (Entry<InputLcmsFile, List<Path>> e : lcmsToFraggerPepxml.entrySet()) {
-          for (Path pepxml : e.getValue()) {
-            bufferedWriter.write("--pepxml");
-            bufferedWriter.write("\t");
-            bufferedWriter.write(wd.relativize(pepxml).toString());
-            bufferedWriter.write("\n");
-          }
         }
 
         bufferedWriter.close();
