@@ -127,6 +127,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.apache.commons.codec.Charsets;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.ClosestFirstIterator;
@@ -289,6 +290,36 @@ public class FragpipeRun {
 
       toConsole("");
       toConsole("~~~~~~~~~~~~~~~~~~~~~~");
+
+      // Write top 20 lines of the fasta file to the console.
+      final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
+      toConsole("");
+      toConsole("~~~~~~Sample of " + tabDatabase.getFastaPath() + "~~~~~~~");
+      try {
+        Files.lines(Paths.get(tabDatabase.getFastaPath())).limit(20).forEach(e -> toConsole(e.trim()));
+      } catch (Exception e) {
+        toConsole("Cannot get the sample of " + tabDatabase.getFastaPath());
+        toConsole(ExceptionUtils.getStackTrace(e));
+      }
+      toConsole("~~~~~~~~~~~~~~~~~~~~~~");
+      toConsole("");
+
+      // Write top annotation files to the console.
+      TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
+      if (tmtiPanel.isRun()) {
+        toConsole("~~~~~~annotation files~~~~~~~");
+        for (Path p : tmtiPanel.getAnnotations().values()) {
+          try {
+            toConsole(p.toFile().getCanonicalPath() + ":");
+            Files.lines(p.toFile().getCanonicalFile().toPath()).forEach(e -> toConsole(e.trim()));
+          } catch (Exception e) {
+            toConsole("Cannot read " + p.toAbsolutePath());
+            toConsole(ExceptionUtils.getStackTrace(e));
+          }
+        }
+        toConsole("~~~~~~~~~~~~~~~~~~~~~~");
+        toConsole("");
+      }
 
       if (isDryRun) {
         toConsole(Fragpipe.COLOR_RED_DARKEST, "\nIt's a dry-run, not running the commands.\n", true);
