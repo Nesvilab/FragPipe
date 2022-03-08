@@ -388,7 +388,10 @@ public class Fragpipe extends JFrameHeadless {
       System.exit(1);
     }
 
-    SwingUtils.setLaf();
+    if (!headless) {
+      SwingUtils.setLaf();
+    }
+
     FragpipeLoader fragpipeLoader = new FragpipeLoader();
     Bus.register(fragpipeLoader);
     if (headless) {
