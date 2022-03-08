@@ -738,20 +738,20 @@ public class SwingUtils {
   public static void traverse(Component origin, boolean includeOrigin,
       Consumer<Component> callback) {
     synchronized (origin.getTreeLock()) {
-      ArrayDeque<Component> fifo = new ArrayDeque<>();
+      ArrayDeque<Component> lifo = new ArrayDeque<>();
       if (includeOrigin) {
-        fifo.addLast(origin);
+        lifo.addLast(origin);
       } else if (origin instanceof Container) {
         for (Component child : ((Container) origin).getComponents()) {
-          fifo.addLast(child);
+          lifo.addLast(child);
         }
       }
-      while (!fifo.isEmpty()) {
-        Component comp = fifo.removeLast();
+      while (!lifo.isEmpty()) {
+        Component comp = lifo.removeLast();
         callback.accept(comp);
         if (comp instanceof Container) {
           for (Component child : ((Container) comp).getComponents()) {
-            fifo.addLast(child);
+            lifo.addLast(child);
           }
         }
       }
