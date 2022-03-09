@@ -52,7 +52,7 @@ public class SpecLibGen2 {
       SCRIPT_SPEC_LIB_GEN,
       "speclib/hela_irtkit.tsv",
       "speclib/Pierce_iRT.tsv",
-      "speclib/unite_runs.py",
+      "speclib/unite_runs.py"
   };
   private final Object initLock = new Object();
   private PyInfo pi;

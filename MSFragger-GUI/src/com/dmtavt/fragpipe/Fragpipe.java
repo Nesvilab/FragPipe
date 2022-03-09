@@ -62,6 +62,7 @@ import com.dmtavt.fragpipe.tabs.TabUmpire;
 import com.dmtavt.fragpipe.tabs.TabValidation;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
+import com.dmtavt.fragpipe.tools.downstream.DownstreamPanel;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
@@ -119,6 +120,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.event.HyperlinkEvent;
+
+import javafx.embed.swing.JFXPanel;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -598,6 +601,7 @@ public class Fragpipe extends JFrameHeadless {
     TabSpecLib tabSpecLib = new TabSpecLib();
     TabDiann tabDiann = new TabDiann();
     TabRun tabRun = new TabRun(console);
+    final JFXPanel tabDownstream = DownstreamPanel.getPanel("downstream.");
 
     addTab.accept(new UiTab("Config", tabConfig, "/com/dmtavt/fragpipe/icons/150-cogs.png", null));
     addTabNoScroll.accept(new UiTab(TAB_NAME_LCMS, tabWorkflow,
@@ -620,6 +624,7 @@ public class Fragpipe extends JFrameHeadless {
     addTab.accept(new UiTab("Quant (DIA)", tabDiann,
         "/com/dmtavt/fragpipe/icons/icon-diann-16.png", null));
     addTabNoScroll.accept(new UiTab("Run", tabRun, "/com/dmtavt/fragpipe/icons/video-play-16.png", null));
+    addTab.accept(new UiTab("Downstream", tabDownstream, null, null));
 
     log.debug("Done createTabs()");
     return t;

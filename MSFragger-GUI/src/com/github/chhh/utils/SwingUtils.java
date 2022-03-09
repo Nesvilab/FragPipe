@@ -48,12 +48,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -93,6 +97,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
+import javafx.scene.control.Control;
+import javafx.scene.control.SpinnerValueFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
@@ -758,6 +764,47 @@ public class SwingUtils {
     }
   }
 
+  public static final ConcurrentMap<String, Control> jfxControlNames = new ConcurrentHashMap<>();
+
+  private static Collection<Component> getComponents(Container comp) {
+    return Arrays.asList((comp).getComponents());
+  }
+
+  private static Collection<javafx.scene.Node> getComponents(javafx.scene.Parent parent) {
+    return parent.getChildrenUnmodifiable();
+  }
+
+  public static void traverse(Component origin, boolean includeOrigin,
+                              Consumer<Component> callback, Consumer<javafx.scene.Node> callback2) {
+    synchronized (origin.getTreeLock()) {
+      ArrayDeque<Object> lifo = new ArrayDeque<>();
+      if (includeOrigin) {
+        lifo.addLast(origin);
+        if (origin instanceof javafx.embed.swing.JFXPanel)
+          lifo.addAll(((javafx.embed.swing.JFXPanel) origin).getScene().getRoot().getChildrenUnmodifiable());
+      } else if (origin instanceof Container) {
+        lifo.addAll(getComponents((Container) origin));
+      } else
+        throw new AssertionError("unreacheable code");
+      while (!lifo.isEmpty()) {
+        Object obj = lifo.removeLast();
+        if (obj instanceof Component) {
+          Component comp = (Component) obj;
+          callback.accept(comp);
+          if (comp instanceof Container) {
+            lifo.addAll(getComponents((Container) comp));
+          }
+        } else if (obj instanceof javafx.scene.Node) {
+          javafx.scene.Node node = (javafx.scene.Node) obj;
+          callback2.accept(node);
+          if (node instanceof javafx.scene.Parent)
+            lifo.addAll(getComponents((javafx.scene.Parent) node));
+        } else
+          throw new AssertionError("unreacheable code");
+      }
+    }
+  }
+
   /**
    * Drills down a {@link Container}, mapping all components that 1) have their name set, 2) are
    * {@link StringRepresentable} and returns the mapping.<br/> Useful for persisting values from
@@ -823,6 +870,35 @@ public class SwingUtils {
       value = ((JTextComponent) comp).getText();
     }
     return value;
+  }
+
+  public static String valueGet(javafx.scene.control.Control comp) {
+    String value;
+    if (comp instanceof javafx.scene.control.CheckBox) {
+      value = Boolean.toString(((javafx.scene.control.CheckBox) comp).isSelected());
+    } else if (comp instanceof javafx.scene.control.TextField) {
+      value = ((javafx.scene.control.TextField) comp).getText();
+    } else if (comp instanceof javafx.scene.control.Spinner<?>) {
+      value = ((javafx.scene.control.Spinner<?>) comp).getValue().toString();
+    } else
+      throw new RuntimeException("not implemented");
+    return value;
+  }
+
+  public static void valueSet(javafx.scene.control.Control comp, String s) {
+    if (comp instanceof javafx.scene.control.CheckBox) {
+      ((javafx.scene.control.CheckBox) comp).setSelected(Boolean.parseBoolean(s));
+    } else if (comp instanceof javafx.scene.control.TextField) {
+      ((javafx.scene.control.TextField) comp).setText(s);
+    } else if (comp instanceof javafx.scene.control.Spinner<?>) {
+      javafx.scene.control.Spinner<?> spinner = ((javafx.scene.control.Spinner<?>) comp);
+      if (spinner.getValueFactory() instanceof SpinnerValueFactory.IntegerSpinnerValueFactory)
+        ((SpinnerValueFactory.IntegerSpinnerValueFactory) spinner.getValueFactory()).setValue(Integer.parseInt(s));
+      else
+        throw new RuntimeException("not implemented");
+    } else {
+      throw new RuntimeException("not implemented");
+    }
   }
 
   public static void valueSet(Component comp, String s) {
