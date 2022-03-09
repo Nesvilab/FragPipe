@@ -931,28 +931,12 @@ public class SwingUtils {
       return Collections.emptyMap();
     }
     Map<String, Component> map = new HashMap<>();
-    ArrayDeque<Component> fifo = new ArrayDeque<>();
-    synchronized (origin.getTreeLock()) {
-      if (includeOrigin) {
-        fifo.addLast(origin);
-      } else {
-        for (Component c : origin.getComponents()) {
-          fifo.addLast(c);
-        }
+    traverse(origin, includeOrigin, c -> {
+      String name = c.getName();
+      if (!StringUtils.isNullOrWhitespace(name)) {
+        map.put(name, c);
       }
-      while (!fifo.isEmpty()) {
-        Component c = fifo.removeFirst();
-        String name = c.getName();
-        if (!StringUtils.isNullOrWhitespace(name)) {
-          map.put(name, c);
-        }
-        if (c instanceof Container) {
-          for (Component child : ((Container) c).getComponents()) {
-            fifo.addLast(child);
-          }
-        }
-      }
-    }
+    });
     return map;
   }
 
