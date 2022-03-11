@@ -111,6 +111,7 @@ distributions {
 dependencies {
     implementation group: 'com.github.albfernandez', name: 'juniversalchardet', version: '2.4.0'
     compileOnly files('tools/batmass-io-1.27.1.jar')
+    implementation 'com.fasterxml.woodstox:woodstox-core:6.2.8'
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'one.util:streamex:0.8.1'
     implementation 'org.jooq:jool-java-8:0.9.14'

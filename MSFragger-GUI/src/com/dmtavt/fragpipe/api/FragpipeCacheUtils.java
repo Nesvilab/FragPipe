@@ -20,6 +20,8 @@ package com.dmtavt.fragpipe.api;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.WorkflowTranslator;
 import com.dmtavt.fragpipe.exceptions.NoSuchElementInModelException;
+import com.dmtavt.fragpipe.tabs.IExtraChildren;
+import com.dmtavt.fragpipe.tabs.TabConfig;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
@@ -36,8 +38,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import javax.swing.JComboBox;
-import javax.swing.JTabbedPane;
+import javax.swing.*;
+
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,12 +66,15 @@ public class FragpipeCacheUtils {
    */
   public static void tabPaneFromMap(JTabbedPane tabs, Map<String, String> map) {
     for (int i = 0; i < tabs.getTabCount(); i++) {
-      Component compAt = tabs.getComponentAt(i);
-      String tabTitle = tabs.getTitleAt(i);
+      final Component compAt = tabs.getComponentAt(i);
+      final String tabTitle = tabs.getTitleAt(i);
       log.debug("Loading tab pane {} from map", tabTitle);
       if (compAt instanceof Container) {
         try {
           log.trace("Calling SwingUtils.valuesSet((Container) compAt, map) from tabPaneFromMap");
+          if (TabConfig.TAB_NAME.equals(tabTitle)) {
+            log.trace("Calling SwingUtils.valuesSet((Container) compAt, map) from tabPaneFromMap for {} tab", tabTitle);
+          }
           SwingUtils.valuesSet((Container) compAt, map);
         } catch (NoSuchElementInModelException e) {
           if (UiCombo.class.equals(e.clazz)) {
@@ -120,7 +125,8 @@ public class FragpipeCacheUtils {
         return;
       }
       if (m.containsKey(k)) {
-        throw new IllegalStateException("UI Elements with duplicate keys: " + k);
+//        throw new IllegalStateException("UI Elements with duplicate keys: " + k);
+        // just allow that now - the child elements might not be shown, but might be referenced from multiple places
       }
       m.put(k, v);
     });

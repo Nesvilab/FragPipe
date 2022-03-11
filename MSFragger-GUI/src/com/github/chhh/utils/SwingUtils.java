@@ -17,6 +17,7 @@
 package com.github.chhh.utils;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.tabs.IExtraChildren;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.GhostedTextComponent;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
@@ -746,12 +747,21 @@ public class SwingUtils {
           lifo.addLast(child);
         }
       }
+      for (Component c : lifo) {
+        if (c instanceof IExtraChildren) {
+          lifo.addAll(((IExtraChildren)c).getExtraChildComponents());
+        }
+      }
+
       while (!lifo.isEmpty()) {
         Component comp = lifo.removeLast();
         callback.accept(comp);
         if (comp instanceof Container) {
           for (Component child : ((Container) comp).getComponents()) {
             lifo.addLast(child);
+            if (child instanceof IExtraChildren) {
+              lifo.addAll(((IExtraChildren)child).getExtraChildComponents());
+            }
           }
         }
       }
@@ -1071,6 +1081,10 @@ public class SwingUtils {
    */
   public static void showErrorDialogWithStacktrace(Throwable e, Component parent) {
     showErrorDialogWithStacktrace(e, parent, true);
+  }
+
+  public static String replaceNewlinesWithHtmlLineBreaks(String s) {
+    return s == null ? "" : reNewline.matcher(s).replaceAll("<br/>");
   }
 
   public static String makeHtml(String html) {

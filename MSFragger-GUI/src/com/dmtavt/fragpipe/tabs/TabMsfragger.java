@@ -40,6 +40,7 @@ import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.MessageValidityMassCalibration;
 import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
+import com.dmtavt.fragpipe.messages.NoteConfigSearchEngine;
 import com.dmtavt.fragpipe.params.Props.Prop;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tools.enums.CleavageType;
@@ -137,6 +138,11 @@ import org.slf4j.LoggerFactory;
 public class TabMsfragger extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
   private final static MigUtils mu = MigUtils.get();
+  /**
+   * this var is updated when a signal is received about SearchEngine change, JCheckBox doesn't always update
+   * when the tab is not visible
+   */
+  private boolean isRunBackupVar = true;
   private AtomicBoolean hasBeenShown = new AtomicBoolean(false);
   public static final String PROP_FILECHOOSER_LAST_PATH = "msfragger.filechooser.path";
   public static final String CACHE_FORM = "msfragger-form" + ThisAppProps.TEMP_FILE_EXT;
@@ -1625,6 +1631,16 @@ public class TabMsfragger extends JPanelBase {
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigSearchEngine m) {
+    final boolean isRun = m.type == NoteConfigSearchEngine.Type.MsFragger;
+    log.debug("Setting Fragger isRun: {}", isRun);
+    checkRun.setSelected(isRun);
+    isRunBackupVar = isRun;
+    updateEnabledStatus(this, isRun && m.isValid());
+  }
+
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigMsfragger m) {
     updateEnabledStatus(this, m.isValid());
   }
@@ -1659,7 +1675,7 @@ public class TabMsfragger extends JPanelBase {
   }
 
   public boolean isRun() {
-    return SwingUtils.isEnabledAndChecked(checkRun);
+    return SwingUtils.isEnabledAndChecked(checkRun) && isRunBackupVar;
   }
 
   public boolean isWriteCalMgf() {

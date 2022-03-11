@@ -433,22 +433,22 @@ public class UmpirePanel extends JPanelBase {
       Component component = map.get(PREFIX + paramName);
       if (component != null) {
         String strVal = SwingUtils.getStrVal(component);
-        params.getProps().setProperty(paramName, strVal);
+        params.getPropertiesContent().setProperty(paramName, strVal);
       }
     }
 
     TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
-    params.getProps().setProperty(PROP_Thread, String.valueOf(tabWorkflow.getThreads()));
+    params.getPropertiesContent().setProperty(PROP_Thread, String.valueOf(tabWorkflow.getThreads()));
 
     return params;
   }
 
   public void fillFrom(UmpireParams params) {
     Map<String, Component> map = SwingUtils.mapComponentsByName(this, true);
-    for (String name : params.getProps().stringPropertyNames()) {
+    for (String name : params.getPropertiesContent().stringPropertyNames()) {
       Component component = map.get(PREFIX + name);
       if (component != null) {
-        String val = params.getProps().getProperty(name);
+        String val = params.getPropertiesContent().getProperty(name);
         SwingUtils.setStrVal(component, val);
       }
     }

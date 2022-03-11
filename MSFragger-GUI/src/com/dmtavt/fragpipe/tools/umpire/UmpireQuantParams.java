@@ -75,7 +75,7 @@ public class UmpireQuantParams implements PropertyFileContent {
     
     
     @Override
-    public Properties getProps() {
+    public Properties getPropertiesContent() {
         return props;
     }
 

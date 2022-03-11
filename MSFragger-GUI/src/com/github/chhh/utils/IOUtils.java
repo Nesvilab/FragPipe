@@ -18,6 +18,7 @@ package com.github.chhh.utils;
 
 import com.github.chhh.utils.okio.SourceMarker;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
@@ -26,15 +27,23 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Reader;
 import java.io.Serializable;
+import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
+
 import okio.Buffer;
 import okio.BufferedSource;
 import okio.ByteString;
@@ -52,6 +61,29 @@ public class IOUtils {
   private static final Logger log = LoggerFactory.getLogger(IOUtils.class);
 
   private IOUtils() {
+  }
+
+  public static Path getResource(Class<?> clazz, String resourceLocation, String resourceName)
+          throws Exception {
+    ClassLoader cl = clazz.getClassLoader();
+    final URI uri = Objects.requireNonNull(cl.getResource(resourceLocation)).toURI();
+    final Path path = Paths.get(uri).toAbsolutePath();
+    return Paths.get(path.toString(), resourceName).toAbsolutePath();
+  }
+
+  public static String readPartOf(Reader reader, long from, int len) throws IOException {
+    char[] buf = new char[len];
+    CharBuffer cbuf = CharBuffer.wrap(buf);
+    reader.skip(from);
+    reader.read(cbuf);
+    cbuf.flip();
+    return cbuf.toString();
+  }
+
+  public static String readPartOfFile(Path path, long from, int len) throws IOException {
+    try (BufferedReader br = Files.newBufferedReader(path)) {
+      return readPartOf(br, from, len);
+    }
   }
 
   /**
@@ -258,7 +290,21 @@ public class IOUtils {
     }
   }
 
-  public static class Tracker {
+    /**
+     * Creates or rewrites a file.
+     */
+    public static void updateFileContent(Path path, List<String> newContent) throws IOException {
+        final Path writeTo = path;
+        try (BufferedWriter f = Files.newBufferedWriter(writeTo, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            for (String s : newContent) {
+                f.write(s);
+                f.write("\n");
+            }
+            f.flush();
+        }
+    }
+
+    public static class Tracker {
 
     public byte[] seqLo;
     public byte[] seqMi;
@@ -282,16 +328,19 @@ public class IOUtils {
       this.bytes = bytes;
     }
     boolean extendMatch(byte b) {
-      if (b == bytes[pos]) {
-        pos += 1;
-        if (pos == bytes.length) {
-          pos = 0;
-          return true;
-        }
-      } else {
+      if (b != bytes[pos]) {
         pos = 0;
+        return false;
+      }
+      pos += 1;
+      if (pos == bytes.length) {
+        pos = 0;
+        return true;
       }
       return false;
+    }
+    public int size() {
+      return bytes.length;
     }
   }
 
@@ -340,6 +389,63 @@ public class IOUtils {
       if (!needleLo1.extendMatch(b)) {
         continue;
       }
+      locs.add(total - needleLo1.bytes.length);
+      buf.write(needleLo1.bytes);
+      while (true) {
+        try {
+          b = source.readByte();
+          bb[0] = b;
+          buf.write(bb);
+        } catch (EOFException e) {
+          break;
+        }
+        total += 1;
+        if (needleHi.extendMatch(b)) {
+          locs.add(total - needleLo2.bytes.length);
+          buf.write(needleLo2.bytes);
+          break;
+        }
+      }
+    }
+
+    for (int i = 0; i < locs.size(); i += 2) {
+      System.out.printf("loc: %d - %d\n", locs.get(i), locs.get(i+1));
+    }
+
+    log.debug("Done reading");
+  }
+
+  public static void tokenize3(InputStream is, java.lang.String start, java.lang.String end)
+          throws IOException {
+    Tracker t = new Tracker();
+    t.seqLo = start.getBytes(StandardCharsets.UTF_8);
+    t.seqHi = end.getBytes(StandardCharsets.UTF_8);
+
+    SourceMarker marker = new SourceMarker(Okio.source(is));
+    BufferedSource source = marker.source();
+
+    Buffer buf = new Buffer();
+
+    long total = 0;
+    byte b;
+    byte[] bb = new byte[1];
+    ArrayList<Long> locs = new ArrayList<>();
+    Needle needleLo1 = new Needle(t.seqLo);
+    Needle needleLo2 = new Needle(t.seqLo);
+    Needle needleHi = new Needle(t.seqHi);
+    while (true) {
+      try {
+        b = source.readByte();
+      } catch (EOFException e) {
+        break;
+      }
+      total += 1;
+      if (!needleLo1.extendMatch(b)) {
+        continue;
+      }
+      // got start position to match
+
+
       locs.add(total - needleLo1.bytes.length);
       buf.write(needleLo1.bytes);
       while (true) {

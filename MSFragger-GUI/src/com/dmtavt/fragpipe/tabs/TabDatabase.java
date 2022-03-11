@@ -45,6 +45,8 @@ import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
@@ -234,12 +236,19 @@ public class TabDatabase extends JPanelWithEnablement {
 
   private void validateFasta(String path) {
     try {
+      if (path != null && !Files.exists(Paths.get(path))) {
+        log.debug("Got bad FASTA path: {}", path);
+        Bus.postSticky(new NoteConfigDatabase());
+        return;
+      }
       Path p = PathUtils.existing(path, true);
       FastaContent fasta = FastaUtils.readFasta(p);
       final String tag = getDecoyTag();
       int decoysCnt = (int)FastaUtils.getDecoysCnt(fasta.ordered.get(0), tag);
       int protsTotal = FastaUtils.getProtsTotal(fasta.ordered.get(0));
       Bus.postSticky(new NoteConfigDatabase(Paths.get(path), protsTotal, decoysCnt, true));
+    } catch (AccessDeniedException e) {
+      log.warn("No access to FASTA file path: {}", path);
     } catch (Exception e) {
       log.debug("Got bad FASTA path: {}", path);
       Bus.postSticky(new NoteConfigDatabase());

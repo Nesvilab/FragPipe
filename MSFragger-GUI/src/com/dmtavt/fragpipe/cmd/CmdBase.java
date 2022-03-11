@@ -72,6 +72,15 @@ public abstract class CmdBase {
     isConfigured = false;
   }
 
+  /**
+   * When the command is not selected to run by user ("isRun" checkbox)
+   * it might still be forced to run because of dependencies in the execution graph.
+   * This flag controls the notification in the console about such events.
+   */
+  public boolean warnIfRunAsDependencyWhileSwitchedOff() {
+    return true;
+  }
+
   public String getTitle() {
     return StringUtils.isBlank(title) ? getCmdName() : title;
   }

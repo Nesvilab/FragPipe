@@ -30,6 +30,7 @@ import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageBalloon;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
+import com.dmtavt.fragpipe.messages.MessageCometNewBin;
 import com.dmtavt.fragpipe.messages.MessageFindSystemPython;
 import com.dmtavt.fragpipe.messages.MessageInstallEasyPQP;
 import com.dmtavt.fragpipe.messages.MessageIonQuantNewBin;
@@ -41,14 +42,17 @@ import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
 import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
+import com.dmtavt.fragpipe.messages.NoteConfigComet;
 import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
+import com.dmtavt.fragpipe.messages.NoteConfigSearchEngine;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
 import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.dmtavt.fragpipe.tools.comet.Comet;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerVersionFetcherServer;
@@ -71,21 +75,32 @@ import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
+import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
+import net.miginfocom.layout.CC;
+import net.miginfocom.layout.LC;
+import net.miginfocom.swing.MigLayout;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.jooq.lambda.Seq;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import rx.Observable;
+import rx.schedulers.Schedulers;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
@@ -97,6 +112,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -124,8 +140,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.schedulers.Schedulers;
+import rx.schedulers.Schedulers;
 
-public class TabConfig extends JPanelWithEnablement {
+public class TabConfig extends JPanelWithEnablement implements IExtraChildren {
 
   private static final Logger log = LoggerFactory.getLogger(TabConfig.class);
   private static final DefaultArtifactVersion msfraggerMinVersion = new DefaultArtifactVersion("3.5");
@@ -134,9 +151,14 @@ public class TabConfig extends JPanelWithEnablement {
   private static final MigUtils mu = MigUtils.get();
   private static final Pattern emailPattern = Pattern.compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
 
+  public static final String TAB_NAME = "Config";
+
+  private UiCombo uiComboEngines;
   private UiText uiTextBinFragger;
+  private UiText uiTextBinComet;
   private UiText uiTextBinIonQuant;
   private HtmlStyledJEditorPane epFraggerVer;
+  private HtmlStyledJEditorPane epCometVer;
   private HtmlStyledJEditorPane epIonQuantVer;
   private UiText uiTextBinPhi;
   private HtmlStyledJEditorPane epPhiVer;
@@ -149,6 +171,7 @@ public class TabConfig extends JPanelWithEnablement {
   private Container epSpeclibgenErrParent;
   private JButton btnAbout;
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
+  public static final String TIP_COMET_BIN = "tip.comet.bin";
   public static final String TIP_IONQUANT_BIN = "tip.ionquant.bin";
   public static final String TIP_PHILOSOPHER_BIN = "tip.pholosopher.bin";
   public static final String TIP_PYTHON_BIN = "tip.python.bin";
@@ -156,6 +179,8 @@ public class TabConfig extends JPanelWithEnablement {
   private static final String TIP_SPECLIBGEN = "tip.speclibgen";
   private static final String TIP_FRAGPIPE_UPDATE = "tip.fragpipe.update";
   public static final String TAB_PREFIX = "fragpipe-config.";
+  private String[] searchEngineNames = new String[]{"MSFragger", "Comet"};
+  private HashMap<String, JComponent> mapNameToPanel;
 
   // cache user info to save some typing for the users
   public static String userName = null;
@@ -261,30 +286,84 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private JPanel createPanelFragger() {
-    JPanel p = newMigPanel();
-    p.setBorder(new TitledBorder("MSFragger"));
+    final JPanel pOuter = newMigPanel();
+    pOuter.setBorder(new TitledBorder("Search Engine"));
 
-    final String binMsfraggerTip = "Select path to MSFragger.jar";
-    uiTextBinFragger = UiUtils.uiTextBuilder().create();
-    uiTextBinFragger.addFocusListener(new ContentChangedFocusAdapter(uiTextBinFragger, (s, s2) -> {
-      Bus.post(new MessageMsfraggerNewBin(s2));
-    }));
-    FormEntry feBinMsfragger = fe(uiTextBinFragger, "bin-msfragger", TAB_PREFIX).tooltip(binMsfraggerTip).create();
-    p.add(feBinMsfragger.comp, ccL().split().growX());
+    uiComboEngines = UiUtils.createUiCombo(searchEngineNames);
+    final FormEntry feComboEngines = fe(uiComboEngines, "selector-search-engine", TAB_PREFIX)
+            .tooltip("Select which search engine to use").create();
+    pOuter.add(feComboEngines.comp, ccL().wrap());
 
-    JButton btnBrowse = feBinMsfragger.browseButton("Browse", binMsfraggerTip, this::createFraggerFileChooser, paths -> {
-      paths.stream().findFirst().ifPresent(jar -> Bus.post(new MessageMsfraggerNewBin(jar.toString())));
+    final JPanel pFragger = newMigPanel();
+    { // Fragger
+      final String binMsfraggerTip = "Select path to MSFragger.jar";
+      uiTextBinFragger = UiUtils.uiTextBuilder().create();
+      uiTextBinFragger.addFocusListener(new ContentChangedFocusAdapter(uiTextBinFragger, (s, s2) -> {
+        Bus.post(new MessageMsfraggerNewBin(s2));
+      }));
+      FormEntry feBinMsfragger = fe(uiTextBinFragger, "bin-msfragger", TAB_PREFIX).tooltip(binMsfraggerTip).create();
+      JButton btnBrowse = feBinMsfragger.browseButton("Browse", binMsfraggerTip, this::createFraggerFileChooser, paths -> {
+        paths.stream().findFirst().ifPresent(jar -> Bus.post(new MessageMsfraggerNewBin(jar.toString())));
+      });
+      JButton btnUpdate = UiUtils.createButton("Download / Update", this::actionMsfraggerUpdate);
+      epFraggerVer = new HtmlStyledJEditorPane("MSFragger version: N/A");
+      JEditorPane epCite = SwingUtils.createClickableHtml(createFraggerCitationBody());
+
+      pFragger.add(feBinMsfragger.comp, ccL().split().growX());
+      pFragger.add(btnBrowse, ccL());
+      pFragger.add(btnUpdate, ccL().wrap());
+      pFragger.add(Fragpipe.renameNoCache(epFraggerVer, "msfragger.version-info", TAB_PREFIX), ccL().split());
+      pFragger.add(epCite, ccL().spanX().growX().wrap());
+      pOuter.add(pFragger, ccL().spanX().growX().wrap());
+    }
+
+    final JPanel pComet = newMigPanel();
+    { // Comet
+      uiTextBinComet = UiUtils.uiTextBuilder().cols(30).create();
+      uiTextBinComet.addFocusListener(new ContentChangedFocusAdapter(uiTextBinComet, (s, s2) -> {
+        Bus.post(new MessageCometNewBin(s2));
+      }));
+      final String binCometTip = "Select path to Comet binary";
+      FormEntry feBinComet = fe(uiTextBinComet, "bin-comet", TAB_PREFIX).tooltip(binCometTip)
+              .label("Path to Comet binary")
+              .tooltip("<html>Location of Comet search engine binary for your OS.\n" +
+                      "E.g., on Windows the path to 'comet.win64.exe' file that you downloaded.\n")
+              .create();
+      JButton btnBrowse = feBinComet.browseButton("Browse", binCometTip, this::createCometFilechooser, paths -> {
+        paths.stream().findFirst().ifPresent(path -> Bus.post(new MessageCometNewBin(path.toString())));
+      });
+      JButton btnDownload = UiUtils.createButton("Download Comet", this::actionDownloadComet);
+      epCometVer = new HtmlStyledJEditorPane("Comet version: N/A");
+      HtmlStyledJEditorPane epCite = SwingUtils.createClickableHtml(createCometCitationBody());
+
+      mu.add(pComet, feBinComet.label(), false).split().spanX();
+      mu.add(pComet, feBinComet.comp).growX();
+      mu.add(pComet, btnBrowse);
+      mu.add(pComet, btnDownload).wrap();
+      mu.add(pComet, Fragpipe.renameNoCache(epCometVer, "comet.version-info", TAB_PREFIX), ccL())
+              .spanX().growX().wrap();
+      pComet.add(epCite, ccL().spanX().growX().wrap());
+      pOuter.add(pComet, ccL().spanX().growX().wrap());
+    }
+
+    mapNameToPanel = new HashMap<>();
+    mapNameToPanel.put(searchEngineNames[0], pFragger);
+    mapNameToPanel.put(searchEngineNames[1], pComet);
+    uiComboEngines.addItemListener(e -> {
+      final String name = (String) uiComboEngines.getSelectedItem();
+      JComponent curPanel = mapNameToPanel.get(name);
+      if (curPanel == null)
+        return;
+      mapNameToPanel.values().forEach(pOuter::remove);
+      pOuter.add(curPanel, ccL().spanX().growX().wrap());
+      pOuter.revalidate();
+      Bus.postSticky(new NoteConfigSearchEngine(NoteConfigSearchEngine.fromString(name)));
     });
-    p.add(btnBrowse, ccL());
-    JButton btnUpdate = UiUtils.createButton("Download / Update", this::actionMsfraggerUpdate);
+    // force an update when the UI loads first
+    uiComboEngines.setSelectedItem(null);
+    uiComboEngines.setSelectedItem(searchEngineNames[0]);
 
-    epFraggerVer = new HtmlStyledJEditorPane("MSFragger version: N/A");
-    p.add(btnUpdate, ccL().wrap());
-    p.add(Fragpipe.renameNoCache(epFraggerVer, "msfragger.version-info", TAB_PREFIX), ccL().split());
-    
-    JEditorPane ep = SwingUtils.createClickableHtml(createFraggerCitationBody());
-    p.add(ep, ccL().spanX().growX().wrap());
-    return p;
+    return pOuter;
   }
 
   private JPanel createPanelIonQuant() {
@@ -520,6 +599,19 @@ public class TabConfig extends JPanelWithEnablement {
     return fc;
   }
 
+  private JFileChooser createCometFilechooser() {
+    final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Executables", "exe");
+    JFileChooser fc = FileChooserUtils.create("Select Comet executable", "Select",
+            false, FcMode.FILES_ONLY, true,
+            fileNameExtensionFilter);
+    fc.setFileFilter(fileNameExtensionFilter);
+    FileChooserUtils.setPath(fc, Stream.of(
+            uiTextBinComet.getNonGhostText(),
+            Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN),
+            FragpipeLocations.get().getDirFragpipeRoot().toString()));
+    return fc;
+  }
+
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessagePhilosopherNewBin m) {
     if (StringUtils.isBlank(m.path)) {
@@ -599,6 +691,52 @@ public class TabConfig extends JPanelWithEnablement {
       }
     } catch (Exception e) {
       Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", e));
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageCometNewBin m) {
+    if (StringUtils.isBlank(m.binPath)) {
+      return;
+    }
+    try {
+      String validPath = PathUtils.testBinaryPath(m.binPath);
+      if (validPath == null) {
+        return;
+      }
+      final Path p = Paths.get(m.binPath);
+      Comet.CometVer ver = Comet.readVersion(p);
+      if (ver.isValid) {
+        Bus.postSticky(new NoteConfigComet(m.binPath, ver.version, null));
+      } else {
+        Bus.postSticky(new NoteConfigComet(m.binPath, "N/A", null));
+      }
+    } catch (Exception e) {
+      Bus.postSticky(new NoteConfigComet(m.binPath, "N/A", e));
+    }
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigComet m) {
+    log.debug("Got {}", m);
+    uiTextBinComet.setText(m.bin);
+
+    Path existing = PathUtils.existing(m.bin);
+    if (existing != null) {
+      Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
+      if (existing.toString().contains(" ")) {
+        SwingUtils.showWarningDialog(this, "There are spaces in Comet path.\n"
+                + "Depending on your OS/Java/Input files some tools that FragPipe\n"
+                + "runs might crash.", "Spaces in path");
+      }
+    }
+
+    if (m.exception != null) {
+      epCometVer.setText("Comet version: N/A");
+      showConfigError(m.exception, TIP_COMET_BIN, uiTextBinComet);
+    } else {
+      epCometVer.setText("Comet version: " + m.ver);
+      Notifications.tryClose(TIP_COMET_BIN);
     }
   }
 
@@ -747,6 +885,10 @@ public class TabConfig extends JPanelWithEnablement {
       String binFragger = uiTextBinFragger.getNonGhostText();
       if (StringUtils.isNotBlank(binFragger)) {
         Bus.post(new MessageMsfraggerNewBin(binFragger));
+      }
+      String binComet = uiTextBinComet.getNonGhostText();
+      if (StringUtils.isNotBlank(binComet)) {
+        Bus.post(new MessageCometNewBin(binComet));
       }
       String binIonQuant = uiTextBinIonQuant.getNonGhostText();
       if (StringUtils.isNotBlank(binIonQuant)) {
@@ -974,6 +1116,18 @@ public class TabConfig extends JPanelWithEnablement {
     return sb.toString();
   }
 
+  private static String createCometCitationBody() {
+    String s = SwingUtils.replaceNewlinesWithHtmlLineBreaks(
+            "&emsp;More info and docs: <a href='https://uwpr.github.io/Comet/'>Comet homepage</a>\n" +
+                    "\n" +
+                    "Cite:\n" +
+                    "<a href='https://pubs.acs.org/doi/abs/10.1021/acs.jproteome.9b00860'>Full-Featured, Real-Time Database Searching Platform Enables Fast and Accurate Multiplexed Quantitative Proteomics</a>.\n" +
+                    "Schweppe DK, Eng JK, Yu Q, Bailey D, Rad R, Navarrete-Perea J, Huttlin EL, Erickson BK, Paulo JA, Gygi SP.\n" +
+                    "J Proteome Res. 2020 May 1;19(5):2026-2034. doi: 10.1021/acs.jproteome.9b00860\n");
+
+    return s;
+  }
+
   private static String createIonQuantCitationBody() {
     final StringBuilder sb = new StringBuilder();
     sb.append("&emsp;More info and docs: <a href=\"").append("https://ionquant.nesvilab.org/").append("\">IonQuant</a>");
@@ -1182,6 +1336,15 @@ public class TabConfig extends JPanelWithEnablement {
     return sb.toString();
   }
 
+  private void actionDownloadComet(ActionEvent e) {
+    try {
+      Desktop.getDesktop().browse(URI.create("https://github.com/UWPR/Comet/releases/latest"));
+    } catch (IOException ex) {
+      log.error("Error opening browser to download Comet", ex);
+      SwingUtils.showErrorDialogWithStacktrace(ex, null);
+    }
+  }
+
   private void actionPhilosopherDownload(ActionEvent e) {
     int choice = SwingUtils.showChoiceDialog(TabConfig.this, "Choose download type", "Do you want to download automatically?\nIf you choose \"Manually\", you will be redirected to the download website.", new String[]{"Automatically", "Manually", "Cancel"}, 0);
     switch (choice) {
@@ -1199,5 +1362,10 @@ public class TabConfig extends JPanelWithEnablement {
         Philosopher.downloadPhilosopherManually();
         break;
     }
+  }
+
+  @Override
+  public List<JComponent> getExtraChildComponents() {
+    return new ArrayList<>(mapNameToPanel.values());
   }
 }

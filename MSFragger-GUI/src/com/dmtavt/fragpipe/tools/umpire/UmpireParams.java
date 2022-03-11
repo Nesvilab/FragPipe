@@ -155,7 +155,7 @@ public class UmpireParams implements PropertyFileContent {
     }
 
     @Override
-    public Properties getProps() {
+    public Properties getPropertiesContent() {
         return props;
     }
 

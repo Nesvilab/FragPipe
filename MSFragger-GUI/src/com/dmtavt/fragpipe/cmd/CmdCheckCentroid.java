@@ -42,6 +42,11 @@ public class CmdCheckCentroid extends CmdBase {
     return NAME;
   }
 
+  @Override
+  public boolean warnIfRunAsDependencyWhileSwitchedOff() {
+    return false;
+  }
+
   public boolean configure(Path jarFragpipe, int ramGb, int nThreads, List<InputLcmsFile> lcmsFiles) {
     initPreConfig();
 

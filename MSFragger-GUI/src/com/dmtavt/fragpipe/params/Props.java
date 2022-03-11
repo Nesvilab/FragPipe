@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.github.chhh.utils.IOUtils;
@@ -61,6 +62,16 @@ public class Props {
         map.putAll(other.map);
         propOrdering.addAll(other.propOrdering);
         comments.putAll(other.comments);
+    }
+
+    public Properties asProperties() {
+        Properties p = new Properties();
+        for (Map.Entry<String, Prop> kv : map.entrySet()) {
+            if (kv.getValue().isEnabled) {
+                p.setProperty(kv.getValue().name, kv.getValue().value);
+            }
+        }
+        return p;
     }
 
     public Map<String, Prop> getMap() {

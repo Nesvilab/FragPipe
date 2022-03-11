@@ -352,7 +352,7 @@ public final class PropertiesUtils {
         try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true)) {
 
             Map<Integer, PropLine> mapLines = pfc.getMapLines();
-            Properties props = pfc.getProps();
+            Properties props = pfc.getPropertiesContent();
             HashSet<String> propNamesWritten = new HashSet<String>();
             for (Map.Entry<Integer, PropLine> entry : mapLines.entrySet()) {
                 int lineNum = entry.getKey();

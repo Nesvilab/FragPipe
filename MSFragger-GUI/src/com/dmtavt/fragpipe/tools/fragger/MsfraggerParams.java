@@ -225,6 +225,7 @@ public class MsfraggerParams extends AbstractParams {
     };
 
     public static final Set<String> PROP_NAMES_SET;
+
     static {
         PROP_NAMES_SET = new HashSet<>(Arrays.asList(PROP_NAMES));
     }

@@ -339,7 +339,6 @@ public class PathUtils {
      * @return  Null if no working combo has been found.
      */
     public static String testBinaryPath(String program, String... paths) {
-        
         // look in provided paths
         for (String path : paths) {
             if (StringUtils.isNullOrWhitespace(path))
@@ -369,6 +368,14 @@ public class PathUtils {
             
         }
         return null;
+    }
+
+    public static String removeExtension(String path, int maxConcatenatedExtensions, int maxExtLength) {
+        Pattern reExt = Pattern.compile(String.format("\\.[a-zA-Z][^\\s\\\\/\\.]{0,%d}$", maxExtLength - 1));
+        while (maxConcatenatedExtensions-- > 0) {
+            path = reExt.matcher(path).replaceFirst("");
+        }
+        return path;
     }
 
     public static void traverseDirectoriesAcceptingFiles(File start, Predicate<File> predicate, List<Path> accepted, boolean digAfterAccepting) {

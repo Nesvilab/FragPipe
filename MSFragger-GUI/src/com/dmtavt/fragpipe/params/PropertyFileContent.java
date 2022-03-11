@@ -39,7 +39,7 @@ public interface PropertyFileContent {
 
     Map<String, Integer> getMapProps();
 
-    Properties getProps();
+    Properties getPropertiesContent();
 
 
     /**
@@ -52,7 +52,7 @@ public interface PropertyFileContent {
         try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true)) {
 
             Map<Integer, PropLine> mapLines = this.getMapLines();
-            Properties props = this.getProps();
+            Properties props = this.getPropertiesContent();
             HashSet<String> propNamesWritten = new HashSet<>();
             for (Map.Entry<Integer, PropLine> entry : mapLines.entrySet()) {
                 PropLine propLine = entry.getValue();

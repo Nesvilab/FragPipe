@@ -25,6 +25,7 @@ import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.cmd.CmdBase;
 import com.dmtavt.fragpipe.cmd.CmdCheckCentroid;
+import com.dmtavt.fragpipe.cmd.CmdComet;
 import com.dmtavt.fragpipe.cmd.CmdCrystalc;
 import com.dmtavt.fragpipe.cmd.CmdDiann;
 import com.dmtavt.fragpipe.cmd.CmdFreequant;
@@ -61,20 +62,24 @@ import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageStartProcesses;
+import com.dmtavt.fragpipe.messages.NoteConfigComet;
 import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
+import com.dmtavt.fragpipe.messages.NoteConfigSearchEngine;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.process.ProcessDescription;
 import com.dmtavt.fragpipe.process.ProcessDescription.Builder;
 import com.dmtavt.fragpipe.process.RunnableDescription;
+import com.dmtavt.fragpipe.tabs.TabComet;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tabs.TabRun;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
+import com.dmtavt.fragpipe.tools.comet.CometPanel;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
 import com.dmtavt.fragpipe.tools.diann.DiannPanel;
@@ -99,6 +104,9 @@ import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.TimeUtils;
 import com.github.chhh.utils.UsageTrigger;
+
+import java.awt.*;
+import java.awt.event.ActionListener;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -123,13 +131,19 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
+import javax.swing.*;
+
+import com.github.chhh.utils.swing.UiUtils;
+import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
+import com.mxgraph.model.mxCell;
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.swing.util.mxMorphing;
+import com.mxgraph.util.mxEvent;
+import com.mxgraph.view.mxGraph;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jgrapht.Graph;
+import org.jgrapht.ext.JGraphXAdapter2;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.ClosestFirstIterator;
 import org.jgrapht.traverse.TopologicalOrderIterator;
@@ -613,24 +627,34 @@ public class FragpipeRun {
     return lcmsFilesAll;
   }
 
+  private static void showError(JComponent parent, String message) {
+    if (Fragpipe.headless) {
+      log.error(message);
+    } else {
+      JOptionPane.showMessageDialog(parent, message, "Warning", JOptionPane.WARNING_MESSAGE);
+    }
+  }
+
   private static String checkFasta(JComponent parent, NoteConfigDatabase configDb) {
     if (configDb == null || configDb.path == null || StringUtils.isBlank(configDb.path.toString())) {
-      if (Fragpipe.headless) {
-        log.error("FASTA file path is empty or the file is corrupted");
-      } else {
-        JOptionPane.showMessageDialog(parent, "FASTA file path is empty or the file is corrupted", "Warning", JOptionPane.WARNING_MESSAGE);
-      }
+      showError(parent, "FASTA file path is empty or the file is corrupted");
       return null;
     }
     final Path existing = PathUtils.existing(configDb.path.toString());
     if (existing == null) {
-      if (Fragpipe.headless) {
-        log.error(String.format("Could not find fasta file at: %s", configDb.path));
-      } else {
-        JOptionPane.showMessageDialog(parent, String.format("Could not find fasta file (Database) at:\n%s", configDb.path), "Errors", JOptionPane.ERROR_MESSAGE);
-      }
+      showError(parent, String.format("Could not find fasta file (Database) at:\n%s", configDb.path));
       return null;
     }
+//    NoteConfigDatabase confDb = Fragpipe.getStickyStrict(NoteConfigDatabase.class);
+//    NoteConfigSearchEngine confSe = Fragpipe.getStickyStrict(NoteConfigSearchEngine.class);
+//    if (confSe.type == NoteConfigSearchEngine.Type.Comet) {
+//      if (confDb.decoysCnt > 0) {
+//        showError(parent, "For Comet to write output files properly let it add decoys\n" +
+//                "to the DB itself, instead of providing your own.\n" +
+//                "If you haven't already, we have set `decoy_search=1` in comet.params for you.");
+//        return null;
+//      }
+//    }
     return existing.toString();
   }
 
@@ -793,7 +817,7 @@ public class FragpipeRun {
     final int ramGb = tabWorkflow.getRamGb() > 0 ? tabWorkflow.getRamGb() : OsUtils.getDefaultXmx();
     final int threads = tabWorkflow.getThreads();
 
-    CmdCheckCentroid cmdCheckCentroid = new CmdCheckCentroid(true, wd);
+    CmdCheckCentroid cmdCheckCentroid = new CmdCheckCentroid(false, wd);
     addConfig.accept(cmdCheckCentroid, () -> {
       if (cmdCheckCentroid.isRun()) {
         return cmdCheckCentroid.configure(jarPath, ramGb, threads, sharedLcmsFiles);
@@ -828,16 +852,22 @@ public class FragpipeRun {
 
     // run MsFragger
     final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
+    final NoteConfigSearchEngine searchEngine = Fragpipe.getStickyStrict(NoteConfigSearchEngine.class);
     final String decoyTag = tabDatabase.getDecoyTag();
     MsfraggerParams p = tabMsf.getParams();
-    final CmdMsfragger cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputFormat());
+    final boolean isRunFragger = tabMsf.isRun();
+    final CmdMsfragger cmdMsfragger = new CmdMsfragger(isRunFragger, wd, p.getOutputFormat());
 
     final Map<InputLcmsFile, List<Path>> sharedPepxmlFilesFromMsfragger = new TreeMap<>();
     final TreeMap<InputLcmsFile, List<Path>> sharedPepxmlFiles = new TreeMap<>();
 
+
+
     addConfig.accept(cmdMsfragger, () -> {
       if (cmdMsfragger.isRun()) {
-        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDda(), tabWorkflow.hasDia(), tabWorkflow.hasGpfDia(), tabWorkflow.hasDiaLib(), cmdUmpire.isRun())) {
+        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(),
+                tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag,
+                tabWorkflow.hasDda(), tabWorkflow.hasDia(), tabWorkflow.hasGpfDia(), tabWorkflow.hasDiaLib(), cmdUmpire.isRun())) {
           return false;
         }
 
@@ -860,13 +890,51 @@ public class FragpipeRun {
           }
         }
       }
+      if (searchEngine.type == NoteConfigSearchEngine.Type.MsFragger) {
+        Map<InputLcmsFile, List<Path>> outputs = cmdMsfragger.outputs(sharedLcmsFiles, tabMsf.getOutputFileExt(), wd);
+        MapUtils.refill(sharedPepxmlFilesFromMsfragger, outputs);
+        MapUtils.refill(sharedPepxmlFiles, outputs);
+      }
+      return true;
+    });
 
-      Map<InputLcmsFile, List<Path>> outputs = cmdMsfragger.outputs(sharedLcmsFiles, tabMsf.getOutputFileExt(), wd);
-      MapUtils.refill(sharedPepxmlFilesFromMsfragger, outputs);
-      MapUtils.refill(sharedPepxmlFiles, outputs);
+
+    // run Comet
+    final NoteConfigComet configComet;
+    try {
+      configComet = Fragpipe.getSticky(NoteConfigComet.class);
+    } catch (NoStickyException e) {
+      SwingUtils.showErrorDialog(parent, "Looks like Comet was not configured.\n" +
+              "Comet is required for this run.\n." +
+              "Please configure it on the first tab",
+              "No Comet config");
+      return false;
+    }
+    final UsageTrigger binComet = new UsageTrigger(configComet.bin, "Comet");
+
+    final CometPanel cometPanel = Fragpipe.getStickyStrict(CometPanel.class);
+    final CmdComet cmdComet = new CmdComet(cometPanel.isRun(), wd);
+    final MsfraggerParams msfraggerParamsForCometConfigure = new MsfraggerParams();
+    addConfig.accept(cmdComet, () -> {
+      if (cmdComet.isRun()) {
+        if (!cmdComet.configure(parent, isDryRun, jarPath, binComet, msfraggerParamsForCometConfigure,
+                fastaFile, cometPanel.getParamsFilePath(), ramGb, sharedLcmsFiles, decoyTag,
+                tabWorkflow.hasDda(), tabWorkflow.hasDia(), tabWorkflow.hasGpfDia(), tabWorkflow.hasDiaLib(),
+                cmdUmpire.isRun())) {
+          return false;
+        }
+      }
+
+      if (searchEngine.type == NoteConfigSearchEngine.Type.Comet) {
+        // TODO: this actually depends on the parameter file
+        Map<InputLcmsFile, List<Path>> outputs = cmdComet.outputs(sharedLcmsFiles, cmdComet.getOutputFileExt(), wd);
+        MapUtils.refill(sharedPepxmlFilesFromMsfragger, outputs);
+        MapUtils.refill(sharedPepxmlFiles, outputs);
+      }
 
       return true;
     });
+
 
     // run Crystalc
     CrystalcPanel crystalcPanel = Fragpipe.getStickyStrict(CrystalcPanel.class);
@@ -944,7 +1012,7 @@ public class FragpipeRun {
     addConfig.accept(cmdPercolator, () -> {
       if (cmdPercolator.isRun()) {
         final String percolatorCmd = percolatorPanel.getCmdOpts();
-        if (!cmdPercolator.configure(parent, jarPath, percolatorCmd, isCombinedPepxml_percolator, sharedPepxmlFilesBeforePeptideValidation, crystalcPanel.isRun(), percolatorPanel.getMinProb())) {
+        if (!cmdPercolator.configure(parent, jarPath, percolatorCmd, decoyTag, isCombinedPepxml_percolator, sharedPepxmlFilesBeforePeptideValidation, crystalcPanel.isRun(), percolatorPanel.getMinProb())) {
           return false;
         }
       }
@@ -1337,20 +1405,20 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdCheckCentroid, DIRECTION.IN, cmdStart);
     addToGraph(graphOrder, cmdUmpire, DIRECTION.IN, cmdCheckCentroid);
     addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdUmpire);
+    addToGraph(graphOrder, cmdComet, DIRECTION.IN, cmdCheckCentroid, cmdUmpire);
 
-    addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger);
-    addToGraph(graphOrder, cmdMSBooster, DIRECTION.IN, cmdMsfragger);
-    addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdCrystalc);
-    addToGraph(graphOrder, cmdPercolator, DIRECTION.IN, cmdMsfragger, cmdCrystalc, cmdMSBooster);
-    for (final CmdBase cmdPeptideValidation : new CmdBase[]{cmdPeptideProphet, cmdPercolator}) {
-      addToGraph(graphOrder, cmdPtmProphet, DIRECTION.IN, cmdPeptideValidation);
-      addToGraph(graphOrder, cmdProteinProphet, DIRECTION.IN, cmdPeptideValidation, cmdPtmProphet);
-    }
+    // validation
+    addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger, cmdComet);
+    addToGraph(graphOrder, cmdMSBooster, DIRECTION.IN, cmdMsfragger, cmdComet);
+    addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdComet, cmdCrystalc);
+    addToGraph(graphOrder, cmdPercolator, DIRECTION.IN, cmdMsfragger, cmdComet, cmdCrystalc, cmdMSBooster);
+    addToGraph(graphOrder, cmdPtmProphet, DIRECTION.IN, cmdPeptideProphet, cmdPercolator);
+    addToGraph(graphOrder, cmdProteinProphet, DIRECTION.IN, cmdPeptideProphet, cmdPercolator, cmdPtmProphet);
+    // reporting
     addToGraph(graphOrder, cmdPhilosopherDbAnnotate, DIRECTION.IN, cmdProteinProphet);
     addToGraph(graphOrder, cmdPhilosopherFilter, DIRECTION.IN, cmdPhilosopherDbAnnotate, cmdProteinProphet);
     addToGraph(graphOrder, cmdFreequant, DIRECTION.IN, cmdPhilosopherFilter);
-    for (final CmdBase cmdPeptideValidation : new CmdBase[]{cmdPeptideProphet, cmdPercolator})
-      addToGraph(graphOrder, cmdIprophet, DIRECTION.IN, cmdPhilosopherReport, cmdPeptideValidation);
+    addToGraph(graphOrder, cmdIprophet, DIRECTION.IN, cmdPhilosopherReport, cmdPeptideProphet, cmdPercolator);
     addToGraph(graphOrder, cmdPhilosopherAbacus, DIRECTION.IN, cmdPhilosopherReport, cmdIprophet, cmdProteinProphet);
     addToGraph(graphOrder, cmdTmtFreequant, DIRECTION.IN, cmdPhilosopherFilter);
     addToGraph(graphOrder, cmdTmtLabelQuant, DIRECTION.IN, cmdPhilosopherFilter, cmdTmtFreequant);
@@ -1363,6 +1431,9 @@ public class FragpipeRun {
 
     // compose graph of required dependencies
     final Graph<CmdBase, DefEdge> graphDeps = new DirectedAcyclicGraph<>(DefEdge.class);
+    addToGraph(graphDeps, cmdMsfragger, DIRECTION.OUT, cmdCheckCentroid);
+    addToGraph(graphDeps, cmdUmpire, DIRECTION.OUT, cmdCheckCentroid);
+    addToGraph(graphDeps, cmdComet, DIRECTION.OUT, cmdCheckCentroid);
     addToGraph(graphDeps, cmdPhilosopherFilter, DIRECTION.OUT, cmdPhilosopherDbAnnotate);
     addToGraph(graphDeps, cmdTmtFreequant, DIRECTION.OUT, cmdPhilosopherFilter, cmdPhilosopherReport);
     addToGraph(graphDeps, cmdTmtLabelQuant, DIRECTION.OUT, cmdPhilosopherFilter, cmdPhilosopherReport);
@@ -1389,7 +1460,7 @@ public class FragpipeRun {
       while (it.hasNext()) {
         CmdBase next = it.next();
         log.debug("Next traversal node: [{}]", next);
-        if (!next.isRun()) {
+        if (!next.isRun() && next.warnIfRunAsDependencyWhileSwitchedOff()) {
           log.warn(
               "Command [{}] is a required dependency of [{}]. Will be run despite being switched off.",
               next.getCmdName(), origin.getCmdName());
@@ -1459,92 +1530,90 @@ public class FragpipeRun {
 
 
     // all graphs are constructed
-//    if (Version.isDevBuild()) {
-//      // org.jgrapht.nio.graphml.GraphMLExporter
-//
-//      final JGraphXAdapter2<CmdBase, DefEdge> adapter = new JGraphXAdapter2<>(graphOrder);
-//
-//      mxGraph mxGraph = new mxGraph(adapter.getModel()) {
-//        @Override public String convertValueToString(Object cell) {
-////          log.info("convertValueToString called for type: {}", cell.getClass().getCanonicalName());
-//          if (cell instanceof mxCell) {
-//            Object value = ((mxCell) cell).getValue();
-//            if (value instanceof CmdBase) {
-//              CmdBase cmd = (CmdBase) value;
-//              String relWd = wd.relativize(cmd.getWd()).toString();
-//              //return StringUtils.isBlank(relWd) ? String.format("%s", value.toString()) : String.format("%s\n[%s]", value.toString(), relWd);
-//              return String.format("%s", cmd.getTitle());
-//            }
-////            log.info("Object cell mxCell getValue is type: {}", value.getClass().getCanonicalName());
-//          }
-//
-//          return super.convertValueToString(cell);
-//        }
-//
-//        /**
-//         * Returns an array of key, value pairs representing the cell style for the
-//         * given cell. If no string is defined in the model that specifies the style,
-//         * then the default style for the cell is returned or <EMPTY_ARRAY>, if not
-//         * style can be found.
-//         *
-//         * @param cell Cell whose style should be returned.
-//         * @return Returns the style of the cell.
-//         */
-//        @Override
-//        public Map<String, Object> getCellStyle(Object cell) {
-//          Map<String, Object> cellStyle = super.getCellStyle(cell);
-//          if (cell instanceof mxCell) {
-//            Object value = ((mxCell) cell).getValue();
-//            if (value instanceof CmdBase) {
-//              CmdBase cmd = (CmdBase) value;
-//              // example: fillColor=green
-//              cellStyle = new HashMap<>(cellStyle);
-//              String color = cmd.isRun() ? "#d5f7de" : "#f5e7d5";
-//              cellStyle.put("fillColor", color);
-//            }
-//          }
-//          return cellStyle;
-//        }
-//      };
-//      mxGraph.setAutoSizeCells(true);
-//
-//
-//      // Overrides method to create the editing value
-//      final mxGraphComponent graphComponent = new mxGraphComponent(mxGraph) {
-//
-//      };
-//
-//      ActionListener actionLayout = e -> {
-//        mxHierarchicalLayout layout = new mxHierarchicalLayout(adapter);
-//        Object cell = adapter.getSelectionCell();
-//        if (cell == null || adapter.getModel().getChildCount(cell) == 0) {
-//          cell = adapter.getDefaultParent();
-//        }
-//        adapter.getModel().beginUpdate();
-//        try {
-//          long t0 = System.currentTimeMillis();
-//          layout.execute(cell);
-//        } finally {
-//          mxMorphing morph = new mxMorphing(graphComponent, 20, 1.2, 20);
-//          morph.addListener(mxEvent.DONE, (sender, evt) -> adapter.getModel().endUpdate());
-//          morph.startAnimation();
-//        }
-//      };
-//
-//      JFrame graphFrame = new JFrame("Graph");
-//      Fragpipe.decorateFrame(graphFrame);
-//      graphFrame.setLayout(new BorderLayout());
-//
-//      mxHierarchicalLayout layout = new mxHierarchicalLayout(adapter);
-//      layout.execute(adapter.getDefaultParent());
-//
-//      graphFrame.add(UiUtils.createButton("Layout", actionLayout), BorderLayout.NORTH);
-//      graphFrame.add(graphComponent, BorderLayout.CENTER);
-//
-//      graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-//      graphFrame.pack();
-//      graphFrame.setVisible(true);
-//    }
+    if (Version.isDevBuild()) {
+      // TODO: Disable graph drawing here (draw graph)
+      final JGraphXAdapter2<CmdBase, DefEdge> adapter = new JGraphXAdapter2<>(graphOrder);
+
+      mxGraph mxGraph = new mxGraph(adapter.getModel()) {
+        @Override public String convertValueToString(Object cell) {
+//          log.info("convertValueToString called for type: {}", cell.getClass().getCanonicalName());
+          if (cell instanceof mxCell) {
+            Object value = ((mxCell) cell).getValue();
+            if (value instanceof CmdBase) {
+              CmdBase cmd = (CmdBase) value;
+              String relWd = wd.relativize(cmd.getWd()).toString();
+              //return StringUtils.isBlank(relWd) ? String.format("%s", value.toString()) : String.format("%s\n[%s]", value.toString(), relWd);
+              return String.format("%s", cmd.getTitle());
+            }
+          }
+
+          return super.convertValueToString(cell);
+        }
+
+        /**
+         * Returns an array of key, value pairs representing the cell style for the
+         * given cell. If no string is defined in the model that specifies the style,
+         * then the default style for the cell is returned or <EMPTY_ARRAY>, if not
+         * style can be found.
+         *
+         * @param cell Cell whose style should be returned.
+         * @return Returns the style of the cell.
+         */
+        @Override
+        public Map<String, Object> getCellStyle(Object cell) {
+          Map<String, Object> cellStyle = super.getCellStyle(cell);
+          if (cell instanceof mxCell) {
+            Object value = ((mxCell) cell).getValue();
+            if (value instanceof CmdBase) {
+              CmdBase cmd = (CmdBase) value;
+              // example: fillColor=green
+              cellStyle = new HashMap<>(cellStyle);
+              String color = cmd.isRun() ? "#d5f7de" : "#f5e7d5";
+              cellStyle.put("fillColor", color);
+            }
+          }
+          return cellStyle;
+        }
+      };
+      mxGraph.setAutoSizeCells(true);
+
+
+      // Overrides method to create the editing value
+      final mxGraphComponent graphComponent = new mxGraphComponent(mxGraph) {
+
+      };
+
+      ActionListener actionLayout = e -> {
+        mxHierarchicalLayout layout = new mxHierarchicalLayout(adapter);
+        Object cell = adapter.getSelectionCell();
+        if (cell == null || adapter.getModel().getChildCount(cell) == 0) {
+          cell = adapter.getDefaultParent();
+        }
+        adapter.getModel().beginUpdate();
+        try {
+          long t0 = System.currentTimeMillis();
+          layout.execute(cell);
+        } finally {
+          mxMorphing morph = new mxMorphing(graphComponent, 20, 1.2, 20);
+          morph.addListener(mxEvent.DONE, (sender, evt) -> adapter.getModel().endUpdate());
+          morph.startAnimation();
+        }
+      };
+
+      JFrame graphFrame = new JFrame("Graph");
+      Fragpipe.decorateFrame(graphFrame);
+      graphFrame.setLayout(new BorderLayout());
+
+      mxHierarchicalLayout layout = new mxHierarchicalLayout(adapter);
+      layout.execute(adapter.getDefaultParent());
+
+      graphFrame.add(UiUtils.createButton("Layout", actionLayout), BorderLayout.NORTH);
+      graphFrame.add(graphComponent, BorderLayout.CENTER);
+
+      graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+      graphFrame.pack();
+      graphFrame.setVisible(true);
+    }
 
 
     // make sure that all subfolders are created for groups/experiments
