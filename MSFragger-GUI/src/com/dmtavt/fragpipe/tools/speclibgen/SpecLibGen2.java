@@ -47,7 +47,7 @@ public class SpecLibGen2 {
   public static final List<PythonModule> REQUIRED_MODULES = Arrays.asList(
       PythonModule.CYTHON,
       PythonModule.MATPLOTLIB);
-  public static final List<PythonModule> REQUIRED_FOR_EASYPQP = Arrays.asList(PythonModule.EASYPQP);
+  public static final List<PythonModule> REQUIRED_FOR_EASYPQP = Arrays.asList(PythonModule.EASYPQP, PythonModule.LXML);
   private static final Logger log = LoggerFactory.getLogger(SpecLibGen2.class);
   private static final String SCRIPT_SPEC_LIB_GEN = "speclib/gen_con_spec_lib.py";
   public static final String[] RESOURCE_LOCATIONS = {
