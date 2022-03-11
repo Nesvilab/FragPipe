@@ -413,7 +413,7 @@ public class TabConfig extends JPanelWithEnablement {
   private void actionMsfraggerUpdate(ActionEvent evt) {
     try {
       DownloadMSFraggerPanel p = new DownloadMSFraggerPanel();
-      int confirmation = JOptionPane.showConfirmDialog(this, p, "Please agree to the terms of the licenses.", JOptionPane.YES_NO_CANCEL_OPTION);
+      int confirmation = SwingUtils.showConfirmDialog2(this, p, "Please agree to the terms of the licenses.", JOptionPane.YES_NO_CANCEL_OPTION);
       if (JOptionPane.OK_OPTION == confirmation) {
         if (p.getName() == null || p.getName().isEmpty()) {
           JOptionPane.showMessageDialog(this, "Please fill in your name.", "Error", JOptionPane.ERROR_MESSAGE);
