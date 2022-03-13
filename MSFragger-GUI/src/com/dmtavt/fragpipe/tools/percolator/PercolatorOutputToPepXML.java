@@ -201,6 +201,10 @@ public class PercolatorOutputToPepXML {
                 return "";
             }
 
+            if (is_DIA && (nttNmcArray[DIA_rank - 1] == null || pepScoreArray[DIA_rank - 1] == null)) {
+                return "";
+            }
+
             sb.append(paddingZeros(line)).append('\n');
             while (iterator.hasNext()) { // fixme: the code assumes that there are always <search_hit, massdiff=, and calc_neutral_pep_mass=, which makes it not robust
                 line = iterator.next().trim();
