@@ -50,6 +50,8 @@ public class FastaUtils {
   }
 
   public static FastaContent readFasta(Path p) throws IOException {
+    if (Files.isDirectory(p))
+      throw new IOException("Must be an ordinary file, not a directory");
     List<String> descriptors = new ArrayList<>();
     List<List<String>> ordered = new ArrayList<>();
     try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(p),
