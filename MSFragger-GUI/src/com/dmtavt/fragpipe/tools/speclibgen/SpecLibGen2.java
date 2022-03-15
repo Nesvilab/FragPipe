@@ -58,8 +58,6 @@ public class SpecLibGen2 {
       "speclib/Pierce_iRT.tsv",
       "speclib/unite_runs.py",
   };
-  private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
-  private static SpecLibGen2 INSTANCE = new SpecLibGen2();
   private final Object initLock = new Object();
   private PyInfo pi;
   private Path scriptSpecLibGenPath;
@@ -77,15 +75,10 @@ public class SpecLibGen2 {
     missingModulesEasyPqp = new ArrayList<>();
   }
 
-  public static SpecLibGen2 get() {
-    return INSTANCE;
-  }
-
   public static void initClass() {
     log.debug("Static initialization initiated");
     SpecLibGen2 o = new SpecLibGen2();
     Bus.register(o);
-    SpecLibGen2.INSTANCE = o;
   }
 
   public boolean isEasypqpOk() {
@@ -94,7 +87,7 @@ public class SpecLibGen2 {
     }
   }
 
-  @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigPython m) {
     if (!m.isValid()) {
       Bus.postSticky(
@@ -103,7 +96,7 @@ public class SpecLibGen2 {
     }
     try {
       init(m);
-      Bus.postSticky(new NoteConfigSpeclibgen(get(), null));
+      Bus.postSticky(new NoteConfigSpeclibgen(this, null));
     } catch (ValidationException e) {
       Bus.postSticky(new NoteConfigSpeclibgen(null, e));
     }
