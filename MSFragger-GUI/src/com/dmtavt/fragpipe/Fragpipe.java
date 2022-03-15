@@ -29,6 +29,7 @@ import com.dmtavt.fragpipe.api.UiTab;
 import com.dmtavt.fragpipe.api.UpdatePackage;
 import com.dmtavt.fragpipe.cmd.ToolingUtils;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
+import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
 import com.dmtavt.fragpipe.messages.MessageLoadUi;
@@ -41,6 +42,7 @@ import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
+import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.messages.NoteConfigTips;
 import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
 import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
@@ -73,7 +75,6 @@ import com.github.chhh.utils.swing.FormEntry.Builder;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.LogbackJTextPaneAppender;
 import com.github.chhh.utils.swing.TextConsole;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -118,7 +119,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.event.HyperlinkEvent;
-
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -928,6 +928,9 @@ public class Fragpipe extends JFrameHeadless {
     if (sticky == null) {
       if (clazz.getName().contentEquals("com.dmtavt.fragpipe.messages.NoteConfigPhilosopher")) {
         Bus.postSticky(new NoteConfigPhilosopher(null, "N/A"));
+        sticky = Bus.getStickyEvent(clazz);
+      } else if (clazz.getName().contentEquals("com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen")) {
+        Bus.postSticky(new NoteConfigSpeclibgen(null, new ValidationException("Python binary or EasyPQP not valid")));
         sticky = Bus.getStickyEvent(clazz);
       } else {
         throw new NoSuchElementException("Sticky note not on the bus: " + clazz.getCanonicalName());
