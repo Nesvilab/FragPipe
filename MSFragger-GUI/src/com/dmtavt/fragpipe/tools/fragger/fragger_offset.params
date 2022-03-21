@@ -94,6 +94,7 @@ zero_bin_accept_expect = 0.00
 zero_bin_mult_expect = 1.00
 add_topN_complementary = 0
 
+check_spectral_files = 1
 minimum_peaks = 15
 use_topN_peaks = 150
 min_fragments_modelling = 2

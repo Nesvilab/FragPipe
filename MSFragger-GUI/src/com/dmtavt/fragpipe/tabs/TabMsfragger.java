@@ -218,6 +218,7 @@ public class TabMsfragger extends JPanelBase {
         RemovePrecursorPeak.get(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_intensity_transform, s -> itos(
         IntensityTransform.get(s)));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_check_spectral_files, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_localize_delta_mass, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_clip_nTerm_M, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_override_charge, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
@@ -244,6 +245,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_num_enzyme_termini, s -> CleavageType.fromValueInParamsFile(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_remove_precursor_peak, s -> RemovePrecursorPeak.get(Integer.parseInt(s)));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_intensity_transform, s -> IntensityTransform.get(Integer.parseInt(s)));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_check_spectral_files, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_localize_delta_mass, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_override_charge, s -> Boolean.toString(Integer.parseInt(s) > 0));
@@ -1096,8 +1098,7 @@ public class TabMsfragger extends JPanelBase {
         UiSpinnerDouble.builder(+1.5, -1000.0, 1000.0, 0.1).setCols(5).setFormat(df1).create())
         .create();
     FormEntry feIntensityTransform = mu.feb(MsfraggerParams.PROP_intensity_transform, UiUtils.createUiCombo(IntensityTransform.getNames())).label("Intensity transform").create();
-
-
+    FormEntry feCheckSpectralFiles = mu.feb(MsfraggerParams.PROP_check_spectral_files, UiUtils.createUiCheck("Check spectral files", true)).tooltip("Checking spectral files before searching.").create();
 
     mu.add(p, fePrecursorMassMode.label(), mu.ccR());
     mu.add(p, fePrecursorMassMode.comp).wrap();
@@ -1122,7 +1123,8 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, fePrecRemoveRangeHi.comp).pushX().wrap();
 
     mu.add(p, feIntensityTransform.label(), mu.ccR());
-    mu.add(p, feIntensityTransform.comp).wrap();
+    mu.add(p, feIntensityTransform.comp).split();
+    mu.add(p, feCheckSpectralFiles.comp).wrap();
 
     return p;
   }

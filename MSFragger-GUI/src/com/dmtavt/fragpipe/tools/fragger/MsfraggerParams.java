@@ -79,7 +79,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_remove_precursor_peak = "remove_precursor_peak";
     public static final String PROP_remove_precursor_range = "remove_precursor_range";
     public static final String PROP_intensity_transform = "intensity_transform";
-
+    public static final String PROP_check_spectral_files = "check_spectral_files";
     public static final String PROP_write_calibrated_mgf = "write_calibrated_mgf";
     public static final String PROP_mass_diff_to_variable_mod = "mass_diff_to_variable_mod";
 
@@ -166,6 +166,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_remove_precursor_peak,
         PROP_remove_precursor_range,
         PROP_intensity_transform,
+        PROP_check_spectral_files,
         PROP_write_calibrated_mgf,
         PROP_mass_diff_to_variable_mod,
         PROP_calibrate_mass,
@@ -367,6 +368,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_remove_precursor_peak, " Remove precursor peaks from tandem mass spectra. 0 = not remove; 1 = remove the peak with precursor charge; 2 = remove the peaks with all charge states (only for DDA mode).");
         c.put(PROP_remove_precursor_range, "m/z range in removing precursor peaks. Only for DDA mode. Unit: Th.");
         c.put(PROP_intensity_transform, "Transform peaks intensities with sqrt root. 0 = not transform; 1 = transform using sqrt root.");
+        c.put(PROP_check_spectral_files, "Checking spectral files before searching.");
         c.put(PROP_Y_type_masses, " [nglycan/labile search_mode only]. Specify fragments of labile mods that are commonly retained on intact peptides (e.g. Y ions for glycans). Only used if 'Y' is included in fragment_ion_series.");
         c.put(PROP_diagnostic_fragments, "[nglycan/labile search_mode only]. Specify diagnostic fragments of labile mods that appear in the low m/z region. Only used if diagnostic_intensity_filter > 0.");
         c.put(PROP_remainder_masses, "[labile search_mode only] List of possible remainder fragment ions to consider. Remainder masses are partial modification masses left on b/y ions after fragmentation.");
