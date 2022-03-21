@@ -1,5 +1,7 @@
 # Workflow: glyco-N-LFQ
 
+
+
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.fragpipe.cmd-opts=
@@ -30,7 +32,7 @@ diaumpire.SE.SN=1.1
 diaumpire.run-diaumpire=false
 freequant.mz-tol=10
 freequant.rt-tol=0.4
-freequant.run-freequant=true
+freequant.run-freequant=false
 ionquant.excludemods=
 ionquant.heavy=
 ionquant.imtol=0.05
@@ -55,7 +57,7 @@ ionquant.peptidefdr=1
 ionquant.proteinfdr=1
 ionquant.requantify=1
 ionquant.rttol=0.4
-ionquant.run-ionquant=false
+ionquant.run-ionquant=true
 ionquant.tp=3
 ionquant.writeindex=0
 msbooster.predict-rt=true
@@ -254,4 +256,4 @@ tmtintegrator.use_glycan_composition=true
 workflow.description=<p style\="margin-top\: 0"> For search and label-free quantitation of enriched N-glycopeptides fragmented with CID/HCD. Performs glycan assignment/FDR control in PTM-Shepherd prior to quant </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=17.2-build21
+workflow.saved-with-ver=17.2-build30
