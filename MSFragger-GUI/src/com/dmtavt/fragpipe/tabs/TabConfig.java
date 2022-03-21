@@ -487,20 +487,22 @@ public class TabConfig extends JPanelWithEnablement {
   @Subscribe
   public void on(MessageUiRevalidate m) {
     log.debug("Got MessageUiRevalidate");
-    String binFragger = uiTextBinFragger.getNonGhostText();
-    if (StringUtils.isNotBlank(binFragger)) {
-      Bus.post(new MessageMsfraggerNewBin(binFragger));
-    }
-    String binPhi = uiTextBinPhi.getNonGhostText();
-    if (StringUtils.isNotBlank(binPhi)) {
-      Bus.post(new MessagePhilosopherNewBin(binPhi));
-    }
-    String binPython = uiTextBinPython.getNonGhostText();
-    if (StringUtils.isNotBlank(binPython)) {
-      Bus.post(new MessagePythonNewBin(binPython));
-    } else {
-      // python was not loaded, try finding system python
-      Bus.post(new MessageFindSystemPython());
+    if (m.updateBins) {
+      String binFragger = uiTextBinFragger.getNonGhostText();
+      if (StringUtils.isNotBlank(binFragger)) {
+        Bus.post(new MessageMsfraggerNewBin(binFragger));
+      }
+      String binPhi = uiTextBinPhi.getNonGhostText();
+      if (StringUtils.isNotBlank(binPhi)) {
+        Bus.post(new MessagePhilosopherNewBin(binPhi));
+      }
+      String binPython = uiTextBinPython.getNonGhostText();
+      if (StringUtils.isNotBlank(binPython)) {
+        Bus.post(new MessagePythonNewBin(binPython));
+      } else {
+        // python was not loaded, try finding system python
+        Bus.post(new MessageFindSystemPython());
+      }
     }
     Fragpipe.loadWorkflowDone.countDown();
   }
@@ -822,7 +824,7 @@ public class TabConfig extends JPanelWithEnablement {
       }
       SwingUtils.showInfoDialog(this, pythonPipOutputNew, "EasyPQP install " + (ok ? "success" : "fail"));
       Bus.post(new MessagePrintToConsole(pythonPipOutputNew));
-      Bus.post(new MessageUiRevalidate());
+      Bus.post(new MessageUiRevalidate(false, true));
     }
   }
 

@@ -19,4 +19,11 @@ package com.dmtavt.fragpipe.messages;
 
 public class MessageUiRevalidate {
 
+  public final boolean validateFasta;
+  public final boolean updateBins;
+
+  public MessageUiRevalidate(boolean validateFasta, boolean updateBins) {
+    this.validateFasta = validateFasta;
+    this.updateBins = updateBins;
+  }
 }

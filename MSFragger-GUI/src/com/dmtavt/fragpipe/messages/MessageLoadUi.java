@@ -17,15 +17,19 @@
 
 package com.dmtavt.fragpipe.messages;
 
-import com.dmtavt.fragpipe.api.PropsFile;
 import java.util.Objects;
 import java.util.Properties;
 
 public class MessageLoadUi {
-  public final Properties props;
 
-  public MessageLoadUi(Properties props) {
+  public final Properties props;
+  public final boolean validateFasta;
+  public final boolean updateBins;
+
+  public MessageLoadUi(Properties props, boolean validateFasta, boolean updateBins) {
     Objects.requireNonNull(props);
     this.props = props;
+    this.validateFasta = validateFasta;
+    this.updateBins = updateBins;
   }
 }

@@ -1696,7 +1696,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
       epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
 
-      Bus.post(new MessageLoadUi(propsFile));
+      Bus.post(new MessageLoadUi(propsFile, false, false));
     } else {
       int confirmation = SwingUtils.showConfirmDialog(this, new JLabel("Do you want to load workflow: " + workflow + "?"), "Confirmation");
       if (JOptionPane.OK_OPTION == confirmation) {
@@ -1718,7 +1718,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         if (propsFile.containsKey("workflow.workflow-option")) {
           propsFile.setProperty("workflow.workflow-option", workflow);
         }
-        Bus.post(new MessageLoadUi(propsFile));
+        Bus.post(new MessageLoadUi(propsFile, false, false));
       }
     }
   }

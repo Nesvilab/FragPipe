@@ -464,7 +464,7 @@ public class Fragpipe extends JFrameHeadless {
       propsFile.setProperty("fragpipe-config.bin-python", pythonBinPath);
     }
 
-    Bus.post(new MessageLoadUi(propsFile));
+    Bus.post(new MessageLoadUi(propsFile, true, true));
     Bus.post(new MessageManifestLoad());
 
     try {
@@ -755,20 +755,20 @@ public class Fragpipe extends JFrameHeadless {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteFragpipeCache m) {
     log.debug("Got NotePreviousUiState, updating UI");
-    loadUi(m.propsUiState);
+    loadUi(m.propsUiState, true, true);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageLoadUi m) {
-    loadUi(m.props);
+    loadUi(m.props, m.validateFasta, m.updateBins);
   }
 
   @SuppressWarnings("unchecked")
-  private void loadUi(Properties props) {
+  private void loadUi(Properties props, boolean validateFasta, boolean updateBins) {
     log.debug("loadUi() called");
     final Map<String, String> propsWorkflowOnly = (Map) props.entrySet().stream().filter(e -> TabWorkflow.filterPropsForUi((String) e.getKey())).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     FragpipeCacheUtils.tabsLoad(propsWorkflowOnly, tabs);
-    Bus.post(new MessageUiRevalidate());
+    Bus.post(new MessageUiRevalidate(validateFasta, updateBins));
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)

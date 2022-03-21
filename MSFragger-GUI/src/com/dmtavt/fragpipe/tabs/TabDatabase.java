@@ -297,7 +297,9 @@ public class TabDatabase extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageUiRevalidate m) {
-    validateFasta(getFastaPath());
+    if (m.validateFasta) {
+      validateFasta(getFastaPath());
+    }
   }
 
   public static String createSeqDbExplanationContent() {
