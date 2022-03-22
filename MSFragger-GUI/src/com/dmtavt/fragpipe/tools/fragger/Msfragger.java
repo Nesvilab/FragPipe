@@ -97,7 +97,7 @@ public class Msfragger {
           break;
         } catch (Exception ex) {
           // no biggie
-          log.warn("Something happened while checking for MSFragger updates", ex);
+          log.warn("Something happened while checking for MSFragger updates");
         }
       }
     });
