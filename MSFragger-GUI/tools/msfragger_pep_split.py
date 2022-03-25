@@ -622,8 +622,8 @@ def main():
 
 	try:
 		shutil.rmtree(tempdir)
-	except PermissionError as e:
-		print(e)
+	except Exception as e:
+		print(e, flush=True)
 
 if __name__ == '__main__':
 	main()
