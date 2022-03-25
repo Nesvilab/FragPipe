@@ -387,7 +387,7 @@ def write_pepxml_single_rank(outfile: pathlib.Path, pepxml_parts, expect_funcs, 
 		for i, (expect_func, spectrum_query_parts) in enumerate(zip(expect_funcs, zip_spec_pos)):
 			f.writelines(new_spec(expect_func, spectrum_query_parts, pep_to_prot))
 			if i % (1 << 14) == 0:
-				print(f'Writing: {outfile.stem}\tspectrum: {i}')
+				print(f'Writing: {outfile.stem}\tspectrum: {i}', flush=True)
 		f.write(b'</msms_run_summary>\n</msms_pipeline_analysis>\n')
 
 def write_pin(infile: pathlib.Path) -> None:
