@@ -267,7 +267,6 @@ philosopher_filter_log_path = output_directory / 'filter.log'
 peptide_tsv_path = output_directory / 'peptide.tsv'
 use_peptide_tsv: bool = peptide_tsv_path.exists()
 skip_philosopher_filter: bool = philosopher_filter_log_path.exists()
-assert peptide_tsv_path.exists()==philosopher_filter_log_path.exists()
 
 
 
