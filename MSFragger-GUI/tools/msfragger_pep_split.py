@@ -280,7 +280,8 @@ def get_pepxml_header(p: pathlib.Path):
 			print(mm.read())
 			raise
 		ret0 = re.compile(b'date="(.+?)"').sub(b'date="%b"', ret)
-		return re.compile(b'summary_xml="(.+?)"').sub(b'summary_xml="%b"', ret0)
+		return re.compile(b'summary_xml="(.+?)"').sub(b'summary_xml="%b"', ret0).replace(
+			f'"{fasta_path.name}"'.encode(), f'"{fasta_path}"'.encode())
 
 
 '''
