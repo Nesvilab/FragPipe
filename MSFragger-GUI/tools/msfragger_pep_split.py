@@ -352,7 +352,7 @@ def replace_prot_list(sh: bytes, prot_list: list[Prot]) -> bytes:
 		return sh
 	if len(prot_list) < len(prot_list_original):
 		raise RuntimeError
-	sh = sh_protein_descr.sub(b'protein_descr="' + prot_list[0].protein_descr + b'"', sh, count=1)
+	sh = sh_protein_descr.sub(b'protein_descr="' + prot_list[0].protein_descr.replace(b'\\', rb'\\') + b'"', sh, count=1)
 	sh = sh_protein.sub(b'protein="' + prot_list[0].protein + b'"', sh, count=1)
 	sh = sh_peptide_prev_aa.sub(b'peptide_prev_aa="' + prot_list[0].peptide_prev_aa + b'"', sh, count=1)
 	sh = sh_peptide_next_aa.sub(b'peptide_next_aa="' + prot_list[0].peptide_next_aa + b'"', sh, count=1)
