@@ -314,7 +314,7 @@ def get_pepxmls(infile: pathlib.Path) -> (bool, typing.List[typing.List[pathlib.
 
 
 sh_peptide = re.compile(b' peptide="(.+?)"')
-sh_protein_descr = re.compile(b'protein_descr="(.+?)"')
+sh_protein_descr = re.compile(b'protein_descr="(.*?)"')
 sh_protein = re.compile(b'protein="(.+?)"')
 sh_peptide_prev_aa = re.compile(b'peptide_prev_aa="(.+?)"')
 sh_peptide_next_aa = re.compile(b'peptide_next_aa="(.+?)"')
