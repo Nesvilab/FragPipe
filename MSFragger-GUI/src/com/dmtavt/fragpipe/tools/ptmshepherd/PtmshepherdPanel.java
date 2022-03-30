@@ -113,6 +113,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
   private static final String PROP_custom_modlist_loc = "ptmshepherd.path.modlist";
 
+  private static final String PROP_diagMine_mode = "diagmine_mode";
   private static final String PROP_diagMine_minIonsPerSpec = "diagmine_minIonsPerSpec";
   private static final String PROP_diagMine_minSpecPct = "diagmine_minSpecDiff";
   private static final String PROP_diagMine_minIons = "diagmine_minIons";
@@ -385,7 +386,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
     // label diagnostic ion mining params
     uiCheckDiagnosticMining = UiUtils.createUiCheck("Mine for diagnostic ions and fragments", false);
-    uiCheckDiagnosticMining.setName("diagmine_mode");
+    uiCheckDiagnosticMining.setName(PROP_diagMine_mode);
     uiCheckDiagnosticMining.setToolTipText("Look for new diagnostic ions and fragments for each modification");
 
     FormEntry feDiagMinIons = new FormEntry(PROP_diagMine_minIons, "Min. peptide ions",
