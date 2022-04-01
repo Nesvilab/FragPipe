@@ -42,6 +42,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dmtavt.fragpipe.api.VersionFetcher;
@@ -201,11 +202,11 @@ public class Msfragger {
   public static class Version {
 
     final public boolean isVersionParsed;
-    final public String version;
+    final public DefaultArtifactVersion version;
 
     public Version(boolean isVersionParsed, String version) {
       this.isVersionParsed = isVersionParsed;
-      this.version = version;
+      this.version = new DefaultArtifactVersion(version);
     }
   }
 }
