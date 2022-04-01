@@ -104,6 +104,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
@@ -116,6 +117,7 @@ public class TabConfig extends JPanelWithEnablement {
 
   private static final Logger log = LoggerFactory.getLogger(TabConfig.class);
   private static final String msfraggerMinVersion = "3.4";
+  public static final DefaultArtifactVersion pythonMinVersion = new DefaultArtifactVersion("3.9");
   private static final MigUtils mu = MigUtils.get();
   private static final Pattern emailPattern = Pattern.compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
 
@@ -510,7 +512,7 @@ public class TabConfig extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageFindSystemPython m) {
     try {
-      PyInfo pi = PyInfo.findSystemPython(3);
+      PyInfo pi = PyInfo.findSystemPython(pythonMinVersion);
       log.debug("Found system wide python install: {}", pi);
       if (pi != null) {
         Bus.post(new MessagePythonNewBin(pi.getCommand()));
@@ -528,17 +530,15 @@ public class TabConfig extends JPanelWithEnablement {
     try {
       // first check if the path is absolute, then it must exist
       Path path = Paths.get(m.command);
-      final boolean fileExists = Files.exists(path) || (OsUtils.isWindows() && Files.exists(Paths.get(path.toString() + ".exe")));
+      final boolean fileExists = Files.exists(path) || (OsUtils.isWindows() && Files.exists(Paths.get(path + ".exe")));
       if ((path.isAbsolute() && !fileExists) || StringUtils.isBlank(path.toString())) {
         throw new ValidationException("File does not exist: \"" + path + "\"");
       }
 
       // if paths.get didn't throw, we can try the binary, it might be on PATH
       pi = PyInfo.fromCommand(m.command);
-      if (pi.getMajorVersion() < 3) {
-        Bus.postSticky(
-            new NoteConfigPython(pi, new ValidationException("Python version 3+ required"),
-                pi.getCommand(), pi.getVersion()));
+      if (pi.getFullVersion().compareTo(pythonMinVersion) < 0) {
+        Bus.postSticky(new NoteConfigPython(pi, new ValidationException("Python version " + pythonMinVersion + "+ required"), pi.getCommand(), pi.getVersion()));
       } else {
         Bus.postSticky(new NoteConfigPython(pi));
       }
@@ -901,7 +901,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     PyInfo sysPy = null;
     try {
-      sysPy = PyInfo.findSystemPython(3);
+      sysPy = PyInfo.findSystemPython(pythonMinVersion);
     } catch (UnexpectedException e) {
       log.debug("Something happened while checking system python for Python bin file chooser", e);
     }

@@ -114,7 +114,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'one.util:streamex:0.8.1'
     implementation 'org.jooq:jool-java-8:0.9.14'
-
+    implementation 'org.apache.maven:maven-artifact:3.8.5'
     implementation 'org.jgrapht:jgrapht-core:1.4.0'
     implementation 'org.jgrapht:jgrapht-io:1.4.0'
     implementation 'org.jgrapht:jgrapht-ext:1.4.0'

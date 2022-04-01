@@ -25,7 +25,6 @@ public class PythonModule {
   public static PythonModule NUMPY = new PythonModule("numpy", "numpy");
   public static PythonModule PANDAS = new PythonModule("pandas", "pandas");
   public static PythonModule CYTHON = new PythonModule("Cython", "Cython");
-  public static PythonModule MSPROTEOMICSTOOLS = new PythonModule("msproteomicstools", "msproteomicstoolslib");
   public static final PythonModule EASYPQP = new PythonModule("easypqp", "easypqp");
   public static final PythonModule LXML = new PythonModule("lxml", "lxml");
   public static PythonModule MATPLOTLIB = new PythonModule("matplotlib", "matplotlib");

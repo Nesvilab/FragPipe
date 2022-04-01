@@ -17,6 +17,8 @@
 
 package com.dmtavt.fragpipe.tools.speclibgen;
 
+import static com.dmtavt.fragpipe.tabs.TabConfig.pythonMinVersion;
+
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.PyInfo;
@@ -41,9 +43,6 @@ import org.slf4j.LoggerFactory;
 
 public class SpecLibGen2 {
 
-  public static final String DEFAULT_MESSAGE =
-      "Python 3 with cython, msproteomicstools, matplotlib is "
-          + "needed for Spectral Library Generation functionality.";
   public static final List<PythonModule> REQUIRED_MODULES = Arrays.asList(
       PythonModule.CYTHON,
       PythonModule.MATPLOTLIB);
@@ -138,8 +137,8 @@ public class SpecLibGen2 {
   }
 
   private void checkPythonVer(NoteConfigPython m) throws ValidationException {
-    if (m.pi == null || !m.isValid() || m.pi.getMajorVersion() != 3) {
-      throw new ValidationException("Requires Python version 3.x");
+    if (m.pi == null || !m.isValid() || m.pi.getFullVersion().compareTo(pythonMinVersion) < 0) {
+      throw new ValidationException("Requires Python version " + pythonMinVersion + "+");
     }
   }
 

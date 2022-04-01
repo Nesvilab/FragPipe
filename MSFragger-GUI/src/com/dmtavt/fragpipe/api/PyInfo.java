@@ -43,6 +43,7 @@ import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.jooq.lambda.Seq;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ public class PyInfo {
   private static final org.slf4j.Logger log = LoggerFactory.getLogger(PyInfo.class);
   private String command;
   private String version;
-  private int majorVersion;
+  private DefaultArtifactVersion fullVersion;
   private Map<PythonModule, Installed> modules = new HashMap<>();
 
   @Override
@@ -58,7 +59,7 @@ public class PyInfo {
     return new StringJoiner(", ", PyInfo.class.getSimpleName() + "[", "]")
         .add("command='" + command + "'")
         .add("version='" + version + "'")
-        .add("majorVersion=" + majorVersion)
+        .add("fullVersion=" + fullVersion)
         .toString();
   }
 
@@ -76,13 +77,12 @@ public class PyInfo {
   private void trySetPythonCommand(String command) throws ValidationException, UnexpectedException {
     this.command = command;
     this.version = tryGetVersion(command);
-    Matcher m = Pattern.compile("python\\s+([0-9]+)", Pattern.CASE_INSENSITIVE)
-        .matcher(this.version);
+
+    Matcher m = Pattern.compile("python\\s+([0-9.]+)", Pattern.CASE_INSENSITIVE).matcher(this.version);
     if (m.find()) {
-      final String majorVer = m.group(1);
-      this.majorVersion = Integer.parseInt(majorVer);
+      this.fullVersion = new DefaultArtifactVersion(m.group(1).trim());
     } else {
-      throw new ValidationException("Could not detect python major version");
+      throw new ValidationException("Could not detect python version.");
     }
   }
 
@@ -94,16 +94,12 @@ public class PyInfo {
     return version;
   }
 
-  public int getMajorVersion() {
-    return majorVersion;
+  public DefaultArtifactVersion getFullVersion() {
+    return fullVersion;
   }
 
   public Map<PythonModule, Installed> getModules() {
     return Collections.unmodifiableMap(modules);
-  }
-
-  private boolean isMajorVersion(int majorVersion) {
-    return majorVersion == this.majorVersion;
   }
 
   private static String tryGetVersion(String cmd) throws UnexpectedException, ValidationException {
@@ -143,22 +139,22 @@ public class PyInfo {
     return findSystemPython(null);
   }
 
-  public static PyInfo findSystemPython(Integer minMajorVersion) throws UnexpectedException {
+  public static PyInfo findSystemPython(DefaultArtifactVersion minFullVersion) throws UnexpectedException {
     // try to query the registry on Windows
     if (OsUtils.isWindows()) {
-      return findPythonWindows(minMajorVersion);
+      return findPythonWindows(minFullVersion);
     } else {
-      return findPythonOtherOs(minMajorVersion);
+      return findPythonOtherOs(minFullVersion);
     }
   }
 
-  private static PyInfo findPythonOtherOs(Integer minMajorVersion) {
+  private static PyInfo findPythonOtherOs(DefaultArtifactVersion minFullVersion) {
     final String[] commands = {"python", "python3"};
     // try the Python commands searching PATH env-var
     for (String cmd : commands) {
       try {
         PyInfo pi = com.dmtavt.fragpipe.api.PyInfo.fromCommand(cmd);
-        if (minMajorVersion == null || minMajorVersion <= pi.getMajorVersion()) {
+        if (minFullVersion == null || pi.getFullVersion().compareTo(minFullVersion) >= 0) {
           return pi;
         }
       } catch (Exception ignore) {}
@@ -166,7 +162,7 @@ public class PyInfo {
     return null;
   }
 
-  private static PyInfo findPythonWindows(Integer minMajorVersion) throws UnexpectedException {
+  private static PyInfo findPythonWindows(DefaultArtifactVersion minFullVersion) throws UnexpectedException {
     final String[] commands = {"python", "python3"};
     final String[] roots = {"HKCU", "HKU", "HKLM", "HKCR", "HKCC"};
     final String[] locations = {
@@ -199,7 +195,7 @@ public class PyInfo {
             final String rVal = RegQuery.getTokenValue(RegQuery.TOKEN_REGSZ, installPath);
             final String pythonBinPath = Paths.get(rVal, cmd).toString();
             PyInfo pi = com.dmtavt.fragpipe.api.PyInfo.fromCommand(pythonBinPath);
-            if (minMajorVersion == null || minMajorVersion <= pi.getMajorVersion()) {
+            if (minFullVersion == null || pi.getFullVersion().compareTo(minFullVersion) >= 0) {
               return pi;
             }
 
@@ -211,7 +207,7 @@ public class PyInfo {
     }
 
     // as a backup try just running the commands
-    return findPythonOtherOs(minMajorVersion);
+    return findPythonOtherOs(minFullVersion);
   }
 
 

@@ -17,6 +17,8 @@
 
 package com.dmtavt.fragpipe.tools.dbsplit;
 
+import static com.dmtavt.fragpipe.tabs.TabConfig.pythonMinVersion;
+
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.PyInfo;
@@ -25,6 +27,7 @@ import com.dmtavt.fragpipe.messages.MissingAssetsException;
 import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerVerCmp;
 import com.github.chhh.utils.Installed;
 import com.github.chhh.utils.PythonModule;
@@ -42,25 +45,19 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
 
 public class DbSplit2 {
   private static final Logger log = LoggerFactory.getLogger(DbSplit2.class);
   private static DbSplit2 INSTANCE = new DbSplit2();
   private final Object initLock = new Object();
   public static DbSplit2 get() { return INSTANCE; }
-  public static final String DEFAULT_MESSAGE = "Python 3 with numpy, pandas is "
-      + "needed for DB Splitting functionality.";
 
-  private static final String UNPACK_SUBDIR_IN_TEMP = "fragpipe";
-  private static final String SCRIPT_SPEC_LIB_GEN = "speclib/gen_con_spec_lib.py";
   public static final String DBSPLIT_SCRIPT_NAME = "msfragger_pep_split.py";
   public static final String[] RESOURCE_LOCATIONS = {DBSPLIT_SCRIPT_NAME};
   public static final List<PythonModule> REQUIRED_MODULES = Arrays.asList(PythonModule.NUMPY, PythonModule.PANDAS);
 
   private PyInfo pi;
   private Path scriptDbslicingPath;
-  private String msfraggerVer;
   private boolean isInitialized;
 
   /** To be called by top level application in order to initialize
@@ -75,7 +72,6 @@ public class DbSplit2 {
   private DbSplit2() {
     pi = null;
     scriptDbslicingPath = null;
-    msfraggerVer = null;
     isInitialized = false;
   }
 
@@ -157,8 +153,8 @@ public class DbSplit2 {
   }
 
   private void checkPythonVer(NoteConfigPython m) throws ValidationException {
-    if (m.pi == null || m.pi.getMajorVersion() != 3) {
-      throw new ValidationException("Python version 3.x is required");
+    if (m.pi == null || m.pi.getFullVersion().compareTo(pythonMinVersion) < 0) {
+      throw new ValidationException("Python version " + pythonMinVersion + "+ is required");
     }
   }
 
