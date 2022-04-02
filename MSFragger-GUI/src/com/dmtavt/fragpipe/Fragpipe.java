@@ -351,38 +351,6 @@ public class Fragpipe extends JFrameHeadless {
 
 
   public static void main(String[] args) {
-    if (args.length == 1 && (args[0].equalsIgnoreCase("--help") || args[0].equalsIgnoreCase("-h"))) {
-      System.out.print(help());
-      System.exit(1);
-    } else if (args.length > 0) {
-      for (int i = 0; i < args.length; ++i) {
-        if (args[i].equalsIgnoreCase("--headless")) {
-          headless = true;
-        } else if (args[i].equalsIgnoreCase("--dry-run")) {
-          dryRun = true;
-        } else if (args[i].equalsIgnoreCase("--workflow")) {
-          workflowFile = Paths.get(args[++i]);
-        } else if (args[i].equalsIgnoreCase("--manifest")) {
-          manifestFile = Paths.get(args[++i]);
-        } else if (args[i].equalsIgnoreCase("--ram")) {
-          ram = Integer.parseInt(args[++i]);
-        } else if (args[i].equalsIgnoreCase("--threads")) {
-          threads = Integer.parseInt(args[++i]);
-        } else if (args[i].equalsIgnoreCase("--workdir")) {
-          workdir = args[++i].trim();
-        } else if (args[i].equalsIgnoreCase("--config-msfragger")) {
-          msfraggerBinPath = args[++i].trim();
-        } else if (args[i].equalsIgnoreCase("--config-philosopher")) {
-          philosopherBinPath = args[++i].trim();
-        } else if (args[i].equalsIgnoreCase("--config-python")) {
-          pythonBinPath = args[++i].trim();
-        } else {
-          System.err.println("Cannot recognize the argument " + args[i]);
-          System.exit(1);
-        }
-      }
-    }
-
     if (!headless && (workflowFile != null || manifestFile != null || workdir != null)) {
       System.err.println("It looks like you want to run FragPipe in headless mode, but you did not add --headless flag. Please double check your command.");
       System.exit(1);
@@ -953,7 +921,7 @@ public class Fragpipe extends JFrameHeadless {
       FragpipeUtils.openInExplorer(this.toJFrame(), m.path.toString());
   }
 
-  private static String help() {
+  static String help() {
     StringBuilder sb = new StringBuilder();
     sb.append("FragPipe v").append(version()).append("\n");
     sb.append("(c) University of Michigan").append("\n");
