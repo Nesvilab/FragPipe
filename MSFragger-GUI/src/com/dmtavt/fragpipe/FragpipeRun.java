@@ -296,7 +296,13 @@ public class FragpipeRun {
       toConsole("");
       toConsole("~~~~~~Sample of " + tabDatabase.getFastaPath() + "~~~~~~~");
       try {
-        Files.lines(Paths.get(tabDatabase.getFastaPath())).limit(20).forEach(e -> toConsole(e.trim()));
+        List<String> proteinHeaders = Files.lines(Paths.get(tabDatabase.getFastaPath())).filter(e -> e.startsWith(">")).sorted().collect(Collectors.toList());
+        int gap = (proteinHeaders.size() - 1) / 20;
+        int idx = 0;
+        while (idx < proteinHeaders.size()) {
+          toConsole(proteinHeaders.get(idx).trim());
+          idx += gap;
+        }
       } catch (Exception e) {
         toConsole("Cannot get the sample of " + tabDatabase.getFastaPath());
         toConsole(ExceptionUtils.getStackTrace(e));
