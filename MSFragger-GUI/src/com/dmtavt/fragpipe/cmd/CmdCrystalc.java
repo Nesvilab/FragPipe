@@ -32,9 +32,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
@@ -121,9 +123,7 @@ public class CmdCrystalc extends CmdBase {
   /**
    * @param ccParams Get these by calling {@link CrystalcPanel#toParams()}.
    */
-  public boolean configure(Component comp, boolean isDryRun, Path binFragger,
-      String msfraggerOutputExt, int ramGb,
-      CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
+  public boolean configure(Component comp, Path jarFragpipe, boolean isDryRun, Path binFragger, String msfraggerOutputExt, int ramGb, CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
     initPreConfig();
 
     final List<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
@@ -167,6 +167,7 @@ public class CmdCrystalc extends CmdBase {
 
     // multiple raw file extensions or multiple lcms file locaitons
     // issue a separate command for each pepxml file
+    List<Path> filesToDelete = new ArrayList<>();
     int index = -1;
     for (Map.Entry<InputLcmsFile, List<Path>> kv : pepxmlFiles.entrySet()) {
       for (Path pepxml : kv.getValue()) {
@@ -177,6 +178,9 @@ public class CmdCrystalc extends CmdBase {
 
         CrystalcParams ccp;
         Path ccParamsPath = lcms.outputDir(wd).resolve(ccParamsFilePrefix + "-" + (++index) + "-" + pepxmlFn + ccParamsFileSuffix);
+
+        filesToDelete.add(ccParamsPath);
+
         try {
           ccp = ccParams;
           String ext = StringUtils.afterLastDot(lcmsFn);
@@ -213,6 +217,11 @@ public class CmdCrystalc extends CmdBase {
         pbis.add(PbiBuilder.from(pb));
       }
     }
+
+    // delete temp files
+    List<ProcessBuilder> pbsDeleteTemp = ToolingUtils.pbsDeleteFiles(jarFragpipe, filesToDelete);
+    LinkedList<ProcessBuilderInfo> pbisPostParallel = pbsDeleteTemp.stream().map(pb -> new PbiBuilder().setPb(pb).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).setName(getCmdName() + ": Delete temp").create()).collect(Collectors.toCollection(LinkedList::new));
+    pbis.addAll(pbisPostParallel);
 
     isConfigured = true;
     return true;

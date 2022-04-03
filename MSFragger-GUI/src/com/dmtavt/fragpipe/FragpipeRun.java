@@ -875,9 +875,7 @@ public class FragpipeRun {
         if (threads > 0) {
           ccParams.setThread(threads);
         }
-        if (!cmdCrystalc.configure(parent, isDryRun, Paths.get(binMsfragger.getBin()),
-            "pepXML", ramGb,
-            ccParams, fastaFile, sharedPepxmlFiles)) {
+        if (!cmdCrystalc.configure(parent, jarPath, isDryRun, Paths.get(binMsfragger.getBin()), "pepXML", ramGb, ccParams, fastaFile, sharedPepxmlFiles)) {
           return false;
         }
         Map<InputLcmsFile, List<Path>> outputs = cmdCrystalc
