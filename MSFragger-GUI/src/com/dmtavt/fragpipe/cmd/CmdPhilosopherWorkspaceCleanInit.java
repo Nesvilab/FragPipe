@@ -58,7 +58,8 @@ public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
     {
       List<String> cmd = new ArrayList<>();
       cmd.add(usePhilosopher.useBin(wd));
-      cmd.addAll(asParts("workspace --init --nocheck"));
+      cmd.addAll(asParts("workspace --init --nocheck --temp"));
+      cmd.add(System.getProperty("java.io.tmpdir"));
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.toFile());
       pbis.add(PbiBuilder.from(pb));

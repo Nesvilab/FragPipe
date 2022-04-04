@@ -254,7 +254,8 @@ public class CmdPeptideProphet extends CmdBase {
           // workspace init
           List<String> cmdPhiInit = new ArrayList<>();
           cmdPhiInit.add(phi.useBin());
-          cmdPhiInit.addAll(asParts("workspace --init --nocheck"));
+          cmdPhiInit.addAll(asParts("workspace --init --nocheck --temp"));
+          cmdPhiInit.add(System.getProperty("java.io.tmpdir"));
           ProcessBuilder pbPhiInit = new ProcessBuilder(cmdPhiInit);
           pbPhiInit.directory(temp.toFile());
           pbisPreParallel.add(new PbiBuilder()
