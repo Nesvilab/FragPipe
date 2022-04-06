@@ -165,6 +165,7 @@ public class TabRun extends JPanelWithEnablement {
     if (Fragpipe.headless && returnCode != 0) {
       System.exit(returnCode);
     }
+    Fragpipe.runDone.countDown();
   }
 
   private JPanel createPanelTop(TextConsole console) {
