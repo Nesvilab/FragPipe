@@ -45,7 +45,7 @@ public class CmdLabelquant extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdLabelquant.class);
   public static final String NAME = "Quant (Isobaric)";
-  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "raw");
+  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML");
 
   public CmdLabelquant(boolean isRun, Path workDir) {
     super(isRun, workDir);

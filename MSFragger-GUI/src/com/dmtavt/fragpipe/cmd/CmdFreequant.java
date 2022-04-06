@@ -41,7 +41,7 @@ public class CmdFreequant extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdFreequant.class);
   public static final String NAME = "FreeQuant";
-  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "raw");
+  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML");
 
   public CmdFreequant(boolean isRun, Path workDir) {
     super(isRun, workDir);
