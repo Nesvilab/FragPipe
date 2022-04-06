@@ -94,18 +94,21 @@ public class Notifications {
           }
           log.error(s);
           System.exit(1);
+        } else {
+          tip = new BalloonTip(m.parent, m.body, new RoundedBalloonStyle(5, 5, BG_COLOR, Color.BLACK), true);
         }
-
-        tip = new BalloonTip(m.parent, m.body, new RoundedBalloonStyle(5, 5, BG_COLOR, Color.BLACK), true);
-
       } else if (m.parent != null && m.html != null) {
         HtmlStyledJEditorPane ep = SwingUtils.createClickableHtml(m.html, BG_COLOR);
         if (Fragpipe.headless) {
-          log.error(ep.getTextLessHtml());
-          System.exit(1);
+          if (m.exitHeadless) {
+            log.error(ep.getTextLessHtml());
+            System.exit(1);
+          } else {
+            log.warn(ep.getTextLessHtml());
+          }
+        } else {
+          tip = new BalloonTip(m.parent, ep, STYLE, true);
         }
-
-        tip = new BalloonTip(m.parent, ep, STYLE, true);
       } else {
         remove(m.topic);
       }
@@ -134,7 +137,7 @@ public class Notifications {
       boolean showStacktrace) {
     if (e instanceof ValidationException) {
       log.debug("Got ValidationException, showing as balloon for topic {}", topic);
-      Bus.post(new MessageBalloon(topic, comp, SwingUtils.makeHtml(e.getMessage())));
+      Bus.post(new MessageBalloon(topic, comp, SwingUtils.makeHtml(e.getMessage()), true));
     } else {
       JScrollPane content = SwingUtils
           .createClickableHtmlInScroll(true, e.getMessage(), new Dimension(400, 50));

@@ -28,6 +28,7 @@ public class MessageBalloon {
   public final JComponent parent;
   public final JComponent body;
   public final String html;
+  public final boolean exitHeadless;
 
   /** Closes balloons for a topic. */
   public MessageBalloon(String topic) {
@@ -37,6 +38,7 @@ public class MessageBalloon {
     parent = null;
     html = null;
     body = null;
+    this.exitHeadless = false;
   }
 
   public MessageBalloon(String topic, BalloonTip tip) {
@@ -47,6 +49,7 @@ public class MessageBalloon {
     html = null;
     parent = null;
     body = null;
+    this.exitHeadless = false;
   }
 
   public MessageBalloon(String topic, JComponent parent, JComponent body) {
@@ -58,9 +61,10 @@ public class MessageBalloon {
     this.body = body;
     tip = null;
     html = null;
+    this.exitHeadless = false;
   }
 
-  public MessageBalloon(String topic, JComponent parent, String html) {
+  public MessageBalloon(String topic, JComponent parent, String html, boolean exitHeadless) {
     Objects.requireNonNull(topic);
     Objects.requireNonNull(parent);
     Objects.requireNonNull(html);
@@ -69,6 +73,7 @@ public class MessageBalloon {
     this.html = html;
     tip = null;
     body = null;
+    this.exitHeadless = exitHeadless;
   }
 
   @Override
@@ -79,6 +84,7 @@ public class MessageBalloon {
         .add("parent=" + parent)
         .add("body=" + body)
         .add("html='" + html + "'")
+        .add("exitFragPipe='" + exitHeadless + "'")
         .toString();
   }
 }

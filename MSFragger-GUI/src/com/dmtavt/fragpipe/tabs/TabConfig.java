@@ -424,8 +424,7 @@ public class TabConfig extends JPanelWithEnablement {
     obs.subscribe(info -> {
       log.debug("Got philosopher update info with updateAvailable={}", info.isUpdateAvailable);
       if (info.isUpdateAvailable) {
-        MessageBalloon tip = new MessageBalloon(TIP_PHILOSOPHER_BIN, uiTextBinPhi,
-            SwingUtils.makeHtml("Philosopher update available."));
+        MessageBalloon tip = new MessageBalloon(TIP_PHILOSOPHER_BIN, uiTextBinPhi, SwingUtils.makeHtml("Philosopher update available."), false);
         Notifications.tryOpen(tip);
       }
     }, throwable -> {
@@ -476,7 +475,7 @@ public class TabConfig extends JPanelWithEnablement {
       showConfigError(m.ex, TIP_MSFRAGGER_BIN, uiTextBinFragger);
     } else if (m.isTooOld) {
       epFraggerVer.setText("MSFragger version: too old, not supported anymore");
-      Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, "MSFragger " + msfraggerMinVersion + " is required."));
+      Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, "MSFragger " + msfraggerMinVersion + " is required.", true));
     } else {
       epFraggerVer.setText("MSFragger version: " + m.version);
       Notifications.tryClose(TIP_MSFRAGGER_BIN);
@@ -694,7 +693,7 @@ public class TabConfig extends JPanelWithEnablement {
       System.exit(1);
     }
     if (e instanceof ValidationException) {
-      Bus.post(new MessageBalloon(balloonTopic, balloonParent, e.getMessage()));
+      Bus.post(new MessageBalloon(balloonTopic, balloonParent, e.getMessage(), true));
     } else {
       SwingUtils.showErrorDialogWithStacktrace(e, this);
     }
