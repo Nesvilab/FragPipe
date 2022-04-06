@@ -37,6 +37,6 @@ public class FragPipeMain {
       }
     }
 
-    Fragpipe.main(args);
+    Fragpipe.main0();
   }
 }

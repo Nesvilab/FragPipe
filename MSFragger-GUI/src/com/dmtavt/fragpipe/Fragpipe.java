@@ -350,7 +350,7 @@ public class Fragpipe extends JFrameHeadless {
   }
 
 
-  public static void main(String[] args) {
+  static void main0() {
     if (!headless && (workflowFile != null || manifestFile != null || workdir != null)) {
       System.err.println("It looks like you want to run FragPipe in headless mode, but you did not add --headless flag. Please double check your command.");
       System.exit(1);
