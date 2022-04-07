@@ -132,11 +132,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Fragpipe extends JFrameHeadless {
-  static {
-    // Better font rendering
-    System.setProperty("awt.useSystemAAFontSettings", "on");
-    System.setProperty("swing.aatext", "true");
-  }
 
   public static boolean headless = false;
   public static boolean printCommandsInDetail = false;
