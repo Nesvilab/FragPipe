@@ -32,6 +32,7 @@ import com.github.chhh.utils.UsageTrigger;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.Box;
@@ -255,7 +257,13 @@ public class CmdPeptideProphet extends CmdBase {
           List<String> cmdPhiInit = new ArrayList<>();
           cmdPhiInit.add(phi.useBin());
           cmdPhiInit.addAll(asParts("workspace --init --nocheck --temp"));
-          cmdPhiInit.add(System.getProperty("java.io.tmpdir"));
+          final Path phiTempDir = Paths.get(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString());
+          try {
+            Files.createDirectories(phiTempDir);
+          } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+          }
+          cmdPhiInit.add(phiTempDir.toString());
           ProcessBuilder pbPhiInit = new ProcessBuilder(cmdPhiInit);
           pbPhiInit.directory(temp.toFile());
           pbisPreParallel.add(new PbiBuilder()

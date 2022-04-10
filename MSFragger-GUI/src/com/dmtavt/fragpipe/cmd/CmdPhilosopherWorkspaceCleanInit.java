@@ -17,9 +17,15 @@
 
 package com.dmtavt.fragpipe.cmd;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
 import com.github.chhh.utils.UsageTrigger;
 
 public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
@@ -59,7 +65,13 @@ public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
       List<String> cmd = new ArrayList<>();
       cmd.add(usePhilosopher.useBin(wd));
       cmd.addAll(asParts("workspace --init --nocheck --temp"));
-      cmd.add(System.getProperty("java.io.tmpdir"));
+      final Path phiTempDir = Paths.get(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString());
+      try {
+        Files.createDirectories(phiTempDir);
+      } catch (IOException ex) {
+        throw new UncheckedIOException(ex);
+      }
+      cmd.add(phiTempDir.toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.toFile());
       pbis.add(PbiBuilder.from(pb));
