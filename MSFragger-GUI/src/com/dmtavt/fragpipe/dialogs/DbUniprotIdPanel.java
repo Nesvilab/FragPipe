@@ -65,7 +65,7 @@ public class DbUniprotIdPanel extends JPanel {
     // add external spike-in sequences from an existing FASTA file
     textSpikeInFASTA = new UiText();
 
-    FormEntry feDbPath = Fragpipe.fe(textSpikeInFASTA, "db-path").label("FASTA file path").create();
+    FormEntry feDbPath = Fragpipe.fe(textSpikeInFASTA, "spike-in-db-path").label("FASTA file path").create();
     JButton btnBrowse = feDbPath.browseButton("Browse", "optional",
             () -> TabDatabase.createFilechooserFasta(textSpikeInFASTA),
             paths -> textSpikeInFASTA.setText(paths.get(0).toString()));
