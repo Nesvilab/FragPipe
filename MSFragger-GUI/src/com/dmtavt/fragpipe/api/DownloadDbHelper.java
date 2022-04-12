@@ -289,11 +289,14 @@ public class DownloadDbHelper {
           .setName(pb.toString()).setFnStdOut(null).setFnStdErr(null)
           .setParallelGroup(null).create();
       ProcessResult pr = new ProcessResult(pbi);
-      pr.start().waitFor(timeoutMinutes, TimeUnit.MINUTES);
-      log.info("Process output: {}", pr.getOutput().toString());
-      final int exitValue = pr.getProcess().exitValue();
-      if (!cmd.toLowerCase().contains("workspace") && exitValue != 0) {
-        throw new IllegalStateException("Process returned non zero value");
+      if (pr.start().waitFor(timeoutMinutes, TimeUnit.MINUTES)) {
+        log.info("Process output: {}", pr.getOutput().toString());
+        final int exitValue = pr.getProcess().exitValue();
+        if (!cmd.toLowerCase().contains("workspace") && exitValue != 0) {
+          throw new IllegalStateException("Process returned non zero value");
+        }
+      } else {
+        throw new InterruptedException(pb + " took more than " + timeoutMinutes + " minutes. Interrupted the process.");
       }
     }
   }
