@@ -294,6 +294,7 @@ public class TabMsfragger extends JPanelBase {
 
   private UiCombo uiComboLoadDefaultsNames;
   private UiText uiTextMassOffsets;
+  private UiText uiTextRemainderMasses;
   private UiSpinnerDouble uiSpinnerPrecTolLo;
   private UiSpinnerDouble uiSpinnerPrecTolHi;
   private UiCombo uiComboPrecursorTolUnits;
@@ -801,10 +802,8 @@ public class TabMsfragger extends JPanelBase {
                     "Space or / separated")
             .create();
 
-    final HtmlStyledJEditorPane ep3 = new HtmlStyledJEditorPane();
-    ep3.setPreferredSize(new Dimension(100, 25));
-    mu.border(ep3, new LineBorder(Color.LIGHT_GRAY, 1));
-    FormEntry feRemainderIons = mu.feb(ep3).name(MsfraggerParams.PROP_remainder_masses)
+    uiTextRemainderMasses = new UiText();
+    FormEntry feRemainderIons = mu.feb(MsfraggerParams.PROP_remainder_masses, uiTextRemainderMasses)
             .label("Remainder fragment masses")
             .tooltip("List of possible remainder fragment ions to consider.\n" +
                     "Remainder masses are partial modification masses left on b/y ions\n" +
@@ -819,7 +818,7 @@ public class TabMsfragger extends JPanelBase {
       updateEnabledStatus(uiSpinnerMinInt, enabled);
       updateEnabledStatus(ep1, enabled);
       updateEnabledStatus(ep2, enabled);
-      updateEnabledStatus(ep3, enabled);
+      updateEnabledStatus(uiTextRemainderMasses, enabled);
     });
     // trigger the item listener on startup
     // (done with indexes so that it breaks if the list and OFF option are changed)

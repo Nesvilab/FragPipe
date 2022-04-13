@@ -424,6 +424,7 @@ public class MsfraggerParams extends AbstractParams {
     public String getDiagnosticFragments() {
         return props.getProp(PROP_diagnostic_fragments, "").value;
     }
+    public String getRemainderMasses() { return props.getProp(PROP_remainder_masses, "").value; }
 
     public void setLabileSearchMode(String v) {
         props.setProp(PROP_labile_search_mode, v);
@@ -439,6 +440,9 @@ public class MsfraggerParams extends AbstractParams {
     }
     public void setDiagnosticFragments(String v) {
         props.setProp(PROP_diagnostic_fragments, v);
+    }
+    public void setRemainderMasses(String v) {
+        props.setProp(PROP_remainder_masses, v);
     }
 
 
