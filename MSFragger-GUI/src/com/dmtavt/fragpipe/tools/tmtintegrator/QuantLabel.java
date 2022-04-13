@@ -44,7 +44,8 @@ public class QuantLabel {
     labels.add(new QuantLabel(TYPE_TMT, "TMT-18", Arrays.asList("126, 127N, 127C, 128N, 128C, 129N, 129C, 130N, 130C, 131N, 131C, 132N, 132C, 133N, 133C, 134N, 134C, 135N".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_ITRAQ, "iTRAQ-4", Arrays.asList("114, 115, 116, 117".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_ITRAQ, "iTRAQ-8", Arrays.asList("113, 114, 115, 116, 117, 118, 119, 121".split("[,\\s]+"))));
-    labels.add(new QuantLabel(TYPE_CHEMOPROTEOMICS, "K2", Arrays.asList("284, 290".split("[,\\s]+"))));
+    labels.add(new QuantLabel(TYPE_CHEMOPROTEOMICS, "K2-2", Arrays.asList("284, 290".split("[,\\s]+"))));
+    labels.add(new QuantLabel(TYPE_CHEMOPROTEOMICS, "K2-6", Arrays.asList("284, 290, 301, 307, 327, 333".split("[,\\s]+"))));
     LABELS = Collections.unmodifiableList(labels);
   }
 
