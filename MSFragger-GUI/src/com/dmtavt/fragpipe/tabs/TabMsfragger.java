@@ -55,7 +55,6 @@ import com.github.chhh.utils.swing.DocumentFilters;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
-import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
@@ -104,7 +103,6 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -300,7 +298,7 @@ public class TabMsfragger extends JPanelBase {
   private UiCombo uiComboPrecursorTolUnits;
   private final Map<String, String> cache = new HashMap<>();
   private UiText uiTextIsoErr;
-  private JEditorPane epMassOffsets;
+  private UiText epMassOffsets;
   private JPanel pTop;
   private JPanel pBasic;
   private JPanel pMods;
@@ -333,7 +331,7 @@ public class TabMsfragger extends JPanelBase {
       return false;
     }
 
-    return (PrecursorMassTolUnits.valueOf((String) selected).valueInParamsFile() == 0 && uiSpinnerPrecTolLo.getActualValue() < -3 && uiSpinnerPrecTolHi.getActualValue() > 3) || !((HtmlStyledJEditorPane) epMassOffsets).getTextLessHtml().trim().contentEquals("0");
+    return (PrecursorMassTolUnits.valueOf((String) selected).valueInParamsFile() == 0 && uiSpinnerPrecTolLo.getActualValue() < -3 && uiSpinnerPrecTolHi.getActualValue() > 3) || !((UiText) epMassOffsets).getNonGhostText().trim().contentEquals("0");
   }
 
   public int getMassDiffToVariableMod() {
@@ -782,9 +780,7 @@ public class TabMsfragger extends JPanelBase {
                     "Set to 0 to disable (all spectra will be searched for mass offsets/open search)")
             .create();
 
-    final HtmlStyledJEditorPane ep1 = new HtmlStyledJEditorPane();
-    ep1.setPreferredSize(new Dimension(100, 25));
-    mu.border(ep1, new LineBorder(Color.LIGHT_GRAY, 1));
+    UiText ep1 = new UiText();
     FormEntry feYIonMasses = mu.feb(ep1).name(MsfraggerParams.PROP_Y_type_masses)
         .label("Y ion masses")
             .tooltip("List of possible Y ion (intact peptide + partially fragmented modification) masses\n" +
@@ -792,9 +788,7 @@ public class TabMsfragger extends JPanelBase {
                     "example: '0 203.0794 365.1322'")
             .create();
 
-    final HtmlStyledJEditorPane ep2 = new HtmlStyledJEditorPane();
-    ep2.setPreferredSize(new Dimension(100, 25));
-    mu.border(ep2, new LineBorder(Color.LIGHT_GRAY, 1));
+    UiText ep2 = new UiText();
     FormEntry feOxoniumIons = mu.feb(ep2).name(MsfraggerParams.PROP_diagnostic_fragments)
         .label("Diagnostic fragment masses")
             .tooltip("List of possible diagnostic fragment ions to consider.\n" +
@@ -1035,7 +1029,7 @@ public class TabMsfragger extends JPanelBase {
         + "(0,1,2,79.966, 80.966, 81.966). Masses can be separated\n"
         + " with \"/\" or space.";
 
-    epMassOffsets = new HtmlStyledJEditorPane();
+    epMassOffsets = new UiText();
     epMassOffsets.setPreferredSize(new Dimension(100, 25));
     //epMassOffsets.setMaximumSize(new Dimension(200, 25));
     epMassOffsets.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
