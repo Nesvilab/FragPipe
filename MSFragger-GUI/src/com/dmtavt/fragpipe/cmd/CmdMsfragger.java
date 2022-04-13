@@ -303,7 +303,7 @@ public class CmdMsfragger extends CmdBase {
       // slicing requested
       if (!DbSplit2.get().isInitialized()) {
         if (Fragpipe.headless) {
-          log.error("MSFragger: database splitting in more than 1 chunk. However not all preconditions for enabling slicing were met.");
+          log.error("MSFragger: database splitting in more than 1 chunk. However not all preconditions for enabling slicing were met, check that Python is installed and meets minimum version requirements.");
         } else {
           JOptionPane.showMessageDialog(comp,
               "MSFragger: database splitting in more than 1 chunk.\n"

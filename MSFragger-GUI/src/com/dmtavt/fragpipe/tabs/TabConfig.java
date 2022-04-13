@@ -525,6 +525,10 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessagePythonNewBin m) {
+    if (Fragpipe.headless) {
+      log.debug("headless mode: not checking python version on call from TabConfig");
+      return;
+    }
     PyInfo pi;
     try {
       // first check if the path is absolute, then it must exist
