@@ -525,10 +525,6 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessagePythonNewBin m) {
-    if (Fragpipe.headless) {
-      log.debug("headless mode: not checking python version on call from TabConfig");
-      return;
-    }
     PyInfo pi;
     try {
       // first check if the path is absolute, then it must exist
@@ -541,7 +537,11 @@ public class TabConfig extends JPanelWithEnablement {
       // if paths.get didn't throw, we can try the binary, it might be on PATH
       pi = PyInfo.fromCommand(m.command);
       if (pi.getFullVersion().compareTo(pythonMinVersion) < 0) {
-        Bus.postSticky(new NoteConfigPython(pi, new ValidationException("Python version " + pythonMinVersion + "+ required"), pi.getCommand(), pi.getVersion()));
+        if (Fragpipe.headless) {
+          log.debug("headless mode: not checking python version on call from TabConfig");
+        } else {
+          Bus.postSticky(new NoteConfigPython(pi, new ValidationException("Python version " + pythonMinVersion + "+ required"), pi.getCommand(), pi.getVersion()));
+        }
       } else {
         Bus.postSticky(new NoteConfigPython(pi));
       }
