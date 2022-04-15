@@ -156,7 +156,7 @@ public class DiannPanel extends JPanelBase {
 
     uiComboQuantificationStrategy = UiUtils.createUiCombo(Arrays.asList("Any LC (high accuracy)", "Any LC (high precision)", "Robust LC (high accuracy)", "Robust LC (high precision)"));
     FormEntry feQuantificationStrategy = new FormEntry("quantification-strategy", "Quantification strategy", uiComboQuantificationStrategy);
-    uiComboQuantificationStrategy.setSelectedIndex(0);
+    uiComboQuantificationStrategy.setSelectedIndex(3);
 
     uiTextLibrary = UiUtils.uiTextBuilder().create();
     FormEntry feLibrary = new FormEntry("library", "Spectral library (optional)", uiTextLibrary, "Additional spectral library file.\nIf blank, using the library.tsv built from FragPipe.");
