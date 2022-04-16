@@ -36,7 +36,11 @@ public class VersionComparator implements Comparator<String> {
     private static VersionComparator INSTANCE = new VersionComparator();
 
     public static int cmp(String v1, String v2) {
-        return INSTANCE.compare(v1, v2);
+        try {
+            return INSTANCE.compare(v1, v2);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("v1:"+ v1 + "\tv2:" + v2, ex);
+        }
     }
 
     public boolean equals(String o1, String o2) {
