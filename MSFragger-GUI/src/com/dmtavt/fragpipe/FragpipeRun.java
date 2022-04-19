@@ -297,7 +297,7 @@ public class FragpipeRun {
       toConsole("~~~~~~Sample of " + tabDatabase.getFastaPath() + "~~~~~~~");
       try {
         List<String> proteinHeaders = Files.lines(Paths.get(tabDatabase.getFastaPath())).filter(e -> e.startsWith(">")).sorted().collect(Collectors.toList());
-        int gap = (proteinHeaders.size() - 1) / 20;
+        int gap = proteinHeaders.size() < 21 ? 1 : (proteinHeaders.size() - 1) / 20;    // make sure gap is always at least 1 to prevent an infinite loop
         int idx = 0;
         while (idx < proteinHeaders.size()) {
           toConsole(proteinHeaders.get(idx).trim());
