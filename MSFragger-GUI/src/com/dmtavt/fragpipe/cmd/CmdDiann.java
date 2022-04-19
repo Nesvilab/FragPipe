@@ -65,7 +65,7 @@ public class CmdDiann extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, float qvalue, String libraryPath, String additionalCmdOpts) {
+  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, float qvalue, String libraryPath, String additionalCmdOpts) {
 
     initPreConfig();
 
@@ -165,7 +165,15 @@ public class CmdDiann extends CmdBase {
       cmd.add("--smart-profiling");
       cmd.add("--no-quant-files");
       cmd.addAll(quantificationStrategy);
-      cmd.add(additionalCmdOpts);
+      if (usePredict) {
+        cmd.add("--predictor");
+        cmd.add("--dl-no-rt");
+        cmd.add("--dl-no-im");
+        cmd.add("--strip-unknown-mods");
+      }
+      if (!additionalCmdOpts.isEmpty()) {
+        cmd.add(additionalCmdOpts);
+      }
 
       try {
         final Path filelist = groupWd.resolve("filelist_diann.txt");

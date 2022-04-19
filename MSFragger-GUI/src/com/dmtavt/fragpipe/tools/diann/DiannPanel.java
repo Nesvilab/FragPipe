@@ -70,6 +70,7 @@ public class DiannPanel extends JPanelBase {
   private UiSpinnerDouble uiSpinnerQvalue;
   private UiText uiTextLibrary;
   private JPanel panelDiann;
+  private UiCombo uiComboSpectraType;
 
   @Override
   protected void initMore() {
@@ -158,6 +159,10 @@ public class DiannPanel extends JPanelBase {
     FormEntry feQuantificationStrategy = new FormEntry("quantification-strategy", "Quantification strategy", uiComboQuantificationStrategy);
     uiComboQuantificationStrategy.setSelectedIndex(3);
 
+    uiComboSpectraType = UiUtils.createUiCombo(new String[]{"predicted", "empirical"});
+    FormEntry feSpectraType = new FormEntry("spectra-type", "Spectra type", uiComboSpectraType);
+    uiComboSpectraType.setSelectedIndex(0);
+
     uiTextLibrary = UiUtils.uiTextBuilder().create();
     FormEntry feLibrary = new FormEntry("library", "Spectral library (optional)", uiTextLibrary, "Additional spectral library file.\nIf blank, using the library.tsv built from FragPipe.");
     JButton jButtonLibrary = feLibrary.browseButton("Browse", "Select library file", () -> {
@@ -179,14 +184,16 @@ public class DiannPanel extends JPanelBase {
             + "To set --threads, please adjust the Parallelism setting in the Workflow tab.\n"
             + "See output log (e.g. dry-run results) for the complete command.").create();
 
-    mu.add(p, feQvalue.label(), mu.ccL()).split();
+    mu.add(p, feQvalue.label(), mu.ccL());
     mu.add(p, feQvalue.comp).wrap();
-    mu.add(p, feQuantificationStrategy.label(), mu.ccL()).split();
+    mu.add(p, feQuantificationStrategy.label(), mu.ccL());
     mu.add(p, feQuantificationStrategy.comp).wrap();
-    mu.add(p, feLibrary.label(), mu.ccL()).split();
+    mu.add(p, feSpectraType.label(), mu.ccL());
+    mu.add(p, feSpectraType.comp).wrap();
+    mu.add(p, feLibrary.label(), mu.ccL());
     mu.add(p, feLibrary.comp).pushX().growX();
     mu.add(p, jButtonLibrary).wrap();
-    mu.add(p, feCmdOpts.label(), mu.ccL()).split();
+    mu.add(p, feCmdOpts.label(), mu.ccL());
     mu.add(p, feCmdOpts.comp).growX().pushX().wrap();
 
     updateEnabledStatus(p, true);
@@ -232,5 +239,9 @@ public class DiannPanel extends JPanelBase {
       default:
         return new HashSet<>();
     }
+  }
+
+  public boolean usePredict() {
+    return uiComboSpectraType.getSelectedIndex() == 0;
   }
 }
