@@ -7,6 +7,7 @@ diann.library=
 diann.q-value=0.01
 diann.quantification-strategy=3
 diann.run-dia-nn=true
+diann.run-specific-protein-q-value=1
 diann.spectra-type=1
 diaumpire.AdjustFragIntensity=true
 diaumpire.BoostComplementaryIon=false

@@ -65,7 +65,7 @@ public class CmdDiann extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, float qvalue, String libraryPath, String additionalCmdOpts) {
+  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, float qvalue, float runSpecificProteinQvalue, String libraryPath, String additionalCmdOpts) {
 
     initPreConfig();
 
@@ -160,6 +160,8 @@ public class CmdDiann extends CmdBase {
       cmd.add("diann-output.tsv");
       cmd.add("--qvalue");
       cmd.add(String.valueOf(qvalue));
+      cmd.add("--matrix-spec-q");
+      cmd.add(String.valueOf(runSpecificProteinQvalue));
       cmd.add("--matrices");
       cmd.add("--no-prot-inf");
       cmd.add("--smart-profiling");
