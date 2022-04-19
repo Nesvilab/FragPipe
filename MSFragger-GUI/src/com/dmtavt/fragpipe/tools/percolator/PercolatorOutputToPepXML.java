@@ -17,10 +17,7 @@
 
 package com.dmtavt.fragpipe.tools.percolator;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,17 +41,20 @@ public class PercolatorOutputToPepXML {
 
     public static void main(final String[] args) {
         Locale.setDefault(Locale.US);
-        if (args.length == 0)
+        if (args.length == 0) {
             percolatorToPepXML(
-                    Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01.pin"),
-                    "F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01",
-                    Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01_percolator_target_psms.tsv"),
-                    Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01_percolator_decoy_psms.tsv"),
-                    Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\interact-20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01"),
-                    "DIA",
-                    0);
-        else
+                Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01.pin"),
+                "F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01",
+                Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01_percolator_target_psms.tsv"),
+                Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01_percolator_decoy_psms.tsv"),
+                Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\interact-20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01"),
+                "DIA",
+                0);
+        } else if (Files.exists(Paths.get(args[0].replace(".pin", "_edited.pin")))){
+                percolatorToPepXML(Paths.get(args[0].replace(".pin", "_edited.pin")), args[1], Paths.get(args[2]), Paths.get(args[3]), Paths.get(args[4]), args[5], Double.parseDouble(args[6]));
+        } else {
             percolatorToPepXML(Paths.get(args[0]), args[1], Paths.get(args[2]), Paths.get(args[3]), Paths.get(args[4]), args[5], Double.parseDouble(args[6]));
+        }
     }
 
     private static String getSpectrum(final String line) {
@@ -158,26 +158,32 @@ public class PercolatorOutputToPepXML {
         }
         sb.append(oldRank == newRank ? search_hit_line : search_hit_line.replace("hit_rank=\"" + oldRank + "\"", "hit_rank=\"" + newRank + "\"")).append("\n");
         String line;
-        while (!(line = iterator.next()).trim().contentEquals("</search_hit>"))
+        while (!(line = iterator.next()).trim().contentEquals("</search_hit>")) {
             sb.append(line).append("\n");
-        {
-            sb.append(
-                    String.format(
-                            "<analysis_result analysis=\"peptideprophet\">\n" +
-                                    "<peptideprophet_result probability=\"%f\" all_ntt_prob=\"(%f,%f,%f)\">\n" +
-                                    "<search_score_summary>\n" +
-                                    "<parameter name=\"fval\" value=\"%f\"/>\n" +
-                                    "<parameter name=\"ntt\" value=\"%d\"/>\n" +
-                                    "<parameter name=\"nmc\" value=\"%d\"/>\n" +
-                                    "<parameter name=\"massd\" value=\"%f\"/>\n" +
-                                    "<parameter name=\"isomassd\" value=\"%d\"/>\n" +
-                                    "</search_score_summary>\n" +
-                                    "</peptideprophet_result>\n" +
-                                    "</analysis_result>\n",
-                            1 - pepScore.pep, 1 - pepScore.pep, 1 - pepScore.pep, 1 - pepScore.pep,
-                            pepScore.score, nttNmc.ntt, nttNmc.nmc, (massdiff - isomassd * 1.0033548378) * 1e6 / calc_neutral_pep_mass, isomassd
-                    ));
         }
+
+        if (!Float.isNaN(nttNmc.spectralSimilarity)) {
+            sb.append(String.format("<search_score name=\"spectralsim\" value=\"%f\"/>\n", nttNmc.spectralSimilarity));
+        }
+        if (!Float.isNaN(nttNmc.RTscore)) {
+            sb.append(String.format("<search_score name=\"rtscore\" value=\"%f\"/>\n", nttNmc.RTscore));
+        }
+        sb.append(
+                String.format(
+                        "<analysis_result analysis=\"peptideprophet\">\n" +
+                                "<peptideprophet_result probability=\"%f\" all_ntt_prob=\"(%f,%f,%f)\">\n" +
+                                "<search_score_summary>\n" +
+                                "<parameter name=\"fval\" value=\"%f\"/>\n" +
+                                "<parameter name=\"ntt\" value=\"%d\"/>\n" +
+                                "<parameter name=\"nmc\" value=\"%d\"/>\n" +
+                                "<parameter name=\"massd\" value=\"%f\"/>\n" +
+                                "<parameter name=\"isomassd\" value=\"%d\"/>\n" +
+                                "</search_score_summary>\n" +
+                                "</peptideprophet_result>\n" +
+                                "</analysis_result>\n",
+                        1 - pepScore.pep, 1 - pepScore.pep, 1 - pepScore.pep, 1 - pepScore.pep,
+                        pepScore.score, nttNmc.ntt, nttNmc.nmc, (massdiff - isomassd * 1.0033548378) * 1e6 / calc_neutral_pep_mass, isomassd
+                ));
         sb.append("</search_hit>\n");
         return sb;
     }
@@ -259,13 +265,50 @@ public class PercolatorOutputToPepXML {
         final Map<String, NttNmc[]> pinSpectrumRankNttNmc = new HashMap<>();
         final Map<String, PepScore[]> pinSpectrumRankPepScore = new HashMap<>();
 
-        try (final BufferedReader brtsv = Files.newBufferedReader(pin)) {
+        try {
+            BufferedReader brtsv = Files.newBufferedReader(pin);
             final String pin_header = brtsv.readLine();
             final List<String> colnames = Arrays.asList(pin_header.split("\t"));
             final int indexOf_SpecId = colnames.indexOf("SpecId");
             final int indexOf_ntt = colnames.indexOf("ntt");
             final int indexOf_nmc = colnames.indexOf("nmc");
+            int indexOf_spectralSimilarity = -1;
+            int indexOf_RTscore = -1;
+            if (colnames.contains("bray_curtis")) {
+                indexOf_spectralSimilarity = colnames.indexOf("bray_curtis");
+            }
+            if (colnames.contains("unweighted_spectral_entropy")) {
+                indexOf_spectralSimilarity = colnames.indexOf("unweighted_spectral_entropy");
+            }
+            if (colnames.contains("delta_RT_loess")) {
+                indexOf_RTscore = colnames.indexOf("delta_RT_loess");
+            }
             String line;
+
+            double scoreMean = 0;
+            double scoreStd = 0;
+            if (indexOf_RTscore != -1) {
+                //get all RTscores so we can calculate z scores
+                ArrayList<Double> RTscoresArrayList = new ArrayList<>();
+
+                while ((line = brtsv.readLine()) != null) {
+                    String[] split = line.split("\t");
+                    double score = Double.parseDouble(split[indexOf_RTscore]);
+                    RTscoresArrayList.add(score);
+                    scoreMean += score;
+                }
+                scoreMean /= RTscoresArrayList.size();
+                for (double d : RTscoresArrayList) {
+                    scoreStd += Math.pow(scoreMean - d, 2) / RTscoresArrayList.size();
+                }
+                scoreStd = Math.sqrt(scoreStd);
+                RTscoresArrayList.clear();
+
+                //go to beginning of file
+                brtsv = Files.newBufferedReader(pin);
+                brtsv.readLine();
+            }
+
             while ((line = brtsv.readLine()) != null) {
                 final String[] split = line.split("\t");
                 final String raw_SpecId = split[indexOf_SpecId];
@@ -274,7 +317,15 @@ public class PercolatorOutputToPepXML {
                 final int rank = spectrum_rank.rank;
                 final int ntt = Integer.parseInt(split[indexOf_ntt]);
                 final int nmc = Integer.parseInt(split[indexOf_nmc]);
-                pinSpectrumRankNttNmc.computeIfAbsent(specId, e -> new NttNmc[max_rank])[rank - 1] = new NttNmc(ntt, nmc);
+                float spectralSimilarity = Float.NaN;
+                if (indexOf_spectralSimilarity != -1) {
+                    spectralSimilarity = Float.parseFloat(split[indexOf_spectralSimilarity]);
+                }
+                float RTscore = Float.NaN;
+                if (indexOf_RTscore != -1) {
+                    RTscore = (float) ((Double.parseDouble(split[indexOf_RTscore]) - scoreMean) / scoreStd);
+                }
+                pinSpectrumRankNttNmc.computeIfAbsent(specId, e -> new NttNmc[max_rank])[rank - 1] = new NttNmc(ntt, nmc, spectralSimilarity, RTscore);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -367,10 +418,14 @@ public class PercolatorOutputToPepXML {
 
         final int ntt;
         final int nmc;
+        final float spectralSimilarity;
+        final float RTscore;
 
-        public NttNmc(int ntt, int nmc) {
+        public NttNmc(int ntt, int nmc, float spectralSimilarity, float RTscore) {
             this.ntt = ntt;
             this.nmc = nmc;
+            this.spectralSimilarity = spectralSimilarity;
+            this.RTscore = RTscore;
         }
     }
 
