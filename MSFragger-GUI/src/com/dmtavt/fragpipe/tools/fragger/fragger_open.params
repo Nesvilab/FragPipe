@@ -99,6 +99,7 @@ minimum_peaks = 15
 use_topN_peaks = 100
 min_fragments_modelling = 2
 min_matched_fragments = 4
+min_sequence_matches = 2
 minimum_ratio = 0.01
 clear_mz_range = 0.0 0.0
 

@@ -91,6 +91,7 @@ msfragger.max_variable_mods_combinations=5000
 msfragger.max_variable_mods_per_peptide=3
 msfragger.min_fragments_modelling=2
 msfragger.min_matched_fragments=4
+msfragger.min_sequence_matches=2
 msfragger.minimum_peaks=15
 msfragger.minimum_ratio=0.00
 msfragger.misc.fragger.clear-mz-hi=132
