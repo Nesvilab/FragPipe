@@ -62,6 +62,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_Y_type_masses = "Y_type_masses";
     public static final String PROP_diagnostic_fragments = "diagnostic_fragments";
     public static final String PROP_remainder_masses = "remainder_fragment_masses";
+    public static final String PROP_min_sequence_matches = "min_sequence_matches";
 
     public static final String PROP_database_name = "database_name";
     public static final String PROP_decoy_prefix = "decoy_prefix";
@@ -151,6 +152,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_Y_type_masses,
         PROP_diagnostic_fragments,
         PROP_remainder_masses,
+        PROP_min_sequence_matches,
         PROP_database_name,
         PROP_decoy_prefix,
         PROP_fragpipe_ram,
@@ -372,6 +374,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_Y_type_masses, " [nglycan/labile search_mode only]. Specify fragments of labile mods that are commonly retained on intact peptides (e.g. Y ions for glycans). Only used if 'Y' is included in fragment_ion_series.");
         c.put(PROP_diagnostic_fragments, "[nglycan/labile search_mode only]. Specify diagnostic fragments of labile mods that appear in the low m/z region. Only used if diagnostic_intensity_filter > 0.");
         c.put(PROP_remainder_masses, "[labile search_mode only] List of possible remainder fragment ions to consider. Remainder masses are partial modification masses left on b/y ions after fragmentation.");
+        c.put(PROP_min_sequence_matches, "[nglycan/labile search_mode only] Minimum number of sequence-specific (not Y) ions to record a match.");
         c.put(PROP_diagnostic_intensity_filter, "[nglycan/labile search_mode only]. Minimum relative intensity for SUM of all detected oxonium ions to achieve for spectrum to contain diagnostic fragment evidence. Calculated relative to spectrum base peak. 0 <= value.");
         return c;
     }
@@ -425,6 +428,7 @@ public class MsfraggerParams extends AbstractParams {
         return props.getProp(PROP_diagnostic_fragments, "").value;
     }
     public String getRemainderMasses() { return props.getProp(PROP_remainder_masses, "").value; }
+    public String getMinSequenceMatches() { return props.getProp(PROP_min_sequence_matches, "2").value; }
 
     public void setLabileSearchMode(String v) {
         props.setProp(PROP_labile_search_mode, v);
@@ -444,7 +448,7 @@ public class MsfraggerParams extends AbstractParams {
     public void setRemainderMasses(String v) {
         props.setProp(PROP_remainder_masses, v);
     }
-
+    public void setMinSequenceMatches(String v){ props.setProp(PROP_min_sequence_matches, v); }
 
     public String getDatabaseName() {
         return props.getProp(PROP_database_name, "").value;

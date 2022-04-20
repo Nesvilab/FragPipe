@@ -780,6 +780,12 @@ public class TabMsfragger extends JPanelBase {
                     "Set to 0 to disable (all spectra will be searched for mass offsets/open search)")
             .create();
 
+    final UiSpinnerInt uiSpinnerMinSeqMatches = new UiSpinnerInt(2, 0, 1000, 1, 4);
+    FormEntry feMinSeqMatches = mu.feb(MsfraggerParams.PROP_min_sequence_matches, uiSpinnerMinSeqMatches)
+            .label("Min Sequence-specific Ions")
+            .tooltip("<html>The minimum number of peptide sequence-specific ions (i.e., not Y ions)\n" +
+                    "required to record a match. Only used if Y ions are searched. Default: 2").create();
+
     UiText ep1 = new UiText();
     FormEntry feYIonMasses = mu.feb(ep1).name(MsfraggerParams.PROP_Y_type_masses)
         .label("Y ion masses")
@@ -813,6 +819,7 @@ public class TabMsfragger extends JPanelBase {
       updateEnabledStatus(ep1, enabled);
       updateEnabledStatus(ep2, enabled);
       updateEnabledStatus(uiTextRemainderMasses, enabled);
+      updateEnabledStatus(uiSpinnerMinSeqMatches, enabled);
     });
     // trigger the item listener on startup
     // (done with indexes so that it breaks if the list and OFF option are changed)
@@ -824,7 +831,9 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feGlycoSearchMode.label(), mu.ccR());
     mu.add(p, feGlycoSearchMode.comp);
     mu.add(p, feOxoniumIonMinimumIntensity.label(), mu.ccR());
-    mu.add(p, feOxoniumIonMinimumIntensity.comp).pushX().wrap();
+    mu.add(p, feOxoniumIonMinimumIntensity.comp);
+    mu.add(p, feMinSeqMatches.label(), mu.ccR());
+    mu.add(p, feMinSeqMatches.comp).pushX().wrap();
     mu.add(p, feYIonMasses.label(), mu.ccR());
     mu.add(p, feYIonMasses.comp).spanX().growX().wrap();
     mu.add(p, feOxoniumIons.label(), mu.ccR());
