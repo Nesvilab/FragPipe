@@ -156,7 +156,7 @@ public class DiannPanel extends JPanelBase {
     uiSpinnerQvalue = UiUtils.spinnerDouble(0.01, 0.0, 1.0, 0.01).setCols(5).setFormat("#.##").create();
     FormEntry feQvalue = mu.feb(uiSpinnerQvalue).name("q-value").label("Precursor FDR").create();
 
-    uiSpinRunSpecificProteinQvalue = UiUtils.spinnerDouble(1, 0.0, 1.0, 0.01).setCols(5).setFormat("#.##").create();
+    uiSpinRunSpecificProteinQvalue = UiUtils.spinnerDouble(0.01, 0.0, 1.0, 0.01).setCols(5).setFormat("#.##").create();
     FormEntry feRunSpecificProteinQvalue = mu.feb(uiSpinRunSpecificProteinQvalue).name("run-specific-protein-q-value").label("Run specific protein FDR").tooltip("By default, the output matrices are filtered with 1% global protein group FDR, 1% global precursor FDR, and 1% run-specific precursor FDR.\n Set run specific protein FDR to have a more stringent filtering.").create();
 
     uiComboQuantificationStrategy = UiUtils.createUiCombo(Arrays.asList("Any LC (high accuracy)", "Any LC (high precision)", "Robust LC (high accuracy)", "Robust LC (high precision)"));
