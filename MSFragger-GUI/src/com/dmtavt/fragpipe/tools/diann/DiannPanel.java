@@ -20,6 +20,7 @@ package com.dmtavt.fragpipe.tools.diann;
 import static com.dmtavt.fragpipe.Fragpipe.fe;
 import static com.dmtavt.fragpipe.cmd.CmdDiann.DIANN_VERSION;
 import static com.github.chhh.utils.SwingUtils.createClickableHtml;
+import static com.github.chhh.utils.SwingUtils.isEnabledAndChecked;
 
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.github.chhh.utils.SwingUtils;
@@ -70,7 +71,7 @@ public class DiannPanel extends JPanelBase {
   private UiSpinnerDouble uiSpinnerQvalue;
   private UiText uiTextLibrary;
   private JPanel panelDiann;
-  private UiCombo uiComboSpectraType;
+  private UiCheck uiCheckUsePredictedSpectra;
   private UiSpinnerDouble uiSpinRunSpecificProteinQvalue;
 
   @Override
@@ -163,9 +164,8 @@ public class DiannPanel extends JPanelBase {
     FormEntry feQuantificationStrategy = new FormEntry("quantification-strategy", "Quantification strategy", uiComboQuantificationStrategy);
     uiComboQuantificationStrategy.setSelectedIndex(3);
 
-    uiComboSpectraType = UiUtils.createUiCombo(new String[]{"predicted", "empirical"});
-    FormEntry feSpectraType = new FormEntry("spectra-type", "Spectra type", uiComboSpectraType);
-    uiComboSpectraType.setSelectedIndex(0);
+    uiCheckUsePredictedSpectra = UiUtils.createUiCheck("Use predicted spectra", false);
+    FormEntry feUsePredictedSpectra = new FormEntry("use-predicted-spectra", "Use predicted spectra", uiCheckUsePredictedSpectra);
 
     uiTextLibrary = UiUtils.uiTextBuilder().create();
     FormEntry feLibrary = new FormEntry("library", "Spectral library (optional)", uiTextLibrary, "Additional spectral library file.\nIf blank, using the library.tsv built from FragPipe.");
@@ -194,8 +194,7 @@ public class DiannPanel extends JPanelBase {
     mu.add(p, feRunSpecificProteinQvalue.comp).wrap();
     mu.add(p, feQuantificationStrategy.label(), mu.ccL());
     mu.add(p, feQuantificationStrategy.comp).wrap();
-    mu.add(p, feSpectraType.label(), mu.ccL());
-    mu.add(p, feSpectraType.comp).wrap();
+    mu.add(p, feUsePredictedSpectra.comp).wrap();
     mu.add(p, feLibrary.label(), mu.ccL());
     mu.add(p, feLibrary.comp).pushX().growX();
     mu.add(p, jButtonLibrary).wrap();
@@ -252,6 +251,6 @@ public class DiannPanel extends JPanelBase {
   }
 
   public boolean usePredict() {
-    return uiComboSpectraType.getSelectedIndex() == 0;
+    return isEnabledAndChecked(uiCheckUsePredictedSpectra);
   }
 }

@@ -7,9 +7,6 @@ diann.quantification-strategy :: Any LC (high precision) <=> 1
 diann.quantification-strategy :: Robust LC (high accuracy) <=> 2
 diann.quantification-strategy :: Robust LC (high precision) <=> 3
 
-diann.spectra-type :: predicted <=> 0
-diann.spectra-type :: empirical <=> 1
-
 msfragger.calibrate_mass :: None <=> 0
 msfragger.calibrate_mass :: Off <=> 0
 msfragger.calibrate_mass :: Mass calibration <=> 1
