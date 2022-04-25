@@ -314,7 +314,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes").tooltip("Minimum number of isotopic peaks required for feature detection").create();
     FormEntry feMinScans = mu.feb(uiSpinnerMinScans).name("ionquant.minscans").label("Min scans").tooltip("Minimum scans required for feature detection").create();
     FormEntry feWriteIndex = mu.feb("ionquant.writeindex", UiUtils.createUiCheck("Keep index on disk", false)).tooltip("Keep built index on disk for further usage").create();
-
+    FormEntry feIBaq = mu.feb("ionquant.ibaq", UiUtils.createUiCheck("iBAQ", false)).tooltip("Calculate iBAQ intensity. The iBAQ intensity is normalized by the protein length, not the number of theoretical peptides.").create();
     UiSpinnerDouble uiSpinnerMinSiteProb = UiSpinnerDouble.builder(0.75, -1, 1.0, 0.01).setFormat(new DecimalFormat("#.##")).setCols(5).create();
     FormEntry feMinSiteProb = mu.feb(uiSpinnerMinSiteProb).name("ionquant.locprob").label("Min site probability").tooltip("Site localization confidence threshold").create();
 

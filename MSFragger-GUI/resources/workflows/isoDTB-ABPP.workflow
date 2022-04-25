@@ -33,6 +33,7 @@ freequant.rt-tol=0.4
 freequant.run-freequant=false
 ionquant.excludemods=
 ionquant.heavy=C567.3462
+ionquant.ibaq=false
 ionquant.imtol=0.05
 ionquant.ionfdr=0.01
 ionquant.light=C561.3387

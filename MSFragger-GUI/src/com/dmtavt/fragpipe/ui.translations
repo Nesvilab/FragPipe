@@ -113,6 +113,8 @@ ionquant.minisotopes::2 <=> 2
 ionquant.minisotopes::3 <=> 3
 ionquant.writeindex::false <=> 0
 ionquant.writeindex::true <=> 1
+ionquant.ibaq::false <=> 0
+ionquant.ibaq::true <=> 1
 
 # ionquant.mztol :: M/Z window (ppm) <=> 10 (1 - 1000, step: 1)
 # ionquant.imtol :: IM window (1/k0) <=> 0.05 (0.001 - 0.5, step: 0.001)

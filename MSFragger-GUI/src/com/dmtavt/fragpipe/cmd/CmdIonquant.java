@@ -146,6 +146,7 @@ public class CmdIonquant extends CmdBase {
     // add all other parameters
     List<String> dynamicParams = Arrays.asList(
         "mbr",
+        "ibaq",
         "requantify",
         "mztol",
         "imtol",
