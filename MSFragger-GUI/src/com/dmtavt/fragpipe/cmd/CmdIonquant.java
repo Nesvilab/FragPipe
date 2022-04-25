@@ -139,10 +139,13 @@ public class CmdIonquant extends CmdBase {
     cmd.add("--ionmobility");
     cmd.add(dataType == InputDataType.ImMsTimsTof ? "1" : "0");
 
+    // always enable MaxLFQ
+    cmd.add("--maxlfq");
+    cmd.add("1");
+
     // add all other parameters
     List<String> dynamicParams = Arrays.asList(
         "mbr",
-        "maxlfq",
         "requantify",
         "mztol",
         "imtol",

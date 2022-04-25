@@ -37,7 +37,6 @@ ionquant.imtol=0.05
 ionquant.ionfdr=0.01
 ionquant.light=
 ionquant.locprob=0.75
-ionquant.maxlfq=1
 ionquant.mbr=1
 ionquant.mbrimtol=0.05
 ionquant.mbrmincorr=0
