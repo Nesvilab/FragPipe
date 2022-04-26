@@ -30,7 +30,8 @@ public class QuantLabel {
   // string to pass to --brand for labelquant (NOTE: will be converted to lower-case)
   public static final String TYPE_TMT = "TMT";
   public static final String TYPE_ITRAQ = "iTRAQ";
-  public static final String TYPE_CHEMOPROTEOMICS = "K2";
+  public static final String TYPE_K2 = "K2";
+  public static final String TYPE_SCLIP = "SCLIP2";
 
 
   public static final List<QuantLabel> LABELS;
@@ -44,8 +45,9 @@ public class QuantLabel {
     labels.add(new QuantLabel(TYPE_TMT, "TMT-18", Arrays.asList("126, 127N, 127C, 128N, 128C, 129N, 129C, 130N, 130C, 131N, 131C, 132N, 132C, 133N, 133C, 134N, 134C, 135N".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_ITRAQ, "iTRAQ-4", Arrays.asList("114, 115, 116, 117".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_ITRAQ, "iTRAQ-8", Arrays.asList("113, 114, 115, 116, 117, 118, 119, 121".split("[,\\s]+"))));
-    labels.add(new QuantLabel(TYPE_CHEMOPROTEOMICS, "K2-2", Arrays.asList("284, 290".split("[,\\s]+"))));
-    labels.add(new QuantLabel(TYPE_CHEMOPROTEOMICS, "K2-6", Arrays.asList("284, 290, 301, 307, 327, 333".split("[,\\s]+"))));
+    labels.add(new QuantLabel(TYPE_K2, "K2-2", Arrays.asList("284, 290".split("[,\\s]+"))));
+    labels.add(new QuantLabel(TYPE_K2, "K2-6", Arrays.asList("284, 290, 301, 307, 327, 333".split("[,\\s]+"))));
+    labels.add(new QuantLabel(TYPE_SCLIP, "SCLIP-2", Arrays.asList("286, 290".split("[,\\s]+"))));
     LABELS = Collections.unmodifiableList(labels);
   }
 
