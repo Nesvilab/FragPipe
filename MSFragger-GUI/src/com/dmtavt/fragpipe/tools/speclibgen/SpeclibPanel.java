@@ -232,7 +232,7 @@ public class SpeclibPanel extends JPanelBase {
         .label("UniMod annotation tol (Da)")
         .tooltip("Maximum delta mass (Dalton) for UniMod annotation.  [default: 0.02]").create();
 
-    uiSpinner_max_delta_ppm = UiUtils.spinnerDouble(15, 1, 100, 1)
+    uiSpinner_max_delta_ppm = UiUtils.spinnerDouble(15, 1, 500, 1)
             .setCols(5).setFormat("#.##").create();
     FormEntry fe_max_delta_ppm = mu.feb(uiSpinner_max_delta_ppm).name("easypqp.extras.max_delta_ppm")
         .label("Fragment annotation tol (ppm)")
