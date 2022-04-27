@@ -164,7 +164,7 @@ public class DiannPanel extends JPanelBase {
     FormEntry feQuantificationStrategy = new FormEntry("quantification-strategy", "Quantification strategy", uiComboQuantificationStrategy);
     uiComboQuantificationStrategy.setSelectedIndex(3);
 
-    uiCheckUsePredictedSpectra = UiUtils.createUiCheck("Use predicted spectra", false);
+    uiCheckUsePredictedSpectra = UiUtils.createUiCheck("Replace library spectra with predicted", false);
     FormEntry feUsePredictedSpectra = new FormEntry("use-predicted-spectra", "Use predicted spectra", uiCheckUsePredictedSpectra);
 
     uiTextLibrary = UiUtils.uiTextBuilder().create();
