@@ -139,13 +139,14 @@ public class CmdIonquant extends CmdBase {
     cmd.add("--ionmobility");
     cmd.add(dataType == InputDataType.ImMsTimsTof ? "1" : "0");
 
-    // always enable MaxLFQ
-    cmd.add("--maxlfq");
+    // always set min exp to 1
+    cmd.add("--minexps");
     cmd.add("1");
 
     // add all other parameters
     List<String> dynamicParams = Arrays.asList(
         "mbr",
+        "maxlfq",
         "ibaq",
         "requantify",
         "mztol",
@@ -169,8 +170,8 @@ public class CmdIonquant extends CmdBase {
         "minfreq",
         "minions",
         "excludemods",
-        "minexps",
-        "locprob"
+        "locprob",
+        "uniqueness"
         );
 
     final long namedExpCount = mapGroupsToProtxml.keySet().stream().map(group -> group.name)

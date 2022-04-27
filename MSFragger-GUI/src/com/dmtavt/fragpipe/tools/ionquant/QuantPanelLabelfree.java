@@ -65,6 +65,8 @@ public class QuantPanelLabelfree extends JPanelBase {
   private UiCheck checkRun;
   private UiRadio uiRadioUseFreequant;
   private UiRadio uiRadioUseIonquant;
+  private UiRadio uiRadioUseLfq;
+  private UiRadio uiRadioUseLabeling;
   private ButtonGroup radioGroupQuant;
 
   @Override
@@ -197,7 +199,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     pFreequant = createPanelFreequant(buttonGroup);
     pIonquant = createPanelIonquant(buttonGroup);
 
-    mu.add(p, pIonquant).spanX().wrap();
+    mu.add(p, pIonquant).wrap();
     mu.add(p, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
     mu.add(p, pFreequant).wrap();
 
@@ -246,6 +248,9 @@ public class QuantPanelLabelfree extends JPanelBase {
       }
     });
 
+    UiCombo uiComboPeptideProteinUniqueness = UiUtils.createUiCombo(Arrays.asList("unique+razor", "unique only"));
+    FormEntry fePeptideProteinUniqueness = mu.feb(uiComboPeptideProteinUniqueness).name("ionquant.uniqueness").label("Peptide-protein uniqueness").tooltip("Unique only: use peptides that are unique or confidently assigned to a single protein\n Unique+Razor: use 'unique plus razor' approach, with each shared peptide assigned as razor to one protein (as classified by Philosopher and defined in psm.tsv file)\n").create();
+
     UiCombo uiComboMinIsotopes = UiUtils.createUiCombo(Arrays.asList("1", "2", "3"));
     UiSpinnerInt uiSpinnerMinScans = UiUtils.spinnerInt(3, 0, 10000, 1).setCols(5).create();
 
@@ -268,7 +273,6 @@ public class QuantPanelLabelfree extends JPanelBase {
         .setCols(5).setFormat("#.##").create();
     UiSpinnerInt uiSpinnerTopIons = UiUtils.spinnerInt(3, 0, 10000, 1).setCols(5).create();
     UiSpinnerInt uiSpinnerMaxLfqMinIons = UiUtils.spinnerInt(1, 0, 10000, 1).setCols(5).create();
-    UiSpinnerInt uiSpinnerMinExps = UiUtils.spinnerInt(1, 1, 10000, 1).setCols(5).create();
 
     UiSpinnerDouble uiSpinnerMbrIonFdr = UiUtils.spinnerDouble(0.01, 0.001, 1, 0.01)
         .setCols(5).setFormat("#.###").create();
@@ -283,6 +287,8 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiText uiTextHeavy = UiUtils.uiTextBuilder().cols(15).create();
     UiText uiTextExcludemods = UiUtils.uiTextBuilder().cols(45).create();
 
+    FormEntry feMaxLfq = mu.feb("ionquant.maxlfq", UiUtils.createUiCheck("MaxLFQ", true)).tooltip("Calculate MaxLFQ intensity.").create();
+
     FormEntry feRequant = mu.feb("ionquant.requantify", UiUtils.createUiCheck("Re-quantify", true)).tooltip("Re-quantify unidentified ions in labeling quantification").create();
 
     FormEntry feMzTol = mu.feb(uiSpinnerMzTol).name("ionquant.mztol").label("m/z tolerance (ppm)").create();
@@ -292,7 +298,6 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMaxLfqMinIons = mu.feb(uiSpinnerMaxLfqMinIons).name("ionquant.minions").label("MaxLFQ min ions").tooltip("Minimum ions required to quantify a protein. Only used in MaxLFQ intensity.").create();
     FormEntry feTopIons = mu.feb(uiSpinnerTopIons).name("ionquant.tp").label("Top N ions").tooltip("Number of ions to use in quantifying proteins").create();
     FormEntry feMinFreq = mu.feb(uiSpinnerMinFreq).name("ionquant.minfreq").label("Min freq").tooltip("Minimum proportion of experiments in which an ion must be found").create();
-    FormEntry feMinExps = mu.feb(uiSpinnerMinExps).name("ionquant.minexps").label("Min exps").tooltip("Minimum number of experiments in which an ion must be found").create();
 
     UiCheck uiCheckMbr = UiUtils.createUiCheck("Match between runs (MBR)", true);
     uiCheckMbr.setName("ionquant.mbr");
@@ -306,15 +311,15 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMbrProtFdr = mu.feb(uiSpinnerMbrProtFdr).name("ionquant.proteinfdr").label("MBR protein FDR").create();
 
     FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("ionquant.mbrtoprun").label("MBR top runs").tooltip("Maximum number of donor runs used for a given acceptor run").create();
-    FormEntry feLight = mu.feb(uiTextLight).name("ionquant.light").label("Light").tooltip("String description of mass deltas. A-Z for amino acids, n for N-terminus, and c for C-terminus. E.g. for SILAC: K0;R0").create();
+    FormEntry feLight = mu.feb(uiTextLight).name("ionquant.light").label("Light    ").tooltip("String description of mass deltas. A-Z for amino acids, n for N-terminus, and c for C-terminus. E.g. for SILAC: K0;R0").create();
     FormEntry feMedium = mu.feb(uiTextMedium).name("ionquant.medium").label("Medium").tooltip("String description of mass deltas. A-Z for amino acids, n for N-terminus, and c for C-terminus. E.g. for SILAC: K4.025107;R6.020129").create();
-    FormEntry feHeavy = mu.feb(uiTextHeavy).name("ionquant.heavy").label("Heavy").tooltip("String description of mass deltas. A-Z for amino acids, n for N-terminus, and c for C-terminus. E.g. for SILAC: K8.014199;R10.008269").create();
+    FormEntry feHeavy = mu.feb(uiTextHeavy).name("ionquant.heavy").label("Heavy  ").tooltip("String description of mass deltas. A-Z for amino acids, n for N-terminus, and c for C-terminus. E.g. for SILAC: K8.014199;R10.008269").create();
 
-    FormEntry feNormalize = mu.feb("ionquant.normalization", UiUtils.createUiCheck("Normalize", true)).tooltip("Normalize ion intensities among experiments").create();
+    FormEntry feNormalize = mu.feb("ionquant.normalization", UiUtils.createUiCheck("Normalize intensity (experiment-level)", true)).tooltip("Normalize ion intensities among experiments").create();
     FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes").tooltip("Minimum number of isotopic peaks required for feature detection").create();
     FormEntry feMinScans = mu.feb(uiSpinnerMinScans).name("ionquant.minscans").label("Min scans").tooltip("Minimum scans required for feature detection").create();
     FormEntry feWriteIndex = mu.feb("ionquant.writeindex", UiUtils.createUiCheck("Keep index on disk", false)).tooltip("Keep built index on disk for further usage").create();
-    FormEntry feIBaq = mu.feb("ionquant.ibaq", UiUtils.createUiCheck("iBAQ", false)).tooltip("Calculate iBAQ intensity. The iBAQ intensity is normalized by the protein length, not the number of theoretical peptides.").create();
+    FormEntry feIBaq = mu.feb("ionquant.ibaq", UiUtils.createUiCheck("iBAQ (length normalized)", false)).tooltip("Calculate iBAQ intensity. The iBAQ intensity is normalized by the protein length, not the number of theoretical peptides.").create();
     UiSpinnerDouble uiSpinnerMinSiteProb = UiSpinnerDouble.builder(0.75, -1, 1.0, 0.01).setFormat(new DecimalFormat("#.##")).setCols(5).create();
     FormEntry feMinSiteProb = mu.feb(uiSpinnerMinSiteProb).name("ionquant.locprob").label("Min site probability").tooltip("Site localization confidence threshold").create();
 
@@ -342,28 +347,65 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     mu.add(p, feRadioIonquant.comp).wrap();
 
-    JPanel pBasic = mu.newPanel("Basic options", mu.lcFillXNoInsetsTopBottom());
 
-    mu.add(pBasic, feMaxLfqMinIons.label(), mu.ccL()).split(2);
-    mu.add(pBasic, feMaxLfqMinIons.comp, mu.ccL());
-    mu.add(pBasic, feNormalize.comp, mu.ccL());
-    mu.add(pBasic, feIBaq.comp, mu.ccL()).growX().wrap();
+    // basic options panel
+    JPanel pBasic = mu.newPanel("Basic options", mu.lcFillXNoInsetsTopBottom());
+    ButtonGroup radioBasicGroup = new ButtonGroup();
+
+    // LFQ panel
+    JPanel pLfq = mu.newPanel("", mu.lcFillXNoInsetsTopBottom());
+
+    uiRadioUseLfq = new UiRadio("LFQ", null, false);
+    radioBasicGroup.add(uiRadioUseLfq);
+    FormEntry feRadioLfq = new FormEntry("ionquant.use-lfq", "Not shown", uiRadioUseLfq);
+
+    mu.add(pLfq, feRadioLfq.comp, mu.ccL()).wrap();
+    mu.add(pLfq, uiCheckMbr, mu.ccL()).wrap();
+    mu.add(pLfq, feMaxLfq.comp, mu.ccL()).wrap();
+    mu.add(pLfq, feMaxLfqMinIons.label(), mu.ccL()).split(2);
+    mu.add(pLfq, feMaxLfqMinIons.comp, mu.ccL()).wrap();
+    mu.add(pLfq, feIBaq.comp, mu.ccL()).growX().wrap();
+
+    mu.add(pBasic, pLfq).growX();
+
+
+    // Labeling panel
+    JPanel pLabel = mu.newPanel("", mu.lcFillXNoInsetsTopBottom());
+
+    uiRadioUseLabeling = new UiRadio("Labeling", null, false);
+    radioBasicGroup.add(uiRadioUseLabeling);
+    FormEntry feRadioLabeling = new FormEntry("ionquant.use-labeling", "Not shown", uiRadioUseLabeling);
+
+    mu.add(pLabel, feRadioLabeling.comp, mu.ccL()).wrap();
+    mu.add(pLabel, feLight.label(), mu.ccL()).split(2);
+    mu.add(pLabel, feLight.comp).growX().wrap();
+    mu.add(pLabel, feMedium.label(), mu.ccL()).split(2);
+    mu.add(pLabel, feMedium.comp).growX().wrap();
+    mu.add(pLabel, feHeavy.label(), mu.ccL()).split(2);
+    mu.add(pLabel, feHeavy.comp).growX().wrap();
+    mu.add(pLabel, feRequant.comp, mu.ccL()).wrap();
+
+    mu.add(pBasic, pLabel).growX().wrap();
+
+    mu.add(p, pBasic).wrap();
+
+
+    // Common panel
+    JPanel pCommon = mu.newPanel("Common", mu.lcFillXNoInsetsTopBottom());
+    mu.add(pCommon, feNormalize.comp, mu.ccL()).wrap();
+    mu.add(pCommon, fePeptideProteinUniqueness.label(), mu.ccL()).split(2);
+    mu.add(pCommon, fePeptideProteinUniqueness.comp).wrap();
+
+    mu.add(pBasic, pCommon).spanX().growX().wrap();
 
     mu.add(p, pBasic).spanX().growX().wrap();
 
-    JPanel pLabel = mu.newPanel("Labeling-based quant", mu.lcFillXNoInsetsTopBottom());
 
-    mu.add(pLabel, new JLabel("Labels:"), mu.ccR());
-    mu.add(pLabel, feLight.label(), mu.ccL()).split().spanX();
-    mu.add(pLabel, feLight.comp);
-    mu.add(pLabel, feMedium.label());
-    mu.add(pLabel, feMedium.comp);
-    mu.add(pLabel, feHeavy.label());
-    mu.add(pLabel, feHeavy.comp);
-    mu.add(pLabel, feRequant.comp).wrap();
+    // Advance options panel
+    JPanel pAdvancedOptions = mu.newPanel("Advanced options", mu.lcFillXNoInsetsTopBottom());
 
-    mu.add(p, pLabel).spanX().growX().wrap();
 
+    // feature detection panel
     JPanel pDetection = mu.newPanel("Feature detection", mu.lcFillXNoInsetsTopBottom());
 
     mu.add(pDetection, feMzTol.label(), mu.ccL()).split(2);
@@ -373,58 +415,67 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.add(pDetection, feImTol.label(), mu.ccL()).split(2);
     mu.add(pDetection, feImTol.comp).wrap();
 
-    mu.add(p, pDetection).spanX().growX().wrap();
+    mu.add(pAdvancedOptions, pDetection).spanX().growX().wrap();
 
+
+    // MBR panel
     JPanel pMbr = mu.newPanel("Match between runs (MBR)", mu.lcFillXNoInsetsTopBottom());
 
-    mu.add(pMbr, uiCheckMbr).split().wrap();
-
-    mu.add(pMbr, feMbrRtTol.label(), mu.ccR()).split(2);
+    mu.add(pMbr, feMbrRtTol.label(), mu.ccR());
     mu.add(pMbr, feMbrRtTol.comp);
-    mu.add(pMbr, feMbrImTol.label(), mu.ccR().split(2));
+    mu.add(pMbr, feMbrImTol.label(), mu.ccR());
     mu.add(pMbr, feMbrImTol.comp).spanX().wrap();
 
-    mu.add(pMbr, feMbrMinCorr.label(), mu.ccR()).split(2);
+    mu.add(pMbr, feMbrMinCorr.label(), mu.ccR());
     mu.add(pMbr, feMbrMinCorr.comp);
-    mu.add(pMbr, feMbrTopRuns.label(), mu.ccR()).split(2);
+    mu.add(pMbr, feMbrTopRuns.label(), mu.ccR());
     mu.add(pMbr, feMbrTopRuns.comp).spanX().wrap();
 
-    mu.add(pMbr, feMbrIonFdr.label(), mu.ccR()).split(2);
+    mu.add(pMbr, feMbrIonFdr.label(), mu.ccR());
     mu.add(pMbr, feMbrIonFdr.comp);
-    mu.add(pMbr, feMbrPepFdr.label(), mu.ccR()).split(2);
+    mu.add(pMbr, feMbrPepFdr.label(), mu.ccR());
     mu.add(pMbr, feMbrPepFdr.comp);
-    mu.add(pMbr, feMbrProtFdr.label(), mu.ccR()).split(2);
+    mu.add(pMbr, feMbrProtFdr.label(), mu.ccR());
     mu.add(pMbr, feMbrProtFdr.comp).spanX().wrap();
 
-    mu.add(p, pMbr).spanX().growX().wrap();
+    mu.add(pAdvancedOptions, pMbr).spanX().growX().wrap();
 
-    JPanel pTopN = mu.newPanel("Top-N options", mu.lcFillXNoInsetsTopBottom());
 
-    mu.add(pTopN, feTopIons.label(), mu.ccL()).split(2);
-    mu.add(pTopN, feTopIons.comp);
-    mu.add(pTopN, feMinFreq.label(), mu.ccL()).split(2);
-    mu.add(pTopN, feMinFreq.comp);
-    mu.add(pTopN, feMinExps.label(), mu.ccL()).split(2);
-    mu.add(pTopN, feMinExps.comp).spanX().wrap();
+    // Peak tracing panel
+    JPanel pPeakTracing = mu.newPanel("Peak tracing", mu.lcFillXNoInsetsTopBottom());
 
-    mu.add(p, pTopN).spanX().growX().wrap();
+    mu.add(pPeakTracing, feMinScans.label(), mu.ccL()).split(2);
+    mu.add(pPeakTracing, feMinScans.comp);
+    mu.add(pPeakTracing, feMinIsotopes.label(), mu.ccL()).split(2);
+    mu.add(pPeakTracing, feMinIsotopes.comp).spanX().wrap();
 
-    JPanel pa = mu.newPanel("Advanced options", mu.lcFillXNoInsetsTopBottom());
+    mu.add(pAdvancedOptions, pPeakTracing).spanX().growX().wrap();
 
-    mu.add(pa, feExcludemods.label(), mu.ccR());
-    mu.add(pa, feExcludemods.comp).growX().spanX().wrap();
 
-    mu.add(pa, feMinScans.label(), mu.ccR());
-    mu.add(pa, feMinScans.comp);
-    mu.add(pa, feWriteIndex.comp, mu.ccL()).spanX().wrap();
+    // Intensity panel
+    JPanel pIntensity = mu.newPanel("Intensity", mu.lcFillXNoInsetsTopBottom());
 
-    mu.add(pa, feMinSiteProb.label(), mu.ccR());
-    mu.add(pa, feMinSiteProb.comp).spanX().wrap();
+    mu.add(pIntensity, feTopIons.label(), mu.ccL()).split(2);
+    mu.add(pIntensity, feTopIons.comp);
+    mu.add(pIntensity, feMinFreq.label(), mu.ccL()).split(2);
+    mu.add(pIntensity, feMinFreq.comp).spanX().wrap();
 
-    mu.add(pa, feMinIsotopes.label(), mu.ccR());
-    mu.add(pa, feMinIsotopes.comp).spanX().wrap();
+    mu.add(pAdvancedOptions, pIntensity).spanX().growX().wrap();
 
-    mu.add(p, pa).spanX().growX().wrap();
+
+    // Other panel
+    JPanel pOther = mu.newPanel("Other", mu.lcFillXNoInsetsTopBottom());
+
+    mu.add(pOther, feExcludemods.label(), mu.ccR());
+    mu.add(pOther, feExcludemods.comp).growX().spanX().wrap();
+
+    mu.add(pOther, feMinSiteProb.label(), mu.ccR());
+    mu.add(pOther, feMinSiteProb.comp);
+    mu.add(pOther, feWriteIndex.comp).spanX().wrap();
+
+    mu.add(pAdvancedOptions, pOther).spanX().growX().wrap();
+
+    mu.add(p, pAdvancedOptions).spanX().growX().wrap();
 
     return p;
   }
