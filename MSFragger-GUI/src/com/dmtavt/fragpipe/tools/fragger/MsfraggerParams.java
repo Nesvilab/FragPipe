@@ -81,6 +81,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_remove_precursor_range = "remove_precursor_range";
     public static final String PROP_intensity_transform = "intensity_transform";
     public static final String PROP_check_spectral_files = "check_spectral_files";
+    public static final String PROP_activation_filter = "activation_types";
     public static final String PROP_write_calibrated_mgf = "write_calibrated_mgf";
     public static final String PROP_mass_diff_to_variable_mod = "mass_diff_to_variable_mod";
 
@@ -220,6 +221,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_clear_mz_range,
         PROP_add,
         PROP_add_enabled,
+        PROP_activation_filter,
     };
 
     public static final Set<String> PROP_NAMES_SET;
@@ -246,6 +248,13 @@ public class MsfraggerParams extends AbstractParams {
     public static final String GLYCO_OPTION_labile = "labile";
     public static final List<String> GLYCO_OPTIONS = Arrays
         .asList(GLYCO_OPTION_off, GLYCO_OPTION_nglycan, GLYCO_OPTION_labile);
+    public static final String ACTIVATION_TYPE_ALL = "all";
+    public static final String ACTIVATION_TYPE_HCD = "HCD";
+    public static final String ACTIVATION_TYPE_ETD = "ETD";
+    public static final String ACTIVATION_TYPE_CID = "CID";
+    public static final String ACTIVATION_TYPE_ECD = "ECD";
+    public static final List<String> ACTIVATION_TYPES = Arrays
+            .asList(ACTIVATION_TYPE_ALL, ACTIVATION_TYPE_HCD, ACTIVATION_TYPE_ETD, ACTIVATION_TYPE_CID, ACTIVATION_TYPE_ECD);
 
     public static final Map<String, String> ADDON_MAP_NAME2HUMAN = new HashMap<>(ADDON_NAMES.length);
     public static final Map<String, String> ADDON_MAP_HUMAN2NAME = new HashMap<>(ADDON_NAMES.length);
@@ -376,6 +385,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_remainder_masses, "[labile search_mode only] List of possible remainder fragment ions to consider. Remainder masses are partial modification masses left on b/y ions after fragmentation.");
         c.put(PROP_min_sequence_matches, "[nglycan/labile search_mode only] Minimum number of sequence-specific (not Y) ions to record a match.");
         c.put(PROP_diagnostic_intensity_filter, "[nglycan/labile search_mode only]. Minimum relative intensity for SUM of all detected oxonium ions to achieve for spectrum to contain diagnostic fragment evidence. Calculated relative to spectrum base peak. 0 <= value.");
+        c.put(PROP_activation_filter, "Filter to only search scans of provided activation type(s). Allowed: All, HCD, CID, ETD, ECD.");
         return c;
     }
 

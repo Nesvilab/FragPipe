@@ -17,11 +17,6 @@
 
 package com.dmtavt.fragpipe.tabs;
 
-import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTIONS;
-import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_labile;
-import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_nglycan;
-import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_off;
-
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
@@ -128,6 +123,8 @@ import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.*;
+
 public class TabMsfragger extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
   private final static MigUtils mu = MigUtils.get();
@@ -164,7 +161,19 @@ public class TabMsfragger extends JPanelBase {
   private static final int[] MASS_DIFF_TO_VAR_MOD_MAP = {0, 2, 1};
   private static final List<String> GLYCO_OPTIONS_UI = Arrays
       .asList(GLYCO_OPTION_off, GLYCO_OPTION_nglycan, GLYCO_OPTION_labile);
+  private static final List<String> ACTIVATION_TYPES_UI = Arrays
+          .asList(ACTIVATION_TYPE_ALL, ACTIVATION_TYPE_HCD, ACTIVATION_TYPE_ETD, ACTIVATION_TYPE_CID, ACTIVATION_TYPE_ECD);
   private static final String LOAD_CUSTOM_CONFIG_OPTION = "Custom MSFragger parameter file from disk";
+  private static final HashMap<String, String> ACTIVATION_MAP;  // to handle input of "" or "all" for activation param
+  static {
+    ACTIVATION_MAP = new HashMap<>();
+    ACTIVATION_MAP.put("ALL", ACTIVATION_TYPE_ALL);
+    ACTIVATION_MAP.put("", ACTIVATION_TYPE_ALL);
+    ACTIVATION_MAP.put("HCD", ACTIVATION_TYPE_HCD);
+    ACTIVATION_MAP.put("ETD", ACTIVATION_TYPE_ETD);
+    ACTIVATION_MAP.put("CID", ACTIVATION_TYPE_CID);
+    ACTIVATION_MAP.put("ECD", ACTIVATION_TYPE_ECD);
+  }
 
   private static final List<MsfraggerEnzyme> ENZYMES = new EnzymeProvider().get();
   //public static FileNameExtensionFilter fnExtFilter = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf/raw/d)", "mzml", "mzxml", "mgf", "raw", "d");
@@ -221,6 +230,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_intensity_transform, s -> itos(
         IntensityTransform.get(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_check_spectral_files, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_activation_filter, s -> ACTIVATION_TYPES.get(ACTIVATION_TYPES_UI.indexOf(ACTIVATION_MAP.get(s.toUpperCase()))));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_localize_delta_mass, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_clip_nTerm_M, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_override_charge, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
@@ -248,6 +258,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_remove_precursor_peak, s -> RemovePrecursorPeak.get(Integer.parseInt(s)));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_intensity_transform, s -> IntensityTransform.get(Integer.parseInt(s)));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_check_spectral_files, s -> Boolean.toString(Integer.parseInt(s) > 0));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_activation_filter, s -> ACTIVATION_TYPES_UI.get(ACTIVATION_TYPES.indexOf(ACTIVATION_MAP.get(s.toUpperCase()))));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_localize_delta_mass, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_override_charge, s -> Boolean.toString(Integer.parseInt(s) > 0));
@@ -1112,6 +1123,10 @@ public class TabMsfragger extends JPanelBase {
         .create();
     FormEntry feIntensityTransform = mu.feb(MsfraggerParams.PROP_intensity_transform, UiUtils.createUiCombo(IntensityTransform.getNames())).label("Intensity transform").create();
     FormEntry feCheckSpectralFiles = mu.feb(MsfraggerParams.PROP_check_spectral_files, UiUtils.createUiCheck("Check spectral files", true)).tooltip("Checking spectral files before searching.").create();
+    FormEntry feActivationFilter = mu.feb(MsfraggerParams.PROP_activation_filter, UiUtils.createUiCombo(ACTIVATION_TYPES_UI)).label("Activation Type Filter")
+            .tooltip("Filter to include only scans matching the corresponding activation type.\n" +
+                    "NOTE: not all instruments and activation types are supported. Use ETD for EThcd\n" +
+                    "or other hybrid data.").create();
 
     mu.add(p, fePrecursorMassMode.label(), mu.ccR());
     mu.add(p, fePrecursorMassMode.comp).wrap();
@@ -1137,8 +1152,9 @@ public class TabMsfragger extends JPanelBase {
 
     mu.add(p, feIntensityTransform.label(), mu.ccR());
     mu.add(p, feIntensityTransform.comp).split();
-    mu.add(p, feCheckSpectralFiles.comp).wrap();
-
+    mu.add(p, feCheckSpectralFiles.comp);
+    mu.add(p, feActivationFilter.label(), mu.ccR());
+    mu.add(p, feActivationFilter.comp).split().wrap();
     return p;
   }
 

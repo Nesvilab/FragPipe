@@ -67,6 +67,7 @@ msbooster.predict-spectra=true
 msbooster.run-msbooster=false
 msbooster.use-correlated-features=false
 msfragger.Y_type_masses=0/114.03169/193.99802/291.97492/406.00661
+msfragger.activation_types=all
 msfragger.add_topN_complementary=0
 msfragger.allowed_missed_cleavage_1=2
 msfragger.allowed_missed_cleavage_2=2
