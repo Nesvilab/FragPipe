@@ -768,6 +768,15 @@ public class FragpipeRun {
         return false;
       }
 
+      if (sharedLcmsFileGroupsAll.size() > 1) {
+        for (String s : sharedLcmsFileGroupsAll.keySet()) {
+          if (s.isEmpty()) {
+            SwingUtils.showErrorDialog(parent, "There are multiple experimental groups, but one of them has empty name.", "Empty group name");
+            return false;
+          }
+        }
+      }
+
       // Don't include DIA-Quant and diaPASEF.
       for (Map.Entry<String, LcmsFileGroup> e : tabWorkflow.getLcmsFileGroups().entrySet()) {
         List<InputLcmsFile> ttt = e.getValue().lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DIA-Quant") && (f.getDataType().contentEquals("DDA") || !f.getPath().toString().endsWith(".d"))).collect(Collectors.toList());
