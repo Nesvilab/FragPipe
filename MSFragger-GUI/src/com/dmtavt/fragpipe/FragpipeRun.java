@@ -185,7 +185,7 @@ public class FragpipeRun {
       }
 
       // check input LCMS files
-      final Map<String, LcmsFileGroup> lcmsFileGroups = checkInputLcmsFiles1(tabRun, tabWorkflow);
+      final Map<String, LcmsFileGroup> lcmsFileGroups = tabWorkflow.getLcmsFileGroups();
       if (lcmsFileGroups == null) {
         log.debug("checkInputLcmsFiles1() failed");
         return 1;
@@ -540,30 +540,6 @@ public class FragpipeRun {
     }
 
     return wd;
-  }
-
-  private static Map<String, LcmsFileGroup> checkInputLcmsFiles1(JComponent parent,
-      TabWorkflow tabWorkflow) {
-    final Map<String, LcmsFileGroup> lcmsFileGroups = tabWorkflow.getLcmsFileGroups();
-    List<InputLcmsFile> lcmsExpEmptyRepNonNull = lcmsFileGroups.values().stream().flatMap(g -> g.lcmsFiles.stream()).filter(lcms -> StringUtils.isNullOrWhitespace(lcms.getExperiment()) && lcms.getReplicate() != null).collect(Collectors.toList());
-    if (!lcmsExpEmptyRepNonNull.isEmpty()) {
-      if (Fragpipe.headless) {
-        log.warn("For " + lcmsExpEmptyRepNonNull.size() + " input files Experiment was left empty while Replicate was not. auto-add 'exp_' prefix and continue as-is.");
-      } else {
-        int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
-            "<html>For " + lcmsExpEmptyRepNonNull.size()
-                + " input files Experiment was left empty while Replicate was not.<br/><br/>\n"
-                + "<b>Yes</b> - if you want to auto-add 'exp_' prefix and continue as-is.<br/>\n"
-                + "<b>No, Cancel</b> - stop and change manually on Select LC/MS Files tab."));
-        if (confirm != JOptionPane.YES_OPTION) {
-          log.debug("User chose not to auto-rename experiment");
-          return null;
-        }
-      }
-      throw new UnsupportedOperationException(
-          "Renaming not yet implemented"); // TODO: implement renaming
-    }
-    return lcmsFileGroups;
   }
 
   private static List<InputLcmsFile> checkInputLcmsFiles2(JComponent parent,
