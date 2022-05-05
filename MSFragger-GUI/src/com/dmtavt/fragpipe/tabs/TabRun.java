@@ -20,10 +20,13 @@ package com.dmtavt.fragpipe.tabs;
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.FragpipeRun;
 import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.cmd.CmdMsfragger;
+import com.dmtavt.fragpipe.cmd.PbiBuilder;
+import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
 import com.dmtavt.fragpipe.messages.MessageExternalProcessOutput;
@@ -34,6 +37,7 @@ import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
+import com.dmtavt.fragpipe.process.ProcessResult;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -63,7 +67,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Stream;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -85,11 +91,14 @@ public class TabRun extends JPanelWithEnablement {
   public static final String TAB_PREFIX = "tab-run.";
   private static final String LAST_WORK_DIR = "workdir.last-path";
   private static final String PROP_FILECHOOSER_LAST_PATH = TAB_PREFIX + "filechooser.last-path";
+  private static final String PDV_NAME = "/PDV_for_FragerGUI-1.0.1/PDV_for_FragerGUI-1.0.1.jar";
   final TextConsole console;
   Color defTextColor;
   private UiText uiTextWorkdir;
   private UiCheck uiCheckDryRun;
   private JButton btnRun;
+  private JButton btnOpenPdv;
+  private Thread pdvThread = null;
   private JPanel pTop;
   private JPanel pConsole;
   private UiCheck uiCheckWordWrap;
@@ -122,6 +131,7 @@ public class TabRun extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void on(MessageRunButtonEnabled m) {
     btnRun.setEnabled(m.isEnabled);
+    btnOpenPdv.setEnabled(m.isEnabled); // When Run button is gray, disable the PDV button. When Run button is not gray, also enable the PDV button.
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
@@ -208,6 +218,42 @@ public class TabRun extends JPanelWithEnablement {
         Bus.post(MessageSaveLog.saveInDir(existing));
       }
     });
+
+    btnOpenPdv = UiUtils.createButton("Open visualization window", e -> {
+      List<Path> pdvPath = FragpipeLocations.checkToolsMissing(Seq.of(PDV_NAME));
+      if (pdvPath == null || pdvPath.isEmpty()) {
+        SwingUtils.showErrorDialog(this, "Cannot find the visualization executable executable file.", "No visualization executable");
+      } else {
+        List<String> cmd = new ArrayList<>();
+        cmd.add("java");
+        cmd.add("-jar");
+        cmd.add(pdvPath.get(0).toAbsolutePath().toString());
+        cmd.add(uiTextWorkdir.getNonGhostText());
+        log.debug("Executing: " + String.join(" ", cmd));
+        pdvThread = new Thread(() -> {
+          try {
+            btnOpenPdv.setEnabled(false);
+            ProcessBuilder pb = new ProcessBuilder(cmd);
+            ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb).setName(pb.toString()).setFnStdOut(null).setFnStdErr(null).setParallelGroup(null).create();
+            ProcessResult pr = new ProcessResult(pbi);
+            if (pr.start().waitFor() == 0) {
+              final int exitValue = pr.getProcess().exitValue();
+              if (exitValue != 0) {
+                throw new IllegalStateException("Process " + pb + " returned non zero value");
+              }
+            } else {
+              throw new IllegalStateException("Process " + pb + " returned non zero value");
+            }
+          } catch (Exception ex) {
+            ex.printStackTrace();
+          } finally {
+            btnOpenPdv.setEnabled(true);
+          }
+        });
+        pdvThread.start();
+      }
+    });
+
     JButton btnPrintCommands = UiUtils.createButton("Print Commands", e -> Bus.post(new MessageRun(true)));
     JButton btnExport = UiUtils.createButton("Export Log", e -> Bus.post(new MessageExportLog()));
     JButton btnReportErrors = UiUtils.createButton("Report Errors", e -> {
@@ -236,6 +282,7 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnOpenInFileManager).wrap();
     mu.add(p, btnRun).split().spanX();
     mu.add(p, btnStop);
+    mu.add(p, btnOpenPdv);
     mu.add(p, uiCheckDryRun).pushX();
     mu.add(p, btnPrintCommands);
     mu.add(p, btnExport);
