@@ -565,7 +565,7 @@ public class PtmshepherdPanel extends JPanelBase {
     String tooltipGlycanDBFile = "Custom glycan database file (.glyc). Will use internal default N-glycan list if not provided.";
     uiTextGlycanDBFile = UiUtils.uiTextBuilder().create();
     List<FileFilter> glycFilters = new ArrayList<>();
-    FileFilter filter = new FileNameExtensionFilter("Glycan Database file", "glyc", ".glyc");
+    FileFilter filter = new FileNameExtensionFilter("Glycan Database file (.glyc, txt, csv, tsv)", "glyc", "txt", "csv", "tsv");
     glycFilters.add(filter);
     FormEntry feGlycanDBFile = mu.feb(PROP_glycan_database, uiTextGlycanDBFile)
             .label("Custom Glycan Database").tooltip(tooltipGlycanDBFile).create();
@@ -621,9 +621,9 @@ public class PtmshepherdPanel extends JPanelBase {
             .tooltip("By default, the best target glycan is printed to the PSM table for PSMs assigned to a decoy glycan (with q-value = 1)\n" +
                     "Check this box to instead print the decoy glycan (identified by 'Decoy_[glycan name])")
             .create();
-    FormEntry feRemoveGlycoDeltaMass = mu.feb(PROP_remove_glyco_deltamass, UiUtils.createUiCheck("Prep for IonQuant", false))
+    FormEntry feRemoveGlycoDeltaMass = mu.feb(PROP_remove_glyco_deltamass, UiUtils.createUiCheck("Remove Glycan Delta Mass", true))
             .tooltip("Removes glycan mass from Delta Mass column in PSM table, even for PSMs that do not pass glycan FDR.\n" +
-                    "Required for processing by IonQuant (but NOT needed for TMT-Integrator)")
+                    "Required for processing by IonQuant and for PSM table integrity, but prevents re-analysis by PTM-Shepherd.")
             .create();
     FormEntry feNGlycanMode = mu.feb(PROP_nglyco_mode, UiUtils.createUiCheck("N-Glycan Mode", true))
             .tooltip("Sets localization to N-X-S/T sequon if enabled and uses default N-glycan database if custom glycan database is not provided\n. " +
@@ -642,7 +642,6 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.comp).split().spanX().pushX().wrap();
 
     mu.add(pGlycoAssignContent, feNGlycanMode.comp).split();
-    mu.add(pGlycoAssignContent, feRemoveGlycoDeltaMass.comp).split();
     mu.add(pGlycoAssignContent, feMaxAdducts.label(), mu.ccR());
     mu.add(pGlycoAssignContent, feMaxAdducts.comp).split();
     mu.add(pGlycoAssignContent, feAdductNames.label(), mu.ccR());
@@ -673,6 +672,7 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(pGlycoAdvParams, feFucYProbs.comp).split();
     mu.add(pGlycoAdvParams, feDecoyType.label(), mu.ccR());
     mu.add(pGlycoAdvParams, feDecoyType.comp).split();
+    mu.add(pGlycoAssignContent, feRemoveGlycoDeltaMass.comp).split();
     mu.add(pGlycoAdvParams, fePrintGlycoDecoys.comp).split().growX().spanX().pushX().wrap();
 
     mu.add(p, uiCheckGlycoAdvParams).split().spanX().wrap();
