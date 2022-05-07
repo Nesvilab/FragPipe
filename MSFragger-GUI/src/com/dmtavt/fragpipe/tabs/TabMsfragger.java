@@ -76,6 +76,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.ItemEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -93,14 +94,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.imageio.ImageIO;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -418,7 +422,7 @@ public class TabMsfragger extends JPanelBase {
 
   /** Top panel with checkbox, buttons and RAM+Threads spinners. */
   private JPanel createPanelTop() {
-    JPanel pTop = new JPanel(new MigLayout(new LC()));
+    JPanel pTop = new JPanel(new MigLayout(new LC().fillX()));
 
     checkRun = new UiCheck("Run MSFragger", null, true);
     checkRun.setName("run-msfragger");
@@ -438,10 +442,17 @@ public class TabMsfragger extends JPanelBase {
     btnLoad.addActionListener(this::actionBtnConfigLoad);
 
     mu.add(pTop, checkRun).wrap();
-    mu.add(pTop, btnSave).split().spanX();
+    mu.add(pTop, btnSave).split(4);
     mu.add(pTop, btnLoad);
     mu.add(pTop, new JLabel(":")).gapLeft("3px").gapRight("3px");
-    mu.add(pTop, uiComboLoadDefaultsNames).wrap();
+    mu.add(pTop, uiComboLoadDefaultsNames);
+    try {
+      BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/msfragger-128.png")));
+      JLabel imageLabel = new JLabel(new ImageIcon(image));
+      mu.add(pTop, imageLabel, mu.ccR()).gapRight("50").wrap();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
 
     return pTop;
   }

@@ -87,6 +87,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -209,7 +210,7 @@ public class TabConfig extends JPanelWithEnablement {
     //p.add(UiUtils.createButton("Find tools", e -> post(new MessageFindTools())), ccL.get().split().spanX());
 
     try {
-      BufferedImage image = ImageIO.read(getClass().getResource("/com/dmtavt/fragpipe/icons/fragpipe-128.png"));
+      BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/fragpipe-128.png")));
       JLabel imageLabel = new JLabel(new ImageIcon(image));
       p.add(sysInfo, ccR().growX());
       p.add(imageLabel, ccL().wrap());
