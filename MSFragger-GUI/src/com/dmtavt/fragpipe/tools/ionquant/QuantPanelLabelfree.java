@@ -39,13 +39,17 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import java.awt.event.ItemEvent;
+import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
+import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -189,8 +193,15 @@ public class QuantPanelLabelfree extends JPanelBase {
     JButton btnLoadDefaults = new JButton("Load Quant defaults");
     btnLoadDefaults.addActionListener((e) -> Bus.post(new MessageLoadQuantDefaults(true)));
 
-    mu.add(p, checkRun);
-    mu.add(p, btnLoadDefaults).pushX().wrap();
+    mu.add(p, checkRun).split(2);
+    mu.add(p, btnLoadDefaults);
+    try {
+      BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/ionquant.png")));
+      JLabel imageLabel = new JLabel(new ImageIcon(image));
+      mu.add(p, imageLabel, mu.ccR()).gapRight("200").wrap();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
 
     return p;
   }
