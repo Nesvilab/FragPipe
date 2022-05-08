@@ -332,7 +332,6 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMinIsotopes = mu.feb(uiComboMinIsotopes).name("ionquant.minisotopes").label("Min isotopes").tooltip("Minimum number of isotopic peaks required for feature detection").create();
     FormEntry feMinScans = mu.feb(uiSpinnerMinScans).name("ionquant.minscans").label("Min scans").tooltip("Minimum scans required for feature detection").create();
     FormEntry feWriteIndex = mu.feb("ionquant.writeindex", UiUtils.createUiCheck("Keep index on disk", false)).tooltip("Keep built index on disk for further usage").create();
-    FormEntry feIBaq = mu.feb("ionquant.ibaq", UiUtils.createUiCheck("Add iBAQ (length normalized)", false)).tooltip("Calculate iBAQ intensity. The iBAQ intensity is normalized by the protein length, not the number of theoretical peptides.").create();
     UiSpinnerDouble uiSpinnerMinSiteProb = UiSpinnerDouble.builder(0.75, -1, 1.0, 0.01).setFormat(new DecimalFormat("#.##")).setCols(5).create();
     FormEntry feMinSiteProb = mu.feb(uiSpinnerMinSiteProb).name("ionquant.locprob").label("Min site localization probability").tooltip("Site localization confidence threshold").create();
 
@@ -509,8 +508,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.add(pIntensity, feTopIons.label(), mu.ccL()).split(4);
     mu.add(pIntensity, feTopIons.comp);
     mu.add(pIntensity, feMinFreq.label(), mu.ccL().gapLeft("50")).split(2);
-    mu.add(pIntensity, feMinFreq.comp);
-    mu.add(pIntensity, feIBaq.comp, mu.ccL().gapRight("150")).spanX().wrap();
+    mu.add(pIntensity, feMinFreq.comp).spanX().wrap();
 
     mu.add(pAdvancedOptions, pIntensity).spanX().growX().wrap();
 

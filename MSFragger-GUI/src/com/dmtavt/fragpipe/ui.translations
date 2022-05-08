@@ -116,8 +116,6 @@ ionquant.writeindex::false <=> 0
 ionquant.writeindex::true <=> 1
 ionquant.maxlfq::false <=> 0
 ionquant.maxlfq::true <=> 1
-ionquant.ibaq::false <=> 0
-ionquant.ibaq::true <=> 1
 ionquant.uniqueness::unique+razor <=> 0
 ionquant.uniqueness::unique only <=> 1
 

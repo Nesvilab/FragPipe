@@ -35,7 +35,6 @@ freequant.rt-tol=0.4
 freequant.run-freequant=true
 ionquant.excludemods=
 ionquant.heavy=
-ionquant.ibaq=0
 ionquant.imtol=0.05
 ionquant.ionfdr=0.01
 ionquant.light=
