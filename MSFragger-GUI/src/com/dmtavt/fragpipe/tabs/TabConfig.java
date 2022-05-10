@@ -143,6 +143,11 @@ public class TabConfig extends JPanelWithEnablement {
   private static final String TIP_FRAGPIPE_UPDATE = "tip.fragpipe.update";
   public static final String TAB_PREFIX = "fragpipe-config.";
 
+  // cache user info to say some typing for the users
+  public static String userName = null;
+  public static String userEmail = null;
+  public static String userInstitution = null;
+
 
   public TabConfig() {
     init();
@@ -342,6 +347,10 @@ public class TabConfig extends JPanelWithEnablement {
           JOptionPane.showMessageDialog(this, "Please read and check all of the licenses.", "Error", JOptionPane.ERROR_MESSAGE);
           return;
         }
+
+        userName = p.getName();
+        userEmail = p.getEmail();
+        userInstitution = p.getInstitution();
 
         Path toolsPath = PathUtils.createDirs(FragpipeLocations.get().getDirTools());
         MsfraggerVersionFetcherServer msfraggerVersionFetcherServer = new MsfraggerVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());

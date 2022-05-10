@@ -17,6 +17,10 @@
 
 package com.dmtavt.fragpipe.dialogs;
 
+import static com.dmtavt.fragpipe.tabs.TabConfig.userEmail;
+import static com.dmtavt.fragpipe.tabs.TabConfig.userInstitution;
+import static com.dmtavt.fragpipe.tabs.TabConfig.userName;
+
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.MigUtils;
@@ -63,6 +67,16 @@ public class DownloadMSFraggerPanel extends JPanel {
     feName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Name:").create();
     feEmail = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Email:").create();
     feInstitution = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Institution").create();
+
+    if (userName != null) {
+      ((UiText) feName.comp).setText(userName);
+    }
+    if (userEmail != null) {
+      ((UiText) feEmail.comp).setText(userEmail);
+    }
+    if(userInstitution != null) {
+      ((UiText) feInstitution.comp).setText(userInstitution);
+    }
 
     JEditorPane t1 = SwingUtils.createClickableHtml("I have read the <b>academic</b> <a href=\"https://msfragger.arsci.com/upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">license</a>. I understand that this license provides <br> with a non-exclusive, non-transferable right to use MSFragger solely for academic <br> research, non-commercial or educational purposes within the licensee’s department.");
     license1 = new JCheckBox();
