@@ -133,10 +133,6 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
         if (updateSvcUrl == null) {
             throw new IllegalStateException("Obtained properties file didn't contain a URL for the updater service.");
         }
-        
-        if (StringUtils.isNullOrWhitespace(latestVerResponse)) {
-            latestVerResponse = fetchVersionResponse();
-        }
 
         Path zipPath = toolsPath.resolve("MSFragger-" + lastVersionStr + ".zip");
 

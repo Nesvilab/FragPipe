@@ -19,23 +19,14 @@ package com.dmtavt.fragpipe.tools.fragger;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
-import com.dmtavt.fragpipe.exceptions.UnexpectedException;
+import com.dmtavt.fragpipe.api.VersionFetcher;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.github.chhh.utils.StringUtils;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -45,12 +36,10 @@ import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.api.VersionFetcher;
 
 public class Msfragger {
 
   private static final Logger log = LoggerFactory.getLogger(Msfragger.class);
-  private static final Pattern regex = Pattern.compile("msfragger.*\\.jar", Pattern.CASE_INSENSITIVE);
 
   public static Version getVersion(Path jar) throws Exception {
     // only validate Fragger version if the current Java version is 1.8 or higher
@@ -75,9 +64,8 @@ public class Msfragger {
     Thread t = new Thread(() -> {
 
       MsfraggerVersionFetcherServer vfServer = new MsfraggerVersionFetcherServer();
-      MsfraggerVersionFetcherGithub vfGithub = new MsfraggerVersionFetcherGithub();
       MsfraggerVersionFetcherLocal vfLocal = new MsfraggerVersionFetcherLocal();
-      List<VersionFetcher> verFetchers = Arrays.asList(vfServer, vfGithub, vfLocal);
+      List<VersionFetcher> verFetchers = Arrays.asList(vfServer, vfLocal);
       for (final VersionFetcher vf : verFetchers) {
         if (vf == null) {
           continue;
@@ -143,60 +131,6 @@ public class Msfragger {
     }
 
     return new Version(isVersionParsed, verStr);
-  }
-
-  public static void validateJar(String path) throws ValidationException, UnexpectedException {
-    try {
-      Path p;
-      try {
-        p = Paths.get(path);
-      } catch (InvalidPathException e) {
-        throw new ValidationException("Path is not well formed", e);
-      }
-      if (!Files.exists(p)) {
-        throw new ValidationException("Path does not exist: \"" + p + "\"");
-      }
-      if (path.contains(" ")) {
-        throw new ValidationException("There are spaces in the path"); // Quoting the path with space won't solve the crash if the path is in JVM arguments.
-      }
-      if (!path.toLowerCase().endsWith(".jar")) {
-        throw new ValidationException("Path not a jar file");
-      }
-      if (!validateMsfraggerJarContents(p)) {
-        throw new ValidationException("Not an MSFragger jar file");
-      }
-    } catch (Exception e) {
-      if (e instanceof ValidationException) {
-        throw e;
-      }
-      throw new UnexpectedException("Invalid MSFragger jar path", e);
-    }
-  }
-
-  private static boolean validateMsfraggerJarContents(Path p) {
-    final boolean[] found = {false};
-    try (FileSystem fs = FileSystems.newFileSystem(p, ClassLoader.getSystemClassLoader())) {
-      for (Path root : fs.getRootDirectories()) {
-        Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
-          @Override
-          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-            String fileName = file.getFileName().toString();
-            if ("MSFragger.class".equalsIgnoreCase(fileName)) {
-              found[0] = true;
-              return FileVisitResult.TERMINATE;
-            } else if (regex.matcher(fileName).find()) {
-              found[0] = true;
-              return FileVisitResult.TERMINATE;
-            }
-            return FileVisitResult.CONTINUE;
-          }
-        });
-      }
-    } catch (IOException ex) {
-      log.warn("Error while checking MSFragger jar contents", ex);
-    }
-
-    return found[0];
   }
 
   public static class Version {

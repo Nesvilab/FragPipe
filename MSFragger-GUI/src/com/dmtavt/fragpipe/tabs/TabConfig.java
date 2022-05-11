@@ -441,7 +441,6 @@ public class TabConfig extends JPanelWithEnablement {
     }
     Version v;
     try {
-      Msfragger.validateJar(m.binPath);
       v = Msfragger.getVersion(Paths.get(m.binPath));
       if (v.isVersionParsed) {
         if (v.version.compareTo(msfraggerMinVersion) >= 0) {
