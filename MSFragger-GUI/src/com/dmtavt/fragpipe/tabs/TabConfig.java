@@ -143,7 +143,7 @@ public class TabConfig extends JPanelWithEnablement {
   private static final String TIP_FRAGPIPE_UPDATE = "tip.fragpipe.update";
   public static final String TAB_PREFIX = "fragpipe-config.";
 
-  // cache user info to say some typing for the users
+  // cache user info to save some typing for the users
   public static String userName = null;
   public static String userEmail = null;
   public static String userInstitution = null;
@@ -245,7 +245,7 @@ public class TabConfig extends JPanelWithEnablement {
     FormEntry feBinMsfragger = fe(uiTextBinFragger, "bin-msfragger", TAB_PREFIX).tooltip(binMsfraggerTip).create();
     p.add(feBinMsfragger.comp, ccL().split().growX());
 
-    JButton btnBrowse = feBinMsfragger.browseButton("Browse", binMsfraggerTip, this::createFraggerFilechooser, paths -> {
+    JButton btnBrowse = feBinMsfragger.browseButton("Browse", binMsfraggerTip, this::createFraggerFileChooser, paths -> {
       paths.stream().findFirst().ifPresent(jar -> Bus.post(new MessageMsfraggerNewBin(jar.toString())));
     });
     p.add(btnBrowse, ccL());
@@ -372,16 +372,11 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  private JFileChooser createFraggerFilechooser() {
+  private JFileChooser createFraggerFileChooser() {
     final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("JAR files", "jar");
-    JFileChooser fc = FileChooserUtils.create("Select MSFragger jar", "Select",
-        false, FcMode.FILES_ONLY, true,
-        fileNameExtensionFilter);
+    JFileChooser fc = FileChooserUtils.create("Select MSFragger jar", "Select", false, FcMode.FILES_ONLY, true, fileNameExtensionFilter);
     fc.setFileFilter(fileNameExtensionFilter);
-    FileChooserUtils.setPath(fc, Stream.of(
-        uiTextBinFragger.getNonGhostText(),
-        Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN),
-        FragpipeLocations.get().getDirFragpipeRoot().toString()));
+    FileChooserUtils.setPath(fc, Stream.of(uiTextBinFragger.getNonGhostText(), Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN), FragpipeLocations.get().getDirFragpipeRoot().toString()));
     return fc;
   }
 
