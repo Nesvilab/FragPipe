@@ -180,7 +180,7 @@ public class UmpirePanel extends JPanelBase {
           Bus.post(new NoteConfigPeptideProphet(false));
           Bus.post(new NoteConfigPtmProphet(false));
           Bus.post(new NoteConfigPtmShepherd(false));
-          Bus.post(new NoteConfigIonQuant(false));
+          Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, false, NoteConfigIonQuant.ex));
           Bus.post(new NoteConfigTmtI(false));
         }
       }

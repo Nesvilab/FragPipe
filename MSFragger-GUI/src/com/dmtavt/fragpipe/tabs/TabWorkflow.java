@@ -1429,7 +1429,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         Bus.post(new NoteConfigPtmProphet(false));
         Bus.post(new NoteConfigPtmShepherd(false));
       }
-      Bus.post(new NoteConfigIonQuant(false));
+      Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, false, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(false));
       if (hasDia()) {
         Bus.post(new NoteConfigDiann(true, false));
@@ -1442,7 +1442,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       Bus.post(new NoteConfigPeptideProphet(true));
       Bus.post(new NoteConfigPtmProphet(true));
       Bus.post(new NoteConfigPtmShepherd(true));
-      Bus.post(new NoteConfigIonQuant(true));
+      Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, true, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(true));
       Bus.post(new NoteConfigDiann(false, false));
     }

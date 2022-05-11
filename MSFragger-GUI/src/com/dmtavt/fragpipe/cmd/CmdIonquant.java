@@ -49,7 +49,6 @@ public class CmdIonquant extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdIonquant.class);
 
   private static final String NAME = "IonQuant";
-  public static final String JAR_IONQUANT_NAME = "ionquant-1.7.29.jar";
   private static final String JAR_IONQUANT_MAIN_CLASS = "ionquant.IonQuant";
   private static final String[] JAR_DEPS = {JFREECHART_JAR, BATMASS_IO_JAR};
   private static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
@@ -64,11 +63,7 @@ public class CmdIonquant extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Path binFragger, int ramGb,
-      Map<String, String> uiCompsRepresentation,
-      InputDataType dataType,
-      Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml,
-      Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads) {
+  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads) {
 
     initPreConfig();
 
@@ -85,7 +80,7 @@ public class CmdIonquant extends CmdBase {
       return false;
     }
 
-    final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_IONQUANT_NAME).concat(JAR_DEPS));
+    final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_DEPS));
     if (classpathJars == null) {
       return false;
     }
@@ -131,7 +126,7 @@ public class CmdIonquant extends CmdBase {
     }
 
     cmd.add("-cp");
-    cmd.add(constructClasspathString(classpathJars));
+    cmd.add(constructClasspathString(classpathJars, binIonQuant));
     cmd.add(JAR_IONQUANT_MAIN_CLASS);
     cmd.add("--threads");
     cmd.add(String.valueOf(nThreads));

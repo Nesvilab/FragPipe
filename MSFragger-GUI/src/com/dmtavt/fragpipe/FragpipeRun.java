@@ -62,6 +62,7 @@ import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageStartProcesses;
 import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
+import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
@@ -1117,10 +1118,19 @@ public class FragpipeRun {
     });
 
     // run Report - IonQuant (Labelfree)
+    final NoteConfigIonQuant configIonQuant;
+    try {
+      configIonQuant = Fragpipe.getSticky(NoteConfigIonQuant.class);
+    } catch (NoStickyException e) {
+      SwingUtils.showErrorDialog(parent, "Looks like fragger was not configured.\nFragger is currently required.", "No MSFragger");
+      return false;
+    }
+    final UsageTrigger binIonQuant = new UsageTrigger(configIonQuant.path, "IonQuant");
+
     final CmdIonquant cmdIonquant = new CmdIonquant(quantPanelLabelfree.isIonquant(), wd);
     addConfig.accept(cmdIonquant,  () -> {
       if (cmdIonquant.isRun()) {
-        return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads);
+        return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads);
       }
       return true;
     });

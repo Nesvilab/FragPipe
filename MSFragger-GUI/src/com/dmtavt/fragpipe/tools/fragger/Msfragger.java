@@ -93,7 +93,7 @@ public class Msfragger {
     t.start();
   }
 
-  public static Version testJar(String jarPath) throws Exception {
+  private static Version testJar(String jarPath) throws Exception {
     String verStr = null;
     boolean isVersionParsed = false;
     List<Pattern> regexs = Arrays.asList(MsfraggerVerCmp.regexNewScheme1, MsfraggerVerCmp.regexOldScheme1); // New scheme first because most people are using the new version.

@@ -17,16 +17,37 @@
 
 package com.dmtavt.fragpipe.messages;
 
+import java.util.StringJoiner;
+
 public class NoteConfigIonQuant implements INoteConfig {
 
-  private final boolean isValid;
+  public static String path;
+  public static String version;
+  public static boolean isTooOld;
+  public static boolean enabled;
+  public static Throwable ex;
 
-  public NoteConfigIonQuant(boolean isValid) {
-    this.isValid = isValid;
+  public NoteConfigIonQuant(String path, String version, boolean isTooOld, boolean enabled, Throwable ex) {
+    NoteConfigIonQuant.path = path;
+    NoteConfigIonQuant.version = version;
+    NoteConfigIonQuant.isTooOld = isTooOld;
+    NoteConfigIonQuant.enabled = enabled;
+    NoteConfigIonQuant.ex = ex;
   }
 
   @Override
   public boolean isValid() {
-    return isValid;
+    return !isTooOld && enabled && ex == null && !path.contentEquals("N/A") && !version.contentEquals("N/A");
+  }
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", NoteConfigIonQuant.class.getSimpleName() + "[", "]")
+        .add("path='" + path + "'")
+        .add("version='" + version + "'")
+        .add("isTooOld=" + isTooOld)
+        .add("enabled=" + enabled)
+        .add("validation=" + (ex == null ? "null" : ex.getMessage()))
+        .toString();
   }
 }
