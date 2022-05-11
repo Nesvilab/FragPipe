@@ -387,7 +387,7 @@ public class PtmshepherdPanel extends JPanelBase {
   }
 
   private JPanel createPanelDiagnostic() {
-    JPanel p = mu.newPanel("Diagnostic Ion Discovery", mu.lcFillXNoInsetsTopBottom());
+    JPanel p = mu.newPanel("Diagnostic Feature Discovery", mu.lcFillXNoInsetsTopBottom());
     pDiagnosticMiningContent = mu.newPanel(null, true);
     pDiagnosticKnownContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
@@ -470,8 +470,8 @@ public class PtmshepherdPanel extends JPanelBase {
             "<html>Used to filter what is considered a peak for downstream analyses.\n" +
                     "Ratio of avg. fragment ion intensity compared to its avg. \n" +
                     "intensity among unmodified spectra.");
-    UiSpinnerDouble uiSpinnerFragMinPropensity = UiSpinnerDouble.builder(0.125, 0.0, 1.0, 0.01)
-            .setFormat(new DecimalFormat("0.0#")).setCols(5).create();
+    UiSpinnerDouble uiSpinnerFragMinPropensity = UiSpinnerDouble.builder(0.125, 0.0, 1.0, 0.001)
+            .setFormat(new DecimalFormat("0.00#")).setCols(5).create();
     FormEntry feFragMinPropensity = new FormEntry(PROP_diagMine_fragMinPropensity, "Min. fragment propensity",
             uiSpinnerFragMinPropensity,
             "<html>Used to filter what is considered a peak for downstream analyses.\n" +
@@ -480,10 +480,10 @@ public class PtmshepherdPanel extends JPanelBase {
 
     mu.add(p3, feFragMinSpecPct.label(), mu.ccR());
     mu.add(p3, feFragMinSpecPct.comp);
-    mu.add(p3, feFragMinIonsPerSpec.label(), mu.ccR());
-    mu.add(p3, feFragMinIonsPerSpec.comp).split(2).spanX().pushX().wrap();
     mu.add(p3, feFragMinFoldChange.label(), mu.ccR());
-    mu.add(p3, feFragMinFoldChange.comp);
+    mu.add(p3, feFragMinFoldChange.comp).split(2).spanX().pushX().wrap();
+    mu.add(p3, feFragMinIonsPerSpec.label(), mu.ccR());
+    mu.add(p3, feFragMinIonsPerSpec.comp);
     mu.add(p3, feFragMinPropensity.label(), mu.ccR());
     mu.add(p3, feFragMinPropensity.comp).split(2).spanX().pushX().wrap();
 
