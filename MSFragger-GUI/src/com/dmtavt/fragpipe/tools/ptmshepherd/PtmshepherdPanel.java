@@ -116,6 +116,13 @@ public class PtmshepherdPanel extends JPanelBase {
   private static final String PROP_diagMine_mode = "diagmine_mode";
   private static final String PROP_diagMine_minIonsPerSpec = "diagmine_minIonsPerSpec";
   private static final String PROP_diagMine_minSpecPct = "diagmine_minSpecDiff";
+  private static final String PROP_diagMine_diagMinSpecPct = "diagmine_diagMinSpecDiff";
+  private static final String PROP_diagMine_diagMinFoldChange = "diagmine_diagMinFoldChange";
+  private static final String PROP_diagMine_pepMinSpecPct = "diagmine_pepMinSpecDiff";
+  private static final String PROP_diagMine_pepMinFoldChange = "diagmine_pepMinFoldChange";
+  private static final String PROP_diagMine_fragMinSpecPct = "diagmine_fragMinSpecDiff";
+  private static final String PROP_diagMine_fragMinFoldChange = "diagmine_fragMinFoldChange";
+  private static final String PROP_diagMine_fragMinPropensity = "diagmine_fragMinPropensity";
   private static final String PROP_diagMine_minIons = "diagmine_minIons";
   private static final String PROP_diagExtract_mode = "diagextract_mode";
 
@@ -381,7 +388,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
   private JPanel createPanelDiagnostic() {
     JPanel p = mu.newPanel("Diagnostic Ion Discovery", mu.lcFillXNoInsetsTopBottom());
-    pDiagnosticMiningContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+    pDiagnosticMiningContent = mu.newPanel(null, true);
     pDiagnosticKnownContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
     // label diagnostic ion mining params
@@ -389,28 +396,98 @@ public class PtmshepherdPanel extends JPanelBase {
     uiCheckDiagnosticMining.setName(PROP_diagMine_mode);
     uiCheckDiagnosticMining.setToolTipText("Look for new diagnostic ions and fragments for each modification");
 
-    FormEntry feDiagMinIons = new FormEntry(PROP_diagMine_minIons, "Min. peptide ions",
+    // Global parameters
+    FormEntry feDiagMinIons = new FormEntry(PROP_diagMine_minIons, "Min. peptide ions per MS1 delta mass peak",
             new UiSpinnerInt(25, 1, 1000, 1, 5),
             "<html>Number of peptide ions required for PTM to undergo diagnostic ion mining");
-
-    FormEntry feDiagMinIonsPerSpec = new FormEntry(PROP_diagMine_minIonsPerSpec, "Min. ions per spec",
-            new UiSpinnerInt(2, 1, 2, 1, 5),
-            "<html>Reduce to make make fragment ion detection more sensitive by reducing the number\n" +
-                    "of hits per spectrum required");
-    UiSpinnerDouble uiSpinnerDiagMinSpecPct = UiSpinnerDouble.builder(0.25, 0.0, 1.0, 0.01)
-            .setFormat(new DecimalFormat("0.0#")).setCols(5).create();
-    FormEntry feDiagMinSpecPct = new FormEntry(PROP_diagMine_minSpecPct, "Min. % of spectra with ion",
-            uiSpinnerDiagMinSpecPct,
-            "<html>Used to filter what is considered a peak for downstream analyses.\n" +
-                    "Ratio of peak shoulder to peak height.");
-
     mu.add(pDiagnosticMiningContent, feDiagMinIons.label(), mu.ccR());
     mu.add(pDiagnosticMiningContent, feDiagMinIons.comp).spanX().pushX().wrap();
 
-    mu.add(pDiagnosticMiningContent, feDiagMinIonsPerSpec.label(), mu.ccR());
-    mu.add(pDiagnosticMiningContent, feDiagMinIonsPerSpec.comp).split();
-    mu.add(pDiagnosticMiningContent, feDiagMinSpecPct.label(), mu.ccR());
-    mu.add(pDiagnosticMiningContent, feDiagMinSpecPct.comp).split().spanX().pushX().wrap();
+
+    // Diagnostic ions
+    JPanel p1 = mu.newPanel("Diagnostic ions", true);
+    UiSpinnerDouble uiSpinnerDiagMinSpecPct = UiSpinnerDouble.builder(0.25, 0.0, 1.0, 0.01)
+            .setFormat(new DecimalFormat("0.0#")).setCols(5).create();
+    FormEntry feDiagMinSpecPct = new FormEntry(PROP_diagMine_diagMinSpecPct, "Min. % of spectra with " +
+            "ion", uiSpinnerDiagMinSpecPct,
+            "<html>Used to filter what is considered a peak for downstream analyses.\n" +
+                    "Portion of spectra that potential ion must be present in.");
+    UiSpinnerDouble uiSpinnerDiagMinFoldChange = UiSpinnerDouble.builder(3.0, 0.0, 10.0, 0.01)
+            .setFormat(new DecimalFormat("0.0#")).setCols(5).create();
+    FormEntry feDiagMinFoldChange = new FormEntry(PROP_diagMine_diagMinFoldChange, "Min. intensity fold change",
+            uiSpinnerDiagMinFoldChange,
+            "<html>Used to filter what is considered a peak for downstream analyses.\n" +
+                    "Ratio of avg. diagnostic ion intensity compared to its avg. intensity\n" +
+                    "among unmodified spectra.");
+
+    mu.add(p1, feDiagMinSpecPct.label(), mu.ccR());
+    mu.add(p1, feDiagMinSpecPct.comp);
+    mu.add(p1, feDiagMinFoldChange.label(), mu.ccR());
+    mu.add(p1, feDiagMinFoldChange.comp).split(2).spanX().pushX().wrap();
+
+    mu.add(pDiagnosticMiningContent, p1).spanX().growX().wrap();
+
+    // Peptide ions
+    JPanel p2 = mu.newPanel("Peptide ions", true);
+    UiSpinnerDouble uiSpinnerPepMinSpecPct = UiSpinnerDouble.builder(0.25, 0.0, 1.0, 0.01)
+            .setFormat(new DecimalFormat("0.0#")).setCols(5).create();
+    FormEntry fePepMinSpecPct = new FormEntry(PROP_diagMine_pepMinSpecPct, "Min. % of spectra with " +
+            "ion", uiSpinnerPepMinSpecPct,
+            "<html>Used to filter what is considered a peak for downstream analyses.\n" +
+                    "Portion of spectra that potential peptide ion must be present in.");
+    UiSpinnerDouble uiSpinnerPepMinFoldChange = UiSpinnerDouble.builder(3.0, 0.0, 10.0, 0.01)
+            .setFormat(new DecimalFormat("0.0#")).setCols(5).create();
+    FormEntry fePepMinFoldChange = new FormEntry(PROP_diagMine_pepMinFoldChange, "Min. intensity fold change",
+            uiSpinnerPepMinFoldChange,
+            "<html>Used to filter what is considered a peak for downstream analyses.\n" +
+                    "Ratio of avg. summed peptide ion intensity compared to its avg. \n" +
+                    "summed intensity among unmodified spectra.");
+
+    mu.add(p2, fePepMinSpecPct.label(), mu.ccR());
+    mu.add(p2, fePepMinSpecPct.comp);
+    mu.add(p2, fePepMinFoldChange.label(), mu.ccR());
+    mu.add(p2, fePepMinFoldChange.comp).split(2).spanX().pushX().wrap();
+
+    mu.add(pDiagnosticMiningContent, p2).spanX().growX().wrap();
+
+    // Fragment ions
+    JPanel p3 = mu.newPanel("Fragment ions", true);
+    UiSpinnerDouble uiSpinnerFragMinSpecPct = UiSpinnerDouble.builder(0.15, 0.0, 1.0, 0.01)
+            .setFormat(new DecimalFormat("0.0#")).setCols(5).create();
+    FormEntry feFragMinSpecPct = new FormEntry(PROP_diagMine_fragMinSpecPct, "Min. % of spectra with " +
+            "ion", uiSpinnerFragMinSpecPct,
+            "<html>Used to filter what is considered a peak for downstream analyses.\n" +
+                    "Portion of spectra that potential fragment ion must be present in.\n" +
+                    "Spectra only count as a hit when there are >= \"Min ions per spec\" instances present.");
+    FormEntry feFragMinIonsPerSpec = new FormEntry(PROP_diagMine_minIonsPerSpec, "Min. fragment ions per spec",
+            new UiSpinnerInt(2, 1, 2, 1, 5),
+            "<html>Reduce to make make fragment ion detection more sensitive by reducing the number\n" +
+                    "of hits per spectrum required. Decrease this to increase sensitivity and noise.");
+    UiSpinnerDouble uiSpinnerFragMinFoldChange = UiSpinnerDouble.builder(3.0, 0.0, 10.0, 0.01)
+            .setFormat(new DecimalFormat("0.0#")).setCols(5).create();
+    FormEntry feFragMinFoldChange = new FormEntry(PROP_diagMine_fragMinFoldChange, "Min. intensity fold change",
+            uiSpinnerFragMinFoldChange,
+            "<html>Used to filter what is considered a peak for downstream analyses.\n" +
+                    "Ratio of avg. fragment ion intensity compared to its avg. \n" +
+                    "intensity among unmodified spectra.");
+    UiSpinnerDouble uiSpinnerFragMinPropensity = UiSpinnerDouble.builder(0.125, 0.0, 1.0, 0.01)
+            .setFormat(new DecimalFormat("0.0#")).setCols(5).create();
+    FormEntry feFragMinPropensity = new FormEntry(PROP_diagMine_fragMinPropensity, "Min. fragment propensity",
+            uiSpinnerFragMinPropensity,
+            "<html>Used to filter what is considered a peak for downstream analyses.\n" +
+                    "Portion of identified ions within the ion series that are shifted by the\n" +
+                    "fragment ion mass.");
+
+    mu.add(p3, feFragMinSpecPct.label(), mu.ccR());
+    mu.add(p3, feFragMinSpecPct.comp);
+    mu.add(p3, feFragMinIonsPerSpec.label(), mu.ccR());
+    mu.add(p3, feFragMinIonsPerSpec.comp).split(2).spanX().pushX().wrap();
+    mu.add(p3, feFragMinFoldChange.label(), mu.ccR());
+    mu.add(p3, feFragMinFoldChange.comp);
+    mu.add(p3, feFragMinPropensity.label(), mu.ccR());
+    mu.add(p3, feFragMinPropensity.comp).split(2).spanX().pushX().wrap();
+
+    mu.add(pDiagnosticMiningContent, p3).spanX().growX().wrap();
 
     mu.add(p, uiCheckDiagnosticMining).spanX().wrap();
     mu.add(p, pDiagnosticMiningContent).growX().wrap();
