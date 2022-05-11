@@ -182,6 +182,10 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
 
             long contentLength = body.contentLength();
 
+            if (contentLength <= 0) {
+                throw new Exception("Could not download MSFragger from the server.");
+            }
+
             final Holder<PhiDownloadProgress> dlProgress = new Holder<>();
             SwingUtilities.invokeLater(() -> {
                 dlProgress.obj = new PhiDownloadProgress();
