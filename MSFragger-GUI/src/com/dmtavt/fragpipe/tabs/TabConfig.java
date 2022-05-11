@@ -148,6 +148,7 @@ public class TabConfig extends JPanelWithEnablement {
   public static String userEmail = null;
   public static String userInstitution = null;
 
+  private static final Pattern msfraggerRegex = Pattern.compile("msfragger.*\\.jar", Pattern.CASE_INSENSITIVE);
 
   public TabConfig() {
     init();
@@ -439,6 +440,12 @@ public class TabConfig extends JPanelWithEnablement {
     if (StringUtils.isBlank(m.binPath)) {
       return;
     }
+
+    if (!validateMsfraggerJarContents(Paths.get(m.binPath))) {
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, new ValidationException("Not a MSFragger jar.")));
+      return;
+    }
+
     Version v;
     try {
       v = Msfragger.getVersion(Paths.get(m.binPath));
@@ -456,6 +463,30 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
+  private static boolean validateMsfraggerJarContents(Path p) {
+    final boolean[] found = {false};
+    try (FileSystem fs = FileSystems.newFileSystem(p, ClassLoader.getSystemClassLoader())) {
+      for (Path root : fs.getRootDirectories()) {
+        Files.walkFileTree(root, new SimpleFileVisitor<>() {
+          @Override
+          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+            String fileName = file.getFileName().toString();
+            if ("MSFragger.class".equalsIgnoreCase(fileName)) {
+              found[0] = true;
+              return FileVisitResult.TERMINATE;
+            } else if (msfraggerRegex.matcher(fileName).find()) {
+              found[0] = true;
+              return FileVisitResult.TERMINATE;
+            }
+            return FileVisitResult.CONTINUE;
+          }
+        });
+      }
+    } catch (IOException ex) {
+      log.warn("Error while checking MSFragger jar contents", ex);
+    }
+    return found[0];
+  }
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigMsfragger m) {
     log.debug("Got {}", m);
