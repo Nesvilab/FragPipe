@@ -143,8 +143,10 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.2.10'
     implementation 'org.slf4j:slf4j-api:1.7.32'
 
-    // downloaded / precompiled jars
-    implementation fileTree(dir: 'libs', include: '*.jar')
+    implementation 'net.java.balloontip:balloontip:1.2.4.1'
+    implementation group: 'org.netbeans.api', name: 'org-netbeans-swing-outline', version: 'RELEASE130'
+    implementation 'commons-io:commons-io:2.11.0'
+
     implementation 'org.yaml:snakeyaml:1.30' // TMT-Integrator config parsing
 
     // Use JUnit test framework
