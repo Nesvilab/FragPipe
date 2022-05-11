@@ -47,12 +47,10 @@ public class CmdPtmshepherd extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdPtmshepherd.class);
   public static final String NAME = "PTMShepherd";
   public static final String CONFIG_FN = "shepherd.config";
-  public static final String JAR_SHEPHERD_NAME = "ptmshepherd-2.0.0-RC8.jar";
+  public static final String JAR_SHEPHERD_NAME = "ptmshepherd-2.0.0-RC14.jar";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_SHEPHERD_MAIN_CLASS = "edu.umich.andykong.ptmshepherd.PTMShepherd";
-  public static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR, "commons-math3-3.6.1.jar"};
-  public static final String FN_CAPTURE_STDOUT = "ptm-shepherd.log";
-  public static final String FN_CAPTURE_STDERR = "ptm-shepherd.log";
+  public static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR, "commons-math3-3.6.1.jar", "hipparchus-1.8/hipparchus-core-1.8.jar", "hipparchus-1.8/hipparchus-stat-1.8.jar"};
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
   private static final String THERMO_RAW_EXT = "RAW";
 

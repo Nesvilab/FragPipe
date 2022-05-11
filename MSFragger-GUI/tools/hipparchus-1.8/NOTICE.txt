@@ -1,0 +1,22 @@
+Hipparchus
+Copyright 2016-2018 The Hipparchus project
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/)
+Copyright 2001-2016 The Apache Software Foundation
+
+This product includes software developed for Orekit by
+CS Systèmes d'Information (http://www.c-s.fr/)
+Copyright 2010-2012 CS Systèmes d'Information
+
+The javascript files included in the source release (required only to build 
+the website) include the following notices:
+
+html5.js
+HTML5 Shiv 3.7.3 | @afarkas @jdalton @jon_neal @rem | MIT/GPL2 Licensed
+
+jquery.min.js
+jQuery v1.9.1 | (c) 2005, 2012 jQuery Foundation, Inc. | jquery.org/license
+
+
+

@@ -1,0 +1,28 @@
+
+              Hipparchus 1.8 RELEASE NOTES
+
+The Hipparchus team is pleased to announce the release of hipparchus-1.8
+
+The Hipparchus library is a library of mathematical components. It started as a fork of Apache Commons Math.
+
+This is a maintenance release.
+
+ It fixes a few bugs, mainly a serious one for complex eigendecomposition when several eigenvalues
+ are equal. It also add sum and angle differences in SinCosand FieldSinCos.
+
+Changes in this version include:
+
+New features:
+o issues/104:  Fixed LU-decomposition issue with signed zero complex numbers on diagonal. 
+o issues/99:   Fixed complex eigendecomposition when several eigenvalues are equals. 
+
+Fixed Bugs:
+o issues/106:  Added sum and difference of angles in SinCos and FieldSinCos. 
+o issues/105:  Removed spurious reduction of BigFraction in equality test. 
+
+
+
+For complete information on Hipparchus, including instructions on how to submit bug reports,
+patches, or suggestions for improvement, see the Hipparchus website:
+
+https://www.hipparchus.org/
