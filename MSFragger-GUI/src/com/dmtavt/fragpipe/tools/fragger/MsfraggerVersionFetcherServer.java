@@ -225,7 +225,7 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
 
         unzipWithSubfolders(zipPath, toolsPath);
 
-        List<Path> possibleBins = PathUtils.findFilesQuietly(toolsPath, path -> path.getFileName().toString().matches("^MSFragger-.+\\.jar$")).collect(Collectors.toList());
+        List<Path> possibleBins = PathUtils.findFilesQuietly(toolsPath, path -> path.getFileName().toString().trim().toLowerCase().matches("^msfragger-.+\\.jar$")).collect(Collectors.toList());
 
         if (possibleBins.size() != 1) {
             throw new IllegalStateException(String.format("Found %d candidates for MSFragger.jar after unpacking zip", possibleBins.size()));
