@@ -42,11 +42,11 @@ public class Msfragger {
   private static final Logger log = LoggerFactory.getLogger(Msfragger.class);
 
   public static Version getVersion(Path jar) throws Exception {
-    // only validate Fragger version if the current Java version is 1.8 or higher
+    // only validate Fragger version if the current Java version is 1.9 or higher
     Version test;
-    if (!SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8)) {
-      // we can't test fragger binary verison when java version is less than 1.8
-      throw new ValidationException("MSFragger requires Java 8+, can't check version without it.");
+    if (!SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_9)) {
+      // we can't test fragger binary version when java version is less than 1.9
+      throw new ValidationException("MSFragger requires Java 9+, can't check version without it.");
     }
 
     // get the version reported by the current executable
