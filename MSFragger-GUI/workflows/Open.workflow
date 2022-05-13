@@ -198,6 +198,7 @@ ptmshepherd.precursor_mass_units=0
 ptmshepherd.precursor_tol=0.01
 ptmshepherd.put_glycans_to_assigned_mods=true
 ptmshepherd.remainder_masses=
+ptmshepherd.remove_glycan_delta_mass=true
 ptmshepherd.run-shepherd=true
 ptmshepherd.spectra_maxfragcharge=2
 ptmshepherd.spectra_ppmtol=20
