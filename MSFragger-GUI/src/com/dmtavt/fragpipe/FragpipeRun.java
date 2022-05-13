@@ -1118,22 +1118,25 @@ public class FragpipeRun {
     });
 
     // run Report - IonQuant (Labelfree)
-    final NoteConfigIonQuant configIonQuant;
-    try {
-      configIonQuant = Fragpipe.getSticky(NoteConfigIonQuant.class);
-    } catch (NoStickyException e) {
-      SwingUtils.showErrorDialog(parent, "Looks like IonQuant was not configured.\nIonQuant is currently required.", "No IonQuant");
-      return false;
-    }
-    final UsageTrigger binIonQuant = new UsageTrigger(configIonQuant.path, "IonQuant");
-
     final CmdIonquant cmdIonquant = new CmdIonquant(quantPanelLabelfree.isIonquant(), wd);
-    addConfig.accept(cmdIonquant,  () -> {
-      if (cmdIonquant.isRun()) {
-        return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads);
+    if (cmdIonquant.isRun()) {
+      final NoteConfigIonQuant configIonQuant;
+      try {
+        configIonQuant = Fragpipe.getSticky(NoteConfigIonQuant.class);
+      } catch (NoStickyException e) {
+        SwingUtils.showErrorDialog(parent, "Looks like IonQuant was not configured.\nIonQuant is currently required.", "No IonQuant");
+        return false;
       }
-      return true;
-    });
+
+      final UsageTrigger binIonQuant = new UsageTrigger(configIonQuant.path, "IonQuant");
+
+      addConfig.accept(cmdIonquant,  () -> {
+        if (cmdIonquant.isRun()) {
+          return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads);
+        }
+        return true;
+      });
+    }
 
     // run TMT-Integrator
     final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
