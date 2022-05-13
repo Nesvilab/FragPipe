@@ -166,7 +166,7 @@ public class DiannPanel extends JPanelBase {
     uiComboQuantificationStrategy.setSelectedIndex(3);
 
     uiCheckUsePredictedSpectra = UiUtils.createUiCheck("Replace library spectra with predicted", false);
-    FormEntry feUsePredictedSpectra = new FormEntry("use-predicted-spectra", "Use predicted spectra", uiCheckUsePredictedSpectra);
+    FormEntry feUsePredictedSpectra = new FormEntry("use-predicted-spectra", "Replace library spectra with predicted", uiCheckUsePredictedSpectra);
 
     uiCheckUnrelatedRuns = UiUtils.createUiCheck("Unrelated runs", false);
     FormEntry feUnrelatedRuns = new FormEntry("unrelated-runs", "Unrelated runs", uiCheckUnrelatedRuns, "Different runs will be treated as unrelated, i.e. mass accuracy (when automatic) will be determined separately, as well as the retention time scan window.");
