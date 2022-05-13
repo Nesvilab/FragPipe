@@ -672,7 +672,7 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(pGlycoAdvParams, feFucYProbs.comp).split();
     mu.add(pGlycoAdvParams, feDecoyType.label(), mu.ccR());
     mu.add(pGlycoAdvParams, feDecoyType.comp).split();
-    mu.add(pGlycoAssignContent, feRemoveGlycoDeltaMass.comp).split();
+    mu.add(pGlycoAdvParams, feRemoveGlycoDeltaMass.comp).split();
     mu.add(pGlycoAdvParams, fePrintGlycoDecoys.comp).split().growX().spanX().pushX().wrap();
 
     mu.add(p, uiCheckGlycoAdvParams).split().spanX().wrap();
