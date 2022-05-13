@@ -8,6 +8,7 @@ diann.q-value=0.01
 diann.quantification-strategy=3
 diann.run-dia-nn=true
 diann.run-specific-protein-q-value=0.01
+diann.unrelated-runs=false
 diann.use-predicted-spectra=false
 diaumpire.AdjustFragIntensity=true
 diaumpire.BoostComplementaryIon=false

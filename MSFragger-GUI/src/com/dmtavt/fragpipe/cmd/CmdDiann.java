@@ -65,7 +65,7 @@ public class CmdDiann extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, float qvalue, float runSpecificProteinQvalue, String libraryPath, String additionalCmdOpts) {
+  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, boolean unrelatedRuns, float qvalue, float runSpecificProteinQvalue, String libraryPath, String additionalCmdOpts) {
 
     initPreConfig();
 
@@ -167,6 +167,10 @@ public class CmdDiann extends CmdBase {
       cmd.add("--smart-profiling");
       cmd.add("--no-quant-files");
       cmd.addAll(quantificationStrategy);
+      if (unrelatedRuns) {
+        cmd.add("--individual-mass-acc");
+        cmd.add("--individual-windows");
+      }
       if (usePredict) {
         cmd.add("--predictor");
         cmd.add("--dl-no-rt");

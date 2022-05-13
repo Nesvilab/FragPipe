@@ -73,6 +73,7 @@ public class DiannPanel extends JPanelBase {
   private JPanel panelDiann;
   private UiCheck uiCheckUsePredictedSpectra;
   private UiSpinnerDouble uiSpinRunSpecificProteinQvalue;
+  private UiCheck uiCheckUnrelatedRuns;
 
   @Override
   protected void initMore() {
@@ -167,6 +168,9 @@ public class DiannPanel extends JPanelBase {
     uiCheckUsePredictedSpectra = UiUtils.createUiCheck("Replace library spectra with predicted", false);
     FormEntry feUsePredictedSpectra = new FormEntry("use-predicted-spectra", "Use predicted spectra", uiCheckUsePredictedSpectra);
 
+    uiCheckUnrelatedRuns = UiUtils.createUiCheck("Unrelated runs", false);
+    FormEntry feUnrelatedRuns = new FormEntry("unrelated-runs", "Unrelated runs", uiCheckUnrelatedRuns, "Different runs will be treated as unrelated, i.e. mass accuracy (when automatic) will be determined separately, as well as the retention time scan window.");
+
     uiTextLibrary = UiUtils.uiTextBuilder().create();
     FormEntry feLibrary = new FormEntry("library", "Spectral library (optional)", uiTextLibrary, "Additional spectral library file.\nIf blank, using the library.tsv built from FragPipe.");
     JButton jButtonLibrary = feLibrary.browseButton("Browse", "Select library file", () -> {
@@ -195,6 +199,7 @@ public class DiannPanel extends JPanelBase {
     mu.add(p, feQuantificationStrategy.label(), mu.ccL());
     mu.add(p, feQuantificationStrategy.comp).wrap();
     mu.add(p, feUsePredictedSpectra.comp).wrap();
+    mu.add(p, feUnrelatedRuns.comp).wrap();
     mu.add(p, feLibrary.label(), mu.ccL());
     mu.add(p, feLibrary.comp).pushX().growX();
     mu.add(p, jButtonLibrary).wrap();
@@ -252,5 +257,9 @@ public class DiannPanel extends JPanelBase {
 
   public boolean usePredict() {
     return isEnabledAndChecked(uiCheckUsePredictedSpectra);
+  }
+
+  public boolean unrelatedRuns() {
+    return isEnabledAndChecked(uiCheckUnrelatedRuns);
   }
 }
