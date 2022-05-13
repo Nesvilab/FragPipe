@@ -28,6 +28,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
@@ -206,10 +207,10 @@ public class IonQuantVersionFetcherServer implements VersionFetcher {
             ex.printStackTrace();
         }
 
-        List<Path> possibleBins = PathUtils.findFilesQuietly(toolsPath, path -> path.getFileName().toString().trim().toLowerCase().matches("^ionquant-.+\\.jar$")).collect(Collectors.toList());
+        List<Path> possibleBins = PathUtils.findFilesQuietly(toolsPath, path -> path.getFileName().toString().trim().toLowerCase().matches("^ionquant-.+\\.jar$")).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
 
-        if (possibleBins.size() != 1) {
-            throw new IllegalStateException(String.format("Found %d candidates for IonQuant.jar after unpacking zip", possibleBins.size()));
+        if (possibleBins.size() == 0) {
+            throw new IllegalStateException("Could not find the downloaded IonQuant.jar.");
         }
         return possibleBins.get(0).normalize();
     }

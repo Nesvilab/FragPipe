@@ -30,6 +30,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
@@ -221,10 +222,10 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
 
         unzipWithSubfolders(zipPath, toolsPath);
 
-        List<Path> possibleBins = PathUtils.findFilesQuietly(toolsPath, path -> path.getFileName().toString().trim().toLowerCase().matches("^msfragger-.+\\.jar$")).collect(Collectors.toList());
+        List<Path> possibleBins = PathUtils.findFilesQuietly(toolsPath, path -> path.getFileName().toString().trim().toLowerCase().matches("^msfragger-.+\\.jar$")).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
 
-        if (possibleBins.size() != 1) {
-            throw new IllegalStateException(String.format("Found %d candidates for MSFragger.jar after unpacking zip", possibleBins.size()));
+        if (possibleBins.size() == 0) {
+            throw new IllegalStateException("Could not find MSFragger.jar after unpacking zip.");
         }
         return possibleBins.get(0).normalize();
     }

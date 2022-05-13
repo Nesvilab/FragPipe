@@ -40,6 +40,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -297,14 +298,10 @@ public class Philosopher {
           .createDirs(FragpipeLocations.get().getDirTools().resolve(fn.substring(0, fn.lastIndexOf("."))));
       ZipUtils.unzip(dlLocation, unzipTo);
       final String bin = isWindows() ? "philosopher.exe" : "philosopher";
-      List<Path> possibleBins = PathUtils
-          .findFilesQuietly(unzipTo, p -> Files.isRegularFile(p) && p.getFileName().toString().equalsIgnoreCase(bin))
-          .collect(Collectors.toList());
+      List<Path> possibleBins = PathUtils.findFilesQuietly(unzipTo, p -> Files.isRegularFile(p) && p.getFileName().toString().equalsIgnoreCase(bin)).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
 
-      if (possibleBins.size() != 1) {
-        throw new IllegalStateException(String
-            .format("Found %d candidates for philosopher binary after unpacking zip, %s",
-                possibleBins.size(), possibleBins));
+      if (possibleBins.size() == 0) {
+        throw new IllegalStateException("Could not find Philosopher binary after unpacking zip.");
       } else {
         Bus.post(new MessagePhilosopherNewBin(possibleBins.get(0).toRealPath().toString()));
       }
