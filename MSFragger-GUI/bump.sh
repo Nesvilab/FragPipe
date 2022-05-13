@@ -10,7 +10,7 @@ if [ $# -eq 0 ]; then
     if [[ $oldver =~ ^[0-9]+\.[0-9]+.*$ ]]; then
         echo "[$oldver] looks like a version number - OK"
     else
-        echo "[$oldver] doesn't looks like a version number - Exiting"
+        echo "[$oldver] doesn't look like a version number - Exiting"
         exit 1
     fi
     prefix=`echo $oldver | grep -oP "(.*?)(?=[0-9]+$)"`
@@ -25,7 +25,7 @@ else
     if [[ $ver =~ ^[0-9]+\.[0-9]+.*$ ]]; then
         echo "1st arg [$ver] looks like a version number - OK"
     else
-        echo "1st arg [$ver] doesn't looks like a version number - Exiting"
+        echo "1st arg [$ver] doesn't look like a version number - Exiting"
         exit 1
     fi
 fi

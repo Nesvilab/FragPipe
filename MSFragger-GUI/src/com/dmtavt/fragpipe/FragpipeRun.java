@@ -789,7 +789,7 @@ public class FragpipeRun {
     try {
       configMsfragger = Fragpipe.getSticky(NoteConfigMsfragger.class);
     } catch (NoStickyException e) {
-      SwingUtils.showErrorDialog(parent, "Looks like fragger was not configured.\nFragger is currently required.", "No MSFragger");
+      SwingUtils.showErrorDialog(parent, "Looks like MSFragger was not configured.\nMSFragger is currently required.", "No MSFragger");
       return false;
     }
     final UsageTrigger binMsfragger = new UsageTrigger(configMsfragger.path, "MSFragger");
@@ -1122,7 +1122,7 @@ public class FragpipeRun {
     try {
       configIonQuant = Fragpipe.getSticky(NoteConfigIonQuant.class);
     } catch (NoStickyException e) {
-      SwingUtils.showErrorDialog(parent, "Looks like fragger was not configured.\nFragger is currently required.", "No MSFragger");
+      SwingUtils.showErrorDialog(parent, "Looks like IonQuant was not configured.\nIonQuant is currently required.", "No IonQuant");
       return false;
     }
     final UsageTrigger binIonQuant = new UsageTrigger(configIonQuant.path, "IonQuant");
