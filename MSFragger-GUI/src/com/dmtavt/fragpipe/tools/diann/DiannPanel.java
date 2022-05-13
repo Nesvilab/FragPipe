@@ -116,9 +116,7 @@ public class DiannPanel extends JPanelBase {
     checkRun = new UiCheck("Quantify with DIA-NN (version " + DIANN_VERSION + ")", null, false);
     checkRun.setName("run-dia-nn");
 
-    String message = "For full DIA-NN functionality, including using the latest version, we recommend downloading and installing DIA-NN from the <a href=\"https://github.com/vdemichev/DiaNN/releases\">DIA-NN GitHub repository</a>.<br/><br/>"
-        + "<b>Main reference:</b><br/>"
-        + "Demichev, V., et al. DIA-NN: neural networks and interference correction enable deep proteome coverage in high throughput. Nat Methods 17, 41–44 (2020).<br/><br/>"
+    String message = "For full DIA-NN functionality, including using the latest version,<br>we recommend downloading and installing DIA-NN from the <a href=\"https://github.com/vdemichev/DiaNN/releases\">DIA-NN GitHub repository</a>. <a href=\"https://doi.org/10.1038/s41587-021-00860-4\">Reference</a><br/><br/>"
         + "<b>When using DIA-NN in combination with FragPipe-generated spectral libraries, please cite:</b><br/>"
         + "Demichev, V., et al. High sensitivity dia-PASEF proteomics with DIA-NN and FragPipe. bioRxiv 2021.03.08.434385, doi: 2021.03.08.434385<br/>";
 
@@ -128,7 +126,7 @@ public class DiannPanel extends JPanelBase {
     try {
       BufferedImage image = ImageIO.read(getClass().getResource("/com/dmtavt/fragpipe/icons/icon-diann-100.png"));
       JLabel imageLabel = new JLabel(new ImageIcon(image));
-      pIcon.add(imageLabel, mu.ccL().wrap());
+      pIcon.add(imageLabel, mu.ccL().wrap().gapRight("50"));
     } catch (Exception ex) {
       ex.printStackTrace();
     }
