@@ -781,6 +781,7 @@ Commands to execute:
 				print(open(logs_directory / f'easypqp_convert_{i}.log').read(), end="")
 			except OSError as e:
 				print(e)
+			print(f'exit status: {p.returncode}')
 			print("EasyPQP convert error END")
 	assert all(p.returncode == 0 for p in procs)
 	p = subprocess.run(easypqp_library_cmd(use_iRT, use_im), cwd=os_fspath(output_directory), check=False)
