@@ -44,6 +44,7 @@ import java.awt.Component;
 import java.awt.ItemSelectable;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,12 +52,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -66,8 +70,6 @@ import javax.swing.JRadioButton;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.java.balloontip.BalloonTip;
-import net.miginfocom.layout.CC;
-import net.miginfocom.layout.LC;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
@@ -350,7 +352,7 @@ public class PtmshepherdPanel extends JPanelBase {
   }
 
   private JPanel createPanelTop() {
-    JPanel p = mu.newPanel(new LC());
+    JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     mu.borderEmpty(p);
 
     checkRun = new UiCheck("Run PTM-Shepherd", null, false);
@@ -360,7 +362,6 @@ public class PtmshepherdPanel extends JPanelBase {
       enablementMapping.put(pContent, isSelected);
       updateEnabledStatus(pContent, isSelected);
     });
-    p.add(checkRun, new CC().alignX("left"));
 
     JLabel labelDefaults = new JLabel("Defaults for:");
     final LinkedHashMap<String, SearchTypeProp> defaults = new LinkedHashMap<>();
@@ -378,10 +379,20 @@ public class PtmshepherdPanel extends JPanelBase {
             new UiCheck("Extended output", null, false),
             "<html>Write additional files with more detailed information.");
 
-    mu.add(p, labelDefaults).split().spanX();
+    JLabel imageLabel = new JLabel();
+    try {
+      BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/ptm-s_logo.png")));
+      imageLabel = new JLabel(new ImageIcon(image));
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+
+    mu.add(p, checkRun).split(5);
+    mu.add(p, labelDefaults);
     mu.add(p, uiComboDefaults);
     mu.add(p, btnLoadDefaults);
-    mu.add(p, feExtendedOut.comp).pushX().wrap();
+    mu.add(p, feExtendedOut.comp);
+    mu.add(p, imageLabel, mu.ccR()).gapRight("50").wrap();
 
     return p;
   }
