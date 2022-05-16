@@ -193,15 +193,17 @@ public class QuantPanelLabelfree extends JPanelBase {
     JButton btnLoadDefaults = new JButton("Load Quant defaults");
     btnLoadDefaults.addActionListener((e) -> Bus.post(new MessageLoadQuantDefaults(true)));
 
-    mu.add(p, checkRun).split(2);
-    mu.add(p, btnLoadDefaults);
+    JLabel imageLabel = new JLabel();
     try {
       BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/ionquant.png")));
-      JLabel imageLabel = new JLabel(new ImageIcon(image));
-      mu.add(p, imageLabel, mu.ccR()).gapRight("200").wrap();
+      imageLabel = new JLabel(new ImageIcon(image));
     } catch (Exception ex) {
       ex.printStackTrace();
     }
+
+    mu.add(p, checkRun).split(2);
+    mu.add(p, btnLoadDefaults);
+    mu.add(p, imageLabel, mu.ccR()).gapRight("200").wrap();
 
     return p;
   }

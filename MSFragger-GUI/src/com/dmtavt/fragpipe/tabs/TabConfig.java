@@ -241,15 +241,16 @@ public class TabConfig extends JPanelWithEnablement {
     sysInfo.setVerticalAlignment(JLabel.TOP);
     //p.add(UiUtils.createButton("Find tools", e -> post(new MessageFindTools())), ccL.get().split().spanX());
 
+    JLabel imageLabel = new JLabel();
     try {
       BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/fragpipe-128.png")));
-      JLabel imageLabel = new JLabel(new ImageIcon(image));
-      p.add(sysInfo, ccR().growX());
-      p.add(imageLabel, ccL().wrap());
+      imageLabel = new JLabel(new ImageIcon(image));
     } catch (Exception ex) {
       ex.printStackTrace();
-      p.add(sysInfo, ccR().wrap());
     }
+
+    p.add(sysInfo, ccR().growX());
+    p.add(imageLabel, ccL().wrap());
 
     JLabel label = new JLabel("Main tools configuration");
     label.setFont(new Font(label.getFont().getName(), Font.BOLD, label.getFont().getSize() + 3));

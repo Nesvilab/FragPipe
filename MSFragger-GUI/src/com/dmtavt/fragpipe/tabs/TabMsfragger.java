@@ -17,6 +17,17 @@
 
 package com.dmtavt.fragpipe.tabs;
 
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPES;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_ALL;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_CID;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_ECD;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_ETD;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_HCD;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTIONS;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_labile;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_nglycan;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_off;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
@@ -122,8 +133,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.*;
 
 public class TabMsfragger extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
@@ -452,18 +461,20 @@ public class TabMsfragger extends JPanelBase {
     JButton btnLoad = new JButton("Load");
     btnLoad.addActionListener(this::actionBtnConfigLoad);
 
+    JLabel imageLabel = new JLabel();
+    try {
+      BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/msfragger-128.png")));
+      imageLabel = new JLabel(new ImageIcon(image));
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+
     mu.add(pTop, checkRun).wrap();
     mu.add(pTop, btnSave).split(4);
     mu.add(pTop, btnLoad);
     mu.add(pTop, new JLabel(":")).gapLeft("3px").gapRight("3px");
     mu.add(pTop, uiComboLoadDefaultsNames);
-    try {
-      BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/msfragger-128.png")));
-      JLabel imageLabel = new JLabel(new ImageIcon(image));
-      mu.add(pTop, imageLabel, mu.ccR()).gapRight("50").wrap();
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
+    mu.add(pTop, imageLabel, mu.ccR()).gapRight("50").wrap();
 
     return pTop;
   }

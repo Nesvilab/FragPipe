@@ -41,6 +41,7 @@ import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -122,18 +123,17 @@ public class DiannPanel extends JPanelBase {
 
     HtmlStyledJEditorPane messagePane = createClickableHtml(message);
 
-    JPanel pIcon = new JPanel(new MigLayout(new LC().fillX()));
+    JLabel imageLabel = new JLabel();
     try {
-      BufferedImage image = ImageIO.read(getClass().getResource("/com/dmtavt/fragpipe/icons/icon-diann-48.png"));
-      JLabel imageLabel = new JLabel(new ImageIcon(image));
-      pIcon.add(imageLabel, mu.ccL().wrap().gapRight("50"));
+      BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/icon-diann-48.png")));
+      imageLabel = new JLabel(new ImageIcon(image));
     } catch (Exception ex) {
       ex.printStackTrace();
     }
 
     mu.add(p, checkRun).wrap();
     mu.add(p, messagePane).pushX();
-    mu.add(p, pIcon).wrap();
+    mu.add(p, imageLabel).gapRight("50").wrap();
 
     return p;
   }
