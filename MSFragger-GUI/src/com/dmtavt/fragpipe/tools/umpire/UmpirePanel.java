@@ -69,6 +69,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.ItemSelectable;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,7 +82,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -153,15 +156,14 @@ public class UmpirePanel extends JPanelBase {
   }
 
   protected void init() {
-    icon = new ImageIcon(
-        getClass().getResource("/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png"));
+    icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png")));
 
     this.setLayout(new MigLayout(new LC().flowY().fillX()));
 
     LC lc = new LC();//.debug();
 
     // Panel - top
-    JPanel pTop = new JPanel(new MigLayout(lc));
+    JPanel pTop = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
 
     checkRunUmpireSe = new UiCheck("Run DIA-Umpire SE (Signal Extraction)", null, false);
     checkRunUmpireSe.setName("diaumpire.run-diaumpire");
@@ -193,9 +195,18 @@ public class UmpirePanel extends JPanelBase {
     JButton btnLoad = new JButton("Load");
     btnLoad.addActionListener(this::actionBtnConfigLoad);
 
-    pTop.add(btnLoad);
-    pTop.add(new JLabel(":"));
-    pTop.add(uiComboLoadDefaultsNames);
+    JLabel imageLabel = new JLabel();
+    try {
+      BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/DIA-Umpire_logo.png")));
+      imageLabel = new JLabel(new ImageIcon(image));
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+
+    mu.add(pTop, btnLoad).split(3);
+    mu.add(pTop, new JLabel(":"));
+    mu.add(pTop, uiComboLoadDefaultsNames);
+    mu.add(pTop, imageLabel, mu.ccR()).gapRight("50").wrap();
 
     DefaultFormatterFactory decimalAsInt = new DefaultFormatterFactory(
         new NumberFormatter(new DecimalFormat("#0")));
