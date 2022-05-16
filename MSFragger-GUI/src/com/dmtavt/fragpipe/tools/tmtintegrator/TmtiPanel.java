@@ -46,6 +46,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.ItemSelectable;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
@@ -70,8 +71,10 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -237,8 +240,17 @@ public class TmtiPanel extends JPanelBase {
         .tooltip("Only use in rare situations when you need to re-run TMT-Integrator separately")
         .create();
 
+    JLabel imageLabel = new JLabel();
+    try {
+      BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/tmt-i_logo-48.png")));
+      imageLabel = new JLabel(new ImageIcon(image));
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+
     mu.add(p, checkRun);
-    mu.add(p, btnLoadDefaults).pushX().wrap();
+    mu.add(p, btnLoadDefaults).pushX();
+    mu.add(p, imageLabel, mu.ccR()).gapRight("50").wrap();
     mu.add(p, feDontRunFqLq.comp).spanX().growX().wrap();
 
     return p;
