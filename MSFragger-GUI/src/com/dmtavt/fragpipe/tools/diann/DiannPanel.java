@@ -116,15 +116,15 @@ public class DiannPanel extends JPanelBase {
     checkRun = new UiCheck("Quantify with DIA-NN (version " + DIANN_VERSION + ")", null, false);
     checkRun.setName("run-dia-nn");
 
-    String message = "For full DIA-NN functionality, including using the latest version,<br>we recommend downloading and installing DIA-NN from the <a href=\"https://github.com/vdemichev/DiaNN/releases\">DIA-NN GitHub repository</a>. <a href=\"https://doi.org/10.1038/s41587-021-00860-4\">Reference</a><br/><br/>"
+    String message = "The stand-alone DIA-NN program (with full functionality) can be downloaded from the <a href=\"https://github.com/vdemichev/DiaNN/releases\">DIA-NN GitHub repository</a>. <a href=\"https://doi.org/10.1038/s41587-021-00860-4\">Reference</a><br/><br/>"
         + "<b>When using DIA-NN in combination with FragPipe-generated spectral libraries, please cite:</b><br/>"
-        + "Demichev, V., et al. High sensitivity dia-PASEF proteomics with DIA-NN and FragPipe. bioRxiv 2021.03.08.434385, doi: 2021.03.08.434385<br/>";
+        + "<a href=\"https://www.biorxiv.org/content/10.1101/2021.03.08.434385v1.full\">Demichev, V., et al. High sensitivity dia-PASEF proteomics with DIA-NN and FragPipe. bioRxiv 2021.03.08.434385, doi: 2021.03.08.434385</a>";
 
     HtmlStyledJEditorPane messagePane = createClickableHtml(message);
 
     JPanel pIcon = new JPanel(new MigLayout(new LC().fillX()));
     try {
-      BufferedImage image = ImageIO.read(getClass().getResource("/com/dmtavt/fragpipe/icons/icon-diann-100.png"));
+      BufferedImage image = ImageIO.read(getClass().getResource("/com/dmtavt/fragpipe/icons/icon-diann-48.png"));
       JLabel imageLabel = new JLabel(new ImageIcon(image));
       pIcon.add(imageLabel, mu.ccL().wrap().gapRight("50"));
     } catch (Exception ex) {
@@ -196,8 +196,8 @@ public class DiannPanel extends JPanelBase {
     mu.add(p, feRunSpecificProteinQvalue.comp).wrap();
     mu.add(p, feQuantificationStrategy.label(), mu.ccL());
     mu.add(p, feQuantificationStrategy.comp).wrap();
-    mu.add(p, feUsePredictedSpectra.comp).wrap();
     mu.add(p, feUnrelatedRuns.comp).wrap();
+    mu.add(p, feUsePredictedSpectra.comp).wrap();
     mu.add(p, feLibrary.label(), mu.ccL());
     mu.add(p, feLibrary.comp).pushX().growX();
     mu.add(p, jButtonLibrary).wrap();
