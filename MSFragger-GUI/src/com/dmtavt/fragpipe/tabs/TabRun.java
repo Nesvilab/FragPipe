@@ -57,6 +57,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -70,9 +71,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -289,17 +294,26 @@ public class TabRun extends JPanelWithEnablement {
           console.setVisible(true);
         });
 
+    JLabel imageLabel = new JLabel();
+    try {
+      BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/SeaGullMass.png")));
+      imageLabel = new JLabel(new ImageIcon(image));
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+
     JPanel p = mu.newPanel(null, true);
     mu.add(p, btnAbout).wrap();
     mu.add(p, feWorkdir.label(), false).split().spanX();
     mu.add(p, feWorkdir.comp).growX();
     mu.add(p, btnBrowse);
     mu.add(p, btnOpenInFileManager).wrap();
-    mu.add(p, btnRun).split().spanX();
+    mu.add(p, btnRun).split(3);
     mu.add(p, btnStop);
+    mu.add(p, uiCheckDryRun);
+    mu.add(p, imageLabel).gapLeft("50").split(3);
     mu.add(p, btnOpenPdv);
-    mu.add(p, btnClosePdv);
-    mu.add(p, uiCheckDryRun).pushX();
+    mu.add(p, btnClosePdv).pushX();
     mu.add(p, btnExport);
     mu.add(p, btnReportErrors);
     mu.add(p, btnClearConsole);
