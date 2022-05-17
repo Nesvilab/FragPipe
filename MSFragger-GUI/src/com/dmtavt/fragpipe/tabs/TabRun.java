@@ -98,10 +98,12 @@ public class TabRun extends JPanelWithEnablement {
   private UiCheck uiCheckDryRun;
   private JButton btnRun;
   private JButton btnOpenPdv;
+  private JButton btnClosePdv;
   private Thread pdvThread = null;
   private JPanel pTop;
   private JPanel pConsole;
   private UiCheck uiCheckWordWrap;
+  private Process pdvProcess = null;
 
   public TabRun(TextConsole console) {
     this.console = console;
@@ -132,6 +134,7 @@ public class TabRun extends JPanelWithEnablement {
   public void on(MessageRunButtonEnabled m) {
     btnRun.setEnabled(m.isEnabled);
     btnOpenPdv.setEnabled(m.isEnabled); // When Run button is gray, disable the PDV button. When Run button is not gray, also enable the PDV button.
+    btnClosePdv.setEnabled(false);
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
@@ -233,10 +236,12 @@ public class TabRun extends JPanelWithEnablement {
         pdvThread = new Thread(() -> {
           try {
             btnOpenPdv.setEnabled(false);
+            btnClosePdv.setEnabled(true);
             ProcessBuilder pb = new ProcessBuilder(cmd);
             ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb).setName(pb.toString()).setFnStdOut(null).setFnStdErr(null).setParallelGroup(null).create();
             ProcessResult pr = new ProcessResult(pbi);
-            if (pr.start().waitFor() == 0) {
+            pdvProcess = pr.start();
+            if (pdvProcess.waitFor() == 0) {
               final int exitValue = pr.getProcess().exitValue();
               if (exitValue != 0) {
                 throw new IllegalStateException("Process " + pb + " returned non zero value");
@@ -247,10 +252,21 @@ public class TabRun extends JPanelWithEnablement {
           } catch (Exception ex) {
             ex.printStackTrace();
           } finally {
+            if (pdvProcess != null) {
+              pdvProcess.destroyForcibly();
+            }
             btnOpenPdv.setEnabled(true);
+            btnClosePdv.setEnabled(false);
           }
         });
         pdvThread.start();
+      }
+    });
+
+    btnClosePdv = UiUtils.createButton("Close visualization window", e -> {
+      if (pdvProcess != null) {
+        pdvProcess.destroyForcibly();
+        btnClosePdv.setEnabled(false);
       }
     });
 
@@ -283,6 +299,7 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnRun).split().spanX();
     mu.add(p, btnStop);
     mu.add(p, btnOpenPdv);
+    mu.add(p, btnClosePdv);
     mu.add(p, uiCheckDryRun).pushX();
     mu.add(p, btnPrintCommands);
     mu.add(p, btnExport);
