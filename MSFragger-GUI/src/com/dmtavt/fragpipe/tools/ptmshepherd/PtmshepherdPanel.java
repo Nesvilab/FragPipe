@@ -70,6 +70,8 @@ import javax.swing.JRadioButton;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.java.balloontip.BalloonTip;
+import net.miginfocom.layout.LC;
+import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
@@ -353,8 +355,7 @@ public class PtmshepherdPanel extends JPanelBase {
   }
 
   private JPanel createPanelTop() {
-    JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
-    mu.borderEmpty(p);
+    JPanel pTop = new JPanel(new MigLayout(new LC().fillX()));
 
     checkRun = new UiCheck("Run PTM-Shepherd", null, false);
     checkRun.setName("run-shepherd");
@@ -388,14 +389,14 @@ public class PtmshepherdPanel extends JPanelBase {
       ex.printStackTrace();
     }
 
-    mu.add(p, checkRun).split(5);
-    mu.add(p, labelDefaults);
-    mu.add(p, uiComboDefaults);
-    mu.add(p, btnLoadDefaults);
-    mu.add(p, feExtendedOut.comp);
-    mu.add(p, imageLabel, mu.ccR()).gapRight("50").wrap();
+    mu.add(pTop, checkRun).split(5);
+    mu.add(pTop, labelDefaults);
+    mu.add(pTop, uiComboDefaults);
+    mu.add(pTop, btnLoadDefaults);
+    mu.add(pTop, feExtendedOut.comp);
+    mu.add(pTop, imageLabel, mu.ccR()).gapRight("50").wrap();
 
-    return p;
+    return pTop;
   }
 
   private JPanel createPanelDiagnosticExtraction() {
@@ -539,33 +540,6 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p, uiCheckDiagnosticMining).spanX().wrap();
     mu.add(p, pDiagnosticMiningContent).growX().wrap();
 
-//    // known diag ion params
-//    uiCheckDiagnostic = UiUtils.createUiCheck("Extract known diagnostic ions from spectra", false);
-//    uiCheckDiagnostic.setName(PROP_diagExtract_mode);
-//    uiCheckDiagnostic.setToolTipText("Look for the ions listed below in spectra. Note: required for glycan assignment");
-//
-//    // labile/glyco main params
-//    FormEntry feYIonMasses = mu.feb(PROP_cap_y_ions, UiUtils.uiTextBuilder().create())
-//            .label("Y Ion Masses")
-//            .tooltip("Partially fragmented modification mass added to peptide mass and searched for in MS2 spectrum. "
-//                    + "Space, comma, or slash separated values accepted.").create();
-//    FormEntry feDiagnosticFragmentMasses = mu.feb(PROP_diag_ions, UiUtils.uiTextBuilder().create())
-//            .label("Diagnostic Fragment Masses")
-//            .tooltip("Checked for directly in the MS2 spectrum. Assumed to have a +1 charge state. "
-//                    + "Space, comma, or slash separated values accepted.").create();
-//    FormEntry feRemainderMasses = mu.feb(PROP_remainder_masses, UiUtils.uiTextBuilder().create())
-//            .label("Remainder Masses")
-//            .tooltip("Partial modification masses localized to the peptide sequence. "
-//                    + "Space, comma, or slash separated values accepted.").create();
-//    mu.add(pDiagnosticKnownContent, feYIonMasses.label(), mu.ccR());
-//    mu.add(pDiagnosticKnownContent, feYIonMasses.comp).spanX().growX().pushX().wrap();
-//    mu.add(pDiagnosticKnownContent, feDiagnosticFragmentMasses.label(), mu.ccR());
-//    mu.add(pDiagnosticKnownContent, feDiagnosticFragmentMasses.comp).spanX().growX().pushX().wrap();
-//    mu.add(pDiagnosticKnownContent, feRemainderMasses.label(), mu.ccR());
-//    mu.add(pDiagnosticKnownContent, feRemainderMasses.comp).spanX().growX().pushX().wrap();
-//
-//    mu.add(p, uiCheckDiagnostic).spanX().wrap();
-//    mu.add(p, pDiagnosticKnownContent).growX().wrap();
     return p;
   }
 
@@ -730,7 +704,6 @@ public class PtmshepherdPanel extends JPanelBase {
 
   private JPanel createPanelContent() {
     JPanel p =  mu.newPanel("PTM Profiling", mu.lcFillXNoInsetsTopBottom());
-//    mu.borderEmpty(p);
 
     FormEntry feHistoSmoothBins = new FormEntry(PROP_histo_smoothbins, "Smoothing factor",
         new UiSpinnerInt(2, 0, 5, 1, 5),
@@ -761,10 +734,6 @@ public class PtmshepherdPanel extends JPanelBase {
     uiSpinnerPrecTol.setColumns(5);
     FormEntry fePrecTol = new FormEntry(PROP_precursor_tol, "Precursor tolerance", uiSpinnerPrecTol);
     FormEntry fePrecUnits = mu.fe(PROP_precursor_mass_units, UiUtils.createUiCombo(MassTolUnits.values()));
-    UiSpinnerDouble uiSpinnerAnnotTol = UiSpinnerDouble.builder(0.01, 0.001, 0.999, 0.01)
-        .setFormat(new DecimalFormat("0.###")).setCols(5).create();
-    FormEntry feAnnotTol = mu.feb(PROP_annotation_tol, uiSpinnerAnnotTol)
-        .label("Annotation tolerance (Da)").tooltip("+/- distance from peak to annotated mass").create();
 
 
     FormEntry feMinPsms = new FormEntry(PROP_peakpicking_minPsm, "Peak minimum PSMs",
@@ -774,6 +743,12 @@ public class PtmshepherdPanel extends JPanelBase {
             .setFormat(new DecimalFormat("0.#")).setCols(5).create();
     FormEntry feSpectraTol = new FormEntry(PROP_spectra_ppmtol, "Fragment mass tolerance (PPM)",
             uiSpinnerSpectraTol);
+    FormEntry feMaxFragCharge = mu
+            .feb(PROP_spectra_maxfragcharge,
+                    UiUtils.spinnerInt(2, 1, 100, 1).setCols(4).create())
+            .label("Max fragment charge")
+            .tooltip("max fragment charge for localization")
+            .create();
 
     btnGroupNormalizations = new ButtonGroup();
     btnNormPsm = new JRadioButton("PSMs", true);
@@ -829,12 +804,10 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p1, feWidth.comp).split(2);
     mu.add(p1, fePeakPickingUnits.comp);
 
-    //mu.add(p1, feLocBackground.label(), mu.ccR());
-    //mu.add(p1, feLocBackground.comp);
-    mu.add(p1, feAnnotTol.label(), mu.ccR());
-    mu.add(p1, feAnnotTol.comp);
     mu.add(p1, feMinPsms.label(), mu.ccR());
     mu.add(p1, feMinPsms.comp).wrap();
+    mu.add(p1, feMaxFragCharge.label(), mu.ccR());
+    mu.add(p1, feMaxFragCharge.comp);
     mu.add(p1, feSpectraTol.label(), mu.ccR());
     mu.add(p1, feSpectraTol.comp).wrap();
 
@@ -868,8 +841,15 @@ public class PtmshepherdPanel extends JPanelBase {
             + "Example:<br/>\n"
             + "&nbsp;&nbsp;&nbsp;&nbsp;Phospho:79.9663, Failed_Carbamidomethylation:-57.021464");
 
-    JPanel p2 = mu.newPanel(null, true);
-    mu.border(p2, 1);
+    UiSpinnerDouble uiSpinnerAnnotTol = UiSpinnerDouble.builder(0.01, 0.001, 0.999, 0.01)
+            .setFormat(new DecimalFormat("0.###")).setCols(5).create();
+    FormEntry feAnnotTol = mu.feb(PROP_annotation_tol, uiSpinnerAnnotTol)
+            .label("Annotation tolerance (Da)").tooltip("+/- distance from peak to annotated mass").create();
+
+    JPanel p2 = mu.newPanel("Annotation", true);
+
+    mu.add(p2, feAnnotTol.label(), mu.ccR());
+    mu.add(p2, feAnnotTol.comp).spanX().wrap();
 
     mu.add(p2, feVarMods.label(), mu.ccR());
     mu.add(p2, feVarMods.comp).spanX().growX().pushX().wrap();
@@ -892,30 +872,20 @@ public class PtmshepherdPanel extends JPanelBase {
     FormEntry feIonY = mu.feb(PROP_iontype_y, UiUtils.createUiCheck("y", true)).create();
     FormEntry feIonC = mu.feb(PROP_iontype_c, UiUtils.createUiCheck("c", false)).create();
     FormEntry feIonZ = mu.feb(PROP_iontype_z, UiUtils.createUiCheck("z", false)).create();
-    FormEntry feMaxFragCharge = mu
-        .feb(PROP_spectra_maxfragcharge,
-            UiUtils.spinnerInt(2, 1, 100, 1).setCols(4).create())
-        .label("Max fragment charge")
-        .tooltip("max fragment charge for localization")
-        .create();
 
     uiTextLocalizationAAs = UiUtils.uiTextBuilder().create();
     FormEntry feRestrictLoc = new FormEntry(PROP_restrict_loc, "Restrict localization to", uiTextLocalizationAAs,
             "<html>Restricts localization to specified residues.\n" +
                     "Includes glyco mode localization of remainder masses. Example: STYNP");
 
-    JPanel p3 = mu.newPanel("Ion types for localization:", true);
-    //mu.border(p3, 1);
+    JPanel p3 = mu.newPanel("Localization", true);
 
-    //mu.add(p3, new JLabel("Ion Types for Localization:")).spanX().wrap();
     mu.add(p3, feIonA.comp).spanX().split();
     mu.add(p3, feIonX.comp);
     mu.add(p3, feIonB.comp);
     mu.add(p3, feIonY.comp);
     mu.add(p3, feIonC.comp);
     mu.add(p3, feIonZ.comp);
-    mu.add(p3, feMaxFragCharge.label());
-    mu.add(p3, feMaxFragCharge.comp).wrap();
     mu.add(p3, feLocBackground.label()).spanX().split();
     mu.add(p3, feLocBackground.comp).wrap();
     mu.add(p3, feRestrictLoc.label(), mu.ccR());
@@ -927,24 +897,23 @@ public class PtmshepherdPanel extends JPanelBase {
 
   @Override
   protected void init() {
-    this.setLayout(new BorderLayout());
-    JPanel mainPanel = mu.newPanel("PTM-Shepherd", mu.lcFillXNoInsetsTopBottom());
+    this.setLayout(new MigLayout(new LC().fillX()));
     pTop = createPanelTop();
 
-    // 3 Sub-panels within main PTM-S panel: PTM-Profiling, Diagnostic Ion Discovery, and Glycan Assignment/FDR
+    // 4 Sub-panels within main PTM-S panel: PTM-Profiling, Diagnostic Ion Discovery, Diagnostic Ion Exctraction and
+    // Glycan Assignment/FDR
     pContent = createPanelContent();
     pDiagnosticMining = createPanelDiagnosticMining();
     pGlycanAssignment = createpanelGlycanAssignment();
     pDiagnosticMining = createPanelDiagnosticMining();
     pDiagnosticExtraction = createPanelDiagnosticExtraction();
 
-    mu.add(mainPanel, pTop).spanX().growX().wrap();
-    mu.add(mainPanel, pContent).spanX().growX().wrap();
-    mu.add(mainPanel, pDiagnosticMining).spanX().growX().wrap();
-    mu.add(mainPanel, pDiagnosticExtraction).spanX().growX().wrap();
-    mu.add(mainPanel, pGlycanAssignment).spanX().growX().wrap();
+    mu.add(this, pTop).spanX().growX().wrap();
+    mu.add(this, pContent).spanX().growX().wrap();
+    mu.add(this, pDiagnosticMining).spanX().growX().wrap();
+    mu.add(this, pDiagnosticExtraction).spanX().growX().wrap();
+    mu.add(this, pGlycanAssignment).spanX().growX().wrap();
 
-    this.add(mainPanel);
   }
 
   @Override
