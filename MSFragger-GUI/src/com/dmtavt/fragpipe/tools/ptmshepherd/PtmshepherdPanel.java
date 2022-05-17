@@ -153,7 +153,8 @@ public class PtmshepherdPanel extends JPanelBase {
   private JPanel pContent;
   private JPanel pTop;
   private JPanel pRegularShepherd;
-  private JPanel pDiagnostic;
+  private JPanel pDiagnosticMining;
+  private JPanel pDiagnosticExtraction;
   private JPanel pGlycanAssignment;
   private UiText uiTextVarMods;
 
@@ -397,10 +398,45 @@ public class PtmshepherdPanel extends JPanelBase {
     return p;
   }
 
-  private JPanel createPanelDiagnostic() {
+  private JPanel createPanelDiagnosticExtraction() {
+    JPanel p = mu.newPanel("Diagnostic Feature Extraction", mu.lcFillXNoInsetsTopBottom());
+    pDiagnosticKnownContent = mu.newPanel(null, true);
+
+    // known diag ion params
+    uiCheckDiagnostic = UiUtils.createUiCheck("Extract known diagnostic ions from spectra", false);
+    uiCheckDiagnostic.setName(PROP_diagExtract_mode);
+    uiCheckDiagnostic.setToolTipText("Look for the ions listed below in spectra. Note: required for glycan assignment");
+
+    // labile/glyco main params
+    FormEntry feDiagnosticFragmentMasses = mu.feb(PROP_diag_ions, UiUtils.uiTextBuilder().create())
+            .label("Diagnostic fragment masses")
+            .tooltip("Checked for directly in the MS2 spectrum. Assumed to have a +1 charge state. "
+                    + "Space, comma, or slash separated values accepted.").create();
+    FormEntry feYIonMasses = mu.feb(PROP_cap_y_ions, UiUtils.uiTextBuilder().create())
+            .label("Peptide remainder masses")
+            .tooltip("Partially fragmented modification mass added to peptide mass and searched for in MS2 spectrum. "
+                    + "Space, comma, or slash separated values accepted.").create();
+    FormEntry feRemainderMasses = mu.feb(PROP_remainder_masses, UiUtils.uiTextBuilder().create())
+            .label("Fragment remainder masses")
+            .tooltip("Partial modification masses localized to the peptide sequence. "
+                    + "Space, comma, or slash separated values accepted.").create();
+    mu.add(pDiagnosticKnownContent, feYIonMasses.label(), mu.ccR());
+    mu.add(pDiagnosticKnownContent, feYIonMasses.comp).spanX().growX().pushX().wrap();
+    mu.add(pDiagnosticKnownContent, feDiagnosticFragmentMasses.label(), mu.ccR());
+    mu.add(pDiagnosticKnownContent, feDiagnosticFragmentMasses.comp).spanX().growX().pushX().wrap();
+    mu.add(pDiagnosticKnownContent, feRemainderMasses.label(), mu.ccR());
+    mu.add(pDiagnosticKnownContent, feRemainderMasses.comp).spanX().growX().pushX().wrap();
+
+    mu.add(p, uiCheckDiagnostic).spanX().wrap();
+    mu.add(p, pDiagnosticKnownContent).growX().wrap();
+
+    return p;
+  }
+
+  private JPanel createPanelDiagnosticMining() {
     JPanel p = mu.newPanel("Diagnostic Feature Discovery", mu.lcFillXNoInsetsTopBottom());
     pDiagnosticMiningContent = mu.newPanel(null, true);
-    pDiagnosticKnownContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+    // pDiagnosticKnownContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
     // label diagnostic ion mining params
     uiCheckDiagnosticMining = UiUtils.createUiCheck("Mine for diagnostic ions and fragments", false);
@@ -503,33 +539,33 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p, uiCheckDiagnosticMining).spanX().wrap();
     mu.add(p, pDiagnosticMiningContent).growX().wrap();
 
-    // known diag ion params
-    uiCheckDiagnostic = UiUtils.createUiCheck("Extract known diagnostic ions from spectra", false);
-    uiCheckDiagnostic.setName(PROP_diagExtract_mode);
-    uiCheckDiagnostic.setToolTipText("Look for the ions listed below in spectra. Note: required for glycan assignment");
-
-    // labile/glyco main params
-    FormEntry feYIonMasses = mu.feb(PROP_cap_y_ions, UiUtils.uiTextBuilder().create())
-            .label("Y Ion Masses")
-            .tooltip("Partially fragmented modification mass added to peptide mass and searched for in MS2 spectrum. "
-                    + "Space, comma, or slash separated values accepted.").create();
-    FormEntry feDiagnosticFragmentMasses = mu.feb(PROP_diag_ions, UiUtils.uiTextBuilder().create())
-            .label("Diagnostic Fragment Masses")
-            .tooltip("Checked for directly in the MS2 spectrum. Assumed to have a +1 charge state. "
-                    + "Space, comma, or slash separated values accepted.").create();
-    FormEntry feRemainderMasses = mu.feb(PROP_remainder_masses, UiUtils.uiTextBuilder().create())
-            .label("Remainder Masses")
-            .tooltip("Partial modification masses localized to the peptide sequence. "
-                    + "Space, comma, or slash separated values accepted.").create();
-    mu.add(pDiagnosticKnownContent, feYIonMasses.label(), mu.ccR());
-    mu.add(pDiagnosticKnownContent, feYIonMasses.comp).spanX().growX().pushX().wrap();
-    mu.add(pDiagnosticKnownContent, feDiagnosticFragmentMasses.label(), mu.ccR());
-    mu.add(pDiagnosticKnownContent, feDiagnosticFragmentMasses.comp).spanX().growX().pushX().wrap();
-    mu.add(pDiagnosticKnownContent, feRemainderMasses.label(), mu.ccR());
-    mu.add(pDiagnosticKnownContent, feRemainderMasses.comp).spanX().growX().pushX().wrap();
-
-    mu.add(p, uiCheckDiagnostic).spanX().wrap();
-    mu.add(p, pDiagnosticKnownContent).growX().wrap();
+//    // known diag ion params
+//    uiCheckDiagnostic = UiUtils.createUiCheck("Extract known diagnostic ions from spectra", false);
+//    uiCheckDiagnostic.setName(PROP_diagExtract_mode);
+//    uiCheckDiagnostic.setToolTipText("Look for the ions listed below in spectra. Note: required for glycan assignment");
+//
+//    // labile/glyco main params
+//    FormEntry feYIonMasses = mu.feb(PROP_cap_y_ions, UiUtils.uiTextBuilder().create())
+//            .label("Y Ion Masses")
+//            .tooltip("Partially fragmented modification mass added to peptide mass and searched for in MS2 spectrum. "
+//                    + "Space, comma, or slash separated values accepted.").create();
+//    FormEntry feDiagnosticFragmentMasses = mu.feb(PROP_diag_ions, UiUtils.uiTextBuilder().create())
+//            .label("Diagnostic Fragment Masses")
+//            .tooltip("Checked for directly in the MS2 spectrum. Assumed to have a +1 charge state. "
+//                    + "Space, comma, or slash separated values accepted.").create();
+//    FormEntry feRemainderMasses = mu.feb(PROP_remainder_masses, UiUtils.uiTextBuilder().create())
+//            .label("Remainder Masses")
+//            .tooltip("Partial modification masses localized to the peptide sequence. "
+//                    + "Space, comma, or slash separated values accepted.").create();
+//    mu.add(pDiagnosticKnownContent, feYIonMasses.label(), mu.ccR());
+//    mu.add(pDiagnosticKnownContent, feYIonMasses.comp).spanX().growX().pushX().wrap();
+//    mu.add(pDiagnosticKnownContent, feDiagnosticFragmentMasses.label(), mu.ccR());
+//    mu.add(pDiagnosticKnownContent, feDiagnosticFragmentMasses.comp).spanX().growX().pushX().wrap();
+//    mu.add(pDiagnosticKnownContent, feRemainderMasses.label(), mu.ccR());
+//    mu.add(pDiagnosticKnownContent, feRemainderMasses.comp).spanX().growX().pushX().wrap();
+//
+//    mu.add(p, uiCheckDiagnostic).spanX().wrap();
+//    mu.add(p, pDiagnosticKnownContent).growX().wrap();
     return p;
   }
 
@@ -897,12 +933,15 @@ public class PtmshepherdPanel extends JPanelBase {
 
     // 3 Sub-panels within main PTM-S panel: PTM-Profiling, Diagnostic Ion Discovery, and Glycan Assignment/FDR
     pContent = createPanelContent();
-    pDiagnostic = createPanelDiagnostic();
+    pDiagnosticMining = createPanelDiagnosticMining();
     pGlycanAssignment = createpanelGlycanAssignment();
+    pDiagnosticMining = createPanelDiagnosticMining();
+    pDiagnosticExtraction = createPanelDiagnosticExtraction();
 
     mu.add(mainPanel, pTop).spanX().growX().wrap();
     mu.add(mainPanel, pContent).spanX().growX().wrap();
-    mu.add(mainPanel, pDiagnostic).spanX().growX().wrap();
+    mu.add(mainPanel, pDiagnosticMining).spanX().growX().wrap();
+    mu.add(mainPanel, pDiagnosticExtraction).spanX().growX().wrap();
     mu.add(mainPanel, pGlycanAssignment).spanX().growX().wrap();
 
     this.add(mainPanel);
@@ -913,7 +952,7 @@ public class PtmshepherdPanel extends JPanelBase {
     super.initMore();
     loadDefaults(1, SearchTypeProp.open); // pre-populate, but only after renaming has happened in super.initMore()
 
-    SwingUtils.setEnablementUpdater(this, pDiagnostic, checkRun);
+    SwingUtils.setEnablementUpdater(this, pDiagnosticMining, checkRun);
     SwingUtils.setEnablementUpdater(this, pGlycanAssignment, checkRun);
 
     // enable/disable diagnostic mining/extraction areas when boxes are checked
