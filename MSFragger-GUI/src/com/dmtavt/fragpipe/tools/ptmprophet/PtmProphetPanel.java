@@ -65,6 +65,10 @@ public class PtmProphetPanel extends JPanelBase {
     return PREFIX;
   }
 
+  public void setRunStatus(boolean status) {
+    checkRun.setEnabled(status);
+  }
+
   @Override
   protected void init() {
     mu.layout(this, mu.lcFillXNoInsetsTopBottom());

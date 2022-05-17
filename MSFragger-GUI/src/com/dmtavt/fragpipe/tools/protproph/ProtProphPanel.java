@@ -54,6 +54,10 @@ public class ProtProphPanel extends JPanelBase {
     return uiTextCmdOpts.getNonGhostText().trim();
   }
 
+  public void setRunStatus(boolean status) {
+    checkRun.setEnabled(status);
+  }
+
   @Override
   protected ItemSelectable getRunCheckbox() {
     return checkRun;

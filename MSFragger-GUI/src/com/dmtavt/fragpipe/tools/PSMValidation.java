@@ -63,6 +63,10 @@ public class PSMValidation extends JPanelBase {
     checkRun.setSelected(true);
   }
 
+  public void setRunStatus(boolean status) {
+    checkRun.setEnabled(status);
+  }
+
   @Override
   protected void init() {
     this.setLayout(new BorderLayout());
@@ -85,5 +89,4 @@ public class PSMValidation extends JPanelBase {
     this.add(p, BorderLayout.NORTH);
     this.add(p2, BorderLayout.CENTER);
   }
-
 }

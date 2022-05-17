@@ -104,6 +104,10 @@ public class CrystalcPanel extends JPanelBase {
     super.initMore();
   }
 
+  public void setRunStatus(boolean status) {
+    checkRun.setEnabled(status);
+  }
+
   private void loadDefaults() {
     try {
       final Map<String, String> newVals = new HashMap<>();
