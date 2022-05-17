@@ -270,7 +270,6 @@ public class TabRun extends JPanelWithEnablement {
       }
     });
 
-    JButton btnPrintCommands = UiUtils.createButton("Print Commands", e -> Bus.post(new MessageRun(true)));
     JButton btnExport = UiUtils.createButton("Export Log", e -> Bus.post(new MessageExportLog()));
     JButton btnReportErrors = UiUtils.createButton("Report Errors", e -> {
       final String prop = Version.isDevBuild() ? Version.PROP_ISSUE_TRACKER_URL_DEV : Version.PROP_ISSUE_TRACKER_URL;
@@ -301,7 +300,6 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnOpenPdv);
     mu.add(p, btnClosePdv);
     mu.add(p, uiCheckDryRun).pushX();
-    mu.add(p, btnPrintCommands);
     mu.add(p, btnExport);
     mu.add(p, btnReportErrors);
     mu.add(p, btnClearConsole);
