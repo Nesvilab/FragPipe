@@ -454,8 +454,8 @@ public class PtmshepherdPanel extends JPanelBase {
 
     // Diagnostic ions
     JPanel p1 = mu.newPanel("Diagnostic ions", true);
-    UiSpinnerDouble uiSpinnerDiagMinSpecPct = UiSpinnerDouble.builder(0.25, 0.0, 1.0, 0.01)
-            .setFormat(new DecimalFormat("0.0#")).setCols(5).create();
+    UiSpinnerDouble uiSpinnerDiagMinSpecPct = UiSpinnerDouble.builder(25.0, 0.0, 100.0, 0.1)
+            .setFormat(new DecimalFormat("00.#")).setCols(5).create();
     FormEntry feDiagMinSpecPct = new FormEntry(PROP_diagMine_diagMinSpecPct, "Min. % of spectra with " +
             "ion", uiSpinnerDiagMinSpecPct,
             "<html>Used to filter what is considered a peak for downstream analyses.\n" +
@@ -477,8 +477,8 @@ public class PtmshepherdPanel extends JPanelBase {
 
     // Peptide ions
     JPanel p2 = mu.newPanel("Peptide ions", true);
-    UiSpinnerDouble uiSpinnerPepMinSpecPct = UiSpinnerDouble.builder(0.25, 0.0, 1.0, 0.01)
-            .setFormat(new DecimalFormat("0.0#")).setCols(5).create();
+    UiSpinnerDouble uiSpinnerPepMinSpecPct = UiSpinnerDouble.builder(25.0, 0.0, 100.0, 0.1)
+            .setFormat(new DecimalFormat("00.#")).setCols(5).create();
     FormEntry fePepMinSpecPct = new FormEntry(PROP_diagMine_pepMinSpecPct, "Min. % of spectra with " +
             "ion", uiSpinnerPepMinSpecPct,
             "<html>Used to filter what is considered a peak for downstream analyses.\n" +
@@ -500,8 +500,8 @@ public class PtmshepherdPanel extends JPanelBase {
 
     // Fragment ions
     JPanel p3 = mu.newPanel("Fragment ions", true);
-    UiSpinnerDouble uiSpinnerFragMinSpecPct = UiSpinnerDouble.builder(0.15, 0.0, 1.0, 0.01)
-            .setFormat(new DecimalFormat("0.0#")).setCols(5).create();
+    UiSpinnerDouble uiSpinnerFragMinSpecPct = UiSpinnerDouble.builder(25.0, 0.0, 100.0, 0.1)
+            .setFormat(new DecimalFormat("00.#")).setCols(5).create();
     FormEntry feFragMinSpecPct = new FormEntry(PROP_diagMine_fragMinSpecPct, "Min. % of spectra with " +
             "ion", uiSpinnerFragMinSpecPct,
             "<html>Used to filter what is considered a peak for downstream analyses.\n" +
@@ -518,8 +518,8 @@ public class PtmshepherdPanel extends JPanelBase {
             "<html>Used to filter what is considered a peak for downstream analyses.\n" +
                     "Ratio of avg. fragment ion intensity compared to its avg. \n" +
                     "intensity among unmodified spectra.");
-    UiSpinnerDouble uiSpinnerFragMinPropensity = UiSpinnerDouble.builder(0.125, 0.0, 1.0, 0.001)
-            .setFormat(new DecimalFormat("0.00#")).setCols(5).create();
+    UiSpinnerDouble uiSpinnerFragMinPropensity = UiSpinnerDouble.builder(12.5, 0.0, 100.0, 0.1)
+            .setFormat(new DecimalFormat("00.#")).setCols(5).create();
     FormEntry feFragMinPropensity = new FormEntry(PROP_diagMine_fragMinPropensity, "Min. fragment propensity",
             uiSpinnerFragMinPropensity,
             "<html>Used to filter what is considered a peak for downstream analyses.\n" +
