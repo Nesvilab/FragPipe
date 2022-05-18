@@ -70,6 +70,7 @@ import javax.swing.JRadioButton;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.java.balloontip.BalloonTip;
+import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
@@ -389,8 +390,9 @@ public class PtmshepherdPanel extends JPanelBase {
       ex.printStackTrace();
     }
 
-    mu.add(pTop, checkRun).split(5);
-    mu.add(pTop, labelDefaults);
+    mu.add(pTop, checkRun, new CC().spanX()).wrap();
+
+    mu.add(pTop, labelDefaults).split(4);
     mu.add(pTop, uiComboDefaults);
     mu.add(pTop, btnLoadDefaults);
     mu.add(pTop, feExtendedOut.comp);
