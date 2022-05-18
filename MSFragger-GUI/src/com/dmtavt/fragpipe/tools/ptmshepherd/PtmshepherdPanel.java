@@ -923,6 +923,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
     SwingUtils.setEnablementUpdater(this, pDiagnosticMining, checkRun);
     SwingUtils.setEnablementUpdater(this, pGlycanAssignment, checkRun);
+    SwingUtils.setEnablementUpdater(this, pDiagnosticExtraction, checkRun);
 
     // enable/disable diagnostic mining/extraction areas when boxes are checked
     SwingUtils.setEnablementUpdater(this, pDiagnosticMiningContent, uiCheckDiagnosticMining);
