@@ -502,7 +502,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
     // Fragment ions
     JPanel p3 = mu.newPanel("Fragment ions", true);
-    UiSpinnerDouble uiSpinnerFragMinSpecPct = UiSpinnerDouble.builder(25.0, 0.0, 100.0, 0.1)
+    UiSpinnerDouble uiSpinnerFragMinSpecPct = UiSpinnerDouble.builder(15.0, 0.0, 100.0, 0.1)
             .setFormat(new DecimalFormat("00.#")).setCols(5).create();
     FormEntry feFragMinSpecPct = new FormEntry(PROP_diagMine_fragMinSpecPct, "Min. % of spectra with " +
             "ion", uiSpinnerFragMinSpecPct,
