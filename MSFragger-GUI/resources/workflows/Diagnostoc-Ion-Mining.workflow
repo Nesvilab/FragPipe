@@ -1,4 +1,4 @@
-# Workflow: Diagnostoc-Ion-Mining
+# Workflow: Diagnostic-Ion-Mining
 
 crystalc.run-crystalc=true
 database.decoy-tag=rev_
