@@ -17,6 +17,7 @@
 
 package com.dmtavt.fragpipe.tabs;
 
+import static com.dmtavt.fragpipe.cmd.CmdBase.constructClasspathString;
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
 
 import com.dmtavt.fragpipe.Fragpipe;
@@ -27,6 +28,7 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.cmd.CmdMsfragger;
 import com.dmtavt.fragpipe.cmd.PbiBuilder;
 import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
+import com.dmtavt.fragpipe.cmd.ToolingUtils;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
 import com.dmtavt.fragpipe.messages.MessageExternalProcessOutput;
@@ -228,14 +230,16 @@ public class TabRun extends JPanelWithEnablement {
     });
 
     btnOpenPdv = UiUtils.createButton("Open visualization window", e -> {
-      List<Path> pdvPath = FragpipeLocations.checkToolsMissing(Seq.of(PDV_NAME));
+      String[] t = {ToolingUtils.BATMASS_IO_JAR};
+      List<Path> pdvPath = FragpipeLocations.checkToolsMissing(Seq.of(PDV_NAME).concat(t));
       if (pdvPath == null || pdvPath.isEmpty()) {
         SwingUtils.showErrorDialog(this, "Cannot find the visualization executable executable file.", "No visualization executable");
       } else {
         List<String> cmd = new ArrayList<>();
-        cmd.add("java");
-        cmd.add("-jar");
-        cmd.add(pdvPath.get(0).toAbsolutePath().toString());
+        cmd.add(Fragpipe.getBinJava());
+        cmd.add("-cp");
+        cmd.add(constructClasspathString(pdvPath));
+        cmd.add("GUI.GUIMainClass");
         cmd.add(uiTextWorkdir.getNonGhostText());
         log.debug("Executing: " + String.join(" ", cmd));
         pdvThread = new Thread(() -> {
