@@ -575,7 +575,7 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageMsfraggerNewBin m) {
-    if (StringUtils.isBlank(m.binPath)) {
+    if (StringUtils.isBlank(m.binPath) || !Files.exists(Paths.get(m.binPath))) {
       return;
     }
 
@@ -603,7 +603,7 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageIonQuantNewBin m) {
-    if (StringUtils.isBlank(m.binPath)) {
+    if (StringUtils.isBlank(m.binPath) || !Files.exists(Paths.get(m.binPath))) {
       return;
     }
 

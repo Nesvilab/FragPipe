@@ -22,7 +22,7 @@ import java.util.StringJoiner;
 public class NoteConfigIonQuant implements INoteConfig {
 
   public static String path;
-  public static String version;
+  public static String version = "N/A";
   public static boolean isTooOld;
   public static boolean enabled;
   public static Throwable ex;
