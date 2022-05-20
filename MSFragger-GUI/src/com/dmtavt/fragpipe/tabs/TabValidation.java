@@ -27,6 +27,9 @@ import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
+import java.awt.BorderLayout;
+import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 public class TabValidation extends JPanelWithEnablement {
 
@@ -35,15 +38,17 @@ public class TabValidation extends JPanelWithEnablement {
 
   public TabValidation() {
     init();
-    initMore();
   }
 
-  private void initMore() {
-    //Bus.registerQuietly(this);
-  }
+  public void init() {
+    this.setLayout(new BorderLayout());
+    this.setBorder(new TitledBorder(""));
 
-  private void init() {
-    mu.layout(this).fillX();
+    JPanel pTop = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
+    mu.borderEmpty(pTop);
+
+    JPanel pContent = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
+    mu.borderEmpty(pContent);
 
     checkRun = new UiCheck("Run Validation Tools", null, true);
     checkRun.setName("run-validation-tab");
@@ -55,21 +60,18 @@ public class TabValidation extends JPanelWithEnablement {
     ProtProphPanel panelProtProph = new ProtProphPanel();
     ReportPanel panelReport = new ReportPanel();
 
-    checkRun.addActionListener(e -> {
-      psmValidation.setRunStatus(SwingUtils.isEnabledAndChecked(checkRun));
-      panelCrystalc.setRunStatus(SwingUtils.isEnabledAndChecked(checkRun));
-      msboosterPanel.setRunStatus(SwingUtils.isEnabledAndChecked(checkRun));
-      panelPtmProphet.setRunStatus(SwingUtils.isEnabledAndChecked(checkRun));
-      panelProtProph.setRunStatus(SwingUtils.isEnabledAndChecked(checkRun));
-      panelReport.setRunStatus(SwingUtils.isEnabledAndChecked(checkRun));
-    });
+    mu.add(pTop, checkRun).wrap();
 
-    mu.add(this, checkRun).wrap();
-    mu.add(this, panelCrystalc).growX().wrap();
-    mu.add(this, msboosterPanel).growX().wrap();
-    mu.add(this, psmValidation).growX().wrap();
-    mu.add(this, panelPtmProphet).growX().wrap();
-    mu.add(this, panelProtProph).growX().wrap();
-    mu.add(this, panelReport).growX().wrap();
+    mu.add(pContent, panelCrystalc).growX().wrap();
+    mu.add(pContent, msboosterPanel).growX().wrap();
+    mu.add(pContent, psmValidation).growX().wrap();
+    mu.add(pContent, panelPtmProphet).growX().wrap();
+    mu.add(pContent, panelProtProph).growX().wrap();
+    mu.add(pContent, panelReport).growX().wrap();
+
+    SwingUtils.setEnablementUpdater(this, pContent, checkRun);
+
+    this.add(pTop, BorderLayout.NORTH);
+    this.add(pContent, BorderLayout.CENTER);
   }
 }
