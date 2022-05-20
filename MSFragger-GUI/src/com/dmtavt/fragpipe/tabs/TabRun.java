@@ -260,10 +260,12 @@ public class TabRun extends JPanelWithEnablement {
             }
           } catch (Exception ex) {
             ex.printStackTrace();
-          } finally {
             if (pdvProcess != null) {
               pdvProcess.destroyForcibly();
+              btnOpenPdv.setEnabled(true);
+              btnClosePdv.setEnabled(false);
             }
+          } finally {
             btnOpenPdv.setEnabled(true);
             btnClosePdv.setEnabled(false);
           }
@@ -275,6 +277,7 @@ public class TabRun extends JPanelWithEnablement {
     btnClosePdv = UiUtils.createButton("Close visualization window", e -> {
       if (pdvProcess != null) {
         pdvProcess.destroyForcibly();
+        btnOpenPdv.setEnabled(true);
         btnClosePdv.setEnabled(false);
       }
     });
