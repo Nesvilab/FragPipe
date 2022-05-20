@@ -22,6 +22,7 @@ import com.dmtavt.fragpipe.api.SearchTypeProp;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.NoteConfigPeptideProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
+import com.dmtavt.fragpipe.tools.PSMValidation;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
@@ -54,16 +55,15 @@ public class PepProphPanel extends JPanelBase {
   private UiCheck uiCheckCombinePepxml;
   private JPanel pTop;
   private JPanel pContent;
-  private final boolean parentPanelEnabled;
   public static final String PREFIX = "peptide-prophet.";
 
-  public PepProphPanel(ButtonGroup radioGroup, boolean parentPanelEnabled) {
+  public PepProphPanel(ButtonGroup radioGroup) {
     radioGroup.add(checkRun);
-    this.parentPanelEnabled = parentPanelEnabled;
   }
 
   public boolean isRun() {
-    return parentPanelEnabled && SwingUtils.isEnabledAndChecked(checkRun);
+    PSMValidation psmValidation = Fragpipe.getStickyStrict(PSMValidation.class);
+    return psmValidation.isRun() && SwingUtils.isEnabledAndChecked(checkRun);
   }
 
   public boolean isSelected() {

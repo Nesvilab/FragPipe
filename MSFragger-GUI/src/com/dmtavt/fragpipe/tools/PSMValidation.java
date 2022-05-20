@@ -78,8 +78,8 @@ public class PSMValidation extends JPanelBase {
     mu.add(p, checkRun).growX().wrap();
 
     ButtonGroup radioGroup = new ButtonGroup();
-    PercolatorPanel panelPercolator = new PercolatorPanel(radioGroup, isRun());
-    PepProphPanel panelPepProph = new PepProphPanel(radioGroup, isRun());
+    PercolatorPanel panelPercolator = new PercolatorPanel(radioGroup);
+    PepProphPanel panelPepProph = new PepProphPanel(radioGroup);
 
     p2 = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.add(p2, panelPepProph).growX().wrap();

@@ -21,6 +21,7 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.SearchTypeProp;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
+import com.dmtavt.fragpipe.tools.PSMValidation;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -50,12 +51,10 @@ public class PercolatorPanel extends JPanelBase {
     private UiCheck uiCheckCombinePepxml;
     private JPanel pTop;
     private JPanel pContent;
-    private final boolean parentPanelEnabled;
     public static final String PREFIX = "percolator.";
 
-    public PercolatorPanel(ButtonGroup buttonGroup, boolean parentPanelEnabled) {
+    public PercolatorPanel(ButtonGroup buttonGroup) {
         buttonGroup.add(checkRun);
-        this.parentPanelEnabled = parentPanelEnabled;
     }
 
     public boolean isKeepTsvFiles() {
@@ -63,7 +62,8 @@ public class PercolatorPanel extends JPanelBase {
     }
 
     public boolean isRun() {
-        return parentPanelEnabled && SwingUtils.isEnabledAndChecked(checkRun);
+        PSMValidation psmValidation = Fragpipe.getStickyStrict(PSMValidation.class);
+        return psmValidation.isRun() && SwingUtils.isEnabledAndChecked(checkRun);
     }
 
     public boolean isSelected() {
