@@ -183,8 +183,9 @@ public class CmdDiann extends CmdBase {
 
       try {
         final Path filelist = groupWd.resolve("filelist_diann.txt");
-        if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
-          BufferedWriter bufferedWriter = Files.newBufferedWriter(filelist);
+        final Path filelist_fixdiann = isUnix() ? groupWd.resolve("filelist_diann.txt ") : filelist;
+        if (Files.exists(filelist_fixdiann.getParent())) { // Dry run does not make directories, so does not write the file.
+          BufferedWriter bufferedWriter = Files.newBufferedWriter(filelist_fixdiann);
           for (Path p : sizeInputLcms.values().stream().flatMap(List::stream).collect(Collectors.toList())) {
             bufferedWriter.write("--f " + p.toAbsolutePath() + "\n");
           }
