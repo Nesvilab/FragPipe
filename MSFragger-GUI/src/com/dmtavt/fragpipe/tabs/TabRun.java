@@ -235,12 +235,16 @@ public class TabRun extends JPanelWithEnablement {
       if (pdvPath == null || pdvPath.isEmpty()) {
         SwingUtils.showErrorDialog(this, "Cannot find the visualization executable executable file.", "No visualization executable");
       } else {
+        final TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
+        int nThreads = tabWorkflow.getThreads();
+
         List<String> cmd = new ArrayList<>();
         cmd.add(Fragpipe.getBinJava());
         cmd.add("-cp");
         cmd.add(constructClasspathString(pdvPath));
         cmd.add("GUI.GUIMainClass");
         cmd.add(uiTextWorkdir.getNonGhostText());
+        cmd.add(nThreads + "");
         log.debug("Executing: " + String.join(" ", cmd));
         pdvThread = new Thread(() -> {
           try {
