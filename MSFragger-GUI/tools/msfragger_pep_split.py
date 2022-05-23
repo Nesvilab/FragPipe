@@ -481,7 +481,7 @@ def calibrate(fasta_path_sample, calibrate_mass: int):
 	params_path_calibrate.write_text(recomp_fasta.sub(f'database_name = {fasta_path_sample.relative_to(tempdir)}', params_txt_new))
 	calibrate_cmd = msfragger_cmd + [params_path_calibrate.resolve(), '--split1', *infiles_name]
 	print(f'{calibrate_cmd}', flush=True)
-	p = subprocess.Popen(list(map(os.fspath, calibrate_cmd)), cwd=tempdir, stdout=subprocess.PIPE)
+	p = subprocess.Popen(list(map(os.fspath, calibrate_cmd)), cwd=tempdir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	out = b''
 	with p.stdout as f:
 		for l in f:
