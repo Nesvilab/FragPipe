@@ -23,6 +23,7 @@ import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.NoteConfigPeptideProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.tools.PSMValidation;
+import com.dmtavt.fragpipe.tools.msbooster.MSBoosterPanel;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
@@ -158,6 +159,13 @@ public class PepProphPanel extends JPanelBase {
     uiCheckCombinePepxml = UiUtils
         .createUiCheck("<html>Single <b>combined</b> pepxml file per experiment / group", false);
     uiCheckCombinePepxml.setName("combine-pepxml");
+
+    checkRun.addItemListener(e -> {
+      if (checkRun.isSelected()) {
+        MSBoosterPanel msBoosterPanel = Fragpipe.getStickyStrict(MSBoosterPanel.class);
+        msBoosterPanel.setRunStatus(false);
+      }
+    });
 
 
     mu.layout(this).fillX();

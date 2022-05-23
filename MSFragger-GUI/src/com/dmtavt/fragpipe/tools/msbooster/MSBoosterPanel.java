@@ -63,7 +63,7 @@ public class MSBoosterPanel extends JPanelBase {
   }
 
   public void setRunStatus(boolean status) {
-    checkRun.setEnabled(status);
+    checkRun.setSelected(status);
   }
 
   @Override
