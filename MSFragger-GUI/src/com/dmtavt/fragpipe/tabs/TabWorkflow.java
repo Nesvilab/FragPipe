@@ -215,6 +215,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("glyco-N-Hybrid");
     builtInWorkflows.add("glyco-O-open-Hybrid");
     builtInWorkflows.add("Open");
+    builtInWorkflows.add("Diagnostic-ion-mining");
     builtInWorkflows.add("TMT16-MS3");
     builtInWorkflows.add("glyco-N-LFQ");
     builtInWorkflows.add("iTRAQ4");
