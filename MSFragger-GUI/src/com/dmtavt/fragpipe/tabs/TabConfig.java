@@ -428,14 +428,15 @@ public class TabConfig extends JPanelWithEnablement {
           JOptionPane.showMessageDialog(this, "Please fill in your institution.", "Error", JOptionPane.ERROR_MESSAGE);
           return;
         }
-        if (!p.licensesChecked()) {
-          JOptionPane.showMessageDialog(this, "Please read and check all of the licenses.", "Error", JOptionPane.ERROR_MESSAGE);
-          return;
-        }
 
         userName = p.getName();
         userEmail = p.getEmail();
         userInstitution = p.getInstitution();
+
+        if (!p.licensesChecked()) {
+          JOptionPane.showMessageDialog(this, "Please read and check all of the licenses.", "Error", JOptionPane.ERROR_MESSAGE);
+          return;
+        }
 
         Path toolsPath = PathUtils.createDirs(FragpipeLocations.get().getDirTools());
         MsfraggerVersionFetcherServer msfraggerVersionFetcherServer = new MsfraggerVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
@@ -474,14 +475,15 @@ public class TabConfig extends JPanelWithEnablement {
           JOptionPane.showMessageDialog(this, "Please fill in your institution.", "Error", JOptionPane.ERROR_MESSAGE);
           return;
         }
-        if (!p.licensesChecked()) {
-          JOptionPane.showMessageDialog(this, "Please read and check all of the licenses.", "Error", JOptionPane.ERROR_MESSAGE);
-          return;
-        }
 
         userName = p.getName();
         userEmail = p.getEmail();
         userInstitution = p.getInstitution();
+
+        if (!p.licensesChecked()) {
+          JOptionPane.showMessageDialog(this, "Please read and check all of the licenses.", "Error", JOptionPane.ERROR_MESSAGE);
+          return;
+        }
 
         Path toolsPath = PathUtils.createDirs(FragpipeLocations.get().getDirTools());
         IonQuantVersionFetcherServer ionQuantVersionFetcherServer = new IonQuantVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
