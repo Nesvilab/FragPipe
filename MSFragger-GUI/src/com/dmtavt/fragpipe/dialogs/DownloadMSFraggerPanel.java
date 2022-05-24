@@ -42,6 +42,7 @@ public class DownloadMSFraggerPanel extends JPanel {
   private FormEntry feName;
   private FormEntry feEmail;
   private FormEntry feInstitution;
+  private JCheckBox license0;
   private JCheckBox license2;
   private JCheckBox license3;
   private JCheckBox license1;
@@ -81,6 +82,9 @@ public class DownloadMSFraggerPanel extends JPanel {
     JEditorPane t1 = SwingUtils.createClickableHtml("I have read the <b>academic</b> <a href=\"https://msfragger.arsci.com/upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">license</a>. I understand that this license provides <br> with a non-exclusive, non-transferable right to use MSFragger solely for academic <br> research, non-commercial or educational purposes within the licensee’s department.");
     license1 = new JCheckBox();
 
+    JEditorPane t5 = SwingUtils.createClickableHtml("I understand that although the MSFragger suite of tools is distributed as a single JAR<br>file, commercial users are required to obtain a license for MSFragger-Core and,<br>depending on the application, for some or all the additional algorithms: MSFragger-LOS<br>(localization-aware open search), MSFragger-Glyco, MSFragger-DIA.<br>If I am a non-academic user, I will contact the University of Michigan Office of Tech<br>Transfer (Drew Bennett, andbenne@umich.edu) to obtain a commercial license to use<br>the MSFragger suite of tools beyond the initial evaluation period (60 days after<br>obtaining any version of MSFragger JAR file).");
+    license0 = new JCheckBox();
+
     JEditorPane t2 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger.arsci.com/upgrader/RawFileRdr_License_Agreement_RevA.pdf\" target=\"blank_\">Thermo (c) Raw File Reader License Agreement</a>.");
     license2 = new JCheckBox();
 
@@ -105,6 +109,9 @@ public class DownloadMSFraggerPanel extends JPanel {
 
     mu.add(panelTextboxes, license1, mu.ccR());
     mu.add(panelTextboxes, t1).spanX().wrap();
+
+    mu.add(panelTextboxes, license0, mu.ccR());
+    mu.add(panelTextboxes, t5).spanX().wrap();
 
     mu.add(panelTextboxes, license2, mu.ccR());
     mu.add(panelTextboxes, t2).spanX().wrap();
@@ -146,10 +153,10 @@ public class DownloadMSFraggerPanel extends JPanel {
   }
 
   public boolean licensesChecked() {
-    if (license1 == null || license2 == null || license3 == null) {
+    if (license0 == null || license1 == null || license2 == null || license3 == null) {
       return false;
     } else {
-      return license1.isSelected() && license2.isSelected() && license3.isSelected();
+      return license0.isSelected() && license1.isSelected() && license2.isSelected() && license3.isSelected();
     }
   }
 

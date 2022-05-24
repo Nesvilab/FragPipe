@@ -76,7 +76,7 @@ public class DownloadIonQuantPanel extends JPanel {
       ((UiText) feInstitution.comp).setText(userInstitution);
     }
 
-    JEditorPane t1 = SwingUtils.createClickableHtml("I have read the <b>academic</b> <a href=\"https://msfragger.arsci.com/upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">license</a>. I understand that this license provides <br> with a non-exclusive, non-transferable right to use IonQuant solely for academic <br> research, non-commercial or educational purposes within the licensee’s department.");
+    JEditorPane t1 = SwingUtils.createClickableHtml("I have read the <b>academic</b> <a href=\"https://msfragger.arsci.com/ionquant/IonQuant%20Academic%20Use%20License%2005162022.pdf\" target=\"blank_\">license</a>. I understand that this license provides with a<br>non-exclusive, non-transferable right to use the IonQuant solely for academic<br>research, non-commercial or educational purposes within the licensee’s department.<br>If I am a non-academic user, I will contact the University of Michigan Office of<br>Tech Transfer (Drew Bennett, andbenne@umich.edu) to obtain a commercial license<br>to use IonQuant beyond the initial evaluation period (60 days after obtaining<br>any version of IonQuant JAR file).");
     license1 = new JCheckBox();
 
     JEditorPane t4 = SwingUtils.createClickableHtml("I would like to receive emails with updates in the future.");
