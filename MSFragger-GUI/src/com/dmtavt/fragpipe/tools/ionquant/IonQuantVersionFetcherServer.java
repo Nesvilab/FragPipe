@@ -117,7 +117,7 @@ public class IonQuantVersionFetcherServer implements VersionFetcher {
     }
 
     @Override
-    public Path autoUpdate(Path toolsPath) throws IOException {
+    public Path autoUpdate(Path toolsPath) throws Exception {
         if (toolsPath == null || !Files.exists(toolsPath)) {
             throw new IllegalArgumentException("The path to file to be updated must be non-null, must exist and not point to a directory.");
         }
@@ -153,59 +153,55 @@ public class IonQuantVersionFetcherServer implements VersionFetcher {
         OkHttpClient client2 = new OkHttpClient();
         Request request = new Request.Builder().url(serverUrl + "/upgrade_download.php").post(requestBody).build();
 
-        try {
-            Response response = client2.newCall(request).execute();
-            if (!response.isSuccessful()) {
-                throw new IllegalStateException("Request unsuccessful");
-            }
-
-            ResponseBody body = response.body();
-            if (body == null) {
-                throw new IllegalStateException("Null response body during download");
-            }
-
-            long contentLength = body.contentLength();
-
-            if (contentLength <= 0) {
-                throw new Exception("Could not download MSFragger from the server.");
-            }
-
-            final Holder<PhiDownloadProgress> dlProgress = new Holder<>();
-            SwingUtilities.invokeLater(() -> {
-                dlProgress.obj = new PhiDownloadProgress();
-                Bus.registerQuietly(dlProgress.obj);
-            });
-
-            try (BufferedSink sink = Okio.buffer(Okio.sink(jarPath))) {
-                final AtomicLong received = new AtomicLong(0);
-                Source fwd = new ForwardingSource(body.source()) {
-                    @Override
-                    public long read(@NotNull Buffer sink, long byteCount) throws IOException {
-                        long read = super.read(sink, byteCount);
-                        long totalRead = received.addAndGet(read);
-                        Bus.post(new MessagePhiDlProgress(totalRead, contentLength));
-                        return read;
-                    }
-                };
-
-                long read = 0;
-                while (read >= 0) {
-                    read = fwd.read(sink.getBuffer(), 8192);
-                    if (dlProgress.obj != null && dlProgress.obj.isCancel) {
-                        return null;
-                    }
-                }
-            } finally {
-                if (dlProgress.obj != null) {
-                    Bus.unregister(dlProgress.obj);
-                    dlProgress.obj.close();
-                }
-            }
-            body.close();
-            response.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        Response response = client2.newCall(request).execute();
+        if (!response.isSuccessful()) {
+            throw new IllegalStateException("Request unsuccessful");
         }
+
+        ResponseBody body = response.body();
+        if (body == null) {
+            throw new IllegalStateException("Null response body during download");
+        }
+
+        long contentLength = body.contentLength();
+
+        if (contentLength <= 0) {
+            throw new Exception("Could not download MSFragger from the server.");
+        }
+
+        final Holder<PhiDownloadProgress> dlProgress = new Holder<>();
+        SwingUtilities.invokeLater(() -> {
+            dlProgress.obj = new PhiDownloadProgress();
+            Bus.registerQuietly(dlProgress.obj);
+        });
+
+        try (BufferedSink sink = Okio.buffer(Okio.sink(jarPath))) {
+            final AtomicLong received = new AtomicLong(0);
+            Source fwd = new ForwardingSource(body.source()) {
+                @Override
+                public long read(@NotNull Buffer sink, long byteCount) throws IOException {
+                    long read = super.read(sink, byteCount);
+                    long totalRead = received.addAndGet(read);
+                    Bus.post(new MessagePhiDlProgress(totalRead, contentLength));
+                    return read;
+                }
+            };
+
+            long read = 0;
+            while (read >= 0) {
+                read = fwd.read(sink.getBuffer(), 8192);
+                if (dlProgress.obj != null && dlProgress.obj.isCancel) {
+                    return null;
+                }
+            }
+        } finally {
+            if (dlProgress.obj != null) {
+                Bus.unregister(dlProgress.obj);
+                dlProgress.obj.close();
+            }
+        }
+        body.close();
+        response.close();
 
         List<Path> possibleBins = PathUtils.findFilesQuietly(toolsPath, path -> path.getFileName().toString().trim().toLowerCase().matches("^ionquant-.+\\.jar$")).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
 
