@@ -133,6 +133,7 @@ public class IonQuantVersionFetcherServer implements VersionFetcher {
             requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("transfer", "academic")
+                .addFormDataPart("agreement1", "true")
                 .addFormDataPart("name", name)
                 .addFormDataPart("email", email)
                 .addFormDataPart("organization", institution)
@@ -143,6 +144,7 @@ public class IonQuantVersionFetcherServer implements VersionFetcher {
             requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("transfer", "academic")
+                .addFormDataPart("agreement1", "true")
                 .addFormDataPart("name", name)
                 .addFormDataPart("email", email)
                 .addFormDataPart("organization", institution)
@@ -166,7 +168,7 @@ public class IonQuantVersionFetcherServer implements VersionFetcher {
         long contentLength = body.contentLength();
 
         if (contentLength <= 0) {
-            throw new Exception("Could not download MSFragger from the server.");
+            throw new Exception("Could not download IonQuant from the server.");
         }
 
         final Holder<PhiDownloadProgress> dlProgress = new Holder<>();
