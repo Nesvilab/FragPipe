@@ -1,10 +1,5 @@
 # Workflow: Diagnostic-ion-mining
 
-
-# Please edit the following path to point to the correct location.
-# In Windows, please replace single '\' with '\\'
-database.db-path=C\:\\Users\\danny\\Documents\\FragPipeTests\\2020-05-04-decoys-reviewed-contam-UP000005640.fas
-
 crystalc.run-crystalc=true
 database.decoy-tag=rev_
 diann.fragpipe.cmd-opts=
