@@ -203,7 +203,7 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     mu.add(p, checkRun).split(2);
     mu.add(p, btnLoadDefaults);
-    mu.add(p, imageLabel, mu.ccR()).gapRight("200").wrap();
+    mu.add(p, imageLabel, mu.ccR()).gapRight("50").wrap();
 
     return p;
   }
