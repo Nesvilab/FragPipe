@@ -1,4 +1,4 @@
-# Workflow: Mass-Offset-CommonPTMs-revised
+# Workflow: Mass-Offset-CommonPTMs
 
 
 crystalc.run-crystalc=false
