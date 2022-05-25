@@ -1,7 +1,5 @@
 # Workflow: Labile_phospho
 
-
-
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.fragpipe.cmd-opts=
@@ -270,4 +268,4 @@ tmtintegrator.use_glycan_composition=false
 workflow.description=<p style\="margin-top\: 0"> Searches for phosphorylation with combined labile/nonlabile search. Uses accurate mass modeling in PeptideProphet and PTMProphet for localization. Settings are for HCD/CID data. For Hybrid (EThcD, etc), change MSFragger ion types and diagnostic fragment settings. </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=18.0-build8
+workflow.saved-with-ver=18.0-build13

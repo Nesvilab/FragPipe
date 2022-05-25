@@ -1,7 +1,5 @@
 # Workflow: glyco-N-LFQ
 
-
-
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.fragpipe.cmd-opts=
@@ -174,9 +172,6 @@ ptmshepherd.cap_y_ions=0,203.07937,406.15874,568.21156,730.26438,892.3172,349.13
 ptmshepherd.decoy_type=1
 ptmshepherd.diag_ions=204.086646,186.076086,168.065526,366.139466,144.0656,138.055,512.197375,292.1026925,274.0921325,657.2349,243.026426,405.079246,485.045576,308.09761
 ptmshepherd.diagextract_mode=true
-ptmshepherd.diagmine_minIons=25
-ptmshepherd.diagmine_minIonsPerSpec=2
-ptmshepherd.diagmine_minSpecDiff=0.25
 ptmshepherd.diagmine_diagMinFoldChange=3.0
 ptmshepherd.diagmine_diagMinSpecDiff=25
 ptmshepherd.diagmine_fragMinFoldChange=3.0
@@ -230,6 +225,7 @@ ptmshepherd.spectra_ppmtol=20
 ptmshepherd.varmod_masses=
 quantitation.run-label-free-quant=true
 run-psm-validation=true
+run-validation-tab=true
 speclibgen.easypqp.extras.max_delta_ppm=15
 speclibgen.easypqp.extras.max_delta_unimod=0.02
 speclibgen.easypqp.extras.rt_lowess_fraction=0
@@ -272,4 +268,4 @@ tmtintegrator.use_glycan_composition=true
 workflow.description=<p style\="margin-top\: 0"> For search and label-free quantitation of enriched N-glycopeptides fragmented with CID/HCD. Performs glycan assignment/FDR control in PTM-Shepherd prior to quant </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=17.2-build30
+workflow.saved-with-ver=18.0-build13

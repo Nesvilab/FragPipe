@@ -225,6 +225,7 @@ ptmshepherd.spectra_ppmtol=20
 ptmshepherd.varmod_masses=
 quantitation.run-label-free-quant=false
 run-psm-validation=true
+run-validation-tab=true
 speclibgen.easypqp.extras.max_delta_ppm=15
 speclibgen.easypqp.extras.max_delta_unimod=0.02
 speclibgen.easypqp.extras.rt_lowess_fraction=0
@@ -267,4 +268,4 @@ tmtintegrator.use_glycan_composition=true
 workflow.description=<p style\="margin-top\: 0"> For CID/HCD open search of N-glycopeptides. NOTE\: glycan assignment/FDR control is NOT yet supported for open searches and is not performed in this workflow. </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=17.2-build21
+workflow.saved-with-ver=18.0-build13

@@ -1,6 +1,5 @@
 # Workflow: Mass-Offset-CommonPTMs
 
-
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.fragpipe.cmd-opts=
@@ -58,7 +57,7 @@ ionquant.peptidefdr=1
 ionquant.proteinfdr=1
 ionquant.requantify=1
 ionquant.rttol=0.4
-ionquant.run-ionquant=true
+ionquant.run-ionquant=false
 ionquant.tp=0
 ionquant.uniqueness=0
 ionquant.use-labeling=false
@@ -269,4 +268,4 @@ tmtintegrator.use_glycan_composition=false
 workflow.description=<p style\="margin-top\: 0in"> Mass Offset (also known as Multinotch) search workflow for a fast search for most common modifications (list of mass shifts specified in MSFragger 'Mass Offset' field). MSFragger localization-aware open search (LOS) algorithm, filtered to report PSMs with specified mass shifts only (with isotope errors allowed). No variable modifications are specified. Mass calibration, parameter optimization, and precursor monoisotope error correction are enabled. PeptideProphet with extended mass model. PTM-Shepherd for mass shift summarization. </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=18.0-build7
+workflow.saved-with-ver=18.0-build13
