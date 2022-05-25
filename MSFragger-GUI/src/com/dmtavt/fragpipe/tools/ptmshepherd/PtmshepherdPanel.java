@@ -39,7 +39,6 @@ import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import com.github.chhh.utils.swing.UiUtils.UiTextBuilder;
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import java.awt.event.FocusAdapter;
@@ -70,7 +69,6 @@ import javax.swing.JRadioButton;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.java.balloontip.BalloonTip;
-import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
@@ -390,13 +388,13 @@ public class PtmshepherdPanel extends JPanelBase {
       ex.printStackTrace();
     }
 
-    mu.add(pTop, checkRun, new CC().spanX()).wrap();
+    mu.add(pTop, checkRun);
+    mu.add(pTop, imageLabel, mu.ccR()).gapRight("50").wrap();
 
     mu.add(pTop, labelDefaults).split(4);
     mu.add(pTop, uiComboDefaults);
     mu.add(pTop, btnLoadDefaults);
-    mu.add(pTop, feExtendedOut.comp);
-    mu.add(pTop, imageLabel, mu.ccR()).gapRight("50").wrap();
+    mu.add(pTop, feExtendedOut.comp).wrap();
 
     return pTop;
   }
