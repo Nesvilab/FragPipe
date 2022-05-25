@@ -1,4 +1,4 @@
-# Workflow: Diagnostic-ion-mining
+# Workflow: Diagnostic-Ion-Mining
 
 crystalc.run-crystalc=true
 database.decoy-tag=rev_
@@ -116,7 +116,7 @@ msfragger.output_format=pepXML_pin
 msfragger.output_max_expect=50
 msfragger.output_report_topN=1
 msfragger.override_charge=false
-msfragger.precursor_mass_lower=-5
+msfragger.precursor_mass_lower=-20
 msfragger.precursor_mass_mode=corrected
 msfragger.precursor_mass_units=0
 msfragger.precursor_mass_upper=500
@@ -265,7 +265,7 @@ tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-workflow.description=<p style\="margin-top\: 0in"> Open search workflow for PTM analysis with diagnostic ion mining. MSFragger localization-aware open search (LOS) algorithm, with deisotoping, mass calibration, parameter optimization, and monoisotope correction enabled. Calibrated and deisotoped/decharged mgfs are written for PTM-Shepherd. Mass range -5 to 500 Da. PeptideProphet with extended mass model. Crystal-C for artifact removal. PTM-Shepherd for mass shift summarization and diagnostic ion mining. For faster run time, in MSFragger change the number of allowed missed cleavages to 1. </p>
+workflow.description=<p style\="margin-top\: 0in"> Open search workflow for PTM analysis with diagnostic ion mining. MSFragger localization-aware open search (LOS) algorithm, with deisotoping, mass calibration, parameter optimization, and monoisotope correction enabled. Calibrated and deisotoped/decharged mgfs are written for PTM-Shepherd. Mass range -20 to 500 Da. PeptideProphet with extended mass model. Crystal-C for artifact removal. PTM-Shepherd for mass shift summarization and diagnostic ion mining. For faster run time, in MSFragger change the number of allowed missed cleavages to 1. </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=18.0-build13
+workflow.saved-with-ver=18.0-build7

@@ -1,4 +1,5 @@
-# Workflow: Mass-Offset-CommonPTMs
+# Workflow: Mass-Offset-CommonPTMs-revised
+
 
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
@@ -67,7 +68,7 @@ msbooster.predict-rt=true
 msbooster.predict-spectra=true
 msbooster.run-msbooster=false
 msbooster.use-correlated-features=false
-msfragger.Y_type_masses=0 203.07937 406.15874 568.21156 730.26438 892.3172 349.137279
+msfragger.Y_type_masses=
 msfragger.activation_types=all
 msfragger.add_topN_complementary=0
 msfragger.allowed_missed_cleavage_1=2
@@ -78,7 +79,7 @@ msfragger.clip_nTerm_M=true
 msfragger.deisotope=1
 msfragger.delta_mass_exclude_ranges=(-1.5,3.5)
 msfragger.deneutralloss=1
-msfragger.diagnostic_fragments=204.086646 186.076086 168.065526 366.139466 144.0656 138.055 126.055 163.060096 512.197375 292.1026925 274.0921325 657.2349 243.026426 405.079246 485.045576 308.09761
+msfragger.diagnostic_fragments=
 msfragger.diagnostic_intensity_filter=0
 msfragger.digest_max_length=50
 msfragger.digest_min_length=7
@@ -140,7 +141,7 @@ msfragger.table.var-mods=15.994900,M,false,3; 42.010600,[^,false,1; 79.966330,ST
 msfragger.track_zero_topN=0
 msfragger.use_all_mods_in_first_search=false
 msfragger.use_topN_peaks=150
-msfragger.write_calibrated_mgf=true
+msfragger.write_calibrated_mgf=false
 msfragger.zero_bin_accept_expect=0
 msfragger.zero_bin_mult_expect=1
 peptide-prophet.cmd-opts=--nonparam --expectscore --decoyprobs --masswidth 1000.0 --clevel -2
@@ -220,7 +221,7 @@ ptmshepherd.prob_sulfoOx=
 ptmshepherd.remainder_masses=
 ptmshepherd.remove_glycan_delta_mass=true
 ptmshepherd.run-shepherd=true
-ptmshepherd.spectra_maxfragcharge=1
+ptmshepherd.spectra_maxfragcharge=2
 ptmshepherd.spectra_ppmtol=20
 ptmshepherd.varmod_masses=
 quantitation.run-label-free-quant=true
@@ -265,7 +266,7 @@ tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-workflow.description=<p style\="margin-top\: 0in"> Mass Offset (also known as Multinotch) search workflow for a fast search for most common modifications (list of mass shifts specified in MSFragger 'Mass Offset' field). MSFragger localization-aware open search (LOS) algorithm, filtered to report PSMs with specified mass shifts only (with isotope errors allowed). No variable modifications are specified. Mass calibration, parameter optimization, and precursor monoisotope error correction are enabled. PeptideProphet with extended mass model. PTM-Shepherd for mass shift summarization. </p>
+workflow.description=<p style\="margin-top\: 0in"> Mass Offset (also known as Multinotch) search workflow for a fast search for most common modifications (list of mass shifts specified in MSFragger 'Mass Offset' field). MSFragger localization-aware open search (LOS) algorithm, filtered to report PSMs with specified mass shifts only (with isotope errors allowed). No variable modifications are specified. Mass calibration, parameter optimization, and precursor monoisotope error correction are enabled. PSM validation using PeptideProphet with extended mass model. Protein inference with ProteinProphet. Data filtered using 1% protein level FDR and additionally 1% FDR at the peptide/ion/PSM level. Precorsor ion quantification using Freequant. PTM-Shepherd for mass shift summarization. </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.saved-with-ver=18.0-build13

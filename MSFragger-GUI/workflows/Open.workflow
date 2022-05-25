@@ -265,7 +265,7 @@ tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-workflow.description=<p style\="margin-top\: 0in"> Open search workflow for PTM analysis with diagnostic ion mining. MSFragger localization-aware open search (LOS) algorithm, with deisotoping, mass calibration, parameter optimization, and monoisotope correction enabled. Calibrated and deisotoped/decharged mgfs are written for PTM-Shepherd. Mass range -5 to 500 Da. PeptideProphet with extended mass model. Crystal-C for artifact removal. PTM-Shepherd for mass shift summarization and diagnostic ion mining. For faster run time, in MSFragger change the number of allowed missed cleavages to 1. </p>
+workflow.description=<p style\="margin-top\: 0in"> Open search workflow for PTM analysis. MSFragger localization-aware open search (LOS) algorithm, with deisotoping, mass calibration, parameter optimization, and monoisotope correction enabled. Calibrated and deisotoped/decharged mgfs are written for PTM-Shepherd. Mass range -150 to 500 Da. PeptideProphet with extended mass model. Crystal-C for artifact removal. PTM-Shepherd for mass shift summarization and diagnostic ion mining. For faster run time, in MSFragger change the number of allowed missed cleavages to 1. </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.saved-with-ver=18.0-build13
