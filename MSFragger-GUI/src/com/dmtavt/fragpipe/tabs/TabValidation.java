@@ -28,6 +28,11 @@ import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import java.awt.BorderLayout;
+import java.awt.image.BufferedImage;
+import java.util.Objects;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
@@ -60,7 +65,24 @@ public class TabValidation extends JPanelWithEnablement {
     ProtProphPanel panelProtProph = new ProtProphPanel();
     ReportPanel panelReport = new ReportPanel();
 
-    mu.add(pTop, checkRun).wrap();
+    JLabel imageLabel1 = new JLabel();
+    JLabel imageLabel2 = new JLabel();
+    JLabel imageLabel3 = new JLabel();
+    try {
+      BufferedImage image1 = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/msbooster.png")));
+      imageLabel1 = new JLabel(new ImageIcon(image1));
+      BufferedImage image2 = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/percolator.png")));
+      imageLabel2 = new JLabel(new ImageIcon(image2));
+      BufferedImage image3 = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/philosopher_logo.png")));
+      imageLabel3 = new JLabel(new ImageIcon(image3));
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+
+    mu.add(pTop, checkRun);
+    mu.add(pTop, imageLabel1, mu.ccR()).split(3);
+    mu.add(pTop, imageLabel2, mu.ccR());
+    mu.add(pTop, imageLabel3, mu.ccR());
 
     mu.add(pContent, panelCrystalc).growX().wrap();
     mu.add(pContent, msboosterPanel).growX().wrap();
