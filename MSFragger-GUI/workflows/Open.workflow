@@ -1,5 +1,10 @@
 # Workflow: Open
 
+
+# Please edit the following path to point to the correct location.
+# In Windows, please replace single '\' with '\\'
+database.db-path=C\:\\Users\\danny\\Documents\\FragPipeTests\\2020-05-04-decoys-reviewed-contam-UP000005640.fas
+
 crystalc.run-crystalc=true
 database.decoy-tag=rev_
 diann.fragpipe.cmd-opts=
@@ -140,7 +145,7 @@ msfragger.table.var-mods=15.994900,M,true,3; 42.010600,[^,true,1; 79.966330,STY,
 msfragger.track_zero_topN=0
 msfragger.use_all_mods_in_first_search=false
 msfragger.use_topN_peaks=150
-msfragger.write_calibrated_mgf=true
+msfragger.write_calibrated_mgf=false
 msfragger.zero_bin_accept_expect=0
 msfragger.zero_bin_mult_expect=1
 peptide-prophet.cmd-opts=--nonparam --expectscore --decoyprobs --masswidth 1000.0 --clevel -2
@@ -223,7 +228,7 @@ ptmshepherd.run-shepherd=true
 ptmshepherd.spectra_maxfragcharge=1
 ptmshepherd.spectra_ppmtol=20
 ptmshepherd.varmod_masses=
-quantitation.run-label-free-quant=true
+quantitation.run-label-free-quant=false
 run-psm-validation=true
 run-validation-tab=true
 speclibgen.easypqp.extras.max_delta_ppm=15
@@ -265,7 +270,7 @@ tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-workflow.description=<p style\="margin-top\: 0in"> Open search workflow for PTM analysis. MSFragger localization-aware open search (LOS) algorithm, with deisotoping, mass calibration, parameter optimization, and monoisotope correction enabled. Calibrated and deisotoped/decharged mgfs are written for PTM-Shepherd. Mass range -150 to 500 Da. PeptideProphet with extended mass model. Crystal-C for artifact removal. PTM-Shepherd for mass shift summarization and diagnostic ion mining. For faster run time, in MSFragger change the number of allowed missed cleavages to 1. </p>
+workflow.description=<p style\="margin-top\: 0in"> Open search workflow for PTM analysis. MSFragger localization-aware open search (LOS) algorithm, with deisotoping, mass calibration, parameter optimization, and monoisotope correction enabled. Mass range -150 to 500 Da. PeptideProphet with extended mass model. Crystal-C for artifact removal. Precursor ion quantification using Freequant. PTM-Shepherd for mass shift summarization. For faster run time, in MSFragger change the number of allowed missed cleavages to 1. </p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=18.0-build13
+workflow.saved-with-ver=18.0-build14
