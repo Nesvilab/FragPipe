@@ -19,7 +19,11 @@ package com.dmtavt.fragpipe;
 import static com.dmtavt.fragpipe.params.ThisAppProps.PATH_BUNDLE;
 
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.messages.MessageFragpipeUpdate;
+import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.VersionComparator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -37,10 +41,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.messages.MessageFragpipeUpdate;
-import com.dmtavt.fragpipe.params.ThisAppProps;
-import com.github.chhh.utils.PropertiesUtils;
-import com.github.chhh.utils.VersionComparator;
 
 /**
  * @author Dmitry Avtonomov
@@ -63,6 +63,23 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("18.0", Arrays.asList(
+        "Require Java 9+",
+        "Require MSFragger 3.5+",
+        "Require Philosopher 4.2.2+",
+        "Require IonQuant 1.7.30+",
+        "Add new FragPipe-PDV visualization module",
+        "Add the IonQuant configuration panel",
+        "Add more workflows",
+        "Upgrade DIA-NN to 1.8.1",
+        "Upgrade PTM-Shepherd to 2.0.0",
+        "Upgrade TMT-Integrator to 3.3.3",
+        "Upgrade DIA-Umpire to 2.2.8",
+        "Upgrade MSBooster to 1.1.4",
+        "Upgrade Crystal-C to 1.4.4",
+        "Various minor bug fixes and improvements"
+    ));
+
     CHANGELOG.put("17.1", Arrays.asList(
         "Require MSFragger 3.4+",
         "Require Philosopher 4.1.0+",
