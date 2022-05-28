@@ -1,4 +1,4 @@
-![Release](https://img.shields.io/github/release/Nesvilab/FragPipe.svg) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/total.svg)
+![Release](https://img.shields.io/github/release/Nesvilab/FragPipe.svg) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/total.svg) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/latest/total.svg)
 
 <div align="center">
 <img src="frag-pipe/images/fragpipe-01.png" width="350px"/>
