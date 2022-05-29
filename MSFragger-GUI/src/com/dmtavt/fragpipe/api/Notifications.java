@@ -25,6 +25,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigTips;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,13 +83,21 @@ public class Notifications {
       BalloonTip tip = null;
       if (m.tip != null) {
         tip = m.tip;
-
       } else if (m.parent != null && m.body != null) {
         if (Fragpipe.headless) {
           String s = null;
           try {
-            s = ((HtmlStyledJEditorPane) m.body.getComponents()[0]).getTextLessHtml();
-          } catch (ClassCastException | ArrayIndexOutOfBoundsException ignored) {
+            if (m.body instanceof HtmlStyledJEditorPane) {
+              s = ((HtmlStyledJEditorPane) m.body).getTextLessHtml();
+            } else {
+              for (Component tt : m.body.getComponents()) {
+                if (tt instanceof HtmlStyledJEditorPane) {
+                  s = ((HtmlStyledJEditorPane) tt).getTextLessHtml();
+                  break;
+                }
+              }
+            }
+          } catch (Exception ignored) {
             log.error("Cannot get error message");
             System.exit(1);
           }
