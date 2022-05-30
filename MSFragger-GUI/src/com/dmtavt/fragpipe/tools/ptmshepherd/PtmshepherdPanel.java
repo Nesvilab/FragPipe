@@ -126,7 +126,7 @@ public class PtmshepherdPanel extends JPanelBase {
   private static final String PROP_diagMine_fragMinSpecPct = "diagmine_fragMinSpecDiff";
   private static final String PROP_diagMine_fragMinFoldChange = "diagmine_fragMinFoldChange";
   private static final String PROP_diagMine_fragMinPropensity = "diagmine_fragMinPropensity";
-  private static final String PROP_diagMine_minIons = "diagmine_minIons";
+  private static final String PROP_diagMine_minIons = "diagmine_minPeps";
   private static final String PROP_diagExtract_mode = "diagextract_mode";
 
   private static final String PROP_glyco_mode = "glyco_mode";
