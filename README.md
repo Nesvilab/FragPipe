@@ -11,6 +11,7 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 
 #### FragPipe tutorials
 * [Using FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html) (general tutorial covering all FragPipe modules)
+* [Running FragPipe in headless mode](https://fragpipe.nesvilab.org/docs/tutorial_headless.html)
 * PTM discovery
   * [Open search](https://fragpipe.nesvilab.org/docs/tutorial_open.html)
   * [Mass offset search](https://fragpipe.nesvilab.org/docs/tutorial_offset.html)
