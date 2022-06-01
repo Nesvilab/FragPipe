@@ -1,7 +1,6 @@
-# Running a FragPipe-equivalent workflow on Linux using command line
+# Running a FragPipe-equivalent workflow on Linux using command line (deprecated, please use [FragPipe headless mode](https://fragpipe.nesvilab.org/docs/tutorial_headless.html))
 
-For most desktop users, we recommend using [FragPipe](http://fragpipe.nesvilab.org/). Users can also use FragPipe on remote server with X forwarding ([https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html](https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html)). However, if X forwarding cannot be enabled for any reason, one can use the following shell scripts or Philosopher [pipeline](https://github.com/Nesvilab/philosopher/wiki/Pipeline).
-
+For most desktop users, we recommend using [FragPipe](http://fragpipe.nesvilab.org/). Users can also use FragPipe on remote server with X forwarding ([https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html](https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html)).
 Example shell scripts for timsTOF PASEF data and non-ion mobility data are shown below, modify them to suit your configuration.
 <br>
 
