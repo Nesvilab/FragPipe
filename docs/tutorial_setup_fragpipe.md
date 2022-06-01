@@ -3,7 +3,7 @@
 
 <br>
 #### Install or update Java
-FragPipe and MSFragger both require a 64-bit Java to run. Windows users can choose to download the `-jre-` version of FragPipe (see below) or install 64-bit Java [here](https://www.oracle.com/java/technologies/javase-jdk14-downloads.html) by selecting the **Windows x64 Installer**. Launch the installer and follow the prompts. You may need to restart FragPipe after updating Java.
+FragPipe and MSFragger both require a 64-bit Java to run. Windows users can choose to download the `-jre-` version of FragPipe (see below) or install 64-bit Java [here](https://adoptium.net/temurin/releases/?version=11). Launch the installer and follow the prompts. You may need to restart FragPipe after updating Java.
 
 <br>
 #### Install or update FragPipe
