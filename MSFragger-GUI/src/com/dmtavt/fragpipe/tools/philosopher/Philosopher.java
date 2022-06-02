@@ -298,12 +298,12 @@ public class Philosopher {
           .createDirs(FragpipeLocations.get().getDirTools().resolve(fn.substring(0, fn.lastIndexOf("."))));
       ZipUtils.unzip(dlLocation, unzipTo);
       final String bin = isWindows() ? "philosopher.exe" : "philosopher";
-      List<Path> possibleBins = PathUtils.findFilesQuietly(unzipTo, p -> Files.isRegularFile(p) && p.getFileName().toString().equalsIgnoreCase(bin)).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+      List<Path> possibleBins = PathUtils.findFilesQuietly(unzipTo, p -> Files.isRegularFile(p) && p.getFileName().toString().equalsIgnoreCase(bin)).sorted(Comparator.comparing(Path::toString, String.CASE_INSENSITIVE_ORDER)).collect(Collectors.toList());
 
       if (possibleBins.size() == 0) {
         throw new IllegalStateException("Could not find Philosopher binary after unpacking zip.");
       } else {
-        Bus.post(new MessagePhilosopherNewBin(possibleBins.get(0).toRealPath().toString()));
+        Bus.post(new MessagePhilosopherNewBin(possibleBins.get(possibleBins.size() - 1).toRealPath().toString()));
       }
     }
   }

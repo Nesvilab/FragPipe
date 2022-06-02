@@ -205,12 +205,12 @@ public class IonQuantVersionFetcherServer implements VersionFetcher {
         body.close();
         response.close();
 
-        List<Path> possibleBins = PathUtils.findFilesQuietly(toolsPath, path -> path.getFileName().toString().trim().toLowerCase().matches("^ionquant-.+\\.jar$")).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+        List<Path> possibleBins = PathUtils.findFilesQuietly(toolsPath, path -> path.getFileName().toString().trim().matches(jarPath.getFileName().toString().trim())).sorted(Comparator.comparing(Path::toString, String.CASE_INSENSITIVE_ORDER)).collect(Collectors.toList());
 
         if (possibleBins.size() == 0) {
-            throw new IllegalStateException("Could not find the downloaded IonQuant.jar.");
+            throw new IllegalStateException("Could not find the downloaded " + jarPath);
         }
-        return possibleBins.get(0).normalize();
+        return possibleBins.get(possibleBins.size() - 1).normalize();
     }
     
 }
