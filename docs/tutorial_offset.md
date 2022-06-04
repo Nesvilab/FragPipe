@@ -7,7 +7,7 @@ Traditional closed search requires that precursor masses match the identified pe
 
 Parthenolide is a protein-reactive compound frequently used by cytoskeleton researchers to inhibit tubulin detyrosinases, but it is suspected to hit more than just those enzymes. Labeled peptides should have a +248.14125 Da mass shift, and we want to allow modification of any amino acid so we can learn more about parthenolide's specificity. This is a case for mass offset search.
 
-The samples we will use for this tutorial are purified tubulin treated with either DMSO (control) or parthenolide, download the two spectral files from Dropbox [here](https://www.dropbox.com/sh/6yif51e8x3t9v7j/AADfqLPZ4qUe1XcPQ4UuI_Kea?dl=0). Citation: Hotta, Takashi, et al. "Parthenolide Destabilizes Microtubules by Covalently Modifying Tubulin." Current Biology 31.4 (2021): 900-907.
+The samples we will use for this tutorial are purified tubulin treated with either DMSO (control) or parthenolide, download the two spectral files from Dropbox [here](https://www.dropbox.com/sh/6yif51e8x3t9v7j/AADfqLPZ4qUe1XcPQ4UuI_Kea?dl=1). Citation: Hotta, Takashi, et al. "Parthenolide Destabilizes Microtubules by Covalently Modifying Tubulin." Current Biology 31.4 (2021): 900-907.
 
 
 
@@ -21,9 +21,9 @@ The samples we will use for this tutorial are purified tubulin treated with eith
 
 
 ### Open FragPipe
-When you launch FragPipe, check that MSFragger and Philosopher are both configured. If you haven’t downloaded them yet, use their respective ‘Download / Update’ buttons. See [this page](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html) for more help. Python is not needed for this exercise.
+When you launch FragPipe, check that MSFragger, IonQuant, and Philosopher are all configured. If you haven’t downloaded them yet, use their respective ‘Download / Update’ buttons. Please see the tutorials [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#configure-fragpipe) and [here](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html) for more help. Python is not needed for this exercise.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-config.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-config.png)
 
 <br>
 
@@ -38,7 +38,7 @@ When you launch FragPipe, check that MSFragger and Philosopher are both configur
 ### Fetch a sequence database
 3) Now we need to select a protein sequence database. You can choose to download a readymade human .fas file from [here](https://www.dropbox.com/s/v8tlkwu96f3txfj/2021-05-07-decoys-reviewed-contam-UP000005640.fas?dl=0), or you can download one using FragPipe. Downloading is easy, so we could also choose to download one at this point. On the Database tab, click the ‘Download’ button. Follow the prompts to use the default settings (reviewed human sequences with common contaminants).
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-databaseoptions.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database-options.png)
 
 Click ‘Yes’ to download the database. When it’s finished, you should see that the `FASTA file path` now points to the new database.
 
@@ -47,15 +47,12 @@ Click ‘Yes’ to download the database. When it’s finished, you should see t
 
 ### Customize the search settings
 4) In the MSFragger tab, check the first box in the Variable modifications section to set methionine oxidation as a variable modification. Because we want to allow parthenolide to label any residue (and because cysteines were alkylated after parthenolide was added), we need to make cysteine carbamidomethylation a variable mod instead of a fixed mod. To do this, first add C +57.02146 to the list of variable modifications.
-
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offset-search.png)
-
 5) Then scroll down to set fixed Mass Delta to 0 for cysteine.
 6) When we loaded the 'Mass-Offset-CommonPTMs' workflow, the [default list of offsets](https://fragpipe.nesvilab.org/docs/common_mass_offsets.html) includes more than we need for this analysis since we want to focus on parthenolide. In the 'Mass Offsets' field, replace the offsets list with just 0/248.14125 for the parthenolide adduct. The list of mass offsets can be `/` or space separated, and only the specified mass offsets will be allowed in the search (i.e. combinations of specified mass offsets will not be generated).
 
 Please note: Only peptides with the mass shifts specified in the list will be included in the search, so be sure to include 0 if unmodified peptides (or peptides modified only by variable modifications) are expected. Identification of mass-shifted peptides is not dependent on identification of a corresponding un-shifted peptide.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offset-database1.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offset-search.png)
 
 7) On the 'PTMs' tab, remove ‘Failed_Carbamidomethylation:-57.021464’ from the Custom mass shifts box (so that it is empty).
 
@@ -64,7 +61,7 @@ Please note: Only peptides with the mass shifts specified in the list will be in
 ### Set the output location and run
 8) On the Run tab, make a new folder for the output files (e.g. ‘offset_results’), then click ‘RUN’ and wait for the analysis to finish.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/open-run.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-run.png)
 
 
 When the run is finished, ‘DONE’ will be printed at the end of the text in the console.
