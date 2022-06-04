@@ -10,7 +10,7 @@ On the 'Workflow' tab, select 'SILAC3' from the dropdown menu and click 'Load'. 
 
 #### 2) Specify or download a FASTA file
 On the 'Database' tab, use 'Browse' to load an existing sequence database or 'Download' to fetch one from UniProt.
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_2.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database.png)
 
 
 #### 3) Select the appropriate variable modifications
@@ -34,7 +34,7 @@ If you are using light and heavy dimethyl labeling, change these fields to:
 
 #### 5) Specify output location and run
 On the 'Run' tab, choose an output file location, then click 'RUN'.
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_5.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-run.png)
 
 
 ### Output
