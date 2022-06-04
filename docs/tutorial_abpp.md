@@ -1,4 +1,5 @@
 
+
 ### Streamlined activity-based protein profiling of reactive cysteines (SLC-ABPP)
 
 This tutorial demonstrates how to analyze samples prepared with a desthiobiotin iodoacetamide (DBIA) probe and TMT isobaric labels for high-throughput profiling of reactive cysteines,  type of activity-based protein profiling (ABPP). The method and dataset is described in the paper:
@@ -8,9 +9,6 @@ This tutorial demonstrates how to analyze samples prepared with a desthiobiotin 
 We will use just two TMT-16 plexes from the paper, where PaTu-8988T cells were treated with various chloroacetamide electrophiles of interest. Cysteines that do not get covalently labeled with the chloroacetamide compounds are then alkylated with a desthiobiotin iodoacetamide (DBIA) probe (+239 Da), TMT-labeled, and enriched with avidin. Site-level abundance changes between samples treated with different electrophiles can thus reveal distinct reactivity profiles.
 
 The unfractionated data were acquired with an Orbitrap Fusion Lumos using a real-time search (RTS) acquisition method.
-
-
-**Note**: Instead of setting up the analysis manually, you can choose to download the 'TMT16-RTSMS3-Cys-DBIA.workflow' file [here](https://github.com/Nesvilab/FragPipe/tree/gh-pages/docs/workflow-sharing), add to the 'workflow' folder in FragPipe, and load in place of the 'TMT16-MS3' workflow (newly-added workflows will be visible when FragPipe is restarted). You will still need to load spectral files, select a database, and set an output location.
 
 ##### Tutorial contents
 * [Download data](https://fragpipe.nesvilab.org/docs/tutorial_abpp.html#download-data)
@@ -25,7 +23,7 @@ The unfractionated data were acquired with an Orbitrap Fusion Lumos using a real
 <br>
 
 ### Download data
-Download the two TMT-16 plexes (ABPP_raw.zip) from [Dropbox](https://www.dropbox.com/s/wbief35pejlawtx/ABPP_raw.zip?dl=0) and unzip the files. Each plex (one mzML spectral file) is in a separate folder, each with an annotation file that denotes which sample is in which TMT channel. The first channel contains a DMSO-treated control sample in each plex.
+Download the two TMT-16 plexes (ABPP_raw.zip) from [Dropbox](https://www.dropbox.com/s/wbief35pejlawtx/ABPP_raw.zip?dl=1) and unzip the files. Each plex (one mzML spectral file) is in a separate folder, each with an annotation file that denotes which sample is in which TMT channel. The first channel contains a DMSO-treated control sample in each plex.
 
 annotations for plex JM4989:
 ```
@@ -70,9 +68,7 @@ annotations for plex JM5020:
 <br>
 
 ### Set workflow and load files
-Launch FragPipe, and on the 'Workflow' tab, select the 'TMT16-MS3' workflow from the dropdown menu and click 'Load'. In the 'Input LC-MS Files' section, click 'Add folder recursively' to find and 'Select' the ABPP_raw folder. 
-
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/abpp_load-data.png)
+Launch FragPipe, and on the 'Workflow' tab, select the 'SLC-ABPP' workflow from the dropdown menu and click 'Load'. In the 'Input LC-MS Files' section, click 'Add folder recursively' to find and 'Select' the ABPP_raw folder.
 
 You can then use the 'By parent directory' button to assign the appropriate label to each plex. 
 
@@ -83,12 +79,12 @@ You can then use the 'By parent directory' button to assign the appropriate labe
 ### Fetch database
 On the 'Database' tab, click 'Download' and then 'OK' to use the default settings (reviewed human sequences plus decoys and common contaminants), then specify a download location, which you can set to the 'ABPP_raw' folder.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/abpp_database.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database-options.png)
 
 <br>
 
 ### MSFragger search settings
-On the MSFragger tab, add the mass of the DBIA probe (239.16293) to cysteine, allowing up to 3 sites per peptide.
+The 'SLC-ABPP' workflow has already set the MSFragger search settings.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/abpp_add-var-mod.png)
 
@@ -112,7 +108,7 @@ In the 'Filtering and normalization' section, set 'Min purity' to 0, since ion p
 <br>
 
 ### Run the analysis
-On the 'Run' tab, choose an output directory, then press 'RUN'. The settings for this customized workflow can be saved from the workflow tab, e.g. as 'TMT16-RTSMS3-Cys-DBIA'.
+On the 'Run' tab, choose an output directory, then press 'RUN'.
 
 <br>
 
