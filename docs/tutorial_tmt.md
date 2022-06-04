@@ -20,13 +20,13 @@ We will use this CPTAC dataset which can be found [here](https://cptac-data-port
 <br>
 
 ### Download data
-For this tutorial, we will use a publicly-available LC-MS spectral file from a single fraction (_01_CPTAC_TMTS1-NCI7_P_JHUZ_20170509_LUMOS.mzML_) of a TMT 10-plex human cell line sample described [in this publication](https://pubs.acs.org/doi/10.1021/acs.jproteome.8b00165), which you can download from [Dropbox](https://www.dropbox.com/sh/ok32xrlragj9ulr/AAB6cgRVHxtXNAwT-LmarxhYa?dl=0). The full experiment listing is [here](http://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD008952). Place the mzML file in a new folder named 'TMT_tutorial'.
+For this tutorial, we will use a publicly-available LC-MS spectral file from a single fraction (_01_CPTAC_TMTS1-NCI7_P_JHUZ_20170509_LUMOS.mzML_) of a TMT 10-plex human cell line sample described [in this publication](https://pubs.acs.org/doi/10.1021/acs.jproteome.8b00165), which you can download from [Dropbox](https://www.dropbox.com/sh/ok32xrlragj9ulr/AAB6cgRVHxtXNAwT-LmarxhYa?dl=1). The full experiment listing is [here](http://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD008952). Place the mzML file in a new folder named 'TMT_tutorial'.
 <br>
 
 ### Start FragPipe
-Find the `fragpipe` folder and open the `fragpipe/bin` subfolder. Double-click the `fragpipe.exe` file on Windows (or the `fragpipe` file on Linux) to launch the FragPipe program. See [this page](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#configure-fragpipe) for help configuring FragPipe. Once MSFragger and Philosopher are configured, you are ready to start your analysis.
+Find the `fragpipe` folder and open the `fragpipe/bin` subfolder. Double-click the `fragpipe.exe` file on Windows (or the `fragpipe` file on Linux) to launch the FragPipe program. See [this page](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#configure-fragpipe) for help configuring FragPipe. Once MSFragger, IonQuant, and Philosopher are configured, you are ready to start your analysis.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-config.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-config.png)
 
 <br>
 
@@ -44,7 +44,7 @@ If you have more than one multiplexed sample, each sample needs to be placed in 
 ### Fetch database
 On the 'Database' tab, click 'Download', which will first prompt you to specify a download location, which you can set to be the 'TMT_tutorial' folder. After you 'Select directory', use the default settings to fetch a database from UniProt (reviewed human sequences plus decoys and common contaminants).
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-database.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database.png)
 
 <br>
 

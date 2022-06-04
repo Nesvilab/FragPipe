@@ -20,9 +20,9 @@ Associated publication: [Clark, David J., et al. "Integrated proteogenomic chara
 <br>
 
 ### Open FragPipe
-When you launch FragPipe, check that MSFragger and Philosopher are configured. (If you haven’t downloaded them yet, use their respective ‘Download / Update’ buttons. See [this page](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html) for more help, Python is not needed for the exercises in this tutorial.)
+When you launch FragPipe, check that MSFragger, IonQuant, and Philosopher are configured. (If you haven’t downloaded them yet, use their respective ‘Download / Update’ buttons. See [this page](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html) for more help, Python is not needed for the exercises in this tutorial.)
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-config.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-config.png)
 
 <br>
 
@@ -54,12 +54,12 @@ This sets all the analysis steps for a closed database search with MSFragger (in
 ### Fetch a sequence database
 If you haven’t already downloaded a FASTA sequence database with FragPipe, go to the ‘Database’ tab and use the ‘Download’ button to retrieve sequences from UniProt.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-database.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database.png)
 
 
 You will need to select a download location first before proceeding to fetch the database with the default options (reviewed human sequences plus common contaminants). Alternatively, you can use the one included in the Dropbox folder (nesvilab_tutorials/2021-05-07-decoys-reviewed-contam-UP000005640.fas).
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-databaseoptions.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database-options.png)
 
 <br>
 
@@ -70,9 +70,6 @@ On the ‘MSFragger’ tab, you can see the parameters that have been set by loa
 
 
 To save time in the search (at the expense of slightly lower sensitivity), you can optionally set ‘Calibration and Optimization’ to ‘None’ in the ‘Peak Matching’ section.
-
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-searchnocal.png)
-
 
 On the ‘Quant (Isobaric)’ tab, you should see that TMT quantification settings for 10-plex labeling have been set, and the TMT channel annotation files have been automatically loaded (they are named 'annotation.txt' in this case, but any file ending in 'annotation.txt' will be automatically loaded from the same folder as the mzML files). Note that a reference sample is included in this dataset, with the sample tag ‘pool’. 
 
@@ -88,7 +85,7 @@ You can inspect the channel annotations by clicking ‘Edit/Create’ for one of
 ### Set output location and run
 On the ‘Run’ tab, use ‘Browse’ to make a new folder for the output files (e.g. ‘my-tmt-phospho-results’). Then click the ‘RUN’ button to start the analysis.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-run.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-run.png)
 
 
 When the run is finished, ‘DONE’ will be printed at the end of the text in the console.
