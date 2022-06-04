@@ -1,7 +1,7 @@
 ### Using a custom offset workflow with FragPipe: RNA crosslinking analysis
 [XRNAX](https://www.xrnax.com/) is a method for “unbiased” purification of protein-crosslinked RNA, which can be used to help probe and understand protein-RNA interactions. For this analysis, we will need to load a custom workflow. This workflow searches the database with mass offsets that correspond to crosslinked RNA fragments. One can alternatively perform a fully open search (with the mass window set to -150, +1000 Da) as was done in the publication (citation below). However, mass offset searches are faster and more sensitive than performing a full open search, with the limitation that you can only find peptides with mass shifts specified in the offset list. 
 
-This tutorial will use a custom workflow to seach a single .mzML spectral file of RNA-crosslinked tryptic peptides from an MCF7 cell line, acquired on a QExactive HF. Original publication: Trendel, Jakob, et al. "The human RNA-binding proteome and its dynamics during translational arrest." Cell 176.1-2 (2019): 391-403. The files you will need for this tutorial can be found in this [Dropbox folder](https://www.dropbox.com/sh/biwqa6dw3ti4bfz/AADRvn5mRxA3ple9DAC7LMvka?dl=0).
+This tutorial will use 'XRNAX-MassOffset' workflow to search a single .mzML spectral file of RNA-crosslinked tryptic peptides from an MCF7 cell line, acquired on a QExactive HF. Original publication: Trendel, Jakob, et al. "The human RNA-binding proteome and its dynamics during translational arrest." Cell 176.1-2 (2019): 391-403. The files you will need for this tutorial can be found in this [Dropbox folder](https://www.dropbox.com/sh/biwqa6dw3ti4bfz/AADRvn5mRxA3ple9DAC7LMvka?dl=1).
 
 ##### Tutorial contents
 * [Load a custom workflow](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#load-a-custom-workflow)
@@ -14,11 +14,7 @@ This tutorial will use a custom workflow to seach a single .mzML spectral file o
 
 
 ### Load a custom workflow
-Download the XRNAX-MassOffset.workflow file from [Dropbox](https://www.dropbox.com/sh/biwqa6dw3ti4bfz/AADRvn5mRxA3ple9DAC7LMvka?dl=0). Then in the fragpipe directory, locate the workflows subfolder, and copy the XRNAX-MassOffset.workflow file into this folder.
-
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/custom-offset-workflow.png)
-
-Close and then re-launch FragPipe to refresh the workflows. On the Workflow tab, select XRNAX-MassOffset from the workflow dropdown menu and press ‘Load’. Drag and drop or use ‘Add files’ to input the file 20160530_QE1_JT_XRNAXpep_Trp_hydro.mzML.
+On the Workflow tab, select 'XRNAX-MassOffset' from the workflow dropdown menu and press ‘Load’. Drag and drop or use ‘Add files’ to input the file 20160530_QE1_JT_XRNAXpep_Trp_hydro.mzML.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/custom-offset-workflowtab.png)
 
@@ -27,7 +23,7 @@ Close and then re-launch FragPipe to refresh the workflows. On the Workflow tab,
 ### Get a sequence database
 You can choose to download a readymade human protein database file from [here](https://www.dropbox.com/s/v8tlkwu96f3txfj/2021-05-07-decoys-reviewed-contam-UP000005640.fas?dl=0), or you can download one using FragPipe. On the Database tab, click the ‘Download’ button. Follow the prompts to use the default settings (reviewed human sequences with common contaminants).
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-databaseoptions.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database-options.png)
 
 Click ‘Yes’ to download the database. When it’s finished, you should see that the `FASTA file path` now points to the new database.
 
