@@ -20,7 +20,7 @@ from raw data to validation and quantation of the results.
 ### Open FragPipe
 When you launch FragPipe, check that MSFragger and Philosopher are both configured. If you haven’t downloaded them yet, use their respective ‘Download / Update’ buttons. See [this page](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html) for more help. Python is not needed for glycoproteomics workflows.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-config.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-config.png)
 
 <br>
 
@@ -48,7 +48,7 @@ Workflows:
 ### Fetch a sequence database
 Now we need to select a protein sequence database. You can choose to download a readymade human .fas file from [here](https://www.dropbox.com/s/v8tlkwu96f3txfj/2021-05-07-decoys-reviewed-contam-UP000005640.fas?dl=0), or you can download one using FragPipe. Downloading is easy, so we could also choose to download one at this point. On the Database tab, click the ‘Download’ button. Follow the prompts to use the default settings (reviewed human sequences with common contaminants).
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/lfq-databaseoptions.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database-options.png)
 
 Click ‘Yes’ to download the database. When it’s finished, you should see that the FASTA file path now points to the new database.
 
@@ -80,9 +80,9 @@ When labile_search_mode is 'off', '-' can be used to allow non-localized
 matches (i.e. matches to labile mods that have dissociated), by setting the value to 'STY-', for example. It is not necessary to include '-' for labile and nglycan modes,
 as labile modifications are considered by default.
 4. **fragment_ion_series**: fragment types of interest should be specified here depending on the activation method and data. Recommendations:   
-*CID/HCD/IRMPD*: 		b, y, Y (N-Glycans) or b, y (O-Glycans)  
-*Hybrid (EThcD/etc)*: 	b, y, c, z, Y  
-*ETD/ECD*: 				c, z  
+*CID/HCD/IRMPD*:        b, y, Y (N-Glycans) or b, y (O-Glycans)  
+*Hybrid (EThcD/etc)*:   b, y, c, z, Y  
+*ETD/ECD*:              c, z  
 5. **remainder_fragment_masses**: Specify partial glycan mass(es) to search that are retained on b/y fragment ions instead of complete loss of glycan. b/y ions retaining a HexNAc (called "b~/y~" in old FragPipe workflows). Multiple masses can be specified, but increased noise will decrease search sensitivity unless the remainder fragments are quite common. Recommended setting: 203.07937 for N-glycans (1 HexNAc remainder), none for O-glycans
 6. **Y_type_masses**: (value: 0/mass1/mass2/...) Masses of Y-type ions (intact peptide plus partially fragmented glycan) to consider in search. Note that ALL Y masses are applied to ALL potential glycopeptides (regardless of the actual glycan), so including too many can reduce search performance. Can be used in non-glyco searches as well (any modification that partially fragments, leaving behind some mass can be considered). 
 7. **diagnostic_fragments**: (value: mass1/mass2/...) m/z values of diagnostic fragment ions (e.g., Oxonium ions) that appear in spectra of peptides containing a mod of interest. If diagnostic_intensity_filter > 0, at least one of the masses provided here must be found at sufficient intensity for any mass offset to be searched for the spectrum. To disable this checking, change diagnostic_intensity_filter to 0.
@@ -150,7 +150,7 @@ The third value is the "expected" intensity (relative to the base peak of the sp
 ### Set the output location and run
 On the Run tab, make a new folder for the output files (e.g. ‘glyco_results’), then click ‘RUN’ and wait for the analysis to finish.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/open-run.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-run.png)
 
 
 When the run is finished, ‘DONE’ will be printed at the end of the text in the console.
