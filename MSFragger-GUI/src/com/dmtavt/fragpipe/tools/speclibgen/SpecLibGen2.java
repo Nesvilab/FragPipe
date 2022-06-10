@@ -132,7 +132,6 @@ public class SpecLibGen2 {
 
   private void checkPython(NoteConfigPython m) throws ValidationException {
     checkPythonVer(m);
-    checkPythonSpeclibgen(m.pi);
     this.pi = m.pi;
   }
 
