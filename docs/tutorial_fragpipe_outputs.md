@@ -502,7 +502,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 <br>
 
 ### global.profile.tsv
-##### `global.profile.tsv` reports the most prominent features from [PTM-Shepherd](https://ptmshepherd.nesvilab.org/) analysis of mass shifts observed from FDR-filtered open search results. Each row corresponds to a different detected mass shift. Please note that mass shifts are annotated based on UniMod mapping, thus they are not definitive chemical identities and should be used as a starting point along with localization and amino acid enrichment information. Unless otherwise indicated, values are summed from all datasets in the analysis. Column contents are listed below.
+##### `global.profile.tsv` reports the most prominent features from [PTM-Shepherd](https://ptmshepherd.nesvilab.org/) analysis of mass shifts observed from FDR-filtered open search results. Each row corresponds to a different detected mass shift, thus **not all PSMs will be represented in this table**. Please note that mass shifts are annotated based on UniMod mapping, thus they are not definitive chemical identities and should be used as a starting point along with localization and amino acid enrichment information. Unless otherwise indicated, values are summed from all datasets in the analysis. Column contents are listed below.
 
 **peak_apex** apex of the detected delta mass peak (in Da)
 
@@ -523,6 +523,8 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 **similarity** MS/MS spectral similarity of modified peptides compared to their unmodified counterparts. When multiple modified-unmodified comparisons are done for a single peptide, these cosine similarity scores are averaged for the peptide. The peptide scores are then averaged across all peptides in the mass shift bin. These comparisons are only done for peptides of the same charge state.
 
 **rt_shift** retention time shift comparing modified peptides to their unmodified counterparts. When multiple modified-unmodified comparisons are done for a single peptide, the retention time shifts are averaged for the peptide. The peptide shifts are then averaged across all peptides in the mass shift bin. Individual comparisons are only done for peptides in the same LC-MS run. Units are usually seconds but can vary by instrument type
+
+**int_log2fc** log2 fold-change of average intensity for matched shifted/unshifted peptides, computed as described above. Peptides affect by sample preparation artifacts tend to be lower abundance than their unshifted counterparts, thus this value will be low in these cases
 
 **localized_PSMs** number of PSMs for this delta mass that showed at least one additional matched ion when the mass shift is placed on a residue
 
