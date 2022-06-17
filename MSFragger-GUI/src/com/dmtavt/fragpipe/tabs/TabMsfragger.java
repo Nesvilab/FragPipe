@@ -648,12 +648,13 @@ public class TabMsfragger extends JPanelBase {
         super.focusLost(evt);
         final String cuts = StringUtils.sortedChars(uiTextCuts.getNonGhostText());
         final String nocuts = StringUtils.sortedChars(uiTextNocuts.getNonGhostText());
+        final String sense = StringUtils.sortedChars(uiComboSense.asString());
         List<MsfraggerEnzyme> enzymes = ENZYMES.stream()
             .map(e -> new MsfraggerEnzyme(e.name, StringUtils.sortedChars(e.cut),
                 StringUtils.sortedChars(e.nocuts), e.sense))
             .collect(Collectors.toList());
         List<String> matching = enzymes.stream()
-            .filter(e -> e.cut.equals(cuts) && e.nocuts.equals(nocuts))
+            .filter(e -> e.cut.equals(cuts) && e.nocuts.equals(nocuts) && e.sense.equals(sense))
             .map(e -> e.name).collect(Collectors.toList());
         log.warn("Found matching enzymes: {}", matching);
         if (matching.contains("nonspecific")) {
