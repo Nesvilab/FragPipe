@@ -666,6 +666,31 @@ public class TabMsfragger extends JPanelBase {
         }
       }
     };
+    // listener for second enzyme properties
+    FocusAdapter enzymeSpecFocusListener2 = new FocusAdapter() {
+      @Override
+      public void focusLost(FocusEvent evt) {
+        super.focusLost(evt);
+        final String cuts = StringUtils.sortedChars(uiTextCuts2.getNonGhostText());
+        final String nocuts = StringUtils.sortedChars(uiTextNocuts2.getNonGhostText());
+        final String sense = StringUtils.sortedChars(uiComboSense2.asString());
+        List<MsfraggerEnzyme> enzymes = ENZYMES.stream()
+                .map(e -> new MsfraggerEnzyme(e.name, StringUtils.sortedChars(e.cut),
+                        StringUtils.sortedChars(e.nocuts), e.sense))
+                .collect(Collectors.toList());
+        List<String> matching = enzymes.stream()
+                .filter(e -> e.cut.equals(cuts) && e.nocuts.equals(nocuts) && e.sense.equals(sense))
+                .map(e -> e.name).collect(Collectors.toList());
+        log.warn("Found matching enzymes: {}", matching);
+        if (matching.contains("nonspecific")) {
+          trySelectEnzymeDropdown2("nonspecific");
+        } else if (!matching.isEmpty()) {
+          trySelectEnzymeDropdown2(matching.get(0));
+        } else {
+          trySelectEnzymeDropdown2("custom");
+        }
+      }
+    };
 
     uiTextEnzymeName = new UiText();
     FormEntry feEnzymeName = mu.feb(MsfraggerParams.PROP_search_enzyme_name_1, uiTextEnzymeName).label("Enzyme name 1").create();
@@ -691,11 +716,11 @@ public class TabMsfragger extends JPanelBase {
     uiTextEnzymeName2 = new UiText();
     FormEntry feEnzymeName2 = mu.feb(MsfraggerParams.PROP_search_enzyme_name_2, uiTextEnzymeName2).label("Enzyme name 2").create();
     uiTextCuts2 = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z-]").text("KR").create();
-    uiTextCuts2.addFocusListener(enzymeSpecFocusListener);
+    uiTextCuts2.addFocusListener(enzymeSpecFocusListener2);
     FormEntry feCuts2 = mu.feb(MsfraggerParams.PROP_search_enzyme_cut_2, uiTextCuts2).label("Cuts 2")
         .tooltip("Capital letters for amino acids after which the enzyme cuts.").create();
     uiTextNocuts2 = UiUtils.uiTextBuilder().cols(3).filter("[^A-Z-]").text("P").create();
-    uiTextNocuts2.addFocusListener(enzymeSpecFocusListener);
+    uiTextNocuts2.addFocusListener(enzymeSpecFocusListener2);
     FormEntry feNocuts2 = mu.feb(MsfraggerParams.PROP_search_enzyme_nocut_2, uiTextNocuts2).label("No cuts 2")
         .tooltip("Amino acids before which the enzyme won't cut.").create();
 
@@ -1795,6 +1820,20 @@ public class TabMsfragger extends JPanelBase {
     return false;
   }
 
+  private boolean trySelectEnzymeDropdown2(String name) {
+    try {
+      String saveCuts = uiTextCuts2.getNonGhostText();
+      String saveNouts = uiTextNocuts2.getNonGhostText();
+      uiComboEnzymes2.setSelectedItem(name);
+      if (true || "custom".equals(name)) { // remove 'true' to reset specificities to their definitions in our file
+        uiTextCuts2.setText(saveCuts);
+        uiTextNocuts2.setText(saveNouts);
+      }
+      return true;
+    } catch (Exception ignored) {
+    }
+    return false;
+  }
   /**
    * @return False if user's confirmation was required, but they cancelled the operation. True
    *         otherwise.
