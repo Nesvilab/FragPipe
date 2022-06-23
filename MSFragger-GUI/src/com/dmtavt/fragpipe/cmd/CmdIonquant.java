@@ -174,8 +174,7 @@ public class CmdIonquant extends CmdBase {
 
 
     for (String dynamicParam : dynamicParams) {
-      String v = getOrThrow(uiCompsRepresentation,
-          StringUtils.prependOnce(dynamicParam, "ionquant."));
+      String v = getOrThrow(uiCompsRepresentation, StringUtils.prependOnce(dynamicParam, "ionquant."));
       if ("mbr".equalsIgnoreCase(dynamicParam) && "1".equals(v)) {
         // it's mbr
         if (!isMultidir) {
@@ -193,6 +192,9 @@ public class CmdIonquant extends CmdBase {
         }
       }
       if (StringUtils.isNotBlank(v)) {
+        if ((dynamicParam.contentEquals("light") || dynamicParam.contentEquals("medium") || dynamicParam.contentEquals("heavy")) && getOrThrow(uiCompsRepresentation, "ionquant.use-labeling").contentEquals("false")) { // IonQuant does not have use-labeling parameter. If use-labeling = false, do not write light, medium, or heavy so that IonQuant won't run in label quant model.
+          continue;
+        }
         cmd.add("--" + dynamicParam);
         cmd.add(v);
       }
