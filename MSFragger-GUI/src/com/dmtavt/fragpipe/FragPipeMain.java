@@ -30,6 +30,8 @@ public class FragPipeMain {
           Fragpipe.philosopherBinPath = args[++i].trim();
         } else if (args[i].equalsIgnoreCase("--config-python")) {
           Fragpipe.pythonBinPath = args[++i].trim();
+        } else if (args[i].equalsIgnoreCase("--config-ionquant")){
+          Fragpipe.ionquantBinPath = args[++i].trim();
         } else {
           System.err.println("Cannot recognize the argument " + args[i]);
           System.exit(1);

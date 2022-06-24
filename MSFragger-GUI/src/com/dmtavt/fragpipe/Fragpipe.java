@@ -148,6 +148,7 @@ public class Fragpipe extends JFrameHeadless {
   public static String msfraggerBinPath = null;
   public static String philosopherBinPath = null;
   public static String pythonBinPath = null;
+  public static String ionquantBinPath = null;
 
   public static final String UI_STATE_CACHE_FN = "fragpipe-ui.cache";
   private static final Logger log = LoggerFactory.getLogger(Fragpipe.class);
@@ -376,6 +377,9 @@ public class Fragpipe extends JFrameHeadless {
       } else if (msfraggerBinPath != null && (msfraggerBinPath.isEmpty() || !Files.exists(Paths.get(msfraggerBinPath)) || !Files.isReadable(Paths.get(msfraggerBinPath)) || !Files.isRegularFile(Paths.get(msfraggerBinPath)))) {
         System.err.println("MSFragger jar file path " + msfraggerBinPath + " does not seem right.");
         System.exit(1);
+      } else if (ionquantBinPath != null && (ionquantBinPath.isEmpty() || !Files.exists(Paths.get(ionquantBinPath)) || !Files.isReadable(Paths.get(ionquantBinPath)))) {
+        System.err.println("IonQuant path " + ionquantBinPath + " does not seem right.");
+        System.exit(1);
       } else if (philosopherBinPath != null && (philosopherBinPath.isEmpty() || !Files.exists(Paths.get(philosopherBinPath)) || !Files.isReadable(Paths.get(philosopherBinPath)) || !Files.isRegularFile(Paths.get(philosopherBinPath)))) {
         System.err.println("Philosopher binary file path " + philosopherBinPath + " does not seem right.");
         System.exit(1);
@@ -386,6 +390,9 @@ public class Fragpipe extends JFrameHeadless {
         workdir = Paths.get(workdir).toAbsolutePath().toString();
         if (msfraggerBinPath != null) {
           msfraggerBinPath = Paths.get(msfraggerBinPath).toAbsolutePath().toString();
+        }
+        if (ionquantBinPath != null) {
+          ionquantBinPath = Paths.get(ionquantBinPath).toAbsolutePath().toString();
         }
         if (philosopherBinPath != null) {
           philosopherBinPath = Paths.get(philosopherBinPath).toAbsolutePath().toString();
@@ -417,6 +424,10 @@ public class Fragpipe extends JFrameHeadless {
 
     if (msfraggerBinPath != null) {
       propsFile.setProperty("fragpipe-config.bin-msfragger", msfraggerBinPath);
+    }
+
+    if (ionquantBinPath != null) {
+      propsFile.setProperty("fragpipe-config.bin-ionquant", ionquantBinPath);
     }
 
     if (philosopherBinPath != null) {
@@ -936,6 +947,7 @@ public class Fragpipe extends JFrameHeadless {
     sb.append("\t--ram <integer>                 # (optional) Specify the maximum allowed memory size. Set it to 0 to let FragPipe decide. Default = 0\n");
     sb.append("\t--threads <integer>             # (optional) Specify the number of threads. Default = core number - 1\n");
     sb.append("\t--config-msfragger <string>     # (optional) specify the location of the MSFragger jar file. If not specified, using the one in the cache.\n");
+    sb.append("\t--config-ionquant <string>      # (optional) specify the location of the IonQuant jar file. If not specified, using the one in the cache.\n");
     sb.append("\t--config-philosopher <string>   # (optional) specify the location of the Philosopher binary file. If not specified, using the one in the cache.\n");
     sb.append("\t--config-python <string>        # (optional) specify the location of the Python directory. If not specified, using the one in the cache.\n");
     return sb.toString();
