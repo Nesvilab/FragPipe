@@ -878,11 +878,7 @@ public class TabConfig extends JPanelWithEnablement {
         epEasyPQPText.setVisible(true);
       }
       epEasyPQPText.setText(textEasyPQPEnabled("N/A", "N/A", false));
-      if (m.ex instanceof ValidationException) {
-        epSpeclibgenErr.setText(m.ex.getMessage());
-      } else {
-        showConfigError(m.ex, TIP_SPECLIBGEN, epSpeclibgenErr);
-      }
+      showConfigError(m.ex, TIP_SPECLIBGEN, epEasyPQPText);
       this.revalidate();
       return;
     }
