@@ -22,8 +22,11 @@ public class PythonModule {
   public final String installName;
   public final String someImportName;
 
-  public static PythonModule NUMPY = new PythonModule("numpy", "numpy");
-  public static PythonModule PANDAS = new PythonModule("pandas", "pandas");
+  // for split database
+  public static final PythonModule NUMPY = new PythonModule("numpy", "numpy");
+  public static final PythonModule PANDAS = new PythonModule("pandas", "pandas");
+
+  // for speclib generation
   public static final PythonModule EASYPQP = new PythonModule("easypqp", "easypqp");
   public static final PythonModule LXML = new PythonModule("lxml", "lxml");
 

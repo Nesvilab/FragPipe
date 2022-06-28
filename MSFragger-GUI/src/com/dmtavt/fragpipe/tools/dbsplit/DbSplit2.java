@@ -146,7 +146,7 @@ public class DbSplit2 {
           byStatus.add(bad.get(status) + " - " + list.stream().map(pm -> pm.installName).collect(Collectors.joining(", ")));
         }
       }
-      throw new ValidationException("Python modules: \n" + String.join("\n", byStatus));
+      throw new ValidationException("Python modules: " + String.join(", ", byStatus));
     }
 
     this.pi = pi;
