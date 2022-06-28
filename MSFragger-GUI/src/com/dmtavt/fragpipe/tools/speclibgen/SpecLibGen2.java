@@ -57,18 +57,14 @@ public class SpecLibGen2 {
   private final Object initLock = new Object();
   private PyInfo pi;
   private Path scriptSpecLibGenPath;
-  public List<PythonModule> missingModulesEasyPqp;
   public List<PythonModule> missingModulesSpeclibgen;
-  private boolean isEasypqpOk;
   private boolean isInitialized;
 
   private SpecLibGen2() {
     pi = null;
-    isEasypqpOk = false;
     scriptSpecLibGenPath = null;
     isInitialized = false;
     missingModulesSpeclibgen = new ArrayList<>();
-    missingModulesEasyPqp = new ArrayList<>();
   }
 
   public static void initClass() {
@@ -79,7 +75,7 @@ public class SpecLibGen2 {
 
   public boolean isEasypqpOk() {
     synchronized (initLock) {
-      return isInitialized && isEasypqpOk;
+      return isInitialized;
     }
   }
 
@@ -119,9 +115,6 @@ public class SpecLibGen2 {
       checkPython(python);
       validateAssets();
 
-      missingModulesEasyPqp = checkPythonEasypqp(python.pi);
-      isEasypqpOk = missingModulesEasyPqp.isEmpty();
-
       isInitialized = true;
       log.debug("{} init complete", SpecLibGen2.class.getSimpleName());
     }
@@ -129,6 +122,7 @@ public class SpecLibGen2 {
 
   private void checkPython(NoteConfigPython m) throws ValidationException {
     checkPythonVer(m);
+    checkPythonSpeclibgen(m.pi);
     this.pi = m.pi;
   }
 
@@ -145,15 +139,10 @@ public class SpecLibGen2 {
   }
 
   private void checkPythonSpeclibgen(PyInfo pi) throws ValidationException {
-    missingModulesSpeclibgen = checkForMissingModules(pi, REQUIRED_MODULES);
+    missingModulesSpeclibgen = checkForMissingModules(pi, REQUIRED_FOR_EASYPQP);
     if (!missingModulesSpeclibgen.isEmpty()) {
       throw new ValidationException("Python modules missing: " + Seq.seq(missingModulesSpeclibgen).map(pm -> pm.installName).toString("\n"));
     }
-  }
-
-  /** @return List of missing modules. */
-  private List<PythonModule> checkPythonEasypqp(PyInfo pi) {
-    return checkForMissingModules(pi, REQUIRED_FOR_EASYPQP);
   }
 
   private void validateAssets() throws ValidationException {

@@ -146,7 +146,6 @@ public class TabConfig extends JPanelWithEnablement {
   private HtmlStyledJEditorPane epDbsplitErr;
   private Container epDbsplitErrParent;
   private HtmlStyledJEditorPane epEasyPQPText;
-  private HtmlStyledJEditorPane epSpeclibgenErr;
   private Container epSpeclibgenErrParent;
   private JButton btnAbout;
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
@@ -874,9 +873,9 @@ public class TabConfig extends JPanelWithEnablement {
   public void on(NoteConfigSpeclibgen m) {
     if (m.ex != null) {
       log.debug("Got NoteConfigSpeclibgen with exception set");
-      if (epSpeclibgenErrParent != null && !epSpeclibgenErrParent.isAncestorOf(epSpeclibgenErr)) {
-        epSpeclibgenErrParent.add(epSpeclibgenErr, new CC().wrap());
-        epSpeclibgenErr.setVisible(true);
+      if (epSpeclibgenErrParent != null && !epSpeclibgenErrParent.isAncestorOf(epEasyPQPText)) {
+        epSpeclibgenErrParent.add(epEasyPQPText, new CC().wrap());
+        epEasyPQPText.setVisible(true);
       }
       epEasyPQPText.setText(textEasyPQPEnabled("N/A", "N/A", false));
       if (m.ex instanceof ValidationException) {
@@ -899,18 +898,14 @@ public class TabConfig extends JPanelWithEnablement {
       errMsgLines.add("Missing python modules: " + Seq.seq(m.instance.missingModulesSpeclibgen).map(pm -> pm.installName).toString(", "));
       enableEasypqp = false;
     }
-    if (!m.instance.missingModulesEasyPqp.isEmpty()) {
-      errMsgLines.add("Missing python modules for EasyPQP: " + Seq.seq(m.instance.missingModulesEasyPqp).map(pm -> pm.installName).toString(", "));
-      enableEasypqp = false;
-    }
 
     if (errMsgLines.isEmpty()) {
-      epSpeclibgenErrParent = epSpeclibgenErr.getParent();
+      epSpeclibgenErrParent = epEasyPQPText.getParent();
       if (epSpeclibgenErrParent != null) {
-        epSpeclibgenErrParent.remove(epSpeclibgenErr);
+        epSpeclibgenErrParent.remove(epEasyPQPText);
       }
     } else {
-      epSpeclibgenErr.setText(String.join("\n", errMsgLines));
+      epEasyPQPText.setText(String.join("\n", errMsgLines));
     }
 
     // get EasyPQP local version
