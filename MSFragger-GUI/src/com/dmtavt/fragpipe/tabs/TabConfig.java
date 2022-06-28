@@ -1128,22 +1128,17 @@ public class TabConfig extends JPanelWithEnablement {
   private JPanel createPanelSpeclibgen() {
     JPanel p = mu.newPanel("Spectral Library Generation", true);
 
-    p.setToolTipText(SwingUtils.makeHtml("EasyPQP: Requires <b>Python 3</b> with package <b>EasyPQP</b>"));
+    p.setToolTipText(SwingUtils.makeHtml("EasyPQP: Requires <b>Python 3</b> with package <b>EasyPQP</b> and <b>lxml</b>"));
     Dimension dim = new Dimension(200, 25);
 
     epEasyPQPText = new HtmlStyledJEditorPane("Configuring EasyPQP.");
-    epEasyPQPText.setToolTipText(SwingUtils.makeHtml("EasyPQP: Requires <b>Python 3</b> with package <b>EasyPQP</b>"));
+    epEasyPQPText.setToolTipText(SwingUtils.makeHtml("EasyPQP: Requires <b>Python 3</b> with package <b>EasyPQP</b> and <b>lxml</b>"));
     epEasyPQPText.setPreferredSize(dim);
-
-    epSpeclibgenErr = new HtmlStyledJEditorPane("Requires Python 3 with modules Cython, Matplotlib, msproteomicstools.");
-    epSpeclibgenErr.setPreferredSize(dim);
 
     final JButton btnInstallEasyPQP = UiUtils.createButton("Install/Upgrade EasyPQP", e -> Bus.post(new MessageInstallEasyPQP()));
 
     mu.add(p, epEasyPQPText).growX().wrap();
     mu.add(p, btnInstallEasyPQP).split().wrap();
-    mu.add(p, new HtmlStyledJEditorPane("")).wrap();
-    mu.add(p, epSpeclibgenErr).growX().wrap();
 
     return p;
   }

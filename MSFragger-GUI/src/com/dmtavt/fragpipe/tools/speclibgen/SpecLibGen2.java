@@ -43,9 +43,6 @@ import org.slf4j.LoggerFactory;
 
 public class SpecLibGen2 {
 
-  public static final List<PythonModule> REQUIRED_MODULES = Arrays.asList(
-      PythonModule.CYTHON,
-      PythonModule.MATPLOTLIB);
   public static final List<PythonModule> REQUIRED_FOR_EASYPQP = Arrays.asList(PythonModule.EASYPQP, PythonModule.LXML);
   private static final Logger log = LoggerFactory.getLogger(SpecLibGen2.class);
   private static final String SCRIPT_SPEC_LIB_GEN = "speclib/gen_con_spec_lib.py";
@@ -150,7 +147,7 @@ public class SpecLibGen2 {
   private void checkPythonSpeclibgen(PyInfo pi) throws ValidationException {
     missingModulesSpeclibgen = checkForMissingModules(pi, REQUIRED_MODULES);
     if (!missingModulesSpeclibgen.isEmpty()) {
-      throw new ValidationException("Python modules missing:\n" + Seq.seq(missingModulesSpeclibgen).map(pm -> pm.installName).toString("\n"));
+      throw new ValidationException("Python modules missing: " + Seq.seq(missingModulesSpeclibgen).map(pm -> pm.installName).toString("\n"));
     }
   }
 
