@@ -17,6 +17,7 @@
 
 package com.dmtavt.fragpipe.messages;
 
+import com.dmtavt.fragpipe.exceptions.ValidationException;
 import java.util.StringJoiner;
 
 public class NoteConfigIonQuant implements INoteConfig {
@@ -32,7 +33,15 @@ public class NoteConfigIonQuant implements INoteConfig {
     NoteConfigIonQuant.version = version;
     NoteConfigIonQuant.isTooOld = isTooOld;
     NoteConfigIonQuant.enabled = enabled;
-    NoteConfigIonQuant.ex = ex;
+   if (ex == null) {
+     if (path == null || path.trim().isEmpty() || version.trim().equalsIgnoreCase("n/a")) {
+       NoteConfigIonQuant.ex = new ValidationException("IonQuant path or version does not exist.");
+     } else {
+       NoteConfigIonQuant.ex = null;
+     }
+   } else {
+     NoteConfigIonQuant.ex = ex;
+   }
   }
 
   @Override

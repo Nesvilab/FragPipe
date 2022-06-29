@@ -17,6 +17,7 @@
 
 package com.dmtavt.fragpipe.messages;
 
+import com.dmtavt.fragpipe.exceptions.ValidationException;
 import java.util.StringJoiner;
 
 public class NoteConfigPhilosopher implements INoteConfig {
@@ -25,7 +26,7 @@ public class NoteConfigPhilosopher implements INoteConfig {
   public final Throwable ex;
 
   public NoteConfigPhilosopher(String path, String version) {
-    this(path, version, null);
+    this(path, version, (path == null || path.trim().isEmpty() || version.trim().equalsIgnoreCase("n/a")) ? new ValidationException("Philosopher path or version does not exist.") : null);
   }
 
   public NoteConfigPhilosopher(String path, String version, Throwable ex) {

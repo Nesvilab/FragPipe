@@ -17,6 +17,7 @@
 
 package com.dmtavt.fragpipe.messages;
 
+import com.dmtavt.fragpipe.exceptions.ValidationException;
 import java.util.StringJoiner;
 
 public class NoteConfigMsfragger implements INoteConfig {
@@ -27,7 +28,7 @@ public class NoteConfigMsfragger implements INoteConfig {
   public final Throwable ex;
 
   public NoteConfigMsfragger(String path, String version) {
-    this(path, version, null);
+    this(path, version, (path == null || path.trim().isEmpty() || version.trim().equalsIgnoreCase("n/a")) ? new ValidationException("MSFragger path or version does not exist.") : null);
   }
 
   public NoteConfigMsfragger(String path, String version, Throwable ex) {
