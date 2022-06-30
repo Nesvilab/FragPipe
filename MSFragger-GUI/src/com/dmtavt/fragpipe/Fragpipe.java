@@ -418,22 +418,20 @@ public class Fragpipe extends JFrameHeadless {
     final FragpipeLocations fpl = FragpipeLocations.get();
 
     PropsFile propsFile = fpl.tryLoadSilently(workflowFile, "user");
+
+    // If there are parameters from command, they have the higher priority than those in the workflow file.
     propsFile.setProperty("workflow.ram", Fragpipe.ram + "");
     propsFile.setProperty("workflow.threads", Fragpipe.threads + "");
     propsFile.setProperty("workdir", Fragpipe.workdir);
-
     if (msfraggerBinPath != null) {
       propsFile.setProperty("fragpipe-config.bin-msfragger", msfraggerBinPath);
     }
-
     if (ionquantBinPath != null) {
       propsFile.setProperty("fragpipe-config.bin-ionquant", ionquantBinPath);
     }
-
     if (philosopherBinPath != null) {
       propsFile.setProperty("fragpipe-config.bin-philosopher", philosopherBinPath);
     }
-
     if (pythonBinPath != null) {
       propsFile.setProperty("fragpipe-config.bin-python", pythonBinPath);
     }
