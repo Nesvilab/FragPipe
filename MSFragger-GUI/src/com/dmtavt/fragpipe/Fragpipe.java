@@ -727,7 +727,7 @@ public class Fragpipe extends JFrameHeadless {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteFragpipeCache m) {
     log.debug("Got NotePreviousUiState, updating UI");
-    loadUi(m.propsUiState, true, true);
+    loadUi(m.propsUiState, true, !headless);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
