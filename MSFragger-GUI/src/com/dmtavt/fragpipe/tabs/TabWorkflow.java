@@ -1353,7 +1353,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     return true;
   }
 
-  @Subscribe(threadMode = ThreadMode.BACKGROUND)
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageManifestLoad m) {
     String loc = Fragpipe.propsVarGet(ThisAppProps.CONFIG_SAVE_LOCATION);
     JFileChooser fc = FileChooserUtils.builder("Load manifest").paths(Stream.of(loc)).mode(FcMode.ANY).approveButton("Load").multi(false).acceptAll(true).filters(Collections.singletonList(fileNameEndingFilter)).create();
