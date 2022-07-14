@@ -1071,6 +1071,7 @@ public class TmtiPanel extends JPanelBase {
     mapConv.put("protein_database", pathFasta);
     mapConv.put("output", pathOutput);
     mapConv.put("prefix", decoyTag);
+    mapConv.put("log2transformed", "true"); // hardcode the log2transformed to true.
 
     return mapConv;
   }

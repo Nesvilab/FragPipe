@@ -78,6 +78,7 @@ public class TmtiConfig {
     private boolean use_glycan_composition;
     private double glyco_qval;
     private String prefix;
+    private boolean log2transformed;
 
     public boolean getUse_glycan_composition() {return use_glycan_composition; }
 
@@ -317,6 +318,14 @@ public class TmtiConfig {
 
     public void setPrefix(String prefix) {
       this.prefix = prefix;
+    }
+
+    public boolean isLog2transformed() {
+      return log2transformed;
+    }
+
+    public void setLog2transformed(boolean log2transformed) {
+      this.log2transformed = log2transformed;
     }
   }
 
