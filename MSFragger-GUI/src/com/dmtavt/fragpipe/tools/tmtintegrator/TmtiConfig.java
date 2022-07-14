@@ -77,6 +77,7 @@ public class TmtiConfig {
     private int aggregation_method;
     private boolean use_glycan_composition;
     private double glyco_qval;
+    private String prefix;
 
     public boolean getUse_glycan_composition() {return use_glycan_composition; }
 
@@ -309,6 +310,14 @@ public class TmtiConfig {
     public void setPrint_RefInt(boolean print_RefInt) {
       this.print_RefInt = print_RefInt;
     }
+
+    public String getPrefix() {
+      return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+      this.prefix = prefix;
+    }
   }
 
   public static void write(Map<String, String> map, Writer w) throws IOException {
@@ -328,7 +337,7 @@ public class TmtiConfig {
         throw new IllegalStateException("Resource missing: " + resoucePath);
       List<String> lines = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
           .lines().filter(s -> !StringUtils.isNullOrWhitespace(s)).collect(Collectors.toList());
-      lines.stream().forEach(l -> {
+      lines.forEach(l -> {
         String[] s = l.split(":", 2);
         if (s.length != 2 || Arrays.stream(s).anyMatch(StringUtils::isNullOrWhitespace))
           return;

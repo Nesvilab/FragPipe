@@ -1045,7 +1045,7 @@ public class TmtiPanel extends JPanelBase {
     return null;
   }
 
-  public Map<String, String> formToConfig(int ramGb, String pathTmtiJar, String pathFasta, String pathOutput) {
+  public Map<String, String> formToConfig(int ramGb, String decoyTag, String pathTmtiJar, String pathFasta, String pathOutput) {
     Map<String, String> map = SwingUtils.valuesGet(this, null);
     final Map<String, String> mapConv = new HashMap<>();
     map.forEach((k, v) ->
@@ -1070,6 +1070,7 @@ public class TmtiPanel extends JPanelBase {
     mapConv.put("memory", Integer.toString(ramGb));
     mapConv.put("protein_database", pathFasta);
     mapConv.put("output", pathOutput);
+    mapConv.put("prefix", decoyTag);
 
     return mapConv;
   }

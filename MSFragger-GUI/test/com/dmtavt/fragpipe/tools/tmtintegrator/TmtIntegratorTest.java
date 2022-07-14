@@ -33,7 +33,7 @@ public class TmtIntegratorTest {
 
   @Test
   public void configParse() throws IOException {
-    final String fn = "tmt-i_param-3.3.1.yml";
+    final String fn = "tmt-i_param_default.yml";
     final String resoucePath = "tmtintegrator/" + fn;
     try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(resoucePath)) {
       Yaml yaml = new Yaml(new Constructor(TmtiConfig.class));

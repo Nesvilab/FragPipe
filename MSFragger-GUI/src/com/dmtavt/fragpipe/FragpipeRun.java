@@ -1150,7 +1150,7 @@ public class FragpipeRun {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
         }
-        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, fastaFile, sharedMapGroupsToProtxml);
+        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, decoyTag, fastaFile, sharedMapGroupsToProtxml);
       }
       return true;
     });
