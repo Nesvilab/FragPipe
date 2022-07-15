@@ -36,7 +36,7 @@ public enum FraggerOutputType {
     String extension;
     String valueInParamsFile;
 
-    private FraggerOutputType(String extension, String valueInParamsFile) {
+    FraggerOutputType(String extension, String valueInParamsFile) {
         this.extension = extension;
         this.valueInParamsFile = valueInParamsFile;
     }

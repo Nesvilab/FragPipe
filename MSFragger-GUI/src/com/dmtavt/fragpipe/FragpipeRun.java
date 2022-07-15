@@ -165,6 +165,26 @@ public class FragpipeRun {
         throw new IllegalStateException("TabRun has not been posted to the bus");
       }
 
+      final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
+      final PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);
+      final PepProphPanel peptideProphetPanel = Fragpipe.getStickyStrict(PepProphPanel.class);
+      if (percolatorPanel.isRun() && (!tabMsf.getOutputType().valueInParamsFile().toLowerCase().contains("pin") || !tabMsf.getOutputType().valueInParamsFile().toLowerCase().contains("pepxml"))) {
+        if (Fragpipe.headless) {
+          log.error("Percolator was enabled but MSFragger's output formats did not contain pin or pepXML.");
+        } else {
+          JOptionPane.showMessageDialog(tabRun, "Percolator was enabled but MSFragger's output formats did not contain pin or pepXML.", "Errors", JOptionPane.ERROR_MESSAGE);
+        }
+        return 1;
+      }
+      if (peptideProphetPanel.isRun() && !tabMsf.getOutputType().valueInParamsFile().toLowerCase().contains("pepxml")) {
+        if (Fragpipe.headless) {
+          log.error("PeptideProphet was enabled but MSFragger's output formats did not contain pepXML.");
+        } else {
+          JOptionPane.showMessageDialog(tabRun, "PeptideProphet was enabled but MSFragger's output formats did not contain pepXML.", "Errors", JOptionPane.ERROR_MESSAGE);
+        }
+        return 1;
+      }
+
       // workdir
       String wdStr = tabRun.getWorkdirText();
       Fragpipe.propsVarSet(ThisAppProps.PROP_FILE_OUT, wdStr);
@@ -215,7 +235,6 @@ public class FragpipeRun {
         return 1;
       }
 
-      final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
       if (tabMsf.getNumDbSlices() > configDb.numEntries) {
         if (Fragpipe.headless) {
           log.error("Number of split database is larger than total proteins.");
