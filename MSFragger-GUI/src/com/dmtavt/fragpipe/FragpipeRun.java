@@ -389,11 +389,9 @@ public class FragpipeRun {
         toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true);
         Bus.post(MessageSaveLog.saveInDir(wd));
 
-        // save manifest file in GUI mode
-        if (!Fragpipe.headless) {
-          Path path = wd.resolve("lcms-files_" + TimeUtils.dateTimeNoSpaces() + ".fp-manifest");
-          Bus.post(new MessageManifestSave(path));
-        }
+        // save manifest file in both GUI and headless mode
+        Path path = wd.resolve("lcms-files_" + TimeUtils.dateTimeNoSpaces() + ".fp-manifest");
+        Bus.post(new MessageManifestSave(path));
 
         Bus.post(new MessageRunButtonEnabled(true));
       };

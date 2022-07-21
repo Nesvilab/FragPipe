@@ -1308,7 +1308,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   private static final FileNameEndingFilter fileNameEndingFilter = new FileNameEndingFilter("Fragpipe manifest", manifestExt);
 
-  @Subscribe(threadMode = ThreadMode.BACKGROUND)
+  @Subscribe(threadMode = ThreadMode.POSTING)
   public void on(MessageManifestSave m) {
     Path path = m.path;
     if (path == null) {
