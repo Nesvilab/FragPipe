@@ -32,6 +32,8 @@ public class QuantLabel {
   public static final String TYPE_ITRAQ = "iTRAQ";
   public static final String TYPE_K2 = "K2";
   public static final String TYPE_SCLIP = "SCLIP2";
+  public static final String TYPE_CUSTOM = "xtag";
+  public static final String CUSTOM_LABEL_NAME = "Custom";
 
 
   public static final List<QuantLabel> LABELS;
@@ -45,6 +47,7 @@ public class QuantLabel {
     labels.add(new QuantLabel(TYPE_TMT, "TMT-18", Arrays.asList("126, 127N, 127C, 128N, 128C, 129N, 129C, 130N, 130C, 131N, 131C, 132N, 132C, 133N, 133C, 134N, 134C, 135N".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_ITRAQ, "iTRAQ-4", Arrays.asList("114, 115, 116, 117".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_ITRAQ, "iTRAQ-8", Arrays.asList("113, 114, 115, 116, 117, 118, 119, 121".split("[,\\s]+"))));
+    labels.add(new QuantLabel(TYPE_CUSTOM, CUSTOM_LABEL_NAME, Arrays.asList("xtag1, xtag2, xtag3, xtag4, xtag5, xtag6, xtag7, xtag8, xtag9, xtag10, xtag11, xtag12, xtag13, xtag14, xtag15, xtag16, xtag17, xtag18".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_K2, "K2-2", Arrays.asList("284, 290".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_K2, "K2-6", Arrays.asList("284, 290, 301, 307, 327, 333".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_SCLIP, "SCLIP-2", Arrays.asList("286, 290".split("[,\\s]+"))));
@@ -55,6 +58,17 @@ public class QuantLabel {
     this.type = type;
     this.name = name;
     this.reagentNames = reagentNames;
+  }
+
+  // get the custom QuantLabel by searching for it
+  public static QuantLabel getCustomQuantLabel(List<QuantLabel> labels) {
+    for (QuantLabel label : labels) {
+      if (label.name.equals(CUSTOM_LABEL_NAME)) {
+        return label;
+      }
+    }
+    // not found - error. Should always be in the list
+    return null;
   }
 
   public String getName() {

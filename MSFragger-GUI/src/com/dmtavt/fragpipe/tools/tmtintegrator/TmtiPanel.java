@@ -873,7 +873,17 @@ public class TmtiPanel extends JPanelBase {
       QuantLabel matchingLabel;
       try {
         annotations = parseTmtAnnotationFile(selectedFile);
-        matchingLabel = validateAnnotations(annotations);
+        // skip validation if "custom" label has been selected, as it is allowed not to match the hardcoded channel names and plex
+        String labelName = (String) uiComboLabelNames.getSelectedItem();
+        if (labelName.equals(QuantLabel.CUSTOM_LABEL_NAME)) {
+          matchingLabel = QuantLabel.getCustomQuantLabel(QuantLabel.LABELS);
+          if (matchingLabel == null) {
+            throw new TmtAnnotationValidationException("Error getting Custom label internally, please contact the developers.");
+          }
+        }
+        else {
+          matchingLabel = validateAnnotations(annotations);
+        }
       } catch (TmtAnnotationValidationException | IOException ex) {
         SwingUtils.showErrorDialogWithStacktrace(ex, TmtiPanel.this.scrollPaneTmtTable, false);
         return;
