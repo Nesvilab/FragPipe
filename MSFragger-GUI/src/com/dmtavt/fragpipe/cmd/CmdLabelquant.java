@@ -121,7 +121,8 @@ public class CmdLabelquant extends CmdBase {
             //Files.deleteIfExists(annotationFileInGroupDir);
             Files.copy(annotationFile, annotationFileInGroupDir, StandardCopyOption.REPLACE_EXISTING);
           } catch (IOException ex) {
-            throw new IllegalStateException(ex);
+            ex.printStackTrace();
+            return false;
           }
         }
       }
