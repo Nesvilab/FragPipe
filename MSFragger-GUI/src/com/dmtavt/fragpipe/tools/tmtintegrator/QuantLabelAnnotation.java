@@ -29,7 +29,7 @@ public class QuantLabelAnnotation {
 
   public QuantLabelAnnotation(String label, String sample) {
     this.label = label.trim();
-    this.sample = sample.trim();
+    this.sample = sample.trim().replaceAll("[^0-9a-zA-Z_]", "_");
   }
 
   public String getLabel() {
@@ -45,7 +45,7 @@ public class QuantLabelAnnotation {
   }
 
   public void setSample(String sample) {
-    this.sample = sample.trim();
+    this.sample = sample.trim().replaceAll("[^0-9a-zA-Z_]", "_");
   }
 
   @Override
