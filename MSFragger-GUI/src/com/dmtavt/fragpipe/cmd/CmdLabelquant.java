@@ -26,6 +26,10 @@ import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -145,6 +149,26 @@ public class CmdLabelquant extends CmdBase {
       pb.directory(groupWd.toFile());
 
       pbis.add(PbiBuilder.from(pb));
+    }
+
+    try {
+      String line;
+      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("combined_annotation.txt").toFile()));
+      bufferedWriter.write("plex label sample\n");
+      for (Map.Entry<LcmsFileGroup, Path> e : annotations.entrySet()) {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(e.getValue().toFile()));
+        while ((line = bufferedReader.readLine()) != null) {
+          line = line.trim();
+          if (!line.isEmpty()) {
+            bufferedWriter.write(e.getKey().name + " " + line + "\n");
+          }
+        }
+        bufferedReader.close();
+      }
+      bufferedWriter.close();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return false;
     }
 
     isConfigured = true;
