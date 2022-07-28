@@ -480,6 +480,9 @@ public class TmtiPanel extends JPanelBase {
         "not-shown", uiCheckPrintRef,
         "<html>Print individual reference sample intensities");
 
+    UiCheck uiCheckLog2Transformed = UiCheck.of("Log2 transform the intensity", true);
+    FormEntry feLog2Transformed = fe(TmtiConfProps.PROP_log2transformed, "not-shown", uiCheckLog2Transformed, "<html>Transform the intensity using log2");
+
     UiSpinnerDouble uiSpinnerMinBestPepProb = UiSpinnerDouble
         .builder(0, 0, 1.0, 0.1).setFormat(df2).setCols(5).create();
     FormEntry feMaxPepProb = mu
@@ -522,7 +525,8 @@ public class TmtiPanel extends JPanelBase {
     mu.border(p2, "Ratio to Abundance conversion");
     mu.add(p2, feMs1Int.comp);
     mu.add(p2, feTop3.comp);
-    mu.add(p2, fePrintRefInt.comp).spanX().wrap();
+    mu.add(p2, fePrintRefInt.comp);
+    mu.add(p2, feLog2Transformed.comp).spanX().wrap();
 
     return new JPanel[]{p, p2};
   }
@@ -1071,7 +1075,6 @@ public class TmtiPanel extends JPanelBase {
     mapConv.put("protein_database", pathFasta);
     mapConv.put("output", pathOutput);
     mapConv.put("prefix", decoyTag);
-    mapConv.put("log2transformed", "true"); // hardcode the log2transformed to true.
 
     return mapConv;
   }

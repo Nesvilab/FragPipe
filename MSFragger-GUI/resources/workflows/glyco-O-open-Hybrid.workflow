@@ -244,6 +244,7 @@ tmtintegrator.channel_num=6
 tmtintegrator.dont-run-fq-lq=false
 tmtintegrator.glyco_qval=0.01
 tmtintegrator.groupby=0
+tmtintegrator.log2transformed=true
 tmtintegrator.max_pep_prob_thres=0
 tmtintegrator.min_ntt=0
 tmtintegrator.min_pep_prob=0.9
