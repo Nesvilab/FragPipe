@@ -109,7 +109,7 @@ public class QuantPanelLabelfree extends JPanelBase {
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigIonQuant m) {
-    updateEnabledStatus(this, m.isValid());
+    updateEnabledStatus(pIonquant, m.isValid());
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
