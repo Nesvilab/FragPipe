@@ -179,12 +179,11 @@ public class CmdLabelquant extends CmdBase {
     List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, SUPPORTED_FORMATS);
     if (!notSupportedExts.isEmpty()) {
       if (Fragpipe.headless) {
-        log.error(String.format("%s doesn't support '.%s' files. You can convert files using msconvert from ProteoWizard.", NAME, String.join(", ", notSupportedExts)));
+        log.error(String.format("%s doesn't support '.%s' files. Either replace with mzML format or disable %s.", NAME, String.join(", ", notSupportedExts), NAME));
       } else {
         JOptionPane.showMessageDialog(comp, String.format(
                 "<html>%s doesn't support '.%s' files.<br/>"
-                    + "Either remove them from input or disable %s<br/>"
-                    + "You can convert files using <i>msconvert</i> from ProteoWizard.", NAME, String.join(", ", notSupportedExts), NAME),
+                    + "Either replace with mzML format or disable %s.<br/>", NAME, String.join(", ", notSupportedExts), NAME),
             NAME + " error", JOptionPane.WARNING_MESSAGE);
       }
       return false;
