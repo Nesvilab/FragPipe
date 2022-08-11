@@ -27,6 +27,7 @@ public class TmtiConfProps {
   public static final String PROP_protein_database = "protein_database";
   public static final String PROP_output = "output";
   public static final String PROP_channel_num = "channel_num";
+  public static final String PROP_label_type = "label_type";
   public static final String PROP_ref_tag = "ref_tag";
   public static final String PROP_min_pep_prob = "min_pep_prob";
   public static final String PROP_min_purity = "min_purity";
@@ -55,7 +56,7 @@ public class TmtiConfProps {
   public static final String PROP_log2transformed = "log2transformed";
 
   public static final List<String> PROPS = Arrays
-      .asList(PROP_path, PROP_memory, PROP_protein_database, PROP_output, PROP_channel_num,
+      .asList(PROP_path, PROP_memory, PROP_protein_database, PROP_output, PROP_label_type,
           PROP_ref_tag, PROP_min_pep_prob, PROP_min_purity, PROP_min_percent, PROP_min_ntt, PROP_min_site_prob,
           PROP_unique_gene, PROP_prot_exclude, PROP_mod_tag, PROP_groupby, PROP_prot_norm,
           PROP_add_Ref, PROP_psm_norm, PROP_unique_pep, PROP_outlier_removal, PROP_best_psm,

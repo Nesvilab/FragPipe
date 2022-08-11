@@ -302,7 +302,7 @@ public class TmtiPanel extends JPanelBase {
 
     uiComboLabelNames = UiUtils.createUiCombo(
         QuantLabel.LABELS.stream().map(QuantLabel::getName).collect(Collectors.toList()));
-    FormEntry feLabelType = fe(TmtiConfProps.PROP_channel_num,
+    FormEntry feLabelType = fe(TmtiConfProps.PROP_label_type,
         "Label type", uiComboLabelNames, null);
 
     uiComboQuantLevel = UiUtils.createUiCombo(new String[]{"2", "3"});
@@ -744,7 +744,12 @@ public class TmtiPanel extends JPanelBase {
     HashMap<String, String> prefixed = new HashMap<>();
     map.forEach((k, v) -> {
       String vConvertedToUi = CONVERT_TO_GUI.getOrDefault(k, Function.identity()).apply(v);
-      prefixed.put(StringUtils.prependOnce(k, PREFIX), vConvertedToUi);
+      if (k.contentEquals(TmtiConfProps.PROP_channel_num)) {
+        // save to label type rather than channel num. Note: assumes first label found is correct if >1 label has a given channel number, but that should be fine for loading defaults.
+        prefixed.put(StringUtils.prependOnce(TmtiConfProps.PROP_label_type, PREFIX), vConvertedToUi);
+      } else {
+        prefixed.put(StringUtils.prependOnce(k, PREFIX), vConvertedToUi);
+      }
     });
     SwingUtils.valuesSet(this, prefixed);
   }
@@ -1074,7 +1079,7 @@ public class TmtiPanel extends JPanelBase {
     return null;
   }
 
-  public Map<String, String> formToConfig(int ramGb, String decoyTag, String pathTmtiJar, String pathFasta, String pathOutput) {
+  public Map<String, String> formToConfig(int ramGb, String decoyTag, String pathTmtiJar, String pathFasta, String pathOutput, QuantLabel quantLabel) {
     Map<String, String> map = SwingUtils.valuesGet(this, null);
     final TreeMap<String, String> mapConv = new TreeMap<>();
     map.forEach((k, v) ->
@@ -1090,6 +1095,10 @@ public class TmtiPanel extends JPanelBase {
         } else {
           mapConv.put(prop, t);
         }
+      } else if (prop.contentEquals("label_type")) {
+        // TMT-I only needs the channel_num, but multiple tags may have the same number so we save the label_type to workflow file instead
+        // of channel num. Get the channel num from the QuantLabel for the TMT-I config
+        mapConv.put(TmtiConfProps.PROP_channel_num, String.format("%d", quantLabel.getReagentNames().size()));
       } else {
         mapConv.put(prop, CONVERT_TO_FILE.getOrDefault(prop, Function.identity()).apply(v));
       }
