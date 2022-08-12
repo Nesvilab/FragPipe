@@ -111,6 +111,9 @@ public class TmtiPanel extends JPanelBase {
   private UiCombo uiComboQuantLevel;
   private UiSpinnerInt uiSpinnerTolerance;
   private UiCombo uiComboLabelNames;
+  private UiSpinnerDouble uiSpinnerMinPsmProb;
+  private UiSpinnerDouble uiSpinnerMinPurity;
+  private UiSpinnerDouble uiSpinnerMinPercent;
   public static final String PREFIX = "tmtintegrator.";
   public static final String PROP_LAST_ANNOTATION_PATH = "fragpipe.tmt.last-annotation-path";
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
@@ -388,20 +391,20 @@ public class TmtiPanel extends JPanelBase {
     DecimalFormat df2 = new DecimalFormat("#.##");
     DecimalFormat df3 = new DecimalFormat("#.###");
 
-    UiSpinnerDouble uiSpinnerMinPsmProb = UiSpinnerDouble
+    uiSpinnerMinPsmProb = UiSpinnerDouble
         .builder(0.9, 0.0, 1.0, 0.05).setFormat(df3).setCols(5).create();
     FormEntry feMinPsmProb = fe(TmtiConfProps.PROP_min_pep_prob,
         "Min PSM probability", uiSpinnerMinPsmProb,
         "<html>Minimum PSM probability threshold <br/>\n"
             + "(on top of FDR filtering by Philosopher)");
 
-    UiSpinnerDouble uiSpinnerMinPurity = UiSpinnerDouble
+    uiSpinnerMinPurity = UiSpinnerDouble
         .builder(0.5, 0.0, 1.0, 0.05).setFormat(df3).setCols(5).create();
     FormEntry feMinPurity = fe(TmtiConfProps.PROP_min_purity,
         "Min purity", uiSpinnerMinPurity,
         "<html>Ion purity score threshold");
 
-    UiSpinnerDouble uiSpinnerMinPercent = UiSpinnerDouble
+    uiSpinnerMinPercent = UiSpinnerDouble
         .builder(0.05, 0.0, 1.0, 0.05).setFormat(df3).setCols(5).create();
     FormEntry feMinPercent = fe(TmtiConfProps.PROP_min_percent,
         "Min Intensity (percent)", uiSpinnerMinPercent,
@@ -632,6 +635,18 @@ public class TmtiPanel extends JPanelBase {
 
   public int getTolerance() {
     return uiSpinnerTolerance.getActualValue();
+  }
+
+  public double getMinprob() {
+    return uiSpinnerMinPsmProb.getActualValue();
+  }
+
+  public double getPurity() {
+    return uiSpinnerMinPurity.getActualValue();
+  }
+
+  public double getMinIntensityPercent() {
+    return uiSpinnerMinPercent.getActualValue();
   }
 
   public static class TmtAnnotationValidationException extends Exception {

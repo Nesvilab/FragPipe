@@ -1225,8 +1225,11 @@ public class FragpipeRun {
         QuantLabel label = tmtiPanel.getSelectedLabel();
         String quantLevel = tmtiPanel.getQuantLevel();
         int tolerance = tmtiPanel.getTolerance();
+        double minprob = tmtiPanel.getMinprob();
+        double purity = tmtiPanel.getPurity();
+        double minIntensityPercant = tmtiPanel.getMinIntensityPercent();
         Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
-        return cmdTmtLabelQuant.configure(parent, isDryRun, usePhi, quantLevel, tolerance, label, annotations, sharedMapGroupsToProtxml);
+        return cmdTmtLabelQuant.configure(parent, isDryRun, usePhi, quantLevel, tolerance, minprob, purity, minIntensityPercant, label, annotations, sharedMapGroupsToProtxml);
       }
       return true;
     });

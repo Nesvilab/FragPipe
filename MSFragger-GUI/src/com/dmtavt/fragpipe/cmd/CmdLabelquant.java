@@ -60,7 +60,7 @@ public class CmdLabelquant extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, boolean isDryRun, UsageTrigger phi, String quantLevel, int tolerance, QuantLabel label, Map<LcmsFileGroup, Path> annotations, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+  public boolean configure(Component comp, boolean isDryRun, UsageTrigger phi, String quantLevel, int tolerance, double minprob, double purity, double minIntensityPercent, QuantLabel label, Map<LcmsFileGroup, Path> annotations, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
     initPreConfig();
 
     if (!checkCompatibleFormats(comp, mapGroupsToProtxml)) {
@@ -100,7 +100,12 @@ public class CmdLabelquant extends CmdBase {
       cmd.add(tolerance + "");
       cmd.add("--level");
       cmd.add(quantLevel);
-
+      cmd.add("--minprob");
+      cmd.add(String.format("%.3f", minprob)); // Need to match the Spinner's format: DecimalFormat df3 = new DecimalFormat("#.###");
+      cmd.add("--purity");
+      cmd.add(String.format("%.3f", purity)); // Need to match the Spinner's format: DecimalFormat df3 = new DecimalFormat("#.###");
+      cmd.add("--removelow");
+      cmd.add(String.format("%.3f", minIntensityPercent)); // Need to match the Spinner's format: DecimalFormat df3 = new DecimalFormat("#.###");
       cmd.add("--plex");
       cmd.add(Integer.toString(label.getReagentNames().size()));
       cmd.add("--annot");
