@@ -88,7 +88,7 @@ public class DownloadMSFraggerPanel extends JPanel {
     JEditorPane t2 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger.arsci.com/upgrader/RawFileRdr_License_Agreement_RevA.pdf\" target=\"blank_\">Thermo (c) Raw File Reader License Agreement</a>.");
     license2 = new JCheckBox();
 
-    JEditorPane t3 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger.arsci.com/upgrader/redist.txt\" target=\"blank_\">Bruker SDK library distribution conditions</a>.");
+    JEditorPane t3 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger.arsci.com/upgrader/EULA%20TDF-SDK.pdf\" target=\"blank_\">Bruker SDK library distribution conditions</a>.");
     license3 = new JCheckBox();
 
     JEditorPane t4 = SwingUtils.createClickableHtml("I would like to receive emails with updates in the future.");

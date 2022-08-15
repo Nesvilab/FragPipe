@@ -787,7 +787,7 @@ public class Fragpipe extends JFrameHeadless {
         + "Dmitry Avtonomov<br>"
         + "Fengchao Yu<br>"
         + "Guo-Ci Teo<br>"
-        + "University of Michigan, 2017-2021<br><br>"
+        + "University of Michigan, 2017-2022<br><br>"
         + "<a href=\"" + linkSite + "\">Alexey Nesvizhskii lab</a><br/>&nbsp;<br/>"
         + "Components:<br>"
         + "<a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou<br>"
@@ -806,8 +806,8 @@ public class Fragpipe extends JFrameHeadless {
         + "<a href='https://github.com/vdemichev/DiaNN'>DIA-NN</a>: Vadim Demichev<br>"
         + "Websites and tutorials: Sarah Haynes<br>"
         + "Special thanks to our collaborators Lukas Käll (Percolator), George Rosenberger (EasyPQP), and Vadim Demichev (DIA-NN).<br><br>"
-        + "RawFileReader reading tool: Copyright © 2016 by Thermo Fisher Scientific, Inc. All rights reserved.<br>"
-        + "Bruker SDK library: Copyright by Bruker Daltonics. All rights reserved.<br>";
+        + "RawFileReader reading tool: Copyright (c) 2016 by Thermo Fisher Scientific, Inc. All rights reserved.<br>"
+        + "Bruker SDK library: Included software components: Copyright (c) 2022 by Bruker Daltonics GmbH & Co. KG. All rights reserved.”<br>";
   }
 
   public void showAboutDialog(Component parent) {
