@@ -61,6 +61,19 @@ def cpu_count():
 	except AttributeError:
 		return os.cpu_count() if os.cpu_count() else 1
 
+# https://github.com/python/cpython/issues/76623
+def resolve_mapped(path) -> pathlib.Path:
+	path = pathlib.Path(path).resolve()
+	mapped_paths = []
+	for drive in 'ZYXWVUTSRQPONMLKJIHGFEDCBA':
+		root = pathlib.Path('{}:/'.format(drive))
+		try:
+			mapped_paths.append(root / path.relative_to(root.resolve()))
+		except (ValueError, OSError):
+			pass
+	return min(mapped_paths, key=lambda x: len(str(x)), default=path)
+
+
 if use_easypqp:
 	nproc0 = int(sys.argv[9]) if len(sys.argv) >= 10 else 0
 	nproc = max(cpu_count() - 1, 1) if nproc0 <= 0 else nproc0
@@ -566,7 +579,7 @@ if use_easypqp:
 
 	runname_rank_spectra_pepxml = pairing_pepxml_spectra_v3(spectra_files, iproph_pep_xmls)
 	convert_outs = [f'{basename}{rank}' for basename, rank, _, _ in runname_rank_spectra_pepxml]
-	easypqp_convert_cmds = [[os.fspath(easypqp), 'convert', *easypqp_convert_extra_args,'--enable_unannotated', '--pepxml', os.fspath(pep_xml), '--spectra', os.fspath(spectra), '--exclude-range', '-1.5,3.5',
+	easypqp_convert_cmds = [[resolve_mapped(easypqp), 'convert', *easypqp_convert_extra_args,'--enable_unannotated', '--pepxml', resolve_mapped(pep_xml), '--spectra', resolve_mapped(spectra), '--exclude-range', '-1.5,3.5',
 							 '--psms', f'{outfiles}.psmpkl', '--peaks', f'{outfiles}.peakpkl']
 							for (_, _, spectra, pep_xml), outfiles in zip(runname_rank_spectra_pepxml, convert_outs)]
 	easypqp_library_infiles = [output_directory / (e + '.psmpkl') for e in convert_outs] + \
@@ -578,14 +591,14 @@ if use_easypqp:
 	filelist_easypqp_library.write_text('\n'.join(map(os.fspath, easypqp_library_infiles)))
 	use_iRT = irt_choice is not Irt_choice.no_iRT
 	use_im = im_choice is not Im_choice.no_im
-	filelist_arg = [os.fspath(filelist_easypqp_library)]
+	filelist_arg = [resolve_mapped(filelist_easypqp_library)]
 	def easypqp_library_cmd(use_irt: bool, use_im: bool):
 	# def easypqp_library_cmd(pep_fdr: float = None, prot_fdr: float = None):
-		return [os.fspath(easypqp), 'library',
+		return [resolve_mapped(easypqp), 'library',
 				# '--peptide_fdr_threshold', str(pep_fdr), '--protein_fdr_threshold', str(prot_fdr),
-				'--psmtsv', os.fspath(psm_tsv_file), '--peptidetsv', os.fspath(peptide_tsv_file), ] + \
-			   (['--rt_reference', os.fspath(irt_file)] if use_irt else []) + \
-			   (['--im_reference', os.fspath(im_file)] if use_im else []) + \
+				'--psmtsv', resolve_mapped(psm_tsv_file), '--peptidetsv', resolve_mapped(peptide_tsv_file), ] + \
+			   (['--rt_reference', resolve_mapped(irt_file)] if use_irt else []) + \
+			   (['--im_reference', resolve_mapped(im_file)] if use_im else []) + \
 			   ['--out', 'easypqp_lib_openswath.tsv'] + easypqp_library_extra_args + filelist_arg
 
 
