@@ -104,7 +104,7 @@ public class Philosopher {
     if (matcher.find()) {
       sbVer.append(matcher.group(1));
     } else {
-      matcher = reVer2.matcher(pp.getName(pp.getNameCount() - 2).toString());
+      matcher = reVer2.matcher(pp.getName(Math.max(0, pp.getNameCount() - 2)).toString());
       if (matcher.find()) {
         sbVer.append(matcher.group(1));
       } else {
