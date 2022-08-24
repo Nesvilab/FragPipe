@@ -21,8 +21,7 @@ public class FragpipeDebug {
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void on(MessageDoneCreatingUi m) {
         if (log.isDebugEnabled()) {
-            // TODO: DELETE ME: for debugging convenience only
-            Bus.post(new MessageLcmsFilesAdded(Arrays.asList(Paths.get("C:\\Users\\DmitryAvtonomov\\ms-data\\bin-ma-2021_PXD022287\\Human-Protein-Training_Trypsin.mzML"))));
+            Bus.post(new MessageLcmsFilesAdded(Arrays.asList(Paths.get("path-to-file-to-automatically-add"))));
         }
     }
 

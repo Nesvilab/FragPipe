@@ -40,7 +40,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PercolatorOutputToPepXML {
-    private static final boolean isDebug = true;
+    private static final boolean isDebug = false;
 
     private static final Pattern reWhitespaces = Pattern.compile("\\s+");
     private static final Pattern reSpecQuerySpectrum = Pattern.compile("(.+spectrum=\\s*\"[^\"]+\\.)([0-9]+)\\.([0-9]+)(\\.[0-9]+\".+)");

@@ -8,7 +8,7 @@
   </appender>
 
   <logger name="com.dmtavt.fragpipe.FragpipeLoader" level="error" />
-  <logger name="com.dmtavt.fragpipe.FragpipeDebug" level="info" />
+  <logger name="com.dmtavt.fragpipe.FragpipeDebug" level="error" />
   <logger name="com.dmtavt.fragpipe.api.Bus" level="error" />
 
   <root level="info">
