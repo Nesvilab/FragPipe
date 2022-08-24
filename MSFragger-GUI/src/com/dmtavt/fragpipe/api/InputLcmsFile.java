@@ -37,7 +37,6 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
     public static final String REASON_DOTS = "has dots";
     public static final String REASON_MULTIPLE_DOTS = "has multiple dots";
     public static final String REASON_SPACES = "has spaces";
-    public static final String REASON_UNSUPPORTED = "not supported";
     public static final String allowedChars = "[A-Za-z0-9-_+.\\[\\]()]";
     public static final String disallowedChars = "[^A-Za-z0-9-_ +.\\[\\]()]";
     public static final Pattern disallowedExperimentPattern = Pattern.compile("[^A-Za-z0-9-_]");

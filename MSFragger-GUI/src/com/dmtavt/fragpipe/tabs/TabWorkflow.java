@@ -24,7 +24,6 @@ import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
-import com.dmtavt.fragpipe.api.IPathsProvider;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.api.LcmsInputFileTable;
@@ -112,7 +111,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -292,19 +290,9 @@ public class TabWorkflow extends JPanelWithEnablement {
     return m;
   }
 
-  public static void processAddedLcmsPaths(LcmsFileAddition files, Component parent, IPathsProvider extBinSearchPaths) {
-    // vet/check input LCMS files for bad naming
-    final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(extBinSearchPaths.get());
+  public static void processAddedLcmsPaths(LcmsFileAddition files, Component parent) {
     final HashMap<Path, Set<String>> reasonsDir = new HashMap<>();
     final HashMap<Path, Set<String>> reasonsFn = new HashMap<>();
-    //final HashMap<String, List<Path>> reasonsRev = new HashMap<>();
-    final String allowedChars = "[A-Za-z0-9-_+.\\[\\]()]";
-    Pattern re = Pattern.compile(allowedChars + "+");
-    final String REASON_NON_ASCII = "Non-ASCII chars";
-    final String REASON_PATH_SPACES = "Path contains spaces";
-    final String REASON_FN_DOTS = "Filename contains dots";
-    final String REASON_UNSUPPORTED = "Not supported";
-    final String REASON_DISALLOWED_CHARS = "Contains characters other than: " + allowedChars;
 
     for (Path path : files.paths) {
       Set<String> why = InputLcmsFile.validatePath(path.getParent().toString());
@@ -706,7 +694,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
 
     LcmsFileAddition lfa = new LcmsFileAddition(m.paths, new ArrayList<>(m.paths));
-    processAddedLcmsPaths(lfa, this, Fragpipe::getExtBinSearchPaths);
+    processAddedLcmsPaths(lfa, this);
 
     // add the files
     List<InputLcmsFile> toAdd = lfa.toAdd.stream()
