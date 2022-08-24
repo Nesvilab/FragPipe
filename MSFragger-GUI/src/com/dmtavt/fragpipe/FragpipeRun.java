@@ -486,7 +486,7 @@ public class FragpipeRun {
             "Output directory path contains whitespace characters.\n"
                 + "Some programs in the pipeline might not work properly in this case.\n\n"
                 + "Please change output directory to one without spaces.",
-            "Bad output directory path", JOptionPane.WARNING_MESSAGE);
+            "Bad output directory path", JOptionPane.ERROR_MESSAGE);
       }
       return null;
     }

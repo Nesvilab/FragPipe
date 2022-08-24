@@ -543,9 +543,7 @@ public class TabConfig extends JPanelWithEnablement {
     if (existing != null) {
       Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
       if (existing.toString().contains(" ")) {
-        SwingUtils.showWarningDialog(this, "There are spaces in Philosopher path.\n"
-            + "Depending on your OS/Java/Input files some tools that FragPipe\n"
-            + "runs might crash.", "Spaces in path");
+        SwingUtils.showErrorDialog(this, "Space is not allowed in Philosopher path.", "Spaces in path");
       }
     }
 
@@ -689,9 +687,7 @@ public class TabConfig extends JPanelWithEnablement {
     if (existing != null) {
       Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
       if (existing.toString().contains(" ")) {
-        SwingUtils.showWarningDialog(this, "There are spaces in MSFragger path.\n"
-            + "Depending on your OS/Java/Input files some tools that FragPipe\n"
-            + "runs might crash.", "Spaces in path");
+        SwingUtils.showErrorDialog(this, "Space is not allowed in MSFragger path.", "Spaces in path");
       }
     }
 
@@ -719,9 +715,7 @@ public class TabConfig extends JPanelWithEnablement {
     if (existing != null) {
       Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
       if (existing.toString().contains(" ")) {
-        SwingUtils.showWarningDialog(this, "There are spaces in IonQuant path.\n"
-            + "Depending on your OS/Java/Input files some tools that FragPipe\n"
-            + "runs might crash.", "Spaces in path");
+        SwingUtils.showErrorDialog(this, "Space is not allowed in IonQuant path.", "Spaces in path");
       }
     }
 
