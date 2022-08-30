@@ -25,8 +25,8 @@ enable deep proteome coverage in high throughput**
 [Nature Methods, 2020](https://www.nature.com/articles/s41592-019-0638-x)
 
 When using DIA-NN's ion mobility module for dia-PASEF analysis or using DIA-NN in combination with FragPipe-generated spectral libraries, please also cite  
-**High sensitivity dia-PASEF proteomics with DIA-NN and FragPipe**  
-[biorxiv, 2021](https://www.biorxiv.org/content/10.1101/2021.03.08.434385v1)
+**dia-PASEF data analysis using FragPipe and DIA-NN for deep proteomics of low sample amounts**  
+[Nature Communications, 2022](https://www.nature.com/articles/s41467-022-31492-0)
 
 **Other key papers**  
 - Using DIA-NN for large-scale plasma & serum proteomics:  
