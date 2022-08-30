@@ -4,7 +4,7 @@ This tutorial demonstrates label-free quantification with match-between-runs usi
 
 Associated publication: Castoldi, Francesca, et al. "Autophagy-mediated metabolic effects of aspirin." Cell death discovery 6.1 (2020): 1-17.
 
-To get the input data, download the 'lfq-raw.zip' file from [Dropbox](https://www.dropbox.com/sh/azdbblag7whv9v7/AACk8t4-6LowMYobKyXxUMS8a?dl=1) and extract the files.
+To get the input data, download the 'lfq-raw.zip' file from [Dropbox](https://www.dropbox.com/sh/gt5k9mbpqw1fufw/AABfj_TzyQmnddlKALJg2nyCa?dl=1) and extract the files.
 
 ##### Tutorial contents
 * [Open FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_lfq.html#open-fragpipe)
