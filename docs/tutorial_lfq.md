@@ -48,15 +48,14 @@ This sets all the analysis steps for a closed database search with MSFragger, re
 <br>
 
 ### Fetch a sequence database
-On the ‘Database’ tab, click ‘Download’, which will prompt you to first choose a file location to store the database. (Alternatively, you can choose to use the database from [Dropbox](https://www.dropbox.com/s/v8tlkwu96f3txfj/2021-05-07-decoys-reviewed-contam-UP000005640.fas?dl=0).
-
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database.png)
-
-Once you’ve chosen a folder, click ‘Select directory’ to proceed to the database options. We will keep the default options (human, reviewed sequences, add common contaminants) for this dataset.
+On the ‘Database’ tab, click ‘Download’, which will prompt you to first set the download options. We will keep the default options (human, reviewed sequences, add common contaminants) for this dataset.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database-options.png)
 
-Click ‘Yes’ to download the database. When it’s finished, you should see that the `FASTA file path` now points to the new database.
+Clicking 'OK', and then, it will show the dialog for choosing a file location to store the database. Once you’ve chosen a folder, click ‘Select directory’ to start the downloading. When it’s finished, you should see that the `FASTA file path` now points to the new database.
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database.png)
+
 
 <br>
 
