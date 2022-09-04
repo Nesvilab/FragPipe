@@ -340,11 +340,9 @@ public class TabWorkflow extends JPanelWithEnablement {
       panel.add(new JScrollPane(table), BorderLayout.CENTER);
       SwingUtils.makeDialogResizable(panel);
 
-      String[] options;
-      if (!reasonsFn.isEmpty()) {
-        options = new String[]{"Cancel", "Add anyway", "Only add well-behaved files", "Try to rename files"};
-      } else {
-        options = new String[]{"Cancel", "Add anyway", "Only add well-behaved files"};
+      String[] options = new String[]{"Cancel", "Only add well-behaved files", "Try to rename files"};
+      if (!reasonsDir.isEmpty()) { // Can not rename directory names.
+        options = new String[]{"Cancel", "Only add well-behaved files"};
       }
 
       int confirmation = JOptionPane
@@ -353,13 +351,11 @@ public class TabWorkflow extends JPanelWithEnablement {
 
       switch (confirmation) {
         case 0:
-          return;
-        case 1:
           break;
-        case 2:
+        case 1:
           files.toAdd = files.toAdd.stream().filter(path -> !path2reasons.containsKey(path)).collect(Collectors.toList());
           break;
-        case 3: // rename files
+        case 2: // rename files
           int confirm1 = SwingUtils.showConfirmDialog(parent, new JLabel(
               "<html>Attempt to rename files without moving them.<br/>\n" +
                   "This is a non-reversible operation.<br/><br/>\n" +
