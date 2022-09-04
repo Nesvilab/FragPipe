@@ -351,6 +351,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
       switch (confirmation) {
         case 0:
+          files.toAdd.clear();
           break;
         case 1:
           files.toAdd = files.toAdd.stream().filter(path -> !path2reasons.containsKey(path)).collect(Collectors.toList());
