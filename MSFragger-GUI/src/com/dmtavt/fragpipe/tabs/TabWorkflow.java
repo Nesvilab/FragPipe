@@ -313,7 +313,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       HashMap<Path, String> path2reasons = new HashMap<>();
       for (Entry<Path, Set<String>> kv : reasonsDir.entrySet()) {
         for (String reason : kv.getValue()) {
-          path2reasons.compute(kv.getKey(), (path, s) -> s == null ? "Direcotry " + reason : s.concat(", Direcotry " + reason));
+          path2reasons.compute(kv.getKey(), (path, s) -> s == null ? "Directory " + reason : s.concat(", Directory " + reason));
         }
       }
       for (Entry<Path, Set<String>> kv : reasonsFn.entrySet()) {
