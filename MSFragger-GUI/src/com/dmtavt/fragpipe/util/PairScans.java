@@ -81,7 +81,6 @@ public class PairScans {
 
         TreeMap<Integer, IScan> num2scan = scans.getMapNum2scan();
         TreeMap<Integer, Integer> pairedScans = new TreeMap<>();
-//        TreeMap<Integer, String> debug = new TreeMap<>();
         HashMap<Double, Integer> unpairedPrecursorMap = new HashMap<>();
         for (final Map.Entry<Integer, IScan> scanNum_iscan : num2scan.entrySet()) {
             final IScan scan = scanNum_iscan.getValue();
@@ -108,8 +107,6 @@ public class PairScans {
                         if (unpairedPrecursorMap.containsKey(precursorMZ)) {
                             // pair found, record first activation scan #, second activation scan #
                             pairedScans.put(unpairedPrecursorMap.get(precursorMZ), scanNum);
-//                            String debugStr = String.format("%d\t%.4f\t%.4f\t%s\t%s", scanNum, precursorMZ, num2scan.get(unpairedPrecursorMap.get(precursorMZ)).getPrecursor().getMzTarget(), scan.getFilterString(), num2scan.get(unpairedPrecursorMap.get(precursorMZ)).getFilterString());
-//                            debug.put(unpairedPrecursorMap.get(precursorMZ), debugStr);
                             unpairedPrecursorMap.remove(precursorMZ);
                         } else {
                             // unexpected second activation without first
@@ -119,17 +116,8 @@ public class PairScans {
                         // unexpected activation - ignore
                         System.out.printf("Unspecified activation %s in scan %d, not paired", activationStr, scanNum);
                     }
-                } else {
-                    // filter string not recognized
-                    // todo: add activation directly?
                 }
-
-            } else {
-                // ignore higher MS levels if present
-                continue;
             }
-
-
         }
         scans.reset();
         source.close();
@@ -140,9 +128,6 @@ public class PairScans {
         for (final Map.Entry<Integer, Integer> pairEntry : pairedScans.entrySet()) {
             out.write(String.format("%s\t%s\n", pairEntry.getKey(), pairEntry.getValue()));
         }
-//        for (final Map.Entry<Integer, String> pairEntry : debug.entrySet()) {
-//            out.write(String.format("%s\t%s\n", pairEntry.getKey(), pairEntry.getValue()));
-//        }
         out.flush();
         out.close();
     }
