@@ -17,6 +17,7 @@
 
 package com.dmtavt.fragpipe.util;
 
+import com.dmtavt.fragpipe.tools.enums.ActivationTypes;
 import umich.ms.datatypes.LCMSDataSubset;
 import umich.ms.datatypes.scan.IScan;
 import umich.ms.datatypes.scan.StorageStrategy;
@@ -52,8 +53,8 @@ public class PairScans {
             return;
         }
 
-        ActivationFilter firstActivation = parseActivationFilter(firstActivationStr);
-        ActivationFilter secondActivation = parseActivationFilter(secondActivationStr);
+        ActivationTypes firstActivation = parseActivationFilter(firstActivationStr);
+        ActivationTypes secondActivation = parseActivationFilter(secondActivationStr);
         if (firstActivation == null || secondActivation == null) {
             return;
         }
@@ -132,8 +133,8 @@ public class PairScans {
         out.close();
     }
 
-    static ActivationFilter parseActivationFilter(String input) {
-        for (ActivationFilter activation : ActivationFilter.values()) {
+    static ActivationTypes parseActivationFilter(String input) {
+        for (ActivationTypes activation : ActivationTypes.values()) {
             if (activation.getText().equalsIgnoreCase(input)) {
                 return activation;
             }
@@ -143,19 +144,5 @@ public class PairScans {
     }
 
 
-    // Filter string text used for activation types in Thermo data
-    public enum ActivationFilter {
-        HCD("HCD"), ETD("ETD"), CID("CID"), ECD("ECD");
-
-        private final String text;
-
-        ActivationFilter(String _text) {
-            this.text = _text;
-        }
-
-        public String getText() {
-            return this.text;
-        }
-    }
 }
 
