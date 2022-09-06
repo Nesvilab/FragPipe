@@ -19,7 +19,6 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
-import com.dmtavt.fragpipe.messages.MessageExternalProcessOutput;
 import com.dmtavt.fragpipe.messages.MessageKillAll;
 import com.dmtavt.fragpipe.messages.MessageKillAll.REASON;
 import com.dmtavt.fragpipe.messages.MessageManifestSave;
@@ -86,12 +85,12 @@ public class ProcessBuilderInfo {
             if (pbi.name.toLowerCase().contentEquals("peptideprophet")) {
               errStr = errStr.replaceAll("WARNING: CANNOT correct data file[^\r\n]+[\r\n]+", "").replaceAll("WARNING: cannot open data file[^\r\n]+[\r\n]+", "");
             }
-            Bus.post(new MessageExternalProcessOutput(true, errStr, pbi.name));
+            Bus.post(new MessagePrintToConsole(Fragpipe.COLOR_RED_DARKEST, errStr, false));
           }
           final byte[] pollOut = pr.pollStdOut();
           final String outStr = pr.appendOut(pollOut);
           if (outStr != null) {
-            Bus.post(new MessageExternalProcessOutput(false, outStr, pbi.name));
+            Bus.post(new MessagePrintToConsole(null, outStr, false));
           }
           if (started.isAlive()) {
             continue;

@@ -18,20 +18,17 @@
 package com.dmtavt.fragpipe.tabs;
 
 import static com.dmtavt.fragpipe.cmd.CmdBase.constructClasspathString;
-import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.FragpipeRun;
 import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
-import com.dmtavt.fragpipe.cmd.CmdMsfragger;
 import com.dmtavt.fragpipe.cmd.PbiBuilder;
 import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
 import com.dmtavt.fragpipe.cmd.ToolingUtils;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
 import com.dmtavt.fragpipe.messages.MessageExportLog;
-import com.dmtavt.fragpipe.messages.MessageExternalProcessOutput;
 import com.dmtavt.fragpipe.messages.MessageKillAll;
 import com.dmtavt.fragpipe.messages.MessageKillAll.REASON;
 import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
@@ -157,26 +154,6 @@ public class TabRun extends JPanelWithEnablement {
       console.append("\n");
     }
     console.getParent().getParent().revalidate();
-  }
-
-  @Subscribe(threadMode = ThreadMode.BACKGROUND)
-  public void on(MessageExternalProcessOutput m) {
-    if (m.output == null) {
-      log.warn("MessageExternalProcessOutput with null text, this is a bug, report to devs");
-      return;
-    }
-
-    // special case, colorize output from MSFragger
-    if (CmdMsfragger.NAME.equals(m.procName)) {
-      if (m.isError) {
-        toConsole(Fragpipe.COLOR_RED_DARKEST, m.output, false);
-      } else {
-        toConsole(m.output, false);
-      }
-      return;
-    }
-
-    toConsole(null, m.output, false); // print with ANSI colors
   }
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
