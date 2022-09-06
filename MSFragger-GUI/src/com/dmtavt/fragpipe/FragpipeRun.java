@@ -56,6 +56,7 @@ import com.dmtavt.fragpipe.tools.diann.DiannPanel;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
 import com.dmtavt.fragpipe.tools.msbooster.MSBoosterPanel;
+import com.dmtavt.fragpipe.tools.opair.OPairPanel;
 import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
@@ -951,9 +952,9 @@ public class FragpipeRun {
       return true;
     });
 
-    // make scan pair files
-    // todo: only if O-Pair requested, get activations from tab
-    CmdPairScans cmdPairScans = new CmdPairScans(true, wd);
+    // make scan pair files if O-Pair is run
+    final OPairPanel oPairPanel = Fragpipe.getStickyStrict(OPairPanel.class);
+    CmdPairScans cmdPairScans = new CmdPairScans(oPairPanel.isRun(), wd);
     addConfig.accept(cmdPairScans, () -> {
       if (cmdPairScans.isRun()) {
         return cmdPairScans.configure(jarPath, ramGb, threads, sharedLcmsFiles, "HCD", "ETD");

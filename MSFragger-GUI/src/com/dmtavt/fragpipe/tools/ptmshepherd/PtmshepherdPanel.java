@@ -24,6 +24,8 @@ import com.dmtavt.fragpipe.messages.MessageLoadShepherdDefaults;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmShepherd;
 import com.dmtavt.fragpipe.tools.enums.MassTolUnits;
+import com.dmtavt.fragpipe.tools.msbooster.MSBoosterPanel;
+import com.dmtavt.fragpipe.tools.opair.OPairPanel;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
@@ -900,19 +902,21 @@ public class PtmshepherdPanel extends JPanelBase {
     this.setLayout(new MigLayout(new LC().fillX()));
     pTop = createPanelTop();
 
-    // 4 Sub-panels within main PTM-S panel: PTM-Profiling, Diagnostic Ion Discovery, Diagnostic Ion Exctraction and
-    // Glycan Assignment/FDR
+    // 5 Sub-panels within main PTM-S panel: PTM-Profiling, Diagnostic Ion Discovery, Diagnostic Ion Exctraction,
+    // Glycan Assignment/FDR, and O-Pair localization
     pContent = createPanelContent();
     pDiagnosticMining = createPanelDiagnosticMining();
     pGlycanAssignment = createpanelGlycanAssignment();
     pDiagnosticMining = createPanelDiagnosticMining();
     pDiagnosticExtraction = createPanelDiagnosticExtraction();
+    OPairPanel oPairPanel = new OPairPanel();
 
     mu.add(this, pTop).spanX().growX().wrap();
     mu.add(this, pContent).spanX().growX().wrap();
     mu.add(this, pDiagnosticMining).spanX().growX().wrap();
     mu.add(this, pDiagnosticExtraction).spanX().growX().wrap();
     mu.add(this, pGlycanAssignment).spanX().growX().wrap();
+    mu.add(this, oPairPanel).spanX().growX().wrap();
 
   }
 
