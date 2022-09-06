@@ -24,34 +24,7 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.IConfig;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.cmd.CmdBase;
-import com.dmtavt.fragpipe.cmd.CmdCheckCentroid;
-import com.dmtavt.fragpipe.cmd.CmdCrystalc;
-import com.dmtavt.fragpipe.cmd.CmdDiann;
-import com.dmtavt.fragpipe.cmd.CmdFreequant;
-import com.dmtavt.fragpipe.cmd.CmdIonquant;
-import com.dmtavt.fragpipe.cmd.CmdIprophet;
-import com.dmtavt.fragpipe.cmd.CmdLabelquant;
-import com.dmtavt.fragpipe.cmd.CmdMSBooster;
-import com.dmtavt.fragpipe.cmd.CmdMsfragger;
-import com.dmtavt.fragpipe.cmd.CmdPeptideProphet;
-import com.dmtavt.fragpipe.cmd.CmdPercolator;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherAbacus;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherDbAnnotate;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherFilter;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherReport;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherWorkspaceClean;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherWorkspaceCleanInit;
-import com.dmtavt.fragpipe.cmd.CmdProteinProphet;
-import com.dmtavt.fragpipe.cmd.CmdPtmProphet;
-import com.dmtavt.fragpipe.cmd.CmdPtmshepherd;
-import com.dmtavt.fragpipe.cmd.CmdSpecLibGen;
-import com.dmtavt.fragpipe.cmd.CmdStart;
-import com.dmtavt.fragpipe.cmd.CmdTmtIntegrator;
-import com.dmtavt.fragpipe.cmd.CmdUmpireSe;
-import com.dmtavt.fragpipe.cmd.PbiBuilder;
-import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
-import com.dmtavt.fragpipe.cmd.ProcessBuildersDescriptor;
+import com.dmtavt.fragpipe.cmd.*;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.internal.DefEdge;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
@@ -131,6 +104,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.checkerframework.checker.units.qual.C;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.ClosestFirstIterator;
@@ -977,6 +951,16 @@ public class FragpipeRun {
       return true;
     });
 
+    // make scan pair files
+    // todo: only if O-Pair requested, get activations from tab
+    CmdPairScans cmdPairScans = new CmdPairScans(true, wd);
+    addConfig.accept(cmdPairScans, () -> {
+      if (cmdPairScans.isRun()) {
+        return cmdPairScans.configure(jarPath, ramGb, threads, sharedLcmsFiles, "HCD", "ETD");
+      }
+      return true;
+    });
+
     // run DIA-Umpire SE
     final NoteConfigMsfragger configMsfragger;
     try {
@@ -1512,6 +1496,7 @@ public class FragpipeRun {
 
     addToGraph(graphOrder, cmdStart, DIRECTION.IN);
     addToGraph(graphOrder, cmdCheckCentroid, DIRECTION.IN, cmdStart);
+    addToGraph(graphOrder, cmdPairScans, DIRECTION.IN, cmdStart);
     addToGraph(graphOrder, cmdUmpire, DIRECTION.IN, cmdCheckCentroid);
     addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdUmpire);
 
