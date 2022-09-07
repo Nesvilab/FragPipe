@@ -251,7 +251,7 @@ void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startCl
                 outputDir = "launch4j/bin"
                 libraryDir = '../lib'
                 dontWrapJar = true
-                downloadUrl = 'https://adoptium.net/temurin/releases?version=11'
+                downloadUrl = 'https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html'
                 jreMinVersion = '1.9'
             }
         } else {
@@ -263,7 +263,7 @@ void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startCl
                 outputDir = "launch4j/bin"
                 libraryDir = '../lib'
                 dontWrapJar = true
-                downloadUrl = 'https://adoptium.net/temurin/releases?version=11'
+                downloadUrl = 'https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html'
                 bundledJrePath = "../jre"
                 bundledJre64Bit = true
                 bundledJreAsFallback = false
