@@ -109,9 +109,11 @@ public class TabRun extends JPanelWithEnablement {
   private JPanel pConsole;
   private UiCheck uiCheckWordWrap;
   private Process pdvProcess = null;
+  private TabDownstream tabDownstream;
 
-  public TabRun(TextConsole console) {
+  public TabRun(TextConsole console, TabDownstream tabDownstream) {
     this.console = console;
+    this.tabDownstream = tabDownstream;
     init();
     initMore();
   }
@@ -141,6 +143,8 @@ public class TabRun extends JPanelWithEnablement {
     btnStop.setEnabled(!btnRun.isEnabled());
     btnOpenPdv.setEnabled(m.isEnabled); // When Run button is gray, disable the PDV button. When Run button is not gray, also enable the PDV button.
     btnClosePdv.setEnabled(!btnOpenPdv.isEnabled());
+    tabDownstream.btnRun.setEnabled(m.isEnabled);
+    tabDownstream.btnStop.setEnabled(m.isEnabled);
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)

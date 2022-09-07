@@ -85,7 +85,7 @@ public class ProcessBuilderInfo {
             if (pbi.name.toLowerCase().contentEquals("peptideprophet")) {
               errStr = errStr.replaceAll("WARNING: CANNOT correct data file[^\r\n]+[\r\n]+", "").replaceAll("WARNING: cannot open data file[^\r\n]+[\r\n]+", "");
             }
-            Bus.post(new MessagePrintToConsole(Fragpipe.COLOR_RED_DARKEST, errStr, false));
+            Bus.post(new MessagePrintToConsole(null, errStr, false));
           }
           final byte[] pollOut = pr.pollStdOut();
           final String outStr = pr.appendOut(pollOut);

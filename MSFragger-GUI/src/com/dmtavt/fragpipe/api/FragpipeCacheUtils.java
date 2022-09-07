@@ -124,7 +124,6 @@ public class FragpipeCacheUtils {
       }
       m.put(k, v);
     });
-    SwingUtils.jfxControlNames.forEach((k, v) -> m.put(k, SwingUtils.valueGet(v)));
     return m;
   }
 
@@ -219,11 +218,6 @@ public class FragpipeCacheUtils {
 
   public static void tabsLoad(final Map<String, String> props, JTabbedPane tabs) {
     tabPaneFromMap(tabs, translateValuesToUi(props));
-    SwingUtils.jfxControlNames.forEach((k, v) -> {
-      final String s = props.get(k);
-      if (s != null)
-        SwingUtils.valueSet(v, s);
-    });
   }
 
 }
