@@ -57,6 +57,7 @@ import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
 import com.dmtavt.fragpipe.tools.msbooster.MSBoosterPanel;
 import com.dmtavt.fragpipe.tools.opair.OPairPanel;
+import com.dmtavt.fragpipe.tools.opair.OPairParams;
 import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
@@ -952,7 +953,7 @@ public class FragpipeRun {
       return true;
     });
 
-    // make scan pair files if O-Pair is run
+    // Run scan pairing - make scan pair files if O-Pair is run
     final OPairPanel oPairPanel = Fragpipe.getStickyStrict(OPairPanel.class);
     CmdPairScans cmdPairScans = new CmdPairScans(oPairPanel.isRun(), wd);
     addConfig.accept(cmdPairScans, () -> {
@@ -1423,6 +1424,16 @@ public class FragpipeRun {
       return true;
     });
 
+    // run O-Pair
+    CmdOPair cmdOPair = new CmdOPair(oPairPanel.isRun(), wd);
+    OPairParams oPairParams = oPairPanel.getOPairParams();
+    addConfig.accept(cmdOPair, () -> {
+      if (cmdOPair.isRun()) {
+        return cmdOPair.configure(parent, wd, sharedMapGroupsToProtxml, oPairParams);
+      }
+      return true;
+    });
+
 
     // run Spectral library generation
     final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
@@ -1518,6 +1529,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdTmtFreequant, DIRECTION.IN, cmdPhilosopherFilter);
     addToGraph(graphOrder, cmdTmtLabelQuant, DIRECTION.IN, cmdPhilosopherFilter, cmdTmtFreequant);
     addToGraph(graphOrder, cmdPhilosopherReport, DIRECTION.IN, cmdPhilosopherFilter, cmdFreequant, cmdTmtFreequant, cmdTmtLabelQuant);
+    addToGraph(graphOrder, cmdOPair, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus);
     addToGraph(graphOrder, cmdPtmshepherd, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus);
     addToGraph(graphOrder, cmdIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd);
     addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd);
