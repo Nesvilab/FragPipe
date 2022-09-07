@@ -101,6 +101,7 @@ public class TabRun extends JPanelWithEnablement {
   private UiText uiTextWorkdir;
   private UiCheck uiCheckDryRun;
   private JButton btnRun;
+  private JButton btnStop;
   private JButton btnOpenPdv;
   private JButton btnClosePdv;
   private Thread pdvThread = null;
@@ -137,8 +138,9 @@ public class TabRun extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void on(MessageRunButtonEnabled m) {
     btnRun.setEnabled(m.isEnabled);
+    btnStop.setEnabled(!btnRun.isEnabled());
     btnOpenPdv.setEnabled(m.isEnabled); // When Run button is gray, disable the PDV button. When Run button is not gray, also enable the PDV button.
-    btnClosePdv.setEnabled(false);
+    btnClosePdv.setEnabled(!btnOpenPdv.isEnabled());
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
@@ -198,7 +200,7 @@ public class TabRun extends JPanelWithEnablement {
     uiCheckDryRun = UiUtils.createUiCheck("Dry Run", false);
     btnRun = UiUtils.createButton("<html><b>RUN", e -> Bus.post(new MessageRun(isDryRun())));
 
-    JButton btnStop = UiUtils.createButton("Stop", e -> {
+    btnStop = UiUtils.createButton("Stop", e -> {
       Bus.post(new MessageKillAll(REASON.USER_ACTION));
       Path existing = PathUtils.existing(getWorkdirText());
       if (existing != null) {
