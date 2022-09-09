@@ -18,6 +18,7 @@
 package com.dmtavt.fragpipe.tabs;
 
 import static com.dmtavt.fragpipe.Fragpipe.fe;
+import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
@@ -37,7 +38,6 @@ import com.dmtavt.fragpipe.messages.MessageIonQuantUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerNewBin;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
-import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
 import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
@@ -71,6 +71,7 @@ import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
+import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import com.google.gson.Gson;
@@ -164,9 +165,10 @@ public class TabConfig extends JPanelWithEnablement {
 
   private static final Pattern msfraggerRegex = Pattern.compile("msfragger.*\\.jar", Pattern.CASE_INSENSITIVE);
   private static final Pattern ionquantRegex = Pattern.compile("ionquant.*\\.jar", Pattern.CASE_INSENSITIVE);
+  private final TextConsole console;
 
-
-  public TabConfig() {
+  public TabConfig(TextConsole console) {
+    this.console = console;
     init();
     initMore();
   }
@@ -1077,7 +1079,7 @@ public class TabConfig extends JPanelWithEnablement {
         ok = false;
       }
       SwingUtils.showInfoDialog(this, pythonPipOutputNew, "EasyPQP install " + (ok ? "success" : "fail"));
-      Bus.post(new MessagePrintToConsole(pythonPipOutputNew));
+      toConsole(pythonPipOutputNew, m.console);
       Bus.post(new MessageUiRevalidate(false, true));
     }
   }
@@ -1120,7 +1122,7 @@ public class TabConfig extends JPanelWithEnablement {
     epEasyPQPText.setToolTipText(SwingUtils.makeHtml("EasyPQP: Requires <b>Python 3</b> with package <b>EasyPQP</b> and <b>lxml</b>"));
     epEasyPQPText.setPreferredSize(dim);
 
-    final JButton btnInstallEasyPQP = UiUtils.createButton("Install/Upgrade EasyPQP", e -> Bus.post(new MessageInstallEasyPQP()));
+    final JButton btnInstallEasyPQP = UiUtils.createButton("Install/Upgrade EasyPQP", e -> Bus.post(new MessageInstallEasyPQP(console)));
 
     mu.add(p, epEasyPQPText).growX().wrap();
     mu.add(p, btnInstallEasyPQP).split().wrap();

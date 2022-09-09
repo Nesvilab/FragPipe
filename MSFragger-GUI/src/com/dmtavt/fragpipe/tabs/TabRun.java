@@ -96,7 +96,7 @@ public class TabRun extends JPanelWithEnablement {
   private static final String LAST_WORK_DIR = "workdir.last-path";
   private static final String PROP_FILECHOOSER_LAST_PATH = TAB_PREFIX + "filechooser.last-path";
   private static final String PDV_NAME = "/FP-PDV/FP-PDV-1.0.3.jar";
-  final TextConsole console;
+  public final TextConsole console;
   Color defTextColor;
   private UiText uiTextWorkdir;
   private UiCheck uiCheckDryRun;
@@ -155,11 +155,12 @@ public class TabRun extends JPanelWithEnablement {
         System.out.println();
       }
     }
-    console.append(m.color, m.text);
+
+    m.console.append(m.color, m.text);
     if (m.addNewline) {
-      console.append("\n");
+      m.console.append("\n");
     }
-    console.getParent().getParent().revalidate();
+    m.console.getParent().getParent().revalidate();
   }
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
@@ -205,7 +206,7 @@ public class TabRun extends JPanelWithEnablement {
     btnRun = UiUtils.createButton("<html><b>RUN", e -> Bus.post(new MessageRun(isDryRun())));
 
     btnStop = UiUtils.createButton("Stop", e -> {
-      Bus.post(new MessageKillAll(REASON.USER_ACTION));
+      Bus.post(new MessageKillAll(REASON.USER_ACTION, console));
       Path existing = PathUtils.existing(getWorkdirText());
       if (existing != null) {
         Bus.post(MessageSaveLog.saveInDir(existing));

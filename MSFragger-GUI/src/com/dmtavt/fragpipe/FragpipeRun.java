@@ -99,6 +99,7 @@ import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.TimeUtils;
 import com.github.chhh.utils.UsageTrigger;
+import com.github.chhh.utils.swing.TextConsole;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -266,12 +267,12 @@ public class FragpipeRun {
           .map(CmdBase::getBuilderDescriptor).toList();
 
       // =========================================================================================================
-      toConsole(OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo() + "\n");
-      toConsole("");
-      toConsole("Version info:\n" + createVersionsString());
-      toConsole("");
-      toConsole("LCMS files:\n" + createLcmsFilesString(lcmsFileGroups));
-      toConsole("");
+      toConsole(OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo() + "\n", tabRun.console);
+      toConsole("", tabRun.console);
+      toConsole("Version info:\n" + createVersionsString(), tabRun.console);
+      toConsole("", tabRun.console);
+      toConsole("LCMS files:\n" + createLcmsFilesString(lcmsFileGroups), tabRun.console);
+      toConsole("", tabRun.console);
 
       // Converting process builders descriptors to process builder infos
       final List<ProcessBuilderInfo> pbis = pbDescsBuilderDescs.stream()
@@ -288,68 +289,68 @@ public class FragpipeRun {
           }))
           .collect(Collectors.toList());
 
-      toConsole(String.format(Locale.ROOT, "%d commands to execute:", pbis.size()));
+      toConsole(String.format(Locale.ROOT, "%d commands to execute:", pbis.size()), tabRun.console);
       for (final ProcessBuilderInfo pbi : pbis) {
-        printProcessDescription(pbi);
+        printProcessDescription(pbi, tabRun.console);
       }
-      toConsole("~~~~~~~~~~~~~~~~~~~~~~");
-      toConsole("");
+      toConsole("~~~~~~~~~~~~~~~~~~~~~~", tabRun.console);
+      toConsole("", tabRun.console);
 
       // execution order
 //      String execOrder = Seq.seq(new TopologicalOrderIterator<>(dag)).map(o -> (CmdBase) o)
 //          .filter(CmdBase::isRun)
 //          .map(cmd -> String.format("Cmd: [%s], WorkDir: [%s]", cmd.getCmdName(), cmd.getWd()))
 //          .toString("\n    ");
-      toConsole("Execution order:\n");
+      toConsole("Execution order:\n", tabRun.console);
       Seq.seq(new TopologicalOrderIterator<>(dag))
           .filter(CmdBase::isRun)
           .forEach(cmd -> {
-            toConsole(Fragpipe.COLOR_TOOL, String.format("    Cmd: [%s], ", cmd.getCmdName()), false);
-            toConsole(Fragpipe.COLOR_WORKDIR, String.format("Work dir: [%s]", cmd.getWd()), true);
+            toConsole(Fragpipe.COLOR_TOOL, String.format("    Cmd: [%s], ", cmd.getCmdName()), false, tabRun.console);
+            toConsole(Fragpipe.COLOR_WORKDIR, String.format("Work dir: [%s]", cmd.getWd()), true, tabRun.console);
           });
 
-      toConsole("");
-      toConsole("~~~~~~~~~~~~~~~~~~~~~~");
+      toConsole("", tabRun.console);
+      toConsole("~~~~~~~~~~~~~~~~~~~~~~", tabRun.console);
 
       // Write top 20 lines of the fasta file to the console.
       final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
-      toConsole("");
-      toConsole("~~~~~~Sample of " + tabDatabase.getFastaPath() + "~~~~~~~");
+      toConsole("", tabRun.console);
+      toConsole("~~~~~~Sample of " + tabDatabase.getFastaPath() + "~~~~~~~", tabRun.console);
       try {
         List<String> proteinHeaders = Files.lines(Paths.get(tabDatabase.getFastaPath())).filter(e -> e.startsWith(">")).sorted().collect(Collectors.toList());
         int gap = proteinHeaders.size() < 21 ? 1 : (proteinHeaders.size() - 1) / 20;    // make sure gap is always at least 1 to prevent an infinite loop
         int idx = 0;
         while (idx < proteinHeaders.size()) {
-          toConsole(proteinHeaders.get(idx).trim());
+          toConsole(proteinHeaders.get(idx).trim(), tabRun.console);
           idx += gap;
         }
       } catch (Exception e) {
-        toConsole("Cannot get the sample of " + tabDatabase.getFastaPath());
-        toConsole(ExceptionUtils.getStackTrace(e));
+        toConsole("Cannot get the sample of " + tabDatabase.getFastaPath(), tabRun.console);
+        toConsole(ExceptionUtils.getStackTrace(e), tabRun.console);
       }
-      toConsole("~~~~~~~~~~~~~~~~~~~~~~");
-      toConsole("");
+      toConsole("~~~~~~~~~~~~~~~~~~~~~~", tabRun.console);
+      toConsole("", tabRun.console);
 
       // Write top annotation files to the console.
       TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
       if (tmtiPanel.isRun()) {
-        toConsole("~~~~~~annotation files~~~~~~~");
+        toConsole("~~~~~~annotation files~~~~~~~", tabRun.console);
         for (Path p : tmtiPanel.getAnnotations().values()) {
           try {
-            toConsole(p.toFile().getCanonicalPath() + ":");
-            Files.lines(p.toFile().getCanonicalFile().toPath()).forEach(e -> toConsole(e.trim()));
+            toConsole(p.toFile().getCanonicalPath() + ":", tabRun.console);
+            Files.lines(p.toFile().getCanonicalFile().toPath()).forEach(e -> toConsole(e.trim(), tabRun.console));
           } catch (Exception e) {
-            toConsole("Cannot read " + p.toAbsolutePath());
-            toConsole(ExceptionUtils.getStackTrace(e));
+            toConsole("Cannot read " + p.toAbsolutePath(), tabRun.console);
+            toConsole(ExceptionUtils.getStackTrace(e), tabRun.console);
           }
         }
-        toConsole("~~~~~~~~~~~~~~~~~~~~~~");
-        toConsole("");
+        toConsole("~~~~~~~~~~~~~~~~~~~~~~", tabRun.console);
+        toConsole("", tabRun.console);
       }
 
       if (isDryRun) {
-        toConsole(Fragpipe.COLOR_RED_DARKEST, "\nIt's a dry-run, not running the commands.\n", true);
-        printReference();
+        toConsole(Fragpipe.COLOR_RED_DARKEST, "\nIt's a dry-run, not running the commands.\n", true, tabRun.console);
+        printReference(tabRun.console);
         return 0;
       }
 
@@ -360,9 +361,9 @@ public class FragpipeRun {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       try {
         Fragpipe.propsUi().save(baos);
-        toConsole("~~~~~~~~~ fragpipe.config ~~~~~~~~~");
-        toConsole(baos.toString(Charsets.UTF_8.name()));
-        toConsole("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        toConsole("~~~~~~~~~ fragpipe.config ~~~~~~~~~", tabRun.console);
+        toConsole(baos.toString(Charsets.UTF_8.name()), tabRun.console);
+        toConsole("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", tabRun.console);
       } catch (IOException e) {
         log.error("Could not collect form text representation for printing to console");
       }
@@ -371,7 +372,7 @@ public class FragpipeRun {
       long startTime = System.nanoTime();
       final List<RunnableDescription> toRun = new ArrayList<>();
       for (final ProcessBuilderInfo pbi : pbis) {
-        Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, wd, FragpipeRun::printProcessDescription);
+        Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, wd, FragpipeRun::printProcessDescription, tabRun.console, false);
         ProcessDescription.Builder b = new ProcessDescription.Builder().setName(pbi.name);
         if (pbi.pb.directory() != null) {
           b.setWorkDir(pbi.pb.directory().toString());
@@ -384,9 +385,9 @@ public class FragpipeRun {
 
       // add finalizer process
       final Runnable finalizerRun = () -> {
-        printReference();
+        printReference(tabRun.console);
         String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
-        toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true);
+        toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true, tabRun.console);
         Bus.post(MessageSaveLog.saveInDir(wd));
 
         // save manifest file in both GUI and headless mode
@@ -410,34 +411,34 @@ public class FragpipeRun {
     return 0;
   }
 
-  private static void printReference() {
-    toConsole(Fragpipe.COLOR_RED_DARKEST, "\nPlease cite:", true);
-    toConsole(Fragpipe.COLOR_CMDLINE, "(Any searches) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics. Nat Methods 14:513 (2017)", true);
-    toConsole(Fragpipe.COLOR_CMDLINE, "(Any searches) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "Fast deisotoping algorithm and its implementation in the MSFragger search engine. J. Proteome Res. 20:498 (2021)", true);
-    toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "Identification of modified peptides using localization-aware open search. Nat Commun. 11:4065 (2020)", true);
-    toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "Crystal-C: A Computational Tool for Refinement of Open Search Results. J. Proteome Res. 19.6:2511 (2020)", true);
-    toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "PTM-Shepherd: analysis and summarization of post-translational and chemical modifications from open search results. Mol Cell Proteomics 20:100018 (2020)", true);
-    toConsole(Fragpipe.COLOR_CMDLINE, "(Glyco/labile search) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "Fast and comprehensive N- and O-glycoproteomics analysis with MSFragger-Glyco. Nat Methods 17:1125 (2020)", true);
-    toConsole(Fragpipe.COLOR_CMDLINE, "(timsTOF PASEF) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "Fast quantitative analysis of timsTOF PASEF data with MSFragger and IonQuant. Mol Cell Proteomics 19:1575 (2020)", true);
-    toConsole(Fragpipe.COLOR_CMDLINE, "(PSM validation with Percolator) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "Semi-supervised learning for peptide identification from shotgun proteomics datasets. Nat Methods 4:923 (2007)", true);
-    toConsole(Fragpipe.COLOR_CMDLINE, "(Label-free quantification/SILAC) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "IonQuant Enables Accurate and Sensitive Label-Free Quantification With FDR-Controlled Match-Between-Runs. Mol Cell Proteomics 20:100077 (2021)", true);
-    toConsole(Fragpipe.COLOR_CMDLINE, "(PeptideProphet/ProteinProphet/PTMProphet/Filtering) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "Philosopher: a versatile toolkit for shotgun proteomics data analysis. Nat Methods 17:869 (2020)", true);
-    toConsole(Fragpipe.COLOR_CMDLINE, "(TMT-Integrator) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "Quantitative proteomic landscape of metaplastic breast carcinoma pathological subtypes and their relationship to triple-negative tumors. Nat Commun. 11:1723 (2020)", true);
-    toConsole(Fragpipe.COLOR_CMDLINE, "(DIA-Umpire) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics. Nat Methods 12:258 (2015)", true);
-    toConsole(Fragpipe.COLOR_CMDLINE, "(DIA-NN) ", false);
-    toConsole(Fragpipe.COLOR_BLACK, "dia-PASEF data analysis using FragPipe and DIA-NN for deep proteomics of low sample amounts. Nat Commun. 13:3944 (2022)", true);
+  private static void printReference(TextConsole console) {
+    toConsole(Fragpipe.COLOR_RED_DARKEST, "\nPlease cite:", true, console);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Any searches) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics. Nat Methods 14:513 (2017)", true, console);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Any searches) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "Fast deisotoping algorithm and its implementation in the MSFragger search engine. J. Proteome Res. 20:498 (2021)", true, console);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "Identification of modified peptides using localization-aware open search. Nat Commun. 11:4065 (2020)", true, console);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "Crystal-C: A Computational Tool for Refinement of Open Search Results. J. Proteome Res. 19.6:2511 (2020)", true, console);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "PTM-Shepherd: analysis and summarization of post-translational and chemical modifications from open search results. Mol Cell Proteomics 20:100018 (2020)", true, console);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Glyco/labile search) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "Fast and comprehensive N- and O-glycoproteomics analysis with MSFragger-Glyco. Nat Methods 17:1125 (2020)", true, console);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(timsTOF PASEF) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "Fast quantitative analysis of timsTOF PASEF data with MSFragger and IonQuant. Mol Cell Proteomics 19:1575 (2020)", true, console);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(PSM validation with Percolator) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "Semi-supervised learning for peptide identification from shotgun proteomics datasets. Nat Methods 4:923 (2007)", true, console);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Label-free quantification/SILAC) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "IonQuant Enables Accurate and Sensitive Label-Free Quantification With FDR-Controlled Match-Between-Runs. Mol Cell Proteomics 20:100077 (2021)", true, console);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(PeptideProphet/ProteinProphet/PTMProphet/Filtering) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "Philosopher: a versatile toolkit for shotgun proteomics data analysis. Nat Methods 17:869 (2020)", true, console);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(TMT-Integrator) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "Quantitative proteomic landscape of metaplastic breast carcinoma pathological subtypes and their relationship to triple-negative tumors. Nat Commun. 11:1723 (2020)", true, console);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(DIA-Umpire) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics. Nat Methods 12:258 (2015)", true, console);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(DIA-NN) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "dia-PASEF data analysis using FragPipe and DIA-NN for deep proteomics of low sample amounts. Nat Commun. 13:3944 (2022)", true, console);
   }
 
 
@@ -656,18 +657,18 @@ public class FragpipeRun {
     return sb.toString();
   }
 
-  public static void printProcessDescription(ProcessBuilderInfo pbi) {
+  public static void printProcessDescription(ProcessBuilderInfo pbi, TextConsole console) {
     if (!StringUtils.isNullOrWhitespace(pbi.name)) {
-      toConsole(Fragpipe.COLOR_TOOL, pbi.name, false);
+      toConsole(Fragpipe.COLOR_TOOL, pbi.name, false, console);
     }
     if (pbi.pb.directory() != null) {
-      toConsole(Fragpipe.COLOR_WORKDIR, " [Work dir: " + pbi.pb.directory() + "]", false);
+      toConsole(Fragpipe.COLOR_WORKDIR, " [Work dir: " + pbi.pb.directory() + "]", false, console);
     }
-    toConsole("", true);
+    toConsole("", true, console);
     final String cmd = pbi.pb.command().stream()
             .map(e -> OsUtils.isUnix() && Pattern.matches(".*\\s.*", e) ? "\"" + e + "\"" : e) // insert quotes for arguments with whitespace
             .collect(Collectors.joining(" "));
-    toConsole(Fragpipe.COLOR_CMDLINE, cmd, true);
+    toConsole(Fragpipe.COLOR_CMDLINE, cmd, true, console);
   }
 
   private static enum DIRECTION {IN, OUT, BOTH}

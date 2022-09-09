@@ -17,24 +17,28 @@
 
 package com.dmtavt.fragpipe.messages;
 
+import com.github.chhh.utils.swing.TextConsole;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
 public class MessageKillAll {
 
-  public MessageKillAll(REASON reason, List<Path> pathsToDelete) {
+  public MessageKillAll(REASON reason, List<Path> pathsToDelete, TextConsole console) {
     this.reason = reason;
     this.pathsToDelete = pathsToDelete;
+    this.console = console;
   }
 
-  public MessageKillAll(REASON reason) {
+  public MessageKillAll(REASON reason, TextConsole console) {
     this.reason = reason;
     this.pathsToDelete = Collections.emptyList();
+    this.console = console;
   }
 
   public enum REASON {NO_REASON, CANT_START_PROCESS, NON_ZERO_RETURN_FROM_PROCESS, USER_ACTION}
 
   public final REASON reason;
   public final List<Path> pathsToDelete;
+  public final TextConsole console;
 }

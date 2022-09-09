@@ -17,20 +17,22 @@
 
 package com.dmtavt.fragpipe.cmd;
 
+import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageKillAll;
 import com.dmtavt.fragpipe.messages.MessageKillAll.REASON;
 import com.dmtavt.fragpipe.messages.MessageManifestSave;
-import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.process.ProcessResult;
 import com.github.chhh.utils.TimeUtils;
+import com.github.chhh.utils.swing.TextConsole;
 import java.awt.Color;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Locale;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,20 +55,20 @@ public class ProcessBuilderInfo {
     this.parallelGroup = parallelGroup;
   }
 
-  public static Runnable toRunnable(final ProcessBuilderInfo pbi, final Path wdPath, Consumer<ProcessBuilderInfo> pbiPrinter) {
+  public static Runnable toRunnable(final ProcessBuilderInfo pbi, final Path wdPath, BiConsumer<ProcessBuilderInfo, TextConsole> pbiPrinter, TextConsole console, boolean isDownstream) {
     return () -> {
       final ProcessResult pr = new ProcessResult(pbi);
       Process started = null;
       try {
         log.debug("Starting: {}", pbi.name);
         if (pbiPrinter != null) {
-          pbiPrinter.accept(pbi);
+          pbiPrinter.accept(pbi, console);
         }
         started = pr.start();
         log.debug("Started: {}", pbi.name);
       } catch (IOException e) {
         log.error("Error while starting process: " + pbi.name + ", stopping", e);
-        Bus.post(new MessageKillAll(REASON.CANT_START_PROCESS));
+        Bus.post(new MessageKillAll(REASON.CANT_START_PROCESS, console));
 
         if (Fragpipe.headless) {
           System.exit(1);
@@ -85,12 +87,12 @@ public class ProcessBuilderInfo {
             if (pbi.name.toLowerCase().contentEquals("peptideprophet")) {
               errStr = errStr.replaceAll("WARNING: CANNOT correct data file[^\r\n]+[\r\n]+", "").replaceAll("WARNING: cannot open data file[^\r\n]+[\r\n]+", "");
             }
-            Bus.post(new MessagePrintToConsole(null, errStr, false));
+            toConsole(null, errStr, false, console);
           }
           final byte[] pollOut = pr.pollStdOut();
           final String outStr = pr.appendOut(pollOut);
           if (outStr != null) {
-            Bus.post(new MessagePrintToConsole(null, outStr, false));
+            toConsole(null, outStr, false, console);
           }
           if (started.isAlive()) {
             continue;
@@ -102,11 +104,11 @@ public class ProcessBuilderInfo {
             log.debug("Exit value '{}': {}", exitValue, pbi.name);
             Color c = exitValue == 0 ? Fragpipe.COLOR_GREEN_DARKER : Fragpipe.COLOR_RED;
             String msg = String.format(Locale.ROOT, "Process '%s' finished, exit code: %d\n", pbi.name, exitValue);
-            Bus.post(new MessagePrintToConsole(c, msg, false));
+            toConsole(c, msg, false, console);
             if (exitValue != 0) {
               log.debug("Exit value not zero, killing all processes");
-              Bus.post(new MessagePrintToConsole(Fragpipe.COLOR_RED, "Process returned non-zero exit code, stopping", true));
-              Bus.post(new MessageKillAll(REASON.NON_ZERO_RETURN_FROM_PROCESS));
+              toConsole(Fragpipe.COLOR_RED, "Process returned non-zero exit code, stopping", true, console);
+              Bus.post(new MessageKillAll(REASON.NON_ZERO_RETURN_FROM_PROCESS, console));
               Bus.post(MessageSaveLog.saveInDir(wdPath));
 
               // save manifest file in both GUI and headless mode
@@ -130,7 +132,7 @@ public class ProcessBuilderInfo {
         // graceful stop request
         String msg = "Processing interrupted, stopping " + pbi.name;
         log.debug(msg, e);
-        Bus.post(new MessagePrintToConsole(Fragpipe.COLOR_RED_DARKEST, msg, true));
+        toConsole(Fragpipe.COLOR_RED_DARKEST, msg, true, console);
         // all the cleanup is done in the finally block
       } finally {
         // in the end whatever happens always try to kill the process

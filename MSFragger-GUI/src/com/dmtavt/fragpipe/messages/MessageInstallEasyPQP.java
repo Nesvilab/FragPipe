@@ -17,5 +17,13 @@
 
 package com.dmtavt.fragpipe.messages;
 
+import com.github.chhh.utils.swing.TextConsole;
+
 public class MessageInstallEasyPQP {
+
+  public final TextConsole console;
+
+  public MessageInstallEasyPQP(TextConsole console) {
+    this.console = console;
+  }
 }

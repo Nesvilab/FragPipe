@@ -587,7 +587,7 @@ public class Fragpipe extends JFrameHeadless {
     Consumer<UiTab> addTab = tab -> t.addTab(tab.getTitle(), tab.getIcon(), SwingUtils.wrapInScroll(tab.getComponent()), tab.getTooltip());
     Consumer<UiTab> addTabNoScroll = tab -> t.addTab(tab.getTitle(), tab.getIcon(), tab.getComponent(), tab.getTooltip());
 
-    TabConfig tabConfig = new TabConfig();
+    TabConfig tabConfig = new TabConfig(console);
     TabWorkflow tabWorkflow = new TabWorkflow();
     TabUmpire tabUmpire = new TabUmpire();
     TabDatabase tabDatabase = new TabDatabase();

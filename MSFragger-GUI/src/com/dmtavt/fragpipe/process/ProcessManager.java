@@ -17,12 +17,13 @@
 
 package com.dmtavt.fragpipe.process;
 
+import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
 import com.dmtavt.fragpipe.messages.MessageDeletePaths;
 import com.dmtavt.fragpipe.messages.MessageKillAll;
-import com.dmtavt.fragpipe.messages.MessagePrintToConsole;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
 import com.dmtavt.fragpipe.messages.MessageStartProcesses;
 import com.github.chhh.utils.FileDelete;
@@ -306,7 +307,7 @@ public class ProcessManager {
   public void on(MessageKillAll m) {
     long notStarted = taskGroups.stream().mapToInt(List::size).sum();
     String msg = String.format("\n~~~~~~~~~~~~~~~~~~~~\nCancelling %d remaining tasks", notStarted);
-    Bus.post(new MessagePrintToConsole(Fragpipe.COLOR_RED_DARKEST, msg, true));
+    toConsole(Fragpipe.COLOR_RED_DARKEST, msg, true, m.console);
 
     try {
       stop();
