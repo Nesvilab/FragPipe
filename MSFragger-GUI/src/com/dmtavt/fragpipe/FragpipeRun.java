@@ -782,8 +782,14 @@ public class FragpipeRun {
       sharedLcmsFiles.clear();
       sharedLcmsFiles.addAll(Seq.seq(sharedLcmsFileGroups.values()).flatMap(group -> group.lcmsFiles.stream()).toList());
       if (sharedLcmsFiles.isEmpty()) {
-        SwingUtils.showErrorDialog(parent, "No LCMS files provided after excluding diaPASEF runs.", "Add LCMS files");
-        return false;
+        DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
+        if (!diannPanel.isRunDiann()) {
+          SwingUtils.showErrorDialog(parent, "There are only DIA-Quant or diaPASEF runs, but the DIA-NN quant was not enabled.", "Add LCMS files");
+          return false;
+        } else if (diannPanel.getLibraryPath().isEmpty()) {
+          SwingUtils.showErrorDialog(parent, "There are only DIA-Quant or diaPASEF runs, but there is no spectral library provided to the DIA-NN quant.", "Add LCMS files");
+          return false;
+        }
       }
 
       return true;

@@ -233,7 +233,7 @@ public class DiannPanel extends JPanelBase {
   }
 
   public String getLibraryPath() {
-    return uiTextLibrary.getNonGhostText();
+    return uiTextLibrary.getNonGhostText().trim();
   }
 
   public String getCmdOpts() {
