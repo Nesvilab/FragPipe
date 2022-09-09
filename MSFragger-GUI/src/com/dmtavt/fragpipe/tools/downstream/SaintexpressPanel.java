@@ -105,7 +105,7 @@ public class SaintexpressPanel extends JPanelBase {
 
 
     mu.add(p, feMaxReplicates.label(), mu.ccL());
-    mu.add(p, feMaxReplicates.comp).wrap();
+    mu.add(p, feMaxReplicates.comp).split(3);
     mu.add(p, feVirtualControls.label(), mu.ccL());
     mu.add(p, feVirtualControls.comp).wrap();
     mu.add(p, feCmdOpts.label(), mu.ccL());
