@@ -144,7 +144,6 @@ public class TabRun extends JPanelWithEnablement {
     btnOpenPdv.setEnabled(m.isEnabled); // When Run button is gray, disable the PDV button. When Run button is not gray, also enable the PDV button.
     btnClosePdv.setEnabled(!btnOpenPdv.isEnabled());
     tabDownstream.btnRun.setEnabled(m.isEnabled);
-    tabDownstream.btnStop.setEnabled(m.isEnabled);
   }
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)

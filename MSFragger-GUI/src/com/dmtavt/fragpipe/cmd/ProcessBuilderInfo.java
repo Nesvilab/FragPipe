@@ -111,9 +111,11 @@ public class ProcessBuilderInfo {
               Bus.post(new MessageKillAll(REASON.NON_ZERO_RETURN_FROM_PROCESS, console));
               Bus.post(MessageSaveLog.saveInDir(wdPath));
 
-              // save manifest file in both GUI and headless mode
-              Path path = wdPath.resolve("lcms-files_" + TimeUtils.dateTimeNoSpaces() + ".fp-manifest");
-              Bus.post(new MessageManifestSave(path));
+              if (!isDownstream) {
+                // save manifest file in both GUI and headless mode
+                Path path = wdPath.resolve("lcms-files_" + TimeUtils.dateTimeNoSpaces() + ".fp-manifest");
+                Bus.post(new MessageManifestSave(path));
+              }
 
               if (Fragpipe.headless) {
                 System.exit(1);

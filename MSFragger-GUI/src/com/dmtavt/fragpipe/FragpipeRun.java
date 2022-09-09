@@ -635,7 +635,7 @@ public class FragpipeRun {
     return existing.toString();
   }
 
-  private static String createVersionsString() {
+  public static String createVersionsString() {
     StringBuilder sb = new StringBuilder();
     sb.append(Version.PROGRAM_TITLE).append(" version ").append(Version.version()).append("\n");
     sb.append("MSFragger version ")

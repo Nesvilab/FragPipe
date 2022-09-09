@@ -17,9 +17,23 @@
 
 package com.dmtavt.fragpipe.tabs;
 
+import static com.dmtavt.fragpipe.FragpipeRun.createVersionsString;
+import static com.dmtavt.fragpipe.FragpipeRun.printProcessDescription;
+import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
+
 import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.FragpipeRun;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.cmd.CmdSaintExpress;
+import com.dmtavt.fragpipe.cmd.PbiBuilder;
+import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
+import com.dmtavt.fragpipe.cmd.ProcessBuildersDescriptor;
+import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
+import com.dmtavt.fragpipe.messages.MessageRunDownstream;
+import com.dmtavt.fragpipe.messages.MessageStartProcesses;
+import com.dmtavt.fragpipe.process.ProcessDescription;
+import com.dmtavt.fragpipe.process.ProcessDescription.Builder;
+import com.dmtavt.fragpipe.process.RunnableDescription;
 import com.dmtavt.fragpipe.tools.downstream.SaintexpressPanel;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -32,31 +46,27 @@ import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
+import java.util.stream.Collectors;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TabDownstream extends JPanelWithEnablement {
 
   private static final Logger log = LoggerFactory.getLogger(TabDownstream.class);
-  public static final String SAINT_EXPRESS_SPECTRAL_COUNTS = "SAINTexpress/SAINTexpress-spc" + (OsUtils.isUnix() ? "" : ".exe");
-  public static final String SAINT_EXPRESS_INTENSITY = "SAINTexpress/SAINTexpress-int" + (OsUtils.isUnix() ? "" : ".exe");
 
-  private enum Mode {
+  public enum Mode {
     SPECTRAL_COUNT("spc"),
     INTENSITY("int");
     private final String name;
@@ -77,12 +87,10 @@ public class TabDownstream extends JPanelWithEnablement {
   Color defTextColor;
   private UiCheck uiCheckDryRun;
   public JButton btnRun;
-  public JButton btnStop;
   private SaintexpressPanel pSaintExpress;
   private JPanel pBottom;
   private JPanel pConsole;
   private UiCheck uiCheckWordWrap;
-  private Process saintExpressProcess;
 
   public TabDownstream() {
     this.console = createConsole();
@@ -99,172 +107,113 @@ public class TabDownstream extends JPanelWithEnablement {
     console.setText("");
   }
 
-  private void toConsole(Color color, String text, boolean addNewline) {
-    if (Fragpipe.headless) {
-      System.out.print(text);
-      if (addNewline) {
-        System.out.println();
+  private int runSaintExpress(MessageRunDownstream m) {
+    boolean runConfigurationDone = false;
+    try {
+      Bus.post(new MessageRunButtonEnabled(false));
+
+      if (!m.runSaintExpress) {
+        return 0;
       }
-    }
-    console.append(color, text);
-    if (addNewline) {
-      console.append("\n");
-    }
-    console.getParent().getParent().revalidate();
-  }
 
-  private int runSaintExpress() {
-    if (!pSaintExpress.isRunSaintexpress()) {
-      return 0;
-    }
-
-    final TabRun tabRun = Bus.getStickyEvent(TabRun.class);
-    if (tabRun.getWorkdirText().isEmpty()) {
-      toConsole(Fragpipe.COLOR_RED_DARKEST, "Directory " + tabRun.getWorkdirText() + " is empty.", true);
-      return 1;
-    }
-
-    Path wd = Paths.get(tabRun.getWorkdirText());
-    if (!Files.exists(wd) || !Files.isReadable(wd) || !Files.isDirectory(wd)) {
-      toConsole(Fragpipe.COLOR_RED_DARKEST, "Directory " + wd.toAbsolutePath() + " is not accessible.", true);
-      return 1;
-    }
-
-    for (Mode mode : Mode.values()) {
-      final Path inputPath = wd.resolve("reprint." + mode + ".tsv");
-
-      if (!Files.exists(inputPath) || !Files.isReadable(inputPath) || !Files.isRegularFile(inputPath)) {
-        toConsole(Fragpipe.COLOR_RED_DARKEST, "Input file " + inputPath.toAbsolutePath() + " is not accessible.", true);
+      final TabRun tabRun = Bus.getStickyEvent(TabRun.class);
+      if (tabRun.getWorkdirText().isEmpty()) {
+        if (Fragpipe.headless) {
+          log.error("Directory " + tabRun.getWorkdirText() + " is empty.");
+        } else {
+          JOptionPane.showMessageDialog(this, "Directory " + tabRun.getWorkdirText() + " is empty.", TAB_PREFIX + " error", JOptionPane.ERROR_MESSAGE);
+        }
         return 1;
       }
 
-      final Path outPath = wd.resolve("saintexpress-" + mode);
-      reprintTsvToSaintInput(inputPath, outPath);
-      final Path bin = FragpipeLocations.get().getDirTools().resolve(Map.of(Mode.SPECTRAL_COUNT, SAINT_EXPRESS_SPECTRAL_COUNTS, Mode.INTENSITY, SAINT_EXPRESS_INTENSITY).get(mode));
-      try {
-        List<String> command = new ArrayList<>(List.of(bin.toString(), "-L" + pSaintExpress.getMaxReplicates(), "-R" + pSaintExpress.getVirtualControls()));
-        if (!pSaintExpress.getCmdOpts().isEmpty()) {
-          command.add(pSaintExpress.getCmdOpts());
-        }
-        final ProcessBuilder pb = new ProcessBuilder().command(command).redirectErrorStream(true).directory(outPath.toFile());
+      Path wd = Paths.get(tabRun.getWorkdirText());
 
-        toConsole(Fragpipe.COLOR_TOOL, bin.getFileName().toString(), false);
-        toConsole(Fragpipe.COLOR_WORKDIR, " [Work dir: " + pb.directory() + "]", true);
-        toConsole(Fragpipe.COLOR_CMDLINE, String.join(" ", pb.command()), true);
-
-        if (!isDryRun()) {
-          saintExpressProcess = pb.start();
-          toConsole(null, new String(saintExpressProcess.getInputStream().readAllBytes()), true);
-          saintExpressProcess.waitFor();
-          Thread.sleep(5);
+      // prepare the processes
+      List<ProcessBuildersDescriptor> pbDescsBuilderDescs = new ArrayList<>(1);
+      for (Mode mode : Mode.values()) {
+        CmdSaintExpress cmdSaintExpress = new CmdSaintExpress(true, wd);
+        if (cmdSaintExpress.configure(this, mode, m.maxReplicates, m.virtualControls, m.cmdOpts)) {
+          ProcessBuildersDescriptor processBuildersDescriptor = cmdSaintExpress.getBuilderDescriptor();
+          processBuildersDescriptor.setParallelGroup(mode.toString());
+          pbDescsBuilderDescs.add(processBuildersDescriptor);
         }
-      } catch (Exception e) {
-        throw new RuntimeException(e);
+      }
+
+      toConsole(OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo() + "\n", console);
+      toConsole("", console);
+      toConsole("Version info:\n" + createVersionsString(), console);
+      toConsole("", console);
+
+      final List<ProcessBuilderInfo> pbis = pbDescsBuilderDescs.stream().flatMap(pbd -> pbd.pbis.stream().map(pbi -> {
+        PbiBuilder b = new PbiBuilder();
+        b.setPb(pbi.pb);
+        b.setName(pbi.name != null ? pbi.name : pbd.name);
+        b.setFnStdOut(pbi.fnStdout != null ? pbi.fnStdout : pbd.fnStdout);
+        b.setFnStdErr(pbi.fnStderr != null ? pbi.fnStderr : pbd.fnStderr);
+        b.setParallelGroup(pbi.parallelGroup != null ? pbi.parallelGroup : pbd.getParallelGroup());
+        return b.create();
+      })).collect(Collectors.toList());
+
+      toConsole(String.format(Locale.ROOT, "%d commands to execute:", pbis.size()), console);
+      for (final ProcessBuilderInfo pbi : pbis) {
+        printProcessDescription(pbi, console);
+      }
+      toConsole("~~~~~~~~~~~~~~~~~~~~~~", console);
+      toConsole("", console);
+
+      if (m.isDryRun) {
+        toConsole(Fragpipe.COLOR_RED_DARKEST, "\nIt's a dry-run, not running the commands.\n", true, console);
+        printReference();
+        return 0;
+      }
+
+      // run everything
+      long startTime = System.nanoTime();
+      final List<RunnableDescription> toRun = new ArrayList<>();
+      for (final ProcessBuilderInfo pbi : pbis) {
+        Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, wd, FragpipeRun::printProcessDescription, console, true);
+        ProcessDescription.Builder b = new ProcessDescription.Builder().setName(pbi.name);
+        if (pbi.pb.directory() != null) {
+          b.setWorkDir(pbi.pb.directory().toString());
+        }
+        if (pbi.pb.command() != null && !pbi.pb.command().isEmpty()) {
+          b.setCommand(String.join(" ", pbi.pb.command()));
+        }
+        toRun.add(new RunnableDescription(b.create(), runnable, pbi.parallelGroup, pbi));
+      }
+
+      // add finalizer process
+      final Runnable finalizerRun = () -> {
+        String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
+        toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true, console);
+
+        Bus.post(new MessageRunButtonEnabled(true));
+      };
+      toRun.add(new RunnableDescription(new Builder().setName("Finalizer Task").create(), finalizerRun));
+
+      Bus.post(new MessageStartProcesses(toRun));
+
+      runConfigurationDone = true;
+    } catch (Exception ex) {
+      toConsole(Fragpipe.COLOR_RED_DARKEST, ex.getMessage(), true, console);
+      return 1;
+    } finally {
+      if (!runConfigurationDone) {
+        Bus.post(new MessageRunButtonEnabled(true));
       }
     }
-
-    toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE=============================================================", true);
-
-    if (isDryRun()) {
-      toConsole(Fragpipe.COLOR_RED_DARKEST, "\nIt's a dry-run, not running the commands.\n", true);
-    }
-
-    toConsole(Fragpipe.COLOR_RED_DARKEST, "\nPlease cite:", true);
-    toConsole(Fragpipe.COLOR_BLACK, "Teo, G., et al. SAINTexpress: improvements and additional features in Significance Analysis of INTeractome software. J Proteomics, 100:37 (2014)", true);
 
     return 0;
   }
 
-  public static void reprintTsvToSaintInput(final Path inputPath, final Path outPath) {
-    final ArrayList<String> inter_dat = new ArrayList<>();
-    final ArrayList<String> bait_dat = new ArrayList<>();
-    final ArrayList<String> prey_dat = new ArrayList<>();
-    try (final BufferedReader br = Files.newBufferedReader(inputPath)) {
-      final String[] first_row = br.readLine().split("\t");
-      final boolean has_protlen = first_row[2].equalsIgnoreCase("PROTLEN");
-      final boolean has_geneid = first_row[1].equalsIgnoreCase("GENEID");
-      final int column_offset = has_protlen ? 3 : has_geneid ? 2 : 1;
-      final String[] IP = new String[first_row.length - column_offset];
-      for (int i = 0; i < IP.length; i++) {
-        final String s = first_row[i + column_offset];
-        if (!(s.endsWith("_INT") || s.endsWith("_SPC"))) {
-          throw new AssertionError(s);
-        }
-        IP[i] = s.substring(0, s.length() - 4);
-      }
-      final String[] bait_names = new String[IP.length];
-      final String[] second_row = br.readLine().split("\t");
-      for (int i = 0; i < IP.length; i++) {
-        final String s = second_row[i + column_offset];
-        bait_names[i] = s.equals("CONTROL") ? IP[i] : s;
-      }
-      for (int i = 0; i < IP.length; ++i) {
-        bait_dat.add(IP[i] + "\t" + bait_names[i] + "\t" + (bait_names[i].startsWith("CONTROL") ? "C" : "T"));
-      }
-      String line;
-      while ((line = br.readLine()) != null) {
-        final String[] ls = line.split("\t");
-        final String prey = ls[0];
-        prey_dat.add(ls[0] + "\t" + (has_protlen ? ls[2] : -1) + "\t" + (has_geneid ? ls[1] : ls[0]));
-        for (int i = 0; i < IP.length; ++i) {
-          final String e = ls[i + column_offset];
-          if (Double.parseDouble(e) != 0) {
-            inter_dat.add(IP[i] + "\t" + bait_names[i] + "\t" + prey + "\t" + e);
-          }
-        }
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
-    try {
-      Files.createDirectories(outPath);
-    } catch (FileAlreadyExistsException ignore) {
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-    try (final BufferedWriter bw = Files.newBufferedWriter(outPath.resolve("inter.dat"))) {
-      for (String e : inter_dat) {
-        bw.write(e + "\n");
-      }
-      bw.write('\n');
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-    try (final BufferedWriter bw = Files.newBufferedWriter(outPath.resolve("bait.dat"))) {
-      for (String e : bait_dat) {
-        bw.write(e + "\n");
-      }
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-    try (final BufferedWriter bw = Files.newBufferedWriter(outPath.resolve("prey.dat"))) {
-      for (String e : prey_dat) {
-        bw.write(e + "\n");
-      }
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
-  private void killSaintExpress() {
-    if (saintExpressProcess != null) {
-      saintExpressProcess.destroyForcibly();
-    }
-    btnRun.setEnabled(true);
-    btnStop.setEnabled(false);
+  private void printReference() {
+    toConsole(Fragpipe.COLOR_RED_DARKEST, "\nPlease cite:", true, console);
+    toConsole(Fragpipe.COLOR_BLACK, "Teo, G., et al. SAINTexpress: improvements and additional features in Significance Analysis of INTeractome software. J Proteomics, 100:37 (2014)", true, console);
   }
 
   private JPanel createPanelBottom(TextConsole console) {
     uiCheckDryRun = UiUtils.createUiCheck("Dry Run", false);
-    btnRun = UiUtils.createButton("Run", e -> {
-      btnRun.setEnabled(false);
-      btnStop.setEnabled(true);
-      runSaintExpress();
-      btnRun.setEnabled(true);
-      btnStop.setEnabled(false);
-    });
-    btnStop = UiUtils.createButton("Stop", e -> killSaintExpress());
+    btnRun = UiUtils.createButton("Run", e -> Bus.post(new MessageRunDownstream(isDryRun(), pSaintExpress.isRunSaintexpress(), pSaintExpress.getMaxReplicates(), pSaintExpress.getVirtualControls(), pSaintExpress.getCmdOpts())));
 
     JButton btnClearConsole = UiUtils.createButton("Clear Console", e -> clearConsole());
     uiCheckWordWrap = UiUtils.createUiCheck("Word wrap", console.getScrollableTracksViewportWidth(), e -> {
@@ -275,12 +224,19 @@ public class TabDownstream extends JPanelWithEnablement {
 
     JPanel p = mu.newPanel(null, true);
     mu.add(p, btnRun).split(5);
-    mu.add(p, btnStop);
     mu.add(p, uiCheckDryRun);
     mu.add(p, btnClearConsole);
     mu.add(p, uiCheckWordWrap).wrap();
 
     return p;
+  }
+
+  @Subscribe(threadMode = ThreadMode.ASYNC)
+  public void on(MessageRunDownstream m) {
+    int returnCode =  runSaintExpress(m);
+    if (Fragpipe.headless && returnCode != 0) {
+      System.exit(returnCode);
+    }
   }
 
   public boolean isDryRun() {
