@@ -42,6 +42,7 @@ import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_SN;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_Thread;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_WindowSize;
 import static com.dmtavt.fragpipe.tools.umpire.UmpireParams.PROP_WindowType;
+import static com.github.chhh.utils.SwingUtils.isEnabledAndChecked;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
@@ -115,6 +116,9 @@ public class UmpirePanel extends JPanelBase {
   private ImageIcon icon;
   private UiCombo uiComboLoadDefaultsNames;
   private String customParamsPath = null;
+  private FormEntry feQ1;
+  private FormEntry feQ2;
+  private FormEntry feQ3;
 
   private final List<String> paramNames = Arrays.asList(
       PROP_RPmax,
@@ -147,7 +151,7 @@ public class UmpirePanel extends JPanelBase {
   }
 
   public boolean isRunUmpire() {
-    return SwingUtils.isEnabledAndChecked(checkRunUmpireSe);
+    return isEnabledAndChecked(checkRunUmpireSe);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
@@ -229,9 +233,9 @@ public class UmpirePanel extends JPanelBase {
     FormEntry feMassDefectFilter = new FormEntry(PROP_MassDefectFilter, "Mass Defect Filter", new JCheckBox(), PREFIX);
     FormEntry feMassDefectOffset = new FormEntry(PROP_MassDefectOffset, "Mass Defect Offset", new JFormattedTextField(decimal), PREFIX);
     FormEntry feExportPrecursorPeak = new FormEntry(PROP_ExportPrecursorPeak, "Export Precursor Peak", new JCheckBox(), PREFIX);
-    FormEntry feQ1 = new FormEntry(PROP_Q1, "Q1", new JCheckBox(), PREFIX);
-    FormEntry feQ2 = new FormEntry(PROP_Q2, "Q2", new JCheckBox(), PREFIX);
-    FormEntry feQ3 = new FormEntry(PROP_Q3, "Q3", new JCheckBox(), PREFIX);
+    feQ1 = new FormEntry(PROP_Q1, "Q1", new JCheckBox(), PREFIX);
+    feQ2 = new FormEntry(PROP_Q2, "Q2", new JCheckBox(), PREFIX);
+    feQ3 = new FormEntry(PROP_Q3, "Q3", new JCheckBox(), PREFIX);
     FormEntry feSN = new FormEntry(PROP_SN, "MS1 SN", new JFormattedTextField(decimal), PREFIX);
     FormEntry feMS2SN = new FormEntry(PROP_MS2SN, "MS2 SN", new JFormattedTextField(decimal), PREFIX);
 
@@ -452,7 +456,18 @@ public class UmpirePanel extends JPanelBase {
         SwingUtils.setStrVal(component, val);
       }
     }
+  }
 
+  public boolean generateQ1() {
+    return isEnabledAndChecked((JCheckBox) feQ1.comp);
+  }
+
+  public boolean generateQ2() {
+    return isEnabledAndChecked((JCheckBox) feQ2.comp);
+  }
+
+  public boolean generateQ3() {
+    return isEnabledAndChecked((JCheckBox) feQ3.comp);
   }
 
   @Override

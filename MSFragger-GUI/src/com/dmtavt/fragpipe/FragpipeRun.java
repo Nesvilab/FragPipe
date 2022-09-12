@@ -825,7 +825,7 @@ public class FragpipeRun {
         if (!cmdUmpire.configure(parent, isDryRun, jarPath, ramGb, Paths.get(binMsfragger.getBin()), umpirePanel, sharedLcmsFiles)) {
           return false;
         }
-        List<InputLcmsFile> outputs = cmdUmpire.outputs(sharedLcmsFiles);
+        List<InputLcmsFile> outputs = cmdUmpire.outputs(sharedLcmsFiles, umpirePanel.generateQ1(), umpirePanel.generateQ2(), umpirePanel.generateQ3());
         sharedLcmsFiles.clear();
         sharedLcmsFiles.addAll(outputs);
       }

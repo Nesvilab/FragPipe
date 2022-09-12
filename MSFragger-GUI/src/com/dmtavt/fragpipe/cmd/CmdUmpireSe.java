@@ -57,7 +57,7 @@ public class CmdUmpireSe extends CmdBase {
     return NAME;
   }
 
-  public List<InputLcmsFile> outputs(List<InputLcmsFile> inputs) {
+  public List<InputLcmsFile> outputs(List<InputLcmsFile> inputs, boolean generateQ1, boolean generateQ2, boolean generateQ3) {
     if (!isRun)
       return new ArrayList<>(inputs);
 
@@ -68,7 +68,7 @@ public class CmdUmpireSe extends CmdBase {
       } else {
         final String inputFn = f.getPath().getFileName().toString();
         final Path outPath = f.outputDir(wd);
-        List<String> mgfs = getGeneratedMgfFnsForMzxml(inputFn);
+        List<String> mgfs = getGeneratedMgfFnsForMzxml(inputFn, generateQ1, generateQ2, generateQ3);
         List<String> lcmsFns = getGeneratedLcmsFns(mgfs);
         for (String lcmsFn : lcmsFns) {
           out.add(new InputLcmsFile(outPath.resolve(lcmsFn), f.getGroup(), f.getReplicate(), "DDA"));
@@ -165,19 +165,23 @@ public class CmdUmpireSe extends CmdBase {
     return true;
   }
 
-  private List<String> getGeneratedMgfFnsForMzxml(String mzxmlFn) {
+  private List<String> getGeneratedMgfFnsForMzxml(String mzxmlFn, boolean generateQ1, boolean generateQ2, boolean generateQ3) {
     String baseName = StringUtils.upToLastDot(mzxmlFn);
     final int n = 3;
     List<String> mgfs = new ArrayList<>(n);
-    for (int i = 1; i <= n; i++) {
-      mgfs.add(baseName + "_Q" + i + ".mgf");
+    if (generateQ1) {
+      mgfs.add(baseName + "_Q1.mgf");
+    }
+    if (generateQ2) {
+      mgfs.add(baseName + "_Q2.mgf");
+    }
+    if (generateQ3) {
+      mgfs.add(baseName + "_Q3.mgf");
     }
     return mgfs;
   }
 
   private List<String> getGeneratedLcmsFns(List<String> generatedMgfFns) {
-    return generatedMgfFns.stream()
-        .map(mgf -> StringUtils.upToLastDot(mgf) + "." + OUTPUT_EXT.toString())
-        .collect(Collectors.toList());
+    return generatedMgfFns.stream().map(mgf -> StringUtils.upToLastDot(mgf) + "." + OUTPUT_EXT).collect(Collectors.toList());
   }
 }
