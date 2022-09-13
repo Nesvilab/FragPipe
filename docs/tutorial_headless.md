@@ -16,7 +16,7 @@ Options:
         --manifest <string>             # Specify path to manifest file.
         --workdir <string>              # Specify the result directory.
         --dry-run                       # (optional) Dry run, not really run FragPipe.
-        --ram <integer>                 # (optional) Specify the maximum allowed memory size. Set it to 0 to let FragPipe decide. Default = 0
+        --ram <integer>                 # (optional) Specify the maximum allowed memory size. The unit is GB. Set it to 0 to let FragPipe decide. Default = 0
         --threads <integer>             # (optional) Specify the number of threads. Default = core number - 1
         --config-msfragger <string>     # (optional) specify the location of the MSFragger jar file. If not specified, using the one in the cache.
         --config-philosopher <string>   # (optional) specify the location of the Philosopher binary file. If not specified, using the one in the cache.
