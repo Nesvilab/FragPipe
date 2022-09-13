@@ -945,7 +945,7 @@ public class Fragpipe extends JFrameHeadless {
     sb.append("\t--manifest <string>             # Specify path to manifest file.\n");
     sb.append("\t--workdir <string>              # Specify the result directory.\n");
     sb.append("\t--dry-run                       # (optional) Dry run, not really run FragPipe.\n");
-    sb.append("\t--ram <integer>                 # (optional) Specify the maximum allowed memory size. Set it to 0 to let FragPipe decide. Default = 0\n");
+    sb.append("\t--ram <integer>                 # (optional) Specify the maximum allowed memory size. The unit is GB. Set it to 0 to let FragPipe decide. Default = 0\n");
     sb.append("\t--threads <integer>             # (optional) Specify the number of threads. Default = core number - 1\n");
     sb.append("\t--config-msfragger <string>     # (optional) specify the location of the MSFragger jar file. If not specified, using the one in the cache.\n");
     sb.append("\t--config-ionquant <string>      # (optional) specify the location of the IonQuant jar file. If not specified, using the one in the cache.\n");
