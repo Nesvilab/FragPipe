@@ -1,0 +1,179 @@
+{
+  "GeneralInformation": {
+      "InstallationPath"  : "C:\\DIA-NN\\1.8.2 beta 8\\",
+      "ApplicationVersion": "1.8.2 beta 8",
+      "ApplicationName"   : "DIA-NN"
+    },
+  "Folders"           : [
+      {
+        "Path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\DIA-NN\\"
+      }
+    ],
+  "Files"             : [
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\Uninstall.exe"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\DiaNN.exe"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\DIA-NN.exe"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\VC_redist.x64.exe"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\NDP472-KB4054531-Web.exe"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\MemoryPool LICENSE.txt"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\dia-nn-plotter.exe"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\EasyTabs license.txt"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\EasyTabs.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\LICENSE.txt"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\asmjit.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\c10.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\CppSQLite3 license.txt"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\DIA-NN.Wiff.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\fbgemm.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\PyTorch LICENSE.txt"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\README.md"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\THIRD-PARTY-LICENSE-README for TIMS library.txt"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\timsdata.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\torch_cpu.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\unimod.obo"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\unimod-license.txt"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\Microsoft.WindowsAPICodePack.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\Microsoft.WindowsAPICodePack.Shell.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\Svg.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\Win32Interop.Dwmapi.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\Win32Interop.Gdi32.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\Win32Interop.Kernel32.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\Win32Interop.User32.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\Win32Interop.Uxtheme.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\DIA-NN.ico"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\icon.ico"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\uv.dll"
+      },
+      {
+        "Path": "C:\\DIA-NN\\1.8.2 beta 8\\libiomp5md.dll"
+      },
+      {
+        "Path": "C:\\Users\\Public\\Desktop\\DIA-NN 1.8.2 beta 8.lnk"
+      },
+      {
+        "Path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\DIA-NN\\DIA-NN 1.8.2 beta 8.lnk"
+      }
+    ],
+  "RegistryValues"    : [
+      {
+        "HKey"     : "HKEY_LOCAL_MACHINE",
+        "ValueName": "DisplayIcon",
+        "SubKey"   : "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\DIA-NN\\"
+      },
+      {
+        "HKey"     : "HKEY_LOCAL_MACHINE",
+        "ValueName": "UninstallString",
+        "SubKey"   : "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\DIA-NN\\"
+      },
+      {
+        "HKey"     : "HKEY_LOCAL_MACHINE",
+        "ValueName": "InstallDate",
+        "SubKey"   : "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\DIA-NN\\"
+      },
+      {
+        "HKey"     : "HKEY_LOCAL_MACHINE",
+        "ValueName": "InstallLocation",
+        "SubKey"   : "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\DIA-NN\\"
+      },
+      {
+        "HKey"     : "HKEY_LOCAL_MACHINE",
+        "ValueName": "EstimatedSize",
+        "SubKey"   : "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\DIA-NN\\"
+      },
+      {
+        "HKey"     : "HKEY_LOCAL_MACHINE",
+        "ValueName": "NoModify",
+        "SubKey"   : "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\DIA-NN\\"
+      },
+      {
+        "HKey"     : "HKEY_LOCAL_MACHINE",
+        "ValueName": "NoRepair",
+        "SubKey"   : "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\DIA-NN\\"
+      },
+      {
+        "HKey"     : "HKEY_LOCAL_MACHINE",
+        "ValueName": "DisplayName",
+        "SubKey"   : "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\DIA-NN\\"
+      },
+      {
+        "HKey"     : "HKEY_LOCAL_MACHINE",
+        "ValueName": "DisplayVersion",
+        "SubKey"   : "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\DIA-NN\\"
+      },
+      {
+        "HKey"     : "HKEY_LOCAL_MACHINE",
+        "ValueName": "HelpLink",
+        "SubKey"   : "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\DIA-NN\\"
+      },
+      {
+        "HKey"     : "HKEY_LOCAL_MACHINE",
+        "ValueName": "Publisher",
+        "SubKey"   : "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\DIA-NN\\"
+      }
+    ]
+}
