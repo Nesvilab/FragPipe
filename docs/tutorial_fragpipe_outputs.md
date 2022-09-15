@@ -550,6 +550,38 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 <br>
 <br>
 
+### global.diagmine.tsv
+#### `global.diagmine.tsv` is a mass shift-centric table that contains the diagnostic features identified for every mass shift. Please note that only mass shifts with diagnostic features detected are reported in the table. Contents of each column are listed below.
+
+**peak_apex** This field contains the apex of the detected MS1 peak (Da) present in the global.profile.tsv file from PTM-Shepherd.
+
+**mod_annotation** This field contains the mass shift annotations present in the global.profile.tsv file from PTM-Shepherd. When a mass shift is found to be the combination of two mass shifts, the “Potential Modification 1” and “Potential Modification 2” columns are merged with a semicolon.
+
+**type** This field can take one of several values. “diagnostic” refers to diagnostic ions, the ions that can be located directly in the spectrum. “peptide” refers to peptide remainder masses, mass shifts that indicate an ion’s presence at a particular distance from an unshifted peptide. Six other values are possible based on parameter setting, each corresponding to one of the major ion series.
+
+**mass** This field contains the mass of the diagnostic feature. Peptide and fragment remainder masses will have the mass shift away from the theoretical ion. Diagnostic ions will have the m/z of the observed ion, so a non-neutral mass.
+
+**delta_mod_mass** This field contains the mass that was lost from the original mass shift to arrive at the remainder mass. (Note: only present for peptide and fragment remainder masses.)
+
+**remainder_propensity** This field contains the average percentage of ions from a particular series that are shifted. For example, a peptide capable of producing 10 b-ions with 2 ions identified ions shifted by the remainder mass and 2 identified ions unshifted would have a propensity of 50%. The propensity score for every representative PSM within a mass shift bin is averaged. (Note: only present for fragment remainder masses.)
+
+**percent_mod** This field contains the percentage of representative mass shifted PSMs that contain the ion at any intensity.
+
+**percent_unmod** This field contains the percentage of representative unshifted PSMs that contain the ion at any intensity.
+
+**avg_intensity_mod** This field contains the average intensity of the ion among representative mass shifted PSMs where the ion is present. To calculate the average across all representative mass shifted spectra, calculate (avg_intensity_mod * percent_mod / 100). Because multiple ions can be matched for fragment remainder ions, this contains the average of the summed intensity of matched ions for each representative PSM.
+
+**avg_intensity_unmod** This field contains the average intensity of the ions among representative unshifted PSMs where the ion is present. To calculate the average across all representative mass shifted spectra, calculate (avg_intensity_mod * percent_mod / 100). Because multiple ions can be matched for fragment remainder ions, this contains the average of the summed intensity of matched ions for each representative PSM.
+
+**intensity_fold_change** This field contains the fold change in intensity when comparing the modified to unmodified peptides. This uses intensity across all spectra and can be calculated via (avg_intensity_mod * percent_mod) / (avg_intensity_unmod * percent_unmod).
+
+**auc** This column contains the AUC-ROC statistic for the intensity-based classification of this ion. It is calculated from the U statistic from the Mann-Whitney U Test. This statistic adjusts the two groups such that they are assumed to be of equal size.
+
+<br>
+<br>
+<br>
+
+
 ### global.modsummary.tsv
 ##### `global.modsummary.tsv` is a modification-centric table generated from [PTM-Shepherd](https://ptmshepherd.nesvilab.org/) summarization of mass shifts observed in open search workflows. Please note that mass shifts are annotated based on UniMod mapping, thus they are not definitive chemical identities and should be used as a starting point along with localization and amino acid enrichment information. Contents of each column are listed below.
 
