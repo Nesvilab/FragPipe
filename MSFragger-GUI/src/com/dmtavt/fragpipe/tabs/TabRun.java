@@ -83,6 +83,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
@@ -238,15 +239,22 @@ public class TabRun extends JPanelWithEnablement {
             ProcessResult pr = new ProcessResult(pbi);
             pdvProcess = pr.start();
             if (pdvProcess.waitFor() == 0) {
+              log.info("Process output: {}", pr.getOutput().toString());
               final int exitValue = pr.getProcess().exitValue();
               if (exitValue != 0) {
-                throw new IllegalStateException("Process " + pb + " returned non zero value");
+                String errStr = pr.appendErr(pr.pollStdErr());
+                throw new IllegalStateException("Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr));
               }
             } else {
-              throw new IllegalStateException("Process " + pb + " returned non zero value");
+              String errStr = pr.appendErr(pr.pollStdErr());
+              throw new IllegalStateException("Process " + pb + " returned non zero value. Message:\n " + (errStr == null ? "" : errStr));
             }
+
+            String outStr = pr.appendOut(pr.pollStdOut());
+            log.info("Process output: {}", (outStr == null ? "" : outStr));
           } catch (Exception ex) {
             ex.printStackTrace();
+            log.error(ExceptionUtils.getStackTrace(ex));
             if (pdvProcess != null) {
               pdvProcess.destroyForcibly();
               btnOpenPdv.setEnabled(true);
