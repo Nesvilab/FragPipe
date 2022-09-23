@@ -55,6 +55,7 @@ import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
+import com.dmtavt.fragpipe.util.GlycoMassLoader;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -99,6 +100,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -124,12 +127,14 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableCellEditor;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
@@ -203,6 +208,7 @@ public class TabMsfragger extends JPanelBase {
   };
 
   UiCombo uiComboMassDiffToVariableMod;
+  UiSpinnerInt uiSpinnterIntGlycoCombos;
 
   private static String itos(int i) {
     return Integer.toString(i);
@@ -1117,9 +1123,18 @@ public class TabMsfragger extends JPanelBase {
         .tooltip(tooltipMassOffsets).create();
     //mu.add(p, feMassOffsets.label()).wrap();
 
+    JButton btnLoadGlycanMasses = new JButton("Load Glycan Masses");
+    btnLoadGlycanMasses.addActionListener(this::actionBtnLoadGlycanOffsets);
+    uiSpinnterIntGlycoCombos = new UiSpinnerInt(1, 1, 100, 1, 4);
+    FormEntry feGlycoCombos = mu.feb("Glycan Combinations from Database", uiSpinnterIntGlycoCombos)
+            .label("Max Glycans Per Peptide").create();
+
     mu.add(p, feMassOffsets.comp).growX().spanX().wrap();
     mu.add(p, feRestrictDeltamassTo.label(), mu.ccR());
     mu.add(p, feRestrictDeltamassTo.comp).spanX().pushX().growX().wrap();
+    mu.add(p, btnLoadGlycanMasses);
+    mu.add(p, feGlycoCombos.label(), mu.ccR());
+    mu.add(p, feGlycoCombos.comp).spanX().wrap();
 
     return p;
   }
@@ -1807,6 +1822,75 @@ public class TabMsfragger extends JPanelBase {
                 + "but the file you chose to load doesn't exist anymore.", "Strange", JOptionPane.ERROR_MESSAGE);
       }
     }
+  }
+
+  private void actionBtnLoadGlycanOffsets(ActionEvent actionEvent) {
+    List<FileFilter> glycFilters = new ArrayList<>();
+    FileFilter filter = new FileNameExtensionFilter("Glycan Database file (txt, csv, tsv, glyc)", "txt", "csv", "tsv", "glyc");
+    glycFilters.add(filter);
+    String loc = Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH);
+    JFileChooser fc = FileChooserUtils.builder("Select glycan database file")
+            .approveButton("Select").mode(FcMode.FILES_ONLY)
+            .acceptAll(false).multi(false).filters(glycFilters)
+            .paths(Stream.of(loc)).create();
+
+    String selectedPath;
+    int userSelection = fc.showSaveDialog(SwingUtils.findParentFrameForDialog(this));
+    if (JFileChooser.APPROVE_OPTION == userSelection) {
+      selectedPath = fc.getSelectedFile().toString();
+      Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, selectedPath);
+      // todo: handle other file types
+
+      // load glycans from file to mass offsets list
+      ArrayList<Double> masses = GlycoMassLoader.loadByonicFile(selectedPath);
+
+      // combine glycan masses if requested (e.g. O-glycans)
+      ArrayList<Double> allMasses = new ArrayList<>();
+      int numCombos = uiSpinnterIntGlycoCombos.getActualValue();
+      if (numCombos > 1) {
+        allMasses = generateMassCombos(masses, numCombos);
+      } else {
+        allMasses = masses;
+      }
+
+      if (!allMasses.contains(0.0)) {
+        allMasses.add(0.0);
+      }
+
+      List<String> massStrings = allMasses.stream().map(Object::toString).collect(Collectors.toList());
+      String offsetsText = String.join(" ", massStrings);
+      epMassOffsets.setText(offsetsText);
+    }
+  }
+
+  /**
+   * Generate all combinations of provided masses up to the specified max number. Removes duplicates (at 4 decimal places)
+   * @param masses
+   * @param maxCombos
+   * @return
+   */
+  private ArrayList<Double> generateMassCombos(ArrayList<Double> masses, int maxCombos) {
+    HashMap<Long, Boolean> existingMasses = new HashMap<>();
+    ArrayList<Double> allMasses = new ArrayList<>();
+    for (int count = 1; count <= maxCombos; count++) {
+      // iterate combinations
+      Iterator<int[]> comboIterator = CombinatoricsUtils.combinationsIterator(masses.size(), count);
+      while (comboIterator.hasNext()) {
+        int[] combo = comboIterator.next();
+        // calculate mass as product of the selected indices
+        double comboMass = 0;
+        for (int i : combo) {
+          comboMass += masses.get(i);
+        }
+        // check for duplicates and add if unique
+        long massKey = Math.round(comboMass * 10000);
+        if (!existingMasses.containsKey(massKey)) {
+          allMasses.add(comboMass);
+          existingMasses.put(massKey, true);
+        }
+      }
+    }
+    return allMasses;
   }
 
   private void actionBtnConfigLoad(ActionEvent actionEvent) {
