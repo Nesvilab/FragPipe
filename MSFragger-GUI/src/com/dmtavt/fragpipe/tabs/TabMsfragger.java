@@ -54,6 +54,7 @@ import com.dmtavt.fragpipe.tools.fragger.Mod;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
+import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -1418,11 +1419,16 @@ public class TabMsfragger extends JPanelBase {
       }
     });
 
-    TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
     uiSpinnerDbsplit.addChangeListener(e -> {
-      if (getNumDbSlices() > 1 && (tabWorkflow.hasDia() || tabWorkflow.hasGpfDia() || tabWorkflow.hasDiaLib())) {
-        JOptionPane.showMessageDialog(this, "<html><code>Split database</code> is incompatible with DIA, GPF-DIA, or DIA-Lib data types.<br/>Set <code>split database</code> to 1.<br/>", "Incompatible options", JOptionPane.WARNING_MESSAGE);
-        uiSpinnerDbsplit.setValue(1);
+      if (getNumDbSlices() > 1) {
+        TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
+        if (tabWorkflow.hasDia() || tabWorkflow.hasGpfDia() || tabWorkflow.hasDiaLib()) {
+          UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
+          if (!umpirePanel.isRunUmpire()) { // With DIA-Umpire, the split database works.
+            JOptionPane.showMessageDialog(this, "<html><code>Split database</code> is incompatible with DIA, GPF-DIA, or DIA-Lib data types.<br/>Set <code>split database</code> to 1.<br/>", "Incompatible options", JOptionPane.WARNING_MESSAGE);
+            uiSpinnerDbsplit.setValue(1);
+          }
+        }
       }
     });
   }
