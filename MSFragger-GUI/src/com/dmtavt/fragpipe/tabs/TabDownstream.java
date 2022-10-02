@@ -38,7 +38,6 @@ import com.dmtavt.fragpipe.tools.downstream.SaintexpressPanel;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
-import com.github.chhh.utils.swing.LogbackJTextPaneAppender;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiCheck;
@@ -266,12 +265,6 @@ public class TabDownstream extends JPanelWithEnablement {
     final Font currentFont = c.getFont();
     c.setFont(new Font(Font.MONOSPACED, currentFont.getStyle(), currentFont.getSize()));
     c.setContentType("text/plain; charset=UTF-8");
-
-    LogbackJTextPaneAppender appender = new LogbackJTextPaneAppender();
-    appender.start();
-    log.debug("Started LogbackJTextPaneAppender logger");
-    appender.setTextPane(c);
-
     return c;
   }
 
