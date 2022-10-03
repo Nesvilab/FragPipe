@@ -62,7 +62,7 @@ def cpu_count():
 		return os.cpu_count() if os.cpu_count() else 1
 
 # https://github.com/python/cpython/issues/76623
-def resolve_mapped(path) -> pathlib.Path:
+def resolve_mapped(path) -> str:
 	path = pathlib.Path(path).resolve()
 	mapped_paths = []
 	for drive in 'ZYXWVUTSRQPONMLKJIHGFEDCBA':
@@ -71,7 +71,7 @@ def resolve_mapped(path) -> pathlib.Path:
 			mapped_paths.append(root / path.relative_to(root.resolve()))
 		except (ValueError, OSError):
 			pass
-	return min(mapped_paths, key=lambda x: len(str(x)), default=path)
+	return os.fspath(min(mapped_paths, key=lambda x: len(str(x)), default=path))
 
 
 if use_easypqp:
