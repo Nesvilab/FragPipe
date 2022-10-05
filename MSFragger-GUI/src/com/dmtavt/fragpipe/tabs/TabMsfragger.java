@@ -1123,18 +1123,24 @@ public class TabMsfragger extends JPanelBase {
         .tooltip(tooltipMassOffsets).create();
     //mu.add(p, feMassOffsets.label()).wrap();
 
-    JButton btnLoadGlycanMasses = new JButton("Load Glycan Masses");
+    JButton btnLoadGlycanMasses = new JButton("Load Mass Offsets from File");
     btnLoadGlycanMasses.addActionListener(this::actionBtnLoadGlycanOffsets);
-    uiSpinnterIntGlycoCombos = new UiSpinnerInt(1, 1, 100, 1, 4);
-    FormEntry feGlycoCombos = mu.feb("Glycan Combinations from Database", uiSpinnterIntGlycoCombos)
-            .label("Max Glycans Per Peptide").create();
+    btnLoadGlycanMasses.setToolTipText("Load mass offsets from a file. Supported formats: Byonic glycan csv");
+    uiSpinnterIntGlycoCombos = new UiSpinnerInt(1, 1, 100, 1, 2);
 
-    mu.add(p, feMassOffsets.comp).growX().spanX().wrap();
-    mu.add(p, feRestrictDeltamassTo.label(), mu.ccR());
-    mu.add(p, feRestrictDeltamassTo.comp).spanX().pushX().growX().wrap();
-    mu.add(p, btnLoadGlycanMasses);
-    mu.add(p, feGlycoCombos.label(), mu.ccR());
-    mu.add(p, feGlycoCombos.comp).spanX().wrap();
+    // don't cache/save this property, as it is only used in the GUI to when loading mass offsets from a database
+    String maxOffsetsTooltip = "Generates combinations of provided mass offsets up to the max number (if >1)." +
+            "\nUse to search for multiple mass offsets per peptide." +
+            "\nWARNING: modifications must be labile for >1 offset per peptide to be found!";
+    FormEntry feGlycoCombos = Fragpipe.feNoCache(uiSpinnterIntGlycoCombos, "Max Mods Per Peptide from DB Load", Fragpipe.PROP_NOCACHE)
+            .label("Max Mass Offset Combinations").tooltip(maxOffsetsTooltip).create();
+
+    mu.add(p, feMassOffsets.comp).spanX().growX().pushX().wrap();
+    mu.add(p, feRestrictDeltamassTo.label(), mu.ccR()).spanX().split(2);
+    mu.add(p, feRestrictDeltamassTo.comp).growX().pushX().wrap();
+    mu.add(p, btnLoadGlycanMasses).spanX().split(3);
+    mu.add(p, feGlycoCombos.label()).gapLeft("15px");
+    mu.add(p, feGlycoCombos.comp).gapLeft("5px").wrap();
 
     return p;
   }
@@ -1854,7 +1860,7 @@ public class TabMsfragger extends JPanelBase {
       }
 
       if (!allMasses.contains(0.0)) {
-        allMasses.add(0.0);
+        allMasses.add(0, 0.0);
       }
 
       List<String> massStrings = allMasses.stream().map(Object::toString).collect(Collectors.toList());
