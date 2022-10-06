@@ -1864,7 +1864,7 @@ public class TabMsfragger extends JPanelBase {
       }
       else {
         // invalid file type
-        System.out.println("Invalid file type for file %s. Must be .csv, .txt, or .glyc");
+        log.error("Invalid file type for mass offset file %s. Must be .csv, .txt, or .glyc");
         return;
       }
 
@@ -1889,7 +1889,7 @@ public class TabMsfragger extends JPanelBase {
       }
       String offsetsText = String.join(" ", massStrings);
       epMassOffsets.setText(offsetsText);
-      System.out.printf("[MSFragger Load Mass Offsets Button] Loaded %d unique mass offsets from file\n", massStrings.size());
+      log.info(String.format("[MSFragger Load Mass Offsets Button] Loaded %d unique mass offsets from file", massStrings.size()));
     }
   }
 

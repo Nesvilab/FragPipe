@@ -17,13 +17,17 @@
 
 package com.dmtavt.fragpipe.util;
 
+import com.dmtavt.fragpipe.tabs.TabMsfragger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GlycoMassLoader {
-
+    private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
     private static final String MASSES_FILE = "glycan_masses.txt";
     private static final Pattern pGlycoPattern = Pattern.compile("[AGFHNXP]");
     private static final HashMap<String, String> pGlycoTokenMap;    // map pGlyco tokens to our internal Glycan strings
@@ -82,7 +86,7 @@ public class GlycoMassLoader {
                     try {
                         massOffsets.add(Double.parseDouble(mass.trim()));
                     } catch (NumberFormatException ex) {
-                        System.out.printf("Invalid entry %s could not be parsed and will be ignored.\n", mass);
+                        log.warn(String.format("Invalid entry %s could not be parsed and will be ignored.", mass));
                     }
                 }
             }
@@ -121,7 +125,7 @@ public class GlycoMassLoader {
                     if (pGlycoTokenMap.containsKey(glycanToken)) {
                         glycanMass += glycanMasses.get(pGlycoTokenMap.get(glycanToken).toLowerCase());
                     } else {
-                        System.out.printf("Invalid token %s in line %s. This line will be skipped\n", glycanToken, line);
+                        log.warn(String.format("Invalid token %s in line %s. This line will be skipped", glycanToken, line));
                         valid = false;
                         break;
                     }
@@ -244,7 +248,7 @@ public class GlycoMassLoader {
             int count = Integer.parseInt(glycanSplits[1].trim());
             mass += (residueMass * count);
         } else {
-            System.out.printf("Invalid glycan %s is not in the internal database. Please add its mass to the database file and retry.\n", glycanResidue);
+            log.error(String.format("Invalid glycan %s is not in the internal database. Please add its mass to the database file and retry.", glycanResidue));
         }
         return mass;
     }
