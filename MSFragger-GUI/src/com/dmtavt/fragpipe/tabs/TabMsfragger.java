@@ -89,6 +89,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -1124,7 +1126,7 @@ public class TabMsfragger extends JPanelBase {
     //mu.add(p, feMassOffsets.label()).wrap();
 
     JButton btnLoadGlycanMasses = new JButton("Load Mass Offsets from File");
-    btnLoadGlycanMasses.addActionListener(this::actionBtnLoadGlycanOffsets);
+    btnLoadGlycanMasses.addActionListener(this::actionBtnLoadMassOffsets);
     btnLoadGlycanMasses.setToolTipText("Load mass offsets from a file. Supported formats: Byonic glycan csv");
     uiSpinnterIntGlycoCombos = new UiSpinnerInt(1, 1, 100, 1, 2);
 
@@ -1830,12 +1832,12 @@ public class TabMsfragger extends JPanelBase {
     }
   }
 
-  private void actionBtnLoadGlycanOffsets(ActionEvent actionEvent) {
+  private void actionBtnLoadMassOffsets(ActionEvent actionEvent) {
     List<FileFilter> glycFilters = new ArrayList<>();
-    FileFilter filter = new FileNameExtensionFilter("Glycan Database file (txt, csv, tsv, glyc)", "txt", "csv", "tsv", "glyc");
+    FileFilter filter = new FileNameExtensionFilter("Glycan or Mod Database (.txt, .csv, .gdb)", "txt", "csv", "gdb");
     glycFilters.add(filter);
     String loc = Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH);
-    JFileChooser fc = FileChooserUtils.builder("Select glycan database file")
+    JFileChooser fc = FileChooserUtils.builder("Select the Glycan or other Mod List file")
             .approveButton("Select").mode(FcMode.FILES_ONLY)
             .acceptAll(false).multi(false).filters(glycFilters)
             .paths(Stream.of(loc)).create();
@@ -1845,13 +1847,29 @@ public class TabMsfragger extends JPanelBase {
     if (JFileChooser.APPROVE_OPTION == userSelection) {
       selectedPath = fc.getSelectedFile().toString();
       Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, selectedPath);
-      // todo: handle other file types
 
-      // load glycans from file to mass offsets list
-      ArrayList<Double> masses = GlycoMassLoader.loadByonicFile(selectedPath);
+      // load from file
+      ArrayList<Double> masses;
+      if (selectedPath.endsWith(".txt")) {
+        // Generic offset list
+        masses = GlycoMassLoader.loadTextOffsets(selectedPath);
+      }
+      else if (selectedPath.endsWith(".csv")) {
+        // Byonic format
+        masses = GlycoMassLoader.loadByonicFile(selectedPath);
+      }
+      else if (selectedPath.endsWith(".gdb")) {
+        // pGlyco format
+        masses = GlycoMassLoader.loadPGlycoFile(selectedPath);
+      }
+      else {
+        // invalid file type
+        System.out.println("Invalid file type for file %s. Must be .csv, .txt, or .glyc");
+        return;
+      }
 
       // combine glycan masses if requested (e.g. O-glycans)
-      ArrayList<Double> allMasses = new ArrayList<>();
+      ArrayList<Double> allMasses;
       int numCombos = uiSpinnterIntGlycoCombos.getActualValue();
       if (numCombos > 1) {
         allMasses = generateMassCombos(masses, numCombos);
@@ -1860,12 +1878,18 @@ public class TabMsfragger extends JPanelBase {
       }
 
       if (!allMasses.contains(0.0)) {
-        allMasses.add(0, 0.0);
+        allMasses.add(0, (double) 0);
       }
 
-      List<String> massStrings = allMasses.stream().map(Object::toString).collect(Collectors.toList());
+      // clean up masses before returning final strings (round off floating point errors at 12 decimal places)
+      List<String> massStrings = new ArrayList<>();
+      for (double mass : allMasses) {
+        BigDecimal decimal = new BigDecimal(mass).setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros();
+        massStrings.add(decimal.toPlainString());
+      }
       String offsetsText = String.join(" ", massStrings);
       epMassOffsets.setText(offsetsText);
+      System.out.printf("[MSFragger Load Mass Offsets Button] Loaded %d unique mass offsets from file\n", massStrings.size());
     }
   }
 

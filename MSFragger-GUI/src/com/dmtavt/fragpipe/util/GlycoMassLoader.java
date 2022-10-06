@@ -19,11 +19,25 @@ package com.dmtavt.fragpipe.util;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GlycoMassLoader {
 
     private static final String MASSES_FILE = "glycan_masses.txt";
-
+    private static final Pattern pGlycoPattern = Pattern.compile("[AGFHNXP]");
+    private static final HashMap<String, String> pGlycoTokenMap;    // map pGlyco tokens to our internal Glycan strings
+    static
+    {
+        pGlycoTokenMap = new HashMap<>();
+        pGlycoTokenMap.put("A", "NeuAc");
+        pGlycoTokenMap.put("G", "NeuGc");
+        pGlycoTokenMap.put("F", "Fuc");
+        pGlycoTokenMap.put("H", "Hex");
+        pGlycoTokenMap.put("N", "HexNAc");
+        pGlycoTokenMap.put("X", "Xyl");
+        pGlycoTokenMap.put("P", "HexPh");
+    }
 
     private static final HashMap<String, Double> glycanMasses;
     static
@@ -41,6 +55,97 @@ public class GlycoMassLoader {
         }
     }
 
+    // read masses only from a text file. Can have , or \t delimiter, and one or multiple entries per line.
+    public static ArrayList<Double> loadTextOffsets(String filePath) {
+        ArrayList<Double> massOffsets = new ArrayList<>();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(filePath));
+            String readline;
+            while ((readline = reader.readLine()) != null) {
+                // skip headers
+                if (readline.startsWith("#")) {
+                    continue;
+                }
+
+                String[] lineSplits;
+                // handle csv and tsv inputs that may contain multiple entries per line
+                if (readline.contains(",")) {
+                    lineSplits = readline.split(",");
+                } else if (readline.contains("\t")) {
+                    lineSplits = readline.split("\t");
+                } else {
+                    lineSplits = new String[]{readline};
+                }
+
+                // parse masses
+                for (String mass : lineSplits) {
+                    try {
+                        massOffsets.add(Double.parseDouble(mass.trim()));
+                    } catch (NumberFormatException ex) {
+                        System.out.printf("Invalid entry %s could not be parsed and will be ignored.\n", mass);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return massOffsets;
+    }
+
+    /**
+     * Load pGlyco glycan database file of format (N)(H)(H) or similar. Reads only the composition, ignoring structure.
+     * Removes duplicate masses to 4 decimal places
+     * @param filePath
+     * @return
+     */
+    public static ArrayList<Double> loadPGlycoFile(String filePath) {
+        ArrayList<Double> massOffsets = new ArrayList<>();
+        HashMap<Long, Boolean> existingMasses = new HashMap<>();
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(filePath));
+            String readline;
+            while ((readline = reader.readLine()) != null) {
+                // skip headers
+                if (readline.startsWith("#")) {
+                    continue;
+                }
+
+                // parse glycans from tokens
+                String line = readline.replace("Hp", "P");      // remove the only double character, if present
+                Matcher matcher = pGlycoPattern.matcher(line);
+                boolean valid = true;
+                double glycanMass = 0;
+                while(matcher.find()) {
+                    String glycanToken = matcher.group();
+                    if (pGlycoTokenMap.containsKey(glycanToken)) {
+                        glycanMass += glycanMasses.get(pGlycoTokenMap.get(glycanToken).toLowerCase());
+                    } else {
+                        System.out.printf("Invalid token %s in line %s. This line will be skipped\n", glycanToken, line);
+                        valid = false;
+                        break;
+                    }
+                }
+                // check for duplicates and add if unique
+                if (valid) {
+                    long massKey = Math.round(glycanMass * 10000);
+                    if (!existingMasses.containsKey(massKey)) {
+                        massOffsets.add(glycanMass);
+                        existingMasses.put(massKey, true);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return massOffsets;
+    }
+
+    /**
+     * Load glycans from a file containing Byonic format glycans (e.g., HexNAc(2)Hex(5) % 1216.4228)
+     * @param filePath
+     * @return
+     */
     public static ArrayList<Double> loadByonicFile(String filePath) {
         ArrayList<Double> massOffsets = new ArrayList<>();
         try {
