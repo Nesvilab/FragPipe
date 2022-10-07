@@ -20,6 +20,7 @@ package com.dmtavt.fragpipe.api;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.WorkflowTranslator;
 import com.dmtavt.fragpipe.exceptions.NoSuchElementInModelException;
+import com.dmtavt.fragpipe.tools.tmtintegrator.TmtiConfProps;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
@@ -161,6 +162,9 @@ public class FragpipeCacheUtils {
       List<UiTranslation> ts = translations.get(k);
       if (ts == null)
         return v;
+      if (k.contains(TmtiConfProps.PROP_channel_num)) {
+        return v;   // skip translating TMT-I channel num when saving to workflow file. String name of label will get saved, avoiding conflict when multiple labels have same num of channels.
+      }
       List<UiTranslation> matchingTs = Seq.seq(ts).filter(t -> t.inUi.equalsIgnoreCase(v)).toList();
       if (matchingTs.isEmpty()) {
         throw new IllegalStateException(String.format("Found no ui.translation for UI element key [%s] with value [%s]", k, v));

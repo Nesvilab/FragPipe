@@ -52,7 +52,6 @@ public class TmtiConfig {
     private String protein_database;
     private String output;
     private int channel_num;
-    private String label_type;
     private String ref_tag;
     private double min_pep_prob;
     private double min_purity;
@@ -152,10 +151,6 @@ public class TmtiConfig {
     public void setChannel_num(int channel_num) {
       this.channel_num = channel_num;
     }
-
-    public String getLabel_type() { return label_type; }
-
-    public void setLabel_type(String label_type) { this.label_type = label_type; }
 
     public String getRef_tag() {
       return ref_tag;
