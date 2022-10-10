@@ -17,6 +17,8 @@
 
 package com.dmtavt.fragpipe.util;
 
+import static com.github.chhh.utils.StringUtils.upToLastDot;
+
 import com.github.chhh.utils.StringUtils;
 import java.io.EOFException;
 import java.io.IOException;
@@ -68,12 +70,9 @@ public class RewritePepxml {
     final byte[] bytesHi = ">".getBytes();
     final int overlap = 2 << 10;
     final int bufsz = 2 << 16;
-//    final int overlap = 256;
-//    final int bufsz = 512;
 
     Sink sink = Okio.sink(rewritten.toFile(), false);
     Buffer buf = new Buffer();
-    int foundCount = 0;
     try (BufferedSource bs = Okio.buffer(Okio.source(origPepxml))) {
       try {
         FindResult fr = new FindResult();
@@ -82,11 +81,7 @@ public class RewritePepxml {
           BufferedSource peek = bs.peek();
           if (!find(peek, bufsz, bytesLo, fr)) {
             dumpWhenNotFound(overlap, sink, buf, bs, fr);
-          } else { // found
-            ++foundCount;
-//            if (foundCount > 1) {
-//              throw new IllegalStateException("More than one element to be replaced found. Don't know how to handle this situation.");
-//            }
+          } else {
             long offset = fr.bytesRead - bytesLo.length;
             if (!find(peek, overlap, bytesHi, fr)) {
               throw new IllegalStateException("Didn't find closing tag bracket with the search limit");
@@ -106,7 +101,7 @@ public class RewritePepxml {
             String origPath = m.group(1);
             Path origPathFn = Paths.get(origPath).getFileName();
 
-            String rewrite;
+            String rewrite = null;
             if (replacement != null && replacement.length > 0) {
               // try to match to what we have
               Map<String, Path> mapFnLessExtToFull = Seq.of(replacement).map(Paths::get)
@@ -116,13 +111,20 @@ public class RewritePepxml {
                 System.err.printf("Didn't find correct mapping for raw file path in pepxml: %s", origPath);
                 System.exit(1);
               }
-              String ext = StringUtils.afterLastDot(correctRaw.getFileName().toString());
-              rewrite = String.format(
-                  "<msms_run_summary base_name=\"%s\" raw_data_type=\"%s\" raw_data=\"%s\">",
-                  StringUtils.upToLastDot(correctRaw.toString()), ext, ext);
 
+              if (originalMsmsRunSummary.contains("This pepXML was from calibrated spectra.")) {
+                rewrite = String.format("<msms_run_summary base_name=\"%s\" raw_data_type=\"mzML\" comment=\"This pepXML was from calibrated spectra.\" raw_data=\"mzML\">", upToLastDot(correctRaw.toAbsolutePath().toString()) + "_calibrated");
+              } else {
+                String ext = StringUtils.afterLastDot(correctRaw.getFileName().toString());
+                if (ext.equalsIgnoreCase("mzml")) {
+                  rewrite = String.format("<msms_run_summary base_name=\"%s\" raw_data_type=\"mzML\" raw_data=\"mzML\">", upToLastDot(correctRaw.toAbsolutePath().toString()));
+                } else {
+                  rewrite = String.format("<msms_run_summary base_name=\"%s\" raw_data_type=\"mzML\" raw_data=\"mzML\">", upToLastDot(correctRaw.toAbsolutePath().toString()) + "_uncalibrated");
+                }
+              }
             } else {
-              rewrite = re.matcher(originalMsmsRunSummary).replaceFirst(String.format("base_name=\"%s\"", origPathFn));
+              System.err.printf("There are no replacements for %s", origPepxml.toAbsolutePath());
+              System.exit(1);
             }
             log.debug("Rewritten tag: {}", rewrite);
             buf.write(rewrite.getBytes(StandardCharsets.UTF_8));
@@ -135,10 +137,8 @@ public class RewritePepxml {
         sink.write(buf, buf.size());
       }
     } finally {
-      if (sink != null) {
-        sink.flush();
-        sink.close();
-      }
+      sink.flush();
+      sink.close();
     }
 
     // rewriting done

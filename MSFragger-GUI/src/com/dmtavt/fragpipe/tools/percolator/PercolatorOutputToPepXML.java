@@ -38,20 +38,23 @@ import java.util.regex.Pattern;
 public class PercolatorOutputToPepXML {
 
     private static final Pattern pattern = Pattern.compile("(.+spectrum=\".+\\.)([0-9]+)\\.([0-9]+)(\\.[0-9]+\".+)");
+    private static final Pattern pattern1 = Pattern.compile("base_name=\"([^\"]+)\"");
+    private static final Pattern pattern2 = Pattern.compile("raw_data_type=\"([^\"]+)\"");
+    private static final Pattern pattern3 = Pattern.compile("raw_data=\"([^\"]+)\"");
 
     public static void main(final String[] args) {
         Locale.setDefault(Locale.US);
         if (args.length == 0) {
             percolatorToPepXML(
-                Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01.pin"),
-                "F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01",
-                Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01_percolator_target_psms.tsv"),
-                Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01_percolator_decoy_psms.tsv"),
-                Paths.get("F:\\dev\\msfragger\\msfraggerdia_old\\interact-20190206_LUM1_CPBA_EASY04_060_30_SA_90mingrad_80B_DIA_400_1000_8mzol_15k_20IIT_4e5agc_1633-01_01"),
-                "DIA",
+                Paths.get("G:\\dev\\msfragger\\dev2\\5ngHeLaosmoothCE20-52lowguessSRIG450easy4_30t_C2_01_3451.pin"),
+                "G:\\dev\\msfragger\\dev2\\5ngHeLaosmoothCE20-52lowguessSRIG450easy4_30t_C2_01_3451",
+                Paths.get("G:\\dev\\msfragger\\dev2\\5ngHeLaosmoothCE20-52lowguessSRIG450easy4_30t_C2_01_3451_percolator_target_psms.tsv"),
+                Paths.get("G:\\dev\\msfragger\\dev2\\5ngHeLaosmoothCE20-52lowguessSRIG450easy4_30t_C2_01_3451_percolator_decoy_psms.tsv"),
+                Paths.get("G:\\dev\\msfragger\\dev2\\interact-5ngHeLaosmoothCE20-52lowguessSRIG450easy4_30t_C2_01_3451_2"),
+                "DDA",
                 0);
         } else if (Files.exists(Paths.get(args[0].replace(".pin", "_edited.pin")))){
-                percolatorToPepXML(Paths.get(args[0].replace(".pin", "_edited.pin")), args[1], Paths.get(args[2]), Paths.get(args[3]), Paths.get(args[4]), args[5], Double.parseDouble(args[6]));
+            percolatorToPepXML(Paths.get(args[0].replace(".pin", "_edited.pin")), args[1], Paths.get(args[2]), Paths.get(args[3]), Paths.get(args[4]), args[5], Double.parseDouble(args[6]));
         } else {
             percolatorToPepXML(Paths.get(args[0]), args[1], Paths.get(args[2]), Paths.get(args[3]), Paths.get(args[4]), args[5], Double.parseDouble(args[6]));
         }
@@ -369,7 +372,60 @@ public class PercolatorOutputToPepXML {
                  final BufferedWriter out = Files.newBufferedWriter(output_rank)) {
                 String line;
                 while ((line = brpepxml.readLine()) != null) {
+                    if (line.trim().startsWith("<msms_run_summary")) {
+                        if (line.contains("This pepXML was from calibrated spectra.")) {
+                            Matcher matcher1 = pattern1.matcher(line);
+                            if (matcher1.find()) {
+                                line = matcher1.replaceFirst(Matcher.quoteReplacement("base_name=\"" + matcher1.group(1) + "_calibrated" + "\""));
+
+                                Matcher matcher2 = pattern2.matcher(line);
+                                if (matcher2.find()) {
+                                    line = matcher2.replaceFirst("raw_data_type=\"mzML\"");
+                                }
+
+                                Matcher matcher3 = pattern3.matcher(line);
+                                if (matcher3.find()) {
+                                    line = matcher3.replaceFirst("raw_data=\"mzML\"");
+                                }
+                            } else {
+                                System.err.printf("Could not find the base_name from " + pepxml_rank);
+                                System.exit(1);
+                            }
+                        } else {
+                            String extension = null;
+
+                            Matcher matcher2 = pattern2.matcher(line);
+                            Matcher matcher3 = pattern3.matcher(line);
+                            if (matcher2.find()) {
+                                extension = matcher2.group(1);
+                            } else if (matcher3.find()) {
+                                extension = matcher3.group(1);
+                            } else {
+                                System.err.printf("Could not get the raw data type from " + pepxml_rank);
+                                System.exit(1);
+                            }
+
+                            if (!extension.equalsIgnoreCase("mzml")) {
+                                Matcher matcher1 = pattern1.matcher(line);
+                                if (matcher1.find()) {
+                                    line = matcher1.replaceFirst(Matcher.quoteReplacement("base_name=\"" + matcher1.group(1) + "_uncalibrated" + "\""));
+
+                                    matcher2 = pattern2.matcher(line);
+                                    if (matcher2.find()) {
+                                        line = matcher2.replaceFirst("raw_data_type=\"mzML\"");
+                                    }
+
+                                    matcher3 = pattern3.matcher(line);
+                                    if (matcher3.find()) {
+                                        line = matcher3.replaceFirst("raw_data=\"mzML\"");
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     out.write(line + "\n");
+
                     if (line.trim().startsWith("<msms_pipeline_analysis ")) {
                         final String now = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss").format(LocalDateTime.now());
                         final String tmp = String.format(
