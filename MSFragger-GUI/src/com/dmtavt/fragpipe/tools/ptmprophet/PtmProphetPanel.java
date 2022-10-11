@@ -20,6 +20,7 @@ package com.dmtavt.fragpipe.tools.ptmprophet;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmProphet;
+import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -118,6 +119,13 @@ public class PtmProphetPanel extends JPanelBase {
     });
     JLabel info = new JLabel(
         "<html>Not for open searches. Mods format example: STY:79.966331,M:15.9949");
+
+    checkRun.addActionListener(e -> {
+      if (isRun()) {
+        TabMsfragger tabMsfragger = Fragpipe.getStickyStrict(TabMsfragger.class);
+        tabMsfragger.setWriteCalMgf(true);
+      }
+    });
 
     mu.add(p, checkRun).split();
     mu.add(p, btnDefaults).gapLeft("20px");
