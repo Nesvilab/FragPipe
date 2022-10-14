@@ -122,7 +122,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     if (m.doAskUser) {
       int answer = SwingUtils.showConfirmDialog(this, new JLabel("<html>Load default quantitation options?"));
       if (JOptionPane.OK_OPTION != answer) {
-        log.debug("User cancelled Loading Shepherd defaults");
+        log.debug("User cancelled Loading MS1 Quant defaults");
         return;
       }
     }
@@ -296,7 +296,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiSpinnerDouble uiSpinnerMbrProtFdr = UiUtils.spinnerDouble(1, 0.001, 1, 0.01)
         .setCols(5).setFormat("#.###").create();
 
-    UiSpinnerInt uiSpinnerMbrTopRuns = UiUtils.spinnerInt(100000, 0, Integer.MAX_VALUE, 1).setCols(5).create();
+    UiSpinnerInt uiSpinnerMbrTopRuns = UiUtils.spinnerInt(10, 0, Integer.MAX_VALUE, 1).setCols(5).create();
     UiText uiTextLight = UiUtils.uiTextBuilder().cols(40).create();
     UiText uiTextMedium = UiUtils.uiTextBuilder().cols(40).create();
     UiText uiTextHeavy = UiUtils.uiTextBuilder().cols(40).create();
@@ -325,7 +325,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMbrPepFdr = mu.feb(uiSpinnerMbrPepFdr).name("ionquant.peptidefdr").label("MBR peptide FDR").create();
     FormEntry feMbrProtFdr = mu.feb(uiSpinnerMbrProtFdr).name("ionquant.proteinfdr").label("MBR protein FDR").create();
 
-    FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("ionquant.mbrtoprun").label("MBR top runs").tooltip("Maximum number of donor runs used for a given acceptor run").create();
+    FormEntry feMbrTopRuns = mu.feb(uiSpinnerMbrTopRuns).name("ionquant.mbrtoprun").label("MBR top runs").tooltip("Maximum number of donor runs used for a given acceptor run.").create();
     FormEntry feLight = mu.feb(uiTextLight).name("ionquant.light").label("Light    ").tooltip("String description of mass deltas. A-Z for amino acids, n for N-terminus, and c for C-terminus. E.g. for SILAC: K0;R0").create();
     FormEntry feMedium = mu.feb(uiTextMedium).name("ionquant.medium").label("Medium").tooltip("String description of mass deltas. A-Z for amino acids, n for N-terminus, and c for C-terminus. E.g. for SILAC: K4.025107;R6.020129").create();
     FormEntry feHeavy = mu.feb(uiTextHeavy).name("ionquant.heavy").label("Heavy  ").tooltip("String description of mass deltas. A-Z for amino acids, n for N-terminus, and c for C-terminus. E.g. for SILAC: K8.014199;R10.008269").create();
