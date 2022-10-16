@@ -439,6 +439,8 @@ public class FragpipeRun {
     toConsole(Fragpipe.COLOR_BLACK, "DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics. Nat Methods 12:258 (2015)", true, console);
     toConsole(Fragpipe.COLOR_CMDLINE, "(DIA-NN) ", false, console);
     toConsole(Fragpipe.COLOR_BLACK, "dia-PASEF data analysis using FragPipe and DIA-NN for deep proteomics of low sample amounts. Nat Commun. 13:3944 (2022)", true, console);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(FP-PDV) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "PDV: an integrative proteomics data viewer. Bioinformatics. 35(7):1249 (2019)", true, console);
   }
 
 
