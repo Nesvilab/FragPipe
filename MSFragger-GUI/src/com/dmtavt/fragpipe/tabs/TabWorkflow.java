@@ -743,22 +743,12 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     List<Path> lessGenerated = Seq.seq(accepted)
         .filter(p -> {
-          final String end = "_calibrated.mzML";
           final String fnLo = p.getFileName().toString().toLowerCase();
-          if (!fnLo.endsWith(end)) {
+          if (fnLo.endsWith("_calibrated.mzml") || fnLo.endsWith("_uncalibrated.mzml") || fnLo.endsWith("_calibrated.mgf") || fnLo.endsWith("_uncalibrated.mgf")) {
+            return false;
+          } else {
             return true;
           }
-
-          final String fnBaseLo = StringUtils.upToLastSubstr(fnLo, end, false);
-          final Path dir = p.getParent();
-          long count = Seq.seq(accepted).filter(p2 -> dir.equals(p2.getParent()))
-              .map(p2 -> p2.getFileName().toString().toLowerCase())
-              .filter(fnLo2 -> fnLo2.startsWith(fnBaseLo))
-              .count();
-          if (count == 1) {
-            log.warn("Not filtering out LCMS file ending with '_calibrated.mzML' as no possible parent file found:\n\t{}", p);
-          }
-          return count == 1; // _calibrated.mzML is the only file with that base-name, add it
         }).toList();
 
     if (!accepted.isEmpty()) {
