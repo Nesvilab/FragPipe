@@ -20,8 +20,10 @@ package com.dmtavt.fragpipe.util;
 import static com.github.chhh.utils.StringUtils.upToLastDot;
 
 import com.github.chhh.utils.StringUtils;
+import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -71,6 +73,25 @@ public class RewritePepxml {
     final int overlap = 2 << 10;
     final int bufsz = 2 << 16;
 
+    // Find out if calibrated.mzML file will be generated
+    boolean hasCalibratedFile = false;
+    try {
+      BufferedReader reader = Files.newBufferedReader(origPepxml);
+      String line;
+      while ((line = reader.readLine()) != null) {
+        if (line.trim().contentEquals("<parameter name=\"write_calibrated_mzml\" value=\"1\"/>")) {
+          hasCalibratedFile = true;
+          break;
+        } else if (line.trim().contentEquals("<parameter name=\"write_calibrated_mzml\" value=\"0\"/>")) {
+          hasCalibratedFile = false;
+          break;
+        }
+      }
+      reader.close();
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
+
     Sink sink = Okio.sink(rewritten.toFile(), false);
     Buffer buf = new Buffer();
     try (BufferedSource bs = Okio.buffer(Okio.source(origPepxml))) {
@@ -112,7 +133,7 @@ public class RewritePepxml {
                 System.exit(1);
               }
 
-              if (originalMsmsRunSummary.contains("This pepXML was from calibrated spectra.")) {
+              if (hasCalibratedFile && originalMsmsRunSummary.contains("This pepXML was from calibrated spectra.")) {
                 rewrite = String.format("<msms_run_summary base_name=\"%s\" raw_data_type=\"mzML\" comment=\"This pepXML was from calibrated spectra.\" raw_data=\"mzML\">", upToLastDot(correctRaw.toAbsolutePath().toString()) + "_calibrated");
               } else {
                 String ext = StringUtils.afterLastDot(correctRaw.getFileName().toString());

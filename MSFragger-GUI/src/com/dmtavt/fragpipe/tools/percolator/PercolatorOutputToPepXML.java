@@ -367,13 +367,32 @@ public class PercolatorOutputToPepXML {
                     Paths.get(outBasename + ".pep.xml");
             final Path pepxml_rank = is_DIA ? Paths.get(basename + "_rank" + rank + ".pepXML") :
                     Paths.get(basename + ".pepXML");
-            // fixme: cannot parse XML line-by-line because line break is allowed everywhere, including within an attribute, in a XML. Need to parse it using JDOM or JAXB
+
+            // Find out if calibrated.mzML file will be generated
+            boolean hasCalibratedFile = false;
+            try {
+                BufferedReader reader = Files.newBufferedReader(pepxml_rank);
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.trim().contentEquals("<parameter name=\"write_calibrated_mzml\" value=\"1\"/>")) {
+                        hasCalibratedFile = true;
+                        break;
+                    } else if (line.trim().contentEquals("<parameter name=\"write_calibrated_mzml\" value=\"0\"/>")) {
+                        hasCalibratedFile = false;
+                        break;
+                    }
+                }
+                reader.close();
+            } catch (IOException ex) {
+                throw new UncheckedIOException(ex);
+            }
+
             try (final BufferedReader brpepxml = Files.newBufferedReader(pepxml_rank);
                  final BufferedWriter out = Files.newBufferedWriter(output_rank)) {
                 String line;
                 while ((line = brpepxml.readLine()) != null) {
                     if (line.trim().startsWith("<msms_run_summary")) {
-                        if (line.contains("This pepXML was from calibrated spectra.")) {
+                        if (hasCalibratedFile && line.contains("This pepXML was from calibrated spectra.")) {
                             Matcher matcher1 = pattern1.matcher(line);
                             if (matcher1.find()) {
                                 line = matcher1.replaceFirst(Matcher.quoteReplacement("base_name=\"" + matcher1.group(1) + "_calibrated" + "\""));
