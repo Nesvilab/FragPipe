@@ -184,7 +184,7 @@ public class DownloadDbHelper {
 
           Thread updateThread = new Thread(() -> {
             try {
-              runProcesses(pbs, 5);
+              runProcesses(pbs, 10);
 
             } catch (Exception ex) {
               throw new IllegalStateException("Something happened during database download", ex);
@@ -369,7 +369,7 @@ public class DownloadDbHelper {
 
       Thread updateThread = new Thread(() -> {
         try {
-          runProcesses(pbs, 1);
+          runProcesses(pbs, 10);
 
         } catch (Exception ex) {
           log.error("Something happened during database update", ex);
