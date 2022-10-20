@@ -73,7 +73,7 @@ public class TableCellIntSpinnerEditor extends DefaultCellEditor {
             JTable table, Object value, boolean isSelected, int row, int column
     ) {
         if (!valueSet) {
-            spinner.setValue(value);
+            spinner.setValue(value == null ? 1 : value);
         }
         SwingUtilities.invokeLater(() -> textField.requestFocus());
         return spinner;
