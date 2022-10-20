@@ -88,6 +88,8 @@ public class CmdOPair  extends CmdBase {
             cmd.add("-g " + params.getOglycanDB());
         }
         cmd.add("-n " + params.getMaxNumGlycans());
+        cmd.add("-i " + params.getMinIsotope());
+        cmd.add("-j " + params.getMaxIsotope());
         cmd.add("-d " + allRawPaths.get(0));        // rawfile dir   // todo: fix for multiple groups
         cmd.add("-s " + psmPath);        // psm file path
         cmd.add("-o " + workdir);        // output dir

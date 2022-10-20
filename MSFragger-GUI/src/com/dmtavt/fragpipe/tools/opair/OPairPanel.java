@@ -47,11 +47,15 @@ public class OPairPanel extends JPanelBase {
     private static final String PROP_ms2TolPPM = "ms2_tol";
     private static final String PROP_ms1TolPPM = "ms1_tol";
     private static final String PROP_maxGlycan = "max_glycans";
+    private static final String PROP_minIsotope = "min_isotope_error";
+    private static final String PROP_maxIsotope = "max_isotope_error";
     private static final String PROP_glycoDB = "glyco_db";
 
     private UiSpinnerDouble uiSpinnerMS2Tol;
     private UiSpinnerDouble uiSpinnerMS1Tol;
     private UiSpinnerInt uiSpinnerMaxGlycans;
+    private UiSpinnerInt uiSpinnerMinIsotope;
+    private UiSpinnerInt uiSpinnerMaxIsotope;
 
     private OPairParams params;
 
@@ -93,12 +97,19 @@ public class OPairPanel extends JPanelBase {
                 uiSpinnerMS2Tol);
         uiSpinnerMS1Tol = UiSpinnerDouble.builder(20.0, 0.1, 1000.0, 1)
                 .setFormat(new DecimalFormat("0.#")).setCols(5).create();
-        FormEntry feMS1SpectraTol = new FormEntry(PROP_ms1TolPPM, "Fragment mass tolerance (PPM)",
+        FormEntry feMS1SpectraTol = new FormEntry(PROP_ms1TolPPM, "Precursor mass tolerance (PPM)",
                 uiSpinnerMS1Tol);
 
         uiSpinnerMaxGlycans = new UiSpinnerInt(2, 1, 10, 1, 1);
         FormEntry feMaxGlycans = new FormEntry(PROP_maxGlycan, "Max Glycans", uiSpinnerMaxGlycans,
                 "Maximum number of glycans per peptide. Increasing this value greatly increases search time");
+
+        uiSpinnerMinIsotope = new UiSpinnerInt(0, -10, 10, 1, 1);
+        FormEntry feMinIsotope = new FormEntry(PROP_minIsotope, "Min Isotope Error", uiSpinnerMinIsotope,
+                "Precursor isotope error range lower bound");
+        uiSpinnerMaxIsotope = new UiSpinnerInt(2, -10, 10, 1, 1);
+        FormEntry feMaxIsotope = new FormEntry(PROP_maxIsotope, "Max Isotope Error", uiSpinnerMaxIsotope,
+                "Precursor isotope error range upper bound");
 
         String tooltipGlycanDBFile = "Glycan database file in Byonic or pGlyco formats (.txt or .pdb). Will use internal default O-glycan list if not provided.";
         uiTextOGlycanDBFile = UiUtils.uiTextBuilder().create();
@@ -120,12 +131,17 @@ public class OPairPanel extends JPanelBase {
                 });
 
         mu.add(pContent, feMS2SpectraTol.label(), mu.ccR());
-        mu.add(pContent, feMS2SpectraTol.comp).split().wrap();
-        mu.add(pContent, feMS1SpectraTol.label(), mu.ccR());
-        mu.add(pContent, feMS1SpectraTol.comp).split().wrap();
+        mu.add(pContent, feMS2SpectraTol.comp).split();
+        mu.add(pContent, feMinIsotope.label(), mu.ccR());
+        mu.add(pContent, feMinIsotope.comp).split();
+        mu.add(pContent, feMaxIsotope.label(), mu.ccR());
+        mu.add(pContent, feMaxIsotope.comp).split().wrap();
 
+        mu.add(pContent, feMS1SpectraTol.label(), mu.ccR());
+        mu.add(pContent, feMS1SpectraTol.comp).split();
         mu.add(pContent, feMaxGlycans.label(), mu.ccR());
-        mu.add(pContent, feMaxGlycans.comp).split();
+        mu.add(pContent, feMaxGlycans.comp).split().wrap();
+
         mu.add(pContent, feGlycanDBFile.label(), mu.ccR());
         mu.add(pContent, btnBrosweGlycanDBFile, mu.ccR()).split();
         mu.add(pContent, feGlycanDBFile.comp).split().growX().spanX().pushX().wrap();
@@ -163,6 +179,8 @@ public class OPairPanel extends JPanelBase {
         params.setProductPPMtol(uiSpinnerMS2Tol.getActualValue());
         params.setPrecursorPPMtol(uiSpinnerMS1Tol.getActualValue());
         params.setMaxNumGlycans(uiSpinnerMaxGlycans.getActualValue());
+        params.setMinIsotope(uiSpinnerMinIsotope.getActualValue());
+        params.setMaxIsotope(uiSpinnerMaxIsotope.getActualValue());
         params.setOglycanDB(uiTextOGlycanDBFile.getNonGhostText());
         return params;
     }

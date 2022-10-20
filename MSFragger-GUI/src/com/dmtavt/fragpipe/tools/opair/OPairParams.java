@@ -22,6 +22,8 @@ public class OPairParams {
     private double precursorPPMtol;
     private String OglycanDB;
     private int maxNumGlycans;
+    private int minIsotope;
+    private int maxIsotope;
 
 
     public double getProductPPMtol() {
@@ -55,4 +57,12 @@ public class OPairParams {
     public void setMaxNumGlycans(int maxNumGlycans) {
         this.maxNumGlycans = maxNumGlycans;
     }
+
+    public int getMinIsotope() { return minIsotope; }
+
+    public void setMinIsotope(int minIsotope) { this.minIsotope = minIsotope; }
+
+    public int getMaxIsotope() { return maxIsotope; }
+
+    public void setMaxIsotope(int maxIsotope) { this.maxIsotope = maxIsotope; }
 }
