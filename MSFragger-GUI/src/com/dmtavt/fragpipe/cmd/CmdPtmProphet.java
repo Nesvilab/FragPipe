@@ -58,14 +58,14 @@ public class CmdPtmProphet extends CmdBase {
 
     // check for existing pepxml files and delete them
     try {
-      final List<Path> forDeletion = new ArrayList<>();
+      final Set<Path> forDeletion = new TreeSet<>();
       for (Entry<Path, List<Tuple2<InputLcmsFile, Path>>> kv : groupByPepxml.entrySet()) {
         Path workDir = kv.getValue().get(0).v1.outputDir(wd);
         if (Files.exists(workDir)) { // Dry-run does not create the folders.
           forDeletion.addAll(Files.list(workDir).filter(file -> file.toString().endsWith("mod.pep.xml")).collect(Collectors.toList()));
         }
       }
-      if (!deleteFiles(comp, forDeletion, "pep.xml")) {
+      if (!deleteFiles(comp, forDeletion, "mod.pep.xml")) {
         return false;
       }
     } catch (IOException e) {

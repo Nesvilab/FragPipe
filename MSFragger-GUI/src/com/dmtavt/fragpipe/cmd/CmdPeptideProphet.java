@@ -38,6 +38,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -115,12 +117,12 @@ public class CmdPeptideProphet extends CmdBase {
     return m;
   }
 
-  public static List<Path> findOldFilesForDeletion(Map<InputLcmsFile, List<Path>> outputs) {
+  public static Set<Path> findOldFilesForDeletion(Map<InputLcmsFile, List<Path>> outputs) {
 //    final Set<Path> outputPaths = pepxmlFiles.keySet().stream()
 //        .map(f -> f.outputDir(wd)).collect(Collectors.toSet());
     final Set<Path> outputPaths = outputs.values().stream().flatMap(List::stream)
         .map(Path::getParent).collect(Collectors.toSet());
-    final List<Path> pepxmlsToDelete = new ArrayList<>();
+    final Set<Path> pepxmlsToDelete = new TreeSet<>();
     for (Path outputPath : outputPaths) {
       if (Files.exists(outputPath) && Files.isDirectory(outputPath)) {
         try {
@@ -137,7 +139,7 @@ public class CmdPeptideProphet extends CmdBase {
    * Asks user confirmation before deleting the files.
    * Shows all the file paths to be deleted.
    */
-  public static boolean deleteFiles(Component comp, List<Path> forDeletion, String tool) {
+  public static boolean deleteFiles(Component comp, Collection<Path> forDeletion, String tool) {
     if (forDeletion == null || forDeletion.isEmpty())
       return true;
 
@@ -210,7 +212,7 @@ public class CmdPeptideProphet extends CmdBase {
 
     // check for existing pepxml files and delete them
     final Map<InputLcmsFile, List<Path>> outputs = outputs(pepxmlFiles, "pepxml", combine);
-    final List<Path> forDeletion = findOldFilesForDeletion(outputs);
+    final Set<Path> forDeletion = findOldFilesForDeletion(outputs);
     if (!deleteFiles(comp, forDeletion, "pep.xml")) {
       return false;
     }

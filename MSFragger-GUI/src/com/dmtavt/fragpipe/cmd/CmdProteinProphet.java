@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
@@ -98,10 +99,10 @@ public class CmdProteinProphet extends CmdBase {
     return m;
   }
 
-  private List<Path> findOldFilesForDeletion(List<Path> outputs) {
+  private Set<Path> findOldFilesForDeletion(List<Path> outputs) {
     Set<Path> outputDirs = outputs.stream().map(Path::getParent).collect(Collectors.toSet());
     final Pattern regex = Pattern.compile(".+?\\.prot\\.xml$", Pattern.CASE_INSENSITIVE);
-    final List<Path> toDelete = new ArrayList<>();
+    final Set<Path> toDelete = new TreeSet<>();
     for (Path dir : outputDirs) {
       FileListing fl = new FileListing(dir, regex);
       fl.setRecursive(false);
@@ -118,7 +119,7 @@ public class CmdProteinProphet extends CmdBase {
 
     // check for existence of old files
     final Map<LcmsFileGroup, Path> outputs = outputs(pepxmlFiles, isMultiExperiment);
-    final List<Path> oldFilesForDeletion = findOldFilesForDeletion(new ArrayList<>(outputs.values()));
+    final Set<Path> oldFilesForDeletion = findOldFilesForDeletion(new ArrayList<>(outputs.values()));
     if (!deleteFiles(comp, oldFilesForDeletion, "prot.xml")) {
       return false;
     }
