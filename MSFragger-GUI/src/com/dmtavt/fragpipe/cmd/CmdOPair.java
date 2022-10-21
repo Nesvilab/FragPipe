@@ -77,7 +77,7 @@ public class CmdOPair  extends CmdBase {
         final String opair_bin = OsUtils.isUnix() ? "opair/CMD.dll" :
                 OsUtils.isWindows() ? "opair/CMD.exe" : null;
         if (OsUtils.isUnix()) {
-            cmd.add("dotnet ");
+            cmd.add("dotnet");
         }
         cmd.add(FragpipeLocations.checkToolsMissing(Seq.of(opair_bin)).get(0).toString());
 
