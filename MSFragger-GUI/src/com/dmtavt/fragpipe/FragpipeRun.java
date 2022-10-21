@@ -1173,14 +1173,13 @@ public class FragpipeRun {
     addCheck.accept(() -> {
       if (isTmtLqFq && isFreequant) {
         if (Fragpipe.headless) {
-          log.error("FreeQuant needs to be run as part of TMT analysis.");
+          log.error("Both FreeQuant and TMT-Integrator were enabled. If you want to perform TMT analysis, please disable FreeQuant. If you want to perform LFQ analysis, please disable TMT-Integrator.");
         } else {
           String msg =
-              "<html>FreeQuant needs to be run as part of TMT analysis.\n"
-                  + "You have chosen to run FreeQuant separately as well.\n"
-                  + "This will cause generated files to interfere .\n"
-                  + "Please turn off standalone FreeQuant.\n";
-          JOptionPane.showMessageDialog(parent, msg, "Warning", JOptionPane.WARNING_MESSAGE);
+              "<html>Both FreeQuant and TMT-Integrator were enabled.\n"
+                  + "If you want to perform TMT analysis, please disable FreeQuant.\n"
+                  + "If you want to perform LFQ analysis, please disable TMT-Integrator.\n";
+          JOptionPane.showMessageDialog(parent, msg, "Warning", JOptionPane.ERROR_MESSAGE);
         }
         return false;
       }
