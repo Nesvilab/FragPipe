@@ -27,6 +27,7 @@ import umich.ms.fileio.filetypes.mzml.MZMLFile;
 import umich.ms.fileio.filetypes.mzxml.MZXMLFile;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -81,8 +82,9 @@ public class PairScans {
         scans.loadData(LCMSDataSubset.STRUCTURE_ONLY);
 
         TreeMap<Integer, IScan> num2scan = scans.getMapNum2scan();
-        TreeMap<Integer, Integer> pairedScans = new TreeMap<>();
+        ArrayList<String> pairedScans = new ArrayList<>();
         HashMap<Double, Integer> unpairedPrecursorMap = new HashMap<>();
+        HashMap<Double, Integer> multipairedPrecursorMap = new HashMap<>();     // watch for multiple follow-up scans of one MS2
         for (final Map.Entry<Integer, IScan> scanNum_iscan : num2scan.entrySet()) {
             final IScan scan = scanNum_iscan.getValue();
             final int scanNum = scanNum_iscan.getKey();
@@ -90,6 +92,7 @@ public class PairScans {
             if (scan.getMsLevel() == 1) {
                 // reset the unpaired precursor list for next set of MS2 scans
                 unpairedPrecursorMap = new HashMap<>();
+                multipairedPrecursorMap = new HashMap<>();
             } else if (scan.getMsLevel() == 2) {
                 // find scan pairs given activation types of interest
                 String filterString = scan.getFilterString();
@@ -103,19 +106,25 @@ public class PairScans {
                     if (activationStr.equalsIgnoreCase(firstActivation.getText())) {
                         // first activation - record precursor to look for follow-up scans
                         unpairedPrecursorMap.put(precursorMZ, scanNum);
+                        multipairedPrecursorMap.put(precursorMZ, scanNum);
                     } else if (activationStr.equalsIgnoreCase(secondActivation.getText())) {
                         // second activation - find paired precursor and record the pairing, remove precursor from unpaired
                         if (unpairedPrecursorMap.containsKey(precursorMZ)) {
                             // pair found, record first activation scan #, second activation scan #
-                            pairedScans.put(unpairedPrecursorMap.get(precursorMZ), scanNum);
+                            pairedScans.add(String.format("%d\t%d\n", unpairedPrecursorMap.get(precursorMZ), scanNum));
                             unpairedPrecursorMap.remove(precursorMZ);
                         } else {
-                            // unexpected second activation without first
-                            System.out.printf("Unpaired precursor %.4f in scan %d, not paired", precursorMZ, scanNum);
+                            // check for multi-paired scans
+                            if (multipairedPrecursorMap.containsKey(precursorMZ)) {
+                                pairedScans.add(String.format("%d\t%d\n", multipairedPrecursorMap.get(precursorMZ), scanNum));
+                            } else {
+                                // unexpected second activation without first
+                                System.out.printf("Unpaired precursor %.4f in scan %d", precursorMZ, scanNum);
+                            }
                         }
                     } else {
                         // unexpected activation - ignore
-                        System.out.printf("Unspecified activation %s in scan %d, not paired", activationStr, scanNum);
+                        System.out.printf("Unspecified activation %s in scan %d", activationStr, scanNum);
                     }
                 }
             }
@@ -126,8 +135,8 @@ public class PairScans {
         // write scan pairs to file
         String outputPath = spectralPath.substring(0, spectralPath.lastIndexOf('.') + 1) + "pairs";
         PrintWriter out = new PrintWriter(outputPath);
-        for (final Map.Entry<Integer, Integer> pairEntry : pairedScans.entrySet()) {
-            out.write(String.format("%s\t%s\n", pairEntry.getKey(), pairEntry.getValue()));
+        for (final String pairStr : pairedScans) {
+            out.write(pairStr);
         }
         out.flush();
         out.close();
