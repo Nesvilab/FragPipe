@@ -159,7 +159,7 @@ phi-report.prot-level-summary=false
 phi-report.run-report=true
 protein-prophet.cmd-opts=--maxppmdiff 2000000
 protein-prophet.run-protein-prophet=true
-ptmprophet.cmdline=--keepold --static --em 1 --nions b --mods STY\:79.966331,n\:42.0106,M\:15.9949,K\:4.025107,K\:8.014199,R\:6.020129,R\:10.008269 --minprob 0.5
+ptmprophet.cmdline=KEEPOLD STATIC EM=1 NIONS=b STY\:79.966331,n\:42.0106,M\:15.9949,K\:4.025107,K\:8.014199,R\:6.020129,R\:10.008269 MINPROB=0.5
 ptmprophet.run-ptmprophet=false
 ptmshepherd.adv_params=false
 ptmshepherd.annotation-common=false

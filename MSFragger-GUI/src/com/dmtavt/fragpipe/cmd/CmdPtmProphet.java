@@ -18,10 +18,12 @@
 package com.dmtavt.fragpipe.cmd;
 
 import static com.dmtavt.fragpipe.cmd.CmdPeptideProphet.deleteFiles;
+import static com.github.chhh.utils.OsUtils.getOsName;
+import static com.github.chhh.utils.OsUtils.isUnix;
+import static com.github.chhh.utils.OsUtils.isWindows;
 
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.github.chhh.utils.StringUtils;
-import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,6 +32,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.jooq.lambda.Seq;
 import org.jooq.lambda.tuple.Tuple2;
@@ -37,9 +42,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CmdPtmProphet extends CmdBase {
+
   private static final Logger log = LoggerFactory.getLogger(CmdPtmProphet.class);
-  public static String NAME = "PtmProphet";
+  private static final Pattern pattern1 = Pattern.compile("\\.pep\\.xml$");
   private static final Pattern pattern2 = Pattern.compile("interact-.+\\.mod\\.pep\\.xml.*");
+
+  public static String NAME = "PTMProphet";
+  public static final String PTMProphet_WIN = "PTMProphet/PTMProphetParser.exe";
+  public static final String PTMProphet_LINUX = "PTMProphet/PTMProphetParser";
 
   public CmdPtmProphet(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -50,9 +60,26 @@ public class CmdPtmProphet extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, UsageTrigger usePhi, int threads, String cmdLineOpts,
-      List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml) {
+  public boolean configure(Component comp, String cmdLineOpts, List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml) {
     initPreConfig();
+
+    final List<Path> ptmprophetPath;
+    if (isWindows()) {
+      ptmprophetPath = FragpipeLocations.checkToolsMissing(Seq.of(PTMProphet_WIN));
+      if (ptmprophetPath == null || ptmprophetPath.size() != 1) {
+        System.err.println("Could not file PTMProphet's executable file " + PTMProphet_WIN);
+        return false;
+      }
+    } else if (isUnix()) {
+      ptmprophetPath = FragpipeLocations.checkToolsMissing(Seq.of(PTMProphet_LINUX));
+      if (ptmprophetPath == null || ptmprophetPath.size() != 1) {
+        System.err.println("Could not file PTMProphet's executable file " + PTMProphet_LINUX);
+        return false;
+      }
+    } else {
+      System.err.println("PTMProphet does not support " + getOsName() + ". It only support Windows and Linux.");
+      return false;
+    }
 
     Map<Path, List<Tuple2<InputLcmsFile, Path>>> groupByPepxml = Seq.seq(lcmsToPepxml)
         .groupBy(Tuple2::v2);
@@ -80,22 +107,16 @@ public class CmdPtmProphet extends CmdBase {
 
       // PTMProphet itself
       List<String> cmd = new ArrayList<>();
-      cmd.add(usePhi.useBin(workDir));
-      cmd.add("ptmprophet");
-      List<String> cmdOpts = Seq.of(cmdLineOpts.split(" "))
-          .map(String::trim).filter(StringUtils::isNotBlank).toList();
-      if (!cmdOpts.contains("--maxthreads")) {
-        cmdOpts.add("--maxthreads");
-        cmdOpts.add(Integer.toString(Math.max(1, threads)));
-      }
+      cmd.add(ptmprophetPath.get(0).toAbsolutePath().toString());
+      List<String> cmdOpts = Seq.of(cmdLineOpts.split("\\s+")).filter(e -> !e.startsWith("MAXTHREADS=")).toList();
+      cmdOpts.add("MAXTHREADS=1");
       cmd.addAll(cmdOpts);
       cmd.add(pepxml.getFileName().toString());
-
+      cmd.add(pattern1.matcher(pepxml.getFileName().toString()).replaceFirst(".mod.pep.xml"));
 
       final ProcessBuilder pb = new ProcessBuilder(cmd);
-      //pb.directory(lcms.getPath().getParent().toFile()); // PTMProphet is run from the directory where the RAW is
       pb.directory(workDir.toFile());
-      pbis.add(new PbiBuilder().setPb(pb).create());
+      pbis.add(new PbiBuilder().setPb(pb).setParallelGroup(getCmdName()).create());
     }
 
     isConfigured = true;

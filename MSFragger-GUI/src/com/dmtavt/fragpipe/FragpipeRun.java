@@ -977,8 +977,7 @@ public class FragpipeRun {
           .toList();
 
       if (panelPtmProphet.isRun()) {
-        return cmdPtmProphet.configure(parent, usePhi, threads, panelPtmProphet.getCmdLineOpts(),
-            lcmsToPepxml);
+        return cmdPtmProphet.configure(parent, panelPtmProphet.getCmdLineOpts(), lcmsToPepxml);
       }
       return true;
     });

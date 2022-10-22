@@ -102,7 +102,7 @@ public class PtmProphetPanel extends JPanelBase {
     final String prop = "ptmprophet.cmdline.default";
     String val = Fragpipe.getPropFix(prop);
     if (val == null) {
-      val = "--keepold --static --em 1 --nions b --mods STY:79.966331,M:15.9949 --minprob 0.5";
+      val = "KEEPOLD STATIC EM=1 NIONS=b STY:79.966331,M:15.9949 MINPROB=0.5";
       log.warn("Property [{}] not found in Bundle.properties, default to hardcoded value: {}", prop, val);
     }
     return val;
