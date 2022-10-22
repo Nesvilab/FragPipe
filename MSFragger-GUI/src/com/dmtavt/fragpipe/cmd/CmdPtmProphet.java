@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.jooq.lambda.Seq;
@@ -46,6 +47,7 @@ public class CmdPtmProphet extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdPtmProphet.class);
   private static final Pattern pattern1 = Pattern.compile("\\.pep\\.xml$");
   private static final Pattern pattern2 = Pattern.compile("interact-.+\\.mod\\.pep\\.xml.*");
+  private static final Pattern pattern3 = Pattern.compile("--([^\\s]+)\\s+(((?!--).)*)");
 
   public static String NAME = "PTMProphet";
   public static final String PTMProphet_WIN = "PTMProphet/PTMProphetParser.exe";
@@ -108,6 +110,9 @@ public class CmdPtmProphet extends CmdBase {
       // PTMProphet itself
       List<String> cmd = new ArrayList<>();
       cmd.add(ptmprophetPath.get(0).toAbsolutePath().toString());
+      if (cmdLineOpts.contains("--")) { // This is the Philosopher command style. Translate it to the native style.
+        cmdLineOpts = translateCmds(cmdLineOpts);
+      }
       List<String> cmdOpts = Seq.of(cmdLineOpts.split("\\s+")).filter(e -> !e.startsWith("MAXTHREADS=")).toList();
       cmdOpts.add("MAXTHREADS=1");
       cmd.addAll(cmdOpts);
@@ -126,5 +131,20 @@ public class CmdPtmProphet extends CmdBase {
   @Override
   public boolean usesPhi() {
     return true;
+  }
+
+  static String translateCmds(String cmdLineOpts) {
+    Matcher matcher = pattern3.matcher(cmdLineOpts.trim());
+    StringBuilder sb = new StringBuilder();
+    while(matcher.find()) {
+      if (matcher.group(2) == null || matcher.group(2).trim().isEmpty()) {
+        sb.append(matcher.group(1).toUpperCase()).append(" ");
+      } else if (matcher.group(1).equalsIgnoreCase("mods")) {
+        sb.append(matcher.group(2).trim()).append(" ");
+      } else {
+        sb.append(matcher.group(1).toUpperCase()).append("=").append(matcher.group(2).trim()).append(" ");
+      }
+    }
+    return sb.toString().trim();
   }
 }
