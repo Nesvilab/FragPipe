@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 public class CmdPtmProphet extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdPtmProphet.class);
   public static String NAME = "PtmProphet";
+  private static final Pattern pattern2 = Pattern.compile("interact-.+\\.mod\\.pep\\.xml.*");
 
   public CmdPtmProphet(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -62,7 +63,7 @@ public class CmdPtmProphet extends CmdBase {
       for (Entry<Path, List<Tuple2<InputLcmsFile, Path>>> kv : groupByPepxml.entrySet()) {
         Path workDir = kv.getValue().get(0).v1.outputDir(wd);
         if (Files.exists(workDir)) { // Dry-run does not create the folders.
-          forDeletion.addAll(Files.list(workDir).filter(file -> file.toString().endsWith("mod.pep.xml")).collect(Collectors.toList()));
+          forDeletion.addAll(Files.list(workDir).filter(p -> pattern2.matcher(p.getFileName().toString()).matches()).collect(Collectors.toList()));
         }
       }
       if (!deleteFiles(comp, forDeletion, "mod.pep.xml")) {
