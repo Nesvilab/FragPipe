@@ -75,11 +75,6 @@ public class ProcessManager {
     return instance;
   }
 
-  public void init() {
-    log.debug("Initializing Process Manager: init()");
-    init0();
-  }
-
   private ExecutorService newSingleExecutor() {
     return Executors.newFixedThreadPool(1);
   }

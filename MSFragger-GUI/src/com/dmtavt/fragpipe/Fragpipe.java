@@ -677,7 +677,7 @@ public class Fragpipe extends JFrameHeadless {
     Bus.postSticky(this);
 
     // initialize singletons (mainly to subscribe them to the bus)
-    ProcessManager.get().init();
+    ProcessManager.get();
     DbSplit2.initClass();
     SpecLibGen2.initClass();
   }
