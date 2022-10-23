@@ -644,6 +644,8 @@ public class FragpipeRun {
         .append(Fragpipe.getStickyStrict(NoteConfigMsfragger.class).version).append("\n");
     sb.append("Philosopher version ")
         .append(Fragpipe.getStickyStrict(NoteConfigPhilosopher.class).version).append("\n");
+    sb.append("IonQuant version ")
+        .append(Fragpipe.getStickyStrict(NoteConfigIonQuant.class).version).append("\n");
     return sb.toString();
   }
 
