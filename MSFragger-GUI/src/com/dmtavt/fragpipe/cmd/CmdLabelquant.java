@@ -123,16 +123,15 @@ public class CmdLabelquant extends CmdBase {
       }
 
       if (!isDryRun) {
-        // copy annotation files to output directory for Report command to pick up
-        Path annotationFileInGroupDir = groupWd.resolve(annotationFile.getFileName());
-        if (!annotationFileInGroupDir.equals(annotationFile)) {
-          try {
-            //Files.deleteIfExists(annotationFileInGroupDir);
-            Files.copy(annotationFile, annotationFileInGroupDir, StandardCopyOption.REPLACE_EXISTING);
-          } catch (IOException ex) {
-            ex.printStackTrace();
-            return false;
+        try {
+          // copy annotation files to output directory for Report command to pick up
+          Path annotationFileInGroupDir = groupWd.resolve(annotationFile.getFileName());
+          if (!annotationFileInGroupDir.equals(annotationFile.toRealPath())) {
+            Files.copy(annotationFile.toRealPath(), annotationFileInGroupDir, StandardCopyOption.REPLACE_EXISTING);
           }
+        } catch (IOException ex) {
+          ex.printStackTrace();
+          return false;
         }
       }
 
