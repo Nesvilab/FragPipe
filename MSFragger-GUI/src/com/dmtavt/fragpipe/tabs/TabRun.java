@@ -150,9 +150,11 @@ public class TabRun extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void on(MessagePrintToConsole m) {
     if (Fragpipe.headless) {
-      System.out.print(m.text);
-      if (m.addNewline) {
-        System.out.println();
+      synchronized (System.out) {
+        System.out.print(m.text);
+        if (m.addNewline) {
+          System.out.println();
+        }
       }
     }
 

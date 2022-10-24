@@ -672,7 +672,7 @@ public class FragpipeRun {
     return sb.toString();
   }
 
-  public static void printProcessDescription(ProcessBuilderInfo pbi, TextConsole console) {
+  public synchronized static void printProcessDescription(ProcessBuilderInfo pbi, TextConsole console) {
     if (!StringUtils.isNullOrWhitespace(pbi.name)) {
       toConsole(Fragpipe.COLOR_TOOL, pbi.name, false, console);
     }
