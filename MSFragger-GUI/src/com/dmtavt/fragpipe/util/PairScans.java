@@ -26,6 +26,7 @@ import umich.ms.fileio.filetypes.AbstractLCMSDataSource;
 import umich.ms.fileio.filetypes.mzml.MZMLFile;
 import umich.ms.fileio.filetypes.mzxml.MZXMLFile;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,9 +49,15 @@ public class PairScans {
 
     static void findScanPairs(String spectralPath, int nThreads, String firstActivationStr, String secondActivationStr) throws Exception {
         String ext = spectralPath.substring(spectralPath.lastIndexOf('.') + 1);
+        String outputPath = spectralPath.substring(0, spectralPath.lastIndexOf('.') + 1) + "pairs";
+        // skip if file already exists
+        if (new File(outputPath).exists()) {
+            System.out.printf("Paired scan file already exists for input %s, will use it\n", spectralPath);
+            return;
+        }
 
         if (!ext.equalsIgnoreCase("mzml") && !ext.equalsIgnoreCase("mzxml")) {
-            System.err.println(spectralPath + " not supported. Scan pairing is only supported for mzML and mzXML formats. Scans not paired.");
+            System.err.println(spectralPath + " not supported. Scan pairing is only supported for mzML and mzXML formats. Scans not paired.\n");
             return;
         }
 
@@ -133,7 +140,6 @@ public class PairScans {
         source.close();
 
         // write scan pairs to file
-        String outputPath = spectralPath.substring(0, spectralPath.lastIndexOf('.') + 1) + "pairs";
         PrintWriter out = new PrintWriter(outputPath);
         for (final String pairStr : pairedScans) {
             out.write(pairStr);
