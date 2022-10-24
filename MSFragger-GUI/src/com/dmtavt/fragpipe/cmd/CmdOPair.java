@@ -71,34 +71,33 @@ public class CmdOPair  extends CmdBase {
             } else {
                 allRawPaths.add(lcmsPathsForGroup.get(0));
             }
+
+            List<String> cmd = new ArrayList<>();
+            final String opair_bin = OsUtils.isUnix() ? "opair/CMD.dll" :
+                    OsUtils.isWindows() ? "opair/CMD.exe" : null;
+            if (OsUtils.isUnix()) {
+                cmd.add("dotnet");
+            }
+            cmd.add(FragpipeLocations.checkToolsMissing(Seq.of(opair_bin)).get(0).toString());
+
+            Path psmPath = group.outputDir(workdir).resolve("psm.tsv");     // psm file path relative to group output dir
+            cmd.add("-b " + params.getProductPPMtol());
+            cmd.add("-c " + params.getPrecursorPPMtol());
+            if (params.getOglycanDB().length() > 0) {
+                cmd.add("-g " + params.getOglycanDB());
+            }
+            cmd.add("-n " + params.getMaxNumGlycans());
+            cmd.add("-i " + params.getMinIsotope());
+            cmd.add("-j " + params.getMaxIsotope());
+            cmd.add("-d " + allRawPaths.get(0));                // rawfile dir
+            cmd.add("-s " + psmPath);
+            cmd.add("-o " + group.outputDir(workdir));          // output dir relative to group
+
+            ProcessBuilder pb = new ProcessBuilder(cmd);
+            pb.directory(wd.toFile());
+
+            pbis.add(PbiBuilder.from(pb));
         }
-
-        List<String> cmd = new ArrayList<>();
-        final String opair_bin = OsUtils.isUnix() ? "opair/CMD.dll" :
-                OsUtils.isWindows() ? "opair/CMD.exe" : null;
-        if (OsUtils.isUnix()) {
-            cmd.add("dotnet");
-        }
-        cmd.add(FragpipeLocations.checkToolsMissing(Seq.of(opair_bin)).get(0).toString());
-
-        Path psmPath = workdir.resolve("psm.tsv");
-        cmd.add("-b " + params.getProductPPMtol());
-        cmd.add("-c " + params.getPrecursorPPMtol());
-        if (params.getOglycanDB().length() > 0) {
-            cmd.add("-g " + params.getOglycanDB());
-        }
-        cmd.add("-n " + params.getMaxNumGlycans());
-        cmd.add("-i " + params.getMinIsotope());
-        cmd.add("-j " + params.getMaxIsotope());
-        cmd.add("-d " + allRawPaths.get(0));        // rawfile dir   // todo: fix for multiple groups
-        cmd.add("-s " + psmPath);        // psm file path
-        cmd.add("-o " + workdir);        // output dir
-
-        ProcessBuilder pb = new ProcessBuilder(cmd);
-        pb.directory(wd.toFile());
-
-        pbis.add(PbiBuilder.from(pb));
-
         isConfigured = true;
         return true;
     }
