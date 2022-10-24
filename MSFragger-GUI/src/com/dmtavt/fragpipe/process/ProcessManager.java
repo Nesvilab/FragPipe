@@ -18,6 +18,7 @@
 package com.dmtavt.fragpipe.process;
 
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
+import static com.dmtavt.fragpipe.tabs.TabWorkflow.maxProcessors;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
@@ -57,6 +58,7 @@ public class ProcessManager {
   private static final Logger log = LoggerFactory.getLogger(ProcessManager.class);
 
   private static final ProcessManager instance = new ProcessManager();
+  private int nThreads = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors() - 1, maxProcessors));
   private final Object lock = new Object();
   private final ConcurrentLinkedQueue<List<RunnableDescription>> taskGroups = new ConcurrentLinkedQueue<>();
   private final ConcurrentLinkedQueue<CompletableFuture<?>> started = new ConcurrentLinkedQueue<>();
@@ -69,10 +71,27 @@ public class ProcessManager {
     log.debug("Process manager private constructor called");
     init0();
     Bus.register(this);
+    Bus.postSticky(this);
   }
 
   public static ProcessManager get() {
     return instance;
+  }
+
+  public void setThreads(int nThreads) {
+    if (nThreads != this.nThreads) {
+      this.nThreads = nThreads;
+      try {
+        if (execMulti != null) {
+          execMulti.shutdownNow();
+          execMulti.awaitTermination(20, TimeUnit.SECONDS);
+        }
+      } catch (InterruptedException ex) {
+        log.debug("Timed out waiting for parallel executor shutdown. This does not affect processing results.", ex);
+      } finally {
+        execMulti = newMultiExecutor();
+      }
+    }
   }
 
   private ExecutorService newSingleExecutor() {
@@ -80,7 +99,7 @@ public class ProcessManager {
   }
 
   private ExecutorService newMultiExecutor() {
-    return Executors.newFixedThreadPool(Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
+    return Executors.newFixedThreadPool(nThreads);
   }
 
   private void init0() {

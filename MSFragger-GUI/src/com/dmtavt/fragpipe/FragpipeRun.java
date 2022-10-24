@@ -69,6 +69,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.process.ProcessDescription;
 import com.dmtavt.fragpipe.process.ProcessDescription.Builder;
+import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.process.RunnableDescription;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
@@ -149,6 +150,19 @@ public class FragpipeRun {
   }
 
   public static int run(MessageRun m) {
+    final TabWorkflow tabWorkflow = Bus.getStickyEvent(TabWorkflow.class);
+    if (tabWorkflow == null) {
+      throw new IllegalStateException("TabWorkflow has not been posted to the bus");
+    }
+
+    // Update the number of threads before running everything.
+    ProcessManager processManager = Bus.getStickyEvent(ProcessManager.class);
+    if (processManager == null) {
+      throw new IllegalStateException("ProcessManager has not been posted to the bus");
+
+    }
+    processManager.setThreads(tabWorkflow.getThreads());
+
     log.debug("Started main FragpipeRun.run() method");
     Thread.setDefaultUncaughtExceptionHandler(Fragpipe::uncaughtExceptionHandler);
 
@@ -194,10 +208,7 @@ public class FragpipeRun {
         log.debug("validateWd() failed");
         return 1;
       }
-      final TabWorkflow tabWorkflow = Bus.getStickyEvent(TabWorkflow.class);
-      if (tabWorkflow == null) {
-        throw new IllegalStateException("TabWorkflow has not been posted to the bus");
-      }
+
       if (!isDryRun) {
         Path preparedWd = prepareWd(tabRun, wd, tabWorkflow);
         if (preparedWd == null) {

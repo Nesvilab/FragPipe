@@ -53,13 +53,7 @@ public class CmdIprophet extends CmdBase {
     cmd.add("--output");
     cmd.add("combined");
     cmd.add("--threads");
-    final int threads;
-    if (nThreads > 0) {
-      threads = nThreads;
-    } else {
-      threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
-    }
-    cmd.add(Integer.toString(threads));
+    cmd.add(Integer.toString(nThreads));
     pepxmlFiles.values().stream().flatMap(List::stream).distinct().forEach(pepxml -> cmd.add(pepxml.toString()));
 
     ProcessBuilder pb = new ProcessBuilder(cmd);

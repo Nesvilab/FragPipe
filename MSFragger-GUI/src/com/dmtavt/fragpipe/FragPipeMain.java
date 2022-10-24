@@ -21,7 +21,7 @@ public class FragPipeMain {
         } else if (args[i].equalsIgnoreCase("--ram")) {
           Fragpipe.ram = Integer.parseInt(args[++i]);
         } else if (args[i].equalsIgnoreCase("--threads")) {
-          Fragpipe.threads = Integer.parseInt(args[++i]);
+          Fragpipe.nThreadsHeadlessOnly = Integer.parseInt(args[++i]);
         } else if (args[i].equalsIgnoreCase("--workdir")) {
           Fragpipe.workdir = args[++i].trim();
         } else if (args[i].equalsIgnoreCase("--config-msfragger")) {

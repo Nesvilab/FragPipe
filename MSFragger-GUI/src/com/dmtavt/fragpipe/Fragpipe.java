@@ -144,7 +144,7 @@ public class Fragpipe extends JFrameHeadless {
   public static java.util.concurrent.CountDownLatch runDone = new java.util.concurrent.CountDownLatch(1);
   public static boolean dryRun = false;
   public static int ram = 0;
-  public static int threads = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors() - 1, maxProcessors));
+  static int nThreadsHeadlessOnly = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors() - 1, maxProcessors)); // Note: this variable is only for headless mode. For the GUI mode, please get the number of threads using TabWorkflow:getThreads().
   public static String workdir = null;
   public static String msfraggerBinPath = null;
   public static String philosopherBinPath = null;
@@ -369,7 +369,7 @@ public class Fragpipe extends JFrameHeadless {
       } else if (ram < 0) {
         System.err.println("ram is smaller than 0.");
         System.exit(1);
-      } else if (threads < 0) {
+      } else if (nThreadsHeadlessOnly < 0) {
         System.err.println("Number of threads is smaller than 0.");
         System.exit(1);
       } else if (workdir == null || workdir.isEmpty()) {
@@ -401,8 +401,8 @@ public class Fragpipe extends JFrameHeadless {
         if (pythonBinPath != null) {
           pythonBinPath = Paths.get(pythonBinPath).toAbsolutePath().toString();
         }
-        if (threads == 0) {
-          threads = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors(), maxProcessors));
+        if (nThreadsHeadlessOnly == 0) {
+          nThreadsHeadlessOnly = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors(), maxProcessors));
         }
         headless(workflowFile);
       }
@@ -422,7 +422,7 @@ public class Fragpipe extends JFrameHeadless {
 
     // If there are parameters from command, they have the higher priority than those in the workflow file.
     propsFile.setProperty("workflow.ram", Fragpipe.ram + "");
-    propsFile.setProperty("workflow.threads", Fragpipe.threads + "");
+    propsFile.setProperty("workflow.threads", Fragpipe.nThreadsHeadlessOnly + "");
     propsFile.setProperty("workdir", Fragpipe.workdir);
     if (msfraggerBinPath != null) {
       propsFile.setProperty("fragpipe-config.bin-msfragger", msfraggerBinPath);

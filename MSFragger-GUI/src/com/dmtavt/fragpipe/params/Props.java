@@ -216,9 +216,6 @@ public class Props {
                     continue;
                 if (StringUtils.isNullOrWhitespace(value))
                         value = "";
-                if (name.contentEquals("num_threads")) {
-                    value = String.valueOf(Runtime.getRuntime().availableProcessors() -1);
-                }
                 if (name.contentEquals("search_enzyme_cutafter")) {
                     name = MsfraggerParams.PROP_search_enzyme_cut_1;
                     Prop p = new Prop(MsfraggerParams.PROP_search_enzyme_cut_2, "", true, "");
