@@ -30,6 +30,7 @@ import com.github.chhh.utils.TimeUtils;
 import com.github.chhh.utils.swing.TextConsole;
 import java.awt.Color;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.function.BiConsumer;
@@ -79,23 +80,41 @@ public class ProcessBuilderInfo {
 
       // main loop reading process' output
       try {
+        StringBuilder sbBuffer = new StringBuilder();
         while (true) {
           Thread.sleep(200L);
           final byte[] pollErr = pr.pollStdErr();
-          String errStr = pr.appendErr(pollErr);
-          if (errStr != null) {
-            if (pbi.name.toLowerCase().contentEquals("peptideprophet")) {
-              errStr = errStr.replaceAll("WARNING: CANNOT correct data file[^\r\n]+[\r\n]+", "").replaceAll("WARNING: cannot open data file[^\r\n]+[\r\n]+", "");
+          if (pollErr != null && pollErr.length > 0) {
+            if (pbi.name.equalsIgnoreCase("peptideprophet")) {
+              String errStr = (new String(pollErr, StandardCharsets.UTF_8)).replaceAll("WARNING: CANNOT correct data file[^\r\n]+[\r\n]+", "").replaceAll("WARNING: cannot open data file[^\r\n]+[\r\n]+", "");
+              sbBuffer.append(errStr);
+            } else if (pbi.name.equalsIgnoreCase("ptmprophet")) {
+              String errStr = new String(pollErr, StandardCharsets.UTF_8);
+              sbBuffer.append(errStr);
+            } else {
+              String errStr = pr.appendErr(pollErr);
+              toConsole(null, errStr, false, console);
             }
-            toConsole(null, errStr, false, console);
           }
+
           final byte[] pollOut = pr.pollStdOut();
-          final String outStr = pr.appendOut(pollOut);
-          if (outStr != null) {
-            toConsole(null, outStr, false, console);
+          if (pollOut != null && pollOut.length > 0) {
+            if (pbi.name.equalsIgnoreCase("peptideprophet") || pbi.name.equalsIgnoreCase("ptmprophet")) {
+              String outStr = new String(pollOut, StandardCharsets.UTF_8);
+              sbBuffer.append(outStr);
+            } else {
+              String outStr = pr.appendOut(pollOut);
+              toConsole(null, outStr, false, console);
+            }
           }
+
           if (started.isAlive()) {
             continue;
+          }
+
+          if (pbi.name.equalsIgnoreCase("peptideprophet") || pbi.name.equalsIgnoreCase("ptmprophet")) {
+            pr.appendOut(sbBuffer.toString().getBytes(StandardCharsets.UTF_8));
+            toConsole(null, sbBuffer.toString(), false, console);
           }
 
           try {
