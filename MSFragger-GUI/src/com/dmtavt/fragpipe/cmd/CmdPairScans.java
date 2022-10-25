@@ -20,6 +20,7 @@ package com.dmtavt.fragpipe.cmd;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.tools.opair.OPairParams;
 import com.dmtavt.fragpipe.util.PairScans;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class CmdPairScans extends CmdBase {
         return NAME;
     }
 
-    public boolean configure(Path jarFragpipe, int ramGb, int nThreads, List<InputLcmsFile> lcmsFiles, String activation1, String activation2) {
+    public boolean configure(Path jarFragpipe, int ramGb, int nThreads, List<InputLcmsFile> lcmsFiles, OPairParams params) {
         initPreConfig();
 
         final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(jarFragpipe.toAbsolutePath().toString()).concat(JAR_DEPS));
@@ -59,8 +60,10 @@ public class CmdPairScans extends CmdBase {
             cmd.add(PairScans.class.getCanonicalName());
             cmd.add(lcms.getPath().toAbsolutePath().toString());
             cmd.add(nThreads + "");
-            cmd.add(activation1);
-            cmd.add(activation2);
+            cmd.add(params.getActivation1());
+            cmd.add(params.getActivation2());
+            cmd.add(String.valueOf(params.isReverseScanOrder()));
+            cmd.add(String.valueOf(params.isSingleScanType()));
             ProcessBuilder pb = new ProcessBuilder(cmd);
             pbis.add(PbiBuilder.from(pb));
         }

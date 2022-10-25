@@ -24,6 +24,10 @@ public class OPairParams {
     private int maxNumGlycans;
     private int minIsotope;
     private int maxIsotope;
+    private boolean reverseScanOrder;
+    private boolean singleScanType;
+    private String activation1;
+    private String activation2;
 
 
     public double getProductPPMtol() {
@@ -65,4 +69,36 @@ public class OPairParams {
     public int getMaxIsotope() { return maxIsotope; }
 
     public void setMaxIsotope(int maxIsotope) { this.maxIsotope = maxIsotope; }
+
+    public boolean isSingleScanType() {
+        return singleScanType;
+    }
+
+    public void setSingleScanType(boolean singleScanType) {
+        this.singleScanType = singleScanType;
+    }
+
+    public String getActivation1() {
+        return activation1;
+    }
+
+    public void setActivation1(String activation1) {
+        this.activation1 = activation1;
+    }
+
+    public String getActivation2() {
+        return activation2;
+    }
+
+    public void setActivation2(String activation2) {
+        this.activation2 = activation2;
+    }
+
+    public boolean isReverseScanOrder() {
+        return reverseScanOrder;
+    }
+
+    public void setReverseScanOrder(boolean reverseScanOrder) {
+        this.reverseScanOrder = reverseScanOrder;
+    }
 }

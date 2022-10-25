@@ -36,10 +36,29 @@ import java.util.TreeMap;
 
 public class PairScans {
 
+    private ArrayList<String> pairedScans;
+    private HashMap<Double, Integer> unpairedPrecursorMap;
+    private HashMap<Double, Integer> multipairedPrecursorMap;
+
+    public PairScans() {
+        pairedScans = new ArrayList<>();
+        unpairedPrecursorMap = new HashMap<>();
+        multipairedPrecursorMap = new HashMap<>();
+    }
+
     public static void main(String[] args) {
         long time = System.currentTimeMillis();
+        PairScans pairer = new PairScans();
         try {
-            findScanPairs(args[0].trim(), Integer.parseInt(args[1]), args[2].trim(), args[3].trim());
+            /* Args:
+             * - spectrum file path (string)
+             * - num threads (int)
+             * - first activation type (string)
+             * - second activation type (string)
+             * - reversed scan order (boolean)
+             * - single scan type (boolean)
+             */
+            pairer.findScanPairs(args[0].trim(), Integer.parseInt(args[1]), args[2].trim(), args[3].trim(), Boolean.parseBoolean(args[4].trim()), Boolean.parseBoolean(args[5].trim()));
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -47,7 +66,7 @@ public class PairScans {
         System.out.printf("Done in %d ms.%n", System.currentTimeMillis() - time);
     }
 
-    static void findScanPairs(String spectralPath, int nThreads, String firstActivationStr, String secondActivationStr) throws Exception {
+    void findScanPairs(String spectralPath, int nThreads, String firstActivationStr, String secondActivationStr, boolean reverseOrder, boolean singleScanType) throws Exception {
         String ext = spectralPath.substring(spectralPath.lastIndexOf('.') + 1);
         String outputPath = spectralPath.substring(0, spectralPath.lastIndexOf('.') + 1) + "pairs";
         // skip if file already exists
@@ -89,9 +108,6 @@ public class PairScans {
         scans.loadData(LCMSDataSubset.STRUCTURE_ONLY);
 
         TreeMap<Integer, IScan> num2scan = scans.getMapNum2scan();
-        ArrayList<String> pairedScans = new ArrayList<>();
-        HashMap<Double, Integer> unpairedPrecursorMap = new HashMap<>();
-        HashMap<Double, Integer> multipairedPrecursorMap = new HashMap<>();     // watch for multiple follow-up scans of one MS2
         for (final Map.Entry<Integer, IScan> scanNum_iscan : num2scan.entrySet()) {
             final IScan scan = scanNum_iscan.getValue();
             final int scanNum = scanNum_iscan.getKey();
@@ -100,7 +116,14 @@ public class PairScans {
                 // reset the unpaired precursor list for next set of MS2 scans
                 unpairedPrecursorMap = new HashMap<>();
                 multipairedPrecursorMap = new HashMap<>();
+
             } else if (scan.getMsLevel() == 2) {
+                if (singleScanType) {
+                    // no pairing needed, just set this scan as its own "pair"
+                    pairedScans.add(String.format("%d\t%d\n", scanNum, scanNum));
+                    continue;
+                }
+
                 // find scan pairs given activation types of interest
                 String filterString = scan.getFilterString();
                 if (filterString != null && filterString.contains("@")) {
@@ -116,19 +139,7 @@ public class PairScans {
                         multipairedPrecursorMap.put(precursorMZ, scanNum);
                     } else if (activationStr.equalsIgnoreCase(secondActivation.getText())) {
                         // second activation - find paired precursor and record the pairing, remove precursor from unpaired
-                        if (unpairedPrecursorMap.containsKey(precursorMZ)) {
-                            // pair found, record first activation scan #, second activation scan #
-                            pairedScans.add(String.format("%d\t%d\n", unpairedPrecursorMap.get(precursorMZ), scanNum));
-                            unpairedPrecursorMap.remove(precursorMZ);
-                        } else {
-                            // check for multi-paired scans
-                            if (multipairedPrecursorMap.containsKey(precursorMZ)) {
-                                pairedScans.add(String.format("%d\t%d\n", multipairedPrecursorMap.get(precursorMZ), scanNum));
-                            } else {
-                                // unexpected second activation without first
-                                System.out.printf("Unpaired precursor %.4f in scan %d", precursorMZ, scanNum);
-                            }
-                        }
+                        scanPairingHelper(scanNum, precursorMZ, reverseOrder);
                     } else {
                         // unexpected activation - ignore
                         System.out.printf("Unspecified activation %s in scan %d", activationStr, scanNum);
@@ -146,6 +157,37 @@ public class PairScans {
         }
         out.flush();
         out.close();
+    }
+
+    /**
+     * Save the scan pair information. Should be called once we expect the paired scan to be present in
+     * unpairedPrecursorMap.
+     * @param scanNum scan number of the 2nd scan (to be paired)
+     * @param precursorMZ precursor m/z used to find the corresponding 1st scan
+     * @param reverseOrder reverse the order when recording because the "child" scan actually comes 1st (e.g., ETD-HCD data)
+     */
+    void scanPairingHelper(int scanNum, double precursorMZ, boolean reverseOrder) {
+        // second activation - find paired precursor and record the pairing, remove precursor from unpaired
+        if (unpairedPrecursorMap.containsKey(precursorMZ)) {
+            // pair found, record first activation scan #, second activation scan #
+            if (reverseOrder) {
+                pairedScans.add(String.format("%d\t%d\n", scanNum, unpairedPrecursorMap.get(precursorMZ)));
+            } else {
+                pairedScans.add(String.format("%d\t%d\n", unpairedPrecursorMap.get(precursorMZ), scanNum));
+            }
+            unpairedPrecursorMap.remove(precursorMZ);
+        } else {
+            // check for multi-paired scans
+            if (multipairedPrecursorMap.containsKey(precursorMZ)) {
+                if (reverseOrder) {
+                    pairedScans.add(String.format("%d\t%d\n", scanNum, multipairedPrecursorMap.get(precursorMZ)));
+                } else {
+                    pairedScans.add(String.format("%d\t%d\n", multipairedPrecursorMap.get(precursorMZ), scanNum));
+                }            } else {
+                // unexpected second activation without first
+                System.out.printf("Unpaired precursor %.4f in scan %d", precursorMZ, scanNum);
+            }
+        }
     }
 
     static ActivationTypes parseActivationFilter(String input) {

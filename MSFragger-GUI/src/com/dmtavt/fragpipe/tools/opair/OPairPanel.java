@@ -18,6 +18,7 @@
 package com.dmtavt.fragpipe.tools.opair;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.tools.enums.ActivationTypes;
 import com.github.chhh.utils.swing.*;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -50,12 +51,20 @@ public class OPairPanel extends JPanelBase {
     private static final String PROP_minIsotope = "min_isotope_error";
     private static final String PROP_maxIsotope = "max_isotope_error";
     private static final String PROP_glycoDB = "glyco_db";
+    private static final String PROP_reverseOrder = "reverse_scan_order";
+    private static final String PROP_singleScanType = "single_scan_type";
+    private static final String PROP_activation1 = "activation1";
+    private static final String PROP_activation2 = "activation2";
 
     private UiSpinnerDouble uiSpinnerMS2Tol;
     private UiSpinnerDouble uiSpinnerMS1Tol;
     private UiSpinnerInt uiSpinnerMaxGlycans;
     private UiSpinnerInt uiSpinnerMinIsotope;
     private UiSpinnerInt uiSpinnerMaxIsotope;
+    private UiCombo uiComboActivation1;
+    private UiCombo uiComboActivation2;
+    private UiCheck uiCheckReverseScanOrder;
+    private UiCheck uiCheckSingleScanType;
 
     private OPairParams params;
 
@@ -111,6 +120,18 @@ public class OPairPanel extends JPanelBase {
         FormEntry feMaxIsotope = new FormEntry(PROP_maxIsotope, "Max Isotope Error", uiSpinnerMaxIsotope,
                 "Precursor isotope error range upper bound");
 
+        uiComboActivation1 = UiUtils.createUiCombo(ActivationTypes.values());
+        FormEntry feActivation1 = new FormEntry(PROP_activation1, "First activation type (parent scan)", uiComboActivation1);
+        uiComboActivation2 = UiUtils.createUiCombo(ActivationTypes.values());
+        FormEntry feActivation2 = new FormEntry(PROP_activation2, "Second activation type (child scan)", uiComboActivation2);
+
+        uiCheckReverseScanOrder = UiUtils.createUiCheck("Reverse paired scan order", false);
+        uiCheckReverseScanOrder.setName(PROP_reverseOrder);
+        uiCheckReverseScanOrder.setToolTipText("Use if localization scan type (e.g., ETD) comes before search scan type (e.g., HCD)");
+        uiCheckSingleScanType = UiUtils.createUiCheck("Single scan type", false);
+        uiCheckSingleScanType.setName(PROP_singleScanType);
+        uiCheckSingleScanType.setToolTipText("Use if only one scan type (must be hybrid activation)");
+
         String tooltipGlycanDBFile = "Glycan database file in Byonic or pGlyco formats (.txt or .pdb). Will use internal default O-glycan list if not provided.";
         uiTextOGlycanDBFile = UiUtils.uiTextBuilder().create();
         List<FileFilter> glycFilters = new ArrayList<>();
@@ -129,6 +150,13 @@ public class OPairPanel extends JPanelBase {
                         uiTextOGlycanDBFile.setText(path);
                     }
                 });
+
+        mu.add(pContent, feActivation1.label(), mu.ccR());
+        mu.add(pContent, feActivation1.comp).split();
+        mu.add(pContent, feActivation2.label(), mu.ccR());
+        mu.add(pContent, feActivation2.comp).split();
+        mu.add(pContent, uiCheckReverseScanOrder).split();
+        mu.add(pContent, uiCheckSingleScanType).split().wrap();
 
         mu.add(pContent, feMS2SpectraTol.label(), mu.ccR());
         mu.add(pContent, feMS2SpectraTol.comp).split();
@@ -182,6 +210,10 @@ public class OPairPanel extends JPanelBase {
         params.setMinIsotope(uiSpinnerMinIsotope.getActualValue());
         params.setMaxIsotope(uiSpinnerMaxIsotope.getActualValue());
         params.setOglycanDB(uiTextOGlycanDBFile.getNonGhostText());
+        params.setReverseScanOrder(uiCheckReverseScanOrder.isSelected());
+        params.setSingleScanType(uiCheckSingleScanType.isSelected());
+        params.setActivation1((String) uiComboActivation1.getSelectedItem());
+        params.setActivation2((String) uiComboActivation2.getSelectedItem());
         return params;
     }
 
