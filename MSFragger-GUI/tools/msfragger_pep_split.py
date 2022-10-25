@@ -272,7 +272,7 @@ re_pepxml_header = re.compile(b'''(.+?)^</search_summary>''', re.DOTALL|re.MULTI
 def get_pepxml_header(p: pathlib.Path):
 	with p.open('rb') as f:
 		mmap_length = min(1 << 20, os.path.getsize(p))
-		mm= mmap.mmap(f.fileno(), mmap_length, access=mmap.ACCESS_READ)
+		mm= mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
 		try:
 			ret = re_pepxml_header.match(mm).group()
 		except AttributeError:
