@@ -154,7 +154,7 @@ public class ProcessBuilderInfo {
         String msg = "Processing interrupted, stopping " + pbi.name;
         log.debug(msg, e);
         toConsole(Fragpipe.COLOR_RED_DARKEST, msg, true, console);
-        // all the cleanup is done in the finally block
+        // all the cleanup is done in the final block
       } finally {
         // in the end whatever happens always try to kill the process
         if (started != null && started.isAlive()) {

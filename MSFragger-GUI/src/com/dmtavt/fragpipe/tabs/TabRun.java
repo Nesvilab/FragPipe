@@ -427,16 +427,6 @@ public class TabRun extends JPanelWithEnablement {
     }
   }
 
-  @Deprecated
-  public static void saveLogToFileOld(TextConsole console, Path path) {
-    final String text = console.getText().replaceAll("[^\n]+\u200B" + System.lineSeparator(), "");
-    try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path)) {
-      bufferedWriter.write(text);
-    } catch (IOException e) {
-      log.error("Error writing log to file", e);
-    }
-  }
-
   private static void saveLogToFileCreateNew(final String text, final Path path) throws FileAlreadyExistsException {
     try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, StandardOpenOption.CREATE_NEW)) {
       bufferedWriter.write(text);
@@ -444,17 +434,18 @@ public class TabRun extends JPanelWithEnablement {
       throw e;
     } catch (IOException e) {
       log.error("Error writing log to file", e);
+      e.printStackTrace();
     }
   }
 
   public static void saveLogToFile(final TextConsole console, final Path path) {
     final String text = console.getText().replaceAll("[^\n]+\u200B" + System.lineSeparator(), "");
     Path pathNew = path;
-    for (int i = 0; ; ++i) {
+    for (int i = 1; ; ++i) {
       try {
         saveLogToFileCreateNew(text, pathNew);
       } catch (FileAlreadyExistsException e) {
-        pathNew = Paths.get(path.toString() + "__" + i);
+        pathNew = Paths.get(path.toString() + "_" + i);
         continue;
       }
       break;
