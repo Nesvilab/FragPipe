@@ -136,11 +136,7 @@ public class ProcessBuilderInfo {
                 Bus.post(new MessageManifestSave(path));
               }
 
-              if (Fragpipe.headless) {
-                System.exit(1);
-              } else {
-                break;
-              }
+              break;
             }
           } catch (IllegalThreadStateException ex) {
             log.warn("Checking for exit value when subprocess was not alive threw exception.");
