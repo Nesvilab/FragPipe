@@ -1045,7 +1045,7 @@ public class MsfraggerParams extends AbstractParams {
         }
     }
     
-    public List<Mod> getAdditionalMods() {
+    public List<Mod> getFixedMods() {
         ArrayList<Mod> mods = new ArrayList<>(ADDON_NAMES.length);
         for (int i = 0; i < ADDON_NAMES.length; i++) {
             String siteName = ADDON_NAMES[i];
@@ -1063,7 +1063,7 @@ public class MsfraggerParams extends AbstractParams {
         return mods;
     }
     
-    public void setAdditionalMods(List<Mod> mods) {
+    public void setFixedMods(List<Mod> mods) {
         for (int i = 0; i < mods.size(); i++) {
             Mod vm = mods.get(i);
             String siteName = ADDON_MAP_HUMAN2NAME.get(vm.sites);

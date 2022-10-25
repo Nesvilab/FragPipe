@@ -1458,7 +1458,7 @@ public class TabMsfragger extends JPanelBase {
     Map<String, String> translatedMap = FragpipeCacheUtils.translateValuesToUi(prependedMap);
     formFrom(translatedMap);
     tableVarMods.setData(params.getVariableMods());
-    tableFixMods.setData(params.getAdditionalMods());
+    tableFixMods.setData(params.getFixedMods());
     updateRowHeights(tableVarMods);
     setJTableColSize(tableVarMods, 0, 20, 150, 50);
     updateRowHeights(tableFixMods);
@@ -1481,7 +1481,7 @@ public class TabMsfragger extends JPanelBase {
     List<Mod> modsVar = formToMap(tableVarMods.model);
     params.setVariableMods(modsVar);
     List<Mod> modsFix = formToMap(tableFixMods.model);
-    params.setAdditionalMods(modsFix);
+    params.setFixedMods(modsFix);
 
     return params;
   }
