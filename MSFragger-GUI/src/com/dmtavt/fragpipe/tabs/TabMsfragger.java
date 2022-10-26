@@ -27,6 +27,7 @@ import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTIONS;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_labile;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_nglycan;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_off;
+import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
@@ -34,6 +35,8 @@ import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.ModsTable;
 import com.dmtavt.fragpipe.api.ModsTableModel;
 import com.dmtavt.fragpipe.api.SearchTypeProp;
+import com.dmtavt.fragpipe.dialogs.DbUniprotIdPanel;
+import com.dmtavt.fragpipe.dialogs.MassOffsetLoaderPanel;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerParamsUpdate;
 import com.dmtavt.fragpipe.messages.MessagePrecursorSelectionMode;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
@@ -1128,21 +1131,11 @@ public class TabMsfragger extends JPanelBase {
     JButton btnLoadGlycanMasses = new JButton("Load Mass Offsets from File");
     btnLoadGlycanMasses.addActionListener(this::actionBtnLoadMassOffsets);
     btnLoadGlycanMasses.setToolTipText("Load mass offsets from a file. Supported formats: Byonic glycan csv");
-    uiSpinnterIntGlycoCombos = new UiSpinnerInt(1, 1, 100, 1, 2);
-
-    // don't cache/save this property, as it is only used in the GUI to when loading mass offsets from a database
-    String maxOffsetsTooltip = "Generates combinations of provided mass offsets up to the max number (if >1)." +
-            "\nUse to search for multiple mass offsets per peptide." +
-            "\nWARNING: modifications must be labile for >1 offset per peptide to be found!";
-    FormEntry feGlycoCombos = Fragpipe.feNoCache(uiSpinnterIntGlycoCombos, "Max Mods Per Peptide from DB Load", Fragpipe.PROP_NOCACHE)
-            .label("Max Mass Offset Combinations").tooltip(maxOffsetsTooltip).create();
 
     mu.add(p, feMassOffsets.comp).spanX().growX().pushX().wrap();
     mu.add(p, feRestrictDeltamassTo.label(), mu.ccR()).spanX().split(2);
     mu.add(p, feRestrictDeltamassTo.comp).growX().pushX().wrap();
     mu.add(p, btnLoadGlycanMasses).spanX().split(3);
-    mu.add(p, feGlycoCombos.label()).gapLeft("15px");
-    mu.add(p, feGlycoCombos.comp).gapLeft("5px").wrap();
 
     return p;
   }
@@ -1868,22 +1861,24 @@ public class TabMsfragger extends JPanelBase {
         return;
       }
 
-      // combine glycan masses if requested (e.g. O-glycans)
-      ArrayList<Double> allMasses;
-      int numCombos = uiSpinnterIntGlycoCombos.getActualValue();
-      if (numCombos > 1) {
-        allMasses = generateMassCombos(masses, numCombos);
-      } else {
-        allMasses = masses;
+      // combos and filtering
+      MassOffsetLoaderPanel p = new MassOffsetLoaderPanel();
+      final int confirmation = SwingUtils.showConfirmDialog2(this, p, "Offset loading options", OK_CANCEL_OPTION);
+      if (JOptionPane.OK_OPTION == confirmation) {
+        // combine glycan masses if requested (e.g. O-glycans)
+        if (p.getMaxCombos() > 1) {
+          masses = generateMassCombos(masses, p.getMaxCombos(), p.useMassFilter(), p.getMaxMass());
+        }
       }
 
-      if (!allMasses.contains(0.0)) {
-        allMasses.add(0, (double) 0);
+      // make sure 0 is included in the mass offsets list
+      if (!masses.contains(0.0)) {
+        masses.add(0, (double) 0);
       }
 
       // clean up masses before returning final strings (round off floating point errors at 12 decimal places)
       List<String> massStrings = new ArrayList<>();
-      for (double mass : allMasses) {
+      for (double mass : masses) {
         BigDecimal decimal = new BigDecimal(mass).setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros();
         massStrings.add(decimal.toPlainString());
       }
@@ -1895,11 +1890,9 @@ public class TabMsfragger extends JPanelBase {
 
   /**
    * Generate all combinations of provided masses up to the specified max number. Removes duplicates (at 4 decimal places)
-   * @param masses
-   * @param maxCombos
    * @return
    */
-  private ArrayList<Double> generateMassCombos(ArrayList<Double> masses, int maxCombos) {
+  private ArrayList<Double> generateMassCombos(ArrayList<Double> masses, int maxCombos, boolean massFilter, double maxMass) {
     HashMap<Long, Boolean> existingMasses = new HashMap<>();
     ArrayList<Double> allMasses = new ArrayList<>();
     for (int count = 1; count <= maxCombos; count++) {
@@ -1915,8 +1908,16 @@ public class TabMsfragger extends JPanelBase {
         // check for duplicates and add if unique
         long massKey = Math.round(comboMass * 10000);
         if (!existingMasses.containsKey(massKey)) {
-          allMasses.add(comboMass);
-          existingMasses.put(massKey, true);
+          if (!massFilter) {
+            allMasses.add(comboMass);
+            existingMasses.put(massKey, true);
+          } else {
+            // filtering requested - only add if less than max mass
+            if (comboMass < maxMass) {
+              allMasses.add(comboMass);
+              existingMasses.put(massKey, true);
+            }
+          }
         }
       }
     }
