@@ -23,12 +23,12 @@ import com.dmtavt.fragpipe.exceptions.ValidationException;
  */
 public class Mod {
 
-  public final double massDelta;
+  public final float massDelta;
   public final String sites;
   public final boolean isEnabled;
   public final int maxOccurrences;
 
-  public Mod(double massDelta, String sites, boolean isEnabled, int maxOccurrences) {
+  public Mod(float massDelta, String sites, boolean isEnabled, int maxOccurrences) {
     this.massDelta = massDelta;
     this.sites = sites;
     this.isEnabled = isEnabled;
@@ -36,13 +36,13 @@ public class Mod {
   }
 
   public static String asString(Mod m) {
-    return String.format("%f,%s,%s,%d", m.massDelta, m.sites, m.isEnabled, m.maxOccurrences);
+    return m.massDelta + "," + m.sites + "," + m.isEnabled + "," + m.maxOccurrences;
   }
 
   public static Mod fromString(String s) throws ValidationException {
       String[] split = s.split(",");
       if (split.length != 4)
           throw new ValidationException("Not a valid mod string");
-      return new Mod(Double.parseDouble(split[0]), split[1], Boolean.parseBoolean(split[2]), Integer.parseInt(split[3]));
+      return new Mod(Float.parseFloat(split[0]), split[1], Boolean.parseBoolean(split[2]), Integer.parseInt(split[3]));
   }
 }

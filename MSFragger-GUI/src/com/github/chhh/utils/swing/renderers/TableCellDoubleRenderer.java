@@ -17,7 +17,6 @@
 package com.github.chhh.utils.swing.renderers;
 
 import java.awt.Component;
-import java.text.DecimalFormat;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -30,25 +29,15 @@ public class TableCellDoubleRenderer extends DefaultTableCellRenderer {
 
     private static final long serialVersionUID = 1L;
 
-    private DecimalFormat df0;
-
     public TableCellDoubleRenderer() {
         super();
         setHorizontalAlignment(SwingConstants.LEADING);
-        df0 = new DecimalFormat("#.##########");
     }
 
     @Override
     public Component getTableCellRendererComponent(
             JTable table, Object value, boolean isSelected,
             boolean hasFocus, int row, int column) {
-
-        // First format the cell value as required
-        if (value != null) {
-            if (value instanceof Double || value instanceof Float) {
-                value = df0.format((Double)value);
-            }
-        }
 
         // And pass it on to parent class
         Component renderer = super.getTableCellRendererComponent(

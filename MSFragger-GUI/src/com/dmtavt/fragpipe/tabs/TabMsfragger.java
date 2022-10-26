@@ -929,7 +929,7 @@ public class TabMsfragger extends JPanelBase {
     Object[][] data = convertModsToVarModsData(Collections.emptyList());
     ModsTableModel m = new ModsTableModel(
         TABLE_VAR_MODS_COL_NAMES,
-        new Class<?>[]{Boolean.class, String.class, Double.class, Integer.class},
+        new Class<?>[]{Boolean.class, String.class, Float.class, Integer.class},
         new boolean[]{true, true, true, true},
         new int[]{0, 1, 2, 3},
         data);
@@ -959,7 +959,7 @@ public class TabMsfragger extends JPanelBase {
             "<li>variable_mod_01 = 15.9949 M 3</li>\n" +
             "<li>variable_mod_02 = 42.0106 [^ 1</li>\n" +
             "</ul>");
-    t.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
+    t.setDefaultRenderer(Float.class, new TableCellDoubleRenderer());
     t.setDefaultRenderer(Integer.class, new TableCellIntRenderer());
 
     // set cell editor for max occurs for var mods

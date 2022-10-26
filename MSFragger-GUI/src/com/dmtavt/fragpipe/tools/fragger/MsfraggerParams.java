@@ -992,9 +992,9 @@ public class MsfraggerParams extends AbstractParams {
                                 + "Variable mod string was: \"%s\"", p.value));
             }
             
-            double dm;
+            float dm;
             try {
-                dm = Double.parseDouble(split[0]);
+                dm = Float.parseFloat(split[0]);
             } catch (NumberFormatException nfe) {
                 throw new IllegalStateException(String.format(
                         "Can't interpret variable mod from properties as delta mass and sites.\n"
@@ -1037,10 +1037,13 @@ public class MsfraggerParams extends AbstractParams {
             Mod vm = mods.get(i);
             String name = String.format(Locale.ROOT, "%s_%02d", PROP_variable_mod, i+1);
             if (vm.maxOccurrences > 5) {
-                log.warn("Var mod max occurences was {}, 5 is max allowed, limiting to 5 for sites: {}, dm: {}",
+                log.warn("Var mod max occurrences was {}, 5 is max allowed, limiting to 5 for sites: {}, dm: {}",
                         vm.maxOccurrences, vm.sites, vm.massDelta);
             }
-            String value = String.format(Locale.ROOT, "%f %s %d", vm.massDelta, vm.sites, vm.maxOccurrences);
+
+            // MSFragger parses it as float. To make is consistent (downstream tools will parse the same value) converting it to float before writing.
+            // Must concatenate the strings. Using the String.format() will write additional decimals for float, which causes issues.
+            String value = vm.massDelta + " " + vm.sites + " " + vm.maxOccurrences;
             props.setProp(name, value, vm.isEnabled);
         }
     }
@@ -1053,7 +1056,7 @@ public class MsfraggerParams extends AbstractParams {
             Props.Prop p = props.getProp(name);
             if (p == null)
                 continue;
-            double dm = Double.parseDouble(p.value);
+            float dm = Float.parseFloat(p.value);
             String sites = ADDON_MAP_NAME2HUMAN.get(siteName);
             if (sites == null)
                 throw new IllegalStateException("Could not map addon modification site name to a human readable name.");
@@ -1070,7 +1073,10 @@ public class MsfraggerParams extends AbstractParams {
             if (siteName == null)
                 throw new IllegalStateException("Could not map human readable addon modification name to name in properties.");
             String name = String.format(Locale.ROOT, "%s_%s", PROP_add, siteName);
-            String value = String.format(Locale.ROOT, "%f", vm.massDelta);
+
+            // MSFragger parses it as float. To make is consistent (downstream tools will parse the same value) converting it to float before writing.
+            // Must concatenate the strings. Using the String.format() will write additional decimals for float, which causes issues.
+            String value = String.valueOf(vm.massDelta);
             props.setProp(name, value, vm.isEnabled);
         }
     }

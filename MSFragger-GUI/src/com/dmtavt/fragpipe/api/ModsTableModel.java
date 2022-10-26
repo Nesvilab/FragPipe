@@ -75,14 +75,14 @@ public class ModsTableModel extends DefaultTableModel {
         for (int i = 0; i < dataVector.size(); i++) {
             Vector<?> row = (Vector<?>)dataVector.get(i);
             if (row != null) {
-                Double delta = (Double)row.get(COL_DELTA);
-                String sites = (String)row.get(COL_SITES);
-                Boolean enabled = (Boolean)row.get(COL_ENABLED);
+                Float delta = (Float) row.get(COL_DELTA);
+                String sites = (String) row.get(COL_SITES);
+                Boolean enabled = (Boolean) row.get(COL_ENABLED);
                 int maxOccurrences = -1;
                 if (row.size() > COL_MAX_OCCURS) {
                     Object maxOccursCol = row.get(COL_MAX_OCCURS);
                     if (maxOccursCol != null) {
-                        maxOccurrences = (Integer)row.get(COL_MAX_OCCURS);
+                        maxOccurrences = (Integer) row.get(COL_MAX_OCCURS);
                     } else {
                         maxOccurrences = 1;
                     }
