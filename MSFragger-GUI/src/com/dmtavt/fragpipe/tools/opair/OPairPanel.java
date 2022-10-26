@@ -18,6 +18,8 @@
 package com.dmtavt.fragpipe.tools.opair;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.messages.NoteConfigDotnet;
+import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.tools.enums.ActivationTypes;
 import com.github.chhh.utils.swing.*;
 import com.github.chhh.utils.SwingUtils;
@@ -33,6 +35,8 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -200,6 +204,11 @@ public class OPairPanel extends JPanelBase {
 
         updateEnabledStatus(this, true);
         super.initMore();
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+    public void on(NoteConfigDotnet m) {
+        updateEnabledStatus(this, m.isValid());
     }
 
     public OPairParams getOPairParams() {

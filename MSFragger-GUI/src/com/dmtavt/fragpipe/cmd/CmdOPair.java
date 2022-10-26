@@ -19,8 +19,13 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
-import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.DotnetInfo;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.api.PyInfo;
+import com.dmtavt.fragpipe.exceptions.NoStickyException;
+import com.dmtavt.fragpipe.exceptions.UnexpectedException;
+import com.dmtavt.fragpipe.exceptions.ValidationException;
+import com.dmtavt.fragpipe.messages.NoteConfigDotnet;
 import com.dmtavt.fragpipe.tools.opair.OPairParams;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -35,8 +40,6 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.github.chhh.utils.OsUtils.isUnix;
-import static com.github.chhh.utils.OsUtils.isWindows;
 
 public class CmdOPair  extends CmdBase {
     private static final Logger log = LoggerFactory.getLogger(CmdOPair.class);
@@ -53,6 +56,18 @@ public class CmdOPair  extends CmdBase {
 
     public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, OPairParams params) {
         initPreConfig();
+
+        // check that .NET is available
+        try {
+            DotnetInfo di = DotnetInfo.fromCommand(DotnetInfo.COMMAND);
+        } catch (ValidationException | UnexpectedException e) {
+            if (Fragpipe.headless) {
+                log.error("OPair was enabled, but .NET Core 5.0 was not found.");
+            } else {
+                JOptionPane.showMessageDialog(comp, "OPair was enabled, but .NET Core 5.0 was not found.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            return false;
+        }
 
         // check that each group only has lcms files in one directory
         ArrayList<Path> allRawPaths = new ArrayList<>();
