@@ -104,6 +104,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -250,7 +251,13 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_ion_series_definitions, defStr -> defStr.trim().replaceAll("\\s*[,;]+\\s*",", "));
 
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_labile_search_mode, s -> GLYCO_OPTIONS.get(GLYCO_OPTIONS_UI.indexOf(s)));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets, s -> s.replaceAll("[\\s]+", "/"));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets, s -> {
+      Set<String> tt = new TreeSet<>();
+      for (String part : s.split("[\\s/]+")) {
+        tt.add(String.valueOf(Float.parseFloat(part))); // Parsing the values to float and converting back to String to make sure that MSFragger will get the value with the same string representation.
+      }
+      return String.join("/", tt);
+    });
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_Y_type_masses, s -> s.replaceAll("[\\s]+", "/"));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_diagnostic_fragments, s -> s.replaceAll("[\\s]+", "/"));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_remainder_masses, s -> s.replaceAll("[\\s]+", "/"));
