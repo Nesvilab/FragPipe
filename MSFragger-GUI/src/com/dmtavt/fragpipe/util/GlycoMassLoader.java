@@ -253,4 +253,23 @@ public class GlycoMassLoader {
         return mass;
     }
 
+    // recursive combination generator (with repetition)
+    public static List<int[]> combinationsWithRepetition(int numItems, int numChoices) {
+        List<int[]> combinations = new ArrayList<>();
+        combinationsHelper(combinations, new int[numChoices], 0, numItems-1, 0);
+        return combinations;
+    }
+
+    // helper method for recursive combination generator
+    private static void combinationsHelper(List<int[]> combinations, int[] data, int start, int end, int index) {
+        if (index == data.length) {
+            int[] combination = data.clone();
+            combinations.add(combination);
+        } else if (start <= end) {
+            data[index] = start;
+            combinationsHelper(combinations, data, start, end, index + 1);  // include start to allow repetition
+            combinationsHelper(combinations, data, start + 1, end, index);
+        }
+    }
+
 }

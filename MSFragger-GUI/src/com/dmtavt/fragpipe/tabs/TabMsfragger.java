@@ -35,7 +35,6 @@ import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.ModsTable;
 import com.dmtavt.fragpipe.api.ModsTableModel;
 import com.dmtavt.fragpipe.api.SearchTypeProp;
-import com.dmtavt.fragpipe.dialogs.DbUniprotIdPanel;
 import com.dmtavt.fragpipe.dialogs.MassOffsetLoaderPanel;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerParamsUpdate;
 import com.dmtavt.fragpipe.messages.MessagePrecursorSelectionMode;
@@ -106,7 +105,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -139,7 +137,6 @@ import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
@@ -1890,6 +1887,7 @@ public class TabMsfragger extends JPanelBase {
 
   /**
    * Generate all combinations of provided masses up to the specified max number. Removes duplicates (at 4 decimal places)
+   * Uses combinations with repetition since same glycan can occur multiple times on a peptide.
    * @return
    */
   private ArrayList<Double> generateMassCombos(ArrayList<Double> masses, int maxCombos, boolean massFilter, double maxMass) {
@@ -1897,10 +1895,9 @@ public class TabMsfragger extends JPanelBase {
     ArrayList<Double> allMasses = new ArrayList<>();
     for (int count = 1; count <= maxCombos; count++) {
       // iterate combinations
-      Iterator<int[]> comboIterator = CombinatoricsUtils.combinationsIterator(masses.size(), count);
-      while (comboIterator.hasNext()) {
-        int[] combo = comboIterator.next();
-        // calculate mass as product of the selected indices
+      List<int[]> combos = GlycoMassLoader.combinationsWithRepetition(masses.size(), count);
+      for (int[] combo : combos) {
+        // calculate mass as the sum of the glycans at selected indices
         double comboMass = 0;
         for (int i : combo) {
           comboMass += masses.get(i);
