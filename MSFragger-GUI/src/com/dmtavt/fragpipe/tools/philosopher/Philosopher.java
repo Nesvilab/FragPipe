@@ -67,6 +67,7 @@ public class Philosopher {
 
   private static final Logger log = LoggerFactory.getLogger(Philosopher.class);
   private static final String DOWNLOAD_GITHUB_PAGE_URL = "https://github.com/Nesvilab/philosopher/releases/latest";
+  private static final String GITHUB_RELEASE_LATEST_API_URL = Fragpipe.propsFix().getProperty(PhilosopherProps.PROP_DOWNLOAD_URL, "https://api.github.com/repos/Nesvilab/philosopher/releases/latest");
   private static final Pattern reVer = Pattern.compile(".*version[^=]*?=\\s*v?\\.?([^\\s,;]+).*", Pattern.CASE_INSENSITIVE);
   private static final Pattern reVer2 = Pattern.compile("philosopher[-_v]*(\\d+\\.\\d+\\.\\d+[^._]*).*", Pattern.CASE_INSENSITIVE);
 
@@ -141,9 +142,6 @@ public class Philosopher {
     log.debug("Figured fragpipe {} requires philosopher versions in range [{}, {}]",
         fragpipeVerMajor, minPhiVer, maxPhiVer);
 
-    String link = p.getProperty(PhilosopherProps.PROP_DOWNLOAD_URL,
-        "https://github.com/Nesvilab/philosopher/releases");
-
     final String version = sbVer.toString();
     log.debug("Phi validation, proceeding with Version: {}", version);
 
@@ -157,12 +155,12 @@ public class Philosopher {
         sb.append("Latest known compatible version: ").append(maxPhiVer).append("\n");
       }
       if (sb.length() > 0) {
-        sb.append("<a href=\"").append(link).append("\">Click here</a> to download a newer one.");
+        sb.append("<a href=\"").append(DOWNLOAD_GITHUB_PAGE_URL).append("\">Click here</a> to download a newer one.");
         throw new ValidationException(SwingUtils.makeHtml(sb.toString()));
       }
     }
 
-    return new Version(version, false, link);
+    return new Version(version, false, DOWNLOAD_GITHUB_PAGE_URL);
   }
 
   public static UpdateInfo checkUpdates(String path)
@@ -188,10 +186,7 @@ public class Philosopher {
         return true;
       });
 
-      final Properties p = Fragpipe.propsFix();
-      String link = p.getProperty(PhilosopherProps.PROP_DOWNLOAD_URL,
-          "https://github.com/Nesvilab/philosopher/releases");
-      return new UpdateInfo(isUpdateFound.get(), link);
+      return new UpdateInfo(isUpdateFound.get(), DOWNLOAD_GITHUB_PAGE_URL);
     } catch (Exception e) {
       throw new UnexpectedException(e);
     }
@@ -212,7 +207,7 @@ public class Philosopher {
 
     OkHttpClient client = new OkHttpClient();
     String html;
-    Request request = new Request.Builder().url(DOWNLOAD_GITHUB_PAGE_URL).build();
+    Request request = new Request.Builder().url(GITHUB_RELEASE_LATEST_API_URL).build();
     try (Response response = client.newCall(request).execute()) {
       ResponseBody body = response.body();
       if (body == null) {
