@@ -248,7 +248,6 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.valueOf(s).valueInParamsFile());
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_report_alternative_proteins, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_ion_series, ionStr -> ionStr.trim().replaceAll("[\\s,;]+",","));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_ion_series_definitions, defStr -> defStr.trim().replaceAll("\\s*[,;]+\\s*",", "));
 
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_labile_search_mode, s -> GLYCO_OPTIONS.get(GLYCO_OPTIONS_UI.indexOf(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets, s -> {
