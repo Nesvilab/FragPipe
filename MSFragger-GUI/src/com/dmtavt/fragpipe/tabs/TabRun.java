@@ -212,6 +212,7 @@ public class TabRun extends JPanelWithEnablement {
       Path existing = PathUtils.existing(getWorkdirText());
       if (existing != null) {
         Bus.post(MessageSaveLog.saveInDir(existing));
+        FragpipeRun.saveRuntimeConfig(existing);
       }
     });
 

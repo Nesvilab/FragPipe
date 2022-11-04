@@ -20,6 +20,7 @@ package com.dmtavt.fragpipe.cmd;
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeRun;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageKillAll;
 import com.dmtavt.fragpipe.messages.MessageKillAll.REASON;
@@ -129,6 +130,7 @@ public class ProcessBuilderInfo {
               toConsole(Fragpipe.COLOR_RED, "Process returned non-zero exit code, stopping", true, console);
               Bus.post(new MessageKillAll(REASON.NON_ZERO_RETURN_FROM_PROCESS, console));
               Bus.post(MessageSaveLog.saveInDir(wdPath));
+              FragpipeRun.saveRuntimeConfig(wdPath);
 
               if (!isDownstream) {
                 // save manifest file in both GUI and headless mode

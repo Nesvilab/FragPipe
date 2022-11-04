@@ -401,6 +401,7 @@ public class FragpipeRun {
         String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
         toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true, tabRun.console);
         Bus.post(MessageSaveLog.saveInDir(wd));
+        saveRuntimeConfig(wd);
 
         // save manifest file in both GUI and headless mode
         Path path = wd.resolve("lcms-files_" + TimeUtils.dateTimeNoSpaces() + ".fp-manifest");
@@ -456,15 +457,10 @@ public class FragpipeRun {
   }
 
 
-  private static void saveRuntimeConfig(Path wd) {
+  public static void saveRuntimeConfig(Path wd) {
     LocalDateTime time = LocalDateTime.now();
-    String timestamp = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
-    Path path = wd.resolve("fragpipe" + "_" + timestamp + ".config");
-    try {
-      Files.deleteIfExists(path);
-    } catch (IOException e) {
-      log.error("Could not delete old fragpipe.config at: {}", path.toString());
-    }
+    String timestamp = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS"));
+    Path path = wd.resolve("fragpipe" + "_" + timestamp + ".workflow");
     Bus.post(new MessageSaveUiState(path));
   }
 
