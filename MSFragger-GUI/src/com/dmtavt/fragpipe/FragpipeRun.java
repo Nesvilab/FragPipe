@@ -122,6 +122,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -1153,9 +1154,14 @@ public class FragpipeRun {
 
       final UsageTrigger binIonQuant = new UsageTrigger(configIonQuant.path, "IonQuant");
 
+      Set<Float> modMassSet = new TreeSet<>();
+      modMassSet.addAll(tabMsf.getVarModMassSet());
+      modMassSet.addAll(tabMsf.getFixedModMassSet());
+      modMassSet.addAll(tabMsf.getMassOffsetSet());
+
       addConfig.accept(cmdIonquant,  () -> {
         if (cmdIonquant.isRun()) {
-          return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads);
+          return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, modMassSet);
         }
         return true;
       });

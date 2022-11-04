@@ -63,7 +63,7 @@ public class CmdIonquant extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads) {
+  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<Float> modMassSet) {
 
     initPreConfig();
 
@@ -236,6 +236,18 @@ public class CmdIonquant extends CmdBase {
 
       cmd.add("--filelist");
       cmd.add(filelist.toAbsolutePath().toString());
+
+      Path modMassListPath = wd.resolve("modmasses_ionquant.txt");
+      if (Files.exists(modMassListPath.getParent())) { // Dry run does not make directories, so does not write the file.
+        BufferedWriter bufferedWriter = Files.newBufferedWriter(modMassListPath);
+        for (float modMass : modMassSet) {
+          bufferedWriter.write(modMass + "\n");
+        }
+        bufferedWriter.close();
+      }
+
+      cmd.add("--modlist");
+      cmd.add(modMassListPath.toAbsolutePath().toString());
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }

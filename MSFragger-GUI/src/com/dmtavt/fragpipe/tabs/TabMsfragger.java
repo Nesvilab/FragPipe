@@ -1522,6 +1522,40 @@ public class TabMsfragger extends JPanelBase {
     return formCollect();
   }
 
+  public Set<Float> getVarModMassSet() {
+    List<Mod> modsVar = formToMap(tableVarMods.model);
+    Set<Float> modMassSet = new TreeSet<>();
+    for (Mod mod : modsVar) {
+      if (mod != null && mod.isEnabled && mod.sites != null && !mod.sites.trim().isEmpty() && Math.abs(mod.massDelta) > 0.01) {
+        modMassSet.add(mod.massDelta);
+      }
+    }
+    return modMassSet;
+  }
+
+  public Set<Float> getFixedModMassSet() {
+    List<Mod> modsVar = formToMap(tableFixMods.model);
+    Set<Float> modMassSet = new TreeSet<>();
+    for (Mod mod : modsVar) {
+      if (mod != null && mod.isEnabled && mod.sites != null && !mod.sites.trim().isEmpty() && Math.abs(mod.massDelta) > 0.01) {
+        modMassSet.add(mod.massDelta);
+      }
+    }
+    return modMassSet;
+  }
+
+  public Set<Float> getMassOffsetSet() {
+    Set<Float> outputSet = new TreeSet<>();
+    String[] ss = epMassOffsets.getNonGhostText().trim().split("[/\\s]+"); // todo: check
+    for (String s : ss) {
+      float v = Float.parseFloat(s);
+      if (Math.abs(v) > 0.01f) {
+        outputSet.add(v);
+      }
+    }
+    return outputSet;
+  }
+
   /**
    * Converts textual representations of all fields in the form to stadard {@link MsfraggerParams}.
    */
