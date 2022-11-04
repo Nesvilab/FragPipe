@@ -52,7 +52,7 @@ public class ToolingUtils {
   private static final Logger log = LoggerFactory.getLogger(ToolingUtils.class);
   private ToolingUtils() {}
 
-  public static final String BATMASS_IO_JAR = "batmass-io-1.28.0.jar";
+  public static final String BATMASS_IO_JAR = "batmass-io-1.28.4.jar";
   public static final String SMILE_CORE_JAR = "smile-core-2.6.0.jar";
   public static final String SMILE_MATH_JAR = "smile-math-2.6.0.jar";
   public static final String JFREECHART_JAR = "jfreechart-1.5.3.jar";
