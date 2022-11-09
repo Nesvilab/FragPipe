@@ -75,7 +75,14 @@ public class ModsTableModel extends DefaultTableModel {
         for (int i = 0; i < dataVector.size(); i++) {
             Vector<?> row = (Vector<?>)dataVector.get(i);
             if (row != null) {
-                Float delta = (Float) row.get(COL_DELTA);
+                Float delta;
+                if (row.get(COL_DELTA) instanceof Float) {
+                    delta = (Float) row.get(COL_DELTA);
+                } else if (row.get(COL_DELTA) instanceof Double) {
+                    delta = ((Double) row.get(COL_DELTA)).floatValue();
+                } else {
+                    throw new RuntimeException(row.get(COL_DELTA) + " is not either Float or Double.");
+                }
                 String sites = (String) row.get(COL_SITES);
                 Boolean enabled = (Boolean) row.get(COL_ENABLED);
                 int maxOccurrences = -1;
