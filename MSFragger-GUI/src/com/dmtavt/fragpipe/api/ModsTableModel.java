@@ -98,11 +98,7 @@ public class ModsTableModel extends DefaultTableModel {
                     Mod m = new Mod(delta, sites, enabled, maxOccurrences);
                     list.add(m);
                 }
-            } else {
-                // row is null? strange, but ok
-                log.warn("Null row found in modifications table");
             }
-            
         }
         return list;
     }
