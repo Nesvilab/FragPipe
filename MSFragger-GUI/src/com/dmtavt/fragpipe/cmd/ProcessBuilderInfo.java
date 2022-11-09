@@ -90,7 +90,7 @@ public class ProcessBuilderInfo {
               String errStr = (new String(pollErr, StandardCharsets.UTF_8)).replaceAll("WARNING: CANNOT correct data file[^\r\n]+[\r\n]+", "").replaceAll("WARNING: cannot open data file[^\r\n]+[\r\n]+", "");
               sbBuffer.append(errStr);
             } else if (pbi.name.equalsIgnoreCase("ptmprophet")) {
-              String errStr = new String(pollErr, StandardCharsets.UTF_8);
+              String errStr = (new String(pollErr, StandardCharsets.UTF_8)).replaceAll("\"chmod [0-9]{3} [^\\r\\n]+\" failed: Operation not permitted[\\r\\n]*", "");
               sbBuffer.append(errStr);
             } else {
               String errStr = pr.appendErr(pollErr);
