@@ -16,13 +16,12 @@
  */
 package com.github.chhh.utils;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import org.apache.commons.io.FileUtils;
 
 /**
  * Usage: <code>java -cp path-to-jar com.github.chhh.utils.FileMove path-from path-to</code>.<br/>
@@ -49,18 +48,24 @@ public class FileMove {
 
         Path origin = Paths.get(args[ptr++]);
         Path destination = Paths.get(args[ptr++]);
-        if (!noErrors && !Files.exists(origin)) {
-            System.err.printf("File does not exist: %s", origin);
-            System.exit(1);
+
+        if (!Files.exists(origin)) {
+            if (noErrors) {
+                System.exit(0);
+            } else {
+                System.err.printf("File does not exist: %s", origin);
+                System.exit(1);
+            }
         }
+
         try {
             if (Files.isDirectory(origin))
                 FileUtils.moveDirectory(origin.toFile(), destination.toFile());
             else
                 Files.move(origin, destination, StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
-            if (!noErrors)
-                throw e;
+            e.printStackTrace();
+            System.exit(1);
         }
     }
 
