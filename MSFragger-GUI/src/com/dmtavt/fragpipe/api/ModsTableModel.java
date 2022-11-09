@@ -74,7 +74,7 @@ public class ModsTableModel extends DefaultTableModel {
         ArrayList<Mod> list = new ArrayList<>(dataVector.size());
         for (int i = 0; i < dataVector.size(); i++) {
             Vector<?> row = (Vector<?>)dataVector.get(i);
-            if (row != null) {
+            if (row != null && row.size() > 2 && row.get(COL_ENABLED) != null && row.get(COL_SITES) != null && row.get(COL_DELTA) != null) {
                 Float delta;
                 if (row.get(COL_DELTA) instanceof Float) {
                     delta = (Float) row.get(COL_DELTA);
@@ -86,7 +86,7 @@ public class ModsTableModel extends DefaultTableModel {
                 String sites = (String) row.get(COL_SITES);
                 Boolean enabled = (Boolean) row.get(COL_ENABLED);
                 int maxOccurrences = -1;
-                if (row.size() > COL_MAX_OCCURS) {
+                if (row.size() > COL_MAX_OCCURS && row.get(COL_DELTA) != null) {
                     Object maxOccursCol = row.get(COL_MAX_OCCURS);
                     if (maxOccursCol != null) {
                         maxOccurrences = (Integer) row.get(COL_MAX_OCCURS);
