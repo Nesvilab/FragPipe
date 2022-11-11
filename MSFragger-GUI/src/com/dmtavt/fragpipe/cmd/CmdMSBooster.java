@@ -21,8 +21,6 @@ import static com.dmtavt.fragpipe.cmd.CmdDiann.DIANN_LINUX;
 import static com.dmtavt.fragpipe.cmd.CmdDiann.DIANN_WIN;
 import static com.dmtavt.fragpipe.cmd.CmdDiann.getLDPRELOAD;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.SMILE_CORE_JAR;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.SMILE_MATH_JAR;
 import static com.github.chhh.utils.OsUtils.isUnix;
 import static com.github.chhh.utils.OsUtils.isWindows;
 
@@ -49,9 +47,9 @@ import org.slf4j.LoggerFactory;
 public class CmdMSBooster extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdMSBooster.class);
   public static String NAME = "MSBooster";
-  public static final String JAR_MSBOOSTER_NAME = "msbooster-1.1.6.jar";
+  public static final String JAR_MSBOOSTER_NAME = "msbooster-1.1.7.jar";
   public static final String JAR_MSBOOSTER_MAIN_CLASS = "Features.MainClass";
-  private static final String[] JAR_DEPS = {SMILE_CORE_JAR, SMILE_MATH_JAR, BATMASS_IO_JAR};
+  private static final String[] JAR_DEPS = {BATMASS_IO_JAR};
   private static final Pattern pattern1 = Pattern.compile("\\.pepXML$");
   private static final Pattern pattern2 = Pattern.compile("_rank[0-9]+\\.pepXML$");
 

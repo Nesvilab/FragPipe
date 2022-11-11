@@ -18,8 +18,6 @@
 package com.dmtavt.fragpipe.cmd;
 
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.SMILE_CORE_JAR;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.SMILE_MATH_JAR;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
@@ -36,7 +34,7 @@ public class CmdBrukerLibLoadTest extends CmdBase {
 
     public static final String JAR_NAME = "batmass-consumer.jar";
     public static final String JAR_MAIN_CLASS = "com.dmtavt.batmass.io.consumer.App";
-    private static final String[] JAR_DEPS = {SMILE_CORE_JAR, SMILE_MATH_JAR, BATMASS_IO_JAR};
+    private static final String[] JAR_DEPS = {BATMASS_IO_JAR};
 
     public CmdBrukerLibLoadTest(boolean isRun, String title, Path workDir,
         String fileCaptureStdout, String fileCaptureStderr) {

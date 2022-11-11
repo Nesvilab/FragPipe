@@ -53,8 +53,6 @@ public class ToolingUtils {
   private ToolingUtils() {}
 
   public static final String BATMASS_IO_JAR = "batmass-io-1.28.5.jar";
-  public static final String SMILE_CORE_JAR = "smile-core-2.6.0.jar";
-  public static final String SMILE_MATH_JAR = "smile-math-2.6.0.jar";
   public static final String JFREECHART_JAR = "jfreechart-1.5.3.jar";
 
   /**
