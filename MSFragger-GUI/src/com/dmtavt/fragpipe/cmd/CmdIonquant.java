@@ -192,9 +192,24 @@ public class CmdIonquant extends CmdBase {
         }
       }
       if (StringUtils.isNotBlank(v)) {
-        if ((dynamicParam.contentEquals("light") || dynamicParam.contentEquals("medium") || dynamicParam.contentEquals("heavy")) && getOrThrow(uiCompsRepresentation, "ionquant.use-labeling").contentEquals("false")) { // IonQuant does not have use-labeling parameter. If use-labeling = false, do not write light, medium, or heavy so that IonQuant won't run in label quant model.
-          continue;
+        if ((dynamicParam.contentEquals("light") || dynamicParam.contentEquals("medium") || dynamicParam.contentEquals("heavy"))) {
+          if (getOrThrow(uiCompsRepresentation, "ionquant.use-labeling").contentEquals("false")) { // IonQuant does not have use-labeling parameter. If use-labeling = false, do not write light, medium, or heavy so that IonQuant won't run in label quant model.
+            continue;
+          }
+
+          for (LcmsFileGroup lcmsFileGroup : mapGroupsToProtxml.keySet()) {
+            if (lcmsFileGroup.lcmsFiles.size() > 1) {
+              // label quant does not support more than one run in an experiment group.
+              if (Fragpipe.headless) {
+                log.error("When doing label quant, each experiment group can only have one run.");
+              } else {
+                JOptionPane.showMessageDialog(comp, SwingUtils.makeHtml("When doing label quant, each experiment group can only have one run."), NAME + " error", JOptionPane.WARNING_MESSAGE);
+              }
+              return false;
+            }
+          }
         }
+
         cmd.add("--" + dynamicParam);
         cmd.add(v);
       }
