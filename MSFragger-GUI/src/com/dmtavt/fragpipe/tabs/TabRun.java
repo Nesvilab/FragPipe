@@ -101,6 +101,7 @@ public class TabRun extends JPanelWithEnablement {
   Color defTextColor;
   private UiText uiTextWorkdir;
   private UiCheck uiCheckDryRun;
+  private UiCheck uiCheckDeleteCalibratedFiles;
   private JButton btnRun;
   private JButton btnStop;
   private JButton btnOpenPdv;
@@ -205,6 +206,9 @@ public class TabRun extends JPanelWithEnablement {
     }
 
     uiCheckDryRun = UiUtils.createUiCheck("Dry Run", false);
+
+    uiCheckDeleteCalibratedFiles = UiUtils.createUiCheck("Delete calibrated mzML", false);
+    uiCheckDeleteCalibratedFiles.setName(TAB_PREFIX + "delete_calibrated_mzml");
     btnRun = UiUtils.createButton("<html><b>RUN", e -> Bus.post(new MessageRun(isDryRun())));
 
     btnStop = UiUtils.createButton("Stop", e -> {
@@ -313,22 +317,28 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, feWorkdir.comp).growX();
     mu.add(p, btnBrowse);
     mu.add(p, btnOpenInFileManager).wrap();
-    mu.add(p, btnRun).split(3);
+    mu.add(p, btnRun).split(5);
     mu.add(p, btnStop);
     mu.add(p, uiCheckDryRun);
-    mu.add(p, imageLabel).gapLeft("50").split(3);
-    mu.add(p, btnOpenPdv);
-    mu.add(p, btnClosePdv).pushX();
+    mu.add(p, uiCheckDeleteCalibratedFiles);
     mu.add(p, btnExport);
     mu.add(p, btnReportErrors);
     mu.add(p, btnClearConsole);
     mu.add(p, uiCheckWordWrap).wrap();
+
+    mu.add(p, imageLabel).split(3);
+    mu.add(p, btnOpenPdv);
+    mu.add(p, btnClosePdv).pushX();
 
     return p;
   }
 
   public boolean isDryRun() {
     return SwingUtils.isEnabledAndChecked(uiCheckDryRun);
+  }
+
+  public boolean isDeleteCalibratedFiles() {
+    return SwingUtils.isEnabledAndChecked(uiCheckDeleteCalibratedFiles);
   }
 
   protected void init() {

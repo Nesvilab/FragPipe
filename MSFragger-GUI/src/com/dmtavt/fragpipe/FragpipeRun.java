@@ -18,6 +18,7 @@
 package com.dmtavt.fragpipe;
 
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
+import static com.github.chhh.utils.FileDelete.deleteFileOrFolder;
 
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.IConfig;
@@ -131,6 +132,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.apache.commons.codec.Charsets;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DirectedAcyclicGraph;
@@ -397,6 +399,25 @@ public class FragpipeRun {
 
       // add finalizer process
       final Runnable finalizerRun = () -> {
+        if (tabRun.isDeleteCalibratedFiles()) {
+          toConsole(Fragpipe.COLOR_BLACK, "", true, tabRun.console);
+          for (LcmsFileGroup lcmsFileGroup : lcmsFileGroups.values()) {
+            for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
+              String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
+              Path path = inputLcmsFile.getPath().getParent().resolve(baseName + "_calibrated.mzML");
+              if (Files.exists(path)) {
+                try {
+                  toConsole(Fragpipe.COLOR_TOOL, "Delete ", false, tabRun.console);
+                  toConsole(Fragpipe.COLOR_BLACK, path.toAbsolutePath().toString(), true, tabRun.console);
+                  deleteFileOrFolder(path);
+                } catch (Exception ex) {
+                  toConsole(Fragpipe.COLOR_RED, "Could not delete " + path.toAbsolutePath() + ". It won't affect the result.", true, tabRun.console);
+                }
+              }
+            }
+          }
+        }
+
         printReference(tabRun.console);
         String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
         toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true, tabRun.console);
