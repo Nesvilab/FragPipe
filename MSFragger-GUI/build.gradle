@@ -145,7 +145,7 @@ dependencies {
     implementation group: 'org.netbeans.api', name: 'org-netbeans-swing-outline', version: 'RELEASE130'
     implementation 'commons-io:commons-io:2.11.0'
 
-    implementation 'org.yaml:snakeyaml:1.30' // TMT-Integrator config parsing
+    testImplementation 'org.yaml:snakeyaml:1.33' // TMT-Integrator config parsing
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.13.2'
