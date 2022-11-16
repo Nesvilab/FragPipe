@@ -321,6 +321,14 @@ public class TabRun extends JPanelWithEnablement {
       ex.printStackTrace();
     }
 
+    JLabel imageLabel2 = new JLabel();
+    try {
+      BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/fragpipe-analyst.jpg")));
+      imageLabel2 = new JLabel(new ImageIcon(image));
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+
     JPanel p = mu.newPanel(null, true);
     mu.add(p, btnAbout).wrap();
     mu.add(p, feWorkdir.label(), false).split().spanX();
@@ -339,10 +347,12 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnClearConsole);
     mu.add(p, uiCheckWordWrap).wrap();
 
-    mu.add(p, imageLabel).split(4);
+    mu.add(p, imageLabel).split(5);
     mu.add(p, btnOpenPdv);
     mu.add(p, btnClosePdv).pushX();
-    mu.add(p, btnOpenFragPipeAnalyst).gapLeft("80px").wrap();
+
+    mu.add(p, imageLabel2).gapLeft("100px");
+    mu.add(p, btnOpenFragPipeAnalyst).wrap();
 
     return p;
   }
