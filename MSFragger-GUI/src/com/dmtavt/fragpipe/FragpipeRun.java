@@ -108,8 +108,6 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -523,9 +521,7 @@ public class FragpipeRun {
 
 
   public static void saveRuntimeConfig(Path wd) {
-    LocalDateTime time = LocalDateTime.now();
-    String timestamp = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS"));
-    Path path = wd.resolve("fragpipe" + "_" + timestamp + ".workflow");
+    Path path = wd.resolve("fragpipe.workflow");
     Bus.post(new MessageSaveUiState(path));
   }
 
