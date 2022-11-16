@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import glob
 import time
 
 use_philosopher_fo: bool = not True
@@ -225,7 +225,7 @@ fasta = str_to_path(sys.argv[1]).resolve(strict=True)
 iproph_RT_aligned = str_to_path(sys.argv[2]).resolve(strict=True)
 prot_xml_file = str_to_path(sys.argv[3]).resolve(strict=True) \
 	if use_spectrast else pathlib.Path()
-output_directory = str_to_path(sys.argv[4])
+workdir = str_to_path(sys.argv[4])
 overwrite = False
 if len(sys.argv) >= 6:
 	if sys.argv[5].casefold() == 'true':
@@ -272,12 +272,12 @@ CWD = os.getcwd()
 with fasta.open("rb") as f:
 	decoy_prefix = detect_decoy_prefix(f)
 
-splib_original = output_directory / "input.splib"
-splib_original_backup = output_directory / "input.splib_orig.txt"
-splib_new = output_directory / "input_Qcombined.splib"
+splib_original = workdir / "input.splib"
+splib_original_backup = workdir / "input.splib_orig.txt"
+splib_new = workdir / "input_Qcombined.splib"
 
-philosopher_filter_log_path = output_directory / 'filter.log'
-peptide_tsv_path = output_directory / 'peptide.tsv'
+philosopher_filter_log_path = workdir / 'filter.log'
+peptide_tsv_path = workdir / 'peptide.tsv'
 use_peptide_tsv: bool = peptide_tsv_path.exists()
 skip_philosopher_filter: bool = philosopher_filter_log_path.exists()
 
@@ -408,7 +408,7 @@ if use_spectrast:
 C	C[222]	312	[XXX]	FALSE	"{'C': 3, 'H': 5, 'N' : 1, 'O' : 2, 'S' : 1 }"
 C	C[143]	385	[XXX]	FALSE	"{'H' : -3, 'N' : -1 }"
 C-term	c[17]	2	[XXX]	FALSE	"{'H' : 1, 'N' : 1 , 'O': -1 }"'''
-	spectrast2tsv_additional_mods_path = output_directory / 'spectrast2tsv_additional_mods_path.tsv'
+	spectrast2tsv_additional_mods_path = workdir / 'spectrast2tsv_additional_mods_path.tsv'
 
 	spectrast_cmds_part3=fr"""
 ## Filter the consensus splib library into a transition list
@@ -419,7 +419,7 @@ C-term	c[17]	2	[XXX]	FALSE	"{'H' : 1, 'N' : 1 , 'O': -1 }"'''
 
 	spectrast_cmds = spectrast_cmds_part1 + spectrast_cmds_part2 + spectrast_cmds_part3
 
-phi_log = output_directory / "philosopher.log"
+phi_log = workdir / "philosopher.log"
 
 phi_cmd_part1= f"""
 set -xe
@@ -458,7 +458,7 @@ def get_pep_ion_minprob(opt: Filter_option, philosopher_filter_log: str = None):
 	f=sys.stdout.buffer
 	### get 2D FDR
 	if sys.platform=='linux':
-		with subprocess.Popen(adjust_command(phi_cmd_part1), shell=True, stderr=subprocess.PIPE, cwd=os_fspath(output_directory)) as proc1, \
+		with subprocess.Popen(adjust_command(phi_cmd_part1), shell=True, stderr=subprocess.PIPE, cwd=os_fspath(workdir)) as proc1, \
 			phi_log.open('wb') as f2:
 			for line in proc1.stderr:
 				f.write(line)
@@ -467,7 +467,7 @@ def get_pep_ion_minprob(opt: Filter_option, philosopher_filter_log: str = None):
 				f2.flush()
 				outl.append(line)
 	if sys.platform=='win32':
-		with subprocess.Popen(adjust_command(phi_cmd_part1), shell=True, stdout=subprocess.PIPE, cwd=os_fspath(output_directory)) as proc1, \
+		with subprocess.Popen(adjust_command(phi_cmd_part1), shell=True, stdout=subprocess.PIPE, cwd=os_fspath(workdir)) as proc1, \
 			phi_log.open('wb') as f2:
 			for line in proc1.stdout:
 				f.write(line)
@@ -476,22 +476,22 @@ def get_pep_ion_minprob(opt: Filter_option, philosopher_filter_log: str = None):
 				f2.flush()
 				outl.append(line)
 	if use_philosopher_fo and proc1.returncode == 1:
-		a = (output_directory/'.meta'/'pep_pro_mappings.tsv').read_text()
+		a = (workdir / '.meta' / 'pep_pro_mappings.tsv').read_text()
 		l = [e.split('\t') for e in re.compile('(?=sp\\|)').split(a)]
 		d = {ee2: e for e, *e2 in l for ee2 in e2}
 		##create dummy fasta
-		with (output_directory / 'protein.fas').open('x') as f:
+		with (workdir / 'protein.fas').open('x') as f:
 			for prot in sorted(set(d.values())):
 				f.write(f'>{prot}\nDUMMY\n')
 		# create dummy psm.tsv
-		(output_directory / 'psm.tsv').write_text(
+		(workdir / 'psm.tsv').write_text(
 			'Peptide\tProtein\n' +
 			'\n'.join(f'{ee2}\t{e}' for e, *e2 in l for ee2 in e2)
 		)
 	else:
 		assert proc1.returncode == 0, [proc1.args, proc1.returncode]
 		## filter original fasta file
-		subprocess.run(phi_cmd_part2, shell=True, stderr=subprocess.STDOUT, cwd=os_fspath(output_directory), check=True)
+		subprocess.run(phi_cmd_part2, shell=True, stderr=subprocess.STDOUT, cwd=os_fspath(workdir), check=True)
 	out = b"".join(filter(lambda line: not line.startswith(b"+"), outl))
 	outtxt = out.decode("ascii")
 	res2 = [float(e) for e in re.compile(' Ions.+threshold.*?=([0-9.]+)').findall(outtxt)]
@@ -512,8 +512,8 @@ if use_spectrast:
 				   '-M', 'spectrast.usermods',
 				   "-c_BIN!",
 				   f"-cP{prob}",
-				   "-cIHCD", f"-cN{output_directory / 'input000'}"] + \
-			   list(map(os_fspath, iproph_pep_xmls))
+				   "-cIHCD", f"-cN{workdir / 'input000'}"] + \
+					 list(map(os_fspath, iproph_pep_xmls))
 
 
 	spectrast_first = '## Run spectrast to build spectral library\n' + ' '.join(spectrast_cmd('?'))
@@ -547,8 +547,8 @@ if use_easypqp:
 						})
 		  for i in range(1, 8)]
 	irt_df = pd.concat(dd).reset_index(drop=True)
-	irt_file = output_directory / 'irt.tsv'
-	im_file = output_directory / 'im.tsv'
+	irt_file = workdir / 'irt.tsv'
+	im_file = workdir / 'im.tsv'
 	# irt_df.to_csv(irt_file, index=False, sep='\t', line_terminator='\n')
 	'''easypqp convert --pepxml 1.pep_xml --spectra 1.mgf --exclude-range -1.5,3.5
 	easypqp convert --pepxml 2.pep_xml --spectra 2.mgf --exclude-range -1.5,3.5'''
@@ -582,12 +582,12 @@ if use_easypqp:
 	easypqp_convert_cmds = [[resolve_mapped(easypqp), 'convert', *easypqp_convert_extra_args,'--enable_unannotated', '--pepxml', resolve_mapped(pep_xml), '--spectra', resolve_mapped(spectra), '--exclude-range', '-1.5,3.5',
 							 '--psms', f'{outfiles}.psmpkl', '--peaks', f'{outfiles}.peakpkl']
 							for (_, _, spectra, pep_xml), outfiles in zip(runname_rank_spectra_pepxml, convert_outs)]
-	easypqp_library_infiles = [output_directory / (e + '.psmpkl') for e in convert_outs] + \
-							  [output_directory / (e + '.peakpkl') for e in convert_outs]
+	easypqp_library_infiles = [workdir / (e + '.psmpkl') for e in convert_outs] + \
+														[workdir / (e + '.peakpkl') for e in convert_outs]
 	easyPQP_tempfiles = easypqp_library_infiles + \
-						[output_directory / (e + '_run_peaks.tsv') for e in convert_outs] + \
-						[output_directory / 'easypqp_lib_openswath.tsv']
-	filelist_easypqp_library = output_directory / 'filelist_easypqp_library.txt'
+											[workdir / (e + '_run_peaks.tsv') for e in convert_outs] + \
+											[workdir / 'easypqp_lib_openswath.tsv']
+	filelist_easypqp_library = workdir / 'filelist_easypqp_library.txt'
 	filelist_easypqp_library.write_text('\n'.join(map(os.fspath, easypqp_library_infiles)))
 	use_iRT = irt_choice is not Irt_choice.no_iRT
 	use_im = im_choice is not Im_choice.no_im
@@ -629,7 +629,7 @@ def filter_proteins(fasta, decoy_prefix):
 		philosopher_peptide_tsv = pd.read_csv(peptide_tsv_path, sep='\t')
 		proteins_fas = frozenset(philosopher_peptide_tsv['Protein'])
 	else:
-		fasta_file = output_directory / "protein.fas"
+		fasta_file = workdir / "protein.fas"
 		# gen0 = (e.split("\n", 1)[0].split(' ', 1)[0] for e in fasta_file.read_text()[1:].split("\n>"))
 		# proteins_fas = frozenset(filter(lambda x: not x.startswith(decoy_prefix), gen0))
 		proteins_fas = frozenset(e.split("\n", 1)[0].split(' ', 1)[0] for e in fasta_file.read_text()[1:].split("\n>"))
@@ -680,8 +680,8 @@ def filter_proteins(fasta, decoy_prefix):
 			if len(prot_list_filt) == 0 else \
 			lines
 
-	with (output_directory/"input000.splib").open("rt") as f, \
-			(output_directory / "input.splib").open("wt") as fout:
+	with (workdir / "input000.splib").open("rt") as f, \
+			(workdir / "input.splib").open("wt") as fout:
 		libID, libID_orig = 0, 0
 		for line in f:
 			if not line.startswith("Name: "):
@@ -700,12 +700,12 @@ def filter_proteins(fasta, decoy_prefix):
 
 def main0():
 
-	output_directory.mkdir(exist_ok=overwrite)
+	workdir.mkdir(exist_ok=overwrite)
 	print(f'''Spectral library building
 Commands to execute:
 {allcmds}
 {'~' * 69}''', flush=True)
-	(output_directory / "cmds.txt").write_text(allcmds)
+	(workdir / "cmds.txt").write_text(allcmds)
 	pep_ion_minprob=get_pep_ion_minprob(
 		Filter_option.all
 		# Filter_option.by_2D_filtering
@@ -714,7 +714,7 @@ Commands to execute:
 	)
 	# http://tools.proteomecenter.org/wiki/index.php?title=Software:SpectraST#User-defined_Modifications
 	# http://tools.proteomecenter.org/wiki/index.php?title=Spectrast.usermods
-	(output_directory / 'spectrast.usermods').write_text(
+	(workdir / 'spectrast.usermods').write_text(
 		r'''M|+16|
 C|+57|
 n|+42|
@@ -727,8 +727,8 @@ c|-0.02|AmidatedCorrected
 	'''
 	cmd2 = " ".join(spectrast_cmd(pep_ion_minprob))
 	print(f'Executing:{cmd2}\n')
-	(output_directory / "cmds2.txt").write_text(cmd2)
-	subprocess.run(spectrast_cmd(pep_ion_minprob), cwd=os_fspath(output_directory), check=True)
+	(workdir / "cmds2.txt").write_text(cmd2)
+	subprocess.run(spectrast_cmd(pep_ion_minprob), cwd=os_fspath(workdir), check=True)
 
 	# print("take only proteins from philosopher’s protein.fas")
 	filter_proteins(fasta, decoy_prefix)
@@ -738,30 +738,30 @@ c|-0.02|AmidatedCorrected
 		modify_splib()
 
 	print(f'Executing:{spectrast_cmds_part1}\n')
-	subprocess.run(adjust_command(spectrast_cmds_part1), shell=True, cwd=os_fspath(output_directory), check=True)
+	subprocess.run(adjust_command(spectrast_cmds_part1), shell=True, cwd=os_fspath(workdir), check=True)
 	if align_with_iRT:
 		print(f'Executing:{spectrast_cmds_part2}\n')
-		cp = subprocess.run(adjust_command(spectrast_cmds_part2), shell=True, cwd=os_fspath(output_directory), check=not True,
-							stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+		cp = subprocess.run(adjust_command(spectrast_cmds_part2), shell=True, cwd=os_fspath(workdir), check=not True,
+												stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 		if cp.returncode != 0:
 			print('Skipping iRT alignment\n')
-			(output_directory / 'spectrast2spectrast_irt.log').write_bytes(cp.stdout)
-			shutil.move(output_directory / 'output_file_irt_con001.splib', output_directory / 'output_file_irt_con.splib')
+			(workdir / 'spectrast2spectrast_irt.log').write_bytes(cp.stdout)
+			shutil.move(workdir / 'output_file_irt_con001.splib', workdir / 'output_file_irt_con.splib')
 		else:
 			print(cp.stdout.decode())
 			print('iRT alignment done\n')
 	else:
-		shutil.move(output_directory / 'output_file_irt_con001.splib', output_directory / 'output_file_irt_con.splib')
+		shutil.move(workdir / 'output_file_irt_con001.splib', workdir / 'output_file_irt_con.splib')
 	spectrast2tsv_additional_mods_path.write_text(spectrast2tsv_additional_mods_tsv_txt)
 	print(f'Executing:{spectrast_cmds_part3}\n')
-	subprocess.run(adjust_command(spectrast_cmds_part3), shell=True, cwd=os_fspath(output_directory), check=True)
+	subprocess.run(adjust_command(spectrast_cmds_part3), shell=True, cwd=os_fspath(workdir), check=True)
 
 
 def main_easypqp():
 
+	workdir.mkdir(exist_ok=overwrite)
+	output_directory = workdir / 'easypqp_files'
 	output_directory.mkdir(exist_ok=overwrite)
-	logs_directory = output_directory / 'easypqp_logs'
-	logs_directory.mkdir(exist_ok=overwrite)
 	if irt_choice is Irt_choice.iRT:
 		irt_df.to_csv(irt_file, index=False, sep='\t', line_terminator='\n')
 	elif irt_choice is Irt_choice.ciRT:
@@ -776,13 +776,13 @@ def main_easypqp():
 Commands to execute:
 {allcmds}
 {'~' * 69}''', flush=True)
-	(logs_directory / 'cmds.txt').write_text(allcmds)
+	(output_directory / 'cmds.txt').write_text(allcmds)
 	subprocess.run([os.fspath(easypqp), '--version'], check=True)
 	procs = []
 	for i, e in enumerate(easypqp_convert_cmds):
 		while sum(p.poll() is None for p in procs) >= nproc:
 			time.sleep(1)
-		procs.append(subprocess.Popen(e, cwd=os_fspath(output_directory), stdout=open(logs_directory / f'easypqp_convert_{i}.log', 'w'), stderr=subprocess.STDOUT))
+		procs.append(subprocess.Popen(e, cwd=os_fspath(workdir), stdout=open(output_directory / f'easypqp_convert_{i}.log', 'w'), stderr=subprocess.STDOUT))
 		print(f'Executing {e}')
 
 	for p in procs:
@@ -791,18 +791,18 @@ Commands to execute:
 		if p.returncode != 0:
 			print("EasyPQP convert error BEGIN")
 			try:
-				print(open(logs_directory / f'easypqp_convert_{i}.log').read(), end="")
+				print(open(output_directory / f'easypqp_convert_{i}.log').read(), end="")
 			except OSError as e:
 				print(e)
 			print(f'exit status: {p.returncode}')
 			print("EasyPQP convert error END")
 	assert all(p.returncode == 0 for p in procs)
-	p = subprocess.run(easypqp_library_cmd(use_iRT, use_im), cwd=os_fspath(output_directory), check=False)
+	p = subprocess.run(easypqp_library_cmd(use_iRT, use_im), cwd=os_fspath(workdir), check=False)
 	if p.returncode != 0 and not use_iRT:
 		print('''Not enough peptides could be found for alignment.
 Using ciRT for alignment''')
 		shutil.copyfile(script_dir / 'hela_irtkit.tsv', irt_file)
-		p = subprocess.run(easypqp_library_cmd(True, use_im), cwd=os_fspath(output_directory), check=False)
+		p = subprocess.run(easypqp_library_cmd(True, use_im), cwd=os_fspath(workdir), check=False)
 	if p.returncode != 0:
 		print('''Library not generated, not enough peptides could be found for alignment.
 Please try using other options for alignment (e.g. ciRT if used other options)''')
@@ -937,7 +937,7 @@ def edit_raw_con_lib():
 if use_spectrast:
 	main0()
 
-	os.chdir(os_fspath(output_directory))
+	os.chdir(os_fspath(workdir))
 	edit_raw_con_lib()
 	if delete_temp_files:
 		for f in TEMP_FILES:
@@ -986,7 +986,7 @@ def easypqp_lib_export(lib_type: str):
 
 if use_easypqp:
 	main_easypqp()
-	os.chdir(os_fspath(output_directory))
+	os.chdir(os_fspath(workdir))
 	easypqp_lib_export('Spectronaut')
 	if 0:
 		easypqp_lib_export('skyline')
@@ -998,6 +998,18 @@ if use_easypqp:
 			except FileNotFoundError as e:
 				lg.info(f'{f} does not exist')
 	os.chdir(CWD)
+
+# Move alignment PDF files to easypqp_files directory
+output_directory = os.path.join(workdir, "easypqp_files")
+if not os.path.exists(output_directory):
+	os.makedirs(output_directory)
+
+for tt in glob.glob('easypqp_rt_alignment_*.pdf'):
+	os.rename(os.path.join(workdir, tt), os.path.join(output_directory, tt))
+
+for tt in glob.glob('easypqp_im_alignment_*.pdf'):
+	os.rename(os.path.join(workdir, tt), os.path.join(output_directory, tt))
+
 
 print('Done generating spectral library')
 lg.info(f'took {datetime.timedelta(seconds=timeit.default_timer() - START)}')
