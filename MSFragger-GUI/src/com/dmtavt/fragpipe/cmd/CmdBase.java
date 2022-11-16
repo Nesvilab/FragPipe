@@ -108,7 +108,7 @@ public abstract class CmdBase {
     toJoin.addAll(jarDepsPaths.stream().map(pathMapping).collect(Collectors.toList()));
     toJoin.addAll(Arrays.stream(additionalJars).map(pathMapping).collect(Collectors.toList()));
     final String sep = System.getProperties().getProperty("path.separator");
-    final String classpath = org.apache.commons.lang3.StringUtils.join(toJoin, sep);
+    final String classpath = String.join(sep, toJoin);
     return OsUtils.asSingleArgument(classpath);
   }
 
