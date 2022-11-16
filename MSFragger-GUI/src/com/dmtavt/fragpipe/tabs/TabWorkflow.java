@@ -1303,31 +1303,21 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     if (path != null) {
       Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.getParent().toString());
-      if (!deleteQuietlyWithConfirmation(path, this)) {
-        return;
-      }
       try {
+        if (m.quite) {
+          Files.deleteIfExists(path);
+        } else if (Files.exists(path)) {
+          if (!SwingUtils.showConfirmDialogShort(this, "File exists, overwrite?\n\n" + path)) {
+            return;
+          } else {
+            Files.deleteIfExists(path);
+          }
+        }
         manifestSave(path);
       } catch (IOException e) {
         SwingUtils.showErrorDialogWithStacktrace(e, this);
       }
     }
-  }
-
-  public static boolean deleteQuietlyWithConfirmation(Path path, Component parent) {
-    if (Files.exists(path)) {
-      if (!SwingUtils.showConfirmDialogShort(parent, "File exists, overwrite?\n\n" + path)) {
-        return false;
-      } else {
-        try {
-          Files.deleteIfExists(path);
-        } catch (IOException e) {
-          SwingUtils.showErrorDialogWithStacktrace(e, parent);
-          return false;
-        }
-      }
-    }
-    return true;
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)

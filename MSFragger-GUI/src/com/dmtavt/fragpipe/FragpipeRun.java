@@ -482,7 +482,7 @@ public class FragpipeRun {
 
         // save manifest file in both GUI and headless mode
         Path path = wd.resolve("fragpipe-files.fp-manifest");
-        Bus.post(new MessageManifestSave(path));
+        Bus.post(new MessageManifestSave(path, true));
 
         Bus.post(new MessageRunButtonEnabled(true));
       };

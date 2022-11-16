@@ -22,12 +22,15 @@ import java.nio.file.Path;
 public class MessageManifestSave {
 
   public final Path path;
+  public final boolean quite;
 
   public MessageManifestSave() {
     path = null;
+    quite = false;
   }
 
-  public MessageManifestSave(Path path) {
+  public MessageManifestSave(Path path, boolean quite) {
     this.path = path;
+    this.quite = quite;
   }
 }
