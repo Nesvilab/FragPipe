@@ -107,6 +107,7 @@ public class TabRun extends JPanelWithEnablement {
   private JButton btnStop;
   private JButton btnOpenPdv;
   private JButton btnClosePdv;
+  private JButton btnOpenFragPipeAnalyst;
   private Thread pdvThread = null;
   private JPanel pTop;
   private JPanel pConsole;
@@ -289,6 +290,10 @@ public class TabRun extends JPanelWithEnablement {
       }
     });
 
+    btnOpenFragPipeAnalyst = UiUtils.createButton("Open FragPipe-Analyst", e -> {
+      SwingUtils.openBrowserOrThrow("http://fragpipe-analyst.nesvilab.org/");
+    });
+
     JButton btnExport = UiUtils.createButton("Export Log", e -> Bus.post(new MessageExportLog()));
     JButton btnReportErrors = UiUtils.createButton("Report Errors", e -> {
       final String prop = Version.isDevBuild() ? Version.PROP_ISSUE_TRACKER_URL_DEV : Version.PROP_ISSUE_TRACKER_URL;
@@ -322,20 +327,22 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, feWorkdir.comp).growX();
     mu.add(p, btnBrowse);
     mu.add(p, btnOpenInFileManager).wrap();
+
     mu.add(p, btnRun).split(5);
     mu.add(p, btnStop);
     mu.add(p, uiCheckDryRun);
     mu.add(p, uiCheckDeleteCalibratedFiles);
     mu.add(p, uiCheckDeleteTempFiles);
 
-    mu.add(p, btnExport);
+    mu.add(p, btnExport).split(3);
     mu.add(p, btnReportErrors);
     mu.add(p, btnClearConsole);
     mu.add(p, uiCheckWordWrap).wrap();
 
-    mu.add(p, imageLabel).split(3);
+    mu.add(p, imageLabel).split(4);
     mu.add(p, btnOpenPdv);
     mu.add(p, btnClosePdv).pushX();
+    mu.add(p, btnOpenFragPipeAnalyst).gapLeft("80px").wrap();
 
     return p;
   }
