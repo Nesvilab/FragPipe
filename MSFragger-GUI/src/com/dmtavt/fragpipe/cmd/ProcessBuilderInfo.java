@@ -27,7 +27,6 @@ import com.dmtavt.fragpipe.messages.MessageKillAll.REASON;
 import com.dmtavt.fragpipe.messages.MessageManifestSave;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.process.ProcessResult;
-import com.github.chhh.utils.TimeUtils;
 import com.github.chhh.utils.swing.TextConsole;
 import java.awt.Color;
 import java.io.IOException;
@@ -134,7 +133,7 @@ public class ProcessBuilderInfo {
 
               if (!isDownstream) {
                 // save manifest file in both GUI and headless mode
-                Path path = wdPath.resolve("lcms-files_" + TimeUtils.dateTimeNoSpaces() + ".fp-manifest");
+                Path path = wdPath.resolve("fragpipe-files.fp-manifest");
                 Bus.post(new MessageManifestSave(path));
               }
 

@@ -99,7 +99,6 @@ import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.TimeUtils;
 import com.github.chhh.utils.UsageTrigger;
 import com.github.chhh.utils.swing.TextConsole;
 import java.io.ByteArrayOutputStream;
@@ -470,7 +469,7 @@ public class FragpipeRun {
         saveRuntimeConfig(wd);
 
         // save manifest file in both GUI and headless mode
-        Path path = wd.resolve("lcms-files_" + TimeUtils.dateTimeNoSpaces() + ".fp-manifest");
+        Path path = wd.resolve("fragpipe-files.fp-manifest");
         Bus.post(new MessageManifestSave(path));
 
         Bus.post(new MessageRunButtonEnabled(true));
