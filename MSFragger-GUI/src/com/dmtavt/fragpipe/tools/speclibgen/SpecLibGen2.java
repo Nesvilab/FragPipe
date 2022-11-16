@@ -30,7 +30,6 @@ import com.github.chhh.utils.Installed;
 import com.github.chhh.utils.PythonModule;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -57,14 +56,12 @@ public class SpecLibGen2 {
   private final Object initLock = new Object();
   private PyInfo pi;
   private Path scriptSpecLibGenPath;
-  public List<PythonModule> missingModulesSpeclibgen;
   private boolean isInitialized;
 
   private SpecLibGen2() {
     pi = null;
     scriptSpecLibGenPath = null;
     isInitialized = false;
-    missingModulesSpeclibgen = new ArrayList<>();
   }
 
   public static void initClass() {
@@ -139,7 +136,7 @@ public class SpecLibGen2 {
   }
 
   private void checkPythonSpeclibgen(PyInfo pi) throws ValidationException {
-    missingModulesSpeclibgen = checkForMissingModules(pi, REQUIRED_FOR_EASYPQP);
+    List<PythonModule> missingModulesSpeclibgen = checkForMissingModules(pi, REQUIRED_FOR_EASYPQP);
     if (!missingModulesSpeclibgen.isEmpty()) {
       throw new ValidationException("Python modules missing: " + Seq.seq(missingModulesSpeclibgen).map(pm -> pm.installName).toString(", "));
     }

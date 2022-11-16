@@ -97,7 +97,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -120,7 +119,6 @@ import net.miginfocom.swing.MigLayout;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -147,7 +145,7 @@ public class TabConfig extends JPanelWithEnablement {
   private HtmlStyledJEditorPane epDbsplitErr;
   private Container epDbsplitErrParent;
   private HtmlStyledJEditorPane epEasyPQPText;
-  private Container epSpeclibgenErrParent;
+  private Container epSpeclibgenParent;
   private JButton btnAbout;
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
   public static final String TIP_IONQUANT_BIN = "tip.ionquant.bin";
@@ -849,31 +847,34 @@ public class TabConfig extends JPanelWithEnablement {
     this.revalidate();
   }
 
-  private String textEasyPQPEnabled(String easypqpLocalVersion, String easypqpLatestVersion, boolean enableEasypqp) {
+  private String textEasyPQP(String easypqpLocalVersion, String easypqpLatestVersion, boolean enableEasypqp, String errMsg) {
     StringBuilder sb = new StringBuilder();
     if (enableEasypqp && !easypqpLocalVersion.contentEquals("N/A")) {
       if (!easypqpLatestVersion.contentEquals("N/A") && VersionComparator.cmp(easypqpLocalVersion, easypqpLatestVersion) < 0) {
         sb.append("EasyPQP: <b>Available</b>. Version: " + easypqpLocalVersion + "<br>"
-            + "<p style=\"color:red\">There is a new version (" + easypqpLatestVersion + "). Please upgrade it using the button below.<br>");
+            + "<p style=\"color:red\">There is a new version (" + easypqpLatestVersion + "). Please upgrade it by clicking the button below and waiting.<br>");
       } else {
         sb.append("EasyPQP: <b>Available</b>. Version: " + easypqpLocalVersion + "<br>");
       }
     } else {
-      sb.append("EasyPQP: <b>Not available</b><br>"
-          + "Please make sure that Python is installed, and then click the button below.<br>");
+      if (errMsg.isEmpty()) {
+        sb.append("EasyPQP: <b>Not available</b><br>"
+            + "Please make sure that Python is installed, and then click the button below and wait.<br>");
+      } else {
+        sb.append("EasyPQP: <b>Not available</b><br>"
+            + "Please make sure that Python is installed, and then click the button below and wait.<br>").append(errMsg);
+      }
     }
     return sb.toString();
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigSpeclibgen m) {
+    epSpeclibgenParent = epEasyPQPText.getParent();
+    epEasyPQPText.setVisible(true);
     if (m.ex != null) {
       log.debug("Got NoteConfigSpeclibgen with exception set");
-      if (epSpeclibgenErrParent != null && !epSpeclibgenErrParent.isAncestorOf(epEasyPQPText)) {
-        epSpeclibgenErrParent.add(epEasyPQPText, new CC().wrap());
-        epEasyPQPText.setVisible(true);
-      }
-      epEasyPQPText.setText(textEasyPQPEnabled("N/A", "N/A", false));
+      epEasyPQPText.setText(textEasyPQP("N/A", "N/A", false, m.ex.getMessage()));
       showConfigError(m.ex, TIP_SPECLIBGEN, epEasyPQPText);
       this.revalidate();
       return;
@@ -884,21 +885,6 @@ public class TabConfig extends JPanelWithEnablement {
     }
 
     log.debug("Got NoteConfigSpeclibgen without exceptions");
-    boolean enableEasypqp = true;
-    List<String> errMsgLines = new ArrayList<>();
-    if (!m.instance.missingModulesSpeclibgen.isEmpty()) {
-      errMsgLines.add("Missing python modules: " + Seq.seq(m.instance.missingModulesSpeclibgen).map(pm -> pm.installName).toString(", "));
-      enableEasypqp = false;
-    }
-
-    if (errMsgLines.isEmpty()) {
-      epSpeclibgenErrParent = epEasyPQPText.getParent();
-      if (epSpeclibgenErrParent != null) {
-        epSpeclibgenErrParent.remove(epEasyPQPText);
-      }
-    } else {
-      epEasyPQPText.setText(String.join("\n", errMsgLines));
-    }
 
     // get EasyPQP local version
     String easypqpLocalVersion = "N/A";
@@ -929,7 +915,7 @@ public class TabConfig extends JPanelWithEnablement {
       easypqpLatestVersion = "N/A";
     }
 
-    epEasyPQPText.setText(textEasyPQPEnabled(easypqpLocalVersion, easypqpLatestVersion, enableEasypqp));
+    epEasyPQPText.setText(textEasyPQP(easypqpLocalVersion, easypqpLatestVersion, true, ""));
 
     this.revalidate();
   }
