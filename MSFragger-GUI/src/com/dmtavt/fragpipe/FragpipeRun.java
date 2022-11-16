@@ -153,6 +153,7 @@ public class FragpipeRun {
       Pattern.compile("spectraRT_full\\.tsv"),
       Pattern.compile(".+\\.pair"),
   };
+  private static final Pattern fppdvDbPattern = Pattern.compile(".+\\.db");
 
   private FragpipeRun() {
   }
@@ -222,6 +223,19 @@ public class FragpipeRun {
         if (preparedWd == null) {
           log.debug("prepareWd() failed");
           return 1;
+        }
+
+        // Delete FP-PDV's *.db file before running anything
+        try {
+          Files.list(preparedWd).filter(Files::isRegularFile).filter(p -> fppdvDbPattern.matcher(p.getFileName().toString()).matches()).forEach(p -> {
+            try {
+              Files.deleteIfExists(p);
+            } catch (Exception e) {
+              throw new RuntimeException(e);
+            }
+          });
+        } catch (Exception ex) {
+          throw new RuntimeException(ex);
         }
       }
 
