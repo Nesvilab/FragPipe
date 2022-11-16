@@ -19,6 +19,7 @@ package com.dmtavt.fragpipe.process;
 
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.maxProcessors;
+import static org.apache.commons.text.StringEscapeUtils.escapeJava;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
@@ -244,7 +245,7 @@ public class ProcessManager {
           penv.entrySet().removeAll(System.getenv().entrySet());
           out.println("env\t" + penv);
           out.println("working dir\t" + pbi.pb.directory());
-          out.println("command\t[" + pbi.pb.command().stream().map(e -> "\"" + org.apache.commons.text.StringEscapeUtils.escapeJava(e) + "\"").collect(Collectors.joining(", ")) + "]");
+          out.println("command\t[" + pbi.pb.command().stream().map(e -> "\"" + escapeJava(e) + "\"").collect(Collectors.joining(", ")) + "]");
           out.println("fnStdout\t" + pbi.fnStdout);
           out.println("fnStderr\t" + pbi.fnStderr);
           out.println();

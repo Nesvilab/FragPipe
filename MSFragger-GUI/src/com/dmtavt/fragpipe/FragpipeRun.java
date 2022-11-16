@@ -103,6 +103,7 @@ import com.github.chhh.utils.UsageTrigger;
 import com.github.chhh.utils.swing.TextConsole;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -128,7 +129,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import org.apache.commons.codec.Charsets;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jgrapht.Graph;
@@ -395,7 +395,7 @@ public class FragpipeRun {
       try {
         Fragpipe.propsUi().save(baos);
         toConsole("~~~~~~~~~ fragpipe.config ~~~~~~~~~", tabRun.console);
-        toConsole(baos.toString(Charsets.UTF_8.name()), tabRun.console);
+        toConsole(baos.toString(StandardCharsets.UTF_8.name()), tabRun.console);
         toConsole("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", tabRun.console);
       } catch (IOException e) {
         log.error("Could not collect form text representation for printing to console");

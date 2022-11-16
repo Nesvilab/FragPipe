@@ -128,6 +128,7 @@ dependencies {
 
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'com.miglayout:miglayout-swing:5.3'
+    implementation 'org.apache.commons:commons-text:1.10.0'
 
     implementation ('io.reactivex:rxswing:0.27.0'){
         exclude group: 'io.reactivex', module: 'rxjava'
