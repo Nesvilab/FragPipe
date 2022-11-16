@@ -839,7 +839,7 @@ public class PtmshepherdPanel extends JPanelBase {
                 "use if modifications will be found overwhelmingly as variable mods, e.g. phospho-enriched data.<br/>\n"
             + "Comma-separated entries in the format \"&lt;name&gt;:&lt;mass&gt;\"<br/>\n"
             + "Example:<br/>\n"
-            + "&nbsp;&nbsp;&nbsp;&nbsp;Phospho:79.9663, Failed_Carbamidomethylation:-57.021464");
+            + "&nbsp;&nbsp;&nbsp;&nbsp;Phospho:79.9663, Failed_Carbamidomethylation:-57.02146");
 
     UiSpinnerDouble uiSpinnerAnnotTol = UiSpinnerDouble.builder(0.01, 0.001, 0.999, 0.01)
             .setFormat(new DecimalFormat("0.###")).setCols(5).create();
