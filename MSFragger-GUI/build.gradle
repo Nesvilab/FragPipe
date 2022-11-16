@@ -8,16 +8,13 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
-    // Apply the java plugin to add support for Java
     id 'java'
-    // Apply the application plugin to add support for building an application
     id 'application'
     id 'idea'
     id 'edu.sc.seis.launch4j' version '2.5.0'
-
-    //id "com.jonaslasauskas.capsule" version "0.3.0"
     id "com.github.johnrengelman.shadow" version "5.2.0"
     id "com.github.ben-manes.versions" version "0.28.0"
+    id 'nebula.lint' version '17.7.1'
 }
 
 group = 'com.github.chhh'
@@ -25,7 +22,7 @@ version = '19.0-build23'
 
 description = """FragPipe - run complete proteomics analyses from the GUI"""
 
-
+gradleLint.rules = ['unused-dependency']
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_9
