@@ -148,6 +148,14 @@ import org.slf4j.LoggerFactory;
 public class FragpipeRun {
 
   private static final Logger log = LoggerFactory.getLogger(FragpipeRun.class);
+  private static final Pattern[] filesToDelete = new Pattern[]{
+      Pattern.compile(".+\\.pepXML"),
+      Pattern.compile(".+\\.pin"),
+      Pattern.compile(".+\\.speclib"),
+      Pattern.compile("spectraRT\\.tsv"),
+      Pattern.compile("spectraRT_full\\.tsv"),
+      Pattern.compile(".+\\.pair"),
+  };
 
   private FragpipeRun() {
   }
@@ -399,8 +407,11 @@ public class FragpipeRun {
 
       // add finalizer process
       final Runnable finalizerRun = () -> {
+        if (tabRun.isDeleteCalibratedFiles() || tabRun.isDeleteTempFiles()) {
+          toConsole(Fragpipe.COLOR_TOOL, "\nDelete calibrated or temp files", true, tabRun.console);
+        }
+
         if (tabRun.isDeleteCalibratedFiles()) {
-          toConsole(Fragpipe.COLOR_BLACK, "", true, tabRun.console);
           for (LcmsFileGroup lcmsFileGroup : lcmsFileGroups.values()) {
             for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
               String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
@@ -415,6 +426,40 @@ public class FragpipeRun {
                 }
               }
             }
+          }
+        }
+
+        if (tabRun.isDeleteTempFiles()) {
+          try {
+            Files.walk(wd).filter(p -> {
+              for (Pattern pattern : filesToDelete) {
+                if (pattern.matcher(p.getFileName().toString()).matches()) {
+                  return true;
+                } else {
+                  if (p.getFileName().toString().endsWith(".tsv")) {
+                    for (LcmsFileGroup lcmsFileGroup : lcmsFileGroups.values()) {
+                      for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
+                        String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
+                        if (p.getFileName().toString().endsWith(baseName + ".tsv")) {
+                          return true;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              return false;
+            }).forEach(path -> {
+              try {
+                toConsole(Fragpipe.COLOR_TOOL, "Delete ", false, tabRun.console);
+                toConsole(Fragpipe.COLOR_BLACK, path.toAbsolutePath().toString(), true, tabRun.console);
+                deleteFileOrFolder(path);
+              } catch (Exception ex) {
+                toConsole(Fragpipe.COLOR_RED, "Could not delete " + path.toAbsolutePath() + ". It won't affect the result.", true, tabRun.console);
+              }
+            });
+          } catch (Exception ex) {
+            toConsole(Fragpipe.COLOR_RED, ExceptionUtils.getStackTrace(ex), true, tabRun.console);
           }
         }
 

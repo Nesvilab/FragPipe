@@ -102,6 +102,7 @@ public class TabRun extends JPanelWithEnablement {
   private UiText uiTextWorkdir;
   private UiCheck uiCheckDryRun;
   private UiCheck uiCheckDeleteCalibratedFiles;
+  private UiCheck uiCheckDeleteTempFiles;
   private JButton btnRun;
   private JButton btnStop;
   private JButton btnOpenPdv;
@@ -209,6 +210,10 @@ public class TabRun extends JPanelWithEnablement {
 
     uiCheckDeleteCalibratedFiles = UiUtils.createUiCheck("Delete calibrated mzML", false);
     uiCheckDeleteCalibratedFiles.setName(TAB_PREFIX + "delete_calibrated_mzml");
+
+    uiCheckDeleteTempFiles = UiUtils.createUiCheck("Delete temp files", true);
+    uiCheckDeleteTempFiles.setName(TAB_PREFIX + "delete_temp_files");
+
     btnRun = UiUtils.createButton("<html><b>RUN", e -> Bus.post(new MessageRun(isDryRun())));
 
     btnStop = UiUtils.createButton("Stop", e -> {
@@ -321,6 +326,8 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnStop);
     mu.add(p, uiCheckDryRun);
     mu.add(p, uiCheckDeleteCalibratedFiles);
+    mu.add(p, uiCheckDeleteTempFiles);
+
     mu.add(p, btnExport);
     mu.add(p, btnReportErrors);
     mu.add(p, btnClearConsole);
@@ -339,6 +346,10 @@ public class TabRun extends JPanelWithEnablement {
 
   public boolean isDeleteCalibratedFiles() {
     return SwingUtils.isEnabledAndChecked(uiCheckDeleteCalibratedFiles);
+  }
+
+  public boolean isDeleteTempFiles() {
+    return SwingUtils.isEnabledAndChecked(uiCheckDeleteTempFiles);
   }
 
   protected void init() {
