@@ -175,6 +175,15 @@ public class CmdDiann extends CmdBase {
         }
       }
 
+      try {
+        final Path diannOutputDirectory = groupWd.resolve("diann-output");
+        if (Files.exists(diannOutputDirectory.getParent())) { // Dry run does not make directories, so does not write the file.
+          Files.createDirectories(diannOutputDirectory);
+        }
+      } catch (IOException ex) {
+        throw new UncheckedIOException(ex);
+      }
+
       List<String> cmd = new ArrayList<>();
       cmd.add(diannPath.get(0).toAbsolutePath().toString());
       cmd.add("--lib");
