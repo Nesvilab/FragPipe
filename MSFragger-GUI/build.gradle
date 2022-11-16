@@ -64,7 +64,6 @@ sourceSets {
         resources {
             srcDirs = ['resources', 'src']
             excludes = ['*.java']
-            //excludes = ['*.java', '*.jar']
         }
     }
     // add tests sources here (this project didn't have them!)
@@ -113,13 +112,7 @@ dependencies {
     implementation 'org.jooq:jool-java-8:0.9.14'
     implementation 'org.apache.maven:maven-artifact:3.8.5'
     implementation 'org.jgrapht:jgrapht-core:1.5.1'
-    implementation 'org.jgrapht:jgrapht-io:1.4.0'
-    implementation 'org.jgrapht:jgrapht-ext:1.4.0'
     implementation 'com.github.vlsi.mxgraph:jgraphx:4.2.2'
-
-    implementation 'commons-logging:commons-logging-api:1.1'
-
-    implementation 'org.apache.httpcomponents:httpmime:4.5.13'
 
     implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.21'
 
@@ -127,9 +120,6 @@ dependencies {
     implementation 'com.miglayout:miglayout-swing:11.0'
     implementation 'org.apache.commons:commons-text:1.10.0'
 
-    implementation ('io.reactivex:rxswing:0.27.0'){
-        exclude group: 'io.reactivex', module: 'rxjava'
-    }
     implementation 'io.reactivex:rxjava:1.3.8'
 
     implementation 'org.greenrobot:eventbus-java:3.3.1'
@@ -149,11 +139,6 @@ dependencies {
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.13.2'
-}
-
-configurations {
-    all*.exclude group: 'commons-logging', module: 'commons-logging'
-    //all*.exclude group: 'commons-codec', module: 'commons-codec'
 }
 
 //capsule {
