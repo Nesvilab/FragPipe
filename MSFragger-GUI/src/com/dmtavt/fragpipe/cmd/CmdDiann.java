@@ -28,6 +28,7 @@ import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -183,7 +184,7 @@ public class CmdDiann extends CmdBase {
       cmd.add("--verbose");
       cmd.add("1");
       cmd.add("--out");
-      cmd.add("diann-output.tsv");
+      cmd.add("diann-output" + File.separator + "diann-output.tsv");
       cmd.add("--qvalue");
       cmd.add(String.valueOf(qvalue));
       cmd.add("--matrix-spec-q");
@@ -234,9 +235,9 @@ public class CmdDiann extends CmdBase {
         // Plotting
         List<String> cmd2 = new ArrayList<>();
         cmd2.add(diannPath.get(0).toAbsolutePath().toString().replaceAll("DiaNN\\.exe$", "dia-nn-plotter.exe"));
-        cmd2.add("diann-output.stats.tsv");
-        cmd2.add("diann-output.tsv");
-        cmd2.add("diann-output.pdf");
+        cmd2.add("diann-output" + File.separator + "diann-output.stats.tsv");
+        cmd2.add("diann-output" + File.separator + "diann-output.tsv");
+        cmd2.add("diann-output" + File.separator + "diann-output.pdf");
         ProcessBuilder pb2 = new ProcessBuilder(cmd2);
         pb2.directory(groupWd.toFile());
         pbis.add(PbiBuilder.from(pb2));
