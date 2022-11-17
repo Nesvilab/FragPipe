@@ -42,7 +42,7 @@ public class CmdPhilosopherReport extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      boolean doPrintDecoys, boolean doMsstats, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+      boolean doPrintDecoys, boolean doMsstats, boolean doRemoveContaminants, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
     initPreConfig();
 
@@ -57,6 +57,9 @@ public class CmdPhilosopherReport extends CmdBase {
       }
       if (doMsstats) {
         cmd.add("--msstats");
+      }
+      if (doRemoveContaminants) {
+        cmd.add("--removecontam");
       }
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(groupWd.toFile());

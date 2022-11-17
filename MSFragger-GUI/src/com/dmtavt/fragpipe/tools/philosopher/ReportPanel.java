@@ -62,6 +62,7 @@ public class ReportPanel extends JPanelBase {
   private UiCheck uiCheckMsstats;
   private UiCheck uiCheckPrintDecoys;
   private UiCheck uiCheckDontUseProtProphFile;
+  private UiCheck uiCheckRemoveContaminants;
 
   @Override
   protected ItemSelectable getRunCheckbox() {
@@ -174,6 +175,9 @@ public class ReportPanel extends JPanelBase {
         uiCheckMsstats,
         "<html>Option to generate an MSstats-compatible report with Philosopher.");
 
+    uiCheckRemoveContaminants = new UiCheck("Remove contaminants", null, false);
+    FormEntry feCheckRemoveContaminants = new FormEntry("remove-contaminants", "not-shown", uiCheckRemoveContaminants, "<html>Remove contaminant proteins from the tsv files.");
+
     uiCheckPrintDecoys = new UiCheck("Print decoys", null, false);
     FormEntry feCheckPrintDecoys = new FormEntry("print-decoys", "not-shown",
         uiCheckPrintDecoys,
@@ -190,6 +194,7 @@ public class ReportPanel extends JPanelBase {
     mu.add(p, feCheckDontUseProtProphFile.comp).wrap();
     mu.add(p, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
     mu.add(p, feCheckMSstats.comp);
+    mu.add(p, feCheckRemoveContaminants.comp);
     mu.add(p, feCheckPrintDecoys.comp);
     mu.add(p, feCheckPepSummary.comp);
     mu.add(p, feCheckProtSummary.comp).wrap();
@@ -240,6 +245,10 @@ public class ReportPanel extends JPanelBase {
 
   public boolean isMsstats() {
     return uiCheckMsstats.isSelected();
+  }
+
+  public boolean isRemoveContaminants() {
+    return uiCheckRemoveContaminants.isSelected();
   }
 
   private void clearBalloonTips() {

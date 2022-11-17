@@ -1175,7 +1175,7 @@ public class FragpipeRun {
     addConfig.accept(cmdPhilosopherReport, () -> {
       if (cmdPhilosopherReport.isRun()) {
         return cmdPhilosopherReport
-            .configure(parent, usePhi, doPrintDecoys, doMSstats, sharedMapGroupsToProtxml);
+            .configure(parent, usePhi, doPrintDecoys, doMSstats, reportPanel.isRemoveContaminants(), sharedMapGroupsToProtxml);
       }
       return true;
     });
