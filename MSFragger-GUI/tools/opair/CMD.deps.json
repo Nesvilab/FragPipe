@@ -1,11 +1,11 @@
 {
   "runtimeTarget": {
-    "name": ".NETCoreApp,Version=v5.0",
+    "name": ".NETCoreApp,Version=v6.0",
     "signature": ""
   },
   "compilationOptions": {},
   "targets": {
-    ".NETCoreApp,Version=v5.0": {
+    ".NETCoreApp,Version=v6.0": {
       "CMD/1.0.0": {
         "dependencies": {
           "CommandLineParser": "2.8.0",
@@ -23,22 +23,25 @@
           }
         }
       },
-      "Easy.Common/3.5.0": {
+      "Easy.Common/4.3.0": {
         "dependencies": {
+          "Microsoft.Win32.Registry": "5.0.0",
+          "System.Reflection.Emit": "4.7.0",
+          "System.Reflection.Emit.Lightweight": "4.7.0",
           "System.Runtime.InteropServices.RuntimeInformation": "4.3.0"
         },
         "runtime": {
-          "lib/netcoreapp2.1/Easy.Common.dll": {
-            "assemblyVersion": "3.5.0.0",
-            "fileVersion": "3.5.0.0"
+          "lib/netcoreapp3.1/Easy.Common.dll": {
+            "assemblyVersion": "4.3.0.0",
+            "fileVersion": "4.3.0.0"
           }
         }
       },
-      "MathNet.Numerics/4.8.1": {
+      "MathNet.Numerics/5.0.0": {
         "runtime": {
-          "lib/netstandard2.0/MathNet.Numerics.dll": {
-            "assemblyVersion": "4.8.1.0",
-            "fileVersion": "4.8.1.0"
+          "lib/net6.0/MathNet.Numerics.dll": {
+            "assemblyVersion": "5.0.0.0",
+            "fileVersion": "5.0.0.0"
           }
         }
       },
@@ -50,80 +53,85 @@
           "System.Security.Principal.Windows": "5.0.0"
         }
       },
-      "mzLib/1.0.511": {
+      "mzLib/1.0.537": {
         "dependencies": {
-          "Easy.Common": "3.5.0",
-          "MathNet.Numerics": "4.8.1",
+          "Easy.Common": "4.3.0",
+          "MathNet.Numerics": "5.0.0",
           "Microsoft.Win32.Registry": "5.0.0",
           "NetSerializer": "4.1.1",
           "OpenMcdf": "2.2.1.3",
           "OpenMcdf.Extensions": "2.2.1.3",
-          "SharpLearning.Optimization": "0.28.0"
+          "SharpLearning.Optimization": "0.28.0",
+          "SpectralAveraging": "1.0.6"
         },
         "runtime": {
-          "lib/net5.0/BayesianEstimation.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+          "lib/net6.0/BayesianEstimation.dll": {
+            "assemblyVersion": "1.0.537.0",
+            "fileVersion": "1.0.537.0"
           },
-          "lib/net5.0/Chemistry.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+          "lib/net6.0/Chemistry.dll": {
+            "assemblyVersion": "1.0.537.0",
+            "fileVersion": "1.0.537.0"
           },
-          "lib/net5.0/FlashLFQ.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+          "lib/net6.0/FlashLFQ.dll": {
+            "assemblyVersion": "1.0.537.0",
+            "fileVersion": "1.0.537.0"
           },
-          "lib/net5.0/MassSpectrometry.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+          "lib/net6.0/MassSpectrometry.dll": {
+            "assemblyVersion": "1.0.537.0",
+            "fileVersion": "1.0.537.0"
           },
-          "lib/net5.0/Mgf.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+          "lib/net6.0/Mgf.dll": {
+            "assemblyVersion": "1.0.537.0",
+            "fileVersion": "1.0.537.0"
           },
-          "lib/net5.0/MzIdentML.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+          "lib/net6.0/MzIdentML.dll": {
+            "assemblyVersion": "1.0.537.0",
+            "fileVersion": "1.0.537.0"
           },
-          "lib/net5.0/MzLibUtil.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+          "lib/net6.0/MzLibSpectralAveraging.dll": {
+            "assemblyVersion": "1.0.537.0",
+            "fileVersion": "1.0.537.0"
           },
-          "lib/net5.0/MzML.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+          "lib/net6.0/MzLibUtil.dll": {
+            "assemblyVersion": "1.0.537.0",
+            "fileVersion": "1.0.537.0"
           },
-          "lib/net5.0/PepXML.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+          "lib/net6.0/MzML.dll": {
+            "assemblyVersion": "1.0.537.0",
+            "fileVersion": "1.0.537.0"
           },
-          "lib/net5.0/Proteomics.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+          "lib/net6.0/PepXML.dll": {
+            "assemblyVersion": "1.0.537.0",
+            "fileVersion": "1.0.537.0"
           },
-          "lib/net5.0/ThermoFisher.CommonCore.BackgroundSubtraction.dll": {
+          "lib/net6.0/Proteomics.dll": {
+            "assemblyVersion": "1.0.537.0",
+            "fileVersion": "1.0.537.0"
+          },
+          "lib/net6.0/ThermoFisher.CommonCore.BackgroundSubtraction.dll": {
             "assemblyVersion": "5.0.0.0",
             "fileVersion": "5.0.0.7"
           },
-          "lib/net5.0/ThermoFisher.CommonCore.Data.dll": {
+          "lib/net6.0/ThermoFisher.CommonCore.Data.dll": {
             "assemblyVersion": "5.0.0.0",
             "fileVersion": "5.0.0.7"
           },
-          "lib/net5.0/ThermoFisher.CommonCore.MassPrecisionEstimator.dll": {
+          "lib/net6.0/ThermoFisher.CommonCore.MassPrecisionEstimator.dll": {
             "assemblyVersion": "5.0.0.0",
             "fileVersion": "5.0.0.7"
           },
-          "lib/net5.0/ThermoFisher.CommonCore.RawFileReader.dll": {
+          "lib/net6.0/ThermoFisher.CommonCore.RawFileReader.dll": {
             "assemblyVersion": "5.0.0.0",
             "fileVersion": "5.0.0.7"
           },
-          "lib/net5.0/ThermoRawFileReader.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+          "lib/net6.0/ThermoRawFileReader.dll": {
+            "assemblyVersion": "1.0.537.0",
+            "fileVersion": "1.0.537.0"
           },
-          "lib/net5.0/UsefulProteomicsDatabases.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+          "lib/net6.0/UsefulProteomicsDatabases.dll": {
+            "assemblyVersion": "1.0.537.0",
+            "fileVersion": "1.0.537.0"
           }
         }
       },
@@ -132,6 +140,14 @@
           "lib/netstandard2.1/NetSerializer.dll": {
             "assemblyVersion": "4.1.1.0",
             "fileVersion": "4.1.1.0"
+          }
+        }
+      },
+      "Nett/0.15.0": {
+        "runtime": {
+          "lib/netstandard2.0/Nett.dll": {
+            "assemblyVersion": "0.15.0.0",
+            "fileVersion": "0.15.0.0"
           }
         }
       },
@@ -230,6 +246,18 @@
           }
         }
       },
+      "SpectralAveraging/1.0.6": {
+        "dependencies": {
+          "MathNet.Numerics": "5.0.0",
+          "Nett": "0.15.0"
+        },
+        "runtime": {
+          "lib/net6.0/SpectralAveraging.dll": {
+            "assemblyVersion": "1.0.6.0",
+            "fileVersion": "1.0.6.0"
+          }
+        }
+      },
       "System.Globalization/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "5.0.0",
@@ -255,6 +283,8 @@
           "System.Runtime": "4.3.0"
         }
       },
+      "System.Reflection.Emit/4.7.0": {},
+      "System.Reflection.Emit.Lightweight/4.7.0": {},
       "System.Reflection.Extensions/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "5.0.0",
@@ -342,7 +372,7 @@
       },
       "PTMLocalization/1.0.0": {
         "dependencies": {
-          "mzLib": "1.0.511"
+          "mzLib": "1.0.537"
         },
         "runtime": {
           "PTMLocalization.dll": {}
@@ -363,19 +393,19 @@
       "path": "commandlineparser/2.8.0",
       "hashPath": "commandlineparser.2.8.0.nupkg.sha512"
     },
-    "Easy.Common/3.5.0": {
+    "Easy.Common/4.3.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-kzNE3+9wMGvnmXfUOJ42+R8s+v0GJVgtHS2Qc+Zp9dF0dimFc0rpxE9vNDvMu1UHnJrV8DKsMKLRFjIOlaAliA==",
-      "path": "easy.common/3.5.0",
-      "hashPath": "easy.common.3.5.0.nupkg.sha512"
+      "sha512": "sha512-uGY8hgHwVS0diAtG1dZ5/XpK9B481Dt6cNqA7zYeK+ZspHZKe/d430WURjjOtCYbZvBuGijs114Ib0bn82Sn+A==",
+      "path": "easy.common/4.3.0",
+      "hashPath": "easy.common.4.3.0.nupkg.sha512"
     },
-    "MathNet.Numerics/4.8.1": {
+    "MathNet.Numerics/5.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-HK97Btmlx8WLioRpWpyO3kCpvm3y9n4WzgFDQxaxUP9zbScOxB6JevGyGydcDtVDDPC4Gtv4u/j7pQjK6N+sUA==",
-      "path": "mathnet.numerics/4.8.1",
-      "hashPath": "mathnet.numerics.4.8.1.nupkg.sha512"
+      "sha512": "sha512-pg1W2VwaEQMAiTpGK840hZgzavnqjlCMTVSbtVCXVyT+7AX4mc1o89SPv4TBlAjhgCOo9c1Y+jZ5m3ti2YgGgA==",
+      "path": "mathnet.numerics/5.0.0",
+      "hashPath": "mathnet.numerics.5.0.0.nupkg.sha512"
     },
     "Microsoft.NETCore.Platforms/5.0.0": {
       "type": "package",
@@ -398,12 +428,12 @@
       "path": "microsoft.win32.registry/5.0.0",
       "hashPath": "microsoft.win32.registry.5.0.0.nupkg.sha512"
     },
-    "mzLib/1.0.511": {
+    "mzLib/1.0.537": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-/wVVYCyxuSxblgyFGIjMuhyxVyTnqwP7TKluzKQQz2yCMoY7LHVK+heajehzWvM6QaYNB3HE9hZ6kvnha+E3jg==",
-      "path": "mzlib/1.0.511",
-      "hashPath": "mzlib.1.0.511.nupkg.sha512"
+      "sha512": "sha512-NsqRRfNdE8ApPwrqbSMUCu1Ew/VvnArcohNVenZREMM3GvPmd4z6mKNaYQKmMnsuJR6361FQ7ZJ3s10oXdhbvg==",
+      "path": "mzlib/1.0.537",
+      "hashPath": "mzlib.1.0.537.nupkg.sha512"
     },
     "NetSerializer/4.1.1": {
       "type": "package",
@@ -411,6 +441,13 @@
       "sha512": "sha512-+cuRiy1WxO3Y5ZNCBYZnOAIwAoCS7IKeEyJi70v9YiUJ0X3KVn66XLnN2J1o0x/WTb5g/QLBhGOb51+GPVWdxQ==",
       "path": "netserializer/4.1.1",
       "hashPath": "netserializer.4.1.1.nupkg.sha512"
+    },
+    "Nett/0.15.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-/0SoN9ugPKfmLndtKy3gaRxOlzji94/yrNgQLe45/1ZgExj0BaVozbXD+oWD8E6MCLvTs+YWzmn315mQOXGCcw==",
+      "path": "nett/0.15.0",
+      "hashPath": "nett.0.15.0.nupkg.sha512"
     },
     "OpenMcdf/2.2.1.3": {
       "type": "package",
@@ -475,6 +512,13 @@
       "path": "sharplearning.randomforest/0.28.0",
       "hashPath": "sharplearning.randomforest.0.28.0.nupkg.sha512"
     },
+    "SpectralAveraging/1.0.6": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-xocz5z1qCJ/IfbT52NnpcViBWqwjum+LFY5gT6KSaKcI7RJlKZrFfkyIBxoLSPD4EQlag3wNs/MP4/WfAZbW/g==",
+      "path": "spectralaveraging/1.0.6",
+      "hashPath": "spectralaveraging.1.0.6.nupkg.sha512"
+    },
     "System.Globalization/4.3.0": {
       "type": "package",
       "serviceable": true,
@@ -495,6 +539,20 @@
       "sha512": "sha512-KMiAFoW7MfJGa9nDFNcfu+FpEdiHpWgTcS2HdMpDvt9saK3y/G4GwprPyzqjFH9NTaGPQeWNHU+iDlDILj96aQ==",
       "path": "system.reflection/4.3.0",
       "hashPath": "system.reflection.4.3.0.nupkg.sha512"
+    },
+    "System.Reflection.Emit/4.7.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-VR4kk8XLKebQ4MZuKuIni/7oh+QGFmZW3qORd1GvBq/8026OpW501SzT/oypwiQl4TvT8ErnReh/NzY9u+C6wQ==",
+      "path": "system.reflection.emit/4.7.0",
+      "hashPath": "system.reflection.emit.4.7.0.nupkg.sha512"
+    },
+    "System.Reflection.Emit.Lightweight/4.7.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-a4OLB4IITxAXJeV74MDx49Oq2+PsF6Sml54XAFv+2RyWwtDBcabzoxiiJRhdhx+gaohLh4hEGCLQyBozXoQPqA==",
+      "path": "system.reflection.emit.lightweight/4.7.0",
+      "hashPath": "system.reflection.emit.lightweight.4.7.0.nupkg.sha512"
     },
     "System.Reflection.Extensions/4.3.0": {
       "type": "package",
