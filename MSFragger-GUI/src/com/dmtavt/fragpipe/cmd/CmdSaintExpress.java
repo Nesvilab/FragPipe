@@ -82,8 +82,8 @@ public class CmdSaintExpress extends CmdBase {
 
     List<String> cmd = new ArrayList<>();
     cmd.add(saintExpressBin.toAbsolutePath().toString());
-    cmd.add("-L" + maxReplicates);
-    cmd.add("-R" + virtualControls);
+    cmd.add("-R" + maxReplicates);
+    cmd.add("-L" + virtualControls);
     if (!cmdOpts.isEmpty()) {
       cmd.add(cmdOpts);
     }
