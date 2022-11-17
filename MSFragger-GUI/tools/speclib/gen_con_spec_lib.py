@@ -1005,10 +1005,10 @@ if not os.path.exists(output_directory):
 	os.makedirs(output_directory)
 
 for tt in glob.glob('easypqp_rt_alignment_*.pdf'):
-	os.rename(os.path.join(workdir, tt), os.path.join(output_directory, tt))
+	os.replace(os.path.join(workdir, tt), os.path.join(output_directory, tt))
 
 for tt in glob.glob('easypqp_im_alignment_*.pdf'):
-	os.rename(os.path.join(workdir, tt), os.path.join(output_directory, tt))
+	os.replace(os.path.join(workdir, tt), os.path.join(output_directory, tt))
 
 
 print('Done generating spectral library')
