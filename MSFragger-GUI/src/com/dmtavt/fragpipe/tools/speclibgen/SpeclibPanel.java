@@ -239,11 +239,22 @@ public class SpeclibPanel extends JPanelBase {
         .tooltip("Maximum delta mass (PPM) for annotation. [default: 15]").create();
 
     check_fragment_type_a = new UiCheck("a", null, false);
+    FormEntry feFragmentTypeA = mu.feb(check_fragment_type_a).name("easypqp.fragment.a").label("a").create();
+
     check_fragment_type_b = new UiCheck("b", null, true);
+    FormEntry feFragmentTypeB = mu.feb(check_fragment_type_b).name("easypqp.fragment.b").label("b").create();
+
     check_fragment_type_c = new UiCheck("c", null, false);
+    FormEntry feFragmentTypeC = mu.feb(check_fragment_type_c).name("easypqp.fragment.c").label("c").create();
+
     check_fragment_type_x = new UiCheck("x", null, false);
+    FormEntry feFragmentTypeX = mu.feb(check_fragment_type_x).name("easypqp.fragment.x").label("x").create();
+
     check_fragment_type_y = new UiCheck("y", null, true);
+    FormEntry feFragmentTypeY = mu.feb(check_fragment_type_y).name("easypqp.fragment.y").label("y").create();
+
     check_fragment_type_z = new UiCheck("z", null, false);
+    FormEntry feFragmentTypeZ = mu.feb(check_fragment_type_z).name("easypqp.fragment.z").label("z").create();
 
     mu.add(p, checkKeepIntermediateFiles).wrap();
     mu.add(p, fePqpCal.label(), ccR());
@@ -270,8 +281,8 @@ public class SpeclibPanel extends JPanelBase {
       jLabelAlign.setVisible(false);
       mu.add(p, jLabelAlign);
     }
-    mu.add(p, check_fragment_type_a);
-    mu.add(p, check_fragment_type_x).wrap();
+    mu.add(p, feFragmentTypeA.comp);
+    mu.add(p, feFragmentTypeX.comp).wrap();
     mu.add(p, fe_max_delta_unimod.label(), mu.ccR());
     mu.add(p, fe_max_delta_unimod.comp).split();
     {
@@ -280,8 +291,8 @@ public class SpeclibPanel extends JPanelBase {
       mu.add(p, jLabelAlign);
     }
     mu.add(p, new JLabel(ft));
-    mu.add(p, check_fragment_type_b);
-    mu.add(p, check_fragment_type_y).wrap();
+    mu.add(p, feFragmentTypeB.comp);
+    mu.add(p, feFragmentTypeY.comp).wrap();
     mu.add(p, fe_max_delta_ppm.label(), mu.ccR());
     mu.add(p, fe_max_delta_ppm.comp).split();
     {
@@ -294,8 +305,8 @@ public class SpeclibPanel extends JPanelBase {
       jLabelAlign.setVisible(false);
       mu.add(p, jLabelAlign);
     }
-    mu.add(p, check_fragment_type_c);
-    mu.add(p, check_fragment_type_z).wrap();
+    mu.add(p, feFragmentTypeC.comp);
+    mu.add(p, feFragmentTypeZ.comp).wrap();
 
     uiComboPqpCal.addItemListener(e -> {
       String selected = (String) e.getItem();
