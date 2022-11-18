@@ -537,8 +537,6 @@ if use_easypqp:
 	psm_tsv_file = iproph_RT_aligned / 'psm.tsv'
 	peptide_tsv_file = iproph_RT_aligned / 'peptide.tsv'
 	'easypqp convert --pepxml interact.pep.xml --spectra 1.mgf --unimod unimod.xml --exclude-range -1.5,3.5'
-	# if 0:
-	# 	import pandas as pd, numpy as np, itertools, io, pathlib
 
 	dd = [pd.DataFrame({'modified_peptide': [e[0] for e in biognosys_rtkit_sorted],
 						'precursor_charge': np.repeat(i, len(biognosys_rtkit_sorted)),
@@ -973,14 +971,8 @@ def easypqp_lib_export(lib_type: str):
 	for e in align_files:
 		e.unlink()
 	avg_experimental_rt = pd.Series(avg_experimental_rt0, name='AverageExperimentalRetentionTime')
-	if 0:
-		frag_df = easypqp_lib['Annotation'].str.extract('\\A(.+?)(\\d{1,2})\\^(.+)\\Z')
-		frag_df.columns = 'FragmentType', 'FragmentSeriesNumber', 'FragmentCharge'
-		frag_df.reindex(columns=['FragmentType', 'FragmentCharge', 'FragmentSeriesNumber'])
-		print((easypqp_lib['ModifiedPeptideSequence'].str.find('.(UniMod:') >= 0).mean())
 	if lib_type == 'Spectronaut':
 		easypqp_lib['ModifiedPeptideSequence'] = easypqp_lib['ModifiedPeptideSequence'].str.replace('.(UniMod:', '(UniMod:', regex=False)
-	# pd.concat([easypqp_lib, frag_df], axis=1).to_csv(f'easypqp_lib_{lib_type}.tsv', sep='\t', index=False)
 	pd.concat([easypqp_lib, frag_df, avg_experimental_rt], axis=1).to_csv(f'library.tsv', sep='\t', index=False)
 
 
@@ -988,8 +980,6 @@ if use_easypqp:
 	main_easypqp()
 	os.chdir(os_fspath(workdir))
 	easypqp_lib_export('Spectronaut')
-	if 0:
-		easypqp_lib_export('skyline')
 	cwd = pathlib.Path()
 	if delete_temp_files:
 		for f in easyPQP_tempfiles:
