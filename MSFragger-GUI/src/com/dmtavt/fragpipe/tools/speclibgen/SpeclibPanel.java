@@ -257,55 +257,33 @@ public class SpeclibPanel extends JPanelBase {
     FormEntry feFragmentTypeZ = mu.feb(check_fragment_type_z).name("easypqp.fragment.z").label("z").create();
 
     mu.add(p, checkKeepIntermediateFiles).wrap();
+
     mu.add(p, fePqpCal.label(), ccR());
     mu.add(p, fePqpCal.comp).split();
     mu.add(p, labelPqpCalFile);
     mu.add(p, btnPqpCalFile);
     mu.add(p, fePqpCalFile.comp).pushX().growX().wrap();
+
     mu.add(p, fePqpIMCal.label(), ccR());
     mu.add(p, fePqpIMCal.comp).split();
     mu.add(p, labelPqpIMCalFile);
     mu.add(p, btnPqpIMCalFile);
     mu.add(p, fePqpIMCalFile.comp).pushX().growX().wrap();
+
     mu.add(p, feLowess.label(), mu.ccR());
     mu.add(p, feLowess.comp).split();
-    final String ft = "Fragment types:";
-    final String sp = "          "; // spacing
-    {
-      final JLabel jLabelAlign = new JLabel(sp);
-      jLabelAlign.setVisible(false);
-      mu.add(p, jLabelAlign);
-    }
-    {
-      final JLabel jLabelAlign = new JLabel(ft);
-      jLabelAlign.setVisible(false);
-      mu.add(p, jLabelAlign);
-    }
-    mu.add(p, feFragmentTypeA.comp);
+    mu.add(p, feFragmentTypeA.comp).gapLeft("127");
     mu.add(p, feFragmentTypeX.comp).wrap();
+
     mu.add(p, fe_max_delta_unimod.label(), mu.ccR());
     mu.add(p, fe_max_delta_unimod.comp).split();
-    {
-      final JLabel jLabelAlign = new JLabel(sp);
-      jLabelAlign.setVisible(false);
-      mu.add(p, jLabelAlign);
-    }
-    mu.add(p, new JLabel(ft));
+    mu.add(p, new JLabel("Fragment types:")).gapLeft("40");
     mu.add(p, feFragmentTypeB.comp);
     mu.add(p, feFragmentTypeY.comp).wrap();
+
     mu.add(p, fe_max_delta_ppm.label(), mu.ccR());
     mu.add(p, fe_max_delta_ppm.comp).split();
-    {
-      final JLabel jLabelAlign = new JLabel(sp);
-      jLabelAlign.setVisible(false);
-      mu.add(p, jLabelAlign);
-    }
-    {
-      final JLabel jLabelAlign = new JLabel(ft);
-      jLabelAlign.setVisible(false);
-      mu.add(p, jLabelAlign);
-    }
-    mu.add(p, feFragmentTypeC.comp);
+    mu.add(p, feFragmentTypeC.comp).gapLeft("127");
     mu.add(p, feFragmentTypeZ.comp).wrap();
 
     uiComboPqpCal.addItemListener(e -> {
