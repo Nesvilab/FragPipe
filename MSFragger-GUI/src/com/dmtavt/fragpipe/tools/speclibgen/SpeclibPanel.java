@@ -84,6 +84,7 @@ public class SpeclibPanel extends JPanelBase {
   private JCheckBox check_fragment_type_x;
   private JCheckBox check_fragment_type_y;
   private JCheckBox check_fragment_type_z;
+  private JCheckBox uiCheckNeutralLoss;
   private JPanel panelEasypqp;
   public static final String EASYPQP_TIMSTOF = "timsTOF";
   public static final String EASYPQP_EXTRAS_PREFIX = "easypqp.extras.";
@@ -256,6 +257,9 @@ public class SpeclibPanel extends JPanelBase {
     check_fragment_type_z = new UiCheck("z", null, false);
     FormEntry feFragmentTypeZ = mu.feb(check_fragment_type_z).name("easypqp.fragment.z").label("z").create();
 
+    uiCheckNeutralLoss = new UiCheck("neutral loss", null, false);
+    FormEntry feNeutralLoss = mu.feb(uiCheckNeutralLoss).name("easypqp.neutral_loss").label("neutral loss").tooltip("Add neutral loss fragments to the spectral library.").create();
+
     mu.add(p, checkKeepIntermediateFiles).wrap();
 
     mu.add(p, fePqpCal.label(), ccR());
@@ -285,6 +289,18 @@ public class SpeclibPanel extends JPanelBase {
     mu.add(p, fe_max_delta_ppm.comp).split();
     mu.add(p, feFragmentTypeC.comp).gapLeft("127");
     mu.add(p, feFragmentTypeZ.comp).wrap();
+
+    {
+      final JLabel jLabelAlign = new JLabel(" ");
+      jLabelAlign.setVisible(false);
+      mu.add(p, jLabelAlign);
+    }
+    {
+      final JLabel jLabelAlign = new JLabel(" ");
+      jLabelAlign.setVisible(false);
+      mu.add(p, jLabelAlign).split();
+    }
+    mu.add(p, feNeutralLoss.comp).gapLeft("187").alignX("right").wrap();
 
     uiComboPqpCal.addItemListener(e -> {
       String selected = (String) e.getItem();
@@ -437,5 +453,9 @@ public class SpeclibPanel extends JPanelBase {
       if (a[i])
         ret.append("'").append(chars[i]).append("',");
     return ret.append("]").toString();
+  }
+
+  public boolean hasNeutralLoss() {
+    return uiCheckNeutralLoss.isSelected();
   }
 }

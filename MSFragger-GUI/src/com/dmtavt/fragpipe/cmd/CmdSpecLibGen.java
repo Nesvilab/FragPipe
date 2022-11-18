@@ -156,7 +156,8 @@ public class CmdSpecLibGen extends CmdBase {
       final String fragment_types = speclibPanel.getEasypqp_fragment_types(); // EasyPQP convert
       final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction(); // EasyPQP library
 
-      cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod %s --max_delta_ppm %s --fragment_types %s", max_delta_unimod, max_delta_ppm, fragment_types.replace("'", "\\'")))); // EasyPQP convert args
+      cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod %s --max_delta_ppm %s --fragment_types %s %s", max_delta_unimod, max_delta_ppm, fragment_types.replace("'", "\\'"), speclibPanel.hasNeutralLoss() ? "--enable_unspecific_losses" : ""))); // EasyPQP convert args
+
       cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %s", rt_lowess_fraction))); // EasyPQP library args
 
       final List<String> lcmsfiles = group.lcmsFiles.stream()

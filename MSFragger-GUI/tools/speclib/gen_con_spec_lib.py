@@ -958,8 +958,8 @@ def easypqp_lib_export(lib_type: str):
 
 	easypqp_lib = pd.read_csv('easypqp_lib_openswath.tsv', sep='\t')
 
-	frag_df = easypqp_lib['Annotation'].str.extract('\\A(.+?)(\\d{1,2})(?:-(.*?))?\\^(.+)\\Z')
-	frag_df.columns = 'FragmentType', 'FragmentSeriesNumber', 'loss_type', 'FragmentCharge'
+	frag_df = easypqp_lib['Annotation'].str.extract(r'^([abcxyz])(\d{1,2})(?:-(.*))?\^(\d+)$')
+	frag_df.columns = 'FragmentType', 'FragmentSeriesNumber', 'FragmentLossType', 'FragmentCharge'
 	frag_df = frag_df.reindex(columns=['FragmentType', 'FragmentCharge', 'FragmentSeriesNumber', 'FragmentLossType'], copy=False)
 
 	def interp(t):
