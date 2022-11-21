@@ -212,7 +212,7 @@ public class TabRun extends JPanelWithEnablement {
     uiCheckDeleteCalibratedFiles = UiUtils.createUiCheck("Delete calibrated mzML", false);
     uiCheckDeleteCalibratedFiles.setName(TAB_PREFIX + "delete_calibrated_mzml");
 
-    uiCheckDeleteTempFiles = UiUtils.createUiCheck("Delete temp files", true);
+    uiCheckDeleteTempFiles = UiUtils.createUiCheck("Delete temp files", false);
     uiCheckDeleteTempFiles.setName(TAB_PREFIX + "delete_temp_files");
 
     btnRun = UiUtils.createButton("<html><b>RUN", e -> Bus.post(new MessageRun(isDryRun())));
