@@ -18,8 +18,6 @@
 package com.dmtavt.fragpipe.tools.ptmprophet;
 
 import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
-import com.dmtavt.fragpipe.messages.NoteConfigPtmProphet;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
@@ -33,8 +31,6 @@ import java.awt.ItemSelectable;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,17 +139,7 @@ public class PtmProphetPanel extends JPanelBase {
 
   @Override
   public void initMore() {
-    updateEnabledStatus(this, false); // will get enabled when Philosopher is selected
+    updateEnabledStatus(this, true);
     super.initMore();
-  }
-
-  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(NoteConfigPhilosopher m) {
-    updateEnabledStatus(this, m.isValid());
-  }
-
-  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(NoteConfigPtmProphet m) {
-    updateEnabledStatus(this, m.isValid());
   }
 }
