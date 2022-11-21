@@ -276,31 +276,20 @@ public class SpeclibPanel extends JPanelBase {
 
     mu.add(p, feLowess.label(), mu.ccR());
     mu.add(p, feLowess.comp).split();
-    mu.add(p, feFragmentTypeA.comp).gapLeft("127");
-    mu.add(p, feFragmentTypeX.comp).wrap();
+    mu.add(p, new JLabel("Fragment types:")).gapLeft("40");
+    mu.add(p, feFragmentTypeA.comp);
+    mu.add(p, feFragmentTypeB.comp);
+    mu.add(p, feFragmentTypeC.comp);
+    mu.add(p, feFragmentTypeX.comp);
+    mu.add(p, feFragmentTypeY.comp);
+    mu.add(p, feFragmentTypeZ.comp).wrap();
 
     mu.add(p, fe_max_delta_unimod.label(), mu.ccR());
     mu.add(p, fe_max_delta_unimod.comp).split();
-    mu.add(p, new JLabel("Fragment types:")).gapLeft("40");
-    mu.add(p, feFragmentTypeB.comp);
-    mu.add(p, feFragmentTypeY.comp).wrap();
+    mu.add(p, feNeutralLoss.comp).gapLeft("127").alignX("right").wrap();
 
     mu.add(p, fe_max_delta_ppm.label(), mu.ccR());
-    mu.add(p, fe_max_delta_ppm.comp).split();
-    mu.add(p, feFragmentTypeC.comp).gapLeft("127");
-    mu.add(p, feFragmentTypeZ.comp).wrap();
-
-    {
-      final JLabel jLabelAlign = new JLabel(" ");
-      jLabelAlign.setVisible(false);
-      mu.add(p, jLabelAlign);
-    }
-    {
-      final JLabel jLabelAlign = new JLabel(" ");
-      jLabelAlign.setVisible(false);
-      mu.add(p, jLabelAlign).split();
-    }
-    mu.add(p, feNeutralLoss.comp).gapLeft("187").alignX("right").wrap();
+    mu.add(p, fe_max_delta_ppm.comp).wrap();
 
     uiComboPqpCal.addItemListener(e -> {
       String selected = (String) e.getItem();
