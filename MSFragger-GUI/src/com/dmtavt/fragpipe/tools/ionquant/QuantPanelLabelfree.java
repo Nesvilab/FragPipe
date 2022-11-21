@@ -99,6 +99,22 @@ public class QuantPanelLabelfree extends JPanelBase {
     return SwingUtils.isEnabledAndChecked(checkRun);
   }
 
+  public boolean isChecked() {
+    return checkRun.isSelected();
+  }
+
+  public boolean isEnabled() {
+    return checkRun.isEnabled();
+  }
+
+  public boolean isIonQuantChecked() {
+    return uiRadioUseIonquant.isSelected();
+  }
+
+  public boolean isIonQuantEnabled() {
+    return uiRadioUseIonquant.isEnabled();
+  }
+
   public boolean isIonquant() {
     return isRun() && SwingUtils.isEnabledAndChecked(uiRadioUseIonquant);
   }

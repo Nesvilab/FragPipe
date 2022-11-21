@@ -1238,6 +1238,10 @@ public class FragpipeRun {
 
     // run Report - IonQuant (Labelfree)
     final CmdIonquant cmdIonquant = new CmdIonquant(quantPanelLabelfree.isIonquant(), wd);
+    if (quantPanelLabelfree.isChecked() && quantPanelLabelfree.isIonQuantChecked() && (!quantPanelLabelfree.isIonQuantEnabled() || !quantPanelLabelfree.isEnabled())) {
+      SwingUtils.showErrorDialog(parent, "Looks like IonQuant was not configured.\nIonQuant is currently required.", "No IonQuant");
+      return false;
+    }
     if (cmdIonquant.isRun()) {
       final NoteConfigIonQuant configIonQuant;
       try {
