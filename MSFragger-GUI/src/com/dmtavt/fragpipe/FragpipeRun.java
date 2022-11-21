@@ -721,14 +721,38 @@ public class FragpipeRun {
   }
 
   public static String createVersionsString() {
+    String msfraggerVersion;
+    String ionQuantVersion = NoteConfigIonQuant.version;
+    String philosopherVersion;
+
+    try {
+      msfraggerVersion = Fragpipe.getStickyStrict(NoteConfigMsfragger.class).version;
+      if (msfraggerVersion == null || msfraggerVersion.trim().isEmpty()) {
+        throw new NullPointerException();
+      }
+    } catch (Exception e) {
+      msfraggerVersion = "N/A";
+    }
+
+    if (ionQuantVersion == null || ionQuantVersion.trim().isEmpty()) {
+      ionQuantVersion = "N/A";
+    }
+
+    try {
+      philosopherVersion = Fragpipe.getStickyStrict(NoteConfigPhilosopher.class).version;
+      if (philosopherVersion == null || philosopherVersion.trim().isEmpty()) {
+        throw new NullPointerException();
+      }
+    } catch (Exception e) {
+      philosopherVersion = "N/A";
+    }
+
     StringBuilder sb = new StringBuilder();
     sb.append(Version.PROGRAM_TITLE).append(" version ").append(Version.version()).append("\n");
-    sb.append("MSFragger version ")
-        .append(Fragpipe.getStickyStrict(NoteConfigMsfragger.class).version).append("\n");
-    sb.append("Philosopher version ")
-        .append(Fragpipe.getStickyStrict(NoteConfigPhilosopher.class).version).append("\n");
-    sb.append("IonQuant version ")
-        .append(Fragpipe.getStickyStrict(NoteConfigIonQuant.class).version).append("\n");
+    sb.append("MSFragger version ").append(msfraggerVersion).append("\n");
+    sb.append("IonQuant version ").append(ionQuantVersion).append("\n");
+    sb.append("Philosopher version ").append(philosopherVersion).append("\n");
+
     return sb.toString();
   }
 
