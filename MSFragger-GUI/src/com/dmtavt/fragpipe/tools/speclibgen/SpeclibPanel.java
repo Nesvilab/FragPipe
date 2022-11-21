@@ -392,6 +392,14 @@ public class SpeclibPanel extends JPanelBase {
     return SwingUtils.isEnabledAndChecked(checkRun);
   }
 
+  public boolean isChecked() {
+    return checkRun.isSelected();
+  }
+
+  public boolean isEnabled() {
+    return checkRun.isEnabled();
+  }
+
   public String getEasypqpDataType() {
     return (String)uiComboPqpType.getSelectedItem();
   }
