@@ -49,19 +49,7 @@ import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
 import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.process.ProcessManager;
-import com.dmtavt.fragpipe.tabs.TabConfig;
-import com.dmtavt.fragpipe.tabs.TabDatabase;
-import com.dmtavt.fragpipe.tabs.TabDiann;
-import com.dmtavt.fragpipe.tabs.TabDownstream;
-import com.dmtavt.fragpipe.tabs.TabMsfragger;
-import com.dmtavt.fragpipe.tabs.TabPtms;
-import com.dmtavt.fragpipe.tabs.TabQuantificationLabeling;
-import com.dmtavt.fragpipe.tabs.TabQuantificationLfq;
-import com.dmtavt.fragpipe.tabs.TabRun;
-import com.dmtavt.fragpipe.tabs.TabSpecLib;
-import com.dmtavt.fragpipe.tabs.TabUmpire;
-import com.dmtavt.fragpipe.tabs.TabValidation;
-import com.dmtavt.fragpipe.tabs.TabWorkflow;
+import com.dmtavt.fragpipe.tabs.*;
 import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.github.chhh.utils.OsUtils;
@@ -596,6 +584,7 @@ public class Fragpipe extends JFrameHeadless {
     TabQuantificationLfq tabQuantificationLfq = new TabQuantificationLfq();
     TabQuantificationLabeling tabQuantificationLabeling = new TabQuantificationLabeling();
     TabPtms tabPtms = new TabPtms();
+    TabGlyco tabGlyco = new TabGlyco();
     TabSpecLib tabSpecLib = new TabSpecLib();
     TabDiann tabDiann = new TabDiann();
     TabDownstream tabDownstream = new TabDownstream();
@@ -613,6 +602,7 @@ public class Fragpipe extends JFrameHeadless {
     addTab.accept(new UiTab("Validation", tabValidation,
         "/com/dmtavt/fragpipe/icons/icon-filtration-16.png", null));
     addTab.accept(new UiTab("PTMs", tabPtms, "/com/dmtavt/fragpipe/icons/icon-edit-16.png", null));
+    addTab.accept(new UiTab("Glyco", tabGlyco, "/com/dmtavt/fragpipe/icons/glyco-16.png", null));
     addTab.accept(new UiTab("Quant (MS1)", tabQuantificationLfq,
         "/com/dmtavt/fragpipe/icons/icon-scales-balance-16.png", null));
     addTab.accept(new UiTab("Quant (Isobaric)", tabQuantificationLabeling,

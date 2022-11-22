@@ -17,10 +17,10 @@
 
 package com.dmtavt.fragpipe.tabs;
 
-import com.dmtavt.fragpipe.tools.ptmprophet.PtmProphetPanel;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdPanel;
+import com.dmtavt.fragpipe.api.Bus;
 
 public class TabPtms extends JPanelWithEnablement {
   private static MigUtils mu = MigUtils.get();
@@ -33,7 +33,8 @@ public class TabPtms extends JPanelWithEnablement {
   }
 
   private void initMore() {
-    //Bus.registerQuietly(this);
+    Bus.registerQuietly(this);
+    Bus.postSticky(this);
   }
 
   private void init() {
@@ -42,5 +43,9 @@ public class TabPtms extends JPanelWithEnablement {
     panelPtmshepherd = new PtmshepherdPanel();
 
     mu.add(this, panelPtmshepherd).growX().wrap();
+  }
+
+  public boolean isRunShepherd() {
+    return panelPtmshepherd.isRunShepherd();
   }
 }

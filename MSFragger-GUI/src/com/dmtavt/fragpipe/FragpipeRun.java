@@ -45,10 +45,7 @@ import com.dmtavt.fragpipe.process.ProcessDescription;
 import com.dmtavt.fragpipe.process.ProcessDescription.Builder;
 import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.process.RunnableDescription;
-import com.dmtavt.fragpipe.tabs.TabDatabase;
-import com.dmtavt.fragpipe.tabs.TabMsfragger;
-import com.dmtavt.fragpipe.tabs.TabRun;
-import com.dmtavt.fragpipe.tabs.TabWorkflow;
+import com.dmtavt.fragpipe.tabs.*;
 import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
@@ -63,6 +60,7 @@ import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
 import com.dmtavt.fragpipe.tools.protproph.ProtProphPanel;
 import com.dmtavt.fragpipe.tools.ptmprophet.PtmProphetPanel;
+import com.dmtavt.fragpipe.tools.ptmshepherd.PTMSGlycanAssignPanel;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdPanel;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
@@ -1388,6 +1386,17 @@ public class FragpipeRun {
       return true;
     });
 
+    // run O-Pair
+    PTMSGlycanAssignPanel ptmsGlycanPanel = Fragpipe.getStickyStrict(PTMSGlycanAssignPanel.class);
+    CmdOPair cmdOPair = new CmdOPair(oPairPanel.isRun(), wd);
+    OPairParams oPairParams = oPairPanel.getOPairParams();
+    addConfig.accept(cmdOPair, () -> {
+      if (cmdOPair.isRun()) {
+        return cmdOPair.configure(parent, wd, sharedMapGroupsToProtxml, oPairParams);
+      }
+      return true;
+    });
+
     // run PTMShepherd
     PtmshepherdPanel ptmsPanel = Fragpipe.getStickyStrict(PtmshepherdPanel.class);
     final boolean isRunShepherd = ptmsPanel.isRunShepherd();
@@ -1415,21 +1424,14 @@ public class FragpipeRun {
         if (!StringUtils.isNullOrWhitespace(massOffsets)) {
           additionalShepherdParams.put("mass_offsets", massOffsets);
         }
+        if (ptmsGlycanPanel.isRunGlycanAssignment()) {
+          additionalShepherdParams.putAll(ptmsGlycanPanel.getGlycanAssignParams());
+        }
         Optional.ofNullable(tabMsf.getUiTextIsoErr().getNonGhostText())
             .filter(StringUtils::isNotBlank)
             .ifPresent(v -> additionalShepherdParams.put("isotope_error", v));
         return cmdPtmshepherd.configure(parent, isDryRun, Paths.get(binMsfragger.getBin()),
             ramGb, fastaPath, sharedMapGroupsToProtxml, additionalShepherdParams);
-      }
-      return true;
-    });
-
-    // run O-Pair
-    CmdOPair cmdOPair = new CmdOPair(oPairPanel.isRun(), wd);
-    OPairParams oPairParams = oPairPanel.getOPairParams();
-    addConfig.accept(cmdOPair, () -> {
-      if (cmdOPair.isRun()) {
-        return cmdOPair.configure(parent, wd, sharedMapGroupsToProtxml, oPairParams);
       }
       return true;
     });
