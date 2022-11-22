@@ -149,7 +149,6 @@ public class FragpipeRun {
       Pattern.compile(".+\\.pepXML"),
       Pattern.compile(".+\\.pin"),
       Pattern.compile(".+\\.speclib"),
-      Pattern.compile("spectraRT\\.tsv"),
       Pattern.compile("spectraRT_full\\.tsv"),
       Pattern.compile(".+\\.pair"),
   };
