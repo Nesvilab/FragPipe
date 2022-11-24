@@ -148,7 +148,6 @@ public class FragpipeRun {
   private static final Pattern[] filesToDelete = new Pattern[]{
       Pattern.compile(".+\\.pepXML"),
       Pattern.compile(".+\\.pin"),
-      Pattern.compile(".+\\.speclib"),
       Pattern.compile("spectraRT_full\\.tsv"),
       Pattern.compile(".+\\.pair"),
   };
