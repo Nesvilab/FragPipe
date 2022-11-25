@@ -80,6 +80,10 @@ public class ProcessBuilderInfo {
 
       // main loop reading process' output
       try {
+        if ((pbi.name.equalsIgnoreCase("peptideprophet") || pbi.name.equalsIgnoreCase("ptmprophet"))) {
+          toConsole(Fragpipe.COLOR_BLACK, "Please wait. " + pbi.name + " is running. It can take a long time.", true, console);
+        }
+
         StringBuilder sbBuffer = new StringBuilder();
         while (true) {
           Thread.sleep(200L);
