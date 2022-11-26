@@ -66,8 +66,13 @@ public class GlycoMassLoader {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
             String readline;
             while ((readline = reader.readLine()) != null) {
-                // skip headers
-                if (readline.startsWith("#")) {
+                readline = readline.trim();
+                int t = readline.indexOf('#');
+                if (t >= 0) {
+                    readline = readline.substring(0, t);
+                }
+
+                if (readline.isEmpty()) {
                     continue;
                 }
 
@@ -110,8 +115,13 @@ public class GlycoMassLoader {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
             String readline;
             while ((readline = reader.readLine()) != null) {
-                // skip headers
-                if (readline.startsWith("#")) {
+                readline = readline.trim();
+                int t = readline.indexOf('#');
+                if (t >= 0) {
+                    readline = readline.substring(0, t);
+                }
+
+                if (readline.isEmpty()) {
                     continue;
                 }
 
@@ -156,8 +166,13 @@ public class GlycoMassLoader {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
             String readline;
             while ((readline = reader.readLine()) != null) {
-                // skip headers
-                if (readline.startsWith("#")) {
+                readline = readline.trim();
+                int t = readline.indexOf('#');
+                if (t >= 0) {
+                    readline = readline.substring(0, t);
+                }
+
+                if (readline.isEmpty()) {
                     continue;
                 }
 
