@@ -96,10 +96,17 @@ public class CmdOPair  extends CmdBase {
                 return false;
             }
 
+            List<Path> t = FragpipeLocations.checkToolsMissing(Seq.of(opair_bin));
+            if (t == null || t.isEmpty()) {
+                SwingUtils.showErrorDialog(comp, "Could not find O-Pair executable file.", "Error");
+                return false;
+            }
+
             if (OsUtils.isUnix()) {
                 cmd.add("dotnet");
             }
-            cmd.add(FragpipeLocations.checkToolsMissing(Seq.of(opair_bin)).get(0).toString());
+
+            cmd.add(t.get(0).toString());
 
             Path psmPath = group.outputDir(workdir).resolve("psm.tsv");     // psm file path relative to group output dir
             cmd.add("-b " + params.getProductPPMtol());
