@@ -90,6 +90,12 @@ public class CmdOPair  extends CmdBase {
             List<String> cmd = new ArrayList<>();
             final String opair_bin = OsUtils.isUnix() ? "opair/CMD.dll" :
                     OsUtils.isWindows() ? "opair/CMD.exe" : null;
+
+            if (opair_bin == null) {
+                SwingUtils.showErrorDialog(comp, "O-Pair ony supports Windows, Linux, and Unix.", "Error");
+                return false;
+            }
+
             if (OsUtils.isUnix()) {
                 cmd.add("dotnet");
             }
