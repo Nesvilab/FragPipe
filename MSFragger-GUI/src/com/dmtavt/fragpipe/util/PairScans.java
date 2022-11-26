@@ -47,7 +47,7 @@ public class PairScans {
     }
 
     public static void main(String[] args) {
-        long time = System.currentTimeMillis();
+        long time = System.nanoTime();
         PairScans pairer = new PairScans();
         try {
             /* Args:
@@ -63,7 +63,7 @@ public class PairScans {
             e.printStackTrace();
             System.exit(1);
         }
-        System.out.printf("Done in %d ms.%n", System.currentTimeMillis() - time);
+        System.out.printf("Done in %d ms.%n", Math.round((System.nanoTime() - time) * 1e-6));
     }
 
     void findScanPairs(String spectralPath, int nThreads, String firstActivationStr, String secondActivationStr, boolean reverseOrder, boolean singleScanType) throws Exception {

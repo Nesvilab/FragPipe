@@ -34,7 +34,7 @@ import umich.ms.fileio.filetypes.mzxml.MZXMLFile;
 public class CheckCentroid {
 
   public static void main(String[] args) {
-    long time = System.currentTimeMillis();
+    long time = System.nanoTime();
     try {
       if (!isCentroid(args[0].trim(), Integer.parseInt(args[1]))) {
         System.err.println(args[0].trim() + " has non-centroid scans. Please re-convert it with peakPeaking (https://fragpipe.nesvilab.org/docs/tutorial_convert.html).");
@@ -44,7 +44,7 @@ public class CheckCentroid {
       e.printStackTrace();
       System.exit(1);
     }
-    System.out.printf("Done in %d ms.%n", System.currentTimeMillis() - time);
+    System.out.printf("Done in %d ms.%n", Math.round((System.nanoTime() - time) * 1e-6));
   }
 
   static boolean isCentroid(String spectralPath, int nThreads) throws Exception {
