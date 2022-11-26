@@ -156,27 +156,27 @@ public class OPairPanel extends JPanelBase {
                 });
 
         mu.add(pContent, feActivation1.label(), mu.ccR());
-        mu.add(pContent, feActivation1.comp).split();
+        mu.add(pContent, feActivation1.comp);
         mu.add(pContent, feActivation2.label(), mu.ccR());
-        mu.add(pContent, feActivation2.comp).split();
-        mu.add(pContent, uiCheckReverseScanOrder).split();
-        mu.add(pContent, uiCheckSingleScanType).split().wrap();
+        mu.add(pContent, feActivation2.comp);
+        mu.add(pContent, uiCheckReverseScanOrder);
+        mu.add(pContent, uiCheckSingleScanType).pushX().wrap();
 
         mu.add(pContent, feMS2SpectraTol.label(), mu.ccR());
-        mu.add(pContent, feMS2SpectraTol.comp).split();
+        mu.add(pContent, feMS2SpectraTol.comp);
         mu.add(pContent, feMinIsotope.label(), mu.ccR());
-        mu.add(pContent, feMinIsotope.comp).split();
+        mu.add(pContent, feMinIsotope.comp);
         mu.add(pContent, feMaxIsotope.label(), mu.ccR());
-        mu.add(pContent, feMaxIsotope.comp).split().wrap();
+        mu.add(pContent, feMaxIsotope.comp).wrap();
 
         mu.add(pContent, feMS1SpectraTol.label(), mu.ccR());
-        mu.add(pContent, feMS1SpectraTol.comp).split();
+        mu.add(pContent, feMS1SpectraTol.comp);
         mu.add(pContent, feMaxGlycans.label(), mu.ccR());
-        mu.add(pContent, feMaxGlycans.comp).split().wrap();
+        mu.add(pContent, feMaxGlycans.comp).wrap();
 
-        mu.add(pContent, feGlycanDBFile.label(), mu.ccR());
-        mu.add(pContent, btnBrosweGlycanDBFile, mu.ccR()).split();
-        mu.add(pContent, feGlycanDBFile.comp).split().growX().spanX().pushX().wrap();
+        mu.add(pContent, feGlycanDBFile.label()).split().spanX();
+        mu.add(pContent, btnBrosweGlycanDBFile);
+        mu.add(pContent, feGlycanDBFile.comp).wrap();
 
         mu.add(this, pTop).growX().wrap();
         mu.add(this, pContent).growX().wrap();
