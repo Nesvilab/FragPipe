@@ -32,8 +32,8 @@ public class DotnetInfo {
     private String command;
     private String version;
     private DefaultArtifactVersion fullVersion;
-    private final static String regex_whole_string = "(NETCore\\.App 5\\.[0-9.]+)";
-    private final static String regex_version_only = "NETCore\\.App (5\\.[0-9.]+)";
+    private final static String regex_whole_string = "(NETCore\\.App 6\\.[0-9.]+)";
+    private final static String regex_version_only = "NETCore\\.App (6\\.[0-9.]+)";
 
     @Override
     public String toString() {

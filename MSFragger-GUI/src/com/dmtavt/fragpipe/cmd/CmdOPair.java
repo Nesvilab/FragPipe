@@ -62,9 +62,9 @@ public class CmdOPair  extends CmdBase {
             DotnetInfo di = DotnetInfo.fromCommand(DotnetInfo.COMMAND);
         } catch (ValidationException | UnexpectedException e) {
             if (Fragpipe.headless) {
-                log.error("OPair was enabled, but .NET Core 5.0 was not found.");
+                log.error("OPair was enabled, but .NET Core 6.0 was not found.");
             } else {
-                JOptionPane.showMessageDialog(comp, "OPair was enabled, but .NET Core 5.0 was not found.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(comp, "OPair was enabled, but .NET Core 6.0 was not found.", "Error", JOptionPane.ERROR_MESSAGE);
             }
             return false;
         }
