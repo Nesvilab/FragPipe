@@ -62,9 +62,9 @@ public class CmdOPair  extends CmdBase {
             DotnetInfo di = DotnetInfo.fromCommand(DotnetInfo.COMMAND);
         } catch (ValidationException | UnexpectedException e) {
             if (Fragpipe.headless) {
-                log.error("OPair was enabled, but .NET Core 6.0 was not found.");
+                log.error("O-Pair was enabled, but .NET Core 6.0 was not found.");
             } else {
-                JOptionPane.showMessageDialog(comp, "OPair was enabled, but .NET Core 6.0 was not found.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(comp, "O-Pair was enabled, but .NET Core 6.0 was not found.", "Error", JOptionPane.ERROR_MESSAGE);
             }
             return false;
         }
@@ -79,7 +79,7 @@ public class CmdOPair  extends CmdBase {
                 } else {
                     String msg = "O-Pair requires all LCMS files in a group/experiment to be in one directory.\n<br/><br/>"
                             + "<b>Check 'Workflows' tab, 'Input LCMS files' section.</b>";
-                    SwingUtils.showDialog(comp, SwingUtils.createClickableHtml(msg), NAME + " configuration error", JOptionPane.WARNING_MESSAGE);
+                    SwingUtils.showDialog(comp, SwingUtils.createClickableHtml(msg), "O-Pair configuration error", JOptionPane.WARNING_MESSAGE);
                     log.error(msg);
                 }
                 return false;

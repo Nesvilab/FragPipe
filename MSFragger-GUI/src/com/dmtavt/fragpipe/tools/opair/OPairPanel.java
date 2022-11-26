@@ -186,7 +186,7 @@ public class OPairPanel extends JPanelBase {
 
         JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
-        checkRun = new UiCheck("Run OPair", null, false);
+        checkRun = new UiCheck("Run O-Pair", null, false);
         checkRun.setName("run-opair");
         JLabel info = new JLabel("<html>O-glycan localization with O-Pair. Requires <b>paired scan data</b>.");
 
