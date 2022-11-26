@@ -22,6 +22,8 @@ import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.tools.opair.OPairParams;
 import com.dmtavt.fragpipe.util.PairScans;
+import com.github.chhh.utils.SwingUtils;
+import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,11 +45,12 @@ public class CmdPairScans extends CmdBase {
         return NAME;
     }
 
-    public boolean configure(Path jarFragpipe, int ramGb, int nThreads, List<InputLcmsFile> lcmsFiles, OPairParams params) {
+    public boolean configure(Component component, Path jarFragpipe, int ramGb, int nThreads, List<InputLcmsFile> lcmsFiles, OPairParams params) {
         initPreConfig();
 
         final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(jarFragpipe.toAbsolutePath().toString()).concat(JAR_DEPS));
-        if (classpathJars == null) {
+        if (classpathJars == null || classpathJars.isEmpty()) {
+            SwingUtils.showErrorDialog(component, "Could not find " + String.join(", ", JAR_DEPS) + " for scan pairing.", "Error");
             return false;
         }
 
