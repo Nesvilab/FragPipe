@@ -115,11 +115,11 @@ public class QuantPanelLabelfree extends JPanelBase {
     return uiRadioUseIonquant.isEnabled();
   }
 
-  public boolean isIonquant() {
+  public boolean isRunIonQuant() {
     return isRun() && SwingUtils.isEnabledAndChecked(uiRadioUseIonquant);
   }
 
-  public boolean isFreequant() {
+  public boolean isRunFreeQuant() {
     return isRun() && SwingUtils.isEnabledAndChecked(uiRadioUseFreequant);
   }
 
@@ -197,7 +197,7 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     checkRun.addItemListener(e -> {
       final ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
-      if (isIonquant()) {
+      if (isRunIonQuant()) {
         updateEnabledStatus(reportPanel.uiCheckPepSummary, false);
         updateEnabledStatus(reportPanel.uiCheckProtSummary, false);
       } else {
@@ -270,7 +270,7 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     uiRadioUseIonquant.addItemListener(e -> {
       final ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
-      if (isIonquant()) {
+      if (isRunIonQuant()) {
         updateEnabledStatus(reportPanel.uiCheckPepSummary, false);
         updateEnabledStatus(reportPanel.uiCheckProtSummary, false);
       } else {

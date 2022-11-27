@@ -1117,7 +1117,7 @@ public class FragpipeRun {
     final boolean isReport = reportPanel.isGenerateReport();
     final QuantPanelLabelfree quantPanelLabelfree = Fragpipe
         .getStickyStrict(QuantPanelLabelfree.class);
-    final boolean isFreequant = quantPanelLabelfree.isFreequant();
+    final boolean isFreequant = quantPanelLabelfree.isRunFreeQuant();
 
     // run Report - DbAnnotate
     final boolean isDbAnnotate = isReport;
@@ -1192,7 +1192,7 @@ public class FragpipeRun {
     // run Report - Report command itself
     final CmdPhilosopherReport cmdPhilosopherReport = new CmdPhilosopherReport(isReport, wd);
     final boolean doPrintDecoys = reportPanel.isPrintDecoys();
-    final boolean doMSstats = reportPanel.isMsstats() && !quantPanelLabelfree.isIonquant(); // Don't let Philosopher generate MSstats files if IonQuant is going to run because IonQuant will generate them.
+    final boolean doMSstats = reportPanel.isMsstats() && !quantPanelLabelfree.isRunIonQuant(); // Don't let Philosopher generate MSstats files if IonQuant is going to run because IonQuant will generate them.
 
     addConfig.accept(cmdPhilosopherReport, () -> {
       if (cmdPhilosopherReport.isRun()) {
@@ -1207,7 +1207,7 @@ public class FragpipeRun {
 
     addConfig.accept(cmdPhilosopherAbacus, () -> {
       final boolean isMultiExpReport = sharedLcmsFileGroups.size() > 1;
-      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && isMultiExpReport && !quantPanelLabelfree.isIonquant() && ((!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
+      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && isMultiExpReport && !quantPanelLabelfree.isRunIonQuant() && ((!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
       cmdPhilosopherAbacus.isRun(doRunAbacus);
       if (cmdPhilosopherAbacus.isRun()) {
         return cmdPhilosopherAbacus.configure(parent, usePhi, reportPanel.getFilterCmdText(), reportPanel.isProtSummary(), reportPanel.isPepSummary(), reportPanel.isNoProtXml(), decoyTag, sharedMapGroupsToProtxml);
@@ -1218,7 +1218,7 @@ public class FragpipeRun {
 
     final CmdIprophet cmdIprophet = new CmdIprophet(false, wd);
     addConfig.accept(cmdIprophet, () -> {
-      cmdIprophet.isRun(cmdPhilosopherAbacus.isRun() && !quantPanelLabelfree.isIonquant() && reportPanel.isPepSummary());
+      cmdIprophet.isRun(cmdPhilosopherAbacus.isRun() && !quantPanelLabelfree.isRunIonQuant() && reportPanel.isPepSummary());
       if (cmdIprophet.isRun()) {
         return cmdIprophet.configure(parent, usePhi, decoyTag, threads, sharedPepxmlFiles);
       }
@@ -1235,7 +1235,7 @@ public class FragpipeRun {
     });
 
     // run Report - IonQuant (Labelfree)
-    final CmdIonquant cmdIonquant = new CmdIonquant(quantPanelLabelfree.isIonquant(), wd);
+    final CmdIonquant cmdIonquant = new CmdIonquant(quantPanelLabelfree.isRunIonQuant(), wd);
     if (quantPanelLabelfree.isChecked() && quantPanelLabelfree.isIonQuantChecked() && (!quantPanelLabelfree.isIonQuantEnabled() || !quantPanelLabelfree.isEnabled())) {
       SwingUtils.showErrorDialog(parent, "Looks like IonQuant was not configured.\nIonQuant is currently required.", "No IonQuant");
       return false;
