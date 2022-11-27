@@ -18,6 +18,15 @@
 package com.dmtavt.fragpipe.util;
 
 import com.dmtavt.fragpipe.tools.enums.ActivationTypes;
+import com.github.chhh.utils.StringUtils;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import umich.ms.datatypes.LCMSDataSubset;
 import umich.ms.datatypes.scan.IScan;
 import umich.ms.datatypes.scan.StorageStrategy;
@@ -26,19 +35,12 @@ import umich.ms.fileio.filetypes.AbstractLCMSDataSource;
 import umich.ms.fileio.filetypes.mzml.MZMLFile;
 import umich.ms.fileio.filetypes.mzxml.MZXMLFile;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-
 
 public class PairScans {
 
-    private ArrayList<String> pairedScans;
-    private HashMap<Double, Integer> unpairedPrecursorMap;
-    private HashMap<Double, Integer> multipairedPrecursorMap;
+    private List<String> pairedScans;
+    private Map<Double, Integer> unpairedPrecursorMap;
+    private Map<Double, Integer> multipairedPrecursorMap;
 
     public PairScans() {
         pairedScans = new ArrayList<>();
@@ -67,10 +69,11 @@ public class PairScans {
     }
 
     void findScanPairs(String spectralPath, int nThreads, String firstActivationStr, String secondActivationStr, boolean reverseOrder, boolean singleScanType) throws Exception {
-        String ext = spectralPath.substring(spectralPath.lastIndexOf('.') + 1);
-        String outputPath = spectralPath.substring(0, spectralPath.lastIndexOf('.') + 1) + "pairs";
+        String ext = StringUtils.afterLastDot(spectralPath);
+        String outputPath = StringUtils.upToLastDot(spectralPath) + ".pairs";
+
         // skip if file already exists
-        if (new File(outputPath).exists()) {
+        if (Files.exists(Paths.get(outputPath))) {
             System.out.printf("Paired scan file already exists for input %s, will use it\n", spectralPath);
             return;
         }
@@ -114,9 +117,8 @@ public class PairScans {
 
             if (scan.getMsLevel() == 1) {
                 // reset the unpaired precursor list for next set of MS2 scans
-                unpairedPrecursorMap = new HashMap<>();
-                multipairedPrecursorMap = new HashMap<>();
-
+                unpairedPrecursorMap.clear();
+                multipairedPrecursorMap.clear();
             } else if (scan.getMsLevel() == 2) {
                 if (singleScanType) {
                     // no pairing needed, just set this scan as its own "pair"
@@ -166,7 +168,7 @@ public class PairScans {
      * @param precursorMZ precursor m/z used to find the corresponding 1st scan
      * @param reverseOrder reverse the order when recording because the "child" scan actually comes 1st (e.g., ETD-HCD data)
      */
-    void scanPairingHelper(int scanNum, double precursorMZ, boolean reverseOrder) {
+    private void scanPairingHelper(int scanNum, double precursorMZ, boolean reverseOrder) {
         // second activation - find paired precursor and record the pairing, remove precursor from unpaired
         if (unpairedPrecursorMap.containsKey(precursorMZ)) {
             // pair found, record first activation scan #, second activation scan #
@@ -190,7 +192,7 @@ public class PairScans {
         }
     }
 
-    static ActivationTypes parseActivationFilter(String input) {
+    private static ActivationTypes parseActivationFilter(String input) {
         for (ActivationTypes activation : ActivationTypes.values()) {
             if (activation.getText().equalsIgnoreCase(input)) {
                 return activation;

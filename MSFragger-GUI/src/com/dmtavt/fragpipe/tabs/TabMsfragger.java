@@ -1839,7 +1839,7 @@ public class TabMsfragger extends JPanelBase {
       Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, selectedPath);
 
       // load from file
-      ArrayList<Double> masses;
+      List<Double> masses;
       if (selectedPath.endsWith(".txt")) {
         // Generic offset list
         masses = GlycoMassLoader.loadTextOffsets(selectedPath);
@@ -1870,7 +1870,7 @@ public class TabMsfragger extends JPanelBase {
 
       // make sure 0 is included in the mass offsets list
       if (!masses.contains(0.0)) {
-        masses.add(0, (double) 0);
+        masses.add(0, 0.0);
       }
 
       // clean up masses before returning final strings (round off floating point errors at 12 decimal places)
@@ -1890,9 +1890,9 @@ public class TabMsfragger extends JPanelBase {
    * Uses combinations with repetition since same glycan can occur multiple times on a peptide.
    * @return
    */
-  private ArrayList<Double> generateMassCombos(ArrayList<Double> masses, int maxCombos, boolean massFilter, double maxMass) {
-    HashMap<Long, Boolean> existingMasses = new HashMap<>();
-    ArrayList<Double> allMasses = new ArrayList<>();
+  private List<Double> generateMassCombos(List<Double> masses, int maxCombos, boolean massFilter, double maxMass) {
+    Set<Long> existingMasses = new HashSet<>();
+    List<Double> allMasses = new ArrayList<>();
     for (int count = 1; count <= maxCombos; count++) {
       // iterate combinations
       List<int[]> combos = GlycoMassLoader.combinationsWithRepetition(masses.size(), count);
@@ -1904,15 +1904,15 @@ public class TabMsfragger extends JPanelBase {
         }
         // check for duplicates and add if unique
         long massKey = Math.round(comboMass * 10000);
-        if (!existingMasses.containsKey(massKey)) {
+        if (!existingMasses.contains(massKey)) {
           if (!massFilter) {
             allMasses.add(comboMass);
-            existingMasses.put(massKey, true);
+            existingMasses.add(massKey);
           } else {
             // filtering requested - only add if less than max mass
             if (comboMass < maxMass) {
               allMasses.add(comboMass);
-              existingMasses.put(massKey, true);
+              existingMasses.add(massKey);
             }
           }
         }

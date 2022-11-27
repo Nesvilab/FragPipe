@@ -24,8 +24,6 @@ import com.dmtavt.fragpipe.messages.MessageLoadShepherdDefaults;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmShepherd;
 import com.dmtavt.fragpipe.tools.enums.MassTolUnits;
-import com.dmtavt.fragpipe.tools.msbooster.MSBoosterPanel;
-import com.dmtavt.fragpipe.tools.opair.OPairPanel;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.PropertiesUtils;
 import com.github.chhh.utils.StringUtils;
@@ -68,8 +66,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import net.java.balloontip.BalloonTip;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -82,15 +78,11 @@ public class PtmshepherdPanel extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(PtmshepherdPanel.class);
   private static final String PREFIX = "ptmshepherd.";
 
-  public static final String PROP_threads = "threads";
-  public static final String PROP_histo_bindivs = "histo_bindivs";
   public static final String PROP_histo_smoothbins = "histo_smoothbins";
   public static final String PROP_histo_normalizeTo = "histo_normalizeTo";
   public static final String PROP_peakpicking_promRatio = "peakpicking_promRatio";
   public static final String PROP_peakpicking_width = "peakpicking_width";
   public static final String PROP_peakpicking_mass_units = "peakpicking_mass_units";
-  public static final String PROP_peakpicking_background = "peakpicking_background";
-  public static final String PROP_peakpicking_topN = "peakpicking_topN";
   public static final String PROP_peakpicking_minPsm = "peakpicking_minPsm";
 
   public static final String PROP_precursor_mass_units = "precursor_mass_units";
@@ -98,8 +90,6 @@ public class PtmshepherdPanel extends JPanelBase {
   public static final String PROP_annotation_tol = "annotation_tol";
 
   public static final String PROP_spectra_ppmtol = "spectra_ppmtol";
-  public static final String PROP_spectra_condPeaks = "spectra_condPeaks";
-  public static final String PROP_spectra_condRatio = "spectra_condRatio";
   public static final String PROP_localization_background = "localization_background";
   public static final String PROP_output_extended = "output_extended";
   private static final String PROP_varmod_masses = "varmod_masses";
@@ -120,7 +110,6 @@ public class PtmshepherdPanel extends JPanelBase {
 
   private static final String PROP_diagMine_mode = "diagmine_mode";
   private static final String PROP_diagMine_minIonsPerSpec = "diagmine_minIonsPerSpec";
-  private static final String PROP_diagMine_minSpecPct = "diagmine_minSpecDiff";
   private static final String PROP_diagMine_diagMinSpecPct = "diagmine_diagMinSpecDiff";
   private static final String PROP_diagMine_diagMinFoldChange = "diagmine_diagMinFoldChange";
   private static final String PROP_diagMine_pepMinSpecPct = "diagmine_pepMinSpecDiff";
@@ -135,7 +124,6 @@ public class PtmshepherdPanel extends JPanelBase {
   private JCheckBox checkRun;
   private JPanel pContent;
   private JPanel pTop;
-  private JPanel pRegularShepherd;
   private JPanel pDiagnosticMining;
   private JPanel pDiagnosticExtraction;
   private UiText uiTextVarMods;

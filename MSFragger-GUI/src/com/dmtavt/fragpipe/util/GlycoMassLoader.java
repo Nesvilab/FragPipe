@@ -48,7 +48,7 @@ public class GlycoMassLoader {
     {
         glycanMasses = new HashMap<>();
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(GlycoMassLoader.class.getResourceAsStream(MASSES_FILE)));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(GlycoMassLoader.class.getResourceAsStream(MASSES_FILE))));
             String readline;
             while ((readline = reader.readLine()) != null) {
                 String[] splits = readline.split("=");

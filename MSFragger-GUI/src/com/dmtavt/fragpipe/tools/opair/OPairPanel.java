@@ -18,25 +18,29 @@
 package com.dmtavt.fragpipe.tools.opair;
 
 import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.messages.NoteConfigDotnet;
-import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.tools.enums.ActivationTypes;
-import com.github.chhh.utils.swing.*;
 import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FileChooserUtils;
+import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
-
+import com.github.chhh.utils.swing.MigUtils;
+import com.github.chhh.utils.swing.UiCheck;
+import com.github.chhh.utils.swing.UiCombo;
+import com.github.chhh.utils.swing.UiSpinnerDouble;
+import com.github.chhh.utils.swing.UiSpinnerInt;
+import com.github.chhh.utils.swing.UiText;
+import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,8 +74,6 @@ public class OPairPanel extends JPanelBase {
     private UiCheck uiCheckReverseScanOrder;
     private UiCheck uiCheckSingleScanType;
 
-    private OPairParams params;
-
     public OPairPanel() {
         super();
     }
@@ -91,10 +93,6 @@ public class OPairPanel extends JPanelBase {
         return PREFIX;
     }
 
-    public void setRunStatus(boolean status) {
-        checkRun.setSelected(status);
-    }
-
     @Override
     protected void init() {
         mu.layout(this, mu.lcFillXNoInsetsTopBottom());
@@ -104,11 +102,11 @@ public class OPairPanel extends JPanelBase {
 
         pContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
-        uiSpinnerMS2Tol = UiSpinnerDouble.builder(20.0, 0.1, 1000.0, 1)
+        uiSpinnerMS2Tol = UiSpinnerDouble.builder(20.0, 1, 1000.0, 1)
                 .setFormat(new DecimalFormat("0.#")).setCols(5).create();
         FormEntry feMS2SpectraTol = new FormEntry(PROP_ms2TolPPM, "Fragment mass tolerance (PPM)",
                 uiSpinnerMS2Tol);
-        uiSpinnerMS1Tol = UiSpinnerDouble.builder(20.0, 0.1, 1000.0, 1)
+        uiSpinnerMS1Tol = UiSpinnerDouble.builder(20.0, 1, 1000.0, 1)
                 .setFormat(new DecimalFormat("0.#")).setCols(5).create();
         FormEntry feMS1SpectraTol = new FormEntry(PROP_ms1TolPPM, "Precursor mass tolerance (PPM)",
                 uiSpinnerMS1Tol);
@@ -220,9 +218,5 @@ public class OPairPanel extends JPanelBase {
         params.setActivation1((String) uiComboActivation1.getSelectedItem());
         params.setActivation2((String) uiComboActivation2.getSelectedItem());
         return params;
-    }
-
-    public void setParams(OPairParams params) {
-        this.params = params;
     }
 }
