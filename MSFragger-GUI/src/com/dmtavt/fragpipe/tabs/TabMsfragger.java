@@ -1886,7 +1886,7 @@ public class TabMsfragger extends JPanelBase {
   }
 
   /**
-   * Generate all combinations of provided masses up to the specified max number. Removes duplicates (at 4 decimal places)
+   * Generate all combinations of provided masses up to the specified max number. Remove duplicates (at 4 decimal places)
    * Uses combinations with repetition since same glycan can occur multiple times on a peptide.
    * @return
    */

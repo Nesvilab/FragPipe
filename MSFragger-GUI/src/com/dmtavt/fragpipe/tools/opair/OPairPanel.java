@@ -140,7 +140,7 @@ public class OPairPanel extends JPanelBase {
         String tooltipGlycanDBFile = "Glycan database file in Byonic or pGlyco formats (.txt or .pdb). Will use internal default O-glycan list if not provided.";
         uiTextOGlycanDBFile = UiUtils.uiTextBuilder().create();
         List<FileFilter> glycFilters = new ArrayList<>();
-        FileFilter filter = new FileNameExtensionFilter("Glycan Database file (.glyc, txt, csv, tsv, pdb)", "glyc", "txt", "csv", "tsv", "pdb");
+        FileFilter filter = new FileNameExtensionFilter("Glycan Database file (glyc, txt, csv, tsv, pdb)", "glyc", "txt", "csv", "tsv", "pdb");
         glycFilters.add(filter);
         FormEntry feGlycanDBFile = mu.feb(PROP_glycoDB, uiTextOGlycanDBFile)
                 .label("O-Glycan Database").tooltip(tooltipGlycanDBFile).create();
