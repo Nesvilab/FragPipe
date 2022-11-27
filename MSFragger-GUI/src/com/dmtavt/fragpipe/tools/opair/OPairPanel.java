@@ -32,10 +32,14 @@ import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
 import java.awt.ItemSelectable;
+import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -189,8 +193,17 @@ public class OPairPanel extends JPanelBase {
         checkRun.setName("run-opair");
         JLabel info = new JLabel("<html>O-glycan localization with O-Pair. Requires <b>paired scan data</b>.");
 
+        JLabel imageLabel = new JLabel();
+        try {
+            BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/icon-opair-120.png")));
+            imageLabel = new JLabel(new ImageIcon(image));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
         mu.add(p, checkRun).split();
-        mu.add(p, info).gapLeft("80px").wrap();
+        mu.add(p, info).gapLeft("80px");
+        mu.add(p, imageLabel).gapLeft("80").wrap();
         return p;
     }
 
